@@ -8,6 +8,8 @@
     <property name="height_request">782</property>
     <property name="title" translatable="yes">moccapy</property>
     <property name="icon">icon/Logo.png</property>
+    <signal name="realize" handler="on_window1_realize"/>
+    <signal name="show" handler="on_window1_show"/>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -55,8 +57,8 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="use_commanded">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="use_commanded">False</property>
                                             <property name="show_dtg">False</property>
                                           </object>
                                         </child>
@@ -794,8 +796,8 @@
                                         <property name="yalign">0.47999998927116394</property>
                                         <property name="label" translatable="yes">label</property>
                                         <property name="actual">False</property>
-                                        <property name="reference_type">1</property>
                                         <property name="display_units_mm">True</property>
+                                        <property name="reference_type">1</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
                                           <attribute name="weight" value="bold"/>
@@ -820,9 +822,9 @@
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
                                         <property name="actual">False</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">1</property>
                                         <property name="display_units_mm">True</property>
+                                        <property name="reference_type">1</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
                                           <attribute name="weight" value="bold"/>
@@ -849,9 +851,9 @@
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
                                         <property name="actual">False</property>
-                                        <property name="reference_type">1</property>
                                         <property name="joint_number">2</property>
                                         <property name="display_units_mm">True</property>
+                                        <property name="reference_type">1</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
                                           <attribute name="weight" value="bold"/>
@@ -1047,7 +1049,7 @@
                                                 <child>
                                                   <object class="GtkLabel" id="lbl_tool_name">
                                                     <property name="visible">True</property>
-                                                    <property name="label" translatable="yes">No tool discription aviable</property>
+                                                    <property name="label" translatable="yes">No tool description available	</property>
                                                     <attributes>
                                                       <attribute name="style" value="normal"/>
                                                       <attribute name="weight" value="bold"/>
@@ -1667,16 +1669,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="z0_color">#0000ffff0000</property>
-                                                        <property name="max">6000</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
-                                                        <property name="target_color">#0000ffff0000</property>
                                                         <property name="bg_color">#bebebebebebe</property>
                                                         <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
                                                         <property name="z1_color">#0000ffff0000</property>
+                                                        <property name="max">6000</property>
                                                         <property name="text_template">%i</property>
                                                         <property name="z2_color">#0000ffff0000</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="z0_color">#0000ffff0000</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -2603,6 +2605,7 @@
                   <object class="GtkNotebook" id="ntb_setup">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="tooltip_markup">Use unlock code to get to this page</property>
                     <child>
                       <object class="GtkScrolledWindow" id="terminal_window">
                         <property name="visible">True</property>
@@ -3132,6 +3135,7 @@ Offsets</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
+                                            <property name="tooltip_markup">Don't use any unlock code, not recommended</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbt_use_unlock</property>
@@ -3148,6 +3152,7 @@ Offsets</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
+                                            <property name="tooltip_markup">use unlock hal pin to get to settings page</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">True</property>
                                             <property name="group">rbt_use_unlock</property>
@@ -3176,12 +3181,150 @@ Offsets</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkLabel" id="lbl_space8">
+                              <object class="GtkFrame" id="frm_run_from_line">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">	</property>
+                                <property name="label_xalign">0.5</property>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment11">
+                                    <property name="visible">True</property>
+                                    <property name="top_padding">5</property>
+                                    <property name="bottom_padding">5</property>
+                                    <property name="left_padding">5</property>
+                                    <property name="right_padding">5</property>
+                                    <child>
+                                      <object class="GtkVBox" id="vbox19">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbtn_no_run_from_line">
+                                            <property name="label" translatable="yes">do not use run from line</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="on_rbtn_run_from_line_toggled"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbtn_run_from_line">
+                                            <property name="label" translatable="yes">use run from line</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                            <property name="group">rbtn_no_run_from_line</property>
+                                            <signal name="toggled" handler="on_rbtn_run_from_line_toggled"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_run_from_line">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Run from line&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
+                                <property name="expand">False</property>
                                 <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frm_keyboard">
+                                <property name="visible">True</property>
+                                <property name="label_xalign">0.5</property>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment12">
+                                    <property name="visible">True</property>
+                                    <property name="top_padding">5</property>
+                                    <property name="bottom_padding">5</property>
+                                    <property name="left_padding">5</property>
+                                    <property name="right_padding">5</property>
+                                    <child>
+                                      <object class="GtkVBox" id="vbox20">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbtn_qwerty">
+                                            <property name="label" translatable="yes">QWERTY</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                            <property name="group">rbtn_qwertz</property>
+                                            <signal name="toggled" handler="on_rbtn_qwertz_toggled"/>
+                                          </object>
+                                          <packing>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkRadioButton" id="rbtn_qwertz">
+                                            <property name="label" translatable="yes">QWERTZ</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="on_rbtn_qwertz_toggled"/>
+                                          </object>
+                                          <packing>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chk_use_kb_on_mdi">
+                                            <property name="label" translatable="yes">show keyboard on MDI</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="on_chk_use_kb_on_mdi_toggled"/>
+                                          </object>
+                                          <packing>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkCheckButton" id="chk_use_kb_on_edit">
+                                            <property name="label" translatable="yes">show keyboard on EDIT</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">False</property>
+                                            <property name="active">True</property>
+                                            <property name="draw_indicator">True</property>
+                                            <signal name="toggled" handler="on_chk_use_kb_on_edit_toggled"/>
+                                          </object>
+                                          <packing>
+                                            <property name="position">3</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_keyboard">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Keyboard&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
@@ -3331,18 +3474,15 @@ Offsets</property>
                 <property name="homogeneous">True</property>
                 <property name="layout_style">spread</property>
                 <child>
-                  <object class="HAL_ToggleButton" id="hal_tbtn_notaus">
+                  <object class="GtkToggleButton" id="tbtn_estop">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="related_action">hal_toggleaction_estop</property>
-                    <property name="active">True</property>
-                    <signal name="toggled" handler="on_hal_tbtn_notaus_toggled"/>
+                    <signal name="toggled" handler="on_tbtn_estop_toggled"/>
                     <child>
                       <object class="GtkImage" id="img_emergency">
                         <property name="visible">True</property>
-                        <property name="tooltip_markup">toggle emergency exit</property>
-                        <property name="pixbuf">icon/exit.png</property>
+                        <property name="pixbuf">icon/estopred.png</property>
                       </object>
                     </child>
                   </object>
@@ -3353,16 +3493,14 @@ Offsets</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="HAL_ToggleButton" id="hal_tbtn_on">
+                  <object class="GtkToggleButton" id="tbtn_on">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="related_action">hal_toggleaction_power</property>
-                    <signal name="toggled" handler="on_hal_tbtn_on_toggled"/>
+                    <signal name="toggled" handler="on_tbtn_on_toggled"/>
                     <child>
                       <object class="GtkImage" id="img_machine_off">
                         <property name="visible">True</property>
-                        <property name="tooltip_markup">switch on the machine</property>
                         <property name="pixbuf">icon/machineonoff.png</property>
                       </object>
                     </child>
@@ -4979,8 +5117,6 @@ Offsets</property>
     <property name="visible">True</property>
     <property name="pixbuf">icon/refall.png</property>
   </object>
-  <object class="EMC_ToggleAction_ESTOP" id="hal_toggleaction_estop"/>
-  <object class="EMC_ToggleAction_Power" id="hal_toggleaction_power"/>
   <object class="EMC_Action_Run" id="hal_action_run"/>
   <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
@@ -5106,8 +5242,10 @@ Offsets</property>
     <signal name="mode_mdi" handler="on_hal_status_mode_mdi"/>
     <signal name="file_loaded" handler="on_hal_status_file_loaded"/>
     <signal name="all_homed" handler="on_hal_status_all_homed"/>
+    <signal name="tool_in_spindle" handler="on_hal_status_tool_in_spindle"/>
     <signal name="interp_idle" handler="on_hal_status_interp_idle"/>
     <signal name="state_estop" handler="on_hal_status_state_estop"/>
+    <signal name="tool_in_spindle_changed" handler="on_hal_status_tool_in_spindle_changed"/>
   </object>
   <object class="GtkDialog" id="dialog_from_line">
     <property name="border_width">5</property>
