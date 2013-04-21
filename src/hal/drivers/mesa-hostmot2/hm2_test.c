@@ -52,7 +52,8 @@ MODULE_DESCRIPTION("Test pattern for the hostmot2 driver, does not talk to any h
 
 
 static char *config[HM2_TEST_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, HM2_PCI_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+static int num_config_strings = HM2_TEST_MAX_BOARDS;
+RTAPI_MP_ARRAY_STRING(config, HM2_TEST_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 int test_pattern = 0;
 RTAPI_MP_INT(test_pattern, "The test pattern to show to the hostmot2 driver.");
