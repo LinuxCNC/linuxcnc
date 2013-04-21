@@ -1,3 +1,32 @@
+ver. 0.9.01
+- fixed a bug in keyhandling mentioned by Chris
+  * changing the jog velocity while jogging in continious caused by focus 
+    jumping from widget to widget when holding down a key
+  * Keyboard autorepeat caused moving the machine by several 
+    increments insteat of only one. 
+
+ver. 0.9.0
+- unlock settings now with tool tip text
+- I forgot an letter in hal pin feed-overide-counts
+- The button Rel/Abs changes its label according to the active coordinate system
+  and its background color does change if G54 is not active
+- solved the estop error not showing the correct sate on start up
+- solved a bug giving value 0 to macro, the entry widget checkt this value as False
+- merged with new master and also with gscreen with new widget names
+- gscreen fired a error when there is no keyhandling in gmoccapy, 
+  i introduced a dummy
+- after start some buttons wasn't set in correct state, 
+  it was possible to eneter MDI Mode without homing before.
+- avoid switching screens to MDI and back to manual on tool change
+- cooling mist and lube can be switched on and off everytime you want
+- you can jog the machine in 3 axis with the keyboard button, but only in manual mode
+  this is just a test, I don't now if I leave this feature in gmoccapy
+- as run from line is not very secure and also not working yet correctly,
+  I made it selectable in the settings page
+- in settings you can select now qwertz or qwerty keyboard layout
+- in settings you can select whether the On Screen keyboard are shown by default or not
+  for mode MDI and mode EDIT separetly
+
 ver. 0.8.9
 - new icon for btn_user_tabs
 - new icon for btn_fullsize_preview
