@@ -29,7 +29,7 @@
 .if \n[.g] .mso www.tmac
 .TH HALCMD "1"  "2003-12-18" "LinuxCNC Documentation" "HAL User's Manual"
 .SH NAME
-halcmd \- manipulate the Enhanced Machine Controller HAL from the command line
+halcmd \- manipulate the LinuxCNC HAL from the command line
 .SH SYNOPSIS
 .B halcmd
 [\fIOPTIONS\fR] [\fICOMMAND\fR [\fIARG\fR]]
@@ -58,7 +58,8 @@ complete the names of items such as pins and signals.
 .TP
 \fB-I\fR
 Before tearing down the realtime environment, run an interactive halcmd.
-\fBhalrun\fR only.  \fB-I\fR must precede all other commandline arguments.
+\fBhalrun\fR only.  If \fB-I\fR is used, it must precede all other
+commandline arguments.
 .TP
 \fB\-f\fR [\fIfile\fR]
 Ignore commands on command line, take input from \fIfile\fR
@@ -342,9 +343,8 @@ halcmd \fB-i\fR flag.  They have the following formats:
 .SH BUGS
 None known at this time.
 .SH AUTHOR
-Original version by John Kasunich, as part of the LinuxCNC Enhanced Machine
-Controller project.  Now includes major contributions by several
-members of the project.
+Original version by John Kasunich, as part of the LinuxCNC project.  Now
+includes major contributions by several members of the project.
 .SH REPORTING BUGS
 Report bugs to the
 .URL http://sf.net/tracker/?group_id=6744&atid=106744 "LinuxCNC bug tracker" .
