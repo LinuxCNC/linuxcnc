@@ -1127,9 +1127,9 @@ tags:
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
 	rm -f TAGS
-	find . -type f -name '*.[ch]' |xargs etags --language=c --append
-	find . -type f -name '*.cc' |xargs etags --language=c++ --append
-	find . -type f -name '*.hh' |xargs etags --language=c++ --append
+	find . -type f -name '*.[ch]' -printf '%P\0' |xargs -0 etags -l c --append
+	find . -type f -name '*.cc' -printf '%P\0' |xargs -0 etags -l c++ --append
+	find . -type f -name '*.hh' -printf '%P\0' |xargs -0 etags -l c++ --append
 
 .PHONY: swish
 swish:

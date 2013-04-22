@@ -110,7 +110,7 @@ void *NML::operator new(size_t size)
 	    sizeof(NML), 0);
 	cptr = ((char *) nml_space) + sizeof(NML);
 	// guarantee alignment
-	cptr += sizeof(size_t) - (((size_t) cptr) % sizeof(size_t));
+	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
 	*((int *) cptr) = dynamic_list_id;
     }
     rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operater new(%zd)\n",
@@ -132,7 +132,7 @@ void NML::operator delete(void *nml_space)
 
     if (NULL != Dynamically_Allocated_NML_Objects) {
 	cptr = ((char *) nml_space) + sizeof(NML);
-	cptr += sizeof(size_t) - (((size_t) cptr) % sizeof(size_t));
+	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
 	dynamic_list_id = *((int *) cptr);
 	Dynamically_Allocated_NML_Objects->delete_node(dynamic_list_id);
 	if (Dynamically_Allocated_NML_Objects->list_size == 0) {
