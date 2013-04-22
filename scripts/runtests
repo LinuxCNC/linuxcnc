@@ -84,16 +84,6 @@ trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 
 run_tests () {
-    if [ -e /tmp/linuxcnc.lock ]; then
-        echo "Cannot run tests while linuxcnc is running" 1>&2
-        exit 98
-    fi
-
-    if realtime status 2>/dev/null; then
-        echo "Cannot run tests while realtime is already active" 1>&2
-        exit 99
-    fi
-
     find $* -name test.hal -or -name test.sh -or -name test \
 	| sort > $TMPDIR/alltests
 
