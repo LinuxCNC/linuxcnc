@@ -141,7 +141,7 @@ sleep 5
     sleep 1.0
 
     echo shutdown
-) | nc -z localhost 5007
+) | nc localhost 5007
 
 
 # wait for linuxcnc to finish
