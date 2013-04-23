@@ -691,7 +691,8 @@ Typically (but not always):
     interactively and verify their results so that the proper values can be
     put in the INI file with a minimum of trouble.
 
-==== Homing[[sub:Homing-related-items]]
+[[sub:Homing-related-items]]
+==== Homing
 
 These parameters are Homing related, for a better explanation read the
 <<cha:homing-configuration,Homing Configuration>> Chapter.
@@ -755,7 +756,11 @@ These parameters are Homing related, for a better explanation read the
     home switches and does not have position feedback such as a step and
     direction driven machine.
 
-// NOTICE this stuff belongs in the PID section
+
+[[sub:Servo-related-items]]
+==== Servo
+
+These parameters are relevant to axes controlled by servos.
 
 [WARNING]
 The following are custom INI file entries that you may find in a sample INI file
@@ -946,6 +951,12 @@ image::images/encoder-scale.png[align="center"]
 //latexmath:[ INPUT\_SCALE =
 //\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
 //\frac{20000\, counts}{inch} ]
+
+
+[[sub:Stepper-related-items]]
+==== Stepper
+
+These parameters are relevant to axes controlled by steppers.
 
 [WARNING]
 The following are custom INI file entries that you may find in a sample INI file
