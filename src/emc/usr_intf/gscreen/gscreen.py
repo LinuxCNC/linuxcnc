@@ -1036,30 +1036,30 @@ class Gscreen:
             print "Alt was being held down"
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
-
-        if keyname == "Up":
-            if self.data.key_event_up == signal: return True
-            self.do_key_jog(0,0,signal)
-            self.data.key_event_up = signal
-        elif keyname == "Down":
-            if self.data.key_event_dwn == signal: return True
-            self.do_key_jog(0,1,signal)
-            self.data.key_event_dwn = signal
-        elif keyname == "Left":
-            self.do_key_jog(1,0,signal)
-        elif keyname == "Right":
-            self.do_key_jog(1,1,signal)
-        elif keyname == "Page_Up":
-            self.do_key_jog(2,0,signal)
-        elif keyname == "Page_Down":
-            self.do_key_jog(2,1,signal)
-        elif keyname in ("I","i") :
-            if signal: return True
-            if event.state & gtk.gdk.SHIFT_MASK:
-                self.set_jog_increments(index_dir = -1)
-            else:
-                self.set_jog_increments(index_dir = 1)
-        return True
+        if self.data.mode_order[0] == _MAN:
+            if keyname == "Up":
+                if self.data.key_event_up == signal: return True
+                self.do_key_jog(0,0,signal)
+                self.data.key_event_up = signal
+            elif keyname == "Down":
+                if self.data.key_event_dwn == signal: return True
+                self.do_key_jog(0,1,signal)
+                self.data.key_event_dwn = signal
+            elif keyname == "Left":
+                self.do_key_jog(1,0,signal)
+            elif keyname == "Right":
+                self.do_key_jog(1,1,signal)
+            elif keyname == "Page_Up":
+                self.do_key_jog(2,0,signal)
+            elif keyname == "Page_Down":
+                self.do_key_jog(2,1,signal)
+            elif keyname in ("I","i") :
+                if signal: return True
+                if event.state & gtk.gdk.SHIFT_MASK:
+                    self.set_jog_increments(index_dir = -1)
+                else:
+                    self.set_jog_increments(index_dir = 1)
+            return True
 
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
