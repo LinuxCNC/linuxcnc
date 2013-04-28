@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.01"
+_RELEASE = "0.9.1"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -87,7 +87,6 @@ class HandlerClass:
 
     def initialize_preferences(self):
         self.data.theme_name = self.gscreen.prefs.getpref('gtk_theme', 'Follow System Theme', str)
-        self.gscreen.init_window_geometry_pref()
         self.gscreen.init_general_pref()
 
     # We don't want Gscreen to initialize it's regular widgets because this custom
@@ -103,44 +102,54 @@ class HandlerClass:
         # These are gscreen widgets included in this screen
         self.gscreen.init_statusbar()
         self.gscreen.init_tooleditor()
-        self.gscreen.init_gremlin()
         self.gscreen.init_embeded_terminal()
         self.gscreen.init_themes()
-        self.gscreen.init_hide_cursor()
         self.gscreen.init_audio()
 
         # and now our own ones
+        self.init_gremlin()
+        self.init_hide_cursor()
         self.widgets.adj_max_vel.configure(self.data._maxvelocity*60, self.data._maxvelocity * 0.1, 
                                            self.data._maxvelocity * 60 + 1, 1, 1, 1)
-        self.widgets.adj_jog_vel.configure(self.data.jog_rate, 0, self.gscreen.data.jog_rate_max + 1, 1, 1, 1)
-        self.widgets.adj_spindle.configure(100, 0, self.data.spindle_override_max * 100 + 1, 1, 1, 1)
+        self.widgets.adj_jog_vel.configure(self.data.jog_rate, 0, 
+                                           self.gscreen.data.jog_rate_max + 1, 1, 1, 1)
+        self.widgets.adj_spindle.configure(100, self.data.spindle_override_min * 100, 
+                                           self.data.spindle_override_max * 100 + 1, 1, 1, 1)
         self.widgets.adj_feed.configure(100, 0, self.data.feed_override_max * 100 + 1, 1, 1, 1)
+
+        # the scales to apply to the counts of the hardware mpg wheel, to avoid to much turning
+        default = (self.data._maxvelocity * 60 - self.data._maxvelocity * 0.1)/100
+        self.scale_max_vel = self.gscreen.prefs.getpref('scale_max_vel', default, float)
+        self.widgets.adj_scale_max_vel.set_value(self.scale_max_vel)
+        default = (self.data.jog_rate_max / 100)
+        self.scale_jog_vel = self.gscreen.prefs.getpref('scale_jog_vel', default, float)
+        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
+        self.scale_spindle_overide = self.gscreen.prefs.getpref('scale_spindle_overide', 1, float)
+        self.widgets.adj_scale_spindle_overide.set_value(self.scale_spindle_overide)
+        self.scale_feed_overide = self.gscreen.prefs.getpref('scale_feed_overide', 1, float)
+        self.widgets.adj_scale_feed_overide.set_value(self.scale_feed_overide)
+
+        # set the title of the window, to show the release
         self.widgets.window1.set_title("Gscreen-gmoccapy for linuxcnc %s"%_RELEASE)
-        self.min_spindle_rev = self.gscreen.inifile.find("SPINDLE", "MIN_REV")
-        self.max_spindle_rev = self.gscreen.inifile.find("SPINDLE", "MAX_REV")
-        if not self.min_spindle_rev:
-            self.min_spindle_rev = 0
-            message = _("Minimum Spindle Speed not found in INI File\nMin has been set to 0 rpm")
-            print(message)
-            self.gscreen.add_alarm_entry(message)
-            self.widgets.statusbar1.push(1,message)
+
+        self.min_spindle_rev = self.gscreen.prefs.getpref('spindle_bar_min', 0.0, float)
+        self.max_spindle_rev = self.gscreen.prefs.getpref('spindle_bar_max', 6000.0, float)
+        self.widgets.adj_spindle_bar_min.set_value((self.min_spindle_rev))
+        self.widgets.adj_spindle_bar_max.set_value((self.max_spindle_rev))
         self.widgets.hal_hbar_spindle_feedback.set_property("min",float(self.min_spindle_rev))
-        if not self.max_spindle_rev:
-            self.max_spindle_rev = 6000
-            message = _("Maximum Spindle Speed not found in INI File\nMax has been set to 6000 rpm")
-            print(message)
-            self.gscreen.add_alarm_entry(message)
-            self.widgets.statusbar1.push(1,message)
         self.widgets.hal_hbar_spindle_feedback.set_property("max",float(self.max_spindle_rev))
+
+        self.widgets.adj_x_pos.set_value(self.gscreen.prefs.getpref('x_pos', 10, float))
+        self.widgets.adj_y_pos.set_value(self.gscreen.prefs.getpref('y_pos', 10, float))
+        self.widgets.adj_width.set_value(self.gscreen.prefs.getpref('width', 979, float))
+        self.widgets.adj_height.set_value(self.gscreen.prefs.getpref('height', 782, float))
 
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
-        self.widgets.btn_fullscreen1.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_on.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
         self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_estop.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FF0000"))
         self.widgets.tbtn_estop.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#00FF00"))
-        self.widgets.hide_cursor.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.lbl_X.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
         self.widgets.lbl_Y.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
         self.widgets.lbl_Z.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
@@ -155,7 +164,6 @@ class HandlerClass:
         self.widgets.rbt_view_X.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_Y.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_Z.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.show_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_fullsize_preview.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -164,8 +172,6 @@ class HandlerClass:
         self.widgets.tbtn_optional_blocks.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_optional_stops.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_rel.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_show_dro.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.tbtn_show_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_units.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_user_tabs.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -275,15 +281,19 @@ class HandlerClass:
         self.widgets.ntb_jog.set_current_page(0)
         self.widgets.tbtn_optional_blocks.set_active(self.gscreen.prefs.getpref('blockdel', False))
         self.widgets.tbtn_optional_stops.set_active(not self.gscreen.prefs.getpref('opstop', False))
-        self.widgets.tbtn_show_dro.set_active(self.gscreen.prefs.getpref('enable_dro', False))
-        self.widgets.show_offsets.set_active(self.gscreen.prefs.getpref('show_offsets', False))
         self.log = self.gscreen.prefs.getpref('log_actions', False, bool)
         self.widgets.tbtn_log_actions.set_active(self.log)
-        self.widgets.tbtn_show_dtg.set_active(self.gscreen.prefs.getpref('show_dtg', False))
+        self.widgets.chk_show_dro.set_active(self.gscreen.prefs.getpref('enable_dro', False))
+        self.widgets.chk_show_offsets.set_active(self.gscreen.prefs.getpref('show_offsets', False))
+        self.widgets.chk_show_dtg.set_active(self.gscreen.prefs.getpref('show_dtg', False))
+        self.widgets.chk_show_offsets.set_sensitive(self.widgets.chk_show_dro.get_active())
+        self.widgets.chk_show_dtg.set_sensitive(self.widgets.chk_show_dro.get_active())
         if 'ntb_preview' in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property('show-tabs', True)
         if self.gscreen.machine_units_mm == 1: # is needed to show vel in machine units
             self.gscreen.set_dro_units(_MM,True)
+
+        self.data.desktop_notify = self.gscreen.prefs.getpref('desktop_notify', False, bool)
 
         # get if run from line should be used
         rfl = self.gscreen.prefs.getpref('run_from_line', 'no_run', str)
@@ -319,6 +329,9 @@ class HandlerClass:
         self.widgets.chk_use_kb_on_edit.set_active(self.gscreen.prefs.getpref('show_keyboard_on_edit', True, bool))
         self.widgets.chk_use_kb_on_mdi.set_active(self.gscreen.prefs.getpref('show_keyboard_on_mdi', False, bool))
 
+        # check if keyboard shortcuts should be used and set the chkbox widget
+        self.widgets.chk_use_kb_shortcuts.set_active(self.gscreen.prefs.getpref('use_keyboard_shortcuts', False, bool))
+
         # This is only needed, because otherwise gmoccapy will use the standard DRO colors from
         # gscreen, witch will not fit well the design from gmoccapy. You could get red text on red background
         # we set everythink default to black background, after the first change of colors the colors are stored
@@ -340,8 +353,6 @@ class HandlerClass:
             self.data.rel_textcolor = self.gscreen.prefs.getpref('rel_textcolor', '#000000000000', str)
             self.data.dtg_textcolor = self.gscreen.prefs.getpref('dtg_textcolor', '#000000000000', str)
         self.gscreen.init_dro_colors()
-        if self.data.fullscreen1 == True:
-            self.widgets.btn_fullscreen1.set_active(True)
         self.widgets.adj_start_spindle_RPM.set_value(self.data.spindle_start_rpm)
         self.widgets.hal_sourceview.set_sensitive(False)
         self.tooledit_btn_delete_tool = self.widgets.tooledit1.wTree.get_object("delete")
@@ -366,6 +377,25 @@ class HandlerClass:
 #        self.widgets.hal_sourceview.buf.set_language(None)
 # ToDo: End
 
+    def init_gremlin(self):
+#        self.widgets.chk_show_offsets.set_active( self.data.show_offsets )
+#        self.widgets.gremlin.show_offsets = self.data.show_offsets
+        self.widgets.grid_size.set_value(self.data.grid_size) 
+        self.widgets.gremlin.grid_size = self.data.grid_size
+        self.widgets.gremlin.set_property('view',self.data.plot_view[0])
+        self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
+
+    def init_hide_cursor(self):
+        self.widgets.chk_hide_cursor.set_active(self.data.hide_cursor)
+        # hide cursor if requested
+        # that also sets the graphics to use touchscreen controls
+        if self.data.hide_cursor:
+            self.widgets.window1.window.set_cursor(INVISABLE)
+            self.widgets.gremlin.set_property('use_default_controls',False)
+        else:
+            self.widgets.window1.window.set_cursor(None)
+            self.widgets.gremlin.set_property('use_default_controls',True)
+
     def initialize_keybindings(self):
         try:
             accel_group = gtk.AccelGroup()
@@ -377,9 +407,27 @@ class HandlerClass:
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
     def on_key_event(self, widget, event, signal):
-        
+        # if the user do not want to use keyboard shortcuts, we leave
+        # in this case we do not return true, otherwise entering code in MDI history 
+        # and the integrated editor will not work
+        if not self.widgets.chk_use_kb_shortcuts.get_active():
+            return
+
         keyname = gtk.gdk.keyval_name(event.keyval)
-        if signal:
+
+        # estop with escape shold work every time
+        if keyname == "Escape":
+            self.gscreen.emc.estop(1)
+            return True
+
+        # Only in manual mode jogging with keyboard is allowed
+        # in this case we do not return true, otherwise entering code in MDI history 
+        # and the integrated editor will not work
+        # we also check if we are in settings or terminal or alarm page
+        if self.gscreen.emcstat.task_mode <> _MANUAL or self.widgets.ntb_main.get_current_page() == 1:
+            return
+
+        if signal: 
             print "Key %s (%d) has been pressed" % (keyname, event.keyval)
         else:
             print "Key %s (%d) has been released" % (keyname, event.keyval)
@@ -391,22 +439,13 @@ class HandlerClass:
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
 
-        # Only in manual mode jogging with keyboard is allowed
-        if self.gscreen.emcstat.task_mode <> _MANUAL:
-            return
-
-        # I set the focus explicity to estop, because otherwise the focus will jump around
-        # from widget to widget, this was the solution I found. May be there is a better way 
-        #to avoid that glade moves from widget to widget
-        self.widgets.tbtn_estop.grab_focus()
-
         if keyname == "Escape":
             self.gscreen.emc.estop(1)
-            return
+            return True
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
         if signal and self.data.key_event_up == signal: 
-            return
+            return True
         else:
             self.data.key_event_up = signal
 
@@ -448,6 +487,7 @@ class HandlerClass:
                 self.on_hal_btn_jog_released(widget)
         else:
             print("This key has not been implementes yet")
+        return True
 
     def add_macro_button(self):
         macros = self.gscreen.inifile.findall("MACROS", "MACRO")
@@ -480,6 +520,24 @@ class HandlerClass:
 
     def on_btn_macro_pressed(self, widget = None, data = None):
         o_codes = data.split()
+        subroutines_folder = self.gscreen.inifile.find("RS274NGC", "SUBROUTINE_PATH")
+        if not subroutines_folder:
+            subroutines_folder = self.gscreen.inifile.find("DISPLAY", "PROGRAM_PREFIX")
+        if not subroutines_folder:
+            message = _("No subroutine folder or program prefix given in the ini file \n")
+            message += _("so the corresponding file could not be found")
+            self.gscreen.warning_dialog(_("Important Warning"), True, message)
+            self.gscreen.add_alarm_entry( message)
+            self.widgets.statusbar1.push(1, message)
+            return
+        file = subroutines_folder + "/" + o_codes[0] + ".ngc"
+        if not os.path.isfile(file):
+            message = _("File %s of the macro could not be found\n"%[o_codes[0] + ".ngc"])
+            message += _("we searched in subdirectory %s"%[subroutines_folder])
+            self.gscreen.warning_dialog(_("Important Warning"), True, message)
+            self.gscreen.add_alarm_entry( message)
+            self.widgets.statusbar1.push(1, message)
+            return
         command = str("O<" + o_codes[0] + "> call")
         for code in o_codes[1:]:
             parameter = self.entry_dialog(data = None, header = _("Enter value:"), label=_("Set parameter %s to:")%code )
@@ -495,6 +553,7 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry(_("macro %s , parameter %s set to %f"%(o_codes[0],code,parameter)))
             command = command + " [" + str(parameter) + "] "
 # ToDo: Should not only clear the plot, but also the loaded programm?
+        #self.widgets.hal_action_open.load_file("")
         self.widgets.gremlin.clear_live_plotter()
 # ToDo: End
         self.gscreen.mdi_control.user_command(command)
@@ -504,12 +563,12 @@ class HandlerClass:
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
         self.widgets.btn_show_kbd.set_property('tooltip-text',_('interupt running macro'))
         self.widgets.ntb_info.set_current_page(0)
+        #self.gscreen.emc.emccommand.wait_complete()
 
     def on_window1_show(self, widget, data=None):
-        print("window1 show")
+        # it is time to get the correct estop state and set the button status
         self.gscreen.status.emcstat.poll()
         estop = self.gscreen.status.emcstat.task_state == self.gscreen.status.emc.STATE_ESTOP
-        print("ESTOP = ",estop)
         if estop:
             self.widgets.tbtn_estop.set_active(True)
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
@@ -518,6 +577,45 @@ class HandlerClass:
             self.widgets.tbtn_estop.set_active(False)
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
             self.widgets.tbtn_on.set_sensitive(True)
+        
+        # now we initialize the file to load wirdget
+        self.init_file_to_load()
+        
+        # and if a file should be loaded, we will do so
+        file = self.gscreen.prefs.getpref('open_file', " ", str)
+        if file:
+            self.widgets.file_to_load_chooser.set_filename(file)
+            self.widgets.hal_action_open.load_file(file)
+
+        # check how to start the GUI
+        start_as = "rbtn_" + self.gscreen.prefs.getpref('screen1', "window",str)
+        self.widgets[start_as].set_active(True)
+        if start_as == "rbtn_fullscreen":
+            self.widgets.window1.fullscreen()
+        elif start_as == "rbtn_maximized":
+            self.widgets.window1.maximize()
+        else:
+            self.widgets.window1.move(int(self.widgets.adj_x_pos.get_value()),
+                                      int(self.widgets.adj_y_pos.get_value()))
+            self.widgets.window1.resize(int(self.widgets.adj_width.get_value()),
+                                        int(self.widgets.adj_height.get_value()))
+
+        # does the user want to show screen2 
+        self.widgets.tbtn_use_screen2.set_active(self.gscreen.prefs.getpref('use_screen2', False, bool))
+
+    # use the current loaded file to be loaded on start up
+    def on_btn_use_current_clicked(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("use_current_clicked %s"%self.data.file)
+        if self.data.file:
+            self.widgets.file_to_load_chooser.set_filename(self.data.file)
+            self.gscreen.prefs.putpref('open_file', self.data.file, str)
+
+    # Clear the status to load a file on start up, so ther will not be loaded a programm
+    # on the next start of the GUI
+    def on_btn_none_clicked(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("button none clicked %s")
+        self.widgets.file_to_load_chooser.set_filename(" ")
+        self.gscreen.prefs.putpref('open_file', " ", str)
 
     # toggle emergency button
     def on_tbtn_estop_toggled(self, widget, data=None):
@@ -778,8 +876,9 @@ class HandlerClass:
         rpm = abs(float(self.widgets.active_speed_label.get_text()))
         if rpm == 0:
             rpm = self.data.spindle_start_rpm
+        
         mode = self.gscreen.emcstat.task_mode # get the mode we are, so we can change back,
-                                              # because the following command sets automaticaly manual mode
+                                              # because the following command sets automaticaly mdi mode
         if widget == self.widgets.rbt_forward:
             self.emc.spindle_forward(1,rpm)
         elif widget == self.widgets.rbt_reverse:
@@ -788,15 +887,17 @@ class HandlerClass:
             self.emc.spindle_off(1)
         else:
              self.gscreen.add_alarm_entry(_("Something went wrong, we got an unknow widget"))
+
         if mode == _MANUAL:       # we are in manual mode
             self.emc.set_manual_mode()
-        elif mode == _AUTO:     # we are in auto mode
+        elif mode == _AUTO:       # we are in auto mode
             self.emc.set_auto_mode()
-        elif mode == _MDI:     # we are in mdi mode
+        elif mode == _MDI:        # we are in mdi mode
             self.emc.set_mdi_mode()
         else:
              self.gscreen.add_alarm_entry(_("Something went wrong, we are in non defined mode"))
         if self.log: self.gscreen.add_alarm_entry("Spindle set to %i rpm, mode is %s"%(rpm,mode))
+        self.widgets.lbl_spindle_act.set_label("S %s"%rpm)
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_forward_clicked")
@@ -836,6 +937,8 @@ class HandlerClass:
     def on_scl_spindle_value_changed(self, widget, data = None):
         spindle_override = self.widgets.scl_spindle.get_value() / 100
         real_spindle_speed = round(int(self.widgets.active_speed_label.get_text()) * spindle_override)
+#         if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
+#             widget.set_value(100.0)
         self.widgets.lbl_spindle_act.set_text("S %d" %real_spindle_speed)
         self.emc.spindle_override(spindle_override)
 
@@ -844,8 +947,19 @@ class HandlerClass:
         self.data.spindle_start_rpm = widget.get_value()
         self.gscreen.prefs.putpref('spindle_start_rpm', widget.get_value(),float)
 
+    def on_adj_spindle_bar_min_value_changed(self, widget, data = None):
+        if self.log: self.gscreen.add_alarm_entry("Spindle bar min has been set to %s"%widget.get_value())
+        self.gscreen.prefs.putpref('spindle_bar_min', widget.get_value(),float)
+
+    def on_adj_spindle_bar_max_value_changed(self, widget, data = None):
+        if self.log: self.gscreen.add_alarm_entry("Spindle bar max has been set to %s"%widget.get_value())
+        self.gscreen.prefs.putpref('spindle_bar_max', widget.get_value(),float)
+
     def _update_spindle_btn(self):
         if self.gscreen.emcstat.task_mode == _AUTO and self.interpreter == _RUN:
+            return
+        if not self.data.spindle_speed:
+            self.widgets.rbt_stop.set_active(True)
             return
         if self.data.spindle_dir > 0:
             self.widgets.rbt_forward.set_active(True)
@@ -1012,13 +1126,21 @@ class HandlerClass:
             return True
         return False
 
-# ToDo
-# Should be deleted when moccapy is finished
-    def on_btn_not_implemented_clicked(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("%s_clicked"%widget)
-        message = _("This button has not been implemented jet!")
-        self.gscreen.warning_dialog(_("Just to inform you"), True, message)
-# ToDo end
+    def on_tbtn_use_screen2_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("show window 2 set to %s"%widget.get_active())
+        self.gscreen.prefs.putpref('use_screen2', widget.get_active(), bool)
+        if widget.get_active():
+            self.widgets.window2.show()
+            if self.widgets.rbtn_window.get_active():
+                try:
+                    pos = self.widgets.window1.get_position()
+                    size = self.widgets.window1.get_size()
+                    left = pos[0] +size[0]
+                    self.widgets.window2.move(left,pos[1])
+                except:
+                    pass
+        else:
+            self.widgets.window2.hide()
 
     # The MDI button section
     def on_btn_MDI_key_clicked(self, widget, data=None):
@@ -1351,25 +1473,87 @@ class HandlerClass:
     def on_chk_use_kb_on_mdi_toggled(self, widget, data = None):
         self.gscreen.prefs.putpref('show_keyboard_on_mdi', widget.get_active(), bool)
 
-    # True is fullscreen
-    def on_btn_fullscreen1_toggled(self, widget):
-        if self.log: self.gscreen.add_alarm_entry("btn_fullscreen1_toggled")
+    def on_chk_use_desktop_notify_toggled(self, widget, data = None):
+        self.gscreen.prefs.putpref('desktop_notify', widget.get_active(), bool)
+        self.data.desktop_notify = widget.get_active()
+
+    def on_chk_use_kb_shortcuts_toggled(self, widget, data = None):
+        self.gscreen.prefs.putpref('use_keyboard_shortcuts', widget.get_active(), bool)
+
+    def on_adj_scale_max_vel_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('scale_max_vel', widget.get_value(), float)
+        self.scale_max_vel = widget.get_value()
+
+    def on_adj_scale_jog_vel_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('scale_jog_vel', widget.get_value(), float)
+        self.scale_jog_vel = widget.get_value()
+
+    def on_adj_scale_feed_overide_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('scale_feed_overide', widget.get_value(), float)
+        self.scale_feed_overide = widget.get_value()
+
+    def on_adj_scale_spindle_overide_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('scale_spindle_overide', widget.get_value(), float)
+        self.scale_spindle_overide = widget.get_value()
+
+    def on_rbtn_fullscreen_toggled(self, widget):
+        if self.log: self.gscreen.add_alarm_entry("rbtn_fullscreen_toggled to %s"%widget.get_active())
         if widget.get_active():
             self.widgets.window1.fullscreen()
-            self.gscreen.prefs.putpref('fullscreen1', True, bool)
+            self.gscreen.prefs.putpref('screen1', "fullscreen", str)
         else:
             self.widgets.window1.unfullscreen()
-            self.gscreen.prefs.putpref('fullscreen1', False, bool)
 
-    def on_hide_cursor_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("hide_cursor_toggled")
-        if self.widgets.hide_cursor.get_active():
-            self.gscreen.prefs.putpref('hide_cursor', True)
-            self.data.hide_cursor = True
+    def on_rbtn_maximized_toggled(self, widget):
+        if self.log: self.gscreen.add_alarm_entry("rbtn_maximized_toggled to %s"%widget.get_active())
+        if widget.get_active():
+            self.widgets.window1.maximize()
+            self.gscreen.prefs.putpref('screen1', "maximized", str)
+        else:
+            self.widgets.window1.unmaximize()
+
+    def on_rbtn_window_toggled(self, widget):
+        if self.log: self.gscreen.add_alarm_entry("rbtn_window_toggled to %s"%widget.get_active())
+        self.widgets.spbtn_x_pos.set_sensitive(widget.get_active())
+        self.widgets.spbtn_y_pos.set_sensitive(widget.get_active())
+        self.widgets.spbtn_width.set_sensitive(widget.get_active())
+        self.widgets.spbtn_height.set_sensitive(widget.get_active())
+        # we have to check also if the window is active, because the button is toggled the first time
+        # before the window is shown
+        if widget.get_active() and self.widgets.window1.is_active():
+            self.widgets.window1.move(int(self.widgets.adj_x_pos.get_value()),
+                                      int(self.widgets.adj_y_pos.get_value()))
+            self.widgets.window1.resize(int(self.widgets.adj_width.get_value()),
+                                        int(self.widgets.adj_height.get_value()))
+            self.gscreen.prefs.putpref('screen1', "window", str)
+        
+    def on_adj_x_pos_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('x_pos', widget.get_value(),float)
+        position = self.widgets.window1.get_position()
+        self.widgets.window1.move(int(widget.get_value()),position[1])
+
+    def on_adj_y_pos_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('y_pos', widget.get_value(),float)
+        position = self.widgets.window1.get_position()
+        self.widgets.window1.move(position[0],int(widget.get_value()))
+
+    def on_adj_width_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('width', widget.get_value(),float)
+        size = self.widgets.window1.get_size()
+        self.widgets.window1.resize(int(widget.get_value()),size[1])
+
+    def on_adj_height_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref('height', widget.get_value(),float)
+        size = self.widgets.window1.get_size()
+        self.widgets.window1.resize(size[0],int(widget.get_value()))
+
+    def on_chk_hide_cursor_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("hide_cursor_toggled to %s"%widget.get_active())
+        self.gscreen.prefs.putpref('hide_cursor', widget.get_active())
+        self.data.hide_cursor = widget.get_active()
+        if widget.get_active():
             self.widgets.window1.window.set_cursor(INVISABLE)
         else:
-            self.gscreen.prefs.putpref('hide_cursor', False)
-            self.data.hide_cursor = False
             self.widgets.window1.window.set_cursor(None)
 
     def on_rel_colorbutton_color_set(self, widget):
@@ -1390,6 +1574,11 @@ class HandlerClass:
         for axis in self.data.axis_list:
             self._update_homed(axis.upper())
 
+    def on_file_to_load_chooser_file_set(self, widget):
+        if self.log: self.gscreen.add_alarm_entry("file to load on startup set to : %s"%widget.get_filename())
+        print("file to load on startup set to : %s "%widget.get_filename())
+        self.gscreen.prefs.putpref('open_file', widget.get_filename(), str)
+
     def on_grid_size_value_changed(self, widget, data=None):
         self.gscreen.set_grid_size(widget)
 
@@ -1397,20 +1586,22 @@ class HandlerClass:
         self.log = widget.get_active()
         self.gscreen.prefs.putpref('log_actions', widget.get_active(), bool)
 
-    def on_tbtn_show_dro_toggled(self, widget, data=None):
+    def on_chk_show_dro_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("show_gremlin_DRO =  %s"%widget.get_active())
         self.widgets.gremlin.set_property('metric_units',not self.widgets.tbtn_units.get_active())
         self.widgets.gremlin.set_property('enable_dro',widget.get_active())
         self.gscreen.prefs.putpref('enable_dro', widget.get_active(), bool)
+        self.widgets.chk_show_offsets.set_sensitive(widget.get_active())
+        self.widgets.chk_show_dtg.set_sensitive(widget.get_active())
 
-    def on_tbtn_show_dtg_toggled(self, widget, data=None):
+    def on_chk_show_dtg_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("show_gremlin_DTG =  %s"%widget.get_active())
         self.widgets.gremlin.set_property('show_dtg', widget.get_active())
         self.gscreen.prefs.putpref('show_dtg', widget.get_active(), bool)
 
-    def on_show_offsets_toggled(self, widget, data=None):
+    def on_chk_show_offsets_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("show_offset_button_toggled to %s"%widget.get_active())
-        self.gscreen.set_show_offsets(widget.get_active())
+        self.widgets.gremlin.show_offsets = widget.get_active()
         self.gscreen.prefs.putpref('show_offsets', widget.get_active(), bool)
 
     # tool stuff
@@ -1638,23 +1829,22 @@ class HandlerClass:
         if len(filename) > 50:
             filename = filename[0:10] + "..." + filename[len(filename)-39:len(filename)]
         self.widgets.lbl_program.set_text(filename)
+        self.widgets.btn_use_current.set_sensitive(True)
 
     def on_hal_status_not_all_homed(self,*args):
-        print("not alll homed")
         self.gscreen.add_alarm_entry("not_all_homed")
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool"]
         self.gscreen.sensitize_widgets(widgetlist,False)
 
     def on_hal_status_interp_idle(self,widget):
         self.gscreen.add_alarm_entry("idle")
-        print("idle")
         widgetlist = ["rbt_manual", "btn_step", "rbt_mdi", "rbt_auto",
                       "ntb_jog", "btn_from_line", "btn_reload", "tbtn_flood", "tbtn_mist", 
                       "rbt_forward", "rbt_reverse", "rbt_stop", "btn_load", "btn_edit","tbtn_optional_blocks"
                      ]
         if not self.widgets.rbt_hal_unlock.get_active():
             widgetlist.append("rbt_setup")
-        self.gscreen.sensitize_widgets(widgetlist,1)
+        self.gscreen.sensitize_widgets(widgetlist,True)
         for btn in self.macrobuttons:
             btn.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
@@ -1678,7 +1868,7 @@ class HandlerClass:
                       "ntb_jog", "btn_from_line", "btn_reload", "rbt_forward", 
                       "rbt_reverse", "rbt_stop", "btn_load", "btn_edit", "tbtn_optional_blocks"
                      ]
-        self.gscreen.sensitize_widgets(widgetlist,0)
+        self.gscreen.sensitize_widgets(widgetlist,False)
         self.widgets.btn_run.set_sensitive(False)
         self.interpreter = _RUN
 
@@ -1743,20 +1933,17 @@ class HandlerClass:
 
     def on_hal_status_state_estop(self,widget=None):
         self.gscreen.add_alarm_entry("estop")
-        print("estop")
         self.widgets.tbtn_estop.set_active(True)
         self.widgets.tbtn_on.set_active(False)
         self.widgets.tbtn_on.set_sensitive(False)
 
     def on_hal_status_state_estop_reset(self,widget=None):
-        print("estop-reset")
         self.gscreen.add_alarm_entry("estop_reset")
         self.widgets.tbtn_estop.set_active(False)
         self.widgets.tbtn_on.set_sensitive(True)
 
     def on_hal_status_state_off(self,widget):
         self.gscreen.add_alarm_entry("state_off")
-        print("state off")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
@@ -1769,7 +1956,6 @@ class HandlerClass:
 
     def on_hal_status_state_on(self,widget):
         self.gscreen.add_alarm_entry("state_on")
-        print("state on")
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist",
@@ -1813,9 +1999,10 @@ class HandlerClass:
         self._update_vel()
         self._update_coolant()
         self._update_spindle_btn()
-        self.widgets.active_feed_label.set_label(self.gscreen.data.active_feed_command)
-        self.widgets.active_speed_label.set_label(self.gscreen.data.active_spindle_command)
-        self.on_scl_feed_value_changed(self.gscreen.data.active_feed_command)
+        self.widgets.active_feed_label.set_label(self.data.active_feed_command)
+        self.widgets.active_speed_label.set_label(self.data.active_spindle_command)
+        self.on_scl_feed_value_changed(self.data.active_feed_command)
+#        self.on_scl_spindle_value_changed(self.data.active_spindle_command)
         if self.X_homed != self.data.x_is_homed:
             self._update_homed("X")
         if self.Y_homed != self.data.y_is_homed:
@@ -1833,6 +2020,25 @@ class HandlerClass:
                 self.widgets.tbtn_rel.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#28D0D9"))
             else:
                 self.widgets.tbtn_rel.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
+
+    # Initialize the file to load dialog, setting an title and the correct
+    # folder as well as a file filter
+    def init_file_to_load(self):
+        file_dir = self.gscreen.inifile.find("DISPLAY", "PROGRAM_PREFIX")
+        self.widgets.file_to_load_chooser.set_current_folder(file_dir)
+        self.widgets.file_to_load_chooser.set_title(_("Select the file you want to be loaded at program start"))
+        self.widgets.ff_file_to_load.set_name("linuxcnc files")
+        self.widgets.ff_file_to_load.add_pattern("*.ngc")
+        file_ext = self.gscreen.inifile.findall("FILTER", "PROGRAM_EXTENSION")
+        for ext in file_ext:
+            if ".py" in ext:
+                self.widgets.ff_file_to_load.add_pattern("*.py")
+            if ".png" in ext:
+                self.widgets.ff_file_to_load.add_pattern("*.png")
+            if ".gif" in ext:
+                self.widgets.ff_file_to_load.add_pattern("*.gif")
+            if ".jpg" in ext:
+                self.widgets.ff_file_to_load.add_pattern("*.jpg")
 
     # If we need extra HAL pins here is where we do it.
     # Note you must import hal at the top of this script to do it.
@@ -1902,11 +2108,13 @@ class HandlerClass:
             self.on_hal_btn_jog_released(widget)
 
     def _on_unlock_settings_changed(self, pin):
+        if not self.widgets.rbt_hal_unlock.get_active():
+            return
         self.widgets.rbt_setup.set_sensitive(pin.get())
 
     def _on_fo_counts_changed(self, pin, widget):
         counts = pin.get()
-        difference = counts - self.fo_counts
+        difference = (counts - self.fo_counts) * self.scale_feed_overide
         self.fo_counts = counts
         val = self.widgets[widget].get_value() + difference
         if val < 0: 
@@ -1916,7 +2124,7 @@ class HandlerClass:
 
     def _on_so_counts_changed(self, pin, widget):
         counts = pin.get()
-        difference = counts - self.so_counts
+        difference = (counts - self.so_counts) * self.scale_spindle_overide
         self.so_counts = counts
         val = self.widgets[widget].get_value() + difference
         if val < 0: 
@@ -1926,7 +2134,7 @@ class HandlerClass:
 
     def _on_jv_counts_changed(self, pin, widget):
         counts = pin.get()
-        difference = counts - self.jv_counts
+        difference = (counts - self.jv_counts) * self.scale_jog_vel
         self.jv_counts = counts
         val = self.widgets[widget].get_value() + difference
         if val < 0: 
@@ -1936,7 +2144,7 @@ class HandlerClass:
 
     def _on_mv_counts_changed(self, pin, widget):
         counts = pin.get()
-        difference = counts - self.mv_counts
+        difference = (counts - self.mv_counts) * self.scale_max_vel
         self.mv_counts = counts
         val = self.widgets[widget].get_value() + difference
         if val < 0: 
