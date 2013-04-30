@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.1"
+_RELEASE = "0.9.1.1"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -840,8 +840,7 @@ class HandlerClass:
         else:
             self.widgets.box_info.show()
             self.widgets.vbx_jog.show()
-#            if self.gscreen.prefs.getpref('enable_dro', "False") == False:
-            if not self.widgets.tbtn_show_dro.get_active():
+            if not self.widgets.chk_show_dro.get_active():
                 self.widgets.gremlin.set_property('enable_dro',False) 
 
     # If button exit is klickt, press emergency button bevor closing the application
