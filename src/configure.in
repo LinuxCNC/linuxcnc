@@ -616,25 +616,6 @@ if test  "$THREADS" != posix; then
 	fi
 fi
 
-# check if THREADS style compatible with KTYPE
-# if THREADS was not set, set default thread style for this kernel type
-AC_MSG_CHECKING(kernel and thread style compatibility)
-if `echo $THREADS | grep $KTYPE 1>/dev/null 2>&1`
-then
-  AC_MSG_RESULT([kernel type $KTYPE and thread style $THREADS are compatible])
-else
-  if test -z "$THREADS"; then
-   THREADS=$DEFAULT_THREAD_STYLE
-   AC_MSG_RESULT([setting thread style to $THREADS (default for $KTYPE)])
-  else
-    if test "$THREADS" != posix; then
-        AC_MSG_ERROR([thread style $THREADS and kernel type $KTYPE are incompatible])
-    else
-        AC_MSG_RESULT([thread style Posix has no special kernel requirements])
-    fi
-  fi 
-fi
-
 # at this point, both THREADS and KCONFIG is set.
 # If required, dig for kernel-headers; we need this only for the kernel
 # thread styles
