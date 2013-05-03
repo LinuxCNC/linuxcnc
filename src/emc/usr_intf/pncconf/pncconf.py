@@ -1054,7 +1054,7 @@ class Data:
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 20000
-        self.mesa0_pdm_frequency = 6000
+        self.mesa0_pdm_frequency = 6000000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
@@ -1077,7 +1077,7 @@ class Data:
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 20000
-        self.mesa1_pdm_frequency = 6000
+        self.mesa1_pdm_frequency = 6000000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
