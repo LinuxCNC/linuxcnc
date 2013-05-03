@@ -295,8 +295,7 @@ class Data:
         self.preset_spindle_dialog = None
         self.entry_dialog = None
         self.restart_dialog = None
-        self.key_event_up = 0
-        self.key_event_dwn = 0
+        self.key_event_last = 0
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -692,12 +691,10 @@ class Gscreen:
         gobject.timeout_add(int(temp), self.periodic_status)
 
     def initialize_keybindings(self):
-        try:
+        if 1==1:
             accel_group = gtk.AccelGroup()
             self.widgets.window1.add_accel_group(accel_group)
             self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
-        except:
-            pass
         self.widgets.window1.connect('key_press_event', self.on_key_event,1)
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
@@ -1029,36 +1026,42 @@ class Gscreen:
 
     def on_key_event(self,widget, event,signal):
         keyname = gtk.gdk.keyval_name(event.keyval)
-        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal
+        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal, self.data.key_event_last
         if event.state & gtk.gdk.CONTROL_MASK:
             print "Control was being held down"
         if event.state & gtk.gdk.MOD1_MASK:
             print "Alt was being held down"
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
+        try:
+            if keyname =="Escape" and signal:
+                self.widgets.button_estop.emit("clicked")
+            if keyname =="F1" and signal:
+                self.widgets.button_machine_on.emit("clicked")
+        except:
+            pass
         if self.data.mode_order[0] == _MAN:
+            if keyname in( "Shift_L","Shift_R"): return True
+            if self.data.key_event_last == signal: return True
             if keyname == "Up":
-                if self.data.key_event_up == signal: return True
-                self.do_key_jog(0,0,signal)
-                self.data.key_event_up = signal
-            elif keyname == "Down":
-                if self.data.key_event_dwn == signal: return True
-                self.do_key_jog(0,1,signal)
-                self.data.key_event_dwn = signal
-            elif keyname == "Left":
-                self.do_key_jog(1,0,signal)
-            elif keyname == "Right":
-                self.do_key_jog(1,1,signal)
-            elif keyname == "Page_Up":
-                self.do_key_jog(2,0,signal)
-            elif keyname == "Page_Down":
                 self.do_key_jog(2,1,signal)
-            elif keyname in ("I","i") :
-                if signal: return True
-                if event.state & gtk.gdk.SHIFT_MASK:
-                    self.set_jog_increments(index_dir = -1)
-                else:
-                    self.set_jog_increments(index_dir = 1)
+            elif keyname == "Down":
+                self.do_key_jog(2,0,signal)
+            elif keyname == "Left":
+                self.do_key_jog(0,0,signal)
+            elif keyname == "Right":
+                self.do_key_jog(0,1,signal)
+            elif keyname == "Page_Up":
+                self.do_key_jog(1,0,signal)
+            elif keyname == "Page_Down":
+                self.do_key_jog(1,1,signal)
+            elif keyname in ("I","i"):
+                if signal:
+                    if event.state & gtk.gdk.SHIFT_MASK:
+                        self.set_jog_increments(index_dir = -1)
+                    else:
+                        self.set_jog_increments(index_dir = 1)
+            self.data.key_event_last = signal
             return True
 
     def on_cycle_start_changed(self,hal_object):
