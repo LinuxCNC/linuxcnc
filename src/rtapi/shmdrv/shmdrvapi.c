@@ -1,4 +1,3 @@
-
 // userland API for shmdrv
 
 #include <stdio.h>
@@ -13,11 +12,9 @@
 #include <sys/mman.h>
 
 #include "config.h"		// build configuration
-#include "rtapi.h"		// these functions
-// #include "rtapi_common.h"
+#include "rtapi.h"
 #include "rtapi/shmdrv/shmdrv.h"
 #include "shmdrv.h"
-
 
 static const char *driver_name = "/dev/" DEVICE_NAME;
 
@@ -29,7 +26,7 @@ int shmdrv_available(void)
 
 int shmdrv_driver_fd(void)
 {
-    struct stat st; 
+    struct stat st;
     int retval;
     int driver_fd = open(driver_name, O_RDWR);
 
@@ -126,7 +123,7 @@ void shmdrv_print_status(struct shm_status *sm, const char *tag)
     printf("flags = %d/0x%x\n", sm->flags, sm->flags);
 }
 
-int shm_common_new(int key, int size, int instance, void **shmptr, int create)
+int shm_common_new(int key, int *size, int instance, void **shmptr, int create)
 {
     struct shm_status sm;
     int retval;
@@ -136,7 +133,7 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	// use shmdrv kernel driver
 	sm.driver_fd = shmdrv_driver_fd();
 	sm.key = key;
-	sm.size = size;
+	sm.size = (size == NULL? 0: *size);
 	sm.flags = 0;
 	retval = shmdrv_status(&sm); // check if exists
 	if (retval && !create) {
@@ -157,16 +154,22 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	    close(sm.driver_fd);
 	    return retval;
 	}
+	// if size was passed in as 0 (attach), fill in actual size
+	if (size && (*size == 0)) 
+	    *size = sm.size;
 	close(sm.driver_fd);
 	return is_new;
 
     } else {
-
 	// use POSIX shared memory
 
-	int shmfd;
+	int shmfd, mmap_size;
 	mode_t old_umask;
 	char segment_name[LINELEN];
+	if ((size == 0) || (*size == 0))
+	    mmap_size = 0;
+	else
+	    mmap_size = *size;
 	sprintf(segment_name, SHM_FMT, instance, key);
 	old_umask = umask(0); //S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 	if (create && ((shmfd = shm_open(segment_name, 
@@ -175,7 +178,7 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	    // initial creation
 	    if (fchown(shmfd, getuid(),getgid()))
 		perror("fchown");
-	    if (ftruncate(shmfd, size))
+	    if (ftruncate(shmfd, mmap_size))
 		perror("ftruncate");
 	    is_new = 1;
 	} else if((shmfd = shm_open(segment_name, O_RDWR,
@@ -183,14 +186,25 @@ int shm_common_new(int key, int size, int instance, void **shmptr, int create)
 	    // just attach, and that failed:
 	    umask(old_umask);
 	    return -errno;
+	} else {  // shmfd open
+	    if (mmap_size == 0) {
+		struct stat st;
+		if (fstat(shmfd, &st)) {
+		    perror("fstat");
+		    return -errno;
+		}
+		mmap_size = st.st_size;
+	    }
 	}
-	if((*shmptr = mmap(0, size, (PROT_READ | PROT_WRITE),
+	if((*shmptr = mmap(0, mmap_size, (PROT_READ | PROT_WRITE),
 			   MAP_SHARED, shmfd, 0)) == MAP_FAILED) {
 	    perror("shm_common_new:mmap");
 	    close(shmfd);
 	    umask(old_umask);
 	    return -errno;
 	}
+	if (size)  // return actual shm size as determined in attach
+	    *size = mmap_size;
 	umask(old_umask);
 	close(shmfd);
 	return is_new;
@@ -214,9 +228,9 @@ int shm_common_exists(int key)
 	sm.driver_fd = shmdrv_driver_fd();
 	sm.key = key;
 	sm.flags = 0;
-	retval =  shmdrv_status(&sm); 
+	retval =  shmdrv_status(&sm);
 	close(sm.driver_fd);
-	return retval;
+	return retval == 0;
     } else {
 	int shmfd;
 	char segment_name[LINELEN];
@@ -224,10 +238,10 @@ int shm_common_exists(int key)
 	sprintf(segment_name, SHM_FMT, INSTANCE_OF(key), key);
 	if ((shmfd = shm_open(segment_name, O_RDWR,
 			      (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))) < 0) {
-	    retval = -errno;
+	    retval = 0;
 	} else {
 	    close(shmfd);
-	    retval = 0;
+	    retval = 1;
 	}
 	return retval;
     }

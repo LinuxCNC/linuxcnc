@@ -36,6 +36,7 @@ struct timespec looptime = {
 int main(int argc, char **argv)
 {
     int globalkey,rtapikey,halkey,retval;
+    int size;
 
     page_size = sysconf(_SC_PAGESIZE);
     shmdrv_loaded = shmdrv_available();
@@ -47,7 +48,8 @@ int main(int argc, char **argv)
     rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
     halkey = OS_KEY(HAL_KEY, rtapi_instance);
 
-    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+    size = sizeof(global_data_t);
+    retval = shm_common_new(globalkey, &size, 
 			    rtapi_instance, (void **) &global_data, 0);
      if (retval < 0)
 	 fprintf(stderr, "cannot attach global segment key=0x%x %s\n",
@@ -57,8 +59,8 @@ int main(int argc, char **argv)
 	printf("global_data MAGIC wrong: %x %x\n", global_data->magic, GLOBAL_MAGIC);
     }
 
-
-    retval = shm_common_new(rtapikey, sizeof(rtapi_data_t), 
+    size = sizeof(rtapi_data_t);
+    retval = shm_common_new(rtapikey,  &size, 
 			    rtapi_instance, (void **) &rtapi_data, 0);
     if (retval < 0)
 	 fprintf(stderr, "cannot attach rtapi segment key=0x%x %s\n",
@@ -69,8 +71,9 @@ int main(int argc, char **argv)
     }
 
     if (MMAP_OK(global_data)) {
+	size = global_data->hal_size;
 	// global_data is needed for actual size of the HAL data segment
-	retval = shm_common_new(halkey, global_data->hal_size, 
+	retval = shm_common_new(halkey, &size, 
 				rtapi_instance, (void **) &hal_data, 0);
 	if (retval < 0)
 	    fprintf(stderr, "cannot attach hal segment key=0x%x %s\n",

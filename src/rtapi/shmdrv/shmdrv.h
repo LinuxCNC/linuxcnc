@@ -35,14 +35,21 @@ extern int shmdrv_attach(struct shm_status *shmstat, void **shm);
 extern int shmdrv_create(struct shm_status *shmstat);
 extern int shmdrv_detach(struct shm_status *shmstat);
 
+// 0 - errors and warning messages only
+// 1 - informational
+// 2 - debug
 
 #define dbg(format, arg...)						\
     do {								\
-	if (debug) pr_info(DEVICE_NAME ": %s: " format  "\n", __FUNCTION__ , ## arg);	\
+	if (debug > 1) pr_info(DEVICE_NAME ": %s: " format  "\n", __FUNCTION__ , ## arg);	\
+    } while (0)
+
+#define info(format, arg...)						\
+    do {								\
+	if (debug > 0) pr_info(DEVICE_NAME ": %s: " format  "\n", __FUNCTION__ , ## arg);	\
     } while (0)
 
 #define err(format, arg...)  pr_err(DEVICE_NAME ": " format "\n", ## arg)
-#define info(format, arg...) pr_info(DEVICE_NAME ": " format "\n", ## arg)
 #define warn(format, arg...) pr_warn(DEVICE_NAME ": " format "\n", ## arg)
 
 #else // userland
@@ -68,7 +75,7 @@ extern int shmdrv_attach(struct shm_status *shmstat, void **shm);
 extern int shmdrv_detach(struct shm_status *shmstat, void *shm);
 extern int shmdrv_gc(void);
 extern void shmdrv_print_status(struct shm_status *sm, const char *tag);
-extern int shm_common_new(int key, int size, int instance, void **shmptr, int create);
+extern int shm_common_new(int key, int *size, int instance, void **shmptr, int create);
 extern int shm_common_detach(int size, void *shmptr);
 extern int shm_common_exists(int key);
 

@@ -1,12 +1,29 @@
-/* This driver provides a single shared memory area that can be accessed from user space and
- * from kernel space.
+/* This driver provides a common shared memory allocator which
+ * can be accessed from user space and from kernel space. It
+ * does not depend on any RTOS-specific memory allocator
+ * functions and hence should be portable.
  *
- * NB: add 'vmalloc=128MB' or more to the kernel command line!
+ * the key advantage of switching to this driver from RTOS-specific
+ * methods are:
  *
- * Copyright (c) Embrisk Ltd 2012.
- * This is public domain software with no warranty.
+ * 1. LinuxCNC instances become interoperable at the
+ * shared memory level, which is not the case with the RTOS-specific
+ * allocators used so far.
  *
- * adapted for LinuxCNC Michael Haberler 4/2013
+ * 2. No more sequencing restrictions - shm segments can be created
+ * by userland processes, and attached by kernel modules lateron.
+ *
+ * some kernels migh have a fairly low limit as to how much memory
+ * can be allocated in total by the vmalloc() kernel function used here.
+ * to adjust, set a kernel command line argument like so:
+ *
+ *  vmalloc=32MB
+ *
+ * realistically the shared memory usage of a 2012 vintage LinuxCNC instance
+ * should be 3-4 MB, so the above should be good for up to ca 8 instances.
+ *
+ * Copyright Michael Haberler 4/2013.
+ * Loosely based on public domain example code by (c) Embrisk Ltd 2012.
  */
 
 #define DEBUG
@@ -27,27 +44,24 @@
 #include <linux/sched.h> 
 #include <linux/kallsyms.h>
 #include <linux/string.h>
+#include <linux/semaphore.h>
 
 #include "shmdrv.h"
 
-static bool debug = true; // false;
-module_param(debug, bool, S_IRUGO | S_IWUSR);
-MODULE_PARM_DESC(debug, "enable debug info (default: false)");
+static int debug = 0;
+module_param(debug, int, S_IRUGO | S_IWUSR);
+MODULE_PARM_DESC(debug, "debug level (default: 0)");
 
 static bool gc = true;
 module_param(gc, bool, S_IRUGO | S_IWUSR);
-MODULE_PARM_DESC(gc, "delete segment on last detach (default: false)");
+MODULE_PARM_DESC(gc, "delete segment on last detach (default: true)");
 
 static int nseg = 200;
 module_param(nseg, int, S_IRUGO | S_IWUSR);
-MODULE_PARM_DESC(nseg, "number of shm segments (default: 200)");
-
-static int mlimit = 1024*1024;
-module_param(mlimit, int, S_IRUGO | S_IWUSR);
-MODULE_PARM_DESC(mlimit, "memory size below which to use kmalloc, above vmalloc; default 1M");
+MODULE_PARM_DESC(nseg, "total number of shm segments (default: 200)");
 
 MODULE_AUTHOR("Michael Haberler <git@mah.priv.at>");
-MODULE_DESCRIPTION("shared memory driver");
+MODULE_DESCRIPTION("LinuxCNC shared memory driver");
 MODULE_VERSION("0.1");
 MODULE_LICENSE("GPL");
 
@@ -59,7 +73,7 @@ struct shm_segment {
     int n_kattach;
     int n_uattach;
     int flags;
-    int creator;  // pid or 0 for kernel
+    int creator;     // pid or 0 for kernel
     void *kmem;
 };
 
@@ -67,7 +81,14 @@ static int nopen;
 static int maxopen = -1;
 static size_t allocated, freed;
 static struct shm_segment  *shm_segments;
-static spinlock_t shm_lock, ll_lock;
+
+//#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+#if 1
+#define DECLARE_MUTEX DEFINE_SEMAPHORE
+#endif
+DECLARE_MUTEX(shm_mutex);
+DECLARE_MUTEX(ll_mutex);
+
 static int  shm_nonstandard_detach(struct shm_segment *segs);
 
 static int shm_malloc(struct shm_segment *seg)
@@ -214,13 +235,8 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
 	vma->vm_end - vma->vm_start,
 	segno);
 
-    if (segno == -1) {
-	err("no segment associated with file");
-	return -EINVAL;
-    }
-
     if ((segno < 0) || (segno > nseg-1)) {
-	err("invalid segmend index  %d, nseg=%d", segno, nseg);
+	err("invalid segment index  %d, nseg=%d", segno, nseg);
 	return -EINVAL;
     }
 
@@ -247,7 +263,7 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
         err( "%s: remap_pfn_range() failed, %d", __func__, ret);
         return(ret);
     }
-    vma->vm_private_data = (void *) segno; // so it can be referred to in vma ops
+    vma->vm_private_data = (void *) segno; // so it can be referenced in vma ops
     vma->vm_ops = &mmap_ops;
     shmdrv_vma_open(vma);  // track usage
     dbg("mmap seg %d size %zu key %d/%x at %p length %d",
@@ -259,7 +275,7 @@ static int  shm_nonstandard_attach(struct shm_segment *segs)
 {
     dbg("");
 
-    // ll_lock already engaged 
+    // ll_mutex already engaged 
     if (segs->flags &  OUTBOARD1_CREATE) {
 	dbg("attach code for outboard type 1 missing");
 	return -EINVAL;
@@ -341,16 +357,16 @@ int free_segments(int warn)
     struct shm_segment *seg;
     int fail = 0;
 
-    info("open=%d alloced=%zuK freed=%zuK balance=%zuK", 
-	 nopen, 
-	 allocated >> 10, freed >> 10, (allocated-freed) >> 10);
+    info("open=%d alloced=%zuK freed=%zuK balance=%zuK",
+	 nopen, allocated >> 10, freed >> 10,
+	 (allocated-freed) >> 10);
 
     for (n = 0; n < nseg; n++) {
 	seg = &shm_segments[n];
 	if (seg->in_use) {
 	    if (seg->n_uattach) {
 		if (warn)
-		    err("segment %d still in use by a user process uattach=%d",
+		    err("segment %d still in use by process uattach=%d",
 			n, seg->n_uattach);
 		fail++;
 		continue;
@@ -396,9 +412,11 @@ int shmdrv_status(struct shm_status *shmstat)
     struct shm_segment *seg;
     int ret = 0, segno;
 
-    spin_lock(&ll_lock);
+    if (down_interruptible(&ll_mutex))
+	return -ERESTARTSYS;
+
     if ((segno = find_shm_by_key(shmstat->key)) < 0) {
-	err("no such segment key=0x%8.8x", shmstat->key);
+	info("no such segment key=0x%8.8x", shmstat->key);
 	ret = -EINVAL;
 	goto done;
     }
@@ -412,7 +430,7 @@ int shmdrv_status(struct shm_status *shmstat)
     shmstat->flags = seg->flags;
 
  done:
-    spin_unlock(&ll_lock);
+    up(&ll_mutex);
     return ret;
 }
 EXPORT_SYMBOL(shmdrv_status);
@@ -422,7 +440,9 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
     struct shm_segment *seg;
     int ret;
 
-    spin_lock(&ll_lock);
+    if (down_interruptible(&ll_mutex))
+	return -ERESTARTSYS;
+
     ret = find_shm_by_key(shmstat->key);
     if (ret < 0) {
 	err("shm segment does not exist: key=0x%8.8x ret=%d", 
@@ -439,7 +459,7 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
 	*shm = seg->kmem;
     ret = 0;
  done:
-    spin_unlock(&ll_lock);
+    up(&ll_mutex);
     return ret;
 }
 
@@ -448,7 +468,9 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
     struct shm_segment *seg;
     int ret = 0, segno;
 
-    spin_lock(&ll_lock);
+    if (down_interruptible(&ll_mutex))
+	return -ERESTARTSYS;
+
     if (shmstat->size <= 0) {
 	err("invalid size %zu pid %d", shmstat->size, pid);
 	ret = -EINVAL;
@@ -492,7 +514,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
     ret = segno;
 
  done:
-    spin_unlock(&ll_lock);
+    up(&ll_mutex);
     return ret;
 }
 
@@ -510,14 +532,15 @@ int shmdrv_attach(struct shm_status *shmstat, void **shm)
 }
 EXPORT_SYMBOL(shmdrv_attach);
 
-// kernel-only; userland refcount is taken care in munmap
-
+// kernel-only; userland refcount is taken care of in munmap
 int shmdrv_detach(struct shm_status *shmstat)
 {
     struct shm_segment *seg;
     int ret = 0, segno;
 
-    spin_lock(&ll_lock);
+    if (down_interruptible(&ll_mutex))
+	return -ERESTARTSYS;
+
     segno = find_shm_by_key(shmstat->key);
     if (segno < 0) {
 	err("shm segment does not exist: key=0x%8.8x",
@@ -538,7 +561,7 @@ int shmdrv_detach(struct shm_status *shmstat)
     shmstat->n_uattach = seg->n_uattach;
 
     if (gc && ((seg->n_uattach + seg->n_kattach) == 0)) {
-	// last reference gone away, gc true 
+	// last reference gone away, gc true
 	if (seg->flags & OUTBOARD_MASK) {
 	    // a segment type requiring special massage
 	    ret = shm_nonstandard_detach(seg);
@@ -551,7 +574,7 @@ int shmdrv_detach(struct shm_status *shmstat)
 	seg->in_use = 0;
     }
  done:
-    spin_unlock(&ll_lock);
+    up(&ll_mutex);
     return ret;
 }
 EXPORT_SYMBOL(shmdrv_detach);
@@ -562,9 +585,9 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
     int ret = 0, segno;
     struct shm_status sm; 
     struct shm_segment *seg;
-    unsigned long irqState;
 
-    spin_lock_irqsave(&shm_lock, irqState);
+    if (down_interruptible(&shm_mutex))
+	return -ERESTARTSYS;
 
     switch(cmd) {
 
@@ -649,7 +672,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	ret = -EINVAL;
     }
  done:
-    spin_unlock_irqrestore(&shm_lock, irqState);
+    up(&shm_mutex);
     return ret;
 }
 
@@ -673,14 +696,15 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
     int i;
     size_t size, written, left = PAGE_SIZE - 80; // leave some space for "..." line
     struct shm_segment *seg;
-    unsigned long irqState;
     int nsegments = 0;
     int total_alloc = 0;
     int total_alloc_aligned = 0;
     int kattach = 0, uattach = 0;
 
     dbg("");
-    spin_lock_irqsave(&shm_lock, irqState);
+
+    if (down_interruptible(&shm_mutex))
+	return -ERESTARTSYS;
 
     // stats
     for (i = 0; i < nseg; i++) {
@@ -721,7 +745,7 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
     }
 
  done:
-    spin_unlock_irqrestore(&shm_lock, irqState);
+    up(&shm_mutex);
     return written;
 }
 
@@ -763,10 +787,6 @@ static int shmdrv_init(void) {
 	misc_deregister(&shm_misc_dev);
 	return retval;
     }
-
-    spin_lock_init(&ll_lock);
-    spin_lock_init(&shm_lock);
-
     return 0;
 }
 
