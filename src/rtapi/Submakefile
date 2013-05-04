@@ -300,3 +300,18 @@ $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
 
 USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch
+
+
+# lock debugging help plus a bit of API example
+FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
+
+$(call TOOBJSDEPS, $(FLAVOR_SRCS)): \
+	EXTRAFLAGS =  -Wall -g -O0 \
+	 $(shell $(XENO_CONFIG) --skin=native --cflags)
+
+../bin/flavor: ../lib/liblinuxcncshm.so $(call TOOBJS, $(FLAVOR_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  ../lib/liblinuxcncshm.so -lrt
+
+USERSRCS += $(FLAVOR_SRCS)
+TARGETS += ../bin/flavor
