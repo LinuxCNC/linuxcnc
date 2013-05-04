@@ -445,7 +445,7 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
 
     ret = find_shm_by_key(shmstat->key);
     if (ret < 0) {
-	err("shm segment does not exist: key=0x%8.8x ret=%d", 
+	dbg("shm segment does not exist: key=0x%8.8x ret=%d", 
 	    shmstat->key, ret);
 	goto done;
     }
