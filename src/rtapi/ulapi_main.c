@@ -47,6 +47,7 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
     int retval = 0;
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
     int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
+    int size;
 
     page_size = sysconf(_SC_PAGESIZE);
     shmdrv_loaded  = shmdrv_available();
@@ -56,7 +57,8 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 		    rtapi_get_handle()->thread_flavor_name,
 		    GIT_VERSION);
 
-    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+    size = sizeof(global_data_t);
+    retval = shm_common_new(globalkey, &size, 
 			    rtapi_instance, (void **) &global_data, 0);
      if (retval < 0) {
 	 rtapi_print_msg(RTAPI_MSG_ERR,
@@ -64,13 +66,26 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 			 rtapi_instance, globalkey, strerror(-retval));
 	 goto done;
     }
-    retval = shm_common_new(rtapikey, sizeof(rtapi_data_t), 
-			    rtapi_instance, (void **) &rtapi_data, 0);
+    if (size != sizeof(global_data_t)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "ULAPI:%d ERROR: unexpected global shm size: expected: %d actual:%d\n",
+			 rtapi_instance, sizeof(global_data_t), size);
+	 return -EINVAL;
+    }
 
+    size = sizeof(rtapi_data_t);
+    retval = shm_common_new(rtapikey, &size, 
+			    rtapi_instance, (void **) &rtapi_data, 0);
     if (retval < 0) {
 	 rtapi_print_msg(RTAPI_MSG_ERR,
 			 "ULAPI:%d ERROR: cannot attach rtapi segment key=0x%x %s\n",
 			 rtapi_instance, rtapikey, strerror(-retval));
+    }
+    if (size != sizeof(rtapi_data_t)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "ULAPI:%d ERROR: unexpected rtapi shm size: expected: %d actual:%d\n",
+			 rtapi_instance, sizeof(rtapi_data_t), size);
+	 return -EINVAL;
     }
 
  done:
@@ -85,6 +100,8 @@ int ulapi_main(int instance, int flavor, global_data_t **global)
 	rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d init failed, realtime not running? global=%p rtapi=%p\n", 
 			rtapi_instance, global_data, rtapi_data);
     }
+
+   
     return retval;
 }
 
@@ -93,6 +110,7 @@ int ulapi_exit(int instance)
     rtapi_print_msg(RTAPI_MSG_DBG, "ULAPI:%d %s exit\n",
 		    instance,
 		    GIT_VERSION);
+
     return 0;
 }
 

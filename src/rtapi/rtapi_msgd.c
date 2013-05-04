@@ -61,7 +61,7 @@ static int waitfor_rt_stack_ready()
     int halkey = OS_KEY(HAL_KEY, rtapi_instance);
     struct timespec rtpoll = {0, rt_poll_ms * 1000 * 1000};
 
-    while (shm_common_exists(halkey) < 0) {
+    while (!shm_common_exists(halkey) < 0) {
 	nanosleep(&rtpoll, NULL);
 	rt_stack_timeout_ms -= rt_poll_ms;
 	if (rt_stack_timeout_ms < 0) 
@@ -74,14 +74,19 @@ static int setup_global()
 {
     int retval = 0;
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
-
+    int size = 0;
     // since the HAL data segment has been determined to exist, global
     // must exist here too or the RT stack wouldnt have become ready
-    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+    retval = shm_common_new(globalkey, &size,
 			    rtapi_instance, (void **) &global_data, 0);
     if (retval < 0) {
 	syslog(LOG_ERR, "MSGD:%d ERROR: cannot attach global segment key=0x%x %s\n",
 	       rtapi_instance, globalkey, strerror(-retval));
+    }
+    if (size != sizeof(global_data_t)) {
+	syslog(LOG_ERR, "MSGD:%d global segment size mismatch: expect %d got %d\n", 
+	       rtapi_instance, sizeof(global_data_t), size);
+	return -EINVAL;
     }
     return retval;
 }

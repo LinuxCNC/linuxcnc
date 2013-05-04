@@ -62,16 +62,18 @@ int rtapi_app_main(void)
     int retval, compatible;
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
     int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
+    int size;
 
     page_size = sysconf(_SC_PAGESIZE);
     shmdrv_loaded  = shmdrv_available();
 
-    rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d %s %s init\n",
-		    rtapi_instance,
+    rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d:%s %s %s init\n",
+		    rtapi_instance,instance_name,
 		    rtapi_get_handle()->thread_flavor_name,
 		    GIT_VERSION);
 
-    retval = shm_common_new(globalkey, sizeof(global_data_t), 
+    size = sizeof(global_data_t);
+    retval = shm_common_new(globalkey, &size, 
 			    rtapi_instance, (void **) &global_data, 1);
     if (retval ==  0) {
 	// the global_data segment already existed.
@@ -86,9 +88,17 @@ int rtapi_app_main(void)
 			 rtapi_instance, globalkey, strerror(-retval));
 	 return retval;
     }
-    retval = shm_common_new(rtapikey, sizeof(rtapi_data_t), 
+    if (size != sizeof(global_data_t)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "RTAPI:%d ERROR: unexpected global shm size: expected: %d actual:%d\n",
+			 rtapi_instance, sizeof(global_data_t), size);
+	 return -EINVAL;
+    }
+
+    size = sizeof(rtapi_data_t);
+    retval = shm_common_new(rtapikey, &size, 
 			    rtapi_instance, (void **) &rtapi_data, 1);
-   if (retval ==  0) {
+    if (retval ==  0) {
 	// the rtapi_data segment already existed.
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d ERROR: rtapi segment 0x%x already exists!\n",
@@ -101,7 +111,12 @@ int rtapi_app_main(void)
 			 rtapi_instance, rtapikey, strerror(-retval));
 	 return retval;
     }
-
+    if (size != sizeof(rtapi_data_t)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "RTAPI:%d ERROR: unexpected rtapi shm size: expected: %d actual:%d\n",
+			 rtapi_instance, sizeof(rtapi_data_t), size);
+	 return -EINVAL;
+    }
     /* perform a global init */
     init_global_data(global_data, rtapi_instance,
 		     hal_size, rt_msg_level, user_msg_level, 

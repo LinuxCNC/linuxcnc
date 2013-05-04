@@ -60,7 +60,7 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 
 int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     shmem_data *shmem;
-    int i, ret;
+    int i, ret, actual_size;
     int is_new = 0;
     int key = OS_KEY(userkey, instance);
 
@@ -82,7 +82,9 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     }
     shmem = &shmem_array[i];
 
-    ret = shm_common_new(key, size, instance, &shmem->mem, 1);
+    // redefine size == 0 to mean 'attach only, dont create'
+    actual_size = size;
+    ret = shm_common_new(key, &actual_size, instance, &shmem->mem, size > 0);
     if (ret > 0)
 	is_new = 1;
     if (ret < 0) {
@@ -92,7 +94,12 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 			 instance, key, size);
 	 return ret;
     }
-
+    // a non-zero size was given but it didn match what we found:
+    if (size && (actual_size != size)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_shmem_new:%d 0x8.8%x: requested size %ld and actual size %d dont match\n",
+			instance, key, size, actual_size);
+    }
     /* Touch each page by either zeroing the whole mem (if it's a new
        SHM region), or by reading from it. */
     if (is_new) {
@@ -112,7 +119,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     /* label as a valid shmem structure */
     shmem->magic = SHMEM_MAGIC;
     /* fill in the other fields */
-    shmem->size = size;
+    shmem->size = actual_size;
     shmem->key = key;
     shmem->count = 1;
     shmem->instance = instance;
@@ -181,6 +188,9 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     return retval;
 }
 
+int _rtapi_shmem_exists(int userkey) {
+    return shm_common_exists(userkey);
+}
 
 #else  /* BUILD_SYS_KBUILD */
 /***********************************************************************
@@ -460,6 +470,13 @@ int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr) {
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
     return 0;
+}
+
+int _rtapi_shmem_exists(int userkey) {
+    struct shm_status sm;
+    sm.key = userkey;
+
+    return !shmdrv_status(&sm); 
 }
 
 #endif  /* BUILD_SYS_KBUILD */
