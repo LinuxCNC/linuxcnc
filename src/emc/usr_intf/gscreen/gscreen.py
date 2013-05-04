@@ -1040,7 +1040,8 @@ class Gscreen:
                 self.widgets.button_machine_on.emit("clicked")
         except:
             pass
-        if self.data.mode_order[0] == _MAN:
+        print self.widgets.notebook_main.get_current_page()
+        if self.widgets.notebook_main.get_current_page() == 0:
             if keyname in( "Shift_L","Shift_R"): return True
             if self.data.key_event_last == signal: return True
             if keyname == "Up":
