@@ -11,7 +11,7 @@ PIDOF=@PIDOF@
 # wait for a list of pids to all exit
 anywait(){
     for pid in "$@"; do
-        while kill -0 "$pid"; do
+        while kill -0 "$pid" 2> /dev/null ; do
             sleep 0.5
         done
     done
@@ -33,6 +33,7 @@ EOF
 
 # set the default instance
 INSTANCE=`printf '%d' $INSTANCE`
+FLAVOR=`flavor`
 
 RUN_IN_PLACE=@RUN_IN_PLACE@
 if [ $RUN_IN_PLACE = yes ]; then
@@ -86,7 +87,7 @@ CheckConfig(){
     # any module names that are symlinks are resolved to their real names
     MODULES_LOAD=
     MODULES_UNLOAD=
-    case $RTPREFIX in
+    case $FLAVOR in
     posix|xenomai-user|rt-preempt-user) SHM_DEV=/dev/zero;;
     *)
         for  MOD in $MODULES ; do
@@ -103,7 +104,7 @@ CheckConfig(){
 	# always load shmdrv first
 	MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/shmdrv$MODULE_EXT"
 	MODULES_UNLOAD="$MODULES_UNLOAD shmdrv"
-        if test $RTPREFIX = xenomai-kernel; then
+        if test $FLAVOR = xenomai-kernel; then
             MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT  $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
             MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
   	else
@@ -122,7 +123,7 @@ CheckConfig(){
 }
 
 CheckStatus(){
-    case $RTPREFIX in
+    case $FLAVOR in
     posix|xenomai-user|rt-preempt-user)
         if [ -z "$($PIDOF rtapi_app:${INSTANCE})" ]; then
             exit 1
@@ -171,7 +172,7 @@ CheckMem(){
 
 Load(){
     CheckKernel
-    case $RTPREFIX in
+    case $FLAVOR in
     posix|xenomai-user|rt-preempt-user)
         # check for instance running
 	# this is the case if the global segment exists
@@ -249,7 +250,7 @@ CheckLoaded(){
 
 Unload(){
     CheckKernel
-    case $RTPREFIX in
+    case $FLAVOR in
     posix|xenomai-user|rt-preempt-user)
 	if [ "$DEBUG" != "" ] ; then
             rtapi_app --instance=$INSTANCE exit 
