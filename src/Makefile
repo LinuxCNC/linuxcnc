@@ -17,14 +17,11 @@ endif
 # (setuid, install)
 ifeq ($(MAKECMDGOALS),)
 TRIVIAL_BUILD=no
-$(warning  nontriv)
 else
 ifeq ($(filter-out docclean clean setuid install tags swish,$(MAKECMDGOALS)),)
 TRIVIAL_BUILD=yes
-$(warning  trivial)
 else
 TRIVIAL_BUILD=no
-$(warning  nontriv)
 endif
 endif
 
