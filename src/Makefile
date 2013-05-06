@@ -824,10 +824,10 @@ obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
 hal_gpio-objs := hal/drivers/hal_gpio.o 
 endif
 
-#ifeq ($(TARGET_PLATFORM), beaglebone)
-#obj-$(CONFIG_HAL_GPIO) += hal_bbgpio.o
-#hal_gpio-objs := hal/drivers/hal_bbgpio.o 
-#endif
+ifeq ($(TARGET_PLATFORM), beaglebone)
+obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
+hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
+endif
 
 # these won't compile as-is with userland threading
 
@@ -1076,6 +1076,8 @@ ifeq ($(TARGET_PLATFORM),beaglebone)
 ../rtlib/hal_pru$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru-objs))
 ../rtlib/hal_pru_generic$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru_generic-objs))
 ../rtlib/hal_prudebug$(MODULE_EXT): $(addprefix objects/rt,$(hal_prudebug-objs))
+../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
+../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
 endif
 
 ifeq ($(TARGET_PLATFORM),raspberry)
