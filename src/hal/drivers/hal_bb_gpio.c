@@ -185,16 +185,16 @@ int rtapi_app_main(void) {
 	}
 
 	// export functions
-	rtapi_snprintf(name, sizeof(name), "bb_gpio.%d.write", n);
-	retval = hal_export_funct(name, write_port, &(port_data[n]), 0, 0, comp_id);
+	rtapi_snprintf(name, sizeof(name), "bb_gpio.write");
+	retval = hal_export_funct(name, write_port, port_data, 0, 0, comp_id);
 	if(retval < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: port %d write funct export failed\n", modname, n);
 		hal_exit(comp_id);
 		return -1;
 	}
 	
-	rtapi_snprintf(name, sizeof(name), "bb_gpio.%d.read", n);
-	retval = hal_export_funct(name, read_port, &(port_data[n]), 0, 0, comp_id);
+	rtapi_snprintf(name, sizeof(name), "bb_gpio.read");
+	retval = hal_export_funct(name, read_port, port_data, 0, 0, comp_id);
 	if(retval < 0) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: port %d read funct export failed\n", modname, n);
 		hal_exit(comp_id);
@@ -205,6 +205,8 @@ int rtapi_app_main(void) {
 
 	hal_ready(comp_id);
 
+	rtapi_print("port_data is %p\n", port_data);
+
 	return 0;
 }
 
@@ -214,7 +216,20 @@ void rtapi_app_exit(void) {
 }
 
 static void write_port(void *arg, long period) {
+	int i;
+	port_data_t *port = (port_data_t *)arg;
 
+	//rtapi_print("arg is %p\n", arg);
+
+	// set userled states
+	for(i=0; i<4; i++) {
+		//rtapi_print("\tled addr is %p value is %d\n", port->led_pins[i], *port->led_pins[i]);
+		bb_gpio_pin pin = user_led_gpio_pins[i];
+		if(*port->led_pins[i] == 0)
+			*(pin.port->clrdataout_reg) = (1 << pin.pin_num);
+		else
+			*(pin.port->setdataout_reg) = (1 << pin.pin_num);
+	}
 }
 
 
