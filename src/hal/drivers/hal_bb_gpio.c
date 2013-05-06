@@ -66,14 +66,6 @@ int rtapi_app_main(void) {
 		return -1;
 	}
 
-	for(i=0; i<PINS_PER_PORT; i++) {
-		port_data[n].pins[i] = hal_malloc(sizeof(hal_bit_t));
-		if(port_data[n].pins[i] == 0) {
-			rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_malloc() failed\n", modname);
-			hal_exit(comp_id);
-			return -1;
-		}
-	}
 
 	// export pins
 	for(i=0; i<PINS_PER_PORT; i++) {
