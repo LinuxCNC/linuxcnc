@@ -73,7 +73,7 @@ void configure_control_module() {
 	control_module = mmap(0, CONTROL_MODULE_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, CONTROL_MODULE_START_ADDR);
 
 	if(control_module == MAP_FAILED) {
-		perror("Unable to map Control Module");
+		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Unable to map Control Module: %s", modname, strerror(errno));
 		exit(1);
 	}
 
@@ -88,13 +88,17 @@ void configure_gpio_port(int n) {
 	gpio_ports[n]->gpio_addr = mmap(0, GPIO_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, start_addr_for_port(n));
 
 	if(gpio_ports[n]->gpio_addr == MAP_FAILED) {
-		perror("Unable to map GPIO");
+		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Unable to map GPIO: %s", modname, strerror(errno));
 		exit(1);
 	}
 
 	gpio_ports[n]->oe_reg = gpio_ports[n]->gpio_addr + GPIO_OE;
 	gpio_ports[n]->setdataout_reg = gpio_ports[n]->gpio_addr + GPIO_SETDATAOUT;
 	gpio_ports[n]->clrdataout_reg = gpio_ports[n]->gpio_addr + GPIO_CLEARDATAOUT;
+	gpio_ports[n]->datain_reg = gpio_ports[n]->gpio_addr + GPIO_DATAIN;
+
+
+	rtapi_print("memmapped gpio port %d to %p, oe: %p, set: %p, clr: %p\n", n, gpio_ports[n]->gpio_addr, gpio_ports[n]->oe_reg, gpio_ports[n]->setdataout_reg, gpio_ports[n]->clrdataout_reg);
 
 	close(fd);
 }
@@ -132,6 +136,12 @@ int rtapi_app_main(void) {
 			int led = strtol(token, NULL, 10);
 
 			data = NULL;
+
+			if(user_led_gpio_pins[led].claimed != 0) {
+				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: userled%d is not available as a GPIO.\n", modname, led);
+				hal_exit(comp_id);
+				return -1;
+			}
 
 			// add hal pin
 			retval = hal_pin_bit_newf(HAL_IN, &(port_data[0].led_pins[led]), comp_id, "bb_gpio.userled%d", led);
@@ -183,7 +193,6 @@ int rtapi_app_main(void) {
 				hal_exit(comp_id);
 				return -1;
 			}
-			bbpin.claimed++;
 
 			data = NULL; // after the first call, subsequent calls to strtok need to be on NULL
 
@@ -237,7 +246,6 @@ int rtapi_app_main(void) {
 				hal_exit(comp_id);
 				return -1;
 			}
-			bbpin.claimed++;
 
 			data = NULL; // after the first call, subsequent calls to strtok need to be on NULL
 
@@ -284,8 +292,6 @@ int rtapi_app_main(void) {
 
 	hal_ready(comp_id);
 
-	rtapi_print("port_data is %p\n", port_data);
-
 	return 0;
 }
 
@@ -302,9 +308,32 @@ static void write_port(void *arg, long period) {
 
 	// set userled states
 	for(i=0; i<4; i++) {
-		//rtapi_print("\tled addr is %p value is %d\n", port->led_pins[i], *port->led_pins[i]);
+		if(port->led_pins[i] == NULL) continue; // short circuit if hal hasn't malloc'd a bit at this location
+
 		bb_gpio_pin pin = user_led_gpio_pins[i];
+
+		if(pin.claimed != 'O') continue; // if we somehow get here but the pin isn't claimed as output, short circuit
+
 		if(*port->led_pins[i] == 0)
+			*(pin.port->clrdataout_reg) = (1 << pin.pin_num);
+		else
+			*(pin.port->setdataout_reg) = (1 << pin.pin_num);
+	}
+
+	// set output states
+	for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
+		if(port->output_pins[i] == NULL) continue; // short circuit if hal hasn't malloc'd a bit at this location
+
+		bb_gpio_pin pin;
+
+		if(i<PINS_PER_HEADER)
+			pin = p8_pins[i];
+		else 
+			pin = p9_pins[i - PINS_PER_HEADER];
+
+		if(pin.claimed != 'O') continue; // if we somehow get here but the pin isn't claimed as output, short circuit
+
+		if(*port->output_pins[i] == 0)
 			*(pin.port->clrdataout_reg) = (1 << pin.pin_num);
 		else
 			*(pin.port->setdataout_reg) = (1 << pin.pin_num);
@@ -313,7 +342,24 @@ static void write_port(void *arg, long period) {
 
 
 static void read_port(void *arg, long period) {
+	int i;
+	port_data_t *port = (port_data_t *)arg;
 
+	// read input states
+	for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
+		if(port->input_pins[i] == NULL) continue; // short circuit if hal hasn't malloc'd a bit at this location
+
+		bb_gpio_pin pin;
+
+		if(i<PINS_PER_HEADER)
+			pin = p8_pins[i];
+		else 
+			pin = p9_pins[i - PINS_PER_HEADER];
+
+		if(!(pin.claimed == 'I' || pin.claimed == 'U' || pin.claimed == 'D')) continue; // if we get here but the pin isn't claimed as input, short circuit
+
+		*port->input_pins[i] = (*(pin.port->datain_reg) & (1 << pin.pin_num))  >> pin.pin_num;
+	}
 }
 
 
@@ -341,6 +387,7 @@ off_t start_addr_for_port(int port) {
 
 void configure_pin(bb_gpio_pin *pin, char mode) {
 	volatile unsigned int *control_reg = control_module + pin->control_offset;
+	pin->claimed = mode;
 	switch(mode) {
 		case 'O':
 			*(pin->port->oe_reg) &= ~(1 << pin->pin_num); // 0 in OE is output enable

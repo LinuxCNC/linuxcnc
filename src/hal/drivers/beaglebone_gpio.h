@@ -35,7 +35,7 @@
 #define GPIO_SIZE			 	0x2000
 #define GPIO0_START_ADDR 	0x44E07000
 #define GPIO1_START_ADDR 	0x4804C000
-#define GPIO2_START_ADDR 	0x4804C000
+#define GPIO2_START_ADDR 	0x481AC000
 #define GPIO3_START_ADDR 	0x481AE000
 
 #define GPIO_OE 				0x134
@@ -48,6 +48,7 @@ typedef struct {
 	volatile unsigned int *oe_reg;
 	volatile unsigned int *setdataout_reg;
 	volatile unsigned int *clrdataout_reg;
+   volatile unsigned int *datain_reg;
 } bb_gpio_port;
 
 typedef struct {
