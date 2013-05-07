@@ -170,7 +170,7 @@ int rtapi_app_main(void) {
 		while((token = strtok(data, ",")) != NULL) {
 			int pin = strtol(token, NULL, 10);
 			int header;
-			bb_gpio_pin bbpin;
+			bb_gpio_pin *bbpin;
 
 			if(pin < 101 || pin > 246 || (pin > 146 && pin < 201)) {
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 101-146 for P8 pins, 201-246 for P9 pins.\n", modname, pin);
@@ -180,15 +180,15 @@ int rtapi_app_main(void) {
 
 			if(pin < 200) {
 				pin -= 100;
-				bbpin = p8_pins[pin];
+				bbpin = &p8_pins[pin];
 				header = 8;
 			} else {
 				pin -= 200;
-				bbpin = p9_pins[pin];
+				bbpin = &p9_pins[pin];
 				header = 9;
 			}
 
-			if(bbpin.claimed != 0) {
+			if(bbpin->claimed != 0) {
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin p%d.%02d is not available as a GPIO.\n", modname, header, pin);
 				hal_exit(comp_id);
 				return -1;
@@ -204,17 +204,17 @@ int rtapi_app_main(void) {
 				return -1;
 			}
 
-			int gpio_num = bbpin.port_num;
+			int gpio_num = bbpin->port_num;
 			
 			// configure gpio port if necessary
 			if(gpio_ports[gpio_num] == NULL) {
 				configure_gpio_port(gpio_num);
 			}
 
-			bbpin.port = gpio_ports[gpio_num];
+			bbpin->port = gpio_ports[gpio_num];
 
-			configure_pin(&bbpin, 'U');
-			rtapi_print("pin %d maps to pin %d-%d, mode %d\n", pin, bbpin.port_num, bbpin.pin_num, bbpin.claimed);
+			configure_pin(bbpin, 'U');
+			rtapi_print("pin %d maps to pin %d-%d, mode %d\n", pin, bbpin->port_num, bbpin->pin_num, bbpin->claimed);
 		}
 	}
 
@@ -350,10 +350,12 @@ static void read_port(void *arg, long period) {
 
 		bb_gpio_pin pin;
 
-		if(i<PINS_PER_HEADER)
+		if(i<PINS_PER_HEADER) {
 			pin = p8_pins[i];
-		else 
+		} else {
 			pin = p9_pins[i - PINS_PER_HEADER];
+		}
+
 
 		if(!(pin.claimed == 'I' || pin.claimed == 'U' || pin.claimed == 'D')) continue; // if we get here but the pin isn't claimed as input, short circuit
 
