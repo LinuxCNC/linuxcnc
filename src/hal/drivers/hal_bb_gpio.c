@@ -214,6 +214,7 @@ int rtapi_app_main(void) {
 			bbpin.port = gpio_ports[gpio_num];
 
 			configure_pin(&bbpin, 'U');
+			rtapi_print("pin %d maps to pin %d-%d, mode %d\n", pin, bbpin.port_num, bbpin.pin_num, bbpin.claimed);
 		}
 	}
 
@@ -223,7 +224,7 @@ int rtapi_app_main(void) {
 		while((token = strtok(data, ",")) != NULL) {
 			int pin = strtol(token, NULL, 10);
 			int header;
-			bb_gpio_pin bbpin;
+			bb_gpio_pin *bbpin;
 
 			if(pin < 101 || pin > 246 || (pin > 146 && pin < 201)) {
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: invalid pin number '%d'.  Valid pins are 101-146 for P8 pins, 201-246 for P9 pins.\n", modname, pin);
@@ -233,15 +234,15 @@ int rtapi_app_main(void) {
 
 			if(pin < 200) {
 				pin -= 100;
-				bbpin = p8_pins[pin];
+				bbpin = &p8_pins[pin];
 				header = 8;
 			} else {
 				pin -= 200;
-				bbpin = p9_pins[pin];
+				bbpin = &p9_pins[pin];
 				header = 9;
 			}
 
-			if(bbpin.claimed != 0) {
+			if(bbpin->claimed != 0) {
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin p%d.%02d is not available as a GPIO.\n", modname, header, pin);
 				hal_exit(comp_id);
 				return -1;
@@ -257,16 +258,16 @@ int rtapi_app_main(void) {
 				return -1;
 			}
 
-			int gpio_num = bbpin.port_num;
+			int gpio_num = bbpin->port_num;
 			
 			// configure gpio port if necessary
 			if(gpio_ports[gpio_num] == NULL) {
 				configure_gpio_port(gpio_num);
 			}
 
-			bbpin.port = gpio_ports[gpio_num];
+			bbpin->port = gpio_ports[gpio_num];
 
-			configure_pin(&bbpin, 'O');
+			configure_pin(bbpin, 'O');
 		}
 	}
 
@@ -304,8 +305,6 @@ static void write_port(void *arg, long period) {
 	int i;
 	port_data_t *port = (port_data_t *)arg;
 
-	//rtapi_print("arg is %p\n", arg);
-
 	// set userled states
 	for(i=0; i<4; i++) {
 		if(port->led_pins[i] == NULL) continue; // short circuit if hal hasn't malloc'd a bit at this location
@@ -321,7 +320,7 @@ static void write_port(void *arg, long period) {
 	}
 
 	// set output states
-	for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
+	for(i=1; i<=HEADERS*PINS_PER_HEADER; i++) {
 		if(port->output_pins[i] == NULL) continue; // short circuit if hal hasn't malloc'd a bit at this location
 
 		bb_gpio_pin pin;
@@ -346,7 +345,7 @@ static void read_port(void *arg, long period) {
 	port_data_t *port = (port_data_t *)arg;
 
 	// read input states
-	for(i=0; i<HEADERS*PINS_PER_HEADER; i++) {
+	for(i=1; i<=HEADERS*PINS_PER_HEADER; i++) {
 		if(port->input_pins[i] == NULL) continue; // short circuit if hal hasn't malloc'd a bit at this location
 
 		bb_gpio_pin pin;
