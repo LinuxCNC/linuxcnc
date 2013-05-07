@@ -70,7 +70,8 @@ bb_gpio_pin user_led_gpio_pins[4] = {
 	{ NULL, 1, 24, 0x860, 0 }	// led3, gpmc_a8
 };
 
-bb_gpio_pin p8_pins[46] = {
+bb_gpio_pin p8_pins[47] = {
+	{ NULL, -1, -1, -1, 1 }, // 0 unused
 	{ NULL, -1, -1, -1, 1 }, // 1 GND 
 	{ NULL, -1, -1, -1, 1 }, // 2 GND 
 	{ NULL, 1,  6, 0x818, 0 }, // pin 3, gpmc_ad6
@@ -119,7 +120,8 @@ bb_gpio_pin p8_pins[46] = {
 	{ NULL, 2,  7, 0x8A4, 0 }  // pin 46, lcd_data1
 };
 
-bb_gpio_pin p9_pins[46] = {
+bb_gpio_pin p9_pins[47] = {
+	{ NULL, -1, -1, -1, 1 }, // 0 unused
 	{ NULL, -1, -1, -1, 1 }, // 1 GND 
 	{ NULL, -1, -1, -1, 1 }, // 2 GND 
 	{ NULL, -1, -1, -1, 1 }, // 3 3.3v
