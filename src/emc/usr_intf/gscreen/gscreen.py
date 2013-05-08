@@ -691,10 +691,6 @@ class Gscreen:
         gobject.timeout_add(int(temp), self.periodic_status)
 
     def initialize_keybindings(self):
-        if 1==1:
-            accel_group = gtk.AccelGroup()
-            self.widgets.window1.add_accel_group(accel_group)
-            self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
         self.widgets.window1.connect('key_press_event', self.on_key_event,1)
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
@@ -1034,28 +1030,31 @@ class Gscreen:
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
         try:
-            if keyname =="Escape" and signal:
-                self.widgets.button_estop.emit("clicked")
             if keyname =="F1" and signal:
+                self.widgets.button_estop.emit("clicked")
+            if keyname =="F2" and signal:
                 self.widgets.button_machine_on.emit("clicked")
         except:
             pass
-        print self.widgets.notebook_main.get_current_page()
         if self.widgets.notebook_main.get_current_page() == 0:
             if keyname in( "Shift_L","Shift_R"): return True
             if self.data.key_event_last == signal: return True
             if keyname == "Up":
-                self.do_key_jog(2,1,signal)
+                self.do_key_jog(1,1,signal)
             elif keyname == "Down":
-                self.do_key_jog(2,0,signal)
+                self.do_key_jog(1,0,signal)
             elif keyname == "Left":
                 self.do_key_jog(0,0,signal)
             elif keyname == "Right":
                 self.do_key_jog(0,1,signal)
-            elif keyname == "Page_Up":
-                self.do_key_jog(1,0,signal)
             elif keyname == "Page_Down":
-                self.do_key_jog(1,1,signal)
+                self.do_key_jog(2,0,signal)
+            elif keyname == "Page_Up":
+                self.do_key_jog(2,1,signal)
+            elif keyname == "bracketleft":
+                self.do_key_jog(3,0,signal)
+            elif keyname == "bracketright":
+                self.do_key_jog(3,1,signal)
             elif keyname in ("I","i"):
                 if signal:
                     if event.state & gtk.gdk.SHIFT_MASK:
