@@ -1,3 +1,8 @@
+ver 0.9.2
+- added lathe mode
+- added classicladder button
+
+
 ver 0.9.1
 - show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 
   is actice, other behavior makes no sense
