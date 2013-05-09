@@ -1,7 +1,19 @@
 ver 0.9.2
 - added lathe mode
 - added classicladder button
+- added button for tool touchoff in X and Z axis
+- corrected the key handling, now also F1 and F2 works and ESC emit emc.aboart()
 
+ver. 0.9.1.2
+- trying to jog the machine with the keyboard
+  a python error was lauched, because Chris renamed the
+  data.event_up to data.event_last
+  solved this renaming the data also in gmoccapy
+
+ver. 0.9.1.2
+- missed renaming one widget in code, due to the changes
+  on the settings page, resulting in an exception
+  solved this renaming the widget in gmoccapy
 
 ver 0.9.1
 - show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 

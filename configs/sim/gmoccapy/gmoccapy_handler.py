@@ -31,9 +31,6 @@ import gtk
 import os
 import pango
 import gladevcp.makepins # needed for the dialog's calulator widget
-import sys
-import glib
-import linuxcnc
 
 # standard handler call
 def get_handlers(halcomp,builder,useropts,gscreen):
@@ -45,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.2.1"
+_RELEASE = "0.9.2"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -94,8 +91,6 @@ class HandlerClass:
         self.no_increments = 0    # number of increments from INI File, because of space we allow a max of 10
         self.unlock = False       # this value will be set using the hal pin unlock settings
         self.system_list = (0,'G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3')
-        self.redirect = False     # redirect the standard out?
-        self.emcerror = linuxcnc.error_channel()
 
     def initialize_preferences(self):
         self.data.theme_name = self.gscreen.prefs.getpref('gtk_theme', 'Follow System Theme', str)
@@ -244,34 +239,42 @@ class HandlerClass:
                     (7,"tbtn_fullsize_preview"), (9,"btn_exit")
                    ]
         self.h_tabs.append(tab_main)
+ 
         tab_mdi = [(9,"btn_show_kbd")]
         self.h_tabs.append(tab_mdi)
+
         tab_auto = [(0,"btn_run"),(1,"btn_stop"),(2,"btn_step"),(3,"tbtn_pause"),
                     (4,"btn_from_line"),(5,"tbtn_optional_stops"),(6,"tbtn_optional_blocks"),
                     (7,"btn_reload"),(8,"btn_load"),(9,"btn_edit")
                    ]
         self.h_tabs.append(tab_auto)
+
         tab_ref = [(1,"btn_home_all"),(3,"btn_home_X"),(4,"btn_home_Y"),
                    (5,"btn_home_Z"),(7,"btn_unhome_all"),(9,"btn_back_ref")
                   ]
         self.h_tabs.append(tab_ref)
+
         tab_touch = [(1,"btn_cero_X"),(2,"btn_cero_Y"),(3,"btn_cero_Z"),(5,"btn_set_value_X"),
                      (6,"btn_set_value_Y"),(7,"btn_set_value_Z"),(9,"btn_back_cero")
                     ]
         self.h_tabs.append(tab_touch)
+
         tab_setup = [(0,"btn_delete"),(5,"btn_hal_scope"),(6,"btn_status"),(7,"btn_hal_meter"),
                      (8,"btn_calibration"),(9,"btn_show_hal")
                     ]
         self.h_tabs.append(tab_setup)
+
         tab_edit = [(1,"btn_save"),(2,"btn_save_as"),(3,"btn_save_and_run"),(5,"btn_new"),
                     (6,"btn_open_edit"),(7,"btn_close"),(8,"btn_keyb"),(9,"btn_back_edit")
                    ]
+#To Do: check if lathe
         self.h_tabs.append(tab_edit)
         tab_tool = [(0,"btn_delete_tool"),(1,"btn_add_tool"),(2,"btn_reload_tooltable"),
                     (3,"btn_apply_tool_changes"),(5,"btn_index_tool"),(6,"btn_change_tool"),
-                    (9,"btn_back_tool")
+                    (7,"btn_tool_touchoff_X"),(8,"btn_tool_touchoff_Z"),(9,"btn_back_tool")
                    ]
         self.h_tabs.append(tab_tool)
+#To Do: End
 
         self.v_tabs = [(0,"tbtn_estop"),(1,"tbtn_on"),(2,"rbt_manual"),(3,"rbt_mdi"),
                        (4,"rbt_auto"),(5,"rbt_setup"),(6,"tbtn_user_tabs")
@@ -380,11 +383,24 @@ class HandlerClass:
         # but this is not true, because the machine is not in On state
         self.widgets.btn_clear_statusbar.emit("clicked") 
 
-        if self.data.lathe_mode: # we want to control a lathe
+        # call the function to change the button status
+        # so every think is ready to start
+        widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
+                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
+                      "btn_spindle_100", "scl_max_vel", "scl_spindle", "rbt_manual", "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
+
+                     ]
+        self.gscreen.sensitize_widgets(widgetlist,False)
+
+        # Do we control a lathe?
+        if self.data.lathe_mode:
             # we first hide the Y button to touch off 
             self.widgets.btn_home_Y.hide()
             self.widgets.lbl_replace_y.show()
-
+            self.widgets.btn_tool_touchoff_X.show()
+            self.widgets.lbl_hide_tto_X.hide()
+    
             # we have to rearange the jog buttons, we first remove all button
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Y_minus)
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Y_plus)
@@ -392,7 +408,7 @@ class HandlerClass:
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_X_plus)
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Z_minus)
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Z_plus)
-
+    
             # now we place them in a different order
             self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_plus,1,2,2,3)
             self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_minus,1,2,0,1)
@@ -402,16 +418,24 @@ class HandlerClass:
             # and the Y DRO we make to a second X DRO but indicating the diameter
             self.widgets.hal_dro_Y.set_property('joint_number',0)
             self.widgets.hal_dro_Y.set_property('diameter',True)
-
+    
             # we change the label text of the DRO
             self.widgets.lbl_Y.set_label("D")
             self.widgets.lbl_X.set_label("R")
-
+    
             # For gremlin we don't need the following button
+            self.widgets.rbt_view_Y.set_active(True)
             self.widgets.rbt_view_P.hide()
             self.widgets.rbt_view_X.hide()
             self.widgets.rbt_view_Z.hide()
-            self.widgets.rbt_view_Y.set_active(True)
+            
+            # check if G7 or G8 is active
+            # this is set on purpose wrong, because we want the periodic 
+            # to update the state correctly
+            if "G7" in self.data.active_gcodes:
+                self.data.diameter_mode = False
+            else:
+                self.data.diameter_mode = True
 
         else:
             # the Y2 view is not needed on a mill
@@ -419,16 +443,8 @@ class HandlerClass:
             # X Offset is not necesary on a lathe
             self.widgets.lbl_tool_offset_X.hide()
             self.widgets.lbl_offset_X.hide()
-
-        # call the function to change the button status
-        # so every think is ready to start
-        widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
-                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle", "rbt_manual"
-                     ]
-        self.gscreen.sensitize_widgets(widgetlist,False)
-        print("line 403")
+            self.widgets.btn_tool_touchoff_X.hide()
+            self.widgets.lbl_hide_tto_X.show()
 
     # init the preview
     def init_gremlin(self):
@@ -481,27 +497,24 @@ class HandlerClass:
         if self.gscreen.emcstat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
-#         if signal: 
-#             print "Key %s (%d) has been pressed" % (keyname, event.keyval)
-#         else:
-#             print "Key %s (%d) has been released" % (keyname, event.keyval)
-# 
-#         if event.state & gtk.gdk.CONTROL_MASK:
-#             print "Control was being held down"
-#         if event.state & gtk.gdk.MOD1_MASK:
-#             print "Alt was being held down"
-#         if event.state & gtk.gdk.SHIFT_MASK:
-#             print "Shift was being held down"
-
-        if keyname == "Escape":
-            self.gscreen.emc.estop(1)
-            return True
+        try:
+            if keyname =="F1" and signal:
+                self.widgets.tbtn_estop.emit("clicked")
+                return True
+            if keyname =="F2" and signal:
+                self.widgets.tbtn_on.emit("clicked")
+                return True
+            if keyname == "Escape":
+                self.gscreen.emc.abort()
+                return True
+        except:
+            pass
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
-        if signal and self.data.key_event_up == signal: 
+        if signal and self.data.key_event_last == signal: 
             return True
         else:
-            self.data.key_event_up = signal
+            self.data.key_event_last = signal
 
         # take care of differnt key handling for lathe operation
         if self.data.lathe_mode:
@@ -681,57 +694,6 @@ class HandlerClass:
         # does the user want to show screen2 
         self.widgets.tbtn_use_screen2.set_active(self.gscreen.prefs.getpref('use_screen2', False, bool))
 
-
-
-
-        self.logwindow = LogText(self.widgets.log_text, self.widgets.log_buffer)
-
-        if not self.redirect:
-            self.redirect_shell_messages()
-            glib.timeout_add(50, self.error_task)
-
-    def redirect_shell_messages(self):
-        sys.stdout = sys.stderr = self.logwindow
-        self.redirect = True
-
-    def error_task(self):
-        error = self.emcerror.poll()
-        if error:
-            print("line 700", "error = ", error)
-        while error:
-            print("line 702", "error = ", error)
-            kind,text = error
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                icon = "error"
-            else:
-                if kind == 13:
-                    icon = "message"
-                    if self.widgets.ntb_messages.get_current_page() == 0:
-                        self.widgets.ntb_messages.set_current_page(1)
-                    self.widgets.lbl_debug.set_text(icon+text)
-                    self.widgets.btn_del_error.set_visible(True)
-                    self.widgets.ntb_messages.set_current_page(1)
-                else:
-                    icon = "Info: "
-            print ( "line 716",icon, text )
-            if icon == "error":
-                self.widgets.lbl_debug.set_text(text)
-                self.widgets.btn_del_error.set_visible(True)
-                self.widgets.ntb_messages.set_current_page(1)
-            else:
-                print("line 721",icon,error)
-            error = self.emcerror.poll()
-        return True # reloads the timer
- 
-    def on_btn_del_error_clicked(self, widget, data=None):
-        self.widgets.lbl_debug.set_text("")
-        self.widgets.btn_del_error.set_visible(False)
-        self.widgets.ntb_messages.set_current_page(0)
-
-
-
-
-
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("use_current_clicked %s"%self.data.file)
@@ -784,7 +746,7 @@ class HandlerClass:
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle"
+                      "btn_spindle_100", "scl_max_vel", "scl_spindle", "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,state)
 
@@ -797,9 +759,9 @@ class HandlerClass:
 
     def on_rbt_mdi_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_mdi_clicked")
-        self.emc.set_mdi_mode()
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(1)
+        self.emc.set_mdi_mode()
 
     def on_rbt_auto_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_auto_clicked")
@@ -922,7 +884,6 @@ class HandlerClass:
         self.gscreen.add_alarm_entry("%s_homed"%axis + " = " +  str(self.data["%s_is_homed"%axis.lower()]))
 
         if self.data.lathe_mode:
-            print("Lathe mode in update homed")
             if "G8" in self.data.active_gcodes:
                 self.widgets.eventbox_Y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
                 self.widgets.eventbox_dro_Y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
@@ -953,10 +914,8 @@ class HandlerClass:
         for axis in self.data.axis_list:
             self.data["%s_is_homed"%axis] = False
             self._update_homed(axis)
-            print("Axis = ", axis)
         if self.data.lathe_mode:
             self.data.y_is_homed = False
-            print("Axis = x and lathe")
             self._update_homed("Y")
 
 #ToDo: What happen when there are more axis,
@@ -1820,6 +1779,34 @@ class HandlerClass:
                 self.on_hal_status_interp_idle(self)
             self._update_toolinfo(tool)
 
+    def on_btn_tool_touchoff_clicked(self, widget, data=None):
+        if widget == self.widgets.btn_tool_touchoff_X:
+            axis = "X"
+        elif widget == self.widgets.btn_tool_touchoff_Z:
+            axis = "Z"
+        else:
+            self.gscreen.warning_dialog(_(" Real big error !"), True, 
+                                        _("You archieved to come to a place with is not possible in on_btn_tool_touchoff"))
+            return
+
+        value = self.entry_dialog(data = None, header = _("Enter value for axis %s to set:")%axis, 
+                                      label=_("Set parameter of tool %d and axis %s to:")%(self.data.tool_in_spindle,axis))
+        if value == 'ERROR':
+            message = _("Conversion error because off wrong entry for touch off axis %s")%axis
+            print(message)
+            self.gscreen.add_alarm_entry(message)
+            self.gscreen.warning_dialog(_("Conversion error !"), True, message)
+            return
+        elif value == 'CANCEL':
+            self.gscreen.add_alarm_entry(_("entry for axis %s has been canceled")%axis)
+            return
+        else:
+            self.gscreen.add_alarm_entry(_("axis %s , has been set to %f"%(axis,value)))
+        print "tool %d, set in %s axis to- %f" %(self.data.tool_in_spindle,axis,value)
+        self.gscreen.mdi_control.touchoff(self.data.tool_in_spindle,axis.lower(),value)
+        self._update_toolinfo(self.data.tool_in_spindle)
+        self.widgets.rbt_manual.emit("clicked")
+
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked(self, widget, data=None):
         tool = self._get_selected_tool()
@@ -1985,22 +1972,19 @@ class HandlerClass:
         self.gscreen.add_alarm_entry("all_homed")
         self.widgets.statusbar1.push(1,"")
         self.widgets.ntb_button.set_current_page(0)
-        widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool"]
+        widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_tool_touchoff_X", "btn_tool_touchoff_Z"]
         self.gscreen.sensitize_widgets(widgetlist,True)
-        print("line 1883")
         
     def on_hal_status_not_all_homed(self,*args):
         self.gscreen.add_alarm_entry("not_all_homed")
-        widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool"]
+        widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool", "btn_tool_touchoff_X", "btn_tool_touchoff_Z"]
         self.gscreen.sensitize_widgets(widgetlist,False)
-        print("line 1889")
         
     def on_hal_status_homed(self,widget,data):
         for letter in(self.data.axis_list):
             count = "xyzabcuvws".index(letter)
             if str(count) in data:
                 if letter == "x" and self.data.lathe_mode:
-                    print("Lathe Mode aktiv")
                     self.data.y_is_homed = True
                     self._update_homed("Y")
                 self.data["%s_is_homed"%letter] = True
@@ -2027,13 +2011,14 @@ class HandlerClass:
             widgetlist.append("rbt_auto")
             widgetlist.append("btn_index_tool")
             widgetlist.append("btn_change_tool")
+            widgetlist.append("btn_tool_touchoff_X")
+            widgetlist.append("btn_tool_touchoff_Z")
         self.gscreen.sensitize_widgets(widgetlist,True)
-        print("line 1922")
         for btn in self.macrobuttons:
             btn.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
-#        self._update_homed("X")
+        print("interpreter idle and self tool change = " , self.wait_tool_change)
         if self.wait_tool_change == True:
             self.emc.set_manual_mode()
             self.wait_tool_change = False
@@ -2050,10 +2035,10 @@ class HandlerClass:
         self.gscreen.add_alarm_entry("run")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "rbt_setup", "btn_step","btn_index_tool",
                       "ntb_jog", "btn_from_line", "btn_reload", "rbt_forward", "btn_change_tool",
-                      "rbt_reverse", "rbt_stop", "btn_load", "btn_edit", "tbtn_optional_blocks"
+                      "rbt_reverse", "rbt_stop", "btn_load", "btn_edit", "tbtn_optional_blocks", 
+                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
-        print("line 1947")
         self.widgets.btn_run.set_sensitive(False)
         self.interpreter = _RUN
 
@@ -2132,10 +2117,9 @@ class HandlerClass:
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle"
+                      "btn_spindle_100", "scl_max_vel", "scl_spindle", "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
-        print("line 2029")
         self.widgets.rbt_manual.set_active(True)
         if self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(False)
@@ -2180,7 +2164,6 @@ class HandlerClass:
     # add the individual function names that you would like to call.
     # In this case we wish to call Gscreen's default function for units button update
     def periodic(self):
-        self.error_task()
         self.gscreen.update_active_gcodes()
         if "G8" in self.data.active_gcodes and self.data.lathe_mode and self.data.diameter_mode:
             self._update_homed("X")

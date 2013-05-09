@@ -57,8 +57,8 @@
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
                                             <property name="enable_dro">False</property>
-                                            <property name="show_dtg">False</property>
                                             <property name="use_commanded">False</property>
+                                            <property name="show_dtg">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -830,8 +830,8 @@
                                         <property name="xalign">1</property>
                                         <property name="yalign">0.47999998927116394</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="display_units_mm">True</property>
+                                        <property name="reference_type">1</property>
                                         <property name="actual">False</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
@@ -856,9 +856,9 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="display_units_mm">True</property>
                                         <property name="joint_number">1</property>
+                                        <property name="reference_type">1</property>
                                         <property name="actual">False</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
@@ -885,9 +885,9 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="reference_type">1</property>
                                         <property name="display_units_mm">True</property>
                                         <property name="joint_number">2</property>
+                                        <property name="reference_type">1</property>
                                         <property name="actual">False</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
@@ -1730,16 +1730,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="z0_color">#0000ffff0000</property>
                                                         <property name="max">6000</property>
-                                                        <property name="target_color">#0000ffff0000</property>
-                                                        <property name="bg_color">#bebebebebebe</property>
                                                         <property name="z1_border">0.80000001192092896</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
-                                                        <property name="z1_color">#0000ffff0000</property>
-                                                        <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="z2_color">#0000ffff0000</property>
+                                                        <property name="bg_color">#bebebebebebe</property>
+                                                        <property name="z0_color">#0000ffff0000</property>
                                                         <property name="text_template">%i</property>
+                                                        <property name="z0_border">0.40000000596046448</property>
+                                                        <property name="z1_color">#0000ffff0000</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="z2_color">#0000ffff0000</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -2602,6 +2602,7 @@
                                     <property name="visible">True</property>
                                     <child>
                                       <object class="GtkStatusbar" id="statusbar1">
+                                        <property name="visible">True</property>
                                         <property name="spacing">2</property>
                                         <property name="has_resize_grip">False</property>
                                       </object>
@@ -2628,107 +2629,13 @@
                                         <property name="expand">False</property>
                                         <property name="fill">False</property>
                                         <property name="padding">5</property>
+                                        <property name="pack_type">end</property>
                                         <property name="position">1</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkNotebook" id="ntb_messages">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="show_tabs">False</property>
-                                    <child>
-                                      <object class="GtkScrolledWindow" id="scr_window_logtext">
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="hscrollbar_policy">automatic</property>
-                                        <property name="vscrollbar_policy">automatic</property>
-                                        <child>
-                                          <object class="GtkTextView" id="log_text">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="editable">False</property>
-                                            <property name="wrap_mode">word</property>
-                                            <property name="cursor_visible">False</property>
-                                            <property name="buffer">log_buffer</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child type="tab">
-                                      <object class="GtkLabel" id="lbl_tab_debug">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Debug</property>
-                                      </object>
-                                      <packing>
-                                        <property name="tab_fill">False</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkHBox" id="hbox11">
-                                        <property name="visible">True</property>
-                                        <child>
-                                          <object class="GtkLabel" id="lbl_debug">
-                                            <property name="visible">True</property>
-                                            <property name="xalign">0.10000000149011612</property>
-                                            <property name="label" translatable="yes">Errors and Messages</property>
-                                            <attributes>
-                                              <attribute name="style" value="normal"/>
-                                              <attribute name="weight" value="bold"/>
-                                              <attribute name="foreground" value="#ffff00000000"/>
-                                              <attribute name="scale" value="1.500000"/>
-                                            </attributes>
-                                          </object>
-                                          <packing>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkButton" id="btn_del_error">
-                                            <property name="width_request">60</property>
-                                            <property name="height_request">60</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <signal name="clicked" handler="on_btn_del_error_clicked"/>
-                                            <child>
-                                              <object class="GtkImage" id="image2">
-                                                <property name="width_request">56</property>
-                                                <property name="height_request">56</property>
-                                                <property name="visible">True</property>
-                                                <property name="stock">gtk-delete</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                      </object>
-                                      <packing>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
-                                    <child type="tab">
-                                      <object class="GtkLabel" id="lbl_tab_error">
-                                        <property name="visible">True</property>
-                                        <property name="xalign">0.56000000238418579</property>
-                                        <property name="label" translatable="yes">Errors</property>
-                                      </object>
-                                      <packing>
-                                        <property name="position">1</property>
-                                        <property name="tab_fill">False</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
                                   </packing>
                                 </child>
                               </object>
@@ -5840,7 +5747,7 @@ Aux Screen</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_set_tool">
+                  <object class="GtkButton" id="btn_index_tool">
                     <property name="width_request">56</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -5849,7 +5756,7 @@ Aux Screen</property>
                     <property name="tooltip_markup">change tool with the command M61 Q?, no machine move will be done</property>
                     <signal name="clicked" handler="on_btn_selected_tool_clicked"/>
                     <child>
-                      <object class="GtkImage" id="img_set_tool">
+                      <object class="GtkImage" id="img_index_tool">
                         <property name="visible">True</property>
                         <property name="pixbuf">icon/index_tool.svg</property>
                       </object>
@@ -5879,15 +5786,15 @@ Aux Screen</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="btn_index_tool">
-                    <property name="label" translatable="yes">index
- tool</property>
+                  <object class="GtkButton" id="btn_tool_touchoff_X">
+                    <property name="label" translatable="yes">touchoff
+ tool X</property>
                     <property name="width_request">56</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <signal name="clicked" handler="on_btn_index_tool_clicked"/>
+                    <signal name="clicked" handler="on_btn_tool_touchoff_clicked"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -5896,7 +5803,7 @@ Aux Screen</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_22">
+                  <object class="GtkLabel" id="lbl_hide_tto_X">
                     <property name="width_request">56</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -5908,20 +5815,36 @@ Aux Screen</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkButton" id="btn_tool_touchoff_Z">
+                    <property name="label" translatable="yes">touchoff
+  tool Z</property>
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_btn_tool_touchoff_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">9</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="btn_back_tool">
                     <property name="width_request">56</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_markup">go back to main button list</property>
                     <property name="image">img_back_tool</property>
                     <signal name="clicked" handler="on_btn_back_clicked"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">9</property>
+                    <property name="position">10</property>
                   </packing>
                 </child>
               </object>
@@ -6283,10 +6206,6 @@ Down</property>
     <property name="visible">True</property>
     <property name="pixbuf">icon/toolchange.png</property>
   </object>
-  <object class="GtkImage" id="img_back_tool">
-    <property name="visible">True</property>
-    <property name="icon_name">edit-undo</property>
-  </object>
   <object class="GtkImage" id="img_coolant_off">
     <property name="visible">True</property>
     <property name="pixbuf">icon/coolant_off.png</property>
@@ -6426,4 +6345,8 @@ Down</property>
     <property name="pixbuf">icon/toolchange.png</property>
   </object>
   <object class="GtkTextBuffer" id="log_buffer"/>
+  <object class="GtkImage" id="img_back_tool">
+    <property name="visible">True</property>
+    <property name="icon_name">edit-undo</property>
+  </object>
 </interface>
