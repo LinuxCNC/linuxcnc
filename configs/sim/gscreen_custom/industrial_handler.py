@@ -310,6 +310,15 @@ class HandlerClass:
         self.on_dtg_colorbutton_color_set(None)
         self.widgets.show_dtg.set_active(self.data.show_dtg)
         self.on_show_dtg_pressed(self.widgets.show_dtg)
+        self.gscreen.init_dro()
+        data = self.data.dro_units 
+        for i in ("1","2","3"):
+            for letter in self.data.axis_list:
+                axis = "dro_%s%s"% (letter,i)
+                try:
+                    self.widgets[axis].set_property("display_units_mm",data)
+                except:
+                    pass
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
