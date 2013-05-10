@@ -103,7 +103,7 @@ _(pas encore implémenté)_
 |<<sec:G92,G92>> | Décalages d'origines avec mise à jour des paramètres
 |<<sec:G92_1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine
 |<<sec:G92_3,G92.3>> | Applique contenu des paramètres aux déc. d'origine
-|<<sec:G93-G94-G95-Set,G93>>   | Modes de vitesse
+|<<sec:G93-G94-G95-Modes,G93>>   | Modes de vitesse
 |<<sec:G96-G97-Broche,G96>>    | Vitesse de coupe constante (IPM ou m/mn)
 |<<sec:G96-G97-Broche,G97>>    | Vitesse en tours par minute
 |<<sec:G98-G99-Set,G98>>       | Options de retrait des cycles de perçage
@@ -2177,7 +2177,7 @@ _G92.3_ vers le début du deuxième programme, ce qui restaurera les
 décalages d'axes enregistrés par le premier.
 
 
-[[sec:G93-G94-G95-Set]]
+[[sec:G93-G94-G95-Modes]]
 == G93, G94, G95: Choix des modes de vitesse
 (((G93, G94, G95: Choix des modes de vitesse)))
 
