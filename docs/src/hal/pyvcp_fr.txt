@@ -875,6 +875,7 @@ gauche.
     <hbox>
     <led/>
     <led/>
+    <led/>
     </hbox>
 </labelframe>
 ----
