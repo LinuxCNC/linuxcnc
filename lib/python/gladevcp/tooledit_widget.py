@@ -231,11 +231,20 @@ class ToolEdit(gtk.VBox):
         # we use locale methods so either a comma or decimal can be used, dependig in locale
     def col_editted(self, widget, path, new_text, col):
         if col in(1,2):
-            self.model[path][col] = int(new_text)
+            try:
+                self.model[path][col] = int(new_text)
+            except:
+                pass
         elif col in range(3,16):
-            self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+            try:
+                self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+            except:
+                pass
         elif col == 16:
-            self.model[path][col] = (new_text)
+            try:
+                self.model[path][col] = (new_text)
+            except:
+                pass
         #print new_text, col
 
         # this makes the checkboxes actually update
