@@ -688,10 +688,10 @@ class Gscreen:
             self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"))
             temp = 100
         print _("timeout %d" % int(temp))
-        if "timer_interupt" in dir(self.handler_instance):
-            gobject.timeout_add(int(temp), self.handler_instance.timer_interupt)
+        if "timer_interrupt" in dir(self.handler_instance):
+            gobject.timeout_add(int(temp), self.handler_instance.timer_interrupt)
         else:
-            gobject.timeout_add(int(temp), self.timer_interupt)
+            gobject.timeout_add(int(temp), self.timer_interrupt)
 
     def initialize_keybindings(self):
         self.widgets.window1.connect('key_press_event', self.on_key_event,1)
@@ -3003,7 +3003,7 @@ class Gscreen:
         settings.set_string_property("gtk-theme-name", theme, "")
 
     # check linuxcnc for status, error and then update the readout
-    def timer_interupt(self):
+    def timer_interrupt(self):
         self.emc.mask()
         self.emcstat = linuxcnc.stat()
         self.emcerror = linuxcnc.error_channel()
