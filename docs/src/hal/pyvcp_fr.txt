@@ -917,7 +917,7 @@ image::images/pyvcp_labelframe_fr1.png[]
 
 Une table est un container qui permet d'écrire dans une grille de
 lignes et de colonnes. Chaque ligne débute avec la balise _<tablerow/>_
-. Un widget containu peut être en lignes ou en colonnes par
+. Un widget contenu peut être en lignes ou en colonnes par
  l'utilisation de la balise _<tablespan rows= cols=/>_. Les bordures
 des cellules contenant les widgets _sticky_ peuvent
  être réglées grâce à l'utilisation de la balise _<tablesticky sticky=/>_.
