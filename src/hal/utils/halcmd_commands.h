@@ -80,16 +80,6 @@ extern int do_loadusr_cmd(char *args[]);
 extern int do_waitusr_cmd(char *comp_name);
 extern int do_save_cmd(char *type, char *filename);
 extern int do_setexact_cmd(void);
-extern int do_newg_cmd(char *group, char *group_id, char *tokens[]);
-extern int do_delg_cmd(char *group);
-extern int do_newm_cmd(char *group, char *member, char *tokens[]);
-extern int do_delm_cmd(char *group, char *member);
-
-extern int do_newring_cmd(char *ring, char *ring_size, char *tokens[]);
-extern int do_delring_cmd(char *ring);
-extern int do_ringdump_cmd(char *ring);
-extern int do_ringwrite_cmd(char *ring,char *content);
-extern int do_ringread_cmd(char *ring, char *tokens[]);
 
 extern int do_newcomp_cmd(char *comp, char *args[]);
 extern int do_newpin_cmd(char *comp, char *pin, char *type, char *args[]);

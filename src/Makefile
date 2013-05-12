@@ -123,14 +123,7 @@ SUBDIRS := \
     \
     po \
     \
-    ../docs/src \
-    protobuf \
-    protobuf/components \
-    protobuf/examples \
-    hal/halgroups \
-    hal/halreport \
-    hal/remote \
-    hal/msgcomponents
+    ../docs/src
 
 # moved to src/rtapi/Submakefile
 # ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
@@ -170,17 +163,6 @@ CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
-
-depends/protodeps.d: 
-	$(warning generated=$(GENERATED))
-	./mkprotodep -p protobuf/proto \
-            -e pb.h -e npb.h -e pb-c.h -e pb.cc -e npb.c -e pb-c.c \
-            -d depends -g protobuf/generated >depends/protodeps.d
-
-#	    -p protobuf/nanopb/generator \
-#	    -p  /usr/local/include/google/protobuf \
-
-#.PHONY: protodeps
 
 ifeq ($(TRIVIAL_BUILD),no)
 ifeq ($(USE_PROTOBUF),yes)
@@ -465,18 +447,13 @@ modclean:
 depclean:
 	-rm -rf depends
 
-clean: depclean modclean protobuf-clean
+clean: depclean modclean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -f $(COPY_CONFIGS)
 	-rm -f ../rtlib/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp
-
-# cleanup protoc/protoc-c/nanopb generated files
-protobuf-clean:
-	-rm -f protobuf/generated/*
-
 
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
@@ -713,17 +690,10 @@ $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 
 endif # userspace
 
-#KERNELRELEASE=2.6.38.8-xenomai+
-#KERNELRELEASE=3.2.21-xenomai+
-
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
-include $(BASEPWD)/hal/msgcomponents/Submakefile
-include $(BASEPWD)/protobuf/components/Submakefile
 # to pull FLAVOR_FLAGS - see Makefile.modinc.in
 include $(BASEPWD)/rtapi/Submakefile
-# to pull EXTRA_CFLAGS for nanopb
-include $(BASEPWD)/protobuf/Submakefile
 endif
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
@@ -746,8 +716,6 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
 	-I$(BASEPWD)/emc/nml_intf \
 	-I$(BASEPWD)/emc/kinematics \
 	-I$(BASEPWD)/emc/motion \
-	-I$(BASEPWD)/protobuf/generated \
-	-I$(BASEPWD)/protobuf/nanopb  \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math \

@@ -271,17 +271,6 @@ typedef struct {
 #define BITS_PER_BYTE 8
 #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 #define BITS_TO_LONGS(nr)       DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
-
-#define HAL_NGROUPS 32
-#define HAL_GROUP_WORDS BITS_TO_LONGS(HAL_NGROUPS)
-    unsigned long group_map[HAL_GROUP_WORDS];    /* set of allocated group id's */
-    unsigned long group_trigger[HAL_GROUP_WORDS];	/* bitmap of groups due for notification */
-    int group_list_ptr;	        /* list of group structs */
-    int member_list_ptr;	/* list of member structs */
-    int ring_list_ptr;          /* list of ring structs */
-    int group_free_ptr;	        /* list of free group structs */
-    int member_free_ptr;	/* list of free member structs */
-    int ring_free_ptr;          /* list of free ring structs */
 } hal_data_t;
 
 
@@ -404,24 +393,6 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* thread name */
     int cpu_id;                 /* cpu to bind on, or -1 */
 } hal_thread_t;
-
-typedef struct {
-    int next_ptr;		/* next member in linked list */
-    int member_ptr;             /* offset of hal_signal_t  */
-    int userarg1;                /* interpreted by using layer */
-    double epsilon;
-} hal_member_t;
-
-typedef struct {
-    int next_ptr;		/* next group in free list */
-    int id;                     /* the group id */
-    int userarg1;	        /* interpreted by using layer */
-    int userarg2;	        /* interpreted by using layer */
-    int serial;                 /* incremented each time a signal is added/deleted*/
-    char name[HAL_NAME_LEN + 1];	/* group name */
-    int member_ptr;             /* list of group members */
-} hal_group_t;
-
 
 /* IMPORTANT:  If any of the structures in this file are changed, the
    version code (HAL_VER) must be incremented, to ensure that 

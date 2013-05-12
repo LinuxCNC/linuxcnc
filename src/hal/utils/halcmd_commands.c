@@ -41,8 +41,6 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
-#include "hal_ring.h"	        /* ringbuffer declarations */
-#include "hal_group.h"	        /* group/member declarations */
 #include "halcmd_commands.h"
 
 #include <stdio.h>
@@ -69,18 +67,12 @@ static void print_script_sig_info(int type, char **patterns);
 static void print_param_info(int type, char **patterns);
 static void print_funct_info(char **patterns);
 static void print_thread_info(char **patterns);
-static void print_group_info(char **patterns);
-static void print_ring_info(char **patterns);
-static void print_member_info(char **patterns);
 static void print_comp_names(char **patterns);
 static void print_pin_names(char **patterns);
 static void print_sig_names(char **patterns);
 static void print_param_names(char **patterns);
 static void print_funct_names(char **patterns);
 static void print_thread_names(char **patterns);
-static void print_group_names(char **patterns);
-static void print_ring_names(char **patterns);
-//static void print_member_names(char **patterns);
 
 static void print_lock_status();
 static int count_list(int list_root);
@@ -997,8 +989,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_param_aliases(NULL);
 	print_funct_info(NULL);
 	print_thread_info(NULL);
-	print_group_info(NULL);
-	print_ring_info(NULL);
     } else if (strcmp(type, "all") == 0) {
 	/* print everything, using the pattern */
 	print_comp_info(patterns);
@@ -1009,8 +999,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_param_aliases(patterns);
 	print_funct_info(patterns);
 	print_thread_info(patterns);
-	print_group_info(patterns);
-	print_ring_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
 	print_comp_info(patterns);
 
@@ -1035,12 +1023,6 @@ int do_show_cmd(char *type, char **patterns)
 	print_funct_info(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_info(patterns);
-    } else if (strcmp(type, "group") == 0) {
-	print_group_info(patterns);
-    } else if (strcmp(type, "member") == 0) {
-	print_member_info(patterns);
-    } else if (strcmp(type, "ring") == 0) {
-	print_ring_info(patterns);
     } else if (strcmp(type, "alias") == 0) {
 	print_pin_aliases(patterns);
 	print_param_aliases(patterns);
@@ -1079,10 +1061,6 @@ int do_list_cmd(char *type, char **patterns)
 	print_funct_names(patterns);
     } else if (strcmp(type, "thread") == 0) {
 	print_thread_names(patterns);
-    } else if (strcmp(type, "group") == 0) {
-	print_group_names(patterns);
-    } else if (strcmp(type, "ring") == 0) {
-	print_ring_names(patterns);
     } else {
 	halcmd_error("Unknown 'list' type '%s'\n", type);
 	return -1;
@@ -2208,28 +2186,6 @@ static int count_list(int list_root)
     return n;
 }
 
-static int count_members()
-{
-    int n, nextg, nextm;
-    hal_group_t *group;
-    hal_member_t *member;
-    rtapi_mutex_get(&(hal_data->mutex));
-    nextg = hal_data->group_list_ptr;
-    n = 0;
-    while (nextg != 0) {
-	group = SHMPTR(nextg);
-	nextm = group->member_ptr;
-	while (nextm != 0) {
-	    member = SHMPTR(nextm);
-	    n++;
-	    nextm = member->next_ptr;
-	}
-	nextg = group->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    return n;
-}
-
 static void print_mem_status()
 {
     int active, recycled, next;
@@ -2282,20 +2238,7 @@ static void print_mem_status()
     active = count_list(hal_data->thread_list_ptr);
     recycled = count_list(hal_data->thread_free_ptr);
     halcmd_output("  active/recycled threads:    %d/%d\n", active, recycled);
-    // count groups
-    active = count_list(hal_data->group_list_ptr);
-    recycled = count_list(hal_data->group_free_ptr);
-    halcmd_output("  active/recycled groups:     %d/%d\n", active, recycled);
-    // count members
-    active = count_members();
-    recycled = count_list(hal_data->member_free_ptr);
-    halcmd_output("  active/recycled member:     %d/%d\n", active, recycled);
-
-    // count rings
-    active = count_list(hal_data->ring_list_ptr);
-    recycled = count_list(hal_data->ring_free_ptr);
-    halcmd_output("  active/deleted rings:       %d/%d\n", active, recycled);
-
+  
     halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
 		  global_data->rt_msg_level, global_data->user_msg_level);
 }
@@ -2567,407 +2510,6 @@ int do_save_cmd(char *type, char *filename)
     return 0;
 }
 
-int do_newg_cmd(char *group, char *group_id, char **opt)
-{
-    int gid = -1;
-    int arg1 = 0, arg2 = 0;
-
-    char *cp = group_id;
-    char *s;
-
-    gid = strtol(group_id, &cp, 0);
-    if ((*cp != '\0') && (!isspace(*cp))) {
-	halcmd_error("value '%s' invalid for group id (integer required)\n", group_id);
-	return -EINVAL;
-    }
-    s = opt[0];
-    if (s && strlen(s)) {
-	cp = s;
-	arg1 = strtol(s, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    halcmd_error("value '%s' invalid for userarg1 (integer required)\n", s);
-	    return -EINVAL;
-	}
-    }
-    s = opt[1];
-    if (s && strlen(s)) {
-	cp = s;
-	arg2 = strtol(s, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    halcmd_error("value '%s' invalid for userarg2 (integer required)\n", s);
-	    return -EINVAL;
-	}
-    }
-
-    if (opt[2] && strlen(opt[2])) {
-	halcmd_error("maximum number of arguments for 'newg' is 3\n");
-	return -1;
-    }
-    // halcmd_output("newg group='%s' group_id=%d arg1=%d arg2=%d\n", group, gid, arg1, arg2);
-    return halpr_group_new(group, gid, arg1, arg2);
-}
-
-int do_delg_cmd(char *group)
-{
-    // halcmd_output("delg NIY: group='%s'\n", group);
-    return halpr_group_delete(group);
-}
-
-int do_newm_cmd(char *group, char *member, char **opt)
-{
-    int arg1 = 0;
-    char *cp = member;
-    char *s,*r;
-    double epsilon = CHANGE_DETECT_EPSILON;
-
-    s = opt[0];
-    if (s && strlen(s)) {
-	cp = s;
-	arg1 = strtol(s, &cp, 0);
-	if ((*cp != '\0') && (!isspace(*cp))) {
-	    halcmd_error("value '%s' invalid for arg1 (integer required)\n", s);
-	    return -EINVAL;
-	}
-    }
-    if (opt[1] && strlen(opt[1])) {
-	epsilon = strtod(opt[1], &r);
-	if ((*r != '\0') && (!isspace(*r))) {
-	    halcmd_error("value '%s' invalid for epsilon (float required)\n", r);
-	    return -EINVAL;
-	}
-    }
-    if (opt[2] && strlen(opt[2])) {
-	halcmd_error("maximum number of arguments for 'newm' is 4\n");
-	return -1;
-    }
-    //halcmd_output("newm group='%s' member='%s' arg1=%d epsilon=%f\n", group, member, arg1,epsilon);
-    return halpr_member_new(group, member, arg1, epsilon);
-}
-
-int do_delm_cmd(char *group, char *member)
-{
-    //halcmd_output("delm : group='%s' member='%s'\n", group, member);
-    return halpr_member_delete(group, member);
-}
-
-static void print_group_names(char **patterns)
-{
-    int next_group;
-    hal_group_t *gptr;
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_group = hal_data->group_list_ptr;
-    while (next_group != 0) {
-	gptr = SHMPTR(next_group);
-	if ( match(patterns, gptr->name) ) {
-	    halcmd_output("%s ", gptr->name);
-	}
-	next_group = gptr->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-
-static void print_members(const char *group, int mptr)
-{
-    hal_member_t *member;
-    hal_sig_t *sig;
-    void *dptr;
-
-    while (mptr) {
-	member = SHMPTR(mptr);
-	sig = SHMPTR(member->member_ptr);
-	dptr = SHMPTR(sig->data_ptr);
-	halcmd_output("Sig: %s  %s  %s arg1=%d epsilon=%f\n",
-		      data_type((int) sig->type),
-		      data_value((int) sig->type, dptr),
-		      sig->name, member->userarg1,
-		      member->epsilon);
-	mptr = member->next_ptr;
-    }
-}
-
-static void print_group_info(char **patterns)
-{
-    int next_group;
-    hal_group_t *gptr;
-
-    if (scriptmode == 0) {
-	halcmd_output("Defined Groups:\n");
-	halcmd_output("  Id       Arg1       Arg2     Serial Name\n");
-    }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_group = hal_data->group_list_ptr;
-    while (next_group != 0) {
-	gptr = SHMPTR(next_group);
-	if ( match(patterns, gptr->name) ) {
-	    halcmd_output("%4d %10d %10d %10d %s\n",
-			  gptr->id, gptr->userarg1, gptr->userarg2,
-			  gptr->serial, gptr->name);
-	    if (gptr->member_ptr)
-		print_members(gptr->name, gptr->member_ptr);
-	}
-	next_group = gptr->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-#if 0 // currently unused
-static void print_member_names(char **patterns)
-{
-    int next_group;
-    hal_group_t *gptr;
-    halcmd_output("print_member_member: NIY\n");
-    return;
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_group = hal_data->group_list_ptr;
-    while (next_group != 0) {
-	gptr = SHMPTR(next_group);
-	if ( match(patterns, gptr->name) ) {
-	    halcmd_output("%s ", gptr->name);
-	}
-	next_group = gptr->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-#endif
-
-static void print_member_info(char **patterns)
-{
-    int next_group;
-    hal_group_t *gptr;
-
-    halcmd_output("print_member_info: NIY\n");
-    return;
-
-    if (scriptmode == 0) {
-	halcmd_output("Defined Groups:\n");
-	halcmd_output("  Id       Arg1       Arg2     Serial Name\n");
-    }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_group = hal_data->group_list_ptr;
-    while (next_group != 0) {
-	gptr = SHMPTR(next_group);
-	if ( match(patterns, gptr->name) ) {
-	    halcmd_output("%4d %10d %10d %10d %s\n",
-			  gptr->id, gptr->userarg1, gptr->userarg2,
-			  gptr->serial, gptr->name);
-
-	}
-	next_group = gptr->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-// ring support code
-
-static void print_ring_names(char **patterns)
-{
-    int next_ring;
-    hal_ring_t *rptr;
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_ring = hal_data->ring_list_ptr;
-    while (next_ring != 0) {
-	rptr = SHMPTR(next_ring);
-	if ( match(patterns, rptr->name) ) {
-	    halcmd_output("%s ", rptr->name);
-	}
-	next_ring = rptr->next_ptr;
-    }
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-#ifdef RINGDEBUG
-void dump_rings(const char *where, int attach, int detach)
-{
-    int next,retval;
-    hal_ring_t *rptr;
-    ringbuffer_t ringbuffer;
-
-    printf("place: %s attach=%d detach=%d\n", where, attach, detach);
-    next =  hal_data->ring_list_ptr;
-    while (next) {
-	rptr = SHMPTR(next);
-	printf("name=%s next=%d ring_id=%d owner=%d\n",
-	       rptr->name, rptr->next_ptr, rptr->ring_id, rptr->owner);
-	if (attach) {
-	    if ((retval = rtapi_ring_attach(rptr->ring_id, &ringbuffer, comp_id))) {
-	    	halcmd_error("%s: rtapi_ring_attach(%d) failed ",
-	    		     rptr->name, rptr->ring_id);
-	    }
-	}
-	if (detach) {
-
-	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id))) {
-	    	halcmd_error("%s: rtapi_ring_detach(%d) failed ",
-	    		     rptr->name, rptr->ring_id);
-	    }
-	}
-	next = rptr->next_ptr;
-    }
-}
-#endif
-
-static void print_ring_info(char **patterns)
-{
-    int next_ring, retval;
-    hal_ring_t *rptr;
-    ringheader_t *rh, ringheader;
-    ringbuffer_t ringbuffer;
-
-#ifdef RINGDEBUG
-    rtapi_mutex_get(&(hal_data->mutex));
-    dump_rings("print_ring_info",0,0);
-    dump_rings("print_ring_info",1,0);
-    dump_rings("print_ring_info",1,1);
-    rtapi_mutex_give(&(hal_data->mutex));
-#endif
-
-    if (scriptmode == 0) {
-	halcmd_output("Rings:\n");
-	halcmd_output("Name           Size       Type   Own Rdr Wrt Ref Flags \n");
-    }
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    next_ring = hal_data->ring_list_ptr;
-    while (next_ring != 0) {
-	rptr = SHMPTR(next_ring);
-	if ( match(patterns, rptr->name) ) {
-	    // FIXME make HAL level operation
-	    if ((retval = rtapi_ring_attach(rptr->ring_id, &ringbuffer, comp_id))) {
-	    	halcmd_error("%s: rtapi_ring_attach(%d) failed ",
-	    		     rptr->name, rptr->ring_id);
-	    	goto failed;
-	    }
-	    // take a snapshot; correct refcount below for the temporary attach
-	    memcpy(&ringheader, ringbuffer.header, sizeof(ringheader_t));
-	    if ((retval = rtapi_ring_detach(rptr->ring_id, comp_id)) < 0) {
-	    	halcmd_error("%s: rtapi_ring_detach(%d) failed ",
-	    		     rptr->name, rptr->ring_id);
-	    	goto failed;
-	    }
-	    rh = &ringheader;
-/* Name           Size       Type   Own Rdr Wrt Ref Flags  */
-/* ring_0         16392      record 0   0   0   2   recmax:16376  */
-
-	    halcmd_output("%-14.14s %-10d %-6.6s %-3d %-3d %-3d %-3d",
-			  rptr->name,
-			  rh->size,
-			  (rh->is_stream) ? "stream" : "record",
-			  rptr->owner,
-			  rh->reader,
-			  rh->writer,
-			  rh->refcount-1);
-	    if (rh->use_rmutex)
-		halcmd_output(" rmutex");
-	    if (rh->use_wmutex )
-		halcmd_output(" wmutex");
-	    if (rh->is_stream)
-		halcmd_output(" free:%d ",
-			      rtapi_stream_write_space(rh));
-	    else
-		halcmd_output(" recmax:%d ",
-			      rtapi_record_write_space(rh));
-	    if (rh->scratchpad_size != 0)
-		halcmd_output(" scratchpad:%d ", rh->scratchpad_size);
-	    halcmd_output("\n");
-	}
-	next_ring = rptr->next_ptr;
-    }
- failed:
-
-    rtapi_mutex_give(&(hal_data->mutex));
-    halcmd_output("\n");
-}
-
-int do_newring_cmd(char *ring, char *ring_size, char **opt)
-{
-    int size = -1;
-    int spsize = 0;
-    char *r = ring_size;
-    size_t rmax = 50000000;  // XXX: make MAX_RINGSIZE
-    char *s;
-    unsigned long mode = 0; // defaults
-    int i = 0;
-    int retval;
-    char *cp;
-
-#define SCRATCHPAD "scratchpad="
-#define MAX_SPSIZE (1024*1024)
-
-    size = strtol(ring_size, &r, 0);
-    if ((*r != '\0') && (!isspace(*r))) {
-	halcmd_error("value '%s' invalid for ring size (integer required)\n", ring_size);
-	return -EINVAL;
-    }
-    if (size > rmax) {
-	halcmd_error("ring size %d: too large (max=%d)\n", size,rmax);
-	return -EINVAL;
-    }
-    for (i = 0; ((s = opt[i]) != NULL) && strlen(s); i++) {
-	if  (!strcasecmp(s,"rmutex")) {
-	    mode |=  USE_RMUTEX;
-	}  else if  (!strcasecmp(s,"wmutex")) {
-	    mode |=  USE_WMUTEX;
-	}  else if  (!strcasecmp(s,"record")) {
-	    // default
-	}  else if  (!strcasecmp(s,"stream")) {
-	    mode |=  MODE_STREAM;
-	} else if (!strncasecmp(s, SCRATCHPAD, strlen(SCRATCHPAD))) {
-	    spsize = strtol(strchr(s,'=') + 1, &cp, 0);
-	    if ((*cp != '\0') && (!isspace(*cp))) {
-		/* invalid chars in string */
-		halcmd_error("string '%s' invalid for scratchpad size\n", s);
-		retval = -EINVAL;
-	    }
-	    if ((spsize < 0) || (spsize > MAX_SPSIZE)) {
-		halcmd_error("scratchpad size out of bounds (0..%d)\n", MAX_SPSIZE);
-		retval = -EINVAL;
-	    }
-	} else {
-	    halcmd_error("newring: invalid option '%s' (use one or several of: record stream"
-			 " rtapi hal rmutex wmutex scratchpad=<size>)\n",s);
-	    return -EINVAL;
-	}
-    }
-    if ((retval = hal_ring_new(ring, size, spsize, comp_id, mode))) {
-	halcmd_error("newring: failed to create new ring %s: %s\n",
-		     ring, strerror(-retval));
-	return -EINVAL;
-    }
-    return 0;
-}
-
-int do_delring_cmd(char *ring)
-{
-    halcmd_output("delring NIY: ring='%s'\n", ring);
-    // return halpr_group_delete(group);
-    return 0;
-}
-
-int do_ringdump_cmd(char *ring)
-{
-    halcmd_output("ringdump NIY: ring='%s'\n", ring);
-    return 0;
-}
-int do_ringwrite_cmd(char *ring,char *content)
-{
-    halcmd_output("ringwrite NIY: ring='%s'\n", ring);
-    return 0;
-}
-
-int do_ringread_cmd(char *ring, char *tokens[])
-{
-    halcmd_output("ringread NIY: ring='%s'\n", ring);
-    return 0;
-}
-// ----- end ring support
 
 // --- remote comp support
 

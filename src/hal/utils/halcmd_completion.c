@@ -42,7 +42,6 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
-#include "hal_ring.h"	        /* ringbuffer declarations */
 
 static int argno;
 
@@ -559,44 +558,6 @@ static char *loadrt_generator(const char *text, int state) {
     return NULL;
 }
 
-static char *group_generator(const char *text, int state) {
-    static int len;
-    static int next;
-
-    if(!state) {
-        next = hal_data->group_list_ptr;
-        len = strlen(text);
-    }
-
-    while(next) {
-        hal_group_t *group = SHMPTR(next);
-        next = group->next_ptr;
-        if ( strncmp(text, group->name, len) == 0 )
-            return strdup(group->name);
-    }
-    return NULL;
-}
-
-static char *ring_generator(const char *text, int state) {
-    static int len;
-    static int next;
-
-    if(!state) {
-        next = hal_data->ring_list_ptr;
-        len = strlen(text);
-    }
-
-    while(next) {
-        hal_ring_t *ring = SHMPTR(next);
-        next = ring->next_ptr;
-        if ( strncmp(text, ring->name, len) == 0 )
-            return strdup(ring->name);
-    }
-    return NULL;
-}
-
-
-
 static inline int isskip(int ch) {
     return isspace(ch) || ch == '=' || ch == '<' || ch == '>';
 }
@@ -640,22 +601,6 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
 
     if(startswith(buffer, "delsig ") && argno == 1) {
         result = func(text, signal_generator);
-    } else if(startswith(buffer, "delg ") && argno == 1) {
-        result = func(text, group_generator);
-    } else if(startswith(buffer, "delm ") && argno == 1) {
-        result = func(text, group_generator);
-
-    } else if(startswith(buffer, "newr ") && argno > 2) {
-	result = func(text, ring_generator);
-    } else if(startswith(buffer, "delr ") && argno == 1) {
-        result = func(text, ring_generator);
-    } else if(startswith(buffer, "ringdump ") && argno == 1) {
-	result = func(text, ring_generator);
-   } else if(startswith(buffer, "ringread ") && argno == 1) {
-	result = func(text, ring_generator);
-   } else if(startswith(buffer, "ringwrite ") && argno == 1) {
-	result = func(text, ring_generator);
-
     } else if(startswith(buffer, "linkps ") && argno == 1) {
         result = func(text, pin_generator);
     } else if(startswith(buffer, "linkps ") && argno == 2) {
@@ -736,11 +681,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
                 result = func(text, thread_generator);
-	    } else if (startswith(n, "group")) {
-                result = func(text, group_generator);
-	    } else if (startswith(n, "ring")) {
-                result = func(text, ring_generator);
-            }
+	    }
         }
     } else if(startswith(buffer, "show ")) {
         if (argno == 1) {
@@ -757,11 +698,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
                 result = func(text, thread_generator);
-            } else if (startswith(n, "group")) {
-                result = func(text, group_generator);
-	    } else if (startswith(n, "ring")) {
-                result = func(text, ring_generator);
-            }
+	    }
         }
     } else if(startswith(buffer, "save ") && argno == 1) {
         result = completion_matches_table(text, save_table, func);
@@ -803,14 +740,6 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         return func(text, loadusr_generator);
     } else if(startswith(buffer, "loadrt ") && argno == 1) {
         result = func(text, loadrt_generator);
-    } else if(startswith(buffer, "delg ") && argno == 1) {
-        result = func(text, group_generator);
-    } else if(startswith(buffer, "delm ") && argno == 1) {
-        result = func(text, group_generator);
-    } else if(startswith(buffer, "newm ") && argno == 1) {
-        result = func(text, group_generator);
-    } else if(startswith(buffer, "newm ") && argno == 2) {
-        result = func(text, signal_generator); // FIXME should be signal_and_pin_generator
     }
 
     rtapi_mutex_give(&(hal_data->mutex));
