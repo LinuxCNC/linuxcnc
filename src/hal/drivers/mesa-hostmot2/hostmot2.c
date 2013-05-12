@@ -266,8 +266,8 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "sserial_port_", 13) == 0) {
             int i;
             int c = 0;
-            token += 13;
             int flag = 0;
+            token += 13;
             i = *token - '0';
             token += 1;
             if (i < 0 || i > 3 || *token != '='){

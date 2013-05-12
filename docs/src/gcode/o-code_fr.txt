@@ -192,6 +192,7 @@ o102 else (sinon le paramètre #2 vaut entre 2 et 5 alors F150)
 o102 endif
 ----
 
+[[sec:Repetitions]]
 == Répétition: *Repeat*
 (((Repeat)))
 

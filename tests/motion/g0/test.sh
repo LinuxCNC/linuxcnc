@@ -36,7 +36,7 @@ sleep 4
     sleep 0.5
 
     echo shutdown
-) | telnet localhost 5007
+) | nc localhost 5007
 
 
 # wait for emc to finish
