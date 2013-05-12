@@ -1035,8 +1035,10 @@ class Gscreen:
         try:
             if keyname =="F1" and signal:
                 self.widgets.button_estop.emit("clicked")
-            if keyname =="F2" and signal:
+            elif keyname =="F2" and signal:
                 self.widgets.button_machine_on.emit("clicked")
+            elif keyname =="Escape" and signal:
+                self.widgets.hal_action_stop.emit("activate")
         except:
             pass
         if keyname in( "Shift_L","Shift_R"): return True
