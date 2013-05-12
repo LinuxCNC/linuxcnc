@@ -6,12 +6,17 @@
 *		It should be included in rtapi_common.h
 ********************************************************************/
 
+#define REV_CODE 5	// see rtapi_common.h
+
+
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
 ************************************************************************/
+
 #include "config.h"
 #include <sched.h>		// sched_get_priority_*()
 #include <pthread.h>		/* pthread_* */
+
 
 
 
@@ -28,5 +33,3 @@
 /* misc */
 #define HAVE_RTAPI_TASK_FREE
 #define HAVE_DROP_RESTORE_PRIVS
-
-
