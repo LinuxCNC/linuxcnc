@@ -1,5 +1,3 @@
-#ifneq ("$(RTPREFIX)","sim")
-ifneq ($(BUILD_SYS),user-dso)
 MODULE_HELPERSRCS := \
 	module_helper/module_helper.c
 USERSRCS += $(MODULE_HELPERSRCS)
@@ -15,4 +13,3 @@ endif
 	@$(CC) -o $@ $^
 
 TARGETS += ../bin/linuxcnc_module_helper
-endif

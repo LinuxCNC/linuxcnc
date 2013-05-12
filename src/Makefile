@@ -484,6 +484,8 @@ protobuf-clean:
 ifeq ($(BUILD_SYS),user-dso)
 ifeq ($(BUILD_DRIVERS),yes)
 setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules /etc/security/limits.d/linuxcnc.conf
+	chown root ../bin/linuxcnc_module_helper
+	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/rtapi_app
 	chmod 4750 ../bin/rtapi_app
 	chown root ../bin/pci_read
@@ -676,8 +678,8 @@ install-kernel-dep:
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
 ifneq ($(BUILD_SYS),user-dso)
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
-	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 endif
+	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
