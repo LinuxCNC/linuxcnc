@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	if (flavor) {
 	    printf("%s\n", flavor->name);
 	} else {
-	    fprintf(stderr,"%s: could not deteact default flavor\n", progname);
+	    fprintf(stderr,"%s: could not detect default flavor\n", progname);
 	    exit(1);
 	}
     }

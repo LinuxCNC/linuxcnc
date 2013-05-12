@@ -83,7 +83,7 @@ static size_t allocated, freed;
 static struct shm_segment  *shm_segments;
 
 //#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-#if 1
+#ifndef DECLARE_MUTEX
 #define DECLARE_MUTEX DEFINE_SEMAPHORE
 #endif
 DECLARE_MUTEX(shm_mutex);
@@ -688,6 +688,7 @@ static struct miscdevice shm_misc_dev = {
     .minor	= MISC_DYNAMIC_MINOR,
     .name	= DEVICE_NAME,
     .fops	= &fileops,
+    .mode       = (S_IRUSR|S_IRGRP|S_IWUSR|S_IWGRP),
 };
 
 static ssize_t sys_status(struct device* dev, struct device_attribute* attr, 

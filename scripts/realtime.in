@@ -118,6 +118,9 @@ CheckConfig(){
         *mbuff*)
             SHM_DEV=/dev/mbuff
         ;;
+        *shmdrv*)
+            SHM_DEV=/dev/shmdrv
+        ;;
         esac
     esac
 }

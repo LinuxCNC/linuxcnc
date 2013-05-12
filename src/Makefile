@@ -483,7 +483,7 @@ protobuf-clean:
 # can be done about it)
 ifeq ($(BUILD_SYS),user-dso)
 ifeq ($(BUILD_DRIVERS),yes)
-setuid:
+setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules /etc/security/limits.d/linuxcnc.conf
 	chown root ../bin/rtapi_app
 	chmod 4750 ../bin/rtapi_app
 	chown root ../bin/pci_read
@@ -495,7 +495,7 @@ setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
 endif
 else
-setuid:
+setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules /etc/security/limits.d/linuxcnc.conf
 	chown root ../bin/linuxcnc_module_helper
 	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/pci_write
@@ -503,6 +503,15 @@ setuid:
 	chown root ../bin/pci_read
 	chmod 4750 ../bin/pci_read
 endif
+
+/etc/security/limits.d/linuxcnc.conf: rtapi/shmdrv/limits.d-linuxcnc.conf
+	$(Q)echo installing $@
+	$(Q)cp  $^ $@
+
+/etc/udev/rules.d/50-LINUXCNC-shmdrv.rules: rtapi/shmdrv/shmdrv.rules
+	$(Q)echo installing $@
+	$(Q)cp  $^ $@
+
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
