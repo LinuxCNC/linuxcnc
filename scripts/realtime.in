@@ -11,7 +11,7 @@ PIDOF=@PIDOF@
 # wait for a list of pids to all exit
 anywait(){
     for pid in "$@"; do
-        while kill -0 "$pid" 2> /dev/null ; do
+        while kill -0 "$pid" >/dev/null 2>&1 ; do
             sleep 0.5
         done
     done
@@ -33,6 +33,11 @@ EOF
 
 # set the default instance
 INSTANCE=`printf '%d' $INSTANCE`
+if [ "$INSTANCE_NAME" != "" ]  ; then
+    NAME_CMD=--instance_name="$INSTANCE_NAME"
+else
+    unset NAME_CMD
+fi
 FLAVOR=`flavor`
 
 RUN_IN_PLACE=@RUN_IN_PLACE@
@@ -196,12 +201,12 @@ Load(){
 	fi
 
 	if [ "$DEBUG" != "" ] ; then
-	    rtapi_app --instance=$INSTANCE \
+	    rtapi_app --instance=$INSTANCE $NAME_CMD \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG \
 		--halsize=$HAL_SIZE 
 	else
-	    rtapi_app --instance $INSTANCE \
+	    rtapi_app --instance $INSTANCE $NAME_CMD \
 		--halsize=$HAL_SIZE \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
@@ -222,7 +227,7 @@ Load(){
 	    # if loading rtapi.ko, tack on parameters
 	    if echo $MOD | grep rtapi.ko >/dev/null  ; then
 		$INSMOD $MOD hal_size=$HAL_SIZE rtapi_instance=$INSTANCE \
-		    rt_msg_level=$DEBUG user_msg_level=$DEBUG
+		    rt_msg_level=$DEBUG user_msg_level=$DEBUG $NAME_CMD 
 	    else
 		$INSMOD $MOD || return $?
 	    fi
