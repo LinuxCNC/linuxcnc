@@ -61,7 +61,7 @@ static int waitfor_rt_stack_ready()
     int halkey = OS_KEY(HAL_KEY, rtapi_instance);
     struct timespec rtpoll = {0, rt_poll_ms * 1000 * 1000};
 
-    while (!shm_common_exists(halkey) < 0) {
+    while (!shm_common_exists(halkey)) {
 	nanosleep(&rtpoll, NULL);
 	rt_stack_timeout_ms -= rt_poll_ms;
 	if (rt_stack_timeout_ms < 0) 
