@@ -829,6 +829,11 @@ obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
 hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
 endif
 
+ifneq ($(BUILD_SYS),user-dso)
+obj-$(CONFIG_GPIOMAP) += gpiomap.o
+gpiomap-objs := hal/drivers/hal_gpiomap.o 
+endif
+
 # these won't compile as-is with userland threading
 
 ifneq ($(BUILD_SYS),user-dso)
