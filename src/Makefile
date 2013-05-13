@@ -303,6 +303,7 @@ HEADERS := \
     hal/hal.h \
     hal/hal_parport.h \
     hal/config_module.h \
+    hal/drivers/hal_gpiomap.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -829,9 +830,11 @@ obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
 hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
 endif
 
-ifneq ($(BUILD_SYS),user-dso)
-obj-$(CONFIG_GPIOMAP) += gpiomap.o
+ifeq ($(BUILD_SYS),user-dso)
+obj-m += gpiomap.o
 gpiomap-objs := hal/drivers/hal_gpiomap.o 
+obj-m += gpiouse.o
+gpiouse-objs := hal/drivers/hal_gpiouse.o 
 endif
 
 # these won't compile as-is with userland threading
@@ -852,7 +855,7 @@ ifeq ($(USERMODE_PCI),yes)
 # reconfirm our intent..
 BUILD_HOSTMOT2=yes
 else
-#except if userland and USERMODE_PCI isnt sez
+#except if userland and USERMODE_PCI isnt set
 ifeq ($(BUILD_SYS),user-dso)
 BUILD_HOSTMOT2=no
 endif
@@ -1069,6 +1072,8 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 ifeq ($(BUILD_SYS),user-dso)
 ../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
+../rtlib/gpiomap$(MODULE_EXT): $(addprefix objects/rt,$(gpiomap-objs))
+../rtlib/gpiouse$(MODULE_EXT): $(addprefix objects/rt,$(gpiouse-objs))
 endif
 ifeq ($(USERMODE_PCI),yes)
 ../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
