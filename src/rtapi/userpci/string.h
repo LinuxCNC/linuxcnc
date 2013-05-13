@@ -51,12 +51,19 @@
 #include "config_module.h"
 #include RTAPI_INC_GFP_H
 #include <string.h>     // strdup
+#include <stdlib.h>     // malloc
 
 extern char **argv_split(gfp_t gfp, const char *str, int *argcp);
 extern void argv_free(char **argv);
 
 static inline char *kstrdup(const char *s, gfp_t gfp) {
     return strdup(s);
+}
+
+static inline void *kzalloc(size_t sz, gfp_t gfp) {
+    void *r = malloc(sz);
+    if (r) memset(r, 0, sz);
+    return r;
 }
 
 #endif /* _LINUX_STRING_H_ */
