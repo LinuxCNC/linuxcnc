@@ -555,10 +555,10 @@ static int comp_id;
             print >>f, "static void userinit(int argc, char **argv);"
         print >>f, "int argc=0; char **argv=0;"
         print >>f, "int main(int argc_, char **argv_) {"    
-        print >>f, "    argc = argc_; argv = argv;"
+        print >>f, "    argc = argc_; argv = argv_;"
         print >>f 
         if options.get("userinit", 0):
-            print >>f, "    userinit(argc, argv)";
+            print >>f, "    userinit(argc, argv);"
         print >>f 
         print >>f, "    if(rtapi_app_main() < 0) return 1;"
         print >>f, "    user_mainloop();"
