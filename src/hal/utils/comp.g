@@ -887,6 +887,9 @@ def process(filename, mode, outfilename):
         a, b = parse(filename)
         f = open(outfilename, "w")
 
+        if options.get("userinit") and not options.get("userspace"):
+            print >> sys.stderr, "Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename
+
         if options.get("userspace"):
             if functions:
                 raise SystemExit, "Userspace components may not have functions"
