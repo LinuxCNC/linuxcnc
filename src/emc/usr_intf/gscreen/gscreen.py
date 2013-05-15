@@ -295,7 +295,7 @@ class Data:
         self.preset_spindle_dialog = None
         self.entry_dialog = None
         self.restart_dialog = None
-        self.key_event_last = 0
+        self.key_event_last = None,0
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -1042,7 +1042,7 @@ class Gscreen:
         except:
             pass
         if keyname in( "Shift_L","Shift_R"): return True
-        if self.data.key_event_last == signal: return True
+        if self.data.key_event_last[0] == keyname and self.data.key_event_last[1] == signal : return True
         if self.data.mode_order[0] == _MAN and self.widgets.notebook_main.get_current_page() == 0:
             if keyname == "Up":
                 self.do_key_jog(1,1,signal)
@@ -1066,7 +1066,7 @@ class Gscreen:
                         self.set_jog_increments(index_dir = -1)
                     else:
                         self.set_jog_increments(index_dir = 1)
-            self.data.key_event_last = signal
+            self.data.key_event_last = keyname,signal
             return True
 
     def on_cycle_start_changed(self,hal_object):

@@ -511,10 +511,10 @@ class HandlerClass:
             pass
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
-        if signal and self.data.key_event_last == signal: 
+        if signal and self.data.key_event_last[0] == signal: 
             return True
         else:
-            self.data.key_event_last = signal
+            self.data.key_event_last = keyname,signal
 
         # take care of differnt key handling for lathe operation
         if self.data.lathe_mode:
