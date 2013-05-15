@@ -205,6 +205,7 @@ O102 else (parameter #2 between 2 and 5)
 O102 endif
 ----
 
+[[sec:repeat]]
 == Repeat(((Repeat)))
 
 The 'repeat' will execute the statements inside of the

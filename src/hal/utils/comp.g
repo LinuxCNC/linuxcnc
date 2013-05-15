@@ -555,10 +555,10 @@ static int comp_id;
             print >>f, "static void userinit(int argc, char **argv);"
         print >>f, "int argc=0; char **argv=0;"
         print >>f, "int main(int argc_, char **argv_) {"    
-        print >>f, "    argc = argc_; argv = argv;"
+        print >>f, "    argc = argc_; argv = argv_;"
         print >>f 
         if options.get("userinit", 0):
-            print >>f, "    userinit(argc, argv)";
+            print >>f, "    userinit(argc, argv);"
         print >>f 
         print >>f, "    if(rtapi_app_main() < 0) return 1;"
         print >>f, "    user_mainloop();"
@@ -886,6 +886,9 @@ def process(filename, mode, outfilename):
 
         a, b = parse(filename)
         f = open(outfilename, "w")
+
+        if options.get("userinit") and not options.get("userspace"):
+            print >> sys.stderr, "Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename
 
         if options.get("userspace"):
             if functions:

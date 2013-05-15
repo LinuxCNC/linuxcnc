@@ -176,23 +176,28 @@ du système de coordonnées machine, les résultats ne seraient pas ceux
 attendus... puisque la compensation de l'outil serait ajoutée à l'offset
 courant lorsque l'outil sera utilisé dans le programme.
 
-== Filetage
+== Mouvements avec broche synchronisée
 
-Sur un tour, le filetage nécessite un signal de retour entre la broche et LinuxCNC.
-Généralement, c'est un codeur de position qui fourni ce retour. 
-Le manuel de l'intégrateur donne d'avantage d'informations sur le codeur de
-broche.
+Sur un tour, les mouvements avec broche synchronisée nécessitent un signal de
+retour entre la broche et LinuxCNC. Généralement, c'est un codeur en quadrature
+qui fourni ce retour. Le manuel de l'intégrateur donne des explications sur
+l'utilisation des codeurs de broche.
 
+.Filetage
 Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage intérieur
-qu'en filetage extérieur, <<sec:G76-Filetage, voir G76 dans la section G-code>>.
+qu'en filetage extérieur, voir <<sec:G76-Filetage, la section G76>>.
 
-== Vitesse de coupe à surface constante
-
-La vitesse de coupe à surface constante (G96) utilise l'origine machine X modifiée
+.Vitesse de coupe à surface constante
+La vitesse de coupe à surface constante utilise l'origine machine X modifiée
 par l'offset d'outil X, pour calculer la vitesse de rotation de la broche en tr/mn.
 La vitesse de coupe à surface constante permet de suivre les changements d'offset
 de l'outil. L'emplacement de l'origine machine de l'axe X doit être sur l'axe de
 rotation et doit se faire avec l'outil de référence (celui qui a l'offset à zéro).
+
+.Avance par tour
+L'avance par tour déplace l'axe Z de la valeur de F à chaque tour.
+Ce n'est pas destiné au filetage pour lequel il faut utiliser G76.
+D'autres informations sont dans la section sur <<sec:G93-G94-G95-Modes,G95>>.
 
 == Arcs
 

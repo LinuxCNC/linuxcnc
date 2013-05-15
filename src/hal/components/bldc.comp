@@ -378,7 +378,6 @@ author "Andy Pugh";
 function _;
 
 option extra_setup yes;
-option userinit yes;
 option count_function yes;
 
 variable int old_init = 0;
