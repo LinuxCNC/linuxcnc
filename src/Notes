@@ -1,0 +1,12 @@
+
+git clean -fdx ..
+./autogen.sh
+./configure --enable-simulator --disable-build-documentation
+make -j20
+source ../scripts/rip-environment
+
+runtests
+
+gcov -o objects/emc/task/emctaskmain.o emc/task/emctaskmain.cc
+more emctaskmain.cc.gcov
+
