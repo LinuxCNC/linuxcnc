@@ -1126,13 +1126,13 @@ static int doStop(connectionRecType *context)
 static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 {
     char arg_string[MAX_CMD_LEN+1];
-    int m=0, n=0, retval=0;
+    int n=0, retval=0;
     hal_comp_t *comp;
-    char *argv[MAX_TOK+3];
     char *cp1;
     const char *nakStr = "SET LOADRT NAK";
 
 #if defined(RTAPI_SIM)
+#if 0
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
@@ -1144,7 +1144,10 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     }
     argv[m++] = NULL;
 //    retval = do_loadusr_cmd(argv);
+#endif
 #else
+    int m=0;
+    char *argv[MAX_TOK+3];
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
