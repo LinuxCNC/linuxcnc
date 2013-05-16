@@ -65,8 +65,6 @@ license "GPL";
 
 FUNCTION(_) {
 
-    double revs;  // current number of spindle revs
-    double spindle_angle; // current spindle angular pos in revs (0..<1.0) 
     double target_angle;
     double latched_position;
 
@@ -74,8 +72,6 @@ FUNCTION(_) {
 	if (enable ^ last_enable) {       // positive edge on enable
             latched_position = position; // sample now
             target_angle =  angle/360.0;
-            revs = floor(latched_position);
-            spindle_angle = latched_position - revs;
             switch (mode) {
             case 0: // shortest move
                 command = floor(latched_position+0.5-target_angle) + target_angle;
