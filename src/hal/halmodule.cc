@@ -739,7 +739,7 @@ PyObject *component_is_ready(PyObject *self, PyObject *args) {
 	return NULL;
     }
 
-    return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != NULL);
+    return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != 0);
 }
 
 PyObject *new_sig(PyObject *self, PyObject *args) {
@@ -769,7 +769,7 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
 		"not a valid HAL signal type");
 	return NULL;}
     }
-    return PyBool_FromLong( retval!= NULL);
+    return PyBool_FromLong(retval != 0);
 }
 
 PyObject *connect(PyObject *self, PyObject *args) {
@@ -781,7 +781,7 @@ PyObject *connect(PyObject *self, PyObject *args) {
 	return NULL;
     }
     //printf("INFO HALMODULE -- link sig %s to pin %s\n",signame,pinname);
-    return PyBool_FromLong( hal_link(pinname, signame)!= NULL);
+    return PyBool_FromLong(hal_link(pinname, signame) != 0);
 }
 
 static int set_common(hal_type_t type, void *d_ptr, char *value) {
@@ -903,7 +903,7 @@ PyObject *set_p(PyObject *self, PyObject *args) {
     }
     retval = set_common(type, d_ptr, value);
     rtapi_mutex_give(&(hal_data->mutex));   
-    return PyBool_FromLong( retval!= NULL);
+    return PyBool_FromLong(retval != 0);
 }
 
 struct shmobject {
