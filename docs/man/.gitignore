@@ -1,5 +1,10 @@
 index.db
 
+CACHEDIR.TAG
+cat1/
+cat3/
+cat9/
+
 man1/linuxcnc.1
 
 man9/abs.9
