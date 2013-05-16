@@ -2662,13 +2662,11 @@ int commandGet(connectionRecType *context)
   static char *setCmdNakStr = "GET %s NAK\r\n";
   halCommandType cmd;
   char *pch;
-  int retval;
   cmdResponseType ret = rtNoError;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    retval = write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   strupr(pch);
   cmd = lookupHalCommand(pch);
