@@ -10,3 +10,8 @@ runtests
 gcov -o objects/emc/task/emctaskmain.o emc/task/emctaskmain.cc
 more emctaskmain.cc.gcov
 
+
+gcov for the kernel:
+
+    http://ltp.cvs.sourceforge.net/viewvc/ltp/utils/analysis/gcov-kernel/FAQ?revision=1.2
+
