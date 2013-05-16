@@ -3371,8 +3371,12 @@ void *readClient(void *arg)
     str[len] = 0;
     strcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
-    if ((context->echo == 1) && (context->linked) == 1)
+    if ((context->echo == 1) && (context->linked == 1)) {
       ret = write(context->cliSock, &buf, strlen(buf));
+      if (ret != 0) {
+        goto finished;
+      }
+    }
     i = 0;
     j = 0;
     while (i <= strlen(buf)) {
