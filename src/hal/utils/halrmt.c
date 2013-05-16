@@ -3030,20 +3030,18 @@ int commandSet(connectionRecType *context)
   int i;
   char *pch;
   char *pcmd;
-  int retval;
+  int retval = 0;
   cmdResponseType ret = rtNoError;
   
   pcmd = strtok(NULL, delims);
   if (pcmd == NULL) {
-    retval = write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   strupr(pcmd);
   cmd = lookupHalCommand(pcmd);
   if ((cmd >= hcCommProt) && (context->cliSock != enabledConn)) {
     sprintf(context->outBuf, setCmdNakStr, pcmd);
-    retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
-    return 0;
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   pch = strtok(NULL, delims);
   i = 0;
@@ -3116,7 +3114,7 @@ int commandSet(connectionRecType *context)
       break;
     case rtCustomHandledError: ;// Custom error respose handled, take no action
     }
-  return 0;
+  return retval;
 }
 
 int commandQuit(connectionRecType *context)
