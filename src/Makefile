@@ -234,8 +234,14 @@ Makefile: config.h
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
+INFILES_MOVE = \
+        ../docs/man/man1/linuxcnc.1
+
+../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
+	./config.status --file=$@:$<
+
 INFILES = \
-	../docs/man/man1/linuxcnc.1 ../scripts/linuxcnc ../scripts/realtime \
+        ../scripts/linuxcnc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
@@ -252,7 +258,7 @@ endif
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: $(INFILES)
+default: $(INFILES) $(INFILES_MOVE)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
