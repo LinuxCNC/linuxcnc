@@ -382,8 +382,9 @@ static int comp_id;
     if options.get("extra_setup"):
         print >>f, "    r = extra_setup(inst, prefix, extra_arg);"
 	print >>f, "    if(r != 0) return r;"
-    if has_personality:
-        print >>f, "    personality = inst->_personality;"
+        # the extra_setup() function may have changed the personality
+        if has_personality:
+            print >>f, "    personality = inst->_personality;"
     for name, type, array, dir, value, personality in pins:
         if personality:
             print >>f, "if(%s) {" % personality
