@@ -752,6 +752,12 @@ AC_ARG_WITH(kernel,
       AC_MSG_RESULT([none given, will use running kernel configuration if required])
     ])  
 
+############# FIXME a single THREADS variable is irrelevant to ub #######
+#
+# keep --with-threads=foo for now; use this to set $THREADS
+#
+# Later changes will remove $THREADS from this file, setting it in
+# Makefile.inc and config.h
 AC_MSG_CHECKING(thread style)
 AC_ARG_WITH(threads,
     [  --with-threads=<style>   the thread style to use; styles are:
@@ -761,10 +767,6 @@ AC_ARG_WITH(threads,
             posix)
                 THREADS=posix	
                 AC_MSG_RESULT([configuring for Posix threads])
-
-		if test -n "$KONFIG"; then
-		  AC_MSG_ERROR([ --with-threads=posix does not require a kernel configuration - ignored ]) 
-		fi
             ;;
             rtai)
                 THREADS=rtai	
@@ -791,14 +793,17 @@ AC_ARG_WITH(threads,
         esac  
     ],
     [
-      if test "$THREADS" != posix; then
-        AC_MSG_RESULT([not set, will guess from kernel configuration ])
-      else
-        AC_MSG_RESULT([using Posix threads ])
-      fi
+      AC_MSG_ERROR([please specify --with-threads=<threads>])
     ])  
 
+with_threads=with_`echo $THREADS | tr x- x_`
+eval "have_threads=\${${with_threads}}"
+if test "$have_threads" != yes; then
+    AC_MSG_ERROR([please specify --with-threads= one of:
+	posix,rtai,rt-preempt,xenomai,xenomai-kernel ])
+fi
 
+############# /FIXME a single THREADS variable is irrelevant to ub #######
 
 
 
