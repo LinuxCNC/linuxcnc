@@ -81,22 +81,6 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so  $(call TOOBJS, $(
 USERSRCS += $(ULAPISO_SRCS) 
 TARGETS += $(ULAPISO)
 
-# make shmdrvapi.o a shared library, which gets around -fPIC
-# issues on amd64
-SHMDRVAPISRCS := rtapi/shmdrv/shmdrvapi.c 
-
-$(call TOOBJSDEPS, $(SHMDRVAPISRCS)): EXTRAFLAGS += -fPIC
-SHMDRVLIB := ../lib/liblinuxcncshm.so
-
-$(SHMDRVLIB).0: $(call TOOBJS, $(SHMDRVAPISRCS))
-	$(ECHO) Creating shared library $(notdir $@)
-	@mkdir -p ../lib
-	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(RT_LDFLAGS)
-USERSRCS += $(SHMDRVAPISRCS) 
-TARGETS += $(SHMDRVLIB) 
-
 # RTAPI:  ../rtlib/*
 #
 # Makefile defines rtapi-objs, a list of all objects whose sources are
@@ -261,46 +245,6 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../bin/rtapi_msgd
-
-##################################################################
-#             the shmdrv shared memory allocator module
-#
-#  loosely based on: http://www.embrisk.com/notes/shmem.html 
-#  Status: public domain
-#
-##################################################################
-
-RT_CFLAGS += -I$(BASEPWD)/rtapi/shmdrv
-INCLUDES += rtapi/shmdrv
-
-ifeq ($(BUILD_SYS),kbuild)
-obj-m += shmdrv.o
-shmdrv-objs := rtapi/shmdrv/shmdrv.o
-../rtlib/shmdrv$(MODULE_EXT): $(addprefix objects/rt,$(shmdrv-objs))
-else
-
-# build shmdrv.ko for the currently running kernel
-../rtlib/shmdrv.ko: rtapi/shmdrv/shmdrv.h rtapi/shmdrv/shmdrv.c
-	(cd rtapi/shmdrv; make clean modules)
-	cp rtapi/shmdrv/shmdrv.ko ../rtlib
-
-TARGETS += ../rtlib/shmdrv.ko
-endif
-
-# lock debugging help plus a bit of API example
-MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c
-
-$(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
-	EXTRAFLAGS =  -Wall -g -O0 \
-	 $(shell $(XENO_CONFIG) --skin=native --cflags)
-
-../bin/mutexwatch: ../lib/liblinuxcncshm.so $(call TOOBJS, $(MUTEXWATCH_SRCS))
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  ../lib/liblinuxcncshm.so -lrt
-
-USERSRCS += $(MUTEXWATCH_SRCS)
-TARGETS += ../bin/mutexwatch
-
 
 # lock debugging help plus a bit of API example
 FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c

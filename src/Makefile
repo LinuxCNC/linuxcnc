@@ -109,6 +109,7 @@ SUBDIRS := \
     \
     rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
     rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
+    rtapi/shmdrv \
     \
     hal/components hal/drivers hal/user_comps/devices \
     hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd \
@@ -694,6 +695,7 @@ ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 # to pull FLAVOR_FLAGS - see Makefile.modinc.in
 include $(BASEPWD)/rtapi/Submakefile
+include $(BASEPWD)/rtapi/shmdrv/Submakefile
 endif
 
 # KERNELRELEASE is nonempty, therefore we are building modules using the
