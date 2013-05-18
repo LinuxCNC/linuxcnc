@@ -148,8 +148,8 @@ HARDY_AMD64_WORKAROUND=""
 #
 # at the shell script/makefile level, we have:
 #
-# 'THREADS' - one of 'rtai', 'posix', 'xenomai-user', 'xenomai-kernel',
-# 'rt-preempt-user', 'rt-preempt-kernel' in shell/Makefile
+# 'THREADS' - one of 'rtai', 'posix', 'xenomai', 'xenomai-kernel',
+# 'rt-preempt' in shell/Makefile
 #
 THREADS=""
 
@@ -164,14 +164,14 @@ THREADS=""
 # /* thread style rt-preempt-kernel */
 # /* #undef RTAPI_RTPREEMPT_KERNEL */
 #
-# /* thread style rt-preempt-user */
-# /* #undef RTAPI_RTPREEMPT_USER */
+# /* thread style rt-preempt */
+# /* #undef RTAPI_RTPREEMPT */
 #
 # /* thread style xenomai-kernel */
 # /* #undef RTAPI_XENOMAI_KERNEL */
 #
-# /* thread style xenomai-user */
-# #define RTAPI_XENOMAI_USER /**/
+# /* thread style xenomai */
+# #define RTAPI_XENOMAI /**/
 #
 
 # 'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' in shell/Makkefile
@@ -189,8 +189,8 @@ THREADS=""
 
 
 # the latter is implied by the former, so we have:
-# 'rtai', 'xenomai-kernel', 'rt-preempt-kernel' -> implies 'kbuild' 
-# 'posix', 'xenomai-user', 'rt-preempt-user' -> implies 'user-dso'
+# 'rtai', 'xenomai-kernel' -> implies 'kbuild' 
+# 'posix', 'xenomai', 'rt-preempt' -> implies 'user-dso'
 # and the corresponding #defines.
 #
 # ------------ drivers: build or dont build -------------
@@ -223,7 +223,7 @@ BUILD_DRIVERS="no"
 #
 # 
 #--with-kernel=/boot/config-<whatever>  which defaults to running kernel 
-#--with-build-type=(posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel) 
+#--with-build-type=(posix,rtai,rt-preempt,xenomai,xenomai-kernel) 
 #--enable-drivers (defaults to yes except for --with-build-type=posix which is newspeak for 'sim')
 
 #the latter can be defaulted too once you have access to /boot/config*, and checked against kernel
@@ -236,23 +236,23 @@ BUILD_DRIVERS="no"
 #
 #configure
 #	Takes the running kernel config to determine which kernel type (rtai, xenomai, rt-preempt)
-#	makes a default thread style (rtai, rt-preempt-user and xenomai-user for now)
+#	makes a default thread style (rtai, rt-preempt and xenomai for now)
 #	complains if running kernel is generic (non-RT)
 #	implies --enable-drivers. Module type derived from thread style.
 #
-#configure --with-build-type=xenomai-user --with-kernel=/boot/config-2.6.38.8-xenomai
+#configure --with-build-type=xenomai --with-kernel=/boot/config-2.6.38.8-xenomai
 #	this would build for xenomai-2.6.38.8-xenomai provided it is installed but needs not be running
 #	complains if /boot/config-2.6.38.8-xenomai does not smell like a Xenomai config
 #
-#configure --with-build-type=rt-preempt-user
+#configure --with-build-type=rt-preempt
 #	this would check whether the running kernel is in fact rt-preempt by inspecting /boot/config-`uname #-r` for appropriate flags, and complain otherwise-
 KCONFIG=""
 
 # if autoconfiguring from kernel config, use these
 # defaults as thread style:
-DEFAULT_THREADSTYLE_XENOMAI=xenomai-user
+DEFAULT_THREADSTYLE_XENOMAI=xenomai
 DEFAULT_THREADSTYLE_RTAI=rtai
-DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt-user
+DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt
 
 # Places to look for Xeno and RTAI kernel headers
 #
@@ -294,7 +294,7 @@ ARCHITECTURE=`$ARCHCMD`
 
 
 # Name of thread system source file to include, with no extension
-# e.g. 'rt-preempt-user'; used to generate #include "rt-preempt-user.h"
+# e.g. 'rt-preempt'; used to generate #include "rt-preempt.h"
 # in config.h, rtapi/$(THREADS_SOURCE).c in Makefile.inc
 THREADS_SOURCE=""
 
@@ -755,7 +755,7 @@ AC_ARG_WITH(kernel,
 AC_MSG_CHECKING(thread style)
 AC_ARG_WITH(threads,
     [  --with-threads=<style>   the thread style to use; styles are:
-    		                posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel ],
+    		                posix,rtai,rt-preempt,xenomai,xenomai-kernel ],
     [  
         case "$withval" in
             posix)
@@ -770,16 +770,12 @@ AC_ARG_WITH(threads,
                 THREADS=rtai	
                 AC_MSG_RESULT([configuring for RTAI threads])
             ;;
-            rt-preempt-user)
-                THREADS=rt-preempt-user	
-                AC_MSG_RESULT([configuring for RT_PREEMPT user threads])
+            rt-preempt)
+                THREADS=rt-preempt
+                AC_MSG_RESULT([configuring for RT_PREEMPT threads])
             ;;
-            rt-preempt-kernel)
-                THREADS=rt-preempt-kernel	
-                AC_MSG_RESULT([configuring for RT_PREEMPT kernel threads])
-            ;;
-            xenomai-user)
-                THREADS=xenomai-user	
+            xenomai)
+                THREADS=xenomai	
                 AC_MSG_RESULT([configuring for Xenomai user threads])
             ;;
             xenomai-kernel)
@@ -788,7 +784,8 @@ AC_ARG_WITH(threads,
             ;;
             *)
 	    if test -z "$THREADS"; then
-	        AC_MSG_ERROR([style must be one of: posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel ]) 
+	        AC_MSG_RESULT([unknown threads system:  $withval])
+	        AC_MSG_ERROR([style must be one of: posix,rtai,rt-preempt,xenomai,xenomai-kernel ]) 
 	    fi
 	    ;;
         esac  
@@ -802,15 +799,6 @@ AC_ARG_WITH(threads,
     ])  
 
 
-AC_ARG_WITH(realtime,
-    [  --with-realtime  A deprecated option, ignored
-                   instead, use
-		   --with-threads=posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel 
-		   and --with-kernel=<config>],
-    [  
-        AC_MSG_WARN([--with-realtime will be removed soon and has no effect.])
-    ],
-    [])
 
 
 
@@ -949,7 +937,7 @@ AC_ARG_ENABLE(usermode-pci,
 	      fi 
 	      ;;
 
-           rt-preempt-user|xenomai-user)
+           rt-preempt|xenomai)
                if test "$TARGET_PLATFORM" = "PC" ; then
 	           USERMODE_PCI=yes
 		   AC_MSG_RESULT([using defaults: platform $TARGET_PLATFORM, threads $THREADS - enabling USERMODE_PCI])
@@ -999,7 +987,7 @@ case "$THREADS" in
 	RTFLAGS= # dso flags for posix - FIXME needed?
 	#'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
 	BUILD_SYS=user-dso
-	THREADS_SOURCE="rt-preempt-user"  # use RT_PREEMPT code
+	THREADS_SOURCE="rt-preempt"  # use RT_PREEMPT code
     ;;
 
     rtai)
@@ -1070,7 +1058,7 @@ case "$THREADS" in
         fi
     ;;
 
-    rt-preempt-user|rt-preempt-kernel)
+    rt-preempt)
 	LIBS_hold=$LIBS
 	LIBS="$LIBS -lrt"
 
@@ -1089,14 +1077,14 @@ case "$THREADS" in
 	LIBS=$LIBS_hold
 
 	BUILD_DRIVERS=yes
-	if test "$THREADS" = rt-preempt-user ; then
+	if test "$THREADS" = rt-preempt ; then
 	   BUILD_SYS=user-dso
 	else
 	   BUILD_SYS=kbuild
 	fi
     ;;
 
-    xenomai-user|xenomai-kernel)
+    xenomai|xenomai-kernel)
 	if test -z "$RTDIR"; then
      	    DIRS="/usr/bin /usr/xenomai/bin"
  	else	    
@@ -1163,7 +1151,7 @@ case "$THREADS" in
 	CC=$CC_hold
 
 	BUILD_DRIVERS=yes
-	if test "$THREADS" = xenomai-user ; then
+	if test "$THREADS" = xenomai ; then
 	   BUILD_SYS=user-dso
 	else
 	   BUILD_SYS=kbuild
@@ -1280,17 +1268,14 @@ case $THREADS in
   rtai)
       AC_DEFINE(RTAPI_RTAI, [], [thread style rtai])
       ;;
-  xenomai-user)
-      AC_DEFINE(RTAPI_XENOMAI_USER, [], [thread style xenomai-user])
+  xenomai)
+      AC_DEFINE(RTAPI_XENOMAI, [], [thread style xenomai])
       ;;
   xenomai-kernel)
       AC_DEFINE(RTAPI_XENOMAI_KERNEL, [], [thread style xenomai-kernel])
       ;;
-  rt-preempt-user)
-      AC_DEFINE(RTAPI_RTPREEMPT_USER, [], [thread style rt-preempt-user])
-      ;;
-  rt-preempt-kernel)
-      AC_DEFINE(RTAPI_RTPREEMPT_KERNEL, [], [thread style rt-preempt-kernel])
+  rt-preempt)
+      AC_DEFINE(RTAPI_RTPREEMPT, [], [thread style rt-preempt])
       ;;
 esac
 AC_SUBST(THREADS)
@@ -1369,7 +1354,7 @@ AC_SUBST([HIDRAW_H_USABLE])
 ##############################################################################
 
 case $THREADS in
-    rt-preempt-kernel|rtai|xenomai-kernel)
+    rtai|xenomai-kernel)
     AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
         [AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 
@@ -1439,7 +1424,7 @@ case $THREADS in
 	])
     AC_MSG_RESULT([$BUILD_SYS])
     ;;
-   posix|xenomai-user|rt-preempt-user)
+   posix|xenomai|rt-preempt)
       MODEXT=".so"
    ;;
    *)

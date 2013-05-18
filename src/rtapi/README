@@ -283,7 +283,7 @@ chmod a+rw /dev/mem, for mbuff
 Hooks and the RTOS Integration
 ------------------------------
 
-In Nov and Dec 2012, the rt-preempt-user, xenomai-user and
+In Nov and Dec 2012, the rt-preempt, xenomai and
 xenomai-kernel thread systems were added to LinuxCNC.  At that point,
 there were six different threads systems, each implemented by copying
 the rtapi and ulapi source files from an existing system and tweaked
@@ -291,7 +291,7 @@ for the new system.  This resulted in an enormous amount of repeated
 code.
 
 The solution to this was to merge the thread systems (throwing out
-RTLinux and replacing the old sim system with the rt-preempt-user
+RTLinux and replacing the old sim system with the rt-preempt
 pthreads system) into common source files.  There are major
 differences between the the thread systems, so to avoid #ifdef hell, a
 system of 'hooks' was devised to encapsulate the differences.

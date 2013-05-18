@@ -72,11 +72,11 @@ int _rtapi_dummy(void) {
 
 static rtapi_switch_t rtapi_switch_struct = {
     .git_version = GIT_VERSION,
-#if THREAD_FLAVOR_ID == RTAPI_XENOMAI_USER_ID
-    .thread_flavor_name = "xenomai-user",
+#if THREAD_FLAVOR_ID == RTAPI_XENOMAI_ID
+    .thread_flavor_name = "xenomai",
 #endif
-#if THREAD_FLAVOR_ID ==  RTAPI_RT_PREEMPT_USER_ID
-    .thread_flavor_name = "rt-preempt-user",
+#if THREAD_FLAVOR_ID ==  RTAPI_RT_PREEMPT_ID
+    .thread_flavor_name = "rt-preempt",
 #endif
 #if THREAD_FLAVOR_ID == RTAPI_POSIX_ID
     .thread_flavor_name = "posix",

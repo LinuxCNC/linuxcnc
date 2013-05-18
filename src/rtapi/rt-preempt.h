@@ -1,5 +1,5 @@
 /********************************************************************
-* Description:  rt-preempt-user.h
+* Description:  rt-preempt.h
 *               This file defines the differences specific to the
 *               the RT_PREEMPT thread system
 *

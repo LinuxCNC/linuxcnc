@@ -1,7 +1,7 @@
 /********************************************************************
-* Description:  rt-preempt-user.c
+* Description:  rt-preempt.c
 *
-*               This file, 'rt-preempt-user.c', implements the unique
+*               This file, 'rt-preempt.c', implements the unique
 *               functions for the RT_PREEMPT thread system.
 ********************************************************************/
 

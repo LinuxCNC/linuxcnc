@@ -93,7 +93,7 @@ CheckConfig(){
     MODULES_LOAD=
     MODULES_UNLOAD=
     case $FLAVOR in
-    posix|xenomai-user|rt-preempt-user) SHM_DEV=/dev/zero;;
+    posix|xenomai|rt-preempt) SHM_DEV=/dev/zero;;
     *)
         for  MOD in $MODULES ; do
             eval MOD=\${MODPATH_$MOD}
@@ -132,7 +132,7 @@ CheckConfig(){
 
 CheckStatus(){
     case $FLAVOR in
-    posix|xenomai-user|rt-preempt-user)
+    posix|xenomai|rt-preempt)
         if [ -z "$($PIDOF rtapi_app:${INSTANCE})" ]; then
             exit 1
         else
@@ -181,7 +181,7 @@ CheckMem(){
 Load(){
     CheckKernel
     case $FLAVOR in
-    posix|xenomai-user|rt-preempt-user)
+    posix|xenomai|rt-preempt)
         # check for instance running
 	# this is the case if the global segment exists
         # and any processes exist which have it attached
@@ -259,7 +259,7 @@ CheckLoaded(){
 Unload(){
     CheckKernel
     case $FLAVOR in
-    posix|xenomai-user|rt-preempt-user)
+    posix|xenomai|rt-preempt)
 	if [ "$DEBUG" != "" ] ; then
             rtapi_app --instance=$INSTANCE exit 
 	else

@@ -51,7 +51,7 @@
 #include <sys/mman.h>
 #include <execinfo.h>
 #include <sys/prctl.h>
-#if defined(RTAPI_XENOMAI_USER) 
+#if defined(RTAPI_XENOMAI) 
 #include <grp.h>
 #include <rtdk.h>
 #endif
@@ -629,7 +629,7 @@ backtrace_handler(int sig, siginfo_t *si, void *uctx)
     int j, nptrs;
     char **strings;
 
-    if ((flavor->id == RTAPI_XENOMAI_USER_ID) &&
+    if ((flavor->id == RTAPI_XENOMAI_ID) &&
 	(sig == SIGXCPU))
 	rtapi_print_msg(RTAPI_MSG_ERR, 
 		  "rtapi_app:%d: Xenomai switched RT task to secondary domain\n",
@@ -733,8 +733,8 @@ static int harden_rt()
     sigaction(SIGILL,  &sig_act, (struct sigaction *) NULL);
     sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
 
-#if defined(RTAPI_XENOMAI_USER)  // FIXME BUILD_XENOMAI_USER
-    if (flavor->id ==  RTAPI_XENOMAI_USER_ID) {
+#if defined(RTAPI_XENOMAI)  // FIXME BUILD_XENOMAI
+    if (flavor->id ==  RTAPI_XENOMAI_ID) {
 	// check if this user is member of group xenomai, and fail miserably if not
 	int numgroups;
 	gid_t *grouplist;

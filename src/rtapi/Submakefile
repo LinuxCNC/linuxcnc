@@ -27,10 +27,10 @@ ifeq ($(THREADS),posix)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=0
 RT_CFLAGS+=-pthread -lrt
 endif
-ifeq ($(THREADS),rt-preempt-user)
+ifeq ($(THREADS),rt-preempt)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=1
 endif
-ifeq ($(THREADS),xenomai-user)
+ifeq ($(THREADS),xenomai)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=2
 RT_CFLAGS +=   -lrt $(shell $(XENO_CONFIG) --skin=native  --ldflags)
 endif
@@ -96,22 +96,22 @@ TARGETS += $(ULAPISO)
 ifeq ($(BUILD_SYS),user-dso)
 
 ################################################
-# xenomai-user settings
-ifeq ($(THREADS),xenomai-user)
+# xenomai settings
+ifeq ($(THREADS),xenomai)
 
 RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
 RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
-endif # xenomai-user
+endif # xenomai
 
 
 ################################################
-# rt-preempt-user and posix settings
-ifeq ($(THREADS_SOURCE),rt-preempt-user)
+# rt-preempt and posix settings
+ifeq ($(THREADS_SOURCE),rt-preempt)
 
 RT_CFLAGS +=  -pthread
 RT_LDFLAGS += -lpthread -lrt
 endif 
-# rt-preempt-user/posix
+# rt-preempt/posix
 
 # the rtapi.so module
 obj-$(CONFIG_RTAPI) += rtapi.o

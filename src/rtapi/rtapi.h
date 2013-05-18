@@ -135,7 +135,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
-/* implemented in $THREADS.c (rt-preempt-user.c, xenomai-user.c, etc.) */
+/* implemented in $THREADS.c (rt-preempt.c, xenomai.c, etc.) */
 
 /** 'rtapi_init() sets up the RTAPI.  It must be called by any
     module that intends to use the API, before any other RTAPI
@@ -668,8 +668,8 @@ typedef int (*rtapi_dummy_t)(void);
 // a unique ID for each thread flavor
 // cant be an enum since cpp needs to evaluate this symbol
 #define RTAPI_POSIX_ID  0
-#define RTAPI_RT_PREEMPT_USER_ID 1
-#define RTAPI_XENOMAI_USER_ID 2
+#define RTAPI_RT_PREEMPT_ID 1
+#define RTAPI_XENOMAI_ID 2
 #define RTAPI_RTAI_KERNEL_ID 3
 #define RTAPI_XENOMAI_KERNEL_ID 4
 typedef struct {

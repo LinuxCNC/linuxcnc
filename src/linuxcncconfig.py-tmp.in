@@ -15,8 +15,8 @@
 #
 # Michael Haberler 3/2013
 
-rtstyles =  ['xenomai-kernel', 'xenomai-user',
-             'rt-preempt-user', 'rtai', 'rt-preempt-kernel']
+rtstyles =  ['xenomai-kernel', 'xenomai',
+             'rt-preempt', 'rtai', 'posix']
 
 class Config(object):
 
@@ -25,7 +25,7 @@ class Config(object):
         if self.BUILD_DRIVERS: return True
 
     def runs_on_xenomai(self):
-        return self.THREADS in ['xenomai-kernel', 'xenomai-user']
+        return self.THREADS in ['xenomai-kernel', 'xenomai']
 
     def runs_on_rtai(self):
         return self.THREADS == 'rtai'

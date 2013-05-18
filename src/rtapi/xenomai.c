@@ -1,6 +1,6 @@
 /********************************************************************
-* Description:  xenomai-user.c
-*               This file, 'xenomai-user.c', implements the unique
+* Description:  xenomai.c
+*               This file, 'xenomai.c', implements the unique
 *               functions for the Xenomai userland thread system.
 ********************************************************************/
 

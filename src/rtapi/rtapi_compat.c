@@ -67,19 +67,19 @@ flavor_t flavors[] = {
     // #endif
 
     // #if BUILD_RT_PREEMPT
-    { .name = "rt-preempt-user",
+    { .name = "rt-preempt",
       .mod_ext = ".so",
       .so_ext = ".so",
-      .id = RTAPI_RT_PREEMPT_USER_ID,
+      .id = RTAPI_RT_PREEMPT_ID,
       .flags = FLAVOR_DOES_IO,
     },
     // #endif
-    // #if BUILD_XEMNOMAI_USER
+    // #if BUILD_XEMNOMAI
 
-    { .name = "xenomai-user",
+    { .name = "xenomai",
       .mod_ext = ".so",
       .so_ext = ".so",
-      .id = RTAPI_XENOMAI_USER_ID,
+      .id = RTAPI_XENOMAI_ID,
       .flags = FLAVOR_DOES_IO,
     },
     // #endif
@@ -140,14 +140,14 @@ flavor_ptr default_flavor(void)
 #ifdef RTAPI_POSIX
     return flavor_byid(RTAPI_POSIX_ID);
 #endif
-#ifdef RTAPI_XENOMAI_USER
-    return flavor_byid(RTAPI_XENOMAI_USER_ID);
+#ifdef RTAPI_XENOMAI
+    return flavor_byid(RTAPI_XENOMAI_ID);
 #endif
 #ifdef RTAPI_XENOMAI_KERNEL
     return flavor_byid(RTAPI_XENOMAI_KERNEL_ID);
 #endif
-#ifdef  RTAPI_RTPREEMPT_USER
-    return flavor_byid(RTAPI_RT_PREEMPT_USER_ID);
+#ifdef  RTAPI_RTPREEMPT
+    return flavor_byid(RTAPI_RT_PREEMPT_ID);
 #endif
 #ifdef RTAPI_RTAI
     return flavor_byid(RTAPI_RTAI_KERNEL_ID);
@@ -160,9 +160,9 @@ flavor_ptr default_flavor(void)
     if (kernel_is_rtai())
 	return flavor_byid(RTAPI_RTAI_KERNEL_ID);
     if (kernel_is_xenomai())
-	return flavor_byid(RTAPI_XENOMAI_USER_ID);
+	return flavor_byid(RTAPI_XENOMAI_ID);
     if (kernel_is_rtpreempt())
-	return flavor_byid(RTAPI_RT_PREEMPT_USER_ID);
+	return flavor_byid(RTAPI_RT_PREEMPT_ID);
     return flavor_byid(RTAPI_POSIX_ID);
 #endif
 }

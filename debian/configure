@@ -67,10 +67,10 @@ inspect_kernel() {
         DEFAULT_THREAD_STYLE=rtai
     elif test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
         KTYPE=xenomai
-        DEFAULT_THREAD_STYLE=xenomai-user
+        DEFAULT_THREAD_STYLE=xenomai
     elif test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
         KTYPE=rt-preempt
-        DEFAULT_THREAD_STYLE=rt-preempt-user
+        DEFAULT_THREAD_STYLE=rt-preempt
     else
         KTYPE=vanilla
         DEFAULT_THREAD_STYLE=posix

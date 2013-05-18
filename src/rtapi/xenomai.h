@@ -1,5 +1,5 @@
 /********************************************************************
-* Description:  xenomai-user.h
+* Description:  xenomai.h
 *               This file defines the differences specific to the
 *               the Xenomai user land thread system
 ********************************************************************/

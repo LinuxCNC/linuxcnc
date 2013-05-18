@@ -52,17 +52,17 @@ arise during merge, also with the consequence of an even more incoherent set of 
 
 * posix will be implied by the current '--enable-simulator' option, meaning: simulator rtapi_app, no RT hardening, user mode .so modules
 
-* rt-preempt-user as above, but hardened rtapi_app.
+* rt-preempt as above, but hardened rtapi_app.
 
 * rt-preempt-kernel: this would imply: an rt-preempt kernel,  kthreads for RTAPI execution, and .ko modules.
 
-* xenomai-user: as posix, but using xenomai user RT process hardening (rouhgly as used in the miniemc2 project: http://code.google.com/p/miniemc2/)
+* xenomai: as posix, but using xenomai user RT process hardening (rouhgly as used in the miniemc2 project: http://code.google.com/p/miniemc2/)
 
 * xenomai-kernel: very similar to current RTAI threads.
 
 * rtai: as before
 
-Build system: there are two styles, 'kbuild' (kernel modules) and 'user-dso' (userland shared objects). The thread style implies a build system: posix, xenomai-user, rt-preempt-user imply 'user-dso', the others imply 'kbuild'.
+Build system: there are two styles, 'kbuild' (kernel modules) and 'user-dso' (userland shared objects). The thread style implies a build system: posix, xenomai, rt-preempt imply 'user-dso', the others imply 'kbuild'.
 
 Building hardware drivers can be controlled with --enable-drivers. It is default 'yes' except for --with-threads=posix. Some hardware drivers will build as kernel modules only, some as user shared objects, some may build as both; in that case the Submakefile needs to test for BUILD_SYS having the proper value.
 
@@ -70,7 +70,7 @@ The cpp symbols 'SIM', 'SIMULATOR', and 'RTAPI_SIM' have been removed as they do
 
 The shell/Makefile variables are:
 
-THREADS= one of: posix, rt-preempt-user,rt-preempt-kernel, xenomai-user, xenomai-kernel, rtai
+THREADS= one of: posix, rt-preempt, xenomai, xenomai-kernel, rtai
 
 BUILD_DRIVERS=yes or no
 
@@ -81,11 +81,9 @@ THREADS is reflected in config.h as one of the following defined:
 
 RTAPI_POSIX
 
-RTAPI_RT_PREEMPT_USER
+RTAPI_RT_PREEMPT
 
-RTAPI_RT_PREEMPT_KERNEL
-
-RTAPI_XENOMAI_USER
+RTAPI_XENOMAI
 
 RTAPI_XENOMAI_KERNEL
 

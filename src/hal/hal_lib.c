@@ -3981,7 +3981,7 @@ static void ulapi_hal_lib_init(void)
     // verify the ulapi-foo.so we just loaded is compatible with
     // the running kernel if it has special prerequisites
     switch (rtapi_switch->thread_flavor_id) {
-    case  RTAPI_RT_PREEMPT_USER_ID:
+    case  RTAPI_RT_PREEMPT_ID:
 	if (!kernel_is_rtpreempt()) {
 	    fprintf(stderr,"HAL_LIB: ERROR - RT_PREEMPT ULAPI loaded but kernel is not RT_PREEMPT (%s, %s)\n",
 		    ulapi_lib, rtapi_switch->git_version);
@@ -3990,7 +3990,7 @@ static void ulapi_hal_lib_init(void)
 	break;
 
     case RTAPI_XENOMAI_KERNEL_ID:
-    case RTAPI_XENOMAI_USER_ID:
+    case RTAPI_XENOMAI_ID:
 	if (!kernel_is_xenomai()) {
 	    fprintf(stderr,"HAL_LIB: ERROR - Xenomai ULAPI loaded but kernel is not Xenomai (%s, %s)\n",
 		    ulapi_lib, rtapi_switch->git_version);

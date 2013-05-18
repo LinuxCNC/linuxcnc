@@ -176,7 +176,7 @@ static int check_compatible()
 	return 1; // no prerequisites
 
     if (kernel_is_xenomai() &&
-	(flavor_id != RTAPI_XENOMAI_USER_ID)) {
+	(flavor_id != RTAPI_XENOMAI_ID)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d started %s RTAPI on a Xenomai kernel\n",
 			rtapi_instance,flavor_name);
@@ -191,7 +191,7 @@ static int check_compatible()
 	return 0;
     }
     if (kernel_is_rtpreempt() &&
-	(flavor_id != RTAPI_RT_PREEMPT_USER_ID)) {
+	(flavor_id != RTAPI_RT_PREEMPT_ID)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d started %s RTAPI on an RT PREEMPT kernel\n",
 			rtapi_instance,flavor_name);

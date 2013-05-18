@@ -184,17 +184,17 @@ extern flavor_ptr default_flavor(void);
  * kernel versions, and specifically override default choices in case of
  * problems:
  *
- * assume you have a xenomai-user build which has mostly flavor-dependent but
+ * assume you have a xenomai build which has mostly flavor-dependent but
  * release-independent modules;
  * however, there is a HAL driver for kernel version foo which is not needed on
  * other kernel versions.
  * In this case, place modules like so:
- * 
- * LIBPATH/xenomai-user/    # standard modules go here
- * LIBPATH/xenomai-user/foo/hal_driver.so   # more specific driver goes here
+ *
+ * LIBPATH/xenomai/    # standard modules go here
+ * LIBPATH/xenomai/foo/hal_driver.so   # more specific driver goes here
  *
  */
-extern int module_path(flavor_ptr f, 
+extern int module_path(flavor_ptr f,
 		       char *result,
 		       const char *libpath, 
 		       const char *basename, 
