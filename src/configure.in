@@ -138,12 +138,6 @@ BUILD_SYS=""
 # #define BUILD_SYS_USER_DSO /**/
 
 
-# SIMULATOR=yes if --enable-simulator was given - use this to derive other values
-# used in tcl :-/
-# tcl/show_errors.tcl
-# tcl/linuxcnc.tcl.in
-SIMULATOR=no
-
 # a set of gcc/cpp flags to work around broken hardy amd64 rtai_lxrt.h
 HARDY_AMD64_WORKAROUND=""
 
@@ -466,40 +460,11 @@ AC_ARG_WITH(kernel,
       AC_MSG_RESULT([none given, will use running kernel configuration if required])
     ])  
 
-AC_MSG_CHECKING(simulator selection)
-AC_ARG_ENABLE(simulator,
-    [  --enable-simulator      Run as a pure userspace program],
-    [
-
-        case "$enableval" in
-            Y*|y*)
-                SIMULATOR=yes
-                dnl RTS=simulator
-		THREADS=posix
-                BUILD_SYS=user-dso
-		BUILD_DRIVERS=no
-                MODEXT=.so
-                MODULE_DIR=${prefix}/lib/linuxcnc/modules
-                AC_MSG_RESULT([configuring for simulator])
-            ;;
-            *)
-                SIMULATOR=no
-		;;
-        esac
-    ],
-    [
-        AC_MSG_RESULT([not selected])
-        SIMULATOR=no
-    ])
-
 AC_MSG_CHECKING(thread style)
 AC_ARG_WITH(threads,
     [  --with-threads=<style>   the thread style to use; styles are:
     		                posix,rtai,rt-preempt-user,rt-preempt-kernel,xenomai-user,xenomai-kernel ],
     [  
-	if test  "$SIMULATOR" = yes -a \( "$withval" != posix \) ; then
-	    AC_MSG_ERROR([ --with-threads=$withval is incompatible with --enable-simulator ]) 
-	fi
         case "$withval" in
             posix)
                 THREADS=posix	
@@ -749,7 +714,6 @@ fi
 
 # Validate the userland part - config programs, directories, libraries  etc
 AC_MSG_CHECKING(for $THREADS build support)
-SIMULATOR=no
 THREADS_SOURCE="${THREADS}"
 case "$THREADS" in
 
@@ -760,7 +724,6 @@ case "$THREADS" in
 	RTFLAGS= # dso flags for posix - FIXME needed?
 	#'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
 	BUILD_SYS=user-dso
-	SIMULATOR=yes	 # tcl legacy
 	THREADS_SOURCE="rt-preempt-user"  # use RT_PREEMPT code
     ;;
 
@@ -956,7 +919,6 @@ RTPREFIX=$THREADS
 
 AC_SUBST(HARDY_AMD64_WORKAROUND)
 
-AC_SUBST(SIMULATOR)
 AC_SUBST([RTNAME])
 
 AC_SUBST([RTAI])
@@ -1654,8 +1616,15 @@ AC_SUBST(BUILD_DOCS_HTML)
 # if certain functions found in libc.so are not stubbed, hence the following #
 # tests and linking to mathstubs.o at a later stage.                         #
 ##############################################################################
+# FIXME
+#
+# Do we actually need math detection?
+#    The below code is broken, not failing only because of a bug.
+#    Kernel threads are argued to be deprecated, a factor for what to do here
+# Can RTAI kernel math support just be assumed so this can be removed?
+#    Because below code is broken, math support is effectively assumed.
 
-if test "$SIMULATOR" != "yes"
+if test $with_rtai = "yes"
 then
 AC_MSG_CHECKING([for kernel math support])
 USE_LIBM=""
@@ -2301,22 +2270,26 @@ echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
 echo "#   It seems that ./configure completed successfully.                #"
-if test $SIMULATOR = yes; then
+# FIXME for building multiple thread styles
+if test $THREADS = posix; then
 echo "#   However, the configuration is for a simulator only, no RT        #"
 echo "#   capabilities will be used. In this mode no control of hardware   #"
 echo "#   is possible. Drivers won't be built.                             #"
 else
 echo "#   This means that RT is properly installed                         #"
 fi
+# /FIXME
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
 
+# FIXME for building multiple thread styles
 if test "xyes" = "x$RUN_IN_PLACE"; then
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
 if test $THREADS != posix -o \( $BUILD_DRIVERS = yes \) ; then
 echo "#         sudo make setuid                                           #"
 fi
+# /FIXME
 echo "#                                                                    #"
 echo "#   Before running the software, set the environment:                #"
 echo "#         . (top dir)/scripts/rip-environment                        #"
