@@ -18,6 +18,8 @@ shmdrv-objs := rtapi/shmdrv/shmdrv.o
 
 INCLUDES += rtapi/shmdrv
 
+endif # USE_SHMDRV
+endif # BUILD_SYS = kbuild
 
 #------------------------------
 # liblinuxcncshm.so shared lib
@@ -38,7 +40,7 @@ $(SHMDRVLIB).0: $(call TOOBJS, $(SHMDRVAPISRCS))
 USERSRCS += $(SHMDRVAPISRCS) 
 TARGETS += $(SHMDRVLIB) 
 
-
+ifeq ($(BUILD_EXAMPLES),yes)
 #------------------------------
 # mutexwatch binary
 
@@ -56,5 +58,4 @@ $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
 USERSRCS += $(MUTEXWATCH_SRCS)
 TARGETS += ../bin/mutexwatch
 
-endif # USE_SHMDRV
-endif # BUILD_SYS = kbuild
+endif # BUILD_EXAMPLES
