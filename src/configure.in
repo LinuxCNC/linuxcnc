@@ -254,6 +254,18 @@ DEFAULT_THREADSTYLE_XENOMAI=xenomai-user
 DEFAULT_THREADSTYLE_RTAI=rtai
 DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt-user
 
+# Places to look for Xeno and RTAI kernel headers
+#
+# RedHat-derivatives: (/usr/src/kernels/`uname -r`),
+# Debian-derivatives: (/usr/src/linux-headers-`uname -r`)
+# A hopefully generic location: (/lib/modules/`uname -r`/build)
+KSOURCE_LOCATION_HINTS=$(echo \
+	/usr/src/kernels/* \
+	/usr/src/linux-headers-* \
+	/lib/modules/*/build \
+	)
+
+
 # Pass math-related CFLAGS into the kernel.  These should be appended
 # onto EXTRA_CFLAGS to override anything conflicting.
 KERNEL_MATH_CFLAGS=""
@@ -363,6 +375,7 @@ AC_ARG_ENABLE(shmdrv,
       AC_MSG_RESULT([default is no])
     ])
 
+##########  FIXME  this should be removed/folded in with thread detection #########
 AC_MSG_CHECKING(whether to build hardware drivers)
 AC_ARG_ENABLE(drivers,
     [  --enable-drivers      Build hardware drivers],
@@ -384,6 +397,7 @@ AC_ARG_ENABLE(drivers,
     [
       AC_MSG_RESULT([hardware drivers build will be determined by --with-threads])
     ])
+##########  /FIXME  this should be removed/folded in with thread detection #########
 
 AC_MSG_CHECKING(whether to use inb/outb or ppdev ioctl on the x86 for parport I/O)
 AC_ARG_ENABLE(portable-parport,
@@ -436,6 +450,284 @@ AC_ARG_ENABLE(gcc-atomic-ops,
           AC_MSG_RESULT([using defaults: $USE_GCC_ATOMIC_OPS ])
       fi
     ])
+
+
+AC_ARG_WITH(posix,
+    [AS_HELP_STRING([--with-posix],
+        [build POSIX (simulator) non-realtime threads modules
+        (enabled by default)])],
+    [],
+    [with_posix=yes])
+AC_MSG_CHECKING(whether to build POSIX threads)
+test "$with_posix" = check && with_posix=yes
+AC_MSG_RESULT($with_posix)
+   
+
+AC_ARG_WITH(rt-preempt,
+    [AS_HELP_STRING([--with-rt-preempt],
+        [build RT_PREEMPT threads modules])],
+    [],
+    [with_rt_preempt=check])
+if test "$with_rt_preempt" != no; then
+    LIBS_hold=$LIBS
+    LIBS="$LIBS -lrt"
+
+    AC_MSG_CHECKING(-lrt for RT_PREEMPT)
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+	#include <time.h>
+	#include <sched.h>
+	#include <sys/mman.h>
+    ]],
+    [[
+	struct timespec t;
+	clock_gettime(CLOCK_MONOTONIC ,&t);
+	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
+    ]])],
+    [
+        have_librt=yes
+        AC_MSG_RESULT(ok)],
+    [
+        have_librt=no
+        AC_MSG_RESULT(failed)
+    ])
+    LIBS=$LIBS_hold
+fi
+AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
+test "$with_rt_preempt" = check && with_rt_preempt=yes
+test "$have_librt" = no && with_rt_preempt=no
+AC_MSG_RESULT($with_rt_preempt)
+
+
+# check for xenomai threads, both userland and kernel
+AC_PRESERVE_HELP_ORDER()
+AC_ARG_WITH(xenomai,
+    [AS_HELP_STRING([--with-xenomai],
+        [build Xenomai userland threads])],
+    [xenomai_from_cmdline=yes],
+    [with_xenomai=check])
+AC_ARG_WITH(xenomai-kernel,
+    [AS_HELP_STRING([--with-xenomai-kernel],
+        [build Xenomai kernel-space realtime threads (deprecated)])],
+    [xenomai_from_cmdline=yes],
+    [with_xenomai_kernel=check])
+# XENOMAI_THREADS_RTS:  locate the 'xeno-config' executable
+AC_ARG_WITH(xeno-config,
+    [AS_HELP_STRING([--with-xeno-config=<path>],
+    [location of the xeno-config executable])],
+    [xeno_config_from_cmdline=yes])
+if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
+    # XENOMAI_THREADS_RTS:  look for the xeno-config executable
+    if test "$xeno_config_from_cmdline" = yes; then
+        XENOMAI_THREADS_RTS="$with_xeno_config"
+    else
+	AC_PATH_PROGS([XENOMAI_THREADS_RTS],[xeno-config])
+    fi
+    if test -z "$XENOMAI_THREADS_RTS" -o ! -x "$XENOMAI_THREADS_RTS"; then
+	if test "$xeno_config_from_cmdline" = yes; then
+	    AC_MSG_ERROR(invalid xeno-config specified)
+	fi
+	if test "$xenomai_from_cmdline" = yes -o \
+		"$xenomai_kernel_from_cmdline" = yes; then
+	    AC_MSG_ERROR(xeno-config not found; use --with-xeno-config)
+	fi
+    fi
+    if test -x "$XENOMAI_THREADS_RTS"; then
+        # found xeno-config; add default skin option
+	XENOMAI_THREADS_RTS="$XENOMAI_THREADS_RTS --skin=native"
+    fi
+fi
+
+# XENOMAI_THREADS_RTFLAGS:  test runtime library & get flags
+if test -n "$XENOMAI_THREADS_RTS"; then
+    AC_MSG_CHECKING(Xenomai runtime library)
+    CFLAGS_hold=$CFLAGS
+    CFLAGS="$CFLAGS "`$XENOMAI_THREADS_RTS --cflags`
+    LIBS_hold=$LIBS
+    LIBS="$LIBS "`$XENOMAI_THREADS_RTS --ldflags`
+    AC_LINK_IFELSE([AC_LANG_PROGRAM(
+    [[
+	#include <native/task.h>
+	#include <native/timer.h>
+	RT_TASK demo_task;
+	RTIME now;
+    ]],
+    [[
+	rt_task_create(&demo_task, "trivial", 0, 99, 0);
+	rt_task_set_periodic(NULL, TM_NOW, 1000000000);
+	rt_timer_read();
+    ]])],
+    [AC_MSG_RESULT(works)],
+    [
+	AC_MSG_RESULT(failed)
+	with_xenomai=no
+	with_xenomai_kernel=no
+    ])
+    LIBS=$LIBS_hold
+    CFLAGS=$CFLAGS_hold
+
+    
+    flags="-DFROM_XENO $($XENOMAI_THREADS_RTS --cflags)"
+    XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
+    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
+    # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
+    # on all arches but x86_64; this causes missing symbols without
+    # this CFLAG
+    if test "$(uname -m)" = x86_64; then
+        flags="-fno-stack-protector"
+        XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
+        XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
+    fi
+    # xenomai kernel math options
+    flags="-ffast-math -mhard-float"
+    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
+    flags="-msse -funsafe-math-optimizations"
+    XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
+    # ldflags
+    flags="$($XENOMAI_THREADS_RTS --ldflags)"
+    XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
+    XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
+fi
+AC_ARG_WITH(kernel-source-xenomai,
+    [AS_HELP_STRING([--with-kernel-source-xenomai=<kernel source directory>],
+	[location of the xenomai kernel source])],
+	[xeno_src_from_cmdline=yes],
+	[with_kernel_source_xenomai="$KSOURCE_LOCATION_HINTS"])
+
+if test "$with_xenomai_kernel" != no; then
+    AC_MSG_CHECKING(xenomai kernel source location)
+    found_location=""
+    for location in $with_kernel_source_xenomai; do
+	if test -f "$location/.config" && \
+		    grep -q '^CONFIG_XENOMAI=' "$location/.config"; then
+	    found_location="$location"
+	    break
+	fi
+    done
+    with_kernel_source_xenomai=$found_location
+    if test -n "$with_kernel_source_xenomai"; then
+	XENOMAI_KERNEL_THREADS_KERNEL_DIR=$with_kernel_source_xenomai
+	AC_MSG_RESULT($with_kernel_source_xenomai)
+    elif test "$xeno_src_from_cmdline" = yes; then
+	# invalid --with-kernel-source-xenomai arg given on cmdline
+	AC_MSG_RESULT(not found)
+	AC_MSG_ERROR(invalid xenomai kernel source directory)
+    else
+	AC_MSG_RESULT(not found)
+    fi
+fi
+
+AC_MSG_CHECKING(whether to build Xenomai userland threads)
+test "$with_xenomai" = check && with_xenomai=yes
+test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
+AC_MSG_RESULT($with_xenomai)
+
+AC_MSG_CHECKING(whether to build Xenomai kernel threads)
+test "$with_xenomai_kernel" = check && with_xenomai_kernel=yes
+test -z "$with_kernel_source_xenomai" && with_xenomai_kernel=no
+test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
+AC_MSG_RESULT($with_xenomai_kernel)
+
+
+# check for rtai kernel config and source
+AC_PRESERVE_HELP_ORDER()
+AC_ARG_WITH(rtai,
+    [AS_HELP_STRING([--with-rtai],
+        [build RTAI kernel-space realtime threads modules])],
+    [],
+    [with_rtai=check])
+# RTAI_THREADS_RTS:  locate the 'rtai-config' executable
+AC_ARG_WITH(rtai-config,
+    [AS_HELP_STRING([--with-rtai-config=<path>],
+    [location of the rtai-config executable])],
+    [rtai_config_from_cmdline=yes],
+    [
+	with_rtai_config=""
+	dirs="$(echo \
+	   /usr/realtime-`uname -r` /usr/realtime* /usr /usr/src/rtai*)"
+	for d in $dirs; do
+	    with_rtai_config="$with_rtai_config:$d:$d/bin"
+	done
+    ])
+if test "$with_rtai" != no; then
+    AC_PATH_PROGS([RTAI_THREADS_RTS],[rtai-config],[],[$with_rtai_config])
+    if test -z "$RTAI_THREADS_RTS" -a "$with_rtai" = yes; then
+            AC_MSG_ERROR("rtai-config" not found; use --with-rtai-config")
+    fi
+fi
+# RTAI_THREADS_KERNEL_DIR:  locate the kernel source
+if test -n "$RTAI_THREADS_RTS"; then
+    AC_ARG_WITH(kernel-source-rtai,
+        [AS_HELP_STRING([--with-kernel-source-rtai=<kernel source directory>],
+	    [location of the RTAI kernel source])],
+	    [rtai_src_from_cmdline=yes],
+	    [with_kernel_source_rtai=$($RTAI_THREADS_RTS --linux-dir)])
+
+    AC_MSG_CHECKING(rtai kernel source location)
+    if test ! -f "$with_kernel_source_rtai/.config" || \
+	    ! grep -q '^CONFIG_IPIPE=' "$with_kernel_source_rtai/.config" ; then
+	with_kernel_source_rtai=""
+    fi
+    if test -n "$with_kernel_source_rtai"; then
+	RTAI_THREADS_KERNEL_DIR=$with_kernel_source_rtai
+	AC_MSG_RESULT($RTAI_THREADS_KERNEL_DIR)
+    elif test "$rtai_src_from_cmdline" = yes; then
+	# invalid --with-kernel-source-rtai arg given on cmdline
+	AC_MSG_RESULT(not found)
+	AC_MSG_ERROR(invalid rtai kernel source directory)
+    else
+	AC_MSG_RESULT(not found)
+    fi
+fi
+if test  -n "$RTAI_THREADS_KERNEL_DIR"; then
+   # HARDY_AMD64_WORKAROUND: check for an rtai includes problem on
+   # older kernels
+    AC_MSG_CHECKING(if hardy amd64 workaround is required)
+    machine=`uname -m`
+    # test for broken hardy rtai amd64 includes
+    lxrt=$($RTAI_THREADS_RTS --prefix)/include/asm-x86_64/rtai_lxrt.h
+    if test "$machine" = x86_64 ; then
+	if test -f $lxrt; then
+	    if grep -q '#include <asm/asm-offsets.h>' $lxrt; then
+		workaround="-Iworkaround/hardy-amd64 -DBROKEN_RTAI_LXRT"
+		HARDY_AMD64_WORKAROUND="$workaronud"
+		AC_MSG_RESULT(required)
+	    else
+		AC_MSG_RESULT(no, rtai_lxrt.h include file looks ok)
+	    fi
+	else
+	    AC_MSG_RESULT(rtai_lxrt.h missing)
+	    AC_MSG_ERROR($lxrt does not exist but should)
+	fi
+    else
+	AC_MSG_RESULT(no, not an amd64 build)
+    fi
+
+    AC_MSG_CHECKING([RTAI C compiler])
+    # The compiler MUST match the one used to compile the realtime modules if the
+    # kernel level code is to function correctly. But if the kernel has been
+    # compiled with gcc-2.96, it is unlikely to ever work !
+    RTAI_THREADS_RTSCC=`$RTAI_THREADS_RTS --cc`
+    if test -n "$RTAI_THREADS_RTSCC"; then
+       AC_MSG_RESULT($RTAI_THREADS_RTSCC) 
+    else
+       AC_MSG_RESULT(default)
+    fi
+
+    RTAI_THREADS_RTFLAGS="-DFROM_RTAI $($RTAI_THREADS_RTS --module-cflags)"
+    RTAI_THREADS_LDFLAGS="$($RTAI_THREADS_RTS --lxrt-ldflags)"
+
+    test "$($RTAI_THREADS_RTS --arch)" = x86_64 && \
+	RTAI_THREADS_KERNEL_MATH_CFLAGS="-msse -ffast-math -funsafe-math-optimizations"
+fi
+
+AC_MSG_CHECKING(whether to build RTAI threads)    
+test -z "$RTAI_THREADS_RTS" && with_rtai=no
+test -z "$RTAI_THREADS_KERNEL_DIR" && with_rtai=no
+test "$with_rtai" = check && with_rtai=yes
+AC_MSG_RESULT($with_rtai)
+
+
+
 
 
 AC_MSG_CHECKING(kernel configuration)
