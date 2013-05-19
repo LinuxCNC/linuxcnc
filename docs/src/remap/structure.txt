@@ -2623,9 +2623,11 @@ changing a Python file.
 
 . M61 (remapped or not) is broken in iocontrol and requires
 iocontrol-v2 to actually work.
+
 // A short survey of LinuxCNC execution
 // Interpreter internals access - Python view
 // Task internals access - Python view
+
 ==  Build notes - Lucid (10.04)
 
 For the interpreter & task Python plugins, this is required:
