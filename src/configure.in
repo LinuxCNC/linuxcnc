@@ -111,21 +111,42 @@ RTSCC=""
 # scripts/rtapi.conf
 RTPREFIX=""
 
-# historic values 'sim', or 'simulator', or a script like /usr/realtime/foo-config,
-# which can be used to extract c or ld flags specific for the thread system.
-#RTS
+# a script like /usr/realtime/foo-config, which can be used to extract
+# c or ld flags specific for the thread system.
+XENOMAI_THREADS_RTS=""
+XENOMAI_KERNEL_THREADS_RTS=""
+RTAI_THREADS_RTS=""
 
-# checked only if RTS equals */rtai-config or */realtime-config. empty for sim.
-KERNELDIR=""
+# Location of configured kernel sources
+#
+# checked only for kernel threads
+XENOMAI_KERNEL_THREADS_KERNEL_DIR=""
+RTAI_THREADS_KERNEL_DIR=""
 
-# the c flags for compiling kernel modules. set by calling RTS. rtai* and rtlinux only.
-RTFLAGS=""
+# c flags for compiling RTAPI
+POSIX_THREADS_RTFLAGS=""
+RT_PREEMPT_THREADS_RTFLAGS=""
+XENOMAI_THREADS_RTFLAGS=""
+XENOMAI_KERNEL_THREADS_RTFLAGS=""
+RTAI_THREADS_RTFLAGS=""
 
-# this used to be: 'sim', 'kbuild' or 'normal' 
-# 'normal' was used by rtlinux, and is deprecated.
-# 'sim' has been renamed 'user-dso' because it does not imply simulator mode anymore -
-#   too much confusion.
-BUILD_SYS=""
+# linker flags for RTAPI
+POSIX_THREADS_LDFLAGS=""
+RT_PREEMPT_THREADS_LDFLAGS=""
+XENOMAI_THREADS_LDFLAGS=""
+XENOMAI_KERNEL_THREADS_LDFLAGS=""
+RTAI_THREADS_LDFLAGS=""
+
+# special RTS C compiler command, if any
+RTAI_THREADS_RTSCC=""
+
+# special kernel math CFLAGS, if any
+#
+# can this be folded into e.g. RTFLAGS?
+RTAI_THREADS_KERNEL_MATH_CFLAGS=""
+
+# user-dso for userland threads, kbuild for kernel threads
+#
 # reflected in config.h like so:
 #
 # /* build modules through kbuild */
@@ -136,9 +157,14 @@ BUILD_SYS=""
 #
 # /* build modules as .so shared objects */
 # #define BUILD_SYS_USER_DSO /**/
+POSIX_THREADS_BUILD_SYS="user-dso"
+RT_PREEMPT_THREADS_BUILD_SYS="user-dso"
+XENOMAI_THREADS_BUILD_SYS="user-dso"
+XENOMAI_KERNEL_THREADS_BUILD_SYS="kbuild"
+RTAI_THREADS_BUILD_SYS="kbuild"
 
-
-# a set of gcc/cpp flags to work around broken hardy amd64 rtai_lxrt.h
+# a set of gcc/cpp flags to fix broken rtai_lxrt.h on older 64-bit
+# kernels
 HARDY_AMD64_WORKAROUND=""
 
 #----------------------------------------------------------------------------
@@ -247,12 +273,6 @@ BUILD_DRIVERS="no"
 #configure --with-build-type=rt-preempt
 #	this would check whether the running kernel is in fact rt-preempt by inspecting /boot/config-`uname #-r` for appropriate flags, and complain otherwise-
 KCONFIG=""
-
-# if autoconfiguring from kernel config, use these
-# defaults as thread style:
-DEFAULT_THREADSTYLE_XENOMAI=xenomai
-DEFAULT_THREADSTYLE_RTAI=rtai
-DEFAULT_THREADSTYLE_RTPREEMPT=rt-preempt
 
 # Places to look for Xeno and RTAI kernel headers
 #
@@ -728,30 +748,6 @@ AC_MSG_RESULT($with_rtai)
 
 
 
-
-
-AC_MSG_CHECKING(kernel configuration)
-AC_ARG_WITH(kernel,
-    [  --with-kernel=/boot/config-<kernel-version>  kernel configuration to build for
-                        this determines the RT kernel type (RTAI, Xenomai, RT-PREEMPT)
-    ],
-    [  
-	if test -f "$withval"; then 
-	    # an absolute path was given
-	    KCONFIG="$withval"
-	else 
-            if test -f "/boot/config-$withval"; then
-	        KCONFIG="/boot/config-$withval"
-	    else
-	       AC_MSG_ERROR([cannot read kernel configuration based on $withval hint ]) 
-	    fi
-	fi
-	AC_MSG_RESULT([using $KCONFIG ])
-    ],
-    [
-      AC_MSG_RESULT([none given, will use running kernel configuration if required])
-    ])  
-
 ############# FIXME a single THREADS variable is irrelevant to ub #######
 #
 # keep --with-threads=foo for now; use this to set $THREADS
@@ -764,27 +760,27 @@ AC_ARG_WITH(threads,
     		                posix,rtai,rt-preempt,xenomai,xenomai-kernel ],
     [  
         case "$withval" in
-            posix)
+            (posix)
                 THREADS=posix	
                 AC_MSG_RESULT([configuring for Posix threads])
             ;;
-            rtai)
+            (rtai)
                 THREADS=rtai	
                 AC_MSG_RESULT([configuring for RTAI threads])
             ;;
-            rt-preempt)
+            (rt-preempt)
                 THREADS=rt-preempt
                 AC_MSG_RESULT([configuring for RT_PREEMPT threads])
             ;;
-            xenomai)
+            (xenomai)
                 THREADS=xenomai	
                 AC_MSG_RESULT([configuring for Xenomai user threads])
             ;;
-            xenomai-kernel)
+            (xenomai-kernel)
                 THREADS=xenomai-kernel	
                 AC_MSG_RESULT([configuring for Xenomai kernel threads])
             ;;
-            *)
+            (*)
 	    if test -z "$THREADS"; then
 	        AC_MSG_RESULT([unknown threads system:  $withval])
 	        AC_MSG_ERROR([style must be one of: posix,rtai,rt-preempt,xenomai,xenomai-kernel ]) 
@@ -796,6 +792,7 @@ AC_ARG_WITH(threads,
       AC_MSG_ERROR([please specify --with-threads=<threads>])
     ])  
 
+# be sure that the thread system in $THREADS was actually found
 with_threads=with_`echo $THREADS | tr x- x_`
 eval "have_threads=\${${with_threads}}"
 if test "$have_threads" != yes; then
@@ -803,103 +800,17 @@ if test "$have_threads" != yes; then
 	posix,rtai,rt-preempt,xenomai,xenomai-kernel ])
 fi
 
+# convenience variable for below hackage to get e.g. POSIX_THREADS_FOO
+# or RT_PREEMPT_THREADS_FOO variable values until THREADS is
+# eliminated
+THREADS_VAR_PREFIX=`echo $THREADS | tr a-z- A-Z_`_THREADS
+
+# set the kernel source directory; this will be generalized later
+eval "KERNELDIR=\${${THREADS_VAR_PREFIX}_KERNEL_DIR}"
+
 ############# /FIXME a single THREADS variable is irrelevant to ub #######
 
-
-
-# if we dont have a kernel configuration, and the threadstyle requires one, 
-# use the running config.
-if test -z "$KCONFIG" -a \( "$THREADS" != posix \); then
-  AC_MSG_CHECKING(for config file of running kernel)
-  kversion=`uname -r`
-  if test -z "$kversion"; then 
-    AC_MSG_ERROR([cannot determine  kernel configuration - 'uname -r' failed ]) 
-  fi
-  KCONFIG="/boot/config-$kversion"
-  if test -f "$KCONFIG"; then
-    AC_MSG_RESULT([Using $KCONFIG as kernel configuration ])
-  else
-    # try compressed builtin config
-    if test -f "/proc/config.gz"; then
-       KCONFIG="/proc/config.gz"
-       AC_MSG_RESULT([Using compiled-in kernel config $KCONFIG ])
-    else
-       AC_MSG_ERROR([cannot read $KCONFIG kernel configuration ]) 
-    fi
-  fi
-fi
-
-# a kernel configuration path is set at this point (KCONFIG).
-# dig and determine the type of kernel RT system
-KTYPE=""
-DEFAULT_THREAD_STYLE=""
-
-if test  "$THREADS" != posix; then
-    AC_MSG_CHECKING(kernel for type of realtime system)
-
-    # use zgrep to deal with /proc/config.gz
-    opt_ipipe=`zgrep '^CONFIG_IPIPE' $KCONFIG |wc -l`
-    opt_xeno=`zgrep '^CONFIG_XENO_' $KCONFIG |wc -l`
-    opt_preempt_rt=`zgrep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
-   
-    #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
-
-    if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-	KTYPE=rtai
-	DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_RTAI
-	AC_MSG_RESULT([looks like a RTAI configuration])
-    else 
-    if test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-	KTYPE=xenomai
-	DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_XENOMAI
-	AC_MSG_RESULT([looks like a Xenomai configuration ])
-    else 
-       if test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
-       KTYPE=rt-preempt
-       DEFAULT_THREAD_STYLE=$DEFAULT_THREADSTYLE_RTPREEMPT
-       AC_MSG_RESULT([looks like a RT_PREEMPT configuration])
-    else
-	AC_MSG_WARN([failed to guess realtime system from $KCONFIG - building simulator ])
-        THREADS=posix	
-	fi
-	fi
-	fi
-fi
-
-# at this point, both THREADS and KCONFIG is set.
-# If required, dig for kernel-headers; we need this only for the kernel
-# thread styles
-
-if test "$THREADS" = 'rtai' -o \(  "$THREADS" = 'xenomai-kernel' \); then
-
-   # we have a kernel config path; extract version
-
-   # if /proc/config.gz given, then this is for the running kernel
-   if test "$KCONFIG" = "/proc/config.gz"; then
-      KERNEL_VERSION=`uname -r`
-   else
-      KERNEL_VERSION=`echo $KCONFIG | sed -e 's/\/boot\/config-//'`
-   fi
-   AC_MSG_RESULT([building for kernel version $KERNEL_VERSION])
-
-    AC_MSG_CHECKING([for location of kernel headers])
-    AC_ARG_WITH(kernel-headers,
-	[  --with-kernel-headers=<directory>       Location for kernel headers],
-	[ KERNELDIRS="$withval"	],
-	[ KERNELDIRS="/usr/src/linux-headers-$KERNEL_VERSION";
-	  KERNELDIRS="$KERNELDIRS /usr/src/kernels/$KERNEL_VERSION" ])
-	
-    for DIR in $KERNELDIRS; do
-        if test -d "$DIR"; then
-	    KERNELDIR="$DIR"
-    	    AC_MSG_RESULT(using kernel headers from $KERNELDIR)
-	    break
-	fi
-    done
-    if test -z "$KERNELDIR"; then
-       AC_MSG_ERROR([kernel headers not found in: $KERNELDIR ])
-    fi
-fi
+# FIXME 
 
 # now it's safe to investigate whether we should build with usermode PCI support
 # as platform, kernel and thread style is known
