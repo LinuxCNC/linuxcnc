@@ -146,17 +146,6 @@ RTAI_THREADS_RTSCC=""
 RTAI_THREADS_KERNEL_MATH_CFLAGS=""
 
 # user-dso for userland threads, kbuild for kernel threads
-#
-# reflected in config.h like so:
-#
-# /* build modules through kbuild */
-# /* #undef BUILD_SYS_KBUILD */
-#
-# /* build normal (unused) */
-# /* #undef BUILD_SYS_NORMAL */
-#
-# /* build modules as .so shared objects */
-# #define BUILD_SYS_USER_DSO /**/
 POSIX_THREADS_BUILD_SYS="user-dso"
 RT_PREEMPT_THREADS_BUILD_SYS="user-dso"
 XENOMAI_THREADS_BUILD_SYS="user-dso"
@@ -200,25 +189,6 @@ THREADS=""
 # #define RTAPI_XENOMAI /**/
 #
 
-# 'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' in shell/Makkefile
-#
-# this is reflected in config.h like so:
-#
-# /* build modules through kbuild */
-# /* #undef BUILD_SYS_KBUILD */
-#
-# /* build normal (unused) */
-# /* #undef BUILD_SYS_NORMAL */
-#
-# /* build modules as .so shared objects */
-# #define BUILD_SYS_USER_DSO /**/
-
-
-# the latter is implied by the former, so we have:
-# 'rtai', 'xenomai-kernel' -> implies 'kbuild' 
-# 'posix', 'xenomai', 'rt-preempt' -> implies 'user-dso'
-# and the corresponding #defines.
-#
 # ------------ drivers: build or dont build -------------
 #
 # A third angle is whether to build drivers or not. Normally drivers would be
