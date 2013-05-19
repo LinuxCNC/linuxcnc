@@ -1233,9 +1233,10 @@ configured, and hence has its own section `PYTHON` in the ini file.
 
 === Executing Python statements from the interpreter [[remap::executing-Python-statements]]
 
-For ad-hoc execution of commands the Python 'hot comment' has
-been added. Python output by default goes to stdout, so you need to
-start EMC from a terminal window to see results. Example (eg. in the MDI window):
+For ad-hoc execution of commands the Python 'hot comment' has been
+added. Python output by default goes to stdout, so you need to start
+LinuxCNC from a terminal window to see results. Example (eg. in the
+MDI window):
 
   ;py,print 2*3
 
@@ -1878,8 +1879,8 @@ The following flags are relevant for remapping and Python - related execution:
  EMC_DEBUG_PYTHON            0x00008000  calls to the Python plugin
  EMC_DEBUG_NAMEDPARAM        0x00010000  trace named parameter access
  EMC_DEBUG_PYTHON_TASK       0x00040000  trace the task Python plugin
- EMC_DEBUG_USER1             0x10000000  user-defined - not interpreted by EMC
- EMC_DEBUG_USER2             0x20000000  user-defined - not interpreted by EMC
+ EMC_DEBUG_USER1             0x10000000  user-defined - not interpreted by LinuxCNC
+ EMC_DEBUG_USER2             0x20000000  user-defined - not interpreted by LinuxCNC
 
 'or' these flags into the `[EMC]DEBUG` variable as needed. For a current
 list of debug flags see 'src/emc/nml_intf/debugflags.h'.
@@ -2138,7 +2139,7 @@ foo
 
 // setup examples
 
-== A short survey of EMC program execution
+== A short survey of LinuxCNC program execution
 To understand remapping of codes it might be helpful to survey the
 execution  of task and interpreter as far as it relates to remapping.
 
@@ -2165,17 +2166,17 @@ Most of this state is aggregated in a - fairly unsystematic -
 
 === Task and Interpreter interaction, Queueing and Read-Ahead
 
-The task part of EMC is responsible for coordinating actual machine
+The task part of LinuxCNC is responsible for coordinating actual machine
 commands - movement, HAL interactions and so forth. It does not by
 itself handle the RS274NGC language. To do so, task calls upon the
 interpreter to parse and execute the next command - either from MDI or
 the current file.
 
-The interpreter execution generates canonical machine
-operations, which actually move something. These are, however, not immediately executed but put on a queue. The
-actual execution of these codes happens in the task part of EMC: canon
-commands are pulled off that interpreter queue, and executed resulting
-in actual machine movements.
+The interpreter execution generates canonical machine operations, which
+actually move something. These are, however, not immediately executed but
+put on a queue. The actual execution of these codes happens in the task
+part of LinuxCNC: canon commands are pulled off that interpreter queue,
+and executed resulting in actual machine movements.
 
 This means that typically the interpreter is far ahead of the actual
 execution of commands - the parsing of the program might well be
@@ -2314,8 +2315,8 @@ parsing and execution as long as there is still a procedure executing
 (call_level > 0).
 
 === How toolchange currently works [[remap::how-toolchange-currently-works]]
-The actions happening in EMC are a bit involved, but it's necessary to
-get the overall idea what currently happens before you set out to
+The actions happening in LinuxCNC are a bit involved, but it's necessary
+to get the overall idea what currently happens before you set out to
 adapt those workings to your own needs.
 
 Note that remapping an existing code completely disables all internal
@@ -2355,7 +2356,7 @@ To see fields in the global emcStatus structure, try this:
  ;py,print emcstat.io.tool.toolInSpindle
  ;py,print emcstat.io.tool.toolTable[0]
 
-You need to have emc started from a terminal window to see the
+You need to have LinuxCNC started from a terminal window to see the
 results.
 
 === How Tx (Prepare Tool) works
@@ -2373,7 +2374,7 @@ variable for later, and  queues a canon command
 
 When task gets around to handle a SELECT_POCKET, it sends a
 EMC_TOOL_PREPARE message to the iocontrol process, which handles most
-tool-related actions in EMC.
+tool-related actions in LinuxCNC.
 
 In the current implementation, task actually waits for iocontrol to
 complete the changer positioning operation, which is not necessary IMO
