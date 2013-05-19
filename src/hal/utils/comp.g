@@ -368,7 +368,8 @@ static int comp_id;
         print >>f, "static int export(char *prefix, long extra_arg, long personality) {"
     else:
         print >>f, "static int export(char *prefix, long extra_arg) {"
-    print >>f, "    char buf[HAL_NAME_LEN + 1];"
+    if len(functions) > 0:
+        print >>f, "    char buf[HAL_NAME_LEN + 1];"
     print >>f, "    int r = 0;"
     if has_array:
         print >>f, "    int j = 0;"
