@@ -184,7 +184,7 @@ class HAL_DRO(gtk.Label):
     def set_to_diameter(self):
         self.diameter = True
 
-    def set_to_diameter(self):
+    def set_to_radius(self):
         self.diameter = False
 
 # for testing without glade editor:
@@ -195,7 +195,6 @@ def main():
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
     dro = HAL_DRO()
-    
     window.vbox.add(dro)
     window.connect("destroy", gtk.main_quit)
 
