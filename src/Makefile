@@ -177,7 +177,7 @@ Makefile: $(DEPS)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
-INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
+INCLUDE := $(patsubst %,-I%, $(INCLUDES)) $(RTDIR_INC)
 
 # this is kind-of carpet-bombing with -Idirs :-/
 ifneq ($(KERNELDIR),)
@@ -190,13 +190,12 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
-WORKAROUND_CFLAGS= $(HARDY_AMD64_WORKAROUND)
-
 # Compilation options.	Perhaps some of these should come from Makefile.inc?
 OPT := -Os
 DEBUG := -g -Wall
-CFLAGS := $(WORKAROUND_CFLAGS)  $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option, -Wdeclaration-after-statement) $(BITOPS_DEFINE)
-CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(BITOPS_DEFINE)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI \
+	$(call cc-option, -Wdeclaration-after-statement)
+CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -702,7 +701,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
+EXTRA_CFLAGS = $(RTFLAGS) \
 	-D__MODULE__ \
 	-I$(BASEPWD) \
 	-I$(BASEPWD)/libnml/linklist \
@@ -720,8 +719,6 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS))  \
 	-I$(BASEPWD)/emc/motion \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
-	-fno-fast-math \
-	-fno-unsafe-math-optimizations \
 	$(call cc-option,-mieee-fp) \
 	$(call cc-option,-Wframe-larger-than=2560) \
 	$(KERNEL_MATH_CFLAGS) \
@@ -1010,7 +1007,7 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 
 ifeq ($(BUILD_SYS),user-dso)
-EXTRA_CFLAGS += -fPIC $(OPT) $(FLAVOR_FLAGS) $(NANOPB_CFLAGS)
+EXTRA_CFLAGS += -fPIC
 
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
@@ -1028,7 +1025,9 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
 	$(ECHO) Depending $<
-	$(Q)$(call DEP,$(CC),$@ $(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) $(DEBUG)  -DRTAPI $(EXTRA_CFLAGS) $<)
+	$(Q)$(call DEP,$(CC),$@ \
+		$(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) \
+		$(DEBUG) $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c

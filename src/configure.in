@@ -144,6 +144,7 @@ RTAI_THREADS_RTSCC=""
 #
 # can this be folded into e.g. RTFLAGS?
 RTAI_THREADS_KERNEL_MATH_CFLAGS=""
+XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS=""
 
 # user-dso for userland threads, kbuild for kernel threads
 POSIX_THREADS_BUILD_SYS="user-dso"
@@ -256,9 +257,8 @@ KSOURCE_LOCATION_HINTS=$(echo \
 	)
 
 
-# Pass math-related CFLAGS into the kernel.  These should be appended
-# onto EXTRA_CFLAGS to override anything conflicting.
-KERNEL_MATH_CFLAGS=""
+# Pass math-related CFLAGS into the kernel.
+KERNEL_MATH_CFLAGS="-fno-fast-math -fno-unsafe-math-optimizations"
 
 
 # Parport: on x86 PC platform, we can use either use
@@ -556,21 +556,19 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     CFLAGS=$CFLAGS_hold
 
     
-    flags="-DFROM_XENO $($XENOMAI_THREADS_RTS --cflags)"
-    XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
-    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
+    flags="$($XENOMAI_THREADS_RTS --cflags)"
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
     # this CFLAG
     if test "$(uname -m)" = x86_64; then
-        flags="-fno-stack-protector"
-        XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
-        XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
+        flags="$flags -fno-stack-protector"
     fi
+    XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
+    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
-    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
-    flags="-msse -funsafe-math-optimizations"
+    test "$($XENOMAI_THREADS_RTS --arch)" = x86 && \    
+        flags="$flags -msse -funsafe-math-optimizations"
     XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
@@ -703,11 +701,15 @@ if test  -n "$RTAI_THREADS_KERNEL_DIR"; then
        AC_MSG_RESULT(default)
     fi
 
-    RTAI_THREADS_RTFLAGS="-DFROM_RTAI $($RTAI_THREADS_RTS --module-cflags)"
+    RTAI_THREADS_RTFLAGS="$($RTAI_THREADS_RTS --module-cflags)"
     RTAI_THREADS_LDFLAGS="$($RTAI_THREADS_RTS --lxrt-ldflags)"
 
-    test "$($RTAI_THREADS_RTS --arch)" = x86_64 && \
-	RTAI_THREADS_KERNEL_MATH_CFLAGS="-msse -ffast-math -funsafe-math-optimizations"
+    if test "$($RTAI_THREADS_RTS --arch)" = x86_64; then
+	flags="-msse -ffast-math -funsafe-math-optimizations"
+    else
+        flags="-fno-fast-math -fno-unsafe-math-optimizations"
+    fi
+    RTAI_THREADS_KERNEL_MATH_CFLAGS="$flags"
 fi
 
 AC_MSG_CHECKING(whether to build RTAI threads)    
@@ -996,9 +998,8 @@ case "$THREADS" in
 	LIBS_hold=$LIBS
 	LIBS="$LIBS "`$XENO_CONFIG --skin=native --ldflags`
 
-	# need to force hard-float for kernel modules
 	if test "$THREADS" = xenomai-kernel ; then
-  	   RTFLAGS="$CFLAGS  -D_FORTIFY_SOURCE=0 -ffast-math -mhard-float"
+  	   RTFLAGS="$CFLAGS  -D_FORTIFY_SOURCE=0"
 	fi
 
 	# Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
@@ -1008,8 +1009,11 @@ case "$THREADS" in
 	  RTFLAGS="$RTFLAGS -fno-stack-protector"
 	fi
 
+	# need to force hard-float for kernel modules
+	KERNEL_MATH_CFLAGS="-ffast-math -mhard-float"
 	test "$THREADS" = xenomai-kernel -a "$($XENO_CONFIG --arch)" = x86 && \
-	    KERNEL_MATH_CFLAGS="-msse -ffast-math -funsafe-math-optimizations"
+	    KERNEL_MATH_CFLAGS="$KERNEL_MATH_CFLAGS \
+	        -msse -funsafe-math-optimizations"
 
 	AC_MSG_CHECKING([for cc version])
   	RTSCC=`$XENO_CONFIG --cc`
@@ -1075,7 +1079,6 @@ AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
-AC_SUBST([RTARCH])
 AC_SUBST([KERNEL_MATH_CFLAGS])
 
 if test "$BUILD_DRIVERS" = yes; then
@@ -1287,14 +1290,7 @@ case $THREADS in
     AC_MSG_CHECKING([kernel build system])
     # FIXME FIXME FIXME
     # right now it will assume based on the kernel module extension
-    EXT_RTFLAGS=""
     BUILD_SYS="kbuild"
-
-    if test "x$MODEXT" = "x.ko" ; then
-	BUILD_SYS="kbuild"
-    else
-	EXT_RTFLAGS="-DEXPORT_SYMTAB"
-    fi
 
     AC_ARG_WITH(kbuild,
 	[  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
@@ -1320,7 +1316,6 @@ esac
 AC_SUBST([MODEXT])
 AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 AC_SUBST([BUILD_SYS])
-AC_SUBST([EXT_RTFLAGS])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #

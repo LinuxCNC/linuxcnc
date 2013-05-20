@@ -25,14 +25,12 @@ ULAPISO_LIBS :=
 # see enum thread_flavor_id in rtapi.h
 ifeq ($(THREADS),posix)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=0
-RT_CFLAGS+=-pthread -lrt
 endif
 ifeq ($(THREADS),rt-preempt)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=1
 endif
 ifeq ($(THREADS),xenomai)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=2
-RT_CFLAGS +=   -lrt $(shell $(XENO_CONFIG) --skin=native  --ldflags)
 endif
 ifeq ($(THREADS),rtai)
 FLAVOR_FLAGS := -DTHREAD_FLAVOR_ID=3
@@ -59,16 +57,15 @@ ULAPI_SRCS := \
 	rtapi/rtapi_ring.c \
 	rtapi/rtapi_time.c \
 	rtapi/$(THREADS_SOURCE).c \
-	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) 
-
-ULAPISO_SRCS := $(ULAPI_SRCS) \
+	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) \
 	rtapi/ulapi_main.c  \
 	rtapi/rtapi_support.c 
 
 # resolved at loadtime
-$(call TOOBJSDEPS, $(ULAPISO_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
+$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += $(RT_CFLAGS) -fPIC
 ULAPISO := ../lib/ulapi.so
-$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so  $(call TOOBJS, $(ULAPISO_SRCS))
+$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
+		$(call TOOBJS, $(ULAPI_SRCS))
 	$(ECHO) Creating shared object $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
@@ -78,7 +75,7 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so  $(call TOOBJS, $(
 	../lib/liblinuxcnchal.so
 
 
-USERSRCS += $(ULAPISO_SRCS) 
+USERSRCS += $(ULAPI_SRCS) 
 TARGETS += $(ULAPISO)
 
 # RTAPI:  ../rtlib/*
@@ -99,7 +96,7 @@ ifeq ($(BUILD_SYS),user-dso)
 # xenomai settings
 ifeq ($(THREADS),xenomai)
 
-RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
+RT_CFLAGS += $(shell $(XENO_CONFIG) --skin=native --cflags )
 RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
 endif # xenomai
 
@@ -108,8 +105,7 @@ endif # xenomai
 # rt-preempt and posix settings
 ifeq ($(THREADS_SOURCE),rt-preempt)
 
-RT_CFLAGS +=  -pthread
-RT_LDFLAGS += -lpthread -lrt
+RT_LDFLAGS += -lpthread
 endif 
 # rt-preempt/posix
 
@@ -158,7 +154,8 @@ RTAPI_APP_OBJS := \
 
 #
 # Add RT_CFLAGS to sim_rtapi_app.cc compilation
-$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS) $(LIBUDEV_CFLAGS)
+$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += $(RT_CFLAGS) \
+	$(LIBUDEV_CFLAGS)
 #
 # Build target
 ../bin/rtapi_app: $(RTAPI_APP_OBJS)
@@ -189,10 +186,9 @@ rtapi-objs := \
 
 ################################################
 # rtai settings
-# ifeq ($(THREADS),rtai)
-
-# # ...nothing
-# endif  # rtai
+ifeq ($(THREADS),rtai)
+RT_CFLAGS += $(HARDY_AMD64_WORKAROUND)
+endif  # rtai
 
 ################################################
 # xenomai-kernel settings
@@ -204,12 +200,6 @@ endif  # xenomai-kernel
 
 endif  # BUILD_SYS == kbuild
 
-##################################################################
-#                     ALL THREAD STYLES
-##################################################################
-
-# Add RT_CFLAGS to ULAPI compilation
-$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS)
 ##################################################################
 #                     the kdetect test program
 ##################################################################
@@ -225,7 +215,7 @@ $(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
 # Build target
 ../bin/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  ../lib/liblinuxcnchal.so -lrt -ldl
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  ../lib/liblinuxcnchal.so -ldl
 
 TARGETS += ../bin/kdetect
 
@@ -250,8 +240,7 @@ TARGETS += ../bin/rtapi_msgd
 FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
 
 $(call TOOBJSDEPS, $(FLAVOR_SRCS)): \
-	EXTRAFLAGS =  -Wall -g -O0 \
-	 $(shell $(XENO_CONFIG) --skin=native --cflags)
+	EXTRAFLAGS += $(shell $(XENO_CONFIG) --skin=native --cflags)
 
 ../bin/flavor: ../lib/liblinuxcncshm.so $(call TOOBJS, $(FLAVOR_SRCS))
 	$(ECHO) Linking $(notdir $@)

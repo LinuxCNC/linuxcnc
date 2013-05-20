@@ -25,11 +25,13 @@ $(MINIGLMODULE): $(call TOOBJS, $(MINIGLMODULESRCS))
 
 $(SETICONMODULE): $(call TOOBJS, $(SETICONMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib \
+		-lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
 
 $(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib \
+		-lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
 
 PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
 

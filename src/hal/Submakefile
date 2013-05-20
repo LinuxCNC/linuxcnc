@@ -9,12 +9,6 @@ HALLIBSRCS := \
 	rtapi/rtapi_compat.c \
 	rtapi/rtapi_support.c 
 
-ifeq ($(THREADS),xenomai-kernel)
-XENO_LINK := $(shell $(XENO_CONFIG)  --skin=native --ldflags )
-else
-XENO_LINK=
-endif
-
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 
 # Add to list of sources to compile -DULAPI ->
