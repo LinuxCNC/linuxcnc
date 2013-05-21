@@ -92,7 +92,7 @@ static int rt_msglevel = RTAPI_MSG_INFO ;
 
 static int halsize = HAL_SIZE;
 static int instance_id;
-static flavor_ptr flavor;
+flavor_ptr flavor;
 static const char *rtlibpath = EMC2_RTLIB_DIR;
 static int use_drivers = 0;
 static int foreground;

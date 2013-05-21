@@ -509,10 +509,9 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     if ( *inst_name == '\0' ) {
         halcmd_error( "Must supply name for new instance\n");
         return -EINVAL;
-    }	
+    }
 
-#if defined(BUILD_SYS_USER_DSO)
-    {
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
         char *argv[MAX_TOK];
         char inst[50];
 	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
@@ -529,55 +528,50 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
             halcmd_error( "newinst failed: %d\n", result);
             return -EINVAL;
         }
-    }
-#else
-    {
-    FILE *f;
-    f = fopen("/proc/rtapi/hal/newinst", "w");
-    if(!f) {
-        halcmd_error( "cannot open proc entry: %s\n",
-                strerror(errno));
-        return -EINVAL;
-    }
+    } else {
+	FILE *f;
+	f = fopen("/proc/rtapi/hal/newinst", "w");
+	if(!f) {
+	    halcmd_error( "cannot open proc entry: %s\n",
+			  strerror(errno));
+	    return -EINVAL;
+	}
+	rtapi_mutex_get(&(hal_data->mutex));
 
-    rtapi_mutex_get(&(hal_data->mutex));
+	while(hal_data->pending_constructor) {
+	    struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    nanosleep(&ts, NULL);
+	    rtapi_mutex_get(&(hal_data->mutex));
+	}
+	strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
+	hal_data->constructor_prefix[HAL_NAME_LEN]=0;
+	hal_data->pending_constructor = comp->make;
+	rtapi_mutex_give(&(hal_data->mutex));
 
-    while(hal_data->pending_constructor) {
-        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
-        rtapi_mutex_give(&(hal_data->mutex));
-        nanosleep(&ts, NULL);
-        rtapi_mutex_get(&(hal_data->mutex));
-    }
-    strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
-    hal_data->constructor_prefix[HAL_NAME_LEN]=0;
-    hal_data->pending_constructor = comp->make;
-    rtapi_mutex_give(&(hal_data->mutex));
+	if(fputc(' ', f) == EOF) {
+	    halcmd_error( "cannot write to proc entry: %s\n",
+			  strerror(errno));
+	    fclose(f);
+	    rtapi_mutex_get(&(hal_data->mutex));
+	    hal_data->pending_constructor = 0;
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return -EINVAL;
+	}
+	if(fclose(f) != 0) {
+	    halcmd_error("cannot close proc entry: %s\n",
+			 strerror(errno));
+	    rtapi_mutex_get(&(hal_data->mutex));
+	    hal_data->pending_constructor = 0;
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return -EINVAL;
+	}
 
-    if(fputc(' ', f) == EOF) {
-        halcmd_error( "cannot write to proc entry: %s\n",
-                strerror(errno));
-        fclose(f);
-        rtapi_mutex_get(&(hal_data->mutex));
-        hal_data->pending_constructor = 0;
-        rtapi_mutex_give(&(hal_data->mutex));
-        return -EINVAL;
+	while(hal_data->pending_constructor) {
+	    struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
+	    nanosleep(&ts, NULL);
+	}
     }
-    if(fclose(f) != 0) {
-        halcmd_error(
-                "cannot close proc entry: %s\n",
-                strerror(errno));
-        rtapi_mutex_get(&(hal_data->mutex));
-        hal_data->pending_constructor = 0;
-        rtapi_mutex_give(&(hal_data->mutex));
-        return -EINVAL;
-    }
-
-    while(hal_data->pending_constructor) {
-        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
-        nanosleep(&ts, NULL);
-    }
-    }
-#endif
     rtapi_mutex_get(&hal_data->mutex);
     {
     hal_comp_t *inst = halpr_alloc_comp_struct();
@@ -1099,7 +1093,8 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     char *argv[MAX_TOK+3];
     char *cp1;
 
-#if defined(BUILD_SYS_USER_DSO)
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
+
     char inst[50];
 
     snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
@@ -1115,7 +1110,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     }
     argv[m++] = NULL;
     retval = do_loadusr_cmd(argv);
-#else
+    } else {
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
@@ -1163,13 +1158,13 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     argv[m] = NULL;
 
     retval = hal_systemv(argv);
-#endif
+    }
 
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d\n"
-#if !defined(BUILD_SYS_USER_DSO)
+		     //#if !defined(BUILD_SYS_USER_DSO)
             "See the output of 'dmesg' for more information.\n"
-#endif
+		     //#endif
         , retval );
 	return -1;
     }
@@ -1379,17 +1374,16 @@ static int unloadrt_comp(char *mod_name)
     char *argv[10];
     int m=0;
 
-#if defined(BUILD_SYS_USER_DSO)
-    char inst[50];
-
-    snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
-    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
-    argv[m++] = inst;
-    argv[m++] = "unload";
-#else
-    argv[m++] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[m++] = "remove";
-#endif
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
+	char inst[50];
+	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+	argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+	argv[m++] = inst;
+	argv[m++] = "unload";
+    }  else {
+	argv[m++] = EMC2_BIN_DIR "/linuxcnc_module_helper";
+	argv[m++] = "remove";
+    }
     argv[m++] = mod_name;
     /* add a NULL to terminate the argv array */
     argv[m++] = NULL;
