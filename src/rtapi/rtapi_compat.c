@@ -86,7 +86,7 @@ flavor_t flavors[] = {
 
     // #if BUILD_RTAI_KERNEL
 
-    { .name = "rtai",
+    { .name = "rtai-kernel",
       .mod_ext = ".ko",
       .so_ext = ".so",
       .id = RTAPI_RTAI_KERNEL_ID,
@@ -156,6 +156,11 @@ flavor_ptr default_flavor(void)
 #if 0
     // this can be enabled once multiple targets per build are possible
     // to clever ;)
+
+    /* Also need to check whether the flavor is available; e.g. my
+       2.6.38.8 kernel can run both xenomai and RTAI threads (I didn't
+       make this up), but I may compile xenomai but not rtai flavors
+    */
 
     if (kernel_is_rtai())
 	return flavor_byid(RTAPI_RTAI_KERNEL_ID);

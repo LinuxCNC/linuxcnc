@@ -33,14 +33,21 @@ int main(int argc, char **argv)
 	    f++;
 	}
 	exit(1);
-    } else {
-	flavor = default_flavor();
-	if (flavor) {
-	    printf("%s\n", flavor->name);
-	} else {
+    }
+
+    flavor = default_flavor();
+    if (!flavor) {
 	    fprintf(stderr,"%s: could not detect default flavor\n", progname);
 	    exit(1);
-	}
+    }
+
+    if (argc == 1) {
+	printf("%s\n", flavor->name);
+    } else if (! strcmp(argv[1],"-m")) {
+	printf("%s\n", flavor->mod_ext);
+    } else {
+	fprintf(stderr, "Unknown option '%s'\n",argv[1]);
+	exit(1);
     }
     exit(0);
 }

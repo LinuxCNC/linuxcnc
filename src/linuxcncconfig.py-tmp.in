@@ -109,8 +109,6 @@ class Config(object):
         # /Standard configure directories
 	self.RUN_IN_PLACE = "@RUN_IN_PLACE@"
 	self.RTNAME = "@RTNAME@"
-	self.RTPREFIX = "@RTPREFIX@"
-	self.RTAI = "@RTAI@"
 	self.RTFLAGS = "@RTFLAGS@"
 	self.KERNELDIR = "@KERNELDIR@"
 	#self.RTFLAGS = "-Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0"

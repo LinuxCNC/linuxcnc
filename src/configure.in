@@ -171,9 +171,6 @@ RTDIR=""
 # shorthand for the threadsystem. currently rtai, rtai-3.0 or none. not set for rtl or sim.
 RTNAME=""
 
-# RTAI version define. 1 with RTNAME=rtai, 3 with rtai-3.0
-RTAI=""
-
 # a compiler which might be specific for the realime system.
 # relevant case: rtai-config -cc
 RTSCC=""
@@ -995,8 +992,6 @@ case "$THREADS" in
 	RTDIR=`$RTS --prefix`	
 	RTDIR=$(cd $RTDIR ; pwd -P )    # make absolute path
   	RTFLAGS=`$RTS --module-cflags`
-        RTFLAGS="$RTFLAGS -DRTAI=3"
-	RTAI=3
 	# or use explicitly set KERNELDIR?
         KERNELDIR=`$RTS --linux-dir`
     	RTARCH=`$RTS --arch`
