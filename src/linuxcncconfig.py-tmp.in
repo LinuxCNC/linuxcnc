@@ -72,7 +72,6 @@ class Config(object):
 
         # used for building
 	self.RTDIR     = "@RTDIR@"
-	self.RTARCH    = "@RTARCH@"
 
         # Standard configure directories
         # do we really need these?
@@ -181,7 +180,6 @@ class Config(object):
 	self.BUILD_DOCS = "@BUILD_DOCS@"
 	self.BUILD_DOCS_PDF = "@BUILD_DOCS_PDF@"
 	self.BUILD_DOCS_HTML = "@BUILD_DOCS_HTML@"
-	self.LYX = "@LYX@"
 	self.PYTHON = "@PYTHON@"
 
 #
