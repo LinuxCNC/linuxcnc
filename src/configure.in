@@ -780,7 +780,8 @@ if test  -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
     fi
 
     RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
-	$workaround"
+	$workaround \
+	-I$($RTAI_KERNEL_THREADS_RTS --prefix)/include"
     RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags)"
 
     if test "$($RTAI_KERNEL_THREADS_RTS --arch)" = x86_64; then

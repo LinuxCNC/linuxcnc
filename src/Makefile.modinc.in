@@ -36,45 +36,28 @@
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
-BUILDSYS = @BUILD_SYS@
-TARGET_PLATFORM = @TARGET_PLATFORM@
-USE_PORTABLE_PARPORT_IO = @USE_PORTABLE_PARPORT_IO@
-ARCHITECTURE=@ARCHITECTURE@
-XENO_CONFIG=@XENO_CONFIG@
-GIT_VERSION=@GIT_VERSION@
+# Use same settings as everybody else
+include @EMC2_HOME@/src/Makefile.inc
 
-USERMODE_PCI=@USERMODE_PCI@
-
-#libudev for if USERMODE_PCI==yes
-LIBUDEV_CFLAGS=@LIBUDEV_CFLAGS@
-LIBUDEV_LIBS=@LIBUDEV_LIBS@
-
-# shared memory kernel driver
-USE_SHMDRV=@USE_SHMDRV@
-
-KERNELDIR := @KERNELDIR@
-CC := @CC@
-RTFLAGS := $(RTOPT) -g -I. -I@RTDIR@/include $(RTFLAGS) \
+RTFLAGS := $(RTOPT) -g -I. $(THREADS_RTFLAGS) \
 	-DRTAPI -D_GNU_SOURCE -D_FORTIFY_SOURCE=0 \
-	@KERNEL_MATH_CFLAGS@
-USE_RTLIBM = @USE_RTLIBM@
-EMC2_HOME=@EMC2_HOME@
-RUN_IN_PLACE=@RUN_IN_PLACE@
+	$(KERNEL_MATH_CFLAGS)
 ifeq ($(RUN_IN_PLACE),yes)
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
-RTLIBDIR := @EMC2_HOME@/rtlib
-LIBDIR := @EMC2_HOME@/lib
+RTLIBDIR := $(EMC2_HOME)/rtlib
+LIBDIR := $(EMC2_HOME)/lib
 else
-prefix := @prefix@
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I@includedir@/linuxcnc
-RTLIBDIR := @EMC2_RTLIB_DIR@
-LIBDIR := @libdir@
+EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(includedir)/linuxcnc
+RTLIBDIR := $(EMC2_RTLIB_DIR)
+LIBDIR := $(libdir)
 endif
 EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)  
 
 ifeq ($(BUILDSYS),kbuild)
 modules:
-	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) THREADS_RTFLAGS="$(THREADS_RTFLAGS)" V=0 modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers \
+	    -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) \
+	    THREADS_RTFLAGS="$(THREADS_RTFLAGS)" V=0 modules
 
 clean:
 	rm *.ko *.mod.c *.o
@@ -84,7 +67,7 @@ install:
 endif
 
 ifeq ($(BUILDSYS),user-dso)
-EXTRA_CFLAGS +=  -fPIC $(FLAVOR_FLAGS)
+EXTRA_CFLAGS +=  -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 
