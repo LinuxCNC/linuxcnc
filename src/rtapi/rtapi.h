@@ -665,13 +665,6 @@ extern int _rtapi_ring_detach(int handle, int module_id);
 // prototype for dummy rtapi placeholder function
 typedef int (*rtapi_dummy_t)(void);
 
-// a unique ID for each thread flavor
-// cant be an enum since cpp needs to evaluate this symbol
-#define RTAPI_POSIX_ID  0
-#define RTAPI_RT_PREEMPT_ID 1
-#define RTAPI_XENOMAI_ID 2
-#define RTAPI_RTAI_KERNEL_ID 3
-#define RTAPI_XENOMAI_KERNEL_ID 4
 typedef struct {
     const char *git_version;
     const char *thread_flavor_name; // for messsages

@@ -54,12 +54,9 @@ USE_SHMDRV=@USE_SHMDRV@
 
 KERNELDIR := @KERNELDIR@
 CC := @CC@
-RTFLAGS = @RTFLAGS@ \
-	$(call cc-option,-mieee-fp) \
-	@KERNEL_MATH_CFLAGS@
 RTFLAGS := $(RTOPT) -g -I. -I@RTDIR@/include $(RTFLAGS) \
 	-DRTAPI -D_GNU_SOURCE -D_FORTIFY_SOURCE=0 \
-	@KERNEL_MATH_CFLAGS@ $(RT_CFLAGS)
+	@KERNEL_MATH_CFLAGS@
 USE_RTLIBM = @USE_RTLIBM@
 EMC2_HOME=@EMC2_HOME@
 RUN_IN_PLACE=@RUN_IN_PLACE@
@@ -77,7 +74,7 @@ EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)
 
 ifeq ($(BUILDSYS),kbuild)
 modules:
-	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) RT_CFLAGS="$(RT_CFLAGS)" V=0 modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) THREADS_RTFLAGS="$(THREADS_RTFLAGS)" V=0 modules
 
 clean:
 	rm *.ko *.mod.c *.o

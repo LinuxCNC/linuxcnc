@@ -70,8 +70,8 @@ export PYTHONPATH
 else
 include $(BASEPWD)/Makefile.inc
 endif
-ifeq ($(RTPREFIX),)
-$(error Makefile.inc must specify RTPREFIX and other variables)
+ifeq ($(threads),)
+$(error Makefile.inc must specify 'threads' and other variables)
 endif
 
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
@@ -416,11 +416,11 @@ endif
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
 KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers
-ifeq ($(THREADS),xenomai-kernel)
+ifeq ($(THREADS),XENOMAI_KERNEL)
 KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
 endif
 modules:
-ifeq ($(THREADS),xenomai-kernel)
+ifeq ($(THREADS),XENOMAI_KERNEL)
 	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
 	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
 	    V=$(BUILD_VERBOSE) modules
@@ -429,7 +429,7 @@ endif
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
 	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) \
-	    RT_CFLAGS="$(RT_CFLAGS)" modules
+	    THREADS_RTFLAGS="$(THREADS_RTFLAGS)" modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
 
@@ -721,8 +721,7 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	$(call cc-option,-mieee-fp) \
 	$(call cc-option,-Wframe-larger-than=2560) \
-	$(KERNEL_MATH_CFLAGS) \
-	$(FLAVOR_FLAGS)
+	$(KERNEL_MATH_CFLAGS)
 
 ifeq "$(USE_STUBS)" "1"
 MATHSTUB := rtapi/mathstubs.o
@@ -1020,7 +1019,7 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	$(Q)ld -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
 	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm $(RT_CFLAGS)
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm $(THREADS_RTFLAGS)
 
 $(sort $(RTDEPS)): depends/rt%.d: %.c
 	@mkdir -p $(dir $@)
@@ -1033,7 +1032,7 @@ $(sort $(RTDEPS)): depends/rt%.d: %.c
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $(RT_CFLAGS)  $< -o $@
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@
 
 endif # end BUILD_SYS=user-dso
 

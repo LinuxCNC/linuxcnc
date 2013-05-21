@@ -67,13 +67,94 @@ AC_PATH_PROG(ARCHCMD, arch)
 
 ##############################################################################
 # Section 2                                                                  #
-# RealTime checking (either RTAI, or RT-Linux)                               #
+# RealTime checking                                                          #
+# Subsection 2.0 - initialize RT thread flavor data                          #
 # Subsection 2.1 - arguments to ./configure (--with-realtime)                #
 # Subsection 2.2 - if none specified above, RTDIR needs to be found by search#
 # Subsection 2.3 - RTS(RT-script) is found, it gets queried for values       #
 ##############################################################################
 
-# set up some default values
+dnl #--------------------------------------------------------#
+dnl # list of all thread styles with FLAVOR_ID and BUILD_SYS #
+dnl #                                                        #
+dnl # each thread style needs a 4-item m4 tuple set here:    #
+dnl # flavor-name, flavor-id, build-sys, threads-headers     #
+dnl #                                                        #
+dnl # flavor-id: a unique integer                            #
+dnl # build-sys: one of kbuild or user-dso                   #
+dnl # threads-headers: header file from rtapi/*.h (w/o '.h') #
+dnl #                                                        #
+dnl # these are used in both Makefiles and in config.h,      #
+dnl # and are the single authoritative source for these data #
+dnl #--------------------------------------------------------#
+AC_DEFUN([_cfg_flavor_params],
+	[[[posix],[0],[user-dso],[rt-preempt]],
+	 [[rt-preempt],[1],[user-dso],[rt-preempt]],
+	 [[xenomai],[2],[user-dso],[xenomai]],
+	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel]],
+	 [[rtai-kernel],[4],[kbuild],[rtai-kernel]]])
+
+
+dnl #--------------------------------------------------------#
+dnl # m4 convenience macros for accessing above data         #
+
+dnl list of all thread styles to be used in macros
+dnl   posix,rt-preempt,xenomai,xenomai-kernel,rtai
+AC_DEFUN([_cfg_all_flavors],
+	m4_map_sep([m4_car],[[,]],[_cfg_flavor_params]))
+
+dnl _cfg_flavor_id(flavor):  return THREAD_FLAVOR_ID
+dnl   _cfg_flavor_id(xenomai) => 2; _cfg_flavor_id(rtai) => 4
+AC_DEFUN([_cfg_flavor_tuple_id],[$2])
+AC_DEFUN([_cfg_flavor_id],
+	[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_id],[flav]))])])
+
+dnl _cfg_flavor_build_sys(flavor):  return BUILD_SYS:  kbuild or user-dso
+dnl   for use in Makefiles
+dnl   _config_flavor_build_sys(xenomai) => user-dso;
+dnl   _config_flavor_build_sys(xenomai-kernel) => kbuild;
+AC_DEFUN([_cfg_flavor_tuple_build_sys],[$3])
+AC_DEFUN([_cfg_flavor_build_sys],
+	[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_build_sys],[flav]))])])
+
+dnl _cfg_flavor_threads_headers(flavor):  return THREADS_HEADERS
+dnl   for use in config.h
+dnl   _config_flavor_threads_headers(xenomai) => rtapi/xenomai.h;
+dnl   _config_flavor_threads_headers(posix) => rtapi/rt-preempt.h;
+AC_DEFUN([_cfg_flavor_tuple_threads_headers],[$4])
+AC_DEFUN([_cfg_flavor_threads_headers],
+	rtapi/[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_threads_headers],[flav]))])].h)
+
+dnl _cfg_flavor_ucase(flavor):  return uppercase, and dashes->underscores
+dnl   used to generate C preprocessor macro names
+dnl   _cfg_flavor_ucase(xenomai-kernel) => XENOMAI_KERNEL
+AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
+
+dnl _cfg_flavor_BUILD_SYS(flavor):  return BUILD_SYS_{KBUILD,USER_DSO}
+dnl   for use in config.h
+dnl   _config_flavor_BUILD_SYS(xenomai) => BUILD_SYS_USER_DSO;
+dnl   _config_flavor_BUILD_SYS(xenomai-kernel) => BUILD_SYS_KBUILD;
+AC_DEFUN([_cfg_flavor_BUILD_SYS],
+	[BUILD_SYS_[]_cfg_flavor_upcase(_cfg_flavor_build_sys($1))])
+
+dnl _cfg_kbuild_flavors:  list of kbuild RT thread flavors
+dnl   _cfg_kbuild_flavors => xenomai-kernel,rtai
+AC_DEFUN([_cfg_flavor_tuple_name],[$1])
+m4_foreach([flav],[_cfg_flavor_params],
+	[m4_cond(_cfg_flavor_build_sys(flav),[kbuild],
+	    [m4_append_uniq([_cfg_tmp],_cfg_flavor_tuple_name(flav),[[ ]])]
+)])
+AC_DEFUN([_cfg_kbuild_flavors],[m4_split(_cfg_tmp)])
+
+
+#--------------------------------------------------------#
+# default values                                         #
 
 # we'll be using it for compile tests
 # might be extended by RTSCC later
@@ -86,8 +167,6 @@ AC_PROG_CC([gcc])
 # modules
 # include
 RTDIR=""
-#  it can be explicitly set with the --with-rtdir=<directory> option
-WITH_RTDIR=""
 
 # shorthand for the threadsystem. currently rtai, rtai-3.0 or none. not set for rtl or sim.
 RTNAME=""
@@ -115,47 +194,39 @@ RTPREFIX=""
 # c or ld flags specific for the thread system.
 XENOMAI_THREADS_RTS=""
 XENOMAI_KERNEL_THREADS_RTS=""
-RTAI_THREADS_RTS=""
+RTAI_KERNEL_THREADS_RTS=""
 
 # Location of configured kernel sources
 #
 # checked only for kernel threads
 XENOMAI_KERNEL_THREADS_KERNEL_DIR=""
-RTAI_THREADS_KERNEL_DIR=""
+RTAI_KERNEL_THREADS_KERNEL_DIR=""
 
 # c flags for compiling RTAPI
 POSIX_THREADS_RTFLAGS=""
 RT_PREEMPT_THREADS_RTFLAGS=""
 XENOMAI_THREADS_RTFLAGS=""
 XENOMAI_KERNEL_THREADS_RTFLAGS=""
-RTAI_THREADS_RTFLAGS=""
+RTAI_KERNEL_THREADS_RTFLAGS=""
 
 # linker flags for RTAPI
 POSIX_THREADS_LDFLAGS=""
 RT_PREEMPT_THREADS_LDFLAGS=""
 XENOMAI_THREADS_LDFLAGS=""
 XENOMAI_KERNEL_THREADS_LDFLAGS=""
-RTAI_THREADS_LDFLAGS=""
+RTAI_KERNEL_THREADS_LDFLAGS=""
 
 # special RTS C compiler command, if any
-RTAI_THREADS_RTSCC=""
+RTAI_KERNEL_THREADS_RTSCC=""
 
 # special kernel math CFLAGS, if any
 #
 # can this be folded into e.g. RTFLAGS?
-RTAI_THREADS_KERNEL_MATH_CFLAGS=""
+RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS=""
 XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS=""
 
-# user-dso for userland threads, kbuild for kernel threads
-POSIX_THREADS_BUILD_SYS="user-dso"
-RT_PREEMPT_THREADS_BUILD_SYS="user-dso"
-XENOMAI_THREADS_BUILD_SYS="user-dso"
-XENOMAI_KERNEL_THREADS_BUILD_SYS="kbuild"
-RTAI_THREADS_BUILD_SYS="kbuild"
 
-# a set of gcc/cpp flags to fix broken rtai_lxrt.h on older 64-bit
-# kernels
-HARDY_AMD64_WORKAROUND=""
+
 
 #----------------------------------------------------------------------------
 #
@@ -164,7 +235,7 @@ HARDY_AMD64_WORKAROUND=""
 #
 # at the shell script/makefile level, we have:
 #
-# 'THREADS' - one of 'rtai', 'posix', 'xenomai', 'xenomai-kernel',
+# 'THREADS' - one of 'rtai-kernel', 'posix', 'xenomai', 'xenomai-kernel',
 # 'rt-preempt' in shell/Makefile
 #
 THREADS=""
@@ -174,8 +245,8 @@ THREADS=""
 # /* thread style posix */
 # /* #undef RTAPI_POSIX */
 #
-# /* thread style rtai */
-# /* #undef RTAPI_RTAI */
+# /* thread style rtai-kernel */
+# /* #undef RTAPI_RTAI_KERNEL */
 #
 # /* thread style rt-preempt-kernel */
 # /* #undef RTAPI_RTPREEMPT_KERNEL */
@@ -220,7 +291,7 @@ BUILD_DRIVERS="no"
 #
 # 
 #--with-kernel=/boot/config-<whatever>  which defaults to running kernel 
-#--with-build-type=(posix,rtai,rt-preempt,xenomai,xenomai-kernel) 
+#--with-build-type=(posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel) 
 #--enable-drivers (defaults to yes except for --with-build-type=posix which is newspeak for 'sim')
 
 #the latter can be defaulted too once you have access to /boot/config*, and checked against kernel
@@ -232,8 +303,8 @@ BUILD_DRIVERS="no"
 #	doesnt care about kernel; fine if Gnu threads library installed.
 #
 #configure
-#	Takes the running kernel config to determine which kernel type (rtai, xenomai, rt-preempt)
-#	makes a default thread style (rtai, rt-preempt and xenomai for now)
+#	Takes the running kernel config to determine which kernel type (rtai-kernel, xenomai, rt-preempt)
+#	makes a default thread style (rtai-kernel, rt-preempt and xenomai for now)
 #	complains if running kernel is generic (non-RT)
 #	implies --enable-drivers. Module type derived from thread style.
 #
@@ -286,7 +357,11 @@ ARCHITECTURE=`$ARCHCMD`
 # Name of thread system source file to include, with no extension
 # e.g. 'rt-preempt'; used to generate #include "rt-preempt.h"
 # in config.h, rtapi/$(THREADS_SOURCE).c in Makefile.inc
-THREADS_SOURCE=""
+POSIX_THREADS_SOURCE=""
+RT_PREEMPT_THREADS_SOURCE=""
+XENOMAI_THREADS_SOURCE=""
+XENOMAI_KERNEL_THREADS_SOURCE=""
+RTAI_KERNEL_THREADS_SOURCE=""
 
 # xenomai equivalent of pkg-config
 XENO_CONFIG=/bin/true
@@ -451,6 +526,9 @@ AC_ARG_WITH(posix,
 AC_MSG_CHECKING(whether to build POSIX threads)
 test "$with_posix" = check && with_posix=yes
 AC_MSG_RESULT($with_posix)
+if test "$with_posix" = yes; then
+   POSIX_THREADS_LDFLAGS="-lpthread"
+fi
    
 
 AC_ARG_WITH(rt-preempt,
@@ -486,6 +564,9 @@ AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
 test "$with_rt_preempt" = check && with_rt_preempt=yes
 test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
+if test "$with_posix" = yes; then
+   RT_PREEMPT_THREADS_LDFLAGS="-lpthread"
+fi
 
 
 # check for xenomai threads, both userland and kernel
@@ -618,12 +699,12 @@ AC_MSG_RESULT($with_xenomai_kernel)
 
 # check for rtai kernel config and source
 AC_PRESERVE_HELP_ORDER()
-AC_ARG_WITH(rtai,
-    [AS_HELP_STRING([--with-rtai],
+AC_ARG_WITH(rtai-kernel,
+    [AS_HELP_STRING([--with-rtai-kernel],
         [build RTAI kernel-space realtime threads modules])],
     [],
-    [with_rtai=check])
-# RTAI_THREADS_RTS:  locate the 'rtai-config' executable
+    [with_rtai_kernel=check])
+# RTAI_KERNEL_THREADS_RTS:  locate the 'rtai-config' executable
 AC_ARG_WITH(rtai-config,
     [AS_HELP_STRING([--with-rtai-config=<path>],
     [location of the rtai-config executable])],
@@ -636,19 +717,20 @@ AC_ARG_WITH(rtai-config,
 	    with_rtai_config="$with_rtai_config:$d:$d/bin"
 	done
     ])
-if test "$with_rtai" != no; then
-    AC_PATH_PROGS([RTAI_THREADS_RTS],[rtai-config],[],[$with_rtai_config])
-    if test -z "$RTAI_THREADS_RTS" -a "$with_rtai" = yes; then
+if test "$with_rtai_kernel" != no; then
+    AC_PATH_PROGS([RTAI_KERNEL_THREADS_RTS],[rtai-config],
+	[],[$with_rtai_config])
+    if test -z "$RTAI_KERNEL_THREADS_RTS" -a "$with_rtai_kernel" = yes; then
             AC_MSG_ERROR("rtai-config" not found; use --with-rtai-config")
     fi
 fi
-# RTAI_THREADS_KERNEL_DIR:  locate the kernel source
-if test -n "$RTAI_THREADS_RTS"; then
+# RTAI_KERNEL_THREADS_KERNEL_DIR:  locate the kernel source
+if test -n "$RTAI_KERNEL_THREADS_RTS"; then
     AC_ARG_WITH(kernel-source-rtai,
         [AS_HELP_STRING([--with-kernel-source-rtai=<kernel source directory>],
 	    [location of the RTAI kernel source])],
 	    [rtai_src_from_cmdline=yes],
-	    [with_kernel_source_rtai=$($RTAI_THREADS_RTS --linux-dir)])
+	    [with_kernel_source_rtai=$($RTAI_KERNEL_THREADS_RTS --linux-dir)])
 
     AC_MSG_CHECKING(rtai kernel source location)
     if test ! -f "$with_kernel_source_rtai/.config" || \
@@ -656,8 +738,8 @@ if test -n "$RTAI_THREADS_RTS"; then
 	with_kernel_source_rtai=""
     fi
     if test -n "$with_kernel_source_rtai"; then
-	RTAI_THREADS_KERNEL_DIR=$with_kernel_source_rtai
-	AC_MSG_RESULT($RTAI_THREADS_KERNEL_DIR)
+	RTAI_KERNEL_THREADS_KERNEL_DIR=$with_kernel_source_rtai
+	AC_MSG_RESULT($RTAI_KERNEL_THREADS_KERNEL_DIR)
     elif test "$rtai_src_from_cmdline" = yes; then
 	# invalid --with-kernel-source-rtai arg given on cmdline
 	AC_MSG_RESULT(not found)
@@ -666,18 +748,17 @@ if test -n "$RTAI_THREADS_RTS"; then
 	AC_MSG_RESULT(not found)
     fi
 fi
-if test  -n "$RTAI_THREADS_KERNEL_DIR"; then
+if test  -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
    # HARDY_AMD64_WORKAROUND: check for an rtai includes problem on
    # older kernels
     AC_MSG_CHECKING(if hardy amd64 workaround is required)
     machine=`uname -m`
     # test for broken hardy rtai amd64 includes
-    lxrt=$($RTAI_THREADS_RTS --prefix)/include/asm-x86_64/rtai_lxrt.h
+    lxrt=$($RTAI_KERNEL_THREADS_RTS --prefix)/include/asm-x86_64/rtai_lxrt.h
     if test "$machine" = x86_64 ; then
 	if test -f $lxrt; then
 	    if grep -q '#include <asm/asm-offsets.h>' $lxrt; then
 		workaround="-Iworkaround/hardy-amd64 -DBROKEN_RTAI_LXRT"
-		HARDY_AMD64_WORKAROUND="$workaronud"
 		AC_MSG_RESULT(required)
 	    else
 		AC_MSG_RESULT(no, rtai_lxrt.h include file looks ok)
@@ -694,29 +775,30 @@ if test  -n "$RTAI_THREADS_KERNEL_DIR"; then
     # The compiler MUST match the one used to compile the realtime modules if the
     # kernel level code is to function correctly. But if the kernel has been
     # compiled with gcc-2.96, it is unlikely to ever work !
-    RTAI_THREADS_RTSCC=`$RTAI_THREADS_RTS --cc`
-    if test -n "$RTAI_THREADS_RTSCC"; then
-       AC_MSG_RESULT($RTAI_THREADS_RTSCC) 
+    RTAI_KERNEL_THREADS_RTSCC=`$RTAI_KERNEL_THREADS_RTS --cc`
+    if test -n "$RTAI_KERNEL_THREADS_RTSCC"; then
+       AC_MSG_RESULT($RTAI_KERNEL_THREADS_RTSCC) 
     else
        AC_MSG_RESULT(default)
     fi
 
-    RTAI_THREADS_RTFLAGS="$($RTAI_THREADS_RTS --module-cflags)"
-    RTAI_THREADS_LDFLAGS="$($RTAI_THREADS_RTS --lxrt-ldflags)"
+    RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
+	$workaround"
+    RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags)"
 
-    if test "$($RTAI_THREADS_RTS --arch)" = x86_64; then
+    if test "$($RTAI_KERNEL_THREADS_RTS --arch)" = x86_64; then
 	flags="-msse -ffast-math -funsafe-math-optimizations"
     else
         flags="-fno-fast-math -fno-unsafe-math-optimizations"
     fi
-    RTAI_THREADS_KERNEL_MATH_CFLAGS="$flags"
+    RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
 fi
 
 AC_MSG_CHECKING(whether to build RTAI threads)    
-test -z "$RTAI_THREADS_RTS" && with_rtai=no
-test -z "$RTAI_THREADS_KERNEL_DIR" && with_rtai=no
-test "$with_rtai" = check && with_rtai=yes
-AC_MSG_RESULT($with_rtai)
+test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
+test -z "$RTAI_KERNEL_THREADS_KERNEL_DIR" && with_rtai_kernel=no
+test "$with_rtai_kernel" = check && with_rtai_kernel=yes
+AC_MSG_RESULT($with_rtai_kernel)
 
 
 
@@ -728,17 +810,18 @@ AC_MSG_RESULT($with_rtai)
 # Makefile.inc and config.h
 AC_MSG_CHECKING(thread style)
 AC_ARG_WITH(threads,
-    [  --with-threads=<style>   the thread style to use; styles are:
-    		                posix,rtai,rt-preempt,xenomai,xenomai-kernel ],
+    [AS_HELP_STRING([--with-threads=<style>],
+        [the thread style to use; choices are:
+	posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel])],
     [  
         case "$withval" in
             (posix)
                 THREADS=posix	
                 AC_MSG_RESULT([configuring for Posix threads])
             ;;
-            (rtai)
-                THREADS=rtai	
-                AC_MSG_RESULT([configuring for RTAI threads])
+            (rtai-kernel)
+                THREADS=rtai-kernel
+                AC_MSG_RESULT([configuring for RTAI kernel threads])
             ;;
             (rt-preempt)
                 THREADS=rt-preempt
@@ -755,7 +838,8 @@ AC_ARG_WITH(threads,
             (*)
 	    if test -z "$THREADS"; then
 	        AC_MSG_RESULT([unknown threads system:  $withval])
-	        AC_MSG_ERROR([style must be one of: posix,rtai,rt-preempt,xenomai,xenomai-kernel ]) 
+	        AC_MSG_ERROR([style must be one of: 
+		posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel])
 	    fi
 	    ;;
         esac  
@@ -769,7 +853,7 @@ with_threads=with_`echo $THREADS | tr x- x_`
 eval "have_threads=\${${with_threads}}"
 if test "$have_threads" != yes; then
     AC_MSG_ERROR([please specify --with-threads= one of:
-	posix,rtai,rt-preempt,xenomai,xenomai-kernel ])
+	posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel])
 fi
 
 # convenience variable for below hackage to get e.g. POSIX_THREADS_FOO
@@ -794,7 +878,7 @@ AC_ARG_ENABLE(usermode-pci,
             Y*|y*)
 		# scream if this doesnt make sense for the chosen thread style
 		case "$THREADS" in
-		     rtai|rt-preempt-kernel|xenomai-kernel)
+		     rtai-kernel|rt-preempt-kernel|xenomai-kernel)
 		        AC_MSG_ERROR([ --enable-usermode-pci does not make sense with thread style $THREADS ]) 
 		     ;;
 		    *)
@@ -865,7 +949,6 @@ fi
 
 # Validate the userland part - config programs, directories, libraries  etc
 AC_MSG_CHECKING(for $THREADS build support)
-THREADS_SOURCE="${THREADS}"
 case "$THREADS" in
 
     posix)
@@ -873,12 +956,9 @@ case "$THREADS" in
 	# RTPREFIX not needed
 	# KERNELDIR not needed
 	RTFLAGS= # dso flags for posix - FIXME needed?
-	#'BUILD_SYS' - one of 'user-dso', 'kbuild' or 'normal' 
-	BUILD_SYS=user-dso
-	THREADS_SOURCE="rt-preempt"  # use RT_PREEMPT code
     ;;
 
-    rtai)
+    rtai-kernel)
 	if test -z "$WITH_RTDIR"; then
 	    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
  	else	    
@@ -911,7 +991,6 @@ case "$THREADS" in
         fi
 
 	BUILD_DRIVERS=yes
-	BUILD_SYS=kbuild
 	# replace given RTDIR by what rtai-config thinks it is
 	RTDIR=`$RTS --prefix`	
 	RTDIR=$(cd $RTDIR ; pwd -P )    # make absolute path
@@ -923,9 +1002,6 @@ case "$THREADS" in
     	RTARCH=`$RTS --arch`
 	test "$RTARCH" = x86_64 && \
 	    KERNEL_MATH_CFLAGS="-msse -ffast-math -funsafe-math-optimizations"
-	# avoid a naming conflict with /usr/realtime/include/rtai.h
-	# this should probably be addressed more betterly
-	THREADS_SOURCE="rtai-kernel"
 
 	AC_MSG_CHECKING(if hardy amd64 workaround is required)
 	machine=`uname -m`
@@ -965,11 +1041,6 @@ case "$THREADS" in
 	LIBS=$LIBS_hold
 
 	BUILD_DRIVERS=yes
-	if test "$THREADS" = rt-preempt ; then
-	   BUILD_SYS=user-dso
-	else
-	   BUILD_SYS=kbuild
-	fi
     ;;
 
     xenomai|xenomai-kernel)
@@ -1041,11 +1112,6 @@ case "$THREADS" in
 	CC=$CC_hold
 
 	BUILD_DRIVERS=yes
-	if test "$THREADS" = xenomai ; then
-	   BUILD_SYS=user-dso
-	else
-	   BUILD_SYS=kbuild
-	fi
     ;;
     *)
     AC_MSG_ERROR([duh? thread-style = $THREADS ]) 
@@ -1062,24 +1128,15 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
 fi
 
 # RTPREFIX: used in:
-# src/Makefile.inc
-# src/Makefile 
-# src/module_helper/Submakefile
-# scripts/realtime
 # scripts/rtapi.conf
 RTPREFIX=$THREADS
 
 
-AC_SUBST(HARDY_AMD64_WORKAROUND)
-
 AC_SUBST([RTNAME])
 
-AC_SUBST([RTAI])
 AC_SUBST([RTPREFIX])
-AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
 AC_SUBST([RTDIR])
-AC_SUBST([KERNEL_MATH_CFLAGS])
 
 if test "$BUILD_DRIVERS" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
@@ -1132,45 +1189,81 @@ AC_SUBST(ARCHITECTURE)
 AC_SUBST(XENO_CONFIG)
 
 
-# man, is this lame
-case $BUILD_SYS in
-  user-dso)
-      AC_DEFINE(BUILD_SYS_USER_DSO, [], [build modules as .so shared objects])
-      ;;
-  kbuild)
-      AC_DEFINE(BUILD_SYS_KBUILD, [], [build modules through kbuild])
-      ;;
-  normal)
-      # I dont see _anything_ 'normal' here
-      AC_DEFINE(BUILD_SYS_NORMAL, [], [build normal (unused)])
-      ;;
-esac
-AC_SUBST(BUILD_SYS)
+############################################################
+# thread-specific -DDEFINE and Makefile.inc variables
 
-dnl threadstyle=`echo $THREADS |tr '[a-z\-]' '[A-Z_]'`
-dnl AC_DEFINE_UNQUOTED([RTAPI_$threadstyle], [], [thread style])
-dnl AC_SUBST(RTAPI_$threadstyle)
-case $THREADS in
-  posix)
-      AC_DEFINE(RTAPI_POSIX, [], [thread style posix])
-      ;;
-  rtai)
-      AC_DEFINE(RTAPI_RTAI, [], [thread style rtai])
-      ;;
-  xenomai)
-      AC_DEFINE(RTAPI_XENOMAI, [], [thread style xenomai])
-      ;;
-  xenomai-kernel)
-      AC_DEFINE(RTAPI_XENOMAI_KERNEL, [], [thread style xenomai-kernel])
-      ;;
-  rt-preempt)
-      AC_DEFINE(RTAPI_RTPREEMPT, [], [thread style rt-preempt])
-      ;;
-esac
+# POSIX settings
+if test "$with_posix" = yes; then
+    AC_DEFINE([HAVE_POSIX_THREADS],[],[Build POSIX threads])
+fi
+AC_SUBST([HAVE_POSIX_THREADS],[$with_posix])
+AC_SUBST([POSIX_THREADS_FLAVOR_ID],_cfg_flavor_id(posix))
+AC_SUBST([POSIX_THREADS_BUILD_SYS],_cfg_flavor_build_sys(posix))
+AC_SUBST([POSIX_THREADS_SOURCE],[rt-preempt])
+AC_SUBST([POSIX_THREADS_RTFLAGS])
+AC_SUBST([POSIX_THREADS_LDFLAGS])
+
+# RT_PREEMPT settings
+if test "$with_rt_preempt" = yes; then
+    AC_DEFINE([HAVE_RT_PREEMPT_THREADS],[],[Build RT_PREEMPT threads])
+fi
+AC_SUBST([HAVE_RT_PREEMPT_THREADS],[$with_rt_preempt])
+AC_SUBST([RT_PREEMPT_THREADS_FLAVOR_ID],_cfg_flavor_id(rt-preempt))
+AC_SUBST([RT_PREEMPT_THREADS_BUILD_SYS],_cfg_flavor_build_sys(rt-preempt))
+AC_SUBST([RT_PREEMPT_THREADS_SOURCE],[rt-preempt])
+AC_SUBST([RT_PREEMPT_THREADS_RTFLAGS])
+AC_SUBST([RT_PREEMPT_THREADS_LDFLAGS])
+
+# Xenomai userland settings
+if test "$with_xenomai" = yes; then
+    AC_DEFINE([HAVE_XENOMAI_THREADS],[],[Build Xenomai userland threads])
+fi
+AC_SUBST([HAVE_XENOMAI_THREADS],[$with_xenomai])
+AC_SUBST([XENOMAI_THREADS_FLAVOR_ID],_cfg_flavor_id(xenomai))
+AC_SUBST([XENOMAI_THREADS_BUILD_SYS],_cfg_flavor_build_sys(xenomai))
+AC_SUBST([XENOMAI_THREADS_SOURCE],[xenomai])
+AC_SUBST([XENOMAI_THREADS_RTFLAGS])
+AC_SUBST([XENOMAI_THREADS_LDFLAGS])
+AC_SUBST([XENOMAI_THREADS_RTS])
+
+# Xenomai kernel settings
+if test "$with_xenomai_kernel" = yes; then
+    AC_DEFINE([HAVE_XENOMAI_KERNEL_THREADS],[],[Build Xenomai kernel threads])
+fi
+AC_SUBST([HAVE_XENOMAI_KERNEL_THREADS],[$with_xenomai_kernel])
+AC_SUBST([XENOMAI_KERNEL_THREADS_FLAVOR_ID],_cfg_flavor_id(xenomai-kernel))
+AC_SUBST([XENOMAI_KERNEL_THREADS_BUILD_SYS],
+	_cfg_flavor_build_sys(xenomai-kernel))
+AC_SUBST([XENOMAI_KERNEL_THREADS_SOURCE],[xenomai-kernel])
+# force hard-float for kernel modules
+AC_SUBST([XENOMAI_KERNEL_THREADS_RTFLAGS])
+AC_SUBST([XENOMAI_KERNEL_THREADS_LDFLAGS])
+AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIR])
+# in-kernel math options
+AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
+
+# RTAI settings
+if test "$with_rtai_kernel" = yes; then
+    AC_DEFINE([HAVE_RTAI_KERNEL_THREADS],[],[Build RTAI threads])
+fi
+AC_SUBST([HAVE_RTAI_KERNEL_THREADS],[$with_rtai_kernel])
+AC_SUBST([RTAI_KERNEL_THREADS_FLAVOR_ID],_cfg_flavor_id(rtai-kernel))
+AC_SUBST([RTAI_KERNEL_THREADS_BUILD_SYS],_cfg_flavor_build_sys(rtai-kernel))
+AC_SUBST([RTAI_KERNEL_THREADS_SOURCE],[rtai-kernel])
+AC_SUBST([RTAI_KERNEL_THREADS_RTFLAGS])
+AC_SUBST([RTAI_KERNEL_THREADS_LDFLAGS])
+AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIR])
+AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
+AC_SUBST([RTAI_KERNEL_THREADS_RTSCC])
+# absolute path of rtai-config rtdir with symlinks dereferenced
+AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],
+	[$(readlink -f `$RTAI_KERNEL_THREADS_RTS --prefix`)])
+AC_SUBST([RTAI],[3])
+
+
+# FIXME this will come from the make commandline
 AC_SUBST(THREADS)
-AC_DEFINE_UNQUOTED(THREADS_HEADERS,"rtapi/${THREADS_SOURCE}.h",
-	[thread system settings header file])
-AC_SUBST(THREADS_SOURCE)
+# /FIXME
 
 # while we are at it, drop a git scent mark
 GIT_VERSION=unknown
@@ -1243,7 +1336,7 @@ AC_SUBST([HIDRAW_H_USABLE])
 ##############################################################################
 
 case $THREADS in
-    rtai|xenomai-kernel)
+    rtai-kernel|xenomai-kernel)
     AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
         [AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
 
@@ -1292,18 +1385,6 @@ case $THREADS in
     # right now it will assume based on the kernel module extension
     BUILD_SYS="kbuild"
 
-    AC_ARG_WITH(kbuild,
-	[  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
-	[
-	    case "$withval" in
-	    "" | y | ye | yes )
-		BUILD_SYS="kbuild"
-	      ;;
-	    n | no )
-		BUILD_SYS="normal"
-	      ;;
-	    esac
-	])
     AC_MSG_RESULT([$BUILD_SYS])
     ;;
    posix|xenomai|rt-preempt)
@@ -1315,7 +1396,6 @@ case $THREADS in
 esac
 AC_SUBST([MODEXT])
 AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
-AC_SUBST([BUILD_SYS])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -1765,7 +1845,7 @@ AC_SUBST(BUILD_DOCS_HTML)
 # Can RTAI kernel math support just be assumed so this can be removed?
 #    Because below code is broken, math support is effectively assumed.
 
-if test $with_rtai = "yes"
+if test $with_rtai_kernel = "yes"
 then
 AC_MSG_CHECKING([for kernel math support])
 USE_LIBM=""
@@ -1776,7 +1856,7 @@ MATHINC=""
 
 #we need to make sure that $RTS has a --module-dir option
 #only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
-if test $THREADS = rtai ; then
+if test $THREADS = rtai-kernel ; then
     if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
        USE_RTLIBM=1
     fi
@@ -1879,6 +1959,31 @@ fi
 # Global and common defines should be here rather than duplicated in
 # multiple places. Keep screwball constructs out of this, and it can
 # be used in both kernel space and user space.
+
+dnl _cfg_thread_flavor_macros():  define thread flavor IDs
+dnl   and set RTAPI_<FLAVOR>, BUILD_SYS_<BUILDSYS> & THREADS_HEADERS macros
+AC_DEFUN([_cfg_thread_flavor_macros],[dnl
+m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
+[#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_ID dnl
+_cfg_flavor_id(_cfg_flavor)
+])
+#if ! defined(THREAD_FLAVOR_ID)
+// this isn't allowed when building RTAPI
+#ifdef RTAPI
+#error RTAPI defined but THREAD_FLAVOR_ID not defined
+#endif
+m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
+[#]elif THREAD_FLAVOR_ID == RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)_ID
+[#]  define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)
+[#]  define _cfg_flavor_BUILD_SYS(_cfg_flavor)
+[#]  define THREADS_HEADERS "_cfg_flavor_threads_headers(_cfg_flavor)"
+])dnl
+#else
+#error unknown value for THREAD_FLAVOR_ID
+#endif
+])
+
+
 AH_TOP([/********************************************************************
 * Description: config.h
 *
@@ -1915,8 +2020,13 @@ AH_TOP([/********************************************************************
 // default size of the HAL data segment
 // can be overridden by the rtapi.so/ko module param hal_size=<n>
 #define HAL_SIZE                262000
-
-])
+]
+// flavor IDs for the various threads systems
+// and conditional to set thread system and build_sys macros
+// alter these in configure.in Subsection 2.0
+dnl this needs to be unquoted
+_cfg_thread_flavor_macros
+)
 
 AH_VERBATIM([_GNU_SOURCE],
 [/* Enable GNU extensions on systems that have them.  */

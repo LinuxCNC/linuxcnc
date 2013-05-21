@@ -70,7 +70,7 @@ The cpp symbols 'SIM', 'SIMULATOR', and 'RTAPI_SIM' have been removed as they do
 
 The shell/Makefile variables are:
 
-THREADS= one of: posix, rt-preempt, xenomai, xenomai-kernel, rtai
+THREADS= one of: POSIX, RT_PREEMPT, XENOMAI, XENOMAI_KERNEL, RTAI
 
 BUILD_DRIVERS=yes or no
 
