@@ -524,6 +524,13 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 // make sure the mutex is actually held in the using code when leaving scope!
 void halpr_autorelease_mutex(void *variable);
 
+#ifdef ULAPI
+// set in hal_lib.c:ulapi_hal_lib_init()
+// needed in using code (halcmd) to do the right thing (eg insmod vs call rtapi_app
+// to load a module)
+extern flavor_ptr flavor;
+#endif
+
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

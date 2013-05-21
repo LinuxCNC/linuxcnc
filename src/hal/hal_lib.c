@@ -3859,7 +3859,7 @@ static void __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void);
 static void *ulapi_so; // dlopen handle for ULAPI .so
 static char *ulapi_lib = "ulapi";
 
-static flavor_ptr flavor;
+flavor_ptr flavor;
 static char *libpath = EMC2_HOME "/lib";
 int rtapi_instance; 
  
