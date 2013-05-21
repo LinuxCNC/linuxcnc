@@ -43,8 +43,10 @@ int main(int argc, char **argv)
 
     if (argc == 1) {
 	printf("%s\n", flavor->name);
-    } else if (! strcmp(argv[1],"-m")) {
+    } else if (strcmp(argv[1],"-m") == 0) {
 	printf("%s\n", flavor->mod_ext);
+    } else if (strcmp(argv[1],"-b") == 0) {
+	printf("%s\n", flavor->build_sys);
     } else {
 	fprintf(stderr, "Unknown option '%s'\n",argv[1]);
 	exit(1);

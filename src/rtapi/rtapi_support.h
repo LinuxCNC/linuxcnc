@@ -158,6 +158,7 @@ typedef struct {
     const char *name;
     const char *mod_ext;
     const char *so_ext;
+    const char *build_sys;
     int id;
     unsigned long flags;
     

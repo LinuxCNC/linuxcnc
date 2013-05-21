@@ -7,6 +7,7 @@
 # params from the flavor executable
 FLAVOR=`flavor`
 MODULE_EXT=`flavor -m`
+BUILD_SYS=`flavor -b`
 
 # A few parameters from emc2/Makefile.inc
 EMC2_HOME=@EMC2_HOME@
