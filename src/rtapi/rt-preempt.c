@@ -26,9 +26,6 @@
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
-#  ifndef RTAPI_POSIX
-static int error_printed;
-#  endif
 #endif  /* RTAPI */
 
 #define MODULE_OFFSET		32768
@@ -318,15 +315,24 @@ static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
 
 
 #ifndef RTAPI_POSIX
+
+#ifdef RTAPI
+extern rtapi_exception_handler_t rt_exception_handler;
+#endif
+
 static void deadline_exception(int signr) {
-    if (signr != SIGXCPU) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Received unknown signal %d\n", signr);
+    char buf[LINELEN];
+
+    if (rt_exception_handler == NULL)
 	return;
+
+    if (signr != SIGXCPU) {
+	rtapi_snprintf(buf, sizeof(buf),"Received unknown signal %d", signr);
+	rt_exception_handler(RTP_SIGNAL, signr, buf);
+	return;
+    } else {
+	rt_exception_handler(RTP_SIGXCPU, SIGXCPU, "Missed scheduling deadline");
     }
-    if (!error_printed++)
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"Missed scheduling deadline or overran "
-			"scheduling runtime!\n");
 }
 
 
@@ -478,7 +484,7 @@ int _rtapi_wait_hook(void) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
 #ifndef RTAPI_POSIX
-    int msg_level = RTAPI_MSG_NONE;
+    char buf[LINELEN];
 #endif
 
     if (extra_task_data[task_id(task)].deleted)
@@ -497,26 +503,19 @@ int _rtapi_wait_hook(void) {
 	|| (ts.tv_sec == extra_task_data[task_id(task)].next_time.tv_sec
 	    && ts.tv_nsec > extra_task_data[task_id(task)].next_time.tv_nsec)) {
 	extra_task_data[task_id(task)].failures++;
-#ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
-	if (extra_task_data[task_id(task)].failures == 1)
-	    msg_level = RTAPI_MSG_ERR;
-	/* else if (extra_task_data[task_id(task)].failures < 10 ||
-	       (extra_task_data[task_id(task)].failures % 10000 == 0))  */
-	else if (extra_task_data[task_id(task)].failures < 10)
-	    msg_level = RTAPI_MSG_WARN;
 
-	if (msg_level != RTAPI_MSG_NONE) {
-	    rtapi_print_msg
-		(msg_level,
-		 "ERROR: Missed scheduling deadline for task %d [%d times]\n"
-		 "Now is %ld.%09ld, deadline was %ld.%09ld\n"
-		 "Absolute number of pagefaults in realtime context: %lu\n",
-		 task_id(task), extra_task_data[task_id(task)].failures,
-		 (long)ts.tv_sec, (long)ts.tv_nsec,
-		 (long)extra_task_data[task_id(task)].next_time.tv_sec,
-		 (long)extra_task_data[task_id(task)].next_time.tv_nsec,
-		 _rtapi_get_pagefault_count(task));
-	}
+#ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
+	rtapi_snprintf(buf, sizeof(buf),
+			"Missed scheduling deadline for task %d [%d times]\n"
+			"Now is %ld.%09ld, deadline was %ld.%09ld\n"
+			"Absolute number of pagefaults in realtime context: %lu\n",
+			task_id(task), extra_task_data[task_id(task)].failures,
+			(long)ts.tv_sec, (long)ts.tv_nsec,
+			(long)extra_task_data[task_id(task)].next_time.tv_sec,
+			(long)extra_task_data[task_id(task)].next_time.tv_nsec,
+			_rtapi_get_pagefault_count(task));
+	if (rt_exception_handler)
+	    rt_exception_handler(RTP_DEADLINE_MISSED, 0, buf);
 #endif
     }
 
