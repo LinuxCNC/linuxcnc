@@ -108,18 +108,26 @@ void _rtapi_delay_hook(long int nsec)
 ************************************************************************/
 
 #ifdef RTAPI
+
+extern rtapi_exception_handler_t rt_exception_handler;
+
 // not better than the builtin Xenomai handler, but at least
 // hook into to rtapi_print
 int _rtapi_trap_handler(unsigned event, unsigned domid, void *data) {
+    char buf[LINELEN];
     struct pt_regs *regs = data;
     xnthread_t *thread = xnpod_current_thread(); ;
 
-    rtapi_print_msg(RTAPI_MSG_ERR, 
+    rtapi_snprintf(buf, sizeof(buf),
 		    "RTAPI: trap event=%d thread=%s ip:%lx sp:%lx "
 		    "userpid=%d errcode=%d\n",
 		    event, thread->name,
-		    regs->ip, regs->sp, 
+		    regs->ip, regs->sp,
 		    xnthread_user_pid(thread), thread->errcode);
+
+    if (rt_exception_handler)
+	rt_exception_handler(XK_TRAP, event, buf);
+
     // forward to default Xenomai trap handler
     return ((rthal_trap_handler_t) old_trap_handler)(event, domid, data);
 }
@@ -150,9 +158,9 @@ int _rtapi_task_self_hook(void) {
 
 void _rtapi_wait_hook(void) {
     unsigned long overruns;
-    static int error_printed = 0;
     int task_id;
     task_data *task;
+    char buf[LINELEN];
 
     int result =  rt_task_wait_period(&overruns);
     switch (result) {
@@ -164,49 +172,41 @@ void _rtapi_wait_hook(void) {
 	rt_stats.rt_last_overrun = overruns;
 	rt_stats.rt_total_overruns += overruns;
 
-	if (error_printed < MAX_ERRORS) {
-	    task_id = _rtapi_task_self();
-	    task = &(task_array[task_id]);
+	task_id = _rtapi_task_self();
+	task = &(task_array[task_id]);
 
-	    rtapi_print_msg
-		(RTAPI_MSG_ERR,
-		 "RTAPI: ERROR: Unexpected realtime delay on task %d - "
-		 "'%s' (%lu overruns)\n" 
-		 "This Message will only display once per session.\n"
-		 "Run the Latency Test and resolve before continuing.\n", 
-		 task_id, task->name, overruns);
-	}
-	error_printed++;
-	if(error_printed == MAX_ERRORS) 
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI: (further messages will be suppressed)\n");
+	rtapi_snprintf(buf, sizeof(buf),
+			"Unexpected realtime delay on task %d - "
+			"'%s' (%lu overruns)",
+			task_id, task->name, overruns);
+	if (rt_exception_handler)
+	    rt_exception_handler(XK_ETIMEDOUT, overruns, buf);
 	break;
 
     case -EWOULDBLOCK:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_wait_period() without "
-			"previous rt_task_set_periodic()\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XK_EWOULDBLOCK, 0,
+				 "rt_task_wait_period() without "
+				 "previous rt_task_set_periodic()");
 	break;
 
     case -EINTR:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_unblock() called before "
-			"release point\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XK_EINTR, 0,
+				 "rt_task_unblock() called before "
+				 "release point");
 	break;
 
     case -EPERM:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: cannot rt_task_wait_period() from "
-			"this context\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XK_EPERM, 0,"cannot rt_task_wait_period() from "
+				 "this context");
 	break;
     default:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: unknown error code %d\n", result);
-	error_printed++;
-	break;
+	rtapi_snprintf(buf, sizeof(buf),
+			"unknown error code %d", result);
+	if (rt_exception_handler)
+	    rt_exception_handler(XK_OTHER, result,buf);
     }
 }
 
