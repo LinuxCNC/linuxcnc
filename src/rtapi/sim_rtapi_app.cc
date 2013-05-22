@@ -51,15 +51,14 @@
 #include <sys/mman.h>
 #include <execinfo.h>
 #include <sys/prctl.h>
-#if defined(RTAPI_XENOMAI) 
 #include <grp.h>
-#include <rtdk.h>
-#endif
 
 #include "rtapi.h"
 #include "rtapi_global.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
+
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
 #define BACKTRACE_SIZE 1000
 
@@ -679,6 +678,18 @@ exit_handler(void)
     }
 }
 
+int xenomai_gid()
+{
+    FILE *fd;
+    int gid = -1;
+
+    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
+	fscanf(fd, "%d", &gid);
+	fclose(fd);
+    }
+    return gid;
+}
+
 static int harden_rt()
 {
     struct sigaction sig_act;
@@ -732,16 +743,15 @@ static int harden_rt()
     sigaction(SIGILL,  &sig_act, (struct sigaction *) NULL);
     sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
 
-#if defined(RTAPI_XENOMAI)  // FIXME BUILD_XENOMAI
-    if (flavor->id ==  RTAPI_XENOMAI_ID) {
-	// check if this user is member of group xenomai, and fail miserably if not
+    if (flavor->id == RTAPI_XENOMAI_ID) {
 	int numgroups;
 	gid_t *grouplist;
 
-	struct group *gp = getgrnam("xenomai");
-	if (gp == NULL) {
+	int gid = xenomai_gid();
+	if (gid < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "the group 'xenomai' does not exist - xenomai userland support missing?\n");
+			    "couldnt determine xenomai group id from %s\n",
+			    XENO_GID_SYSFS);
 	    if (global_data)
 		global_data->rtapi_app_pid = 0;
 	    exit(1);
@@ -751,7 +761,7 @@ static int harden_rt()
 	grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
 	if (getgroups( numgroups, grouplist) != -1) {
 	    for (int i = 0; i < numgroups; i++) {
-		if (grouplist[i] == gp->gr_gid) {
+		if (grouplist[i] == (unsigned) gid) {
 		    free(grouplist);
 		    goto is_xenomai_member;
 		}
@@ -772,10 +782,8 @@ static int harden_rt()
 	exit(1);
 
     is_xenomai_member:
-	sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL);
-	rt_print_auto_init(1);
+	;
     }
-#endif
 
 #if defined(__x86_64) || defined(i386)
 
