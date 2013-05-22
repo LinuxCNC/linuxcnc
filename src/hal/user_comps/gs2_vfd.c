@@ -60,7 +60,7 @@
 #include <getopt.h>
 #include "rtapi.h"
 #include "hal.h"
-#include "modbus.h"
+#include <modbus.h>
 
 /* Read Registers:
 	0x2100 = status word 1
@@ -154,7 +154,16 @@ static struct option long_options[] = {
 static char *option_string = "b:d:hn:p:r:s:t:v";
 
 static char *bitstrings[] = {"5", "6", "7", "8", NULL};
+
+// The old libmodbus (v2?) used strings to indicate parity, the new one
+// (v3.0.1) uses chars.  The gs2_vfd driver gets the string indicating the
+// parity to use from the command line, and I don't want to change the
+// command-line usage.  The command-line argument string must match an
+// entry in paritystrings, and the index of the matching string is used as
+// the index to the parity character for the new libmodbus.
 static char *paritystrings[] = {"even", "odd", "none", NULL};
+static char paritychars[] = {'E', 'O', 'N'};
+
 static char *ratestrings[] = {"110", "300", "600", "1200", "2400", "4800", "9600",
     "19200", "38400", "57600", "115200", NULL};
 static char *stopstrings[] = {"1", "2", NULL};
@@ -181,7 +190,7 @@ int match_string(char *string, char **matches) {
     return match;
 }
 
-int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata) {
+int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
 //  int write_data[MAX_WRITE_REGS];
     int retval;
     hal_float_t hzcalc;
@@ -191,21 +200,27 @@ int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata
     if ((haldata->motor_RPM < 600) || (haldata->motor_RPM > 5000))
         haldata->motor_RPM = 1800;
     hzcalc = haldata->motor_hz/haldata->motor_RPM;
-    retval=preset_single_register(param, slavedata->slave, slavedata->write_reg_start, abs((int)(*(haldata->speed_command)*hzcalc*10)));
+
+    retval = modbus_write_register(
+        mb_ctx,
+        slavedata->write_reg_start,
+        abs((int)(*(haldata->speed_command)*hzcalc*10))
+    );
+
     if (*(haldata->spindle_on) != haldata->old_run) {
         if (*haldata->spindle_on){
-            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+1, 1);
+            modbus_write_register(mb_ctx, slavedata->write_reg_start+1, 1);
             comm_delay=0;
         }    
         else
-            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+1, 0);
+            modbus_write_register(mb_ctx, slavedata->write_reg_start+1, 0);
         haldata->old_run = *(haldata->spindle_on);
     }
     if (*(haldata->spindle_fwd) != haldata->old_dir) {
         if (*haldata->spindle_fwd)
-            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+2, 0);
+            modbus_write_register(mb_ctx, slavedata->write_reg_start+2, 0);
         else
-            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+2, 1);
+            modbus_write_register(mb_ctx, slavedata->write_reg_start+2, 1);
         haldata->old_dir = *(haldata->spindle_fwd);
     }
     if (*(haldata->spindle_fwd) || !(*(haldata->spindle_on)))  // JET turn on and off rev based on the status of fwd
@@ -214,9 +229,9 @@ int write_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *haldata
     	*(haldata->spindle_rev) = 1;	
     if (*(haldata->err_reset) != haldata->old_err_reset) {
         if (*(haldata->err_reset))
-            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+4, 1);
+            modbus_write_register(mb_ctx, slavedata->write_reg_start+4, 1);
         else
-            preset_single_register(param, slavedata->slave, slavedata->write_reg_start+4, 0);
+            modbus_write_register(mb_ctx, slavedata->write_reg_start+4, 0);
         haldata->old_err_reset = *(haldata->err_reset);
     }
     if (comm_delay < haldata->ack_delay){ // JET allow time for communications between drive and EMC
@@ -264,19 +279,19 @@ void usage(int argc, char **argv) {
     "    Turn on debug messages.  Note that if there are serial errors, this may become annoying.\n"
     "    At the moment, it doesn't make much difference most of the time.\n");
 }
-int read_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *hal_data_block) {
-    int receive_data[MAX_READ_HOLD_REGS];	/* a little padding in there */
+int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_block) {
+    uint16_t receive_data[MODBUS_MAX_READ_REGISTERS];	/* a little padding in there */
     int retval;
 
     /* can't do anything with a null HAL data block */
     if (hal_data_block == NULL)
         return -1;
     /* but we can signal an error if the other params are null */
-    if ((param==NULL) || (slavedata == NULL)) {
+    if ((mb_ctx==NULL) || (slavedata == NULL)) {
         hal_data_block->errorcount++;
         return -1;
     }
-    retval = read_holding_registers(param, slavedata->slave, slavedata->read_reg_start,
+    retval = modbus_read_registers(mb_ctx, slavedata->read_reg_start,
                                 slavedata->read_reg_count, receive_data);
     if (retval==slavedata->read_reg_count) {
         retval = 0;
@@ -312,13 +327,15 @@ int read_data(modbus_param_t *param, slavedata_t *slavedata, haldata_t *hal_data
 int main(int argc, char **argv)
 {
     int retval;
-    modbus_param_t mb_param;
+    modbus_t *mb_ctx;
     haldata_t *haldata;
     slavedata_t slavedata;
+    int slave;
     int hal_comp_id;
     struct timespec loop_timespec, remaining;
     int baud, bits, stopbits, debug, verbose;
-    char *device, *parity, *endarg;
+    char *device, *endarg;
+    char parity;
     int opt;
     int argindex, argvalue;
     done = 0;
@@ -330,10 +347,10 @@ int main(int argc, char **argv)
     debug = 0;
     verbose = 0;
     device = "/dev/ttyS0";
-    parity = "odd";
+    parity = 'O';
 
     /* slave / register info */
-    slavedata.slave = 1;
+    slave = 1;
     slavedata.read_reg_start = START_REGISTER_R;
     slavedata.read_reg_count = NUM_REGISTERS_R;
     slavedata.write_reg_start = START_REGISTER_W;
@@ -379,7 +396,7 @@ int main(int argc, char **argv)
                     retval = -1;
                     goto out_noclose;
                 }
-                parity = paritystrings[argindex];
+                parity = paritychars[argindex];
                 break;
             case 'r':   // Baud rate, 38400 default
                 argindex=match_string(optarg, ratestrings);
@@ -406,7 +423,7 @@ int main(int argc, char **argv)
                     retval = -1;
                     goto out_noclose;
                 }
-                slavedata.slave = argvalue;
+                slave = argvalue;
                 break;
             case 'v':   // verbose mode (print modbus errors and other information), default 0
                 verbose = 1;
@@ -419,8 +436,8 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("%s: device='%s', baud=%d, bits=%d, parity='%s', stopbits=%d, address=%d, verbose=%d\n",
-           modname, device, baud, bits, parity, stopbits, slavedata.slave, debug);
+    printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d, verbose=%d\n",
+           modname, device, baud, bits, parity, stopbits, slave, debug);
     /* point TERM and INT signals at our quit function */
     /* if a signal is received between here and the main loop, it should prevent
             some initialization from happening */
@@ -428,13 +445,21 @@ int main(int argc, char **argv)
     signal(SIGTERM, quit);
 
     /* Assume 38.4k O-8-1 serial settings, device 1 */
-    modbus_init_rtu(&mb_param, device, baud, parity, bits, stopbits, verbose);
-    mb_param.debug = debug;
-    /* the open has got to work, or we're out of business */
-    if (((retval = modbus_connect(&mb_param))!=0) || done) {
-        printf("%s: ERROR: couldn't open serial device\n", modname);
+    mb_ctx = modbus_new_rtu(device, baud, parity, bits, stopbits);
+    if (mb_ctx == NULL) {
+        printf("%s: ERROR: couldn't open modbus serial device: %s\n", modname, modbus_strerror(errno));
         goto out_noclose;
     }
+
+    /* the open has got to work, or we're out of business */
+    if (((retval = modbus_connect(mb_ctx))!=0) || done) {
+        printf("%s: ERROR: couldn't open serial device: %s\n", modname, modbus_strerror(errno));
+        goto out_noclose;
+    }
+
+    modbus_set_debug(mb_ctx, debug);
+
+    modbus_set_slave(mb_ctx, slave);
 
     /* create HAL component */
     hal_comp_id = hal_init(modname);
@@ -535,8 +560,8 @@ int main(int argc, char **argv)
     
     /* here's the meat of the program.  loop until done (which may be never) */
     while (done==0) {
-        read_data(&mb_param, &slavedata, haldata);
-        write_data(&mb_param, &slavedata, haldata);
+        read_data(mb_ctx, &slavedata, haldata);
+        write_data(mb_ctx, &slavedata, haldata);
         /* don't want to scan too fast, and shouldn't delay more than a few seconds */
         if (haldata->looptime < 0.001) haldata->looptime = 0.001;
         if (haldata->looptime > 2.0) haldata->looptime = 2.0;
@@ -549,7 +574,8 @@ int main(int argc, char **argv)
 out_closeHAL:
     hal_exit(hal_comp_id);
 out_close:
-    modbus_close(&mb_param);
+    modbus_close(mb_ctx);
+    modbus_free(mb_ctx);
 out_noclose:
     return retval;
 }
