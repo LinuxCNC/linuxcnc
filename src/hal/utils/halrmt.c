@@ -1167,7 +1167,7 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     strcpy (mod_path, rtmod_dir);
     strcat (mod_path, "/");
     strcat (mod_path, mod_name);
-    strcat (mod_path, MODULE_EXT);
+    strcat (mod_path, default_flavor()->mod_ext);
     /* is there a file with that name? */
     if ( stat(mod_path, &stat_buf) != 0 ) {
         /* can't find it */

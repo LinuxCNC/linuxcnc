@@ -545,11 +545,12 @@ static char *loadrt_generator(const char *text, int state) {
 
     while(d && (ent = readdir(d))) {
         char *result;
-        if(!strstr(ent->d_name, MODULE_EXT)) continue;
+        if(!strstr(ent->d_name, default_flavor()->mod_ext)) continue;
         if(startswith(ent->d_name, "rtapi.")) continue;
         if(strncmp(text, ent->d_name, len) != 0) continue;
         result = strdup(ent->d_name);
-        result[strlen(result) - strlen(MODULE_EXT)] = 0;
+        result[strlen(result) - \
+	       strlen(default_flavor()->mod_ext)] = 0;
         return result;
     }
     if (d != NULL) {
