@@ -18,6 +18,10 @@ anywait(){
 }
 
 CheckKernel() {
+    # FIXME Userland threads will need to load the shmdrv module
+    # eventually, but for now just return
+    test "$BUILD_SYS" = user-dso && return
+
     case "@KERNEL_VERS@" in
     "") ;;
     *)
@@ -39,6 +43,7 @@ else
     unset NAME_CMD
 fi
 FLAVOR=`flavor`
+BUILD_SYS=`flavor -b`
 
 RUN_IN_PLACE=@RUN_IN_PLACE@
 if [ $RUN_IN_PLACE = yes ]; then
