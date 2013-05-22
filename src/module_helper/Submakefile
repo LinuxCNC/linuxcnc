@@ -2,11 +2,8 @@ MODULE_HELPERSRCS := \
 	module_helper/module_helper.c
 USERSRCS += $(MODULE_HELPERSRCS)
 
-ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
-else
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
-endif
+$(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : \
+	EXTRAFLAGS = -Wall -Werror $(THREADS_CFLAGS)
 
 ../bin/linuxcnc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
 	$(ECHO) Linking $(notdir $@)
