@@ -253,10 +253,54 @@ void init_rtapi_data(rtapi_data_t * data)
 /***********************************************************************
 *                           RT scheduling exception handling           *
 ************************************************************************/
+
+#define MAX_ERRORS 3
+
 int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
 {
-    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:%d %d:%d %s", 
+    static int error_printed = 0;
+    int level = (error_printed == 0) ? RTAPI_MSG_ERR : RTAPI_MSG_WARN;
+
+    // apply output policy in one place only.
+    switch (cause) {
+
+    case RTAI_RTE_TMROVRN:
+    case RTAI_RTE_UNBLKD:
+    case RTAI_RTE_UNCLASSIFIED:
+    case XK_ETIMEDOUT:
+    case XU_ETIMEDOUT:
+    case RTP_SIGXCPU:
+    case RTP_DEADLINE_MISSED:
+
+	rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
+			rtapi_instance, cause, param, msg);
+	error_printed++;
+	if (error_printed == 10)
+	    rtapi_print_msg(RTAPI_MSG_WARN,
+			    "RTAPI: (further messages will be suppressed)\n");
+	break;
+
+    case RTAI_TRAP:
+    case XK_TRAP:
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:%d %d:%d %s", 
+			rtapi_instance, cause, param, msg);
+	break;
+
+    case XK_EWOULDBLOCK:
+    case XK_EINTR:
+    case XK_EPERM:
+    case XK_OTHER:
+    case XU_SIGXCPU:
+    case XU_EWOULDBLOCK:
+    case XU_EINTR:
+    case XU_EPERM:
+    case XU_OTHER:
+    case RTP_SIGNAL:
+    default:
+	rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
 		    rtapi_instance, cause, param, msg);
+	error_printed++;
+    }
     return 0;
 }
 

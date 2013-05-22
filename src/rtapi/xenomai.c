@@ -21,8 +21,6 @@
 
 #include <stdlib.h>		// abort()
 
-#define MAX_ERRORS 3
-
 /*  RTAPI task functions  */
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 
