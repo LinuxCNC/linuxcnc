@@ -17,7 +17,7 @@ INCLUDES += rtapi
 ULAPISO_LIBS :=
 ifeq ($(THREADS),RTAI_KERNEL)
 # these are needed to resolve rt_shm_alloc in ulapi.so
-ULAPISO_LIBS += /usr/realtime-`uname -r`/lib/liblxrt.a /usr/lib/libpthread.so
+ULAPISO_LIBS += $(shell $(RTAI_KERNEL_THREADS_RTS) --lxrt-ldflags) -llxrt
 endif
 
 
