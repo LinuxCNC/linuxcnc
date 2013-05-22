@@ -2,6 +2,9 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
+#ifdef RTAPI
+extern rtapi_exception_handler_t rt_exception_handler;
+#endif
 
 /***********************************************************************
 *                           rtapi_time.c                               *
@@ -49,7 +52,7 @@ long long int _rtapi_get_time_hook(void) {
        on some boxes.  Why the RTAI folks even bothered I have no idea!
        If you have any need for speed at all use _rtapi_get_clocks()!!
     */
-    return rt_get_cpu_time_ns();    
+    return rt_get_cpu_time_ns();
 }
 
 
@@ -174,42 +177,34 @@ int _rtapi_task_start_hook(task_data *task, int task_id,
 }
 
 void _rtapi_wait_hook(void) {
+    char buf[LINELEN];
     int result = rt_task_wait_period();
 
     if(result != 0) {
-	static int error_printed = 0;
-	if(error_printed < 10) {
 #ifdef RTE_TMROVRN
-	    if(result == RTE_TMROVRN) {
-		rtapi_print_msg
-		    (error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		     "RTAPI: ERROR: Unexpected realtime delay on task %d\n" 
-		     "This Message will only display once per session.\n"
-		     "Run the Latency Test and resolve before continuing.\n", 
-		     _rtapi_task_self());
-	    } else
+	if (result == RTE_TMROVRN) {
+	    rtapi_snprintf(buf, sizeof(buf),
+			   "Unexpected realtime delay on task %d",
+			   _rtapi_task_self());
+	    if (rt_exception_handler)
+		rt_exception_handler(RTAI_RTE_TMROVRN, _rtapi_task_self(), buf);
+	} else
 #endif
 #ifdef RTE_UNBLKD
-		if(result == RTE_UNBLKD) {
-		    rtapi_print_msg
-			(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			 "RTAPI: ERROR: rt_task_wait_period() returned "
-			 "RTE_UNBLKD (%d).\n", result);
-		} else
+	    if (result == RTE_UNBLKD) {
+		rtapi_snprintf(buf, sizeof(buf),
+			       "rt_task_wait_period() returned RTE_UNBLKD (%d).",
+			       result);
+		if (rt_exception_handler)
+		    rt_exception_handler(RTAI_RTE_UNBLKD, _rtapi_task_self(), buf);
+	    } else
 #endif
-		    {
-			rtapi_print_msg
-			    (error_printed == 0 ? RTAPI_MSG_ERR :
-			     RTAPI_MSG_WARN,
-			     "RTAPI: ERROR: rt_task_wait_period() returned "
-			     "%d.\n", result);
-		    }
-	    error_printed++;
-	    if(error_printed == 10)
-	        rtapi_print_msg
-		    (error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		     "RTAPI: (further messages will be suppressed)\n");
-	}
+		{
+		    rtapi_snprintf(buf, sizeof(buf),
+				   "rt_task_wait_period() returned %d.\n", result);
+		    if (rt_exception_handler)
+			rt_exception_handler(RTAI_RTE_UNCLASSIFIED, _rtapi_task_self(), buf);
+		}
     }
 }
 
