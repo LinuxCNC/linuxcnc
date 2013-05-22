@@ -240,6 +240,11 @@ extern task_data *task_array;
 
 
 /* $(THREADS).c */
+/* RT_TASK is actually flavor-specific.  It ought to be hookified, but
+   it isn't because the two kthreads flavors both use the same same
+   for this data type (perhaps because they share history and the
+   ipipe patch)
+ */
 #if defined(MODULE)
 extern RT_TASK *ostask_array[];
 #endif

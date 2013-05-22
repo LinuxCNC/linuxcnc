@@ -9,7 +9,10 @@
 #include "rtapi_common.h"
 
 #include <sys/mman.h>		/* munlockall() */
+#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
+#include <native/task.h>	/* RT_TASK, rt_task_*() */
 #include <native/timer.h>	/* rt_timer_*() */
+
 
 #ifdef RTAPI
 //FIXME minimize

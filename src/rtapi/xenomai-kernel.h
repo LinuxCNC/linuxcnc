@@ -4,13 +4,7 @@
 *               the Xenomai kernel thread system
 ********************************************************************/
 
-#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN, RTIME */
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
-#include <native/heap.h>	/* RT_HEAP */
-/* this needs to be fixed in rtapi_common.h
-#undefine RTAPI_NAME_LEN
-#define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
-*/
 
 /* rtapi_common.c */
 // Init rt_stats for RTAPI

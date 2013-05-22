@@ -3,6 +3,7 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
+#include <nucleus/types.h>		/* XNOBJECT_NAME_LEN, RTIME */
 #include <native/heap.h>		// RT_HEAP, H_SHARED, rt_heap_*
 #include <native/task.h>		// RT_TASK, rt_task_*()
 

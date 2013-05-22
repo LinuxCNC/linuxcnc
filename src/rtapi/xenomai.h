@@ -4,17 +4,6 @@
 *               the Xenomai user land thread system
 ********************************************************************/
 
-#include <native/task.h>	/* RT_TASK, rt_task_*() */
-#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
-
-
-/* rtapi_common.h */
-
-/* this needs to be fixed
-#undefine RTAPI_NAME_LEN
-#define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
-*/
-
 /* rtapi_common.c */
 // Init rt_stats for RTAPI
 #ifdef RTAPI

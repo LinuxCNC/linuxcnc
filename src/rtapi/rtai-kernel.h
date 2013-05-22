@@ -6,9 +6,7 @@
 
 #include <rtai.h>
 #include <rtai_sched.h>
-#if RTAI > 2
 #include <rtai_sem.h>
-#endif
 #include <rtai_shm.h>
 #include <rtai_fifos.h>
 
