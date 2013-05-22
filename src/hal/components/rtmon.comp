@@ -1,0 +1,44 @@
+component rtmon "montior RT threads and generate estop signal on RT scheduling violations";
+
+description """
+""";
+
+pin out bit estop "not good.";
+pin out u32 count "number of RT scheduling violations detected";
+param rw u32 threshold = 1  "number of RT violations to ignore";
+
+option extra_setup yes;
+option extra_cleanup yes;
+option singleton yes;
+
+function _ "unfortunately comp insists on a thread function";
+license "GPL";
+;;
+
+#include "rtapi.h"
+
+static int rtmon_exception_handler(int cause, int param, const char *msg)
+{
+    rtapi_print_msg(RTAPI_MSG_ERR, "RTMON:  exception: %s\n", msg);
+    count++;
+    if (count > threshold) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTMON: ------- setting estop -----\n");
+	estop = 1;
+    }
+    return 0;
+}
+
+static rtapi_exception_handler_t previous;
+
+EXTRA_SETUP(){
+    previous = rtapi_set_exception(rtmon_exception_handler);
+    return 0;
+}
+EXTRA_CLEANUP(){
+    rtapi_set_exception(previous);
+    return;
+}
+
+FUNCTION(_){
+}
+
