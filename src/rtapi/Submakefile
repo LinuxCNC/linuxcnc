@@ -96,15 +96,6 @@ rtapi-objs := \
 ################################################
 # ../bin/rtapi_app
 #
-# C sources to compile -DRTAPI and link into ../bin/rtapi_app.  (Omit
-# the main .cc file.)  (Can this be pruned?)
-# ifeq ($(USERMODE_PCI),yes)
-# RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
-# else
-# RTAPI_SRCS := $(ULAPI_SRCS) 
-# endif
-#
-#
 # List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
 # see that target below
 #

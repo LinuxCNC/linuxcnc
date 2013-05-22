@@ -15,7 +15,7 @@
 #endif
 
 #include "config.h"
-#if defined(USERMODE_PCI)
+#if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
 
 #include <libudev.h>
 #include <stdio.h>		/* vprintf() */
