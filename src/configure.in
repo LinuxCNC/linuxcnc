@@ -520,24 +520,18 @@ AC_ARG_WITH(posix,
         (enabled by default)])],
     [],
     [with_posix=yes])
-AC_MSG_CHECKING(whether to build POSIX threads)
-test "$with_posix" = check && with_posix=yes
-AC_MSG_RESULT($with_posix)
-if test "$with_posix" = yes; then
-   POSIX_THREADS_LDFLAGS="-lpthread"
-fi
-   
 
 AC_ARG_WITH(rt-preempt,
     [AS_HELP_STRING([--with-rt-preempt],
         [build RT_PREEMPT threads modules])],
     [],
     [with_rt_preempt=check])
-if test "$with_rt_preempt" != no; then
+
+if test "$with_rt_preempt" != no -o "$with_posix" != no; then
     LIBS_hold=$LIBS
     LIBS="$LIBS -lrt"
 
-    AC_MSG_CHECKING(-lrt for RT_PREEMPT)
+    AC_MSG_CHECKING(-lrt for RT_PREEMPT and POSIX)
     AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	#include <time.h>
 	#include <sched.h>
@@ -557,12 +551,21 @@ if test "$with_rt_preempt" != no; then
     ])
     LIBS=$LIBS_hold
 fi
+
+AC_MSG_CHECKING(whether to build POSIX threads)
+test "$with_posix" = check && with_posix=yes
+test "$have_librt" = no && with_posix=no
+AC_MSG_RESULT($with_posix)
+if test "$with_posix" = yes; then
+   POSIX_THREADS_LDFLAGS="-lpthread -lrt"
+fi
+   
 AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
 test "$with_rt_preempt" = check && with_rt_preempt=yes
 test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
 if test "$with_posix" = yes; then
-   RT_PREEMPT_THREADS_LDFLAGS="-lpthread"
+   RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
 fi
 
 
