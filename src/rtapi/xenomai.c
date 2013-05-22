@@ -12,10 +12,10 @@
 #include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
 #include <native/timer.h>	/* rt_timer_*() */
+#include <signal.h>		/* sigaction/SIGXCPU handling */
 
 
 #ifdef RTAPI
-//FIXME minimize
 #include <native/mutex.h>
 #include <rtdk.h>
 
@@ -66,6 +66,47 @@ int _rtapi_exit(int module_id) {
   return 0;
 }
 
+/***********************************************************************
+*                           RT scheduling exception handling           *
+************************************************************************/
+
+
+#ifdef RTAPI
+extern rtapi_exception_handler_t rt_exception_handler;
+
+// trampoline to current handler
+static void signal_handler(int sig, siginfo_t *si, void *uctx)
+{
+    if (rt_exception_handler)
+	rt_exception_handler(XU_SIGXCPU, 0,
+			     "Xenomai switched RT task to secondary domain");
+}
+#endif
+
+/***********************************************************************
+*                           rtapi_main.c                               *
+************************************************************************/
+#ifdef RTAPI
+void _rtapi_module_init_hook(void)
+{
+    struct sigaction sig_act;
+
+    sigemptyset( &sig_act.sa_mask );
+
+    sig_act.sa_sigaction = signal_handler;
+    sig_act.sa_flags   = SA_SIGINFO;
+    sig_act.sa_handler = SIG_IGN;
+
+    sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL);
+
+    // start rdtk real-time printing library output thread
+    // very likely this is actually needed; probably superseded by rtapi_print
+    // since we're not using the xenomai rtdk printing library
+    // rt_print_auto_init(1);
+}
+#else
+void _rtapi_module_init_hook(void) {}
+#endif
 /***********************************************************************
 *                           rtapi_task.c                               *
 ************************************************************************/
@@ -173,9 +214,9 @@ int _rtapi_task_resume_hook(task_data *task, int task_id) {
 
 void _rtapi_wait_hook() {
     unsigned long overruns;
-    static int error_printed = 0;
     int task_id;
     task_data *task;
+    char buf[LINELEN];
 
     int result =  rt_task_wait_period(&overruns);
     switch (result) {
@@ -186,50 +227,42 @@ void _rtapi_wait_hook() {
 	rt_stats.rt_wait_error++;
 	rt_stats.rt_last_overrun = overruns;
 	rt_stats.rt_total_overruns += overruns;
+	task_id = _rtapi_task_self();
+	task = &(task_array[task_id]);
 
-	if (error_printed < MAX_ERRORS) {
-	    task_id = _rtapi_task_self();
-	    task = &(task_array[task_id]);
-
-	    rtapi_print_msg
-		(RTAPI_MSG_ERR,
-		 "RTAPI: ERROR: Unexpected realtime delay on task %d - "
-		 "'%s' (%lu overruns)\n" 
-		 "This Message will only display once per session.\n"
-		 "Run the Latency Test and resolve before continuing.\n", 
-		 task_id, task->name, overruns);
-	}
-	error_printed++;
-	if(error_printed == MAX_ERRORS) 
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI: (further messages will be suppressed)\n");
+	rtapi_snprintf(buf, sizeof(buf),
+			"Unexpected realtime delay on task %d - "
+			"'%s' (%lu overruns)",
+			task_id, task->name, overruns);
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_ETIMEDOUT, overruns, buf);
 	break;
 
     case -EWOULDBLOCK:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_wait_period() without "
-			"previous rt_task_set_periodic()\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_EWOULDBLOCK, 0,
+				 "rt_task_wait_period() without "
+				 "previous rt_task_set_periodic()");
 	break;
 
     case -EINTR:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_unblock() called before "
-			"release point\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_EINTR, 0,
+				 "rt_task_unblock() called before "
+				 "release point");
 	break;
 
     case -EPERM:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: cannot rt_task_wait_period() from "
-			"this context\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_EPERM, 0,"cannot rt_task_wait_period() from "
+				 "this context");
 	break;
+
     default:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: unknown error code %d\n", result);
-	error_printed++;
-	break;
+	rtapi_snprintf(buf, sizeof(buf),
+			"unknown error code %d", result);
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_OTHER, result,buf);
     }
 }
 
