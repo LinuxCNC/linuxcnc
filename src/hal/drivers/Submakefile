@@ -39,3 +39,7 @@ modules:                                                         \
     hal/drivers/pluto_step_rbf.h
 endif
 
+INCLUDES += hal/drivers
+
+../include/%.h: ./hal/drivers/%.h
+	cp  $^ $@

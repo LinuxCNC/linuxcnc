@@ -303,6 +303,7 @@ HEADERS := \
     hal/hal.h \
     hal/hal_parport.h \
     hal/config_module.h \
+    hal/drivers/hal_gpiomap.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -824,10 +825,17 @@ obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
 hal_gpio-objs := hal/drivers/hal_gpio.o 
 endif
 
-#ifeq ($(TARGET_PLATFORM), beaglebone)
-#obj-$(CONFIG_HAL_GPIO) += hal_bbgpio.o
-#hal_gpio-objs := hal/drivers/hal_bbgpio.o 
-#endif
+ifeq ($(TARGET_PLATFORM), beaglebone)
+obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
+hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
+endif
+
+ifeq ($(BUILD_SYS),user-dso)
+obj-m += gpiomap.o
+gpiomap-objs := hal/drivers/hal_gpiomap.o 
+obj-m += gpiouse.o
+gpiouse-objs := hal/drivers/hal_gpiouse.o 
+endif
 
 # these won't compile as-is with userland threading
 
@@ -847,7 +855,7 @@ ifeq ($(USERMODE_PCI),yes)
 # reconfirm our intent..
 BUILD_HOSTMOT2=yes
 else
-#except if userland and USERMODE_PCI isnt sez
+#except if userland and USERMODE_PCI isnt set
 ifeq ($(BUILD_SYS),user-dso)
 BUILD_HOSTMOT2=no
 endif
@@ -1064,6 +1072,8 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 ifeq ($(BUILD_SYS),user-dso)
 ../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
+../rtlib/gpiomap$(MODULE_EXT): $(addprefix objects/rt,$(gpiomap-objs))
+../rtlib/gpiouse$(MODULE_EXT): $(addprefix objects/rt,$(gpiouse-objs))
 endif
 ifeq ($(USERMODE_PCI),yes)
 ../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
@@ -1076,6 +1086,8 @@ ifeq ($(TARGET_PLATFORM),beaglebone)
 ../rtlib/hal_pru$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru-objs))
 ../rtlib/hal_pru_generic$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru_generic-objs))
 ../rtlib/hal_prudebug$(MODULE_EXT): $(addprefix objects/rt,$(hal_prudebug-objs))
+../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
+../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
 endif
 
 ifeq ($(TARGET_PLATFORM),raspberry)

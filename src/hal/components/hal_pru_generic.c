@@ -96,7 +96,7 @@ MODULE_LICENSE("GPL");
 #define PRU_DEFAULT_PIN 17
 
 // PRU "thread" frequency in Hz
-#define PRU_FREQUENCY 10000
+#define PRU_FREQUENCY 100000
 
 // Start out with a default delays of 1 mS (1000000 nS) 
 #define DEFAULT_DELAY 1000000

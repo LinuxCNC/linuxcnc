@@ -7,16 +7,25 @@
 // unfortunately it is not available through /usr/include
 // therefore replicate from linux/bitops.h and linux/kernel.h
 // and prefix with an '_' to roll our own
+
 #define _DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
-#ifndef _BIT  // /usr/include/pth.h might bring this in too
+#ifndef _BIT                     // /usr/include/pth.h might bring this in too
 #define _BIT(nr)                 (1UL << (nr))
 #endif
+#define _BITS_PER_BYTE           8
+#define _BITS_PER_LONG           (_BITS_PER_BYTE * sizeof(long))
 #define _BIT_MASK(nr)            (1UL << ((nr) % _BITS_PER_LONG))
 #define _BIT_WORD(nr)            ((nr) / _BITS_PER_LONG)
-#define _BITS_PER_BYTE           8
-#define _BITS_TO_LONGS(nr)       _DIV_ROUND_UP(nr, _BITS_PER_BYTE * sizeof(long))
+#define _BITS_TO_LONGS(nr)       _DIV_ROUND_UP(nr, _BITS_PER_LONG)
+#define _BIT_SET(a, b)           ((a)[_BIT_WORD(b)] |=   _BIT_MASK(b))
+#define _BIT_CLEAR(a, b)         ((a)[_BIT_WORD(b)] &= ~ _BIT_MASK(b))
+#define _BIT_TEST(a, b)          ((a)[_BIT_WORD(b)] &    _BIT_MASK(b))
+
 #define _DECLARE_BITMAP(name,bits) \
     unsigned long name[_BITS_TO_LONGS(bits)]
+
+#define _ZERO_BITMAP(name,bits) { memset(name, 0, _BITS_TO_LONGS(bits)*sizeof(long)); }
+#define _SET_BITMAP(name,bits) { memset(name, 255, _BITS_TO_LONGS(bits)*sizeof(long)); }
 
 #if defined( USE_GCC_ATOMIC_OPS)
 
