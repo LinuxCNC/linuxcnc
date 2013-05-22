@@ -115,6 +115,7 @@ typedef __s64		s64;
 #include <rtapi_errno.h>
 #include <rtapi_ring.h>
 #include <rtapi_global.h>
+#include <rtapi_exception.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
@@ -801,6 +802,24 @@ extern int _rtapi_ring_detach(int handle, int module_id);
 
 // rtapi_ring_refcount(ringheader_t *ptr) defined in rtapi_ring.h
 
+
+/***********************************************************************
+*                        Callback on RT scheduling violation           *
+* rtapi may notify using code (eg rtapi_app) when a scheduling release *
+* point has been missed. This causes a SIGXCPU in both rt-preempt and  *
+* xenomai-user flavors.                                                *
+*                                                                      *
+* A use case would be a hal module which exports an rt estop pin       *
+* this pin would be raised by the callback                             *
+************************************************************************/
+
+// rtapi_exception_handler_t is defined in rtapi_exception.h
+typedef rtapi_exception_handler_t (*rtapi_set_exception_t) (rtapi_exception_handler_t);
+#define rtapi_set_exception(handler)	\
+    rtapi_switch->rtapi_set_exception(handler)
+extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t h);
+
+
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
@@ -892,6 +911,7 @@ typedef struct {
     rtapi_task_resume_t rtapi_task_resume;
     rtapi_task_pause_t rtapi_task_pause;
     rtapi_task_self_t rtapi_task_self;
+
 #else
     rtapi_dummy_t rtapi_task_new;
     rtapi_dummy_t rtapi_task_delete;
@@ -910,9 +930,16 @@ typedef struct {
     rtapi_shmem_getptr_inst_t rtapi_shmem_getptr_inst;
 
     // ringbuffer functions
+    // these will be removed once the new hal_lib.c ring
+    // support code is in place
     rtapi_ring_new_t rtapi_ring_new;
     rtapi_ring_attach_t rtapi_ring_attach;
     rtapi_ring_detach_t rtapi_ring_detach;
+#ifdef RTAPI
+    rtapi_set_exception_t rtapi_set_exception;
+#else
+    rtapi_dummy_t rtapi_set_exception;
+#endif
 
 } rtapi_switch_t;
 

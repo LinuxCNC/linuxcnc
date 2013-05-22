@@ -142,6 +142,12 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_ring_new = &_rtapi_ring_new,
     .rtapi_ring_attach = &_rtapi_ring_attach,
     .rtapi_ring_detach = &_rtapi_ring_detach,
+
+#ifdef RTAPI
+    .rtapi_set_exception = &_rtapi_set_exception,
+#else
+    .rtapi_set_exception = &_rtapi_dummy,
+#endif
 };
 
 // any API, any style:
@@ -242,6 +248,26 @@ void init_rtapi_data(rtapi_data_t * data)
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
     return;
+}
+
+/***********************************************************************
+*                           RT scheduling exception handling           *
+************************************************************************/
+int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
+{
+    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:%d %d:%d %s", 
+		    rtapi_instance, cause, param, msg);
+    return 0;
+}
+
+rtapi_exception_handler_t rt_exception_handler = rtapi_default_rt_exception_handler;
+
+// may override default exception handler
+rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
+{
+    rtapi_exception_handler_t previous = rt_exception_handler;
+    rt_exception_handler = h;
+    return previous;
 }
 
 // rtapi_module.c, rtapi_main.c
