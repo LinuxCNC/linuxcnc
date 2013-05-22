@@ -3055,10 +3055,8 @@ static int init_hal_data(void)
     /* no, we need to init it, grab the mutex unconditionally */
     rtapi_mutex_try(&(hal_data->mutex));
 
-#if defined(RTAPI_XENOMAI_KERNEL)
-    // xenomai heaps contain garbage
+    // some heaps contain garbage, like xenomai
     memset(hal_data, 0, global_data->hal_size);
-#endif
 
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
