@@ -1,3 +1,10 @@
+ver. 0.9.3
+- included the patch for key_jogging from Chris
+- support now also back tool lathes
+- after M61 Q tool change, the Gui didn't leave the MDI modem resulting in problems
+- the btn_view_Y2 has now a yellow background
+- changing the max vel slider had no efekt, I fixed this
+
 ver 0.9.2
 - added lathe mode
 - added classicladder button

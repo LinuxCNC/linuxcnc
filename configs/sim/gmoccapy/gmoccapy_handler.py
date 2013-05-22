@@ -23,7 +23,7 @@
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
+tool_in_spindle
 '''
 import hal
 import hal_glib   # needed to make our own hal pins
@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.2"
+_RELEASE = "0.9.3"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -170,6 +170,7 @@ class HandlerClass:
         self.widgets.rbt_view_P.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_X.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_Y.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_Y2.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_view_Z.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
@@ -395,12 +396,17 @@ class HandlerClass:
 
         # Do we control a lathe?
         if self.data.lathe_mode:
+            # is this a backtool lathe?
+            temp = self.gscreen.inifile.find("DISPLAY", "BACK_TOOL_LATHE")
+            self.backtool_lathe = bool(temp == "1" or temp == "True" or temp == "true")
+            print("backtool = ",self.backtool_lathe)
+
             # we first hide the Y button to touch off 
             self.widgets.btn_home_Y.hide()
             self.widgets.lbl_replace_y.show()
             self.widgets.btn_tool_touchoff_X.show()
             self.widgets.lbl_hide_tto_X.hide()
-    
+
             # we have to rearange the jog buttons, we first remove all button
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Y_minus)
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Y_plus)
@@ -410,8 +416,12 @@ class HandlerClass:
             self.widgets.tbl_jog_btn.remove(self.widgets.btn_Z_plus)
     
             # now we place them in a different order
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_plus,1,2,2,3)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_minus,1,2,0,1)
+            if self.backtool_lathe:
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_plus,1,2,0,1)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_minus,1,2,2,3)
+            else:
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_plus,1,2,2,3)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_minus,1,2,0,1)
             self.widgets.tbl_jog_btn.attach(self.widgets.btn_Z_plus,2,3,1,2)
             self.widgets.tbl_jog_btn.attach(self.widgets.btn_Z_minus,0,1,1,2)
             
@@ -424,7 +434,10 @@ class HandlerClass:
             self.widgets.lbl_X.set_label("R")
     
             # For gremlin we don't need the following button
-            self.widgets.rbt_view_Y.set_active(True)
+            if self.backtool_lathe:
+                self.widgets.rbt_view_Y2.set_active(True)
+            else:
+                self.widgets.rbt_view_Y.set_active(True)
             self.widgets.rbt_view_P.hide()
             self.widgets.rbt_view_X.hide()
             self.widgets.rbt_view_Z.hide()
@@ -523,7 +536,10 @@ class HandlerClass:
 
         if keyname == "Up":
             if self.data.lathe_mode:
-                widget = self.widgets.btn_X_minus
+                if self.backtool_lathe:
+                    widget = self.widgets.btn_X_plus
+                else:
+                    widget = self.widgets.btn_X_minus
             else:
                 widget = self.widgets.btn_Y_plus
             if signal:
@@ -532,7 +548,10 @@ class HandlerClass:
                 self.on_btn_jog_released(widget)
         elif keyname == "Down":
             if self.data.lathe_mode:
-                widget = self.widgets.btn_X_plus
+                if self.backtool_lathe:
+                    widget = self.widgets.btn_X_minus
+                else:
+                    widget = self.widgets.btn_X_plus
             else:
                 widget = self.widgets.btn_Y_minus
             if signal:
@@ -756,18 +775,28 @@ class HandlerClass:
         self.gscreen.emc.set_manual_mode()
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(0)
+        self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_jog.set_current_page(0)
 
     def on_rbt_mdi_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_mdi_clicked")
+        self.emc.set_mdi_mode()
+        if self.widgets.chk_use_kb_on_mdi.get_active():
+            self.widgets.ntb_info.set_current_page(1)
+        else:
+            self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(1)
-        self.emc.set_mdi_mode()
+        self.widgets.ntb_jog.set_current_page(1)
+        self.widgets.hal_mdihistory.entry.grab_focus()
 
     def on_rbt_auto_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_auto_clicked")
         self.emc.set_auto_mode()
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(2)
+        self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_jog.set_current_page(2)
         
     def on_rbt_setup_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_setup_pressed")
@@ -1158,6 +1187,7 @@ class HandlerClass:
     def on_adj_max_vel_value_changed(self, widget, data = None):
         if widget.get_value() < self.widgets.adj_jog_vel.get_value():
             self.widgets.adj_jog_vel.set_value(widget.get_value())
+        self.emc.max_velocity(widget.get_value() / 60)
 
 #ToDo: Make this able to reakt to more axis
     def on_btn_jog_pressed(self, widget, data = None):
@@ -1789,6 +1819,14 @@ class HandlerClass:
                                         _("You archieved to come to a place with is not possible in on_btn_tool_touchoff"))
             return
 
+        if "G41" in self.data.active_gcodes or "G42" in self.data.active_gcodes:
+            message = _("Tool touchoff is not posible with cutter radius compensation switched on!\n")
+            message += _("Please emit an G40 before tool touch off")
+            print(message)
+            self.gscreen.add_alarm_entry(message)
+            self.gscreen.warning_dialog(_("Waring Tool Touch off not possible!"), True, message)
+            return
+
         value = self.entry_dialog(data = None, header = _("Enter value for axis %s to set:")%axis, 
                                       label=_("Set parameter of tool %d and axis %s to:")%(self.data.tool_in_spindle,axis))
         if value == 'ERROR':
@@ -1825,9 +1863,8 @@ class HandlerClass:
             else:
                 self.gscreen.mdi_control.user_command("M61 Q%s"%tool)
                 if self.log: self.gscreen.add_alarm_entry("set_tool_with M61 Q%s"%tool)
-            self._update_toolinfo(tool)
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.ntb_button.set_current_page(0)
+            self.on_hal_status_tool_in_spindle_changed(None,tool)
+            self.widgets.rbt_manual.emit("clicked")
         else:
             message = _("Could not understand entered tool number. Will not change anything")
             self.widgets.statusbar1.push(1,message)
@@ -2020,7 +2057,8 @@ class HandlerClass:
         self.widgets.btn_run.set_sensitive(True)
         print("interpreter idle and self tool change = " , self.wait_tool_change)
         if self.wait_tool_change == True:
-            self.emc.set_manual_mode()
+            #self.emc.set_manual_mode()
+            self.widgets.rbt_manual.emit("clicked")
             self.wait_tool_change = False
         self.interpreter = _IDLE
 
@@ -2067,34 +2105,34 @@ class HandlerClass:
         self.widgets.dialog_from_line.destroy()
 # ToDo end
 
-    def on_hal_status_mode_auto(self,widget):
-        self.gscreen.add_alarm_entry("mode_auto")
-        self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_jog.set_current_page(2)
-        self.widgets.ntb_button.set_current_page(2)
-        self.widgets.ntb_preview.set_current_page(0)
-        self.widgets.ntb_info.set_current_page(0)
-
-    def on_hal_status_mode_manual(self,widget):
-        self.gscreen.add_alarm_entry("mode_manual")
-        self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_jog.set_current_page(0)
-        self.widgets.ntb_button.set_current_page(0)
-        self.widgets.ntb_preview.set_current_page(0)
-        self.widgets.ntb_info.set_current_page(0)
-
-    def on_hal_status_mode_mdi(self,widget):
-        if self.wait_tool_change:
-            return
-        self.gscreen.add_alarm_entry("mode_mdi")
-        self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_jog.set_current_page(1)
-        self.widgets.ntb_button.set_current_page(1)
-        if self.widgets.chk_use_kb_on_mdi.get_active():
-            self.widgets.ntb_info.set_current_page(1)
-        else:
-            self.widgets.ntb_info.set_current_page(0)
-        self.widgets.hal_mdihistory.entry.grab_focus()
+#     def on_hal_status_mode_auto(self,widget):
+#         self.gscreen.add_alarm_entry("mode_auto")
+#         self.widgets.ntb_main.set_current_page(0)
+#         self.widgets.ntb_jog.set_current_page(2)
+#         self.widgets.ntb_button.set_current_page(2)
+#         self.widgets.ntb_preview.set_current_page(0)
+#         self.widgets.ntb_info.set_current_page(0)
+# 
+#     def on_hal_status_mode_manual(self,widget):
+#         self.gscreen.add_alarm_entry("mode_manual")
+#         self.widgets.ntb_main.set_current_page(0)
+#         self.widgets.ntb_jog.set_current_page(0)
+#         self.widgets.ntb_button.set_current_page(0)
+#         self.widgets.ntb_preview.set_current_page(0)
+#         self.widgets.ntb_info.set_current_page(0)
+# 
+#     def on_hal_status_mode_mdi(self,widget):
+#         if self.wait_tool_change:
+#             return
+#         self.gscreen.add_alarm_entry("mode_mdi")
+#         self.widgets.ntb_main.set_current_page(0)
+#         self.widgets.ntb_jog.set_current_page(1)
+#         self.widgets.ntb_button.set_current_page(1)
+#         if self.widgets.chk_use_kb_on_mdi.get_active():
+#             self.widgets.ntb_info.set_current_page(1)
+#         else:
+#             self.widgets.ntb_info.set_current_page(0)
+#         self.widgets.hal_mdihistory.entry.grab_focus()
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         self.gscreen.add_alarm_entry(_("tool_in_spindle has changed to %s"%new_tool_no))
