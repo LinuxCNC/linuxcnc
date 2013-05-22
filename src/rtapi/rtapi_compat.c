@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <limits.h>
+#include <stdlib.h>		/* exit() */
 
 // really in nucleus/heap.h but we rather get away with minimum include files
 #ifndef XNHEAP_DEV_NAME
@@ -208,4 +209,44 @@ int module_path(flavor_ptr f,
 	return 0;
 
     return -ENOENT;
+}
+
+void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch, char *ulapi_lib)
+{
+    // verify the ulapi-foo.so we just loaded is compatible with
+    // the running kernel if it has special prerequisites
+
+    switch (rtapi_switch->thread_flavor_id) {
+    case  RTAPI_RT_PREEMPT_ID:
+	if (!kernel_is_rtpreempt()) {
+	    fprintf(stderr,
+		    "HAL_LIB: ERROR - RT_PREEMPT ULAPI loaded but kernel is "
+		    "not RT_PREEMPT (%s, %s)\n",
+		    ulapi_lib, rtapi_switch->git_version);
+	    exit(1);
+	}
+	break;
+    case RTAPI_XENOMAI_KERNEL_ID:
+    case RTAPI_XENOMAI_ID:
+	if (!kernel_is_xenomai()) {
+	    fprintf(stderr,
+		    "HAL_LIB: ERROR - Xenomai ULAPI loaded but kernel is "
+		    "not Xenomai (%s, %s)\n",
+		    ulapi_lib, rtapi_switch->git_version);
+	    exit(1);
+	}
+	break;
+    case RTAPI_RTAI_KERNEL_ID:
+	if (!kernel_is_rtai()) {
+	    fprintf(stderr,
+		    "HAL_LIB: ERROR - RTAI ULAPI loaded but kernel is "
+		    "not RTAI (%s, %s)\n",
+		    ulapi_lib, rtapi_switch->git_version);
+	    exit(1);
+	}
+	break;
+    default:
+	// no prerequisites for vanilla
+	break;
+    }
 }

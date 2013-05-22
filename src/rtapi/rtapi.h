@@ -947,6 +947,11 @@ typedef int  (*ulapi_main_t)(int, int, global_data_t **);
 typedef int (*ulapi_exit_t)(int);
 extern int ulapi_main(int instance, int flavor, global_data_t **global);
 extern int ulapi_exit(int instance);
+
+// Check that a ulapi module is compatible with the running kernel
+// from rtapi_compat.c
+extern void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch,
+				      char *ulapi_lib);
 #endif
 
 /***********************************************************************

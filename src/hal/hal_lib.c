@@ -79,7 +79,6 @@ hal_namespace_map_t hal_mappings[MAX_INSTANCES];
 #include <stdio.h>
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
-#include <stdlib.h>		/* exit() */
 #include <dlfcn.h>              /* for dlopen/dlsym ulapi-$THREADSTYLE.so */
 #include <assert.h>
 #include <time.h>               /* remote comp bind/unbind/update timestamps */
@@ -3978,36 +3977,7 @@ static void ulapi_hal_lib_init(void)
 
     // verify the ulapi-foo.so we just loaded is compatible with
     // the running kernel if it has special prerequisites
-    switch (rtapi_switch->thread_flavor_id) {
-    case  RTAPI_RT_PREEMPT_ID:
-	if (!kernel_is_rtpreempt()) {
-	    fprintf(stderr,"HAL_LIB: ERROR - RT_PREEMPT ULAPI loaded but kernel is not RT_PREEMPT (%s, %s)\n",
-		    ulapi_lib, rtapi_switch->git_version);
-	    exit(1);
-	}
-	break;
-
-    case RTAPI_XENOMAI_KERNEL_ID:
-    case RTAPI_XENOMAI_ID:
-	if (!kernel_is_xenomai()) {
-	    fprintf(stderr,"HAL_LIB: ERROR - Xenomai ULAPI loaded but kernel is not Xenomai (%s, %s)\n",
-		    ulapi_lib, rtapi_switch->git_version);
-	    exit(1);
-	}
-	break;
-
-    case RTAPI_RTAI_KERNEL_ID:
-	if (!kernel_is_rtai()) {
-	    fprintf(stderr,"HAL_LIB: ERROR - RTAI ULAPI loaded but kernel is not RTAI (%s, %s)\n",
-		    ulapi_lib, rtapi_switch->git_version);
-	    exit(1);
-	}
-	break;
-
-    default:
-	// no prerequisites for vanilla
-	break;
-    }
+    ulapi_kernel_compat_check(rtapi_switch, ulapi_lib);
 
     // at this point it is safe to call RTAPI functions since the
     // rtapi_switch pointer is now valid and the stuff we loaded
