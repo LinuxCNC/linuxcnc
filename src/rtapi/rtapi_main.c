@@ -42,6 +42,10 @@ RTAPI_MP_INT(user_msg_level, "user debug message level (default=3)");
 EXPORT_SYMBOL(rtapi_instance);
 EXPORT_SYMBOL(global_data);
 
+#ifdef HAVE_RTAPI_MODULE_INIT_HOOK
+void _rtapi_module_init_hook(void);
+#endif
+
 global_data_t *global_data = NULL;
 ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
@@ -135,6 +139,9 @@ int rtapi_app_main(void)
 	}
 	rtapi_data = NULL;
     }
+#ifdef HAVE_RTAPI_MODULE_INIT_HOOK
+    _rtapi_module_init_hook();
+#endif
     return 0;
 }
 
