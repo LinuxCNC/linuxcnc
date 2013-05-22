@@ -2,7 +2,7 @@
 * Description:  rtapi_support.c
 *               This file, 'rtapi_support.c', implements the messaging
 *               functions for both kernel and userland thread
-*               systems.  See rtapi_support.h for more info.
+*               systems.  See rtapi.h for more info.
 *
 *               Other than the rest of RTAPI, these functions are linked
 *               into the instance module which is loaded before rtapi.so/ko
@@ -13,7 +13,6 @@
 
 #include "config.h"
 #include "rtapi.h"
-#include "rtapi_support.h"
 #include "rtapi/shmdrv/shmdrv.h"
 
 #define RTPRINTBUFFERLEN 1024

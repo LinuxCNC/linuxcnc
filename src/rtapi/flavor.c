@@ -12,7 +12,6 @@
 #include <errno.h>
 
 #include "rtapi.h"
-#include "rtapi_support.h"
 #include "rtapi_flavor.h"
 
 int shmdrv_loaded;

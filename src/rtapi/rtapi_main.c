@@ -9,11 +9,6 @@
  *
  ********************************************************************/
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_common.h"
-#include "rtapi_support.h"
-#include "rtapi/shmdrv/shmdrv.h"
 
 #include <unistd.h>		/* ssize_t, _SC_PAGESIZE */
 #include <fcntl.h>
@@ -22,10 +17,12 @@
 #include <sys/mman.h>
 #include <sys/types.h> 
 
+#include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_common.h"       /* global_data_t */
 #include "rtapi_kdetect.h"      /* environment autodetection */
+#include "rtapi/shmdrv/shmdrv.h"
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("RTAPI module support - userland threads");

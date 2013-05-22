@@ -368,7 +368,6 @@ HEADERS := \
     rtapi/rtapi_pci.h \
     rtapi/rtapi_ring.h \
     rtapi/rtapi_mbarrier.h \
-    rtapi/rtapi_support.h \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 

@@ -58,7 +58,6 @@
 
 #include "rtapi.h"
 #include "rtapi_global.h"
-#include "rtapi_support.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 
