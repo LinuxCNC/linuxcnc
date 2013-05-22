@@ -484,7 +484,7 @@ static char proctitle[20];
 
 static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
-    int retval;
+    int retval, i;
 
     if (!foreground) {
 	pid_t pid = fork();
@@ -506,7 +506,7 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     strncpy(argv[0], proctitle, max_procname_len);
     memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
 
-    for (size_t i = 1; i < argc; i++) {
+    for (i = 1; i < argc; i++) {
 	memset(argv[i], '\0', strlen(argv[i]));
     }
     //rtapi_openlog(proctitle, rt_msglevel );
