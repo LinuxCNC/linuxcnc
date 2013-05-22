@@ -104,9 +104,6 @@ rtapi-objs := \
 # RTAPI_SRCS := $(ULAPI_SRCS) 
 # endif
 #
-# Build objects/rtapi/sim_rtapi_app.o in Makefile (with -DULAPI,
-# despite others -DRTAPI; Makefile doesn't handle -DRTAPI C++ sources)
-USERSRCS +=  rtapi/sim_rtapi_app.cc 
 #
 # List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
 # see that target below
@@ -120,8 +117,16 @@ RTAPI_APP_OBJS := \
 
 #
 # Add THREADS_RTFLAGS etc. to sim_rtapi_app.cc compilation
+#
+# HAAACK:
+#
+# Build objects/rtapi/sim_rtapi_app.o in Makefile as other USERSRCS,
+# but replace -DULAPI with -DRTAPI:  Makefile doesn't handle -DRTAPI
+# C++ sources
 $(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += \
-	$(THREADS_RTFLAGS) $(LIBUDEV_CFLAGS)
+	$(THREADS_RTFLAGS) $(LIBUDEV_CFLAGS) -UULAPI -DRTAPI
+USERSRCS +=  rtapi/sim_rtapi_app.cc 
+
 #
 # Build target
 ../bin/rtapi_app: $(RTAPI_APP_OBJS)
