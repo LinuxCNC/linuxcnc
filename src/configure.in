@@ -160,9 +160,6 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # might be extended by RTSCC later
 AC_PROG_CC([gcc])  
 
-# shorthand for the threadsystem. currently rtai, rtai-3.0 or none. not set for rtl or sim.
-RTNAME=""
-
 # a compiler which might be specific for the realime system.
 # relevant case: rtai-config -cc
 RTSCC=""
