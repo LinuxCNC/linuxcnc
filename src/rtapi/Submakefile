@@ -46,11 +46,11 @@ UTIL_SRCS := \
 # resolved at loadtime
 $(call TOOBJSDEPS, $(ULAPI_SRCS) $(UTIL_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
-ULAPISO := ../lib/ulapi.so
+ULAPISO := ../lib/$(threads)/ulapi.so
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(ULAPI_SRCS))
-	$(ECHO) Creating shared object $(notdir $@)
-	@mkdir -p ../lib
+	$(ECHO) Creating shared object $@
+	@mkdir -p ../lib/$(threads)
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
