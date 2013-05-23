@@ -3903,6 +3903,7 @@ static void ulapi_hal_lib_init(void)
 			ulapi_lib, errmsg ? errmsg : "NULL");
 	exit(1);
     }
+    fprintf(stderr, "HAL_LIB: loaded ulapi.so from: %s\n", path);
 
     // resolve rtapi_switch getter function
     dlerror();
