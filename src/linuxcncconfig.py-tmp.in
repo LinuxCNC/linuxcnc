@@ -168,7 +168,6 @@ class Config(object):
 	self.RANLIB = "@RANLIB@"
 	self.MSGFMT = "@MSGFMT@"
 	self.XGETTEXT = "@XGETTEXT@"
-	self.PTH_CONFIG = "@PTH_CONFIG@"
 
 	self.BUILD_DOCS = "@BUILD_DOCS@"
 	self.BUILD_DOCS_PDF = "@BUILD_DOCS_PDF@"
