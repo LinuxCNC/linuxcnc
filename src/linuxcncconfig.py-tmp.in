@@ -107,15 +107,9 @@ class Config(object):
 
         # /Standard configure directories
 	self.RUN_IN_PLACE = "@RUN_IN_PLACE@"
-	self.RTNAME = "@RTNAME@"
 	self.RTFLAGS = "@RTFLAGS@"
 	self.KERNELDIR = "@KERNELDIR@"
 	#self.RTFLAGS = "-Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0"
-	self.USE_RTLIBM = "@USE_RTLIBM@"
-	self.USE_LIBM = "@USE_LIBM@"
-	self.USE_STUBS = "@USE_STUBS@"
-	self.MATHINC = "@MATHINC@"
-	self.MATHLIB = "@MATHLIB@"
 	self.KERNEL_MATH_CFLAGS = "@KERNEL_MATH_CFLAGS@"
 	#self.ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -Os -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
 	self.MODULE_EXT = "@MODEXT@"
@@ -130,7 +124,6 @@ class Config(object):
 	self.USE_PORTABLE_PARPORT_IO = "@USE_PORTABLE_PARPORT_IO@"
 	self.TARGET_PLATFORM = "@TARGET_PLATFORM@"
 	self.ARCHITECTURE="@ARCHITECTURE@"
-	self.XENO_CONFIG="@XENO_CONFIG@"
 
 	self.USERMODE_PCI="@USERMODE_PCI@"
 

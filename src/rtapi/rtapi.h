@@ -837,19 +837,19 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
     If the allocation fails, this function returns NULL.  Otherwise, it returns
     a non-NULL value.
 */
-#include <linux/version.h>
-#if !defined(BUILD_SYS_USER_DSO)
-#include <linux/module.h>
-# include <linux/ioport.h>
-#endif
+#  include <linux/version.h>
+#  if !defined(BUILD_SYS_USER_DSO)
+#    include <linux/module.h>
+#    include <linux/ioport.h>
+#  endif // BUILD_SYS_USER_DSO
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
+#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
         return (void*)request_region(base, size, name);
-#else
+#  else
         return (void*)-1;
-#endif
+#  endif
     }
 
 /** 'rtapi_release_region() releases I/O memory reserved by 
@@ -859,11 +859,11 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
+#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
         release_region(base, size);
-#endif
+#  endif
     }
-#endif
+#endif // RTAPI && BUILD_DRIVERS
 
 /***********************************************************************
 *                            RTAPI SWITCH                              *

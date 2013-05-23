@@ -126,9 +126,6 @@ SUBDIRS := \
     \
     ../docs/src
 
-# moved to src/rtapi/Submakefile
-# ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
-
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
 INCLUDES := .
@@ -723,10 +720,6 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	$(call cc-option,-Wframe-larger-than=2560) \
 	$(KERNEL_MATH_CFLAGS)
 
-ifeq "$(USE_STUBS)" "1"
-MATHSTUB := rtapi/mathstubs.o
-endif
-
 #$(warning KERNELRELEASE=$(KERNELRELEASE) EXTRA_CFLAGS=$(EXTRA_CFLAGS))
 
 
@@ -1056,7 +1049,7 @@ endif # end BUILD_SYS=user-dso
 
 # ../rtlib/%.o:
 # 	$(ECHO) Linking $@
-# 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
+# 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK)
 # endif # end 'normal'
 
 # build kernel RTAPI modules

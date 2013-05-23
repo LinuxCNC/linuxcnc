@@ -150,7 +150,7 @@ m4_foreach([flav],[_cfg_flavor_params],
 	[m4_cond(_cfg_flavor_build_sys(flav),[kbuild],
 	    [m4_append_uniq([_cfg_tmp],_cfg_flavor_tuple_name(flav),[[ ]])]
 )])
-AC_DEFUN([_cfg_kbuild_flavors],[m4_split(_cfg_tmp)])
+AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 
 
 #--------------------------------------------------------#
@@ -160,32 +160,12 @@ AC_DEFUN([_cfg_kbuild_flavors],[m4_split(_cfg_tmp)])
 # might be extended by RTSCC later
 AC_PROG_CC([gcc])  
 
-# RTDIR points to some directory which is supposed to reveal which RT thread
-# system is in use, like /usr/realtime* or /usr/src/rtai* .
-# used in Makefile and Makefile.modinc to set a threadsystem specific include path,
-# it is assumed to have subdirs:
-# modules
-# include
-RTDIR=""
-
 # shorthand for the threadsystem. currently rtai, rtai-3.0 or none. not set for rtl or sim.
 RTNAME=""
 
 # a compiler which might be specific for the realime system.
 # relevant case: rtai-config -cc
 RTSCC=""
-
-# used  to signify the thread style
-# also in src/rtapi/ as part of the filename for the threadsystem-specific RTAPI files (src/Makefile)
-# historic values: 'sim', 'rtai', or 'rtl'.
-#
-# used in:
-# src/Makefile.inc
-# src/Makefile 
-# src/module_helper/Submakefile
-# scripts/realtime
-# scripts/rtapi.conf
-RTPREFIX=""
 
 # a script like /usr/realtime/foo-config, which can be used to extract
 # c or ld flags specific for the thread system.
@@ -359,9 +339,6 @@ RT_PREEMPT_THREADS_SOURCE=""
 XENOMAI_THREADS_SOURCE=""
 XENOMAI_KERNEL_THREADS_SOURCE=""
 RTAI_KERNEL_THREADS_SOURCE=""
-
-# xenomai equivalent of pkg-config
-XENO_CONFIG=/bin/true
 
 # note to mah: dont forget debian/configure FIXME
  
@@ -835,264 +812,15 @@ if test "$with_usermode_pci" = "yes"; then
 fi
 
 
-
-############# FIXME a single THREADS variable is irrelevant to ub #######
-#
-# keep --with-threads=foo for now; use this to set $THREADS
-#
-# Later changes will remove $THREADS from this file, setting it in
-# Makefile.inc and config.h
-AC_MSG_CHECKING(thread style)
-AC_ARG_WITH(threads,
-    [AS_HELP_STRING([--with-threads=<style>],
-        [the thread style to use; choices are:
-	posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel])],
-    [  
-        case "$withval" in
-            (posix)
-                THREADS=posix	
-                AC_MSG_RESULT([configuring for Posix threads])
-            ;;
-            (rtai-kernel)
-                THREADS=rtai-kernel
-                AC_MSG_RESULT([configuring for RTAI kernel threads])
-            ;;
-            (rt-preempt)
-                THREADS=rt-preempt
-                AC_MSG_RESULT([configuring for RT_PREEMPT threads])
-            ;;
-            (xenomai)
-                THREADS=xenomai	
-                AC_MSG_RESULT([configuring for Xenomai user threads])
-            ;;
-            (xenomai-kernel)
-                THREADS=xenomai-kernel	
-                AC_MSG_RESULT([configuring for Xenomai kernel threads])
-            ;;
-            (*)
-	    if test -z "$THREADS"; then
-	        AC_MSG_RESULT([unknown threads system:  $withval])
-	        AC_MSG_ERROR([style must be one of: 
-		posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel])
-	    fi
-	    ;;
-        esac  
-    ],
-    [
-      AC_MSG_ERROR([please specify --with-threads=<threads>])
-    ])  
-
-# be sure that the thread system in $THREADS was actually found
-with_threads=with_`echo $THREADS | tr x- x_`
-eval "have_threads=\${${with_threads}}"
-if test "$have_threads" != yes; then
-    AC_MSG_ERROR([please specify --with-threads= one of:
-	posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel])
-fi
-
-# convenience variable for below hackage to get e.g. POSIX_THREADS_FOO
-# or RT_PREEMPT_THREADS_FOO variable values until THREADS is
-# eliminated
-THREADS_VAR_PREFIX=`echo $THREADS | tr a-z- A-Z_`_THREADS
-
-# set the kernel source directory; this will be generalized later
-eval "KERNELDIR=\${${THREADS_VAR_PREFIX}_KERNEL_DIR}"
-
-############# /FIXME a single THREADS variable is irrelevant to ub #######
-
-# FIXME 
+# RTDIR:  FIXME:  needs maintenance (elimination)
+# latencyplot only works with RTAI and needs RTDIR
+AC_SUBST([RTDIR],$($RTAI_KERNEL_THREADS_RTS --prefix))
 
 
-# Validate the userland part - config programs, directories, libraries  etc
-AC_MSG_CHECKING(for $THREADS build support)
-case "$THREADS" in
-
-    posix)
-	# BUILD_DRIVERS already set or default
-	# RTPREFIX not needed
-	# KERNELDIR not needed
-	RTFLAGS= # dso flags for posix - FIXME needed?
-    ;;
-
-    rtai-kernel)
-	if test -z "$WITH_RTDIR"; then
-	    DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
- 	else	    
-            DIRS="$WITH_RTDIR"
-        fi
-  	for location in $DIRS; do
-    	    for subdir in .  bin; do
-	        candidate=$location/$subdir/rtai-config
-		if test -z "$RTS" -a -e $candidate; then
-		    RTS=$candidate
-		    AC_MSG_RESULT([using $RTS for RTAI config values])
-		    break
-		fi
-    	    done
-        done
-	if test -z "$RTS"; then
-	    AC_MSG_ERROR([could not find rtai-config in $DIRS - wrong directory or not installed])
-	fi
-
-	# The compiler MUST match the one used to compile the realtime modules if the
-	# kernel level code is to function correctly. But if the kernel has been
-	# compiled with gcc-2.96, it is unlikely to ever work !
-
-	AC_MSG_CHECKING([for cc version])
-  	RTSCC=`$RTS --cc`
-	if test -n "$RTSCC"; then
-	   AC_MSG_RESULT(found $RTSCC in $RTS) 
-	else
-	   AC_MSG_RESULT(not specified)
-        fi
-
-	BUILD_DRIVERS=yes
-	# replace given RTDIR by what rtai-config thinks it is
-	RTDIR=`$RTS --prefix`	
-	RTDIR=$(cd $RTDIR ; pwd -P )    # make absolute path
-  	RTFLAGS=`$RTS --module-cflags`
-	# or use explicitly set KERNELDIR?
-        KERNELDIR=`$RTS --linux-dir`
-
-	AC_MSG_CHECKING(if hardy amd64 workaround is required)
-	machine=`uname -m`
-	# test for broken hardy rtai amd64 includes
-	if test "$machine" = 'x86_64' ; then
-	    if test -f $RTDIR/include/asm-x86_64/rtai_lxrt.h ; then
-		if grep '#include <asm/asm-offsets.h>' $RTDIR/include/asm-x86_64/rtai_lxrt.h >/dev/null ; then
-		    HARDY_AMD64_WORKAROUND="-Iworkaround/hardy-amd64 -DBROKEN_RTAI_LXRT"
-		    AC_MSG_RESULT(required)
-                else
-		    AC_MSG_RESULT(no, rtai_lxrt.h include file looks ok)
-		fi
-	    else
-	  	AC_MSG_RESULT(strange, no such include file: rtai_lxrt.h)
-	    fi
-        else
-  	    AC_MSG_RESULT(no, not an amd64 build)
-        fi
-    ;;
-
-    rt-preempt)
-	LIBS_hold=$LIBS
-	LIBS="$LIBS -lrt"
-
-	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-	#include <time.h>
-	#include <sched.h>
-	#include <sys/mman.h>
-	]], [[
-	struct timespec t;
-	clock_gettime(CLOCK_MONOTONIC ,&t);
-	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-	]])],[AC_MSG_RESULT(linking against $THREADS support library librt.a - works)],[AC_MSG_ERROR(
-	Unable to link to librt.a library. If you
-	just installed it: try running ldconfig
-	as root)])
-	LIBS=$LIBS_hold
-
-	BUILD_DRIVERS=yes
-    ;;
-
-    xenomai|xenomai-kernel)
-	if test -z "$RTDIR"; then
-     	    DIRS="/usr/bin /usr/xenomai/bin"
- 	else	    
-            DIRS="$RTDIR /usr/xenomai/bin"
-        fi
-  	for location in $DIRS; do
- 	    candidate=$location/xeno-config
-	    if test -x $candidate; then
-	        RTS=$candidate # not sure this makes sense
-		XENO_CONFIG=$candidate
-		xenomai_version=`$XENO_CONFIG --version`
-		AC_MSG_RESULT([using $XENO_CONFIG for Xenomai config values, version $xenomai_version ])
-		break
-	    fi
-        done
-	if test -z "$XENO_CONFIG"; then
-	    AC_MSG_ERROR([could not find xeno-config in $DIRS -  wrong directory or libxenomai-dev not installed])
-	fi
-
-	CC_hold=$CC
-	CFLAGS_hold=$CFLAGS
-	CFLAGS="$CFLAGS "`$XENO_CONFIG --skin=native --cflags`
-	LIBS_hold=$LIBS
-	LIBS="$LIBS "`$XENO_CONFIG --skin=native --ldflags`
-
-	if test "$THREADS" = xenomai-kernel ; then
-  	   RTFLAGS="$CFLAGS  -D_FORTIFY_SOURCE=0"
-	fi
-
-	# Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
-	# on all arches but x86_64; this causes missing symbols without
-	# this CFLAG
-	if ! grep -q CONFIG_X86_64=y $KCONFIG; then
-	  RTFLAGS="$RTFLAGS -fno-stack-protector"
-	fi
-
-	# need to force hard-float for kernel modules
-	KERNEL_MATH_CFLAGS="-ffast-math -mhard-float"
-	test "$THREADS" = xenomai-kernel -a "$($XENO_CONFIG --arch)" = x86 && \
-	    KERNEL_MATH_CFLAGS="$KERNEL_MATH_CFLAGS \
-	        -msse -funsafe-math-optimizations"
-
-	AC_MSG_CHECKING([for cc version])
-  	RTSCC=`$XENO_CONFIG --cc`
-	if test -n "$RTSCC"; then
-	   AC_MSG_RESULT(found $RTSCC in $XENO_CONFIG) 
-	else
-	   AC_MSG_RESULT(not specified)
-        fi
-
-	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-	#include <native/task.h>
-	#include <native/timer.h>
-	RT_TASK demo_task;
-        RTIME now;
-	]], [[
-        rt_task_create(&demo_task, "trivial", 0, 99, 0);
-        rt_task_set_periodic(NULL, TM_NOW, 1000000000);
-        rt_timer_read();
-	]])],[AC_MSG_RESULT(linking against xenomai support library - works)],[AC_MSG_ERROR(
-	Unable to link to Xenomai support library. If you
-	just installed it: try running ldconfig
-	as root)])
-	LIBS=$LIBS_hold
-	CFLAGS=$CFLAGS_hold
-	CC=$CC_hold
-
-	BUILD_DRIVERS=yes
-    ;;
-    *)
-    AC_MSG_ERROR([duh? thread-style = $THREADS ]) 
-    ;;
-esac  
-
-AC_PROG_CC([$RTSCC gcc])
-AC_PROG_CPP()
-
-if test -z "$CC"; then
-  AC_MSG_ERROR([no acceptable cc found])
-elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
-  AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
-fi
-
-# RTPREFIX: used in:
-# scripts/rtapi.conf
-RTPREFIX=$THREADS
-
-
-AC_SUBST([RTNAME])
-
-AC_SUBST([RTPREFIX])
-AC_SUBST([RTFLAGS])
-AC_SUBST([RTDIR])
-
-if test "$BUILD_DRIVERS" = yes; then
+if test "$with_drivers" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
 fi
-AC_SUBST(BUILD_DRIVERS)
+AC_SUBST(BUILD_DRIVERS,[$with_drivers])
 
 if test "$USE_SHMDRV" = yes; then
    AC_DEFINE(USE_SHMDRV, [], [use shm driver module])
@@ -1135,9 +863,7 @@ if test "$TARGET_PLATFORM" = "beaglebone"; then
 fi
 AC_SUBST(TARGET_PLATFORM)
 
-
 AC_SUBST(ARCHITECTURE)
-AC_SUBST(XENO_CONFIG)
 
 
 ############################################################
@@ -1209,12 +935,7 @@ AC_SUBST([RTAI_KERNEL_THREADS_RTSCC])
 # absolute path of rtai-config rtdir with symlinks dereferenced
 AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],
 	[$(readlink -f `$RTAI_KERNEL_THREADS_RTS --prefix`)])
-AC_SUBST([RTAI],[3])
 
-
-# FIXME this will come from the make commandline
-AC_SUBST(THREADS)
-# /FIXME
 
 # while we are at it, drop a git scent mark
 GIT_VERSION=unknown
@@ -1231,7 +952,6 @@ AC_SUBST(GIT_VERSION)
 EMC2_HOME=`(cd .. ; pwd)`
 AC_SUBST([EMC2_HOME])
 
-AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime system])
 
 ##############################################################################
 # Section 3                                                                  #
@@ -1286,19 +1006,25 @@ AC_SUBST([HIDRAW_H_USABLE])
 # compiled against.                                                          #
 ##############################################################################
 
-case $THREADS in
-    rtai-kernel|xenomai-kernel)
-    AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
-        [AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
+m4_foreach([_cfg_flavor],[_cfg_kbuild_flavors],[
+    # upcase name of $flavor; get ready to do some indirect variable
+    # acrobatics
+    AC_DEFUN([_cfg_FLAVOR],[_cfg_flavor_upcase(_cfg_flavor)])
+    KERNELDIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR
 
-    # Unfortunately, many distributions (redhat, mandrake) have #defines
-    # inside version.h, so a simple cat|grep|cut test won't work... But then again,
-    # RH & Mandrake kernels are notorious for their use of patches that break
-    # the RT patching - Both RTAI and RTLinux strongly recommend using
-    # a virgin source from kernel.org.
+    AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
+        [AC_MSG_ERROR(
+	    [version.h not found in "$KERNELDIR"; invalid kernel source tree])])
+
+    # Unfortunately, many distributions (redhat, mandrake) have
+    # #defines inside version.h, so a simple cat|grep|cut test won't
+    # work... But then again, RH & Mandrake kernels are notorious for
+    # their use of patches that break the RT patching - Both RTAI and
+    # RTLinux strongly recommend using a virgin source from
+    # kernel.org.
 
     # Get the kernel version from version.h
-    AC_MSG_CHECKING([for kernel version string])
+    AC_MSG_CHECKING([for _cfg_flavor kernel version string in $KERNELDIR])
 
     if test -e $KERNELDIR/include/linux/utsrelease.h; then
 	VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
@@ -1310,43 +1036,18 @@ case $THREADS in
     KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
 
     if test -z "$KERNEL_VERS"; then 
-	AC_MSG_ERROR(Kernel version string not found)
+        AC_MSG_RESULT([not found])
+	AC_MSG_ERROR([Kernel version not found; check kernel sources])
     fi
 
     AC_MSG_RESULT([$KERNEL_VERS])
-    AC_SUBST([KERNEL_VERS])
-    AC_DEFINE_UNQUOTED([RTAPI_KERNEL_VERSION], "$KERNEL_VERS", [Required kernel version])
 
-    if test $THREADS = xenomai-kernel; then
-       	# no support in xeno-config, so force
-        MODEXT=".ko" 
-    else
-	# Do a quick test for module extension..
-	AC_MSG_CHECKING([for kernel module extension])
-    	MODEXT=`$RTS --module-ext 2>/dev/null` || MODEXT=".o"
-    	if test "x" = "x$MODEXT"; then
-	   MODEXT=".o"
-	fi
-    fi
-    AC_MSG_RESULT([$MODEXT])
+    AC_SUBST(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,$KERNEL_VERS)
+    AC_DEFINE_UNQUOTED(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,
+        "$_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS",
+    	[Required _cfg_flavor kernel version])
+])
 
-    # This check should see if kbuild is or isn't used
-    AC_MSG_CHECKING([kernel build system])
-    # FIXME FIXME FIXME
-    # right now it will assume based on the kernel module extension
-    BUILD_SYS="kbuild"
-
-    AC_MSG_RESULT([$BUILD_SYS])
-    ;;
-   posix|xenomai|rt-preempt)
-      MODEXT=".so"
-   ;;
-   *)
-   echo "duh?" THREADS=$THREADS
-   ;;
-esac
-AC_SUBST([MODEXT])
-AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 
 ##############################################################################
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -1357,56 +1058,56 @@ AC_DEFINE_UNQUOTED([MODULE_EXT], "$MODEXT", [Extension for realtime modules])
 # (maybe the default should be /lib/modules/$KERNEL_VERS/extra if it exists? #
 ##############################################################################
 
-# Create a module-dir option, similar to rtai's...
-AC_MSG_CHECKING([for module installation directory])
+m4_foreach([_cfg_flavor],[_cfg_all_flavors],[
+    # Create a module-dir option, similar to rtai's...
 
-AC_ARG_WITH(module-dir,
-    [  --with-module-dir=<module-dir>          Installation directory for kernel modules],
-    [
-        case "$withval" in
-        "" | y | ye | yes | n | no)
-            AC_MSG_ERROR([You must supply a path for --with-module-dir.])
-          ;;
-        esac
-        MODULE_DIR="$withval"
-    ])
+    MODULE_DIR=""
+    RIP_MODULE_DIR=""
 
+    AC_MSG_CHECKING([for _cfg_flavor module installation directory])
+    AC_ARG_WITH(_cfg_flavor-module-dir,
+	[AS_HELP_STRING([--with-_cfg_flavor-module-dir=<module-dir>],
+	    [Installation directory for flavor kernel modules])],
+	[
+	    # require an absolute path
+	    if test "$withval" = "${withval#/}"; then
+	        AC_MSG_RESULT($withval)
+		AC_MSG_ERROR(
+		    [--with-_cfg_flavor-module-dir requires absolute path])
+	    fi
+	    MODULE_DIR="$withval"
+	])
 
-# if not specified, ask the realtime config script where the directory is
-# if the config script returns an error, set MODULE_DIR to nothing
-if test "x" = "x$MODULE_DIR" ; then
-  MODULE_DIR=`$RTS --module-dir 2>/dev/null`
-  if ! test -d $MODULE_DIR ; then
-    AC_MSG_ERROR([$RTS --module-dir did not specify an existing directory.  You must use specify it using --with-module-dir=...])
-  fi
-fi
-    
+    # if not specified, put in standard place according to BUILD_SYS type
+    if test -z "$MODULE_DIR"; then
+        if test "$_cfg_FLAVOR[]_THREADS_BUILD_SYS" = kbuild; then
+	    MODULE_DIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR/linuxcnc
+	else
+	    MODULE_DIR=${libdir}/linuxcnc/modules/_cfg_flavor
+	fi	    
+    fi
+    AC_SUBST(_cfg_FLAVOR[]_THREADS_MODULE_DIR,$MODULE_DIR)
+
+    if test "$RUN_IN_PLACE" = "yes"; then
+	RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib/_cfg_flavor"
+        AC_MSG_NOTICE([configured for run-in-place])
+    else
+        AC_MSG_RESULT([$MODULE_DIR])
+    fi
+    AC_SUBST(_cfg_FLAVOR[]_THREADS_RIP_MODULE_DIR,$RIP_MODULE_DIR)
+
+])
+
 if test "$RUN_IN_PLACE" = "yes"; then
-    RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
-    AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
     DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
-    AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
-    AC_MSG_RESULT([$MODULE_DIR])
 fi
 
-AC_ARG_ENABLE(run-in-place,
-    [  --enable-run-in-place   A deprecated flag
-                          (instead, configure without specifying --prefix)],
-    [
-        if ! test -z "$enableval"; then
-            AC_MSG_WARN([--enable-run-in-place will be removed soon.
-Configure without specifying --prefix to get a run-in-place build.])
-        fi
-    ])
-
-AC_SUBST([MODULE_DIR])
-AC_SUBST([RIP_MODULE_DIR])
 AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
@@ -1624,7 +1325,7 @@ AC_ARG_WITH(insmod,
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
-# Check for LyX and other programs we need to build and install docs.        #
+# Check for programs we need to build and install docs.                      #
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
@@ -1774,135 +1475,8 @@ AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)
 
-#############################################################################
-# Section 4 - Check for math support                                         #
-#                                                                            #
-# Because some of the realtime kernel modules use floating point math        #
-# which is not supported by standard kernel calls, we need to link to        #
-# libm. RTAI provides a loadable module derived from uclibc (a minimal       #
-# glibc implimentaion for embedded systems). Alternatively, we can link      #
-# to dietlibc - Most distros package this as diet or dietlibc. Debian        #
-# splits the headers and static libs into dietlibc-dev..                     #
-# If neither of the two preferred options are available, then the default    #
-# GNU glibc math library will have to be used. This will cause problems      #
-# if certain functions found in libc.so are not stubbed, hence the following #
-# tests and linking to mathstubs.o at a later stage.                         #
 ##############################################################################
-# FIXME
-#
-# Do we actually need math detection?
-#    The below code is broken, not failing only because of a bug.
-#    Kernel threads are argued to be deprecated, a factor for what to do here
-# Can RTAI kernel math support just be assumed so this can be removed?
-#    Because below code is broken, math support is effectively assumed.
-
-if test $with_rtai_kernel = "yes"
-then
-AC_MSG_CHECKING([for kernel math support])
-USE_LIBM=""
-USE_RTLIBM=""
-USE_STUBS=""
-MATHLIB=""
-MATHINC=""
-
-#we need to make sure that $RTS has a --module-dir option
-#only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
-if test $THREADS = rtai-kernel ; then
-    if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
-       USE_RTLIBM=1
-    fi
-fi
-
-if (test -r $RTDIR/modules/rtai_libm${MODEXT} ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm${MODEXT}) ; then
-    # Found a suitable kernel module..
-    MATHLIB=
-    USE_RTLIBM=1
-    AC_MSG_RESULT([ok, using RTAI's libm kernel module])
-# Note: need to search /lib/modules/$KERNEL_VER for the math modules..
-#       or `$RTS --module-dir`...
-else
-    AC_MSG_RESULT([no])
-    AC_MSG_CHECKING([for a suitable libm])
-    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
-    # compile a sample first.
-    $CC -c tests/mathtest.c $RTFLAGS -o tests/mathtest.o 2>/dev/null
-    
-    DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
-    if (test "$DIET_DIR" != "" ) ; then
-        # Run a test to see if it will work...
-        ld -r -static tests/mathtest.o -o tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
-        if (test "$(nm -u tests/mathtest | grep -v ende)" = "" ) ; then
-            AC_MSG_RESULT([diet lib OK to use.])
-            USE_DIET=1
-            MATHLIB="-L$DIET_DIR/lib-i386 -lm"
-            MATHINC="-I$DIET_DIR/include"
-        fi
-    fi
-    if (test "$USE_DIET" = "" ) ; then
-        # Test the standard libm
-    rm -f tests/mathtest 2>/dev/null
-    ld -r -static tests/mathtest.o -o tests/mathtest -L/usr/lib -lm 2>/dev/null
-        if ! nm -u tests/mathtest ; then
-            AC_MSG_RESULT([libm OK to use.])
-            USE_LIBM=1
-            MATHLIB="-L/usr/lib -lm"
-        else
-            # We need to link to mathstubs if we are to use the glibc libm
-            AC_MSG_WARN([Using glibc libm with mathstubs.
-			If unresolved symbols are reported when loading kernel modules
-			please file a bug report.])
-            USE_LIBM=1
-	    USE_STUBS=1
-            MATHLIB="-L/usr/lib -lm"
-        fi
-    fi
-    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
-fi
-
-AC_SUBST([USE_LIBM])
-AC_SUBST([USE_STUBS])
-AC_SUBST([USE_RTLIBM])
-AC_SUBST([MATHINC])
-AC_SUBST([MATHLIB])
-
-for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
-        rtai rt_mem_mgr rtai_sched rtai_libm \
-        rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo xeno_math; do
-    AC_MSG_CHECKING([for $m])
-    TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
-    if test -z "$TMP"; then
-        TMP=$(find /lib/modules/$KERNEL_VERS -name $m$MODEXT)
-    fi
-    eval MODPATH_$m=${TMP/$KERNEL_VERS/\\\$\\\(uname\\\ -r\\\)}
-    AC_MSG_RESULT([${TMP:-not found}])
-done
-
-AC_SUBST(MODPATH_adeos)
-AC_SUBST(MODPATH_rtai_hal)
-AC_SUBST(MODPATH_rtai_ksched)
-AC_SUBST(MODPATH_rtai_fifos)
-AC_SUBST(MODPATH_rtai_shm)
-AC_SUBST(MODPATH_rtai_sem)
-AC_SUBST(MODPATH_rtai_math)
-AC_SUBST(MODPATH_adeos)
-AC_SUBST(MODPATH_rtai)
-AC_SUBST(MODPATH_rt_mem_mgr)
-AC_SUBST(MODPATH_rtai_sched)
-AC_SUBST(MODPATH_rtai_shm)
-AC_SUBST(MODPATH_rtai_libm)
-AC_SUBST(MODPATH_rtl)
-AC_SUBST(MODPATH_mbuff)
-AC_SUBST(MODPATH_rtl_time)
-AC_SUBST(MODPATH_rtl_sched)
-AC_SUBST(MODPATH_rtl_posixio)
-AC_SUBST(MODPATH_rtl_fifo)
-AC_SUBST(MODPATH_xeno_math)
-fi
-
-# Checks for header files.
-
-##############################################################################
-# Section 4.1 - Important headers, functions and gloabl defines.             #
+# Section 4 - Important headers, functions and gloabl defines.               #
 #                                                                            #
 ##############################################################################
 
@@ -2472,26 +2046,15 @@ echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
 echo "#   It seems that ./configure completed successfully.                #"
-# FIXME for building multiple thread styles
-if test $THREADS = posix; then
-echo "#   However, the configuration is for a simulator only, no RT        #"
-echo "#   capabilities will be used. In this mode no control of hardware   #"
-echo "#   is possible. Drivers won't be built.                             #"
-else
-echo "#   This means that RT is properly installed                         #"
-fi
-# /FIXME
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
 
-# FIXME for building multiple thread styles
 if test "xyes" = "x$RUN_IN_PLACE"; then
 echo "#   Next compile by typing                                           #"
 echo "#         make                                                       #"
-if test $THREADS != posix -o \( $BUILD_DRIVERS = yes \) ; then
+if test $with_drivers = yes ; then
 echo "#         sudo make setuid                                           #"
 fi
-# /FIXME
 echo "#                                                                    #"
 echo "#   Before running the software, set the environment:                #"
 echo "#         . (top dir)/scripts/rip-environment                        #"
