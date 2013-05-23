@@ -141,32 +141,28 @@ flavor_ptr flavor_byid(int flavor_id)
 
 flavor_ptr default_flavor(void)
 {
+    char *fname = getenv("FLAVOR");
+    flavor_ptr f, flavor;
 
-    // hack around single target builds for now
-    // force default to waht we built for
-#ifdef RTAPI_POSIX
-    return flavor_byid(RTAPI_POSIX_ID);
-#endif
-#ifdef RTAPI_XENOMAI
-    return flavor_byid(RTAPI_XENOMAI_ID);
-#endif
-#ifdef RTAPI_XENOMAI_KERNEL
-    return flavor_byid(RTAPI_XENOMAI_KERNEL_ID);
-#endif
-#ifdef  RTAPI_RTPREEMPT
-    return flavor_byid(RTAPI_RT_PREEMPT_ID);
-#endif
-#ifdef RTAPI_RTAI
-    return flavor_byid(RTAPI_RTAI_KERNEL_ID);
-#endif
-    return NULL;
-#if 0
-    // this can be enabled once multiple targets per build are possible
-    // to clever ;)
+    if (fname) {
+	if ((flavor = flavor_byname(fname)) == NULL) {
+	    fprintf(stderr, 
+		    "FLAVOR=%s: no such flavor -- valid flavors are:\n",
+		    fname);
+	    f = flavors;
+	    while (f->name) {
+		fprintf(stderr, "\t%s\n", f->name);
+		f++;
+	    }
+	    exit(1);
+	}
+	return flavor;
+    }
 
-    /* Also need to check whether the flavor is available; e.g. my
-       2.6.38.8 kernel can run both xenomai and RTAI threads (I didn't
-       make this up), but I may compile xenomai but not rtai flavors
+    /* FIXME
+
+       Need to check whether the flavor is available; e.g.  xenomai
+       kthreads has been built but xenomai userland has not.
     */
 
     if (kernel_is_rtai())
@@ -176,7 +172,6 @@ flavor_ptr default_flavor(void)
     if (kernel_is_rtpreempt())
 	return flavor_byid(RTAPI_RT_PREEMPT_ID);
     return flavor_byid(RTAPI_POSIX_ID);
-#endif
 }
 
 int module_path(flavor_ptr f, 

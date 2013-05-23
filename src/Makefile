@@ -76,7 +76,7 @@ endif
 
 OBJDIR := objects/rtapi-$(threads)
 DEPDIR := depends/rtapi-$(threads)
-RTLIBDIR := ../rtlib-$(threads)
+RTLIBDIR := ../rtlib/$(threads)
 
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
 
@@ -237,7 +237,12 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 
 ifeq ($(TRIVIAL_BUILD),no)
 configure: configure.in
-	AUTOGEN_TARGET=configure ./autogen.sh
+	echo "*** configure.in has changed ***" >&2
+	echo "Not running autoconf to avoid tainting universal build" >&2
+	echo "Please investigate or start from scratch:" >&2
+	echo "./autogen.sh && ./configure --your-configure-args..." >&2
+	exit 1
+	# AUTOGEN_TARGET=configure ./autogen.sh
 
 config.h.in: configure.in
 	AUTOGEN_TARGET=config.h.in ./autogen.sh

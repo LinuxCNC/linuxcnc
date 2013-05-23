@@ -19,22 +19,11 @@ size_t page_size;
 
 int main(int argc, char **argv)
 {
-    char *fname = getenv("FLAVOR");
     char *progname = argv[0];
-    flavor_ptr f, flavor;
-
-    if (fname && ((flavor = flavor_byname(fname)) == NULL)) {
-	fprintf(stderr, "%s: FLAVOR=%s: no such flavor -- valid flavors are:\n",
-		progname, fname);
-	f = flavors;
-	while (f->name) {
-	    fprintf(stderr, "\t%s\n", f->name);
-	    f++;
-	}
-	exit(1);
-    }
+    flavor_ptr flavor;
 
     flavor = default_flavor();
+
     if (!flavor) {
 	    fprintf(stderr,"%s: could not detect default flavor\n", progname);
 	    exit(1);
