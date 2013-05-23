@@ -61,7 +61,7 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 USERSRCS += $(ULAPI_SRCS) $(UTIL_SRCS)
 TARGETS += $(ULAPISO)
 
-# RTAPI:  ../rtlib/*
+# RTAPI:  $(RTLIBDIR)/*
 #
 # Makefile defines rtapi-objs, a list of all objects whose sources are
 # compiled -DRTAPI and linked into rtapi.[sk]o.  Keep that list up to
@@ -91,12 +91,12 @@ rtapi-objs := \
 	rtapi/rtapi_compat.o
 
 # rule for kernel module, moved from src/Makefile
-../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
+$(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 
 ################################################
 # ../bin/rtapi_app
 #
-# List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
+# List of objects $(OBJDIR)/rtapi/*.o to link into ../bin/rtapi_app;
 # see that target below
 #
 # These must be included in USERSRCS for .o files to be built
@@ -144,7 +144,7 @@ rtapi-objs := \
 	rtapi/$(THREADS_SOURCE).o
 
 # rule for kernel module, moved from src/Makefile
-../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
+$(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 
 endif  # BUILD_SYS == kbuild
 
