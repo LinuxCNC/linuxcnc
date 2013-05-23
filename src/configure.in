@@ -761,12 +761,7 @@ AC_ARG_ENABLE(drivers,
     [with_drivers=$enableval],
     [with_drivers=check])
 if test "$with_drivers" = check; then
-    if test "$with_rt_preempt" = "yes" -o "$with_xenomai" = "yes" -o \
-	    "$with_xenomai_kernel" = "yes" -o "$with_rtai" = "yes"; then
-	with_drivers=yes
-    else
-	with_drivers=no
-    fi
+    with_drivers=yes
 fi
 AC_MSG_RESULT($with_drivers)
 
