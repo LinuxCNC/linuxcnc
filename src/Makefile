@@ -174,7 +174,7 @@ Makefile: $(DEPS)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
-INCLUDE := $(patsubst %,-I%, $(INCLUDES)) $(RTDIR_INC)
+INCLUDE := $(patsubst %,-I%, $(INCLUDES))
 
 # this is kind-of carpet-bombing with -Idirs :-/
 ifneq ($(KERNELDIR),)
