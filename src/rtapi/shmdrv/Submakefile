@@ -48,8 +48,7 @@ ifeq ($(BUILD_EXAMPLES),yes)
 MUTEXWATCH_SRCS =  rtapi/shmdrv/mutexwatch.c
 
 $(call TOOBJSDEPS, $(MUTEXWATCH_SRCS)): \
-	EXTRAFLAGS =  -Wall -g -O0 \
-	 $(shell $(XENO_CONFIG) --skin=native --cflags)
+	EXTRAFLAGS +=  $(THREADS_RTFLAGS)
 
 ../bin/mutexwatch: ../lib/liblinuxcncshm.so $(call TOOBJS, $(MUTEXWATCH_SRCS))
 	$(ECHO) Linking $(notdir $@)
