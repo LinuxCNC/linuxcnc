@@ -508,6 +508,7 @@ test "$have_librt" = no && with_posix=no
 AC_MSG_RESULT($with_posix)
 if test "$with_posix" = yes; then
    POSIX_THREADS_LDFLAGS="-lpthread -lrt"
+   POSIX_THREADS_RTFLAGS="$POSIX_THREADS_RTFLAGS -pthread"
 fi
    
 AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
@@ -516,6 +517,7 @@ test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
 if test "$with_posix" = yes; then
    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
+   RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
 fi
 
 
