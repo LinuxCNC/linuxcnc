@@ -83,6 +83,7 @@ hal_namespace_map_t hal_mappings[MAX_INSTANCES];
 #include <assert.h>
 #include <time.h>               /* remote comp bind/unbind/update timestamps */
 #include <limits.h>             /* PATH_MAX */
+#include <stdlib.h>		/* exit() */
 #endif
 
 char *hal_shmem_base = 0;
