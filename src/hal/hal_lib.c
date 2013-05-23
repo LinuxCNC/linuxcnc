@@ -3867,28 +3867,15 @@ static ulapi_exit_t ulapi_exit_ref;
 static void ulapi_hal_lib_init(void)
 {
     int retval;
-    flavor_ptr f;
     const char *errmsg;
     rtapi_get_handle_t rtapi_get_handle;
     char path[PATH_MAX];
-    char *fname = getenv("FLAVOR");
     char *instance = getenv("INSTANCE");
     char *lpath = getenv("LIBPATH");
     char *debug_env = getenv("DEBUG");
     int debug = RTAPI_MSG_INFO;
 
-    if (fname && ((flavor = flavor_byname(fname)) == NULL)) {
-	fprintf(stderr, 
-		"HAL_LIB: FLAVOR=%s: no such flavor -- valid flavors are:\n",
-		fname);
-	f = flavors;
-	while (f->name) {
-	    fprintf(stderr, "\t%s\n", f->name);
-	    f++;
-	} 
-	exit(1);
-    } else 
-	flavor = default_flavor();
+    flavor = default_flavor();
     if (lpath)
 	libpath = lpath;
     if (instance != NULL)
