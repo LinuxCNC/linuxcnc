@@ -426,6 +426,7 @@ ifeq ($(THREADS),XENOMAI_KERNEL)
 KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
 endif
 modules:
+	mkdir -p $(RTLIBDIR)
 ifeq ($(THREADS),XENOMAI_KERNEL)
 	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
 	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
@@ -435,7 +436,7 @@ endif
 	$(PYTHON) modsilent.py $(MAKE) \
 	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
 	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) \
-	    THREADS_RTFLAGS="$(THREADS_RTFLAGS)" modules
+	    modules
 	-cp Module.symvers *$(MODULE_EXT) $(RTLIBDIR)
 endif  # BUILD_SYS == 'kbuild'
 

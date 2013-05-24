@@ -55,6 +55,7 @@
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
+#include <limits.h>			/* PATH_MAX */
 
 
 static int unloadrt_comp(char *mod_name);
@@ -1112,43 +1113,29 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     retval = do_loadusr_cmd(argv);
     } else {
     static char *rtmod_dir = EMC2_RTLIB_DIR;
-    struct stat stat_buf;
-    char mod_path[MAX_CMD_LEN+1];
+    char mod_path[PATH_MAX];
 
     if (hal_get_lock()&HAL_LOCK_LOAD) {
 	halcmd_error("HAL is locked, loading of modules is not permitted\n");
 	return -EPERM;
     }
-    if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
+    /* FIXME: Is checking this length still necessary?  Can we use
+       PATH_MAX instead?  What's the arbitrary '+5' for?
+     */
+    if ( (strlen(mod_path)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
 	halcmd_error("Module path too long\n");
 	return -1;
     }
-
-    /* make full module name '<path>/<name>.o' */
-    {
-        int r;
-        r = snprintf(mod_path, sizeof(mod_path), "%s/%s%s", rtmod_dir, \
-		     mod_name, flavor->mod_ext);
-        if (r < 0) {
-            halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, \
-			 mod_name, flavor->mod_ext);
-            return -1;
-        } else if (r >= sizeof(mod_path)) {
-            // truncation!
-            halcmd_error("module path too long (max %u) for %s/%s%s\n", \
-			 sizeof(mod_path)-1, rtmod_dir, mod_name, \
-			 flavor->mod_ext);
-            return -1;
-        }
+    if (module_path(flavor, mod_path,
+		    rtmod_dir, mod_name,
+		    flavor->mod_ext)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"%s: cannot locate module %s:  %s \n", 
+			mod_path,mod_name,
+			strerror(errno));
+	return -1;
     }
 
-    /* is there a file with that name? */
-    if ( stat(mod_path, &stat_buf) != 0 ) {
-        /* can't find it */
-        halcmd_error("Can't find module '%s' in %s\n", mod_name, rtmod_dir);
-        return -1;
-    }
-    
     argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
     argv[1] = "insert";
     argv[2] = mod_path;
