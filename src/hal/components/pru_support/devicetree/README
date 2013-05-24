@@ -1,0 +1,27 @@
+running make in this directory will compile and install the enable-pru-00A0.dts fragment
+
+you need to build dtc first, the one which comes with the ubuntu wheezy device-tree-compiler
+package is useless
+
+while the process seems right - the /dev/uio files now appear - the result isnt there yet:
+also I cant run configs/pru-examples yet:
+
+$ halcmd -f debugger-example.hal
+hal_pru: ERROR: failed to initialize PRU
+hal_pru: rtapi_app_main: -1
+debugger-example.hal:6: /home/linuxcnc/linuxcnc-pru-emcweb/bin/rtapi_app exited without becoming ready
+debugger-example.hal:6: insmod failed, returned -1
+
+
+[   96.779307] bone-capemgr bone_capemgr.9: part_number 'enable-pru', version 'N/A'
+[   96.788189] bone-capemgr bone_capemgr.9: slot #6: generic override
+[   96.794781] bone-capemgr bone_capemgr.9: bone: Using override eeprom data at slot 6
+[   96.802842] bone-capemgr bone_capemgr.9: slot #6: 'Override Board Name,00A0,Override Manuf,enable-pru'
+[   96.812933] bone-capemgr bone_capemgr.9: slot #6: Requesting part number/version based 'enable-pru-00A0.dtbo
+[   96.823310] bone-capemgr bone_capemgr.9: slot #6: Requesting firmware 'enable-pru-00A0.dtbo' for board-name 'Override Board Name', version '00A0'
+[   96.841015] bone-capemgr bone_capemgr.9: slot #6: dtbo 'enable-pru-00A0.dtbo' loaded; converting to live tree
+[   96.852416] bone-capemgr bone_capemgr.9: slot #6: #2 overlays
+[   96.875488] omap_hwmod: pruss: failed to hardreset
+[   96.893680] bone-capemgr bone_capemgr.9: slot #6: Applied #2 overlays.
+
+
