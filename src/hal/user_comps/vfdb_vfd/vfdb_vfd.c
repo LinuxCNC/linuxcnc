@@ -92,15 +92,14 @@
  * NB: "analog output data (FA50)" is obviously a typo in the manual, it's really FA51
  */
 
-// VF-S11 registers
-// command registers
-#define REG_COMMAND1			0xFA00	// "Communication command" - start/stop, fwd/reverse, DC break, fault reset, panel override
-#define REG_COMMAND2			0xFA20
-#define REG_COMMAND3			0xFA26
-#define REG_FREQUENCY			0xFA01	// Set frequency in 0.01Hz steps
-#define REG_TERMINAL_OUTPUT		0xFA50
-#define REG_ANALOG_OUTPUT		0xFA51
-#define REG_UPPERLIMIT			0x0012	// limit on output frequency in VFD
+// command registers for DELTA VFD-B Inverter
+#define REG_COMMAND1                    0x2000  // "Communication command" - start/stop, fwd/reverse, DC break, fault reset, panel override
+#define REG_COMMAND2                    0xFA20
+#define REG_COMMAND3                    0xFA26
+#define REG_FREQUENCY                   0x2001  // Set frequency in 0.01Hz steps
+#define REG_TERMINAL_OUTPUT             0xFA50
+#define REG_ANALOG_OUTPUT               0xFA51
+#define REG_UPPERLIMIT                  0x0100  // limit on output frequency in VFD
 
 // bits in register FA00 - main command register
 #define CMD_COMMAND_PRIORITY 	0x8000
@@ -121,8 +120,9 @@
 #define CMD_SPEED_PRESET4	0x0001
 
 // status registers for DELTA VFD-B Inverter
-#define SR_INV_OPSTATUS         0x2102                   //
-#define SR_OP_FREQUENCY         0x2103                   // 0.01Hz units
+#define SR_ERROR_CODE           0x2100                  //
+#define SR_INV_OPSTATUS         0x2101                   //
+#define SR_OUTPUT_FREQ          0x2103                   // 0.01Hz units
 #define SR_TRIPCODE_PAST1       0x0608          // last 4 trips
 #define SR_TRIPCODE_PAST2       0x0609
 #define SR_TRIPCODE_PAST3       0x0610
@@ -131,79 +131,12 @@
 
 #define SR_MOTOR_SPEED          0x210C          // RPM
 #define SR_TORQUE_RATIO         0x210B          // %
-#define SR_LOADCURRENT         0xFE03          // %
-#define SR_OUTPUT_VOLTAGE      0xFE05          // %
-
-
-//// status registers
-//// the _T suffixed denotes the same layout as the previous register
-//// but has the status before a trip occured
-//// #define SR_OP_FREQUENCY		0xFD00		// 0.01Hz units
-//#define SR_OP_FREQUENCY_T	0xFE00
-//// #define SR_INV_OPSTATUS		0xFD01		// main status register, bits in ST_* below
-//#define SR_INV_OPSTATUS_T	0xFE01
-//#define SR_INV_OPSTATUS3	0xFD42
-//#define SR_INV_OPSTATUS3_T	0xFE42
-//#define SR_INV_OPSTATUS4	0xFD49
-//#define SR_INV_OPSTATUS4_T	0xFE49
-//#define SR_INV_OP_CMD_STATUS	0xFE45
-//#define SR_INV_FREQ_STATUS	0xFE46
-//#define SR_ALARM_MONITOR	0xFC91		// bitmap, bits on AM_
-//#define SR_CUMULATIVE_ALARMS	0xFE79
-//#define SR_TRIPCODE		0xFC90		// current trip code
-//#define SR_TRIPCODE_PAST1	0xFE10		// last 4 trips
-//#define SR_TRIPCODE_PAST2	0xFE11
-//#define SR_TRIPCODE_PAST3	0xFE12
-//#define SR_TRIPCODE_PAST4	0xFE13
-//#define SR_INVERTER_MODEL	0xFB05
-//
-//#define SR_RATED_CURRENT	0xFE70		// 0.1A
-//#define SR_RATED_VOLTAGE	0xFE71		// 0.1V
-//#define SR_CPU1_VERSION		0xFE08
-//#define SR_EEPROM_VERSION	0xFE09
-//#define SR_CPU2_VERSION		0xFE73
-//
-//#define SR_ESTIMATED_OPFREQ	0xFE16		// 0.01Hz
-//#define SR_INV_LOADFACTOR	0xFE27		// %
-//#define SR_LOADCURRENT		0xFE03		// %
-//#define SR_OUTPUT_VOLTAGE	0xFE05		// %
-//
-//// Alarm monitor bits
-//#define AM_OVERCURRENT		0x0001
-//#define AM_INVERTER_OVERLOAD	0x0002
-//#define AM_MOTOR_OVERLOAD	0x0004
-//#define AM_OVERHEAT		0x0008
-//#define AM_OVERVOLTAGE		0x0010
-//#define AM_MAIN_UNDERVOLTAGE	0x0020
-//#define AM_RESERVED1		0x0040
-//#define AM_LOW_CURRENT		0x0080
-//#define AM_OVER_TORQUE		0x0100
-//#define AM_BRAKERESISTOR_OVLD	0x0200
-//#define AM_CUM_OP_HOURS		0x0400
-//#define AM_RESERVED2		0x0800
-//#define AM_RESERVED3		0x1000
-//#define AM_MAIN_VOLTAGE		0x2000
-//#define AM_BLACKOUT_STOP	0x4000
-//#define AM_AUTOSTOP		0x8000
-//
-//// bits in FD01 - main status register
-//#define ST_RESERVED1		0x8000
-//#define ST_STANDBY		0x4000
-//#define ST_STANDBY_STON		0x2000
-//#define ST_EMERGENCY_STOPPED	0x1000
-//#define ST_COAST_STOPPED	0x0800
-//#define ST_RUNNING		0x0400
-//#define ST_REVERSE		0x0200
-//#define ST_JOG_RUN		0x0100
-//#define ST_DC_BRAKING		0x0080
-//#define ST_ACCEL_PATTERN_2	0x0040
-//#define ST_PI_CONTROL_DISABLED	0x0020
-//#define ST_MOTOR2_SELECTED	0x0010
-//#define ST_RESERVED2		0x0008
-//#define ST_ALARMED		0x0004
-//#define ST_TRIPPED		0x0002
-//#define ST_FAILURE_FL		0x0001
-
+#define SR_OUTPUT_CURRENT       0x2104          // output curr
+#define SR_OUTPUT_VOLTAGE       0x2106          // %
+#define SR_INVERTER_MODEL	0x0000
+#define SR_RATED_CURRENT	0x0001		// 0.1A
+#define SR_RATED_VOLTAGE	0x0102		// 0.1V
+#define SR_EEPROM_VERSION	0x0006
 
 /* There's an assumption in the gs2_vfd code, namely that the interesting registers
  * are contiguous and all of them can be read with a single read_holding_registers()
@@ -221,19 +154,19 @@
  */
 #define POLLCYCLES 	10      // read less important parameters only on every 10th transaction
 #define MODBUS_MIN_OK	10      // assert the modbus-ok pin after 10 successful modbus transactions
-#define MAX_RPM	        2000    // cap output RPM
+#define MAX_RPM	        12000   // cap output RPM
 
 
 /* HAL data struct */
 typedef struct {
+    hal_s32_t   *error_code;
     hal_s32_t 	*status;
     hal_float_t	*freq_cmd;	// frequency command
     hal_float_t	*freq_out;	// actual output frequency
-    hal_float_t	*curr_out_pct;	// output current percentage (base unclear)
-    hal_float_t	*outV_pct;	// output voltage percent
+    hal_float_t	*output_volt;	// output voltage
     hal_float_t	*RPM;
     hal_float_t	*torque_ratio;
-    hal_float_t	*load_current_pct;
+    hal_float_t	*output_current;
     hal_float_t *max_rpm;	// calculated based on VFD max frequency setup parameter
     hal_s32_t	*trip_code;
     hal_s32_t	*alarm_code;
@@ -554,16 +487,12 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         }
         return 0;
     }
+
     retry:
     // set frequency register
-    if (haldata->motor_nameplate_hz < 10)
-        haldata->motor_nameplate_hz = 50;
-    if ((haldata->motor_nameplate_RPM < 600) || (haldata->motor_nameplate_RPM > 5000))
-        haldata->motor_nameplate_RPM = 1410;
-    hzcalc = haldata->motor_nameplate_hz/haldata->motor_nameplate_RPM;
-
-    freq_reg =  abs((int)(*(haldata->speed_command) * hzcalc * 100));
-    freq_cap =  abs((int)(haldata->rpm_limit * hzcalc * 100));
+    hzcalc = haldata->motor_nameplate_hz / haldata->motor_nameplate_RPM;
+    freq_reg =  (int)round(fabs((*(haldata->speed_command) * hzcalc * 100.0)));
+    freq_cap =  (int)round(fabs((haldata->rpm_limit * hzcalc * 100)));
 
     // limit frequency to frequency set via max-rpm
     if (freq_reg > freq_cap)
@@ -625,6 +554,8 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
     DBG("write_data: cmd1_reg=0x%4.4X old cmd1_reg=0x%4.4X\n", cmd1_reg,p->old_cmd1_reg);
 
+    // cmd1_reg = 0x01;    // STOP
+    cmd1_reg = 0x0012;    // RUN
     if (modbus_write_register(ctx, REG_COMMAND1, cmd1_reg) < 0) {
         // modbus transaction timed out. This may happen if VFD is in E-Stop.
         // if VFD was in E-Stop, and a fault reset was sent, wait about 2 seconds for recovery
@@ -676,28 +607,25 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 {
     uint16_t curr_reg, current, 
-    voltage, model, cpu1, cpu2, eeprom, max_freq;
+    voltage, model, eeprom, max_freq;
 
     GETREG(REG_UPPERLIMIT, &max_freq);
     *(haldata->upper_limit_hz) = (float)max_freq/100.0;
     *(haldata->max_rpm) = *(haldata->upper_limit_hz) * 
-            haldata->motor_nameplate_RPM /
-            haldata->motor_nameplate_hz;
+            haldata->motor_nameplate_RPM / haldata->motor_nameplate_hz;
 
     if (p->report_device) {
-//        GETREG(SR_RATED_CURRENT, &current);
-//        GETREG(SR_RATED_VOLTAGE, &voltage);
-//        GETREG(SR_INVERTER_MODEL, &model);
-//        GETREG(SR_CPU1_VERSION, &cpu1);
-//        GETREG(SR_CPU2_VERSION, &cpu2);
-//        GETREG(SR_EEPROM_VERSION, &eeprom);
-//
-//        printf("%s: inverter model: %d/0x%4.4x\n",
-//                p->progname, model, model);
-//        printf("%s: maximum ratings: %.1fV %.1fA %.2fHz\n",
-//                p->progname, voltage/10.0, current/10.0, max_freq/100.0);
-//        printf("%s: versions: cpu1=%d/0x%4.4x cpu2=%d/0x%4.4x eeprom=%d/0x%4.4x\n",
-//                p->progname, cpu1, cpu1, cpu2, cpu2, eeprom, eeprom);
+        GETREG(SR_RATED_CURRENT, &current);
+        GETREG(SR_RATED_VOLTAGE, &voltage);
+        GETREG(SR_INVERTER_MODEL, &model);
+        GETREG(SR_EEPROM_VERSION, &eeprom);
+
+        printf("%s: inverter model: %d/0x%4.4x\n",
+                p->progname, model, model);
+        printf("%s: maximum ratings: %.1fV %.1fA %.2fHz\n",
+                p->progname, voltage/10.0, current/10.0, max_freq/100.0);
+        printf("%s: versions: eeprom=%d/0x%4.4x\n",
+                p->progname, eeprom, eeprom);
     }
     return 0;
 
@@ -717,19 +645,22 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     uint16_t curr_reg, val, status_reg, freq_reg;
     static int pollcount = 0;
 
-    //    if (!p->read_initial_done) {
-    //	if ((retval = read_initial(ctx, haldata, p)))
-    //	    return retval;
-    //	else
-    //	    p->read_initial_done = 1;
-    //    }
+    if (!p->read_initial_done) {
+        if ((retval = read_initial(ctx, haldata, p)))
+            return retval;
+        else
+            p->read_initial_done = 1;
+    }
+
+    GETREG(SR_ERROR_CODE, &curr_reg);
+    *(haldata->error_code) = curr_reg;
 
     // we always at least read the main status register SR_INV_OPSTATUS
     // and current operating frequency SR_OP_FREQUENCY
     GETREG(SR_INV_OPSTATUS, &status_reg);
     *(haldata->status) = status_reg;
 
-    GETREG(SR_OP_FREQUENCY, &freq_reg);
+    GETREG(SR_OUTPUT_FREQ, &freq_reg);
     *(haldata->freq_out) = freq_reg * 0.01;
 
     DBG("read_data: status_reg=%4.4x freq_reg=%4.4x\n", status_reg, freq_reg);
@@ -743,7 +674,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         *(haldata->is_e_stopped) = 0;
     }
 
-    if ((pollcount == 0) && !haldata->max_speed) {
+    if ((pollcount == 0) && !*(haldata->max_speed)) {
         // less urgent registers
         GETREG(SR_MOTOR_SPEED, &val);
         *(haldata->RPM) = val;
@@ -751,11 +682,12 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         GETREG(SR_TORQUE_RATIO, &val);
         *(haldata->torque_ratio) =  val;
 
-        GETREG(SR_LOADCURRENT, &val);
-        *(haldata->load_current_pct) =  val * 0.01;
+        GETREG(SR_OUTPUT_CURRENT, &val);
+        *(haldata->output_current) =  val * 0.1;
 
         GETREG(SR_OUTPUT_VOLTAGE, &val);
-        *(haldata->outV_pct) =  val * 0.01;
+        *(haldata->output_volt) =  val * 0.1;
+
     } else {
         pollcount++;
     }
@@ -791,7 +723,7 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_bit_newf(HAL_IN, &(h->acc_dec_pattern), id, "%s.acceleration-pattern", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->alarm_code), id, "%s.alarm-code", name));
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->at_speed), id, "%s.at-speed", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->load_current_pct), id, "%s.current-load-percentage", name));
+    PIN(hal_pin_float_newf(HAL_OUT, &(h->output_current), id, "%s.output-current", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->DC_brake), id, "%s.dc-brake", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->enabled), id, "%s.enable", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->err_reset), id, "%s.err-reset", name));
@@ -805,12 +737,12 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_float_newf(HAL_OUT, &(h->max_rpm), id, "%s.max-rpm", name));
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->modbus_ok), id, "%s.modbus-ok", name)); // JET
     PIN(hal_pin_float_newf(HAL_OUT, &(h->RPM), id, "%s.motor-RPM", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->curr_out_pct), id, "%s.output-current-percentage", name));
-    PIN(hal_pin_float_newf(HAL_OUT, &(h->outV_pct), id, "%s.output-voltage-percentage", name));
+    PIN(hal_pin_float_newf(HAL_OUT, &(h->output_volt), id, "%s.output-voltage", name));
     PIN(hal_pin_float_newf(HAL_IN, &(h->speed_command), id, "%s.speed-command", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_fwd), id, "%s.spindle-fwd", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_on), id, "%s.spindle-on", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_rev), id, "%s.spindle-rev", name)); //JET
+    PIN(hal_pin_s32_newf(HAL_OUT, &(h->error_code), id, "%s.error-code", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->status), id, "%s.status", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->trip_code), id, "%s.trip-code", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->max_speed), id, "%s.max-speed", name));
@@ -835,11 +767,10 @@ int set_defaults(param_pointer p)
     *(h->status) = 0;
     *(h->freq_cmd) = 0;
     *(h->freq_out) = 0;
-    *(h->curr_out_pct) = 0;
-    *(h->outV_pct) = 0;
+    *(h->output_volt) = 0;
     *(h->RPM) = 0;
     *(h->torque_ratio) = 0;
-    *(h->load_current_pct) = 0;
+    *(h->output_current) = 0;
     *(h->upper_limit_hz) = 0;
     *(h->trip_code) = 0;
     *(h->alarm_code) = 0;
@@ -874,7 +805,7 @@ int set_defaults(param_pointer p)
 int main(int argc, char **argv)
 {
     struct timespec loop_timespec, remaining;
-    int opt, socket;
+    int opt;
     param_pointer p = &param;
     int retval = 0;
     retval = -1;
@@ -882,7 +813,6 @@ int main(int argc, char **argv)
     connection_state = NOT_CONNECTED;
     p->inifile = getenv("INI_FILE_NAME");
 
-    printf ("VFDB: main() begin\n");
     while ((opt = getopt_long(argc, argv, option_string, long_options, NULL)) != -1) {
         switch(opt) {
         case 'n':
