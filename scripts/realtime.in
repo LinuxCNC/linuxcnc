@@ -74,8 +74,13 @@ LoadConfig(){
     case $FLAVOR in
     posix|xenomai|rt-preempt) SHM_DEV=/dev/zero;;
     *)
-        for  MOD in $MODULES ; do
-            eval MOD=\${MODPATH_$MOD}
+        for  MOD in shmdrv $MODULES ; do
+	    if test "$FLAVOR" = rtai-kernel -a -f $RTAI_MOD_DIR/$MOD; then
+		MOD=$RTAI_MOD_DIR/$MOD
+	    else
+		MOD=$MODPATH/$MOD
+	    fi
+		
             if [ -z "$MOD" ]; then continue; fi
             if [ -L $MOD ]; then
                 MOD=${MOD%/*}/$(readlink $MOD)
@@ -85,9 +90,8 @@ LoadConfig(){
             MOD="${MOD%$MODULE_EXT}"
             MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
         done
-	# always load shmdrv first
-	MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/shmdrv$MODULE_EXT"
-	MODULES_UNLOAD="$MODULES_UNLOAD shmdrv"
+	echo "MODULES_LOAD=$MODULES_LOAD"
+	echo "MODULES_UNLOAD=$MODULES_UNLOAD"
         if test $FLAVOR = xenomai-kernel; then
             MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT \
 		$RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
