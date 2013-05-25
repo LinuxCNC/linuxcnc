@@ -1,0 +1,4 @@
+# ignore ulapi.so build artifacts
+/posix/
+/rt-preempt/
+/xenomai/

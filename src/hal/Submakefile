@@ -11,7 +11,7 @@ HALLIBSRCS := \
 
 # FIXME all thread-specific code needs to be removed from HAL &
 # relegated to src/rtapi
-$(call TOOBJSDEPS, hal/hal_lib.c): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
 
 # Add to list of sources to compile -DULAPI ->
 # objects/{rtapi/*.o,hal/hal_lib.o}

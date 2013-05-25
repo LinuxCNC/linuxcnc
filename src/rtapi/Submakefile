@@ -43,12 +43,22 @@ ULAPI_SRCS := \
 UTIL_SRCS := \
 	rtapi/rtapi_compat.c
 
+# ulapi.so needs sources to be built separately for each flavor.  The
+# Makefile rules, and TOOBJS & friends, don't handle this case.
+#
+# Hack around this by linking sources to a separate flavor-specific
+# directory and then process in the usual way.
+FLAVOR_ULAPI_SRCS := $(patsubst rtapi/%,rtapi/$(threads)/%,$(ULAPI_SRCS))
+$(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
+	mkdir -p rtapi/$(threads)
+	cp -l $(ULAPI_SRCS) rtapi/$(threads)
+
 # resolved at loadtime
-$(call TOOBJSDEPS, $(ULAPI_SRCS) $(UTIL_SRCS)): EXTRAFLAGS += \
+$(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS) $(UTIL_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
 ULAPISO := ../lib/$(threads)/ulapi.so
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
-		$(call TOOBJS, $(ULAPI_SRCS))
+		$(call TOOBJS, $(FLAVOR_ULAPI_SRCS))
 	$(ECHO) Creating shared object $@
 	@mkdir -p ../lib/$(threads)
 	@rm -f $@
@@ -58,7 +68,7 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 	../lib/liblinuxcnchal.so
 
 
-USERSRCS += $(ULAPI_SRCS) $(UTIL_SRCS)
+USERSRCS += $(FLAVOR_ULAPI_SRCS) $(UTIL_SRCS)
 TARGETS += $(ULAPISO)
 
 # RTAPI:  $(RTLIBDIR)/*
