@@ -2,3 +2,5 @@
 /posix/
 /rt-preempt/
 /xenomai/
+/rtai-kernel/
+/xenomai-kernel/
