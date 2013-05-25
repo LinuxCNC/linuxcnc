@@ -486,29 +486,18 @@ clean: depclean modclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
-ifeq ($(BUILD_SYS),user-dso)
+fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
+
 ifeq ($(BUILD_DRIVERS),yes)
-setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules /etc/security/limits.d/linuxcnc.conf
-	chown root ../bin/linuxcnc_module_helper
-	chmod 4750 ../bin/linuxcnc_module_helper
-	chown root ../bin/rtapi_app
-	chmod 4750 ../bin/rtapi_app
-	chown root ../bin/pci_read
-	chmod 4750 ../bin/pci_read
-	chown root ../bin/pci_write
-	chmod 4750 ../bin/pci_write
+setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules \
+		/etc/security/limits.d/linuxcnc.conf
+	$(call fix_perms,../bin/linuxcnc_module_helper)
+	$(call fix_perms,../bin/pci_read)
+	$(call fix_perms,../bin/pci_write)
+	$(call fix_perms,../bin/rtapi_app)
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
-endif
-else
-setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules /etc/security/limits.d/linuxcnc.conf
-	chown root ../bin/linuxcnc_module_helper
-	chmod 4750 ../bin/linuxcnc_module_helper
-	chown root ../bin/pci_write
-	chmod 4750 ../bin/pci_write
-	chown root ../bin/pci_read
-	chmod 4750 ../bin/pci_read
 endif
 
 /etc/security/limits.d/linuxcnc.conf: rtapi/shmdrv/limits.d-linuxcnc.conf
