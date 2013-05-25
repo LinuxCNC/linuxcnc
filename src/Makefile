@@ -426,10 +426,7 @@ endif
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
 ifeq ($(BUILD_SYS),kbuild)
-KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers
-ifeq ($(THREADS),XENOMAI_KERNEL)
-KBUILD_EXTRA_SYMBOLS += $(shell pwd)/rtapi/xeno_math/Module.symvers
-endif
+KBUILD_EXTRA_SYMBOLS += $(moduledir)/Module.symvers
 modules:  objects/rtapi-$(threads)/.separate-kbuild-artifacts-hack.stamp
 	mkdir -p $(RTLIBDIR)
 ifeq ($(THREADS),XENOMAI_KERNEL)

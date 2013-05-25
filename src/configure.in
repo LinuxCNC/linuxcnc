@@ -179,6 +179,10 @@ RTAI_KERNEL_THREADS_RTS=""
 XENOMAI_KERNEL_THREADS_KERNEL_DIR=""
 RTAI_KERNEL_THREADS_KERNEL_DIR=""
 
+# Extra module symbols for kthreads flavors
+XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS=""
+RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=""
+
 # c flags for compiling RTAPI
 POSIX_THREADS_RTFLAGS=""
 RT_PREEMPT_THREADS_RTFLAGS=""
@@ -655,6 +659,7 @@ test -z "$with_kernel_source_xenomai" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
 if test $with_xenomai_kernel=yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai-kernel"
+     XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS=`pwd`/rtapi/xeno_math/Module.symvers
 fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
@@ -763,6 +768,8 @@ test -z "$RTAI_KERNEL_THREADS_KERNEL_DIR" && with_rtai_kernel=no
 test "$with_rtai_kernel" = check && with_rtai_kernel=yes
 if test $with_rtai_kernel=yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
+     RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=`$RTAI_KERNEL_THREADS_RTS \
+	--module-dir`/Module.symvers
 fi
 AC_MSG_RESULT($with_rtai_kernel)
 
@@ -927,6 +934,7 @@ AC_SUBST([XENOMAI_KERNEL_THREADS_SOURCE],[xenomai-kernel])
 AC_SUBST([XENOMAI_KERNEL_THREADS_RTFLAGS])
 AC_SUBST([XENOMAI_KERNEL_THREADS_LDFLAGS])
 AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIR])
+AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 # in-kernel math options
 AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 
@@ -941,6 +949,7 @@ AC_SUBST([RTAI_KERNEL_THREADS_SOURCE],[rtai-kernel])
 AC_SUBST([RTAI_KERNEL_THREADS_RTFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_LDFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIR])
+AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_RTSCC])
 # absolute path of rtai-config rtdir with symlinks dereferenced
