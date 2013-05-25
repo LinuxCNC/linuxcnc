@@ -452,11 +452,11 @@ endif  # BUILD_SYS == 'kbuild'
 # kbuild.
 MODULE_SOURCE_DIRS = emc hal libnml rtapi workaround
 MODULE_SOURCES = Makefile* config* modsilent.py
-objects/rtapi-$(threads)/.separate-kbuild-artifacts-hack.stamp:
-	mkdir -p objects/rtapi-$(threads)
-	cp -rl $(MODULE_SOURCE_DIRS) objects/rtapi-$(threads)
-	cp -l $(MODULE_SOURCES) objects/rtapi-$(threads)
-	ln -s ../../halcomp-srcs objects/rtapi-$(threads)
+$(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
+	mkdir -p $(OBJDIR)
+	cp -rl $(MODULE_SOURCE_DIRS) $(OBJDIR)
+	cp -l $(MODULE_SOURCES) $(OBJDIR)
+	ln -s ../../halcomp-srcs $(OBJDIR)
 	# FIXME this needs to just be referenced properly
 	ln -sf ../../bin objects
 	touch $@
