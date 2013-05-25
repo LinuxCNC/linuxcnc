@@ -57,6 +57,12 @@ ECHO=@true
 VECHO=true
 endif
 
+# if $(threads) wasn't passed in on the command line, build modules
+# for all RTOS flavors
+ifeq ($(threads),)
+BUILD_ALL_FLAVORS = yes
+endif
+
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
@@ -70,13 +76,21 @@ export PYTHONPATH
 else
 include $(BASEPWD)/Makefile.inc
 endif
-ifeq ($(threads),)
-$(error Makefile.inc must specify 'threads' and other variables)
+ifeq ($(BUILD_THREAD_FLAVORS),)
+$(error Makefile.inc must specify 'BUILD_THREAD_FLAVORS' and other variables)
 endif
 # prevent typos
 ifeq "$(filter $(threads),$(BUILD_THREAD_FLAVORS))" ""
-$(error "$(threads)" is not a valid RTOS flavor; please pick from:\
-    $(BUILD_THREADS_FLAVORS))
+$(error "$(threads)" is not a valid RTOS flavor; please pick one of:\
+    $(BUILD_THREAD_FLAVORS))
+endif
+
+ifeq ($(BUILD_ALL_FLAVORS),yes)
+modules:
+	for f in $(BUILD_THREAD_FLAVORS); do \
+	    echo "Making modules for flavor $$f"; \
+	    $(MAKE) threads=$$f; \
+	done
 endif
 
 OBJDIR := objects/rtapi-$(threads)
@@ -425,7 +439,7 @@ endif
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
-ifeq ($(BUILD_SYS),kbuild)
+ifeq ($(BUILD_SYS)$(BUILD_ALL_FLAVORS),kbuild)
 KBUILD_EXTRA_SYMBOLS += $(moduledir)/Module.symvers
 modules:  objects/rtapi-$(threads)/.separate-kbuild-artifacts-hack.stamp
 	mkdir -p $(RTLIBDIR)
@@ -1027,7 +1041,7 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
-ifeq ($(BUILD_SYS),user-dso)
+ifeq ($(BUILD_SYS)$(BUILD_ALL_FLAVORS),user-dso)
 EXTRA_CFLAGS += -fPIC
 
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
