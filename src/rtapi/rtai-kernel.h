@@ -4,15 +4,7 @@
 *               the RTAI thread system
 ********************************************************************/
 
-#include <rtai.h>
-#include <rtai_sched.h>
-#include <rtai_sem.h>
-#include <rtai_shm.h>
-#include <rtai_fifos.h>
-
-#ifdef MODULE
-#include <linux/delay.h>  // udelay()
-#endif 
+#include <rtai_sched.h>		/* RT_TASK */
 
 /* rtapi_module.c */
 #define RT_LINUX_USE_FPU

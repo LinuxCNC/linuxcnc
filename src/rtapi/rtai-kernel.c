@@ -1,3 +1,13 @@
+#include <rtai.h>
+#include <rtai_sched.h>
+#include <rtai_sem.h>
+#include <rtai_shm.h>
+#include <rtai_fifos.h>
+
+#ifdef MODULE
+#include <linux/delay.h>  // udelay()
+#endif 
+
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
