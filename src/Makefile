@@ -73,6 +73,11 @@ endif
 ifeq ($(threads),)
 $(error Makefile.inc must specify 'threads' and other variables)
 endif
+# prevent typos
+ifeq "$(filter $(threads),$(BUILD_THREAD_FLAVORS))" ""
+$(error "$(threads)" is not a valid RTOS flavor; please pick from:\
+    $(BUILD_THREADS_FLAVORS))
+endif
 
 OBJDIR := objects/rtapi-$(threads)
 DEPDIR := depends/rtapi-$(threads)
@@ -468,6 +473,10 @@ $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
 	-rm -rf .tmp_versions
+	-rm -rf halcomp-srcs
+	for flav in $(BUILD_THREAD_FLAVORS); do \
+	    rm -rf rtapi/$$flav; \
+	done
 	find . -name .tmp_versions |xargs rm -rf
 	-rm -f $(RTLIBDIR)/*.ko
 	-rm -f $(RTLIBDIR)/*.so
@@ -479,6 +488,9 @@ clean: depclean modclean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
+	for flav in $(BUILD_THREAD_FLAVORS); do \
+	    rm -rf ../lib/$$flav ../rtlib/$$flav; \
+	done
 	-rm -f $(COPY_CONFIGS)
 	-rm -f $(RTLIBDIR)/*.$(MODULE_EXT)
 	-rm -f hal/components/conv_*.comp

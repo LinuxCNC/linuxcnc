@@ -160,6 +160,9 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # might be extended by RTSCC later
 AC_PROG_CC([gcc])  
 
+# a list of all configured threads systems to build
+BUILD_THREAD_FLAVORS=""
+
 # a compiler which might be specific for the realime system.
 # relevant case: rtai-config -cc
 RTSCC=""
@@ -509,6 +512,7 @@ AC_MSG_RESULT($with_posix)
 if test "$with_posix" = yes; then
    POSIX_THREADS_LDFLAGS="-lpthread -lrt"
    POSIX_THREADS_RTFLAGS="$POSIX_THREADS_RTFLAGS -pthread"
+   BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS posix"
 fi
    
 AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
@@ -518,6 +522,7 @@ AC_MSG_RESULT($with_rt_preempt)
 if test "$with_posix" = yes; then
    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
    RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
+   BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rt-preempt"
 fi
 
 
@@ -640,12 +645,17 @@ fi
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
 test "$with_xenomai" = check && with_xenomai=yes
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
+test $with_xenomai=yes && \
+     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai"
 AC_MSG_RESULT($with_xenomai)
 
 AC_MSG_CHECKING(whether to build Xenomai kernel threads)
 test "$with_xenomai_kernel" = check && with_xenomai_kernel=yes
 test -z "$with_kernel_source_xenomai" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
+if test $with_xenomai_kernel=yes; then
+     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai-kernel"
+fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
 
@@ -751,6 +761,9 @@ AC_MSG_CHECKING(whether to build RTAI threads)
 test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
 test -z "$RTAI_KERNEL_THREADS_KERNEL_DIR" && with_rtai_kernel=no
 test "$with_rtai_kernel" = check && with_rtai_kernel=yes
+if test $with_rtai_kernel=yes; then
+     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
+fi
 AC_MSG_RESULT($with_rtai_kernel)
 
 
@@ -862,6 +875,10 @@ AC_SUBST(ARCHITECTURE)
 
 ############################################################
 # thread-specific -DDEFINE and Makefile.inc variables
+
+# List of threads flavors
+AC_SUBST([BUILD_THREAD_FLAVORS])
+
 
 # POSIX settings
 if test "$with_posix" = yes; then
