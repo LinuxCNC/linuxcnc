@@ -332,6 +332,12 @@ PLATFORM="PC"
 TARGET_PLATFORM=""
 
 # Architecture. Use output of arch(1).
+#
+# FIXME this will break 32-bit builds on 64-bit systems.  Need an
+# expert to figure out host/target arch, e.g. --host=i686-pc-linux-gnu
+# even when --build=x86_64-pc-linux-gnu
+#
+# This will cause e.g. incorrect package builds
 ARCHITECTURE=`$ARCHCMD`
 
 
@@ -603,7 +609,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
     # this CFLAG
-    if test "$(uname -m)" = x86_64; then
+    if "$ARCHITECTURE" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
