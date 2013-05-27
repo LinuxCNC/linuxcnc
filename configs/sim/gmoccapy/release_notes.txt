@@ -1,3 +1,6 @@
+ver. 0.9.3.1
+- A message window will warn the user in case he try to use G95
+- Changed the requiered screen size to fit on 979 x 750 
 ver. 0.9.3
 - included the patch for key_jogging from Chris
 - support now also back tool lathes

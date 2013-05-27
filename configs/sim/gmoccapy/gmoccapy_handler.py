@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.3"
+_RELEASE = "0.9.3.1"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -152,7 +152,7 @@ class HandlerClass:
         self.widgets.adj_x_pos.set_value(self.gscreen.prefs.getpref('x_pos', 10, float))
         self.widgets.adj_y_pos.set_value(self.gscreen.prefs.getpref('y_pos', 10, float))
         self.widgets.adj_width.set_value(self.gscreen.prefs.getpref('width', 979, float))
-        self.widgets.adj_height.set_value(self.gscreen.prefs.getpref('height', 782, float))
+        self.widgets.adj_height.set_value(self.gscreen.prefs.getpref('height', 750, float))
 
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
@@ -1078,7 +1078,7 @@ class HandlerClass:
 
     def on_scl_spindle_value_changed(self, widget, data = None):
         spindle_override = self.widgets.scl_spindle.get_value() / 100
-        real_spindle_speed = round(int(self.widgets.active_speed_label.get_text()) * spindle_override)
+        real_spindle_speed = int(self.widgets.active_speed_label.get_text()) * spindle_override
 #         if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
 #             widget.set_value(100.0)
         self.widgets.lbl_spindle_act.set_text("S %d" %real_spindle_speed)
@@ -1158,8 +1158,8 @@ class HandlerClass:
     # feed stuff
     def on_scl_feed_value_changed(self, widget, data=None):
         feed_override = self.widgets.scl_feed.get_value() / 100
-        real_feed = round(int(self.widgets.active_feed_label.get_text()) * feed_override)
-        self.widgets.lbl_feed_act.set_text("F  %d" %real_feed)
+        real_feed = float(self.widgets.lbl_active_feed.get_text()) * feed_override
+        self.widgets.lbl_feed_act.set_text("F  %.1f" %real_feed)
         self.emc.feed_override(feed_override)
 
     def on_btn_feed_100_clicked(self, widget, data=None):
@@ -2105,35 +2105,6 @@ class HandlerClass:
         self.widgets.dialog_from_line.destroy()
 # ToDo end
 
-#     def on_hal_status_mode_auto(self,widget):
-#         self.gscreen.add_alarm_entry("mode_auto")
-#         self.widgets.ntb_main.set_current_page(0)
-#         self.widgets.ntb_jog.set_current_page(2)
-#         self.widgets.ntb_button.set_current_page(2)
-#         self.widgets.ntb_preview.set_current_page(0)
-#         self.widgets.ntb_info.set_current_page(0)
-# 
-#     def on_hal_status_mode_manual(self,widget):
-#         self.gscreen.add_alarm_entry("mode_manual")
-#         self.widgets.ntb_main.set_current_page(0)
-#         self.widgets.ntb_jog.set_current_page(0)
-#         self.widgets.ntb_button.set_current_page(0)
-#         self.widgets.ntb_preview.set_current_page(0)
-#         self.widgets.ntb_info.set_current_page(0)
-# 
-#     def on_hal_status_mode_mdi(self,widget):
-#         if self.wait_tool_change:
-#             return
-#         self.gscreen.add_alarm_entry("mode_mdi")
-#         self.widgets.ntb_main.set_current_page(0)
-#         self.widgets.ntb_jog.set_current_page(1)
-#         self.widgets.ntb_button.set_current_page(1)
-#         if self.widgets.chk_use_kb_on_mdi.get_active():
-#             self.widgets.ntb_info.set_current_page(1)
-#         else:
-#             self.widgets.ntb_info.set_current_page(0)
-#         self.widgets.hal_mdihistory.entry.grab_focus()
-
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         self.gscreen.add_alarm_entry(_("tool_in_spindle has changed to %s"%new_tool_no))
         print("tool_in_spindle has changed to %s"%new_tool_no)
@@ -2213,7 +2184,17 @@ class HandlerClass:
         self._update_vel()
         self._update_coolant()
         self._update_spindle_btn()
-        self.widgets.active_feed_label.set_label(self.data.active_feed_command)
+        if "G95" in self.data.active_gcodes:
+            self.widgets.lbl_active_feed.set_label("%.2f"%float(self.data.active_feed_command))
+            if self.g95 == False:
+                message = _("You are trying to use G95, please do not do this in this development state \n")
+                message += _("there is an error in gscreen / gmoccapy witch will result in wrong values!! \n")
+                message += _("\n We are looking for a solution!")
+                self.gscreen.warning_dialog(_("Very important Warning"), True, message)
+                self.g95 = True
+        else:
+            self.g95 = False
+            self.widgets.lbl_active_feed.set_label(self.data.active_feed_command)
         self.widgets.active_speed_label.set_label(self.data.active_spindle_command)
         self.on_scl_feed_value_changed(self.data.active_feed_command)
 

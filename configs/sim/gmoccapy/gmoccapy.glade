@@ -5,7 +5,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
-    <property name="height_request">782</property>
+    <property name="height_request">750</property>
     <property name="title" translatable="yes">moccapy</property>
     <property name="icon">icon/Logo.png</property>
     <signal name="show" handler="on_window1_show"/>
@@ -56,9 +56,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="enable_dro">False</property>
-                                            <property name="use_commanded">False</property>
                                             <property name="show_dtg">False</property>
+                                            <property name="use_commanded">False</property>
+                                            <property name="enable_dro">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -575,7 +575,6 @@
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
-                                                <property name="padding">5</property>
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
@@ -1182,7 +1181,7 @@
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkLabel" id="active_feed_label">
+                                                      <object class="GtkLabel" id="lbl_active_feed">
                                                         <property name="width_request">50</property>
                                                         <property name="visible">True</property>
                                                         <property name="xalign">1</property>
@@ -1730,16 +1729,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="max">6000</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
+                                                        <property name="text_template">%i</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <property name="bg_color">#bebebebebebe</property>
                                                         <property name="z0_color">#0000ffff0000</property>
-                                                        <property name="text_template">%i</property>
+                                                        <property name="max">6000</property>
                                                         <property name="z0_border">0.40000000596046448</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
                                                         <property name="z1_color">#0000ffff0000</property>
-                                                        <property name="target_color">#0000ffff0000</property>
                                                         <property name="z2_color">#0000ffff0000</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -6328,8 +6327,8 @@ Down</property>
     <signal name="value_changed" handler="on_adj_width_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_height">
-    <property name="value">782</property>
-    <property name="lower">782</property>
+    <property name="value">750</property>
+    <property name="lower">750</property>
     <property name="upper">2000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
