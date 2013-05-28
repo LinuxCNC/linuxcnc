@@ -613,7 +613,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
-    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS $flags"
+    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS -g $flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
     test "$($XENOMAI_THREADS_RTS --arch)" = x86 && \    

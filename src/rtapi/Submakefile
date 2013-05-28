@@ -54,7 +54,7 @@ $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
 	cp -l $(ULAPI_SRCS) rtapi/$(threads)
 
 # resolved at loadtime
-$(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS) $(UTIL_SRCS)): EXTRAFLAGS += \
+$(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
 ULAPISO := ../lib/$(threads)/ulapi.so
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
@@ -168,7 +168,7 @@ RTAPI_KDETECT_OBJS := \
 	$(call TOOBJS, $(RTAPI_KDETECT_SRCS))
 
 $(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
-	EXTRAFLAGS += -DTEST $(THREADS_RTFLAGS)
+	EXTRAFLAGS += -DTEST
 
 # Build target
 ../bin/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
@@ -197,9 +197,6 @@ TARGETS += ../bin/rtapi_msgd
 
 # lock debugging help plus a bit of API example
 FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
-
-$(call TOOBJSDEPS, $(FLAVOR_SRCS)): \
-	EXTRAFLAGS += $(THREADS_RTFLAGS)
 
 ../bin/flavor: ../lib/liblinuxcncshm.so $(call TOOBJS, $(FLAVOR_SRCS))
 	$(ECHO) Linking $(notdir $@)

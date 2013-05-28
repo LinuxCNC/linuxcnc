@@ -10,7 +10,8 @@ MINIGLMODULE := ../lib/python/minigl.so
 SETICONMODULE := ../lib/python/_tk_seticon.so
 TOGLMODULE := ../lib/python/_togl.so
 
-$(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+$(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : \
+	EXTRAFLAGS += $(ULFLAGS) $(TCL_CFLAGS)
 
 $(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
 
