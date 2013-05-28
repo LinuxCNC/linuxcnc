@@ -42,7 +42,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.3.1"
+_RELEASE = "0.9.3.2"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -243,40 +243,45 @@ class HandlerClass:
  
         tab_mdi = [(9,"btn_show_kbd")]
         self.h_tabs.append(tab_mdi)
-
+        
         tab_auto = [(0,"btn_run"),(1,"btn_stop"),(2,"btn_step"),(3,"tbtn_pause"),
                     (4,"btn_from_line"),(5,"tbtn_optional_stops"),(6,"tbtn_optional_blocks"),
                     (7,"btn_reload"),(8,"btn_load"),(9,"btn_edit")
                    ]
         self.h_tabs.append(tab_auto)
-
-        tab_ref = [(1,"btn_home_all"),(3,"btn_home_X"),(4,"btn_home_Y"),
+        
+        tab_ref = [(1,"btn_home_all"),(3,"btn_home_X"),
                    (5,"btn_home_Z"),(7,"btn_unhome_all"),(9,"btn_back_ref")
                   ]
+        if not self.data.lathe_mode:
+            tab_ref.append((4,"btn_home_Y"))
         self.h_tabs.append(tab_ref)
-
-        tab_touch = [(1,"btn_cero_X"),(2,"btn_cero_Y"),(3,"btn_cero_Z"),(5,"btn_set_value_X"),
+        
+        tab_touch = [(1,"btn_cero_X"),(3,"btn_cero_Z"),(5,"btn_set_value_X"),
                      (6,"btn_set_value_Y"),(7,"btn_set_value_Z"),(9,"btn_back_cero")
                     ]
+        if not self.data.lathe_mode:
+            tab_touch.append((2,"btn_cero_Y"))
         self.h_tabs.append(tab_touch)
-
-        tab_setup = [(0,"btn_delete"),(5,"btn_hal_scope"),(6,"btn_status"),(7,"btn_hal_meter"),
-                     (8,"btn_calibration"),(9,"btn_show_hal")
+        
+        tab_setup = [(0,"btn_delete"),(4,"btn_classicladder"),(5,"btn_hal_scope"),(6,"btn_status"),
+                     (7,"btn_hal_meter"),(8,"btn_calibration"),(9,"btn_show_hal")
                     ]
         self.h_tabs.append(tab_setup)
-
+        
         tab_edit = [(1,"btn_save"),(2,"btn_save_as"),(3,"btn_save_and_run"),(5,"btn_new"),
                     (6,"btn_open_edit"),(7,"btn_close"),(8,"btn_keyb"),(9,"btn_back_edit")
                    ]
-#To Do: check if lathe
         self.h_tabs.append(tab_edit)
+        
         tab_tool = [(0,"btn_delete_tool"),(1,"btn_add_tool"),(2,"btn_reload_tooltable"),
                     (3,"btn_apply_tool_changes"),(5,"btn_index_tool"),(6,"btn_change_tool"),
-                    (7,"btn_tool_touchoff_X"),(8,"btn_tool_touchoff_Z"),(9,"btn_back_tool")
+                    (8,"btn_tool_touchoff_Z"),(9,"btn_back_tool")
                    ]
+        if self.data.lathe_mode:
+            tab_tool.append((7,"btn_tool_touchoff_X"))
         self.h_tabs.append(tab_tool)
-#To Do: End
-
+        
         self.v_tabs = [(0,"tbtn_estop"),(1,"tbtn_on"),(2,"rbt_manual"),(3,"rbt_mdi"),
                        (4,"rbt_auto"),(5,"rbt_setup"),(6,"tbtn_user_tabs")
                       ]
@@ -577,13 +582,13 @@ class HandlerClass:
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Up":
-            widget = self.widgets.btn_Z_minus
+            widget = self.widgets.btn_Z_plus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Down":
-            widget = self.widgets.btn_Z_plus
+            widget = self.widgets.btn_Z_minus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
@@ -1013,11 +1018,24 @@ class HandlerClass:
                                         _("Classicladder realtime component not detected"))
             self.gscreen.add_alarm_entry(_("ladder not available - is the realtime component loaded?"))
 
+    def _check_spindle_max(self,rpm):
+        spindle_override = self.widgets.scl_spindle.get_value() / 100
+        real_spindle_speed = rpm * spindle_override
+        if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
+            try:
+                value_to_set = self.widgets.scl_spindle.get_value()/(real_spindle_speed/self.widgets.adj_spindle_bar_max.get_value())
+                self.widgets.scl_spindle.set_value(value_to_set)
+            except:
+                pass
+        
+
     # spindle stuff
     def _set_spindle(self, widget, data=None):
-        rpm = abs(float(self.widgets.active_speed_label.get_text()))
+        rpm = abs(float(self.data.active_spindle_command))
         if rpm == 0:
             rpm = self.data.spindle_start_rpm
+
+        self._check_spindle_max(rpm)
         
         mode = self.gscreen.emcstat.task_mode # get the mode we are, so we can change back,
                                               # because the following command sets automaticaly mdi mode
@@ -1040,6 +1058,8 @@ class HandlerClass:
              self.gscreen.add_alarm_entry(_("Something went wrong, we are in non defined mode"))
         if self.log: self.gscreen.add_alarm_entry("Spindle set to %i rpm, mode is %s"%(rpm,mode))
         self.widgets.lbl_spindle_act.set_label("S %s"%rpm)
+        self.on_scl_spindle_value_changed(self.widgets.scl_spindle)
+
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_forward_clicked")
@@ -1077,10 +1097,16 @@ class HandlerClass:
         self.widgets.adj_spindle.set_value(100)
 
     def on_scl_spindle_value_changed(self, widget, data = None):
+        if not self.data.active_spindle_command:
+            return
         spindle_override = self.widgets.scl_spindle.get_value() / 100
-        real_spindle_speed = int(self.widgets.active_speed_label.get_text()) * spindle_override
-#         if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
-#             widget.set_value(100.0)
+        real_spindle_speed = float(self.data.active_spindle_command) * spindle_override
+        if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
+            try:
+                value_to_set = widget.get_value()/(real_spindle_speed/self.widgets.adj_spindle_bar_max.get_value())
+                widget.set_value(value_to_set)
+            except:
+                pass
         self.widgets.lbl_spindle_act.set_text("S %d" %real_spindle_speed)
         self.emc.spindle_override(spindle_override)
 
@@ -1159,7 +1185,10 @@ class HandlerClass:
     def on_scl_feed_value_changed(self, widget, data=None):
         feed_override = self.widgets.scl_feed.get_value() / 100
         real_feed = float(self.widgets.lbl_active_feed.get_text()) * feed_override
-        self.widgets.lbl_feed_act.set_text("F  %.1f" %real_feed)
+        if "G95" in self.data.active_gcodes:
+            self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
+        else:
+            self.widgets.lbl_feed_act.set_text("F  %d" %real_feed)
         self.emc.feed_override(feed_override)
 
     def on_btn_feed_100_clicked(self, widget, data=None):
@@ -2142,7 +2171,6 @@ class HandlerClass:
                      ]
         self.gscreen.sensitize_widgets(widgetlist,True)
         self.widgets.rbt_manual.set_active(True)
-#        self._update_homed("X")
         if not self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(True)
 
@@ -2206,8 +2234,6 @@ class HandlerClass:
                 if self.log: self.gscreen.add_alarm_entry(message)
                 self.widgets.tbtn_rel.set_label(self.system_list[self.data.system])
 
-# ToDo: Will have to decide if this color changing will stay in gmoccapy
-#       I really don't need it
             if self.system_list[self.data.system] <> 'G54':
                 self.widgets.tbtn_rel.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#28D0D9"))
             else:

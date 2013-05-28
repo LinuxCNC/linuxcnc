@@ -56,9 +56,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="show_dtg">False</property>
-                                            <property name="use_commanded">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="use_commanded">False</property>
+                                            <property name="show_dtg">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -387,10 +387,10 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkHBox" id="hbox4">
+                                      <object class="GtkHBox" id="hbox_jog">
                                         <property name="visible">True</property>
                                         <child>
-                                          <object class="GtkVBox" id="vbox5">
+                                          <object class="GtkVBox" id="vbox_jog_button">
                                             <property name="width_request">240</property>
                                             <property name="visible">True</property>
                                             <child>
@@ -398,7 +398,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="label_xalign">0.5</property>
                                                 <child>
-                                                  <object class="GtkAlignment" id="alignment2">
+                                                  <object class="GtkAlignment" id="ali_jog_button">
                                                     <property name="visible">True</property>
                                                     <property name="top_padding">5</property>
                                                     <property name="bottom_padding">5</property>
@@ -558,7 +558,6 @@
                                                 </child>
                                               </object>
                                               <packing>
-                                                <property name="padding">5</property>
                                                 <property name="position">0</property>
                                               </packing>
                                             </child>
@@ -580,18 +579,17 @@
                                             </child>
                                           </object>
                                           <packing>
-                                            <property name="pack_type">end</property>
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkFrame" id="frm_steps">
+                                          <object class="GtkFrame" id="frm_jog_rates">
                                             <property name="width_request">120</property>
                                             <property name="visible">True</property>
                                             <property name="tooltip_markup">select jog distance</property>
                                             <property name="label_xalign">0.5</property>
                                             <child>
-                                              <object class="GtkAlignment" id="alignment1">
+                                              <object class="GtkAlignment" id="ali_jog_rates">
                                                 <property name="visible">True</property>
                                                 <property name="top_padding">5</property>
                                                 <property name="bottom_padding">5</property>
@@ -631,7 +629,7 @@
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="padding">3</property>
+                                            <property name="padding">2</property>
                                             <property name="pack_type">end</property>
                                             <property name="position">0</property>
                                           </packing>
@@ -829,8 +827,8 @@
                                         <property name="xalign">1</property>
                                         <property name="yalign">0.47999998927116394</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="display_units_mm">True</property>
                                         <property name="reference_type">1</property>
+                                        <property name="display_units_mm">True</property>
                                         <property name="actual">False</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
@@ -855,9 +853,9 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="display_units_mm">True</property>
-                                        <property name="joint_number">1</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">1</property>
+                                        <property name="display_units_mm">True</property>
                                         <property name="actual">False</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
@@ -884,9 +882,9 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="label" translatable="yes">label</property>
-                                        <property name="display_units_mm">True</property>
-                                        <property name="joint_number">2</property>
                                         <property name="reference_type">1</property>
+                                        <property name="joint_number">2</property>
+                                        <property name="display_units_mm">True</property>
                                         <property name="actual">False</property>
                                         <attributes>
                                           <attribute name="style" value="normal"/>
@@ -1729,16 +1727,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="text_template">%i</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
+                                                        <property name="z2_color">#0000ffff0000</property>
                                                         <property name="target_color">#0000ffff0000</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <property name="bg_color">#bebebebebebe</property>
                                                         <property name="z0_color">#0000ffff0000</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <property name="max">6000</property>
+                                                        <property name="text_template">%i</property>
                                                         <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
                                                         <property name="z1_color">#0000ffff0000</property>
-                                                        <property name="z2_color">#0000ffff0000</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
