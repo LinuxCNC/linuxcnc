@@ -19,9 +19,10 @@ PRU_SRCS := $(wildcard $(PRU_SRC_DIR)/*.p)
 
 # .bin file produced by PASM -b goes in rtlib
 PRU_BIN := ../rtlib/$(PRU_MAIN).bin
+PRU_DBG := ../rtlib/$(PRU_MAIN).dbg
 
 # .bin files are targets
-TARGETS +=  $(PRU_BIN)
+TARGETS +=  $(PRU_BIN) $(PRU_DBG)
 USERSRCS += $(PRU_SRCS)
 
 # .bin output, create listing
@@ -30,7 +31,12 @@ PASM_BINFLAGS := -b -L -d
 # conversion rule for the above
 # assemble .p  into .bin object files
 #$(PRU_BIN): $(PRU_SRCS)
-../rtlib/%.bin: $(PRU_SRC_DIR)/%.p
+../rtlib/%.bin ../rtlib/%.dbg: $(PASM) 
+
+# I think we need Jeff handholding on generating and including this .d file by mkdep.py:
+# depends/rthal/drivers/hal_pru_generic/%.d
+
+../rtlib/%.bin ../rtlib/%.dbg: $(PRU_SRC_DIR)/%.p
 	$(ECHO) Assembling PRU code $@
 	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
 
