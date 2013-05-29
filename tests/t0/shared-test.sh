@@ -9,7 +9,7 @@ cp tool.tbl.orig tool.tbl
 
 rm -f gcode-output
 
-linuxcnc -d -v sim.ini &
+linuxcnc -r sim.ini &
 
 
 # let linuxcnc come up
