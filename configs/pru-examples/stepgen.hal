@@ -142,12 +142,12 @@ setp ui.register_table 1
 #setp hal_pru_generic.stepgen.03.maxaccel     0
 #setp hal_pru_generic.stepgen.03.maxvel       0
 
-setp hal_pru_generic.pwm.00.pin1            4
-setp hal_pru_generic.pwm.00.pin2            5
-setp hal_pru_generic.pwm.00.out1            100
-setp hal_pru_generic.pwm.00.out2            200
-setp hal_pru_generic.pwm.00.period          300
-setp hal_pru_generic.pwm.00.enable          1
+#setp hal_pru_generic.pwm.00.pin1            4
+#setp hal_pru_generic.pwm.00.pin2            5
+#setp hal_pru_generic.pwm.00.out1            100
+#setp hal_pru_generic.pwm.00.out2            200
+#setp hal_pru_generic.pwm.00.period          300
+#setp hal_pru_generic.pwm.00.enable          1
 
 #setp hal_pru_generic.delta.06.pin1          2
 #setp hal_pru_generic.delta.06.pin2          3
