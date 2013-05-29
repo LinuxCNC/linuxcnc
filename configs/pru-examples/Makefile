@@ -1,5 +1,5 @@
 
-TARGET=pruexample.bin stepgen.bin
+TARGET=pruexample.bin pru_main.bin pru_generic.bin
 
 all:	$(TARGET)
 

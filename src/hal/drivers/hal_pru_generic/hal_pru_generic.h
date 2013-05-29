@@ -41,9 +41,38 @@
 // information, go to www.linuxcnc.org.                                 //
 //----------------------------------------------------------------------//
 
+#ifndef _hal_pru_generic_H_
+#define _hal_pru_generic_H_
+
+// please God where do these live in real life?
+//#define INT32_MIN (-2147483647-1)
+//#define INT32_MAX (2147483647)
+//#define UINT32_MAX (4294967295U)
+#include <stdint.h>
+
+#include "config_module.h"
+#include RTAPI_INC_LIST_H
+#include "rtapi.h"
+#include "hal.h"
+
+#include "hal/drivers/hal_pru_generic/pru_tasks.h"
+
+#define HPG_VERSION "0.01"
+#define HPG_NAME    "hpg"
+
+#define HPG_PRINT(fmt, args...)  rtapi_print(HPG_NAME ": " fmt, ## args)
+
+#define HPG_ERR(fmt, args...)    rtapi_print_msg(RTAPI_MSG_ERR,  HPG_NAME ": " fmt, ## args)
+#define HPG_WARN(fmt, args...)   rtapi_print_msg(RTAPI_MSG_WARN, HPG_NAME ": " fmt, ## args)
+#define HPG_INFO(fmt, args...)   rtapi_print_msg(RTAPI_MSG_INFO, HPG_NAME ": " fmt, ## args)
+#define HPG_DBG(fmt, args...)    rtapi_print_msg(RTAPI_MSG_DBG,  HPG_NAME ": " fmt, ## args)
+
 /***********************************************************************
 *                   STRUCTURES AND GLOBAL VARIABLES                    *
 ************************************************************************/
+
+// Default pin to use for PRU modules...use a pin that does not leave the PRU
+#define PRU_DEFAULT_PIN 17
 
 // PRU_* (Programmable Realtime Unit) names relate to software running 
 // on the PRU, and likely need to match the PRU assembly code
@@ -52,78 +81,78 @@
 // driver side of things and need only be self-consistent with the 
 // hal_pru_generic C code 
 
-typedef u32 pru_addr_t;
-
-typedef enum { 
-    eMODE_INVALID   = -1,
-    eMODE_NONE      = 0,
-    eMODE_WAIT      = 1,
-    eMODE_STEP_DIR  = 2,
-    eMODE_UP_DOWN   = 3,    // Not implemented yet!
-    eMODE_DELTA_SIG = 4,
-    eMODE_PWM       = 5
-} MODE;
-
-typedef struct {
-    u8      mode;
-    u8      len;
-    u8      dataX;
-    u8      dataY;
-    u32     addr;
-} PRU_task_hdr_t;
-
-typedef union {
-    u32     dword[2];
-    u16     word[4];
-    u8      byte[8];
-} PRU_task_raw_t;
-
-typedef union {
-    PRU_task_raw_t raw;
-    PRU_task_hdr_t hdr;
-} PRU_task_header_t;
-
-typedef struct {
-    PRU_task_header_t task;
-    u32     period;
-} PRU_statics_t;
-
-typedef struct  {
-    PRU_task_header_t task;
-
-    s32     rate;
-    u16     steplen;
-    u16     dirhold;
-    u16     stepspace;
-    u16     dirsetup;
-    u32     accum;
-    u32     pos;
-    u32     reserved[2];
-} PRU_task_stepdir_t;
-
-typedef struct {
-    PRU_task_header_t task;
-
-    u16     value1;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-    u16     value2;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-    u32     reserved[6];
-} PRU_task_delta_t;
-
-typedef struct {
-    u16     output_n;
-    u8      pin_n;
-    u8      reserved_n;
-} PRU_pwm_output_t;
-
-typedef struct {
-    PRU_task_header_t task;
-
-    u16     prescale;
-    u16     period;
-    u32     reserved;
-//  PRU_pwm_output_t out[task.len];
-} PRU_task_pwm_t;
-
+// typedef u32 pru_addr_t;
+// 
+// typedef enum { 
+//     eMODE_INVALID   = -1,
+//     eMODE_NONE      = 0,
+//     eMODE_WAIT      = 1,
+//     eMODE_STEP_DIR  = 2,
+//     eMODE_UP_DOWN   = 3,    // Not implemented yet!
+//     eMODE_DELTA_SIG = 4,
+//     eMODE_PWM       = 5
+// } MODE;
+// 
+// typedef struct {
+//     u8      mode;
+//     u8      len;
+//     u8      dataX;
+//     u8      dataY;
+//     u32     addr;
+// } PRU_task_hdr_t;
+// 
+// typedef union {
+//     u32     dword[2];
+//     u16     word[4];
+//     u8      byte[8];
+// } PRU_task_raw_t;
+// 
+// typedef union {
+//     PRU_task_raw_t raw;
+//     PRU_task_hdr_t hdr;
+// } PRU_task_header_t;
+// 
+// typedef struct {
+//     PRU_task_header_t task;
+//     u32     period;
+// } PRU_statics_t;
+// 
+// typedef struct  {
+//     PRU_task_header_t task;
+// 
+//     s32     rate;
+//     u16     steplen;
+//     u16     dirhold;
+//     u16     stepspace;
+//     u16     dirsetup;
+//     u32     accum;
+//     u32     pos;
+//     u32     reserved[2];
+// } PRU_task_stepdir_t;
+// 
+// typedef struct {
+//     PRU_task_header_t task;
+// 
+//     u16     value1;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
+//     u16     value2;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
+//     u32     reserved[6];
+// } PRU_task_delta_t;
+// 
+// typedef struct {
+//     u16     output_n;
+//     u8      pin_n;
+//     u8      reserved_n;
+// } PRU_pwm_output_t;
+// 
+// typedef struct {
+//     PRU_task_header_t task;
+// 
+//     u16     prescale;
+//     u16     period;
+//     u32     reserved;
+// //  PRU_pwm_output_t out[task.len];
+// } PRU_task_pwm_t;
+// 
 typedef struct {
     PRU_task_stepdir_t PRU;
 
@@ -215,8 +244,9 @@ typedef struct {
 
 typedef struct {
     // PRU control and state data
-    PRU_task_pwm_t      PRU;
+    PRU_task_pwm_t      pru;
     PRU_pwm_output_t    *out;
+    pru_addr_t          task_addr;
 
     // HAL Pins
     hal_bit_t       *hal_enable;
@@ -236,10 +266,18 @@ typedef struct {
 } hpg_pwmgen_t;
 
 typedef struct {
+    PRU_task_wait_t     pru;
+    pru_addr_t          task_addr;
+} hpg_wait_t;
+
+typedef struct {
 
     struct {
+        int pru_period;
         int num_pwmgens;
         int num_stepgens;
+        int comp_id;
+        const char *name;
     } config;
 
     u32 *pru_data;              // ARM pointer to mapped PRU data memory
@@ -260,4 +298,32 @@ typedef struct {
     hpg_stepgen_t   stepgen;
     hpg_deltasig_t  deltasig;
 
+    hpg_wait_t      wait;
+
 } hal_pru_generic_t;
+
+
+//
+// helper functions
+//
+
+pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len);
+void pru_task_add(hal_pru_generic_t *hpg, pru_addr_t addr);
+
+
+//
+// pwmgen functions
+//
+
+int hpg_pwmgen_init(hal_pru_generic_t *hpg);
+
+
+//
+// stepgen functions
+//
+
+int hpg_stepgen_init(hal_pru_generic_t *hpg);
+void hpg_stepgen_prepare_write(hal_pru_generic_t *hpg, long l_period_ns);
+u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns);
+
+#endif

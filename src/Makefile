@@ -108,7 +108,7 @@ SUBDIRS := \
     \
     hal/components hal/drivers hal/user_comps/devices \
     hal/user_comps hal/user_comps/vismach hal/classicladder hal/utils hal \
-    hal/support \
+    hal/support hal/drivers/hal_pru_generic \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin \
     emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
@@ -791,8 +791,6 @@ sampler-objs := hal/components/sampler.o $(MATHSTUB)
 ifeq ($(TARGET_PLATFORM),beaglebone)
 obj-m += hal_pru.o
 hal_pru-objs := hal/components/hal_pru.o hal/support/pru/prussdrv.o $(LIBPTHREAD)
-obj-m += hal_pru_generic.o
-hal_pru_generic-objs := hal/components/hal_pru_generic.o hal/support/pru/prussdrv.o $(LIBPTHREAD)
 obj-m += hal_prudebug.o
 hal_prudebug-objs := hal/components/hal_prudebug.o hal/support/pru/prussdrv.o $(LIBPTHREAD)
 endif
@@ -836,6 +834,17 @@ obj-m += gpiomap.o
 gpiomap-objs := hal/drivers/hal_gpiomap.o 
 obj-m += gpiouse.o
 gpiouse-objs := hal/drivers/hal_gpiouse.o 
+endif
+
+# hal_pru_generic driver
+ifeq ($(TARGET_PLATFORM),beaglebone)
+obj-m += hal_pru_generic.o
+hal_pru_generic-objs :=                           \
+    hal/drivers/hal_pru_generic/hal_pru_generic.o \
+    hal/drivers/hal_pru_generic/pwmgen.o          \
+    hal/drivers/hal_pru_generic/stepgen.o         \
+    hal/support/pru/prussdrv.o                    \
+    $(LIBPTHREAD)
 endif
 
 # these won't compile as-is with userland threading
