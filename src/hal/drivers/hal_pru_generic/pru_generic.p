@@ -113,7 +113,8 @@
     .u32    GPIO3_Clr
     .u32    GPIO3_Set
     .u32    PRU_Out
-    .u32    Table
+    .u16    TaskTable
+    .u16    PinTable
     .u32    Call_Reg
     .u32    Mul_Status
     .u32    Mul_Prod_L
@@ -189,7 +190,7 @@ START:
     // Setup registers
 
     // Zero all output registers
-    ZERO    &GState.GPIO0_Clr, OFFSET(GState.Table) - OFFSET(GState.GPIO0_Clr)
+    ZERO    &GState.GPIO0_Clr, OFFSET(GState.TaskTable) - OFFSET(GState.GPIO0_Clr)
 
     // Setup Scratch-Pad 0 with GPIO addresses
     MOV     GState.State_Reg0, GPIO0 + GPIO_CLEARDATAOUT
@@ -199,7 +200,8 @@ START:
     XOUT    10, GState.State_Reg0, 16
     ZERO    &GState.State_Reg0, 16
 
-    LDI     GState.Table, #JUMPTABLE                // Base address of jump table
+    LDI     GState.TaskTable, #TASKTABLE                // Base address of jump tables
+    LDI     GState.PinTable, #PINTABLE
 
     // Load start of task list from static variables
     LBBO    GState.Task_Addr, GState.Task_Addr, OFFSET(pru_statics.addr), SIZE(pru_statics.addr)
@@ -209,10 +211,10 @@ MAINLOOP:
     LBBO    GState.Task_Status, GTask.addr, OFFSET(task_header.mode), SIZE(GState.Task_Status)
 
     // Make sure mode is valid or we could fall off the end of the jump table!
-    QBLT    NEXT_TASK, GTask.mode, JUMPTABLEEND - JUMPTABLE
+    QBLT    NEXT_TASK, GTask.mode, TASKTABLEEND - TASKTABLE
 
     // Index into the jump table and call the routine appropriate for our mode
-    ADD     r1, GState.Table, GTask.mode
+    ADD     r1, GState.TaskTable, GTask.mode
     JMP     r1
 
 NEXT_TASK:
@@ -222,7 +224,63 @@ NEXT_TASK:
     // ...and keep going!
     JMP     MAINLOOP
 
-JUMPTABLE:
+SET_CLR_BIT:
+    // Manipulate passed parameters into an even value from 0-30 to use to
+    // index into the pin jump table:
+    // Bit:    7  6  5  4  3  2  1  0
+    // Value:  0  0  0  T  T  T  S  0
+    //   T = Target register, S = Set_Clear
+
+    LSL     r3.b2, r3.b0, 7
+    LSR     r3.b3, r3.b1, 5
+    LSR     r3.b0, r3.w2, 6
+    
+    ADD     r3.w2, GState.PinTable, r3.b0
+    JMP     r3.w2
+
+PINTABLE:
+    RET
+    RET
+    RET
+    RET
+
+    SET     GState.GPIO0_Clr, GState.Scratch3.b1
+    RET
+    SET     GState.GPIO0_Set, GState.Scratch3.b1
+    RET
+
+    SET     GState.GPIO1_Clr, GState.Scratch3.b1
+    RET
+    SET     GState.GPIO1_Set, GState.Scratch3.b1
+    RET
+
+    SET     GState.GPIO2_Clr, GState.Scratch3.b1
+    RET
+    SET     GState.GPIO2_Set, GState.Scratch3.b1
+    RET
+
+    SET     GState.GPIO3_Clr, GState.Scratch3.b1
+    RET
+    SET     GState.GPIO3_Set, GState.Scratch3.b1
+    RET
+
+    CLR     GState.PRU_Out,   GState.Scratch3.b1
+    RET
+    SET     GState.PRU_Out,   GState.Scratch3.b1
+    RET
+
+    RET
+    RET
+    RET
+    RET
+
+    RET
+    RET
+    RET
+    RET
+PINTABLEEND:
+
+TASKTABLE:
     JMP     NEXT_TASK           // MODE_NONE
     JMP     MODE_WAIT
     JMP     NEXT_TASK           //     JMP     MODE_WRITE
@@ -231,7 +289,7 @@ JUMPTABLE:
     JMP     NEXT_TASK           //     JMP     MODE_UP_DOWN
     JMP     NEXT_TASK           //     JMP     MODE_DELTA_SIG
     JMP     MODE_PWM
-JUMPTABLEEND:
+TASKTABLEEND:
 
 #include "pru_wait.p"
 #include "pru_stepdir.p"

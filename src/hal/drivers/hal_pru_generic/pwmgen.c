@@ -122,7 +122,7 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
 //Debugging...enable by default
 *(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 1;
 *(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.2 * ((float) j + 1);
-hpg->pwmgen.instance[i].out[j].hal.param.pin   = j + 1;
+hpg->pwmgen.instance[i].out[j].hal.param.pin   = (j + 1) * 0x21 ;
     }
 
     return 0;
