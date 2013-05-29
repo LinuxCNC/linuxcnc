@@ -77,10 +77,16 @@ MODE_PWM:
     // Set all outputs when period wraps
 SET_LOOP:
     LBBO    Output.Value, GTask.addr, Index.Offset, SIZE(Output)
-    SET     GState.PRU_Out, Output.Pin
+
+    // Only set if Value != 0, otherwise clear
+    MOV     r3.b1, Output.Pin
+    MIN     r3.b0, Output.Value, 1
+    CALL    SET_CLR_BIT
+
     ADD     Index.Offset, Index.Offset, SIZE(Output)
     SUB     GTask.len, GTask.len, 1
     QBNE    SET_LOOP, GTask.len, 0
+    JMP     PWM_DONE
 
     PrescaleNE:
 
@@ -91,7 +97,12 @@ OUT_LOOP:
     LBBO    Output.Value, GTask.addr, Index.Offset, SIZE(Output)
 
     QBNE    ValueNE, State.T_Period, Output.Value
-    CLR     GState.PRU_Out, Output.Pin
+//  CLR     GState.PRU_Out, Output.Pin
+
+    MOV     r3.b1, Output.Pin
+    LDI     r3.b0, 0
+    CALL    SET_CLR_BIT
+
     ValueNE:
 
     ADD     Index.Offset, Index.Offset, SIZE(Output)
