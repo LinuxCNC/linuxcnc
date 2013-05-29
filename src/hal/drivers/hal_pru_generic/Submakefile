@@ -1,0 +1,37 @@
+ifeq ($(TARGET_PLATFORM),beaglebone)
+
+# support for ARM335x PRU (Programmable Realtime Unit) components and
+SUPPORT_DIR := hal/support
+PRU_SRC_DIR := hal/drivers/hal_pru_generic/
+PRU_MAIN    := pru_generic
+
+# The PRU assembler proper
+PASM := ../bin/pasm
+
+## install PRU, prussdrv includes
+## not needed for now
+##../include/%.h: $(SUPPORT_DIR)/%.h
+##	cp $^ $@
+
+# Assembly of PRU code
+# the list of assembly source files
+PRU_SRCS := $(wildcard $(PRU_SRC_DIR)/*.p)
+
+# .bin file produced by PASM -b goes in rtlib
+PRU_BIN := ../rtlib/$(PRU_MAIN).bin
+
+# .bin files are targets
+TARGETS +=  $(PRU_BIN)
+USERSRCS += $(PRU_SRCS)
+
+# .bin output, create listing
+PASM_BINFLAGS := -b -L -d
+
+# conversion rule for the above
+# assemble .p  into .bin object files
+#$(PRU_BIN): $(PRU_SRCS)
+../rtlib/%.bin: $(PRU_SRC_DIR)/%.p
+	$(ECHO) Assembling PRU code $@
+	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
+
+endif

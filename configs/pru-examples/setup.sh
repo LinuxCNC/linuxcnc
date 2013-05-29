@@ -58,4 +58,7 @@ done <<- "EOF"
 #	uart0_rxd	5	pru1.r30.14
 #	uart0_txd	5	pru1.r30.15
 
+	gpmc_ad6	7	gpio1_6
+#	gpmc_ad2	7	gpio1_2
+
 EOF
