@@ -1,38 +1,6 @@
 Machine configuration file is 'halui.ini'
 Starting LinuxCNC...
-iocontrol: machine: 'unknown'  version 'unknown'
 emc/iotask/ioControl.cc 752: can't load tool table.
-task: machine: 'unknown'  version 'unknown'
-NML_INTERP_LIST::append(nml_msg{size=24,type=EMC_TRAJ_SET_TERM_COND}) : list_size=1, line_number=0
-NML_INTERP_LIST::append(nml_msg{size=88,type=EMC_TRAJ_SET_G5X}) : list_size=2, line_number=0
-NML_INTERP_LIST::append(nml_msg{size=84,type=EMC_TRAJ_SET_G92}) : list_size=3, line_number=0
-NML_INTERP_LIST::append(nml_msg{size=20,type=EMC_TRAJ_SET_ROTATION}) : list_size=4, line_number=0
-emcTaskPlanInit() returned 0
-NML_INTERP_LIST::append(nml_msg_ptr{size=12,type=EMC_TASK_PLAN_SYNCH}) : list_size=1, line_number=0
-emcTaskPlanSynch() returned 0
-NML_INTERP_LIST::append(nml_msg{size=24,type=EMC_TRAJ_SET_TERM_COND}) : list_size=2, line_number=0
-NML_INTERP_LIST::append(nml_msg{size=88,type=EMC_TRAJ_SET_G5X}) : list_size=3, line_number=0
-NML_INTERP_LIST::append(nml_msg{size=84,type=EMC_TRAJ_SET_G92}) : list_size=4, line_number=0
-NML_INTERP_LIST::append(nml_msg{size=20,type=EMC_TRAJ_SET_ROTATION}) : list_size=5, line_number=0
-emcTaskPlanInit() returned 0
-Issuing EMC_TASK_SET_STATE -- 	 (+505,+16,    +1,    +2,)
-NML_INTERP_LIST::append(nml_msg_ptr{size=12,type=EMC_TASK_PLAN_SYNCH}) : list_size=1, line_number=0
-emcTaskPlanSynch() returned 0
-Issuing EMC_TASK_PLAN_SYNCH -- 	 (+516,+12,    +0,)
-emcTaskPlanSynch() returned 0
-Issuing EMC_TASK_SET_STATE -- 	 (+505,+16,    +2,    +4,)
-Issuing EMC_AXIS_JOG -- 	 (+124,+24,+100001,    +0,-1.666667,)
-Issuing EMC_AXIS_ABORT -- 	 (+120,+16,+100002,    +0,)
-Issuing EMC_AXIS_JOG -- 	 (+124,+24,+100003,    +0,1.666667,)
-Issuing EMC_AXIS_ABORT -- 	 (+120,+16,+100004,    +0,)
-Issuing EMC_AXIS_JOG -- 	 (+124,+24,+100005,    +1,-1.666667,)
-Issuing EMC_AXIS_ABORT -- 	 (+120,+16,+100006,    +1,)
-Issuing EMC_AXIS_JOG -- 	 (+124,+24,+100007,    +1,1.666667,)
-Issuing EMC_AXIS_ABORT -- 	 (+120,+16,+100008,    +1,)
-Issuing EMC_AXIS_JOG -- 	 (+124,+24,+100009,    +2,-1.666667,)
-Issuing EMC_AXIS_ABORT -- 	 (+120,+16,+100010,    +2,)
-Issuing EMC_AXIS_JOG -- 	 (+124,+24,+100011,    +2,1.666667,)
-Issuing EMC_AXIS_ABORT -- 	 (+120,+16,+100012,    +2,)
 jogging joint-0 to -0.5
     selecting joint-0
     jogging joint-0 negative: to -0.500
