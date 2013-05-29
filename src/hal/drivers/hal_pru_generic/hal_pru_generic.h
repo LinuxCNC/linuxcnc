@@ -74,89 +74,15 @@
 // Default pin to use for PRU modules...use a pin that does not leave the PRU
 #define PRU_DEFAULT_PIN 17
 
-// PRU_* (Programmable Realtime Unit) names relate to software running 
-// on the PRU, and likely need to match the PRU assembly code
-//
-// hpg_* (HAL PRU generic) defines are specific to the LinuxCNC HAL 
-// driver side of things and need only be self-consistent with the 
-// hal_pru_generic C code 
+typedef struct {
+    pru_addr_t  addr;
+    pru_addr_t  next;
+} pru_task_t;
 
-// typedef u32 pru_addr_t;
-// 
-// typedef enum { 
-//     eMODE_INVALID   = -1,
-//     eMODE_NONE      = 0,
-//     eMODE_WAIT      = 1,
-//     eMODE_STEP_DIR  = 2,
-//     eMODE_UP_DOWN   = 3,    // Not implemented yet!
-//     eMODE_DELTA_SIG = 4,
-//     eMODE_PWM       = 5
-// } MODE;
-// 
-// typedef struct {
-//     u8      mode;
-//     u8      len;
-//     u8      dataX;
-//     u8      dataY;
-//     u32     addr;
-// } PRU_task_hdr_t;
-// 
-// typedef union {
-//     u32     dword[2];
-//     u16     word[4];
-//     u8      byte[8];
-// } PRU_task_raw_t;
-// 
-// typedef union {
-//     PRU_task_raw_t raw;
-//     PRU_task_hdr_t hdr;
-// } PRU_task_header_t;
-// 
-// typedef struct {
-//     PRU_task_header_t task;
-//     u32     period;
-// } PRU_statics_t;
-// 
-// typedef struct  {
-//     PRU_task_header_t task;
-// 
-//     s32     rate;
-//     u16     steplen;
-//     u16     dirhold;
-//     u16     stepspace;
-//     u16     dirsetup;
-//     u32     accum;
-//     u32     pos;
-//     u32     reserved[2];
-// } PRU_task_stepdir_t;
-// 
-// typedef struct {
-//     PRU_task_header_t task;
-// 
-//     u16     value1;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-//     u16     value2;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-//     u32     reserved[6];
-// } PRU_task_delta_t;
-// 
-// typedef struct {
-//     u16     output_n;
-//     u8      pin_n;
-//     u8      reserved_n;
-// } PRU_pwm_output_t;
-// 
-// typedef struct {
-//     PRU_task_header_t task;
-// 
-//     u16     prescale;
-//     u16     period;
-//     u32     reserved;
-// //  PRU_pwm_output_t out[task.len];
-// } PRU_task_pwm_t;
-// 
 typedef struct {
     PRU_task_stepdir_t PRU;
 
-    pru_addr_t task_addr;
+    pru_task_t task;
 
     // Export pins (mostly) matching hostom2 stepgen instance to ease integration
     struct {
@@ -243,21 +169,42 @@ typedef struct {
 } hpg_deltasig_t;
 
 typedef struct {
+
+    PRU_pwm_output_t    pru;
+    
+    struct {
+
+        struct {
+            hal_float_t *value;
+            hal_bit_t   *enable;
+        } pin;
+
+        struct {
+            hal_float_t scale;
+            hal_u32_t   pin;
+        } param;
+
+    } hal;
+
+} hpg_pwmgen_output_instance_t;
+
+typedef struct {
     // PRU control and state data
     PRU_task_pwm_t      pru;
-    PRU_pwm_output_t    *out;
-    pru_addr_t          task_addr;
+    pru_task_t          task;
 
-    // HAL Pins
-    hal_bit_t       *hal_enable;
+    int num_outputs;
+    hpg_pwmgen_output_instance_t    *out;
 
-    hal_u32_t       *hal_period;
-    hal_u32_t       *hal_out1;
-    hal_u32_t       *hal_out2;
+    // Instance-wide HAL variables
+    struct {
+        struct {
+            hal_u32_t   pwm_frequency;
+        } param;
+    } hal;
 
-    // HAL Parameters
-    hal_u32_t       hal_pin1;
-    hal_u32_t       hal_pin2;
+    u32 written_pwm_frequency;
+    u16 pwm_period;
 } hpg_pwmgen_instance_t;
 
 typedef struct {
@@ -267,7 +214,7 @@ typedef struct {
 
 typedef struct {
     PRU_task_wait_t     pru;
-    pru_addr_t          task_addr;
+    pru_task_t          task;
 } hpg_wait_t;
 
 typedef struct {
@@ -280,10 +227,19 @@ typedef struct {
         const char *name;
     } config;
 
+    struct {
+        struct {
+            hal_u32_t   pru_busy_pin;
+        } param;
+    } hal;
+
     u32 *pru_data;              // ARM pointer to mapped PRU data memory
     pru_addr_t pru_data_free;   // Offset to first free data
-    pru_addr_t pru_stat;        // Offset to PRU static variables
-    pru_addr_t last_task;       // Offset to last task in the task list
+
+    PRU_statics_t   pru_stat;
+    pru_addr_t      pru_stat_addr;  // Offset to PRU static variables
+//  pru_addr_t      last_task;      // Offset to last task in the task list
+    pru_task_t      *last_task;     // Pointer to the last task in the task-list
 
     // this keeps track of all the tram entries
     struct list_head tram_read_entries;
@@ -308,7 +264,7 @@ typedef struct {
 //
 
 pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len);
-void pru_task_add(hal_pru_generic_t *hpg, pru_addr_t addr);
+void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
 
 
 //
@@ -316,6 +272,8 @@ void pru_task_add(hal_pru_generic_t *hpg, pru_addr_t addr);
 //
 
 int hpg_pwmgen_init(hal_pru_generic_t *hpg);
+void hpg_pwmgen_write(hal_pru_generic_t *hpg);
+void hpg_pwmgen_update(hal_pru_generic_t *hpg);
 
 
 //

@@ -67,46 +67,63 @@
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
 
+void hpg_pwmgen_handle_pwm_frequency(hal_pru_generic_t *hpg, int i) {
+    u32 pwm_pru_periods;
+    pwm_pru_periods = 1.0e9 / (double) hpg->pwmgen.instance[i].hal.param.pwm_frequency / hpg->config.pru_period;
+    if (pwm_pru_periods < 65535) {
+        hpg->pwmgen.instance[i].pru.prescale = 1;
+        hpg->pwmgen.instance[i].pru.period = pwm_pru_periods - 1;
+    } else {
+        // prescale required
+        hpg->pwmgen.instance[i].pru.prescale = ceil((double) pwm_pru_periods / 65535.0);
+        hpg->pwmgen.instance[i].pru.period = (pwm_pru_periods / hpg->pwmgen.instance[i].pru.prescale) - 1;
+    }
+}
+
 int export_pwmgen(hal_pru_generic_t *hpg, int i)
 {
     char name[HAL_NAME_LEN + 1];
-    int r;
+    int r, j;
 
-    // Export HAL Pins
-    rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.enable", hpg->config.name, i);
-    r = hal_pin_bit_new(name, HAL_IN, &(hpg->pwmgen.instance[i].hal_enable), hpg->config.comp_id);
+    // HAL values common to all outputs in this instance
+    rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.pwm_frequency", hpg->config.name, i);
+    r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].hal.param.pwm_frequency), hpg->config.comp_id);
     if (r != 0) { return r; }
 
-    rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.period", hpg->config.name, i);
-    r = hal_pin_u32_new(name, HAL_IN, &(hpg->pwmgen.instance[i].hal_period), hpg->config.comp_id);
-    if (r != 0) { return r; }
+    hpg->pwmgen.instance[i].hal.param.pwm_frequency = 100;
 
-    rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.out1", hpg->config.name, i);
-    r = hal_pin_u32_new(name, HAL_IN, &(hpg->pwmgen.instance[i].hal_out1), hpg->config.comp_id);
-    if (r != 0) { return r; }
+    for (j=0; j < hpg->pwmgen.instance[i].num_outputs; j++) {
+        // Export HAL Pins
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.enable", hpg->config.name, i, j);
+        r = hal_pin_bit_new(name, HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.enable), hpg->config.comp_id);
+        if (r != 0) { return r; }
 
-    rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.out2", hpg->config.name, i);
-    r = hal_pin_u32_new(name, HAL_IN, &(hpg->pwmgen.instance[i].hal_out2), hpg->config.comp_id);
-    if (r != 0) { return r; }
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.value", hpg->config.name, i, j);
+        r = hal_pin_float_new(name, HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.value), hpg->config.comp_id);
+        if (r != 0) { return r; }
 
-    // Export HAL Parameters
-    rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.pin1", hpg->config.name, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].hal_pin1), hpg->config.comp_id);
-    if (r != 0) { return r; }
+        // Export HAL Parameters
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.scale", hpg->config.name, i, j);
+        r = hal_param_float_new(name, HAL_RW, &(hpg->pwmgen.instance[i].out[j].hal.param.scale), hpg->config.comp_id);
+        if (r != 0) { return r; }
 
-    rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.pin2", hpg->config.name, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].hal_pin2), hpg->config.comp_id);
-    if (r != 0) { return r; }
+        rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.out.%02d.pin", hpg->config.name, i, j);
+        r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].out[j].hal.param.pin), hpg->config.comp_id);
+        if (r != 0) { return r; }
 
-    // Initialize HAL Pins
-    *(hpg->pwmgen.instance[i].hal_enable)   = 0;
-    *(hpg->pwmgen.instance[i].hal_period)   = 0;
-    *(hpg->pwmgen.instance[i].hal_out1)     = 0;
-    *(hpg->pwmgen.instance[i].hal_out2)     = 0;
+        // Initialize HAL Pins
+        *(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 0;
+        *(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.0;
 
-    // Initialize HAL Parameters
-    hpg->pwmgen.instance[i].hal_pin1        = PRU_DEFAULT_PIN;
-    hpg->pwmgen.instance[i].hal_pin2        = PRU_DEFAULT_PIN;
+        // Initialize HAL Parameters
+        hpg->pwmgen.instance[i].out[j].hal.param.pin   = PRU_DEFAULT_PIN;
+        hpg->pwmgen.instance[i].out[j].hal.param.scale = 1.0;
+
+//Debugging...enable by default
+*(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 1;
+*(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.2 * ((float) j + 1);
+hpg->pwmgen.instance[i].out[j].hal.param.pin   = j + 1;
+    }
 
     return 0;
 }
@@ -120,60 +137,96 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
 //  hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
     hpg->pwmgen.num_instances = 1;
 
-    // Allocate HAL shared memory for state data
+    // Allocate HAL shared memory for instance state data
     hpg->pwmgen.instance = (hpg_pwmgen_instance_t *) hal_malloc(sizeof(hpg_pwmgen_instance_t) * hpg->pwmgen.num_instances);
     if (hpg->pwmgen.instance == 0) {
 	    HPG_ERR("ERROR: hal_malloc() failed\n");
 	    return -1;
     }
 
+    // Clear memory
+    memset(hpg->pwmgen.instance, 0, (sizeof(hpg_pwmgen_instance_t) * hpg->pwmgen.num_instances) );
+
     for (i=0; i < hpg->pwmgen.num_instances; i++) {
-        int len = sizeof(hpg->pwmgen.instance[i].pru) + (sizeof(PRU_pwm_output_t) * hpg->config.num_pwmgens);
-//      int len = sizeof(hpg->pwmgen.instance[i].pru);
-        hpg->pwmgen.instance[i].task_addr = pru_malloc(hpg, len);
+
+hpg->pwmgen.instance[i].num_outputs = hpg->config.num_pwmgens;
+
+        // Allocate HAL shared memory for output state data
+        hpg->pwmgen.instance[i].out = (hpg_pwmgen_output_instance_t *) hal_malloc(sizeof(hpg_pwmgen_output_instance_t) * hpg->pwmgen.instance[i].num_outputs);
+        if (hpg->pwmgen.instance[i].out == 0) {
+	        HPG_ERR("ERROR: hal_malloc() failed\n");
+	        return -1;
+        }
+
+        int len = sizeof(hpg->pwmgen.instance[i].pru) + (sizeof(PRU_pwm_output_t) * hpg->pwmgen.instance[i].num_outputs);
+        hpg->pwmgen.instance[i].task.addr = pru_malloc(hpg, len);
         hpg->pwmgen.instance[i].pru.task.hdr.mode = eMODE_PWM;
 
-        pru_task_add(hpg, hpg->pwmgen.instance[i].task_addr);
-
-PRU_task_pwm_t *pru = (PRU_task_pwm_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task_addr);
-
-hpg->pwmgen.instance[i].pru = *pru;
-
-hpg->pwmgen.instance[i].pru.task.hdr.mode = eMODE_PWM;
-hpg->pwmgen.instance[i].pru.task.hdr.len = 3;
-hpg->pwmgen.instance[i].pru.task.hdr.dataX = 0x03;
-hpg->pwmgen.instance[i].pru.task.hdr.dataY = 0x04;
-hpg->pwmgen.instance[i].pru.period = 1000;
-hpg->pwmgen.instance[i].pru.prescale = 1;
-hpg->pwmgen.instance[i].pru.reserved = 0;
-
-*pru = hpg->pwmgen.instance[i].pru;
-
-PRU_pwm_output_t *out = (PRU_pwm_output_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task_addr + sizeof(hpg->pwmgen.instance[i].pru));
-
-out[0].value = 250;
-out[0].pin   = 1;
-out[1].value = 500;
-out[1].pin   = 2;
-out[2].value = 750;
-out[2].pin   = 3;
-
-// pru->task.hdr.mode  = eMODE_PWM;
-// pru->task.hdr.dataX = 0x02;
-// pru->task.hdr.dataY = 0x03;
-// pru->Period = 1000;
-// pru->High1 = 250;
-// pru->High2 = 750;
+        pru_task_add(hpg, &(hpg->pwmgen.instance[i].task));
 
         if ((r = export_pwmgen(hpg,i)) != 0){ 
             HPG_ERR("ERROR: failed to export pwmgen %i: %i\n",i,r);
             return -1;
         }
+
     }
 
     return 0;
-fail0:
-    hpg->pwmgen.num_instances = 0;
-    return r;
 }
 
+void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
+    int i, j;
+
+    if (hpg->pwmgen.num_instances <= 0) return;
+
+    for (i = 0; i < hpg->pwmgen.num_instances; i ++) {
+        double scaled_value;
+        double abs_duty_cycle;
+
+        PRU_pwm_output_t *out = (PRU_pwm_output_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr + sizeof(hpg->pwmgen.instance[i].pru));
+
+        for (j = 0; j < hpg->pwmgen.instance[i].num_outputs ; j ++) {
+
+            if (*hpg->pwmgen.instance[i].out[j].hal.pin.enable == 0) {
+                hpg->pwmgen.instance[i].out[j].pru.value = 0;
+                continue;
+            }
+
+            scaled_value = *hpg->pwmgen.instance[i].out[j].hal.pin.value / hpg->pwmgen.instance[i].out[j].hal.param.scale;
+
+            abs_duty_cycle = fabs(scaled_value);
+            if (abs_duty_cycle > 1.0) abs_duty_cycle = 1.0;
+
+            // duty_cycle goes from 0.0 to 1.0, and needs to be cover the range of 0 to pwm_period, inclusive
+            hpg->pwmgen.instance[i].out[j].pru.value = abs_duty_cycle * (double)(hpg->pwmgen.instance[i].pru.period + 1);
+
+            hpg->pwmgen.instance[i].out[j].pru.pin = hpg->pwmgen.instance[i].out[j].hal.param.pin;
+
+            out[j] = hpg->pwmgen.instance[i].out[j].pru;
+        }
+
+    }
+}
+
+void hpg_pwmgen_write(hal_pru_generic_t *hpg) {
+    int i;
+
+    if (hpg->pwmgen.num_instances <= 0) return;
+
+    for (i = 0; i < hpg->pwmgen.num_instances; i ++) {
+
+        hpg->pwmgen.instance[i].pru.task.hdr.mode = eMODE_PWM;
+        hpg->pwmgen.instance[i].pru.task.hdr.len = hpg->pwmgen.instance[i].num_outputs;
+        hpg->pwmgen.instance[i].pru.task.hdr.dataX = 0x00;
+        hpg->pwmgen.instance[i].pru.task.hdr.dataY = 0x00;
+        hpg->pwmgen.instance[i].pru.task.hdr.addr = hpg->pwmgen.instance[i].task.next;
+        hpg->pwmgen.instance[i].pru.period = 1000;
+        hpg->pwmgen.instance[i].pru.prescale = 1;
+        hpg->pwmgen.instance[i].pru.reserved = 0;
+
+        PRU_task_pwm_t *pru = (PRU_task_pwm_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr);
+        *pru = hpg->pwmgen.instance[i].pru;
+    }
+
+    hpg_pwmgen_update(hpg);
+}

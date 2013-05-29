@@ -155,6 +155,9 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg);
 void pru_shutdown(int pru);
 static void *pruevent_thread(void *arg);
 
+int hpg_wait_init(hal_pru_generic_t *hpg);
+void hpg_wait_write(hal_pru_generic_t *hpg);
+
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
@@ -215,15 +218,12 @@ rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_stepgens: %d\n",modname, num_stepgens);
         return -1;
     }
 
-hpg->wait.task_addr = pru_malloc(hpg, sizeof(hpg->wait.pru));
-hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
-
-PRU_task_wait_t *prux = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task_addr);
-prux->task.hdr.mode  = eMODE_WAIT;
-prux->task.hdr.dataX = 0x80;
-prux->task.hdr.dataY = 0x00;
-
-pru_task_add(hpg, hpg->wait.task_addr);
+    if ((retval = hpg_wait_init(hpg))) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "%s: ERROR: global task init failed: %d\n",modname, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
 
     if ((retval = export_pru(hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -231,6 +231,9 @@ pru_task_add(hpg, hpg->wait.task_addr);
         hal_exit(comp_id);
         return -1;
     }
+
+    hpg_pwmgen_write(hpg);
+    hpg_wait_write(hpg);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -338,6 +341,10 @@ u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns) {
 
 static void hpg_write(void *void_hpg, long period) {
     hal_pru_generic_t *hpg      = void_hpg;
+
+    hpg_pwmgen_update(hpg);
+    hpg_wait_update(hpg);
+
 //     PRU_chan_state_ptr pru      = (PRU_chan_state_ptr) pru_data_ram;
 //     int i, j;
 // 
@@ -676,16 +683,18 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
         hpg->pru_data[i] = 0;
     }
 
-    // Reserve memory for PRU static variables
-    hpg->pru_stat = 0;
-    hpg->pru_data_free = sizeof(PRU_statics_t);
+    // Reserve PRU memory for static configuration variables
+    hpg->pru_stat_addr = PRU_DATA_START;
+    hpg->pru_data_free = hpg->pru_stat_addr + sizeof(PRU_statics_t);
 
     // Setup PRU globals
-    PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat);
-stat->task.hdr.dataX = 0xAB;
-stat->task.hdr.dataY = 0xFE;
-    stat->period = pru_period;
+    hpg->pru_stat.task.hdr.dataX = 0xAB;
+    hpg->pru_stat.task.hdr.dataY = 0xFE;
+    hpg->pru_stat.period = pru_period;
     hpg->config.pru_period = pru_period;
+
+    PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat_addr);
+    *stat = hpg->pru_stat;
 
     return 0;
 }
@@ -709,29 +718,27 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     return retval;
 }
 
-void pru_task_add(hal_pru_generic_t *hpg, pru_addr_t addr) {
+void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
     // Be *VERY* careful with pointer math!  C likes to multiple integers by sizeof() the referenced object!
-    PRU_statics_t     *stat = (PRU_statics_t *)     ((u32) hpg->pru_data + (u32) hpg->pru_stat);
-    PRU_task_header_t *task = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) addr);
+//    PRU_statics_t     *stat = (PRU_statics_t *)     ((u32) hpg->pru_data + (u32) hpg->pru_stat);
+//    PRU_task_header_t *task = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) addr);
 
-HPG_ERR("Data: %08x Statics: %08x Task: %08x Addr: %04x\n", hpg->pru_data, stat, task, addr);
+HPG_ERR("Adding task: addr=%04x next=%04x\n",task->addr, task->next);
 
-HPG_ERR("Stat.hdr.addr = %04x\n", stat->task.hdr.addr);
-
-    if (stat->task.hdr.addr == 0) {
+    if (hpg->last_task == 0) {
         // This is the first task
-        stat->task.hdr.addr = addr;     // PRU start of task list static variable
-        task->hdr.addr  = addr;         // Point the next task pointer to ourselves
-        hpg->last_task  = addr;         // Track the last task location
-    }
-    else {
+        hpg->pru_stat.task.hdr.addr = task->addr;
+        task->next = task->addr;
+        hpg->last_task  = task;
+    } else {
+HPG_ERR("Adding task: last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
         // Add this task to the end of the task list
-        PRU_task_header_t *prev = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) hpg->last_task);
-
-        task->hdr.addr = stat->task.hdr.addr;   // Point the next task pointer to the start of the task list
-        prev->hdr.addr = addr;                  // Point the new task to the previous task
-        hpg->last_task = addr;                  // Update the last task location
+        task->next = hpg->pru_stat.task.hdr.addr;
+        hpg->last_task->next = task->addr;
+        hpg->last_task = task;
     }
+HPG_ERR("Added task:  addr=%04x next=%04x\n",task->addr, task->next);
+HPG_ERR("Added task:  last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
 }
 
 static void *pruevent_thread(void *arg)
@@ -757,3 +764,40 @@ void pru_shutdown(int pru)
     prussdrv_exit (); // also joins event listen thread
 }
 
+int hpg_wait_init(hal_pru_generic_t *hpg) {
+    char name[HAL_NAME_LEN + 1];
+    int r;
+
+    hpg->wait.task.addr = pru_malloc(hpg, sizeof(hpg->wait.pru));
+
+    pru_task_add(hpg, &(hpg->wait.task));
+
+    rtapi_snprintf(name, sizeof(name), "%s.pru_busy_pin", hpg->config.name);
+    r = hal_param_u32_new(name, HAL_RW, &(hpg->hal.param.pru_busy_pin), hpg->config.comp_id);
+    if (r != 0) { return r; }
+
+    hpg->hal.param.pru_busy_pin = 0x80;
+
+    return 0;
+}
+
+void hpg_wait_write(hal_pru_generic_t *hpg) {
+    hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
+    hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
+    hpg->wait.pru.task.hdr.dataY = 0x00;
+    hpg->wait.pru.task.hdr.addr = hpg->wait.task.next;
+
+    PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
+    *pru = hpg->wait.pru;
+
+    PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat_addr);
+    *stat = hpg->pru_stat;
+}
+
+void hpg_wait_update(hal_pru_generic_t *hpg) {
+    if (hpg->wait.pru.task.hdr.dataX != hpg->hal.param.pru_busy_pin)
+        hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
+
+    PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
+    *pru = hpg->wait.pru;
+}

@@ -175,8 +175,11 @@ START:
     LBCO    r6, CONST_IEP, 0x40, 40                 // Read all 10 32-bit CMP registers into r6-r15
     OR      r6, r6, 0x03                            // Set count reset and enable compare 0 event
 
-    // Load loop period from static variables
-    LBCO    r8, CONST_PRUDRAM, OFFSET(pru_statics.period), SIZE(pru_statics.period)
+    // Use Task_Addr to point to static variables during init
+    MOV     GState.Task_Addr, PRU_DATA_START
+
+    // Load loop period from static variables into CMP0
+    LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
 
     SBCO    r6, CONST_IEP, 0x40, 40                 // Save 10 32-bit CMP registers
 
@@ -198,8 +201,8 @@ START:
 
     LDI     GState.Table, #JUMPTABLE                // Base address of jump table
 
-//  MOV     GState.Task_Addr, TASK_LIST             // Point to the start of the linked list of tasks
-    LBCO    GState.Task_Addr, CONST_PRUDRAM, OFFSET(pru_statics.addr), SIZE(pru_statics.addr)
+    // Load start of task list from static variables
+    LBBO    GState.Task_Addr, GState.Task_Addr, OFFSET(pru_statics.addr), SIZE(pru_statics.addr)
 
 MAINLOOP:
     // Read task details (Mode, Len, DataX, DataY)
@@ -210,7 +213,7 @@ MAINLOOP:
 
     // Index into the jump table and call the routine appropriate for our mode
     ADD     r1, GState.Table, GTask.mode
-    CALL    r1
+    JMP     r1
 
 NEXT_TASK:
     // Load the next task address
@@ -222,12 +225,12 @@ NEXT_TASK:
 JUMPTABLE:
     JMP     NEXT_TASK           // MODE_NONE
     JMP     MODE_WAIT
+    JMP     NEXT_TASK           //     JMP     MODE_WRITE
+    JMP     NEXT_TASK           //     JMP     MODE_READ
     JMP     MODE_STEP_DIR
     JMP     NEXT_TASK           //     JMP     MODE_UP_DOWN
     JMP     NEXT_TASK           //     JMP     MODE_DELTA_SIG
     JMP     MODE_PWM
-    JMP     NEXT_TASK           //     JMP     MODE_WRITE
-    JMP     NEXT_TASK           //     JMP     MODE_READ
 JUMPTABLEEND:
 
 #include "pru_wait.p"
@@ -239,6 +242,8 @@ JUMPTABLEEND:
 // #include "pru_deltasigma.p"
 
 // BeagleBone PRU I/O Assignments
+//
+// There is also a nice table available on github: https://github.com/selsinork/beaglebone-black-pinmux
 //
 //  AM3359ZCZ           Mux                         BeagleBone
 //  Pin Name            Value   PRU I/O Pin         Pin     Name        BeBoPr Use

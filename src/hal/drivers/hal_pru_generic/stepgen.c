@@ -106,8 +106,8 @@ static void hpg_read(void *void_hpg, long l_period_ns) {
 
         // "atomic" read of accumulator and position register from PRU
 	    do {
-            x = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task_addr + offsetof(PRU_task_stepdir_t, accum);
-            y = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task_addr + offsetof(PRU_task_stepdir_t, accum);
+            x = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task.addr + offsetof(PRU_task_stepdir_t, accum);
+            y = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task.addr + offsetof(PRU_task_stepdir_t, accum);
 	    } while ( x != y );
 
         // Update internal state
@@ -712,9 +712,9 @@ int hpg_stepgen_init(hal_pru_generic_t *hpg){
     }
 
     for (i=0; i < hpg->config.num_stepgens; i++) {
-        hpg->stepgen.instance[i].task_addr = pru_malloc(hpg, sizeof(hpg->stepgen.instance[i].PRU));
+        hpg->stepgen.instance[i].task.addr = pru_malloc(hpg, sizeof(hpg->stepgen.instance[i].PRU));
         hpg->stepgen.instance[i].PRU.task.hdr.mode = eMODE_STEP_DIR;
-        pru_task_add(hpg, hpg->stepgen.instance[i].task_addr);
+        pru_task_add(hpg, &(hpg->stepgen.instance[i].task));
 
         if ((r = export_stepgen(hpg,i)) != 0){ 
             rtapi_print_msg(RTAPI_MSG_ERR,

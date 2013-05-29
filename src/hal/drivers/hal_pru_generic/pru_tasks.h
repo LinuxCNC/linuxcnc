@@ -56,6 +56,8 @@
 // Basic types used elsewhere
 //
 
+#define PRU_DATA_START 0
+
 #ifndef _hal_pru_generic_H_
     // pru_addr_t
     
@@ -69,10 +71,12 @@
         eMODE_INVALID   = -1,
         eMODE_NONE      = 0,
         eMODE_WAIT      = 1,
-        eMODE_STEP_DIR  = 2,
-        eMODE_UP_DOWN   = 3,    // Not implemented yet!
-        eMODE_DELTA_SIG = 4,
-        eMODE_PWM       = 5
+        eMODE_WRITE     = 2,
+        eMODE_READ      = 3,
+        eMODE_STEP_DIR  = 4,
+        eMODE_UP_DOWN   = 5,    // Not implemented yet!
+        eMODE_DELTA_SIG = 6,
+        eMODE_PWM       = 7
     } pru_task_mode_t;
 #endif
 
