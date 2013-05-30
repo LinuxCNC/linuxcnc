@@ -762,9 +762,9 @@ if test  -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
     RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags)"
 
     if test "$($RTAI_KERNEL_THREADS_RTS --arch)" = x86_64; then
-	flags="-msse -ffast-math -funsafe-math-optimizations"
+	flags="-msse -funsafe-math-optimizations"
     else
-        flags="-fno-fast-math -fno-unsafe-math-optimizations"
+        flags="-fno-unsafe-math-optimizations"
     fi
     RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
 fi
