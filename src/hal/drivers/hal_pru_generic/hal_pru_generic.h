@@ -4,7 +4,11 @@
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
+//             Split into several files                                 //
+//             Added support for PRU task list                          //
+//             Refactored code to more closely match mesa-hostmot2      //
 // 2013-May-20 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
@@ -80,7 +84,7 @@ typedef struct {
 } pru_task_t;
 
 typedef struct {
-    PRU_task_stepdir_t PRU;
+    PRU_task_stepdir_t pru;
 
     pru_task_t task;
 
@@ -139,7 +143,7 @@ typedef struct {
     u32 written_stepspace;
     u32 written_dirsetup;
     u32 written_dirhold;
-    u32 written_ctrl;
+    u32 written_task;
 } hpg_stepgen_instance_t;
 
 typedef struct {
@@ -272,7 +276,7 @@ void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
 //
 
 int hpg_pwmgen_init(hal_pru_generic_t *hpg);
-void hpg_pwmgen_write(hal_pru_generic_t *hpg);
+void hpg_pwmgen_force_write(hal_pru_generic_t *hpg);
 void hpg_pwmgen_update(hal_pru_generic_t *hpg);
 
 
@@ -281,7 +285,9 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg);
 //
 
 int hpg_stepgen_init(hal_pru_generic_t *hpg);
-void hpg_stepgen_prepare_write(hal_pru_generic_t *hpg, long l_period_ns);
+void hpg_stepgen_force_write(hal_pru_generic_t *hpg);
+void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns);
 u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns);
+void hpg_stepgen_read(void *void_hpg, long l_period_ns);
 
 #endif

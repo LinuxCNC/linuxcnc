@@ -1,11 +1,15 @@
 //----------------------------------------------------------------------//
 // Description: pwmgen.c                                                //
-// Code to interface to a PRU driven step generator                     //
+// Code to interface to a PRU driven pwm generator                      //
 //                                                                      //
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
+//             Split into several files                                 //
+//             Added support for PRU task list                          //
+//             Refactored code to more closely match mesa-hostmot2      //
 // 2012-Dec-30 Charles Steinkuehler                                     //
 //             Initial version, based in part on:                       //
 //               hal_pru.c      Micheal Halberler                       //
@@ -122,7 +126,7 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
 //Debugging...enable by default
 *(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 1;
 *(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.2 * ((float) j + 1);
-hpg->pwmgen.instance[i].out[j].hal.param.pin   = (j + 1) * 0x21 ;
+hpg->pwmgen.instance[i].out[j].hal.param.pin   = j + 0xA1;
     }
 
     return 0;
@@ -185,6 +189,7 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
 
         PRU_pwm_output_t *out = (PRU_pwm_output_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr + sizeof(hpg->pwmgen.instance[i].pru));
 
+// FIXME: Handle pwm frequency changes!
         for (j = 0; j < hpg->pwmgen.instance[i].num_outputs ; j ++) {
 
             if (*hpg->pwmgen.instance[i].out[j].hal.pin.enable == 0) {
@@ -208,7 +213,7 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
     }
 }
 
-void hpg_pwmgen_write(hal_pru_generic_t *hpg) {
+void hpg_pwmgen_force_write(hal_pru_generic_t *hpg) {
     int i;
 
     if (hpg->pwmgen.num_instances <= 0) return;
@@ -220,8 +225,11 @@ void hpg_pwmgen_write(hal_pru_generic_t *hpg) {
         hpg->pwmgen.instance[i].pru.task.hdr.dataX = 0x00;
         hpg->pwmgen.instance[i].pru.task.hdr.dataY = 0x00;
         hpg->pwmgen.instance[i].pru.task.hdr.addr = hpg->pwmgen.instance[i].task.next;
-        hpg->pwmgen.instance[i].pru.period = 1000;
-        hpg->pwmgen.instance[i].pru.prescale = 1;
+
+        hpg_pwmgen_handle_pwm_frequency(hal_pru_generic_t *hpg, int i);
+
+//      hpg->pwmgen.instance[i].pru.period = 1000;
+//      hpg->pwmgen.instance[i].pru.prescale = 1;
         hpg->pwmgen.instance[i].pru.reserved = 0;
 
         PRU_task_pwm_t *pru = (PRU_task_pwm_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr);

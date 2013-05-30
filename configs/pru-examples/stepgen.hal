@@ -15,7 +15,7 @@
 
 #loadrt hal_pru_generic chan_mode=s,s,s,s,n,p,d prucode="pru_main.bin" disabled=1 pru=1
 
-loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=0 num_pwmgens=3
+loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=2 num_pwmgens=3
 
 # this is the PRU debugger. It connects to PRU shared memory
 # can inspect registers and PRU status (processor status, program counter)
@@ -106,23 +106,24 @@ setp ui.register_table 1
 
 
 # Setup something so the PRU can show off a bit
-#setp hal_pru_generic.stepgen.00.steppin      12
-#setp hal_pru_generic.stepgen.00.dirpin       13
-#setp hal_pru_generic.stepgen.00.position-cmd 0.023
-#setp hal_pru_generic.stepgen.00.velocity-cmd 0.023
-#setp hal_pru_generic.stepgen.00.enable       1
-#setp hal_pru_generic.stepgen.00.control-type 0
-#setp hal_pru_generic.stepgen.00.maxaccel     0
-#setp hal_pru_generic.stepgen.00.maxvel       0
+# stepgen in velocity mode, so it will continuously generate pulses
+setp hal_pru_generic.stepgen.00.steppin      0xA4
+setp hal_pru_generic.stepgen.00.dirpin       0xA5
+setp hal_pru_generic.stepgen.00.position-cmd 0.023
+setp hal_pru_generic.stepgen.00.velocity-cmd 100
+setp hal_pru_generic.stepgen.00.enable       1
+setp hal_pru_generic.stepgen.00.control-type 1
+setp hal_pru_generic.stepgen.00.maxaccel     0
+setp hal_pru_generic.stepgen.00.maxvel       0
 
-#setp hal_pru_generic.stepgen.01.steppin      10
-#setp hal_pru_generic.stepgen.01.dirpin       11
-#setp hal_pru_generic.stepgen.01.position-cmd 0.018
-#setp hal_pru_generic.stepgen.01.velocity-cmd 0.018
-#setp hal_pru_generic.stepgen.01.enable       1
-#setp hal_pru_generic.stepgen.01.control-type 0
-#setp hal_pru_generic.stepgen.01.maxaccel     0
-#setp hal_pru_generic.stepgen.01.maxvel       0
+setp hal_pru_generic.stepgen.01.steppin      0xA6
+setp hal_pru_generic.stepgen.01.dirpin       0xA7
+setp hal_pru_generic.stepgen.01.position-cmd 0.018
+setp hal_pru_generic.stepgen.01.velocity-cmd 75
+setp hal_pru_generic.stepgen.01.enable       1
+setp hal_pru_generic.stepgen.01.control-type 1
+setp hal_pru_generic.stepgen.01.maxaccel     0
+setp hal_pru_generic.stepgen.01.maxvel       0
 
 #setp hal_pru_generic.stepgen.02.steppin      6
 #setp hal_pru_generic.stepgen.02.dirpin       7

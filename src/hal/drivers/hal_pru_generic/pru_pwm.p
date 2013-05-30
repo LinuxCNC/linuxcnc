@@ -5,10 +5,11 @@
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
-// 2013-May-20 Charles Steinkuehler                                     //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Altered main loop to support a linked list of tasks      //
+//             Added support for GPIO pins in addition to PRU outputs   //
 // 2012-Dec-27 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
@@ -113,9 +114,6 @@ OUT_LOOP:
 PWM_DONE:
     // Save channel state data
     SBBO    State.T_Prescale, GTask.addr, SIZE(task_header) + OFFSET(State.T_Prescale), SIZE(State) - OFFSET(State.T_Prescale)
-    LBBO    GState.State_Reg7, GTask.addr, SIZE(task_header) + OFFSET(State.T_Prescale), SIZE(State) - OFFSET(State.T_Prescale)
-    SBBO    GState.State_Reg1, GTask.addr, 12, 4
-    LBBO    GState.State_Reg6, GTask.addr, 12, 4
 
     // We're done here...carry on with the next task
     JMP     NEXT_TASK

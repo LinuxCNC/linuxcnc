@@ -6,10 +6,11 @@
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
-// 2013-May-20 Charles Steinkuehler                                     //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Altered main loop to support a linked list of tasks      //
+//             Added support for GPIO pins in addition to PRU outputs   //
 // 2012-Dec-27 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
@@ -292,12 +293,12 @@ TASKTABLE:
 TASKTABLEEND:
 
 #include "pru_wait.p"
-#include "pru_stepdir.p"
-#include "pru_pwm.p"
 // #include "pru_write.p"
 // #include "pru_read.p"
+#include "pru_stepdir.p"
 // #include "pru_updown.p"
 // #include "pru_deltasigma.p"
+#include "pru_pwm.p"
 
 // BeagleBone PRU I/O Assignments
 //

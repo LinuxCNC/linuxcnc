@@ -1,11 +1,15 @@
 //----------------------------------------------------------------------//
-// pru_tasks.h                                                          //
+// Description: pru_tasks.h                                             //
+// Header with definitions that MUST match between the PRU assembly     //
+// and the LinuxCNC HAL driver code.  In hopes of keeping these         //
+// definitions consistant, both versions are contained in this file,    //
+// separated by #ifdefs                                                 //
 //                                                                      //
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
-// 2013-May-20 Charles Steinkuehler                                     //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
 // This file is part of LinuxCNC HAL                                    //
