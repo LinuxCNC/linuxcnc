@@ -157,15 +157,10 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # default values                                         #
 
 # we'll be using it for compile tests
-# might be extended by RTSCC later
 AC_PROG_CC([gcc])  
 
 # a list of all configured threads systems to build
 BUILD_THREAD_FLAVORS=""
-
-# a compiler which might be specific for the realime system.
-# relevant case: rtai-config -cc
-RTSCC=""
 
 # a script like /usr/realtime/foo-config, which can be used to extract
 # c or ld flags specific for the thread system.
@@ -196,9 +191,6 @@ RT_PREEMPT_THREADS_LDFLAGS=""
 XENOMAI_THREADS_LDFLAGS=""
 XENOMAI_KERNEL_THREADS_LDFLAGS=""
 RTAI_KERNEL_THREADS_LDFLAGS=""
-
-# special RTS C compiler command, if any
-RTAI_KERNEL_THREADS_RTSCC=""
 
 # special kernel math CFLAGS, if any
 #
@@ -745,17 +737,6 @@ if test  -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
 	AC_MSG_RESULT(no, not an amd64 build)
     fi
 
-    AC_MSG_CHECKING([RTAI C compiler])
-    # The compiler MUST match the one used to compile the realtime modules if the
-    # kernel level code is to function correctly. But if the kernel has been
-    # compiled with gcc-2.96, it is unlikely to ever work !
-    RTAI_KERNEL_THREADS_RTSCC=`$RTAI_KERNEL_THREADS_RTS --cc`
-    if test -n "$RTAI_KERNEL_THREADS_RTSCC"; then
-       AC_MSG_RESULT($RTAI_KERNEL_THREADS_RTSCC) 
-    else
-       AC_MSG_RESULT(default)
-    fi
-
     RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
 	$workaround \
 	-I$($RTAI_KERNEL_THREADS_RTS --prefix)/include"
@@ -958,7 +939,6 @@ AC_SUBST([RTAI_KERNEL_THREADS_LDFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIR])
 AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
-AC_SUBST([RTAI_KERNEL_THREADS_RTSCC])
 # absolute path of rtai-config rtdir with symlinks dereferenced
 AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],
 	[$(readlink -f `$RTAI_KERNEL_THREADS_RTS --prefix`)])
