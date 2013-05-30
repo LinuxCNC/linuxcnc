@@ -7,7 +7,11 @@
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
+//             Split into several files                                 //
+//             Added support for PRU task list                          //
+//             Refactored code to more closely match mesa-hostmot2      //
 // 2012-Dec-30 Charles Steinkuehler                                     //
 //             Initial version, based in part on:                       //
 //               hal_pru.c      Micheal Halberler                       //
@@ -156,7 +160,8 @@ void pru_shutdown(int pru);
 static void *pruevent_thread(void *arg);
 
 int hpg_wait_init(hal_pru_generic_t *hpg);
-void hpg_wait_write(hal_pru_generic_t *hpg);
+void hpg_wait_force_write(hal_pru_generic_t *hpg);
+void hpg_wait_update(hal_pru_generic_t *hpg);
 
 /***********************************************************************
 *                       INIT AND EXIT CODE                             *
@@ -232,8 +237,9 @@ rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_stepgens: %d\n",modname, num_stepgens);
         return -1;
     }
 
-    hpg_pwmgen_write(hpg);
-    hpg_wait_write(hpg);
+    hpg_stepgen_force_write(hpg);
+    hpg_pwmgen_force_write(hpg);
+    hpg_wait_force_write(hpg);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -255,6 +261,10 @@ void rtapi_app_exit(void) {
 *                       REALTIME FUNCTIONS                             *
 ************************************************************************/
 static void hpg_read(void *void_hpg, long period) {
+    hal_pru_generic_t *hpg = void_hpg;
+
+    hpg_stepgen_read(hpg, period);
+
 //     // Read data from the PRU here...
 //     hal_pru_generic_t *hpg = void_hpg;
 //     PRU_chan_state_raw_t pru = (PRU_chan_state_raw_t) pru_data_ram;
@@ -342,6 +352,7 @@ u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns) {
 static void hpg_write(void *void_hpg, long period) {
     hal_pru_generic_t *hpg      = void_hpg;
 
+    hpg_stepgen_update(hpg, period);
     hpg_pwmgen_update(hpg);
     hpg_wait_update(hpg);
 
@@ -781,7 +792,7 @@ int hpg_wait_init(hal_pru_generic_t *hpg) {
     return 0;
 }
 
-void hpg_wait_write(hal_pru_generic_t *hpg) {
+void hpg_wait_force_write(hal_pru_generic_t *hpg) {
     hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
     hpg->wait.pru.task.hdr.dataX = hpg->hal.param.pru_busy_pin;
     hpg->wait.pru.task.hdr.dataY = 0x00;

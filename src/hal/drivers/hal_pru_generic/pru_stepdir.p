@@ -5,10 +5,11 @@
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
-// Last change:                                                         //
-// 2013-May-20 Charles Steinkuehler                                     //
+// Major Changes:                                                       //
+// 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Altered main loop to support a linked list of tasks      //
+//             Added support for GPIO pins in addition to PRU outputs   //
 // 2012-Dec-27 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
@@ -98,7 +99,8 @@ DIR_CHG_DONE:
     QBEQ    PULSE_DELAY_OVER, State.StepQ, 0
 
     // Step pulse output is active, clear it and setup pulse low delay
-    CLR     GState.PRU_Out, GTask.dataX
+    LSL     r3.w0, GTask.dataX, 8       // r3.b0 = 0, r3.b1 = dataX
+    CALL    SET_CLR_BIT
     LDI     State.StepQ, 0
     MOV     State.T_Pulse, State.Dly_step_low
     JMP     PULSE_DONE
@@ -130,10 +132,9 @@ DIR_SKIP_SUB:
     // Dir Changed bit is set, we need to update Dir output and configure dir setup timer
 
     // Update Direction output
-    SET     GState.PRU_Out, GTask.dataY
-    QBBS    DIR_OUT_HIGH, State.Rate, 31
-    CLR     GState.PRU_Out, GTask.dataY
-DIR_OUT_HIGH:
+    MOV     r3.b1, GTask.dataY
+    LSR     r3.b0, State.Rate, 31
+    CALL    SET_CLR_BIT
 
     // Clear Dir Changed Bit
     CLR     State.Accum, DirChgBit
@@ -165,7 +166,9 @@ DIR_DONE:
 DIR_UP:
 
     // Update state
-    SET     GState.PRU_Out, GTask.dataX
+    MOV     r3.b1, GTask.dataX
+    LDI     r3.b0, 1
+    CALL    SET_CLR_BIT
     SET     State.StepQ, 0
     // Fixme: The following should be one 32-bit MOV
     MOV     State.T_Pulse, State.Dly_step_high
