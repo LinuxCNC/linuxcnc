@@ -32,11 +32,13 @@ int rtapi_kdetect(unsigned long *feat)
     }
 
     // match u.release for soft hints
-    if (strcasestr (u.release, "-rtai"))
+    if ((strcasestr (u.release, "-rtai")) || \
+	(strcasestr (u.release, ".rtai")))
 	*feat |= UTSNAME_REL_RTAI;
     else if (strcasestr (u.release, "-rt"))
 	*feat |= UTSNAME_REL_RT;
-    if (strcasestr (u.release, "-xenomai"))
+    if ((strcasestr (u.release, "-xenomai")) || \
+	(strcasestr (u.release, ".xenomai")))
 	*feat |= UTSNAME_REL_XENOMAI;
 
     // a hint of dubious quality
