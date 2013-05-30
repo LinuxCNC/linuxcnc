@@ -46,6 +46,8 @@
 #define MAP_MASK (MAP_SIZE - 1)
 
 int main(int argc, char **argv) {
+    unsigned long *memptr;
+    int i, j;
     int fd;
     void *map_base, *virt_addr;
 	unsigned long read_result, writeval;
@@ -77,6 +79,17 @@ int main(int argc, char **argv) {
     fflush(stdout);
 
     virt_addr = map_base + (target & MAP_MASK);
+
+    memptr = (unsigned long *) virt_addr;
+
+    for ( i=0; i < 8; i++ ) {
+        printf("%08x:", i*8*4 );
+        for (j=0; j < 8; j++ ) {
+            printf(" %08x", memptr[(i*8)+j] );
+        }
+        printf("\n");
+    }
+
     switch(access_type) {
 		case 'b':
 			read_result = *((unsigned char *) virt_addr);

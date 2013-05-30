@@ -226,7 +226,7 @@ void hpg_pwmgen_force_write(hal_pru_generic_t *hpg) {
         hpg->pwmgen.instance[i].pru.task.hdr.dataY = 0x00;
         hpg->pwmgen.instance[i].pru.task.hdr.addr = hpg->pwmgen.instance[i].task.next;
 
-        hpg_pwmgen_handle_pwm_frequency(hal_pru_generic_t *hpg, int i);
+        hpg_pwmgen_handle_pwm_frequency(hpg, i);
 
 //      hpg->pwmgen.instance[i].pru.period = 1000;
 //      hpg->pwmgen.instance[i].pru.prescale = 1;

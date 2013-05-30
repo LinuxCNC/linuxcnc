@@ -15,7 +15,7 @@
 
 #loadrt hal_pru_generic chan_mode=s,s,s,s,n,p,d prucode="pru_main.bin" disabled=1 pru=1
 
-loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=2 num_pwmgens=3
+loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=1 num_pwmgens=3
 
 # this is the PRU debugger. It connects to PRU shared memory
 # can inspect registers and PRU status (processor status, program counter)
@@ -115,15 +115,23 @@ setp hal_pru_generic.stepgen.00.enable       1
 setp hal_pru_generic.stepgen.00.control-type 1
 setp hal_pru_generic.stepgen.00.maxaccel     0
 setp hal_pru_generic.stepgen.00.maxvel       0
+setp hal_pru_generic.stepgen.00.steplen      1000
+setp hal_pru_generic.stepgen.00.stepspace    1000
+setp hal_pru_generic.stepgen.00.dirsetup     1000
+setp hal_pru_generic.stepgen.00.dirhold      1000
 
-setp hal_pru_generic.stepgen.01.steppin      0xA6
-setp hal_pru_generic.stepgen.01.dirpin       0xA7
-setp hal_pru_generic.stepgen.01.position-cmd 0.018
-setp hal_pru_generic.stepgen.01.velocity-cmd 75
-setp hal_pru_generic.stepgen.01.enable       1
-setp hal_pru_generic.stepgen.01.control-type 1
-setp hal_pru_generic.stepgen.01.maxaccel     0
-setp hal_pru_generic.stepgen.01.maxvel       0
+#setp hal_pru_generic.stepgen.01.steppin      0xA6
+#setp hal_pru_generic.stepgen.01.dirpin       0xA7
+#setp hal_pru_generic.stepgen.01.position-cmd 0.018
+#setp hal_pru_generic.stepgen.01.velocity-cmd 75
+#setp hal_pru_generic.stepgen.01.enable       1
+#setp hal_pru_generic.stepgen.01.control-type 1
+#setp hal_pru_generic.stepgen.01.maxaccel     0
+#setp hal_pru_generic.stepgen.01.maxvel       0
+#setp hal_pru_generic.stepgen.01.steplen      1000
+#setp hal_pru_generic.stepgen.01.stepspace    1000
+#setp hal_pru_generic.stepgen.01.dirsetup     1000
+#setp hal_pru_generic.stepgen.01.dirhold      1000
 
 #setp hal_pru_generic.stepgen.02.steppin      6
 #setp hal_pru_generic.stepgen.02.dirpin       7

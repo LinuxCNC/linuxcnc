@@ -84,8 +84,8 @@ setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-setp [PRUCONF](DRIVER).stepgen.00.steppin         6
-setp [PRUCONF](DRIVER).stepgen.00.dirpin          7
+setp [PRUCONF](DRIVER).stepgen.00.steppin         0xA2
+setp [PRUCONF](DRIVER).stepgen.00.dirpin          0xA3
 
 
 # ################
@@ -121,8 +121,8 @@ setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.01.step_type       0
-setp [PRUCONF](DRIVER).stepgen.01.steppin         8
-setp [PRUCONF](DRIVER).stepgen.01.dirpin          9
+setp [PRUCONF](DRIVER).stepgen.01.steppin         0xA4
+setp [PRUCONF](DRIVER).stepgen.01.dirpin          0xA5
 
 
 # ################
@@ -158,8 +158,8 @@ setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
-setp [PRUCONF](DRIVER).stepgen.02.steppin         10
-setp [PRUCONF](DRIVER).stepgen.02.dirpin          11
+setp [PRUCONF](DRIVER).stepgen.02.steppin         0xA6
+setp [PRUCONF](DRIVER).stepgen.02.dirpin          0xA7
 
 
 
