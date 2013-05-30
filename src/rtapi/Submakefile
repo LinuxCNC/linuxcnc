@@ -126,7 +126,7 @@ RTAPI_APP_OBJS := \
 # but replace -DULAPI with -DRTAPI:  Makefile doesn't handle -DRTAPI
 # C++ sources
 $(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += \
-	$(THREADS_RTFLAGS) $(LIBUDEV_CFLAGS) -UULAPI -DRTAPI
+	$(LIBUDEV_CFLAGS) -UULAPI -DRTAPI -DTHREAD_FLAVOR_ID=0
 USERSRCS +=  rtapi/sim_rtapi_app.cc 
 
 #
