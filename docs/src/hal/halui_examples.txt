@@ -1,8 +1,11 @@
 = Halui Examples
 
-For any Halui examples to work you need to add the following line to the \[HAL\] section of the ini file.
+For any Halui examples to work you need to add the following line to the [HAL]
+section of the ini file.
 
-+*HALUI = halui*+ 
+----
+HALUI = halui
+----
 
 [[sec:Remote-Start-Example]]
 == Remote Start
