@@ -89,7 +89,7 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 modules:
 	for f in $(BUILD_THREAD_FLAVORS); do \
 	    echo "Making modules for flavor $$f"; \
-	    $(MAKE) threads=$$f; \
+	    $(MAKE) threads=$$f || exit; \
 	done
 endif
 
@@ -255,16 +255,13 @@ $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
-configure: configure.in
-	echo "*** configure.in has changed ***" >&2
-	echo "Not running autoconf to avoid tainting universal build" >&2
-	echo "Please investigate or start from scratch:" >&2
-	echo "./autogen.sh && ./configure --your-configure-args..." >&2
-	exit 1
+configure config.h.in: configure.in
+	@echo "*** configure.in has changed ***" >&2
+	@echo "Not running autoconf to avoid tainting universal build" >&2
+	@echo "Please investigate or start from scratch:" >&2
+	@echo "./autogen.sh && ./configure --your-configure-args..." >&2
+	@exit 1
 	# AUTOGEN_TARGET=configure ./autogen.sh
-
-config.h.in: configure.in
-	AUTOGEN_TARGET=config.h.in ./autogen.sh
 
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else \
