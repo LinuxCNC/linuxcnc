@@ -173,7 +173,7 @@ $(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
 # Build target
 ../bin/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS) \
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ \
 	    ../lib/liblinuxcnchal.so -lrt -ldl
 
 TARGETS += ../bin/kdetect
