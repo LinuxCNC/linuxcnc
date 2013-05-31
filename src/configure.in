@@ -557,31 +557,54 @@ AC_ARG_WITH(xenomai-kernel,
 AC_ARG_WITH(xeno-config,
     [AS_HELP_STRING([--with-xeno-config=<path>],
     [location of the xeno-config executable])],
-    [xeno_config_from_cmdline=yes])
+    [xeno_config_from_cmdline=yes],
+    [
+	with_xenomai_config=""
+    ])
 if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     # XENOMAI_THREADS_RTS:  look for the xeno-config executable
+    XENOMAI_THREADS_RTS=''
     if test "$xeno_config_from_cmdline" = yes; then
+        # user-supplied path
         XENOMAI_THREADS_RTS="$with_xeno_config"
     else
+	# guess the path
 	AC_PATH_PROGS([XENOMAI_THREADS_RTS],[xeno-config])
     fi
-    if test -z "$XENOMAI_THREADS_RTS" -o ! -x "$XENOMAI_THREADS_RTS"; then
-	if test "$xeno_config_from_cmdline" = yes; then
-	    AC_MSG_ERROR(invalid xeno-config specified)
+    # check xeno-config path
+    if test -n "$XENOMAI_THREADS_RTS"; then
+        # path found, so check its validity: add '--skin=native' to
+        # the variable; then --ldflags should return something
+        # containing the string '-lnative'
+	AC_MSG_CHECKING([usability of xenomai utility, $XENOMAI_THREADS_RTS])
+	if test -x $XENOMAI_THREADS_RTS -a \
+	    -n "$($XENOMAI_THREADS_RTS --skin=native --ldflags 2>/dev/null | \
+	        grep .lnative)"; then
+	    XENOMAI_THREADS_RTS="$XENOMAI_THREADS_RTS --skin=native"
+	    AC_MSG_RESULT(yes)
+	else
+	    XENOMAI_THREADS_RTS=''
+	    AC_MSG_RESULT(no)
 	fi
-	if test "$xenomai_from_cmdline" = yes -o \
-		"$xenomai_kernel_from_cmdline" = yes; then
-	    AC_MSG_ERROR(xeno-config not found; use --with-xeno-config)
+    fi
+    # deal with nothing found in the right way
+    if test -z "$XENOMAI_THREADS_RTS"; then
+	if test "$xeno_config_from_cmdline" = yes; then
+	    # --with-xeno-config specified, but invalid path
+	    AC_MSG_ERROR(--with-xeno-config:  "$with_xeno_config":  bad path)
+        elif test "$with_xenomai_kernel" = yes -o "$with_xenomai" = yes; then
+	    # --with-xenomai{,-kernel} specified but can't find xeno-config
+            AC_MSG_ERROR("xeno-config" not found; use --with-xeno-config")
+	else
+	    with_xenomai_kernel=no
+	    with_xenomai=no
 	fi
     fi
     if test -x "$XENOMAI_THREADS_RTS"; then
-        # found xeno-config; add default skin option
-	XENOMAI_THREADS_RTS="$XENOMAI_THREADS_RTS --skin=native"
-	# for consistency
+        # found xeno-config; use same one for kernel threads for consistency
 	XENOMAI_KERNEL_THREADS_RTS="$XENOMAI_THREADS_RTS"
     fi
 fi
-
 # XENOMAI_THREADS_RTFLAGS:  test runtime library & get flags
 if test -n "$XENOMAI_THREADS_RTS"; then
     AC_MSG_CHECKING(Xenomai runtime library)
