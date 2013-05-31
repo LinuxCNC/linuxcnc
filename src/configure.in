@@ -185,6 +185,7 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 
 # we'll be using it for compile tests
 AC_PROG_CC([gcc])  
+AC_PROG_CPP()
 
 # RT system Makefile variables defined by configure:
 #
