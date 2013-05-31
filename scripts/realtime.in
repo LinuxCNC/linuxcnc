@@ -84,7 +84,7 @@ LoadConfig(){
 		
 	    MOD_PATH=$(readlink -m $MOD_PATH)
             MODULES_LOAD="$MODULES_LOAD $MOD_PATH"
-            MODULES_UNLOAD="$(basename $MOD_PATH $MODULE_EXT)"
+            MODULES_UNLOAD="$(basename $MOD_PATH $MODULE_EXT) $MODULES_UNLOAD"
         done
         case "$MODULES" in
         *rtai_shm*)
