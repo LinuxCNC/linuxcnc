@@ -33,11 +33,12 @@ PASM_BINFLAGS := -b -L -d
 #$(PRU_BIN): $(PRU_SRCS)
 ../rtlib/%.bin ../rtlib/%.dbg: $(PASM) 
 
-# I think we need Jeff handholding on generating and including this .d file by mkdep.py:
+# I think we need a bit of Jeff handholding on generating by mkdep.py and including this .d file 
+# at the right momemnt:
 # depends/rthal/drivers/hal_pru_generic/%.d
 
-../rtlib/%.bin ../rtlib/%.dbg: $(PRU_SRC_DIR)/%.p
-	$(ECHO) Assembling PRU code $@
-	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
+../rtlib/%.bin ../rtlib/%.dbg: $(PRU_SRC_DIR)/%.p $(PASM)
+	$(ECHO) Assembling PRU code $@ 
+	$(Q)$(PASM) $(PASM_BINFLAGS) $(filter-out $(PASM),$^) $(basename $@)
 
 endif
