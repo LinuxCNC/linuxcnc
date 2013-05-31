@@ -131,10 +131,14 @@ AC_DEFUN([_cfg_flavor_threads_headers],
 	    [m4_cond(m4_car(flav),$1,
 	        m4_apply([_cfg_flavor_tuple_threads_headers],[flav]))])].h)
 
-dnl _cfg_flavor_ucase(flavor):  return uppercase, and dashes->underscores
+dnl _cfg_flavor_upcase(flavor):  return uppercase, and dashes->underscores
 dnl   used to generate C preprocessor macro names
 dnl   _cfg_flavor_ucase(xenomai-kernel) => XENOMAI_KERNEL
 AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
+
+dnl _cfg_flavor_underscored(flavor):  return dashes->underscores
+dnl   used to generate e.g. $with_xenomai_kernel
+AC_DEFUN([_cfg_flavor_underscored],[m4_translit([$*],[-],[_])])
 
 dnl _cfg_flavor_BUILD_SYS(flavor):  return BUILD_SYS_{KBUILD,USER_DSO}
 dnl   for use in config.h
@@ -144,12 +148,13 @@ AC_DEFUN([_cfg_flavor_BUILD_SYS],
 	[BUILD_SYS_[]_cfg_flavor_upcase(_cfg_flavor_build_sys($1))])
 
 dnl _cfg_kbuild_flavors:  list of kbuild RT thread flavors
-dnl   _cfg_kbuild_flavors => xenomai-kernel,rtai
 AC_DEFUN([_cfg_flavor_tuple_name],[$1])
 m4_foreach([flav],[_cfg_flavor_params],
 	[m4_cond(_cfg_flavor_build_sys(flav),[kbuild],
 	    [m4_append_uniq([_cfg_tmp],_cfg_flavor_tuple_name(flav),[[ ]])]
 )])
+
+dnl   _cfg_kbuild_flavors => xenomai-kernel,rtai
 AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 
 
@@ -672,13 +677,14 @@ fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
 
-# check for rtai kernel config and source
+# check for --with-rtai-kernel option
 AC_PRESERVE_HELP_ORDER()
 AC_ARG_WITH(rtai-kernel,
     [AS_HELP_STRING([--with-rtai-kernel],
         [build RTAI kernel-space realtime threads modules])],
     [],
     [with_rtai_kernel=check])
+
 # RTAI_KERNEL_THREADS_RTS:  locate the 'rtai-config' executable
 AC_ARG_WITH(rtai-config,
     [AS_HELP_STRING([--with-rtai-config=<path>],
@@ -686,21 +692,53 @@ AC_ARG_WITH(rtai-config,
     [rtai_config_from_cmdline=yes],
     [
 	with_rtai_config=""
+    ])
+if test "$with_rtai_kernel" != no; then
+    # look for rtai-config path
+    RTAI_KERNEL_THREADS_RTS=''
+    if test "$rtai_config_from_cmdline" = yes; then
+        # user-supplied path
+	RTAI_KERNEL_THREADS_RTS=$with_rtai_config
+    else
+        # guess path from defaults
+	rtai_config_path=''
 	dirs="$(echo \
 	   /usr/realtime-`uname -r` /usr/realtime* /usr /usr/src/rtai*)"
 	for d in $dirs; do
-	    with_rtai_config="$with_rtai_config:$d:$d/bin"
+	    rtai_config_path="$rtai_config_path:$d:$d/bin"
 	done
-    ])
-if test "$with_rtai_kernel" != no; then
-    AC_PATH_PROGS([RTAI_KERNEL_THREADS_RTS],[rtai-config],
-	[],[$with_rtai_config])
-    if test -z "$RTAI_KERNEL_THREADS_RTS" -a "$with_rtai_kernel" = yes; then
+	AC_PATH_PROGS([RTAI_KERNEL_THREADS_RTS],[rtai-config],
+	    [],[$rtai_config_path])
+    fi
+    # check rtai-config path
+    if test -n "$RTAI_KERNEL_THREADS_RTS"; then
+        # path found, so check its validity: --linux-dir should return
+        # a configured kernel source directory with .config file
+	AC_MSG_CHECKING([usability of RTAI utility, $RTAI_KERNEL_THREADS_RTS])
+	if test -x $RTAI_KERNEL_THREADS_RTS -a \
+	    -f $($RTAI_KERNEL_THREADS_RTS --linux-dir 2>/dev/null)/.config; then
+	    AC_MSG_RESULT(yes)
+	else
+	    RTAI_KERNEL_THREADS_RTS=''
+	    AC_MSG_RESULT(no)
+	fi
+    fi
+    # deal with nothing found in the right way
+    if test -z "$RTAI_KERNEL_THREADS_RTS"; then
+	if test "$rtai_config_from_cmdline" = yes; then
+	    # --with-rtai-config specified, but invalid path
+	    AC_MSG_ERROR(--with-rtai-config:  "$with_rtai_config":  bad path)
+        elif test "$with_rtai_kernel" = yes; then
+	    # --with-rtai-kernel specified but can't find rtai-config
             AC_MSG_ERROR("rtai-config" not found; use --with-rtai-config")
+	else
+	    with_rtai_kernel=no
+	fi
     fi
 fi
+
 # RTAI_KERNEL_THREADS_KERNEL_DIR:  locate the kernel source
-if test -n "$RTAI_KERNEL_THREADS_RTS"; then
+if test "$with_rtai_kernel" != no -a -n "$RTAI_KERNEL_THREADS_RTS"; then
     AC_ARG_WITH(kernel-source-rtai,
         [AS_HELP_STRING([--with-kernel-source-rtai=<kernel source directory>],
 	    [location of the RTAI kernel source])],
@@ -723,10 +761,10 @@ if test -n "$RTAI_KERNEL_THREADS_RTS"; then
 	AC_MSG_RESULT(not found)
     fi
 fi
-if test  -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
+if test $with_rtai_kernel != no -a -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
    # HARDY_AMD64_WORKAROUND: check for an rtai includes problem on
    # older kernels
-    AC_MSG_CHECKING(if hardy amd64 workaround is required)
+    AC_MSG_CHECKING(if RTAI amd64 workaround is required)
     machine=`uname -m`
     # test for broken hardy rtai amd64 includes
     lxrt=$($RTAI_KERNEL_THREADS_RTS --prefix)/include/asm-x86_64/rtai_lxrt.h
@@ -757,13 +795,16 @@ if test  -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
         flags="-fno-unsafe-math-optimizations"
     fi
     RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
+
+    RTAI_KERNEL_THREADS_RTDIR=$(readlink -f \
+	$($RTAI_KERNEL_THREADS_RTS --prefix))
 fi
 
 AC_MSG_CHECKING(whether to build RTAI threads)    
 test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
 test -z "$RTAI_KERNEL_THREADS_KERNEL_DIR" && with_rtai_kernel=no
 test "$with_rtai_kernel" = check && with_rtai_kernel=yes
-if test $with_rtai_kernel=yes; then
+if test $with_rtai_kernel = yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
      RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=`$RTAI_KERNEL_THREADS_RTS \
 	--module-dir`/Module.symvers
@@ -825,7 +866,7 @@ fi
 
 # RTDIR:  FIXME:  needs maintenance (elimination)
 # latencyplot only works with RTAI and needs RTDIR
-AC_SUBST([RTDIR],$($RTAI_KERNEL_THREADS_RTS --prefix))
+AC_SUBST([RTDIR],$RTAI_KERNEL_THREADS_RTDIR)
 
 
 if test "$with_drivers" = yes; then
@@ -951,8 +992,7 @@ AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIR])
 AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 # absolute path of rtai-config rtdir with symlinks dereferenced
-AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],
-	[$(readlink -f `$RTAI_KERNEL_THREADS_RTS --prefix`)])
+AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],[$RTAI_KERNEL_THREADS_RTDIR])
 
 
 # while we are at it, drop a git scent mark
@@ -1025,45 +1065,51 @@ AC_SUBST([HIDRAW_H_USABLE])
 ##############################################################################
 
 m4_foreach([_cfg_flavor],[_cfg_kbuild_flavors],[
-    # upcase name of $flavor; get ready to do some indirect variable
-    # acrobatics
-    AC_DEFUN([_cfg_FLAVOR],[_cfg_flavor_upcase(_cfg_flavor)])
-    KERNELDIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR
+    # check for kernels for detected thread flavors
+    if test $with_[]_cfg_flavor_underscored(_cfg_flavor) = yes; then
 
-    AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
-        [AC_MSG_ERROR(
-	    [version.h not found in "$KERNELDIR"; invalid kernel source tree])])
+	# upcase name of $flavor; get ready to do some indirect variable
+	# acrobatics
+	AC_DEFUN([_cfg_FLAVOR],[_cfg_flavor_upcase(_cfg_flavor)])
+	KERNELDIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR
 
-    # Unfortunately, many distributions (redhat, mandrake) have
-    # #defines inside version.h, so a simple cat|grep|cut test won't
-    # work... But then again, RH & Mandrake kernels are notorious for
-    # their use of patches that break the RT patching - Both RTAI and
-    # RTLinux strongly recommend using a virgin source from
-    # kernel.org.
+	echo checking version.h presence
+	AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
+	    [AC_MSG_ERROR(
+		[version.h not found in "$KERNELDIR"; invalid kernel source tree])])
 
-    # Get the kernel version from version.h
-    AC_MSG_CHECKING([for _cfg_flavor kernel version string in $KERNELDIR])
+	# Unfortunately, many distributions (redhat, mandrake) have
+	# #defines inside version.h, so a simple cat|grep|cut test won't
+	# work... But then again, RH & Mandrake kernels are notorious for
+	# their use of patches that break the RT patching - Both RTAI and
+	# RTLinux strongly recommend using a virgin source from
+	# kernel.org.
 
-    if test -e $KERNELDIR/include/linux/utsrelease.h; then
-	VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
-    elif test -e $KERNELDIR/include/generated/utsrelease.h; then
-	VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
-    else
-	VERSION_FILE=$KERNELDIR/include/linux/version.h
+	# Get the kernel version from version.h
+	echo checking version.h version
+	AC_MSG_CHECKING([for _cfg_flavor kernel version string in $KERNELDIR])
+
+	if test -e $KERNELDIR/include/linux/utsrelease.h; then
+	    VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
+	elif test -e $KERNELDIR/include/generated/utsrelease.h; then
+	    VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
+	else
+	    VERSION_FILE=$KERNELDIR/include/linux/version.h
+	fi
+	KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+
+	if test -z "$KERNEL_VERS"; then 
+	    AC_MSG_RESULT([not found])
+	    AC_MSG_ERROR([Kernel version not found; check kernel sources])
+	fi
+
+	AC_MSG_RESULT([$KERNEL_VERS])
+
+	AC_SUBST(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,$KERNEL_VERS)
+	AC_DEFINE_UNQUOTED(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,
+	    "$_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS",
+	    [Required _cfg_flavor kernel version])
     fi
-    KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
-
-    if test -z "$KERNEL_VERS"; then 
-        AC_MSG_RESULT([not found])
-	AC_MSG_ERROR([Kernel version not found; check kernel sources])
-    fi
-
-    AC_MSG_RESULT([$KERNEL_VERS])
-
-    AC_SUBST(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,$KERNEL_VERS)
-    AC_DEFINE_UNQUOTED(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,
-        "$_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS",
-    	[Required _cfg_flavor kernel version])
 ])
 
 
@@ -1077,43 +1123,46 @@ m4_foreach([_cfg_flavor],[_cfg_kbuild_flavors],[
 ##############################################################################
 
 m4_foreach([_cfg_flavor],[_cfg_all_flavors],[
-    # Create a module-dir option, similar to rtai's...
 
-    MODULE_DIR=""
-    RIP_MODULE_DIR=""
+    # check for kernels for detected thread flavors
+    if test $with_[]_cfg_flavor_underscored(_cfg_flavor) = yes; then
 
-    AC_MSG_CHECKING([for _cfg_flavor module installation directory])
-    AC_ARG_WITH(_cfg_flavor-module-dir,
-	[AS_HELP_STRING([--with-_cfg_flavor-module-dir=<module-dir>],
-	    [Installation directory for flavor kernel modules])],
-	[
-	    # require an absolute path
-	    if test "$withval" = "${withval#/}"; then
-	        AC_MSG_RESULT($withval)
-		AC_MSG_ERROR(
-		    [--with-_cfg_flavor-module-dir requires absolute path])
-	    fi
-	    MODULE_DIR="$withval"
-	])
+	# Create a module-dir option, similar to rtai's...
+	MODULE_DIR=""
+	RIP_MODULE_DIR=""
 
-    # if not specified, put in standard place according to BUILD_SYS type
-    if test -z "$MODULE_DIR"; then
-        if test "$_cfg_FLAVOR[]_THREADS_BUILD_SYS" = kbuild; then
-	    MODULE_DIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR/linuxcnc
+	AC_MSG_CHECKING([for _cfg_flavor module installation directory])
+	AC_ARG_WITH(_cfg_flavor-module-dir,
+	    [AS_HELP_STRING([--with-_cfg_flavor-module-dir=<module-dir>],
+		[Installation directory for flavor kernel modules])],
+	    [
+		# require an absolute path
+		if test "$withval" = "${withval#/}"; then
+		    AC_MSG_RESULT($withval)
+		    AC_MSG_ERROR(
+			[--with-_cfg_flavor-module-dir requires absolute path])
+		fi
+		MODULE_DIR="$withval"
+	    ])
+
+	# if not specified, put in standard place according to BUILD_SYS type
+	if test -z "$MODULE_DIR"; then
+	    if test "$_cfg_FLAVOR[]_THREADS_BUILD_SYS" = kbuild; then
+		MODULE_DIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR/linuxcnc
+	    else
+		MODULE_DIR=${libdir}/linuxcnc/modules/_cfg_flavor
+	    fi	    
+	fi
+	AC_SUBST(_cfg_FLAVOR[]_THREADS_MODULE_DIR,$MODULE_DIR)
+
+	if test "$RUN_IN_PLACE" = "yes"; then
+	    RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib/_cfg_flavor"
+	    AC_MSG_NOTICE([configured for run-in-place])
 	else
-	    MODULE_DIR=${libdir}/linuxcnc/modules/_cfg_flavor
-	fi	    
+	    AC_MSG_RESULT([$MODULE_DIR])
+	fi
+	AC_SUBST(_cfg_FLAVOR[]_THREADS_RIP_MODULE_DIR,$RIP_MODULE_DIR)
     fi
-    AC_SUBST(_cfg_FLAVOR[]_THREADS_MODULE_DIR,$MODULE_DIR)
-
-    if test "$RUN_IN_PLACE" = "yes"; then
-	RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib/_cfg_flavor"
-        AC_MSG_NOTICE([configured for run-in-place])
-    else
-        AC_MSG_RESULT([$MODULE_DIR])
-    fi
-    AC_SUBST(_cfg_FLAVOR[]_THREADS_RIP_MODULE_DIR,$RIP_MODULE_DIR)
-
 ])
 
 if test "$RUN_IN_PLACE" = "yes"; then
