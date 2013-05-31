@@ -596,7 +596,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
     # this CFLAG
-    if "$ARCHITECTURE" != x86_64; then
+    if test "$ARCHITECTURE" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
