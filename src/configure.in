@@ -154,193 +154,186 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 
 
 #--------------------------------------------------------#
-# default values                                         #
-
-# we'll be using it for compile tests
-AC_PROG_CC([gcc])  
-
-# a list of all configured threads systems to build
-BUILD_THREAD_FLAVORS=""
-
-# a script like /usr/realtime/foo-config, which can be used to extract
-# c or ld flags specific for the thread system.
-XENOMAI_THREADS_RTS=""
-XENOMAI_KERNEL_THREADS_RTS=""
-RTAI_KERNEL_THREADS_RTS=""
-
-# Location of configured kernel sources
+# Universal build variables and macros
 #
-# checked only for kernel threads
-XENOMAI_KERNEL_THREADS_KERNEL_DIR=""
-RTAI_KERNEL_THREADS_KERNEL_DIR=""
-
-# Extra module symbols for kthreads flavors
-XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS=""
-RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=""
-
-# c flags for compiling RTAPI
-POSIX_THREADS_RTFLAGS=""
-RT_PREEMPT_THREADS_RTFLAGS=""
-XENOMAI_THREADS_RTFLAGS=""
-XENOMAI_KERNEL_THREADS_RTFLAGS=""
-RTAI_KERNEL_THREADS_RTFLAGS=""
-
-# linker flags for RTAPI
-POSIX_THREADS_LDFLAGS=""
-RT_PREEMPT_THREADS_LDFLAGS=""
-XENOMAI_THREADS_LDFLAGS=""
-XENOMAI_KERNEL_THREADS_LDFLAGS=""
-RTAI_KERNEL_THREADS_LDFLAGS=""
-
-# special kernel math CFLAGS, if any
-#
-# can this be folded into e.g. RTFLAGS?
-RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS=""
-XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS=""
-
-
-
-
-#----------------------------------------------------------------------------
-#
-# introduce new build categories as per:
+# new thread systems introduced here:
 # http://wiki.linuxcnc.org/cgi-bin/wiki.pl?RealtimeConfiguratonProposal
 #
 # at the shell script/makefile level, we have:
 #
-# 'THREADS' - one of 'rtai-kernel', 'posix', 'xenomai', 'xenomai-kernel',
+# $(threads) - one of 'rtai-kernel', 'posix', 'xenomai', 'xenomai-kernel',
 # 'rt-preempt' in shell/Makefile
 #
-THREADS=""
+# the Makefile will run '$(MAKE) threads=<flavor> modules' once for
+# each flavor configured here.
+#
+# This is used to generate the upper-case, underscored $(THREADS),
+# which is e.g. POSIX or RTAI_KERNEL.
+#
+# $(THREADS) in turn is used to select the correct configuration
+# variables out of Makefile.inc.  For example, THREADS_RTFLAGS is set
+# to RT_PREEMPT_THREADS_RTFLAGS for the rt-preempt flavor.
 
-# reflected in config.h like so:
+
+#--------------------------------------------------------#
+# Makefile variables                                     #
+
+# we'll be using it for compile tests
+AC_PROG_CC([gcc])  
+
+# RT system Makefile variables defined by configure:
 #
-# /* thread style posix */
-# /* #undef RTAPI_POSIX */
+# BUILD_THREAD_FLAVORS
 #
-# /* thread style rtai-kernel */
-# /* #undef RTAPI_RTAI_KERNEL */
+# a list of all configured threads systems to build; the complete
+# possible list is 'posix rt-preempt xenomai xenomai-kernel
+# rtai-kernel'
 #
-# /* thread style rt-preempt-kernel */
-# /* #undef RTAPI_RTPREEMPT_KERNEL */
+# <THREADS_SYSTEM>_THREADS_RTS
 #
-# /* thread style rt-preempt */
-# /* #undef RTAPI_RTPREEMPT */
+# a script like /usr/realtime/foo-config, which can be used to extract
+# c or ld flags specific for the thread system.
 #
-# /* thread style xenomai-kernel */
-# /* #undef RTAPI_XENOMAI_KERNEL */
+# HAVE_<THREADS_SYSTEM>_THREADS
 #
-# /* thread style xenomai */
-# #define RTAPI_XENOMAI /**/
+# 'yes' or 'no' depending on whether the thread system was able to be
+# configured
 #
+# <THREADS_SYSTEM>_THREADS_FLAVOR_ID
+#
+# 0..4, depending on the _cfg_flavor_params macro defined earlier;
+# this is used in config.h to set flavor-specific macros, and set in
+# cflags for any compile that #includes config.h
+#
+# <THREADS_SYSTEM>_THREADS_BUILD_SYS
+#
+# 'kbuild' for kernel threads, 'user-dso' for user threads
+#
+# <THREADS_SYSTEM>_THREADS_SOURCE
+#
+# the basename of the flavor's file in src/rtapi; this is usually the
+# name of the flavor, except in the case of posix threads, which use
+# the rt-preempt sources
+#
+# <THREADS_SYSTEM>_THREADS_RTFLAGS
+#
+# list of CFLAGS specific to the threads system; some flavors
+# determine this with <THREADS_SYSTEM>_THREADS_RTS --cflags
+#
+# <THREADS_SYSTEM>_THREADS_LDFLAGS
+#
+# list of LDFLAGS specific to the threads system; also obtained partly
+# from <THREADS_SYSTEM>_THREADS_RTS --ldflags
+#
+# <THREADS_SYSTEM>_THREADS_KERNEL_DIR
+#
+# for kbuild only (currently); the path to the configured kernel
+# source tree; this may be set on the ./configure command line by
+# '--with-kernel-source-xenomai' or '--with-kernel-source-rtai';
+# otherwise it is automatically detected from standard locations or
+# from RTAI_KERNEL_THREADS_RTS --linux-dir
+#
+# <THREADS_SYSTEM>_THREADS_EXTRA_SYMBOLS
+#
+# path name to a Module.symvers file needed by kbuild
+#
+# <THREADS_SYSTEM>_THREADS_KERNEL_MATH_CFLAGS
+#
+# math-related CFLAGS used in RTAPI compiles; partly obtained by
+# <THREADS_SYSTEM>_THREADS_RTS
+#
+# RTAI_KERNEL_THREADS_RTDIR
+#
+# RTAI only; the directory RTAI modules are contained in, such as
+# /usr/realtime/modules, obtained by RTAI_KERNEL_THREADS_RTS --prefix
+
+#--------------------------------------------------------#
+# config.h macros                                        #
+#
+# $(THREADS) is used to select the RTAPI_FLAVOR_ID, passed in a CFLAG
+# as -DRTAPI_FLAVOR_ID=$(RTAPI_FLAVOR_ID), then used to select the
+# appropriate flavor macros from config.h.
+#
+# flavor macros from config.h, set appropriately for each '$(MAKE)
+# threads=<flavor> modules' run:
+#
+# RTAPI_<FLAVOR>
+#
+# for example '#ifdef RTAPI_RTAI_KERNEL' to test if the current flavor
+# being built is rtai-kernel
+#
+# BUILD_SYS_USER_DSO or BUILD_SYS_KBUILD
+#
+# The former will be defined for userland threads, the latter for
+# kernel threads
+#
+# THREADS_HEADERS
+#
+# Used by the rtapi system to #include the correct headers for the
+# flavor currently being built, e.g. "rtapi/xenomai.h"
 
 # ------------ drivers: build or dont build -------------
 #
-# A third angle is whether to build drivers or not. Normally drivers would be
-# built except for the simulator version. However, there is no reason not to develop 
-# user-mode drivers with a simulator, in which case drivers should be built, and the
-# 'sudo make setuid' step will be required.
-# Wether a given driver should be compiled should be defined in the Submakefile,
-# subject to supported BUILD_SYS and possibly THREADS.
+# BUILD_DRIVERS
 #
-# To reduce the suprise factor of a simulator config suddenly talking to ports,
-# BUILD_DRIVERS defaults to 'no' for the 'simulator' build. 
-# to explicitly enable them, we add a '--enable-drivers' option for that case.
+# ./configure will attempt to configure driver building unless
+# explicitly disabled with '--disable-drivers'.
 #
-BUILD_DRIVERS="no"
+# To reduce the surprise factor of a simulator config suddenly talking
+# to ports, drivers will be disabled by default for posix threads and
+# enabled for others in rtapi.conf.
+#
 # reflected in config.h as follows:
 # /* build hardware drivers */
 # #define BUILD_DRIVERS /**/
 #
-# the existing configurations will translate as follows:
 #
-# --enable-simulator: THREADS=posix, BUILD_SYS=user-dso, BUILD_DRIVERS=no
-#   defines shell subsitution, and make variables as follows:
-#           BUILD_SYS=usr-dso THREADS=posix BUILD_DRIVERS=no
-#   define in config.h: BUILD_USER_DSO RTAPI_POSIX
-#
-# --enable-simulator --enable-drivers will set BUILD_DRIVERS=yes in shell/Makefiles
-#   and define in config.h: BUILD_DRIVERS
-#
-# 
-#--with-kernel=/boot/config-<whatever>  which defaults to running kernel 
-#--with-build-type=(posix,rtai-kernel,rt-preempt,xenomai,xenomai-kernel) 
-#--enable-drivers (defaults to yes except for --with-build-type=posix which is newspeak for 'sim')
-
-#the latter can be defaulted too once you have access to /boot/config*, and checked against kernel
-
-#In practice this would look like so:
-
-#configure --enable-simulator 
-# 	as before. defaults to --with-build-type=posix, and --disable-drivers but may take a --enable-drivers #option to build drivers like sim_parport
-#	doesnt care about kernel; fine if Gnu threads library installed.
-#
-#configure
-#	Takes the running kernel config to determine which kernel type (rtai-kernel, xenomai, rt-preempt)
-#	makes a default thread style (rtai-kernel, rt-preempt and xenomai for now)
-#	complains if running kernel is generic (non-RT)
-#	implies --enable-drivers. Module type derived from thread style.
-#
-#configure --with-build-type=xenomai --with-kernel=/boot/config-2.6.38.8-xenomai
-#	this would build for xenomai-2.6.38.8-xenomai provided it is installed but needs not be running
-#	complains if /boot/config-2.6.38.8-xenomai does not smell like a Xenomai config
-#
-#configure --with-build-type=rt-preempt
-#	this would check whether the running kernel is in fact rt-preempt by inspecting /boot/config-`uname #-r` for appropriate flags, and complain otherwise-
-KCONFIG=""
-
-# Places to look for Xeno and RTAI kernel headers
-#
-# RedHat-derivatives: (/usr/src/kernels/`uname -r`),
-# Debian-derivatives: (/usr/src/linux-headers-`uname -r`)
-# A hopefully generic location: (/lib/modules/`uname -r`/build)
 KSOURCE_LOCATION_HINTS=$(echo \
 	/usr/src/kernels/* \
 	/usr/src/linux-headers-* \
 	/lib/modules/*/build \
 	)
+#
+# Places to look for Xeno and RTAI kernel headers
+#
+# RedHat-derivatives: (/usr/src/kernels/`uname -r`),
+# Debian-derivatives: (/usr/src/linux-headers-`uname -r`)
+# Vanilla kernel install: (/lib/modules/`uname -r`/build)
 
 
-# Pass math-related CFLAGS into the kernel.
-KERNEL_MATH_CFLAGS="-fno-fast-math -fno-unsafe-math-optimizations"
-
-
+# USE_PORTABLE_PARPORT_IO="no"
+#
 # Parport: on x86 PC platform, we can use either use
 # direct inb/outb or the slower but portable ppdev ioctl
-USE_PORTABLE_PARPORT_IO="no"
+#
 # reflected in config.h as follows:
 # /* build hardware drivers */
 # #define USE_PORTABLE_PARPORT_IO /**/
 
+# USE_GCC_ATOMIC_OPS
+#
 # atomic bitops. We have the inline asm stuff in rtapi_bitops.h
 # but that's x86 and ppc only. We could just as well use the
 # gcc builtin atomic ops which have appeared since, and whack!
 # all portable
-USE_GCC_ATOMIC_OPS="no"
 
+# PLATFORM
+# TARGET_PLATFORM
+# 
 # Platforms. set by --enable-platform=<platform>
 # see Section 2.1 to enable other platforms, and later to AC_DEFINE it
-PLATFORM="PC"
-TARGET_PLATFORM=""
 
+ARCHITECTURE=`$ARCHCMD`
+#
 # Architecture. Use output of arch(1).
 #
 # FIXME this will break 32-bit builds on 64-bit systems.  Need an
 # expert to figure out host/target arch, e.g. --host=i686-pc-linux-gnu
 # even when --build=x86_64-pc-linux-gnu
 #
-# This will cause e.g. incorrect package builds
-ARCHITECTURE=`$ARCHCMD`
+# This will cause issues on build servers that build for multiple
+# arches
 
-
-# Name of thread system source file to include, with no extension
-# e.g. 'rt-preempt'; used to generate #include "rt-preempt.h"
-# in config.h, rtapi/$(THREADS_SOURCE).c in Makefile.inc
-POSIX_THREADS_SOURCE=""
-RT_PREEMPT_THREADS_SOURCE=""
-XENOMAI_THREADS_SOURCE=""
-XENOMAI_KERNEL_THREADS_SOURCE=""
-RTAI_KERNEL_THREADS_SOURCE=""
 
 # note to mah: dont forget debian/configure FIXME
  
