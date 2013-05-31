@@ -261,7 +261,11 @@ AC_PROG_CC([gcc])
 #
 # for example '#ifdef RTAPI_RTAI_KERNEL' to test if the current flavor
 # being built is rtai-kernel
+
+# THREAD_FLAVOR_NAME
 #
+# the name of the current flavor, quoted, e.g. "posix" or "rt-preempt"
+
 # BUILD_SYS_USER_DSO or BUILD_SYS_KBUILD
 #
 # The former will be defined for userland threads, the latter for
@@ -271,6 +275,16 @@ AC_PROG_CC([gcc])
 #
 # Used by the rtapi system to #include the correct headers for the
 # flavor currently being built, e.g. "rtapi/xenomai.h"
+
+# RTAPI_<FLAVOR>_ID
+#
+# Always present for all flavors.  Equal to
+# <FLAVOR>_THREADS_FLAVOR_ID.
+
+# RTAPI_<FLAVOR>_NAME
+#
+# Always present for all flavors.  Equal to $(threads)
+
 
 # ------------ drivers: build or dont build -------------
 #
@@ -1495,6 +1509,8 @@ AC_DEFUN([_cfg_thread_flavor_macros],[dnl
 m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
 [#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_ID dnl
 _cfg_flavor_id(_cfg_flavor)
+[#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_NAME dnl
+"_cfg_flavor"
 ])
 #if ! defined(THREAD_FLAVOR_ID)
 // this isn't allowed when building RTAPI
@@ -1504,6 +1520,7 @@ _cfg_flavor_id(_cfg_flavor)
 m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
 [#]elif THREAD_FLAVOR_ID == RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)_ID
 [#]  define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)
+[#]  define THREAD_FLAVOR_NAME "_cfg_flavor"
 [#]  define _cfg_flavor_BUILD_SYS(_cfg_flavor)
 [#]  define THREADS_HEADERS "_cfg_flavor_threads_headers(_cfg_flavor)"
 ])dnl

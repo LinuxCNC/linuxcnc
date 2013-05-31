@@ -72,21 +72,7 @@ int _rtapi_dummy(void) {
 
 static rtapi_switch_t rtapi_switch_struct = {
     .git_version = GIT_VERSION,
-#if THREAD_FLAVOR_ID == RTAPI_XENOMAI_ID
-    .thread_flavor_name = "xenomai",
-#endif
-#if THREAD_FLAVOR_ID ==  RTAPI_RT_PREEMPT_ID
-    .thread_flavor_name = "rt-preempt",
-#endif
-#if THREAD_FLAVOR_ID == RTAPI_POSIX_ID
-    .thread_flavor_name = "posix",
-#endif
-#if THREAD_FLAVOR_ID == RTAPI_RTAI_KERNEL_ID
-    .thread_flavor_name = "rtai",
-#endif
-#if THREAD_FLAVOR_ID == RTAPI_XENOMAI_KERNEL_ID
-    .thread_flavor_name = "xenomai-kernel",
-#endif
+    .thread_flavor_name = THREAD_FLAVOR_NAME,
     .thread_flavor_id = THREAD_FLAVOR_ID,
     // init & exit functions
     .rtapi_init = &_rtapi_init,
