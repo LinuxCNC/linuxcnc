@@ -467,8 +467,8 @@ MODULE_SOURCE_DIRS = emc hal libnml rtapi workaround
 MODULE_SOURCES = Makefile* config* modsilent.py
 $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	mkdir -p $(OBJDIR)
-	cp -rl $(MODULE_SOURCE_DIRS) $(OBJDIR)
-	cp -l $(MODULE_SOURCES) $(OBJDIR)
+	cp -rlf $(MODULE_SOURCE_DIRS) $(OBJDIR)
+	cp -lf $(MODULE_SOURCES) $(OBJDIR)
 	ln -s ../../halcomp-srcs $(OBJDIR)
 	# FIXME this needs to just be referenced properly
 	ln -sf ../../bin objects
