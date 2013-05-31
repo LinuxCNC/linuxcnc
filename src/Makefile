@@ -729,7 +729,7 @@ endif # userspace
 
 ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
-# to pull FLAVOR_FLAGS - see Makefile.modinc.in
+# This allows all configuration to remain in the subdir's Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
 endif
