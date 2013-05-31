@@ -203,12 +203,11 @@ typedef struct {
     // Instance-wide HAL variables
     struct {
         struct {
-            hal_u32_t   pwm_frequency;
+            hal_u32_t   pwm_period;
         } param;
     } hal;
 
-    u32 written_pwm_frequency;
-    u16 pwm_period;
+    u32 written_pwm_period;
 } hpg_pwmgen_instance_t;
 
 typedef struct {

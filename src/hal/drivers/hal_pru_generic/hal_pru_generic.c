@@ -174,15 +174,14 @@ int rtapi_app_main(void)
 
     comp_id = hal_init("hal_pru_generic");
     if (comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_init() failed\n", modname);
+        HPG_ERR("ERROR: hal_init() failed\n");
         return -1;
     }
 
     // Allocate HAL shared memory for state data
     hpg = hal_malloc(sizeof(hal_pru_generic_t));
     if (hpg == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: hal_malloc() failed\n", modname);
+    	HPG_ERR("ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -192,8 +191,7 @@ int rtapi_app_main(void)
 
     // Initialize PRU and map PRU data memory
     if ((retval = pru_init(pru, prucode, disabled, hpg))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: failed to initialize PRU\n", modname);
+        HPG_ERR("ERROR: failed to initialize PRU\n");
         hal_exit(comp_id);
         return -1;
     }
@@ -205,34 +203,30 @@ int rtapi_app_main(void)
     hpg->config.pru_period   = pru_period;
     hpg->config.name         = modname;
 
-    rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_pwmgens : %d\n",modname, num_pwmgens);
-    rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_stepgens: %d\n",modname, num_stepgens);
+	rtapi_print("num_pwmgens : %d\n",num_pwmgens);
+	rtapi_print("num_stepgens: %d\n",num_stepgens);
 
     // Initialize various functions and generate PRU data ram contents
     if ((retval = hpg_pwmgen_init(hpg))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: pwmgen init failed: %d\n",modname, retval);
+        HPG_ERR("ERROR: pwmgen init failed: %d\n", retval);
         hal_exit(comp_id);
         return -1;
     }
 
     if ((retval = hpg_stepgen_init(hpg))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: stepgen init failed: %d\n",modname, retval);
+        HPG_ERR("ERROR: stepgen init failed: %d\n", retval);
         hal_exit(comp_id);
         return -1;
     }
 
     if ((retval = hpg_wait_init(hpg))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: global task init failed: %d\n",modname, retval);
+        HPG_ERR("ERROR: global task init failed: %d\n", retval);
         hal_exit(comp_id);
         return -1;
     }
 
     if ((retval = export_pru(hpg))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: var export failed: %d\n",modname, retval);
+        HPG_ERR("ERROR: var export failed: %d\n", retval);
         hal_exit(comp_id);
         return -1;
     }
@@ -242,12 +236,11 @@ int rtapi_app_main(void)
     hpg_wait_force_write(hpg);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-			"%s: ERROR: failed to initialize PRU\n", modname);
+        HPG_ERR("ERROR: failed to initialize PRU\n");
         hal_exit(comp_id);
         return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "%s: installed\n", modname);
+    HPG_INFO("installed\n");
     hal_ready(comp_id);
     return 0;
 }
@@ -303,12 +296,10 @@ static void hpg_read(void *void_hpg, long period) {
     //             if (fabs(chan_state[i].step.hal.param.position_scale) < 1e-6) {
     //                 if (chan_state[i].step.hal.param.position_scale >= 0.0) {
     //                     chan_state[i].step.hal.param.position_scale = 1.0;
-    //                     rtapi_print_msg(RTAPI_MSG_ERR,
-    //                             "%s: stepgen %d position_scale is too close to 0, resetting to 1.0\n", modname, i);
+    //                     HPG_ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
     //                 } else {
     //                     chan_state[i].step.hal.param.position_scale = -1.0;
-    //                     rtapi_print_msg(RTAPI_MSG_ERR,
-    //                             "%s: stepgen %d position_scale is too close to 0, resetting to -1.0\n", modname, i);
+    //                     HPG_ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
     //                 }
     //             }
     // 
@@ -487,7 +478,7 @@ pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len) {
     // Point to the next free location
     hpg->pru_data_free += len32;
 
-rtapi_print_msg(RTAPI_MSG_ERR, "%s: pru_malloc requested %d bytes, allocated %d bytes starting at %04x\n",modname, len, len32, a);
+    HPG_DBG("pru_malloc requested %d bytes, allocated %d bytes starting at %04x\n", len, len32, a);
 
     // ...and we're done
     return a;
@@ -591,8 +582,7 @@ int export_pru(hal_pru_generic_t *hpg)
     rtapi_snprintf(name, sizeof(name), "%s.update", modname);
     r = hal_export_funct(name, hpg_write, hpg, 1, 0, comp_id);
     if (r != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: function export failed: %s\n", modname, name);
+        HPG_ERR("ERROR: function export failed: %s\n", name);
         hal_exit(comp_id);
         return -1;
     }
@@ -600,8 +590,7 @@ int export_pru(hal_pru_generic_t *hpg)
     rtapi_snprintf(name, sizeof(name), "%s.capture-position", modname);
     r = hal_export_funct(name, hpg_read, hpg, 1, 0, comp_id);
     if (r != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: function export failed: %s\n", modname, name);
+        HPG_ERR("ERROR: function export failed: %s\n", name);
         hal_exit(comp_id);
         return -1;
     }
@@ -619,28 +608,22 @@ int assure_module_loaded(const char *module)
 
     fd = fopen("/proc/modules", "r");
     if (fd == NULL) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: cannot read /proc/modules\n",
-            modname);
-    return -1;
+        HPG_ERR("ERROR: cannot read /proc/modules\n");
+        return -1;
     }
     while (fgets(line, sizeof(line), fd)) {
-    if (!strncmp(line, module, len)) {
-        rtapi_print_msg(RTAPI_MSG_DBG, "%s: module '%s' already loaded\n",
-                modname, module);
-        fclose(fd);
-        return 0;
-    }
+        if (!strncmp(line, module, len)) {
+            HPG_DBG("module '%s' already loaded\n", module);
+            fclose(fd);
+            return 0;
+        }
     }
     fclose(fd);
-    rtapi_print_msg(RTAPI_MSG_DBG, "%s: loading module '%s'\n",
-            modname, module);
+    HPG_DBG("loading module '%s'\n", module);
     sprintf(line, "/sbin/modprobe %s", module);
     if ((retval = system(line))) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: executing '%s'  %d - %s\n",
-            modname, line, errno, strerror(errno));
-    return -1;
+        HPG_ERR("ERROR: executing '%s'  %d - %s\n", line, errno, strerror(errno));
+        return -1;
     }
     return 0;
 }
@@ -651,15 +634,11 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     int retval;
 
     if (pru != 1) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: WARNING: PRU is %d and not 1\n",
-            modname, pru);
+        HPG_ERR("WARNING: PRU is %d and not 1\n",pru);
     }
 
     if (geteuid()) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: not running as root - need to 'sudo make setuid'?\n",
-            modname);
+        HPG_ERR("ERROR: not running as root - need to 'sudo make setuid'?\n");
         return -1;
     }
     if ((retval = assure_module_loaded(UIO_PRUSS)))
@@ -717,8 +696,7 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     if (event > -1) {
     prussdrv_start_irqthread (event, sched_get_priority_max(SCHED_FIFO) - 2,
                   pruevent_thread, (void *) event);
-    rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d listener started\n",
-            modname, event);
+    HPG_ERR("PRU event %d listener started\n",event);
     }
 
     // Load and execute binary on PRU
@@ -734,22 +712,19 @@ void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
     //    PRU_statics_t     *stat = (PRU_statics_t *)     ((u32) hpg->pru_data + (u32) hpg->pru_stat);
     //    PRU_task_header_t *task = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) addr);
 
-    HPG_ERR("Adding task: addr=%04x next=%04x\n",task->addr, task->next);
-
     if (hpg->last_task == 0) {
         // This is the first task
+        HPG_DBG("Adding first task: addr=%04x\n", task->addr);
         hpg->pru_stat.task.hdr.addr = task->addr;
         task->next = task->addr;
         hpg->last_task  = task;
     } else {
-	HPG_ERR("Adding task: last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
         // Add this task to the end of the task list
+        HPG_DBG("Adding task: addr=%04x prev=%04x\n", task->addr, hpg->last_task->addr);
         task->next = hpg->pru_stat.task.hdr.addr;
         hpg->last_task->next = task->addr;
         hpg->last_task = task;
     }
-    HPG_ERR("Added task:  addr=%04x next=%04x\n",task->addr, task->next);
-    HPG_ERR("Added task:  last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
 }
 
 static void *pruevent_thread(void *arg)
@@ -759,12 +734,10 @@ static void *pruevent_thread(void *arg)
     do {
     if (prussdrv_pru_wait_event(event, &event_count) < 0)
         continue;
-    rtapi_print_msg(RTAPI_MSG_ERR, "%s: PRU event %d received\n",
-            modname, event);
+    HPG_ERR("PRU event %d received\n",event);
     prussdrv_pru_clear_event(pru ? PRU1_ARM_INTERRUPT : PRU0_ARM_INTERRUPT);
     } while (1);
-    rtapi_print_msg(RTAPI_MSG_ERR, "%s: pruevent_thread exiting\n",
-            modname);
+    HPG_ERR("pruevent_thread exiting\n");
     return NULL; // silence compiler warning
 }
 

@@ -71,9 +71,9 @@
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
 
-void hpg_pwmgen_handle_pwm_frequency(hal_pru_generic_t *hpg, int i) {
+void hpg_pwmgen_handle_pwm_period(hal_pru_generic_t *hpg, int i) {
     u32 pwm_pru_periods;
-    pwm_pru_periods = 1.0e9 / (double) hpg->pwmgen.instance[i].hal.param.pwm_frequency / hpg->config.pru_period;
+    pwm_pru_periods = (double) hpg->pwmgen.instance[i].hal.param.pwm_period / hpg->config.pru_period;
     if (pwm_pru_periods < 65535) {
         hpg->pwmgen.instance[i].pru.prescale = 1;
         hpg->pwmgen.instance[i].pru.period = pwm_pru_periods - 1;
@@ -90,11 +90,11 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
     int r, j;
 
     // HAL values common to all outputs in this instance
-    rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.pwm_frequency", hpg->config.name, i);
-    r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].hal.param.pwm_frequency), hpg->config.comp_id);
+    rtapi_snprintf(name, sizeof(name), "%s.pwmgen.%02d.pwm_period", hpg->config.name, i);
+    r = hal_param_u32_new(name, HAL_RW, &(hpg->pwmgen.instance[i].hal.param.pwm_period), hpg->config.comp_id);
     if (r != 0) { return r; }
 
-    hpg->pwmgen.instance[i].hal.param.pwm_frequency = 100;
+    hpg->pwmgen.instance[i].hal.param.pwm_period = 10000000;    // Default to 10 mS period, or 100 Hz
 
     for (j=0; j < hpg->pwmgen.instance[i].num_outputs; j++) {
         // Export HAL Pins
@@ -122,11 +122,6 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
         // Initialize HAL Parameters
         hpg->pwmgen.instance[i].out[j].hal.param.pin   = PRU_DEFAULT_PIN;
         hpg->pwmgen.instance[i].out[j].hal.param.scale = 1.0;
-
-	//Debugging...enable by default
-	*(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 1;
-	*(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.2 * ((float) j + 1);
-	hpg->pwmgen.instance[i].out[j].hal.param.pin   = j + 0xA1;
     }
 
     return 0;
@@ -138,7 +133,8 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
     if (hpg->config.num_pwmgens <= 0)
         return 0;
 
-    //  hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
+    // FIXME: Support multiple PWMs like so:  num_pwmgens=3,4,2,5
+    // hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
     hpg->pwmgen.num_instances = 1;
 
     // Allocate HAL shared memory for instance state data
@@ -153,13 +149,14 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
 
     for (i=0; i < hpg->pwmgen.num_instances; i++) {
 
-	hpg->pwmgen.instance[i].num_outputs = hpg->config.num_pwmgens;
+        // FIXME: Support multiple PWMs like so:  num_pwmgens=3,4,2,5
+        hpg->pwmgen.instance[i].num_outputs = hpg->config.num_pwmgens;
 
         // Allocate HAL shared memory for output state data
         hpg->pwmgen.instance[i].out = (hpg_pwmgen_output_instance_t *) hal_malloc(sizeof(hpg_pwmgen_output_instance_t) * hpg->pwmgen.instance[i].num_outputs);
         if (hpg->pwmgen.instance[i].out == 0) {
-	    HPG_ERR("ERROR: hal_malloc() failed\n");
-	    return -1;
+	        HPG_ERR("ERROR: hal_malloc() failed\n");
+	        return -1;
         }
 
         int len = sizeof(hpg->pwmgen.instance[i].pru) + (sizeof(PRU_pwm_output_t) * hpg->pwmgen.instance[i].num_outputs);
@@ -187,9 +184,16 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
         double scaled_value;
         double abs_duty_cycle;
 
+        if (hpg->pwmgen.instance[i].written_pwm_period != hpg->pwmgen.instance[i].hal.param.pwm_period) {
+            hpg_pwmgen_handle_pwm_period(hpg, i);
+            hpg->pwmgen.instance[i].written_pwm_period = hpg->pwmgen.instance[i].hal.param.pwm_period;
+            PRU_task_pwm_t *pru = (PRU_task_pwm_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr);
+            pru->prescale = hpg->pwmgen.instance[i].pru.prescale;
+            pru->period   = hpg->pwmgen.instance[i].pru.period;
+        }
+
         PRU_pwm_output_t *out = (PRU_pwm_output_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr + sizeof(hpg->pwmgen.instance[i].pru));
 
-	// FIXME: Handle pwm frequency changes!
         for (j = 0; j < hpg->pwmgen.instance[i].num_outputs ; j ++) {
 
             if (*hpg->pwmgen.instance[i].out[j].hal.pin.enable == 0) {
@@ -226,10 +230,9 @@ void hpg_pwmgen_force_write(hal_pru_generic_t *hpg) {
         hpg->pwmgen.instance[i].pru.task.hdr.dataY = 0x00;
         hpg->pwmgen.instance[i].pru.task.hdr.addr = hpg->pwmgen.instance[i].task.next;
 
-        hpg_pwmgen_handle_pwm_frequency(hpg, i);
+        hpg_pwmgen_handle_pwm_period(hpg, i);
+        hpg->pwmgen.instance[i].written_pwm_period = hpg->pwmgen.instance[i].hal.param.pwm_period;
 
-	//      hpg->pwmgen.instance[i].pru.period = 1000;
-	//      hpg->pwmgen.instance[i].pru.prescale = 1;
         hpg->pwmgen.instance[i].pru.reserved = 0;
 
         PRU_task_pwm_t *pru = (PRU_task_pwm_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr);
