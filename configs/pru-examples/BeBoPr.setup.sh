@@ -59,7 +59,13 @@ done <<- "EOF"
 #	uart0_rxd	5	pru1.r30.14
 #	uart0_txd	5	pru1.r30.15
 
-	gpmc_ad6	7	gpio1_6		P8.3	Enable
-	gpmc_ad2	7	gpio1_2		P8.5	Enable_n
+	gpmc_ad6	7	gpio1.6		P8.3	Enable
+	gpmc_ad2	7	gpio1.2		P8.5	Enable_n
 
+#				gpio0.11		J9  - X-max limit
+#				gpio0.10		J10 - X-min limit
+#				gpio0.9			J11 - Y-max limit
+#				gpio0.8			J12 - Y-min limit
+#				gpio2.14		J13 - Z-max limit
+#				gpio2.15		J14 - Z-min limit
 EOF
