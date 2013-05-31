@@ -90,11 +90,7 @@ INFO_ICON = os.path.join(imagedir,"std_info.gif")
 
 # internationalization and localization
 import locale, gettext
-LOCALEDIR = os.path.join(BASE, "share", "locale")
-locale.setlocale(locale.LC_ALL, '')
-locale.bindtextdomain("linuxcnc", LOCALEDIR)
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
-gettext.bindtextdomain("linuxcnc", LOCALEDIR)
+
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -400,22 +396,35 @@ class Gscreen:
         for num,temp in enumerate(sys.argv):
             if temp == '-c':
                 try:
-                    print _("**** GSCREEN INFO: Optional component name ="),sys.argv[num+1]
+                    print ("**** GSCREEN INFO: Optional component name ="),sys.argv[num+1]
                     skinname = sys.argv[num+1]
                 except:
                     pass
             if temp == '-d': gscreen_debug = True
 
+        # check for a local translation folder
+        locallocale = os.path.join(CONFIGPATH,"locale")
+        if os.path.exists(locallocale):
+            LOCALEDIR = locallocale
+            domain = skinname
+            print ("**** GSCREEN INFO: local locale name =",LOCALEDIR,skinname)
+        else:
+            LOCALEDIR = os.path.join(BASE, "share", "locale")
+            domain = "linuxcnc"
+        locale.setlocale(locale.LC_ALL, '')
+        locale.bindtextdomain(domain, LOCALEDIR)
+        gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+        gettext.bindtextdomain(domain, LOCALEDIR)
+
         # main screen
         localglade = os.path.join(CONFIGPATH,"%s.glade"%skinname)
         if os.path.exists(localglade):
-            print _("\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade)
+            print _("\n**** GSCREEN INFO:  Using LOCAL custom glade file from %s ****"% localglade)
             xmlname = localglade
-        else:
-            print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname)
+
         try:
             self.xml = gtk.Builder()
-            self.xml.set_translation_domain("linuxcnc") # for locale translations
+            self.xml.set_translation_domain(domain) # for locale translations
             self.xml.add_from_file(xmlname)
         except:
             print _("**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname)
