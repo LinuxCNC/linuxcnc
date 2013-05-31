@@ -74,33 +74,18 @@ LoadConfig(){
     case $FLAVOR in
     posix|xenomai|rt-preempt) SHM_DEV=/dev/zero;;
     *)
-        for  MOD in shmdrv $MODULES ; do
-	    if test "$FLAVOR" = rtai-kernel -a -f $RTAI_MOD_DIR/$MOD; then
-		MOD=$RTAI_MOD_DIR/$MOD
+        for  MOD in shmdrv $MODULES rtapi hal_lib; do
+	    if test "$FLAVOR" = rtai-kernel -a \
+		-f $RTAI_MOD_DIR/${MOD}${MODULE_EXT}; then
+		MOD_PATH=$RTAI_MOD_DIR/${MOD}${MODULE_EXT}
 	    else
-		MOD=$MODPATH/$MOD
+		MOD_PATH=$MODPATH/${MOD}${MODULE_EXT}
 	    fi
 		
-            if [ -z "$MOD" ]; then continue; fi
-            if [ -L $MOD ]; then
-                MOD=${MOD%/*}/$(readlink $MOD)
-            fi
-            MODULES_LOAD="$MODULES_LOAD $MOD"
-            MOD="${MOD##*/}"
-            MOD="${MOD%$MODULE_EXT}"
-            MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
+	    MOD_PATH=$(readlink -m $MOD_PATH)
+            MODULES_LOAD="$MODULES_LOAD $MOD_PATH"
+            MODULES_UNLOAD="$(basename $MOD_PATH $MODULE_EXT)"
         done
-	echo "MODULES_LOAD=$MODULES_LOAD"
-	echo "MODULES_UNLOAD=$MODULES_UNLOAD"
-        if test $FLAVOR = xenomai-kernel; then
-            MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT \
-		$RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-            MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
-  	else
-            MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT \
-		$RTLIB_DIR/hal_lib$MODULE_EXT"
-            MODULES_UNLOAD="hal_lib rtapi  $MODULES_UNLOAD"
-	fi
         case "$MODULES" in
         *rtai_shm*)
             SHM_DEV=/dev/rtai_shm
