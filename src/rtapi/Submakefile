@@ -51,7 +51,7 @@ UTIL_SRCS := \
 FLAVOR_ULAPI_SRCS := $(patsubst rtapi/%,rtapi/$(threads)/%,$(ULAPI_SRCS))
 $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
 	mkdir -p rtapi/$(threads)
-	cp -l $(ULAPI_SRCS) rtapi/$(threads)
+	cp -lf $(ULAPI_SRCS) rtapi/$(threads)
 
 # resolved at loadtime
 $(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
