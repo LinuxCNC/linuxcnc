@@ -110,16 +110,16 @@ void hpg_stepgen_read(void *void_hpg, long l_period_ns) {
 
         // "atomic" read of accumulator and position register from PRU
         y = * (s64 *) ((u32) hpg->pru_data + hpg->stepgen.instance[i].task.addr + (u32) offsetof(PRU_task_stepdir_t, accum));
-	    do {
+	do {
             x = y;
             y = * (s64 *) ((u32) hpg->pru_data + hpg->stepgen.instance[i].task.addr + (u32) offsetof(PRU_task_stepdir_t, accum));
-	    } while ( x != y );
+	} while ( x != y );
 
         // Update internal state
         * (s64 *) &hpg->stepgen.instance[i].pru.accum = x;
 
-*(hpg->stepgen.instance[i].hal.pin.test1) = hpg->stepgen.instance[i].pru.accum;
-*(hpg->stepgen.instance[i].hal.pin.test2) = hpg->stepgen.instance[i].pru.pos;
+	*(hpg->stepgen.instance[i].hal.pin.test1) = hpg->stepgen.instance[i].pru.accum;
+	*(hpg->stepgen.instance[i].hal.pin.test2) = hpg->stepgen.instance[i].pru.pos;
 
         // Mangle 32-bit step count and 27 bit accumulator (with 5 bits of status)
         // into a 16.16 value to match the hostmot2 stepgen logic and generally make
@@ -127,7 +127,7 @@ void hpg_stepgen_read(void *void_hpg, long l_period_ns) {
         acc  = (hpg->stepgen.instance[i].pru.accum >> 11) & 0x0000FFFF;
         acc |= (hpg->stepgen.instance[i].pru.pos << 16);
 
-*(hpg->stepgen.instance[i].hal.pin.test3) = acc;
+	*(hpg->stepgen.instance[i].hal.pin.test3) = acc;
 
         // those tricky users are always trying to get us to divide by zero
         if (fabs(hpg->stepgen.instance[i].hal.param.position_scale) < 1e-6) {
@@ -301,7 +301,7 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
 
     // maxvel must be >= 0.0, and may not be faster than 1 step per (steplen+stepspace) seconds
     {
-//      double min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
+	//      double min_ns_per_step = s->hal.param.steplen + s->hal.param.stepspace;
         double min_ns_per_step = (s->pru.steplen + s->pru.stepspace) * hpg->config.pru_period;
         double max_steps_per_s = 1.0e9 / min_ns_per_step;
 
@@ -361,11 +361,11 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
     s->pru.rate = steps_per_sec_cmd * (double)0x08000000 * (double) hpg->config.pru_period * 1e-9;
     
     // clip rate just to be safe...should be limited by code above
-//     if ((s->pru.rate < 0x80000000) && (s->pru.rate > 0x03FFFFFF)) {
-//         s->pru.rate = 0x03FFFFFF;
-//     } else if ((s->pru.rate >= 0x80000000) && (s->pru.rate < 0xFC000001)) {
-//         s->pru.rate = 0xFC000001;
-//     }
+    //     if ((s->pru.rate < 0x80000000) && (s->pru.rate > 0x03FFFFFF)) {
+    //         s->pru.rate = 0x03FFFFFF;
+    //     } else if ((s->pru.rate >= 0x80000000) && (s->pru.rate < 0xFC000001)) {
+    //         s->pru.rate = 0xFC000001;
+    //     }
     if ((s->pru.rate < 0x80000000) && (s->pru.rate > 0x003FFFFF)) {
         s->pru.rate = 0x003FFFFF;
     } else if ((s->pru.rate >= 0x80000000) && (s->pru.rate < 0xFFC00001)) {
@@ -377,52 +377,52 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
 
 static void hpg_write(void *void_hpg, long period) {
     hal_pru_generic_t *hpg      = void_hpg;
-//         case eMODE_STEP_DIR :
-// 
-//             // Update shadow of PRU control registers
-//             hpg->stepgen.instance[i].pru.ctrl.enable  = *(hpg->stepgen.instance[i].hal.pin.enable);
-//             hpg->stepgen.instance[i].pru.ctrl.pin1    = hpg->stepgen.instance[i].hal.param.steppin;
-//             hpg->stepgen.instance[i].pru.ctrl.pin2    = hpg->stepgen.instance[i].hal.param.dirpin;
-// 
-//             if (*(hpg->stepgen.instance[i].hal.pin.enable) == 0) {
-//                 hpg->stepgen.instance[i].pru.rate = 0;
-//                 hpg->stepgen.instance[i].old_position_cmd = *(hpg->stepgen.instance[i].hal.pin.position_cmd);
-//                 *(hpg->stepgen.instance[i].hal.pin.velocity_fb) = 0;
-//             } else {
-//                 // call update function
-//                 update_stepgen(hpg, period, i);
-//             }
-// 
-//             // Update timing parameters if changed
-//             if ((hpg->stepgen.instance[i].hal.param.dirsetup  != hpg->stepgen.instance[i].written_dirsetup ) ||
-//                 (hpg->stepgen.instance[i].hal.param.dirhold   != hpg->stepgen.instance[i].written_dirhold  ) ||
-//                 (hpg->stepgen.instance[i].hal.param.steplen   != hpg->stepgen.instance[i].written_steplen  ) ||
-//                 (hpg->stepgen.instance[i].hal.param.stepspace != hpg->stepgen.instance[i].written_stepspace))
-//             {
-//                 hpg->stepgen.instance[i].pru.dirsetup     = ns2periods(hpg->stepgen.instance[i].hal.param.dirsetup);
-//                 hpg->stepgen.instance[i].pru.dirhold      = ns2periods(hpg->stepgen.instance[i].hal.param.dirhold);
-//                 hpg->stepgen.instance[i].pru.steplen      = ns2periods(hpg->stepgen.instance[i].hal.param.steplen);
-//                 hpg->stepgen.instance[i].pru.stepspace    = ns2periods(hpg->stepgen.instance[i].hal.param.stepspace);
-// 
-//                 // Send new value(s) to the PRU
-//                 pru[i].raw.dword[2] = chan_state[i].raw.PRU.dword[2];
-//                 pru[i].raw.dword[3] = chan_state[i].raw.PRU.dword[3];
-// 
-//                 // Stash values written
-//                 hpg->stepgen.instance[i].written_dirsetup  = hpg->stepgen.instance[i].hal.param.dirsetup;
-//                 hpg->stepgen.instance[i].written_dirhold   = hpg->stepgen.instance[i].hal.param.dirhold;
-//                 hpg->stepgen.instance[i].written_steplen   = hpg->stepgen.instance[i].hal.param.steplen;
-//                 hpg->stepgen.instance[i].written_stepspace = hpg->stepgen.instance[i].hal.param.stepspace;
-//             }
-// 
-//             // Update control word if changed
-//             if (chan_state[i].raw.PRU.dword[0] != hpg->stepgen.instance[i].written_ctrl) {
-//                 pru[i].raw.dword[0] = chan_state[i].raw.PRU.dword[0];
-//                 hpg->stepgen.instance[i].written_ctrl = chan_state[i].raw.PRU.dword[0];
-//             }
-// 
-//             // Send rate update to the PRU
-//             pru[i].step.rate = hpg->stepgen.instance[i].pru.rate;
+    //         case eMODE_STEP_DIR :
+    // 
+    //             // Update shadow of PRU control registers
+    //             hpg->stepgen.instance[i].pru.ctrl.enable  = *(hpg->stepgen.instance[i].hal.pin.enable);
+    //             hpg->stepgen.instance[i].pru.ctrl.pin1    = hpg->stepgen.instance[i].hal.param.steppin;
+    //             hpg->stepgen.instance[i].pru.ctrl.pin2    = hpg->stepgen.instance[i].hal.param.dirpin;
+    // 
+    //             if (*(hpg->stepgen.instance[i].hal.pin.enable) == 0) {
+    //                 hpg->stepgen.instance[i].pru.rate = 0;
+    //                 hpg->stepgen.instance[i].old_position_cmd = *(hpg->stepgen.instance[i].hal.pin.position_cmd);
+    //                 *(hpg->stepgen.instance[i].hal.pin.velocity_fb) = 0;
+    //             } else {
+    //                 // call update function
+    //                 update_stepgen(hpg, period, i);
+    //             }
+    // 
+    //             // Update timing parameters if changed
+    //             if ((hpg->stepgen.instance[i].hal.param.dirsetup  != hpg->stepgen.instance[i].written_dirsetup ) ||
+    //                 (hpg->stepgen.instance[i].hal.param.dirhold   != hpg->stepgen.instance[i].written_dirhold  ) ||
+    //                 (hpg->stepgen.instance[i].hal.param.steplen   != hpg->stepgen.instance[i].written_steplen  ) ||
+    //                 (hpg->stepgen.instance[i].hal.param.stepspace != hpg->stepgen.instance[i].written_stepspace))
+    //             {
+    //                 hpg->stepgen.instance[i].pru.dirsetup     = ns2periods(hpg->stepgen.instance[i].hal.param.dirsetup);
+    //                 hpg->stepgen.instance[i].pru.dirhold      = ns2periods(hpg->stepgen.instance[i].hal.param.dirhold);
+    //                 hpg->stepgen.instance[i].pru.steplen      = ns2periods(hpg->stepgen.instance[i].hal.param.steplen);
+    //                 hpg->stepgen.instance[i].pru.stepspace    = ns2periods(hpg->stepgen.instance[i].hal.param.stepspace);
+    // 
+    //                 // Send new value(s) to the PRU
+    //                 pru[i].raw.dword[2] = chan_state[i].raw.PRU.dword[2];
+    //                 pru[i].raw.dword[3] = chan_state[i].raw.PRU.dword[3];
+    // 
+    //                 // Stash values written
+    //                 hpg->stepgen.instance[i].written_dirsetup  = hpg->stepgen.instance[i].hal.param.dirsetup;
+    //                 hpg->stepgen.instance[i].written_dirhold   = hpg->stepgen.instance[i].hal.param.dirhold;
+    //                 hpg->stepgen.instance[i].written_steplen   = hpg->stepgen.instance[i].hal.param.steplen;
+    //                 hpg->stepgen.instance[i].written_stepspace = hpg->stepgen.instance[i].hal.param.stepspace;
+    //             }
+    // 
+    //             // Update control word if changed
+    //             if (chan_state[i].raw.PRU.dword[0] != hpg->stepgen.instance[i].written_ctrl) {
+    //                 pru[i].raw.dword[0] = chan_state[i].raw.PRU.dword[0];
+    //                 hpg->stepgen.instance[i].written_ctrl = chan_state[i].raw.PRU.dword[0];
+    //             }
+    // 
+    //             // Send rate update to the PRU
+    //             pru[i].step.rate = hpg->stepgen.instance[i].pru.rate;
 
 }
 
@@ -637,7 +637,7 @@ int export_stepgen(hal_pru_generic_t *hpg, int i)
     hpg->stepgen.instance[i].written_task = 0;
 
     // Start with 1/2 step offset in accumulator
-//    hpg->stepgen.instance[i].PRU.accum = 1 << 26;
+    //    hpg->stepgen.instance[i].PRU.accum = 1 << 26;
     hpg->stepgen.instance[i].pru.accum = 0;
     hpg->stepgen.instance[i].prev_accumulator = 0;
     hpg->stepgen.instance[i].old_position_cmd = *(hpg->stepgen.instance[i].hal.pin.position_cmd);
@@ -682,12 +682,13 @@ int hpg_stepgen_init(hal_pru_generic_t *hpg){
 
     return 0;
 }
+
 void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
     int i;
 
     for (i = 0; i < hpg->stepgen.num_instances; i ++) {
         // Update shadow of PRU control registers
-//      hpg->stepgen.instance[i].pru.ctrl.enable  = *(hpg->stepgen.instance[i].hal.pin.enable);
+	//      hpg->stepgen.instance[i].pru.ctrl.enable  = *(hpg->stepgen.instance[i].hal.pin.enable);
         hpg->stepgen.instance[i].pru.task.hdr.dataX   = hpg->stepgen.instance[i].hal.param.steppin;
         hpg->stepgen.instance[i].pru.task.hdr.dataY   = hpg->stepgen.instance[i].hal.param.dirpin;
 
@@ -707,24 +708,24 @@ void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
             (hpg->stepgen.instance[i].hal.param.dirhold   != hpg->stepgen.instance[i].written_dirhold  ) ||
             (hpg->stepgen.instance[i].hal.param.steplen   != hpg->stepgen.instance[i].written_steplen  ) ||
             (hpg->stepgen.instance[i].hal.param.stepspace != hpg->stepgen.instance[i].written_stepspace))
-        {
-            hpg->stepgen.instance[i].pru.dirsetup   = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirsetup);
-            hpg->stepgen.instance[i].pru.dirhold    = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirhold);
-            hpg->stepgen.instance[i].pru.steplen    = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.steplen);
-            hpg->stepgen.instance[i].pru.stepspace  = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.stepspace);
+	    {
+		hpg->stepgen.instance[i].pru.dirsetup   = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirsetup);
+		hpg->stepgen.instance[i].pru.dirhold    = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.dirhold);
+		hpg->stepgen.instance[i].pru.steplen    = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.steplen);
+		hpg->stepgen.instance[i].pru.stepspace  = ns2periods(hpg, hpg->stepgen.instance[i].hal.param.stepspace);
 
-            // Send new value(s) to the PRU
-            pru->dirsetup   = hpg->stepgen.instance[i].pru.dirsetup;
-            pru->dirhold    = hpg->stepgen.instance[i].pru.dirhold;
-            pru->steplen    = hpg->stepgen.instance[i].pru.steplen;
-            pru->stepspace  = hpg->stepgen.instance[i].pru.stepspace;
+		// Send new value(s) to the PRU
+		pru->dirsetup   = hpg->stepgen.instance[i].pru.dirsetup;
+		pru->dirhold    = hpg->stepgen.instance[i].pru.dirhold;
+		pru->steplen    = hpg->stepgen.instance[i].pru.steplen;
+		pru->stepspace  = hpg->stepgen.instance[i].pru.stepspace;
 
-            // Stash values written
-            hpg->stepgen.instance[i].written_dirsetup  = hpg->stepgen.instance[i].hal.param.dirsetup;
-            hpg->stepgen.instance[i].written_dirhold   = hpg->stepgen.instance[i].hal.param.dirhold;
-            hpg->stepgen.instance[i].written_steplen   = hpg->stepgen.instance[i].hal.param.steplen;
-            hpg->stepgen.instance[i].written_stepspace = hpg->stepgen.instance[i].hal.param.stepspace;
-        }
+		// Stash values written
+		hpg->stepgen.instance[i].written_dirsetup  = hpg->stepgen.instance[i].hal.param.dirsetup;
+		hpg->stepgen.instance[i].written_dirhold   = hpg->stepgen.instance[i].hal.param.dirhold;
+		hpg->stepgen.instance[i].written_steplen   = hpg->stepgen.instance[i].hal.param.steplen;
+		hpg->stepgen.instance[i].written_stepspace = hpg->stepgen.instance[i].hal.param.stepspace;
+	    }
 
         // Update control word if changed
         if (hpg->stepgen.instance[i].pru.task.raw.dword[0] != hpg->stepgen.instance[i].written_task) {
@@ -732,10 +733,10 @@ void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns) {
             hpg->stepgen.instance[i].written_task = hpg->stepgen.instance[i].pru.task.raw.dword[0];
         }
 
-//        if (hpg->stepgen.instance[i].pru.rate == 0)
-//            rtapi_print_msg(RTAPI_MSG_ERR,  "%d",i);
-//        else
-//            rtapi_print_msg(RTAPI_MSG_ERR,  ".");
+	//        if (hpg->stepgen.instance[i].pru.rate == 0)
+	//            rtapi_print_msg(RTAPI_MSG_ERR,  "%d",i);
+	//        else
+	//            rtapi_print_msg(RTAPI_MSG_ERR,  ".");
 
         // Send rate update to the PRU
         pru->rate = hpg->stepgen.instance[i].pru.rate;

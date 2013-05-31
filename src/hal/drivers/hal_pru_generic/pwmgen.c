@@ -123,10 +123,10 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
         hpg->pwmgen.instance[i].out[j].hal.param.pin   = PRU_DEFAULT_PIN;
         hpg->pwmgen.instance[i].out[j].hal.param.scale = 1.0;
 
-//Debugging...enable by default
-*(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 1;
-*(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.2 * ((float) j + 1);
-hpg->pwmgen.instance[i].out[j].hal.param.pin   = j + 0xA1;
+	//Debugging...enable by default
+	*(hpg->pwmgen.instance[i].out[j].hal.pin.enable) = 1;
+	*(hpg->pwmgen.instance[i].out[j].hal.pin.value)  = 0.2 * ((float) j + 1);
+	hpg->pwmgen.instance[i].out[j].hal.param.pin   = j + 0xA1;
     }
 
     return 0;
@@ -138,14 +138,14 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
     if (hpg->config.num_pwmgens <= 0)
         return 0;
 
-//  hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
+    //  hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
     hpg->pwmgen.num_instances = 1;
 
     // Allocate HAL shared memory for instance state data
     hpg->pwmgen.instance = (hpg_pwmgen_instance_t *) hal_malloc(sizeof(hpg_pwmgen_instance_t) * hpg->pwmgen.num_instances);
     if (hpg->pwmgen.instance == 0) {
-	    HPG_ERR("ERROR: hal_malloc() failed\n");
-	    return -1;
+	HPG_ERR("ERROR: hal_malloc() failed\n");
+	return -1;
     }
 
     // Clear memory
@@ -153,13 +153,13 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
 
     for (i=0; i < hpg->pwmgen.num_instances; i++) {
 
-hpg->pwmgen.instance[i].num_outputs = hpg->config.num_pwmgens;
+	hpg->pwmgen.instance[i].num_outputs = hpg->config.num_pwmgens;
 
         // Allocate HAL shared memory for output state data
         hpg->pwmgen.instance[i].out = (hpg_pwmgen_output_instance_t *) hal_malloc(sizeof(hpg_pwmgen_output_instance_t) * hpg->pwmgen.instance[i].num_outputs);
         if (hpg->pwmgen.instance[i].out == 0) {
-	        HPG_ERR("ERROR: hal_malloc() failed\n");
-	        return -1;
+	    HPG_ERR("ERROR: hal_malloc() failed\n");
+	    return -1;
         }
 
         int len = sizeof(hpg->pwmgen.instance[i].pru) + (sizeof(PRU_pwm_output_t) * hpg->pwmgen.instance[i].num_outputs);
@@ -189,7 +189,7 @@ void hpg_pwmgen_update(hal_pru_generic_t *hpg) {
 
         PRU_pwm_output_t *out = (PRU_pwm_output_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr + sizeof(hpg->pwmgen.instance[i].pru));
 
-// FIXME: Handle pwm frequency changes!
+	// FIXME: Handle pwm frequency changes!
         for (j = 0; j < hpg->pwmgen.instance[i].num_outputs ; j ++) {
 
             if (*hpg->pwmgen.instance[i].out[j].hal.pin.enable == 0) {
@@ -228,8 +228,8 @@ void hpg_pwmgen_force_write(hal_pru_generic_t *hpg) {
 
         hpg_pwmgen_handle_pwm_frequency(hpg, i);
 
-//      hpg->pwmgen.instance[i].pru.period = 1000;
-//      hpg->pwmgen.instance[i].pru.prescale = 1;
+	//      hpg->pwmgen.instance[i].pru.period = 1000;
+	//      hpg->pwmgen.instance[i].pru.prescale = 1;
         hpg->pwmgen.instance[i].pru.reserved = 0;
 
         PRU_task_pwm_t *pru = (PRU_task_pwm_t *) ((u32) hpg->pru_data + (u32) hpg->pwmgen.instance[i].task.addr);
