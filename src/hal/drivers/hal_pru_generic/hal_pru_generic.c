@@ -181,10 +181,10 @@ int rtapi_app_main(void)
     // Allocate HAL shared memory for state data
     hpg = hal_malloc(sizeof(hal_pru_generic_t));
     if (hpg == 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-	        "%s: ERROR: hal_malloc() failed\n", modname);
-	    hal_exit(comp_id);
-	    return -1;
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_malloc() failed\n", modname);
+	hal_exit(comp_id);
+	return -1;
     }
 
     // Clear memory
@@ -193,7 +193,7 @@ int rtapi_app_main(void)
     // Initialize PRU and map PRU data memory
     if ((retval = pru_init(pru, prucode, disabled, hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                "%s: ERROR: failed to initialize PRU\n", modname);
+			"%s: ERROR: failed to initialize PRU\n", modname);
         hal_exit(comp_id);
         return -1;
     }
@@ -205,34 +205,34 @@ int rtapi_app_main(void)
     hpg->config.pru_period   = pru_period;
     hpg->config.name         = modname;
 
-rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_pwmgens : %d\n",modname, num_pwmgens);
-rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_stepgens: %d\n",modname, num_stepgens);
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_pwmgens : %d\n",modname, num_pwmgens);
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_stepgens: %d\n",modname, num_stepgens);
 
     // Initialize various functions and generate PRU data ram contents
     if ((retval = hpg_pwmgen_init(hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: pwmgen init failed: %d\n",modname, retval);
+			"%s: ERROR: pwmgen init failed: %d\n",modname, retval);
         hal_exit(comp_id);
         return -1;
     }
 
     if ((retval = hpg_stepgen_init(hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: stepgen init failed: %d\n",modname, retval);
+			"%s: ERROR: stepgen init failed: %d\n",modname, retval);
         hal_exit(comp_id);
         return -1;
     }
 
     if ((retval = hpg_wait_init(hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: global task init failed: %d\n",modname, retval);
+			"%s: ERROR: global task init failed: %d\n",modname, retval);
         hal_exit(comp_id);
         return -1;
     }
 
     if ((retval = export_pru(hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "%s: ERROR: var export failed: %d\n",modname, retval);
+			"%s: ERROR: var export failed: %d\n",modname, retval);
         hal_exit(comp_id);
         return -1;
     }
@@ -243,7 +243,7 @@ rtapi_print_msg(RTAPI_MSG_ERR, "%s: num_stepgens: %d\n",modname, num_stepgens);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                "%s: ERROR: failed to initialize PRU\n", modname);
+			"%s: ERROR: failed to initialize PRU\n", modname);
         hal_exit(comp_id);
         return -1;
     }
@@ -265,83 +265,83 @@ static void hpg_read(void *void_hpg, long period) {
 
     hpg_stepgen_read(hpg, period);
 
-//     // Read data from the PRU here...
-//     hal_pru_generic_t *hpg = void_hpg;
-//     PRU_chan_state_raw_t pru = (PRU_chan_state_raw_t) pru_data_ram;
-//     int i;
-// 
-//     for (i = 0; i < MAX_CHAN; i++) {
-//         s64 x, y;
-//         u32 acc;
-//         s64 acc_delta;
-// 
-//         switch (chan_state[i].gen.PRU.ctrl.mode) {
-// 
-//         case eMODE_STEP_DIR :
-// 
-//             // "atomic" read of accumulator and position register from PRU
-// 	        do {
-//              x = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task_addr + offsetof(PRU_task_stepdir_t, accum);
-// 	            x = pru[i].raw.qword[2];
-// 	            y = pru[i].raw.qword[2];
-// 	        } while ( x != y );
-// 
-//             // Update internal state and HAL outputs
-//             chan_state[i].raw.PRU.qword[2] = x;
-// 
-//     *(chan_state[i].step.hal.pin.test1) = chan_state[i].step.PRU.accum;
-//     *(chan_state[i].step.hal.pin.test2) = chan_state[i].step.PRU.pos;
-//     
-//             // Mangle 32-bit step count and 27 bit accumulator (with 5 bits of status)
-//             // into a 16.16 value as expected by the hostmot2 stepgen logic
-//             acc = (chan_state[i].step.PRU.accum >> 11) & 0x0000FFFF;
-//             acc |= (chan_state[i].step.PRU.pos << 16);
-// 
-//     *(chan_state[i].step.hal.pin.test3) = acc;
-// 
-//             // those tricky users are always trying to get us to divide by zero
-//             if (fabs(chan_state[i].step.hal.param.position_scale) < 1e-6) {
-//                 if (chan_state[i].step.hal.param.position_scale >= 0.0) {
-//                     chan_state[i].step.hal.param.position_scale = 1.0;
-//                     rtapi_print_msg(RTAPI_MSG_ERR,
-//                             "%s: stepgen %d position_scale is too close to 0, resetting to 1.0\n", modname, i);
-//                 } else {
-//                     chan_state[i].step.hal.param.position_scale = -1.0;
-//                     rtapi_print_msg(RTAPI_MSG_ERR,
-//                             "%s: stepgen %d position_scale is too close to 0, resetting to -1.0\n", modname, i);
-//                 }
-//             }
-// 
-//             // The HM2 Accumulator Register is a 16.16 bit fixed-point
-//             // representation of the current stepper position.
-//             // The fractional part gives accurate velocity at low speeds, and
-//             // sub-step position feedback (like sw stepgen).
-//             acc_delta = (s64)acc - (s64)chan_state[i].step.prev_accumulator;
-//             if (acc_delta > INT32_MAX) {
-//                 acc_delta -= UINT32_MAX;
-//             } else if (acc_delta < INT32_MIN) {
-//                 acc_delta += UINT32_MAX;
-//             }
-// 
-//             chan_state[i].step.subcounts += acc_delta;
-// 
-//             *(chan_state[i].step.hal.pin.counts) = chan_state[i].step.subcounts >> 16;
-// 
-//             // note that it's important to use "subcounts/65536.0" instead of just
-//             // "counts" when computing position_fb, because position_fb needs sub-count
-//             // precision
-//             *(chan_state[i].step.hal.pin.position_fb) = ((double)chan_state[i].step.subcounts / 65536.0) / chan_state[i].step.hal.param.position_scale;
-// 
-//             chan_state[i].step.prev_accumulator = acc;
-// 
-//             break;
-// 
-//         default :
-//             // Nothing to export for other types
-//             break;
-//         }
-//     }
-// 
+    //     // Read data from the PRU here...
+    //     hal_pru_generic_t *hpg = void_hpg;
+    //     PRU_chan_state_raw_t pru = (PRU_chan_state_raw_t) pru_data_ram;
+    //     int i;
+    // 
+    //     for (i = 0; i < MAX_CHAN; i++) {
+    //         s64 x, y;
+    //         u32 acc;
+    //         s64 acc_delta;
+    // 
+    //         switch (chan_state[i].gen.PRU.ctrl.mode) {
+    // 
+    //         case eMODE_STEP_DIR :
+    // 
+    //             // "atomic" read of accumulator and position register from PRU
+    // 	        do {
+    //              x = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task_addr + offsetof(PRU_task_stepdir_t, accum);
+    // 	            x = pru[i].raw.qword[2];
+    // 	            y = pru[i].raw.qword[2];
+    // 	        } while ( x != y );
+    // 
+    //             // Update internal state and HAL outputs
+    //             chan_state[i].raw.PRU.qword[2] = x;
+    // 
+    //     *(chan_state[i].step.hal.pin.test1) = chan_state[i].step.PRU.accum;
+    //     *(chan_state[i].step.hal.pin.test2) = chan_state[i].step.PRU.pos;
+    //     
+    //             // Mangle 32-bit step count and 27 bit accumulator (with 5 bits of status)
+    //             // into a 16.16 value as expected by the hostmot2 stepgen logic
+    //             acc = (chan_state[i].step.PRU.accum >> 11) & 0x0000FFFF;
+    //             acc |= (chan_state[i].step.PRU.pos << 16);
+    // 
+    //     *(chan_state[i].step.hal.pin.test3) = acc;
+    // 
+    //             // those tricky users are always trying to get us to divide by zero
+    //             if (fabs(chan_state[i].step.hal.param.position_scale) < 1e-6) {
+    //                 if (chan_state[i].step.hal.param.position_scale >= 0.0) {
+    //                     chan_state[i].step.hal.param.position_scale = 1.0;
+    //                     rtapi_print_msg(RTAPI_MSG_ERR,
+    //                             "%s: stepgen %d position_scale is too close to 0, resetting to 1.0\n", modname, i);
+    //                 } else {
+    //                     chan_state[i].step.hal.param.position_scale = -1.0;
+    //                     rtapi_print_msg(RTAPI_MSG_ERR,
+    //                             "%s: stepgen %d position_scale is too close to 0, resetting to -1.0\n", modname, i);
+    //                 }
+    //             }
+    // 
+    //             // The HM2 Accumulator Register is a 16.16 bit fixed-point
+    //             // representation of the current stepper position.
+    //             // The fractional part gives accurate velocity at low speeds, and
+    //             // sub-step position feedback (like sw stepgen).
+    //             acc_delta = (s64)acc - (s64)chan_state[i].step.prev_accumulator;
+    //             if (acc_delta > INT32_MAX) {
+    //                 acc_delta -= UINT32_MAX;
+    //             } else if (acc_delta < INT32_MIN) {
+    //                 acc_delta += UINT32_MAX;
+    //             }
+    // 
+    //             chan_state[i].step.subcounts += acc_delta;
+    // 
+    //             *(chan_state[i].step.hal.pin.counts) = chan_state[i].step.subcounts >> 16;
+    // 
+    //             // note that it's important to use "subcounts/65536.0" instead of just
+    //             // "counts" when computing position_fb, because position_fb needs sub-count
+    //             // precision
+    //             *(chan_state[i].step.hal.pin.position_fb) = ((double)chan_state[i].step.subcounts / 65536.0) / chan_state[i].step.hal.param.position_scale;
+    // 
+    //             chan_state[i].step.prev_accumulator = acc;
+    // 
+    //             break;
+    // 
+    //         default :
+    //             // Nothing to export for other types
+    //             break;
+    //         }
+    //     }
+    // 
 }
 
 u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns) {
@@ -731,10 +731,10 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
 
 void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
     // Be *VERY* careful with pointer math!  C likes to multiple integers by sizeof() the referenced object!
-//    PRU_statics_t     *stat = (PRU_statics_t *)     ((u32) hpg->pru_data + (u32) hpg->pru_stat);
-//    PRU_task_header_t *task = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) addr);
+    //    PRU_statics_t     *stat = (PRU_statics_t *)     ((u32) hpg->pru_data + (u32) hpg->pru_stat);
+    //    PRU_task_header_t *task = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) addr);
 
-HPG_ERR("Adding task: addr=%04x next=%04x\n",task->addr, task->next);
+    HPG_ERR("Adding task: addr=%04x next=%04x\n",task->addr, task->next);
 
     if (hpg->last_task == 0) {
         // This is the first task
@@ -742,14 +742,14 @@ HPG_ERR("Adding task: addr=%04x next=%04x\n",task->addr, task->next);
         task->next = task->addr;
         hpg->last_task  = task;
     } else {
-HPG_ERR("Adding task: last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
+	HPG_ERR("Adding task: last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
         // Add this task to the end of the task list
         task->next = hpg->pru_stat.task.hdr.addr;
         hpg->last_task->next = task->addr;
         hpg->last_task = task;
     }
-HPG_ERR("Added task:  addr=%04x next=%04x\n",task->addr, task->next);
-HPG_ERR("Added task:  last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
+    HPG_ERR("Added task:  addr=%04x next=%04x\n",task->addr, task->next);
+    HPG_ERR("Added task:  last.addr=%04x last.next=%04x\n", hpg->last_task->addr, hpg->last_task->next);
 }
 
 static void *pruevent_thread(void *arg)
