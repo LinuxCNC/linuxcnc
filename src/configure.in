@@ -481,6 +481,144 @@ AC_ARG_ENABLE(gcc-atomic-ops,
 
 
 ##############################################################################
+# kernel detection                                                           #
+
+check_kernel_source_configured() {
+    # Check if a path is a configured kernel source
+    local ksrc_dir=${1}
+    if test -z "$ksrc_dir"; then
+        AC_MSG_ERROR([check_kernel_source_configured() given empty ksrc_dir])
+    fi
+
+    AC_MSG_CHECKING([for configured kernel source in $ksrc_dir])
+    # if .config and version.h both exist, then assume it's configured
+    if test -f "$ksrc_dir/.config" -a \
+	    -f "$ksrc_dir/include/linux/version.h"; then
+	AC_MSG_RESULT([found])
+	return 0
+    else
+	AC_MSG_RESULT([not found])
+	return 1
+    fi
+}
+
+check_kernel_source_version() {
+    # get kernel version from version.h; set variable KVER
+    # assume check_source_configured() already done
+
+    # Unfortunately, many distributions (redhat, mandrake) have
+    # #defines inside version.h, so a simple cat|grep|cut test won't
+    # work... But then again, RH & Mandrake kernels are notorious for
+    # their use of patches that break the RT patching - Both RTAI and
+    # RTLinux strongly recommend using a virgin source from
+    # kernel.org.
+
+    local ksrc_dir=${1}
+    if test -z "$ksrc_dir"; then
+        AC_MSG_ERROR([check_kernel_source_version() given empty ksrc_dir])
+    fi
+
+    # Get the kernel version from version.h
+    AC_MSG_CHECKING([kernel version string in $ksrc_dir])
+
+    if test -e $ksrc_dir/include/linux/utsrelease.h; then
+	VERSION_FILE=$ksrc_dir/include/linux/utsrelease.h
+    elif test -e $ksrc_dir/include/generated/utsrelease.h; then
+	VERSION_FILE=$ksrc_dir/include/generated/utsrelease.h
+    else
+	VERSION_FILE=$ksrc_dir/include/linux/version.h
+    fi
+    KVER=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
+
+    if test -z "$KVER"; then 
+	AC_MSG_RESULT([not found])
+    else
+	AC_MSG_RESULT([$KVER])
+    fi
+}
+
+check_xenomai_kernel_source() {
+    # check if kernel source is a xenomai kernel source
+    # assume check_source_configured() already done
+
+    local ksrc_dir=${1}
+    if test -z "$ksrc_dir"; then
+        AC_MSG_ERROR([check_xenomai_kernel_source() given empty ksrc_dir])
+    fi
+
+    # look for CONFIG_XENOMAI variable
+    AC_MSG_CHECKING(if $ksrc_dir is a xenomai kernel)
+    if test -f "$ksrc_dir/.config" && \
+	    grep -q '^CONFIG_XENOMAI=' "$ksrc_dir/.config"; then
+	AC_MSG_RESULT([yes])
+	return 0
+    else
+	AC_MSG_RESULT([no])
+	return 1
+    fi
+
+}
+
+check_rtai_kernel_source() {
+    # check if kernel source is an rtai kernel source
+    # assume check_source_configured() already done
+
+    local ksrc_dir=${1}
+    if test -z "$ksrc_dir"; then
+        AC_MSG_ERROR([check_rtai_kernel_source() given empty ksrc_dir])
+    fi
+
+
+    # look for rt_daemonize function definition
+    AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
+    if test -f "$ksrc_dir/Module.symvers" && \
+	    grep -q 'rt_daemonize' "$ksrc_dir/Module.symvers"; then
+	AC_MSG_RESULT([yes])
+	return 0
+    else
+	AC_MSG_RESULT([no])
+	return 1
+    fi
+
+}
+
+AC_ARG_WITH(extra_kernel_source_directories,
+	[AS_HELP_STRING(
+	    [--with-extra-kernel-source-directories="<dir> <dir>..."],
+	    [list of extra kernel source directories to search])],
+	[KSOURCE_LOCATION_HINTS="$KSOURCE_LOCATION_HINTS \
+	    $with_extra_kernel_source_directories"])
+
+find_kernels() {
+    # find all kernel directories from hints
+    # check kernel source is a valid, configured tree
+    # add all valid trees to $all_kernels
+    # add all valid xenomai and rtai trees to $xenomai_kernels and
+    #     $rtai_kernels, respectively
+    location_list=''
+    for location in $KSOURCE_LOCATION_HINTS; do
+        location=$(readlink -f $location)
+	test -d "$location" || continue
+	if test "${location_list/$location/}" = "${location_list}"; then
+	    # not already in list; add it
+	    location_list="$location_list $location"
+	fi
+    done
+    xenomai_kernels=''
+    rtai_kernels=''
+    all_kernels=''
+    for location in $location_list; do
+        check_kernel_source_configured $location || continue
+	all_kernels="$all_kernels $location"
+	check_xenomai_kernel_source $location && \
+	    xenomai_kernels="$xenomai_kernels $location"
+	check_rtai_kernel_source $location && \
+	    rtai_kernels="$rtai_kernels $location"
+    done
+}
+
+
+##############################################################################
 # Flavor detection                                                           #
 
 AC_ARG_WITH(posix,
@@ -660,16 +798,16 @@ AC_ARG_WITH(kernel-source-xenomai,
 	[xeno_src_from_cmdline=yes],
 	[with_kernel_source_xenomai="$KSOURCE_LOCATION_HINTS"])
 
+# look for xenomai kernel
 if test "$with_xenomai_kernel" != no; then
-    AC_MSG_CHECKING(xenomai kernel source location)
     found_location=""
     for location in $with_kernel_source_xenomai; do
-	if test -f "$location/.config" && \
-		    grep -q '^CONFIG_XENOMAI=' "$location/.config"; then
-	    found_location="$location"
-	    break
-	fi
+	check_kernel_source_configured $location || continue
+	check_xenomai_kernel_source $location || continue
+	found_location="$location"
+	break
     done
+    AC_MSG_CHECKING(xenomai kernel source location)
     with_kernel_source_xenomai=$found_location
     if test -n "$with_kernel_source_xenomai"; then
 	XENOMAI_KERNEL_THREADS_KERNEL_DIR=$with_kernel_source_xenomai
@@ -1097,7 +1235,6 @@ m4_foreach([_cfg_flavor],[_cfg_kbuild_flavors],[
 	AC_DEFUN([_cfg_FLAVOR],[_cfg_flavor_upcase(_cfg_flavor)])
 	KERNELDIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR
 
-	echo checking version.h presence
 	AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
 	    [AC_MSG_ERROR(
 		[version.h not found in "$KERNELDIR"; invalid kernel source tree])])
@@ -1110,7 +1247,6 @@ m4_foreach([_cfg_flavor],[_cfg_kbuild_flavors],[
 	# kernel.org.
 
 	# Get the kernel version from version.h
-	echo checking version.h version
 	AC_MSG_CHECKING([for _cfg_flavor kernel version string in $KERNELDIR])
 
 	if test -e $KERNELDIR/include/linux/utsrelease.h; then
