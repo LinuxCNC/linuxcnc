@@ -609,40 +609,154 @@ check_rtai_kernel_source() {
 
 }
 
-AC_ARG_WITH(extra_kernel_source_directories,
+# xenomai kernel modules will be built for these kernels if
+# xenomai-kernel threads are enabled
+xenomai_kernels=''
+# RTAI kernel modules will be built for these kernels if
+# rtai-kernel threads are enabled
+rtai_kernels=''
+# shmdrv kernel modules will be built for these kernels if
+# shmdrv and at least one userspace threads are enabled
+shmdrv_kernels=''
+#
+# list of kernel sources seen, so we don't check the same ones repeatedly
+seen_kernels=' '
+# ...and a function to check and add new
+kernel_seen() {
+    if test "${seen_kernels/ $1 /}" = "$seen_kernels"; then
+        # not seen
+	seen_kernels="$seen_kernels $1"
+	return 1
+    else
+        # seen
+	return 0
+    fi
+}
+
+# check any xenomai sources specified on command line now
+# if any found, only build xenomai modules for these kernels
+AC_ARG_WITH(xenomai-kernel-sources,
+    [AS_HELP_STRING([--with-xenomai-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
+	[directory paths of xenomai kernel source(s), space-separated])],
+	[# check directories now
+	    if test $with_xenomai_kernel_sources = no; then
+	        # ignore this
+		with_xenomai_kernel_sources=''
+	    else
+		for ksrc_dir in $with_xenomai_kernel_sources; do
+		    ksrc_dir=$(readlink -f $ksrc_dir)
+		    # add only configured, confirmed Xenomai sources
+		    if check_kernel_source_configured $ksrc_dir && \
+			check_xenomai_kernel_source $ksrc_dir; then
+			shmdrv_kernels="shmdrv_kernels $ksrc_dir"
+			xenomai_kernels="$xenomai_kernels $ksrc_dir"
+			# note this one's been seen
+			kernel_seen $ksrc_dir
+		    else
+			AC_MSG_ERROR([invalid xenomai kernel source: $ksrc_dir])
+		    fi
+		done
+	    fi
+	],
+	[with_xenomai_kernel_sources=''])
+
+# check any RTAI sources specified on command line now
+# if any found, only build RTAI modules for these kernels
+AC_ARG_WITH(rtai-kernel-sources,
+    [AS_HELP_STRING([--with-rtai-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
+	[directory paths of RTAI kernel source(s), space-separated])],
+	[# check directories now
+	    if test $with_rtai_kernel_sources = no; then
+	        # ignore this
+		with_rtai_kernel_sources=''
+	    else
+		for ksrc_dir in $with_rtai_kernel_sources; do
+		    ksrc_dir=$(readlink -f $ksrc_dir)
+		    # add only configured, confirmed RTAI sources
+		    if check_kernel_source_configured $ksrc_dir && \
+			check_rtai_kernel_source $ksrc_dir; then
+			shmdrv_kernels="$shmdrv_kernels $ksrc_dir"
+			rtai_kernels="$rtai_kernels $ksrc_dir"
+			# note this one's been seen
+			kernel_seen $ksrc_dir
+		    else
+			AC_MSG_ERROR([invalid RTAI kernel source:  $ksrc_dir])
+		    fi
+		done
+	    fi
+	],
+	[with_rtai_kernel_sources=''])
+
+# check any shmdrv sources specified on command line now
+# if any found, build shmdrv modules for these kernels
+AC_ARG_WITH(shmdrv-kernel-sources,
+    [AS_HELP_STRING([--with-shmdrv-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
+	[directory paths of kernel source(s) to build shmdrv module for])],
+	[# check directories now
+	    if test $with_shmdrv_kernel_sources = no; then
+	        # ignore --without-shmdrv-kernel-sources
+		with_shmdrv_kernel_sources=''
+	    else
+		for ksrc_dir in $with_shmdrv_kernel_sources; do
+		    ksrc_dir=$(readlink -f $ksrc_dir)
+		    # add only new, configured sources
+		    if ! kernel_seen $ksrc_dir && \
+			    check_kernel_source_configured $ksrc_dir; then
+			shmdrv_kernels="$shmdrv_kernels $ksrc_dir"
+		    else
+			AC_MSG_ERROR([invalid kernel source:  $ksrc_dir])
+		    fi
+		done
+	    fi
+	],
+	[with_shmdrv_kernel_sources=''])
+
+AC_ARG_WITH(extra_kernel_sources,
 	[AS_HELP_STRING(
-	    [--with-extra-kernel-source-directories="<dir> <dir>..."],
+	    [--with-extra-kernel-sources="<dir> <dir>..."],
 	    [list of extra kernel source directories to search])],
-	[KSOURCE_LOCATION_HINTS="$KSOURCE_LOCATION_HINTS \
-	    $with_extra_kernel_source_directories"])
+	[KSOURCE_LOCATION_HINTS="$KSOURCE_LOCATION_HINTS
+	    $with_extra_kernel_sources"])
+
 
 find_kernels() {
-    # find all kernel directories from hints
+    # find all kernel directories from hints if not told on cmdline
     # check kernel source is a valid, configured tree
-    # add all valid trees to $all_kernels
+    # add all valid trees to $shmdrv_kernels
     # add all valid xenomai and rtai trees to $xenomai_kernels and
     #     $rtai_kernels, respectively
     location_list=''
     for location in $KSOURCE_LOCATION_HINTS; do
         location=$(readlink -f $location)
+
+	# be sure $location is a directory not already in the list
 	test -d "$location" || continue
-	if test "${location_list/$location/}" = "${location_list}"; then
-	    # not already in list; add it
-	    location_list="$location_list $location"
-	fi
-    done
-    xenomai_kernels=''
-    rtai_kernels=''
-    all_kernels=''
-    for location in $location_list; do
+	test "${location_list/$location/}" = "${location_list}" || continue
+
+	# if kernel source has been seen, ignore it
+	kernel_seen $location && continue
+
+	# if kernel source unconfigured, ignore it
         check_kernel_source_configured $location || continue
-	all_kernels="$all_kernels $location"
-	check_xenomai_kernel_source $location && \
+
+	# if --with-shmdrv-kernel-sources not explicitly on cmdline, add it
+	test -z "$with_shmdrv_kernel_sources" && \
+	    shmdrv_kernels="$shmdrv_kernels $location"
+	# if --with-xenomai-kernel-sources not explicitly on cmdline
+	# and xenomai kernel detected, add it
+	test -z "$with_xenomai_kernel_sources" && \
+	        check_xenomai_kernel_source $location && \
 	    xenomai_kernels="$xenomai_kernels $location"
-	check_rtai_kernel_source $location && \
+	# if --with-rtai-kernel-sources not explicitly on cmdline and
+	# RTAI kernel detected, add it
+	test -z "$with_rtai_kernel_sources" && \
+	        check_rtai_kernel_source $location && \
 	    rtai_kernels="$rtai_kernels $location"
     done
 }
+
+
+find_kernels
 
 
 ##############################################################################
@@ -823,11 +937,6 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
     XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
 fi
-AC_ARG_WITH(kernel-source-xenomai,
-    [AS_HELP_STRING([--with-kernel-source-xenomai=<kernel source directory>],
-	[location of the xenomai kernel source(s)])],
-	[xeno_src_from_cmdline=yes],
-	[with_kernel_source_xenomai="$KSOURCE_LOCATION_HINTS"])
 
 # look for xenomai kernel
 if test "$with_xenomai_kernel" != no; then
@@ -932,12 +1041,6 @@ fi
 
 # RTAI_KERNEL_THREADS_KERNEL_DIR:  locate the kernel source
 if test "$with_rtai_kernel" != no -a -n "$RTAI_KERNEL_THREADS_RTS"; then
-    AC_ARG_WITH(kernel-source-rtai,
-        [AS_HELP_STRING([--with-kernel-source-rtai=<kernel source directory>],
-	    [location of the RTAI kernel source])],
-	    [rtai_src_from_cmdline=yes],
-	    [with_kernel_source_rtai=$($RTAI_KERNEL_THREADS_RTS --linux-dir)])
-
     AC_MSG_CHECKING(rtai kernel source location)
     if test ! -f "$with_kernel_source_rtai/.config" || \
 	    ! grep -q '^CONFIG_IPIPE=' "$with_kernel_source_rtai/.config" ; then
