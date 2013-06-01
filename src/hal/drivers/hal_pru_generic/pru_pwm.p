@@ -76,8 +76,8 @@ MODE_PWM:
     LDI     Index.Offset, SIZE(task_header) + SIZE(State)
 
     // Set all outputs when period wraps
-SET_LOOP:
-    LBBO    Output.Value, GTask.addr, Index.Offset, SIZE(Output)
+PWM_SET_LOOP:
+    LBBO    Output, GTask.addr, Index.Offset, SIZE(Output)
 
     // Only set if Value != 0, otherwise clear
     MOV     r3.b1, Output.Pin
@@ -86,7 +86,7 @@ SET_LOOP:
 
     ADD     Index.Offset, Index.Offset, SIZE(Output)
     SUB     GTask.len, GTask.len, 1
-    QBNE    SET_LOOP, GTask.len, 0
+    QBNE    PWM_SET_LOOP, GTask.len, 0
     JMP     PWM_DONE
 
     PrescaleNE:
@@ -94,7 +94,7 @@ SET_LOOP:
     // Cycle through outputs and see if we need to clear any
     LDI     Index.Offset, SIZE(task_header) + SIZE(State)
 
-OUT_LOOP:
+PWM_OUT_LOOP:
     LBBO    Output.Value, GTask.addr, Index.Offset, SIZE(Output)
 
     QBNE    ValueNE, State.T_Period, Output.Value
@@ -109,7 +109,7 @@ OUT_LOOP:
     ADD     Index.Offset, Index.Offset, SIZE(Output)
     SUB     GTask.len, GTask.len, 1
 
-    QBNE    OUT_LOOP, GTask.len, 0
+    QBNE    PWM_OUT_LOOP, GTask.len, 0
 
 PWM_DONE:
     // Save channel state data

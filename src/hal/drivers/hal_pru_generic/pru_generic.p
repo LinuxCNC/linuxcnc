@@ -288,7 +288,7 @@ TASKTABLE:
     JMP     NEXT_TASK           //     JMP     MODE_READ
     JMP     MODE_STEP_DIR
     JMP     NEXT_TASK           //     JMP     MODE_UP_DOWN
-    JMP     NEXT_TASK           //     JMP     MODE_DELTA_SIG
+    JMP     MODE_DELTA_SIG
     JMP     MODE_PWM
 TASKTABLEEND:
 
@@ -297,7 +297,7 @@ TASKTABLEEND:
 // #include "pru_read.p"
 #include "pru_stepdir.p"
 // #include "pru_updown.p"
-// #include "pru_deltasigma.p"
+#include "pru_deltasigma.p"
 #include "pru_pwm.p"
 
 // BeagleBone PRU I/O Assignments

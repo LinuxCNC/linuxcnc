@@ -72,62 +72,62 @@ MODE_STEP_DIR:
 
     // If the accumulator overflow bit is set here, we are holding for some reason
     // (bits 29-31 should tell us why, but we'll deal with that later)
-    QBBS    ACC_HOLD, State.Accum, StepBit
+    QBBS    SD_ACC_HOLD, State.Accum, StepBit
     ADD     State.Accum, State.Accum, State.Rate
-ACC_HOLD:
+SD_ACC_HOLD:
 
     // Check if direction changed
     XOR     r1.b0, State.Rate.b3, State.RateQ
     MOV     State.RateQ, State.Rate.b3
-    QBBC    DIR_CHG_DONE, r1.b0, 7
+    QBBC    SD_DIR_CHG_DONE, r1.b0, 7
 
     // Flag direction change
     SET     State.Accum, DirChgBit
 
-DIR_CHG_DONE:
+SD_DIR_CHG_DONE:
 
     // Update the pulse timings, if required
-    QBBC    PULSE_DONE, State.Accum, PulseHoldBit
+    QBBC    SD_PULSE_DONE, State.Accum, PulseHoldBit
 
     // Decrement timeout
     SUB     State.T_Pulse, State.T_Pulse, 1
-    QBNE    PULSE_DONE, State.T_Pulse, 0
+    QBNE    SD_PULSE_DONE, State.T_Pulse, 0
 
     // Pulse timer expired
 
     // Check to see if step output is active
-    QBEQ    PULSE_DELAY_OVER, State.StepQ, 0
+    QBEQ    SD_PULSE_DELAY_OVER, State.StepQ, 0
 
     // Step pulse output is active, clear it and setup pulse low delay
     LSL     r3.w0, GTask.dataX, 8       // r3.b0 = 0, r3.b1 = dataX
     CALL    SET_CLR_BIT
     LDI     State.StepQ, 0
     MOV     State.T_Pulse, State.Dly_step_low
-    JMP     PULSE_DONE
+    JMP     SD_PULSE_DONE
 
-PULSE_DELAY_OVER:
+SD_PULSE_DELAY_OVER:
 
     // Step pulse output is low and pulse low timer expired,
     // so clear Pulse Hold bit in accumulator and we're done
     CLR     State.Accum, PulseHoldBit
 
-PULSE_DONE:
+SD_PULSE_DONE:
 
     // Decrement Direction timer if non-zero
-    QBEQ    DIR_SKIP_SUB, State.T_Dir, 0
+    QBEQ    SD_DIR_SKIP_SUB, State.T_Dir, 0
     SUB     State.T_Dir, State.T_Dir, 1
 
-DIR_SKIP_SUB:
+SD_DIR_SKIP_SUB:
 
     // Process direction updates if required (either DirHoldBit or DirChgBit is set)
-    QBGE    DIR_DONE, State.Accum.b3, DirHoldMask
+    QBGE    SD_DIR_DONE, State.Accum.b3, DirHoldMask
 
     // Wait for any pending timeout
-    QBNE    DIR_DONE, State.T_Dir, 0
+    QBNE    SD_DIR_DONE, State.T_Dir, 0
 
     // Direction timer expired
 
-    QBBC    DIR_SETUP_DLY, State.Accum, DirChgBit
+    QBBC    SD_DIR_SETUP_DLY, State.Accum, DirChgBit
 
     // Dir Changed bit is set, we need to update Dir output and configure dir setup timer
 
@@ -140,12 +140,12 @@ DIR_SKIP_SUB:
     CLR     State.Accum, DirChgBit
     SET     State.Accum, DirHoldBit
     MOV     State.T_Pulse, State.Dly_dir_setup
-    JMP     DIR_DONE
+    JMP     SD_DIR_DONE
 
-DIR_SETUP_DLY:
+SD_DIR_SETUP_DLY:
     CLR     State.Accum, DirHoldBit
 
-DIR_DONE:
+SD_DIR_DONE:
 
     QBBC    STEP_DONE, State.Accum, StepBit
     QBLT    STEP_DONE, State.Accum.b3, HoldMask
@@ -161,9 +161,9 @@ DIR_DONE:
 
     // Update position register
     ADD     State.Pos, State.Pos, 1
-    QBBC    DIR_UP, State.Rate, 31
+    QBBC    SD_DIR_UP, State.Rate, 31
     SUB     State.Pos, State.Pos, 2
-DIR_UP:
+SD_DIR_UP:
 
     // Update state
     MOV     r3.b1, GTask.dataX
