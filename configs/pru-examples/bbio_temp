@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+# This is a gross hack.  
+# If you can't figure out how to get it to run, you shouldn't be using it
+# Hints: 
+# * bbio doesn't like the Xenomai kernel, as it has no PWM drivers,
+#   so you'll want to disable them
+# * The ADC code does raw memory access, you'll need to adjust permissions
+#   on /dev/mem or bbio won't load
+
+import hal, time
+from bbio import *
+h = hal.component("bbio_temp")
+h.newpin("set", hal.HAL_U32, hal.HAL_IN)
+h.newpin("adc", hal.HAL_U32, hal.HAL_OUT)
+h.newpin("temp", hal.HAL_FLOAT, hal.HAL_OUT)
+h.ready()
+try:
+    Err = 0.0
+    P = 0
+    while 1:
+        ADC_IN = analogRead(AIN1)
+        P = ADC_IN - h['set']
+        Err =  ( P / 128.0 ) + 0.5
+        h['temp'] = min( max( Err, 0.0 ), 1.0 )
+        h['adc'] = ADC_IN
+	delay(50)
+except KeyboardInterrupt:
+    raise SystemExit
+
