@@ -47,66 +47,50 @@
 
 MODE_DELTA_SIG:
 .enter DELTA_SIG_SCOPE
-.struct delta_state
-    .u8     Status
-    .u8     Mode
-    .u8     Pin1
-    .u8     Pin2
-    .u16    Value1          // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-    .u16    Value2          // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-    .u16    Reserved1
-    .u16    Reserved2
-    .u32    Reserved3
-    .u16    Integrate1a
-    .u16    Integrate2a
-    .u16    Integrate1b
-    .u16    Integrate2b
-    .u16    Quant1
-    .u16    Quant2
-    .u32    Reserved4
-.ends
 
-.assign delta_state, r8, r15, State
+.assign delta_state,  GState.State_Reg0, GState.State_Reg0, State
+.assign delta_index,  GState.State_Reg1, GState.State_Reg1, Index
+.assign delta_output, GState.State_reg2, GState.State_Reg3, Output
 
-    // Update Pin 1 integrator state
-//    SUB     r1.w0, State.Value1, State.Quant1
-//    XOR     r1.b1, r1.b1, 0x80
-//    ADD     State.Integrate1a, State.Integrate1a, r1.w0
-    SUB     r1, State.Value1, State.Quant1
-    ADD     State.Integrate1b, State.Integrate1b, r1.w0
+    // Skip everything if no outputs are configured
+    QBEQ    DELTA_DONE, GTask.len, 0
+
+    // Read in task state data
+    LBBO State, GTask.addr, SIZE(task_header), SIZE(State)
+
+    // Cycle through all configured outputs one at a time
+    LDI     Index.Offset, SIZE(task_header) + SIZE(State)
+
+DELTA_OUT_LOOP:
+    LBBO    Output, GTask.addr, Index.Offset, SIZE(Output)
+
+    // Update integrator state
+    SUB     r1, Output.Value, Output.Quantize
+    ADD     Output.Integrate, Output.Integrate, r1.w0
     
-    // Update Pin 2 integrator state
-//    SUB     r1.w0, State.Value2, State.Quant2
-//    XOR     r1.b1, r1.b1, 0x80
-//    ADD     State.Integrate2a, State.Integrate2a, r1.w0
-    SUB     r1, State.Value2, State.Quant2
-    ADD     State.Integrate2b, State.Integrate2b, r1.w0
+    // Calculate Output State and store quantized value for next loop
+    QBBC    DELTA_OUT_Zero, Output.Integrate, 15
+    LDI     Output.Quantize, 0xC000
+    JMP     DELTA_DO_PIN
 
-    // Update Pin 1 Output State
-    QBBC    OUT1Zero, State.Integrate1b, 15
-    SET     GState.Output, State.Pin1
-    LDI     State.Quant1, 0xC000
-    JMP     Test2
+    DELTA_OUT_Zero:
+    LDI     Output.Quantize, 0x0000
 
-    OUT1Zero:
-    CLR     GState.Output, State.Pin1
-    LDI     State.Quant1, 0x0000
+    DELTA_DO_PIN:
+    MOV     r3.b1, Output.Pin
+    MIN     r3.b0, Output.Quantize, 1
+    CALL    SET_CLR_BIT
 
-    // Update Pin 2 Output State
-    Test2:
-    QBBC    OUT2Zero, State.Integrate2b, 15
-    SET     GState.Output, State.Pin2
-    LDI     State.Quant2, 0xC000
-    JMP     DONE
+    // Save output state data
+    SBBO    Output.Integrate, GTask.addr, Index.Offset, SIZE(Output) - OFFSET(Output.Integrate)
 
-    OUT2Zero:
-    CLR     GState.Output, State.Pin2
-    LDI     State.Quant2, 0x0000
+    // ...and loop until we're done
+    ADD     Index.Offset, Index.Offset, SIZE(Output)
+    SUB     GTask.len, GTask.len, 1
 
-    DONE:
-    // Save channel state data
-    SBBO    State.Integrate1a, GState.Data, OFFSET(State.Integrate1a), STATE_SIZE - OFFSET(State.Integrate1a)
+    QBNE    DELTA_OUT_LOOP, GTask.len, 0
 
+DELTA_DONE:
     // We're done here...carry on with the next task
     JMP     NEXT_TASK
 

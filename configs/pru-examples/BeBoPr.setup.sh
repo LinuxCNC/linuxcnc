@@ -7,11 +7,12 @@ fi
 
 # Check to see if omap_mux debug directory is available
 if [ ! -e /sys/kernel/debug/omap_mux/ ] ; then
-        echo "Trying to mount debugfs"
+        echo -n "Trying to mount debugfs..."
         mount -t debugfs debugfs /sys/kernel/debug || {
-                echo "Mounting debugfs failed!"
+                echo "Failed!!"
                 exit 1
         }
+	echo "successful."
 fi
 
 while read REG VALUE PIN JUNK ; do

@@ -75,8 +75,8 @@
         eMODE_INVALID   = -1,
         eMODE_NONE      = 0,
         eMODE_WAIT      = 1,
-        eMODE_WRITE     = 2,
-        eMODE_READ      = 3,
+        eMODE_WRITE     = 2,    // Not implemented yet!
+        eMODE_READ      = 3,    // Not implemented yet!
         eMODE_STEP_DIR  = 4,
         eMODE_UP_DOWN   = 5,    // Not implemented yet!
         eMODE_DELTA_SIG = 6,
@@ -182,27 +182,35 @@
 //
 
 #ifndef _hal_pru_generic_H_
+    .struct delta_index
+        .u16    Offset
+        .u16    Reserved
+    .ends
+
+    .struct delta_output
+        .u16    Value           // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
+        .u8     Pin
+        .u8     Reserved
+        .u16    Integrate
+        .u16    Quantize
+    .ends
+
     .struct delta_state
-        .u16    Value1          // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-        .u16    Value2          // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-        .u16    Reserved1
-        .u16    Reserved2
-        .u32    Reserved3
-        .u16    Integrate1a
-        .u16    Integrate2a
-        .u16    Integrate1b
-        .u16    Integrate2b
-        .u16    Quant1
-        .u16    Quant2
-        .u32    Reserved4
+        .u32    Reserved
     .ends
 #else
     typedef struct {
+        u16     value;          // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
+        u8      pin;
+        u8      reserved;
+        u32     state;
+    } PRU_delta_output_t;
+
+    typedef struct {
         PRU_task_header_t task;
 
-        u16     value1;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-        u16     value2;         // WARNING: Range is 14-bits: 0x0000 to 0x4000 inclusive!
-        u32     reserved[6];
+        u32     reserved;
+    //  PRU_delta_output_t out[task.len];
     } PRU_task_delta_t;
 #endif
 
