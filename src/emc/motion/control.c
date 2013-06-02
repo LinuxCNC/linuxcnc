@@ -245,7 +245,7 @@ void emcmotController(void *arg, long period)
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
 
-    if(!priming && (rtapi_switch->thread_flavor_id != RTAPI_POSIX_ID) {
+    if(!priming && (rtapi_switch->thread_flavor_id != RTAPI_POSIX_ID)) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late
         int i;
