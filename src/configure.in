@@ -69,6 +69,11 @@ AC_PATH_PROG(ARCHCMD, arch)
 AC_PROG_CC([gcc])  
 AC_PROG_CPP()
 
+# tools for correct cross-building; this sets $host (the target
+# system) to e.g. x86_64-unknown-linux-gnu
+AC_CONFIG_AUX_DIR([autoconf])
+AC_CANONICAL_HOST
+
 
 ##############################################################################
 # Section 2                                                                  #
