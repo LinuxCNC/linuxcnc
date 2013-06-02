@@ -87,9 +87,6 @@ class Config(object):
 	self.infodir = "@infodir@"
 	self.mandir = "@mandir@"
 	self.includedir = "@includedir@"
-	self.moduledir = "@MODULE_DIR@"
-	self.rip_moduledir = "@RIP_MODULE_DIR@"
-	self.kernelvers = "@KERNEL_VERS@"
 
         # i18n variables:
 	self.package = "@PACKAGE@"

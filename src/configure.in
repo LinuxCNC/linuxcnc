@@ -258,13 +258,27 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # list of LDFLAGS specific to the threads system; also obtained partly
 # from <THREADS_SYSTEM>_THREADS_RTS --ldflags
 #
-# <THREADS_SYSTEM>_THREADS_KERNEL_DIR
+# <THREADS_SYSTEM>_THREADS_KERNEL_DIRS
 #
-# for kbuild only (currently); the path to the configured kernel
-# source tree; this may be set on the ./configure command line by
-# '--with-kernel-source-xenomai' or '--with-kernel-source-rtai';
-# otherwise it is automatically detected from standard locations or
-# from RTAI_KERNEL_THREADS_RTS --linux-dir
+# for kbuild flavors only (currently); list of directory paths for the
+# flavor's configured kernel source trees
+#
+# paths may be explicitly set on the ./configure command line using
+# '--with-xenomai-kernel-sources' or '--with-rtai-kernel-sources'
+#
+# otherwise kernel sources are automatically detected from standard
+# locations, which may be extended using '--with-extra-kernel-sources'
+#
+# SHMDRV_KERNEL_DIRS
+#
+# similar to above, a list of directory paths for which to build the
+# shmdrv.ko module
+#
+# as above, paths may be set using '--with-shmdrv-kernel-sources'
+#
+# --enable-shmdrv builds shmdrv.ko for all configured kernels,
+# regardless of whether other kthreads modules will be built;
+# shmdrv.ko is always built for kthreads modules
 #
 # <THREADS_SYSTEM>_THREADS_EXTRA_SYMBOLS
 #
@@ -630,7 +644,7 @@ seen_kernels=' '
 kernel_seen() {
     if test "${seen_kernels/ $1 /}" = "$seen_kernels"; then
         # not seen
-	seen_kernels="$seen_kernels $1"
+	seen_kernels="$seen_kernels $1 "
 	return 1
     else
         # seen
@@ -943,29 +957,6 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
 fi
 
-# look for xenomai kernel
-if test "$with_xenomai_kernel" != no; then
-    found_location=""
-    for location in $with_kernel_source_xenomai; do
-	check_kernel_source_configured $location || continue
-	check_xenomai_kernel_source $location || continue
-	found_location="$location"
-	break
-    done
-    AC_MSG_CHECKING(xenomai kernel source location)
-    with_kernel_source_xenomai=$found_location
-    if test -n "$with_kernel_source_xenomai"; then
-	XENOMAI_KERNEL_THREADS_KERNEL_DIR=$with_kernel_source_xenomai
-	AC_MSG_RESULT($with_kernel_source_xenomai)
-    elif test "$xeno_src_from_cmdline" = yes; then
-	# invalid --with-kernel-source-xenomai arg given on cmdline
-	AC_MSG_RESULT(not found)
-	AC_MSG_ERROR(invalid xenomai kernel source directory)
-    else
-	AC_MSG_RESULT(not found)
-    fi
-fi
-
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
 test "$with_xenomai" = check && with_xenomai=yes
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
@@ -975,7 +966,7 @@ AC_MSG_RESULT($with_xenomai)
 
 AC_MSG_CHECKING(whether to build Xenomai kernel threads)
 test "$with_xenomai_kernel" = check && with_xenomai_kernel=yes
-test -z "$with_kernel_source_xenomai" && with_xenomai_kernel=no
+test -z "$xenomai_kernels" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
 if test $with_xenomai_kernel=yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai-kernel"
@@ -1044,49 +1035,10 @@ if test "$with_rtai_kernel" != no; then
     fi
 fi
 
-# RTAI_KERNEL_THREADS_KERNEL_DIR:  locate the kernel source
-if test "$with_rtai_kernel" != no -a -n "$RTAI_KERNEL_THREADS_RTS"; then
-    AC_MSG_CHECKING(rtai kernel source location)
-    if test ! -f "$with_kernel_source_rtai/.config" || \
-	    ! grep -q '^CONFIG_IPIPE=' "$with_kernel_source_rtai/.config" ; then
-	with_kernel_source_rtai=""
-    fi
-    if test -n "$with_kernel_source_rtai"; then
-	RTAI_KERNEL_THREADS_KERNEL_DIR=$with_kernel_source_rtai
-	AC_MSG_RESULT($RTAI_KERNEL_THREADS_KERNEL_DIR)
-    elif test "$rtai_src_from_cmdline" = yes; then
-	# invalid --with-kernel-source-rtai arg given on cmdline
-	AC_MSG_RESULT(not found)
-	AC_MSG_ERROR(invalid rtai kernel source directory)
-    else
-	AC_MSG_RESULT(not found)
-    fi
-fi
-if test $with_rtai_kernel != no -a -n "$RTAI_KERNEL_THREADS_KERNEL_DIR"; then
-   # HARDY_AMD64_WORKAROUND: check for an rtai includes problem on
-   # older kernels
-    AC_MSG_CHECKING(if RTAI amd64 workaround is required)
-    machine=`uname -m`
-    # test for broken hardy rtai amd64 includes
-    lxrt=$($RTAI_KERNEL_THREADS_RTS --prefix)/include/asm-x86_64/rtai_lxrt.h
-    if test "$machine" = x86_64 ; then
-	if test -f $lxrt; then
-	    if grep -q '#include <asm/asm-offsets.h>' $lxrt; then
-		workaround="-Iworkaround/hardy-amd64 -DBROKEN_RTAI_LXRT"
-		AC_MSG_RESULT(required)
-	    else
-		AC_MSG_RESULT(no, rtai_lxrt.h include file looks ok)
-	    fi
-	else
-	    AC_MSG_RESULT(rtai_lxrt.h missing)
-	    AC_MSG_ERROR($lxrt does not exist but should)
-	fi
-    else
-	AC_MSG_RESULT(no, not an amd64 build)
-    fi
+# Generate RTFLAGS for RTAI
+if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
 
     RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
-	$workaround \
 	-I$($RTAI_KERNEL_THREADS_RTS --prefix)/include"
     RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags)"
 
@@ -1103,7 +1055,7 @@ fi
 
 AC_MSG_CHECKING(whether to build RTAI threads)    
 test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
-test -z "$RTAI_KERNEL_THREADS_KERNEL_DIR" && with_rtai_kernel=no
+test -z "$rtai_kernels" && with_rtai_kernel=no
 test "$with_rtai_kernel" = check && with_rtai_kernel=yes
 if test $with_rtai_kernel = yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
@@ -1190,6 +1142,7 @@ if test "$USE_SHMDRV" = yes; then
    AC_DEFINE(USE_SHMDRV, [], [use shm driver module])
 fi
 AC_SUBST(USE_SHMDRV)
+AC_SUBST(SHMDRV_KERNEL_DIRS,[$shmdrv_kernels])
 
 AC_SUBST(BUILD_EXAMPLES)
 if test "$BUILD_EXAMPLES" = yes; then
@@ -1284,7 +1237,7 @@ AC_SUBST([XENOMAI_KERNEL_THREADS_SOURCE],[xenomai-kernel])
 AC_SUBST([XENOMAI_KERNEL_THREADS_RTFLAGS])
 AC_SUBST([XENOMAI_KERNEL_THREADS_LDFLAGS])
 AC_SUBST([XENOMAI_KERNEL_THREADS_RTS])
-AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIR])
+AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIRS],[$xenomai_kernels])
 AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 # in-kernel math options
 AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
@@ -1300,7 +1253,7 @@ AC_SUBST([RTAI_KERNEL_THREADS_SOURCE],[rtai-kernel])
 AC_SUBST([RTAI_KERNEL_THREADS_RTFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_LDFLAGS])
 AC_SUBST([RTAI_KERNEL_THREADS_RTS])
-AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIR])
+AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIRS],[$rtai_kernels])
 AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 # absolute path of rtai-config rtdir with symlinks dereferenced
@@ -1327,10 +1280,10 @@ AC_SUBST([EMC2_HOME])
 # Section 3                                                                  #
 # aditional checking                                                         #
 # Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
-# Subsection 3.2 - check for the kernel version, with RT patches             #
-# Subsection 3.3 - check the moduledir where modules can get installed       #
-# Subsection 3.4 - check for GTK                                             #
-# Subsection 3.5 - check for utility programs needed to build and run EMC    #
+# Subsection 3.2 - define default dirs                                       #
+# Subsection 3.3 - check for GTK                                             #
+# Subsection 3.4 - check for utility programs needed to build and run EMC    #
+# Subsection 3.5 - check for programs needed to build documentation          #
 ##############################################################################
 
 
@@ -1367,113 +1320,9 @@ AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
 ##############################################################################
-# Subsection 3.2 - check for the kernel version, with RT patches             #
-#----------------------------------------------------------------------------#
-# Check with the version.h to find the uts-kernel version.                   #
-# This should be a more reliable way of determining the kernel that          #
-# is being used to compile against - `uname -r` only returns the             #
-# running kernel version which is may not be the one the code is             #
-# compiled against.                                                          #
+# Subsection 3.2 - define default dirs, these get used in a lot of places    #
+# we decide based on RIP or install where stuff goes                         #
 ##############################################################################
-
-m4_foreach([_cfg_flavor],[_cfg_kbuild_flavors],[
-    # check for kernels for detected thread flavors
-    if test $with_[]_cfg_flavor_underscored(_cfg_flavor) = yes; then
-
-	# upcase name of $flavor; get ready to do some indirect variable
-	# acrobatics
-	AC_DEFUN([_cfg_FLAVOR],[_cfg_flavor_upcase(_cfg_flavor)])
-	KERNELDIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR
-
-	AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],
-	    [AC_MSG_ERROR(
-		[version.h not found in "$KERNELDIR"; invalid kernel source tree])])
-
-	# Unfortunately, many distributions (redhat, mandrake) have
-	# #defines inside version.h, so a simple cat|grep|cut test won't
-	# work... But then again, RH & Mandrake kernels are notorious for
-	# their use of patches that break the RT patching - Both RTAI and
-	# RTLinux strongly recommend using a virgin source from
-	# kernel.org.
-
-	# Get the kernel version from version.h
-	AC_MSG_CHECKING([for _cfg_flavor kernel version string in $KERNELDIR])
-
-	if test -e $KERNELDIR/include/linux/utsrelease.h; then
-	    VERSION_FILE=$KERNELDIR/include/linux/utsrelease.h
-	elif test -e $KERNELDIR/include/generated/utsrelease.h; then
-	    VERSION_FILE=$KERNELDIR/include/generated/utsrelease.h
-	else
-	    VERSION_FILE=$KERNELDIR/include/linux/version.h
-	fi
-	KERNEL_VERS=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
-
-	if test -z "$KERNEL_VERS"; then 
-	    AC_MSG_RESULT([not found])
-	    AC_MSG_ERROR([Kernel version not found; check kernel sources])
-	fi
-
-	AC_MSG_RESULT([$KERNEL_VERS])
-
-	AC_SUBST(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,$KERNEL_VERS)
-	AC_DEFINE_UNQUOTED(_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS,
-	    "$_cfg_FLAVOR[]_THREADS_RTAPI_KERNEL_VERS",
-	    [Required _cfg_flavor kernel version])
-    fi
-])
-
-
-##############################################################################
-# Subsection 3.3 - check the moduledir where modules can get installed       #
-#                                                                            #
-# Provides the user the possibility to specify (--with-module-dir=<path>)    #
-# If not specified default inside /lib/modules/${KERNEL_VERS}/               #
-# to the location where a RT-module gets found (mbuff.o or rtai_shm.o)       #
-# (maybe the default should be /lib/modules/$KERNEL_VERS/extra if it exists? #
-##############################################################################
-
-m4_foreach([_cfg_flavor],[_cfg_all_flavors],[
-
-    # check for kernels for detected thread flavors
-    if test $with_[]_cfg_flavor_underscored(_cfg_flavor) = yes; then
-
-	# Create a module-dir option, similar to rtai's...
-	MODULE_DIR=""
-	RIP_MODULE_DIR=""
-
-	AC_MSG_CHECKING([for _cfg_flavor module installation directory])
-	AC_ARG_WITH(_cfg_flavor-module-dir,
-	    [AS_HELP_STRING([--with-_cfg_flavor-module-dir=<module-dir>],
-		[Installation directory for flavor kernel modules])],
-	    [
-		# require an absolute path
-		if test "$withval" = "${withval#/}"; then
-		    AC_MSG_RESULT($withval)
-		    AC_MSG_ERROR(
-			[--with-_cfg_flavor-module-dir requires absolute path])
-		fi
-		MODULE_DIR="$withval"
-	    ])
-
-	# if not specified, put in standard place according to BUILD_SYS type
-	if test -z "$MODULE_DIR"; then
-	    if test "$_cfg_FLAVOR[]_THREADS_BUILD_SYS" = kbuild; then
-		MODULE_DIR=$_cfg_FLAVOR[]_THREADS_KERNEL_DIR/linuxcnc
-	    else
-		MODULE_DIR=${libdir}/linuxcnc/modules/_cfg_flavor
-	    fi	    
-	fi
-	AC_SUBST(_cfg_FLAVOR[]_THREADS_MODULE_DIR,$MODULE_DIR)
-
-	if test "$RUN_IN_PLACE" = "yes"; then
-	    RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib/_cfg_flavor"
-	    AC_MSG_NOTICE([configured for run-in-place])
-	else
-	    AC_MSG_RESULT([$MODULE_DIR])
-	fi
-	AC_SUBST(_cfg_FLAVOR[]_THREADS_RIP_MODULE_DIR,$RIP_MODULE_DIR)
-    fi
-])
 
 if test "$RUN_IN_PLACE" = "yes"; then
     prefix=${BUILD_TOPLEVEL}
@@ -1489,11 +1338,6 @@ AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml file])
-
-##############################################################################
-# Subsection 3.4 - define default dirs, these get used in a lot of places    #
-# we decide based on RIP or install where stuff goes                         #
-##############################################################################
 
 fe () {
     # Fully expand argument.  Example:
@@ -1573,7 +1417,7 @@ AC_SUBST([EMC2_ICON])
 AC_SUBST([GIT_VERSION])
 
 ##############################################################################
-# Subsection 3.5 - check for GTK                                             #
+# Subsection 3.3 - check for GTK                                             #
 # FIXME: allow it to be enabled or disabled command line                     #
 ##############################################################################
 
@@ -1631,7 +1475,7 @@ AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
 
 ##############################################################################
-# Subsection 3.6 - check for utility programs needed to build and run EMC    #
+# Subsection 3.4 - check for utility programs needed to build and run EMC    #
 #                                                                            #
 # Check for all the utility programs we need to build and install emc        #
 # as well as those we use in the emc scripts...                              #
@@ -1700,7 +1544,7 @@ AC_ARG_WITH(insmod,
     ])
 
 ##############################################################################
-# Subsection 3.7 - check for programs needed to build documentation          #
+# Subsection 3.5 - check for programs needed to build documentation          #
 #                                                                            #
 # Check for programs we need to build and install docs.                      #
 # (Optional, if not present, just don't build the docs.)                     #
