@@ -61,8 +61,7 @@
 
 #include <linux/unistd.h>
 
-//mah #define DISABLE_L3RAM_SUPPORT
-
+#define DISABLE_L3RAM_SUPPORT
 
 #define	PAGE_SIZE                     4096
 
