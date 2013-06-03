@@ -56,11 +56,13 @@ $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
 # resolved at loadtime
 $(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
-ULAPISO := ../lib/$(threads)/ulapi.so
+
+ULAPISO := ../lib/$(RTDIR_EXT)/ulapi.so
+
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(FLAVOR_ULAPI_SRCS))
 	$(ECHO) Creating shared object $@
-	@mkdir -p ../lib/$(threads)
+	@mkdir -p ../lib/$(RTDIR_EXT)
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
