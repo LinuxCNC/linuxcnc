@@ -50,8 +50,8 @@ information on the drive parameters.
    determined by RS-485 interface, 03 or 04
 * P4.00 (Source of Frequency Command) must be set to Frequency
    determined by RS232C/RS485 communication interface, 05
-* P9.01 (Transmission Speed) must be set to 9600 baud, 02   
-* P9.02 (Communication Protocol) must be set to "Modbus RTU mode, 
+* P9.01 (Transmission Speed) must be set to 9600 baud, 01
+* P9.02 (Communication Protocol) must be set to "Modbus RTU mode,
    8 data bits, no parity, 2 stop bits", 03
 
 A PyVCP panel based on this example is <<gs2-rpm-meter,here>>.
