@@ -431,8 +431,8 @@ AC_ARG_WITH(platform,
 	fi
     ],
     [
-      AC_MSG_RESULT([using default platform: $PLATFORM])
-      TARGET_PLATFORM="$PLATFORM"
+      TARGET_PLATFORM=PC
+      AC_MSG_RESULT([using default platform: $TARGET_PLATFORM])
     ])
 
 AC_MSG_CHECKING(whether to build programming examples)
@@ -489,6 +489,7 @@ AC_ARG_ENABLE(portable-parport,
 	fi
     ],
     [
+      USE_PORTABLE_PARPORT_IO=no
       AC_MSG_RESULT([using defaults: $USE_PORTABLE_PARPORT_IO])
     ])
 
@@ -518,6 +519,7 @@ AC_ARG_ENABLE(gcc-atomic-ops,
           AC_MSG_RESULT([ARM platforms($TARGET_PLATFORM): forcing --enable-gcc-atomic-ops=yes])
 	  USE_GCC_ATOMIC_OPS=yes
       else
+	  USE_GCC_ATOMIC_OPS=no
           AC_MSG_RESULT([using defaults: $USE_GCC_ATOMIC_OPS ])
       fi
     ])
