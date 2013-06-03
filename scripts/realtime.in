@@ -18,21 +18,28 @@ anywait(){
     done
 }
 
+find_module_path() {
+    # look for a module in the same places that rtapi_compat() would
+    local module=${1}${MODULE_EXT}
+    local path=${2:-$MODPATH}
+    local pathlist
+    test -z "${2}" && pathlist="/$FLAVOR/$KERNEL_VERS /$FLAVOR"
+    for subpath in  $pathlist ""; do
+	if test -e ${path:=$MODPATH}$subpath/$module; then
+ 	    echo $(readlink -m ${path}$subpath/$module)
+	    break
+	fi
+    done
+}
+
 CheckKernel() {
     # FIXME Userland threads will need to load the shmdrv module
     # eventually, but for now just return
     test "$BUILD_SYS" = user-dso && return
 
-    # see if the running kernel matches the module version we detected
-    RUNNING_KERNEL_VERS=$(uname -r)
-    if test "$RUNNING_KERNEL_VERS" != "$KERNEL_VERS"; then
-	echo "running kernel does not match version '$KERNEL_VERS'" >&2
-	# FIXME does this ever happen?  bomb out now?
-    fi
-
     # see if we have modules for the running kernel
-    if ! test -e $MODPATH/rtapi$MODULE_EXT; then
-	echo "Module rtapi$MODULE_EXT does not exist in '$MODPATH'" >&2
+    if test -z "`find_module_path rtapi`"; then
+	echo "Unable to find rtapi module in '$MODPATH'" >&2
 	exit 1
     fi
 }
@@ -53,7 +60,7 @@ LoadConfig(){
         fi
     fi
     if [ -z "$RTAPICONF" ] ; then
-	echo "Missing rtapi.conf.  Check your installation." 1>&2
+	echo "Missing rtapi.conf.  Check your installation." >&2
 	exit 1
     fi
     INSMOD="@INSMOD@"
@@ -75,14 +82,17 @@ LoadConfig(){
     posix|xenomai|rt-preempt) SHM_DEV=/dev/zero;;
     *)
         for  MOD in shmdrv $MODULES rtapi hal_lib; do
-	    if test "$FLAVOR" = rtai-kernel -a \
-		-f $RTAI_MOD_DIR/${MOD}${MODULE_EXT}; then
-		MOD_PATH=$RTAI_MOD_DIR/${MOD}${MODULE_EXT}
-	    else
-		MOD_PATH=$MODPATH/${MOD}${MODULE_EXT}
+	    MOD_PATH=`find_module_path $MOD`
+	    if test "$FLAVOR" = rtai-kernel -a -z "$MOD_PATH"; then
+		MOD_PATH=`find_module_path $MOD \
+		    $($RTAI_KERNEL_THREADS_RTS --module-dir)`
 	    fi
 		
-	    MOD_PATH=$(readlink -m $MOD_PATH)
+	    MOD_PATH=$(readlink -m "$MOD_PATH")
+	    if test -z "$MOD_PATH"; then
+		echo "module $MOD not found; aborting" >&2
+		exit 1
+	    fi
             MODULES_LOAD="$MODULES_LOAD $MOD_PATH"
             MODULES_UNLOAD="$(basename $MOD_PATH $MODULE_EXT) $MODULES_UNLOAD"
         done
@@ -100,7 +110,7 @@ LoadConfig(){
 CheckStatus(){
     case $FLAVOR in
     posix|xenomai|rt-preempt)
-        if [ -z "$($PIDOF rtapi_app:${INSTANCE})" ]; then
+         if [ -z "$($PIDOF rtapi:${INSTANCE})" ]; then
             exit 1
         else
             exit 0
