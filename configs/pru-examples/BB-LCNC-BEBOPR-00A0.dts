@@ -1,0 +1,63 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+	/* identification */
+	part-number = "BB-LCNC-BEBOPR";
+	version = "00A0";
+
+	/* state the resources this cape uses */
+	exclusive-use =
+		/* the pin header uses */
+/*		"P8.3",		 gpio1.6	Enable	*/
+/*		"P8.5",		 gpio1.2	Enablen	*/
+		"P8.45",	/* pru1.r30.0	J3 PWM	*/
+		"P8.46",	/* pru1.r30.1	J2 PWM	*/
+		"P8.43",	/* pru1.r30.2	X_Step	*/
+		"P8.44",	/* pru1.r30.3	X_Dir	*/
+		"P8.41",	/* gpio2.10	X_Ena	*/
+		"P8.42",	/* pru1.r30.5	Y_Step	*/
+		"P8.39",	/* pru1.r30.6	Y_Dir	*/
+		"P8.40",	/* gpio2.13	Y_Ena	*/
+	
+		/* the hardware IP uses */
+/* The following 2 pins conflict with the on-board mmc flash */
+/*		"gpio1_6",	*/
+/*		"gpio1_2",	*/
+		"gpio2_10",
+		"gpio2_13",
+		"pru0";
+
+	fragment@0 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+			foo_pins: foo_pins {
+				pinctrl-single,pins = <
+					0xa0 0x0d	/* lcd_data0.lcd_data0, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xa4 0x0d	/* lcd_data1.lcd_data1, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xa8 0x0d	/* lcd_data2.lcd_data2, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xac 0x0d	/* lcd_data3.lcd_data3, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xb0 0x0f	/* lcd_data4.lcd_data4, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xb4 0x0d	/* lcd_data5.lcd_data5, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xb8 0x0d	/* lcd_data6.lcd_data6, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xbc 0x0f	/* lcd_data7.lcd_data7, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+				>;
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <&pruss>;
+		__overlay__ {
+			status = "okay";
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&foo_pins>;
+
+		};
+	};
+};
+
