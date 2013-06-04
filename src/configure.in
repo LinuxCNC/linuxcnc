@@ -839,7 +839,7 @@ AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
 test "$with_rt_preempt" = check && with_rt_preempt=yes
 test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
-if test "$with_posix" = yes; then
+if test "$with_rt_preempt" = yes; then
    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
    RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rt-preempt"
@@ -962,7 +962,7 @@ fi
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
 test "$with_xenomai" = check && with_xenomai=yes
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
-test $with_xenomai=yes && \
+test $with_xenomai = yes && \
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai"
 AC_MSG_RESULT($with_xenomai)
 
@@ -970,7 +970,7 @@ AC_MSG_CHECKING(whether to build Xenomai kernel threads)
 test "$with_xenomai_kernel" = check && with_xenomai_kernel=yes
 test -z "$xenomai_kernels" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
-if test $with_xenomai_kernel=yes; then
+if test $with_xenomai_kernel = yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai-kernel"
      XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS=`pwd`/rtapi/xeno_math/Module.symvers
 fi
