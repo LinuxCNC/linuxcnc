@@ -644,10 +644,12 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     if ((retval = assure_module_loaded(UIO_PRUSS)))
     return retval;
 
+rtapi_print("prussdrv_init\n");
     // Allocate and initialize memory
     prussdrv_init ();
 
     // opens an event out and initializes memory mapping
+rtapi_print("prussdrv_open\n");
     if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0) < 0)
     return -1;
 
@@ -655,14 +657,17 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     pruss = &prussdrv;
 
     // Map PRU's INTC
+rtapi_print("prussdrv_pruintc_init\n");
     if (prussdrv_pruintc_init(&pruss_intc_initdata) < 0)
     return -1;
 
     // Maps the PRU DRAM memory to input pointer
+rtapi_print("prussdrv_map_prumem\n");
     if (prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
             (void **) &pru_data_ram) < 0)
     return -1;
 
+rtapi_print("PRU data ram mapped\n");
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
             modname, pru_data_ram);
 
