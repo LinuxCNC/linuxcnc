@@ -48,8 +48,10 @@ component. This component reads and writes to the GS2 via a modbus connection.
 .IP -d,\ --device\ <path>
 (default /dev/ttyS0) Set the name of the serial device node to use.
 .B
-.IP -g,\ --debug
-Turn on debugging messages. This will also set the verbose flag. Debug mode will cause all modbus messages to be printed in hex on the terminal.
+.IP -v,\ --verbose,\ -g,\ --debug
+Turn on debug messages. Note that if there are serial errors, this may
+become annoying.  Debug mode will cause all modbus messages to be printed
+in hex on the terminal.
 .B
 .IP -n,\ --name\ <string>
 (default gs2_vfd) Set the name of the HAL module. The HAL comp name will be set to <string>, and all pin and parameter names will begin with <string>.
@@ -66,8 +68,6 @@ Turn on debugging messages. This will also set the verbose flag. Debug mode will
 .IP -t,\ --target\ <n>
 (default 1) Set MODBUS target (slave) number. This must match the device number you set on the GS2.
 .B
-.IP -v,\ --verbose
-Turn on debug messages. Note that if there are serial errors, this may become annoying. At the moment it doesn't make much difference most of the time.
 
 .SH PINS
 .B

@@ -28,9 +28,9 @@
         Set number of data bits to <n>, where n must be from 5 to 8 inclusive
     -d or --device <path> (default /dev/ttyS0)
         Set the name of the serial device node to use
-    -g or --debug
-        Turn on debugging messages.  This will also set the verbose flag.  Debug mode will cause
-        all modbus messages to be printed in hex on the terminal.
+    -v or --verbose or -g or --debug
+        Turn on debugging messages.  Debug mode will cause all modbus
+        messages to be printed in hex on the terminal.
     -n or --name <string> (default gs2_vfd)
         Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin
         and parameter names will begin with <string>.
@@ -43,10 +43,7 @@
         Set serial stop bits to 1 or 2
     -t or --target <n> (default 1)
         Set MODBUS target (slave) number.  This must match the device number you set on the GS2.
-    -v or --verbose
-        Turn on debug messages.  Note that if there are serial errors, this may become annoying.
-        At the moment, it doesn't make much difference most of the time.
-    
+
     Add is-stopped pin John Thornton
 */
 
@@ -87,9 +84,6 @@
 	total of 5 registers */
 #define START_REGISTER_W	0x091A
 #define NUM_REGISTERS_W		5
-
-#undef DEBUG
-//#define DEBUG
 
 /* modbus slave data struct */
 typedef struct {
@@ -260,9 +254,9 @@ void usage(int argc, char **argv) {
     "    Set number of data bits to <n>, where n must be from 5 to 8 inclusive\n"
     "-d or --device <path> (default /dev/ttyS0)\n"
     "    Set the name of the serial device node to use\n"
-    "-g or --debug\n"
-    "    Turn on debugging messages.  This will also set the verbose flag.  Debug mode will cause\n"
-    "    all modbus messages to be printed in hex on the terminal.\n"
+    "-v or --verbose or -g or --debug\n"
+    "    Turn on verbose mode.  This will cause all modbus messages to be\n"
+    "    printed in hex on the terminal.\n"
     "-n or --name <string> (default gs2_vfd)\n"
     "    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
     "    and parameter names will begin with <string>.\n"
@@ -275,9 +269,7 @@ void usage(int argc, char **argv) {
     "    Set serial stop bits to 1 or 2\n"
     "-t or --target <n> (default 1)\n"
     "    Set MODBUS target (slave) number.  This must match the device number you set on the GS2.\n"
-    "-v or --verbose\n"
-    "    Turn on debug messages.  Note that if there are serial errors, this may become annoying.\n"
-    "    At the moment, it doesn't make much difference most of the time.\n");
+    );
 }
 int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_block) {
     uint16_t receive_data[MODBUS_MAX_READ_REGISTERS];	/* a little padding in there */
@@ -333,7 +325,7 @@ int main(int argc, char **argv)
     int slave;
     int hal_comp_id;
     struct timespec loop_timespec, remaining;
-    int baud, bits, stopbits, debug, verbose;
+    int baud, bits, stopbits, verbose;
     char *device, *endarg;
     char parity;
     int opt;
@@ -344,7 +336,6 @@ int main(int argc, char **argv)
     baud = 38400;
     bits = 8;
     stopbits = 1;
-    debug = 0;
     verbose = 0;
     device = "/dev/ttyS0";
     parity = 'O';
@@ -378,7 +369,7 @@ int main(int argc, char **argv)
                 device = strdup(optarg);
                 break;
             case 'g':
-                debug = 1;
+            case 'v':
                 verbose = 1;
                 break;
             case 'n':   // module base name
@@ -425,9 +416,6 @@ int main(int argc, char **argv)
                 }
                 slave = argvalue;
                 break;
-            case 'v':   // verbose mode (print modbus errors and other information), default 0
-                verbose = 1;
-                break;
             case 'h':
             default:
                 usage(argc, argv);
@@ -437,7 +425,7 @@ int main(int argc, char **argv)
     }
 
     printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d, verbose=%d\n",
-           modname, device, baud, bits, parity, stopbits, slave, debug);
+           modname, device, baud, bits, parity, stopbits, slave, verbose);
     /* point TERM and INT signals at our quit function */
     /* if a signal is received between here and the main loop, it should prevent
             some initialization from happening */
@@ -457,7 +445,7 @@ int main(int argc, char **argv)
         goto out_noclose;
     }
 
-    modbus_set_debug(mb_ctx, debug);
+    modbus_set_debug(mb_ctx, verbose);
 
     modbus_set_slave(mb_ctx, slave);
 
