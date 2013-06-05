@@ -318,7 +318,7 @@ int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_bloc
 
 int main(int argc, char **argv)
 {
-    int retval;
+    int retval = 0;
     modbus_t *mb_ctx;
     haldata_t *haldata;
     slavedata_t slavedata;
