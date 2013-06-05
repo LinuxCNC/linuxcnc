@@ -20,6 +20,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 # load low-level drivers
 #loadrt hal_bb_gpio output_pins=103,105,120,121,127,128,129,130,136,139,140,141,142,143,144,145,146
+loadrt hal_bb_gpio output_pins=127,128,129,130,136,139,140,141,142,143,144,145,146
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 
 
@@ -31,12 +32,12 @@ loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 # ################################################
 
 addf [PRUCONF](DRIVER).capture-position   servo-thread
-#addf bb_gpio.read                         servo-thread
+addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
 # revel in the free time here from not having to run PID 
 addf [PRUCONF](DRIVER).update             servo-thread
-#addf bb_gpio.write                        servo-thread
+addf bb_gpio.write                        servo-thread
        
 
 # ######################################################
@@ -217,9 +218,9 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 #net emcmot.01.enable => bb_gpio.p8.out-40
 #net emcmot.02.enable => bb_gpio.p8.out-28
 #net emcmot.03.enable => bb_gpio.p8.out-20
-#setp bb_gpio.p8.out-41  0
-#setp bb_gpio.p8.out-40  0
-#setp bb_gpio.p8.out-28  0
+setp bb_gpio.p8.out-41  0
+setp bb_gpio.p8.out-40  0
+setp bb_gpio.p8.out-28  0
 #setp bb_gpio.p8.out-20  0
 
 # Machine power
