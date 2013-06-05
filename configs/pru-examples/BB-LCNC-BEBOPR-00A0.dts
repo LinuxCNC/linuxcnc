@@ -13,21 +13,31 @@
 		/* the pin header uses */
 /*		"P8.3",		 gpio1.6	Enable	*/
 /*		"P8.5",		 gpio1.2	Enablen	*/
-		"P8.45",	/* pru1.r30.0	J3 PWM	*/
-		"P8.46",	/* pru1.r30.1	J2 PWM	*/
-		"P8.43",	/* pru1.r30.2	X_Step	*/
-		"P8.44",	/* pru1.r30.3	X_Dir	*/
-		"P8.41",	/* gpio2.10	X_Ena	*/
-		"P8.42",	/* pru1.r30.5	Y_Step	*/
+/*		"p8.20",	 gpio1.31	E_Ena	*/
+/*		"p8.21",	 pru1.r30.12	E_Dir	*/
+		"p8.27",	/* pru1.r30.8	Z_Step	*/
+		"p8.28",	/* gpio2.24	Z_Ena	*/
+		"p8.29",	/* pru1.r30.9	Z_Dir	*/
+		"p8.30",	/* pru1.r30.11	E_Step	*/
+		"p8.36",	/* gpio2.16	J4_PWM	*/
 		"P8.39",	/* pru1.r30.6	Y_Dir	*/
 		"P8.40",	/* gpio2.13	Y_Ena	*/
+		"P8.41",	/* gpio2.10	X_Ena	*/
+		"P8.42",	/* pru1.r30.5	Y_Step	*/
+		"P8.43",	/* pru1.r30.2	X_Step	*/
+		"P8.44",	/* pru1.r30.3	X_Dir	*/
+		"P8.45",	/* pru1.r30.0	J3_PWM	*/
+		"P8.46",	/* pru1.r30.1	J2_PWM	*/
 	
 		/* the hardware IP uses */
-/* The following 2 pins conflict with the on-board mmc flash */
+/* The following 4 pins conflict with the on-board mmc flash */
 /*		"gpio1_6",	*/
 /*		"gpio1_2",	*/
-		"gpio2_10",
+/*		"gpio1_31",	*/
+/*		"gpio2_24",	*/
+		"gpio2_16",
 		"gpio2_13",
+		"gpio2_10",
 		"pru0";
 
 	fragment@0 {
@@ -36,14 +46,23 @@
 
 			foo_pins: foo_pins {
 				pinctrl-single,pins = <
-					0xa0 0x0d	/* lcd_data0.lcd_data0, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xa4 0x0d	/* lcd_data1.lcd_data1, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xa8 0x0d	/* lcd_data2.lcd_data2, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xac 0x0d	/* lcd_data3.lcd_data3, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xb0 0x0f	/* lcd_data4.lcd_data4, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xb4 0x0d	/* lcd_data5.lcd_data5, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+				/*	0x18 0x0f	p8.3	gpio1_6	*/
+				/*	0x08 0x0f	p8.5	gpio1_2 */
+				/*	0x84 0x0f	p8.20	gpio1_31 */
+				/*	0x80 0x0d	p8.21	pru1.r30.13 */
+					0xe0 0x0d	/* p8.27 pru1.r30.8  */
+					0xe8 0x0d	/* p8.28 pru1.r30.10 */
+					0xe4 0x0f	/* p8.29 gpio2_23 */
+					0xec 0x0d	/* p8.30 pru1.r30.11 */
+					0xc8 0x0f	/* p8.36 gpio2_16 */
 					0xb8 0x0d	/* lcd_data6.lcd_data6, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 					0xbc 0x0f	/* lcd_data7.lcd_data7, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xb0 0x0f	/* lcd_data4.lcd_data4, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xb4 0x0d	/* lcd_data5.lcd_data5, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xa8 0x0d	/* lcd_data2.lcd_data2, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xac 0x0d	/* lcd_data3.lcd_data3, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xa0 0x0d	/* lcd_data0.lcd_data0, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+					0xa4 0x0d	/* lcd_data1.lcd_data1, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
 				>;
 			};
 		};
