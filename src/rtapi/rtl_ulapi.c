@@ -192,7 +192,7 @@ int rtapi_exit(int module_id)
     }
     /* clean up any mess left behind by the module */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
-	if (test_bit(module_id, shmem_array[n].bitmap)) {
+	if (rtapi_test_bit(module_id, shmem_array[n].bitmap)) {
 	    fprintf(stderr,
 		"RTAPI: WARNING: module '%s' failed to delete shmem %02d\n",
 		module->name, n);
@@ -344,7 +344,7 @@ void rtapi_printall(void)
 	    printf("    size    = %ld\n", shmems[n].size);
 	    printf("    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, shmems[n].bitmap)) {
+		if (rtapi_test_bit(m, shmems[n].bitmap)) {
 		    putchar('1');
 		} else {
 		    putchar('0');
@@ -360,7 +360,7 @@ void rtapi_printall(void)
 	    printf("    users   = %d\n", sems[n].users);
 	    printf("    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, sems[n].bitmap)) {
+		if (rtapi_test_bit(m, sems[n].bitmap)) {
 		    putchar('1');
 		} else {
 		    putchar('0');
@@ -461,7 +461,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		return -EINVAL;
 	    }
 	    /* is this module already using it? */
-	    if (test_bit(module_id, shmem->bitmap)) {
+	    if (rtapi_test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		return -EINVAL;
 	    }
@@ -477,7 +477,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		return -ENOMEM;
 	    }
 	    /* update usage data */
-	    set_bit(module_id, shmem->bitmap);
+	    rtapi_set_bit(module_id, shmem->bitmap);
 	    shmem->ulusers++;
 	    /* done */
 	    rtapi_mutex_give(&(rtapi_data->mutex));
@@ -506,7 +506,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	return -ENOMEM;
     }
     /* the block has been created, update data */
-    set_bit(module_id, shmem->bitmap);
+    rtapi_set_bit(module_id, shmem->bitmap);
     shmem->key = key;
     shmem->rtusers = 0;
     shmem->ulusers = 1;
@@ -552,11 +552,11 @@ int shmem_delete(int shmem_id, int module_id)
 	return -EINVAL;
     }
     /* is this module using the block? */
-    if (test_bit(module_id, shmem->bitmap) == 0) {
+    if (rtapi_test_bit(module_id, shmem->bitmap) == 0) {
 	return -EINVAL;
     }
     /* OK, we're no longer using it */
-    clear_bit(module_id, shmem->bitmap);
+    rtapi_clear_bit(module_id, shmem->bitmap);
     shmem->ulusers--;
     /* unmap the block */
     /* convert key to a string */

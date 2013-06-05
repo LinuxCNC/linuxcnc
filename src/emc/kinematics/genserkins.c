@@ -667,8 +667,8 @@ static double timestamp()
 
 int main(int argc, char *argv[])
 {
-#define BUFFERLEN 256
-    char buffer[BUFFERLEN];
+#define INPUT_BUFFERLEN 256
+    char buffer[INPUT_BUFFERLEN];
     int inverse = 1;
     int jacobian = 0;
     EmcPose pos = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 };
@@ -760,7 +760,7 @@ int main(int argc, char *argv[])
 	    do {
 		printf("initial estimate for Cartesian position, xyzrpw: ");
 		fflush(stdout);
-		if (NULL == fgets(buffer, BUFFERLEN, stdin)) {
+		if (NULL == fgets(buffer, INPUT_BUFFERLEN, stdin)) {
 		    return 0;
 		}
 	    } while (6 != sscanf(buffer, "%lf %lf %lf %lf %lf %lf",
@@ -804,7 +804,7 @@ int main(int argc, char *argv[])
 	}
 	fflush(stdout);
 
-	if (NULL == fgets(buffer, BUFFERLEN, stdin)) {
+	if (NULL == fgets(buffer, INPUT_BUFFERLEN, stdin)) {
 	    break;
 	}
 
@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
     return 0;
 
 #undef ITERATIONS
-#undef BUFFERLEN
+#undef INPUT_BUFFERLEN
 }
 
 #endif /* ULAPI */

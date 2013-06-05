@@ -228,7 +228,7 @@ RTAPI_BEGIN_DECLS
     the mutex, it will be released.
 */
     static __inline__ void rtapi_mutex_give(unsigned long *mutex) {
-	test_and_clear_bit(0, mutex);
+	rtapi_test_and_clear_bit(0, mutex);
     }
 /** 'rtapi_mutex_try()' makes a non-blocking attempt to get the
     mutex pointed to by 'mutex'.  If the mutex was available, it
@@ -240,7 +240,7 @@ RTAPI_BEGIN_DECLS
     means doing something that will yield the CPU, so that whatever
     other process has the mutex gets a chance to release it.
 */ static __inline__ int rtapi_mutex_try(unsigned long *mutex) {
-	return test_and_set_bit(0, mutex);
+	return rtapi_test_and_set_bit(0, mutex);
     }
 
 /** 'rtapi_mutex_get()' gets the mutex pointed to by 'mutex',
@@ -249,7 +249,7 @@ RTAPI_BEGIN_DECLS
     do.
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
-	while (test_and_set_bit(0, mutex)) {
+	while (rtapi_test_and_set_bit(0, mutex)) {
 #if defined(RTAPI) && !defined(SIM)
 	    schedule();
 #else

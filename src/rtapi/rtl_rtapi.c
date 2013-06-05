@@ -409,7 +409,7 @@ static int module_delete(int module_id)
 	}
     }
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
-	if (test_bit(module_id, shmem_array[n].bitmap)) {
+	if (rtapi_test_bit(module_id, shmem_array[n].bitmap)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 		"RTAPI: WARNING: module '%s' failed to delete shmem %02d\n",
 		module->name, n);
@@ -417,7 +417,7 @@ static int module_delete(int module_id)
 	}
     }
     for (n = 1; n <= RTAPI_MAX_SEMS; n++) {
-	if (test_bit(module_id, sem_array[n].bitmap)) {
+	if (rtapi_test_bit(module_id, sem_array[n].bitmap)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 		"RTAPI: WARNING: module '%s' failed to delete sem %02d\n",
 		module->name, n);
@@ -1013,7 +1013,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		}
 	    }
 	    /* is this module already using it? */
-	    if (test_bit(module_id, shmem->bitmap)) {
+	    if (rtapi_test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		return -EINVAL;
 	    }
@@ -1102,11 +1102,11 @@ static int shmem_delete(int shmem_id, int module_id)
 	return -EINVAL;
     }
     /* is this module using the block? */
-    if (test_bit(module_id, shmem->bitmap) == 0) {
+    if (rtapi_test_bit(module_id, shmem->bitmap) == 0) {
 	return -EINVAL;
     }
     /* OK, we're no longer using it */
-    clear_bit(module_id, shmem->bitmap);
+    rtapi_clear_bit(module_id, shmem->bitmap);
     shmem->rtusers--;
     /* is somebody else still using the block? */
     if (shmem->rtusers > 0) {
@@ -1186,7 +1186,7 @@ int rtapi_sem_new(int key, int module_id)
 	    sem_id = n;
 	    sem = &(sem_array[n]);
 	    /* is this module already using it? */
-	    if (test_bit(module_id, sem->bitmap)) {
+	    if (rtapi_test_bit(module_id, sem->bitmap)) {
 		/* yes, can't open it again */
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		return -EINVAL;
@@ -1262,11 +1262,11 @@ static int sem_delete(int sem_id, int module_id)
 	return -EINVAL;
     }
     /* is this module using the semaphore? */
-    if (test_bit(module_id, sem->bitmap) == 0) {
+    if (rtapi_test_bit(module_id, sem->bitmap) == 0) {
 	return -EINVAL;
     }
     /* OK, we're no longer using it */
-    clear_bit(module_id, sem->bitmap);
+    rtapi_clear_bit(module_id, sem->bitmap);
     sem->users--;
     /* is somebody else still using the semaphore */
     if (sem->users > 0) {

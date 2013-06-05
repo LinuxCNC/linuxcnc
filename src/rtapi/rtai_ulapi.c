@@ -197,7 +197,7 @@ int rtapi_exit(int module_id)
     }
     /* clean up any mess left behind by the module */
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
-	if (test_bit(module_id, shmem_array[n].bitmap)) {
+	if (rtapi_test_bit(module_id, shmem_array[n].bitmap)) {
 	    fprintf(stderr,
 		"ULAPI: WARNING: module '%s' failed to delete shmem %02d\n",
 		module->name, n);
@@ -239,16 +239,16 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
     return i;
 }
 
-#define BUFFERLEN 1024
+#define MSG_BUFFERLEN 1024
 
 void rtapi_print(const char *fmt, ...)
 {
-    char buffer[BUFFERLEN + 1];
+    char buffer[MSG_BUFFERLEN + 1];
     va_list args;
 
     va_start(args, fmt);
     /* call the normal library vnsprintf() */
-    vsnprintf(buffer, BUFFERLEN, fmt, args);
+    vsnprintf(buffer, MSG_BUFFERLEN, fmt, args);
     fputs(buffer, stdout);
     va_end(args);
 }
@@ -343,7 +343,7 @@ void rtapi_printall(void)
 	    printf("    size    = %ld\n", shmems[n].size);
 	    printf("    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, shmems[n].bitmap)) {
+		if (rtapi_test_bit(m, shmems[n].bitmap)) {
 		    putchar('1');
 		} else {
 		    putchar('0');
@@ -359,7 +359,7 @@ void rtapi_printall(void)
 	    printf("    users   = %d\n", sems[n].users);
 	    printf("    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, sems[n].bitmap)) {
+		if (rtapi_test_bit(m, sems[n].bitmap)) {
 		    putchar('1');
 		} else {
 		    putchar('0');
@@ -433,7 +433,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		return -EINVAL;
 	    }
 	    /* is this module already using it? */
-	    if (test_bit(module_id, shmem->bitmap)) {
+	    if (rtapi_test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_WARN,
 		    "RTAPI: Warning: shmem already mapped\n");
@@ -453,7 +453,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		return -ENOMEM;
 	    }
 	    /* update usage data */
-	    set_bit(module_id, shmem->bitmap);
+	    rtapi_set_bit(module_id, shmem->bitmap);
 	    shmem->ulusers++;
 	    /* done */
 	    rtapi_mutex_give(&(rtapi_data->mutex));
@@ -487,7 +487,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	return -ENOMEM;
     }
     /* the block has been created, update data */
-    set_bit(module_id, shmem->bitmap);
+    rtapi_set_bit(module_id, shmem->bitmap);
     shmem->key = key;
     shmem->rtusers = 0;
     shmem->ulusers = 1;
@@ -555,11 +555,11 @@ int shmem_delete(int shmem_id, int module_id)
 	return -EINVAL;
     }
     /* is this module using the block? */
-    if (test_bit(module_id, shmem->bitmap) == 0) {
+    if (rtapi_test_bit(module_id, shmem->bitmap) == 0) {
 	return -EINVAL;
     }
     /* OK, we're no longer using it */
-    clear_bit(module_id, shmem->bitmap);
+    rtapi_clear_bit(module_id, shmem->bitmap);
     shmem->ulusers--;
     /* unmap the block */
     rtai_free(shmem->key, shmem_addr_array[shmem_id]);

@@ -1,284 +1,132 @@
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
-#if (defined(__MODULE__) && !defined(SIM))
-#include <asm/bitops.h>
-#elif defined(__i386__)
-/* From <asm/bitops.h>
- * Copyright 1992, Linus Torvalds.
- */
 
-#define LOCK_PREFIX "lock ; "
-#define ADDR (*(volatile long *) addr)
+// determine which flavor of atomic ops to use:
+// the __sync_* legacy ops in gcc (<4.7) or the
+// __atomic_* operations in gcc 4.7 and onwards, and llvm
+//
+// see also:
+// http://gcc.gnu.org/onlinedocs/gcc-4.7.3/gcc/_005f_005fatomic-Builtins.html#g_t_005f_005fatomic-Builtins
+// http://www.mjmwired.net/kernel/Documentation/atomic_ops.txt
 
-/**
- * set_bit - Atomically set a bit in memory
- * @nr: the bit to set
- * @addr: the address to start counting from
- *
- * This function is atomic and may not be reordered.  See __set_bit()
- * if you do not require the atomic guarantees.
- * Note that @nr may be almost arbitrarily large; this function is not
- * restricted to acting on a single-word quantity.
- */
-static __inline__ void set_bit(int nr, volatile void * addr)
-{
-	__asm__ __volatile__( 
-		"btsl %1,%0"
-		:"=m" (ADDR)
-		:"Ir" (nr));
-}
+#if defined(__clang__) && __clang__
+#define RTAPI_USE_ATOMIC 1
 
-#if 0 /* Fool kernel-doc since it doesn't do macros yet */
-/**
- * test_bit - Determine whether a bit is set
- * @nr: bit number to test
- * @addr: Address to start counting from
- */
-static int test_bit(int nr, const volatile void * addr);
+// the __ATOMIC_* memory model macros will become available with C11 / C++11 only
+// see http://clang.llvm.org/doxygen/InitPreprocessor_8cpp_source.html
+#ifndef __ATOMIC_SEQ_CST
+#define __ATOMIC_SEQ_CST 5
 #endif
 
-static __inline__ int constant_test_bit(int nr, const volatile void * addr)
-{
-	return ((1UL << (nr & 31)) & (((const volatile unsigned int *) addr)[nr >> 5])) != 0;
-}
-
-static __inline__ int variable_test_bit(int nr, volatile void * addr)
-{
-	int oldbit;
-
-	__asm__ __volatile__(
-		"btl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit)
-		:"m" (ADDR),"Ir" (nr));
-	return oldbit;
-}
-
-#define test_bit(nr,addr) \
-(__builtin_constant_p(nr) ? \
- constant_test_bit((nr),(addr)) : \
- variable_test_bit((nr),(addr)))
-
-/**
- * clear_bit - Clears a bit in memory
- * @nr: Bit to clear
- * @addr: Address to start counting from
- *
- * clear_bit() is atomic and may not be reordered.  However, it does
- * not contain a memory barrier, so if it is used for locking purposes,
- * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
- * in order to ensure changes are visible on other processors.
- */
-static __inline__ void clear_bit(int nr, volatile void * addr)
-{
-	__asm__ __volatile__( 
-		"btrl %1,%0"
-		:"=m" (ADDR)
-		:"Ir" (nr));
-}
-
-/**
- * test_and_set_bit - Set a bit and return its old value
- * @nr: Bit to set
- * @addr: Address to count from
- *
- * This operation is atomic and cannot be reordered.  
- * It also implies a memory barrier.
- */
-static __inline__ int test_and_set_bit(int nr, volatile void * addr)
-{
-	int oldbit;
-
-	__asm__ __volatile__( LOCK_PREFIX
-		"btsl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
-		:"Ir" (nr) : "memory");
-	return oldbit;
-}
-
-
-/**
- * test_and_clear_bit - Clear a bit and return its old value
- * @nr: Bit to set
- * @addr: Address to count from
- *
- * This operation is atomic and cannot be reordered.  
- * It also implies a memory barrier.
- */
-static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
-{
-	int oldbit;
-
-	__asm__ __volatile__( 
-		"btrl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
-		:"Ir" (nr) : "memory");
-	return oldbit;
-}
-#elif defined(__x86_64__)
-/*
- * Copyright 1992, Linus Torvalds.
- */
-
-
-#define LOCK_PREFIX "lock ; "
-
-#define ADDR (*(volatile long *) addr)
-
-/**
- * set_bit - Atomically set a bit in memory
- * @nr: the bit to set
- * @addr: the address to start counting from
- *
- * This function is atomic and may not be reordered.  See __set_bit()
- * if you do not require the atomic guarantees.
- * Note that @nr may be almost arbitrarily large; this function is not
- * restricted to acting on a single-word quantity.
- */
-static __inline__ void set_bit(int nr, volatile void * addr)
-{
-	__asm__ __volatile__( LOCK_PREFIX
-		"btsl %1,%0"
-		:"=m" (ADDR)
-		:"dIr" (nr) : "memory");
-}
-
-
-/**
- * clear_bit - Clears a bit in memory
- * @nr: Bit to clear
- * @addr: Address to start counting from
- *
- * clear_bit() is atomic and may not be reordered.  However, it does
- * not contain a memory barrier, so if it is used for locking purposes,
- * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
- * in order to ensure changes are visible on other processors.
- */
-static __inline__ void clear_bit(int nr, volatile void * addr)
-{
-	__asm__ __volatile__( LOCK_PREFIX
-		"btrl %1,%0"
-		:"=m" (ADDR)
-		:"dIr" (nr));
-}
-
-
-static __inline__ int constant_test_bit(int nr, const volatile void * addr)
-{
-	return ((1UL << (nr & 31)) & (((const volatile unsigned int *) addr)[nr >> 5])) != 0;
-}
-
-static __inline__ int variable_test_bit(int nr, volatile const void * addr)
-{
-	int oldbit;
-
-	__asm__ __volatile__(
-		"btl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit)
-		:"m" (ADDR),"dIr" (nr));
-	return oldbit;
-}
-
-#define test_bit(nr,addr) \
-(__builtin_constant_p(nr) ? \
- constant_test_bit((nr),(addr)) : \
- variable_test_bit((nr),(addr)))
-
-
-/**
- * test_and_set_bit - Set a bit and return its old value
- * @nr: Bit to set
- * @addr: Address to count from
- *
- * This operation is atomic and cannot be reordered.  
- * It also implies a memory barrier.
- */
-static __inline__ int test_and_set_bit(int nr, volatile void * addr)
-{
-	int oldbit;
-
-	__asm__ __volatile__( LOCK_PREFIX
-		"btsl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
-		:"dIr" (nr) : "memory");
-	return oldbit;
-}
-
-/**
- * test_and_clear_bit - Clear a bit and return its old value
- * @nr: Bit to clear
- * @addr: Address to count from
- *
- * This operation is atomic and cannot be reordered.  
- * It also implies a memory barrier.
- */
-static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
-{
-	int oldbit;
-
-	__asm__ __volatile__( LOCK_PREFIX
-		"btrl %2,%1\n\tsbbl %0,%0"
-		:"=r" (oldbit),"=m" (ADDR)
-		:"dIr" (nr) : "memory");
-	return oldbit;
-}
-#undef ADDR
-#elif defined(__powerpc__)
-
-#define BITS_PER_LONG 32
-#define BITOP_MASK(nr)          (1UL << ((nr) % BITS_PER_LONG))
-#define BITOP_WORD(nr)          ((nr) / BITS_PER_LONG)
-
-#ifdef CONFIG_SMP
-#define ISYNC_ON_SMP    "\n\tisync\n"
-#define LWSYNC_ON_SMP   __stringify(LWSYNC) "\n"
+#elif defined(__GNUC__) && (__GNUC__ > 4) && (__GNUC_MINOR__ >= 7)
+#define RTAPI_USE_ATOMIC 1
 #else
-#define ISYNC_ON_SMP
-#define LWSYNC_ON_SMP
+#define RTAPI_USE_ATOMIC 0
 #endif
 
-static __inline__ int test_and_set_bit(unsigned long nr,
-                                       volatile unsigned long *addr)
+// the Linux kernel has very nice bitmap handling
+// unfortunately it is not available through /usr/include
+// therefore replicate from linux/bitops.h and linux/kernel.h
+// and prefix with an 'RTAPI_' to roll our own
+
+typedef unsigned long rtapi_atomic_type;
+
+#define RTAPI_CHAR_BIT 8
+#define RTAPI_DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define RTAPI_BIT(nr)           (1UL << (nr))
+#define RTAPI_BITS_PER_LONG     (RTAPI_CHAR_BIT * sizeof(rtapi_atomic_type))
+#define RTAPI_BIT_MASK(nr)      (1UL << ((nr) % RTAPI_BITS_PER_LONG))
+#define RTAPI_BIT_WORD(nr)      ((nr) / RTAPI_BITS_PER_LONG)
+#define RTAPI_BITMAP_SIZE(nr)   RTAPI_DIV_ROUND_UP(nr, RTAPI_BITS_PER_LONG)
+#define RTAPI_BITMAP_BYTES(nr) \
+    (sizeof(rtapi_atomic_type) * RTAPI_BITMAP_SIZE(nr))
+#define RTAPI_BIT_SET(a, b)     ((a)[RTAPI_BIT_WORD(b)] |=   RTAPI_BIT_MASK(b))
+#define RTAPI_BIT_CLEAR(a, b)   ((a)[RTAPI_BIT_WORD(b)] &= ~ RTAPI_BIT_MASK(b))
+#define RTAPI_BIT_TEST(a, b)    ((a)[RTAPI_BIT_WORD(b)] &    RTAPI_BIT_MASK(b))
+
+#define RTAPI_DECLARE_BITMAP(name,bits) \
+    rtapi_atomic_type name[RTAPI_BITMAP_SIZE(bits)]
+#define RTAPI_ZERO_BITMAP(name,bits) memset(name, 0, RTAPI_BITMAP_BYTES(bits))
+#define RTAPI_SET_BITMAP(name,bits) memset(name, ~0, RTAPI_BITMAP_BYTES(bits))
+
+#if RTAPI_USE_ATOMIC
+
+// http://gcc.gnu.org/wiki/Atomic/GCCMM/AtomicSync
+// default: Full barrier in both directions and synchronizes with
+// acquire loads and release stores in all threads.
+#define RTAPI_MEMORY_MODEL __ATOMIC_SEQ_CST
+
+static inline int rtapi_test_and_set_bit(int nr, rtapi_atomic_type *bitmap)
 {
-        unsigned long old, t;
-        unsigned long mask = BITOP_MASK(nr);
-        unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-
-        __asm__ __volatile__(
-        LWSYNC_ON_SMP
-"1:"    "lwarx  %0,0,%3              # test_and_set_bit\n"
-        "or     %1,%0,%2 \n"
-        "stwcx. %1,0,%3 \n"
-        "bne-   1b"
-        ISYNC_ON_SMP
-        : "=&r" (old), "=&r" (t)
-        : "r" (mask), "r" (p)
-        : "cc", "memory");
-
-        return (old & mask) != 0;
+    return (__atomic_fetch_or(bitmap + RTAPI_BIT_WORD(nr),
+			      RTAPI_BIT_MASK(nr),
+			      RTAPI_MEMORY_MODEL)
+	    & RTAPI_BIT_MASK(nr)) != 0;
 }
 
-static __inline__ int test_and_clear_bit(unsigned long nr,
-                                         volatile unsigned long *addr)
+static inline rtapi_atomic_type rtapi_test_and_clear_bit(int nr, rtapi_atomic_type * bitmap)
 {
-        unsigned long old, t;
-        unsigned long mask = BITOP_MASK(nr);
-        unsigned long *p = ((unsigned long *)addr) + BITOP_WORD(nr);
-
-        __asm__ __volatile__(
-        LWSYNC_ON_SMP
-"1:"    "lwarx  %0,0,%3              # test_and_clear_bit\n"
-        "andc   %1,%0,%2 \n"
-        "stwcx. %1,0,%3 \n"
-        "bne-   1b"
-        ISYNC_ON_SMP
-        : "=&r" (old), "=&r" (t)
-        : "r" (mask), "r" (p)
-        : "cc", "memory");
-
-        return (old & mask) != 0;
+    return (__atomic_fetch_and(bitmap + RTAPI_BIT_WORD(nr),
+			       ~RTAPI_BIT_MASK(nr),
+			       RTAPI_MEMORY_MODEL)
+	    & RTAPI_BIT_MASK(nr)) != 0;
 }
 
-#else
-#error The header file <asm/bitops.h> is not usable and rtapi does not yet have support for your CPU
-#endif
-#endif
+static inline void rtapi_set_bit(int nr, rtapi_atomic_type * bitmap)
+{
+    __atomic_or_fetch(bitmap + RTAPI_BIT_WORD(nr),
+		      RTAPI_BIT_MASK(nr),
+		      RTAPI_MEMORY_MODEL);
+}
+
+static inline void rtapi_clear_bit(int nr, rtapi_atomic_type * bitmap)
+{
+    __atomic_and_fetch(bitmap + RTAPI_BIT_WORD(nr),
+		       ~RTAPI_BIT_MASK(nr),
+		       RTAPI_MEMORY_MODEL);
+}
+
+static inline rtapi_atomic_type rtapi_test_bit(int nr, rtapi_atomic_type * const bitmap)
+{
+    return  (__atomic_fetch_or(bitmap + RTAPI_BIT_WORD(nr),
+			       0,
+			      RTAPI_MEMORY_MODEL);
+	     & RTAPI_BIT_MASK(nr)) != 0;
+}
+
+#else // ! RTAPI_USE_ATOMIC - use gcc legacy atomic operations
+
+static inline int rtapi_test_and_set_bit(int nr, rtapi_atomic_type *bitmap)
+{
+    return (__sync_fetch_and_or(bitmap + RTAPI_BIT_WORD(nr),
+				RTAPI_BIT_MASK(nr))
+	    & RTAPI_BIT_MASK(nr)) != 0;
+}
+
+static inline rtapi_atomic_type rtapi_test_and_clear_bit(int nr, rtapi_atomic_type * bitmap)
+{
+    return (__sync_fetch_and_and(bitmap + RTAPI_BIT_WORD(nr),
+				 ~RTAPI_BIT_MASK(nr))
+	    & RTAPI_BIT_MASK(nr)) != 0;
+}
+
+static inline void rtapi_set_bit(int nr, rtapi_atomic_type * bitmap)
+{
+    __sync_or_and_fetch(bitmap + RTAPI_BIT_WORD(nr),
+			RTAPI_BIT_MASK(nr));
+}
+
+static inline void rtapi_clear_bit(int nr, rtapi_atomic_type * bitmap)
+{
+    __sync_and_and_fetch(bitmap + RTAPI_BIT_WORD(nr),
+			 ~RTAPI_BIT_MASK(nr));
+}
+
+static inline rtapi_atomic_type rtapi_test_bit(int nr, rtapi_atomic_type * const bitmap)
+{
+    return  (__sync_fetch_and_or(bitmap + RTAPI_BIT_WORD(nr), 0)
+	     & RTAPI_BIT_MASK(nr)) != 0;
+}
+
+#endif // ! RTAPI_USE_ATOMIC
+#endif // RTAPI_BITOPS_H

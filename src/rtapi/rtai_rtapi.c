@@ -375,7 +375,7 @@ static int module_delete(int module_id)
 	}
     }
     for (n = 1; n <= RTAPI_MAX_SHMEMS; n++) {
-	if (test_bit(module_id, shmem_array[n].bitmap)) {
+	if (rtapi_test_bit(module_id, shmem_array[n].bitmap)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 		"RTAPI: WARNING: module '%s' failed to delete shmem %02d\n",
 		module->name, n);
@@ -383,7 +383,7 @@ static int module_delete(int module_id)
 	}
     }
     for (n = 1; n <= RTAPI_MAX_SEMS; n++) {
-	if (test_bit(module_id, sem_array[n].bitmap)) {
+	if (rtapi_test_bit(module_id, sem_array[n].bitmap)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 		"RTAPI: WARNING: module '%s' failed to delete sem %02d\n",
 		module->name, n);
@@ -439,11 +439,11 @@ int rtapi_snprintf(char *buf, unsigned long int size, const char *fmt, ...)
     return i;
 }
 
-#define BUFFERLEN 1024
+#define MSG_BUFFERLEN 1024
 
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
-    char buf[BUFFERLEN];
-    rtapi_vsnprintf(buf, BUFFERLEN, fmt, ap);
+    char buf[MSG_BUFFERLEN];
+    rtapi_vsnprintf(buf, MSG_BUFFERLEN, fmt, ap);
     rt_printk(buf);
 }
 static rtapi_msg_handler_t rtapi_msg_handler = default_rtapi_msg_handler;
@@ -991,12 +991,12 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 		}
 	    }
 	    /* is this module already using it? */
-	    if (test_bit(module_id, shmem->bitmap)) {
+	    if (rtapi_test_bit(module_id, shmem->bitmap)) {
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		return -EINVAL;
 	    }
 	    /* update usage data */
-	    set_bit(module_id, shmem->bitmap);
+	    rtapi_set_bit(module_id, shmem->bitmap);
 	    shmem->rtusers++;
 	    /* announce another user for this shmem */
 	    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -1026,7 +1026,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 	return -ENOMEM;
     }
     /* the block has been created, update data */
-    set_bit(module_id, shmem->bitmap);
+    rtapi_set_bit(module_id, shmem->bitmap);
     shmem->key = key;
     shmem->rtusers = 1;
     shmem->ulusers = 0;
@@ -1075,11 +1075,11 @@ static int shmem_delete(int shmem_id, int module_id)
 	return -EINVAL;
     }
     /* is this module using the block? */
-    if (test_bit(module_id, shmem->bitmap) == 0) {
+    if (rtapi_test_bit(module_id, shmem->bitmap) == 0) {
 	return -EINVAL;
     }
     /* OK, we're no longer using it */
-    clear_bit(module_id, shmem->bitmap);
+    rtapi_clear_bit(module_id, shmem->bitmap);
     shmem->rtusers--;
     /* is somebody else still using the block? */
     if (shmem->rtusers > 0) {
@@ -1157,13 +1157,13 @@ int rtapi_sem_new(int key, int module_id)
 	    sem_id = n;
 	    sem = &(sem_array[n]);
 	    /* is this module already using it? */
-	    if (test_bit(module_id, sem->bitmap)) {
+	    if (rtapi_test_bit(module_id, sem->bitmap)) {
 		/* yes, can't open it again */
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		return -EINVAL;
 	    }
 	    /* update usage data */
-	    set_bit(module_id, sem->bitmap);
+	    rtapi_set_bit(module_id, sem->bitmap);
 	    sem->users++;
 	    /* announce another user for this semaphore */
 	    rtapi_print_msg(RTAPI_MSG_DBG,
@@ -1188,7 +1188,7 @@ int rtapi_sem_new(int key, int module_id)
     /* ask the OS to initialize the semaphore */
     rt_sem_init(&(ossem_array[sem_id]), 0);
     /* the semaphore has been created, update data */
-    set_bit(module_id, sem->bitmap);
+    rtapi_set_bit(module_id, sem->bitmap);
     sem->users = 1;
     sem->key = key;
     rtapi_data->sem_count++;
@@ -1233,11 +1233,11 @@ static int sem_delete(int sem_id, int module_id)
 	return -EINVAL;
     }
     /* is this module using the semaphore? */
-    if (test_bit(module_id, sem->bitmap) == 0) {
+    if (rtapi_test_bit(module_id, sem->bitmap) == 0) {
 	return -EINVAL;
     }
     /* OK, we're no longer using it */
-    clear_bit(module_id, sem->bitmap);
+    rtapi_clear_bit(module_id, sem->bitmap);
     sem->users--;
     /* is somebody else still using the semaphore */
     if (sem->users > 0) {
