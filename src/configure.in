@@ -286,6 +286,8 @@ TARGET_PLATFORM=""
 # Architecture. Use output of arch(1).
 ARCHITECTURE=`$ARCHCMD`
 
+# xenomai equivalent of pkg-config
+XENO_CONFIG=
 
 # Name of thread system source file to include, with no extension
 # e.g. 'rt-preempt-user'; used to generate #include "rt-preempt-user.h"

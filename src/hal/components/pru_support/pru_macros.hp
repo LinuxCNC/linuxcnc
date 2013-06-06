@@ -1,0 +1,91 @@
+// include pru.h before this
+
+#ifndef _pru_macros_HP_
+#define _pru_macros_HP_
+
+
+.macro MUX
+.mparam dst, src
+    MOV r28, AM335X_CTRL_BASE + dst
+    MOV r29, src
+    ST32 r28, r29
+.endm
+
+.macro LD32
+.mparam dst,src
+    LBBO dst,src,#0x00,4
+.endm
+
+.macro LD16
+.mparam dst,src
+    LBBO dst,src,#0x00,2
+.endm
+
+.macro LD8
+.mparam dst,src
+    LBBO dst,src,#0x00,1
+.endm
+
+.macro ST32
+.mparam src,dst
+    SBBO src,dst,#0x00,4
+.endm
+
+.macro ST16
+.mparam src,dst
+    SBBO src,dst,#0x00,2
+.endm
+
+.macro ST8
+.mparam src,dst
+    SBBO src,dst,#0x00,1
+.endm
+
+.macro POKE
+.mparam addr, value
+    mov r0, value
+    mov r1, addr
+    sbbo r0, r1, 0, 4
+.endm
+
+.macro PEEK
+.mparam addr
+    mov r1, addr
+    lbbo r0, r1, 0, 4
+.endm
+
+.macro BLE
+.mparam dest, arg1, arg2
+    qbge dest, arg1, arg2
+.endm
+.macro BLT
+.mparam dest, arg1, arg2
+    qbgt dest, arg1, arg2
+.endm
+.macro BGE
+.mparam dest, arg1, arg2
+    qble dest, arg1, arg2
+.endm
+.macro BGT
+.mparam dest, arg1, arg2
+    qblt dest, arg1, arg2
+.endm
+
+// ***************************************
+// * Global Structure Definitions *
+// ***************************************
+
+.struct Global
+    .u32 regPointer
+    .u32 regVal
+.ends
+
+
+// ***************************************
+// * Global Register Assignments *
+// ***************************************
+
+.assign Global, r2, *, global
+
+
+#endif // _pru_macros_HP_
