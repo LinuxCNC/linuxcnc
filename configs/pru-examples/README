@@ -1,0 +1,29 @@
+This is an example for debugging PRU code with the haldebugpru component.
+
+The assumed scenario is like so:
+
+- there's some component (here: hal_pru) which loads some PRU code
+- the hal_prudebug comp can be loaded separately, with a GladeVCP UI, to attach to the PRU
+  and trace/singlestep/inspect the registers-
+- the UI component can read the .dbg output of the PASM assembler to correlate the source line
+  and program counter.
+
+first, run 'make' in this directory
+this will create the .bin and .dbg files
+
+then run this as:
+
+$ halcmd -f debugger-example.hal
+
+- in the file chooser, select pruexample.dbg
+- select stepping, contuous
+- step through program by clicking continue
+
+(on a beaglebone or some other AM335x CPU based board)
+
+Notes:
+- the glade editor in the arm ubuntu precise package stream is not good for editing the .ui file
+  I did this on a normal livcd based PC
+- the text highlighting/scrolling doesnt work reliable, I'd need a good example for Text view
+  or gtksourceview for this.
+- You might need to run 'sudo apt-get install python-gtksourceview2' .

@@ -9,6 +9,19 @@ EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/shcom.cc \
               emc/usr_intf/sockets.c
 
+USRMOTSRCS := \
+	emc/usr_intf/usrmot.c \
+	emc/motion/usrmotintf.cc \
+	emc/motion/emcmotglb.c \
+	emc/motion/emcmotutil.c \
+	emc/motion/dbuf.c \
+	emc/motion/stashf.c
+
+EMCWEBSRCS := emc/usr_intf/shcom.cc \
+		emc/usr_intf/emccontroller.cc \
+		emc/usr_intf/emcweb.cc \
+		emc/usr_intf/emcweb/mongoose.c \
+		emc/usr_intf/emcweb/mongoose_wrapper.cc
 HALUISRCS := emc/usr_intf/halui.cc
 ifeq "$(HAVE_NCURSES)" "yes"
 KEYSTICKSRCS := emc/usr_intf/keystick.cc
@@ -18,7 +31,7 @@ XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(USRMOTSRCS) $(HALUISRCS) $(KEYSTICKSRCS) $(EMCWEBSRCS)
 
 ifeq "$(HAVE_NCURSES)" "yes"
 USERSRCS += $(KEYSTICKSRCS)
@@ -30,6 +43,7 @@ endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
+$(call TOOBJSDEPS, $(EMCWEBSRCS)) : EXTRAFLAGS = -D__DIR__=\"$(EMC2_HOME)\"
 
 ../bin/tooledit: emc/usr_intf/tooledit.tcl
 	cp $< $@
@@ -75,3 +89,9 @@ $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
 TARGETS += ../bin/xlinuxcnc
 endif
+
+
+../bin/emcweb: $(call TOOBJS, $(EMCWEBSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lboost_serialization-mt -lboost_thread-mt -lpthread -ldl	
+TARGETS += ../bin/emcweb

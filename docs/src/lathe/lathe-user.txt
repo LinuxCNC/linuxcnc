@@ -164,21 +164,28 @@ machine coordinate system offset, you will not get what you expect,
 as the tool offset will be added to the current offset when 
 the tool is used in your program.
 
-== Threading
+== Spindle Synchronized Motion
 
-Threading with a lathe requires feedback from the spindle to LinuxCNC.
-Typically an encoder is used to provide the feedback. 
-See the Integrator Manual for more information on spindle feedback.
+Spindle synchronized motion requires a quadrature encoder connected
+to the spindle with one index pulse per revolution. See the motion
+man page and Spindle Control Example in integrators manual for more
+information.
 
+.Threading
 The G76 threading cycle is used for both internal and external threads.
 For more information see the <<sec:G76-Threading-Canned,G76>> Section.
 
-== Constant Surface Speed
-
-CSS or Constant Surface Speed (G96) uses the machine X origin modified
+.Constant Surface Speed
+CSS or Constant Surface Speed uses the machine X origin modified
 by the tool X offset to compute the spindle speed in RPM. CSS will
 track changes in tool offsets. The X machine origin should be when the
 reference tool (the one with zero offset) is at the center of rotation.
+For more information see the <<sec:G96-G97-Spindle,G96>> Section.
+
+.Feed per Revolution
+Feed per revolution will move the Z axis by the F amount per revolution.
+This is not for threading, use G76 for threading.
+For more information see the <<sec:G93-G94-G95-Mode,G95>> Section.
 
 == Arcs
 

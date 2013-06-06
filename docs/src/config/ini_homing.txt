@@ -11,10 +11,10 @@ complicated.
 
 == Homing Sequence
 
-There are four possible homing sequences, along with the associated
-configuration parameters as shown in the following table. For a more
-detailed description of what each configuration parameter does, see the
-following section.
+There are four possible homing sequences defined by the sign of SEARCH_VEL
+and LATCH_VEL, along with the associated configuration parameters as shown
+in the following table. For a more detailed description of what each
+configuration parameter does, see the following section.
 
 .Homing Sequences[[fig:motion-homing-sequence-diagram]]
 
@@ -157,4 +157,15 @@ this.
 If this axis is a locking rotary indexer, it will unlock before
 homing, and lock afterward.
 
+=== Immediate Homing (((Immediate Homing)))
+
+If an axis does not have home switches or does not have a logical
+home position like a rotary axis and you want that axis to home at
+the current position when the "Home All" button is pressed in Axis
+the following ini entries for that axis are needed.
+
+. SEARCH_VEL = 0
+. LATCH_VEL = 0
+. USE_INDEX = NO
+. HOME_SEQUENCE = 0
 

@@ -7,7 +7,7 @@ INCLUDES += hal
 HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
 
 ifeq ($(THREADS),xenomai-kernel)
-XENO_LINK := $(shell $(XENO_CONFIG)  --skin=native --ldflags )
+XENO_LINK := $(shell $(XENO_CONFIG) --skin=native --ldflags )
 else
 XENO_LINK=
 endif

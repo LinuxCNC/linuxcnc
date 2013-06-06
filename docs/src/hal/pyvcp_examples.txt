@@ -13,7 +13,7 @@ things.
 * Add the POSTGUI_HALFILE entry to the [HAL] section of the ini file
    with the name of your postgui HAL file name.
 * Add the links to HAL pins for your panel in the postgui.hal file to
-   'connect' your PyVCP panel to EMC.
+   'connect' your PyVCP panel to LinuxCNC.
 
 == Floating
 
@@ -24,7 +24,7 @@ you need to do the following basic things.
    your config directory.
 * Add a loadusr line to your .hal file to load each panel.
 * Add the links to HAL pins for your panel in the postgui.hal file to
-   'connect' your PyVCP panel to EMC.
+   'connect' your PyVCP panel to LinuxCNC.
 
 The following is an example of a loadusr command to load two PyVCP
 panels and name each one so the connection names in HAL will be known.
@@ -61,7 +61,7 @@ Wizard.
 image::images/xyz_ACO.png[]
 
 The Stepconf Wizard will create several files and place them in the
-/emc/configs/pyvcp_xyz directory. If you left the create link checked
+linuxcnc/configs/pyvcp_xyz directory. If you left the create link checked
 you will have a link to those files on your desktop.
 
 === Create the Widgets

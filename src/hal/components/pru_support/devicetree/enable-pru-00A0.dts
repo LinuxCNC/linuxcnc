@@ -1,0 +1,53 @@
+/* from http://pastebin.com/GuCXcUVL 
+* Copyright (C) 2013 Matt Ranostay <mranostay@gmail.com>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License version 2 as
+* published by the Free Software Foundation.
+*/
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+	/* identification */
+	part-number = "BB-BONE-PRU-01";
+	version = "00A0";
+
+	/* state the resources this cape uses */
+	exclusive-use =
+		/* the pin header uses */
+		"P9.27",	/* pru0: pr1_pru0_pru_r30_5 */
+		/* the hardware IP uses */
+		"pru0";
+
+	fragment@0 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+			pru_gpio_pins: pinmux_pru_gpio_pins {
+				pinctrl-single,pins = <
+					0x1a4 0x0f 	/* P9 27 GPIO3_19: mcasp0_fsr.gpio3[19] | MODE7 | OUTPUT */
+				>;
+			};
+
+			pru_pru_pins: pinmux_pru_pru_pins {
+				pinctrl-single,pins = <
+					0x1a4 0x25	/* mcasp0_fsr.pr1_pru0_pru_r30_5, MODE5 | OUTPUT | PRU */
+				>;
+			};
+		};	
+	};
+
+	fragment@2 {
+		target = <&pruss>;
+		__overlay__ {
+			status = "okay";
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&pru_pru_pins>;
+		};
+	};
+};
+
