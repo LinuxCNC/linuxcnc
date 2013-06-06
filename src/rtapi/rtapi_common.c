@@ -183,7 +183,7 @@ void rtapi_printall(void) {
 			    shmems[n].size);
 	    rtapi_print_msg(RTAPI_MSG_DBG, "    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (test_bit(m, shmems[n].bitmap)) {
+		if (rtapi_test_bit(m, shmems[n].bitmap)) {
 		    putchar('1');
 		} else {
 		    putchar('0');
