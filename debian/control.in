@@ -12,7 +12,9 @@ Build-Depends: debhelper (>= 6),
     libgtk2.0-dev, libgnomeprintui2.2-dev,
     gettext, autoconf, libboost-python-dev,
     texlive-lang-cyrillic, netcat,
-    libmodbus-dev (>= 3.0)
+    libmodbus-dev (>= 3.0),
+    libboost-thread-dev,
+    libboost-serialization-dev
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
