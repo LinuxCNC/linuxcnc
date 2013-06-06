@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# When running with "-v", the test itself runs in a pipeline with tee, and
+# without pipefail we get the exit value from tee instead of from the test.
+set -o pipefail
 
 # The linuxcnc starter script sometimes tries to display X windows if
 # DISPLAY is set.  We never want that while running tests, so unset it.

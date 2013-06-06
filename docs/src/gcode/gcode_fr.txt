@@ -103,7 +103,7 @@ _(pas encore implémenté)_
 |<<sec:G92,G92>> | Décalages d'origines avec mise à jour des paramètres
 |<<sec:G92_1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine
 |<<sec:G92_3,G92.3>> | Applique contenu des paramètres aux déc. d'origine
-|<<sec:G93-G94-G95-Set,G93>>   | Modes de vitesse
+|<<sec:G93-G94-G95-Modes,G93>>   | Modes de vitesse
 |<<sec:G96-G97-Broche,G96>>    | Vitesse de coupe constante (IPM ou m/mn)
 |<<sec:G96-G97-Broche,G97>>    | Vitesse en tours par minute
 |<<sec:G98-G99-Set,G98>>       | Options de retrait des cycles de perçage
@@ -2177,7 +2177,7 @@ _G92.3_ vers le début du deuxième programme, ce qui restaurera les
 décalages d'axes enregistrés par le premier.
 
 
-[[sec:G93-G94-G95-Set]]
+[[sec:G93-G94-G95-Modes]]
 == G93, G94, G95: Choix des modes de vitesse
 (((G93, G94, G95: Choix des modes de vitesse)))
 
@@ -2193,16 +2193,13 @@ mode vitesse inverse du temps est sans effet sur les mouvements G0
 (vitesse rapide).
 
 * _G94_ - Passe en mode unités par minute. Dans le mode vitesse en unités
-par minute, le mot _F_ est interprété pour indiquer que le point contrôlé
-doit se déplacer à un certain nombre de pouces par minute, de millimètres
-par minute, ou de degrés par minute, selon l'unité de longueur choisie
-pour les axes et quels types d'axes doivent se déplacer.
+par minute, le mot _F_ indique le déplacement du point contrôlé en millimètres
+par minute, en pouces par minute, ou en degrés par minute, selon l'unité
+utilisée.
 
 * _G95_ - Passe en mode unités par tour. Dans le mode vitesse en unités
-par tour, le mot _F_ est interprété pour indiquer que le point contrôlé
-doit se déplacer à un certain nombre de pouces par tour de broche, de
-millimètres par tour, selon l'unité de longueur utilisée et quels axes
-doivent être déplacés.
+par tour, le mot _F_ donne le déplacement du point contrôlé à effectuer sur
+l'axe Z, en millimètres par tour de broche ou en pouces, selon l'unité utilisée.
 
 C'est une erreur si:
 

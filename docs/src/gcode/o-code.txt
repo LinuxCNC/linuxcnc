@@ -176,6 +176,7 @@ o102 else (else if parameter #2 is 2 through 5 set F150)
 o102 endif
 ----
 
+[[sec:repeat]]
 == Repeat(((Repeat)))
 
 The 'repeat' will execute the statements inside of the
