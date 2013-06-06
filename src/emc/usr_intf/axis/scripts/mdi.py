@@ -19,14 +19,14 @@
 '''Manual Data Input - issue a single line of g-code to the running system
 
 mdi.py may be specified on the commandline, e.g.,
-        bin/mdi configs/sim/emc.nml g0 x0
+        bin/mdi g0 x0
 '''
 import sys, os
 import linuxcnc
 
-if len(sys.argv) > 1:
-    linuxcnc.nmlfile = sys.argv[1]
-    del sys.argv[1]
+#if len(sys.argv) > 1:
+#    linuxcnc.nmlfile = sys.argv[1]
+#    del sys.argv[1]
 
 c = linuxcnc.command()
 s = linuxcnc.stat()

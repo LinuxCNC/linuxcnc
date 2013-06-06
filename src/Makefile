@@ -249,8 +249,14 @@ Makefile: config.h
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
+INFILES_MOVE = \
+        ../docs/man/man1/linuxcnc.1
+
+../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
+	./config.status --file=$@:$<
+
 INFILES = \
-	../docs/man/man1/linuxcnc.1 ../scripts/linuxcnc ../scripts/realtime \
+        ../scripts/linuxcnc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
@@ -267,7 +273,7 @@ endif
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: $(INFILES)
+default: $(INFILES) $(INFILES_MOVE)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
@@ -776,6 +782,8 @@ obj-$(CONFIG_LCD) += lcd.o
 lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
 matrix_kb-objs := hal/components/matrix_kb.o $(MATHSTUB)
+obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
+mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
 obj-$(CONFIG_FREQGEN) += freqgen.o
 freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
@@ -1084,6 +1092,7 @@ ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 ../rtlib/stepgen$(MODULE_EXT): $(addprefix objects/rt,$(stepgen-objs))
 ../rtlib/lcd$(MODULE_EXT): $(addprefix objects/rt,$(lcd-objs))
 ../rtlib/matrix_kb$(MODULE_EXT): $(addprefix objects/rt,$(matrix_kb-objs))
+../rtlib/mux_generic$(MODULE_EXT): $(addprefix objects/rt,$(mux_generic-objs))
 ../rtlib/freqgen$(MODULE_EXT): $(addprefix objects/rt,$(freqgen-objs))
 ../rtlib/pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(pwmgen-objs))
 ../rtlib/siggen$(MODULE_EXT): $(addprefix objects/rt,$(siggen-objs))

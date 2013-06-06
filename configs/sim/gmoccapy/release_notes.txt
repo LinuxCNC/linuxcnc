@@ -1,3 +1,66 @@
+ver. 0.9.3.2
+- alligned the jog_button and jog_rates frame on the top (just cosmetic)
+- The Page-up and Page_Down keyboard keys moved the Z axis in oposide directions
+- Feed values will only be shown with digit if G95 is active
+- added classicladder button to the list of buttons to be able to handle it with hardware button
+- changed hardware button handling to fit also to lathe mode
+- included a test to avoid speeding the spindle over its limit using the spindle speed overide
+  i.e. max = 6000 but S = 5500 and overide = 120 % would result in 6600, but only 6000 is possible
+- also check spindle speed if the commands are given trough MDI and overide is to high will reduce
+  the overide value to max allowed
+
+ver. 0.9.3.1
+- A message window will warn the user in case he try to use G95
+- Changed the requiered screen size to fit on 979 x 750 
+
+ver. 0.9.3
+- included the patch for key_jogging from Chris
+- support now also back tool lathes
+- after M61 Q tool change, the Gui didn't leave the MDI modem resulting in problems
+- the btn_view_Y2 has now a yellow background
+- changing the max vel slider had no efekt, I fixed this
+
+ver 0.9.2
+- added lathe mode
+- added classicladder button
+- added button for tool touchoff in X and Z axis
+- corrected the key handling, now also F1 and F2 works and ESC emit emc.aboart()
+
+ver. 0.9.1.2
+- trying to jog the machine with the keyboard
+  a python error was lauched, because Chris renamed the
+  data.event_up to data.event_last
+  solved this renaming the data also in gmoccapy
+
+ver. 0.9.1.2
+- missed renaming one widget in code, due to the changes
+  on the settings page, resulting in an exception
+  solved this renaming the widget in gmoccapy
+
+ver 0.9.1
+- show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 
+  is actice, other behavior makes no sense
+- settings page can be reached now also in estop state
+- desktop notify can be disabled in settings page, makes the gui faster
+- file to load on start up can be selected on settings page
+- in init_file_to_load added a selection of filters given in INI File
+- button save and run has now a tool tip text, it wasn't shown, because it was set
+  translatable and no translation was availible
+- check on macro excecution for errors before starting the macro
+- added a checkbox to select the use of keyboard shortcuts
+- reconnected the sim spindle to gmoccapy
+- in MDI Mode giving S0 now switch the spindle off
+- from INI [DISPLAY] min_spindle_overide is used to set the slider limits
+- spindle settings moved from INI to the settings page and preference file
+- def init_gremlin now in gmoccapy, to avoid widget name conflicts
+- DRO settings changed in settings page, checkboxes instead of toggle button
+  and all settings related to DRO in one frame
+- added scale settings for the hardware mpg encoders to move the sliders,
+  otherwise for max vel beeing 14000 the changes was to small, counting one by one
+- hardware keyboard now works also in settings page and debug page
+- Screen2 can be shown now, but I noticed, that if the screen is very complax, 
+  the application will crash!
+
 ver. 0.9.01
 - fixed a bug in keyhandling mentioned by Chris
   * changing the jog velocity while jogging in continious caused by focus 

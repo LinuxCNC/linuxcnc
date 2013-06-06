@@ -37,6 +37,8 @@ class HAL_DRO(gtk.Label):
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'actual' : ( gobject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'diameter' : ( gobject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'mm_text_template' : ( gobject.TYPE_STRING, 'Text template for Metric Units',
                 'Text template to display. Python formatting may be used for one variable',
                 "%10.3f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
@@ -107,16 +109,21 @@ class HAL_DRO(gtk.Label):
         except:
             sys = 0
             relative = absolute = dtg = [9999.999,0,0,0,0,0,0,0,0]
+
         if self.display_units_mm:
             tmpl = lambda s: self.mm_text_template % s
         else:
             tmpl = lambda s: self.imperial_text_template % s
+        if self.diameter:
+            scale = 2.0
+        else:
+            scale = 1
         if self.reference_type == 0:
-            self.set_text(tmpl(absolute[self.joint_number]))
+            self.set_text(tmpl(absolute[self.joint_number]*scale))
         elif self.reference_type == 1:
-            self.set_text(tmpl(relative[self.joint_number]))
+            self.set_text(tmpl(relative[self.joint_number]*scale))
         elif self.reference_type == 2:
-            self.set_text(tmpl(dtg[self.joint_number]))
+            self.set_text(tmpl(dtg[self.joint_number]*scale))
         return True
 
     def position(self):
@@ -174,6 +181,12 @@ class HAL_DRO(gtk.Label):
     def set_to_mm(self):
         self.display_units_mm = 1
 
+    def set_to_diameter(self):
+        self.diameter = True
+
+    def set_to_radius(self):
+        self.diameter = False
+
 # for testing without glade editor:
 def main():
     window = gtk.Dialog("My dialog",
@@ -182,7 +195,6 @@ def main():
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
     dro = HAL_DRO()
-    
     window.vbox.add(dro)
     window.connect("destroy", gtk.main_quit)
 

@@ -1,4 +1,4 @@
-ifeq ($(LIBMODBUS3_USABLE),yes)
+ifdef HAVE_LIBMODBUS3
 
 # Local configuration
 MB2HAL_SRCS = \
@@ -25,4 +25,4 @@ USERSRCS += $(MB2HAL_SRCS)
 
 TARGETS += ../bin/mb2hal
 
-endif
+endif # HAVE_LIBMODBUS3

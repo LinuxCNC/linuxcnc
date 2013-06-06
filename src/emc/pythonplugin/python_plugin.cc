@@ -325,10 +325,14 @@ int PythonPlugin::configure(const char *iniFilename,
 	module_mtime = st.st_mtime;      // record timestamp
 
     } else {
-	getcwd(real_path, PATH_MAX);
+        if (getcwd(real_path, PATH_MAX) == NULL) {
+            logPP(1, "path too long");
+            status = PLUGIN_PATH_TOO_LONG;
+            return status;
+        }
 	abs_path = strstore(real_path);
     }
-    
+
     if ((inistring = inifile.Find("LOG_LEVEL", section)) != NULL)
 	log_level = atoi(inistring);
     else log_level = 0;

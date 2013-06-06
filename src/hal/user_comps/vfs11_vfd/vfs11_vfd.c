@@ -746,7 +746,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     }
     // unsure what to do here with ST_FAILURE_FL bit
 
-    if ((pollcount == 0) && !haldata->max_speed) {
+    if ((pollcount == 0) && !(*haldata->max_speed)) {
 
 	// less urgent registers
 	GETREG(SR_ESTIMATED_OPFREQ, &val);
