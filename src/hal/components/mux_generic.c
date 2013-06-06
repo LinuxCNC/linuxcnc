@@ -1,11 +1,12 @@
 // A generic/configurable multiplexer component
 
+#include "config.h"
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
 #include "hal_priv.h"
 
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 #include <stdio.h>
 #include <stdlib.h>
 #endif
