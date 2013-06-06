@@ -37,6 +37,17 @@ class HandlerClass:
                 except:
                     pass
 
+    def on_diameter_mode_pressed(self, widget):
+        data = widget.get_active()
+        print "switch diam mode",data
+        self.gscreen.set_diameter_mode(data)
+        for i in ("1","2","3"):
+            axis = "dro_x%s"% (i)
+            if data:
+                self.widgets[axis].set_to_diameter()
+            else:
+                self.widgets[axis].set_to_radius()
+
     # This is a new method for our button
     # we selected this method name in the glade file as a signal callback 
     def on_estop_clicked(self,*args):
@@ -237,6 +248,7 @@ class HandlerClass:
         self.gscreen.connect_signals(handlers)
         # connect to handler file callbacks:
         self.gscreen.widgets.metric_select.connect("clicked", self.on_metric_select_clicked)
+        self.gscreen.widgets.diameter_mode.connect("clicked", self.on_diameter_mode_pressed)
         temp = "setup_button","mdi_button","run_button","tooledit_button","system_button","offsetpage_button"
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
@@ -310,6 +322,15 @@ class HandlerClass:
         self.on_dtg_colorbutton_color_set(None)
         self.widgets.show_dtg.set_active(self.data.show_dtg)
         self.on_show_dtg_pressed(self.widgets.show_dtg)
+        self.gscreen.init_dro()
+        data = self.data.dro_units 
+        for i in ("1","2","3"):
+            for letter in self.data.axis_list:
+                axis = "dro_%s%s"% (letter,i)
+                try:
+                    self.widgets[axis].set_property("display_units_mm",data)
+                except:
+                    pass
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.

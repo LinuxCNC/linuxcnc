@@ -712,11 +712,11 @@ shown on a red background.
 
 == MDI interface
 
-AXIS includes a program called 'MDI' which allows text-mode entry of
+AXIS includes a program called `mdi` which allows text-mode entry of
 MDI commands to a running LinuxCNC session. You can run this program by
 opening a terminal and typing
 
-    mdi /path/to/emc.nml
+    mdi
 
 Once it is running, it displays the prompt 'MDI>'. When a blank line
 is entered, the machine's current position is shown. 
@@ -725,7 +725,7 @@ When a command is entered, it is sent to LinuxCNC to be executed.
 This is a sample session of mdi.
 
 ----
-$ MDI ~/emc2/configs/sim/emc.nml
+$ mdi
 MDI>
 (0.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
 MDI> G1 F5 X1 

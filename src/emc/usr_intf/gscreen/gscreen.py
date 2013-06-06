@@ -90,11 +90,7 @@ INFO_ICON = os.path.join(imagedir,"std_info.gif")
 
 # internationalization and localization
 import locale, gettext
-LOCALEDIR = os.path.join(BASE, "share", "locale")
-locale.setlocale(locale.LC_ALL, '')
-locale.bindtextdomain("linuxcnc", LOCALEDIR)
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
-gettext.bindtextdomain("linuxcnc", LOCALEDIR)
+
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -295,8 +291,7 @@ class Data:
         self.preset_spindle_dialog = None
         self.entry_dialog = None
         self.restart_dialog = None
-        self.key_event_up = 0
-        self.key_event_dwn = 0
+        self.key_event_last = None,0
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -401,22 +396,35 @@ class Gscreen:
         for num,temp in enumerate(sys.argv):
             if temp == '-c':
                 try:
-                    print _("**** GSCREEN INFO: Optional component name ="),sys.argv[num+1]
+                    print ("**** GSCREEN INFO: Optional component name ="),sys.argv[num+1]
                     skinname = sys.argv[num+1]
                 except:
                     pass
             if temp == '-d': gscreen_debug = True
 
+        # check for a local translation folder
+        locallocale = os.path.join(CONFIGPATH,"locale")
+        if os.path.exists(locallocale):
+            LOCALEDIR = locallocale
+            domain = skinname
+            print ("**** GSCREEN INFO: local locale name =",LOCALEDIR,skinname)
+        else:
+            LOCALEDIR = os.path.join(BASE, "share", "locale")
+            domain = "linuxcnc"
+        locale.setlocale(locale.LC_ALL, '')
+        locale.bindtextdomain(domain, LOCALEDIR)
+        gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+        gettext.bindtextdomain(domain, LOCALEDIR)
+
         # main screen
         localglade = os.path.join(CONFIGPATH,"%s.glade"%skinname)
         if os.path.exists(localglade):
-            print _("\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade)
+            print _("\n**** GSCREEN INFO:  Using LOCAL custom glade file from %s ****"% localglade)
             xmlname = localglade
-        else:
-            print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname)
+
         try:
             self.xml = gtk.Builder()
-            self.xml.set_translation_domain("linuxcnc") # for locale translations
+            self.xml.set_translation_domain(domain) # for locale translations
             self.xml.add_from_file(xmlname)
         except:
             print _("**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname)
@@ -689,15 +697,12 @@ class Gscreen:
             self.add_alarm_entry(_("CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"))
             temp = 100
         print _("timeout %d" % int(temp))
-        gobject.timeout_add(int(temp), self.periodic_status)
+        if "timer_interrupt" in dir(self.handler_instance):
+            gobject.timeout_add(int(temp), self.handler_instance.timer_interrupt)
+        else:
+            gobject.timeout_add(int(temp), self.timer_interrupt)
 
     def initialize_keybindings(self):
-        try:
-            accel_group = gtk.AccelGroup()
-            self.widgets.window1.add_accel_group(accel_group)
-            self.widgets.button_estop.add_accelerator("clicked", accel_group, 65307,0, gtk.ACCEL_LOCKED)
-        except:
-            pass
         self.widgets.window1.connect('key_press_event', self.on_key_event,1)
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
@@ -1029,36 +1034,49 @@ class Gscreen:
 
     def on_key_event(self,widget, event,signal):
         keyname = gtk.gdk.keyval_name(event.keyval)
-        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal
+        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal, self.data.key_event_last
         if event.state & gtk.gdk.CONTROL_MASK:
             print "Control was being held down"
         if event.state & gtk.gdk.MOD1_MASK:
             print "Alt was being held down"
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
-
-        if keyname == "Up":
-            if self.data.key_event_up == signal: return
-            self.do_key_jog(0,0,signal)
-            self.data.key_event_up = signal
-        elif keyname == "Down":
-            if self.data.key_event_dwn == signal: return
-            self.do_key_jog(0,1,signal)
-            self.data.key_event_dwn = signal
-        elif keyname == "Left":
-            self.do_key_jog(1,0,signal)
-        elif keyname == "Right":
-            self.do_key_jog(1,1,signal)
-        elif keyname == "Page_Up":
-            self.do_key_jog(2,0,signal)
-        elif keyname == "Page_Down":
-            self.do_key_jog(2,1,signal)
-        elif keyname in ("I","i") :
-            if signal: return
-            if event.state & gtk.gdk.SHIFT_MASK:
-                self.set_jog_increments(index_dir = -1)
-            else:
-                self.set_jog_increments(index_dir = 1)
+        try:
+            if keyname =="F1" and signal:
+                self.widgets.button_estop.emit("clicked")
+            elif keyname =="F2" and signal:
+                self.widgets.button_machine_on.emit("clicked")
+            elif keyname =="Escape" and signal:
+                self.widgets.hal_action_stop.emit("activate")
+        except:
+            pass
+        if keyname in( "Shift_L","Shift_R"): return True
+        if self.data.key_event_last[0] == keyname and self.data.key_event_last[1] == signal : return True
+        if self.data.mode_order[0] == _MAN and self.widgets.notebook_main.get_current_page() == 0:
+            if keyname == "Up":
+                self.do_key_jog(1,1,signal)
+            elif keyname == "Down":
+                self.do_key_jog(1,0,signal)
+            elif keyname == "Left":
+                self.do_key_jog(0,0,signal)
+            elif keyname == "Right":
+                self.do_key_jog(0,1,signal)
+            elif keyname == "Page_Down":
+                self.do_key_jog(2,0,signal)
+            elif keyname == "Page_Up":
+                self.do_key_jog(2,1,signal)
+            elif keyname == "bracketleft":
+                self.do_key_jog(3,0,signal)
+            elif keyname == "bracketright":
+                self.do_key_jog(3,1,signal)
+            elif keyname in ("I","i"):
+                if signal:
+                    if event.state & gtk.gdk.SHIFT_MASK:
+                        self.set_jog_increments(index_dir = -1)
+                    else:
+                        self.set_jog_increments(index_dir = 1)
+            self.data.key_event_last = keyname,signal
+            return True
 
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
@@ -2996,7 +3014,7 @@ class Gscreen:
         settings.set_string_property("gtk-theme-name", theme, "")
 
     # check linuxcnc for status, error and then update the readout
-    def periodic_status(self):
+    def timer_interrupt(self):
         self.emc.mask()
         self.emcstat = linuxcnc.stat()
         self.emcerror = linuxcnc.error_channel()

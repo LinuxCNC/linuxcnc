@@ -27,6 +27,7 @@ enum pp_status   {
     PLUGIN_EXCEPTION_DURING_PATH_APPEND = -10,
     PLUGIN_INIT_EXCEPTION = -11,
     PLUGIN_PYTHON_NOT_INITIALIZED = -12,
+    PLUGIN_PATH_TOO_LONG = -13,
 
     // errors < OK make run_string(), is_callable(), and call() fail immediately
     // a reload might clear the error

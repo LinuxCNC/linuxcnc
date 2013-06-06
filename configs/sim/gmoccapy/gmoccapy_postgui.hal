@@ -2,8 +2,8 @@
 #        moccapy_postgui.hal file from Norbert Schechner          #
 ###################################################################
 
-#net spindle-speed-limited gscreen.hal_hbar_spindle_feedback
-#net spindle-at-speed gscreen.hal_led_spindle_at_speed
+net spindle-speed-limited gscreen.hal_hbar_spindle_feedback
+net spindle-at-speed gscreen.hal_led_spindle_at_speed
 
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
@@ -20,7 +20,7 @@ net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
 #############################################################################
 # Nun die ParPort Treiber laden und die Adressen festlegen
 #loadrt probe_parport
-#loadrt hal_parport cfg="0xcf00 out "
+#loadrt hal_parport cfg="0xcc00 out "
 #setp parport.0.reset-time 500
 #addf parport.0.read base-thread
 #addf parport.0.write base-thread
