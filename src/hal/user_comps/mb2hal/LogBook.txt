@@ -1,0 +1,100 @@
+/*
+ * mb2hal
+ * Userspace HAL component to communicate with one or more Modbus devices.
+ *
+ * Victor Rocco, adapted from Les Newell's modbuscomms.c which is
+ * Copyright (C) 2009-2012 Les Newell <les@sheetcam.com>
+ * source code in http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ContributedComponents
+ *
+ * Copyright (C) 2012 Victor Rocco <victor_rocco AT hotmail DOT com>
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ */
+
+2012-11-12:
+  # Arduino example added.
+    - Tested with Arduino Mega 2560 R3 using Modbusino over USB at 115200 bps.
+  # New parameters in config file.
+    - HAL_MODULE_NAME, MB_RESPONSE_TIMEOUT_MS and MB_BYTE_TIMEOUT_MS.
+  # New HAL pin "num_errors" for each transaction. num_errors = 0 if last
+    transaction OK, else the count of failed transactions.
+  # Fix a bug, OPTIONAL's parameters may be 0 instead of default value if
+    not specified in 1st transaction.
+2012-11-08:
+  # Mb2hal now uses libmodbus3 instead of the old libmodbus
+    src/hal/user_comps/modbus.c used by gs2_vfd.c
+    - Fix some bugs detailed in 2012-10-19.
+    - Also fix some things to do detailed in 2012-10-16.
+2012-10-19:
+  # KNOWN BUGS:
+    - Actual modbus.c doesn't handle Modbus errors code correctly, some times
+      shows TIME OUT instead of the error code trasmited by the slave.
+      Proposal: use the new libmodbus3 instead of modbus.c (Fixed 2012-11-08).
+    - Actual modbus.c need a patch "fix tcp protocol error" that is not on master
+      (is in 2.5_branch) (Fixed 2012-11-08).
+    - Actual modbus.c need the patch 0002-A-number-of-bug-fixes-for-modbus.patch
+      by Les Newell, fix compute_response_size and force_multiple_coils
+      (fnct_15_write_multiple_coils in mb2hal) (Fixed 2012-11-08).
+    - halrun: unloadusr mb2hal or unload mb2hal, mb2hal in defunct state until
+      quitting halrun.
+    - "Preparing contributions" shows error at creating Debian packages.
+      I should ignore them according to emc-devel mailing list responses.
+    - Lot of english grammar translations ;=)
+  # TESTS:
+    - Test 04 OK, all functions.
+    - TCP = MoD_RsSim V8.20 (www.plcsimulator.org) on Windows XP SP3.
+      . fnct_02_read_discrete_inputs
+      . fnct_03_read_holding_registers
+      . fnct_04_read_input_registers
+      . fnct_15_write_multiple_coils
+      . fnct_16_write_multiple_registers
+2012-10-16:
+  # STATUS:
+    - Almost stable, ready to test in depth.
+  # TODO list:
+    - #include "../modbus.h" must be #include "modbus.h", problem with Submakefile.
+      (Fixed 2012-11-08).
+    - INI: Optional invert bit, input and output.
+    - INI: Optional scaled ints and floats, input and output.
+    - INI: hal module name configuration (now is mb2hal).
+    - INI: MB_TX_CODE better documentation (Fixed 2012-11-08).
+    - HAL example files.
+    - INI: better check of parameters not specified and copied from the previous
+           link (compare link number instead of type_com).
+    - INI: HAL pin names configuration.
+    - INI: HAL array of bits from register (integer).
+    - Replace actual code based on modbus.c (old libmodbus used by gs2_vfd.c)
+      with new code based on libmodbus3 (Fixed 2012-11-08).
+    - Incorporate more Modbus functions.
+    - Better english translation (I must find someone that want to help).
+  # TESTS:
+    - Test 01, 02 and 03. All OK.
+    - TCP = Remote IO Delta RTU-EN01, 24 inputs, 8 outputs.
+      . fnct_02_read_discrete_inputs
+      . fnct_15_write_multiple_coils
+      . fnct_03_read_holding_registers
+    - RS232 = Servo Drive Delta ASDA-B (1021-A 1Kw).
+      . fnct_03_read_holding_registers
+    - Standalone tests with halrun, not with LinuxCNC.
+    - Shutting down both devices and power up again = OK (mb2hal reconnects).
+    - 1 Hour continuous functionning shows no errors.
+  # CODING STYLE:
+    - astyle version 2.02.1
+    - astyle -A10s4HUjyk3W3 hal/user_comps/mb2hal/*.c
+    - some switches are already in -A10.
+    - A10 = 1tbs or otbs, One True Brace Style formatting/indenting.
+      Similar to Kernighan & Ritchie style but add brackets to all conditionals.
+      Use Linux brackets.

@@ -1,0 +1,21 @@
+
+ifeq ($(BUILD_SYS),sim)
+UPARPORT_SRCS := $(addprefix hal/simdrivers/, \
+	uparport.c)
+
+UPARPORT_LIBS := 
+UPARPORT_FLAGS := -DSIM -DSIMULATOR -DRTAPI -UULAPI -D__MODULE__  -Drealtime
+
+USERSRCS += $(UPARPORT_SRCS)
+TARGETS += ../rtlib/hal_parport.so
+endif
+
+$(call TOOBJSDEPS, $(UPARPORT_SRCS)) : EXTRAFLAGS=-fPIC $(UPARPORT_FLAGS)
+
+../rtlib/hal_parport.so:   $(call TOOBJS, $(UPARPORT_SRCS)) $(UPARPORT_LIBS)
+	$(ECHO) Linking $(notdir $@)
+	mkdir -p ../rtlib
+	@rm -f $@
+	$(CC) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) \
+	-shared -o $@ $^  $(UPARPORT_LIBS)
+

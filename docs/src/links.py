@@ -3,25 +3,25 @@
 
 import os, sys
 
-if not hasattr(os.path, 'relpath'):
-    # backported from python2.6 posixpath.py, needed in python 2.5 and older
-    # (i.e., Ubuntu Hardy)
+try:
+    from os.path import relpath
+except:
     def relpath(path, start=os.path.curdir):
         """Return a relative version of a path"""
-
+        
         if not path:
             raise ValueError("no path specified")
-
-        start_list = os.path.abspath(start).split(os.sep)
-        path_list = os.path.abspath(path).split(os.sep)
+        
+        start_list = os.path.abspath(start).split(os.path.sep)
+        path_list = os.path.abspath(path).split(os.path.sep)
 
         # Work out how much of the filepath is shared by start and path.
         i = len(os.path.commonprefix([start_list, path_list]))
-
-        rel_list = [os.pardir] * (len(start_list)-i) + path_list[i:]
+        
+        rel_list = [os.path.pardir] * (len(start_list)-i) + path_list[i:]
         if not rel_list:
             return os.path.curdir
-    os.path.relpath = relpath
+        return os.path.join(*rel_list)
 
 path = '.'
 if len(sys.argv) < 3:
@@ -44,4 +44,4 @@ if len(sys.argv) > 3:
 
 l = sys.argv[2]
 if l in links:
-    print os.path.relpath(links[l] + '.html', path)
+    print relpath(links[l] + '.html', path)

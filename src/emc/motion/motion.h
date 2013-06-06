@@ -78,7 +78,16 @@ to another.
 #include "cubic.h"		/* CUBIC_STRUCT, CUBIC_COEFF */
 #include "emcmotcfg.h"		/* EMCMOT_MAX_JOINTS */
 #include "kinematics.h"
+#include "rtapi_limits.h"
 #include <stdarg.h>
+
+
+// define a special value to denote an invalid motion ID 
+// NB: do not ever generate a motion id of  MOTION_INVALID_ID
+// this should be really be tested for in command.c 
+
+#define MOTION_INVALID_ID INT_MIN
+#define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
 #ifdef __cplusplus
 extern "C" {
@@ -161,6 +170,7 @@ extern "C" {
 	EMCMOT_SPINDLE_DECREASE,	/* spindle slower */
 	EMCMOT_SPINDLE_BRAKE_ENGAGE,	/* engage the spindle brake */
 	EMCMOT_SPINDLE_BRAKE_RELEASE,	/* release the spindle brake */
+	EMCMOT_SPINDLE_ORIENT,          /* orient the spindle */
 	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
         EMCMOT_SET_OFFSET, /* set tool offsets */
@@ -231,6 +241,9 @@ extern "C" {
                                      ~2 = move until probe trips (ngc default)
                                      |2 = move until probe clears */
         EmcPose tool_offset;        /* TLO */
+	double  orientation;    /* angle for spindle orient */
+	char    direction;      /* CANON_DIRECTION flag for spindle orient */
+	double  timeout;        /* of wait for spindle orient to complete */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_command_t;
 
@@ -422,6 +435,13 @@ Suggestion: Split this in to an Error and a Status flag register..
 	HOME_SEQUENCE_WAIT_JOINTS,
     } home_sequence_state_t;
 
+    typedef enum {
+	EMCMOT_ORIENT_NONE = 0,
+	EMCMOT_ORIENT_IN_PROGRESS,
+	EMCMOT_ORIENT_COMPLETE,
+	EMCMOT_ORIENT_FAULTED,
+    } orient_state_t;
+
 /* flags for homing */
 #define HOME_IGNORE_LIMITS	1
 #define HOME_USE_INDEX		2
@@ -554,6 +574,9 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double xoffset;
 	int direction;		// 0 stopped, 1 forward, -1 reverse
 	int brake;		// 0 released, 1 engaged
+	int locked;             // spindle lock engaged after orient
+	int orient_fault;       // fault code from motion.spindle-orient-fault
+	int orient_state;       // orient_state_t
     } spindle_status;
     
 

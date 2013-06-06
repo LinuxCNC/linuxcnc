@@ -1,0 +1,7 @@
+;
+; turn off (DEBUG,) messages
+; set to 1.0 to see all the gory detail from the o-word subs
+#5599 = 0.0
+t2m6
+(DEBUG,  past t2m6)
+m2

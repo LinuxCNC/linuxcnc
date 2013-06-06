@@ -30,6 +30,86 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
+## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
+##
+m4_define([_PYTHON_SYSCONFIG],
+[dnl
+py_val=`$PYTHON -c "dnl
+[import sys; from distutils import sysconfig; sys.stdout.write]dnl
+([sysconfig.]$1 or '')" 2>&AS_MESSAGE_LOG_FD`
+AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
+])
+
+# adapted from AX_BOOST_PYTHON_MURRAYC
+# http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
+m4_define([AX_BOOST_PYTHON_EMC],
+[
+AC_LANG_PUSH([C++])
+saved_CPPFLAGS=$CPPFLAGS
+saved_LIBS=$LIBS
+# Note that this requires PYTHON_CPPFLAGS 
+# Note that this expects boost/ to be at some top-level such as /usr/include/
+# We couldn't check for anything else anyway because there's no pkg-config file to tell us where it is
+CPPFLAGS="$PYTHON_CPPFLAGS $saved_CPPFLAGS"
+AC_CACHE_CHECK([whether the Boost::Python headers are available],
+               [ac_cv_boost_python],
+               [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <boost/python/module.hpp>
+using namespace boost::python;
+BOOST_PYTHON_MODULE(test) { (void)0; }
+]], [])],
+    [ac_cv_boost_python=yes], [ac_cv_boost_python=no])])
+
+AS_IF([test "x$ac_cv_boost_python" = xyes],
+[
+  BOOST_PYTHON_LIBS=
+  ax_python_lib=boost_python
+  AC_ARG_WITH([boost-python],
+              [AS_HELP_STRING([--with-boost-python],
+                              [specify the boost python shared library to use. For instance, --with-boost-python=boost_python-py25. Defaults to boost-python. If you use this then you should probably set PYTHON too, to avoid using multiple python versions.])],
+  [if test "x$with_boost_python" != xno; then
+    ax_python_lib=$with_boost_python
+    ax_boost_python_lib=boost_python-$with_boost_python
+  fi])
+  AC_MSG_CHECKING([for boost::python shared library])
+  for ax_lib in "$ax_python_lib" "$ax_boost_python_lib" boost_python
+  do
+    # Note that this requires LIBPYTHON from configure.in
+    LIBS="$saved_LIBS -l$LIBPYTHON -l$ax_lib"
+    AC_LINK_IFELSE(
+      [AC_LANG_PROGRAM([[#include <boost/python.hpp>]], [[boost::python::object test_object;]])],
+      [BOOST_PYTHON_LIBS="-l$ax_lib"; break])
+  done
+  AS_IF([test "x$BOOST_PYTHON_LIBS" != x], [ax_result=$BOOST_PYTHON_LIBS], [ax_result=])
+  AC_MSG_RESULT([$ax_result])
+])
+CPPFLAGS=$saved_CPPFLAGS
+LIBS=$saved_LIBS
+AC_LANG_POP([C++])
+AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
+      [AC_DEFINE([HAVE_BOOST_PYTHON], [1],
+                 [define if the Boost::Python headers and library are available])],
+      [AC_MSG_ERROR([[boost::python is required to build $PACKAGE_NAME]])])
+AC_SUBST([BOOST_PYTHON_LIBS])
+])
+
+AC_MSG_CHECKING(libgl1-mesa-dri workaround)
+
+PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
+if test  $? -ne 0 ; then
+   # real bad, the test failed - let me know
+   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
+   exit 1
+fi
+if test "x$PRELOAD_WORKAROUND" != "x" ; then
+   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
+else
+   AC_MSG_RESULT(not required)
+fi
+
+
+
+
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -1101,6 +1181,53 @@ long hidiocgrawinfo = HIDIOCGRAWINFO;
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
+
+# libmodbus3 has a pkg-config file:
+AC_MSG_CHECKING([for libmodbus3])
+if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
+  LIBMODBUS_VER=`pkg-config libmodbus --modversion`
+  AC_MSG_RESULT(yes - version [$LIBMODBUS_VER])
+  LIBMODBUS_CFLAGS=`pkg-config libmodbus --cflags`
+  LIBMODBUS_LIBS=`pkg-config libmodbus --libs`
+  AC_DEFINE([LIBMODBUS3_USABLE], [], [Define to 1 if usable libmodbus3 library present])
+  AC_SUBST([LIBMODBUS3_USABLE],yes)
+  # cant have both
+  AC_SUBST([LIBMODBUS2_USABLE],no)
+  AC_SUBST([LIBMODBUS_CFLAGS])
+  AC_SUBST([LIBMODBUS_LIBS])
+else
+  AC_SUBST([LIBMODBUS3_USABLE],no)
+  AC_MSG_RESULT(no)
+  AC_MSG_CHECKING([for libmodbus2])
+  # check if libmodbus version2 is installed
+  # v2 doesnt have a pkg-config file, so assume
+  # includes are under /usr/include/modbus
+  LIBMODBUS_CFLAGS="-I/usr/include/modbus"
+  LIBMODBUS_LIBS="-lmodbus"
+
+  saved_LIBS=$LIBS
+  saved_CPPFLAGS=$CPPFLAGS
+  CPPFLAGS="$LIBMODBUS_CFLAGS $saved_CPPFLAGS"
+  LIBS="$saved_LIBS $LIBMODBUS_LIBS"
+
+  AC_TRY_LINK([#include <modbus.h>],[
+      read_holding_registers(0,0,0,0,0);
+      preset_single_register(0,0,0,0);
+    ],
+    [LIBMODBUS2_USABLE=yes
+      AC_DEFINE([LIBMODBUS2_USABLE], [], [Define to 1 if usable libmodbus2 library present])
+      AC_SUBST([LIBMODBUS2_USABLE],yes)
+      AC_SUBST([LIBMODBUS_CFLAGS])
+      AC_SUBST([LIBMODBUS_LIBS])
+      AC_MSG_RESULT(yes - version2)
+    ],
+    [AC_MSG_RESULT(no)]
+  )
+  LIBS=$saved_LIBS
+  CPPFLAGS=$saved_CPPFLAGS
+fi 
+
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
@@ -1322,7 +1449,9 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_CONFIG_DIR], "$EMC2_CONFIG_DIR", [Directory for configuration files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([PRELOAD_WORKAROUND], "$PRELOAD_WORKAROUND", [library pathname to LD_PRELOAD])
 AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
+
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -1338,7 +1467,8 @@ AC_SUBST([EMC2_LATENCY_SCRIPT])
 AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
-AC_SUBST([GIT_VERSION])
+AC_SUBST([PRELOAD_WORKAROUND])
+
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -1407,12 +1537,6 @@ AC_SUBST(GLIB_CFLAGS)
 
 SPATH=$PATH:/usr/local/sbin:/usr/sbin:/sbin
 AC_PROG_CXX
-
-AC_PATH_PROG(CXX,$CXX,"none")
-if test $CXX = "none"
-then
-    AC_MSG_ERROR([C++ compiler not found])
-fi
 
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
@@ -2153,6 +2277,10 @@ if test "$BUILD_PYTHON" = "yes"; then
     fi
     AC_MSG_RESULT(OK)
 
+    AC_MSG_CHECKING([version of python libraries])
+    LIBPYTHON=`$PYTHON -c 'import distutils.sysconfig; print "python" + distutils.sysconfig.get_config_vars().get("VERSION")'`
+    AC_MSG_RESULT($LIBPYTHON)
+
     AC_MSG_CHECKING([match between tk and Tkinter versions])
 	
     PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
@@ -2172,6 +2300,29 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
     AC_MSG_CHECKING(location of Python header files)
     INCLUDEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_config_vars().get("INCLUDEPY")'`
     AC_MSG_RESULT($INCLUDEPY)
+
+    AC_MSG_CHECKING([for Python headers])
+    AS_IF([test "x$PYTHON_CPPFLAGS" = x],
+    [
+	_PYTHON_SYSCONFIG([[get_python_inc()]], [PYTHON_CPPFLAGS="-I$py_val"])
+  	_PYTHON_SYSCONFIG([[get_python_inc(True)]],
+  	[test "x$PYTHON_CPPFLAGS" = "x-I$py_val" || PYTHON_CPPFLAGS="$PYTHON_CPPFLAGS -I$py_val"])
+    ])
+    AC_MSG_RESULT([$PYTHON_CPPFLAGS])
+    AC_SUBST(PYTHON_CPPFLAGS)
+
+    AC_MSG_CHECKING([for Python libraries])
+    AS_IF([test "x$PYTHON_LIBS" = x],
+    [
+	_PYTHON_SYSCONFIG([[get_config_var('LIBS')]], [PYTHON_LIBS=$py_val])
+    ])
+    AC_MSG_RESULT([$PYTHON_LIBS])
+    AC_SUBST(PYTHON_LIBS)
+
+    # Get the CFLAGS and LIBS for boost::python.
+    # This does an AC_SUBST() of BOOST_PYTHON_LIBS
+    # For the CFLAGS we must assume that boost is at the top-level, for instance in /usr/include/:
+    AX_BOOST_PYTHON_EMC
 
     AC_CHECK_HEADER($INCLUDEPY/Python.h,[],
 	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
@@ -2201,6 +2352,7 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 fi
 
 AC_SUBST([BUILD_PYTHON])
+AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 

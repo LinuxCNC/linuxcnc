@@ -1,0 +1,349 @@
+<?xml version="1.0"?>
+<glade-interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-requires gtk+ 2.12 -->
+  <!-- interface-naming-policy project-wide -->
+  <widget class="GtkWindow" id="window1">
+    <child>
+      <widget class="HAL_Table" id="table">
+        <property name="visible">True</property>
+        <property name="n_rows">14</property>
+        <property name="n_columns">2</property>
+        <child>
+          <widget class="HAL_LED" id="tool-flush-led">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#16eefaef15f5</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+            <property name="y_options"></property>
+            <property name="x_padding">4</property>
+            <property name="y_padding">4</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="tool-lock-led">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#ffff3ff60e08</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="y_options"></property>
+            <property name="x_padding">4</property>
+            <property name="y_padding">4</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">tool-lock</property>
+          </widget>
+          <packing>
+            <property name="y_options"></property>
+            <property name="x_padding">4</property>
+            <property name="y_padding">4</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">tool-flush</property>
+          </widget>
+          <packing>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+            <property name="y_options"></property>
+            <property name="x_padding">4</property>
+            <property name="y_padding">4</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">lube</property>
+          </widget>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="labelx">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">tool-prepare</property>
+          </widget>
+          <packing>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label9">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">tool-change</property>
+          </widget>
+          <packing>
+            <property name="top_attach">8</property>
+            <property name="bottom_attach">9</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label10">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">start-change</property>
+          </widget>
+          <packing>
+            <property name="top_attach">9</property>
+            <property name="bottom_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label11">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">user-enable-out</property>
+          </widget>
+          <packing>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label12">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">toolchanger-reason</property>
+          </widget>
+          <packing>
+            <property name="top_attach">12</property>
+            <property name="bottom_attach">13</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_Label" id="tool-prep-pocket">
+            <property name="visible">True</property>
+            <property name="text_template">Prepapred pocket: %d</property>
+          </widget>
+          <packing>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_Label" id="tool-prep-number">
+            <property name="visible">True</property>
+            <property name="text_template">Prepared tool: %d</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_Label" id="tool-number">
+            <property name="visible">True</property>
+            <property name="text_template">Current tool: %d</property>
+          </widget>
+          <packing>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_Label" id="emc-reason">
+            <property name="visible">True</property>
+            <property name="text_template">EMC abort reason: %d</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="tool-prepare">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="on_color">green</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="tool-change">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="on_color">yellow</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">8</property>
+            <property name="bottom_attach">9</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="start-change">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#ffffae230cc9</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">9</property>
+            <property name="bottom_attach">10</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="user-enable-out">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#111bcaebe8ee</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_SpinButton" id="toolchanger-reason">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">0 -100 100 1 10 10</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">12</property>
+            <property name="bottom_attach">13</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_ToggleButton" id="set-toolchanger-faulted">
+            <property name="label" translatable="yes">Toolchanger
+     fault  </property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </widget>
+          <packing>
+            <property name="top_attach">13</property>
+            <property name="bottom_attach">14</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label5">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">toolchanger-faulted</property>
+          </widget>
+          <packing>
+            <property name="top_attach">11</property>
+            <property name="bottom_attach">12</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="toolchanger-faulted">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">11</property>
+            <property name="bottom_attach">12</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_Button" id="toolchanger-clear-fault">
+            <property name="label" translatable="yes">        Clear
+Toolchanger Fault</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">13</property>
+            <property name="bottom_attach">14</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="lube">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#f408fedc13df</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="mist">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#1124f4938d56</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label4">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">flood</property>
+          </widget>
+          <packing>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="HAL_LED" id="flood">
+            <property name="visible">True</property>
+            <property name="led_shape">2</property>
+            <property name="pick_color_on">#0484f8b4bb27</property>
+          </widget>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkLabel" id="label6">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">mist</property>
+          </widget>
+          <packing>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+          </packing>
+        </child>
+      </widget>
+    </child>
+  </widget>
+</glade-interface>

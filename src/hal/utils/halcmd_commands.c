@@ -1190,7 +1190,7 @@ int do_delsig_cmd(char *mod_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	sigs[n][0] = '\0';
 
-	if ( ( sigs[0][0] == '\0' )) {
+	if ( sigs[0][0] == '\0' ) {
 	    /* desired signals not found */
 	    halcmd_error("no signals found to be deleted\n");
 	    return -1;

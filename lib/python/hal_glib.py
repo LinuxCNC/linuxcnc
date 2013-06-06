@@ -71,6 +71,9 @@ class _GStat(gobject.GObject):
         'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-on': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'state-off': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -85,6 +88,7 @@ class _GStat(gobject.GObject):
 
         'file-loaded': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
         'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -108,6 +112,11 @@ class _GStat(gobject.GObject):
         gobject.GObject.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.old = {}
+        try:
+            self.stat.poll()
+            self.merge()
+        except:
+            pass
         gobject.timeout_add(100, self.update)
 
     def merge(self):
@@ -116,6 +125,8 @@ class _GStat(gobject.GObject):
         self.old['interp']= self.stat.interp_state
         self.old['file']  = self.stat.file
         self.old['line']  = self.stat.motion_line
+        self.old['homed'] = self.stat.homed
+        self.old['tool-in-spindle'] = self.stat.tool_in_spindle
 
     def update(self):
         try:
@@ -125,6 +136,7 @@ class _GStat(gobject.GObject):
             return True
         old = dict(self.old)
         self.merge()
+
         state_old = old.get('state', 0)
         state_new = self.old['state']
         if not state_old:
@@ -165,6 +177,36 @@ class _GStat(gobject.GObject):
         line_new = self.old['line']
         if line_new != line_old:
             self.emit('line-changed', line_new)
+
+        tool_old = old.get('tool-in-spindle', None)
+        tool_new = self.old['tool-in-spindle']
+        if tool_new != tool_old:
+            self.emit('tool-in-spindle-changed', tool_new)
+
+        # if the homed status has changed
+        # check number of homed axes against number of available axes
+        # if they are equal send the all-homed signal
+        # else not-all-homed (with a string of unhomed joint numbers)
+        # if a joint is homed send 'homed' (with a string of homed joint numbers)
+        homed_old = old.get('homed', None)
+        homed_new = self.old['homed']
+        if homed_new != homed_old:
+            axis_count = count = 0
+            unhomed = homed = ""
+            for i,h in enumerate(homed_new):
+                if h:
+                    count +=1
+                    homed += str(i)
+                if self.stat.axis_mask & (1<<i) == 0: continue
+                axis_count += 1
+                if not h:
+                    unhomed += str(i)
+            if count:
+                self.emit('homed',homed)
+            if count == axis_count:
+                self.emit('all-homed')
+            else:
+                self.emit('not-all-homed',unhomed)
 
         return True
 

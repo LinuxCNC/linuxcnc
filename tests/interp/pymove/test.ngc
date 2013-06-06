@@ -1,0 +1,8 @@
+F100
+G21
+G0 X0 Y0 Z0
+G1 X15 Y25
+(debug, demonstrate moves via py oword sub)
+o<canonmove> call [1] [2] [3]
+
+M2

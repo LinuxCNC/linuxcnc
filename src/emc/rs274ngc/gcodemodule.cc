@@ -25,7 +25,18 @@
 #include "canon.hh"
 #include "config.h"		// LINELEN
 
+int _task = 0; // control preview behaviour when remapping
+
 char _parameter_file_name[LINELEN];
+extern "C" void initinterpreter();
+extern "C" void initemccanon();
+extern "C" struct _inittab builtin_modules[];
+struct _inittab builtin_modules[] = {
+    { (char *) "interpreter", initinterpreter },
+    { (char *) "emccanon", initemccanon },
+    // any others...
+    { NULL, NULL }
+};
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
@@ -133,12 +144,14 @@ static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
-static Interp interp_new;
+static InterpBase *pinterp;
+#define interp_new (*pinterp)
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
 static void maybe_new_line(int sequence_number=interp_new.sequence_number());
 static void maybe_new_line(int sequence_number) {
+    if(!pinterp) return;
     if(interp_error) return;
     if(sequence_number == last_sequence_number)
         return;
@@ -394,12 +407,17 @@ void SET_SPINDLE_MODE(double) {}
 void STOP_SPINDLE_TURNING() {}
 void SET_SPINDLE_SPEED(double rpm) {}
 void ORIENT_SPINDLE(double d, int i) {}
+void WAIT_SPINDLE_ORIENT_COMPLETE(double timeout) {}
 void PROGRAM_STOP() {}
 void PROGRAM_END() {}
 void FINISH() {}
 void PALLET_SHUTTLE() {}
-void SELECT_POCKET(int tool) {}
+void SELECT_POCKET(int pocket, int tool) {}
 void OPTIONAL_PROGRAM_STOP() {}
+void START_CHANGE() {}
+int  GET_EXTERNAL_TC_FAULT() {return 0;}
+int  GET_EXTERNAL_TC_REASON() {return 0;}
+
 
 extern bool GET_BLOCK_DELETE(void) { 
     int bd = 0;
@@ -414,6 +432,16 @@ extern bool GET_BLOCK_DELETE(void) {
     Py_XDECREF(result);
     return bd;
 }
+
+void CANON_ERROR(const char *fmt, ...) {};
+void CLAMP_AXIS(CANON_AXIS axis) {}
+bool GET_OPTIONAL_PROGRAM_STOP() { return false;}
+void SET_OPTIONAL_PROGRAM_STOP(bool state) {}
+void SPINDLE_RETRACT_TRAVERSE() {}
+void SPINDLE_RETRACT() {}
+void STOP_CUTTER_RADIUS_COMPENSATION() {}
+void USE_NO_SPINDLE_FORCE() {}
+void SET_BLOCK_DELETE(bool enabled) {}
 
 void DISABLE_FEED_OVERRIDE() {}
 void DISABLE_FEED_HOLD() {}
@@ -435,6 +463,9 @@ void TURN_PROBE_ON() {}
 void TURN_PROBE_OFF() {}
 int UNLOCK_ROTARY(int line_no, int axis) {return 0;}
 int LOCK_ROTARY(int line_no, int axis) {return 0;}
+void INTERP_ABORT(int reason,const char *message) {}
+void PLUGIN_CALL(int len, const char *call) {}
+void IO_PLUGIN_CALL(int len, const char *call) {}
 
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 
@@ -652,12 +683,21 @@ void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
-    char *unitcode=0, *initcode=0;
+    char *unitcode=0, *initcode=0, *interpname=0;
     int error_line_offset = 0;
     struct timeval t0, t1;
     int wait = 1;
-    if(!PyArg_ParseTuple(args, "sO|ss", &f, &callback, &unitcode, &initcode))
+    if(!PyArg_ParseTuple(args, "sO|sss", &f, &callback, &unitcode, &initcode, &interpname))
         return NULL;
+
+    if(pinterp) {
+        delete pinterp;
+        pinterp = 0;
+    }
+    if(interpname && *interpname)
+        pinterp = interp_from_shlib(interpname);
+    if(!pinterp)
+        pinterp = new Interp;
 
     for(int i=0; i<USER_DEFINED_FUNCTION_NUM; i++) 
         USER_DEFINED_FUNCTION[i] = user_defined_function;
@@ -700,7 +740,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         result = interp_new.execute();
     }
 out_error:
-    interp_new.close();
+    if(pinterp) pinterp->close();
     if(interp_error) {
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,

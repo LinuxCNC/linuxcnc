@@ -1,0 +1,5 @@
+
+named parameters can now reference ini variables; they are retrieved on demand and
+cached as global read-only parameters.
+
+Syntax: #<_ini[section]name>

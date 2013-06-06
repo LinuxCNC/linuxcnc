@@ -794,7 +794,7 @@ def document(filename, outfilename):
         print >>f, ".SH DESCRIPTION\n"
         print >>f, "%s" % doc[1]
 
-    if not options.get("userspace"):
+    if functions:
         print >>f, ".SH FUNCTIONS"
         for _, name, fp, doc in finddocs('funct'):
             print >>f, ".TP"
@@ -893,9 +893,6 @@ def process(filename, mode, outfilename):
         if options.get("userspace"):
             if functions:
                 raise SystemExit, "Userspace components may not have functions"
-        else:
-            if not functions:
-                raise SystemExit, "Realtime component must have at least one function"
         if not pins:
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
@@ -907,7 +904,7 @@ def process(filename, mode, outfilename):
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
         else:
-            if "FUNCTION" in b:
+            if not functions or "FUNCTION" in b:
                 f.write("#line %d \"%s\"\n" % (lineno, filename))
                 f.write(b)
             elif len(functions) == 1:

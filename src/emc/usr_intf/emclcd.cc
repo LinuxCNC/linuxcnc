@@ -1719,7 +1719,7 @@ int main(int argc, char *argv[])
 	exit(1);
     }
     // get configuration information
-    iniLoad(EMC_INIFILE);
+    iniLoad(emc_inifile);
     // init NML
     if (tryNml() != 0) {
 	rcs_print_error("can't connect to emc\n");

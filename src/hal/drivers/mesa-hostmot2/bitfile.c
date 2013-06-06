@@ -27,7 +27,6 @@
 #include RTAPI_INC_FIRMWARE_H
 
 #include "rtapi.h"
-#include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 

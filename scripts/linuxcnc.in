@@ -64,6 +64,9 @@ else
 fi
 export PYTHONPATH
 
+PRELOAD_WORKAROUND=@PRELOAD_WORKAROUND@
+
+
 XFILESEARCHPATH=%D:@EMC2_HOME@/%T/%N%C:@EMC2_HOME@/%T/%N
 export XFILESEARCHPATH
 
@@ -98,6 +101,8 @@ Usage:
 EOF
 
 }
+
+
 
 ################################################################################
 # 1.1. strip and process command line options
@@ -267,6 +272,8 @@ fi
 # delete directories from path, save name only
 INI_NAME="${INIFILE##*/}"
 INI_DIR="${INIFILE%/*}"
+CONFIG_DIR="${INIFILE%/*}"
+export CONFIG_DIR
 
 echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
@@ -340,6 +347,8 @@ GetFromIni TASK TASK
 EMCTASK=$retval
 
 if [ "$EMCTASK" = emctask ]; then EMCTASK=linuxcnctask; fi
+
+
 
 # 2.6. we hardcode the server name, change if needed
 # linuxcncsvr now holds/creates all the NML channels,
@@ -605,14 +614,20 @@ fi
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
 
-# 4.3.4. Run io in background
-echo "Starting LinuxCNC IO program: $EMCIO" >>$PRINT_FILE
-if ! program_available $EMCIO ; then
-    echo "Can't execute IO program $EMCIO"
-    Cleanup
-    exit 1
+# 4.3.4. Run io in background if so defined in INI
+if [ "$EMCIO" != "" ] ; then
+        echo "Starting LinuxCNC IO program: $EMCIO" >>$PRINT_FILE
+        if ! program_available $EMCIO ; then
+                echo "Can't execute IO program $EMCIO"
+                Cleanup
+        exit 1
+        fi
+        echo $EMCIO started
+        $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
+        echo halcmd loadusr $EMCIO started
+else
+        echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
 fi
-$HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
@@ -629,7 +644,7 @@ TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
   # if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
   CFGFILE=@EMC2_TCL_LIB_DIR@/twopass.tcl
-  if ! haltcl -ini "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+  if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
       Cleanup
       exit -1
   fi
@@ -637,11 +652,11 @@ else
     # 4.3.6. execute HALCMD config files (if any)
     # get first config file name from ini file
     NUM=1
-    CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+    CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     while [ -n "$CFGFILE" ] ; do
         case $CFGFILE in
         *.tcl)
-            if ! haltcl -ini "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
+            if ! haltcl -i "$INIFILE" $CFGFILE && [ "$DASHK" = "" ]; then
                 Cleanup
                 exit -1
             fi
@@ -654,7 +669,7 @@ else
         esac
         # get next config file name from ini file
         NUM=$(($NUM+1))
-        CFGFILE=`$INIVAR -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
+        CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     done
 fi
 
@@ -686,7 +701,15 @@ if ! program_available $EMCTASK ; then
     Cleanup
     exit 1
 fi
+
+# setup LD_PRELOAD  if deemed necessary by configure
+unset LD_PRELOAD
+if [ -n "$PRELOAD_WORKAROUND" ] ; then
+	export LD_PRELOAD=$PRELOAD_WORKAROUND
+fi
+
 $EMCTASK -ini "$INIFILE" &
+echo task pid=$!
 
 # 4.3.10. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE

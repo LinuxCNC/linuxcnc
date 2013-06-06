@@ -35,7 +35,7 @@ int emcGetArgs(int argc, char *argv[])
                     fprintf(stderr, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		strcpy(EMC_INIFILE, argv[t + 1]);
+		strcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;

@@ -1,0 +1,14 @@
+o<rm406> sub
+
+o50 if [EXISTS[#<foo405>]]
+     (abort,WHOA! foo405 visible in rm406: foo405=#<foo405>)
+o50 endif
+
+o100 if [#<foo406> NE  42]
+     (abort,rm406: foo406=#<foo406>)
+o100 endif
+; bump by 1 and check in epilog wether change is visible
+#<foo406> = [#<foo406> + 1]
+o<rm406> endsub
+m2
+%

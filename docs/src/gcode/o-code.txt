@@ -29,6 +29,21 @@ Using the lower case o makes it easier to distinguish from a 0
 that might have been mistyped. For example o100 is easier to
 see than O100 that it is not a 0.
 
+The following statements  cause an error message and  abort the
+interpreter:
+
+ - a `return` or `endsub` not within a sub defintion
+ - a label on `repeat` which is defined elsewhere
+ - a label on `while` which is defińed elsewhere and not referring to a `do`
+ - a label on `if` defined elsewhere
+ - a undefined label on `else` or `elseif`
+ - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
+ - a label on `break` or `continue` which does not point to a matching `while` or `do`
+ - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
+    
+To make these errors non-fatal  warnings on stderr, set bit 0x20 in
+the `[RS274NGC]FEATURE=` mask ini option. 
+
 [[sec:subroutines]]
 == Subroutines
 (((Subroutines)))
@@ -176,7 +191,19 @@ o102 else (else if parameter #2 is 2 through 5 set F150)
 o102 endif
 ----
 
-[[sec:repeat]]
+Several conditons may be tested for by 'elseif' statements until the
+'else' path is finally executed if all preceding conditons are false:
+
+.If Elseif Else Endif Example
+----
+O102 if [#2 GT 5] (if parameter #2 is greater than 5 set F100)
+  F100
+O102 elseif [#2 LT 2] (else if parameter #2 less than 2 set F200)
+  F20
+O102 else (parameter #2 between 2 and 5)
+  F200
+O102 endif
+----
 == Repeat(((Repeat)))
 
 The 'repeat' will execute the statements inside of the
@@ -246,5 +273,23 @@ M2
 The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
 by the interpreter. More information about the search path and options for the
 search path are in the INI Configuration Section.
+
+== Subroutine return values(((Return Values)))
+
+Subroutines may optionally return a value by an optional expression at
+an 'endsub' or 'return' statement.
+
+.Return value example
+----
+o123 return [#2 *5]
+...
+o123 endsub [3 * 4]
+----
+
+A subroutine return value is stored in the '#<_value>'
+<<sec:Predefined-Named-Parameters, predefined named parameter>> , and
+the '#<_value_returned>' predefined parameter is set to 1, to indicate
+a value was returned. Both paramters are global, and are cleared just
+before the next subroutine call.
 
 // vim: set syntax=asciidoc:

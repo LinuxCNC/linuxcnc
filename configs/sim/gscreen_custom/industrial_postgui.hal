@@ -1,0 +1,13 @@
+net spindle-speed-limited gscreen.spindle-readout-in
+net spindle-at-speed gscreen.spindle-at-speed
+
+# unlink hal_manual_toolchange so we can connect to gscreen's
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp hal_manualtoolchange.change
+unlinkp hal_manualtoolchange.changed
+unlinkp hal_manualtoolchange.number
+
+net tool-change gscreen.change-tool iocontrol.0.tool-change 
+net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
+net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number

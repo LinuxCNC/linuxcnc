@@ -1,0 +1,9 @@
+G53 G0 x#<_ini[vars]toolchange_x> y#<_InI[vars]toolchange_y> z#<_INi[vars]toolchange_z>
+(debug, position now: #<_x> #<_y> #<_z>)
+
+(debug, not in ini: #<_iNi[nosuchsection]nosuchname>)
+
+; now fail referencing an undefined ini variable:
+#4711 =  #<_iNI[nosuchsection]nosuchname>
+
+M2

@@ -60,6 +60,7 @@
 <doc name="drivers_pico_ppmc" title="Pico PPMC Driver"/>
 <doc name="drivers_pluto_p" title="Pluto-P Driver"/>
 <doc name="drivers_servo_to_go" title="Servo-To-Go Driver"/>
+<doc name="drivers_GM" title="General Mechatronics GM6-PCI Driver"/>
 <doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
 
 <doc name="common_overleaf" title="Overleaf Text"/>

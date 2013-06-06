@@ -4923,7 +4923,7 @@ Ok to reset data and start a new configuration?"),False):
             if not self.warning_dialog("\n".join(text),True):return
 
     def on_joysticktest_clicked(self, *args):
-        halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
+        halrun = subprocess.Popen("halrun -I  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
         #print "requested devicename = ",self.widgets.usbdevicename.get_text()
         halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
@@ -5621,7 +5621,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 You also will not be able to do any other testing untill you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
 I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
                         return
-        self.halrun = os.popen("halrun -sf > /dev/null", "w") 
+        self.halrun = os.popen("halrun -I > /dev/null", "w") 
         self.halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         self.hal_cmnds("LOAD")
         self.hal_cmnds("READ")
@@ -8479,7 +8479,7 @@ different program to copy to your configuration file.\nThe edited program will b
         if not self.check_for_rt(self):
             return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
         self.hal_cmnds("LOAD")
         for i in range(0,self.data.number_pports ):
@@ -8544,7 +8544,7 @@ different program to copy to your configuration file.\nThe edited program will b
             width = self.widgets.pyvcpwidth.get_value()
             height = self.widgets.pyvcpheight.get_value()
             size = "%dx%d"% (width,height)    
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -g %(size)s%(pos)s -c displaytest %(panel)s\n" %{'size':size,'pos':pos,'panel':panel,})
         if self.widgets.pyvcp1.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
@@ -8605,7 +8605,7 @@ But there is not one in the machine-named folder.."""),True)
         if not self.widgets.gladevcptheme.get_active_text() == "Follow System Theme":
             options ="-t %s"% (self.widgets.gladevcptheme.get_active_text())
             print options
-        self.halrun = halrun = os.popen("cd %s\nhalrun -sf > /dev/null"%(folder), "w" )    
+        self.halrun = halrun = os.popen("cd %s\nhalrun -I > /dev/null"%(folder), "w" )    
         halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{'size':size,'pos':pos,'option':options})
         if self.widgets.spindlespeedbar.get_active():
             halrun.write("setp displaytest.spindle-speed 500\n")
@@ -8831,7 +8831,7 @@ But there is not one in the machine-named folder.."""),True)
     def load_ladder(self,w): 
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
         halrun.write(""" 
               loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow 
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
@@ -8967,7 +8967,7 @@ But there is not one in the machine-named folder.."""),True)
         pwmmaxlimit = get_value(w[axis+"outputmaxlimit"])
         pwmmaxoutput = get_value(w[axis+"outputscale"])
              
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
@@ -9255,7 +9255,7 @@ But there is not one in the machine-named folder.."""),True)
                 self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
                 return           
 
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")  
         data = self.data
         widgets = self.widgets
         axnum = "xyzas".index(axis)

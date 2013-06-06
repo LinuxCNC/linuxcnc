@@ -45,6 +45,34 @@ include::hal/comp.txt[]
 
 include::hal/halmodule.txt[]
 
+:leveloffset: 0
+
+= Hardware Drivers
+
+:leveloffset: 1
+
+include::drivers/AX5214H.txt[]
+
+include::drivers/GS2.txt[]
+
+include::drivers/VFS11.txt[]
+
+include::drivers/hostmot2.txt[]
+
+include::drivers/motenc.txt[]
+
+include::drivers/opto22.txt[]
+
+include::drivers/pico_ppmc.txt[]
+
+include::drivers/pluto_p.txt[]
+
+include::drivers/servo_to_go.txt[]
+
+include::drivers/GM.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
 // = Index
 
 // vim: set syntax=asciidoc:

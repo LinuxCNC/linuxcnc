@@ -1,0 +1,40 @@
+# unlink because core_sim.hal looped them already
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prepare
+unlinkp iocontrol.0.tool-prepared
+
+net tool-prepare iocontrol.0.tool-prepare gladevcp.tool-prepare
+net tool-prepared gladevcp.tool-prepared iocontrol.0.tool-prepared
+
+net tool-change iocontrol.0.tool-change gladevcp.tool-change
+net tool-changed gladevcp.tool-changed iocontrol.0.tool-changed
+
+net tool-prep-number iocontrol.0.tool-prep-number gladevcp.tool-prep-number
+net tool-prep-pocket iocontrol.0.tool-prep-pocket gladevcp.tool-prep-pocket
+net tool-number iocontrol.0.tool-number  gladevcp.tool-number
+
+net emc-reason iocontrol.0.emc-reason gladevcp.emc-reason
+
+# jumper emc-abort-ack to emc-abort
+net emc-abort-ack iocontrol.0.emc-abort iocontrol.0.emc-abort-ack gladevcp.emc-abort gladevcp.emc-abort-ack-led
+
+# to run through button in v2-tc.ui, make the emc-abort-ack button sensitive
+# and visible, comment out previous net statement and uncomment the next 2 lines:
+#net emc-abort-ack gladevcp.emc-abort-ack iocontrol.0.emc-abort-ack
+#net emc-abort  iocontrol.0.emc-abort  gladevcp.emc-abort
+
+net toolchanger-fault gladevcp.toolchanger-fault iocontrol.0.toolchanger-fault
+net toolchanger-fault-ack iocontrol.0.toolchanger-fault-ack gladevcp.toolchanger-fault-ack
+net toolchanger-reason gladevcp.toolchanger-reason-s iocontrol.0.toolchanger-reason
+
+net toolchanger-faulted iocontrol.0.toolchanger-faulted gladevcp.toolchanger-faulted
+net toolchanger-clear-fault gladevcp.toolchanger-clear-fault iocontrol.0.toolchanger-clear-fault
+
+net start-change iocontrol.0.start-change gladevcp.start-change-led
+net start-change-ack gladevcp.start-change-ack iocontrol.0.start-change-ack
+
+
+net state iocontrol.0.state gladevcp.state
+
+net halui-abort gladevcp.halui-abort halui.abort

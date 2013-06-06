@@ -113,11 +113,12 @@ class _EMC_FileChooser(_EMC_ActionBase):
         flt = FilterProgram(flt, filename, tmp, lambda r: r or self._load_file(tmp))
 
     def _load_file(self, filename):
-        self.linuxcnc.mode(linuxcnc.MODE_AUTO)
-        old = self.gstat.stat.file
-        self.linuxcnc.program_open(filename)
-        if old == filename:
-            self.gstat.emit('file-loaded', filename)
+        if filename:
+            self.linuxcnc.mode(linuxcnc.MODE_AUTO)
+            old = self.gstat.stat.file
+            self.linuxcnc.program_open(filename)
+            if old == filename:
+                self.gstat.emit('file-loaded', filename)
 
     def load_filters(self, inifile=None):
         inifile = inifile or os.environ.get('INI_FILE_NAME', '/dev/null')
@@ -134,11 +135,11 @@ class _EMC_FileChooser(_EMC_ActionBase):
 
     def _load_filters(self, inifile):
         def _e2p(n, el):
-            print "New filter %s: %s" % (n, el)
+            #print "New filter %s: %s" % (n, el)
             p = gtk.FileFilter()
             p.set_name(n)
             map(lambda s: p.add_pattern('*' + s), el)
-            print p
+            #print p
             return p
         all_extensions = [".ngc"]
         extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
@@ -159,7 +160,8 @@ class EMC_FileChooserDialog(gtk.FileChooserDialog, _EMC_FileChooser):
         self.connect('response', self.on_response)
 
     def on_response(self, w, response):
-        print ">>>", w, response
+        pass
+        #print ">>>", w, response
 
 class EMC_FileChooserButton(gtk.FileChooserButton, _EMC_FileChooser):
     __gtype_name__ = 'EMC_FileChooserButton'
