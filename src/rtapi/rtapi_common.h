@@ -71,7 +71,7 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include "rtapi_bitops.h"	/* test_bit() et al. */
+#include "rtapi_bitops.h"	/* rtapi_test_bit() et al. */
 
 
 #include THREADS_HEADERS	/* thread-specific headers */
@@ -158,7 +158,7 @@ typedef struct {
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
-    _DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1);
+    RTAPI_DECLARE_BITMAP(bitmap, RTAPI_MAX_SHMEMS+1);
 				/* which modules are using block */
     void *mem;			/* pointer to the memory */
 } shmem_data;
