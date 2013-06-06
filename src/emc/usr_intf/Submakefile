@@ -43,7 +43,7 @@ endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
-$(call TOOBJSDEPS, $(EMCWEBSRCS)) : EXTRAFLAGS = -D__DIR__=\"$(EMC2_HOME)\"
+$(call TOOBJSDEPS, $(EMCWEBSRCS)) : EXTRAFLAGS = -D__DIR__=\"$(EMC2_HOME)\"  -fPIC
 
 ../bin/tooledit: emc/usr_intf/tooledit.tcl
 	cp $< $@
