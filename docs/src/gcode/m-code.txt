@@ -306,8 +306,8 @@ M66 wait on an input stops further execution of the program, until the
 selected event (or the programmed timeout) occurs.
 
 It is an error to program M66 with both a P-word and an E-word (thus
-selecting both an analog and a digital input).In LinuxCNC these inputs are
-not monitored in real time and thus should not be used for
+selecting both an analog and a digital input).  In LinuxCNC these
+inputs are not monitored in real time and thus should not be used for
 timing-critical applications.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
