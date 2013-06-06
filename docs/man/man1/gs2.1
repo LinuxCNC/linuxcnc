@@ -42,31 +42,31 @@ component. This component reads and writes to the GS2 via a modbus connection.
 
 .SH OPTIONS
 .B
-.IP -b\ -bits\ <n>
+.IP -b,\ --bits\ <n>
 (default 8) Set number of data bits to <n>, where n must be from 5 to 8 inclusive
 .B
-.IP -d\ -device\ <path>
+.IP -d,\ --device\ <path>
 (default /dev/ttyS0) Set the name of the serial device node to use.
 .B
-.IP -g\ -debug
+.IP -g,\ --debug
 Turn on debugging messages. This will also set the verbose flag. Debug mode will cause all modbus messages to be printed in hex on the terminal.
 .B
-.IP -n\ -name\ <string>
+.IP -n,\ --name\ <string>
 (default gs2_vfd) Set the name of the HAL module. The HAL comp name will be set to <string>, and all pin and parameter names will begin with <string>.
 .B
-.IP -p\ -parity\ [even,odd,none]
+.IP -p,\ --parity\ [even,odd,none]
 (default odd) Set serial parity to even, odd, or none.
 .B
-.IP -r\ -rate\ <n>
+.IP -r,\ --rate\ <n>
 (default 38400) Set baud rate to <n>. It is an error if the rate is not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200
 .B
-.IP -s\ -stopbits\ [1,2]
+.IP -s,\ --stopbits\ [1,2]
 (default 1) Set serial stop bits to 1 or 2 
 .B
-.IP -t\ -target\ <n> 
+.IP -t,\ --target\ <n>
 (default 1) Set MODBUS target (slave) number. This must match the device number you set on the GS2.
 .B
-.IP -v\ -verbose
+.IP -v,\ --verbose
 Turn on debug messages. Note that if there are serial errors, this may become annoying. At the moment it doesn't make much difference most of the time.
 
 .SH PINS
@@ -118,9 +118,9 @@ speed sent to VFD in RPM It is an error to send a speed faster than the Motor Ma
 .B
 .IP <name>.spindle-on\ (bit,\ in)
 1 for ON and 0 for OFF sent to VFD, only on when running
+.B
 .IP <name>.spindle-rev\ (bit,\ in)
 1 for ON and 0 for OFF, only on when running
-
 .B
 .IP <name>.status-1\ (s32,\ out)
 Drive Status of the VFD (see the GS2 manual)
