@@ -13,7 +13,9 @@
 # (6|x|X)  RESERVED6;
 # (7|y|Y)  RESERVED7;
 
-loadrt hal_pru_generic chan_mode=s,s,s,s,n,p,d prucode="stepgen.bin" disabled=1 pru=1
+#loadrt hal_pru_generic chan_mode=s,s,s,s,n,p,d prucode="pru_main.bin" disabled=1 pru=1
+
+loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=1 num_pwmgens=3
 
 # this is the PRU debugger. It connects to PRU shared memory
 # can inspect registers and PRU status (processor status, program counter)
@@ -104,54 +106,63 @@ setp ui.register_table 1
 
 
 # Setup something so the PRU can show off a bit
-setp hal_pru_generic.stepgen.00.steppin      12
-setp hal_pru_generic.stepgen.00.dirpin       13
+# stepgen in velocity mode, so it will continuously generate pulses
+setp hal_pru_generic.stepgen.00.steppin      0xA4
+setp hal_pru_generic.stepgen.00.dirpin       0xA5
 setp hal_pru_generic.stepgen.00.position-cmd 0.023
-setp hal_pru_generic.stepgen.00.velocity-cmd 0.023
+setp hal_pru_generic.stepgen.00.velocity-cmd 100
 setp hal_pru_generic.stepgen.00.enable       1
-setp hal_pru_generic.stepgen.00.control-type 0
+setp hal_pru_generic.stepgen.00.control-type 1
 setp hal_pru_generic.stepgen.00.maxaccel     0
 setp hal_pru_generic.stepgen.00.maxvel       0
+setp hal_pru_generic.stepgen.00.steplen      1000
+setp hal_pru_generic.stepgen.00.stepspace    1000
+setp hal_pru_generic.stepgen.00.dirsetup     1000
+setp hal_pru_generic.stepgen.00.dirhold      1000
 
-setp hal_pru_generic.stepgen.01.steppin      10
-setp hal_pru_generic.stepgen.01.dirpin       11
-setp hal_pru_generic.stepgen.01.position-cmd 0.018
-setp hal_pru_generic.stepgen.01.velocity-cmd 0.018
-setp hal_pru_generic.stepgen.01.enable       1
-setp hal_pru_generic.stepgen.01.control-type 0
-setp hal_pru_generic.stepgen.01.maxaccel     0
-setp hal_pru_generic.stepgen.01.maxvel       0
+#setp hal_pru_generic.stepgen.01.steppin      0xA6
+#setp hal_pru_generic.stepgen.01.dirpin       0xA7
+#setp hal_pru_generic.stepgen.01.position-cmd 0.018
+#setp hal_pru_generic.stepgen.01.velocity-cmd 75
+#setp hal_pru_generic.stepgen.01.enable       1
+#setp hal_pru_generic.stepgen.01.control-type 1
+#setp hal_pru_generic.stepgen.01.maxaccel     0
+#setp hal_pru_generic.stepgen.01.maxvel       0
+#setp hal_pru_generic.stepgen.01.steplen      1000
+#setp hal_pru_generic.stepgen.01.stepspace    1000
+#setp hal_pru_generic.stepgen.01.dirsetup     1000
+#setp hal_pru_generic.stepgen.01.dirhold      1000
 
-setp hal_pru_generic.stepgen.02.steppin      6
-setp hal_pru_generic.stepgen.02.dirpin       7
-setp hal_pru_generic.stepgen.02.position-cmd -0.015
-setp hal_pru_generic.stepgen.02.velocity-cmd -0.015
-setp hal_pru_generic.stepgen.02.enable       1
-setp hal_pru_generic.stepgen.02.control-type 0
-setp hal_pru_generic.stepgen.02.maxaccel     0
-setp hal_pru_generic.stepgen.02.maxvel       0
+#setp hal_pru_generic.stepgen.02.steppin      6
+#setp hal_pru_generic.stepgen.02.dirpin       7
+#setp hal_pru_generic.stepgen.02.position-cmd -0.015
+#setp hal_pru_generic.stepgen.02.velocity-cmd -0.015
+#setp hal_pru_generic.stepgen.02.enable       1
+#setp hal_pru_generic.stepgen.02.control-type 0
+#setp hal_pru_generic.stepgen.02.maxaccel     0
+#setp hal_pru_generic.stepgen.02.maxvel       0
 
-setp hal_pru_generic.stepgen.03.steppin      8
-setp hal_pru_generic.stepgen.03.dirpin       9
-setp hal_pru_generic.stepgen.03.position-cmd -0.01
-setp hal_pru_generic.stepgen.03.velocity-cmd -0.01
-setp hal_pru_generic.stepgen.03.enable       1
-setp hal_pru_generic.stepgen.03.control-type 0
-setp hal_pru_generic.stepgen.03.maxaccel     0
-setp hal_pru_generic.stepgen.03.maxvel       0
+#setp hal_pru_generic.stepgen.03.steppin      8
+#setp hal_pru_generic.stepgen.03.dirpin       9
+#setp hal_pru_generic.stepgen.03.position-cmd -0.01
+#setp hal_pru_generic.stepgen.03.velocity-cmd -0.01
+#setp hal_pru_generic.stepgen.03.enable       1
+#setp hal_pru_generic.stepgen.03.control-type 0
+#setp hal_pru_generic.stepgen.03.maxaccel     0
+#setp hal_pru_generic.stepgen.03.maxvel       0
 
-setp hal_pru_generic.pwm.05.pin1            4
-setp hal_pru_generic.pwm.05.pin2            5
-setp hal_pru_generic.pwm.05.out1            100
-setp hal_pru_generic.pwm.05.out2            200
-setp hal_pru_generic.pwm.05.period          300
-setp hal_pru_generic.pwm.05.enable          1
+#setp hal_pru_generic.pwm.00.pin1            4
+#setp hal_pru_generic.pwm.00.pin2            5
+#setp hal_pru_generic.pwm.00.out1            100
+#setp hal_pru_generic.pwm.00.out2            200
+#setp hal_pru_generic.pwm.00.period          300
+#setp hal_pru_generic.pwm.00.enable          1
 
-setp hal_pru_generic.delta.06.pin1          2
-setp hal_pru_generic.delta.06.pin2          3
-setp hal_pru_generic.delta.06.out1          0.5
-setp hal_pru_generic.delta.06.out2          0.35
-setp hal_pru_generic.delta.06.enable        1
+#setp hal_pru_generic.delta.06.pin1          2
+#setp hal_pru_generic.delta.06.pin2          3
+#setp hal_pru_generic.delta.06.out1          0.5
+#setp hal_pru_generic.delta.06.out2          0.35
+#setp hal_pru_generic.delta.06.enable        1
 
 
 
