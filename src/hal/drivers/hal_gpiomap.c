@@ -87,7 +87,7 @@ static int comp_id;
 static unsigned long gpio_bitmap_mutex;
 
 STATIC int gpio_bitmap_size = GPIO_BITMAP_SIZE;
-STATIC _DECLARE_BITMAP(gpio_bitmap, GPIO_BITMAP_SIZE);
+STATIC RTAPI_DECLARE_BITMAP(gpio_bitmap, GPIO_BITMAP_SIZE);
 
 static char *platform = "bbb";
 RTAPI_MP_STRING(platform, "platform to preset the GPIO bitmap and size for");
@@ -179,13 +179,13 @@ int gpio_test_pin(int pinno, int reserve)
 			modname, pinno, gpio_bitmap_size-1);
 	return -EINVAL;
     }
-    if (_BIT_TEST(gpio_bitmap, pinno)) {
+    if (RTAPI_BIT_TEST(gpio_bitmap, pinno)) {
 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: gpio_test_pin(%d) - pin already allocated\n",
 			modname, pinno);
 	return -EINVAL;
     }
     if (reserve)
-	_BIT_SET(gpio_bitmap, pinno);
+	RTAPI_BIT_SET(gpio_bitmap, pinno);
     return 0;
 }
 
@@ -198,12 +198,12 @@ int gpio_free_pin(int pinno)
 			modname, pinno, gpio_bitmap_size-1);
 	return -EINVAL;
     }
-    if (!_BIT_TEST(gpio_bitmap, pinno)) {
+    if (!RTAPI_BIT_TEST(gpio_bitmap, pinno)) {
 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: gpio_free_pin(%d) - pin unallocated\n",
 			modname, pinno);
 	return -EINVAL;
     }
-    _BIT_CLEAR(gpio_bitmap, pinno);
+    RTAPI_BIT_CLEAR(gpio_bitmap, pinno);
     return 0;
 }
 
