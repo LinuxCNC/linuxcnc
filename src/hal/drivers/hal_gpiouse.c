@@ -39,13 +39,13 @@ static int comp_id;
 static char *claim = "";
 RTAPI_MP_STRING(claim, "list of pins to claim - example: claim=42,47,192");
 
-static _DECLARE_BITMAP(my_bitmap, GPIO_BITMAP_SIZE);
+static RTAPI_DECLARE_BITMAP(my_bitmap, GPIO_BITMAP_SIZE);
 
 static void free_my_pins()
 {
     int i;
     for (i = 0; i < gpio_npins(); i++) 
-	if (_BIT_TEST(my_bitmap, i))
+	if (RTAPI_BIT_TEST(my_bitmap, i))
 	    gpio_free_pin(i);
 }
 
@@ -70,7 +70,7 @@ int rtapi_app_main(void)
 			    modname, pin);
 	    fail++;
 	} else
-	    _BIT_SET(my_bitmap, pin);
+	    RTAPI_BIT_SET(my_bitmap, pin);
 	token = strtok (NULL, DELIMITERS);
     }
     if (fail) {
