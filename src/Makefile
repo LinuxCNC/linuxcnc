@@ -110,11 +110,9 @@ SUBDIRS := \
 	libnml/posemath libnml \
 	\
 	rtapi/examples/timer \
-	rtapi/examples/semaphore \
 	rtapi/examples/shmem \
-	rtapi/examples/extint \
-	rtapi/examples/fifo \
-	rtapi/examples rtapi \
+	rtapi/examples \
+	rtapi \
 	\
 	hal/components \
 	hal/drivers \
