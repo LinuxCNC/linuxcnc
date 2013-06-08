@@ -100,27 +100,59 @@ PYTARGETS :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
-    libnml/linklist libnml/cms libnml/rcs libnml/inifile libnml/os_intf \
-    libnml/nml libnml/buffer libnml/posemath libnml \
-    \
-    rtapi/examples/timer rtapi/examples/semaphore rtapi/examples/shmem \
-    rtapi/examples/extint rtapi/examples/fifo rtapi/examples rtapi \
-    \
-    hal/components hal/drivers hal/user_comps/devices hal/user_comps/mb2hal \
-    hal/user_comps hal/user_comps/vismach hal/user_comps/vfs11_vfd hal/classicladder hal/utils hal \
-    hal/support hal/drivers/hal_pru_generic \
+	libnml/linklist \
+	libnml/cms \
+	libnml/rcs \
+	libnml/inifile \
+	libnml/os_intf \
+	libnml/nml \
+	libnml/buffer \
+	libnml/posemath libnml \
 	\
-    emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
-    emc/usr_intf/gremlin \ emc/usr_intf/gscreen \
-    emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/canterp \
-    emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
-    \
-    module_helper \
-    \
-    po \
-    \
-    ../docs/src \
-    hal/simdrivers
+	rtapi/examples/timer \
+	rtapi/examples/semaphore \
+	rtapi/examples/shmem \
+	rtapi/examples/extint \
+	rtapi/examples/fifo \
+	rtapi/examples rtapi \
+	\
+	hal/components \
+	hal/drivers \
+	hal/user_comps/devices \
+	hal/user_comps/mb2hal \
+	hal/user_comps \
+	hal/user_comps/vismach \
+	hal/user_comps/vfs11_vfd \
+	hal/classicladder \
+	hal/utils hal \
+	hal/support \
+	hal/drivers/hal_pru_generic \
+	hal/simdrivers \
+	\
+	emc/usr_intf/axis \
+	emc/usr_intf/touchy \
+	emc/usr_intf/stepconf \
+	emc/usr_intf/pncconf \
+	emc/usr_intf/gremlin \
+	emc/usr_intf/gscreen \
+	emc/usr_intf \
+	emc/nml_intf \
+	emc/task \
+	emc/iotask \
+	emc/kinematics \
+	emc/canterp \
+	emc/motion \
+	emc/ini \
+	emc/rs274ngc \
+	emc/sai \
+	emc \
+	emc/pythonplugin \
+	\
+	module_helper \
+	\
+	po \
+	\
+	../docs/src
 
 # moved to src/rtapi/Submakefile
 # ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
