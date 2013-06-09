@@ -9321,7 +9321,7 @@ But there is not one in the machine-named folder.."""),True)
                 ending = ".value"
                 pwminvertlist = self.data.pwmgen_invert_pins(pwm_sig)
                 for i in pwminvertlist:
-                    halrun.write("setp    "+i+".invert_output true")
+                    halrun.write("setp    "+i+".invert_output true\n")
 
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
@@ -9490,7 +9490,7 @@ But there is not one in the machine-named folder.."""),True)
                             halrun.write("net %s %s \n"% (signal,pinname))
                     else:
                         if not "sserial" in pname: # mainboard GPIO need to be set to output/opendrain
-                            halrun.write("setp %s true\n"% (pinname + ".is_output\n"))
+                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
                             if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true\n")
                         if "sserial" in pname and "dig" in pinname: ending = ".out" # 7i76 sserial board
                         elif "sserial" in pname: ending = "" # all other sserial
