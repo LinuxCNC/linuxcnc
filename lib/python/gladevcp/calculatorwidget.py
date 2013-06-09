@@ -113,12 +113,23 @@ class Calculator(gtk.VBox):
 		return self.preset_value
 
 	def compute(self):
+		qualified =''
 		#print"string:",self.eval_string
+		temp = self.eval_string.strip(" ")
+		for i in('-','+','/','*','math.pi'):
+			new = " %s "%i
+			temp = temp.replace(i,new)
+		for i in temp.split():
+			if i.isdigit():
+				qualified = qualified + str(float(i))
+			else:
+				qualified = qualified + i
+		#print qualified
 		try   :
-			b=str(eval(self.eval_string))
+			b=str(eval(qualified))
 		except:
 			b= "Error"
-			print"error string:",self.eval_string,sys.exc_info()[0]
+			print"Calculator widget error, string:",self.eval_string,sys.exc_info()[0]
 			self.eval_string=''
 		else  : self.eval_string=b
 		self.wTree.get_object("displayText").set_text(b)
