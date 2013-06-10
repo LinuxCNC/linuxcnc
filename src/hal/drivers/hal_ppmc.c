@@ -566,7 +566,20 @@ int rtapi_app_main(void)
 	    switch ( id ) {
 	    case 0x10:
 		boards++;
-		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC encoder card\n");
+		//		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC encoder card\n");
+		bus_slot_code = (busnum << 4) | slotnum;
+		rtapi_print_msg(RTAPI_MSG_INFO, "PPMC encoder card %x\n",bus_slot_code);
+		need_timestamp = 0;
+		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
+		  if ( timestamp[n] == bus_slot_code ) {
+		    need_timestamp = 1;
+		    timestamp[n] = -1;
+		  }
+		}
+		if ( need_timestamp ) {
+		    rv1 += export_timestamp(slot, bus);
+		}		
+		// can't export encoder until we know if it uses timestamp feature
 		rv1 += export_encoders(slot, bus);
 		break;
 	    case 0x20:
@@ -2218,14 +2231,17 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
     int n;
 
     /* does the board have the timestamp feature? */
+    /* ID = 10 for PPMC encoder, ID = 50 for UPC, either needs to be
+       above ver 4 to have the timestamp feature */
     n=0;
-    //    if (slot->id == 0x40) n=1;
-    if (slot->id == 0x50 && slot->ver >= 4) n=1;
+    if ((slot->id == 0x10 || slot->id == 0x50) && slot->ver >= 4) n=1;
     if ( n == 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PPMC: ERROR: board firmware doesn't support encoder timestamp.\n");
 	return -1;
     }
+    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder timestamp pins\n");
+
     slot->use_timestamp = 1;    /* tell encoder function to process timestamp */
     return 0;
 }
