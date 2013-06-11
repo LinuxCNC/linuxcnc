@@ -1,3 +1,18 @@
+ver. 0.9.4
+- corrected a lot of typo, thanks to David for his help
+- renamed some widgets from "cero" to "zero"
+- deleted one increment in every INI file, so the GUI fits better to smalest screen size
+- translation to german included and prepared for more langauges
+- there was still an error in key handling with incremental jogging, hope I solved it now for final
+- changed the dialog "run_from_line" to use gscreens default, resulting in the need to rename
+  "hal_sourceview" to "gcode_view"
+- renamed all pins and definitions from "overide" to "override" because of typo
+- avoid getting to the touch off button, while the machine is not homed
+- hide Y touch off buttons in lathe mode
+- solved a bug executing a command constantly related with feed and periodic
+- Tool change from tool editor now works like it should even with T1 M6 as with M61 Q1
+- the tool in spindle will be checkt if you enter the tool editor.
+
 ver. 0.9.3.2
 - alligned the jog_button and jog_rates frame on the top (just cosmetic)
 - The Page-up and Page_Down keyboard keys moved the Z axis in oposide directions

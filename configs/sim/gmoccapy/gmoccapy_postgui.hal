@@ -41,8 +41,8 @@ net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
 #net Jogwheel-phB encoder.0.phase-B <= parport.0.pin-13-in
 
 # connect encoder count, select the one you need
-#net Jogwheel-counts encoder.0.counts => gscreen.spindle-overide-counts 
-#net Jogwheel-counts encoder.0.counts => gscreen.feed-overide-counts 
+#net Jogwheel-counts encoder.0.counts => gscreen.spindle-override-counts 
+#net Jogwheel-counts encoder.0.counts => gscreen.feed-override-counts 
 #net Jogwheel-counts encoder.0.counts => gscreen.max-vel-counts 
 #net Jogwheel-counts encoder.0.counts => gscreen.jog-speed-counts 
 
