@@ -7,6 +7,8 @@
 #   so you'll want to disable them
 # * The ADC code does raw memory access, you'll need to adjust permissions
 #   on /dev/mem or bbio won't load
+# * What temperature is it really?  Think in terms of ADC units
+# * The hal temp output is actually a heater control signal, not a temp.
 
 import hal, time
 from bbio import *
