@@ -1,3 +1,7 @@
+#include "config.h"
+#include "rtapi.h"
+#include "rtapi_common.h"
+
 #include <rtai.h>
 #include <rtai_sched.h>
 #include <rtai_sem.h>
@@ -7,10 +11,6 @@
 #ifdef MODULE
 #include <linux/delay.h>  // udelay()
 #endif 
-
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_common.h"
 
 #ifdef RTAPI
 extern rtapi_exception_handler_t rt_exception_handler;
