@@ -60,7 +60,6 @@ class Config(object):
 	self.EMC2_TCL_DIR="@EMC2_TCL_DIR@"
 	self.EMC2_HELP_DIR="@EMC2_HELP_DIR@"
 	self.EMC2_RTLIB_DIR="@EMC2_RTLIB_DIR@"
-	self.EMC2_CONFIG_DIR="@EMC2_CONFIG_DIR@"
 	self.EMC2_USER_CONFIG_DIR="~/emc2/configs"
 	self.EMC2_SYSTEM_CONFIG_DIR="/usr/local/etc/emc2/configs"
 	self.EMC2_NCFILES_DIR="@EMC2_NCFILES_DIR@"
