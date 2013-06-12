@@ -37,6 +37,9 @@ FLAVOR_UP=`echo $FLAVOR|tr a-z- A-Z_`
 
 # Choose the actual path to real modules
 MODPATH=$RTLIB_DIR
+# RTAI exception (as usual) to module path
+test $FLAVOR = rtai-kernel && \
+    MODPATH="$MODPATH $($RTAI_KERNEL_THREADS_RTS --module-dir)"
 
 # List of realtime kernel modules to be loaded
 if [ "$FLAVOR" = rtai-kernel ] ; then \
@@ -44,14 +47,13 @@ if [ "$FLAVOR" = rtai-kernel ] ; then \
 elif [ "$FLAVOR" = xenomai-kernel ] ; then
     MODULES="xeno_math"
 fi
+# kernel threads also need the rtapi and hal_lib kernel modules
+test $BUILD_SYS = kbuild && MODULES="$MODULES rtapi hal_lib"
+# kernel threads and optionally userland threads use shmdrv module
+test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes && MODULES="shmdrv $MODULES"
 
 # kernel version to select flavor
 KERNEL_VERS=$(uname -r)
-
-# rtai modules location, if any
-if test "$FLAVOR" = rtai-kernel; then
-RTAI_MOD_DIR=$($RTAI_KERNEL_THREADS_RTS --module-dir)
-fi
 
 # set the default instance, if not already set
 INSTANCE=`printf '%d' $INSTANCE`

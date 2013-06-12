@@ -19,28 +19,46 @@ anywait(){
 }
 
 find_module_path() {
-    # look for a module in the same places that rtapi_compat() would
-    local module=${1}${MODULE_EXT}
-    local path=${2:-$MODPATH}
-    local pathlist
-    test -z "${2}" && pathlist="/$FLAVOR/$KERNEL_VERS /$FLAVOR"
-    for subpath in  $pathlist ""; do
-	if test -e ${path:=$MODPATH}$subpath/$module; then
- 	    echo $(readlink -m ${path}$subpath/$module)
-	    break
-	fi
+    # look for a kernel module
+    #
+    # MODPATH set in rtapi.conf; may contain multiple dirs (an
+    # exception for RTAI of course)
+    #
+    # any module paths that are symlinks are resolved to their real names
+    local module=${1}${KMODULE_EXT}
+
+    # userland threads pick up shmdrv.ko from shmdrv, not $FLAVOR
+    if test $BUILD_SYS = user-dso; then
+	local modflavor=shmdrv
+    else
+	local modflavor=$FLAVOR
+    fi
+
+    # search for module
+    for path in $MODPATH; do
+	for subpath in $path/$modflavor/$KERNEL_VERS $path/$modflavor $path; do
+	    if test -e $subpath/$module; then
+ 		echo $(readlink -m $subpath/$module)
+		break
+	    fi
+	done
     done
 }
 
 CheckKernel() {
-    # FIXME Userland threads will need to load the shmdrv module
-    # eventually, but for now just return
-    test "$BUILD_SYS" = user-dso && return
-
-    # see if we have modules for the running kernel
-    if test -z "`find_module_path rtapi`"; then
-	echo "Unable to find rtapi module in '$MODPATH'" >&2
-	exit 1
+    # Be sure required modules for the running kernel are available
+    if test $BUILD_SYS = user-dso; then
+	# Userland threads: insist on shmdrv if USE_SHMDRV=yes
+	if test $USE_SHMDRV = yes -a -z "`find_module_path shmdrv`"; then
+	    echo "Error:  USE_SHMDRV=yes in rtapi.conf, but unable to find
+		shmdrv module in '$MODPATH'" >&2
+	    exit 1
+	fi
+    else # BUILD_SYS = kbuild
+	if test -z "`find_module_path rtapi`"; then
+	    echo "Unable to find rtapi module in '$MODPATH'" >&2
+	    exit 1
+	fi
     fi
 }
 
@@ -63,6 +81,7 @@ LoadConfig(){
 	echo "Missing rtapi.conf.  Check your installation." >&2
 	exit 1
     fi
+    # FIXME move this to rtapi.conf
     INSMOD="@INSMOD@"
     RMMOD="@RMMOD@"
     LSMOD="@LSMOD@"
@@ -70,41 +89,30 @@ LoadConfig(){
 
     # Import the config
     source $RTAPICONF
-    # Export the module path specified in the config.
-    export MODPATH
-    # Generate module lists for loading and unloading
+
+    # Generate list of module paths for loading and unloading
     # lists contain RTOS modules plus RTAPI and HAL
     # unload list is in reverse order
-    # any module names that are symlinks are resolved to their real names
     MODULES_LOAD=
     MODULES_UNLOAD=
-    case $FLAVOR in
-    posix|xenomai|rt-preempt) SHM_DEV=/dev/zero;;
-    *)
-        for  MOD in shmdrv $MODULES rtapi hal_lib; do
-	    MOD_PATH=`find_module_path $MOD`
-	    if test "$FLAVOR" = rtai-kernel -a -z "$MOD_PATH"; then
-		MOD_PATH=`find_module_path $MOD \
-		    $($RTAI_KERNEL_THREADS_RTS --module-dir)`
-	    fi
-		
-	    MOD_PATH=$(readlink -m "$MOD_PATH")
-	    if test -z "$MOD_PATH"; then
+    KMODULE_EXT=$MODULE_EXT
+    # FIXME: 'flavor' binary returns .so for [RTAPI] module extension;
+    # until the shmdrv case is represented better, hardcode kernel
+    # module extension to .ko
+    test $BUILD_SYS = user-dso && KMODULE_EXT=.ko
+    for MOD in $MODULES; do
+	MOD_PATH=`find_module_path $MOD`
+
+	if test -n "$MOD_PATH"; then
+            MODULES_LOAD="$MODULES_LOAD $MOD_PATH"
+            MODULES_UNLOAD="$(basename $MOD_PATH $KMODULE_EXT) $MODULES_UNLOAD"
+	else # MOD_PATH empty
+	    if test $BUILD_SYS = kbuild; then
 		echo "module $MOD not found; aborting" >&2
 		exit 1
 	    fi
-            MODULES_LOAD="$MODULES_LOAD $MOD_PATH"
-            MODULES_UNLOAD="$(basename $MOD_PATH $MODULE_EXT) $MODULES_UNLOAD"
-        done
-        case "$MODULES" in
-        *rtai_shm*)
-            SHM_DEV=/dev/rtai_shm
-        ;;
-        *shmdrv*)
-            SHM_DEV=/dev/shmdrv
-        ;;
-        esac
-    esac
+	fi
+    done
 }
 
 CheckStatus(){
@@ -157,8 +165,11 @@ CheckMem(){
 
 Load(){
     CheckKernel
-    case $FLAVOR in
-    posix|xenomai|rt-preempt)
+
+    # when not running shmdrv, perform shm + instance checks and cleanups
+    #
+    # FIXME:  how to do these for shmdrv?
+    if test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no; then
         # check for instance running
 	# this is the case if the global segment exists
         # and any processes exist which have it attached
@@ -176,7 +187,21 @@ Load(){
 	    echo "warning: leftover shared memory segments detected - removing: " $SHMKEYS
 	    rm  -f  "$SHMKEYS" >/dev/null 2>&1
 	fi
+    fi
 
+    # load kernel modules, including shmdrv for userland
+    for MOD in $MODULES_LOAD; do
+	# if loading rtapi.ko, tack on parameters
+	if ! test ${MOD/rtapi.ko/} = $MOD; then
+	    $INSMOD $MOD hal_size=$HAL_SIZE rtapi_instance=$INSTANCE \
+		rt_msg_level=$DEBUG user_msg_level=$DEBUG $NAME_CMD 
+	else
+	    $INSMOD $MOD || return $?
+	fi
+    done
+
+    if test $BUILD_SYS = user-dso; then
+        # run rtapi_app for userland
 	if [ "$DEBUG" != "" ] ; then
 	    rtapi_app --instance=$INSTANCE $NAME_CMD \
 		--rtmsglevel=$DEBUG \
@@ -189,37 +214,34 @@ Load(){
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
         fi
 
-	# the rtapi_msgd logging demon will wait in the foreground
-	# until the HAL data segment exists, confirming the RT stack
-	# is fully setup by rtapi_app, and only then disconnect into the
-	# background. This closes a race condition where clients
-	# like halcmd might try to attach the HAL data segment before
-	# rtapi_app got around to creating it.
-
-	rtapi_msgd --instance=$INSTANCE
-    ;;
-
-    *)
-        for MOD in $MODULES_LOAD ; do
-	    # if loading rtapi.ko, tack on parameters
-	    if echo $MOD | grep rtapi.ko >/dev/null  ; then
-		$INSMOD $MOD hal_size=$HAL_SIZE rtapi_instance=$INSTANCE \
-		    rt_msg_level=$DEBUG user_msg_level=$DEBUG $NAME_CMD 
-	    else
-		$INSMOD $MOD || return $?
-	    fi
-        done
-	# help debugging startup issues 
+    else  # BUILD_SYS = 'kbuild'
+	# help debugging startup issues for kthreads
         if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
         fi
-	rtapi_msgd --instance=$INSTANCE
-    esac
+    fi
+
+    # the rtapi_msgd logging demon will wait in the foreground
+    # until the HAL data segment exists, confirming the RT stack
+    # is fully setup by rtapi_app, and only then disconnect into the
+    # background. This closes a race condition where clients
+    # like halcmd might try to attach the HAL data segment before
+    # rtapi_app got around to creating it.
+
+    rtapi_msgd --instance=$INSTANCE
 }
 
 CheckLoaded(){
     # this abomination is needed because udev sometimes doesn't
     # have the device ready for us in time.
+
+    # If the shmdrv module isn't needed, skip checks
+    if test "${MODULES/shmdrv${KMODULE_EXT}/}" = "${MODULES}"; then
+	# no shmdrv module
+	return
+    fi
+
+    SHM_DEV=/dev/shmdrv
     n=0
     while [ $n -lt 100 ]; do
         [ -w $SHM_DEV ] && return 0
@@ -235,8 +257,7 @@ CheckLoaded(){
 
 Unload(){
     CheckKernel
-    case $FLAVOR in
-    posix|xenomai|rt-preempt)
+    if test $BUILD_SYS = user-dso; then
 	if [ "$DEBUG" != "" ] ; then
             rtapi_app --instance=$INSTANCE exit 
 	else
@@ -258,21 +279,21 @@ Unload(){
 	# see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
 	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
-        ;;
-    *)
+    else # BUILD_SYS = kbuild
 	MSGD_PID=`pidof msgd:$INSTANCE`
 	if [ "$MSGD_PID" != "" ] ; then
 	    kill $MSGD_PID
 	fi
-        for module in $MODULES_UNLOAD ; do
-	    if [ "$module" == "shmdrv" ] ; then
+    fi
+
+    for module in $MODULES_UNLOAD ; do
+	if [ "$module" == "shmdrv" ] ; then
                 # shmdrv needs a bit of time until rtapi+hal_lib
 		# have detached shm segments
-		sleep 1
-	    fi
-            $RMMOD $module
-        done
-    esac
+	    sleep 1
+	fi
+        $RMMOD $module
+    done
 }
 
 CheckUnloaded(){
