@@ -13,7 +13,6 @@ INCLUDES += rtapi
 	cp  $^ $@
 
 # Thread-specific hacks for linking ulapi.so
-# FIXME rtai-config --lxrt-ldflags??!?
 ULAPISO_LIBS :=
 ifeq ($(THREADS),RTAI_KERNEL)
 # these are needed to resolve rt_shm_alloc in ulapi.so
