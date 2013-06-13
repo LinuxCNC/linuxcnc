@@ -6,6 +6,9 @@
 #
 # ########################################
 
+# Launch the setup script to make sure hardware setup looks good
+loadusr -w /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/setup.sh
+
 
 # ###################################
 # Core EMC/HAL Loads
@@ -25,7 +28,7 @@ loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
-#loadusr -W /home/maker/linuxcnc-dev.arm/configs/pru-examples/bbio_temp
+loadusr -W /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/bbio_temp
 
 # ################################################
 # THREADS
@@ -249,6 +252,6 @@ setp hal_pru_generic.pwmgen.00.out.02.pin       0x50
 setp hal_pru_generic.pwmgen.00.out.02.enable    1
 setp hal_pru_generic.pwmgen.00.out.02.value     0.2
 
-#setp bbio_temp.set 0x480
-#net thermostat <= bbio_temp.temp hal_pru_generic.pwmgen.00.out.00.value
-#net thermostat => hal_pru_generic.pwmgen.00.out.00.value
+setp bbio_temp.set 0x480
+net thermostat <= bbio_temp.temp hal_pru_generic.pwmgen.00.out.00.value
+net thermostat => hal_pru_generic.pwmgen.00.out.00.value
