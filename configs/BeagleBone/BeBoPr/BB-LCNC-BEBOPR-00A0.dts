@@ -46,23 +46,23 @@
 
 			foo_pins: foo_pins {
 				pinctrl-single,pins = <
-				/*	0x18 0x0f	p8.3	gpio1_6	*/
-				/*	0x08 0x0f	p8.5	gpio1_2 */
-				/*	0x84 0x0f	p8.20	gpio1_31 */
-				/*	0x80 0x0d	p8.21	pru1.r30.13 */
-					0xe0 0x0d	/* p8.27 pru1.r30.8  */
-					0xe8 0x0d	/* p8.28 pru1.r30.10 */
-					0xe4 0x0f	/* p8.29 gpio2_23 */
-					0xec 0x0d	/* p8.30 pru1.r30.11 */
-					0xc8 0x0f	/* p8.36 gpio2_16 */
-					0xb8 0x0d	/* lcd_data6.lcd_data6, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xbc 0x0f	/* lcd_data7.lcd_data7, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xb0 0x0f	/* lcd_data4.lcd_data4, OMAP_MUX_MODE7 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xb4 0x0d	/* lcd_data5.lcd_data5, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xa8 0x0d	/* lcd_data2.lcd_data2, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xac 0x0d	/* lcd_data3.lcd_data3, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xa0 0x0d	/* lcd_data0.lcd_data0, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
-					0xa4 0x0d	/* lcd_data1.lcd_data1, OMAP_MUX_MODE5 | AM33XX_PIN_OUTPUT | AM33XX_PULL_DISA */
+				/*	0x18 0x0f	   p8.3  gpio1_6	*/
+				/*	0x08 0x0f	   p8.5  gpio1_2	*/
+				/*	0x84 0x0f	   p8.20 gpio1_31	*/
+				/*	0x80 0x0d	   p8.21 pru1.r30.13	*/
+					0xe0 0x0d	/* p8.27 pru1.r30.8 	*/
+					0xe8 0x0d	/* p8.28 pru1.r30.10	*/
+					0xe4 0x0f	/* p8.29 gpio2_23	*/
+					0xec 0x0d	/* p8.30 pru1.r30.11	*/
+					0xc8 0x0f	/* p8.36 gpio2_16	*/
+					0xb8 0x0d	/* p8.39 pru1.r30.6	*/
+					0xbc 0x0f	/* p8.40 gpio2_13	*/
+					0xb0 0x0f	/* p8.41 gpio2_10	*/
+					0xb4 0x0d	/* p8.42 pru1.r30.5	*/
+					0xa8 0x0d	/* p8.43 pru1.r30.2	*/
+					0xac 0x0d	/* p8.44 pru1.r30.3	*/
+					0xa0 0x0d	/* p8.45 pru1.r30.0	*/
+					0xa4 0x0d	/* p8.46 pru1.r30.1	*/
 				>;
 			};
 		};
