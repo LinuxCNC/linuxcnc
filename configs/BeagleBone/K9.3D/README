@@ -1,13 +1,3 @@
 An example configuration for the K9 board, using the 3D pinout and
 on-board Pololu stepper drivers.
 
-Prior to running LinuxCNC, make sure you create the device tree overlay:
-
-  sudo ~/linuxcnc/configs/BeagleBone/K9.3D/dtc.sh
-
-...and load the dtc overlay and export the GPIO:
-
-  cd ~/linuxcnc/configs/BeagleBone/K9.3D/
-  sudo su -c "echo BB-LCNC-K93D > /sys/devices/bone_capemgr.*/slots"
-  sudo ./setup.sh
-
