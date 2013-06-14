@@ -466,7 +466,6 @@ endif
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
 # these are intermediate make runs)
 ifeq ($(BUILD_SYS)$(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),kbuild)
-KBUILD_EXTRA_SYMBOLS += $(moduledir)/Module.symvers
 modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
 	mkdir -p $(RTLIBDIR)
 ifeq ($(THREADS),XENOMAI_KERNEL)
