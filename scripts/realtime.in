@@ -197,6 +197,8 @@ Load(){
 		rt_msg_level=$DEBUG user_msg_level=$DEBUG $NAME_CMD 
 	else
 	    $INSMOD $MOD || return $?
+	    # sleep a moment to let shmdrv initialize
+	    test ${MOD%/shmdrv.ko} = ${MOD} || sleep .5
 	fi
     done
 
