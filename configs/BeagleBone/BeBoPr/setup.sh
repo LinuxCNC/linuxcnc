@@ -24,7 +24,8 @@ for DTBO in BB-LCNC-BEBOPR cape-bone-iio ; do
 		echo $DTBO overlay found
 	else
 		echo Loading $DTBO overlay
-		sudo su -c "echo $DTBO > $SLOTS" || dtbo_err
+		sudo -A su -c "echo $DTBO > $SLOTS" || dtbo_err
+		sleep 1
 	fi
 done;
 
@@ -47,8 +48,8 @@ while read PIN DIR JUNK ; do
 		continue ;;
         *)
 		[ -r /sys/class/gpio/gpio$PIN ] && continue
-                sudo su -c "echo $PIN > /sys/class/gpio/export" || pin_err
-		sudo su -c "echo $DIR > /sys/class/gpio/gpio$PIN/direction" || dir_err
+                sudo -A su -c "echo $PIN > /sys/class/gpio/export" || pin_err
+		sudo -A su -c "echo $DIR > /sys/class/gpio/gpio$PIN/direction" || dir_err
                 ;;
         esac
 
