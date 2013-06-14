@@ -1380,10 +1380,7 @@ else
     EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
-    case $MODULE_DIR in
-        */linuxcnc*) EMC2_RTLIB_DIR=$MODULE_DIR ;;
-	*) EMC2_RTLIB_DIR=$MODULE_DIR/linuxcnc
-    esac
+    EMC2_RTLIB_DIR=${libdir}/linuxcnc
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=/etc/init.d/realtime

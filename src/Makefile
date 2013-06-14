@@ -666,7 +666,13 @@ endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
-	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
+	cp --no-dereference \
+	    $(filter-out %/ulapi.so,$(filter ../lib/%.so, $(TARGETS))) \
+	    $(DESTDIR)$(libdir)
+	$(DIR) $(DESTDIR)$(libdir)/linuxcnc
+	for flav in $(BUILD_THREAD_FLAVORS); do \
+	    $(TREE) ../lib/$$flav $(DESTDIR)$(libdir)/linuxcnc; \
+	done
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -715,20 +721,44 @@ install-python: install-dirs
 endif
 
 install-kernel-dep:
-	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
-		$(DESTDIR)$(bindir) \
-		$(DESTDIR)$(sysconfdir)/linuxcnc
-	$(FILE) $(RTLIBDIR)/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
-ifneq ($(BUILD_SYS),user-dso)
-	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
-endif
+	$(DIR)	$(DESTDIR)$(bindir) \
+		$(DESTDIR)$(sysconfdir)/linuxcnc \
+		$(DESTDIR)$(EMC2_RTLIB_DIR)
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
 endif
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
-endif # RUN_IN_PLACE
+
+	# RTAPI modules:  install userland flavor .so modules into
+	# e.g. /usr/lib/linuxcnc/modules and kthread flavor .ko
+	# modules for each kver into e.g. /lib/modules/<kver>/linuxcnc
+	for flavor in $(BUILD_THREAD_FLAVORS); do \
+	    if test $${flavor%-kernel} = $${flavor}; then \
+		echo Installing modules for userland flavor $$flavor; \
+		$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR)/$$flavor; \
+		$(FILE) ../rtlib/$$flavor/* \
+		    $(DESTDIR)$(EMC2_RTLIB_DIR)/$$flavor; \
+	    else \
+		echo Installing modules for kthreads flavor $$flavor; \
+		for srcdir in ../rtlib/$$flavor/*; do \
+		    kver=`basename $$srcdir`; \
+		    echo Installing modules for flavor $$flavor, kver $$kver; \
+		    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
+		    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
+		done; \
+	    fi; \
+	done
+ifeq ($(USE_SHMDRV),yes)
+	for srcdir in ../rtlib/shmdrv/*; do \
+	    kver=`basename $$srcdir`; \
+	    echo Installing shmdrv.ko module for kernel version $$kver; \
+	    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
+	    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
+	done;
+endif
+endif # ! RUN_IN_PLACE
 
 CONF=../configs
 COMMON=$(CONF)/common
