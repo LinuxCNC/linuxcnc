@@ -2,7 +2,7 @@
 
 rm -f gcode-output
 
-linuxcnc -v -d linuxcncrsh-test.ini &
+linuxcnc -r linuxcncrsh-test.ini &
 
 
 # let linuxcnc come up
