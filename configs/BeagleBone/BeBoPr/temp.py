@@ -1,32 +1,32 @@
 #!/usr/bin/python
 
-# This is a gross hack.  
+# This is a hack.  
 # If you can't figure out how to get it to run, you shouldn't be using it
 # Hints: 
-# * bbio doesn't like the Xenomai kernel, as it has no PWM drivers,
-#   so you'll want to disable them
-# * The ADC code does raw memory access, you'll need to adjust permissions
-#   on /dev/mem or bbio won't load
 # * What temperature is it really?  Think in terms of ADC units
 # * The hal temp output is actually a heater control signal, not a temp.
 
 import hal, time
-from bbio import *
-h = hal.component("bbio_temp")
+import glob
+
+h = hal.component("temp")
 h.newpin("set", hal.HAL_U32, hal.HAL_IN)
 h.newpin("adc", hal.HAL_U32, hal.HAL_OUT)
 h.newpin("temp", hal.HAL_FLOAT, hal.HAL_OUT)
 h.ready()
+FileName = glob.glob ('/sys/devices/ocp.*/helper.*/AIN1')
 try:
     Err = 0.0
     P = 0
     while 1:
-        ADC_IN = analogRead(AIN1)
+	f = open(FileName[0], 'r')
+        ADC_IN = int(f.readline())
         P = ADC_IN - h['set']
-        Err =  ( P / 128.0 ) + 0.5
+        Err =  ( P / 256.0 ) + 0.5
         h['temp'] = min( max( Err, 0.0 ), 1.0 )
         h['adc'] = ADC_IN
-	delay(50)
+	f.close()
+	time.sleep(0.050)
 except KeyboardInterrupt:
     raise SystemExit
 

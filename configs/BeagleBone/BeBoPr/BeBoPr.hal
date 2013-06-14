@@ -22,13 +22,12 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 
 # load low-level drivers
-#loadrt hal_bb_gpio output_pins=103,105,120,121,127,128,129,130,136,139,140,141,142,143,144,145,146
-loadrt hal_bb_gpio output_pins=127,128,129,130,136,139,140,141,142,143,144,145,146
+loadrt hal_bb_gpio output_pins=103,105,107,120,121,127,128,129,130,136,139,140,141,142,143,144,145,146
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
-loadusr -W /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/bbio_temp
+loadusr -W /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/temp.py
 
 # ################################################
 # THREADS
@@ -224,11 +223,15 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 setp bb_gpio.p8.out-41  0
 setp bb_gpio.p8.out-40  0
 setp bb_gpio.p8.out-28  0
-#setp bb_gpio.p8.out-20  0
+setp bb_gpio.p8.out-20  0
 
-# Machine power
-#net estop-loop => bb_gpio.p8.out-03
-#setp bb_gpio.p8.out-05 0
+# Machine power (BeBoPr Enable) 
+net estop-loop => bb_gpio.p8.out-03
+setp bb_gpio.p8.out-05 0
+
+# ECO locations to avoid eMMC noise on startup:
+# Enable (P8.3) tied to system Reset_n line (P9.10)
+setp bb_gpio.p8.out-07 0
 
 
 # ##################################################
@@ -252,6 +255,8 @@ setp hal_pru_generic.pwmgen.00.out.02.pin       0x50
 setp hal_pru_generic.pwmgen.00.out.02.enable    1
 setp hal_pru_generic.pwmgen.00.out.02.value     0.2
 
-setp bbio_temp.set 0x480
-net thermostat <= bbio_temp.temp hal_pru_generic.pwmgen.00.out.00.value
+#setp temp.set 0x480	# Setting for 0-4096 scale (Raw ADC values)
+setp temp.set 0x1FA	# Setting for 0-1800 scale (mV scale)
+
+net thermostat <= temp.temp hal_pru_generic.pwmgen.00.out.00.value
 net thermostat => hal_pru_generic.pwmgen.00.out.00.value

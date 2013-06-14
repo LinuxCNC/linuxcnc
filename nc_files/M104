@@ -1,0 +1,6 @@
+#!/bin/sh
+
+echo FIXME: $0
+
+exit 0
+

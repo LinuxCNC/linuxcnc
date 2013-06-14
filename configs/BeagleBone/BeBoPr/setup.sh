@@ -53,6 +53,9 @@ while read PIN DIR JUNK ; do
         esac
 
 done <<- EOF
+	38	low	# gpio1.6	P8.3	Enable
+	34	high	# gpio1.2	p8.5	Enable_n
+	66	high	# gpio2.2	p8.7	Enable_n (ECO location)
 	92	out	# gpio2.24	P8.28	Z_Ena
 	80	out	# gpio2.16	P8.36	J4.PWM
 	77	out	# gpio2.13	P8.40	Y_Ena

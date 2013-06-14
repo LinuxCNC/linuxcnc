@@ -11,10 +11,11 @@
 	/* state the resources this cape uses */
 	exclusive-use =
 		/* the pin header uses */
-/*		"P8.3",		 gpio1.6	Enable	*/
-/*		"P8.5",		 gpio1.2	Enablen	*/
-/*		"p8.20",	 gpio1.31	E_Ena	*/
-/*		"p8.21",	 pru1.r30.12	E_Dir	*/
+		"P8.3",		/* gpio1.6	Enable	*/
+		"P8.5",		/* gpio1.2	Enablen	*/
+		"P8.7",		/* gpio2.2	Enablen	*/
+		"p8.20",	/* gpio1.31	E_Ena	*/
+		"p8.21",	/* pru1.r30.12	E_Dir	*/
 		"p8.27",	/* pru1.r30.8	Z_Step	*/
 		"p8.28",	/* gpio2.24	Z_Ena	*/
 		"p8.29",	/* pru1.r30.9	Z_Dir	*/
@@ -31,10 +32,11 @@
 	
 		/* the hardware IP uses */
 /* The following 4 pins conflict with the on-board mmc flash */
-/*		"gpio1_6",	*/
-/*		"gpio1_2",	*/
-/*		"gpio1_31",	*/
-/*		"gpio2_24",	*/
+		"gpio1_6",
+		"gpio1_2",
+		"gpio2_2",
+		"gpio1_31",
+		"gpio2_24",
 		"gpio2_16",
 		"gpio2_13",
 		"gpio2_10",
@@ -46,13 +48,14 @@
 
 			foo_pins: foo_pins {
 				pinctrl-single,pins = <
-				/*	0x18 0x0f	   p8.3  gpio1_6	*/
-				/*	0x08 0x0f	   p8.5  gpio1_2	*/
-				/*	0x84 0x0f	   p8.20 gpio1_31	*/
-				/*	0x80 0x0d	   p8.21 pru1.r30.13	*/
+					0x18 0x0f	/* p8.3  gpio1_6	*/
+					0x08 0x0f	/* p8.5  gpio1_2	*/
+					0x90 0x0f	/* p8.7  gpio2_2	*/
+					0x84 0x0f	/* p8.20 gpio1_31	*/
+					0x80 0x0d	/* p8.21 pru1.r30.13	*/
 					0xe0 0x0d	/* p8.27 pru1.r30.8 	*/
 					0xe8 0x0d	/* p8.28 pru1.r30.10	*/
-					0xe4 0x0f	/* p8.29 gpio2_23	*/
+					0xe4 0x0d	/* p8.29 pru1.r30.9	*/
 					0xec 0x0d	/* p8.30 pru1.r30.11	*/
 					0xc8 0x0f	/* p8.36 gpio2_16	*/
 					0xb8 0x0d	/* p8.39 pru1.r30.6	*/
