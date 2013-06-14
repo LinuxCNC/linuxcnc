@@ -757,15 +757,19 @@ $(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
 endif # userspace
 
 ifneq ($(KERNELRELEASE),)
+# KERNELRELEASE is non-empty, therefore we are building modules using
+# the "kbuild" system.
+#
+# When the Submakefile is included in the kbuild Makefile, the
+# module's obj-m and foo-objs definitions may remain in the Submakefile
 include $(BASEPWD)/hal/components/Submakefile
-# This allows all configuration to remain in the subdir's Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
-endif
+endif # KERNELRELEASE non-empty
 
-# KERNELRELEASE is nonempty, therefore we are building modules using the
-# "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
-# that's what kbuild seems to require
+
+# $(BASEPWD) is used here, instead of relative paths, because that's
+# what kbuild seems to require
 
 EXTRA_CFLAGS = $(RTFLAGS) \
 	-D__MODULE__ \
