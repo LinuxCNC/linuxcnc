@@ -6,11 +6,17 @@
 
 # basics
 exec_prefix=@exec_prefix@
+bindir=@bindir@
+
+# paths to executables
+flavor=${bindir}/flavor
+rtapi_app=${bindir}/rtapi_app
+rtapi_msgd=${bindir}/rtapi_msgd
 
 # params from the flavor executable
-FLAVOR=`flavor`
-MODULE_EXT=`flavor -m`
-BUILD_SYS=`flavor -b`
+FLAVOR=`${flavor}`
+MODULE_EXT=`${flavor} -m`
+BUILD_SYS=`${flavor} -b`
 
 # A few parameters from emc2/Makefile.inc
 EMC2_HOME=@EMC2_HOME@

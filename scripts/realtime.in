@@ -5,6 +5,7 @@
 #
 
 export LANG=C
+prefix=@prefix@
 sysconfdir=@sysconfdir@
 RUN_IN_PLACE=@RUN_IN_PLACE@
 
@@ -205,12 +206,12 @@ Load(){
     if test $BUILD_SYS = user-dso; then
         # run rtapi_app for userland
 	if [ "$DEBUG" != "" ] ; then
-	    rtapi_app --instance=$INSTANCE $NAME_CMD \
+	    ${rtapi_app} --instance=$INSTANCE $NAME_CMD \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG \
 		--halsize=$HAL_SIZE 
 	else
-	    rtapi_app --instance $INSTANCE $NAME_CMD \
+	    ${rtapi_app} --instance $INSTANCE $NAME_CMD \
 		--halsize=$HAL_SIZE \
 		--rtmsglevel=$DEBUG \
 		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
@@ -230,7 +231,7 @@ Load(){
     # like halcmd might try to attach the HAL data segment before
     # rtapi_app got around to creating it.
 
-    rtapi_msgd --instance=$INSTANCE
+    ${rtapi_msgd} --instance=$INSTANCE
 }
 
 CheckLoaded(){
@@ -261,9 +262,9 @@ Unload(){
     CheckKernel
     if test $BUILD_SYS = user-dso; then
 	if [ "$DEBUG" != "" ] ; then
-            rtapi_app --instance=$INSTANCE exit 
+            ${rtapi_app} --instance=$INSTANCE exit 
 	else
-            rtapi_app --instance=$INSTANCE exit            >/dev/null 2>&1
+            ${rtapi_app} --instance=$INSTANCE exit            >/dev/null 2>&1
         fi
 
 	# wait until rtapi_msgd has vanished. This assures
