@@ -6,20 +6,47 @@
 #
 ##################################################################
 
-ifeq ($(BUILD_SYS),kbuild)
-ifeq ($(USE_SHMDRV),yes)
-
 #------------------------------
 # shmdrv module
+#
+# build for kthreads flavors
+ifeq ($(BUILD_SYS),kbuild)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 
 $(RTLIBDIR)/shmdrv$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(shmdrv-objs))
 
 INCLUDES += rtapi/shmdrv
-
-endif # USE_SHMDRV
 endif # BUILD_SYS = kbuild
+
+#------------------------------
+# shmdrv module
+#
+# build for all kernels in SHMDRV_KERNEL_DIRS
+ifeq ($(BUILD_ALL_FLAVORS)+$(USE_SHMDRV),yes+yes)
+# we have no mapping of kver to kdir, so use a timestamp and do the
+# whole thing in a big ugly non-Makefile-thonic shell script
+SHMDRV_SRCS = rtapi/shmdrv/shmdrv.c \
+	rtapi/shmdrv/shmdrv.h \
+	rtapi/shmdrv/Makefile
+objects/.shmdrv-built: $(SHMDRV_SRCS)
+	for kdir in $(SHMDRV_KERNEL_DIRS); do \
+	    kver=`../scripts/kernel-vers.sh $$kdir`; \
+	    mkdir -p objects/shmdrv/$$kver; \
+	    cp $(SHMDRV_SRCS) objects/shmdrv/$$kver; \
+	    $(MAKE) \
+		-C $$kdir \
+		M=$(BASEPWD)/objects/shmdrv/$$kver \
+		CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE); \
+	    mkdir -p ../rtlib/shmdrv/$$kver; \
+	    cp objects/shmdrv/$$kver/Module.symvers \
+		objects/shmdrv/$$kver/shmdrv.ko \
+		../rtlib/shmdrv/$$kver; \
+	done
+	touch $@
+
+TARGETS += objects/.shmdrv-built
+endif # BUILD_ALL_FLAVORS && USE_SHMDRV
 
 #------------------------------
 # liblinuxcncshm.so shared lib
