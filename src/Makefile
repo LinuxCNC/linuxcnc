@@ -621,7 +621,8 @@ install: install-test install-kernel-dep install-kernel-indep
 install-dirs:
 	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/linuxcnc \
+		$(DESTDIR)$(libdir)/linuxcnc \
+		$(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
@@ -635,7 +636,8 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
-		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help
+		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
+		$(DIR) $(DESTDIR)$(sampleconfsdir)
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -652,7 +654,6 @@ install-kernel-indep: install-dirs
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
 	# install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
-	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
 	$(EXE) $(filter-out ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
@@ -669,7 +670,6 @@ endif
 	cp --no-dereference \
 	    $(filter-out %/ulapi.so,$(filter ../lib/%.so, $(TARGETS))) \
 	    $(DESTDIR)$(libdir)
-	$(DIR) $(DESTDIR)$(libdir)/linuxcnc
 	for flav in $(BUILD_THREAD_FLAVORS); do \
 	    $(TREE) ../lib/$$flav $(DESTDIR)$(libdir)/linuxcnc; \
 	done
@@ -720,10 +720,7 @@ install-python: install-dirs
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 endif
 
-install-kernel-dep:
-	$(DIR)	$(DESTDIR)$(bindir) \
-		$(DESTDIR)$(sysconfdir)/linuxcnc \
-		$(DESTDIR)$(EMC2_RTLIB_DIR)
+install-kernel-dep: install-dirs
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
