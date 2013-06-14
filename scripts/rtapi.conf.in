@@ -41,8 +41,12 @@ DEBUG='1'
 # flavor in UPPER_CASE_WITH_UNDERSCORES
 FLAVOR_UP=`echo $FLAVOR|tr a-z- A-Z_`
 
-# Choose the actual path to real modules
-MODPATH=$RTLIB_DIR
+# Path to kernel modules
+if test $RUN_IN_PLACE = yes; then
+    MODPATH=$RTLIB_DIR
+else
+    MODPATH=/lib/modules/`uname -r`/linuxcnc
+fi
 # RTAI exception (as usual) to module path
 test $FLAVOR = rtai-kernel && \
     MODPATH="$MODPATH $($RTAI_KERNEL_THREADS_RTS --module-dir)"
