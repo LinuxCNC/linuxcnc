@@ -150,10 +150,7 @@ class HandlerClass:
             self.textbuffer.move_mark(self.mark, line)
         self.sourceview.scroll_to_mark(self.mark, 0, True, 0, 0.5)
 
-    def file_set(self,widget,data=None):
-        filename = widget.get_filename()
-        if debug: print "file_set",filename
-
+    def load_file(self, filename):
         self.dbtxt = DebugText(filename)
         data = self.dbtxt.gen_text()
         # the reader routines leave some fluff in the strings, so clean up
@@ -163,6 +160,10 @@ class HandlerClass:
         self.have_file = True
 
 
+    def file_set(self,widget,data=None):
+        filename = widget.get_filename()
+        if debug: print "file_set",filename
+        self.load_file(filename)
 
     def pc_changed(self,widget,data=None):
         line = widget.hal_pin.get()
@@ -199,10 +200,18 @@ class HandlerClass:
         builder.get_object("CONTROL").modify_font(pango.FontDescription(font))
         builder.get_object("PC").modify_font(pango.FontDescription(font))
 
-        self.have_file = False
-
+        for cmd in useropts:
+            exec cmd in globals()
+   
         self.chooser = builder.get_object('chooser')
         self.chooser.set_current_folder(os.getcwd())
+
+        if 'filename' in globals():
+            self.load_file(filename)
+            self.have_file = True
+        else:
+            self.have_file = False
+
 
 def get_handlers(halcomp,builder,useropts):
 
