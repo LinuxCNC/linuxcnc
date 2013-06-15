@@ -91,7 +91,7 @@ int rtapi_app_main(void)
     }
     if (size != sizeof(global_data_t)) {
 	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d ERROR: unexpected global shm size: expected: %d actual:%d\n",
+			 "RTAPI:%d ERROR: unexpected global shm size: expected: %zd actual:%d\n",
 			 rtapi_instance, sizeof(global_data_t), size);
 	 return -EINVAL;
     }
@@ -114,7 +114,7 @@ int rtapi_app_main(void)
     }
     if (size != sizeof(rtapi_data_t)) {
 	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d ERROR: unexpected rtapi shm size: expected: %d actual:%d\n",
+			 "RTAPI:%d ERROR: unexpected rtapi shm size: expected: %zd actual:%d\n",
 			 rtapi_instance, sizeof(rtapi_data_t), size);
 	 return -EINVAL;
     }

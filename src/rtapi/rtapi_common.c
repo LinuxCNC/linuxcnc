@@ -324,9 +324,9 @@ void init_global_data(global_data_t * data,
 
     data->instance_id = instance_id;
 
-    // passed in from rtap.so/ko args
+    // passed in from rtapi.so/ko args
     if (strlen(name) == 0) {
-	snprintf(data->instance_name,sizeof(data->instance_name), 
+	rtapi_snprintf(data->instance_name, sizeof(data->instance_name), 
 		 "inst%d",rtapi_instance);
     } else {
 	strncpy(data->instance_name,name, sizeof(data->instance_name));
