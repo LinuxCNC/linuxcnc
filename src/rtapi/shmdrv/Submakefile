@@ -45,7 +45,7 @@ objects/.shmdrv-built: $(SHMDRV_SRCS)
 	done
 	touch $@
 
-TARGETS += objects/.shmdrv-built
+modules: objects/.shmdrv-built
 endif # BUILD_ALL_FLAVORS && USE_SHMDRV
 
 #------------------------------
