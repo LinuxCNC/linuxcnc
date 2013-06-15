@@ -921,7 +921,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
         XENOMAI_THREADS_RTS="$with_xeno_config"
     else
 	# guess the path
-	AC_PATH_PROGS([XENOMAI_THREADS_RTS],[xeno-config])
+	AC_PATH_PROGS([XENOMAI_THREADS_RTS],[xeno-config],0,$PATH:/usr/xenomai/bin)
     fi
     # check xeno-config path
     if test -n "$XENOMAI_THREADS_RTS"; then
