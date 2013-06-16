@@ -87,7 +87,7 @@ trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 
 run_tests () {
-    find $* -name test.hal -or -name test.sh -or -name test \
+    find -L $* -name test.hal -or -name test.sh -or -name test \
 	| sort > $TMPDIR/alltests
 
     while read testname; do
