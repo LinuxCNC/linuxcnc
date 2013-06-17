@@ -29,6 +29,11 @@ if [ ! -r "$1" ] ; then
 	exit 1
 fi
 
+DBGFILE="${1%.bin}.dbg"
+if [ ! -r "$DBGFILE" ] ; then
+	echo "Warning: Cannot read debug file: $DBGFILE"
+fi
+
 UIPATH="$EMC2_HOME/configs/BeagleBone/PRU-Debugger"
 
 halcmd -f << _EOF_ > /dev/null
@@ -74,7 +79,7 @@ addf hal_prudebug.update thread1
 #show pin hal_prudebug.PC
 #show pin hal_prudebug.R
 
-loadusr -Wn ui gladevcp -u $UIPATH/ui.py -c ui $UIPATH/prudebug.ui
+loadusr -Wn ui gladevcp -u $UIPATH/ui.py -c ui -U filename="$DBGFILE" $UIPATH/prudebug.ui
 
 net pru ui.pru hal_prudebug.pru
 net continuous ui.continuous hal_prudebug.continuous
@@ -107,7 +112,7 @@ net r12 hal_prudebug.R12 ui.R12
 net r13 hal_prudebug.R13 ui.R13
 net r14 hal_prudebug.R14 ui.R14
 net r15 hal_prudebug.R15 ui.R15
-net r16  hal_prudebug.R16 ui.R16
+net r16 hal_prudebug.R16 ui.R16
 net r17 hal_prudebug.R17 ui.R17
 net r18 hal_prudebug.R18 ui.R18
 net r19 hal_prudebug.R19 ui.R19
