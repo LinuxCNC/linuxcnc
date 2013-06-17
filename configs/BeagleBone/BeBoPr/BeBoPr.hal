@@ -219,22 +219,24 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # Axis enable signals
 # FIXME: These need to be inverted!
-#net emcmot.00.enable => bb_gpio.p8.out-41
-#net emcmot.01.enable => bb_gpio.p8.out-40
-#net emcmot.02.enable => bb_gpio.p8.out-28
-#net emcmot.03.enable => bb_gpio.p8.out-20
-setp bb_gpio.p8.out-41  0
-setp bb_gpio.p8.out-40  0
-setp bb_gpio.p8.out-28  0
-setp bb_gpio.p8.out-20  0
+net emcmot.00.enable => bb_gpio.p8.out-41
+setp bb_gpio.p8.out-41.invert 1
+net emcmot.01.enable => bb_gpio.p8.out-40
+setp bb_gpio.p8.out-40.invert 1
+net emcmot.02.enable => bb_gpio.p8.out-28
+setp bb_gpio.p8.out-28.invert 1
+net emcmot.03.enable => bb_gpio.p8.out-20
+setp bb_gpio.p8.out-20.invert 1
 
 # Machine power (BeBoPr Enable) 
 net estop-loop => bb_gpio.p8.out-03
-setp bb_gpio.p8.out-05 0
+net estop-loop => bb_gpio.p8.out-05
+setp bb_gpio.p8.out-05.invert 1
 
-# ECO locations to avoid eMMC noise on startup:
+# BeBoPr ECO locations for enable signalsto avoid eMMC noise on startup:
 # Enable (P8.3) tied to system Reset_n line (P9.10)
-setp bb_gpio.p8.out-07 0
+net estop-loop => bb_gpio.p8.out-07
+setp bb_gpio.p8.out-07.invert 1
 
 
 # ##################################################
@@ -279,11 +281,11 @@ net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
 setp limit1.0.min 0
 
 # PID Parameters for adjusting temperature control
-#setp pid.0.Dgain    0  
 #setp pid.0.FF0      0  
 #setp pid.0.FF1      0  
 #setp pid.0.FF2      0  
-#setp pid.0.Igain    0  
-#setp pid.0.Pgain    1  
-setp pid.0.bias   0.5  
+setp pid.0.Dgain 114.0
+setp pid.0.Igain   1.08
+setp pid.0.Pgain  22.2  
+setp pid.0.bias    0.5  
 setp pid.0.enable   1
