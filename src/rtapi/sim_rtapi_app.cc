@@ -221,7 +221,7 @@ static int do_load_cmd(string name, vector<string> args) {
     if(w == NULL) {
         char what[LINELEN+1];
         snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
-        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_LAZY);
+        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
