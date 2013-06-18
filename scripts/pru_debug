@@ -34,6 +34,13 @@ if [ ! -r "$DBGFILE" ] ; then
 	echo "Warning: Cannot read debug file: $DBGFILE"
 fi
 
+if [ ! -r /sys/class/uio/uio0 ] ; then
+	echo "PRU control files not found in /sys/class/uio/uio0" >&2
+	echo "Please make sure you have a proper device tree overlay loaded" >&2
+	echo "Try: sudo su -c \"echo BB-BONE-PRU-01 > /sys/devices/bone_capemgr.*/slots\"" >&2
+	exit 1;
+fi
+
 UIPATH="$EMC2_HOME/configs/BeagleBone/PRU-Debugger"
 
 halcmd -f << _EOF_ > /dev/null
