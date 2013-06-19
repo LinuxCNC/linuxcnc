@@ -21,6 +21,8 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <boost/python.hpp>
+namespace bp = boost::python;
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
@@ -30,7 +32,6 @@
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
 #define DEBUG_EMC
-
 
 // These four functions help make the rest of cutter comp
 // plane-agnostic in much the same way the ARC_FEED canon call is.
@@ -5227,12 +5228,21 @@ A zero t_number is allowed and means no tool should be selected.
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
                                setup_pointer settings)  //!< pointer to machine settings             
 {
-  int pocket;
-  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-  SELECT_POCKET(pocket, block->t_number);
-  settings->selected_pocket = pocket;
-  settings->selected_tool = block->t_number;
-  return INTERP_OK;
+	try {
+		bp::object toolstore = bp::import("toolstore").attr("toolstore")();
+		bp::object t = toolstore.attr("find_tool")(block->t_number);
+		if (t == bp::object()){
+			printf("Tool return is none-type\n");
+			return INTERP_ERROR;
+		}
+		settings->selected_pocket = bp::extract<int>(t["pocket"]);
+		settings->selected_tool = bp::extract<int>(t["toolID"]);
+		printf("Found ToolID %i in pocket %i\n", settings->selected_tool, settings->selected_pocket);
+		return INTERP_OK;
+	} catch (bp::error_already_set const &e){
+		PyErr_WriteUnraisable(Py_None);
+		return INTERP_ERROR;
+	}
 }
 
 

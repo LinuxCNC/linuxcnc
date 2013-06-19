@@ -7,11 +7,12 @@ import sys
 import re
 import os
 
-sql_path = "sql/"
-  
+sql_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+sql_path = os.path.join(sql_path, "share/sql")
+print sql_path
 def add_ext(f, ext):
     f = os.path.splitext(f)[0]
-    return sql_path + f + ext
+    return os.path.join(sql_path, f + ext)
 
 def dict_into_query(q, d):
     "replaces each occurence of :key in the input file with the textual representation of the value of d[key]"
@@ -50,17 +51,18 @@ class toolstore:
     """An attempt to provide configurable access to user-configurable tool 
     data"""
     def __init__(self):
-        self.inifile=linuxcnc.ini('~/test.ini')
+        self.inifile=linuxcnc.ini('~/classic.ini')
         dbname = self.inifile.find("TOOL", "TOOL_DB")
+        print "opening tool database " + dbname
         db = None
         
         if not dbname:
             #no database name given
-            print "No tool database specified in ini"
+            print "No tool database specified in ini, trying tool_db"
             dbname = "tool_db"
         try: 
             self.db = sql.connect(dbname)
-
+            print "opened tool database " + dbname
         except:
             #Database does not exist
             print "Error: Can't open or create the database"
@@ -80,11 +82,16 @@ class toolstore:
               
             tblname = self.inifile.find("EMCIO","TOOL_TABLE")
             if tblname:
-                tbl=open(tblname)
+                print "found tool table " + tblname + " in INI"
             else:
-                print "No tool database and no tool table name, going for a wild guess"
-                tbl = open("tool.tbl")
-            
+                print "No tool database and no tool table name, using tool.tbl"
+                tblname = "tool.tbl"
+            try:
+                tbl = open(tblname)
+            except:
+                print "Failed to open tool table, deleting tool database "
+                os.remove(dbname)
+                
             for t in tbl.readlines():
                 tool = {'Tool':re.search('[Tt]([0-9+-.]+) ',t),
                         'Pocket':re.search('[Pp]([0-9+-.]+)', t),
@@ -120,6 +127,17 @@ class toolstore:
         self.cur.execute(temp_script)
         r = self.cur.fetchone()
         print self.cur.description
+        return r
+    
+    def find_tool(self, t):
+        """Uses the T-number to find a toolID"""
+        temp_script = get_script(self, "TOOL_SCRIPT", "classic_select_tool")
+        temp_script = dict_into_query(temp_script, {'T': t})
+        print "Working toolchange script  " + temp_script
+        self.cur.execute(temp_script)
+        r = self.cur.fetchone()
+        print r.keys()
+        print r
         return r
 
 
