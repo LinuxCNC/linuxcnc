@@ -127,8 +127,7 @@ and RCS.  `io` interfaces with any non-realtime I/O devices, including
 the tool changer hardware (if any).  `io` also manages the tool table.
 
 `io` registers with RCS/NML as "tool".  It writes to the Error channel
-and the Tool Status Channel, and it reads and writes to the Tool Command
-Channel.
+and the Tool Status Channel, and it reads the Tool Command Channel.
 
 ==== halui
 
