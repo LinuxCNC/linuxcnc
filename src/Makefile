@@ -1064,7 +1064,7 @@ ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
-RTDEPS := $(sort $(patsubst objects/%.o,depends/%.d, $(RTOBJS)))
+RTDEPS := $(sort $(patsubst %.o,%.d, $(RTOBJS)))
 IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
