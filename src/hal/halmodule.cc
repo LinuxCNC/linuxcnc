@@ -32,6 +32,13 @@ typedef int Py_ssize_t;
 #define PY_SSIZE_T_MIN INT_MIN
 #endif
 
+#define EXCEPTION_IF_NOT_LIVE(retval) do { \
+    if(self->hal_id <= 0) { \
+        PyErr_SetString(PyExc_RuntimeError, "Invalid operation on closed HAL component"); \
+	return retval; \
+    } \
+} while(0)
+
 union paramunion {
     hal_bit_t b;
     hal_u32_t u32;
@@ -123,20 +130,24 @@ static int pyhal_init(PyObject *_self, PyObject *args, PyObject *kw) {
     return 0;
 }
 
-static void pyhal_delete(PyObject *_self) {
-    halobject *self = (halobject *)_self;
+static void pyhal_exit_impl(halobject *self) {
     if(self->hal_id > 0) 
         hal_exit(self->hal_id);
+    self->hal_id = 0;
 
-    if(self->name)
-        free(self->name);
+    free(self->name);
+    self->name = 0;
 
-    if(self->prefix)
-        free(self->prefix);
+    free(self->prefix);
+    self->prefix = 0;
 
-    if(self->items)
-        delete self->items;
+    delete self->items;
+    self->items = 0;
+}
 
+static void pyhal_delete(PyObject *_self) {
+    halobject *self = (halobject *)_self;
+    pyhal_exit_impl(self);
     PyObject_Del(self);
 }
 
@@ -357,6 +368,7 @@ static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "sii", &name, &type, &dir)) 
         return NULL;
+    EXCEPTION_IF_NOT_LIVE(NULL);
 
     if (find_item(self, name)) {
         PyErr_Format(PyExc_ValueError, "Duplicate item name '%s'", name);
@@ -373,6 +385,7 @@ static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "sii", &name, &type, &dir)) 
         return NULL;
+    EXCEPTION_IF_NOT_LIVE(NULL);
 
     if (find_item(self, name)) {
         PyErr_Format(PyExc_ValueError, "Duplicate item name '%s'", name);
@@ -387,6 +400,7 @@ static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
 
     if(!PyArg_ParseTuple(o, "s", &name))
         return NULL;
+    EXCEPTION_IF_NOT_LIVE(NULL);
 
     halitem * pin = find_item(self, name);
     if (!pin)
@@ -397,6 +411,7 @@ static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
 static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
     halobject *self = (halobject *)_self;
+    EXCEPTION_IF_NOT_LIVE(NULL);
     int res = hal_ready(self->hal_id);
     if(res) return pyhal_error(res);
     Py_RETURN_NONE;
@@ -404,9 +419,7 @@ static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
 
 static PyObject *pyhal_exit(PyObject *_self, PyObject *o) {
     halobject *self = (halobject *)_self;
-    if(self->hal_id > 0) 
-        hal_exit(self->hal_id);
-    self->hal_id = 0;
+    pyhal_exit_impl(self);
     Py_RETURN_NONE;
 }
 
@@ -419,6 +432,7 @@ static PyObject *pyhal_repr(PyObject *_self) {
 static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
     PyObject *result;
     halobject *self = (halobject *)_self;
+    EXCEPTION_IF_NOT_LIVE(NULL);
 
     result = PyObject_GenericGetAttr((PyObject*)self, attro);
     if(result) return result;
@@ -429,17 +443,20 @@ static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
 
 static int pyhal_setattro(PyObject *_self, PyObject *attro, PyObject *v) {
     halobject *self = (halobject *)_self;
+    EXCEPTION_IF_NOT_LIVE(-1);
     return pyhal_write_common(find_item(self, PyString_AsString(attro)), v);
 }
 
 static Py_ssize_t pyhal_len(PyObject *_self) {
     halobject* self = (halobject*)_self;
+    EXCEPTION_IF_NOT_LIVE(-1);
     return self->items->size();
 }
 
 static PyObject *pyhal_get_prefix(PyObject *_self, PyObject *args) {
     halobject* self = (halobject*)_self;
     if(!PyArg_ParseTuple(args, "")) return NULL;
+    EXCEPTION_IF_NOT_LIVE(NULL);
 
     if(!self->prefix)
 	Py_RETURN_NONE;
@@ -452,6 +469,7 @@ static PyObject *pyhal_set_prefix(PyObject *_self, PyObject *args) {
     char *newprefix;
     halobject* self = (halobject*)_self;
     if(!PyArg_ParseTuple(args, "s", &newprefix)) return NULL;
+    EXCEPTION_IF_NOT_LIVE(NULL);
 
     if(self->prefix)
         free(self->prefix);
