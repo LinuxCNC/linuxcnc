@@ -253,7 +253,7 @@ static int Stat_init(pyStatChannel *self, PyObject *a, PyObject *k) {
     if(file == NULL) return -1;
 
     RCS_STAT_CHANNEL *c =
-        new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
+        new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "ui", file);
     if(!c) {
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
         return -1;
@@ -689,13 +689,13 @@ static int Command_init(pyCommandChannel *self, PyObject *a, PyObject *k) {
     if(file == NULL) return -1;
 
     RCS_CMD_CHANNEL *c =
-        new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", file);
+        new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "ui", file);
     if(!c) {
         PyErr_Format( error, "new RCS_CMD_CHANNEL failed");
         return -1;
     }
     RCS_STAT_CHANNEL *s =
-        new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", file);
+        new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "ui", file);
     if(!c) {
 	delete s;
         PyErr_Format( error, "new RCS_STAT_CHANNEL failed");
@@ -1409,7 +1409,7 @@ static int Error_init(pyErrorChannel *self, PyObject *a, PyObject *k) {
     char *file = get_nmlfile();
     if(file == NULL) return -1;
 
-    NML *c = new NML(emcFormat, "emcError", "xemc", file);
+    NML *c = new NML(emcFormat, "emcError", "ui", file);
     if(!c) {
         PyErr_Format( error, "new NML failed");
         return -1;

@@ -89,7 +89,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC cmd
   if (emcCommandBuffer == 0)
     {
-      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", EMC_NMLFILE);
+      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "ui", EMC_NMLFILE);
       if (! emcCommandBuffer->valid())
         {
           delete emcCommandBuffer;
@@ -101,7 +101,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC status
   if (emcStatusBuffer == 0)
     {
-      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", EMC_NMLFILE);
+      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "ui", EMC_NMLFILE);
       if (! emcStatusBuffer->valid() ||
           EMC_STAT_TYPE != emcStatusBuffer->peek())
         {
@@ -125,7 +125,7 @@ static int emcErrorNmlGet()
 
   if (emcErrorBuffer == 0)
     {
-      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "xemc", EMC_NMLFILE);
+      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "ui", EMC_NMLFILE);
       if (! emcErrorBuffer->valid())
         {
           delete emcErrorBuffer;
