@@ -1,3 +1,7 @@
 
 linuxcncsvr only creates the RCS buffers?  Why not mave milltask do it?
 
+linuxcncsvr startup is bogus: linuxcnc runs it in the background, then
+sleeps.  It should start it in the foreground and it should background
+itself when it's ready.
+
