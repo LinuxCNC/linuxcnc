@@ -114,10 +114,7 @@ to use.
 
 `linuxcnc` next starts the realtime system (if any).  On sim this does
 nothing, but on RTAI it loads all the kernel modules needed to bring
-up RTAI.
-
-Also starts all the realtime components, and any non-realtime hal
-components.
+up RTAI and the HAL infrastructure.
 
 ==== io
 
@@ -137,8 +134,11 @@ communications to drive the rest of LinuxCNC.
 
 ==== HAL wiring
 
-The `linuxcnc` script next hooks up all the HAL wiring specified in the
-`.hal` files in the ini config.
+The `linuxcnc` script next starts all the HAL components and hooks up
+all the HAL wiring specified in the `.hal` files in the ini config.
+
+This significantly includes `motmot` (the motion controller) and the
+kinematics driver (often but not always `trivkins`).
 
 Once this is finished it starts all the HAL threads running.
 
@@ -153,7 +153,11 @@ Task connects to RCS/NML as "emc".
 Task sends a command to IO via the Tool Command Channel to initialize
 itself, and reads IO's response via the Tool Status Channel.
 
+==== Display
 
+Finally `linuxcnc` starts the GUI.
+
+When the GUI exits, `linuxcnc` cleans up and exits.
 
 
 
