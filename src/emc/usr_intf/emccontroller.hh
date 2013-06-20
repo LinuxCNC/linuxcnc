@@ -23,6 +23,7 @@
 #include <queue>
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <boost/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
