@@ -267,6 +267,7 @@ INI_NAME="${INIFILE##*/}"
 INI_DIR="${INIFILE%/*}"
 CONFIG_DIR="${INIFILE%/*}"
 export CONFIG_DIR
+export PATH=$CONFIG_DIR/bin:$PATH
 
 echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
