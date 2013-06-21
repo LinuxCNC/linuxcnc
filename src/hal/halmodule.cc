@@ -148,7 +148,7 @@ static void pyhal_exit_impl(halobject *self) {
 static void pyhal_delete(PyObject *_self) {
     halobject *self = (halobject *)_self;
     pyhal_exit_impl(self);
-    PyObject_Del(self);
+    self->ob_type->tp_free(self);
 }
 
 static int pyhal_write_common(halitem *pin, PyObject *value) {
