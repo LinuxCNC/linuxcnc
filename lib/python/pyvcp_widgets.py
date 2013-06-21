@@ -270,7 +270,7 @@ class pyvcp_dial(Canvas):
         if self.mymin != None:
             if self.out<self.mymin:
                 self.out=self.mymin
-                self.counts = self.mymin * self.funit
+                self.counts = self.mymin / self.funit
         self.update_dot()
         self.update_dro()
 
@@ -282,7 +282,7 @@ class pyvcp_dial(Canvas):
         if self.mymax != None:
             if self.out>self.mymax:
                 self.out=self.mymax
-                self.counts = self.mymax * self.funit
+                self.counts = self.mymax / self.funit
         self.update_dot()
         self.update_dro()
 
