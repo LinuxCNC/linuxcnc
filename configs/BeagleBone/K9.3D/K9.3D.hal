@@ -21,7 +21,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 
 # load low-level drivers
-loadrt hal_bb_gpio input_pins=107,108,109,110,111,112,115,116,126,128,130,131,132,133,135,137,211,212,214,215,216,222,223,224,226 output_pins=113,114,117,118,119,127,129,134,136,139,140,141,142,143,144,145,146,213,217,218,221,225,227,228,229,230,231,241,242,
+loadrt hal_bb_gpio input_pins=107,108,109,110,111,112,115,116,126,128,130,131,132,133,135,137,211,212,214,215,216,222,223,224,226 output_pins=113,114,117,118,119,127,129,134,136,139,140,141,142,143,144,145,146,213,217,218,221
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 
 
@@ -79,9 +79,9 @@ setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-# P8.43 PRU1.out2
+# P9.31 GPIO3_14
 setp [PRUCONF](DRIVER).stepgen.00.steppin         0x8E
-# P8.44 PRU1.out4
+# P9.29 GPIO3_15
 setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x8F
 
 
@@ -118,9 +118,9 @@ setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.01.step_type       0
-# P8.42 PRU1.out5
+# P9.30 GPIO3_16
 setp [PRUCONF](DRIVER).stepgen.01.steppin         0x90
-# P8.39 PRU1.out6
+# P9.28 GPIO3_17
 setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x91
 
 
@@ -157,10 +157,10 @@ setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
-# P8.27 PRU1.out8
-setp [PRUCONF](DRIVER).stepgen.02.steppin         0x14
-# P8.29 PRU1.out9
-setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x02
+# P9.42 GPIO3_18 / GPIO0_7
+setp [PRUCONF](DRIVER).stepgen.02.steppin         0x07
+# P9.27 GPIO3_19
+setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x93
 
 
 # ################
@@ -196,9 +196,9 @@ setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.03.step_type       0
-# P8.30 GPIO2.25
-setp [PRUCONF](DRIVER).stepgen.03.steppin         0x94
-# P8.21 GPIO1.30
+# P9.41 GPIO3_20 / GPIO0_20
+setp [PRUCONF](DRIVER).stepgen.03.steppin         0x14
+# P9.25 GPIO3_21
 setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x95
 
 

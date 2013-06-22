@@ -103,5 +103,7 @@ done <<- EOF
 	112	out	# J9.30 gpio3_16
 	110	out	# J9.31 gpio3_14
 	20	out	# J9.41 gpio0_20
+	116	in	# J9.41 gpio3_15
 	7	out	# J9.42 gpio0_7 
+	114	in	# J9.42 gpio1_16
 EOF
