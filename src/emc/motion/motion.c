@@ -47,6 +47,8 @@ RTAPI_MP_INT(key, "shared memory key");
 
 static long base_period_nsec = 0;	/* fastest thread period */
 RTAPI_MP_LONG(base_period_nsec, "fastest thread period (nsecs)");
+int base_thread_fp = 0;	/* default is no floating point in base thread */
+RTAPI_MP_INT(base_thread_fp, "floating point in base thread?");
 static long servo_period_nsec = 1000000;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
@@ -1061,7 +1063,7 @@ static int init_threads(void)
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, 0);
+	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: failed to create %ld nsec base thread\n",
