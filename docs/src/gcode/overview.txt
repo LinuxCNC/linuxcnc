@@ -348,8 +348,7 @@ example '##2'  means the value of the parameter whose index is the
 
 5420-5428::
      Current Position including all offsets and in the current program
-    units for X, Y, Z, A, B, C, U, V & W. In absolute machine coordinates, 
-    volatile.
+    units for X, Y, Z, A, B, C, U, V & W, volatile.
 
 5599::
    flag for controlling the output of (DEBUG,) statements.
