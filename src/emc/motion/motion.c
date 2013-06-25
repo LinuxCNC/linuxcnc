@@ -601,7 +601,7 @@ static int init_hal_io(void)
 	/* FIXME - struct members are in a state of flux - make sure to
 	   update this - most won't need initing anyway */
 	*(joint_data->amp_enable) = 0;
-	joint_data->home_state = 0;
+	*(joint_data->home_state) = 0;
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
 	   because it is always supported. */
     }
@@ -790,7 +790,7 @@ static int export_joint(int num, joint_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_s32_newf(HAL_RO, &(addr->home_state), mot_comp_id, "axis.%d.home-state", num);
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), mot_comp_id, "axis.%d.home-state", num);
     if (retval != 0) {
 	return retval;
     }
