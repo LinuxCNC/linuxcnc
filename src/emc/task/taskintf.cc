@@ -237,7 +237,8 @@ int emcAxisSetMinFerror(int axis, double ferror)
 int emcAxisSetHomingParams(int axis, double home, double offset, double home_final_vel,
 			   double search_vel, double latch_vel,
 			   int use_index, int ignore_limits, int is_shared,
-			   int sequence,int volatile_home, int locking_indexer)
+			   int sequence,int volatile_home, int locking_indexer,
+                           int synchronized)
 {
 #ifdef ISNAN_TRAP
     if (isnan(home) || isnan(offset) || isnan(home_final_vel) ||
@@ -272,6 +273,9 @@ int emcAxisSetHomingParams(int axis, double home, double offset, double home_fin
     }
     if (locking_indexer) {
         emcmotCommand.flags |= HOME_UNLOCK_FIRST;
+    }
+    if (synchronized) {
+        emcmotCommand.flags |= HOME_SYNCHRONIZED;
     }
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);

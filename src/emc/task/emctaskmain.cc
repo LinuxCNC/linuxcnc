@@ -1713,7 +1713,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
 					set_homing_params_msg->volatile_home,
-                                        set_homing_params_msg->locking_indexer);
+                                        set_homing_params_msg->locking_indexer,
+                                        set_homing_params_msg->synchronized);
 	break;
 
     case EMC_AXIS_SET_FERROR_TYPE:
