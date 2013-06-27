@@ -16,6 +16,7 @@
 #include "motion.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
+#include <stdio.h>
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -37,6 +38,8 @@
 /* variable used internally by do_homing, but global so that
    'home_do_moving_checks()' can access it */
 static int immediate_state;
+
+static int synchronized;
 
 /***********************************************************************
 *                      LOCAL FUNCTIONS                                 *
@@ -133,6 +136,7 @@ void do_homing_sequence(void)
 	/* and drop into next state */
 
     case HOME_SEQUENCE_START_JOINTS:
+        synchronized = 0;
 	/* start all joints whose sequence number matches home_sequence */
 	for(i=0; i < num_joints; i++) {
 	    joint = &joints[i];
@@ -141,9 +145,13 @@ void do_homing_sequence(void)
 	        joint->free_tp_enable = 0;
 		joint->home_state = HOME_START;
 		seen++;
+                if(joint->home_flags & HOME_SYNCHRONIZED) synchronized++;
 	    }
 	}
-	if(seen) {
+        //	if (seen && synchronized) {
+        //            emcmotStatus->homingSequenceState = HOME_SEQUENCE_KEEP_SYNCHRONIZED;
+        //        } else i
+        if (seen) {
 	    /* at least one joint is homing, wait for it */
 	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_WAIT_JOINTS;
 	} else {
@@ -188,6 +196,67 @@ void do_homing_sequence(void)
 	emcmotStatus->homing_active = 0;
 	break;
     }
+}
+
+int waiting_for_peers(int joint_num) {
+    int i;
+    emcmot_joint_t *joint;
+    int waiting_state[num_joints];
+
+    printf("%d waiting for peers in state %d, ", joint_num, joints[joint_num].home_state);
+    if (emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {
+        printf("never mind\n");
+        return 0;
+    }
+    waiting_state[joint_num] = joints[joint_num].home_state;
+
+    for (i = 0; i<num_joints; i++) {
+        joint = &joints[i];
+        if (joint->home_sequence != joints[joint_num].home_sequence) {
+            // not in my sequence; ignore
+            printf("%d not in my sequence, ", i);
+            continue;
+        }
+        if (waiting_state[i] != waiting_state[joint_num]) {
+            // in my sequence but not yet waiting where I am; keep waiting
+            printf("%d in my sequence but not yet waiting in my state; returning 1\n", i);
+            return 1;
+        }
+    }
+
+    // all the joints in my sequence are waiting now
+
+    for (i=0; i<joint_num; i++) {
+        // check all joints less than me
+        joint = &joints[i];
+        if (joint->home_sequence != joints[joint_num].home_sequence) {
+            // not in my sequence; ignore
+            printf("%d not in my sequence, ", i);
+            continue;
+        }
+
+        // .....
+
+    }
+        
+
+#if 0
+    for (i = num_joints - 1; i >= 0; i--) {
+        joint = &joints[i];
+        if (joint->home_sequence == joints[joint_num].home_sequence) break;
+    }
+    // i is the index of the last peer in this sequence
+    printf("last matching peer %d, ", i);
+    
+    if (joint_num == i) {
+        // and if that's me
+        printf(" which is me, ");
+    }
+#endif
+
+    printf("everyone synced; returning 0\n");
+    // everyone is synced; let's all continue
+    return 0; 
 }
 
 void do_homing(void)
@@ -319,6 +388,9 @@ void do_homing(void)
 		    break;
 		}
 		joint->home_pause_timer = 0;
+
+                if (waiting_for_peers(joint_num)) break;
+
 		/* set up a move at '-search_vel' to back off of switch */
 		home_start_move(joint, -joint->home_search_vel);
 		/* next state */
@@ -367,6 +439,9 @@ void do_homing(void)
 		    immediate_state = 1;
 		    break;
 		}
+
+                if (waiting_for_peers(joint_num)) break;
+
 		/* set up a move at 'search_vel' to find switch */
 		home_start_move(joint, joint->home_search_vel);
 		/* next state */
@@ -448,6 +523,9 @@ void do_homing(void)
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
+
+                if (waiting_for_peers(joint_num)) break;
+
 		/* set up a move at '-search_vel' to back off of switch */
 		home_start_move(joint, -joint->home_search_vel);
 		/* next state */
@@ -496,6 +574,9 @@ void do_homing(void)
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
+
+                if (waiting_for_peers(joint_num)) break;
+
 		/* set up a move at 'latch_vel' to locate the switch */
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
@@ -552,6 +633,9 @@ void do_homing(void)
 		    joint->home_state = HOME_IDLE;
 		    break;
 		}
+
+                if (waiting_for_peers(joint_num)) break;
+
 		/* set up a move at 'latch_vel' to locate the switch */
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
@@ -637,6 +721,9 @@ void do_homing(void)
 		/* set the index enable */
 		joint->index_enable = 1;
 		/* set up a move at 'latch_vel' to find the index pulse */
+
+                if (waiting_for_peers(joint_num)) break;
+
 		home_start_move(joint, joint->home_latch_vel);
 		/* next state */
 		joint->home_state = HOME_INDEX_SEARCH_WAIT;
