@@ -1028,6 +1028,18 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
+    def search_fwd(self,widget):
+        self.widgets.gcode_view.text_search(direction=True,text=self.widgets.search_entry.get_text())
+
+    def search_bwd(self,widget):
+        self.widgets.gcode_view.text_search(direction=False,text=self.widgets.search_entry.get_text())
+
+    def undo_edit(self,widget):
+        self.widgets.gcode_view.undo()
+
+    def redo_edit(self,widget):
+        self.widgets.gcode_view.redo()
+
     def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
         print gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods,
         return True
@@ -1742,6 +1754,10 @@ class Gscreen:
         self.edit_mode(state)
         if not state and self.widgets.button_full_view.get_active():
             self.set_full_graphics_view(True)
+        if state:
+            self.widgets.search_box.show()
+        else:
+            self.widgets.search_box.hide()
 
     def on_button_change_view_clicked(self,widget):
         self.toggle_view()
@@ -1903,7 +1919,12 @@ class Gscreen:
 
                         ["","metric_select","clicked","on_metric_select_clicked"],
                         ["","button_restart","clicked", "launch_restart_dialog"],
-                        ["","button_index_tool","clicked", "on_index_tool"],]
+                        ["","button_index_tool","clicked", "on_index_tool"],
+
+                        ["","button_search_fwd","clicked", "search_fwd"],
+                        ["","button_search_bwd","clicked", "search_bwd"],
+                        ["","button_undo","clicked", "undo_edit"],
+                        ["","button_redo","clicked", "redo_edit"],]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
         # if so skip the call in the signal list

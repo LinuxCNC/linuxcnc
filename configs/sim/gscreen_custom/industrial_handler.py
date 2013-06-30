@@ -151,12 +151,22 @@ class HandlerClass:
             self.gscreen.unblock(i)
 
     def on_button_edit_clicked(self,widget):
-        self.gscreen.on_button_edit_clicked(widget)
+        state = widget.get_active()
+        self.widgets.notebook_main.set_current_page(0)
+        self.widgets.notebook_main.set_show_tabs(not (state))
+        self.gscreen.edit_mode(state)
+        if not state and self.widgets.button_full_view.get_active():
+            self.gscreen.set_full_graphics_view(True)
         if self.data.edit_mode:
+            self.widgets.mode_select_box.hide()
+            self.widgets.search_box.show()
             self.widgets.button_edit.set_label("Exit\nEdit")
         else:
+            self.widgets.mode_select_box.show()
+            self.widgets.search_box.hide()
             self.widgets.button_edit.set_label("Edit")
         self.widgets.notebook_main.set_show_tabs(False)
+        print "Gcode modified:",self.widgets.gcode_view.buf.get_modified()
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page

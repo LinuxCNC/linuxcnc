@@ -588,16 +588,16 @@
                                 <child>
                                   <object class="HAL_HBar" id="s_display">
                                     <property name="visible">True</property>
-                                    <property name="target_value">500</property>
-                                    <property name="show_limits">False</property>
-                                    <property name="bg_color">#bebebebebebe</property>
                                     <property name="max">2000</property>
-                                    <property name="z0_color">#0000ffff0000</property>
+                                    <property name="bg_color">#bebebebebebe</property>
+                                    <property name="show_limits">False</property>
                                     <property name="text_template">%d</property>
+                                    <property name="target_color">#e21911831183</property>
+                                    <property name="z2_color">#ffff00000000</property>
+                                    <property name="target_value">500</property>
+                                    <property name="z0_color">#0000ffff0000</property>
                                     <property name="value">-7</property>
                                     <property name="z1_color">#ffffffff0000</property>
-                                    <property name="z2_color">#ffff00000000</property>
-                                    <property name="target_color">#e21911831183</property>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -949,7 +949,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox2">
+                          <object class="GtkHBox" id="status_box">
                             <property name="visible">True</property>
                             <child>
                               <object class="GtkFrame" id="active_gcodes_frame">
@@ -1215,7 +1215,56 @@
                           </packing>
                         </child>
                         <child>
-                          <placeholder/>
+                          <object class="GtkHBox" id="search_box">
+                            <child>
+                              <object class="GtkLabel" id="label43">
+                                <property name="visible">True</property>
+                                <property name="xalign">0.49000000953674316</property>
+                                <property name="label" translatable="yes">Search
+  Text:</property>
+                              </object>
+                              <packing>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="search_entry">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label44">
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">4</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
@@ -1937,8 +1986,8 @@ Halshow</property>
                             <child>
                               <object class="HAL_LED" id="led_on">
                                 <property name="visible">True</property>
-                                <property name="off_color">red</property>
                                 <property name="on_color">green</property>
+                                <property name="off_color">red</property>
                                 <property name="led_shape">1</property>
                               </object>
                               <packing>
@@ -2937,32 +2986,46 @@ Vertical</property>
               <object class="GtkHBox" id="mode6">
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkLabel" id="label38">
+                  <object class="GtkButton" id="button_search_bwd">
+                    <property name="label" translatable="yes">Search
+  Bwd</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label37">
+                  <object class="GtkButton" id="button_search_fwd">
+                    <property name="label" translatable="yes">Search
+  Fwd</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label36">
+                  <object class="GtkButton" id="button_undo">
+                    <property name="label" translatable="yes">Undo</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label35">
+                  <object class="GtkButton" id="button_redo">
+                    <property name="label" translatable="yes">Redo</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
                   </object>
                   <packing>
                     <property name="position">3</property>
