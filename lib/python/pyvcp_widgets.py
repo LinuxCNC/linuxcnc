@@ -108,14 +108,14 @@ class pyvcp_dial(Canvas):
     #TJP the tik marks could get very fine, avoid high cpr to size ratios (easily seen)
     
     def __init__(self,root,pycomp,halpin=None,size=200,cpr=40,dialcolor="", \
-            edgecolor="",dotcolor="grey",min_=None,max_=None, \
+            edgecolor="",dotcolor="grey",min_=-1e20,max_=1e20, \
             text=None,initval=0,resolution=0.1, \
             **kw):
         
         pad=size/10
 
-        self.counts = int(round(initval/resolution))
-        self.out = self.counts * resolution #  float output   out
+        counts = int(round(initval/resolution))
+        self.out = counts * resolution #  float output   out
         self.origValue=initval       # in case user wants to reset the pot/valve/thingy
 
         #self.text3=resolution
@@ -196,35 +196,27 @@ class pyvcp_dial(Canvas):
         self.halpin=halpin
         self.pycomp=pycomp
 
-
     def chgScaleDn(self,event):
         # reduces the scale by 10x
         self.funit=self.funit/10.0
-        self.counts *= 10
         self.update_scale()
-        self.update_dro()
         self.update_dot()
     
     def chgScaleUp(self,event):
         # increases the scale by 10x
         self.funit=self.funit*10.0
-        self.counts = (self.counts + 5) / 10
-        self.out = self.counts * self.funit
         self.update_scale()
-        self.update_dro()
         self.update_dot()
     
     def resetScale(self,event):
         # reset scale to original value
         self.funit=self.origFunit
-        self.counts = int(round(self.out / self.funit))
-        self.out = self.counts * self.funit
         self.update_scale()
     
     def resetValue(self,event):
         # reset output to orifinal value
-        self.counts = int(round(self.origValue / self.funit))
-        self.out= self.counts * self.funit
+        counts = int(round(self.origValue / self.funit))
+        self.out = counts * self.funit
         self.update_dot()
         self.update_dro()
 
@@ -263,26 +255,24 @@ class pyvcp_dial(Canvas):
         self.down()
 
     def down(self):
-        self.alfa-=self.d_alfa
-        self.counts -= 1
-        self.out = self.counts * self.funit
-        #TJP clip down side
-        if self.mymin != None:
-            if self.out<self.mymin:
-                self.out=self.mymin
-                self.counts = self.mymin / self.funit
+        old_out = self.out
+        counts = math.ceil(self.out / self.funit - self.funit*1e-6) - 1
+        self.out = counts * self.funit
+        if self.out < self.mymin:
+            self.out = self.mymin
+        if self.out != old_out:
+            self.alfa-=self.d_alfa
         self.update_dot()
         self.update_dro()
 
     def up(self):
-        self.alfa+=self.d_alfa
-        self.counts += 1
-        self.out = self.counts * self.funit
-        #TJP clip up side
-        if self.mymax != None:
-            if self.out>self.mymax:
-                self.out=self.mymax
-                self.counts = self.mymax / self.funit
+        old_out = self.out
+        counts = math.floor(self.out / self.funit + self.funit*1e-6) + 1
+        self.out = counts * self.funit
+        if self.out > self.mymax:
+            self.out = self.mymax
+        if self.out != old_out:
+            self.alfa+=self.d_alfa
         self.update_dot()
         self.update_dro()
 
