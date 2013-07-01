@@ -165,6 +165,7 @@ typedef struct {
     hal_float_t	*freq_out;	// actual output frequency
     hal_float_t	*output_volt;	// output voltage
     hal_float_t	*RPM;
+    hal_float_t *RPS;
     hal_float_t	*torque_ratio;
     hal_float_t	*output_current;
     hal_float_t *max_rpm;	// calculated based on VFD max frequency setup parameter
@@ -678,6 +679,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         // less urgent registers
         GETREG(SR_MOTOR_SPEED, &val);
         *(haldata->RPM) = val;
+        *(haldata->RPS) = val/60.0;
 
         GETREG(SR_TORQUE_RATIO, &val);
         *(haldata->torque_ratio) =  val;
@@ -737,6 +739,7 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_float_newf(HAL_OUT, &(h->max_rpm), id, "%s.max-rpm", name));
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->modbus_ok), id, "%s.modbus-ok", name)); // JET
     PIN(hal_pin_float_newf(HAL_OUT, &(h->RPM), id, "%s.motor-RPM", name));
+    PIN(hal_pin_float_newf(HAL_OUT, &(h->RPS), id, "%s.motor-RPS", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_volt), id, "%s.output-voltage", name));
     PIN(hal_pin_float_newf(HAL_IN, &(h->speed_command), id, "%s.speed-command", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_fwd), id, "%s.spindle-fwd", name));
