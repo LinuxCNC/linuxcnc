@@ -63,8 +63,11 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     # It updates the iter because iters become invalid when anything changes.
     # We set the buffer-unmodified flag false after loading the file.
     # Set the hilight line to the line linuxcnc is looking at.
-    def load_file(self, fn):
+    # if one calls load_file without a filenname, We reload the exisiting file.
+    def load_file(self, fn=None):
         self.buf.begin_not_undoable_action()
+        if fn == None:
+            fn = self.filename
         self.filename = fn
         if not fn:
             self.buf.set_text('')
