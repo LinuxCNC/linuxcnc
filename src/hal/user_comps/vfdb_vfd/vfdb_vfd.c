@@ -107,9 +107,11 @@
 #define CMD_FAULT_RESET		0x2000
 #define CMD_EMERGENCY_STOP	0x1000
 #define CMD_COAST_STOP		0x0800
-#define CMD_RUN			0x0400
-#define CMD_REVERSE		0x0200
-#define CMD_JOG_RUN		0x0100
+#define CMD_RUN			0x0002
+#define CMD_STOP               0x0001
+#define CMD_REVERSE		0x0020
+#define CMD_FORWARD            0x0010
+#define CMD_JOG_RUN		0x0003
 #define CMD_DC_BRAKE		0x0080
 #define CMD_ACCEL_PATTERN_2	0x0040
 #define CMD_DISABLE_PI_CONTROL	0x0020
@@ -479,7 +481,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     int freq_reg, freq_cap;
 
     if (!*(haldata->enabled)) {
-        // send 0 to FA00 register - no bus control
+        // send 0 to 0x2000 register - no bus control
         if (modbus_write_register(ctx, REG_COMMAND1, 0) < 0) {
             p->failed_reg = REG_COMMAND1;
             (*haldata->errorcount)++;
@@ -489,7 +491,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         return 0;
     }
 
-    retry:
+retry:
     // set frequency register
     hzcalc = haldata->motor_nameplate_hz / haldata->motor_nameplate_RPM;
     freq_reg =  (int)round(fabs((*(haldata->speed_command) * hzcalc * 100.0)));
@@ -503,60 +505,69 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
     // prepare command register
     //  force Modbus control - this disables the panel
-    cmd1_reg = (CMD_COMMAND_PRIORITY|CMD_FREQUENCY_PRIORITY);	
+//    cmd1_reg = (CMD_COMMAND_PRIORITY|CMD_FREQUENCY_PRIORITY);
+    cmd1_reg = 0;
     if (*haldata->spindle_on){
-        cmd1_reg|= (*haldata->jog_mode) ? CMD_JOG_RUN : CMD_RUN;
+        cmd1_reg |= (*haldata->jog_mode) ? CMD_JOG_RUN : CMD_RUN;
+    } else {
+        cmd1_reg |= CMD_STOP;
     }
 
-    // if 1, choose ramp times as per F500/F501
-    // fix for PID loops where long ramp times cause oscillation
-    if (haldata->acc_dec_pattern){
-        cmd1_reg|= CMD_ACCEL_PATTERN_2;
-    }
+//    // if 1, choose ramp times as per F500/F501
+//    // fix for PID loops where long ramp times cause oscillation
+//    if (haldata->acc_dec_pattern){
+//        cmd1_reg|= CMD_ACCEL_PATTERN_2;
+//    }
 
-    // rev follows fwd
-    // two bits for one direction is a mess in the first place
-    *(haldata->spindle_rev) = *(haldata->spindle_fwd) ? 0 : 1;
-    *(haldata->spindle_fwd) = *(haldata->spindle_rev) ? 0 : 1;
+//    // rev follows fwd
+//    // two bits for one direction is a mess in the first place
+//    *(haldata->spindle_rev) = *(haldata->spindle_fwd) ? 0 : 1;
+//    *(haldata->spindle_fwd) = *(haldata->spindle_rev) ? 0 : 1;
 
     if (*haldata->spindle_rev) {
         cmd1_reg |= CMD_REVERSE;
-    } else {
-        cmd1_reg &= (~CMD_REVERSE);	// direction bit = 0 -> forward
     }
 
-    // DC brake - turn spindle_on off as well
-    if  (*(haldata->DC_brake)) {
-        cmd1_reg |= CMD_DC_BRAKE;  	// set DC brake bit
-        cmd1_reg &= ~(CMD_RUN | CMD_JOG_RUN);
-        *(haldata->spindle_on) = 0;
-        *(haldata->at_speed) = 0;
-    } else {
-        cmd1_reg &= ~CMD_DC_BRAKE;
+    if (*haldata->spindle_fwd) {
+        cmd1_reg |= CMD_FORWARD;
     }
+    // TODO: implement REVERSE/FORWARD
+    cmd1_reg |= CMD_FORWARD;
 
-    // send CMD_FAULT_RESET and CMD_EMERGENCY_STOP only once so the poor thing comes back
-    // out of reset/estop status eventually
-    if (*(haldata->err_reset) && !(p->old_cmd1_reg  & CMD_FAULT_RESET ))	{ // not sent yet
-        cmd1_reg |= CMD_FAULT_RESET;		// fault reset bit = 1 -> clear fault
-        *(haldata->err_reset) = 0;
-    } else {
-        cmd1_reg &= ~CMD_FAULT_RESET;
-    }
+//    // DC brake - turn spindle_on off as well
+//    if  (*(haldata->DC_brake)) {
+//        cmd1_reg |= CMD_DC_BRAKE;  	// set DC brake bit
+//        cmd1_reg &= ~(CMD_RUN | CMD_JOG_RUN);
+//        *(haldata->spindle_on) = 0;
+//        *(haldata->at_speed) = 0;
+//    } else {
+//        cmd1_reg &= ~CMD_DC_BRAKE;
+//    }
 
-    if (*(haldata->estop) && !(p->old_cmd1_reg  & CMD_EMERGENCY_STOP )) {	// not sent yet)
-        cmd1_reg |= CMD_EMERGENCY_STOP;		// estop bit -> trip VFD into estop mode
-        *(haldata->estop) = 0;
-        *(haldata->spindle_on) = 0;
-        *(haldata->at_speed) = 0;
-    } else {
-        cmd1_reg &= ~CMD_EMERGENCY_STOP;
-    }
+//TODO: implement RESET command for VFD-B
+//    // send CMD_FAULT_RESET and CMD_EMERGENCY_STOP only once so the poor thing comes back
+//    // out of reset/estop status eventually
+//    if (*(haldata->err_reset) && !(p->old_cmd1_reg  & CMD_FAULT_RESET ))	{ // not sent yet
+//        cmd1_reg |= CMD_FAULT_RESET;		// fault reset bit = 1 -> clear fault
+//        *(haldata->err_reset) = 0;
+//    } else {
+//        cmd1_reg &= ~CMD_FAULT_RESET;
+//    }
+
+//    if (*(haldata->estop) && !(p->old_cmd1_reg  & CMD_EMERGENCY_STOP )) {	// not sent yet)
+//        cmd1_reg |= CMD_EMERGENCY_STOP;		// estop bit -> trip VFD into estop mode
+//        *(haldata->estop) = 0;
+//        *(haldata->spindle_on) = 0;
+//        *(haldata->at_speed) = 0;
+//    } else {
+//        cmd1_reg &= ~CMD_EMERGENCY_STOP;
+//    }
 
     DBG("write_data: cmd1_reg=0x%4.4X old cmd1_reg=0x%4.4X\n", cmd1_reg,p->old_cmd1_reg);
+    printf("write_data: cmd1_reg=0x%4.4X old cmd1_reg=0x%4.4X\n", cmd1_reg, p->old_cmd1_reg);
 
     // cmd1_reg = 0x01;    // STOP
-    cmd1_reg = 0x0012;    // RUN
+//    cmd1_reg = 0x0012;    // RUN
     if (modbus_write_register(ctx, REG_COMMAND1, cmd1_reg) < 0) {
         // modbus transaction timed out. This may happen if VFD is in E-Stop.
         // if VFD was in E-Stop, and a fault reset was sent, wait about 2 seconds for recovery
@@ -585,15 +596,15 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         return errno;
     } 
 
-    if ((*(haldata->freq_cmd) > 0.01) && ((1.0 - *(haldata->freq_out) / *(haldata->freq_cmd))  < haldata->speed_tolerance)){
-        *(haldata->at_speed) = 1;
-    } else {
-        *(haldata->at_speed) = 0;
-    }
-
-    if (*(haldata->spindle_on) == 0){ // JET reset at-speed
-        *(haldata->at_speed) = 0;
-    }
+//    if ((*(haldata->freq_cmd) > 0.01) && ((1.0 - *(haldata->freq_out) / *(haldata->freq_cmd))  < haldata->speed_tolerance)){
+//        *(haldata->at_speed) = 1;
+//    } else {
+//        *(haldata->at_speed) = 0;
+//    }
+//
+//    if (*(haldata->spindle_on) == 0){ // JET reset at-speed
+//        *(haldata->at_speed) = 0;
+//    }
     return 0;
 }
 
