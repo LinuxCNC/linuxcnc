@@ -1749,6 +1749,8 @@ class Gscreen:
 
     def on_button_edit_clicked(self,widget):
         state = widget.get_active()
+        if not state:
+            self.edited_gcode_check()
         self.widgets.notebook_main.set_current_page(0)
         self.widgets.notebook_main.set_show_tabs(not (state))
         self.edit_mode(state)
@@ -1766,6 +1768,19 @@ class Gscreen:
         self.set_full_graphics_view(widget.get_active())
 
 # ****** do stuff *****
+
+    def edited_gcode_check(self):
+        if self.widgets.gcode_view.buf.get_modified():
+                dialog = gtk.MessageDialog(self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,"You edited the File. save edits?\n Choosing No will erase the edits.")
+                dialog.show_all()
+                result = dialog.run()
+                dialog.destroy()
+                if result == gtk.RESPONSE_YES:
+                    self.widgets.hal_action_saveas.emit("activate")
+                else:
+                    self.widgets.gcode_view.load_file()
 
     def set_desktop_notify(self,data):
         self.data.desktop_notify = data
@@ -2639,7 +2654,6 @@ class Gscreen:
             self.widgets.gcode_view.set_sensitive(0)
             self.data.edit_mode = False
             self.widgets.show_box.show()
-
 
     def set_dro_units(self, data, save=True):
         print "toggle dro units",self.data.dro_units,data
