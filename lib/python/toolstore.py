@@ -7,12 +7,10 @@ import sys
 import re
 import os
 
+##  FIXME  #
 sql_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 sql_path = os.path.join(sql_path, "share/sql")
 print sql_path
-def add_ext(f, ext):
-    f = os.path.splitext(f)[0]
-    return os.path.join(sql_path, f + ext)
 
 def dict_into_query(q, d):
     "replaces each occurence of :key in the input file with the textual representation of the value of d[key]"
@@ -30,115 +28,143 @@ def dict_into_query(q, d):
          
     return q
 
-def get_script(self, ini_tag, default_file):
-    script_name = self.inifile.find("TOOL", ini_tag)
-    if not script_name:
-        script_name = default_file
-    script_name = add_ext(script_name, ".sql")
-    try:  
-        script = open(script_name).read()
-    except:
-        print "The file " + script_name + " requested in the INI file does not exist"
-        print "using " + default_file + " instead"
-        try: 
-            script = open(default_file).read()
-        except:
-            print "Can't find the default script either, bailing out"
-            exit(0)
-    return script
-      
 class toolstore:
     """An attempt to provide configurable access to user-configurable tool 
     data"""
+    
+    def __get_script(self, sub_script_name):
+        "Utility function to extract queries separated by pseudo-XML tags"
+        q = '<{0}>(.+?)</{0}>'.format(sub_script_name)
+        regex = re.compile(q, flags=re.MULTILINE | re.DOTALL)
+        script = regex.search(self.scripts)
+        if script != None:
+            return script.group(1)
+        else:
+            print "sub-script {0} not found".format(sub_script_name)
+    
     def __init__(self):
-        self.inifile=linuxcnc.ini('~/classic.ini')
-        dbname = self.inifile.find("TOOL", "TOOL_DB")
-        print "opening tool database " + dbname
-        db = None
+        ini_name = os.getenv('INI_FILE_NAME')
+        self.inifile=linuxcnc.ini(ini_name)
+        base_path = os.getenv('CONFIG_DIR')
+        sql_path = os.path.join(os.getenv('LINUXCNC_HOME'), 'share','sql')
         
-        if not dbname:
+        print "INI file = " + ini_name
+        print "base_path = ", base_path
+        print "sql path = ", sql_path
+
+        script_name = self.inifile.find("TOOL", "SQL")
+        if script_name == None:
+            print """No SQL file specified in the [TOOL] section of the INI
+            file. Using the default file"""
+            script_name = "default"
+        script_name = os.path.splitext(script_name)[0]
+        script_name = os.path.join(sql_path, script_name + '.sql')
+        if os.path.exists(script_name):
+            self.scripts = open(script_name).read()
+        else:
+            print "Can't find the file {0}".format(script_name)     
+            exit(0)
+           
+        db_name = self.inifile.find("TOOL", "TOOL_DB")
+        
+        if db_name:
+            db_name = os.path.join(base_path, db_name)
+        else:
             #no database name given
             print "No tool database specified in ini, trying tool_db"
-            dbname = "tool_db"
+            db_name = os.path.join(base_path, "tool_db")
+        print "Database name == " + db_name
+        
+        self.db = None
         try: 
-            self.db = sql.connect(dbname)
-            print "opened tool database " + dbname
+            self.db = sql.connect(db_name)
+            print "opened (or created) tool database " + os.getenv('CONFIGDIR', '') + db_name
         except:
             #Database does not exist
             print "Error: Can't open or create the database"
             
         self.db.row_factory = sql.Row    
         self.cur = self.db.cursor()
-        self.cur.execute('SELECT count(*) FROM sqlite_master WHERE tbl_name = "tools" AND type = "table"')
+        self.cur.execute('SELECT count(*) FROM sqlite_master')
         check = self.cur.fetchone()
-        print check
+
         if not check[0]:
             #db exists, but is empty
-            print "Database " + dbname + " exists, but is empty"
-            schema = get_script(self, "DEFAULT_SCHEMA", "classic_schema.sql")  
+            print "Database " + db_name + " is empty"
+            schema = self.__get_script('schema')
+            print "schema==", schema
             self.cur.executescript(schema)
-
-            import_script = get_script(self, "IMPORT_SCRIPT", "classic_import.sql")
-              
-            tblname = self.inifile.find("EMCIO","TOOL_TABLE")
-            if tblname:
-                print "found tool table " + tblname + " in INI"
+            
+            tbl_name = self.inifile.find("EMCIO","TOOL_TABLE")
+            if tbl_name:
+                print "found tool table " + tbl_name + " in INI"
             else:
                 print "No tool database and no tool table name, using tool.tbl"
-                tblname = "tool.tbl"
-            try:
-                tbl = open(tblname)
-            except:
+                tbl_name = "tool.tbl"
+            if not os.path.exists(tbl_name):
                 print "Failed to open tool table, deleting tool database "
-                os.remove(dbname)
-                
-            for t in tbl.readlines():
-                tool = {'Tool':re.search('[Tt]([0-9+-.]+) ',t),
-                        'Pocket':re.search('[Pp]([0-9+-.]+)', t),
-                        'X':re.search('[Xx]([0-9+-.]+)', t),
-                        'Y':re.search('[Yy]([0-9+-.]+)', t),
-                        'Z':re.search('[Zz]([0-9+-.]+)', t),
-                        'A':re.search('[Aa]([0-9+-.]+)', t),
-                        'B':re.search('[Bb]([0-9+-.]+)', t),
-                        'C':re.search('[Cc]([0-9+-.]+)', t),
-                        'U':re.search('[Uu]([0-9+-.]+)', t),
-                        'V':re.search('[Vv]([0-9+-.]+)', t),
-                        'W':re.search('[Ww]([0-9+-.]+)', t),
-                        'Diameter':re.search('[Dd]([0-9+-.]+)', t),
-                        'Frontangle':re.search('[Ii]([0-9+-.]+)', t),
-                        'Backangle':re.search('[Jj]([0-9+-.]+)', t),
-                        'Orientation':re.search('[Qq]([0-9+-.]+)', t),
-                        'Comment':re.search(';(.*)', t)}
-                for m in tool:
-                    if tool[m]:
-                        tool[m] = tool[m].group(1)
+                os.remove(db_name)
+            
+            self.import_tbl(tbl_name)
+            
+    def import_tbl(self, tbl_name):
+        "Imports an old-style tool table into the database"
+        import_script = self.__get_script('import')
+        tbl = open(tbl_name)
+        for t in tbl.readlines():
+            tool = {'Tool':re.search('[Tt]([0-9+-.]+) ', t),
+                    'Pocket':re.search('[Pp]([0-9+-.]+)', t),
+                    'X':re.search('[Xx]([0-9+-.]+)', t),
+                    'Y':re.search('[Yy]([0-9+-.]+)', t),
+                    'Z':re.search('[Zz]([0-9+-.]+)', t),
+                    'A':re.search('[Aa]([0-9+-.]+)', t),
+                    'B':re.search('[Bb]([0-9+-.]+)', t),
+                    'C':re.search('[Cc]([0-9+-.]+)', t),
+                    'U':re.search('[Uu]([0-9+-.]+)', t),
+                    'V':re.search('[Vv]([0-9+-.]+)', t),
+                    'W':re.search('[Ww]([0-9+-.]+)', t),
+                    'Diameter':re.search('[Dd]([0-9+-.]+)', t),
+                    'Frontangle':re.search('[Ii]([0-9+-.]+)', t),
+                    'Backangle':re.search('[Jj]([0-9+-.]+)', t),
+                    'Orientation':re.search('[Qq]([0-9+-.]+)', t),
+                    'Comment':re.search(';(.*)', t)}
+            for m in tool:
+                if tool[m]:
+                    tool[m] = tool[m].group(1)
                         
-                temp_script = dict_into_query(import_script, tool)
-                self.cur.executescript(temp_script)
-                
-        #set up the other utility scripts according to the INI options. 
-        self.g43_script = get_script(self, "G43_SCRIPT", "classic_g43")
+            temp_script = dict_into_query(import_script, tool)
+            self.cur.executescript(temp_script)
         
-    def choose_offset_by_num(self, h):
+    def get_offset(self, h):
         """Takes a single integer (as might be provided by G43 Hnn) and uses it to apply an offset
         returns a tuple of offsets"""
-        temp_script = dict_into_query(self.g43_script, {'H': h})
-        print "Working G43 script " + temp_script
-        self.cur.execute(temp_script)
+        self.cur.execute(self.__get_script("get_offset"), {'H':h})
         r = self.cur.fetchone()
-        print self.cur.description
-        return r
+        if r == None:
+            offs = {'Error':'Offset %d can not be found in the tool database' % h}
+            return offs
+        ret = {}
+        for k in r.keys():
+            if r[k] == None:
+                ret[k] = 0
+            else:
+                ret[k] = r[k]
+        return ret
     
     def find_tool(self, t):
         """Uses the T-number to find a toolID"""
-        temp_script = get_script(self, "TOOL_SCRIPT", "classic_select_tool")
-        temp_script = dict_into_query(temp_script, {'T': t})
-        print "Working toolchange script  " + temp_script
-        self.cur.execute(temp_script)
+        self.cur.execute(self.__get_script("find_tool"), {'T':t})
         r = self.cur.fetchone()
-        print r.keys()
-        print r
-        return r
+        if r == None:
+            ret = {'Error':'Tool %d can not be found in the tool database' % t}
+            return ret
+        ret = {}
+        for k in r.keys():
+            if r[k] == None:
+                ret[k] = -1
+            else:
+                ret[k] = r[k]
+        return ret
 
 
         

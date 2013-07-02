@@ -5128,43 +5128,44 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
                                       setup_pointer settings)   //!< pointer to machine settings                 
 {
-  int pocket_number;
+  int offset_num;
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
 
   CHKS((settings->cutter_comp_side),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
-    pocket_number = 0;
+    //Nothing to do
   } else if (g_code == G_43) {
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
       if(block->h_flag) {
-        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
-    } else if (settings->toolchange_flag) {
-        // Tool change is in progress, so the "current tool" is in its
-        // original pocket still.
-        pocket_number = settings->current_pocket;
+        offset_num = block->h_number;
     } else {
-        // Tool change is done so the current tool is in pocket 0 (aka the
-        // spindle).
-        pocket_number = 0;
+        offset_num = settings->selected_tool;
     }
-    logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
-	     pocket_number, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
-
-    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
-    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
-    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
-    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
-    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
-    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
+      try {
+    	  bp::object toolstore = bp::import("toolstore").attr("toolstore")();
+    	  bp::object offs = toolstore.attr("get_offset")(offset_num);
+    	  if (PyMapping_HasKeyString(offs.ptr(), "Error")){
+    		  ERS("%s\n",bp::extract<std::string>(offs["Error"])().c_str());
+    		  return INTERP_ERROR;
+    	  }
+    	  tool_offset.tran.x = USER_TO_PROGRAM_LEN(bp::extract<float>(offs["X"]));
+    	  tool_offset.tran.y = USER_TO_PROGRAM_LEN(bp::extract<float>(offs["Y"]));
+    	  tool_offset.tran.z = USER_TO_PROGRAM_LEN(bp::extract<float>(offs["Z"]));
+    	  tool_offset.a = USER_TO_PROGRAM_ANG(bp::extract<float>(offs["A"]));
+    	  tool_offset.b = USER_TO_PROGRAM_ANG(bp::extract<float>(offs["B"]));
+    	  tool_offset.c = USER_TO_PROGRAM_ANG(bp::extract<float>(offs["C"]));
+    	  tool_offset.u = USER_TO_PROGRAM_LEN(bp::extract<float>(offs["U"]));
+    	  tool_offset.v = USER_TO_PROGRAM_LEN(bp::extract<float>(offs["V"]));
+    	  tool_offset.w = USER_TO_PROGRAM_LEN(bp::extract<float>(offs["W"]));
+      } catch (bp::error_already_set const &e){
+    	  PyErr_WriteUnraisable(Py_None);
+    	  return INTERP_ERROR;
+    }
   } else if (g_code == G_43_1) {
-    tool_offset = settings->tool_offset;
-    pocket_number = -1;
+	tool_offset = settings->tool_offset;
     if(block->x_flag) tool_offset.tran.x = block->x_number;
     if(block->y_flag) tool_offset.tran.y = block->y_number;
     if(block->z_flag) tool_offset.tran.z = block->z_number;
@@ -5231,15 +5232,17 @@ int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block
 	try {
 		bp::object toolstore = bp::import("toolstore").attr("toolstore")();
 		bp::object t = toolstore.attr("find_tool")(block->t_number);
-		if (t == bp::object()){
-			printf("Tool return is none-type\n");
+		if (PyMapping_HasKeyString(t.ptr(), "Error")){
+			ERS("%s\n",bp::extract<std::string>(t["Error"])().c_str());
 			return INTERP_ERROR;
 		}
 		settings->selected_pocket = bp::extract<int>(t["pocket"]);
 		settings->selected_tool = bp::extract<int>(t["toolID"]);
+		SELECT_POCKET(settings->selected_pocket, settings->selected_tool);
 		printf("Found ToolID %i in pocket %i\n", settings->selected_tool, settings->selected_pocket);
 		return INTERP_OK;
 	} catch (bp::error_already_set const &e){
+		printf("catch code\n");
 		PyErr_WriteUnraisable(Py_None);
 		return INTERP_ERROR;
 	}

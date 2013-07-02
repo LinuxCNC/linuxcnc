@@ -1895,7 +1895,6 @@ void CHANGE_TOOL(int slot)
 void SELECT_POCKET(int slot , int tool)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
-
     prep_for_tool_msg.pocket = slot;
     prep_for_tool_msg.tool = tool;
 

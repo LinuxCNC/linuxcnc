@@ -13,16 +13,20 @@ DROP TABLE IF EXISTS mag_types;
 CREATE TABLE spindles (
     spindleID     INTEGER PRIMARY KEY,
     description   TEXT,
+    machineID     TEXT DEFAULT "MachineID",
+    active 	  BOOLEAN DEFAULT TRUE,
     toolID        INTEGER DEFAULT NULL,
+    offsetID      INTEGER,
     spindle_hrs   REAL DEFAULT 0.0
 );
     
 CREATE TABLE tools (
-    toolID	INTEGER PRIMARY KEY,
-    T_number	INTEGER,
-    geom 	INTEGER DEFAULT NULL,
+    toolID	 TEXT PRIMARY KEY,
+    T_number	 INTEGER,
+    geom 	 INTEGER DEFAULT NULL,
     spindle_hrs REAL DEFAULT 0.0,
-    distance    REAL DEFAULT 0.0
+    distance    REAL DEFAULT 0.0,
+    in_use      BOOLEAN DEFAULT 1
 );
 
 CREATE TABLE offsets (
@@ -62,21 +66,23 @@ CREATE TABLE pockets (
     magazineID  INTEGER DEFAULT 0,
     pocketID    INTEGER DEFAULT 0,
     toolID      INTEGER DEFAULT NULL,
-    slot_pos    INTEGER DEFAULT NULL,
     pocket_offs INTEGER DEFAULT NULL,
+    slot_pos    INTEGER DEFAULT NULL,
     PRIMARY KEY (magazineID, pocketID, toolID)
 );
-
-CREATE TABLE mag_types (type TEXT);
-INSERT INTO mag_types(type) VALUES("rotary");
-INSERT INTO mag_types(type) VALUES("linear");
 
 CREATE TABLE magazines (
     magazineID  INTEGER PRIMARY KEY,
     description TEXT DEFAULT "",
-    type        mag_type DEFAULT "rotary",
+    spindleID   INTEGER DEFAULT 0,
+    type        TEXT DEFAULT "rotary",
     num_pockets INTEGER DEFAULT 1,
     base_pos    INTEGER
+);
+UPDATE magazines SET num_pockets = (SELECT max(pocketID) FROM pockets);
+
+CREATE TABLE metadata (
+    units	TEXT DEFAULT mm
 );
 
 COMMIT;
