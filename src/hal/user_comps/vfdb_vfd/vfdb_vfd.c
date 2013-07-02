@@ -504,8 +504,6 @@ retry:
     *(haldata->freq_cmd)  =  freq_reg / 100.0;
 
     // prepare command register
-    //  force Modbus control - this disables the panel
-//    cmd1_reg = (CMD_COMMAND_PRIORITY|CMD_FREQUENCY_PRIORITY);
     cmd1_reg = 0;
     if (*haldata->spindle_on){
         cmd1_reg |= (*haldata->jog_mode) ? CMD_JOG_RUN : CMD_RUN;
@@ -513,36 +511,11 @@ retry:
         cmd1_reg |= CMD_STOP;
     }
 
-//    // if 1, choose ramp times as per F500/F501
-//    // fix for PID loops where long ramp times cause oscillation
-//    if (haldata->acc_dec_pattern){
-//        cmd1_reg|= CMD_ACCEL_PATTERN_2;
-//    }
-
-//    // rev follows fwd
-//    // two bits for one direction is a mess in the first place
-//    *(haldata->spindle_rev) = *(haldata->spindle_fwd) ? 0 : 1;
-//    *(haldata->spindle_fwd) = *(haldata->spindle_rev) ? 0 : 1;
-
-    if (*haldata->spindle_rev) {
+    if (*(haldata->speed_command) >= 0) {
+        cmd1_reg |= CMD_FORWARD;
+    } else {
         cmd1_reg |= CMD_REVERSE;
     }
-
-    if (*haldata->spindle_fwd) {
-        cmd1_reg |= CMD_FORWARD;
-    }
-    // TODO: implement REVERSE/FORWARD
-    cmd1_reg |= CMD_FORWARD;
-
-//    // DC brake - turn spindle_on off as well
-//    if  (*(haldata->DC_brake)) {
-//        cmd1_reg |= CMD_DC_BRAKE;  	// set DC brake bit
-//        cmd1_reg &= ~(CMD_RUN | CMD_JOG_RUN);
-//        *(haldata->spindle_on) = 0;
-//        *(haldata->at_speed) = 0;
-//    } else {
-//        cmd1_reg &= ~CMD_DC_BRAKE;
-//    }
 
 //TODO: implement RESET command for VFD-B
 //    // send CMD_FAULT_RESET and CMD_EMERGENCY_STOP only once so the poor thing comes back
@@ -554,20 +527,8 @@ retry:
 //        cmd1_reg &= ~CMD_FAULT_RESET;
 //    }
 
-//    if (*(haldata->estop) && !(p->old_cmd1_reg  & CMD_EMERGENCY_STOP )) {	// not sent yet)
-//        cmd1_reg |= CMD_EMERGENCY_STOP;		// estop bit -> trip VFD into estop mode
-//        *(haldata->estop) = 0;
-//        *(haldata->spindle_on) = 0;
-//        *(haldata->at_speed) = 0;
-//    } else {
-//        cmd1_reg &= ~CMD_EMERGENCY_STOP;
-//    }
-
     DBG("write_data: cmd1_reg=0x%4.4X old cmd1_reg=0x%4.4X\n", cmd1_reg,p->old_cmd1_reg);
-    printf("write_data: cmd1_reg=0x%4.4X old cmd1_reg=0x%4.4X\n", cmd1_reg, p->old_cmd1_reg);
 
-    // cmd1_reg = 0x01;    // STOP
-//    cmd1_reg = 0x0012;    // RUN
     if (modbus_write_register(ctx, REG_COMMAND1, cmd1_reg) < 0) {
         // modbus transaction timed out. This may happen if VFD is in E-Stop.
         // if VFD was in E-Stop, and a fault reset was sent, wait about 2 seconds for recovery
@@ -596,15 +557,6 @@ retry:
         return errno;
     } 
 
-//    if ((*(haldata->freq_cmd) > 0.01) && ((1.0 - *(haldata->freq_out) / *(haldata->freq_cmd))  < haldata->speed_tolerance)){
-//        *(haldata->at_speed) = 1;
-//    } else {
-//        *(haldata->at_speed) = 0;
-//    }
-//
-//    if (*(haldata->spindle_on) == 0){ // JET reset at-speed
-//        *(haldata->at_speed) = 0;
-//    }
     return 0;
 }
 
