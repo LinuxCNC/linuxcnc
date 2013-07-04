@@ -64,22 +64,23 @@ import hashlib
 import gobject
 import glob
 import shutil
-import hal_actions
 import popupkeyboard
-import pango
 import exceptions  # for debug printing
 import traceback   # for debug printing
 import hal         # notused except for debug
+from gladevcp import hal_actions
 
 
 # __file__ is name of module
-# location: BASE/lib/python/gladevcp/pyngcgui.py
-#
-# since this file can be run standalone, it should be a link
-# to the .py file so this rule for BASE will work:
-BASE      = os.path.abspath(os.path.join(
-                            os.path.dirname(
-                            os.path.realpath(__file__)),"../../.."))
+mdir = os.path.abspath(os.path.join(
+                       os.path.dirname(
+                       os.path.realpath(__file__))))
+
+if (mdir.split('/')[-1] == "bin"):
+    # for standalone copy of this file installed in a bin directory:
+    BASE = os.path.abspath(os.path.join(mdir,".."))
+else:
+    BASE = os.path.abspath(os.path.join(mdir,"../.."))
 
 g_ui_dir = os.path.join(BASE, "share", "linuxcnc")
 
@@ -225,22 +226,6 @@ def default_send(filename):
         return True
     except:
         return False
-
-def x_default_send(filename):
-    try:
-        cmd = linuxcnc.command()
-        stat = linuxcnc.stat()
-        if hal_actions.running(stat):
-            print(_('default_send: program is running'))
-            return False
-        hal_actions.ensure_mode(stat,cmd,linuxcnc.MODE_MDI)
-        hal_actions.ensure_mode(stat,cmd,linuxcnc.MODE_AUTO)
-        cmd.program_open(filename)
-        return True # success
-    except:
-        print(_('default_send: fail'))
-        print(sys.exc_info())
-        return False # fail
 
 def send_to_axis(filename): # return True for success
     # NB: file with errors may hang in axis gui
@@ -1121,9 +1106,10 @@ class LinuxcncInterface():
 
     def get_program_prefix(self):
         if self.ini_data:
-            dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')[0]
+            dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
             if not os.path.abspath(dir):
                 dir = os.path.join(self.ini_file,dir)
+            return(dir)
         else:
             return(None)
 
@@ -2667,7 +2653,7 @@ class NgcGui():
                 ,noauto=False
                 ,keyboardfile='' # None | ['default'|'yes'] | fullfilename
                 ,tmode=0
-                ,send_function=send_to_axis # prototype: (fname)
+                ,send_function=default_send # prototype: (fname)
                 ,ini_file=''
                 ,auto_file=''
                 ,pre_file=''
@@ -3096,177 +3082,31 @@ def usage():
 Usage:
 %s [Options] [sub_filename]
 Options requiring values:
-    [-d | --demo]      [0|1|2] (0: DEMO standalone toplevel)
-                               (1: DEMO embed new notebook)
-                               (2: DEMO embed within existing notebook)
-    [-S | --subfile]      sub_filename
-    [-p | --preamble]     preamble_filename
-    [-P | --postamble]    postamble_filename
-    [-i | --ini]          inifile_name
-    [-a | --autofile]     autoauto_filename
-    [-t | --test]         testno
-    [-H | --height]       height of entry widget (typ 20-40)
-    [-K | --keyboardfile] glade_file (use custom popupkeyboard glade file)
+    [-d | --demo] [0|1|2] (0: DEMO standalone toplevel)
+                          (1: DEMO embed new notebook)
+                          (2: DEMO embed within existing notebook)
+    [-S | --subfile       sub_filename]
+    [-p | --preamble      preamble_filename]
+    [-P | --postamble     postamble_filename]
+    [-i | --ini           inifile_name]
+    [-a | --autofile      autoauto_filename]
+    [-t | --test          testno]
+    [-H | --height        height_of_entry widget] (typ 20-40)
+    [-K | --keyboardfile  glade_file] (use custom popupkeyboard glade file)
 Solo Options:
     [-v | --verbose]
     [-D | --debug]
-    [-n | --noauto]    (save but do not automatically send result)
-    [-k | --keyboard]  (use default popupkeybaord)
+    [-n | --noauto]       (save but do not automatically send result)
+    [-k | --keyboard]     (use default popupkeybaord)
+    [-s | --sendtoaxis]   (send generated ngc file to axis gui)
 Notes:
-      A set of files are comprised of a preamble,subfile,postamble.
+      A set of files is comprised of a preamble, subfile, postamble.
       The preamble and postamble are optional.
       One set of files can be specified from cmdline.
       Multiple sets of files can be specified from an inifile.
-      If --inifile is NOT specified:
+      If --ini is NOT specified:
          search for a running linuxcnc and use it's inifile
     """ % sys.argv[0])
-#-----------------------------------------------------------------------------
-# class to make a gladevcp widget:
-class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
-    """PyNgcGui -- gladevcp widget"""
-    __gtype_name__  = 'PyNgcGui'
-    __gproperties__ = {
-     'use_keyboard' :      (gobject.TYPE_BOOLEAN
-                           ,'Use Popup Keyboard'
-                           ,'Yes or No'
-                           ,False
-                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
-                           ),
-     'debug' :             (gobject.TYPE_BOOLEAN
-                           ,'Debug'
-                           ,'Yes or No'
-                           ,False
-                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
-                           ),
-     'verbose' :           (gobject.TYPE_BOOLEAN
-                           ,'Verbose'
-                           ,'Yes or No'
-                           ,False
-                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
-                           ),
-     'send_function_name': (gobject.TYPE_STRING
-                           ,'Send Function'
-                           ,'default_send | send_to_axis | dummy_send'
-                           ,'default_send'
-                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
-                           ),
-     'gtk_theme_name':     (gobject.TYPE_STRING
-                           ,'GTK+ Theme Name'
-                           ,'default | name_of_gtk+_theme'
-                           ,'Follow System Theme'
-                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
-                           ),
-     'control_font_name':  (gobject.TYPE_STRING
-                           ,'Control Font'
-                           ,'example: Sans 10'
-                           ,'Sans 10'
-                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
-                           ),
-                     }
-
-    __gproperties = __gproperties__ # self.__gproperties
-    def __init__(self):
-        super(PyNgcGui,self).__init__(label=None)  # glade creates label anyway
-        self.set_label(None)                       # this doesn't work here
-        # the two attempts above don't prevent glade from making a Frame label
-
-        # glade calls do_set_property() for each property after call to __init__()
-        # So, start_ngcgui() is deferred until this count is decremented to zero
-        self.property_set_count = len(self.__gproperties.keys())
-
-        # put default property values in self.property_dict[]
-        self.property_dict = {}
-        for name in self.__gproperties.keys():
-            gtype = self.__gproperties[name][0]
-            if (   gtype == gobject.TYPE_BOOLEAN
-                or gtype == gobject.TYPE_STRING):
-                ty,lbl,tip,dflt,other = self.__gproperties[name]
-            if (   gtype == gobject.TYPE_INT
-                or gtype == gobject.TYPE_FLOAT):
-                ty,lbl,tip,minv,maxv,dflt,other = self.__gproperties[name]
-            self.property_dict[name] = dflt
-
-    def do_get_property(self,property):
-        name = property.name.replace('-', '_')
-        if name in self.property_dict.keys():
-            return self.property_dict[name]
-        else:
-            raise AttributeError(_('%s:unknown property %s')
-                                 % (g_progname,property.name))
-
-
-    # glade seems to call do_set_property() for each item in
-    # __gproperties__ after __init__()
-    def do_set_property(self,property,value):
-        if self.property_set_count < 0:
-            # allow one-time setting of properties at startup
-            # so just return when this count is decremented below zero
-            # on a later call
-            return
-        name = property.name.replace('-','_')
-        if name not in self.__gproperties.keys():
-            raise(AttributeError
-                 ,_('%s:pyngcgui:do_set_property: unknown <%s>')
-                 % (g_progname,name))
-        else:
-            vprint('SET P[%s]=%s' % (name,value))
-            self.property_dict[name] = value
-
-        # WAIT until all properties have been set before calling start_ngcgui:
-        self.property_set_count -= 1
-        if self.property_set_count == 0:
-            self.start_ngcgui(debug  = self.property_dict['debug']
-                ,verbose             = self.property_dict['verbose']
-                ,use_keyboard        = self.property_dict['use_keyboard']
-                ,send_function_name  = self.property_dict['send_function_name']
-                ,control_font_name   = self.property_dict['control_font_name']
-                ,gtk_theme_name      = self.property_dict['gtk_theme_name']
-                )
-            gobject.timeout_add(1,self.remove_unwanted_label)
-
-    def remove_unwanted_label(self):
-        # coerce removal of unwanted label
-        self.set_label(None)
-        return False # one-time-only
-
-    def start_ngcgui(self
-                    ,debug=False
-                    ,verbose=False
-                    ,use_keyboard=False
-                    ,send_function_name=''
-                    ,control_font_name=None
-                    ,gtk_theme_name="Follow System Theme"
-                    ):
-
-        thenotebook = gtk.Notebook()
-        self.add(thenotebook) # tried with self=VBox,HBox,Frame
-                              # Frame shows up best in glade designer
-
-        keyboardfile = None
-        if use_keyboard: keyboardfile = 'default'
-
-        send_function = None # None: let NgcGui handle it
-        if   send_function_name == '':             send_function = default_send
-        elif send_function_name == 'dummy_send':   send_function = dummy_send
-        elif send_function_name == 'send_to_axis': send_function = send_to_axis
-        elif send_function_name == 'default_send': send_function = default_send
-        else:
-            print(_('%s:unknown send_function<%s>')
-                  % (g_progname,send_function_name))
-
-        if control_font_name is not None:
-           control_font = pango.FontDescription(control_font_name)
-
-        self.ngcgui = NgcGui(w=thenotebook
-                            ,debug=debug
-                            ,verbose=verbose
-                            ,keyboardfile=keyboardfile
-                            ,send_function=send_function # prototype: (fname)
-                            ,auto_file= os.path.expanduser(
-                                   '~/linuxcnc/nc_files/ngcgui_generated.ngc')
-                            ,control_font=control_font
-                            ,gtk_theme_name=gtk_theme_name
-                            )
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
 if __name__ == "__main__":
@@ -3308,9 +3148,10 @@ if __name__ == "__main__":
     ini_file     = ''
     auto_file    = ''
     tmode        = 0
+    send_f       = default_send
     try:
         options,remainder = getopt.getopt(sys.argv[1:]
-                          ,'a:Dd:hi:kK:np:P:S:t:v'
+                          ,'a:Dd:hi:kK:np:P:sS:t:v'
                           , ['autofile'
                             ,'demo='
                             ,'debug'
@@ -3323,6 +3164,7 @@ if __name__ == "__main__":
                             ,'postamble='
                             ,'subfile='
                             ,'verbose'
+                            ,'sendtoaxis'
                             ]
                           )
     except getopt.GetoptError,msg:
@@ -3358,6 +3200,9 @@ if __name__ == "__main__":
         if opt in ('-v','--verbose'):
             vbose = True
             continue
+        if opt in ('-s','--sendtoaxis'):
+            send_f = send_to_axis
+            continue
     if remainder: subfilenames = remainder # ok for shell glob e.g., *.ngc
     demo = int(demo)
     if not keyboard: keyboardfile=None
@@ -3374,7 +3219,7 @@ if __name__ == "__main__":
                   ,verbose=vbose,debug=dbg,noauto=noauto
                   ,keyboardfile=keyboardfile
                   ,tmode=tmode
-                  ,send_function=send_to_axis # prototype: (fname)
+                  ,send_function=send_f # prototype: (fname)
                   ,ini_file=ini_file,auto_file=auto_file
                   ,pre_file=prefilename,sub_files=subfilenames,pst_file=pstfilename
                   )
@@ -3383,7 +3228,7 @@ if __name__ == "__main__":
                   ,verbose=vbose,debug=dbg,noauto=noauto
                   ,keyboardfile=keyboardfile
                   ,tmode=tmode
-                  ,send_function=send_to_axis # prototype: (fname)
+                  ,send_function=send_f # prototype: (fname)
                   ,ini_file=ini_file,auto_file=auto_file
                   ,pre_file=prefilename,sub_files=subfilenames,pst_file=pstfilename
                   )
@@ -3393,7 +3238,7 @@ if __name__ == "__main__":
                   ,verbose=vbose,debug=dbg,noauto=noauto
                   ,keyboardfile=keyboardfile
                   ,tmode=tmode
-                  ,send_function=send_to_axis # prototype: (fname)
+                  ,send_function=send_f # prototype: (fname)
                   ,ini_file=ini_file,auto_file=auto_file
                   ,pre_file=prefilename,sub_files=subfilenames,pst_file=pstfilename
                   )

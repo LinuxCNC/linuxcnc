@@ -36,13 +36,13 @@ $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 	chmod +x $@
 TARGETS += ../bin/tooledit
 
-../lib/python/gladevcp/pyngcgui.py: emc/usr_intf/pyngcgui.py
+../lib/python/pyngcgui.py: emc/usr_intf/pyngcgui.py
 	cp $< $@
 	chmod +x $@
-TARGETS += ../lib/python/gladevcp/pyngcgui.py
+TARGETS += ../lib/python/pyngcgui.py
 
 # use link so BASE works for module and standalone
-../bin/pyngcgui: ../lib/python/gladevcp/pyngcgui.py
+../bin/pyngcgui: ../lib/python/pyngcgui.py
 	ln -sf $< $@
 TARGETS += ../bin/pyngcgui
 

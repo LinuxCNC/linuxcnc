@@ -84,13 +84,14 @@ import gobject
 import glib # for glib.GError
 
 # __file__ is name of module
-# location: BASE/lib/python/gremlin_view.py
-#
-# since this file can be run standalone, it should be a link
-# to the .py file so this rule for BASE will work:
-BASE = os.path.abspath(os.path.join(
+mdir = os.path.abspath(os.path.join(
                        os.path.dirname(
-                       os.path.realpath(__file__)),"../../"))
+                       os.path.realpath(__file__))))
+if (mdir.split('/')[-1] == "bin"):
+    # for standalone copy of this file installed in a bin directory:
+    BASE = os.path.abspath(os.path.join(mdir,".."))
+else:
+    BASE = os.path.abspath(os.path.join(mdir,"../.."))
 
 g_ui_dir          = os.path.join(BASE, "share", "linuxcnc")
 g_periodic_secs   = 1 # integer
@@ -117,7 +118,7 @@ def ini_setup ():
             print('ini_setup:       curdir= %s' % os.path.curdir)
         return True # success
     print(_('%s:linuxcnc ini file  not available') % g_progname)
-    return False
+    return False # exit here crashes glade-gtk2
 
 def get_linuxcnc_ini_file():
     """find linuxcnc ini file with pgrep"""
