@@ -41,7 +41,7 @@ TARGETS += ../bin/tooledit
 	chmod +x $@
 TARGETS += ../lib/python/pyngcgui.py
 
-# use link so BASE works for module and standalone
+# use link so BASE works for module and standalone in RIP build
 ../bin/pyngcgui: ../lib/python/pyngcgui.py
 	ln -sf $< $@
 TARGETS += ../bin/pyngcgui

@@ -75,10 +75,6 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
         self.set_label(None)                       # this doesn't work here
         # the two attempts above don't prevent glade from making a Frame label
 
-        # glade calls do_set_property() for each property after call to __init__()
-        # So, start_ngcgui() is deferred until this count is decremented to zero
-        self.property_set_count = len(self.__gproperties.keys())
-
         # put default property values in self.property_dict[]
         self.property_dict = {}
         for name in self.__gproperties.keys():
@@ -90,6 +86,7 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
                 or gtype == gobject.TYPE_FLOAT):
                 ty,lbl,tip,minv,maxv,dflt,other = self.__gproperties[name]
             self.property_dict[name] = dflt
+        gobject.timeout_add(1,self.go_ngcgui) # deferred
 
     def do_get_property(self,property):
         name = property.name.replace('-', '_')
@@ -99,15 +96,7 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
             raise AttributeError(_('%s:unknown property %s')
                                  % (g_progname,property.name))
 
-
-    # glade seems to call do_set_property() for each item in
-    # __gproperties__ after __init__()
     def do_set_property(self,property,value):
-        if self.property_set_count < 0:
-            # allow one-time setting of properties at startup
-            # so just return when this count is decremented below zero
-            # on a later call
-            return
         name = property.name.replace('-','_')
         if name not in self.__gproperties.keys():
             raise(AttributeError
@@ -117,24 +106,22 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
             pyngcgui.vprint('SET P[%s]=%s' % (name,value))
             self.property_dict[name] = value
 
-        # WAIT until all properties have been set before calling start_ngcgui:
-        self.property_set_count -= 1
-        if self.property_set_count == 0:
-            self.start_ngcgui(debug  = self.property_dict['debug']
-                ,verbose             = self.property_dict['verbose']
-                ,use_keyboard        = self.property_dict['use_keyboard']
-                ,send_function_name  = self.property_dict['send_function_name']
-                ,control_font_name   = self.property_dict['control_font_name']
-                ,gtk_theme_name      = self.property_dict['gtk_theme_name']
-                )
-            gobject.timeout_add(1,self.remove_unwanted_label)
+    def go_ngcgui(self):
+        self.start_NgcGui(debug  = self.property_dict['debug']
+            ,verbose             = self.property_dict['verbose']
+            ,use_keyboard        = self.property_dict['use_keyboard']
+            ,send_function_name  = self.property_dict['send_function_name']
+            ,control_font_name   = self.property_dict['control_font_name']
+            ,gtk_theme_name      = self.property_dict['gtk_theme_name']
+            )
+        gobject.timeout_add(1,self.remove_unwanted_label)
 
     def remove_unwanted_label(self):
         # coerce removal of unwanted label
         self.set_label(None)
         return False # one-time-only
 
-    def start_ngcgui(self
+    def start_NgcGui(self
                     ,debug=False
                     ,verbose=False
                     ,use_keyboard=False

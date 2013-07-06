@@ -18,7 +18,7 @@ PYI18NSRCS += emc/usr_intf/gremlin/gremlin.py
 	chmod +x $@
 TARGETS += ../lib/python/gremlin_view.py
 
-# use link so BASE works for module and standalone
+# use link so BASE works for module and standalone in RIP build
 ../bin/gremlin_view: ../lib/python/gremlin_view.py
 	ln -sf $< $@
 TARGETS += ../bin/gremlin_view

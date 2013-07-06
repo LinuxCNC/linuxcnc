@@ -87,14 +87,8 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
         self.set_label(None)
         # the two attempts above don't prevent glade from making a label
 
-        # Builder calls do_set_property() for each property
-        # after call to __init__()
-        # So, start_GremlinView() is deferred until this count is
-        # decremented to zero
-        self.property_set_count = len(self.__gproperties.keys())
-        self.property_dict = {}
-
         # put default property values in self.property_dict[]
+        self.property_dict = {}
         for name in self.__gproperties.keys():
             gtype = self.__gproperties[name][0]
             if (   gtype == gobject.TYPE_BOOLEAN
@@ -104,6 +98,7 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
                 or gtype == gobject.TYPE_FLOAT):
                 ty,lbl,tip,minv,maxv,dflt,other = self.__gproperties[name]
             self.property_dict[name] = dflt
+        gobject.timeout_add(1,self.go_gremlin_view) # defer
 
     def do_get_property(self,property):
         name = property.name.replace('-', '_')
@@ -113,32 +108,22 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
             raise AttributeError(_('%s:unknown property %s')
                                  % (g_progname,property.name))
 
-    # glade seems to call do_set_property() for each item in
-    # __gproperties__ after __init__()
     def do_set_property(self,property,value):
-        if self.property_set_count < 0:
-            # allow one-time setting of properties at startup
-            # so just return when ct decremented below zero
-            # if called later
-            return
         name = property.name.replace('-','_')
         if name not in self.__gproperties.keys():
             raise(AttributeError
                  ,_('%s:do_set_property: unknown <%s>')
                  % (g_progname,name))
         else:
-            #print('SET P[%s]=%s' % (name,value))
             self.property_dict[name] = value
 
-        # Wait until all properties set before calling start_GremlinView:
-        self.property_set_count -= 1
-        if self.property_set_count == 0:
-            self.start_GremlinView(width=self.property_dict['width']
-                ,height=self.property_dict['height']
-                ,glade_file=self.property_dict['glade_file']
-                ,gtk_theme_name= self.property_dict['gtk_theme_name']
-                )
-            gobject.timeout_add(1,self.remove_unwanted_label)
+    def go_gremlin_view(self):
+        self.start_GremlinView(width=self.property_dict['width']
+            ,height=self.property_dict['height']
+            ,glade_file=self.property_dict['glade_file']
+            ,gtk_theme_name= self.property_dict['gtk_theme_name']
+            )
+        gobject.timeout_add(1,self.remove_unwanted_label)
 
     def remove_unwanted_label(self):
         # coerce removal of unwanted label

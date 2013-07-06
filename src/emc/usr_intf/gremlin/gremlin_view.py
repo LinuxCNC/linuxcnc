@@ -92,6 +92,8 @@ if (mdir.split('/')[-1] == "bin"):
     BASE = os.path.abspath(os.path.join(mdir,".."))
 else:
     BASE = os.path.abspath(os.path.join(mdir,"../.."))
+    if (BASE.split('/')[-1] == 'lib'):
+        BASE = os.path.abspath(os.path.join(mdir,"../../.."))
 
 g_ui_dir          = os.path.join(BASE, "share", "linuxcnc")
 g_periodic_secs   = 1 # integer
@@ -150,6 +152,7 @@ class GremlinView():
                 ,gtk_theme_name="Follow System Theme"
                 ):
 
+        self.alive = alive
         linuxcnc_running = False
         if ini_setup():
             linuxcnc_running = True
@@ -336,7 +339,21 @@ class GremlinView():
             # but without, the display of the (rgb) axes
             # and the cone to not appear in gremlin
             # print "REPARENT:",self.gbox, self.parent
-            self.gbox.reparent(self.parent)
+            #-----------------------------------------------------------------------------
+            # determine if glade interface designer is running
+            # to avoid assertion error:
+            # gtk_widget_reparent_fixup_child: assertion failed: (client_data != NULL)
+            is_glade = False
+            if 'glade' in sys.argv[0] and 'gladevcp' not in sys.argv[0]:
+                for d in os.environ['PATH'].split(':'):
+                    f = os.path.join(d,sys.argv[0])
+                    if (    os.path.isfile(f)
+                        and os.access(f, os.X_OK)):
+                        is_glade = True
+                        break
+            #-----------------------------------------------------------------------------
+            if (not is_glade):
+                self.gbox.reparent(self.parent)
             self.gbox.show_all()
             self.gbox.connect('destroy',self._gboxquit)
             return True
@@ -365,7 +382,13 @@ class GremlinView():
 
     def preview_file(self,filename):
         self.halg.hide()
-        self.halg.load(filename or None)
+        # handle exception in case glade is running
+        try:
+            self.halg.load(filename or None)
+        except Exception, detail:
+            if self.alive:
+                print "file load fail:",Exception,detail
+            pass
         getattr(self.halg,'set_view_%s' % self.my_view)()
         self.halg.show()
 

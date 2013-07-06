@@ -70,7 +70,6 @@ import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
 
-
 # __file__ is name of module
 mdir = os.path.abspath(os.path.join(
                        os.path.dirname(
@@ -81,6 +80,8 @@ if (mdir.split('/')[-1] == "bin"):
     BASE = os.path.abspath(os.path.join(mdir,".."))
 else:
     BASE = os.path.abspath(os.path.join(mdir,"../.."))
+    if (BASE.split('/')[-1] == 'lib'):
+        BASE = os.path.abspath(os.path.join(mdir,"../../.."))
 
 g_ui_dir = os.path.join(BASE, "share", "linuxcnc")
 
@@ -1071,7 +1072,7 @@ class LinuxcncInterface():
             print(_('find_file_in_path:Multiple Results: %s') % foundlist)
             print(_('      Search path: %s') % self.subroutine_path)
         if foundfilename:
-            dprint('find_file_in_path:%s' % foundfilename)
+            vprint('find_file_in_path:%s' % foundfilename)
             return(foundfilename,'FOUND')
         print('find_file_in_path<%s> NOTFOUND' % fname)
         return(fname,'NOTFOUND')
@@ -1622,6 +1623,7 @@ class TestButtons():
             print('INFO--------------------------------------------------')
             print('       sys.argv = %s' % sys.argv)
             print('            cwd = %s' % os.getcwd())
+            print('       sys.path = %s' % sys.path)
             print('       ini_file = %s' % p.intfc.get_ini_file())
             print('      auto_file = %s' % p.auto_file)
             print('subroutine_path = %s' % p.intfc.get_subroutine_path())
@@ -3207,11 +3209,18 @@ if __name__ == "__main__":
     demo = int(demo)
     if not keyboard: keyboardfile=None
 
-    print(g_progname + ' BEGIN-----------------------------------------------')
-    print('demo= <%s>' % demo)
-    print('subfilenames= <%s>' % subfilenames)
-    print('tmode= <%s>' % tmode)
-    print('keyboard= <%s>, keyboardfile= <%s>' % (keyboard,keyboardfile))
+    if (dbg):
+        print(g_progname + ' BEGIN-----------------------------------------------')
+        print('    __file__= %s' % __file__)
+        print('    ini_file= %s' % ini_file)
+        print('    sys.argv= %s' % sys.argv)
+        print('   os.getcwd= %s' % os.getcwd())
+        print('    sys.path= %s' % sys.path)
+        print('        demo= %s' % demo)
+        print(' prefilename= %s' % prefilename)
+        print('subfilenames= %s' % subfilenames)
+        print(' pstfilename= %s' % pstfilename)
+        print('    keyboard= %s, keyboardfile= <%s>' % (keyboard,keyboardfile))
     try:
         if demo == 0:
             top.hide()
