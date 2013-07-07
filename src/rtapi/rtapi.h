@@ -725,6 +725,14 @@ extern int _rtapi_task_self(void);
 
 #endif /* RTAPI */
 
+/** 'rtapi_backtrace()' writes a stack trace to the log.
+ available in all flavors and ULAPI/RTAPI
+*/
+typedef void (*rtapi_backtrace_t)(int);
+#define rtapi_backtrace(msglevel)			\
+    rtapi_switch->rtapi_backtrace(msglevel)
+extern void _rtapi_backtrace(int msglevel);
+
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
 ************************************************************************/
@@ -950,6 +958,7 @@ typedef struct {
 #else
     rtapi_dummy_t rtapi_set_exception;
 #endif
+    rtapi_backtrace_t rtapi_backtrace;
 
 } rtapi_switch_t;
 

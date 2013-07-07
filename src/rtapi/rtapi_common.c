@@ -14,6 +14,7 @@
 
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 #include <stdio.h>		/* putchar */
+#include <execinfo.h>           /* backtrace(), backtrace_symbols() */
 #endif
 
 
@@ -134,6 +135,8 @@ static rtapi_switch_t rtapi_switch_struct = {
 #else
     .rtapi_set_exception = &_rtapi_dummy,
 #endif
+    .rtapi_backtrace = &_rtapi_backtrace,
+
 };
 
 // any API, any style:
@@ -377,6 +380,35 @@ int  _rtapi_next_module_id(void)
     next_id = global_data->next_module_id++;
     rtapi_mutex_give(&(global_data->mutex));
     return next_id;
+}
+
+#define BACKTRACE_SIZE 1000
+
+void _rtapi_backtrace(int msglevel)
+{
+#if defined(BUILD_SYS_KBUILD) && defined(RTAPI)
+    dump_stack();
+#endif
+#if defined(ULAPI) || (defined(BUILD_SYS_USER_DSO) && defined(RTAPI))
+    void *buffer[BACKTRACE_SIZE];
+    int j, nptrs;
+    char **strings;
+
+    nptrs = backtrace(buffer, BACKTRACE_SIZE);
+
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"backtrace_symbols(): %s",
+		  strerror(errno));
+    } else {
+	for (j = 0; j < nptrs; j++) {
+	    char *s =  strings[j];
+	    if (s && strlen(s))
+		rtapi_print_msg(msglevel, "%s", s);
+	}
+	free(strings);
+    }
+#endif
 }
 
 /* simple_strtol defined in
