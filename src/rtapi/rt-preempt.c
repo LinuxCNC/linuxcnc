@@ -531,4 +531,22 @@ void _rtapi_delay_hook(long int nsec)
     clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 }
 
+
+int _rtapi_task_self_hook(void) {
+    int n;
+
+    /* ask OS for pointer to its data for the current pthread */
+    pthread_t self = pthread_self();
+
+    /* find matching entry in task array */
+    n = 1;
+    while (n <= RTAPI_MAX_TASKS) {
+	if (extra_task_data[n].thread == self) {
+	    /* found a match */
+	    return n;
+	}
+	n++;
+    }
+    return -EINVAL;
+}
 #endif /* ULAPI/RTAPI */
