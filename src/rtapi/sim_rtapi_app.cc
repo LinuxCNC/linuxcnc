@@ -613,6 +613,8 @@ static int configure_memory(void) {
 	return 0;
 }
 
+// this is called on signals handled by rtapi_app only (SEGV SIGILL SIGFPE)
+// SIGXCPU (xenomai) is handled in the Xenomai rtapi
 extern "C" void 
 backtrace_handler(int sig, siginfo_t *si, void *uctx)
 {
@@ -620,14 +622,8 @@ backtrace_handler(int sig, siginfo_t *si, void *uctx)
     int j, nptrs;
     char **strings;
 
-    if ((flavor->id == RTAPI_XENOMAI_ID) &&
-	(sig == SIGXCPU))
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-		  "rtapi_app:%d: Xenomai switched RT task to secondary domain\n",
-		  instance_id);
-    else
-	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: signal %d - '%s' received\n",
-		  instance_id, sig, strsignal(sig));
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: signal %d - '%s' received\n",
+		    instance_id, sig, strsignal(sig));
 
     nptrs = backtrace(buffer, BACKTRACE_SIZE);
 
