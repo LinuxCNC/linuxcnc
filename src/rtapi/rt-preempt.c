@@ -19,7 +19,6 @@
 #ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
-#include <signal.h>		// sigaction(), sigemptyset(), SIGXCPU...
 #include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
 /* Lock for task_array and module_array allocations */
@@ -33,7 +32,6 @@ static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 typedef struct {
     int deleted;
     int destroyed;
-    int deadline_scheduling;
     struct timespec next_time;
 
     /* The realtime thread. */
@@ -268,110 +266,14 @@ static int realtime_set_affinity(task_data *task) {
     return 0;
 }
 
-
-#define ENABLE_SCHED_DEADLINE	0 /*XXX set to 1 to enable deadline scheduling. */
-
-#ifndef __NR_sched_setscheduler_ex
-# if defined(__x86_64__)
-#  define __NR_sched_setscheduler_ex	299
-#  define __NR_sched_wait_interval	302
-# elif defined(__i386__)
-#  define __NR_sched_setscheduler_ex	337
-#  define __NR_sched_wait_interval	340
-# else
-#  warning "SCHED_DEADLINE syscall numbers unknown"
-# endif
-#endif
-
-#ifndef SCHED_DEADLINE
-#define SCHED_DEADLINE		6
-
-struct sched_param_ex {
-    int sched_priority;
-    struct timespec sched_runtime;
-    struct timespec sched_deadline;
-    struct timespec sched_period;
-    int sched_flags;
-};
-
-#define SCHED_SIG_RORUN		0x80000000
-#define SCHED_SIG_DMISS		0x40000000
-
-static inline int sched_setscheduler_ex(pid_t pid, int policy, unsigned len,
-					struct sched_param_ex *param) {
-#ifdef __NR_sched_setscheduler_ex
-    return syscall(__NR_sched_setscheduler_ex, pid, policy, len, param);
-#endif
-    return -ENOSYS;
-}
-static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
-				      struct timespec *rmtp) {
-#ifdef __NR_sched_wait_interval
-    return syscall(__NR_sched_wait_interval, flags, rqtp, rmtp);
-#endif
-    return -ENOSYS;
-}
-#endif /* SCHED_DEADLINE */
-
-
 #ifndef RTAPI_POSIX
 
 #ifdef RTAPI
 extern rtapi_exception_handler_t rt_exception_handler;
 #endif
 
-static void deadline_exception(int signr) {
-    char buf[LINELEN];
-
-    if (rt_exception_handler == NULL)
-	return;
-
-    if (signr != SIGXCPU) {
-	rtapi_snprintf(buf, sizeof(buf),"Received unknown signal %d", signr);
-	rt_exception_handler(RTP_SIGNAL, signr, buf);
-	return;
-    } else {
-	rt_exception_handler(RTP_SIGXCPU, SIGXCPU, "Missed scheduling deadline");
-    }
-}
-
-
 static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
-    struct sched_param_ex ex;
-    struct sigaction sa;
-
-    extra_task_data[task_id(task)].deadline_scheduling = 0;
-    if (ENABLE_SCHED_DEADLINE) {
-	memset(&sa, 0, sizeof(sa));
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = deadline_exception;
-	if (sigaction(SIGXCPU, &sa, NULL)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "Unable to register SIGXCPU handler.\n");
-	    return -1;
-	}
-
-	memset(&ex, 0, sizeof(ex));
-	ex.sched_deadline.tv_nsec = period;
-	ex.sched_runtime.tv_nsec = 8000; //FIXME
-	ex.sched_flags = SCHED_SIG_RORUN | SCHED_SIG_DMISS;
-	rtapi_print_msg(RTAPI_MSG_DBG,
-			"Setting deadline scheduler for %d\n", task_id(task));
-	if (sched_setscheduler_ex(0, SCHED_DEADLINE, sizeof(ex), &ex)) {
-	    rtapi_print_msg
-		(RTAPI_MSG_INFO,
-		 "Unable to set DEADLINE scheduling policy (%s). "
-		 "Trying FIFO.\n",
-		 strerror(errno));
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-			    "Running DEADLINE scheduling policy.\n");
-	    extra_task_data[task_id(task)].deadline_scheduling = 1;
-	    return 0;
-	}
-    }
 
     memset(&schedp, 0, sizeof(schedp));
     schedp.sched_priority = task->prio;
@@ -490,12 +392,8 @@ int _rtapi_wait_hook(void) {
     if (extra_task_data[task_id(task)].deleted)
 	pthread_exit(0);
 
-    if (extra_task_data[task_id(task)].deadline_scheduling)
-	sched_wait_interval(TIMER_ABSTIME,
-			    &extra_task_data[task_id(task)].next_time, NULL);
-    else
-	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
-			&extra_task_data[task_id(task)].next_time, NULL);
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
+		    &extra_task_data[task_id(task)].next_time, NULL);
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
 		       task->period, 0);
     clock_gettime(CLOCK_MONOTONIC, &ts);

@@ -37,7 +37,6 @@ typedef enum {
     XU_OTHER,         // unknown error code
 
     // RT-PREEMPT
-    RTP_SIGXCPU,      // Missed scheduling deadline
     RTP_SIGNAL,       // some other signal
     RTP_DEADLINE_MISSED, // clock_gettime(CLOCK_MONOTONIC) returned 'too late'
 

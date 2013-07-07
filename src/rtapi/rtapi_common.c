@@ -255,7 +255,6 @@ int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
     case RTAI_RTE_UNCLASSIFIED:
     case XK_ETIMEDOUT:
     case XU_ETIMEDOUT:
-    case RTP_SIGXCPU:
     case RTP_DEADLINE_MISSED:
 
 	rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
