@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# M109: Set Extruder Temperature and Wait 
+# M109 in Marlin, Sprinter (ATmega port)
+# Set extruder heater temperature in degrees celsius and wait for this
+# temperature to be achieved.
+# Example: M109 S185 
+
+
 echo FIXME: $0
 
 exit 0

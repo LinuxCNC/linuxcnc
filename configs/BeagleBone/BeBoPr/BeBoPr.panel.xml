@@ -1,8 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!-- 
-Include your PyVCP panel here.
-
--->
 <pyvcp>
 <hbox>
   <label>
@@ -10,12 +6,26 @@ Include your PyVCP panel here.
   </label>
 
   <number>
-    <halpin>"Temp.set"</halpin>
+    <halpin>"E0.Temp.set"</halpin>
     <format>"3.1f"</format>
   </number>
 </hbox>
   <bar>
-    <halpin>"Temp"</halpin>
+    <halpin>"E0.Temp"</halpin>
+    <max_>300</max_>
+  </bar>
+<hbox>
+  <label>
+    <text>"Bed Temp:"</text>
+  </label>
+
+  <number>
+    <halpin>"Bed.Temp.set"</halpin>
+    <format>"3.1f"</format>
+  </number>
+</hbox>
+  <bar>
+    <halpin>"Bed.Temp"</halpin>
     <max_>300</max_>
   </bar>
 </pyvcp>

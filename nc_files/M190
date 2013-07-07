@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# M190: Wait for bed temperature to reach target temp 
+# Example: M190 S60
+# This will wait until the bed temperature reaches 60 degrees, printing
+# out the temperature of the hot end and the bed every second. 
+
 echo FIXME: $0
 
 exit 0
