@@ -288,7 +288,7 @@ net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
 setp limit1.0.min 0
 
 # PID for Bed temperature control
-net bed.temp.meas    <= Therm1.temp
+#net bed.temp.meas    <= Therm1.temp
 net bed.temp.meas    => pid.1.feedback
 
 sets bed.temp.set  0
