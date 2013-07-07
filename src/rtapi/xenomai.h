@@ -36,3 +36,7 @@
 
 /* rtapi_main.c */
 #define HAVE_RTAPI_MODULE_INIT_HOOK   // arm SGXCPU handler
+
+/* misc */
+#define HAVE_RTAPI_BACKTRACE_HOOK
+

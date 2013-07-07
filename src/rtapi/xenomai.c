@@ -13,12 +13,12 @@
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
 #include <native/timer.h>	/* rt_timer_*() */
 #include <signal.h>		/* sigaction/SIGXCPU handling */
-
+#include <sys/types.h>
+#include <unistd.h>             // getpid()
 
 #ifdef RTAPI
 #include <native/mutex.h>
 #include <rtdk.h>
-
 #include <stdlib.h>		// abort()
 
 /*  RTAPI task functions  */
@@ -317,4 +317,36 @@ long long int _rtapi_get_time_hook(void) {
 long long int _rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
+}
+
+
+// misc
+int _rtapi_backtrace_hook(int msglevel)
+{
+#ifdef RTAPI
+    int task_id = _rtapi_task_self_hook();
+
+    if (task_id != -EINVAL) {
+	// an RT thread
+	rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+	RT_TASK_INFO info;
+	int retval = rt_task_inquire(ostask_self[task_id], &info);
+	if (retval) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_inquire() failed: %d\n", retval);
+	} else {
+	    rtapi_print_msg(msglevel,
+			    "name=%s modeswitches=%d context switches=%d page faults=%d\n",
+			    info.name, info.modeswitches, info.ctxswitches, info.pagefaults);
+	    rtapi_print_msg(msglevel,"wait errors=%d last overrun=%d total overruns=%d\n",
+			    rt_stats.rt_wait_error,
+			    rt_stats.rt_last_overrun,
+			    rt_stats.rt_total_overruns);
+	}
+    }
+#endif
+#ifdef ULAPI
+    // ULAPI; use pid
+    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
+#endif
+    return 0;
 }

@@ -6,6 +6,7 @@
 #ifdef BUILD_SYS_USER_DSO
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
+#include <execinfo.h>           /* backtrace(), backtrace_symbols() */
 #endif
 
 #ifndef MODULE
@@ -382,10 +383,19 @@ int  _rtapi_next_module_id(void)
     return next_id;
 }
 
+
+/* the chance to output threadsystem specific detail to the log */
+#ifdef HAVE_RTAPI_BACKTRACE_HOOK
+int _rtapi_backtrace_hook(int msglevel);
+#endif
+
 #define BACKTRACE_SIZE 1000
 
 void _rtapi_backtrace(int msglevel)
 {
+#ifdef HAVE_RTAPI_BACKTRACE_HOOK
+    _rtapi_backtrace_hook(msglevel);
+#endif
 #if defined(BUILD_SYS_KBUILD) && defined(RTAPI)
     dump_stack();
 #endif

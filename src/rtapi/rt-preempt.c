@@ -447,4 +447,24 @@ int _rtapi_task_self_hook(void) {
     }
     return -EINVAL;
 }
+
+int _rtapi_backtrace_hook(int msglevel)
+{
+    struct rusage ru;
+    int task_id = _rtapi_task_self_hook();
+
+    getrusage(RUSAGE_THREAD, &ru);
+    if (task_id != -EINVAL) {
+	// an RT thread
+	rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+    } else {
+	// ULAPI; use pid
+	rtapi_print_msg(msglevel, "pid %d: \n", getpid());
+    }
+    rtapi_print_msg(msglevel,
+		    "minor faults=%d major faults=%d involuntary context switches=%d\n",
+		    ru.ru_minflt, ru.ru_majflt, ru.ru_nivcsw);
+    return 0;
+}
+
 #endif /* ULAPI/RTAPI */
