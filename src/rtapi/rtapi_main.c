@@ -155,18 +155,16 @@ void rtapi_app_exit(void)
     retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data);
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: munmap(0x8.8%x) failed: %s\n",
-			rtapi_instance,  OS_KEY(GLOBAL_KEY, rtapi_instance), 
-			strerror(-retval));
+			"RTAPI:%d ERROR: shm_common_detach(rtapi_data) failed: %s\n",
+			rtapi_instance,  strerror(-retval));
     }
     rtapi_data = NULL;
 
     retval = shm_common_detach(sizeof(global_data_t), global_data);
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: munmap(0x8.8%x) failed: %s\n",
-			rtapi_instance,  OS_KEY(GLOBAL_KEY, rtapi_instance), 
-			strerror(-retval));
+			"RTAPI:%d ERROR: shm_common_detach(global_data) failed: %s\n",
+			rtapi_instance, strerror(-retval));
     }
     global_data = NULL;
 }
