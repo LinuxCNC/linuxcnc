@@ -180,13 +180,14 @@ TARGETS += ../libexec/kdetect
 #                     the rtapi message demon
 ##################################################################
 
-RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c
+RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c rtapi/rtapi_compat.c
 RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
 $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 	EXTRAFLAGS += -DTEST
 
-../libexec/rtapi_msgd: ../lib/liblinuxcncshm.so $(RTAPI_MSGD_OBJS)
+../libexec/rtapi_msgd: $(RTAPI_MSGD_OBJS) \
+		../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt

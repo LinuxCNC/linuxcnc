@@ -17,6 +17,7 @@
 
 #include <rtapi.h>
 #include "rtapi/shmdrv/shmdrv.h"
+#include "rtapi_flavor.h"
 
 int rtapi_instance;
 static int log_stderr;
@@ -248,8 +249,14 @@ int main(int argc, char **argv)
     if ((retval = setup_global()) != 0)
 	exit(retval);
 
-    syslog(LOG_INFO,"startup instance=%s pid=%d",
-	   global_data->instance_name, getpid());
+    flavor_ptr f = flavor_byid(global_data->rtapi_thread_flavor);
+    syslog(LOG_INFO,
+	   "startup instance=%s pid=%d flavor=%s rtmsglevel=%d usrmsglevel=%d rtapi_app pid=%d",
+	   global_data->instance_name, getpid(),
+	   f ? f->name : "INVALID",
+	   global_data->rt_msg_level,
+	   global_data->user_msg_level,
+	   global_data->rtapi_app_pid);
 
     if ((global_data->rtapi_msgd_pid != 0) && 
 	kill(global_data->rtapi_msgd_pid, 0) == 0) {
