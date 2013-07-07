@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# M106: Fan On
+# Example: M106 S127
+# Turn on the cooling fan at half speed.
+# Mandatory parameter 'S' declares the PWM value (0-255).
+# M106 S0 turns the fan off. 
+
+echo "FIXME: $0 $@"
+
+exit 0
+

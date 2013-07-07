@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# M107: Fan Off
+# Deprecated. Use M106 S0 instead. 
+
+# Implemented for compatability
+
+echo "FIXME: $0 $@"
+
+exit 0
+
