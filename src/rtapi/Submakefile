@@ -12,13 +12,6 @@ INCLUDES += rtapi
 	mkdir -p ../include/shmdrv
 	cp  $^ $@
 
-# Thread-specific hacks for linking ulapi.so
-ULAPISO_LIBS :=
-ifeq ($(THREADS),RTAI_KERNEL)
-# these are needed to resolve rt_shm_alloc in ulapi.so
-ULAPISO_LIBS += $(shell $(RTAI_KERNEL_THREADS_RTS) --lxrt-ldflags) -llxrt
-endif
-
 
 ##########################################
 # defaults for all thread styles
