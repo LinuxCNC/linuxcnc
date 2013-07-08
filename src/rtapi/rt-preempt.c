@@ -404,14 +404,15 @@ int _rtapi_wait_hook(void) {
 
 #ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
 	rtapi_snprintf(buf, sizeof(buf),
-			"Missed scheduling deadline for task %d [%d times]\n"
-			"Now is %ld.%09ld, deadline was %ld.%09ld\n"
-			"Absolute number of pagefaults in realtime context: %lu\n",
-			task_id(task), extra_task_data[task_id(task)].failures,
-			(long)ts.tv_sec, (long)ts.tv_nsec,
-			(long)extra_task_data[task_id(task)].next_time.tv_sec,
-			(long)extra_task_data[task_id(task)].next_time.tv_nsec,
-			_rtapi_get_pagefault_count(task));
+		       "Missed scheduling deadline for task %d: '%s' [%d times]\n"
+		       "Now is %ld.%09ld, deadline was %ld.%09ld\n"
+		       "Absolute number of pagefaults in realtime context: %lu\n",
+		       task_id(task), task->name,
+		       extra_task_data[task_id(task)].failures,
+		       (long)ts.tv_sec, (long)ts.tv_nsec,
+		       (long)extra_task_data[task_id(task)].next_time.tv_sec,
+		       (long)extra_task_data[task_id(task)].next_time.tv_nsec,
+		       _rtapi_get_pagefault_count(task));
 	if (rt_exception_handler)
 	    rt_exception_handler(RTP_DEADLINE_MISSED, 0, buf);
 #endif
