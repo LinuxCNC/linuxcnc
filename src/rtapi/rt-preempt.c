@@ -462,7 +462,7 @@ int _rtapi_backtrace_hook(int msglevel)
 	rtapi_print_msg(msglevel, "pid %d: \n", getpid());
     }
     rtapi_print_msg(msglevel,
-		    "minor faults=%d major faults=%d involuntary context switches=%d\n",
+		    "minor faults=%ld major faults=%ld involuntary context switches=%ld\n",
 		    ru.ru_minflt, ru.ru_majflt, ru.ru_nivcsw);
     return 0;
 }
