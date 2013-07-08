@@ -15,12 +15,6 @@
 #define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
 
-
-/* rtapi_msg.c */
-// RTAI uses rt_printk() instead of printk()
-#define RTAPI_PRINTK rt_printk
-
-
 /* rtapi_task.c */
 
 /* RTAI uses 0 as the highest priority; higher numbers are lower
