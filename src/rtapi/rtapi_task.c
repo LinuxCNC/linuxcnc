@@ -475,7 +475,6 @@ int _rtapi_task_resume(int task_id) {
 }
 
 
-/* not defined in rt-preempt */
 #ifdef HAVE_RTAPI_TASK_SELF_HOOK
 int _rtapi_task_self_hook(void);
 #endif
