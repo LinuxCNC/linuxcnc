@@ -135,7 +135,7 @@ default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifeq ($(BUILD_DRIVERS),yes)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
-	@if [ -f ../bin/rtapi_app ]; then if ! [ `stat -c %u ../bin/rtapi_app` -eq 0 -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+	@if [ -f ../libexec/rtapi_app ]; then if ! [ `stat -c %u ../libexec/rtapi_app` -eq 0 -a -u ../libexec/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
 endif
 endif
 
@@ -543,7 +543,7 @@ setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules \
 	$(call fix_perms,../bin/linuxcnc_module_helper)
 	$(call fix_perms,../bin/pci_read)
 	$(call fix_perms,../bin/pci_write)
-	$(call fix_perms,../bin/rtapi_app)
+	$(call fix_perms,../libexec/rtapi_app)
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"

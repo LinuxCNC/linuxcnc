@@ -32,6 +32,7 @@ tests/*/skip
 tests/*/*/skip
 tests/*/*/*/skip
 /rtlib/
+/libexec/
 #
 # emacs droppings
 *~

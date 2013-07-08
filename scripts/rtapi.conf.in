@@ -8,16 +8,17 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 bindir=@bindir@
+libexecdir=@libexecdir@
 
-# paths to executables
-flavor=${bindir}/flavor
-rtapi_app=${bindir}/rtapi_app
-rtapi_msgd=${bindir}/rtapi_msgd
-
-# params from the flavor executable
+# flavor-related setup
+flavor=${libexecdir}/flavor
 FLAVOR=`${flavor}`
 MODULE_EXT=`${flavor} -m`
 BUILD_SYS=`${flavor} -b`
+
+# paths to other executables
+rtapi_app=${libexecdir}/rtapi_app_${FLAVOR}
+rtapi_msgd=${libexecdir}/rtapi_msgd
 
 # A few parameters from emc2/Makefile.inc
 EMC2_HOME=@EMC2_HOME@
@@ -75,8 +76,7 @@ else
 fi
 
 if [ $RUN_IN_PLACE = yes ]; then
-    # When using RIP make sure PATH includes the directory where rtapi_app
-    # resides
-    PATH=@EMC2_HOME@/bin:$PATH; export PATH
+    # When using RIP make sure PATH includes the bin directory
+    PATH=${bindir}:$PATH; export PATH
 fi
 

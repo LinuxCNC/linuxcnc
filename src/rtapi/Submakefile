@@ -16,24 +16,29 @@ INCLUDES += rtapi
 ##########################################
 # defaults for all thread styles
 
+# Sources/objects included in both RTAPI and ULAPI, both kbuild and
+# user threads
+XXAPI_COMMON_SRCS := \
+	rtapi/rtapi_support.c \
+	rtapi/rtapi_common.c \
+	rtapi/rtapi_task.c \
+	rtapi/rtapi_shmem.c \
+	rtapi/rtapi_ring.c \
+	rtapi/rtapi_time.c \
+	rtapi/$(THREADS_SOURCE).c
+XXAPI_COMMON_OBJS := $(patsubst %.c,%.o,$(XXAPI_COMMON_SRCS))
+
 # ULAPI:  ../lib/ulapi$THREADSTYLE.so (TBD)
 #
 # List of sources whose objects objects/rtapi/*.o link into
 # ../lib/ulapi$THREADSTYLE.soiblinuxcnchal.so;
 #
 ULAPI_SRCS := \
-	rtapi/rtapi_common.c \
-	rtapi/rtapi_task.c \
-	rtapi/rtapi_shmem.c \
-	rtapi/rtapi_ring.c \
-	rtapi/rtapi_time.c \
-	rtapi/$(THREADS_SOURCE).c \
-	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c) \
-	rtapi/ulapi_main.c  \
-	rtapi/rtapi_support.c 
-
-UTIL_SRCS := \
-	rtapi/rtapi_compat.c
+	$(XXAPI_COMMON_SRCS) \
+	rtapi/ulapi_main.c
+ifeq ($(BUILD_SYS),kbuild)
+ULAPI_SRCS += rtapi/rtapi_module.c
+endif
 
 # ulapi.so needs sources to be built separately for each flavor.  The
 # Makefile rules, and TOOBJS & friends, don't handle this case.
@@ -61,35 +66,24 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 	../lib/liblinuxcnchal.so
 
 
-USERSRCS += $(FLAVOR_ULAPI_SRCS) $(UTIL_SRCS)
+USERSRCS += $(FLAVOR_ULAPI_SRCS)
 TARGETS += $(ULAPISO)
-
-# RTAPI:  $(RTLIBDIR)/*
-#
-# Makefile defines rtapi-objs, a list of all objects whose sources are
-# compiled -DRTAPI and linked into rtapi.[sk]o.  Keep that list up to
-# date.
-
-
 
 
 ##################################################################
 #                 USERLAND THREAD STYLES
 ##################################################################
 ifeq ($(BUILD_SYS),user-dso)
+# Build only during real module build, i.e. when 'make modules
+# threads=<flavor> KERNELDIR=userland_build'
+ifeq ($(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),)
 
 # the rtapi.so module
 obj-$(CONFIG_RTAPI) += rtapi.o
 
 rtapi-objs := \
+	$(XXAPI_COMMON_OBJS) \
 	rtapi/rtapi_main.o \
-	rtapi/rtapi_support.o \
-	rtapi/rtapi_common.o \
-	rtapi/rtapi_task.o \
-	rtapi/rtapi_shmem.o \
-	rtapi/rtapi_ring.o \
-	rtapi/rtapi_time.o \
-	rtapi/$(THREADS_SOURCE).o \
 	rtapi/shmdrv/shmdrvapi.o \
 	rtapi/rtapi_compat.o
 
@@ -98,37 +92,43 @@ $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 $(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 
 ################################################
-# ../bin/rtapi_app
+# rtapi_app_<flavor>
 #
-# List of objects $(OBJDIR)/rtapi/*.o to link into ../bin/rtapi_app;
-# see that target below
+# A matching rtapi_app_<flavor> is built for each userland thread
+# flavor at the same time as RTAPI module flavor builds.
 #
-# These must be included in USERSRCS for .o files to be built
+# rtapi_app_<flavor> requires two sources plus one already in
+# ulapi.so.
 
-RTAPI_APP_OBJS := \
-	$(call TOOBJS, objects/rtapi/sim_rtapi_app.o \
-	objects/rtapi/rtapi_support.o \
-	objects/rtapi/rtapi_compat.o )
+RTAPI_APP_SRCS := \
+	rtapi/$(threads)/sim_rtapi_app.cc \
+	rtapi/$(threads)/rtapi_compat.c
 
-#
-# Add THREADS_RTFLAGS etc. to sim_rtapi_app.cc compilation
-#
+$(RTAPI_APP_SRCS): rtapi/$(threads)/%: rtapi/%
+	ln -s . rtapi/$(threads)
+
+USERSRCS += $(RTAPI_APP_SRCS)
+
 # HAAACK:
 #
 # Build objects/rtapi/sim_rtapi_app.o in Makefile as other USERSRCS,
 # but replace -DULAPI with -DRTAPI:  Makefile doesn't handle -DRTAPI
 # C++ sources
-$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += \
-	$(LIBUDEV_CFLAGS) -UULAPI -DRTAPI -DTHREAD_FLAVOR_ID=0
-USERSRCS +=  rtapi/sim_rtapi_app.cc 
+$(call TOOBJSDEPS, rtapi/$(threads)/sim_rtapi_app.cc): EXTRAFLAGS = \
+	$(LIBUDEV_CFLAGS) -UULAPI $(RTFLAGS)
 
-#
-# Build target
-../bin/rtapi_app: $(RTAPI_APP_OBJS)
+../libexec/rtapi_app_$(threads): \
+		$(call TOOBJS, $(patsubst %,rtapi/$(threads)/%, \
+		sim_rtapi_app.cc rtapi_support.c rtapi_compat.c))
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX)  $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  $(LIBUDEV_LIBS) -ldl
-TARGETS += ../bin/rtapi_app
+	@mkdir -p $(dir $@)
+# FIXME:  -rpath* in Makefile LDFLAGS looks wrong in all cases
+#	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
+	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR)/$(threads) \
+	    -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
 
+modules:  ../libexec/rtapi_app_$(threads)
+endif # BUILD_SYS == user-dso
 
 ##################################################################
 #                     KERNEL THREAD STYLES
@@ -138,14 +138,8 @@ else  # BUILD_SYS == kbuild
 obj-$(CONFIG_RTAPI) += rtapi.o
 
 rtapi-objs := \
-	rtapi/rtapi_module.o \
-	rtapi/rtapi_support.o \
-	rtapi/rtapi_common.o \
-	rtapi/rtapi_task.o \
-	rtapi/rtapi_shmem.o \
-	rtapi/rtapi_ring.o \
-	rtapi/rtapi_time.o \
-	rtapi/$(THREADS_SOURCE).o
+	$(XXAPI_COMMON_OBJS) \
+	rtapi/rtapi_module.o
 
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
@@ -164,12 +158,12 @@ $(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
 	EXTRAFLAGS += -DTEST
 
 # Build target
-../bin/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
+../libexec/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ \
 	    ../lib/liblinuxcnchal.so -lrt -ldl
 
-TARGETS += ../bin/kdetect
+TARGETS += ../libexec/kdetect
 
 ##################################################################
 #                     the rtapi message demon
@@ -181,19 +175,19 @@ RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 	EXTRAFLAGS += -DTEST
 
-../bin/rtapi_msgd: ../lib/liblinuxcncshm.so $(RTAPI_MSGD_OBJS)
+../libexec/rtapi_msgd: ../lib/liblinuxcncshm.so $(RTAPI_MSGD_OBJS)
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ ../lib/liblinuxcncshm.so -lrt
 
 USERSRCS += $(RTAPI_MSGD_SRCS)
-TARGETS += ../bin/rtapi_msgd
+TARGETS += ../libexec/rtapi_msgd
 
 # lock debugging help plus a bit of API example
 FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
 
-../bin/flavor: ../lib/liblinuxcncshm.so $(call TOOBJS, $(FLAVOR_SRCS))
+../libexec/flavor: ../lib/liblinuxcncshm.so $(call TOOBJS, $(FLAVOR_SRCS))
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  ../lib/liblinuxcncshm.so -lrt
 
 USERSRCS += $(FLAVOR_SRCS)
-TARGETS += ../bin/flavor
+TARGETS += ../libexec/flavor
