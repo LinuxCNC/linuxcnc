@@ -38,12 +38,11 @@ UTIL_SRCS := \
 # ulapi.so needs sources to be built separately for each flavor.  The
 # Makefile rules, and TOOBJS & friends, don't handle this case.
 #
-# Hack around this by linking sources to a separate flavor-specific
-# directory and then process in the usual way.
+# Hack around this by creating a separate flavor-specific symlink to
+# the rtapi directory and then build in the usual way for each flavor.
 FLAVOR_ULAPI_SRCS := $(patsubst rtapi/%,rtapi/$(threads)/%,$(ULAPI_SRCS))
 $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
-	mkdir -p rtapi/$(threads)
-	cp -lf $(ULAPI_SRCS) rtapi/$(threads)
+	ln -s . rtapi/$(threads)
 
 # resolved at loadtime
 $(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
