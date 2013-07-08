@@ -319,8 +319,9 @@ long long int _rtapi_get_clocks_hook(void) {
     return rt_timer_tsc();
 }
 
-
-// misc
+/***********************************************************************
+*                           rtapi_common.c                               *
+************************************************************************/
 int _rtapi_backtrace_hook(int msglevel)
 {
 #ifdef RTAPI
