@@ -34,6 +34,7 @@
 /* rtapi_task.c */
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
+#define HAVE_RTAPI_TASK_SELF_HOOK
 
 
 /* rtapi_io hooks */
