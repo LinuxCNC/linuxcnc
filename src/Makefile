@@ -543,7 +543,8 @@ setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules \
 	$(call fix_perms,../bin/linuxcnc_module_helper)
 	$(call fix_perms,../bin/pci_read)
 	$(call fix_perms,../bin/pci_write)
-	$(call fix_perms,../libexec/rtapi_app)
+	$(foreach f,$(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)),\
+	    $(call fix_perms,../libexec/rtapi_app_$(f));)
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
