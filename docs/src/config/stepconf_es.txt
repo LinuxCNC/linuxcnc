@@ -145,7 +145,7 @@ Ejecute la prueba almenos unos cuantos minutos. Entre mas tiempo la ejecute mas 
 casos especiales que solo suceden en intervalos poco frecuentes. Esta prueba es solo para 
 la computadora, no se requiere que conecte los controladores de motores o la maquina herramienta.
 
-[ADVERTENCIA]
+[WARNING]
 No ejecute LinuxCNC mientras realiza la prueba de latencia.
 
 .Prueba de Latencia[[cap:Latency-Test]]
