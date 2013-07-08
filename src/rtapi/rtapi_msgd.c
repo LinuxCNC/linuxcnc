@@ -1,3 +1,16 @@
+// the RTAPI message deamon
+//
+// polls the rtapi message ring in the global data segment and eventually logs them
+// this is the single place for RTAPI and any ULAPI processes where log messages
+// pass through, regardless of origin or thread style (kernel, rtapi_app, ULAPI)
+
+// eventually this will become a zeroMQ PUBLISH server making messages available
+// to any interested subscribers
+// the PUBLISH/SUBSCRIBE pattern will also fix the current situation that an error 
+// message consumed by an entity is not seen by any other entities
+//
+// Michael Haberler fecit A.D. 2013
+
 #include "rtapi.h"
 
 #include <sys/types.h>
@@ -22,7 +35,16 @@
 int rtapi_instance;
 static int log_stderr;
 static int foreground;
-static int msg_poll_ms = 200; // default msg q checking interval
+
+// messages tend to come bunched together, e.g during startup and shutdown
+// poll faster if a message was read, and decay the poll timer up to msg_poll_max
+// if no messages are pending
+// this way we retrieve bunched messages fast without much overhead in idle times
+static int msg_poll_max = 200; // maximum msgq checking interval
+static int msg_poll_min = 1;   // minimum msgq checking interval
+static int msg_poll_inc = 2;   // increment interval if no message read up to msg_poll_max
+static int msg_poll = 1;       // current delay; startup fast
+
 static int rt_poll_ms = 300;  // polling timer until RT stack fully set up
 static int rt_stack_timeout_ms = 5000; // give up waiting for RT stack after 5 seconds
 
@@ -47,7 +69,6 @@ static struct option long_options[] = {
     {"stderr",  no_argument,        0, 's'},
     {"foreground",  no_argument,    0, 'F'},
     {"instance", required_argument, 0, 'I'},
-    {"pollms", required_argument, 0, 'p'},
     {0, 0, 0, 0}
 };
 
@@ -56,7 +77,7 @@ static struct option long_options[] = {
 // this means the RT stack is fully setup and can be attached to.
 // this prevents any following commands (e.g. halcmd) bumping into a half-setup
 // rtapi_app stack. Note we fork and disconnect into background only
-// after the HAL segment is ready.
+// after the HAL segment is ready, blocking the realtime script until done.
 static int waitfor_rt_stack_ready()
 {
     int halkey = OS_KEY(HAL_KEY, rtapi_instance);
@@ -76,6 +97,7 @@ static int setup_global()
     int retval = 0;
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
     int size = 0;
+
     // since the HAL data segment has been determined to exist, global
     // must exist here too or the RT stack wouldnt have become ready
     retval = shm_common_new(globalkey, &size,
@@ -114,10 +136,10 @@ static int message_thread()
     int retval;
     char *cp;
 
-    struct timespec ts = {0, msg_poll_ms * 1000 * 1000};
-
+    // attach to the message ringbuffer
     rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_msg_buffer);
     rtapi_msg_buffer.header->refcount++;
+    rtapi_msg_buffer.header->reader = getpid();
 
     do {
 	while ((retval = rtapi_record_read(&rtapi_msg_buffer, 
@@ -151,9 +173,14 @@ static int message_thread()
 		// whine
 	    }
 	    rtapi_record_shift(&rtapi_msg_buffer);
+	    msg_poll = msg_poll_min;
 	}
+	struct timespec ts = {0, msg_poll * 1000 * 1000};
 	nanosleep(&ts, NULL);
-    } while (1); // !global_data->shutting_down;
+	msg_poll += msg_poll_inc;
+	if (msg_poll > msg_poll_max)
+	    msg_poll = msg_poll_max;
+    } while (1);
 
     rtapi_msg_buffer.header->refcount--;
     return 0;
@@ -175,7 +202,7 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hI:sp:F",
+	c = getopt_long (argc, argv, "hI:sF",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -185,9 +212,6 @@ int main(int argc, char **argv)
 	    break;
 	case 'I':
 	    rtapi_instance = atoi(optarg);
-	    break;
-	case 'p':
-	    msg_poll_ms = atoi(optarg);
 	    break;
 	case 's':
 	    log_stderr++;
@@ -251,7 +275,7 @@ int main(int argc, char **argv)
 
     flavor_ptr f = flavor_byid(global_data->rtapi_thread_flavor);
     syslog(LOG_INFO,
-	   "startup instance=%s pid=%d flavor=%s rtmsglevel=%d usrmsglevel=%d rtapi_app pid=%d",
+	   "startup instance=%s pid=%d flavor=%s rtlevel=%d usrlevel=%d rtapi_app=%d",
 	   global_data->instance_name, getpid(),
 	   f ? f->name : "INVALID",
 	   global_data->rt_msg_level,
