@@ -9,6 +9,8 @@
 /* rtapi_common.c */
 // Init rt_stats for RTAPI
 #define HAVE_INIT_RTAPI_DATA_HOOK
+// output threadsystem-specific detail when doing a backtrace
+#define HAVE_RTAPI_BACKTRACE_HOOK
 
 /* rtapi_proc */
 #define HAVE_RTAPI_READ_STATUS_HOOK
@@ -46,3 +48,4 @@
 #define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_GET_CLOCKS_HOOK
 #endif
+

@@ -16,6 +16,8 @@
 
 #else /* ULAPI */
 #include <errno.h>		/* errno */
+#include <unistd.h>             // getpid()
+
 #endif
 
 #define MAX_ERRORS 3
@@ -176,7 +178,7 @@ void _rtapi_wait_hook(void) {
 	task = &(task_array[task_id]);
 
 	rtapi_snprintf(buf, sizeof(buf),
-			"Unexpected realtime delay on task %d - "
+			"Unexpected realtime delay on RT thread %d - "
 			"'%s' (%lu overruns)",
 			task_id, task->name, overruns);
 	if (rt_exception_handler)
@@ -264,3 +266,37 @@ void rtapi_proc_read_status_hook(char *page, char **start, off_t off,
 }
 #endif
 
+
+/***********************************************************************
+*                          rtapi_common.c                              *
+************************************************************************/
+// almost same code as in xenomai.c - could be folded into a single file
+int _rtapi_backtrace_hook(int msglevel)
+{
+#ifdef RTAPI
+    int task_id = _rtapi_task_self_hook();
+
+    if (task_id != -EINVAL) {
+	// an RT thread
+	rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+	RT_TASK_INFO info;
+	int retval = rt_task_inquire(ostask_array[task_id], &info);
+	if (retval) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_inquire() failed: %d\n", retval);
+	} else {
+	    rtapi_print_msg(msglevel,
+			    "name=%s modeswitches=%d context switches=%d page faults=%d\n",
+			    info.name, info.modeswitches, info.ctxswitches, info.pagefaults);
+	    rtapi_print_msg(msglevel,"wait errors=%d last overrun=%d total overruns=%d\n",
+			    rt_stats.rt_wait_error,
+			    rt_stats.rt_last_overrun,
+			    rt_stats.rt_total_overruns);
+	}
+    }
+#endif
+#ifdef ULAPI
+    // ULAPI; use pid
+    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
+#endif
+    return 0;
+}
