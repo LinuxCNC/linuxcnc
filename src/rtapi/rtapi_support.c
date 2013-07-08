@@ -44,14 +44,13 @@ static int pp_msg_level = RTAPI_MSG_INFO; // per process only
 #ifdef ULAPI
 ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
 # else
-extern ringbuffer_t rtapi_message_buffer; // instance.c
+extern ringbuffer_t rtapi_message_buffer;
 #endif
 
 static char logtag[TAGSIZE];
-// most RT systems use printk()
-#ifndef RTAPI_PRINTK
-#define RTAPI_PRINTK printk
-#endif
+
+// switch to exclusively using the ringbuffer from RT
+#define USE_MESSAGE_RING 1
 
 // candidate for rtapi_ring.h
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
@@ -81,8 +80,12 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 	msg->origin = MSG_ORIGIN;
 #if defined(RTAPI) && defined(BUILD_SYS_KBUILD)
 	msg->pid = 0;
-#else
-	msg->pid  = getpid(); // FIXME is this rt-safe?
+#endif
+#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+	msg->pid =  global_data->rtapi_app_pid;
+#endif
+#if defined(ULAPI)
+	msg->pid  = getpid();
 #endif
 	msg->level = level;
 	msg->encoding = MSG_ASCII;
@@ -101,10 +104,7 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			      va_list ap) {
     char buf[RTPRINTBUFFERLEN];
     vsnprintf(buf, RTPRINTBUFFERLEN, fmt, ap);
-    RTAPI_PRINTK(buf);
-#ifdef USE_MESSAGE_RING
     vs_ring_write(level, buf, ap);
-#endif
 }
 
 #else /* user land */
