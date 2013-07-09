@@ -47,8 +47,9 @@ class filechooser:
         self.emccommand.program_open(fn)
         self.listing.readfile(fn)
         self.populate()
+        return(fn)
 
-    def select_and_open(self,fn):
+    def select_and_show(self,fn):
         self.reload(0)
         numfiles = len(self.files)
         fn = os.path.basename(fn)
@@ -65,9 +66,7 @@ class filechooser:
             self.fileoffset += self.numlabels
 
         self.selected = n
-        self.emccommand.mode(self.emc.MODE_MDI)
         fn = os.path.join(self.dir, fn)
-        self.emccommand.program_open(fn)
         self.listing.readfile(fn)
         self.populate()
 
