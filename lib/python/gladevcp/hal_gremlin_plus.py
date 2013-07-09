@@ -55,7 +55,7 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
                         ,'width'
                         ,'min width pixels'
                         ,-1
-                        ,sys.maxint
+                        ,(1<<31)-1
                         ,300
                         ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
                         ),
@@ -63,7 +63,7 @@ class HAL_GremlinPlus(gtk.Frame, hal_actions._EMC_ActionBase):
                         ,'height'
                         ,'min height pixels'
                         ,-1
-                        ,sys.maxint
+                        ,(1<<31)-1
                         ,300
                         ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
                         ),
