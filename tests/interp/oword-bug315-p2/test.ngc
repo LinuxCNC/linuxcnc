@@ -1,0 +1,18 @@
+o1 sub
+g0 x1y1z1
+(debug,not executing this one)
+o1 endsub
+
+o2 sub
+g0 x2y2z2
+(debug,executing this one)
+o2 endsub
+
+o<multipass> sub
+#<sub> = 2
+o#<sub> call
+o<multipass> endsub
+
+o<multipass> call
+
+m2
