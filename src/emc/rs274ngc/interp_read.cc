@@ -2085,8 +2085,13 @@ int Interp::read_named_parameter(
   }
 
   *double_ptr = 0.0;
-  
+
   if(check_exists) return INTERP_OK;
+
+  // do not require named parameters to be defined during a 
+  // subroutine definition:
+  if (_setup.defining_sub)
+      return INTERP_OK;
 
   logDebug("%s: level[%d] param:|%s| returning not defined", name, level,
            paramNameBuf);
