@@ -3619,6 +3619,20 @@ F1 S1</property>
                                 <property name="position">3</property>
                               </packing>
                             </child>
+                            <child>
+                              <widget class="GtkToggleButton" id="scrolling">
+                                <property name="label" translatable="yes">Start Point</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="use_underline">True</property>
+                                <property name="focus_on_click">False</property>
+                                <signal name="clicked" handler="on_scrolling_clicked"/>
+                              </widget>
+                              <packing>
+                                <property name="position">4</property>
+                              </packing>
+                            </child>
                           </widget>
                           <packing>
                             <property name="position">0</property>
