@@ -31,6 +31,51 @@ can be viewed with 'dmesg'.
 Up to 3 parport busses may be used, and each bus may have up to 8 (or
 possibly 16 PPMC) devices on it.
 
+There are several options that can be specified on the loadrt command line.
+First, the USC and UPC can have an 8-bit DAC added for spindle speed
+control and similar functions.  This can be specified with the
+extradac='0xnn[,0xmm]' parameter.  The part enclosed in [ ] allows you
+to specify this option on more than one board of the system.  The first
+hex digit tells which EPP bus is being referred to, it corresponds to
+the order of the port addresses in the port_addr parameter, where
+<addr1> would be zero here.  So, for the first EPP bus, the first
+USC or UPC board would be described as '0x00', the second USC or UPC
+on the same bus would be '0x02'.  (Note that each USC or UPC takes up
+two addresses, so if one is at 00, the next would have to be 02.)
+
+Alternatively, the 8 digital output pins can be used as additional
+digital outputs, it works the same way as above with the syntax :
+extradout=0xnn'.  The extradac and extradout options are mutually
+exclusive on each board, you can only specify one.
+
+The UPC and PPMC encoder boards can timestamp the arrival of encoder
+counts to refine the derivation of axis velocity.  This derived velocity
+can be fed to the PID hal component to produce smoother D term
+response.  The syntax is : timestamp='0xnn[,0xmm]', this works the
+same way as above to select which board is being configured.
+Default is to not enable the timestamp option.  If you put
+this option on the command line, it enables the option.  The
+first 'n' selects the EPP bus, the second one matches the
+address of the board having the option enabled.  The driver checks the
+revision level of the board to make sure it has firmware supporting
+the feature, and produces an error message if the board does not
+support it.
+
+The PPMC encoder board has an option to select the encoder digital
+filter frequeency.  (The UPC has the same ability via DIP switches
+on the board.)  Since the PPMC encoder board doesn't have these
+extra DIP switches, it needs to be selected via a command-line
+option.  By default, the filter runs at 1 MHz, allowing encoders
+to be counted up to about 900 KHz (depending on noise and quadrature
+accuracy of the encoder.)  The options are 1, 2.5, 5 and 10 MHz.
+These are set with a parameter of 1,2,5 and 10 (decimal) which
+is specified as the hex digit "A".  These are specified in a manner
+similar to the above options, but with the frequency setting to
+the left of the bus/address digits.  So, to set 5 MHz on the
+encoder board at address 3 on the first EPP bus, you would write :
+enc_clock='0x503'
+
+
 == Pins
 
 In the following pins, parameters, and functions, <port> is the parallel
