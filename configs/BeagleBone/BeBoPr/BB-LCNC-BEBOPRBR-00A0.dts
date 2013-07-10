@@ -34,34 +34,34 @@
 		"P9.23",	/* gpio1.17	Z_Dir	*/
 		"P9.24",	/* gpio0.15	Spindle	*/
 		"P9.26",	/* gpio0.14	Mtr_Ena	*/
-		"P9.33",	/* AIN4		Therm0	*/
-		"P9.35",	/* AIN6		Therm2	*/
-		"P9.36",	/* AIN5		Therm1	*/
+//		"P9.33",	/* AIN4		Therm0	*/
+//		"P9.35",	/* AIN6		Therm2	*/
+//		"P9.36",	/* AIN5		Therm1	*/
 	
 		/* the hardware IP uses */
 /* The following 4 pins conflict with the on-board mmc flash */
-		"gpio2_2"
-		"gpio2_3"
-		"gpio2_5"
-		"gpio2_4"
-		"gpio1_13"
-		"gpio1_12"
-		"gpio0_23"
-		"gpio0_26"
-		"gpio1_15"
-		"gpio1_14"
-		"gpio0_27"
-		"gpio2_1"
-		"gpio0_22"
-		"gpio1_29"
-		"gpio1_18"
-		"gpio1_16"
-		"gpio0_5"
-		"gpio0_4"
-		"gpio0_3"
-		"gpio0_2"
-		"gpio1_17"
-		"gpio0_15"
+		"gpio2_2",
+		"gpio2_3",
+		"gpio2_5",
+		"gpio2_4",
+		"gpio1_13",
+		"gpio1_12",
+		"gpio0_23",
+		"gpio0_26",
+		"gpio1_15",
+		"gpio1_14",
+		"gpio0_27",
+		"gpio2_1",
+		"gpio0_22",
+		"gpio1_29",
+		"gpio1_18",
+		"gpio1_16",
+		"gpio0_5",
+		"gpio0_4",
+		"gpio0_3",
+		"gpio0_2",
+		"gpio1_17",
+		"gpio0_15",
 		"pru0";
 
 	fragment@0 {
