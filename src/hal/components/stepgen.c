@@ -16,7 +16,7 @@
     the slowest computers, and may reach 25KHz on fast ones.  It is
     a realtime component.
 
-    It supports up to 8 pulse generators.  Each generator can produce
+    It supports up to 16 pulse generators.  Each generator can produce
     several types of outputs in addition to step/dir, including
     quadrature, half- and full-step unipolar and bipolar, three phase,
     and five phase.  A 32 bit feedback value is provided indicating
@@ -26,8 +26,8 @@
 
     The number of step generators and type of outputs is determined
     by the insmod command line parameter 'step_type'.  It accepts
-    a comma separated (no spaces) list of up to 8 stepping types
-    to configure up to 8 channels.  A second command line parameter
+    a comma separated (no spaces) list of up to 16 stepping types
+    to configure up to 16 channels.  A second command line parameter
     "ctrl_type", selects between position and velocity control modes
     for each step generator.  (ctrl_type is optional, the default
     control type is position.)
@@ -304,19 +304,19 @@
 #include <float.h>
 #include "rtapi_math.h"
 
-#define MAX_CHAN 8
-#define MAX_CYCLE 10
+#define MAX_CHAN 16
+#define MAX_CYCLE 18
 #define USER_STEP_TYPE 13
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
-int step_type[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
-RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 8 channels");
+int step_type[] = { [0 ... MAX_CHAN-1] = -1 } ;
+RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 16 channels");
 const char *ctrl_type[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 8 channels");
-int user_step_type[MAX_CYCLE] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 16 channels");
+int user_step_type[] = { [0 ... MAX_CYCLE-1] = -1 };
 RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,
 	"lookup table for user-defined step type");
 
