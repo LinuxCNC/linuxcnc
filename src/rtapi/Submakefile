@@ -52,6 +52,7 @@ endif
 # Hack around this by creating a separate flavor-specific symlink to
 # the rtapi directory and then build in the usual way for each flavor.
 FLAVOR_ULAPI_SRCS := $(patsubst rtapi/%,rtapi/$(threads)/%,$(ULAPI_SRCS))
+
 $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
 	ln -s . rtapi/$(threads)
 
@@ -90,7 +91,6 @@ obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := \
 	$(XXAPI_COMMON_OBJS) \
 	rtapi/rtapi_main.o \
-	rtapi/shmdrv/shmdrvapi.o \
 	rtapi/rtapi_compat.o
 
 # rule for kernel module, moved from src/Makefile
@@ -130,9 +130,9 @@ $(call TOOBJSDEPS, rtapi/$(threads)/sim_rtapi_app.cc): EXTRAFLAGS = \
 	$(LIBUDEV_CFLAGS) -UULAPI $(RTFLAGS)
 
 ../libexec/rtapi_app_$(threads): \
-		$(call TOOBJS, $(patsubst %,rtapi/$(threads)/%, \
-		sim_rtapi_app.cc rtapi_support.c rtapi_compat.c)) \
-		../lib/liblinuxcncini.so.0
+		$(call TOOBJS, $(RTAPI_APP_SRCS) \
+		    rtapi/$(threads)/rtapi_support.c) \
+		../lib/liblinuxcncini.so.0 ../lib/liblinuxcncshm.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR)/$(threads) $(RTAPI_APP_RPATH) \
