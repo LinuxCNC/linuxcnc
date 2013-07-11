@@ -821,12 +821,12 @@ extern int _rtapi_ring_detach(int handle, int module_id);
 
 /***********************************************************************
 *                        Callback on RT scheduling violation           *
-* rtapi may notify using code (eg rtapi_app) when a scheduling release *
-* point has been missed. This causes a SIGXCPU in both rt-preempt and  *
-* xenomai-user flavors.                                                *
+* rtapi detects when a scheduling release point has been missed, and   *
+* several other fault situations, most of which are depend on the      *
+* thread system used.                                                  *
 *                                                                      *
 * A use case would be a hal module which exports an rt estop pin       *
-* this pin would be raised by the callback                             *
+* this pin would be raised by the callback, eg rtmon.comp              *
 ************************************************************************/
 
 // rtapi_exception_handler_t is defined in rtapi_exception.h
@@ -947,7 +947,9 @@ typedef struct {
 
     // ringbuffer functions
     // these will be removed once the new hal_lib.c ring
-    // support code is in place
+    // support code is in place, since rings are just
+    // glorified HAL shared memory segments and do not
+    // warrant an own rtapi data object per se
     rtapi_ring_new_t rtapi_ring_new;
     rtapi_ring_attach_t rtapi_ring_attach;
     rtapi_ring_detach_t rtapi_ring_detach;
