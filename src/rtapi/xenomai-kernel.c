@@ -11,7 +11,6 @@
 #include <linux/slab.h>			// kfree
 #include <native/types.h>		// TM_INFINITE
 #include <native/timer.h>		// rt_timer_*()
-// #include  <rtdk.h>
 #include "procfs_macros.h"		// PROC_PRINT()
 
 #else /* ULAPI */

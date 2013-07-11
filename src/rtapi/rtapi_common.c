@@ -4,8 +4,6 @@
 #include "rtapi_common.h"
 
 #ifdef BUILD_SYS_USER_DSO
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>		/* shmget() */
 #include <execinfo.h>           /* backtrace(), backtrace_symbols() */
 #endif
 
