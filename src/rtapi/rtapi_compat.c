@@ -1,3 +1,6 @@
+// miscellaneos functions, mostly used during startup in
+// a user process; RTAPI not necessarily available
+
 #include "config.h"
 #include "rtapi.h"
 #include "inifile.h"           /* iniFind() */

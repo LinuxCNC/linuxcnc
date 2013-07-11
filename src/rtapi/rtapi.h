@@ -1042,7 +1042,7 @@ extern void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch,
 #if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
-   
+
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
   MODULE_PARM_DESC(var,descr);

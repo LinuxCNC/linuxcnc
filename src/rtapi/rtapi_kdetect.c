@@ -14,6 +14,8 @@
 
 typedef void (*pf)();
 static const char *progname = "rtapi_kdetect";
+int shmdrv_loaded;
+long page_size;
 
 int rtapi_kdetect(unsigned long *feat)
 {
