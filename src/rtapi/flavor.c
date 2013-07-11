@@ -12,7 +12,6 @@
 #include <errno.h>
 
 #include "rtapi.h"
-#include "rtapi_flavor.h"
 
 int shmdrv_loaded;
 size_t page_size;
