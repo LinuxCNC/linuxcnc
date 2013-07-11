@@ -63,6 +63,11 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     int i, ret, actual_size;
     int is_new = 0;
     int key = OS_KEY(userkey, instance);
+    static int page_size;
+
+    if (!page_size)
+	page_size = sysconf(_SC_PAGESIZE);
+
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
@@ -175,7 +180,7 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     retval = shm_common_detach(shmem->size, shmem->mem);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: munmap(0x8.8%x) failed: %s\n",
+			"RTAPI:%d ERROR: munmap(0x%8.8x) failed: %s\n",
 			instance, shmem->key, strerror(-retval));
     }
 
@@ -387,7 +392,10 @@ static void check_memlock_limit(const char *where) {
 
 int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
     shmem_data *shmem;
-    int manage_lock;
+    int manage_lock, retval;
+#ifdef RTAPI
+    struct shm_status sm;
+#endif
 
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
@@ -418,6 +426,18 @@ int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
     clear_bit(module_id, shmem->bitmap);
 #ifdef ULAPI
     shmem->ulusers--;
+
+    if ((shmem->ulusers == 0) && (shmem->rtusers == 0)) {
+	// shmdrv can detach unused shared memory from userland too
+	// this will munmap() the segment causing a drop in uattach refcount
+	// and eventual free by garbage collect in shmdrv
+	retval = shm_common_detach(shmem->size, shmem_addr_array[shmem_id]);
+	if (retval) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: shm_common_detach(%02d) failed: %s\n",
+			    rtapi_instance, shmem_id, strerror(-retval));
+	}
+    }
     /* unmap the block */
     shmem_addr_array[shmem_id] = NULL;
 #else /* RTAPI */
@@ -431,9 +451,9 @@ int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
 	if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
 	return 0;
     }
-    /* no other realtime users, free the shared memory from kernel space */
 
 #ifdef RTAPI
+    /* no other realtime users, free the shared memory from kernel space */
     shmem_addr_array[shmem_id] = NULL;
     shmem->rtusers = 0;
     /* are any user processes using the block? */
@@ -445,8 +465,19 @@ int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
 	if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
 	return 0;
     }
+
     /* no other users at all, this ID is now free */
+    sm.key = shmem->key;
+    sm.size = shmem->size;
+    sm.flags = 0;
+    if ((retval = shmdrv_detach(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: shmdrv_detach(%x,%d) fail: %d\n",
+			rtapi_instance, sm.key, sm.size, retval);
+    }
 #endif  /* RTAPI */
+
+
     /* update the data array and usage count */
     shmem->key = 0;
     shmem->size = 0;
