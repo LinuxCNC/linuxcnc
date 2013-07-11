@@ -242,7 +242,12 @@ void init_rtapi_data(rtapi_data_t * data)
 *                           RT scheduling exception handling           *
 ************************************************************************/
 
-#define MAX_ERRORS 3
+#define MAX_RT_ERRORS 10
+
+// this default handler just writes to the log
+// for a more intelligent way to handle RT faults, see
+// hal/components/rtmon.comp which uses rtapi_set_exception(handler)
+// to override this default handler during module lifetime
 
 int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
 {
@@ -259,10 +264,11 @@ int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
     case XU_ETIMEDOUT:
     case RTP_DEADLINE_MISSED:
 
-	rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
-			rtapi_instance, cause, param, msg);
+	if (error_printed < MAX_RT_ERRORS)
+	    rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
+			    rtapi_instance, cause, param, msg);
 	error_printed++;
-	if (error_printed == 10)
+	if (error_printed == MAX_RT_ERRORS)
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 			    "RTAPI: (further messages will be suppressed)\n");
 	break;
