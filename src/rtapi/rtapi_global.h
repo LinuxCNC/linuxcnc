@@ -82,8 +82,4 @@ typedef struct {
 
 extern global_data_t *global_data;
 
-typedef global_data_t *(*get_global_handle_t)(void);
-
-extern global_data_t *get_global_handle(void);
-
 #endif // _RTAPI_GLOBAL_H

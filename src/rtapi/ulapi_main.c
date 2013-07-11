@@ -26,11 +26,6 @@
 #include <syslog.h>
 #include <unistd.h>
 
-global_data_t *get_global_handle(void)
-{
-    return global_data;
-}
-
 int ulapi_main(int instance, int flavor, global_data_t *global)
 {
     int retval = 0;
