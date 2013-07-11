@@ -599,7 +599,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	ret = shmdrv_status(&sm);
 	if (ret < 0) {
-	    err("IOC_SHM_STATUS: segemnt 0x%8.8x does not exist", sm.key);
+	    dbg("IOC_SHM_STATUS: segemnt 0x%8.8x does not exist", sm.key);
 	    goto done;
 	}
 
@@ -659,7 +659,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	file->private_data = (void *) sm.id; // record shm id for ensuing mmap
 	seg = &shm_segments[sm.id];
-	info("attached seg %d size %zu key 0x%8.8x key at %p",
+	dbg("attached seg %d size %zu key 0x%8.8x key at %p",
 	    sm.id, seg->size, seg->key, seg->kmem);
 	ret = 0;
 	break;
