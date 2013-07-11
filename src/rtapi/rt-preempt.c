@@ -15,11 +15,11 @@
 
 #include <unistd.h>		// getpid(), syscall()
 #include <time.h>               // clock_nanosleep()
+#include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
 #ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
-#include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
@@ -449,23 +449,24 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
+#endif /* ULAPI/RTAPI */
+
+// both ULAPI and RTAPI:
 int _rtapi_backtrace_hook(int msglevel)
 {
     struct rusage ru;
-    int task_id = _rtapi_task_self_hook();
 
     getrusage(RUSAGE_THREAD, &ru);
-    if (task_id != -EINVAL) {
-	// an RT thread
-	rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
-    } else {
-	// ULAPI; use pid
-	rtapi_print_msg(msglevel, "pid %d: \n", getpid());
-    }
+#ifdef RTAPI
+    int task_id = _rtapi_task_self_hook();
+    // an RT thread
+    rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+#else // ULAPI
+    // use pid
+    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
+#endif
     rtapi_print_msg(msglevel,
 		    "minor faults=%ld major faults=%ld involuntary context switches=%ld\n",
 		    ru.ru_minflt, ru.ru_majflt, ru.ru_nivcsw);
     return 0;
 }
-
-#endif /* ULAPI/RTAPI */
