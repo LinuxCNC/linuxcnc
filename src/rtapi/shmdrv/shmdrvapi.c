@@ -1,4 +1,4 @@
-// userland API for shmdrv
+// userland API for shmdrv and common Posix shm operations
 
 #include <stdio.h>
 #include <unistd.h>
@@ -17,6 +17,16 @@
 #include "shmdrv.h"
 
 static const char *driver_name = "/dev/" DEVICE_NAME;
+
+int shmdrv_loaded;
+static long page_size;
+
+int shm_common_init(void)
+{
+    page_size = sysconf(_SC_PAGESIZE);
+    shmdrv_loaded = shmdrv_available();
+    return 0;
+}
 
 int shmdrv_available(void)
 {
@@ -244,5 +254,21 @@ int shm_common_exists(int key)
 	    retval = 1;
 	}
 	return retval;
+    }
+}
+
+// unlink entry in /dev/shm/linuxcnc-* when we know we're
+// shutting down - reduce cleanup job for scripts/realtime
+int shm_common_unlink(int key)
+{
+    if (shmdrv_loaded) {
+	// a noop - the automatic garbage collection
+	// will do this on last detach
+	return 0;
+    } else {
+	char segment_name[LINELEN];
+
+	sprintf(segment_name, SHM_FMT, INSTANCE_OF(key), key);
+	return shm_unlink(segment_name);
     }
 }

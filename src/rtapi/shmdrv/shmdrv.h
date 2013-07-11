@@ -61,12 +61,12 @@ extern "C" {
 #endif // __cplusplus
 
 extern int shmdrv_loaded;
-extern long page_size;  // for munmap
 
 // an mmap() failure returns MAP_FAILED, not NULL, so test for both
 #define MMAP_OK(x) (((x) != NULL) && ((x) != MAP_FAILED))
 #define PAGESIZE_ALIGN(x)  ((x) + (-(x) & (page_size - 1)))
 
+extern int shmdrv_available(void);
 extern int shmdrv_available(void);
 extern int shmdrv_driver_fd(void);
 extern int shmdrv_status(struct shm_status *shmstat);
@@ -75,9 +75,12 @@ extern int shmdrv_attach(struct shm_status *shmstat, void **shm);
 extern int shmdrv_detach(struct shm_status *shmstat, void *shm);
 extern int shmdrv_gc(void);
 extern void shmdrv_print_status(struct shm_status *sm, const char *tag);
+
+extern int shm_common_init(void);
 extern int shm_common_new(int key, int *size, int instance, void **shmptr, int create);
 extern int shm_common_detach(int size, void *shmptr);
 extern int shm_common_exists(int key);
+extern int shm_common_unlink(int key);
 
 #ifdef __cplusplus
 }
