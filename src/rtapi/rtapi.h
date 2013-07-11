@@ -185,11 +185,9 @@ extern int _rtapi_next_module_id(void);
 #if defined(ULAPI) || defined(BUILD_SYS_USER_DSO)
 #include <limits.h> // provides PATH_MAX
 
-/* make sure a given kernel module is loaded.
-   might be needed for some usermode PCI drivers
-*/
-int rtapi_assure_module_loaded(const char *module);
 
+extern int is_module_loaded(const char *module);
+extern int load_module(const char *module, const char *modargs);
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
 // kernel tests in rtapi_compat.c

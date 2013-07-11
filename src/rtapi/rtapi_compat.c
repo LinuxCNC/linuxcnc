@@ -277,43 +277,45 @@ int module_path(char *result, const char *basename)
     return -ENOENT;
 }
 
-
-void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch, char *ulapi_lib)
+int is_module_loaded(const char *module)
 {
-    // verify the ulapi-foo.so we just loaded is compatible with
-    // the running kernel if it has special prerequisites
+    FILE *fd;
+    char line[100];
+    int len = strlen(module);
 
-    switch (rtapi_switch->thread_flavor_id) {
-    case  RTAPI_RT_PREEMPT_ID:
-	if (!kernel_is_rtpreempt()) {
-	    fprintf(stderr,
-		    "HAL_LIB: ERROR - RT_PREEMPT ULAPI loaded but kernel is "
-		    "not RT_PREEMPT (%s, %s)\n",
-		    ulapi_lib, rtapi_switch->git_version);
-	    exit(1);
-	}
-	break;
-    case RTAPI_XENOMAI_KERNEL_ID:
-    case RTAPI_XENOMAI_ID:
-	if (!kernel_is_xenomai()) {
-	    fprintf(stderr,
-		    "HAL_LIB: ERROR - Xenomai ULAPI loaded but kernel is "
-		    "not Xenomai (%s, %s)\n",
-		    ulapi_lib, rtapi_switch->git_version);
-	    exit(1);
-	}
-	break;
-    case RTAPI_RTAI_KERNEL_ID:
-	if (!kernel_is_rtai()) {
-	    fprintf(stderr,
-		    "HAL_LIB: ERROR - RTAI ULAPI loaded but kernel is "
-		    "not RTAI (%s, %s)\n",
-		    ulapi_lib, rtapi_switch->git_version);
-	    exit(1);
-	}
-	break;
-    default:
-	// no prerequisites for vanilla
-	break;
+    fd = fopen("/proc/modules", "r");
+    if (fd == NULL) {
+	fprintf(stderr, "module_loaded: ERROR: cannot read /proc/modules\n");
+        return -1;
     }
+    while (fgets(line, sizeof(line), fd)) {
+        if (!strncmp(line, module, len)) {
+            fclose(fd);
+            return 1;
+        }
+    }
+    fclose(fd);
+    return 0;
+}
+
+int load_module(const char *module, const char *modargs)
+{
+    char mod_helper[PATH_MAX];
+    char line[PATH_MAX + 100];
+    int retval;
+
+    if (get_rtapi_config(mod_helper, "linuxcnc_module_helper", PATH_MAX) != 0) {
+        fprintf(stderr, "load_module: ERROR: failed to read "
+		"linuxcnc_module_helper path from rtapi config\n");
+	return -1;
+    }
+	
+    sprintf(line, "%s insert %s %s", mod_helper,
+	    module, modargs ? modargs : "");
+    if ((retval = system(line))) {
+        fprintf(stderr, "load_module: ERROR: executing '%s'  %d - %s\n",
+                        line, errno, strerror(errno));
+        return retval;
+    }
+    return 0;
 }

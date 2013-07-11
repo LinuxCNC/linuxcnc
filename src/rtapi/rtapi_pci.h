@@ -68,8 +68,6 @@ void pci_unregister_driver(struct pci_driver *driver);
 int pci_enable_device(struct pci_dev *dev);
 int pci_disable_device(struct pci_dev *dev);
 
-int rtapi_assure_module_loaded(const char *module);
-
 #define pci_resource_start(dev, bar)    ((dev)->resource[(bar)].start)
 #define pci_resource_end(dev, bar)      ((dev)->resource[(bar)].end)
 #define pci_resource_flags(dev, bar)    ((dev)->resource[(bar)].flags)

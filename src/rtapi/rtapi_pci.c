@@ -386,48 +386,6 @@ void rtapi_pci_iounmap(struct rtapi_pcidev *dev, void *mmio)
 //Fixme// Global for testing only!
 struct rtapi_pci_dev *dev_g = NULL;
 
-
-// some userland drivers might need special kernel support by a module
-// even if running in userland - Charles's hostmot2 port doesnt, but
-// for instance the PRU HAL module for the AM335x beaglebone board will
-// need 'uio_pruss' loaded to work properly, so we'll keep it around
-int rtapi_assure_module_loaded(const char *module)
-{
-    FILE *fd;
-    char line[100];
-    int len = strlen(module);
-    int retval;
-    char *modname = "rtapi_pci";
-
-    fd = fopen("/proc/modules", "r");
-    if (fd == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "%s: ERROR: cannot read /proc/modules\n", 
-                        modname);
-        return -1;
-    }
-    while (fgets(line, sizeof(line), fd)) {
-        if (!strncmp(line, module, len)) {
-            rtapi_print_msg(RTAPI_MSG_DBG, "%s: module '%s' already loaded\n", 
-                            modname, module);
-            fclose(fd);
-            return 0;
-        }           
-    }
-    fclose(fd);
-    rtapi_print_msg(RTAPI_MSG_DBG, "%s: loading module '%s'\n", 
-                    modname, module);
-    sprintf(line, "/sbin/modprobe %s", module);
-    if ((retval = system(line))) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                        "%s: ERROR: executing '%s'  %d - %s\n",
-                        modname, line, errno, strerror(errno));
-        return -1;
-    }
-    return 0;
-}
-
-//static int check_device_id(char *dev_name, struct pci_device_id *dev_id, struct pci_driver *driver)
 static int check_device_id(struct udev_device *udev_dev, struct pci_device_id *dev_id, struct pci_driver *driver)
 {
     ssize_t res;
