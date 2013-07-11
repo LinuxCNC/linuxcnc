@@ -50,19 +50,25 @@ typedef struct {
     int magic;
     int layout_version; 
     unsigned long mutex;
-    int instance_id;
-    // this is set once on startup and is to be considered a constant
+
+    // this is set once on startup by rtapi_msgd and is to be considered a constant
     // throughout the session:
+    int instance_id;
     char instance_name[INSTANCE_NAME_LENGTH];
     int rtapi_thread_flavor; 
+
+    // runtime parameters
     int rt_msg_level;              // message level for RT 
     int user_msg_level;            // message level for non-RT 
     int next_module_id;            // for userland threads module id's
     int hal_size;                  // make HAL data segment size configurable
     int rtapi_app_pid;
     int rtapi_msgd_pid;
+
+    // stats
     int error_ring_full;
     int error_ring_locked;
+
     ringheader_t rtapi_messages;   // ringbuffer for RTAPI messages
     char buf[SIZE_ALIGN(MESSAGE_RING_SIZE)];
     ringtrailer_t rtapi_messages_trailer;

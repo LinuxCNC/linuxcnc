@@ -57,6 +57,7 @@
 #include "rtapi_global.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
+#include "rtapi/shmdrv/shmdrv.h"
 
 #define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
@@ -80,37 +81,35 @@ template<class T> T DLSYM(void *handle, const char *name) {
 }
 
 static std::map<string, void*> modules;
-
 static struct rusage rusage;
 static unsigned long minflt, majflt;
-
-static int harden_rt(void);
-static int usr_msglevel = RTAPI_MSG_INFO ;
-static int rt_msglevel = RTAPI_MSG_INFO ;
-
-static int halsize = HAL_SIZE;
 static int instance_id;
 flavor_ptr flavor;
 static int use_drivers = 0;
 static int foreground;
+static int force_exit = 0;
+int shmdrv_loaded;
+long page_size;
 
 // the following two variables, despite extern, are in fact private to rtapi_app
 // in the sense that they are not visible in the RT space (the namespace 
 // of dlopen'd modules); these are supposed to be 'ships in the night'
 // relative to any symbols exported by rtapi_app.
-// They are set once rtapi.so has been loaded by calling the 
-// rtapi_get_handle() and get_global_handle() methods in rtapi.so.
+//
+// global_data is set in attach_global_segment() which was already created by rtapi_msgd
+// rtapi_switch is set once rtapi.so has been loaded by calling the 
+// rtapi_get_handle() method in rtapi.so.
 // Once set, rtapi methods in rtapi.so can be called normally through
 // the rtapi_switch redirection (see rtapi.h).
+
 // NB: do _not_ call any rtapi_* methods before these variables are set
 // except for rtapi_msg* and friends (those do not go through the rtapi_switch).
 rtapi_switch_t *rtapi_switch;
 global_data_t *global_data; 
 
-static int force_exit = 0;
-
-static int init_actions(int instance, int hal_size, int rtlevel, int userlevel);
+static int init_actions(int instance);
 static void exit_actions(void);
+static int harden_rt(void);
 
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
@@ -294,22 +293,6 @@ static int do_load_cmd(string name, vector<string> args) {
         }
 	rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n",
 			name.c_str(), module_name);
-
-	// retrieve the address of the global segment
-	// this is set only after rtapi_app_main returns sucessfully
-	if (global_data == NULL) {
-	    get_global_handle_t get_global_handle;
-
-	    dlerror();
-	    get_global_handle = (get_global_handle_t) dlsym(module, "get_global_handle");
-	    if (get_global_handle != NULL) {
-		global_data = get_global_handle();
-		assert(global_data != NULL);
-		rtapi_print_msg(RTAPI_MSG_DBG,
-				"rtapi_app:%d global_data=%p retrieved\n",
-				instance_id, global_data);
-	    }
-	}
 	return 0;
     }
     rtapi_print_msg(RTAPI_MSG_ERR, "%s: already loaded\n", name.c_str());
@@ -326,8 +309,8 @@ static int do_unload_cmd(string name) {
 	if(stop) stop();
 	modules.erase(modules.find(name));
         dlclose(w);
-	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d '%s' unloaded\n", 
-		  instance_id, name.c_str());
+	rtapi_print_msg(RTAPI_MSG_DBG, " '%s' unloaded\n", 
+		  name.c_str());
     }
     return 0;
 }
@@ -397,21 +380,16 @@ static int handle_command(vector<string> args) {
         args.erase(args.begin());
         return do_load_cmd(name, args);
     } else if(args.size() == 2 && args[0] == "rtlevel") {
-	rt_msglevel = atoi(args[1].c_str());
-	rtapi_set_msg_level(rt_msglevel);
-	if (global_data != NULL)
-	    global_data->rt_msg_level = rt_msglevel;
-	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d RT msglevel set to %d (%s)\n",
-		  instance_id, rt_msglevel,
-		  global_data == NULL ? "local" : "global");
+	global_data->rt_msg_level = atoi(args[1].c_str());
+	rtapi_set_msg_level(global_data->rt_msg_level);
+	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d RT msglevel set to %d\n",
+			instance_id, global_data->rt_msg_level);
         return 0;
     } else if(args.size() == 2 && args[0] == "usrlevel") {
-	usr_msglevel = atoi(args[1].c_str());
-	if (global_data != NULL)
-	    global_data->user_msg_level = rt_msglevel;
-	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d User msglevel set to %d (%s)\n",
-		  instance_id, usr_msglevel,
-		  global_data == NULL ? "local" : "global");
+	global_data->user_msg_level = atoi(args[1].c_str());
+
+	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d User msglevel set to %d\n",
+			instance_id, global_data->user_msg_level);
         return 0;
     } else if(args.size() == 2 && args[0] == "unload") {
         return do_unload_cmd(args[1]);
@@ -445,11 +423,9 @@ static void exit_actions()
 {
     do_unload_cmd("hal_lib");
     do_unload_cmd("rtapi");
-    // this will cause rtapi_app_msg_handler() to fall back to syslog
-    global_data = NULL;
 }
 
-static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
+static int init_actions(int instance)
 {
     vector<string> args, noargs;
     string arg;
@@ -459,12 +435,6 @@ static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
     args.push_back(string("rtapi"));
     snprintf(buff, sizeof(buff), "rtapi_instance=%d", instance);
     args.push_back(string(buff));
-    snprintf(buff, sizeof(buff), "hal_size=%d",  hal_size);
-    args.push_back(string(buff));
-    snprintf(buff, sizeof(buff), "rt_msg_level=%d", rtlevel);
-    args.push_back(string(buff));
-    snprintf(buff, sizeof(buff), "user_msg_level=%d", userlevel);
-    args.push_back(string(buff));
 
     retval =  do_load_cmd("rtapi", args);
     if (retval)
@@ -472,22 +442,87 @@ static int init_actions(int instance, int hal_size, int rtlevel, int userlevel)
     return do_load_cmd("hal_lib", noargs);
 }
 
+
+static int attach_global_segment()
+{
+    int retval = 0;
+    int globalkey = OS_KEY(GLOBAL_KEY, instance_id);
+    int size = 0;
+
+    shm_common_init();
+
+    retval = shm_common_new(globalkey, &size,
+			    instance_id, (void **) &global_data, 0);
+    if (retval < 0) {
+	syslog(LOG_ERR, "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
+	       instance_id, globalkey, strerror(-retval));
+    }
+    if (size != sizeof(global_data_t)) {
+	syslog(LOG_ERR, "rt:%d global segment size mismatch: expect %d got %d\n", 
+	       instance_id, sizeof(global_data_t), size);
+	return -EINVAL;
+    }
+    return retval;
+}
+
+// write child return value through pipe to parent
+// used only on first run of rtapi_app, but thats where
+// all the heavy lifting happens and we want to make sure
+// setup succeeded before continuing scripts/realtime
+// so parent blocks on reading from the result pipe
+
+static void write_exitcode(int fd, int value)
+{
+    if (foreground)
+	// no parent/child pipe in place
+	return;
+
+    if (write(fd, &value, sizeof(value)) != sizeof(value)) {
+	fprintf(stderr, "rtapi_app:%d write to status pipe failed: %s\n",
+		instance_id, strerror(errno));
+    }
+    close(fd);
+}
+
 static char proctitle[20];
 
 static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
-    int retval, i;
+    int retval;
+    unsigned i;
+
+    // make parent wait and read status from child via a pipe on initial run
+    // in case anything goes wrong in setting up the RT stack
+    int statuspipe[2];
+
+    if (pipe (statuspipe)) {
+	fprintf (stderr, "%s: pipe() failed: %s\n", argv[0], strerror(errno));
+	return EXIT_FAILURE;
+    }
 
     if (!foreground) {
 	pid_t pid = fork();
 	if (pid > 0) { // parent
-	    exit(0);
+	    int exitcode;
+
+	    close(statuspipe[1]);  // write side not needed
+
+	    // read return value from statuspipe[0] and exit() that value
+	    if (read(statuspipe[0],&exitcode,sizeof(exitcode)) != sizeof(exitcode)) {
+		fprintf (stderr, "%s:%d parent: reading from result pipe failed: %s\n", 
+			 argv[0], instance_id, strerror(errno));
+		return EXIT_FAILURE;
+	    }
+	    exit(exitcode);
 	}
 	if (pid < 0) { // fork failed
 	    perror("fork");
 	    exit(1);
 	}
     }
+
+    // child
+    close(statuspipe[0]);  // read side not needed in child
 
     // set new process name
     snprintf(proctitle, sizeof(proctitle), "rtapi:%d",instance_id);
@@ -498,34 +533,90 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     strncpy(argv[0], proctitle, max_procname_len);
     memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
 
-    for (i = 1; i < argc; i++) {
+    for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
-    }
-    //rtapi_openlog(proctitle, rt_msglevel );
-    rtapi_set_logtag("rtapi_app");
-    rtapi_set_msg_level(rt_msglevel);
-    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d", instance_id, getpid());
 
-    // child:
-    if ((retval = harden_rt())) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"rtapi_app:%d failed to setup realtime environment - 'sudo make setuid' missing?\n", 
-			instance_id);
+    // attach global segment which rtapi_msgd already prepared
+    if ((retval = attach_global_segment()) != 0) {
+	fprintf(stderr, "%s: FATAL - failed to attach to global segment\n", argv[0]);
+	write_exitcode(statuspipe[1], 1);
 	exit(retval);
     }
 
-    if (init_actions(instance_id, halsize, rt_msglevel, usr_msglevel)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "init_actions() failed\n");
+    // make sure rtapi_msgd's pid is valid and msgd is running, in case we caught a leftover shmseg
+    // otherwise log messages would vanish - kinda hard to diagnose errors that way
+    if ((global_data->rtapi_msgd_pid == 0) ||
+	kill(global_data->rtapi_msgd_pid, 0) != 0) {
+	fprintf(stderr,"%s: rtapi_msgd pid invalid: %d, exiting\n",
+		argv[0], global_data->rtapi_msgd_pid);
+	write_exitcode(statuspipe[1], 2);
+	exit(EXIT_FAILURE);
+    }
+
+    // from here on it is safe to use rtapi_print() and friends as the error ring
+    // is now set up and msgd is logging it
+    rtapi_set_logtag("rtapi_app");
+    rtapi_set_msg_level(global_data->rt_msg_level);
+    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d", instance_id, getpid());
+
+    // obtain handle on flavor descriptor as detected by rtapi_msgd
+    flavor = flavor_byid(global_data->rtapi_thread_flavor);
+    if (flavor == NULL) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d FATAL - invalid flavor id: %d\n",
+			instance_id, global_data->rtapi_thread_flavor);
+	write_exitcode(statuspipe[1], 3);
+	exit(EXIT_FAILURE);
+    }
+
+    // make sure we're setuid root when we need to
+    if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && !getuid()) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d need to 'sudo make setuid' to access I/O?\n", 
+			instance_id);
+	write_exitcode(statuspipe[1], 4);
+	exit(EXIT_FAILURE);
+    }
+
+    // assorted RT incantations - memory locking, prefaulting etc
+    if ((retval = harden_rt())) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d failed to setup realtime environment - 'sudo make setuid' missing?\n", 
+			instance_id);
+	write_exitcode(statuspipe[1], 5);
+	exit(retval);
+    }
+
+    // load rtapi and hal_lib
+    if (init_actions(instance_id)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: init_actions() failed\n", instance_id);
+	write_exitcode(statuspipe[1], 6);
 	exit(1);
     }
-    assert(global_data != NULL);
 
+    // the RT stack is now set up and good for use
     global_data->rtapi_app_pid = getpid();
-    if(args.size()) { 
+
+    // execute any command if there was one on the initial command line
+    if (args.size()) {
         int result = handle_command(args);
-        if(result != 0) return result;
-        if(force_exit) return 0;
+        if (result != 0) {
+	    write_exitcode(statuspipe[1], result);
+	    return result;
+	}
+        if (force_exit) {
+	    write_exitcode(statuspipe[1], result);
+	    return 0;
+	}
     }
+
+    // report success
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app:%d initialization complete\n", instance_id);
+
+    // and unblock the waiting parent process so script/realtime continues
+    write_exitcode(statuspipe[1], 0);
+
+    // serve requests on the command socket
     do {
         struct sockaddr_un client_addr;
         memset(&client_addr, 0, sizeof(client_addr));
@@ -555,8 +646,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
         }
     } while(!force_exit);
 
-    if (global_data)
-	global_data->rtapi_app_pid = 0;
+    // exiting, so deregister our pid
+    global_data->rtapi_app_pid = 0;
 
     return 0;
 }
@@ -565,16 +656,17 @@ static int configure_memory(void) {
 	unsigned int i, pagesize;
 	char *buf;
 
-#ifndef RTAPI_POSIX  // Realtime tweak requires privs
-	/* Lock all memory. This includes all current allocations (BSS/data)
-	 * and future allocations. */
-	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
-	    rtapi_print_msg(RTAPI_MSG_WARN, 
-		      "mlockall() failed: %d '%s'\n",
-		      errno,strerror(errno)); 
-	    return 1;
+	if (global_data->rtapi_thread_flavor != RTAPI_POSIX_ID) {
+	    // Realtime tweak requires privs
+	    /* Lock all memory. This includes all current allocations (BSS/data)
+	     * and future allocations. */
+	    if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
+		rtapi_print_msg(RTAPI_MSG_WARN, 
+				"mlockall() failed: %d '%s'\n",
+				errno,strerror(errno)); 
+		return 1;
+	    }
 	}
-#endif
 
 	/* Turn off malloc trimming.*/
 	if (!mallopt(M_TRIM_THRESHOLD, -1)) {
@@ -673,7 +765,10 @@ int xenomai_gid()
     int gid = -1;
 
     if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
-	fscanf(fd, "%d", &gid);
+	if (fscanf(fd, "%d", &gid) < 1)
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "rtapi_app:%d failed to read group id from %s\n",
+			    instance_id, XENO_GID_SYSFS);
 	fclose(fd);
     }
     return gid;
@@ -741,9 +836,7 @@ static int harden_rt()
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "couldnt determine xenomai group id from %s\n",
 			    XENO_GID_SYSFS);
-	    if (global_data)
-		global_data->rtapi_app_pid = 0;
-	    exit(1);
+	    return -1;
 	}
 
 	numgroups = getgroups(0,NULL);
@@ -759,16 +852,12 @@ static int harden_rt()
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "getgroups() failed: %d - %s\n",
 			    errno, strerror(errno));
-	    if (global_data)
-		global_data->rtapi_app_pid = 0;
-	    exit(1);
+	    return -1;
 	}
 	rtapi_print_msg(RTAPI_MSG_ERR,"this user is not member of group xenomai");
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"please 'sudo adduser <username>  xenomai', logout and login again");
-	if (global_data)
-	    global_data->rtapi_app_pid = 0;
-	exit(1);
+	return -1;
 
     is_xenomai_member:
 	;
@@ -821,11 +910,7 @@ static void usage(int argc, char **argv)
 static struct option long_options[] = {
     {"help",  no_argument,          0, 'h'},
     {"foreground",  no_argument,    0, 'F'},
-    {"halsize",  required_argument, 0, 'H'},
-    {"usrmsglevel", required_argument, 0, 'u'},
-    {"rtmsglevel", required_argument, 0, 'r'},
     {"instance", required_argument, 0, 'I'},
-    {"flavor",   required_argument, 0, 'f'},
     {"drivers",   required_argument, 0, 'D'},
     {0, 0, 0, 0}
 };
@@ -858,18 +943,6 @@ int main(int argc, char **argv)
 	    rtapi_set_msg_handler(stderr_rtapi_msg_handler);
 	    break;
 
-	case 'H':
-	    halsize = atoi(optarg);
-	    break;
-
-	case 'u':
-	    usr_msglevel = atoi(optarg);
-	    break;
-
-     	case 'r':
-	    rt_msglevel = atoi(optarg);
-	    break;
-
 	case 'I':
 	    instance_id = atoi(optarg);
 	    break;
@@ -898,7 +971,7 @@ int main(int argc, char **argv)
 	    exit(0);
 	}
     }
-
+#if 0
     if (flavor == NULL)
 	flavor = default_flavor();
     assert(flavor != NULL);
@@ -907,7 +980,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "rtapi_app: need to 'sudo make setuid' to access I/O\n");
 	exit(1);
     }
-
+#endif
     snprintf(addr.sun_path, sizeof(addr.sun_path), 
 	     SOCKET_PATH, instance_id);
     addr.sun_path[0] = '\0';

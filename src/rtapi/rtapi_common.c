@@ -303,73 +303,8 @@ rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
     return previous;
 }
 
-// rtapi_module.c, rtapi_main.c
+// defined and initialized in rtapi_module.c (kthreads), rtapi_main.c (userthreads)
 extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
-
-void init_global_data(global_data_t * data, 
-		      int instance_id, int hal_size, 
-		      int rt_level, int user_level,
-		      const char *name)
-{
-    /* has the block already been initialized? */
-    if (data->magic == GLOBAL_MAGIC) {
-	/* yes, nothing to do */
-	return;
-    }
-    /* no, we need to init it, grab mutex unconditionally */
-    // 'locked' should never happen since this is the first module loaded
-    // but you never know what people come up with
-    rtapi_mutex_try(&(data->mutex));
-    /* set magic number so nobody else init's the block */
-    data->magic = GLOBAL_MAGIC;
-    /* set version code so other modules can check it */
-    data->layout_version = GLOBAL_LAYOUT_VERSION;
-
-    data->instance_id = instance_id;
-
-    // passed in from rtapi.so/ko args
-    if (strlen(name) == 0) {
-	rtapi_snprintf(data->instance_name, sizeof(data->instance_name), 
-		 "inst%d",rtapi_instance);
-    } else {
-	strncpy(data->instance_name,name, sizeof(data->instance_name));
-    }
-
-    // separate message levels for RT and userland
-    data->rt_msg_level = rt_level;
-    data->user_msg_level = user_level;
-
-    // next value returned by rtapi_init (userland threads)
-    // those dont use fixed sized arrays 
-    data->next_module_id = 0;
-
-    // tell the others what thread flavor this RTAPI was compiled for
-    data->rtapi_thread_flavor = THREAD_FLAVOR_ID;
-
-    // HAL segment size - module param to rtapi 'hal_size=n'
-    data->hal_size = hal_size;
-
-    // init the error ring
-    rtapi_ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
-    memset(&data->rtapi_messages.buf[0], 0, SIZE_ALIGN(MESSAGE_RING_SIZE));
-
-    // prime it
-    data->rtapi_messages.refcount = 1;   // rtapi is 'attached'
-    data->rtapi_messages.use_wmutex = 1; // hint only
-
-    // demon pids
-    data->rtapi_app_pid = 0;
-    data->rtapi_msgd_pid = 0;
-
-    // make it accessible
-    rtapi_ringbuffer_init(&data->rtapi_messages, &rtapi_message_buffer);
-
-    rtapi_set_logtag("rt");
-
-    /* done, release the mutex */
-    rtapi_mutex_give(&(data->mutex));
-    return;
-}
 
 int  _rtapi_next_module_id(void) 
 {

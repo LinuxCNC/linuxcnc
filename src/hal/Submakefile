@@ -7,7 +7,8 @@ INCLUDES += hal
 HALLIBSRCS := \
 	hal/hal_lib.c \
 	rtapi/rtapi_compat.c \
-	rtapi/rtapi_support.c 
+	rtapi/shmdrv/shmdrvapi.c \
+	rtapi/rtapi_support.c
 
 # FIXME all thread-specific code needs to be removed from HAL &
 # relegated to src/rtapi

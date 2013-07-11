@@ -35,27 +35,13 @@ MODULE_LICENSE("GPL");
 // this just numbers this particular instance to fit with the scheme
 int rtapi_instance;
 
-static char *instance_name = "";
-static int hal_size = HAL_SIZE;                 // default size of HAL data segment
-static int rt_msg_level = RTAPI_MSG_INFO;	/* initial RT message printing level */ 
-static int user_msg_level = RTAPI_MSG_INFO;	/* initial User message printing level */ 
-
-RTAPI_MP_STRING(instance_name,"name of this instance")
-RTAPI_MP_INT(rtapi_instance, "instance ID");
-RTAPI_MP_INT(hal_size, "size of the HAL data segment");
-RTAPI_MP_INT(rt_msg_level, "RT debug message level (default=3)");
-RTAPI_MP_INT(user_msg_level, "user debug message level (default=3)");
+RTAPI_MP_INT(rtapi_instance, "RTAPI instance id");
 EXPORT_SYMBOL(rtapi_instance);
-EXPORT_SYMBOL(global_data);
 
 global_data_t *global_data = NULL;
-ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
+EXPORT_SYMBOL(global_data);
 
-global_data_t *get_global_handle(void)
-{
-    return global_data;
-}
-EXPORT_SYMBOL(get_global_handle);
+ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 /* the following are internal functions that do the real work associated
    with deleting tasks, etc.  They do not check the mutex that protects
@@ -87,14 +73,9 @@ int init_module(void) {
 		    GIT_VERSION);
 
     sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
-    sm.size = sizeof(global_data_t);
+    sm.size = 0;
     sm.flags = 0;
-    if ((retval = shmdrv_create(&sm)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: can create global segment: %d\n",
-			rtapi_instance, retval);
-	return -EINVAL;
-    }
+
     if ((retval = shmdrv_attach(&sm, (void **)&global_data)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d ERROR: can attach global segment: %d\n",
@@ -118,10 +99,13 @@ int init_module(void) {
 	return -EINVAL;
     }
 
-    /* perform a global init */
-    init_global_data(global_data, rtapi_instance,
-		     hal_size, rt_msg_level, user_msg_level, 
-		     instance_name);
+    // make error ringbuffer accessible within RTAPI
+    rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
+    global_data->rtapi_messages.refcount += 1;   // rtapi is 'attached'
+
+    // tag messages originating from RT proper
+    rtapi_set_logtag("rt");
+
     /* this will take care of any threads flavor hook */
     init_rtapi_data(rtapi_data);
 
@@ -279,6 +263,8 @@ void cleanup_module(void) {
 			rtapi_instance, retval);
     }
     rtapi_data = NULL;
+
+    global_data->rtapi_messages.refcount -= 1;   // detach rtapi end
 
     sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
     sm.size = sizeof(global_data_t);

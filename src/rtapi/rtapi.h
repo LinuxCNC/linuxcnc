@@ -988,10 +988,10 @@ extern int rtapi_instance;
 
 #ifdef ULAPI
 // the ulapi constructor and destructor
-// these attach/detach the global and rtapi shm segments to/from ULAPI
-typedef int  (*ulapi_main_t)(int, int, global_data_t **);
+// these attach/detach the rtapi shm segments to/from ULAPI
+typedef int  (*ulapi_main_t)(int, int, global_data_t *);
 typedef int (*ulapi_exit_t)(int);
-extern int ulapi_main(int instance, int flavor, global_data_t **global);
+extern int ulapi_main(int instance, int flavor, global_data_t *global);
 extern int ulapi_exit(int instance);
 
 // Check that a ulapi module is compatible with the running kernel

@@ -15,71 +15,56 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <sys/mman.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_common.h"       /* global_data_t */
 #include "rtapi_kdetect.h"      /* environment autodetection */
-#include "rtapi/shmdrv/shmdrv.h"
+#include "rtapi/shmdrv/shmdrv.h"  /* common shm driver API */
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("RTAPI module support - userland threads");
 MODULE_LICENSE("GPL");
 
-int rtapi_instance;
-static char *instance_name = "";
-static int hal_size = HAL_SIZE;                 // default size of HAL data segment
-static int rt_msg_level = RTAPI_MSG_INFO;	/* initial RT message printing level */ 
-static int user_msg_level = RTAPI_MSG_INFO;	/* initial User message printing level */ 
-
-RTAPI_MP_STRING(instance_name,"name of this instance")
+// mostly for argument compatibility with kernel thread flavors
+int rtapi_instance;                             // instance id, visible throughout RTAPI
 RTAPI_MP_INT(rtapi_instance, "instance ID");
-RTAPI_MP_INT(hal_size, "size of the HAL data segment");
-RTAPI_MP_INT(rt_msg_level, "RT debug message level (default=3)");
-RTAPI_MP_INT(user_msg_level, "user debug message level (default=3)");
 EXPORT_SYMBOL(rtapi_instance);
+
+global_data_t *global_data = NULL;              // visible to all RTAPI modules
 EXPORT_SYMBOL(global_data);
 
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
 void _rtapi_module_init_hook(void);
 #endif
 
-global_data_t *global_data = NULL;
 ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
-
-static int flavor_id = THREAD_FLAVOR_ID;
-static int check_compatible();
-
-global_data_t *get_global_handle(void)
-{
-    return global_data;
-}
-EXPORT_SYMBOL(get_global_handle);
 
 int rtapi_app_main(void)
 {
-    int retval, compatible;
+    int retval;
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
     int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
-    int size;
+    int size  = 0;
 
-    page_size = sysconf(_SC_PAGESIZE);
-    shmdrv_loaded  = shmdrv_available();
+    shm_common_init();
 
-    rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d:%s %s %s init\n",
-		    rtapi_instance,instance_name,
+    rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d  %s %s init\n",
+		    rtapi_instance,
 		    rtapi_get_handle()->thread_flavor_name,
 		    GIT_VERSION);
 
-    size = sizeof(global_data_t);
-    retval = shm_common_new(globalkey, &size, 
-			    rtapi_instance, (void **) &global_data, 1);
-    if (retval ==  0) {
-	// the global_data segment already existed.
+    // attach to global segment which rtapi_msgd owns and already
+    // has set up:
+    retval = shm_common_new(globalkey, &size,
+			    rtapi_instance, (void **) &global_data, 0);
+
+    if (retval ==  -ENOENT) {
+	// the global_data segment does not exist.
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: global segment 0x%x already exists!\n",
+			"RTAPI:%d ERROR: global segment 0x%x does not exists (rtapi_msgd not started?)\n",
 			rtapi_instance, globalkey);
 	return -EBUSY;
     }
@@ -95,6 +80,23 @@ int rtapi_app_main(void)
 			 rtapi_instance, sizeof(global_data_t), size);
 	 return -EINVAL;
     }
+
+    // consistency check
+    if (global_data->rtapi_thread_flavor != THREAD_FLAVOR_ID) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "RTAPI:%d BUG: thread flavors dont match: global %d rtapi %d\n",
+			 rtapi_instance, global_data->rtapi_thread_flavor, THREAD_FLAVOR_ID);
+	 return -EINVAL;
+    }
+
+    // good to use global_data from here on
+
+    // make the message ringbuffer accessible
+    rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
+    rtapi_message_buffer.header->refcount++;
+
+    // tag messages originating from RT proper
+    rtapi_set_logtag("rt");
 
     size = sizeof(rtapi_data_t);
     retval = shm_common_new(rtapikey, &size, 
@@ -118,27 +120,9 @@ int rtapi_app_main(void)
 			 rtapi_instance, sizeof(rtapi_data_t), size);
 	 return -EINVAL;
     }
-    /* perform a global init */
-    init_global_data(global_data, rtapi_instance,
-		     hal_size, rt_msg_level, user_msg_level, 
-		     instance_name);
+
     init_rtapi_data(rtapi_data);
 
-    compatible = check_compatible();
-    if (!compatible) {
-	if ((retval = shm_common_detach(sizeof(global_data_t), global_data)) != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI:%d ERROR: shm_common_detach(0x8.8%x) failed: %s\n",
-			    rtapi_instance, globalkey, strerror(-retval));
-	}
-	global_data = NULL;
-	if ((retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data)) != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI:%d ERROR: shm_common_detach(0x8.8%x) failed: %s\n",
-			    rtapi_instance, rtapikey, strerror(-retval));
-	}
-	rtapi_data = NULL;
-    }
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
     _rtapi_module_init_hook();
 #endif
@@ -149,55 +133,14 @@ void rtapi_app_exit(void)
 {
     int retval;
 
-    rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d exit\n",
-		    rtapi_instance);
+    rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d exit\n", rtapi_instance);
+    rtapi_message_buffer.header->refcount--;
 
-    retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data);
-    if (retval) {
+    if ((retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data))) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"RTAPI:%d ERROR: shm_common_detach(rtapi_data) failed: %s\n",
 			rtapi_instance,  strerror(-retval));
     }
+    shm_common_unlink(OS_KEY(RTAPI_KEY, rtapi_instance));
     rtapi_data = NULL;
-
-    retval = shm_common_detach(sizeof(global_data_t), global_data);
-    if (retval) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: shm_common_detach(global_data) failed: %s\n",
-			rtapi_instance, strerror(-retval));
-    }
-    global_data = NULL;
-}
-
-static int check_compatible()
-{
-    int retval = 1;
-    const char *flavor_name = rtapi_get_handle()->thread_flavor_name;
-
-    if (flavor_id == RTAPI_POSIX_ID)
-	return 1; // no prerequisites
-
-    if (kernel_is_xenomai() &&
-	(flavor_id != RTAPI_XENOMAI_ID)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d started %s RTAPI on a Xenomai kernel\n",
-			rtapi_instance,flavor_name);
-	return 0;
-    }
-
-    if (kernel_is_rtai() &&
-	(flavor_id != RTAPI_RTAI_KERNEL_ID)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d started %s RTAPI on an RTAI kernel\n",
-			rtapi_instance,flavor_name);
-	return 0;
-    }
-    if (kernel_is_rtpreempt() &&
-	(flavor_id != RTAPI_RT_PREEMPT_ID)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d started %s RTAPI on an RT PREEMPT kernel\n",
-			rtapi_instance,flavor_name);
-	return 0;
-    }
-    return retval;
 }
