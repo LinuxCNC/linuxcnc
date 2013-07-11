@@ -64,11 +64,6 @@ printf "P is %.6f\n" -200 >> expected-gcode-output
     echo set estop off
     echo set machine on
 
-    echo set home 0
-    echo set home 1
-    echo set home 2
-    sleep 2
-
     echo set mode auto
     echo set open dummy.ngc
 
