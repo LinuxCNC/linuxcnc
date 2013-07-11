@@ -72,8 +72,6 @@ fi
 #
 # kernel threads also need the rtapi and hal_lib kernel modules
 test $BUILD_SYS = kbuild && MODULES="$MODULES rtapi hal_lib"
-# kernel threads and optionally userland threads use shmdrv module
-test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes && MODULES="shmdrv $MODULES"
 #
 # reverse list of modules for unloading
 MODULES_UNLOAD=
@@ -143,32 +141,53 @@ Load(){
 	fi
     fi
 
+    # kernel threads must have shmdr.ko loaded
+    # userland threads optionally may use the shmdrv module
+    if test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes; then
+	if ! test -c /dev/shmdrv ; then
+	    $linuxcnc_module_helper insert shmdrv || return $?
+	    # give some time to let shmdrv initialize
+	    CheckLoaded
+	fi
+    fi
+
+    # rtapi_msgd creates the global segment containing the error ring buffer
+    # so start this first:
+
+    if ! ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
+	--rtmsglevel=$DEBUG \
+	--usrmsglevel=$DEBUG \
+	--halsize=$HAL_SIZE   ; then
+	exitcode=$?
+	echo "rtapi_msgd startup failed - aborting" 1>&2
+	exit $?
+    fi
+
     # load kernel modules, including shmdrv for userland
     for MOD in $MODULES; do
 	# if loading rtapi.ko, tack on parameters
 	if test $MOD = rtapi; then
 	    $linuxcnc_module_helper insert $MOD \
-		hal_size=$HAL_SIZE rtapi_instance=$INSTANCE \
-		rt_msg_level=$DEBUG user_msg_level=$DEBUG $NAME_CMD 
+		rtapi_instance=$INSTANCE $NAME_CMD || return $?
 	else
 	    $linuxcnc_module_helper insert $MOD || return $?
-	    # sleep a moment to let shmdrv initialize
-	    test $MOD = shmdrv && sleep .5
 	fi
     done
 
     if test $BUILD_SYS = user-dso; then
         # run rtapi_app for userland
 	if [ "$DEBUG" != "" ] ; then
-	    ${rtapi_app} --instance=$INSTANCE $NAME_CMD \
-		--rtmsglevel=$DEBUG \
-		--usrmsglevel=$DEBUG \
-		--halsize=$HAL_SIZE 
+	    if ! ${rtapi_app} --instance=$INSTANCE ; then
+		exitcode=$?
+		echo "rtapi_app startup failed - aborting" 1>&2
+		exit $?
+	    fi
 	else
-	    ${rtapi_app} --instance $INSTANCE $NAME_CMD \
-		--halsize=$HAL_SIZE \
-		--rtmsglevel=$DEBUG \
-		--usrmsglevel=$DEBUG 2>&1 >/dev/null  
+	    if ! ${rtapi_app} --instance=$INSTANCE  2>&1 >/dev/null ; then
+		exitcode=$?
+		echo "rtapi_app startup failed - aborting" 1>&2
+		exit $?
+	    fi
         fi
 
     else  # BUILD_SYS = 'kbuild'
@@ -177,15 +196,6 @@ Load(){
             echo "$DEBUG" > /proc/rtapi/debug
         fi
     fi
-
-    # the rtapi_msgd logging demon will wait in the foreground
-    # until the HAL data segment exists, confirming the RT stack
-    # is fully setup by rtapi_app, and only then disconnect into the
-    # background. This closes a race condition where clients
-    # like halcmd might try to attach the HAL data segment before
-    # rtapi_app got around to creating it.
-
-    ${rtapi_msgd} --instance=$INSTANCE
 }
 
 CheckLoaded(){
