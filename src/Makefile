@@ -841,6 +841,9 @@ rotatekins-objs := emc/kinematics/rotatekins.o
 obj-m += tripodkins.o
 tripodkins-objs := emc/kinematics/tripodkins.o
 
+obj-m += lineardeltakins.o
+lineardeltakins-objs := emc/kinematics/lineardeltakins.o
+
 obj-m += genhexkins.o
 genhexkins-objs := emc/kinematics/genhexkins.o
 genhexkins-objs += libnml/posemath/_posemath.o
@@ -970,6 +973,7 @@ endif
 ../rtlib/gantrykins$(MODULE_EXT): $(addprefix objects/rt,$(gantrykins-objs))
 ../rtlib/rotatekins$(MODULE_EXT): $(addprefix objects/rt,$(rotatekins-objs))
 ../rtlib/tripodkins$(MODULE_EXT): $(addprefix objects/rt,$(tripodkins-objs))
+../rtlib/lineardeltakins$(MODULE_EXT): $(addprefix objects/rt,$(lineardeltakins-objs))
 ../rtlib/genhexkins$(MODULE_EXT): $(addprefix objects/rt,$(genhexkins-objs))
 ../rtlib/genserkins$(MODULE_EXT): $(addprefix objects/rt,$(genserkins-objs))
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
