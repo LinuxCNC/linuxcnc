@@ -416,13 +416,15 @@ int main(int argc, char **argv)
 
     syslog(LOG_INFO,
 	   "startup instance=%s pid=%d flavor=%s "
-	   "rtlevel=%d usrlevel=%d halsize=%d shm=%s",
+	   "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s git=%s",
 	   global_data->instance_name, getpid(),
 	   flavor->name,
 	   global_data->rt_msg_level,
 	   global_data->user_msg_level,
 	   global_data->hal_size,
-	   shmdrv_loaded ? "shmdrv" : "Posix");
+	   shmdrv_loaded ? "shmdrv" : "Posix",
+	   __VERSION__,
+	   GIT_VERSION);
 
     if ((global_data->rtapi_msgd_pid != 0) &&
 	kill(global_data->rtapi_msgd_pid, 0) == 0) {

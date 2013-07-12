@@ -557,7 +557,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // is now set up and msgd is logging it
     rtapi_set_logtag("rtapi_app");
     rtapi_set_msg_level(global_data->rt_msg_level);
-    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d", instance_id, getpid());
+    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d gcc=%s git=%s", 
+		    instance_id, getpid(), __VERSION__, GIT_VERSION);
 
     // obtain handle on flavor descriptor as detected by rtapi_msgd
     flavor = flavor_byid(global_data->rtapi_thread_flavor);
