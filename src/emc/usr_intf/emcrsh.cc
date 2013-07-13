@@ -2656,8 +2656,6 @@ void *readClient(void *arg)
   int len;
   connectionRecType *context;
 
-  signal(SIGPIPE, SIG_IGN);
-
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
   context->cliSock = client_sockfd;
   context->linked = false;
@@ -2823,6 +2821,15 @@ int main(int argc, char *argv[])
         sigemptyset(&act.sa_mask);
         act.sa_flags = 0;
         sigaction(SIGINT, &act, NULL);
+    }
+
+    // make all threads ignore SIGPIPE
+    {
+        struct sigaction act;
+        act.sa_handler = SIG_IGN;
+        sigemptyset(&act.sa_mask);
+        act.sa_flags = 0;
+        sigaction(SIGPIPE, &act, NULL);
     }
 
     if (useSockets) sockMain();
