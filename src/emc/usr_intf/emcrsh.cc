@@ -458,7 +458,7 @@ typedef struct {
   char progName[256];} connectionRecType;
 
 int port = 5007;
-int server_sockfd, client_sockfd;
+int server_sockfd;
 socklen_t server_len, client_len;
 struct sockaddr_in server_address;
 struct sockaddr_in client_address;
@@ -2654,19 +2654,7 @@ void *readClient(void *arg)
   int context_index;
   int i;
   int len;
-  connectionRecType *context;
-
-  context = (connectionRecType *) malloc(sizeof(connectionRecType));
-  context->cliSock = client_sockfd;
-  context->linked = false;
-  context->echo = true;
-  context->verbose = false;
-  strcpy(context->version, "1.0");
-  strcpy(context->hostName, "Default");
-  context->enabled = false;
-  context->commMode = 0;
-  context->commProt = 0;
-  context->inBuf[0] = 0;
+  connectionRecType *context = (connectionRecType *)arg;
 
   context_index = 0;
 
@@ -2718,19 +2706,47 @@ finished:
 
 int sockMain()
 {
-    pthread_t thrd;
     int res;
     
     while (1) {
-      
+      int client_sockfd;
+
       client_len = sizeof(client_address);
       client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
       if (client_sockfd < 0) exit(0);
       sessions++;
-      if ((maxSessions == -1) || (sessions <= maxSessions))
-        res = pthread_create(&thrd, NULL, readClient, (void *)NULL);
-      else res = -1;
+      if ((maxSessions == -1) || (sessions <= maxSessions)) {
+        pthread_t *thrd;
+        connectionRecType *context;
+
+        thrd = (pthread_t *)calloc(1, sizeof(pthread_t));
+        if (thrd == NULL) {
+          fprintf(stderr, "linuxcncrsh: out of memory\n");
+          exit(1);
+        }
+
+        context = (connectionRecType *) malloc(sizeof(connectionRecType));
+        if (context == NULL) {
+          fprintf(stderr, "linuxcncrsh: out of memory\n");
+          exit(1);
+        }
+
+        context->cliSock = client_sockfd;
+        context->linked = false;
+        context->echo = true;
+        context->verbose = false;
+        strcpy(context->version, "1.0");
+        strcpy(context->hostName, "Default");
+        context->enabled = false;
+        context->commMode = 0;
+        context->commProt = 0;
+        context->inBuf[0] = 0;
+
+        res = pthread_create(thrd, NULL, readClient, (void *)context);
+      } else {
+        res = -1;
+      }
       if (res != 0) {
         close(client_sockfd);
         sessions--;
