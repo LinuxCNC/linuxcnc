@@ -2601,7 +2601,6 @@ commandTokenType lookupToken(char *s)
 }
   
 // handle the linuxcncrsh command in context->inBuf
-// return 0 on success, -1 on error, and -2 on unknown command
 int parseCommand(connectionRecType *context)
 {
   int ret = 0;
@@ -2686,11 +2685,16 @@ void *readClient(void *arg)
         // if we get here, i is the index of a line terminator in buf
 
         if (context_index > 0) {
-            int r;
             // we have some bytes in the context buffer, parse them now
             context->inBuf[context_index] = '\0';
-            r = parseCommand(context);
-            if (r == -1) goto finished;
+
+            // The return value from parseCommand was meant to indicate
+            // success or error, but it is unusable.  Some paths return
+            // the return value of write(2) and some paths return small
+            // positive integers (cmdResponseType) to indicate failure.
+            // We're best off just ignoring it.
+            (void)parseCommand(context);
+
             context_index = 0;
         }
     }
