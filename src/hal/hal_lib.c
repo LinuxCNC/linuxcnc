@@ -3858,7 +3858,6 @@ static void *ulapi_so; // dlopen handle for ULAPI .so
 static char *ulapi_lib = "ulapi";
 
 flavor_ptr flavor;
-static char *libpath = EMC2_HOME "/lib";
 int rtapi_instance; 
  
 static ulapi_main_t ulapi_main_ref;
@@ -3869,15 +3868,12 @@ static void ulapi_hal_lib_init(void)
     int retval;
     const char *errmsg;
     rtapi_get_handle_t rtapi_get_handle;
-    char path[PATH_MAX];
+    char ulapi_lib_fname[PATH_MAX];
     char *instance = getenv("INSTANCE");
-    char *lpath = getenv("LIBPATH");
     char *debug_env = getenv("DEBUG");
     int debug = RTAPI_MSG_INFO;
 
     flavor = default_flavor();
-    if (lpath)
-	libpath = lpath;
     if (instance != NULL)
     	rtapi_instance = atoi(instance);
     if (debug_env)
@@ -3886,24 +3882,17 @@ static void ulapi_hal_lib_init(void)
     rtapi_set_logtag("hal_lib");
     rtapi_set_msg_level(debug);
 
-    if (module_path(flavor, path,
-		    libpath, ulapi_lib,
-		    flavor->so_ext)) {
-	fprintf(stderr, "HAL_LIB: %s: cannot locate module %s\n", 
-			path, ulapi_lib);
-	exit(1);
-    }
+    snprintf(ulapi_lib_fname,PATH_MAX,"%s-%s%s",
+	     ulapi_lib,flavor->name,flavor->so_ext);
 
     // dynload the proper ulapi.so:
-    // FIXME PATH
-    if ((ulapi_so = dlopen(path, RTLD_GLOBAL|RTLD_LAZY))  == NULL) {
+    if ((ulapi_so = dlopen(ulapi_lib_fname, RTLD_GLOBAL|RTLD_LAZY))  == NULL) {
 	errmsg = dlerror();
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HAL_LIB: FATAL - cant dlopen(%s): %s\n",
-			ulapi_lib, errmsg ? errmsg : "NULL");
+			"HAL_LIB: FATAL - dlopen(%s) failed: %s\n",
+			ulapi_lib_fname, errmsg ? errmsg : "NULL");
 	exit(1);
     }
-    fprintf(stderr, "HAL_LIB: loaded ulapi.so from: %s\n", path);
 
     // resolve rtapi_switch getter function
     dlerror();

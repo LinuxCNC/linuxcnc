@@ -1,12 +1,13 @@
 #include "config.h"
 #include "rtapi.h"
+#include "inifile.h"           /* iniFind() */
 
 #include <stdio.h>
 #include <strings.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
-#include <limits.h>
+#include <limits.h>		/* PATH_MAX */
 #include <stdlib.h>		/* exit() */
 
 // really in nucleus/heap.h but we rather get away with minimum include files
@@ -20,7 +21,10 @@
 // dev/rtai_shm visible only after 'realtime start'
 #define DEV_RTAI_SHM "/dev/rtai_shm"
 
-static struct utsname uts;
+// static storage of kernel module directory
+static char kmodule_dir[PATH_MAX];
+
+FILE *rtapi_inifile = NULL;
 
 int kernel_is_xenomai()
 {
@@ -174,37 +178,105 @@ flavor_ptr default_flavor(void)
     return flavor_byid(RTAPI_POSIX_ID);
 }
 
-int module_path(flavor_ptr f, 
-		char *result,
-		const char *libpath, 
-		const char *basename, 
-		const char *ext)
+
+void check_rtapi_config_open()
 {
+    /* Open rtapi.ini if needed.  Private function used by
+       get_rtapi_config(). */
+    char config_file[PATH_MAX];
+
+    if (rtapi_inifile == NULL) {
+	/* it's the first -i (ignore repeats) */
+	/* there is a following arg, and it's not an option */
+	snprintf(config_file, PATH_MAX,
+		 "%s/rtapi.ini", EMC2_SYSTEM_CONFIG_DIR);
+	rtapi_inifile = fopen(config_file, "r");
+	if (rtapi_inifile == NULL) {
+	    fprintf(stderr,
+		    "Could not open ini file '%s'\n",
+		    config_file);
+	    exit(-1);
+	}
+	/* make sure file is closed on exec() */
+	fcntl(fileno(rtapi_inifile), F_SETFD, FD_CLOEXEC);
+    }
+}
+
+int get_rtapi_config(char *result, const char *param, int n)
+{
+    /* Read a parameter value from rtapi.ini.  First try the flavor
+       section, then the global section.  Copy max n-1 bytes into
+       result buffer.  */
+    char *val;
+    char buf[RTAPI_NAME_LEN+8];    // strlen("flavor_") + RTAPI_NAME_LEN + 1
+
+    // Open rtapi_inifile if it hasn't been already
+    check_rtapi_config_open();
+
+    sprintf(buf, "flavor_%s", default_flavor()->name);
+    val = (char *) iniFind(rtapi_inifile, param, buf);
+
+    if (val==NULL)
+	val = (char *) iniFind(rtapi_inifile, param,"global");
+
+    // Return if nothing found
+    if (val==NULL) {
+	result[0] = 0;
+	return -1;
+    }
+
+    // Otherwise copy result into buffer (see 'WTF' comment in inifile.cc)
+    strncpy(result, val, n-1);
+    return 0;
+}
+
+
+int module_path(char *result, const char *basename)
+{
+    /* Find a kernel module's path */
     struct stat sb;
-
-    if (!uts.release[0])
-	uname(&uts);
+    char buf[PATH_MAX];
+    struct utsname uts;
 	
-    snprintf(result, PATH_MAX, "%s/%s/%s/%s%s",
-	     libpath, f->name, uts.release, 
-	     basename, ext);
-    if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	return 0;
+    // Initialize kmodule_dir, only once
+    if (kmodule_dir[0] == 0) {
+	uname(&uts);
 
-    snprintf(result, PATH_MAX, "%s/%s/%s%s",
-	     libpath, f->name,  
-	     basename, ext);
-    if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	return 0;
-   
+	get_rtapi_config(buf,"RUN_IN_PLACE",4);
+	if (strncmp(buf,"yes",3) == 0) {
+	    // Complete RTLIB_DIR should be <RTLIB_DIR>/<flavor>/<uname -r>
+	    if (get_rtapi_config(buf,"RTLIB_DIR",PATH_MAX) != 0)
+		return -ENOENT;
+
+	    snprintf(kmodule_dir,PATH_MAX,"%s/%s/%s",
+		     buf, default_flavor()->name, uts.release);
+	} else {
+	    // Complete RTLIB_DIR should be /lib/modules/<uname -r>/linuxcnc
+	    snprintf(kmodule_dir, PATH_MAX,
+		     "/lib/modules/%s/linuxcnc", uts.release);
+	}
+    }
+
+    // Look for module in kmodule_dir/RTLIB_DIR
     snprintf(result, PATH_MAX, "%s/%s%s",
-	     libpath, 
-	     basename, ext);
+	     kmodule_dir,
+	     basename,
+	     default_flavor()->mod_ext);
     if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
 	return 0;
 
+    // Check RTDIR as well (RTAI)
+    if (get_rtapi_config(buf, "RTDIR", PATH_MAX) != 0 || buf[0] == 0)
+	return -ENOENT;  // not defined or empty
+    snprintf(result, PATH_MAX, "%s/%s%s",
+	     buf, basename, default_flavor()->mod_ext);
+    if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
+	return 0;
+
+    // Module not found
     return -ENOENT;
 }
+
 
 void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch, char *ulapi_lib)
 {

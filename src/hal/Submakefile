@@ -19,11 +19,12 @@ USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
 
-$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
+$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS)) ../lib/liblinuxcncini.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ -ldl $(RT_LDFLAGS)
 
 HALMODULESRCS := hal/halmodule.cc

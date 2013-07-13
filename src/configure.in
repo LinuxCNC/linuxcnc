@@ -103,19 +103,27 @@ dnl #                                                        #
 dnl # each thread style needs a 4-item m4 tuple set here:    #
 dnl # flavor-name, flavor-id, build-sys, threads-headers     #
 dnl #                                                        #
+dnl # flavor-name: lower-case with hyphens                   #
 dnl # flavor-id: a unique integer                            #
 dnl # build-sys: one of kbuild or user-dso                   #
 dnl # threads-headers: header file from rtapi/*.h (w/o '.h') #
+dnl # mod_ext:  RTAPI module extension, .so or .ko           #
+dnl # so_ext:  ULAPI module extension, .so                   #
+dnl # flags:  see rtapi.h; combine with '|' operator, or 0   #
+dnl # extra_kmods:  list of extra kmodules to load           #
 dnl #                                                        #
 dnl # these are used in both Makefiles and in config.h,      #
 dnl # and are the single authoritative source for these data #
 dnl #--------------------------------------------------------#
 AC_DEFUN([_cfg_flavor_params],
-	[[[posix],[0],[user-dso],[rt-preempt]],
-	 [[rt-preempt],[1],[user-dso],[rt-preempt]],
-	 [[xenomai],[2],[user-dso],[xenomai]],
-	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel]],
-	 [[rtai-kernel],[4],[kbuild],[rtai-kernel]]])
+	[[[posix],[0],[user-dso],[rt-preempt],[.so],[.so],[0]],
+	 [[rt-preempt],[1],[user-dso],[rt-preempt],[.so],[.so],[0]],
+	 [[xenomai],[2],[user-dso],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]],
+	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel],[.ko],[.so],dnl
+[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[xeno_math]],
+	 [[rtai-kernel],[4],[kbuild],[rtai-kernel],[.ko],[.so],dnl
+[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],dnl
+[rtai_hal rtai_sched rtai_fifos rtai_shm rtai_sem rtai_math]]])
 
 
 dnl #--------------------------------------------------------#
@@ -136,8 +144,8 @@ AC_DEFUN([_cfg_flavor_id],
 
 dnl _cfg_flavor_build_sys(flavor):  return BUILD_SYS:  kbuild or user-dso
 dnl   for use in Makefiles
-dnl   _config_flavor_build_sys(xenomai) => user-dso;
-dnl   _config_flavor_build_sys(xenomai-kernel) => kbuild;
+dnl   _cfg_flavor_build_sys(xenomai) => user-dso;
+dnl   _cfg_flavor_build_sys(xenomai-kernel) => kbuild;
 AC_DEFUN([_cfg_flavor_tuple_build_sys],[$3])
 AC_DEFUN([_cfg_flavor_build_sys],
 	[m4_foreach([flav],[_cfg_flavor_params],
@@ -146,13 +154,52 @@ AC_DEFUN([_cfg_flavor_build_sys],
 
 dnl _cfg_flavor_threads_headers(flavor):  return THREADS_HEADERS
 dnl   for use in config.h
-dnl   _config_flavor_threads_headers(xenomai) => rtapi/xenomai.h;
-dnl   _config_flavor_threads_headers(posix) => rtapi/rt-preempt.h;
+dnl   _cfg_flavor_threads_headers(xenomai) => rtapi/xenomai.h;
+dnl   _cfg_flavor_threads_headers(posix) => rtapi/rt-preempt.h;
 AC_DEFUN([_cfg_flavor_tuple_threads_headers],[$4])
 AC_DEFUN([_cfg_flavor_threads_headers],
 	rtapi/[m4_foreach([flav],[_cfg_flavor_params],
 	    [m4_cond(m4_car(flav),$1,
 	        m4_apply([_cfg_flavor_tuple_threads_headers],[flav]))])].h)
+
+dnl _cfg_flavor_mod_ext(flavor):  return RT module extension:  .ko or .so
+dnl   for use in rtapi.ini
+dnl   _cfg_flavor_mod_ext(xenomai) => .so;
+dnl   _cfg_flavor_mod_ext(xenomai-kernel) => .ko;
+AC_DEFUN([_cfg_flavor_tuple_mod_ext],[$5])
+AC_DEFUN([_cfg_flavor_mod_ext],
+	[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_mod_ext],[flav]))])])
+
+dnl _cfg_flavor_so_ext(flavor):  return plugin filename extension:  .so
+dnl   for use in rtapi.ini
+dnl   _cfg_flavor_so_ext(xenomai) => .so
+AC_DEFUN([_cfg_flavor_tuple_so_ext],[$6])
+AC_DEFUN([_cfg_flavor_so_ext],
+	[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_so_ext],[flav]))])])
+
+dnl _cfg_flavor_flags(flavor):  flavor flags:  integer expression
+dnl   for use in rtapi.ini
+dnl   _cfg_flavor_flags(rt-preempt) => 0
+dnl   _cfg_flavor_flags(xenomai) => FLAVOR_DOES_IO
+dnl   _cfg_flavor_flags(xenomai-kernel) => FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD
+AC_DEFUN([_cfg_flavor_tuple_flags],[$7])
+AC_DEFUN([_cfg_flavor_flags],
+	[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_flags],[flav]))])])
+
+dnl _cfg_flavor_extra_kmods(flavor):  extra kernel modules to load for kthreads
+dnl   for use in rtapi.ini
+dnl   _cfg_flavor_extra_kmods(xenomai-kernel) => xeno_math
+AC_DEFUN([_cfg_flavor_tuple_extra_kmods],[$8])
+AC_DEFUN([_cfg_flavor_extra_kmods],
+	[m4_foreach([flav],[_cfg_flavor_params],
+	    [m4_cond(m4_car(flav),$1,
+	        m4_apply([_cfg_flavor_tuple_extra_kmods],[flav]))])])
 
 dnl _cfg_flavor_upcase(flavor):  return uppercase, and dashes->underscores
 dnl   used to generate C preprocessor macro names
@@ -165,8 +212,8 @@ AC_DEFUN([_cfg_flavor_underscored],[m4_translit([$*],[-],[_])])
 
 dnl _cfg_flavor_BUILD_SYS(flavor):  return BUILD_SYS_{KBUILD,USER_DSO}
 dnl   for use in config.h
-dnl   _config_flavor_BUILD_SYS(xenomai) => BUILD_SYS_USER_DSO;
-dnl   _config_flavor_BUILD_SYS(xenomai-kernel) => BUILD_SYS_KBUILD;
+dnl   _cfg_flavor_BUILD_SYS(xenomai) => BUILD_SYS_USER_DSO;
+dnl   _cfg_flavor_BUILD_SYS(xenomai-kernel) => BUILD_SYS_KBUILD;
 AC_DEFUN([_cfg_flavor_BUILD_SYS],
 	[BUILD_SYS_[]_cfg_flavor_upcase(_cfg_flavor_build_sys($1))])
 
@@ -342,7 +389,7 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 #
 # To reduce the surprise factor of a simulator config suddenly talking
 # to ports, drivers will be disabled by default for posix threads and
-# enabled for others in rtapi.conf.
+# enabled for others in rtapi.ini.
 #
 # reflected in config.h as follows:
 # /* build hardware drivers */
@@ -1043,7 +1090,7 @@ if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
     RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
 	-I$($RTAI_KERNEL_THREADS_RTS --prefix)/include"
     RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags) \
-        -llxrt"
+        -llxrt -Wl,-rpath,$($RTAI_KERNEL_THREADS_RTS --library-dir)"
 
     if test "$($RTAI_KERNEL_THREADS_RTS --arch)" = x86_64; then
 	flags="-msse -funsafe-math-optimizations"
@@ -1053,7 +1100,7 @@ if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
     RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
 
     RTAI_KERNEL_THREADS_RTDIR=$(readlink -f \
-	$($RTAI_KERNEL_THREADS_RTS --prefix))
+	$($RTAI_KERNEL_THREADS_RTS --module-dir))
 fi
 
 AC_MSG_CHECKING(whether to build RTAI threads)    
@@ -1127,7 +1174,7 @@ fi
 ##############################################################################
 # Subsection 2.7                                                             #
 # Pass configuration out of script                                           #
-# - Substitution variables (Makefile.inc.in, rtapi.conf.in, etc.             #
+# - Substitution variables (Makefile.inc.in, realtime.in, etc.               #
 # - config.h macro definitions                                               #
 ##############################################################################
 
@@ -1203,6 +1250,9 @@ AC_SUBST([POSIX_THREADS_BUILD_SYS],_cfg_flavor_build_sys(posix))
 AC_SUBST([POSIX_THREADS_SOURCE],[rt-preempt])
 AC_SUBST([POSIX_THREADS_RTFLAGS])
 AC_SUBST([POSIX_THREADS_LDFLAGS])
+AC_SUBST([POSIX_THREADS_RTDIR],[])
+AC_SUBST([POSIX_THREADS_RTS],[])
+AC_SUBST([POSIX_THREADS_EXTRA_KMODS],[])
 
 # RT_PREEMPT settings
 if test "$with_rt_preempt" = yes; then
@@ -1214,6 +1264,9 @@ AC_SUBST([RT_PREEMPT_THREADS_BUILD_SYS],_cfg_flavor_build_sys(rt-preempt))
 AC_SUBST([RT_PREEMPT_THREADS_SOURCE],[rt-preempt])
 AC_SUBST([RT_PREEMPT_THREADS_RTFLAGS])
 AC_SUBST([RT_PREEMPT_THREADS_LDFLAGS])
+AC_SUBST([RT_PREEMPT_THREADS_RTDIR],[])
+AC_SUBST([RT_PREEMPT_THREADS_RTS],[])
+AC_SUBST([RT_PREEMPT_THREADS_EXTRA_KMODS],[])
 
 # Xenomai userland settings
 if test "$with_xenomai" = yes; then
@@ -1226,6 +1279,8 @@ AC_SUBST([XENOMAI_THREADS_SOURCE],[xenomai])
 AC_SUBST([XENOMAI_THREADS_RTFLAGS])
 AC_SUBST([XENOMAI_THREADS_LDFLAGS])
 AC_SUBST([XENOMAI_THREADS_RTS])
+AC_SUBST([XENOMAI_THREADS_RTDIR],[])
+AC_SUBST([XENOMAI_THREADS_EXTRA_KMODS],[])
 
 # Xenomai kernel settings
 if test "$with_xenomai_kernel" = yes; then
@@ -1244,6 +1299,9 @@ AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIRS],[$xenomai_kernels])
 AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 # in-kernel math options
 AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
+AC_SUBST([XENOMAI_KERNEL_THREADS_RTDIR],[])
+AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_KMODS],
+	"_cfg_flavor_extra_kmods(xenomai-kernel)")
 
 # RTAI settings
 if test "$with_rtai_kernel" = yes; then
@@ -1261,6 +1319,8 @@ AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 # absolute path of rtai-config rtdir with symlinks dereferenced
 AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],[$RTAI_KERNEL_THREADS_RTDIR])
+AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_KMODS],
+	"_cfg_flavor_extra_kmods(rtai-kernel)")
 
 
 # while we are at it, drop a git scent mark
@@ -1353,6 +1413,8 @@ fe () {
     esac
 }
 
+EMC2_SYSTEM_CONFIG_DIR=${sysconfdir}/linuxcnc
+
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
     EMC2_LATENCYPLOT_SCRIPT=$EMC2_HOME/scripts/latencyplot
@@ -1360,6 +1422,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_SUFFIX=" (run-in-place)"
     EMC2_ICON=$EMC2_HOME/linuxcncicon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
+    EMC2_LIBEXEC_DIR=$EMC2_HOME/libexec
     EMC2_TCL_DIR=$EMC2_HOME/tcl
     EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
     EMC2_LANG_DIR=$EMC2_HOME/src/objects
@@ -1373,6 +1436,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
 else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
+    EMC2_LIBEXEC_DIR=${libexecdir}/linuxcnc
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
     EMC2_LATENCYPLOT_SCRIPT=$EMC2_BIN_DIR/latencyplot
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
@@ -1386,21 +1450,20 @@ else
     EMC2_RTLIB_DIR=${libdir}/linuxcnc
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
-    REALTIME=/etc/init.d/realtime
+    REALTIME=${bindir}/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
 fi
 
+# Paths in config.h should be reduced to one:  EMC2_SYSTEM_CONFIG_DIR.
+# This should contain the .ini file that points to everything else.
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
 AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
-AC_DEFINE_UNQUOTED([EMC2_TCL_DIR], "$EMC2_TCL_DIR", [Directory for tcl scripts])
-AC_DEFINE_UNQUOTED([EMC2_HELP_DIR], "$EMC2_HELP_DIR", [Directory for help files])
-AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory of realtime system])
-AC_DEFINE_UNQUOTED([EMC2_LANG_DIR], "$EMC2_LANG_DIR", [Directory for tcl translation files])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
-AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
+AC_SUBST([EMC2_SYSTEM_CONFIG_DIR])
 AC_SUBST([EMC2_BIN_DIR])
+AC_SUBST([EMC2_LIBEXEC_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
@@ -1738,7 +1801,7 @@ AH_TOP([/********************************************************************
 * Description: config.h
 *
 *	Common defines used in many emc2 source files.
-*       To add to this file, edit Section 4.1 in configure.in
+*       To add to this file, edit Section 4 in configure.in
 *       and then run autoheader.
 *
 * Author: Autogenerated by autoheader
@@ -1811,7 +1874,34 @@ AH_BOTTOM(#endif
 )
 
 ##############################################################################
-# Section 5 - Check for tcl/tk support                                       #
+# Section 5 - Generate rtapi.ini.sh.in                                       #
+#                                                                            #
+# Add per-flavor sections to the rtapi.ini generator                         #
+##############################################################################
+
+AC_MSG_NOTICE([Building rtapi.ini generator script])
+cp ../scripts/gen-rtapi.ini.sh.in.tmpl ../scripts/gen-rtapi.ini.sh.in
+
+cat >> ../scripts/gen-rtapi.ini.sh.in <<EOFOUTER
+cat <<EOF
+m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
+
+
+#################################################
+# _cfg_flavor flavor section
+#
+@<:@flavor_[]_cfg_flavor@:>@
+# These values do not normally need to be changed.
+rtapi_app=@EMC2_LIBEXEC_DIR@/rtapi_app_[]_cfg_flavor
+RTS=@_cfg_flavor_upcase(_cfg_flavor)_THREADS_RTS@
+RTDIR=@_cfg_flavor_upcase(_cfg_flavor)_THREADS_RTDIR@
+MODULES=@_cfg_flavor_upcase(_cfg_flavor)_THREADS_EXTRA_KMODS@
+])
+EOF
+EOFOUTER
+
+##############################################################################
+# Section 6 - Check for tcl/tk support                                       #
 #                                                                            #
 # Test for tcl/tk headers fails if they are not in /usr/include              #
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
@@ -1935,10 +2025,10 @@ AC_SUBST([TCLSH])
 AC_SUBST([HAVE_WORKING_BLT])
 
 ##############################################################################
-# Section 6 - Miscelaneous support                                           #
+# Section 7 - Miscelaneous support                                           #
 #                                                                            #
-# Subsection 6.1. - provides DATE to output it to the generated files        #
-# Subsection 6.2. - user option to convince make to be quiet during make     #
+# Subsection 7.1. - provides DATE to output it to the generated files        #
+# Subsection 7.2. - user option to convince make to be quiet during make     #
 ##############################################################################
 
 # provides DATE in order to output it to the generated files
@@ -2046,7 +2136,7 @@ AC_SUBST([NCURSES_LIBS])
 
 
 ##############################################################################
-# Section 7 - Language support                                               #
+# Section 8 - Language support                                               #
 #                                                                            #
 # i18n Language support:                                                     #
 # see http://cvs.gnome.org/viewcvs/intltool/doc/I18N-HOWTO?rev=1.3           #
@@ -2180,7 +2270,7 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 	[AC_MSG_ERROR([Required header Python.h missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python])])
 
     AC_MSG_CHECKING(for site-package location)
-    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib()'`
+    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
     AC_MSG_RESULT($SITEPY)
 
     AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of emc2 that depend on Python])])
@@ -2208,8 +2298,7 @@ AC_SUBST([SITEPY])
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
-#AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
-AC_CONFIG_FILES([../scripts/rtapi.conf])
+AC_CONFIG_FILES([../scripts/gen-rtapi.ini.sh])
 AC_CONFIG_FILES([../docs/man/man1/linuxcnc.1])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])

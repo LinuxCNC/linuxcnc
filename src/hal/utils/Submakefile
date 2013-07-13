@@ -76,18 +76,20 @@ PCI_DEBUG_FLAGS = -DDEBUG_PRINTS
 PCIWRITESRCS := hal/utils/pci_write.c hal/utils/upci.c
 $(call TOOBJSDEPS, $(PCIWRITESRCS)) : EXTRAFLAGS = $(PCI_DEBUG_FLAGS)
 USERSRCS += $(PCIWRITESRCS)
-../bin/pci_write: $(call TOOBJS, $(PCIWRITESRCS))
+../libexec/pci_write: $(call TOOBJS, $(PCIWRITESRCS))
 	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/pci_write
+TARGETS += ../libexec/pci_write
 
 PCIREADSRCS := hal/utils/pci_read.c hal/utils/upci.c
 $(call TOOBJSDEPS, $(PCIREADSRCS)) : EXTRAFLAGS = $(PCI_DEBUG_FLAGS)
 USERSRCS += $(PCIREADSRCS)
-../bin/pci_read: $(call TOOBJS, $(PCIREADSRCS))
+../libexec/pci_read: $(call TOOBJS, $(PCIREADSRCS))
 	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
-TARGETS += ../bin/pci_read
+TARGETS += ../libexec/pci_read
 
 endif
 

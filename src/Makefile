@@ -134,8 +134,19 @@ ifeq ($(KERNELRELEASE),)
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifeq ($(BUILD_DRIVERS),yes)
-	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
-	@if [ -f ../libexec/rtapi_app ]; then if ! [ `stat -c %u ../libexec/rtapi_app` -eq 0 -a -u ../libexec/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+	@test -f ../libexec/linuxcnc_module_helper -a \
+		`stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -a \
+		-u ../libexec/linuxcnc_module_helper \
+	    && need_setuid=1; \
+	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
+	    test -f ../libexec/rtapi_app_$$f -a \
+		    `stat -c %u ../libexec/rtapi_app_$$f` -ne 0 -a \
+		    -u ../libexec/rtapi_app_$$f \
+		&& need_setuid=1; \
+	done; \
+	test "$$need_setuid" = 1 && \
+	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
+	    $(VECHO) "in order to run in place." || true
 endif
 endif
 
@@ -301,10 +312,11 @@ config.h: config.h.in config.status
 
 INFILES = \
 	../docs/man/man1/linuxcnc.1 ../scripts/linuxcnc ../scripts/realtime \
-	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
+	../scripts/haltcl Makefile.inc Makefile.modinc \
+	../scripts/gen-rtapi.ini.sh \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
-	 ../lib/python/nf.py \
+	../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
@@ -540,9 +552,9 @@ fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 ifeq ($(BUILD_DRIVERS),yes)
 setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules \
 		/etc/security/limits.d/linuxcnc.conf
-	$(call fix_perms,../bin/linuxcnc_module_helper)
-	$(call fix_perms,../bin/pci_read)
-	$(call fix_perms,../bin/pci_write)
+	$(call fix_perms,../libexec/linuxcnc_module_helper)
+	$(call fix_perms,../libexec/pci_read)
+	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)),\
 	    $(call fix_perms,../libexec/rtapi_app_$(f));)
 else	
@@ -620,11 +632,11 @@ install: install-test install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
 
 install-dirs:
-	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
+	$(DIR)  $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
-		$(DESTDIR)$(libdir)/linuxcnc \
 		$(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
+		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
 		$(DESTDIR)$(mandir)/man1 \
@@ -646,7 +658,7 @@ install-kernel-indep: install-dirs
 	$(FILE) $(filter-out %/skeleton.3rtapi, $(wildcard ../docs/man/man3/*.3rtapi)) $(DESTDIR)$(mandir)/man3
 	$(FILE) $(filter-out %/skeleton.9, $(wildcard ../docs/man/man9/*.9)) $(DESTDIR)$(mandir)/man9
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
-	$(EXE) ../scripts/realtime $(DESTDIR)$(initd_dir)
+	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
@@ -657,7 +669,7 @@ install-kernel-indep: install-dirs
 	# install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/emc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
@@ -669,11 +681,9 @@ endif
 	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference \
-	    $(filter-out %/ulapi.so,$(filter ../lib/%.so, $(TARGETS))) \
+	    $(filter-out ../lib/ulapi-%.so,$(filter ../lib/%.so, $(TARGETS))) \
 	    $(DESTDIR)$(libdir)
-	for flav in $(BUILD_THREAD_FLAVORS); do \
-	    $(TREE) ../lib/$$flav $(DESTDIR)$(libdir)/linuxcnc; \
-	done
+	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -722,12 +732,16 @@ install-python: install-dirs
 endif
 
 install-kernel-dep: install-dirs
-	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
+	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(SETUID) ../libexec/linuxcnc_module_helper $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 ifeq ($(BUILD_DRIVERS),yes)
-	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
-	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
+	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 endif
-	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
+	$(EXE) ../libexec/inivar $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(EXE) ../libexec/rtapi_msgd $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(EXE) ../libexec/flavor $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(FILE) ../etc/linuxcnc/rtapi.ini $(DESTDIR)$(sysconfdir)/linuxcnc
 
 	# RTAPI modules:  install userland flavor .so modules into
 	# e.g. /usr/lib/linuxcnc/modules and kthread flavor .ko

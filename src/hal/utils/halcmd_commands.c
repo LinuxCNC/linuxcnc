@@ -498,6 +498,9 @@ int do_net_cmd(char *signal, char *pins[]) {
 #if 0  /* newinst deferred to version 2.2 */
 int do_newinst_cmd(char *comp_name, char *inst_name) {
     hal_comp_t *comp = halpr_find_comp_by_name(comp_name);
+    char *argv[MAX_TOK];
+    char inst[50];
+    char rtapi_app[PATH_MAX];
 
     if(!comp) {
         halcmd_error( "No such component: %s\n", comp_name);
@@ -513,12 +516,15 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     }
 
     if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
-        char *argv[MAX_TOK];
-        char inst[50];
 	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
 
+	if (get_rtapi_config(rtapi_app,"rtapi_app",PATH_MAX) != 0) {
+	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
+	    return -ENOENT;
+	}
+
         int m = 0, result;
-        argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+        argv[m++] = rtapi_app;
 	argv[m++] = inst;
         argv[m++] = "newinst";
         argv[m++] = comp_name;
@@ -1093,62 +1099,61 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
-
-    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
-
+    char executable[PATH_MAX];
+    char mod_path[PATH_MAX];
     char inst[50];
 
-    snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
-    argv[m++] = "-Wn";
-    argv[m++] = mod_name;
-    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
-    argv[m++] = inst;
-    argv[m++] = "load";
-    argv[m++] = mod_name;
-    /* loop thru remaining arguments */
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    argv[m++] = NULL;
-    retval = do_loadusr_cmd(argv);
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
+	if (get_rtapi_config(executable,"rtapi_app",PATH_MAX) != 0) {
+	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
+	    return -ENOENT;
+	}
+
+	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+	argv[m++] = "-Wn";
+	argv[m++] = mod_name;
+	argv[m++] = executable;
+	argv[m++] = inst;
+	argv[m++] = "load";
+	argv[m++] = mod_name;
+	/* loop thru remaining arguments */
+	while ( args[n] && args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	argv[m++] = NULL;
+	retval = do_loadusr_cmd(argv);
     } else {
-    static char *rtmod_dir = EMC2_RTLIB_DIR;
-    char mod_path[PATH_MAX];
 
-    if (hal_get_lock()&HAL_LOCK_LOAD) {
-	halcmd_error("HAL is locked, loading of modules is not permitted\n");
-	return -EPERM;
-    }
-    /* FIXME: Is checking this length still necessary?  Can we use
-       PATH_MAX instead?  What's the arbitrary '+5' for?
-     */
-    if ( (strlen(mod_path)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
-	halcmd_error("Module path too long\n");
-	return -1;
-    }
-    if (module_path(flavor, mod_path,
-		    rtmod_dir, mod_name,
-		    flavor->mod_ext)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
-			"%s: cannot locate module %s:  %s \n", 
-			mod_path,mod_name,
-			strerror(errno));
-	return -1;
-    }
+	if (hal_get_lock()&HAL_LOCK_LOAD) {
+	    halcmd_error("HAL is locked, loading of modules is not permitted\n");
+	    return -EPERM;
+	}
+	/* FIXME: Is checking this length still necessary?  Can we use
+	   PATH_MAX instead?  What's the arbitrary '+5' for?
+	*/
+	if ( (strlen(mod_path)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
+	    halcmd_error("Module path too long\n");
+	    return -1;
+	}
+	if (get_rtapi_config(executable,"linuxcnc_module_helper",
+			     PATH_MAX) != 0) {
+	    halcmd_error("linuxcnc_module_helper executable path not found "
+			 "in rtapi.ini\n");
+	    return -ENOENT;
+	}
+	argv[0] = executable;
+	argv[1] = "insert";
+	argv[2] = mod_name;
+	/* loop thru remaining arguments */
+	n = 0;
+	m = 3;
+	while ( args[n] && args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	/* add a NULL to terminate the argv array */
+	argv[m] = NULL;
 
-    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[1] = "insert";
-    argv[2] = mod_path;
-    /* loop thru remaining arguments */
-    n = 0;
-    m = 3;
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    /* add a NULL to terminate the argv array */
-    argv[m] = NULL;
-
-    retval = hal_systemv(argv);
+	retval = hal_systemv(argv);
     }
 
     if ( retval != 0 ) {
@@ -1364,15 +1369,26 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[10];
     int m=0;
+    char executable[PATH_MAX];
 
     if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
 	char inst[50];
 	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
-	argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+	if (get_rtapi_config(executable,"rtapi_app",PATH_MAX) != 0) {
+	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
+	    return -ENOENT;
+	}
+	argv[m++] = executable;
 	argv[m++] = inst;
 	argv[m++] = "unload";
     }  else {
-	argv[m++] = EMC2_BIN_DIR "/linuxcnc_module_helper";
+	if (get_rtapi_config(executable,"linuxcnc_module_helper",
+			     PATH_MAX) != 0) {
+	    halcmd_error("linuxcnc_module_helper executable path not found "
+			 "in rtapi.ini\n");
+	    return -ENOENT;
+	}
+	argv[m++] = executable;
 	argv[m++] = "remove";
     }
     argv[m++] = mod_name;

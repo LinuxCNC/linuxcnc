@@ -1,5 +1,7 @@
 #!/bin/bash
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
 PATH=@EMC2_BIN_DIR@:$PATH
 REALTIME=@REALTIME@
 

@@ -37,13 +37,14 @@ LIB_DIR=@EMC2_HOME@/lib
 
 #used for install stuff
 #but have them here as reference
-#build system only uses EMC2_RTLIB_DIR when creating rtapi.conf
+#build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
 EMC2_BIN_DIR=@EMC2_BIN_DIR@
+EMC2_LIBEXEC_DIR=@EMC2_LIBEXEC_DIR@
 EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
 EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@
 EMC2_USER_CONFIG_DIR=~/emc2/configs
-EMC2_SYSTEM_CONFIG_DIR=/usr/local/etc/emc2/configs
+EMC2_SYSTEM_CONFIG_DIR=@EMC2_SYSTEM_CONFIG_DIR@
 EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
 REALTIME=@REALTIME@
 EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
@@ -72,7 +73,6 @@ LANGUAGES = @LANGUAGES@
 
 #still needs discussion
 # do we really need these?
-initd_dir = /etc/init.d
 docsdir = ${prefix}/share/doc/linuxcnc
 sampleconfsdir = ${prefix}/share/doc/linuxcnc/examples/sample-configs
 ncfilesdir = ${prefix}/share/linuxcnc/ncfiles

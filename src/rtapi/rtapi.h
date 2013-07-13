@@ -183,6 +183,8 @@ extern int _rtapi_next_module_id(void);
 ************************************************************************/
 
 #if defined(ULAPI) || defined(BUILD_SYS_USER_DSO)
+#include <limits.h> // provides PATH_MAX
+
 /* make sure a given kernel module is loaded.
    might be needed for some usermode PCI drivers
 */
@@ -198,14 +200,14 @@ extern int kernel_is_rtpreempt();
 #endif // ULAPI
 
 enum flavor_flags {
-    FLAVOR_DOES_IO=1,
-    FLAVOR_KERNEL_BUILD=2,
+    FLAVOR_DOES_IO=1,		// whether iopl() needs to be called
+    FLAVOR_KERNEL_BUILD=2,	// set when defined(BUILD_SYS_KBUILD)
 };
 
 typedef struct {
     const char *name;
-    const char *mod_ext;
-    const char *so_ext;
+    const char *mod_ext;	// RTAPI module extensions, .ko/.so
+    const char *so_ext;		// ulapi.so module extension
     const char *build_sys;
     int id;
     unsigned long flags;
@@ -219,36 +221,44 @@ extern flavor_ptr flavor_byid(int flavor_id);
 extern flavor_ptr default_flavor(void);
 
 /*
- * given a flavor reference, result buffer of PATH__MAX size,
- * a basename and extension, find the path to a module/shared library
- * as follows:
- * if LIBPATH/FLAVORNAME/KERNELRELEASE/BASENAME.EXTENSION exists, succeed
- * else
- * if LIBPATH/FLAVORNAME/BASENAME.EXTENSION exists, succeed
- * else
- * if LIBPATH/BASENAME.EXTENSION exists, succeed
- * else fail
+ * Given a result buffer of PATH_MAX size and a module or shared
+ * library's basename (e.g. 'rtapi' with no directory or '.ko'), find
+ * the full path to a module/shared library as follows:
  *
- * With this scheme it is possible to support any number of flavors nad
- * kernel versions, and specifically override default choices in case of
- * problems:
+ * Complete the module file name by appending mod_ext from flavor data
+ * to the basename (e.g. 'rtapi.ko').
  *
- * assume you have a xenomai build which has mostly flavor-dependent but
- * release-independent modules;
- * however, there is a HAL driver for kernel version foo which is not needed on
- * other kernel versions.
- * In this case, place modules like so:
+ * For RIP builds, prepend RTLIB_DIR from rtapi.ini, flavor name and
+ * kernel release to the module file name
+ * (e.g. '/home/me/linuxcnc-dev/rtlib/rtai-kernel/2.6.38-rtai/rtapi.ko');
+ * if the file exists, copy into *result and return 0.
  *
- * LIBPATH/xenomai/    # standard modules go here
- * LIBPATH/xenomai/foo/hal_driver.so   # more specific driver goes here
+ * For non-RIP builds, prepend
+ * '/lib/modules/<kernel-release>/linuxcnc' to the module file name
+ * (e.g. '/lib/modules/2.6.38-rtai/linuxcnc/rtapi.ko'); if the file
+ * exists, copy into *result and return 0.
  *
+ * Otherwise, prepend any (flavor-specific, currently RTAI only) RTDIR
+ * from rtapi.ini and prepend to module file name
+ * (e.g. '/usr/realtime/modules/rtai_hal.ko'); if the file exists,
+ * copy into *result and return 0.
+ *
+ * Otherwise return non-0.
  */
-extern int module_path(flavor_ptr f,
-		       char *result,
-		       const char *libpath,
-		       const char *basename,
-		       const char *ext);
 
+extern int module_path(char *result, const char *basename);
+
+/*
+ * Look up a parameter value in rtapi.ini, checking first the
+ * [flavor_<flavor>] section, then the [global] section.  Returns 0 if
+ * successful, 1 otherwise.  Maximum n-1 bytes of the value and a
+ * trailing \0 is copied into *result.
+ *
+ * Beware:  this function calls exit(-1) if rtapi.ini cannot be
+ * successfully opened!
+ */
+
+extern int get_rtapi_config(char *result, const char *param, int n);
 
 
 /***********************************************************************

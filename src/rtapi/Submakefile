@@ -28,6 +28,12 @@ XXAPI_COMMON_SRCS := \
 	rtapi/$(THREADS_SOURCE).c
 XXAPI_COMMON_OBJS := $(patsubst %.c,%.o,$(XXAPI_COMMON_SRCS))
 
+# rtapi_compat needs to know where rtapi.ini lives
+%/rtapi_compat.o:  \
+	EXTRAFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
+%/rtapi_compat.o:  \
+	EXTRA_CFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
+
 # ULAPI:  ../lib/ulapi$THREADSTYLE.so (TBD)
 #
 # List of sources whose objects objects/rtapi/*.o link into
@@ -53,7 +59,7 @@ $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
 $(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
 
-ULAPISO := ../lib/$(RTDIR_EXT)/ulapi.so
+ULAPISO := ../lib/ulapi-$(threads).so
 
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(FLAVOR_ULAPI_SRCS))
@@ -109,6 +115,12 @@ $(RTAPI_APP_SRCS): rtapi/$(threads)/%: rtapi/%
 
 USERSRCS += $(RTAPI_APP_SRCS)
 
+# RIP builds need to add LIB_DIR as an rpath, since LD_LIBRARY_PATH
+# isn't honored for setuid executables.
+ifeq ($(RUN_IN_PLACE),yes)
+RTAPI_APP_RPATH=-Wl,-rpath,$(LIB_DIR)
+endif
+
 # HAAACK:
 #
 # Build objects/rtapi/sim_rtapi_app.o in Makefile as other USERSRCS,
@@ -119,12 +131,11 @@ $(call TOOBJSDEPS, rtapi/$(threads)/sim_rtapi_app.cc): EXTRAFLAGS = \
 
 ../libexec/rtapi_app_$(threads): \
 		$(call TOOBJS, $(patsubst %,rtapi/$(threads)/%, \
-		sim_rtapi_app.cc rtapi_support.c rtapi_compat.c))
+		sim_rtapi_app.cc rtapi_support.c rtapi_compat.c)) \
+		../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
-# FIXME:  -rpath* in Makefile LDFLAGS looks wrong in all cases
-#	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
-	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR)/$(threads) \
+	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR)/$(threads) $(RTAPI_APP_RPATH) \
 	    -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
 
 modules:  ../libexec/rtapi_app_$(threads)
@@ -160,8 +171,8 @@ $(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
 # Build target
 ../libexec/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ \
-	    ../lib/liblinuxcnchal.so -lrt -ldl
+	@mkdir -p $(dir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt -ldl
 
 TARGETS += ../libexec/kdetect
 
@@ -177,7 +188,8 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 
 ../libexec/rtapi_msgd: ../lib/liblinuxcncshm.so $(RTAPI_MSGD_OBJS)
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ ../lib/liblinuxcncshm.so -lrt
+	@mkdir -p $(dir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
 
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../libexec/rtapi_msgd
@@ -185,9 +197,20 @@ TARGETS += ../libexec/rtapi_msgd
 # lock debugging help plus a bit of API example
 FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
 
-../libexec/flavor: ../lib/liblinuxcncshm.so $(call TOOBJS, $(FLAVOR_SRCS))
+../libexec/flavor: $(call TOOBJS, $(FLAVOR_SRCS)) \
+		../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^  ../lib/liblinuxcncshm.so -lrt
+	@mkdir -p $(dir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
 
 USERSRCS += $(FLAVOR_SRCS)
 TARGETS += ../libexec/flavor
+
+##################################################################
+#                     rtapi.ini config file
+##################################################################
+
+../etc/linuxcnc/rtapi.ini: ../scripts/gen-rtapi.ini.sh
+	@mkdir -p $(dir $@)
+	bash $< > $@
+TARGETS += ../etc/linuxcnc/rtapi.ini

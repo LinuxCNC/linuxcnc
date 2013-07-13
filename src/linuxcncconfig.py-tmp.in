@@ -55,13 +55,14 @@ class Config(object):
 
         #used for install stuff
         #but have them here as reference
-        #build system only uses EMC2_RTLIB_DIR when creating rtapi.conf
+        #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
 	self.EMC2_BIN_DIR="@EMC2_BIN_DIR@"
+	self.EMC2_LIBEXEC_DIR="@EMC2_LIBEXEC_DIR@"
 	self.EMC2_TCL_DIR="@EMC2_TCL_DIR@"
 	self.EMC2_HELP_DIR="@EMC2_HELP_DIR@"
 	self.EMC2_RTLIB_DIR="@EMC2_RTLIB_DIR@"
 	self.EMC2_USER_CONFIG_DIR="~/emc2/configs"
-	self.EMC2_SYSTEM_CONFIG_DIR="/usr/local/etc/emc2/configs"
+	self.EMC2_SYSTEM_CONFIG_DIR="@EMC2_SYSTEM_CONFIG_DIR@"
 	self.EMC2_NCFILES_DIR="@EMC2_NCFILES_DIR@"
 	self.REALTIME="@REALTIME@"
 	self.EMC2_IMAGEDIR="@EMC2_IMAGE_DIR@"
@@ -94,7 +95,6 @@ class Config(object):
 
         #still needs discussion
         # do we really need these?
-	self.initd_dir = "/etc/init.d"
 	self.docsdir = self.prefix + "/share/doc/linuxcnc"
 	self.sampleconfsdir = self.prefix + "/share/doc/linuxcnc/examples/sample-configs"
 	self.ncfilesdir = self.prefix + "/share/linuxcnc/ncfiles"

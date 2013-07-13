@@ -504,12 +504,16 @@ static char *loadusr_generator(const char *text, int state) {
     static DIR *d;
     struct dirent *ent;
     static int doing_table;
+    char bindir[PATH_MAX];
+
+    if (get_rtapi_config(bindir,"BIN_DIR",PATH_MAX) != 0)
+	return NULL;
 
     if(!state) {
 	if(argno == 1) doing_table = 1;
         string_table = loadusr_table;
         len = strlen(text);
-        d = opendir(EMC2_BIN_DIR);
+        d = opendir(bindir);
     }
 
     if(doing_table) {
@@ -537,10 +541,14 @@ static char *loadrt_generator(const char *text, int state) {
     static int len;
     static DIR *d;
     struct dirent *ent;
+    char bindir[PATH_MAX];
+
+    if (get_rtapi_config(bindir,"BIN_DIR",PATH_MAX) != 0)
+	return NULL;
 
     if(!state) {
         len = strlen(text);
-        d = opendir(EMC2_RTLIB_DIR);
+        d = opendir(bindir);
     }
 
     while(d && (ent = readdir(d))) {

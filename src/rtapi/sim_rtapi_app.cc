@@ -91,7 +91,6 @@ static int rt_msglevel = RTAPI_MSG_INFO ;
 static int halsize = HAL_SIZE;
 static int instance_id;
 flavor_ptr flavor;
-static const char *rtlibpath = EMC2_RTLIB_DIR;
 static int use_drivers = 0;
 static int foreground;
 
@@ -247,20 +246,13 @@ static int do_comp_args(void *module, vector<string> args) {
 
 static int do_load_cmd(string name, vector<string> args) {
     void *w = modules[name];
+    char module_name[PATH_MAX];
+    void *module;
+
     if(w == NULL) {
-        char what[PATH_MAX];
+	strncpy(module_name, (name + flavor->mod_ext).c_str(), PATH_MAX);
 
-	if (module_path(flavor, what,
-			rtlibpath, name.c_str(),
-			flavor->mod_ext)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, 
-			    "%s: cannot locate module %s:  %s \n", 
-			    what,name.c_str(),
-			    strerror(errno));
-            return -1;
-	}
-
-        void *module = modules[name] = dlopen(what, RTLD_GLOBAL |RTLD_LAZY);
+        module = modules[name] = dlopen(module_name, RTLD_GLOBAL |RTLD_LAZY);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
@@ -300,7 +292,8 @@ static int do_load_cmd(string name, vector<string> args) {
 	    modules.erase(modules.find(name));
 	    return result;
         }
-	rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n", name.c_str(), what);
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n",
+			name.c_str(), module_name);
 
 	// retrieve the address of the global segment
 	// this is set only after rtapi_app_main returns sucessfully
@@ -837,7 +830,6 @@ static struct option long_options[] = {
     {"rtmsglevel", required_argument, 0, 'r'},
     {"instance", required_argument, 0, 'I'},
     {"flavor",   required_argument, 0, 'f'},
-    {"rtpath",   required_argument, 0, 'R'},
     {"drivers",   required_argument, 0, 'D'},
     {0, 0, 0, 0}
 };
@@ -854,7 +846,7 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "hH:m:I:f:r:u:R:NF",
+	c = getopt_long (argc, argv, "hH:m:I:f:r:u:NF",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -880,10 +872,6 @@ int main(int argc, char **argv)
 
      	case 'r':
 	    rt_msglevel = atoi(optarg);
-	    break;
-
-     	case 'R':
-	    rtlibpath = strdup(optarg);
 	    break;
 
 	case 'I':
