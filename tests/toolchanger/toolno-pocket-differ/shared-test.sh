@@ -11,8 +11,22 @@ rm -f gcode-output
 
 linuxcnc -r sim.ini &
 
+
 # let linuxcnc come up
-sleep 5
+TOGO=80
+while [  $TOGO -gt 0 ]; do
+    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    if nc -z localhost 5007; then
+        break
+    fi
+    sleep 0.25
+    TOGO=$(($TOGO - 1))
+done
+if [  $TOGO -eq 0 ]; then
+    echo connection to linuxcncrsh timed out
+    exit 1
+fi
+
 
 (
     function introspect() {
