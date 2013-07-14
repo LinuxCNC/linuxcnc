@@ -235,11 +235,9 @@ void emcmotController(void *arg, long period)
 
 
     static long long int last = 0;
-#ifndef RTAPI_SIM
     static int index = 0;
     static long int cycles[CYCLE_HISTORY];
     static int priming = 1;
-#endif
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
@@ -278,17 +276,16 @@ void emcmotController(void *arg, long period)
 		break;
 	    }
         }
+	if(last) {
+	    cycles[index++] = this_run;
+	}
+	if(index == CYCLE_HISTORY) {
+	    // wrap around to the start of the array
+	    index = 0;
+	    // we now have CYCLE_HISTORY good samples, so start checking times
+	    priming = 0;
+	}
     }
-    if(last) {
-        cycles[index++] = this_run;
-    }
-    if(index == CYCLE_HISTORY) {
-        // wrap around to the start of the array
-        index = 0;
-        // we now have CYCLE_HISTORY good samples, so start checking times
-        priming = 0;
-    }
-#endif
     // we need this for next time
     last = now;
 
