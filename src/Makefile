@@ -762,6 +762,8 @@ endif
 	$(FILE) ../share/linuxcnc/gscreen.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gscreen2.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/gremlin_view.ui $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/popupkeyboard.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
@@ -1284,6 +1286,8 @@ $(RTLIBDIR)/counter$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(counter-objs))
 $(RTLIBDIR)/encoder_ratio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder_ratio-objs))
 $(RTLIBDIR)/stepgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(stepgen-objs))
 $(RTLIBDIR)/lcd$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(lcd-objs))
+$(RTLIBDIR)/matrix_kb$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(matrix_kb-objs))
+$(RTLIBDIR)/mux_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(mux_generic-objs))
 $(RTLIBDIR)/freqgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(freqgen-objs))
 $(RTLIBDIR)/pwmgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-objs))
 $(RTLIBDIR)/siggen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(siggen-objs))
@@ -1301,9 +1305,9 @@ $(RTLIBDIR)/hal_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_parport-objs)
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
 
 ifeq ($(BUILD_SYS),user-dso)
-../rtlib/probe_parport$(MODULE_EXT): $(addprefix objects/rt,$(probe_parport-objs))
-../rtlib/gpiomap$(MODULE_EXT): $(addprefix objects/rt,$(gpiomap-objs))
-../rtlib/gpiouse$(MODULE_EXT): $(addprefix objects/rt,$(gpiouse-objs))
+$(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
+$(RTLIBDIR)/gpiomap$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(gpiomap-objs))
+$(RTLIBDIR)/gpiouse$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(gpiouse-objs))
 endif
 
 ifeq ($(USERMODE_PCI),yes)
@@ -1314,11 +1318,11 @@ $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
-../rtlib/hal_pru$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru-objs))
-../rtlib/hal_pru_generic$(MODULE_EXT): $(addprefix objects/rt,$(hal_pru_generic-objs))
-../rtlib/hal_prudebug$(MODULE_EXT): $(addprefix objects/rt,$(hal_prudebug-objs))
-../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
-../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
+$(RTLIBDIR)/hal_pru$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru-objs))
+$(RTLIBDIR)/hal_pru_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru_generic-objs))
+$(RTLIBDIR)/hal_prudebug$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_prudebug-objs))
+$(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
+$(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs))
 endif
 
 
@@ -1350,7 +1354,7 @@ $(RTLIBDIR)/genhexkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(genhexkins-objs))
 $(RTLIBDIR)/genserkins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(genserkins-objs))
 $(RTLIBDIR)/pumakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pumakins-objs))
 $(RTLIBDIR)/scarakins$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(scarakins-objs))
-$(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
+$(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
