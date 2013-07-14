@@ -463,7 +463,7 @@ install-test:
 	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
 		if dpkg-query -S $(DESTDIR)/usr/bin/linuxcnc > /dev/null 2>&1 || dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
 			echo "*** Error: Package version installed in $(DESTDIR)/usr"; \
-			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc2 package"; \
+			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc package"; \
 			echo "before installing."; \
 			exit 1; \
 		fi \
