@@ -281,12 +281,6 @@ endif
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES))
 
-# this is kind-of carpet-bombing with -Idirs :-/
-ifneq ($(KERNELDIR),)
-ifneq ($(BUILD_SYS),user-dso)
-#INCLUDE += -I$(KERNELDIR)/include
-endif
-endif
 
 ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
