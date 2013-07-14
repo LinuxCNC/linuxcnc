@@ -318,6 +318,7 @@ class HandlerClass:
             self.widgets["home_%s"%i].show()
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
         self.widgets.offsetpage1.set_font("sans 18")
+        self.widgets.offsetpage1.set_row_visible("1",False)
         self.widgets.tooledit1.set_font("sans 18")
         if self.data.embedded_keyboard:
             self.gscreen.launch_keyboard()

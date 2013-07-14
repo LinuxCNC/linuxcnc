@@ -251,7 +251,7 @@ class Data:
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
-        self.jog_increments = []
+        self.jog_increments = ['.001 in ,.01 in ,.1 in']
         self.current_jogincr_index = 0
         self.angular_jog_rate = 15
         self.angular_jog_rate_max = 360
@@ -467,6 +467,22 @@ class Gscreen:
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
 
+        # check the ini file if UNITS are set to mm"
+        # first check the global settings
+        units=self.inifile.find("TRAJ","LINEAR_UNITS")
+        if units==None:
+            # else then the X axis units
+            units=self.inifile.find("AXIS_0","UNITS")
+            if units==None:
+                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
+        if units=="mm" or units=="metric" or units == "1.0":
+            self.machine_units_mm=1
+            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+        else:
+            self.machine_units_mm=0
+            conversion=[25.4]*3+[1]*3+[25.4]*3
+        self.status.set_machine_units(self.machine_units_mm,conversion)
+
         # set-up HAL component
         try:
             self.halcomp = hal.component("gscreen")
@@ -516,7 +532,10 @@ class Gscreen:
             else:
                 self.data.jog_increments = increments.split()
         else:
-            self.data.jog_increments = "continuous"
+            if self.machine_units_mm ==_MM:
+                self.data.jog_increments = [".01 mm",".1 mm","1 mm","continuous"]
+            else:
+                self.data.jog_increments = [".001 in",".01 in",".1 in","continuous"]
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
 
         # set default jog rate
@@ -588,22 +607,6 @@ class Gscreen:
             self.data.feed_override_max = float(temp)
         else:
             self.add_alarm_entry(_("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"))
-
-        # check the ini file if UNITS are set to mm"
-        # first check the global settings
-        units=self.inifile.find("TRAJ","LINEAR_UNITS")
-        if units==None:
-            # else then the X axis units
-            units=self.inifile.find("AXIS_0","UNITS")
-            if units==None:
-                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
-        if units=="mm" or units=="metric" or units == "1.0":
-            self.machine_units_mm=1
-            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
-        else:
-            self.machine_units_mm=0
-            conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.status.set_machine_units(self.machine_units_mm,conversion)
 
         # if it's a lathe config, set the tooleditor style 
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
@@ -847,10 +850,11 @@ class Gscreen:
     # Only show the rows of the axes we use
     # set the var path so offsetpage can fill in all the user system offsets
     def init_offsetpage(self):
+        self.widgets.offsetpage1.set_col_visible('xyzabcuvw',False)
         temp =""
         for axis in self.data.axis_list:
             temp=temp+axis
-        self.widgets.offsetpage1.set_row_visible(temp,True)
+        self.widgets.offsetpage1.set_col_visible(temp,True)
         path = os.path.join(CONFIGPATH,self.data.varfile)
         self.widgets.offsetpage1.set_filename(path)
 

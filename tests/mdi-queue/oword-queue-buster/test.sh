@@ -10,10 +10,6 @@ TOGO=80
 while [  $TOGO -gt 0 ]; do
     echo trying to connect to linuxcncrsh TOGO=$TOGO
     if nc -z localhost 5007; then
-        # there's apparently a bug somewhere, which makes it so linuxcncrsh
-        # is not ready to talk to clients when it creates its listening
-        # socket
-        sleep 2
         break
     fi
     sleep 0.25
@@ -63,11 +59,6 @@ printf "P is %.6f\n" -200 >> expected-gcode-output
     echo set mode manual
     echo set estop off
     echo set machine on
-
-    echo set home 0
-    echo set home 1
-    echo set home 2
-    sleep 2
 
     echo set mode auto
     echo set open dummy.ngc

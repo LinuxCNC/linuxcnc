@@ -25,6 +25,7 @@ class HandlerClass:
             for i in ("x","y","z","a","b","c","u","v","w","s"):
                 if i in self.data.axis_list:
                     self.widgets["axis_%s"%i].set_visible(True)
+            self.widgets.offsetpage1.set_row_visible("1",False)
 
     # This is a new method for a couple of widgets we added callbacks to.
     # The argument 'widget' is a reference to the actual widget that called.

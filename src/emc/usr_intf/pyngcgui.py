@@ -2847,6 +2847,9 @@ class NgcGui():
             else:
                 self.auto_file = os.path.join(os.path.curdir,'auto.ngc')
 
+        dprint('input for auto_file=%s\nfinal auto_file=%s'
+              % (auto_file,self.auto_file))
+
         if pre_file is None: pre_file  = ''
         if pst_file is None: pst_file = ''
 

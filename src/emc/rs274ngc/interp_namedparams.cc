@@ -156,6 +156,11 @@ int Interp::read_named_parameter(
 	*double_ptr = value;
 	return INTERP_OK;
     } else {
+        // do not require named parameters to be defined during a 
+        // subroutine definition:
+        if (_setup.defining_sub)
+            return INTERP_OK;
+
 	logNP("%s: referencing undefined named parameter '%s' level=%d",
 	      name, paramNameBuf, (paramNameBuf[0] == '_') ? 0 : _setup.call_level);
 	ERS(_("Named parameter #<%s> not defined"), paramNameBuf);

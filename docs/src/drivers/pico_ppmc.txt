@@ -77,7 +77,6 @@ the left of the bus/address digits.  So, to set 5 MHz on the
 encoder board at address 3 on the first EPP bus, you would write :
 enc_clock='0x503'
 
-
 == Pins
 
 In the following pins, parameters, and functions, <port> is the parallel

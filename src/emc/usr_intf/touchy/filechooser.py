@@ -41,14 +41,17 @@ class filechooser:
 
     def select(self, eventbox, event):
         n = int(eventbox.get_name()[20:])
+        fn = self.labels[n].get_text()
+        if len(fn) == 0: return(fn)
         self.selected = self.fileoffset + n
         self.emccommand.mode(self.emc.MODE_MDI)
-        fn = os.path.join(self.dir, self.labels[n].get_text())
+        fn = os.path.join(self.dir, fn)
         self.emccommand.program_open(fn)
         self.listing.readfile(fn)
         self.populate()
+        return(fn)
 
-    def select_and_open(self,fn):
+    def select_and_show(self,fn):
         self.reload(0)
         numfiles = len(self.files)
         fn = os.path.basename(fn)
@@ -65,9 +68,7 @@ class filechooser:
             self.fileoffset += self.numlabels
 
         self.selected = n
-        self.emccommand.mode(self.emc.MODE_MDI)
         fn = os.path.join(self.dir, fn)
-        self.emccommand.program_open(fn)
         self.listing.readfile(fn)
         self.populate()
 

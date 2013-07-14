@@ -651,7 +651,7 @@ class touchy:
         def fileselect(self, eb, e):
                 if self.wheel == "jogging": self.wheel = "mv"
                 self.jogsettings_activate(1)
-                self.filechooser.select(eb, e)
+                self.current_file = self.filechooser.select(eb, e)
                 self.listing.clear_startline()
 
         def periodic_status(self):
@@ -663,7 +663,7 @@ class touchy:
                 # perhaps by another gui or a gladevcp app
                 if self.current_file != self.status.emcstat.file:
                     self.current_file = self.status.emcstat.file
-                    self.filechooser.select_and_open(self.current_file)
+                    self.filechooser.select_and_show(self.current_file)
 
                 self.radiobutton_mask = 0
                 self.linuxcnc.unmask()

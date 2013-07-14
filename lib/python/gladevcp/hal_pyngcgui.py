@@ -25,6 +25,7 @@ import gobject
 import pango
 import hal_actions
 import pyngcgui
+g_module = os.path.basename(__file__)
 #-----------------------------------------------------------------------------
 # class to make a gladevcp widget:
 class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
@@ -53,6 +54,12 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
                            ,'Send Function'
                            ,'default_send | send_to_axis | dummy_send'
                            ,'default_send'
+                           ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
+                           ),
+     'send_to_dir':        (gobject.TYPE_STRING
+                           ,'Send to dir'
+                           ,'None|touchy|dirname  None(default:[DISPLAY]PROGRAM_PREFIX'
+                           ,''
                            ,gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT
                            ),
      'gtk_theme_name':     (gobject.TYPE_STRING
@@ -94,14 +101,14 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
             return self.property_dict[name]
         else:
             raise AttributeError(_('%s:unknown property %s')
-                                 % (g_progname,property.name))
+                                 % (g_module,property.name))
 
     def do_set_property(self,property,value):
         name = property.name.replace('-','_')
         if name not in self.__gproperties.keys():
             raise(AttributeError
                  ,_('%s:pyngcgui:do_set_property: unknown <%s>')
-                 % (g_progname,name))
+                 % (g_module,name))
         else:
             pyngcgui.vprint('SET P[%s]=%s' % (name,value))
             self.property_dict[name] = value
@@ -111,6 +118,7 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
             ,verbose             = self.property_dict['verbose']
             ,use_keyboard        = self.property_dict['use_keyboard']
             ,send_function_name  = self.property_dict['send_function_name']
+            ,send_to_dir         = self.property_dict['send_to_dir']
             ,control_font_name   = self.property_dict['control_font_name']
             ,gtk_theme_name      = self.property_dict['gtk_theme_name']
             )
@@ -126,6 +134,7 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
                     ,verbose=False
                     ,use_keyboard=False
                     ,send_function_name=''
+                    ,send_to_dir=''
                     ,control_font_name=None
                     ,gtk_theme_name="Follow System Theme"
                     ):
@@ -144,18 +153,30 @@ class PyNgcGui(gtk.Frame,hal_actions._EMC_ActionBase):
         elif send_function_name == 'default_send': send_function = pyngcgui.default_send
         else:
             print(_('%s:unknown send_function<%s>')
-                  % (g_progname,send_function_name))
+                  % (g_module,send_function_name))
 
         if control_font_name is not None:
            control_font = pango.FontDescription(control_font_name)
+
+        auto_file = None # use default behavior
+
+        if send_to_dir.strip() == "": send_to_dir = None
+        if send_to_dir is not None:
+            if send_to_dir == 'touchy':
+                # allow sent file to show up in touchy auto tab page
+                send_to_dir = '~/linuxcnc/nc_files'
+            if not os.path.isdir(os.path.expanduser(send_to_dir)):
+                raise ValueError(_('%s:Not a directory:\n    %s\n'
+                                     % (g_module,send_to_dir)))
+            auto_file = os.path.expanduser(
+                        os.path.join(send_to_dir,'ngcgui_generated.ngc'))
 
         self.ngcgui = pyngcgui.NgcGui(w=thenotebook
                             ,debug=debug
                             ,verbose=verbose
                             ,keyboardfile=keyboardfile
                             ,send_function=send_function # prototype: (fname)
-                            ,auto_file= os.path.expanduser(
-                                   '~/linuxcnc/nc_files/ngcgui_generated.ngc')
+                            ,auto_file=auto_file # None for default behavior
                             ,control_font=control_font
                             ,gtk_theme_name=gtk_theme_name
                             )
