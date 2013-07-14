@@ -55,10 +55,16 @@ while read PIN DIR JUNK ; do
 
 done <<- EOF
 	38	low	# gpio1.6	P8.3	Enable
-	34	high	# gpio1.2	p8.5	Enable_n
-	66	high	# gpio2.2	p8.7	Enable_n (ECO location)
+	34	high	# gpio1.2	P8.5	Enable_n
+	66	high	# gpio2.2	P8.7	Enable_n (ECO location)
 	92	out	# gpio2.24	P8.28	Z_Ena
+	10	in	# gpio0.10	P8.31	X_Min
+	11	in	# gpio0.11	P8.32	X_Max
+	9	in	# gpio0.9	P8.33	Y_Max
+	8	in	# gpio0.8	P8.35	Y_Min
 	80	out	# gpio2.16	P8.36	J4.PWM
+	78	in	# gpio2.14	P8.37	Z_Max
+	79	in	# gpio2.15	P8.38	Z_Min
 	77	out	# gpio2.13	P8.40	Y_Ena
 	74	out	# gpio2.10	P8.41	X_Ena
 EOF
