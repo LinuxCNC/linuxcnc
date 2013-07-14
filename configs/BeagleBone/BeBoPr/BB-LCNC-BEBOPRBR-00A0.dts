@@ -24,13 +24,13 @@
 		"P8.17",	/* gpio0.27	Z_Min	*/
 		"P8.18",	/* gpio2.1	Z_Max	*/
 		"P8.19",	/* gpio0.22	PWM1	*/
-		"p8.26",	/* gpio1.29	Status	*/
-		"p9.14",	/* gpio1.18	PWM2	*/
-		"p9.15",	/* gpio1.16	Z_Step	*/
-		"p9.17",	/* gpio0.5	B_Dir	*/
-		"p9.18",	/* gpio0.4	B_Step	*/
-		"p9.21",	/* gpio0.3	A_Dir	*/
-		"p9.22",	/* gpio0.2	A_Step	*/
+		"P8.26",	/* gpio1.29	Status	*/
+		"P9.14",	/* gpio1.18	PWM2	*/
+		"P9.15",	/* gpio1.16	Z_Step	*/
+		"P9.17",	/* gpio0.5	B_Dir	*/
+		"P9.18",	/* gpio0.4	B_Step	*/
+		"P9.21",	/* gpio0.3	A_Dir	*/
+		"P9.22",	/* gpio0.2	A_Step	*/
 		"P9.23",	/* gpio1.17	Z_Dir	*/
 		"P9.24",	/* gpio0.15	Spindle	*/
 		"P9.26",	/* gpio0.14	Mtr_Ena	*/
@@ -70,29 +70,29 @@
 
 			foo_pins: foo_pins {
 				pinctrl-single,pins = <
-					0x090 0x0f	/* P8.7		gpio2.2		Enablen	*/
-					0x094 0x0f	/* P8.8		gpio2.3		X_Min	*/
-					0x09c 0x0f	/* P8.9		gpio2.5		X_Max	*/
-					0x098 0x0f	/* P8.10	gpio2.4		Y_Min	*/
-					0x034 0x0f	/* P8.11	gpio1.13	X_Dir	*/
-					0x030 0x0f	/* P8.12	gpio1.12	X_Step	*/
-					0x024 0x0f	/* P8.13	gpio0.23	PWM0	*/
-					0x028 0x0f	/* P8.14	gpio0.26	Y_Max	*/
-					0x03c 0x0f	/* P8.15	gpio1.15	Y_Dir	*/
-					0x038 0x0f	/* P8.16	gpio1.14	Y_Step	*/
-					0x02c 0x0f	/* P8.17	gpio0.27	Z_Min	*/
-					0x08c 0x0f	/* P8.18	gpio2.1		Z_Max	*/
-					0x020 0x0f	/* P8.19	gpio0.22	PWM1	*/
-					0x07c 0x0f	/* p8.26	gpio1.29	Status	*/
-					0x048 0x0f	/* p9.14	gpio1.18	PWM2	*/
-					0x040 0x0f	/* p9.15	gpio1.16	Z_Step	*/
-					0x15c 0x0f	/* p9.17	gpio0.5		B_Dir	*/
-					0x158 0x0f	/* p9.18	gpio0.4		B_Step	*/
-					0x154 0x0f	/* p9.21	gpio0.3		A_Dir	*/
-					0x150 0x0f	/* p9.22	gpio0.2		A_Step	*/
-					0x044 0x0f	/* P9.23	gpio1.17	Z_Dir	*/
-					0x184 0x0f	/* P9.24	gpio0.15	Spindle	*/
-					0x180 0x0f	/* P9.26	gpio0.14	Mtr_Ena	*/
+					0x090 0x3f	/* P8.7		gpio2.2		Enablen	*/
+					0x094 0x3f	/* P8.8		gpio2.3		X_Min	*/
+					0x09c 0x3f	/* P8.9		gpio2.5		X_Max	*/
+					0x098 0x3f	/* P8.10	gpio2.4		Y_Min	*/
+					0x034 0x3f	/* P8.11	gpio1.13	X_Dir	*/
+					0x030 0x3f	/* P8.12	gpio1.12	X_Step	*/
+					0x024 0x3f	/* P8.13	gpio0.23	PWM0	*/
+					0x028 0x3f	/* P8.14	gpio0.26	Y_Max	*/
+					0x03c 0x3f	/* P8.15	gpio1.15	Y_Dir	*/
+					0x038 0x3f	/* P8.16	gpio1.14	Y_Step	*/
+					0x02c 0x3f	/* P8.17	gpio0.27	Z_Min	*/
+					0x08c 0x3f	/* P8.18	gpio2.1		Z_Max	*/
+					0x020 0x3f	/* P8.19	gpio0.22	PWM1	*/
+					0x07c 0x3f	/* p8.26	gpio1.29	Status	*/
+					0x048 0x3f	/* p9.14	gpio1.18	PWM2	*/
+					0x040 0x3f	/* p9.15	gpio1.16	Z_Step	*/
+					0x15c 0x3f	/* p9.17	gpio0.5		B_Dir	*/
+					0x158 0x3f	/* p9.18	gpio0.4		B_Step	*/
+					0x154 0x3f	/* p9.21	gpio0.3		A_Dir	*/
+					0x150 0x3f	/* p9.22	gpio0.2		A_Step	*/
+					0x044 0x3f	/* P9.23	gpio1.17	Z_Dir	*/
+					0x184 0x3f	/* P9.24	gpio0.15	Spindle	*/
+					0x180 0x3f	/* P9.26	gpio0.14	Mtr_Ena	*/
 				>;
 			};
 		};

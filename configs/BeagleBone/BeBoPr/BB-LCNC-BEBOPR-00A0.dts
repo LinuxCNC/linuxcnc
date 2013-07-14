@@ -14,13 +14,20 @@
 		"P8.3",		/* gpio1.6	Enable	*/
 		"P8.5",		/* gpio1.2	Enablen	*/
 		"P8.7",		/* gpio2.2	Enablen	*/
-		"p8.20",	/* gpio1.31	E_Ena	*/
-		"p8.21",	/* pru1.r30.12	E_Dir	*/
-		"p8.27",	/* pru1.r30.8	Z_Step	*/
-		"p8.28",	/* gpio2.24	Z_Ena	*/
-		"p8.29",	/* pru1.r30.9	Z_Dir	*/
-		"p8.30",	/* pru1.r30.11	E_Step	*/
-		"p8.36",	/* gpio2.16	J4_PWM	*/
+		"P8.20",	/* gpio1.31	E_Ena	*/
+		"P8.21",	/* pru1.r30.12	E_Dir	*/
+		"P8.25",	/* gpio1.0	Status	*/
+		"P8.27",	/* pru1.r30.8	Z_Step	*/
+		"P8.28",	/* gpio2.24	Z_Ena	*/
+		"P8.29",	/* pru1.r30.9	Z_Dir	*/
+		"P8.30",	/* pru1.r30.11	E_Step	*/
+		"P8.31",	/* gpio0.10	X_Min	*/
+		"P8.32",	/* gpio0.11	X_Max	*/
+		"P8.33",	/* gpio0.9	Y_Max	*/
+		"P8.35",	/* gpio0.8	Y_Min	*/
+		"P8.36",	/* gpio2.16	J4_PWM  */
+		"P8.37",	/* gpio2.14	Z_Max	*/
+		"P8.38",	/* gpio2.15	Z_Min	*/
 		"P8.39",	/* pru1.r30.6	Y_Dir	*/
 		"P8.40",	/* gpio2.13	Y_Ena	*/
 		"P8.41",	/* gpio2.10	X_Ena	*/
@@ -36,8 +43,15 @@
 		"gpio1_2",
 		"gpio2_2",
 		"gpio1_31",
+		"gpio1_0",
 		"gpio2_24",
+		"gpio0_10",
+		"gpio0_11",
+		"gpio0_9",
+		"gpio0_8",
 		"gpio2_16",
+		"gpio2_14",
+		"gpio2_15",
 		"gpio2_13",
 		"gpio2_10",
 		"pru0";
@@ -48,24 +62,31 @@
 
 			foo_pins: foo_pins {
 				pinctrl-single,pins = <
-					0x18 0x0f	/* p8.3  gpio1_6	*/
-					0x08 0x0f	/* p8.5  gpio1_2	*/
-					0x90 0x0f	/* p8.7  gpio2_2	*/
-					0x84 0x0f	/* p8.20 gpio1_31	*/
-					0x80 0x0d	/* p8.21 pru1.r30.13	*/
-					0xe0 0x0d	/* p8.27 pru1.r30.8 	*/
-					0xe8 0x0d	/* p8.28 pru1.r30.10	*/
-					0xe4 0x0d	/* p8.29 pru1.r30.9	*/
-					0xec 0x0d	/* p8.30 pru1.r30.11	*/
-					0xc8 0x0f	/* p8.36 gpio2_16	*/
-					0xb8 0x0d	/* p8.39 pru1.r30.6	*/
-					0xbc 0x0f	/* p8.40 gpio2_13	*/
-					0xb0 0x0f	/* p8.41 gpio2_10	*/
-					0xb4 0x0d	/* p8.42 pru1.r30.5	*/
-					0xa8 0x0d	/* p8.43 pru1.r30.2	*/
-					0xac 0x0d	/* p8.44 pru1.r30.3	*/
-					0xa0 0x0d	/* p8.45 pru1.r30.0	*/
-					0xa4 0x0d	/* p8.46 pru1.r30.1	*/
+					0x18 0x3F	/* p8.3  gpio1_6	*/
+					0x08 0x3F	/* p8.5  gpio1_2	*/
+					0x90 0x3F	/* p8.7  gpio2_2	*/
+					0x84 0x3F	/* p8.20 gpio1_31	*/
+					0x80 0x0D	/* p8.21 pru1.r30.13	*/
+					0x00 0x3F	/* P8.25 gpio1.0	*/
+					0xe0 0x0D	/* p8.27 pru1.r30.8 	*/
+					0xe8 0x0D	/* p8.28 pru1.r30.10	*/
+					0xe4 0x0D	/* p8.29 pru1.r30.9	*/
+					0xec 0x0D	/* p8.30 pru1.r30.11	*/
+					0xD8 0x3F	/* P8.31 gpio0.10	*/
+					0xDC 0x3F	/* P8.32 gpio0.11	*/
+					0xD4 0x3F	/* P8.33 gpio0.9	*/
+					0xD0 0x3F	/* P8.35 gpio0.8	*/
+					0xc8 0x3F	/* p8.36 gpio2_16	*/
+					0xC0 0x3F	/* P8.37 gpio2.14	*/
+					0xC4 0x3F	/* P8.38 gpio2.15	*/
+					0xb8 0x0D	/* p8.39 pru1.r30.6	*/
+					0xbc 0x3F	/* p8.40 gpio2_13	*/
+					0xb0 0x3F	/* p8.41 gpio2_10	*/
+					0xb4 0x0D	/* p8.42 pru1.r30.5	*/
+					0xa8 0x0D	/* p8.43 pru1.r30.2	*/
+					0xac 0x0D	/* p8.44 pru1.r30.3	*/
+					0xa0 0x0D	/* p8.45 pru1.r30.0	*/
+					0xa4 0x0D	/* p8.46 pru1.r30.1	*/
 				>;
 			};
 		};
