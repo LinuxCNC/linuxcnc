@@ -39,7 +39,7 @@ $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
 
-objects/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
+$(OBJDIR)/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
 	$(ECHO) "Creating $@"
 	@mkdir -p $(dir $@)
