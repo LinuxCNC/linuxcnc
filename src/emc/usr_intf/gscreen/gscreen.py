@@ -850,10 +850,11 @@ class Gscreen:
     # Only show the rows of the axes we use
     # set the var path so offsetpage can fill in all the user system offsets
     def init_offsetpage(self):
+        self.widgets.offsetpage1.set_col_visible('xyzabcuvw',False)
         temp =""
         for axis in self.data.axis_list:
             temp=temp+axis
-        self.widgets.offsetpage1.set_row_visible(temp,True)
+        self.widgets.offsetpage1.set_col_visible(temp,True)
         path = os.path.join(CONFIGPATH,self.data.varfile)
         self.widgets.offsetpage1.set_filename(path)
 
