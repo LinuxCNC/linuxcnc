@@ -162,7 +162,7 @@ board to have a sufficient revision level to support the feature.
 
 == Parameters
 
-* '(All float) ppmc.<port>.enc.<channel>.scale' - The number of
+* '(All float) ppmc.<port>.encoder.<channel>.scale' - The number of
    counts / user unit (to convert from counts to units).
 * '(UPC float) ppmc.<port>.pwm.<channel-range>.freq' - The PWM
    carrier frequency, in Hz. Applies to a group of four
@@ -183,8 +183,8 @@ board to have a sufficient revision level to support the feature.
    cycle (used mostly for troubleshooting.)
 * '(UPC bit) ppmc.<port>.pwm.<channel>.bootstrap' - If true, the
    PWM generator will generate a short sequence of
-   pulses of both polarities when E-stop goes false, to charge the
-   bootstrap capacitors used on some MOSFET gate drivers.
+   pulses of both polarities when E-stop goes false, to reset the
+   shutdown latches on some PWM servo drives.
 * '(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time' - Sets 
    minimum time between direction change and step pulse, in
    units of 100ns. Applies to a group of four consecutive step generators,
