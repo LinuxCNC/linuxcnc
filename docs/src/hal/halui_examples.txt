@@ -38,7 +38,7 @@ up to two lines like this:
 
 == Pause & Resume
 
-This example was developed to allow LinuxCNC2 to move a
+This example was developed to allow LinuxCNC to move a
 rotary axis on a signal from an external machine.
 The coordination between the two systems will be
 provided by two Halui components:
