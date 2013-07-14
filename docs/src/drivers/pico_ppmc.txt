@@ -31,6 +31,8 @@ can be viewed with 'dmesg'.
 Up to 3 parport busses may be used, and each bus may have up to 8 (or
 possibly 16 PPMC) devices on it.
 
+== Command Line Options
+
 There are several options that can be specified on the loadrt command line.
 First, the USC and UPC can have an 8-bit DAC added for spindle speed
 control and similar functions.  This can be specified with the
@@ -74,7 +76,6 @@ similar to the above options, but with the frequency setting to
 the left of the bus/address digits.  So, to set 5 MHz on the
 encoder board at address 3 on the first EPP bus, you would write :
 enc_clock='0x503'
-
 
 == Pins
 
@@ -160,7 +161,7 @@ board to have a sufficient revision level to support the feature.
 
 == Parameters
 
-* '(All float) ppmc.<port>.enc.<channel>.scale' - The number of
+* '(All float) ppmc.<port>.encoder.<channel>.scale' - The number of
    counts / user unit (to convert from counts to units).
 * '(UPC float) ppmc.<port>.pwm.<channel-range>.freq' - The PWM
    carrier frequency, in Hz. Applies to a group of four
@@ -181,19 +182,22 @@ board to have a sufficient revision level to support the feature.
    cycle (used mostly for troubleshooting.)
 * '(UPC bit) ppmc.<port>.pwm.<channel>.bootstrap' - If true, the
    PWM generator will generate a short sequence of
-   pulses of both polarities when E-stop goes false, to charge the
-   bootstrap capacitors used on some MOSFET gate drivers.
+   pulses of both polarities when E-stop goes false, to reset the
+   shutdown latches on some PWM servo drives.
 * '(USC u32) ppmc.<port>.stepgen.<channel-range>.setup-time' - Sets 
    minimum time between direction change and step pulse, in
    units of 100ns. Applies to a group of four consecutive step generators,
-   as indicated by '<channel-range>'.
+   as indicated by '<channel-range>'. Values between 200 ns and 25.5 us
+can be specified.
 * '(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-width' - Sets 
    width of step pulses, in units of 100ns. Applies to a group
    of four consecutive step generators, as indicated by '<channel-range>'.
+  Values between 200 ns and 25.5 us may be specified.
 * '(USC u32) ppmc.<port>.stepgen.<channel-range>.pulse-space-min' - Sets 
    minimum time between pulses, in units of 100ns. 
    Applies to a group of four consecutive step generators, as indicated by
-   '<channel-range>'. The maximum step rate is:
+   '<channel-range>'. Values between 200 ns and 25.5 us can be specified.
+   The maximum step rate is:
    image:images/pico-ppmc-math.png[]    
 * '(USC float) ppmc.<port>.stepgen.<channel>.scale' - Scaling for
    step pulse generator. The step frequency in Hz is the
