@@ -117,6 +117,7 @@ CheckStatus(){
 }
 
 Load(){
+
     # when not running shmdrv, perform shm + instance checks and cleanups
     #
     # FIXME:  how to do these for shmdrv?
@@ -224,46 +225,98 @@ CheckLoaded(){
 
 Unload(){
     if test $BUILD_SYS = user-dso; then
-	if [ "$DEBUG" != "" ] ; then
-            ${rtapi_app} --instance=$INSTANCE exit 
-	else
-            ${rtapi_app} --instance=$INSTANCE exit            >/dev/null 2>&1
-        fi
 
-	# wait until rtapi_msgd has vanished. This assures
-	# that the last user of the global data segment has vanished,
-	# making sure an immediate restart of realtime does not find
-	# shm segments still hanging around. The only realistic scenario
-	# which could trigger this is runtests.
-	MSGD_PID=`pidof msgd:$INSTANCE`
-	if [ "$MSGD_PID" != "" ] ; then
-	    kill $MSGD_PID
-	    anywait $MSGD_PID
+	# shutdown rtapi if it exists
+
+	RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+	if [ "$RTAPI_PID" != "" ] ; then
+	    if [ "$DEBUG" != "" ] ; then
+		${rtapi_app} --instance=$INSTANCE exit
+	    else
+		${rtapi_app} --instance=$INSTANCE exit            >/dev/null 2>&1
+            fi
 	fi
 
-	# remove any linuxcnc-specific POSIX shm segments if they exist
-	# see src/rtapi/rtapi_shmkeys.h: SHM_FMT
-	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
-	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
-    else # BUILD_SYS = kbuild
-	MSGD_PID=`pidof msgd:$INSTANCE`
-	if [ "$MSGD_PID" != "" ] ; then
-	    kill $MSGD_PID
+	if test $USE_SHMDRV = no; then
+
+	    # remove any linuxcnc-specific POSIX shm segments if they exist
+	    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
+
+	    INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE`
+	    rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
 	fi
     fi
 
+    # wait until rtapi_msgd has vanished. This assures
+    # that the last user of the global data segment has vanished,
+    # making sure an immediate restart of realtime does not find
+    # shm segments still hanging around. The only realistic scenario
+    # which could trigger this is runtests.
+
+    MSGD_PID=`$PIDOF msgd:$INSTANCE`
+    if [ "$MSGD_PID" != "" ] ; then
+	kill $MSGD_PID
+	anywait $MSGD_PID
+    fi
+
     for module in $MODULES_UNLOAD ; do
+	# FIXME: this will fail if another instance is using shmdrv
+	# shmdrv is really per-machine, not per-instance
+        $linuxcnc_module_helper remove $module
 	if [ "$module" == "shmdrv" ] ; then
                 # shmdrv needs a bit of time until rtapi+hal_lib
 		# have detached shm segments
 	    sleep 1
 	fi
-        $linuxcnc_module_helper remove $module
     done
 }
 
 CheckUnloaded(){
-# checks to see if all modules were unloaded
+
+    # if msgd:$INSTANCE is still around, this might still be a running instance 
+    # after all - this applies to all flavors - msgd is always there, so cop out
+
+    MSGD_PID=`$PIDOF msgd:$INSTANCE`
+    if [ "$MSGD_PID" != "" ] ; then
+	echo "instance $INSTANCE still running - process msgd:$INSTANCE present (pid $MSGD_PID) !"
+	exit 1
+    fi
+
+    # if msgd:$INSTANCE isnt running but rtapi:$INSTANCE is, that's bad - msgd
+    # should be last to exit
+    # this is a noop in kthreads, but clearly an error in uthreads
+
+    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+    if [ "$RTAPI_PID" != "" ] ; then
+	echo "instance $INSTANCE inproperly shutdown!"
+	echo "msgd:$INSTANCE gone, but rtapi:$INSTANCE alive (pid $RTAPI_PID)"
+	exit 1
+    fi
+
+    # regardless if shmdrv is loaded or not, Posix shm segments for this
+    # particular instance should not exist and be in use at this point, which 
+    # could be the case if a HAL usercomp were still hanging around
+
+    # if any, determine if a process is still using it; complain if so,
+    # else remove with a note
+
+    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $INSTANCE`
+
+    for seg in `ls $POSIXSHM 2>/dev/null` ; do
+	if pids=`fuser $seg  2>/dev/null` ; then
+	    echo instance $INSTANCE: shared memory $seg still in use by pid: $pids !
+	else
+	    echo instance $INSTANCE: leftover shared memory $seg unused, removing
+	    rm -f $seg
+	fi
+    done
+
+    # TBD: if fuser /dev/shm indicates a process is using shmdrv, then
+    # this is likely another instance, so dont try to unload shmdrv
+    # because it's going to fail anyway
+
+    # checks to see if all modules were unloaded
+
     STATUS=
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
@@ -280,6 +333,7 @@ CheckUnloaded(){
 CMD=$1
 
 case "$CMD" in
+
   start|load)
 	Load || exit $?
 	CheckLoaded
@@ -295,6 +349,14 @@ case "$CMD" in
 	;;
   status)
 	CheckStatus
+	;;
+  # for script debugging
+  unloadcheck)
+	CheckUnloaded
+	;;
+  # for script debugging
+  loadcheck)
+	CheckLoaded
 	;;
   *)
 	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
