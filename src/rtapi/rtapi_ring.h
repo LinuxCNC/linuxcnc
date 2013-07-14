@@ -77,9 +77,9 @@ typedef struct {
 
 // mode flags passed in by rtapi_ring_new
 // exposed in ringheader_t.mode
-#define MODE_STREAM      _BIT(0)
-#define USE_RMUTEX       _BIT(1)
-#define USE_WMUTEX       _BIT(2)
+#define MODE_STREAM      RTAPI_BIT(0)
+#define USE_RMUTEX       RTAPI_BIT(1)
+#define USE_WMUTEX       RTAPI_BIT(2)
 
 #define RB_ALIGN 8
 

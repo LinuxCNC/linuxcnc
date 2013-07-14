@@ -4,31 +4,31 @@
 #include "rtapi_bitops.h"
 
 // utsname.release matches telltale strings (soft)
-#define UTSNAME_REL_RTAI     _BIT(0)
-#define UTSNAME_REL_RT       _BIT(1)
-#define UTSNAME_REL_XENOMAI  _BIT(2)
+#define UTSNAME_REL_RTAI     RTAPI_BIT(0)
+#define UTSNAME_REL_RT       RTAPI_BIT(1)
+#define UTSNAME_REL_XENOMAI  RTAPI_BIT(2)
 
 // utsname.version matches "PREEMPT RT" (hard)
-#define UTSNAME_VER_RT_PREEMPT _BIT(3)
+#define UTSNAME_VER_RT_PREEMPT RTAPI_BIT(3)
 
 // utsname.version matches "#rtai" (soft)
-#define UTSNAME_VER_RTAI     _BIT(4)
+#define UTSNAME_VER_RTAI     RTAPI_BIT(4)
 
-#define XENO_RTHEAP_FOUND     _BIT(5) // /dev/rtheap seen (hard)
-#define XENO_PROCENTRY_FOUND  _BIT(6) // /proc/xenomai seen (hard)
+#define XENO_RTHEAP_FOUND     RTAPI_BIT(5) // /dev/rtheap seen (hard)
+#define XENO_PROCENTRY_FOUND  RTAPI_BIT(6) // /proc/xenomai seen (hard)
 
-#define HAS_HIRES_TIMERS      _BIT(7) // sanitary - assume vanilla if false.
-#define SYS_KERNEL_REALTIME_FOUND _BIT(8) // RT_PREEMPT (hard)
+#define HAS_HIRES_TIMERS      RTAPI_BIT(7) // sanitary - assume vanilla if false.
+#define SYS_KERNEL_REALTIME_FOUND RTAPI_BIT(8) // RT_PREEMPT (hard)
 
-#define DEV_RTAI_SHM_FOUND _BIT(9) // RTAI (hard)
+#define DEV_RTAI_SHM_FOUND RTAPI_BIT(9) // RTAI (hard)
 
 // verify the Xenomai userland libraries are present and make sense (sanitary for xenomai)
-#define XENO_LIBXENOMAI       _BIT(10) // can dlopen("libxenomai.so")
-#define XENO_LIBNATIVE        _BIT(11) // can dlopen("libnative.so")
-#define XENO_LIBSYMBOL        _BIT(12) // can resolve symbol in "libnative.so"
+#define XENO_LIBXENOMAI       RTAPI_BIT(10) // can dlopen("libxenomai.so")
+#define XENO_LIBNATIVE        RTAPI_BIT(11) // can dlopen("libnative.so")
+#define XENO_LIBSYMBOL        RTAPI_BIT(12) // can resolve symbol in "libnative.so"
 
 // hard evidence for an ipipe patch in place (RTAI and Xenomai):
-#define HAS_PROC_IPIPE        _BIT(13) // /proc/ipipe exists and is a directory
+#define HAS_PROC_IPIPE        RTAPI_BIT(13) // /proc/ipipe exists and is a directory
 
 #define PROC_IPIPE "/proc/ipipe"
 

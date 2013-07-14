@@ -285,10 +285,10 @@ int rtapi_app_main(void)
     }
 
     for (n = 0; n < npins; n++) {
-      if (exclude_map & _BIT(n))
+      if (exclude_map & RTAPI_BIT(n))
 	continue;
       pinno = pins[n];
-      if (dir_map & _BIT(n)) {
+      if (dir_map & RTAPI_BIT(n)) {
 	bcm2835_gpio_fsel(gpios[n], BCM2835_GPIO_FSEL_OUTP);
 	if ((retval = hal_pin_bit_newf(HAL_IN, &port_data[n],
 				       comp_id, "hal_gpio.pin-%02d-out", pinno)) < 0)
@@ -345,9 +345,9 @@ static void write_port(void *arg, long period)
 
   // FIXME optimize this
   for (n = 0; n < npins; n++) {
-    if (exclude_map & _BIT(n)) 
+    if (exclude_map & RTAPI_BIT(n)) 
       continue;
-    if (dir_map & _BIT(n)) {
+    if (dir_map & RTAPI_BIT(n)) {
       if (*(port_data[n])) { 
 	bcm2835_gpio_set(gpios[n]);
       } else {
@@ -363,7 +363,7 @@ static void read_port(void *arg, long period)
 
   // FIXME optimize this
   for (n = 0; n < npins; n++) {
-    if ((~dir_map & _BIT(n)) && (~exclude_map & _BIT(n)))
+    if ((~dir_map & RTAPI_BIT(n)) && (~exclude_map & RTAPI_BIT(n)))
       *port_data[n] = bcm2835_gpio_lev(gpios[n]);
   }
 }
