@@ -112,7 +112,7 @@ int halcmd_startup(int quiet) {
     if (comp_id < 0) {
         if (!quiet) {
             fprintf(stderr, "halcmd: hal_init() failed: %d\n", comp_id );
-            fprintf(stderr, "NOTE: 'rtapi' kernel module must be loaded\n" );
+            fprintf(stderr, "NOTE: 'rtapi' module must be loaded\n" );
         }
 	return -EINVAL;
     }
@@ -150,6 +150,7 @@ struct halcmd_command halcmd_commands[] = {
     {"loadrt",  FUNCT(do_loadrt_cmd),  A_ONE | A_PLUS },
     {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS | A_TILDE },
     {"lock",    FUNCT(do_lock_cmd),    A_ONE | A_OPTIONAL },
+    {"log",     FUNCT(do_log_cmd),     A_TWO | A_OPTIONAL},
     {"net",     FUNCT(do_net_cmd),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
     {"newsig",  FUNCT(do_newsig_cmd),  A_TWO },
     {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL | A_TILDE },
@@ -168,6 +169,13 @@ struct halcmd_command halcmd_commands[] = {
     {"unloadusr", FUNCT(do_unloadusr_cmd), A_ONE },
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
     {"waitusr", FUNCT(do_waitusr_cmd), A_ONE },
+ 
+    {"newcomp", FUNCT(do_newcomp_cmd), A_ONE |  A_PLUS},
+    {"newpin",  FUNCT(do_newpin_cmd), A_THREE |  A_PLUS},
+    {"ready",   FUNCT(do_ready_cmd),    A_ONE | A_OPTIONAL },
+    {"waitbound", FUNCT(do_waitbound_cmd), A_ONE| A_OPTIONAL  },
+    {"waitunbound", FUNCT(do_waitunbound_cmd), A_ONE| A_OPTIONAL  },
+
 };
 int halcmd_ncommands = (sizeof(halcmd_commands) / sizeof(halcmd_commands[0]));
 
@@ -189,14 +197,19 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     char msglevel[20];
 
     /* now we need to fork, and then exec .... */
+#if 0
     /* disconnect from the HAL shmem area before forking */
     hal_exit(comp_id);
     comp_id = 0;
+#else
+    hal_rtapi_detach();
+#endif
     /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
 	/* fork failed */
 	halcmd_error("fork() failed\n");
+#if 0
 	/* reconnect to the HAL shmem area */
 	comp_id = hal_init(comp_name);
 	if (comp_id < 0) {
@@ -205,6 +218,9 @@ pid_t hal_systemv_nowait(char *const argv[]) {
 	    exit(-1);
 	}
         hal_ready(comp_id);
+#else
+	hal_rtapi_attach();
+#endif
 	return -1;
     }
     if ( pid == 0 ) {
@@ -231,8 +247,10 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     }
     /* parent process */
     /* reconnect to the HAL shmem area */
-    comp_id = hal_init(comp_name);
-
+    //#if 0
+    hal_rtapi_attach();
+    // comp_id = hal_init(comp_name);
+    //#endif
     return pid;
 }
 
@@ -249,7 +267,7 @@ int hal_systemv(char *const argv[]) {
 	fprintf(stderr, "halcmd: hal_init() failed after systemv: %d\n", comp_id );
 	exit(-1);
     }
-    hal_ready(comp_id);
+    //XXX FIXME hal_ready(comp_id);
     /* check result of waitpid() */
     if ( retval < 0 ) {
 	halcmd_error("waitpid(%d) failed: %s\n", pid, strerror(errno) );

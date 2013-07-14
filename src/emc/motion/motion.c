@@ -28,7 +28,7 @@
 *                    KERNEL MODULE PARAMETERS                          *
 ************************************************************************/
 
-static int key = DEFAULT_SHMEM_KEY;		/* the shared memory key, default value */
+static int key = DEFAULT_MOTION_SHMEM_KEY;		/* the shared memory key, default value */
 
 /* module information */
 /* register symbols to be modified by insmod

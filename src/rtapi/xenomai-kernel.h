@@ -4,22 +4,13 @@
 *               the Xenomai kernel thread system
 ********************************************************************/
 
-#define REV_CODE 2
-
-#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN, RTIME */
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
-#include <native/heap.h>	/* RT_HEAP */
-/* this needs to be fixed in rtapi_common.h
-#undefine RTAPI_NAME_LEN
-#define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
-*/
-
-#define MASTER_HEAP "rtapi-heap"
-
 
 /* rtapi_common.c */
 // Init rt_stats for RTAPI
 #define HAVE_INIT_RTAPI_DATA_HOOK
+// output threadsystem-specific detail when doing a backtrace
+#define HAVE_RTAPI_BACKTRACE_HOOK
 
 /* rtapi_proc */
 #define HAVE_RTAPI_READ_STATUS_HOOK
@@ -42,10 +33,10 @@
 
 #define HAVE_RTAPI_MODULE_INIT_HOOK
 
-
 /* rtapi_task.c */
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
+#define HAVE_RTAPI_TASK_SELF_HOOK
 
 
 /* rtapi_io hooks */
@@ -57,3 +48,4 @@
 #define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_GET_CLOCKS_HOOK
 #endif
+

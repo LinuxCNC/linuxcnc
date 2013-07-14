@@ -1,3 +1,4 @@
+#                                                                 -*-shell-script-*-
 # Execute this file in the context of your shell, such as with
 #  . @EMC2_HOME@/scripts/rip-environment
 # and your shell environment will be properly configured to run commands like
@@ -21,7 +22,7 @@
 
 case "$0" in
     rip-environment|*/rip-environment)
-	cat <<EOF
+	cat >&2 <<EOF
 This script should be loaded in the context of your shell, by executing
 	. $0
 not executed as a separate command.
@@ -43,7 +44,7 @@ esac
 EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
 EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 LINUXCNC_EMCSH=@WISH@; export LINUXCNC_EMCSH
-PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
+PATH=@EMC2_BIN_DIR@:@EMC2_LIBEXEC_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
 
 if [ -z "$TCLLIBPATH" ]; then
     TCLLIBPATH=$EMC2_HOME/tcl

@@ -15,8 +15,8 @@
 #
 # Michael Haberler 3/2013
 
-rtstyles =  ['xenomai-kernel', 'xenomai-user',
-             'rt-preempt-user', 'rtai', 'rt-preempt-kernel']
+rtstyles =  ['xenomai-kernel', 'xenomai',
+             'rt-preempt', 'rtai', 'posix']
 
 class Config(object):
 
@@ -25,7 +25,7 @@ class Config(object):
         if self.BUILD_DRIVERS: return True
 
     def runs_on_xenomai(self):
-        return self.THREADS in ['xenomai-kernel', 'xenomai-user']
+        return self.THREADS in ['xenomai-kernel', 'xenomai']
 
     def runs_on_rtai(self):
         return self.THREADS == 'rtai'
@@ -55,14 +55,14 @@ class Config(object):
 
         #used for install stuff
         #but have them here as reference
-        #build system only uses EMC2_RTLIB_DIR when creating rtapi.conf
+        #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
 	self.EMC2_BIN_DIR="@EMC2_BIN_DIR@"
+	self.EMC2_LIBEXEC_DIR="@EMC2_LIBEXEC_DIR@"
 	self.EMC2_TCL_DIR="@EMC2_TCL_DIR@"
 	self.EMC2_HELP_DIR="@EMC2_HELP_DIR@"
 	self.EMC2_RTLIB_DIR="@EMC2_RTLIB_DIR@"
-	self.EMC2_CONFIG_DIR="@EMC2_CONFIG_DIR@"
 	self.EMC2_USER_CONFIG_DIR="~/emc2/configs"
-	self.EMC2_SYSTEM_CONFIG_DIR="/usr/local/etc/emc2/configs"
+	self.EMC2_SYSTEM_CONFIG_DIR="@EMC2_SYSTEM_CONFIG_DIR@"
 	self.EMC2_NCFILES_DIR="@EMC2_NCFILES_DIR@"
 	self.REALTIME="@REALTIME@"
 	self.EMC2_IMAGEDIR="@EMC2_IMAGE_DIR@"
@@ -72,7 +72,6 @@ class Config(object):
 
         # used for building
 	self.RTDIR     = "@RTDIR@"
-	self.RTARCH    = "@RTARCH@"
 
         # Standard configure directories
         # do we really need these?
@@ -88,9 +87,6 @@ class Config(object):
 	self.infodir = "@infodir@"
 	self.mandir = "@mandir@"
 	self.includedir = "@includedir@"
-	self.moduledir = "@MODULE_DIR@"
-	self.rip_moduledir = "@RIP_MODULE_DIR@"
-	self.kernelvers = "@KERNEL_VERS@"
 
         # i18n variables:
 	self.package = "@PACKAGE@"
@@ -99,7 +95,6 @@ class Config(object):
 
         #still needs discussion
         # do we really need these?
-	self.initd_dir = "/etc/init.d"
 	self.docsdir = self.prefix + "/share/doc/linuxcnc"
 	self.sampleconfsdir = self.prefix + "/share/doc/linuxcnc/examples/sample-configs"
 	self.ncfilesdir = self.prefix + "/share/linuxcnc/ncfiles"
@@ -108,17 +103,9 @@ class Config(object):
 
         # /Standard configure directories
 	self.RUN_IN_PLACE = "@RUN_IN_PLACE@"
-	self.RTNAME = "@RTNAME@"
-	self.RTPREFIX = "@RTPREFIX@"
-	self.RTAI = "@RTAI@"
-	self.RTFLAGS = "@RTFLAGS@ @EXT_RTFLAGS@"
+	self.RTFLAGS = "@RTFLAGS@"
 	self.KERNELDIR = "@KERNELDIR@"
 	#self.RTFLAGS = "-Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0"
-	self.USE_RTLIBM = "@USE_RTLIBM@"
-	self.USE_LIBM = "@USE_LIBM@"
-	self.USE_STUBS = "@USE_STUBS@"
-	self.MATHINC = "@MATHINC@"
-	self.MATHLIB = "@MATHLIB@"
 	self.KERNEL_MATH_CFLAGS = "@KERNEL_MATH_CFLAGS@"
 	#self.ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -Os -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
 	self.MODULE_EXT = "@MODEXT@"
@@ -133,7 +120,6 @@ class Config(object):
 	self.USE_PORTABLE_PARPORT_IO = "@USE_PORTABLE_PARPORT_IO@"
 	self.TARGET_PLATFORM = "@TARGET_PLATFORM@"
 	self.ARCHITECTURE="@ARCHITECTURE@"
-	self.XENO_CONFIG="@XENO_CONFIG@"
 
 	self.USERMODE_PCI="@USERMODE_PCI@"
 
@@ -176,15 +162,12 @@ class Config(object):
 	self.CXX = "@CXX@"
 	self.CXXFLAGS = "@CFLAGS@"
 	self.RANLIB = "@RANLIB@"
-	self.RANLIBFLAGS = "@RANLIBFLAGS@" 
 	self.MSGFMT = "@MSGFMT@"
 	self.XGETTEXT = "@XGETTEXT@"
-	self.PTH_CONFIG = "@PTH_CONFIG@"
 
 	self.BUILD_DOCS = "@BUILD_DOCS@"
 	self.BUILD_DOCS_PDF = "@BUILD_DOCS_PDF@"
 	self.BUILD_DOCS_HTML = "@BUILD_DOCS_HTML@"
-	self.LYX = "@LYX@"
 	self.PYTHON = "@PYTHON@"
 
 #

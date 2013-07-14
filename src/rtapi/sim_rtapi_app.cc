@@ -39,26 +39,34 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <getopt.h>
 #include <errno.h>
 #include <malloc.h>
+#include <assert.h>
+#include <syslog.h>
+#include <sys/ipc.h>		/* IPC_* */
+#include <sys/shm.h>		/* shmget() */
+#include <limits.h>
 
 #include <sys/mman.h>
 #include <execinfo.h>
 #include <sys/prctl.h>
-#if defined(RTAPI_XENOMAI_USER)
 #include <grp.h>
-#include <rtdk.h>
-#endif
 
 #include "rtapi.h"
+#include "rtapi_global.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
+#include "rtapi/shmdrv/shmdrv.h"
 
-extern "C" int sim_rtapi_run_threads(int fd);
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
+
+#define BACKTRACE_SIZE 1000
 
 using namespace std;
 
-#define SOCKET_PATH "\0/tmp/rtapi_fifo"
+// X will be replaced by '\0' post-snprintf
+#define SOCKET_PATH "X/tmp/rtapi_fifo:%d"
 
 /* Pre-allocation size. Must be enough for the whole application life to avoid
  * pagefaults by new memory requested from the system. */
@@ -73,37 +81,56 @@ template<class T> T DLSYM(void *handle, const char *name) {
 }
 
 static std::map<string, void*> modules;
-
-extern "C" int schedule(void) { return sched_yield(); }
-
-int my_msg_level = RTAPI_MSG_WARN;
-static int instance_count = 0;
-static int force_exit = 0;
-
 static struct rusage rusage;
 static unsigned long minflt, majflt;
+static int instance_id;
+flavor_ptr flavor;
+static int use_drivers = 0;
+static int foreground;
+static int force_exit = 0;
+int shmdrv_loaded;
+long page_size;
 
+// the following two variables, despite extern, are in fact private to rtapi_app
+// in the sense that they are not visible in the RT space (the namespace 
+// of dlopen'd modules); these are supposed to be 'ships in the night'
+// relative to any symbols exported by rtapi_app.
+//
+// global_data is set in attach_global_segment() which was already created by rtapi_msgd
+// rtapi_switch is set once rtapi.so has been loaded by calling the 
+// rtapi_get_handle() method in rtapi.so.
+// Once set, rtapi methods in rtapi.so can be called normally through
+// the rtapi_switch redirection (see rtapi.h).
+
+// NB: do _not_ call any rtapi_* methods before these variables are set
+// except for rtapi_msg* and friends (those do not go through the rtapi_switch).
+rtapi_switch_t *rtapi_switch;
+global_data_t *global_data; 
+
+static int init_actions(int instance);
+static void exit_actions(void);
+static int harden_rt(void);
 
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
     if(!module) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
-                "newinst: hal_lib is required, but not loaded\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+		  "newinst: hal_lib is required, but not loaded\n");
         return -1;
     }
 
     hal_comp_t *(*find_comp_by_name)(char*) =
         DLSYM<hal_comp_t*(*)(char *)>(module, "halpr_find_comp_by_name");
     if(!find_comp_by_name) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
-                "newinst: halpr_find_comp_by_name not found\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+		  "newinst: halpr_find_comp_by_name not found\n");
         return -1;
     }
 
     hal_comp_t *comp = find_comp_by_name((char*)type.c_str());
     if(!comp) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
-                "newinst: component %s not found\n", type.c_str());
+        rtapi_print_msg(RTAPI_MSG_ERR,
+		  "newinst: component %s not found\n", type.c_str());
         return -1;
     }
 
@@ -118,22 +145,22 @@ static int do_one_item(char item_type_char, const string &param_name, const stri
             litem[idx] = strtol(param_value.c_str(), &endp, 0);
 	    if(*endp) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                        "`%s' invalid for parameter `%s'",
-                        param_value.c_str(), param_name.c_str());
+			  "`%s' invalid for parameter `%s'",
+			  param_value.c_str(), param_name.c_str());
                 return -1;
             }
-            return 0;
+	    return 0;
         }
         case 'i': {
             int *iitem = *(int**) vitem;
             iitem[idx] = strtol(param_value.c_str(), &endp, 0);
 	    if(*endp) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                        "`%s' invalid for parameter `%s'",
-                        param_value.c_str(), param_name.c_str());
+			  "`%s' invalid for parameter `%s'",
+			  param_value.c_str(), param_name.c_str());
                 return -1;
             }
-            return 0;
+	    return 0;
         }
         case 's': {
             char **sitem = *(char***) vitem;
@@ -142,8 +169,8 @@ static int do_one_item(char item_type_char, const string &param_name, const stri
         }
         default:
             rtapi_print_msg(RTAPI_MSG_ERR,
-                    "%s: Invalid type character `%c'\n",
-                    param_name.c_str(), item_type_char);
+		      "%s: Invalid type character `%c'\n",
+		      param_name.c_str(), item_type_char);
             return -1;
         }
     return 0;
@@ -160,7 +187,7 @@ static int do_comp_args(void *module, vector<string> args) {
         size_t idx = s.find('=');
         if(idx == string::npos) {
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid paramter `%s'\n",
-                    s.c_str());
+		      s.c_str());
             return -1;
         }
         string param_name(s, 0, idx);
@@ -168,14 +195,14 @@ static int do_comp_args(void *module, vector<string> args) {
         void *item=DLSYM<void*>(module, "rtapi_info_address_" + param_name);
         if(!item) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unknown parameter `%s'\n", s.c_str());
+		      "Unknown parameter `%s'\n", s.c_str());
             return -1;
         }
         char **item_type=DLSYM<char**>(module, "rtapi_info_type_" + param_name);
         if(!item_type || !*item_type) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unknown parameter `%s' (type information missing)\n",
-                    s.c_str());
+		      "Unknown parameter `%s' (type information missing)\n",
+		      s.c_str());
             return -1;
         }
         string item_type_string = *item_type;
@@ -187,8 +214,8 @@ static int do_comp_args(void *module, vector<string> args) {
                     &a, &b, &item_type_char);
             if(r != 3) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "Unknown parameter `%s' (corrupt array type information): %s\n",
-                    s.c_str(), item_type_string.c_str());
+			  "Unknown parameter `%s' (corrupt array type information): %s\n",
+			  s.c_str(), item_type_string.c_str());
                 return -1;
             }
             size_t idx = 0;
@@ -196,8 +223,8 @@ static int do_comp_args(void *module, vector<string> args) {
             while(idx != string::npos) {
                 if(i == b) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
-                            "%s: can only take %d arguments\n",
-                            s.c_str(), b);
+			      "%s: can only take %d arguments\n",
+			      s.c_str(), b);
                     return -1;
                 }
                 size_t idx1 = param_value.find(",", idx);
@@ -218,14 +245,35 @@ static int do_comp_args(void *module, vector<string> args) {
 
 static int do_load_cmd(string name, vector<string> args) {
     void *w = modules[name];
+    char module_name[PATH_MAX];
+    void *module;
+
     if(w == NULL) {
-        char what[LINELEN+1];
-        snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
-        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
+		strncpy(module_name, (name + flavor->mod_ext).c_str(), PATH_MAX);
+
+        module = modules[name] = dlopen(module_name, RTLD_GLOBAL |RTLD_NOW);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
         }
+	// retrieve the address of rtapi_switch_struct
+	// so rtapi functions can be called and members
+	// access
+	if (rtapi_switch == NULL) {
+
+	    rtapi_get_handle_t rtapi_get_handle;
+    	    dlerror();
+	    rtapi_get_handle = (rtapi_get_handle_t) dlsym(module, "rtapi_get_handle");
+	    if (rtapi_get_handle != NULL) {
+		rtapi_switch = rtapi_get_handle();
+		assert(rtapi_switch != NULL);
+		rtapi_print_msg(RTAPI_MSG_DBG, 
+				"rtapi_app: handle:%d retrieved %s %s\n", 
+				instance_id,
+				rtapi_switch->thread_flavor_name,
+				rtapi_switch->git_version);
+	    }
+	}
 	/// XXX handle arguments
         int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
         if(!start) {
@@ -238,30 +286,31 @@ static int do_load_cmd(string name, vector<string> args) {
         if(result < 0) { dlclose(module); return -1; }
 
         if ((result=start()) < 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "%s: rtapi_app_main: %d\n", name.c_str(), result);
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app_main(%s): %d %s\n", 
+		      name.c_str(), result, strerror(-result));
 	    modules.erase(modules.find(name));
 	    return result;
-        } else {
-            instance_count ++;
-	    return 0;
         }
-    } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s: already exists\n", name.c_str());
-        return -1;
+	rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n",
+			name.c_str(), module_name);
+	return 0;
     }
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: already loaded\n", name.c_str());
+    return -1;
 }
 
 static int do_unload_cmd(string name) {
     void *w = modules[name];
     if(w == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
+        rtapi_print_msg(RTAPI_MSG_ERR, "unload: '%s' not loaded\n", name.c_str());
 	return -1;
     } else {
         int (*stop)(void) = DLSYM<int(*)(void)>(w, "rtapi_app_exit");
 	if(stop) stop();
 	modules.erase(modules.find(name));
         dlclose(w);
-        instance_count --;
+	rtapi_print_msg(RTAPI_MSG_DBG, " '%s' unloaded\n", 
+		  name.c_str());
     }
     return 0;
 }
@@ -321,12 +370,27 @@ static void write_strings(int fd, vector<string> strings) {
 static int handle_command(vector<string> args) {
     if(args.size() == 0) { return 0; }
     if(args.size() == 1 && args[0] == "exit") {
+	exit_actions(); // XXX FIXME child only
         force_exit = 1;
+        return 0;
+    } else if(args.size() == 1 && args[0] == "ping") {
         return 0;
     } else if(args.size() >= 2 && args[0] == "load") {
         string name = args[1];
         args.erase(args.begin());
         return do_load_cmd(name, args);
+    } else if(args.size() == 2 && args[0] == "rtlevel") {
+	global_data->rt_msg_level = atoi(args[1].c_str());
+	rtapi_set_msg_level(global_data->rt_msg_level);
+	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d RT msglevel set to %d\n",
+			instance_id, global_data->rt_msg_level);
+        return 0;
+    } else if(args.size() == 2 && args[0] == "usrlevel") {
+	global_data->user_msg_level = atoi(args[1].c_str());
+
+	rtapi_print_msg(RTAPI_MSG_DBG, "instance:%d User msglevel set to %d\n",
+			instance_id, global_data->user_msg_level);
+        return 0;
     } else if(args.size() == 2 && args[0] == "unload") {
         return do_unload_cmd(args[1]);
     } else if(args.size() == 3 && args[0] == "newinst") {
@@ -335,8 +399,8 @@ static int handle_command(vector<string> args) {
         return do_newinst_cmd(args[1], args[2], args[3]);
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                "Unrecognized command starting with %s\n",
-                args[0].c_str());
+		  "Unrecognized command starting with %s\n",
+		  args[0].c_str());
         return -1;
     }
 }
@@ -347,21 +411,213 @@ static int slave(int fd, vector<string> args) {
     }
     catch (WriteError &e) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "rtapi_app: failed to write to master: %s\n", strerror(errno));
+		  "rtapi_app: failed to write to master: %s\n", strerror(errno));
     }
 
     int result = read_number(fd);
     return result;
 }
 
-static int master(int fd, vector<string> args) {
-    dlopen(NULL, RTLD_GLOBAL);
-    do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
-    if(args.size()) { 
-        int result = handle_command(args);
-        if(result != 0) return result;
-        if(force_exit || instance_count == 0) return 0;
+// shut down the stack in proper order
+static void exit_actions()
+{
+    do_unload_cmd("hal_lib");
+    do_unload_cmd("rtapi");
+}
+
+static int init_actions(int instance)
+{
+    vector<string> args, noargs;
+    string arg;
+    char buff[100];
+    int retval;
+
+    args.push_back(string("rtapi"));
+    snprintf(buff, sizeof(buff), "rtapi_instance=%d", instance);
+    args.push_back(string(buff));
+
+    retval =  do_load_cmd("rtapi", args);
+    if (retval)
+	return retval;
+    return do_load_cmd("hal_lib", noargs);
+}
+
+
+static int attach_global_segment()
+{
+    int retval = 0;
+    int globalkey = OS_KEY(GLOBAL_KEY, instance_id);
+    int size = 0;
+
+    shm_common_init();
+
+    retval = shm_common_new(globalkey, &size,
+			    instance_id, (void **) &global_data, 0);
+    if (retval < 0) {
+	syslog(LOG_ERR, "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
+	       instance_id, globalkey, strerror(-retval));
     }
+    if (size != sizeof(global_data_t)) {
+	syslog(LOG_ERR, "rt:%d global segment size mismatch: expect %d got %d\n", 
+	       instance_id, sizeof(global_data_t), size);
+	return -EINVAL;
+    }
+    return retval;
+}
+
+// write child return value through pipe to parent
+// used only on first run of rtapi_app, but thats where
+// all the heavy lifting happens and we want to make sure
+// setup succeeded before continuing scripts/realtime
+// so parent blocks on reading from the result pipe
+
+static void write_exitcode(int fd, int value)
+{
+    if (foreground)
+	// no parent/child pipe in place
+	return;
+
+    if (write(fd, &value, sizeof(value)) != sizeof(value)) {
+	fprintf(stderr, "rtapi_app:%d write to status pipe failed: %s\n",
+		instance_id, strerror(errno));
+    }
+    close(fd);
+}
+
+static char proctitle[20];
+
+static int master(size_t  argc, char **argv, int fd, vector<string> args) {
+
+    int retval;
+    unsigned i;
+
+    // make parent wait and read status from child via a pipe on initial run
+    // in case anything goes wrong in setting up the RT stack
+    int statuspipe[2];
+
+    if (pipe (statuspipe)) {
+	fprintf (stderr, "%s: pipe() failed: %s\n", argv[0], strerror(errno));
+	return EXIT_FAILURE;
+    }
+
+    if (!foreground) {
+	pid_t pid = fork();
+	if (pid > 0) { // parent
+	    int exitcode;
+
+	    close(statuspipe[1]);  // write side not needed
+
+	    // read return value from statuspipe[0] and exit() that value
+	    if (read(statuspipe[0],&exitcode,sizeof(exitcode)) != sizeof(exitcode)) {
+		fprintf (stderr, "%s:%d parent: reading from result pipe failed: %s\n", 
+			 argv[0], instance_id, strerror(errno));
+		return EXIT_FAILURE;
+	    }
+	    exit(exitcode);
+	}
+	if (pid < 0) { // fork failed
+	    perror("fork");
+	    exit(1);
+	}
+    }
+
+    // child
+    close(statuspipe[0]);  // read side not needed in child
+
+    // set new process name
+    snprintf(proctitle, sizeof(proctitle), "rtapi:%d",instance_id);
+    size_t argv0_len = strlen(argv[0]);
+    size_t procname_len = strlen(proctitle);
+    size_t max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
+
+    strncpy(argv[0], proctitle, max_procname_len);
+    memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
+
+    for (i = 1; i < argc; i++)
+	memset(argv[i], '\0', strlen(argv[i]));
+
+    // attach global segment which rtapi_msgd already prepared
+    if ((retval = attach_global_segment()) != 0) {
+	fprintf(stderr, "%s: FATAL - failed to attach to global segment\n", argv[0]);
+	write_exitcode(statuspipe[1], 1);
+	exit(retval);
+    }
+
+    // make sure rtapi_msgd's pid is valid and msgd is running, in case we caught a leftover shmseg
+    // otherwise log messages would vanish - kinda hard to diagnose errors that way
+    if ((global_data->rtapi_msgd_pid == 0) ||
+	kill(global_data->rtapi_msgd_pid, 0) != 0) {
+	fprintf(stderr,"%s: rtapi_msgd pid invalid: %d, exiting\n",
+		argv[0], global_data->rtapi_msgd_pid);
+	write_exitcode(statuspipe[1], 2);
+	exit(EXIT_FAILURE);
+    }
+
+    // from here on it is safe to use rtapi_print() and friends as the error ring
+    // is now set up and msgd is logging it
+    rtapi_set_logtag("rtapi_app");
+    rtapi_set_msg_level(global_data->rt_msg_level);
+    rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d gcc=%s git=%s", 
+		    instance_id, getpid(), __VERSION__, GIT_VERSION);
+
+    // obtain handle on flavor descriptor as detected by rtapi_msgd
+    flavor = flavor_byid(global_data->rtapi_thread_flavor);
+    if (flavor == NULL) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d FATAL - invalid flavor id: %d\n",
+			instance_id, global_data->rtapi_thread_flavor);
+	write_exitcode(statuspipe[1], 3);
+	exit(EXIT_FAILURE);
+    }
+
+    // make sure we're setuid root when we need to
+    if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && !getuid()) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d need to 'sudo make setuid' to access I/O?\n", 
+			instance_id);
+	write_exitcode(statuspipe[1], 4);
+	exit(EXIT_FAILURE);
+    }
+
+    // assorted RT incantations - memory locking, prefaulting etc
+    if ((retval = harden_rt())) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d failed to setup realtime environment - 'sudo make setuid' missing?\n", 
+			instance_id);
+	write_exitcode(statuspipe[1], 5);
+	exit(retval);
+    }
+
+    // load rtapi and hal_lib
+    if (init_actions(instance_id)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: init_actions() failed\n", instance_id);
+	write_exitcode(statuspipe[1], 6);
+	exit(1);
+    }
+
+    // the RT stack is now set up and good for use
+    global_data->rtapi_app_pid = getpid();
+
+    // execute any command if there was one on the initial command line
+    if (args.size()) {
+        int result = handle_command(args);
+        if (result != 0) {
+	    write_exitcode(statuspipe[1], result);
+	    return result;
+	}
+        if (force_exit) {
+	    write_exitcode(statuspipe[1], result);
+	    return 0;
+	}
+    }
+
+    // report success
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app:%d initialization complete\n", instance_id);
+
+    // and unblock the waiting parent process so script/realtime continues
+    write_exitcode(statuspipe[1], 0);
+
+    // serve requests on the command socket
     do {
         struct sockaddr_un client_addr;
         memset(&client_addr, 0, sizeof(client_addr));
@@ -377,7 +633,7 @@ static int master(int fd, vector<string> args) {
                 result = handle_command(read_strings(fd1));
             } catch (ReadError &e) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "rtapi_app: failed to read from slave: %s\n", strerror(errno));
+			  "rtapi_app: failed to read from slave: %s\n", strerror(errno));
                 close(fd1);
                 continue;
             }
@@ -385,11 +641,14 @@ static int master(int fd, vector<string> args) {
             write_number(buf, result);
             if(write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-                    "rtapi_app: failed to write to slave: %s\n", strerror(errno));
+			  "rtapi_app: failed to write to slave: %s\n", strerror(errno));
             };
             close(fd1);
         }
-    } while(!force_exit && instance_count > 0);
+    } while(!force_exit);
+
+    // exiting, so deregister our pid
+    global_data->rtapi_app_pid = 0;
 
     return 0;
 }
@@ -398,30 +657,33 @@ static int configure_memory(void) {
 	unsigned int i, pagesize;
 	char *buf;
 
-#ifndef RTAPI_POSIX  // Realtime tweak requires privs
-	/* Lock all memory. This includes all current allocations (BSS/data)
-	 * and future allocations. */
-	if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
-	    rtapi_print_msg(RTAPI_MSG_WARN, 
-			    "rtapi_app_main: mlockall() failed: %d '%s'\n",
-			    errno,strerror(errno)); 
-	    return 1;
+	if (global_data->rtapi_thread_flavor != RTAPI_POSIX_ID) {
+	    // Realtime tweak requires privs
+	    /* Lock all memory. This includes all current allocations (BSS/data)
+	     * and future allocations. */
+	    if (mlockall(MCL_CURRENT | MCL_FUTURE)) {
+		rtapi_print_msg(RTAPI_MSG_WARN, 
+				"mlockall() failed: %d '%s'\n",
+				errno,strerror(errno)); 
+		return 1;
+	    }
 	}
-#endif
 
 	/* Turn off malloc trimming.*/
 	if (!mallopt(M_TRIM_THRESHOLD, -1)) {
-	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: mallopt(M_TRIM_THRESHOLD, -1) failed\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+		      "mallopt(M_TRIM_THRESHOLD, -1) failed\n");
 	    return 1;
 	}
 	/* Turn off mmap usage. */
 	if (!mallopt(M_MMAP_MAX, 0)) {
-	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: mallopt(M_MMAP_MAX, -1) failed\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+		      "mallopt(M_MMAP_MAX, -1) failed\n");
 	    return 1;
 	}
 	buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
 	if (buf == NULL) {
-	    rtapi_print_msg(RTAPI_MSG_WARN, "rtapi_app_main: malloc(PRE_ALLOC_SIZE) failed\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
 	    return 1;
 	}
 	pagesize = sysconf(_SC_PAGESIZE);
@@ -444,24 +706,43 @@ static int configure_memory(void) {
 	return 0;
 }
 
-void backtrace_handler(int sig, siginfo_t *si, void *uctx)
+// this is called on signals handled by rtapi_app only (SEGV SIGILL SIGFPE)
+// SIGXCPU (xenomai) is handled in the Xenomai rtapi
+extern "C" void 
+backtrace_handler(int sig, siginfo_t *si, void *uctx)
 {
-    void *bt[32];
-    int nentries;
- 
-#if defined(RTAPI_XENOMAI_USER)
-    if (sig == SIGXCPU) 
-	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app %d: Xenomai switched RT task to secondary domain\n",
-			getpid());
-    else
-#endif
-	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app %d: signal %d - '%s' received\n",
-			getpid(), sig, strsignal(sig));
+    void *buffer[BACKTRACE_SIZE];
+    int j, nptrs;
+    char **strings;
 
-    nentries = backtrace(bt,sizeof(bt) / sizeof(bt[0]));
-    backtrace_symbols_fd(bt,nentries,fileno(stderr));
-    if (sig != SIGXCPU)
-	abort();
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: signal %d - '%s' received\n",
+		    instance_id, sig, strsignal(sig));
+
+    nptrs = backtrace(buffer, BACKTRACE_SIZE);
+
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"backtrace_symbols(): %s",
+		  strerror(errno));
+    } else {
+	for (j = 0; j < nptrs; j++) {
+	    char *s =  strings[j];
+	    if (s && strlen(s)) 
+		rtapi_print_msg(RTAPI_MSG_ERR,"%s", s);
+	}
+	free(strings);
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d exiting%s", 
+	      instance_id,
+	      sig == SIGSEGV ? ", core dumped" : "");
+
+    if (global_data)
+	global_data->rtapi_app_pid = 0;
+
+    if (sig == SIGSEGV) {
+	sleep(1); // let syslog drain or we might loose
+      	abort();  // some important stuff
+    }
     exit(sig);
 }
 
@@ -469,57 +750,69 @@ static void
 exit_handler(void)
 {
     struct rusage rusage;
-	
+
     getrusage(RUSAGE_SELF, &rusage);
-    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
-		    getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+    if ((rusage.ru_majflt - majflt) > 0) {
+	// RTAPI already shut down here
+	rtapi_print_msg(RTAPI_MSG_WARN,
+			"rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
+			getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+    }
 }
 
-int main(int argc, char **argv) 
+int xenomai_gid()
 {
-    char *s;
-    struct sigaction sig_act;
+    FILE *fd;
+    int gid = -1;
 
-    
-    if ((s = getenv("MSGLEVEL")) != NULL) {
-	my_msg_level = atoi(s);
-	rtapi_set_msg_level(my_msg_level);
+    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
+	if (fscanf(fd, "%d", &gid) < 1)
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "rtapi_app:%d failed to read group id from %s\n",
+			    instance_id, XENO_GID_SYSFS);
+	fclose(fd);
     }
+    return gid;
+}
+
+static int harden_rt()
+{
+    struct sigaction sig_act;
 
     // enable core dumps
     struct rlimit core_limit;
     core_limit.rlim_cur = RLIM_INFINITY;
     core_limit.rlim_max = RLIM_INFINITY;
-    
+
     if (setrlimit(RLIMIT_CORE, &core_limit) < 0)
 	rtapi_print_msg(RTAPI_MSG_WARN, 
-			"rtapi_app_main: setrlimit: %s - core dumps may be truncated or non-existant\n",
-			strerror(errno));
+		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
+		  strerror(errno));
 
     // even when setuid root
     if (prctl(PR_SET_DUMPABLE, 1) < 0)
 	rtapi_print_msg(RTAPI_MSG_WARN, 
-			"prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
-			errno, strerror(errno));
+		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
+		  errno, strerror(errno));
 
-    configure_memory();    
+    configure_memory();
 
     if (getrusage(RUSAGE_SELF, &rusage)) {
 	rtapi_print_msg(RTAPI_MSG_WARN, 
-			"rtapi_app_main: getrusage(RUSAGE_SELF) failed: %d '%s'\n",
-			errno,strerror(errno)); 
+		  "getrusage(RUSAGE_SELF) failed: %d '%s'\n",
+		  errno,strerror(errno)); 
     } else {
 	minflt = rusage.ru_minflt;
 	majflt = rusage.ru_majflt;
-
 	if (atexit(exit_handler)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN, 
-			    "rtapi_app_main: atexit() failed: %d '%s'\n",
-			    errno,strerror(errno)); 
+		      "atexit() failed: %d '%s'\n",
+		      errno,strerror(errno)); 
 	}
     }
 
-    setsid(); // Detach from the parent session
+    if (!foreground)
+	setsid(); // Detach from the parent session
 
     sigemptyset( &sig_act.sa_mask );
     sig_act.sa_handler = SIG_IGN; 
@@ -535,59 +828,171 @@ int main(int argc, char **argv)
     sigaction(SIGILL,  &sig_act, (struct sigaction *) NULL);
     sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
 
-#if defined(RTAPI_XENOMAI_USER)
-    // check if this user is member of group xenomai, and fail miserably if not
-    int numgroups;
-    gid_t *grouplist;
+    if (flavor->id == RTAPI_XENOMAI_ID) {
+	int numgroups;
+	gid_t *grouplist;
 
-    struct group *gp = getgrnam("xenomai");
-    if (gp == NULL) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_app_main: the group 'xenomai' does not exist - xenomai userland support missing?\n");
-	exit(1);
-    }
-    numgroups = getgroups(0,NULL);
-    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
-    if (getgroups( numgroups, grouplist) != -1) {
-	for (int i = 0; i < numgroups; i++) {
-	    if (grouplist[i] == gp->gr_gid) {
-		free(grouplist);
-		goto is_xenomai_member;
-	    }
+	int gid = xenomai_gid();
+	if (gid < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "couldnt determine xenomai group id from %s\n",
+			    XENO_GID_SYSFS);
+	    return -1;
 	}
-    } else {
+
+	numgroups = getgroups(0,NULL);
+	grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
+	if (getgroups( numgroups, grouplist) != -1) {
+	    for (int i = 0; i < numgroups; i++) {
+		if (grouplist[i] == (unsigned) gid) {
+		    free(grouplist);
+		    goto is_xenomai_member;
+		}
+	    }
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "getgroups() failed: %d - %s\n",
+			    errno, strerror(errno));
+	    return -1;
+	}
+	rtapi_print_msg(RTAPI_MSG_ERR,"this user is not member of group xenomai");
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_app_main: getgroups() failed: %d - %s\n",
-			errno, strerror(errno));
-	exit(1);
+			"please 'sudo adduser <username>  xenomai', logout and login again");
+	return -1;
+
+    is_xenomai_member:
+	;
     }
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "rtapi_app_main: this user is not member of group xenomai\n"
-		    "please 'sudo adduser <username>  xenomai', logout and login again\n");
-    exit(1);
 
- is_xenomai_member:
-    sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL);
-    rt_print_auto_init(1);
-#endif
-
-#if defined(BUILD_DRIVERS) && (defined(__x86_64) || defined(i386))
+#if defined(__x86_64) || defined(i386)
 
     // this is a bit of a shotgun approach and should be made more selective
     // however, due to serial invocations of rtapi_app during setup it is not
     // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
     // the same process which starts the RT threads, causing hal_parport
     // thread functions to fail on inb/outb
-
-    if (iopl(3) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_app: cannot gain I/O privileges - forgot 'sudo make setuid'?\n");
-	return -EPERM;
+    if (use_drivers || (flavor->flags & FLAVOR_DOES_IO)) {
+	if (iopl(3) < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "cannot gain I/O privileges - forgot 'sudo make setuid'?\n");
+	    return -EPERM;
+	}
     }
 #endif
+    return 0;
+}
+
+// normally rtapi_app will log through the message ringbuffer in the
+// global data segment. This isnt available initially, and during shutdown,
+// so switch to direct syslog during these time windows so we dont
+// loose log messages, even if they cant go through the ringbuffer
+void rtapi_app_msg_handler(msg_level_t level, const char *fmt,
+				va_list ap) {
+    // during startup the global segment might not be
+    // available yet, so use stderr until then
+    if (global_data) {
+	vs_ring_write(level, fmt, ap);
+    } else {
+	vsyslog(rtapi2syslog(level), fmt, ap);
+    }
+}
+
+// use this handler if -F/--foreground was given
+void stderr_rtapi_msg_handler(msg_level_t level, const char *fmt,
+				  va_list ap) {
+    vfprintf(stderr, fmt, ap);
+}
+
+static void usage(int argc, char **argv) 
+{
+    printf("Usage:  %s [options]\n", argv[0]);
+}
+
+static struct option long_options[] = {
+    {"help",  no_argument,          0, 'h'},
+    {"foreground",  no_argument,    0, 'F'},
+    {"instance", required_argument, 0, 'I'},
+    {"drivers",   required_argument, 0, 'D'},
+    {0, 0, 0, 0}
+};
+
+int main(int argc, char **argv)
+{
+    struct sockaddr_un addr = { AF_UNIX, "" };
+    int c;
+
+    rtapi_set_msg_handler(rtapi_app_msg_handler);
+    openlog(argv[0], LOG_NDELAY, LOG_LOCAL1);
+    setlogmask(LOG_UPTO(LOG_DEBUG));
+
+    while (1) {
+	int option_index = 0;
+	int curind = optind;
+	c = getopt_long (argc, argv, "hH:m:I:f:r:u:NF",
+			 long_options, &option_index);
+	if (c == -1)
+	    break;
+
+	switch (c)	{
+
+	case 'D':
+	    use_drivers = 1;
+	    break;
+
+	case 'F':
+	    foreground = 1;
+	    rtapi_set_msg_handler(stderr_rtapi_msg_handler);
+	    break;
+
+	case 'I':
+	    instance_id = atoi(optarg);
+	    break;
+
+	case 'f':
+	    if ((flavor = flavor_byname(optarg)) == NULL) {
+		fprintf(stderr, "no such flavor: '%s' -- valid flavors are:\n", optarg);
+		flavor_ptr f = flavors;
+		while (f->name) {
+		    fprintf(stderr, "\t%s\n", f->name);
+		    f++;
+		}
+		exit(1);
+	    }
+	    break;
+
+	case '?':
+	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
+	    else  fprintf(stderr, "bad long opt \"%s\"\n", argv[curind]);
+	    //usage(argc, argv);
+	    exit(1);
+	    break;
+
+	default:
+	    usage(argc, argv);
+	    exit(0);
+	}
+    }
+#if 0
+    if (flavor == NULL)
+	flavor = default_flavor();
+    assert(flavor != NULL);
+
+    if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && !getuid()) {
+	fprintf(stderr, "rtapi_app: need to 'sudo make setuid' to access I/O\n");
+	exit(1);
+    }
+#endif
+    snprintf(addr.sun_path, sizeof(addr.sun_path), 
+	     SOCKET_PATH, instance_id);
+    addr.sun_path[0] = '\0';
 
     vector<string> args;
-    for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
+    if (optind < argc) {
+	while (optind < argc) {
+	    args.push_back(string(argv[optind++]));
+	}
+    }
+
 
 become_master:
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
@@ -595,16 +1000,21 @@ become_master:
 
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
-    struct sockaddr_un addr = { AF_UNIX, SOCKET_PATH };
+    //struct sockaddr_un addr = { AF_UNIX, socket_path };
     int result = bind(fd, (sockaddr*)&addr, sizeof(addr));
 
+    // if the bind succeeded, nobody is listening on the socket,
+    // so become master
     if(result == 0) {
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
-        result = master(fd, args);
+        result = master(argc, argv, fd, args);
         unlink(SOCKET_PATH);
+	rtapi_print_msg(RTAPI_MSG_INFO, "master:%d exit %d\n", 
+		  instance_id, result);
         return result;
     } else if(errno == EADDRINUSE) {
+	// the master is already running, so become slave
         struct timeval t0, t1;
         gettimeofday(&t0, NULL);
         gettimeofday(&t1, NULL);
@@ -617,13 +1027,18 @@ become_master:
         }
         if(result < 0 && errno == ECONNREFUSED) { 
             unlink(SOCKET_PATH);
-            fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, 
+			    "slave:%d:  Waited 3 seconds for master.  giving up.",
+			    instance_id);
             close(fd);
             goto become_master;
         }
         if(result < 0) { perror("connect"); exit(1); }
         return slave(fd, args);
     } else {
+	rtapi_print_msg(RTAPI_MSG_WARN, 
+		   "instance:%d:  bind failed: %s", 
+		   instance_id, strerror(errno));
         perror("bind"); exit(1);
     }
 }

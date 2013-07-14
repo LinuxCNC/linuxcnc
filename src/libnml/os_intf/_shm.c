@@ -12,6 +12,7 @@
 *
 * Last change: 
 ********************************************************************/
+extern int instance_no; // exported from cms.cc
 
 #include "_shm.h"
 #include "rcs_print.hh"
@@ -89,9 +90,9 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
     shm->size = size;
 #ifdef POSIX_SHMEM_NAME_PREFIX
     strncpy(shm->name, POSIX_SHMEM_NAME_PREFIX, 64);
-    sprintf(shm->name + strlen(shm->name), "/rcs_shm%d", key);
+    sprintf(shm->name + strlen(shm->name), "/rcs_shm%d-%d", key,instance_no);
 #else
-    sprintf(shm->name, "/rcs_shm%d", key);
+    sprintf(shm->name, "/rcs_shm%d-%d", key,instance_no);
 #endif
 
     shm->id = 0;
@@ -196,12 +197,14 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
     }
     shm->create_errno = 0;
     shm->addr = NULL;
+
+    key += instance_no * 1000;
     shm->key = key;
     errno = 0;
 
     shm->size = size;
-
-    if ((shm->id = shmget(key, (int) size, shmflg)) == -1) {
+    //fprintf(stderr, "rcs_shm_open _shm key=%d instance_no=%d\n", key, instance_no);
+    if ((shm->id = shmget(key , (int) size, shmflg)) == -1) {
 	shm->create_errno = errno;
 	rcs_print_error("shmget(%d(0x%X),%zd,%d) failed: (errno = %d): %s\n",
 	    key, key, size, shmflg, errno, strerror(errno));

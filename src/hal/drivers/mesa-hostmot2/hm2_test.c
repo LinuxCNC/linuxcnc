@@ -27,7 +27,7 @@
 
 #include "config.h"
 
-#if defined(USERMODE_PCI)
+#if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
 #include <sys/io.h>
 #include <rtapi.h>
 #include <rtapi/rtapi_pci.h>

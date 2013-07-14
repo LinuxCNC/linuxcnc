@@ -1,1 +1,1 @@
-../PIN_NAME_REGEX.names
+er[0-9]\.enable([[:space:]].*$|$)

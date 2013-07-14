@@ -3,12 +3,17 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
+#ifdef BUILD_SYS_USER_DSO
+#include <execinfo.h>           /* backtrace(), backtrace_symbols() */
+#endif
+
 #ifndef MODULE
 #include <stdlib.h>		/* strtol() */
 #endif
 
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 #include <stdio.h>		/* putchar */
+#include <execinfo.h>           /* backtrace(), backtrace_symbols() */
 #endif
 
 
@@ -30,12 +35,144 @@ rtapi_data_t *rtapi_data = &local_rtapi_data;
 task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
+ring_data *ring_array = local_rtapi_data.ring_array;
 #else
 rtapi_data_t *rtapi_data = NULL;
 task_data *task_array = NULL;
 shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
+ring_data *ring_array = NULL;
 #endif
+
+// in the RTAPI scenario,  
+// global_data is exported by instance.ko and referenced
+// by rtapi.ko and hal_lib.ko
+
+// in ULAPI, we have only hal_lib which calls 'down'
+// onto ulapi.so to init, so in this case global_data
+// is exported by hal_lib and referenced by ulapi.so
+
+extern global_data_t *global_data;
+
+/* 
+   define the rtapi_switch struct, with pointers to all rtapi_*
+   functions
+
+   ULAPI doesn't define all functions, so for missing functions point
+   to the dummy function _rtapi_dummy() in hopes of more graceful
+   failure
+*/
+
+int _rtapi_dummy(void) {
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "Error:  _rtapi_dummy function called from rtapi_switch; "
+		    "this should never happen!");
+    return -EINVAL;
+}
+
+static rtapi_switch_t rtapi_switch_struct = {
+    .git_version = GIT_VERSION,
+    .thread_flavor_name = THREAD_FLAVOR_NAME,
+    .thread_flavor_id = THREAD_FLAVOR_ID,
+    // init & exit functions
+    .rtapi_init = &_rtapi_init,
+    .rtapi_exit = &_rtapi_exit,
+    .rtapi_next_module_id = &_rtapi_next_module_id,
+    // messaging functions moved to instance,
+    // implemented in rtapi_support.c
+    // time functions
+#ifdef RTAPI
+    .rtapi_clock_set_period = &_rtapi_clock_set_period,
+    .rtapi_delay = &_rtapi_delay,
+    .rtapi_delay_max = &_rtapi_delay_max,
+#else
+    .rtapi_clock_set_period = &_rtapi_dummy,
+    .rtapi_delay = &_rtapi_dummy,
+    .rtapi_delay_max = &_rtapi_dummy,
+#endif
+    .rtapi_get_time = &_rtapi_get_time,
+    .rtapi_get_clocks = &_rtapi_get_clocks,
+    // task functions
+    .rtapi_prio_highest = &_rtapi_prio_highest,
+    .rtapi_prio_lowest = &_rtapi_prio_lowest,
+    .rtapi_prio_next_higher = &_rtapi_prio_next_higher,
+    .rtapi_prio_next_lower = &_rtapi_prio_next_lower,
+#ifdef RTAPI
+    .rtapi_task_new = &_rtapi_task_new,
+    .rtapi_task_delete = &_rtapi_task_delete,
+    .rtapi_task_start = &_rtapi_task_start,
+    .rtapi_wait = &_rtapi_wait,
+    .rtapi_task_resume = &_rtapi_task_resume,
+    .rtapi_task_pause = &_rtapi_task_pause,
+    .rtapi_task_self = &_rtapi_task_self,
+#else
+    .rtapi_task_new = &_rtapi_dummy,
+    .rtapi_task_delete = &_rtapi_dummy,
+    .rtapi_task_start = &_rtapi_dummy,
+    .rtapi_wait = &_rtapi_dummy,
+    .rtapi_task_resume = &_rtapi_dummy,
+    .rtapi_task_pause = &_rtapi_dummy,
+    .rtapi_task_self = &_rtapi_dummy,
+#endif
+    // shared memory functions
+    .rtapi_shmem_new = &_rtapi_shmem_new,
+    .rtapi_shmem_new_inst = &_rtapi_shmem_new_inst,
+
+    .rtapi_shmem_delete = &_rtapi_shmem_delete,
+    .rtapi_shmem_delete_inst = &_rtapi_shmem_delete_inst,
+
+    .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
+    .rtapi_shmem_getptr_inst = &_rtapi_shmem_getptr_inst,
+
+    // ringbuffer functions
+    .rtapi_ring_new = &_rtapi_ring_new,
+    .rtapi_ring_attach = &_rtapi_ring_attach,
+    .rtapi_ring_detach = &_rtapi_ring_detach,
+
+#ifdef RTAPI
+    .rtapi_set_exception = &_rtapi_set_exception,
+#else
+    .rtapi_set_exception = &_rtapi_dummy,
+#endif
+    .rtapi_backtrace = &_rtapi_backtrace,
+
+};
+
+// any API, any style:
+rtapi_switch_t *rtapi_get_handle(void) {
+    return &rtapi_switch_struct;
+}
+#ifdef RTAPI
+EXPORT_SYMBOL(rtapi_get_handle);
+#endif
+
+#if defined(BUILD_SYS_KBUILD)
+int shmdrv_loaded = 1;  // implicit
+#else
+int shmdrv_loaded;  // set in rtapi_app_main, and ulapi_main
+#endif
+long page_size;     // set in rtapi_app_main
+
+void rtapi_autorelease_mutex(void *variable)
+{
+    if (rtapi_data != NULL)
+	rtapi_mutex_give(&(rtapi_data->mutex));
+    else 
+	// programming error
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_autorelease_mutex: rtapi_data == NULL!\n");
+}
+
+// in the RTAPI scenario,
+// global_data is exported by instance.ko and referenced
+// by rtapi.ko and hal_lib.ko
+
+// in ULAPI, we have only hal_lib which calls 'down'
+// onto ulapi.so to init, so in this case global_data
+// is exported by hal_lib and referenced by ulapi.so
+
+extern global_data_t *global_data;
+
 
 /* global init code */
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
@@ -55,8 +192,10 @@ void init_rtapi_data(rtapi_data_t * data)
     rtapi_mutex_try(&(data->mutex));
     /* set magic number so nobody else init's the block */
     data->magic = RTAPI_MAGIC;
-    /* set version code so other modules can check it */
-    data->rev_code = REV_CODE;
+    /* set version code and flavor ID so other modules can check it */
+    data->serial = RTAPI_SERIAL;
+    data->thread_flavor_id = THREAD_FLAVOR_ID;
+    data->ring_mutex = 0;
     /* and get busy */
     data->rt_module_count = 0;
     data->ul_module_count = 0;
@@ -81,9 +220,14 @@ void init_rtapi_data(rtapi_data_t * data)
 	data->shmem_array[n].rtusers = 0;
 	data->shmem_array[n].ulusers = 0;
 	data->shmem_array[n].size = 0;
-	for (m = 0; m < (RTAPI_MAX_SHMEMS / 8) + 1; m++) {
+	for (m = 0; m < _BITS_TO_LONGS(RTAPI_MAX_SHMEMS +1); m++) {
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
+    }
+    for (n = 0; n <= RTAPI_MAX_RINGS; n++) {
+	data->ring_array[n].magic = 0;
+	data->ring_array[n].key = 0;
+	data->ring_array[n].owner = 0;
     }
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK
     init_rtapi_data_hook(data);
@@ -94,6 +238,127 @@ void init_rtapi_data(rtapi_data_t * data)
     return;
 }
 
+/***********************************************************************
+*                           RT scheduling exception handling           *
+************************************************************************/
+
+#define MAX_RT_ERRORS 10
+
+// this default handler just writes to the log
+// for a more intelligent way to handle RT faults, see
+// hal/components/rtmon.comp which uses rtapi_set_exception(handler)
+// to override this default handler during module lifetime
+
+int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
+{
+    static int error_printed = 0;
+    int level = (error_printed == 0) ? RTAPI_MSG_ERR : RTAPI_MSG_WARN;
+
+    // apply output policy in one place only.
+    switch (cause) {
+
+    case RTAI_RTE_TMROVRN:
+    case RTAI_RTE_UNBLKD:
+    case RTAI_RTE_UNCLASSIFIED:
+    case XK_ETIMEDOUT:
+    case XU_ETIMEDOUT:
+    case RTP_DEADLINE_MISSED:
+
+	if (error_printed < MAX_RT_ERRORS)
+	    rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
+			    rtapi_instance, cause, param, msg);
+	error_printed++;
+	if (error_printed == MAX_RT_ERRORS)
+	    rtapi_print_msg(RTAPI_MSG_WARN,
+			    "RTAPI: (further messages will be suppressed)\n");
+	break;
+
+    case RTAI_TRAP:
+    case XK_TRAP:
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:%d %d:%d %s", 
+			rtapi_instance, cause, param, msg);
+	break;
+
+    case XK_EWOULDBLOCK:
+    case XK_EINTR:
+    case XK_EPERM:
+    case XK_OTHER:
+    case XU_SIGXCPU:
+    case XU_EWOULDBLOCK:
+    case XU_EINTR:
+    case XU_EPERM:
+    case XU_OTHER:
+    case RTP_SIGNAL:
+    default:
+	rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
+		    rtapi_instance, cause, param, msg);
+	error_printed++;
+    }
+    return 0;
+}
+
+rtapi_exception_handler_t rt_exception_handler = rtapi_default_rt_exception_handler;
+
+// may override default exception handler
+rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
+{
+    rtapi_exception_handler_t previous = rt_exception_handler;
+    rt_exception_handler = h;
+    return previous;
+}
+
+// defined and initialized in rtapi_module.c (kthreads), rtapi_main.c (userthreads)
+extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
+
+int  _rtapi_next_module_id(void) 
+{
+    int next_id;
+
+    // TODO: replace by atomic inrement-and-get
+    // once rtapi_atomic.h has been merged
+    rtapi_mutex_try(&(global_data->mutex));
+    next_id = global_data->next_module_id++;
+    rtapi_mutex_give(&(global_data->mutex));
+    return next_id;
+}
+
+
+/* the chance to output threadsystem specific detail to the log */
+#ifdef HAVE_RTAPI_BACKTRACE_HOOK
+int _rtapi_backtrace_hook(int msglevel);
+#endif
+
+#define BACKTRACE_SIZE 1000
+
+void _rtapi_backtrace(int msglevel)
+{
+#ifdef HAVE_RTAPI_BACKTRACE_HOOK
+    _rtapi_backtrace_hook(msglevel);
+#endif
+#if defined(BUILD_SYS_KBUILD) && defined(RTAPI)
+    dump_stack();
+#endif
+#if defined(ULAPI) || (defined(BUILD_SYS_USER_DSO) && defined(RTAPI))
+    void *buffer[BACKTRACE_SIZE];
+    int j, nptrs;
+    char **strings;
+
+    nptrs = backtrace(buffer, BACKTRACE_SIZE);
+
+    strings = backtrace_symbols(buffer, nptrs);
+    if (strings == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"backtrace_symbols(): %s",
+		  strerror(errno));
+    } else {
+	for (j = 0; j < nptrs; j++) {
+	    char *s =  strings[j];
+	    if (s && strlen(s))
+		rtapi_print_msg(msglevel, "%s", s);
+	}
+	free(strings);
+    }
+#endif
+}
 
 /* simple_strtol defined in
    /usr/src/kernels/<kversion>/include/linux/kernel.h */
@@ -110,7 +375,7 @@ long int simple_strtol(const char *nptr, char **endptr, int base) {
 
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 /*  This function is disabled everywhere...  */
-void rtapi_printall(void) {
+void _rtapi_printall(void) {
     module_data *modules;
     task_data *tasks;
     shmem_data *shmems;
@@ -124,8 +389,10 @@ void rtapi_printall(void) {
 		    rtapi_data);
     rtapi_print_msg(RTAPI_MSG_DBG, "  magic = %d\n",
 		    rtapi_data->magic);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  rev_code = %08x\n",
-		    rtapi_data->rev_code);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  serial = %d\n",
+		    rtapi_data->serial);
+    rtapi_print_msg(RTAPI_MSG_DBG, "  thread_flavor id = %d\n",
+		    rtapi_data->thread_flavor_id);
     rtapi_print_msg(RTAPI_MSG_DBG, "  mutex = %lu\n",
 		    rtapi_data->mutex);
     rtapi_print_msg(RTAPI_MSG_DBG, "  rt_module_count = %d\n",

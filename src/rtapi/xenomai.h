@@ -1,20 +1,8 @@
 /********************************************************************
-* Description:  xenomai-user.h
+* Description:  xenomai.h
 *               This file defines the differences specific to the
 *               the Xenomai user land thread system
 ********************************************************************/
-
-#include <native/task.h>	/* RT_TASK, rt_task_*() */
-#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
-
-
-/* rtapi_common.h */
-#define REV_CODE 3
-
-/* this needs to be fixed
-#undefine RTAPI_NAME_LEN
-#define RTAPI_NAME_LEN XNOBJECT_NAME_LEN
-*/
 
 /* rtapi_common.c */
 // Init rt_stats for RTAPI
@@ -45,3 +33,10 @@
 #define RTAPI_TIME_NO_CLOCK_MONOTONIC  // Xenomai has its own time features
 #define HAVE_RTAPI_GET_TIME_HOOK
 #define HAVE_RTAPI_GET_CLOCKS_HOOK
+
+/* rtapi_main.c */
+#define HAVE_RTAPI_MODULE_INIT_HOOK   // arm SGXCPU handler
+
+/* misc */
+#define HAVE_RTAPI_BACKTRACE_HOOK
+

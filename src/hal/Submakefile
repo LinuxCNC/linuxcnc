@@ -4,15 +4,15 @@ INCLUDES += hal
 	cp $^ $@
 
 
-HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
+HALLIBSRCS := \
+	hal/hal_lib.c \
+	rtapi/rtapi_compat.c \
+	rtapi/shmdrv/shmdrvapi.c \
+	rtapi/rtapi_support.c
 
-ifeq ($(THREADS),xenomai-kernel)
-XENO_LINK := $(shell $(XENO_CONFIG) --skin=native --ldflags )
-else
-XENO_LINK=
-endif
-
-$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
+# FIXME all thread-specific code needs to be removed from HAL &
+# relegated to src/rtapi
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
 
 # Add to list of sources to compile -DULAPI ->
 # objects/{rtapi/*.o,hal/hal_lib.o}
@@ -20,12 +20,13 @@ USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
 
-$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
+$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS)) ../lib/liblinuxcncini.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(RT_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ -ldl $(RT_LDFLAGS)
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
@@ -35,5 +36,7 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ 
 
+
+
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
-PYTARGETS += $(HALMODULE)
+PYTARGETS += $(HALMODULE) 

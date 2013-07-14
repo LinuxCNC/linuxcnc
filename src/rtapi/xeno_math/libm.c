@@ -17,8 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "config.h"
-
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/init.h>
@@ -33,21 +31,15 @@ MODULE_LICENSE("GPL");
 
 int libm_errno;
 
-static int verbose = 1;
-
-int __rtai_math_init(void)
+int __xeno_math_init(void)
 {
-	if(verbose){
-		printk(KERN_INFO "RTAI[math]: loaded.\n");
-	}
-	return 0;
+    printk(KERN_INFO "Xenomai math [xeno_math] loaded\n");
+    return 0;
 }
 
-void __rtai_math_exit(void)
+void __xeno_math_exit(void)
 {
-	if(verbose){
-		printk(KERN_INFO "RTAI[math]: unloaded.\n");
-	}
+    printk(KERN_INFO "Xenomai math [xeno_math]: unloaded.\n");
 }
 
 
@@ -62,18 +54,14 @@ double pow(double x, double y)
 #endif
 
 
-#ifndef CONFIG_RTAI_MATH_BUILTIN
-module_init(__rtai_math_init);
-module_exit(__rtai_math_exit);
-#endif /* CONFIG_RTAI_MATH_BUILTIN */
+module_init(__xeno_math_init);
+module_exit(__xeno_math_exit);
 
 
-#if defined(RTAPI_XENOMAI_KERNEL)
 EXPORT_SYMBOL(fabs);
 EXPORT_SYMBOL(frexp);
 EXPORT_SYMBOL(floor);
 EXPORT_SYMBOL(pow);
-#endif
 
 #ifdef CONFIG_KBUILD
 EXPORT_SYMBOL(acos);

@@ -19,7 +19,8 @@ TARGETS += ../lib/liblinuxcncini.so ../lib/liblinuxcncini.so.0
 	@rm -f $@
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
-../bin/inivar: $(call TOOBJS, $(INIFILESRCS)) ../lib/liblinuxcncini.so.0
+../libexec/inivar: $(call TOOBJS, $(INIFILESRCS)) ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ 
-TARGETS += ../bin/inivar
+TARGETS += ../libexec/inivar

@@ -21,4 +21,4 @@ userspace: ../bin/foo
 # or allowing headers to be copied to ../include.
 
 # See rtapi/Submakefile for an example of how to make some other kind of
-# file (in this case, ../scripts/rtapi.conf)
+# file (in this case, ../etc/linuxcnc/rtapi.ini)

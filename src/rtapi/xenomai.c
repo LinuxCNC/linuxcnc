@@ -1,6 +1,6 @@
 /********************************************************************
-* Description:  xenomai-user.c
-*               This file, 'xenomai-user.c', implements the unique
+* Description:  xenomai.c
+*               This file, 'xenomai.c', implements the unique
 *               functions for the Xenomai userland thread system.
 ********************************************************************/
 
@@ -9,16 +9,17 @@
 #include "rtapi_common.h"
 
 #include <sys/mman.h>		/* munlockall() */
+#include <nucleus/types.h>	/* XNOBJECT_NAME_LEN */
+#include <native/task.h>	/* RT_TASK, rt_task_*() */
 #include <native/timer.h>	/* rt_timer_*() */
+#include <signal.h>		/* sigaction/SIGXCPU handling */
+#include <sys/types.h>
+#include <unistd.h>             // getpid()
 
 #ifdef RTAPI
-//FIXME minimize
 #include <native/mutex.h>
 #include <rtdk.h>
-
 #include <stdlib.h>		// abort()
-
-#define MAX_ERRORS 3
 
 /*  RTAPI task functions  */
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
@@ -37,7 +38,6 @@ static struct rt_stats_struct {
 } rt_stats;
 #endif  /* RTAPI */
 
-
 /* init_rtapi_data */
 #ifdef RTAPI
 void init_rtapi_data_hook(rtapi_data_t * data) {
@@ -49,65 +49,68 @@ void init_rtapi_data_hook(rtapi_data_t * data) {
 
 
 /* rtapi_init() and rtapi_exit() */
-typedef struct {
-    unsigned long mutex;
-    int           uuid;
-} uuid_data_t;
-
-#define UUID_KEY  0x48484c34 /* key for UUID for simulator */
-
 
 /***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
 
-int rtapi_init(const char *modname) {
-    static uuid_data_t* uuid_data   = 0;
-    static         int  uuid_mem_id = 0;
-    const static   int  uuid_id     = 0;
+int _rtapi_init(const char *modname) {
 
-    static char* uuid_shmem_base = 0;
-    int retval,id;
-    void *uuid_mem;
-
-    uuid_mem_id = rtapi_shmem_new(UUID_KEY,uuid_id,sizeof(uuid_data_t));
-    if (uuid_mem_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-        "rtapi_init: could not open shared memory for uuid\n");
-        rtapi_exit(uuid_id);
-        return -EINVAL;
-    }
-    retval = rtapi_shmem_getptr(uuid_mem_id,&uuid_mem);
-    if (retval < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-        "rtapi_init: could not access shared memory for uuid\n");
-        rtapi_exit(uuid_id);
-        return -EINVAL;
-    }
-    if (uuid_shmem_base == 0) {
-        uuid_shmem_base =        (char *) uuid_mem;
-        uuid_data       = (uuid_data_t *) uuid_mem;
-    }
-    rtapi_mutex_get(&uuid_data->mutex);
-        uuid_data->uuid++;
-        id = uuid_data->uuid;
-    rtapi_mutex_give(&uuid_data->mutex);
-
-    return id;
+    return _rtapi_next_module_id();
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
   munlockall();
   return 0;
 }
 
+/***********************************************************************
+*                           RT scheduling exception handling           *
+************************************************************************/
 
+
+#ifdef RTAPI
+extern rtapi_exception_handler_t rt_exception_handler;
+
+// trampoline to current handler
+static void signal_handler(int sig, siginfo_t *si, void *uctx)
+{
+    if (rt_exception_handler)
+	rt_exception_handler(XU_SIGXCPU, 0,
+			     "Xenomai switched RT task to secondary domain");
+}
+#endif
+
+/***********************************************************************
+*                           rtapi_main.c                               *
+************************************************************************/
+#ifdef RTAPI
+void _rtapi_module_init_hook(void)
+{
+    struct sigaction sig_act;
+
+    sigemptyset( &sig_act.sa_mask );
+
+    sig_act.sa_sigaction = signal_handler;
+    sig_act.sa_flags   = SA_SIGINFO;
+    sig_act.sa_handler = SIG_IGN;
+
+    sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL);
+
+    // start rdtk real-time printing library output thread
+    // very likely this is actually needed; probably superseded by rtapi_print
+    // since we're not using the xenomai rtdk printing library
+    // rt_print_auto_init(1);
+}
+#else
+void _rtapi_module_init_hook(void) {}
+#endif
 /***********************************************************************
 *                           rtapi_task.c                               *
 ************************************************************************/
 
 #ifdef RTAPI
-int rtapi_task_delete_hook(task_data *task, int task_id) {
+int _rtapi_task_delete_hook(task_data *task, int task_id) {
     int retval = 0;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0)
@@ -117,7 +120,7 @@ int rtapi_task_delete_hook(task_data *task, int task_id) {
     return retval;
 }
 
-void rtapi_task_wrapper(void * task_id_hack) {
+void _rtapi_task_wrapper(void * task_id_hack) {
     int ret;
     int task_id = (int)(long) task_id_hack; // ugly, but I ain't gonna fix it
     task_data *task = &task_array[task_id];
@@ -151,7 +154,7 @@ void rtapi_task_wrapper(void * task_id_hack) {
 }
 
 
-int rtapi_task_start_hook(task_data *task, int task_id) {
+int _rtapi_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
     int retval;
 
@@ -163,14 +166,6 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     if (task->cpu > -1)  // explicitly set by threads, motmod
 	which_cpu = T_CPU(task->cpu);
 #endif
-
-    // sanity check
-    if (strlen(task->name) > XNOBJECT_NAME_LEN-1) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rt_task_create: task name '%s' too long for Xenomai, length limit %d chars\n", 
-			task->name, XNOBJECT_NAME_LEN-1 );
-	return -EINVAL;
-    }
 
     // http://www.xenomai.org/documentation/trunk/html/api/group__task.html#ga03387550693c21d0223f739570ccd992
     // Passing T_FPU|T_CPU(1) in the mode parameter thus creates a
@@ -188,7 +183,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     }
 
     if ((retval = rt_task_start( &ostask_array[task_id],
-				 rtapi_task_wrapper, (void *)(long)task_id))) {
+				 _rtapi_task_wrapper, (void *)(long)task_id))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"rt_task_start failed, rc = %d\n", retval );
 	return -ENOMEM;
@@ -196,7 +191,7 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int rtapi_task_stop_hook(task_data *task, int task_id) {
+int _rtapi_task_stop_hook(task_data *task, int task_id) {
     int retval;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
@@ -207,19 +202,19 @@ int rtapi_task_stop_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int rtapi_task_pause_hook(task_data *task, int task_id) {
+int _rtapi_task_pause_hook(task_data *task, int task_id) {
     return rt_task_suspend( &ostask_array[task_id] );
 }
 
-int rtapi_task_resume_hook(task_data *task, int task_id) {
+int _rtapi_task_resume_hook(task_data *task, int task_id) {
     return rt_task_resume( &ostask_array[task_id] );
 }
 
-void rtapi_wait_hook() {
+void _rtapi_wait_hook() {
     unsigned long overruns;
-    static int error_printed = 0;
     int task_id;
     task_data *task;
+    char buf[LINELEN];
 
     int result =  rt_task_wait_period(&overruns);
     switch (result) {
@@ -230,54 +225,46 @@ void rtapi_wait_hook() {
 	rt_stats.rt_wait_error++;
 	rt_stats.rt_last_overrun = overruns;
 	rt_stats.rt_total_overruns += overruns;
+	task_id = _rtapi_task_self();
+	task = &(task_array[task_id]);
 
-	if (error_printed < MAX_ERRORS) {
-	    task_id = rtapi_task_self();
-	    task = &(task_array[task_id]);
-
-	    rtapi_print_msg
-		(RTAPI_MSG_ERR,
-		 "RTAPI: ERROR: Unexpected realtime delay on task %d - "
-		 "'%s' (%lu overruns)\n" 
-		 "This Message will only display once per session.\n"
-		 "Run the Latency Test and resolve before continuing.\n", 
-		 task_id, task->name, overruns);
-	}
-	error_printed++;
-	if(error_printed == MAX_ERRORS) 
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "RTAPI: (further messages will be suppressed)\n");
+	rtapi_snprintf(buf, sizeof(buf),
+			"Unexpected realtime delay on task %d - "
+			"'%s' (%lu overruns)",
+			task_id, task->name, overruns);
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_ETIMEDOUT, overruns, buf);
 	break;
 
     case -EWOULDBLOCK:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_wait_period() without "
-			"previous rt_task_set_periodic()\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_EWOULDBLOCK, 0,
+				 "rt_task_wait_period() without "
+				 "previous rt_task_set_periodic()");
 	break;
 
     case -EINTR:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: rt_task_unblock() called before "
-			"release point\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_EINTR, 0,
+				 "rt_task_unblock() called before "
+				 "release point");
 	break;
 
     case -EPERM:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: cannot rt_task_wait_period() from "
-			"this context\n");
-	error_printed++;
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_EPERM, 0,"cannot rt_task_wait_period() from "
+				 "this context");
 	break;
+
     default:
-	rtapi_print_msg(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			"RTAPI: ERROR: unknown error code %d\n", result);
-	error_printed++;
-	break;
+	rtapi_snprintf(buf, sizeof(buf),
+			"unknown error code %d", result);
+	if (rt_exception_handler)
+	    rt_exception_handler(XU_OTHER, result,buf);
     }
 }
 
-int rtapi_task_self_hook(void) {
+int _rtapi_task_self_hook(void) {
     RT_TASK *ptr;
     int n;
 
@@ -308,14 +295,14 @@ int rtapi_task_self_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-void rtapi_delay_hook(long int nsec)
+void _rtapi_delay_hook(long int nsec)
 {
     long long int release = rt_timer_tsc() + nsec;
     while (rt_timer_tsc() < release);
 }
 #endif
 
-long long int rtapi_get_time_hook(void) {
+long long int _rtapi_get_time_hook(void) {
     /* The value returned will represent a count of jiffies if the
        native skin is bound to a periodic time base (see
        CONFIG_XENO_OPT_NATIVE_PERIOD), or nanoseconds otherwise.  */
@@ -327,7 +314,40 @@ long long int rtapi_get_time_hook(void) {
    other disgusting, non-realtime oriented behavior.  But at least it
    doesn't take a week every time you call it.
 */
-long long int rtapi_get_clocks_hook(void) {
+long long int _rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
+}
+
+/***********************************************************************
+*                           rtapi_common.c                               *
+************************************************************************/
+int _rtapi_backtrace_hook(int msglevel)
+{
+#ifdef RTAPI
+    int task_id = _rtapi_task_self_hook();
+
+    if (task_id != -EINVAL) {
+	// an RT thread
+	rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+	RT_TASK_INFO info;
+	int retval = rt_task_inquire(ostask_self[task_id], &info);
+	if (retval) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_inquire() failed: %d\n", retval);
+	} else {
+	    rtapi_print_msg(msglevel,
+			    "name=%s modeswitches=%d context switches=%d page faults=%d\n",
+			    info.name, info.modeswitches, info.ctxswitches, info.pagefaults);
+	    rtapi_print_msg(msglevel,"wait errors=%d last overrun=%d total overruns=%d\n",
+			    rt_stats.rt_wait_error,
+			    rt_stats.rt_last_overrun,
+			    rt_stats.rt_total_overruns);
+	}
+    }
+#endif
+#ifdef ULAPI
+    // ULAPI; use pid
+    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
+#endif
+    return 0;
 }

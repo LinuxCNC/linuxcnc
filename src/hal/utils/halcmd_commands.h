@@ -52,6 +52,7 @@ extern int do_start_cmd();
 extern int do_stop_cmd();
 extern int do_help_cmd(char *command);
 extern int do_lock_cmd(char *command);
+extern int do_log_cmd(char *type, char *level);
 extern int do_unlock_cmd(char *command);
 extern int do_linkpp_cmd(char *first_pin_name, char *second_pin_name);
 extern int do_newsig_cmd(char *name, char *type);
@@ -79,6 +80,14 @@ extern int do_loadusr_cmd(char *args[]);
 extern int do_waitusr_cmd(char *comp_name);
 extern int do_save_cmd(char *type, char *filename);
 extern int do_setexact_cmd(void);
+
+extern int do_newcomp_cmd(char *comp, char *args[]);
+extern int do_newpin_cmd(char *comp, char *pin, char *type, char *args[]);
+extern int do_ready_cmd(char *comp, char *tokens[]);
+extern int do_waitbound_cmd(char *comp, char *tokens[]);
+extern int do_waitunbound_cmd(char *comp, char *tokens[]);
+//extern int do_unloadrem_cmd(char *comp, char *tokens[]);
+
 
 pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);

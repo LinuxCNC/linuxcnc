@@ -1,18 +1,14 @@
-#ifneq ("$(RTPREFIX)","sim")
-ifneq ($(BUILD_SYS),user-dso)
 MODULE_HELPERSRCS := \
-	module_helper/module_helper.c
+	module_helper/module_helper.c \
+	rtapi/rtapi_compat.c
 USERSRCS += $(MODULE_HELPERSRCS)
 
-ifneq ($(rip_moduledir),)
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
-else
-    $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : EXTRAFLAGS = -Wall -Werror
-endif
+$(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : \
+	EXTRAFLAGS += -Wall -Werror $(THREADS_CFLAGS)
 
-../bin/linuxcnc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS))
+../libexec/linuxcnc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS)) \
+		../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CC) -o $@ $^
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
 
-TARGETS += ../bin/linuxcnc_module_helper
-endif
+TARGETS += ../libexec/linuxcnc_module_helper

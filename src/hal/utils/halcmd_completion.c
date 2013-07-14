@@ -51,6 +51,10 @@ static const char *command_table[] = {
     "net", "newsig", "delsig", "getp", "gets", "setp", "sets", "ptype", "stype",
     "addf", "delf", "show", "list", "status", "save", "source",
     "start", "stop", "quit", "exit", "help", "alias", "unalias", 
+    "newg"," delg", "newm", "delm",
+    "newring","delring","ringdump","ringwrite","ringread",
+    "newcomp","newpin","ready","waitbound", "waitunbound",
+	"log",
     NULL,
 };
 
@@ -65,17 +69,20 @@ static const char *alias_table[] = {
 };
 
 static const char *show_table[] = {
-    "all", "alias", "comp", "pin", "sig", "param", "funct", "thread",
+    "all", "alias", "comp", "pin", "sig", "param", "funct", "thread", "group", "member",
+    "ring",
     NULL,
 };
 
 static const char *save_table[] = {
     "all", "alias", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
+    "group", "member", "ring",
     NULL,
 };
 
 static const char *list_table[] = {
-    "comp", "alias", "pin", "sig", "param", "funct", "thread",
+    "comp", "alias", "pin", "sig", "param", "funct", "thread", "group", "member",
+    "ring",
     NULL
 };
 
@@ -86,6 +93,10 @@ static const char *status_table[] = {
 
 static const char *pintype_table[] = {
     "bit", "float", "u32", "s32", 
+    NULL
+};
+static const char *log_table[] = {
+    "rt", "user",
     NULL
 };
 
@@ -342,7 +353,7 @@ static char *usrcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(comp->type) continue;
+        if(comp->type == TYPE_RT) continue;
 	if(strncmp(text, comp->name, len) == 0)
             return strdup(comp->name);
     }
@@ -386,7 +397,7 @@ static char *rtcomp_generator(const char *text, int state) {
     while(next) {
         hal_comp_t *comp = SHMPTR(next);
         next = comp->next_ptr;
-        if(!comp->type) continue;
+        if(comp->type != TYPE_RT) continue;
 	if ( strncmp(text, comp->name, len) == 0 )
             return strdup(comp->name);
     }
@@ -493,12 +504,16 @@ static char *loadusr_generator(const char *text, int state) {
     static DIR *d;
     struct dirent *ent;
     static int doing_table;
+    char bindir[PATH_MAX];
+
+    if (get_rtapi_config(bindir,"BIN_DIR",PATH_MAX) != 0)
+	return NULL;
 
     if(!state) {
 	if(argno == 1) doing_table = 1;
         string_table = loadusr_table;
         len = strlen(text);
-        d = opendir(EMC2_BIN_DIR);
+        d = opendir(bindir);
     }
 
     if(doing_table) {
@@ -526,19 +541,24 @@ static char *loadrt_generator(const char *text, int state) {
     static int len;
     static DIR *d;
     struct dirent *ent;
+    char bindir[PATH_MAX];
+
+    if (get_rtapi_config(bindir,"BIN_DIR",PATH_MAX) != 0)
+	return NULL;
 
     if(!state) {
         len = strlen(text);
-        d = opendir(EMC2_RTLIB_DIR);
+        d = opendir(bindir);
     }
 
     while(d && (ent = readdir(d))) {
         char *result;
-        if(!strstr(ent->d_name, MODULE_EXT)) continue;
+        if(!strstr(ent->d_name, default_flavor()->mod_ext)) continue;
         if(startswith(ent->d_name, "rtapi.")) continue;
         if(strncmp(text, ent->d_name, len) != 0) continue;
         result = strdup(ent->d_name);
-        result[strlen(result) - strlen(MODULE_EXT)] = 0;
+        result[strlen(result) - \
+	       strlen(default_flavor()->mod_ext)] = 0;
         return result;
     }
     if (d != NULL) {
@@ -600,6 +620,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
     } else if(startswith(buffer, "net ") && argno == 2) {
         check_match_type_signal(nextword(buffer));
         result = func(text, pin_generator);
+
+
     } else if(startswith(buffer, "net ") && argno > 2) {
         check_match_type_signal(nextword(buffer));
         if(match_type == HAL_TYPE_UNSPECIFIED) {
@@ -668,7 +690,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
                 result = func(text, thread_generator);
-            }
+	    }
         }
     } else if(startswith(buffer, "show ")) {
         if (argno == 1) {
@@ -685,7 +707,7 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
                 result = func(text, funct_generator);
             } else if (startswith(n, "thread")) {
                 result = func(text, thread_generator);
-            }
+	    }
         }
     } else if(startswith(buffer, "save ") && argno == 1) {
         result = completion_matches_table(text, save_table, func);
@@ -695,6 +717,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         result = completion_matches_table(text, pintype_table, func);
     } else if(startswith(buffer, "lock ") && argno == 1) {
         result = completion_matches_table(text, lock_table, func);
+    } else if(startswith(buffer, "log ") && argno == 1) {
+        result = completion_matches_table(text, log_table, func);
     } else if(startswith(buffer, "unlock ") && argno == 1) {
         result = completion_matches_table(text, unlock_table, func);
     } else if(startswith(buffer, "addf ") && argno == 1) {

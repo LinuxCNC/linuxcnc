@@ -93,6 +93,20 @@
 */
 
 #include <rtapi.h>
+#include <rtapi_global.h>
+
+#include "rtapi_mbarrier.h"	/* memory barrier primitves */
+
+#if defined(BUILD_SYS_USER_DSO)
+#include <stdbool.h>
+#else // kernel thread styles
+#if defined(RTAPI)
+#include <linux/types.h>
+#else // ULAPI
+#include <stdbool.h>
+#include <time.h>               /* remote comp timestamps */
+#endif
+#endif
 RTAPI_BEGIN_DECLS
 
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
@@ -105,12 +119,17 @@ RTAPI_BEGIN_DECLS
    location that is part of the HAL shared memory block. */
 
 #define SHMCHK(ptr)  ( ((char *)(ptr)) > (hal_shmem_base) && \
-                       ((char *)(ptr)) < (hal_shmem_base + HAL_SIZE) )
+                       ((char *)(ptr)) < (hal_shmem_base + global_data->hal_size) )
 
 /** The good news is that none of this linked list complexity is
     visible to the components that use this API.  Complexity here
     is a small price to pay for simplicity later.
 */
+
+#ifndef MAX
+#define MAX(x, y) (((x) > (y))?(x):(y))
+#endif
+
 
 /***********************************************************************
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
@@ -151,6 +170,44 @@ typedef struct {
     char name[HAL_NAME_LEN + 1];	/* the original name */
 } hal_oldname_t;
 
+
+// visible in the per-namespace HAL data segment: 
+// the namespaces this HAL instance 'sees', indexed by instance
+typedef struct {
+    unsigned long flags; // TBD
+    char name[HAL_NAME_LEN + 1];
+ } hal_namespace_t;
+
+// private mappings
+typedef struct {
+    char *shmbase;
+    char *hal_data;
+    // any rtapi or otherwise information needed to attach/detach the segment
+} hal_namespace_map_t;
+
+// per-process/kernel mappings
+// indexed by rtapi_instance of mapped namespace
+extern hal_namespace_map_t hal_mappings[]; 
+
+// namespace operations (move to hal.h XXX)
+// these operations affect the following globally visible 
+// fields in the local hal_data segment:
+//
+// the namespaces map adds/removes a new entry
+//
+// in the hal_data segment of the namespace being referred to,
+// hal_namespace_attach() increases the refcount
+// hal_namespace_attach() decreases it.
+
+extern int halpr_namespace_attach(int instance);
+
+extern int hal_namespace_detach(int instance);
+
+static inline char *my_shm_base(void)
+{
+    return hal_mappings[rtapi_instance].shmbase;
+}
+
 /* Master HAL data structure
    There is a single instance of this structure in the machine.
    It resides at the base of the HAL shared memory block, where it
@@ -162,6 +219,25 @@ typedef struct {
 typedef struct {
     int version;		/* version code for structs, etc */
     unsigned long mutex;	/* protection for linked lists, etc. */
+
+    // the namespaces this instance is aware of
+    hal_namespace_t namespaces[MAX_INSTANCES];
+    // to access a remote HAL namespace, it must be mapped
+    // assuming it is as "foo", the procedure to reference the namespace's
+    // hal_data is as follows:
+    // search namespaces.name for "foo"
+    // remote hal_data = hal_mappings[namespaces["foo"]].id
+
+    // introspection support: if all you have is a pointer to some hal_data
+    // instance, determine it's instance ID:
+    // this should be filled in RT space once hal_lib is first loaded
+    // ULAPI should never write to it
+    int hal_instance;  // FIXME not sure if needed
+
+    // every other HAL namespace referencing this namspace is expected to
+    // increase this on attach, and decrease this on detach:
+    int refcount;
+
     hal_s32_t shmem_avail;	/* amount of shmem left free */
     constructor pending_constructor;
 			/* pointer to the pending constructor function */
@@ -190,7 +266,13 @@ typedef struct {
     int exact_base_period;      /* if set, pretend that rtapi satisfied our
 				   period request exactly */
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
+
+
+#define BITS_PER_BYTE 8
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define BITS_TO_LONGS(nr)       DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
 } hal_data_t;
+
 
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
@@ -201,8 +283,14 @@ typedef struct {
     int next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
-    int type;			/* 1 if realtime, 0 if not */
-    int ready;                  /* nonzero if ready, 0 if not */
+    int type;			/* one of: TYPE_RT, TYPE_USER, TYPE_INSTANCE, TYPE_REMOTE */
+    int state;                  /* one of: COMP_INITIALIZING, COMP_UNBOUND, */
+                                /* COMP_BOUND, COMP_READY */
+    // the next two should be time_t, but kernel wont like them
+    // so fudge it as long int
+    long int last_update;            /* timestamp of last remote update */
+    long int last_bound;             /* timestamp of last bind operation */
+    long int last_unbound;           /* timestamp of last unbind operation */
     int pid;			/* PID of component (user components only) */
     void *shmem_base;		/* base of shmem for this component */
     char name[HAL_NAME_LEN + 1];	/* component name */
@@ -223,6 +311,10 @@ typedef struct {
     hal_type_t type;		/* data type */
     hal_pin_dir_t dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
+#ifdef USE_PIN_USER_ATTRIBUTES
+    double epsilon;
+    int flags;
+#endif
 } hal_pin_t;
 
 /** HAL 'signal' data structure.
@@ -323,10 +415,9 @@ typedef struct {
    the structs will be fully protected, with a clean shutdown and
    meaningfull error messages in case of a mismatch.
 */
-
-#define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
+#include "rtapi_shmkeys.h"
 #define HAL_VER   0x0000000C	/* version code */
-#define HAL_SIZE  262000
+//#define HAL_SIZE  262000
 
 /* These pointers are set by hal_init() to point to the shmem block
    and to the master data structure. All access should use these
@@ -421,6 +512,25 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     the next matching pin.  If no match is found, it returns NULL
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
+
+
+// auto-release the HAL mutex on scope exit
+// if a local variable is declared like so:
+//
+// int foo  __attribute__((cleanup(halpr_autorelease_mutex)));
+//
+// then leaving foo's scope will cause halpr_release_lock() to be called
+// see http://git.mah.priv.at/gitweb?p=emc2-dev.git;a=shortlog;h=refs/heads/hal-lock-unlock
+// make sure the mutex is actually held in the using code when leaving scope!
+void halpr_autorelease_mutex(void *variable);
+
+#ifdef ULAPI
+// set in hal_lib.c:ulapi_hal_lib_init()
+// needed in using code (halcmd) to do the right thing (eg insmod vs call rtapi_app
+// to load a module)
+extern flavor_ptr flavor;
+#endif
+
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */

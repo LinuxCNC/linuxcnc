@@ -48,12 +48,12 @@ unsigned long timer_counts;
 
 
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
+void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
 				 RTIME *got_counts);
 #endif
 
 #ifdef BUILD_SYS_USER_DSO
-long int rtapi_clock_set_period(long int nsecs) {
+long int _rtapi_clock_set_period(long int nsecs) {
 #ifndef RTAPI_TIME_NO_CLOCK_MONOTONIC
     struct timespec res = { 0, 0 };
 #endif
@@ -81,7 +81,7 @@ long int rtapi_clock_set_period(long int nsecs) {
     return period;
 }
 #else  /* BUILD_SYS_KBUILD  */
-long int rtapi_clock_set_period(long int nsecs) {
+long int _rtapi_clock_set_period(long int nsecs) {
     RTIME counts, got_counts;
 
     if (nsecs == 0) {
@@ -103,7 +103,7 @@ long int rtapi_clock_set_period(long int nsecs) {
     /* kernel thread systems should init counts and
        rtapi_data->timer_period using their own timer functions */
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-    rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
+    _rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
     timer_counts = got_counts;
 #endif
 
@@ -120,18 +120,18 @@ long int rtapi_clock_set_period(long int nsecs) {
 #endif  /* BUILD_SYS_KBUILD  */
 
 // rtapi_delay_hook MUST be implemented by all threads systems
-void rtapi_delay_hook(long int nsec);
+void _rtapi_delay_hook(long int nsec);
 
-void rtapi_delay(long int nsec)
+void _rtapi_delay(long int nsec)
 {
     if (nsec > max_delay) {
 	nsec = max_delay;
     }
-    rtapi_delay_hook(nsec);
+    _rtapi_delay_hook(nsec);
 }
 
 
-long int rtapi_delay_max(void)
+long int _rtapi_delay_max(void)
 {
     return max_delay;
 }
@@ -141,13 +141,13 @@ long int rtapi_delay_max(void)
 /* The following functions are common to both RTAPI and ULAPI */
 
 #ifdef HAVE_RTAPI_GET_TIME_HOOK
-long long int rtapi_get_time_hook(void);
+long long int _rtapi_get_time_hook(void);
 
-long long int rtapi_get_time(void) {
-    return rtapi_get_time_hook();
+long long int _rtapi_get_time(void) {
+    return _rtapi_get_time_hook();
 }
 #elif defined(RTAPI)
-long long int rtapi_get_time(void) {
+long long int _rtapi_get_time(void) {
 
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -155,7 +155,7 @@ long long int rtapi_get_time(void) {
 }
 
 #else /* ULAPI */
-long long rtapi_get_time(void)
+long long _rtapi_get_time(void)
 {
 	struct timeval tv;
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -166,10 +166,10 @@ long long rtapi_get_time(void)
 #endif /* HAVE_RTAPI_GET_TIME_HOOK */
 
 #ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
-long long int rtapi_get_clocks_hook(void);
+long long int _rtapi_get_clocks_hook(void);
 #endif
 
-long long int rtapi_get_clocks(void) {
+long long int _rtapi_get_clocks(void) {
 #ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
     long long int retval;
 
@@ -181,15 +181,8 @@ long long int rtapi_get_clocks(void) {
     rdtscll(retval);
     return retval;
 #else
-    return rtapi_get_clocks_hook();
+    return _rtapi_get_clocks_hook();
 #endif  /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 }
 
 
-#ifdef MODULE
-EXPORT_SYMBOL(rtapi_clock_set_period);
-EXPORT_SYMBOL(rtapi_get_time);
-EXPORT_SYMBOL(rtapi_get_clocks);
-EXPORT_SYMBOL(rtapi_delay);
-EXPORT_SYMBOL(rtapi_delay_max);
-#endif  /* MODULE */

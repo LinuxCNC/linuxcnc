@@ -1,1 +1,1 @@
-../PIN_NAME_REGEX.names
+pid[0-9]+\.command([[:space:]].*$|$)

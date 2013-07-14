@@ -2,19 +2,32 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
+#include <rtai.h>
+#include <rtai_sched.h>
+#include <rtai_sem.h>
+#include <rtai_shm.h>
+#include <rtai_fifos.h>
+
+#ifdef MODULE
+#include <linux/delay.h>  // udelay()
+#endif 
+
+#ifdef RTAPI
+extern rtapi_exception_handler_t rt_exception_handler;
+#endif
 
 /***********************************************************************
 *                           rtapi_time.c                               *
 ************************************************************************/
 
 #ifdef RTAPI
-void rtapi_module_timer_stop(void) {
+void _rtapi_module_timer_stop(void) {
     stop_rt_timer();
     rt_free_timer();
 }
 
 
-void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
+void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
 				 RTIME *got_counts) {
     rt_set_periodic_mode();
     *counts = nano2count((RTIME) nsecs);
@@ -24,13 +37,13 @@ void rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 }
 
 
-void rtapi_delay_hook(long int nsec)
+void _rtapi_delay_hook(long int nsec)
 {
      udelay(nsec / 1000);
 }
 #endif  /* RTAPI */
 
-long long int rtapi_get_time_hook(void) {
+long long int _rtapi_get_time_hook(void) {
     //struct timeval tv;
 
     //AJ: commenting the following code out, as it seems on some systems it
@@ -47,9 +60,9 @@ long long int rtapi_get_time_hook(void) {
     //reverted to old code for now
     /* this is a monstrosity that seems to take several MICROSECONDS!!!
        on some boxes.  Why the RTAI folks even bothered I have no idea!
-       If you have any need for speed at all use rtapi_get_clocks()!!
+       If you have any need for speed at all use _rtapi_get_clocks()!!
     */
-    return rt_get_cpu_time_ns();    
+    return rt_get_cpu_time_ns();
 }
 
 
@@ -59,31 +72,30 @@ long long int rtapi_get_time_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-int rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data) {
+int _rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data) {
     /* get master shared memory block from OS and save its address */
-    *rtapi_data = rtai_kmalloc(RTAPI_KEY, sizeof(rtapi_data_t));
+    *rtapi_data = rtai_kmalloc(OS_KEY(RTAPI_KEY,rtapi_instance), sizeof(rtapi_data_t));
     if (*rtapi_data == NULL) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not open shared memory\n");
+	    "RTAPI: ERROR: could not open rtapi_data shared memory\n");
 	return -ENOMEM;
     }
-
     return 0;
 }
 
-void rtapi_module_master_shared_memory_free(void) {
-    rtai_kfree(RTAPI_KEY);
+void _rtapi_module_master_shared_memory_free(void) {
+    rtai_kfree(OS_KEY(RTAPI_KEY,rtapi_instance));
 }
 
-void rtapi_module_cleanup_hook(void) {
-    rtai_kfree(RTAPI_KEY);
+void _rtapi_module_cleanup_hook(void) {
+    rtai_kfree(OS_KEY(RTAPI_KEY,rtapi_instance));
 }
 
 
 #else /* ULAPI */
-rtapi_data_t *rtapi_init_hook() {
+rtapi_data_t *_rtapi_init_hook() {
     rtapi_data_t *result;
-    result = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
+    result = rtai_malloc(OS_KEY(RTAPI_KEY,rtapi_instance), sizeof(rtapi_data_t));
 
     // the check for -1 here is because rtai_malloc (in at least
     // rtai 3.6.1, and probably others) has a bug where it
@@ -93,6 +105,7 @@ rtapi_data_t *rtapi_init_hook() {
 
     return result;
 }
+
 #endif  /* ULAPI */
 
 
@@ -112,20 +125,20 @@ rtapi_data_t *rtapi_init_hook() {
 #  define IP(x) ((x)->rip)
 # endif
 
-static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
+static int _rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 			      void *task) {
-    int self = rtapi_task_self();
+    int self = _rtapi_task_self();
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d "
 		    "ip=%08lx.\nRTAPI: This fault may not be recoverable "
 		    "without rebooting.\n",
 		    self, task, vec, signo, IP(regs));
-    rtapi_task_pause(self);
+    _rtapi_task_pause(self);
     return 0;
 }
 
 
-static void rtapi_task_wrapper(long task_id)  {
+static void _rtapi_task_wrapper(long task_id)  {
     task_data *task;
 
     /* point to the task data */
@@ -138,22 +151,22 @@ static void rtapi_task_wrapper(long task_id)  {
     return;
 }
 
-int rtapi_task_new_hook(task_data *task, int task_id) {
+int _rtapi_task_new_hook(task_data *task, int task_id) {
     int retval, v;
-    retval = rt_task_init_cpuid(ostask_array[task_id], rtapi_task_wrapper,
+    retval = rt_task_init_cpuid(ostask_array[task_id], _rtapi_task_wrapper,
 				task_id, task->stacksize, task->prio,
 				task->uses_fp, 0 /* signal */, task->cpu);
     if (retval) return retval;
 
     /* request to handle traps in the new task */
     for(v=0; v<HAL_NR_FAULTS; v++)
-        rt_set_task_trap_handler(ostask_array[task_id], v, rtapi_trap_handler);
+        rt_set_task_trap_handler(ostask_array[task_id], v, _rtapi_trap_handler);
 
     return 0;
 }
 
 
-int rtapi_task_start_hook(task_data *task, int task_id,
+int _rtapi_task_start_hook(task_data *task, int task_id,
 			  unsigned long int period_nsec) {
     int retval;
     unsigned long int quo, period_counts;
@@ -173,47 +186,39 @@ int rtapi_task_start_hook(task_data *task, int task_id,
     return 0;
 }
 
-void rtapi_wait_hook(void) {
+void _rtapi_wait_hook(void) {
+    char buf[LINELEN];
     int result = rt_task_wait_period();
 
     if(result != 0) {
-	static int error_printed = 0;
-	if(error_printed < 10) {
 #ifdef RTE_TMROVRN
-	    if(result == RTE_TMROVRN) {
-		rtapi_print_msg
-		    (error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		     "RTAPI: ERROR: Unexpected realtime delay on task %d\n" 
-		     "This Message will only display once per session.\n"
-		     "Run the Latency Test and resolve before continuing.\n", 
-		     rtapi_task_self());
-	    } else
+	if (result == RTE_TMROVRN) {
+	    rtapi_snprintf(buf, sizeof(buf),
+			   "Unexpected realtime delay on task %d",
+			   _rtapi_task_self());
+	    if (rt_exception_handler)
+		rt_exception_handler(RTAI_RTE_TMROVRN, _rtapi_task_self(), buf);
+	} else
 #endif
 #ifdef RTE_UNBLKD
-		if(result == RTE_UNBLKD) {
-		    rtapi_print_msg
-			(error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-			 "RTAPI: ERROR: rt_task_wait_period() returned "
-			 "RTE_UNBLKD (%d).\n", result);
-		} else
+	    if (result == RTE_UNBLKD) {
+		rtapi_snprintf(buf, sizeof(buf),
+			       "rt_task_wait_period() returned RTE_UNBLKD (%d).",
+			       result);
+		if (rt_exception_handler)
+		    rt_exception_handler(RTAI_RTE_UNBLKD, _rtapi_task_self(), buf);
+	    } else
 #endif
-		    {
-			rtapi_print_msg
-			    (error_printed == 0 ? RTAPI_MSG_ERR :
-			     RTAPI_MSG_WARN,
-			     "RTAPI: ERROR: rt_task_wait_period() returned "
-			     "%d.\n", result);
-		    }
-	    error_printed++;
-	    if(error_printed == 10)
-	        rtapi_print_msg
-		    (error_printed == 0 ? RTAPI_MSG_ERR : RTAPI_MSG_WARN,
-		     "RTAPI: (further messages will be suppressed)\n");
-	}
+		{
+		    rtapi_snprintf(buf, sizeof(buf),
+				   "rt_task_wait_period() returned %d.\n", result);
+		    if (rt_exception_handler)
+			rt_exception_handler(RTAI_RTE_UNCLASSIFIED, _rtapi_task_self(), buf);
+		}
     }
 }
 
-int rtapi_task_self_hook(void) {
+int _rtapi_task_self_hook(void) {
     RT_TASK *ptr;
     int n;
 
@@ -242,8 +247,8 @@ int rtapi_task_self_hook(void) {
 ************************************************************************/
 /* needed for both RTAPI and ULAPI */
 
-void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-				   unsigned long int size) {
+void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
+				    unsigned long int size, int instance) {
     rtapi_data_t * result;
     result = rtai_kmalloc(key, shmem_array[shmem_id].size);
     // the check for -1 here is because rtai_malloc (in at least
@@ -255,8 +260,8 @@ void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
 	return result;
 }
 
-void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-				  unsigned long int size) {
+void *_rtapi_shmem_new_malloc_hook(int shmem_id, int key,
+				  unsigned long int size, int instance) {
     void * result;
     result = rtai_kmalloc(key, size);
 
@@ -269,6 +274,6 @@ void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
 	return result;
 }
 
-void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
+void _rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
     rtai_kfree(shmem->key);
 }

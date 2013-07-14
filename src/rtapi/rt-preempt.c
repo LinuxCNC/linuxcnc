@@ -1,7 +1,7 @@
 /********************************************************************
-* Description:  rt-preempt-user.c
+* Description:  rt-preempt.c
 *
-*               This file, 'rt-preempt-user.c', implements the unique
+*               This file, 'rt-preempt.c', implements the unique
 *               functions for the RT_PREEMPT thread system.
 ********************************************************************/
 
@@ -15,20 +15,16 @@
 
 #include <unistd.h>		// getpid(), syscall()
 #include <time.h>               // clock_nanosleep()
+#include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
 #ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
-#include <signal.h>		// sigaction(), sigemptyset(), SIGXCPU...
-#include <sys/resource.h>	// rusage, getrusage(), RUSAGE_SELF
 
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
-#  ifndef RTAPI_POSIX
-static int error_printed;
-#  endif
 #endif  /* RTAPI */
 
 #define MODULE_OFFSET		32768
@@ -36,7 +32,6 @@ static int error_printed;
 typedef struct {
     int deleted;
     int destroyed;
-    int deadline_scheduling;
     struct timespec next_time;
 
     /* The realtime thread. */
@@ -55,19 +50,19 @@ extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
 
 #ifdef ULAPI
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
 	/* do nothing for ULAPI */
 	return getpid();
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
 	/* do nothing for ULAPI */
 	return 0;
 }
 
 #else /* RTAPI */
 
-int rtapi_init(const char *modname) {
+int _rtapi_init(const char *modname) {
     int n, module_id = -ENOMEM;
     module_data *module;
 
@@ -107,7 +102,7 @@ int rtapi_init(const char *modname) {
     return module_id;
 }
 
-int rtapi_exit(int module_id) {
+int _rtapi_exit(int module_id) {
     module_id -= MODULE_OFFSET;
 
     if (module_id < 0 || module_id >= RTAPI_MAX_MODULES)
@@ -129,7 +124,7 @@ static inline int task_id(task_data *task) {
 
 
 #ifndef RTAPI_POSIX
-static unsigned long rtapi_get_pagefault_count(task_data *task) {
+static unsigned long _rtapi_get_pagefault_count(task_data *task) {
     struct rusage rusage;
     unsigned long minor, major;
 
@@ -149,7 +144,7 @@ static unsigned long rtapi_get_pagefault_count(task_data *task) {
     return minor + major;
 }
 
-static void rtapi_reset_pagefault_count(task_data *task) {
+static void _rtapi_reset_pagefault_count(task_data *task) {
     struct rusage rusage;
 
     getrusage(RUSAGE_SELF, &rusage);
@@ -165,7 +160,7 @@ static void rtapi_reset_pagefault_count(task_data *task) {
 #endif
 
 
-static void rtapi_advance_time(struct timespec *tv, unsigned long ns,
+static void _rtapi_advance_time(struct timespec *tv, unsigned long ns,
 			       unsigned long s) {
     ns += tv->tv_nsec;
     while (ns > 1000000000) {
@@ -190,7 +185,7 @@ static task_data *rtapi_this_task() {
     return (task_data *)pthread_getspecific(task_key);
 }
 
-int rtapi_task_new_hook(task_data *task, int task_id) {
+int _rtapi_task_new_hook(task_data *task, int task_id) {
     void *stackaddr;
 
     stackaddr = malloc(task->stacksize);
@@ -206,7 +201,7 @@ int rtapi_task_new_hook(task_data *task, int task_id) {
 }
 
 
-void rtapi_task_delete_hook(task_data *task, int task_id) {
+void _rtapi_task_delete_hook(task_data *task, int task_id) {
     int err;
     void *returncode;
 
@@ -271,101 +266,14 @@ static int realtime_set_affinity(task_data *task) {
     return 0;
 }
 
-
-#define ENABLE_SCHED_DEADLINE	0 /*XXX set to 1 to enable deadline scheduling. */
-
-#ifndef __NR_sched_setscheduler_ex
-# if defined(__x86_64__)
-#  define __NR_sched_setscheduler_ex	299
-#  define __NR_sched_wait_interval	302
-# elif defined(__i386__)
-#  define __NR_sched_setscheduler_ex	337
-#  define __NR_sched_wait_interval	340
-# else
-#  warning "SCHED_DEADLINE syscall numbers unknown"
-# endif
-#endif
-
-#ifndef SCHED_DEADLINE
-#define SCHED_DEADLINE		6
-
-struct sched_param_ex {
-    int sched_priority;
-    struct timespec sched_runtime;
-    struct timespec sched_deadline;
-    struct timespec sched_period;
-    int sched_flags;
-};
-
-#define SCHED_SIG_RORUN		0x80000000
-#define SCHED_SIG_DMISS		0x40000000
-
-static inline int sched_setscheduler_ex(pid_t pid, int policy, unsigned len,
-					struct sched_param_ex *param) {
-#ifdef __NR_sched_setscheduler_ex
-    return syscall(__NR_sched_setscheduler_ex, pid, policy, len, param);
-#endif
-    return -ENOSYS;
-}
-static inline int sched_wait_interval(int flags, const struct timespec *rqtp,
-				      struct timespec *rmtp) {
-#ifdef __NR_sched_wait_interval
-    return syscall(__NR_sched_wait_interval, flags, rqtp, rmtp);
-#endif
-    return -ENOSYS;
-}
-#endif /* SCHED_DEADLINE */
-
-
 #ifndef RTAPI_POSIX
-static void deadline_exception(int signr) {
-    if (signr != SIGXCPU) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Received unknown signal %d\n", signr);
-	return;
-    }
-    if (!error_printed++)
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"Missed scheduling deadline or overran "
-			"scheduling runtime!\n");
-}
 
+#ifdef RTAPI
+extern rtapi_exception_handler_t rt_exception_handler;
+#endif
 
 static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
-    struct sched_param_ex ex;
-    struct sigaction sa;
-
-    extra_task_data[task_id(task)].deadline_scheduling = 0;
-    if (ENABLE_SCHED_DEADLINE) {
-	memset(&sa, 0, sizeof(sa));
-	sigemptyset(&sa.sa_mask);
-	sa.sa_flags = SA_RESTART;
-	sa.sa_handler = deadline_exception;
-	if (sigaction(SIGXCPU, &sa, NULL)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "Unable to register SIGXCPU handler.\n");
-	    return -1;
-	}
-
-	memset(&ex, 0, sizeof(ex));
-	ex.sched_deadline.tv_nsec = period;
-	ex.sched_runtime.tv_nsec = 8000; //FIXME
-	ex.sched_flags = SCHED_SIG_RORUN | SCHED_SIG_DMISS;
-	rtapi_print_msg(RTAPI_MSG_DBG,
-			"Setting deadline scheduler for %d\n", task_id(task));
-	if (sched_setscheduler_ex(0, SCHED_DEADLINE, sizeof(ex), &ex)) {
-	    rtapi_print_msg
-		(RTAPI_MSG_INFO,
-		 "Unable to set DEADLINE scheduling policy (%s). "
-		 "Trying FIFO.\n",
-		 strerror(errno));
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO,
-			    "Running DEADLINE scheduling policy.\n");
-	    extra_task_data[task_id(task)].deadline_scheduling = 1;
-	    return 0;
-	}
-    }
 
     memset(&schedp, 0, sizeof(schedp));
     schedp.sched_priority = task->prio;
@@ -392,7 +300,7 @@ static void *realtime_thread(void *arg) {
      * taskcode init. This is noncritical and probably not worth
      * fixing. */
 #ifndef RTAPI_POSIX
-    rtapi_reset_pagefault_count(task);
+    _rtapi_reset_pagefault_count(task);
 #endif
 
     if (task->period < period)
@@ -412,7 +320,7 @@ static void *realtime_thread(void *arg) {
     pthread_barrier_wait(&extra_task_data[task_id(task)].thread_init_barrier);
 
     clock_gettime(CLOCK_MONOTONIC, &extra_task_data[task_id(task)].next_time);
-    rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
+    _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
 		       task->period, 0);
 
     /* call the task function with the task argument */
@@ -432,7 +340,7 @@ static void *realtime_thread(void *arg) {
     return NULL;
 }
 
-int rtapi_task_start_hook(task_data *task, int task_id) {
+int _rtapi_task_start_hook(task_data *task, int task_id) {
     pthread_attr_t attr;
     int retval;
 
@@ -470,60 +378,50 @@ int rtapi_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-void rtapi_task_stop_hook(task_data *task, int task_id) {
+void _rtapi_task_stop_hook(task_data *task, int task_id) {
     extra_task_data[task_id].destroyed = 1;
 }
 
-int rtapi_wait_hook(void) {
+int _rtapi_wait_hook(void) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
 #ifndef RTAPI_POSIX
-    int msg_level = RTAPI_MSG_NONE;
+    char buf[LINELEN];
 #endif
 
     if (extra_task_data[task_id(task)].deleted)
 	pthread_exit(0);
 
-    if (extra_task_data[task_id(task)].deadline_scheduling)
-	sched_wait_interval(TIMER_ABSTIME,
-			    &extra_task_data[task_id(task)].next_time, NULL);
-    else
-	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
-			&extra_task_data[task_id(task)].next_time, NULL);
-    rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
+    clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME,
+		    &extra_task_data[task_id(task)].next_time, NULL);
+    _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
 		       task->period, 0);
     clock_gettime(CLOCK_MONOTONIC, &ts);
     if (ts.tv_sec > extra_task_data[task_id(task)].next_time.tv_sec
 	|| (ts.tv_sec == extra_task_data[task_id(task)].next_time.tv_sec
 	    && ts.tv_nsec > extra_task_data[task_id(task)].next_time.tv_nsec)) {
 	extra_task_data[task_id(task)].failures++;
-#ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
-	if (extra_task_data[task_id(task)].failures == 1)
-	    msg_level = RTAPI_MSG_ERR;
-	/* else if (extra_task_data[task_id(task)].failures < 10 ||
-	       (extra_task_data[task_id(task)].failures % 10000 == 0))  */
-	else if (extra_task_data[task_id(task)].failures < 10)
-	    msg_level = RTAPI_MSG_WARN;
 
-	if (msg_level != RTAPI_MSG_NONE) {
-	    rtapi_print_msg
-		(msg_level,
-		 "ERROR: Missed scheduling deadline for task %d [%d times]\n"
-		 "Now is %ld.%09ld, deadline was %ld.%09ld\n"
-		 "Absolute number of pagefaults in realtime context: %lu\n",
-		 task_id(task), extra_task_data[task_id(task)].failures,
-		 (long)ts.tv_sec, (long)ts.tv_nsec,
-		 (long)extra_task_data[task_id(task)].next_time.tv_sec,
-		 (long)extra_task_data[task_id(task)].next_time.tv_nsec,
-		 rtapi_get_pagefault_count(task));
-	}
+#ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
+	rtapi_snprintf(buf, sizeof(buf),
+		       "Missed scheduling deadline for task %d: '%s' [%d times]\n"
+		       "Now is %ld.%09ld, deadline was %ld.%09ld\n"
+		       "Absolute number of pagefaults in realtime context: %lu\n",
+		       task_id(task), task->name,
+		       extra_task_data[task_id(task)].failures,
+		       (long)ts.tv_sec, (long)ts.tv_nsec,
+		       (long)extra_task_data[task_id(task)].next_time.tv_sec,
+		       (long)extra_task_data[task_id(task)].next_time.tv_nsec,
+		       _rtapi_get_pagefault_count(task));
+	if (rt_exception_handler)
+	    rt_exception_handler(RTP_DEADLINE_MISSED, 0, buf);
 #endif
     }
 
     return 0;
 }
 
-void rtapi_delay_hook(long int nsec)
+void _rtapi_delay_hook(long int nsec)
 {
     struct timespec t;
 
@@ -532,4 +430,43 @@ void rtapi_delay_hook(long int nsec)
     clock_nanosleep(CLOCK_MONOTONIC, 0, &t, NULL);
 }
 
+
+int _rtapi_task_self_hook(void) {
+    int n;
+
+    /* ask OS for pointer to its data for the current pthread */
+    pthread_t self = pthread_self();
+
+    /* find matching entry in task array */
+    n = 1;
+    while (n <= RTAPI_MAX_TASKS) {
+	if (extra_task_data[n].thread == self) {
+	    /* found a match */
+	    return n;
+	}
+	n++;
+    }
+    return -EINVAL;
+}
+
 #endif /* ULAPI/RTAPI */
+
+// both ULAPI and RTAPI:
+int _rtapi_backtrace_hook(int msglevel)
+{
+    struct rusage ru;
+
+    getrusage(RUSAGE_THREAD, &ru);
+#ifdef RTAPI
+    int task_id = _rtapi_task_self_hook();
+    // an RT thread
+    rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+#else // ULAPI
+    // use pid
+    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
+#endif
+    rtapi_print_msg(msglevel,
+		    "minor faults=%ld major faults=%ld involuntary context switches=%ld\n",
+		    ru.ru_minflt, ru.ru_majflt, ru.ru_nivcsw);
+    return 0;
+}

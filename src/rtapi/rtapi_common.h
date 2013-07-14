@@ -71,7 +71,24 @@
 #include <sched.h>		/* for blocking when needed */
 #endif
 
-#include "rtapi_bitops.h"	/* rtapi_test_bit() et al. */
+#include "rtapi_bitops.h"	/* test_bit() et al. */
+#include "rtapi_ring.h"	/* test_bit() et al. */
+
+#if defined(BUILD_SYS_USER_DSO)
+#include <sys/ipc.h>		/* IPC_* */
+#include <sys/shm.h>
+#include <sys/types.h>  
+#endif
+
+#if defined(BUILD_SYS_USER_DSO)
+#include <sys/ipc.h>		/* IPC_* */
+#include <sys/shm.h>
+#include <sys/types.h>
+#endif
+
+#ifndef NULL
+#define NULL 0
+#endif
 
 
 #include THREADS_HEADERS	/* thread-specific headers */
@@ -87,16 +104,14 @@ MODULE_LICENSE("GPL");
 
 #undef RTAPI_FIFO  // drop support for RTAPI fifos
 
-/* maximum number of various resources */
-#define RTAPI_MAX_MODULES	64
-#define RTAPI_MAX_TASKS		64
-#define RTAPI_MAX_SHMEMS	32
+// RTAPI_MAX_* moved to config.h
 
 #define DEFAULT_MAX_DELAY	10000
 
 /* random numbers used as signatures */
 #define TASK_MAGIC		21979
 #define MODULE_MAGIC		30812
+#define SHMEM_MAGIC             25453
 
 #define MIN_STACKSIZE		32768
 
@@ -104,12 +119,9 @@ MODULE_LICENSE("GPL");
    are accessed by multiple different programs, both user processes
    and kernel modules.  If the structure layouts used by various
    programs don't match, that's bad.  So we have revision checking.
-   Whenever a module or program is loaded, the rev_code is checked
-   against the code in the shared memory area.  If they don't match,
-   the rtapi_init() call will fail.
-
-   Thread system header files should define the macro REV_CODE with a
-   unique integer value.
+   Whenever a module or program is loaded, thread_flavor_id and
+   serial is checked against the code in the shared memory area.  If
+   they don't match, the rtapi_init() call will fail.
   */
 
 /* These structs hold data associated with objects like tasks, etc. */
@@ -136,8 +148,8 @@ typedef enum {
 } task_state_t;
 
 typedef struct {
-    char name[RTAPI_NAME_LEN];
     int magic;
+    char name[RTAPI_NAME_LEN];
     int uses_fp;
     size_t stacksize;
     int period;
@@ -155,6 +167,7 @@ typedef struct {
     int key;			/* key to shared memory area */
     int id;			/* OS identifier for shmem */
     int count;                  /* count of maps in this process */
+    int instance;               // if this was a cross-instance attach
     int rtusers;		/* number of realtime modules using block */
     int ulusers;		/* number of user processes using block */
     unsigned long size;		/* size of shared memory area */
@@ -162,6 +175,14 @@ typedef struct {
 				/* which modules are using block */
     void *mem;			/* pointer to the memory */
 } shmem_data;
+
+typedef struct {
+    int magic;			/* to check for valid handle */
+    int shmem_id;               /* index into shmem_array */
+    int key;                    /* RTAPI shm key */
+    int owner;                  /* module which created the ring */
+} ring_data;
+
 
 /* Master RTAPI data structure
    There is a single instance of this structure in the machine.
@@ -173,8 +194,10 @@ typedef struct {
 
 typedef struct {
     int magic;			/* magic number to validate data */
-    int rev_code;		/* revision code for matching */
+    int serial;			/* revision code for matching */
+    int thread_flavor_id;	/* unique ID for each thread style: rtapi.h */
     unsigned long mutex;	/* mutex against simultaneous access */
+    unsigned long ring_mutex;	/* layering RTAPI functions requires per-layer locks */
     int rt_module_count;	/* loaded RT modules */
     int ul_module_count;	/* running UL processes */
     int task_count;		/* task IDs in use */
@@ -186,6 +209,8 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
+    ring_data  ring_array[RTAPI_MAX_RINGS +1];  /* ringbuffer headers */
+
 #ifdef THREAD_RTAPI_DATA
     THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
 #endif
@@ -194,21 +219,35 @@ typedef struct {
 
 /* rtapi_common.c */
 extern rtapi_data_t *rtapi_data;
-extern void init_rtapi_data(rtapi_data_t * data);
 
+#if defined(RTAPI) || defined(MODULE)
+extern void init_rtapi_data(rtapi_data_t * data);
+extern void init_global_data(global_data_t * data, 
+			     int instance_id, int hal_size, 
+			     int rtlevel, int userlevel, const char *name);
+#endif
+
+#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+extern int  _next_module_id(void);
+#endif
+
+// set first thing in rtapi_app_main
+extern int shmdrv_loaded;
+extern long page_size;  // for munmap
 
 /* rtapi_task.c */
 extern task_data *task_array;
 
 
 /* $(THREADS).c */
+/* RT_TASK is actually flavor-specific.  It ought to be hookified, but
+   it isn't because the two kthreads flavors both use the same same
+   for this data type (perhaps because they share history and the
+   ipipe patch)
+ */
 #if defined(MODULE)
 extern RT_TASK *ostask_array[];
 #endif
-
-
-/* rtapi_msg.c */
-extern int msg_level;		/* needed in rtapi_proc.h */
 
 /* rtapi_time.c */
 #ifdef BUILD_SYS_USER_DSO
@@ -218,22 +257,26 @@ extern long int max_delay;
 extern unsigned long timer_counts;
 #endif
 #ifdef HAVE_RTAPI_MODULE_TIMER_STOP
-void rtapi_module_timer_stop(void);
+void _rtapi_module_timer_stop(void);
 #endif
 
 
 /* rtapi_shmem.c */
-#define RTAPI_KEY   0x90280A48	/* key used to open RTAPI shared memory */
 #define RTAPI_MAGIC 0x12601409	/* magic number used to verify shmem */
 #define SHMEM_MAGIC_DEL_LOCKED 25454  /* don't obtain mutex when deleting */
 
 extern shmem_data *shmem_array;
 extern void *shmem_addr_array[];
 
+/* rtapi_ring.c */
+#define RING_MAGIC   120756	/* random numbers used as signatures */
+extern ring_data *ring_array;
+extern void *ring_addr_array[];
+
 
 /* rtapi_module.c */
 #ifndef BUILD_SYS_USER_DSO
-extern int init_master_shared_memory(rtapi_data_t **rtapi_data);
+extern int _init_master_shared_memory(rtapi_data_t **rtapi_data);
 #endif
 extern module_data *module_array;
 

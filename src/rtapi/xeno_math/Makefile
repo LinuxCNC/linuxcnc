@@ -8,7 +8,6 @@ EXTRA_CFLAGS += -I/usr/include -ffast-math -mhard-float \
 	-D_IEEE_LIBM \
 	-D_ISOC99_SOURCE \
 	-D_SVID_SOURCE \
-	-I/usr/include/i386-linux-gnu \
 	-I$(BASEPWD)   # for config.h
 
 obj-m := xeno_math.o

@@ -31,9 +31,12 @@ lib/python/touchy
 tests/*/skip
 tests/*/*/skip
 tests/*/*/*/skip
+/rtlib/
+/libexec/
+/etc/
 #
 # emacs droppings
 *~
 \#*\#
 .\#*
-
+core.*

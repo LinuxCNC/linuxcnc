@@ -1,144 +1,216 @@
 INCLUDES += rtapi
 
-# this covers the userpci directory too, in a bit cludgy way
+# this covers the userpci and shmdrv directories too, in a bit cludgy way
 ../include/%.h: ./rtapi/%.h
 	mkdir -p ../include/userpci
 	cp  $^ $@
+
 ../include/%.hh: ./rtapi/%.hh
 	cp  $^ $@
+
+../include/%.h: ./rtapi/shmdrv/%.h
+	mkdir -p ../include/shmdrv
+	cp  $^ $@
+
 
 ##########################################
 # defaults for all thread styles
 
-# ULAPI:  ../lib/liblinuxcnchal.so
-#
-# List of sources whose objects objects/rtapi/*.o link into
-# ../lib/liblinuxcnchal.so; see hal/Submakefile
-#
-# hal/Submakefile includes these in USERSRCS so that .o files are
-# built, so no need to do that here
-ULAPI_SRCS := \
+# Sources/objects included in both RTAPI and ULAPI, both kbuild and
+# user threads
+XXAPI_COMMON_SRCS := \
+	rtapi/rtapi_support.c \
 	rtapi/rtapi_common.c \
 	rtapi/rtapi_task.c \
 	rtapi/rtapi_shmem.c \
+	rtapi/rtapi_ring.c \
 	rtapi/rtapi_time.c \
-	rtapi/rtapi_msg.c \
-	rtapi/rtapi_io.c \
-	rtapi/$(THREADS_SOURCE).c \
-	$(if $(filter $(BUILD_SYS),kbuild),rtapi/rtapi_module.c)
+	rtapi/$(THREADS_SOURCE).c
+XXAPI_COMMON_OBJS := $(patsubst %.c,%.o,$(XXAPI_COMMON_SRCS))
 
+# rtapi_compat needs to know where rtapi.ini lives
+%/rtapi_compat.o:  \
+	EXTRAFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
+%/rtapi_compat.o:  \
+	EXTRA_CFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
 
-# RTAPI:  ../rtlib/*
+# ULAPI:  ../lib/ulapi$THREADSTYLE.so (TBD)
 #
-# Makefile defines rtapi-objs, a list of all objects whose sources are
-# compiled -DRTAPI and linked into rtapi.[sk]o.  Keep that list up to
-# date.
+# List of sources whose objects objects/rtapi/*.o link into
+# ../lib/ulapi$THREADSTYLE.soiblinuxcnchal.so;
+#
+ULAPI_SRCS := \
+	$(XXAPI_COMMON_SRCS) \
+	rtapi/ulapi_main.c
+ifeq ($(BUILD_SYS),kbuild)
+ULAPI_SRCS += rtapi/rtapi_module.c
+endif
+
+# ulapi.so needs sources to be built separately for each flavor.  The
+# Makefile rules, and TOOBJS & friends, don't handle this case.
+#
+# Hack around this by creating a separate flavor-specific symlink to
+# the rtapi directory and then build in the usual way for each flavor.
+FLAVOR_ULAPI_SRCS := $(patsubst rtapi/%,rtapi/$(threads)/%,$(ULAPI_SRCS))
+
+$(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
+	ln -s . rtapi/$(threads)
+
+# resolved at loadtime
+$(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
+	$(THREADS_RTFLAGS) -fPIC
+
+ULAPISO := ../lib/ulapi-$(threads).so
+
+$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
+		$(call TOOBJS, $(FLAVOR_ULAPI_SRCS))
+	$(ECHO) Creating shared object $@
+	@mkdir -p ../lib/$(RTDIR_EXT)
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
+	../lib/liblinuxcncshm.so \
+	../lib/liblinuxcnchal.so
 
 
-# cflags for all sources, -DRTAPI or -DULAPI
-#
-# see bottom of this file and Makefile
-RT_CFLAGS := 
-# link flags for -DRTAPI/rtapi_app/rtapi.[ks]o and
-# ../lib/liblinuxcnchal.so
-#
-# see below and hal/Submakefile
-RT_LDFLAGS := 
+USERSRCS += $(FLAVOR_ULAPI_SRCS)
+TARGETS += $(ULAPISO)
 
 
 ##################################################################
 #                 USERLAND THREAD STYLES
 ##################################################################
 ifeq ($(BUILD_SYS),user-dso)
+# Build only during real module build, i.e. when 'make modules
+# threads=<flavor> KERNELDIR=userland_build'
+ifeq ($(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),)
+
+# the rtapi.so module
+obj-$(CONFIG_RTAPI) += rtapi.o
+
+rtapi-objs := \
+	$(XXAPI_COMMON_OBJS) \
+	rtapi/rtapi_main.o \
+	rtapi/rtapi_compat.o
+
+# rule for kernel module, moved from src/Makefile
+$(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
+$(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 
 ################################################
-# xenomai-user settings
-ifeq ($(THREADS),xenomai-user)
-
-RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
-RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
-endif # xenomai-user
-
-
-################################################
-# rt-preempt-user and posix settings
-ifeq ($(THREADS_SOURCE),rt-preempt-user)
-
-#RT_CFLAGS +=  
-RT_LDFLAGS += -lpthread -lrt
-
-endif  # rt-preempt-user/posix
-
-
-################################################
-# ../bin/rtapi_app
+# rtapi_app_<flavor>
 #
-# C sources to compile -DRTAPI and link into ../bin/rtapi_app.  (Omit
-# the main .cc file.)  (Can this be pruned?)
-ifeq ($(USERMODE_PCI),yes)
-RTAPI_SRCS := $(ULAPI_SRCS) rtapi/rtapi_pci.c
-else
-RTAPI_SRCS := $(ULAPI_SRCS) 
+# A matching rtapi_app_<flavor> is built for each userland thread
+# flavor at the same time as RTAPI module flavor builds.
+#
+# rtapi_app_<flavor> requires two sources plus one already in
+# ulapi.so.
+
+RTAPI_APP_SRCS := \
+	rtapi/$(threads)/sim_rtapi_app.cc \
+	rtapi/$(threads)/rtapi_compat.c
+
+$(RTAPI_APP_SRCS): rtapi/$(threads)/%: rtapi/%
+	ln -s . rtapi/$(threads)
+
+USERSRCS += $(RTAPI_APP_SRCS)
+
+# RIP builds need to add LIB_DIR as an rpath, since LD_LIBRARY_PATH
+# isn't honored for setuid executables.
+ifeq ($(RUN_IN_PLACE),yes)
+RTAPI_APP_RPATH=-Wl,-rpath,$(LIB_DIR)
 endif
+
+# HAAACK:
 #
-# Build objects/rtapi/sim_rtapi_app.o in Makefile (with -DULAPI,
-# despite others -DRTAPI; Makefile doesn't handle -DRTAPI C++ sources)
-USERSRCS +=  rtapi/sim_rtapi_app.cc
-#
-# List of objects objects/rtrtapi/*.o to link into ../bin/rtapi_app;
-# see that target below
-#
-# These must be included in USERSRCS for .o files to be built
-RTAPI_APP_OBJS := \
-	$(call TOOBJS, $(patsubst %,rt%, $(RTAPI_SRCS))) \
-			objects/rtapi/sim_rtapi_app.o
-#
-# Add RT_CFLAGS to sim_rtapi_app.cc compilation
-$(call TOOBJSDEPS, rtapi/sim_rtapi_app.cc): EXTRAFLAGS += -fPIC $(RT_CFLAGS) $(LIBUDEV_CFLAGS)
-#
-# Build target
-../bin/rtapi_app: $(RTAPI_APP_OBJS)
+# Build objects/rtapi/sim_rtapi_app.o in Makefile as other USERSRCS,
+# but replace -DULAPI with -DRTAPI:  Makefile doesn't handle -DRTAPI
+# C++ sources
+$(call TOOBJSDEPS, rtapi/$(threads)/sim_rtapi_app.cc): EXTRAFLAGS = \
+	$(LIBUDEV_CFLAGS) -UULAPI $(RTFLAGS)
+
+../libexec/rtapi_app_$(threads): \
+		$(call TOOBJS, $(RTAPI_APP_SRCS) \
+		    rtapi/$(threads)/rtapi_support.c) \
+		../lib/liblinuxcncini.so.0 ../lib/liblinuxcncshm.so
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) -rdynamic $(LDFLAGS) -o $@ $^ $(RT_LDFLAGS)  $(LIBUDEV_LIBS) -ldl
-TARGETS += ../bin/rtapi_app
+	@mkdir -p $(dir $@)
+	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR)/$(threads) $(RTAPI_APP_RPATH) \
+	    -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
+
+modules:  ../libexec/rtapi_app_$(threads)
+endif # BUILD_SYS == user-dso
 ##################################################################
 #                     KERNEL THREAD STYLES
 ##################################################################
 else  # BUILD_SYS == kbuild
 
-################################################
-# rtai settings
-# ifeq ($(THREADS),rtai)
+obj-$(CONFIG_RTAPI) += rtapi.o
 
-# # ...nothing
-# endif  # rtai
+rtapi-objs := \
+	$(XXAPI_COMMON_OBJS) \
+	rtapi/rtapi_module.o
 
-################################################
-# xenomai-kernel settings
-ifeq ($(THREADS),xenomai-kernel)
-
-RT_CFLAGS += -fPIC $(shell $(XENO_CONFIG) --skin=native --cflags )
-RT_LDFLAGS += $(shell $(XENO_CONFIG) --skin=native --ldflags )
-endif  # xenomai-kernel
+# rule for kernel module, moved from src/Makefile
+$(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 
 endif  # BUILD_SYS == kbuild
 
 ##################################################################
-#                     ALL THREAD STYLES
+#                     the kdetect test program
+##################################################################
+RTAPI_KDETECT_SRCS =  rtapi/rtapi_kdetect.c
+USERSRCS += $(RTAPI_KDETECT_SRCS)
+RTAPI_KDETECT_OBJS := \
+	$(call TOOBJS, $(RTAPI_KDETECT_SRCS))
+
+$(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
+	EXTRAFLAGS += -DTEST
+
+# Build target
+../libexec/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt -ldl
+
+TARGETS += ../libexec/kdetect
+
+##################################################################
+#                     the rtapi message demon
 ##################################################################
 
-# Add RT_CFLAGS to ULAPI compilation
-$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC $(RT_CFLAGS) 
+RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c rtapi/rtapi_compat.c
+RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
+$(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
+	EXTRAFLAGS += -DTEST
 
-ifeq ($(BUILD_SYS),kbuild)
-
-TEST_RTAPI_VSNPRINTF_SRCS := rtapi/test_rtapi_vsnprintf.c
-USERSRCS += $(TEST_RTAPI_VSNPRINTF_SRCS)
-$(call TOOBJSDEPS, $(TEST_RTAPI_VSNPRINTF_SRCS)): EXTRAFLAGS += -DSIM
-../bin/test_rtapi_vsnprintf: $(call TOOBJS, $(TEST_RTAPI_VSNPRINTF_SRCS))
+../libexec/rtapi_msgd: $(RTAPI_MSGD_OBJS) \
+		../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so
 	$(ECHO) Linking $(notdir $@)
-	@$(CXX) -rdynamic $(LDFLAGS) -o $@ $^
+	@mkdir -p $(dir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
 
-TARGETS += ../bin/test_rtapi_vsnprintf
-endif
+USERSRCS += $(RTAPI_MSGD_SRCS)
+TARGETS += ../libexec/rtapi_msgd
+
+# lock debugging help plus a bit of API example
+FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
+
+../libexec/flavor: $(call TOOBJS, $(FLAVOR_SRCS)) \
+		../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
+
+USERSRCS += $(FLAVOR_SRCS)
+TARGETS += ../libexec/flavor
+
+##################################################################
+#                     rtapi.ini config file
+##################################################################
+
+../etc/linuxcnc/rtapi.ini: ../scripts/gen-rtapi.ini.sh
+	@mkdir -p $(dir $@)
+	bash $< > $@
+TARGETS += ../etc/linuxcnc/rtapi.ini
