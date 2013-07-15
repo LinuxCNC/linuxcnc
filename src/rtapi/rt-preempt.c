@@ -20,6 +20,7 @@
 #ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
+#include <syscall.h>
 
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
@@ -38,6 +39,7 @@ typedef struct {
     pthread_t thread;
     pthread_barrier_t thread_init_barrier;
     void *stackaddr;
+    pid_t tid;       // as returned by gettid(2)
 
     /* Statistics */
     unsigned long minfault_base;
@@ -306,8 +308,12 @@ static void *realtime_thread(void *arg) {
     if (task->period < period)
 	task->period = period;
     task->ratio = task->period / period;
-    rtapi_print_msg(RTAPI_MSG_DBG, "task %p period = %d ratio=%d\n",
-		    task, task->period, task->ratio);
+
+    extra_task_data[task_id(task)].tid = (pid_t) syscall(SYS_gettid);
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: task %p period = %d ratio=%d id=%d TID=%d\n",
+		    task, task->period, task->ratio,
+		    task_id(task), extra_task_data[task_id(task)].tid);
 
     if (realtime_set_affinity(task))
 	goto error;
@@ -460,7 +466,8 @@ int _rtapi_backtrace_hook(int msglevel)
 #ifdef RTAPI
     int task_id = _rtapi_task_self_hook();
     // an RT thread
-    rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
+    rtapi_print_msg(msglevel, "RT thread %d TID %d: \n", 
+		    task_id, (pid_t) syscall(SYS_gettid));
 #else // ULAPI
     // use pid
     rtapi_print_msg(msglevel, "pid %d: \n", getpid());
