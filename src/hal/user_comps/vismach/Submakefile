@@ -8,7 +8,8 @@ VISMACH_PY :=  \
 	5axisgui.py \
 	max5gui.py \
 	maho600gui.py \
-	hbmgui.py
+	hbmgui.py \
+	rotarydelta.py
 
 VISMACH_PYBIN := $(patsubst %.py,../bin/%,$(VISMACH_PY))
 PYTARGETS += $(VISMACH_PYBIN)
