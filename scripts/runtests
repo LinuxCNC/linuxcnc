@@ -37,11 +37,14 @@ run_shell_script () {
 
     pushd $testdir > /dev/null
     if [ $VERBOSE -eq 1 ]; then
-        (bash -x $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+        ( realtime start;
+	    bash -x $testname | tee result;
+	    realtime stop ) 3>&1 1>&2 2>&3 | tee stderr
     else
-        bash -x $testname > result 2> stderr
+        (realtime start;bash -x $testname;realtime stop) > result 2> stderr
     fi
     exitcode=$?
+
     popd > /dev/null
     return $exitcode
 }
