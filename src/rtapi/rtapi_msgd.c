@@ -163,11 +163,16 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
     if (f->id == RTAPI_POSIX_ID)
 	return 1; // no prerequisites
 
-    if (kernel_is_xenomai() &&
-	((f->id != RTAPI_XENOMAI_ID) && 
-	 (f->id != RTAPI_XENOMAI_KERNEL_ID))) {
-	syslog(LOG_ERR, "started %s RTAPI on a Xenomai kernel\n", f->name);
-	return 0;
+    if (kernel_is_xenomai()) {
+	if (f->id == RTAPI_RT_PREEMPT_ID) {
+	    syslog(LOG_NOTICE, "started %s RTAPI on a Xenomai kernel\n", f->name);
+	    return 1;
+	}
+	if ((f->id != RTAPI_XENOMAI_ID) &&
+	    (f->id != RTAPI_XENOMAI_KERNEL_ID)) {
+	    syslog(LOG_ERR, "started %s RTAPI on a Xenomai kernel\n", f->name);
+	    return 0;
+	}
     }
 
     if (kernel_is_rtai() &&
