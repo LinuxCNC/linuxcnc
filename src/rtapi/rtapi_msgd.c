@@ -80,8 +80,8 @@ static int create_global_segment()
 
 
     if (shm_common_exists(globalkey)) {
-	syslog(LOG_ERR, "MSGD:%d ERROR: found existing global segment key=0x%x\n",
-	       rtapi_instance, globalkey);
+	fprintf(stderr, "MSGD:%d ERROR: found existing global segment key=0x%x\n",
+		rtapi_instance, globalkey);
 	return -EEXIST;
     }
 
@@ -90,11 +90,11 @@ static int create_global_segment()
     retval = shm_common_new(globalkey, &size,
 			    rtapi_instance, (void **) &global_data, 1);
     if (retval < 0) {
-	syslog(LOG_ERR, "MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
+	fprintf(stderr, "MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
 	       rtapi_instance, globalkey, strerror(-retval));
     }
     if (size != sizeof(global_data_t)) {
-	syslog(LOG_ERR, "MSGD:%d global segment size mismatch: expect %d got %d\n", 
+	fprintf(stderr, "MSGD:%d ERROR: global segment size mismatch: expect %d got %d\n", 
 	       rtapi_instance, sizeof(global_data_t), size);
 	return -EINVAL;
     }
@@ -165,25 +165,31 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
 
     if (kernel_is_xenomai()) {
 	if (f->id == RTAPI_RT_PREEMPT_ID) {
-	    syslog(LOG_NOTICE, "started %s RTAPI on a Xenomai kernel\n", f->name);
+	    fprintf(stderr,
+		    "MSGD:%d Warning: starting %s RTAPI on a Xenomai kernel\n",
+		    rtapi_instance, f->name);
 	    return 1;
 	}
 	if ((f->id != RTAPI_XENOMAI_ID) &&
 	    (f->id != RTAPI_XENOMAI_KERNEL_ID)) {
-	    syslog(LOG_ERR, "started %s RTAPI on a Xenomai kernel\n", f->name);
+	    fprintf(stderr,
+		    "MSGD:%d ERROR: trying to start %s RTAPI on a Xenomai kernel\n",
+		    rtapi_instance, f->name);
 	    return 0;
 	}
     }
 
     if (kernel_is_rtai() &&
 	(f->id != RTAPI_RTAI_KERNEL_ID)) {
-	syslog(LOG_ERR, "started %s RTAPI on an RTAI kernel\n", f->name);
+	fprintf(stderr, "MSGD:%d ERROR: trying to start %s RTAPI on an RTAI kernel\n",
+		    rtapi_instance, f->name);
 	return 0;
     }
 
     if (kernel_is_rtpreempt() &&
 	(f->id != RTAPI_RT_PREEMPT_ID)) {
-	syslog(LOG_ERR, "started %s RTAPI on an RT PREEMPT kernel\n", f->name);
+	fprintf(stderr, "MSGD:%d ERROR: trying to start %s RTAPI on an RT PREEMPT kernel\n", 
+		rtapi_instance, f->name);
 	return 0;
     }
     return retval;
