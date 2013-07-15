@@ -1,5 +1,4 @@
 #!/bin/sh
-realtime start
 python <<EOF
 import hal
 import os
@@ -88,4 +87,3 @@ except:
 finally:
     h.exit()
 EOF
-realtime stop
