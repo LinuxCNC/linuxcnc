@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/bin/sh
+python <<EOF
 import glob, os, sys
 
 fail = 0
@@ -29,3 +30,4 @@ for t in sorted(glob.glob('*.ngc')):
 
 if fail:
     raise SystemExit, "%d failures" % fail
+EOF
