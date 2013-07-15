@@ -9,6 +9,17 @@ USERSRCS += $(GENSERKINSSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/genserkins
 
+RDELTAMODULESRCS := emc/kinematics/rotarydeltakins.cc
+PYSRCS += $(RDELTAMODULESRCS)
+$(call TOOBJS, $(RDELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-statement
+
+RDELTAMODULE := ../lib/python/rotarydeltakins.so
+$(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
+	$(ECHO) Linking python module $(notdir $@)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
+PYTARGETS += $(RDELTAMODULE)
+
+
 ../include/%.h: ./emc/kinematics/%.h
 	cp $^ $@
 ../include/%.hh: ./emc/kinematics/%.hh
