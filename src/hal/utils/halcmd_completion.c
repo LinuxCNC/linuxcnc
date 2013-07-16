@@ -541,20 +541,25 @@ static char *loadrt_generator(const char *text, int state) {
     static int len;
     static DIR *d;
     struct dirent *ent;
-    char bindir[PATH_MAX];
+    char rtlibdir[PATH_MAX];
 
-    if (get_rtapi_config(bindir,"BIN_DIR",PATH_MAX) != 0)
+    if (get_rtapi_config(rtlibdir,"RTLIB_DIR",PATH_MAX) != 0)
 	return NULL;
+
+    strcat(rtlibdir,"/");
+    strcat(rtlibdir, flavor->name);
+    strcat(rtlibdir,"/");
 
     if(!state) {
         len = strlen(text);
-        d = opendir(bindir);
+        d = opendir(rtlibdir);
     }
 
     while(d && (ent = readdir(d))) {
         char *result;
         if(!strstr(ent->d_name, default_flavor()->mod_ext)) continue;
         if(startswith(ent->d_name, "rtapi.")) continue;
+        if(startswith(ent->d_name, "hal_lib.")) continue;
         if(strncmp(text, ent->d_name, len) != 0) continue;
         result = strdup(ent->d_name);
         result[strlen(result) - \
