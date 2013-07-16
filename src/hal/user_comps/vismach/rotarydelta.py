@@ -101,7 +101,7 @@ class HexPrismZ(CoordsBase):
 def build_joint(angle, joint):
     return Rotate([
 	HalTranslate([
-	    CylinderY(0, 2, 2, 2),
+	    CylinderY(-1, 1, 6, 1),
 	    HalRotate([
 		CylinderX(c, 0, .5, 'tl', .5)
 	    ], c, joint, 1, 0, 1, 0)
@@ -192,7 +192,12 @@ strut2 = Color(blue, [Strut(tool, 150, c, "joint2")])
 
 table = Collection([
     CylinderZ(-22, 8, -21, 8),
-    CylinderZ(0, c['pfr'], 1, c['pfr'])
+    Translate([
+        CylinderZ(7, c['pfr']+3.5, 8, c['pfr']+3.5),
+        Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 0, 0, 0, 1),
+        Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 120, 0, 0, 1),
+        Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 240, 0, 0, 1)],
+              0, 0, -3)
     ])
 
 model = Collection([table, joint0, joint1, joint2, tool,
