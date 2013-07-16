@@ -1,7 +1,0 @@
-#!/bin/sh
-
-if [ "$(flavor -b)" = user-dso ]; then
-    exit 1
-fi
-
-exit 0
