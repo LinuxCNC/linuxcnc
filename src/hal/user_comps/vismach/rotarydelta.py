@@ -58,51 +58,44 @@ class DeltaTranslate(Collection):
     def unapply(self):
         glPopMatrix()
 
-class TriangularPrismZ(CoordsBase):
+class HexPrismZ(CoordsBase):
     def draw(self):
 	z0, z1, h = self.coords()
-	h *= 2
-        x0 = 0
-        x1 = -h*sin(pi/3)
-        x2 = h*sin(pi/3)
-        y0 = h 
-        y1 = y2 = -h*cos(pi/3)
+        h /= cos(pi/6)
+
+        glBegin(GL_TRIANGLE_FAN)
+        glNormal3f(0, 0, 1)
+        glVertex3f(0, 0, z1)
+        for i in range(7):
+            d = (2*pi/6) * i
+            glVertex3f(h * cos(d), h * sin(d), z1)
+        glEnd()
+
+        glBegin(GL_TRIANGLE_FAN)
+        glNormal3f(0, 0, -1)
+        glVertex3f(0, 0, z0)
+        for i in range(7):
+            d = (2*pi/6) * i
+            glVertex3f(h * cos(d), h * sin(d), z0)
+        glEnd()
 
         glBegin(GL_TRIANGLES)
-        glNormal3f(0, 0, 1)
-        glVertex3f(x0, y0, z1)
-        glVertex3f(x1, y1, z1)
-        glVertex3f(x2, y2, z1)
+        for i in range(6):
+            d1 = (2*pi/6) * i
+            cd1 = h * cos(d1)
+            sd1 = h * sin(d1)
 
-        glNormal3f(0, 0, -1)
-        glVertex3f(x2, y2, z0)
-        glVertex3f(x1, y1, z0)
-        glVertex3f(x0, y0, z0)
+            d2 = (2*pi/6) * (i+1)
+            cd2 = h * cos(d2)
+            sd2 = h * sin(d2)
 
-        glNormal3f(-cos(pi/3), sin(pi/3), 0)
-        glVertex3f(x0, y0, z1)
-        glVertex3f(x1, y1, z0)
-        glVertex3f(x1, y1, z1)
-        glVertex3f(x0, y0, z1)
-        glVertex3f(x0, y0, z0)
-        glVertex3f(x1, y1, z0)
-
-        glNormal3f(0, -1, 0)
-        glVertex3f(x1, y1, z1)
-        glVertex3f(x2, y2, z0)
-        glVertex3f(x2, y2, z1)
-        glVertex3f(x1, y1, z1)
-        glVertex3f(x1, y1, z0)
-        glVertex3f(x2, y2, z0)
-
-        glNormal3f(cos(pi/3), sin(pi/3), 0)
-        glVertex3f(x2, y2, z1)
-        glVertex3f(x0, y0, z0)
-        glVertex3f(x0, y0, z1)
-        glVertex3f(x2, y2, z1)
-        glVertex3f(x2, y2, z0)
-        glVertex3f(x0, y0, z0)
-
+            glNormal3f(cos(d1), sin(d1), 0)
+            glVertex3f(cd1, sd1, z1)
+            glVertex3f(cd2, sd2, z0)
+            glVertex3f(cd2, sd2, z1)
+            glVertex3f(cd1, sd1, z1)
+            glVertex3f(cd1, sd1, z0)
+            glVertex3f(cd2, sd2, z0)
         glEnd()
 
 def build_joint(angle, joint):
@@ -177,7 +170,7 @@ tool = DeltaTranslate([
     Translate([
         Color((.5,.5,.5,0), [
             Translate([tooltip], 0,0,-2),
-            TriangularPrismZ(c, 0, .5, 'fr'),
+            HexPrismZ(c, 0, .5, 'fr'),
             CylinderZ(-2, 0, -1.5, .25),
             CylinderZ(-1.5, .25, 1, .25)
         ])
