@@ -17,7 +17,6 @@ net J0cmd joint.0.pos-cmd => rotarydelta.joint0
 net J1cmd joint.1.pos-cmd => rotarydelta.joint1
 net J2cmd joint.2.pos-cmd => rotarydelta.joint2
 
-show pin rotary*
 net pfr rotarydeltakins.platformradius => rotarydelta.pfr
 net tl rotarydeltakins.thighlength => rotarydelta.tl
 net sl rotarydeltakins.shinlength => rotarydelta.sl
