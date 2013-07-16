@@ -160,7 +160,7 @@ Load(){
     if ! ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
 	--rtmsglevel=$DEBUG \
 	--usrmsglevel=$DEBUG \
-	--halsize=$HAL_SIZE   ; then
+	--halsize=$HAL_SIZE $MSGD_OPTS  ; then
 	exitcode=$?
 	echo "rtapi_msgd startup failed - aborting" 1>&2
 	exit $?
@@ -180,13 +180,13 @@ Load(){
     if test $BUILD_SYS = user-dso; then
         # run rtapi_app for userland
 	if [ "$DEBUG" != "" ] ; then
-	    if ! ${rtapi_app} --instance=$INSTANCE ; then
+	    if ! ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS ; then
 		exitcode=$?
 		echo "rtapi_app startup failed - aborting" 1>&2
 		exit $?
 	    fi
 	else
-	    if ! ${rtapi_app} --instance=$INSTANCE  2>&1 >/dev/null ; then
+	    if ! ${rtapi_app} --instance=$INSTANCE  $RTAPI_APP_OPTS 2>&1 >/dev/null ; then
 		exitcode=$?
 		echo "rtapi_app startup failed - aborting" 1>&2
 		exit $?
