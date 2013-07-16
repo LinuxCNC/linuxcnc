@@ -2004,7 +2004,7 @@ static void print_thread_info(char **patterns)
     hal_funct_t *funct;
 
     if (scriptmode == 0) {
-	halcmd_output("Realtime Threads:\n");
+	halcmd_output("Realtime Threads (flavor: %s) :\n", flavor->name);
 	halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
