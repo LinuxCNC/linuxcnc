@@ -370,8 +370,9 @@ long int simple_strtol(const char *nptr, char **endptr, int base) {
     return strtol(nptr, endptr, base);
 # endif
 }
-#endif
 
+EXPORT_SYMBOL(simple_strtol);
+#endif
 
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 /*  This function is disabled everywhere...  */
