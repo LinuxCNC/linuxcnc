@@ -14,7 +14,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import rs274.OpenGLTk, Tkinter, signal
+import rs274.OpenGLTk, Tkinter, signal, hal
 from minigl import *
 from math import *
 import glnav
@@ -182,11 +182,20 @@ class Track(Collection):
 
 class CoordsBase(object):
     def __init__(self, *args):
+	if isinstance(args[0], hal.component):
+	   self.comp = args[0]
+	   args = args[1:]
+	else:
+	   self.comp = None
 	self._coords = args
 	self.q = gluNewQuadric()
 
     def coords(self):
-	return self._coords
+	return map(self._coord, self._coords)
+
+    def _coord(self, v):
+	if isinstance(v, str): return self.comp[v]
+	return v
 
 # give endpoint X values and radii
 # resulting cylinder is on the X axis
