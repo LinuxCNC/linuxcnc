@@ -324,7 +324,9 @@ static void *realtime_thread(void *arg) {
 
     extra_task_data[task_id(task)].tid = (pid_t) syscall(SYS_gettid);
 
-    rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI: task %p period = %d ratio=%d id=%d TID=%d\n",
+    rtapi_print_msg(RTAPI_MSG_INFO,
+		    "RTAPI: task '%s' at %p period = %d ratio=%d id=%d TID=%d\n",
+		    task->name,
 		    task, task->period, task->ratio,
 		    task_id(task), extra_task_data[task_id(task)].tid);
 
