@@ -22,10 +22,10 @@ net tl rotarydeltakins.thighlength => rotarydelta.tl
 net sl rotarydeltakins.shinlength => rotarydelta.sl
 net fr rotarydeltakins.footradius => rotarydelta.fr
 
-sets pfr 100
-sets tl 250
-sets sl 360
-sets fr 50
+sets pfr 10
+sets tl 10
+sets sl 18
+sets fr 5
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
