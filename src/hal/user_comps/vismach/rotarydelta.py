@@ -20,10 +20,8 @@ import hal
 import rotarydeltakins
 import sys
 
-EFFECTOR_OFFSET = CARRIAGE_OFFSET = 30
-MIN_JOINT = -400
-MAX_JOINT = 300
-
+# allow overriding variables here, using the command line, like:
+# loadusr rotarydelta SOMENAME=123
 for setting in sys.argv[1:]: exec setting
 
 c = hal.component("rotarydelta")
@@ -61,11 +59,6 @@ class DeltaTranslate(Collection):
         glPopMatrix()
 
 class TriangularPrismZ(CoordsBase):
-#    def __init__(self, z0, z1, h):
-#        self.z0 = z0
-#        self.z1 = z1
-#        self.h = h
-
     def draw(self):
 	z0, z1, h = self.coords()
 	h *= 2
@@ -111,12 +104,13 @@ class TriangularPrismZ(CoordsBase):
         glVertex3f(x0, y0, z0)
 
         glEnd()
+
 def build_joint(angle, joint):
     return Rotate([
 	HalTranslate([
-	    CylinderY(10, 20, 40, 20),
+	    CylinderY(0, 2, 2, 2),
 	    HalRotate([
-		CylinderX(c, 0, 5, 'tl', 5)
+		CylinderX(c, 0, .5, 'tl', .5)
 	    ], c, joint, 1, 0, 1, 0)
 	], c, "pfr", 1, 0, 0)
     ], angle, 0, 0, 1)
@@ -133,7 +127,7 @@ class Strut:
         c = cos(self.angle)
         s = sin(self.angle)
         o = self.component['fr']
-        oo = .4 * o
+        oo = .2 * o
         x0 = self.platform.x + c*o
         sx = oo * -s
         y0 = self.platform.y + s*o
@@ -167,14 +161,14 @@ class Strut:
         glPopMatrix()
 
     def cylinder(self, L):
-        gluCylinder(self.q, 5, 5, L, 32, 1)
+        gluCylinder(self.q, .5, .5, L, 32, 1)
 	# bottom cap
 	glRotatef(180,1,0,0)
-	gluDisk(self.q, 0, 5, 32, 1)
+	gluDisk(self.q, 0, .5, 32, 1)
 	glRotatef(180,1,0,0)
 	# the top cap needs flipped and translated
 	glTranslatef(0,0, L)
-	gluDisk(self.q, 0, 5, 32, 1)
+	gluDisk(self.q, 0, .5, 32, 1)
        
 tooltip = Capture()
     
@@ -182,12 +176,12 @@ tooltip = Capture()
 tool = DeltaTranslate([
     Translate([
         Color((.5,.5,.5,0), [
-            Translate([tooltip], 0,0,-40),
-            Rotate([TriangularPrismZ(c, 0, 5, 'fr')], 180, 0, 0, 1),
-            CylinderZ(-40, 0, -30, 10),
-            CylinderZ(-30, 10, 10, 10)
+            Translate([tooltip], 0,0,-2),
+            TriangularPrismZ(c, 0, .5, 'fr'),
+            CylinderZ(-2, 0, -1.5, .25),
+            CylinderZ(-1.5, .25, 1, .25)
         ])
-    ], 0, 0, -5)], c)
+    ], 0, 0, -.5)], c)
 
 red = (1,.5,.5,0)
 green = (.5,1,.5,0)
@@ -203,9 +197,12 @@ strut0 = Color(red, [Strut(tool, -90, c, "joint0")])
 strut1 = Color(green, [Strut(tool, 30, c, "joint1")])
 strut2 = Color(blue, [Strut(tool, 150, c, "joint2")])
 
-table = CylinderZ(MIN_JOINT-5, 300, MIN_JOINT, 300)
+table = Collection([
+    CylinderZ(-22, 8, -21, 8),
+    CylinderZ(0, c['pfr'], 1, c['pfr'])
+    ])
 
 model = Collection([table, joint0, joint1, joint2, tool,
 strut0, strut1, strut2,
 work])
-main(model, tooltip, work, 1500)
+main(model, tooltip, work, 60)
