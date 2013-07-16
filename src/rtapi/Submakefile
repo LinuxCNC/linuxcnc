@@ -107,7 +107,7 @@ $(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 # ulapi.so.
 
 RTAPI_APP_SRCS := \
-	rtapi/$(threads)/sim_rtapi_app.cc \
+	rtapi/$(threads)/rtapi_app.cc \
 	rtapi/$(threads)/rtapi_compat.c
 
 $(RTAPI_APP_SRCS): rtapi/$(threads)/%: rtapi/%
@@ -123,10 +123,10 @@ endif
 
 # HAAACK:
 #
-# Build objects/rtapi/sim_rtapi_app.o in Makefile as other USERSRCS,
+# Build objects/rtapi/rtapi_app.o in Makefile as other USERSRCS,
 # but replace -DULAPI with -DRTAPI:  Makefile doesn't handle -DRTAPI
 # C++ sources
-$(call TOOBJSDEPS, rtapi/$(threads)/sim_rtapi_app.cc): EXTRAFLAGS = \
+$(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	$(LIBUDEV_CFLAGS) -UULAPI $(RTFLAGS)
 
 ../libexec/rtapi_app_$(threads): \
