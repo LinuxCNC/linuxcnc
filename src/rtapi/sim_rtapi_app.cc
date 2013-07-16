@@ -44,8 +44,6 @@
 #include <malloc.h>
 #include <assert.h>
 #include <syslog.h>
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>		/* shmget() */
 #include <limits.h>
 
 #include <sys/mman.h>
@@ -96,7 +94,8 @@ long page_size;
 // of dlopen'd modules); these are supposed to be 'ships in the night'
 // relative to any symbols exported by rtapi_app.
 //
-// global_data is set in attach_global_segment() which was already created by rtapi_msgd
+// global_data is set in attach_global_segment() which was already 
+// created by rtapi_msgd
 // rtapi_switch is set once rtapi.so has been loaded by calling the 
 // rtapi_get_handle() method in rtapi.so.
 // Once set, rtapi methods in rtapi.so can be called normally through
@@ -137,7 +136,8 @@ static int do_newinst_cmd(string type, string name, string arg) {
     return comp->make((char*)name.c_str(), (char*)arg.c_str());
 }
 
-static int do_one_item(char item_type_char, const string &param_name, const string &param_value, void *vitem, int idx=0) {
+static int do_one_item(char item_type_char, const string &param_name,
+		       const string &param_value, void *vitem, int idx=0) {
     char *endp;
     switch(item_type_char) {
         case 'l': {
@@ -214,7 +214,8 @@ static int do_comp_args(void *module, vector<string> args) {
                     &a, &b, &item_type_char);
             if(r != 3) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-			  "Unknown parameter `%s' (corrupt array type information): %s\n",
+			  "Unknown parameter `%s'"
+				" (corrupt array type information): %s\n",
 			  s.c_str(), item_type_string.c_str());
                 return -1;
             }
@@ -249,11 +250,13 @@ static int do_load_cmd(string name, vector<string> args) {
     void *module;
 
     if(w == NULL) {
-		strncpy(module_name, (name + flavor->mod_ext).c_str(), PATH_MAX);
+	strncpy(module_name, (name + flavor->mod_ext).c_str(),
+		PATH_MAX);
 
         module = modules[name] = dlopen(module_name, RTLD_GLOBAL |RTLD_NOW);
         if(!module) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", 
+			    name.c_str(), dlerror());
             return -1;
         }
 	// retrieve the address of rtapi_switch_struct
@@ -263,7 +266,8 @@ static int do_load_cmd(string name, vector<string> args) {
 
 	    rtapi_get_handle_t rtapi_get_handle;
     	    dlerror();
-	    rtapi_get_handle = (rtapi_get_handle_t) dlsym(module, "rtapi_get_handle");
+	    rtapi_get_handle = (rtapi_get_handle_t) dlsym(module,
+							  "rtapi_get_handle");
 	    if (rtapi_get_handle != NULL) {
 		rtapi_switch = rtapi_get_handle();
 		assert(rtapi_switch != NULL);
@@ -277,7 +281,8 @@ static int do_load_cmd(string name, vector<string> args) {
 	/// XXX handle arguments
         int (*start)(void) = DLSYM<int(*)(void)>(module, "rtapi_app_main");
         if(!start) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlsym: %s\n", name.c_str(), dlerror());
+            rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlsym: %s\n",
+			    name.c_str(), dlerror());
             return -1;
         }
         int result;
@@ -302,7 +307,8 @@ static int do_load_cmd(string name, vector<string> args) {
 static int do_unload_cmd(string name) {
     void *w = modules[name];
     if(w == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "unload: '%s' not loaded\n", name.c_str());
+        rtapi_print_msg(RTAPI_MSG_ERR, "unload: '%s' not loaded\n", 
+			name.c_str());
 	return -1;
     } else {
         int (*stop)(void) = DLSYM<int(*)(void)>(w, "rtapi_app_exit");
@@ -364,7 +370,8 @@ static void write_strings(int fd, vector<string> strings) {
     for(unsigned int i=0; i<strings.size(); i++) {
         write_string(buf, strings[i]);
     }
-    if(write(fd, buf.data(), buf.size()) != (ssize_t)buf.size()) throw WriteError();
+    if(write(fd, buf.data(), buf.size()) != (ssize_t)buf.size()) 
+	throw WriteError();
 }
 
 static int handle_command(vector<string> args) {
@@ -411,7 +418,8 @@ static int slave(int fd, vector<string> args) {
     }
     catch (WriteError &e) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-		  "rtapi_app: failed to write to master: %s\n", strerror(errno));
+		  "rtapi_app: failed to write to master: %s\n", 
+			strerror(errno));
     }
 
     int result = read_number(fd);
@@ -454,11 +462,13 @@ static int attach_global_segment()
     retval = shm_common_new(globalkey, &size,
 			    instance_id, (void **) &global_data, 0);
     if (retval < 0) {
-	syslog(LOG_ERR, "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
+	syslog(LOG_ERR,
+	       "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
 	       instance_id, globalkey, strerror(-retval));
     }
     if (size != sizeof(global_data_t)) {
-	syslog(LOG_ERR, "rt:%d global segment size mismatch: expect %d got %d\n", 
+	syslog(LOG_ERR,
+	       "rt:%d global segment size mismatch: expect %d got %d\n", 
 	       instance_id, sizeof(global_data_t), size);
 	return -EINVAL;
     }
@@ -508,8 +518,10 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 	    close(statuspipe[1]);  // write side not needed
 
 	    // read return value from statuspipe[0] and exit() that value
-	    if (read(statuspipe[0],&exitcode,sizeof(exitcode)) != sizeof(exitcode)) {
-		fprintf (stderr, "%s:%d parent: reading from result pipe failed: %s\n", 
+	    if (read(statuspipe[0],&exitcode,sizeof(exitcode)) != 
+		sizeof(exitcode)) {
+		fprintf (stderr,
+			 "%s:%d parent: reading from result pipe failed: %s\n", 
 			 argv[0], instance_id, strerror(errno));
 		return EXIT_FAILURE;
 	    }
@@ -546,13 +558,16 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
     // attach global segment which rtapi_msgd already prepared
     if ((retval = attach_global_segment()) != 0) {
-	fprintf(stderr, "%s: FATAL - failed to attach to global segment\n", argv[0]);
+	fprintf(stderr, "%s: FATAL - failed to attach to global segment\n", 
+		argv[0]);
 	write_exitcode(statuspipe[1], 1);
 	exit(retval);
     }
 
-    // make sure rtapi_msgd's pid is valid and msgd is running, in case we caught a leftover shmseg
-    // otherwise log messages would vanish - kinda hard to diagnose errors that way
+    // make sure rtapi_msgd's pid is valid and msgd is running, 
+    // in case we caught a leftover shmseg
+    // otherwise log messages would vanish
+    // kinda hard to diagnose errors that way
     if ((global_data->rtapi_msgd_pid == 0) ||
 	kill(global_data->rtapi_msgd_pid, 0) != 0) {
 	fprintf(stderr,"%s: rtapi_msgd pid invalid: %d, exiting\n",
@@ -561,8 +576,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 	exit(EXIT_FAILURE);
     }
 
-    // from here on it is safe to use rtapi_print() and friends as the error ring
-    // is now set up and msgd is logging it
+    // from here on it is safe to use rtapi_print() and friends as 
+    // the error ring is now set up and msgd is logging it
     rtapi_set_logtag("rtapi_app");
     rtapi_set_msg_level(global_data->rt_msg_level);
     rtapi_print_msg(RTAPI_MSG_INFO, "master:%d started pid=%d gcc=%s git=%s", 
@@ -581,7 +596,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // make sure we're setuid root when we need to
     if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && !getuid()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_app:%d need to 'sudo make setuid' to access I/O?\n", 
+			"rtapi_app:%d need to"
+			" 'sudo make setuid' to access I/O?\n", 
 			instance_id);
 	write_exitcode(statuspipe[1], 4);
 	exit(EXIT_FAILURE);
@@ -590,7 +606,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // assorted RT incantations - memory locking, prefaulting etc
     if ((retval = harden_rt())) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_app:%d failed to setup realtime environment - 'sudo make setuid' missing?\n", 
+			"rtapi_app:%d failed to setup "
+			"realtime environment - 'sudo make setuid' missing?\n", 
 			instance_id);
 	write_exitcode(statuspipe[1], 5);
 	exit(retval);
@@ -598,7 +615,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
     // load rtapi and hal_lib
     if (init_actions(instance_id)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: init_actions() failed\n", instance_id);
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d: init_actions() failed\n", instance_id);
 	write_exitcode(statuspipe[1], 6);
 	exit(1);
     }
@@ -620,7 +638,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     }
 
     // report success
-    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app:%d initialization complete\n", instance_id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_app:%d initialization complete\n",
+		    instance_id);
 
     // and unblock the waiting parent process so script/realtime continues
     write_exitcode(statuspipe[1], 0);
@@ -641,7 +660,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
                 result = handle_command(read_strings(fd1));
             } catch (ReadError &e) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-			  "rtapi_app: failed to read from slave: %s\n", strerror(errno));
+			  "rtapi_app: failed to read from slave: %s\n",
+				strerror(errno));
                 close(fd1);
                 continue;
             }
@@ -649,7 +669,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
             write_number(buf, result);
             if(write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
-			  "rtapi_app: failed to write to slave: %s\n", strerror(errno));
+			  "rtapi_app: failed to write to slave: %s\n",
+				strerror(errno));
             };
             close(fd1);
         }
@@ -764,7 +785,8 @@ exit_handler(void)
 	// RTAPI already shut down here
 	rtapi_print_msg(RTAPI_MSG_WARN,
 			"rtapi_app_main %d: %ld page faults, %ld page reclaims\n",
-			getpid(), rusage.ru_majflt - majflt , rusage.ru_minflt - minflt);
+			getpid(), rusage.ru_majflt - majflt,
+			rusage.ru_minflt - minflt);
     }
 }
 
@@ -863,9 +885,11 @@ static int harden_rt()
 			    errno, strerror(errno));
 	    return -1;
 	}
-	rtapi_print_msg(RTAPI_MSG_ERR,"this user is not member of group xenomai");
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"please 'sudo adduser <username>  xenomai', logout and login again");
+			"this user is not member of group xenomai");
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"please 'sudo adduser <username>  xenomai',"
+			" logout and login again");
 	return -1;
 
     is_xenomai_member:
@@ -882,7 +906,8 @@ static int harden_rt()
     if (use_drivers || (flavor->flags & FLAVOR_DOES_IO)) {
 	if (iopl(3) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "cannot gain I/O privileges - forgot 'sudo make setuid'?\n");
+			    "cannot gain I/O privileges - "
+			    "forgot 'sudo make setuid'?\n");
 	    return -EPERM;
 	}
     }
@@ -958,7 +983,8 @@ int main(int argc, char **argv)
 
 	case 'f':
 	    if ((flavor = flavor_byname(optarg)) == NULL) {
-		fprintf(stderr, "no such flavor: '%s' -- valid flavors are:\n", optarg);
+		fprintf(stderr, "no such flavor: '%s' -- valid flavors are:\n", 
+			optarg);
 		flavor_ptr f = flavors;
 		while (f->name) {
 		    fprintf(stderr, "\t%s\n", f->name);
@@ -1036,7 +1062,8 @@ become_master:
         if(result < 0 && errno == ECONNREFUSED) { 
             unlink(SOCKET_PATH);
 	    rtapi_print_msg(RTAPI_MSG_WARN, 
-			    "slave:%d:  Waited 3 seconds for master.  giving up.",
+			    "slave:%d:  Waited 3 seconds for master."
+			    "  giving up.",
 			    instance_id);
             close(fd);
             goto become_master;
