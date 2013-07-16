@@ -468,7 +468,7 @@ static int attach_global_segment()
     }
     if (size != sizeof(global_data_t)) {
 	syslog(LOG_ERR,
-	       "rt:%d global segment size mismatch: expect %d got %d\n", 
+	       "rt:%d global segment size mismatch: expect %zu got %d\n", 
 	       instance_id, sizeof(global_data_t), size);
 	return -EINVAL;
     }
