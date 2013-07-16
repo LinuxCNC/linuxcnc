@@ -55,7 +55,9 @@ getvar rtapi_app --flavor
 
 # Other
 getvar USE_SHMDRV
-getvar DEBUG
+if [ "$DEBUG" == "" ]  ; then
+    getvar DEBUG
+fi
 getvar HAL_SIZE
 
 
