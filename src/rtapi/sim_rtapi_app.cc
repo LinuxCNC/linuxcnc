@@ -528,13 +528,21 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     snprintf(proctitle, sizeof(proctitle), "rtapi:%d",instance_id);
     size_t argv0_len = strlen(argv[0]);
     size_t procname_len = strlen(proctitle);
-    size_t max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
+    size_t max_procname_len = (argv0_len > procname_len) ?
+	(procname_len) : (argv0_len);
 
     strncpy(argv[0], proctitle, max_procname_len);
     memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
 
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
+
+    // set this thread's name so it can be identified in ps/top as
+    // rtapi:<instance>
+    if (prctl(PR_SET_NAME, argv[0]) < 0) {
+	fprintf(stderr,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
+		argv[0], strerror(errno));
+    }
 
     // attach global segment which rtapi_msgd already prepared
     if ((retval = attach_global_segment()) != 0) {
