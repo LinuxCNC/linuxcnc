@@ -705,10 +705,18 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     }
 
     // Load and execute binary on PRU
-    if (!strlen(filename))
-    filename = EMC2_RTLIB_DIR "/" DEFAULT_CODE;
-    retval =  prussdrv_exec_program (pru, filename, disabled);
+    // search for .bin files under rtlib/<flavorname>/filename.bin
+    char pru_binpath[PATH_MAX];
 
+    if (!strlen(filename)) {
+	if (get_rtapi_config(pru_binpath, "RTLIB_DIR",PATH_MAX) != 0)
+	    return -ENOENT;
+	strcat(pru_binpath,"/");
+	strcat(pru_binpath, rtapi_switch->thread_flavor_name);
+	strcat(pru_binpath,"/");
+	filename = pru_binpath;
+    }
+    retval =  prussdrv_exec_program (pru, filename, disabled);
     return retval;
 }
 

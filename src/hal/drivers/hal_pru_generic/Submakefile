@@ -18,8 +18,8 @@ PASM := ../bin/pasm
 PRU_SRCS := $(wildcard $(PRU_SRC_DIR)/*.p)
 
 # .bin file produced by PASM -b goes in rtlib
-PRU_BIN := ../rtlib/$(PRU_MAIN).bin
-PRU_DBG := ../rtlib/$(PRU_MAIN).dbg
+PRU_BIN := $(RTLIBDIR)/$(PRU_MAIN).bin
+PRU_DBG := $(RTLIBDIR)/$(PRU_MAIN).dbg
 
 # .bin files are targets
 TARGETS +=  $(PRU_BIN) $(PRU_DBG)
@@ -31,13 +31,14 @@ PASM_BINFLAGS := -b -L -d
 # conversion rule for the above
 # assemble .p  into .bin object files
 #$(PRU_BIN): $(PRU_SRCS)
-../rtlib/%.bin ../rtlib/%.dbg: $(PASM) 
+$(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PASM) 
 
 # I think we need a bit of Jeff handholding on generating by mkdep.py and including this .d file 
 # at the right momemnt:
 # depends/rthal/drivers/hal_pru_generic/%.d
 
-../rtlib/%.bin ../rtlib/%.dbg: $(PRU_SRC_DIR)/%.p $(PASM)
+$(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PRU_SRC_DIR)/%.p $(PASM)
+	$(Q)mkdir -p $(RTLIBDIR)
 	$(ECHO) Assembling PRU code $@ 
 	$(Q)$(PASM) $(PASM_BINFLAGS) $(filter-out $(PASM),$^) $(basename $@)
 
