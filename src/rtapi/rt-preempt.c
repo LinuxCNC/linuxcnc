@@ -20,7 +20,8 @@
 #ifdef RTAPI
 #include <stdlib.h>		// malloc(), sizeof(), free()
 #include <string.h>		// memset()
-#include <syscall.h>
+#include <syscall.h>            // syscall(SYS_gettid);
+#include <sys/prctl.h>          // prctl(PR_SET_NAME)
 
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
@@ -180,6 +181,18 @@ static void rtapi_key_alloc() {
 static void rtapi_set_task(task_data *t) {
     pthread_once(&task_key_once, rtapi_key_alloc);
     pthread_setspecific(task_key, (void *)t);
+
+    // set this thread's name so it can be identified in ps/top
+    if (prctl(PR_SET_NAME, t->name) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_set_task: prctl(PR_SETNAME,%s) failed: %s\n",
+			t->name,strerror(errno));
+    }
+    // pthread_setname_np() attempts the same thing as
+    // prctl(PR_SET_NAME) in a more portable way, but is
+    // only available from glibc 2.12 onwards
+    // pthread_t self = pthread_self();
+    // pthread_setname_np(self, t->name);
 }
 
 static task_data *rtapi_this_task() {
