@@ -281,11 +281,11 @@
                 <property name="hover_expand">True</property>
                 <property name="enable_grid_lines">both</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="name">
+                  <object class="GtkTreeViewColumn" id="offset">
                     <property name="title">Offset</property>
                     <property name="sort_column_id">0</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cell_name"/>
+                      <object class="GtkCellRendererText" id="cell_offset"/>
                       <attributes>
                         <attribute name="foreground">13</attribute>
                         <attribute name="text">0</attribute>
@@ -420,10 +420,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="type">
+                  <object class="GtkTreeViewColumn" id="name">
                     <property name="title">Offset Name</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cell_type"/>
+                      <object class="GtkCellRendererText" id="cell_name"/>
                       <attributes>
                         <attribute name="background">12</attribute>
                         <attribute name="editable">11</attribute>

@@ -23,7 +23,7 @@
 
 import sys, os, pango, linuxcnc
 datadir = os.path.abspath(os.path.dirname(__file__))
-AXISLIST = ['name','X','Y','Z','A','B','C','U','V','W','type']
+AXISLIST = ['offset','X','Y','Z','A','B','C','U','V','W','name']
 # we need to know if linuxcnc isn't running when using the GLADE editor
 # as it causes big delays in response
 lncnc_running = False
@@ -113,8 +113,8 @@ class OffsetPage(gtk.VBox):
             if col > 9:break
             temp = self.wTree.get_object("cell_%s"%name)
             temp.connect( 'edited', self.col_editted, col )
-        temp = self.wTree.get_object("cell_type")
-        temp.connect( 'edited', self.col_editted, col )
+        temp = self.wTree.get_object("cell_name")
+        temp.connect( 'edited', self.col_editted, 10 )
         # reparent offsetpage box from Glades top level window to widgets VBox
         window = self.wTree.get_object("offsetpage_box")
         window.reparent(self)
@@ -256,20 +256,26 @@ class OffsetPage(gtk.VBox):
     # eg list ='ab'
     # default, all the columns are shown
     def set_col_visible(self,list,bool):
+        try:
             for index in range(0,len(list)):
                 colstr = str(list[index])
                 colnum = "xyzabcuvwt".index(colstr.lower())
                 name = AXISLIST[colnum+1]
                 renderer = self.wTree.get_object(name)
                 renderer.set_property('visible', bool)
+        except:
+            pass
 
-    # hide/show the offset type rows from a text string of row ids
+    # hide/show the offset rows from a text string of row ids
     # eg list ='123'
     def set_row_visible(self,list,bool):
-        for index in range(0,len(list)):
-            rowstr = str(list[index])
-            rownum = "0123456789abcd".index(rowstr.lower())
-            self.store[rownum][10] = bool
+        try:
+            for index in range(0,len(list)):
+                rowstr = str(list[index])
+                rownum = "0123456789abcd".index(rowstr.lower())
+                self.store[rownum][10] = bool
+        except:
+            pass
 
     # This does the units conversion
     # it just multiplies the two arrays 
@@ -318,9 +324,8 @@ class OffsetPage(gtk.VBox):
         else:
             tmpl = lambda s: self.imperial_text_template % s
 
-        # allow 'type' columnn text to be arbitrarily changed
+        # allow 'name' columnn text to be arbitrarily changed
         if col == 10:
-            print "type update"
             self.store[row][14] = new_text
             return
         # set the text in the table
