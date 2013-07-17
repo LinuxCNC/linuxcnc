@@ -108,6 +108,19 @@ void init_global_data(global_data_t * data, int flavor,
 {
     // force-lock - we're first, so thats a bit theoretical
     rtapi_mutex_try(&(data->mutex));
+
+
+    // touch all memory exposed to RT
+    memset(data, 0, sizeof(global_data_t));
+
+    // lock the global data segment
+    if (flavor != RTAPI_POSIX_ID) {
+	if (mlock(data, sizeof(global_data_t))) {
+	    syslog(LOG_ERR, "MSGD:%d mlock(global) failed: %d '%s'\n",
+		   instance_id, errno,strerror(errno)); 
+	}
+    }
+
     /* set magic number so nobody else init's the block */
     data->magic = GLOBAL_MAGIC;
     /* set version code so other modules can check it */
