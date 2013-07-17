@@ -66,51 +66,6 @@ long long int _rtapi_get_time_hook(void) {
 }
 
 
-
-/***********************************************************************
-*                          rtapi_module.c                              *
-************************************************************************/
-
-#ifdef RTAPI
-int _rtapi_module_master_shared_memory_init(rtapi_data_t **rtapi_data) {
-    /* get master shared memory block from OS and save its address */
-    *rtapi_data = rtai_kmalloc(OS_KEY(RTAPI_KEY,rtapi_instance), sizeof(rtapi_data_t));
-    if (*rtapi_data == NULL) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERROR: could not open rtapi_data shared memory\n");
-	return -ENOMEM;
-    }
-    return 0;
-}
-
-void _rtapi_module_master_shared_memory_free(void) {
-    rtai_kfree(OS_KEY(RTAPI_KEY,rtapi_instance));
-}
-
-void _rtapi_module_cleanup_hook(void) {
-    rtai_kfree(OS_KEY(RTAPI_KEY,rtapi_instance));
-}
-
-
-#else /* ULAPI */
-rtapi_data_t *_rtapi_init_hook() {
-    rtapi_data_t *result;
-    result = rtai_malloc(OS_KEY(RTAPI_KEY,rtapi_instance), sizeof(rtapi_data_t));
-
-    // the check for -1 here is because rtai_malloc (in at least
-    // rtai 3.6.1, and probably others) has a bug where it
-    // sometimes returns -1 on error
-    if (result == (rtapi_data_t*)-1)
-	result = NULL;
-
-    return result;
-}
-
-#endif  /* ULAPI */
-
-
-
-
 /***********************************************************************
 *                           rtapi_task.c                               *
 ************************************************************************/
@@ -128,11 +83,13 @@ rtapi_data_t *_rtapi_init_hook() {
 static int _rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 			      void *task) {
     int self = _rtapi_task_self();
+
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d "
 		    "ip=%08lx.\nRTAPI: This fault may not be recoverable "
 		    "without rebooting.\n",
 		    self, task, vec, signo, IP(regs));
+    //dump_stack();
     _rtapi_task_pause(self);
     return 0;
 }
@@ -143,6 +100,8 @@ static void _rtapi_task_wrapper(long task_id)  {
 
     /* point to the task data */
     task = &task_array[task_id];
+    // rtapi_print_msg(RTAPI_MSG_ERR,"_rtapi_task_wrapper(%ld) start\n",task_id);
+
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
     /* if the task ever returns, we record that fact */
@@ -241,39 +200,3 @@ int _rtapi_task_self_hook(void) {
 }
 #endif /* RTAPI */
 
-
-/***********************************************************************
-*                           rtapi_shmem.c                              *
-************************************************************************/
-/* needed for both RTAPI and ULAPI */
-
-void *_rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-				    unsigned long int size, int instance) {
-    rtapi_data_t * result;
-    result = rtai_kmalloc(key, shmem_array[shmem_id].size);
-    // the check for -1 here is because rtai_malloc (in at least
-    // rtai 3.6.1, and probably others) has a bug where it
-    // sometimes returns -1 on error
-    if (result == (void*)-1)
-	return NULL;
-    else
-	return result;
-}
-
-void *_rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-				  unsigned long int size, int instance) {
-    void * result;
-    result = rtai_kmalloc(key, size);
-
-    // the check for -1 here is because rtai_malloc (in at least
-    // rtai 3.6.1, and probably others) has a bug where it
-    // sometimes returns -1 on error
-    if (result == (void*)-1)
-	return NULL;
-    else
-	return result;
-}
-
-void _rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id) {
-    rtai_kfree(shmem->key);
-}
