@@ -144,13 +144,13 @@ Load(){
 	fi
     fi
 
-    # kernel threads must have shmdr.ko loaded
+    # kernel threads must have shmdrv.ko loaded
     # userland threads optionally may use the shmdrv module
     if test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes; then
 	if ! test -c /dev/shmdrv ; then
 	    $linuxcnc_module_helper insert shmdrv || return $?
 	    # give some time to let shmdrv initialize
-	    CheckLoaded
+	    CheckLoaded || exit $?
 	fi
     fi
 
@@ -262,15 +262,16 @@ Unload(){
     fi
 
     for module in $MODULES_UNLOAD ; do
-	# FIXME: this will fail if another instance is using shmdrv
-	# shmdrv is really per-machine, not per-instance
         $linuxcnc_module_helper remove $module
-	if [ "$module" == "shmdrv" ] ; then
-                # shmdrv needs a bit of time until rtapi+hal_lib
-		# have detached shm segments
-	    sleep 1
-	fi
     done
+
+    # if shmdrv is unused, unload it
+    if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
+	# Test if 0 shmdrv segments and remove shmdrv
+	awk 'FNR==1 { if ($1==0) exit 0; else exit 1; }' \
+	    /sys/devices/virtual/misc/shmdrv/status && \
+            $linuxcnc_module_helper remove shmdrv
+    fi
 }
 
 CheckUnloaded(){
