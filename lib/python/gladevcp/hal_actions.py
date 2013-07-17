@@ -267,10 +267,12 @@ def ensure_mode(s, c, *modes):
 
 class EMC_Action_Run(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Run'
+
     def on_activate(self, w):
-        program_start_line = 0
+        print "HAL ACTION start line:",self.program_start_line
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
-        self.linuxcnc.auto(linuxcnc.AUTO_RUN, program_start_line)
+        self.linuxcnc.auto(linuxcnc.AUTO_RUN, self.program_start_line)
+        self.program_start_line = self.reset_line
 
 class EMC_Action_Step(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Step'
@@ -315,6 +317,10 @@ class EMC_Action_Stop(_EMC_Action):
 
 class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
     __gtype_name__ = 'EMC_ToggleAction_Run'
+    program_start_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line',
+                                    blurb='Restart line number-Usually 0 - program start')
+    reset_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line after restarting once',
+                                    blurb='Line number that will be set afterthe next restart. -usually 0 - program start')
     def _hal_init(self):
         _EMC_ToggleAction._hal_init(self)
 
@@ -328,6 +334,10 @@ class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
         self.gstat.connect('interp-idle', lambda w: self.set_active_safe(False))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-run', lambda w: self.set_active_safe(True))
+
+    def set_restart_line(self,line,resetline=0):
+        self.program_start_line = line
+        self.reset_line = resetline
 
     def on_toggled(self, w):
         if self.get_active():
