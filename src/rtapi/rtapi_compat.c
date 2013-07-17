@@ -21,8 +21,11 @@
 // if this exists, and contents is '1', it's RT_PREEMPT
 #define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
 
-// dev/rtai_shm visible only after 'realtime start'
-#define DEV_RTAI_SHM "/dev/rtai_shm"
+// Exists on RTAI and Xenomai
+#define PROC_IPIPE "/proc/ipipe"
+
+// Exists on Xenomai but not on RTAI
+#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
 
 // static storage of kernel module directory
 static char kmodule_dir[PATH_MAX];
@@ -32,15 +35,17 @@ FILE *rtapi_inifile = NULL;
 int kernel_is_xenomai()
 {
     struct stat sb;
-    return ((stat(XNHEAP_DEV_NAME, &sb) == 0)  &&
-	    ((sb.st_mode & S_IFMT) == S_IFCHR));
+
+    return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
+	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0));
 }
 
 int kernel_is_rtai()
 {
     struct stat sb;
-    // this works only after 'realtime start'
-    return ((stat(DEV_RTAI_SHM, &sb) == 0)  && ((sb.st_mode & S_IFMT) == S_IFCHR));
+
+    return ((stat(PROC_IPIPE, &sb) == 0) && 
+	    (stat(PROC_IPIPE_XENOMAI, &sb) != 0));
 }
 
 int kernel_is_rtpreempt()
