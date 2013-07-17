@@ -244,6 +244,8 @@ int module_path(char *result, const char *basename)
     /* Find a kernel module's path */
     struct stat sb;
     char buf[PATH_MAX];
+    char rtlib_result[PATH_MAX];
+    int has_rtdir;
     struct utsname uts;
 	
     // Initialize kmodule_dir, only once
@@ -266,22 +268,27 @@ int module_path(char *result, const char *basename)
     }
 
     // Look for module in kmodule_dir/RTLIB_DIR
-    snprintf(result, PATH_MAX, "%s/%s%s",
-	     kmodule_dir,
-	     basename,
-	     default_flavor()->mod_ext);
+    snprintf(result, PATH_MAX, "%s/%s.ko", kmodule_dir, basename);
     if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
 	return 0;
+
+    // Not found; save result for possible later diagnostic msg
+    strcpy(rtlib_result,result);
 
     // Check RTDIR as well (RTAI)
-    if (get_rtapi_config(buf, "RTDIR", PATH_MAX) != 0 || buf[0] == 0)
-	return -ENOENT;  // not defined or empty
-    snprintf(result, PATH_MAX, "%s/%s%s",
-	     buf, basename, default_flavor()->mod_ext);
-    if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	return 0;
+    has_rtdir = (get_rtapi_config(buf, "RTDIR", PATH_MAX) == 0 && buf[0] != 0);
+    if (has_rtdir) {
+	snprintf(result, PATH_MAX, "%s/%s.ko", buf, basename);
+	if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
+	    return 0;
+    }
 
     // Module not found
+    fprintf(stderr, "module '%s.ko' not found in directory\n\t%s\n",
+	    basename, kmodule_dir);
+    if (has_rtdir)
+	fprintf(stderr, "\tor directory %s\n", buf);
+
     return -ENOENT;
 }
 
