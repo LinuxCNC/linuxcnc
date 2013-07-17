@@ -63,9 +63,9 @@ class OffsetPage(gtk.VBox):
                     gobject.PARAM_READWRITE),
         'foreground_color'  : ( gtk.gdk.Color.__gtype__, 'Active text color',  "",
                     gobject.PARAM_READWRITE),
-        'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: 0-9 a-d are the options',
+        'hide_columns' : ( gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvw and t are the options',
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'hide_rows' : ( gobject.TYPE_STRING, 'Hidden Joints', 'A no-spaces list of joints to hide: 0-9 and/or axis lettets are the options',
+        'hide_rows' : ( gobject.TYPE_STRING, 'Hidden Rows','A no-spaces list of rows to hide: 0123456789abc are the options' ,
                     "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
@@ -452,6 +452,18 @@ class OffsetPage(gtk.VBox):
         if system in self.selection_mask:
             self.mark_active(self.current_system_index)
 
+    def set_names(self,names):
+        for offset,name in names:
+            for row in range(0,13):
+                if offset == self.store[row][0]:
+                    self.store[row][14] = name
+
+    def get_names(self):
+        temp =[]
+        for row in range(0,13):
+            temp.append( [self.store[row][0],self.store[row][14]] )
+        return temp
+
     # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -470,8 +482,10 @@ class OffsetPage(gtk.VBox):
             except:
                 pass
         if name == 'hide_columns':
+            self.set_col_visible("xyzabcuvwt",True)
             self.set_col_visible("%s"%value,False)
         if name == 'hide_rows':
+            self.set_row_visible("0123456789abc",True)
             self.set_row_visible("%s"%value,False)
         if name in self.__gproperties.keys():
             setattr(self, name, value)
@@ -505,7 +519,9 @@ def main(filename=None):
     #offsetpage.set_foreground_color("yellow")
     #offsetpage.mark_active("G55")
     #offsetpage.selection_mask = ("Tool","Rot","G5x")
-    
+    #offsetpage.set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])
+    #print offsetpage.get_names()
+
     window.connect("destroy", gtk.main_quit)
     window.show_all()
     response = window.run()
