@@ -7,7 +7,6 @@ INCLUDES += hal
 HALLIBSRCS := \
 	hal/hal_lib.c \
 	rtapi/rtapi_compat.c \
-	rtapi/shmdrv/shmdrvapi.c \
 	rtapi/rtapi_support.c
 
 # FIXME all thread-specific code needs to be removed from HAL &
@@ -20,7 +19,9 @@ USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
 
-$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS)) ../lib/liblinuxcncini.so
+$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS)) \
+	../lib/liblinuxcncini.so  \
+	../lib/liblinuxcncshm.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
