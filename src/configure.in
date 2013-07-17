@@ -203,7 +203,7 @@ AC_DEFUN([_cfg_flavor_params],
 [FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[xeno_math]],
 	 [[rtai-kernel],[4],[kbuild],[rtai-kernel],[.ko],[.so],dnl
 [FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],dnl
-[rtai_hal rtai_sched rtai_fifos rtai_shm rtai_sem rtai_math]]])
+[rtai_hal rtai_sched rtai_fifos rtai_sem rtai_math]]])
 
 
 dnl #--------------------------------------------------------#
