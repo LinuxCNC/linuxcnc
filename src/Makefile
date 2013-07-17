@@ -907,11 +907,13 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	$(call cc-option,-mieee-fp) \
-	$(call cc-option,-Wframe-larger-than=2560) \
 	$(KERNEL_MATH_CFLAGS)
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
 EXTRA_CFLAGS += -I$(BASEPWD)/hal/support/pru
+endif
+ifeq ($(BUILD_SYS),kbuild)
+EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)
 endif
 
 
