@@ -1100,7 +1100,8 @@ class Gscreen:
         if not h["cycle-start"]: return
         if self.data.mode_order[0] == _AUTO:
             print "run program"
-            self.emc.cycle_start()
+            self.widgets.hal_toggleaction_run.emit('activate')
+            #self.emc.cycle_start()
         elif self.data.mode_order[0] == _MDI:
             print "run MDI"
             self.widgets.hal_mdihistory.submit()
@@ -1730,19 +1731,24 @@ class Gscreen:
     # used for run-at-line restart
     def restart_down(self,widget,calc):
         self.widgets.gcode_view.line_down()
-        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
+        line = int(self.widgets.gcode_view.get_line_number())
+        calc.set_value(line)
+        self.widgets.hal_toggleaction_run.set_restart_line(line,line)
 
     # highlight the gcode down one line higher
     # used for run-at-line restart
     def restart_up(self,widget,calc):
         self.widgets.gcode_view.line_up()
-        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
+        line = int(self.widgets.gcode_view.get_line_number())
+        calc.set_value(line)
+        self.widgets.hal_toggleaction_run.set_restart_line(line,line)
 
     # highlight the gcode line specified
     # used for run-at-line restart
     def restart_set_line(self,widget,calc):
         line = int(calc.get_value())
         self.widgets.gcode_view.set_line_number(line)
+        self.widgets.hal_toggleaction_run.set_restart_line(line,line)
 
     # This is a method that toggles the DRO units
     # the preference unit button saves the state
@@ -2447,8 +2453,7 @@ class Gscreen:
         self.data.restart_dialog = gtk.Dialog(_("Restart Entry"),
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
         label = gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.restart_dialog.vbox.pack_start(label)
@@ -2460,11 +2465,14 @@ class Gscreen:
         box = gtk.HButtonBox()
         upbutton = gtk.Button(label = _("Up"))
         box.add(upbutton)
+        enterbutton = gtk.Button(label = _("Enter"))
+        box.add(enterbutton)
         downbutton = gtk.Button(label = _("Down"))
         box.add(downbutton)
         calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
         upbutton.connect("clicked",self.restart_up,calc)
         downbutton.connect("clicked",self.restart_down,calc)
+        enterbutton.connect("clicked",lambda w:calc.entry.emit('activate'))
         calc.entry.connect("activate",self.restart_set_line,calc)
         self.data.restart_dialog.parse_geometry("400x400+0+0")
         self.data.restart_dialog.show_all()
@@ -2473,12 +2481,9 @@ class Gscreen:
 
     # either start the gcode at the line specified or cancel
     def restart_dialog_return(self,widget,result,calc):
-        if result == gtk.RESPONSE_ACCEPT:
-            value = calc.get_value()
-            if value == None:
-                return
-            self.add_alarm_entry(_("Restart program from line %d"%value))
-            self.emc.re_start(value)
+        value = calc.get_value()
+        self.add_alarm_entry(_("Restart program from line %d"%value))
+        self.widgets.hal_toggleaction_run.set_restart_line(0,0)
         widget.destroy()
         self.data.restart_dialog = None
 
