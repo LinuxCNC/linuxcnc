@@ -94,6 +94,8 @@ man9/orient.9
 man9/pcl720.9
 man9/pluto_servo.9
 man9/pluto_step.9
+man9/rtfault.9
+man9/rtmon.9
 man9/sample_hold.9
 man9/scale.9
 man9/select8.9
