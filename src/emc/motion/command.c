@@ -266,6 +266,13 @@ static int inRange(EmcPose pos, int id, char *move_type)
 	    /* if joint is not active, don't even look at its limits */
 	    continue;
 	}
+	if(!isfinite(joint_pos[joint_num]))
+	{
+	    reportError(_("%s move on line %d gave non-finite joint location on joint %d"),
+		    move_type, id, joint_num);
+	    in_range = 0;
+	    continue;
+	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
 	    reportError(_("%s move on line %d would exceed joint %d's positive limit"),
