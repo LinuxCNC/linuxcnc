@@ -1733,7 +1733,7 @@ class Gscreen:
         self.widgets.gcode_view.line_down()
         line = int(self.widgets.gcode_view.get_line_number())
         calc.set_value(line)
-        self.widgets.hal_toggleaction_run.set_restart_line(line,line)
+        self.update_restart_line(line,line)
 
     # highlight the gcode down one line higher
     # used for run-at-line restart
@@ -1741,14 +1741,14 @@ class Gscreen:
         self.widgets.gcode_view.line_up()
         line = int(self.widgets.gcode_view.get_line_number())
         calc.set_value(line)
-        self.widgets.hal_toggleaction_run.set_restart_line(line,line)
+        self.update_restart_line(line,line)
 
     # highlight the gcode line specified
     # used for run-at-line restart
     def restart_set_line(self,widget,calc):
         line = int(calc.get_value())
         self.widgets.gcode_view.set_line_number(line)
-        self.widgets.hal_toggleaction_run.set_restart_line(line,line)
+        self.update_restart_line(line,line)
 
     # This is a method that toggles the DRO units
     # the preference unit button saves the state
@@ -1778,6 +1778,15 @@ class Gscreen:
         self.set_full_graphics_view(widget.get_active())
 
 # ****** do stuff *****
+
+    def update_restart_line(self,line,reset_line):
+        if "set_restart_line" in dir(self.handler_instance):
+            self.handler_instance.set_restart_line(line,reset_line)
+        else:
+            self.set_restart_line(line,reset_line)
+
+    def set_restart_line(self,line,reset_line):
+        self.widgets.hal_toggleaction_run.set_restart_line(line,reset_line)
 
     def edited_gcode_check(self):
         if self.widgets.gcode_view.buf.get_modified():
@@ -2483,7 +2492,7 @@ class Gscreen:
     def restart_dialog_return(self,widget,result,calc):
         value = calc.get_value()
         self.add_alarm_entry(_("Restart program from line %d"%value))
-        self.widgets.hal_toggleaction_run.set_restart_line(0,0)
+        self.update_restart_line(0,0)
         widget.destroy()
         self.data.restart_dialog = None
 
