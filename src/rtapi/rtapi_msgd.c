@@ -104,12 +104,10 @@ static int create_global_segment()
 void init_global_data(global_data_t * data, int flavor,
 		      int instance_id, int hal_size, 
 		      int rt_level, int user_level,
-		      const char *name)
+		      const char *name, int stack_size)
 {
     // force-lock - we're first, so thats a bit theoretical
     rtapi_mutex_try(&(data->mutex));
-
-
     // touch all memory exposed to RT
     memset(data, 0, sizeof(global_data_t));
 
@@ -120,7 +118,6 @@ void init_global_data(global_data_t * data, int flavor,
 		   instance_id, errno,strerror(errno)); 
 	}
     }
-
     /* set magic number so nobody else init's the block */
     data->magic = GLOBAL_MAGIC;
     /* set version code so other modules can check it */
