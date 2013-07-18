@@ -334,10 +334,13 @@ class OffsetPage(gtk.VBox):
         except:
             print "offsetpage widget error: unrecognized float input"
         # make sure we switch to correct units for machine
-        if not self.display_units_mm == self.machine_units_mm:
-            qualified = float(locale.atof(new_text)) / self.conversion[0]
-        else:
-            qualified = float(locale.atof(new_text))
+        try:
+            if not self.display_units_mm == self.machine_units_mm:
+                qualified = float(locale.atof(new_text)) / self.conversion[0]
+            else:
+                qualified = float(locale.atof(new_text))
+        except:
+            print 'error'
         # now update linuxcnc to the change
         try:
             global lncnc_runnning
