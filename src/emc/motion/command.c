@@ -256,7 +256,12 @@ static int inRange(EmcPose pos, int id, char *move_type)
     }
 
     /* now fill in with real values, for joints that are used */
-    kinematicsInverse(&pos, joint_pos, &iflags, &fflags);
+    if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) < 0)
+    {
+	reportError(_("%s move on line %d fails kinematicsInverse"),
+		    move_type, id);
+	return 0;
+    }
 
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 	/* point to joint data */

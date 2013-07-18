@@ -1207,18 +1207,38 @@ static void get_pos_cmds(long period)
             axes[8].vel_cmd = (emcmotStatus->carte_pos_cmd.w - old_carte_pos_cmd.w) * servo_freq;
 
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
-	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
+	    result = kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
-	    /* copy to joint structures and spline them up */
-	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-		/* point to joint struct */
-		joint = &joints[joint_num];
-		joint->coarse_pos = positions[joint_num];
-		/* spline joints up-- note that we may be adding points
-		   that fail soft limits, but we'll abort at the end of
-		   this cycle so it doesn't really matter */
-		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+	    if(result == 0)
+	    {
+		/* copy to joint structures and spline them up */
+		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+		    if(!isfinite(positions[joint_num]))
+		    {
+                       reportError(_("kinematicsInverse gave non-finite joint location on joint %d"), joint_num);
+                       SET_MOTION_ERROR_FLAG(1);
+                       SET_MOTION_ENABLE_FLAG(0);
+                       emcmotDebug->enabling = 0;
+                       break;
+		    }
+		    /* point to joint struct */
+		    joint = &joints[joint_num];
+		    joint->coarse_pos = positions[joint_num];
+		    /* spline joints up-- note that we may be adding points
+		       that fail soft limits, but we'll abort at the end of
+		       this cycle so it doesn't really matter */
+		    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+		}
 	    }
+	    else
+	    {
+	       reportError(_("kinematicsInverse failed"));
+	       SET_MOTION_ERROR_FLAG(1);
+	       SET_MOTION_ENABLE_FLAG(0);
+	       emcmotDebug->enabling = 0;
+	       break;
+	    }
+
 	    /* END OF OUTPUT KINS */
 	}
 	/* there is data in the interpolators */
@@ -1262,21 +1282,42 @@ static void get_pos_cmds(long period)
 	    to compute the next positions of the joints */
 
 	/* OUTPUT KINEMATICS - convert to joints in local array */
-	kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions, &iflags, &fflags);
+	result = kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions, &iflags, &fflags);
 	/* copy to joint structures and spline them up */
-	for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-	    /* point to joint struct */
-	    joint = &joints[joint_num];
-	    joint->coarse_pos = positions[joint_num];
-	    /* spline joints up-- note that we may be adding points
-		   that fail soft limits, but we'll abort at the end of
-		   this cycle so it doesn't really matter */
-	    cubicAddPoint(&(joint->cubic), joint->coarse_pos);
-	    old_pos_cmd = joint->pos_cmd;
-	    /* interpolate to get new one */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
-	    joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+	if(result == 0)
+	{
+	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+		if(!isfinite(positions[joint_num]))
+		{
+		   reportError(_("kinematicsInverse gave non-finite joint location on joint %d"), joint_num);
+		   SET_MOTION_ERROR_FLAG(1);
+		   SET_MOTION_ENABLE_FLAG(0);
+		   emcmotDebug->enabling = 0;
+		   break;
+		}
+		/* point to joint struct */
+		joint = &joints[joint_num];
+		joint->coarse_pos = positions[joint_num];
+		/* spline joints up-- note that we may be adding points
+		       that fail soft limits, but we'll abort at the end of
+		       this cycle so it doesn't really matter */
+		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
+		old_pos_cmd = joint->pos_cmd;
+		/* interpolate to get new one */
+		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, 0, 0, 0);
+		joint->vel_cmd = (joint->pos_cmd - old_pos_cmd) * servo_freq;
+	    }
 	}
+	else
+	{
+	   reportError(_("kinematicsInverse failed"));
+	   SET_MOTION_ERROR_FLAG(1);
+	   SET_MOTION_ENABLE_FLAG(0);
+	   emcmotDebug->enabling = 0;
+	   break;
+	}
+
+
 	/* END OF OUTPUT KINS */
 
 	/* end of teleop mode */
