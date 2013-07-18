@@ -267,9 +267,16 @@ def ensure_mode(s, c, *modes):
 
 class EMC_Action_Run(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Run'
+    program_start_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line',
+                                    blurb='Restart line number-Usually 0 - program start')
+    reset_line = gobject.property(type=int, default=0, minimum=0, nick='Restart line after restarting once',
+                                    blurb='Line number that will be set afterthe next restart. -usually 0 - program start')
+
+    def set_restart_line(self,line,resetline=0):
+        self.program_start_line = line
+        self.reset_line = resetline
 
     def on_activate(self, w):
-        print "HAL ACTION start line:",self.program_start_line
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_AUTO)
         self.linuxcnc.auto(linuxcnc.AUTO_RUN, self.program_start_line)
         self.program_start_line = self.reset_line
