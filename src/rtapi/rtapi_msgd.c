@@ -283,6 +283,12 @@ static int message_thread()
 
     } while (!msgd_exit);
 
+    // hint if error ring couldnt be served fast enough, or there was contention
+    // none observed so far
+    syslog(rtapi2syslog(msg->level), "error ring stats: full=%d locked=%d",
+	   global_data->error_ring_full,
+	   global_data->error_ring_locked);
+
     return 0;
 }
 
