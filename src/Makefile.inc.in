@@ -7,8 +7,10 @@
 # Set threads now
 #################
 # Set 'threads=<threads-style>' on the make commandline;
-# build posix by default
-threads = posix
+# build the first detected style by default
+BUILD_THREAD_FLAVORS=@BUILD_THREAD_FLAVORS@
+
+threads = $(shell echo $(BUILD_THREAD_FLAVORS) | awk '{print $$1}')
 THREADS = $(shell echo $(threads) | tr a-z- A-Z_)
 
 HAVE_POSIX_THREADS=@HAVE_POSIX_THREADS@
@@ -23,8 +25,6 @@ XENOMAI_THREADS_FLAVOR_ID=@XENOMAI_THREADS_FLAVOR_ID@
 RTAI_KERNEL_THREADS_FLAVOR_ID=@RTAI_KERNEL_THREADS_FLAVOR_ID@
 XENOMAI_KERNEL_THREADS_FLAVOR_ID=@XENOMAI_KERNEL_THREADS_FLAVOR_ID@
 THREAD_FLAVOR_ID=$($(THREADS)_THREADS_FLAVOR_ID)
-
-BUILD_THREAD_FLAVORS=@BUILD_THREAD_FLAVORS@
 
 # Directories
 #############
