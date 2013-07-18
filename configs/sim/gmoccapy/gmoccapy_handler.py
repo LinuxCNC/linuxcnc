@@ -2126,6 +2126,9 @@ class HandlerClass:
         self.gscreen.add_alarm_entry("Restart the program from line clicked")
         self.gscreen.launch_restart_dialog(self)
 
+    def set_restart_line(self,line,reset_line):
+        self.widgets.hal_action_run.set_restart_line(line,reset_line)
+
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         self.gscreen.add_alarm_entry(_("tool_in_spindle has changed to %s"%new_tool_no))
         self._update_toolinfo(new_tool_no)
