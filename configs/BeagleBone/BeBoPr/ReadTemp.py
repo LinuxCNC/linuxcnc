@@ -133,8 +133,16 @@ Thermistor["epcos_B57560G1104"] = [
 # Temperature table needs resistance to be ordered low [0] to high [n]
 Thermistor["epcos_B57560G1104"].reverse()
 
+# Epcos B57560G1104 is Marlin thermistor table 1
+Thermistor["1"] = Thermistor["epcos_B57560G1104"]
 
-
+# Test for multiple thermistor tables
+Thermistor["2"] = [
+[ 400.0,	0.0,		1.4 ],
+[ 300.0,	1000.0,		2.0 ],
+[ 200.0,	10000.0,	3.0 ],
+[ 100.0,	100000.0,	6.0 ],
+[   0.0,	float('inf'),	7.6 ] ]
 
 # The BeBoPr board thermistor input has one side grounded and the other side
 # pulled high through a 2.05K resistor to 3.6V.  Following this is a 470R
@@ -171,66 +179,92 @@ def adc2r(V_adc):
     return R_T
 
 # Convert resistance value into temperature, using thermistor table
-def r2t(R_T):
+def r2t(n, R_T):
     temp_slope = 0.0
     temp       = 0.0
 
-    i = max(bisect.bisect_right(R_Key, R_T) - 1, 0)
+    i = max(bisect.bisect_right(R_Key[n], R_T) - 1, 0)
     
-    temp_slope = (thermistor[0][i] - thermistor[0][i+1]) / (thermistor[1][i] - thermistor[1][i+1])
-    temp = thermistor[0][i] + ((R_T - thermistor[1][i]) * temp_slope)
+    temp_slope = (thermistor[n][0][i] - thermistor[n][0][i+1]) / (thermistor[n][1][i] - thermistor[n][1][i+1])
+    temp = thermistor[n][0][i] + ((R_T - thermistor[n][1][i]) * temp_slope)
     #print "Temp:", temp, "i.R_T:", i, R_T, "slope:", temp_slope, 
     #print "Deg.left:", Thermistor["epcos_B57560G1104"][i], "Deg.right:", Thermistor["epcos_B57560G1104"][i+1]
     return temp
 
 parser = argparse.ArgumentParser(description='HAL component to read ADC values and convert to temperature')
 parser.add_argument('-n','--name', help='HAL component name',required=True)
-parser.add_argument('-a','--adc',  help='ADC input to read',required=True)
-parser.add_argument('-t','--therm',help='Thermistor table to use', required=True)
+parser.add_argument('-N','--num_chan', help='Number of analog inputs to support',default=1)
+parser.add_argument('-a','--adc',  nargs='+', help='ADC input to read', required=True)
+parser.add_argument('-t','--therm',nargs='+', help='Thermistor table to use', required=True)
 args = parser.parse_args()
 
-syspath = '/sys/devices/ocp.*/helper.*/'
-FileName = glob.glob (syspath + args.adc)
-try:
-    if len(FileName) > 0:
-        f = open(FileName[0], 'r')
+num_chan = int(args.num_chan)
+
+if len(args.adc) != num_chan :
+    raise UserWarning('Incorrect number of ADC channels specified!  Expected:' + str(args.num_chan) + str(len(args.adc)) )
+
+if len(args.therm) != num_chan :
+    raise UserWarning('Incorrect number of thermistors specified!  Expected:' + args.num_chan)
+
+syspath = '/sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/'
+
+FileName = []
+
+for i in range(num_chan):
+    TempName  = glob.glob (syspath + 'in_voltage' + args.adc[i] + '_raw')
+    FileName.insert(i, TempName[0])
+    try:
+        if len(FileName[i]) > 0:
+            f = open(FileName[i], 'r')
+            f.close()
+            time.sleep(0.001)
+        else:
+            raise UserWarning('Bad Filename')
+    except (UserWarning, IOError) :
+        print("Cannot read ADC input: %s" % Filename[i])
+        sys.exit(1)
+    
+thermistor = []
+R_Key = []
+for i in range(num_chan):
+    if args.therm[i] in Thermistor:
+        # Shuffle array to make three lists of values (Temp, Resistane, Alpha)
+        # so we can use bisect to efficiently do table lookups
+        thermistor.insert(i, map(list, zip(*Thermistor[args.therm[i]])) )
+
+        # Pull out the resistance values to use as a key for bisect
+        R_Key.insert(i, thermistor[i][1] )
+
     else:
-        raise UserWarning('Bad Filename')
-except (UserWarning, IOError) :
-    print("Cannot read ADC input: %s" % syspath + args.adc)
-    sys.exit(1)
-
-if args.therm in Thermistor:
-    # Shuffle array to make three lists of values (Temp, Resistane, Alpha)
-    # so we can use bisect to efficiently do table lookups
-    thermistor = map(list, zip(*Thermistor[args.therm]))
-else:
-    print("Unknown thermistor type: %s" % args.therm)
-    print 'Try one of:', Thermistor.keys()
-    sys.exit(1)
-
-# Pull out the resistance values to use as a key for bisect
-R_Key = thermistor[1]
-
+        print("Unknown thermistor type: %s" % args.therm)
+        print 'Try one of:', Thermistor.keys()
+        sys.exit(1)
+    
 h = hal.component(args.name)
-h.newpin("raw", hal.HAL_U32, hal.HAL_OUT)
-h.newpin("temp", hal.HAL_FLOAT, hal.HAL_OUT)
+for i in range(num_chan):
+    h.newpin("raw" + str(i), hal.HAL_U32, hal.HAL_OUT)
+    h.newpin("temp" + str(i), hal.HAL_FLOAT, hal.HAL_OUT)
+
 h.ready()
+
 try:
     Err = 0.0
     ADC_V = 0.0
     temp = 0.0
 
     while 1:
-    	f = open(FileName[0], 'r')
-        ADC_IN = int(f.readline())
-        h['raw'] = ADC_IN
-        ADC_V = float(ADC_IN) / 1000.0
-        temp = r2t(adc2r(ADC_V))
-        h['temp'] = temp
-        #print temp
-        f.close()
-        time.sleep(0.050)
+        for i in range(num_chan):
+            f = open(FileName[i], 'r')
+            ADC_IN = int(f.readline())
+            h['raw' + str(i)] = ADC_IN
+            ADC_V = float(ADC_IN) * 1.8 / 4096.0
+            temp = r2t(i,adc2r(ADC_V))
+            h['temp' + str(i)] = temp
+            #print ADC_IN, temp
+            f.close()
+            time.sleep(0.001)
+
+        time.sleep(0.049)
 except KeyboardInterrupt:
     raise SystemExit
 
