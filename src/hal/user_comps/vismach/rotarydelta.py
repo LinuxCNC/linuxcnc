@@ -46,9 +46,9 @@ class DeltaTranslate(Collection):
         rotarydeltakins.set_geometry(self.comp['pfr'], self.comp['tl'], self.comp['sl'], self.comp['fr'])
         f = rotarydeltakins.forward(self.comp['joint0'], self.comp['joint1'], self.comp['joint2'])
         if f is not None:
-            self.x = x = f[0]
+            self.x = x = -f[0]
             self.y = y = f[1]
-            self.z = z = f[2]
+            self.z = z = -f[2]
         else:
             x = self.x
             y = self.y
@@ -169,10 +169,10 @@ tooltip = Capture()
 tool = DeltaTranslate([
     Translate([
         Color((.5,.5,.5,0), [
-            Translate([tooltip], 0,0,-2),
+            Translate([tooltip], 0,0,3.4),
             HexPrismZ(c, 0, .5, 'fr'),
-            CylinderZ(-2, 0, -1.5, .25),
-            CylinderZ(-1.5, .25, 1, .25)
+            CylinderZ(3.4, 0, 2.5, .25),
+            CylinderZ(2.5, .25, 0, .25)
         ])
     ], 0, 0, -.5)], c)
 
@@ -190,8 +190,7 @@ strut0 = Color(red, [Strut(tool, -90, c, "joint0")])
 strut1 = Color(green, [Strut(tool, 30, c, "joint1")])
 strut2 = Color(blue, [Strut(tool, 150, c, "joint2")])
 
-table = Collection([
-    CylinderZ(-22, 8, -21, 8),
+platform = Collection([
     Translate([
         CylinderZ(7, c['pfr']+3.5, 8, c['pfr']+3.5),
         Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 0, 0, 0, 1),
@@ -200,7 +199,14 @@ table = Collection([
               0, 0, -3)
     ])
 
-model = Collection([table, joint0, joint1, joint2, tool,
-strut0, strut1, strut2,
-work])
+yellow = (1, 1, 0, 0)
+
+table = Color(yellow, [Collection([
+    Box(8,8,-7,-8,-8,-6),
+    Box(4,4,-6,-4,-4,4)
+    ])])
+
+model = Rotate([Collection([platform, table, joint0, joint1, joint2, tool,
+                            strut0, strut1, strut2,
+                            work])], 180, 0, 1, 0)
 main(model, tooltip, work, 60)

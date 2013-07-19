@@ -31,8 +31,8 @@ net fr rotarydeltakins.footradius => rotarydelta.fr
 
 sets pfr 10
 sets tl 10
-sets sl 18
-sets fr 5
+sets sl 16
+sets fr 7
 
 # estop loopback
 net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in

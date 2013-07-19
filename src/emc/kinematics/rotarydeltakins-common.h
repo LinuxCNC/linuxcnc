@@ -76,8 +76,8 @@ static void set_geometry(double pfr, double tl, double sl, double fr) {
 static int kinematics_forward(const double *joints, EmcPose *pos) {
     double
         j0 = joints[0],
-        j1 = joints[1],
-        j2 = joints[2],
+        j1 = joints[2],
+        j2 = joints[1],
         y1, z1, // x1 is 0
         x2, y2, z2, x3, y3, z3,
         a1, b1, a2, b2,
@@ -121,9 +121,9 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
     d = sq(b) - 4 * a * c;
     if (d < 0) return -1;
 
-    pos->tran.z = (-b - sqrt(d)) / (2 * a);
-    pos->tran.x = (a1 * pos->tran.z + b1) / denom;
-    pos->tran.y = (a2 * pos->tran.z + b2) / denom;
+    pos->tran.z = (b + sqrt(d)) / (2 * a);
+    pos->tran.x = (-a1 * pos->tran.z + b1) / denom;
+    pos->tran.y = (-a2 * pos->tran.z + b2) / denom;
 
     pos->a = joints[3];
     pos->b = joints[4];
@@ -131,7 +131,6 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
     pos->u = joints[6];
     pos->v = joints[7];
     pos->w = joints[8];
-
     return 0;
 }
 
@@ -149,7 +148,7 @@ static int inverse_j0(double x, double y, double z, double *theta) {
     if (d < 0) return -1;
 
     knee_y = (platformradius + a*b + sqrt(d)) / (sq(b) + 1);
-    knee_z = b * knee_y - a;
+    knee_z = a - b * knee_y;
 
     *theta = atan2(knee_z, knee_y - platformradius);
     *theta *= 180.0/M_PI;
@@ -169,11 +168,11 @@ static int kinematics_inverse(const EmcPose *pos, double *joints) {
 
     // now use symmetry property to get the other two just as easily...
     xr = pos->tran.x; yr = pos->tran.y;
-    rotate(&xr, &yr, -2*M_PI/3);
+    rotate(&xr, &yr, 2*M_PI/3);
     if(inverse_j0(xr, yr, pos->tran.z, &joints[1])) return -1;
 
     xr = pos->tran.x; yr = pos->tran.y;
-    rotate(&xr, &yr, 2*M_PI/3);
+    rotate(&xr, &yr, -2*M_PI/3);
     if(inverse_j0(xr, yr, pos->tran.z, &joints[2])) return -1;
 
     joints[3] = pos->a;
