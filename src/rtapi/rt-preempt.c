@@ -27,6 +27,8 @@
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
+int _rtapi_task_self_hook(void);
+
 #endif  /* RTAPI */
 
 #define MODULE_OFFSET		32768
@@ -125,43 +127,50 @@ static inline int task_id(task_data *task) {
     return (int)(task - task_array);
 }
 
+/***********************************************************************
+*                           RT thread statistics update                *
+************************************************************************/
+#ifdef RTAPI
+int _rtapi_task_update_stats_hook(void)
+{
+    int task_id = _rtapi_task_self_hook();
 
-#ifndef RTAPI_POSIX
-static unsigned long _rtapi_get_pagefault_count(task_data *task) {
-    struct rusage rusage;
-    unsigned long minor, major;
-
-    getrusage(RUSAGE_SELF, &rusage);
-    minor = rusage.ru_minflt;
-    major = rusage.ru_majflt;
-    if (minor < extra_task_data[task_id(task)].minfault_base || 
-	major < extra_task_data[task_id(task)].majfault_base) {
+    // paranoia
+    if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi task %d %s: Got invalid fault counts.\n",
-			task_id(task), task->name);
-	return 0;
+			"_rtapi_task_update_stats_hook: BUG -"
+			" task_id out of range: %d\n",
+			task_id);
+	return -ENOENT;
     }
-    minor -= extra_task_data[task_id(task)].minfault_base;
-    major -= extra_task_data[task_id(task)].majfault_base;
 
-    return minor + major;
-}
+    struct rusage ru;
 
-static void _rtapi_reset_pagefault_count(task_data *task) {
-    struct rusage rusage;
-
-    getrusage(RUSAGE_SELF, &rusage);
-    if (extra_task_data[task_id(task)].minfault_base != rusage.ru_minflt ||
-	extra_task_data[task_id(task)].majfault_base != rusage.ru_majflt) {
-	extra_task_data[task_id(task)].minfault_base = rusage.ru_minflt;
-	extra_task_data[task_id(task)].majfault_base = rusage.ru_majflt;
-	rtapi_print_msg(RTAPI_MSG_DBG,
-			"rtapi task %d %s: Reset pagefault counter\n",
-			task_id(task), task->name);
+    if (getrusage(RUSAGE_THREAD, &ru)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,"getrusage(): %d - %s\n",
+			errno, strerror(-errno));
+	return errno;
     }
+
+    rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
+
+    ts->flavor.rtpreempt.utime_usec = ru.ru_utime.tv_usec;
+    ts->flavor.rtpreempt.utime_sec  = ru.ru_utime.tv_sec;
+
+    ts->flavor.rtpreempt.stime_usec = ru.ru_stime.tv_usec;
+    ts->flavor.rtpreempt.stime_sec  = ru.ru_stime.tv_sec;
+
+    ts->flavor.rtpreempt.ru_minflt = ru.ru_minflt;
+    ts->flavor.rtpreempt.ru_majflt = ru.ru_majflt;
+    ts->flavor.rtpreempt.ru_nsignals = ru.ru_nsignals;
+    ts->flavor.rtpreempt.ru_nivcsw = ru.ru_nivcsw;
+    ts->flavor.rtpreempt.ru_nivcsw = ru.ru_nivcsw;
+
+    ts->num_updates++;
+
+    return task_id;
 }
 #endif
-
 
 static void _rtapi_advance_time(struct timespec *tv, unsigned long ns,
 			       unsigned long s) {
@@ -281,13 +290,12 @@ static int realtime_set_affinity(task_data *task) {
     return 0;
 }
 
-#ifndef RTAPI_POSIX
-
 #ifdef RTAPI
 extern rtapi_exception_handler_t rt_exception_handler;
 #endif
 
-static int realtime_set_priority(task_data *task) {
+#ifndef RTAPI_POSIX
+ static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
 
     memset(&schedp, 0, sizeof(schedp));
@@ -303,20 +311,11 @@ static int realtime_set_priority(task_data *task) {
 }
 #endif
 
-
 static void *realtime_thread(void *arg) {
     task_data *task = arg;
 
     rtapi_set_task(task);
 
-    /* The task should not pagefault at all. So reset the counter now.
-
-     * Note that currently we _do_ receive a few pagefaults in the
-     * taskcode init. This is noncritical and probably not worth
-     * fixing. */
-#ifndef RTAPI_POSIX
-    _rtapi_reset_pagefault_count(task);
-#endif
 
     if (task->period < period)
 	task->period = period;
@@ -343,6 +342,27 @@ static void *realtime_thread(void *arg) {
     clock_gettime(CLOCK_MONOTONIC, &extra_task_data[task_id(task)].next_time);
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
 		       task->period, 0);
+
+    _rtapi_task_update_stats_hook(); // inital stats update
+
+    /* The task should not pagefault at all. So record initial counts now.
+     * Note that currently we _do_ receive a few pagefaults in the
+     * taskcode init. This is noncritical and probably not worth
+     * fixing. */
+    {
+	struct rusage ru;
+
+	if (getrusage(RUSAGE_THREAD, &ru)) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,"getrusage(): %d - %s\n",
+			    errno, strerror(-errno));
+	} else {
+	    rtapi_threadstatus_t *ts =
+		&global_data->thread_status[task_id(task)];
+	    ts->flavor.rtpreempt.startup_ru_nivcsw = ru.ru_nivcsw;
+	    ts->flavor.rtpreempt.startup_ru_minflt = ru.ru_minflt;
+	    ts->flavor.rtpreempt.startup_ru_majflt = ru.ru_majflt;
+	}
+    }
 
     /* call the task function with the task argument */
     task->taskcode(task->arg);
@@ -406,9 +426,6 @@ void _rtapi_task_stop_hook(task_data *task, int task_id) {
 int _rtapi_wait_hook(void) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
-#ifndef RTAPI_POSIX
-    char buf[LINELEN];
-#endif
 
     if (extra_task_data[task_id(task)].deleted)
 	pthread_exit(0);
@@ -421,24 +438,25 @@ int _rtapi_wait_hook(void) {
     if (ts.tv_sec > extra_task_data[task_id(task)].next_time.tv_sec
 	|| (ts.tv_sec == extra_task_data[task_id(task)].next_time.tv_sec
 	    && ts.tv_nsec > extra_task_data[task_id(task)].next_time.tv_nsec)) {
-	extra_task_data[task_id(task)].failures++;
 
-#ifndef RTAPI_POSIX // don't care about scheduling deadlines in sim mode
-	rtapi_snprintf(buf, sizeof(buf),
-		       "Missed scheduling deadline for task %d: '%s' [%d times]\n"
-		       "Now is %ld.%09ld, deadline was %ld.%09ld\n"
-		       "Absolute number of pagefaults in realtime context: %lu\n",
-		       task_id(task), task->name,
-		       extra_task_data[task_id(task)].failures,
-		       (long)ts.tv_sec, (long)ts.tv_nsec,
-		       (long)extra_task_data[task_id(task)].next_time.tv_sec,
-		       (long)extra_task_data[task_id(task)].next_time.tv_nsec,
-		       _rtapi_get_pagefault_count(task));
+	// timing went wrong:
+
+	// update stats counters in thread status
+	_rtapi_task_update_stats_hook();
+
+	rtapi_threadstatus_t *ts =
+	    &global_data->thread_status[task_id(task)];
+
+	ts->flavor.rtpreempt.wait_errors++;
+
+	rtapi_exception_detail_t detail = {0};
+	detail.task_id = task_id(task);
+
+#ifndef RTAPI_POSIX
 	if (rt_exception_handler)
-	    rt_exception_handler(RTP_DEADLINE_MISSED, 0, buf);
+	    rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
 #endif
     }
-
     return 0;
 }
 
