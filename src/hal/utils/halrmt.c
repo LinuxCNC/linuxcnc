@@ -1134,9 +1134,10 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     char *argv[MAX_TOK+3];
     char *cp1;
     const char *nakStr = "SET LOADRT NAK";
-    char rtapi_app[PATH_MAX];
 
 #if defined(BUILD_SYS_USER_DSO)
+    char rtapi_app[PATH_MAX];
+
     if (get_rtapi_config(rtapi_app,"rtapi_app",PATH_MAX) != 0) {
 	sprintf(errorStr,"Unable to read rtapi_app parameter "
 		"from configuration\n");
