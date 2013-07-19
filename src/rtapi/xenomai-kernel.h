@@ -7,14 +7,8 @@
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
 
 /* rtapi_common.c */
-// Init rt_stats for RTAPI
-#define HAVE_INIT_RTAPI_DATA_HOOK
 // output threadsystem-specific detail when doing a backtrace
 #define HAVE_RTAPI_BACKTRACE_HOOK
-
-/* rtapi_proc */
-#define HAVE_RTAPI_READ_STATUS_HOOK
-
 
 /* Priority functions settings */
 
@@ -24,19 +18,13 @@
 
 
 /* rtapi_module.c */
-/* rt_linux_use_fpu informs the scheduler that floating point
-   arithmetic operations will be used also by foreground Linux
-   processes, i.e. the Linux kernel itself (unlikely) and any of its
-   processes. */
-// FIXME unsure how this relates to Xenomai
-// #define RT_LINUX_USE_FPU
-
 #define HAVE_RTAPI_MODULE_INIT_HOOK
 
 /* rtapi_task.c */
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_WAIT_HOOK
 #define HAVE_RTAPI_TASK_SELF_HOOK
+#define HAVE_RTAPI_TASK_UPDATE_STATS_HOOK
 
 
 /* rtapi_io hooks */

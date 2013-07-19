@@ -24,29 +24,49 @@
 #ifdef RTAPI
 static rthal_trap_handler_t old_trap_handler;
 static int _rtapi_trap_handler(unsigned event, unsigned domid, void *data);
-static struct rt_stats_struct {
-    int rt_wait_error;		/* release point missed */
-    int rt_last_overrun;	/* last number of overruns reported by
-				   Xenomai */
-    int rt_total_overruns;	/* total number of overruns reported
-				   by Xenomai */
-} rt_stats;
 
 #endif /* RTAPI */
 
-
-
 /***********************************************************************
-*                          rtapi_common.h                              *
+*                           RT thread statistics update                *
 ************************************************************************/
-/* fill out Xenomai-specific fields in rtapi_data */
-void init_rtapi_data_hook(rtapi_data_t * data) {
 #ifdef RTAPI
-    rt_stats.rt_wait_error = 0;
-    rt_stats.rt_last_overrun = 0;
-    rt_stats.rt_total_overruns = 0;
-#endif
+int _rtapi_task_update_stats_hook(void)
+{
+    int task_id = _rtapi_task_self();
+
+    // paranoia
+    if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"_rtapi_task_update_stats_hook: BUG -"
+			" task_id out of range: %d\n",
+			task_id);
+	return -ENOENT;
+    }
+
+    RT_TASK_INFO rtinfo;
+    int retval = rt_task_inquire(ostask_array[task_id], &rtinfo);
+    if (retval) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rt_task_inquire() failed: %d\n",
+			retval);
+	return -ESRCH;
+    }
+
+    rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
+
+    ts->flavor.xeno.modeswitches = rtinfo.modeswitches;
+    ts->flavor.xeno.ctxswitches = rtinfo.ctxswitches;
+    ts->flavor.xeno.pagefaults = rtinfo.pagefaults;
+    ts->flavor.xeno.exectime = rtinfo.exectime;
+    ts->flavor.xeno.modeswitches = rtinfo.modeswitches;
+    ts->flavor.xeno.status = rtinfo.status;
+
+    ts->num_updates++;
+
+    return task_id;
 }
+#endif
 
 
 /***********************************************************************
@@ -109,25 +129,33 @@ void _rtapi_delay_hook(long int nsec)
 ************************************************************************/
 
 #ifdef RTAPI
+extern int _rtapi_task_self_hook(void);
 
 extern rtapi_exception_handler_t rt_exception_handler;
 
 // not better than the builtin Xenomai handler, but at least
-// hook into to rtapi_print
+// hook into to rtapi_exception_handler
+
 int _rtapi_trap_handler(unsigned event, unsigned domid, void *data) {
-    char buf[LINELEN];
     struct pt_regs *regs = data;
     xnthread_t *thread = xnpod_current_thread(); ;
 
-    rtapi_snprintf(buf, sizeof(buf),
-		    "RTAPI: trap event=%d thread=%s ip:%lx sp:%lx "
-		    "userpid=%d errcode=%d\n",
-		    event, thread->name,
-		    regs->ip, regs->sp,
-		    xnthread_user_pid(thread), thread->errcode);
+    int task_id = _rtapi_task_self_hook();
+
+    rtapi_exception_detail_t detail = {0};
+
+    detail.task_id = task_id;
+    detail.error_code = thread->errcode;
+
+    detail.flavor.xeno.event = event;
+    detail.flavor.xeno.domid = domid;
+    detail.flavor.xeno.ip = (exc_register_t) regs->ip;
+    detail.flavor.xeno.sp = (exc_register_t) regs->sp;
 
     if (rt_exception_handler)
-	rt_exception_handler(XK_TRAP, event, buf);
+	rt_exception_handler(XK_TRAP, &detail,
+			     (task_id > -1) ?
+			     &global_data->thread_status[task_id] : NULL);
 
     // forward to default Xenomai trap handler
     return ((rthal_trap_handler_t) old_trap_handler)(event, domid, data);
@@ -156,60 +184,91 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-
 void _rtapi_wait_hook(void) {
-    unsigned long overruns;
-    int task_id;
-    task_data *task;
-    char buf[LINELEN];
-
+    unsigned long overruns = 0;
     int result =  rt_task_wait_period(&overruns);
-    switch (result) {
-    case 0: // ok - no overruns;
-	break;
 
-    case -ETIMEDOUT: // release point was missed
-	rt_stats.rt_wait_error++;
-	rt_stats.rt_last_overrun = overruns;
-	rt_stats.rt_total_overruns += overruns;
+    if (result) {
+	// something went wrong:
 
-	task_id = _rtapi_task_self();
-	task = &(task_array[task_id]);
+	// update stats counters in thread status
+	_rtapi_task_update_stats_hook();
 
-	rtapi_snprintf(buf, sizeof(buf),
-			"Unexpected realtime delay on RT thread %d - "
-			"'%s' (%lu overruns)",
-			task_id, task->name, overruns);
+	// inquire, fill in
+	// exception descriptor, and call exception handler
+
+	int task_id = _rtapi_task_self();
+
+	// paranoid, but you never know; this index off and
+	// things will go haywire really fast
+	if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "_rtapi_wait_hook: BUG - task_id out of range: %d\n",
+			    task_id);
+	    // maybe should call a BUG exception here
+	    return;
+	}
+
+	// task_data *task = &(task_array[task_id]);
+	rtapi_exception_detail_t detail = {0};
+	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
+	rtapi_exception_t type;
+
+	// exception descriptor
+	detail.task_id = task_id;
+	detail.error_code = result;
+
+	switch (result) {
+
+	case -ETIMEDOUT:
+	    // release point was missed
+	    detail.flavor.xeno.overruns = overruns;
+
+	    // update thread status in global_data
+	    ts->flavor.xeno.wait_errors++;
+	    ts->flavor.xeno.total_overruns += overruns;
+	    type = XK_ETIMEDOUT;
+	    break;
+
+	case -EWOULDBLOCK:
+	    // returned if rt_task_set_periodic() has not previously
+	    // been called for the calling task. This is clearly
+	    // a Xenomai API usage error.
+	    ts->api_errors++;
+	    type = XK_EWOULDBLOCK;
+	    break;
+
+	case -EINTR:
+	    // returned if rt_task_unblock() has been called for
+	    // the waiting task before the next periodic release
+	    // point has been reached. In this case, the overrun
+	    // counter is reset too.
+	    // a Xenomai API usage error.
+	    ts->api_errors++;
+	    type = XK_EINTR;
+	    break;
+
+	case -EPERM:
+	    // returned if this service was called from a
+	    // context which cannot sleep (e.g. interrupt,
+	    // non-realtime or scheduler locked).
+	    // a Xenomai API usage error.
+	    ts->api_errors++;
+	    type = XK_EPERM;
+	    break;
+
+	default:
+	    // the above should handle all possible returns
+	    // as per manual, so at least leave a scent
+	    // (or what Jeff calls a 'canary value')
+	    ts->other_errors++;
+	    type = XK_UNDOCUMENTED;
+	}
 	if (rt_exception_handler)
-	    rt_exception_handler(XK_ETIMEDOUT, overruns, buf);
-	break;
-
-    case -EWOULDBLOCK:
-	if (rt_exception_handler)
-	    rt_exception_handler(XK_EWOULDBLOCK, 0,
-				 "rt_task_wait_period() without "
-				 "previous rt_task_set_periodic()");
-	break;
-
-    case -EINTR:
-	if (rt_exception_handler)
-	    rt_exception_handler(XK_EINTR, 0,
-				 "rt_task_unblock() called before "
-				 "release point");
-	break;
-
-    case -EPERM:
-	if (rt_exception_handler)
-	    rt_exception_handler(XK_EPERM, 0,"cannot rt_task_wait_period() from "
-				 "this context");
-	break;
-    default:
-	rtapi_snprintf(buf, sizeof(buf),
-			"unknown error code %d", result);
-	if (rt_exception_handler)
-	    rt_exception_handler(XK_OTHER, result,buf);
-    }
+		rt_exception_handler(type, &detail, ts);
+    }  // else: ok - no overruns;
 }
+
 
 
 int _rtapi_task_new_hook(task_data *task, int task_id) {
@@ -252,24 +311,8 @@ int _rtapi_task_start_hook(task_data *task, int task_id,
 
 
 /***********************************************************************
-*                          rtapi_proc.h                                *
-************************************************************************/
-#ifdef RTAPI
-void rtapi_proc_read_status_hook(char *page, char **start, off_t off,
-				 int count, int *eof, void *data) {
-    PROC_PRINT_VARS;
-    PROC_PRINT("  Wait errors = %i\n", rt_stats.rt_wait_error);
-    PROC_PRINT(" Last overrun = %i\n", rt_stats.rt_last_overrun);
-    PROC_PRINT("Total overruns = %i\n", rt_stats.rt_total_overruns);
-    PROC_PRINT_DONE;
-}
-#endif
-
-
-/***********************************************************************
 *                          rtapi_common.c                              *
 ************************************************************************/
-// almost same code as in xenomai.c - could be folded into a single file
 int _rtapi_backtrace_hook(int msglevel)
 {
 #ifdef RTAPI
@@ -286,10 +329,10 @@ int _rtapi_backtrace_hook(int msglevel)
 	    rtapi_print_msg(msglevel,
 			    "name=%s modeswitches=%d context switches=%d page faults=%d\n",
 			    info.name, info.modeswitches, info.ctxswitches, info.pagefaults);
-	    rtapi_print_msg(msglevel,"wait errors=%d last overrun=%d total overruns=%d\n",
-			    rt_stats.rt_wait_error,
-			    rt_stats.rt_last_overrun,
-			    rt_stats.rt_total_overruns);
+	    /* rtapi_print_msg(msglevel,"wait errors=%d last overrun=%d total overruns=%d\n", */
+	    /* 		    rt_stats.rt_wait_error, */
+	    /* 		    rt_stats.rt_last_overrun, */
+	    /* 		    rt_stats.rt_total_overruns); */
 	}
     }
 #endif
