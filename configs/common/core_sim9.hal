@@ -25,9 +25,9 @@ addf vel_xyz servo-thread
 
 # create HAL signals for position commands from motion module
 # loop position commands back to motion module feedback
-net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt.x.in
-net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt.y.in
-net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt.z.in
+net Xpos joint.0.motor-pos-cmd => joint.0.motor-pos-fb ddt_x.in
+net Ypos joint.1.motor-pos-cmd => joint.1.motor-pos-fb ddt_y.in
+net Zpos joint.2.motor-pos-cmd => joint.2.motor-pos-fb ddt_z.in
 net Apos joint.3.motor-pos-cmd => joint.3.motor-pos-fb
 net Bpos joint.4.motor-pos-cmd => joint.4.motor-pos-fb
 net Cpos joint.5.motor-pos-cmd => joint.5.motor-pos-fb
