@@ -145,11 +145,12 @@ int _rtapi_task_new(void (*taskcode) (void*), void *arg,
 
     // task slot found; reserve it and release lock
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Creating new task %d  '%s': "
-		    "req prio %d (highest=%d lowest=%d)\n",
-		    task_id, name, prio,
+		    "Creating new task %d  '%s:%d': "
+		    "req prio %d (highest=%d lowest=%d) stack=%lu\n",
+		    task_id, name, rtapi_instance, prio,
 		    _rtapi_prio_highest(),
-		    _rtapi_prio_lowest());
+		    _rtapi_prio_lowest(),
+		    stacksize);
     task->magic = TASK_MAGIC;
 
     /* fill out task structure */

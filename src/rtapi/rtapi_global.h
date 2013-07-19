@@ -62,6 +62,8 @@ typedef struct {
     int user_msg_level;            // message level for non-RT 
     int next_module_id;            // for userland threads module id's
     int hal_size;                  // make HAL data segment size configurable
+    int hal_thread_stack_size;     // stack size passed to rtapi_task_new()
+                                   // in hal_create_thread()
     int rtapi_app_pid;
     int rtapi_msgd_pid;
 

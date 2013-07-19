@@ -45,6 +45,7 @@ static int usr_msglevel = RTAPI_MSG_INFO ;
 static int rt_msglevel = RTAPI_MSG_INFO ;
 static int halsize = HAL_SIZE;
 static const char *instance_name;
+static int hal_thread_stack_size = HAL_STACKSIZE;
 
 // messages tend to come bunched together, e.g during startup and shutdown
 // poll faster if a message was read, and decay the poll timer up to msg_poll_max
@@ -145,6 +146,9 @@ void init_global_data(global_data_t * data, int flavor,
 
     // HAL segment size
     data->hal_size = hal_size;
+
+    // stack size passed to rtapi_task_new() in hal_create_thread()
+    data->hal_thread_stack_size = stack_size;
 
     // init the error ring
     rtapi_ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
@@ -302,6 +306,7 @@ static struct option long_options[] = {
     {"instance_name", required_argument, 0, 'i'},
     {"flavor",   required_argument, 0, 'f'},
     {"halsize",  required_argument, 0, 'H'},
+    {"halstacksize",  required_argument, 0, 'R'},
     {"shmdrv",  no_argument,        0, 'S'},
 
     {0, 0, 0, 0}
@@ -331,6 +336,9 @@ int main(int argc, char **argv)
 	    break;
 	case 'I':
 	    rtapi_instance = atoi(optarg);
+	    break;
+	case 'R':
+	    hal_thread_stack_size = atoi(optarg);
 	    break;
 	case 'i':
 	    instance_name = optarg;
@@ -439,7 +447,7 @@ int main(int argc, char **argv)
     // gets initialized - no reinitialization from elsewhere
     init_global_data(global_data, flavor->id, rtapi_instance,
     		     halsize, rt_msglevel, usr_msglevel,
-    		     instance_name);
+		     instance_name,hal_thread_stack_size);
 
     syslog(LOG_INFO,
 	   "startup instance=%s pid=%d flavor=%s "

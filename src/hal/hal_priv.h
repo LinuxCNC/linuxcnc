@@ -379,8 +379,6 @@ typedef struct {
     int funct_ptr;		/* pointer to function */
 } hal_funct_entry_t;
 
-#define HAL_STACKSIZE 32768	/* realtime task stacksize */
-
 typedef struct {
     int next_ptr;		/* next thread in linked list */
     int uses_fp;		/* floating point flag */
