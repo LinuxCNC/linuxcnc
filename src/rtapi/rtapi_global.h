@@ -40,6 +40,7 @@
     HAL/RTAPI instances within a single machine.
 */
 #include "rtapi_shmkeys.h"
+#include "rtapi_exception.h"  // thread status descriptors
 
 
 #define MESSAGE_RING_SIZE 32768
@@ -67,7 +68,10 @@ typedef struct {
     int rtapi_app_pid;
     int rtapi_msgd_pid;
 
-    // stats
+    // unified thread status monitoring
+    rtapi_threadstatus_t thread_status[RTAPI_MAX_TASKS + 1];
+
+    // stats for rtapi_messages
     int error_ring_full;
     int error_ring_locked;
 
