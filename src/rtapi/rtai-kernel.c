@@ -4,9 +4,6 @@
 
 #include <rtai.h>
 #include <rtai_sched.h>
-#include <rtai_sem.h>
-#include <rtai_shm.h>
-#include <rtai_fifos.h>
 
 #ifdef MODULE
 #include <linux/delay.h>  // udelay()
@@ -82,15 +79,21 @@ long long int _rtapi_get_time_hook(void) {
 
 static int _rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
 			      void *task) {
-    int self = _rtapi_task_self();
+    int task_id = _rtapi_task_self();
 
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "RTAPI: Task %d[%p]: Fault with vec=%d, signo=%d "
-		    "ip=%08lx.\nRTAPI: This fault may not be recoverable "
-		    "without rebooting.\n",
-		    self, task, vec, signo, IP(regs));
-    //dump_stack();
-    _rtapi_task_pause(self);
+    rtapi_exception_detail_t detail = {0};
+
+    detail.task_id = task_id;
+    detail.flavor.rtai.vector = vec;
+    detail.flavor.rtai.signo = signo;
+    detail.flavor.rtai.ip = (exc_register_t) IP(regs);
+
+    if (rt_exception_handler)
+	rt_exception_handler(RTAI_TRAP, &detail,
+			     (task_id > -1) ?
+			     &global_data->thread_status[task_id] : NULL);
+
+    _rtapi_task_pause(task_id);
     return 0;
 }
 
@@ -100,8 +103,6 @@ static void _rtapi_task_wrapper(long task_id)  {
 
     /* point to the task data */
     task = &task_array[task_id];
-    // rtapi_print_msg(RTAPI_MSG_ERR,"_rtapi_task_wrapper(%ld) start\n",task_id);
-
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
     /* if the task ever returns, we record that fact */
@@ -145,35 +146,50 @@ int _rtapi_task_start_hook(task_data *task, int task_id,
     return 0;
 }
 
-void _rtapi_wait_hook(void) {
-    char buf[LINELEN];
-    int result = rt_task_wait_period();
 
-    if(result != 0) {
-#ifdef RTE_TMROVRN
-	if (result == RTE_TMROVRN) {
-	    rtapi_snprintf(buf, sizeof(buf),
-			   "Unexpected realtime delay on task %d",
-			   _rtapi_task_self());
-	    if (rt_exception_handler)
-		rt_exception_handler(RTAI_RTE_TMROVRN, _rtapi_task_self(), buf);
-	} else
-#endif
-#ifdef RTE_UNBLKD
-	    if (result == RTE_UNBLKD) {
-		rtapi_snprintf(buf, sizeof(buf),
-			       "rt_task_wait_period() returned RTE_UNBLKD (%d).",
-			       result);
-		if (rt_exception_handler)
-		    rt_exception_handler(RTAI_RTE_UNBLKD, _rtapi_task_self(), buf);
-	    } else
-#endif
-		{
-		    rtapi_snprintf(buf, sizeof(buf),
-				   "rt_task_wait_period() returned %d.\n", result);
-		    if (rt_exception_handler)
-			rt_exception_handler(RTAI_RTE_UNCLASSIFIED, _rtapi_task_self(), buf);
-		}
+void _rtapi_wait_hook(void) {
+
+    int result = rt_task_wait_period();
+    if (result != 0) {
+	int task_id = _rtapi_task_self();
+	if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "_rtapi_wait_hook: BUG - task_id out of range: %d\n",
+			    task_id);
+	    return;
+	}
+	rtapi_exception_detail_t detail = {0};
+	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
+	rtapi_exception_t type;
+
+	detail.task_id = task_id;
+	detail.error_code = result;
+
+	switch (result) {
+
+	case RTE_TMROVRN:
+	    // an immediate return was taken because the time
+	    // deadline has already expired
+	    ts->flavor.rtai.wait_errors++;
+	    type = RTAI_RTE_TMROVRN;
+	    break;
+
+	case RTE_UNBLKD:
+	    // the task was unblocked while sleeping
+	    // an API usage error
+	    ts->api_errors++;
+	    type = RTAI_RTE_UNBLKD;
+	    break;
+
+	default:
+	    // whzat?
+	    ts->other_errors++;
+	    type = RTAI_RTE_UNCLASSIFIED;
+	}
+
+	if (rt_exception_handler)
+	    rt_exception_handler(type, &detail, ts);
+
     }
 }
 
