@@ -1995,6 +1995,73 @@ static void print_funct_info(char **patterns)
     halcmd_output("\n");
 }
 
+static void print_thread_stats(hal_thread_t *tptr)
+{
+    int flavor = global_data->rtapi_thread_flavor;
+    rtapi_threadstatus_t *ts =
+	&global_data->thread_status[tptr->task_id];
+
+    halcmd_output("\nLowlevel thread statistics for '%s':\n\n",
+		  tptr->name);
+
+    // generic statistics counters
+    halcmd_output("    updates=%d\t", ts->num_updates);
+    if (ts->num_updates) {
+	halcmd_output("api_err=%d\t", ts->api_errors);
+	halcmd_output("other_err=%d\n", ts->api_errors);
+    }
+
+    // flavor-specific statistics counters
+    switch (flavor) {
+    case RTAPI_XENOMAI_ID: // xenomai-user
+    case RTAPI_XENOMAI_KERNEL_ID:
+
+	halcmd_output("    wait_errors=%d\t",
+		      ts->flavor.xeno.wait_errors);
+	halcmd_output("overruns=%d\t",
+		      ts->flavor.xeno.total_overruns);
+	halcmd_output("modeswitches=%d\t",
+		      ts->flavor.xeno.modeswitches);
+	halcmd_output("contextswitches=%d\n",
+		      ts->flavor.xeno.ctxswitches);
+	halcmd_output("    pagefaults=%d\t",
+		      ts->flavor.xeno.pagefaults);
+	halcmd_output("exectime=%llduS\t",
+		      ts->flavor.xeno.exectime/1000);
+	halcmd_output("status=0x%x\n",
+		      ts->flavor.xeno.status);
+	break;
+
+    case RTAPI_POSIX_ID:
+    case RTAPI_RT_PREEMPT_ID:
+	halcmd_output("    wait_errors=%d\t",
+		      ts->flavor.rtpreempt.wait_errors);
+	halcmd_output("usercpu=%lduS\t",
+		      ts->flavor.rtpreempt.utime_sec * 1000000 +
+		      ts->flavor.rtpreempt.utime_usec);
+	halcmd_output("syscpu=%lduS\t",
+		      ts->flavor.rtpreempt.stime_sec * 1000000 +
+		      ts->flavor.rtpreempt.stime_usec);
+	halcmd_output("nsigs=%ld\n",
+		      ts->flavor.rtpreempt.ru_nsignals);
+	halcmd_output("    ivcsw=%ld\t",
+		      ts->flavor.rtpreempt.ru_nivcsw -
+		      ts->flavor.rtpreempt.startup_ru_nivcsw);
+	halcmd_output("    minflt=%ld\t",
+		      ts->flavor.rtpreempt.ru_minflt -
+		      ts->flavor.rtpreempt.startup_ru_minflt);
+	halcmd_output("    majflt=%ld\n",
+		      ts->flavor.rtpreempt.ru_majflt -
+		      ts->flavor.rtpreempt.startup_ru_majflt);
+	break;
+
+    default:
+	halcmd_error("halcmd: thread flavor %d stats not implemented\n",
+		     flavor);
+    }
+    halcmd_output("\n");
+}
+
 static void print_thread_info(char **patterns)
 {
     int next_thread, n;
@@ -2002,9 +2069,10 @@ static void print_thread_info(char **patterns)
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
     hal_funct_t *funct;
+    int named = patterns && strlen(patterns[0]);
 
     if (scriptmode == 0) {
-	halcmd_output("Realtime Threads (flavor: %s) :\n", flavor->name);
+	halcmd_output("Realtime Threads (flavor: %s) :\n",  flavor->name);
 	halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2016,6 +2084,7 @@ static void print_thread_info(char **patterns)
 		// TODO FIXME add thread runtime and max runtime to this print
 	    halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %ld %ld"),
 		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
+
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
 	    n = 1;
@@ -2035,6 +2104,10 @@ static void print_thread_info(char **patterns)
 	    }
 	    if (scriptmode != 0) {
 		halcmd_output("\n");
+	    } else {
+		// if a thread name was given, print the flavor specific stats
+		if (named)
+		    print_thread_stats(tptr);
 	    }
 	}
 	next_thread = tptr->next_ptr;
