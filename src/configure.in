@@ -916,19 +916,74 @@ find_kernels
 # - Sanity checks and configuration generation                               #
 ##############################################################################
 
+# By default, build all flavors.  If a --with-<flavor> arg is found,
+# do not build all by default.
+all_flavors_default=yes
+
+AC_PRESERVE_HELP_ORDER()
 AC_ARG_WITH(posix,
     [AS_HELP_STRING([--with-posix],
         [build POSIX (simulator) non-realtime threads modules
         (enabled by default)])],
-    [],
-    [with_posix=yes])
+    [test $withval = yes && all_flavors_default=no],
+    [with_posix=check])
 
 AC_ARG_WITH(rt-preempt,
     [AS_HELP_STRING([--with-rt-preempt],
         [build RT_PREEMPT threads modules])],
-    [],
+    [test $withval = yes && all_flavors_default=no],
     [with_rt_preempt=check])
 
+AC_ARG_WITH(xenomai,
+    [AS_HELP_STRING([--with-xenomai],
+        [build Xenomai userland threads])],
+    [xenomai_from_cmdline=yes
+     test $withval = yes && all_flavors_default=no],
+    [with_xenomai=check])
+
+AC_ARG_WITH(xenomai-kernel,
+    [AS_HELP_STRING([--with-xenomai-kernel],
+        [build Xenomai kernel-space realtime threads (deprecated)])],
+    [xenomai_from_cmdline=yes
+     test $withval = yes && all_flavors_default=no],
+    [with_xenomai_kernel=check])
+# XENOMAI_THREADS_RTS:  locate the 'xeno-config' executable
+AC_ARG_WITH(xeno-config,
+    [AS_HELP_STRING([--with-xeno-config=<path>],
+    [location of the xeno-config executable])],
+    [xeno_config_from_cmdline=yes],
+    [
+	with_xenomai_config=""
+    ])
+
+AC_ARG_WITH(rtai-kernel,
+    [AS_HELP_STRING([--with-rtai-kernel],
+        [build RTAI kernel-space realtime threads modules])],
+    [test $withval = yes && all_flavors_default=no],
+    [with_rtai_kernel=check])
+# RTAI_KERNEL_THREADS_RTS:  locate the 'rtai-config' executable
+AC_ARG_WITH(rtai-config,
+    [AS_HELP_STRING([--with-rtai-config=<path>],
+    [location of the rtai-config executable])],
+    [rtai_config_from_cmdline=yes],
+    [
+	with_rtai_config=""
+    ])
+
+
+# If a --with-<flavor> flag was found, disable all flavors not
+# explicitly enabled
+if test $all_flavors_default = no; then
+    for f in posix rt_preempt xenomai xenomai_kernel rtai_kernel; do
+        if eval "test \$with_$f = check"; then
+	    eval "with_$f=no"
+	fi
+    done
+fi
+
+
+##############################################################################
+# POSIX and RT_PREEMPT flavor checks
 if test "$with_rt_preempt" != no -o "$with_posix" != no; then
     LIBS_hold=$LIBS
     LIBS="$LIBS -lrt"
@@ -975,26 +1030,9 @@ if test "$with_rt_preempt" = yes; then
 fi
 
 
-# check for xenomai threads, both userland and kernel
-AC_PRESERVE_HELP_ORDER()
-AC_ARG_WITH(xenomai,
-    [AS_HELP_STRING([--with-xenomai],
-        [build Xenomai userland threads])],
-    [xenomai_from_cmdline=yes],
-    [with_xenomai=check])
-AC_ARG_WITH(xenomai-kernel,
-    [AS_HELP_STRING([--with-xenomai-kernel],
-        [build Xenomai kernel-space realtime threads (deprecated)])],
-    [xenomai_from_cmdline=yes],
-    [with_xenomai_kernel=check])
-# XENOMAI_THREADS_RTS:  locate the 'xeno-config' executable
-AC_ARG_WITH(xeno-config,
-    [AS_HELP_STRING([--with-xeno-config=<path>],
-    [location of the xeno-config executable])],
-    [xeno_config_from_cmdline=yes],
-    [
-	with_xenomai_config=""
-    ])
+##############################################################################
+# Xenomai flavor checks, both userland and kthreads
+
 if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     # XENOMAI_THREADS_RTS:  look for the xeno-config executable
     XENOMAI_THREADS_RTS=''
@@ -1106,22 +1144,9 @@ fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
 
-# check for --with-rtai-kernel option
-AC_PRESERVE_HELP_ORDER()
-AC_ARG_WITH(rtai-kernel,
-    [AS_HELP_STRING([--with-rtai-kernel],
-        [build RTAI kernel-space realtime threads modules])],
-    [],
-    [with_rtai_kernel=check])
+##############################################################################
+# RTAI flavor checks
 
-# RTAI_KERNEL_THREADS_RTS:  locate the 'rtai-config' executable
-AC_ARG_WITH(rtai-config,
-    [AS_HELP_STRING([--with-rtai-config=<path>],
-    [location of the rtai-config executable])],
-    [rtai_config_from_cmdline=yes],
-    [
-	with_rtai_config=""
-    ])
 if test "$with_rtai_kernel" != no; then
     # look for rtai-config path
     RTAI_KERNEL_THREADS_RTS=''
