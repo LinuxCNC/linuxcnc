@@ -1,0 +1,1143 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-06-11 19:19+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: gmoccapy_handler.py:613
+msgid "no more than 9 macros are allowed, only the first 9 will be used"
+msgstr ""
+
+#: gmoccapy_handler.py:650
+msgid "No subroutine folder or program prefix is given in the ini file \n"
+msgstr ""
+
+#: gmoccapy_handler.py:651
+msgid "so the corresponding file could not be found"
+msgstr ""
+
+#: gmoccapy_handler.py:652 gmoccapy_handler.py:660
+msgid "Important Warning"
+msgstr ""
+
+#: gmoccapy_handler.py:658
+#, python-format
+msgid "File %s of the macro could not be found\n"
+msgstr ""
+
+#: gmoccapy_handler.py:659
+#, python-format
+msgid "we searched in subdirectory %s"
+msgstr ""
+
+#: gmoccapy_handler.py:666
+msgid "Enter value:"
+msgstr ""
+
+#: gmoccapy_handler.py:667
+#, python-format
+msgid "Set parameter %s to:"
+msgstr ""
+
+#: gmoccapy_handler.py:669
+msgid "conversion error"
+msgstr ""
+
+#: gmoccapy_handler.py:670
+#, python-format
+msgid "Conversion error because off wrong entry for macro %s"
+msgstr ""
+
+#: gmoccapy_handler.py:672 gmoccapy_handler.py:1876
+msgid "Conversion error !"
+msgstr ""
+
+#: gmoccapy_handler.py:673 gmoccapy_handler.py:1537
+msgid ""
+"Please enter only numerical values\n"
+"Values have not been applied"
+msgstr ""
+
+#: gmoccapy_handler.py:676
+#, python-format
+msgid "entry for macro %s has been canceled"
+msgstr ""
+
+#: gmoccapy_handler.py:679
+msgid "macro {0} , parameter {1} set to {2:f}"
+msgstr ""
+
+#: gmoccapy_handler.py:691
+msgid "interrupt running macro"
+msgstr ""
+
+#: gmoccapy_handler.py:840
+msgid "Hal Pin is low, Access denied"
+msgstr ""
+
+#: gmoccapy_handler.py:842
+msgid "wrong code entered, Access denied"
+msgstr ""
+
+#: gmoccapy_handler.py:843
+msgid "Just to warn you"
+msgstr ""
+
+#: gmoccapy_handler.py:851 gmoccapy_handler.py:856
+msgid "Enter System Unlock Code"
+msgstr ""
+
+#: gmoccapy_handler.py:1027
+msgid "INFO:"
+msgstr ""
+
+#: gmoccapy_handler.py:1028
+msgid "Classicladder real-time component not detected"
+msgstr ""
+
+#: gmoccapy_handler.py:1029
+msgid "ladder not available - is the real-time component loaded?"
+msgstr ""
+
+#: gmoccapy_handler.py:1059
+msgid "Something went wrong, we have an unknown widget"
+msgstr ""
+
+#: gmoccapy_handler.py:1068
+msgid "Something went wrong, we are in a non defined mode"
+msgstr ""
+
+#: gmoccapy_handler.py:1255
+msgid "unknown axis clicked"
+msgstr ""
+
+#: gmoccapy_handler.py:1279
+msgid "unknow axis clicked"
+msgstr ""
+
+#: gmoccapy_handler.py:1289
+msgid "Do you really want to delete the MDI history?\n"
+msgstr ""
+
+#: gmoccapy_handler.py:1290
+msgid "this will not delete the MDI History file, but will\n"
+msgstr ""
+
+#: gmoccapy_handler.py:1291
+msgid "delete the listbox entries for this session"
+msgstr ""
+
+#: gmoccapy_handler.py:1292
+msgid "Attention!!"
+msgstr ""
+
+#: gmoccapy_handler.py:1297
+msgid "Question"
+msgstr ""
+
+#: gmoccapy_handler.py:1297
+msgid "Please decide:"
+msgstr ""
+
+#: gmoccapy_handler.py:1419 gmoccapy_handler.py:1442
+msgid "Big problem, because you should not get here"
+msgstr ""
+
+#: gmoccapy_handler.py:1460
+msgid "This button will show or hide the keyboard"
+msgstr ""
+
+#: gmoccapy_handler.py:1520
+#, python-format
+msgid "Offset %s could not be set, because off unknown axis"
+msgstr ""
+
+#: gmoccapy_handler.py:1524
+#, python-format
+msgid "Enter value for axis %s"
+msgstr ""
+
+#: gmoccapy_handler.py:1525
+#, python-format
+msgid "Set axis %s to:"
+msgstr ""
+
+#: gmoccapy_handler.py:1527
+msgid "offset {0} set to {1:f}"
+msgstr ""
+
+#: gmoccapy_handler.py:1534
+msgid "Conversion error in btn_set_value"
+msgstr ""
+
+#: gmoccapy_handler.py:1535
+msgid "Offset conversion error because off wrong entry"
+msgstr ""
+
+#: gmoccapy_handler.py:1536
+msgid "Conversion error in btn_set_value!"
+msgstr ""
+
+#: gmoccapy_handler.py:1540
+msgid "Enter value"
+msgstr ""
+
+#: gmoccapy_handler.py:1540
+msgid "Enter the value to set"
+msgstr ""
+
+#: gmoccapy_handler.py:1827 gmoccapy.glade.h:68
+msgid "No tool description available"
+msgstr ""
+
+#: gmoccapy_handler.py:1858
+msgid "Real big error!"
+msgstr ""
+
+#: gmoccapy_handler.py:1859
+msgid ""
+"You managed to come to a place that is not possible in on_btn_tool_touchoff"
+msgstr ""
+
+#: gmoccapy_handler.py:1863
+msgid ""
+"Tool touch off is not possible with cutter radius compensation switched on!\n"
+msgstr ""
+
+#: gmoccapy_handler.py:1864
+msgid "Please emit an G40 before tool touch off"
+msgstr ""
+
+#: gmoccapy_handler.py:1867
+msgid "Warning Tool Touch off not possible!"
+msgstr ""
+
+#: gmoccapy_handler.py:1870
+#, python-format
+msgid "Enter value for axis %s to set:"
+msgstr ""
+
+#: gmoccapy_handler.py:1871
+msgid "Set parameter of tool {0:d} and axis {1} to:"
+msgstr ""
+
+#: gmoccapy_handler.py:1873
+#, python-format
+msgid "Conversion error because of wrong entry for touch off axis %s"
+msgstr ""
+
+#: gmoccapy_handler.py:1879
+#, python-format
+msgid "entry for axis %s has been canceled"
+msgstr ""
+
+#: gmoccapy_handler.py:1882
+msgid "axis {0} , has been set to {1:f}"
+msgstr ""
+
+#: gmoccapy_handler.py:1891
+msgid "Selected tool is already in spindle, no change needed."
+msgstr ""
+
+#: gmoccapy_handler.py:1892 gmoccapy_handler.py:1922 gmoccapy_handler.py:1927
+msgid "Important Warning!"
+msgstr ""
+
+#: gmoccapy_handler.py:1907
+msgid "Could not understand the entered tool number. Will not change anything"
+msgstr ""
+
+#: gmoccapy_handler.py:1921
+msgid ""
+"you selected more than one tool, to change a tool, the tool number must be "
+"unique"
+msgstr ""
+
+#: gmoccapy_handler.py:1926
+msgid ""
+"you must select the tool to be changed\n"
+"Will not change anything"
+msgstr ""
+
+#: gmoccapy_handler.py:2071
+#, python-format
+msgid "Axes %s are homed"
+msgstr ""
+
+#: gmoccapy_handler.py:2130
+#, python-format
+msgid "tool_in_spindle has changed to %s"
+msgstr ""
+
+#: gmoccapy_handler.py:2210
+msgid ""
+"You are trying to use G95, please do not do this in this development state \n"
+msgstr ""
+
+#: gmoccapy_handler.py:2211
+msgid ""
+"there is an error in gscreen / gmoccapy witch will result in wrong "
+"values!! \n"
+msgstr ""
+
+#: gmoccapy_handler.py:2212
+msgid ""
+"\n"
+" We are looking for a solution!"
+msgstr ""
+
+#: gmoccapy_handler.py:2213
+msgid "Very important Warning"
+msgstr ""
+
+#: gmoccapy_handler.py:2239
+msgid "Select the file you want to be loaded at program start"
+msgstr ""
+
+#: gmoccapy_handler.py:2457
+msgid "No default jog increments entry found in [DISPLAY] of INI file"
+msgstr ""
+
+#: gmoccapy_handler.py:2460
+msgid "To many increments given in INI File for this screen"
+msgstr ""
+
+#: gmoccapy_handler.py:2461
+msgid "Only the first 10 will be reachable through this screen"
+msgstr ""
+
+#: gmoccapy.glade.h:1
+msgid ""
+"  Display \n"
+"Aux Screen"
+msgstr ""
+
+#: gmoccapy.glade.h:3
+msgid "<b>Appearance</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:4
+msgid "<b>Cooling</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:5
+msgid "<b>DRO</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:6
+msgid "<b>Desktop notify</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:8
+msgid "<b>Feed Override [%]</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:9
+msgid "<b>File to load on start</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:10
+msgid "<b>G-Code</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:11
+msgid "<b>Hardware MPG Scale</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:12
+msgid "<b>Hardware and security</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:13
+msgid "<b>Jog Rates</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:14
+msgid "<b>Jogging</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:15
+msgid "<b>Keyboard shortcuts</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:16
+msgid "<b>Keyboard</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:17
+msgid "<b>Main Window</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:18
+msgid "<b>Max. Velocity [mm/min]</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:19
+msgid "<b>Messages</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:20
+msgid "<b>Preview</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:21
+msgid "<b>Program</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:22
+msgid "<b>Run from line</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:23
+msgid "<b>Spindle [rpm]</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:24
+msgid "<b>Spindle</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:25
+msgid "<b>Themes and sound</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:26
+msgid "<b>Tool information</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:27
+msgid "<b>Unlock settings</b>"
+msgstr ""
+
+#: gmoccapy.glade.h:28
+msgid "Absolute Text Color"
+msgstr ""
+
+#: gmoccapy.glade.h:29
+msgid "Add"
+msgstr ""
+
+#: gmoccapy.glade.h:30
+msgid "Alarm History"
+msgstr ""
+
+#: gmoccapy.glade.h:31
+msgid "Alert Audio"
+msgstr ""
+
+#: gmoccapy.glade.h:32
+msgid "Apply"
+msgstr ""
+
+#: gmoccapy.glade.h:33
+msgid "Calibration"
+msgstr ""
+
+#: gmoccapy.glade.h:34
+msgid "Cl.-ladder"
+msgstr ""
+
+#: gmoccapy.glade.h:35
+msgid "Clear the messages from status bar"
+msgstr ""
+
+#: gmoccapy.glade.h:36
+msgid "Close gmoccapy"
+msgstr ""
+
+#: gmoccapy.glade.h:37
+msgid "Close moccapy / leave the program"
+msgstr ""
+
+#: gmoccapy.glade.h:38
+msgid "DRO settings"
+msgstr ""
+
+#: gmoccapy.glade.h:39
+msgid "DTG Text Color"
+msgstr ""
+
+#: gmoccapy.glade.h:40
+msgid "Debug"
+msgstr ""
+
+#: gmoccapy.glade.h:41
+msgid "Delete"
+msgstr ""
+
+#: gmoccapy.glade.h:42
+msgid "Diameter"
+msgstr ""
+
+#: gmoccapy.glade.h:43
+msgid "Do not use run from line"
+msgstr ""
+
+#: gmoccapy.glade.h:44
+msgid "Do not use unlock code"
+msgstr ""
+
+#: gmoccapy.glade.h:45
+msgid ""
+"Do you want to use run from line, it is not very save to use this option, "
+"because linuxcnc will ignore all information previous of the start line"
+msgstr ""
+
+#: gmoccapy.glade.h:46
+msgid "Enter the setup page to adjust program options"
+msgstr ""
+
+#: gmoccapy.glade.h:47
+msgid "Estop the machine"
+msgstr ""
+
+#: gmoccapy.glade.h:48
+msgid "G and M code information as well as speed and feed"
+msgstr ""
+
+#: gmoccapy.glade.h:49
+msgid "Go back to main button list"
+msgstr ""
+
+#: gmoccapy.glade.h:50
+msgid "Grid size"
+msgstr ""
+
+#: gmoccapy.glade.h:51
+msgid "Hal Meter"
+msgstr ""
+
+#: gmoccapy.glade.h:52
+msgid "Hal-Scope"
+msgstr ""
+
+#: gmoccapy.glade.h:53
+msgid "Halshow"
+msgstr ""
+
+#: gmoccapy.glade.h:54
+msgid "Here you can select the unlock mode to enter the settings page"
+msgstr ""
+
+#: gmoccapy.glade.h:55
+msgid ""
+"If you select this, you will be able to use several keyboard buttons to "
+"operate your machine"
+msgstr ""
+
+#: gmoccapy.glade.h:56
+msgid "Ignore limits"
+msgstr ""
+
+#: gmoccapy.glade.h:57
+msgid ""
+"Ignore or not the optional stops. A pushed button will result in ignoring "
+"all M1 commands. The button will indicate a yellow background."
+msgstr ""
+
+#: gmoccapy.glade.h:58
+msgid "Info"
+msgstr ""
+
+#: gmoccapy.glade.h:59
+msgid "Information over the tool in spindle"
+msgstr ""
+
+#: gmoccapy.glade.h:60
+msgid "Jog. Vel."
+msgstr ""
+
+#: gmoccapy.glade.h:61
+msgid "Keyboard"
+msgstr ""
+
+#: gmoccapy.glade.h:62
+msgid "Log actions"
+msgstr ""
+
+#: gmoccapy.glade.h:63
+msgid "Log all actions in the alarm history"
+msgstr ""
+
+#: gmoccapy.glade.h:64
+msgid "M2"
+msgstr ""
+
+#: gmoccapy.glade.h:65
+msgid ""
+"Machine or not the optional blocks of the program. If the button is pressed, "
+"the optional blocks will not be machined. The button will indicate this by a "
+"yellow background."
+msgstr ""
+
+#: gmoccapy.glade.h:66
+msgid "Main"
+msgstr ""
+
+#: gmoccapy.glade.h:67
+msgid "No Program loaded"
+msgstr ""
+
+#: gmoccapy.glade.h:69
+msgid "Open classicladder"
+msgstr ""
+
+#: gmoccapy.glade.h:70
+msgid "Open the tooleditor page"
+msgstr ""
+
+#: gmoccapy.glade.h:71
+msgid "Pause a running program"
+msgstr ""
+
+#: gmoccapy.glade.h:72
+msgid "Preview"
+msgstr ""
+
+#: gmoccapy.glade.h:73
+msgid "Rel."
+msgstr ""
+
+#: gmoccapy.glade.h:74
+msgid "Relative Text Color"
+msgstr ""
+
+#: gmoccapy.glade.h:75
+msgid "Reload"
+msgstr ""
+
+#: gmoccapy.glade.h:76
+msgid "Scale feed override"
+msgstr ""
+
+#: gmoccapy.glade.h:77
+msgid "Scale jog velocity"
+msgstr ""
+
+#: gmoccapy.glade.h:78
+msgid "Scale max velocity"
+msgstr ""
+
+#: gmoccapy.glade.h:79
+msgid "Scale spindle override"
+msgstr ""
+
+#: gmoccapy.glade.h:80
+msgid "Select the file you want to be loaded on start of gmoccapy"
+msgstr ""
+
+#: gmoccapy.glade.h:81
+msgid "Settings"
+msgstr ""
+
+#: gmoccapy.glade.h:82
+msgid "Show DRO in preview"
+msgstr ""
+
+#: gmoccapy.glade.h:83
+msgid "Show DTG in preview"
+msgstr ""
+
+#: gmoccapy.glade.h:84
+msgid "Show keyboard on EDIT"
+msgstr ""
+
+#: gmoccapy.glade.h:85
+msgid "Show keyboard on MDI"
+msgstr ""
+
+#: gmoccapy.glade.h:86
+msgid "Show offsets in preview"
+msgstr ""
+
+#: gmoccapy.glade.h:87
+msgid "Show or hide dimensions"
+msgstr ""
+
+#: gmoccapy.glade.h:88
+msgid "Show or hide the virtual keyboard"
+msgstr ""
+
+#: gmoccapy.glade.h:89
+msgid "Show or hide tool path"
+msgstr ""
+
+#: gmoccapy.glade.h:90
+msgid "Shows the MDI command history"
+msgstr ""
+
+#: gmoccapy.glade.h:91
+msgid "Spindle bar max"
+msgstr ""
+
+#: gmoccapy.glade.h:92
+msgid "Spindle bar min"
+msgstr ""
+
+#: gmoccapy.glade.h:93
+msgid "Start as fullscreen"
+msgstr ""
+
+#: gmoccapy.glade.h:94
+msgid "Start as window"
+msgstr ""
+
+#: gmoccapy.glade.h:95
+msgid "Start maximized"
+msgstr ""
+
+#: gmoccapy.glade.h:96
+msgid "Starting RPM"
+msgstr ""
+
+#: gmoccapy.glade.h:97
+msgid "Status"
+msgstr ""
+
+#: gmoccapy.glade.h:98
+msgid "The name and location of the loaded program"
+msgstr ""
+
+#: gmoccapy.glade.h:99
+msgid "Themes"
+msgstr ""
+
+#: gmoccapy.glade.h:100
+msgid "This button will show or hide the Keyboard"
+msgstr ""
+
+#: gmoccapy.glade.h:101
+msgid "Tool Editor"
+msgstr ""
+
+#: gmoccapy.glade.h:102
+msgid "Tool no."
+msgstr ""
+
+#: gmoccapy.glade.h:103
+msgid "Turn the machine on/off"
+msgstr ""
+
+#: gmoccapy.glade.h:104
+msgid "Use desktop notify"
+msgstr ""
+
+#: gmoccapy.glade.h:105
+msgid "Use hal pin to unlock"
+msgstr ""
+
+#: gmoccapy.glade.h:106
+msgid "Use keyboard shortcuts"
+msgstr ""
+
+#: gmoccapy.glade.h:107
+msgid "Use run from line"
+msgstr ""
+
+#: gmoccapy.glade.h:108
+msgid "Use unlock code"
+msgstr ""
+
+#: gmoccapy.glade.h:109
+msgid "User tab 1"
+msgstr ""
+
+#: gmoccapy.glade.h:110
+msgid "User tabs"
+msgstr ""
+
+#: gmoccapy.glade.h:111
+msgid "Vel."
+msgstr ""
+
+#: gmoccapy.glade.h:112
+msgid "Warning Audio"
+msgstr ""
+
+#: gmoccapy.glade.h:113
+msgid "X Pos."
+msgstr ""
+
+#: gmoccapy.glade.h:114
+msgid "Y Pos."
+msgstr ""
+
+#: gmoccapy.glade.h:115
+msgid "Zoom in"
+msgstr ""
+
+#: gmoccapy.glade.h:116
+msgid "Zoom out"
+msgstr ""
+
+#: gmoccapy.glade.h:117
+msgid "active_gcodes_label"
+msgstr ""
+
+#: gmoccapy.glade.h:118
+msgid "active_mcodes_label"
+msgstr ""
+
+#: gmoccapy.glade.h:119
+msgid "add a new tool to tool table"
+msgstr ""
+
+#: gmoccapy.glade.h:120
+msgid "adjust feed override"
+msgstr ""
+
+#: gmoccapy.glade.h:121
+msgid "adjust max vel of machine"
+msgstr ""
+
+#: gmoccapy.glade.h:122
+msgid "adjust spindle override"
+msgstr ""
+
+#: gmoccapy.glade.h:123
+msgid "adjust the jogging speed"
+msgstr ""
+
+#: gmoccapy.glade.h:124
+msgid ""
+"apply the changes you made, G43 will be excecuted only if it is active g-code"
+msgstr ""
+
+#: gmoccapy.glade.h:125
+msgid "buttons to jog the different axis"
+msgstr ""
+
+#: gmoccapy.glade.h:126
+msgid "change tool to the selected one"
+msgstr ""
+
+#: gmoccapy.glade.h:127
+msgid "change tool with the command M61 Q?, no machine move will be done"
+msgstr ""
+
+#: gmoccapy.glade.h:128
+msgid "clear plot"
+msgstr ""
+
+#: gmoccapy.glade.h:129
+msgid "clear the edit field and make a new file"
+msgstr ""
+
+#: gmoccapy.glade.h:130
+msgid "close the editor without saving any changes"
+msgstr ""
+
+#: gmoccapy.glade.h:131
+msgid ""
+"current\n"
+"   file"
+msgstr ""
+
+#: gmoccapy.glade.h:133
+msgid "delete MDI"
+msgstr ""
+
+#: gmoccapy.glade.h:134
+msgid "delete MDI history"
+msgstr ""
+
+#: gmoccapy.glade.h:135
+msgid "delete selected tool or tools"
+msgstr ""
+
+#: gmoccapy.glade.h:136
+msgid "edit the program"
+msgstr ""
+
+#: gmoccapy.glade.h:137
+msgid "enter MDI mode to launch g-code commands"
+msgstr ""
+
+#: gmoccapy.glade.h:138
+msgid "enter auto mode to run programs"
+msgstr ""
+
+#: gmoccapy.glade.h:139
+msgid "enter manual mode to jog axis by hand or touch off"
+msgstr ""
+
+#: gmoccapy.glade.h:140
+msgid "go back to main button list"
+msgstr ""
+
+#: gmoccapy.glade.h:141
+msgid "height"
+msgstr ""
+
+#: gmoccapy.glade.h:142
+msgid ""
+"here you can set the scales to apply to the hardware MPG to avoid to fast or "
+"to slow moving of the sliders, default is (max-min)/100"
+msgstr ""
+
+#: gmoccapy.glade.h:143
+msgid "hide cursor"
+msgstr ""
+
+#: gmoccapy.glade.h:144
+msgid "home X axis"
+msgstr ""
+
+#: gmoccapy.glade.h:145
+msgid "home Y axis"
+msgstr ""
+
+#: gmoccapy.glade.h:146
+msgid "home Z axis"
+msgstr ""
+
+#: gmoccapy.glade.h:147
+msgid "home all axis"
+msgstr ""
+
+#: gmoccapy.glade.h:148
+msgid ""
+"ignore limits / turn on this if you need to move an axis which is in contact "
+"with the end switch"
+msgstr ""
+
+#: gmoccapy.glade.h:149
+msgid "launch calibration"
+msgstr ""
+
+#: gmoccapy.glade.h:150
+msgid "launch hal meter"
+msgstr ""
+
+#: gmoccapy.glade.h:151
+msgid "launch hal scope"
+msgstr ""
+
+#: gmoccapy.glade.h:152
+msgid "launch linuxcnc status"
+msgstr ""
+
+#: gmoccapy.glade.h:153
+msgid "load a program"
+msgstr ""
+
+#: gmoccapy.glade.h:154
+msgid "make the preview as large as possible"
+msgstr ""
+
+#: gmoccapy.glade.h:155
+msgid "mm"
+msgstr ""
+
+#: gmoccapy.glade.h:156
+msgid "none"
+msgstr ""
+
+#: gmoccapy.glade.h:157
+msgid "offset X"
+msgstr ""
+
+#: gmoccapy.glade.h:158
+msgid "offset Z"
+msgstr ""
+
+#: gmoccapy.glade.h:159
+msgid "open a file to edit"
+msgstr ""
+
+#: gmoccapy.glade.h:160
+msgid "open homing button list"
+msgstr ""
+
+#: gmoccapy.glade.h:161
+msgid "open touch off button list"
+msgstr ""
+
+#: gmoccapy.glade.h:162
+msgid "opens the show hal tool"
+msgstr ""
+
+#: gmoccapy.glade.h:163
+msgid "reload the program, you need to do that after editing"
+msgstr ""
+
+#: gmoccapy.glade.h:164
+msgid "reload tool table from file"
+msgstr ""
+
+#: gmoccapy.glade.h:166
+msgid "reset feed override to 100 %"
+msgstr ""
+
+#: gmoccapy.glade.h:168
+msgid "reset spindle override to 100 %"
+msgstr ""
+
+#: gmoccapy.glade.h:169
+msgid "run from line"
+msgstr ""
+
+#: gmoccapy.glade.h:170
+msgid "run the loaded program"
+msgstr ""
+
+#: gmoccapy.glade.h:171
+msgid "run the program step by step"
+msgstr ""
+
+#: gmoccapy.glade.h:172
+msgid "save the file with a new name"
+msgstr ""
+
+#: gmoccapy.glade.h:173
+msgid "save the file with the original name"
+msgstr ""
+
+#: gmoccapy.glade.h:174
+msgid "save the program reload it and run it"
+msgstr ""
+
+#: gmoccapy.glade.h:175
+msgid "select how to start gmoccapy"
+msgstr ""
+
+#: gmoccapy.glade.h:176
+msgid "select jog distance"
+msgstr ""
+
+#: gmoccapy.glade.h:177
+msgid "select virtual keyboard behavior"
+msgstr ""
+
+#: gmoccapy.glade.h:178
+msgid "show distance to go in DRO"
+msgstr ""
+
+#: gmoccapy.glade.h:179
+msgid "show user tabs"
+msgstr ""
+
+#: gmoccapy.glade.h:180
+msgid "shows the source of the loaded program"
+msgstr ""
+
+#: gmoccapy.glade.h:181
+msgid "spindle relevant settings"
+msgstr ""
+
+#: gmoccapy.glade.h:182
+msgid "stop spindle"
+msgstr ""
+
+#: gmoccapy.glade.h:183
+msgid "stop the running program"
+msgstr ""
+
+#: gmoccapy.glade.h:184
+msgid "switch flood coolant"
+msgstr ""
+
+#: gmoccapy.glade.h:185
+msgid "switch mist coolant"
+msgstr ""
+
+#: gmoccapy.glade.h:186
+msgid "themes and sounds to be used"
+msgstr ""
+
+#: gmoccapy.glade.h:187
+msgid "toggle between metric and imperial units"
+msgstr ""
+
+#: gmoccapy.glade.h:188
+msgid "toggle between relative and absolute coordinates"
+msgstr ""
+
+#: gmoccapy.glade.h:189
+msgid "touch off X / set X to 0"
+msgstr ""
+
+#: gmoccapy.glade.h:190
+msgid "touch off X / set X to an desired value"
+msgstr ""
+
+#: gmoccapy.glade.h:191
+msgid "touch off Y / set Y to 0"
+msgstr ""
+
+#: gmoccapy.glade.h:192
+msgid "touch off Y / set Y to an desired value"
+msgstr ""
+
+#: gmoccapy.glade.h:193
+msgid "touch off Z / set Z to an desired value"
+msgstr ""
+
+#: gmoccapy.glade.h:194
+msgid "touch off Z / set to 0"
+msgstr ""
+
+#: gmoccapy.glade.h:195
+msgid "touch off the tool and set the value to the tool table"
+msgstr ""
+
+#: gmoccapy.glade.h:196
+msgid ""
+"touchoff\n"
+"  tool X"
+msgstr ""
+
+#: gmoccapy.glade.h:198
+msgid ""
+"touchoff\n"
+"  tool Z"
+msgstr ""
+
+#: gmoccapy.glade.h:200
+msgid "turn on spindle clockwise"
+msgstr ""
+
+#: gmoccapy.glade.h:201
+msgid "turn on spindle counterclockwise"
+msgstr ""
+
+#: gmoccapy.glade.h:202
+msgid "unhome all axis"
+msgstr ""
+
+#: gmoccapy.glade.h:203
+msgid "view along the X axis from positive to negative"
+msgstr ""
+
+#: gmoccapy.glade.h:204
+msgid "view along the Y axis from positive to negative"
+msgstr ""
+
+#: gmoccapy.glade.h:205
+msgid ""
+"view along the Y axis from positive to negative as viewn for a back tool "
+"lathe"
+msgstr ""
+
+#: gmoccapy.glade.h:206
+msgid "view along the Z axis from positive to negative"
+msgstr ""
+
+#: gmoccapy.glade.h:207
+msgid "view perspective"
+msgstr ""
+
+#: gmoccapy.glade.h:208
+msgid "width"
+msgstr ""

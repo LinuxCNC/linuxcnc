@@ -118,6 +118,23 @@ class ToolEdit(gtk.VBox):
         else:
             return(liststore.get_value(liststore.get_iter(pathlist[0]),1))
 
+    def set_selected_tool(self,toolnumber):
+        try:
+            treeselection = self.view2.get_selection()
+            liststore  = self.model
+            def match_tool(model, path, iter, pathlist):
+                if model.get_value(iter, 1) == toolnumber:
+                    pathlist.append(path)
+                return False     # keep the foreach going
+            pathlist = []
+            liststore.foreach(match_tool, pathlist)
+            # foreach works in a depth first fashion
+            if len(pathlist) == 1:
+                liststore.set_value(liststore.get_iter(pathlist[0]),0,1)
+                treeselection.select_path(pathlist[0])
+        except:
+            print "tooledit_widget error: cannot select tool number",toolnumber
+
     def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',"comment"]):
         self.model.append(data)
         self.num_of_col +=1
@@ -231,11 +248,20 @@ class ToolEdit(gtk.VBox):
         # we use locale methods so either a comma or decimal can be used, dependig in locale
     def col_editted(self, widget, path, new_text, col):
         if col in(1,2):
-            self.model[path][col] = int(new_text)
+            try:
+                self.model[path][col] = int(new_text)
+            except:
+                pass
         elif col in range(3,16):
-            self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+            try:
+                self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+            except:
+                pass
         elif col == 16:
-            self.model[path][col] = (new_text)
+            try:
+                self.model[path][col] = (new_text)
+            except:
+                pass
         #print new_text, col
 
         # this makes the checkboxes actually update

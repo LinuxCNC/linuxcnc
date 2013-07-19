@@ -35,6 +35,9 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.offset = 0
         self.program_length = 0
         self.buf = gtksourceview.Buffer()
+        self.buf.set_max_undo_levels(10)
+        self.update_iter()
+        self.buf.connect('changed', self.update_iter)
         self.set_buffer(self.buf)
         lm = gtksourceview.LanguageManager()
         if 'EMC2_HOME' in os.environ:
@@ -46,7 +49,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.set_show_line_marks(True)
         self.set_highlight_current_line(True)
         self.set_mark_category_icon_from_icon_name('motion', 'gtk-forward')
-        self.set_mark_category_background('motion', gtk.gdk.Color('#f44'))
+        self.set_mark_category_background('motion', gtk.gdk.Color('#ff0'))
 
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
@@ -56,12 +59,23 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     def get_filename(self):
         return self.filename
 
-    def load_file(self, fn):
+    # This load the file while not allowing undo buttons to unload the program.
+    # It updates the iter because iters become invalid when anything changes.
+    # We set the buffer-unmodified flag false after loading the file.
+    # Set the hilight line to the line linuxcnc is looking at.
+    # if one calls load_file without a filenname, We reload the exisiting file.
+    def load_file(self, fn=None):
+        self.buf.begin_not_undoable_action()
+        if fn == None:
+            fn = self.filename
         self.filename = fn
         if not fn:
             self.buf.set_text('')
             return 
         self.buf.set_text(open(fn).read())
+        self.buf.end_not_undoable_action()
+        self.buf.set_modified(False)
+        self.update_iter()
         self.highlight_line(self.gstat, self.gstat.stat.motion_line)
         self.offset = self.gstat.stat.motion_line
         f = file(fn, 'r')
@@ -69,11 +83,15 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         f.close()
         self.program_length = len(p)
 
+    # This moves the highlight line to a lower numbered line.
+    # useful for run-at-line selection
     def line_down(self):
         self.offset +=1
         self.check_offset()
         self.highlight_line(self.gstat, self.offset)
 
+    # This moves the highlight line to a higher numbered line.
+    # useful for run-at-line selection
     def line_up(self):
         self.offset -=1
         self.check_offset()
@@ -82,6 +100,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     def get_line_number(self):
         return self.offset
 
+    # sets the highlight line to a specified line.
     def set_line_number(self,linenum):
         self.offset = linenum
         self.check_offset()
@@ -107,6 +126,55 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         else:
             self.buf.move_mark(self.mark, line)
         self.scroll_to_mark(self.mark, 0, True, 0, 0.5)
+
+    # iters are invalid (and will cause a complete crash) after any changes.
+    # so we have to update them after a change
+    def update_iter(self,widget=None):
+        self.start_iter =  self.buf.get_start_iter()
+        self.end_iter = self.buf.get_end_iter()
+        self.current_iter = self.start_iter.copy()
+
+    # This will search the buffer for a specified text string.
+    # You can search forward or back, with mixed case or exact text.
+    # if it searches to either end, if search is pressed again, it will start at the other end.
+    # This will grab focus and set the cursor active, while highlighting the line.
+    # It automatically scrolls if it must.
+    def text_search(self,direction=True,mixed_case=True,text="t"):
+        caseflag = 0
+        if mixed_case:
+            caseflag = gtksourceview.SEARCH_CASE_INSENSITIVE
+        if direction:
+            if self.current_iter.is_end():
+                self.current_iter = self.start_iter.copy()
+            found = gtksourceview.iter_forward_search(self.current_iter,text,caseflag, None)
+        else:
+            if self.current_iter.is_start():
+                self.current_iter = self.end_iter.copy()
+            found = gtksourceview.iter_backward_search(self.current_iter,text,caseflag, None)
+        if found:
+            match_start,match_end = found
+            self.buf.select_range(match_start,match_end)
+            if direction:
+                self.buf.place_cursor(match_start)
+                self.grab_focus()
+                self.current_iter = match_end.copy()
+            else:
+                self.buf.place_cursor(match_start)
+                self.grab_focus()
+                self.current_iter = match_start.copy()
+            self.scroll_to_iter(match_start, 0, True, 0, 0.5)
+            self.set_highlight_current_line(True)
+        else:
+            self.current_iter = self.start_iter.copy()
+            self.set_highlight_current_line(False)
+
+    # unndo one level of changes
+    def undo(self):
+        self.buf.undo()
+
+    # redo one level of changes
+    def redo(self):
+        self.buf.redo()
 
 def safe_write(filename, data, mode=0644):
     import os, tempfile
@@ -141,6 +209,7 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
 
     def save(self, fn):
         b = self.textview.get_buffer()
+        b.set_modified(False)
         safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter()))
         self._load_file(fn)
 

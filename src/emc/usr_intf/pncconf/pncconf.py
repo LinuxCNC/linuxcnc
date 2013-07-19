@@ -1054,7 +1054,7 @@ class Data:
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 20000
-        self.mesa0_pdm_frequency = 6000
+        self.mesa0_pdm_frequency = 6000000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
         self.mesa0_numof_encodergens = 4
@@ -1077,7 +1077,7 @@ class Data:
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 20000
-        self.mesa1_pdm_frequency = 6000
+        self.mesa1_pdm_frequency = 6000000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
         self.mesa1_numof_encodergens = 4
@@ -3884,7 +3884,10 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
                     comptype = "gpio"
-                    compnum = int(pinnum)+(concount*24)
+                    if '5i25' in boardname:
+                        compnum = int(pinnum)+(concount*16)
+                    else:
+                        compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
                 elif ptype in (ENCA,ENCB,ENCI,ENCM,PWMP,PWMD,PWME,PDMP,PDMD,PDME,UDMU,UDMD,UDME,
                     STEPA,STEPB,STEPC,STEPD,STEPE,STEPF,TPPWMA,TPPWMB,TPPWMC,TPPWMAN,TPPWMBN,TPPWMCN,TPPWME,TPPWMF):
@@ -5937,6 +5940,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,subboardname,numofsserialports,numofsserialchannels,sserialflag):
+                currentboard = self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME]
                 # *** convert widget[ptype] to component specified in firmwaredata  *** 
 
                 # if the board has less then 24 pins hide the extra comboboxes
@@ -6254,6 +6258,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin)) # sserial input
                             else:
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
+                    elif '5i25' in currentboard:
+                         self.widgets[complabel].set_text("%03d:"%(concount*16+pin))# 5i25 mainboard GPIO
                     else:
                          self.widgets[complabel].set_text("%03d:"%(concount*24+pin))# mainboard GPIO
                     if compnum == 100 and widgettext == firmptype:
@@ -9315,7 +9321,7 @@ But there is not one in the machine-named folder.."""),True)
                 ending = ".value"
                 pwminvertlist = self.data.pwmgen_invert_pins(pwm_sig)
                 for i in pwminvertlist:
-                    halrun.write("setp    "+i+".invert_output true")
+                    halrun.write("setp    "+i+".invert_output true\n")
 
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
@@ -9484,7 +9490,7 @@ But there is not one in the machine-named folder.."""),True)
                             halrun.write("net %s %s \n"% (signal,pinname))
                     else:
                         if not "sserial" in pname: # mainboard GPIO need to be set to output/opendrain
-                            halrun.write("setp %s true\n"% (pinname + ".is_output\n"))
+                            halrun.write("setp %s true\n"% (pinname + ".is_output"))
                             if t == GPIOD: halrun.write("setp    "+pinname+".is_opendrain  true\n")
                         if "sserial" in pname and "dig" in pinname: ending = ".out" # 7i76 sserial board
                         elif "sserial" in pname: ending = "" # all other sserial

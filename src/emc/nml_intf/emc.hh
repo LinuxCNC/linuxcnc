@@ -37,8 +37,8 @@ class CMS;
 class RCS_CMD_CHANNEL;
 class RCS_STAT_CHANNEL;
 class NML;
-class EmcPose;
-class PM_CARTESIAN;
+struct EmcPose;
+struct PM_CARTESIAN;
 
 // ---------------------
 // EMC TYPE DECLARATIONS

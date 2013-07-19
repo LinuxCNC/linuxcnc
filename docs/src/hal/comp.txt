@@ -263,12 +263,13 @@ The currently defined options are:
    be to call the event handler loop of a GUI toolkit. 
 
 * 'option userinit yes' - (default: no)
-   If specified, the function 'userinit(argc,argv)' is called before
-   'rtapi_app_main()' (and thus before the call to 'hal_init()' ). This
-   function may process the commandline arguments or take other 
-   actions. Its return type is 'void'; it may call 'exit()' if it
-   wishes to terminate rather than create a HAL component 
-   (for instance, because the commandline arguments were invalid).
+   This option is ignored if the option 'userspace' (see above) is set to
+   'no'.  If 'userinit' is specified, the function 'userinit(argc,argv)'
+   is called before 'rtapi_app_main()' (and thus before the call to
+   'hal_init()' ). This function may process the commandline arguments or
+   take other actions. Its return type is 'void'; it may call 'exit()'
+   if it wishes to terminate rather than create a HAL component (for
+   instance, because the commandline arguments were invalid).
 
 If an option's VALUE is not specified, then it is equivalent to 
 specifying 'option … yes'. 

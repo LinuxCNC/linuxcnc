@@ -46,6 +46,7 @@ unhome.png
 the following icons are created by nieson@web.de under free license
 Logo.png
 index_tool.png
+user_tabs.png (modified two icon from openiconlibrary)
 
 the following Icons are from linuxcnc
 toolaxisp.png
@@ -69,5 +70,5 @@ saveas.png
 toolpath.png
 zoom-in.png
 zoom-out.png
-
+fullscreen_preview.png
 

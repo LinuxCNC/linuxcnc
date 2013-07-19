@@ -1,11 +1,9 @@
 /* A component to convert 7i73 bytecodes to bit pins */
 #include "rtapi.h"
 #include "rtapi_app.h"
-#include <linux/input.h>
 #include "hal.h"
 
 #define MAX_CHAN 8
-#define MAX_ROLLOVER 8
 
 /* module information */
 MODULE_AUTHOR("Andy Pugh");
@@ -20,7 +18,6 @@ typedef struct {
         hal_u32_t *keycode;
     } hal;
     struct {
-        hal_u32_t *code;
         hal_u32_t rollover;
         hal_bit_t invert;
     } param;
@@ -28,7 +25,6 @@ typedef struct {
     hal_u32_t nrows;
     hal_u32_t *now;
     hal_u32_t *then;
-    hal_u32_t keys[MAX_ROLLOVER];
     hal_bit_t invert;
     char name[HAL_NAME_LEN + 1];
     struct input_dev *key_dev;
@@ -38,7 +34,6 @@ typedef struct {
     int rowshift;
     int row;
     int num_keys;
-    int lastkey;
     hal_bit_t scan;
     hal_bit_t keystroke;
 }kb_inst_t;
@@ -74,16 +69,6 @@ void keyup(kb_inst_t *inst){
     if (inst->num_keys > 0) inst->num_keys--;
     
     *inst->hal.key[r * inst->ncols + c] = 0;
-#ifndef SIM    
-    if(inst->keystroke){
-        if (inst->param.code[r * inst->ncols + c]){
-            input_report_key(inst->key_dev, 
-                             inst->param.code[r * inst->ncols + c], 
-                             0);
-            input_sync(inst->key_dev);
-        }
-    }
-#endif
 }
 void keydown(kb_inst_t *inst){
     int r, c;
@@ -104,24 +89,12 @@ void keydown(kb_inst_t *inst){
     inst->num_keys++;
     
     *inst->hal.key[r * inst->ncols + c] = 1;
-#ifndef SIM
-    if (inst->keystroke){
-        if (inst->param.code[r * inst->ncols + c]){
-            input_report_key(inst->key_dev, 
-                             inst->param.code[r * inst->ncols + c] , 
-                             1);
-            input_sync(inst->key_dev);
-        }
-    }
-#endif
 }
 
     void loop(void *arg, long period){
     int c;
     hal_u32_t scan = 0;
     kb_inst_t *inst = arg;
-    
-    if (inst->param.rollover > MAX_ROLLOVER) inst->param.rollover = MAX_ROLLOVER;
     
     if (inst->scan){ //scanning request
         for (c = 0; c < inst->ncols; c++){
@@ -157,16 +130,13 @@ void keydown(kb_inst_t *inst){
     }
     else
     {
-        if (*inst->hal.keycode == 0 && inst->lastkey == 0) return;
-        //lastkey is just to trap a 7i73 bug: keyup 0,0 == allup. 
-        if (*inst->hal.keycode & inst->keydown){
+        if (*inst->hal.keycode == 0x40) return;
+        if ((*inst->hal.keycode & inst->keydown) == inst->keydown){
             keydown(inst);
-            inst->lastkey = *inst->hal.keycode;
         }
-        else
+        else if ((*inst->hal.keycode & inst->keydown) == inst->keyup)
         {
             keyup(inst);
-            inst->lastkey = 0;
         }
     }
 }
@@ -214,7 +184,6 @@ int rtapi_app_main(void){
         inst->ncols = 0;
         inst->scan = 0;
         inst->keystroke = 0;
-        inst->lastkey = 0;
         inst->param.invert = 1;
         
         for(j = 0; config[i][j] !=0; j++){
@@ -228,9 +197,6 @@ int rtapi_app_main(void){
             }
             else if (n == 's'){
                 inst->scan = 1;
-            }
-            else if (n == 'k'){
-                inst->keystroke = 1;
             }
         }
         inst->ncols = a;
@@ -250,12 +216,11 @@ int rtapi_app_main(void){
         }
         
         for (inst->rowshift = 1; inst->ncols > (1 << inst->rowshift); inst->rowshift++);
-        for (inst->keydown = 0x40, inst->keyup = 0x80
+        for (inst->keydown = 0xC0, inst->keyup = 0x80
              ; (inst->nrows << inst->rowshift) > inst->keydown
              ; inst->keydown <<= 1, inst->keyup <<= 1);
         
         inst->hal.key = (hal_bit_t **)hal_malloc(inst->nrows * inst->ncols * sizeof(hal_bit_t*));
-        inst->param.code = hal_malloc(inst->nrows * inst->ncols * sizeof(inst->param.code));
         inst->now = hal_malloc(inst->nrows * sizeof(hal_u32_t));
         inst->then = hal_malloc(inst->nrows * sizeof(hal_u32_t));
         inst->row = 0;
@@ -283,21 +248,6 @@ int rtapi_app_main(void){
                     hal_exit(comp_id);
                     return -1;
                 }
-#ifndef SIM
-                if (inst->keystroke){
-                    retval = hal_param_u32_newf(HAL_RW,
-                                                &inst->param.code[r * inst->ncols + c], 
-                                                comp_id,
-                                                "%s.code.r%xc%x", 
-                                                inst->name, r, c);
-                    if (retval != 0) {
-                        rtapi_print_msg(RTAPI_MSG_ERR,
-                                        "matrix_kb: Failed to create output pin\n");
-                        hal_exit(comp_id);
-                        return -1;
-                    }
-                }
-#endif
             }
         }
         
@@ -378,30 +328,6 @@ int rtapi_app_main(void){
             rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: function export failed\n");
             return -1;
         }
-#ifndef SIM
-        if (inst->keystroke){ // keyboard output needed
-            inst->key_dev = input_allocate_device();
-            if (!inst->key_dev) {
-                rtapi_print_msg(RTAPI_MSG_ERR,"matrix_kb: Not enough memory\n");
-                return -1;
-            }
-            
-            inst->key_dev->name = inst->name;
-            set_bit(EV_KEY, inst->key_dev->evbit);
-            
-            
-            for(j = 0; j < 226 ; j++){ 
-                set_bit(j, inst->key_dev->keybit);
-            }
-            
-            retval = input_register_device(inst->key_dev);
-            if (retval) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "button.c: Failed to register device\n");
-                return -1;
-            }
-        }
-#endif
-        
     }
     hal_ready(comp_id);
     
@@ -411,12 +337,4 @@ int rtapi_app_main(void){
 void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
-#ifndef SIM
-    {
-        int i;
-        for (i = 0; i < kb->num_insts ; i++){
-            if (kb->insts[i].keystroke) input_unregister_device(kb->insts[i].key_dev);
-        }
-    }
-#endif
 }

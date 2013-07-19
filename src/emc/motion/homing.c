@@ -148,7 +148,7 @@ void do_homing_sequence(void)
 	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_WAIT_JOINTS;
 	} else {
 	    /* no joints have this sequence number, we're done */
-	    emcmotStatus->homingSequenceState = HOME_IDLE;
+	    emcmotStatus->homingSequenceState = HOME_SEQUENCE_IDLE;
 	    /* tell the world */
 	    emcmotStatus->homing_active = 0;
 	}
@@ -795,7 +795,7 @@ void do_homing(void)
 		/* should never get here */
 		reportError(_("unknown state '%d' during homing"),
 		    joint->home_state);
-		joint->home_state = EMCMOT_ABORT;
+		joint->home_state = HOME_ABORT;
 		immediate_state = 1;
 		break;
 	    }	/* end of switch(joint->home_state) */

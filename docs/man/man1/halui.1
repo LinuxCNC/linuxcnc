@@ -217,11 +217,20 @@ pin for requesting joint by joint jog mode
 .B halui.mode.manual\fR bit in \fR
 pin for requesting manual mode
 .TP
-.B Ihalui.mode.mdi\fR bit in \fR
+.B halui.mode.mdi\fR bit in \fR
 pin for requesting mdi mode
 .TP
 .B halui.mode.teleop\fR bit in \fR
 pin for requesting coordinated jog mode
+
+.SS mdi \fR(optional)
+.TP
+.B halui.mdi-command-XX\fR bit in
+\fBhalui\fR looks for ini variables named [HALUI]MDI_COMMAND, and
+exports a pin for each command it finds.  When the pin is driven TRUE,
+\fBhalui\fR runs the specified MDI command.  XX is a two digit number
+starting at 00.  If no [HALUI]MDI_COMMAND variables are set in the ini
+file, no halui.mdi-command-XX pins will be exported by halui.
 
 .SS mist
 .TP
@@ -448,8 +457,8 @@ pin for requesting home-all
 .SH BUGS
 none known at this time.
 .SH AUTHOR
-Written by Alex Joni, as part of the LinuxCNC Enhanced Machine
-Controller project. Updated by John Thornton
+Written by Alex Joni, as part of the LinuxCNC project. Updated by John
+Thornton
 .SH REPORTING BUGS
 Report bugs to alex_joni AT users DOT sourceforge DOT net
 .SH COPYRIGHT

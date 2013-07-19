@@ -1,0 +1,89 @@
+setexact_for_test_suite_only
+loadrt threads name1=slow period1=1000000
+loadrt mux_generic config="b2b,b2f,b2s,b2u,f2b,f2f,f2s,f2u,s2b,s2f,s2s,s2u,u2b,u2f,u2s,u2u,b2b,f5f"
+loadrt streamer depth=100 cfg=bu
+loadrt sampler depth=100 cfg=bfsubfsubfsubfsubfbu
+
+addf streamer.0 slow
+addf mux-gen.00 slow
+addf mux-gen.01 slow
+addf mux-gen.02 slow
+addf mux-gen.03 slow
+addf mux-gen.04 slow
+addf mux-gen.05 slow
+addf mux-gen.06 slow
+addf mux-gen.07 slow
+addf mux-gen.08 slow
+addf mux-gen.09 slow
+addf mux-gen.10 slow
+addf mux-gen.11 slow
+addf mux-gen.12 slow
+addf mux-gen.13 slow
+addf mux-gen.14 slow
+addf mux-gen.15 slow
+addf mux-gen.16 slow
+addf mux-gen.17 slow
+addf sampler.0 slow
+
+net v0 mux-gen.00.in-bit-00 mux-gen.01.in-bit-00 mux-gen.02.in-bit-00 mux-gen.03.in-bit-00 mux-gen.16.in-bit-00 
+net v1 mux-gen.04.in-float-00 mux-gen.05.in-float-00 mux-gen.06.in-float-00 mux-gen.07.in-float-00
+net v2 mux-gen.08.in-s32-00 mux-gen.09.in-s32-00 mux-gen.10.in-s32-00 mux-gen.11.in-s32-00 
+net v3 mux-gen.12.in-u32-00 mux-gen.13.in-u32-00  mux-gen.14.in-u32-00  mux-gen.15.in-u32-00 
+
+net v4 mux-gen.00.in-bit-01 mux-gen.01.in-bit-01 mux-gen.02.in-bit-01 mux-gen.03.in-bit-01 mux-gen.16.in-bit-01
+net v5 mux-gen.04.in-float-01 mux-gen.05.in-float-01 mux-gen.06.in-float-01 mux-gen.07.in-float-01
+net v6 mux-gen.08.in-s32-01 mux-gen.09.in-s32-01 mux-gen.10.in-s32-01 mux-gen.11.in-s32-01 
+net v7 mux-gen.12.in-u32-01 mux-gen.13.in-u32-01  mux-gen.14.in-u32-01  mux-gen.15.in-u32-01 
+
+net sel mux-gen.00.sel-bit-00  mux-gen.01.sel-bit-00  mux-gen.02.sel-bit-00  mux-gen.03.sel-bit-00 
+net sel mux-gen.04.sel-bit-00  mux-gen.05.sel-bit-00  mux-gen.06.sel-bit-00  mux-gen.07.sel-bit-00 
+net sel mux-gen.08.sel-bit-00  mux-gen.09.sel-bit-00  mux-gen.10.sel-bit-00  mux-gen.11.sel-bit-00 
+net sel mux-gen.12.sel-bit-00  mux-gen.13.sel-bit-00  mux-gen.14.sel-bit-00  mux-gen.15.sel-bit-00 
+net sel mux-gen.16.sel-bit-00
+
+sets v0 0
+sets v1 1e-11
+sets v2 -999
+sets v3 0
+sets v4 1
+sets v5 5000000000.001
+sets v6 -100
+sets v7 0xFFFFFFFF
+
+setp mux-gen.16.debounce-us 4000
+
+setp mux-gen.17.in-float-00 1.11
+setp mux-gen.17.in-float-01 2.22
+setp mux-gen.17.in-float-02 3.33
+setp mux-gen.17.in-float-03 4.44
+setp mux-gen.17.in-float-04 5.55
+
+net sel streamer.0.pin.0 sampler.0.pin.18
+net u streamer.0.pin.1 sampler.0.pin.19 mux-gen.17.sel-int
+
+net o0 mux-gen.00.out-bit sampler.0.pin.0
+net o1 mux-gen.01.out-float sampler.0.pin.1
+net o2 mux-gen.02.out-s32 sampler.0.pin.2
+net o3 mux-gen.03.out-u32 sampler.0.pin.3
+net o4 mux-gen.04.out-bit sampler.0.pin.4
+net o5 mux-gen.05.out-float sampler.0.pin.5
+net o6 mux-gen.06.out-s32 sampler.0.pin.6
+net o7 mux-gen.07.out-u32 sampler.0.pin.7
+net o8 mux-gen.08.out-bit sampler.0.pin.8
+net o9 mux-gen.09.out-float sampler.0.pin.9
+net o10 mux-gen.10.out-s32 sampler.0.pin.10
+net o11 mux-gen.11.out-u32 sampler.0.pin.11
+net o12 mux-gen.12.out-bit sampler.0.pin.12
+net o13 mux-gen.13.out-float sampler.0.pin.13
+net o14 mux-gen.14.out-s32 sampler.0.pin.14
+net o15 mux-gen.15.out-u32 sampler.0.pin.15
+net o16 mux-gen.16.out-bit sampler.0.pin.16
+net o17 mux-gen.17.out-float sampler.0.pin.17
+
+loadusr halstreamer input-signals
+loadusr -w sleep 0.5
+
+start
+loadusr -w halsampler -n 105
+
+

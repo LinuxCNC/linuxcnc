@@ -1760,7 +1760,7 @@ static void output_to_hal(void)
 	*(joint_data->homed) = GET_JOINT_HOMED_FLAG(joint);
 	*(joint_data->f_errored) = GET_JOINT_FERROR_FLAG(joint);
 	*(joint_data->faulted) = GET_JOINT_FAULT_FLAG(joint);
-	joint_data->home_state = joint->home_state;
+	*(joint_data->home_state) = joint->home_state;
     }
 
     /* output axis info to HAL for scoping, etc */

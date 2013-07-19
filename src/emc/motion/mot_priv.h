@@ -64,7 +64,7 @@ typedef struct {
 				         encoder clears: index arrived */
     hal_bit_t *amp_fault;	/* RPI: amp fault input */
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
-    hal_s32_t home_state;	/* RPA: homing state machine state */
+    hal_s32_t *home_state;	/* WPI: homing state machine state */
 
     hal_bit_t *unlock;          /* WPI: command that axis should unlock for rotation */
     hal_bit_t *is_unlocked;     /* RPI: axis is currently unlocked */

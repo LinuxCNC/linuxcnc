@@ -21,7 +21,7 @@ pin out bit sign "Sign of input, false for positive, true for negative" ;
 pin out bit is_positive "TRUE if input is positive, FALSE if input is 0 or negative";
 pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or positive";
 
-function _;
+function _ nofp;
 license "GPL";
 ;;
 FUNCTION(_) {
@@ -34,9 +34,9 @@ FUNCTION(_) {
 	out = -tmp;
     }
 
-    if (tmp > 0.000001) is_positive = 1;
+    if (tmp > 0) is_positive = 1;
     else is_positive = 0;
 
-    if (tmp < -0.000001) is_negative = 1;
+    if (tmp < 0) is_negative = 1;
     else is_negative = 0;
 }

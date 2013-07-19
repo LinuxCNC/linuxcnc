@@ -41,7 +41,9 @@ static int key = DEFAULT_SHMEM_KEY;	/* the shared memory key, default value */
 RTAPI_MP_INT(key, "shared memory key");
 static long base_period_nsec = 0;	/* fastest thread period */
 RTAPI_MP_LONG(base_period_nsec, "fastest thread period (nsecs)");
-static long servo_period_nsec = 1000000;/* servo thread period */
+int base_thread_fp = 0;	/* default is no floating point in base thread */
+RTAPI_MP_INT(base_thread_fp, "floating point in base thread?");
+static long servo_period_nsec = 1000000;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static long traj_period_nsec = 0;	/* trajectory planner period */
 RTAPI_MP_LONG(traj_period_nsec, "trajectory planner period (nsecs)");
@@ -437,7 +439,9 @@ static int init_hal_io(void)
 	}
 	/* init axis pins and parameters */
 	*(joint_data->amp_enable) = 0;
-	joint_data->home_state = 0;
+	*(joint_data->home_state) = 0;
+	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
+	   because it is always supported. */
     }
 
     /* export axis pins and parameters */
@@ -507,7 +511,7 @@ static int export_joint(int num, joint_hal_t * addr)
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->faulted), mot_comp_id, "joint.%d.faulted", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->homed), mot_comp_id, "joint.%d.homed", num)) != 0) return retval;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->homing), mot_comp_id, "joint.%d.homing", num)) != 0) return retval;
-    if ((retval = hal_param_s32_newf(HAL_RO, &(addr->home_state), mot_comp_id, "joint.%d.home-state", num)) != 0) return retval;
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), mot_comp_id, "joint.%d.home-state", num)) != 0) return retval;
     if(num >= 3 && num <= 5) {
         // for rotaries only...
         if ((hal_pin_bit_newf(HAL_OUT, &(addr->unlock), mot_comp_id, "joint.%d.unlock", num)) != 0) return retval;
@@ -747,7 +751,7 @@ static int init_threads(void)
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, 0);
+	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: failed to create %ld nsec base thread\n",

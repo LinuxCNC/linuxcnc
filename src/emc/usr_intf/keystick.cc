@@ -1340,7 +1340,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC cmd
   if (emcCommandBuffer == 0)
     {
-      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "keystick", emc_nmlfile);
+      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", emc_nmlfile);
       if (! emcCommandBuffer->valid())
         {
           rcs_print_error("emcCommand buffer not available\n");
@@ -1353,7 +1353,7 @@ static int emcTaskNmlGet()
   // try to connect to EMC status
   if (emcStatusBuffer == 0)
     {
-      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "keystick", emc_nmlfile);
+      emcStatusBuffer = new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc", emc_nmlfile);
       if (! emcStatusBuffer->valid() ||
           EMC_STAT_TYPE != emcStatusBuffer->peek())
         {
@@ -1378,7 +1378,7 @@ static int emcErrorNmlGet()
 
   if (emcErrorBuffer == 0)
     {
-      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "keystick", emc_nmlfile);
+      emcErrorBuffer = new NML(nmlErrorFormat, "emcError", "xemc", emc_nmlfile);
       if (! emcErrorBuffer->valid())
         {
           rcs_print_error("emcError buffer not available\n");
@@ -1418,7 +1418,7 @@ static int iniLoad(const char *filename)
   int jogPol;
 
   // open it
-  if (-1 == inifile.Open(filename))
+  if (!inifile.Open(filename))
     {
       return -1;
     }

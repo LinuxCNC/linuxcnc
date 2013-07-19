@@ -50,8 +50,6 @@ int ModbusTimeAfterTransmit;
 /* TEMP!!! put this variable in global config instead ? */
 int ModbusEleOffset = 0;
 int ModbusDebugLevel = 0; 
-int MapCoilRead= 0;
-int MapCoilWrite= 0;
 int MapInputs= 0;
 int MapHolding= 0;
 int MapRegisterRead= 0;

@@ -1122,6 +1122,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                     HM2_ERR("***Smart Serial Port %i will be stopped***\n",i); 
                     *inst->state = 0x20;
                     *inst->command_reg_write = 0x800; // stop command
+                    break;
                 }
                 if (*inst->command_reg_read) {
                     if (doit_err_count < 6){ doit_err_count++; }
@@ -1245,6 +1246,7 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                 *inst->command_reg_write = 0x80000000; // mask pointless writes
                 break;
             case 0x20:// Do-nothing state for serious errors. require run pin to cycle
+                *inst->command_reg_write = 0x80000000; // set bit31 for ignored cmd
                 if ( ! *inst->run){*inst->state = 0x02;}
                 break;
             default: // Should never happen
@@ -1384,10 +1386,11 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buf
     // Gets the bytes one at a time. This could be done more efficiently. 
     char *ptr;
     u32 data;
-
+    int string = size;
+    // -1 in size means "find null" for strings. -2 means don't lcase
+    
     ptr = (char*)buffer;
-    while(0 != size){ // -1 in size means "find null" for strings.
-        
+    while(0 != size){
         data = 0x4C000000 | addr++;
         hm2->llio->write(hm2->llio, chan->reg_cs_addr, &data, sizeof(u32));
         
@@ -1409,7 +1412,7 @@ int hm2_sserial_get_bytes(hostmot2_t *hm2, hm2_sserial_remote_t *chan, void *buf
         if (size < 0) { // string data
             if (data == 0 || size < (-HM2_SSERIAL_MAX_STRING_LENGTH)){
                 size = 0; 
-            } else {
+            } else if (string > -2 && data >= 'A' && data <= 'Z') {
                 data |= 0x20; // lower case
             }
         } 

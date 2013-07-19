@@ -1002,7 +1002,7 @@ static gboolean change_page(GtkNotebook *notebook, GtkNotebookPage *page, guint 
     scope_vert_t *vert;
 
     vert = &(ctrl_usr->vert);
-    if(page_num >= 0 && page_num  < 3)
+    if(page_num  < 3)
 	gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
     return 0;
 }

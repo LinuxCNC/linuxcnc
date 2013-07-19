@@ -164,6 +164,13 @@ DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 READ_DEPS = $(wildcard $(DEPS))
 $(shell echo 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
 -include $(READ_DEPS)
+UNREAD_DEPS = $(filter-out $(READ_DEPS), $(DEPS))
+LEGACY_DEPS = $(patsubst objects/%, depends/%, $(UNREAD_DEPS))
+READ_LEGACY_DEPS = $(wildcard $(LEGACY_DEPS))
+ifneq ($(READ_LEGACY_DEPS),)
+$(shell echo 1>&2 Reading $(words $(READ_LEGACY_DEPS)) old-style dependency files)
+-include $(READ_LEGACY_DEPS)
+endif
 $(shell echo 1>&2 Done reading dependencies)
 endif
 
@@ -234,8 +241,14 @@ Makefile: config.h
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
+INFILES_MOVE = \
+        ../docs/man/man1/linuxcnc.1
+
+../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
+	./config.status --file=$@:$<
+
 INFILES = \
-	../docs/man/man1/linuxcnc.1 ../scripts/linuxcnc ../scripts/realtime \
+        ../scripts/linuxcnc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
 	../tcl/linuxcnc.tcl ../scripts/halrun ../scripts/rip-environment \
 	../scripts/linuxcncmkdesktop \
@@ -252,7 +265,7 @@ endif
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: $(INFILES)
+default: $(INFILES) $(INFILES_MOVE)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
@@ -283,7 +296,6 @@ HEADERS := \
     emc/nml_intf/emccfg.h \
     emc/nml_intf/emcglb.h \
     emc/nml_intf/emcpos.h \
-    emc/nml_intf/interp.hh \
     emc/nml_intf/interp_return.hh \
     emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
@@ -553,6 +565,8 @@ endif
 	$(FILE) ../share/linuxcnc/gscreen.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gscreen2.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/gremlin_view.ui $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/popupkeyboard.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.txt $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
 	$(FILE) ../src/emc/usr_intf/pncconf/pncconf-help/*.png $(DESTDIR)$(prefix)/share/linuxcnc/pncconf/pncconf-help
@@ -645,8 +659,10 @@ EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
 	$(call cc-option,-Wframe-larger-than=2560)
-ifeq ($(RTARCH),x86_64)
-EXTRA_CFLAGS += -msse -ffast-math -funsafe-math-optimizations
+ifneq ($(KERNELRELEASE),)
+ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)
+EXTRA_CFLAGS += -msse
+endif
 endif
 
 ifeq "$(USE_STUBS)" "1"
@@ -688,6 +704,8 @@ obj-$(CONFIG_LCD) += lcd.o
 lcd-objs := hal/components/lcd.o $(MATHSTUB)
 obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
 matrix_kb-objs := hal/components/matrix_kb.o $(MATHSTUB)
+obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
+mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
 obj-$(CONFIG_FREQGEN) += freqgen.o
 freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
@@ -809,6 +827,9 @@ hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
 
+obj-m += 5axiskins.o
+5axiskins-objs := emc/kinematics/5axiskins.o
+
 obj-m += maxkins.o
 maxkins-objs := emc/kinematics/maxkins.o
 
@@ -871,9 +892,9 @@ IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
-	$(Q)ld -r -o objects/$*.tmp $^
+	$(Q)ld -d -r -o objects/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
-	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
+	@if ! $(IS_POWERPC); then objcopy -G __x86.get_pc_thunk.bx -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
 
 # Rules to make .o (object) files
@@ -918,6 +939,7 @@ endif
 ../rtlib/stepgen$(MODULE_EXT): $(addprefix objects/rt,$(stepgen-objs))
 ../rtlib/lcd$(MODULE_EXT): $(addprefix objects/rt,$(lcd-objs))
 ../rtlib/matrix_kb$(MODULE_EXT): $(addprefix objects/rt,$(matrix_kb-objs))
+../rtlib/mux_generic$(MODULE_EXT): $(addprefix objects/rt,$(mux_generic-objs))
 ../rtlib/freqgen$(MODULE_EXT): $(addprefix objects/rt,$(freqgen-objs))
 ../rtlib/pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(pwmgen-objs))
 ../rtlib/siggen$(MODULE_EXT): $(addprefix objects/rt,$(siggen-objs))
@@ -981,9 +1003,9 @@ tags:
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
 	rm -f TAGS
-	find . -type f -name '*.[ch]' |xargs etags -l c --append
-	find . -type f -name '*.cc' |xargs etags -l c++ --append
-	find . -type f -name '*.hh' |xargs etags -l c++ --append
+	find . -type f -name '*.[ch]' -printf '%P\0' |xargs -0 etags -l c --append
+	find . -type f -name '*.cc' -printf '%P\0' |xargs -0 etags -l c++ --append
+	find . -type f -name '*.hh' -printf '%P\0' |xargs -0 etags -l c++ --append
 
 etags:
 	etags	--extra=+fq \

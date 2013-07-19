@@ -1,5 +1,5 @@
 
-ifeq ($(LIBMODBUS3_USABLE),yes)
+ifdef HAVE_LIBMODBUS3
 
 VFS11_SRCS = hal/user_comps/vfs11_vfd/vfs11_vfd.c
 VFS11_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
@@ -13,5 +13,6 @@ USERSRCS += $(VFS11_SRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(VFS11_LIBS) 
 
 TARGETS += ../bin/vfs11_vfd
-endif
+
+endif # HAVE_LIBMODBUS3
 

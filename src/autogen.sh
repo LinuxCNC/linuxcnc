@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 rm -rf auto4mte.cache
 AUTOGEN_TARGET=${AUTOGEN_TARGET-configure:config.h.in}
 set -e

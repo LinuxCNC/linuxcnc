@@ -37,6 +37,17 @@ class HandlerClass:
                 except:
                     pass
 
+    def on_diameter_mode_pressed(self, widget):
+        data = widget.get_active()
+        print "switch diam mode",data
+        self.gscreen.set_diameter_mode(data)
+        for i in ("1","2","3"):
+            axis = "dro_x%s"% (i)
+            if data:
+                self.widgets[axis].set_to_diameter()
+            else:
+                self.widgets[axis].set_to_radius()
+
     # This is a new method for our button
     # we selected this method name in the glade file as a signal callback 
     def on_estop_clicked(self,*args):
@@ -140,10 +151,21 @@ class HandlerClass:
             self.gscreen.unblock(i)
 
     def on_button_edit_clicked(self,widget):
-        self.gscreen.on_button_edit_clicked(widget)
+        state = widget.get_active()
+        if not state:
+            self.gscreen.edited_gcode_check()
+        self.widgets.notebook_main.set_current_page(0)
+        self.widgets.notebook_main.set_show_tabs(not (state))
+        self.gscreen.edit_mode(state)
+        if not state and self.widgets.button_full_view.get_active():
+            self.gscreen.set_full_graphics_view(True)
         if self.data.edit_mode:
+            self.widgets.mode_select_box.hide()
+            self.widgets.search_box.show()
             self.widgets.button_edit.set_label("Exit\nEdit")
         else:
+            self.widgets.mode_select_box.show()
+            self.widgets.search_box.hide()
             self.widgets.button_edit.set_label("Edit")
         self.widgets.notebook_main.set_show_tabs(False)
 
@@ -165,6 +187,7 @@ class HandlerClass:
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
+        calc.entry.connect("activate", lambda w : dialog.emit('response',gtk.RESPONSE_ACCEPT))
         dialog.parse_geometry("400x400")
         dialog.set_decorated(False)
         dialog.show_all()
@@ -236,6 +259,7 @@ class HandlerClass:
         self.gscreen.connect_signals(handlers)
         # connect to handler file callbacks:
         self.gscreen.widgets.metric_select.connect("clicked", self.on_metric_select_clicked)
+        self.gscreen.widgets.diameter_mode.connect("clicked", self.on_diameter_mode_pressed)
         temp = "setup_button","mdi_button","run_button","tooledit_button","system_button","offsetpage_button"
         for cb in temp:
                 i = "_sighandler_%s"% (cb)
@@ -279,8 +303,7 @@ class HandlerClass:
         self.gscreen.init_sensitive_graphics_mode()
         self.gscreen.init_sensitive_origin_mode()
         self.init_sensitive_edit_mode() # local function
-        self.data.sensitive_edit_mode.remove("button_menu")
-        for i in ("setup_button","mdi_button","run_button"):
+        for i in ("setup_button","mdi_button","run_button","tooledit_button","offsetpage_button","button_index_tool"):
             self.data.sensitive_override_mode.append(i)
             self.data.sensitive_graphics_mode.append(i)
             self.data.sensitive_origin_mode.append(i) 
@@ -295,11 +318,15 @@ class HandlerClass:
             self.widgets["home_%s"%i].show()
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
         self.widgets.offsetpage1.set_font("sans 18")
+        self.widgets.offsetpage1.set_row_visible("1",False)
         self.widgets.tooledit1.set_font("sans 18")
+        if self.data.embedded_keyboard:
+            self.gscreen.launch_keyboard()
 
     def init_sensitive_edit_mode(self):
-        self.data.sensitive_edit_mode = ["button_menu","button_graphics","button_override","restart","button_v1_3","button_v1_0",
-            "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits"]
+        self.data.sensitive_edit_mode = ["button_graphics","button_override","button_restart","button_cycle_start","button_single_step",
+            "run_button","setup_button","mdi_button","system_button","tooledit_button","ignore_limits",
+            "offsetpage_button"]
 
     def init_dro(self):
         self.on_abs_colorbutton_color_set(None)
@@ -307,6 +334,15 @@ class HandlerClass:
         self.on_dtg_colorbutton_color_set(None)
         self.widgets.show_dtg.set_active(self.data.show_dtg)
         self.on_show_dtg_pressed(self.widgets.show_dtg)
+        self.gscreen.init_dro()
+        data = self.data.dro_units 
+        for i in ("1","2","3"):
+            for letter in self.data.axis_list:
+                axis = "dro_%s%s"% (letter,i)
+                try:
+                    self.widgets[axis].set_property("display_units_mm",data)
+                except:
+                    pass
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.

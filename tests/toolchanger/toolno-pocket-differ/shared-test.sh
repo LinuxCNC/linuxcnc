@@ -9,10 +9,24 @@ cp ../simpockets.tbl.orig simpockets.tbl
 
 rm -f gcode-output
 
-linuxcnc -d -v sim.ini &
+linuxcnc -r sim.ini &
+
 
 # let linuxcnc come up
-sleep 5
+TOGO=80
+while [  $TOGO -gt 0 ]; do
+    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    if nc -z localhost 5007; then
+        break
+    fi
+    sleep 0.25
+    TOGO=$(($TOGO - 1))
+done
+if [  $TOGO -eq 0 ]; then
+    echo connection to linuxcncrsh timed out
+    exit 1
+fi
+
 
 (
     function introspect() {
@@ -31,12 +45,6 @@ sleep 5
 
     echo set estop off
     echo set machine on
-
-    echo set home 0
-    echo set home 1
-    echo set home 2
-    sleep 1
-
     echo set mode mdi
 
     introspect 0
@@ -141,7 +149,7 @@ sleep 5
     sleep 1.0
 
     echo shutdown
-) | telnet localhost 5007
+) | nc localhost 5007
 
 
 # wait for linuxcnc to finish

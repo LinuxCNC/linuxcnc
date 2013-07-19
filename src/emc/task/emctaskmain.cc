@@ -1082,6 +1082,12 @@ static int emcTaskPlan(void)
 		case EMC_AUX_INPUT_WAIT_TYPE:
 		case EMC_TRAJ_RIGID_TAP_TYPE:
 		case EMC_SET_DEBUG_TYPE:
+                case EMC_COOLANT_MIST_ON_TYPE:
+                case EMC_COOLANT_MIST_OFF_TYPE:
+                case EMC_COOLANT_FLOOD_ON_TYPE:
+                case EMC_COOLANT_FLOOD_OFF_TYPE:
+                case EMC_LUBE_ON_TYPE:
+                case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    return retval;
 		    break;
@@ -1229,6 +1235,12 @@ static int emcTaskPlan(void)
 		case EMC_AUX_INPUT_WAIT_TYPE:
 	        case EMC_TRAJ_RIGID_TAP_TYPE:
 		case EMC_SET_DEBUG_TYPE:
+                case EMC_COOLANT_MIST_ON_TYPE:
+                case EMC_COOLANT_MIST_OFF_TYPE:
+                case EMC_COOLANT_FLOOD_ON_TYPE:
+                case EMC_COOLANT_FLOOD_OFF_TYPE:
+                case EMC_LUBE_ON_TYPE:
+                case EMC_LUBE_OFF_TYPE:
 		    retval = emcTaskIssueCommand(emcCommand);
 		    break;
 

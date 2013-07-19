@@ -2346,24 +2346,16 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_MANUAL)
         c.brake(vars.brake.get())
     def flood(event=None):
-        if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         c.flood(vars.flood.get())
     def mist(event=None):
-        if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         c.mist(vars.mist.get())
     def spindle(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
         c.spindle(vars.spindledir.get())
     def spindle_increase(event=None):
-        if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         c.spindle(linuxcnc.SPINDLE_INCREASE)
     def spindle_decrease(event=None):
-        if not manual_ok(): return
-        ensure_mode(linuxcnc.MODE_MANUAL)
         c.spindle(linuxcnc.SPINDLE_DECREASE)
     def spindle_constant(event=None):
         if not manual_ok(): return
@@ -2374,11 +2366,9 @@ class TclCommands(nf.TclCommands):
         set_first_line(lineno)
 
     def mist_toggle(*args):
-        if not manual_ok(): return
         s.poll()
         c.mist(not s.mist)
     def flood_toggle(*args):
-        if not manual_ok(): return
         s.poll()
         c.flood(not s.flood)
 

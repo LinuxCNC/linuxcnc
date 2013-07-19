@@ -24,6 +24,7 @@ class emc_control:
                 self.jog_velocity = 100.0/60.0
                 self.mdi = 0
                 self.isjogging = [0,0,0,0,0,0,0,0,0]
+                self.restart_line_number = self.restart_reset_line = 0
 
         def mask(self):
                 # updating toggle button active states dumbly causes spurious events
@@ -191,7 +192,9 @@ class emc_control:
 
         # make sure linuxcnc is in AUTO mode
         # if Linuxcnc is paused then pushing cycle start will step the program
-        # else the program starts from line 0
+        # else the program starts from restart_line_number
+        # after restarting it resets the restart_line_number to 0.
+        # You must explicitily set a different restart line each time
         def cycle_start(self):
                 if self.emcstat.task_mode != self.emc.MODE_AUTO:
                     self.emccommand.mode(self.emc.MODE_AUTO)
@@ -201,13 +204,27 @@ class emc_control:
                     self.emccommand.auto(self.emc.AUTO_STEP)
                     return
                 if self.emcstat.interp_state == self.emc.INTERP_IDLE:
-                        self.emccommand.auto(self.emc.AUTO_RUN, 0)
+                        print self.restart_line_number
+                        self.emccommand.auto(self.emc.AUTO_RUN, self.restart_line_number)
+                self.restart_line_number = self.restart_reset_line
 
-        # this restarts the program at the line specified
+        # This restarts the program at the line specified directly (without cyscle start push)
         def re_start(self,line):
             self.emccommand.mode(self.emc.MODE_AUTO)
             self.emccommand.wait_complete()
             self.emccommand.auto(self.emc.AUTO_RUN, line)
+            self.restart_line_number = self.restart_reset_line
+
+
+        # set the restart line, you can the either restart directly
+        # or restart on the cycle start button push
+        # see above.
+        # reset option allows one to change the default restart after it next restarts
+        # eg while a restart dialog is open, always restart at the line it says
+        # when the dialog close change the  line and reset both to zero
+        def set_restart_line (self,line,reset=0):
+            self.restart_line_number = line
+            self.restart_reset_line = reset
 
         def set_manual_mode(self):
             self.emcstat.poll()

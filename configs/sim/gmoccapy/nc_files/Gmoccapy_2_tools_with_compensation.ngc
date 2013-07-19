@@ -16,18 +16,17 @@ G90
 ; get the first tool
 T3 M6
 G43
-G0 Z30
 
 ; go to center of the workpiece
-G0 Y50
-G0 X50
+G0 X50 Y50
+G0 Z30
 
 ; turn on spindle clockwise
 S3000
 M3
 
 ; coolant on
-M7
+M8
 
 G0 Z10
 F250
@@ -36,38 +35,38 @@ G1 Z0
 ; tool radius compansation
 ; go in circle with lower feed rate  
 G41
-G3 X70 Y 50 Z-1 I10 J0
+G3 X70 Y50 Z-1 I10 J0
 
 ; make first circle with normal feed
 F2000
 G3 I -20
 
 ; out of the workpiece
-G3 X50 Y 50 Z1 I-10 J0
-G0 Z 30
+G3 X50 Y50 Z1 I-10 J0
+G0 Z30
 
 ; coolant off
 M9
+
 ; turn off cutter radius compensation, otherwise no tool change is possible
 G40
 T1 M6
 G43
-G0Z 10
 
 ; optional stop for testing
 (MSG, optional stop, i.e. for cleaning the workpiece, or other thinks)
 M1
 
 ; go again to the center of the workpiece
-G0 Y50
-G0 X50
+G0 X50 Y50
+G0 Z10
 
 ; turn on spindle clockwise
 S6000
 M3
 
-; coolant on
-M9
+; mist on
+M7
 
 G0 Z10
 F400
@@ -76,19 +75,18 @@ G1 Z1
 ; Werkzeugradienkompensation ein
 ; Anfahrradius mit Eintauchgeschwindigkeit  
 G41
-G3 X65 Y 50 Z-1 I7.5 J0
+G3 X65 Y50 Z-1 I7.5 J0
 
 ; 2. Kreis mit Vorschubgeschwindigkeit fräsen
 F1000
-G3 I -15
+G3 I-15
 
 ; Aus dem Werkstück
-G3 X50 Y 50 Z1 I-7.5 J0
-G0 Z 30
+G3 X50 Y50 Z1 I-7.5 J0
+G0 Z30
 
-G0 Z 30
-G0 Y 50
-G0 X 50
+G0 Z30
+G0 X50 Y50
 
 M9 ; coolant off
 M5 ; spindle off

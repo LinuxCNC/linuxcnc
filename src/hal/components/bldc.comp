@@ -378,7 +378,6 @@ author "Andy Pugh";
 function _;
 
 option extra_setup yes;
-option userinit yes;
 option count_function yes;
 
 variable int old_init = 0;
@@ -386,6 +385,7 @@ variable char old_ph = 000;
 variable int old_pattern = -1;
 variable double counter = 0;
 variable __s64 long_rawcounts = 0;
+variable __s64 old_long_rawcounts = 0;
 variable __s32 old_rawcounts = 0;
 variable int force_trap = 0;
 
@@ -469,6 +469,7 @@ FUNCTION(_) {
     double V;
     double lead;
     double sintheta, costheta;
+    long long lagcomped_counts;
     char ph;
     int trap = -1; // Flag for sinusoidal/trapezoidal output
 
@@ -490,6 +491,7 @@ FUNCTION(_) {
 
     if (personality & 0x06) {
         // Handle s32 rollover of rawcounts
+        old_long_rawcounts = long_rawcounts;
         long_rawcounts += (rawcounts-old_rawcounts);
         old_rawcounts = rawcounts;
     }
@@ -519,7 +521,7 @@ FUNCTION(_) {
 
             trap = 1;
 
-            if (pattern > 47 || pattern < 0){
+            if (pattern > 47){
                 rtapi_print_msg(RTAPI_MSG_ERR,
                                 "Only `Hall patterns 0-47 are allowed, you have"
                                 " requested pattern %i\n", pattern);
@@ -673,7 +675,8 @@ FUNCTION(_) {
             } else {
                 lead = lead_angle / 360.0;
             }
-            rotor_angle = (double)((long_rawcounts - offset_measured 
+            lagcomped_counts = long_rawcounts + ((long_rawcounts - old_long_rawcounts)/2);
+            rotor_angle = (double)((lagcomped_counts - offset_measured 
                                     - encoder_offset)* poles/2)/scale;
             rotor_angle -= floor(rotor_angle);
             phase_angle = rotor_angle + lead;

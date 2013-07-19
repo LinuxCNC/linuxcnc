@@ -21,7 +21,7 @@ ifneq ($(MANDB),)
 default: $(DOC_DIR)/man/index.db
 $(DOC_DIR)/man/index.db: $(MAN_SRCS)
 	@echo "Updating 'whatis' database"
-	@$(MANDB) $(DOC_DIR)/man
+	$(Q)$(MANDB) $(DOC_DIR)/man
 endif
 
 ifeq ($(BUILD_DOCS),yes)
