@@ -721,6 +721,17 @@ typedef int (*rtapi_task_self_t)(void);
     rtapi_switch->rtapi_task_self()
 extern int _rtapi_task_self(void);
 
+/** 'rtapi_task_update_stats()' will update the thread statistics
+    in the global_data_t structure.
+
+    Call only from a realtime task.
+    returns a negative value on error, or the thread's task id.
+*/
+typedef int (*rtapi_task_update_stats_t)(void);
+#define rtapi_task_update_stats()			\
+    rtapi_switch->rtapi_task_update_stats()
+extern int _rtapi_task_update_stats(void);
+
 #endif /* RTAPI */
 
 /** 'rtapi_backtrace()' writes a stack trace to the log.
@@ -959,6 +970,11 @@ typedef struct {
     rtapi_dummy_t rtapi_set_exception;
 #endif
     rtapi_backtrace_t rtapi_backtrace;
+#ifdef RTAPI
+    rtapi_task_update_stats_t rtapi_task_update_stats;
+#else
+    rtapi_dummy_t rtapi_task_update_stats;
+#endif
 
 } rtapi_switch_t;
 
