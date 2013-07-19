@@ -97,7 +97,22 @@ modules:
 	    echo "Making modules for flavor $$f"; \
 	    $(MAKE) threads=$$f || exit 1; \
 	done
+ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
+	@test -f ../libexec/linuxcnc_module_helper -a \
+		\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
+		    -u ../libexec/linuxcnc_module_helper \) \
+	    && need_setuid=1; \
+	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
+	    test -f ../libexec/rtapi_app_$$f -a \
+		    \( `stat -c %u ../libexec/rtapi_app_$$f` -ne 0 -o \
+		        -u ../libexec/rtapi_app_$$f \) \
+		&& need_setuid=1; \
+	done; \
+	test "$$need_setuid" = 1 && \
+	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
+	    $(VECHO) "in order to run in place." || true
 endif
+endif # BUILD_ALL_FLAVORS
 
 ifeq ($(BUILD_THREAD_MODULES),yes)
 modules:
@@ -132,24 +147,6 @@ ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
-ifeq ($(RUN_IN_PLACE),yes)
-ifeq ($(BUILD_DRIVERS),yes)
-	@test -f ../libexec/linuxcnc_module_helper -a \
-		`stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -a \
-		-u ../libexec/linuxcnc_module_helper \
-	    && need_setuid=1; \
-	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
-	    test -f ../libexec/rtapi_app_$$f -a \
-		    `stat -c %u ../libexec/rtapi_app_$$f` -ne 0 -a \
-		    -u ../libexec/rtapi_app_$$f \
-		&& need_setuid=1; \
-	done; \
-	test "$$need_setuid" = 1 && \
-	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
-	    $(VECHO) "in order to run in place." || true
-endif
-endif
-
 
 # list of supported hostmot2 boards
 HM2_BOARDS = 3x20 4i65 4i68 5i20 5i22 5i23 7i43
