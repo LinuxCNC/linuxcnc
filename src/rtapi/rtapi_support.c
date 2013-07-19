@@ -23,7 +23,6 @@
 #include <stdarg.h>		/* va_* */
 #include <linux/kernel.h>	/* kernel's vsnprintf */
 
-static int rt_msg_level = RTAPI_MSG_INFO; // RT space
 #define MSG_ORIGIN MSG_KERNEL
 
 #else  /* user land */
@@ -38,7 +37,15 @@ static int rt_msg_level = RTAPI_MSG_INFO; // RT space
 #define MSG_ORIGIN MSG_ULAPI
 #endif
 
-static int pp_msg_level = RTAPI_MSG_INFO; // per process only
+#endif
+
+// these message levels are used in RTAPI and ULAPI
+// respectively until the global segment is attached;
+// thereafter switch to using the message levels from there.
+#ifdef RTAPI
+static int rt_msg_level = RTAPI_MSG_INFO;    // RTAPI (u+k)
+#else
+static int ulapi_msg_level = RTAPI_MSG_INFO; // ULAPI
 #endif
 
 #ifdef ULAPI
@@ -141,13 +148,13 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 
 static int get_msg_level(void)
 {
-#if MODULE
+#if RTAPI
     if (global_data == 0)
 	return rt_msg_level;
     else
 	return global_data->rt_msg_level;
 #else
-    return pp_msg_level;
+    return ulapi_msg_level;
 #endif
 }
 
@@ -155,7 +162,7 @@ static int set_msg_level(int new_level)
 {
     int old_level;
 
-#if MODULE
+#if RTAPI
     if (global_data) {
 	old_level = global_data->rt_msg_level;
 	global_data->rt_msg_level = new_level;
@@ -165,8 +172,8 @@ static int set_msg_level(int new_level)
     }
     return old_level;
 #else
-    old_level = pp_msg_level;
-    pp_msg_level = new_level;
+    old_level = ulapi_msg_level;
+    ulapi_msg_level = new_level;
     return old_level;
 #endif
 }
