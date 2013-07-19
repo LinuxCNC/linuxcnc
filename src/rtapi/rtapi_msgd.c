@@ -212,6 +212,8 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
 static void signal_handler(int sig, siginfo_t *si, void *context)
 {
     syslog(LOG_INFO,"exiting - got signal: %s", strsignal(sig));
+    if (sig == SIGSEGV)
+	abort();
     msgd_exit++;
 }
 
@@ -289,7 +291,7 @@ static int message_thread()
 
     // hint if error ring couldnt be served fast enough, or there was contention
     // none observed so far
-    syslog(rtapi2syslog(msg->level), "error ring stats: full=%d locked=%d",
+    syslog(LOG_INFO, "error ring stats: full=%d locked=%d",
 	   global_data->error_ring_full,
 	   global_data->error_ring_locked);
 
