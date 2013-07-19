@@ -61,6 +61,10 @@ extern void _rtapi_module_cleanup_hook(void);
 void _rtapi_module_init_hook(void);
 #endif
 
+#ifdef HAVE_RTAPI_MODULE_EXIT_HOOK
+void _rtapi_module_exit_hook(void);
+#endif
+
 int init_module(void) {
     int n;
     struct shm_status sm;
@@ -206,6 +210,11 @@ void cleanup_module(void) {
 	/* never got inited, nothing to do */
 	return;
     }
+
+#ifdef HAVE_RTAPI_MODULE_EXIT_HOOK
+    _rtapi_module_exit_hook();
+#endif
+
     /* grab the mutex */
     rtapi_mutex_get(&(rtapi_data->mutex));
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d exit\n", rtapi_instance);

@@ -40,6 +40,10 @@ EXPORT_SYMBOL(global_data);
 void _rtapi_module_init_hook(void);
 #endif
 
+#ifdef HAVE_RTAPI_MODULE_EXIT_HOOK
+void _rtapi_module_exit_hook(void);
+#endif
+
 ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 int rtapi_app_main(void)
@@ -134,6 +138,11 @@ void rtapi_app_exit(void)
     int retval;
 
     rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d exit\n", rtapi_instance);
+
+#ifdef HAVE_RTAPI_MODULE_EXIT_HOOK
+    _rtapi_module_exit_hook();
+#endif
+
     rtapi_message_buffer.header->refcount--;
 
     if ((retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data))) {
