@@ -102,6 +102,7 @@ run_tests () {
 	    fi
 	fi
 	NUM=$(($NUM+1))
+	logger -p local1.info "Running test: $testdir"
 	echo "Running test: $testdir" 1>&2
         case $testname in
         *.hal) run_without_overruns $testname ;;
