@@ -135,7 +135,11 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_set_exception = &_rtapi_dummy,
 #endif
     .rtapi_backtrace = &_rtapi_backtrace,
-
+#ifdef RTAPI
+    .rtapi_task_update_stats = &_rtapi_task_update_stats,
+#else
+    .rtapi_task_update_stats = &_rtapi_dummy,
+#endif
 };
 
 // any API, any style:
@@ -237,75 +241,64 @@ void init_rtapi_data(rtapi_data_t * data)
     rtapi_mutex_give(&(data->mutex));
     return;
 }
-
 /***********************************************************************
-*                           RT scheduling exception handling           *
+*                           RT Thread statistics collection            *
+*
+* Thread statistics are recorded in the global_data_t thread_status.
+* array. Values therein are updated when:
+*
+* - an exception happens, and it is safe to do so
+* - by an explicit call to rtapi_task_update_stats() from an RT thread
+*
+* This avoids the overhead of permanently updating thread status, while
+* giving the user the option to track thread status from a HAL component
+* thread function if so desired.
+*
+* Updating thread status is necessarily a flavor-dependent
+* operation and hence goes through a hook.
+*
+* Inspecting thread status (e.g. in halcmd) needs to evaluate
+* the thread status information based on the current flavor.
 ************************************************************************/
 
-#define MAX_RT_ERRORS 10
-
-// this default handler just writes to the log
-// for a more intelligent way to handle RT faults, see
-// hal/components/rtmon.comp which uses rtapi_set_exception(handler)
-// to override this default handler during module lifetime
-
-int rtapi_default_rt_exception_handler(int cause, int param, const char *msg)
+#ifdef RTAPI
+int _rtapi_task_update_stats(void)
 {
-    static int error_printed = 0;
-    int level = (error_printed == 0) ? RTAPI_MSG_ERR : RTAPI_MSG_WARN;
+#ifdef HAVE_RTAPI_TASK_UPDATE_STATS_HOOK
+    extern int _rtapi_task_update_stats_hook();
 
-    // apply output policy in one place only.
-    switch (cause) {
-
-    case RTAI_RTE_TMROVRN:
-    case RTAI_RTE_UNBLKD:
-    case RTAI_RTE_UNCLASSIFIED:
-    case XK_ETIMEDOUT:
-    case XU_ETIMEDOUT:
-    case RTP_DEADLINE_MISSED:
-
-	if (error_printed < MAX_RT_ERRORS)
-	    rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
-			    rtapi_instance, cause, param, msg);
-	error_printed++;
-	if (error_printed == MAX_RT_ERRORS)
-	    rtapi_print_msg(RTAPI_MSG_WARN,
-			    "RTAPI: (further messages will be suppressed)\n");
-	break;
-
-    case RTAI_TRAP:
-    case XK_TRAP:
-	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI:%d %d:%d %s", 
-			rtapi_instance, cause, param, msg);
-	break;
-
-    case XK_EWOULDBLOCK:
-    case XK_EINTR:
-    case XK_EPERM:
-    case XK_OTHER:
-    case XU_SIGXCPU:
-    case XU_EWOULDBLOCK:
-    case XU_EINTR:
-    case XU_EPERM:
-    case XU_OTHER:
-    case RTP_SIGNAL:
-    default:
-	rtapi_print_msg(level, "RTAPI:%d %d:%d %s", 
-		    rtapi_instance, cause, param, msg);
-	error_printed++;
-    }
-    return 0;
+    return _rtapi_task_update_stats_hook();
+#else
+    return -ENOSYS;  // not implemented in this flavor
+#endif
 }
+#endif
+/***********************************************************************
+*                           RT exception handling                      *
+*
+*  all exceptions are funneled through a common exception handler
+*  the default exception handler is defined in rtapi_exception.c but
+*  may be redefined by a user-defined handler.
+*
+*  NB: the exception handler executes in a restricted context like
+*  an in-kernel trap, or a signal handler. Limit processing in the
+*  handler to an absolute minimum, and watch the stack size.
+************************************************************************/
 
-rtapi_exception_handler_t rt_exception_handler = rtapi_default_rt_exception_handler;
+#ifdef RTAPI
+// not available in ULAPI
+extern rtapi_exception_handler_t rt_exception_handler;
 
 // may override default exception handler
+// returns the current handler so it might be restored
+// does NOT go through rtapi_switch (!)
 rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
 {
     rtapi_exception_handler_t previous = rt_exception_handler;
     rt_exception_handler = h;
     return previous;
 }
+#endif
 
 // defined and initialized in rtapi_module.c (kthreads), rtapi_main.c (userthreads)
 extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
