@@ -541,17 +541,19 @@ ifeq ($(BUILD_SYS)$(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),kbuild)
 modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
 	mkdir -p $(RTLIBDIR)
 ifeq ($(THREADS),XENOMAI_KERNEL)
-	cd $(OBJDIR); \
-	$(MAKE) -C rtapi/xeno_math BASEPWD=$(BASEPWD) KERNELDIR=$(KERNELDIR) \
+	$(MAKE) \
+	    -C $(OBJDIR)/rtapi/xeno_math \
+	    BASEPWD=$(BASEPWD) \
+	    KERNELDIR=$(KERNELDIR) \
 	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
 	    V=$(BUILD_VERBOSE) modules
 	cp $(OBJDIR)/rtapi/xeno_math/xeno_math.ko $(RTLIBDIR)
 endif
-	cd $(OBJDIR); \
 	$(PYTHON) modsilent.py $(MAKE) \
-	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" -C $(KERNELDIR) \
-	    SUBDIRS=`pwd` CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) \
-	    modules
+	    -C $(KERNELDIR) \
+	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" \
+	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
+	    CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
 endif  # BUILD_SYS == 'kbuild'
 
