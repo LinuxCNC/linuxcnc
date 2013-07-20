@@ -186,8 +186,14 @@ void _rtapi_module_exit_hook(void) {}
 int _rtapi_task_delete_hook(task_data *task, int task_id) {
     int retval = 0;
 
-    if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0)
+    if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_delete() = %d %s\n", 
+			retval, strerror(retval));
+	return retval;
+    }
+    // actually wait for the thread to exit
+    if ((retval = rt_task_join( &ostask_array[task_id] )) < 0)
+	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_join() = %d %s\n",
 			retval, strerror(retval));
 
     return retval;
@@ -267,7 +273,8 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
     // since this is a usermode RT task, it will be FP anyway
     if ((retval = rt_task_create (&ostask_array[task_id], task->name, 
 				  task->stacksize, task->prio, 
-				  (task->uses_fp ? T_FPU : 0) | which_cpu )
+				  (task->uses_fp ? T_FPU : 0) |
+				  which_cpu | T_JOINABLE)
 	 ) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rt_task_create failed, rc = %d\n", retval );
