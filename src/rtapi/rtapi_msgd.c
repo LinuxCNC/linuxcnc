@@ -64,6 +64,7 @@ global_data_t *global_data;
 static ringbuffer_t rtapi_msg_buffer;   // ring access strcuture for messages
 static const char *progname;
 static char proctitle[20];
+static int exit_code  = 0;
 
 static const char *origins[] = { "kernel","rt","user" };
 //static const char *encodings[] = { "ascii","stashf","protobuf" };
@@ -79,9 +80,8 @@ static int create_global_segment()
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
     int size = sizeof(global_data_t);
 
-
     if (shm_common_exists(globalkey)) {
-	fprintf(stderr, "MSGD:%d ERROR: found existing global segment key=0x%x\n",
+	syslog(LOG_ERR, "MSGD:%d ERROR: found existing global segment key=0x%x\n",
 		rtapi_instance, globalkey);
 	return -EEXIST;
     }
@@ -91,11 +91,11 @@ static int create_global_segment()
     retval = shm_common_new(globalkey, &size,
 			    rtapi_instance, (void **) &global_data, 1);
     if (retval < 0) {
-	fprintf(stderr, "MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
+	syslog(LOG_ERR, "MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
 	       rtapi_instance, globalkey, strerror(-retval));
     }
     if (size != sizeof(global_data_t)) {
-	fprintf(stderr, "MSGD:%d ERROR: global segment size mismatch: expect %d got %d\n", 
+	syslog(LOG_ERR, "MSGD:%d ERROR: global segment size mismatch: expect %d got %d\n",
 	       rtapi_instance, sizeof(global_data_t), size);
 	return -EINVAL;
     }
@@ -119,8 +119,8 @@ void init_global_data(global_data_t * data, int flavor,
 		   instance_id, errno,strerror(errno)); 
 	}
     }
-    /* set magic number so nobody else init's the block */
-    data->magic = GLOBAL_MAGIC;
+    // report progress
+    data->magic = GLOBAL_INITIALIZING;
     /* set version code so other modules can check it */
     data->layout_version = GLOBAL_LAYOUT_VERSION;
 
@@ -161,7 +161,7 @@ void init_global_data(global_data_t * data, int flavor,
     data->rtapi_messages.use_wmutex = 1; // locking hint
 
     // demon pids
-    data->rtapi_app_pid = 0;
+    data->rtapi_app_pid = -1; // not yet started
     data->rtapi_msgd_pid = 0;
 
     /* done, release the mutex */
@@ -209,12 +209,30 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
     return retval;
 }
 
+static void sigterm_handler(int sig, siginfo_t *si, void *context)
+{
+    // hint if error ring couldnt be served fast enough, or there was contention
+    // none observed so far
+    if (global_data->error_ring_full || global_data->error_ring_locked)
+	syslog(LOG_INFO, "message ring stats: full=%d locked=%d ",
+	       global_data->error_ring_full,
+	       global_data->error_ring_locked);
+    msgd_exit++;
+}
+
 static void signal_handler(int sig, siginfo_t *si, void *context)
 {
-    syslog(LOG_INFO,"exiting - got signal: %s", strsignal(sig));
+    if (global_data) {
+	global_data->magic = GLOBAL_EXITED;
+	global_data->rtapi_msgd_pid = 0;
+    }
+    syslog(LOG_INFO,"caught signal: %s", strsignal(sig));
+    sleep(1); // drain syslog
+    closelog();
+
     if (sig == SIGSEGV)
-	abort();
-    msgd_exit++;
+	abort();  // drop core
+    exit(1);
 }
 
 static void
@@ -223,6 +241,8 @@ cleanup_actions(void)
     int retval;
 
     if (global_data) {
+	// in case some process catches a leftover shm segment
+	global_data->magic = GLOBAL_EXITED;
 	global_data->rtapi_msgd_pid = 0;
 	if (rtapi_msg_buffer.header != NULL)
 	    rtapi_msg_buffer.header->refcount--;
@@ -232,7 +252,7 @@ cleanup_actions(void)
 		   strerror(-retval));
 	} else {
 	    shm_common_unlink(OS_KEY(GLOBAL_KEY, rtapi_instance));
-	    syslog(LOG_DEBUG,"shutdown - global segment detached");
+	    syslog(LOG_DEBUG,"normal shutdown - global segment detached");
 	}
 	global_data = NULL;
     }
@@ -246,7 +266,13 @@ static int message_thread()
     int retval;
     char *cp;
 
+    global_data->magic = GLOBAL_READY;
+
     do {
+	if (global_data->rtapi_app_pid == 0) {
+	    syslog(LOG_ERR,"rtapi_app exited - shutting down");
+	    msgd_exit++;
+	}
 	while ((retval = rtapi_record_read(&rtapi_msg_buffer, 
 					   (const void **) &msg, &msg_size)) == 0) {
 	    payload_length = msg_size - sizeof(rtapi_msgheader_t);
@@ -288,12 +314,6 @@ static int message_thread()
 	    msg_poll = msg_poll_max;
 
     } while (!msgd_exit);
-
-    // hint if error ring couldnt be served fast enough, or there was contention
-    // none observed so far
-    syslog(LOG_INFO, "error ring stats: full=%d locked=%d",
-	   global_data->error_ring_full,
-	   global_data->error_ring_locked);
 
     return 0;
 }
@@ -488,14 +508,16 @@ int main(int argc, char **argv)
     sig_act.sa_flags   = SA_SIGINFO;
 
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
-    sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGKILL, &sig_act, (struct sigaction *) NULL);
     sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
+
+    sig_act.sa_sigaction = sigterm_handler;
+    sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
 
     message_thread();
 
     // signal received - check if rtapi_app running, and shut it down
-    // TBD.
     cleanup_actions();
-
-    exit(EXIT_SUCCESS);
+    closelog();
+    exit(exit_code);
 }

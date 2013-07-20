@@ -78,12 +78,15 @@ typedef struct {
     ringheader_t rtapi_messages;   // ringbuffer for RTAPI messages
     char buf[SIZE_ALIGN(MESSAGE_RING_SIZE)];
     ringtrailer_t rtapi_messages_trailer;
-    // caveat - if rtapi_messages had a scratchpad, it would go here:
-    // char buf[SIZE_ALIGN(MESSAGE_RING_SCRATCHPAD_SIZE)];
 } global_data_t;
 
 #define GLOBAL_LAYOUT_VERSION 42   // bump on layout changes of global_data_t
-#define GLOBAL_MAGIC 0xdeadbeef
+
+// use global_data->magice to reflect rtapi_msgd state
+#define GLOBAL_INITIALIZING  0xdeadbeef
+#define GLOBAL_READY         0xdeadbead
+#define GLOBAL_EXITED        0xdeadfeef // trap attach to leftover shm segments
+
 #define GLOBAL_DATA_PERMISSIONS	0666
 
 extern global_data_t *global_data;

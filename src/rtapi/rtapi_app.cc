@@ -488,7 +488,7 @@ static void write_exitcode(int fd, int value)
 	return;
 
     if (write(fd, &value, sizeof(value)) != sizeof(value)) {
-	fprintf(stderr, "rtapi_app:%d write to status pipe failed: %s\n",
+	syslog(LOG_ERR, "rtapi_app:%d write to status pipe failed: %s\n",
 		instance_id, strerror(errno));
     }
     close(fd);
@@ -552,13 +552,13 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>
     if (prctl(PR_SET_NAME, argv[0]) < 0) {
-	fprintf(stderr,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
+	syslog(LOG_ERR,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
 		argv[0], strerror(errno));
     }
 
     // attach global segment which rtapi_msgd already prepared
     if ((retval = attach_global_segment()) != 0) {
-	fprintf(stderr, "%s: FATAL - failed to attach to global segment\n", 
+	syslog(LOG_ERR, "%s: FATAL - failed to attach to global segment\n",
 		argv[0]);
 	write_exitcode(statuspipe[1], 1);
 	exit(retval);
@@ -567,10 +567,39 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // make sure rtapi_msgd's pid is valid and msgd is running, 
     // in case we caught a leftover shmseg
     // otherwise log messages would vanish
-    // kinda hard to diagnose errors that way
+
+    // this is super-ugly. We need to redo the interface to
+    // rtapi_app into a stub library, and a demon proper
+    // this forking-if-nobody-is-listening-on-the-command-socket
+    // scheme is just asking for trouble in terms of race
+    // conditions
+
+    int count = 10; // 5 sec deadline for msgd to come up
+    while (global_data->magic !=  (int) GLOBAL_READY) {
+	struct timespec ts = {0, 500 * 1000 * 1000}; //ms
+	if (count == 0) {
+	    syslog(LOG_ERR, "rtapi_app: giving up, global magic=0x%x", global_data->magic);
+	    write_exitcode(statuspipe[1], 2);
+	    exit(EXIT_FAILURE);
+	}
+	switch (global_data->magic) {
+	case GLOBAL_INITIALIZING:
+	    syslog(LOG_ERR, "rtapi_app: waiting,  magic=0x%x", global_data->magic);
+	    nanosleep(&ts, NULL);
+	    count--;
+	    break;
+	case GLOBAL_READY:
+	    break;
+	case GLOBAL_EXITED:
+	    syslog(LOG_ERR, "rtapi_app: msgd exited! magic=0x%x", global_data->magic);
+	    write_exitcode(statuspipe[1], 2);
+	    exit(EXIT_FAILURE);
+	    break;
+	}
+    }
     if ((global_data->rtapi_msgd_pid == 0) ||
 	kill(global_data->rtapi_msgd_pid, 0) != 0) {
-	fprintf(stderr,"%s: rtapi_msgd pid invalid: %d, exiting\n",
+	syslog(LOG_ERR,"%s: rtapi_msgd pid invalid: %d, exiting\n",
 		argv[0], global_data->rtapi_msgd_pid);
 	write_exitcode(statuspipe[1], 2);
 	exit(EXIT_FAILURE);
@@ -736,7 +765,7 @@ static int configure_memory(void) {
 }
 
 // this is called on signals handled by rtapi_app only (SEGV SIGILL SIGFPE)
-// SIGXCPU (xenomai) is handled in the Xenomai rtapi
+// SIGXCPU (xenomai) might be handled in the Xenomai-user rtapi
 extern "C" void 
 backtrace_handler(int sig, siginfo_t *si, void *uctx)
 {
@@ -746,6 +775,7 @@ backtrace_handler(int sig, siginfo_t *si, void *uctx)
 
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: signal %d - '%s' received\n",
 		    instance_id, sig, strsignal(sig));
+	sleep(1); // let syslog drain
 
     nptrs = backtrace(buffer, BACKTRACE_SIZE);
 
