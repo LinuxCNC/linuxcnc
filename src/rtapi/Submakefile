@@ -55,7 +55,7 @@ endif
 FLAVOR_ULAPI_SRCS := $(patsubst rtapi/%,rtapi/$(threads)/%,$(ULAPI_SRCS))
 
 $(FLAVOR_ULAPI_SRCS) : rtapi/$(threads)/%: rtapi/%
-	ln -s . rtapi/$(threads)
+	test -L rtapi/$(threads) || ln -sf . rtapi/$(threads)
 
 # resolved at loadtime
 $(call TOOBJSDEPS, $(FLAVOR_ULAPI_SRCS)): EXTRAFLAGS += \
@@ -112,7 +112,7 @@ RTAPI_APP_SRCS := \
 	rtapi/$(threads)/rtapi_compat.c
 
 $(RTAPI_APP_SRCS): rtapi/$(threads)/%: rtapi/%
-	ln -s . rtapi/$(threads)
+	ln -sf . rtapi/$(threads)
 
 USERSRCS += $(RTAPI_APP_SRCS)
 
