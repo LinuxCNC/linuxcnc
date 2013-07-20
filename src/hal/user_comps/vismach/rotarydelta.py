@@ -101,7 +101,7 @@ class HexPrismZ(CoordsBase):
 def build_joint(angle, joint):
     return Rotate([
 	HalTranslate([
-	    CylinderY(-1, 1, 6, 1),
+	    CylinderY(-.5, 1, .5, 1),
 	    HalRotate([
 		CylinderX(c, 0, .5, 'tl', .5)
 	    ], c, joint, 1, 0, 1, 0)
@@ -164,7 +164,6 @@ class Strut:
 	gluDisk(self.q, 0, .5, 32, 1)
        
 tooltip = Capture()
-    
 
 tool = DeltaTranslate([
     Translate([
@@ -190,20 +189,35 @@ strut0 = Color(red, [Strut(tool, -90, c, "joint0")])
 strut1 = Color(green, [Strut(tool, 30, c, "joint1")])
 strut2 = Color(blue, [Strut(tool, 150, c, "joint2")])
 
-platform = Collection([
-    Translate([
-        CylinderZ(7, c['pfr']+3.5, 8, c['pfr']+3.5),
-        Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 0, 0, 0, 1),
-        Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 120, 0, 0, 1),
-        Rotate( [Box(1, -c['pfr']+3, 1,  5, -c['pfr']-2, 8)], 240, 0, 0, 1)],
-              0, 0, -3)
-    ])
+rotary = Rotate([Translate([
+    Box(0, 0, 0, 2.5, 4, 5), #main body
+    Box(-.5, .2, .2, 3, 3.8, 3.8), # main bearings
+    Translate([CylinderZ(0, .3125/2, -1.25, .3125/2)], .4375, .46875, 0), # studs
+    Translate([CylinderZ(0, .3125/2, -1.25, .3125/2)], .4375, 3.125+.46875, 0),
+    Translate([CylinderZ(0, .3125/2, -1.25, .3125/2)], .4375+1.6375, .46875, 0),
+    Translate([CylinderZ(0, .3125/2, -1.25, .3125/2)], .4375+1.6375, 3.125+.46875, 0),
+    Translate([CylinderX(-.6, .63, 7, .63)], 0, 2, 1.875), # main shaft
+    Box(.25, -.75, 2.65, 2.25, 4.75, 4.65), # drive bearings
+    Translate([CylinderY(4, .25, 6, .25)], 1.25, 0, 3.65), # drive shaft
+    Translate([CylinderY(5.3, 1, 6, 1)], 1.25, 0, 3.65), # big pulley
+    Translate([CylinderY(-.6, 1.0625, 5.375, 1.0625)], 1.625, 0, 6.625), # motor
+    ], -6, -2-c['pfr'], -1.875)], 180, 0, 1, 0)
 
+platform = Collection([
+        CylinderZ(2, c['pfr']+3.5, 3, c['pfr']+3.5),
+        rotary,
+        Rotate([rotary], 120, 0, 0, 1),
+        Rotate([rotary], 240, 0, 0, 1),
+        ])
+
+
+#trotary = Translate([rotary], 0, 0, 10)
+                    
 yellow = (1, 1, 0, 0)
 
 table = Color(yellow, [Collection([
-    Box(8,8,-7,-8,-8,-6),
-    Box(4,4,-6,-4,-4,4)
+    Box(8,8,-8,-8,-8,-7),
+    Box(4,4,-7,-4,-4,2)
     ])])
 
 model = Rotate([Collection([platform, table, joint0, joint1, joint2, tool,
