@@ -47,7 +47,6 @@
 #include <limits.h>
 
 #include <sys/mman.h>
-#include <execinfo.h>
 #include <sys/prctl.h>
 #include <grp.h>
 
@@ -58,8 +57,6 @@
 #include "rtapi/shmdrv/shmdrv.h"
 
 #define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
-
-#define BACKTRACE_SIZE 1000
 
 using namespace std;
 
@@ -757,45 +754,42 @@ static int configure_memory(void) {
 	return 0;
 }
 
-// this is called on signals handled by rtapi_app only (SEGV SIGILL SIGFPE)
-// SIGXCPU (xenomai) might be handled in the Xenomai-user rtapi
-extern "C" void 
-backtrace_handler(int sig, siginfo_t *si, void *uctx)
+// it might make sense to call the RTAPI exception handler with a RTAPI_SHUTDOWN
+// type to give RTAPI a chance to exit (and maybe estop)
+extern "C" void
+signal_handler(int sig, siginfo_t *si, void *uctx)
 {
-    void *buffer[BACKTRACE_SIZE];
-    int j, nptrs;
-    char **strings;
-
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: signal %d - '%s' received\n",
-		    instance_id, sig, strsignal(sig));
-	sleep(1); // let syslog drain
-
-    nptrs = backtrace(buffer, BACKTRACE_SIZE);
-
-    strings = backtrace_symbols(buffer, nptrs);
-    if (strings == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"backtrace_symbols(): %s",
-		  strerror(errno));
-    } else {
-	for (j = 0; j < nptrs; j++) {
-	    char *s =  strings[j];
-	    if (s && strlen(s)) 
-		rtapi_print_msg(RTAPI_MSG_ERR,"%s", s);
-	}
-	free(strings);
-    }
-    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d exiting%s", 
-	      instance_id,
-	      sig == SIGSEGV ? ", core dumped" : "");
-
     if (global_data)
 	global_data->rtapi_app_pid = 0;
 
-    if (sig == SIGSEGV) {
-	sleep(1); // let syslog drain or we might loose
-      	abort();  // some important stuff
+    switch (sig) {
+    case SIGXCPU:
+	// should not happen - must be handled in RTAPI if enabled
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d: BUG: SIGXCPU received - exiting\n",
+			instance_id);
+	exit_actions();
+	exit(0);
+	break;
+
+    case SIGTERM:
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d: SIGTERM - shutting down\n",
+			instance_id);
+	exit_actions();
+	exit(0);
+	break;
+
+    default: // pretty bad
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"rtapi_app:%d: caught signal %d - dumping core\n",
+			instance_id, sig);
+	sleep(1); // let syslog drain
+	signal(SIGABRT, SIG_DFL);
+	abort();
+	break;
     }
-    exit(sig);
+    exit(1);
 }
 
 static void
@@ -874,12 +868,14 @@ static int harden_rt()
     // prevent stopping of RT threads by ^Z
     sigaction(SIGTSTP, &sig_act, (struct sigaction *) NULL); 
 
-    sig_act.sa_sigaction = backtrace_handler;
+    sig_act.sa_sigaction = signal_handler;
     sig_act.sa_flags   = SA_SIGINFO;
 
     sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
     sigaction(SIGILL,  &sig_act, (struct sigaction *) NULL);
     sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
     if (flavor->id == RTAPI_XENOMAI_ID) {
 	int numgroups;
