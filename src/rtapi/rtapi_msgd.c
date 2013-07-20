@@ -209,30 +209,41 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
     return retval;
 }
 
-static void sigterm_handler(int sig, siginfo_t *si, void *context)
-{
-    // hint if error ring couldnt be served fast enough, or there was contention
-    // none observed so far
-    if (global_data->error_ring_full || global_data->error_ring_locked)
-	syslog(LOG_INFO, "message ring stats: full=%d locked=%d ",
-	       global_data->error_ring_full,
-	       global_data->error_ring_locked);
-    msgd_exit++;
-}
-
 static void signal_handler(int sig, siginfo_t *si, void *context)
 {
     if (global_data) {
 	global_data->magic = GLOBAL_EXITED;
 	global_data->rtapi_msgd_pid = 0;
     }
-    syslog(LOG_INFO,"caught signal: %s", strsignal(sig));
-    sleep(1); // drain syslog
-    closelog();
 
-    if (sig == SIGSEGV)
-	abort();  // drop core
-    exit(1);
+    switch (sig) {
+    case SIGTERM:
+	syslog(LOG_INFO, "msgd:%d: SIGTERM - shutting down\n",
+	       rtapi_instance);
+
+	// hint if error ring couldnt be served fast enough,
+	// or there was contention
+	// none observed so far
+	// this might be interesting to hear about
+	if (global_data && (global_data->error_ring_full ||
+			    global_data->error_ring_locked))
+	    syslog(LOG_INFO, "msgd:%d: message ring stats: full=%d locked=%d ",
+		   rtapi_instance,
+		   global_data->error_ring_full,
+		   global_data->error_ring_locked);
+	msgd_exit++;
+	break;
+
+    default: // pretty bad
+	syslog(LOG_ERR,
+	       "msgd:%d: caught signal %d - dumping core\n",
+	       rtapi_instance, sig);
+	closelog();
+	sleep(1); // let syslog drain
+	signal(SIGABRT, SIG_DFL);
+	abort();
+	break;
+    }
 }
 
 static void
@@ -270,7 +281,9 @@ static int message_thread()
 
     do {
 	if (global_data->rtapi_app_pid == 0) {
-	    syslog(LOG_ERR,"rtapi_app exited - shutting down");
+	    syslog(LOG_ERR,
+		   "msgd:%d: rtapi_app exit detected - shutting down",
+		   rtapi_instance);
 	    msgd_exit++;
 	}
 	while ((retval = rtapi_record_read(&rtapi_msg_buffer, 
@@ -441,9 +454,11 @@ int main(int argc, char **argv)
         if (sid < 0) {
 	    exit(EXIT_FAILURE);
         }
+#if 0
         if ((chdir("/")) < 0) {
 	    exit(EXIT_FAILURE);
         }
+#endif
     }
 
     // set new process name
@@ -507,12 +522,11 @@ int main(int argc, char **argv)
     sig_act.sa_sigaction = signal_handler;
     sig_act.sa_flags   = SA_SIGINFO;
 
-    sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGINT,  &sig_act, (struct sigaction *) NULL);
     sigaction(SIGKILL, &sig_act, (struct sigaction *) NULL);
-    sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
-
-    sig_act.sa_sigaction = sigterm_handler;
     sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
 
     message_thread();
 
