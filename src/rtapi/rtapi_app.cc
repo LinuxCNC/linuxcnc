@@ -456,21 +456,43 @@ static int attach_global_segment()
     int retval = 0;
     int globalkey = OS_KEY(GLOBAL_KEY, instance_id);
     int size = 0;
+    int tries = 10; // 5 sec deadline for msgd/globaldata to come up
 
     shm_common_init();
+    do {
+	retval = shm_common_new(globalkey, &size,
+				instance_id, (void **) &global_data, 0);
+	if (retval < 0) {
+	    tries--;
+	    if (tries == 0) {
+		syslog(LOG_ERR,
+		       "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
+		       instance_id, globalkey, strerror(-retval));
+		return retval;
+	    }
+	    struct timespec ts = {0, 500 * 1000 * 1000}; //ms
+	    nanosleep(&ts, NULL);
+	}
+    } while (retval < 0);
 
-    retval = shm_common_new(globalkey, &size,
-			    instance_id, (void **) &global_data, 0);
-    if (retval < 0) {
-	syslog(LOG_ERR,
-	       "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
-	       instance_id, globalkey, strerror(-retval));
-    }
     if (size != sizeof(global_data_t)) {
 	syslog(LOG_ERR,
 	       "rt:%d global segment size mismatch: expect %zu got %d\n", 
 	       instance_id, sizeof(global_data_t), size);
 	return -EINVAL;
+    }
+
+    tries = 10;
+    while  (global_data->magic !=  GLOBAL_READY) {
+	tries--;
+	if (tries == 0) {
+	    syslog(LOG_ERR,
+		   "rt:%d ERROR: global segment magic not changing to ready: magic=0x%x\n",
+		   instance_id, global_data->magic);
+	    return -EINVAL;
+	}
+	struct timespec ts = {0, 500 * 1000 * 1000}; //ms
+	nanosleep(&ts, NULL);
     }
     return retval;
 }
@@ -568,35 +590,6 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // in case we caught a leftover shmseg
     // otherwise log messages would vanish
 
-    // this is super-ugly. We need to redo the interface to
-    // rtapi_app into a stub library, and a demon proper
-    // this forking-if-nobody-is-listening-on-the-command-socket
-    // scheme is just asking for trouble in terms of race
-    // conditions
-
-    int count = 10; // 5 sec deadline for msgd to come up
-    while (global_data->magic !=  (int) GLOBAL_READY) {
-	struct timespec ts = {0, 500 * 1000 * 1000}; //ms
-	if (count == 0) {
-	    syslog(LOG_ERR, "rtapi_app: giving up, global magic=0x%x", global_data->magic);
-	    write_exitcode(statuspipe[1], 2);
-	    exit(EXIT_FAILURE);
-	}
-	switch (global_data->magic) {
-	case GLOBAL_INITIALIZING:
-	    syslog(LOG_ERR, "rtapi_app: waiting,  magic=0x%x", global_data->magic);
-	    nanosleep(&ts, NULL);
-	    count--;
-	    break;
-	case GLOBAL_READY:
-	    break;
-	case GLOBAL_EXITED:
-	    syslog(LOG_ERR, "rtapi_app: msgd exited! magic=0x%x", global_data->magic);
-	    write_exitcode(statuspipe[1], 2);
-	    exit(EXIT_FAILURE);
-	    break;
-	}
-    }
     if ((global_data->rtapi_msgd_pid == 0) ||
 	kill(global_data->rtapi_msgd_pid, 0) != 0) {
 	syslog(LOG_ERR,"%s: rtapi_msgd pid invalid: %d, exiting\n",
