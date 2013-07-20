@@ -48,7 +48,7 @@
 
 // the universally shared global structure
 typedef struct {
-    int magic;
+    unsigned magic;
     int layout_version; 
     unsigned long mutex;
 
@@ -82,10 +82,10 @@ typedef struct {
 
 #define GLOBAL_LAYOUT_VERSION 42   // bump on layout changes of global_data_t
 
-// use global_data->magice to reflect rtapi_msgd state
-#define GLOBAL_INITIALIZING  0xdeadbeef
-#define GLOBAL_READY         0xdeadbead
-#define GLOBAL_EXITED        0xdeadfeef // trap attach to leftover shm segments
+// use global_data->magic to reflect rtapi_msgd state
+#define GLOBAL_INITIALIZING  0x0eadbeefU
+#define GLOBAL_READY         0x0eadbeadU
+#define GLOBAL_EXITED        0x0eadfeefU // trap attach to leftover shm segments
 
 #define GLOBAL_DATA_PERMISSIONS	0666
 
