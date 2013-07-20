@@ -83,8 +83,8 @@ TARGETS += $(ULAPISO)
 ##################################################################
 ifeq ($(BUILD_SYS),user-dso)
 # Build only during real module build, i.e. when 'make modules
-# threads=<flavor> KERNELDIR=userland_build'
-ifeq ($(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),)
+# threads=<flavor>'
+ifeq ($(BUILD_THREAD_MODULES),yes)
 
 # the rtapi.so module
 obj-$(CONFIG_RTAPI) += rtapi.o
@@ -140,7 +140,9 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	    -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
 
 modules:  ../libexec/rtapi_app_$(threads)
-endif # BUILD_SYS == user-dso
+endif # BUILD_THREAD_MODULES
+
+
 ##################################################################
 #                     KERNEL THREAD STYLES
 ##################################################################

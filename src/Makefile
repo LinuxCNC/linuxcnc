@@ -57,16 +57,23 @@ ECHO=@true
 VECHO=true
 endif
 
-# if $(threads) wasn't passed in on the command line, build modules
-# for all RTOS flavors
 ifeq ($(threads),)
+# if $(threads) wasn't passed in on the command line, rerun make for
+# each flavor/(optional)kernel-source combo
 BUILD_ALL_FLAVORS = yes
+BUILD_THREAD_MODULES = no
 else
-# if $(KERNELDIR) wasn't passed in on the command line, build modules
-# for all kernels
-ifeq ($(KERNELDIR),)
+# $(threads) was passed in; build modules for this flavor and (if
+# applicable) kernel-source
+BUILD_ALL_FLAVORS = no
 BUILD_THREAD_MODULES = yes
-endif
+endif # $(threads)
+
+# if KERNELRELEASE is non-empty, we're in kbuild
+ifeq ($(KERNELRELEASE),)
+BUILD_KBUILD = no
+else
+BUILD_KBUILD = yes
 endif
 
 ifeq ($(BASEPWD),)
@@ -91,12 +98,31 @@ $(error "$(threads)" is not a valid RTOS flavor; please pick one of:\
     $(BUILD_THREAD_FLAVORS))
 endif
 
+# default target:  put before everything else
+default:
+
 ifeq ($(BUILD_ALL_FLAVORS),yes)
+# Top-level modules target
+#
+# Re-run 'make modules', once for each configured userland threads
+# flavor, and once for each detected kernel for each configured kernel
+# threads flavor.  Set 'threads' and where applicable 'KERNELDIR'.
+#
+# Following tradition, this incarnation of the modules recipe is
+# placed far away from all others.
+FLAVORUP = $(shell echo $(1) | tr a-z- A-Z_)
+FLAVORVAR = $($(call FLAVORUP,$(1))_THREADS_$(2))
 modules:
-	@for f in $(BUILD_THREAD_FLAVORS); do \
-	    echo "Making modules for flavor $$f"; \
-	    $(MAKE) threads=$$f || exit 1; \
-	done
+	@$(foreach f,$(BUILD_THREAD_FLAVORS),\
+	    echo "Making modules for flavor $(f)"; \
+	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
+		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
+		    echo "    kernel source dir $(kd)"; \
+		    $(MAKE) threads=$(f) KERNELDIR=$(kd);\
+		    ),\
+	        $(MAKE) threads=$(f);\
+	    )\
+	)
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	@test -f ../libexec/linuxcnc_module_helper -a \
 		\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
@@ -114,15 +140,6 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 endif
 endif # BUILD_ALL_FLAVORS
 
-ifeq ($(BUILD_THREAD_MODULES),yes)
-modules:
-	@kdirs="$(KERNEL_DIRS)"; \
-	test -z "$(KERNEL_DIRS)" && kdirs=userland_build; \
-	for k in $$kdirs; do \
-	    echo "...Making modules for flavor $(threads) ($$k)"; \
-	    $(MAKE) KERNELDIR=$$k threads=$(threads) || exit 1; \
-	done
-endif
 
 ifneq ($(KERNELDIR),)
 KERNEL_VERS = $(shell $(BASEPWD)/../scripts/kernel-vers.sh $(KERNELDIR))
@@ -137,6 +154,11 @@ endif
 OBJDIR := objects/$(RTDIR_EXT)
 DEPDIR := depends/$(RTDIR_EXT)
 RTLIBDIR := ../rtlib/$(RTDIR_EXT)
+ifeq ($(BUILD_SYS),user-dso)
+KMODDIR := ../rtlib/userland/$(KERNEL_VIRS)
+else
+KMODDIR := $(RTLIBDIR)
+endif
 
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
 
@@ -537,7 +559,7 @@ endif
 #
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
 # these are intermediate make runs)
-ifeq ($(BUILD_SYS)$(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),kbuild)
+ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),kbuild+yes)
 modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
 	mkdir -p $(RTLIBDIR)
 ifeq ($(THREADS),XENOMAI_KERNEL)
@@ -571,7 +593,10 @@ $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	mkdir -p $(OBJDIR)
 	cp -rlf $(MODULE_SOURCE_DIRS) $(OBJDIR)
 	cp -lf $(MODULE_SOURCES) $(OBJDIR)
-	ln -sf $(BASEPWD)/halcomp-srcs $(OBJDIR)
+ifeq ($(BUILD_SYS),kbuild)
+	# kbuild needs a full copy of this tree with
+	cp -rlf halcomp-srcs $(OBJDIR)
+endif
 	ln -sf $(BASEPWD)/../bin $(OBJDIR)/..
 	ln -sf $(BASEPWD)/../scripts $(OBJDIR)/..
 	touch $@
@@ -1229,7 +1254,7 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 # USER_DSO module building
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
 # these are intermediate make runs)
-ifeq ($(BUILD_SYS)$(BUILD_ALL_FLAVORS)$(BUILD_THREAD_MODULES),user-dso)
+ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),user-dso+yes)
 EXTRA_CFLAGS += -fPIC
 
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
@@ -1240,10 +1265,13 @@ modules: $(patsubst %.o,$(RTLIBDIR)/%.so,$(obj-m))
 $(RTLIBDIR)/%.so:
 	$(ECHO) Linking $@
 	@mkdir -p $(dir $@)
-	$(Q)ld -r -o objects/$*.tmp $^
-	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.exp; fi
-	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp \
+	$(Q)ld -r -o $(OBJDIR)/$*.tmp $^
+	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary \
+	    $(OBJDIR)/$*.tmp $(OBJDIR)/$*.exp; fi
+	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx \
+	    `xargs -r0n1 echo -G < $(OBJDIR)/$*.exp | grep -ve '^-G $$' | \
+	        sort -u` $(OBJDIR)/$*.tmp; fi
+	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $(OBJDIR)/$*.tmp \
 	    -lm $(EXTRA_LDFLAGS)
 
 $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c

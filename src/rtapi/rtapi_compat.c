@@ -258,8 +258,15 @@ int module_path(char *result, const char *basename)
 	    if (get_rtapi_config(buf,"RTLIB_DIR",PATH_MAX) != 0)
 		return -ENOENT;
 
-	    snprintf(kmodule_dir,PATH_MAX,"%s/%s/%s",
-		     buf, default_flavor()->name, uts.release);
+	    if (strcmp(default_flavor()->build_sys,"user-dso") == 0) {
+		// point user threads to a common directory
+		snprintf(kmodule_dir,PATH_MAX,"%s/userland/%s",
+			 buf, uts.release);
+	    } else {
+		// kthreads each have their own directory
+		snprintf(kmodule_dir,PATH_MAX,"%s/%s/%s",
+			 buf, default_flavor()->name, uts.release);
+	    }
 	} else {
 	    // Complete RTLIB_DIR should be /lib/modules/<uname -r>/linuxcnc
 	    snprintf(kmodule_dir, PATH_MAX,

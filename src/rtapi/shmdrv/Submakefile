@@ -14,7 +14,7 @@ ifeq ($(BUILD_SYS),kbuild)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 
-$(RTLIBDIR)/shmdrv$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(shmdrv-objs))
+$(KMODDIR)/shmdrv$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(shmdrv-objs))
 
 INCLUDES += rtapi/shmdrv
 endif # BUILD_SYS = kbuild
@@ -32,16 +32,17 @@ SHMDRV_SRCS = rtapi/shmdrv/shmdrv.c \
 objects/.shmdrv-built: $(SHMDRV_SRCS)
 	for kdir in $(SHMDRV_KERNEL_DIRS); do \
 	    kver=`../scripts/kernel-vers.sh $$kdir`; \
-	    mkdir -p objects/shmdrv/$$kver; \
-	    cp $(SHMDRV_SRCS) objects/shmdrv/$$kver; \
+	    mkdir -p objects/userland/$$kver; \
+	    cp $(SHMDRV_SRCS) objects/userland/$$kver; \
+	    echo "Building userland shmdrv module for kernel version $$kver"; \
 	    $(MAKE) \
 		-C $$kdir \
-		M=$(BASEPWD)/objects/shmdrv/$$kver \
+		M=$(BASEPWD)/objects/userland/$$kver \
 		CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE); \
-	    mkdir -p ../rtlib/shmdrv/$$kver; \
-	    cp objects/shmdrv/$$kver/Module.symvers \
-		objects/shmdrv/$$kver/shmdrv.ko \
-		../rtlib/shmdrv/$$kver; \
+	    mkdir -p ../rtlib/userland/$$kver; \
+	    cp objects/userland/$$kver/Module.symvers \
+		objects/userland/$$kver/shmdrv.ko \
+		../rtlib/userland/$$kver; \
 	done
 	touch $@
 
