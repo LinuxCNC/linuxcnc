@@ -255,6 +255,13 @@ Unload(){
     # shm segments still hanging around. The only realistic scenario
     # which could trigger this is runtests.
 
+    # msgd should detect an rtapi_app shutdown, so give some time to
+    # let that happen
+    if test $BUILD_SYS = user-dso; then
+	sleep 0.5
+    fi
+
+    # and get nasty only if it didnt
     MSGD_PID=`$PIDOF msgd:$INSTANCE`
     if [ "$MSGD_PID" != "" ] ; then
 	kill $MSGD_PID
