@@ -100,12 +100,12 @@ modules:
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	@test -f ../libexec/linuxcnc_module_helper -a \
 		\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
-		    -u ../libexec/linuxcnc_module_helper \) \
+		    ! -u ../libexec/linuxcnc_module_helper \) \
 	    && need_setuid=1; \
 	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
 	    test -f ../libexec/rtapi_app_$$f -a \
-		    \( `stat -c %u ../libexec/rtapi_app_$$f` -ne 0 -o \
-		        -u ../libexec/rtapi_app_$$f \) \
+		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
+			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
 		&& need_setuid=1; \
 	done; \
 	test "$$need_setuid" = 1 && \
