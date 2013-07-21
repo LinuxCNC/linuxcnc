@@ -357,6 +357,7 @@
                       <object class="GtkCellRendererText" id="cell_B"/>
                       <attributes>
                         <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
                         <attribute name="foreground">13</attribute>
                         <attribute name="text">5</attribute>
                       </attributes>
