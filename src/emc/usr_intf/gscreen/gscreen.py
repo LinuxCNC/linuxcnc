@@ -1323,11 +1323,11 @@ class Gscreen:
             self.widgets.gremlin.set_property('use_default_controls',not self.data.hide_cursor)
 
     # display calculator for input
-    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None):
+    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None,title=_("Entry dialog")):
         if self.data.entry_dialog: return
-        label = gtk.Label(_("Entry Dialog"))
+        label = gtk.Label(title)
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.entry_dialog = gtk.Dialog(_("Entry Dialog"),
+        self.data.entry_dialog = gtk.Dialog(title,
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
@@ -1349,8 +1349,8 @@ class Gscreen:
         if result == gtk.RESPONSE_ACCEPT:
             print "accept",data
             if data == None:
-                return None
-            print data
+                data = 0
+            self.widgets.statusbar1.push(1,"Last Calculation: %f"%data)
         widget.destroy()
         self.data.entry_dialog = None
 
@@ -1514,7 +1514,7 @@ class Gscreen:
     def on_offset_origin_clicked(self,widget):
         # adjust overrrides
         if self.widgets.button_override.get_active():
-            self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+            self.launch_numerical_input("on_adj_overrides_entry_return",widget,True,title=_("Override Entry"))
         # offset origin
         else:
             self.set_axis_checks()
@@ -1548,6 +1548,9 @@ class Gscreen:
             self.emc.estop(1)
             self.widgets.on_label.set_text("Machine Off")
             self.add_alarm_entry(_("Machine Estopped!"))
+
+    def on_calc_clicked(self,widget):
+        self.launch_numerical_input(title=_("Calculator"))
 
     def on_theme_choice_changed(self, widget):
         self.change_theme(widget.get_active_text())
@@ -1883,6 +1886,7 @@ class Gscreen:
                         ["","button_block_delete","clicked", "on_button_block_delete_clicked"],
                         ["","button_option_stop","clicked", "on_button_option_stop_clicked"],
                         ["","button_next_tab","clicked", "on_button_next_tab_clicked"],
+                        ["","button_calc","clicked", "on_calc_clicked"],
                 ["block","button_jog_speed","clicked", "on_button_overrides_clicked","jog_speed"],
 
                 ["block","button_jog_increments","clicked", "on_button_overrides_clicked","jog_increments"],
