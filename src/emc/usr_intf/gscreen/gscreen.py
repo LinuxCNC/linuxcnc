@@ -213,22 +213,11 @@ class Data:
         self.task_mode = 0
         self.active_gcodes = []
         self.active_mcodes = []
-        self.x_abs = 0.0
-        self.x_rel = 1.0
-        self.x_dtg = -2.0
-        self.y_abs = 0.0
-        self.y_rel = 100.0
-        self.y_dtg = 2.0
-        self.z_abs = 0.0
-        self.z_rel = 1.0
-        self.z_dtg = 21.0
-        self.a_abs = 0.0
-        self.a_rel = 1.0
-        self.a_dtg = 2.0
-        self.x_is_homed = 0
-        self.y_is_homed = 0
-        self.z_is_homed = 0
-        self.a_is_homed = 0
+        for letter in ('x','y','z','a','b','c','u','v','w'):
+            self['%s_abs'%letter] = 0.0
+            self['%s_rel'%letter] = 0.0
+            self['%s_dtg'%letter] = 0.0
+            self['%s_is_homed'%letter] = False
         self.spindle_request_rpm = 0
         self.spindle_dir = 0
         self.spindle_speed = 0
