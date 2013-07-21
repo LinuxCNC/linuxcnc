@@ -92,7 +92,8 @@ class OffsetPage(gtk.VBox):
         self.active_system = None
         self.current_system_index = None
         self.selection_mask = ()
-        
+        self.axisletters = ["x","y","z","a","b","c","u","v","w"]
+
         # global references
         self.store = self.wTree.get_object("liststore2")
         self.all_window = self.wTree.get_object("all_window")
@@ -138,17 +139,6 @@ class OffsetPage(gtk.VBox):
         else:
             self.machine_units_mm=0
             self.conversion=[25.4]*3+[1]*3+[25.4]*3
-
-        # make a list of available axis
-        try:
-            temp = self.inifile.find("TRAJ","COORDINATES")
-            self.axisletters = ""
-            for letter in temp:
-                if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
-                self.axisletters += letter.lower()
-        except:
-            print "**** Offsetpage widget ERROR: Axis list not found in INI's TRAJ COODINATES section"
-            self.axisletters ="xyz"
 
         # check linuxcnc status every half second
         gobject.timeout_add(500, self.periodic_check)
@@ -308,7 +298,7 @@ class OffsetPage(gtk.VBox):
         (store_path,) = self.modelfilter.convert_path_to_child_path(filtered_path)
         row = store_path
         axisnum = col-1
-        print "EDITED:",new_text, col, int(filtered_path),row
+        print "EDITED:",new_text, col, int(filtered_path),row,"axis num:",axisnum
 
         def system_to_p(system):
             convert = { "G54":1, "G55":2,"G56":3, "G57":4,"G58":5, "G59":6,"G59.1":7, "G59.2":8,"G59.3":9}
@@ -351,7 +341,6 @@ class OffsetPage(gtk.VBox):
                 if row == 1:
                     self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(self.axisletters[axisnum],qualified ) )
                 elif row == 3:
-                    print "g92"
                     self.cmd.mdi( "G92 %s %10.4f"%(self.axisletters[axisnum],qualified ) )
                 else:
                     pnum = system_to_p(self.store[row][0])
@@ -517,7 +506,7 @@ def main(filename=None):
     
     window.vbox.add(offsetpage)
     offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
-    #offsetpage.set_col_visible("abCuvw",False)
+    #offsetpage.set_col_visible("Yabuvw",False)
     #offsetpage.set_row_visible("456789abc",False)
     #offsetpage.set_row_visible("89abc",True)
     #offsetpage.set_to_mm()
