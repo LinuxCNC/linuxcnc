@@ -2070,9 +2070,11 @@ AC_ARG_WITH(tclConfig,
 
 # if not specified, search for tclConfig.sh
 if (test "x$TCLCONFIG" = "x"); then
-    TCLCONFIG=$(find /usr/lib* -maxdepth 2 -name tclConfig.sh | head -n1)
+    TCLCONFIG=$(find /usr/lib* -maxdepth 2 -name tclConfig.sh 2>/dev/null \
+	| head -n1)
     if (test "x$TCLCONFIG" = "x"); then
-	TCLCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tclConfig.sh | head -n1)
+	TCLCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tclConfig.sh \
+	    2>/dev/null | head -n1)
     fi
 fi
 
@@ -2107,9 +2109,11 @@ if test -z "$TKCONFIG"; then
 fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh 2>/dev/null \
+	| head -n1)
     if (test "x$TKCONFIG" = "x"); then
-	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh \
+	    2>/dev/null | head -n1)
     fi
 fi
 
