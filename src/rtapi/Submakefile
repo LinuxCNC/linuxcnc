@@ -76,6 +76,34 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 USERSRCS += $(FLAVOR_ULAPI_SRCS)
 TARGETS += $(ULAPISO)
 
+##################################################################
+#                 The ulapi autoload library
+#
+# provides ULAPI with loading-on-first-reference of RTAPI methods
+##################################################################
+
+ULAPI_AUTOLOAD_SRCS := \
+	rtapi/ulapi_autoload.c \
+	rtapi/rtapi_compat.c \
+	rtapi/rtapi_support.c
+
+USERSRCS += $(ULAPI_AUTOLOAD_SRCS)
+
+ULAPI_AUTOLOAD_LIB := ../lib/liblinuxcnculapi.so
+TARGETS += $(ULAPI_AUTOLOAD_LIB)
+
+$(call TOOBJSDEPS, $(ULAPI_AUTOLOAD_SRCS)): EXTRAFLAGS += -DULAPI -fPIC
+
+$(ULAPI_AUTOLOAD_LIB).0: $(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
+	../lib/liblinuxcncini.so \
+	../lib/liblinuxcncshm.so
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ -ldl $(RT_LDFLAGS)
+
 
 ##################################################################
 #                 USERLAND THREAD STYLES

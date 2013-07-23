@@ -35,6 +35,8 @@ tests/*/*/*/skip
 /rtlib/
 /libexec/
 /etc/
+tests/rtapi.0/rtapi_test
+tests/bitops.0/bitops
 #
 # emacs droppings
 *~
