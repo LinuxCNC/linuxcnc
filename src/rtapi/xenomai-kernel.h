@@ -4,11 +4,11 @@
 *               the Xenomai kernel thread system
 ********************************************************************/
 
+#define FLAVOR_FLAGS XENOMAI_KERNEL_FLAVOR_FLAGS // see rtapi_compat.h
+
 #include <native/task.h>	/* RT_TASK, rt_task_*() */
 
 /* rtapi_common.c */
-// output threadsystem-specific detail when doing a backtrace
-#define HAVE_RTAPI_BACKTRACE_HOOK
 
 /* Priority functions settings */
 

@@ -14,6 +14,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi/shmdrv/shmdrv.h"
+#include "ring.h"
 
 #define RTPRINTBUFFERLEN 1024
 
@@ -68,7 +69,7 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
     if (global_data) {
 	// one-time initialisation
 	if (!rtapi_message_buffer.header) {
-	    rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
+	    ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
 
 	}
 	if (rtapi_mutex_try(&rtapi_message_buffer.header->wmutex)) {
@@ -77,7 +78,7 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 	}
 	// zero-copy write
 	// reserve space in ring:
-	if (rtapi_record_write_begin(&rtapi_message_buffer, 
+	if (record_write_begin(&rtapi_message_buffer,
 				     (void **) &msg, 
 				     sizeof(rtapi_msgheader_t) + RTPRINTBUFFERLEN)) {
 	    global_data->error_ring_full++;
@@ -100,7 +101,7 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 
 	n = vsnprintf(msg->buf, RTPRINTBUFFERLEN, format, ap);
 	// commit write
-	rtapi_record_write_end(&rtapi_message_buffer, (void *) msg,
+	record_write_end(&rtapi_message_buffer, (void *) msg,
 			       sizeof(rtapi_msgheader_t) + n + 1); // trailing zero
 	rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
     }

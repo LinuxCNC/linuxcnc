@@ -1,18 +1,43 @@
 /********************************************************************
-* Description:  rtapi_ring.h
+* Description:  ring.h
 *
-*               This file, 'rtapi_ring.h', implements generic ringbuffer
+*               This file, 'ring.h', implements generic ringbuffer
 *               functions for byte- and record-oriented queues.
 *
 *               All functions are defined as inline functions and do not
 *               depend on any other code. They can in fact used standalone
-*               provided a ringheader of rtapi_ring_memsize() is allocated.
+*               provided a ringheader of ring_memsize() is allocated.
 *
 *
+* ring buffers support non-blocking, variable-sized record queue
+* operations between cooperating entitiess. The underlying model is a
+* lock-free, single-reader, single-writer queue which does not require
+* any operating system support and is extremely fast.
+*
+* ringbuffers are intended to replace a variety of special-purpose
+* messaging schemes like the ones used between task and motion,
+* in halstreamer, halsampler and halscope, at the same time making
+* those amenable to a networked messaging integration.
+*
+* For an introduction on lock-free programming, see:
+*   http://preshing.com/20120612/an-introduction-to-lock-free-programming
+*   http://julien.benoist.name/lockfree.html
+*
+* The definitive reference on the subject is:
+*   Herlihy/Shavit:  The Art of Multiprocessor Programming, Morgan Kaufmann 2012.
+*
+* The original record-oriented ring code is by Pavel Shramov, 1/2013,
+* http://psha.org.ru/cgit/psha/ring/
+*
+* The stream-oriented ring code is adapted from:
+* Portable Audio I/O Library Ring Buffer utility.
+* Author: Phil Burk, http://www.softsynth.com
+*
+* LinuxCNC integration by Michael Haberler, 2/2013.
 ********************************************************************/
 
-#ifndef RTAPI_RING_H
-#define RTAPI_RING_H
+#ifndef RING_H
+#define RING_H
 
 #include "rtapi_bitops.h"
 #include "rtapi_mbarrier.h"
@@ -22,12 +47,8 @@
 #define MAXIMUM(x, y) (((x) > (y))?(x):(y))
 #endif
 
-//RTAPI_BEGIN_DECLS
-
 // record mode: Negative numbers are needed for skips
 typedef __s32 ring_size_t;
-
-
 
 typedef struct {
     size_t tail __attribute__((aligned(16)));
@@ -36,14 +57,19 @@ typedef struct {
 
 // the ringbuffer shared data
 // defaults: record mode, no rmutex/wmutex use
+// refcount mirrors the number of hal_ring_attach() operations but is held
+// here since ringbuffers do not rely on HAL and may be used without HAL
+// an example thereof is the error ring buffer in the global data segment
+
 typedef struct {
     __u8 is_stream;      // record or stream mode
     __u8 use_rmutex;     // hint to using code - use ringheader_t.rmutex
     __u8 use_wmutex;     // hint to using code - use ringheader_t.wmutex
     int refcount;        // number of referencing entities (modules, threads..)
-    int reader, writer;  // HAL module id's - informational // MOVE TO HAL LAYER FIXME
+    int reader, writer;  // HAL module id's - informational
+    int reader_instance, writer_instance; // RTAPI instance id's
     unsigned long rmutex, wmutex; // optional use - if used by multiple readers/writers
-    size_t scratchpad_size;
+    size_t trailer_size; // sizeof(ringtrailer_t) + scratchpad size
     size_t size_mask;    // stream mode only
     size_t size;         // common to stream and record mode
     size_t head __attribute__((aligned(16)));
@@ -53,15 +79,24 @@ typedef struct {
 
 
 // the ringbuffer shared data as made accessible
-// to the using code by rtapi_ring_getptr
+// to the using code by ringbuffer_init(), and hal_ring_attach()
 // this structure lives in per-user memory, and refers to
 // the ringheader structure, and buffers therein
+
+#define RINGBUFFER_MAGIC 0x74737769
+
 typedef struct {
+    int magic;
     ringheader_t *header;
     ringtrailer_t *trailer;
     char *buf;
     void *scratchpad;
 } ringbuffer_t;
+
+static inline int ringbuffer_attached(ringbuffer_t *rb)
+{
+    return (rb->magic == RINGBUFFER_MAGIC);
+}
 
 // using layer data structures
 typedef struct {
@@ -75,7 +110,7 @@ typedef struct {
     size_t rv_len;
 } ringvec_t;
 
-// mode flags passed in by rtapi_ring_new
+// mode flags passed in by ring_new
 // exposed in ringheader_t.mode
 #define MODE_STREAM      RTAPI_BIT(0)
 #define USE_RMUTEX       RTAPI_BIT(1)
@@ -88,7 +123,7 @@ typedef struct {
 #define SIZE_ALIGN(x)  (x + (-x & (RB_ALIGN - 1)))
 
 // Round up X to closest upper alignment boundary
-static inline ring_size_t size_aligned(const ring_size_t x) // OK
+static inline ring_size_t size_aligned(const ring_size_t x)
 {
     return x + (-x & (RB_ALIGN - 1));
 }
@@ -106,7 +141,7 @@ static unsigned inline next_power_of_two(unsigned v) {
     return v;
 }
 
-static inline size_t rtapi_ring_storage_alloc(int flags, size_t size)
+static inline size_t ring_storage_alloc(int flags, size_t size)
 {
     if (flags & MODE_STREAM) {
 	// stream mode buffers need to be a power of two sized
@@ -118,21 +153,21 @@ static inline size_t rtapi_ring_storage_alloc(int flags, size_t size)
     }
 }
 
-static inline size_t rtapi_ring_scratchpad_alloc(size_t sp_size)
+static inline size_t ring_trailer_alloc(size_t sp_size)
 {
     return size_aligned(sizeof(ringtrailer_t) + sp_size);
 }
 
 // the total size of the ringbuffer header plus storage for the ring
 // and scratchpad
-static inline size_t rtapi_ring_memsize(int flags, size_t size, size_t  sp_size)
+static inline size_t ring_memsize(int flags, size_t size, size_t  sp_size)
 {
     return sizeof(ringheader_t) +
-	rtapi_ring_storage_alloc(flags,  size) +
-	rtapi_ring_scratchpad_alloc(sp_size);
+	ring_storage_alloc(flags,  size) +
+	ring_trailer_alloc(sp_size);
 }
 
-static inline int rtapi_ring_refcount(ringheader_t *ringheader)
+static inline int ring_refcount(ringheader_t *ringheader)
 {
     return ringheader->refcount;
 }
@@ -142,13 +177,17 @@ static inline ringtrailer_t *_trailer_from_header(const ringheader_t *ringheader
     return (ringtrailer_t *) ((char *)ringheader->buf + ringheader->size);
 }
 
+static inline size_t ring_scratchpad_size(ringbuffer_t *ring)
+{
+    return ring->header->trailer_size - sizeof(ringtrailer_t);
+}
+
 // initialize a ringbuffer header and storage as already allocated
-// with a size of rtapi_ring_memsize(flags, size, sp_size)
+// with a size of ring_memsize(flags, size, sp_size)
 // this will not clear the storage allocated.
-static inline void rtapi_ringheader_init(ringheader_t *ringheader, int flags,
+static inline void ringheader_init(ringheader_t *ringheader, int flags,
 					 size_t size, size_t  sp_size)
 {
-
     ringtrailer_t *t;
 
     // layout the ring in memory:
@@ -156,12 +195,13 @@ static inline void rtapi_ringheader_init(ringheader_t *ringheader, int flags,
     // followed by the aligned ring buffer
     // followed by the ringtrailer_t
     // the latter includes scratchpad storage
-    ringheader->size = rtapi_ring_storage_alloc(flags,size);
-    ringheader->scratchpad_size = rtapi_ring_scratchpad_alloc(sp_size);
+    ringheader->size = ring_storage_alloc(flags,size);
+    ringheader->trailer_size = ring_trailer_alloc(sp_size);
 
     // init the ringheader - mode independent part
     ringheader->rmutex = ringheader->wmutex = 0;
     ringheader->reader = ringheader->writer = 0;
+    ringheader->reader_instance = ringheader->writer_instance = 0;
     ringheader->head = 0;
     t = _trailer_from_header(ringheader);
     t->tail = 0;
@@ -180,9 +220,9 @@ static inline void rtapi_ringheader_init(ringheader_t *ringheader, int flags,
 
 // given a ringheader_t *, initialize a ringbuffer_t
 // the latter is the per-user access structure and filled
-// in e.g. in rtapi_ring_attach()
+// in e.g. in ring_attach()
 // ringbuffer_t must point to allocated memory
-static inline void rtapi_ringbuffer_init(ringheader_t *ringheader, ringbuffer_t *ring)
+static inline void ringbuffer_init(ringheader_t *ringheader, ringbuffer_t *ring)
 {
     // pass address of ringheader to caller
     ring->header = ringheader;
@@ -191,67 +231,20 @@ static inline void rtapi_ringbuffer_init(ringheader_t *ringheader, ringbuffer_t 
 
     // set pointer to scratchpad if used - stored
     // right behind buffer area
-    if (ringheader->scratchpad_size)
+    if (ring_scratchpad_size(ring))
 	ring->scratchpad = ring->trailer->scratchpad_buf;
     else
 	ring->scratchpad = NULL;
+    ring->magic = RINGBUFFER_MAGIC;
 }
 
-// the MODE_RECORD functions: rtapi_record_
 
-/* write a variable-sized record into the ringbuffer.
- * record boundaries will be preserved.
- * returns 0 on success,
- * else errno:
- *     ERANGE:  record greater than ring buffer (fatal)
- *     EAGAIN:  currently not enough space in ring buffer (temporary)
- */
-//int rtapi_record_write(ringbuffer_t *h, void * data, size_t sz);
-
-/* return pointer to data available, or NULL if ringbuffer empty
- */
-//void *rtapi_record_next(ringbuffer_t *h);
-
-/* return size of the next readable record
- * return -1 if ringbuffer empty
- * NB: zero-sized records are supported
- */
-//ring_size_t rtapi_record_next_size(ringbuffer_t *h);
-
-
-/* advance ring buffer by one record after consuming data
- * with rtapi_record_next/rtapi_record_next_size
- *
- * NB: without rtapi_record_shift(), rtapi_record_next/rtapi_record_next_size
- * are in effect a peek operation
- */
-//void rtapi_record_shift(ringbuffer_t *h);
-
-/* returns the largest contiguous block available
- * such that rtapi_record_write(h, data, rtapi_record_write_space(h))
- * will succeed
- *
- * NB: a rtapi_record_shift() may or may not affect the value
- * returned by this function; as it may or may not change the size
- * largest contiguous block even if more memory for smaller messages
- * is available
- */
-//size_t rtapi_record_write_space(const ringheader_t *h);
-
-/* empty a ring. Not thread safe.
- *
- * NB: only the reader should execute this function!
- */
-//void rtapi_record_flush(ringbuffer_t *h);
-
-
-
-static inline ring_size_t * _size_at(const ringbuffer_t *ring, const size_t off) // OK
+static inline ring_size_t * _size_at(const ringbuffer_t *ring, const size_t off)
 {
     return (ring_size_t *) (ring->buf + off);
 }
 
-/* rtapi_record_write_begin():
+/* record_write_begin():
  *
  * begin a zero-copy write operation for at least sz bytes. This povides a buffer
  * to write to within free ringbuffer space.
@@ -260,11 +253,11 @@ static inline ring_size_t * _size_at(const ringbuffer_t *ring, const size_t off)
  * return EAGAIN if there is currently insufficient space
  * return ERANGE if the write size exceeds the ringbuffer size.
  *
- * The write needs to be committed with a corresponding rtapi_record_write_end()
+ * The write needs to be committed with a corresponding record_write_end()
  * operation whose size argument must be less or equal to the size requested in
- * rtapi_record_write_begin().
+ * record_write_begin().
  */
-static inline int rtapi_record_write_begin(ringbuffer_t *ring, void ** data, size_t sz)
+static inline int record_write_begin(ringbuffer_t *ring, void ** data, size_t sz)
 {
     size_t free;
     ringheader_t *h = ring->header;
@@ -287,13 +280,13 @@ static inline int rtapi_record_write_begin(ringbuffer_t *ring, void ** data, siz
     return 0;
 }
 
-/* rtapi_record_write_end()
- * 
- * commit a zero-copy write to the ring which was started by rtapi_record_write_begin().
- * sz on rtapi_record_write_end() must be less equal to the size requested in 
- * the corresponding rtapi_record_write_begin().
+/* record_write_end()
+ *
+ * commit a zero-copy write to the ring which was started by record_write_begin().
+ * sz on record_write_end() must be less equal to the size requested in
+ * the corresponding record_write_begin().
  */
-static inline int rtapi_record_write_end(ringbuffer_t *ring, void * data, size_t sz) 
+static inline int record_write_end(ringbuffer_t *ring, void * data, size_t sz)
 {
     ringheader_t *h = ring->header;
     ringtrailer_t *t = ring->trailer;
@@ -315,28 +308,28 @@ static inline int rtapi_record_write_end(ringbuffer_t *ring, void * data, size_t
     return 0;
 }
 
-/* rtapi_record_write()
- * 
- * copying write operation from an existing buffer. 
+/* record_write()
  *
- * return 0 if there is sufficient space
+ * copying write operation from existing buffer/length
+ * record boundaries will be preserved.
+ *
+ * return 0 on success
  * return EAGAIN if there is currently insufficient space
  * return ERANGE if the write size exceeds the ringbuffer size.
  */
-static inline int rtapi_record_write(ringbuffer_t *ring, void * data, size_t sz) // OK
+static inline int record_write(ringbuffer_t *ring, void * data, size_t sz)
 {
     void * ptr;
- 
-    int r = rtapi_record_write_begin(ring, &ptr, sz);
+    int r = record_write_begin(ring, &ptr, sz);
     if (r) return r;
     memmove(ptr, data, sz);
-    return rtapi_record_write_end(ring, ptr, sz);
+    return record_write_end(ring, ptr, sz);
 }
 
 /* internal use function
  */
 static inline int _ring_read_at(const ringbuffer_t *ring, size_t offset,
-				const void **data, size_t *size) // OK
+				const void **data, size_t *size)
 {
     ring_size_t *sz;
     ringtrailer_t *t = ring->trailer;
@@ -357,8 +350,8 @@ static inline int _ring_read_at(const ringbuffer_t *ring, size_t offset,
     return 0;
 }
 
-/* rtapi_record_read()
- * 
+/* record_read()
+ *
  * non-copying read operation.
  *
  * Fail with EAGAIN if no data available.
@@ -366,52 +359,53 @@ static inline int _ring_read_at(const ringbuffer_t *ring, size_t offset,
  * current record.
  *
  * Note this is a 'peek' operation, it does not advance the read pointer to the next
- * record. To actually consume the record, call rtapi_record_shift() after processing.
+ * record. To actually consume the record, call record_shift() after processing.
  */
-static inline int rtapi_record_read(const ringbuffer_t *ring, const void **data, size_t *size)
+static inline int record_read(const ringbuffer_t *ring,  const void **data, size_t *size)
 {
     return _ring_read_at(ring, ring->header->head, data, size);
 }
 
-/* rtapi_record_next()
+/* record_next()
  *
- * test for data available. Return zero if none, else pointer to the data field
+ * test for data available. Return zero if none, else pointer to data
  * of the next available record.
  */
-static inline const void *rtapi_record_next(ringbuffer_t *ring)
+static inline const void *record_next(ringbuffer_t *ring)
 {
     const void *data;
     size_t size;
-    if (rtapi_record_read(ring, &data, &size)) return 0;
+    if (record_read(ring, &data, &size)) return 0;
     return data;
 }
 
-/* rtapi_record_next_size()
+/* record_next_size()
  *
- * retrieve the size of the next available record. 
+ * retrieve the size of the next available record.
  * Return -1 if no data available.
  *
  * Note that zero-length records are supported and valid.
  */
-static inline ring_size_t rtapi_record_next_size(ringbuffer_t *ring) // CHANGED
+static inline ring_size_t record_next_size(ringbuffer_t *ring)
 {
     const void *data;
     size_t size;
-    if (rtapi_record_read(ring, &data, &size)) return -1;
+    if (record_read(ring, &data, &size)) return -1;
     return size;
 }
 
-/* rtapi_record_write_space()
- * 
- * return the size of the largest record which can be currently written
- * without failure.
+/* record_write_space()
  *
- * Note this does not retrieve the amount of free space in the buffer which 
+ * returns the largest contiguous block available
+ * such that record_write(h, data, record_write_space(h))
+ * will succeed
+ *
+ * Note this does not retrieve the amount of free space in the buffer which
  * might be larger than the value returned; however, this space maye not be written
- * by records larger than returned by rtapi_record_write_space() (i.e. many small
+ * by records larger than returned by record_write_space() (i.e. many small
  * writes may be possible which are in sum larger than the value returned here).
  */
-static inline size_t rtapi_record_write_space(const ringheader_t *h)
+static inline size_t record_write_space(const ringheader_t *h)
 {
     int avail = 0;
     ringtrailer_t *t =  _trailer_from_header(h);
@@ -425,7 +419,7 @@ static inline size_t rtapi_record_write_space(const ringheader_t *h)
 
 
 /* internal function */
-static inline ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset) // OK
+static inline ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t offset)
 {
     ring_size_t size;
     ringheader_t *h = ring->header;
@@ -442,22 +436,28 @@ static inline ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t of
     return (offset + size) % h->size;
 }
 
-/* rtapi_record_shift()
+/* record_shift()
  *
- * consume a record in the ring buffer. 
- * used with a corresponding rtapi_record_read().
+ * consume a record in the ring buffer.
+ * used with a corresponding record_read().
+ *
+ * return 0 on success
+ * return EAGAIN if nothing to consume.
  *
  * example processing loop:
  *
  * void *data;
  * size_t size;
  *
- * while (rtapi_record_read(ring, &data, &size) == 0) {
+ * while (record_read(ring, &data, &size) == 0) {
  *    // process(data,size)
- *    rtapi_record_shift(ring); 
+ *    record_shift(ring);
  * }
+ *
+ * NB: without record_shift(), record_next/record_next_size
+ * are in effect a peek operation
  */
-static inline int rtapi_record_shift(ringbuffer_t *ring) // OK
+static inline int record_shift(ringbuffer_t *ring)
 {
     ring_size_t off = _ring_shift_offset(ring, ring->header->head);
     if (off < 0) return EAGAIN;
@@ -465,23 +465,51 @@ static inline int rtapi_record_shift(ringbuffer_t *ring) // OK
     ring->header->head = off;
     return 0;
 }
-/* rtapi_record_flush()
+
+/* record_flush()
  *
- * clear the buffer, and return the number of records flushed. 
+ * clear the buffer, and return the number of records flushed.
  */
-static inline int rtapi_record_flush(ringbuffer_t *ring)
+static inline int record_flush(ringbuffer_t *ring)
 {
     int count = 0;
 
-    while (!rtapi_record_shift(ring)) 
+    while (!record_shift(ring))
 	count++;
     return count;
 }
 
+/* rings by default behave like queues:
+ * - record_write() to add
+ * - record_read()/record_shift() to remove.
+ *
+ * to make a ring behave as a circular buffer, use this scheme:
+ *
+ * write side: gain space by consuming records if needed:
+ *
+ * while (record_write(...) == EAGAIN)
+ *    record_shift();
+ *
+ * the read side uses iterators like so:
+ *
+ * ringiter_t ri;
+ * record_iter_init(ringbuffer, &ri);
+ * while (1) {
+ *    while ((result = record_iter_read(&ri,&data, &size)) == EINVAL)
+ *       record_iter_init(ringbuffer, &ri); // renew
+ *    if (result == EAGAIN)
+ *       sleep(duration);
+ *       continue;
+ *    copy data to local buffer;
+ *    if (record_iter_shift(&ri)) == EINVAL)
+ *       continue;
+ *    consume_data(localbuffer);
+ */
+
 // iterator functions
 
-static inline int rtapi_record_iter_init(const ringbuffer_t *ring,
-				       ringiter_t *iter) // OK
+static inline int record_iter_init(const ringbuffer_t *ring,
+				       ringiter_t *iter)
 {
     iter->ring = ring;
     iter->generation = ring->header->generation;
@@ -491,30 +519,29 @@ static inline int rtapi_record_iter_init(const ringbuffer_t *ring,
     return 0;
 }
 
-static inline int rtapi_record_iter_invalid(const ringiter_t *iter)// OK
+static inline int record_iter_invalid(const ringiter_t *iter)
 {
     if (iter->ring->header->generation > iter->generation)
         return EINVAL;
     return 0;
 }
 
-static inline int rtapi_record_iter_shift(ringiter_t *iter)// OK
+static inline int record_iter_shift(ringiter_t *iter)
 {
     ring_size_t off;
 
-    if (rtapi_record_iter_invalid(iter)) return EINVAL;
+    if (record_iter_invalid(iter)) return EINVAL;
     off = _ring_shift_offset(iter->ring, iter->offset);
     if (off < 0) return EAGAIN;
-//    printf("Offset to %zd\n", off);
     iter->generation++;
     iter->offset = off;
     return 0;
 }
 
-static inline int rtapi_record_iter_read(const ringiter_t *iter,
-				       const void **data, size_t *size)// OK
+static inline int record_iter_read(const ringiter_t *iter,
+				   const void **data, size_t *size)
 {
-    if (rtapi_record_iter_invalid(iter)) return EINVAL;
+    if (record_iter_invalid(iter)) return EINVAL;
 
 //    printf("Read at %zd\n", iter->offset);
     return _ring_read_at(iter->ring, iter->offset, data, size);
@@ -522,25 +549,20 @@ static inline int rtapi_record_iter_read(const ringiter_t *iter,
 
 // observer accessors:
 
-static inline int rtapi_ring_isstream(ringbuffer_t *ring)
+static inline int ring_isstream(ringbuffer_t *ring)
 {
     return ring->header->is_stream;
 }
 
 
-static inline int rtapi_ring_use_wmutex(ringbuffer_t *ring)
+static inline int ring_use_wmutex(ringbuffer_t *ring)
 {
     return ring->header->use_wmutex ;
 }
 
-static inline int rtapi_ring_use_rmutex(ringbuffer_t *ring)
+static inline int ring_use_rmutex(ringbuffer_t *ring)
 {
     return ring->header->use_rmutex;
-}
-
-static inline size_t rtapi_ring_scratchpad_size(ringbuffer_t *ring)
-{
-    return ring->header->scratchpad_size;
 }
 
 
@@ -622,26 +644,26 @@ static inline size_t rtapi_ring_scratchpad_size(ringbuffer_t *ring)
 */
 
 // the stream 'methods'
-/* void   rtapi_stream_get_read_vector(const ringbuffer_t *ring, */
+/* void   stream_get_read_vector(const ringbuffer_t *ring, */
 /* 				  ringvec_t *vec); */
-/* void   rtapi_stream_get_write_vector(const ringbuffer_t *ring, */
+/* void   stream_get_write_vector(const ringbuffer_t *ring, */
 /* 				   ringvec_t *vec); */
-/* size_t rtapi_stream_read(ringbuffer_t *ring, char *dest, size_t cnt); */
-/* size_t rtapi_stream_peek(ringbuffer_t *ring, char *dest, size_t cnt); */
-/* void   rtapi_stream_read_advance(ringbuffer_t *ring, size_t cnt); */
-/* size_t rtapi_stream_read_space(const ringheader_t *h); */
-/* void   rtapi_stream_flush(ringbuffer_t *ring); */
-/* size_t rtapi_stream_write(ringbuffer_t *ring, const char *src, */
+/* size_t stream_read(ringbuffer_t *ring, char *dest, size_t cnt); */
+/* size_t stream_peek(ringbuffer_t *ring, char *dest, size_t cnt); */
+/* void   stream_read_advance(ringbuffer_t *ring, size_t cnt); */
+/* size_t stream_read_space(const ringheader_t *h); */
+/* void   stream_flush(ringbuffer_t *ring); */
+/* size_t stream_write(ringbuffer_t *ring, const char *src, */
 /* 			size_t cnt); */
-/* void   rtapi_stream_write_advance(ringbuffer_t *ring, size_t cnt); */
-/* size_t rtapi_stream_write_space(const ringheader_t *h); */
+/* void   stream_write_advance(ringbuffer_t *ring, size_t cnt); */
+/* size_t stream_write_space(const ringheader_t *h); */
 
 /* The non-copying data reader.  `vec' is an array of two places.  Set
  * the values at `vec' to hold the current readable data at `ring'.  If
  * the readable data is in one segment the second segment has zero
  * length.
  */
-static inline void rtapi_stream_get_read_vector(const ringbuffer_t *ring,
+static inline size_t stream_get_read_vector(const ringbuffer_t *ring,
 				ringvec_t *vec)
 {
     size_t free_cnt;
@@ -672,7 +694,9 @@ static inline void rtapi_stream_get_read_vector(const ringbuffer_t *ring,
 	vec[0].rv_base = (void *) &(ring->buf[r]);
 	vec[0].rv_len = free_cnt;
 	vec[1].rv_len = 0;
+	vec[1].rv_base = NULL;
     }
+    return vec[0].rv_len + vec[1].rv_len;
 }
 
 /* The non-copying data writer.  `vec' is an array of two places.  Set
@@ -680,7 +704,7 @@ static inline void rtapi_stream_get_read_vector(const ringbuffer_t *ring,
  * the writeable data is in one segment the second segment has zero
  * length.
  */
-static inline void rtapi_stream_get_write_vector(const ringbuffer_t *ring,
+static inline void stream_get_write_vector(const ringbuffer_t *ring,
 				 ringvec_t *vec)
 {
     size_t free_cnt;
@@ -721,7 +745,7 @@ static inline void rtapi_stream_get_write_vector(const ringbuffer_t *ring,
  * number of bytes in front of the read pointer and behind the write
  * pointer.
  */
-static inline size_t rtapi_stream_read_space(const ringheader_t *h)
+static inline size_t stream_read_space(const ringheader_t *h)
 {
     size_t w, r;
     ringtrailer_t *t =  _trailer_from_header(h);
@@ -738,7 +762,7 @@ static inline size_t rtapi_stream_read_space(const ringheader_t *h)
 /* The copying data reader.  Copy at most `cnt' bytes from `ring' to
  * `dest'.  Returns the actual number of bytes copied.
  */
-static inline size_t rtapi_stream_read(ringbuffer_t *ring, char *dest, size_t cnt)
+static inline size_t stream_read(ringbuffer_t *ring, char *dest, size_t cnt)
 {
     size_t free_cnt;
     size_t cnt2;
@@ -746,7 +770,7 @@ static inline size_t rtapi_stream_read(ringbuffer_t *ring, char *dest, size_t cn
     size_t n1, n2;
     ringheader_t *h = ring->header;
 
-    if ((free_cnt = rtapi_stream_read_space (h)) == 0) {
+    if ((free_cnt = stream_read_space (h)) == 0) {
 	return 0;
     }
     to_read = cnt > free_cnt ? free_cnt : cnt;
@@ -773,7 +797,7 @@ static inline size_t rtapi_stream_read(ringbuffer_t *ring, char *dest, size_t cn
  * `cnt' bytes from `ring' to `dest'.  Returns the actual number of bytes
  * copied.
  */
-static inline size_t rtapi_stream_peek(ringbuffer_t *ring, char *dest, size_t cnt)
+static inline size_t stream_peek(ringbuffer_t *ring, char *dest, size_t cnt)
 {
     size_t free_cnt;
     size_t cnt2;
@@ -783,7 +807,7 @@ static inline size_t rtapi_stream_peek(ringbuffer_t *ring, char *dest, size_t cn
     ringheader_t *h = ring->header;
 
     tmp_head = h->head;
-    if ((free_cnt = rtapi_stream_read_space (h)) == 0) {
+    if ((free_cnt = stream_read_space (h)) == 0) {
 	return 0;
     }
     to_read = cnt > free_cnt ? free_cnt : cnt;
@@ -806,7 +830,7 @@ static inline size_t rtapi_stream_peek(ringbuffer_t *ring, char *dest, size_t cn
 
 
 /* Advance the read pointer `cnt' places. */
-static inline void rtapi_stream_read_advance(ringbuffer_t *ring, size_t cnt)
+static inline void stream_read_advance(ringbuffer_t *ring, size_t cnt)
 {
     size_t tmp;
     ringheader_t *h = ring->header;
@@ -821,23 +845,23 @@ static inline void rtapi_stream_read_advance(ringbuffer_t *ring, size_t cnt)
 }
 
 
-/* Reset the read and write pointers to zero. This is not thread safe.
+/* Flush any pending data from ring.
+ *
+ * return number of bytes flushed.
  */
-static inline void rtapi_stream_flush(ringbuffer_t *ring)
+static inline size_t stream_flush(ringbuffer_t *ring)
 {
-    ringheader_t *h = ring->header;
-    ringtrailer_t *t = ring->trailer;
-
-    h->head = 0;
-    t->tail = 0;
-    //memset(ring->buf, 0, h->size);
+    size_t left = stream_read_space(ring->header);
+    if (left > 0)
+	stream_read_advance(ring, left);
+    return left;
 }
 
 /* Return the number of bytes available for writing.  This is the
  * number of bytes in front of the write pointer and behind the read
  * pointer.
  */
-static inline size_t rtapi_stream_write_space(const ringheader_t *h)
+static inline size_t stream_write_space(const ringheader_t *h)
 {
     size_t w, r;
     ringtrailer_t *t =  _trailer_from_header(h);
@@ -856,7 +880,7 @@ static inline size_t rtapi_stream_write_space(const ringheader_t *h)
 /* The copying data writer.  Copy at most `cnt' bytes to `ring' from
  * `src'.  Returns the actual number of bytes copied.
  */
-static inline size_t rtapi_stream_write(ringbuffer_t *ring, const char *src,
+static inline size_t stream_write(ringbuffer_t *ring, const char *src,
 			size_t cnt)
 {
     size_t free_cnt;
@@ -866,7 +890,7 @@ static inline size_t rtapi_stream_write(ringbuffer_t *ring, const char *src,
     ringheader_t *h = ring->header;
     ringtrailer_t *t = ring->trailer;
 
-    if ((free_cnt = rtapi_stream_write_space (h)) == 0) {
+    if ((free_cnt = stream_write_space (h)) == 0) {
 	return 0;
     }
     to_write = cnt > free_cnt ? free_cnt : cnt;
@@ -888,7 +912,7 @@ static inline size_t rtapi_stream_write(ringbuffer_t *ring, const char *src,
 }
 
 /* Advance the write pointer `cnt' places. */
-static inline void rtapi_stream_write_advance(ringbuffer_t *ring, size_t cnt)
+static inline void stream_write_advance(ringbuffer_t *ring, size_t cnt)
 {
     size_t tmp;
     ringheader_t *h = ring->header;
@@ -902,4 +926,4 @@ static inline void rtapi_stream_write_advance(ringbuffer_t *ring, size_t cnt)
     t->tail = tmp;
 }
 
-#endif // RTAPI_RING_H
+#endif // RING_H

@@ -489,24 +489,3 @@ int _rtapi_task_self_hook(void) {
 }
 
 #endif /* ULAPI/RTAPI */
-
-// both ULAPI and RTAPI:
-int _rtapi_backtrace_hook(int msglevel)
-{
-    struct rusage ru;
-
-    getrusage(RUSAGE_THREAD, &ru);
-#ifdef RTAPI
-    int task_id = _rtapi_task_self_hook();
-    // an RT thread
-    rtapi_print_msg(msglevel, "RT thread %d TID %d: \n", 
-		    task_id, (pid_t) syscall(SYS_gettid));
-#else // ULAPI
-    // use pid
-    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
-#endif
-    rtapi_print_msg(msglevel,
-		    "minor faults=%ld major faults=%ld involuntary context switches=%ld\n",
-		    ru.ru_minflt, ru.ru_majflt, ru.ru_nivcsw);
-    return 0;
-}

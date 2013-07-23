@@ -509,7 +509,7 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
-    rtapi/rtapi_ring.h \
+    rtapi/ring.h \
     rtapi/rtapi_mbarrier.h \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h

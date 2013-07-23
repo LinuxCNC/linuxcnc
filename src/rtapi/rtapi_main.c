@@ -96,7 +96,7 @@ int rtapi_app_main(void)
     // good to use global_data from here on
 
     // make the message ringbuffer accessible
-    rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
+    ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
     rtapi_message_buffer.header->refcount++;
 
     // tag messages originating from RT proper

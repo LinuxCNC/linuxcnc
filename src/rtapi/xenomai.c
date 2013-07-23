@@ -447,37 +447,3 @@ long long int _rtapi_get_clocks_hook(void) {
     // Gilles says: do this - it's portable
     return rt_timer_tsc();
 }
-
-/***********************************************************************
-*                           rtapi_common.c                               *
-************************************************************************/
-int _rtapi_backtrace_hook(int msglevel)
-{
-#ifdef RTAPI
-    int task_id = _rtapi_task_self_hook();
-
-    if (task_id != -EINVAL) {
-	// an RT thread
-	rtapi_print_msg(msglevel, "RT thread %d: \n", task_id);
-	RT_TASK_INFO info;
-	int retval = rt_task_inquire(ostask_self[task_id], &info);
-	if (retval) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, "rt_task_inquire() failed: %d\n", retval);
-	} else {
-	    rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
-
-	    rtapi_print_msg(msglevel,
-			    "name=%s modeswitches=%d context switches=%d page faults=%d\n",
-			    info.name, info.modeswitches, info.ctxswitches, info.pagefaults);
-	    rtapi_print_msg(msglevel,"wait errors=%d total overruns=%d\n",
-			    ts->flavor.xeno.wait_errors,
-			    ts->flavor.xeno.total_overruns);
-	}
-    }
-#endif
-#ifdef ULAPI
-    // ULAPI; use pid
-    rtapi_print_msg(msglevel, "pid %d: \n", getpid());
-#endif
-    return 0;
-}

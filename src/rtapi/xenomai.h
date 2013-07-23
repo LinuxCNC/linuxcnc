@@ -33,5 +33,4 @@
 #define HAVE_RTAPI_MODULE_EXIT_HOOK   // disarm SGXCPU handler
 
 /* misc */
-#define HAVE_RTAPI_BACKTRACE_HOOK
 

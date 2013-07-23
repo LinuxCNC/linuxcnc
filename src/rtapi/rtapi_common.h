@@ -72,7 +72,6 @@
 #endif
 
 #include "rtapi_bitops.h"	/* test_bit() et al. */
-#include "rtapi_ring.h"	/* test_bit() et al. */
 
 #if defined(BUILD_SYS_USER_DSO)
 #include <sys/ipc.h>		/* IPC_* */
@@ -209,8 +208,6 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
-    ring_data  ring_array[RTAPI_MAX_RINGS +1];  /* ringbuffer headers */
-
 #ifdef THREAD_RTAPI_DATA
     THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
 #endif
@@ -267,12 +264,6 @@ void _rtapi_module_timer_stop(void);
 
 extern shmem_data *shmem_array;
 extern void *shmem_addr_array[];
-
-/* rtapi_ring.c */
-#define RING_MAGIC   120756	/* random numbers used as signatures */
-extern ring_data *ring_array;
-extern void *ring_addr_array[];
-
 
 /* rtapi_module.c */
 #ifndef BUILD_SYS_USER_DSO

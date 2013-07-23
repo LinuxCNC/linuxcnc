@@ -104,7 +104,7 @@ int init_module(void) {
     }
 
     // make error ringbuffer accessible within RTAPI
-    rtapi_ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
+    ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
     global_data->rtapi_messages.refcount += 1;   // rtapi is 'attached'
 
     // tag messages originating from RT proper
@@ -149,7 +149,6 @@ int init_module(void) {
     module_array = rtapi_data->module_array;
     task_array = rtapi_data->task_array;
     shmem_array = rtapi_data->shmem_array;
-    ring_array = rtapi_data->ring_array;
 
     /* perform local init */
     for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
@@ -468,7 +467,6 @@ int _rtapi_init(const char *modname) {
     module_array = rtapi_data->module_array;
     task_array = rtapi_data->task_array;
     shmem_array = rtapi_data->shmem_array;
-    ring_array = rtapi_data->ring_array;
 
     /* perform local init */
     for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {

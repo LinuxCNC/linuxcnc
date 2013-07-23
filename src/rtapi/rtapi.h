@@ -113,7 +113,6 @@ typedef __s64		s64;
 #endif
 
 #include <rtapi_errno.h>
-#include <rtapi_ring.h>
 #include <rtapi_global.h>
 #include <rtapi_exception.h>
 
@@ -734,14 +733,6 @@ extern int _rtapi_task_update_stats(void);
 
 #endif /* RTAPI */
 
-/** 'rtapi_backtrace()' writes a stack trace to the log.
- available in all flavors and ULAPI/RTAPI
-*/
-typedef void (*rtapi_backtrace_t)(int);
-#define rtapi_backtrace(msglevel)			\
-    rtapi_switch->rtapi_backtrace(msglevel)
-extern void _rtapi_backtrace(int msglevel);
-
 /***********************************************************************
 *                  SHARED MEMORY RELATED FUNCTIONS                     *
 ************************************************************************/
@@ -807,27 +798,6 @@ typedef int (*rtapi_shmem_getptr_inst_t)(int, int, void **);
 #define rtapi_shmem_getptr_inst(shmem_id, instance, ptr)	\
     rtapi_switch->rtapi_shmem_getptr_inst(shmem_id, instance, ptr)
 extern int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr);
-
-/***********************************************************************
-*                        Ringbuffer related functions                  *
-************************************************************************/
-
-typedef int (*rtapi_ring_new_t) (size_t, size_t, int, int);
-#define rtapi_ring_new(size, sp_size, module_id, flags) \
-    rtapi_switch->rtapi_ring_new(size, sp_size, module_id, flags)
-extern int _rtapi_ring_new(size_t size, size_t sp_size, int module_id, int flags);
-
-typedef int (*rtapi_ring_attach_t) (int,ringbuffer_t *, int);
-#define rtapi_ring_attach(handle, ptr, module_id)			\
-    rtapi_switch->rtapi_ring_attach(handle, ptr, module_id)
-extern int _rtapi_ring_attach(int handle, ringbuffer_t *ptr, int module_id);
-
-typedef int (*rtapi_ring_detach_t) (int,int);
-#define rtapi_ring_detach(handle, module_id) \
-    rtapi_switch->rtapi_ring_detach(handle, module_id)
-extern int _rtapi_ring_detach(int handle, int module_id);
-
-// rtapi_ring_refcount(ringheader_t *ptr) defined in rtapi_ring.h
 
 
 /***********************************************************************
@@ -956,20 +926,11 @@ typedef struct {
     rtapi_shmem_getptr_t rtapi_shmem_getptr;
     rtapi_shmem_getptr_inst_t rtapi_shmem_getptr_inst;
 
-    // ringbuffer functions
-    // these will be removed once the new hal_lib.c ring
-    // support code is in place, since rings are just
-    // glorified HAL shared memory segments and do not
-    // warrant an own rtapi data object per se
-    rtapi_ring_new_t rtapi_ring_new;
-    rtapi_ring_attach_t rtapi_ring_attach;
-    rtapi_ring_detach_t rtapi_ring_detach;
 #ifdef RTAPI
     rtapi_set_exception_t rtapi_set_exception;
 #else
     rtapi_dummy_t rtapi_set_exception;
 #endif
-    rtapi_backtrace_t rtapi_backtrace;
 #ifdef RTAPI
     rtapi_task_update_stats_t rtapi_task_update_stats;
 #else

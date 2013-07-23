@@ -41,6 +41,7 @@
 */
 #include "rtapi_shmkeys.h"
 #include "rtapi_exception.h"  // thread status descriptors
+#include "ring.h"             // ring buffer ops & structures
 
 
 #define MESSAGE_RING_SIZE 32768

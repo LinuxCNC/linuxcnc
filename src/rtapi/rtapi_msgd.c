@@ -31,6 +31,7 @@
 #include <rtapi.h>
 #include "rtapi/shmdrv/shmdrv.h"
 #include "rtapi_kdetect.h"          // environment autodetection
+#include "ring.h"          // environment autodetection
 
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
@@ -151,11 +152,11 @@ void init_global_data(global_data_t * data, int flavor,
     data->hal_thread_stack_size = stack_size;
 
     // init the error ring
-    rtapi_ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
+    ringheader_init(&data->rtapi_messages, 0, SIZE_ALIGN(MESSAGE_RING_SIZE), 0);
     memset(&data->rtapi_messages.buf[0], 0, SIZE_ALIGN(MESSAGE_RING_SIZE));
 
     // attach to the message ringbuffer
-    rtapi_ringbuffer_init(&data->rtapi_messages, &rtapi_msg_buffer);
+    ringbuffer_init(&data->rtapi_messages, &rtapi_msg_buffer);
     rtapi_msg_buffer.header->refcount = 1; // rtapi not yet attached
     rtapi_msg_buffer.header->reader = getpid();
     data->rtapi_messages.use_wmutex = 1; // locking hint
@@ -286,7 +287,7 @@ static int message_thread()
 		   rtapi_instance);
 	    msgd_exit++;
 	}
-	while ((retval = rtapi_record_read(&rtapi_msg_buffer, 
+	while ((retval = record_read(&rtapi_msg_buffer,
 					   (const void **) &msg, &msg_size)) == 0) {
 	    payload_length = msg_size - sizeof(rtapi_msgheader_t);
 
@@ -316,7 +317,7 @@ static int message_thread()
 	    default: ;
 		// whine
 	    }
-	    rtapi_record_shift(&rtapi_msg_buffer);
+	    record_shift(&rtapi_msg_buffer);
 	    msg_poll = msg_poll_min;
 	}
 	struct timespec ts = {0, msg_poll * 1000 * 1000};

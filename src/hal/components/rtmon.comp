@@ -33,7 +33,6 @@ of zero and threshold of 101 (simplistically) gives that behaviour.
 
 pin out bit estop       "activated if more than <threshold> exceptions occur.";
 pin in bit  estop_reset "a positive edge on this pin clears the estop and fault_count pins";
-pin in bit  backtrace   "if true, write a backtrace to the log on RT fault threshold exceeded";
 
 pin out u32 rt_faults   "total number of RT scheduling violations observed";
 pin out u32 fault_count "current level for RT scheduling violations; reset on estop_reset positive edge";
@@ -79,8 +78,6 @@ static int rtmon_exception_handler(rtapi_exception_t type,
     fault_count += fault_inc;
 
     if ((fault_count > fault_limit) && !estop) {
-	if (backtrace)
-	    rtapi_backtrace(RTAPI_MSG_ERR);
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTMON: ------- setting estop\n");
 	estop = 1;
     }

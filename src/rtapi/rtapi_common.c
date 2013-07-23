@@ -3,17 +3,12 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 
-#ifdef BUILD_SYS_USER_DSO
-#include <execinfo.h>           /* backtrace(), backtrace_symbols() */
-#endif
-
 #ifndef MODULE
 #include <stdlib.h>		/* strtol() */
 #endif
 
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 #include <stdio.h>		/* putchar */
-#include <execinfo.h>           /* backtrace(), backtrace_symbols() */
 #endif
 
 
@@ -35,13 +30,11 @@ rtapi_data_t *rtapi_data = &local_rtapi_data;
 task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
-ring_data *ring_array = local_rtapi_data.ring_array;
 #else
 rtapi_data_t *rtapi_data = NULL;
 task_data *task_array = NULL;
 shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
-ring_data *ring_array = NULL;
 #endif
 
 // in the RTAPI scenario,  
@@ -124,17 +117,11 @@ static rtapi_switch_t rtapi_switch_struct = {
     .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
     .rtapi_shmem_getptr_inst = &_rtapi_shmem_getptr_inst,
 
-    // ringbuffer functions
-    .rtapi_ring_new = &_rtapi_ring_new,
-    .rtapi_ring_attach = &_rtapi_ring_attach,
-    .rtapi_ring_detach = &_rtapi_ring_detach,
-
 #ifdef RTAPI
     .rtapi_set_exception = &_rtapi_set_exception,
 #else
     .rtapi_set_exception = &_rtapi_dummy,
 #endif
-    .rtapi_backtrace = &_rtapi_backtrace,
 #ifdef RTAPI
     .rtapi_task_update_stats = &_rtapi_task_update_stats,
 #else
@@ -228,11 +215,6 @@ void init_rtapi_data(rtapi_data_t * data)
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
     }
-    for (n = 0; n <= RTAPI_MAX_RINGS; n++) {
-	data->ring_array[n].magic = 0;
-	data->ring_array[n].key = 0;
-	data->ring_array[n].owner = 0;
-    }
 #ifdef HAVE_INIT_RTAPI_DATA_HOOK
     init_rtapi_data_hook(data);
 #endif
@@ -313,44 +295,6 @@ int  _rtapi_next_module_id(void)
     next_id = global_data->next_module_id++;
     rtapi_mutex_give(&(global_data->mutex));
     return next_id;
-}
-
-
-/* the chance to output threadsystem specific detail to the log */
-#ifdef HAVE_RTAPI_BACKTRACE_HOOK
-int _rtapi_backtrace_hook(int msglevel);
-#endif
-
-#define BACKTRACE_SIZE 1000
-
-void _rtapi_backtrace(int msglevel)
-{
-#ifdef HAVE_RTAPI_BACKTRACE_HOOK
-    _rtapi_backtrace_hook(msglevel);
-#endif
-#if defined(BUILD_SYS_KBUILD) && defined(RTAPI)
-    dump_stack();
-#endif
-#if defined(ULAPI) || (defined(BUILD_SYS_USER_DSO) && defined(RTAPI))
-    void *buffer[BACKTRACE_SIZE];
-    int j, nptrs;
-    char **strings;
-
-    nptrs = backtrace(buffer, BACKTRACE_SIZE);
-
-    strings = backtrace_symbols(buffer, nptrs);
-    if (strings == NULL) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"backtrace_symbols(): %s",
-		  strerror(errno));
-    } else {
-	for (j = 0; j < nptrs; j++) {
-	    char *s =  strings[j];
-	    if (s && strlen(s))
-		rtapi_print_msg(msglevel, "%s", s);
-	}
-	free(strings);
-    }
-#endif
 }
 
 /* simple_strtol defined in
