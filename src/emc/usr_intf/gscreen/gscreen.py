@@ -1738,7 +1738,11 @@ class Gscreen:
     # highlight the gcode line specified
     # used for run-at-line restart
     def restart_set_line(self,widget,calc):
-        line = int(calc.get_value())
+        try:
+            line = int(calc.get_value())
+        except:
+            calc.set_value("0.0")
+            line = 0
         self.widgets.gcode_view.set_line_number(line)
         self.update_restart_line(line,line)
 
@@ -2484,6 +2488,7 @@ class Gscreen:
     # either start the gcode at the line specified or cancel
     def restart_dialog_return(self,widget,result,calc):
         value = calc.get_value()
+        if value == None:value = 0
         self.add_alarm_entry(_("Restart program from line %d"%value))
         self.update_restart_line(0,0)
         widget.destroy()
