@@ -100,9 +100,6 @@ MODULE_DESCRIPTION("Portable Real Time API");
 MODULE_LICENSE("GPL");
 #endif
 
-
-#undef RTAPI_FIFO  // drop support for RTAPI fifos
-
 // RTAPI_MAX_* moved to config.h
 
 #define DEFAULT_MAX_DELAY	10000

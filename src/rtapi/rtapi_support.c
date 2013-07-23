@@ -60,7 +60,6 @@ static char logtag[TAGSIZE];
 // switch to exclusively using the ringbuffer from RT
 #define USE_MESSAGE_RING 1
 
-// candidate for rtapi_ring.h
 void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 {
     int n;

@@ -3736,50 +3736,6 @@ static void free_thread_struct(hal_thread_t * thread)
 }
 #endif /* RTAPI */
 
-/***********************************************************************
-*                     HAL namespace support                            *
-************************************************************************/
-
-// fundamentals: what is the flow of getting at an instance
-// try global and go from there
-// try haldata directly 
-
-// rather a)
-// ---> need global API
-
-int halpr_namespace_attach(int instance)
-{
-    // test if mapped already, return EEXIST
-    // test if instance exists by testing for global segment?
-    // test if RT running, else no HAL data shm segment
-    // attach HAL data segment
-    // record remote global_data->instance_name and instance in mappings
-    // bump refcount 'over there' under remote lock
-    // record mapping
-
-    return -EINVAL;
-}
-
-int halpr_namespace_detach(int instance)
-{
-    // test if mapped, return EINVAL if not
-    // check dangling references (pins, signals), fail if any
-    // decrease refcount 'over there' under remote lock
-    // detach the remote HAL data segment
-    // erase the mappings
-
-    return -EINVAL;
-}
-
-// usage iterator - retrieve remote references in pins, signals
-
-
-// list of parts needed:
-//
-// global instance test
-// remote HAL data exists test
-// dangling references test by instance
-
 
 /***********************************************************************
 *                     HAL data segment attach & detach                 *

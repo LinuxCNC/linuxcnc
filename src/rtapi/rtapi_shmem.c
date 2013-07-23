@@ -23,6 +23,7 @@
 
 #else  /* BUILD_SYS_KBUILD */
 #  ifdef ULAPI
+#    include <stdio.h>          // perror
 #    include <sys/time.h>
 #    include <sys/resource.h>
 #    include "rtapi/shmdrv/shmdrv.h"
