@@ -6,6 +6,8 @@
 
 #include <rtai_sched.h>		/* RT_TASK */
 
+#define FLAVOR_FLAGS RTAI_KERNEL_FLAVOR_FLAGS // see rtapi_compat.h
+
 /* rtapi_module.c */
 #define RT_LINUX_USE_FPU
 

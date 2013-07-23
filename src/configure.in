@@ -1983,6 +1983,11 @@ AH_TOP([/********************************************************************
 // can be overridden by an option to rtapi_msgd
 #define HAL_STACKSIZE           32768
 
+// a pseudo-flavor id to indicate ulapi<flavor>.so is not yet loaded
+// not a build target, just a state indicator for ulapi_autoload.c
+#define RTAPI_NOTLOADED_NAME  "not-yet-loaded"
+#define RTAPI_NOTLOADED_ID    99
+
 ]
 // flavor IDs for the various threads systems
 // and conditional to set thread system and build_sys macros

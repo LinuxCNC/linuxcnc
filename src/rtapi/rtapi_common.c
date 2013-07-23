@@ -2,6 +2,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
+#include "rtapi_compat.h"
 
 #ifndef MODULE
 #include <stdlib.h>		/* strtol() */
@@ -67,6 +68,8 @@ static rtapi_switch_t rtapi_switch_struct = {
     .git_version = GIT_VERSION,
     .thread_flavor_name = THREAD_FLAVOR_NAME,
     .thread_flavor_id = THREAD_FLAVOR_ID,
+    .thread_flavor_flags = FLAVOR_FLAGS,
+
     // init & exit functions
     .rtapi_init = &_rtapi_init,
     .rtapi_exit = &_rtapi_exit,

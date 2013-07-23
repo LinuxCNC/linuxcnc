@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "rtapi.h"
+#include "rtapi_compat.h"
 #include "inifile.h"           /* iniFind() */
 
 #include <stdio.h>
@@ -63,67 +64,59 @@ int kernel_is_rtpreempt()
 
 
 flavor_t flavors[] = {
-    // #if BUILD_POSIX
-
-    { .name = "posix",
+    { .name = RTAPI_POSIX_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
       .id = RTAPI_POSIX_ID,
-      .flags = 0
+      .flags = POSIX_FLAVOR_FLAGS // FLAVOR_USABLE
     },
-    { .name = "sim", // alias - old habíts die hard
+    { .name = "sim", // alias for above- old habíts die hard
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
       .id = RTAPI_POSIX_ID,
-      .flags = 0
+      .flags = POSIX_FLAVOR_FLAGS
     },
-    // #endif
-
-    // #if BUILD_RT_PREEMPT
-    { .name = "rt-preempt",
+    { .name = RTAPI_RT_PREEMPT_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
       .id = RTAPI_RT_PREEMPT_ID,
-      .flags = FLAVOR_DOES_IO,
+      .flags = RTPREEMPT_FLAVOR_FLAGS
     },
-    // #endif
-    // #if BUILD_XEMNOMAI
-
-    { .name = "xenomai",
+     { .name = RTAPI_XENOMAI_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
       .build_sys = "user-dso",
       .id = RTAPI_XENOMAI_ID,
-      .flags = FLAVOR_DOES_IO,
+      .flags = XENOMAI_FLAVOR_FLAGS
     },
-    // #endif
-
-    // #if BUILD_RTAI_KERNEL
-
-    { .name = "rtai-kernel",
+    { .name = RTAPI_RTAI_KERNEL_NAME,
       .mod_ext = ".ko",
       .so_ext = ".so",
       .build_sys = "kbuild",
       .id = RTAPI_RTAI_KERNEL_ID,
-      .flags = FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD,
+      .flags = RTAI_KERNEL_FLAVOR_FLAGS
     },
-    // #endif
 
-    // #if BUILD_XENOMAI_KERNEL
-
-    { .name = "xenomai-kernel",
+    { .name = RTAPI_XENOMAI_KERNEL_NAME,
       .mod_ext = ".ko",
       .so_ext = ".so",
       .build_sys = "kbuild",
       .id = RTAPI_XENOMAI_KERNEL_ID,
-      .flags = FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD,
+      .flags =  XENOMAI_KERNEL_FLAVOR_FLAGS
     },
-    // #endif
 
-    { .name = NULL, // sentinel
+    { .name = RTAPI_NOTLOADED_NAME,
+      .mod_ext = "",
+      .so_ext = "",
+      .build_sys = "n/a",
+      .id = RTAPI_NOTLOADED_ID,
+      .flags = 0
+    },
+
+    { .name = NULL, // list sentinel
       .id = -1,
       .flags = 0
     }

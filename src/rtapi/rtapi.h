@@ -196,10 +196,10 @@ extern int kernel_is_rtpreempt();
 
 #endif // ULAPI
 
-enum flavor_flags {
-    FLAVOR_DOES_IO=1,		// whether iopl() needs to be called
-    FLAVOR_KERNEL_BUILD=2,	// set when defined(BUILD_SYS_KBUILD)
-};
+// this applies only to ULAPI in hal_lib.c atm:
+#define  FLAVOR_DOES_IO        RTAPI_BIT(0) // userland: whether iopl() needs to be called
+#define  FLAVOR_KERNEL_BUILD   RTAPI_BIT(1) // set when defined(BUILD_SYS_KBUILD)
+#define  FLAVOR_RTAPI_DATA_IN_SHM   RTAPI_BIT(2) // this flavor keeps rtapi_data in a shm segment
 
 typedef struct {
     const char *name;
@@ -208,7 +208,6 @@ typedef struct {
     const char *build_sys;
     int id;
     unsigned long flags;
-
 } flavor_t, *flavor_ptr;
 
 extern flavor_t flavors[];
@@ -879,6 +878,8 @@ typedef struct {
     const char *git_version;
     const char *thread_flavor_name; // for messsages
     int  thread_flavor_id;
+    unsigned long thread_flavor_flags;
+
     // init & exit functions
     rtapi_init_t rtapi_init;
     rtapi_exit_t rtapi_exit;

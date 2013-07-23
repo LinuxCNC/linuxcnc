@@ -4,6 +4,8 @@
 *               the Xenomai user land thread system
 ********************************************************************/
 
+#define FLAVOR_FLAGS XENOMAI_FLAVOR_FLAGS // see rtapi_compat.h
+
 /* rtapi_proc */
 #ifdef RTAPI
 #define HAVE_RTAPI_READ_STATUS_HOOK

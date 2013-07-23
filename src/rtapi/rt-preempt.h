@@ -14,8 +14,13 @@
 #include <sched.h>		// sched_get_priority_*()
 #include <pthread.h>		/* pthread_* */
 
+#if THREAD_FLAVOR_ID == RTAPI_POSIX_ID
+#define FLAVOR_FLAGS POSIX_FLAVOR_FLAGS  // see rtapi_compat.h
+#endif
 
-
+#if THREAD_FLAVOR_ID == RTAPI_RT_PREEMPT_ID
+#define FLAVOR_FLAGS  RTPREEMPT_FLAVOR_FLAGS
+#endif
 
 /* rtapi_task.c */
 #define PRIO_LOWEST sched_get_priority_min(SCHED_FIFO)
