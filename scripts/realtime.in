@@ -274,11 +274,17 @@ Unload(){
 
     # if shmdrv is unused, unload it
     if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
-	# Test if 0 shmdrv segments and remove shmdrv
-	awk 'FNR==1 { if ($1==0) exit 0; else exit 1; }' \
-	    /sys/devices/virtual/misc/shmdrv/status && \
-            $linuxcnc_module_helper remove shmdrv
+	# If shmdrv loaded, test if 0 shmdrv segments and remove shmdrv
+	if test -c /dev/shmdrv; then
+	    awk 'FNR==1 { if ($1==0) exit 0; else exit 1; }' \
+		/sys/devices/virtual/misc/shmdrv/status && \
+		$linuxcnc_module_helper remove shmdrv
+	else
+	    echo "Warning:  shmdrv should have been loaded, but wasn't" 1>&2
+	fi
     fi
+
+    
 }
 
 CheckUnloaded(){
