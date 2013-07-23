@@ -36,6 +36,9 @@ EXPORT_SYMBOL(rtapi_instance);
 global_data_t *global_data = NULL;              // visible to all RTAPI modules
 EXPORT_SYMBOL(global_data);
 
+rtapi_switch_t *rtapi_switch  = NULL;
+EXPORT_SYMBOL(rtapi_switch);
+
 #ifdef HAVE_RTAPI_MODULE_INIT_HOOK
 void _rtapi_module_init_hook(void);
 #endif
@@ -53,11 +56,15 @@ int rtapi_app_main(void)
     int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
     int size  = 0;
 
+    rtapi_switch = rtapi_get_handle();
     shm_common_init();
+
+    // tag messages originating from RT proper
+    rtapi_set_logtag("rtapi");
 
     rtapi_print_msg(RTAPI_MSG_DBG,"RTAPI:%d  %s %s init\n",
 		    rtapi_instance,
-		    rtapi_get_handle()->thread_flavor_name,
+		    rtapi_switch->thread_flavor_name,
 		    GIT_VERSION);
 
     // attach to global segment which rtapi_msgd owns and already
@@ -68,7 +75,8 @@ int rtapi_app_main(void)
     if (retval ==  -ENOENT) {
 	// the global_data segment does not exist.
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: global segment 0x%x does not exists (rtapi_msgd not started?)\n",
+			"RTAPI:%d ERROR: global segment 0x%x does not exist"
+			" (rtapi_msgd not started?)\n",
 			rtapi_instance, globalkey);
 	return -EBUSY;
     }
@@ -80,7 +88,8 @@ int rtapi_app_main(void)
     }
     if (size != sizeof(global_data_t)) {
 	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d ERROR: unexpected global shm size: expected: %zd actual:%d\n",
+			 "RTAPI:%d ERROR: unexpected global shm size:"
+			 " expected: %zd actual:%d\n",
 			 rtapi_instance, sizeof(global_data_t), size);
 	 return -EINVAL;
     }
@@ -88,8 +97,10 @@ int rtapi_app_main(void)
     // consistency check
     if (global_data->rtapi_thread_flavor != THREAD_FLAVOR_ID) {
 	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d BUG: thread flavors dont match: global %d rtapi %d\n",
-			 rtapi_instance, global_data->rtapi_thread_flavor, THREAD_FLAVOR_ID);
+			 "RTAPI:%d BUG: thread flavors dont match:"
+			 " global %d rtapi %d\n",
+			 rtapi_instance, global_data->rtapi_thread_flavor,
+			 THREAD_FLAVOR_ID);
 	 return -EINVAL;
     }
 
@@ -99,30 +110,34 @@ int rtapi_app_main(void)
     ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
     rtapi_message_buffer.header->refcount++;
 
-    // tag messages originating from RT proper
-    rtapi_set_logtag("rt");
 
-    size = sizeof(rtapi_data_t);
-    retval = shm_common_new(rtapikey, &size, 
-			    rtapi_instance, (void **) &rtapi_data, 1);
-    if (retval ==  0) {
-	// the rtapi_data segment already existed.
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: rtapi segment 0x%x already exists!\n",
-			rtapi_instance, rtapikey);
-	return -EBUSY;
-    }
-    if (retval < 0) {
-	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d ERROR: shm_common_new() failed key=0x%x %s\n",
-			 rtapi_instance, rtapikey, strerror(-retval));
-	 return retval;
-    }
-    if (size != sizeof(rtapi_data_t)) {
-	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d ERROR: unexpected rtapi shm size: expected: %zd actual:%d\n",
-			 rtapi_instance, sizeof(rtapi_data_t), size);
-	 return -EINVAL;
+    // some flavors might use a shared memory segment for rtapi data. That
+    // fact is recorded in rtapi_switch->flavor_flags
+
+    if (rtapi_switch->thread_flavor_flags & FLAVOR_RTAPI_DATA_IN_SHM) {
+	size = sizeof(rtapi_data_t);
+	retval = shm_common_new(rtapikey, &size,
+				rtapi_instance, (void **) &rtapi_data, 1);
+	if (retval ==  0) {
+	    // the rtapi_data segment already existed.
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "RTAPI:%d ERROR: rtapi segment 0x%x already exists!\n",
+			    rtapi_instance, rtapikey);
+	    return -EBUSY;
+	}
+	if (retval < 0) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "RTAPI:%d ERROR: shm_common_new() failed key=0x%x %s\n",
+			    rtapi_instance, rtapikey, strerror(-retval));
+	    return retval;
+	}
+	if (size != sizeof(rtapi_data_t)) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "RTAPI:%d ERROR: unexpected rtapi shm size:"
+			 " expected: %zd actual:%d\n",
+			    rtapi_instance, sizeof(rtapi_data_t), size);
+	    return -EINVAL;
+	}
     }
 
     init_rtapi_data(rtapi_data);
@@ -145,11 +160,15 @@ void rtapi_app_exit(void)
 
     rtapi_message_buffer.header->refcount--;
 
-    if ((retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data))) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: shm_common_detach(rtapi_data) failed: %s\n",
-			rtapi_instance,  strerror(-retval));
+    if (rtapi_switch->thread_flavor_flags & FLAVOR_RTAPI_DATA_IN_SHM) {
+
+	if ((retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data))) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "RTAPI:%d ERROR: shm_common_detach(rtapi_data)"
+			    " failed: %s\n",
+			    rtapi_instance,  strerror(-retval));
+	}
+	shm_common_unlink(OS_KEY(RTAPI_KEY, rtapi_instance));
     }
-    shm_common_unlink(OS_KEY(RTAPI_KEY, rtapi_instance));
     rtapi_data = NULL;
 }

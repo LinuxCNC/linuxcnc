@@ -41,6 +41,9 @@ EXPORT_SYMBOL(rtapi_instance);
 global_data_t *global_data = NULL;
 EXPORT_SYMBOL(global_data);
 
+rtapi_switch_t *rtapi_switch  = NULL;
+EXPORT_SYMBOL(rtapi_switch);
+
 ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 /* the following are internal functions that do the real work associated
@@ -69,6 +72,8 @@ int init_module(void) {
     int n;
     struct shm_status sm;
     int retval;
+
+    rtapi_switch = rtapi_get_handle();
 
     /* say hello */
     rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d %s %s init\n", 
@@ -408,8 +413,6 @@ static int module_delete(int module_id) {
 }
 
 #else /* ULAPI */
-
-// extern rtapi_data_t *_rtapi_init_hook();
 
 int _rtapi_init(const char *modname) {
     int n, module_id;

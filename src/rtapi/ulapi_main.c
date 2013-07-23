@@ -34,7 +34,7 @@ int ulapi_main(int instance, int flavor, global_data_t *global)
 
     rtapi_instance = instance; // from here on global within ulapi.so
 
-    shm_common_init(); // common shared memory API needs this
+    // shm_common_init(); // common shared memory API needs this
 
     // the HAL library constructor already has the global
     // shm segment attached, so no need to do it again here
@@ -50,35 +50,43 @@ int ulapi_main(int instance, int flavor, global_data_t *global)
 		    rtapi_get_handle()->thread_flavor_name,
 		    GIT_VERSION);
 
-    rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
 
-    // attach to existing RTAPI segment
-    // not all thread flavors actuall might use it
-    if ((retval = shm_common_new(rtapikey, &size,
-				 rtapi_instance, (void **) &rtapi_data, 0))) {
-	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "ULAPI:%d ERROR: cannot attach rtapi segment key=0x%x %s\n",
-			 rtapi_instance, rtapikey, strerror(-retval));
-    }
-    if (size != sizeof(rtapi_data_t)) {
-	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "ULAPI:%d ERROR: unexpected rtapi shm size: expected: %d actual:%d\n",
-			 rtapi_instance, sizeof(rtapi_data_t), size);
-	 return -EINVAL;
-    }
+    if (rtapi_switch->thread_flavor_flags & FLAVOR_RTAPI_DATA_IN_SHM) {
 
-    if (MMAP_OK(global_data) && MMAP_OK(rtapi_data)) {
-	rtapi_print_msg(RTAPI_MSG_DBG, 
-			"ULAPI:%d msglevel=%d/%d halsize=%d %s startup %s\n", 
-			rtapi_instance,
-			global_data->rt_msg_level,
-			global_data->user_msg_level,
-			global_data->hal_size,
-			GIT_VERSION, retval ? "FAILED" : "OK");
-    } else {
-	rtapi_print_msg(RTAPI_MSG_DBG, 
-			"ULAPI:%d init failed, realtime not running? global=%p rtapi=%p\n", 
-			rtapi_instance, global_data, rtapi_data);
+	rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
+
+	// attach to existing RTAPI segment
+	// not all thread flavors actuall might use it
+	if ((retval = shm_common_new(rtapikey, &size,
+				     rtapi_instance, (void **) &rtapi_data, 0))) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: cannot attach rtapi"
+			    " segment key=0x%x %s\n",
+			    rtapi_instance, rtapikey, strerror(-retval));
+	}
+	if (size != sizeof(rtapi_data_t)) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: unexpected rtapi shm size:"
+			    " expected: %d actual:%d\n",
+			    rtapi_instance, sizeof(rtapi_data_t), size);
+	    return -EINVAL;
+	}
+
+	if (MMAP_OK(global_data) && MMAP_OK(rtapi_data)) {
+	    rtapi_print_msg(RTAPI_MSG_DBG,
+			    "ULAPI:%d msglevel=%d/%d halsize=%d"
+			    " %s startup %s\n",
+			    rtapi_instance,
+			    global_data->rt_msg_level,
+			    global_data->user_msg_level,
+			    global_data->hal_size,
+			    GIT_VERSION, retval ? "FAILED" : "OK");
+	} else {
+	    rtapi_print_msg(RTAPI_MSG_DBG,
+			    "ULAPI:%d init failed, realtime not running?"
+			    " global=%p rtapi=%p\n",
+			    rtapi_instance, global_data, rtapi_data);
+	}
     }
     return retval;
 }
@@ -89,14 +97,17 @@ int ulapi_exit(int instance)
 		    instance,
 		    GIT_VERSION);
 
-    // detach RTAPI segment
-    int retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data);
-    if (retval) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ULAPI:%d ERROR: shm_common_detach(rtapi_data) failed: %s\n",
-			rtapi_instance,  strerror(-retval));
+    if (rtapi_switch->thread_flavor_flags & FLAVOR_RTAPI_DATA_IN_SHM) {
+	// detach RTAPI segment
+	int retval = shm_common_detach(sizeof(rtapi_data_t), rtapi_data);
+	if (retval) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: shm_common_detach(rtapi_data)"
+			    " failed: %s\n",
+			    rtapi_instance,  strerror(-retval));
+	}
+	rtapi_data = NULL;
     }
-    rtapi_data = NULL;
     return 0;
 }
 

@@ -38,14 +38,10 @@ shmem_data *shmem_array = NULL;
 module_data *module_array = NULL;
 #endif
 
-// in the RTAPI scenario,  
-// global_data is exported by instance.ko and referenced
-// by rtapi.ko and hal_lib.ko
-
-// in ULAPI, we have only hal_lib which calls 'down'
-// onto ulapi.so to init, so in this case global_data
-// is exported by hal_lib and referenced by ulapi.so
-
+// RTAPI:
+// global_data is exported by rtapi_module.c (kthreads)
+// or rtapi_main.c (uthreads)
+// ULAPI: exported in ulapi_autoload.c
 extern global_data_t *global_data;
 
 /* 
