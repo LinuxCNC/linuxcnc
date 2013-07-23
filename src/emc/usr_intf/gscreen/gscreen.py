@@ -3274,6 +3274,10 @@ class Gscreen:
                 self.halcomp["jog-enable-out"] = True
             else:
                 self.halcomp["jog-enable-out"] = False
+            try:
+                self.widgets.led_jog_mode.set_active(self.halcomp["jog-enable-out"])
+            except:
+                pass
 
     # These pins set and unset enable pins for override adjustment
     # only true when the screen button is true and not in jog mode 
