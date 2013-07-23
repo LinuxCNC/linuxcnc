@@ -446,9 +446,9 @@ int _rtapi_init(const char *modname) {
 	    return -EINVAL;
 	}
     }
-    // I consider this dubious - there is no reason for ULAPI to start without
+    // I consider this very dubious - there is no reason for ULAPI to start without
     // rtapi_data already being inited: -mah
-    init_rtapi_data(rtapi_data);
+    // init_rtapi_data(rtapi_data);
 
     /* check flavor and serial codes */
     if (rtapi_data->thread_flavor_id != THREAD_FLAVOR_ID) {
