@@ -1,5 +1,5 @@
 log rt 5
-log user 5
+log user 0
 
 loadrt threads name1=fast period1=100000
 loadrt and2
