@@ -552,19 +552,25 @@ class HandlerClass:
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
     def on_key_event(self, widget, event, signal):
-        # if the user do not want to use keyboard shortcuts, we leave
-        # in this case we do not return true, otherwise entering code in MDI history 
-        # and the integrated editor will not work
-        if not self.widgets.chk_use_kb_shortcuts.get_active():
-            print("do not use keyboard shortcuts, aboart")
-            return
-
+        #get the keyname
         keyname = gtk.gdk.keyval_name(event.keyval)
 
-        # estop with escape shold work every time
+        # estop with F1 shold work every time
+        # so should also escape aboart actions
         if keyname == "F1":
             self.gscreen.emc.estop(1)
             return True
+        if keyname == "Escape":
+            self.gscreen.emc.abort()
+            return True
+
+        # if the user do not want to use keyboard shortcuts, we leave here
+        # in this case we do not return true, otherwise entering code in MDI history 
+        # and the integrated editor will not work
+        if not self.widgets.chk_use_kb_shortcuts.get_active():
+            print("Settings say: do not use keyboard shortcuts, aboart")
+            return
+
 
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history 
@@ -576,9 +582,6 @@ class HandlerClass:
         try:
             if keyname =="F2" and signal:
                 self.widgets.tbtn_on.emit("clicked")
-                return True
-            if keyname == "Escape":
-                self.gscreen.emc.abort()
                 return True
         except:
             pass
@@ -1127,7 +1130,7 @@ class HandlerClass:
         else:
              self.gscreen.add_alarm_entry(_("Something went wrong, we have an unknown widget"))
 
-        if self.log: self.gscreen.add_alarm_entry("Spindle set to %i rpm, mode is %s"%(rpm,mode))
+        if self.log: self.gscreen.add_alarm_entry("Spindle set to %i rpm, mode is %s"%(rpm,self.emc.get_mode()))
         self.widgets.lbl_spindle_act.set_label("S %s"%rpm)
         self.on_scl_spindle_value_changed(self.widgets.scl_spindle)
 
@@ -2160,6 +2163,7 @@ class HandlerClass:
             self.widgets.rbt_manual.emit("clicked")
             self.wait_tool_change = False
         self.interpreter = _IDLE
+        self.data.restart_dialog = None
 
     # this can not be done with the status widget, 
     # because it will not emit a RESUME signal
@@ -2167,6 +2171,9 @@ class HandlerClass:
         self.gscreen.add_alarm_entry("pause_toggled")
         widgetlist = ["btn_step", "rbt_forward", "rbt_reverse", "rbt_stop"]
         self.gscreen.sensitize_widgets(widgetlist,widget.get_active())
+
+    def on_btn_stop_clicked(self, widget, data=None):
+        self.gscreen.update_restart_line(0,0)
 
     def on_hal_status_interp_run(self,widget):
         self.gscreen.add_alarm_entry("run")
@@ -2180,6 +2187,7 @@ class HandlerClass:
         self.interpreter = _RUN
         if self.data.restart_dialog:
             self.data.restart_dialog.destroy()
+            self.data.restart_dialog = None
 
     def on_btn_from_line_clicked(self, widget, data=None):
         self.gscreen.add_alarm_entry("Restart the program from line clicked")

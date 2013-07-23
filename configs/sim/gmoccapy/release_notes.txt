@@ -1,3 +1,9 @@
+ver. 0.9.5.1
+- bug in spindle switching while in LOG Mode
+- ESC and F1 keys will work now, even if use Keyboart shortcuts is not axtivated
+- solved a bug in run_from_line, the start line was not reseted after program stop, 
+  and I missed to reset self.data.restart_dialog to None
+
 ver. 0.9.5
 - Keyboart shortcuts, now ESCAPE only aboarts and F1 emit estop
 - spindle can be switched on and off while program is paused, without getting an error
