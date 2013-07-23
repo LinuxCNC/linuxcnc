@@ -1,21 +1,24 @@
-Basic description
------------------
-From the top level directory, switch to the source directory:
+Basic procedure
+---------------
 
-cd src
+The simplest way to compile this package is:
 
-In the source directory, build LinuxCNC:
+  1. `cd' to the `src' directory under the directory containing the
+     package's source code.
 
-./autogen.sh  (this builds the configure script)
-./configure
-make clean
-make
-sudo make setuid
+  2. Type `./configure' to configure the package for your system.  If
+     you're using `csh' on an old version of System V, you might need
+     to type `sh ./configure' instead to prevent `csh' from trying to
+     execute `configure' itself.
 
-to run the software go back to the top level directory, and issue:
+     Running `configure' takes awhile.  While running, it prints some
+     messages telling which features it is checking for.
 
-source scripts/rip-environment
-linuxcnc
+  3. Type `make' to compile the package.
+
+  4. Type `source scripts/rip-environment' to set up the environment.
+
+  5. Type `linuxcnc' to test the software.
 
 
 Detailed description
@@ -36,61 +39,60 @@ replace some default values for your system (folders, paths, etc).
 Configure script
 ================
 
-   The `configure' shell script attempts to guess correct values for
-various system-dependent variables used during compilation.  It uses
-those values to create a `Makefile.inc' file.
-Finally, it creates a shell script `config.status' that you can run 
-in the future to recreate the current configuration, a file
-`config.cache' that saves the results of its tests to speed up
-reconfiguring, and a file `config.log' containing compiler output
-(useful mainly for debugging `configure').
+The `configure' autoconf script attempts to guess correct values for
+various system-dependent variables used during compilation, and places
+those values in several files, such as `Makefile.inc' and `rtapi.ini'.
+It also creates a shell script `config.status' that can be run in the
+future to recreate the current configuration, a file `config.cache'
+that saves the results of its tests to speed up reconfiguring, and a
+file `config.log' containing compiler output (useful mainly for
+debugging `configure').
 
-   The file `configure.in' is used to create `configure' by a program
-called `autoconf'.  You only need `configure.in' if you want to change
-it or regenerate `configure' using a newer version of `autoconf'.
 
-The simplest way to compile this package is:
+Real-time Thread Support
+========================
 
-  1. `cd' to the directory containing the package's source code and type
-     `./configure' to configure the package for your system.  If you're
-     using `csh' on an old version of System V, you might need to type
-     `sh ./configure' instead to prevent `csh' from trying to execute
-     `configure' itself.
+LinuxCNC supports several thread `flavors'.  The traditional RT kernel
+thread flavors, compiled as .ko kernel modules, are `rtai-kernel' and
+`xenomai-kernel'.
 
-     Running `configure' takes awhile.  While running, it prints some
-     messages telling which features it is checking for.
+The new RT userland thread flavors, compiled as .so dynamically
+loadable plugins, are `xenomai' and `rt-preempt'.
 
-  2. Type `make' to compile the package.
+The userland `posix' thread flavor is not real-time and should only be
+used in simulation settings, never to control real machines.
 
-  3. Type `scripts/linuxcnc` to test the software.
-  
+Each of the RT thread flavors requires special kernel support.
+Xenomai and RTAI kernel packages are available from the project, and
+RT_PREEMPT kernel packages are available from upstream vendors and
+third-party package repositories.  Please install one of these RT
+kernels (refer to the documentation of the project on how to do that).
 
 Optional Features
 =================
-   LinuxCNC can operate hardware only if a real time system has been
-installed. Either RTLinux or RTAI. If you don't have any installed,
-you cannot run LinuxCNC to control any machines. Please install one
-of the RT patches (refer to the documentation of the project on how to
-achieve that).
 
-    However, it is possible to test LinuxCNC without a realtime system. This is 
-possible using a simulator mode, which doesn't allow hardware control. To
-enable this mode there is a special option '--enable-simulator' you can use.
+If multiple RT flavors are available, LinuxCNC will attempt to detect
+and build for all of them.  A subset may be selected on the configure
+command line:
 
-If you have multiple RTAI or RTLinux source directories in /usr/src,
-the correct one can be declared as a command line argument:
+./configure --with-posix --with-rtai-kernel
 
-./configure --with-rtai=/usr/src/rtai-24.1.12
+For kernel thread flavors, if autoconf does not detect the desired
+kernel source, a location may be explicitly configured:
 
-If you want only to try LinuxCNC in a local directory (without installing it),
-there is an option to configure to run-in-place
-  --enable-run-in-place                  Enables running in the local dir 
-                                         (without installing)
+./configure --with-xenomai-kernel \
+    --with-xenomai-kernel-sources=/home/me/src/linux-3.5.7-xenomai
+
+By default, LinuxCNC will build to run out of a local directory.  For
+a system installation, specify the prefix for the install directory:
+
+./configure --prefix=/usr/local
 
 If you don't want to generate the documentation from source:
-  --disable-build-documentation          Do not build documentation automatically
+  --disable-build-documentation
 
-configure also accepts other arguments. Use --help to view the list.
+Run `./configure --help' for more details on these and other available
+options.
 
 
 Operation Controls
@@ -113,10 +115,6 @@ operates.
      Do not print messages saying which checks are being made.  To
      suppress all normal output, redirect it to `/dev/null' (any error
      messages will still be shown).
-
-`--srcdir=DIR'
-     Look for the package's source code in directory DIR.  Usually
-     `configure' can determine that directory automatically.
 
 `--version'
      Print the version of Autoconf used to generate the `configure'
