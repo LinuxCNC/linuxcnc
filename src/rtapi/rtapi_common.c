@@ -169,9 +169,6 @@ extern global_data_t *global_data;
 
 
 /* global init code */
-#ifdef HAVE_INIT_RTAPI_DATA_HOOK  // declare a prototype
-void init_rtapi_data_hook(rtapi_data_t * data);
-#endif
 
 void init_rtapi_data(rtapi_data_t * data)
 {
@@ -218,9 +215,6 @@ void init_rtapi_data(rtapi_data_t * data)
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
     }
-#ifdef HAVE_INIT_RTAPI_DATA_HOOK
-    init_rtapi_data_hook(data);
-#endif
 
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
