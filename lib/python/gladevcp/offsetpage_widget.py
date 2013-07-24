@@ -98,7 +98,7 @@ class OffsetPage(gtk.VBox):
         self.store = self.wTree.get_object("liststore2")
         self.all_window = self.wTree.get_object("all_window")
         self.view2 = self.wTree.get_object("treeview2")
-        
+        self.view2.connect( 'button_press_event', self.on_treeview2_button_press_event )
         self.selection = self.view2.get_selection()
         self.selection.set_mode(gtk.SELECTION_SINGLE)
         self.selection.connect("changed",self.on_selection_changed)
@@ -484,6 +484,12 @@ class OffsetPage(gtk.VBox):
         for row in range(0,13):
             temp.append( [self.store[row][0],self.store[row][14]] )
         return temp
+
+    # For single click selection when in edit mode
+    def on_treeview2_button_press_event(self,widget,event):
+        if event.button == 1 : # left click
+            path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
+            self.view2.set_cursor(path,None,True)
 
     # standard Gobject method
     def do_get_property(self, property):
