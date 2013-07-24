@@ -9,7 +9,7 @@ cp tool.tbl.orig tool.tbl
 
 rm -f gcode-output
 
-linuxcnc -d -v sim.ini &
+linuxcnc -r sim.ini &
 
 
 # let linuxcnc come up
@@ -17,10 +17,6 @@ TOGO=80
 while [  $TOGO -gt 0 ]; do
     echo trying to connect to linuxcncrsh TOGO=$TOGO
     if nc -z localhost 5007; then
-        # there's apparently a bug somewhere, which makes it so linuxcncrsh
-        # is not ready to talk to clients when it creates its listening
-        # socket
-        sleep 2
         break
     fi
     sleep 0.25
@@ -56,12 +52,6 @@ fi
 
     echo set estop off
     echo set machine on
-
-    echo set home 0
-    echo set home 1
-    echo set home 2
-    sleep 1
-
     echo set mode mdi
 
 

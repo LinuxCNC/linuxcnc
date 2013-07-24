@@ -20,7 +20,8 @@ pin in bit in;
 pin out bit out "Goes high when the desired edge is seen on 'in'";
 pin out bit out_invert "Goes low when the desired edge is seen on 'in'";
 
-param rw bit in_edge=TRUE "Selects the desired edge: TRUE means falling, FALSE means rising";
+param rw bit both=FALSE "If TRUE, selects both edges.  Otherwise, selects one edge according to in-edge";
+param rw bit in_edge=TRUE "If both is FALSE, selects the one desired edge: TRUE means falling, FALSE means rising";
 param rw signed out_width_ns=0 "Time in nanoseconds of the output pulse";
 
 param r signed time_left_ns "Time left in this output pulse";
@@ -32,8 +33,12 @@ license "GPL";
 
 FUNCTION(_){ 
     int new_in = in;
-    if(in_edge) new_in = ! new_in;
-    if(new_in && new_in != last_in) {
+    int rise = new_in && !last_in;
+    int fall = !new_in && last_in;
+    int desired_edge =
+	both ? rise || fall
+		: in_edge ? fall : rise;
+    if(desired_edge) {
         time_left_ns = out_width_ns;
         out = 1; out_invert = 0;
     } else if(time_left_ns > 0) {

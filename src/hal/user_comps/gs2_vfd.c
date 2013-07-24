@@ -425,7 +425,7 @@ int main(int argc, char **argv)
     }
 
     printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d, verbose=%d\n",
-           modname, device, baud, bits, parity, stopbits, slave, verbose);
+           modname, device, baud, parity, bits, stopbits, slave, verbose);
     /* point TERM and INT signals at our quit function */
     /* if a signal is received between here and the main loop, it should prevent
             some initialization from happening */

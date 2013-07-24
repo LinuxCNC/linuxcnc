@@ -354,7 +354,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
     // if level is not zero, in a call
     // otherwise in a defn
     // if we were skipping, no longer
-    if (settings->skipping_o) {
+    if (settings->skipping_o && (eblock->o_type == O_endsub)) {
 	logOword("case O_%s -- no longer skipping to:|%s|",
 		 (eblock->o_type == O_endsub) ? "endsub" : "return",
 		 settings->skipping_o);

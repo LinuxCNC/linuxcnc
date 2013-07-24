@@ -107,7 +107,7 @@ EOF
 ################################################################################
 # 1.1. strip and process command line options
 ################################################################################
-while getopts "dvVlhk" opt
+while getopts "dvVlhkr" opt
 do
 	case "$opt" in
 	d)
@@ -123,12 +123,18 @@ do
 		    PRINT_FILE=/dev/fd/1
 		    echo "Verbose mode on" >$PRINT_FILE
 		fi;;
+
 	V)
 		# enable printing of 'lots of junk' from halcmd
 		if tty -s; then
 		    echo "halcmd 'print lots of junk' mode on" >$PRINT_FILE
 		fi
 		DASHV=-V;;
+
+        r)
+                RUNTESTS=yes
+                ;;
+
 	l)
 		USE_LAST_INIFILE=1;;
         k)      DASHK=-k;;
@@ -141,6 +147,7 @@ do
 	esac
 done
 shift $(($OPTIND-1))
+
 
 if ! tty -s; then
     exec 2>> $DEBUG_FILE
@@ -230,7 +237,7 @@ export LINUXCNC_LANG_DIR
 export REALTIME
 export HALCMD
 
-echo "LINUXCNC - $LINUXCNCVERSION" 
+[ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
 
 # was an inifile specified on the command line?
 if [ ! -z "$USE_LAST_INIFILE" ]; then
@@ -255,7 +262,9 @@ INI_DIR="${INIFILE%/*}"
 CONFIG_DIR="${INIFILE%/*}"
 export CONFIG_DIR
 
-echo "Machine configuration directory is '$INI_DIR'"
+export PATH=$CONFIG_DIR/bin:$PATH
+
+[ -z $RUNTESTS ] && echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
 
 # make sure ini file exists (the tcl script just did this, so we could 
@@ -496,6 +505,9 @@ function Cleanup() {
     echo "Cleanup done"
 }
 
+# this needs urgent repair 
+# no more sysvipc shm, and shmdrv might be present
+# see realtime.in -mah
 function LinuxcncRunning() {
     # 135612177 is the integer ID of the GLOBAL data segment:
     # (GLOBAL_KEY 0x08154711). it is universally present for 

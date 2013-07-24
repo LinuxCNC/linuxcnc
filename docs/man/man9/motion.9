@@ -8,9 +8,12 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_cpu=\fIcpu number\fB] [servo_period_nsec=\fIperiod\fB]  [servo_cpu=\fIcpu number\fB]  [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-16]\fB])
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [base_cpu=\fIcpu number\fB] [servo_period_nsec=\fIperiod\fB]  [servo_cpu=\fIcpu number\fB]  [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[0-9]\fB] ([num_dio=\fI[1-64]\fB] [num_aio=\fI[1-16]\fB])
 
 .SH DESCRIPTION
+By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  \fBbase_thread_fp\fR can be used to enable floating point in the base thread (for example for brushless DC motor control).
+
+.P
 These pins and parameters are created by the realtime \fBmotmod\fR module. This module provides a HAL interface for LinuxCNC's motion planner. Basically \fBmotmod\fR takes in a list of waypoints and generates a nice blended and constraint-limited stream of joint positions to be fed to the motor drives. 
 
 .P
@@ -180,7 +183,7 @@ For correct operation of spindle synchronized moves, this signal must be hooked 
 
 .TP
 \fBmotion.spindle-speed-in\fR IN FLOAT 
-Actual spindle speed feedback in revolutions per second; used for G96 feed-per-revolution and constant surface speed modes.
+Actual spindle speed feedback in revolutions per second; used for G96 (constant surface speed) and G95 (feed per revolution) modes.
 
 .TP
 \fBmotion.spindle-speed-out\fR OUT FLOAT 

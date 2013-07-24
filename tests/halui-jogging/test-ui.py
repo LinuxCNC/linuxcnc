@@ -183,7 +183,7 @@ def select_joint(name):
 
 def jog_minus(name, target):
     start_position = h[name + '-position']
-    print "    jogging", name, "negative: from %.3f to %.3f" % (start_position, target)
+    print "    jogging", name, "negative: to %.3f" % (target)
 
     h['jog-selected-minus'] = 1
 
@@ -198,14 +198,14 @@ def jog_minus(name, target):
 
     h['jog-selected-minus'] = 0
 
-    print "    jogged %s negative to %.3f (target %.3f)" % (name, h[name + '-position'], target)
+    print "    jogged %s negative past target %.3f" % (name, target)
 
     return True
 
 
 def jog_plus(name, target):
     start_position = h[name + '-position']
-    print "    jogging %s positive: from %.3f to %.3f" % (name, start_position, target)
+    print "    jogging %s positive: to %.3f" % (name, target)
 
     h['jog-selected-plus'] = 1
 
@@ -220,7 +220,7 @@ def jog_plus(name, target):
 
     h['jog-selected-plus'] = 0
 
-    print "    jogged %s positive to %.3f (target %.3f)" % (name, h[name + '-position'], target)
+    print "    jogged %s positive past target %.3f)" % (name, target)
 
     return True
 
