@@ -76,6 +76,11 @@ else
 BUILD_KBUILD = yes
 endif
 
+# extract the version from the kernel source version.h
+ifneq ($(KERNELDIR),)
+KERNEL_VERS = $(shell $(BASEPWD)/../scripts/kernel-vers.sh $(KERNELDIR))
+endif
+
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
@@ -140,16 +145,6 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 endif
 endif # BUILD_ALL_FLAVORS
 
-
-ifneq ($(KERNELDIR),)
-KERNEL_VERS = $(shell $(BASEPWD)/../scripts/kernel-vers.sh $(KERNELDIR))
-endif
-
-ifeq ($(BUILD_SYS),user-dso)
-RTDIR_EXT=$(threads)
-else
-RTDIR_EXT=$(threads)/$(KERNEL_VERS)
-endif
 
 OBJDIR := objects/$(RTDIR_EXT)
 DEPDIR := depends/$(RTDIR_EXT)

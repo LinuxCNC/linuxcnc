@@ -4,13 +4,26 @@
 #
 
 
-# Set threads now
+# Threads systems
 #################
-# Set 'threads=<threads-style>' on the make commandline;
-# build the first detected style by default
+
+# List of thread flavors to build modules
 BUILD_THREAD_FLAVORS=@BUILD_THREAD_FLAVORS@
 
-threads = $(shell echo $(BUILD_THREAD_FLAVORS) | awk '{print $$1}')
+# If $(threads) is not set already, try running 'flavor'; if the
+# result is empty or not in $(BUILD_THREAD_FLAVORS), pick the first
+# item from $(BUILD_THREAD_FLAVORS).
+threads ?= $(shell echo $(BUILD_THREAD_FLAVORS) | \
+	awk -v f="`flavor 2>/dev/null`" '\
+	{ \
+	    found=$$1; \
+	    split($$0,flavs); \
+	    for (val in flavs) \
+		if (flavs[val] == f) found=f; \
+	    print found; \
+	}')
+
+# Uppercase version of flavor name for use in variables
 THREADS = $(shell echo $(threads) | tr a-z- A-Z_)
 
 HAVE_POSIX_THREADS=@HAVE_POSIX_THREADS@
@@ -26,6 +39,13 @@ RTAI_KERNEL_THREADS_FLAVOR_ID=@RTAI_KERNEL_THREADS_FLAVOR_ID@
 XENOMAI_KERNEL_THREADS_FLAVOR_ID=@XENOMAI_KERNEL_THREADS_FLAVOR_ID@
 THREAD_FLAVOR_ID=$($(THREADS)_THREADS_FLAVOR_ID)
 
+POSIX_THREADS_BUILD_SYS = user-dso
+RT_PREEMPT_THREADS_BUILD_SYS = user-dso
+XENOMAI_THREADS_BUILD_SYS = user-dso
+XENOMAI_KERNEL_THREADS_BUILD_SYS = kbuild
+RTAI_KERNEL_THREADS_BUILD_SYS = kbuild
+BUILD_SYS = $($(THREADS)_THREADS_BUILD_SYS)
+
 # Directories
 #############
 
@@ -35,6 +55,13 @@ exec_prefix=@exec_prefix@
 EMC2_HOME=@EMC2_HOME@
 LIB_DIR=@EMC2_HOME@/lib
 
+# flavor (and kver) subdirectories
+ifeq ($(BUILD_SYS),user-dso)
+RTDIR_EXT=$(threads)
+else
+RTDIR_EXT=$(threads)/$(KERNEL_VERS)
+endif
+
 #used for install stuff
 #but have them here as reference
 #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
@@ -42,7 +69,7 @@ EMC2_BIN_DIR=@EMC2_BIN_DIR@
 EMC2_LIBEXEC_DIR=@EMC2_LIBEXEC_DIR@
 EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
-EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@
+EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@/$(RTDIR_EXT)
 EMC2_USER_CONFIG_DIR=~/emc2/configs
 EMC2_SYSTEM_CONFIG_DIR=@EMC2_SYSTEM_CONFIG_DIR@
 EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@

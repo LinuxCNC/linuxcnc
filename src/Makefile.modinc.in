@@ -63,7 +63,7 @@ include @EMC2_HOME@/src/Makefile.inc
 
 ifeq ($(RUN_IN_PLACE),yes)
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
-RTLIBDIR := $(EMC2_HOME)/rtlib
+RTLIBDIR := $(EMC2_HOME)/rtlib/$(RTDIR_EXT)
 LIBDIR := $(EMC2_HOME)/lib
 else
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(includedir)/linuxcnc
