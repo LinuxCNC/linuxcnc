@@ -14,7 +14,7 @@ ifeq ($(BUILD_SYS),kbuild)
 obj-m += shmdrv.o
 shmdrv-objs := rtapi/shmdrv/shmdrv.o
 
-$(KMODDIR)/shmdrv$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(shmdrv-objs))
+$(RTLIBDIR)/shmdrv$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(shmdrv-objs))
 
 INCLUDES += rtapi/shmdrv
 endif # BUILD_SYS = kbuild

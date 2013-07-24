@@ -154,11 +154,6 @@ endif
 OBJDIR := objects/$(RTDIR_EXT)
 DEPDIR := depends/$(RTDIR_EXT)
 RTLIBDIR := ../rtlib/$(RTDIR_EXT)
-ifeq ($(BUILD_SYS),user-dso)
-KMODDIR := ../rtlib/userland/$(KERNEL_VIRS)
-else
-KMODDIR := $(RTLIBDIR)
-endif
 
 DEP = $(1) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
 
