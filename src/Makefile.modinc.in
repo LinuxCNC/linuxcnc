@@ -61,9 +61,6 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 # Use same settings as everybody else
 include @EMC2_HOME@/src/Makefile.inc
 
-RTFLAGS := $(RTOPT) -g -I. $(THREADS_RTFLAGS) \
-	-DRTAPI -D_GNU_SOURCE -D_FORTIFY_SOURCE=0 \
-	$(KERNEL_MATH_CFLAGS)
 ifeq ($(RUN_IN_PLACE),yes)
 EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
 RTLIBDIR := $(EMC2_HOME)/rtlib
