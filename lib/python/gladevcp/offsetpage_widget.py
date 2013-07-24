@@ -107,6 +107,8 @@ class OffsetPage(gtk.VBox):
         self.edit_button.connect( 'toggled', self.set_editing)
         zero_g92_button = self.wTree.get_object("zero_g92_button")
         zero_g92_button.connect( 'clicked', self.zero_g92)
+        zero_rot_button = self.wTree.get_object("zero_rot_button")
+        zero_rot_button.connect( 'clicked', self.zero_rot)
         self.set_font(self.font)
         self.modelfilter.set_visible_column(10)
         self.buttonbox = self.wTree.get_object("buttonbox")
@@ -285,7 +287,7 @@ class OffsetPage(gtk.VBox):
             color = None
         # Set rows editable
         for i in range(1,13):
-            if not self.store[i][0] in('G5x','G92','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3'): continue
+            if not self.store[i][0] in('G5x','Rot','G92','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3'): continue
             if self.store[i][0] in self.selection_mask: continue
             self.store[i][11] = state
             self.store[i][12] = color
@@ -308,6 +310,9 @@ class OffsetPage(gtk.VBox):
                 pnum = None
             return pnum
 
+        # Hack to not edit any rotational offset but Z axis
+        if row ==2 and not col == 3: return
+
         # set the text style based on unit type
         if self.display_units_mm:
             tmpl = lambda s: self.mm_text_template % s
@@ -323,9 +328,9 @@ class OffsetPage(gtk.VBox):
             self.store[row][col] = locale.format("%10.4f",locale.atof(new_text))
         except:
             print "offsetpage widget error: unrecognized float input"
-        # make sure we switch to correct units for machine
+        # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
-            if not self.display_units_mm == self.machine_units_mm:
+            if not self.display_units_mm == self.machine_units_mm and not row == 2:
                 qualified = float(locale.atof(new_text)) / self.conversion[0]
             else:
                 qualified = float(locale.atof(new_text))
@@ -340,6 +345,9 @@ class OffsetPage(gtk.VBox):
                     self.cmd.wait_complete()
                 if row == 1:
                     self.cmd.mdi( "G10 L2 P0 %s %10.4f"%(self.axisletters[axisnum],qualified ) )
+                elif row == 2:
+                    if col == 3:
+                        self.cmd.mdi( "G10 L2 P0 R %10.4f"%(qualified ) )
                 elif row == 3:
                     self.cmd.mdi( "G92 %s %10.4f"%(self.axisletters[axisnum],qualified ) )
                 else:
@@ -368,7 +376,23 @@ class OffsetPage(gtk.VBox):
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
                 self.cmd.wait_complete()
             except:
-                print "MDI error in offsetpage widget"
+                print "MDI error in offsetpage widget -zero G92"
+
+    # callback to zero rotational offset when button pressed
+    def zero_rot(self,widget):
+        #print "zero rotation offset"
+        if lncnc_running:
+            try:
+                if self.status.task_mode != self.linuxcnc.MODE_MDI:
+                    self.cmd.mode(self.linuxcnc.MODE_MDI)
+                    self.cmd.wait_complete()
+                self.cmd.mdi( "G10 L2 P0 R 0" )
+                self.cmd.mode(self.linuxcnc.MODE_MANUAL)
+                self.cmd.wait_complete()
+                self.cmd.mode(self.linuxcnc.MODE_MDI)
+                self.cmd.wait_complete()
+            except:
+                print "MDI error in offsetpage widget-zero rotational offset"
 
     # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
     # if in editing mode don't update else you can't actually edit

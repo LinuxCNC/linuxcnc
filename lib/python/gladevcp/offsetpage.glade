@@ -85,7 +85,7 @@
         <col id="11">False</col>
         <col id="12" translatable="yes">white</col>
         <col id="13" translatable="yes">black</col>
-        <col id="14" translatable="yes">Rot</col>
+        <col id="14" translatable="yes">Rotation of Z</col>
       </row>
       <row>
         <col id="0" translatable="yes">G92</col>
@@ -462,7 +462,18 @@ G92</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkButton" id="zero_rot_button">
+                <property name="label" translatable="yes">    Zero
+Rotational</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
             </child>
             <child>
               <placeholder/>
