@@ -14,7 +14,7 @@
 //             Refactored code to more closely match mesa-hostmot2      //
 // 2012-Dec-30 Charles Steinkuehler                                     //
 //             Initial version, based in part on:                       //
-//               hal_pru.c      Micheal Halberler                       //
+//               hal_pru.c      Micheal Haberler                       //
 //               supply.c       Matt Shaver                             //
 //               stepgen.c      John Kasunich                           //
 //               hostmot2 code  Sebastian Kuzminsky                     //
