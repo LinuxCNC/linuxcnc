@@ -44,7 +44,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.5"
+_RELEASE = "0.9.6"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -97,10 +97,25 @@ class HandlerClass:
         self.no_increments = 0    # number of increments from INI File, because of space we allow a max of 10
         self.unlock = False       # this value will be set using the hal pin unlock settings
         self.system_list = (0,'G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3') # needed to display the labels
+        self.axisnumber_four = "" # we use this to get the number of the 4-th axis
+        self.axisletter_four = None# we use this to get the letter of the 4-th axis
 
     def initialize_preferences(self):
         self.data.theme_name = self.gscreen.prefs.getpref('gtk_theme', 'Follow System Theme', str)
         self.gscreen.init_general_pref()
+        self._init_axis_four()
+
+    def _init_axis_four(self):
+        if len(self.data.axis_list) < 4:
+            return
+        axis_four = list(set(self.data.axis_list)-set(("x","y","z")))
+        if len(axis_four) > 1:
+            message = _("gmoccapy can only handle 4 axis,\nbut you have given %d through your INI file\n"%len(self.data.axis_list))
+            message += _("gmoccapy will not start\n\n")
+            print(message)
+            self.widgets.window1.destroy()
+        self.axisletter_four = axis_four[0]
+        self.axisnumber_four = "xyzabcuvw".index(self.axisletter_four)
 
     # We don't want Gscreen to initialize it's regular widgets because this custom
     # screen doesn't have most of them. So we add this function call.
@@ -127,6 +142,18 @@ class HandlerClass:
 
         # now we initialize the file to load widget
         self.init_file_to_load()
+
+        # and we want to set the default path
+        default_path = self.gscreen.inifile.find("DISPLAY", "PROGRAM_PREFIX")
+        if not os.path.exists(os.path.expanduser(default_path)):
+            print(_("Path %s from DISPLAY , PROGRAM_PREFIX does not exist")%default_path)
+            print(_("Trying default path..."))
+            default_path = "~/linuxcnc/nc_files/"
+            if not os.path.exists(os.path.expanduser(default_path)):
+                print(_("Default path to ~/linuxcnc/nc_files does not exist"))
+                print(_("setting now home as path"))
+                default_path = os.path.expanduser("~/")
+        self.widgets.hal_action_open.currentfolder = os.path.expanduser(default_path)
 
         # set the slider limmits
         self.widgets.adj_max_vel.configure(self.data._maxvelocity*60, self.data._maxvelocity * 0.1, 
@@ -179,11 +206,11 @@ class HandlerClass:
         self.widgets.rbt_forward.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.rbt_reverse.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.rbt_stop.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_P.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_X.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_Y.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_Y2.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_view_Z.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_p.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_x.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_y.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_y2.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.rbt_view_z.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_fullsize_preview.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -247,19 +274,19 @@ class HandlerClass:
                    ]
         self.h_tabs.append(tab_auto)
         
-        tab_ref = [(1,"btn_home_all"),(3,"btn_home_X"),
-                   (5,"btn_home_Z"),(7,"btn_unhome_all"),(8,"btn_set_selected"),(9,"btn_back_ref")
+        tab_ref = [(1,"btn_home_all"),(3,"btn_home_x"),
+                   (5,"btn_home_z"),(7,"btn_unhome_all"),(8,"btn_set_selected"),(9,"btn_back_ref")
                   ]
         if not self.data.lathe_mode:
-            tab_ref.append((4,"btn_home_Y"))
+            tab_ref.append((4,"btn_home_y"))
         self.h_tabs.append(tab_ref)
         
-        tab_touch = [(0,"tbtn_edit_offsets"),(1,"btn_zero_X"),(3,"btn_zero_Z"),(4,"btn_zero_g92"),
-                     (5,"btn_set_value_X"),(7,"btn_set_value_Z"),(8,"btn_set_selected"),(9,"btn_back_zero")
+        tab_touch = [(0,"tbtn_edit_offsets"),(1,"btn_zero_x"),(3,"btn_zero_z"),(4,"btn_zero_g92"),
+                     (5,"btn_set_value_x"),(7,"btn_set_value_z"),(8,"btn_set_selected"),(9,"btn_back_zero")
                     ]
         if not self.data.lathe_mode:
-            tab_touch.append((2,"btn_zero_Y"))
-            tab_touch.append((6,"btn_set_value_Y"))
+            tab_touch.append((2,"btn_zero_y"))
+            tab_touch.append((6,"btn_set_value_y"))
         self.h_tabs.append(tab_touch)
         
         tab_setup = [(0,"btn_delete"),(4,"btn_classicladder"),(5,"btn_hal_scope"),(6,"btn_status"),
@@ -274,10 +301,10 @@ class HandlerClass:
         
         tab_tool = [(0,"btn_delete_tool"),(1,"btn_add_tool"),(2,"btn_reload_tooltable"),
                     (3,"btn_apply_tool_changes"),(4,"btn_select_tool_by_no"),(5,"btn_index_tool"),
-                    (6,"btn_change_tool"),(8,"btn_tool_touchoff_Z"),(9,"btn_back_tool")
+                    (6,"btn_change_tool"),(8,"btn_tool_touchoff_z"),(9,"btn_back_tool")
                    ]
         if self.data.lathe_mode:
-            tab_tool.append((7,"btn_tool_touchoff_X"))
+            tab_tool.append((7,"btn_tool_touchoff_x"))
         self.h_tabs.append(tab_tool)
         
         self.v_tabs = [(0,"tbtn_estop"),(1,"tbtn_on"),(2,"rbt_manual"),(3,"rbt_mdi"),
@@ -370,7 +397,7 @@ class HandlerClass:
         self.tooledit_btn_apply_tool = self.widgets.tooledit1.wTree.get_object("apply")
         self.widgets.tooledit1.hide_buttonbox(True)
         for axis in self.data.axis_list:
-            self._update_homed(axis.upper())
+            self._update_homed(axis)
         self.widgets.ntb_user_tabs.remove_page(0)
         self.add_macro_button()
         self.units = self.gscreen.inifile.find("TRAJ", "LINEAR_UNITS")
@@ -389,7 +416,7 @@ class HandlerClass:
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool","btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle", "rbt_manual", 
-                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
 
@@ -401,49 +428,49 @@ class HandlerClass:
             print("backtool = ",self.backtool_lathe)
 
             # we first hide the Y button to home and touch off 
-            self.widgets.btn_home_Y.hide()
-            self.widgets.btn_zero_Y.hide()
-            self.widgets.btn_set_value_Y.hide()
-            self.widgets.lbl_replace_Y.show()
-            self.widgets.lbl_replace_zero_Y.show()
-            self.widgets.lbl_replace_set_value_Y.show()
-            self.widgets.btn_tool_touchoff_X.show()
-            self.widgets.lbl_hide_tto_X.hide()
+            self.widgets.btn_home_y.hide()
+            self.widgets.btn_zero_y.hide()
+            self.widgets.btn_set_value_y.hide()
+            self.widgets.lbl_replace_y.show()
+            self.widgets.lbl_replace_zero_y.show()
+            self.widgets.lbl_replace_set_value_y.show()
+            self.widgets.btn_tool_touchoff_x.show()
+            self.widgets.lbl_hide_tto_x.hide()
 
             # we have to re-arrange the jog buttons, so first remove all button
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_Y_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_Y_plus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_X_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_X_plus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_Z_minus)
-            self.widgets.tbl_jog_btn.remove(self.widgets.btn_Z_plus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_y_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_y_plus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_x_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_x_plus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
     
             # now we place them in a different order
             if self.backtool_lathe:
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_plus,1,2,0,1)
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_minus,1,2,2,3)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_x_plus,1,2,0,1,gtk.SHRINK, gtk.SHRINK)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_x_minus,1,2,2,3,gtk.SHRINK, gtk.SHRINK)
             else:
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_plus,1,2,2,3)
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_X_minus,1,2,0,1)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_Z_plus,2,3,1,2)
-            self.widgets.tbl_jog_btn.attach(self.widgets.btn_Z_minus,0,1,1,2)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_x_plus,1,2,2,3,gtk.SHRINK, gtk.SHRINK)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_x_minus,1,2,0,1,gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus,2,3,1,2,gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus,0,1,1,2,gtk.SHRINK, gtk.SHRINK)
             
             # and the Y DRO we make to a second X DRO then indicate the diameter
-            self.widgets.hal_dro_Y.set_property('joint_number',0)
-            self.widgets.hal_dro_Y.set_property('diameter',True)
+            self.widgets.hal_dro_y.set_property('joint_number',0)
+            self.widgets.hal_dro_y.set_property('diameter',True)
     
             # we change the label text of the DRO
-            self.widgets.lbl_Y.set_label("D")
-            self.widgets.lbl_X.set_label("R")
+            self.widgets.lbl_y.set_label("D")
+            self.widgets.lbl_x.set_label("R")
     
             # For gremlin we don't need the following button
             if self.backtool_lathe:
-                self.widgets.rbt_view_Y2.set_active(True)
+                self.widgets.rbt_view_y2.set_active(True)
             else:
-                self.widgets.rbt_view_Y.set_active(True)
-            self.widgets.rbt_view_P.hide()
-            self.widgets.rbt_view_X.hide()
-            self.widgets.rbt_view_Z.hide()
+                self.widgets.rbt_view_y.set_active(True)
+            self.widgets.rbt_view_p.hide()
+            self.widgets.rbt_view_x.hide()
+            self.widgets.rbt_view_z.hide()
             
             # check if G7 or G8 is active
             # this is set on purpose wrong, because we want the periodic 
@@ -455,12 +482,53 @@ class HandlerClass:
 
         else:
             # the Y2 view is not needed on a mill
-            self.widgets.rbt_view_Y2.hide()
+            self.widgets.rbt_view_y2.hide()
             # X Offset is not necesary on a mill
-            self.widgets.lbl_tool_offset_X.hide()
-            self.widgets.lbl_offset_X.hide()
-            self.widgets.btn_tool_touchoff_X.hide()
-            self.widgets.lbl_hide_tto_X.show()
+            self.widgets.lbl_tool_offset_x.hide()
+            self.widgets.lbl_offset_x.hide()
+            self.widgets.btn_tool_touchoff_x.hide()
+            self.widgets.lbl_hide_tto_x.show()
+            # is there a 4_th axis? 
+            # We need to show the corresponding widgets
+            # and change some sizes
+            if len(self.data.axis_list) > 3:
+                #let us find out wich axis is the 4-th one
+                # and set things accordingly
+                
+                self.widgets.btn_4_plus.set_label("%s+"%self.axisletter_four.upper())
+                self.widgets.btn_4_minus.set_label("%s-"%self.axisletter_four.upper())
+                self.widgets.lbl_4.set_label(self.axisletter_four.upper())
+                self.widgets.hal_dro_4.set_property('joint_number',self.axisnumber_four)
+                
+                # is axis 4 a rotary axis ? If so, the DRO should not change 
+                # in case of metric or imperial changes, that's why we set the
+                # text template for both units to be the same
+                if self.axisletter_four in "abc":
+                    self.widgets.hal_dro_4.set_property('mm_text_template',"%11.2f")
+                    self.widgets.hal_dro_4.set_property('imperial_text_template',"%11.2f")
+                
+                self.widgets.eventbox_dro_4.show()
+                self.widgets.eventbox_4.show()
+                self.widgets.btn_4_plus.show()
+                self.widgets.btn_4_minus.show()
+                self.widgets.lbl_x.set_size_request(-1,-1)
+                self.widgets.lbl_y.set_size_request(-1,-1)
+                self.widgets.lbl_z.set_size_request(-1,-1)
+                self.widgets.lbl_4.set_size_request(-1,-1)
+                self.widgets.lbl_replace_4.hide()
+                self.widgets.btn_home_4.show()
+
+                # we have to re-arrange the jog buttons, so first remove all button
+                self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
+                self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
+                self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
+                self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
+
+                # now we place them in a different order
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus,2,3,0,1,gtk.SHRINK, gtk.SHRINK)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus,2,3,2,3,gtk.SHRINK, gtk.SHRINK)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus,3,4,0,1,gtk.SHRINK, gtk.SHRINK)
+                self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus,3,4,2,3,gtk.SHRINK, gtk.SHRINK)
 
     # shows 'Onboard' virtual keyboard if available
     # else error message
@@ -552,6 +620,7 @@ class HandlerClass:
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
     def on_key_event(self, widget, event, signal):
+
         #get the keyname
         keyname = gtk.gdk.keyval_name(event.keyval)
 
@@ -571,7 +640,6 @@ class HandlerClass:
             print("Settings say: do not use keyboard shortcuts, aboart")
             return
 
-
         # Only in manual mode jogging with keyboard is allowed
         # in this case we do not return true, otherwise entering code in MDI history 
         # and the integrated editor will not work
@@ -582,6 +650,9 @@ class HandlerClass:
         try:
             if keyname =="F2" and signal:
                 self.widgets.tbtn_on.emit("clicked")
+                return True
+            if keyname == "Escape":
+                self.gscreen.emc.abort()
                 return True
         except:
             pass
@@ -606,11 +677,11 @@ class HandlerClass:
         if keyname == "Up":
             if self.data.lathe_mode:
                 if self.backtool_lathe:
-                    widget = self.widgets.btn_X_plus
+                    widget = self.widgets.btn_x_plus
                 else:
-                    widget = self.widgets.btn_X_minus
+                    widget = self.widgets.btn_x_minus
             else:
-                widget = self.widgets.btn_Y_plus
+                widget = self.widgets.btn_y_plus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
@@ -618,41 +689,41 @@ class HandlerClass:
         elif keyname == "Down":
             if self.data.lathe_mode:
                 if self.backtool_lathe:
-                    widget = self.widgets.btn_X_minus
+                    widget = self.widgets.btn_x_minus
                 else:
-                    widget = self.widgets.btn_X_plus
+                    widget = self.widgets.btn_x_plus
             else:
-                widget = self.widgets.btn_Y_minus
+                widget = self.widgets.btn_y_minus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Left":
             if self.data.lathe_mode:
-                widget = self.widgets.btn_Z_minus
+                widget = self.widgets.btn_z_minus
             else:
-                widget = self.widgets.btn_X_minus
+                widget = self.widgets.btn_x_minus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Right":
             if self.data.lathe_mode:
-                widget = self.widgets.btn_Z_plus
+                widget = self.widgets.btn_z_plus
             else:
-                widget = self.widgets.btn_X_plus
+                widget = self.widgets.btn_x_plus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Up":
-            widget = self.widgets.btn_Z_plus
+            widget = self.widgets.btn_z_plus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Down":
-            widget = self.widgets.btn_Z_minus
+            widget = self.widgets.btn_z_minus
             if signal:
                 self.on_btn_jog_pressed(widget)
             else:
@@ -846,7 +917,7 @@ class HandlerClass:
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool","btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle", 
-                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,state)
 
@@ -966,7 +1037,10 @@ class HandlerClass:
         color = bgcolor
         bg_color = pango.AttrBackground(color[0],color[1],color[2], 0, -1)
         attr.insert(bg_color)
-        size = pango.AttrSize(30000, 0, -1)
+        if len(self.data.axis_list) > 3:
+            size = pango.AttrSize(22500, 0, -1)
+        else:
+            size = pango.AttrSize(30000, 0, -1)
         attr.insert(size)
         weight = pango.AttrWeight(600, 0, -1)
         attr.insert(weight)
@@ -977,49 +1051,51 @@ class HandlerClass:
 
     def _update_homed(self, axis):
         if self.widgets.tbtn_rel.get_active():    # abs dro requested
-            bg_color = self.data.abs_textcolor # not RGB
-            bgcolor = self.data.abs_color      # is RGB
+            bg_color = self.data.abs_textcolor    # not RGB
+            bgcolor = self.data.abs_color         # is RGB
         else:                                     # rel dro requested
             bg_color = self.data.rel_textcolor
             bgcolor = self.data.rel_color
         if self.widgets.tbtn_dtg.get_active():    # dtg dro requested
             bg_color = self.data.dtg_textcolor
             bgcolor = self.data.dtg_color
-        if self.data["%s_is_homed"%axis.lower()]:
+        if self.data["%s_is_homed"%axis]:
             fg_color = "#00FF00"
             fgcolor = (0,65535,0)
         else:
             fg_color = "#FF0000"
             fgcolor = (65000,0,0)
-        self._dro_label_color_change("hal_dro_%s"%axis.upper(),bgcolor,fgcolor)
-        self._dro_label_color_change("lbl_%s"%axis.upper(),bgcolor,fgcolor)
+        self.gscreen.add_alarm_entry("%s_homed"%axis + " = " +  str(self.data["%s_is_homed"%axis]))
+        if axis == self.axisletter_four:
+            axis = "4"
+        self._dro_label_color_change("hal_dro_%s"%axis,bgcolor,fgcolor)
+        self._dro_label_color_change("lbl_%s"%axis,bgcolor,fgcolor)
 
-        widgetname = "eventbox_" + axis.upper()
+        widgetname = "eventbox_" + axis
         self.widgets[widgetname].modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg_color))
-        widgetname ="eventbox_dro_" + axis.upper()
+        widgetname ="eventbox_dro_" + axis
         self.widgets[widgetname].modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg_color))
 
-        self.gscreen.add_alarm_entry("%s_homed"%axis + " = " +  str(self.data["%s_is_homed"%axis.lower()]))
 
         if self.data.lathe_mode:
             if "G8" in self.data.active_gcodes:
-                self.widgets.eventbox_Y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
-                self.widgets.eventbox_dro_Y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
-                self.widgets.eventbox_X.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
-                self.widgets.eventbox_dro_X.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
+                self.widgets.eventbox_y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.eventbox_dro_y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.eventbox_x.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
+                self.widgets.eventbox_dro_x.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
                 fgcolor = self.gscreen.convert_to_rgb(gtk.gdk.color_parse(fg_color))
                 bgcolor = self.gscreen.convert_to_rgb(gtk.gdk.color_parse("#F2F1F0"))
-                self._dro_label_color_change("lbl_Y", bgcolor, fgcolor)
-                self._dro_label_color_change("hal_dro_Y", bgcolor, fgcolor)
+                self._dro_label_color_change("lbl_y", bgcolor, fgcolor)
+                self._dro_label_color_change("hal_dro_y", bgcolor, fgcolor)
             else:
-                self.widgets.eventbox_X.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
-                self.widgets.eventbox_dro_X.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
-                self.widgets.eventbox_Y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
-                self.widgets.eventbox_dro_Y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
+                self.widgets.eventbox_x.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.eventbox_dro_x.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.eventbox_y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
+                self.widgets.eventbox_dro_y.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#000000"))
                 fgcolor = self.gscreen.convert_to_rgb(gtk.gdk.color_parse(fg_color))
                 bgcolor = self.gscreen.convert_to_rgb(gtk.gdk.color_parse("#F2F1F0"))
-                self._dro_label_color_change("lbl_X", bgcolor, fgcolor)
-                self._dro_label_color_change("hal_dro_X", bgcolor, fgcolor)
+                self._dro_label_color_change("lbl_x", bgcolor, fgcolor)
+                self._dro_label_color_change("hal_dro_x", bgcolor, fgcolor)
 
     def on_btn_home_all_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("button ref all clicked")
@@ -1034,20 +1110,28 @@ class HandlerClass:
             self._update_homed(axis)
         if self.data.lathe_mode:
             self.data.y_is_homed = False
-            self._update_homed("Y")
+            self._update_homed("y")
+
+
+
 
 #ToDo: What happen when there are more axis,
     #  will have to mak ethis dynamecely
     def on_btn_home_selected_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("button home selected clicked")
-        if widget == self.widgets.btn_home_X:
+        if widget == self.widgets.btn_home_x:
             axis = 0
-        elif widget == self.widgets.btn_home_Y:
+        elif widget == self.widgets.btn_home_y:
             axis = 1
-        elif widget == self.widgets.btn_home_Z:
+        elif widget == self.widgets.btn_home_z:
             axis = 2
+        elif widget == self.widgets.btn_home_4:
+            axis = "xyzabcuvw".index(self.axisletter_four)
         self.emc.home_selected(axis)
 # ToDo: End
+
+
+
 
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("chk_ignore_limits_toggled %s"%widget.get_active())
@@ -1291,61 +1375,44 @@ class HandlerClass:
             self.widgets.adj_jog_vel.set_value(widget.get_value())
         self.emc.max_velocity(widget.get_value() / 60)
 
-#ToDo: Make this able to reakt to more axis
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
         if not self.gscreen.emcstat.task_mode == _MANUAL:
             return
-        if widget == self.widgets.btn_X_plus:
-            axis = 0
+
+        axisletter = widget.get_label()[0]
+        if not axisletter.lower() in "xyzabcuvw":
+            print ("unknown axis %s"%axisletter)
+            return
+
+        dir = widget.get_label()[1]
+        if dir == "+":
             direction = 1
-        elif widget == self.widgets.btn_X_minus:
-            axis = 0
-            direction = -1
-        elif widget == self.widgets.btn_Y_plus:
-            axis = 1
-            direction = 1
-        elif widget == self.widgets.btn_Y_minus:
-            axis = 1
-            direction = -1
-        elif widget == self.widgets.btn_Z_plus:
-            axis = 2
-            direction = 1
-        elif widget == self.widgets.btn_Z_minus:
-            axis = 2
-            direction = -1
         else:
-            print(_("unknown axis clicked"))
+            direction = -1
+
+        axis = "xyzabcuvw".index(axisletter.lower())
+
         self.gscreen.add_alarm_entry("btn_jog_%i_%i"%(axis,direction))
 
         if self.distance <> 0:  # incremental jogging
             # DOKU : emc.incremental_jog(<axis number>,<direction>,<distance to jog>)
             self.gscreen.emc.incremental_jog(axis, direction, self.distance)
-#            self.gscreen.emc.emccommand.wait_complete()
         else:                   # continuous jogging
             self.gscreen.emc.continuous_jog(axis,direction)
 
     def on_btn_jog_released(self, widget, data = None):
-        if widget == self.widgets.btn_X_plus:
-            axis = 0
-        elif widget == self.widgets.btn_X_minus:
-            axis = 0
-        elif widget == self.widgets.btn_Y_plus:
-            axis = 1
-        elif widget == self.widgets.btn_Y_minus:
-            axis = 1
-        elif widget == self.widgets.btn_Z_plus:
-            axis = 2
-        elif widget == self.widgets.btn_Z_minus:
-            axis = 2
-        else:
-            print(_("unknow axis clicked"))
+        axisletter = widget.get_label()[0]
+        if not axisletter.lower() in "xyzabcuvw":
+            print ("unknown axis %s"%axisletter)
+            return
+
+        axis = "xyzabcuvw".index(axisletter.lower())
 
         if self.distance <>0:
             pass
         else:
             self.gscreen.emc.continuous_jog(axis,0)
-#ToDo: End
 
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
@@ -1433,8 +1500,8 @@ class HandlerClass:
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
         state = widget.get_active()
         self.widgets.offsetpage1.edit_button.set_active(state)
-        widgetlist = ["btn_zero_X","btn_zero_Y","btn_zero_Z","btn_set_value_X","btn_set_value_Y",
-                      "btn_set_value_Z","btn_set_selected","ntb_jog"
+        widgetlist = ["btn_zero_x","btn_zero_y","btn_zero_z","btn_set_value_x","btn_set_value_y",
+                      "btn_set_value_z","btn_set_selected","ntb_jog","btn_zero_g92"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,not state)
         
@@ -1471,21 +1538,21 @@ class HandlerClass:
             self.widgets.ntb_info.set_current_page(0)
 
 #ToDo: what to do when there are more axis?
-    def on_btn_zero_X_clicked(self, widget, data=None):
+    def on_btn_zero_x_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_X_clicked")
         self.gscreen.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("X",0)
         self.widgets.btn_reload.emit("clicked")
         self.gscreen.emc.set_manual_mode()
 
-    def on_btn_zero_Y_clicked(self, widget, data=None):
+    def on_btn_zero_y_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Y_clicked")
         self.gscreen.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("Y",0)
         self.widgets.btn_reload.emit("clicked")
         self.gscreen.emc.set_manual_mode()
 
-    def on_btn_zero_Z_clicked(self, widget, data=None):
+    def on_btn_zero_z_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Z_clicked")
         self.gscreen.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("Z",0)
@@ -1493,18 +1560,18 @@ class HandlerClass:
         self.gscreen.emc.set_manual_mode()
 
     def on_btn_set_value_clicked(self, widget, data=None):
-        if widget == self.widgets.btn_set_value_X:
-            axis = "X"
-        elif widget == self.widgets.btn_set_value_Y:
-            axis = "Y"
-        elif widget == self.widgets.btn_set_value_Z:
-            axis = "Z"
+        if widget == self.widgets.btn_set_value_x:
+            axis = "x"
+        elif widget == self.widgets.btn_set_value_y:
+            axis = "y"
+        elif widget == self.widgets.btn_set_value_z:
+            axis = "z"
         else:
             axis = "Unknown"
             self.gscreen.add_alarm_entry(_("Offset %s could not be set, because off unknown axis")%axis)
             return
         self.gscreen.add_alarm_entry("btn_set_value_%s_clicked"%axis)
-        preset = self.gscreen.prefs.getpref("offset_axis_%s"%axis.lower(), 0, float)
+        preset = self.gscreen.prefs.getpref("offset_axis_%s"%axis, 0, float)
         offset = self.entry_dialog(data = preset, header = _("Enter value for axis %s")%axis, 
                                    label=_("Set axis %s to:")%axis, integer = False )
         if offset == "CANCEL" or offset == "ERROR":
@@ -1515,7 +1582,7 @@ class HandlerClass:
             self.gscreen.mdi_control.set_axis(axis,offset)
             self.widgets.btn_reload.emit("clicked")
             self.gscreen.emc.set_manual_mode()
-            self.gscreen.prefs.putpref("offset_axis_%s"%axis.lower(), offset, float)
+            self.gscreen.prefs.putpref("offset_axis_%s"%axis, offset, float)
         else:
             print(_("Conversion error in btn_set_value"))
             self.gscreen.add_alarm_entry(_("Offset conversion error because off wrong entry"))
@@ -1606,18 +1673,18 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("tbtn_units_toggled to %s"%widget.get_active())
         if widget.get_active():
             widget.set_label("Inch")
-            self.set_property_dro("display_units_mm", False)
-            self.widgets.gremlin.set_property('metric_units',False)
             self.data.dro_units = _IMPERIAL     # 0 = _IMPERIAL ; 1 = _MM
         else:
             widget.set_label("mm")
-            self.set_property_dro("display_units_mm", True)
-            self.widgets.gremlin.set_property('metric_units',True)
             self.data.dro_units = _MM     # 0 = _IMPERIAL ; 1 = _MM
+        self.set_property_dro("display_units_mm", not widget.get_active())
+        self.widgets.gremlin.set_property('metric_units', not widget.get_active())
 
     def set_property_dro(self, property, status):
         for axis in self.data.axis_list:
-            self.widgets["hal_dro_%s"%axis.upper()].set_property(property,status)
+            if axis not in "xyz":
+                axis = "4"
+            self.widgets["hal_dro_%s"%axis].set_property(property,status)
 
     # choose a theme to aply
     def on_theme_choice_changed(self, widget):
@@ -1641,17 +1708,6 @@ class HandlerClass:
             else: #widget == self.widgets.rbtn_run_from_line:
                 self.gscreen.prefs.putpref('run_from_line', 'run', str)
                 self.widgets.btn_from_line.set_sensitive(True)
-
-    def on_rbtn_qwertz_toggled(self, widget, data = None):
-        if widget.get_active():
-            if widget == self.widgets.rbtn_qwertz:
-                self.gscreen.prefs.putpref('keyboardtype', 'qwertz', str)
-                self.widgets.btn_Z.set_label('Z')
-                self.widgets.btn_Y.set_label('Y')
-            else: #widget == self.widgets.rbtn_qwerty:
-                self.gscreen.prefs.putpref('keyboardtype', 'qwerty', str)
-                self.widgets.btn_Z.set_label('Y')
-                self.widgets.btn_Y.set_label('Z')
 
     def on_chk_use_kb_on_offset_toggled(self, widget, data = None):
         self.gscreen.prefs.putpref('show_keyboard_on_offset', widget.get_active(), bool)
@@ -1752,19 +1808,19 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("on_rel_colorbutton_color_set")
         self.gscreen.set_rel_color()
         for axis in self.data.axis_list:
-            self._update_homed(axis.upper())
+            self._update_homed(axis)
 
     def on_abs_colorbutton_color_set(self, widget):
         if self.log: self.gscreen.add_alarm_entry("on_abs_colorbutton_color_set")
         self.gscreen.set_abs_color()
         for axis in self.data.axis_list:
-            self._update_homed(axis.upper())
+            self._update_homed(axis)
 
     def on_dtg_colorbutton_color_set(self, widget):
         if self.log: self.gscreen.add_alarm_entry("on_dtg_colorbutton_color_set")
         self.gscreen.set_dtg_color()
         for axis in self.data.axis_list:
-            self._update_homed(axis.upper())
+            self._update_homed(axis)
 
     def on_file_to_load_chooser_file_set(self, widget):
         if self.log: self.gscreen.add_alarm_entry("file to load on startup set to : %s"%widget.get_filename())
@@ -1841,14 +1897,14 @@ class HandlerClass:
             # toolinfo[15] = tool orientation
             # toolinfo[16] = tool info
             self.widgets.lbl_tool_no.set_text(str(toolinfo[1]))
-            self.widgets.lbl_tool_offset_Z.set_text(toolinfo[5])
-            self.widgets.lbl_tool_offset_X.set_text(toolinfo[3])
+            self.widgets.lbl_tool_offset_z.set_text(toolinfo[5])
+            self.widgets.lbl_tool_offset_x.set_text(toolinfo[3])
             self.widgets.lbl_tool_dia.set_text(toolinfo[12])
             self.widgets.lbl_tool_name.set_text(toolinfo[16])
         if tool == 0:
             self.widgets.lbl_tool_no.set_text("0")
-            self.widgets.lbl_tool_offset_X.set_text("0")
-            self.widgets.lbl_tool_offset_Z.set_text("0")
+            self.widgets.lbl_tool_offset_x.set_text("0")
+            self.widgets.lbl_tool_offset_z.set_text("0")
             self.widgets.lbl_tool_dia.set_text("0")
             self.widgets.lbl_tool_name.set_text(_("No tool description available"))
 
@@ -1878,10 +1934,10 @@ class HandlerClass:
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
             return
-        if widget == self.widgets.btn_tool_touchoff_X:
-            axis = "X"
-        elif widget == self.widgets.btn_tool_touchoff_Z:
-            axis = "Z"
+        if widget == self.widgets.btn_tool_touchoff_x:
+            axis = "x"
+        elif widget == self.widgets.btn_tool_touchoff_z:
+            axis = "z"
         else:
             self.gscreen.warning_dialog(_("Real big error!"), True, 
                                         _("You managed to come to a place that is not possible in on_btn_tool_touchoff"))
@@ -1909,7 +1965,7 @@ class HandlerClass:
             return
         else:
             self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}".format(axis,value)))
-        self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis.lower(),value)
+        self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
         self._update_toolinfo(self.data.tool_in_spindle)
         # will set the label, but the tool do not need to be in the spindle,
         # so information may be no homogeniuos
@@ -1973,29 +2029,29 @@ class HandlerClass:
             self.widgets.statusbar1.push(1,message)
 
     # gremlin relevant calls
-    def on_rbt_view_P_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_view_P_toggled")
-        if self.widgets.rbt_view_P.get_active():
+    def on_rbt_view_p_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("rbt_view_p_toggled")
+        if self.widgets.rbt_view_p.get_active():
             self.widgets.gremlin.set_property('view','p')
 
-    def on_rbt_view_X_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_view_X_toggled")
-        if self.widgets.rbt_view_X.get_active():
+    def on_rbt_view_x_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("rbt_view_x_toggled")
+        if self.widgets.rbt_view_x.get_active():
             self.widgets.gremlin.set_property('view','x')
 
-    def on_rbt_view_Y_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_view_Y_toggled")
-        if self.widgets.rbt_view_Y.get_active():
+    def on_rbt_view_y_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("rbt_view_y_toggled")
+        if self.widgets.rbt_view_y.get_active():
             self.widgets.gremlin.set_property('view','y')
 
-    def on_rbt_view_Z_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_view_Z_toggled")
-        if self.widgets.rbt_view_Z.get_active():
+    def on_rbt_view_z_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("rbt_view_z_toggled")
+        if self.widgets.rbt_view_z.get_active():
             self.widgets.gremlin.set_property('view','z')
 
-    def on_rbt_view_Y2_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_view_Y2_toggled")
-        if self.widgets.rbt_view_Y2.get_active():
+    def on_rbt_view_y2_toggled(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("rbt_view_y2_toggled")
+        if self.widgets.rbt_view_y2.get_active():
             self.widgets.gremlin.set_property('view','y2')
 
     def on_btn_zoom_in_clicked(self, widget, data=None):
@@ -2023,7 +2079,7 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("btn_edit_clicked")
         self.widgets.ntb_button.set_current_page(6)
         self.widgets.ntb_preview.hide()
-        self.widgets.tbl_dro.hide()
+        self.widgets.hbx_dro.hide()
         w1 , h1 = self.widgets.window1.get_size_request()
         w2 , h2 = self.widgets.vbtb_main.get_size_request()
         self.widgets.vbx_jog.set_size_request(w1 - w2 , -1)
@@ -2057,7 +2113,7 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry(message)
         if self.widgets.ntb_button.get_current_page() == 6:
             self.widgets.ntb_preview.show()
-            self.widgets.tbl_dro.show()
+            self.widgets.hbx_dro.show()
             self.widgets.vbx_jog.set_size_request(360 , -1)
             self.widgets.gcode_view.set_sensitive(0)
             self.widgets.btn_save.set_sensitive(True)
@@ -2108,14 +2164,14 @@ class HandlerClass:
         self.widgets.statusbar1.push(1,"")
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool","btn_select_tool_by_no", 
-                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,True)
         
     def on_hal_status_not_all_homed(self,*args):
         self.gscreen.add_alarm_entry("not_all_homed")
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_touch", "btn_change_tool","btn_select_tool_by_no", 
-                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
         
@@ -2125,9 +2181,9 @@ class HandlerClass:
             if str(count) in data:
                 if letter == "x" and self.data.lathe_mode:
                     self.data.y_is_homed = True
-                    self._update_homed("Y")
+                    self._update_homed("y")
                 self.data["%s_is_homed"%letter] = True
-                self._update_homed(letter.upper())
+                self._update_homed(letter)
         if self.log:self.gscreen.add_alarm_entry(_("Axes %s are homed"%letter))
 
     def on_hal_status_file_loaded(self, widget, filename):
@@ -2151,8 +2207,8 @@ class HandlerClass:
             widgetlist.append("btn_index_tool")
             widgetlist.append("btn_change_tool")
             widgetlist.append("btn_select_tool_by_no")
-            widgetlist.append("btn_tool_touchoff_X")
-            widgetlist.append("btn_tool_touchoff_Z")
+            widgetlist.append("btn_tool_touchoff_x")
+            widgetlist.append("btn_tool_touchoff_z")
             widgetlist.append("btn_touch")
         self.gscreen.sensitize_widgets(widgetlist,True)
         for btn in self.macrobuttons:
@@ -2180,7 +2236,7 @@ class HandlerClass:
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "rbt_setup", "btn_step","btn_index_tool",
                       "ntb_jog", "btn_from_line", "btn_reload", "rbt_forward", "btn_change_tool","btn_select_tool_by_no",
                       "rbt_reverse", "rbt_stop", "btn_load", "btn_edit", "tbtn_optional_blocks", 
-                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z", "btn_touch"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
         self.widgets.btn_run.set_sensitive(False)
@@ -2214,7 +2270,7 @@ class HandlerClass:
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool","btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle", 
-                      "btn_tool_touchoff_X", "btn_tool_touchoff_Z"
+                      "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
         self.widgets.rbt_manual.set_active(True)
@@ -2263,24 +2319,17 @@ class HandlerClass:
         self.gscreen.update_active_gcodes()
         self.gscreen.update_active_mcodes()
         if "G8" in self.data.active_gcodes and self.data.lathe_mode and self.data.diameter_mode:
-            self._update_homed("X")
+            self._update_homed("x")
             self.data.diameter_mode = False
         elif "G7" in self.data.active_gcodes and self.data.lathe_mode and not self.data.diameter_mode:
-            self._update_homed("Y")
+            self._update_homed("y")
             self.data.diameter_mode = True
         self._update_vel()
         self._update_coolant()
         self._update_spindle_btn()
         if "G95" in self.data.active_gcodes:
             self.widgets.lbl_active_feed.set_label("%.2f"%float(self.data.active_feed_command))
-            if self.g95 == False:
-                message = _("You are trying to use G95, please do not do this in this development state \n")
-                message += _("there is an error in gscreen / gmoccapy witch will result in wrong values!! \n")
-                message += _("\n We are looking for a solution!")
-                self.gscreen.warning_dialog(_("Very important Warning"), True, message)
-                self.g95 = True
         else:
-            self.g95 = False
             self.widgets.lbl_active_feed.set_label(self.data.active_feed_command)
         self.widgets.active_speed_label.set_label(self.data.active_spindle_command)
 
@@ -2339,6 +2388,8 @@ class HandlerClass:
 
         # buttons for jogging the axis
         for jog_button in self.data.axis_list:
+            if jog_button not in "xyz":
+                jog_button = self.axisletter_four
             self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-%s-plus"%jog_button, 
                                                                     hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_pin_jog_changed, jog_button,1)
@@ -2385,10 +2436,12 @@ class HandlerClass:
         self.incr_rbt_list[int(buttonnumber)].set_active(True)
 
     def _on_pin_jog_changed(self, pin, axis,direction):
+        if axis not in "xyz":
+            axis = "4"
         if direction == 1:
-            widget = self.widgets["btn_%s_plus"%axis.upper()]
+            widget = self.widgets["btn_%s_plus"%axis]
         else:
-            widget = self.widgets["btn_%s_minus"%axis.upper()]
+            widget = self.widgets["btn_%s_minus"%axis]
         if pin.get():
             self.on_btn_jog_pressed(widget)
         else:

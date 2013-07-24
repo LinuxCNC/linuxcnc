@@ -1,3 +1,9 @@
+ver. 0.9.6
+- included the 4-th axis, buttons will change according to INI file settings
+- corrected not taken care of PROGRAM_PREFIX path set in the INI file
+- G95 Bug solved, it was caused from sim_spindle_encoder.hal, using now a modificated hal from axis
+- cleared a warning of missing han
+
 ver. 0.9.5.1
 - bug in spindle switching while in LOG Mode
 - ESC and F1 keys will work now, even if use Keyboart shortcuts is not axtivated
