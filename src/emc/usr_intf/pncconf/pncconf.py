@@ -678,6 +678,8 @@ def dbg(message,mtype):
     for hint in _DEBUGSTRING:
         if hint == "all" or hint in mtype:
             print(message)
+            if "step" in _DEBUGSTRING:
+                c = raw_input("\n**** Debug Pause! ****")
             return
 
 def md5sum(filename):
@@ -4052,7 +4054,11 @@ class App:
         while gtk.events_pending():
             gtk.main_iteration()
 
-    def __init__(self):
+    def __init__(self, debug=0):
+        print 'debug=',debug
+        if debug:
+            global _DEBUGSTRING
+            _DEBUGSTRING = ['all']
         gnome.init("pncconf", "0.6") 
         
         self.splash_screen()
@@ -4572,6 +4578,7 @@ Ok to reset data and start a new configuration?"),False):
                     #print name
                     temp = name.strip(".xml")
                     firmlist.append(temp)
+        dbg("\nXML list:%s"%firmlist,"firmname")
         for n,currentfirm in enumerate(firmlist):
             self.pbar.set_fraction(n*1.0/len(firmlist))
             while gtk.events_pending():
@@ -4581,7 +4588,7 @@ Ok to reset data and start a new configuration?"),False):
             numencoderpins = numpwmpins = 3; numstepperpins = 2; numttpwmpins = 0; numresolverpins = 10
             temp = root.find("boardname").text
             boardname = temp.lower()
-            dbg("\nBoard and firmwarename:  %s %s\n"%( boardname, currentfirm), "firm")
+            dbg("\nBoard and firmwarename:  %s %s\n"%( boardname, currentfirm), "firmraw")
             maxgpio  = int(root.find("iowidth").text) ; #print maxgpio
             numcnctrs  = int(root.find("ioports").text) ; #print numcnctrs
             portwidth = int(root.find("portwidth").text)
@@ -4666,7 +4673,7 @@ Ok to reset data and start a new configuration?"),False):
                 # this converts the XML file componennt names to pncconf's names
                 try:
                     modulename = pins[i].find("secondarymodulename").text
-                    dbg("secondary modulename:  %s, %s."%( tempfunc,modulename), "firm")
+                    dbg("secondary modulename:  %s, %s."%( tempfunc,modulename), "firmraw")
                     if modulename in ("Encoder","MuxedQCount","MuxedQCountSel","QCount"):
                         convertedname = pinconvertenc[tempfunc]
                     elif modulename == "ResolverMod":
@@ -4728,12 +4735,12 @@ Ok to reset data and start a new configuration?"),False):
                     temppinunit.append(instance_num)
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = tempfunc.upper()# normalize capitalization
-                    dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firm")
+                    dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firmraw")
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("MUXED INDEX MASK (IN)","INDEXMASK (IN)"):
                         numencoderpins = 4
                     if tempmod =="SSerial" and tempfunc in ("TXDATA1","TXDATA2","TXDATA3","TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
                         sserialchannels +=1
-                dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firm")
+                dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firmraw")
                 if not tempcon in tempconlist:
                     tempconlist.append(tempcon)
                 temppinlist.append(temppinunit)
@@ -4752,7 +4759,8 @@ Ok to reset data and start a new configuration?"),False):
                     lowfreq,hifreq,tempconlist]
             for i in temppinlist:
                 temp.append(i)
-            dbg("5i25 firmware:\n%s\n"%( temp), "5i25")
+            if boardname == "5i25":
+                dbg("5i25 firmware:\n%s\n"%( temp), "5i25")
             mesafirmwaredata.append(temp)
         self.window.hide()
 
@@ -10049,13 +10057,14 @@ def makedirs(d):
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
-opts, args = getopt.getopt(sys.argv[1:], "fr")
+opts, args = getopt.getopt(sys.argv[1:], "dfr")
 mode = 0
 force = 0
+debugswitch = 0
 for k, v in opts:
     if k == "-r": mode = 1
     if k == "-f": force = 1
-
+    if k == "-d": debugswitch = 1
 if mode:
     filename = args[0]
     data = Data()

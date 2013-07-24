@@ -435,7 +435,6 @@ HEADERS := \
     emc/nml_intf/emccfg.h \
     emc/nml_intf/emcglb.h \
     emc/nml_intf/emcpos.h \
-    emc/nml_intf/interp.hh \
     emc/nml_intf/interp_return.hh \
     emc/nml_intf/interpl.hh \
     emc/nml_intf/motion_types.h \
@@ -713,7 +712,7 @@ install-test:
 	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
 		if dpkg-query -S $(DESTDIR)/usr/bin/linuxcnc > /dev/null 2>&1 || dpkg-query -S $(DESTDIR)/usr/bin/emc > /dev/null 2>&1 ; then \
 			echo "*** Error: Package version installed in $(DESTDIR)/usr"; \
-			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc2 package"; \
+			echo "Use './configure --enable-run-in-place' or uninstall the linuxcnc package"; \
 			echo "before installing."; \
 			exit 1; \
 		fi \

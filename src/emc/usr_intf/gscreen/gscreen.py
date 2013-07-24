@@ -213,22 +213,11 @@ class Data:
         self.task_mode = 0
         self.active_gcodes = []
         self.active_mcodes = []
-        self.x_abs = 0.0
-        self.x_rel = 1.0
-        self.x_dtg = -2.0
-        self.y_abs = 0.0
-        self.y_rel = 100.0
-        self.y_dtg = 2.0
-        self.z_abs = 0.0
-        self.z_rel = 1.0
-        self.z_dtg = 21.0
-        self.a_abs = 0.0
-        self.a_rel = 1.0
-        self.a_dtg = 2.0
-        self.x_is_homed = 0
-        self.y_is_homed = 0
-        self.z_is_homed = 0
-        self.a_is_homed = 0
+        for letter in ('x','y','z','a','b','c','u','v','w'):
+            self['%s_abs'%letter] = 0.0
+            self['%s_rel'%letter] = 0.0
+            self['%s_dtg'%letter] = 0.0
+            self['%s_is_homed'%letter] = False
         self.spindle_request_rpm = 0
         self.spindle_dir = 0
         self.spindle_speed = 0
@@ -251,7 +240,7 @@ class Data:
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
-        self.jog_increments = []
+        self.jog_increments = ['.001 in ,.01 in ,.1 in']
         self.current_jogincr_index = 0
         self.angular_jog_rate = 15
         self.angular_jog_rate_max = 360
@@ -467,6 +456,22 @@ class Gscreen:
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
 
+        # check the ini file if UNITS are set to mm"
+        # first check the global settings
+        units=self.inifile.find("TRAJ","LINEAR_UNITS")
+        if units==None:
+            # else then the X axis units
+            units=self.inifile.find("AXIS_0","UNITS")
+            if units==None:
+                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
+        if units=="mm" or units=="metric" or units == "1.0":
+            self.machine_units_mm=1
+            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
+        else:
+            self.machine_units_mm=0
+            conversion=[25.4]*3+[1]*3+[25.4]*3
+        self.status.set_machine_units(self.machine_units_mm,conversion)
+
         # set-up HAL component
         try:
             self.halcomp = hal.component("gscreen")
@@ -516,7 +521,10 @@ class Gscreen:
             else:
                 self.data.jog_increments = increments.split()
         else:
-            self.data.jog_increments = "continuous"
+            if self.machine_units_mm ==_MM:
+                self.data.jog_increments = [".01 mm",".1 mm","1 mm","continuous"]
+            else:
+                self.data.jog_increments = [".001 in",".01 in",".1 in","continuous"]
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
 
         # set default jog rate
@@ -588,22 +596,6 @@ class Gscreen:
             self.data.feed_override_max = float(temp)
         else:
             self.add_alarm_entry(_("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"))
-
-        # check the ini file if UNITS are set to mm"
-        # first check the global settings
-        units=self.inifile.find("TRAJ","LINEAR_UNITS")
-        if units==None:
-            # else then the X axis units
-            units=self.inifile.find("AXIS_0","UNITS")
-            if units==None:
-                self.add_alarm_entry(_("No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"))
-        if units=="mm" or units=="metric" or units == "1.0":
-            self.machine_units_mm=1
-            conversion=[1.0/25.4]*3+[1]*3+[1.0/25.4]*3
-        else:
-            self.machine_units_mm=0
-            conversion=[25.4]*3+[1]*3+[25.4]*3
-        self.status.set_machine_units(self.machine_units_mm,conversion)
 
         # if it's a lathe config, set the tooleditor style 
         self.data.lathe_mode = bool(self.inifile.find("DISPLAY", "LATHE"))
@@ -847,10 +839,11 @@ class Gscreen:
     # Only show the rows of the axes we use
     # set the var path so offsetpage can fill in all the user system offsets
     def init_offsetpage(self):
+        self.widgets.offsetpage1.set_col_visible('xyzabcuvw',False)
         temp =""
         for axis in self.data.axis_list:
             temp=temp+axis
-        self.widgets.offsetpage1.set_row_visible(temp,True)
+        self.widgets.offsetpage1.set_col_visible(temp,True)
         path = os.path.join(CONFIGPATH,self.data.varfile)
         self.widgets.offsetpage1.set_filename(path)
 
@@ -1028,6 +1021,18 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
+    def search_fwd(self,widget):
+        self.widgets.gcode_view.text_search(direction=True,text=self.widgets.search_entry.get_text())
+
+    def search_bwd(self,widget):
+        self.widgets.gcode_view.text_search(direction=False,text=self.widgets.search_entry.get_text())
+
+    def undo_edit(self,widget):
+        self.widgets.gcode_view.undo()
+
+    def redo_edit(self,widget):
+        self.widgets.gcode_view.redo()
+
     def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
         print gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods,
         return True
@@ -1084,7 +1089,8 @@ class Gscreen:
         if not h["cycle-start"]: return
         if self.data.mode_order[0] == _AUTO:
             print "run program"
-            self.emc.cycle_start()
+            self.widgets.hal_toggleaction_run.emit('activate')
+            #self.emc.cycle_start()
         elif self.data.mode_order[0] == _MDI:
             print "run MDI"
             self.widgets.hal_mdihistory.submit()
@@ -1306,11 +1312,11 @@ class Gscreen:
             self.widgets.gremlin.set_property('use_default_controls',not self.data.hide_cursor)
 
     # display calculator for input
-    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None):
+    def launch_numerical_input(self,callback="on_numerical_entry_return",data=None,data2=None,title=_("Entry dialog")):
         if self.data.entry_dialog: return
-        label = gtk.Label(_("Entry Dialog"))
+        label = gtk.Label(title)
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.entry_dialog = gtk.Dialog(_("Entry Dialog"),
+        self.data.entry_dialog = gtk.Dialog(title,
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
@@ -1332,8 +1338,8 @@ class Gscreen:
         if result == gtk.RESPONSE_ACCEPT:
             print "accept",data
             if data == None:
-                return None
-            print data
+                data = 0
+            self.widgets.statusbar1.push(1,"Last Calculation: %f"%data)
         widget.destroy()
         self.data.entry_dialog = None
 
@@ -1497,7 +1503,7 @@ class Gscreen:
     def on_offset_origin_clicked(self,widget):
         # adjust overrrides
         if self.widgets.button_override.get_active():
-            self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
+            self.launch_numerical_input("on_adj_overrides_entry_return",widget,True,title=_("Override Entry"))
         # offset origin
         else:
             self.set_axis_checks()
@@ -1531,6 +1537,9 @@ class Gscreen:
             self.emc.estop(1)
             self.widgets.on_label.set_text("Machine Off")
             self.add_alarm_entry(_("Machine Estopped!"))
+
+    def on_calc_clicked(self,widget):
+        self.launch_numerical_input(title=_("Calculator"))
 
     def on_theme_choice_changed(self, widget):
         self.change_theme(widget.get_active_text())
@@ -1714,19 +1723,28 @@ class Gscreen:
     # used for run-at-line restart
     def restart_down(self,widget,calc):
         self.widgets.gcode_view.line_down()
-        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
+        line = int(self.widgets.gcode_view.get_line_number())
+        calc.set_value(line)
+        self.update_restart_line(line,line)
 
     # highlight the gcode down one line higher
     # used for run-at-line restart
     def restart_up(self,widget,calc):
         self.widgets.gcode_view.line_up()
-        calc.set_value(int(self.widgets.gcode_view.get_line_number()))
+        line = int(self.widgets.gcode_view.get_line_number())
+        calc.set_value(line)
+        self.update_restart_line(line,line)
 
     # highlight the gcode line specified
     # used for run-at-line restart
     def restart_set_line(self,widget,calc):
-        line = int(calc.get_value())
+        try:
+            line = int(calc.get_value())
+        except:
+            calc.set_value("0.0")
+            line = 0
         self.widgets.gcode_view.set_line_number(line)
+        self.update_restart_line(line,line)
 
     # This is a method that toggles the DRO units
     # the preference unit button saves the state
@@ -1737,11 +1755,17 @@ class Gscreen:
 
     def on_button_edit_clicked(self,widget):
         state = widget.get_active()
+        if not state:
+            self.edited_gcode_check()
         self.widgets.notebook_main.set_current_page(0)
         self.widgets.notebook_main.set_show_tabs(not (state))
         self.edit_mode(state)
         if not state and self.widgets.button_full_view.get_active():
             self.set_full_graphics_view(True)
+        if state:
+            self.widgets.search_box.show()
+        else:
+            self.widgets.search_box.hide()
 
     def on_button_change_view_clicked(self,widget):
         self.toggle_view()
@@ -1750,6 +1774,28 @@ class Gscreen:
         self.set_full_graphics_view(widget.get_active())
 
 # ****** do stuff *****
+
+    def update_restart_line(self,line,reset_line):
+        if "set_restart_line" in dir(self.handler_instance):
+            self.handler_instance.set_restart_line(line,reset_line)
+        else:
+            self.set_restart_line(line,reset_line)
+
+    def set_restart_line(self,line,reset_line):
+        self.widgets.hal_toggleaction_run.set_restart_line(line,reset_line)
+
+    def edited_gcode_check(self):
+        if self.widgets.gcode_view.buf.get_modified():
+                dialog = gtk.MessageDialog(self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,"You edited the File. save edits?\n Choosing No will erase the edits.")
+                dialog.show_all()
+                result = dialog.run()
+                dialog.destroy()
+                if result == gtk.RESPONSE_YES:
+                    self.widgets.hal_action_saveas.emit("activate")
+                else:
+                    self.widgets.gcode_view.load_file()
 
     def set_desktop_notify(self,data):
         self.data.desktop_notify = data
@@ -1833,6 +1879,7 @@ class Gscreen:
                         ["","button_block_delete","clicked", "on_button_block_delete_clicked"],
                         ["","button_option_stop","clicked", "on_button_option_stop_clicked"],
                         ["","button_next_tab","clicked", "on_button_next_tab_clicked"],
+                        ["","button_calc","clicked", "on_calc_clicked"],
                 ["block","button_jog_speed","clicked", "on_button_overrides_clicked","jog_speed"],
 
                 ["block","button_jog_increments","clicked", "on_button_overrides_clicked","jog_increments"],
@@ -1903,7 +1950,12 @@ class Gscreen:
 
                         ["","metric_select","clicked","on_metric_select_clicked"],
                         ["","button_restart","clicked", "launch_restart_dialog"],
-                        ["","button_index_tool","clicked", "on_index_tool"],]
+                        ["","button_index_tool","clicked", "on_index_tool"],
+
+                        ["","button_search_fwd","clicked", "search_fwd"],
+                        ["","button_search_bwd","clicked", "search_bwd"],
+                        ["","button_undo","clicked", "undo_edit"],
+                        ["","button_redo","clicked", "redo_edit"],]
 
         # check to see if the calls in the signal list are in the custom handler's list of calls
         # if so skip the call in the signal list
@@ -2407,8 +2459,7 @@ class Gscreen:
         self.data.restart_dialog = gtk.Dialog(_("Restart Entry"),
                    self.widgets.window1,
                    gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
         label = gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.restart_dialog.vbox.pack_start(label)
@@ -2420,11 +2471,14 @@ class Gscreen:
         box = gtk.HButtonBox()
         upbutton = gtk.Button(label = _("Up"))
         box.add(upbutton)
+        enterbutton = gtk.Button(label = _("Enter"))
+        box.add(enterbutton)
         downbutton = gtk.Button(label = _("Down"))
         box.add(downbutton)
         calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
         upbutton.connect("clicked",self.restart_up,calc)
         downbutton.connect("clicked",self.restart_down,calc)
+        enterbutton.connect("clicked",lambda w:calc.entry.emit('activate'))
         calc.entry.connect("activate",self.restart_set_line,calc)
         self.data.restart_dialog.parse_geometry("400x400+0+0")
         self.data.restart_dialog.show_all()
@@ -2433,12 +2487,10 @@ class Gscreen:
 
     # either start the gcode at the line specified or cancel
     def restart_dialog_return(self,widget,result,calc):
-        if result == gtk.RESPONSE_ACCEPT:
-            value = calc.get_value()
-            if value == None:
-                return
-            self.add_alarm_entry(_("Restart program from line %d"%value))
-            self.emc.re_start(value)
+        value = calc.get_value()
+        if value == None:value = 0
+        self.add_alarm_entry(_("Restart program from line %d"%value))
+        self.update_restart_line(0,0)
         widget.destroy()
         self.data.restart_dialog = None
 
@@ -2618,7 +2670,6 @@ class Gscreen:
             self.widgets.gcode_view.set_sensitive(0)
             self.data.edit_mode = False
             self.widgets.show_box.show()
-
 
     def set_dro_units(self, data, save=True):
         print "toggle dro units",self.data.dro_units,data
@@ -3228,6 +3279,10 @@ class Gscreen:
                 self.halcomp["jog-enable-out"] = True
             else:
                 self.halcomp["jog-enable-out"] = False
+            try:
+                self.widgets.led_jog_mode.set_active(self.halcomp["jog-enable-out"])
+            except:
+                pass
 
     # These pins set and unset enable pins for override adjustment
     # only true when the screen button is true and not in jog mode 

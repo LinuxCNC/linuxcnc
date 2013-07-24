@@ -1,0 +1,9 @@
+component test_define;
+
+pin out bit out;
+function _ nofp;
+license "GPL";
+;;
+void testdefine() {}
+
+FUNCTION(_) {}

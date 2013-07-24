@@ -48,6 +48,8 @@ static long base_period_nsec = 0;	/* fastest thread period */
 RTAPI_MP_LONG(base_period_nsec, "fastest thread period (nsecs)");
 static int base_cpu = -1;		/* explicitly bind to CPU */
 RTAPI_MP_INT(base_cpu, "CPU of base thread");
+int base_thread_fp = 0;	/* default is no floating point in base thread */
+RTAPI_MP_INT(base_thread_fp, "floating point in base thread?");
 static long servo_period_nsec = 1000000;	/* servo thread period */
 RTAPI_MP_LONG(servo_period_nsec, "servo thread period (nsecs)");
 static int servo_cpu = -1;		/* explicitly bind to CPU */
@@ -604,7 +606,7 @@ static int init_hal_io(void)
 	/* FIXME - struct members are in a state of flux - make sure to
 	   update this - most won't need initing anyway */
 	*(joint_data->amp_enable) = 0;
-	joint_data->home_state = 0;
+	*(joint_data->home_state) = 0;
 	/* We'll init the index model to EXT_ENCODER_INDEX_MODEL_RAW for now,
 	   because it is always supported. */
     }
@@ -793,7 +795,7 @@ static int export_joint(int num, joint_hal_t * addr)
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_param_s32_newf(HAL_RO, &(addr->home_state), mot_comp_id, "axis.%d.home-state", num);
+    retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), mot_comp_id, "axis.%d.home-state", num);
     if (retval != 0) {
 	return retval;
     }
@@ -1076,7 +1078,8 @@ static int init_threads(void)
     /* create HAL threads for each period */
     /* only create base thread if it is faster than servo thread */
     if (servo_base_ratio > 1) {
-	retval = hal_create_thread("base-thread", base_period_nsec, 0, base_cpu);
+
+	retval = hal_create_thread("base-thread", base_period_nsec, base_thread_fp, base_cpu);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"MOTION: failed to create %ld nsec base thread\n",

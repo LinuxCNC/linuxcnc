@@ -1,27 +1,27 @@
 setexact_for_test_suite_only
-loadrt threads name1=fast name2=slow period1=100000 period2=1000000
+loadrt threads name1=slow period1=1000000
 loadrt mux_generic config="b2b,b2f,b2s,b2u,f2b,f2f,f2s,f2u,s2b,s2f,s2s,s2u,u2b,u2f,u2s,u2u,b2b,f5f"
 loadrt streamer depth=100 cfg=bu
 loadrt sampler depth=100 cfg=bfsubfsubfsubfsubfbu
 
 addf streamer.0 slow
-addf mux-gen.00 fast
+addf mux-gen.00 slow
 addf mux-gen.01 slow
-addf mux-gen.02 fast
-addf mux-gen.03 fast
+addf mux-gen.02 slow
+addf mux-gen.03 slow
 addf mux-gen.04 slow
 addf mux-gen.05 slow
 addf mux-gen.06 slow
 addf mux-gen.07 slow
-addf mux-gen.08 fast
+addf mux-gen.08 slow
 addf mux-gen.09 slow
-addf mux-gen.10 fast
-addf mux-gen.11 fast
-addf mux-gen.12 fast
+addf mux-gen.10 slow
+addf mux-gen.11 slow
+addf mux-gen.12 slow
 addf mux-gen.13 slow
-addf mux-gen.14 fast
-addf mux-gen.15 fast
-addf mux-gen.16 fast
+addf mux-gen.14 slow
+addf mux-gen.15 slow
+addf mux-gen.16 slow
 addf mux-gen.17 slow
 addf sampler.0 slow
 
