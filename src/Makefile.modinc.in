@@ -78,9 +78,11 @@ ifeq ($(BUILDSYS),kbuild)
 EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)  
 
 modules:
-	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers \
-	    -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) \
-	    THREADS_RTFLAGS="$(THREADS_RTFLAGS)" V=0 modules
+	$(MAKE) \
+	    -C $(KERNELDIR) \
+	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" \
+	    SUBDIRS=`pwd` \
+	    CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 
 clean:
 	rm *.ko *.mod.c *.o
