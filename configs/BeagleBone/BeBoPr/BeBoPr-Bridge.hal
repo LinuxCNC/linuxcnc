@@ -22,15 +22,16 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 
 # load low-level drivers
-loadrt hal_bb_gpio output_pins=107,126,224,226 input_pins=108,109,110,114,117,118
+loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 loadrt pid num_chan=2
 loadrt limit1 count=2
 
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
-loadusr -Wn Therm0 /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/ReadTemp.py -n Therm0 -t epcos_B57560G1104 -a AIN1
-#loadusr -Wn Therm1 /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/ReadTemp.py -n Therm1 -t epcos_B57560G1104 -a AIN3
+# t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
+# a = analog input channel
+loadusr -Wn Therm /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 # ################################################
 # THREADS
@@ -210,7 +211,7 @@ setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x23
 
 
 # ##################################################
-# Standard I/O Block - EStop, Etc
+# Standard I/O - EStop, Enables, Limit Switches, Etc
 # ##################################################
 
 # create a signal for the estop loopback
@@ -221,10 +222,17 @@ net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # Axis enable signals
-net emcmot.00.enable => bb_gpio.p9.out-26
-setp bb_gpio.p8.out-26.invert 1
+net emcmot.00.enable => bb_gpio.p9.out-18
+setp bb_gpio.p9.out-18.invert 1
+net emcmot.01.enable => bb_gpio.p9.out-17
+setp bb_gpio.p9.out-17.invert 1
+net emcmot.02.enable => bb_gpio.p9.out-26
+setp bb_gpio.p9.out-26.invert 1
+net emcmot.03.enable => bb_gpio.p9.out-24
+setp bb_gpio.p9.out-24.invert 1
 
-# Machine power (BeBoPr Enable) 
+# Machine power (BeBoPr Enable)
+# Enable tied to system Reset_n line (P9.10)
 net estop-loop => bb_gpio.p8.out-07
 setp bb_gpio.p8.out-07.invert 1
 
@@ -259,7 +267,7 @@ setp hal_pru_generic.pwmgen.00.out.02.enable    1
 setp hal_pru_generic.pwmgen.00.out.02.value     0.0
 
 # PID for Extruder 0 temperature control
-net e0.temp.meas    <= Therm0.temp
+net e0.temp.meas    <= Therm.temp0
 net e0.temp.meas    => pid.0.feedback
 
 sets e0.temp.set  0
@@ -275,7 +283,7 @@ net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
 setp limit1.0.min 0
 
 # PID for Bed temperature control
-#net bed.temp.meas    <= Therm1.temp
+net bed.temp.meas    <= Therm.temp1
 net bed.temp.meas    => pid.1.feedback
 
 sets bed.temp.set  0
