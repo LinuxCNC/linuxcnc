@@ -973,6 +973,7 @@ int do_log_cmd(char *type, char *level)
 	return 0;
     }
 }
+
 int do_show_cmd(char *type, char **patterns)
 {
 
@@ -1159,7 +1160,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d\n"
 		     //#if !defined(BUILD_SYS_USER_DSO)
-            "See the output of 'dmesg' for more information.\n"
+            "See the log and output of 'dmesg' for more information.\n"
 		     //#endif
         , retval );
 	return -1;

@@ -194,7 +194,6 @@ static int compare_command(const void *namep, const void *commandp) {
 pid_t hal_systemv_nowait(char *const argv[]) {
     pid_t pid;
     int n;
-    char msglevel[20];
 
     /* now we need to fork, and then exec .... */
 #if 0
@@ -235,9 +234,6 @@ pid_t hal_systemv_nowait(char *const argv[]) {
         }
 	rtapi_print_msg(RTAPI_MSG_DBG, "\n" );
 
-	// pass rtapi message level to children
-	sprintf(msglevel,"MSGLEVEL=%d", rtapi_get_msg_level());
-	putenv(msglevel); 
 
         /* call execv() to invoke command */
 	execvp(argv[0], argv);
@@ -247,10 +243,7 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     }
     /* parent process */
     /* reconnect to the HAL shmem area */
-    //#if 0
     hal_rtapi_attach();
-    // comp_id = hal_init(comp_name);
-    //#endif
     return pid;
 }
 

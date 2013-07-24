@@ -52,7 +52,6 @@ static const char *command_table[] = {
     "addf", "delf", "show", "list", "status", "save", "source",
     "start", "stop", "quit", "exit", "help", "alias", "unalias", 
     "newg"," delg", "newm", "delm",
-    "newring","delring","ringdump","ringwrite","ringread",
     "newcomp","newpin","ready","waitbound", "waitunbound",
 	"log",
     NULL,
@@ -70,19 +69,18 @@ static const char *alias_table[] = {
 
 static const char *show_table[] = {
     "all", "alias", "comp", "pin", "sig", "param", "funct", "thread", "group", "member",
-    "ring",
     NULL,
 };
 
 static const char *save_table[] = {
     "all", "alias", "comp", "sig", "link", "linka", "net", "neta", "param", "thread",
-    "group", "member", "ring",
+    "group", "member",
     NULL,
 };
 
 static const char *list_table[] = {
     "comp", "alias", "pin", "sig", "param", "funct", "thread", "group", "member",
-    "ring",
+ //   "ring",
     NULL
 };
 
@@ -95,6 +93,7 @@ static const char *pintype_table[] = {
     "bit", "float", "u32", "s32", 
     NULL
 };
+
 static const char *log_table[] = {
     "rt", "user",
     NULL
