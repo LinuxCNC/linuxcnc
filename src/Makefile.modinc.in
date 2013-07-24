@@ -58,6 +58,12 @@ endif
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
+# Used in RTLIB_DIR path
+KERNEL_VERS = $(shell uname -r)
+
+# FIXME:  need better way to find correct KERNELDIR
+KERNELDIR = /lib/modules/$(KERNEL_VERS)/build
+
 # Use same settings as everybody else
 include @EMC2_HOME@/src/Makefile.inc
 
