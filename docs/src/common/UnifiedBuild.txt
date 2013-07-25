@@ -501,6 +501,19 @@ TBD
 
 TBD
 
+== Current runtests failures
+
+The tests symbol.0 and symbol.1 are currently broken; out-of-tree
+building of components needs work.
+
+== Issue Tracker 
+
+The issue tracker for the Unified Build development is here:
+
+https://github.com/zultron/linuxcnc/issues?milestone=3&state=open
+
+Feel free to add issues so they are not lost.
+
 == Issues
 
 hal_lib.c::
@@ -599,3 +612,16 @@ Lowlevel thread statistics for 'thread1':
 The values are as returned by the underlying system calls and might
 need code and manual reading to understand exactly. Some of
 the values (in particular execution times) seem not to make much sense.
+
+=== Displaying Thread Status on RT-PREEMPT
+
+The RT threads are named like in HAL (but with the instance number
+suffixed). Example for ps output of instance 0 on RT-PREEMPT:
+
+......................................................................
+mah@wheezy:~$ ps -Leo pid,tid,class,rtprio,stat,comm,wchan |grep `pidof rtapi:0`
+ 4880  4880 TS       - SLsl rtapi:0         ?
+ 4880  4883 FF      98 RLsl fast:0          ?
+ 4880  4884 FF      97 SLsl slow:0          ?
+......................................................................
+
