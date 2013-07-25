@@ -163,7 +163,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 		../lib/liblinuxcncini.so.0 ../lib/liblinuxcncshm.so
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR)/$(threads) $(RTAPI_APP_RPATH) \
+	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
 	    -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
 
 modules:  ../libexec/rtapi_app_$(threads)
