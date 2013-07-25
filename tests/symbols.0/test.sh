@@ -2,4 +2,4 @@
 set -xe
 comp --install test_define.comp
 comp --install test_use.comp
-! halrun dotest.hal
+! MSGD_OPTS="--stderr" halrun dotest.hal
