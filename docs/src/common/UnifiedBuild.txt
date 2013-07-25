@@ -1,0 +1,601 @@
+=  Unfied Build for Multiple RT Operating Systems
+
+
+[[cha:ubpoos]] (((Unified RTOS Builds)))
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+This is work in progress by Michael Haberler and John Morris. Comments, fixes, and
+addenda are welcome.
+
+== The Rationale for Multiple Realtime Operating Systems Support
+
+Up to about 2011, LinuxCNC has been solely relying on a single realtime Linux
+extension, namely RTAI (www.rtai.org). Originally there was a second option -
+RT-Linux - but that has faded away and has not been available, and
+hence used, for years.
+
+But as the old adage goes, you better 'dont put all your eggs in one
+basket'. This has become a more pressing issue over time as some
+question marks have arisen over RTAI's long term viability and the robustness
+of its community; also, several alternatives - some of them freely
+available open source - have appeared, namely the RT-PREEMPT Linux
+realtime patch, and the Xenomai Realtime kernel. Despite, there have
+been no coordinated attempts to widen the LinuxCNC support base for
+other realtime operating systems (from here on called 'RTOS').
+
+However, there have been some isolated efforts to remedy this
+single-source situation a bit, namely the MiniEMC2 Project by Sergey
+Kaydalov (Xenomai-based) and work by Michael Büsch to support a
+RT-PREEMPT patched kernel, but also several others. Some of them have
+been based on outdated versions of LinuxCNC, or relying on custom
+kernels,  making them rather less useful.
+
+The original focus of the RTOS work therefore has been to bring together these
+isolated efforts, bring them up to date,  integrate them into the
+LinuxCNC build process, and provide means to make the process of
+supporting another future  RTOS option easier.
+
+A second aspect has been the reliance on the x86 architecture so far,
+mostly driven by the fact that RTAI is not available for non-x86
+architectures. While mostly written in portable languages, some x86
+assumptions and inline assembly code have crept in over time into the
+LinuxCNC code base, meaning builds for other architectures were
+challenging. 
+
+Another important aspect is fostering the acceptance of
+LinuxCNC. This has been hampered by the fact that a build based on a
+non-mainstream kernel extension is difficult to get accepted for
+inclusion in major distributions like Debian or Fedora. However, since
+RT-PREEMPT is becoming more mainstream, and a stock RT-PREEMPT kernel
+is in fact now available through the Debian wheezy package stream,
+this becomes an option which wasnt available before.
+
+The result of this work have been branches which enable the use of
+RTAI, Xenomai or RT-PREEMPT kernels as a build-time option; that is,
+one had to build LinuxCNC for a particular kernel, and all the
+kernel-specific support would be linked into this binary. That binary
+would run only on the kernel it was built for, but not any others.
+
+While this has resulted in usable and useful code, this has several
+downsides. First, only an RT-PREEMPT build might make it into Debian;
+any package based on RTAI or Xenomai is still unlikely to be
+accepted. Second, the per-RTOS builds cause significant load for
+build, distribution and support: one package per RTOS. Also, having
+only one option being available through simple standard commands like
+'apt-get install linuxcnc', but not others, is less than helpful.
+
+Viewing more closely, this was essentially a design and build system defect
+of LinuxCNC, which has used a monolithic build approach. 
+However, the supporting operating systems have for almost two decades
+provided a mechanism to separate the upgrade of supporting
+infrastructure - like runtime libraries - from the upgrade of
+applications proper, however, LinuxCNC has not made this transition
+until recently.
+
+Therefore, the driving factor for the 'unified build' work on
+LinuxCNC has been: separate out the specifics of a particular RTOS from the
+rest of the software build, by packaging the RTOS-specific parts into
+shared libaries and runtime-loadable modules. Viewed differenly, there is no
+particular magic behind this step, it is essentially tracking the
+status quo how modern software packages are built.
+
+The aim of the 'unified build' work can be described as follows:
+
+- make LinuxCNC's major software components build without regard of
+  any specific realtime operating system by providing an
+  RTOS-independent abstaction layer
+- package those specifics as separately built loadable (and distributable,
+  hence upgradable modules and libraries), likely as packages
+- provide hooks in LinuxCNC to determine the underlying RTOS, and load
+  those parts of the RTOS-specifc modules as needed.
+
+The upsides of such an approach are manifold:
+
+- the main LinuxCNC build, together with its 'Debian compatible' RTOS
+ support, becomes amenable for major distro inclusion
+- the build and distribution logistics for the LinuxCNC project are
+ substantially simplified
+- bugs in the supporting infrastructure can be fixed by upgrading a
+support package, or maybe just a single file - without wholesale
+ pulling of repositories and constant rebuilds
+- due to the RTOS abstraction layer, it becomes rather easy to include
+ support for a new RTOS option should it arise.
+- the drive to remove x86 dependencies has resulted in a code base
+ which not only builds but also routinely runs on other architectures,
+ giving a welcome exposure to remaining architecture dependencies
+ (which have turned out to be rather few)
+
+There are downsides:
+- the abstraction layer and some of the RTOS support has not seen wide
+use yet, meaning bugs are likely.
+- the build process has become substantially more complex, suggesting
+work will be needed for new platforms.
+
+== New Features
+
+support for Xenomai and RT-PREEMPT realtime threads besides RTAI::
+	There should be minimal user configuration changes for	
+	using the new RT options.
+	
+kernel autodetection::
+       The unified build branch will detect the RT features of
+       the running kernel and choose an appropriate thread flavor.
+
+runtime loading of support modules::
+	All thread-specific code has been wrapped into shared objects
+	and libraries which are loaded on demand. This enables
+	fixes, upgrades or tests by just exchanging a file.
+
+override capability for modules::
+	 The search for supporting modules goes through several
+	 steps from most-specific (Linux version), flavor to least
+	 specific. This enables selective override of a module for a
+	 particular version by depositing it in a 'more specific'
+	 directory. 
+	 
+unified thread status reporting::
+	The procfs support (/proc/rtapi etc) is useful for kernel
+	 threads only. This has been superseded by status reporting
+	 through halcmd which applies to all threads, and includes
+	 support for thread-system specific values.
+
+multiple instance support::
+	 RTAPI and HAL have been extended to support several instances
+	 running in parallel on a single CPU. 
+
+common shared memory subsystem::
+       The deprecated System V IPC code has been removed and replaced
+       by Posix shared memory. Alternatively, userland flavors may
+       (kernel thread flavors must) use the new common
+       shared memory driver (shmdrv). This removes the need to employ
+       RTOS-specific allocators, hence their restrictions do not apply.
+       The common shared memory driver has the important property that
+       shared memory segments created in a user process can be
+       attached later by kernel modules, which significantly
+       simplifies startup, shutdown and - later - interworking of
+       instances (for instance cross-linking of pins and ringbuffers).
+      
+common startup/shutdown::
+       some effort has been made to create a common flow of startup
+       and shutdown sequence. This work is not complete (see below
+       under 'Further work').
+
+unified logging::
+	All logging out of RTAPI, RT HAL and user HAL components goes
+	through a single, operating system independent channel which
+	works identically for userland as well as
+	kernel thread flavors.
+
+separate global log levels for user components and RT::
+	 these loglevels can be set at startup, or through halcmd
+	 ('log rt <level>' and 'log user <level>'). The user logging
+	 level applies to all processes, as it is now a global
+	 variable.
+
+debut of ringbuffer code::
+      This work by Pavel Shramov and myself will form a key element of
+      the subsequent new middleware infrastructure which will replace
+      NML. At the moment it
+      is used for the unified logging code and works flawless (kudos
+      to Pavel!). See src/rtapi/ring.h.
+
+no more inline assembly::
+   	The last remnants of x86 inline assembly code have been
+   	removed and replaced by equivalent gcc/llvm intrinsic
+   	operations, meaning the core code should compile on pretty
+   	much any modern architecture. (src/rtapi/rtapi_bitops.h)
+
+HAL segmemt size configurable::
+    This used to be a compiled-in constant. It is now a startup
+    environment variable (HAL_SIZE).
+
+exception handling - separating mechanism and policy::
+	  The rather ad-hoc reporting of RTAPI exceptions (like
+	  realtime delays, traps due to invalid floating point
+	  operations etc) have been replaced by a redefinable
+	  exception handler which works identically across all
+	  flavors.
+	  The core RTAPI code supports collecting
+	  such exceptions and funneling through this exception
+	  handler; however, it is now possible to define - through a
+	  normal HAL component - how these exceptions are dealt with
+	  (see src/hal/components/rtmon.comp). There is a default
+	  exception handler in place which just logs exceptions.
+
+support for thread-specific RT status collection::
+	Status collection for RT threads is important to track down
+	sources of delays, but it incurs overhead. By making this an
+	optional RTAPI method which can be called by a thread function
+	this can be applied as needed, using a standard mechanism.
+
+
+=== Tested Operating Systems
+
+rtai 2.6.32-122-rtai::
+     as used in the 10.04LTS live CD
+
+xenomai 3.5.7-2.6.2.1 i686 and x86_64::
+	John's Xenomai kernel, see
+	http://wiki.linuxcnc.org/cgi-bin/wiki.pl?XenomaiKernelPackages
+
+3.2.0-4-rt-amd64::
+	 as per wheezy distro (x86_64)
+
+3.8.13xenomai-bone23::
+	xenomai 2.6.2.1 for beaglebone running wheezy
+
+No attempt has been, and will be made for the hardy RTAI kernel.
+
+=== Tested Distros
+
+lucid, precise, wheezy
+
+=== i386/x86_64 Compatibility
+
+to run on all OSes, the OS architecture must be identical (i386/i686, x86_64) -
+building LinuxCNC on say an i386 kernel and try to run the result when
+booting an x86_64 kernel will not work.
+
+== Installation 
+
+
+=== Preparing Linux Logging
+
+All LinuxCNC-related log messages go through rtapi_msgd, which logs
+them to the syslog 'LOCAL1' facility. This includes messages generated
+by kernel RT components; it does not include any messages which are
+generated by various supporting components which use 'printk' (I think
+I caught moste of these though; please report if you discover such a case).
+
+To arrange for log collection, prepare the syslogd  configuration like
+so (assuming rsyslogd is used):
+
+ $ sudo cp src/rtapi/rsyslogd-linuxcnc.conf /etc/rsyslog.d
+ $ sudo service rsyslog restart
+
+Start in a separate window:
+ 
+ $  tail -f /var/log/linuxcnc.log
+
+=== Configuring and Building: The Basic procedure
+
+The simplest way to compile this package is:
+
+. `cd' to the `src' directory under the directory containing the
+     package's source code.
+
+. Type `./configure' to configure the package for your system.  If
+     you're using `csh' on an old version of System V, you might need
+     to type `sh ./configure' instead to prevent `csh' from trying to
+     execute `configure' itself.
+     Running `configure' takes a while.  While running, it prints some
+     messages telling which features it is checking for.
+
+. Type `make' to compile the package.
+
+. Type `sudo make setuid' to set permissions.
+
+. Type `source scripts/rip-environment' to set up the environment.
+
+. Type `linuxcnc' to test the software.
+
+
+==== The Configure script
+
+The `configure' autoconf script attempts to guess correct values for
+various system-dependent variables used during compilation, and places
+those values in several files, such as `Makefile.inc' and `rtapi.ini'.
+It also creates a shell script `config.status' that can be run in the
+future to recreate the current configuration, a file `config.cache'
+that saves the results of its tests to speed up reconfiguring, and a
+file `config.log' containing compiler output (useful mainly for
+debugging `configure').
+
+
+====  Real-time Thread Support: the "Flavors"
+
+To run a particular flavor, two conditions must be satisfied:
+
+. LinuxCNC must have been built to support this flavor
+. the running kernel must be compatible with the desired flavor.
+
+The following thread flavor names are understood (`FLAVOR` environment variable):
+
+rtai-kernel::
+	the traditional RTAI threading system, compiled as .ko kernel
+	modules.
+	Compatible with RTAI kernels only.
+
+posix::
+	Normal Posix threads, runs on any Linux kernel. No realtime
+	properties. This is what used to be 'sim' or 'simulator mode'.
+	Runs on any Linux kernel.
+
+rt-preempt::
+	RT-hardened Posix threads running on a kernel with the
+	RT-PREEMPT patch applied (see https://rt.wiki.kernel.org/index.php/Main_Page)
+	Compatible with RT-PREEMPT kernels, but will also run on
+	Xenomai kernels (the results of doing so have not been
+	evaluated)
+
+xenomai::
+	Xenomai user process RT threads. Requires a Xenomai-patched
+	Linux kernel (see www.xenomai.org).
+	Runs on Xenomai kernels only.
+
+xenomai-kernel::
+	Xenomai kernel RT threads, also using kernel modules.
+	Runs on Xenomai kernels only.
+	 While build support is in place,
+	this is deprecated and not recommended for use.
+
+Each of the RT thread flavors requires special kernel support.
+Xenomai and RTAI kernel packages are available from the project, and
+RT_PREEMPT kernel packages are available from upstream vendors and
+third-party package repositories.  Please install one of these RT
+kernels (refer to the documentation of the project on how to do that).
+
+====  Optional Features
+
+If multiple RT flavors are available, LinuxCNC will attempt to detect
+and build for all of them.  A subset may be selected on the configure
+command line:
+
+`./configure --with-posix --with-rtai-kernel`::
+
+	    For kernel thread flavors, if autoconf does not detect the desired
+	    kernel source, a location may be explicitly configured:
+
+`./configure --with-xenomai-kernel   --with-xenomai-kernel-sources=/home/me/src/linux-3.5.7-xenomai`::
+    By default, LinuxCNC will build to run out of a local directory.  For
+    a system installation, specify the prefix for the install directory:
+
+`./configure --prefix=/usr/local`::
+	    If you don't want to generate the documentation from source:
+	      --disable-build-documentation
+
+Run `./configure --help' for more details on these and other available
+options.
+
+
+==== Configure Options
+
+`configure' recognizes the following options to control how it
+operates:
+
+`--cache-file=FILE'::
+     Use and save the results of the tests in FILE instead of
+     `./config.cache'.  Set FILE to `/dev/null' to disable caching, for
+     debugging `configure'.
+
+`--help'::
+     Print a summary of the options to `configure', and exit.
+
+`--quiet'::
+`--silent'::
+`-q'::
+     Do not print messages saying which checks are being made.  To
+     suppress all normal output, redirect it to `/dev/null' (any error
+     messages will still be shown).
+
+`--version'::
+     Print the version of Autoconf used to generate the `configure'
+     script, and exit.
+
+
+== Options to the realtime script
+
+To start the realtime environment, do as usual:
+
+ $ realtime start 
+
+To stop, execute
+
+ $ realtime stop
+
+The realtime script reads default values from etc/linuxcnc/rtapi.ini;
+most values here will never need to be changed. 
+
+The following defaults from rtapi.ini can be overridden via environment
+variables:
+
+DEBUG=<integer>::
+	 set the rt and user logging level (0..5, the maximum). A lot of detail will be
+	 logged to /var/log/linuxcnc.log.
+	 If you suspect problems, run 'DEBUG=5 realtime start'.
+
+FLAVOR=<flavor name> <linuxcnc command>::
+	 Start a particular (non-default) thread flavor. FLAVOR must
+	 be one of: rtai-kernel, rt-preempt, xenomai, posix,
+	 xenomai-kernel.
+
+HAL_SIZE=<number>::
+	The default size of the HAL data shared memory segment
+	is 262000. A larger size can be set via this variable.
+
+MSGD_OPTS=<options to rtapi_msgd>::
+         extra startup options can be passed to rtapi_msgd. A useful
+         one is "--stderr" which causes rtapi_msgd to write all log
+         output to stderr as well: 
+
+RTAPI_APP_OPTS=<options to rtapi_app>::
+	 extra startup options can be passed to rtapi_app. The only
+	 meaningful option here is '--drivers' which enables I/O for
+	 the 'posix' flavor. This requires the 'sudo make setuid' step.
+
+USE_SHMDRV=yes::
+         Meaningful only for userland thread flavors. Forces the use
+	 of the common shared memory driver even for userland threads
+         instances (normally it would default to Posix shared memory).
+	 This is relevant only in the future scenario where
+         interworking between kernel and user threads instances is
+         desired, so ignore for now.
+
+
+INSTANCE=<instance number>::
+         Instances are numbered 0-31. By default the instance number is 0;
+         another instance can be referred to by the INSTANCE
+         enviroment variable.
+	 See the section 'Running instances side by side'.
+
+=== Startup Option Usage Examples
+
+==== Run a 'sim' (Posix threads) instance
+
+ $ export FLAVOR=posix
+ $ realtime start
+ $ haldcmd -f -k
+
+==== Capturing the complete log of a single session
+
+ DEBUG=5 MSGD_OPTS="--stderr" realtime start >logfile 2>&1
+
+==== Running realtime with a larger HAL segment
+
+ HAL_SIZE=512000 realtime start
+
+==== Running the 'Posix' Flavor and enable I/O through drivers
+
+ RTAPI_APP_OPTS="--drivers" FLAVOR=posix realtime start
+
+=== Running instances side by side:
+
+==== Status of Multiple Instance support
+
+The status of instance support for running several side-by-side instances of
+linuxcnc on a single host is:
+
+. support in RTAPI/HAL as well as startup/shutdown is feature complete
+. support for multiple instances in NML is currently at a 'gross hack'
+  level - the issue is the TCP port number usage. It might not make
+  sense to fix this as NML is being replaced anyway.
+. the linuxcnc script needs work - the first instance to shut down
+kills the other instances too.
+
+==== Running separate HAL/RTAPI instances
+
+INSTANCE=2 realtime start::
+	   starts the instance #2 of RTAPI/HAL
+
+INSTANCE=3 linuxcnc::
+	   starts the instance #3 of RTAPI/HAL and Linuxcnc (see
+	   restrictions noted above)
+
+
+== Man pages for exception handler, update_stats
+
+TBD
+
+== Directory layout
+
+TBD
+
+== Module search logic
+
+TBD
+
+== Building the Xenomai kernel for the BeagleBone board
+
+TBD
+
+== Issues
+
+hal_lib.c::
+	 contains some udocumented new methods. They do not impact
+	 HAL functionality.
+
+rtapi_msgd naming::
+	   this name rtapi_msgd is a bit misleading - it sets up the
+	   per-instance global data segment which is essential for
+	   LinuxCNC operaton. 
+
+squashing out 'wip' and 'FIXME' commits:: TBD.
+
+== Remaining Work
+
+== Short term
+
+These are features which can be added as the branch matures:
+
+RTAPI shutdown exception::
+      The exception handler feature currently has no way to signal
+      an impending RTAPI shutdown, which would be very valuable to
+      for instance cause an estop first thing.
+
+RTAPI status reporting ala /proc/rtapi::
+      The is currently no equivalent for userland threads flavors; it
+      should be straighforward to add along the lines of thread status
+      reporting. 
+
+logging::
+	The 'rtapi_set_logtag("string") was intended to mark a log
+	message with the origin (user process, RT, kernel etc). It is
+	a bit halfbaked idea; a better solution would be to extend
+	the first argument (message level) to rtapi_print_msg() to 
+	support an origin enumeration type (note message level only
+	needs 3 bits of the 32bit integer parameter, so there are
+	lots of bit left to tag the origin and the change is
+	backwards-compatible). This would make writing
+	log messages much more uniform and less verbose, while
+	supporting automatic filtering by origin for multiple publish
+	channels in a future version.
+
+
+== Longer Term plans
+
+=== Unified command API to the RT environment
+
+I think once we have the new middleware infrastructure in place it
+makes sense to fold the kernel threads startup/shutdown/module loading
+functions into a common RTAPI demon, which would handle all RT
+commands alike regardless of kernel-versus-userland threads. This
+would make it much easier on the using side to script commands for
+startup, shutdown and loading.
+
+Currently rtapi_msgd is a standalone process and it will evolve to
+support a publish functionality; arbitrary clients may subscribe to
+one of the channels to receive updates. This might well be folded into
+the common RTAPI demon, taking out some complexity of startup and shutdown.
+
+=== Unfied thread creation API
+
+The current method of creating an RT thread for kernel thread flavors
+stands improvement. A common RTAPI demon could do this for userland
+and kernel thread flavors just alike, using a simple procfs interface
+for thread creation/deletion like shown here: http://tinyurl.com/mowmmyl
+
+=== Use the Xenomai posix threads skin
+
+The Xenomai code currently uses the 'native skin'. Using the 'Posix
+skin instead' would allow merging all of Xenomai, Posix and RT-PREEMPT
+into a single code base, easing maintanence a bit. Not very important.
+
+
+== Miscellaneous Notes
+
+=== Thread status display in halcmd
+
+After RT threads are started. the 'show thread <threadname>' command
+will display details like so:
+
+......................................................................
+$ halcmd -f -k
+halcmd: loadrt threads
+halcmd: show thread thread1 
+Realtime Threads (flavor: xenomai) :
+     Period  FP     Name               (     Time, Max-Time )
+    1000000  YES               thread1 (        0,        0 )
+
+Lowlevel thread statistics for 'thread1':
+
+    updates=455	api_err=0	other_err=0
+    wait_errors=454	overruns=2598	modeswitches=0	contextswitches=734
+    pagefaults=0	exectime=158813uS	status=0x300180
+......................................................................
+
+The values are as returned by the underlying system calls and might
+need code and manual reading to understand exactly. Some of
+the values (in particular execution times) seem not to make much sense.
