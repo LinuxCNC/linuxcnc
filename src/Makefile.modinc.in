@@ -67,12 +67,17 @@ KERNELDIR = /lib/modules/$(KERNEL_VERS)/build
 # Use same settings as everybody else
 include @EMC2_HOME@/src/Makefile.inc
 
+EXTRA_CFLAGS := $(RTFLAGS) \
+	-D__MODULE__ \
+	$(call cc-option,-mieee-fp) \
+	$(KERNEL_MATH_CFLAGS)
+
 ifeq ($(RUN_IN_PLACE),yes)
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(EMC2_HOME)/include
+EXTRA_CFLAGS += -I$(EMC2_HOME)/include
 RTLIBDIR := $(EMC2_HOME)/rtlib/$(RTDIR_EXT)
 LIBDIR := $(EMC2_HOME)/lib
 else
-EXTRA_CFLAGS := $(RTFLAGS) -D__MODULE__ -I$(includedir)/linuxcnc
+EXTRA_CFLAGS += -I$(includedir)/linuxcnc
 RTLIBDIR := $(EMC2_RTLIB_DIR)
 LIBDIR := $(libdir)
 endif
