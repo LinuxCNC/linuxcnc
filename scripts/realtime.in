@@ -53,12 +53,18 @@ BUILD_SYS=`${flavor} -b`
 getvar MODULES --flavor
 getvar rtapi_app --flavor
 
-# Other
-getvar USE_SHMDRV
+# Other, overridable by enivironment variables
+if [ "$USE_SHMDRV" == "" ]  ; then
+    getvar USE_SHMDRV
+fi
+
+if [ "$HAL_SIZE" == "" ]  ; then
+    getvar HAL_SIZE
+fi
+
 if [ "$DEBUG" == "" ]  ; then
     getvar DEBUG
 fi
-getvar HAL_SIZE
 
 
 # set the default instance, if not already set
