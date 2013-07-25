@@ -527,6 +527,9 @@ Feel free to add issues so they are not lost.
 
 == Issues
 
+Parallel build (make -j<numcores>)::
+	 currently broken, some dependency missing
+
 hal_lib.c::
 	 contains some udocumented new methods. They do not impact
 	 HAL functionality.
@@ -536,7 +539,8 @@ rtapi_msgd naming::
 	   per-instance global data segment which is essential for
 	   LinuxCNC operaton. 
 
-squashing out 'wip' and 'FIXME' commits:: TBD.
+squashing out 'wip' and 'FIXME' commits:: 
+	  TBD.
 
 == Remaining Work
 
