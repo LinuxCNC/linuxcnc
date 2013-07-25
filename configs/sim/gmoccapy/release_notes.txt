@@ -1,3 +1,32 @@
+ver. 0.9.5.1
+- bug in spindle switching while in LOG Mode
+- ESC and F1 keys will work now, even if use Keyboart shortcuts is not axtivated
+- solved a bug in run_from_line, the start line was not reseted after program stop, 
+  and I missed to reset self.data.restart_dialog to None
+
+ver. 0.9.5
+- Keyboart shortcuts, now ESCAPE only aboarts and F1 emit estop
+- spindle can be switched on and off while program is paused, without getting an error
+- sourceview now with search and do / redo, while in edit mode
+- added an offset page in ntb_preview with the possibility 
+  * to select directly an coordinate system
+  * edit the coordinates of every system
+  * give the systems human names
+- fixed a bug in tooledit, trying to touch of a tool not in spindle, I must check if this should be allowed
+  or if it better only allowing touch off with the tool in spindle
+- changed gmoccapy keyboard to "onboard", if the layout is not correct, the following command will correct it
+  setxkbmap -layout <your contry letters>       
+  gb for Great Britan, de for germany, etc.
+- changes in gscreen broke gmoccapy cycle start seems that hal_action run is not any longer permitted,
+  now hal toggle action is needed, corrected this
+- changed the entry dialog, so in some cases it is only possible to enter integer values
+- added a button to select a tool by its number, it is easear, if you have a lot of tools
+- cleared the code a lot
+- settings page, it is possible to select if you want to use the onbord keyboard also in tooledit page 
+  and in offset page edditing
+- deleted the hardware button simulation ini, because it will not work as it should and I was not able
+  to find a solution. 
+
 ver. 0.9.4
 - corrected a lot of typo, thanks to David for his help
 - renamed some widgets from "cero" to "zero"

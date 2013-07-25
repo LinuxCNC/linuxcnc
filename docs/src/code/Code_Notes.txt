@@ -16,11 +16,16 @@ very much a work in progress, and its layout may change in the future.
 
 == Terms and definitions
 
-* 'AXIS' - An axis is one of the six degrees of freedom that define a tool
-    position in three dimensional Cartesian space. Those axes are X, Y, Z,
-    A, B, and C, where X, Y, and Z are linear coordinates that determine
-    where the tip of the tool is, and A, B, and C are angular coordinates
-    that determine the tool orientation. Unfortunately “axis” is also
+* 'AXIS' - An axis is one of the nine degrees of freedom that define a tool
+    position in three-dimensional Cartesian space. Those nine axes are
+    referred to as X, Y, Z, A, B, C, U, V, and W. The linear orthagonal
+    coordinates X, Y, and Z determine where the tip of the tool is
+    positioned. The angular coordinates A, B, and C determine the tool
+    orientation. A second set of linear orthagonal coordinates U, V, and W
+    allows tool motion (typically for cutting actions) relative to the
+    previously offset and rotated axes.
+
+    Unfortunately “axis” is also
     sometimes used to mean a degree of freedom of the machine itself, such
     as the saddle, table, or quill of a Bridgeport type milling machine. On
     a Bridgeport this causes no confusion, since movement of the table

@@ -70,8 +70,16 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         gremlin.Gremlin.__init__(self, inifile)
 
         self.gstat = GStat()
-        self.gstat.connect('file-loaded', lambda w, f: self._load(f))
+        self.gstat.connect('file-loaded', self.fileloaded)
         self.show()
+
+    def fileloaded(self,w,f):
+        try:
+            self._load(f)
+        except AttributeError,detail:
+               #AttributeError: 'NoneType' object has no attribute 'gl_end'
+            print 'hal_gremlin: continuing after',detail
+
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')

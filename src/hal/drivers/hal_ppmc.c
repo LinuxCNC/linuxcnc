@@ -6,9 +6,9 @@
 *
 * Usage:  halcmd loadrt hal_ppmc port_addr=<addr1>[,addr2[,addr3]]
 *		[extradac=<slotcode1>,[<slotcode2>]]
-*		[extradout=<slotcode1,[<slotcode2>]]
-*               [timestamp=<slotcode1,[<slotcode2>]]
-*
+*		[extradout=<slotcode1>,[<slotcode2>]]
+*               [timestamp=<slotcode1>,[<slotcode2>]]
+*               [enc_clock=<slotcode1>,[<slotcode2>]]
 *               where 'addr1', 'addr2', and 'addr3' are the addresses
 *               of up to three parallel ports.
 *
@@ -22,7 +22,11 @@
 *		optional DAC or digital outs installed.
 *               timestamp works the same way, for UPC boards of rev 4
 *               or higher that have the timestamp feature.
-*              
+*               enc_clock specifes a 3-digit hex value, where the 1st is a
+*               code of 1,2, 5 or 10 to indicate an encoder clock rate of 1, 2.5, 5 or 10 MHz.
+*               The following 2 digits work as above, bus and board address.
+*               Only rev 4 and above PPMC encoder boards have this clock select feature.
+
 * Author: John Kasunich, Jon Elson, Stephen Wille Padnos
 * License: GPL Version 2
 *    
@@ -95,6 +99,11 @@ int timestamp[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
 RTAPI_MP_ARRAY_INT(timestamp, MAX_BUS*8, "bus/slot locations of timestamped encoders");
+int enc_clock[MAX_BUS*8] = {
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
+RTAPI_MP_ARRAY_INT(enc_clock, MAX_BUS*8, "bus/slot locations of encoder clock settings");
 
 /***********************************************************************
 *                DEFINES (MOSTLY REGISTER ADDRESSES)                   *
@@ -117,6 +126,7 @@ RTAPI_MP_ARRAY_INT(timestamp, MAX_BUS*8, "bus/slot locations of timestamped enco
 
 #define ENCCTRL     0x03	/* EPP address of encoder control register */
 #define ENCRATE     0x04	/* interrupt rate register, only on master encoder */
+#define ENCCLOCK    0x05	/* encoder digital filter clock rate (1,2.5, 5 or 10 MHz PPMC only) */
 #define ENCISR      0x0C	/* index detect latch register (read only) */
 #define ENCINDX     0x0D	/* index reset register (write only) */
                                 /* only available with rev 2 and above FPGA config */
@@ -326,7 +336,8 @@ typedef struct slot_data_s {
     DACs_t *DAC;                /* ptr to shmem data for DACs */
     int extra_mode;		/* indicates if/how "extra" port is used */
     extra_t *extra;		/* ptr to shmem for "extra" port */
-  unsigned int use_timestamp;   /* indicates whether to use timestamp encoder feature */
+    unsigned int use_timestamp;   /* indicates whether to use timestamp encoder feature */
+    unsigned int enc_freq  ;     /* encoder clock rate (PPMC only) */
 } slot_data_t;
 
 /* this structure contains the runtime data for a complete EPP bus */
@@ -560,6 +571,7 @@ int rtapi_app_main(void)
 	    slot->id = id = idcode & 0xF0;
 	    slot->ver = ver = idcode & 0x0F;
 	    slot->use_timestamp = 0; /* default is no timestamp */
+	    slot->enc_freq = 0; /* default is 1 MHz */
 	    /* mark slot as occupied */
 	    bus->slot_valid[slotnum] = 1;
 	    
@@ -580,8 +592,22 @@ int rtapi_app_main(void)
 		if ( need_timestamp ) {
 		    rv1 += export_timestamp(slot, bus);
 		}		
-		// can't export encoder until we know if it uses timestamp feature
+		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
+		  if ( (enc_clock[n] & 0xff) == bus_slot_code) {
+		    //		    rtapi_print_msg(RTAPI_MSG_ERR,"PPMC detected enc_clock parameter%x\n",enc_clock[n]);
+		    if (slot->ver < 4) {
+		      rtapi_print_msg(RTAPI_MSG_ERR, 
+				      "PPMC encoder does not support adjustable encoder clock, ignoring\n");
+		    }
+		    slot->enc_freq = (enc_clock[n]) >> 8; // the clock selection is in bits 12-8
+		    //		    rtapi_print_msg(RTAPI_MSG_ERR,"PPMC enc_freq=%x\n",slot->enc_freq);
+		  }
+		}
+		// can't export encoder until we know if it uses timestamp
+		// and/or enc_clock feature
 		rv1 += export_encoders(slot, bus);
+		/* encoder ver 4 and above occupy two slot addresses */
+		if (slot->ver >= 4) slotnum++;
 		break;
 	    case 0x20:
 		boards++;
@@ -2070,7 +2096,7 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
 
 static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 {
-    int retval, n;
+  int retval, n, m;
     
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder pins / params\n");
 
@@ -2115,6 +2141,31 @@ static int export_encoders(slot_data_t *slot, bus_data_t *bus)
     }
     slot->encoder[0].indres = 0;  /* clear reset-on-index reg copy */
     /* export per-encoder pins and params */
+    if (slot->enc_freq != 0) {
+      switch (slot->enc_freq) {
+      case 1:
+	m = 0;
+	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 1 MHz.\n");
+	break;
+      case 2:
+	m = 1;
+	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 2.5 MHz.\n");
+	break;
+      case 5:
+	m = 2;
+	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 5 MHz.\n");
+	break;
+      case 10:
+	m = 3;
+	rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: setting encoder clock to 10 MHz.\n");
+	break;
+      default:
+	m = 0;
+	rtapi_print_msg(RTAPI_MSG_ERR, "PPMC: invalid encoder clock setting.\n");
+	break;
+      }
+      SelWrt(m, slot->slot_base+ENCCLOCK, slot->port_addr);  // make the setting
+    }
     for ( n = 0 ; n < 4 ; n++ ) {
         /* scale input parameter */
         retval = hal_param_float_newf(HAL_RW, &(slot->encoder[n].scale), comp_id,

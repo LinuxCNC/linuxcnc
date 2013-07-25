@@ -1,0 +1,9 @@
+component test_define1;
+
+pin out s32 out;
+function _ nofp;
+license "GPL";
+;;
+int testdefine;
+
+FUNCTION(_) { out = testdefine++; }

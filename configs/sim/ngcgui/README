@@ -1,4 +1,6 @@
 ngcgui -- Create tabs in the axis gui for subroutines.
+pyngcgui -- python, gladevcp implementation of ngcgui that can be embedded
+            in guis like touchy, gscreen gmoccapy
 
 In the packaged version of linuxCNC, ngcgui_lib is created as a symbolic link
 to a system directory owned by root:

@@ -348,8 +348,7 @@ example '##2'  means the value of the parameter whose index is the
 
 5420-5428::
      Current Position including all offsets and in the current program
-    units for X, Y, Z, A, B, C, U, V & W. In absolute machine coordinates, 
-    volatile.
+    units for X, Y, Z, A, B, C, U, V & W, volatile.
 
 5599::
    flag for controlling the output of (DEBUG,) statements.
@@ -594,31 +593,31 @@ parameters>> can be added easily without changes to the source code.
     Return the current spindle speed (S).
 
 * `#<_x>` -
-    Return absolute machine X coordinate. Same as #5420.
+    Return current machine X coordinate. Same as #5420.
 
 * `#<_y>` -
-    Return absolute machine Y coordinate. Same as #5421.
+    Return current machine Y coordinate. Same as #5421.
 
 * `#<_z>` -
-    Return absolute machine Z coordinate. Same as #5422.
+    Return current machine Z coordinate. Same as #5422.
 
 * `#<_a>` -
-    Return absolute machine A coordinate. Same as #5423.
+    Return current machine A coordinate. Same as #5423.
 
 * `#<_b>` -
-    Return absolute machine B coordinate. Same as #5424.
+    Return current machine B coordinate. Same as #5424.
 
 * `#<_c>` -
-    Return absolute machine C coordinate. Same as #5425.
+    Return current machine C coordinate. Same as #5425.
 
 * `#<_u>` -
-    Return absolute machine U coordinate. Same as #5426.
+    Return current machine U coordinate. Same as #5426.
 
 * `#<_v>` -
-    Return absolute machine V coordinate. Same as #5427.
+    Return current machine V coordinate. Same as #5427.
 
 * `#<_w>` -
-    Return absolute machine W coordinate. Same as #5428.
+    Return current machine W coordinate. Same as #5428.
 
 * `#<_current_tool>` -
     Return number of the current tool in spindle. Same as #5400.
