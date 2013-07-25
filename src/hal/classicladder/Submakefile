@@ -31,7 +31,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	vars_names.c \
 	vars_access.c \
         ) hal/utils/miscgtk.c
-	
+
 GTK_CFLAGS += -DGTK_INTERFACE -DGTK2
 ifeq ($(HAVE_GNOMEPRINT),yes)
 CLASSICLADDERSRCS += hal/classicladder/print_gnome.c

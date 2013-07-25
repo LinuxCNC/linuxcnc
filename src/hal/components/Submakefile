@@ -1,11 +1,11 @@
-#HALCOMP_SUBMAKEFILE= hal/components/Submakefile
+HALCOMP_SUBMAKEFILE= hal/components/Submakefile
 # for debugging this file - to prevent recompilation of
 # everything under the sun with every small change
-HALCOMP_SUBMAKEFILE=
+#HALCOMP_SUBMAKEFILE=
 
 ifneq ($(KERNELRELEASE),)
 COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
-include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
+include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
     conv_float_s32.comp conv_float_u32.comp \
@@ -19,13 +19,17 @@ COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(C
 manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
 .PHONY: manpages
-ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
-Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
-endif
-endif
+ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
+-include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak,\
+	$(COMPS) $(COMP_DRIVERS))
+endif # TRIVIAL_BUILD == no
+endif # KERNELRELEASE != ''
 
-obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
+ifeq ($(BUILD_THREAD_MODULES),yes)
+obj-m += $(patsubst hal/drivers/%.comp, %.o, \
+	$(patsubst hal/components/%.comp, %.o, \
+	$(COMPS)))
+endif
 
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
 	$(ECHO) Making comp manpage $(notdir $@)
@@ -37,19 +41,50 @@ $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --document -o $@ $<
 
-objects/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
-	$(ECHO) "Creating $(notdir $@)"
-	@mkdir -p $(dir $@)
-	$(Q)echo $(notdir $*)-objs := objects/$*.o > $@.tmp
-	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
-	$(Q)mv -f $@.tmp $@
-
-objects/%.c: %.comp ../bin/comp
+ifeq ($(BUILD_ALL_FLAVORS),yes)
+# .c and .mak files are identical for all flavors
+#
+# in the top-level make, build them once in a common location
+halcomp-srcs/%.c: %.comp ../bin/comp
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --require-license -o $@ $<
 
-modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
+halcomp-srcs/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
+	$(ECHO) "Creating $(notdir $@)"
+	$(ECHO) "Creating $@"
+	@mkdir -p $(dir $@)
+	$(Q)echo "$(notdir $*)-objs := halcomp-srcs/$*.o" > $@.tmp
+	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp
+	$(Q)echo "    \$$(OBJDIR)/halcomp-srcs/$*.o" >> $@.tmp
+	$(Q)mv -f $@.tmp $@
+
+# Generate .c and .mak files before the modules target
+modules: $(patsubst %.comp, halcomp-srcs/%.c, $(COMPS) $(COMP_DRIVERS))
+modules: $(patsubst %.comp, halcomp-srcs/%.mak, $(COMPS) $(COMP_DRIVERS))
+endif # BUILD_ALL_FLAVORS == yes
+
+# ifeq ($(BUILD_THREAD_MODULES),yes)
+# # to build flavors separately, source files need to be linked 
+# # are these still neededby kthreads build?
+# # are they used at all?
+# HALCOMP_DIR_STAMPS := \
+# 	halcomp-srcs/hal/components/.dir-stamp \
+# 	halcomp-srcs/hal/drivers/.dir-stamp
+# $(HALCOMP_DIR_STAMPS):
+# 	@mkdir -p $(dir $@) && touch $@
+
+# ifeq ($(BUILD_KBUILD),no)
+# # do we still need this?  These don't seem to be usedin userland threads
+# $(OBJDIR)/halcomp-srcs/hal/%.c: halcomp-srcs/hal/%.c \
+# 		$(patsubst %,$(OBJDIR)/%,$(HALCOMP_DIR_STAMPS))
+# 	cp $< $@
+# else
+# #do we need this?  This shouldbe taken care of by the wholesale copy operation
+# halcomp-srcs/hal/%.c: $(BASEPWD)/halcomp-srcs/hal/%.c $(HALCOMP_DIR_STAMPS)
+# 	cp $< $@
+# endif
+# endif
 
 clean: clean-comp-manpages
 clean-comp-manpages:

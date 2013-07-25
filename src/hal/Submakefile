@@ -3,29 +3,36 @@ INCLUDES += hal
 ../include/%.h: ./hal/%.h
 	cp $^ $@
 
+# observed on wheezy
+HALLIBSRCS := \
+	hal/hal_lib.c
 
-HALLIBSRCS := hal/hal_lib.c $(ULAPI_SRCS)
+# ULAPI: all thread-specific code now comes in through the ulapi library
+# (liblinuxcnculapi.so) which autoloads the proper ulapi on demand
 
-ifeq ($(THREADS),xenomai-kernel)
-XENO_LINK := $(shell $(XENO_CONFIG) --skin=native --ldflags )
-else
-XENO_LINK=
-endif
-
-$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
 
 # Add to list of sources to compile -DULAPI ->
-# objects/{rtapi/*.o,hal/hal_lib.o}
+# objects/{hal/hal_lib.o}
 USERSRCS += $(HALLIBSRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
 
-$(HALLIB).0: $(call TOOBJS, $(HALLIBSRCS))
+
+# for now, link in ulapi  plus any referenced  objs directly
+# cause: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
+
+$(HALLIB).0: \
+	$(call TOOBJS, $(HALLIBSRCS)) \
+	$(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
+	$(call TOOBJS, $(SHMDRVAPISRCS)) \
+	$(call TOOBJS,$(LIBINISRCS))		
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(RT_LDFLAGS)
+	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ -lstdc++ -ldl -lrt $(RT_LDFLAGS)
 
 HALMODULESRCS := hal/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
@@ -35,5 +42,7 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ 
 
+
+
 TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
-PYTARGETS += $(HALMODULE)
+PYTARGETS += $(HALMODULE) 

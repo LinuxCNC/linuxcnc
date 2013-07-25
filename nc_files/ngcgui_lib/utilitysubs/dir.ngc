@@ -1,4 +1,4 @@
-(determine direction for polygon described by ordered points)
+(info:dir determine direction for polygon described by ordered points)
 (minimum 3 points, up to 6 points)
 
 (return: #<_dir:> == 2 for CW, 3 for CCW, -1 for undetermined)

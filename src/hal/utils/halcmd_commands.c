@@ -55,6 +55,7 @@
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
+#include <limits.h>			/* PATH_MAX */
 
 
 static int unloadrt_comp(char *mod_name);
@@ -73,6 +74,7 @@ static void print_sig_names(char **patterns);
 static void print_param_names(char **patterns);
 static void print_funct_names(char **patterns);
 static void print_thread_names(char **patterns);
+
 static void print_lock_status();
 static int count_list(int list_root);
 static void print_mem_status();
@@ -496,6 +498,9 @@ int do_net_cmd(char *signal, char *pins[]) {
 #if 0  /* newinst deferred to version 2.2 */
 int do_newinst_cmd(char *comp_name, char *inst_name) {
     hal_comp_t *comp = halpr_find_comp_by_name(comp_name);
+    char *argv[MAX_TOK];
+    char inst[50];
+    char rtapi_app[PATH_MAX];
 
     if(!comp) {
         halcmd_error( "No such component: %s\n", comp_name);
@@ -508,13 +513,19 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
     if ( *inst_name == '\0' ) {
         halcmd_error( "Must supply name for new instance\n");
         return -EINVAL;
-    }	
+    }
 
-#if defined(BUILD_SYS_USER_DSO)
-    {
-        char *argv[MAX_TOK];
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
+	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+
+	if (get_rtapi_config(rtapi_app,"rtapi_app",PATH_MAX) != 0) {
+	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
+	    return -ENOENT;
+	}
+
         int m = 0, result;
-        argv[m++] = EMC2_BIN_DIR "/rtapi_app";
+        argv[m++] = rtapi_app;
+	argv[m++] = inst;
         argv[m++] = "newinst";
         argv[m++] = comp_name;
         argv[m++] = inst_name;
@@ -524,55 +535,50 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
             halcmd_error( "newinst failed: %d\n", result);
             return -EINVAL;
         }
-    }
-#else
-    {
-    FILE *f;
-    f = fopen("/proc/rtapi/hal/newinst", "w");
-    if(!f) {
-        halcmd_error( "cannot open proc entry: %s\n",
-                strerror(errno));
-        return -EINVAL;
-    }
+    } else {
+	FILE *f;
+	f = fopen("/proc/rtapi/hal/newinst", "w");
+	if(!f) {
+	    halcmd_error( "cannot open proc entry: %s\n",
+			  strerror(errno));
+	    return -EINVAL;
+	}
+	rtapi_mutex_get(&(hal_data->mutex));
 
-    rtapi_mutex_get(&(hal_data->mutex));
+	while(hal_data->pending_constructor) {
+	    struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    nanosleep(&ts, NULL);
+	    rtapi_mutex_get(&(hal_data->mutex));
+	}
+	strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
+	hal_data->constructor_prefix[HAL_NAME_LEN]=0;
+	hal_data->pending_constructor = comp->make;
+	rtapi_mutex_give(&(hal_data->mutex));
 
-    while(hal_data->pending_constructor) {
-        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
-        rtapi_mutex_give(&(hal_data->mutex));
-        nanosleep(&ts, NULL);
-        rtapi_mutex_get(&(hal_data->mutex));
-    }
-    strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
-    hal_data->constructor_prefix[HAL_NAME_LEN]=0;
-    hal_data->pending_constructor = comp->make;
-    rtapi_mutex_give(&(hal_data->mutex));
+	if(fputc(' ', f) == EOF) {
+	    halcmd_error( "cannot write to proc entry: %s\n",
+			  strerror(errno));
+	    fclose(f);
+	    rtapi_mutex_get(&(hal_data->mutex));
+	    hal_data->pending_constructor = 0;
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return -EINVAL;
+	}
+	if(fclose(f) != 0) {
+	    halcmd_error("cannot close proc entry: %s\n",
+			 strerror(errno));
+	    rtapi_mutex_get(&(hal_data->mutex));
+	    hal_data->pending_constructor = 0;
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    return -EINVAL;
+	}
 
-    if(fputc(' ', f) == EOF) {
-        halcmd_error( "cannot write to proc entry: %s\n",
-                strerror(errno));
-        fclose(f);
-        rtapi_mutex_get(&(hal_data->mutex));
-        hal_data->pending_constructor = 0;
-        rtapi_mutex_give(&(hal_data->mutex));
-        return -EINVAL;
+	while(hal_data->pending_constructor) {
+	    struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
+	    nanosleep(&ts, NULL);
+	}
     }
-    if(fclose(f) != 0) {
-        halcmd_error(
-                "cannot close proc entry: %s\n",
-                strerror(errno));
-        rtapi_mutex_get(&(hal_data->mutex));
-        hal_data->pending_constructor = 0;
-        rtapi_mutex_give(&(hal_data->mutex));
-        return -EINVAL;
-    }
-
-    while(hal_data->pending_constructor) {
-        struct timespec ts = {0, 100 * 1000 * 1000}; // 100ms
-        nanosleep(&ts, NULL);
-    }
-    }
-#endif
     rtapi_mutex_get(&hal_data->mutex);
     {
     hal_comp_t *inst = halpr_alloc_comp_struct();
@@ -929,6 +935,45 @@ static int get_type(char ***patterns) {
     return -1;
 }
 
+int do_log_cmd(char *type, char *level)
+{
+    char *lp = level;
+    int ivalue;
+
+    if (type == NULL) {
+	halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
+		  global_data->rt_msg_level, global_data->user_msg_level);
+	return 0;
+    }
+    if (level == NULL)  {
+	if (strcasecmp(type, "rt") == 0) {
+	    halcmd_output("%d\n", global_data->rt_msg_level);
+	} else if (strcasecmp(type, "user") == 0) {
+	    halcmd_output("%d\n", global_data->user_msg_level);
+	} else {
+	    halcmd_error("log: invalid loglevel type '%s' - expected 'rt' or 'user'\n", type);
+	    return -EINVAL;
+	}
+	return 0;
+    } 
+    ivalue = strtol(level, &lp, 0);
+    if ((*lp != '\0') && (!isspace(*lp))) {
+	/* invalid chars in string */
+	halcmd_error("value '%s' invalid for interger\n", level);
+	return -EINVAL;
+    } else {
+	if (strcasecmp(type, "rt") == 0) {
+	    global_data->rt_msg_level = ivalue;
+	} else if (strcasecmp(type, "user") == 0) {
+	    global_data->user_msg_level = ivalue;
+	} else {
+	    halcmd_error("log: invalid loglevel type '%s' - expected 'rt' or 'user'\n", type);
+	    return -EINVAL;
+	}
+	return 0;
+    }
+}
+
 int do_show_cmd(char *type, char **patterns)
 {
 
@@ -958,6 +1003,7 @@ int do_show_cmd(char *type, char **patterns)
 	print_thread_info(patterns);
     } else if (strcmp(type, "comp") == 0) {
 	print_comp_info(patterns);
+
     } else if (strcmp(type, "pin") == 0) {
 	int type = get_type(&patterns);
 	print_pin_info(type, patterns);
@@ -1054,74 +1100,68 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
-#if defined(BUILD_SYS_USER_DSO)
-    argv[m++] = "-Wn";
-    argv[m++] = mod_name;
-    argv[m++] = EMC2_BIN_DIR "/rtapi_app";
-    argv[m++] = "load";
-    argv[m++] = mod_name;
-    /* loop thru remaining arguments */
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    argv[m++] = NULL;
-    retval = do_loadusr_cmd(argv);
-#else
-    static char *rtmod_dir = EMC2_RTLIB_DIR;
-    struct stat stat_buf;
-    char mod_path[MAX_CMD_LEN+1];
+    char executable[PATH_MAX];
+    char mod_path[PATH_MAX];
+    char inst[50];
 
-    if (hal_get_lock()&HAL_LOCK_LOAD) {
-	halcmd_error("HAL is locked, loading of modules is not permitted\n");
-	return -EPERM;
-    }
-    if ( (strlen(rtmod_dir)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
-	halcmd_error("Module path too long\n");
-	return -1;
-    }
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
+	if (get_rtapi_config(executable,"rtapi_app",PATH_MAX) != 0) {
+	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
+	    return -ENOENT;
+	}
 
-    /* make full module name '<path>/<name>.o' */
-    {
-        int r;
-        r = snprintf(mod_path, sizeof(mod_path), "%s/%s%s", rtmod_dir, mod_name, MODULE_EXT);
-        if (r < 0) {
-            halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
-            return -1;
-        } else if (r >= sizeof(mod_path)) {
-            // truncation!
-            halcmd_error("module path too long (max %lu) for %s/%s%s\n",
-			 sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
-            return -1;
-        }
-    }
+	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+	argv[m++] = "-Wn";
+	argv[m++] = mod_name;
+	argv[m++] = executable;
+	argv[m++] = inst;
+	argv[m++] = "load";
+	argv[m++] = mod_name;
+	/* loop thru remaining arguments */
+	while ( args[n] && args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	argv[m++] = NULL;
+	retval = do_loadusr_cmd(argv);
+    } else {
 
-    /* is there a file with that name? */
-    if ( stat(mod_path, &stat_buf) != 0 ) {
-        /* can't find it */
-        halcmd_error("Can't find module '%s' in %s\n", mod_name, rtmod_dir);
-        return -1;
-    }
-    
-    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[1] = "insert";
-    argv[2] = mod_path;
-    /* loop thru remaining arguments */
-    n = 0;
-    m = 3;
-    while ( args[n] && args[n][0] != '\0' ) {
-        argv[m++] = args[n++];
-    }
-    /* add a NULL to terminate the argv array */
-    argv[m] = NULL;
+	if (hal_get_lock()&HAL_LOCK_LOAD) {
+	    halcmd_error("HAL is locked, loading of modules is not permitted\n");
+	    return -EPERM;
+	}
+	/* FIXME: Is checking this length still necessary?  Can we use
+	   PATH_MAX instead?  What's the arbitrary '+5' for?
+	*/
+	if ( (strlen(mod_path)+strlen(mod_name)+5) > MAX_CMD_LEN ) {
+	    halcmd_error("Module path too long\n");
+	    return -1;
+	}
+	if (get_rtapi_config(executable,"linuxcnc_module_helper",
+			     PATH_MAX) != 0) {
+	    halcmd_error("linuxcnc_module_helper executable path not found "
+			 "in rtapi.ini\n");
+	    return -ENOENT;
+	}
+	argv[0] = executable;
+	argv[1] = "insert";
+	argv[2] = mod_name;
+	/* loop thru remaining arguments */
+	n = 0;
+	m = 3;
+	while ( args[n] && args[n][0] != '\0' ) {
+	    argv[m++] = args[n++];
+	}
+	/* add a NULL to terminate the argv array */
+	argv[m] = NULL;
 
-    retval = hal_systemv(argv);
-#endif
+	retval = hal_systemv(argv);
+    }
 
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d\n"
-#if !defined(BUILD_SYS_USER_DSO)
-            "See the output of 'dmesg' for more information.\n"
-#endif
+		     //#if !defined(BUILD_SYS_USER_DSO)
+            "See the log and output of 'dmesg' for more information.\n"
+		     //#endif
         , retval );
 	return -1;
     }
@@ -1236,8 +1276,24 @@ int do_unloadusr_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 0 && comp->pid != ourpid) {
-	    /* found a userspace component besides us */
+	if ((comp->type == TYPE_REMOTE)
+	    && comp->pid == 0) {
+	    /* found a disowned remote component */
+	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
+		// we want to unload this component,so hal_exit() it
+		// need to temporarily release the mutex
+		// because hal_exit() grabs it too
+		rtapi_mutex_give(&(hal_data->mutex));
+		hal_exit(comp->comp_id);
+		rtapi_mutex_get(&(hal_data->mutex));
+	    }
+	}
+	// an owned remote component, or a user component
+	// owned by somebody other than us receives a signal
+	if (((comp->type == TYPE_REMOTE) && (comp->pid != 0)) ||
+	    ((comp->type == TYPE_USER) && comp->pid != ourpid)) {
+
+	    /* found a userspace or remote component besides us */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, send it SIGTERM */
                 kill(abs(comp->pid), SIGTERM);
@@ -1268,7 +1324,7 @@ int do_unloadrt_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == TYPE_RT ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
@@ -1312,18 +1368,33 @@ int do_unloadrt_cmd(char *mod_name)
 static int unloadrt_comp(char *mod_name)
 {
     int retval;
-    char *argv[4];
+    char *argv[10];
+    int m=0;
+    char executable[PATH_MAX];
 
-#if defined(BUILD_SYS_USER_DSO)
-    argv[0] = EMC2_BIN_DIR "/rtapi_app";
-    argv[1] = "unload";
-#else
-    argv[0] = EMC2_BIN_DIR "/linuxcnc_module_helper";
-    argv[1] = "remove";
-#endif
-    argv[2] = mod_name;
+    if (!(flavor->flags & FLAVOR_KERNEL_BUILD)) {
+	char inst[50];
+	snprintf(inst,sizeof(inst),"--instance=%d", rtapi_instance);
+	if (get_rtapi_config(executable,"rtapi_app",PATH_MAX) != 0) {
+	    halcmd_error("rtapi_app executable path not found in rtapi.ini\n");
+	    return -ENOENT;
+	}
+	argv[m++] = executable;
+	argv[m++] = inst;
+	argv[m++] = "unload";
+    }  else {
+	if (get_rtapi_config(executable,"linuxcnc_module_helper",
+			     PATH_MAX) != 0) {
+	    halcmd_error("linuxcnc_module_helper executable path not found "
+			 "in rtapi.ini\n");
+	    return -ENOENT;
+	}
+	argv[m++] = executable;
+	argv[m++] = "remove";
+    }
+    argv[m++] = mod_name;
     /* add a NULL to terminate the argv array */
-    argv[3] = NULL;
+    argv[m++] = NULL;
 
     retval = hal_systemv(argv);
 
@@ -1354,8 +1425,15 @@ int do_unload_cmd(char *mod_name) {
                 mod_name);
             return -1;
         }
-        if(type == 1) return do_unloadrt_cmd(mod_name);
-        else return do_unloadusr_cmd(mod_name);
+	switch (type) {
+	case TYPE_RT:
+	    return do_unloadrt_cmd(mod_name);
+	case TYPE_USER:
+	case TYPE_REMOTE:
+	    return do_unloadusr_cmd(mod_name);
+	default:
+	    return -1;
+	}
     }
 }
 
@@ -1438,7 +1516,9 @@ int do_loadusr_cmd(char *args[])
 	    comp_id );
 	exit(-1);
     }
-    hal_ready(comp_id);
+    // Not needed when using rtapi attach/detach since we're not doing the
+    // hal_exit()/hal_init()/hal_ready() dance
+    // hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0, exited=0;
         hal_comp_t *comp = NULL;
@@ -1455,7 +1535,7 @@ int do_loadusr_cmd(char *args[])
 	    /* check for program becoming ready */
             rtapi_mutex_get(&(hal_data->mutex));
             comp = halpr_find_comp_by_name(new_comp_name);
-            if(comp && comp->ready) {
+            if(comp && (comp->state > COMP_INITIALIZING)) {
                 ready = 1;
             }
             rtapi_mutex_give(&(hal_data->mutex));
@@ -1531,9 +1611,9 @@ int do_waitusr_cmd(char *comp_name)
 	halcmd_error("component '%s' not found\n", comp_name);
 	return -EINVAL;
     }
-    if (comp->type != 0) {
+    if ((comp->type != TYPE_USER) && (comp->type != TYPE_REMOTE)){
 	rtapi_mutex_give(&(hal_data->mutex));
-	halcmd_error("'%s' is not a userspace component\n", comp_name);
+	halcmd_error("'%s' is not a userspace or remote component\n", comp_name);
 	return -EINVAL;
     }
     rtapi_mutex_give(&(hal_data->mutex));
@@ -1556,6 +1636,37 @@ int do_waitusr_cmd(char *comp_name)
     return 0;
 }
 
+static const char *type_name(int mode){
+    switch (mode) {
+    case TYPE_RT:
+	return "RT";
+    case TYPE_USER:
+	return "User";
+    case TYPE_REMOTE:
+	return "Rem";
+    case TYPE_INSTANCE:
+	// thi sobviously was never implemented
+	return "Inst";
+    default:
+	return "***error***";
+    }
+}
+
+static const char *state_name(int state)
+{
+    switch (state) {
+    case COMP_INITIALIZING:
+	return "initializing";
+    case COMP_UNBOUND:
+	return "unbound";
+    case COMP_BOUND:
+	return "bound";
+    case COMP_READY:
+	return "ready";
+    default:
+	return "**error**";
+    }
+}
 
 static void print_comp_info(char **patterns)
 {
@@ -1571,22 +1682,43 @@ static void print_comp_info(char **patterns)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( match(patterns, comp->name) ) {
-            if(comp->type == 2) {
+            if(comp->type == TYPE_INSTANCE) {
                 hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
                 halcmd_output("    INST %s %s",
                         comp1 ? comp1->name : "(unknown)", 
                         comp->name);
             } else {
                 halcmd_output(" %5d  %-4s  %-*s",
-                    comp->comp_id, (comp->type ? "RT" : "User"),
-                    HAL_NAME_LEN, comp->name);
-                if(comp->type == 0) {
-                        halcmd_output(" %5d %s", comp->pid, comp->ready > 0 ?
-                                "ready" : "initializing");
+			      comp->comp_id, type_name(comp->type),
+			      HAL_NAME_LEN, comp->name);
+                if ((comp->type == TYPE_USER) || (comp->type == TYPE_REMOTE)) {
+		    halcmd_output(" %5d %s",
+				  comp->pid,
+				  state_name(comp->state));
                 } else {
-                        halcmd_output(" %5s %s", "", comp->ready > 0 ?
-                                "ready" : "initializing");
+		    halcmd_output(" %5s %s", "",
+				  state_name(comp->state));
                 }
+		if (comp->type == TYPE_REMOTE) {
+		    time_t now = time(NULL);
+		    if (comp->last_update) {
+
+			halcmd_output(", update:-%ld",-(comp->last_update-now));
+		    } else
+			halcmd_output(", update:never");
+
+		    if (comp->last_bound) {
+
+			halcmd_output(", bound:%lds",comp->last_bound-now);
+		    } else
+			halcmd_output(", bound:never");
+		    if (comp->last_unbound) {
+			time_t now = time(NULL);
+
+			halcmd_output(", unbound:%lds", comp->last_unbound-now);
+		    } else
+			halcmd_output(", unbound:never");
+		}
             }
             halcmd_output("\n");
 	}
@@ -1606,7 +1738,11 @@ static void print_pin_info(int type, char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
+#ifdef USE_PIN_USER_ATTRIBUTES
+	halcmd_output("Owner   Type  Dir         Value  Name\tEpsilon\t\tFlags\n");
+#else
 	halcmd_output("Owner   Type  Dir         Value  Name\n");
+#endif
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
@@ -1622,12 +1758,22 @@ static void print_pin_info(int type, char **patterns)
 		dptr = &(pin->dummysig);
 	    }
 	    if (scriptmode == 0) {
+#ifdef USE_PIN_USER_ATTRIBUTES
+		halcmd_output(" %5d  %5s %-3s  %9s  %s\t%f\t%d",
+			      comp->comp_id,
+			      data_type((int) pin->type),
+			      pin_data_dir((int) pin->dir),
+			      data_value((int) pin->type, dptr),
+			      pin->name,
+			      pin->epsilon, pin->flags);
+#else
 		halcmd_output(" %5d  %5s %-3s  %9s  %s",
 		    comp->comp_id,
 		    data_type((int) pin->type),
 		    pin_data_dir((int) pin->dir),
 		    data_value((int) pin->type, dptr),
 		    pin->name);
+#endif
 	    } else {
 		halcmd_output("%s %s %s %s %s",
 		    comp->name,
@@ -1850,6 +1996,73 @@ static void print_funct_info(char **patterns)
     halcmd_output("\n");
 }
 
+static void print_thread_stats(hal_thread_t *tptr)
+{
+    int flavor = global_data->rtapi_thread_flavor;
+    rtapi_threadstatus_t *ts =
+	&global_data->thread_status[tptr->task_id];
+
+    halcmd_output("\nLowlevel thread statistics for '%s':\n\n",
+		  tptr->name);
+
+    // generic statistics counters
+    halcmd_output("    updates=%d\t", ts->num_updates);
+    if (ts->num_updates) {
+	halcmd_output("api_err=%d\t", ts->api_errors);
+	halcmd_output("other_err=%d\n", ts->api_errors);
+    }
+
+    // flavor-specific statistics counters
+    switch (flavor) {
+    case RTAPI_XENOMAI_ID: // xenomai-user
+    case RTAPI_XENOMAI_KERNEL_ID:
+
+	halcmd_output("    wait_errors=%d\t",
+		      ts->flavor.xeno.wait_errors);
+	halcmd_output("overruns=%d\t",
+		      ts->flavor.xeno.total_overruns);
+	halcmd_output("modeswitches=%d\t",
+		      ts->flavor.xeno.modeswitches);
+	halcmd_output("contextswitches=%d\n",
+		      ts->flavor.xeno.ctxswitches);
+	halcmd_output("    pagefaults=%d\t",
+		      ts->flavor.xeno.pagefaults);
+	halcmd_output("exectime=%llduS\t",
+		      ts->flavor.xeno.exectime/1000);
+	halcmd_output("status=0x%x\n",
+		      ts->flavor.xeno.status);
+	break;
+
+    case RTAPI_POSIX_ID:
+    case RTAPI_RT_PREEMPT_ID:
+	halcmd_output("    wait_errors=%d\t",
+		      ts->flavor.rtpreempt.wait_errors);
+	halcmd_output("usercpu=%lduS\t",
+		      ts->flavor.rtpreempt.utime_sec * 1000000 +
+		      ts->flavor.rtpreempt.utime_usec);
+	halcmd_output("syscpu=%lduS\t",
+		      ts->flavor.rtpreempt.stime_sec * 1000000 +
+		      ts->flavor.rtpreempt.stime_usec);
+	halcmd_output("nsigs=%ld\n",
+		      ts->flavor.rtpreempt.ru_nsignals);
+	halcmd_output("    ivcsw=%ld\t",
+		      ts->flavor.rtpreempt.ru_nivcsw -
+		      ts->flavor.rtpreempt.startup_ru_nivcsw);
+	halcmd_output("    minflt=%ld\t",
+		      ts->flavor.rtpreempt.ru_minflt -
+		      ts->flavor.rtpreempt.startup_ru_minflt);
+	halcmd_output("    majflt=%ld\n",
+		      ts->flavor.rtpreempt.ru_majflt -
+		      ts->flavor.rtpreempt.startup_ru_majflt);
+	break;
+
+    default:
+	halcmd_error("halcmd: thread flavor %d stats not implemented\n",
+		     flavor);
+    }
+    halcmd_output("\n");
+}
+
 static void print_thread_info(char **patterns)
 {
     int next_thread, n;
@@ -1857,9 +2070,10 @@ static void print_thread_info(char **patterns)
     hal_list_t *list_root, *list_entry;
     hal_funct_entry_t *fentry;
     hal_funct_t *funct;
+    int named = patterns && strlen(patterns[0]);
 
     if (scriptmode == 0) {
-	halcmd_output("Realtime Threads:\n");
+	halcmd_output("Realtime Threads (flavor: %s) :\n",  flavor->name);
 	halcmd_output("     Period  FP     Name               (     Time, Max-Time )\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1871,6 +2085,7 @@ static void print_thread_info(char **patterns)
 		// TODO FIXME add thread runtime and max runtime to this print
 	    halcmd_output(((scriptmode == 0) ? "%11ld  %-3s  %20s ( %8ld, %8ld )\n" : "%ld %s %s %ld %ld"),
 		tptr->period, (tptr->uses_fp ? "YES" : "NO"), tptr->name, (long)tptr->runtime, (long)tptr->maxtime);
+
 	    list_root = &(tptr->funct_list);
 	    list_entry = list_next(list_root);
 	    n = 1;
@@ -1890,6 +2105,10 @@ static void print_thread_info(char **patterns)
 	    }
 	    if (scriptmode != 0) {
 		halcmd_output("\n");
+	    } else {
+		// if a thread name was given, print the flavor specific stats
+		if (named)
+		    print_thread_stats(tptr);
 	    }
 	}
 	next_thread = tptr->next_ptr;
@@ -2049,7 +2268,9 @@ static void print_mem_status()
     hal_param_t *param;
 
     halcmd_output("HAL memory status\n");
-    halcmd_output("  used/total shared memory:   %ld/%d\n", (long)(HAL_SIZE - hal_data->shmem_avail), HAL_SIZE);
+    halcmd_output("  used/total shared memory:   %ld/%d\n", 
+		  (long)(global_data->hal_size - hal_data->shmem_avail),
+		  global_data->hal_size);
     // count components
     active = count_list(hal_data->comp_list_ptr);
     recycled = count_list(hal_data->comp_free_ptr);
@@ -2092,6 +2313,9 @@ static void print_mem_status()
     active = count_list(hal_data->thread_list_ptr);
     recycled = count_list(hal_data->thread_free_ptr);
     halcmd_output("  active/recycled threads:    %d/%d\n", active, recycled);
+  
+    halcmd_output("RTAPI message level:  RT:%d User:%d\n", 
+		  global_data->rt_msg_level, global_data->user_msg_level);
 }
 
 /* Switch function for pin/sig/param type for the print_*_list functions */
@@ -2361,6 +2585,212 @@ int do_save_cmd(char *type, char *filename)
     return 0;
 }
 
+
+// --- remote comp support
+
+int do_newcomp_cmd(char *comp, char *args[])
+{
+    int type = TYPE_REMOTE;
+    int comp_id = hal_init_mode(comp, type);
+
+    if (comp_id < 1) {
+	halcmd_error("newcomp: cant create component '%s' type %d: %s\n",
+		     comp, type, strerror(-comp_id));
+	return -EINVAL;
+    }
+    return 0;
+}
+
+
+int do_ready_cmd(char *comp_name, char *tokens[])
+{
+    int retval, comp_id;
+    hal_comp_t *comp;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_name(comp_name);
+
+    if(!comp) {
+        halcmd_error( "No such component: %s\n", comp_name);
+	rtapi_mutex_give(&(hal_data->mutex));
+        return -ENOENT;
+    }
+    if(comp->type != TYPE_REMOTE) {
+        halcmd_error( "%s is not a remote component\n", comp_name);
+	rtapi_mutex_give(&(hal_data->mutex));
+        return -ENOSYS;
+    }
+    comp_id = comp->comp_id;
+    rtapi_mutex_give(&(hal_data->mutex));
+
+    retval = hal_ready(comp_id);
+    if (retval < 0) {
+	halcmd_error("ready: cant hal_ready component '%s':  %s\n",
+		     comp_name, strerror(-comp_id));
+	return -EINVAL;
+    }
+    return 0;
+}
+
+int do_newpin_cmd(char *comp_name, char *pin_name, char *type_name, char *args[])
+{
+    int retval;
+    hal_type_t type = HAL_BIT; // shut up warnin
+    hal_pin_dir_t dir = HAL_IN;
+    hal_comp_t *comp __attribute__((cleanup(halpr_autorelease_mutex)));
+    hal_pin_t *pin;
+    char *s,*cp;
+    double epsilon  = CHANGE_DETECT_EPSILON;
+    int flags = 0;
+    int i;
+    void *p;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_name(comp_name);
+    pin = halpr_find_pin_by_name(pin_name);
+
+    if (!comp) {
+        halcmd_error("No such component: %s\n", comp_name);
+        return -ENOENT;
+    }
+    if (comp->type != TYPE_REMOTE) {
+        halcmd_error( "%s is not a remote component\n", comp_name);
+        return -ENOSYS;
+    }
+    if (pin) {
+        halcmd_error("pin '%s' already exists\n", pin_name);
+        return -ENOENT;
+    }
+    if (strcasecmp(type_name, "bit") == 0) {
+	type =  HAL_BIT;
+    } else if (strcasecmp(type_name, "float") == 0) {
+	type = HAL_FLOAT;
+    } else if (strcasecmp(type_name, "u32") == 0) {
+	type = HAL_U32;
+    } else if (strcasecmp(type_name, "s32") == 0) {
+	type = HAL_S32;
+    } else {
+	halcmd_error("Unknown pin type '%s'\n", type_name);
+	retval = -EINVAL;
+    }
+#define EPSILON "eps="
+#define FLAGS "flags="
+
+    for (i = 0; ((s = args[i]) != NULL) && strlen(s); i++) {
+	if (!strcasecmp(s,"in")) {
+	    dir = HAL_IN;
+	} else if  (!strcasecmp(s,"out")) {
+	    dir = HAL_OUT;
+	}  else if  (!strcasecmp(s,"inout") || !strcasecmp(s,"io")) {
+	    dir = HAL_IO;
+#ifdef USE_PIN_USER_ATTRIBUTES
+	} else if (!strncasecmp(s, EPSILON, strlen(EPSILON))) {
+	    epsilon = strtod(strchr(s,'=') + 1, &cp);
+	    if ((*cp != '\0') && (!isspace(*cp))) {
+		halcmd_error("value '%s' invalid for epsilon (float required)\n", cp);
+		return -EINVAL;
+	    }
+	} else if (!strncasecmp(s, FLAGS, strlen(FLAGS))) {
+	    flags = strtoul(strchr(s,'=') + 1, &cp, 10);
+	    if ((*cp != '\0') && (!isspace(*cp))) {
+		halcmd_error("value '%s' invalid for flags (int required)\n", cp);
+		return -EINVAL;
+	    }
+#endif
+	} else {
+	    halcmd_error("newpin: invalid option '%s' "
+			 "(use one or several of: in out io eps=<flaot> flags=<int>)",s);
+	    return -EINVAL;
+	}
+    }
+    // hal_malloc wants the mutex too
+    rtapi_mutex_give(&(hal_data->mutex));
+    if ((p = hal_malloc(sizeof(void *))) == NULL) {
+	// grab mutex - autorelease will free it
+	rtapi_mutex_get(&(hal_data->mutex));
+	halcmd_error("cant allocate memory for pin '%s'\n", pin_name);
+	return -EINVAL;
+    }
+    memset(p, 0, sizeof(p));
+
+    // mutex not held here - hal_pin_new wants it
+    retval = hal_pin_new(pin_name, type, dir, p, comp->comp_id);
+    if (retval < 0) {
+	// re-grab
+	rtapi_mutex_get(&(hal_data->mutex));
+	halcmd_error("cant create pin '%s':  %s\n",
+		     pin_name, strerror(-retval));
+	return -EINVAL;
+    }
+    rtapi_mutex_get(&(hal_data->mutex));
+#ifdef USE_PIN_USER_ATTRIBUTES
+    pin = halpr_find_pin_by_name(pin_name);
+    if (pin) {
+	pin->epsilon = epsilon;
+	pin->flags = flags;
+    } else {
+	halcmd_error("FATAL: cant find new pin '%s':  %s\n",
+		     pin_name, strerror(-retval));
+	return -EINVAL;
+    }
+#endif
+    return 0;
+}
+
+static int do_wait_remote(char *comp_name, int state)
+
+{
+    hal_comp_t *comp;
+    int done = 0;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_name(comp_name);
+
+    if(!comp) {
+        halcmd_error( "No such component: %s\n", comp_name);
+	rtapi_mutex_give(&(hal_data->mutex));
+        return -ENOENT;
+    }
+    if(comp->type != TYPE_REMOTE) {
+        halcmd_error( "%s is not a remote component\n", comp_name);
+	rtapi_mutex_give(&(hal_data->mutex));
+        return -ENOSYS;
+    }
+    if (comp->state == state) {
+	rtapi_mutex_give(&(hal_data->mutex));
+        return 0;
+    }
+    halcmd_info("Waiting for component '%s' to %sbind\n",
+		comp_name,
+		state == COMP_BOUND ? "" : "un");
+
+    rtapi_mutex_give(&(hal_data->mutex));
+    do {
+	/* sleep for 200mS */
+	struct timespec ts = {0, 200 * 1000 * 1000};
+	nanosleep(&ts, NULL);
+	rtapi_mutex_get(&(hal_data->mutex));
+	if (comp->state == state) {
+	    done = 1;
+	}
+	rtapi_mutex_give(&(hal_data->mutex));
+    } while (!done);
+    halcmd_info("Component '%s' %sbound\n", comp_name,
+		state == COMP_BOUND ? "" : "un");
+    return 0;
+}
+
+int do_waitbound_cmd(char *comp_name, char *tokens[])
+{
+    return do_wait_remote(comp_name,  COMP_BOUND);
+}
+
+int do_waitunbound_cmd(char *comp_name, char *tokens[])
+{
+    return do_wait_remote(comp_name,  COMP_UNBOUND);
+}
+// --- end remote comp support
+
 static void save_comps(FILE *dst)
 {
     int next;
@@ -2371,7 +2801,9 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == TYPE_RT ) {
+
+	    // FIXME XXX MAH - save halcmd defined remote comps!!
 	    /* only print realtime components */
 	    if ( comp->insmod_args == 0 ) {
 		fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
@@ -2836,3 +3268,4 @@ static void print_help_commands(void)
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");
     printf("  quit, exit          Exit from halcmd\n");
 }
+

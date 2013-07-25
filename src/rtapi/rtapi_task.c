@@ -25,8 +25,8 @@
   thread system, so these are defined in rtapi_module.c for kernel
   threads systems and $THREADS.c for the userland thread systems
 
-  int rtapi_init(const char *modname)
-  int rtapi_exit(int id)
+  int _rtapi_init(const char *modname)
+  int _rtapi_exit(int id)
 */
 
 
@@ -52,36 +52,36 @@ RT_TASK *ostask_array[RTAPI_MAX_TASKS + 1];
 #    define PRIO_LT(a,b) (a<b)
 #endif
 
-int rtapi_prio_highest(void) {
+int _rtapi_prio_highest(void) {
     return PRIO_HIGHEST;
 }
 
-int rtapi_prio_lowest(void) {
+int _rtapi_prio_lowest(void) {
     return PRIO_LOWEST;
 }
 
-int rtapi_prio_next_higher(int prio) {
+int _rtapi_prio_next_higher(int prio) {
     /* next higher priority for arg */
     prio PRIO_INCR;
 
     /* return a valid priority for out of range arg */
-    if (PRIO_GT(prio,rtapi_prio_highest()))
-	return rtapi_prio_highest();
-    if (PRIO_GT(rtapi_prio_lowest(),prio))
-	return rtapi_prio_lowest();
+    if (PRIO_GT(prio,_rtapi_prio_highest()))
+	return _rtapi_prio_highest();
+    if (PRIO_GT(_rtapi_prio_lowest(),prio))
+	return _rtapi_prio_lowest();
 
     return prio;
 }
 
-int rtapi_prio_next_lower(int prio) {
+int _rtapi_prio_next_lower(int prio) {
     /* next lower priority for arg */
     prio PRIO_DECR;
 
     /* return a valid priority for out of range arg */
-    if (PRIO_GT(prio,rtapi_prio_highest()))
-	return rtapi_prio_highest();
-    if (PRIO_GT(rtapi_prio_lowest(),prio))
-	return rtapi_prio_lowest();
+    if (PRIO_GT(prio,_rtapi_prio_highest()))
+	return _rtapi_prio_highest();
+    if (PRIO_GT(_rtapi_prio_lowest(),prio))
+	return _rtapi_prio_lowest();
 
     return prio;
 }
@@ -91,10 +91,10 @@ int rtapi_prio_next_lower(int prio) {
 
 /* task setup and teardown functions */
 #ifdef HAVE_RTAPI_TASK_NEW_HOOK
-int rtapi_task_new_hook(task_data *task, int task_id);
+int _rtapi_task_new_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_new(void (*taskcode) (void*), void *arg,
+int _rtapi_task_new(void (*taskcode) (void*), void *arg,
 		   int prio, int owner, unsigned long int stacksize, 
 		   int uses_fp, char *name, int cpu_id) {
     int task_id;
@@ -130,26 +130,27 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     task = &(task_array[task_id]);
 
     // if requested priority is invalid, release lock and return error
-    if (PRIO_LT(prio,rtapi_prio_lowest()) ||
-	PRIO_GT(prio,rtapi_prio_highest())) {
-	
+
+    if (PRIO_LT(prio,_rtapi_prio_lowest()) ||
+	PRIO_GT(prio,_rtapi_prio_highest())) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"New task  %d  '%s': invalid priority %d "
+			"New task  %d  '%s:%d': invalid priority %d "
 			"(highest=%d lowest=%d)\n",
-			task_id, name, prio,
-			rtapi_prio_highest(),
-			rtapi_prio_lowest());
+			task_id, name, rtapi_instance, prio,
+			_rtapi_prio_highest(),
+			_rtapi_prio_lowest());
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	return -EINVAL;
     }
 
     // task slot found; reserve it and release lock
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Creating new task %d  '%s': "
-		    "req prio %d (highest=%d lowest=%d)\n",
-		    task_id, name, prio,
-		    rtapi_prio_highest(),
-		    rtapi_prio_lowest());
+		    "Creating new task %d  '%s:%d': "
+		    "req prio %d (highest=%d lowest=%d) stack=%lu\n",
+		    task_id, name, rtapi_instance, prio,
+		    _rtapi_prio_highest(),
+		    _rtapi_prio_lowest(),
+		    stacksize);
     task->magic = TASK_MAGIC;
 
     /* fill out task structure */
@@ -165,7 +166,8 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "Task CPU:  %d\n", task->cpu);
     /*    task->cpu = cpu_id;  */
-    strncpy(task->name, name, sizeof(task->name));
+    rtapi_snprintf(task->name, sizeof(task->name), 
+	     "%s:%d", name, rtapi_instance);
     task->name[sizeof(task->name) - 1] = '\0';
 
 #ifdef MODULE
@@ -181,7 +183,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     /* kernel threads: rtapi_task_new_hook() should call OS to
        initialize the task - use predetermined or explicitly assigned
        CPU */
-    retval = rtapi_task_new_hook(task, task_id);
+    retval = _rtapi_task_new_hook(task, task_id);
 
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -210,7 +212,7 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
     task->state = USERLAND;	// userland threads don't track this
 
 #  ifdef HAVE_RTAPI_TASK_NEW_HOOK
-    retval = rtapi_task_new_hook(task,task_id);
+    retval = _rtapi_task_new_hook(task,task_id);
 #  else
     retval = task_id;
 #  endif
@@ -230,10 +232,10 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
 
 
 #ifdef HAVE_RTAPI_TASK_DELETE_HOOK
-int rtapi_task_delete_hook(task_data *task, int task_id);
+int _rtapi_task_delete_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_delete(int task_id) {
+int _rtapi_task_delete(int task_id) {
     task_data *task;
     int retval = 0;
 
@@ -253,7 +255,7 @@ int rtapi_task_delete(int task_id) {
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "RTAPI: WARNING: tried to delete task %02d while running\n",
 	    task_id);
-	rtapi_task_pause(task_id);
+	_rtapi_task_pause(task_id);
     }
     /* get rid of it */
     rt_task_delete(ostask_array[task_id]);
@@ -269,7 +271,7 @@ int rtapi_task_delete(int task_id) {
     if (rtapi_data->task_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 #  ifdef HAVE_RTAPI_MODULE_TIMER_STOP
-	    rtapi_module_timer_stop();
+	    _rtapi_module_timer_stop();
 #  endif
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
@@ -279,7 +281,7 @@ int rtapi_task_delete(int task_id) {
 #endif /* MODULE */
 
 #ifdef HAVE_RTAPI_TASK_DELETE_HOOK
-    retval = rtapi_task_delete_hook(task,task_id);
+    retval = _rtapi_task_delete_hook(task,task_id);
 #endif
 
     if (task->state != DELETE_LOCKED)	// we don't already hold mutex
@@ -295,11 +297,11 @@ int rtapi_task_delete(int task_id) {
 
 
 /* all threads systems must define this hook */
-int rtapi_task_start_hook(task_data *task, int task_id,
-			  unsigned long int period_nsec);
+int _rtapi_task_start_hook(task_data *task, int task_id,
+			   unsigned long int period_nsec);
 
 #ifndef MODULE  /* userspace RTAPI */
-int rtapi_task_start(int task_id, unsigned long int period_nsec) {
+int _rtapi_task_start(int task_id, unsigned long int period_nsec) {
     task_data *task;
 
     if (task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
@@ -319,10 +321,10 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
 		    task_id, task->name);
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: period_nsec: %ld\n", period_nsec);
 
-    return rtapi_task_start_hook(task,task_id,0);
+    return _rtapi_task_start_hook(task,task_id,0);
 }
 #else  /* kernel RTAPI */
-int rtapi_task_start(int task_id, unsigned long int period_nsec) {
+int _rtapi_task_start(int task_id, unsigned long int period_nsec) {
     int retval;
     task_data *task;
 
@@ -343,7 +345,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
 	return -EINVAL;
     }
 
-    if ((retval = rtapi_task_start_hook(task, task_id, period_nsec)))
+    if ((retval = _rtapi_task_start_hook(task, task_id, period_nsec)))
 	return retval;
 
     /* ok, task is started */
@@ -356,10 +358,10 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
 
 
 #ifdef HAVE_RTAPI_TASK_STOP_HOOK
-int rtapi_task_stop_hook(task_data *task, int task_id);
+int _rtapi_task_stop_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_stop(int task_id) {
+int _rtapi_task_stop(int task_id) {
     task_data *task;
 
     if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
@@ -371,17 +373,17 @@ int rtapi_task_stop(int task_id) {
 	return -EINVAL;
 
 #ifdef HAVE_RTAPI_TASK_STOP_HOOK
-    rtapi_task_stop_hook(task,task_id);
+    _rtapi_task_stop_hook(task,task_id);
 #endif
 
     return 0;
 }
 
 #ifdef HAVE_RTAPI_TASK_PAUSE_HOOK
-int rtapi_task_pause_hook(task_data *task, int task_id);
+int _rtapi_task_pause_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_pause(int task_id) {
+int _rtapi_task_pause(int task_id) {
     task_data *task;
 #ifdef MODULE
     task_state_t oldstate;
@@ -414,7 +416,7 @@ int rtapi_task_pause(int task_id) {
 #endif
 
 #ifdef HAVE_RTAPI_TASK_PAUSE_HOOK
-    return rtapi_task_pause_hook(task,task_id);
+    return _rtapi_task_pause_hook(task,task_id);
 #else
     return -ENOSYS;
 #endif
@@ -422,21 +424,21 @@ int rtapi_task_pause(int task_id) {
 }
 
 #ifdef HAVE_RTAPI_WAIT_HOOK
-extern void rtapi_wait_hook(void);
+extern void _rtapi_wait_hook(void);
 #endif
 
-void rtapi_wait(void) {
+void _rtapi_wait(void) {
 #ifdef HAVE_RTAPI_WAIT_HOOK
-    rtapi_wait_hook();
+    _rtapi_wait_hook();
 #endif
     return;
 }
 
 #ifdef HAVE_RTAPI_TASK_RESUME_HOOK
-int rtapi_task_resume_hook(task_data *task, int task_id);
+int _rtapi_task_resume_hook(task_data *task, int task_id);
 #endif
 
-int rtapi_task_resume(int task_id) {
+int _rtapi_task_resume(int task_id) {
     task_data *task;
 #ifdef MODULE
     int retval;
@@ -467,21 +469,20 @@ int rtapi_task_resume(int task_id) {
 #endif
 
 #ifdef HAVE_RTAPI_TASK_RESUME_HOOK
-    return rtapi_task_resume_hook(task,task_id);
+    return _rtapi_task_resume_hook(task,task_id);
 #else
     return -ENOSYS;
 #endif
 }
 
 
-/* not defined in rt-preempt */
 #ifdef HAVE_RTAPI_TASK_SELF_HOOK
-int rtapi_task_self_hook(void);
+int _rtapi_task_self_hook(void);
 #endif
 
-int rtapi_task_self(void) {
+int _rtapi_task_self(void) {
 #ifdef HAVE_RTAPI_TASK_SELF_HOOK
-    return rtapi_task_self_hook();
+    return _rtapi_task_self_hook();
 #else
     /* not implemented */
     return -EINVAL;
@@ -490,16 +491,3 @@ int rtapi_task_self(void) {
 
 #endif  /* RTAPI */
 
-#ifdef MODULE
-EXPORT_SYMBOL(rtapi_prio_highest);
-EXPORT_SYMBOL(rtapi_prio_lowest);
-EXPORT_SYMBOL(rtapi_prio_next_higher);
-EXPORT_SYMBOL(rtapi_prio_next_lower);
-EXPORT_SYMBOL(rtapi_task_new);
-EXPORT_SYMBOL(rtapi_task_delete);
-EXPORT_SYMBOL(rtapi_task_start);
-EXPORT_SYMBOL(rtapi_wait);
-EXPORT_SYMBOL(rtapi_task_resume);
-EXPORT_SYMBOL(rtapi_task_pause);
-EXPORT_SYMBOL(rtapi_task_self);
-#endif

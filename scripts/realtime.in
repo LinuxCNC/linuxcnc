@@ -4,174 +4,220 @@
 # on @DATE@
 #
 
+# Basic variables
 export LANG=C
-
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
+INIVAR=@libexecdir@/inivar
+LSMOD=@LSMOD@
 PIDOF=@PIDOF@
 
-CheckKernel() {
-    case "@KERNEL_VERS@" in
-    "") ;;
-    *)
-	if [ `uname -r` != "@KERNEL_VERS@" ]; then
-	    cat 1>&2 << EOF
-RTAPI requires the real-time kernel @KERNEL_VERS@ to run.  Before running
-this realtime application, reboot and choose this kernel at the boot menu.
-EOF
-	    exit 1
-	fi
-    esac
-}
-
-RUN_IN_PLACE=@RUN_IN_PLACE@
-if [ $RUN_IN_PLACE = yes ]; then
-    # When using RIP make sure PATH includes the directory where rtapi_app
-    # resides
-    PATH=@EMC2_HOME@/bin:$PATH; export PATH
+# Basic checks
+if ! test -r "$RTAPI_INI"; then
+    echo "RTAPI configuration file unreadable:  $RTAPI_INI" >&2
+    exit 1
+fi
+if ! test -x "$INIVAR"; then
+    echo "Config file tool unusable:  $INIVAR" >&2
+    exit 1
 fi
 
-CheckConfig(){
-    prefix=@prefix@
-    exec_prefix=@exec_prefix@
-    sysconfdir=@sysconfdir@
-    if [ $RUN_IN_PLACE = yes ]; then
-        RTAPICONF=
-        # check in the LinuxCNC scripts directory
-        # $0 is the command to run this script
-        # strip the script name to leave the path
-        SCRIPT_DIR=${0%/*}
-        # the path might be relative
-        # convert it to an absolute path
-        SCRIPT_DIR=$(cd $SCRIPT_DIR ; pwd -P)
-        # now look for rtapi.conf there
-        if [ -f $SCRIPT_DIR/rtapi.conf ] ; then
-            RTAPICONF=$SCRIPT_DIR/rtapi.conf
-        fi
-    else
-        if [ -f $sysconfdir/linuxcnc/rtapi.conf ]; then
-                RTAPICONF=$sysconfdir/linuxcnc/rtapi.conf
-        fi
-    fi
-    if [ -z "$RTAPICONF" ] ; then
-	echo "Missing rtapi.conf.  Check your installation." 1>&2
-	exit 1
-    fi
-    INSMOD="@INSMOD@"
-    RMMOD="@RMMOD@"
-    LSMOD="@LSMOD@"
-    FUSER="@FUSER@"
+# Helper function to get variables from config
+getvar() {
+    # getvar <variable> [ --flavor ]
+    # set variable from rtapi_ini;
+    # with --flavor, if $FLAVOR is set, look in the [flavor_$FLAVOR] section
+    var=$1
+    flav_var=$2
 
-    # Import the config
-    source $RTAPICONF
-    if [ ! -e $RTLIB_DIR/.runinfo -a -e $RTLIB_DIR/emc2/.runinfo ]; then
-        # installed system: we don't want our modules mixed up with rtai
-        RTLIB_DIR=$RTLIB_DIR/emc2
+    if test "$flav_var" = "--flavor" -a ! -z "$FLAVOR"; then
+	SEC="-sec flavor_$FLAVOR"
+    else
+	SEC=""
     fi
-    # Export the module path specified in the config.
-    export MODPATH
-    # Generate module lists for loading and unloading
-    # lists contain RTOS modules plus RTAPI and HAL
-    # unload list is in reverse order
-    # any module names that are symlinks are resolved to their real names
-    MODULES_LOAD=
-    MODULES_UNLOAD=
-    case $RTPREFIX in
-    posix|xenomai-user|rt-preempt-user) SHM_DEV=/dev/zero;;
-    *)
-        for  MOD in $MODULES ; do
-            eval MOD=\${MODPATH_$MOD}
-            if [ -z "$MOD" ]; then continue; fi
-            if [ -L $MOD ]; then
-                MOD=${MOD%/*}/$(readlink $MOD)
-            fi
-            MODULES_LOAD="$MODULES_LOAD $MOD"
-            MOD="${MOD##*/}"
-            MOD="${MOD%$MODULE_EXT}"
-            MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
+
+    eval "$var='$($INIVAR -var $var -ini $RTAPI_INI $SEC 2>/dev/null)'"
+}
+
+# Fill in other variable values
+#
+# Executables
+getvar flavor
+getvar linuxcnc_module_helper
+getvar rtapi_msgd
+
+# Flavor configuration
+FLAVOR=$($flavor)
+BUILD_SYS=`${flavor} -b`
+getvar MODULES --flavor
+getvar rtapi_app --flavor
+
+# Other, overridable by enivironment variables
+if [ "$USE_SHMDRV" == "" ]  ; then
+    getvar USE_SHMDRV
+fi
+
+if [ "$HAL_SIZE" == "" ]  ; then
+    getvar HAL_SIZE
+fi
+
+if [ "$DEBUG" == "" ]  ; then
+    getvar DEBUG
+fi
+
+
+# set the default instance, if not already set
+INSTANCE=`printf '%d' $INSTANCE`
+if [ "$INSTANCE_NAME" != "" ]  ; then
+    NAME_CMD=--instance_name="$INSTANCE_NAME"
+else
+    unset NAME_CMD
+fi
+
+
+# Compute module lists
+#
+# kernel threads also need the rtapi and hal_lib kernel modules
+test $BUILD_SYS = kbuild && MODULES="$MODULES rtapi hal_lib"
+#
+# reverse list of modules for unloading
+MODULES_UNLOAD=
+for MOD in $MODULES; do
+    MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
+done
+
+
+
+# wait for a list of pids to all exit
+anywait(){
+    for pid in "$@"; do
+        while kill -0 "$pid" >/dev/null 2>&1 ; do
+            sleep 0.5
         done
-        if test $RTPREFIX = xenomai-kernel; then
-            MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/xeno_math$MODULE_EXT  $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-            MODULES_UNLOAD="hal_lib rtapi xeno_math $MODULES_UNLOAD"
-  	else
-            MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-            MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
-	fi
-        case "$MODULES" in
-        *rtai_shm*)
-            SHM_DEV=/dev/rtai_shm
-        ;;
-        *mbuff*)
-            SHM_DEV=/dev/mbuff
-        ;;
-        esac
-    esac
+    done
 }
 
 CheckStatus(){
-    case $RTPREFIX in
-    posix|xenomai-user|rt-preempt-user)
-        if [ -z "$($PIDOF rtapi_app)" ]; then
+    if test $BUILD_SYS = user-dso; then
+        if [ -z "$($PIDOF rtapi:${INSTANCE})" ]; then
             exit 1
         else
             exit 0
-        fi ;;
-    *)
+        fi
+    else
         # check loaded/unloaded status of modules
         unset NOTLOADED
         for MOD in $MODULES_UNLOAD ; do
-            if @LSMOD@ | awk '{print $1}' | grep -x $MOD >/dev/null ; then
+            if $LSMOD | awk '{print $1}' | grep -x $MOD >/dev/null ; then
                 echo "$MOD is loaded"
             else
                 echo "$MOD is not loaded"
                 NOTLOADED=NOT
             fi
         done
-        if [ -z $NOTLOADED ]; then
+        if [ -z "$NOTLOADED" ]; then
             exit 0
         else
             exit 1
         fi
-    esac
-}
-
-CheckMem(){
-# check for user space processes using shared memory
-    if [ -e /dev/mbuff ] ; then
-	# device file exists, check for processes using it
-	if $FUSER -s /dev/mbuff 2>/dev/null; then
-	    # at least one process is using it
-	    echo "ERROR:  Can't remove RTLinux modules, kill the following process(es) first"
-	    $FUSER -v /dev/mbuff
-	    exit 1
-	fi
-    elif [ -e /dev/rtai_shm ] ; then
-	# device file exists, check for processes using it
-	if $FUSER -s /dev/rtai_shm 2>/dev/null; then
-	    # at least one process is using it
-	    echo "ERROR:  Can't remove RTAI modules, kill the following process(es) first"
-	    $FUSER -v /dev/rtai_shm
-	    exit 1
-	fi
     fi
 }
 
 Load(){
-    CheckKernel
-    case $RTPREFIX in
-    posix|xenomai-user|rt-preempt-user)
-    ;;
-    *)
-        for MOD in $MODULES_LOAD ; do
-            $INSMOD $MOD || return $?
-        done
+
+    # when not running shmdrv, perform shm + instance checks and cleanups
+    #
+    # FIXME:  how to do these for shmdrv?
+    if test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no; then
+        # check for instance running
+	# this is the case if the global segment exists
+        # and any processes exist which have it attached
+	GLOBALSEG=`printf '/dev/shm/linuxcnc-%d-%2.2d154711' $INSTANCE $INSTANCE` 
+	if fuser $GLOBALSEG >/dev/null 2>&1 ; then
+	    echo instance $INSTANCE already running!
+	    exit 1
+	fi
+
+	# check for any leftover shm keys from aborted previous sessions
+	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
+	SHMKEYS=`ls /dev/shm/${INSTKEY}* >/dev/null 2>&1`
+
+	if [ "$SHMKEYS" != "" ]  ; then
+	    echo -n "warning: leftover shared memory segments detected" >&2
+	    echo "- removing: $SHMKEYS" >&2
+	    rm  -f  "$SHMKEYS" >/dev/null 2>&1
+	fi
+    fi
+
+    # kernel threads must have shmdrv.ko loaded
+    # userland threads optionally may use the shmdrv module
+    if test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes; then
+	if ! test -c /dev/shmdrv ; then
+	    $linuxcnc_module_helper insert shmdrv || return $?
+	    # give some time to let shmdrv initialize
+	    CheckLoaded || exit $?
+	fi
+    fi
+
+    # rtapi_msgd creates the global segment containing the error ring buffer
+    # so start this first:
+
+    if ! ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
+	--rtmsglevel=$DEBUG \
+	--usrmsglevel=$DEBUG \
+	--halsize=$HAL_SIZE $MSGD_OPTS  ; then
+	exitcode=$?
+	echo "rtapi_msgd startup failed - aborting" 1>&2
+	exit $?
+    fi
+
+    # load kernel modules, including shmdrv for userland
+    for MOD in $MODULES; do
+	# if loading rtapi.ko, tack on parameters
+	if test $MOD = rtapi; then
+	    $linuxcnc_module_helper insert $MOD \
+		rtapi_instance=$INSTANCE $NAME_CMD || return $?
+	else
+	    $linuxcnc_module_helper insert $MOD || return $?
+	fi
+    done
+
+    if test $BUILD_SYS = user-dso; then
+        # run rtapi_app for userland
+	if [ "$DEBUG" != "" ] ; then
+	    if ! ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS ; then
+		exitcode=$?
+		echo "rtapi_app startup failed - aborting" 1>&2
+		exit $?
+	    fi
+	else
+	    if ! ${rtapi_app} --instance=$INSTANCE  $RTAPI_APP_OPTS 2>&1 >/dev/null ; then
+		exitcode=$?
+		echo "rtapi_app startup failed - aborting" 1>&2
+		exit $?
+	    fi
+        fi
+
+    else  # BUILD_SYS = 'kbuild'
+	# help debugging startup issues for kthreads
         if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
         fi
-    esac
+    fi
 }
 
 CheckLoaded(){
     # this abomination is needed because udev sometimes doesn't
     # have the device ready for us in time.
+
+    # If the shmdrv module isn't in the $MODULES list, skip checks
+    if test "${MODULES/shmdrv/}" = "${MODULES}"; then
+	# no shmdrv module
+	return
+    fi
+
+    SHM_DEV=/dev/shmdrv
     n=0
     while [ $n -lt 100 ]; do
         [ -w $SHM_DEV ] && return 0
@@ -183,31 +229,120 @@ CheckLoaded(){
     exit 1
 }
 
+
+
 Unload(){
-    CheckKernel
-    case $RTPREFIX in
-    posix|xenomai-user|rt-preempt-user)
-        rtapi_app exit 
-	# remove any linuxcnc-specific shm segments if they exist
-	SHMSEGS=`ipcs -m | egrep '(0x48414c32|0x90280A48|0x48484c34|0x485354..|0x485341..)' | cut -f1 -d' '` 2>/dev/null
-	for s in $SHMSEGS
-	do
-	    ipcrm -M $s
-	done
-        ;;
-    *)
-        for module in $MODULES_UNLOAD ; do
-            $RMMOD $module
-        done
-    esac
+    if test $BUILD_SYS = user-dso; then
+
+	# shutdown rtapi if it exists
+
+	RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+	if [ "$RTAPI_PID" != "" ] ; then
+	    if [ "$DEBUG" != "" ] ; then
+		${rtapi_app} --instance=$INSTANCE exit
+	    else
+		${rtapi_app} --instance=$INSTANCE exit            >/dev/null 2>&1
+            fi
+	fi
+
+	if test $USE_SHMDRV = no; then
+
+	    # remove any linuxcnc-specific POSIX shm segments if they exist
+	    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
+
+	    INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE`
+	    rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
+	fi
+    fi
+
+    # wait until rtapi_msgd has vanished. This assures
+    # that the last user of the global data segment has vanished,
+    # making sure an immediate restart of realtime does not find
+    # shm segments still hanging around. The only realistic scenario
+    # which could trigger this is runtests.
+
+    # msgd should detect an rtapi_app shutdown, so give some time to
+    # let that happen
+    if test $BUILD_SYS = user-dso; then
+	sleep 0.5
+    fi
+
+    # and get nasty only if it didnt
+    MSGD_PID=`$PIDOF msgd:$INSTANCE`
+    if [ "$MSGD_PID" != "" ] ; then
+	kill $MSGD_PID
+	anywait $MSGD_PID
+    fi
+
+    for module in $MODULES_UNLOAD ; do
+        $linuxcnc_module_helper remove $module
+    done
+
+    # if shmdrv is unused, unload it
+    if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
+	# If shmdrv loaded, test if 0 shmdrv segments and remove shmdrv
+	if test -c /dev/shmdrv; then
+	    awk 'FNR==1 { if ($1==0) exit 0; else exit 1; }' \
+		/sys/devices/virtual/misc/shmdrv/status && \
+		$linuxcnc_module_helper remove shmdrv
+	else
+	    echo "Warning:  shmdrv should have been loaded, but wasn't" 1>&2
+	fi
+    fi
+
+    
 }
 
 CheckUnloaded(){
-# checks to see if all modules were unloaded
+
+    # if msgd:$INSTANCE is still around, this might still be a running instance 
+    # after all - this applies to all flavors - msgd is always there, so cop out
+
+    MSGD_PID=`$PIDOF msgd:$INSTANCE`
+    if [ "$MSGD_PID" != "" ] ; then
+	echo "instance $INSTANCE still running - process msgd:$INSTANCE present (pid $MSGD_PID) !"
+	exit 1
+    fi
+
+    # if msgd:$INSTANCE isnt running but rtapi:$INSTANCE is, that's bad - msgd
+    # should be last to exit
+    # this is a noop in kthreads, but clearly an error in uthreads
+
+    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+    if [ "$RTAPI_PID" != "" ] ; then
+	echo "instance $INSTANCE inproperly shutdown!"
+	echo "msgd:$INSTANCE gone, but rtapi:$INSTANCE alive (pid $RTAPI_PID)"
+	exit 1
+    fi
+
+    # regardless if shmdrv is loaded or not, Posix shm segments for this
+    # particular instance should not exist and be in use at this point, which 
+    # could be the case if a HAL usercomp were still hanging around
+
+    # if any, determine if a process is still using it; complain if so,
+    # else remove with a note
+
+    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $INSTANCE`
+
+    for seg in `ls $POSIXSHM 2>/dev/null` ; do
+	if pids=`fuser $seg  2>/dev/null` ; then
+	    echo instance $INSTANCE: shared memory $seg still in use by pid: $pids !
+	else
+	    echo instance $INSTANCE: leftover shared memory $seg unused, removing
+	    rm -f $seg
+	fi
+    done
+
+    # TBD: if fuser /dev/shm indicates a process is using shmdrv, then
+    # this is likely another instance, so dont try to unload shmdrv
+    # because it's going to fail anyway
+
+    # checks to see if all modules were unloaded
+
     STATUS=
     for module in $MODULES_UNLOAD ; do
 	# check to see if the module is installed
-	if @LSMOD@ | awk '{print $1}' | grep -x $module >/dev/null ; then
+	if $LSMOD | awk '{print $1}' | grep -x $module >/dev/null ; then
 	    echo "ERROR: Could not unload '$module'"
 	    STATUS=error
 	fi
@@ -220,27 +355,30 @@ CheckUnloaded(){
 CMD=$1
 
 case "$CMD" in
+
   start|load)
-	CheckConfig
 	Load || exit $?
 	CheckLoaded
 	;;
   restart|force-reload)
-	CheckConfig
-	CheckMem
 	Unload
 	CheckUnloaded
 	Load || exit $?
 	CheckLoaded
 	;;
   stop|unload)
-	CheckConfig
-	CheckMem
 	Unload || exit $?
 	;;
   status)
-	CheckConfig
 	CheckStatus
+	;;
+  # for script debugging
+  unloadcheck)
+	CheckUnloaded
+	;;
+  # for script debugging
+  loadcheck)
+	CheckLoaded
 	;;
   *)
 	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2

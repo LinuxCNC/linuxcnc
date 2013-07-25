@@ -13,8 +13,8 @@ Build-Depends: debhelper (>= 6),
     gettext, autoconf, libboost-python-dev,
     texlive-lang-cyrillic, netcat,
     libmodbus-dev (>= 3.0),
-    libboost-thread-dev,
-    libboost-serialization-dev
+    libudev-dev
+
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev

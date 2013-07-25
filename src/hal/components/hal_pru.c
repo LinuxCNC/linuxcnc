@@ -16,6 +16,9 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 // load this PRU code (prefixed by EMC_RTLIB_DIR)
 #define  DEFAULT_CODE  "blinkleds.bin"
@@ -104,6 +107,9 @@ static int comp_id;		/* component ID */
 
 #define MODNAME "hal_pru"
 static const char *modname = MODNAME;
+
+// if filename doesnt exist, prefix this path:
+char *fw_path = "/lib/firmware/pru/";       
 
 // shared with PRU
 static unsigned long *pru_data_ram;     // points to PRU data RAM
@@ -322,12 +328,36 @@ static int setup_pru(int pru, char *filename, int disabled)
     pru_data_ram[ 6] = 0;
     pru_data_ram[ 7] = 0;
 
-
     // Load and execute binary on PRU
-    if (!strlen(filename))
-	filename = EMC2_RTLIB_DIR "/" DEFAULT_CODE;
-    retval =  prussdrv_exec_program (pru, filename, disabled);
+    // search for .bin files under rtlib/<flavorname>/filename.bin
+    char pru_binpath[PATH_MAX];
 
+    // default the .bin filename if not given
+    if (!strlen(filename))
+	filename = DEFAULT_CODE;
+    
+    strcpy(pru_binpath, filename);
+
+    struct stat statb;
+
+    if (!((stat(pru_binpath, &statb) == 0) &&
+	 S_ISREG(statb.st_mode))) {
+
+	// filename not found, prefix fw_path & try that:
+	strcpy(pru_binpath, fw_path);
+	strcat(pru_binpath, filename);
+
+	if (!((stat(pru_binpath, &statb) == 0) &&
+	      S_ISREG(statb.st_mode))) {
+	    // nyet, complain
+	    getcwd(pru_binpath, sizeof(pru_binpath));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "%s: cant find %s in %s or %s\n",
+			    modname, filename, pru_binpath, fw_path);
+	    return -ENOENT;
+	}
+    }
+    retval =  prussdrv_exec_program (pru, pru_binpath, disabled);
     return retval;
 }
 

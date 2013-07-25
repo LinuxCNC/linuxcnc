@@ -1,0 +1,24 @@
+# demo the rtmon RT fault handler component and usage
+# by causing RT faults on purpose
+
+loadrt rtmon
+loadrt rtfault
+loadrt threads
+addf rtmon   thread1
+addf rtfault thread1
+
+# inject a single short nanosleep() and a printf
+# into the thread function on rtfault.fault edge
+setp rtfault.delay 5
+setp rtfault.count 1 
+
+# raise and auto-clear estop after a while
+setp rtmon.fault-inc 1000
+setp rtmon.fault-limit 1
+setp rtmon.fault-dec   1
+setp rtmon.autoclear-estop 1
+setp rtmon.backtrace 1
+
+start
+# trigger the fault:
+setp rtfault.fault 1

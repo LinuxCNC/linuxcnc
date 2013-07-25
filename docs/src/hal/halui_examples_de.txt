@@ -35,7 +35,7 @@ Notice on line one that there are two reader pins, this can also be split up to 
 
 == Pause & Resume
 
-This example was developed to allow LinuxCNC2 to move a 
+This example was developed to allow LinuxCNC to move a 
 rotary axis on a signal from an external machine. 
 The coordination between the two systems will be 
 provided by two Halui components: 

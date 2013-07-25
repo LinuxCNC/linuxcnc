@@ -59,6 +59,11 @@
     information, go to www.linuxcnc.org.
 */
 
+/*
+  RTAPI_SERIAL should be bumped with changes that break compatibility
+  with previous versions.
+*/
+#define RTAPI_SERIAL 2
 #include "config.h"
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
@@ -96,6 +101,7 @@ typedef __s64		s64;
 # include <asm/types.h>
 #endif
 
+
 /* LINUX_VERSION_CODE for rtapi_{module,io}.c */
 #ifdef MODULE
 #ifndef LINUX_VERSION_CODE
@@ -107,6 +113,8 @@ typedef __s64		s64;
 #endif
 
 #include <rtapi_errno.h>
+#include <rtapi_global.h>
+#include <rtapi_exception.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
@@ -120,10 +128,12 @@ typedef __s64		s64;
 
 RTAPI_BEGIN_DECLS
 
+
+
 /***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
-/* implemented in $THREADS.c (rt-preempt-user.c, xenomai-user.c, etc.) */
+/* implemented in $THREADS.c (rt-preempt.c, xenomai.c, etc.) */
 
 /** 'rtapi_init() sets up the RTAPI.  It must be called by any
     module that intends to use the API, before any other RTAPI
@@ -138,7 +148,10 @@ RTAPI_BEGIN_DECLS
     above.  Call only from within user or init/cleanup code, not
     from realtime tasks.
 */
-    extern int rtapi_init(const char *modname);
+typedef int (*rtapi_init_t)(const char *);
+#define rtapi_init(modname)			\
+    rtapi_switch->rtapi_init(modname)
+extern int _rtapi_init(const char *modname);
 
 /** 'rtapi_exit()' shuts down and cleans up the RTAPI.  It must be
     called prior to exit by any module that called rtapi_init.
@@ -150,12 +163,105 @@ RTAPI_BEGIN_DECLS
     code within the module.  Call only from within user or
     init/cleanup code, not from realtime tasks.
 */
-    extern int rtapi_exit(int module_id);
+typedef int (*rtapi_exit_t)(int);
+#define rtapi_exit(module_id)			\
+    rtapi_switch->rtapi_exit(module_id)
+extern int _rtapi_exit(int module_id);
+
+/** 'rtapi_next_module_id()' returns a globally unique int ID
+    
+ */
+typedef int (*rtapi_next_module_id_t)(void);
+#define rtapi_next_module_id()			\
+    rtapi_switch->rtapi_next_module_id()
+extern int _rtapi_next_module_id(void);
+
+
+/***********************************************************************
+*             MODULE LOADING AND CHECKING FUNCTIONS                    *
+************************************************************************/
+
+#if defined(ULAPI) || defined(BUILD_SYS_USER_DSO)
+#include <limits.h> // provides PATH_MAX
+
+
+extern int is_module_loaded(const char *module);
+extern int load_module(const char *module, const char *modargs);
+extern long int simple_strtol(const char *nptr, char **endptr, int base);
+
+// kernel tests in rtapi_compat.c
+extern int kernel_is_xenomai();
+extern int kernel_is_rtai();
+extern int kernel_is_rtpreempt();
+
+#endif // ULAPI
+
+// this applies only to ULAPI in hal_lib.c atm:
+#define  FLAVOR_DOES_IO        RTAPI_BIT(0) // userland: whether iopl() needs to be called
+#define  FLAVOR_KERNEL_BUILD   RTAPI_BIT(1) // set when defined(BUILD_SYS_KBUILD)
+#define  FLAVOR_RTAPI_DATA_IN_SHM   RTAPI_BIT(2) // this flavor keeps rtapi_data in a shm segment
+
+typedef struct {
+    const char *name;
+    const char *mod_ext;	// RTAPI module extensions, .ko/.so
+    const char *so_ext;		// ulapi.so module extension
+    const char *build_sys;
+    int id;
+    unsigned long flags;
+} flavor_t, *flavor_ptr;
+
+extern flavor_t flavors[];
+
+extern flavor_ptr flavor_byname(const char *flavorname);
+extern flavor_ptr flavor_byid(int flavor_id);
+extern flavor_ptr default_flavor(void);
+
+/*
+ * Given a result buffer of PATH_MAX size and a module or shared
+ * library's basename (e.g. 'rtapi' with no directory or '.ko'), find
+ * the full path to a module/shared library as follows:
+ *
+ * Complete the module file name by appending mod_ext from flavor data
+ * to the basename (e.g. 'rtapi.ko').
+ *
+ * For RIP builds, prepend RTLIB_DIR from rtapi.ini, flavor name and
+ * kernel release to the module file name
+ * (e.g. '/home/me/linuxcnc-dev/rtlib/rtai-kernel/2.6.38-rtai/rtapi.ko');
+ * if the file exists, copy into *result and return 0.
+ *
+ * For non-RIP builds, prepend
+ * '/lib/modules/<kernel-release>/linuxcnc' to the module file name
+ * (e.g. '/lib/modules/2.6.38-rtai/linuxcnc/rtapi.ko'); if the file
+ * exists, copy into *result and return 0.
+ *
+ * Otherwise, prepend any (flavor-specific, currently RTAI only) RTDIR
+ * from rtapi.ini and prepend to module file name
+ * (e.g. '/usr/realtime/modules/rtai_hal.ko'); if the file exists,
+ * copy into *result and return 0.
+ *
+ * Otherwise return non-0.
+ */
+
+extern int module_path(char *result, const char *basename);
+
+/*
+ * Look up a parameter value in rtapi.ini, checking first the
+ * [flavor_<flavor>] section, then the [global] section.  Returns 0 if
+ * successful, 1 otherwise.  Maximum n-1 bytes of the value and a
+ * trailing \0 is copied into *result.
+ *
+ * Beware:  this function calls exit(-1) if rtapi.ini cannot be
+ * successfully opened!
+ */
+
+extern int get_rtapi_config(char *result, const char *param, int n);
+
 
 /***********************************************************************
 *                      MESSAGING FUNCTIONS                             *
 ************************************************************************/
-/* implemented in rtapi_msg.c */
+/* implemented in rtapi_support.c */
+
 #include <stdarg.h>		/* va_start and va_end macros */
 
 /** 'rtapi_snprintf()' works like 'snprintf()' from the normal
@@ -167,9 +273,9 @@ RTAPI_BEGIN_DECLS
     simply calls the normal snprintf().  May be called from user,
     init/cleanup, and realtime code.
 */
-    extern int rtapi_snprintf(char *buf, unsigned long int size,
-	const char *fmt, ...)
-	    __attribute__((format(printf,3,4)));
+extern int rtapi_snprintf(char *buf, unsigned long int size,
+			   const char *fmt, ...)
+    __attribute__((format(printf,3,4)));
 
 /** 'rtapi_vsnprintf()' works like 'vsnprintf()' from the normal
     C library, except that it doesn't handle long longs.
@@ -180,8 +286,8 @@ RTAPI_BEGIN_DECLS
     simply calls the normal vsnrintf().  May be called from user,
     init/cleanup, and realtime code.
 */
-    extern int rtapi_vsnprintf(char *buf, unsigned long size,
-	const char *fmt, va_list ap);
+extern int rtapi_vsnprintf(char *buf, unsigned long size,
+			    const char *fmt, va_list ap);
 
 /** 'rtapi_print()' prints a printf style message.  Depending on the
     RTOS and whether the program is being compiled for user space
@@ -196,8 +302,8 @@ RTAPI_BEGIN_DECLS
     the format string and OS.  May be called from user, init/cleanup,
     and realtime code.
 */
-    extern void rtapi_print(const char *fmt, ...)
-	    __attribute__((format(printf,1,2)));
+extern void rtapi_print(const char *fmt, ...)
+    __attribute__((format(printf,1,2)));
 
 /** 'rtapi_print_msg()' prints a printf-style message when the level
     is less than or equal to the current message level set by
@@ -213,17 +319,17 @@ RTAPI_BEGIN_DECLS
 	RTAPI_MSG_ALL
     } msg_level_t;
 
-    extern void rtapi_print_msg(int level, const char *fmt, ...)
-	    __attribute__((format(printf,2,3)));
-
+extern void rtapi_print_msg(int level, const char *fmt, ...)
+    __attribute__((format(printf,2,3)));
 
 /** Set the maximum level of message to print.  In userspace code,
     each component has its own independent message level.  In realtime
     code, all components share a single message level.  Returns 0 for
     success or -EINVAL if the level is out of range. */
-    extern int rtapi_set_msg_level(int level);
+extern int rtapi_set_msg_level(int level);
+
 /** Retrieve the message level set by the last call to rtapi_set_msg_level */
-    extern int rtapi_get_msg_level(void);
+extern int rtapi_get_msg_level(void);
 
 /** 'rtapi_get_msg_handler' and 'rtapi_set_msg_handler' access the function
     pointer used by rtapi_print and rtapi_print_msg.  By default, messages
@@ -234,12 +340,49 @@ RTAPI_BEGIN_DECLS
     'level' is RTAPI_MSG_ALL, a level which should not normally be used
     with rtapi_print_msg().
 */
-    typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
-				       va_list ap);
+typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
+				   va_list ap);
+
+// message handler which writes to ringbuffer if global is available
+extern void vs_ring_write(msg_level_t level, const char *format, va_list ap);
+
 #ifdef RTAPI
-    extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
-    extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
-#endif
+typedef void (*rtapi_set_msg_handler_t)(rtapi_msg_handler_t);
+
+extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
+
+typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
+
+extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
+#endif // RTAPI
+
+extern int rtapi_set_logtag(const char *fmt, ...);
+
+typedef enum {
+	MSG_KERNEL = 0,
+	MSG_RTUSER = 1,
+	MSG_ULAPI = 2,
+} msg_origin_t;
+
+typedef enum {
+    MSG_ASCII    = 0,  // printf conversion already applied
+    MSG_STASHF   = 1,  // Jeff's stashf.c argument encoding
+    MSG_PROTOBUF = 2,  // encoded as protobuf RTAPI_Message
+} msg_encoding_t;
+
+#define TAGSIZE 16
+
+typedef struct {
+    msg_origin_t   origin;   // where is this coming from
+    int pid;                 // if User RT or ULAPI; 0 for kernel
+    int level;               // as passed in to rtapi_print_msg()
+    char tag[TAGSIZE];       // eg program or module name
+    msg_encoding_t encoding; // how to interpret buf
+    char buf[0];             // actual message
+} rtapi_msgheader_t;
+
+#define rtapi2syslog(level) (level+2)
+
 
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
@@ -323,7 +466,11 @@ RTAPI_BEGIN_DECLS
     init/cleanup code, not from realtime tasks.  This function is not
     available from user (non-realtime) code.
 */
-    extern long int rtapi_clock_set_period(long int nsecs);
+typedef long int (*rtapi_clock_set_period_t)(long int);
+#define rtapi_clock_set_period(nsecs)		\
+    rtapi_switch->rtapi_clock_set_period(nsecs)
+extern long int _rtapi_clock_set_period(long int nsecs);
+
 /** rtapi_delay() is a simple delay.  It is intended only for short
     delays, since it simply loops, wasting CPU cycles.  'nsec' is the
     desired delay, in nano-seconds.  'rtapi_delay_max() returns the
@@ -335,8 +482,15 @@ RTAPI_BEGIN_DECLS
     as one nano-second, or as bad as a several microseconds.  May be
     called from init/cleanup code, and from within realtime tasks.
 */
-    extern void rtapi_delay(long int nsec);
-    extern long int rtapi_delay_max(void);
+typedef void (*rtapi_delay_t)(long int);
+#define rtapi_delay(nsec)			\
+    rtapi_switch->rtapi_delay(nsec)
+extern void _rtapi_delay(long int nsec);
+
+typedef long int (*rtapi_delay_max_t)(void);
+#define rtapi_delay_max()			\
+    rtapi_switch->rtapi_delay_max()
+extern long int _rtapi_delay_max(void);
 
 #endif /* RTAPI */
 
@@ -364,7 +518,10 @@ RTAPI_BEGIN_DECLS
     rtapi_get_time, and deltat is an ordinary long int (32 bits).
     This will work for times up to about 2 seconds.
 */
-    extern long long int rtapi_get_time(void);
+typedef long long int (*rtapi_get_time_t)(void);
+#define rtapi_get_time()			\
+    rtapi_switch->rtapi_get_time()
+extern long long int _rtapi_get_time(void);
 
 /** rtapi_get_clocks returns the current time in CPU clocks.  It is 
     fast, since it just reads the TSC in the CPU instead of calling a
@@ -391,7 +548,10 @@ RTAPI_BEGIN_DECLS
     CPU clock frequency.  It is best used for millisecond and 
     microsecond scale measurements though.
 */
-    extern long long int rtapi_get_clocks(void);
+typedef long long int (*rtapi_get_clocks_t)(void);
+#define rtapi_get_clocks()			\
+    rtapi_switch->rtapi_get_clocks()
+extern long long int _rtapi_get_clocks(void);
 
 
 /***********************************************************************
@@ -429,10 +589,21 @@ RTAPI_BEGIN_DECLS
     Call these functions only from within init/cleanup code, not from
     realtime tasks.
 */
-    extern int rtapi_prio_highest(void);
-    extern int rtapi_prio_lowest(void);
-    extern int rtapi_prio_next_higher(int prio);
-    extern int rtapi_prio_next_lower(int prio);
+typedef int (*rtapi_prio_highest_lowest_t)(void);
+#define rtapi_prio_highest()			\
+    rtapi_switch->rtapi_prio_highest()
+extern int _rtapi_prio_highest(void);
+#define rtapi_prio_lowest()			\
+    rtapi_switch->rtapi_prio_lowest()
+extern int _rtapi_prio_lowest(void);
+
+typedef int (*rtapi_prio_next_higher_lower_t)(int);
+#define rtapi_prio_next_higher(prio)		\
+    rtapi_switch->rtapi_prio_next_higher(prio)
+extern int _rtapi_prio_next_higher(int prio);
+#define rtapi_prio_next_lower(prio)		\
+    rtapi_switch->rtapi_prio_next_lower(prio)
+extern int _rtapi_prio_next_lower(int prio);
 
 #ifdef RTAPI
 
@@ -464,7 +635,14 @@ RTAPI_BEGIN_DECLS
 #define RTAPI_NO_FP   0
 #define RTAPI_USES_FP 1
 
-    extern int rtapi_task_new(void (*taskcode) (void *), void *arg,
+typedef int (*rtapi_task_new_t)(void (*) (void *), void *,
+				int, int, unsigned long int,
+				int, char *, int);
+#define rtapi_task_new(taskcode, arg, prio, owner, stacksize, uses_fp, \
+		       name, cpu_id)				       \
+    rtapi_switch->rtapi_task_new(taskcode, arg, prio, owner, stacksize, \
+				uses_fp, name, cpu_id)
+extern int _rtapi_task_new(void (*taskcode) (void *), void *arg,
 			      int prio, int owner, unsigned long int stacksize, 
 			      int uses_fp, char *name, int cpu_id);
 
@@ -475,7 +653,10 @@ RTAPI_BEGIN_DECLS
     it.  Returns a status code.  Call only from within init/cleanup
     code, not from realtime tasks.
 */
-    extern int rtapi_task_delete(int task_id);
+typedef int (*rtapi_task_delete_t)(int);
+#define rtapi_task_delete(task_id)		\
+    rtapi_switch->rtapi_task_delete(task_id)
+extern int _rtapi_task_delete(int task_id);
 
 /** 'rtapi_task_start()' starts a task in periodic mode.  'task_id' is
     a task ID from a call to rtapi_task_new().  The task must be in
@@ -486,14 +667,20 @@ RTAPI_BEGIN_DECLS
     set equal to the clock period.
     Call only from within init/cleanup code, not from realtime tasks.
 */
-    extern int rtapi_task_start(int task_id, unsigned long int period_nsec);
+typedef int (*rtapi_task_start_t)(int, unsigned long int);
+#define rtapi_task_start(task_id, period_nsec)	\
+    rtapi_switch->rtapi_task_start(task_id, period_nsec)
+extern int _rtapi_task_start(int task_id, unsigned long int period_nsec);
 
 /** 'rtapi_wait()' suspends execution of the current task until the
     next period.  The task must be periodic, if not, the result is
     undefined.  The function will return at the beginning of the
     next period.  Call only from within a realtime task.
 */
-    extern void rtapi_wait(void);
+typedef void (*rtapi_wait_t)(void);
+#define rtapi_wait()				\
+    rtapi_switch->rtapi_wait()
+extern void _rtapi_wait(void);
 
 /** 'rtapi_task_resume() starts a task in free-running mode. 'task_id'
     is a task ID from a call to rtapi_task_new().  The task must be in
@@ -506,7 +693,10 @@ RTAPI_BEGIN_DECLS
     3) it is returned to the "paused" state by rtapi_task_pause().
     May be called from init/cleanup code, and from within realtime tasks.
 */
-    extern int rtapi_task_resume(int task_id);
+typedef int (*rtapi_task_resume_t)(int);
+#define rtapi_task_resume(task_id)		\
+    rtapi_switch->rtapi_task_resume(task_id)
+extern int _rtapi_task_resume(int task_id);
 
 /** 'rtapi_task_pause() causes 'task_id' to stop execution and change
     to the "paused" state.  'task_id' can be free-running or periodic.
@@ -516,12 +706,29 @@ RTAPI_BEGIN_DECLS
     rtapi_task_start() is called.  May be called from init/cleanup code,
     and from within realtime tasks.
 */
-    extern int rtapi_task_pause(int task_id);
+typedef int (*rtapi_task_pause_t)(int);
+#define rtapi_task_pause(task_id)		\
+    rtapi_switch->rtapi_task_pause(task_id)
+extern int _rtapi_task_pause(int task_id);
 
 /** 'rtapi_task_self()' returns the task ID of the current task.
     Call only from a realtime task.
 */
-    extern int rtapi_task_self(void);
+typedef int (*rtapi_task_self_t)(void);
+#define rtapi_task_self()			\
+    rtapi_switch->rtapi_task_self()
+extern int _rtapi_task_self(void);
+
+/** 'rtapi_task_update_stats()' will update the thread statistics
+    in the global_data_t structure.
+
+    Call only from a realtime task.
+    returns a negative value on error, or the thread's task id.
+*/
+typedef int (*rtapi_task_update_stats_t)(void);
+#define rtapi_task_update_stats()			\
+    rtapi_switch->rtapi_task_update_stats()
+extern int _rtapi_task_update_stats(void);
 
 #endif /* RTAPI */
 
@@ -546,54 +753,76 @@ RTAPI_BEGIN_DECLS
     returns a negative error code.  Call only from within user or
     init/cleanup code, not from realtime tasks.
 */
-    extern int rtapi_shmem_new(int key, int module_id,
-	unsigned long int size);
+typedef int (*rtapi_shmem_new_t)(int, int, unsigned long int);
+#define rtapi_shmem_new(key, module_id, size)	\
+    rtapi_switch->rtapi_shmem_new(key, module_id, size)
+extern int _rtapi_shmem_new(int key, int module_id,
+			    unsigned long int size);
+
+/** 'rtapi_shmem_new_inst()' does the same for a particular instance.
+ **/
+
+typedef int (*rtapi_shmem_new_inst_t)(int, int, int, unsigned long int);
+#define rtapi_shmem_new_inst(key, instance, module_id, size)	\
+    rtapi_switch->rtapi_shmem_new_inst(key, instance, module_id, size)
+extern int _rtapi_shmem_new_inst(int key, int instance, int module_id,
+			    unsigned long int size);
 
 /** 'rtapi_shmem_delete()' frees the shared memory block associated
     with 'shmem_id'.  'module_id' is the ID of the calling module.
     Returns a status code.  Call only from within user or init/cleanup
     code, not from realtime tasks.
 */
-    extern int rtapi_shmem_delete(int shmem_id, int module_id);
+typedef int (*rtapi_shmem_delete_t)(int, int);
+#define rtapi_shmem_delete(shmem_id, module_id)		\
+    rtapi_switch->rtapi_shmem_delete(shmem_id, module_id)
+extern int _rtapi_shmem_delete(int shmem_id, int module_id);
+
+typedef int (*rtapi_shmem_delete_inst_t)(int, int, int);
+#define rtapi_shmem_delete_inst(shmem_id, instance, module_id)	\
+    rtapi_switch->rtapi_shmem_delete_inst(shmem_id, instance, module_id)
+extern int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id);
 
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
 */
-    extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
+
+typedef int (*rtapi_shmem_getptr_t)(int, void **);
+#define rtapi_shmem_getptr(shmem_id, ptr)		\
+    rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr)
+extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
+
+typedef int (*rtapi_shmem_getptr_inst_t)(int, int, void **);
+#define rtapi_shmem_getptr_inst(shmem_id, instance, ptr)	\
+    rtapi_switch->rtapi_shmem_getptr_inst(shmem_id, instance, ptr)
+extern int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr);
+
+
+/***********************************************************************
+*                        Callback on RT scheduling violation           *
+* rtapi detects when a scheduling release point has been missed, and   *
+* several other fault situations, most of which are depend on the      *
+* thread system used.                                                  *
+*                                                                      *
+* A use case would be a hal module which exports an rt estop pin       *
+* this pin would be raised by the callback, eg rtmon.comp              *
+************************************************************************/
+
+// rtapi_exception_handler_t is defined in rtapi_exception.h
+typedef rtapi_exception_handler_t (*rtapi_set_exception_t) (rtapi_exception_handler_t);
+#define rtapi_set_exception(handler)	\
+    rtapi_switch->rtapi_set_exception(handler)
+extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t h);
 
 
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
+// the rtapi_inb()/rtapi_outb()/rtapi_inw()/rtapi_outw() functions have
+// moved to src/rtapi/rtapi_io.h, including documentation.
 
-/** 'rtapi_outb() writes 'byte' to 'port'.  May be called from
-    init/cleanup code, and from within realtime tasks.
-    Note: This function does nothing on the simulated RTOS.
-    Note: Many platforms provide an inline outb() that is faster.
-*/
-    extern void rtapi_outb(unsigned char byte, unsigned int port);
-
-/** 'rtapi_inb() gets a byte from 'port'.  Returns the byte.  May
-    be called from init/cleanup code, and from within realtime tasks.
-    Note: This function always returns zero on the simulated RTOS.
-    Note: Many platforms provide an inline inb() that is faster.
-*/
-    extern unsigned char rtapi_inb(unsigned int port);
-
-/** 'rtapi_outw() writes 'word' to 'port'.  May be called from
-    init/cleanup code, and from within realtime tasks.
-    Note: This function does nothing on the simulated RTOS.
-    Note: Many platforms provide an inline outw() that is faster.
-*/
-    extern void rtapi_outw(unsigned short word, unsigned int port);
-
-/** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
-    be called from init/cleanup code, and from within realtime tasks.
-    Note: This function always returns zero on the simulated RTOS.
-    Note: Many platforms provide an inline inw() that is faster.
-*/
-    extern unsigned short rtapi_inw(unsigned int port);
+#include "rtapi_io.h"
 
 #if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
@@ -604,19 +833,19 @@ RTAPI_BEGIN_DECLS
     If the allocation fails, this function returns NULL.  Otherwise, it returns
     a non-NULL value.
 */
-#include <linux/version.h>
-#if !defined(BUILD_SYS_USER_DSO)
-#include <linux/module.h>
-# include <linux/ioport.h>
-#endif
+#  include <linux/version.h>
+#  if !defined(BUILD_SYS_USER_DSO)
+#    include <linux/module.h>
+#    include <linux/ioport.h>
+#  endif // BUILD_SYS_USER_DSO
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
+#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
         return (void*)request_region(base, size, name);
-#else
+#  else
         return (void*)-1;
-#endif
+#  endif
     }
 
 /** 'rtapi_release_region() releases I/O memory reserved by 
@@ -626,12 +855,128 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
+#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
         release_region(base, size);
-#endif
+#  endif
     }
+#endif // RTAPI && BUILD_DRIVERS
+
+/***********************************************************************
+*                            RTAPI SWITCH                              *
+************************************************************************/
+/** rtapi_switch contains pointers to the _rtapi_* functions declared
+    above.  The struct is initialized in rtapi_common.c.
+
+    Each thread system needs a member in the thread_flavor_id_t enum,
+    and should set the macro THREAD_FLAVOR_ID to that enumerator.
+*/
+
+// prototype for dummy rtapi placeholder function
+typedef int (*rtapi_dummy_t)(void);
+
+typedef struct {
+    const char *git_version;
+    const char *thread_flavor_name; // for messsages
+    int  thread_flavor_id;
+    unsigned long thread_flavor_flags;
+
+    // init & exit functions
+    rtapi_init_t rtapi_init;
+    rtapi_exit_t rtapi_exit;
+    rtapi_next_module_id_t rtapi_next_module_id;
+    // time functions
+#ifdef RTAPI
+    rtapi_clock_set_period_t rtapi_clock_set_period;
+    rtapi_delay_t rtapi_delay;
+    rtapi_delay_max_t rtapi_delay_max;
+#else
+    rtapi_dummy_t rtapi_clock_set_period;
+    rtapi_dummy_t rtapi_delay;
+    rtapi_dummy_t rtapi_delay_max;
+#endif
+    rtapi_get_time_t rtapi_get_time;
+    rtapi_get_clocks_t rtapi_get_clocks;
+    // task functions
+    rtapi_prio_highest_lowest_t rtapi_prio_highest;
+    rtapi_prio_highest_lowest_t rtapi_prio_lowest;
+    rtapi_prio_next_higher_lower_t rtapi_prio_next_higher;
+    rtapi_prio_next_higher_lower_t rtapi_prio_next_lower;
+#ifdef RTAPI
+    rtapi_task_new_t rtapi_task_new;
+    rtapi_task_delete_t rtapi_task_delete;
+    rtapi_task_start_t rtapi_task_start;
+    rtapi_wait_t rtapi_wait;
+    rtapi_task_resume_t rtapi_task_resume;
+    rtapi_task_pause_t rtapi_task_pause;
+    rtapi_task_self_t rtapi_task_self;
+
+#else
+    rtapi_dummy_t rtapi_task_new;
+    rtapi_dummy_t rtapi_task_delete;
+    rtapi_dummy_t rtapi_task_start;
+    rtapi_dummy_t rtapi_wait;
+    rtapi_dummy_t rtapi_task_resume;
+    rtapi_dummy_t rtapi_task_pause;
+    rtapi_dummy_t rtapi_task_self;
+#endif
+    // shared memory functions
+    rtapi_shmem_new_t rtapi_shmem_new;
+    rtapi_shmem_new_inst_t rtapi_shmem_new_inst;
+    rtapi_shmem_delete_t rtapi_shmem_delete;
+    rtapi_shmem_delete_inst_t rtapi_shmem_delete_inst;
+    rtapi_shmem_getptr_t rtapi_shmem_getptr;
+    rtapi_shmem_getptr_inst_t rtapi_shmem_getptr_inst;
+
+#ifdef RTAPI
+    rtapi_set_exception_t rtapi_set_exception;
+#else
+    rtapi_dummy_t rtapi_set_exception;
+#endif
+#ifdef RTAPI
+    rtapi_task_update_stats_t rtapi_task_update_stats;
+#else
+    rtapi_dummy_t rtapi_task_update_stats;
 #endif
 
+} rtapi_switch_t;
+
+// using code is responsible to define this:
+// this extern is not used within RTAPI
+extern rtapi_switch_t *rtapi_switch;
+
+/** 'rtapi_get_handle()' returns a pointer to the rtapi_switch 
+    structure, such that using code may refernce rtapi
+    methods.
+ */
+typedef rtapi_switch_t *(*rtapi_get_handle_t)(void);
+extern rtapi_switch_t *rtapi_get_handle(void);
+
+// autorelease the rtapi mutex on scope exit
+// declare a variable like so in the scope to be protected:
+//
+// foo_type foo __attribute__((cleanup(rtapi_autorelease_mutex)));
+//
+// make sure rtapi_mutex_get(&(rtapi_data->mutex));
+// is unconditionally called first thing on scope entry
+extern void rtapi_autorelease_mutex(void *variable);
+
+// exported by instance.c (kstyles) and rtapi_main.c (userlandRT)
+// configurable at rtapi.so module load time _only_
+extern int rtapi_instance;
+
+#ifdef ULAPI
+// the ulapi constructor and destructor
+// these attach/detach the rtapi shm segments to/from ULAPI
+typedef int  (*ulapi_main_t)(int, int, global_data_t *);
+typedef int (*ulapi_exit_t)(int);
+extern int ulapi_main(int instance, int flavor, global_data_t *global);
+extern int ulapi_exit(int instance);
+
+// Check that a ulapi module is compatible with the running kernel
+// from rtapi_compat.c
+extern void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch,
+				      char *ulapi_lib);
+#endif
 
 /***********************************************************************
 *                      MODULE PARAMETER MACROS                         *
@@ -645,11 +990,6 @@ RTAPI_BEGIN_DECLS
    the issue.
 */
 
-/* make sure a given kernel module is loaded.
-   might be needed for some usermode PCI drivers
-*/
-int rtapi_assure_module_loaded(const char *module);
-
 /** RTAPI_MP_INT() declares a single integer module parameter.
     RTAPI_MP_LONG() declares a single long module parameter.
     RTAPI_MP_STRING() declares a single string module parameter.
@@ -662,22 +1002,7 @@ int rtapi_assure_module_loaded(const char *module);
     'num' is the number of elements in an array.
 */
 
-#if defined(BUILD_SYS_USER_DSO)
-#define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
-#define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
-    t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
-#define MODULE_PARM(v,t) MODULE_INFO2(const char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
-#define MODULE_PARM_DESC(v,t) MODULE_INFO2(const char*, description, v, t)
-#define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
-#define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
-#define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
-#define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
-#define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
-    char rtapi_exported_##x[] = #x;
-#define EXPORT_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
-#define MODULE_DEVICE_TABLE(type, name)
-#endif
+#include <rtapi_export.h>
 
 #if !defined(BUILD_SYS_USER_DSO)
 #ifndef LINUX_VERSION_CODE
@@ -695,7 +1020,7 @@ int rtapi_assure_module_loaded(const char *module);
 #if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
-   
+
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
   MODULE_PARM_DESC(var,descr);
@@ -763,9 +1088,6 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 
 #endif /* RTAPI */
 
-#if defined(BUILD_SYS_USER_DSO)
-extern long int simple_strtol(const char *nptr, char **endptr, int base);
-#endif
 
 RTAPI_END_DECLS
 

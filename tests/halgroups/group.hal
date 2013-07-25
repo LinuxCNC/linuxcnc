@@ -1,0 +1,10 @@
+newg foo 1 2465 322
+newg bar 2 4711 815
+status mem
+list group
+show group
+delg foo
+status mem
+delg bar
+status mem
+show group

@@ -9,22 +9,27 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"
+#include "rtapi/shmdrv/shmdrv.h"
 
 #ifdef BUILD_SYS_USER_DSO
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>		/* shmget() */
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <sys/mman.h>
+#include <sys/types.h>          //shm_open
 #include <stdlib.h>		/* rand_r() */
 #include <unistd.h>		/* getuid(), getgid(), sysconf(),
 				   ssize_t, _SC_PAGESIZE */
+
 #else  /* BUILD_SYS_KBUILD */
 #  ifdef ULAPI
+#    include <stdio.h>          // perror
 #    include <sys/time.h>
 #    include <sys/resource.h>
+#    include "rtapi/shmdrv/shmdrv.h"
 #  endif
 #endif
 
-
-#define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 #define SHM_PERMISSIONS	0666
 
 #ifdef BUILD_SYS_KBUILD
@@ -39,13 +44,6 @@
 #  endif
 #endif
 
-
-/* prototypes for hooks the kernel thread systems must implement */
-extern void *rtapi_shmem_new_realloc_hook(int shmem_id, int key,
-					  unsigned long int size);
-extern void *rtapi_shmem_new_malloc_hook(int shmem_id, int key,
-					 unsigned long int size);
-extern void rtapi_shmem_delete_hook(shmem_data *shmem,int shmem_id);
 #if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
 static void check_memlock_limit(const char *where);
 #endif
@@ -61,11 +59,16 @@ void *shmem_addr_array[RTAPI_MAX_SHMEMS + 1];
 *                           USERLAND THREADS                           *
 ************************************************************************/
 
-int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
+int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     shmem_data *shmem;
-    struct shmid_ds d;
-    int i, ret;
+    int i, ret, actual_size;
     int is_new = 0;
+    int key = OS_KEY(userkey, instance);
+    static int page_size;
+
+    if (!page_size)
+	page_size = sysconf(_SC_PAGESIZE);
+
 
     rtapi_mutex_get(&(rtapi_data->mutex));
     for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
@@ -85,63 +88,32 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     }
     shmem = &shmem_array[i];
 
-    /* now get shared memory block from OS */
-
-    // try to attach
-    shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS);
-    if (shmem->id == -1) {  
-	if (errno == ENOENT) {
-	    // nope, doesnt exist - create
-	    shmem->id = shmget((key_t)key, size, SHM_PERMISSIONS | IPC_CREAT);
-	    is_new = 1;
-	}
-	if (shmem->id == -1) {
-	    rtapi_mutex_give(&(rtapi_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "Failed to allocate shared memory, "
-			    "key=0x%x size=%ld\n", key, size);
-	    return -ENOMEM;
-	}
-    } 
-  
-    // get actual user/group and drop to ruid/rgid so removing is
-    // always possible
-    if ((ret = shmctl(shmem->id, IPC_STAT, &d)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_STAT) "
-			"failed: %d '%s'\n", 
-			key, errno, strerror(errno));      
-    } else {
-	// drop permissions of shmseg to real userid/group id
-	if (!d.shm_perm.uid) { // uh, root perms 
-	    d.shm_perm.uid = getuid();
-	    d.shm_perm.gid = getgid();
-	    if ((ret = shmctl(shmem->id, IPC_SET, &d)) < 0) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-				"rtapi_shmem_new: shm_ctl(key=0x%x, IPC_SET) "
-				"failed: %d '%s'\n", 
-				key, errno, strerror(errno));      
-	    } 
-	}
+    // redefine size == 0 to mean 'attach only, dont create'
+    actual_size = size;
+    ret = shm_common_new(key, &actual_size, instance, &shmem->mem, size > 0);
+    if (ret > 0)
+	is_new = 1;
+    if (ret < 0) {
+	 rtapi_mutex_give(&(rtapi_data->mutex));
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "shm_common_new:%d failed key=0x%x size=%ld\n",
+			 instance, key, size);
+	 return ret;
     }
-    /* and map it into process space */
-    shmem->mem = shmat(shmem->id, 0, 0);
-    if ((ssize_t) (shmem->mem) == -1) {
-	rtapi_mutex_give(&(rtapi_data->mutex));
+    // a non-zero size was given but it didn match what we found:
+    if (size && (actual_size != size)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_new: shmat(%d) failed: %d '%s'\n",
-			shmem->id, errno, strerror(errno));
-	return -errno;
+			"rtapi_shmem_new:%d 0x8.8%x: requested size %ld and actual size %d dont match\n",
+			instance, key, size, actual_size);
     }
     /* Touch each page by either zeroing the whole mem (if it's a new
        SHM region), or by reading from it. */
     if (is_new) {
 	memset(shmem->mem, 0, size);
     } else {
-	unsigned int i, pagesize;
-      
-	pagesize = sysconf(_SC_PAGESIZE);
-	for (i = 0; i < size; i += pagesize) {
+	unsigned int i;
+
+	for (i = 0; i < size; i += page_size) {
 	    unsigned int x = *(volatile unsigned int *)
 		((unsigned char *)shmem->mem + i);
 	    /* Use rand_r to clobber the read so GCC won't optimize it
@@ -153,9 +125,10 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     /* label as a valid shmem structure */
     shmem->magic = SHMEM_MAGIC;
     /* fill in the other fields */
-    shmem->size = size;
+    shmem->size = actual_size;
     shmem->key = key;
     shmem->count = 1;
+    shmem->instance = instance;
 
     rtapi_mutex_give(&(rtapi_data->mutex));
 
@@ -163,8 +136,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     return i;
 }
 
-
-int rtapi_shmem_getptr(int handle, void **ptr) {
+int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
     shmem_data *shmem;
     if (handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -180,11 +152,9 @@ int rtapi_shmem_getptr(int handle, void **ptr) {
     return 0;
 }
 
-
-int rtapi_shmem_delete(int handle, int module_id) {
-    struct shmid_ds d;
-    int r1, r2;
+int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     shmem_data *shmem;
+    int retval = 0;
 
     if(handle < 0 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -203,57 +173,41 @@ int rtapi_shmem_delete(int handle, int module_id) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_DBG,
 			"rtapi_shmem_delete: handle=%d module=%d key=0x%x:  "
-			"%d remaining users\n", 
+			"%d remaining users\n",
 			handle, module_id, shmem->key, shmem->count);
 	return 0;
     }
 
-    /* unmap the shared memory */
-    r1 = shmdt(shmem->mem);
-    if (r1 < 0) {
+    retval = shm_common_detach(shmem->size, shmem->mem);
+    if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_delete: shmdt(key=0x%x) "
-			"failed: %d '%s'\n",
-			shmem->key, errno, strerror(errno));      
+			"RTAPI:%d ERROR: munmap(0x%8.8x) failed: %s\n",
+			instance, shmem->key, strerror(-retval));
     }
-    /* destroy the shared memory */
-    r2 = shmctl(shmem->id, IPC_STAT, &d);
-    if (r2 < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rtapi_shmem_delete: shm_ctl(0x%x, IPC_STAT) "
-			"failed: %d '%s'\n", 
-			shmem->key, errno, strerror(errno));      
-    }
-    if(r2 == 0 && d.shm_nattch == 0) {
-	r2 = shmctl(shmem->id, IPC_RMID, &d);
-	if (r2 < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "rtapi_shmem_delete: shm_ctl(0x%x, IPC_RMID) "
-			    "failed: %d '%s'\n", 
-			    shmem->key, errno, strerror(errno));      
-	}
-    }  
+
+    // XXX: probably shmem->mem should be set to NULL here to avoid
+    // references to already unmapped segments (and find them early)
 
     /* free the shmem structure */
     shmem->magic = 0;
-
     rtapi_mutex_give(&(rtapi_data->mutex));
-
-    if ((r1 != 0) || (r2 != 0))
-	return -EINVAL;
-    return 0;
+    return retval;
 }
 
+int _rtapi_shmem_exists(int userkey) {
+    return shm_common_exists(userkey);
+}
 
 #else  /* BUILD_SYS_KBUILD */
 /***********************************************************************
 *                            KERNEL THREADS                            *
 ************************************************************************/
 
-int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
-    int n;
+int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long int size) {
+    int n, retval;
     int shmem_id;
     shmem_data *shmem;
+    struct shm_status sm;
 
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
     if ((key == 0) || (key == RTAPI_KEY)) {
@@ -303,8 +257,19 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 	    if (shmem->rtusers == 0) {
 #endif
 		/* no, map it and save the address */
-		shmem_addr_array[shmem_id] = 
-		    rtapi_shmem_new_realloc_hook(shmem_id, key, size);
+		sm.key = key;
+		sm.size = size;
+		sm.flags = 0;
+#ifdef ULAPI
+		sm.driver_fd = shmdrv_driver_fd();
+#endif
+		retval = shmdrv_attach(&sm, &shmem_addr_array[shmem_id]);
+		if (retval < 0) {
+		    rtapi_mutex_give(&(rtapi_data->mutex));
+		    rtapi_print_msg(RTAPI_MSG_ERR,
+				    "shmdrv attached failed key=0x%x size=%ld\n", key, size);
+		    return retval;
+		}
 		if (shmem_addr_array[shmem_id] == NULL) {
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 				    "RTAPI: ERROR: failed to map shmem\n");
@@ -336,7 +301,7 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
     /* find empty spot in shmem array */
     n = 1;
     while ((n <= RTAPI_MAX_SHMEMS) && (shmem_array[n].key != 0)) {
-	rtapi_print_msg(RTAPI_MSG_ERR, OUR_API ": shmem %d occupuied \n",n);
+	rtapi_print_msg(RTAPI_MSG_DBG, OUR_API ": shmem %d occupuied \n",n);
 	n++;
     }
     if (n > RTAPI_MAX_SHMEMS) {
@@ -347,15 +312,29 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 	return -EMFILE;
     }
     /* we have space for the block data */
-    rtapi_print_msg(RTAPI_MSG_ERR, OUR_API ": using new shmem %d  \n",n);
+    rtapi_print_msg(RTAPI_MSG_DBG, OUR_API ": using new shmem %d  \n",n);
     shmem_id = n;
     shmem = &(shmem_array[n]);
 
     /* get shared memory block from OS and save its address */
-
-    shmem_addr_array[shmem_id] =
-	rtapi_shmem_new_malloc_hook(shmem_id, key, size);
-
+    sm.key = key;
+    sm.size = size;
+    sm.flags = 0;
+#ifdef ULAPI
+    sm.driver_fd = shmdrv_driver_fd();
+#endif
+    retval = shmdrv_create(&sm);
+    if (retval < 0) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv create failed key=0x%x size=%ld\n", key, size);
+	return retval;
+    }
+    retval = shmdrv_attach(&sm, &shmem_addr_array[shmem_id]);
+    if (retval < 0) {
+	rtapi_mutex_give(&(rtapi_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,"shmdrv attached failed key=0x%x size=%ld\n", key, size);
+	return retval;
+    }
     if (shmem_addr_array[shmem_id] == NULL) {
 	rtapi_mutex_give(&(rtapi_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -374,7 +353,9 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size) {
 #endif  /* ULAPI */
     shmem->size = size;
     shmem->magic = SHMEM_MAGIC;
+    shmem->instance = instance;
     rtapi_data->shmem_count++;
+
     /* zero the first word of the shmem area */
     *((long int *) (shmem_addr_array[shmem_id])) = 0;
     /* announce the birth of a brand new baby shmem */
@@ -410,9 +391,12 @@ static void check_memlock_limit(const char *where) {
 #endif /* ULAPI */
 
 
-int rtapi_shmem_delete(int shmem_id, int module_id) {
+int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
     shmem_data *shmem;
-    int manage_lock;
+    int manage_lock, retval;
+#ifdef RTAPI
+    struct shm_status sm;
+#endif
 
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
@@ -443,6 +427,18 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
     rtapi_clear_bit(module_id, shmem->bitmap);
 #ifdef ULAPI
     shmem->ulusers--;
+
+    if ((shmem->ulusers == 0) && (shmem->rtusers == 0)) {
+	// shmdrv can detach unused shared memory from userland too
+	// this will munmap() the segment causing a drop in uattach refcount
+	// and eventual free by garbage collect in shmdrv
+	retval = shm_common_detach(shmem->size, shmem_addr_array[shmem_id]);
+	if (retval) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "ULAPI:%d ERROR: shm_common_detach(%02d) failed: %s\n",
+			    rtapi_instance, shmem_id, strerror(-retval));
+	}
+    }
     /* unmap the block */
     shmem_addr_array[shmem_id] = NULL;
 #else /* RTAPI */
@@ -456,11 +452,9 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
 	if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
 	return 0;
     }
-    /* no other realtime users, free the shared memory from kernel space */
-
-    rtapi_shmem_delete_hook(shmem,shmem_id);
 
 #ifdef RTAPI
+    /* no other realtime users, free the shared memory from kernel space */
     shmem_addr_array[shmem_id] = NULL;
     shmem->rtusers = 0;
     /* are any user processes using the block? */
@@ -472,8 +466,19 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
 	if (manage_lock) rtapi_mutex_give(&(rtapi_data->mutex));
 	return 0;
     }
+
     /* no other users at all, this ID is now free */
+    sm.key = shmem->key;
+    sm.size = shmem->size;
+    sm.flags = 0;
+    if ((retval = shmdrv_detach(&sm)) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"RTAPI:%d ERROR: shmdrv_detach(%x,%d) fail: %d\n",
+			rtapi_instance, sm.key, sm.size, retval);
+    }
 #endif  /* RTAPI */
+
+
     /* update the data array and usage count */
     shmem->key = 0;
     shmem->size = 0;
@@ -485,7 +490,7 @@ int rtapi_shmem_delete(int shmem_id, int module_id) {
     return 0;
 }
 
-int rtapi_shmem_getptr(int shmem_id, void **ptr) {
+int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr) {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
 	return -EINVAL;
@@ -499,9 +504,26 @@ int rtapi_shmem_getptr(int shmem_id, void **ptr) {
     return 0;
 }
 
-#ifdef RTAPI
-EXPORT_SYMBOL(rtapi_shmem_new);
-EXPORT_SYMBOL(rtapi_shmem_delete);
-EXPORT_SYMBOL(rtapi_shmem_getptr);
-#endif  /* RTAPI */
+int _rtapi_shmem_exists(int userkey) {
+    struct shm_status sm;
+    sm.key = userkey;
+
+    return !shmdrv_status(&sm); 
+}
+
 #endif  /* BUILD_SYS_KBUILD */
+
+
+// implement rtapi_shmem_* calls  in terms of _rtapi_shmem_*_inst()
+
+int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
+    return _rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
+}
+
+int _rtapi_shmem_getptr(int handle, void **ptr) {
+    return _rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr);
+}
+
+int _rtapi_shmem_delete(int handle, int module_id) {
+    return _rtapi_shmem_delete_inst(handle, rtapi_instance, module_id);
+}

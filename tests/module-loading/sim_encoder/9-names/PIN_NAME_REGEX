@@ -1,1 +1,1 @@
-../PIN_NAME_REGEX.names
+simenc[0-9]\.speed([[:space:]].*$|$)

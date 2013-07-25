@@ -235,11 +235,9 @@ void emcmotController(void *arg, long period)
 
 
     static long long int last = 0;
-#ifndef RTAPI_SIM
     static int index = 0;
     static long int cycles[CYCLE_HISTORY];
     static int priming = 1;
-#endif
 
     long long int now = rtapi_get_clocks();
     long int this_run = (long int)(now - last);
@@ -248,8 +246,7 @@ void emcmotController(void *arg, long period)
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
 
-#ifndef RTAPI_POSIX
-    if(!priming) {
+    if(!priming && (rtapi_switch->thread_flavor_id != RTAPI_POSIX_ID)) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late
         int i;
@@ -279,17 +276,16 @@ void emcmotController(void *arg, long period)
 		break;
 	    }
         }
+	if(last) {
+	    cycles[index++] = this_run;
+	}
+	if(index == CYCLE_HISTORY) {
+	    // wrap around to the start of the array
+	    index = 0;
+	    // we now have CYCLE_HISTORY good samples, so start checking times
+	    priming = 0;
+	}
     }
-    if(last) {
-        cycles[index++] = this_run;
-    }
-    if(index == CYCLE_HISTORY) {
-        // wrap around to the start of the array
-        index = 0;
-        // we now have CYCLE_HISTORY good samples, so start checking times
-        priming = 0;
-    }
-#endif
     // we need this for next time
     last = now;
 
@@ -1885,7 +1881,7 @@ static void output_to_hal(void)
 	*(joint_data->homed) = GET_JOINT_HOMED_FLAG(joint);
 	*(joint_data->f_errored) = GET_JOINT_FERROR_FLAG(joint);
 	*(joint_data->faulted) = GET_JOINT_FAULT_FLAG(joint);
-	joint_data->home_state = joint->home_state;
+	*(joint_data->home_state) = joint->home_state;
     }
 }
 

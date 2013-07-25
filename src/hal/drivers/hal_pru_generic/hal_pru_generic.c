@@ -14,7 +14,7 @@
 //             Refactored code to more closely match mesa-hostmot2      //
 // 2012-Dec-30 Charles Steinkuehler                                     //
 //             Initial version, based in part on:                       //
-//               hal_pru.c      Micheal Halberler                       //
+//               hal_pru.c      Micheal Haberler                       //
 //               supply.c       Matt Shaver                             //
 //               stepgen.c      John Kasunich                           //
 //               hostmot2 code  Sebastian Kuzminsky                     //
@@ -79,6 +79,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
 
@@ -142,6 +143,9 @@ static tprussdrv *pruss;                // driver descriptor
 static int comp_id;     /* component ID */
 
 static const char *modname = "hal_pru_generic";
+
+// if filename doesnt exist, prefix this path:
+char *fw_path = "/lib/firmware/pru/";       
 
 // shared with PRU
 static unsigned long *pru_data_ram;     // points to PRU data RAM
@@ -705,10 +709,35 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     }
 
     // Load and execute binary on PRU
-    if (!strlen(filename))
-    filename = EMC2_RTLIB_DIR "/" DEFAULT_CODE;
-    retval =  prussdrv_exec_program (pru, filename, disabled);
+    // search for .bin files as passed in and under fw_path
+    char pru_binpath[PATH_MAX];
 
+    // default the .bin filename if not given
+    if (!strlen(filename))
+	filename = DEFAULT_CODE;
+    
+    strcpy(pru_binpath, filename);
+
+    struct stat statb;
+
+    if (!((stat(pru_binpath, &statb) == 0) &&
+	 S_ISREG(statb.st_mode))) {
+
+	// filename not found, prefix fw_path & try that:
+	strcpy(pru_binpath, fw_path);
+	strcat(pru_binpath, filename);
+
+	if (!((stat(pru_binpath, &statb) == 0) &&
+	      S_ISREG(statb.st_mode))) {
+	    // nyet, complain
+	    getcwd(pru_binpath, sizeof(pru_binpath));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "%s: cant find %s in %s or %s\n",
+			    modname, filename, pru_binpath, fw_path);
+	    return -ENOENT;
+	}
+    }
+    retval =  prussdrv_exec_program (pru, pru_binpath, disabled);
     return retval;
 }
 

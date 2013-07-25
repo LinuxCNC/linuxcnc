@@ -1,6 +1,6 @@
 
 
-ifeq ($(THREADS),xenomai-kernel)
+ifeq ($(THREADS),XENOMAI_KERNEL)
 
 #MODULES = xeno_math
 obj-m += xeno_math.o

@@ -115,11 +115,9 @@ so:
 
 * `posix`: will be implied by the current '--enable-simulator' option, meaning: simulator rtapi_app, no RT hardening, user mode .so modules
 
-* `rt-preempt-user`: as above, but hardened rtapi_app.
+* `rt-preempt`: as above, but hardened rtapi_app.
 
-* `rt-preempt-kernel`: this would imply: an rt-preempt kernel,  kthreads for RTAPI execution, and .ko modules.
-
-* `xenomai-user`: as posix, but using xenomai user RT process hardening (rouhgly as used in the miniemc2 project: http://code.google.com/p/miniemc2/)
+* `xenomai`: as posix, but using xenomai user RT process hardening (rouhgly as used in the miniemc2 project: http://code.google.com/p/miniemc2/)
 
 * `xenomai-kernel`: very similar to current RTAI threads.
 
@@ -128,8 +126,8 @@ so:
 The thread style is reflected in the THREADS shell/Makefile variable;
 in config.h as one of the following defined:
 
-`RTAPI_POSIX` `RTAPI_RT_PREEMPT_USER` `RTAPI_RT_PREEMPT_KERNEL`
-`RTAPI_XENOMAI_USER` `RTAPI_XENOMAI_KERNEL` `RTAPI_RTAI`
+`RTAPI_POSIX` `RTAPI_RT_PREEMPT`
+`RTAPI_XENOMAI` `RTAPI_XENOMAI_KERNEL` `RTAPI_RTAI`
 
 ==== the Build system
 
@@ -138,8 +136,8 @@ There are two build styles:
 * 'kbuild' (kernel modules) 
 * 'user-dso' (userland dynamic shared objects). 
 
-The thread style implies a build system: 'posix', 'xenomai-user',
-'rt-preempt-user' imply 'user-dso', the others imply 'kbuild'. 
+The thread style implies a build system: 'posix', 'xenomai,
+'rt-preempt imply 'user-dso', the others imply 'kbuild'. 
 
 The used build system is reflected as follows:
 
@@ -176,9 +174,9 @@ threads, enable drivers which can run in userspace
 style . Defaults to --with-threads=posix if neither an RTAI, Xenomai
 or RT_PREEMPT kernel was found.
 
- ./configure --with-threads=rt-preempt-user  --with-kernel=/boot/config-3.4.13-rt-preempt-rt22+ :: explicitly select kernel version and thread style
+ ./configure --with-threads=rt-preempt  --with-kernel=/boot/config-3.4.13-rt-preempt-rt22+ :: explicitly select kernel version and thread style
 
- ./configure --with-threads=xenomai-user  --with-kernel=/boot/config-2.6.38.8-xenomai+:: explicitly  select kernel version and thread style
+ ./configure --with-threads=xenomai  --with-kernel=/boot/config-2.6.38.8-xenomai+:: explicitly  select kernel version and thread style
 
 == Running RT_PREEMPT 
 

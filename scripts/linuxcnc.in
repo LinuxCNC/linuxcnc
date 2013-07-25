@@ -107,7 +107,7 @@ EOF
 ################################################################################
 # 1.1. strip and process command line options
 ################################################################################
-while getopts "dvVlhk" opt
+while getopts "dvVlhkr" opt
 do
 	case "$opt" in
 	d)
@@ -123,12 +123,18 @@ do
 		    PRINT_FILE=/dev/fd/1
 		    echo "Verbose mode on" >$PRINT_FILE
 		fi;;
+
 	V)
 		# enable printing of 'lots of junk' from halcmd
 		if tty -s; then
 		    echo "halcmd 'print lots of junk' mode on" >$PRINT_FILE
 		fi
 		DASHV=-V;;
+
+        r)
+                RUNTESTS=yes
+                ;;
+
 	l)
 		USE_LAST_INIFILE=1;;
         k)      DASHK=-k;;
@@ -142,25 +148,6 @@ do
 done
 shift $(($OPTIND-1))
 
-case "@KERNEL_VERS@" in
-"") ;;
-*)
-    if [ `uname -r` != "@KERNEL_VERS@" ]; then
-        if tty -s; then
-            echo "LinuxCNC requires the real-time kernel @KERNEL_VERS@ to run."
-            echo "Before running LinuxCNC, reboot and choose this kernel at the boot menu."
-        else
-            @WISH@ <<EOF
-                wm wi .
-                tk_messageBox -type ok \
-                    -title LinuxCNC -icon error -title "Realtime Kernel Required" \
-                    -message {LinuxCNC requires the real-time kernel @KERNEL_VERS@ to run.  Before running LinuxCNC, reboot and choose this kernel at the boot menu.}
-                exit
-EOF
-        fi
-        exit
-    fi
-esac
 
 if ! tty -s; then
     exec 2>> $DEBUG_FILE
@@ -250,7 +237,7 @@ export LINUXCNC_LANG_DIR
 export REALTIME
 export HALCMD
 
-echo "LINUXCNC - $LINUXCNCVERSION" 
+[ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
 
 # was an inifile specified on the command line?
 if [ ! -z "$USE_LAST_INIFILE" ]; then
@@ -275,7 +262,9 @@ INI_DIR="${INIFILE%/*}"
 CONFIG_DIR="${INIFILE%/*}"
 export CONFIG_DIR
 
-echo "Machine configuration directory is '$INI_DIR'"
+export PATH=$CONFIG_DIR/bin:$PATH
+
+[ -z $RUNTESTS ] && echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
 
 # make sure ini file exists (the tcl script just did this, so we could 
@@ -462,7 +451,8 @@ function Cleanup() {
         echo -n "Waiting for other session to finish exiting..."
 	WAIT=$KILL_TIMEOUT
 	while [ $WAIT -gt 1 ]; do
-            if ! [ -f $LOCKFILE ]; then
+	    if ! LinuxcncRunning ; then
+#            if ! [ -f $LOCKFILE ]; then
                 echo " Ok"
                 return 0
             fi
@@ -507,15 +497,25 @@ function Cleanup() {
     done < $NMLFILE
 
 
-    # remove lock file
-    if [ -f $LOCKFILE ] ; then
-	rm $LOCKFILE
-    fi
+    # # remove lock file
+    # if [ -f $LOCKFILE ] ; then
+    # 	rm $LOCKFILE
+    # fi
 
     echo "Cleanup done"
 }
 
-
+# this needs urgent repair 
+# no more sysvipc shm, and shmdrv might be present
+# see realtime.in -mah
+function LinuxcncRunning() {
+    # 135612177 is the integer ID of the GLOBAL data segment:
+    # (GLOBAL_KEY 0x08154711). it is universally present for 
+    # all thread styles build options, and removed by 
+    # RTAPI rtapi_app_exit(). Hence it is a more reliable
+    # indication for 'RTAPI running' than a lock file.
+    grep 135612177  /proc/sysvipc/shm >/dev/null 2>&1
+}
 
 ################################################################################
 # 4. done with function definitions, execution resumes here
@@ -523,10 +523,10 @@ function Cleanup() {
 
 # Name of lock file to check for that signifies that LinuxCNC is up,
 # to prevent multiple copies of controller
-LOCKFILE=/tmp/linuxcnc.lock
+LOCKILE=/tmp/linuxcnc.lock
 
 # Check for lock file
-if [ -f $LOCKFILE ]; then
+if LinuxcncRunning ; then
   if tty -s; then
     echo -n "LinuxCNC is still running.  Restart it? [Y/n] "
     read input; [ -z $input ] && input=y
@@ -560,7 +560,7 @@ trap 'Cleanup ; exit 0' SIGINT SIGTERM
 cd "$INI_DIR"
 
 # Create the lock file
-touch $LOCKFILE
+#touch $LOCKFILE
 
 ################################################################################
 # 4.1. pop up intro graphic

@@ -6796,7 +6796,7 @@ msgstr "设备类型"
 msgid ""
 "Inch\n"
 "Millimeter"
-msgstr "英制/公制"
+msgstr "英制\n公制"
 
 #: src/emc/usr_intf/stepconf/stepconf.glade:800
 #: src/emc/usr_intf/pncconf/pncconf.glade:291

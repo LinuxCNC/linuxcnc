@@ -3,7 +3,8 @@ rip-environment
 halrun
 haltcl
 realtime
-rtapi.conf
 linuxcncmkdesktop
 latencyplot
 latencyhistogram
+gen-rtapi.ini.sh
+gen-rtapi.ini.sh.in

@@ -58,10 +58,15 @@ pack .f2 -fill both -expand 1
 
 insert_file .f2.t "Print file information:" [lindex $argv 1]
 insert_file .f2.t "Debug file information:" [lindex $argv 0]
-if {$linuxcnc::SIMULATOR != "yes"} {
-    insert_file .f2.t "Kernel message information:" {|dmesg} \
+# FIXME the SIMULATOR variable is removed.  The following should only
+# be relevant for RTAI anyway.  For now, just run this all the time.
+# if {$linuxcnc::SIMULATOR != "yes"} {
+#     insert_file .f2.t "Kernel message information:" {|dmesg} \
+# 	"^.*Adeos: Pipelining started\.|^.*I-pipe: Domain RTAI registered\."
+# }
+insert_file .f2.t "Kernel message information:" {|dmesg} \
 	"^.*Adeos: Pipelining started\.|^.*I-pipe: Domain RTAI registered\."
-}
+# /FIXME
 .f2.t configure -state disabled
 
 frame .f3

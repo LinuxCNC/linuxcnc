@@ -151,10 +151,21 @@ class HandlerClass:
             self.gscreen.unblock(i)
 
     def on_button_edit_clicked(self,widget):
-        self.gscreen.on_button_edit_clicked(widget)
+        state = widget.get_active()
+        if not state:
+            self.gscreen.edited_gcode_check()
+        self.widgets.notebook_main.set_current_page(0)
+        self.widgets.notebook_main.set_show_tabs(not (state))
+        self.gscreen.edit_mode(state)
+        if not state and self.widgets.button_full_view.get_active():
+            self.gscreen.set_full_graphics_view(True)
         if self.data.edit_mode:
+            self.widgets.mode_select_box.hide()
+            self.widgets.search_box.show()
             self.widgets.button_edit.set_label("Exit\nEdit")
         else:
+            self.widgets.mode_select_box.show()
+            self.widgets.search_box.hide()
             self.widgets.button_edit.set_label("Edit")
         self.widgets.notebook_main.set_show_tabs(False)
 
@@ -307,6 +318,7 @@ class HandlerClass:
             self.widgets["home_%s"%i].show()
         #self.widgets.offsetpage1.set_highlight_color("lightblue")
         self.widgets.offsetpage1.set_font("sans 18")
+        self.widgets.offsetpage1.set_row_visible("1",False)
         self.widgets.tooledit1.set_font("sans 18")
         if self.data.embedded_keyboard:
             self.gscreen.launch_keyboard()

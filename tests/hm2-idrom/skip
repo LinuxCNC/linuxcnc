@@ -1,8 +1,0 @@
-#!/bin/sh
-. rtapi.conf
-
-if [ "$BUILD_SYS" = user-dso ]; then
-    exit 1
-fi
-
-exit 0

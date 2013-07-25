@@ -1,8 +1,12 @@
 #!/bin/bash
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
 PATH=@EMC2_BIN_DIR@:$PATH
 REALTIME=@REALTIME@
 THIS=$(basename $0)
+
+export HAL_RTMOD_DIR=@EMC2_RTLIB_DIR@
 
 help () {
 halcmd -h

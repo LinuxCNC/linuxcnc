@@ -67,10 +67,10 @@ inspect_kernel() {
         DEFAULT_THREAD_STYLE=rtai
     elif test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
         KTYPE=xenomai
-        DEFAULT_THREAD_STYLE=xenomai-user
+        DEFAULT_THREAD_STYLE=xenomai
     elif test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
         KTYPE=rt-preempt
-        DEFAULT_THREAD_STYLE=rt-preempt-user
+        DEFAULT_THREAD_STYLE=rt-preempt
     else
         KTYPE=vanilla
         DEFAULT_THREAD_STYLE=posix
@@ -146,11 +146,11 @@ fi
 
 case $DISTRIB_NAME in
 Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,libmodbus-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,libmodbus-dev
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-11.04) # natty

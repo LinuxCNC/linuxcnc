@@ -26,14 +26,20 @@ docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
+/docs/src/man/man1/linuxcnc.1
 lib/python/gremlin.py
 lib/python/touchy
 tests/*/skip
 tests/*/*/skip
 tests/*/*/*/skip
+/rtlib/
+/libexec/
+/etc/
+tests/rtapi.0/rtapi_test
+tests/bitops.0/bitops
 #
 # emacs droppings
 *~
 \#*\#
 .\#*
-
+core.*

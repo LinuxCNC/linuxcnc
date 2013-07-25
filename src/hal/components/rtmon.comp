@@ -1,0 +1,133 @@
+component rtmon "monitor RT faults and generate estop signal based on a parameterized function";
+
+description """
+
+This component is an example how realtime faults (e.g. timing violations) can be dealt with. The realtime API (RTAPI)
+only collects relevant events but does not act upon them; every RT fault causes a call to the RTAPI
+exception handler, which is a function in RTAPI printing a message to the system log by default.
+
+This exception handler may be overridden within a RT HAL component by means of the
+rtapi_set_exception(new_handler) function. The arguments of the handler provide detail about the cause
+of the fault.
+
+The rtmon component intercepts this exception handler, and applies policy - for instance, to generate an
+estop signal based on a set of parameters.
+
+The scheme implemented here was inspired by Andy Pugh's smart serial code, which works as follows:
+
+There is a programable increment, decrement and limit. If there is an
+error then the error count increments, if no error it decrements, when
+you hit the limit, you trigger a reaction.
+
+No decrement = no fault healing. No increment = no fault reaction.
+
+Assuming that the rtmon thread function is added to the servo thread (1mS) , then an increment of
+100 and decrement of 1 and threshold of 500 would trigger a fault
+reaction after 5 seconds of more than ten errors a second.
+
+Another scenario could be where a certain amount of errors during startup is tolerated:
+If you know that there will be 100 faults at startup, but those are
+OK, but any later ones are a problem, then increment of 1, decrement
+of zero and threshold of 101 (simplistically) gives that behaviour.
+""";
+
+pin out bit estop       "activated if more than <threshold> exceptions occur.";
+pin in bit  estop_reset "a positive edge on this pin clears the estop and fault_count pins";
+
+pin out u32 rt_faults   "total number of RT scheduling violations observed";
+pin out u32 fault_count "current level for RT scheduling violations; reset on estop_reset positive edge";
+pin out u32 stats_updates  "total number of rtapi_task_update_stats() calls so far";
+
+// default values: cause estop on first RT fault
+param rw u32 fault_inc  = 1      "increment faul_count by fault_inc for each RT fault detected";
+param rw u32 fault_dec  = 0      "decrement faul_count in each thread iteration";
+param rw u32 fault_limit = 1     "if fault_count exceeds fault_limit, cause an estop";
+param rw bit autoclear_estop = 0 "clear estop condition once fault_count reaches zero";
+param rw u32 stats_divisor = 1000 "rtapi_task_update_stats() update frequency";
+
+variable u32 stats_counter;
+
+option extra_setup yes;
+option extra_cleanup yes;
+option singleton yes;
+
+function _ ;
+license "GPL";
+;;
+
+#include "rtapi.h"
+#include <stdbool.h>
+
+// need a bit of trickery here	- we're accessing the (sole) instance data
+// in a non-thread function to wiggle and read pins
+static struct __comp_state *this;
+
+static int rtmon_exception_handler(rtapi_exception_t type,
+				   rtapi_exception_detail_t *detail,
+				   rtapi_threadstatus_t *threadstatus)
+
+{
+    // substitute missing '__comp_inst' parameter to make pins accessible
+    // this works for a singleton only
+    struct __comp_state *__comp_inst  = this;
+
+    int thread_id = rtapi_task_self();
+    if (!estop)
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTMON: thread %d  exception: %d\n", thread_id, type);
+    rt_faults = rt_faults + 1;
+    fault_count += fault_inc;
+
+    if ((fault_count > fault_limit) && !estop) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "RTMON: ------- setting estop\n");
+	estop = 1;
+    }
+    return 0;
+}
+
+static rtapi_exception_handler_t previous;
+static bool previous_estop_reset;
+
+EXTRA_SETUP(){
+    this = __comp_inst;
+    stats_counter = stats_divisor;
+
+    // make RTAPI upcall into local handler on RT faults:
+    previous = rtapi_set_exception(rtmon_exception_handler);
+    return 0;
+}
+
+EXTRA_CLEANUP(){
+    // restore status ante: restore default handler in RTAPI
+    rtapi_set_exception(previous);
+    return;
+}
+
+FUNCTION(_){
+
+    // track thread status every now and then
+    stats_counter = stats_counter + 1;
+    if (stats_counter > stats_divisor) {
+	stats_updates = stats_updates + 1;
+	rtapi_task_update_stats();
+	stats_counter = 0;
+    }
+
+    // detect postive edge on estop_reset for explicit clear of estop condition
+    if ((previous_estop_reset ^ estop_reset) && estop_reset) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "RTMON: -------  estop cleared by estop_reset\n");
+      fault_count = 0; // forget history
+      estop = 0;
+    }
+    previous_estop_reset = estop_reset;
+
+    if (fault_count > fault_dec) {
+	fault_count -= fault_dec;
+    } else {
+	fault_count = 0;
+	if (estop && autoclear_estop) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "RTMON: ------- auto-clear estop\n");
+	    estop = 0;
+	}
+    }
+}
+
