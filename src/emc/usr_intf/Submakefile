@@ -24,7 +24,7 @@ XEMCSRCS := emc/usr_intf/xemc.cc
 endif
 
 TCLSRCS := emc/usr_intf/emcsh.cc emc/usr_intf/iosh.cc
-USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(HALUISRCS) $(KEYSTICKSRCS) $(EMCWEBSRCS)
+USERSRCS += $(EMCSHSRCS) $(EMCRSHSRCS) $(EMCSCHEDSRCS) $(EMCLCDSRCS) $(HALUISRCS) $(KEYSTICKSRCS)
 
 ifeq "$(HAVE_NCURSES)" "yes"
 USERSRCS += $(KEYSTICKSRCS)
@@ -32,6 +32,10 @@ endif
 
 ifeq "$(HAVE_XAW)" "yes"
 USERSRCS += $(XEMCSRCS)
+endif
+
+ifeq "$(BUILD_EMCWEB)" "yes"
+USERSRCS += $(EMCWEBSRCS)
 endif
 
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
@@ -99,8 +103,9 @@ $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
 TARGETS += ../bin/xlinuxcnc
 endif
 
-
+ifeq "$(BUILD_EMCWEB)" "yes"
 ../bin/emcweb: $(call TOOBJS, $(EMCWEBSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ -lboost_serialization-mt -lboost_thread-mt -lpthread -ldl	
 TARGETS += ../bin/emcweb
+endif

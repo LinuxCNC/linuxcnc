@@ -161,6 +161,9 @@ endif
 # example programs
 BUILD_EXAMPLES=@BUILD_EXAMPLES@
 
+# emcweb UI
+BUILD_EMCWEB=@BUILD_EMCWEB@
+
 # shared memory kernel driver
 USE_SHMDRV=@USE_SHMDRV@
 

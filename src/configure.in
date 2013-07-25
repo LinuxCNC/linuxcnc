@@ -526,7 +526,8 @@ XENO_CONFIG=
 # Configure several basic features:                                          #
 # - Platform (PC, Raspberry Pi, BeagleBone)                                  #
 # - Common shared memory driver                                              #
-# - Parport I/O mode (portable or inb/outb)                                  #
+# - Parport I/O mode (portable or inb/outb)
+# - emcweb UI
 ##############################################################################
 
 AC_MSG_CHECKING(platform)
@@ -612,6 +613,18 @@ AC_ARG_ENABLE(portable-parport,
     [
       USE_PORTABLE_PARPORT_IO=no
       AC_MSG_RESULT([using defaults: $USE_PORTABLE_PARPORT_IO])
+    ])
+
+AC_MSG_CHECKING(whether to build the emcweb interface)
+AC_ARG_ENABLE(emcweb,
+    [  --enable-emcweb      build the emcweb interface],
+    [
+	BUILD_EMCWEB=yes
+        AC_MSG_RESULT([configuring to build emcweb interface])
+    ],
+    [
+      AC_MSG_RESULT([not building the emcweb interface])
+      BUILD_EMCWEB=no
     ])
 
 
@@ -1266,6 +1279,12 @@ AC_SUBST(BUILD_EXAMPLES)
 if test "$BUILD_EXAMPLES" = yes; then
    AC_DEFINE(BUILD_EXAMPLES, [], [build programming examples])
 fi
+
+AC_SUBST(BUILD_EMCWEB)
+if test "$BUILD_EMCWEB" = yes; then
+   AC_DEFINE(BUILD_EMCWEB, [], [build emcweb UI])
+fi
+
 if test "$with_usermode_pci" = yes; then
    AC_DEFINE([USERMODE_PCI], [], [build PCI drivers with usermode PCI support])
 fi
@@ -2440,13 +2459,15 @@ AC_SUBST([LIBPYTHON])
 AC_SUBST([INCLUDEPY])
 AC_SUBST([SITEPY])
 
-m4_include([m4/ax_boost_base.m4])
-AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
-m4_include([m4/ax_boost_serialization.m4])
-AX_BOOST_SERIALIZATION()
-m4_include([m4/ax_boost_thread.m4])
-AX_BOOST_THREAD()
-
+if test "$BUILD_EMCWEB" = yes; then
+   # these are needed for the emcweb interface only
+   m4_include([m4/ax_boost_base.m4])
+   AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
+   m4_include([m4/ax_boost_serialization.m4])
+   AX_BOOST_SERIALIZATION()
+   m4_include([m4/ax_boost_thread.m4])
+   AX_BOOST_THREAD()
+fi
 
 ##############################################################################
 # files that get created by ./configure                                      #
