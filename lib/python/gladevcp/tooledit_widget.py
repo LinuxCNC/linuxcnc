@@ -77,6 +77,7 @@ class ToolEdit(gtk.VBox):
         self.model = self.wTree.get_object("liststore1")
         self.all_window = self.wTree.get_object("all_window")
         self.view2 = self.wTree.get_object("treeview2")
+        self.view2.connect( 'button_press_event', self.on_treeview2_button_press_event )
         self.apply = self.wTree.get_object("apply")
         self.buttonbox = self.wTree.get_object("buttonbox")
         # reparent tooledit box from Glades tp level window to tooledit's VBox
@@ -324,6 +325,12 @@ class ToolEdit(gtk.VBox):
             self.buttonbox.hide()
         else:
             self.buttonbox.show()
+
+    # For single click selection when in edit mode
+    def on_treeview2_button_press_event(self,widget,event):
+        if event.button == 1 : # left click
+            path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
+            self.view2.set_cursor(path,None,True)
 
         # standard Gobject method
     def do_get_property(self, property):
