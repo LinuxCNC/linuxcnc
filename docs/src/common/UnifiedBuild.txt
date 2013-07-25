@@ -260,6 +260,17 @@ Start in a separate window:
  
  $  tail -f /var/log/linuxcnc.log
 
+
+=== Packages required
+
+Install the following packages:
+
+ $ sudo apt-get install  libudev-dev libmodbus-dev libboost-python-dev
+
+If you want to build the emcweb Web UI (--enable-emcweb), you also need these:
+
+ $ sudo apt-get install  libboost-serialization-dev libboost-thread-dev
+
 === Configuring and Building: The Basic procedure
 
 The simplest way to compile this package is:
