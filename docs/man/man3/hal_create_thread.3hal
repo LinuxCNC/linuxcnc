@@ -5,7 +5,8 @@ hal_create_thread \- Create a HAL thread
 
 .SH SYNTAX
 .HP
-int hal_create_thread(const char *\fIname\fR, unsigned long \fIperiod\fR, int \fIuses_fp\fR)
+int hal_create_thread(const char *\fIname\fR, unsigned long
+\fIperiod\fR, int \fIuses_fp\fR, int \fIcpu_id\fR)
 
 .HP
 int hal_thread_delete(const char *\fIname\fR)
@@ -20,6 +21,9 @@ The interval, in nanoseconds, between iterations of the thread
 .IP \fIuses_fp\fR
 Must be nonzero if a function which uses floating-point will be attached
 to this thread.
+
+.IP \fcpu_id\fR
+Make the RTAPI layer bind this thread to a particular CPU core.
 
 .SH DESCRIPTION
 \fBhal_create_thread\fR establishes a realtime thread that will
