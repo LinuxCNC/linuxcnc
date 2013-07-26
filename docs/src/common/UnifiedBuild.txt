@@ -109,6 +109,7 @@ support package, or maybe just a single file - without wholesale
  (which have turned out to be rather few)
 
 There are downsides:
+
 - the abstraction layer and some of the RTOS support has not seen wide
 use yet, meaning bugs are likely.
 - the build process has become substantially more complex, suggesting
@@ -358,7 +359,7 @@ rtai 2.6.32-122-rtai::
      as used in the 10.04LTS live CD
 
 rtai 3.5.7::
-     Schooner/Arceye/Mick Private Bin kernel - reported to work, Axis
+     Schooner/Arceye/Mick `Private Bin` kernel - reported to work, Axis
      screenshot seen
 
 xenomai 3.5.7-2.6.2.1 i686 and x86_64::
@@ -376,6 +377,8 @@ No attempt has been, and will be made for the hardy RTAI kernel.
 === Tested Distros
 
 lucid, precise, wheezy
+
+For beaglebone and likely other ARM platforms I recommend debian over ubuntu.
 
 === i386/x86_64 Compatibility
 
@@ -595,6 +598,29 @@ INSTANCE=<instance number>::
          another instance can be referred to by the INSTANCE
          enviroment variable.
 	 See the section 'Running instances side by side'.
+
+=== Reporting an error
+
+At this early stage, configure, build or runtests errors are likely.
+
+*Please report errors as follows*:
+
+- run this: `cd src; sh autogen.sh; ./configure ... your options ...`
+- build by keeping a log of stdout and stderr like so: `make |& tee /tmp/build.log`
+- post the file `src/config.log` and `/tmp/build.log` on pastebin.org
+- in difficult cases, try adding the options `V=1` and `VV=1` as a
+ make argument:  `make V=1 VV=1 |& tee /tmp/build.log`
+- if the build is sucessful, do this: `source
+ ../scripts/rip-environment; runtests |& tee /tmp/runtests.log` and
+ also pastebin /tmp/runtests.log
+- if there is an error running a particular linuxcnc configuration
+ (ini file), *please share which one*; if non-standard please post the
+ full config too
+ 
+*Please add any verified error to the tracker for the Unified Build development:*
+
+https://github.com/zultron/linuxcnc/issues?milestone=3&state=open
+
 
 === Startup Option Usage Examples
 
