@@ -12,6 +12,7 @@ RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
 INIVAR=@libexecdir@/inivar
 LSMOD=@LSMOD@
 PIDOF=@PIDOF@
+SHM_DEV=/dev/shmdrv
 
 # Basic checks
 if ! test -r "$RTAPI_INI"; then
@@ -156,7 +157,7 @@ Load(){
 	if ! test -c /dev/shmdrv ; then
 	    $linuxcnc_module_helper insert shmdrv || return $?
 	    # give some time to let shmdrv initialize
-	    CheckLoaded || exit $?
+	    CheckShm || exit $?
 	fi
     fi
 
@@ -207,23 +208,17 @@ Load(){
     fi
 }
 
-CheckLoaded(){
+CheckShm(){
     # this abomination is needed because udev sometimes doesn't
     # have the device ready for us in time.
 
-    # If the shmdrv module isn't in the $MODULES list, skip checks
-    if test "${MODULES/shmdrv/}" = "${MODULES}"; then
-	# no shmdrv module
-	return
-    fi
+    # Skip checks if shmdrv is not applicable
+    test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no && return 0
 
-    SHM_DEV=/dev/shmdrv
     n=0
-    while [ $n -lt 100 ]; do
+    while [ $((n++)) -lt 100 ]; do
         [ -w $SHM_DEV ] && return 0
-        echo "." 1>&2
         sleep .1
-        n=$(($n+1))
     done
     echo "Can't write to $SHM_DEV - aborting" 1>&2
     exit 1
@@ -358,13 +353,11 @@ case "$CMD" in
 
   start|load)
 	Load || exit $?
-	CheckLoaded
 	;;
   restart|force-reload)
 	Unload
 	CheckUnloaded
 	Load || exit $?
-	CheckLoaded
 	;;
   stop|unload)
 	Unload || exit $?
@@ -378,8 +371,8 @@ case "$CMD" in
 	;;
   # for script debugging
   loadcheck)
-	CheckLoaded
-	;;
+  	CheckShm
+  	;;
   *)
 	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
 	exit 1
