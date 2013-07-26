@@ -102,29 +102,48 @@ anywait(){
 }
 
 CheckStatus(){
+    local res=0
+
     if test $BUILD_SYS = user-dso; then
-        if [ -z "$($PIDOF rtapi:${INSTANCE})" ]; then
-            exit 1
-        else
-            exit 0
-        fi
-    else
+	# user threads:  check if rtapi_app and rtapi_msgd are running
+	for prog in rtapi:${INSTANCE} msgd:${INSTANCE}; do
+	    if test -n "$($PIDOF $prog)"; then
+		echo "$prog running" >&2
+	    else
+		echo "$prog stopped" >&2
+		res=1
+	    fi
+	done
+
+    else # kthreads
         # check loaded/unloaded status of modules
-        unset NOTLOADED
         for MOD in $MODULES_UNLOAD ; do
             if $LSMOD | awk '{print $1}' | grep -x $MOD >/dev/null ; then
-                echo "$MOD is loaded"
+                echo "$MOD loaded" >&2
             else
-                echo "$MOD is not loaded"
-                NOTLOADED=NOT
+                echo "$MOD not loaded" >&2
+                res=1
             fi
         done
-        if [ -z "$NOTLOADED" ]; then
-            exit 0
-        else
-            exit 1
-        fi
     fi
+
+    # check if shmdrv is loaded, when applicable
+    if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
+	if CheckShm -l; then
+	    if CheckShm -o; then
+		echo "shmdrv loaded; segments allocated and open" >&2
+	    elif CheckShm -a; then
+		echo "shmdrv loaded; segments allocated (but not open)" >&2
+	    else
+		echo "shmdrv loaded; no segments allocated" >&2
+	    fi
+	else
+	    echo "shmdrv not loaded" >&2
+	    res=1
+	fi
+    fi
+
+    return $res
 }
 
 Load(){
@@ -402,7 +421,7 @@ case "$CMD" in
 	Unload || exit $?
 	;;
   status)
-	CheckStatus
+	CheckStatus || exit $?
 	;;
   # for script debugging
   unloadcheck)
