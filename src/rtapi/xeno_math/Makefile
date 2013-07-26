@@ -64,6 +64,7 @@ xeno_math-objs += s_copysign.o
 PWD      := $(shell if [ "$$PWD" != "" ]; then echo $$PWD; else pwd; fi)
 
 modules::
+	$(PRECISE_MULTILIB_BUG) \
 	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules V=$(V)
 
 

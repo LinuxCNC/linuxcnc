@@ -1117,6 +1117,36 @@ if test $with_xenomai_kernel = yes; then
 fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
+# check whether the gcc-multilib problem exists
+# see http://gcc.gnu.org/ml/gcc/2012-02/msg00314.html
+if test $with_xenomai_kernel = yes; then
+    CFLAGS_save="$CFLAGS"
+    CFLAGS="-nostdinc -I/usr/include"
+    MULTILIB_HACK="/usr/include/$(gcc -print-multiarch)"
+    AC_MSG_CHECKING(for the precise multilib bug)
+    AC_COMPILE_IFELSE(
+        [ AC_LANG_PROGRAM([[#include "math.h"]],[]) ],
+	[
+	    PRECISE_MULTILIB_BUG=""
+	    AC_MSG_RESULT(not found)
+	],
+	[
+	    export C_INCLUDE_PATH=$MULTILIB_HACK
+	    AC_COMPILE_IFELSE(
+		[
+		    AC_LANG_PROGRAM([[#include "math.h"]],[])
+		],
+		[
+		    PRECISE_MULTILIB_BUG="C_INCLUDE_PATH=$MULTILIB_HACK"
+		    AC_MSG_RESULT(found)
+		],
+		AC_MSG_ERROR([unexpected result checking "math.h"]))
+	    unset C_INCLUDE_PATH
+	]
+    )
+    CFLAGS="$CFLAGS_save"
+fi
+
 
 ##############################################################################
 # RTAI flavor checks
@@ -1363,6 +1393,7 @@ AC_SUBST([XENOMAI_THREADS_LDFLAGS])
 AC_SUBST([XENOMAI_THREADS_RTS])
 AC_SUBST([XENOMAI_THREADS_RTDIR],[])
 AC_SUBST([XENOMAI_THREADS_EXTRA_KMODS],[])
+AC_SUBST([PRECISE_MULTILIB_BUG],[$PRECISE_MULTILIB_BUG])
 
 # Xenomai kernel settings
 if test "$with_xenomai_kernel" = yes; then

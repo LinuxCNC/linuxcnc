@@ -558,7 +558,7 @@ ifeq ($(THREADS),XENOMAI_KERNEL)
 	    BASEPWD=$(BASEPWD) \
 	    KERNELDIR=$(KERNELDIR) \
 	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
-	    V=$(BUILD_VERBOSE) modules
+	    V=$(BUILD_VERBOSE) $(PRECISE_MULTILIB_BUG) modules
 	cp $(OBJDIR)/rtapi/xeno_math/xeno_math.ko $(RTLIBDIR)
 endif
 	$(PYTHON) modsilent.py $(MAKE) \
