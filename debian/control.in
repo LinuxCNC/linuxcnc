@@ -14,7 +14,6 @@ Build-Depends: debhelper (>= 6),
     texlive-lang-cyrillic, netcat,
     libmodbus-dev (>= 3.0),
     libudev-dev
-
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
