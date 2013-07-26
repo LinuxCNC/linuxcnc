@@ -109,7 +109,6 @@ support package, or maybe just a single file - without wholesale
  (which have turned out to be rather few)
 
 There are downsides:
-
 - the abstraction layer and some of the RTOS support has not seen wide
 use yet, meaning bugs are likely.
 - the build process has become substantially more complex, suggesting
@@ -157,7 +156,9 @@ common shared memory subsystem::
        shared memory segments created in a user process can be
        attached later by kernel modules, which significantly
        simplifies startup, shutdown and - later - interworking of
-       instances (for instance cross-linking of pins and ringbuffers).
+       instances (for instance cross-linking of pins and
+       ringbuffers). See also the section 'Multiple instances and the
+       shmdrv shared memory driver'.
       
 common startup/shutdown::
        some effort has been made to create a common flow of startup
@@ -211,13 +212,6 @@ support for thread-specific RT status collection::
 	sources of delays, but it incurs overhead. By making this an
 	optional RTAPI method which can be called by a thread function
 	this can be applied as needed, using a standard mechanism.
-
-git version tags universally available::
-    	The universally available config.h and linuxcncconfig.py
-    	modules include a string GIT version tag, extensively used in
-    	log entries. This takes out guesswork and questions for
-    	support by making it possible to identify the branch and  exact git commit
-    	built from by inspecting the log. See the section `Git Version Tags` below.
 
 
 === Principles of Operations
@@ -291,6 +285,72 @@ shared memory segment for userland threads flavor; provisions have
 been made for this at the per-flavor configuration information (follow
 the logic of  FLAVOR_RTAPI_DATA_IN_SHM usage to see how).
 
+
+==== Multiple instances and the role of the `shmdrv` shared memory driver
+
+Running multiple RTAPI instances side by side will make sense
+eventually, for instance for multi-spindle setups. However, there
+instances will need to interact in some way at the HAL level, and that
+feature (tentatively called 'crosslinking') applies to pins, and
+messages through ringbuffers, and it is already working in a
+development branch.
+
+For this to work, the prerequisite is that instances access the
+HAL data segment of a foreign instance. That in turn suggests that
+access to shared memory segments must happen in a uniform (i.e. thread
+flavor unspecific) way, and regardless whether the instance is a
+kernel threads or user threads flavor. The status ante however was
+that flavors employed all sorts of different shared memory mechanisms
+- the RTAI-specific method, the Xenomai specific method, and the
+deprecated System V IPC calls for the simulator build. However, for
+RTAPI purposes there is absolutely no reason to use the
+flavor-specific shm API's since there is no shared memory allocation
+or deallocation in an RT thread; all this happens during module init
+and exit routines, and therefore in a non-RT context.
+
+The solution looks as foillows:
+
+- as long as only userland threads instances are used, Posix shared
+  memory does the job.
+
+- if userland and kernel threads instances are used, Posix shm - as a
+  user process API - cannot be used, in which all instances use the
+  shared memory driver.
+
+Hence, userland thread flavors use the shmdrv method if the
+corresponding kernel module is loaded, or Posix shm otherwise; kernel
+threads instances (RTAI, Xenomai) must use the shmdrv facilities and
+do so through an in-kernel API (see src/rtapi/shmdrv/shmdrv.h for the
+kernel and userland API's; the latter is provided through the routines
+in src/rtapi/shmdrv/shmdrvapi.c).
+
+Hence, shmdrv does not fit the normal module loading and unloading
+scheme very well as its lifetime transcends a particular instance
+using it. Consider the following scenario:
+
+- a userland threads and a kernel threads instance are to be run, and
+  have HAL crosslinking capabilites.
+- first, shmdrv must be loaded
+- now userland or kernel threads instance can be started and will
+ cooperate fine through the shmdrv API.
+- when either instance is shut down, the other instance continues to
+ use the shmdrv API - either in-kernel or from userland through
+ mmap().
+
+Hence, neither instance shutdown may unload shmdrv (and it will not
+succeed anyway). Normally, the method to employ is reference counts,
+allowing an unload to succeed when the last reference has gone
+away. However, due to current restrictions of how shm segments are
+handled there is a chance that orphaned
+shared memory segments will 'hang around' making problems on instance
+restart. This is currently being addressed (tracker entry #26).
+
+A key reason why shmdrv was done is the sequencing of operations; some
+of the flavor-specific shm API's do not support access of a shm
+segment by a kernel module which was previously created by a user
+process. This is a severe restriction not only for instance
+interoperability, but also for startup and shutdown.
+
 ==== Major Processes
 
 ===== The rtapi_msgd Process
@@ -359,7 +419,7 @@ rtai 2.6.32-122-rtai::
      as used in the 10.04LTS live CD
 
 rtai 3.5.7::
-     Schooner/Arceye/Mick `Private Bin` kernel - reported to work, Axis
+     Schooner/Arceye/Mick Private Bin kernel - reported to work, Axis
      screenshot seen
 
 xenomai 3.5.7-2.6.2.1 i686 and x86_64::
@@ -370,15 +430,13 @@ xenomai 3.5.7-2.6.2.1 i686 and x86_64::
 	 as per wheezy distro (x86_64)
 
 3.8.13xenomai-bone23::
-	xenomai 2.6.2.1 for beaglebone running wheezy and precise
+	xenomai 2.6.2.1 for beaglebone running wheezy
 
 No attempt has been, and will be made for the hardy RTAI kernel.
 
 === Tested Distros
 
 lucid, precise, wheezy
-
-For beaglebone and likely other ARM platforms I recommend debian over ubuntu.
 
 === i386/x86_64 Compatibility
 
@@ -599,29 +657,6 @@ INSTANCE=<instance number>::
          enviroment variable.
 	 See the section 'Running instances side by side'.
 
-=== Reporting an error
-
-At this early stage, configure, build or runtests errors are likely.
-
-*Please report errors as follows*:
-
-- run this: `cd src; sh autogen.sh; ./configure ... your options ...`
-- build by keeping a log of stdout and stderr like so: `make |& tee /tmp/build.log`
-- post the file `src/config.log` and `/tmp/build.log` on pastebin.org
-- in difficult cases, try adding the options `V=1` and `VV=1` as a
- make argument:  `make V=1 VV=1 |& tee /tmp/build.log`
-- if the build is sucessful, do this: `source
- ../scripts/rip-environment; runtests |& tee /tmp/runtests.log` and
- also pastebin /tmp/runtests.log
-- if there is an error running a particular linuxcnc configuration
- (ini file), *please share which one*; if non-standard please post the
- full config too
- 
-*Please add any verified error to the tracker for the Unified Build development:*
-
-https://github.com/zultron/linuxcnc/issues?milestone=3&state=open
-
-
 === Startup Option Usage Examples
 
 ==== Run a 'sim' (Posix threads) instance
@@ -666,24 +701,6 @@ INSTANCE=3 linuxcnc::
 	   restrictions noted above)
 
 
-== Git Version Tags
-
-The configure script now automatically produces a string uniquely
-identifying branch and commit.
-
-Example from src/config.h - the branch was `unified-build-candidate-0`
-and the branch tip commit was `40e59cb`:
-
- #define GIT_VERSION "v2.6.0~pre~unified-build-candidate-0~40e59cb"
-
-Example usgae in a log file entry:
-
- Jul 26 00:06:50 ubuntu-10 msgd:0: startup instance=inst0 pid=18145
- flavor=xenomai rtlevel=1 usrlevel=1 halsize=512000 shm=Posix gcc=4.4.3 git=v2.6.0~pre~unified-build-candidate-0~40e59cb
-
-See also the autogenerated Python module `lib/python/linuxcncconfig.py`
-which exports the git version tag as well as many config values.
-
 == Man pages for exception handler, update_stats
 
 TBD
@@ -702,8 +719,8 @@ TBD
 
 == Current runtests failures
 
-The hm2-idrom test fails on the beaglebone since no userland PCI
-support is built/available. This test should be skipped on the beaglebone.
+The tests symbol.0 and symbol.1 are currently broken; out-of-tree
+building of components needs work.
 
 == Issue Tracker 
 
