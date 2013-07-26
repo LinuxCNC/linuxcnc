@@ -104,18 +104,20 @@ anywait(){
 CheckStatus(){
     local res=0
 
-    if test $BUILD_SYS = user-dso; then
-	# user threads:  check if rtapi_app and rtapi_msgd are running
-	for prog in rtapi:${INSTANCE} msgd:${INSTANCE}; do
-	    if test -n "$($PIDOF $prog)"; then
-		echo "$prog running" >&2
-	    else
-		echo "$prog stopped" >&2
-		res=1
-	    fi
-	done
+    # check if rtapi_msgd is running, and rtapi_app if applicable
+    progs=msgd:${INSTANCE}
+    test $BUILD_SYS = user-dso && progs="rtapi:${INSTANCE} $progs"
 
-    else # kthreads
+    for prog in $progs; do
+	if test -n "$($PIDOF $prog)"; then
+	    echo "$prog running" >&2
+	else
+	    echo "$prog stopped" >&2
+	    res=1
+	fi
+    done
+
+    if test $BUILD_SYS = kbuild; then
         # check loaded/unloaded status of modules
         for MOD in $MODULES_UNLOAD ; do
             if $LSMOD | awk '{print $1}' | grep -x $MOD >/dev/null ; then
@@ -130,13 +132,7 @@ CheckStatus(){
     # check if shmdrv is loaded, when applicable
     if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
 	if CheckShm -l; then
-	    if CheckShm -o; then
-		echo "shmdrv loaded; segments allocated and open" >&2
-	    elif CheckShm -a; then
-		echo "shmdrv loaded; segments allocated (but not open)" >&2
-	    else
-		echo "shmdrv loaded; no segments allocated" >&2
-	    fi
+	    echo "shmdrv loaded" >&2
 	else
 	    echo "shmdrv not loaded" >&2
 	    res=1
@@ -232,8 +228,6 @@ Load(){
 CheckShm(){
     # -l: return success if shmdrv device exists
     # -w: wait for shmdrv to be loaded; return success if loaded
-    # -a: return success if any segments allocated
-    # -o: return success if any segments open
 
     # Skip checks if shmdrv is not applicable
     test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no && return 0
@@ -255,18 +249,6 @@ CheckShm(){
 
 	    # $SHM_DEV never became writable after ten seconds
 	    return 1;;
-
-	-a)
-	    # success if shmdrv is loaded and segments are allocated
-	    test -c $SHM_DEV || return 1
-	    awk 'FNR==1 { if ($1==0) exit 1; else exit 0; }' $SHM_STAT
-	    return ;;
-
-	-o)
-	    # success if shmdrv is loaded and segments are open
-	    test -c $SHM_DEV || return 1
-	    awk 'FNR==1 { if (substr($3,6)==0) exit 1; else exit 0; }' $SHM_STAT
-	    return ;;
     esac
 }
 
@@ -322,23 +304,11 @@ Unload(){
     # unload shmdrv, if applicable
     if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
 	if CheckShm -l; then
-	    # module is loaded
-	    if CheckShm -o; then
-		# shmdrv segments open; do nothing
-		if test $DEBUG -gt 1; then
-		    echo "realtime unload: notice: shmdrv segments open" >&2
-		fi
-	    elif CheckShm -a; then
-		# FIXME:  how to handle this case?
-		echo -n "realtime unload: warning: " >&2
-		echo "unused shmdrv segments exist" >&2
-		$linuxcnc_module_helper remove shmdrv
-	    else
-		if test $DEBUG -gt 1; then
-		    echo "realtime unload: notice: unloading shmdrv" >&2
-		fi
-		$linuxcnc_module_helper remove shmdrv
-	    fi		
+	    # module is loaded; try to force unload, always return success
+	    if test $DEBUG -gt 1; then
+		echo "realtime unload: notice: attempting to unload shmdrv" >&2
+	    fi
+	    $linuxcnc_module_helper remove shmdrv 2>/dev/null || true
 	else
 	    echo -n "realtime unload: warning: " >&2
 	    echo "shmdrv expected to be loaded, but wasn't" 1>&2
@@ -428,13 +398,9 @@ case "$CMD" in
 	CheckUnloaded
 	;;
   # for script debugging
-  loadcheck)
-	if CheckShm -o; then
-	    echo "shmdrv loaded; segments open" >&2; exit 0
-	elif CheckShm -a; then
-	    echo "shmdrv loaded; segments allocated but not open" >&2; exit 0
-	else
-	    echo "shmdrv not loaded" >&2; exit 1
+  shmcheck)
+	if CheckShm -l; then
+	    echo "shmdrv loaded" >&2; exit 0
 	fi
   	;;
   *)
