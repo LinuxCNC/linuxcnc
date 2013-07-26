@@ -13,6 +13,7 @@ INIVAR=@libexecdir@/inivar
 LSMOD=@LSMOD@
 PIDOF=@PIDOF@
 SHM_DEV=/dev/shmdrv
+SHM_STAT=/sys/devices/virtual/misc/shmdrv/status
 
 # Basic checks
 if ! test -r "$RTAPI_INI"; then
@@ -66,6 +67,7 @@ fi
 if [ "$DEBUG" == "" ]  ; then
     getvar DEBUG
 fi
+DEBUG=$((10#0$DEBUG))  # be sure $DEBUG is some base-10 number
 
 
 # set the default instance, if not already set
@@ -157,7 +159,7 @@ Load(){
 	if ! test -c /dev/shmdrv ; then
 	    $linuxcnc_module_helper insert shmdrv || return $?
 	    # give some time to let shmdrv initialize
-	    CheckShm || exit $?
+	    CheckShm -w || return 1
 	fi
     fi
 
@@ -186,7 +188,7 @@ Load(){
 
     if test $BUILD_SYS = user-dso; then
         # run rtapi_app for userland
-	if [ "$DEBUG" != "" ] ; then
+	if [ $DEBUG -gt 0 ] ; then
 	    if ! ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS ; then
 		exitcode=$?
 		echo "rtapi_app startup failed - aborting" 1>&2
@@ -202,26 +204,51 @@ Load(){
 
     else  # BUILD_SYS = 'kbuild'
 	# help debugging startup issues for kthreads
-        if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
+        if [ $DEBUG -gt 0 ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
         fi
     fi
 }
 
 CheckShm(){
-    # this abomination is needed because udev sometimes doesn't
-    # have the device ready for us in time.
+    # -l: return success if shmdrv device exists
+    # -w: wait for shmdrv to be loaded; return success if loaded
+    # -a: return success if any segments allocated
+    # -o: return success if any segments open
 
     # Skip checks if shmdrv is not applicable
     test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no && return 0
 
-    n=0
-    while [ $((n++)) -lt 100 ]; do
-        [ -w $SHM_DEV ] && return 0
-        sleep .1
-    done
-    echo "Can't write to $SHM_DEV - aborting" 1>&2
-    exit 1
+    case "$1" in
+	-l)
+	    # success if shmdrv device exists
+	    test -c $SHM_DEV; return ;;
+
+	-w)
+	    # wait for shmdrv to be loaded; this abomination is needed
+	    # because udev sometimes doesn't have the device ready for
+	    # us in time.
+	    n=0
+	    while [ $((n++)) -lt 100 ]; do
+		[ -w $SHM_DEV ] && return 0
+		sleep .1
+	    done
+
+	    # $SHM_DEV never became writable after ten seconds
+	    return 1;;
+
+	-a)
+	    # success if shmdrv is loaded and segments are allocated
+	    test -c $SHM_DEV || return 1
+	    awk 'FNR==1 { if ($1==0) exit 1; else exit 0; }' $SHM_STAT
+	    return ;;
+
+	-o)
+	    # success if shmdrv is loaded and segments are open
+	    test -c $SHM_DEV || return 1
+	    awk 'FNR==1 { if (substr($3,6)==0) exit 1; else exit 0; }' $SHM_STAT
+	    return ;;
+    esac
 }
 
 
@@ -233,7 +260,7 @@ Unload(){
 
 	RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
 	if [ "$RTAPI_PID" != "" ] ; then
-	    if [ "$DEBUG" != "" ] ; then
+	    if [ $DEBUG -gt 0 ] ; then
 		${rtapi_app} --instance=$INSTANCE exit
 	    else
 		${rtapi_app} --instance=$INSTANCE exit            >/dev/null 2>&1
@@ -273,19 +300,31 @@ Unload(){
         $linuxcnc_module_helper remove $module
     done
 
-    # if shmdrv is unused, unload it
+    # unload shmdrv, if applicable
     if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
-	# If shmdrv loaded, test if 0 shmdrv segments and remove shmdrv
-	if test -c /dev/shmdrv; then
-	    awk 'FNR==1 { if ($1==0) exit 0; else exit 1; }' \
-		/sys/devices/virtual/misc/shmdrv/status && \
+	if CheckShm -l; then
+	    # module is loaded
+	    if CheckShm -o; then
+		# shmdrv segments open; do nothing
+		if test $DEBUG -gt 1; then
+		    echo "realtime unload: notice: shmdrv segments open" >&2
+		fi
+	    elif CheckShm -a; then
+		# FIXME:  how to handle this case?
+		echo -n "realtime unload: warning: " >&2
+		echo "unused shmdrv segments exist" >&2
 		$linuxcnc_module_helper remove shmdrv
+	    else
+		if test $DEBUG -gt 1; then
+		    echo "realtime unload: notice: unloading shmdrv" >&2
+		fi
+		$linuxcnc_module_helper remove shmdrv
+	    fi		
 	else
-	    echo "Warning:  shmdrv should have been loaded, but wasn't" 1>&2
+	    echo -n "realtime unload: warning: " >&2
+	    echo "shmdrv expected to be loaded, but wasn't" 1>&2
 	fi
     fi
-
-    
 }
 
 CheckUnloaded(){
@@ -371,7 +410,13 @@ case "$CMD" in
 	;;
   # for script debugging
   loadcheck)
-  	CheckShm
+	if CheckShm -o; then
+	    echo "shmdrv loaded; segments open" >&2; exit 0
+	elif CheckShm -a; then
+	    echo "shmdrv loaded; segments allocated but not open" >&2; exit 0
+	else
+	    echo "shmdrv not loaded" >&2; exit 1
+	fi
   	;;
   *)
 	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
