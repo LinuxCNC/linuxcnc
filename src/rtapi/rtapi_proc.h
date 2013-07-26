@@ -86,6 +86,7 @@ static struct proc_dir_entry *modules_file = 0;	/* /proc/rtapi/modules */
 static struct proc_dir_entry *tasks_file = 0;	/* /proc/rtapi/tasks */
 static struct proc_dir_entry *shmem_file = 0;	/* /proc/rtapi/shmem */
 static struct proc_dir_entry *debug_file = 0;	/* /proc/rtapi/debug */
+static struct proc_dir_entry *instance_file = 0;	/* /proc/rtapi/instance */
 
 /** The following are callback functions for the /proc filesystem
     When someone reads a /proc file, the appropriate function below
@@ -274,6 +275,14 @@ static int proc_write_debug(struct file *file,
     return count;
 }
 
+static int proc_read_instance(char *page, char **start, off_t off,
+    int count, int *eof, void *data)
+{
+    PROC_PRINT_VARS;
+    PROC_PRINT("%i\n", rtapi_instance);
+    PROC_PRINT_DONE;
+}
+
 /** proc_init() initializes the /proc filesystem entries,
     creating the directory and files, and linking them
     to the appropriate callback functions. This function
@@ -325,6 +334,15 @@ static int proc_init(void)
     debug_file->data = NULL;
     debug_file->read_proc = proc_read_debug;
     debug_file->write_proc = proc_write_debug;
+
+    /* create read/write file "/proc/rtapi/instance" */
+    instance_file = create_proc_entry("instance", S_IRUGO, rtapi_dir);
+    if (instance_file == NULL) {
+	return -1;
+    }
+    instance_file->data = NULL;
+    instance_file->read_proc = proc_read_instance;
+
     return 0;
 }
 
@@ -357,6 +375,10 @@ static void proc_clean(void)
 	if (debug_file != NULL) {
 	    remove_proc_entry("debug", rtapi_dir);
 	    debug_file = NULL;
+	}
+	if (instance_file != NULL) {
+	    remove_proc_entry("instance", rtapi_dir);
+	    instance_file = NULL;
 	}
 	remove_proc_entry("rtapi", NULL);
     }
