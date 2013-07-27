@@ -69,6 +69,9 @@ if [ "$DEBUG" == "" ]  ; then
 fi
 DEBUG=$((10#0$DEBUG))  # be sure $DEBUG is some base-10 number
 
+# SHMDRV_OPTS:
+# suggested use: SHMDRV_OPTS='debug=3'
+# which will log shmdrv operations to the kernel log
 
 # set the default instance, if not already set
 INSTANCE=`printf '%d' $INSTANCE`
@@ -148,7 +151,7 @@ Load(){
     # userland threads optionally may use the shmdrv module
     if test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes; then
 	if ! test -c /dev/shmdrv ; then
-	    $linuxcnc_module_helper insert shmdrv || return $?
+	    $linuxcnc_module_helper insert shmdrv $SHMDRV_OPTS || return $?
 	    # give some time to let shmdrv initialize
 	    CheckShm -w || return 1
 	fi
