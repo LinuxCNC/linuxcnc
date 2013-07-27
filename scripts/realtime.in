@@ -55,7 +55,7 @@ BUILD_SYS=`${flavor} -b`
 getvar MODULES --flavor
 getvar rtapi_app --flavor
 
-# Other, overridable by enivironment variables
+# Other, overridable by environment variables
 if [ "$USE_SHMDRV" == "" ]  ; then
     getvar USE_SHMDRV
 fi
@@ -144,30 +144,6 @@ CheckStatus(){
 
 Load(){
 
-    # when not running shmdrv, perform shm + instance checks and cleanups
-    #
-    # FIXME:  how to do these for shmdrv?
-    if test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no; then
-        # check for instance running
-	# this is the case if the global segment exists
-        # and any processes exist which have it attached
-	GLOBALSEG=`printf '/dev/shm/linuxcnc-%d-%2.2d154711' $INSTANCE $INSTANCE` 
-	if fuser $GLOBALSEG >/dev/null 2>&1 ; then
-	    echo instance $INSTANCE already running!
-	    exit 1
-	fi
-
-	# check for any leftover shm keys from aborted previous sessions
-	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE` 
-	SHMKEYS=`ls /dev/shm/${INSTKEY}* >/dev/null 2>&1`
-
-	if [ "$SHMKEYS" != "" ]  ; then
-	    echo -n "warning: leftover shared memory segments detected" >&2
-	    echo "- removing: $SHMKEYS" >&2
-	    rm  -f  "$SHMKEYS" >/dev/null 2>&1
-	fi
-    fi
-
     # kernel threads must have shmdrv.ko loaded
     # userland threads optionally may use the shmdrv module
     if test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes; then
@@ -190,7 +166,7 @@ Load(){
 	exit $?
     fi
 
-    # load kernel modules, including shmdrv for userland
+    # load kernel modules
     for MOD in $MODULES; do
 	# if loading rtapi.ko, tack on parameters
 	if test $MOD = rtapi; then
