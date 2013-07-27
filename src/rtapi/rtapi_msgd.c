@@ -75,28 +75,158 @@ static void usage(int argc, char **argv)
     printf("Usage:  %s [options]\n", argv[0]);
 }
 
+pid_t pid_of(const char *fmt, ...)
+{
+    char line[LINELEN];
+    FILE *cmd;
+    pid_t pid;
+    va_list ap;
+
+    strcpy(line, "pidof ");
+    va_start(ap, fmt);
+    vsnprintf(line + strlen(line), sizeof(line) - strlen(line), fmt, ap);
+    va_end(ap);
+    cmd = popen(line, "r");
+    if (!fgets(line, sizeof(line), cmd))
+	pid = -1;
+    else
+	pid = strtoul(line, NULL, 10);
+    pclose(cmd);
+    return pid;
+}
+
 static int create_global_segment()
 {
     int retval = 0;
-    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
-    int size = sizeof(global_data_t);
 
+    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    int rtapikey = OS_KEY(RTAPI_KEY, rtapi_instance);
+    int halkey = OS_KEY(HAL_KEY, rtapi_instance);
+
+    int global_exists = shm_common_exists(globalkey);
+    int hal_exists = shm_common_exists(halkey);
+    int rtapi_exists = shm_common_exists(rtapikey);
+
+    if (global_exists || rtapi_exists || hal_exists) {
+	// hm, something is wrong here
+
+	pid_t msgd_pid = pid_of("msgd:%d", rtapi_instance);
+
+	if (rtapi_instance == kernel_instance_id()) {
+
+	    // collision with a running kernel instance - not good.
+	    int shmdrv_loaded = is_module_loaded("shmdrv");
+	    int rtapi_loaded = is_module_loaded("rtapi");
+	    int hal_loaded = is_module_loaded("hal_lib");
+
+	    fprintf(stderr, "ERROR: found existing kernel "
+		   "instance with the same instance id (%d)\n",
+		   rtapi_instance);
+
+	    fprintf(stderr,"kernel modules loaded: %s%s%s\n",
+		   shmdrv_loaded ? "shmdrv " : "",
+		   rtapi_loaded ? "rtapi " : "",
+		   hal_loaded ? "hal_lib " : "");
+
+	    if (msgd_pid > 0)
+		fprintf(stderr,"the msgd process msgd:%d is "
+		       "already running, pid: %d\n",
+		       rtapi_instance, msgd_pid);
+	    else
+		fprintf(stderr,"msgd:%d not running!\n",
+		       rtapi_instance);
+	    return -EEXIST;
+	}
+
+	// running userthreads instance?
+	pid_t app_pid = pid_of("rtapi:%d", rtapi_instance);
+
+	if ((msgd_pid > -1) || (app_pid > -1)) {
+
+	    fprintf(stderr, "ERROR: found existing user RT "
+		   "instance with the same instance id (%d)\n",
+		   rtapi_instance);
+	    if (msgd_pid > 0)
+		fprintf(stderr,"the msgd process msgd:%d is "
+		       "already running, pid: %d\n",
+		       rtapi_instance, msgd_pid);
+	    else
+		fprintf(stderr,"msgd:%d not running!\n",
+		       rtapi_instance);
+
+	    if (app_pid > 0)
+		fprintf(stderr,"the RT process rtapi:%d is "
+		       "already running, pid: %d\n",
+		       rtapi_instance, app_pid);
+	    else
+		fprintf(stderr,"the RT process rtapi:%d not running!\n",
+		       rtapi_instance);
+
+	    // TBD: might check for other user HAL processes still
+	    // around. This might work with fuser on the HAL segment
+	    // but might be tricky wit shmdrv.
+
+	    return -EEXIST;
+	}
+
+	// leftover shared memory segments were around, but no using
+	// entities (user process or kernel modules).
+	// Remove and keep going:
+	if (shmdrv_loaded) {
+	    // since neiter rtapi.ko nor hal_lib.ko is loaded
+	    // cause a garbage collect in shmdrv
+	    shmdrv_gc();
+	} else {
+	    // Posix shm case.
+	    char segment_name[LINELEN];
+
+	    if (hal_exists) {
+		sprintf(segment_name, SHM_FMT, rtapi_instance, halkey);
+		fprintf(stderr,"warning: removing unused HAL shm segment %s\n",
+			segment_name);
+		if (shm_unlink(segment_name))
+		    perror(segment_name);
+	    }
+	    if (rtapi_exists) {
+		sprintf(segment_name, SHM_FMT, rtapi_instance, rtapikey);
+		fprintf(stderr,"warning: removing unused RTAPI"
+			" shm segment %s\n",
+			segment_name);
+		if (shm_unlink(segment_name))
+		    perror(segment_name);
+	    }
+	    if (global_exists) {
+		sprintf(segment_name, SHM_FMT, rtapi_instance, globalkey);
+		fprintf(stderr,"warning: removing unused global"
+			" shm segment %s\n",
+			segment_name);
+		if (shm_unlink(segment_name))
+		    perror(segment_name);
+	    }
+	}
+    }
+
+    // now try again:
     if (shm_common_exists(globalkey)) {
-	syslog(LOG_ERR, "MSGD:%d ERROR: found existing global segment key=0x%x\n",
+	fprintf(stderr,
+		"MSGD:%d ERROR: found existing global segment key=0x%x\n",
 		rtapi_instance, globalkey);
+
 	return -EEXIST;
     }
 
-    // since the HAL data segment has been determined to exist, global
-    // must exist here too or the RT stack wouldnt have become ready
+    int size = sizeof(global_data_t);
+
     retval = shm_common_new(globalkey, &size,
 			    rtapi_instance, (void **) &global_data, 1);
     if (retval < 0) {
-	syslog(LOG_ERR, "MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
+	fprintf(stderr,
+		"MSGD:%d ERROR: cannot create global segment key=0x%x %s\n",
 	       rtapi_instance, globalkey, strerror(-retval));
     }
     if (size != sizeof(global_data_t)) {
-	syslog(LOG_ERR, "MSGD:%d ERROR: global segment size mismatch: expect %d got %d\n",
+	fprintf(stderr,
+		"MSGD:%d ERROR: global segment size mismatch: expect %d got %d\n",
 	       rtapi_instance, sizeof(global_data_t), size);
 	return -EINVAL;
     }
@@ -219,6 +349,7 @@ static void signal_handler(int sig, siginfo_t *si, void *context)
 
     switch (sig) {
     case SIGTERM:
+    case SIGINT:
 	syslog(LOG_INFO, "msgd:%d: SIGTERM - shutting down\n",
 	       rtapi_instance);
 
@@ -441,6 +572,10 @@ int main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
+    // the global segment every entity in HAL/RTAPI land attaches to
+    if ((retval = create_global_segment()) != 1) // must be a new shm segment
+	exit(retval);
+
     // good to go
     if (!foreground) {
         pid = fork();
@@ -462,8 +597,12 @@ int main(int argc, char **argv)
 #endif
     }
 
-    // set new process name
     snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
+
+    openlog(proctitle, option , SYSLOG_FACILITY);
+    setlogmask(LOG_UPTO(SYSLOG_FACILITY));
+
+    // set new process name
     argv0_len = strlen(argv[0]);
     procname_len = strlen(proctitle);
     max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
@@ -474,12 +613,6 @@ int main(int argc, char **argv)
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
 
-    openlog(proctitle, option , SYSLOG_FACILITY);
-    setlogmask(LOG_UPTO(SYSLOG_FACILITY));
-
-    // the global segment every entity in HAL/RTAPI land attaches to
-    if ((retval = create_global_segment()) != 1) // must be a new shm segment
-	exit(retval);
 
     // this is the single place in all of linuxCNC where the global segment
     // gets initialized - no reinitialization from elsewhere
