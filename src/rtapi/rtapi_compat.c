@@ -62,6 +62,21 @@ int kernel_is_rtpreempt()
     return retval;
 }
 
+int kernel_instance_id()
+{
+    FILE *fd;
+    int retval = -1;
+
+    if ((fd = fopen("/proc/rtapi/instance","r")) != NULL) {
+	int flag;
+	if (fscanf(fd, "%d", &flag) == 1) {
+	    retval = flag;
+	}
+	fclose(fd);
+    }
+    return retval;
+}
+
 
 flavor_t flavors[] = {
     { .name = RTAPI_POSIX_NAME,

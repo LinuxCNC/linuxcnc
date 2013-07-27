@@ -194,6 +194,10 @@ extern int kernel_is_xenomai();
 extern int kernel_is_rtai();
 extern int kernel_is_rtpreempt();
 
+// return the instance ID of a kernel threads instance
+// by consulting /proc/rtapi/instance
+extern int kernel_instance_id();
+
 #endif // ULAPI
 
 // this applies only to ULAPI in hal_lib.c atm:
