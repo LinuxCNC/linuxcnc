@@ -203,14 +203,16 @@ int _rtapi_shmem_exists(int userkey) {
 *                            KERNEL THREADS                            *
 ************************************************************************/
 
-int _rtapi_shmem_new_inst(int key, int instance, int module_id, unsigned long int size) {
+int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     int n, retval;
     int shmem_id;
     shmem_data *shmem;
     struct shm_status sm;
 
+    int key = OS_KEY(userkey, instance);
+
     /* key must be non-zero, and also cannot match the key that RTAPI uses */
-    if ((key == 0) || (key == RTAPI_KEY)) {
+    if ((key == 0) || (key == OS_KEY(RTAPI_KEY, instance))) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI: ERROR: bad shmem key: %d\n",
 			key);
 	return -EINVAL;
