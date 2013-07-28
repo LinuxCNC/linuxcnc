@@ -85,20 +85,6 @@ Description: PC based motion controller for real-time Linux
  .
  This package contains the documentation in French.
 
-Package: linuxcnc-doc-de
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-de
-Replaces: emc2-doc-de
-Provides: emc2-doc-de, linuxcnc-doc
-Architecture: all
-Depends: ${misc:Depends}
-Suggests: pdf-viewer
-Description: PC based motion controller for real-time Linux
- LinuxCNC is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
- .
- This package contains the documentation in German.
-
 Package: linuxcnc-doc-es
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-es
 Replaces: emc2-doc-es
