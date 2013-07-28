@@ -25,436 +25,440 @@ $(DOC_DIR)/man/index.db: $(MAN_SRCS)
 endif
 
 ifeq ($(BUILD_DOCS),yes)
-DOC_SRCS := \
+DOC_SRCS_EN := \
 	code/Code_Notes.txt \
 	code/Style_Guide.txt \
 	code/NML_Messages.txt \
 	common/emc-history.txt \
 	common/Getting_EMC.txt \
-	common/Getting_EMC_de.txt \
-	common/Getting_EMC_es.txt \
-	common/Getting_linuxcnc_fr.txt \
-	common/Getting_EMC_pl.txt \
 	common/Glossary.txt \
-	common/Glossary_de.txt \
-	common/Glossary_es.txt \
-	common/Glossary_fr.txt \
-	common/Glossary_pl.txt \
 	common/GPLD_Copyright.txt \
-	common/GPLD_Copyright_fr.txt \
-	common/GPLD_Copyright_pl.txt \
 	common/Integrator_Concepts.txt \
-	common/Integrator_Concepts_de.txt \
-	common/Integrator_Concepts_es.txt \
-	common/Integrator_Concepts_fr.txt \
-	common/Integrator_Concepts_pl.txt \
 	common/Linux_FAQ.txt \
-	common/Linux_FAQ_de.txt \
-	common/Linux_FAQ_es.txt \
-	common/Linux_FAQ_fr.txt \
-	common/Linux_FAQ_pl.txt \
-	common/outdated-notice_fr.txt \
 	common/overleaf.txt \
-	common/overleaf_de.txt \
-	common/overleaf_fr.txt \
-	common/overleaf_pl.txt \
 	common/python-interface.txt \
 	common/starting-emc.txt \
-	common/starting-emc_de.txt \
-	common/starting-emc_es.txt \
-	common/starting-emc_pl.txt \
 	common/Stepper_Diagnostics.txt \
-	common/Stepper_Diagnostics_de.txt \
-	common/Stepper_Diagnostics_es.txt \
-	common/Stepper_Diagnostics_fr.txt \
-	common/Stepper_Diagnostics_pl.txt \
 	common/System_Requirements.txt \
-	common/System_Requirements_de.txt \
-	common/System_Requirements_es.txt \
-	common/System_Requirements_fr.txt \
-	common/System_Requirements_pl.txt \
-	common/translator-needed_de.txt \
-	common/translator-needed_es.txt \
 	common/Updating_EMC.txt \
-	common/Updating_EMC_de.txt \
-	common/Updating_EMC_es.txt \
-	common/Updating_linuxcnc_fr.txt \
-	common/Updating_EMC_pl.txt \
 	common/User_Concepts.txt \
-	common/User_Concepts_de.txt \
-	common/User_Concepts_es.txt \
-	common/User_Concepts_fr.txt \
-	common/User_Concepts_pl.txt \
 	common/userforeword.txt \
-	common/userforeword_de.txt \
-	common/userforeword_es.txt \
-	common/userforeword_fr.txt \
-	common/userforeword_pl.txt \
 	common/user_intro.txt \
-	common/user_intro_de.txt \
-	common/user_intro_es.txt \
-	common/user_intro_fr.txt \
-	common/user_intro_pl.txt \
 	config/copy_and_run.txt \
-	config/copy_and_run_de.txt \
-	config/copy_and_run_es.txt \
-	config/copy_and_run_pl.txt \
 	config/emc2hal.txt \
-	config/emc2hal_de.txt \
-	config/emc2hal_es.txt \
-	config/linuxcnc2hal_fr.txt \
-	config/emc2hal_pl.txt \
 	config/ini_config.txt \
-	config/ini_config_de.txt \
-	config/ini_config_es.txt \
-	config/ini_config_fr.txt \
-	config/ini_config_pl.txt \
 	config/ini_homing.txt \
-	config/ini_homing_de.txt \
-	config/ini_homing_es.txt \
-	config/ini_homing_fr.txt \
-	config/ini_homing_pl.txt \
 	config/lathe_config.txt \
-	config/lathe_config_de.txt \
-	config/lathe_config_es.txt \
-	config/lathe_config_fr.txt \
-	config/lathe_config_pl.txt \
 	config/pncconf.txt \
-	config/pncconf_de.txt \
-	config/pncconf_es.txt \
-	config/pncconf_fr.txt \
-	config/pncconf_pl.txt \
 	config/stepconf.txt \
-	config/stepconf_de.txt \
-	config/stepconf_es.txt \
-	config/stepconf_fr.txt \
-	config/stepconf_pl.txt \
 	config/stepper.txt \
-	config/stepper_de.txt \
-	config/stepper_es.txt \
-	config/stepper_fr.txt \
-	config/stepper_pl.txt \
 	drivers/AX5214H.txt \
-	drivers/AX5214H_de.txt \
-	drivers/AX5214H_es.txt \
-	drivers/AX5214H_fr.txt \
-	drivers/AX5214H_pl.txt \
 	drivers/VFS11.txt \
         drivers/GM.txt \
 	drivers/GS2.txt \
-	drivers/GS2_de.txt \
-	drivers/GS2_es.txt \
-	drivers/GS2_fr.txt \
-	drivers/GS2_pl.txt \
 	drivers/hostmot2.txt \
-	drivers/hostmot2_de.txt \
-	drivers/hostmot2_es.txt \
-	drivers/hostmot2_fr.txt \
-	drivers/hostmot2_pl.txt \
 	drivers/motenc.txt \
-	drivers/motenc_de.txt \
-	drivers/motenc_es.txt \
-	drivers/motenc_fr.txt \
-	drivers/motenc_pl.txt \
 	drivers/opto22.txt \
-	drivers/opto22_de.txt \
-	drivers/opto22_es.txt \
-	drivers/opto22_fr.txt \
-	drivers/opto22_pl.txt \
 	drivers/pico_ppmc.txt \
-	drivers/pico_ppmc_de.txt \
-	drivers/pico_ppmc_es.txt \
-	drivers/pico_ppmc_fr.txt \
-	drivers/pico_ppmc_pl.txt \
 	drivers/pluto_p.txt \
-	drivers/pluto_p_de.txt \
-	drivers/pluto_p_es.txt \
-	drivers/pluto_p_fr.txt \
-	drivers/pluto_p_pl.txt \
 	drivers/servo_to_go.txt \
-	drivers/servo_to_go_de.txt \
-	drivers/servo_to_go_es.txt \
-	drivers/servo_to_go_fr.txt \
-	drivers/servo_to_go_pl.txt \
 	drivers/shuttlexpress.txt \
-	drivers/shuttlexpress_es.txt \
-	drivers/shuttlexpress_de.txt \
-	drivers/shuttlexpress_pl.txt \
 	examples/gcode.txt \
-	examples/gcode_de.txt \
-	examples/gcode_es.txt \
-	examples/gcode_fr.txt \
-	examples/gcode_pl.txt \
 	examples/gs2_example.txt \
-	examples/gs2_example_de.txt \
-	examples/gs2_example_es.txt \
-	examples/gs2_example_fr.txt \
-	examples/gs2_example_pl.txt \
-	examples/misc_fr.txt \
 	examples/mpg.txt \
-	examples/mpg_de.txt \
-	examples/mpg_es.txt \
-	examples/mpg_fr.txt \
-	examples/mpg_pl.txt \
 	examples/pci_parallel_port.txt \
-	examples/pci_parallel_port_de.txt \
-	examples/pci_parallel_port_es.txt \
-	examples/pci_parallel_port_fr.txt \
-	examples/pci_parallel_port_pl.txt \
 	examples/spindle.txt \
-	examples/spindle_de.txt \
-	examples/spindle_es.txt \
-	examples/spindle_fr.txt \
-	examples/spindle_pl.txt \
 	gcode/coordinates.txt \
-	gcode/coordinates_de.txt \
-	gcode/coordinates_es.txt \
-	gcode/coordinates_fr.txt \
-	gcode/coordinates_pl.txt \
 	gcode/gcode.txt \
-	gcode/gcode_de.txt \
-	gcode/gcode_es.txt \
-	gcode/gcode_fr.txt \
-	gcode/gcode_pl.txt \
 	gcode/machining_center.txt \
-	gcode/machining_center_de.txt \
-	gcode/machining_center_es.txt \
-	gcode/machining_center_fr.txt \
-	gcode/machining_center_pl.txt \
 	gcode/m-code.txt \
-	gcode/m-code_de.txt \
-	gcode/m-code_es.txt \
-	gcode/m-code_fr.txt \
-	gcode/m-code_pl.txt \
 	gcode/o-code.txt \
-	gcode/o-code_de.txt \
-	gcode/o-code_es.txt \
-	gcode/o-code_fr.txt \
-	gcode/o-code_pl.txt \
 	gcode/other-code.txt \
-	gcode/other-code_de.txt \
-	gcode/other-code_es.txt \
-	gcode/other-code_fr.txt \
-	gcode/other-code_pl.txt \
 	gcode/overview.txt \
-	gcode/overview_de.txt \
-	gcode/overview_es.txt \
-	gcode/overview_fr.txt \
-	gcode/overview_pl.txt \
 	gcode/rs274ngc.txt \
-	gcode/rs274ngc_de.txt \
-	gcode/rs274ngc_es.txt \
-	gcode/rs274ngc_fr.txt \
-	gcode/rs274ngc_pl.txt \
 	gcode/tool_compensation.txt \
-	gcode/tool_compensation_de.txt \
-	gcode/tool_compensation_es.txt \
-	gcode/tool_compensation_fr.txt \
-	gcode/tool_compensation_pl.txt \
 	gui/axis.txt \
-	gui/axis_de.txt \
-	gui/axis_es.txt \
-	gui/axis_fr.txt \
-	gui/axis_pl.txt \
 	gui/gladevcp.txt \
-	gui/gladevcp_de.txt \
-	gui/gladevcp_es.txt \
-	gui/gladevcp_fr.txt \
-	gui/gladevcp_pl.txt \
 	gui/halui.txt \
-	gui/halui_de.txt \
-	gui/halui_es.txt \
-	gui/halui_pl.txt \
 	gui/image-to-gcode.txt \
-	gui/image-to-gcode_de.txt \
-	gui/image-to-gcode_es.txt \
-	gui/image-to-gcode_fr.txt \
-	gui/image-to-gcode_pl.txt \
 	gui/keystick.txt \
-	gui/keystick_de.txt \
-	gui/keystick_es.txt \
-	gui/keystick_fr.txt \
-	gui/keystick_pl.txt \
 	gui/mini.txt \
-	gui/mini_de.txt \
-	gui/mini_es.txt \
-	gui/mini_fr.txt \
-	gui/mini_pl.txt \
 	gui/ngcgui.txt \
-	gui/ngcgui_de.txt \
-	gui/ngcgui_es.txt \
-	gui/ngcgui_fr.txt \
-	gui/ngcgui_pl.txt \
 	gui/tklinuxcnc.txt \
-	gui/tklinuxcnc_de.txt \
-	gui/tklinuxcnc_es.txt \
-	gui/tklinuxcnc_fr.txt \
-	gui/tklinuxcnc_pl.txt \
 	gui/tooledit.txt \
-	gui/tooledit_fr.txt\
 	gui/touchy.txt \
-	gui/touchy_de.txt \
-	gui/touchy_es.txt \
-	gui/touchy_fr.txt \
-	gui/touchy_pl.txt \
 	hal/basic_hal.txt \
-	hal/basic_hal_de.txt \
-	hal/basic_hal_es.txt \
-	hal/basic_hal_fr.txt \
-	hal/basic_hal_pl.txt \
 	hal/canonical-devices.txt \
-	hal/canonical-devices_de.txt \
-	hal/canonical-devices_es.txt \
-	hal/canonical-devices_pl.txt \
 	hal/comp.txt \
-	hal/comp_de.txt \
-	hal/comp_es.txt \
-	hal/comp_fr.txt \
-	hal/comp_pl.txt \
 	hal/components.txt \
-	hal/components_de.txt \
-	hal/components_es.txt \
-	hal/components_fr.txt \
-	hal/components_pl.txt \
 	hal/general_ref.txt \
-	hal/general_ref_de.txt \
-	hal/general_ref_es.txt \
-	hal/general_ref_fr.txt \
-	hal/general_ref_pl.txt \
 	hal/hal-examples.txt \
-	hal/hal-examples_de.txt \
-	hal/hal-examples_es.txt \
-	hal/hal-examples_fr.txt \
-	hal/hal-examples_pl.txt \
 	hal/halmodule.txt \
-	hal/halmodule_de.txt \
-	hal/halmodule_es.txt \
-	hal/halmodule_fr.txt \
-	hal/halmodule_pl.txt \
 	hal/halshow.txt \
-	hal/halshow_de.txt \
-	hal/halshow_es.txt \
-	hal/halshow_fr.txt \
-	hal/halshow_pl.txt \
 	hal/haltcl.txt \
-	hal/haltcl_de.txt \
-	hal/haltcl_es.txt \
-	hal/haltcl_fr.txt \
-	hal/haltcl_pl.txt \
-	hal/halui_fr.txt \
 	hal/halui_examples.txt \
-	hal/halui_examples_de.txt \
-	hal/halui_examples_es.txt \
-	hal/halui_examples_pl.txt \
 	hal/intro.txt \
-	hal/intro_de.txt \
-	hal/intro_es.txt \
-	hal/intro_fr.txt \
-	hal/intro_pl.txt \
 	hal/parallel_port.txt \
-	hal/parallel_port_de.txt \
-	hal/parallel_port_es.txt \
-	hal/parallel_port_fr.txt \
-	hal/parallel_port_pl.txt \
 	hal/pyvcp.txt \
-	hal/pyvcp_de.txt \
-	hal/pyvcp_es.txt \
-	hal/pyvcp_fr.txt \
-	hal/pyvcp_pl.txt \
 	hal/pyvcp_examples.txt \
-	hal/pyvcp_examples_de.txt \
-	hal/pyvcp_examples_es.txt \
-	hal/pyvcp_examples_fr.txt \
-	hal/pyvcp_examples_pl.txt \
 	hal/rtcomps.txt \
-	hal/rtcomps_de.txt \
-	hal/rtcomps_es.txt \
-	hal/rtcomps_fr.txt \
-	hal/rtcomps_pl.txt \
 	hal/tools.txt \
-	hal/tools_de.txt \
-	hal/tools_es.txt \
-	hal/tools_pl.txt \
 	hal/tutorial.txt \
-	hal/tutorial_de.txt \
-	hal/tutorial_es.txt \
-	hal/tutorial_fr.txt \
-	hal/tutorial_pl.txt \
 	install/Latency_Test.txt \
-	install/Latency_Test_de.txt \
-	install/Latency_Test_es.txt \
-	install/Latency_Test_fr.txt \
-	install/Latency_Test_pl.txt \
 	ladder/classic_ladder.txt \
-	ladder/classic_ladder_de.txt \
-	ladder/classic_ladder_es.txt \
-	ladder/classic_ladder_fr.txt \
-	ladder/classic_ladder_pl.txt \
 	ladder/ladder_examples.txt \
-	ladder/ladder_examples_de.txt \
-	ladder/ladder_examples_es.txt \
-	ladder/ladder_examples_fr.txt \
-	ladder/ladder_examples_pl.txt \
 	ladder/ladder_intro.txt \
-	ladder/ladder_intro_de.txt \
-	ladder/ladder_intro_es.txt \
-	ladder/ladder_intro_fr.txt \
-	ladder/ladder_intro_pl.txt \
 	lathe/lathe-user.txt \
-	lathe/lathe-user_de.txt \
-	lathe/lathe-user_es.txt \
-	lathe/lathe-user_fr.txt \
-	lathe/lathe-user_pl.txt \
 	motion/kinematics.txt \
-	motion/kinematics_de.txt \
-	motion/kinematics_es.txt \
-	motion/kinematics_fr.txt \
-	motion/kinematics_pl.txt \
 	motion/pid_theory.txt \
-	motion/pid_theory_de.txt \
-	motion/pid_theory_es.txt \
-	motion/pid_theory_fr.txt \
-	motion/pid_theory_pl.txt \
 	motion/tweaking_steppers.txt \
-	motion/tweaking_steppers_de.txt \
-	motion/tweaking_steppers_es.txt \
-	motion/tweaking_steppers_fr.txt \
-	motion/tweaking_steppers_pl.txt \
 	quickstart/stepper_quickstart.txt \
-	quickstart/stepper_quickstart_de.txt \
-	quickstart/stepper_quickstart_es.txt \
-	quickstart/stepper_quickstart_fr.txt \
-	quickstart/stepper_quickstart_pl.txt \
 	remap/structure.txt \
 	Master_Getting_Started.txt \
-	Master_Getting_Started_de.txt \
-	Master_Getting_Started_es.txt \
-	Master_Getting_Started_fr.txt \
-	Master_Getting_Started_pl.txt \
 	Master_User.txt \
-	Master_User_de.txt \
-	Master_User_es.txt \
-	Master_User_fr.txt \
-	Master_User_pl.txt \
 	Master_HAL.txt \
-	Master_HAL_de.txt \
-	Master_HAL_es.txt \
-	Master_HAL_fr.txt \
-	Master_HAL_pl.txt \
 	Master_Integrator.txt \
-	Master_Integrator_de.txt \
-	Master_Integrator_es.txt \
-	Master_Integrator_fr.txt \
-	Master_Integrator_pl.txt \
 	Master_Developer.txt
 
-DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
+DOC_SRCS_FR := \
+	common/Getting_linuxcnc_fr.txt \
+	common/Glossary_fr.txt \
+	common/GPLD_Copyright_fr.txt \
+	common/Integrator_Concepts_fr.txt \
+	common/Linux_FAQ_fr.txt \
+	common/outdated-notice_fr.txt \
+	common/overleaf_fr.txt \
+	common/Stepper_Diagnostics_fr.txt \
+	common/System_Requirements_fr.txt \
+	common/Updating_linuxcnc_fr.txt \
+	common/User_Concepts_fr.txt \
+	common/userforeword_fr.txt \
+	common/user_intro_fr.txt \
+	config/linuxcnc2hal_fr.txt \
+	config/ini_config_fr.txt \
+	config/ini_homing_fr.txt \
+	config/lathe_config_fr.txt \
+	config/pncconf_fr.txt \
+	config/stepconf_fr.txt \
+	config/stepper_fr.txt \
+	drivers/AX5214H_fr.txt \
+	drivers/GS2_fr.txt \
+	drivers/hostmot2_fr.txt \
+	drivers/motenc_fr.txt \
+	drivers/opto22_fr.txt \
+	drivers/pico_ppmc_fr.txt \
+	drivers/pluto_p_fr.txt \
+	drivers/servo_to_go_fr.txt \
+	examples/gcode_fr.txt \
+	examples/gs2_example_fr.txt \
+	examples/misc_fr.txt \
+	examples/mpg_fr.txt \
+	examples/pci_parallel_port_fr.txt \
+	examples/spindle_fr.txt \
+	gcode/coordinates_fr.txt \
+	gcode/gcode_fr.txt \
+	gcode/machining_center_fr.txt \
+	gcode/m-code_fr.txt \
+	gcode/o-code_fr.txt \
+	gcode/other-code_fr.txt \
+	gcode/overview_fr.txt \
+	gcode/rs274ngc_fr.txt \
+	gcode/tool_compensation_fr.txt \
+	gui/axis_fr.txt \
+	gui/gladevcp_fr.txt \
+	gui/image-to-gcode_fr.txt \
+	gui/keystick_fr.txt \
+	gui/mini_fr.txt \
+	gui/ngcgui_fr.txt \
+	gui/tklinuxcnc_fr.txt \
+	gui/tooledit_fr.txt\
+	gui/touchy_fr.txt \
+	hal/basic_hal_fr.txt \
+	hal/comp_fr.txt \
+	hal/components_fr.txt \
+	hal/general_ref_fr.txt \
+	hal/hal-examples_fr.txt \
+	hal/halmodule_fr.txt \
+	hal/halshow_fr.txt \
+	hal/haltcl_fr.txt \
+	hal/halui_fr.txt \
+	hal/intro_fr.txt \
+	hal/parallel_port_fr.txt \
+	hal/pyvcp_fr.txt \
+	hal/pyvcp_examples_fr.txt \
+	hal/rtcomps_fr.txt \
+	hal/tutorial_fr.txt \
+	install/Latency_Test_fr.txt \
+	ladder/classic_ladder_fr.txt \
+	ladder/ladder_examples_fr.txt \
+	ladder/ladder_intro_fr.txt \
+	lathe/lathe-user_fr.txt \
+	motion/kinematics_fr.txt \
+	motion/pid_theory_fr.txt \
+	motion/tweaking_steppers_fr.txt \
+	quickstart/stepper_quickstart_fr.txt \
+	Master_Getting_Started_fr.txt \
+	Master_User_fr.txt \
+	Master_HAL_fr.txt \
+	Master_Integrator_fr.txt \
 
-DOC_SRCS_DE := $(filter %_de.txt, $(DOC_SRCS_TXT))
-DOC_SRCS_ES := $(filter %_es.txt, $(DOC_SRCS_TXT))
-DOC_SRCS_FR := $(filter %_fr.txt, $(DOC_SRCS_TXT))
-DOC_SRCS_PL := $(filter %_pl.txt, $(DOC_SRCS_TXT))
-DOC_SRCS_EN := $(filter-out $(DOC_SRCS_DE), $(filter-out $(DOC_SRCS_ES), $(filter-out $(DOC_SRCS_FR), $(filter-out $(DOC_SRCS_PL), $(DOC_SRCS_TXT)) ) ) )
+DOC_SRCS_ES := \
+	common/Getting_EMC_es.txt \
+	common/Glossary_es.txt \
+	common/Integrator_Concepts_es.txt \
+	common/Linux_FAQ_es.txt \
+	common/starting-emc_es.txt \
+	common/Stepper_Diagnostics_es.txt \
+	common/System_Requirements_es.txt \
+	common/translator-needed_es.txt \
+	common/Updating_EMC_es.txt \
+	common/User_Concepts_es.txt \
+	common/userforeword_es.txt \
+	common/user_intro_es.txt \
+	config/copy_and_run_es.txt \
+	config/emc2hal_es.txt \
+	config/ini_config_es.txt \
+	config/ini_homing_es.txt \
+	config/lathe_config_es.txt \
+	config/pncconf_es.txt \
+	config/stepconf_es.txt \
+	config/stepper_es.txt \
+	drivers/AX5214H_es.txt \
+	drivers/GS2_es.txt \
+	drivers/hostmot2_es.txt \
+	drivers/motenc_es.txt \
+	drivers/opto22_es.txt \
+	drivers/pico_ppmc_es.txt \
+	drivers/pluto_p_es.txt \
+	drivers/servo_to_go_es.txt \
+	drivers/shuttlexpress_es.txt \
+	examples/gcode_es.txt \
+	examples/gs2_example_es.txt \
+	examples/mpg_es.txt \
+	examples/pci_parallel_port_es.txt \
+	examples/spindle_es.txt \
+	gcode/coordinates_es.txt \
+	gcode/gcode_es.txt \
+	gcode/machining_center_es.txt \
+	gcode/m-code_es.txt \
+	gcode/o-code_es.txt \
+	gcode/other-code_es.txt \
+	gcode/overview_es.txt \
+	gcode/rs274ngc_es.txt \
+	gcode/tool_compensation_es.txt \
+	gui/axis_es.txt \
+	gui/gladevcp_es.txt \
+	gui/halui_es.txt \
+	gui/image-to-gcode_es.txt \
+	gui/keystick_es.txt \
+	gui/mini_es.txt \
+	gui/ngcgui_es.txt \
+	gui/tklinuxcnc_es.txt \
+	gui/touchy_es.txt \
+	hal/basic_hal_es.txt \
+	hal/canonical-devices_es.txt \
+	hal/comp_es.txt \
+	hal/components_es.txt \
+	hal/general_ref_es.txt \
+	hal/hal-examples_es.txt \
+	hal/halmodule_es.txt \
+	hal/halshow_es.txt \
+	hal/haltcl_es.txt \
+	hal/halui_examples_es.txt \
+	hal/intro_es.txt \
+	hal/parallel_port_es.txt \
+	hal/pyvcp_es.txt \
+	hal/pyvcp_examples_es.txt \
+	hal/rtcomps_es.txt \
+	hal/tools_es.txt \
+	hal/tutorial_es.txt \
+	install/Latency_Test_es.txt \
+	ladder/classic_ladder_es.txt \
+	ladder/ladder_examples_es.txt \
+	ladder/ladder_intro_es.txt \
+	lathe/lathe-user_es.txt \
+	motion/kinematics_es.txt \
+	motion/pid_theory_es.txt \
+	motion/tweaking_steppers_es.txt \
+	quickstart/stepper_quickstart_es.txt \
+	Master_Getting_Started_es.txt \
+	Master_User_es.txt \
+	Master_HAL_es.txt \
+	Master_Integrator_es.txt \
+
+DOC_SRCS_DE := \
+	common/Getting_EMC_de.txt \
+	common/Glossary_de.txt \
+	common/Integrator_Concepts_de.txt \
+	common/Linux_FAQ_de.txt \
+	common/overleaf_de.txt \
+	common/starting-emc_de.txt \
+	common/Stepper_Diagnostics_de.txt \
+	common/System_Requirements_de.txt \
+	common/translator-needed_de.txt \
+	common/Updating_EMC_de.txt \
+	common/User_Concepts_de.txt \
+	common/userforeword_de.txt \
+	common/user_intro_de.txt \
+	config/copy_and_run_de.txt \
+	config/emc2hal_de.txt \
+	config/ini_config_de.txt \
+	config/ini_homing_de.txt \
+	config/lathe_config_de.txt \
+	config/pncconf_de.txt \
+	config/stepconf_de.txt \
+	config/stepper_de.txt \
+	drivers/AX5214H_de.txt \
+	drivers/GS2_de.txt \
+	drivers/hostmot2_de.txt \
+	drivers/motenc_de.txt \
+	drivers/opto22_de.txt \
+	drivers/pico_ppmc_de.txt \
+	drivers/pluto_p_de.txt \
+	drivers/servo_to_go_de.txt \
+	drivers/shuttlexpress_de.txt \
+	examples/gcode_de.txt \
+	examples/gs2_example_de.txt \
+	examples/mpg_de.txt \
+	examples/pci_parallel_port_de.txt \
+	examples/spindle_de.txt \
+	gcode/coordinates_de.txt \
+	gcode/gcode_de.txt \
+	gcode/machining_center_de.txt \
+	gcode/m-code_de.txt \
+	gcode/o-code_de.txt \
+	gcode/other-code_de.txt \
+	gcode/overview_de.txt \
+	gcode/rs274ngc_de.txt \
+	gcode/tool_compensation_de.txt \
+	gui/axis_de.txt \
+	gui/gladevcp_de.txt \
+	gui/halui_de.txt \
+	gui/image-to-gcode_de.txt \
+	gui/keystick_de.txt \
+	gui/mini_de.txt \
+	gui/ngcgui_de.txt \
+	gui/tklinuxcnc_de.txt \
+	gui/touchy_de.txt \
+	hal/basic_hal_de.txt \
+	hal/canonical-devices_de.txt \
+	hal/comp_de.txt \
+	hal/components_de.txt \
+	hal/general_ref_de.txt \
+	hal/hal-examples_de.txt \
+	hal/halmodule_de.txt \
+	hal/halshow_de.txt \
+	hal/haltcl_de.txt \
+	hal/halui_examples_de.txt \
+	hal/intro_de.txt \
+	hal/parallel_port_de.txt \
+	hal/pyvcp_de.txt \
+	hal/pyvcp_examples_de.txt \
+	hal/rtcomps_de.txt \
+	hal/tools_de.txt \
+	hal/tutorial_de.txt \
+	install/Latency_Test_de.txt \
+	ladder/classic_ladder_de.txt \
+	ladder/ladder_examples_de.txt \
+	ladder/ladder_intro_de.txt \
+	lathe/lathe-user_de.txt \
+	motion/kinematics_de.txt \
+	motion/pid_theory_de.txt \
+	motion/tweaking_steppers_de.txt \
+	quickstart/stepper_quickstart_de.txt \
+	Master_Getting_Started_de.txt \
+	Master_User_de.txt \
+	Master_HAL_de.txt \
+	Master_Integrator_de.txt \
+
+DOC_SRCS_PL := \
+	common/Getting_EMC_pl.txt \
+	common/Glossary_pl.txt \
+	common/GPLD_Copyright_pl.txt \
+	common/Integrator_Concepts_pl.txt \
+	common/Linux_FAQ_pl.txt \
+	common/overleaf_pl.txt \
+	common/starting-emc_pl.txt \
+	common/Stepper_Diagnostics_pl.txt \
+	common/System_Requirements_pl.txt \
+	common/Updating_EMC_pl.txt \
+	common/User_Concepts_pl.txt \
+	common/userforeword_pl.txt \
+	common/user_intro_pl.txt \
+	config/copy_and_run_pl.txt \
+	config/emc2hal_pl.txt \
+	config/ini_config_pl.txt \
+	config/ini_homing_pl.txt \
+	config/lathe_config_pl.txt \
+	config/pncconf_pl.txt \
+	config/stepconf_pl.txt \
+	config/stepper_pl.txt \
+	drivers/AX5214H_pl.txt \
+	drivers/GS2_pl.txt \
+	drivers/hostmot2_pl.txt \
+	drivers/motenc_pl.txt \
+	drivers/opto22_pl.txt \
+	drivers/pico_ppmc_pl.txt \
+	drivers/pluto_p_pl.txt \
+	drivers/servo_to_go_pl.txt \
+	drivers/shuttlexpress_pl.txt \
+	examples/gcode_pl.txt \
+	examples/gs2_example_pl.txt \
+	examples/mpg_pl.txt \
+	examples/pci_parallel_port_pl.txt \
+	examples/spindle_pl.txt \
+	gcode/coordinates_pl.txt \
+	gcode/gcode_pl.txt \
+	gcode/machining_center_pl.txt \
+	gcode/m-code_pl.txt \
+	gcode/o-code_pl.txt \
+	gcode/other-code_pl.txt \
+	gcode/overview_pl.txt \
+	gcode/rs274ngc_pl.txt \
+	gcode/tool_compensation_pl.txt \
+	gui/axis_pl.txt \
+	gui/gladevcp_pl.txt \
+	gui/halui_pl.txt \
+	gui/image-to-gcode_pl.txt \
+	gui/keystick_pl.txt \
+	gui/mini_pl.txt \
+	gui/ngcgui_pl.txt \
+	gui/tklinuxcnc_pl.txt \
+	gui/touchy_pl.txt \
+	hal/basic_hal_pl.txt \
+	hal/canonical-devices_pl.txt \
+	hal/comp_pl.txt \
+	hal/components_pl.txt \
+	hal/general_ref_pl.txt \
+	hal/hal-examples_pl.txt \
+	hal/halmodule_pl.txt \
+	hal/halshow_pl.txt \
+	hal/haltcl_pl.txt \
+	hal/halui_examples_pl.txt \
+	hal/intro_pl.txt \
+	hal/parallel_port_pl.txt \
+	hal/pyvcp_pl.txt \
+	hal/pyvcp_examples_pl.txt \
+	hal/rtcomps_pl.txt \
+	hal/tools_pl.txt \
+	hal/tutorial_pl.txt \
+	install/Latency_Test_pl.txt \
+	ladder/classic_ladder_pl.txt \
+	ladder/ladder_examples_pl.txt \
+	ladder/ladder_intro_pl.txt \
+	lathe/lathe-user_pl.txt \
+	motion/kinematics_pl.txt \
+	motion/pid_theory_pl.txt \
+	motion/tweaking_steppers_pl.txt \
+	quickstart/stepper_quickstart_pl.txt \
+	Master_Getting_Started_pl.txt \
+	Master_User_pl.txt \
+	Master_HAL_pl.txt \
+	Master_Integrator_pl.txt \
+
+DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_DE) $(DOC_SRCS_PL)
+
+DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
 
 DOC_SRCS_DE_SMALL := $(filter-out Master_%,$(DOC_SRCS_DE))
 DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
