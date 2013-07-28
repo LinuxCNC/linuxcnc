@@ -471,30 +471,45 @@ DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
-PDF_TARGETS := $(addprefix $(DOC_DIR)/, \
+
+PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started.pdf \
-	LinuxCNC_Getting_Started_de.pdf \
-	LinuxCNC_Getting_Started_es.pdf \
-	LinuxCNC_Getting_Started_fr.pdf \
-	LinuxCNC_Getting_Started_pl.pdf \
 	LinuxCNC_User_Manual.pdf \
-	LinuxCNC_User_Manual_de.pdf \
-	LinuxCNC_User_Manual_es.pdf \
-	LinuxCNC_User_Manual_fr.pdf \
-	LinuxCNC_User_Manual_pl.pdf \
 	LinuxCNC_HAL_Manual.pdf \
-	LinuxCNC_HAL_Manual_de.pdf \
-	LinuxCNC_HAL_Manual_es.pdf \
-	LinuxCNC_HAL_Manual_fr.pdf \
-	LinuxCNC_HAL_Manual_pl.pdf \
 	LinuxCNC_Integrator_Manual.pdf \
-	LinuxCNC_Integrator_Manual_de.pdf \
-	LinuxCNC_Integrator_Manual_es.pdf \
-	LinuxCNC_Integrator_Manual_fr.pdf \
-	LinuxCNC_Integrator_Manual_pl.pdf \
 	LinuxCNC_Developer_Manual.pdf \
 	LinuxCNC_Manual_Pages.pdf \
 	)
+
+PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_fr.pdf \
+	LinuxCNC_User_Manual_fr.pdf \
+	LinuxCNC_HAL_Manual_fr.pdf \
+	LinuxCNC_Integrator_Manual_fr.pdf \
+	)
+
+PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_es.pdf \
+	LinuxCNC_User_Manual_es.pdf \
+	LinuxCNC_HAL_Manual_es.pdf \
+	LinuxCNC_Integrator_Manual_es.pdf \
+	)
+
+PDF_TARGETS_DE := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_de.pdf \
+	LinuxCNC_User_Manual_de.pdf \
+	LinuxCNC_HAL_Manual_de.pdf \
+	LinuxCNC_Integrator_Manual_de.pdf \
+	)
+
+PDF_TARGETS_PL := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_pl.pdf \
+	LinuxCNC_User_Manual_pl.pdf \
+	LinuxCNC_HAL_Manual_pl.pdf \
+	LinuxCNC_Integrator_Manual_pl.pdf \
+	)
+
+PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_DE) $(PDF_TARGETS_PL)
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
 
