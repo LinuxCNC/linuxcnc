@@ -79,6 +79,8 @@ The AXIS window contains the following elements:
 
 === Menu Items
 
+[[sec:axis-menu]] (((Axis Menu)))
+
 Some menu items might be grayed out depending on how you have your
 .ini file configured. For more information on configuration see the
 Integrator Manual.
@@ -175,7 +177,9 @@ Do not use 'Run From Selected Line' if your g code program contains subroutin
 
 * 'Zero Coordinate System' - Clear (set to zero) a chosen offset.
 
-* 'Tool touch off to workpiece' - When performing Touch Off, the value 
+[[sec:tool-touch-off]] (((Tool Touch Off)))
+
+* 'Tool touch off to workpiece' - When performing Touch Off, the value
 entered is relative to the current workpiece ('G5x') coordinate system,
 as modified by the axis offset ('G92').  When the Touch Off is complete,
 the Relative coordinate for the chosen axis will become the value entered.
