@@ -61,7 +61,7 @@ FUNCTION(read){
     
     for (i = 0;i <= 31;i++){
         pin_in(i) = R & (1 << i);
-        pin_in_not(i) = ~pin_in(i);
+        pin_in_not(i) = !pin_in(i);
     }
 }
 
