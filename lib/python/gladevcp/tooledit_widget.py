@@ -329,9 +329,11 @@ class ToolEdit(gtk.VBox):
     # For single click selection when in edit mode
     def on_treeview2_button_press_event(self,widget,event):
         if event.button == 1 : # left click
-            path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
-            self.view2.set_cursor(path,None,True)
-
+            try:
+                path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
+                self.view2.set_cursor(path,None,True)
+            except:
+                pass
         # standard Gobject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
