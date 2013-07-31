@@ -1,5 +1,18 @@
 = MPG Pendant
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 This example is to explain how to hook up the common MPG pendants
 found on the market today. This example uses an MPG3 pendant and a
 C22 pendant interface card from CNC4PC connected to a second parallel

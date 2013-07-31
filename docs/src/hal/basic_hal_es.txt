@@ -2,6 +2,19 @@
 
 [[cha:basic-hal-tutorial]] (((Basic HAL Tutorial)))
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 == HAL Commands [[sec:Hal-Commands]]
 
 More detailed information can be found in the man page for halcmd 'man

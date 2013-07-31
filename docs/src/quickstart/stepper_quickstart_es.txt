@@ -2,6 +2,19 @@
 
 [[cha:stepper-quickstart]] (((Stepper Quickstart)))
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 Esta sección asume que una instalación estándar a partir de un LiveCd 
 ha sido realizada. Posterior a la instalación es recomendable conectar 
 la computadora al internet y esperar por la aparición del manejador de 

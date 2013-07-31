@@ -2,6 +2,19 @@
 
 == AXIS
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 To create a PyVCP panel to use with the AXIS interface that is
 attached to the right of AXIS you need to do the following basic
 things.
