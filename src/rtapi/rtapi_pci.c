@@ -560,9 +560,10 @@ void pci_unregister_driver(struct pci_driver *driver)
 
     //FIXME: Support more than one card!
     driver->remove(one_dev);
-
+    if (one_dev) {
 	memset(one_dev, 0, sizeof(*one_dev));
 	free(one_dev);
+    }
 }
 
 void __iomem *pci_ioremap_bar(struct pci_dev *dev, int bar)
