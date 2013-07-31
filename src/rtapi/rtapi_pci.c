@@ -710,4 +710,17 @@ int pci_disable_device(struct pci_dev *dev)
     return r;
 }
 
+EXPORT_SYMBOL(rtapi_pci_get_device);
+EXPORT_SYMBOL(rtapi_pci_put_device);
+EXPORT_SYMBOL(rtapi_pci_ioremap);
+EXPORT_SYMBOL(rtapi_pci_iounmap);
+
+EXPORT_SYMBOL(iounmap);
+EXPORT_SYMBOL(pci_enable_device);
+EXPORT_SYMBOL(pci_disable_device);
+EXPORT_SYMBOL(pci_register_driver);
+EXPORT_SYMBOL(pci_unregister_driver);
+EXPORT_SYMBOL(pci_ioremap_bar);
+
+
 #endif // USERMODE_PCI
