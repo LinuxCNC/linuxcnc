@@ -350,7 +350,6 @@ typedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt,
 // message handler which writes to ringbuffer if global is available
 extern void vs_ring_write(msg_level_t level, const char *format, va_list ap);
 
-#ifdef RTAPI
 typedef void (*rtapi_set_msg_handler_t)(rtapi_msg_handler_t);
 
 extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
@@ -358,7 +357,6 @@ extern void rtapi_set_msg_handler(rtapi_msg_handler_t handler);
 typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
 
 extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
-#endif // RTAPI
 
 extern int rtapi_set_logtag(const char *fmt, ...);
 
