@@ -1,5 +1,6 @@
-// miscellaneos functions, mostly used during startup in
-// a user process; RTAPI not necessarily available
+// miscellaneous functions, mostly used during startup in
+// a user process; neither RTAPI nor ULAPI and universally
+// available to user processes
 
 #include "config.h"
 #include "rtapi.h"
@@ -7,12 +8,14 @@
 #include "inifile.h"           /* iniFind() */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <strings.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
 #include <limits.h>		/* PATH_MAX */
 #include <stdlib.h>		/* exit() */
+#include <grp.h>                // getgroups
 
 // really in nucleus/heap.h but we rather get away with minimum include files
 #ifndef XNHEAP_DEV_NAME
@@ -32,7 +35,7 @@
 // static storage of kernel module directory
 static char kmodule_dir[PATH_MAX];
 
-FILE *rtapi_inifile = NULL;
+static FILE *rtapi_inifile = NULL;
 
 int kernel_is_xenomai()
 {
@@ -65,6 +68,54 @@ int kernel_is_rtpreempt()
     return retval;
 }
 
+int xenomai_gid()
+{
+    FILE *fd;
+    int gid = -1;
+
+    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
+	if (fscanf(fd, "%d", &gid) != 1) {
+	    fclose(fd);
+	    return -EBADF; // garbage in sysfs device
+	} else {
+	    fclose(fd);
+	    return gid;
+	}
+    }
+    return -ENOENT; // sysfs device cant be opened
+}
+
+int user_in_xenomai_group()
+{
+    int numgroups, i;
+    gid_t *grouplist;
+    int gid = xenomai_gid();
+
+    if (gid < 0)
+	return gid;
+
+    numgroups = getgroups(0,NULL);
+    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
+    if (grouplist == NULL)
+	return -ENOMEM;
+    if (getgroups( numgroups, grouplist) > 0) {
+	for (i = 0; i < numgroups; i++) {
+	    if (grouplist[i] == (unsigned) gid) {
+		free(grouplist);
+		return 1;
+	    }
+	}
+    } else {
+	free(grouplist);
+	return errno;
+    }
+    return 0;
+}
+
+
+// there is no easy way to determine the RTAPI instance id
+// of a kernel threads RTAPI instance, which is why this
+// parameter is made visible through a procfs entry.
 int kernel_instance_id()
 {
     FILE *fd;
