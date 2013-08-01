@@ -48,15 +48,13 @@
 
 #include <sys/mman.h>
 #include <sys/prctl.h>
-#include <grp.h>
 
 #include "rtapi.h"
 #include "rtapi_global.h"
+#include "rtapi_compat.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
 #include "rtapi/shmdrv/shmdrv.h"
-
-#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
 using namespace std;
 
@@ -807,20 +805,6 @@ exit_handler(void)
     }
 }
 
-int xenomai_gid()
-{
-    FILE *fd;
-    int gid = -1;
-
-    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
-	if (fscanf(fd, "%d", &gid) < 1)
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "rtapi_app:%d failed to read group id from %s\n",
-			    instance_id, XENO_GID_SYSFS);
-	fclose(fd);
-    }
-    return gid;
-}
 
 static int harden_rt()
 {
@@ -878,41 +862,25 @@ static int harden_rt()
     sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
 
     if (flavor->id == RTAPI_XENOMAI_ID) {
-	int numgroups;
-	gid_t *grouplist;
+	int retval = user_in_xenomai_group();
 
-	int gid = xenomai_gid();
-	if (gid < 0) {
+	switch (retval) {
+	case 1:
+	    break;
+	case 0:
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "couldnt determine xenomai group id from %s\n",
-			    XENO_GID_SYSFS);
+			    "this user is not member of group xenomai");
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "please 'sudo adduser <username>  xenomai',"
+			    " logout and login again");
+	    return -1;
+
+	default:
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+			    "cannot determine if this user is a member of group xenomai: %s",
+			    strerror(-retval));
 	    return -1;
 	}
-
-	numgroups = getgroups(0,NULL);
-	grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
-	if (getgroups( numgroups, grouplist) != -1) {
-	    for (int i = 0; i < numgroups; i++) {
-		if (grouplist[i] == (unsigned) gid) {
-		    free(grouplist);
-		    goto is_xenomai_member;
-		}
-	    }
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "getgroups() failed: %d - %s\n",
-			    errno, strerror(errno));
-	    return -1;
-	}
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"this user is not member of group xenomai");
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"please 'sudo adduser <username>  xenomai',"
-			" logout and login again");
-	return -1;
-
-    is_xenomai_member:
-	;
     }
 
 #if defined(__x86_64) || defined(i386)
