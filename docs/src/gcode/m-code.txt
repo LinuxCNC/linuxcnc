@@ -125,8 +125,6 @@ When the tool change is complete:
 * The spindle will be stopped. 
 * The tool that was selected (by a T word on the same line or on any
    line after the previous tool change) will be in the spindle.
-   The T number is an integer giving the
-   changer slot of the tool (not its id).
 * If the selected tool was not in the spindle before the tool change,
    the tool that was in the spindle (if there was one) will be placed
    back into the tool changer magazine.
