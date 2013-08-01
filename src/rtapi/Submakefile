@@ -121,9 +121,24 @@ rtapi-objs := \
 	rtapi/rtapi_main.o \
 	rtapi/rtapi_compat.o
 
+
+
+ifeq ($(USERMODE_PCI),yes)
+
+# compile userland PCI support with udev cflags if any
+$(call TOOBJSDEPS, rtapi/$(threads)/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
+
+# link in userland PCI support into rtapi.so
+rtapi-objs += rtapi/rtapi_pci.o
+
+# userland PCI support needs -ludev for rtapi.so
+$(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(LIBUDEV_LIBS)
+endif
+
+$(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
+
 # rule for kernel module, moved from src/Makefile
 $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
-$(RTLIBDIR)/rtapi$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 
 ################################################
 # rtapi_app_<flavor>
