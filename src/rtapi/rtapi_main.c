@@ -21,7 +21,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_common.h"       /* global_data_t */
-#include "rtapi_kdetect.h"      /* environment autodetection */
+#include "rtapi_compat.h"       /* global_data_t */
 #include "rtapi/shmdrv/shmdrv.h"  /* common shm driver API */
 
 MODULE_AUTHOR("Michael Haberler");

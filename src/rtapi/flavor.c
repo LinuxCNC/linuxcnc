@@ -1,5 +1,4 @@
 #include "rtapi.h"
-#include "rtapi_kdetect.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -12,6 +11,7 @@
 #include <errno.h>
 
 #include "rtapi.h"
+#include "rtapi_compat.h"
 
 int shmdrv_loaded;
 size_t page_size;

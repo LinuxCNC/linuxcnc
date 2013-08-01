@@ -67,6 +67,7 @@
 #include RTAPI_INC_LIST_H
 #include "rtapi.h"          /* RTAPI realtime OS API */
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
+#include "rtapi_compat.h"   /* RTAPI support functions */
 #include "rtapi_math.h"
 #include "hal.h"            /* HAL public API decls */
 #include <pthread.h>

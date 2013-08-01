@@ -12,6 +12,7 @@
 // Michael Haberler fecit A.D. 2013
 
 #include "rtapi.h"
+#include "rtapi_compat.h"
 
 #include <sys/types.h>
 #include <signal.h>
@@ -30,7 +31,6 @@
 
 #include <rtapi.h>
 #include "rtapi/shmdrv/shmdrv.h"
-#include "rtapi_kdetect.h"          // environment autodetection
 #include "ring.h"          // environment autodetection
 
 #ifndef SYSLOG_FACILITY

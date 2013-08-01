@@ -95,6 +95,10 @@
 #include <rtapi.h>
 #include <rtapi_global.h>
 
+#ifdef ULAPI
+#include <rtapi_compat.h>
+#endif
+
 #include "rtapi_mbarrier.h"	/* memory barrier primitves */
 
 #if defined(BUILD_SYS_USER_DSO)

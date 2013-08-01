@@ -8,14 +8,15 @@
 *               - set the rtapi_instance variable
 *
 ********************************************************************/
+#if defined(ULAPI)
 
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_global.h"       /* global_data_t */
 #include "rtapi_common.h"
+#include "rtapi_compat.h"
 #include "rtapi/shmdrv/shmdrv.h"
 
-#if defined(ULAPI)
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <errno.h>
