@@ -251,8 +251,7 @@ value found in parameter 3. The '\#' character may be repeated; for
 example '##2'  means the value of the parameter whose index is the
 (integer) value of parameter 2.
 
-The interpreter maintains a number of read-only parameters for a loaded
-tool:
+The interpreter maintains a number of read-only parameters:
 
 * '1-30' - Subroutine local parameters of call arguments. These parameters are
     local to the subroutine. See the <<cha:O-Codes,O Codes>> Section.
