@@ -1878,11 +1878,11 @@ void SELECT_POCKET(int slot)
 }
 
 /* CHANGE_TOOL_NUMBER results from M61 */
-void CHANGE_TOOL_NUMBER(int number)
+void CHANGE_TOOL_NUMBER(int pocket_number)
 {
     EMC_TOOL_SET_NUMBER emc_tool_set_number_msg;
     
-    emc_tool_set_number_msg.tool = number;
+    emc_tool_set_number_msg.tool = pocket_number;
 
     interp_list.append(emc_tool_set_number_msg);
 }
