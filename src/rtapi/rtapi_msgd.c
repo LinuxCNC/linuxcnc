@@ -563,6 +563,27 @@ int main(int argc, char **argv)
 	exit(EXIT_FAILURE);
     }
 
+    // catch installation error: user not in xenomai group
+    if (flavor->id == RTAPI_XENOMAI_ID) {
+	int retval = user_in_xenomai_group();
+
+	switch (retval) {
+	case 1:  // yes
+	    break;
+	case 0:
+	    fprintf(stderr, "this user is not member of group xenomai\n");
+	    fprintf(stderr, "please 'sudo adduser <username>  xenomai',"
+		    " logout and login again\n");
+	    exit(EXIT_FAILURE);
+
+	default:
+	    fprintf(stderr, "cannot determine if this user "
+		    "is a member of group xenomai: %s\n",
+		    strerror(-retval));
+	    exit(EXIT_FAILURE);
+	}
+    }
+
     // do we need the shmdrv module?
     if (((flavor->flags & FLAVOR_KERNEL_BUILD) ||
 	 use_shmdrv) &&
