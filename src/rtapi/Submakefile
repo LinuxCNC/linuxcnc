@@ -164,13 +164,7 @@ ifeq ($(RUN_IN_PLACE),yes)
 RTAPI_APP_RPATH=-Wl,-rpath,$(LIB_DIR)
 endif
 
-# HAAACK:
-#
-# Build objects/rtapi/rtapi_app.o in Makefile as other USERSRCS,
-# but replace -DULAPI with -DRTAPI:  Makefile doesn't handle -DRTAPI
-# C++ sources
-$(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
-	$(LIBUDEV_CFLAGS) -UULAPI $(RTFLAGS)
+$(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS =
 
 ../libexec/rtapi_app_$(threads): \
 		$(call TOOBJS, $(RTAPI_APP_SRCS) \
@@ -179,7 +173,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -Wl,-rpath,$(EMC2_RTLIB_DIR) $(RTAPI_APP_RPATH) \
-	    -o $@ $^ $(RT_LDFLAGS) $(LIBUDEV_LIBS) -ldl
+	    -o $@ $^ $(RT_LDFLAGS)  -ldl
 
 modules:  ../libexec/rtapi_app_$(threads)
 endif # BUILD_THREAD_MODULES
