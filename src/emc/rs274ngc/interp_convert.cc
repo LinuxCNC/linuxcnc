@@ -2729,10 +2729,23 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	
     // when we have M61 we only change the number of the loaded tool (for example on startup)
     if (block->m_modes[6] == 61) {
-	CHKS((round_to_int(block->q_number) < 0), (_("Need positive Q-word to specify tool number with M61")));
-	settings->current_pocket = round_to_int(block->q_number);
-	CHANGE_TOOL_NUMBER(round_to_int(block->q_number));
-    }    
+        int tool_number;
+        int pocket_number;
+
+        tool_number = round_to_int(block->q_number);
+        CHKS((tool_number < 0), (_("Need positive Q-word to specify tool number with M61")));
+        CHP((find_tool_pocket(settings, tool_number, &pocket_number)));
+        settings->selected_pocket = pocket_number;
+        settings->current_pocket = pocket_number;
+
+        // we're not really *changing* tools, but this communicates the
+        // state of the internal variables to set_tool_parameters() below
+        settings->toolchange_flag = true;
+
+        CHANGE_TOOL_NUMBER(pocket_number);
+        set_tool_parameters();
+    }
+
 #ifdef DEBATABLE
     // I would like this, but it's a big change.  It changes the
     // operation of legal ngc programs, but it could be argued that
