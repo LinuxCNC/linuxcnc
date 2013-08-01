@@ -25,8 +25,9 @@
 // Exists on RTAI and Xenomai
 #define PROC_IPIPE "/proc/ipipe"
 
-// Exists on Xenomai but not on RTAI
+// These exist on Xenomai but not on RTAI
 #define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
 // static storage of kernel module directory
 static char kmodule_dir[PATH_MAX];
@@ -38,7 +39,8 @@ int kernel_is_xenomai()
     struct stat sb;
 
     return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
-	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0));
+	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0) &&
+	    (stat(XENO_GID_SYSFS, &sb) == 0));
 }
 
 int kernel_is_rtai()
@@ -46,7 +48,8 @@ int kernel_is_rtai()
     struct stat sb;
 
     return ((stat(PROC_IPIPE, &sb) == 0) && 
-	    (stat(PROC_IPIPE_XENOMAI, &sb) != 0));
+	    (stat(PROC_IPIPE_XENOMAI, &sb) != 0) &&
+	    (stat(XENO_GID_SYSFS, &sb) != 0));
 }
 
 int kernel_is_rtpreempt()
@@ -76,7 +79,6 @@ int kernel_instance_id()
     }
     return retval;
 }
-
 
 flavor_t flavors[] = {
     { .name = RTAPI_POSIX_NAME,
