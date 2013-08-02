@@ -1,0 +1,11 @@
+
+net tool-prepare => python-ui.tool-prepare
+net tool-prepared <= python-ui.tool-prepared
+
+net tool-change => python-ui.tool-change
+net tool-changed <= python-ui.tool-changed
+
+net tool-number => python-ui.tool-number
+net tool-prep-number => python-ui.tool-prep-number
+net tool-prep-pocket => python-ui.tool-prep-pocket
+
