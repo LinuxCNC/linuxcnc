@@ -195,12 +195,21 @@ def get_interp_param(param_number):
     while e.c.wait_complete() == -1:
         pass
 
-    error = e.e.poll()
-    if error:
+    # wait up to 2 seconds for a reply
+    start = time.time()
+    while (time.time() - start) < 2:
+        error = e.e.poll()
+        if error == None:
+            time.sleep(0.010)
+            continue
+
         kind, text = error
         if kind == linuxcnc.OPERATOR_DISPLAY:
             return float(text)
 
+        print text
+
+    print "error getting parameter %d" % param_number
     return None
 
 
