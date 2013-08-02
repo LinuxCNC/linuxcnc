@@ -131,7 +131,7 @@ class LinuxcncControl:
         if self.error:
             kind, text = self.error
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                if LinuxcncControl.g_raise_except:
+                if self.g_raise_except:
                     raise LinuxcncError(text)
                 else:        
                     print ("error " + text)
@@ -195,12 +195,21 @@ def get_interp_param(param_number):
     while e.c.wait_complete() == -1:
         pass
 
-    error = e.e.poll()
-    if error:
+    # wait up to 2 seconds for a reply
+    start = time.time()
+    while (time.time() - start) < 2:
+        error = e.e.poll()
+        if error == None:
+            time.sleep(0.010)
+            continue
+
         kind, text = error
         if kind == linuxcnc.OPERATOR_DISPLAY:
             return float(text)
 
+        print text
+
+    print "error getting parameter %d" % param_number
     return None
 
 
@@ -347,6 +356,7 @@ os.system("halcmd source ./postgui.hal")
 #
 
 e = LinuxcncControl()
+e.g_raise_except = False
 e.set_state(linuxcnc.STATE_ESTOP_RESET)
 e.set_state(linuxcnc.STATE_ON)
 e.set_mode(linuxcnc.MODE_MDI)
