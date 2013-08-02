@@ -131,7 +131,7 @@ class LinuxcncControl:
         if self.error:
             kind, text = self.error
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                if LinuxcncControl.g_raise_except:
+                if self.g_raise_except:
                     raise LinuxcncError(text)
                 else:        
                     print ("error " + text)
@@ -347,6 +347,7 @@ os.system("halcmd source ./postgui.hal")
 #
 
 e = LinuxcncControl()
+e.g_raise_except = False
 e.set_state(linuxcnc.STATE_ESTOP_RESET)
 e.set_state(linuxcnc.STATE_ON)
 e.set_mode(linuxcnc.MODE_MDI)
