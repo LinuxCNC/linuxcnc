@@ -1832,6 +1832,8 @@ void EMC_AXIS_STAT::update(CMS * cms)
 {
 
     EMC_AXIS_STAT_MSG::update(cms);
+    cms->update(minPositionLimit);
+    cms->update(maxPositionLimit);
 
 }
 
