@@ -158,13 +158,7 @@ class LinuxcncControl:
 
 
 def introspect():
-    #print "joint.0.select =", h['joint-0-select']
-    #print "joint.0.selected =", h['joint-0-selected']
-    #print "joint.0.position =", h['joint-0-position']
-
-    #os.system("halcmd show pin iocontrol")
     os.system("halcmd show pin python-ui")
-    #os.system("halcmd show sig")
 
 
 def wait_for_pin_value(pin_name, value, timeout=1):
@@ -232,106 +226,11 @@ def verify_stable_pin_values(pins, duration=1):
         time.sleep(0.010)
 
 
-def select_joint(name):
-    print "    selecting", name
-
-    h[name + '-select'] = 1
-    start = time.time()
-    while (h[name + '-selected'] == 0) and ((time.time() - start) < timeout):
-        time.sleep(0.1)
-
-    if h[name + '-selected'] == 0:
-        print "failed to select", name, "in halui"
-        introspect(h)
-        sys.exit(1)
-
-    h[name + '-select'] = 0
-
-
-def jog_minus(name, target):
-    start_position = h[name + '-position']
-    print "    jogging", name, "negative: to %.3f" % (target)
-
-    h['jog-selected-minus'] = 1
-
-    start = time.time()
-    while (h[name + '-position'] > target) and ((time.time() - start) < timeout):
-        time.sleep(0.1)
-
-    if h[name + '-position'] > target:
-        print name, "failed to jog", name, "to", target
-        introspect(h)
-        return False
-
-    h['jog-selected-minus'] = 0
-
-    print "    jogged %s negative past target %.3f" % (name, target)
-
-    return True
-
-
-def jog_plus(name, target):
-    start_position = h[name + '-position']
-    print "    jogging %s positive: to %.3f" % (name, target)
-
-    h['jog-selected-plus'] = 1
-
-    start = time.time()
-    while (h[name + '-position'] < target) and ((time.time() - start) < timeout):
-        time.sleep(0.1)
-
-    if h[name + '-position'] < target:
-        print name, "failed to jog", name, "to", target
-        introspect(h)
-        return False
-
-    h['jog-selected-plus'] = 0
-
-    print "    jogged %s positive past target %.3f)" % (name, target)
-
-    return True
-
-
-def jog_joint(joint_number, target):
-    success = True
-
-    joint = []
-    for j in range(0,3):
-        joint.append(h['joint-%d-position' % j])
-
-    name = 'joint-%d' % joint_number
-
-    print "jogging", name, "to", target
-    select_joint(name)
-
-    if h[name + '-position'] > target:
-        jog_minus(name, target)
-    else:
-        jog_plus(name, target)
-
-    for j in range(0,3):
-        pin_name = 'joint-%d-position' % j
-        if j == joint_number:
-            if joint[j] == h[pin_name]:
-                print "joint", str(j), "didn't move but should have!"
-                success = False
-        else:
-            if joint[j] != h[pin_name]:
-                print "joint", str(j), "moved from %.3f to %.3f but shouldnt have!" % (joint[j], h[pin_name])
-                success = False
-
-
-    # give the joint time to stop
-    # FIXME: close the loop here
-    time.sleep(0.1)
-
-    if not success:
-        sys.exit(1)
 
 
 #
 # set up pins
-# shell out to halcmd to make nets to halui and motion
+# shell out to halcmd to net our pins to where they need to go
 #
 
 h = hal.component("python-ui")
@@ -492,5 +391,6 @@ verify_interp_param(5427, 0)      # current v
 verify_interp_param(5428, 0)      # current w
 
 
+# if we get here it all worked!
 sys.exit(0)
 
