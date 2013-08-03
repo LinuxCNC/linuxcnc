@@ -993,16 +993,8 @@ int main(int argc, char **argv)
 	    exit(0);
 	}
     }
-#if 0
-    if (flavor == NULL)
-	flavor = default_flavor();
-    assert(flavor != NULL);
 
-    if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && !getuid()) {
-	fprintf(stderr, "rtapi_app: need to 'sudo make setuid' to access I/O\n");
-	exit(1);
     }
-#endif
     snprintf(addr.sun_path, sizeof(addr.sun_path), 
 	     SOCKET_PATH, instance_id);
     addr.sun_path[0] = '\0';
