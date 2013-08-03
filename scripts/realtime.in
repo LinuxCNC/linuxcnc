@@ -175,6 +175,7 @@ Load(){
 	else
 	    $linuxcnc_module_helper insert $MOD || return $?
 	fi
+	sleep 0.2  # give some time to settle
     done
 
     if test $BUILD_SYS = user-dso; then
