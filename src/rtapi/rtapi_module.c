@@ -75,22 +75,40 @@ int init_module(void) {
 
     rtapi_switch = rtapi_get_handle();
 
-    /* say hello */
-    rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d %s %s init\n", 
-		    rtapi_instance,
-		    rtapi_get_handle()->thread_flavor_name, 
-		    GIT_VERSION);
-
+    // first thing: attach global_data
     sm.key = OS_KEY(GLOBAL_KEY, rtapi_instance);
     sm.size = 0;
     sm.flags = 0;
 
     if ((retval = shmdrv_attach(&sm, (void **)&global_data)) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"RTAPI:%d ERROR: can attach global segment: %d\n",
-			rtapi_instance, retval);
+	// cant use the  message ringbuffer just yet
+	printk("RTAPI:%d ERROR: can attach global segment: %d\n",
+	       rtapi_instance, retval);
 	return -EINVAL;
     }
+    
+    // fail immediately if the global segment isnt in shape yet
+    // this catches https://github.com/zultron/linuxcnc/issues/49 early
+    if (global_data->magic != GLOBAL_READY) {
+	
+	printk("RTAPI:%d ERROR: bad global magic: 0x%x\n",
+	       rtapi_instance,global_data->magic);
+
+	// TBD: remove once cause identified
+	printk("halsize=%d\n", global_data->hal_size);
+	printk("msgd pid=%d\n", global_data->rtapi_msgd_pid);
+	printk("magic=%x\n", global_data->magic);
+	printk("flavor=%d\n", global_data->rtapi_thread_flavor);
+	// fail the insmod
+	return -EINVAL;
+    }
+
+    // say hello - this now goes through the message ringbuffer
+    rtapi_print_msg(RTAPI_MSG_INFO, "RTAPI:%d %s %s init\n", 
+		    rtapi_instance,
+		    rtapi_get_handle()->thread_flavor_name, 
+		    GIT_VERSION);
+
 
     sm.key = OS_KEY(RTAPI_KEY, rtapi_instance);
     sm.size = sizeof(rtapi_data_t);
