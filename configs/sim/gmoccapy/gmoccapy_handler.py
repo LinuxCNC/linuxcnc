@@ -44,7 +44,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.6"
+_RELEASE = "0.9.6.1"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -627,10 +627,10 @@ class HandlerClass:
         # estop with F1 shold work every time
         # so should also escape aboart actions
         if keyname == "F1":
-            self.gscreen.emc.estop(1)
+            self.emc.estop(1)
             return True
         if keyname == "Escape":
-            self.gscreen.emc.abort()
+            self.emc.abort()
             return True
 
         # if the user do not want to use keyboard shortcuts, we leave here
@@ -652,7 +652,7 @@ class HandlerClass:
                 self.widgets.tbtn_on.emit("clicked")
                 return True
             if keyname == "Escape":
-                self.gscreen.emc.abort()
+                self.emc.abort()
                 return True
         except:
             pass
@@ -807,8 +807,8 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry(_("macro {0} , parameter {1} set to {2:f}".format(o_codes[0],code,parameter)))
             command = command + " [" + str(parameter) + "] "
 # ToDo: Should not only clear the plot, but also the loaded programm?
-        #self.gscreen.emc.emccommand.program_open("")
-        #self.gscreen.emc.emccommand.reset_interpreter()
+        #self.emc.emccommand.program_open("")
+        #self.emc.emccommand.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
 # ToDo: End
         self.gscreen.mdi_control.user_command(command)
@@ -859,8 +859,8 @@ class HandlerClass:
     def on_window1_destroy(self, widget, data=None):
         self.kill_keyboard()
         print "estopping / killing gscreen"
-        self.gscreen.emc.machine_off(1)
-        self.gscreen.emc.estop(1)
+        self.emc.machine_off(1)
+        self.emc.estop(1)
         time.sleep(2)
         gtk.main_quit()
 
@@ -884,13 +884,13 @@ class HandlerClass:
         if self.widgets.tbtn_estop.get_active(): # estop is active, open circuit
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
-            self.gscreen.emc.estop(1)
+            self.emc.estop(1)
             self.widgets.tbtn_on.set_sensitive(False)
             self.widgets.tbtn_on.set_active(False)
         else:   # estop circuit is fine
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
-            self.gscreen.emc.estop_reset(1)
+            self.emc.estop_reset(1)
             self.widgets.tbtn_on.set_sensitive(True)
 
 # ToDo: find out why the values are modified by 1 on startup 
@@ -924,7 +924,7 @@ class HandlerClass:
     # The mode buttons
     def on_rbt_manual_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_manual_clicked")
-        self.gscreen.emc.set_manual_mode()
+        self.emc.set_manual_mode()
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(0)
         self.widgets.ntb_info.set_current_page(0)
@@ -1397,9 +1397,9 @@ class HandlerClass:
 
         if self.distance <> 0:  # incremental jogging
             # DOKU : emc.incremental_jog(<axis number>,<direction>,<distance to jog>)
-            self.gscreen.emc.incremental_jog(axis, direction, self.distance)
+            self.emc.incremental_jog(axis, direction, self.distance)
         else:                   # continuous jogging
-            self.gscreen.emc.continuous_jog(axis,direction)
+            self.emc.continuous_jog(axis,direction)
 
     def on_btn_jog_released(self, widget, data = None):
         axisletter = widget.get_label()[0]
@@ -1412,7 +1412,7 @@ class HandlerClass:
         if self.distance <>0:
             pass
         else:
-            self.gscreen.emc.continuous_jog(axis,0)
+            self.emc.continuous_jog(axis,0)
 
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
@@ -1458,7 +1458,7 @@ class HandlerClass:
         # if the image is img_brake macro, we want to interupt the running macro
         if self.widgets.btn_show_kbd.get_image() == self.widgets.img_brake_macro:
             if self.log: self.gscreen.add_alarm_entry("btn_brake macro_clicked")
-            self.gscreen.emc.abort()
+            self.emc.abort()
             for btn in self.macrobuttons:
                 btn.set_sensitive(True)
             self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
@@ -1470,9 +1470,9 @@ class HandlerClass:
             self.widgets.ntb_info.set_current_page(1)
 
     def on_ntb_info_switch_page(self, page, page_num, data=None):
-        if self.gscreen.emc.get_mode() == _MDI:
+        if self.emc.get_mode() == _MDI:
             self.widgets.hal_mdihistory.entry.grab_focus()
-        elif self.gscreen.emc.get_mode() == _AUTO:
+        elif self.emc.get_mode() == _AUTO:
             self.widgets.gcode_view.grab_focus()
 
     # Three back buttons to be able to leave notebook pages
@@ -1506,7 +1506,7 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(widgetlist,not state)
         
         if not state: # we must switch back to manual mode, otherwise jogging is not possible
-            self.gscreen.emc.set_manual_mode()
+            self.emc.set_manual_mode()
         
         # show virtual keyboard
         if state:
@@ -1540,24 +1540,24 @@ class HandlerClass:
 #ToDo: what to do when there are more axis?
     def on_btn_zero_x_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_X_clicked")
-        self.gscreen.emc.set_mdi_mode()
+        self.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("X",0)
         self.widgets.btn_reload.emit("clicked")
-        self.gscreen.emc.set_manual_mode()
+        self.emc.set_manual_mode()
 
     def on_btn_zero_y_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Y_clicked")
-        self.gscreen.emc.set_mdi_mode()
+        self.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("Y",0)
         self.widgets.btn_reload.emit("clicked")
-        self.gscreen.emc.set_manual_mode()
+        self.emc.set_manual_mode()
 
     def on_btn_zero_z_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Z_clicked")
-        self.gscreen.emc.set_mdi_mode()
+        self.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("Z",0)
         self.widgets.btn_reload.emit("clicked")
-        self.gscreen.emc.set_manual_mode()
+        self.emc.set_manual_mode()
 
     def on_btn_set_value_clicked(self, widget, data=None):
         if widget == self.widgets.btn_set_value_x:
@@ -1578,10 +1578,10 @@ class HandlerClass:
             return
         if offset != False or offset == 0:
             self.gscreen.add_alarm_entry(_("offset {0} set to {1:f}".format(axis,offset)))
-            self.gscreen.emc.set_mdi_mode()
+            self.emc.set_mdi_mode()
             self.gscreen.mdi_control.set_axis(axis,offset)
             self.widgets.btn_reload.emit("clicked")
-            self.gscreen.emc.set_manual_mode()
+            self.emc.set_manual_mode()
             self.gscreen.prefs.putpref("offset_axis_%s"%axis, offset, float)
         else:
             print(_("Conversion error in btn_set_value"))
@@ -1601,7 +1601,7 @@ class HandlerClass:
             return
         else:
             self.gscreen.mdi_control.user_command(system)
-            self.gscreen.emc.set_manual_mode()
+            self.emc.set_manual_mode()
 
     def entry_dialog(self, data=None, header=_("Enter value") ,label=_("Enter the value to set"), integer = False):
         dialog = gtk.Dialog(header,
@@ -1897,16 +1897,21 @@ class HandlerClass:
             # toolinfo[15] = tool orientation
             # toolinfo[16] = tool info
             self.widgets.lbl_tool_no.set_text(str(toolinfo[1]))
-            self.widgets.lbl_tool_offset_z.set_text(toolinfo[5])
-            self.widgets.lbl_tool_offset_x.set_text(toolinfo[3])
             self.widgets.lbl_tool_dia.set_text(toolinfo[12])
             self.widgets.lbl_tool_name.set_text(toolinfo[16])
         if tool == 0:
             self.widgets.lbl_tool_no.set_text("0")
-            self.widgets.lbl_tool_offset_x.set_text("0")
-            self.widgets.lbl_tool_offset_z.set_text("0")
             self.widgets.lbl_tool_dia.set_text("0")
             self.widgets.lbl_tool_name.set_text(_("No tool description available"))
+        if "G43" in self.data.active_gcodes:
+            mode = self.emc.get_mode()
+            if mode != _AUTO:
+                self.emc.set_mdi_mode()
+                self.gscreen.mdi_control.user_command("G43")
+            if mode == _MANUAL:
+                self.wait_tool_change = True
+                self.on_hal_status_interp_idle(self)
+
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_btn_delete_tool_clicked")
@@ -1924,12 +1929,7 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("on_btn_apply_tool_changes_clicked")
         self.tooledit_btn_apply_tool.emit("clicked")
         tool = self.widgets.tooledit1.get_selected_tool()
-        if tool == self.gscreen.data.tool_in_spindle:
-            if "G43" in self.data.active_gcodes:
-                self.gscreen.mdi_control.user_command("G43")
-                self.wait_tool_change = True
-                self.on_hal_status_interp_idle(self)
-            self._update_toolinfo(tool)
+        #self._update_toolinfo(tool)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
@@ -1966,7 +1966,7 @@ class HandlerClass:
         else:
             self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}".format(axis,value)))
         self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
-        self._update_toolinfo(self.data.tool_in_spindle)
+        #self._update_toolinfo(self.data.tool_in_spindle)
         # will set the label, but the tool do not need to be in the spindle,
         # so information may be no homogeniuos
         #self._update_toolinfo(self._get_selected_tool())
@@ -1996,7 +1996,7 @@ class HandlerClass:
             self.emc.set_mdi_mode()
             command = "T%s M6"%int(value)
             self.gscreen.mdi_control.user_command(command)
-            self._update_toolinfo(self.data.tool_in_spindle)
+            self.wait_tool_change = True
 
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked(self, widget, data=None):
@@ -2251,6 +2251,7 @@ class HandlerClass:
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         self.gscreen.add_alarm_entry(_("tool_in_spindle has changed to %s"%new_tool_no))
+        print("hal_status tool changed emitted")
         self._update_toolinfo(new_tool_no)
 
     def on_hal_status_state_estop(self,widget=None):
@@ -2427,6 +2428,16 @@ class HandlerClass:
 
         # This is only necessary, because after connecting the Encoder the value will be increased by one
         self.widgets.btn_feed_100.emit('clicked')
+
+        # make pins to react to tool_offset changes
+        self.pin_offset_x = hal_glib.GPin(self.gscreen.halcomp.newpin("tooloffset_x", hal.HAL_FLOAT, hal.HAL_IN))
+        self.pin_offset_x.connect("value_changed", self._offset_changed,"tooloffset_x")
+        self.pin_offset_z = hal_glib.GPin(self.gscreen.halcomp.newpin("tooloffset_z", hal.HAL_FLOAT, hal.HAL_IN))
+        self.pin_offset_z.connect("value_changed", self._offset_changed,"tooloffset_z")
+
+    def _offset_changed(self,pin,tooloffset):
+        self.widgets.lbl_tool_offset_z.set_text("%.3f"%self.gscreen.halcomp["tooloffset_z"])
+        self.widgets.lbl_tool_offset_x.set_text("%.3f"%self.gscreen.halcomp["tooloffset_x"])
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
         if not pin.get(): 

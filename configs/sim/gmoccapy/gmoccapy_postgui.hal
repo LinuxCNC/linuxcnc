@@ -15,6 +15,9 @@ net tool-change gscreen.change-tool iocontrol.0.tool-change
 net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
 net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
 
+net tooloffset-x gscreen.tooloffset_x <= motion.tooloffset.x
+net tooloffset-z gscreen.tooloffset_z <= motion.tooloffset.z
+
 #############################################################################
 #                        Jogwheel / Handrad / Encoder                       #
 #############################################################################
