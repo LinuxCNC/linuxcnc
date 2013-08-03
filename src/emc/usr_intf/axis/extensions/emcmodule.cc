@@ -560,6 +560,8 @@ static PyObject *Stat_joint(pyStatChannel *s) {
 static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
     PyObject *res = PyDict_New();
     F(velocity);
+    F2("min_position_limit", minPositionLimit);
+    F2("max_position_limit", maxPositionLimit);
     return res;
 }
 
