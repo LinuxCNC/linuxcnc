@@ -83,6 +83,7 @@ static int foreground;
 static int force_exit = 0;
 int shmdrv_loaded;
 long page_size;
+static const char *progname;
 
 // the following two variables, despite extern, are in fact private to rtapi_app
 // in the sense that they are not visible in the RT space (the namespace 
@@ -611,7 +612,8 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     }
 
     // make sure we're setuid root when we need to
-    if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && !getuid()) {
+    if ((use_drivers || (flavor->flags & FLAVOR_DOES_IO)) && 
+	(geteuid() != 0)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_app:%d need to"
 			" 'sudo make setuid' to access I/O?\n", 
@@ -941,6 +943,8 @@ int main(int argc, char **argv)
     struct sockaddr_un addr = { AF_UNIX, "" };
     int c;
 
+    progname = argv[0];
+
     rtapi_set_msg_handler(rtapi_app_msg_handler);
     openlog(argv[0], LOG_NDELAY, LOG_LOCAL1);
     setlogmask(LOG_UPTO(LOG_DEBUG));
@@ -994,7 +998,13 @@ int main(int argc, char **argv)
 	}
     }
 
+    // sanity
+    // the actual checking for setuid happens in harden_rt() (if needed)
+    if (getuid() == 0) {
+	fprintf(stderr, "%s: FATAL - will not run as root\n", progname);
+	exit(EXIT_FAILURE);
     }
+
     snprintf(addr.sun_path, sizeof(addr.sun_path), 
 	     SOCKET_PATH, instance_id);
     addr.sun_path[0] = '\0';
