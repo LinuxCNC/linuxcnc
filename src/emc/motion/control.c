@@ -1826,6 +1826,8 @@ static void update_status(void)
 	axis_status = &(emcmotStatus->axis_status[axis_num]);
 
 	axis_status->vel_cmd = axis->vel_cmd;
+	axis_status->max_pos_limit = axis->max_pos_limit;
+	axis_status->min_pos_limit = axis->min_pos_limit;
     }
 
 

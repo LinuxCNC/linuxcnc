@@ -771,7 +771,7 @@ class GlCanonDraw:
             if abs(x) > 1e30: return 0
             return x
 
-        ax = self.stat.joint
+        ax = self.stat.axis
         return (
             self.to_internal_units([fudge(ax[i]['min_position_limit'])
                 for i in range(3)]),
