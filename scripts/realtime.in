@@ -160,14 +160,11 @@ Load(){
     # rtapi_msgd creates the global segment containing the error ring buffer
     # so start this first:
 
-    if ! ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
+    ${rtapi_msgd} --instance=$INSTANCE $NAME_CMD \
 	--rtmsglevel=$DEBUG \
 	--usrmsglevel=$DEBUG \
-	--halsize=$HAL_SIZE $MSGD_OPTS  ; then
-	exitcode=$?
-	echo "rtapi_msgd startup failed - aborting" 1>&2
-	exit $?
-    fi
+	--halsize=$HAL_SIZE $MSGD_OPTS || \
+	(echo "rtapi_msgd startup failed - aborting"; exit $?)
 
     # load kernel modules
     for MOD in $MODULES; do
@@ -183,17 +180,8 @@ Load(){
     if test $BUILD_SYS = user-dso; then
         # run rtapi_app for userland
 	if [ $DEBUG -gt 0 ] ; then
-	    if ! ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS ; then
-		exitcode=$?
-		echo "rtapi_app startup failed - aborting" 1>&2
-		exit $?
-	    fi
-	else
-	    if ! ${rtapi_app} --instance=$INSTANCE  $RTAPI_APP_OPTS 2>&1 >/dev/null ; then
-		exitcode=$?
-		echo "rtapi_app startup failed - aborting" 1>&2
-		exit $?
-	    fi
+	    ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS 2>&1 >/dev/null  || \
+		(echo "rtapi_app startup failed - aborting"; exit $?)
         fi
 
     else  # BUILD_SYS = 'kbuild'
