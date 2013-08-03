@@ -548,6 +548,16 @@ int main(int argc, char **argv)
 	}
     }
 
+    // sanity
+    if (getuid() == 0) {
+	fprintf(stderr, "%s: FATAL - will not run as root\n", progname);
+	exit(EXIT_FAILURE);
+    }
+    if (geteuid() == 0) {
+	fprintf(stderr, "%s: FATAL - will not run as setuid root\n", progname);
+	exit(EXIT_FAILURE);
+    }
+
     if (flavor == NULL)
 	flavor = default_flavor();
 
