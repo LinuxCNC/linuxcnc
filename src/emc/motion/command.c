@@ -196,6 +196,27 @@ void refresh_jog_limits(emcmot_joint_t *joint)
     }
 }
 
+static int check_axis_constraint(double target, int id, char *move_type,
+                                 int axis_no, char axis_name) {
+    int in_range = 1;
+    double nl = axes[axis_no].min_pos_limit;
+    double pl = axes[axis_no].max_pos_limit;
+
+    if(target < nl) {
+        in_range = 0;
+        reportError(_("%s move on line %d would exceed %c's %s limit"),
+                    move_type, id, axis_name, _("negative"));
+    }
+
+    if(target > pl) {
+        in_range = 0;
+        reportError(_("%s move on line %d would exceed %c's %s limit"),
+                    move_type, id, axis_name, _("positive"));
+    }
+
+    return in_range;
+}
+
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not.  It also reports an error for each joint limit
    violation.  It's possible to get more than one violation per move. */
@@ -205,6 +226,29 @@ static int inRange(EmcPose pos, int id, char *move_type)
     int joint_num;
     emcmot_joint_t *joint;
     int in_range = 1;
+
+    /* First, make sure our endpoint is inside the world volume */
+    
+    if(check_axis_constraint(pos.tran.x, id, move_type, 0, 'X') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.tran.y, id, move_type, 1, 'Y') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.tran.z, id, move_type, 2, 'Z') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.a, id, move_type, 3, 'A') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.b, id, move_type, 4, 'B') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.c, id, move_type, 5, 'C') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.u, id, move_type, 6, 'U') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.v, id, move_type, 7, 'V') == 0) 
+        in_range = 0;
+    if(check_axis_constraint(pos.w, id, move_type, 8, 'W') == 0) 
+        in_range = 0;
+
+    /* Now, check that the endpoint puts the joints within their limits too */
 
     /* fill in all joints with 0 */
     for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
