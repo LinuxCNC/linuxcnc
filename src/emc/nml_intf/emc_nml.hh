@@ -164,6 +164,8 @@ class EMC_AXIS_STAT:public EMC_AXIS_STAT_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
+    double minPositionLimit;
+    double maxPositionLimit;
     double velocity;		// current velocity
 };
 

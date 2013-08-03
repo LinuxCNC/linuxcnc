@@ -484,6 +484,8 @@ int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes)
         axis = &(emcmotStatus.axis_status[axis_num]);
 
         stat[axis_num].velocity = axis->vel_cmd;
+        stat[axis_num].minPositionLimit = axis->min_pos_limit;
+        stat[axis_num].maxPositionLimit = axis->max_pos_limit;
     }
     return 0;
 }
