@@ -785,7 +785,6 @@ static void set_operating_mode(void)
     int joint_num, axis_num;
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
-    joint_hal_t *joint_data;
     double positions[EMCMOT_MAX_JOINTS];
 
     /* check for disabling */
