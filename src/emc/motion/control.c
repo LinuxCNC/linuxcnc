@@ -1192,11 +1192,24 @@ static void get_pos_cmds(long period)
     case EMCMOT_MOTION_COORD:
 	/* check joint 0 to see if the interpolators are empty */
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
+            EmcPose old_carte_pos_cmd;
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
 	    tpRunCycle(&emcmotDebug->coord_tp, period);
 	    /* gt new commanded traj pos */
+            old_carte_pos_cmd = emcmotStatus->carte_pos_cmd;
 	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->coord_tp);
+
+            axes[0].vel_cmd = (emcmotStatus->carte_pos_cmd.tran.x - old_carte_pos_cmd.tran.x) * servo_freq;
+            axes[1].vel_cmd = (emcmotStatus->carte_pos_cmd.tran.y - old_carte_pos_cmd.tran.y) * servo_freq;
+            axes[2].vel_cmd = (emcmotStatus->carte_pos_cmd.tran.z - old_carte_pos_cmd.tran.z) * servo_freq;
+            axes[3].vel_cmd = (emcmotStatus->carte_pos_cmd.a - old_carte_pos_cmd.a) * servo_freq;
+            axes[4].vel_cmd = (emcmotStatus->carte_pos_cmd.b - old_carte_pos_cmd.b) * servo_freq;
+            axes[5].vel_cmd = (emcmotStatus->carte_pos_cmd.c - old_carte_pos_cmd.c) * servo_freq;
+            axes[6].vel_cmd = (emcmotStatus->carte_pos_cmd.u - old_carte_pos_cmd.u) * servo_freq;
+            axes[7].vel_cmd = (emcmotStatus->carte_pos_cmd.v - old_carte_pos_cmd.v) * servo_freq;
+            axes[8].vel_cmd = (emcmotStatus->carte_pos_cmd.w - old_carte_pos_cmd.w) * servo_freq;
+
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
