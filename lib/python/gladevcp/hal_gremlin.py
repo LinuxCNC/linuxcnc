@@ -68,12 +68,20 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         inifile = linuxcnc.ini(inifile)
         gremlin.Gremlin.__init__(self, inifile)
-
+        self._reload_filename = None
         self.gstat = GStat()
         self.gstat.connect('file-loaded', self.fileloaded)
+        self.gstat.connect('reload-display', self.reloadfile)
         self.show()
 
+    def reloadfile(self,w):
+        try:
+            self.fileloaded(None,self._reload_filename)
+        except:
+            pass
+
     def fileloaded(self,w,f):
+        self._reload_filename=f
         try:
             self._load(f)
         except AttributeError,detail:
