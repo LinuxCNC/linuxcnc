@@ -868,6 +868,9 @@ static void set_operating_mode(void)
             (&axes[3])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.a;
             (&axes[4])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.b;
             (&axes[5])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.c;
+            (&axes[6])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.u;
+            (&axes[7])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.v;
+            (&axes[8])->teleop_tp.curr_pos = emcmotStatus->carte_pos_cmd.w;
 	} else {
 	    /* not in position-- don't honor mode change */
 	    emcmotDebug->teleoperating = 0;
@@ -1257,6 +1260,9 @@ static void get_pos_cmds(long period)
         emcmotStatus->carte_pos_cmd.a = (&axes[3])->teleop_tp.curr_pos;
         emcmotStatus->carte_pos_cmd.b = (&axes[4])->teleop_tp.curr_pos;
         emcmotStatus->carte_pos_cmd.c = (&axes[5])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.u = (&axes[6])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.v = (&axes[7])->teleop_tp.curr_pos;
+        emcmotStatus->carte_pos_cmd.w = (&axes[8])->teleop_tp.curr_pos;
 
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
