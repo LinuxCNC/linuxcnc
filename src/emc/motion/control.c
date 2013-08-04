@@ -1185,6 +1185,7 @@ static void get_pos_cmds(long period)
     case EMCMOT_MOTION_COORD:
 	/* check joint 0 to see if the interpolators are empty */
 	while (cubicNeedNextPoint(&(joints[0].cubic))) {
+            EmcPose old_carte_pos_cmd;
 	    /* they're empty, pull next point(s) off Cartesian planner */
 	    /* run coordinated trajectory planning cycle */
 	    tpRunCycle(&emcmotDebug->coord_tp, period);
