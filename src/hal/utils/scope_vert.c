@@ -598,7 +598,7 @@ static void init_chan_info_window(void)
     gtk_misc_set_alignment(GTK_MISC(vert->readout_label), 0, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
     gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
-		    "f(99999.9999) = 99999.9999");
+		    "f(99999.9999) = 99999.9999 (ddt 99999.9999)");
 }
 
 static void init_vert_info_window(void)

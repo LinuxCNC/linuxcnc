@@ -80,6 +80,7 @@ static void conflict_reset(int height);
 static int DRAWING = 0;
 static int cursor_valid = 0;
 static double cursor_time = 0;
+static double cursor_prev_value = 0.;
 static double cursor_value = 0;
 
 void init_display(void)
@@ -544,9 +545,10 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
     return 1;
 }
 
-static int get_cursor_info(double *t, double *v) {
+static int get_cursor_info(double *t, double *p, double *v) {
     if(!cursor_valid) return 0;
     if(t) *t = cursor_time;
+    if(p) *p = cursor_prev_value;
     if(v) *v = cursor_value;
     return 1;
 }
@@ -618,19 +620,20 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     return TRUE;
 }
 
-#define TIPFORMAT "<tt>f(% 8.5f) = % 8.5f</tt>"
+#define TIPFORMAT "<tt>f(% 8.5f) = % 8.5f (ddt % 8.5f)</tt>"
 void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
+    scope_horiz_t *horiz = &(ctrl_usr->horiz);
     char tip[512];
     GdkRectangle r = {vert->readout_label->allocation.x,
             vert->readout_label->allocation.y,
             vert->readout_label->allocation.width,
             vert->readout_label->allocation.height};
     if(vert->selected != -1) {
-        double t=0, v=0;
-        int result = get_cursor_info(&t, &v);
+        double t=0, p=0, v=0;
+        int result = get_cursor_info(&t, &p, &v);
         if(result > 0) { 
-            snprintf(tip, sizeof(tip), TIPFORMAT, t, v);
+            snprintf(tip, sizeof(tip), TIPFORMAT, t, v, (v - p)/horiz->sample_period);
         } else { 
 	    strcpy(tip, "");
         }
@@ -773,7 +776,7 @@ void draw_waveform(int chan_num, int highlight)
     scope_disp_t *disp;
     scope_chan_t *chan;
     double xscale, xoffset;
-    double yscale, yfoffset, ypoffset, fy;
+    double yscale, yfoffset, ypoffset, fy, prev_fy = 0.;
     hal_type_t type;
     int x1, y1, x2, y2, miny, maxy, midx, ct, pn;
     GdkPoint *points;
@@ -878,6 +881,7 @@ void draw_waveform(int chan_num, int highlight)
 		    first = 0;
 		    gdk_draw_arc(disp->win, disp->context, TRUE,
 				x2-3, y2-3, 7, 7, 0, 360*64);
+                    cursor_prev_value = prev_fy;
                     cursor_value = fy;
                     cursor_time = (n - ctrl_shm->pre_trig)*horiz->sample_period;
                     cursor_valid = 1;
@@ -890,6 +894,7 @@ void draw_waveform(int chan_num, int highlight)
 	/* point to next sample */
 	dptr += sample_len;
 	n++;
+        prev_fy = fy;
     }
     if(pn) {
         lines(chan_num, points, pn);
