@@ -124,6 +124,14 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
     pos->tran.z = (-b - sqrt(d)) / (2 * a);
     pos->tran.x = (a1 * pos->tran.z + b1) / denom;
     pos->tran.y = (a2 * pos->tran.z + b2) / denom;
+
+    pos->a = joints[3];
+    pos->b = joints[4];
+    pos->c = joints[5];
+    pos->u = joints[6];
+    pos->v = joints[7];
+    pos->w = joints[8];
+
     return 0;
 }
 
@@ -167,6 +175,13 @@ static int kinematics_inverse(const EmcPose *pos, double *joints) {
     xr = pos->tran.x; yr = pos->tran.y;
     rotate(&xr, &yr, 2*M_PI/3);
     if(inverse_j0(xr, yr, pos->tran.z, &joints[2])) return -1;
+
+    joints[3] = pos->a;
+    joints[4] = pos->b;
+    joints[5] = pos->c;
+    joints[6] = pos->u;
+    joints[7] = pos->v;
+    joints[8] = pos->w;
 
     return 0;
 }
