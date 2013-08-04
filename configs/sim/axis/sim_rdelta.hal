@@ -13,6 +13,13 @@ net J0pos joint.0.motor-pos-cmd => joint.0.motor-pos-fb
 net J1pos joint.1.motor-pos-cmd => joint.1.motor-pos-fb
 net J2pos joint.2.motor-pos-cmd => joint.2.motor-pos-fb
 
+net J3pos joint.3.motor-pos-cmd => joint.3.motor-pos-fb
+net J4pos joint.4.motor-pos-cmd => joint.4.motor-pos-fb
+net J5pos joint.5.motor-pos-cmd => joint.5.motor-pos-fb
+net J6pos joint.6.motor-pos-cmd => joint.6.motor-pos-fb
+net J7pos joint.7.motor-pos-cmd => joint.7.motor-pos-fb
+net J8pos joint.8.motor-pos-cmd => joint.8.motor-pos-fb
+
 net J0cmd joint.0.pos-cmd => rotarydelta.joint0
 net J1cmd joint.1.pos-cmd => rotarydelta.joint1
 net J2cmd joint.2.pos-cmd => rotarydelta.joint2
