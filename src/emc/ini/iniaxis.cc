@@ -43,8 +43,6 @@
 
   calls:
 
-  emcAxisSetAxis(int axis, unsigned char axisType);
-  emcAxisSetUnits(int axis, double units);
   emcAxisSetMinPositionLimit(int axis, double limit);
   emcAxisSetMaxPositionLimit(int axis, double limit);
   emcAxisSetMaxVelocity(int axis, double vel);
@@ -54,7 +52,6 @@
 static int loadAxis(int axis, EmcIniFile *axisIniFile)
 {
     char axisString[16];
-    int axisType=0;
     double limit;
     double home;
     double maxVelocity;
@@ -62,15 +59,15 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
 
     // compose string to match, axis = 0 -> AXIS_X etc.
     switch (axis) {
-	case 0: sprintf(axisString, "AXIS_X");axisType=EMC_LINEAR;break;
-	case 1: sprintf(axisString, "AXIS_Y");axisType=EMC_LINEAR;break;
-	case 2: sprintf(axisString, "AXIS_Z");axisType=EMC_LINEAR;break;
-	case 3: sprintf(axisString, "AXIS_A");axisType=EMC_ANGULAR;break;
-	case 4: sprintf(axisString, "AXIS_B");axisType=EMC_ANGULAR;break;
-	case 5: sprintf(axisString, "AXIS_C");axisType=EMC_ANGULAR;break;
-	case 6: sprintf(axisString, "AXIS_U");axisType=EMC_LINEAR;break;
-	case 7: sprintf(axisString, "AXIS_V");axisType=EMC_LINEAR;break;
-	case 8: sprintf(axisString, "AXIS_W");axisType=EMC_LINEAR;break;
+	case 0: sprintf(axisString, "AXIS_X"); break;
+	case 1: sprintf(axisString, "AXIS_Y"); break;
+	case 2: sprintf(axisString, "AXIS_Z"); break;
+	case 3: sprintf(axisString, "AXIS_A"); break;
+	case 4: sprintf(axisString, "AXIS_B"); break;
+	case 5: sprintf(axisString, "AXIS_C"); break;
+	case 6: sprintf(axisString, "AXIS_U"); break;
+	case 7: sprintf(axisString, "AXIS_V"); break;
+	case 8: sprintf(axisString, "AXIS_W"); break;
     }
 
     axisIniFile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
