@@ -3834,6 +3834,8 @@ static void  __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void)
 {
     // detach the HAL data segment
     hal_rtapi_detach();
+    // shut down ULAPI
+    ulapi_cleanup();
 }
 #endif
 

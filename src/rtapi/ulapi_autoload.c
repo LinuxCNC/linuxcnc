@@ -301,20 +301,28 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
     return 0;
 }
 
-//  ULAPI-side cleanup. Called at shared library unload time.
-void __attribute__((destructor)) ulapi_cleanup(void)
+//  ULAPI cleanup. Call the exit handler and unload ulapi-<flavor>.so.
+void ulapi_cleanup(void)
 {
     rtapi_print_msg(RTAPI_MSG_DBG, "_ulapi_cleanup():\n");
 
+    // call the ulapi exit handler
     // detach the rtapi shm segment as needed
-    if (ulapi_exit_ref)
+    // (some flavors do not employ an rtapi shm segment)
+    if (ulapi_exit_ref) {
 	ulapi_exit_ref(rtapi_instance);
-
+	ulapi_exit_ref = NULL;
+    }
     // NB: we do not detach the global segment
 
     // unload ulapi shared object.
-    if (ulapi_so)
+    if (ulapi_so){
 	dlclose(ulapi_so);
+	ulapi_so = NULL;
+    }
+    // reset rtapi_switch to make the code
+    // serially reusable
+    rtapi_switch = &dummy_ulapi_switch_struct;
 }
 
 #endif // ULAPI
