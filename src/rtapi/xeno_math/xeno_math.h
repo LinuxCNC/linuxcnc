@@ -27,10 +27,11 @@
 #define	_XENO_MATH_H	1
 #define _MATH_H         1
 
-//LIBMSRCS= s_floor.c w_pow.c s_frexp.c s_fabs.c      	e_pow.c e_sqrt.c s_scalbn.c s_copysign.c
+//LIBMSRCS= s_floor.c w_pow.c s_frexp.c s_fabs.c      	e_pow.c e_sqrt.c s_scalbn.c s_copysign.c s_ceil.c
 extern 	double fabs(double x);
 extern 	double frexp(double x, int *eptr);
 extern 	double floor(double x);
+extern 	double ceil(double x);
 extern 	double pow(double x, double y);
 extern 	double __ieee754_sqrt(double x);
 

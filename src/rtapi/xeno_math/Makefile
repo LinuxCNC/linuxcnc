@@ -20,6 +20,7 @@ xeno_math-objs += s_fabs.o
 xeno_math-objs += e_sqrt.o 
 xeno_math-objs += s_scalbn.o 
 xeno_math-objs += s_copysign.o
+xeno_math-objs += s_ceil.o
 
 # take here if you need more
 
@@ -40,7 +41,7 @@ xeno_math-objs += s_copysign.o
 # xeno_math-objs += k_sin.o
 # xeno_math-objs += k_tan.o
 # xeno_math-objs += s_atan.o
-# xeno_math-objs += s_ceil.o
+
 # xeno_math-objs += s_copysign.o
 # xeno_math-objs += s_cos.o
 # xeno_math-objs += s_expm1.o
