@@ -25,6 +25,9 @@ realtime stop
 LOG=realtime.log
 retval=0
 
+# clean up after previous runs
+test -f ${LOG}.* && rm -f ${LOG}.*
+
 TEST_PATTERN=0
 while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
 
@@ -39,12 +42,24 @@ while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
 
     realtime stop
 
-    if [ `egrep -e "${Error[$TEST_PATTERN]}" realtime.log | wc -l` != 1 ] ; then 
-	echo failed test $TEST_PATTERN: pattern "'${Error[$TEST_PATTERN]}'" not found
+    if [ `egrep -e "${Error[$TEST_PATTERN]}" realtime.log | wc -l` != 1 ]; then 
+	echo failed test $TEST_PATTERN: pattern not found:
+	echo     "${Error[$TEST_PATTERN]}"
 	cp $LOG ${LOG}.$TEST_PATTERN # save logs from errored tests
 	retval=1
     fi
     TEST_PATTERN=$(($TEST_PATTERN+1))
 done
 rm -f $LOG
+
+# if there's a failure, dump the log to stdout for debugging in buildbot
+if test $retval = 1; then
+    for f in ${LOG}.*; do
+	echo "************************************************************"
+	echo "Failed test logfile $f:"
+	cat $f
+	echo
+    done
+fi
+
 exit $retval
