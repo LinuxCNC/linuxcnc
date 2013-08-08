@@ -95,13 +95,16 @@ done
 
 
 
-# wait for a list of pids to all exit
+# wait for a pid to exit
 anywait(){
-    for pid in "$@"; do
-        while kill -0 "$pid" >/dev/null 2>&1 ; do
-            sleep 0.5
-        done
+    pid=$1
+    for (( n=0; $n<20; $((n++)) )); do
+	# return success if process died
+	kill -0 "$pid" >/dev/null 2>&1 || return 0
+	# otherwise, wait 1/2 second and try again, up to 10 seconds
+	sleep 0.5
     done
+    return 1
 }
 
 CheckStatus(){
@@ -261,8 +264,15 @@ Unload(){
     # and get nasty only if it didnt
     MSGD_PID=`$PIDOF msgd:$INSTANCE`
     if [ "$MSGD_PID" != "" ] ; then
-	kill $MSGD_PID
-	anywait $MSGD_PID
+	kill -TERM $MSGD_PID
+	# ...and get even nastier if SIGTERM fails.  FIXME this needs
+	# to be reviewed; if we get this far, then we might need
+	# operator intervention, including debugging
+	if ! anywait $MSGD_PID; then
+	    echo "ERROR:  msgd:$INSTANCE failed to exit after SIGTERM;" >&2
+	    echo "sending SIGKILL" >&2
+	    kill -KILL $MSGD_PID
+	fi
     fi
 
     for module in $MODULES_UNLOAD ; do
