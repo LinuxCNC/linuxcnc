@@ -55,8 +55,8 @@ int main(int argc, char **argv)
 	 fprintf(stderr, "cannot attach global segment key=0x%x %s\n",
 		globalkey, strerror(-retval));
 
-    if (MMAP_OK(global_data) && (global_data->magic != GLOBAL_MAGIC)) {
-	printf("global_data MAGIC wrong: %x %x\n", global_data->magic, GLOBAL_MAGIC);
+    if (MMAP_OK(global_data) && (global_data->magic != GLOBAL_READY)) {
+	printf("global_data MAGIC wrong: %x %x\n", global_data->magic, GLOBAL_READY);
     }
 
     size = sizeof(rtapi_data_t);
