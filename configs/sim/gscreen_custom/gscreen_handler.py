@@ -73,5 +73,25 @@ class HandlerClass:
         self.gscreen.audio.run()
         self.gscreen.on_hide_cursor(None)
 
+    # every 100 milli seconds this gets called
+    # we add calls to the regular functions for the widgets we are using.
+    # and add any extra calls/code 
+    def periodic(self):
+        self.gscreen.update_mdi_spindle_button()
+        self.gscreen.update_spindle_bar()
+        self.gscreen.update_active_gcodes()
+        self.gscreen.update_active_mcodes()
+        self.gscreen.update_aux_coolant_pins()
+        self.gscreen.update_feed_speed_label()
+        self.gscreen.update_tool_label()
+        self.gscreen.update_coolant_leds()
+        self.gscreen.update_estop_led()
+        self.gscreen.update_machine_on_led()
+        self.gscreen.update_limit_override()
+        self.gscreen.update_override_label()
+        self.gscreen.update_jog_rate_label()
+        self.gscreen.update_mode_label()
+        self.gscreen.update_units_button_label()
+
 def get_handlers(halcomp,builder,useropts,gscreen):
      return [HandlerClass(halcomp,builder,useropts,gscreen)]
