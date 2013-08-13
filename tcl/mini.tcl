@@ -3945,17 +3945,17 @@ proc redraw {args} {
        set zoom [ expr $zoom+1]
    }
 
-    if { [emc_program_status] == "running" } {
-        set statusflag 1
-    # If emc is running, issue a pause command
-    # and wait until IDLE status is reached.
-        emc_pause
-    while { [emc_program_status] == "running" } {
-        # Just loop until paused
-    }
-    } else {
-        set statusflag 0
-    }
+    # if { [emc_program_status] == "running" } {
+    #     set statusflag 1
+    # # If emc is running, issue a pause command
+    # # and wait until IDLE status is reached.
+    #     emc_pause
+    # while { [emc_program_status] == "running" } {
+    #     # Just loop until paused
+    # }
+    # } else {
+    #     set statusflag 0
+    # }
     # time the redraw proc
     set timer [clock clicks]
 
@@ -3994,9 +3994,9 @@ proc redraw {args} {
 
     set timer [expr ([clock clicks] - $timer)/$ticks]
     # If emc was forced to pause - restart.
-    if {$statusflag == 1} {
-        emc_resume
-    }
+    # if {$statusflag == 1} {
+    #     emc_resume
+    # }
 }
 
 proc updatePlot {} {
