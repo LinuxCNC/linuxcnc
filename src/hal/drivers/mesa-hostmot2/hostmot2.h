@@ -345,9 +345,9 @@ typedef struct {
 
     } hal;
     
-    long long accum;
-    long long offset;
-    u32 old_reg;
+    __s64 accum;
+    __s64 offset;
+    __u32 old_reg;
 
 } hm2_resolver_instance_t;
 
