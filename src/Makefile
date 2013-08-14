@@ -1258,7 +1258,7 @@ $(RTLIBDIR)/%.so:
 	$(Q)ld -r -o $(OBJDIR)/$*.tmp $^
 	@if ! $(IS_POWERPC); then objcopy -j .rtapi_export -O binary \
 	    $(OBJDIR)/$*.tmp $(OBJDIR)/$*.exp; fi
-	@if ! $(IS_POWERPC); then objcopy -G __i686.get_pc_thunk.bx \
+	@if ! $(IS_POWERPC); then objcopy  -G __x86.get_pc_thunk.bx -G __i686.get_pc_thunk.bx \
 	    `xargs -r0n1 echo -G < $(OBJDIR)/$*.exp | grep -ve '^-G $$' | \
 	        sort -u` $(OBJDIR)/$*.tmp; fi
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ $(OBJDIR)/$*.tmp \
