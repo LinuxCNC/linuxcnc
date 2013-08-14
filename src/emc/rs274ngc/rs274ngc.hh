@@ -89,7 +89,7 @@ typedef int (Interp::*read_function_pointer) (char *, int *, block_pointer, doub
 #define logNP(fmt, args...)     _logDebug(EMC_DEBUG_NAMEDPARAM,0,1,fmt, ## args)
 
 // log always
-#define Log(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,LOG_PID|LOG_FILENAME,-1,fmt, ## args)
+#define Log(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,LOG_PROCESSID|LOG_FILENAME,-1,fmt, ## args)
 #define Error(fmt, args...)       _logDebug(EMC_DEBUG_UNCONDITIONAL,0,-1,fmt, ## args)
 
 

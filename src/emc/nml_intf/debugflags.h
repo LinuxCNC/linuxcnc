@@ -28,5 +28,5 @@
 						 */
 // debug prefix flags
 #define LOG_TIME  1
-#define LOG_PID   2
+#define LOG_PROCESSID   2
 #define LOG_FILENAME 4 // and line

@@ -176,7 +176,7 @@ void Interp::doLog(unsigned int flags, const char *file, int line,
 		tm->tm_hour, tm->tm_min, tm->tm_sec,
 		tv.tv_usec/1000);
     }
-    if (flags & LOG_PID) {
+    if (flags & LOG_PROCESSID) {
 	fprintf(log_file, "%4d ",getpid());
     }
     if (flags & LOG_FILENAME) {
