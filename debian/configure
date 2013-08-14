@@ -146,27 +146,27 @@ fi
 
 case $DISTRIB_NAME in
 Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-11.04) # natty
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-10.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-9.10)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish
 	TCLTK_VERSION=8.5
 	;;
 Ubuntu-8.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish
 	TCLTK_VERSION=8.4
 	;;
 Debian-testing|Debian-[67].0*)
@@ -313,7 +313,7 @@ else
     subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
 fi
 
-DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,de,es,pl})
+DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es})
 for P in $DOCS_PACKAGES; do
     if [ -f $EXTRAS/$P.files ]; then
         cat $P.files.in $EXTRAS/$P.files > $P.files

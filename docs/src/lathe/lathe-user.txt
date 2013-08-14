@@ -82,9 +82,15 @@ image::images/tool_pos_8.png[]
 == Tool Touch Off
 
 When running in lathe mode in AXIS you can set the X and Z in the tool
-table using the Touch Off window.
+table using the Touch Off window. If you have a tool turret you normally
+have 'Touch off to fixture' selected when setting up your turret. When
+setting the material Z zero you have 'Touch off to material' selected.
+For more information on the G codes used for tools see
+<<sec:M6-Tool-Change,M6>>, <<sec:T-Select-Tool,Tn>>, and <<sec:G43,G43>>.
+For more information on tool touch off options in Axis see 
+<<sec:tool-touch-off,Tool Touch Off>>.
 
-=== The X Tool Offset
+=== X Touch Off
 
 The X axis offset for each tool is normally an offset 
 from the center line of the spindle.
@@ -105,7 +111,7 @@ so the current tool is the current offset.
 A typical session might be:
 
  . Home each axis if not homed.
- . Set the current tool with "Tn M6" where "n" is the tool number.
+ . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
  . Select the X axis in the Manual Control window.
  . Move the X to a known position or take a test cut and measure the diameter. 
  . Select Touch Off and pick Tool Table then enter the position or the diameter. 
@@ -113,7 +119,7 @@ A typical session might be:
 
 Note: if you are in Radius Mode you must enter the radius, not the diameter. 
 
-=== The Z Tool Offset
+=== Z Touch Off
 
 The Z axis offsets can be a bit confusing at first 
 because there are two elements to the Z offset. 
@@ -129,7 +135,7 @@ A typical session might be:
 
  . Home each axis if not homed.
  . Make sure no offsets are in effect for the current coordinate system.
- . Set the current tool with "TnM6" where "n" is the tool number.
+ . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
  . Select the Z axis in the Manual Control window.
  . Bring the tool close to the control surface. Using a cylinder move the
    Z away from the control surface until the cylinder just passes between

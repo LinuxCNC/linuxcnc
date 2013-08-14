@@ -1,3 +1,33 @@
+linuxcnc (1:2.5.3) lucid; urgency=low
+
+  * AXIS: fix disable/enable of the toolbar's reload button
+  * BUILD: fix linking on 32 bit x86 debian 7.1
+  * Configs: use names= everywhere to make the sim configs clearer
+  * Docs: Many improvements
+  * HAL: clarkeinv: allow rotation of the input vector
+  * HAL: sim_pin: add support for u32, s32, float types
+  * HAL: abs_s32: don't unnecessarily require floating point
+  * HAL: comp: fix option userinit
+  * HAL: comp: improve handling of build failures and error reporting
+  * HAL: twopass: improve error reporting
+  * Hostmot2: fix smart serial port shutdown
+  * Interpreter: Fix bug 315 part 2, O-call through named parameter
+  * Kins: replace 5axiskins.c, used by a sample config
+  * Kins: 5axiskins: remove misleading tool-length pin
+  * Motion: allow for floating point in the base thread
+  * PPMC: add encoder timestamp velocity estimation
+  * PPMC: selectable encoder filter clock
+  * PyVCP: fix several behaviors in the dial widget
+  * Task: fix MDI-queueing problems
+  * USC: new sample config for Pico USC with encoders
+  * linuxcncrsh: many stability fixes
+  * pncconf: fix 5i25 GPIO numbering
+  * pncconf: fix default PDM rate
+  * pncconf: fix open loop test
+  * pncconf: fix incorrect zh_CN translation which broke millimeter mode
+
+ -- Chris Radek <chris@timeguy.com>  Tue, 23 Jul 2013 12:34:46 -0500
+
 linuxcnc (1:2.5.2) lucid; urgency=low
 
   * AXIS: Allow the setting of the top end of the Max Velocity slider

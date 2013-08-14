@@ -5,7 +5,7 @@ rm -f sim.var
 
 # reset the tool table to a known starting configuration
 rm -f simpockets.tbl
-cp ../simpockets.tbl.orig simpockets.tbl
+cp ../../simpockets.tbl.orig simpockets.tbl
 
 rm -f gcode-output
 

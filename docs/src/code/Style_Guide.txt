@@ -32,7 +32,9 @@ Put the opening brace last on the line, and put the closing brace first:
 
 [source,c]
 ----
-if(x) { 
+if (x) {
+    // do something appropriate
+}
 ----
 
 The closing brace is on a line of its own, except in the cases where
@@ -42,13 +44,21 @@ in a do-statement or an 'else' in an if-statement, like this:
 [source,c]
 ----
 do {
+    // something important
+} while (x > 0);
 ----
 
 and
 
 [source,c]
 ----
-if(x == y) { 
+if (x == y) {
+    // do one thing
+} else if (x < y) {
+    // do another thing
+} else {
+    // do a third thing
+}
 ----
 
 This brace-placement also minimizes the number of empty (or almost

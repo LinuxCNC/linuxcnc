@@ -1831,7 +1831,7 @@ void START_CHANGE()
     interp_list.append(emc_start_change_msg);
 }
 
-/* CHANGE_TOOL results from M6, for example */
+/* CHANGE_TOOL results from M6 */
 void CHANGE_TOOL(int slot)
 {
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
@@ -1891,7 +1891,7 @@ void CHANGE_TOOL(int slot)
     interp_list.append(load_tool_msg);
 }
 
-/* SELECT_POCKET results from T1, for example */
+/* SELECT_POCKET results from Tn */
 void SELECT_POCKET(int slot , int tool)
 {
     EMC_TOOL_PREPARE prep_for_tool_msg;
@@ -1902,12 +1902,12 @@ void SELECT_POCKET(int slot , int tool)
     interp_list.append(prep_for_tool_msg);
 }
 
-/* CHANGE_TOOL_NUMBER results from M61, for example */
-void CHANGE_TOOL_NUMBER(int number)
+/* CHANGE_TOOL_NUMBER results from M61 */
+void CHANGE_TOOL_NUMBER(int pocket_number)
 {
     EMC_TOOL_SET_NUMBER emc_tool_set_number_msg;
     
-    emc_tool_set_number_msg.tool = number;
+    emc_tool_set_number_msg.tool = pocket_number;
 
     interp_list.append(emc_tool_set_number_msg);
 }

@@ -22,6 +22,7 @@
 # set the text formatting for metric/imperial separately
 
 import sys, os, pango, linuxcnc
+from hal_glib import GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
 AXISLIST = ['offset','X','Y','Z','A','B','C','U','V','W','name']
 # we need to know if linuxcnc isn't running when using the GLADE editor
@@ -72,6 +73,7 @@ class OffsetPage(gtk.VBox):
 
     def __init__(self,filename=None, *a, **kw):
         super(OffsetPage, self).__init__()
+        self.gstat = GStat()
         self.filename = filename
         self.linuxcnc = linuxcnc
         self.status = linuxcnc.stat()
@@ -358,9 +360,11 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
                 self.cmd.wait_complete()
+                self.gstat.emit('reload-display')
         except:
             print "offsetpage widget error: MDI call error"
             self.reload_offsets()
+
 
     # callback to cancel G92 when button pressed
     def zero_g92(self,widget):
@@ -375,6 +379,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
                 self.cmd.wait_complete()
+                self.gstat.emit('reload-display')
             except:
                 print "MDI error in offsetpage widget -zero G92"
 
@@ -391,6 +396,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.cmd.mode(self.linuxcnc.MODE_MDI)
                 self.cmd.wait_complete()
+                self.gstat.emit('reload-display')
             except:
                 print "MDI error in offsetpage widget-zero rotational offset"
 
@@ -488,8 +494,11 @@ class OffsetPage(gtk.VBox):
     # For single click selection when in edit mode
     def on_treeview2_button_press_event(self,widget,event):
         if event.button == 1 : # left click
-            path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
-            self.view2.set_cursor(path,None,True)
+            try:
+                path,model,x,y = widget.get_path_at_pos(int(event.x), int(event.y))
+                self.view2.set_cursor(path,None,True)
+            except:
+                pass
 
     # standard Gobject method
     def do_get_property(self, property):

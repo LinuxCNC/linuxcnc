@@ -106,7 +106,8 @@ from gscreen import preferences
 pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
 color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
-
+# to help with debugging new screens
+verbose_debug = False
 # print debug messages if debug is true
 gscreen_debug = False
 def dbg(str):
@@ -139,7 +140,7 @@ X = 0;Y = 1;Z = 2;A = 3;B = 4;C = 5;U = 6;V = 7;W = 8
 _ABS = 0;_REL = 1;_DTG = 2
 _MAN = 0;_MDI = 1;_AUTO = 2
 _MM = 1;_IMPERIAL = 0
-_SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3
+_SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3;_DEGREE_INPUT = 4
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
@@ -200,6 +201,7 @@ class Data:
         self.window_geometry = ""
         self.window_max = ""
         self.axis_list = []
+        self.rotary_joints = False
         self.active_axis_buttons = [(None,None)] # axis letter,axis number
         self.abs_color = (0, 65535, 0)
         self.rel_color = (65535, 0, 0)
@@ -237,13 +239,18 @@ class Data:
         self.op_stop = False
         self.block_del = False
         self.all_homed = False
+
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
         self.jog_increments = ['.001 in ,.01 in ,.1 in']
         self.current_jogincr_index = 0
-        self.angular_jog_rate = 15
-        self.angular_jog_rate_max = 360
+        self.angular_jog_adjustment_flag = False
+        self.angular_jog_increments = []
+        self.angular_jog_rate = 1800
+        self.angular_jog_rate_inc = 60
+        self.angular_jog_rate_max = 7200
+        self.current_angular_jogincr_index = 0
         self.feed_override = 1.0
         self.feed_override_inc = .05
         self.feed_override_max = 2.0
@@ -277,7 +284,9 @@ class Data:
         self.error_sound  = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
         self.ob = None
         self.index_tool_dialog = None
+        self.keyboard_dialog = None
         self.preset_spindle_dialog = None
+        self.spindle_control_dialog = None
         self.entry_dialog = None
         self.restart_dialog = None
         self.key_event_last = None,0
@@ -376,6 +385,7 @@ class Gscreen:
         global xmlname
         global xmlname2
         global gscreen_debug
+        global verbose_debug
         skinname = "gscreen"
         self.inipath = sys.argv[2]
         (progdir, progname) = os.path.split(sys.argv[0])
@@ -390,6 +400,7 @@ class Gscreen:
                 except:
                     pass
             if temp == '-d': gscreen_debug = True
+            if temp == '-v': verbose_debug = True
 
         # check for a local translation folder
         locallocale = os.path.join(CONFIGPATH,"locale")
@@ -455,7 +466,11 @@ class Gscreen:
             if letter.lower() in self.data.axis_list: continue
             if not letter.lower() in ["x","y","z","a","b","c","u","v","w"]: continue
             self.data.axis_list.append(letter.lower())
-
+        # check for rotary joints
+        for i in("a","b","c"):
+            if i in self.data.axis_list:
+                self.data.rotary_joints = True
+                break
         # check the ini file if UNITS are set to mm"
         # first check the global settings
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
@@ -527,6 +542,19 @@ class Gscreen:
                 self.data.jog_increments = [".001 in",".01 in",".1 in","continuous"]
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
 
+        # angular jogging increments
+        increments = self.inifile.find("DISPLAY", "ANGULAR_INCREMENTS")
+        if increments:
+            if not "continuous" in increments:
+                increments +=",continuous"
+            if "," in increments:
+                self.data.angular_jog_increments = [i.strip() for i in increments.split(",")]
+            else:
+                self.data.angular_jog_increments = increments.split()
+        else:
+            self.data.angular_jog_increments = ["1","45","180","360","continuous"]
+            self.add_alarm_entry(_("No default angular jog increments entry found in [DISPLAY] of INI file"))
+
         # set default jog rate
         # must convert from INI's units per second to gscreen's units per minute
         temp = self.inifile.find("DISPLAY","DEFAULT_LINEAR_VELOCITY")
@@ -536,7 +564,7 @@ class Gscreen:
             temp = self.data.jog_rate
             self.add_alarm_entry(_("No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
         self.data.jog_rate = float(temp)
-        self.emc.continuous_jog_velocity(float(temp))
+        self.emc.continuous_jog_velocity(float(temp),None)
 
         # set max jog rate
         # must convert from INI's units per second to gscreen's units per minute
@@ -567,6 +595,7 @@ class Gscreen:
                 temp = self.data.angular_jog_rate
                 self.add_alarm_entry(_("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal default of %s"%temp))
             self.data.angular_jog_rate = float(temp)
+            self.emc.continuous_jog_velocity(None,float(temp))
 
             # set default angular jog rate
             # must convert from INI's units per second to gscreen's units per minute
@@ -769,13 +798,48 @@ class Gscreen:
 
         self.init_state()
 
+    def show_try_errors(self):
+        global verbose_debug
+        if verbose_debug:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            formatted_lines = traceback.format_exc().splitlines()
+            print
+            print "****Gscreen verbose debugging:",formatted_lines[0]
+            traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
+            print formatted_lines[-1]
+
     def init_axis_frames(self):
         temp = self.data.axis_list
-        if "a" in temp:
-            self.widgets.frame3.show()
-            self.widgets.image6.hide() # make more room for axis display
-        if "y" in temp:
-            self.widgets.frame2.show()
+        try:
+            if "a" in temp:
+                self.widgets.frame_a.show()
+                self.widgets.image6.hide() # make more room for axis display
+        except:
+            self.show_try_errors()
+        try:
+            if "b" in temp:
+                self.widgets.frame_b.show()
+                self.widgets.image6.hide() # make more room for axis display
+        except:
+            self.show_try_errors()
+        try:
+            if "c" in temp:
+                self.widgets.frame_c.show()
+                self.widgets.image6.hide() # make more room for axis display
+        except:
+            self.show_try_errors()
+        try:
+            if "y" in temp:
+                self.widgets.frame_y.show()
+        except:
+            self.show_try_errors()
+        if self.data.rotary_joints:
+            try:
+                self.widgets.button_select_rotary_adjust.show()
+                self.widgets.angular_jog_increments.show()
+                self.widgets.angular_jog_rate.show()
+            except:
+                self.show_try_errors()
 
     def init_dro_colors(self):
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
@@ -880,7 +944,7 @@ class Gscreen:
         if "max" in self.data.window_geometry:
 		    self.widgets.window1.maximize()
         elif self.data.window_geometry == "default":
-            pass
+            self.show_try_errors()
         else:
             good = self.widgets.window1.parse_geometry(self.data.window_geometry)
             if self.data.window_max:
@@ -915,7 +979,7 @@ class Gscreen:
 
     # buttons that need to be sensitive based on the machine being on or off
     def init_sensitive_on_off(self):
-        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame5","button_mode","button_restart"]
+        self.data.sensitive_on_off = ["vmode0","mode0","mode1","button_homing","button_override","button_graphics","frame_s","button_mode","button_restart"]
         for axis in self.data.axis_list:
             self.data.sensitive_on_off.append("axis_%s"% axis)
 
@@ -956,8 +1020,19 @@ class Gscreen:
         for num,i in enumerate(self.data.jog_increments):
             if i == "continuous": break
         self.data.current_jogincr_index = num
-        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
-        self.widgets.jog_increment.set_text(jogincr)
+        try:
+            jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+            self.widgets.jog_increments.set_text(jogincr)
+        except:
+            self.show_try_errors()
+        try:
+            for num,i in enumerate(self.data.angular_jog_increments):
+                if i == "continuous": break
+            self.data.current_angular_jogincr_index = num
+            jogincr = self.data.angular_jog_increments[self.data.current_angular_jogincr_index]
+            self.widgets.angular_jog_increments.set_text(jogincr)
+        except:
+            self.show_try_errors()
         self.on_hal_status_state_off(None)
         self.add_alarm_entry(_("Control powered up and initialized"))
 
@@ -1020,6 +1095,13 @@ class Gscreen:
             self.data['change-tool'].connect('value-changed', self.on_tool_change)
 
 # *** GLADE callbacks ****
+
+    def on_button_spindle_controls_clicked(self,widget):
+        self.spindle_dialog()
+
+    def on_button_select_rotary_adjust_clicked(self,widget):
+        self.data.angular_jog_adjustment_flag = widget.get_active()
+        print self.data.angular_jog_adjustment_flag
 
     def search_fwd(self,widget):
         self.widgets.gcode_view.text_search(direction=True,text=self.widgets.search_entry.get_text())
@@ -1088,11 +1170,10 @@ class Gscreen:
         h = self.halcomp
         if not h["cycle-start"]: return
         if self.data.mode_order[0] == _AUTO:
-            print "run program"
+            self.add_alarm_entry(_("Cycle start pressed in AUTO mode"))
             self.widgets.hal_toggleaction_run.emit('activate')
-            #self.emc.cycle_start()
         elif self.data.mode_order[0] == _MDI:
-            print "run MDI"
+            self.add_alarm_entry(_("Cycle start pressed in MDI mode"))
             self.widgets.hal_mdihistory.submit()
 
     def on_abort_changed(self,hal_object):
@@ -1353,7 +1434,11 @@ class Gscreen:
                 if self.widgets["axis_%s"%axis].get_active():
                     print "set %s axis" %axis
                     if not axis == "s":
-                        self.mdi_control.set_axis(axis,self.get_qualified_input(value))
+                        if axis in('a','b','c'):
+                            pos = self.get_qualified_input(value,switch=_DEGREE_INPUT)
+                        else:
+                            pos = self.get_qualified_input(value)
+                        self.mdi_control.set_axis(axis,pos)
                         self.reload_plot()
         widget.destroy()
         self.data.entry_dialog = None
@@ -1367,7 +1452,11 @@ class Gscreen:
             for axis in self.data.axis_list:
                 if self.widgets["axis_%s"%axis].get_active():
                     print "tool %d, set in %s axis to- %f" %(self.data.tool_in_spindle,axis,value)
-                    self.mdi_control.touchoff(self.data.tool_in_spindle,axis,self.get_qualified_input(value))
+                    if axis in('a','b','c'):
+                        pos = self.get_qualified_input(value,switch=_DEGREE_INPUT)
+                    else:
+                        pos = self.get_qualified_input(value)
+                    self.mdi_control.touchoff(self.data.tool_in_spindle,axis,pos)
         widget.destroy()
         self.data.entry_dialog = None
 
@@ -1775,6 +1864,22 @@ class Gscreen:
 
 # ****** do stuff *****
 
+    def spindle_dialog(self):
+        if not self.data.spindle_control_dialog:
+            self.data.spindle_control_dialog = gtk.Dialog(_("Manual Spindle Control"),
+                   self.widgets.window1,
+                   gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CLOSE, gtk.RESPONSE_REJECT))
+            self.data.spindle_control_dialog.vbox.add(self.widgets.frame_s)
+            self.data.spindle_control_dialog.parse_geometry("200x200")
+            self.data.spindle_control_dialog.connect("delete_event", self.spindle_dialog_return)
+            self.data.spindle_control_dialog.connect("response",  self.spindle_dialog_return)
+        self.data.spindle_control_dialog.show_all()
+
+    def spindle_dialog_return(self,widget,signal):
+        self.data.spindle_control_dialog.hide()
+        return True
+
     def update_restart_line(self,line,reset_line):
         if "set_restart_line" in dir(self.handler_instance):
             self.handler_instance.set_restart_line(line,reset_line)
@@ -1802,11 +1907,35 @@ class Gscreen:
         self.prefs.putpref('desktop_notify', data, bool)
 
     # shows 'Onboard' virtual keyboard if available
-    # check for key_box widget - if there, embed Onboard in it.
-    # else launch an independant Onboard
+    # check for key_box widget - if there is, and embedded flag, embed Onboard in it.
+    # else launch an independant Onboard inside a dialog so it works in fullscreen
+    # (otherwise it hides when main screen is touched)
     # else error message
     def launch_keyboard(self,args="",x="",y=""):
         print args,x,y
+        def dialog_keyboard():
+            if self.data.keyboard_dialog:
+                self.data.keyboard_dialog.show()
+                self.data.ob = True
+            else:
+                self.data.ob = subprocess.Popen(["onboard","--xid",args,x,y],
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       close_fds=True)
+                sid = self.data.ob.stdout.readline()
+                self.data.keyboard_dialog = gtk.Dialog(_("Keyboard"),
+                           self.widgets.window1,
+                           gtk.DIALOG_DESTROY_WITH_PARENT)
+                self.data.keyboard_dialog.set_accept_focus(False)
+                self.data.keyboard_dialog.set_deletable(False)
+                socket = gtk.Socket()
+                socket.show()
+                self.data.keyboard_dialog.vbox.add(socket)
+                socket.add_id(long(sid))
+                self.data.keyboard_dialog.parse_geometry("800x200")
+                self.data.keyboard_dialog.show_all()
+                self.data.keyboard_dialog.connect("destroy", self.keyboard_return)
+
         try:
             if self.widgets.key_box and self.data.embedded_keyboard:
                 self.widgets.rightside_box.show()
@@ -1822,14 +1951,25 @@ class Gscreen:
                 self.widgets.key_box.add(socket)
                 socket.add_id(long(sid))
             else:
-                self.data.ob = subprocess.Popen(["onboard",args,x,y])
+                dialog_keyboard()
         except:
             try:
-                self.data.ob = subprocess.Popen(["onboard",args,x,y])
+                dialog_keyboard()
             except:
                 print _("Error with launching 'Onboard' on-screen keyboard program")
 
+    # seems the only way to trap the destroy signal
+    def keyboard_return(self,widget):
+        self.data.keyboard_dialog = None
+        self.data.ob = None
+
+    # if keyboard in dialog just hide it
+    # else kill it and if needed hide the key_box
     def kill_keyboard(self):
+        if not self.data.keyboard_dialog == None:
+            self.data.keyboard_dialog.hide()
+            self.data.ob = None
+            return
         try:
             self.widgets.key_box.hide()
             self.data.ob.kill()
@@ -1841,7 +1981,7 @@ class Gscreen:
                 self.data.ob.terminate()
                 self.data.ob = None
             except:
-                pass
+                self.show_try_errors()
 
     # this installs local signals unless overriden by custom handlers
     # HAL pin signal call-backs are covered in the HAL pin initilization functions
@@ -1869,6 +2009,7 @@ class Gscreen:
                         ["","button_unhome_axis","clicked", "on_button_unhome_axis_clicked"],
                         ["","button_toggle_readout","clicked", "on_button_toggle_readout_clicked"],
                         ["","button_jog_mode","clicked", "on_button_jog_mode_clicked"],
+                        ["","button_spindle_controls","clicked", "on_button_spindle_controls_clicked"],
 
                         ["","button_select_system","clicked", "on_button_select_system_clicked"],
                         ["","button_mist_coolant","clicked", "on_button_mist_coolant_clicked"],
@@ -1881,6 +2022,7 @@ class Gscreen:
                         ["","button_next_tab","clicked", "on_button_next_tab_clicked"],
                         ["","button_calc","clicked", "on_calc_clicked"],
                 ["block","button_jog_speed","clicked", "on_button_overrides_clicked","jog_speed"],
+                        ["","button_select_rotary_adjust","clicked", "on_button_select_rotary_adjust_clicked"],
 
                 ["block","button_jog_increments","clicked", "on_button_overrides_clicked","jog_increments"],
                 ["block","button_feed_override","clicked", "on_button_overrides_clicked","feed_override"],
@@ -1986,7 +2128,7 @@ class Gscreen:
             try:
                 self.data[i] = int(self.widgets[cb].connect("clicked", self.on_axis_selection_clicked))
             except:
-                pass
+                self.show_try_errors()
 
     def toggle_offset_view(self):
             data = self.data.plot_hidden
@@ -2050,7 +2192,7 @@ class Gscreen:
             try:
                 messageid = self.widgets.statusbar1.push(self.statusbar_id,message)
             except:
-                pass
+                self.show_try_errors()
             self.add_alarm_entry(message)
             if NOTIFY_AVAILABLE and self.data.desktop_notify:
                 uri = ""
@@ -2074,7 +2216,7 @@ class Gscreen:
             textbuffer = self.widgets.alarm_history.get_buffer()
             textbuffer.insert_at_cursor(strftime("%a, %d %b %Y %H:%M:%S     -", localtime())+message+"\n" )
         except:
-            pass
+            self.show_try_errors()
 
     def next_tab(self):
         maxpage = self.widgets.notebook_mode.get_n_pages()
@@ -2110,18 +2252,25 @@ class Gscreen:
         self.emc.max_velocity(rate * self.data._maxvelocity)
 
     def set_jog_rate(self,step=None,absolute=None):
+        if self.data.angular_jog_adjustment_flag:
+            j_rate = "angular_jog_rate"
+        else:
+            j_rate = "jog_rate"
         # in units per minute
-        print "jog rate =",step,absolute,self.data.jog_rate
+        print "jog rate =",step,absolute,self.data[j_rate]
         if not absolute == None:
             rate = absolute
         elif not step == None:
-            rate = self.data.jog_rate + step
+            rate = self.data[j_rate] + step
         else:return
         if rate < 0: rate = 0
-        if rate > self.data.jog_rate_max: rate = self.data.jog_rate_max
+        if rate > self.data[j_rate+"_max"]: rate = self.data[j_rate+"_max"]
         rate = round(rate,1)
-        self.emc.continuous_jog_velocity(rate)
-        self.data.jog_rate = rate
+        if self.data.angular_jog_adjustment_flag:
+            self.emc.continuous_jog_velocity(None,rate)
+        else:
+            self.emc.continuous_jog_velocity(rate,None)
+        self.data[j_rate] = rate
 
     # This sets the jog increments -there are three ways
     # ABSOLUTE:
@@ -2132,23 +2281,37 @@ class Gscreen:
     # index_dir = 1 or -1 to set the rate higher or lower from the list
     def set_jog_increments(self,vector=None,index_dir=None,absolute=None):
         print "set jog incr"
+        if self.data.angular_jog_adjustment_flag:
+            incr = "angular_jog_increments"
+            incr_index = "current_angular_jogincr_index"
+        else:
+            incr = "jog_increments"
+            incr_index = "current_jogincr_index"
+
         if not absolute == None:
             distance = absolute
-            self.widgets.jog_increment.set_text("%f"%distance)
+            self.widgets[incr].set_text("%f"%distance)
             self.halcomp["jog-increment-out"] = distance
             print "index jog increments",distance
             return
         elif not index_dir == None:
-            next = self.data.current_jogincr_index + index_dir
+            next = self.data[incr_index] + index_dir
         elif not vector == None:
             next = vector
         else: return
-        end = len(self.data.jog_increments)-1
+        end = len(self.data[incr])-1
         if next < 0: next = 0
         if next > end: next = end
-        self.data.current_jogincr_index = next
-        jogincr = self.data.jog_increments[next]
-        self.widgets.jog_increment.set_text(jogincr)
+        self.data[incr_index] = next
+        jogincr = self.data[incr][next]
+        try:
+            if 'angular' in incr and not jogincr == 'continuous':
+                label = jogincr + ' Degs'
+            else:
+                label = jogincr
+            self.widgets[incr].set_text(label)
+        except:
+            self.show_try_errors()
         if jogincr == ("continuous"):
             distance = 0
         else:
@@ -2279,7 +2442,10 @@ class Gscreen:
                 if absolute:
                     self.set_jog_rate(absolute = change)
                 else:
-                    self.set_jog_rate(step = (change * self.data.jog_rate_inc))
+                    if self.data.angular_jog_adjustment_flag:
+                        self.set_jog_rate(step = (change * self.data.angular_jog_rate_inc))
+                    else:
+                        self.set_jog_rate(step = (change * self.data.jog_rate_inc))
             elif self.widgets.button_jog_increments.get_active() and action:
                 print "jog increments adjustment"
                 if widget == self.widgets.button_offset_origin:
@@ -2366,8 +2532,8 @@ class Gscreen:
         else:
             self.widgets.mode4.hide()
             self.mode_changed(self.data.mode_order[0])
-            self.widgets.button_zero_origin.set_label(_(" Zero\nOrigin"))
-            self.widgets.button_offset_origin.set_label(_("Offset\nOrigin"))
+            self.widgets.button_zero_origin.set_label(_(" Zero Origin"))
+            self.widgets.button_offset_origin.set_label(_("Offset Origin"))
 
     # search for and set up user requested message system.
     # status displays on the statusbat and requires no acknowledge.
@@ -2438,7 +2604,7 @@ class Gscreen:
             try:
                 self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
             except:
-                pass
+                self.show_try_errors()
             return
         if not dialogtype: # yes/no dialog
             if result == gtk.RESPONSE_YES:result = True
@@ -2571,14 +2737,14 @@ class Gscreen:
         try:
             self.widgets.gremlin.show_offsets = data
         except:
-            pass
+            self.show_try_errors()
 
     def set_show_dtg(self, data):
         self.prefs.putpref('show_dtg', data, bool)
         try:
             self.widgets.gremlin.set_property('show_dtg',data)
         except:
-            pass
+            self.show_try_errors()
 
     def set_diameter_mode(self, data):
         print "toggle diameter mode"
@@ -2587,7 +2753,7 @@ class Gscreen:
         try:
             self.widgets.gremlin.set_property('show_lathe_radius',not data)
         except:
-            pass
+            self.show_try_errors()
 
     # returns the separate RGB color numbers from the color widget
     def convert_to_rgb(self,spec):
@@ -2680,7 +2846,7 @@ class Gscreen:
             try:
                 self.widgets.offsetpage1.set_to_inch()
             except:
-                pass
+                self.show_try_errors()
         else:
             print "switch to mm"
             self.status.dro_mm(1)
@@ -2688,7 +2854,7 @@ class Gscreen:
             try:
                 self.widgets.offsetpage1.set_to_mm()
             except:
-                pass
+                self.show_try_errors()
         self.data.dro_units = data
         if save:
             self.prefs.putpref('dro_is_metric', data, bool)
@@ -2777,14 +2943,17 @@ class Gscreen:
                     elif direction: cmd = 1
                     else: cmd = -1
                     self.emc.jogging(1)
-                    print self.data.jog_increments[self.data.current_jogincr_index]
-                    if self.data.jog_increments[self.data.current_jogincr_index] == ("continuous"): # continuous jog
+                    if self.data.active_axis_buttons[0][0] in('a','b','c'):
+                        jogincr = self.data.angular_jog_increments[self.data.current_angular_jogincr_index]
+                    else:
+                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+                    print jogincr
+                    if jogincr == ("continuous"): # continuous jog
                         print "active axis jog:",self.data.active_axis_buttons[0][1]
                         self.emc.continuous_jog(self.data.active_axis_buttons[0][1],cmd)
                     else:
                         print "jog incremental"
                         if cmd == 0: return # don't want release of button to stop jog
-                        jogincr = self.data.jog_increments[self.data.current_jogincr_index]
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
 
@@ -2836,7 +3005,13 @@ class Gscreen:
             self.notify(_("INFO:"),_("No axis selected to move"),INFO_ICON)
         else:
             if not self.data.active_axis_buttons[0][0] == "s":
-                self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],self.get_qualified_input(data),self.data.jog_rate)
+                if self.data.active_axis_buttons[0][0] in('a','b','c'):
+                    rate = self.data.angular_jog_rate
+                    pos = self.get_qualified_input(data,switch=_DEGREE_INPUT)
+                else:
+                    rate = self.data.jog_rate
+                    pos = self.get_qualified_input(data)
+                self.mdi_control.go_to_position(self.data.active_axis_buttons[0][0],pos,rate)
 
     def adjust_spindle_rpm(self, rpm, direction=None):
             # spindle control
@@ -2865,7 +3040,7 @@ class Gscreen:
     # eg for diameter, metric or percentage
     def get_qualified_input(self,raw = 0,switch = None):
         print "RAW input:",raw
-        if switch == _SPINDLE_INPUT:
+        if switch in(_DEGREE_INPUT, _SPINDLE_INPUT):
             return raw
         elif switch == _PERCENT_INPUT:
             return round(raw,2)
@@ -3014,7 +3189,6 @@ class Gscreen:
             self.widgets.gremlin.set_property('use_relative',False)
         else:
             self.widgets.gremlin.set_property('use_relative',True)
-        self.update_position()
 
     # adjust the screen as per each mode toggled 
     def mode_changed(self,mode):
@@ -3115,7 +3289,10 @@ class Gscreen:
 
     # spindle controls
     def update_mdi_spindle_button(self):
-        self.widgets.at_speed_label.set_label(_("%d RPM"%abs(self.data.spindle_speed)))
+        try:
+            self.widgets.at_speed_label.set_label(_("%d RPM"%abs(self.data.spindle_speed)))
+        except:
+            pass
         label = self.widgets.spindle_control.get_label()
         speed = self.data.spindle_speed
         if speed == 0 and not label == _("Start"):
@@ -3131,13 +3308,11 @@ class Gscreen:
         try:
             self.widgets.s_display2.set_value(abs(self.data.spindle_speed))
         except:
-            pass
+            self.show_try_errors()
 
     def update_dro(self):
         # DRO
         for i in self.data.axis_list:
-            if i in ('b','c','u','v','w'): continue
-                
             for j in range (0,3):
                 current = self.data.display_order[j]
                 attr = pango.AttrList()
@@ -3249,15 +3424,21 @@ class Gscreen:
     def update_jog_rate_label(self):
         rate = round(self.status.convert_units(self.data.jog_rate),2)
         if self.data.dro_units == _MM:
-            text = "Jog: %4.2f mm/min"% (rate)
+            text = "%4.2f mm/min"% (rate)
         else:
-            text = "Jog: %3.2f IPM"% (rate)
+            text = "%3.2f IPM"% (rate)
         self.widgets.jog_rate.set_text(text)
+        try:
+            text = "%4.2f DPM"% (self.data.angular_jog_rate)
+            self.widgets.angular_jog_rate.set_text(text)
+        except:
+            pass
 
     def update_mode_label(self):
         # Mode / view
         modenames = self.data.mode_labels
-        self.widgets.mode_label.set_label( "%s   View -%s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0]) )
+        time = strftime("%a, %d %b %Y  %I:%M:%S %P    ", localtime())
+        self.widgets.mode_label.set_label( "%s   View -%s               %s"% (modenames[self.data.mode_order[0]],self.data.plot_view[0],time) )
 
     def update_units_button_label(self):
         label = self.widgets.metric_select.get_label()
