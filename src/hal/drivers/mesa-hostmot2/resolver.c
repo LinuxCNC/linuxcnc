@@ -320,7 +320,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         
         // PROCESS THE REGISTERS, SET THE PINS
         
-        res->accum += (signed long)(hm2->resolver.position_reg[i] - res->old_reg );
+        res->accum += (__s32)(hm2->resolver.position_reg[i] - res->old_reg );
         if ((res->old_reg ^ hm2->resolver.position_reg[i]) & 0x80000000){
             if (++(res->index_cnts) >= res->hal.param.index_div){
                 res->index_cnts = 0;
