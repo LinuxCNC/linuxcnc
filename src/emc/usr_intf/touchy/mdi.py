@@ -47,6 +47,7 @@ class mdi:
             'M3' : [_('Spindle CW'), 'S'],
             'M4' : [_('Spindle CCW'), 'S'],
             'M6' : [_('Tool change'), 'T'],
+            'M61' : [_('Set tool number'), 'Q'],
             'M66' : [_('Input control'), 'P', 'E', 'L', 'Q'],
 
             # 'A' means 'the axes'
