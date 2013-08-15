@@ -717,6 +717,15 @@ typedef int (*rtapi_shmem_getptr_inst_t)(int, int, void **);
 extern int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr);
 
 
+/* rtapi_shmem_exists() tests whether a shared memory segment exists
+   and can be attached; it does not actually attach it. The argument
+   is a shared memory key. Not callable from realtime tasks.
+*/
+typedef int (*rtapi_shmem_exists_t)(int);
+#define rtapi_shmem_exists(key)		\
+    rtapi_switch->rtapi_shmem_exists(key)
+extern int _rtapi_shmem_exists(int key);
+
 /***********************************************************************
 *                        Callback on RT scheduling violation           *
 * rtapi detects when a scheduling release point has been missed, and   *
@@ -844,6 +853,7 @@ typedef struct {
     rtapi_shmem_delete_inst_t rtapi_shmem_delete_inst;
     rtapi_shmem_getptr_t rtapi_shmem_getptr;
     rtapi_shmem_getptr_inst_t rtapi_shmem_getptr_inst;
+    rtapi_shmem_exists_t rtapi_shmem_exists;
 
 #ifdef RTAPI
     rtapi_set_exception_t rtapi_set_exception;

@@ -115,6 +115,7 @@ static rtapi_switch_t rtapi_switch_struct = {
 
     .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
     .rtapi_shmem_getptr_inst = &_rtapi_shmem_getptr_inst,
+    .rtapi_shmem_exists = &_rtapi_shmem_exists,
 
 #ifdef RTAPI
     .rtapi_set_exception = &_rtapi_set_exception,
