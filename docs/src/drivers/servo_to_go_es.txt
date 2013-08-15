@@ -2,6 +2,19 @@
 
 [[cha:servo-to-go-driver]] (((Servo To Go Driver)))
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 The Servo-To-Go (STG) is one of the first PC motion control cards supported
 by LinuxCNC. It is an ISA card and it exists in different flavors (all
 supported by this driver). The board includes up to 8 channels of

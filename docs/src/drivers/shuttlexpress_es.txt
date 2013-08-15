@@ -2,6 +2,19 @@
 
 [[cha:shuttlexpress]] (((ShuttleXpress)))
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 == Description
 
 shuttlexpress is a userspace HAL component that interfaces Contour Design’s ShuttleXpress device with LinuxCNC’s HAL. The ShuttleXpress has five momentary buttons, a 10 counts/revolution jog wheel with detents, and a 15-position spring-loaded outer wheel that returns to center when released.
