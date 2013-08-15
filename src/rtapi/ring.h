@@ -298,11 +298,12 @@ static inline int record_write_end(ringbuffer_t *ring, void * data, size_t sz)
 	t->tail = 0;
     }
     *_size_at(ring, t->tail) = sz;
-    // mah: see [2]:144
-    // PaUtil_WriteMemoryBarrier(); ???
 
-    // mah: see [6]:69
-    // should this be CAS(&(t->tail, t->tail, t->tail+a) ?
+    /* ensure that previous writes are seen before we update the write index
+       (write after write)
+    */
+    rtapi_smp_wmb();
+
     t->tail = (t->tail + a) % h->size;
     //printf("New head/tail: %zd/%zd\n", h->head, t->tail);
     return 0;
@@ -337,10 +338,9 @@ static inline int _ring_read_at(const ringbuffer_t *ring, size_t offset,
     if (offset == t->tail)
 	return EAGAIN;
 
-    // mah: see [2]:181
-    // PaUtil_ReadMemoryBarrier(); ???
+    /* (read-after-read) => read barrier */
+    rtapi_smp_rmb();
 
-    //printf("Head/tail: %zd/%zd\n", h->head, t->tail);
     sz = _size_at(ring, offset);
     if (*sz < 0)
         return _ring_read_at(ring, 0, data, size);
@@ -427,8 +427,12 @@ static inline ring_size_t _ring_shift_offset(const ringbuffer_t *ring, size_t of
 
     if (h->head == t->tail)
 	return -1;
-    // mah: [2]:192
-    // PaUtil_FullMemoryBarrier(); ???
+
+    // ensure that previous reads (copies out of the ring buffer) are always completed 
+    // before updating (writing) the read index. 
+    // (write-after-read) => full barrier
+    rtapi_smp_mb();
+
     size = *_size_at(ring, offset);
     if (size < 0)
 	return _ring_shift_offset(ring, 0);
