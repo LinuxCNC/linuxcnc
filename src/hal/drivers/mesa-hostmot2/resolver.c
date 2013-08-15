@@ -312,12 +312,8 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         
         res->accum += (__s32)(hm2->resolver.position_reg[i] - res->old_reg );
         if (*res->hal.pin.index_enable){
-            if ((res->old_reg > hm2->resolver.position_reg[i]) && (res->old_reg - hm2->resolver.position_reg[i] > 0x80000000)){
-                res->offset = (res->accum - hm2->resolver.position_reg[i]);
-                *res->hal.pin.index_enable = 0;
-            }
-	    else if ((res->old_reg < hm2->resolver.position_reg[i]) && (hm2->resolver.position_reg[i] - res->old_reg > 0x80000000)){
-                res->offset = (res->accum - hm2->resolver.position_reg[i] + 0x100000000LL);
+            if ((res->old_reg ^ hm2->resolver.position_reg[i]) & 0x80000000){
+                res->offset = res->accum & 0xFFFFFFFF00000000LL;
                 *res->hal.pin.index_enable = 0;
             }
         }
