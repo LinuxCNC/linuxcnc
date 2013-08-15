@@ -165,6 +165,10 @@ should be needed. Unconnected channels will default to GPIO, but the pin values
 will vary semi-randomly during boot when card-detection runs, to it is best to 
 actively disable any channel that is to be used for GPIO. 
 .TP
+\fBnum_bspis\fR [optional, default: -1]
+Only enable the first N Buffered SPI drivers. If N is -1 then all the drivers 
+are enabled. Each BSPI driver can address 16 devices.
+.TP
 \fBnum_leds\fR [optional, default: -1]
 Only enable the first N of the LEDs on the FPGA board. If N is -1, then HAL
 pins for all the LEDs will be created. If N=0 then no pins will be added.
@@ -340,6 +344,17 @@ electrical revolution.
 The conversion factor between resolver
 rotation speed and machine velocity. A value of 1 will typically give motor
 speed in rps, a value of 0.01666667 will give (approximate) RPM. 
+
+.TP
+(u32, read/write) index-divisor (default 1)
+The resolver component emulates an index at a fixed point in the sin/cos cycle.
+Some resolvers have multiple cycles per rev (often related to the number of
+pole-pairs on the attached motor). LinuxCNC requires an index once per
+revolution for proper threading etc.
+This parameter should be set to the number of cycles per rev of the resolver.
+CAUTION: Which pseudo-index is used will not necessarily be consistent between
+LinuxCNC runs. Do not expect to re-start a thread after restarting LinuxCNC.
+It is not appropriate to use this parameter for index-homing of axis drives.
 
 .TP
 (float, read/write) excitation-khz
@@ -635,170 +650,37 @@ The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
 (see the config modparam definition above).
 
-In addition to the per-channel/device pins detailed below there are three
-per-port pins, three parameters and a further 7 pins shared between all ports
-used for changing on-device settings.
+For full details of the smart-serial devices see \fBman sserial\fR.
 
-Pins:
+.SH BSPI
+The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL
+pins. Instead the driver exports a set of functions that can be used by a sub
+-driver for the attached hardware. Typically these would be written in the "comp"
+pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man
+comp for further details. See man mesa_7i65 and the source of mesa_7i65.comp for
+details of a typical sub-driver.
+See man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame,
+man hm2_allocate_bspi_tram, man hm2_bspi_set_read_funtion and
+man hm2_bspi_set_write_function for the exported functions.
 
-(bit, in) .sserial.port-N.run: Enables the specific Smart Serial module.
-Setting this pin low will disable all boards on the port and puts the port in a
-pass-through mode where device parameter setting is possible.
-This pin defaults to TRUE and can be left unconnected. However, toggling the pin
-low-to-high will re-enable a faulted drive so the pin could usefully be
-connected to the iocontrol.0.user-enable-out pin.
+The names of the available channels are printed to standard output during the
+driver loading process and take the form
+hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
+.SH General Purpose I/O
 
-(u32, ro) .run_state: Shows the state of the sserial communications state-machine.
-This pin will generally show a value of 0x03 in normal operation, 0x07 in
-setup mode and 0x00 when the "run" pin is false.
+.SH UART
+The UART driver also does not create any HAL pins, instead it declares two 
+simple read/write functions and a setup function to be utilised by user-written
+code.  Typically this would be written in the "comp"
+pre-processing language: see http://linuxcnc.org/docs/html/hal_comp.html or man
+comp for further details. See man mesa_uart and the source of mesa_uart.comp for
+details of a typical sub-driver.
+See man hm2_uart_setup_chan, man hm2_uart_send, man hm2_uart_read and man 
+hm2_uart_setup.
 
-(u32, ro) .error-count: Indicates the state of the Smart Serial error handler, 
-see the parameters sections for more details. 
-
-(u32, in) .sserial.port: When programming device parameters, this pin sets the
-active port.
-
-(u32, in) .sserial.channel: This sets the active channel on the port defined
-above.
-
-(u32, in) .sserial.parameter: The two LSBs of this pin determine the parameter
-address on the device connected to the channel and port defined above which will
-be read from or written to. Byte 2 is used to pass the data type for
-non-volatile writes, and byte 3 passes the access type flags. For example 
-0xEC010002 is the code to use to set 8i20 NVMAXCURRENT.
-
-(u32, in) .sserial.value: This pin is used to set the value to be written to a
-device parameter. It can also be used to read-back a value from the device, but
-as it is an input pin the read-back value is only useful to humans.
-
-(bit, in) .sserial.read: Starts the parameter read cycle. On completion the pin
-will return to zero (if not connected in HAL)
-
-(bit, in) .sserial.write: Starts the parameter write cycle. On completion the
-pin will return to zero (if not connected in HAL)
-
-(u32, out) .sserial.state: Shows the state of the read or write process (which
-typically takes many servo cycles). See the source code if the precise meanings
-are important to your application.
-
-Parameters:
-
-(u32 r/w) .fault-inc: Any over-run or handshaking error in the SmartSerial
-communications will increment the .fault-count pin by the amount specified by
-this parameter. Default = 10.
-
-(u32 r/w) .fault-dec: Every successful read/write cycle decrements the fault
-counter by this amount. Default = 1.
-
-(u32 r/w) .fault-lim: When the fault counter reaches this threshold the Smart
-Serial interface on the corresponding port will be stopped and an error printed 
-in dmesg. Together these three pins allow for control over the degree of fault-
-tolerance allowed in the interface. The default values mean that if more than
-one transaction in ten fails, more than 20 times, then a hard error will be
-raised. If the increment were to be set to zero then no error would ever be
-raised, and the system would carry on regardless. Conversely setting decrement to 
-zero, threshold to 1 and limit to 1 means that absolutely no errors will be
-tolerated. (This structure is copied directly from vehicle ECU practice)
-
-The other pins and parameters created in HAL depend on the devices detected.
-.TP
-.SH \fB8i20\fR
-The 8i20 is a 2.2kW three-phase drive for brushless DC motors and AC servo
-motors.
-8i20 pins and parameters have names like
-"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.8i20.\fI<PortNum>\fR.\fI<ChanNum>\fR.\fI<Pin>\fR", for example
-"hm2_5i23.0.8i20.1.3.current" would set the phase current for the drive
-connected to the fourth channel of the second sserial port of the first 5i23
-board. Note that the sserial ports do not necessarily correlate in layout or
-number to the physical ports on the card.
-
-Pins:
-
-.TP
-(bit, in) amp-enable
-Set this pin high to enable the drive. With the pin low
-communications are active but the phase angle and current are set to zero.
-
-.TP
-(float in) angle
-The rotor angle of the motor in fractions of a full
-\fBphase\fR revolution. An angle of 0.5 indicates that the motor is half a turn
-/ 180 degrees / \[*p] radians from the zero position. The zero position is taken to
-be the position that the motor adopts under no load with a poitive voltage
-applied to the A (or U) phase and both B and C (or V and W) connected to -V or
-0V. A 6 pole motor will have 3 zero positions per physical rotation. Note that
-the 8i20 drive automatically adds the phase lead/lag angle, and that this pin
-should see the raw rotor angle. There is a HAL module (bldc) which handles the
-complexity of differing motor and drive types.
-
-.TP
-(float, in) current
-The phase current command to the drive. This is scaled
-from -1 to +1 for forwards and reverse maximum currents. The absolute value of
-the current is set by the max_current parameter.
-
-.TP
-(float, ro) voltage
-The drive bus voltage in V. This will tend to show 25.6V
-when the drive is unpowered and the drive will not operate below about 50V.
-
-.TP
-(float, ro) temp
-The temperature of the driver in degrees C.
-
-.TP
-(u32, ro) fault
-The fault status of the drive. See the 8i20 manual for a
-detailed description.
-
-.TP
-(u32, ro) status
-The operating status of the drive. See the 8i20 manual for
-more details.
-
-.TP
-(u32, ro) comms
-The communication status of the drive. See the manual for
-more details.
-
-Parameters:
-
-.TP
-(float, rw) max_current
-Sets the maximum drive current in Amps. The default
-value is the maximum current programmed into the drive EEPROM. The value must be
-positive, and an error will be raised if a current in excess of the drive
-maximum is requested.
-
-.TP
-(u32, ro) serial_number
-The serial number of the connected drive. This is
-also shown on the label on the drive.
-.TP
-.SH \fB 7i64\fR
-The 7i64 is a 24-input 24-output IO card.
-7i64 pins and parameters have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.7i64.
-<PortNum>.<ChanNum>.<Pin>", for example hm2_5i23.0.7i63.1.3.digout.01.out
-
-Pins:
-(bit, in) .digout.NN.out: Writing a 1 or TRUE to this pin will enable output
-driver NN. Note that the outputs are drivers (switches) rather than voltage
-outputs. The LED adjacent to the connector on the board shows the status.
-
-(bit, out) .digin.NN.in: The value of input NN. Note that the inputs are
-isolated and both pins of each input must be connected (typically to signal and
-the ground of the signal. This need not be the ground of the board.)
-
-(bit, out) .digin.NN.in-not: An inverted copy of the corresponding input.
-
-(float, out) .adcin.00.in & .adcin.01.in: The two analogue inputs (0 to 3.3V) on
-the board.
-
-Parameters:
-(bit, rw) .digout.NN.invert: Setting this parameter to 1 / TRUE will invert
-the output value, such that writing 0 to .gpio.NN.out will enable the output
-and vice-versa.
-
+The names of the available uart channels are printed to standard output during the
+driver loading process and take the form
+hm2_<board name>.<board index>uart.<index> For example hm2_5i23.0.uart.0
 .SH General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported

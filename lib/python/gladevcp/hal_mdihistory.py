@@ -54,7 +54,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         scroll.props.vscrollbar_policy = gtk.POLICY_AUTOMATIC
 
         self.entry = gtk.Entry()
-        self.entry.set_icon_from_stock(gtk.POS_RIGHT, 'gtk-ok')
+        self.entry.set_icon_from_stock(gtk.ENTRY_ICON_SECONDARY, 'gtk-ok')
 
         self.entry.connect('activate', self.submit)
         self.entry.connect('icon-press', self.submit)
@@ -76,7 +76,6 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         lines = map(str.strip, fp.readlines())
         fp.close()
 
-        lines = list(reversed(list(set(reversed(lines)))))
         lines = filter(bool, lines)
         for l in lines:
             self.model.append((l,))
@@ -103,6 +102,8 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         path = self.model.get_path(last)
         self.tv.scroll_to_cell(path)
         self.tv.set_cursor(path)
+        self.entry.set_text('')
+        self.entry.grab_focus()
 
     def select(self, w):
         idx = w.get_cursor()[0]

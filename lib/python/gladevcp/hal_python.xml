@@ -28,6 +28,32 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
 
+    <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
+    <glade-widget-class name="HAL_GremlinPlus" generic-name="hal_gremlin_plus" title="HAL Gremlin Plus"/>
+
+    <glade-widget-class name="ToolEdit" generic-name="tooledit" title="Tooleditor">
+       <properties>
+            <property id="size" query="False" default="1" visible="False"/>
+            <property id="spacing" query="False" default="0" visible="False"/>
+            <property id="homogeneous" query="False" default="0" visible="False"/>
+        </properties>
+    </glade-widget-class>
+    <glade-widget-class name="OffsetPage" generic-name="offsetpage" title="Offsetpage">
+       <properties>
+            <property id="size" query="False" default="1" visible="False"/>
+            <property id="spacing" query="False" default="0" visible="False"/>
+            <property id="homogeneous" query="False" default="0" visible="False"/>
+        </properties>
+    </glade-widget-class>
+    <glade-widget-class name="HAL_DRO" generic-name="hal_dro" title="HAL DRO"/>
+    <glade-widget-class name="HAL_Offset" generic-name="hal_offset" title="HAL Offset"/>
+    <glade-widget-class name="Calculator" generic-name="calc" title="calculator">
+        <properties>
+            <property id="size" query="False" default="1" visible="False"/>
+            <property id="spacing" query="False" default="0" visible="False"/>
+            <property id="homogeneous" query="False" default="0" visible="False"/>
+        </properties>
+    </glade-widget-class>
     <!-- Actions -->
     <glade-widget-class name="EMC_Action_ESTOP" generic-name="hal_action_estop" title="EMC Action ESTOP" icon-name='gtk-stop'/>
     <glade-widget-class name="EMC_Action_ESTOP_RESET" generic-name="hal_action_estop_reset" title="EMC Action ESTOP RESET" icon-name='gtk-stop'/>
@@ -62,7 +88,11 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="EMC_Action_Save" generic-name="hal_action_save" title="EMC Action Save" icon-name='gtk-save'/>
     <glade-widget-class name="EMC_Action_SaveAs" generic-name="hal_action_saveas" title="EMC Action Save As" icon-name='gtk-save-as'/>
     <glade-widget-class name="EMC_SourceView" generic-name="hal_sourceview" title="EMC SourceView"/>
-    <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory"/>
+    <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory">
+        <properties>
+            <property id="size" query="False" default="0" visible="False"/>
+        </properties>
+</glade-widget-class>
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
@@ -85,6 +115,14 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
 
+   <glade-widget-class-ref name="PyNgcGui"/>
+   <glade-widget-class-ref name="HAL_GremlinPlus"/>
+
+   <glade-widget-class-ref name="ToolEdit"/>
+   <glade-widget-class-ref name="Calculator"/>
+   <glade-widget-class-ref name="HAL_DRO"/>
+   <glade-widget-class-ref name="HAL_Offset"/>
+   <glade-widget-class-ref name="OffsetPage"/>
    <glade-widget-class-ref name="EMC_Stat"/>
 
    <glade-widget-class-ref name="EMC_FileChooserDialog"/>
@@ -92,6 +130,8 @@ domain="glade-3" depends="gtk+">
 
    <glade-widget-class-ref name="EMC_SourceView"/>
    <glade-widget-class-ref name="EMC_MDIHistory"/>
+
+
  </glade-widget-group>
  <glade-widget-group name="python" title="EMC Actions">
    <glade-widget-class-ref name="EMC_Action_ESTOP"/>
@@ -123,6 +163,6 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="EMC_Action_Reload"/>
    <glade-widget-class-ref name="EMC_Action_Save"/>
    <glade-widget-class-ref name="EMC_Action_SaveAs"/>
+
  </glade-widget-group>
 </glade-catalog>
-

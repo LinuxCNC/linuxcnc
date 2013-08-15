@@ -260,8 +260,17 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding param '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.index-divisor",
+                           hm2->llio->name, i);
+            ret= hal_param_u32_new(name, HAL_RW,
+                                     &(hm2->resolver.instance[i].hal.param.index_div),
+                                     hm2->llio->comp_id);
+            if (ret < 0) {
+                HM2_ERR("error adding param '%s', aborting\n", name);
+                goto fail1;
+            }
+
             //
             // init the hal objects that need it
             // the things not initialized here will be set by hm2_resolver_tram_init()
@@ -270,6 +279,7 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
             *hm2->resolver.instance[i].hal.pin.reset = 0;
             hm2->resolver.instance[i].hal.param.scale = 1.0;
             hm2->resolver.instance[i].hal.param.vel_scale = 1.0;
+            hm2->resolver.instance[i].hal.param.index_div = 1;
             hm2->resolver.hal->param.excitation_khz = -1; // don't-write
             hm2->resolver.kHz = (hm2->resolver.clock_frequency / 5000);
         }
@@ -311,10 +321,13 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
         // PROCESS THE REGISTERS, SET THE PINS
         
         res->accum += (__s32)(hm2->resolver.position_reg[i] - res->old_reg );
-        if (*res->hal.pin.index_enable){
-            if ((res->old_reg ^ hm2->resolver.position_reg[i]) & 0x80000000){
-                res->offset = res->accum & 0xFFFFFFFF00000000LL;
-                *res->hal.pin.index_enable = 0;
+        if ((res->old_reg ^ hm2->resolver.position_reg[i]) & 0x80000000){
+            if (++(res->index_cnts) >= res->hal.param.index_div){
+                res->index_cnts = 0;
+                if (*res->hal.pin.index_enable){
+                    res->offset = res->accum & 0xFFFFFFFF00000000LL;
+                    *res->hal.pin.index_enable = 0;
+                }
             }
         }
         

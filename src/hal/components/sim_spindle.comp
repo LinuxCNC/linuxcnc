@@ -1,0 +1,34 @@
+component sim_spindle "Simulated spindle with index pulse";
+
+pin in float velocity-cmd "Commanded speed";
+pin out float position-fb "Feedback position, in revolutions";
+pin io bit index-enable "Reset \\fBposition-fb\\fP to 0 at the next full rotation";
+param rw float scale = 1.0 
+"""factor applied to \\fBvelocity-cmd\\fP.
+
+The result of '\\fBvelocity-cmd\\fP * \\fBscale\\fP' be in revolutions per second.
+For example, if \\fBvelocity-cmd\\fP is in revolutions/minute, \\fBscale\\fP should be set to 1/60 or 0.016666667.
+""";
+
+license "GPL";
+
+function _;
+
+;;
+#include <rtapi_math.h>
+
+
+FUNCTION(_) {
+   double old_position = position_fb;
+   double new_position = position_fb + velocity_cmd * fperiod * scale;
+
+   if(index_enable && (floor(old_position) != floor(new_position))) {
+       index_enable = false;
+       if(velocity_cmd < 0)
+           new_position = new_position - ceil(new_position);
+       else
+           new_position = new_position - floor(new_position);
+   }
+   position_fb = new_position;
+}
+

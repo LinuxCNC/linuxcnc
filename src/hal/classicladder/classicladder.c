@@ -101,21 +101,21 @@ void display_help (void)
 	       "under the terms of the GNU Lesser General Public Licence.\n"
 	       "See the file `lesserGPL.txt' for more information.\n");	
 	
-	printf("This version of Classicladder is adapted for use with EMC and HAL\n"
-               "\nUsage: classicladder [OPTIONS] [PATH]\n"
+    printf("This version of Classicladder is adapted for use with EMC and HAL\n"
+	       "\nUsage: classicladder [OPTIONS] [PATH]\n"
 	       "eg: loadusr -w classicladder  ladtest.clp\n"
 	       "eg: loadusr -w classicladder  --nogui ladtest.clp\n"
 	       "eg: loadusr -w classicladder  --modmaster ladtest.clp\n"
-               "\n"
+	       "\n"
 	       "   --nogui            do not create a GUI, only load a configuration\n"
-               "   --config=filename  initilize modbus master I/O & load config file-( deprecated- use --modmaster)\n" 
-               "   --modmaster        initilize modbus master I/O ( modbus config is loaded with other objects )\n" 
-               "   --modslave         initilize modbus slave I/O (TCP only- B and W variables accesable\n"
-               "   --modbus_port=portnumber  used for modbus slave using TCP ( ethernet )\n"
-               "   --debug            sets the RTAPI debuglevel for printing debug messages\n"
-               "Please also note that the classicladder realtime module must be loaded first\n"
-               "eg: loadrt classicladder_rt    for default number of ladder objects\n"  
-	                    );
+	       "   --config=filename  initilize modbus master I/O & load config file-( deprecated- use --modmaster)\n" 
+	       "   --modmaster        initilize modbus master I/O ( modbus config is loaded with other objects )\n" 
+	       "   --modslave         initilize modbus slave I/O (TCP only- B and W variables accesable\n"
+	       "   --modbus_port=portnumber  used for modbus slave using TCP ( ethernet )\n"
+	       "   --debug            sets the RTAPI debuglevel for printing debug messages\n"
+	       "Please also note that the classicladder realtime module must be loaded first\n"
+	       "eg: loadrt classicladder_rt    for default number of ladder objects\n"  
+			    );
 	hal_exit(compId); // add for emc
 	exit(0);
 }
@@ -132,11 +132,11 @@ void process_options (int argc, char *argv[])
 		static const struct option long_options[] = {
 			{"nogui", no_argument, 0, 'n'},
 			{"config", required_argument, 0, 'c'},
-                        {"modmaster",no_argument,0,'m'},
-                        {"modslave",no_argument,0,'s'},
-                        {"debug",no_argument,0,'d'},
+			{"modmaster",no_argument,0,'m'},
+			{"modslave",no_argument,0,'s'},
+			{"debug",no_argument,0,'d'},
 			{"modbus_port", required_argument, 0, 'p'},
-                        {"newpath", required_argument, 0, 'f'},
+			{"newpath", required_argument, 0, 'f'},
 			{0, 0, 0, 0},
 		};
 
@@ -152,24 +152,24 @@ void process_options (int argc, char *argv[])
 				nogui = 1;
 				break;
 			case 'c':
-                                read_config (optarg);
+				read_config (optarg);
 				modmaster=1;
 				break;
-                        case 'm':
-                                modmaster=1;
-                                break;
-                        case 's':
-                                modslave=1;
-                                break; 
-                        case 'd':
-                                rtapi_set_msg_level(RTAPI_MSG_ALL);
-                                break;
+			case 'm':
+				modmaster=1;
+				break;
+			case 's':
+				modslave=1;
+				break; 
+			case 'd':
+				rtapi_set_msg_level(RTAPI_MSG_ALL);
+				break;
 			case 'p':
 				ModbusServerPort = atoi( optarg );
 				break;
-                        case 'f':
+			case 'f':
 				NewPath = ( optarg );
-                                pathswitch=1;
+				pathswitch=1;
 				break;
 			case '?':
 				error = 1;
@@ -192,12 +192,12 @@ static void do_exit(int unused) {
 void DoPauseMilliSecs( int Time )
 {
 	struct timespec time;
-        time.tv_sec = 0;
-        if (Time>=1000) 
-                       {
-                        time.tv_sec=Time/1000;
-                        Time=Time%1000;
-                       }
+	time.tv_sec = 0;
+	if (Time>=1000) 
+		       {
+			time.tv_sec=Time/1000;
+			Time=Time%1000;
+		       }
 	time.tv_nsec = Time*1000000;
 	nanosleep( &time, NULL );
 	//usleep( Time*1000 );
@@ -231,54 +231,54 @@ void RunBackIfStopped( void )
 int main( int   argc, char *argv[] )
 {
 	int used=0, NumRung;
-        static int old_level ;
-        old_level = rtapi_get_msg_level();
+	static int old_level ;
+	old_level = rtapi_get_msg_level();
 	compId=hal_init("classicladder"); //emc
 	if (compId<0) return -1; //emc
 	signal(SIGTERM,do_exit); //emc
-        InitModbusMasterBeforeReadConf( );
+	InitModbusMasterBeforeReadConf( );
 	if (ClassicLadder_AllocAll())
 	{
 		char ProjectLoadedOk=TRUE;		
-	        process_options (argc, argv);
+		process_options (argc, argv);
 		if (nogui==TRUE)
-                {
-		        rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
+		{
+			rtapi_print("INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL closes.\n");
 			ClassicLadder_InitAllDatas( );
 			ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName  );
-                        if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
+			if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 			InfosGene->LadderState = STATE_RUN;
 			ClassicLadder_FreeAll(TRUE);
 			hal_ready(compId);
 			hal_exit(compId);	
 			return 0; 
 		} else {	
-                                		
+						
 				for(NumRung=0;NumRung<NBR_RUNGS;NumRung++)   {   if ( RungArray[NumRung].Used ) used++;   }
 				if((used==0) || ( (argc - optind) != 0) )
-                                            {	
+					    {	
 						ClassicLadder_InitAllDatas( );
 						ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
-                                                InitGtkWindows( argc, argv );
-				                UpdateAllGtkWindows();
-                                                if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
-                                                UpdateWindowTitleWithProjectName( );
-                                                MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
-                                                if (!ProjectLoadedOk) 
-                                                {  
-                                                           ClassicLadder_InitAllDatas( );   
-                                                           if (modmaster) {    PrepareModbusMaster( );    }
-					        }
-                                            }else{
-                                                           InitGtkWindows( argc, argv );
-                                                           UpdateAllGtkWindows();
-                                                           if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
-                                                           UpdateWindowTitleWithProjectName( );
-                                                           MessageInStatusBar("GUI reloaded with existing ladder program");
-                                                           if (modmaster) {    PrepareModbusMaster( );    }
-                                                  } 
+						InitGtkWindows( argc, argv );
+						UpdateAllGtkWindows();
+						if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
+						UpdateWindowTitleWithProjectName( );
+						MessageInStatusBar( ProjectLoadedOk?"Project loaded and running":"Project failed to load...");
+						if (!ProjectLoadedOk) 
+						{  
+							   ClassicLadder_InitAllDatas( );   
+							   if (modmaster) {    PrepareModbusMaster( );    }
+						}
+					    }else{
+							   InitGtkWindows( argc, argv );
+							   UpdateAllGtkWindows();
+							   if (pathswitch){   strcpy( InfosGene->CurrentProjectFileName, NewPath );   }
+							   UpdateWindowTitleWithProjectName( );
+							   MessageInStatusBar("GUI reloaded with existing ladder program");
+							   if (modmaster) {    PrepareModbusMaster( );    }
+							} 
 							
-                                if (modslave)         {   InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/);  }
+				if (modslave)         {   InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/);  }
 				InfosGene->LadderState = STATE_RUN;
 				hal_ready(compId);
 				gtk_main();
@@ -290,7 +290,7 @@ int main( int   argc, char *argv[] )
 	}
 	 rtapi_print("ERROR CLASSICLADDER-   Ladder memory allocation error\n");
 	ClassicLadder_FreeAll(TRUE);
-        rtapi_set_msg_level(old_level);
+	rtapi_set_msg_level(old_level);
 	hal_exit(compId);		
 	return 0;
 }

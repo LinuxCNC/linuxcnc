@@ -64,10 +64,8 @@
 #include <linux/kernel.h>
 #include <linux/slab.h>		/* replaces malloc.h in recent kernels */
 #include <linux/ctype.h>	/* isdigit */
-#include <linux/delay.h>	/* udelay */
 #include <asm/uaccess.h>	/* copy_from_user() */
 #include <asm/msr.h>		/* rdtscll() */
-#include <linux/time.h>		/* timeval & do_gettimeofday() */
 
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
@@ -534,24 +532,6 @@ long int rtapi_clock_set_period(long int nsecs)
 
 long long int rtapi_get_time(void)
 {
-    //struct timeval tv;
-
-    //AJ: commenting the following code out, as it seems on some systems it
-    // really breaks
-    
-    /* call the kernel's internal implementation of gettimeofday() */
-    /* unfortunately timeval has only usec, struct timespec would be
-       better, it has nsec resolution.  Doing this right probably
-       involves a number of ifdefs based on kernel version and such */
-    /*do_gettimeofday(&tv);*/
-    /* convert to nanoseconds */
-    /*return (tv.tv_sec * 1000000000LL) + (tv.tv_usec * 1000L);*/
-    
-    //reverted to old code for now
-    /* this is a monstrosity that seems to take several MICROSECONDS!!!
-       on some boxes.  Why the RTAI folks even bothered I have no idea!
-       If you have any need for speed at all use rtapi_get_clocks()!!
-    */
     return rt_get_cpu_time_ns();    
 }
 
@@ -574,7 +554,7 @@ void rtapi_delay(long int nsec)
     if (nsec > max_delay) {
 	nsec = max_delay;
     }
-    udelay(nsec / 1000);
+    rt_busy_sleep(nsec);
 }
 
 long int rtapi_delay_max(void)

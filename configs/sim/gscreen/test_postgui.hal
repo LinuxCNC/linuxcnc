@@ -1,0 +1,12 @@
+net spindle-speed-limited gscreen.spindle-readout-in vcp_box.hal_meter1
+net spindle-at-speed gscreen.spindle-at-speed
+
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp hal_manualtoolchange.change
+unlinkp hal_manualtoolchange.changed
+unlinkp hal_manualtoolchange.number
+
+net tool-change gscreen.change-tool iocontrol.0.tool-change 
+net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
+net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number

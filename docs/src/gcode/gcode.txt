@@ -2,6 +2,10 @@
 
 [[cha:g-codes]] (((G Codes)))
 
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Conventions
 
 Conventions used in this section
@@ -41,6 +45,9 @@ The values following letters are often given as explicit numbers.
 Unless stated otherwise, the explicit numbers can be real values. For
 example, 'G10 L2' could equally well be written 'G[2*5] L[1+1]'. If the
 value of parameter 100 were 2, 'G10 L#100' would also mean the same.
+
+If 'L-' is written in a prototype the '-' will often be referred to
+as the 'L number', and so on for any other letter.
 
 == G Code Quick Reference Table[[quick-reference-table]]
 
@@ -104,9 +111,9 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 == G0 Rapid Motion
 (((G0 Rapid)))(((Rapid Motion)))
 
-----
+-------------------
 G0 axes
-----
+-------------------
 
 For rapid linear (straight line) motion, program 'G0 'axes'', where
 all the axis words are optional. The 'G0' is optional if the current
@@ -138,9 +145,9 @@ It is an error if:
 == G1 Linear Feed
 (((G1 Linear Motion)))(((Linear Motion)))
 
-----
+-------------------
 G1 axes
-----
+-------------------
 
 For linear (straight line) motion at programed feed rate (for cutting
 or not), program 'G1 'axes'', where all the axis words are optional.
@@ -331,6 +338,7 @@ us an offset from the start position of 1 in the X axis and 0 in the Y
 axis. In this case only an I offset is needed.
 
 .G2 Example Line
+[source,{ngc}]
 ----
 G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 ----
@@ -346,6 +354,7 @@ both moves. The G2 move the J offset is 0.5 and the G3 move the J
 offset is -0.5.
 
 .G2-G3 Example Line
+[source,{ngc}]
 ----
 G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)
 G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
@@ -356,6 +365,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 image::images/g2-3.png[align="center"]
 
 .G2 Example Line
+[source,{ngc}]
 ----
 G17 G2 X10 Y16 I3 J4 Z9 (helix arc with Z added)
 ----
@@ -408,6 +418,7 @@ It is an error if:
 * the end point of the arc is the same as the current point.
 
 .G2 Example Line
+[source,{ngc}]
 ----
 G17 G2 X10 Y15 R20 Z5 (radius format with arc)
 ----
@@ -487,7 +498,8 @@ the curve shape can be modified only acting on either control points or
 weights.
 
 .G5.2 Example
-----
+[source,{ngc}]
+---------------
 G0 X0 Y0 (rapid move)
 F10 (set feed rate)
 G5.2 X0 Y1 P1 L3
@@ -501,7 +513,7 @@ G0 X0 Y1
    X2 Y0
    X0 Y0
 M2
-----
+---------------
 
 .Sample NURBs Output
 
@@ -630,6 +642,7 @@ It is an error if:
 * An axis is programmed that is not defined in the configuration.
 
 .G10 L2 Example Line
+[source,{ngc}]
 ----
 G10 L2 P1 X3.5 Y17.2
 ----
@@ -640,6 +653,7 @@ Because only X and Y are specified, the origin point is only moved in X and Y;
 the other coordinates are not changed.
 
 .G10 L2 Example Line
+[source,{ngc}]
 ----
 G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
@@ -908,9 +922,9 @@ It is an error if:
 == G33.1 Rigid Tapping
 (((G33.1 Rigid Tapping)))
 
-----
+----------------
 G33.1 X- Y- Z- K-
-----
+----------------
 * 'K' - distance per revolution
 
 For rigid tapping (spindle synchronized motion with return),
@@ -944,6 +958,7 @@ so multiple passes line up.
 All the axis words are optional, except that at least one must be used.
 
 .G33.1 Example
+[source,{ngc}]
 ----
 G90 (set absolute mode)
 G0 X1.000 Y1.000 Z0.100 (rapid move to starting position)
@@ -1466,10 +1481,11 @@ and can be previewed and
 executed on any machine using the 'sim/lathe.ini' configuration.
 
 .G76 Example
-----
+[source,{ngc}]
+---------------
 G0 Z-0.5 X0.2
 G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
-----
+---------------
 
 In the figure the tool is in the final position after the G76 cycle
 is completed. You can see the entry path on the right from the Q29.5
@@ -1508,7 +1524,7 @@ plane selected and R words. The R (usually meaning retract) position is
 along the axis perpendicular to the currently selected plane (Z-axis
 for XY-plane, etc.) Some canned cycles use additional arguments.
 
-=== Sticky Words
+=== Sticky Words[[sec:Cycle-Sticky-Words]]
 
 For canned cycles, we will call a number 'sticky' if, when the same
 cycle is used on several lines of code in a row, the number must be
@@ -1539,7 +1555,7 @@ repeats. The L number is not sticky. In absolute distance mode,
 L>1 means 'do the same cycle in the same place several
 times', Omitting the L word is equivalent to specifying L=1.
 
-=== Retract Mode
+=== Retract Mode[[sec:Retract-Mode]]
 
 The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
@@ -1547,7 +1563,7 @@ the retract mode: either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
 the R position. See the <<sec:G98-G99-Set,G98 G99>> Section.
 
-=== Canned Cycle Errors
+=== Canned Cycle Errors[[sec:Canned-Cycle-Errors]]
 
 It is an error if:
 
@@ -1742,6 +1758,7 @@ The cycle functions as follows:
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
 
+[source,{ngc}]
 ----
 G90 G98 G81 X4 Y5 Z1.5 R2.8
 ----
@@ -1774,6 +1791,7 @@ image::images/G81ex1.png[align="center"]
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
 
+[source,{ngc}]
 ----
 G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
 ----

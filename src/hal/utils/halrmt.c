@@ -303,7 +303,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 /* non-EMC related uses of halrmt may want to avoid libnml dependency */
 #ifndef NO_INI
-#include "inifile.hh"		/* iniFind() from libnml */
+#include "inifile.h"		/* iniFind() from libnml */
 #endif
 
 /***********************************************************************
@@ -467,11 +467,8 @@ static int initSockets()
 
 static int sockWrite(connectionRecType *context)
 {
-   int ret;
    strcat(context->outBuf, "\r\n");
-   ret = write(context->cliSock, context->outBuf, strlen(context->outBuf));
-   //FIXME return error based on ret, probably return (ret >= 0);
-   return 0;
+   return write(context->cliSock, context->outBuf, strlen(context->outBuf));
 }
 
 static void sockWriteError(const char *nakStr, connectionRecType *context)
@@ -480,7 +477,7 @@ static void sockWriteError(const char *nakStr, connectionRecType *context)
     sprintf(context->outBuf, "%s %s", nakStr, errorStr);
   else
     sprintf(context->outBuf, "%s", nakStr);
-  sockWrite(context);
+  if(sockWrite(context) < 0) perror("sockWrite");
 }
 
 pid_t hal_systemv_nowait(char *const argv[], connectionRecType *context) {
@@ -1129,13 +1126,13 @@ static int doStop(connectionRecType *context)
 static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
 {
     char arg_string[MAX_CMD_LEN+1];
-    int m=0, n=0, retval=0;
+    int n=0, retval=0;
     hal_comp_t *comp;
-    char *argv[MAX_TOK+3];
     char *cp1;
     const char *nakStr = "SET LOADRT NAK";
 
 #if defined(RTAPI_SIM)
+#if 0
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
@@ -1147,7 +1144,10 @@ static int doLoadRt(char *mod_name, char *args[], connectionRecType *context)
     }
     argv[m++] = NULL;
 //    retval = do_loadusr_cmd(argv);
+#endif
 #else
+    int m=0;
+    char *argv[MAX_TOK+3];
     static char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
@@ -1272,7 +1272,7 @@ static int doDelsig(char *mod_name, connectionRecType *context)
       rtapi_mutex_give(&(hal_data->mutex));
       sigs[n][0] = '\0';
 
-      if ((sigs[0][0] == '\0')) {
+      if (sigs[0][0] == '\0') {
         /* desired signals not found */
         sprintf(errorStr, "HAL:%d: ERROR: no signals found to be deleted", linenumber);
         sockWriteError(nakStr, context);
@@ -2662,13 +2662,11 @@ int commandGet(connectionRecType *context)
   static char *setCmdNakStr = "GET %s NAK\r\n";
   halCommandType cmd;
   char *pch;
-  int retval;
   cmdResponseType ret = rtNoError;
   
   pch = strtok(NULL, delims);
   if (pch == NULL) {
-    retval = write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   strupr(pch);
   cmd = lookupHalCommand(pch);
@@ -3032,20 +3030,18 @@ int commandSet(connectionRecType *context)
   int i;
   char *pch;
   char *pcmd;
-  int retval;
+  int retval = 0;
   cmdResponseType ret = rtNoError;
   
   pcmd = strtok(NULL, delims);
   if (pcmd == NULL) {
-    retval = write(context->cliSock, setNakStr, strlen(setNakStr));
-    return 0;
+    return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   strupr(pcmd);
   cmd = lookupHalCommand(pcmd);
   if ((cmd >= hcCommProt) && (context->cliSock != enabledConn)) {
     sprintf(context->outBuf, setCmdNakStr, pcmd);
-    retval = write(context->cliSock, context->outBuf, strlen(context->outBuf));
-    return 0;
+    return write(context->cliSock, context->outBuf, strlen(context->outBuf));
     }
   pch = strtok(NULL, delims);
   i = 0;
@@ -3118,7 +3114,7 @@ int commandSet(connectionRecType *context)
       break;
     case rtCustomHandledError: ;// Custom error respose handled, take no action
     }
-  return 0;
+  return retval;
 }
 
 int commandQuit(connectionRecType *context)
@@ -3375,8 +3371,12 @@ void *readClient(void *arg)
     str[len] = 0;
     strcat(buf, str);
     if (!memchr(str, 0x0d, strlen(str))) continue;
-    if ((context->echo == 1) && (context->linked) == 1)
+    if ((context->echo == 1) && (context->linked == 1)) {
       ret = write(context->cliSock, &buf, strlen(buf));
+      if (ret != 0) {
+        goto finished;
+      }
+    }
     i = 0;
     j = 0;
     while (i <= strlen(buf)) {

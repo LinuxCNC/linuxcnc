@@ -295,6 +295,14 @@ class GlNavBase:
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
         self.tkRedraw()
 
+    def get_zoom_distance(self):
+        data = self.distance
+        return data
+
+    def set_zoom_distance(self,data):
+        self.distance = data
+        self._redraw()
+
     def zoomin(self):
         self.distance = self.distance / 1.1
         self._redraw()
@@ -343,6 +351,19 @@ class GlNavBase:
         glRotatef(-90, 1, 0, 0)
         if self.is_lathe():
             glRotatef(90, 0, 1, 0)
+        mid, size = self.extents_info()
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.set_eyepoint_from_extents(size[0], size[2])
+        self.perspective = False
+        self.lat = -90
+        self.lon = 0
+        self._redraw()
+
+        # lathe backtool display
+    def set_view_y2(self):
+        self.reset()
+        glRotatef(90, 1, 0, 0)
+        glRotatef(90, 0, 1, 0)
         mid, size = self.extents_info()
         glTranslatef(-mid[0], -mid[1], -mid[2])
         self.set_eyepoint_from_extents(size[0], size[2])

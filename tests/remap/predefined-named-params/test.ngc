@@ -1,0 +1,34 @@
+; add a python predefined named parameter which does the same thing as the builtin
+; _motion_mode
+; assert accessability and results at Python and NGC level
+
+;py,from interpreter import *
+
+; basic value access:
+;py,assert this.params["_pi"] == 3.1415926535
+
+; _py_motion_mode: it's a Python predefined variable (32), global (1) and readonly (2)
+; see interp_internal.hh, #defines for PA_*
+;py,assert this.sub_context[0].named_params["_py_motion_mode"].attr == 35
+
+s300m3f100
+g1 x1 y1
+;py,assert this.params["_motion_mode"] == 10
+;py,assert this.params["_py_motion_mode"] == 10
+o100 if [#<_motion_mode> NE 10]
+     (abort,_motion_mode != 10: #<_motion_mode>)
+o100 endif
+o200 if [#<_py_motion_mode> NE 10]
+     (abort,_py_motion_mode != 10: #<_py_motion_mode>)
+o200 endif
+g80
+;py,assert this.params["_motion_mode"] == 800
+;py,assert this.params["_py_motion_mode"] == 800
+o300 if [#<_motion_mode> NE 800]
+     (abort,_motion_mode != 800: #<_motion_mode>)
+o300 endif
+o400 if [#<_py_motion_mode> NE 800]
+     (abort,_py_motion_mode != 800: #<_py_motion_mode>)
+o400 endif
+
+m2

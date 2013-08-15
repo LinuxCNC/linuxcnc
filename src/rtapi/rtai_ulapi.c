@@ -92,6 +92,7 @@ static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 static void check_memlock_limit(const char *where);
 
+static int nummods;
 /***********************************************************************
 *                      GENERAL PURPOSE FUNCTIONS                       *
 ************************************************************************/
@@ -105,7 +106,8 @@ int rtapi_init(const char *modname)
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI: initing module %s\n", modname);
     /* get shared memory block from OS and save its address */
     errno = 0;
-    rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
+    if(!rtapi_data)
+        rtapi_data = rtai_malloc(RTAPI_KEY, sizeof(rtapi_data_t));
     // the check for -1 here is because rtai_malloc (in at least
     // rtai 3.6.1, and probably others) has a bug where it
     // sometimes returns -1 on error
@@ -113,8 +115,10 @@ int rtapi_init(const char *modname)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "RTAPI: ERROR: could not open shared memory (errno=%d)\n", errno);
 	check_memlock_limit("could not open shared memory");
+	rtapi_data = 0;
 	return -ENOMEM;
     }
+    nummods++;
     /* perform a global init if needed */
     init_rtapi_data(rtapi_data);
     /* check revision code */
@@ -220,6 +224,12 @@ int rtapi_exit(int module_id)
     module->name[0] = '\0';
     rtapi_data->ul_module_count--;
     rtapi_mutex_give(&(rtapi_data->mutex));
+    nummods--;
+    if(nummods == 0)
+    {
+	rtai_free(RTAPI_KEY, rtapi_data);
+	rtapi_data = 0;
+    }
     return 0;
 }
 

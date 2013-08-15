@@ -1,0 +1,28 @@
+# exercise parport driver - generate 1kHz square
+# should run identically on sim and rt with
+# $ halcmd -f signal.hal
+
+loadrt siggen 
+loadrt hal_parport cfg="0"
+
+
+loadusr -W gladevcp -g 200x300+0+0 -c gladevcp signal.ui
+setp gladevcp.hal_table1 1
+net freq gladevcp.hal_hscale1  siggen.0.frequency
+
+net square siggen.0.clock parport.0.pin-02-out gladevcp.hal_led1
+net square parport.0.pin-03-out parport.0.pin-04-out parport.0.pin-05-out
+net square parport.0.pin-06-out parport.0.pin-07-out 
+
+loadrt threads name1=servo-thread period1=1000000 fp1=1
+
+addf parport.read-all  servo-thread 1
+addf siggen.0.update   servo-thread
+addf parport.write-all servo-thread -1
+
+start
+waitusr gladevcp
+
+stop
+unload all
+

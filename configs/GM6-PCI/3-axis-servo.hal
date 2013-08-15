@@ -1,0 +1,182 @@
+
+#########################################################################
+#      		Loading real-time modules 				#
+#########################################################################
+
+loadrt trivkins
+loadrt hal_gm
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt pid num_chan=3
+loadrt not
+
+loadusr halmeter
+#loadusr halscope -f
+
+#########################################################################
+# 			Adding functions				#
+#########################################################################
+
+addf motion-command-handler 	servo-thread
+addf motion-controller 		servo-thread
+
+addf gm.0.read 			servo-thread -1
+addf pid.0.do-pid-calcs         servo-thread
+addf pid.1.do-pid-calcs         servo-thread
+addf pid.2.do-pid-calcs         servo-thread
+addf gm.0.write 		servo-thread -1
+
+addf gm.0.RS485 		servo-thread -1
+addf not.0 			servo-thread
+
+#########################################################################
+#				Card mgt				#
+#########################################################################
+
+setp gm.0.watchdog-enable 1
+setp gm.0.watchdog-timeout-ns 3000000
+
+net pwrEnable motion.motion-enabled => gm.0.power-enable
+
+# create power fault loopback
+net hw_fault gm.0.power-fault => not.0.in
+net estop not.0.out => iocontrol.0.emc-enable-in
+
+# connect enable signals for DAC and PID
+net Xen axis.0.amp-enable-out => gm.0.dac.0.enable
+net Xen => pid.0.enable
+net Yen axis.1.amp-enable-out => gm.0.dac.1.enable
+net Yen => pid.1.enable
+net Zen axis.2.amp-enable-out => gm.0.dac.2.enable
+net Zen => pid.2.enable
+
+#########################################################################
+#				Encoder setup				#
+#########################################################################
+
+# ################
+# X [0] Axis
+# ################
+
+# encoder feedback
+setp gm.0.encoder.0.counter-mode 0 	#0:quad, 1:stepDir
+setp gm.0.encoder.0.index-enable 0 	#0:disable, 1:enable
+setp gm.0.encoder.0.index-mode 	1 	#0:reset counter at index, 1:round position at index
+setp gm.0.encoder.0.counts-per-rev 2000
+setp gm.0.encoder.0.position-scale  [AXIS_0]INPUT_SCALE
+setp gm.0.encoder.0.min-speed-estimate 0.1
+
+# ################
+# Y [1] Axis
+# ################
+
+# encoder feedback
+setp gm.0.encoder.1.counter-mode 0 	#0:quad, 1:stepDir
+setp gm.0.encoder.1.index-enable 0 	#0:disable, 1:enable
+setp gm.0.encoder.1.index-mode 	1 	#0:reset counter at index, 1:round position at index
+setp gm.0.encoder.1.counts-per-rev 2000
+setp gm.0.encoder.1.position-scale  [AXIS_2]INPUT_SCALE
+setp gm.0.encoder.1.min-speed-estimate 0.1
+
+# ################
+# Z [2] Axis
+# ################
+
+# encoder feedback
+setp gm.0.encoder.2.counter-mode 0 	#0:quad, 1:stepDir
+setp gm.0.encoder.2.index-enable 0 	#0:disable, 1:enable
+setp gm.0.encoder.2.index-mode 	1 	#0:reset counter at index, 1:round position at index
+setp gm.0.encoder.2.counts-per-rev 2000
+setp gm.0.encoder.2.position-scale  [AXIS_2]INPUT_SCALE
+setp gm.0.encoder.2.min-speed-estimate 0.1
+
+#########################################################################
+#				PID setup				#
+#########################################################################
+
+# ################
+# X [0] Axis
+# ################
+
+# set PID loop gains from inifile
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+setp pid.0.deadband [AXIS_0]DEADBAND
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
+
+# ################
+# Y [1] Axis
+# ################
+
+# set PID loop gains from inifile
+setp pid.1.Pgain [AXIS_1]P
+setp pid.1.Igain [AXIS_1]I
+setp pid.1.Dgain [AXIS_1]D
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
+setp pid.1.deadband [AXIS_1]DEADBAND
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
+
+# ################
+# Z [2] Axis
+# ################
+
+# set PID loop gains from inifile
+setp pid.2.Pgain [AXIS_2]P
+setp pid.2.Igain [AXIS_2]I
+setp pid.2.Dgain [AXIS_2]D
+setp pid.2.bias [AXIS_2]BIAS
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
+setp pid.2.deadband [AXIS_2]DEADBAND
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+
+#########################################################################
+#        	 position reference and feedback connection		#
+#########################################################################
+
+# connect encoder feedback to PID
+net Xpos-fb gm.0.encoder.0.position => pid.0.feedback
+net Ypos-fb gm.0.encoder.1.position => pid.1.feedback
+net Zpos-fb gm.0.encoder.2.position => pid.2.feedback
+
+# connect position commands from motion module to PID
+net Xpos-cmd axis.0.motor-pos-cmd => pid.0.command
+net Ypos-cmd axis.1.motor-pos-cmd => pid.1.command
+net Zpos-cmd axis.2.motor-pos-cmd => pid.2.command
+
+# connect PID output to DAC
+net Xdac-cmd pid.0.output  =>  gm.0.dac.0.value
+net Ydac-cmd pid.1.output  =>  gm.0.dac.1.value
+net Zdac-cmd pid.2.output  =>  gm.0.dac.2.value
+
+# connect position feedback
+net Xpos-cmd =>  axis.0.motor-pos-fb
+net Ypos-cmd =>  axis.1.motor-pos-fb
+net Zpos-cmd =>  axis.2.motor-pos-fb
+
+#########################################################################
+#		homing and limit switches				#
+#########################################################################
+
+net lim-sw-x-pos gm.0.axis.0.pos-lim-sw-in-not => axis.0.pos-lim-sw-in
+net lim-sw-x-neg gm.0.axis.0.neg-lim-sw-in-not => axis.0.neg-lim-sw-in
+net lim-sw-x-home gm.0.axis.0.home-sw-in-not => axis.0.home-sw-in
+
+net lim-sw-y-pos gm.0.axis.1.pos-lim-sw-in-not => axis.1.pos-lim-sw-in
+net lim-sw-y-neg gm.0.axis.1.neg-lim-sw-in-not => axis.1.neg-lim-sw-in
+net lim-sw-y-home gm.0.axis.1.home-sw-in-not => axis.1.home-sw-in
+
+net lim-sw-z-pos gm.0.axis.2.pos-lim-sw-in-not => axis.2.pos-lim-sw-in
+net lim-sw-z-neg gm.0.axis.2.neg-lim-sw-in-not => axis.2.neg-lim-sw-in
+net lim-sw-z-home gm.0.axis.2.home-sw-in-not => axis.2.home-sw-in
+
+
+

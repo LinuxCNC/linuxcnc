@@ -1,0 +1,71 @@
+###################################################################
+#        moccapy_postgui.hal file from Norbert Schechner          #
+###################################################################
+
+net spindle-speed-limited gscreen.hal_hbar_spindle_feedback
+net spindle-at-speed gscreen.hal_led_spindle_at_speed
+
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp hal_manualtoolchange.change
+unlinkp hal_manualtoolchange.changed
+unlinkp hal_manualtoolchange.number
+
+net tool-change gscreen.change-tool iocontrol.0.tool-change 
+net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
+net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
+
+net tooloffset-x gscreen.tooloffset_x <= motion.tooloffset.x
+net tooloffset-z gscreen.tooloffset_z <= motion.tooloffset.z
+
+#############################################################################
+#                        Jogwheel / Handrad / Encoder                       #
+#############################################################################
+# Nun die ParPort Treiber laden und die Adressen festlegen
+#loadrt probe_parport
+#loadrt hal_parport cfg="0xcc00 out "
+#setp parport.0.reset-time 500
+#addf parport.0.read base-thread
+#addf parport.0.write base-thread
+#addf parport.0.reset base-thread
+
+# load the real-time encoder
+# if you do use all hal_pins from gmoccapy, you will have to modify num_chan
+# and add the other encoders to threads 
+#loadrt encoder num_chan=1
+#addf encoder.update-counters   servo-thread
+#addf encoder.capture-position  servo-thread
+
+# disable 4 times encoder, otherwise each klick will ingreas jogwheel-count by 4 instead of 1
+#setp encoder.0.x4-mode FALSE
+
+# connect jog signals to hardware / Signale an Hardware anschließen
+#net Jogwheel-phA encoder.0.phase-A <= parport.0.pin-15-in
+#net Jogwheel-phB encoder.0.phase-B <= parport.0.pin-13-in
+
+# connect encoder count, select the one you need
+#net Jogwheel-counts encoder.0.counts => gscreen.spindle-override-counts 
+#net Jogwheel-counts encoder.0.counts => gscreen.feed-override-counts 
+#net Jogwheel-counts encoder.0.counts => gscreen.max-vel-counts 
+#net Jogwheel-counts encoder.0.counts => gscreen.jog-speed-counts 
+
+#net h_hardware_button_0 h_buttonlist.h_button_0 => gscreen.h-button_0
+#net h_hardware_button_1 h_buttonlist.h_button_1 => gscreen.h-button_1
+#net h_hardware_button_2 h_buttonlist.h_button_2 => gscreen.h-button_2
+#net h_hardware_button_3 h_buttonlist.h_button_3 => gscreen.h-button_3
+#net h_hardware_button_4 h_buttonlist.h_button_4 => gscreen.h-button_4
+#net h_hardware_button_5 h_buttonlist.h_button_5 => gscreen.h-button_5
+#net h_hardware_button_6 h_buttonlist.h_button_6 => gscreen.h-button_6
+#net h_hardware_button_7 h_buttonlist.h_button_7 => gscreen.h-button_7
+#net h_hardware_button_8 h_buttonlist.h_button_8 => gscreen.h-button_8
+#net h_hardware_button_9 h_buttonlist.h_button_9 => gscreen.h-button_9
+
+#net v_hardware_button_0 v_buttonlist.v_button_0 => gscreen.v-button_0
+#net v_hardware_button_1 v_buttonlist.v_button_1 => gscreen.v-button_1
+#net v_hardware_button_2 v_buttonlist.v_button_2 => gscreen.v-button_2
+#net v_hardware_button_3 v_buttonlist.v_button_3 => gscreen.v-button_3
+#net v_hardware_button_4 v_buttonlist.v_button_4 => gscreen.v-button_4
+#net v_hardware_button_5 v_buttonlist.v_button_5 => gscreen.v-button_5
+#net v_hardware_button_6 v_buttonlist.v_button_6 => gscreen.v-button_6
+
+

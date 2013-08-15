@@ -561,7 +561,8 @@ int rtapi_app_main(void)
 	    //   being left on the bus by a non-implemented device slot
 		slot->id = 0;
 		slot->ver = 0;
-		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected\n");
+		rtapi_print_msg(RTAPI_MSG_INFO, "nothing detected at addr %x reads %x\n",
+				slotnum,idcode);
 		ClrTimeout(slot->port_addr);
 		/* skip to next slot */
 		continue;

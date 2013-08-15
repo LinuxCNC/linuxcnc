@@ -186,6 +186,7 @@ static int compute_jfwd(go_link * link_params,
 static int compute_jinv(go_matrix * Jfwd, go_matrix * Jinv)
 {
     int retval;
+    GO_MATRIX_DECLARE(JT, JTstg, GENSER_MAX_JOINTS, 6);
 
     /* compute inverse, or pseudo-inverse */
     if (Jfwd->rows == Jfwd->cols) {
@@ -195,7 +196,6 @@ static int compute_jinv(go_matrix * Jfwd, go_matrix * Jinv)
     } else if (Jfwd->rows < Jfwd->cols) {
 	/* underdetermined, optimize on smallest sum of square of speeds */
 	/* JT(JJT)inv */
-	GO_MATRIX_DECLARE(JT, JTstg, GENSER_MAX_JOINTS, 6);
 	GO_MATRIX_DECLARE(JJT, JJTstg, 6, 6);
 
 	go_matrix_init(JT, JTstg, Jfwd->cols, Jfwd->rows);
@@ -209,7 +209,6 @@ static int compute_jinv(go_matrix * Jfwd, go_matrix * Jinv)
     } else {
 	/* overdetermined, do least-squares best fit */
 	/* (JTJ)invJT */
-	GO_MATRIX_DECLARE(JT, JTstg, GENSER_MAX_JOINTS, 6);
 	GO_MATRIX_DECLARE(JTJ, JTJstg, GENSER_MAX_JOINTS, GENSER_MAX_JOINTS);
 
 	go_matrix_init(JT, JTstg, Jfwd->cols, Jfwd->rows);

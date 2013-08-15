@@ -1,0 +1,95 @@
+; manual toolchange with automatic tool length probe 
+
+o<manual_change> sub
+
+(we change feed, metric/in and potentially G90)
+(so record current modal state)
+(M73 is not useful here because it reverts G43 on return too)
+#<metric> = #<_metric>
+#<absolute> = #<_absolute>
+#<feed> = #<_feed>
+
+G21 (TLO and toolchange position is in mm as per ini)
+G90 (absolute)
+
+; move to toolchange position: z, then xy
+g53 g0 Z #<_ini[change_position]z>
+g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
+
+; indicate tool number to be loaded
+M68 E #<_ini[pins]toolno> Q #<_selected_tool>
+
+; enable table
+M64 P  #<_ini[pins]enable> 
+
+; signal user to change tool
+M64 P  #<_ini[pins]change> 
+
+; and wait for acknowledgement
+M66 P #<_ini[pins]changed> L1 Q#<_ini[dwell]ack_secs>
+M65 P #<_ini[pins]change> ; drop change pin
+
+
+;see if we timed out
+O100 if [#5399 EQ -1]
+        M65 P  #<_ini[pins]enable> ; disable table
+	O<restore> call [#<metric>] [#<absolute>] [#<feed>]
+O100    return [-1] ; indicate timeout failure to epilog
+O100 endif
+
+O200 if [#<_selected_tool> EQ 0]   ; an unload.
+        M65 P  #<_ini[pins]enable> ; disable table
+	O<restore> call [#<metric>] [#<absolute>] [#<feed>]
+O200    return [1] ; indicate success
+O200 endif
+
+; tool changed - move to toolensor
+g53 g0 X #<_ini[toolsensor]x> Y #<_ini[toolsensor]y>
+g53 g0 Z #<_ini[toolsensor]z>
+
+; probe tool length
+M64 P  #<_ini[pins]probing> ; turn on probing led
+
+F #<_ini[toolsensor]probefeed>
+G91 (relative mode)
+G38.3 Z #<_ini[toolsensor]maxprobe>
+
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
+
+O300 if [[#<_task> GT 0] and [#5070 EQ 0]]
+	O<restore> call [#<metric>] [#<absolute>] [#<feed>]
+O300    return [-2] ; indicate probe contact failure to epilog
+O300 endif
+
+
+; see wether this was the reference tool:
+M66 P #<_ini[pins]reftool> L0
+
+O400 if [#5399 EQ 1]
+    #1000=#5063 (save reference tool length)
+    M68 E #<_ini[pins]reflen> Q #1000
+    (print,reference length is #1000)
+O400 else
+     g43.1 z[#5063-#1000] (set new tool offset)
+     M68 E #<_ini[pins]currlen> Q [#5063-#1000]
+     (print,new length is #5063)
+O400 endif 
+
+M65 P #<_ini[pins]probing> ; drop probing led
+M65 P  #<_ini[pins]enable> ; disable table
+
+G90 (absolute)
+
+
+; move back to toolchange position: z, then xy
+g53 g0 Z #<_ini[change_position]z>
+g53 g0 X #<_ini[change_position]x> Y #<_ini[change_position]y>
+
+; restore g20/21, g90/g91, feed
+O<restore> call [#<metric>] [#<absolute>] [#<feed>]
+
+; succeed by returning a positive value
+o<manual_change> endsub [1]
+m2

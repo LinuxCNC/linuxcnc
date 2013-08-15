@@ -1,0 +1,31 @@
+%
+(Program to test M70 save/M72 restore context)
+(M. Haberler)
+
+o1000 sub
+o1001 if [#1 GT 0]
+      M70 (save context)
+o1001 endif
+G90 (absolute)
+G0 X5 Y20
+o1002 if [#1 GT 0]
+      M72 (restore context)
+o1002 endif
+o1000 endsub
+
+G90
+G53 G0 X0 Y0 Z0
+G91 (relative)
+g0 x10 y10
+g0 x10 y10
+o1000 call [1.0]
+(back in relative mode due to G72)
+(debug, incremental=#<_incremental>)
+g0 X-5 Y-20
+o1000 call [0.0]
+G91 (relative)
+g0 x10 y10
+g0 x10 y10
+o1000 call [0.0]
+(debug, incremental=#<_incremental>)
+%

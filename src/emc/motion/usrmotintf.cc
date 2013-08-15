@@ -82,6 +82,10 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     static unsigned char headCount = 0;
     double end;
 
+    if (!MOTION_ID_VALID(c->id)) {
+        rcs_print("USRMOT: ERROR: invalid motion id: %d\n",c->id);
+	return EMCMOT_COMM_INVALID_MOTION_ID;
+    }
     c->head = ++headCount;
     c->tail = c->head;
     c->commandNum = ++commandNum;

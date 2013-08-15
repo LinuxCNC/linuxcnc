@@ -1,0 +1,11 @@
+o<rg881> sub
+o100 if [[#<_seq>] GT 10]
+     (debug,G88.1 sequencing error - seq=#<_seq>)
+o100 else
+     (debug, seq=#<_seq> - reset to 1)
+o100 endif
+#<_seq> = 1
+
+o<rg881> endsub
+m2
+%

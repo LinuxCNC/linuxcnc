@@ -9,14 +9,6 @@ EMCLCDSRCS := emc/usr_intf/emclcd.cc \
               emc/usr_intf/shcom.cc \
               emc/usr_intf/sockets.c
 
-USRMOTSRCS := \
-	emc/usr_intf/usrmot.c \
-	emc/motion/usrmotintf.cc \
-	emc/motion/emcmotglb.c \
-	emc/motion/emcmotutil.c \
-	emc/motion/dbuf.c \
-	emc/motion/stashf.c
-
 HALUISRCS := emc/usr_intf/halui.cc
 ifeq "$(HAVE_NCURSES)" "yes"
 KEYSTICKSRCS := emc/usr_intf/keystick.cc
@@ -44,6 +36,21 @@ $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 	chmod +x $@
 TARGETS += ../bin/tooledit
 
+../lib/python/pyngcgui.py: emc/usr_intf/pyngcgui.py
+	cp $< $@
+	chmod +x $@
+TARGETS += ../lib/python/pyngcgui.py
+
+# use link so BASE works for module and standalone in RIP build
+../bin/pyngcgui: ../lib/python/pyngcgui.py
+	ln -sf $< $@
+TARGETS += ../bin/pyngcgui
+
+../share/linuxcnc/popupkeyboard.ui: emc/usr_intf/popupkeyboard.ui
+	mkdir -p ../share/linuxcnc
+	cp $< $@
+TARGETS += ../share/linuxcnc/popupkeyboard.ui
+
 ../tcl/linuxcnc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama
@@ -63,11 +70,6 @@ TARGETS += ../bin/schedrmt
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
 TARGETS += ../bin/linuxcnclcd
-
-../bin/usrmot: $(call TOOBJS, $(USRMOTSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^
-TARGETS += ../bin/usrmot
 
 ../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)

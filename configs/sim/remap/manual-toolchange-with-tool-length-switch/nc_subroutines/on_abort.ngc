@@ -1,0 +1,12 @@
+
+o<on_abort> sub
+
+(print, on_abort executing)
+
+M65 P #<_ini[pins]change> ; drop change pin
+M65 P #<_ini[pins]probing> ; drop probing led
+
+o<reset_state> call
+
+o<on_abort> endsub
+m2

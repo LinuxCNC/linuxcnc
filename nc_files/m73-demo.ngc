@@ -1,0 +1,53 @@
+; Demonstrate saving the global state within a subroutine
+; using the M73 autorestore feature
+;
+
+O<showstate> sub
+(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
+O<showstate> endsub
+
+
+O<imperialsub> sub
+M73 (save caller state in current call context, restore on return or endsub)
+;
+g20 (imperial)
+g91 (relative mode)
+F5 (low feed)
+S300 (low rpm)
+;
+(debug, in subroutine, state now:)
+o<showstate> call
+(debug, arg=#1)
+o<test_return> if [[#1] GT 0]
+; if called with param #1 > 0, demonstrate restore-on-return
+(debug, executing return)
+o<test_return> return
+o<test_return> endif
+
+; note - no exit M7x code needed - the following endsub or an
+; explicit 'return' will restore caller state
+(debug, executing endsub)
+O<imperialsub> endsub
+
+
+; main program
+g21 (metric)
+g90 (absolute)
+f200 (fast speed)
+S2500 (high rpm)
+;
+(debug, in main after endsub, state now:)
+o<showstate> call
+;
+; show restore-on-endsub:
+o<imperialsub> call [0]
+;
+(debug, back in main after return, state now:)
+o<showstate> call
+; now show restore-on-return:
+o<imperialsub> call [1]
+;
+(debug, back in main, state now:)
+o<showstate> call
+;
+m2

@@ -246,14 +246,6 @@ struct Togl
    Colormap OverlayCmap;		/* colormap for overlay is created */
    int OverlayTransparentPixel;		/* transparent pixel */
    int OverlayIsMapped;
-
-   /* for DumpToEpsFile: Added by Miguel A. de Riera Pasenau 10.01.1997 */
-   XVisualInfo *VisInfo;		/* Visual info of the current */
-					/* context needed for DumpToEpsFile */
-   GLfloat *EpsRedMap;		/* Index2RGB Maps for Color index modes */
-   GLfloat *EpsGreenMap;
-   GLfloat *EpsBlueMap;
-   GLint EpsMapSize;            	/* = Number of indices in our Togl */
 };
 
 
@@ -1339,10 +1331,6 @@ static int Togl_Cmd(ClientData clientData, Tcl_Interp *interp,
    togl->Ident = NULL;
    togl->Client_Data = DefaultClientData;
 
-   /* for EPS Output */
-   togl->EpsRedMap = togl->EpsGreenMap = togl->EpsBlueMap = NULL;
-   togl->EpsMapSize = 0;
-
    /* Create command event handler */
    togl->widgetCmd = Tcl_CreateCommand(interp, Tk_PathName(tkwin),
 				       (Tcl_CmdProc *)      Togl_Widget, 
@@ -1661,8 +1649,6 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
       assert(shareWith);
       assert(shareWith->GlCtx);
       togl->GlCtx = shareWith->GlCtx;
-      togl->VisInfo = shareWith->VisInfo;
-      visinfo = togl->VisInfo;
       printf("SHARE CTX\n");
    }
    else {
@@ -1684,13 +1670,6 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
                attrib_list[attrib_count++] = GLX_ALPHA_SIZE;
                attrib_list[attrib_count++] = togl->AlphaSize;
             }
-
-            /* for EPS Output */
-            if ( togl->EpsRedMap) free( ( char *)togl->EpsRedMap);
-            if ( togl->EpsGreenMap) free( ( char *)togl->EpsGreenMap);
-            if ( togl->EpsBlueMap) free( ( char *)togl->EpsBlueMap);
-            togl->EpsRedMap = togl->EpsGreenMap = togl->EpsBlueMap = NULL;
-            togl->EpsMapSize = 0;
          }
          else {
             /* Color index mode */
@@ -1745,8 +1724,6 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
             break;
          }
       }
-
-      togl->VisInfo = visinfo;
 
       if (visinfo==NULL) {
 	Tcl_SetResult(togl->Interp,"Togl: couldn't get visual",TCL_STATIC);
@@ -1904,24 +1881,8 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
       else {
          cmap = DefaultColormap(dpy,scrnum);
       }
-      /* for EPS Output */
-      if ( togl->EpsRedMap) free( ( char *)togl->EpsRedMap);
-      if ( togl->EpsGreenMap) free( ( char *)togl->EpsGreenMap);
-      if ( togl->EpsBlueMap) free( ( char *)togl->EpsBlueMap);
-      togl->EpsRedMap = togl->EpsGreenMap = togl->EpsBlueMap = NULL;
-      togl->EpsMapSize = 0;
-
 #elif defined(macintosh)
       cmap = DefaultColormap(dpy, scrnum);
-      /* for EPS Output */
-      if (togl->EpsRedMap)
-         free((char *) togl->EpsRedMap);
-      if (togl->EpsGreenMap)
-         free((char *) togl->EpsGreenMap);
-      if (togl->EpsBlueMap)
-         free((char *) togl->EpsBlueMap);
-      togl->EpsRedMap = togl->EpsGreenMap = togl->EpsBlueMap = NULL;
-      togl->EpsMapSize = 0;
 #endif /* X11 */
    }
    else {
@@ -2113,27 +2074,6 @@ static Window Togl_CreateWindow(Tk_Window tkwin,
       }
    }
 #endif /* X11 */
-
-   /* for EPS Output */
-   if ( !togl->RgbaFlag) {
-      int index_size;
-#if defined(X11) || defined(macintosh)
-      GLint index_bits;
-      glGetIntegerv( GL_INDEX_BITS, &index_bits );
-      index_size = 1 << index_bits;
-#elif defined(WIN32)
-      index_size = togl->CiColormapSize;
-#endif /* X11 */
-      if ( togl->EpsMapSize != index_size) {
-         if ( togl->EpsRedMap) free( ( char *)togl->EpsRedMap);
-         if ( togl->EpsGreenMap) free( ( char *)togl->EpsGreenMap);
-         if ( togl->EpsBlueMap) free( ( char *)togl->EpsBlueMap);
-         togl->EpsMapSize = index_size;
-         togl->EpsRedMap = ( GLfloat *)calloc( index_size, sizeof( GLfloat));
-         togl->EpsGreenMap = ( GLfloat *)calloc( index_size, sizeof( GLfloat));
-         togl->EpsBlueMap = ( GLfloat *)calloc( index_size, sizeof( GLfloat));
-      }
-   }
 
    return window;
 }
@@ -2527,10 +2467,6 @@ static UINT Win32AllocColor( const struct Togl *togl,
 	}
 	Tcl_SetHashValue(entryPtr, (ClientData)refCount);
 
-   /* for EPS output */
-    togl->EpsRedMap[index]   = (GLfloat)(entry.peRed / 255.0);
-    togl->EpsGreenMap[index] = (GLfloat)(entry.peGreen / 255.0);
-    togl->EpsBlueMap[index]  = (GLfloat)(entry.peBlue / 255.0);
     return index;
 }
 
@@ -2581,10 +2517,6 @@ static void Win32SetColor( const struct Togl *togl,
 	SelectPalette(togl->tglGLHdc, cmap->palette, TRUE);
 	RealizePalette(togl->tglGLHdc);
 
-	/* for EPS output */
-    togl->EpsRedMap[index]   = (GLfloat)(entry.peRed / 255.0);
-    togl->EpsGreenMap[index] = (GLfloat)(entry.peGreen / 255.0);
-    togl->EpsBlueMap[index]  = (GLfloat)(entry.peBlue / 255.0);
 }
 #endif /* X11 */
 
@@ -2614,10 +2546,6 @@ unsigned long Togl_AllocColor( const struct Togl *togl,
      
      noFaultXAllocColor( Tk_Display(togl->TkWin), Tk_Colormap(togl->TkWin),
 			 Tk_Visual(togl->TkWin)->map_entries, &xcol, &exact );
-     /* for EPS output */
-     togl->EpsRedMap[ xcol.pixel] = (float) xcol.red / 65535.0;
-     togl->EpsGreenMap[ xcol.pixel] = (float) xcol.green / 65535.0;
-     togl->EpsBlueMap[ xcol.pixel] = (float) xcol.blue / 65535.0;
      
      return xcol.pixel;
    }
@@ -2679,11 +2607,6 @@ void Togl_SetColor( const struct Togl *togl,
      xcol.flags = DoRed | DoGreen | DoBlue;
      
      XStoreColor( Tk_Display(togl->TkWin), Tk_Colormap(togl->TkWin), &xcol );
-     
-     /* for EPS output */
-     togl->EpsRedMap[ xcol.pixel] = (float) xcol.red / 65535.0;
-     togl->EpsGreenMap[ xcol.pixel] = (float) xcol.green / 65535.0;
-     togl->EpsBlueMap[ xcol.pixel] = (float) xcol.blue / 65535.0;
    }
 #elif defined(WIN32)
    Win32SetColor( togl, index, red, green, blue );
@@ -3096,290 +3019,6 @@ static void free_default_color_cells( Display *display, Colormap colormap)
 }
 #endif
 
-
-/*
- * Generate EPS file.
- * Contributed by Miguel A. De Riera Pasenau (miguel@DALILA.UPC.ES)
- */
-
-/* Function that creates a EPS File from a created pixmap on the current
- * context.
- * Based on the code from Copyright (c) Mark J. Kilgard, 1996.
- * Parameters: name_file, b&w / Color flag, redraw function.
- * The redraw function is needed in order to draw things into the new
- * created pixmap.
- */
-
-/* Copyright (c) Mark J. Kilgard, 1996. */
-
-static GLvoid *grabPixels(int inColor, unsigned int width, unsigned int height)
-{
-   GLvoid *buffer;
-   GLint swapbytes, lsbfirst, rowlength;
-   GLint skiprows, skippixels, alignment;
-   GLenum format;
-   unsigned int size;
-
-   if (inColor) {
-      format = GL_RGB;
-      size = width * height * 3;
-   }
-   else {
-      format = GL_LUMINANCE;
-      size = width * height * 1;
-   }
-
-   buffer = (GLvoid *) malloc(size);
-   if (buffer == NULL)
-      return NULL;
-
-   /* Save current modes. */
-   glGetIntegerv(GL_PACK_SWAP_BYTES, &swapbytes);
-   glGetIntegerv(GL_PACK_LSB_FIRST, &lsbfirst);
-   glGetIntegerv(GL_PACK_ROW_LENGTH, &rowlength);
-   glGetIntegerv(GL_PACK_SKIP_ROWS, &skiprows);
-   glGetIntegerv(GL_PACK_SKIP_PIXELS, &skippixels);
-   glGetIntegerv(GL_PACK_ALIGNMENT, &alignment);
-   /* Little endian machines (DEC Alpha for example) could
-      benefit from setting GL_PACK_LSB_FIRST to GL_TRUE
-      instead of GL_FALSE, but this would require changing the
-      generated bitmaps too. */
-   glPixelStorei(GL_PACK_SWAP_BYTES, GL_FALSE);
-   glPixelStorei(GL_PACK_LSB_FIRST, GL_FALSE);
-   glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-   glPixelStorei(GL_PACK_SKIP_ROWS, 0);
-   glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
-   glPixelStorei(GL_PACK_ALIGNMENT, 1);
-
-   /* Actually read the pixels. */
-   glReadPixels(0, 0, width, height, format,
-                GL_UNSIGNED_BYTE, (GLvoid *) buffer);
-
-   /* Restore saved modes. */
-   glPixelStorei(GL_PACK_SWAP_BYTES, swapbytes);
-   glPixelStorei(GL_PACK_LSB_FIRST, lsbfirst);
-   glPixelStorei(GL_PACK_ROW_LENGTH, rowlength);
-   glPixelStorei(GL_PACK_SKIP_ROWS, skiprows);
-   glPixelStorei(GL_PACK_SKIP_PIXELS, skippixels);
-   glPixelStorei(GL_PACK_ALIGNMENT, alignment);
-   return buffer;
-}
-
-
-static int generateEPS(const char *filename, int inColor,
-                       unsigned int width, unsigned int height)
-{
-   FILE *fp;
-   GLvoid *pixels;
-   unsigned char *curpix;
-   unsigned int components, i;
-   int pos;
-   unsigned char bitpixel;
-
-   pixels = grabPixels(inColor, width, height);
-   if (pixels == NULL)
-      return 1;
-   if (inColor)
-      components = 3;     /* Red, green, blue. */
-   else
-      components = 1;     /* Luminance. */
-
-   fp = fopen(filename, "w");
-   if (fp == NULL) {
-      return 2;
-   }
-   fprintf(fp, "%%!PS-Adobe-2.0 EPSF-1.2\n");
-   fprintf(fp, "%%%%Creator: OpenGL pixmap render output\n");
-   fprintf(fp, "%%%%BoundingBox: 0 0 %d %d\n", width, height);
-   fprintf(fp, "%%%%EndComments\n");
-
-   i = ((( width * height) + 7) / 8 ) / 40; /* # of lines, 40 bytes per line */
-   fprintf(fp, "%%%%BeginPreview: %d %d %d %d\n%%", width, height, 1, i);
-   pos = 0;
-   curpix = ( unsigned char *)pixels;
-   for ( i = 0; i < width * height * components; ) {
-      bitpixel = 0;
-      if ( inColor) {
-         double pix = 0.0;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x80;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x40;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x20;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x10;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x08;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x04;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x02;
-         pix = 0.30 * ( double)curpix[i] + 0.59 * ( double)curpix[i+1] + 0.11 * ( double)curpix[i+2];
-         i += 3;
-         if ( pix > 127.0) bitpixel |= 0x01;
-      }
-      else {
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x80;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x40;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x20;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x10;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x08;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x04;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x02;
-         if ( curpix[ i++] > 0x7f) bitpixel |= 0x01;
-      }
-      fprintf(fp, "%02hx", bitpixel);
-      if (++pos >= 40) {
-         fprintf(fp, "\n%%");
-         pos = 0;
-      }
-   }
-   if (pos)
-      fprintf(fp, "\n%%%%EndPreview\n");
-   else
-      fprintf(fp, "%%EndPreview\n");
-
-   fprintf(fp, "gsave\n");
-   fprintf(fp, "/bwproc {\n");
-   fprintf(fp, "    rgbproc\n");
-   fprintf(fp, "    dup length 3 idiv string 0 3 0\n");
-   fprintf(fp, "    5 -1 roll {\n");
-   fprintf(fp, "    add 2 1 roll 1 sub dup 0 eq\n");
-   fprintf(fp, "    { pop 3 idiv 3 -1 roll dup 4 -1 roll dup\n");
-   fprintf(fp, "        3 1 roll 5 -1 roll put 1 add 3 0 }\n");
-   fprintf(fp, "    { 2 1 roll } ifelse\n");
-   fprintf(fp, "    } forall\n");
-   fprintf(fp, "    pop pop pop\n");
-   fprintf(fp, "} def\n");
-   fprintf(fp, "systemdict /colorimage known not {\n");
-   fprintf(fp, "    /colorimage {\n");
-   fprintf(fp, "        pop\n");
-   fprintf(fp, "        pop\n");
-   fprintf(fp, "        /rgbproc exch def\n");
-   fprintf(fp, "        { bwproc } image\n");
-   fprintf(fp, "    } def\n");
-   fprintf(fp, "} if\n");
-   fprintf(fp, "/picstr %d string def\n", width * components);
-   fprintf(fp, "%d %d scale\n", width, height);
-   fprintf(fp, "%d %d %d\n", width, height, 8);
-   fprintf(fp, "[%d 0 0 %d 0 0]\n", width, height);
-   fprintf(fp, "{currentfile picstr readhexstring pop}\n");
-   fprintf(fp, "false %d\n", components);
-   fprintf(fp, "colorimage\n");
-
-   curpix = (unsigned char *) pixels;
-   pos = 0;
-   for (i = width * height * components; i > 0; i--) {
-      fprintf(fp, "%02hx", *curpix++);
-      if (++pos >= 40) {
-	 fprintf(fp, "\n");
-	 pos = 0;
-      }
-   }
-   if (pos)
-      fprintf(fp, "\n");
-
-   fprintf(fp, "grestore\n");
-   free(pixels);
-   fclose(fp);
-   return 0;
-}
-
-
-/* int Togl_DumpToEpsFile( const struct Togl *togl, const char *filename,
-                        int inColor, void (*user_redraw)(void)) */
-/* changed by GG */
-int Togl_DumpToEpsFile( const struct Togl *togl, const char *filename,
-                        int inColor, void (*user_redraw)( const struct Togl *))
-{
-   int using_mesa = 0;
-#if 0
-   Pixmap eps_pixmap;
-   GLXPixmap eps_glxpixmap;
-   XVisualInfo *vi = togl->VisInfo;
-   Window win = Tk_WindowId( togl->TkWin);
-#endif
-   Display *dpy = Tk_Display( togl->TkWin);
-   int retval;
-   int scrnum = Tk_ScreenNumber(togl->TkWin);
-   unsigned int width = togl->Width, height = togl->Height;
-
-#if defined(X11)
-   if (strstr(glXQueryServerString( dpy, scrnum, GLX_VERSION ), "Mesa"))
-      using_mesa = 1;
-   else
-#endif /* X11 */
-      using_mesa = 0;
-   /* I don't use Pixmap do drawn into, because the code should link
-    * with Mesa libraries and OpenGL libraries, and the which library
-    * we use at run time should not matter, but the name of the calls
-    * differs one from another:
-    * MesaGl: glXCreateGLXPixmapMESA( dpy, vi, eps_pixmap, Tk_Colormap(togl->TkWin))
-    * OpenGl: glXCreateGLXPixmap( dpy, vi, eps_pixmap);
-    *
-    * instead of this I read direct from back buffer of the screeen.
-    */
-#if 0
-   eps_pixmap = XCreatePixmap( dpy, win, width, height, vi->depth);
-   if ( using_mesa)
-      eps_glxpixmap = glXCreateGLXPixmapMESA( dpy, vi, eps_pixmap, Tk_Colormap(togl->TkWin));
-   else
-      eps_glxpixmap = glXCreateGLXPixmap( dpy, vi, eps_pixmap);
-
-   glXMakeCurrent( dpy, eps_glxpixmap, togl->GlCtx);
-   user_redraw();
-#endif
-   if ( !togl->RgbaFlag) {
-
-#if defined(WIN32)
-/* Due to the lack of a unique inverse mapping from the frame buffer to
-   the logical palette we need a translation map from the complete
-   logical palette. */
-       {
-           int n, i;
-           TkWinColormap *cmap = (TkWinColormap *)Tk_Colormap(togl->TkWin);
-           LPPALETTEENTRY entry = malloc(togl->EpsMapSize * sizeof(PALETTEENTRY));
-           n = GetPaletteEntries(cmap->palette, 0, togl->EpsMapSize, entry);
-           for (i=0; i<n; i++) {
-               togl->EpsRedMap[i]   = (GLfloat)(entry[i].peRed / 255.0);
-               togl->EpsGreenMap[i] = (GLfloat)(entry[i].peGreen / 255.0);
-               togl->EpsBlueMap[i]  = (GLfloat)(entry[i].peBlue / 255.0);
-           }
-           free(entry);
-       }
-#endif /* WIN32 */
-
-      glPixelMapfv( GL_PIXEL_MAP_I_TO_R, togl->EpsMapSize, togl->EpsRedMap);
-      glPixelMapfv( GL_PIXEL_MAP_I_TO_G, togl->EpsMapSize, togl->EpsGreenMap);
-      glPixelMapfv( GL_PIXEL_MAP_I_TO_B, togl->EpsMapSize, togl->EpsBlueMap);
-   }
-   /*  user_redraw(); */
-   user_redraw(togl);  /* changed by GG */
-   /* glReadBuffer( GL_FRONT); */
-   /* by default it read GL_BACK in double buffer mode*/
-   glFlush();
-   retval = generateEPS( filename, inColor, width, height);
-#if 0
-   glXMakeCurrent( dpy, win, togl->GlCtx );
-   glXDestroyGLXPixmap( dpy, eps_glxpixmap);
-   XFreePixmap( dpy, eps_pixmap);
-#endif
-   return retval;
-}
-
-/*
- * Full screen stereo for SGI graphics
- * Contributed by Ben Evans (Ben.Evans@anusf.anu.edu.au)
- * This code was based on SGI's /usr/share/src/OpenGL/teach/stereo
- */
 
 #if defined(__sgi) && defined(STEREO)
 

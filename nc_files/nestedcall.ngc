@@ -1,0 +1,14 @@
+
+
+G21 (metric)
+F100 (note slow feed)
+
+G91 (relative mode)
+G1 X10
+
+; this sub switches to G20 (inch) and G90 but protects the caller by M70/M71
+; it also switches to a much higher feed
+O<g20sub> callsub
+
+G1 X10 (this move still relative and in metric units, note slow feed restored)
+m2

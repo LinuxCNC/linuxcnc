@@ -1,0 +1,12 @@
+Gscreen is a customizable operator screen for linuxcnc.
+Built with python, GLADE, and GTK
+
+Usable with touchscreens or a mouse.
+           These show some custom looks of Gscreen.
+
+gscreen_custom   - 9 axis screen
+
+gscreen_gaxis    - A similar-to-AXIS demo
+
+Industrial       - Design influenced by                            Industrial CNC controls.
+                       System page unlock code                         is '123'

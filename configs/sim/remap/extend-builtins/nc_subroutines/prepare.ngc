@@ -1,0 +1,8 @@
+o<prepare> sub
+(debug, in prepare tool=#<tool> pocket=#<pocket>)
+; using the code being remapped here means 'use builtin behaviour'
+T #<tool>
+; signal success be returning a value > 0:
+o<prepare> endsub [1]
+m2
+

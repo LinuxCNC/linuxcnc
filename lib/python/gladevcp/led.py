@@ -83,7 +83,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             cr.rectangle(-self._dia, -self._dia, self._dia*2,self._dia*2)
         # oval led
         elif self.led_shape == 1:
-            self.set_size_request(self._dia*2+5, self._dia*2+5)
+            self.set_size_request(self._dia*2+5, self._dia*2)
             w = self.allocation.width
             h = self.allocation.height
             cr.translate(w/2, h/2)

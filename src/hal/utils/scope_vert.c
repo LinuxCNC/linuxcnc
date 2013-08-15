@@ -598,7 +598,7 @@ static void init_chan_info_window(void)
     gtk_misc_set_alignment(GTK_MISC(vert->readout_label), 0, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
     gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
-		    "f(99999.9999) = 99999.9999");
+		    "f(99999.9999) = 99999.9999 (ddt 99999.9999)");
 }
 
 static void init_vert_info_window(void)
@@ -1002,7 +1002,7 @@ static gboolean change_page(GtkNotebook *notebook, GtkNotebookPage *page, guint 
     scope_vert_t *vert;
 
     vert = &(ctrl_usr->vert);
-    if(page_num >= 0 && page_num  < 3)
+    if(page_num  < 3)
 	gtk_widget_grab_focus(GTK_WIDGET(vert->lists[page_num]));
     return 0;
 }
@@ -1112,7 +1112,6 @@ static gboolean dialog_select_source(int chan_num)
     gtk_clist_clear(GTK_CLIST(vert->lists[2]));
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
-    row = -1;
     initial_row = -1;
     max_row = -1;
     while (next != 0) {

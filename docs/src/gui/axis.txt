@@ -436,6 +436,18 @@ Yellow for jogs, faint green for rapid movements,
 red for straight moves at a feed rate, 
 and magenta for circular moves at a feed rate.
 
+.Grid
+
+Axis can optionally display a grid when in orthogonal views.  Enable
+or disable the grid using the 'Grid' menu under 'View'.  When
+enabled, the grid is shown in the top and rotated top views; when
+coordinate system is not rotated, the grid is shown in the front and
+side views as well.  The presets in the 'Grid' menu are controlled
+by the inifile item `[DISPLAY]GRIDS`; if unspecified, the default is
+`10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
+
+Specifying a very small grid may decrease performance.
+
 .Interacting
 
 By left-clicking on a portion of the preview plot, 
@@ -704,11 +716,11 @@ shown on a red background.
 
 == MDI interface
 
-AXIS includes a program called 'MDI' which allows text-mode entry of
+AXIS includes a program called `mdi` which allows text-mode entry of
 MDI commands to a running LinuxCNC session. You can run this program by
 opening a terminal and typing
 
-    mdi /path/to/emc.nml
+    mdi
 
 Once it is running, it displays the prompt 'MDI>'. When a blank line
 is entered, the machine's current position is shown. 
@@ -717,7 +729,7 @@ When a command is entered, it is sent to LinuxCNC to be executed.
 This is a sample session of mdi.
 
 ----
-$ MDI ~/emc2/configs/sim/emc.nml
+$ mdi
 MDI>
 (0.0, 0.0, 0.0, 0.0, 0.0, 0.0) 
 MDI> G1 F5 X1 

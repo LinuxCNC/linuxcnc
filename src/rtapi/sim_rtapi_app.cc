@@ -199,7 +199,7 @@ static int do_load_cmd(string name, vector<string> args) {
     if(w == NULL) {
         char what[LINELEN+1];
         snprintf(what, LINELEN, "%s/%s.so", EMC2_RTLIB_DIR, name.c_str());
-        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_LAZY);
+        void *module = modules[name] = dlopen(what, RTLD_GLOBAL | RTLD_NOW);
         if(!module) {
             rtapi_print_msg(RTAPI_MSG_ERR, "%s: dlopen: %s\n", name.c_str(), dlerror());
             return -1;
@@ -332,7 +332,6 @@ static int slave(int fd, vector<string> args) {
 }
 
 static int master(int fd, vector<string> args) {
-    dlopen(NULL, RTLD_GLOBAL);
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     if(args.size()) { 
         int result = handle_command(args);

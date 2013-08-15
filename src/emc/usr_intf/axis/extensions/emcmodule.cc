@@ -315,6 +315,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
     {(char*)"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
     {(char*)"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
+    {(char*)"queued_mdi_commands", T_INT, O(task.queuedMDIcommands), READONLY},
 
 // motion
 //   EMC_TRAJ_STAT traj
@@ -793,13 +794,17 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
-    if(!PyArg_ParseTuple(o, "i", &dir)) return NULL;
+    double vel;
+    if(!PyArg_ParseTuple(o, "i|d", &dir, &vel)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
         {
+            if(PyTuple_Size(o) != 2) {
+            vel = 1;
+            }
             EMC_SPINDLE_ON m;
-            m.speed = dir;
+            m.speed = dir * vel;
             m.serial_number = next_serial(s);
             s->c->write(m);
             emcWaitCommandReceived(s->serial, s->s);
@@ -1793,8 +1798,9 @@ struct color {
 
 struct logger_point {
     float x, y, z;
-    float rx, ry, rz;
     struct color c;
+    float rx, ry, rz; // or uvw
+    struct color c2;
 };
 
 #define NUMCOLORS (6)
@@ -1806,6 +1812,8 @@ typedef struct {
     struct color colors[NUMCOLORS];
     bool exit, clear, changed;
     char *geometry;
+    int is_xyuv;
+    double foam_z, foam_w;
     pyStatChannel *st;
 } pyPositionLogger;
 
@@ -1837,7 +1845,10 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
     self->exit = self->clear = 0;
     self->changed = 1;
     self->st = 0;
-    if(!PyArg_ParseTuple(a, "O!(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)s",
+    self->is_xyuv = 0;
+    self->foam_z = 0;
+    self->foam_w = 1.5;  // temporarily hard-code
+    if(!PyArg_ParseTuple(a, "O!(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)s|i",
             &Stat_Type, &self->st,
             &c[0].r,&c[0].g, &c[0].b, &c[0].a,
             &c[1].r,&c[1].g, &c[1].b, &c[1].a,
@@ -1845,7 +1856,7 @@ static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
             &c[3].r,&c[3].g, &c[3].b, &c[3].a,
             &c[4].r,&c[4].g, &c[4].b, &c[4].a,
             &c[5].r,&c[5].g, &c[5].b, &c[5].a,
-            &geometry
+            &geometry, &self->is_xyuv
             ))
         return -1;
     Py_INCREF(self->st);
@@ -1858,6 +1869,21 @@ static void Logger_dealloc(pyPositionLogger *s) {
     Py_XDECREF(s->st);
     free(s->geometry);
     PyObject_Del(s);
+}
+
+static PyObject *Logger_set_depth(pyPositionLogger *s, PyObject *o) {
+    double z, w;
+    if(!PyArg_ParseTuple(o, "dd:logger.set_depth", &z, &w)) return NULL;
+    s->foam_z = z;
+    s->foam_w = w;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static double dist2(double x1, double y1, double x2, double y2) {
+    double dx = x2-x1;
+    double dy = y2-y1;
+    return dx*dx + dy*dy;
 }
 
 static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
@@ -1886,28 +1912,51 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
             int colornum = 2;
             colornum = status->motion.traj.motion_type;
             if(colornum < 0 || colornum > NUMCOLORS) colornum = 0;
-
-            double pt[9] = {
-                status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
-                status->motion.traj.position.tran.y - status->task.toolOffset.tran.y,
-                status->motion.traj.position.tran.z - status->task.toolOffset.tran.z,
-                status->motion.traj.position.a - status->task.toolOffset.a,
-                status->motion.traj.position.b - status->task.toolOffset.b,
-                status->motion.traj.position.c - status->task.toolOffset.c,
-                status->motion.traj.position.u - status->task.toolOffset.u,
-                status->motion.traj.position.v - status->task.toolOffset.v,
-                status->motion.traj.position.w - status->task.toolOffset.w};
-
-            double p[3];
-            vertex9(pt, p, s->geometry);
-            double x = p[0], y = p[1], z = p[2];
-            double rx = pt[3], ry = -pt[4], rz = pt[5];
-
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
             struct logger_point *oop = &s->p[s->npts-2];
-            bool add_point = s->npts < 2 || c != op->c || !colinear(
-                        x, y, z, op->x, op->y, op->z, oop->x, oop->y, oop->z);
+            bool add_point = s->npts < 2 || c != op->c;
+            double x, y, z, rx, ry, rz;
+            if(s->is_xyuv) {
+                x = status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
+                y = status->motion.traj.position.tran.y - status->task.toolOffset.tran.y,
+                z = s->foam_z;
+                rx = status->motion.traj.position.u - status->task.toolOffset.u,
+                ry = status->motion.traj.position.v - status->task.toolOffset.v,
+                rz = s->foam_w;
+                /* TODO .01, the distance at which a preview line is dropped,
+                 * should either be dependent on units or configurable, because
+                 * 0.1 is inappropriate for mm systems
+                 */
+                add_point = add_point || (dist2(x, y, oop->x, oop->y) > .01)
+                    || (dist2(rx, ry, oop->rx, oop->ry) > .01);
+                add_point = add_point || !colinear( x, y, z,
+                                op->x, op->y, op->z,
+                                oop->x, oop->y, oop->z);
+                add_point = add_point || !colinear( rx, ry, rz,
+                                op->rx, op->ry, op->rz,
+                                oop->rx, oop->ry, oop->rz);
+            } else {
+                double pt[9] = {
+                    status->motion.traj.position.tran.x - status->task.toolOffset.tran.x,
+                    status->motion.traj.position.tran.y - status->task.toolOffset.tran.y,
+                    status->motion.traj.position.tran.z - status->task.toolOffset.tran.z,
+                    status->motion.traj.position.a - status->task.toolOffset.a,
+                    status->motion.traj.position.b - status->task.toolOffset.b,
+                    status->motion.traj.position.c - status->task.toolOffset.c,
+                    status->motion.traj.position.u - status->task.toolOffset.u,
+                    status->motion.traj.position.v - status->task.toolOffset.v,
+                    status->motion.traj.position.w - status->task.toolOffset.w};
+
+                double p[3];
+                vertex9(pt, p, s->geometry);
+                x = p[0]; y = p[1]; z = p[2];
+                rx = pt[3]; ry = -pt[4]; rz = pt[5];
+
+                add_point = add_point || !colinear( x, y, z,
+                                op->x, op->y, op->z,
+                                oop->x, oop->y, oop->z);
+            }
             if(add_point) {
                 // 1 or 2 points may be added, make room whenever
                 // fewer than 2 are left
@@ -1935,20 +1984,20 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
                     struct logger_point &np = s->p[s->npts];
                     np.x = op->x; np.y = op->y; np.z = op->z;
                     np.rx = rx; np.ry = ry; np.rz = rz;
-                    np.c = c;
+                    np.c = np.c2 = c;
                     }
                     {
                     struct logger_point &np = s->p[s->npts+1];
                     np.x = x; np.y = y; np.z = z;
                     np.rx = rx; np.ry = ry; np.rz = rz;
-                    np.c = c;
+                    np.c = np.c2 = c;
                     }
                     s->npts += 2;
                 } else {
                     struct logger_point &np = s->p[s->npts];
                     np.x = x; np.y = y; np.z = z;
                     np.rx = rx; np.ry = ry; np.rz = rz;
-                    np.c = c;
+                    np.c = np.c2 = c;
                     s->npts++;
                 }
             } else {
@@ -1980,17 +2029,31 @@ static PyObject* Logger_stop(pyPositionLogger *s, PyObject *o) {
 static PyObject* Logger_call(pyPositionLogger *s, PyObject *o) {
     if(!s->clear) {
         LOCK();
-        if(s->changed) {
-            glVertexPointer(3, GL_FLOAT,
-                    sizeof(struct logger_point), &s->p->x);
-            glColorPointer(4, GL_UNSIGNED_BYTE,
-                    sizeof(struct logger_point), &s->p->c);
-            glEnableClientState(GL_COLOR_ARRAY);
-            glEnableClientState(GL_VERTEX_ARRAY);
-            s->changed = 0;
+        if(s->is_xyuv) {
+            if(s->changed) {
+                glVertexPointer(3, GL_FLOAT,
+                        sizeof(struct logger_point)/2, &s->p->x);
+                glColorPointer(4, GL_UNSIGNED_BYTE,
+                        sizeof(struct logger_point)/2, &s->p->c);
+                glEnableClientState(GL_COLOR_ARRAY);
+                glEnableClientState(GL_VERTEX_ARRAY);
+                s->changed = 0;
+            }
+            s->lpts = s->npts;
+            glDrawArrays(GL_LINES, 0, 2*s->npts);
+        } else {
+            if(s->changed) {
+                glVertexPointer(3, GL_FLOAT,
+                        sizeof(struct logger_point), &s->p->x);
+                glColorPointer(4, GL_UNSIGNED_BYTE,
+                        sizeof(struct logger_point), &s->p->c);
+                glEnableClientState(GL_COLOR_ARRAY);
+                glEnableClientState(GL_VERTEX_ARRAY);
+                s->changed = 0;
+            }
+            s->lpts = s->npts;
+            glDrawArrays(GL_LINE_STRIP, 0, s->npts);
         }
-        s->lpts = s->npts;
-        glDrawArrays(GL_LINE_STRIP, 0, s->npts);
         UNLOCK();
     }
     Py_INCREF(Py_None);
@@ -2034,6 +2097,8 @@ static PyMethodDef Logger_methods[] = {
         "Stop the position logger"},
     {"call", (PyCFunction)Logger_call, METH_NOARGS,
         "Plot the backplot now"},
+    {"set_depth", (PyCFunction)Logger_set_depth, METH_VARARGS,
+        "set the Z and W depths for foam cutter"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},
@@ -2204,7 +2269,6 @@ initlinuxcnc(void) {
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_IO);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_PAUSE);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_DELAY);
     ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD);

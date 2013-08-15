@@ -1,0 +1,28 @@
+ifdef HAVE_LIBMODBUS3
+
+# Local configuration
+MB2HAL_SRCS = \
+        hal/user_comps/mb2hal/mb2hal.c \
+	hal/user_comps/mb2hal/mb2hal_init.c \
+	hal/user_comps/mb2hal/mb2hal_modbus.c \
+	hal/user_comps/mb2hal/mb2hal_hal.c
+#GLIB_CFLAGS and GLIB_LIBS used by modbus.c
+MB2HAL_CCFLAGS = -DDEBUG -Wall -I. $(GLIB_CFLAGS) $(LIBMODBUS_CFLAGS)
+MB2HAL_LDFLAGS = -lpthread $(GLIB_LIBS) $(LIBMODBUS_LIBS)
+
+# Extra preprocessor symbols.
+# EXTRAFLAGS can be used to specify any C compiler flag.
+$(call TOOBJSDEPS, $(MB2HAL_SRCS)) : EXTRAFLAGS += $(MB2HAL_CCFLAGS)
+$(call TOOBJS, $(MB2HAL_SRCS)): Makefile.inc
+
+# Add the list of source files
+USERSRCS += $(MB2HAL_SRCS)
+
+# This is how the binaries are linked.
+../bin/mb2hal: $(call TOOBJS, $(MB2HAL_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnc.a
+	$(ECHO) Linking $(notdir $@)
+	$(Q)@$(CC) $(LDFLAGS) -o $@ $^ $(MB2HAL_LDFLAGS)
+
+TARGETS += ../bin/mb2hal
+
+endif # HAVE_LIBMODBUS3

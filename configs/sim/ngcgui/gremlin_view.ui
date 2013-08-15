@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="HAL_GremlinPlus" id="hal_gremlin_plus1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="label_xalign">0</property>
+        <property name="shadow_type">none</property>
+
+        <property name="debug">False</property>
+        <property name="width">-1</property>
+        <property name="height">-1</property>
+        <property name="glade_file">default</property>
+        <property name="gtk_theme_name">Follow System Theme</property>
+
+      </object>
+    </child>
+  </object>
+</interface>

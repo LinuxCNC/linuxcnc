@@ -368,7 +368,8 @@ static int comp_id;
         print >>f, "static int export(char *prefix, long extra_arg, long personality) {"
     else:
         print >>f, "static int export(char *prefix, long extra_arg) {"
-    print >>f, "    char buf[HAL_NAME_LEN + 1];"
+    if len(functions) > 0:
+        print >>f, "    char buf[HAL_NAME_LEN + 1];"
     print >>f, "    int r = 0;"
     if has_array:
         print >>f, "    int j = 0;"
@@ -382,8 +383,9 @@ static int comp_id;
     if options.get("extra_setup"):
         print >>f, "    r = extra_setup(inst, prefix, extra_arg);"
 	print >>f, "    if(r != 0) return r;"
-    if has_personality:
-        print >>f, "    personality = inst->_personality;"
+        # the extra_setup() function may have changed the personality
+        if has_personality:
+            print >>f, "    personality = inst->_personality;"
     for name, type, array, dir, value, personality in pins:
         if personality:
             print >>f, "if(%s) {" % personality
@@ -794,7 +796,7 @@ def document(filename, outfilename):
         print >>f, ".SH DESCRIPTION\n"
         print >>f, "%s" % doc[1]
 
-    if not options.get("userspace"):
+    if functions:
         print >>f, ".SH FUNCTIONS"
         for _, name, fp, doc in finddocs('funct'):
             print >>f, ".TP"
@@ -893,9 +895,6 @@ def process(filename, mode, outfilename):
         if options.get("userspace"):
             if functions:
                 raise SystemExit, "Userspace components may not have functions"
-        else:
-            if not functions:
-                raise SystemExit, "Realtime component must have at least one function"
         if not pins:
             raise SystemExit, "Component must have at least one pin"
         prologue(f)
@@ -907,7 +906,7 @@ def process(filename, mode, outfilename):
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
         else:
-            if "FUNCTION" in b:
+            if not functions or "FUNCTION" in b:
                 f.write("#line %d \"%s\"\n" % (lineno, filename))
                 f.write(b)
             elif len(functions) == 1:

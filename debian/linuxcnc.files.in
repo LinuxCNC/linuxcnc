@@ -9,6 +9,7 @@ usr/bin/*
 usr/lib/python*/*/*.py
 usr/lib/python*/*/*.so
 usr/lib/python*/*/*/*.py
+usr/lib/python*/*/gladevcp/*.glade
 usr/share/axis/images/*
 usr/share/axis/tcl/*
 usr/share/glade3
@@ -28,3 +29,4 @@ usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/man/man1/*
 usr/share/man/man9/*
 usr/share/gtksourceview-2.0/
+usr/share/gscreen/images

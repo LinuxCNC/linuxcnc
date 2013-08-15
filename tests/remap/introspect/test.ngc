@@ -1,0 +1,11 @@
+#<_a_global_set_in_test_dot_ngc> = 47.11
+
+(debug, before introspect: call_level= #<_call_level>)
+#<foo> = 423432.2
+T3M6
+F200
+S3000 M3
+o<introspect> call  [1.0] [2.0] [3.0] [#<_ini[example]variable>]
+(debug, after introspect: return value=#<_value> call_level= #<_call_level>)
+M2
+

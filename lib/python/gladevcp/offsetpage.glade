@@ -1,0 +1,507 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name X -->
+      <column type="gchararray"/>
+      <!-- column-name Y -->
+      <column type="gchararray"/>
+      <!-- column-name Z -->
+      <column type="gchararray"/>
+      <!-- column-name A -->
+      <column type="gchararray"/>
+      <!-- column-name B -->
+      <column type="gchararray"/>
+      <!-- column-name C -->
+      <column type="gchararray"/>
+      <!-- column-name U -->
+      <column type="gchararray"/>
+      <!-- column-name V -->
+      <column type="gchararray"/>
+      <!-- column-name W -->
+      <column type="gchararray"/>
+      <!-- column-name display_row -->
+      <column type="gboolean"/>
+      <!-- column-name editable -->
+      <column type="gboolean"/>
+      <!-- column-name background_color -->
+      <column type="gchararray"/>
+      <!-- column-name foreground_color -->
+      <column type="gchararray"/>
+      <!-- column-name type -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Tool</col>
+        <col id="1" translatable="yes">1</col>
+        <col id="2" translatable="yes">2</col>
+        <col id="3" translatable="yes">3</col>
+        <col id="4" translatable="yes">4</col>
+        <col id="5" translatable="yes">5</col>
+        <col id="6" translatable="yes">6</col>
+        <col id="7" translatable="yes">7</col>
+        <col id="8" translatable="yes">8</col>
+        <col id="9" translatable="yes">9</col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">Tool</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G5x</col>
+        <col id="1" translatable="yes">1</col>
+        <col id="2" translatable="yes">2</col>
+        <col id="3" translatable="yes">3</col>
+        <col id="4" translatable="yes">4</col>
+        <col id="5" translatable="yes">5</col>
+        <col id="6" translatable="yes">6</col>
+        <col id="7" translatable="yes">7</col>
+        <col id="8" translatable="yes">8</col>
+        <col id="9" translatable="yes">9</col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G5x</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Rot</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">Rotation of Z</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G92</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes">0</col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G92</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G54</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G54</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G55</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G55</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G56</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G56</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G57</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G57</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G58</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G58</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G59</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G59</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G59.1</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G59.1</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G59.2</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G59.2</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">G59.3</col>
+        <col id="1" translatable="yes"></col>
+        <col id="2" translatable="yes"></col>
+        <col id="3" translatable="yes"></col>
+        <col id="4" translatable="yes"></col>
+        <col id="5" translatable="yes"></col>
+        <col id="6" translatable="yes"></col>
+        <col id="7" translatable="yes"></col>
+        <col id="8" translatable="yes"></col>
+        <col id="9" translatable="yes"></col>
+        <col id="10">True</col>
+        <col id="11">False</col>
+        <col id="12" translatable="yes">white</col>
+        <col id="13" translatable="yes">black</col>
+        <col id="14" translatable="yes">G59.3</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkTreeModelFilter" id="modelfilter">
+    <property name="child_model">liststore2</property>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkVBox" id="offsetpage_box">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkScrolledWindow" id="all_window">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkTreeView" id="treeview2">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">modelfilter</property>
+                <property name="search_column">0</property>
+                <property name="hover_expand">True</property>
+                <property name="enable_grid_lines">both</property>
+                <child>
+                  <object class="GtkTreeViewColumn" id="offset">
+                    <property name="title">Offset</property>
+                    <property name="sort_column_id">0</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_offset"/>
+                      <attributes>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="X">
+                    <property name="title">X</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_X"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">1</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="Y">
+                    <property name="title">Y</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_Y"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="Z">
+                    <property name="title">Z</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_Z"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">3</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="A">
+                    <property name="spacing">3</property>
+                    <property name="title">A</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_A"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">4</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="B">
+                    <property name="title">B</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_B"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">5</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="C">
+                    <property name="title">C</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_C"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">6</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="U">
+                    <property name="title">U</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_U"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">7</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="V">
+                    <property name="title">V</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_V"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">8</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="W">
+                    <property name="title">W</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_W"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">9</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="name">
+                    <property name="title">Offset Name</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_name"/>
+                      <attributes>
+                        <attribute name="background">12</attribute>
+                        <attribute name="editable">11</attribute>
+                        <attribute name="foreground">13</attribute>
+                        <attribute name="text">14</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkHButtonBox" id="buttonbox">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="zero_g92_button">
+                <property name="label" translatable="yes">Zero
+G92</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="zero_rot_button">
+                <property name="label" translatable="yes">    Zero
+Rotational</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="edit_button">
+                <property name="label" translatable="yes">Edit</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

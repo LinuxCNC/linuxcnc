@@ -1,0 +1,3 @@
+T2 P47 Z222 D1.5 ;1.5mm  end mill
+T1 P11 Z111 D3 ;3mm end mill
+T3 P33 Z333 D5 ;5mm tap drill

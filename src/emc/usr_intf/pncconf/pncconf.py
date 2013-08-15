@@ -678,6 +678,8 @@ def dbg(message,mtype):
     for hint in _DEBUGSTRING:
         if hint == "all" or hint in mtype:
             print(message)
+            if "step" in _DEBUGSTRING:
+                c = raw_input("\n**** Debug Pause! ****")
             return
 
 def md5sum(filename):
@@ -4052,7 +4054,11 @@ class App:
         while gtk.events_pending():
             gtk.main_iteration()
 
-    def __init__(self):
+    def __init__(self, debug=0):
+        print 'debug=',debug
+        if debug:
+            global _DEBUGSTRING
+            _DEBUGSTRING = ['all']
         gnome.init("pncconf", "0.6") 
         
         self.splash_screen()
@@ -4572,6 +4578,7 @@ Ok to reset data and start a new configuration?"),False):
                     #print name
                     temp = name.strip(".xml")
                     firmlist.append(temp)
+        dbg("\nXML list:%s"%firmlist,"firmname")
         for n,currentfirm in enumerate(firmlist):
             self.pbar.set_fraction(n*1.0/len(firmlist))
             while gtk.events_pending():
@@ -4581,7 +4588,7 @@ Ok to reset data and start a new configuration?"),False):
             numencoderpins = numpwmpins = 3; numstepperpins = 2; numttpwmpins = 0; numresolverpins = 10
             temp = root.find("boardname").text
             boardname = temp.lower()
-            dbg("\nBoard and firmwarename:  %s %s\n"%( boardname, currentfirm), "firm")
+            dbg("\nBoard and firmwarename:  %s %s\n"%( boardname, currentfirm), "firmraw")
             maxgpio  = int(root.find("iowidth").text) ; #print maxgpio
             numcnctrs  = int(root.find("ioports").text) ; #print numcnctrs
             portwidth = int(root.find("portwidth").text)
@@ -4666,7 +4673,7 @@ Ok to reset data and start a new configuration?"),False):
                 # this converts the XML file componennt names to pncconf's names
                 try:
                     modulename = pins[i].find("secondarymodulename").text
-                    dbg("secondary modulename:  %s, %s."%( tempfunc,modulename), "firm")
+                    dbg("secondary modulename:  %s, %s."%( tempfunc,modulename), "firmraw")
                     if modulename in ("Encoder","MuxedQCount","MuxedQCountSel","QCount"):
                         convertedname = pinconvertenc[tempfunc]
                     elif modulename == "ResolverMod":
@@ -4728,12 +4735,12 @@ Ok to reset data and start a new configuration?"),False):
                     temppinunit.append(instance_num)
                     tempmod = pins[i].find("secondarymodulename").text
                     tempfunc = tempfunc.upper()# normalize capitalization
-                    dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firm")
+                    dbg("secondary modulename, function:  %s, %s."%( tempmod,tempfunc), "firmraw")
                     if tempmod in("Encoder","MuxedQCount") and tempfunc in ("MUXED INDEX MASK (IN)","INDEXMASK (IN)"):
                         numencoderpins = 4
                     if tempmod =="SSerial" and tempfunc in ("TXDATA1","TXDATA2","TXDATA3","TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
                         sserialchannels +=1
-                dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firm")
+                dbg("temp: %s, converted name: %s. num %d"%( tempfunc,convertedname,instance_num), "firmraw")
                 if not tempcon in tempconlist:
                     tempconlist.append(tempcon)
                 temppinlist.append(temppinunit)
@@ -4752,7 +4759,8 @@ Ok to reset data and start a new configuration?"),False):
                     lowfreq,hifreq,tempconlist]
             for i in temppinlist:
                 temp.append(i)
-            dbg("5i25 firmware:\n%s\n"%( temp), "5i25")
+            if boardname == "5i25":
+                dbg("5i25 firmware:\n%s\n"%( temp), "5i25")
             mesafirmwaredata.append(temp)
         self.window.hide()
 
@@ -4923,7 +4931,7 @@ Ok to reset data and start a new configuration?"),False):
             if not self.warning_dialog("\n".join(text),True):return
 
     def on_joysticktest_clicked(self, *args):
-        halrun = subprocess.Popen("halrun -f  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
+        halrun = subprocess.Popen("halrun -I  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )   
         #print "requested devicename = ",self.widgets.usbdevicename.get_text()
         halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
@@ -5621,7 +5629,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 You also will not be able to do any other testing untill you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
 I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
                         return
-        self.halrun = os.popen("halrun -sf > /dev/null", "w") 
+        self.halrun = os.popen("halrun -I > /dev/null", "w") 
         self.halrun.write("loadrt threads period1=50000 name1=fast fp1=0 period2=1000000 name2=slow\n")
         self.hal_cmnds("LOAD")
         self.hal_cmnds("READ")
@@ -8479,7 +8487,7 @@ different program to copy to your configuration file.\nThe edited program will b
         if not self.check_for_rt(self):
             return
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )  
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.data.servoperiod)
         self.hal_cmnds("LOAD")
         for i in range(0,self.data.number_pports ):
@@ -8544,7 +8552,7 @@ different program to copy to your configuration file.\nThe edited program will b
             width = self.widgets.pyvcpwidth.get_value()
             height = self.widgets.pyvcpheight.get_value()
             size = "%dx%d"% (width,height)    
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -I > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -g %(size)s%(pos)s -c displaytest %(panel)s\n" %{'size':size,'pos':pos,'panel':panel,})
         if self.widgets.pyvcp1.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
@@ -8605,7 +8613,7 @@ But there is not one in the machine-named folder.."""),True)
         if not self.widgets.gladevcptheme.get_active_text() == "Follow System Theme":
             options ="-t %s"% (self.widgets.gladevcptheme.get_active_text())
             print options
-        self.halrun = halrun = os.popen("cd %s\nhalrun -sf > /dev/null"%(folder), "w" )    
+        self.halrun = halrun = os.popen("cd %s\nhalrun -I > /dev/null"%(folder), "w" )    
         halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{'size':size,'pos':pos,'option':options})
         if self.widgets.spindlespeedbar.get_active():
             halrun.write("setp displaytest.spindle-speed 500\n")
@@ -8831,7 +8839,7 @@ But there is not one in the machine-named folder.."""),True)
     def load_ladder(self,w): 
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
         self.data.modbus = self.widgets.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
         halrun.write(""" 
               loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow 
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
@@ -8967,7 +8975,7 @@ But there is not one in the machine-named folder.."""),True)
         pwmmaxlimit = get_value(w[axis+"outputmaxlimit"])
         pwmmaxoutput = get_value(w[axis+"outputscale"])
              
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
@@ -9255,7 +9263,7 @@ But there is not one in the machine-named folder.."""),True)
                 self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
                 return           
 
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")  
+        self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")  
         data = self.data
         widgets = self.widgets
         axnum = "xyzas".index(axis)
@@ -10049,13 +10057,14 @@ def makedirs(d):
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
-opts, args = getopt.getopt(sys.argv[1:], "fr")
+opts, args = getopt.getopt(sys.argv[1:], "dfr")
 mode = 0
 force = 0
+debugswitch = 0
 for k, v in opts:
     if k == "-r": mode = 1
     if k == "-f": force = 1
-
+    if k == "-d": debugswitch = 1
 if mode:
     filename = args[0]
     data = Data()

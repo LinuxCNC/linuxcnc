@@ -1089,7 +1089,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
             return -1;
         } else if (r >= sizeof(mod_path)) {
             // truncation!
-            halcmd_error("module path too long (max %lu) for %s/%s%s\n", sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
+            halcmd_error("module path too long (max %lu) for %s/%s%s\n", (unsigned long)sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
             return -1;
         }
     }
@@ -1189,7 +1189,7 @@ int do_delsig_cmd(char *mod_name)
 	rtapi_mutex_give(&(hal_data->mutex));
 	sigs[n][0] = '\0';
 
-	if ( ( sigs[0][0] == '\0' )) {
+	if ( sigs[0][0] == '\0' ) {
 	    /* desired signals not found */
 	    halcmd_error("no signals found to be deleted\n");
 	    return -1;

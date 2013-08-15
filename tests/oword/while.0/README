@@ -1,0 +1,10 @@
+Test for bug introduced by mah http://git.mah.priv.at/gitweb/emc2-dev.git commit 02773f918e4f0e997df2d1cfeef22113b3973bfd
+Fixed in http://git.mah.priv.at/gitweb/emc2-dev.git db0ddce1fbf6b41f9c222f10e4755e8decf178a2
+
+Michael Haberler (who blushes at the thought of making those commits public ;-)
+
+Bug would break oword while handling like so:
+
+Unknown oword number
+O<x Zustellung> while [[#<foo>] LT  1]
+

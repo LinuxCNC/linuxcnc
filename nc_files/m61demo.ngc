@@ -1,0 +1,34 @@
+; This demonstrates doing an M61 remapped to a named oword sub
+;
+; to activate, incantate as follows in the ini file:
+;
+; [RS274NGC]
+
+; # remap M61 to a named oword subroutine.
+; # parameter #1: the Q value
+; M61_COMMAND=o<m61demo>call
+;
+;
+O<m61demo> sub
+;
+; O<m61demo> if  ;; trigger error report
+;
+(DEBUG,m61demo.ngc:  M61 Q=#1)
+
+; test fail-change line from gladevcp
+M66 P2 L0
+
+O<m61demo_test_fail> if [#5399 EQ 1]
+    (DEBUG,  digital-input-02=#5399 - returning -1 to fail M61)
+    ; a return value < 0 fails the M61
+    O<m61demo> return [-1]
+O<m61demo_test_fail> endif
+
+
+; return the tool number to commit the change.
+; return a negative return to abort the interpreter with a message like
+; "M61 failed (<return value>)" - the tool number will be unchanged
+;
+O<m61demo> endsub [#1]
+
+m2
