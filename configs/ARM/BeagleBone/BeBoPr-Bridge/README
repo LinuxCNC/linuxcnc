@@ -1,0 +1,23 @@
+
+This configuration drives a standard 4-axis 3D printer using the PRU for
+high speed step/dir pulse generation and a BeBoPr driver board.  The
+BeBoPr configuration is for the original version of the BeBoPr board and a BeagleBoneWhite and
+requires you disable HDMI.
+
+The BeBoPr-Bridge configuration is for use with the new bridge board
+that shuffles pins around so you can leave HDMI enabled.
+
+There are currently no limit switches configured, so adjust the MIN_LIMIT
+and MAX_LIMIT axis settings in the ini file if your printer has less than
+200 mm of X/Y travel.
+
+Current X and Y settings are appropriate for a typical "MendelMax" style
+printer, with the following settings:
+
+max vel   = 200 mm/s
+max accel = 3000 mm/s/s
+scale     = 80 steps/mm
+
+Adjust as required for your machine.  Make scale negative to invert any
+axis that is moving 'backwards'.
+

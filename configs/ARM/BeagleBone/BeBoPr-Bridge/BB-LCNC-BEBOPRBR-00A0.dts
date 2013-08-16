@@ -5,7 +5,7 @@
 	compatible = "ti,beaglebone", "ti,beaglebone-black";
 
 	/* identification */
-	part-number = "BB-LCNC-BEBOPR";
+	part-number = "BB-LCNC-BEBOPRBR";
 	version = "00A0";
 
 	/* state the resources this cape uses */

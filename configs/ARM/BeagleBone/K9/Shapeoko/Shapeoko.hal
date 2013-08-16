@@ -1,14 +1,11 @@
 # #######################################
 #
-# HAL file for BeagleBone + BeBoPr cape with 4 steppers
-#
-# Derived from example hm2-stepper config
+# HAL file for BeagleBone + K9 with 4 steppers
 #
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
-loadusr -w /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/setup.sh
-
+loadusr -w /home/linuxcnc/linuxcnc/configs/ARM/BeagleBone/K9/Shapeoko/setup.Shapeoko.sh
 
 # ###################################
 # Core EMC/HAL Loads
@@ -22,16 +19,13 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 
 # load low-level drivers
-loadrt hal_bb_gpio output_pins=103,105,107,120,128,140,141 input_pins=131,132,133,135,137,138
+# uncertain about P9-17 to 20, these are I2C channels - are these needed if we want to use BB-IO to talk to them?
+loadrt hal_bb_gpio input_pins=107,108,109,110,111,112,115,116,126,211,212,214,215,216,222,223,224,226 output_pins=113,114,117,118,119,127,129,134,136,139,140,141,142,143,144,145,146,213,217,218,221
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
-loadrt pid num_chan=2
-loadrt limit1 count=2
 
 
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
-# t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
-# a = analog input channel
-loadusr -Wn Therm /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 1 3
+#loadusr -W /home/maker/linuxcnc-dev.arm/configs/pru-examples/bbio_temp
 
 # ################################################
 # THREADS
@@ -41,10 +35,7 @@ addf [PRUCONF](DRIVER).capture-position   servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
-addf pid.0.do-pid-calcs                   servo-thread
-addf pid.1.do-pid-calcs                   servo-thread
-addf limit1.0                             servo-thread
-addf limit1.1                             servo-thread
+# revel in the free time here from not having to run PID 
 addf [PRUCONF](DRIVER).update             servo-thread
 addf bb_gpio.write                        servo-thread
        
@@ -87,10 +78,10 @@ setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-# P8.43 PRU1.out2
-setp [PRUCONF](DRIVER).stepgen.00.steppin         0xA2
-# P8.44 PRU1.out4
-setp [PRUCONF](DRIVER).stepgen.00.dirpin          0xA3
+# P9.31 GPIO3_14
+setp [PRUCONF](DRIVER).stepgen.00.steppin         0x8E
+# P9.29 GPIO3_15
+setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x8F
 
 
 # ################
@@ -126,10 +117,10 @@ setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.01.step_type       0
-# P8.42 PRU1.out5
-setp [PRUCONF](DRIVER).stepgen.01.steppin         0xA5
-# P8.39 PRU1.out6
-setp [PRUCONF](DRIVER).stepgen.01.dirpin          0xA6
+# P9.30 GPIO3_16
+setp [PRUCONF](DRIVER).stepgen.01.steppin         0x90
+# P9.28 GPIO3_17
+setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x91
 
 
 # ################
@@ -142,7 +133,6 @@ sets emcmot.02.enable FALSE
 
 net emcmot.02.enable <= axis.2.amp-enable-out 
 net emcmot.02.enable => [PRUCONF](DRIVER).stepgen.02.enable
-
 
 # position command and feedback
 net emcmot.02.pos-cmd <= axis.2.motor-pos-cmd
@@ -165,10 +155,10 @@ setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
-# P8.27 PRU1.out8
-setp [PRUCONF](DRIVER).stepgen.02.steppin         0xA8
-# P8.29 PRU1.out9
-setp [PRUCONF](DRIVER).stepgen.02.dirpin          0xA9
+# P9.42 GPIO3_18 / GPIO0_7
+setp [PRUCONF](DRIVER).stepgen.02.steppin         0x92
+# P9.27 GPIO3_19
+setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x93
 
 
 # ################
@@ -204,10 +194,10 @@ setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.03.step_type       0
-# P8.30 GPIO2.25
-setp [PRUCONF](DRIVER).stepgen.03.steppin         0xAB
-# P8.21 GPIO1.30
-setp [PRUCONF](DRIVER).stepgen.03.dirpin          0xAC
+# P9.41 GPIO3_20 / GPIO0_20
+setp [PRUCONF](DRIVER).stepgen.03.steppin         0x94
+# P9.25 GPIO3_21
+setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x95
 
 
 # ##################################################
@@ -222,106 +212,42 @@ net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # Axis enable signals
-net emcmot.00.enable => bb_gpio.p8.out-41
-setp bb_gpio.p8.out-41.invert 1
-net emcmot.01.enable => bb_gpio.p8.out-40
-setp bb_gpio.p8.out-40.invert 1
-net emcmot.02.enable => bb_gpio.p8.out-28
-setp bb_gpio.p8.out-28.invert 1
-net emcmot.03.enable => bb_gpio.p8.out-20
-setp bb_gpio.p8.out-20.invert 1
+# FIXME: These need to be inverted!
+#net emcmot.00.enable => bb_gpio.p8.out-41
+#net emcmot.01.enable => bb_gpio.p8.out-40
+#net emcmot.02.enable => bb_gpio.p8.out-28
+#net emcmot.03.enable => bb_gpio.p8.out-20
+#setp bb_gpio.p8.out-41  0
+#setp bb_gpio.p8.out-40  0
+#setp bb_gpio.p8.out-28  0
+#setp bb_gpio.p8.out-20  0
 
-# Machine power (BeBoPr Enable) 
-net estop-loop => bb_gpio.p8.out-03
-net estop-loop => bb_gpio.p8.out-05
-setp bb_gpio.p8.out-05.invert 1
-
-# BeBoPr ECO locations for enable signalsto avoid eMMC noise on startup:
-# Enable (P8.3) tied to system Reset_n line (P9.10)
-net estop-loop => bb_gpio.p8.out-07
-setp bb_gpio.p8.out-07.invert 1
+# Machine power
+#net estop-loop => bb_gpio.p8.out-03
+#setp bb_gpio.p8.out-05 0
 
 
 # ##################################################
-# PWM and Temperature Signals
+# PWM Signals
 # ##################################################
 
-# Define signals to use elsewhere (ie: M1xx codes)
-# If you change any names here, lots of things will break!
-newsig e0.temp.set   float
-newsig e0.temp.meas  float
-newsig bed.temp.set  float
-newsig bed.temp.meas float
+#setp hal_pru_generic.pwmgen.00.pwm_period       10000000
 
+# J2 PRU1.out1
+#setp hal_pru_generic.pwmgen.00.out.00.pin       0xA1
+#setp hal_pru_generic.pwmgen.00.out.00.enable    1
+#setp hal_pru_generic.pwmgen.00.out.00.value     0.2
 
-setp hal_pru_generic.pwmgen.00.pwm_period       10000000
+# J3 PRU1.out0
+#setp hal_pru_generic.pwmgen.00.out.01.pin       0xA0
+#setp hal_pru_generic.pwmgen.00.out.01.enable    1
+#setp hal_pru_generic.pwmgen.00.out.01.value     0.2
 
-# J2 E0 Heater PRU1.out1
-setp hal_pru_generic.pwmgen.00.out.00.pin       0xA1
-setp hal_pru_generic.pwmgen.00.out.00.enable    1
-setp hal_pru_generic.pwmgen.00.out.00.value     0.0
+# J4 GPIO2.16
+#setp hal_pru_generic.pwmgen.00.out.02.pin       0x50
+#setp hal_pru_generic.pwmgen.00.out.02.enable    1
+#setp hal_pru_generic.pwmgen.00.out.02.value     0.2
 
-# J3 E1 Heater PRU1.out0
-setp hal_pru_generic.pwmgen.00.out.01.pin       0xA0
-setp hal_pru_generic.pwmgen.00.out.01.enable    1
-setp hal_pru_generic.pwmgen.00.out.01.value     0.0
-
-# J4 Bed Heater GPIO2.16
-setp hal_pru_generic.pwmgen.00.out.02.pin       0x70
-setp hal_pru_generic.pwmgen.00.out.02.enable    1
-setp hal_pru_generic.pwmgen.00.out.02.value     0.0
-
-# PID for Extruder 0 temperature control
-net e0.temp.meas    <= Therm.temp0
-net e0.temp.meas    => pid.0.feedback
-
-sets e0.temp.set  0
-net e0.temp.set     => pid.0.command
-
-net e0.heater  <= pid.0.output
-net e0.heater  => limit1.0.in
-net e0.heaterl <= limit1.0.out
-net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
-
-# Limit heater PWM to positive values
-# PWM mimics hm2 implementation, which generates output for negative values
-setp limit1.0.min 0
-
-# PID for Bed temperature control
-net bed.temp.meas    <= Therm.temp1
-net bed.temp.meas    => pid.1.feedback
-
-sets bed.temp.set  0
-net bed.temp.set     => pid.1.command
-
-net bed.heater  <= pid.1.output
-net bed.heater  => limit1.1.in
-net bed.heaterl <= limit1.1.out
-net bed.heaterl => hal_pru_generic.pwmgen.00.out.02.value
-
-# Limit heater PWM to positive values
-# PWM mimics hm2 implementation, which generates output for negative values
-setp limit1.1.min 0
-
-# PID Parameters for adjusting temperature control
-# Extruder
-#setp pid.0.FF0      0  
-#setp pid.0.FF1      0  
-#setp pid.0.FF2      0  
-setp pid.0.Pgain  0.30
-setp pid.0.Igain  0.00001
-setp pid.0.Dgain  0.9375
-setp pid.0.maxerrorI 1.0
-setp pid.0.bias    0.5  
-setp pid.0.enable   1
-
-# Bed
-#setp pid.1.FF0      0  
-#setp pid.1.FF1      0  
-#setp pid.1.FF2      0  
-setp pid.1.Pgain  1
-setp pid.1.Igain  0.0
-setp pid.1.Dgain  0.0
-setp pid.1.maxerrorI 1.0
-setp pid.1.bias    0.5  
-setp pid.1.enable   1
+#setp bbio_temp.set 0x480
+#net thermostat <= bbio_temp.temp hal_pru_generic.pwmgen.00.out.00.value
+#net thermostat => hal_pru_generic.pwmgen.00.out.00.value

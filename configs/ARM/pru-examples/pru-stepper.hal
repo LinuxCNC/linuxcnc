@@ -1,13 +1,25 @@
 # #######################################
 #
-# HAL file for BeagleBone + BeBoPr cape with 4 steppers
+# HAL file for HostMot2 with 3 steppers
 #
-# Derived from example hm2-stepper config
+# Derived from Ted Hyde's original hm2-servo config
+#
+# Based up work and discussion with Seb & Peter & Jeff
+# GNU license references - insert here. www.linuxcnc.org
+#
 #
 # ########################################
+# Firmware files are in /lib/firmware/hm2/7i43/
+# Must symlink the hostmot2 firmware directory of sanbox to
+# /lib/firmware before running EMC2...
+# sudo ln -s $HOME/emc2-sandbox/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/hm2
+#
+# See also:
+# <http://www.linuxcnc.org/docs/devel/html/man/man9/hostmot2.9.html#config%20modparam>
+# and http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?HostMot2
+#
+# #####################################################################
 
-# Launch the setup script to make sure hardware setup looks good
-loadusr -w /home/linuxcnc/linuxcnc/configs/BeagleBone/K9.3D/setup.sh
 
 # ###################################
 # Core EMC/HAL Loads
@@ -19,26 +31,19 @@ loadrt trivkins
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 
-
-# load low-level drivers
-loadrt hal_bb_gpio input_pins=107,108,109,110,111,112,115,116,126,128,130,131,132,133,135,137,211,212,214,215,216,222,223,224,226 output_pins=113,114,117,118,119,127,129,134,136,139,140,141,142,143,144,145,146,213,217,218,221
+# load low-level driver
 loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
 
-
-# Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
-#loadusr -W /home/maker/linuxcnc-dev.arm/configs/pru-examples/bbio_temp
 
 # ################################################
 # THREADS
 # ################################################
 
 addf [PRUCONF](DRIVER).capture-position   servo-thread
-addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
 # revel in the free time here from not having to run PID 
 addf [PRUCONF](DRIVER).update             servo-thread
-addf bb_gpio.write                        servo-thread
        
 
 # ######################################################
@@ -79,10 +84,8 @@ setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-# P9.31 GPIO3_14
-setp [PRUCONF](DRIVER).stepgen.00.steppin         0x8E
-# P9.29 GPIO3_15
-setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x8F
+setp [PRUCONF](DRIVER).stepgen.00.steppin         0xA2
+setp [PRUCONF](DRIVER).stepgen.00.dirpin          0xA3
 
 
 # ################
@@ -118,10 +121,8 @@ setp [PRUCONF](DRIVER).stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.01.step_type       0
-# P9.30 GPIO3_16
-setp [PRUCONF](DRIVER).stepgen.01.steppin         0x90
-# P9.28 GPIO3_17
-setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x91
+setp [PRUCONF](DRIVER).stepgen.01.steppin         0xA4
+setp [PRUCONF](DRIVER).stepgen.01.dirpin          0xA5
 
 
 # ################
@@ -157,49 +158,33 @@ setp [PRUCONF](DRIVER).stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp [PRUCONF](DRIVER).stepgen.02.step_type       0
-# P9.42 GPIO3_18 / GPIO0_7
-setp [PRUCONF](DRIVER).stepgen.02.steppin         0x07
-# P9.27 GPIO3_19
-setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x93
+setp [PRUCONF](DRIVER).stepgen.02.steppin         0xA6
+setp [PRUCONF](DRIVER).stepgen.02.dirpin          0xA7
 
 
-# ################
-# A [3] Axis (Extruder)
-# ################
-
-# axis enable chain
-newsig emcmot.03.enable bit
-sets emcmot.03.enable FALSE
-
-net emcmot.03.enable <= axis.3.amp-enable-out 
-net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable
 
 
-# position command and feedback
-net emcmot.03.pos-cmd <= axis.3.motor-pos-cmd
-net emcmot.03.pos-cmd => [PRUCONF](DRIVER).stepgen.03.position-cmd
+# 
+# The Mesa AnyIO output pins can be in open-drain mode (drive low, float
+# high) or push/pull mode (drive low, drive high).
+#
+# When a logical output is 1 in open-drain mode, the FPGA lets the pin
+# float and it gets pulled high to +5V via a 10K resistor.
+#
+# When a logical output is 1 in push/pull mode, the FPGA pushes the pin
+# high but only to +3.3V.  This is problematic on some kinds of inputs.
+#
 
-net motor.03.pos-fb <= [PRUCONF](DRIVER).stepgen.03.position-fb
-net motor.03.pos-fb => axis.3.motor-pos-fb
+#setp [PRUCONF](DRIVER).gpio.048.is_opendrain 1
+#setp [PRUCONF](DRIVER).gpio.049.is_opendrain 1
+
+#setp [PRUCONF](DRIVER).gpio.054.is_opendrain 1
+#setp [PRUCONF](DRIVER).gpio.055.is_opendrain 1
+
+#setp [PRUCONF](DRIVER).gpio.060.is_opendrain 1
+#setp [PRUCONF](DRIVER).gpio.061.is_opendrain 1
 
 
-# timing parameters
-setp [PRUCONF](DRIVER).stepgen.03.dirsetup        [AXIS_3]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.03.dirhold         [AXIS_3]DIRHOLD
-
-setp [PRUCONF](DRIVER).stepgen.03.steplen         [AXIS_3]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.03.stepspace       [AXIS_3]STEPSPACE
-
-setp [PRUCONF](DRIVER).stepgen.03.position-scale  [AXIS_3]SCALE
-
-setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
-
-#setp [PRUCONF](DRIVER).stepgen.03.step_type       0
-# P9.41 GPIO3_20 / GPIO0_20
-setp [PRUCONF](DRIVER).stepgen.03.steppin         0x14
-# P9.25 GPIO3_21
-setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x95
 
 
 # ##################################################
@@ -213,43 +198,3 @@ net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
 net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
-# Axis enable signals
-# FIXME: These need to be inverted!
-#net emcmot.00.enable => bb_gpio.p8.out-41
-#net emcmot.01.enable => bb_gpio.p8.out-40
-#net emcmot.02.enable => bb_gpio.p8.out-28
-#net emcmot.03.enable => bb_gpio.p8.out-20
-#setp bb_gpio.p8.out-41  0
-#setp bb_gpio.p8.out-40  0
-#setp bb_gpio.p8.out-28  0
-#setp bb_gpio.p8.out-20  0
-
-# Machine power
-#net estop-loop => bb_gpio.p8.out-03
-#setp bb_gpio.p8.out-05 0
-
-
-# ##################################################
-# PWM Signals
-# ##################################################
-
-setp hal_pru_generic.pwmgen.00.pwm_period       10000000
-
-# J2 PRU1.out1
-setp hal_pru_generic.pwmgen.00.out.00.pin       0xA1
-setp hal_pru_generic.pwmgen.00.out.00.enable    1
-setp hal_pru_generic.pwmgen.00.out.00.value     0.2
-
-# J3 PRU1.out0
-setp hal_pru_generic.pwmgen.00.out.01.pin       0xA0
-setp hal_pru_generic.pwmgen.00.out.01.enable    1
-setp hal_pru_generic.pwmgen.00.out.01.value     0.2
-
-# J4 GPIO2.16
-setp hal_pru_generic.pwmgen.00.out.02.pin       0x50
-setp hal_pru_generic.pwmgen.00.out.02.enable    1
-setp hal_pru_generic.pwmgen.00.out.02.value     0.2
-
-#setp bbio_temp.set 0x480
-#net thermostat <= bbio_temp.temp hal_pru_generic.pwmgen.00.out.00.value
-#net thermostat => hal_pru_generic.pwmgen.00.out.00.value

@@ -5,7 +5,7 @@
 	compatible = "ti,beaglebone", "ti,beaglebone-black";
 
 	/* identification */
-	part-number = "BB-LCNC-K93D";
+	part-number = "BB-LCNC-K9";
 	version = "00A0";
 
 	/* state the resources this cape uses */
@@ -77,8 +77,8 @@
 		"J9.29",    /* gpio3_15 */
 		"J9.30",    /* gpio3_16 */
 		"J9.31",    /* gpio3_14 */
-		"J9.41",    /* gpio0_20 */
-		"J9.42",    /* gpio0_7  */
+		"J9.41",    /* gpio3_20 */
+		"J9.42",    /* gpio3_18 */
 		
 		/* the hardware IP uses */
 /*		"gpio1_6",	*/
@@ -147,8 +147,8 @@
 		"gpio3_15",
 		"gpio3_16",
 		"gpio3_14",
-		"gpio0_20",
-		"gpio0_7",
+		"gpio3_20",
+		"gpio3_18",
 		
 		"pru0";
 
@@ -223,9 +223,9 @@
 					0x19C     0x3F  /* J9.28  gpio3_17 */       
 					0x194     0x3F  /* J9.29  gpio3_15 */       
 					0x198     0x3F  /* J9.30  gpio3_16 */       
-					0x190     0x3F  /* J9.31  gpio3_14 */       
-					0x1B4     0x3F  /* J9.41  gpio0_20 */       
-					0x164     0x3F  /* J9.42  gpio0_7  */       
+					0x190     0x3F  /* J9.31  gpio3_14 */       			
+					0x1A8     0x3F  /* J9.41  gpio3_20 */       
+					0x1A0     0x3F  /* J9.42  gpio3_18  */       
 				>;
 			};
 		};

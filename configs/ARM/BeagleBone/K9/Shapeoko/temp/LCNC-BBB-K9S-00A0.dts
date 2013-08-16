@@ -5,7 +5,7 @@
 	compatible = "ti,beaglebone", "ti,beaglebone-black";
 
 	/* identification */
-	part-number = "BB-LCNC-K93D";
+	part-number = "BB-LCNC-K9Shapeoko";
 	version = "00A0";
 
 	/* state the resources this cape uses */
@@ -35,26 +35,26 @@
 /*		"J8.24",       gpio1_1  */
 /*		"J8.25",       gpio1_0  */
 		"J8.26",    /* gpio1_29 */
-		"J8.27",    /* gpio2_22 */
-		"J8.28",    /* gpio2_24 */
-		"J8.29",    /* gpio2_23 */
-		"J8.30",    /* gpio2_25 */
-		"J8.31",    /* gpio0_10 */
-		"J8.32",    /* gpio0_11 */
-		"J8.33",    /* gpio0_9  */
-		"J8.34",    /* gpio2_17 */
-		"J8.35",    /* gpio0_8  */
-		"J8.36",    /* gpio2_16 */
-		"J8.37",    /* gpio2_14 */
+/*		"J8.27",       gpio2_22 */
+/*		"J8.28",       gpio2_24 */
+/*		"J8.29",       gpio2_23 */
+/*		"J8.30",       gpio2_25 */
+/*		"J8.31",       gpio0_10 */
+/*		"J8.32",       gpio0_11 */
+/*		"J8.33",       gpio0_9  */
+/*		"J8.34",       gpio2_17 */
+/*		"J8.35",       gpio0_8  */
+/*		"J8.36",       gpio2_16 */
+/*		"J8.37",       gpio2_14 */
 /*		"J8.38",       gpio2_15 */
-		"J8.39",    /* gpio2_12 */
-		"J8.40",    /* gpio2_13 */
-		"J8.41",    /* gpio2_10 */
-		"J8.42",    /* gpio2_11 */
-		"J8.43",    /* gpio2_8  */
-		"J8.44",    /* gpio2_9  */
-		"J8.45",    /* gpio2_6  */
-		"J8.46",    /* gpio2_7  */
+/*		"J8.39",       gpio2_12 */
+/*		"J8.40",       gpio2_13 */
+/*		"J8.41",       gpio2_10 */
+/*		"J8.42",       gpio2_11 */
+/*		"J8.43",       gpio2_8  */
+/*		"J8.44",       gpio2_9  */
+/*		"J8.45",       gpio2_6  */
+/*		"J8.46",       gpio2_7  */
 		
 		"J9.11",    /* gpio0_30 */
 		"J9.12",    /* gpio1_28 */
@@ -77,8 +77,8 @@
 		"J9.29",    /* gpio3_15 */
 		"J9.30",    /* gpio3_16 */
 		"J9.31",    /* gpio3_14 */
-		"J9.41",    /* gpio0_20 */
-		"J9.42",    /* gpio0_7  */
+		"J9.41",    /* gpio3_20 */
+		"J9.42",    /* gpio3_18 */
 		
 		/* the hardware IP uses */
 /*		"gpio1_6",	*/
@@ -105,26 +105,26 @@
 /*		"gpio1_1",	*/
 /*		"gpio1_0",	*/
 		"gpio1_29",
-		"gpio2_22",
-		"gpio2_24",
-		"gpio2_23",
-		"gpio2_25",
-		"gpio0_10",
-		"gpio0_11",
-		"gpio0_9",
-		"gpio2_17",
-		"gpio0_8",
-		"gpio2_16",
-		"gpio2_14",
+/*		"gpio2_22",	*/
+/*		"gpio2_24",	*/
+/*		"gpio2_23",	*/
+/*		"gpio2_25",	*/
+/*		"gpio0_10",	*/
+/*		"gpio0_11",	*/
+/*		"gpio0_9",	*/
+/*		"gpio2_17",	*/
+/*		"gpio0_8",	*/
+/*		"gpio2_16",	*/
+/*		"gpio2_14",	*/
 /*		"gpio2_15",	*/
-		"gpio2_12",
-		"gpio2_13",
-		"gpio2_10",
-		"gpio2_11",
-		"gpio2_8",
-		"gpio2_9",
-		"gpio2_6",
-		"gpio2_7",
+/*		"gpio2_12",	*/
+/*		"gpio2_13",	*/
+/*		"gpio2_10",	*/
+/*		"gpio2_11",	*/
+/*		"gpio2_8",	*/
+/*		"gpio2_9",	*/
+/*		"gpio2_6",	*/
+/*		"gpio2_7",	*/
 		
 		"gpio0_30",
 		"gpio1_28",
@@ -147,8 +147,8 @@
 		"gpio3_15",
 		"gpio3_16",
 		"gpio3_14",
-		"gpio0_20",
-		"gpio0_7",
+		"gpio3_20",
+		"gpio3_18",
 		
 		"pru0";
 
@@ -182,26 +182,26 @@
 /*					0x004     mmc      J8.24  gpio1_1  */       
 /*					0x000     mmc      J8.25  gpio1_0  */       
 					0x07C     0x3F  /* J8.26  gpio1_29 */       
-					0x0E0     0x3F  /* J8.27  gpio2_22 */       
-					0x0E8     0x3F  /* J8.28  gpio2_24 */       
-					0x0E4     0x3F  /* J8.29  gpio2_23 */       
-					0x0EC     0x3F  /* J8.30  gpio2_25 */       
-					0x0D8     0x3F  /* J8.31  gpio0_10 */       
-					0x0DC     0x3F  /* J8.32  gpio0_11 */       
-					0x0D4     0x3F  /* J8.33  gpio0_9  */       
-					0x0CC     0x3F  /* J8.34  gpio2_17 */       
-					0x0D0     0x3F  /* J8.35  gpio0_8  */       
-					0x0C8     0x3F  /* J8.36  gpio2_16 */       
-					0x0C0     0x3F  /* J8.37  gpio2_14 */       
+/*					0x0E0     0x3F     J8.27  gpio2_22 */       
+/*					0x0E8     0x3F     J8.28  gpio2_24 */       
+/*					0x0E4     0x3F     J8.29  gpio2_23 */       
+/*					0x0EC     0x3F     J8.30  gpio2_25 */       
+/*					0x0D8     0x3F     J8.31  gpio0_10 */       
+/*					0x0DC     0x3F     J8.32  gpio0_11 */       
+/*					0x0D4     0x3F     J8.33  gpio0_9  */       
+/*					0x0CC     0x3F     J8.34  gpio2_17 */       
+/*					0x0D0     0x3F     J8.35  gpio0_8  */       
+/*					0x0C8     0x3F     J8.36  gpio2_16 */       
+/*					0x0C0     0x3F     J8.37  gpio2_14 */       
 /*					0x0C4     ???      J8.38  gpio2_15 */       
-					0x0B8     0x3F  /* J8.39  gpio2_12 */       
-					0x0BC     0x3F  /* J8.40  gpio2_13 */       
-					0x0B0     0x3F  /* J8.41  gpio2_10 */       
-					0x0B4     0x3F  /* J8.42  gpio2_11 */       
-					0x0A8     0x3F  /* J8.43  gpio2_8  */       
-					0x0AC     0x3F  /* J8.44  gpio2_9  */       
-					0x0A0     0x3F  /* J8.45  gpio2_6  */       
-					0x0A4     0x3F  /* J8.46  gpio2_7  */       
+/*					0x0B8     0x3F     J8.39  gpio2_12 */       
+/*					0x0BC     0x3F     J8.40  gpio2_13 */       
+/*					0x0B0     0x3F     J8.41  gpio2_10 */       
+/*					0x0B4     0x3F     J8.42  gpio2_11 */       
+/*					0x0A8     0x3F     J8.43  gpio2_8  */       
+/*					0x0AC     0x3F     J8.44  gpio2_9  */       
+/*					0x0A0     0x3F     J8.45  gpio2_6  */       
+/*					0x0A4     0x3F     J8.46  gpio2_7  */       
 					                              
 					0x070     0x3F  /* J9.11  gpio0_30 */       
 					0x078     0x3F  /* J9.12  gpio1_28 */       
@@ -223,9 +223,9 @@
 					0x19C     0x3F  /* J9.28  gpio3_17 */       
 					0x194     0x3F  /* J9.29  gpio3_15 */       
 					0x198     0x3F  /* J9.30  gpio3_16 */       
-					0x190     0x3F  /* J9.31  gpio3_14 */       
-					0x1B4     0x3F  /* J9.41  gpio0_20 */       
-					0x164     0x3F  /* J9.42  gpio0_7  */       
+					0x190     0x3F  /* J9.31  gpio3_14 */       			
+					0x1A8     0x3F  /* J9.41  gpio3_20 */       
+					0x1A0     0x3F  /* J9.42  gpio3_18  */       
 				>;
 			};
 		};

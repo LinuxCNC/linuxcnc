@@ -1,7 +1,0 @@
-An example configuration for the K9 board, using the 3D pinout and
-on-board Pololu stepper drivers.
-
-The K9.3D configuration requires you to disable HDMI
-
-The K9.wHDMI configuration will run with HDMI enabled
-

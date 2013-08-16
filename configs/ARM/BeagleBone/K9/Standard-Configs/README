@@ -1,0 +1,23 @@
+Example standard (generic) configurations for the K9 board
+
+Initial Version: 22 July 2013
+
+This is an example configuration for the BeagleBone platform, running with the Calypso Ventures & PMDX K9 Smorgasboard.
+Configuration assumes the BeagelBoneBlack was booted with HDMIN device tree (HDMI w/o audio) as the boot time config (K9 uses the Audio pins on the BBB).
+
+The K9 is configured for the Shapeoko mechanical kit plus the Inventable's stepper motors being driven from the on-board Pololu stepper drivers.
+
+The initial configuration will be for a Shapeoko with 
+
+Spindle: on/off rotary spindle.
+
+Home switches: none
+
+Limit Switches: none
+
+BB IO: all GPIO, no direct PRU IO access.
+
+This is a 4 axis + spindle subset of the K9 IO.
+
+
+

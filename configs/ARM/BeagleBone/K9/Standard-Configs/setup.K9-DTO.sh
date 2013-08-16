@@ -18,7 +18,7 @@ dir_err () {
 SLOTS=/sys/devices/bone_capemgr.*/slots
 
 # Make sure required device tree overlay(s) are loaded
-for DTBO in BB-LCNC-K9wHDMI ; do
+for DTBO in BB-BLACK-LCNC-K9 ; do
 
 	if grep -q $DTBO $SLOTS ; then
 		echo $DTBO overlay found
@@ -62,7 +62,13 @@ done <<- EOF
 	27	out	# J8.17 gpio0_27
 	65	out	# J8.18 gpio2_1 
 	22	out	# J8.19 gpio0_22
+# eMMC pins 		  J8.20 
+#			  thru 
+#			  J8.25
+
 	61	in	# J8.26 gpio1_29
+
+# Start HDMI pins
 #	86	out	# J8.27 gpio2_22
 #	88	in	# J8.28 gpio2_24
 #	87	out	# J8.29 gpio2_23
@@ -82,7 +88,8 @@ done <<- EOF
 #	73	out	# J8.44 gpio2_9 
 #	70	out	# J8.45 gpio2_6 
 #	71	out	# J8.46 gpio2_7 
-	
+# end HDMI pins 
+
 	30	in	# J9.11 gpio0_30
 	60	in	# J9.12 gpio1_28
 	31	out	# J9.13 gpio0_31
@@ -98,12 +105,14 @@ done <<- EOF
 	117	out	# J9.25 gpio3_21
 	14	in	# J9.26 gpio0_14
 	115	out	# J9.27 gpio3_19
-	113	out	# J9.28 gpio3_17
-	111	out	# J9.29 gpio3_15
+	113	out	# J9.28 gpio3_17    K9 use of BBB HDMI Audio pin
+	111	out	# J9.29 gpio3_15    K9 use of BBB HDMI Audio pin
 	112	out	# J9.30 gpio3_16
-	110	out	# J9.31 gpio3_14
-	20	out	# J9.41 gpio0_20
-	116	in	# J9.41 gpio3_15
-	7	out	# J9.42 gpio0_7 
-	114	in	# J9.42 gpio1_16
+	110	out	# J9.31 gpio3_14    K9 use of BBB HDMI Audio pin
+
+	20	in	# J9.41 gpio0_20    set = in => other signal on pin used
+	116	out	# J9.41 gpio3_20
+	7	in	# J9.42 gpio0_7     set = in => other signal on pin used
+	114	out	# J9.42 gpio3_18
 EOF
+
