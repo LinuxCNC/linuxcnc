@@ -157,7 +157,7 @@ int main(int argc, gchar * argv[])
 	}
     }
     /* set up a shared memory region for the scope data */
-    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, sizeof(scope_shm_control_t));
+    shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, 0);
     if (shm_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE: ERROR: failed to get shared memory\n");
