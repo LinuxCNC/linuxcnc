@@ -1,0 +1,175 @@
+
+# this loads the PRU binary 'pruexample.bin' into PRU 0
+# and leaves the PRU disabled:
+# see the Makefile how pruexample.bin is created
+
+# PRU Channel modes:
+# (0|n|N)  None (channel disabled)
+# (1|s|S)  Step/Dir mode
+# (2|u|U)  Up/Down mode (not yet implemented)
+# (3|d|D)  Delta Sigma: 2 channel 14-bit delta-sigma modulator
+# (4|p|P)  PWM: 2 channel PWM generator
+# (5|g|G)  GPIO: (not yet implemented)
+# (6|x|X)  RESERVED6;
+# (7|y|Y)  RESERVED7;
+
+#loadrt hal_pru_generic chan_mode=s,s,s,s,n,p,d prucode="pru_main.bin" disabled=1 pru=1
+
+loadrt hal_pru_generic prucode=pru_generic.bin pru=1 disabled=1 num_stepgens=1 num_pwmgens=3
+
+# this is the PRU debugger. It connects to PRU shared memory
+# can inspect registers and PRU status (processor status, program counter)
+# exported pins:
+#
+# hal_prudebug.reset       # u32,in  select PRU (0,1)
+# hal_prudebug.continuous  # bit,in, sample PRU every thread period
+# hal_prudebug.snap        # bit,in, sample PRU on positive edge
+# hal_prudebug.halt        # bit,in, stop the PRU at current instruction
+# hal_prudebug.step        # bit,in, set PRU stepping mode
+# hal_prudebug.continue    # bit,in, reenable  PRU after halt; will step 1 instruction if stepping
+# hal_prudebug.reset       # bit,in  reset PRU
+#
+# hal_prudebug.CONTROL     # u32,out PRU status register
+# hal_prudebug.PC          # u32,out PRU program counter
+# hal_prudebug.R0-R31      # u32,out PRU register values
+
+# unrelated to debugging, see EXPLORE_COUNTERS #define in haö_prudebug.c
+# hal_prudebug.IEP_COUNT     # u32,out 200Mhz TSC counter in IEP (Industrial Ethernet) module
+
+loadrt hal_prudebug
+
+loadrt threads period1=20000000 # 20msec
+addf hal_pru_generic.update thread1
+addf hal_pru_generic.capture-position thread1
+addf hal_prudebug.update thread1
+#
+
+
+# sample PRU status every thread period
+#setp hal_prudebug.continuous 1
+#show pin hal_prudebug.ECAP_COUNT
+
+# show last sample of program counter and registers
+#show pin hal_prudebug.PC
+#show pin hal_prudebug.R
+
+loadusr -Wn ui gladevcp -u ui.py -c ui  prudebug.ui
+
+net pru ui.pru hal_prudebug.pru
+net continuous ui.continuous hal_prudebug.continuous
+net snap ui.snap hal_prudebug.snap
+net halt ui.halt hal_prudebug.halt
+
+net stepping ui.stepping hal_prudebug.step
+net continue ui.continue hal_prudebug.continue
+net reset ui.reset hal_prudebug.reset
+
+# hal_prudebug.CONTROL     # u32,out PRU status register
+# hal_prudebug.PC          # u32,out PRU program counter
+# hal_prudebug.R0-R31      # u32,out PRU register values
+
+net control hal_prudebug.CONTROL  ui.CONTROL
+net pc hal_prudebug.PC ui.PC
+net r0 hal_prudebug.R0 ui.R0
+net r1 hal_prudebug.R1 ui.R1
+net r2 hal_prudebug.R2 ui.R2
+net r3 hal_prudebug.R3 ui.R3
+net r4 hal_prudebug.R4 ui.R4
+net r5 hal_prudebug.R5 ui.R5
+net r6 hal_prudebug.R6 ui.R6
+net r7 hal_prudebug.R7 ui.R7
+net r8 hal_prudebug.R8 ui.R8
+net r9 hal_prudebug.R9 ui.R9
+net r10 hal_prudebug.R10 ui.R10
+net r11 hal_prudebug.R11 ui.R11
+net r12 hal_prudebug.R12 ui.R12
+net r13 hal_prudebug.R13 ui.R13
+net r14 hal_prudebug.R14 ui.R14
+net r15 hal_prudebug.R15 ui.R15
+net r16  hal_prudebug.R16 ui.R16
+net r17 hal_prudebug.R17 ui.R17
+net r18 hal_prudebug.R18 ui.R18
+net r19 hal_prudebug.R19 ui.R19
+net r20 hal_prudebug.R20 ui.R20
+net r21 hal_prudebug.R21 ui.R21
+net r22 hal_prudebug.R22 ui.R22
+net r23 hal_prudebug.R23 ui.R23
+net r24 hal_prudebug.R24 ui.R24
+net r25 hal_prudebug.R25 ui.R25
+net r26 hal_prudebug.R26 ui.R26
+net r27 hal_prudebug.R27 ui.R27
+net r28 hal_prudebug.R28 ui.R28
+net r29 hal_prudebug.R29 ui.R29
+net r30 hal_prudebug.R30 ui.R30
+net r31 hal_prudebug.R31 ui.R31
+setp ui.register_table 1
+
+
+# Setup something so the PRU can show off a bit
+# stepgen in velocity mode, so it will continuously generate pulses
+setp hal_pru_generic.stepgen.00.steppin      0xA4
+setp hal_pru_generic.stepgen.00.dirpin       0xA5
+setp hal_pru_generic.stepgen.00.position-cmd 0.023
+setp hal_pru_generic.stepgen.00.velocity-cmd 100
+setp hal_pru_generic.stepgen.00.enable       1
+setp hal_pru_generic.stepgen.00.control-type 1
+setp hal_pru_generic.stepgen.00.maxaccel     0
+setp hal_pru_generic.stepgen.00.maxvel       0
+setp hal_pru_generic.stepgen.00.steplen      1000
+setp hal_pru_generic.stepgen.00.stepspace    1000
+setp hal_pru_generic.stepgen.00.dirsetup     1000
+setp hal_pru_generic.stepgen.00.dirhold      1000
+
+#setp hal_pru_generic.stepgen.01.steppin      0xA6
+#setp hal_pru_generic.stepgen.01.dirpin       0xA7
+#setp hal_pru_generic.stepgen.01.position-cmd 0.018
+#setp hal_pru_generic.stepgen.01.velocity-cmd 75
+#setp hal_pru_generic.stepgen.01.enable       1
+#setp hal_pru_generic.stepgen.01.control-type 1
+#setp hal_pru_generic.stepgen.01.maxaccel     0
+#setp hal_pru_generic.stepgen.01.maxvel       0
+#setp hal_pru_generic.stepgen.01.steplen      1000
+#setp hal_pru_generic.stepgen.01.stepspace    1000
+#setp hal_pru_generic.stepgen.01.dirsetup     1000
+#setp hal_pru_generic.stepgen.01.dirhold      1000
+
+#setp hal_pru_generic.stepgen.02.steppin      6
+#setp hal_pru_generic.stepgen.02.dirpin       7
+#setp hal_pru_generic.stepgen.02.position-cmd -0.015
+#setp hal_pru_generic.stepgen.02.velocity-cmd -0.015
+#setp hal_pru_generic.stepgen.02.enable       1
+#setp hal_pru_generic.stepgen.02.control-type 0
+#setp hal_pru_generic.stepgen.02.maxaccel     0
+#setp hal_pru_generic.stepgen.02.maxvel       0
+
+#setp hal_pru_generic.stepgen.03.steppin      8
+#setp hal_pru_generic.stepgen.03.dirpin       9
+#setp hal_pru_generic.stepgen.03.position-cmd -0.01
+#setp hal_pru_generic.stepgen.03.velocity-cmd -0.01
+#setp hal_pru_generic.stepgen.03.enable       1
+#setp hal_pru_generic.stepgen.03.control-type 0
+#setp hal_pru_generic.stepgen.03.maxaccel     0
+#setp hal_pru_generic.stepgen.03.maxvel       0
+
+#setp hal_pru_generic.pwm.00.pin1            4
+#setp hal_pru_generic.pwm.00.pin2            5
+#setp hal_pru_generic.pwm.00.out1            100
+#setp hal_pru_generic.pwm.00.out2            200
+#setp hal_pru_generic.pwm.00.period          300
+#setp hal_pru_generic.pwm.00.enable          1
+
+#setp hal_pru_generic.delta.06.pin1          2
+#setp hal_pru_generic.delta.06.pin2          3
+#setp hal_pru_generic.delta.06.out1          0.5
+#setp hal_pru_generic.delta.06.out2          0.35
+#setp hal_pru_generic.delta.06.enable        1
+
+
+
+
+start
+
+
+waitusr ui
+stop
+unloadrt all

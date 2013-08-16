@@ -7,7 +7,7 @@
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
-loadusr -w /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/setup.bridge.sh
+loadusr -w /home/linuxcnc/linuxcnc/configs/ARM/BeagleBone/BeBoPr-Bridge/setup.bridge.sh
 
 
 # ###################################
