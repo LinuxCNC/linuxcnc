@@ -435,6 +435,7 @@ HEADERS := \
     hal/hal_parport.h \
     hal/config_module.h \
     hal/drivers/hal_gpiomap.h \
+    hal/drivers/hal_spi.h \
     libnml/buffer/locmem.hh \
     libnml/buffer/memsem.hh \
     libnml/buffer/phantom.hh \
@@ -1057,6 +1058,8 @@ hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
 ifeq ($(TARGET_PLATFORM), raspberry)
 obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
 hal_gpio-objs := hal/drivers/hal_gpio.o 
+obj-$(CONFIG_HAL_SPI) += hal_spi.o
+hal_spi-objs := hal/drivers/hal_spi.o 
 endif
 
 ifeq ($(TARGET_PLATFORM), beaglebone)
@@ -1357,6 +1360,7 @@ endif
 
 ifeq ($(TARGET_PLATFORM),raspberry)
 $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
+$(RTLIBDIR)/hal_spi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_spi-objs))
 endif
 
 $(RTLIBDIR)/pci_8255$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pci_8255-objs))

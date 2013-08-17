@@ -217,6 +217,7 @@ class Config(object):
 # 	self.CONFIG_HAL_MOTENC=m
 # 	self.CONFIG_HAL_SKELETON=m
 # 	self.CONFIG_HAL_GPIO=m
+# 	self.CONFIG_HAL_SPI=m
 # 	self.CONFIG_HAL_SPEAKER=m
 # 	self.CONFIG_HAL_STG=m
 # 	self.CONFIG_HAL_VTI=m
