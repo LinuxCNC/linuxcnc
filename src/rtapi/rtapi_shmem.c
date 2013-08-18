@@ -145,7 +145,7 @@ int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
 
     /* validate shmem handle */
     if (shmem->magic != SHMEM_MAGIC)
-	return -EINVAL;
+	return -ENOENT;
 
     /* pass memory address back to caller */
     *ptr = shmem->mem;
@@ -499,7 +499,7 @@ int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr) {
     }
     /* is the block mapped? */
     if (shmem_addr_array[shmem_id] == NULL) {
-	return -EINVAL;
+	return -ENOENT;
     }
     /* pass memory address back to caller */
     *ptr = shmem_addr_array[shmem_id];
