@@ -97,7 +97,7 @@ int shmdrv_attach(struct shm_status *shmstat, void **shm)
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, 
 		shmstat->driver_fd, 0);
     if (*shm == (void *)MAP_FAILED) {
-	return errno;
+	return -errno;
     }
     return 0;
 }
