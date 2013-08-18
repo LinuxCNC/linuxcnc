@@ -450,11 +450,18 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
 	goto done;
     }
     seg = &shm_segments[ret];
-    shmstat->id = ret;
-
     // dont increment n_uattach, this will be handled during mmap()
     if (!pid) 
 	seg->n_kattach++;
+
+    shmstat->id = ret;
+    shmstat->n_kattach = seg->n_kattach;
+    shmstat->n_uattach = seg->n_uattach;
+    shmstat->size = seg->size;
+    shmstat->act_size = seg->act_size;
+    shmstat->creator = seg->creator;
+    shmstat->flags = seg->flags;
+
     if (shm)
 	*shm = seg->kmem;
     ret = 0;
