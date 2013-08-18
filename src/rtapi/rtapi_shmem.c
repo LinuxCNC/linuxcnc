@@ -252,7 +252,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 		rtapi_mutex_give(&(rtapi_data->mutex));
 		rtapi_print_msg(RTAPI_MSG_WARN,
 				"RTAPI: Warning: shmem already mapped\n");
-		return -EINVAL;
+		return -EEXIST;
 	    }
 	    /* yes, has it been mapped into kernel space? */
 #ifdef RTAPI
