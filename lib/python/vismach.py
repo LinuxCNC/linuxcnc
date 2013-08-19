@@ -182,7 +182,7 @@ class Track(Collection):
 
 class CoordsBase(object):
     def __init__(self, *args):
-	if isinstance(args[0], hal.component):
+	if args and isinstance(args[0], hal.component):
 	   self.comp = args[0]
 	   args = args[1:]
 	else:
