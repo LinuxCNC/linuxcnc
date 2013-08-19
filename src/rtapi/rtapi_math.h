@@ -79,7 +79,7 @@ extern __inline double fmin(double __y, double __x) {
 #define isfinite(x) __builtin_isfinite((x))
 #else
 #define isinf(x) ({ double v=((x)); !isnan(v) && isnan(v-v); })
-#define isfinite(x) ({ double v=((x)); !isnan(v) && !isnan(v-v)); })
+#define isfinite(x) ({ double v=((x)); !isnan(v) && !isnan(v-v); })
 #endif
 
 #ifdef __i386__
