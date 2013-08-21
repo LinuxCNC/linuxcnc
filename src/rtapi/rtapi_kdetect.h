@@ -30,6 +30,7 @@
 // hard evidence for an ipipe patch in place (RTAI and Xenomai):
 #define HAS_PROC_IPIPE        RTAPI_BIT(13) // /proc/ipipe exists and is a directory
 
+// Exists on RTAI and Xenomai
 #define PROC_IPIPE "/proc/ipipe"
 
 // really in nucleus/heap.h but we rather get away with minimum include files
@@ -52,5 +53,12 @@
 // dev/rtai_shm visible only after 'realtime start'
 #define DEV_RTAI_SHM "/dev/rtai_shm"
 
+// These exist on Xenomai but not on RTAI - regular files:
+#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai" 
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
+
+// hard evidence for Xenomai
+#define HAS_PROC_IPIPE_XENOMAI    RTAPI_BIT(14) // /proc/ipipe/Xenomai exists
+#define HAS_XENO_GID_SYSFS        RTAPI_BIT(15)
 
 int rtapi_kdetect(unsigned long *feat);

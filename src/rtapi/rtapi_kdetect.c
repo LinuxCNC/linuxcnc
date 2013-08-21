@@ -1,3 +1,7 @@
+// kernel + userland environment autodetection
+// dig various kernel attributes and libraries to derive a 
+// syndrome vector
+
 #include "rtapi.h"
 #include "rtapi_kdetect.h"
 
@@ -48,8 +52,16 @@ int rtapi_kdetect(unsigned long *feat)
 	*feat |= UTSNAME_VER_RTAI;
 
     // check for ipipe patch - strong hint for RTAI or Xenomai
-    if ((stat(PROC_IPIPE, &sb) == 0)  && ((sb.st_mode & S_IFMT) == S_IFDIR))
+    if ((stat(PROC_IPIPE, &sb) == 0)  && S_ISDIR(sb.st_mode & S_IFMT))
 	*feat |= HAS_PROC_IPIPE;
+
+    // Xenomai only:
+    if ((stat(PROC_IPIPE_XENOMAI, &sb) == 0)  && S_ISREG(sb.st_mode))
+	*feat |= HAS_PROC_IPIPE_XENOMAI;
+
+    // Xenomai only:
+    if ((stat(XENO_GID_SYSFS, &sb) == 0)  && S_ISREG(sb.st_mode))
+	*feat |= HAS_XENO_GID_SYSFS;
 
     // a strong RT PREEMPT hint
     if (strcasestr (u.version, "PREEMPT RT"))
@@ -77,11 +89,11 @@ int rtapi_kdetect(unsigned long *feat)
     }
 
     // check for Xenomai fingerprint(s) - strong hint
-    if ((stat(XNHEAP_DEV_NAME, &sb) == 0)  && ((sb.st_mode & S_IFMT) == S_IFCHR))
+    if ((stat(XNHEAP_DEV_NAME, &sb) == 0)  && S_ISCHR(sb.st_mode))
 	*feat |= XENO_RTHEAP_FOUND;
 
     // might be able to run without /proc/xenomai but it's reassuring if it exists
-    if ((stat(PROC_XENOMAI, &sb) == 0) && ((sb.st_mode & S_IFMT) == S_IFDIR))
+    if ((stat(PROC_XENOMAI, &sb) == 0) && S_ISDIR(sb.st_mode))
 	*feat |= XENO_PROCENTRY_FOUND;
 
     // libnative on a non-xenomai kernel wont help, but checking for it might
@@ -105,7 +117,7 @@ int rtapi_kdetect(unsigned long *feat)
 	dlclose(libnative);
 
     // check for RTAI fingerprint(s) - this works only after 'realtime start'!
-    if ((stat(DEV_RTAI_SHM, &sb) == 0)  && ((sb.st_mode & S_IFMT) == S_IFCHR))
+    if ((stat(DEV_RTAI_SHM, &sb) == 0)  && S_ISCHR(sb.st_mode))
 	*feat |= DEV_RTAI_SHM_FOUND;
 
     return 0;
@@ -134,10 +146,18 @@ int main(int argc, char **argv)
 	}
 	if (f & XENO_RTHEAP_FOUND) {
 	    fprintf(stderr, "a Xenomai kernel\n");
+
 	    if ((f & (SYS_KERNEL_REALTIME_FOUND|UTSNAME_VER_RT_PREEMPT)) ==
 		(SYS_KERNEL_REALTIME_FOUND|UTSNAME_VER_RT_PREEMPT)) {
 		fprintf(stderr, ".. which also has RT PREEMPT patches applied\n");
 	    }
+
+	    if (!(f & HAS_PROC_IPIPE_XENOMAI)) 
+		fprintf(stderr, "ERROR: Xenomai lacks %s !!\n", PROC_IPIPE_XENOMAI);
+
+	    if (!(f & HAS_XENO_GID_SYSFS)) 
+		fprintf(stderr, "ERROR: Xenomai lacks %s !!\n", XENO_GID_SYSFS);
+
 	    if (!(f & UTSNAME_REL_XENOMAI))
 		fprintf(stderr, "utsname.release looked less than helpful: '%s'\n",
 			u.release);
