@@ -20,7 +20,7 @@ This component is designed to support a spindle orientation PID loop by providin
 command value, and fit with the motion spindle-orient support pins to support the M19 code.
 
 The spindle is assumed to have stopped in an arbitrary position. The spindle
-encoder positon is linked to the  \\fBposition\\fR pin.
+encoder position is linked to the  \\fBposition\\fR pin.
 The  current value of the position pin is sampled on a positive edge on the \\fBenable\\fR pin, and 
 \\fBcommand\\fR is computed and set as follows: floor(number of 
 full spindle revolutions 
