@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-requires gtk+ 2.8 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkHButtonBox" id="hbuttonbox1">
+        <property name="visible">True</property>
+        <property name="homogeneous">True</property>
+        <property name="layout_style">spread</property>
+        <child>
+          <object class="HAL_Button" id="h_button_0">
+            <property name="label" translatable="yes">h_button_0</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_1">
+            <property name="label" translatable="yes">h_button_1</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_2">
+            <property name="label" translatable="yes">h_button_2</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_3">
+            <property name="label" translatable="yes">h_button_3</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_4">
+            <property name="label" translatable="yes">h_button_4</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_5">
+            <property name="label" translatable="yes">h_button_5</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">5</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_6">
+            <property name="label" translatable="yes">h_button_6</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">6</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_7">
+            <property name="label" translatable="yes">h_button_7</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_8">
+            <property name="label" translatable="yes">h_button_8</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">8</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="h_button_9">
+            <property name="label" translatable="yes">h_button_9</property>
+            <property name="width_request">56</property>
+            <property name="height_request">56</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">9</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

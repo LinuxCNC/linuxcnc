@@ -1,3 +1,20 @@
+ver 0.9.7
+- added a file selection dialog, for touch screen use
+- in MDI mode it is now possible to add more commands, even if the interpreter is running
+- do not block any more the spindle buttons while the interpreter is running,
+  so spindle can be switched on and of at any time
+- added a selection for show keyboard on file selection in settings page
+- changes button home_4 to show differnt icon, depending on INI settings of 4th axis
+- moved some code "G95 related" from periodic to _update_vel
+- corrected some align valuse in glade file
+- removed units from max_vel_label (glade file)
+- corrected hardware button behavior
+- added again a sim hardware ini file
+- uniform usage of "" instedt of sometime '' (just to clear python style)
+- user can select on settings page, if he want the offsettab or the preview tab 
+  to be displayed as default, the ntb_tabs are shown, so changing is possible at any time
+- prepared to get later our own error handling, introduced Notification Class, at the moment disabled
+
 ver. 0.9.6.1
 - fixed a bug editing a tool while G43 is active!
 - added a feature, that will update G43 after a toolchange if it was activ on toolchange start
