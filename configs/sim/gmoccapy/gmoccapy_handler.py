@@ -53,152 +53,6 @@ _MDI = 3                # Check for the mode MDI
 _RUN = 1                # needed to check if the interpreter is running
 _IDLE = 0               # needed to check if the interpreter is idle
 
-# # This is a class that do allow you to show messages in popup windows
-# # it will be used later on to display the error messages like known from axis
-# import gtk
-# import gobject
-# import pango
-# 
-# class Notification(gtk.Window):
-# 
-#     __gtype_name__ = 'Notification'
-#     __gproperties__ = {
-#            'icon_size' : ( gobject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed button icon',
-#                         12,96,48, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-#            'frame_width' : ( gobject.TYPE_INT, 'Frame Width', 'Sets the frame width in pixel',
-#                         12,96,48, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-#            'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
-#                       "sans 10", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-#                       }
-#     __gproperties = __gproperties__
-# 
-#     # build the main gui
-#     def __init__(self):
-#         gtk.Window.__init__(self)
-#         self.connect("destroy",lambda*w:gtk.main_quit())
-#         self.messages=[]
-#         self.popup=gtk.Window(gtk.WINDOW_POPUP)
-#         self.vbox = gtk.VBox()
-#         self.popup.add(self.vbox)
-#         self.icon_size = 24
-#         self.frame_width = 400
-#         self.font = "sans 22"
-# 
-#     # this will fill the main gui with the frames, containing the messages or errors
-#     def _show_message(self,message):
-#         number = message[0]
-#         text = message[1]
-#         frame = gtk.Frame()
-#         frame.set_label("")
-#         hbox = gtk.HBox()
-#         frame.add(hbox)
-#         labelnumber = gtk.Label(number)
-#         hbox.pack_start(labelnumber)
-#         label=gtk.Label()
-#         label.set_line_wrap(True)
-#         label.set_text(text)
-#         label.set_size_request(self.frame_width,-1)
-#         font_desc = pango.FontDescription(self.font)
-#         label.modify_font(font_desc)
-#         hbox.pack_start(label)
-#         btn_close = gtk.Button()
-#         image = gtk.Image()
-#         image.set_from_stock(gtk.STOCK_CANCEL,self.icon_size)
-#         btn_close.set_image(image)
-#         btn_close.connect("clicked", self._on_btn_close_clicked,labelnumber.get_text())
-#         hbox.pack_start(btn_close)
-#         self.vbox.pack_end(frame)
-#         frame.show()
-#         label.show()
-#         btn_close.show()
-#         hbox.show()
-# #        labelnumber.show()
-#         self.vbox.show()
-#         self.popup.show()
-#         self.popup.move(0,0)
-# 
-#     # add a message, the message is a string, it will be line wraped 
-#     # if to long for the frame
-#     def add_message(self, message):
-#         number_of_messages = len(self.messages)
-#         self.messages.append([number_of_messages,message])
-#         self._show_message(self.messages[number_of_messages])
-# 
-#     def del_first(self):
-#         if len(self.messages) != 0:
-#             del self.messages[0]
-#             self._refill_messages()
-# 
-#     def del_last(self):
-#         if len(self.messages) != 0:
-#             del self.messages[len(self.messages)-1]
-#             self._refill_messages()
-# 
-#     # this will delete a message, if the user gives a valid number it will be deleted,
-#     # but the user must take care to use the correct number
-#     # if you give a value of "-1" all messages will be deletet
-#     def del_message(self,messagenumber):
-#         if messagenumber == -1:
-#             self.messages = []
-#             self._refill_messages()
-#             return True
-#         elif messagenumber > len(self.messages) or messagenumber < 0:
-#             self.add_message(_("Error trying to delet the message with number %s"%messagenumber))
-#             return False
-#         try:
-#             del self.messages[int(messagenumber)]
-#         except:
-#             return False
-#         self._refill_messages()
-#         return True
-# 
-#     # this is the recomendet way to delete a message, by clicking the
-#     # close button of the coresponding frame
-#     def _on_btn_close_clicked(self,widget,labelnumber):
-#         del self.messages[int(labelnumber)]
-#         self._refill_messages()
-# 
-#     def _refill_messages(self):
-#         # first we have to hide all messages, otherwise the popup window will mantain
-#         # all the old messages
-#         self.popup.hide_all()
-#         # then we rezise the popup window to a very smal size, otherwise the dimensions
-#         # of the window will be mantained 
-#         self.popup.resize(10,10)
-#         # if it was the laste message, than we can hide the popup window
-#         if len(self.messages) == 0:
-#             self.popup.hide()
-#         else: # or we do refill the popup window
-#             index = 0
-#             for message in self.messages:
-#                 self.messages[index][0] = index
-#                 self._show_message(message)
-#                 index += 1
-# 
-#     def do_get_property(self, property):
-#         name = property.name.replace('-', '_')
-#         if name in self.__gproperties.keys():
-#             return getattr(self, name)
-#         else:
-#             raise AttributeError('unknown iconview get_property %s' % property.name)
-# 
-#     def do_set_property(self, property, value):
-#         try:
-#             name = property.name.replace('-', '_')
-#             if name in self.__gproperties.keys():
-#                 setattr(self, name, value)
-#                 self.queue_draw()
-#                 if name == 'icon_size':
-#                     self.icon_size(value)
-#                 if name == 'frame_width':
-#                     self.frame_width = value
-#                 if name == 'font':
-#                     self.font(value)
-#             else:
-#                 raise AttributeError('unknown iconview set_property %s' % property.name) 
-#         except:
-#             pass
-
 
 # This is a handler file for using Gscreen"s infrastructure
 # to load a completely custom glade screen
@@ -803,30 +657,6 @@ class HandlerClass:
         if keyname == "Escape":
             self.emc.abort()
             return True
-#         if keyname =="F5":
-#             self.notification.add_message("Dies ist die erste Nachricht")
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F6":
-#             self.notification.add_message("Dies ist die zweite Nachricht")
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F7":
-#             self.notification.add_message("Dies ist die dritte Nachricht")
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F8":
-#             self.notification.del_message(-1)
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F9":
-#             self.notification.del_message(5)
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F10":
-#             self.notification.del_first()
-#             self.widgets.window1.grab_focus()
-#             return True
             
         # if the user do not want to use keyboard shortcuts, we leave here
         # in this case we do not return true, otherwise entering code in MDI history 
@@ -1261,7 +1091,6 @@ class HandlerClass:
         self.widgets[widgetname].modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg_color))
         widgetname ="eventbox_dro_" + axis
         self.widgets[widgetname].modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse(bg_color))
-
 
         if self.data.lathe_mode:
             if "G8" in self.data.active_gcodes:
@@ -1720,7 +1549,6 @@ class HandlerClass:
             if self.widgets.ntb_preview.get_n_pages() <= 4: # else user tabs are availible
                 self.widgets.ntb_preview.set_property("show-tabs",state)
 
-#ToDo: what to do when there are more axis?
     def on_btn_zero_x_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_X_clicked")
         self.emc.set_mdi_mode()
@@ -1771,7 +1599,6 @@ class HandlerClass:
             self.gscreen.add_alarm_entry(_("Offset conversion error because off wrong entry"))
             self.gscreen.warning_dialog(_("Conversion error in btn_set_value!"), True, 
                                         _("Please enter only numerical values\nValues have not been applied"))
-#ToDo:End
 
     def on_btn_set_selected_clicked(self, widget, data=None):
         system , name = self.widgets.offsetpage1.get_selected()
@@ -2121,7 +1948,6 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("on_btn_apply_tool_changes_clicked")
         self.tooledit_btn_apply_tool.emit("clicked")
         tool = self.widgets.tooledit1.get_selected_tool()
-        #self._update_toolinfo(tool)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
@@ -2158,10 +1984,6 @@ class HandlerClass:
         else:
             self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}".format(axis,value)))
         self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
-        #self._update_toolinfo(self.data.tool_in_spindle)
-        # will set the label, but the tool do not need to be in the spindle,
-        # so information may be no homogeniuos
-        #self._update_toolinfo(self._get_selected_tool())
         self.widgets.rbt_manual.emit("clicked")
 
     # select a tool entering a number
@@ -2584,7 +2406,6 @@ class HandlerClass:
             elif len(i) == 4:
                 self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
 
-    
     # every 100 milli seconds this gets called
     # add pass so gscreen doesn"t try to update it"s regular widgets or
     # add the individual function names that you would like to call.
@@ -2859,4 +2680,3 @@ class HandlerClass:
             print(_("To many increments given in INI File for this screen"))
             print(_("Only the first 10 will be reachable through this screen"))
             self.no_increments = 10
-

@@ -57,8 +57,8 @@
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
                                             <property name="show_dtg">False</property>
-                                            <property name="use_commanded">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="use_commanded">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -286,7 +286,6 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the y axis from positive to negative as viewn for a back tool lathe</property>
-                                            <property name="xalign">0.44999998807907104</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y2_toggled"/>
@@ -367,6 +366,27 @@
                                   </object>
                                   <packing>
                                     <property name="position">2</property>
+                                    <property name="tab_fill">False</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="IconFileSelection" id="IconFileSelection1">
+                                    <property name="visible">True</property>
+                                    <property name="filetypes">ngc,py,bmp</property>
+                                    <signal name="selected" handler="on_IconFileSelection1_selected"/>
+                                    <signal name="exit" handler="on_IconFileSelection1_exit"/>
+                                  </object>
+                                  <packing>
+                                    <property name="position">3</property>
+                                  </packing>
+                                </child>
+                                <child type="tab">
+                                  <object class="GtkLabel" id="lbl_ntb_preview_file_sel">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">File Selection</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">3</property>
                                     <property name="tab_fill">False</property>
                                   </packing>
                                 </child>
@@ -816,7 +836,6 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="xalign">0.43000000715255737</property>
                                         <signal name="toggled" handler="on_tbtn_dtg_toggled"/>
                                       </object>
                                       <packing>
@@ -913,9 +932,9 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="joint_number">1</property>
                                             <property name="reference_type">1</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="joint_number">1</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -942,9 +961,9 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="joint_number">2</property>
                                             <property name="reference_type">1</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="joint_number">2</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -994,9 +1013,9 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="joint_number">3</property>
                                             <property name="reference_type">1</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="joint_number">3</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -1517,7 +1536,7 @@
                                         <child type="label">
                                           <object class="GtkLabel" id="lbl_frame_max_speed">
                                             <property name="visible">True</property>
-                                            <property name="label" translatable="yes">&lt;b&gt;Max. Velocity [mm/min]&lt;/b&gt;</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Max. Velocity&lt;/b&gt;</property>
                                             <property name="use_markup">True</property>
                                           </object>
                                         </child>
@@ -1862,16 +1881,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="target_color">#0000ffff0000</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
-                                                        <property name="z0_color">#0000ffff0000</property>
-                                                        <property name="z1_color">#0000ffff0000</property>
                                                         <property name="bg_color">#bebebebebebe</property>
-                                                        <property name="text_template">%i</property>
                                                         <property name="z2_color">#0000ffff0000</property>
                                                         <property name="max">6000</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="z0_border">0.40000000596046448</property>
+                                                        <property name="text_template">%i</property>
+                                                        <property name="z0_color">#0000ffff0000</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
+                                                        <property name="z1_color">#0000ffff0000</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -2465,6 +2484,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="active">True</property>
                                                         <property name="draw_indicator">True</property>
                                                         <signal name="toggled" handler="on_chk_use_kb_on_offset_toggled"/>
                                                       </object>
@@ -2478,6 +2498,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="active">True</property>
                                                         <property name="draw_indicator">True</property>
                                                         <signal name="toggled" handler="on_chk_use_kb_on_tooledit_toggled"/>
                                                       </object>
@@ -2491,6 +2512,7 @@
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
                                                         <property name="receives_default">False</property>
+                                                        <property name="active">True</property>
                                                         <property name="draw_indicator">True</property>
                                                         <signal name="toggled" handler="on_chk_use_kb_on_mdi_toggled"/>
                                                       </object>
@@ -2512,6 +2534,19 @@
                                                         <property name="position">3</property>
                                                       </packing>
                                                     </child>
+                                                    <child>
+                                                      <object class="GtkCheckButton" id="chk_use_kb_on_file_selection">
+                                                        <property name="label" translatable="yes">Show keyboard on load file</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="receives_default">False</property>
+                                                        <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_chk_use_kb_on_file_selection_toggled"/>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">4</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
                                                 </child>
                                               </object>
@@ -2531,11 +2566,70 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label3">
+                                          <object class="GtkFrame" id="frm_ntb_preview">
+                                            <property name="visible">True</property>
+                                            <property name="label_xalign">0.5</property>
+                                            <child>
+                                              <object class="GtkAlignment" id="ali_keyboard1">
+                                                <property name="visible">True</property>
+                                                <property name="top_padding">5</property>
+                                                <property name="bottom_padding">5</property>
+                                                <property name="left_padding">5</property>
+                                                <property name="right_padding">5</property>
+                                                <child>
+                                                  <object class="GtkVBox" id="vbox_keyboard1">
+                                                    <property name="visible">True</property>
+                                                    <child>
+                                                      <object class="GtkRadioButton" id="rbtn_show_preview">
+                                                        <property name="label" translatable="yes">show preview</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="receives_default">False</property>
+                                                        <property name="draw_indicator">True</property>
+                                                        <signal name="toggled" handler="on_rbtn_show_preview_toggled"/>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">0</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkRadioButton" id="rbtn_show_offsets">
+                                                        <property name="label" translatable="yes">show offsets</property>
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">True</property>
+                                                        <property name="receives_default">False</property>
+                                                        <property name="active">True</property>
+                                                        <property name="draw_indicator">True</property>
+                                                        <property name="group">rbtn_show_preview</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="position">1</property>
+                                                      </packing>
+                                                    </child>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
+                                            <child type="label">
+                                              <object class="GtkLabel" id="lbl_frm_ntb_preview">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;On Touch off&lt;/b&gt;</property>
+                                                <property name="use_markup">True</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="padding">5</property>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label1">
                                             <property name="visible">True</property>
                                           </object>
                                           <packing>
-                                            <property name="position">2</property>
+                                            <property name="position">3</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -2552,7 +2646,7 @@ Aux Screen</property>
                                           <packing>
                                             <property name="expand">False</property>
                                             <property name="fill">False</property>
-                                            <property name="position">3</property>
+                                            <property name="position">4</property>
                                           </packing>
                                         </child>
                                       </object>
@@ -3781,6 +3875,7 @@ Aux Screen</property>
                     <property name="tooltip_text" translatable="yes">enter manual mode to jog axis by hand or touch off</property>
                     <property name="use_action_appearance">True</property>
                     <property name="image">img_manual</property>
+                    <property name="active">True</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
                     <signal name="clicked" handler="on_rbt_manual_clicked"/>
@@ -3833,7 +3928,7 @@ Aux Screen</property>
                     <property name="tooltip_text" translatable="yes">Enter the setup page to adjust program options</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
-                    <signal name="pressed" handler="on_rbt_setup_pressed"/>
+                    <signal name="clicked" handler="on_rbt_setup_clicked"/>
                     <child>
                       <object class="GtkImage" id="img_settings">
                         <property name="visible">True</property>
@@ -3891,7 +3986,7 @@ Aux Screen</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open homing button list</property>
-                    <property name="image">img_ref</property>
+                    <property name="image">img_ref_al</property>
                     <signal name="clicked" handler="on_btn_homing_clicked"/>
                   </object>
                   <packing>
@@ -4283,8 +4378,8 @@ Aux Screen</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">load a program</property>
-                    <property name="related_action">hal_action_open</property>
                     <property name="image">img_open</property>
+                    <signal name="clicked" handler="on_btn_load_clicked"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -4464,11 +4559,11 @@ Aux Screen</property>
                     <property name="receives_default">True</property>
                     <signal name="clicked" handler="on_btn_home_selected_clicked"/>
                     <child>
-                      <object class="GtkImage" id="img_home_4">
+                      <object class="GtkImage" id="img_home_a">
                         <property name="width_request">48</property>
                         <property name="height_request">48</property>
                         <property name="visible">True</property>
-                        <property name="pixbuf">icon/ref4.png</property>
+                        <property name="pixbuf">icon/refa.png</property>
                       </object>
                     </child>
                   </object>
@@ -5190,7 +5285,6 @@ selected</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
-                    <property name="image">img_back_zero1</property>
                     <signal name="clicked" handler="on_btn_back_clicked"/>
                   </object>
                   <packing>
@@ -5425,6 +5519,177 @@ selected</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkHButtonBox" id="hbtb_load_file">
+                <property name="visible">True</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="btn_home">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_home</property>
+                    <signal name="clicked" handler="on_btn_home_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_dir_up">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_dir_up</property>
+                    <signal name="clicked" handler="on_btn_dir_up_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_space_5">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_sel_prev">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_sel_prev</property>
+                    <property name="image_position">top</property>
+                    <signal name="clicked" handler="on_btn_sel_prev_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_sel_next">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_sel_next</property>
+                    <property name="image_position">top</property>
+                    <signal name="clicked" handler="on_btn_sel_next_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_jump_to">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_jump_to</property>
+                    <property name="image_position">top</property>
+                    <signal name="clicked" handler="on_btn_jump_to_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_space_12">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">6</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_select">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_select</property>
+                    <property name="image_position">top</property>
+                    <signal name="clicked" handler="on_btn_select_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="lbl_space_13">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">8</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="btn_back_file_load">
+                    <property name="width_request">56</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="image">img_back_zero1</property>
+                    <signal name="clicked" handler="on_btn_back_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">9</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">8</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="lbl_ntb_button_load_file">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Load File</property>
+              </object>
+              <packing>
+                <property name="position">8</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -5479,7 +5744,7 @@ selected</property>
     <property name="visible">True</property>
     <property name="pixbuf">icon/machineonoff.png</property>
   </object>
-  <object class="GtkImage" id="img_ref">
+  <object class="GtkImage" id="img_ref_al">
     <property name="visible">True</property>
     <property name="pixbuf">icon/refall.png</property>
   </object>
@@ -5652,9 +5917,9 @@ selected</property>
     <property name="visible">True</property>
     <property name="pixbuf">icon/run.png</property>
   </object>
-  <object class="GtkImage" id="img_touch_off1">
+  <object class="GtkImage" id="img_home_b">
     <property name="visible">True</property>
-    <property name="pixbuf">icon/touchoffwz.png</property>
+    <property name="pixbuf">icon/refb.png</property>
   </object>
   <object class="GtkImage" id="img_zoom_in">
     <property name="visible">True</property>
@@ -5776,4 +6041,56 @@ selected</property>
     <property name="icon_name">edit-undo</property>
   </object>
   <object class="EMC_ToggleAction_Run" id="hal_toggleaction_run"/>
+  <object class="GtkImage" id="img_hom_all">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/refall.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_off_z">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/touchoffwz.png</property>
+  </object>
+  <object class="GtkImage" id="img_close1">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/exit_application.png</property>
+  </object>
+  <object class="GtkImage" id="img_home">
+    <property name="visible">True</property>
+    <property name="stock">gtk-home</property>
+  </object>
+  <object class="GtkImage" id="img_dir_up">
+    <property name="visible">True</property>
+    <property name="stock">gtk-sort-ascending</property>
+  </object>
+  <object class="GtkImage" id="img_sel_prev">
+    <property name="visible">True</property>
+    <property name="stock">gtk-go-back</property>
+  </object>
+  <object class="GtkImage" id="img_sel_next">
+    <property name="visible">True</property>
+    <property name="stock">gtk-go-forward</property>
+  </object>
+  <object class="GtkImage" id="img_jump_to">
+    <property name="visible">True</property>
+    <property name="stock">gtk-jump-to</property>
+  </object>
+  <object class="GtkImage" id="img_select">
+    <property name="visible">True</property>
+    <property name="stock">gtk-ok</property>
+  </object>
+  <object class="GtkImage" id="img_home_c">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/refc.png</property>
+  </object>
+  <object class="GtkImage" id="img_home_u">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/refu.png</property>
+  </object>
+  <object class="GtkImage" id="img_home_v">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/refv.png</property>
+  </object>
+  <object class="GtkImage" id="img_home_w">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/refw.png</property>
+  </object>
 </interface>
