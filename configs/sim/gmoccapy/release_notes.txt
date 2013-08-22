@@ -14,6 +14,7 @@ ver 0.9.7
 - user can select on settings page, if he want the offsettab or the preview tab 
   to be displayed as default, the ntb_tabs are shown, so changing is possible at any time
 - prepared to get later our own error handling, introduced Notification Class, at the moment disabled
+- corrected an error if setting the coordinate system after setting axis values in touch off dialog
 
 ver. 0.9.6.1
 - fixed a bug editing a tool while G43 is active!

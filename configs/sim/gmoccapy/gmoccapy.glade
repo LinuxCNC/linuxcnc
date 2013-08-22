@@ -933,8 +933,8 @@
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
                                             <property name="reference_type">1</property>
-                                            <property name="display_units_mm">True</property>
                                             <property name="joint_number">1</property>
+                                            <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -962,8 +962,8 @@
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
                                             <property name="reference_type">1</property>
-                                            <property name="display_units_mm">True</property>
                                             <property name="joint_number">2</property>
+                                            <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -1014,8 +1014,8 @@
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
                                             <property name="reference_type">1</property>
-                                            <property name="display_units_mm">True</property>
                                             <property name="joint_number">3</property>
+                                            <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -1881,16 +1881,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="bg_color">#bebebebebebe</property>
-                                                        <property name="z2_color">#0000ffff0000</property>
-                                                        <property name="max">6000</property>
-                                                        <property name="target_color">#0000ffff0000</property>
-                                                        <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="text_template">%i</property>
-                                                        <property name="z0_color">#0000ffff0000</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <property name="z1_color">#0000ffff0000</property>
+                                                        <property name="bg_color">#bebebebebebe</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
+                                                        <property name="text_template">%i</property>
+                                                        <property name="z0_border">0.40000000596046448</property>
+                                                        <property name="z2_color">#0000ffff0000</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="max">6000</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
+                                                        <property name="z0_color">#0000ffff0000</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -5530,6 +5530,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Move to your home directory</property>
                     <property name="image">img_home</property>
                     <signal name="clicked" handler="on_btn_home_clicked"/>
                   </object>
@@ -5546,6 +5547,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Move to parrent directory</property>
                     <property name="image">img_dir_up</property>
                     <signal name="clicked" handler="on_btn_dir_up_clicked"/>
                   </object>
@@ -5574,6 +5576,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Select the previos file</property>
                     <property name="image">img_sel_prev</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_prev_clicked"/>
@@ -5591,6 +5594,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Select the next file</property>
                     <property name="image">img_sel_next</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_next_clicked"/>
@@ -5608,6 +5612,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Jump to user defined directory</property>
                     <property name="image">img_jump_to</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_jump_to_clicked"/>
@@ -5637,6 +5642,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">select the highlighted file and return the path</property>
                     <property name="image">img_select</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_select_clicked"/>
@@ -5666,6 +5672,7 @@ selected</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Close without returning a file path</property>
                     <property name="image">img_back_zero1</property>
                     <signal name="clicked" handler="on_btn_back_clicked"/>
                   </object>

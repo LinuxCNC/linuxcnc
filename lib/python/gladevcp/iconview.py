@@ -132,7 +132,7 @@ class IconFileSelection(gtk.HBox):
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_GO_FORWARD,48)
         self.btn_sel_next.set_image(image)
-        self.btn_sel_next.set_tooltip_text(_("Select the nest file"))
+        self.btn_sel_next.set_tooltip_text(_("Select the next file"))
         self.buttonbox.add(self.btn_sel_next)
 
 #ToDo : Find out how to move one line down or up
