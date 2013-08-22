@@ -200,14 +200,14 @@ plane: for example, if in the 'G17' plane, include a 'Z' word. This
 will cause the 'Z' axis to move to the programmed value during the
 circular 'XY' motion. 
 
-To program an arc that gives more than one full turn, use a 'P' word
-specifying the number of full or partial turns of arc. If 'P' is
-unspecified, the behavior is as if 'P1' was given: that is, only one
-full or partial turn will result, giving an arc less than or equal to
-one full circle. For example, if an arc is programmed with P2, the
-resulting motion will be more than one full circle and up to two full
-circles (depending on the programmed endpoint.) Multi turn helical arcs
-are supported and give motion useful for milling holes or threads.
+To program an arc that gives more than one full turn, use the 'P' word
+specifying the number of full turns plus the programmed arc. The 'P' word
+must be an integer. If 'P' is unspecified, the behavior is as if 'P1' was
+given: that is, only one full or partial turn will result. For example, if a
+180 degree arc is programmed with a P2, the resulting motion will be 1 1/2
+rotations. For each P increment above 1 an extra full circle is added to the
+progrmmed arc. Multi turn helical arcs are supported and give motion useful
+for milling holes or threads.
 
 If a line of code makes an arc and includes rotary axis motion,
 the rotary axes turn at a constant rate so that the rotary
@@ -226,6 +226,7 @@ Center Format and Radius Format.
 It is an error if:
 
 * No feed rate has been set.
+* The P word is not an integer.
 
 === Center Format Arcs
 
@@ -332,6 +333,7 @@ axis. In this case only an I offset is needed.
 
 .G2 Example Line
 ----
+G0 X0 Y0
 G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 ----
 
@@ -347,6 +349,7 @@ offset is -0.5.
 
 .G2-G3 Example Line
 ----
+G0 X0 Y0
 G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)
 G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 ----
@@ -357,7 +360,14 @@ image::images/g2-3.png[align="center"]
 
 .G2 Example Line
 ----
-G17 G2 X10 Y16 I3 J4 Z9 (helix arc with Z added)
+G0 X0 Y0 Z0
+G17 G2 X10 Y16 I3 J4 Z-1 (helix arc with Z added)
+----
+
+.P word Example
+----
+G0 X0 Y0 Z0
+G2 X0 Y1 Z-1 I1 J0.5 P2 F25
 ----
 
 The above example line will make a clockwise (as viewed from the positive Z-axis)
