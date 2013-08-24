@@ -1104,9 +1104,9 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if initcode == "":
             initcode = inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
         if not interpname:
-		unitcode = "G%d" % (20 + (s.linear_units == 1))
+            unitcode = "G%d" % (20 + (s.linear_units == 1))
         else:
-		unitcode = ''
+            unitcode = ''
         try:
             result, seq = o.load_preview(f, canon, unitcode, initcode, interpname)
         except KeyboardInterrupt:
