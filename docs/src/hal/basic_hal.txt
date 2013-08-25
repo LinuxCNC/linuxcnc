@@ -167,6 +167,26 @@ setp <pin/parameter-name> <value>
 setp parport.0.pin-08-out TRUE
 ----
 
+=== sets [[sub:sets]] (((sets)))
+
+The command 'sets' sets the value of a signal.
+
+The syntax and an example:
+
+----
+sets <signal-name> <value>
+
+net mysignal and2.0.in0 pyvcp.my-led
+
+sets mysignal 1
+----
+
+It is an error if:
+
+* The signal-name does not exist
+* If the signal already has a writer
+* If value is not the correct type for the signal
+
 === unlinkp
 
 The command 'unlinkp' unlinks a pin from the connected signal. If no
@@ -184,7 +204,7 @@ unlinkp parport.0.pin-02-out
 === Obsolete Commands
 
 The following commands are depreciated and may be removed from future
-versions. Any new configuration should use the <<sub:net,'net'>>> command.
+versions. Any new configuration should use the <<sub:net,'net'>> command.
 These commands are included so older configurations will still work.
 
 ==== linksp
