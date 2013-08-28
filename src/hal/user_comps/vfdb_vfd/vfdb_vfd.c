@@ -25,7 +25,7 @@
   License along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
 
-  see 'man vfs11_vfd' and the VFS11 section in the Drivers manual.
+  see 'man vfdb_vfd' and the VFD-B section in the Drivers manual.
 
   Add is-stopped pin John Thornton
 
@@ -63,34 +63,6 @@
 #include <modbus.h>
 #include <modbus-tcp.h>
 #include "inifile.h"
-
-/*
- * VFS-11 parameters:
- *
- * There are dozens of parameters. Some can be stored permanently in EEPROM (setup parameters),
- * some in RAM (operating paramters), and some can be stored both in EEPROM and RAM. The manual
- * is a bit unclear which parameters are RAM/EEPROM/both.
- *
- * There are two communication protocols to talk to the VF-S11, a proprietary but documented
- * "Toshiba Inverter Protocol" (TIP), and a simple Modbus subset. TIP can set EEPROM and RAM
- * parameters and hence can be used for initial inverter configuration. Modbus control can only
- * set operating paramters in RAM. So any setup parameters which you'd like to change (like,
- * e.g. maximum output frequency) need to be set up differently, either through the operating
- * panel, or through a Windows program supplied by Toshiba named PCS001Z.
- *
- * Before using this driver, you need at least change the communication protocol from
- * TIP (default) to Modbus either way.
- *
- * Note from   TOSVERT VF-S11 Communications Function  Instruction Manual:
- *
- * The EEPROM life is 10,000 operations.
- * Do not write in the same parameter that has an EEPROM more than 10,000 times.
- * The communication commands (FA00, FA20, FA26), communication frequency command (FA01),
- * terminal output data (FA50) and analog output data (FA50) are stored in the RAMs only and no re-
- * strictions are placed on them.
- *
- * NB: "analog output data (FA50)" is obviously a typo in the manual, it's really FA51
- */
 
 // command registers for DELTA VFD-B Inverter
 #define REG_COMMAND1                    0x2000  // "Communication command" - start/stop, fwd/reverse, DC break, fault reset, panel override
@@ -144,7 +116,7 @@
  * are contiguous and all of them can be read with a single read_holding_registers()
  * operation.
  *
- * However, the interesting VF-S11 registers are not contiguous, and must be read
+ * However, the interesting VFD-B registers are not contiguous, and must be read
  * one-by-one, because the Toshiba Modbus implementation only supports single-value
  * modbus_read_registers() queries, slowing things down considerably. It seems that
  * other VFD's have similar restrictions.
@@ -261,8 +233,8 @@ static params_type param = {
         .response_timeout = { .tv_sec = 0, .tv_usec = 500000 },
         .byte_timeout = {.tv_sec = 0, .tv_usec = 500000},
         .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
-        .progname = "vfs11_vfd",
-        .section = "VFS11",
+        .progname = "vfdb_vfd",
+        .section = "VFD-B",
         .fp = NULL,
         .inifile = NULL,
         .reconnect_delay = 1,
@@ -291,7 +263,7 @@ static struct option long_options[] = {
         {"report-device", no_argument, 0, 'r'},
         {"ini", required_argument, 0, 'I'},     // default: getenv(INI_FILE_NAME)
         {"section", required_argument, 0, 'S'}, // default section = LIBMODBUS
-        {"name", required_argument, 0, 'n'},    // vfs11_vfd
+        {"name", required_argument, 0, 'n'},    // vfd-b
         {0,0,0,0}
 };
 
@@ -459,12 +431,12 @@ int read_ini(param_pointer p)
 void usage(int argc, char **argv) {
     printf("Usage:  %s [options]\n", argv[0]);
     printf("This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
-            "    loadusr vfs11_vfd [options]\n"
+            "    loadusr vfdb_vfd [options]\n"
             "Options are:\n"
             "-I or --ini <inifile>\n"
             "    Use <inifile> (default: take ini filename from environment variable INI_FILE_NAME)\n"
             "-S or --section <section-name> (default 8)\n"
-            "    Read parameters from <section_name> (default 'VFS11')\n"
+            "    Read parameters from <section_name> (default 'VFD-B')\n"
             "-d or --debug\n"
             "    Turn on debugging messages. Toggled by USR1 signal.\n"
             "-m or --modbus-debug\n"
@@ -810,7 +782,7 @@ int main(int argc, char **argv)
         if (read_ini(p))
             goto finish;
         if (!p->modname)
-            p->modname = "vfs11_vfd";
+            p->modname = "vfdb_vfd";
     } else {
         fprintf(stderr, "%s: ERROR: no inifile - either use '--ini inifile' or set INI_FILE_NAME environment variable\n", p->progname);
         goto finish;
