@@ -129,13 +129,6 @@ runtime loading of support modules::
 	and libraries which are loaded on demand. This enables
 	fixes, upgrades or tests by just exchanging a file.
 
-override capability for modules::
-	 The search for supporting modules goes through several
-	 steps from most-specific (Linux version), flavor to least
-	 specific. This enables selective override of a module for a
-	 particular version by depositing it in a 'more specific'
-	 directory. 
-	 
 unified thread status reporting::
 	The procfs support (/proc/rtapi etc) is useful for kernel
 	 threads only. This has been superseded by status reporting
@@ -212,6 +205,17 @@ support for thread-specific RT status collection::
 	sources of delays, but it incurs overhead. By making this an
 	optional RTAPI method which can be called by a thread function
 	this can be applied as needed, using a standard mechanism.
+
+single `./configure && make` run builds many RT options::
+
+	The Unified Build feature reworks the build system and runtime
+	scripts so that binaries for many RT thread flavors and many
+	kernels may be built in a single run and installed on a single
+	host without conflict.  In use, thread flavors applicable to
+	the current running environment are user-selectable with a
+	sensible default.  These features simplify distribution and
+	remove barriers for including LinuxCNC packages in the big
+	distributions.
 
 
 === Principles of Operations
@@ -444,7 +448,147 @@ to run on all OSes, the OS architecture must be identical (i386/i686, x86_64) -
 building LinuxCNC on say an i386 kernel and try to run the result when
 booting an x86_64 kernel will not work.
 
-== Installation 
+=== Universal Build Changes
+
+The Universal Build supports building for all RT environments in a
+single `./configure && make` run, and supports simultaneous
+installation and execution of all RT environments on a single host.
+
+The run-time setup and teardown processes needed new mechanisms for
+retrieving flavor configuration and for locating separate run-time
+binaries with separate paths when setting up or tearing down the
+various RT environments.
+
+In turn, the build system needed new mechanisms for configuring and
+building for each target RT flavor, keeping all build objects separate
+to maintain dependency integrity.
+
+The changes to the run-time and build systems to effect these
+requirements are described here.
+
+
+==== Run-Time System Changes
+
+With the Universal Build, support for many RT environments may be
+simultaneously installed on a host system.  Each of the five supported
+RT flavors has its own separate configuration and its own set of RTAPI
+and support binaries that may not be mixed with other RT flavors.
+With support for multiple RT flavors installed on a single host, for
+example, it is possible for an operator to boot a Xenomai kernel and
+run LinuxCNC in any of the POSIX, Xenomai userland or Xenomai kernel
+RT thread flavors (chosen at run-time).  She may then shut down and
+boot an RT_PREEMPT kernel, and then run LinuxCNC in either of the
+POSIX or RT_PREEMPT RT thread flavors.
+
+To make this possible requires compiling and installing binaries
+separately when those depend upon flavor, enabling configuration to be
+separately specified for each flavor, and refactoring run-time
+initialization code to enable selecting a flavor and loading matching
+configuration and binaries.
+
+Flavor configuration is separated by replacing the old `rtapi.conf` shell
+script with an INI-style `etc/linuxcnc/rtapi.ini` containing
+per-flavor configuration sections.
+
+Per-flavor binary files are kept separate by adding flavor and kernel
+version to ensure non-conflicting file paths.  RTAPI modules are built
+into `rtlib/<flavor>` for userland styles and
+`rtlib/<flavor>/<kernel-version>` for kernel styles.  Userland style
+modules have a matching `bin/rtapi_app_<flavor>` executable.  The
+ULAPI module is built into `lib/ulapi-<flavor>.so`.
+
+Run-time environment initialization starts in the `realtime` script.
+It obtains run-time parameters from `flavor` executable output and the
+`rtapi.ini` configuration file.  It starts `rtapi_msgd`, before
+performing flavor-specific initialization, described next.
+
+For kernel threads systems, the script runs
+`libexec/linuxcnc_module_helper` to load each kernel module listed in
+`rtapi.ini`.  `linuxcnc_module_helper` looks for the named kernel
+module in `rtlib/<flavor>/<kernel-version>`, and optionally in the
+`RTDIR` parameter from `rtapi.ini` (needed for RTAI), and loads the
+module.
+
+For userland threads, the `realtime` script start the `rtapi_app`
+executable defined in `rtapi.ini`, `libexec/rtapi_app_<flavor>` by
+default.  During the build, the linker sets an `rpath` pointing to the
+modules directory, `rtlib/<flavor>` for run-in-place builds, so that
+`rtapi_app` may `dlopen()` the module with no need to read module path
+location from the configuration file.
+
+On the ULAPI side, `liblinuxcnchal.so` again is given an `rpath` to
+the `lib` directory so that `ulapi-<flavor>.so` may be loaded without
+reading external configuration.
+
+At this point, the realtime environment setup is complete.  Taking
+down the environment is simple:  for userland threads, `rtapi_app` is
+shut down; for all threads, `rtapi_msgd` is shut down, any kernel
+modules are unloaded, and if needed, shmdrv is unloaded.
+
+
+==== Build System Changes
+
+In order to build multiple RT thread systems in a single run, both
+build parameters and intermediate build objects for each flavor must
+be kept separate, requiring extensive changes to `src/configure.in`,
+`src/Makefile`, and several other files.
+
+Most of the Autoconf configuration was refactored.  A new section
+detects each of the supported RT thread flavors.  Another new section
+automatically detects kernel sources, classifying them into lists
+based on RT capabilities.
+
+RT thread flavor parameters must be passed from the configure script
+into `Makefile.inc` separately.  For example, the value of `RTFLAGS`
+is different for Xenomai user and RTAI kernel threads, and so
+`XENOMAI_THREADS_RTFLAGS` and `RTAI_KERNEL_THREADS_RTFLAGS` are passed
+separately.  During the thread-specific `make modules` run, a
+`THREADS` variable is set so that something like `RTFLAGS :=
+$($(THREADS)_THREADS_RTFLAGS)` does the right thing.
+
+The list of all detected thread flavors to be built is in
+`Makefile.inc` in the `BUILD_THREAD_FLAVORS` variable.  For kernel
+thread flavors, the kernel source directories are listed by flavor in
+`XENOMAI_KERNEL_THREADS_KERNEL_DIRS` and
+`RTAI_KERNEL_THREADS_KERNEL_DIRS`.
+
+Running `make` starts a top-level build that looks much the same for
+the parts of LinuxCNC not affected by the RT flavor.  The top-level
+build `modules:` target, however, does not itself build any
+flavor-specific objects.  Instead, it executes second-level `make
+modules` runs, one run for each configured userland RT thread flavor
+and one more run for each unique combination of kernel thread flavor
+and kernel source directory.
+
+These second-level `make modules` runs build the RTAPI binaries and
+matching ULAPI module, keeping both build results and intermediate
+build objects separate for each flavor.  The three categories of
+userland RTAPI, kbuild RTAPI and ULAPI objects each had special
+considerations to enable separate builds.
+
+Userland RTAPI sources simply build into the RT flavor-specific
+subdirectory of `objects`, such as `objects/xenomai'.
+
+Linux kbuild provides no simple way to specify a location for
+intermediate build objects.  For kernel thread flavors, `modules:`
+target works around this limitation by creating a tree of hard links
+to the original sources under `objects/<flavor>/<kernel-version>`.
+Then kbuild is run with that as the top-level modules directory.  This
+works fine most of the time, except during development when a new file
+is added to the original source tree, it is not automatically hard
+linked into the object tree.
+
+The ULAPI sources in the `rtapi/` directory must also be built
+separately for each flavor.  Limitations in the `Makefile` from
+e.g. `TOOBJS` requires source file paths not to overlap in order that
+object file paths also do not overlap.  This was overcome by creating
+one link in `rtapi/` to the current directory for each RT flavor so
+that e.g. `rtapi/rtapi_task.c` can instead be compiled from
+`rtapi/posix/rtapi_task.c` with the result going into
+`objects/rtapi/posix/rtapi_task.o`.
+
+
+== Installation
 
 
 === Preparing Linux Logging
@@ -556,22 +700,38 @@ kernels (refer to the documentation of the project on how to do that).
 
 ====  Optional Features
 
-If multiple RT flavors are available, LinuxCNC will attempt to detect
-and build for all of them.  A subset may be selected on the configure
-command line:
+By default, the configure script will automatically build binaries for
+all detected RT thread flavors present on the system.  A subset may be
+selected on the configure command line:
+
+`./configure --with-xenomai --with-posix`::
+
+	Build only Xenomai and POSIX userland threads.  No other
+	flavors will be built.
 
 `./configure --with-posix --with-rtai-kernel`::
 
-	    For kernel thread flavors, if autoconf does not detect the desired
-	    kernel source, a location may be explicitly configured:
+	Build only POSIX userland and RTAI kernel threads.  If more
+	than one set of RTAI kernel headers is found, modules will be
+	built for all of them.
 
-`./configure --with-xenomai-kernel   --with-xenomai-kernel-sources=/home/me/src/linux-3.5.7-xenomai`::
-    By default, LinuxCNC will build to run out of a local directory.  For
-    a system installation, specify the prefix for the install directory:
+`./configure --with-xenomai-kernel-sources=~/src/linux-3.5.7-xenomai`::
+
+	Build all detected RT thread flavors.  In addition to standard
+	locations for kernel sources, also look for Xenomai headers in
+	a non-standard location.
 
 `./configure --prefix=/usr/local`::
-	    If you don't want to generate the documentation from source:
-	      --disable-build-documentation
+
+	Specify a location for system installation.
+	By default, LinuxCNC will build to "run in place" out of the
+	build directory.
+
+`./configure --enable-build-documentation`::
+
+	Enable generating documentation from source.  Building
+	documentation is disabled by default because of the long
+	compilation time.
 
 Run `./configure --help' for more details on these and other available
 options.
