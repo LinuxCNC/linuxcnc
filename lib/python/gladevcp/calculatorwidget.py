@@ -88,6 +88,13 @@ class Calculator(gtk.VBox):
             else:
                 temp.show()
 
+    def integer_entry_only(self,value):
+        temp = self.wTree.get_object('Dot')
+        if value:
+            temp.hide()
+        else:
+            temp.show()
+
     def set_editable(self,value):
         self.is_editable = value
         self.entry.set_editable(value)
