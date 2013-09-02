@@ -31,7 +31,7 @@ loadrt limit1 count=2
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
 # t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
 # a = analog input channel
-loadusr -Wn Therm /home/linuxcnc/linuxcnc/configs/BeagleBone/BeBoPr/ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
+loadusr -Wn Therm /home/linuxcnc/linuxcnc/configs/ARM/BeagleBone/BeBoPr/ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 # ################################################
 # THREADS
