@@ -765,7 +765,7 @@ endif
 	cp --no-dereference \
 	    $(filter-out ../lib/ulapi-%.so,$(filter ../lib/%.so, $(TARGETS))) \
 	    $(DESTDIR)$(libdir)
-	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_DIR)
+	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -839,9 +839,9 @@ endif
 	for flavor in $(BUILD_THREAD_FLAVORS); do \
 	    if test $${flavor%-kernel} = $${flavor}; then \
 		echo Installing modules for userland flavor $$flavor; \
-		$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR)/$$flavor; \
+		$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
 		$(FILE) ../rtlib/$$flavor/* \
-		    $(DESTDIR)$(EMC2_RTLIB_DIR)/$$flavor; \
+		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
 	    else \
 		echo Installing modules for kthreads flavor $$flavor; \
 		for srcdir in ../rtlib/$$flavor/*; do \
