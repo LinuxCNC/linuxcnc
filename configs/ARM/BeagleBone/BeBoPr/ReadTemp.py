@@ -247,12 +247,12 @@ for i in range(num_chan):
 
 h.ready()
 
-try:
-    Err = 0.0
-    ADC_V = 0.0
-    temp = 0.0
+Err = 0.0
+ADC_V = 0.0
+temp = 0.0
 
-    while 1:
+while 1:
+    try:
         for i in range(num_chan):
             f = open(FileName[i], 'r')
             ADC_IN = int(f.readline())
@@ -265,6 +265,10 @@ try:
             time.sleep(0.001)
 
         time.sleep(0.049)
-except KeyboardInterrupt:
-    raise SystemExit
+
+    except IOError:
+        continue
+
+    except KeyboardInterrupt:
+        raise SystemExit
 
