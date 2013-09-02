@@ -31,14 +31,15 @@ human_time () {
     fi
 }
 
-BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
+#BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
+BASE=0; SERVO=$(parse_time 1ms)
 case $# in
 0) ;;
 1) BASE=$(parse_time $1) ;;
 2) BASE=$(parse_time $1); SERVO=$(parse_time $2) ;;
 *)
     echo "Usage: latency-test [base-period [servo-period]]"
-    echo "Default: latency-test 25us 1ms"
+    echo "Default: latency-test 1ms"
     echo "Times may be specified with suffix \"s\", \"ms\", \"us\" \"µs\", or \"ns\""
     echo "Times without a suffix and less than 1000 are taken to be in us;"
     echo "other times without a suffix are taken to be in ns"
