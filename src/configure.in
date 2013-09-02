@@ -1119,7 +1119,8 @@ AC_MSG_RESULT($with_xenomai_kernel)
 
 # check whether the gcc-multilib problem exists
 # see http://gcc.gnu.org/ml/gcc/2012-02/msg00314.html
-if test $with_xenomai_kernel = yes; then
+if test $with_xenomai_kernel = yes -a -x /usr/bin/lsb_release &&
+    test "$(lsb_release -cs)" = precise; then
     CFLAGS_save="$CFLAGS"
     CFLAGS="-nostdinc -I/usr/include"
     MULTILIB_HACK="/usr/include/$(gcc -print-multiarch)"
