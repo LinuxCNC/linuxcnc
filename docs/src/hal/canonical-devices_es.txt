@@ -1,5 +1,18 @@
 = Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 .Note
 *********************************************************************
 By version 2.1, the HAL drivers should have all been updated to 

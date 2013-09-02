@@ -10,6 +10,7 @@
 #            noremove       disallow removal of tabs
 #            noauto         don't automatically send result file
 #            noexpand       (ngcgui used, not supported pyngcgui)
+#            nom2           (no m2 terminator (use %))
 #   2) To make pyngcgui embedded fit in small screen:
 #       Try:
 #         max_parms=10|20|30 (will reject otherwise valid subfiles)
@@ -111,6 +112,7 @@ except ImportError,msg:
 #------------------------------------------------------------------------------
 g_debug             = False
 g_verbose           = False
+g_nom2              = False # True for no m2 terminator (use %)
 g_strict            = False # enforce additional subfile formatting requirements
 g_tmode             = 0     # for development
 g_entry_height      = 20    # default parm entry height
@@ -940,7 +942,7 @@ class LinuxcncInterface():
         self.subroutine_path = []
         self.user_m_path = None
         self.ini_file = None
-        self.ngcgui_options = None
+        self.ngcgui_options = []
         self.editor = os.environ.get("VISUAL")
         use_ini_file = None
 
@@ -1103,7 +1105,7 @@ class LinuxcncInterface():
             return(None)
 
     def get_ngcgui_options(self):
-        return(self.ngcgui_options)
+        return(self.ngcgui_options or [])
 
     def get_program_prefix(self):
         if self.ini_data:
@@ -2091,6 +2093,11 @@ class ControlPanel():
 
         savename = None
         f = open(tmpname,'w')
+        nopts = self.mypg.nset.intfc.get_ngcgui_options()
+        if (('nom2' in nopts) or g_nom2):
+            f.write("%\n")
+            f.write("(%s: nom2 option)\n" % g_progname)
+
         featurect = 0
         for pg in plist:
             ct = self.write_to_file(f,pg,featurect)
@@ -2099,7 +2106,11 @@ class ControlPanel():
             self.lfct.set_label(str(pg.feature_ct))
             pg.savesec = []
 
-        f.write("(%s: m2 line added) m2 (g54 activated)\n" % g_progname)
+        nopts = mypg.nset.intfc.get_ngcgui_options()
+        if (('nom2' in nopts) or g_nom2):
+            f.write("%\n")
+        else:
+            f.write("(%s: m2 line added) m2 (g54 activated)\n" % g_progname)
         f.close()
 
         user_must_save = True # disprove with send_function
@@ -3101,6 +3112,7 @@ Options requiring values:
 Solo Options:
     [-v | --verbose]
     [-D | --debug]
+    [-N | --nom2]         (no m2 terminator (use %%))
     [-n | --noauto]       (save but do not automatically send result)
     [-k | --keyboard]     (use default popupkeybaord)
     [-s | --sendtoaxis]   (send generated ngc file to axis gui)
@@ -3156,7 +3168,7 @@ if __name__ == "__main__":
     send_f       = default_send
     try:
         options,remainder = getopt.getopt(sys.argv[1:]
-                          ,'a:Dd:hi:kK:np:P:sS:t:v'
+                          ,'a:Dd:hi:kK:Nnp:P:sS:t:v'
                           , ['autofile'
                             ,'demo='
                             ,'debug'
@@ -3170,6 +3182,7 @@ if __name__ == "__main__":
                             ,'subfile='
                             ,'verbose'
                             ,'sendtoaxis'
+                            ,'nom2'
                             ]
                           )
     except getopt.GetoptError,msg:
@@ -3200,6 +3213,7 @@ if __name__ == "__main__":
             keyboard=True
             keyboardfile=arg
 
+        if opt in ('-N','--nom2'):       dbg = g_nom2 = True
         if opt in ('-D','--debug'):      dbg = True
         if opt in ('-n','--noauto'):     noauto = True
         if opt in ('-v','--verbose'):

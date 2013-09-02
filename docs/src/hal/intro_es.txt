@@ -2,6 +2,19 @@
 
 [[cha:hal-introduction]] (((HAL Introduction)))
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
 HAL(((HAL))) stands for Hardware Abstraction Layer. At the highest
 level, it is simply a way to allow a number of 'building blocks' to be
 loaded and interconnected to assemble a complex system. The 'Hardware'

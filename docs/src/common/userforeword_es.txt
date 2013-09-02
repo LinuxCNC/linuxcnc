@@ -2,6 +2,20 @@
 
 [[cha:user-foreword]] (((User Foreword)))
 
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
+
 LinuxCNC is modular and flexible. These attributes lead many to see it as
 a confusing jumble of little things and wonder why it is the way it is.
 This page attempts to answer that question before you get into the

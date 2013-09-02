@@ -3,9 +3,18 @@
 [[cha:important-user-concepts]] (((User Concepts)))
 
 ////
-TRANSLATORS copy and paste the English version of this file into 
-to this file before translating. This file is NOT up to date.
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
 ////
+
 
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
