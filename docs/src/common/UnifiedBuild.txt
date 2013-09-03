@@ -640,6 +640,19 @@ If you want to build the emcweb Web UI (--enable-emcweb), you also need these:
 
 === Configuring and Building: The Basic procedure
 
+In case you have an existing `linuxcnc` directory and want to add this
+branch, run this:
+
+ $ cd linuxcnc
+ $ git remote add github-mah https://github.com/mhaberler/linuxcnc.git
+ $ git fetch github-mah
+ $ git checkout -b unified-build-candidate-3  github-mah/unified-build-candidate-3
+
+To clone a new copy:
+
+ $ git clone --branch unified-build-candidate-3 --origin github-mah https://github.com/mhaberler/linuxcnc.git [<directory>]
+
+
 The simplest way to compile this package is:
 
 . `cd` to the `src` directory under the directory containing the
@@ -946,7 +959,8 @@ Feel free to add issues so they are not lost.
 == Issues
 
 Parallel build (make -j<numcores>)::
-	 currently broken, some dependency missing
+	 currently broken, some dependency missing; UPDATE: it seems
+	 aa04069 fixed this!
 
 hal_lib.c::
 	 contains some undocumented new methods. They do not impact
