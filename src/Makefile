@@ -123,9 +123,9 @@ modules:
 	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
 		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
 		    echo "    kernel source dir $(kd)"; \
-		    $(MAKE) threads=$(f) KERNELDIR=$(kd);\
+		    $(MAKE) modules threads=$(f) KERNELDIR=$(kd);\
 		    ),\
-	        $(MAKE) threads=$(f);\
+	        $(MAKE) modules threads=$(f);\
 	    )\
 	)
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
