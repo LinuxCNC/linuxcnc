@@ -57,7 +57,7 @@ xref_en.links: $(patsubst %,%.db,$(SMALL))
 #	asciidoc -a stylesheet=$(shell pwd)/linuxcnc.css -f xhtml11.conf -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm $@; exit $$X)
 
 %.pdf: %.txt
-	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm $@; exit $$X)
+	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %,%.html,$(LARGE)) :: %.html: %.txt
 	$(A2X) --stylesheet=./linuxcnc.css -L -d book -vf xhtml $< || (X=$$?; rm $@; exit $$X)
