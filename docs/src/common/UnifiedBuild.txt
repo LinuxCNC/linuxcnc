@@ -977,7 +977,7 @@ history cleaning, and squashing out 'wip' and 'FIXME' commits::
 
 == Remaining Work
 
-== Short term
+=== Short term
 
 These are features which can be added as the branch matures:
 
@@ -1006,9 +1006,9 @@ logging::
 	channels in a future version.
 
 
-== Longer Term plans
+=== Longer Term plans
 
-=== Unified command API to the RT environment
+==== Unified command API to the RT environment
 
 I [MH] think once we have the new middleware infrastructure in place it
 makes sense to fold the kernel threads startup/shutdown/module loading
@@ -1027,14 +1027,14 @@ support a publish functionality; arbitrary clients may subscribe to
 one of the channels to receive updates. This might well be folded into
 the common RTAPI demon, taking out some complexity of startup and shutdown.
 
-=== Unified thread creation API
+==== Unified thread creation API
 
 The current method of creating an RT thread for kernel thread flavors
 stands improvement. A common RTAPI demon could do this for userland
 and kernel thread flavors just alike, using a simple procfs interface
 for thread creation/deletion like shown here: http://tinyurl.com/mowmmyl
 
-=== Use the Xenomai posix threads skin
+==== Use the Xenomai posix threads skin
 
 The Xenomai code currently uses the 'native skin'. Using the 'Posix
 skin' instead would allow merging all of Xenomai, Posix and RT-PREEMPT
