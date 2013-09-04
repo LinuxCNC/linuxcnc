@@ -117,15 +117,15 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 # placed far away from all others.
 FLAVORUP = $(shell echo $(1) | tr a-z- A-Z_)
 FLAVORVAR = $($(call FLAVORUP,$(1))_THREADS_$(2))
-modules:
+modules:  userspace
 	@$(foreach f,$(BUILD_THREAD_FLAVORS),\
 	    echo "Making modules for flavor $(f)"; \
 	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
 		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
 		    echo "    kernel source dir $(kd)"; \
-		    $(MAKE) threads=$(f) KERNELDIR=$(kd);\
+		    $(MAKE) modules threads=$(f) KERNELDIR=$(kd);\
 		    ),\
-	        $(MAKE) threads=$(f);\
+	        $(MAKE) modules threads=$(f);\
 	    )\
 	)
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
@@ -600,9 +600,6 @@ modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
 	-rm -rf .tmp_versions
 	-rm -rf halcomp-srcs
-	for flav in $(BUILD_THREAD_FLAVORS); do \
-	    rm -rf rtapi/$$flav; \
-	done
 	find . -name .tmp_versions |xargs rm -rf
 	-rm -f $(RTLIBDIR)/*.ko
 	-rm -f $(RTLIBDIR)/*.so

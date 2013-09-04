@@ -5,3 +5,4 @@
 /xenomai
 /rtai-kernel
 /xenomai-kernel
+/.flavor-*-link-create-stamp
