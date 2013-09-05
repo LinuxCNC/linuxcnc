@@ -30,5 +30,5 @@ USERSRCS += $(MILLTASKSRCS)
 
 ../bin/milltask: $(call TOOBJS, $(MILLTASKSRCS)) ../lib/librs274.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0 ../lib/libposemath.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libpyplugin.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
+	$(Q)$(CXX) -o $@ $^ $(LDFLAGS) $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
 TARGETS += ../bin/milltask
