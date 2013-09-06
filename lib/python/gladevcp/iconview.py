@@ -68,7 +68,7 @@ class IconFileSelection(gtk.HBox):
                         12,96,48, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
            'start_dir' : ( gobject.TYPE_STRING, 'start directory', 'Sets the directory to start in',
                         "/", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'user_dir' : ( gobject.TYPE_STRING, 'user directory', 'Sets the directory to jump to ',
+           'jump_to_dir' : ( gobject.TYPE_STRING, 'jump to directory', 'Sets the directory to jump to ',
                         "~", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
            'filetypes' : ( gobject.TYPE_STRING, 'file filter', 'Sets the filter for the file types to be shown',
                         "ngc,py", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -306,7 +306,7 @@ class IconFileSelection(gtk.HBox):
         self.btn_dir_up.set_sensitive(True)
 
     def on_btn_jump_to_clicked(self, widget):
-        self.cur_dir = self.start_dir
+        self.cur_dir = self.jump_to_dir
         self._fill_store()
         self.btn_dir_up.set_sensitive(True)
 
@@ -449,8 +449,8 @@ class IconFileSelection(gtk.HBox):
                 if name == 'start_dir':
                     self.start_dir = os.path.expanduser(value)
                     self.set_directory(self.start_dir)
-                if name == 'user_dir':
-                    self.user_dir = os.path.expanduser(value)
+                if name == 'jump_to_dir':
+                    self.jump_to_dir = os.path.expanduser(value)
                     self.on_btn_jump_to()
                 if name == 'filetypes':
                     self.set_filetypes(value)
