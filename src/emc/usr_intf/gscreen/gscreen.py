@@ -80,6 +80,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python")
 datadir = os.path.join(BASE, "share", "linuxcnc")
 imagedir = os.path.join(BASE, "share","gscreen","images")
+SKINPATH = os.path.join(BASE, "share","gscreen","skins")
 sys.path.insert(0, libdir)
 themedir = "/usr/share/themes"
 
@@ -322,7 +323,6 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
         if directory not in sys.path:
             sys.path.insert(0,directory)
             print _('adding import dir %s' % directory)
-
         try:
             mod = __import__(basename)
         except ImportError,msg:
@@ -395,7 +395,7 @@ class Gscreen:
         for num,temp in enumerate(sys.argv):
             if temp == '-c':
                 try:
-                    print ("**** GSCREEN INFO: Optional component name ="),sys.argv[num+1]
+                    print ("**** GSCREEN INFO: Skin name ="),sys.argv[num+1]
                     skinname = sys.argv[num+1]
                 except:
                     pass
@@ -407,10 +407,16 @@ class Gscreen:
         if os.path.exists(locallocale):
             LOCALEDIR = locallocale
             domain = skinname
-            print ("**** GSCREEN INFO: local locale name =",LOCALEDIR,skinname)
+            print ("**** GSCREEN INFO: CUSTOM locale name =",LOCALEDIR,skinname)
         else:
-            LOCALEDIR = os.path.join(BASE, "share", "locale")
-            domain = "linuxcnc"
+            locallocale = os.path.join(SKINPATH,"%s/locale"%skinname)
+            if os.path.exists(locallocale):
+                LOCALEDIR = locallocale
+                domain = skinname
+                print ("**** GSCREEN INFO: SKIN locale name =",LOCALEDIR,skinname)
+            else:
+                LOCALEDIR = os.path.join(BASE, "share", "locale")
+                domain = "linuxcnc"
         locale.setlocale(locale.LC_ALL, '')
         locale.bindtextdomain(domain, LOCALEDIR)
         gettext.install(domain, localedir=LOCALEDIR, unicode=True)
@@ -419,9 +425,15 @@ class Gscreen:
         # main screen
         localglade = os.path.join(CONFIGPATH,"%s.glade"%skinname)
         if os.path.exists(localglade):
-            print _("\n**** GSCREEN INFO:  Using LOCAL custom glade file from %s ****"% localglade)
+            print _("\n**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"% localglade)
             xmlname = localglade
-
+        else:
+            localglade = os.path.join(SKINPATH,"%s/%s.glade"%(skinname,skinname))
+            if os.path.exists(localglade):
+                print _("\n**** GSCREEN INFO:  Using SKIN glade file from %s ****"% localglade)
+                xmlname = localglade
+            else:
+                print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2)
         try:
             self.xml = gtk.Builder()
             self.xml.set_translation_domain(domain) # for locale translations
@@ -432,10 +444,15 @@ class Gscreen:
         # second screen
         localglade = os.path.join(CONFIGPATH,"%s2.glade"%skinname)
         if os.path.exists(localglade):
-            print _("\n**** GSCREEN INFO:  Using LOCAL glade file from %s ****"% localglade)
+            print _("\n**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"% localglade)
             xmlname2 = localglade
         else:
-            print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2)
+            localglade = os.path.join(SKINPATH,"%s/%s2.glade"%(skinname,skinname))
+            if os.path.exists(localglade):
+                print _("\n**** GSCREEN INFO:  Using SKIN glade file from %s ****"% localglade)
+                xmlname2 = localglade
+            else:
+                print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2)
         try:
             self.xml.add_from_file(xmlname2)
             self.screen2 = True
@@ -499,10 +516,14 @@ class Gscreen:
         # look for custom handler files:
         HANDLER_FN = "%s_handler.py"%skinname
         local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
+        skin_handler_path = os.path.join(SKINPATH,"%s/%s"%(skinname,HANDLER_FN))
         if os.path.exists(local_handler_path):
-            temp = [HANDLER_FN]
+            temp = [local_handler_path]
+        elif os.path.exists(skin_handler_path):
+            temp = [skin_handler_path]
         else:
             temp = []
+        dbg("**** GSCREEN INFO: handler file path: %s"%temp)
         handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
         self.xml.connect_signals(handlers)
 
