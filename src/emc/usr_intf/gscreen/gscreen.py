@@ -193,6 +193,7 @@ class Widgets:
 # here we intialize the data
 class Data:
     def __init__(self):
+        self.audio_available = False
         self.use_screen2 = False
         self.theme_name = "Follow System Theme"
         self.abs_textcolor = ""
@@ -463,7 +464,8 @@ class Gscreen:
         self.data = Data()
 
         if _AUDIO_AVAIALBLE:
-            self.audio = Player()         
+            self.audio = Player()
+            self.data.audio_available = True       
 
         # access to EMC control
         self.emc = emc_interface.emc_control(linuxcnc)
