@@ -62,11 +62,11 @@ except:
 
 # try to add ability for audio feedback to user.
 try:
-    _AUDIO_AVAIALBLE = False
+    _AUDIO_AVAILABLE = False
     import pygst
     pygst.require("0.10")
     import gst
-    _AUDIO_AVAIALBLE = True
+    _AUDIO_AVAILABLE = True
     print "**** GSCREEN INFO: audio available!"
 except:
     print "**** GSCREEN INFO: no audio alerts available - PYGST libray not installed?"
@@ -466,7 +466,7 @@ class Gscreen:
         self.widgets = Widgets(self.xml)
         self.data = Data()
 
-        if _AUDIO_AVAIALBLE:
+        if _AUDIO_AVAILABLE:
             self.audio = Player()
             self.data.audio_available = True       
 
@@ -2231,7 +2231,7 @@ class Gscreen:
                 n.set_urgency(pynotify.URGENCY_CRITICAL)
                 n.set_timeout(int(timeout * 1000) )
                 n.show()
-            if _AUDIO_AVAIALBLE:
+            if _AUDIO_AVAILABLE:
                 if icon == ALERT_ICON:
                     self.audio.set_sound(self.data.error_sound)
                 else:
