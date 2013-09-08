@@ -193,6 +193,9 @@ class Widgets:
 # here we intialize the data
 class Data:
     def __init__(self):
+        self.SKINPATH = SKINPATH
+        self.CONFIGPATH = CONFIGPATH
+        self.BASEPATH = BASE
         self.audio_available = False
         self.use_screen2 = False
         self.theme_name = "Follow System Theme"
