@@ -59,6 +59,23 @@
 #define HM2WRITE(a,b)  hm2->llio->write(hm2->llio, a, &b, sizeof(u32))
 #define HM2READ(a,b)  hm2->llio->read(hm2->llio, a, &b, sizeof(u32)) 
 
+#define LBP_IN                  0x00
+#define LBP_IO                  0x40
+#define LBP_OUT                 0x80
+
+#define LBP_DATA                0xA0
+#define LBP_MODE                0xB0
+
+#define LBP_PAD                 0x00
+#define LBP_BITS                0x01
+#define LBP_UNSIGNED            0x02
+#define LBP_SIGNED              0x03
+#define LBP_NONVOL_UNSIGNED     0x04
+#define LBP_NONVOL_SIGNED       0x05
+#define LBP_STREAM              0x06
+#define LBP_BOOLEAN             0x07
+#define LBP_ENCODER             0x08
+
 typedef struct {
     unsigned char RecordType;
     unsigned char DataLength;
@@ -72,65 +89,65 @@ typedef struct {
 }hm2_sserial_data_t;
 
 static const hm2_sserial_data_t hm2_8i20_params[] = {
-    {0xA0,0x10,0x02,0x80,0.0,1.0,0,"degrees","angle"},
-    {0xA0,0x10,0x03,0x80,-10.0,10.0,0,"amps","current"},
-    {0xA0,0x10,0x02,0x00,0,65535,0,"Deg C","card-temp"},
-    {0xA0,0x10,0x02,0x00,0,655.35,0,"volts","bus-voltage"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.current-lim"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.brake-on"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.brake-old"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.bus-underv"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.wd-reset"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.sw-reset"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.ext-reset"},
-    {0xA0,0x01,0x00,0x00,0,0,0,"pad","pad"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.no-enable"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","status.pid-on"},
-    {0xA0,0x06,0x00,0x00,0,0,0,"pad","pad"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_OUT,0.0,1.0,0,"degrees","angle"},
+    {LBP_DATA,0x10,LBP_SIGNED,LBP_OUT,-10.0,10.0,0,"amps","current"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,65535,0,"Deg C","card-temp"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,655.35,0,"volts","bus-voltage"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.current-lim"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.brake-on"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.brake-old"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.bus-underv"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.wd-reset"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.sw-reset"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.ext-reset"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.no-enable"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.pid-on"},
+    {LBP_DATA,0x06,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
     
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.watchdog"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.no-enable"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.overtemp"},
-    {0xA0,0x01,0x00,0x00,0,0,0,"pad","pad"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.overcurrent"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.U-current"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.V-current"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.W-current"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.bus-underv"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.bus-high"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.bus-overv"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.module"},
-    {0xA0,0x01,0x00,0x00,0,0,0,"pad","pad"},
-    {0xA0,0x01,0x00,0x00,0,0,0,"pad","pad"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.overrun"},
-    {0xA0,0x01,0x07,0x00,0,0,0,"none","fault.framingr"}
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.watchdog"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.no-enable"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overtemp"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overcurrent"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.U-current"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.V-current"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.W-current"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-underv"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-high"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.bus-overv"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.module"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overrun"},
+    {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.framingr"}
 };
 static const hm2_sserial_data_t hm2_8i20_globals[] = { 
-    {0xA0,0x10,0x02,0x00,0,0,2164,"none","swrevision"},
-    {0xA0,0x20,0x02,0x00,0,0,2344,"none","unitnumber"},
-    {0xA0,0x10,0x04,0x00,0,32.768,2,"amps","nvmaxcurrent"},
-    {0xA0,0x10,0x04,0x00,0,0,36,"volts","nvbusundervmax"},
-    {0xA0,0x10,0x04,0x00,0,0,34,"volts","nvbusundervmin"},
-    {0xA0,0x10,0x04,0x00,0,0,38,"volts","nvbusoverv"},
-    {0xA0,0x10,0x04,0x00,0,0,40,"volts","nvbrakeonv"},
-    {0xA0,0x10,0x04,0x00,0,0,42,"volts","nvbrakeoffv"},
-    {0xA0,0x10,0x04,0x00,0,0,6,"bps","nvrembaudrate"},
-    {0xA0,0x10,0x04,0x00,0,0,10,"none","nvkqp"},
-    {0xA0,0x10,0x04,0x00,0,0,14,"none","nvkqihi"},
-    {0xA0,0x10,0x04,0x00,0,0,12,"none","nvkqilo"},
-    {0xA0,0x10,0x04,0x00,0,0,16,"none","nvkqil"},
-    {0xA0,0x10,0x04,0x00,0,0,18,"none","nvkdp"},
-    {0xA0,0x10,0x04,0x00,0,0,22,"none","nvkdihi"},
-    {0xA0,0x10,0x04,0x00,0,0,20,"none","nvkdilo"},
-    {0xA0,0x10,0x04,0x00,0,0,24,"none","nvkdil"}
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,0,2164,"none","swrevision"},
+    {LBP_DATA,0x20,LBP_UNSIGNED,LBP_IN,0,0,2344,"none","unitnumber"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,32.768,2,"amps","nvmaxcurrent"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,36,"volts","nvbusundervmax"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,34,"volts","nvbusundervmin"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,38,"volts","nvbusoverv"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,40,"volts","nvbrakeonv"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,42,"volts","nvbrakeoffv"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,6,"bps","nvrembaudrate"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,10,"none","nvkqp"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,14,"none","nvkqihi"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,12,"none","nvkqilo"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,16,"none","nvkqil"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,18,"none","nvkdp"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,22,"none","nvkdihi"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,20,"none","nvkdilo"},
+    {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,0,24,"none","nvkdil"}
 };
 
 static const hm2_sserial_data_t hm2_7i64_params[] = {
-    {0xA0,0x18,0x01,0x80,0,0,0,"none","output"},
-    {0xA0,0x18,0x01,0x00,0,0,0,"none","input"},
-    {0xA0,0x08,0x00,0x00,0,0,0,"pad","pad"},
-    {0xA0,0x10,0x02,0x00,0,3.3,0,"volts","analog0"},
-    {0xA0,0x10,0x02,0x00,0,3.3,0,"volts","analog1"}
+    {LBP_DATA,0x18,LBP_BITS,LBP_OUT,0,0,0,"none","output"},
+    {LBP_DATA,0x18,LBP_BITS,LBP_IN,0,0,0,"none","input"},
+    {LBP_DATA,0x08,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,3.3,0,"volts","analog0"},
+    {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,3.3,0,"volts","analog1"}
 };
 
 typedef struct {
@@ -144,21 +161,25 @@ typedef struct {
 typedef struct {
     hal_u32_t *u32_pin;
     hal_s32_t *s32_pin;
+    hal_s32_t *s32_pin2;
     hal_float_t *float_pin;
     hal_bit_t **bit_pins;
     hal_bit_t **bit_pins_not;
     hal_bit_t *invert;
     hal_bit_t *boolean;
-    hal_bit_t *boolean_not;
+    hal_bit_t *boolean2;
     hal_float_t maxlim;
     hal_float_t minlim;
     hal_float_t fullscale;
-    s32 oldval;
+    s64 oldval; // not pins, but this way every pin can have one
+    s64 accum; // these two are only currently used by encoders
+    s64 offset;
 }hm2_sserial_pins_t;
 
 typedef struct {
     hal_u32_t u32_param;
     hal_s32_t s32_param;
+    hal_float_t float_param;
 }hm2_sserial_params_t;
 
 typedef struct {
