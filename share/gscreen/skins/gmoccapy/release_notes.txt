@@ -4,10 +4,10 @@ ver 0.9.7.1
   all files should be present after installing linuxcnc
 - corrected some typos in code
 - changed my way to show the entry dialog as integer only to the gscreen way
-- added a file chooser to select the jump to dir in IconFileSelection
+- added a file chooser to settings page to select the jump to dir for IconFileSelection
 - file extensions are now taken from INI file and converted from raw data to correct
   format in an own function, taken in care in IconFileSelection and file to load chooser
-- solved an error in iconfileselection, crashing the GUI if button up was pressed being in the root dir
+- solved an error in IconFileSelection, crashing the GUI if button up was pressed being in the root dir
 
 ver 0.9.7
 - added a file selection dialog, for touch screen use
