@@ -203,7 +203,7 @@ u16 sslbp_read_word(u32 addr){
 
 u32 sslbp_read_long(u32 addr){
     u32 buff = READ_REM_LONG_CMD + addr;
-    u32 res;
+    u32 res=0;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_long, trying to abort\n");
