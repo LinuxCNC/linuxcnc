@@ -1482,7 +1482,7 @@ void hm2_sserial_print_module(hostmot2_t *hm2) {
                         (int)((conf.ParmMax - (int)conf.ParmMax) * 100.0));
                 HM2_PRINT("                   ParmMin %0i.%02i\n",(int)conf.ParmMin,
                         (int)((conf.ParmMin - (int)conf.ParmMin) * 100.0));
-                HM2_PRINT("                   SizeOf ParmMin 0x%02x\n", sizeof(conf.ParmMax));
+                HM2_PRINT("                   SizeOf ParmMin 0x%02zx\n", sizeof(conf.ParmMax));
                 HM2_PRINT("                   ParmAddr = 0x%04x\n", conf.ParmAddr); 
                 HM2_PRINT("                   UnitString = %s\n", conf.UnitString);
                 HM2_PRINT("                   NameString = %s\n\n", conf.NameString);
@@ -1498,7 +1498,7 @@ void hm2_sserial_print_module(hostmot2_t *hm2) {
                         (int)((conf.ParmMax - (int)conf.ParmMax) * 100.0));
                 HM2_PRINT("                   ParmMin %0i.%02i\n",(int)conf.ParmMin,
                         (int)((conf.ParmMin - (int)conf.ParmMin) * 100.0));
-                HM2_PRINT("                   SizeOf ParmMin %i\n", sizeof(conf.ParmMax));
+                HM2_PRINT("                   SizeOf ParmMin %zi\n", sizeof(conf.ParmMax));
                 HM2_PRINT("                   ParmAddr = 0x%04x\n", conf.ParmAddr); 
                 HM2_PRINT("                   UnitString = %s\n", conf.UnitString);
                 HM2_PRINT("                   NameString = %s\n\n", conf.NameString);

@@ -346,7 +346,7 @@ int sslbp_flash(char *fname){
         HM2_ERR("request for firmware %s failed, aborting\n", fname);
         return -1;
     }    
-    rtapi_print("Firmware size 0x%x\n", fw->size);
+    rtapi_print("Firmware size 0x%zx\n", fw->size);
     
     if (setup_start() < 0) goto fail0;
     flash_start();
