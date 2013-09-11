@@ -1,3 +1,6 @@
+ver 0.9.7.2
+- check for NO_FORCE_HOMING included
+
 ver 0.9.7.1
 - changed the structure of the files, so the user do not need to copy files after an update
   he only needs to adapt his conig files, this follows the new gscreen structure and 
