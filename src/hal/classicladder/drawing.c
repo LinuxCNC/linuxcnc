@@ -467,9 +467,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
-				sprintf(BufTxt,Timer->DisplayFormat,(float)Timer->Value/(float)Timer->Base);
+				sprintf(BufTxt,Timer->DisplayFormat,(double)Timer->Value/(double)Timer->Base);
 			else
-				sprintf(BufTxt,Timer->DisplayFormat,(float)Timer->Preset/(float)Timer->Base);
+				sprintf(BufTxt,Timer->DisplayFormat,(double)Timer->Preset/(double)Timer->Base);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));
@@ -524,9 +524,9 @@ void DrawElement(GdkPixmap * DrawPixmap,int x,int y,int Width,int Height,StrElem
 #endif
 			/* Current Value (or Preset if print/edit) */
 			if ( DrawingOption!=DRAW_FOR_PRINT && !EditDatas.ModeEdit )
-				sprintf(BufTxt,Monostable->DisplayFormat,(float)Monostable->Value/(float)Monostable->Base);
+				sprintf(BufTxt,Monostable->DisplayFormat,(double)Monostable->Value/(double)Monostable->Base);
 			else
-				sprintf(BufTxt,Monostable->DisplayFormat,(float)Monostable->Preset/(float)Monostable->Base);
+				sprintf(BufTxt,Monostable->DisplayFormat,(double)Monostable->Preset/(double)Monostable->Base);
 #ifndef GTK2
 			gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 							x+WidDiv2-2-Width,y+Height,BufTxt,strlen(BufTxt));

@@ -56,8 +56,8 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="show_dtg">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="show_dtg">False</property>
                                             <property name="use_commanded">False</property>
                                           </object>
                                         </child>
@@ -905,8 +905,8 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="actual">False</property>
                                             <property name="reference_type">2</property>
+                                            <property name="actual">False</property>
                                             <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
@@ -931,9 +931,9 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="actual">False</property>
                                             <property name="reference_type">1</property>
                                             <property name="joint_number">1</property>
+                                            <property name="actual">False</property>
                                             <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
@@ -960,9 +960,9 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="actual">False</property>
                                             <property name="reference_type">1</property>
                                             <property name="joint_number">2</property>
+                                            <property name="actual">False</property>
                                             <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
@@ -1012,9 +1012,9 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="actual">False</property>
                                             <property name="reference_type">1</property>
                                             <property name="joint_number">3</property>
+                                            <property name="actual">False</property>
                                             <property name="display_units_mm">True</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
@@ -1881,16 +1881,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="z1_color">#0000ffff0000</property>
-                                                        <property name="bg_color">#bebebebebebe</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
-                                                        <property name="text_template">%i</property>
-                                                        <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="z2_color">#0000ffff0000</property>
-                                                        <property name="target_color">#0000ffff0000</property>
-                                                        <property name="max">6000</property>
                                                         <property name="target_value">-0.039999999105930328</property>
+                                                        <property name="max">6000</property>
+                                                        <property name="z1_color">#0000ffff0000</property>
+                                                        <property name="z2_color">#0000ffff0000</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
+                                                        <property name="z0_border">0.40000000596046448</property>
                                                         <property name="z0_color">#0000ffff0000</property>
+                                                        <property name="text_template">%i</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="bg_color">#bebebebebebe</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -3647,43 +3647,56 @@ Aux Screen</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkLabel" id="label8">
+                                      <object class="GtkFrame" id="frm_select_jump_to_dir">
                                         <property name="visible">True</property>
+                                        <property name="label_xalign">0.5</property>
+                                        <child>
+                                          <object class="GtkAlignment" id="alignment1">
+                                            <property name="visible">True</property>
+                                            <property name="top_padding">5</property>
+                                            <property name="bottom_padding">5</property>
+                                            <property name="left_padding">5</property>
+                                            <property name="right_padding">5</property>
+                                            <child>
+                                              <object class="GtkFileChooserButton" id="jump_to_dir_chooser">
+                                                <property name="visible">True</property>
+                                                <property name="tooltip_text" translatable="yes">select the jump to dir for file open dialog</property>
+                                                <property name="show_hidden">True</property>
+                                                <property name="action">select-folder</property>
+                                                <property name="title" translatable="yes">Select user dir</property>
+                                                <signal name="file_set" handler="on_jump_to_dir_chooser_file_set"/>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel" id="lbl_frm_select_jump_to_dir">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Select jump to dir&lt;/b&gt;</property>
+                                            <property name="use_markup">True</property>
+                                          </object>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="position">5</property>
                                       </packing>
                                     </child>
                                     <child>
+                                      <placeholder/>
+                                    </child>
+                                    <child>
                                       <object class="GtkToggleButton" id="tbtn_log_actions">
                                         <property name="label" translatable="yes">Log actions</property>
-                                        <property name="width_request">100</property>
+                                        <property name="width_request">48</property>
                                         <property name="height_request">48</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Log all actions in the alarm history</property>
                                         <signal name="toggled" handler="on_tbtn_log_actions_toggled"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
-                                        <property name="position">6</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkButton" id="btn_shut_down">
-                                        <property name="label">gtk-quit</property>
-                                        <property name="width_request">100</property>
-                                        <property name="height_request">48</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">True</property>
-                                        <property name="tooltip_text" translatable="yes">Close gmoccapy</property>
-                                        <property name="use_stock">True</property>
-                                        <signal name="clicked" handler="on_btn_exit_clicked"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
                                         <property name="position">7</property>
                                       </packing>
                                     </child>
@@ -6100,4 +6113,5 @@ selected</property>
     <property name="visible">True</property>
     <property name="pixbuf">icon/refw.png</property>
   </object>
+  <object class="GtkFileFilter" id="filefilter1"/>
 </interface>

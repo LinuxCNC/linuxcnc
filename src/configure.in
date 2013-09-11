@@ -93,23 +93,6 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
-AC_MSG_CHECKING(libgl1-mesa-dri workaround)
-
-PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
-if test  $? -ne 0 ; then
-   # real bad, the test failed - let me know
-   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
-   exit 1
-fi
-if test "x$PRELOAD_WORKAROUND" != "x" ; then
-   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
-else
-   AC_MSG_RESULT(not required)
-fi
-
-
-
-
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -2484,6 +2467,20 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 
     AC_MSG_CHECKING(for Xmu headers)
     AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+fi
+
+AC_MSG_CHECKING(libgl1-mesa-dri workaround)
+
+PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
+if test  $? -ne 0 ; then
+   # real bad, the test failed - let me know
+   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
+   exit 1
+fi
+if test "x$PRELOAD_WORKAROUND" != "x" ; then
+   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
+else
+   AC_MSG_RESULT(not required)
 fi
 
 AC_SUBST([BUILD_PYTHON])

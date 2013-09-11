@@ -44,7 +44,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.7"
+_RELEASE = "0.9.8_dev"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -202,8 +202,8 @@ _IDLE = 0               # needed to check if the interpreter is idle
 
 # This is a handler file for using Gscreen"s infrastructure
 # to load a completely custom glade screen
-# The only things that really matters is that it"s saved as a GTK builder project,
-# the toplevel window is caller window1 (The default name) and you connect a destroy
+# The only things that really matters is that it's saved as a GTK builder project,
+# the toplevel window is called window1 (The default name) and you connect a destroy
 # window signal else you can"t close down linuxcnc 
 class HandlerClass:
 
@@ -230,8 +230,8 @@ class HandlerClass:
         self.no_increments = 0    # number of increments from INI File, because of space we allow a max of 10
         self.unlock = False       # this value will be set using the hal pin unlock settings
         self.system_list = (0,"G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3") # needed to display the labels
-        self.axisnumber_four = "" # we use this to get the number of the 4-th axis
-        self.axisletter_four = None# we use this to get the letter of the 4-th axis
+        self.axisnumber_four = ""   # we use this to get the number of the 4-th axis
+        self.axisletter_four = None # we use this to get the letter of the 4-th axis
 #        self.notification = Notification()
 
     def initialize_preferences(self):
@@ -253,7 +253,7 @@ class HandlerClass:
         image = self.widgets["img_home_%s"%self.axisletter_four]
         self.widgets.btn_home_4.set_image(image)
 
-    # We don"t want Gscreen to initialize it"s regular widgets because this custom
+    # We don't want Gscreen to initialize it's regular widgets because this custom
     # screen doesn"t have most of them. So we add this function call.
     # Since this custom screen uses gladeVCP magic for its interaction with linuxcnc
     # We don"t add much to this function, but we do want to be able to change the theme so:
@@ -750,13 +750,21 @@ class HandlerClass:
         self.widgets.offsetpage1.set_names(names)
 
     def init_IconFileSelection(self):
-        iconsize= 48
-        filetypes = "ngc,py"
-        self.widgets.IconFileSelection1.set_property("icon_size",iconsize)
         # self.widgets.IconFileSelection1.set_property("start_dir",startdir)
         # is set in init with the selection of the NC_FILES path from INI
-        self.widgets.IconFileSelection1.set_property("user_dir",os.path.expanduser("~"))
+        iconsize= 48
+        self.widgets.IconFileSelection1.set_property("icon_size",iconsize)
+
+        file_ext = self._get_file_ext()
+        filetypes =""
+        for ext in file_ext:
+            filetypes += ext.replace("*.","") + ","
         self.widgets.IconFileSelection1.set_property("filetypes",filetypes)
+        
+        jump_to_dir = self.gscreen.prefs.getpref("jump_to_dir", os.path.expanduser("~"),str)
+        self.widgets.jump_to_dir_chooser.set_current_folder(jump_to_dir)
+        self.widgets.IconFileSelection1.set_property("jump_to_dir", jump_to_dir)
+        
         self.widgets.IconFileSelection1.show_buttonbox(False)
         self.widgets.IconFileSelection1.show_filelabel(False)
 
@@ -1812,8 +1820,7 @@ class HandlerClass:
         dialog.show_all()
         if integer: # The user is only allowed to enter integer values, we hide some button
             calc.num_pad_only(True)
-            temp = calc.wTree.get_object("Dot")
-            temp.hide()
+            calc.integer_entry_only(True)
         response = dialog.run()
         value = calc.get_value()
         dialog.destroy()
@@ -2016,8 +2023,12 @@ class HandlerClass:
 
     def on_file_to_load_chooser_file_set(self, widget):
         if self.log: self.gscreen.add_alarm_entry("file to load on startup set to : %s"%widget.get_filename())
-        print("file to load on startup set to : %s "%widget.get_filename())
         self.gscreen.prefs.putpref("open_file", widget.get_filename(), str)
+
+    def on_jump_to_dir_chooser_file_set(self, widget, data=None):
+        if self.log: self.gscreen.add_alarm_entry("jump to dir has been set to : %s"%widget.get_filename())
+        self.gscreen.prefs.putpref("jump_to_dir", widget.get_filename(), str)
+        self.widgets.IconFileSelection1.set_property("jump_to_dir", widget.get_filename())
 
     def on_grid_size_value_changed(self, widget, data=None):
         self.gscreen.set_grid_size(widget)
@@ -2627,21 +2638,27 @@ class HandlerClass:
         self.widgets.file_to_load_chooser.set_title(title)
         self.widgets.ff_file_to_load.set_name("linuxcnc files")
         self.widgets.ff_file_to_load.add_pattern("*.ngc")
-        file_ext = self.gscreen.inifile.findall("FILTER", "PROGRAM_EXTENSION")
+        file_ext = self._get_file_ext()
         for ext in file_ext:
-            if ".py" in ext:
-                self.widgets.ff_file_to_load.add_pattern("*.py")
-            if ".png" in ext:
-                self.widgets.ff_file_to_load.add_pattern("*.png")
-            if ".gif" in ext:
-                self.widgets.ff_file_to_load.add_pattern("*.gif")
-            if ".jpg" in ext:
-                self.widgets.ff_file_to_load.add_pattern("*.jpg")
+            self.widgets.ff_file_to_load.add_pattern(ext)
 
-    # If we need extra HAL pins here is where we do it.
+    def _get_file_ext(self):
+        file_ext = self.gscreen.inifile.findall("FILTER", "PROGRAM_EXTENSION")
+        if file_ext:
+            ext_list =["*.ngc"]
+            for data in file_ext:
+                raw_ext = data.split(",")
+                for extension in raw_ext:
+                    ext = extension.split()
+                    ext_list.append(ext[0].replace(".","*."))
+        else:
+            print("Error converting the file extensions from INI File 'FILTER','PROGRAMM_PREFIX")
+            print("using as default '*.ngc'")
+            ext_list = ["*.ngc"]
+        return ext_list
+
+    # We need extra HAL pins here is where we do it.
     # Note you must import hal at the top of this script to do it.
-    # For gaxis there is no extra pins but since we don"t want gscreen to
-    # add it"s default pins we added this function
     # we make pins for the hardware buttons witch can be placed around the
     # screen to activate the coresponding buttons on the GUI
     def initialize_pins(self):

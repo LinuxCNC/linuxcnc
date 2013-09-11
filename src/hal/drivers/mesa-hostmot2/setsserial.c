@@ -203,7 +203,7 @@ u16 sslbp_read_word(u32 addr){
 
 u32 sslbp_read_long(u32 addr){
     u32 buff = READ_REM_LONG_CMD + addr;
-    u32 res;
+    u32 res=0;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_long, trying to abort\n");
@@ -346,7 +346,7 @@ int sslbp_flash(char *fname){
         HM2_ERR("request for firmware %s failed, aborting\n", fname);
         return -1;
     }    
-    rtapi_print("Firmware size 0x%x\n", fw->size);
+    rtapi_print("Firmware size 0x%zx\n", fw->size);
     
     if (setup_start() < 0) goto fail0;
     flash_start();
