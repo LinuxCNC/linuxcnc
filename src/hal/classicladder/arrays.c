@@ -225,6 +225,14 @@ int ClassicLadder_AllocAll()
 
 #ifndef RTAPI// for user space
 
+     // check if RT component was loaded:
+     if (!rtapi_shmem_exists(CL_SHMEM_KEY)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "classicladder: the classicladder_rt shared "
+			 "memory segment (%x) does not exist",CL_SHMEM_KEY);
+	 rtapi_print_msg(RTAPI_MSG_ERR, "classicladder_rt not loaded?");
+	 return FALSE;
+     }
      
     // Attach SHMEM with proper size.
     if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, 0)) < 0)
