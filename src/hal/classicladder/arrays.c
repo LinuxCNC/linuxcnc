@@ -199,7 +199,8 @@ int ClassicLadder_AllocAll()
     bytes += numWords * sizeof(int);
     bytes += numFloats * sizeof(double);
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
-    
+
+
     // Attach SHMEM with proper size.
     if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) 
               {
@@ -224,9 +225,9 @@ int ClassicLadder_AllocAll()
 
 #ifndef RTAPI// for user space
 
-	
+     
     // Attach SHMEM with proper size.
-    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0)
+    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, 0)) < 0)
               {
                rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
                CL_SHMEM_KEY, compId, bytes);
