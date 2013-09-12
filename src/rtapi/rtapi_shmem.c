@@ -71,7 +71,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 
 
     rtapi_mutex_get(&(rtapi_data->mutex));
-    for (i=0 ; i < RTAPI_MAX_SHMEMS; i++) {
+    for (i = 1 ; i < RTAPI_MAX_SHMEMS; i++) {
 	if (shmem_array[i].magic == SHMEM_MAGIC && shmem_array[i].key == key) {
 	    shmem_array[i].count ++;
 	    rtapi_mutex_give(&(rtapi_data->mutex));
@@ -138,7 +138,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
 
 int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
     shmem_data *shmem;
-    if (handle < 0 || handle >= RTAPI_MAX_SHMEMS)
+    if (handle < 1 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
 
     shmem = &shmem_array[handle];
@@ -156,7 +156,7 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     shmem_data *shmem;
     int retval = 0;
 
-    if(handle < 0 || handle >= RTAPI_MAX_SHMEMS)
+    if(handle < 1 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
 
     rtapi_mutex_get(&(rtapi_data->mutex));
