@@ -2710,6 +2710,9 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 /*
  * given two int arrays representing interpreter settings as stored in
  * _setup.active_m_codes, construct a M-code sequence to synchronize their state.
+ *
+ * use multiple lines here because M7 and M8 may not be on the same line since
+ * they are in the same modal group.
  */
 int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 {
@@ -2737,7 +2740,7 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 	    case 7: // adaptive feed
 	    case 8: // feed hold
 		if (val != -1) {  // unsure..
-		    snprintf(buf,sizeof(buf)," M%d", val);
+		    snprintf(buf,sizeof(buf),"M%d\n", val);
 		    strncat(cmd,buf,sizeof(buf));
 		} else {
 		    MSG("------ gen_m_codes: index %d = -1!!\n",i);
@@ -2811,11 +2814,17 @@ int Interp::restore_settings(setup_pointer settings,
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
     if (strlen(cmd) > 0) {
-	int status = execute(cmd);
-	if (status != INTERP_OK) {
-	    char currentError[LINELEN+1];
-	    strcpy(currentError,getSavedError());
-	    CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), cmd, currentError);
+	// the sequence can be multiline, separated by nl
+	// so split and execute each line
+	char *last = cmd;
+	char *s;
+	while ((s = strtok_r(last, "\n", &last)) != NULL) {
+	    int status = execute(s);
+	    if (status != INTERP_OK) {
+		char currentError[LINELEN+1];
+		strcpy(currentError,getSavedError());
+		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
+	    }
 	}
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
