@@ -181,7 +181,9 @@ def ui():
 		break
 	if result: bb.configure(state="normal")
 	else: bb.configure(state="disabled")
-	print >>sys.stderr, "update_ok", args
+	# This line creates an error when you load holecircle twice
+	# from inside linuxcnc eg. gladevcp filechooser or AXIS GUI
+	#print >>sys.stderr, "update_ok", args
     
     vars['count'].trace('w', update_preview)
     vars['inc'].trace('w', update_preview)
