@@ -627,7 +627,8 @@ check_kernel_source_configured() {
     AC_MSG_CHECKING([for configured kernel source in $ksrc_dir])
     # if .config and version.h both exist, then assume it's configured
     if test -f "$ksrc_dir/.config" -a \
-	    -f "$ksrc_dir/include/linux/version.h"; then
+	    \(  -f "$ksrc_dir/include/linux/version.h" -o \
+	    -f "$ksrc_dir/include/generated/uapi/linux/version.h"  \); then
 	AC_MSG_RESULT([found])
 	return 0
     else
