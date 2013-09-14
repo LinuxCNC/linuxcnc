@@ -1,109 +1,43 @@
+ifeq ($(BUILD_SYS)-$(threads),kbuild-xenomai-kernel)
 
-
-ifeq ($(THREADS),XENOMAI_KERNEL)
-
-#MODULES = xeno_math
-obj-m += xeno_math.o
-
-M_CFLAGS := -I/usr/include -ffast-math -mhard-float \
+ccflags-y := 	$(KERNEL_MATH_CFLAGS) \
 	-D_IEEE_LIBM \
 	-D_ISOC99_SOURCE \
-	-D_SVID_SOURCE 
+	-D_SVID_SOURCE
 
-LIBMSRCS= s_floor.c w_pow.c s_frexp.c s_fabs.c \
-	e_pow.c e_sqrt.c s_scalbn.c s_copysign.c
-
-obj-m := xeno_math.o
-
+obj-m += xeno_math.o
 xeno_math-objs := rtapi/xeno_math/libm.o
-xeno_math-objs +=  $(patsubst %.c, rtapi/xeno_math/%.o, $(LIBMSRCS))
-# define CFLAGS_foo_o = $(M_CFLAGS) for each object
-$(foreach file,$(patsubst %.c,%.o,$(LIBMSRCS)), $(eval CFLAGS_$(file)=$(M_CFLAGS)))
+xeno_math-objs += rtapi/xeno_math/s_floor.o
+xeno_math-objs += rtapi/xeno_math/e_pow.o
+xeno_math-objs += rtapi/xeno_math/w_pow.o
+xeno_math-objs += rtapi/xeno_math/s_fabs.o
+xeno_math-objs += rtapi/xeno_math/e_sqrt.o
+xeno_math-objs += rtapi/xeno_math/w_sqrt.o
+xeno_math-objs += rtapi/xeno_math/s_ceil.o
+xeno_math-objs += rtapi/xeno_math/e_acos.o
+xeno_math-objs += rtapi/xeno_math/w_acos.o
+xeno_math-objs += rtapi/xeno_math/e_asin.o
+xeno_math-objs += rtapi/xeno_math/w_asin.o
+xeno_math-objs += rtapi/xeno_math/s_tan.o
+xeno_math-objs += rtapi/xeno_math/k_tan.o
+xeno_math-objs += rtapi/xeno_math/s_atan.o
+xeno_math-objs += rtapi/xeno_math/w_atan2.o
+xeno_math-objs += rtapi/xeno_math/e_atan2.o
+xeno_math-objs += rtapi/xeno_math/s_sin.o
+xeno_math-objs += rtapi/xeno_math/k_sin.o
+xeno_math-objs += rtapi/xeno_math/s_cos.o
+xeno_math-objs += rtapi/xeno_math/k_cos.o
+xeno_math-objs += rtapi/xeno_math/rndint.o
+xeno_math-objs += rtapi/xeno_math/e_rem_pio2.o
+xeno_math-objs += rtapi/xeno_math/k_rem_pio2.o
+xeno_math-objs += rtapi/xeno_math/s_scalbn.o
+xeno_math-objs += rtapi/xeno_math/k_standard.o
+xeno_math-objs += rtapi/xeno_math/s_cbrt.o
+xeno_math-objs += rtapi/xeno_math/s_copysign.o
+xeno_math-objs += rtapi/xeno_math/s_finite.o
+xeno_math-objs += rtapi/xeno_math/s_rint.o
 
-# EXTRA_CFLAGS += -I$(rtai_srctree)/base/include \
-# 		-I$(src)/../include \
-# 		-I$(src)/../.. \
-# 		-I/usr/include \
-# 		-isystem $(shell $(CC) -print-file-name=include-fixed) \
-# 		$(rtai_extradef) \
-# 		-D_IEEE_LIBM \
-# 		-D_ISOC99_SOURCE \
-# 		-D_SVID_SOURCE \
-# 		$(rtai_extraopt) \
-# 		-D__IN_RTAI__
-
-# WARNING: "fabs" [/home/mah/emc2-dev/src/steptest.ko] undefined!
-# WARNING: "frexp" [/home/mah/emc2-dev/src/rtapi.ko] undefined!
-# WARNING: "floor" [/home/mah/emc2-dev/src/rtapi.ko] undefined!
-# WARNING: "pow" [/home/mah/emc2-dev/src/joyhandle.ko] undefined!
-# WARNING: "pow" [/home/mah/emc2-dev/src/genserkins.ko] undefined!
-# WARNING: "floor" [/home/mah/emc2-dev/src/bldc.ko] undefined!
-
-#$(warning XENO_MATH Submakefile)
-# LIBMSRCS= rtapi/xeno_math/s_floor.c 
-# 	rtapi/xeno_math/w_pow.c 	
-# 	rtapi/xeno_math/s_frexp.c 
-# 	rtapi/xeno_math/s_fabs.c
-
-
-# $(call TOOBJSDEPS, $(LIBMSRCS)): EXTRAFLAGS = -fPIC -I/usr/include \
-# 	-D_IEEE_LIBM \
-# 	-D_ISOC99_SOURCE \
-# 	-D_SVID_SOURCE
-# USERSRCS += $(LIBMSRCS)
-
-# $(warning XENO_MATH $(patsubst %.c, %.o, $(LIBMSRCS)))
-# #$(warning XENO_MATH_OBJS $(call TOOBJS, $(LIBMSRCS)))
-
-# obj-m += xeno_math.o
-
-# xeno_math-objs := rtapi/xeno_math/libm.o
-# xeno_math-objs +=  $(patsubst %.c, %.o, $(LIBMSRCS))
-
-#xeno_math-objs += rtapi/xeno_math/s_floor.o
-#xeno_math-objs += rtapi/xeno_math/w_pow.o
-#xeno_math-objs += rtapi/xeno_math/s_frexp.o
-#xeno_math-objs += rtapi/xeno_math/s_fabs.o
-
-
-# xeno_math-objs += rtapi/xeno_math/e_acos.o
-# xeno_math-objs += rtapi/xeno_math/e_asin.o
-# xeno_math-objs += rtapi/xeno_math/e_atan2.o
-# xeno_math-objs += rtapi/xeno_math/e_cosh.o
-# xeno_math-objs += rtapi/xeno_math/e_exp.o
-# xeno_math-objs += rtapi/xeno_math/e_fmod.o
-# xeno_math-objs += rtapi/xeno_math/e_log.o
-# xeno_math-objs += rtapi/xeno_math/e_log10.o
-# xeno_math-objs += rtapi/xeno_math/e_pow.o
-# xeno_math-objs += rtapi/xeno_math/e_rem_pio2.o
-# xeno_math-objs += rtapi/xeno_math/e_sinh.o
-# xeno_math-objs += rtapi/xeno_math/e_sqrt.o
-# xeno_math-objs += rtapi/xeno_math/k_cos.o
-# xeno_math-objs += rtapi/xeno_math/k_rem_pio2.o
-# xeno_math-objs += rtapi/xeno_math/k_sin.o
-# xeno_math-objs += rtapi/xeno_math/k_tan.o
-# xeno_math-objs += rtapi/xeno_math/s_atan.o
-# xeno_math-objs += rtapi/xeno_math/s_ceil.o
-# xeno_math-objs += rtapi/xeno_math/s_copysign.o
-# xeno_math-objs += rtapi/xeno_math/s_cos.o
-# xeno_math-objs += rtapi/xeno_math/s_expm1.o
-# xeno_math-objs += rtapi/xeno_math/s_modf.o
-# xeno_math-objs += rtapi/xeno_math/s_scalbn.o
-# xeno_math-objs += rtapi/xeno_math/s_sin.o
-# xeno_math-objs += rtapi/xeno_math/s_tan.o
-# xeno_math-objs += rtapi/xeno_math/s_tanh.o
-# xeno_math-objs += rtapi/xeno_math/sign.o
-# xeno_math-objs += rtapi/xeno_math/w_acos.o
-# xeno_math-objs += rtapi/xeno_math/w_asin.o
-# xeno_math-objs += rtapi/xeno_math/w_atan2.o
-# xeno_math-objs += rtapi/xeno_math/w_cosh.o
-# xeno_math-objs += rtapi/xeno_math/w_exp.o
-# xeno_math-objs += rtapi/xeno_math/w_fmod.o
-# xeno_math-objs += rtapi/xeno_math/w_log.o
-# xeno_math-objs += rtapi/xeno_math/w_log10.o
-# xeno_math-objs += rtapi/xeno_math/w_sinh.o
-# xeno_math-objs += rtapi/xeno_math/w_sqrt.o
-
+$(RTLIBDIR)/xeno_math$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(xeno_math-objs))
 
 endif
 
