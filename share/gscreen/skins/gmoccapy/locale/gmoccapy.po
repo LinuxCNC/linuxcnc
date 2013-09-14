@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-08-22 20:24+0200\n"
-"PO-Revision-Date: 2013-08-22 20:48+0100\n"
+"POT-Creation-Date: 2013-09-11 21:00+0200\n"
+"PO-Revision-Date: 2013-09-11 21:05+0100\n"
 "Last-Translator: Norbert Schechner <gmoccapy@web.de>\n"
 "Language-Team: N. Schechner <gmoccapy@web.de>\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: gmoccapy_handler.py:247
+#: gmoccapy_handler.py:101
 #, python-format
 msgid ""
 "gmoccapy can only handle 4 axis,\n"
@@ -27,86 +27,86 @@ msgstr ""
 "gmoccapy kann nur 4 Achsen verwalten,\n"
 "es wurden aber %d in der INI Datei gefunden\n"
 
-#: gmoccapy_handler.py:248
+#: gmoccapy_handler.py:102
 msgid ""
 "gmoccapy will not start\n"
 "\n"
 msgstr "gmoccapy wird nicht starten\n"
 
-#: gmoccapy_handler.py:290
+#: gmoccapy_handler.py:147
 #, python-format
 msgid "Path %s from DISPLAY , PROGRAM_PREFIX does not exist"
 msgstr "Pfad %s aus DISPLAY - PROGRAM_PREFIX existiert nicht"
 
-#: gmoccapy_handler.py:291
+#: gmoccapy_handler.py:148
 msgid "Trying default path..."
 msgstr "Versuche Standardpfad..."
 
-#: gmoccapy_handler.py:294
+#: gmoccapy_handler.py:151
 msgid "Default path to ~/linuxcnc/nc_files does not exist"
 msgstr "Standardpfad nach ~/linuxcnc/nc_files existiert nicht"
 
-#: gmoccapy_handler.py:295
+#: gmoccapy_handler.py:152
 msgid "setting now home as path"
 msgstr "setze home als Pfad"
 
-#: gmoccapy_handler.py:712
+#: gmoccapy_handler.py:569
 msgid "Error with launching 'Onboard' on-screen keyboard program, is onboard installed?"
 msgstr "Fehler beim Aktivieren der virtuellen Bildschirmtastatur, ist das Paket \"Onboard\" installiert? "
 
-#: gmoccapy_handler.py:938
+#: gmoccapy_handler.py:803
 msgid "no more than 9 macros are allowed, only the first 9 will be used"
 msgstr "Mehr wie 9 Makros sind nicht erlaubt, nur die ersten 9 werden berücksichtigt"
 
-#: gmoccapy_handler.py:975
+#: gmoccapy_handler.py:840
 msgid "No subroutine folder or program prefix is given in the ini file \n"
 msgstr "Kein Subroutine Ordner oder Programm Prefix Eintrag in der INI Datei gefunden \n"
 
-#: gmoccapy_handler.py:976
+#: gmoccapy_handler.py:841
 msgid "so the corresponding file could not be found"
 msgstr "die zugehörige Datei konnte nicht gefunden werden"
 
-#: gmoccapy_handler.py:977
-#: gmoccapy_handler.py:985
+#: gmoccapy_handler.py:842
+#: gmoccapy_handler.py:850
 msgid "Important Warning"
 msgstr "Wichtige Warnung"
 
-#: gmoccapy_handler.py:983
+#: gmoccapy_handler.py:848
 #, python-format
 msgid "File %s of the macro could not be found\n"
 msgstr "Datei %s des Makros konnte nicht gefunden werden\n"
 
-#: gmoccapy_handler.py:984
+#: gmoccapy_handler.py:849
 #, python-format
 msgid "we searched in subdirectory %s"
 msgstr "es wurde in Unterordner %s gesucht"
 
-#: gmoccapy_handler.py:991
+#: gmoccapy_handler.py:856
 msgid "Enter value:"
 msgstr "Wert eingeben:"
 
-#: gmoccapy_handler.py:992
+#: gmoccapy_handler.py:857
 #, python-format
 msgid "Set parameter %s to:"
 msgstr "Setze Parameter %s zu:"
 
-#: gmoccapy_handler.py:994
+#: gmoccapy_handler.py:859
 msgid "conversion error"
 msgstr "Umwandlungsfehler"
 
-#: gmoccapy_handler.py:995
+#: gmoccapy_handler.py:860
 #, python-format
 msgid "Conversion error because off wrong entry for macro %s"
 msgstr "Umwandlungsfehler, verursacht durch falsche Eingabe bei Makro %s"
 
-#: gmoccapy_handler.py:997
-#: gmoccapy_handler.py:2155
-#: gmoccapy_handler.py:2178
+#: gmoccapy_handler.py:862
+#: gmoccapy_handler.py:2024
+#: gmoccapy_handler.py:2047
 msgid "Conversion error !"
 msgstr "Umwandlungsfehler !"
 
-#: gmoccapy_handler.py:998
-#: gmoccapy_handler.py:1775
+#: gmoccapy_handler.py:863
+#: gmoccapy_handler.py:1640
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -114,245 +114,245 @@ msgstr ""
 "Bitte nur numerische Werte eingeben\n"
 "Die Werte wurden nicht angewendet."
 
-#: gmoccapy_handler.py:1001
+#: gmoccapy_handler.py:866
 #, python-format
 msgid "entry for macro %s has been canceled"
 msgstr "Eingabe für Makro %s wurde verworfen"
 
-#: gmoccapy_handler.py:1004
+#: gmoccapy_handler.py:869
 msgid "macro {0} , parameter {1} set to {2:f}"
 msgstr "Makro {0} , Parameter {1} gesetzt auf {2:f}"
 
-#: gmoccapy_handler.py:1016
+#: gmoccapy_handler.py:881
 msgid "interrupt running macro"
 msgstr "Makro unterbrechen"
 
-#: gmoccapy_handler.py:1173
+#: gmoccapy_handler.py:1038
 msgid "Hal Pin is low, Access denied"
 msgstr "Hal pin ist nicht aktiv, Zugang verweigert"
 
-#: gmoccapy_handler.py:1175
+#: gmoccapy_handler.py:1040
 msgid "wrong code entered, Access denied"
 msgstr "Falscher Code, Zugang verweigert"
 
-#: gmoccapy_handler.py:1176
+#: gmoccapy_handler.py:1041
 msgid "Just to warn you"
 msgstr "Nur zur Warnung"
 
-#: gmoccapy_handler.py:1184
-#: gmoccapy_handler.py:1189
+#: gmoccapy_handler.py:1049
+#: gmoccapy_handler.py:1054
 msgid "Enter System Unlock Code"
 msgstr "Bitte Endsperrcode eingeben"
 
-#: gmoccapy_handler.py:1363
+#: gmoccapy_handler.py:1228
 msgid "INFO:"
 msgstr "INFO:"
 
-#: gmoccapy_handler.py:1364
+#: gmoccapy_handler.py:1229
 msgid "Classicladder real-time component not detected"
 msgstr "Die Echtzeitkomponente Classicladder wurde nicht gefunden."
 
-#: gmoccapy_handler.py:1365
+#: gmoccapy_handler.py:1230
 msgid "ladder not available - is the real-time component loaded?"
 msgstr "Ladder ist nicht verfügbar, würde die Komponente geladen?"
 
-#: gmoccapy_handler.py:1392
+#: gmoccapy_handler.py:1257
 msgid "Something went wrong, we have an unknown widget"
 msgstr "Irgendwas lief falsch, es wurde ein unbekanntes Widget übergeben"
 
-#: gmoccapy_handler.py:1598
+#: gmoccapy_handler.py:1463
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Wollen Sie wirklich die MDI Historie löschen?\n"
 
-#: gmoccapy_handler.py:1599
+#: gmoccapy_handler.py:1464
 msgid "this will not delete the MDI History file, but will\n"
 msgstr "dies wird nicht die History Datei löschen, sondern \n"
 
-#: gmoccapy_handler.py:1600
+#: gmoccapy_handler.py:1465
 msgid "delete the listbox entries for this session"
 msgstr "nur die Einträge der Listbox werden entfernt."
 
-#: gmoccapy_handler.py:1601
+#: gmoccapy_handler.py:1466
 msgid "Attention!!"
 msgstr "Achtung!!"
 
-#: gmoccapy_handler.py:1606
+#: gmoccapy_handler.py:1471
 msgid "Question"
 msgstr "Frage"
 
-#: gmoccapy_handler.py:1606
+#: gmoccapy_handler.py:1471
 msgid "Please decide:"
 msgstr "Bitte entscheiden Sie:"
 
-#: gmoccapy_handler.py:1644
+#: gmoccapy_handler.py:1509
 msgid "This button will show or hide the keyboard"
 msgstr "Dieser Knopf wird das Keyboard anzeigen oder verbergen"
 
-#: gmoccapy_handler.py:1756
+#: gmoccapy_handler.py:1621
 #, python-format
 msgid "Offset %s could not be set, because off unknown axis"
 msgstr "Offset %s konnte nicht gesetzt werden, da die gewählte Achse unbekannt ist."
 
-#: gmoccapy_handler.py:1760
+#: gmoccapy_handler.py:1625
 #, python-format
 msgid "Enter value for axis %s"
 msgstr "Bitte Wert für Achse %s eingeben"
 
-#: gmoccapy_handler.py:1761
+#: gmoccapy_handler.py:1626
 #, python-format
 msgid "Set axis %s to:"
 msgstr "Setze Achse %s zu:"
 
-#: gmoccapy_handler.py:1765
+#: gmoccapy_handler.py:1630
 msgid "offset {0} set to {1:f}"
 msgstr "Offset {0} wurde auf {1:f} gesetzt"
 
-#: gmoccapy_handler.py:1772
+#: gmoccapy_handler.py:1637
 msgid "Conversion error in btn_set_value"
 msgstr "Umwandlungsfehler in btn_set_value"
 
-#: gmoccapy_handler.py:1773
+#: gmoccapy_handler.py:1638
 msgid "Offset conversion error because off wrong entry"
 msgstr "Offset Umwandlungsfehler auf Grund einer falschen Eingabe"
 
-#: gmoccapy_handler.py:1774
+#: gmoccapy_handler.py:1639
 msgid "Conversion error in btn_set_value!"
 msgstr "Umwandlungsfehler in btn_set_value"
 
-#: gmoccapy_handler.py:1781
+#: gmoccapy_handler.py:1646
 msgid "you did not selected a system to be changed to, so nothing will be changed"
 msgstr "Sie haben kein zu setzendes Koordinatensystem gewählt, es wird nichts gewechselt."
 
-#: gmoccapy_handler.py:1782
-#: gmoccapy_handler.py:2186
-#: gmoccapy_handler.py:2200
-#: gmoccapy_handler.py:2205
-#: gmoccapy_handler.py:2222
+#: gmoccapy_handler.py:1647
+#: gmoccapy_handler.py:2055
+#: gmoccapy_handler.py:2069
+#: gmoccapy_handler.py:2074
+#: gmoccapy_handler.py:2091
 msgid "Important Warning!"
 msgstr "Wichtige Warnung!"
 
-#: gmoccapy_handler.py:1791
+#: gmoccapy_handler.py:1657
 msgid "Enter value"
 msgstr "Wert eingeben:"
 
-#: gmoccapy_handler.py:1791
+#: gmoccapy_handler.py:1657
 msgid "Enter the value to set"
 msgstr "Bitte den zu setzenden Wert angeben:"
 
-#: gmoccapy_handler.py:2100
-#: gmoccapy.glade.h:78
+#: gmoccapy_handler.py:1969
+#: gmoccapy.glade.h:77
 msgid "No tool description available"
 msgstr "Keine Werkzeugbeschreibung verfügbar"
 
-#: gmoccapy_handler.py:2136
+#: gmoccapy_handler.py:2005
 msgid "Real big error!"
 msgstr "Echt großer Fehler !"
 
-#: gmoccapy_handler.py:2137
+#: gmoccapy_handler.py:2006
 msgid "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr "Sie haben es geschafft einen Bereich zu erreichen, der nicht erreichbar ist in on_btn_tool_touchoff"
 
-#: gmoccapy_handler.py:2141
+#: gmoccapy_handler.py:2010
 msgid "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr "Werkzeug antasten ist eingeschalteter Werkzeugradienkompensation nicht möglich.\n"
 
-#: gmoccapy_handler.py:2142
+#: gmoccapy_handler.py:2011
 msgid "Please emit an G40 before tool touch off"
 msgstr "Bitte G40 vor dem Antasten setzen "
 
-#: gmoccapy_handler.py:2145
+#: gmoccapy_handler.py:2014
 msgid "Warning Tool Touch off not possible!"
 msgstr "Warnung: Werkzeug Antastung nicht möglich"
 
-#: gmoccapy_handler.py:2148
+#: gmoccapy_handler.py:2017
 #, python-format
 msgid "Enter value for axis %s to set:"
 msgstr "Bitte den für die %s Achse zu setzenden Wert eingeben"
 
-#: gmoccapy_handler.py:2149
+#: gmoccapy_handler.py:2018
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "Setze Parameter von Werkzeug {0:d} und Achse {1} auf:"
 
-#: gmoccapy_handler.py:2152
+#: gmoccapy_handler.py:2021
 #, python-format
 msgid "Conversion error because of wrong entry for touch off axis %s"
 msgstr "Umwandlungsfehler auf Grund einer falschen Eingabe bei Werkzeugantastung für Achse %s"
 
-#: gmoccapy_handler.py:2158
+#: gmoccapy_handler.py:2027
 #, python-format
 msgid "entry for axis %s has been canceled"
 msgstr "Die Eingabe für die Achse %s wurde verworfen"
 
-#: gmoccapy_handler.py:2161
+#: gmoccapy_handler.py:2030
 msgid "axis {0} , has been set to {1:f}"
 msgstr "Achse {0} wurde auf den Wert {1:f} gesetzt"
 
-#: gmoccapy_handler.py:2171
+#: gmoccapy_handler.py:2040
 msgid "Enter the tool number as integer "
 msgstr "Bitte die Werkzeugnummer eingeben"
 
-#: gmoccapy_handler.py:2172
+#: gmoccapy_handler.py:2041
 msgid "Select the tool to change"
 msgstr "Wähle das einzuwechselnde Werkzeug"
 
-#: gmoccapy_handler.py:2174
+#: gmoccapy_handler.py:2043
 msgid "Conversion error because of wrong entry for tool number\n"
 msgstr "Umwandlungsfehler, verursacht durch falsche Eingabe bei der Werkzeugnummer\n"
 
-#: gmoccapy_handler.py:2175
+#: gmoccapy_handler.py:2044
 msgid "enter only integer nummbers"
 msgstr "Bitte nur Ganzzahlen eingeben"
 
-#: gmoccapy_handler.py:2181
+#: gmoccapy_handler.py:2050
 msgid "entry for selection of tool number has been canceled"
 msgstr "Eingabe der Werkzeugnummer wurde verworfen"
 
-#: gmoccapy_handler.py:2185
-#: gmoccapy_handler.py:2204
+#: gmoccapy_handler.py:2054
+#: gmoccapy_handler.py:2073
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "Das ausgewählte Werkzeug ist schon in der Spindel, ein Wechsel ist nicht erforderlich."
 
-#: gmoccapy_handler.py:2199
+#: gmoccapy_handler.py:2068
 msgid "you selected no or more than one tool, the tool selection must be unique"
 msgstr "Sie haben mehr als ein Werkzeug ausgewählt, um ein Werkzeug einzuwechseln muss die Auswahl eindeutig sein."
 
-#: gmoccapy_handler.py:2221
+#: gmoccapy_handler.py:2090
 msgid "Could not understand the entered tool number. Will not change anything"
 msgstr "Die eingegebene Werkzeugnummer wurde nicht verstanden. Es wird nichts geändert!"
 
-#: gmoccapy_handler.py:2323
+#: gmoccapy_handler.py:2192
 #, python-format
 msgid "error trying opening file %s"
 msgstr "Fehler beim Versuch die Datei %s zu öffnen"
 
-#: gmoccapy_handler.py:2456
+#: gmoccapy_handler.py:2325
 #, python-format
 msgid "Axes %s are homed"
 msgstr "Achse %s ist referenziert"
 
-#: gmoccapy_handler.py:2526
+#: gmoccapy_handler.py:2395
 #, python-format
 msgid "tool_in_spindle has changed to %s"
 msgstr "Werkzeug in der Spindel wurde zu %s gewechselt"
 
-#: gmoccapy_handler.py:2625
+#: gmoccapy_handler.py:2494
 msgid "Select the file you want to be loaded at program start"
 msgstr "Bitte die Datei auswählen, die zum Start geladen werden soll."
 
-#: gmoccapy_handler.py:2854
-#: gmoccapy_handler.py:2856
+#: gmoccapy_handler.py:2729
+#: gmoccapy_handler.py:2731
 msgid "Continuous"
 msgstr "Durchgehend"
 
-#: gmoccapy_handler.py:2857
+#: gmoccapy_handler.py:2732
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr "Keine Jog Schrittweiten im Abschnitt [DISPLAY] der INI Datei gefunden"
 
-#: gmoccapy_handler.py:2860
+#: gmoccapy_handler.py:2735
 msgid "To many increments given in INI File for this screen"
 msgstr "Es wurden zu viele Jog Incremente in der INI Datei angegeben"
 
-#: gmoccapy_handler.py:2861
+#: gmoccapy_handler.py:2736
 msgid "Only the first 10 will be reachable through this screen"
 msgstr "Nur die ersten 10 werden berücksichtigt."
 
@@ -461,63 +461,65 @@ msgid "<b>Run from line</b>"
 msgstr "<b>Start ab Zeile</b>"
 
 #: gmoccapy.glade.h:28
+msgid "<b>Select jump to dir</b>"
+msgstr "<b>Wähle Sprung Verz.</b>"
+
+#: gmoccapy.glade.h:29
 msgid "<b>Spindle [rpm]</b>"
 msgstr "<b>Spindel [U/min]</b>"
 
-#: gmoccapy.glade.h:29
+#: gmoccapy.glade.h:30
 msgid "<b>Spindle</b>"
 msgstr "<b>Spindel</b>"
 
-#: gmoccapy.glade.h:30
+#: gmoccapy.glade.h:31
 msgid "<b>Themes and sound</b>"
 msgstr "<b>Themen und Geräusche</b>"
 
-#: gmoccapy.glade.h:31
+#: gmoccapy.glade.h:32
 msgid "<b>Tool information</b>"
 msgstr "<b>Werkzeug Info</b>"
 
-#: gmoccapy.glade.h:32
+#: gmoccapy.glade.h:33
 msgid "<b>Unlock settings</b>"
 msgstr "<b>Einstellungen entsperren</b>"
 
-#: gmoccapy.glade.h:33
+#: gmoccapy.glade.h:34
 msgid "Absolute Text Color"
 msgstr "Abs. Textfarbe"
 
-#: gmoccapy.glade.h:34
+#: gmoccapy.glade.h:35
+#: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:1
 msgid "Add"
 msgstr "Neu"
 
-#: gmoccapy.glade.h:35
+#: gmoccapy.glade.h:36
 msgid "Alarm History"
 msgstr "Alarm Hinweise"
 
-#: gmoccapy.glade.h:36
+#: gmoccapy.glade.h:37
 msgid "Alert Audio"
 msgstr "Alarmhinweis"
 
-#: gmoccapy.glade.h:37
+#: gmoccapy.glade.h:38
+#: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:2
 msgid "Apply"
 msgstr "Anwenden"
 
-#: gmoccapy.glade.h:38
+#: gmoccapy.glade.h:39
 msgid "Calibration"
 msgstr "Kalibrierung"
 
-#: gmoccapy.glade.h:39
+#: gmoccapy.glade.h:40
 msgid "Cl.-ladder"
 msgstr "Cl.-ladder"
-
-#: gmoccapy.glade.h:40
-msgid "Close gmoccapy"
-msgstr "Beende gmoccapy"
 
 #: gmoccapy.glade.h:41
 msgid "Close moccapy / leave the program"
 msgstr "Beende gmoccapy / verlasse das Programm"
 
 #: gmoccapy.glade.h:42
-#: ../../../lib/python/gladevcp/iconview.py:175
+#: ../../../../lib/python/gladevcp/iconview.py:175
 msgid "Close without returning a file path"
 msgstr "Verlasse die Auswahl ohne eine Auswahl zurück zu geben"
 
@@ -534,6 +536,7 @@ msgid "Debug"
 msgstr "Terminal"
 
 #: gmoccapy.glade.h:46
+#: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:3
 msgid "Delete"
 msgstr "Löschen"
 
@@ -626,7 +629,7 @@ msgid "Jog. Vel."
 msgstr "Jog. Geschw."
 
 #: gmoccapy.glade.h:69
-#: ../../../lib/python/gladevcp/iconview.py:159
+#: ../../../../lib/python/gladevcp/iconview.py:159
 msgid "Jump to user defined directory"
 msgstr "Springe ins benutzerdefinierte Verzeichnis"
 
@@ -639,92 +642,93 @@ msgid "Log actions"
 msgstr "Logge Aktionen"
 
 #: gmoccapy.glade.h:72
-msgid "Log all actions in the alarm history"
-msgstr "Schreibe Aktionen in Alarm Hinweis Fenster mit"
-
-#: gmoccapy.glade.h:73
 msgid "Machine or not the optional blocks of the program. If the button is pressed, the optional blocks will not be machined. The button will indicate this by a yellow background."
 msgstr "Sollen die optionale Blöcke ausgeführt werden oder nicht? Ein gedrückter Knopf bedeutet die optionalen Blöcke werden nicht ausgeführt. Der Knopf hat dann einen farbigen Hintergrund."
 
-#: gmoccapy.glade.h:74
+#: gmoccapy.glade.h:73
 msgid "Main"
 msgstr "Main"
 
-#: gmoccapy.glade.h:75
-#: ../../../lib/python/gladevcp/iconview.py:119
+#: gmoccapy.glade.h:74
+#: ../../../../lib/python/gladevcp/iconview.py:119
 msgid "Move to parrent directory"
 msgstr "Gehe eine Verzeichnisebene nach oben"
 
-#: gmoccapy.glade.h:76
-#: ../../../lib/python/gladevcp/iconview.py:111
+#: gmoccapy.glade.h:75
+#: ../../../../lib/python/gladevcp/iconview.py:111
 msgid "Move to your home directory"
 msgstr "Springe ins Home Verzeichnis"
 
-#: gmoccapy.glade.h:77
+#: gmoccapy.glade.h:76
 msgid "No Program loaded"
 msgstr "Kein Programm geladen"
 
-#: gmoccapy.glade.h:79
+#: gmoccapy.glade.h:78
 msgid "Offset Page"
 msgstr "Offset Seite"
 
-#: gmoccapy.glade.h:80
+#: gmoccapy.glade.h:79
 msgid "Open classicladder"
 msgstr "Öffne Classicladder"
 
-#: gmoccapy.glade.h:81
+#: gmoccapy.glade.h:80
 msgid "Open the tooleditor page"
 msgstr "Öffne die Werkzeugverwaltung"
 
-#: gmoccapy.glade.h:82
+#: gmoccapy.glade.h:81
 msgid "Pause a running program"
 msgstr "Programm pausieren"
 
-#: gmoccapy.glade.h:83
+#: gmoccapy.glade.h:82
 msgid "Preview"
 msgstr "Vorschau"
 
-#: gmoccapy.glade.h:84
+#: gmoccapy.glade.h:83
 msgid "Rel."
 msgstr "Rel."
 
-#: gmoccapy.glade.h:85
+#: gmoccapy.glade.h:84
 msgid "Relative Text Color"
 msgstr "Relative Textfarbe"
 
-#: gmoccapy.glade.h:86
+#: gmoccapy.glade.h:85
+#: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:4
 msgid "Reload"
 msgstr "Neu laden"
 
-#: gmoccapy.glade.h:87
+#: gmoccapy.glade.h:86
 msgid "Scale feed override"
 msgstr "Faktor Vorschubübersteuerung"
 
-#: gmoccapy.glade.h:88
+#: gmoccapy.glade.h:87
 msgid "Scale jog velocity"
 msgstr "Schrittweitengeschw."
 
-#: gmoccapy.glade.h:89
+#: gmoccapy.glade.h:88
 msgid "Scale max velocity"
 msgstr "Maximale Geschwindigkeit"
 
-#: gmoccapy.glade.h:90
+#: gmoccapy.glade.h:89
 msgid "Scale spindle override"
 msgstr "Faktor Spindelübersteuerung"
 
-#: gmoccapy.glade.h:91
+#: gmoccapy.glade.h:90
 msgid "Select the file you want to be loaded on start of gmoccapy"
 msgstr "Bitte die Datei auswählen, die zum Start geladen werden soll."
 
-#: gmoccapy.glade.h:92
-#: ../../../lib/python/gladevcp/iconview.py:135
+#: gmoccapy.glade.h:91
+#: ../../../../lib/python/gladevcp/iconview.py:135
 msgid "Select the next file"
 msgstr "Wähle die nächste Datei"
 
-#: gmoccapy.glade.h:93
-#: ../../../lib/python/gladevcp/iconview.py:127
+#: gmoccapy.glade.h:92
+#: ../../../../lib/python/gladevcp/iconview.py:127
 msgid "Select the previos file"
 msgstr "Wähle die vorige Datei"
+
+#: gmoccapy.glade.h:93
+msgid "Select user dir"
+msgstr "Wähle Nutzer Verz."
 
 #: gmoccapy.glade.h:94
 msgid "Settings"
@@ -1135,83 +1139,87 @@ msgid "select jog distance"
 msgstr "Schrittweite anwählen"
 
 #: gmoccapy.glade.h:198
-#: ../../../lib/python/gladevcp/iconview.py:167
+#: ../../../../lib/python/gladevcp/iconview.py:167
 msgid "select the highlighted file and return the path"
 msgstr "Wähle die markierte Datei und übergebe die Auswahl"
 
 #: gmoccapy.glade.h:199
+msgid "select the jump to dir for file open dialog"
+msgstr "Wählen Sie das \"Springe nach\" Verzeichnis für den Dateiauswahldialog "
+
+#: gmoccapy.glade.h:200
 msgid "select virtual keyboard behavior"
 msgstr "Das Verhalten der virtuellen Tastatur einstellen"
 
-#: gmoccapy.glade.h:200
+#: gmoccapy.glade.h:201
 msgid "show offsets"
 msgstr "Zeige Offsets"
 
-#: gmoccapy.glade.h:201
+#: gmoccapy.glade.h:202
 msgid "show preview"
 msgstr "Zeige Vorschau"
 
-#: gmoccapy.glade.h:202
+#: gmoccapy.glade.h:203
 msgid "show user tabs"
 msgstr "zeige Nutzer Tabs"
 
-#: gmoccapy.glade.h:203
+#: gmoccapy.glade.h:204
 msgid "shows the source of the loaded program"
 msgstr "Zeigt den Quellcode des geladenen Programmes"
 
-#: gmoccapy.glade.h:204
+#: gmoccapy.glade.h:205
 msgid "spindle relevant settings"
 msgstr "Spindel Einstellungen"
 
-#: gmoccapy.glade.h:205
+#: gmoccapy.glade.h:206
 msgid "stop spindle"
 msgstr "Stoppe die Spindel"
 
-#: gmoccapy.glade.h:206
+#: gmoccapy.glade.h:207
 msgid "stop the running program"
 msgstr "Laufendes Programm stoppen"
 
-#: gmoccapy.glade.h:207
+#: gmoccapy.glade.h:208
 msgid "switch flood coolant"
 msgstr "Kühlung ein- ausschalten"
 
-#: gmoccapy.glade.h:208
+#: gmoccapy.glade.h:209
 msgid "switch mist coolant"
 msgstr "Sprühkühlung ein- ausschalten"
 
-#: gmoccapy.glade.h:209
+#: gmoccapy.glade.h:210
 msgid "themes and sounds to be used"
 msgstr "zu verwendende Themen und Geräusche"
 
-#: gmoccapy.glade.h:210
+#: gmoccapy.glade.h:211
 msgid "touch off the tool and set the value to the tool table"
 msgstr "Mit dem Werkzeug antasten und diese kompensieren"
 
-#: gmoccapy.glade.h:211
+#: gmoccapy.glade.h:212
 msgid "touch off x / set x to 0"
 msgstr "X Antasten, setze X zu 0"
 
-#: gmoccapy.glade.h:212
+#: gmoccapy.glade.h:213
 msgid "touch off x / set x to an desired value"
 msgstr "X Antasten, setze X zu Wert"
 
-#: gmoccapy.glade.h:213
+#: gmoccapy.glade.h:214
 msgid "touch off y / set y to 0"
 msgstr "Y Antasten, setze Y zu 0"
 
-#: gmoccapy.glade.h:214
+#: gmoccapy.glade.h:215
 msgid "touch off y / set y to an desired value"
 msgstr "Y Antasten, setze Y zu Wert"
 
-#: gmoccapy.glade.h:215
+#: gmoccapy.glade.h:216
 msgid "touch off z / set to 0"
 msgstr "Z Antasten, setze Z zu 0"
 
-#: gmoccapy.glade.h:216
+#: gmoccapy.glade.h:217
 msgid "touch off z / set z to an desired value"
 msgstr "In Z Antasten, setze Z zu Wert"
 
-#: gmoccapy.glade.h:217
+#: gmoccapy.glade.h:218
 msgid ""
 "touchoff\n"
 "  tool x"
@@ -1219,7 +1227,7 @@ msgstr ""
 "Werkzeug\n"
 "antasten X"
 
-#: gmoccapy.glade.h:219
+#: gmoccapy.glade.h:220
 msgid ""
 "touchoff\n"
 "  tool z"
@@ -1227,39 +1235,39 @@ msgstr ""
 "Werkzeug\n"
 "antasten Z"
 
-#: gmoccapy.glade.h:221
+#: gmoccapy.glade.h:222
 msgid "turn on spindle clockwise"
 msgstr "Spindel im Uhrzeigersinn anschalten"
 
-#: gmoccapy.glade.h:222
+#: gmoccapy.glade.h:223
 msgid "turn on spindle counterclockwise"
 msgstr "Spindel im Gegenuhrzeigersinn anschalten"
 
-#: gmoccapy.glade.h:223
+#: gmoccapy.glade.h:224
 msgid "undo"
 msgstr "Rückgängig"
 
-#: gmoccapy.glade.h:224
+#: gmoccapy.glade.h:225
 msgid "view along the x axis from positive to negative"
 msgstr "Sicht entlang der X Achse von positiv nach negativ"
 
-#: gmoccapy.glade.h:225
+#: gmoccapy.glade.h:226
 msgid "view along the y axis from positive to negative"
 msgstr "Sicht entlang der Y Achse von positiv nach negativ"
 
-#: gmoccapy.glade.h:226
+#: gmoccapy.glade.h:227
 msgid "view along the y axis from positive to negative as viewn for a back tool lathe"
 msgstr "Sicht entlang der Y Achse von positiv nach negativ gesehen wie bei einer Rückwerzeug-Drehmaschine"
 
-#: gmoccapy.glade.h:227
+#: gmoccapy.glade.h:228
 msgid "view along the z axis from positive to negative"
 msgstr "Sicht entlang der Z Achse von positiv nach negativ"
 
-#: gmoccapy.glade.h:228
+#: gmoccapy.glade.h:229
 msgid "view perspective"
 msgstr "Perspektivische Ansicht"
 
-#: gmoccapy.glade.h:229
+#: gmoccapy.glade.h:230
 msgid ""
 "zero\n"
 "G92"
@@ -1267,6 +1275,134 @@ msgstr ""
 "Nulle\n"
 "G92"
 
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:1
+msgid ""
+"    Zero\n"
+"Rotational"
+msgstr ""
+"    Nulle\n"
+"Verdrehung"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:3
+msgid "0"
+msgstr "1"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:4
+msgid "1"
+msgstr "2"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:5
+msgid "2"
+msgstr "2"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:6
+msgid "3"
+msgstr "3"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:7
+msgid "4"
+msgstr "4"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:8
+msgid "5"
+msgstr "5"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:9
+msgid "6"
+msgstr "6"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:10
+msgid "7"
+msgstr "7"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:11
+msgid "8"
+msgstr "8"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:12
+msgid "9"
+msgstr "9"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:13
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:14
+msgid "G54"
+msgstr "G54"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:15
+msgid "G55"
+msgstr "G55"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:16
+msgid "G56"
+msgstr "G56"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:17
+msgid "G57"
+msgstr "G57"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:18
+msgid "G58"
+msgstr "G58"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:19
+msgid "G59"
+msgstr "G59"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:20
+msgid "G59.1"
+msgstr "G59.1"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:21
+msgid "G59.2"
+msgstr "G59.2"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:22
+msgid "G59.3"
+msgstr "G59.3"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:23
+msgid "G5x"
+msgstr "G5x"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:24
+msgid "G92"
+msgstr "G92"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:25
+msgid "Rot"
+msgstr "Ror"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:26
+msgid "Rotation of Z"
+msgstr "Drehung um Z"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:27
+msgid "Tool"
+msgstr "Werkzeug"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:28
+msgid ""
+"Zero\n"
+"G92"
+msgstr ""
+"Nulle\n"
+"G92"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:30
+msgid "black"
+msgstr "schwarz"
+
+#: ../../../../lib/python/gladevcp/offsetpage.glade.h:31
+msgid "white"
+msgstr "weiß"
+
+#~ msgid "Close gmoccapy"
+#~ msgstr "Beende gmoccapy"
+#~ msgid "Log all actions in the alarm history"
+#~ msgstr "Schreibe Aktionen in Alarm Hinweis Fenster mit"
 #~ msgid "unknown axis clicked"
 #~ msgstr "Unbekannte Achse geklickt"
 #~ msgid "unknow axis clicked"
@@ -1291,8 +1427,6 @@ msgstr ""
 #~ "Es wird derzeit nach einer Lösung gesucht"
 #~ msgid "Very important Warning"
 #~ msgstr "Sehr wichtige Warnung"
-#~ msgid "M2"
-#~ msgstr "M2"
 #~ msgid "home Y axis"
 #~ msgstr "Refernziere die Y Achse"
 #~ msgid "home Z axis"
@@ -1373,6 +1507,4 @@ msgstr ""
 #~ msgstr "Editierknöpfe"
 #~ msgid "setup button list"
 #~ msgstr "Setup Knopfleiste"
-#~ msgid "tool"
-#~ msgstr "Werkzeug"
 
