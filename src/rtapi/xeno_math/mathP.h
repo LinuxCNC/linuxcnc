@@ -17,8 +17,52 @@
 #ifndef _MATH_PRIVATE_H_
 #define _MATH_PRIVATE_H_
 
-#include <endian.h>
-#include <sys/types.h>
+#include <linux/types.h>
+#include <asm/byteorder.h>
+
+#define __P(args) args
+
+/* Support for various different standard error handling behaviors.  */
+typedef enum
+{
+  _IEEE_ = -1,  /* According to IEEE 754/IEEE 854.  */
+  _SVID_,       /* According to System V, release 4.  */
+  _XOPEN_,      /* Nowadays also Unix98.  */
+  _POSIX_,
+  _ISOC_        /* Actually this is ISO C99.  */
+} _LIB_VERSION_TYPE;
+
+/* Types of exceptions in the `type' field.  */
+# define DOMAIN		1
+# define SING		2
+# define OVERFLOW	3
+# define UNDERFLOW	4
+# define TLOSS		5
+# define PLOSS		6
+/* SVID mode specifies returning this large value instead of infinity.  */
+# define HUGE		3.40282347e+38F
+
+// fake SVID exception structure - see k_standard.c
+struct exception  {
+    int type;
+    char *name;
+    double arg1;
+    double arg2;
+    double retval;
+  };
+#define matherr(arg) (0)
+
+/* This variable can be changed at run-time to any of the values above to
+   affect floating point error handling behavior (it may also be necessary
+   to change the hardware FPU exception settings).  */
+extern _LIB_VERSION_TYPE _LIB_VERSION;
+
+extern double scalbn (double x, int n);
+extern int finite(double x);
+extern double copysign(double x, double y);
+extern double __kernel_standard(double x, double y, int type);
+extern double rint(double x);
+extern double cbrt(double x);
 
 /* The original fdlibm code used statements like:
 	n0 = ((*(int*)&one)>>29)^1;		* index of high word *
@@ -39,7 +83,7 @@
  * big endian.
  */
 
-#if (__BYTE_ORDER == __BIG_ENDIAN) || defined(__arm__)
+#if defined( __BIG_ENDIAN) || defined(__arm__)
 
 typedef union 
 {
@@ -53,7 +97,7 @@ typedef union
 
 #endif
 
-#if (__BYTE_ORDER == __LITTLE_ENDIAN) && !defined(__arm__)
+#if defined(__LITTLE_ENDIAN) && !defined(__arm__)
 
 typedef union 
 {

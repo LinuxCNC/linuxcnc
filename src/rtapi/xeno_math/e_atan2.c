@@ -41,7 +41,7 @@ static char rcsid[] = "$NetBSD: e_atan2.c,v 1.8 1995/05/10 20:44:51 jtc Exp $";
  * to produce the hexadecimal values shown.
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

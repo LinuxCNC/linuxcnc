@@ -16,7 +16,7 @@
  * wrapper pow(x,y) return x**y
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 

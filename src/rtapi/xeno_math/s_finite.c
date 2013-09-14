@@ -19,7 +19,7 @@ static char rcsid[] = "$NetBSD: s_finite.c,v 1.8 1995/05/10 20:47:17 jtc Exp $";
  * no branching!
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

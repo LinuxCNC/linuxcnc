@@ -49,7 +49,7 @@ static char rcsid[] = "$NetBSD: k_cos.c,v 1.8 1995/05/10 20:46:22 jtc Exp $";
  *	   thus, reducing the rounding error in the subtraction.
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

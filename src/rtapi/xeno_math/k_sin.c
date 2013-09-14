@@ -42,7 +42,7 @@ static char rcsid[] = "$NetBSD: k_sin.c,v 1.8 1995/05/10 20:46:31 jtc Exp $";
  *		sin(x) = x + (S1*x + (x *(r-y/2)+y))
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

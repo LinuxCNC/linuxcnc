@@ -130,7 +130,7 @@ static char rcsid[] = "$NetBSD: k_rem_pio2.c,v 1.7 1995/05/10 20:46:25 jtc Exp $
  * to produce the hexadecimal values shown.
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

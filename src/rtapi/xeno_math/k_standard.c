@@ -14,7 +14,7 @@
 static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $";
 #endif
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 #include <linux/errno.h>		/* FIXME */
 
@@ -92,7 +92,7 @@ static double zero = 0.0;	/* used as const */
 
 	SET_HIGH_WORD(inf,0x7ff00000);	/* set inf to infinite */
 #endif
-
+	exc.retval = 0;
 	exc.arg1 = x;
 	exc.arg2 = y;
 	switch(type) {

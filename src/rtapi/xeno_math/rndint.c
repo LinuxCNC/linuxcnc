@@ -44,8 +44,9 @@
 **                        
 *******************************************************************************/
 
-#include <limits.h>
-#include <math.h>
+#include <linux/kernel.h> // LONG_MAX, LONG_MIN
+#include <rtapi_math.h>
+extern double copysign(double x, double y);
 
 #if !defined(__ppc__)
 #define asm(x)
