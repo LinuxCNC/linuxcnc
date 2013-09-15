@@ -44,7 +44,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.7.2"
+_RELEASE = "0.9.7.3"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -330,6 +330,12 @@ class HandlerClass:
         self.widgets.chk_show_dtg.set_active(self.gscreen.prefs.getpref("show_dtg", False))
         self.widgets.chk_show_offsets.set_sensitive(self.widgets.chk_show_dro.get_active())
         self.widgets.chk_show_dtg.set_sensitive(self.widgets.chk_show_dro.get_active())
+        self.widgets.tbtn_view_tool_path.set_active(self.gscreen.prefs.getpref("view_tool_path",True))
+        self.widgets.tbtn_view_dimension.set_active(self.gscreen.prefs.getpref("view_dimension",True))
+        print(self.gscreen.prefs.getpref("gremlin_view","rbt_view_p",str))
+        view = self.gscreen.prefs.getpref("gremlin_view","rbt_view_p",str)
+        self.widgets[view].set_active(True)
+
         if "ntb_preview" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property("show-tabs", True)
 #            page_offset = self.widgets.ntb_preview.get_nth_page(1)
@@ -2096,26 +2102,31 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("rbt_view_p_toggled")
         if self.widgets.rbt_view_p.get_active():
             self.widgets.gremlin.set_property("view","p")
+        self.gscreen.prefs.putpref("gremlin_view", "rbt_view_p", str)
 
     def on_rbt_view_x_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_view_x_toggled")
         if self.widgets.rbt_view_x.get_active():
             self.widgets.gremlin.set_property("view","x")
+        self.gscreen.prefs.putpref("gremlin_view", "rbt_view_x", str)
 
     def on_rbt_view_y_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_view_y_toggled")
         if self.widgets.rbt_view_y.get_active():
             self.widgets.gremlin.set_property("view","y")
+        self.gscreen.prefs.putpref("gremlin_view", "rbt_view_y", str)
 
     def on_rbt_view_z_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_view_z_toggled")
         if self.widgets.rbt_view_z.get_active():
             self.widgets.gremlin.set_property("view","z")
+        self.gscreen.prefs.putpref("gremlin_view", "rbt_view_z", str)
 
     def on_rbt_view_y2_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_view_y2_toggled")
         if self.widgets.rbt_view_y2.get_active():
             self.widgets.gremlin.set_property("view","y2")
+        self.gscreen.prefs.putpref("gremlin_view", "rbt_view_y2", str)
 
     def on_btn_zoom_in_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zoom_in_clicked")
@@ -2132,10 +2143,12 @@ class HandlerClass:
     def on_tbtn_view_dimension_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_view_dimensions_clicked")
         self.widgets.gremlin.set_property("show_extents_option", widget.get_active())
+        self.gscreen.prefs.putpref("view_dimension", self.widgets.tbtn_view_dimension.get_active(), bool)
 
     def on_tbtn_view_tool_path_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_view_tool_path_clicked")
         self.widgets.gremlin.set_property("show_live_plot", widget.get_active())
+        self.gscreen.prefs.putpref("view_tool_path", self.widgets.tbtn_view_tool_path.get_active(), bool)
 
     def _show_iconview_tab(self,state):
         page = self.widgets.ntb_preview.get_nth_page(3)

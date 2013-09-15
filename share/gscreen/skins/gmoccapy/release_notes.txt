@@ -1,3 +1,10 @@
+ver 0.9.7.3
+- the buttons tbtn_view_dimension and tbtn_view_tool_path of the gremlin view
+  was in an undefined state after the start of gmoccapy. Now the state will be 
+  set according to the state when leaving the GUI, default is show both
+- the state view of gremlinwas by default "p" no the state on leaving the gui 
+  will be restored after restarting the GUI
+
 ver 0.9.7.2
 - check for NO_FORCE_HOMING included
 
