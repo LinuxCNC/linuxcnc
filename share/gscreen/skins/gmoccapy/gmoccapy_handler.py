@@ -990,7 +990,7 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(widgetlist,state)
 
     # The mode buttons
-    def on_rbt_manual_clicked(self, widget, data=None):
+    def on_rbt_manual_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_manual_clicked")
         self.emc.set_manual_mode()
         self.widgets.ntb_main.set_current_page(0)
@@ -998,7 +998,7 @@ class HandlerClass:
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
 
-    def on_rbt_mdi_clicked(self, widget, data=None):
+    def on_rbt_mdi_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_mdi_clicked")
         self.emc.set_mdi_mode()
         if self.widgets.chk_use_kb_on_mdi.get_active():
@@ -1010,7 +1010,7 @@ class HandlerClass:
         self.widgets.ntb_jog.set_current_page(1)
         self.widgets.hal_mdihistory.entry.grab_focus()
 
-    def on_rbt_auto_clicked(self, widget, data=None):
+    def on_rbt_auto_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_auto_clicked")
         self.emc.set_auto_mode()
         self.widgets.ntb_main.set_current_page(0)
@@ -1018,7 +1018,9 @@ class HandlerClass:
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(2)
 
-    def on_rbt_setup_clicked(self, widget, data=None):
+    def on_rbt_setup_pressed(self, widget, data=None):
+        if self.widgets.ntb_main.get_current_page() == 1:
+            return
         if self.log: self.gscreen.add_alarm_entry("rbt_setup_clicked")
         code = False
         # here the user don"t want an unlock code
@@ -1047,7 +1049,8 @@ class HandlerClass:
             self.gscreen.warning_dialog(_("Just to warn you"), True, message)
             self.gscreen.add_alarm_entry( message)
             self.widgets.statusbar1.push(1, message)
-            self.widgets.rbt_manual.emit("clicked")
+            self.widgets.rbt_manual.emit("pressed")
+            self.widgets.rbt_manual.set_active(True)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -2039,7 +2042,8 @@ class HandlerClass:
         # will set the label, but the tool do not need to be in the spindle,
         # so information may be no homogeniuos
         #self._update_toolinfo(self._get_selected_tool())
-        self.widgets.rbt_manual.emit("clicked")
+        self.widgets.rbt_manual.emit("pressed")
+        self.widgets.rbt_manual.set_active(True)
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
@@ -2367,7 +2371,8 @@ class HandlerClass:
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
         if self.wait_tool_change == True:
-            self.widgets.rbt_manual.emit("clicked")
+            self.widgets.rbt_manual.emit("pressed")
+            self.widgets.rbt_manual.set_active(True)
             self.wait_tool_change = False
         self.interpreter = _IDLE
         self.data.restart_dialog = None

@@ -4,6 +4,9 @@ ver 0.9.7.3
   set according to the state when leaving the GUI, default is show both
 - the state view of gremlinwas by default "p" no the state on leaving the gui 
   will be restored after restarting the GUI
+- corrected an error entering the settings page, and aborting the dialog, then the
+  message aperears two times, because the signal used was clicked and that is emited twice
+  on a rbt when changing the state of the buttons in the group
 
 ver 0.9.7.2
 - check for NO_FORCE_HOMING included

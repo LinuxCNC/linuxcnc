@@ -56,9 +56,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="enable_dro">False</property>
                                             <property name="show_dtg">False</property>
                                             <property name="use_commanded">False</property>
+                                            <property name="enable_dro">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -334,8 +334,8 @@
                                 <child>
                                   <object class="OffsetPage" id="offsetpage1">
                                     <property name="visible">True</property>
-                                    <property name="foreground_color">#ffff00000000</property>
                                     <property name="highlight_color">#adadd8d8e6e6</property>
+                                    <property name="foreground_color">#ffff00000000</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -905,9 +905,9 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="reference_type">2</property>
-                                            <property name="actual">False</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="actual">False</property>
+                                            <property name="reference_type">2</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -931,10 +931,10 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="reference_type">1</property>
+                                            <property name="display_units_mm">True</property>
                                             <property name="joint_number">1</property>
                                             <property name="actual">False</property>
-                                            <property name="display_units_mm">True</property>
+                                            <property name="reference_type">1</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -960,10 +960,10 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="reference_type">1</property>
+                                            <property name="display_units_mm">True</property>
                                             <property name="joint_number">2</property>
                                             <property name="actual">False</property>
-                                            <property name="display_units_mm">True</property>
+                                            <property name="reference_type">1</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -1012,10 +1012,10 @@
                                             <property name="visible">True</property>
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
-                                            <property name="reference_type">1</property>
+                                            <property name="display_units_mm">True</property>
                                             <property name="joint_number">3</property>
                                             <property name="actual">False</property>
-                                            <property name="display_units_mm">True</property>
+                                            <property name="reference_type">1</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -1881,16 +1881,16 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="target_value">-0.039999999105930328</property>
-                                                        <property name="max">6000</property>
-                                                        <property name="z1_color">#0000ffff0000</property>
-                                                        <property name="z2_color">#0000ffff0000</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
-                                                        <property name="z0_border">0.40000000596046448</property>
-                                                        <property name="z0_color">#0000ffff0000</property>
                                                         <property name="text_template">%i</property>
-                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="z2_color">#0000ffff0000</property>
+                                                        <property name="max">6000</property>
+                                                        <property name="z0_color">#0000ffff0000</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
+                                                        <property name="z1_color">#0000ffff0000</property>
                                                         <property name="bg_color">#bebebebebebe</property>
+                                                        <property name="target_color">#0000ffff0000</property>
+                                                        <property name="z0_border">0.40000000596046448</property>
+                                                        <property name="target_value">-0.039999999105930328</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
                                                       <packing>
@@ -3891,7 +3891,7 @@ Aux Screen</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
-                    <signal name="clicked" handler="on_rbt_manual_clicked"/>
+                    <signal name="pressed" handler="on_rbt_manual_pressed"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -3908,7 +3908,7 @@ Aux Screen</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
-                    <signal name="clicked" handler="on_rbt_mdi_clicked"/>
+                    <signal name="pressed" handler="on_rbt_mdi_pressed"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -3925,7 +3925,7 @@ Aux Screen</property>
                     <property name="image">img_auto</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">False</property>
-                    <signal name="clicked" handler="on_rbt_auto_clicked"/>
+                    <signal name="pressed" handler="on_rbt_auto_pressed"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -3941,7 +3941,7 @@ Aux Screen</property>
                     <property name="tooltip_text" translatable="yes">Enter the setup page to adjust program options</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
-                    <signal name="clicked" handler="on_rbt_setup_clicked"/>
+                    <signal name="pressed" handler="on_rbt_setup_pressed"/>
                     <child>
                       <object class="GtkImage" id="img_settings">
                         <property name="visible">True</property>
@@ -5929,10 +5929,6 @@ selected</property>
     <property name="visible">True</property>
     <property name="pixbuf">icon/jog.png</property>
   </object>
-  <object class="GtkImage" id="img_mdi">
-    <property name="visible">True</property>
-    <property name="pixbuf">icon/mdi.png</property>
-  </object>
   <object class="GtkImage" id="img_auto">
     <property name="visible">True</property>
     <property name="pixbuf">icon/run.png</property>
@@ -6114,4 +6110,8 @@ selected</property>
     <property name="pixbuf">icon/refw.png</property>
   </object>
   <object class="GtkFileFilter" id="filefilter1"/>
+  <object class="GtkImage" id="img_mdi">
+    <property name="visible">True</property>
+    <property name="pixbuf">icon/mdi.png</property>
+  </object>
 </interface>
