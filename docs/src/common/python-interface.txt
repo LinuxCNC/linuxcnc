@@ -167,7 +167,7 @@ enable flag for feed hold.
 enable flag for feed override.
 
 *feedrate*:: '(returns float)' -
-current feedrate.
+current feedrate override.
 
 *file*:: '(returns string)' -
 currently executing gcode file.
