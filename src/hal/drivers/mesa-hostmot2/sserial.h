@@ -171,6 +171,8 @@ typedef struct {
     hal_float_t maxlim;
     hal_float_t minlim;
     hal_float_t fullscale;
+    hal_u32_t u32_param;
+    hal_bit_t graycode;
     s64 oldval; // not pins, but this way every pin can have one
     s64 accum; // these two are only currently used by encoders
     s64 offset;
@@ -187,6 +189,8 @@ typedef struct {
     int num_modes;
     int num_globals;
     int num_pins;
+    int num_read_bits;
+    int num_write_bits;
     hm2_sserial_mode_t *modes;
     hm2_sserial_data_t *confs;
     hm2_sserial_data_t *globals;

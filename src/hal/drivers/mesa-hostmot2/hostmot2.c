@@ -97,6 +97,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_stepgen_process_tram_read(hm2, period);
     hm2_sserial_process_tram_read(hm2, period);
     hm2_bspi_process_tram_read(hm2, period);
+    hm2_absenc_process_tram_read(hm2, period);
     //UARTS need to be explicity handled by an external component
 
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
@@ -133,6 +134,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
     hm2_encoder_write(hm2);   // update ctrl register if needed
+    hm2_absenc_write(hm2);    // set bit-lengths and frequency
     hm2_resolver_write(hm2, period); // Update the excitation frequency
     hm2_led_write(hm2);	      // Update on-board LEDs
 
@@ -259,6 +261,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_WATCHDOG:        return "Watchdog";
         case HM2_GTAG_IOPORT:          return "IOPort";
         case HM2_GTAG_ENCODER:         return "Encoder";
+        case HM2_GTAG_SSI:             return "SSI Encoder";
         case HM2_GTAG_RESOLVER:        return "Resolver";    
         case HM2_GTAG_STEPGEN:         return "StepGen";
         case HM2_GTAG_PWMGEN:          return "PWMGen";
@@ -288,11 +291,14 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     // default is to enable everything in the firmware
     hm2->config.num_encoders = -1;
+    hm2->config.num_absencs = -1;
+    hm2->absenc.chans = NULL;
     hm2->config.num_resolvers = -1;
     hm2->config.num_pwmgens = -1;
     hm2->config.num_tp_pwmgens = -1;
     hm2->config.num_sserials = -1;
     for(i=0;i<4;i++) for(j=0;j<8;j++) hm2->config.sserial_modes[i][j]='0';
+    hm2->sserial.instance = NULL;
     hm2->config.num_stepgens = -1;
     hm2->config.num_bspis = -1;
     hm2->config.num_uarts = -1;
@@ -318,6 +324,27 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         if (strncmp(token, "num_encoders=", 13) == 0) {
             token += 13;
             hm2->config.num_encoders = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "ssi_chan_", 9) == 0) {
+            int i;
+            token += 9;
+            i = simple_strtol(token, &token, 0);
+            if (i >= MAX_ABSENCS){
+                HM2_ERR("Currently only %i absolute encoders are supported"
+                        " and you referred to an index of %i\n", MAX_ABSENCS, i);
+                goto fail;
+            }
+            if (*token != '='){
+                HM2_ERR("The absolute encoder tag must be in the form "
+                        "ssi_chan_N=abcdefg where N is a number less than %i"
+                        " and abcdefg is a string specifying the bit fields\n",
+                        MAX_ABSENCS);
+                goto fail;
+            }
+            // Just copy the string and parse it in the driver
+            // There is one "absenc" with multiple channels.
+            strncpy(hm2->config.ssi_formats[i], token + 1, MAX_ABSENC_LEN);
+
 
         } else if (strncmp(token, "num_resolvers=", 14) == 0) {
             token += 14;
@@ -395,6 +422,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
 
     HM2_DBG("final config:\n");
     HM2_DBG("    num_encoders=%d\n", hm2->config.num_encoders);
+    HM2_DBG("    num_absencs=%d\n", hm2->config.num_absencs);
     HM2_DBG("    num_resolvers=%d\n", hm2->config.num_resolvers);
     HM2_DBG("    num_pwmgens=%d\n",  hm2->config.num_pwmgens);
     HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
@@ -803,6 +831,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_encoder_parse_md(hm2, md_index);
                 break;
             
+            case HM2_GTAG_SSI:
+                md_accepted = hm2_absenc_parse_md(hm2, md_index, hm2->config.ssi_formats);
+                break;
+
             case HM2_GTAG_RESOLVER:
                 md_accepted = hm2_resolver_parse_md(hm2, md_index);
                 break;
@@ -890,6 +922,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     // clean up the Modules
     hm2_ioport_cleanup(hm2);
     hm2_encoder_cleanup(hm2);
+    hm2_absenc_cleanup(hm2);
     hm2_resolver_cleanup(hm2);
     hm2_watchdog_cleanup(hm2);
     hm2_pwmgen_cleanup(hm2);

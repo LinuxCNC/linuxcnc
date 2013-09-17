@@ -101,22 +101,36 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 // Module Descriptor constants
 // 
 
-#define HM2_GTAG_WATCHDOG         (2)
-#define HM2_GTAG_IOPORT           (3)
-#define HM2_GTAG_ENCODER          (4)
-#define HM2_GTAG_STEPGEN          (5)
-#define HM2_GTAG_PWMGEN           (6)
-#define HM2_GTAG_UART_TX          (9)
-#define HM2_GTAG_UART_RX         (10)
-#define HM2_GTAG_TRANSLATIONRAM  (11)
-#define HM2_GTAG_BSPI            (14)
-#define HM2_GTAG_TPPWM           (19)
-#define HM2_GTAG_LED            (128)
-#define HM2_GTAG_MUXED_ENCODER   (12)
+#define HM2_GTAG_WATCHDOG          (2)
+#define HM2_GTAG_IOPORT            (3)
+#define HM2_GTAG_ENCODER           (4)
+#define HM2_GTAG_STEPGEN           (5)
+#define HM2_GTAG_PWMGEN            (6)
+#define HM2_GTAG_SPI               (7) // Not supported
+#define HM2_GTAG_SSI               (8)
+#define HM2_GTAG_UART_TX           (9)
+#define HM2_GTAG_UART_RX           (10)
+#define HM2_GTAG_TRANSLATIONRAM    (11)
+#define HM2_GTAG_MUXED_ENCODER     (12)
 #define HM2_GTAG_MUXED_ENCODER_SEL (13)
-#define HM2_GTAG_RESOLVER       (192)
-#define HM2_GTAG_SMARTSERIAL    (193)
+#define HM2_GTAG_BSPI              (14)
+#define HM2_GTAG_DBSPI             (15) // Not supported
+#define HM2_GTAG_DPLL              (16) // Not supported
+#define HM2_GTAG_MUXED_ENCODER_M   (17) // Not supported
+#define HM2_GTAG_MUXED_ENC_SEL_M   (18) // Not supported
+#define HM2_GTAG_TPPWM             (19)
+#define HM2_GTAG_WAVEGEN           (20) // Not supported
+#define HM2_GTAG_DAQFIFO           (21) // Not supported
+#define HM2_GTAG_BINOSC            (22) // Not supported
+#define HM2_GTAG_DDMA              (23) // Not supported
+#define HM2_GTAG_BISS              (24) // Not supported
+#define HM2_GTAG_FABS              (25) // Not supported
+#define HM2_GTAG_LIOPORT           (64) // Not supported
+#define HM2_GTAG_LED               (128)
 
+#define HM2_GTAG_RESOLVER          (192)
+#define HM2_GTAG_SMARTSERIAL       (193)
+#define HM2_GTAG_TWIDDLER          (194) // Not supported
 
 
 
@@ -326,6 +340,30 @@ typedef struct {
 
     u32 filter_rate_addr;
 } hm2_encoder_t;
+
+//
+// absolute encoder
+//
+
+#define MAX_ABSENCS 8
+#define MAX_ABSENC_LEN 32
+
+/* The absolute encoder protocols, with a bit field containing many
+ * different data points end up looking so much like the smart-serial
+ * protocol that the module uses the smart-serial data structure and
+ * much of the same functions
+ */
+
+typedef struct {
+    int num_chans;
+    hm2_sserial_remote_t *chans;
+
+    u32 clock_frequency;
+    u8 ssi_version;
+    u8 biss_version;
+    u8 fanuc_version;
+    u32 ssi_global_start_addr;
+} hm2_absenc_t;
 
 //
 // resolver
@@ -861,6 +899,8 @@ typedef struct {
 
     struct {
         int num_encoders;
+        int num_absencs; // This needs to go soon
+        char ssi_formats[MAX_ABSENCS][MAX_ABSENC_LEN];
         int num_resolvers;
         int num_pwmgens;
         int num_tp_pwmgens;
@@ -898,6 +938,7 @@ typedef struct {
 
     // the hostmot2 "Functions"
     hm2_encoder_t encoder;
+    hm2_absenc_t absenc;
     hm2_resolver_t resolver;
     hm2_pwmgen_t pwmgen;
     hm2_tp_pwmgen_t tp_pwmgen;
@@ -1013,6 +1054,18 @@ void hm2_encoder_cleanup(hostmot2_t *hm2);
 void hm2_encoder_print_module(hostmot2_t *hm2);
 void hm2_encoder_force_write(hostmot2_t *hm2);
 
+
+//
+// absolute encoder functions
+//
+
+
+int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index, char all_formats[][MAX_ABSENC_LEN]);
+void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period);
+void hm2_absenc_cleanup(hostmot2_t *hm2);
+void hm2_absenc_print_module(hostmot2_t *hm2);
+void hm2_absenc_write(hostmot2_t *hm2);
+
 //
 // resolver functions
 //
@@ -1070,6 +1123,7 @@ int  hm2_sserial_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_sserial_print_module(hostmot2_t *hm2);
 void hm2_sserial_force_write(hostmot2_t *hm2);
 void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period);
+int hm2_sserial_read_pins(hm2_sserial_remote_t *chan);
 void hm2_sserial_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_sserial_cleanup(hostmot2_t *hm2);
 int hm2_sserial_waitfor(hostmot2_t *hm2, u32 addr, u32 mask, int ms);
