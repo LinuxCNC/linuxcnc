@@ -22,7 +22,7 @@ pin in float in;
 pin out float out;
 variable float old;
 function _;
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 float tmp = in;
 out = (tmp - old) / fperiod;
@@ -280,12 +280,13 @@ The result of using any other option is undefined.
 
 * 'LICENSE' - Specify the license of the module for the documentation and for the
     MODULE_LICENSE() module declaration. For example, to specify that the
-    module's license is GPL, 
+    module's license is GPL v2 or later,
 
-        license "GPLv2 or greater";
+        license "GPL"; // indicates GPL v2 or later
 +   
 For additional information on the meaning of MODULE_LICENSE() and
-additional license identifiers, see '<linux/module.h>'.
+additional license identifiers, see '<linux/module.h>'. or the manual page
+'rtapi_module_param(3)'
 +   
 This declaration is required.
 
@@ -505,7 +506,7 @@ component constant;
 pin out float out;
 param r float value = 1.0;
 function _;
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 FUNCTION(_) { out = value; }
 ----
@@ -528,7 +529,7 @@ pin out float sin_;
 pin out float cos_;
 pin in float theta;
 function _;
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 #include <rtapi_math.h>
 FUNCTION(_) { sin_ = sin(theta); cos_ = cos(theta); }
@@ -558,7 +559,7 @@ option extra_setup;
 option extra_cleanup;
 option constructable no;
 
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 #include <asm/io.h>
 
@@ -620,7 +621,7 @@ component arraydemo "4-bit Shift register";
 pin in bit in;
 pin out bit out-# [4];
 function _ nofp;
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 int i;
 for(i=3; i>0; i--) out(i) = out(i-1);
@@ -638,7 +639,7 @@ component rand;
 option userspace;
 
 pin out float out;
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 #include <unistd.h>
 
@@ -675,7 +676,7 @@ The number of input pins, usually from 2 to 16
 512 (0x200)  if the 'or' output is desired
 .IP \\(bu
 1024 (0x400)  if the 'xor' (exclusive or) output is desired""";
-license "GPLv2 or later";
+license "GPL"; // indicates GPL v2 or later
 ;;
 FUNCTION(_) {
     int i, a=1, o=0, x=0;
