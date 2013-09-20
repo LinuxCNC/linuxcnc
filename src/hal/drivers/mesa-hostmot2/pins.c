@@ -77,7 +77,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
-            case HM2_GTAG_SPI: // Not supported yet
+        case HM2_GTAG_SPI: // Not supported yet
                 switch (sec_pin) {
                     case 1: return "Frame";
                     case 2: return "Out";
@@ -564,7 +564,8 @@ void hm2_configure_pins(hostmot2_t *hm2) {
 
     // encoder and pwmgen just get all their enabled instances' pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
-    hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, hm2->absenc.num_chans);
+    // Abs encoders are all packed together, not necessarily contiguously
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, MAX_ABSENCS);
     hm2_pins_allocate_all(hm2, HM2_GTAG_RESOLVER, hm2->resolver.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);

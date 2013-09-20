@@ -804,7 +804,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     chan->confs[i].DataDir);
             return -EINVAL;
         }
-        rtapi_print("UnitString %s\n", chan->confs[i].UnitString);
+
         switch (chan->confs[i].DataType){
             case LBP_PAD:
                 break;
@@ -1353,7 +1353,6 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
     for (p=0 ; p < chan->num_confs ; p++){
         hm2_sserial_data_t *conf = &chan->confs[p];
         hm2_sserial_pins_t *pin = &chan->pins[p];
-        hm2_sserial_params_t *param = &chan->params[p];
         if (! (conf->DataDir & 0x80)){
             r = getbits(chan, &buff, bitcount, conf->DataLength);
             switch (conf->DataType){

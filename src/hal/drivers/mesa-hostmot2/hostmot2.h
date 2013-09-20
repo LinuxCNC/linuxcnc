@@ -125,6 +125,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_DDMA              (23) // Not supported
 #define HM2_GTAG_BISS              (24) // Not supported
 #define HM2_GTAG_FABS              (25) // Not supported
+#define HM2_GTAG_HM2DPLL           (26) // Not supported
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -345,8 +346,15 @@ typedef struct {
 // absolute encoder
 //
 
-#define MAX_ABSENCS 8
-#define MAX_ABSENC_LEN 32
+#define MAX_ABSENCS (32)
+#define MAX_ABSENC_LEN (48)
+
+typedef struct {
+    int gtag;
+    int index;
+    char string[MAX_ABSENC_LEN];
+    struct list_head list;
+} hm2_absenc_format_t;
 
 /* The absolute encoder protocols, with a bit field containing many
  * different data points end up looking so much like the smart-serial
@@ -899,8 +907,8 @@ typedef struct {
 
     struct {
         int num_encoders;
-        int num_absencs; // This needs to go soon
-        char ssi_formats[MAX_ABSENCS][MAX_ABSENC_LEN];
+        int num_absencs;
+        struct list_head absenc_formats;
         int num_resolvers;
         int num_pwmgens;
         int num_tp_pwmgens;
@@ -1060,7 +1068,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2);
 //
 
 
-int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index, char all_formats[][MAX_ABSENC_LEN]);
+int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period);
 void hm2_absenc_cleanup(hostmot2_t *hm2);
 void hm2_absenc_print_module(hostmot2_t *hm2);

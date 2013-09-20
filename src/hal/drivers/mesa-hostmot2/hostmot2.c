@@ -262,6 +262,8 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_IOPORT:          return "IOPort";
         case HM2_GTAG_ENCODER:         return "Encoder";
         case HM2_GTAG_SSI:             return "SSI Encoder";
+        case HM2_GTAG_BISS:            return "BiSS Encoder";
+        case HM2_GTAG_FABS:            return "Fanuc Abs Encoder";
         case HM2_GTAG_RESOLVER:        return "Resolver";    
         case HM2_GTAG_STEPGEN:         return "StepGen";
         case HM2_GTAG_PWMGEN:          return "PWMGen";
@@ -274,15 +276,54 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_BSPI:            return "Buffered SPI Interface";
         case HM2_GTAG_UART_RX:         return "UART Receive Channel";
         case HM2_GTAG_UART_TX:         return "UART Transmit Channel";
+        case HM2_GTAG_DPLL:            return "DPLL";      
+        case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
-            HM2_ERR_NO_LL("Firmware contains unknown function (gtag-%d)/n", gtag);
+            HM2_ERR_NO_LL("Firmware contains unknown function (gtag-%d)\n", gtag);
             return unknown;
         }
     }
 }
 
+int hm2_fabs_parse(hostmot2_t *hm2, char *token, int gtag){ 
+    //adds the absolute encoder format strings to a list
+    hm2_absenc_format_t *def;
+    struct list_head *ptr;
+    int i = simple_strtol(token, &token, 0);
+    if (i >= MAX_ABSENCS){
+        HM2_ERR("Currently only %i absolute encoders are supported"
+                " and you referred to an index of %i\n", MAX_ABSENCS, i);
+        return -1;
+    }
+    if (*token != '='){
+        HM2_ERR("The absolute encoder tag must be in the form "
+                "[ssi / biss / fabs]_chan_N=abcdefg where N is a number"
+                " less than %i and abcdefg is a string specifying the "
+                "bit fields\n",
+                MAX_ABSENCS);
+        return -1;
+    }
+    list_for_each(ptr, &hm2->config.absenc_formats){
+        def = list_entry(ptr, hm2_absenc_format_t, list);
+        if (i == def->index && gtag == def->gtag){
+            HM2_ERR("Duplicate SSI/BISS/FABS definition. {Index %i for GTAG %i)"
+                    "exiting\n", i, gtag);
+            return -1;
+        }
+    }
+    def = kzalloc(sizeof(hm2_absenc_format_t), GFP_KERNEL);
+    if (def == NULL){
+        HM2_ERR("out of memory!\n");
+        return -ENOMEM;
+    }
+    def->gtag = gtag;
+    def->index = i;
+    strncpy(def->string, ++token, MAX_ABSENC_LEN);
+    list_add(&def->list, &hm2->config.absenc_formats);
+    return 0;
+}
 
 static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     char **argv;
@@ -293,6 +334,8 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_encoders = -1;
     hm2->config.num_absencs = -1;
     hm2->absenc.chans = NULL;
+    hm2->absenc.num_chans = 0;
+    INIT_LIST_HEAD(&hm2->config.absenc_formats);
     hm2->config.num_resolvers = -1;
     hm2->config.num_pwmgens = -1;
     hm2->config.num_tp_pwmgens = -1;
@@ -326,25 +369,16 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             hm2->config.num_encoders = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "ssi_chan_", 9) == 0) {
-            int i;
             token += 9;
-            i = simple_strtol(token, &token, 0);
-            if (i >= MAX_ABSENCS){
-                HM2_ERR("Currently only %i absolute encoders are supported"
-                        " and you referred to an index of %i\n", MAX_ABSENCS, i);
-                goto fail;
-            }
-            if (*token != '='){
-                HM2_ERR("The absolute encoder tag must be in the form "
-                        "ssi_chan_N=abcdefg where N is a number less than %i"
-                        " and abcdefg is a string specifying the bit fields\n",
-                        MAX_ABSENCS);
-                goto fail;
-            }
-            // Just copy the string and parse it in the driver
-            // There is one "absenc" with multiple channels.
-            strncpy(hm2->config.ssi_formats[i], token + 1, MAX_ABSENC_LEN);
-
+            if (hm2_fabs_parse(hm2, token, HM2_GTAG_SSI) )goto fail;
+            
+        } else if (strncmp(token, "biss_chan_", 10) == 0) {
+            token += 10;
+            if (hm2_fabs_parse(hm2, token, HM2_GTAG_BISS)) goto fail;
+            
+        } else if (strncmp(token, "fabs_chan_", 10) == 0) {
+            token += 10;
+            if (hm2_fabs_parse(hm2, token, HM2_GTAG_FABS)) goto fail;
 
         } else if (strncmp(token, "num_resolvers=", 14) == 0) {
             token += 14;
@@ -832,9 +866,11 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
             
             case HM2_GTAG_SSI:
-                md_accepted = hm2_absenc_parse_md(hm2, md_index, hm2->config.ssi_formats);
+            case HM2_GTAG_BISS:
+            case HM2_GTAG_FABS:
+                md_accepted = hm2_absenc_parse_md(hm2, md_index);
                 break;
-
+                
             case HM2_GTAG_RESOLVER:
                 md_accepted = hm2_resolver_parse_md(hm2, md_index);
                 break;
@@ -940,6 +976,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
 
 void hm2_print_modules(hostmot2_t *hm2) {
     hm2_encoder_print_module(hm2);
+    hm2_absenc_print_module(hm2);
     hm2_resolver_print_module(hm2);
     hm2_pwmgen_print_module(hm2);
     hm2_tp_pwmgen_print_module(hm2);

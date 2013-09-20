@@ -214,6 +214,7 @@ typedef struct {
     int index;
     u32 command_reg_addr; // a duplicate so that a single channel can be passed
     u32 data_reg_addr;
+    u32 data_written;
     int myinst;
     char name[21];
     
