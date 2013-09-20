@@ -1,8 +1,24 @@
+ver 0.9.7.3.1
+- removed some print/debug lines
+- new order of the button in Auto Mode (requested from svenakela)
+- corrected some translation errors
+- changed the order of the jog button and the DRO, now when jogging on a touch screen, the
+  right hand will not cover the DRO. Better handling?!
+- deleted the button reload from auto to get space for fullsize_preview, so the user can switch to
+  fullsize preview, while the program runs.
+- errased the close button in botton button list edit, because the back button does the same 
+- corrected the hardware button behavior, was needed because of the new order and 
+  the reason that not "clicked" is emitted, but "pressed"
+- button edit offsets now shows automaticaly the offset page
+- the buttons for fullsize preview on auto and edit offsets getting yellow when active
+- pressing the button new in edit mode will make a new file in /tmp with the content from
+  [RS274NGC] "RS274NGC_STARTUP_CODE" follod by 3 linefeed and an M2
+
 ver 0.9.7.3
 - the buttons tbtn_view_dimension and tbtn_view_tool_path of the gremlin view
   was in an undefined state after the start of gmoccapy. Now the state will be 
   set according to the state when leaving the GUI, default is show both
-- the state view of gremlinwas by default "p" no the state on leaving the gui 
+- the state view of gremlin was by default "p" no the state on leaving the gui 
   will be restored after restarting the GUI
 - corrected an error entering the settings page, and aborting the dialog, then the
   message aperears two times, because the signal used was clicked and that is emited twice

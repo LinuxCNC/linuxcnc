@@ -33,6 +33,7 @@ import pango             # needed for font settings and changing
 import gladevcp.makepins # needed for the dialog"s calulator widget
 import locale            # for translations
 import subprocess        # to launch onboard and other proceses
+import tempfile          # needed only if the user click new in edit mode to open a new empty file
 
 # standard handler call
 def get_handlers(halcomp,builder,useropts,gscreen):
@@ -44,7 +45,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.7.3"
+_RELEASE = "0.9.7.3.1"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -52,7 +53,7 @@ _AUTO = 2               # Check for the mode Auto
 _MDI = 3                # Check for the mode MDI
 _RUN = 1                # needed to check if the interpreter is running
 _IDLE = 0               # needed to check if the interpreter is idle
-
+_TEMPDIR = tempfile.gettempdir() # Now we know where the tempdir is, usualy /tmp
 
 # This is a handler file for using Gscreen"s infrastructure
 # to load a completely custom glade screen
@@ -213,6 +214,7 @@ class HandlerClass:
         self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_flood.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_fullsize_preview.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_fullsize_preview1.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_log_actions.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_mist.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_optional_blocks.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -222,6 +224,7 @@ class HandlerClass:
         self.widgets.tbtn_user_tabs.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_edit_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 
         # Now we will build the option buttons to select the Jog-rates
         # We do this dynamicly, because users are able to set them in INI File
@@ -267,9 +270,9 @@ class HandlerClass:
         tab_mdi = [(9,"btn_show_kbd")]
         self.h_tabs.append(tab_mdi)
 
-        tab_auto = [(0,"btn_run"),(1,"btn_stop"),(2,"btn_step"),(3,"tbtn_pause"),
-                    (4,"btn_from_line"),(5,"tbtn_optional_stops"),(6,"tbtn_optional_blocks"),
-                    (7,"btn_reload"),(8,"btn_load"),(9,"btn_edit")
+        tab_auto = [(0,"btn_load"),(1,"btn_run"),(2,"btn_stop"),(3,"tbtn_pause"),
+                    (4,"btn_step"),(5,"btn_from_line"),(6,"tbtn_optional_blocks"),
+                    (7,"tbtn_optional_stops"),(8,"tbtn_fullsize_preview1"),(9,"btn_edit")
                    ]
         self.h_tabs.append(tab_auto)
 
@@ -295,8 +298,8 @@ class HandlerClass:
                     ]
         self.h_tabs.append(tab_setup)
 
-        tab_edit = [(1,"btn_save"),(2,"btn_save_as"),(3,"btn_save_and_run"),(5,"btn_new"),
-                    (6,"btn_open_edit"),(7,"btn_close"),(8,"btn_keyb"),(9,"btn_back_edit")
+        tab_edit = [(0,"btn_open_edit"),(2,"btn_save"),(3,"btn_save_as"),(4,"btn_save_and_run"),
+                    (6,"btn_new"),(8,"btn_keyb"),(9,"btn_back_edit")
                    ]
         self.h_tabs.append(tab_edit)
 
@@ -332,14 +335,11 @@ class HandlerClass:
         self.widgets.chk_show_dtg.set_sensitive(self.widgets.chk_show_dro.get_active())
         self.widgets.tbtn_view_tool_path.set_active(self.gscreen.prefs.getpref("view_tool_path",True))
         self.widgets.tbtn_view_dimension.set_active(self.gscreen.prefs.getpref("view_dimension",True))
-        print(self.gscreen.prefs.getpref("gremlin_view","rbt_view_p",str))
         view = self.gscreen.prefs.getpref("gremlin_view","rbt_view_p",str)
         self.widgets[view].set_active(True)
 
         if "ntb_preview" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property("show-tabs", True)
-#            page_offset = self.widgets.ntb_preview.get_nth_page(1)
-#            page_offset.hide()
         if self.gscreen.machine_units_mm == 1: # is needed to show vel in machine units
             self.gscreen.set_dro_units(_MM,True)
 
@@ -387,9 +387,9 @@ class HandlerClass:
         self.widgets.chk_use_kb_shortcuts.set_active(self.gscreen.prefs.getpref("use_keyboard_shortcuts", 
                                                                                 False, bool))
 
-# ToDo: check in settings if the user like the highlighting or not
+# TODO: check in settings if the user like the highlighting or not
 #        self.widgets.gcode_view.buf.set_language(None)
-# ToDo: End
+# TODO: End
 
         # This is only needed, because otherwise gmoccapy will use the standard DRO colors from
         # gscreen, witch will not fit well the design from gmoccapy. You could get red text on red background
@@ -874,11 +874,11 @@ class HandlerClass:
             else:
                 self.gscreen.add_alarm_entry(_("macro {0} , parameter {1} set to {2:f}".format(o_codes[0],code,parameter)))
             command = command + " [" + str(parameter) + "] "
-# ToDo: Should not only clear the plot, but also the loaded programm?
+# TODO: Should not only clear the plot, but also the loaded programm?
         #self.emc.emccommand.program_open("")
         #self.emc.emccommand.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
-# ToDo: End
+# TODO: End
         self.gscreen.mdi_control.user_command(command)
         for btn in self.macrobuttons:
             btn.set_sensitive(False)
@@ -961,12 +961,12 @@ class HandlerClass:
             self.emc.estop_reset(1)
             self.widgets.tbtn_on.set_sensitive(True)
 
-# ToDo: find out why the values are modified by 1 on startup 
+# TODO: find out why the values are modified by 1 on startup 
 #       and correct this to avoid the need of this clicks
         # will need to click, otherwise we get 101 % after startup
         self.widgets.btn_feed_100.emit("clicked")
         self.widgets.btn_spindle_100.emit("clicked")
-# ToDo: End
+# TODO: End
 
     # toggle machine on / off button
     def on_tbtn_on_toggled(self, widget, data=None):
@@ -991,7 +991,7 @@ class HandlerClass:
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_manual_clicked")
+        if self.log: self.gscreen.add_alarm_entry("rbt_manual_pressed")
         self.emc.set_manual_mode()
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(0)
@@ -999,7 +999,7 @@ class HandlerClass:
         self.widgets.ntb_jog.set_current_page(0)
 
     def on_rbt_mdi_pressed(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_mdi_clicked")
+        if self.log: self.gscreen.add_alarm_entry("rbt_mdi_pressed")
         self.emc.set_mdi_mode()
         if self.widgets.chk_use_kb_on_mdi.get_active():
             self.widgets.ntb_info.set_current_page(1)
@@ -1011,7 +1011,7 @@ class HandlerClass:
         self.widgets.hal_mdihistory.entry.grab_focus()
 
     def on_rbt_auto_pressed(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("rbt_auto_clicked")
+        if self.log: self.gscreen.add_alarm_entry("rbt_auto_pressed")
         self.emc.set_auto_mode()
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(2)
@@ -1020,8 +1020,13 @@ class HandlerClass:
 
     def on_rbt_setup_pressed(self, widget, data=None):
         if self.widgets.ntb_main.get_current_page() == 1:
+# TODO: How to activate an other button, when clicking again
+#            self.widgets.rbt_setup.set_active(False)
+#            self.widgets.rbt_manual.set_active(True)
+#            self.widgets.rbt_manual.emit("pressed")
+# TODO: End
             return
-        if self.log: self.gscreen.add_alarm_entry("rbt_setup_clicked")
+        if self.log: self.gscreen.add_alarm_entry("rbt_setup_pressed")
         code = False
         # here the user don"t want an unlock code
         if self.widgets.rbt_no_unlock.get_active():
@@ -1522,7 +1527,7 @@ class HandlerClass:
         else:
             self.widgets.ntb_info.set_current_page(1)
 
-    def on_ntb_info_switch_page(self, page, page_num, data=None):
+    def on_ntb_info_switch_page(self, widget, page, page_num, data=None):
         if self.emc.get_mode() == _MDI:
             self.widgets.hal_mdihistory.entry.grab_focus()
         elif self.emc.get_mode() == _AUTO:
@@ -1566,8 +1571,10 @@ class HandlerClass:
         # show virtual keyboard
         if state:
             self.widgets.ntb_info.set_current_page(1)
+            self.widgets.ntb_preview.set_current_page(1)
         else:
             self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_preview.set_current_page(0)
 
     def on_btn_zero_g92_clicked(self, widget, data=None):
         self.widgets.offsetpage1.zero_g92(self)
@@ -1596,26 +1603,26 @@ class HandlerClass:
             if self.widgets.ntb_preview.get_n_pages() <= 4: # else user tabs are availible
                 self.widgets.ntb_preview.set_property("show-tabs",state)
 
-#ToDo: what to do when there are more axis?
+# TODO: what to do when there are more axis?
     def on_btn_zero_x_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_X_clicked")
         self.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("X",0)
-        self.widgets.btn_reload.emit("clicked")
+        self.widgets.hal_action_reload.emit("activate")
         self.emc.set_manual_mode()
 
     def on_btn_zero_y_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Y_clicked")
         self.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("Y",0)
-        self.widgets.btn_reload.emit("clicked")
+        self.widgets.hal_action_reload.emit("activate")
         self.emc.set_manual_mode()
 
     def on_btn_zero_z_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Z_clicked")
         self.emc.set_mdi_mode()
         self.gscreen.mdi_control.set_axis("Z",0)
-        self.widgets.btn_reload.emit("clicked")
+        self.widgets.hal_action_reload.emit("activate")
         self.emc.set_manual_mode()
 
     def on_btn_set_value_clicked(self, widget, data=None):
@@ -1639,7 +1646,7 @@ class HandlerClass:
             self.gscreen.add_alarm_entry(_("offset {0} set to {1:f}".format(axis,offset)))
             self.emc.set_mdi_mode()
             self.gscreen.mdi_control.set_axis(axis,offset)
-            self.widgets.btn_reload.emit("clicked")
+            self.widgets.hal_action_reload.emit("activate")
             self.emc.set_manual_mode()
             self.gscreen.prefs.putpref("offset_axis_%s"%axis, offset, float)
         else:
@@ -1647,7 +1654,7 @@ class HandlerClass:
             self.gscreen.add_alarm_entry(_("Offset conversion error because off wrong entry"))
             self.gscreen.warning_dialog(_("Conversion error in btn_set_value!"), True, 
                                         _("Please enter only numerical values\nValues have not been applied"))
-#ToDo:End
+# TODO: End
 
     def on_btn_set_selected_clicked(self, widget, data=None):
         system , name = self.widgets.offsetpage1.get_selected()
@@ -2001,7 +2008,6 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("on_btn_apply_tool_changes_clicked")
         self.tooledit_btn_apply_tool.emit("clicked")
         tool = self.widgets.tooledit1.get_selected_tool()
-        #self._update_toolinfo(tool)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
@@ -2038,10 +2044,6 @@ class HandlerClass:
         else:
             self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}".format(axis,value)))
         self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
-        #self._update_toolinfo(self.data.tool_in_spindle)
-        # will set the label, but the tool do not need to be in the spindle,
-        # so information may be no homogeniuos
-        #self._update_toolinfo(self._get_selected_tool())
         self.widgets.rbt_manual.emit("pressed")
         self.widgets.rbt_manual.set_active(True)
 
@@ -2272,7 +2274,7 @@ class HandlerClass:
             self.widgets.vbx_jog.set_size_request(360 , -1)
             self.widgets.gcode_view.set_sensitive(0)
             self.widgets.btn_save.set_sensitive(True)
-            self.widgets.btn_reload.emit("clicked")
+            self.widgets.hal_action_reload.emit("activate")
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_message.set_current_page(0)
 
@@ -2282,29 +2284,28 @@ class HandlerClass:
             self.widgets.btn_save_as.emit("clicked")
         else:
             self.widgets.btn_save.emit("clicked")
-        self.widgets.btn_reload.emit("clicked")
+        self.widgets.hal_action_reload.emit("activate")
         self.widgets.ntb_button.set_current_page(2)
         self.widgets.btn_run.emit("clicked")
 
-# ToDo find out how to unload the loaded file
     # make a new file
     def on_btn_new_clicked(self, widget, data=None):
+        tempfilename = os.path.join(_TEMPDIR,"temp.ngc")
+        content = self.gscreen.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE")
+        content += "\n\n\n\nM2"
+        gcodefile = open(tempfilename,"w")
+        gcodefile.write(content)
+        gcodefile.close()
+        self.emc.emccommand.program_open(tempfilename)
+        self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
-        self.widgets.gcode_view.buf.set_text("")
         self.widgets.lbl_program.set_label("")
-# ToDo end
-
-    # just go back to auto button and discharge all changes made
-    def on_btn_close_clicked(self, widget, data=None):
-        self.on_ntb_button_switch_page()
-        self.widgets.ntb_button.set_current_page(2)
-        self.widgets.btn_reload.emit("clicked")
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_tbtn_optional_blocks_toggled to %s"%widget.get_active())
         self.emc.blockdel(widget.get_active())
         self.gscreen.prefs.putpref("blockdel", widget.get_active())
-        self.widgets.btn_reload.emit("clicked")
+        self.widgets.hal_action_reload.emit("activate")
 
     def on_tbtn_optional_stops_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_tbtn_optional_stops_toggled to %s"%widget.get_active())
@@ -2350,7 +2351,7 @@ class HandlerClass:
 
     def on_hal_status_interp_idle(self,widget):
         self.gscreen.add_alarm_entry("idle")
-        widgetlist = ["rbt_manual", "btn_step", "ntb_jog", "btn_from_line", "btn_reload", 
+        widgetlist = ["rbt_manual", "btn_step", "ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop", 
                       "btn_load", "btn_edit","tbtn_optional_blocks"
                      ]
@@ -2390,7 +2391,7 @@ class HandlerClass:
     def on_hal_status_interp_run(self,widget):
         self.gscreen.add_alarm_entry("run")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "rbt_setup", "btn_step","btn_index_tool",
-                      "btn_from_line", "btn_reload", "btn_change_tool","btn_select_tool_by_no",
+                      "btn_from_line", "btn_change_tool","btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", 
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
@@ -2681,7 +2682,7 @@ class HandlerClass:
         nr = int(btn[-1])
         tab = self.h_tabs[page] # see in the __init__ section for the declaration of self.tabs
         button = None
-        # we check if there is a buuton or the user pressed a hardware button under
+        # we check if there is a button or the user pressed a hardware button under
         # a non existing software button
         for index in tab:
             if int(index[0]) == nr:
@@ -2732,7 +2733,12 @@ class HandlerClass:
                 print("%s not_sensitive"%button)
                 self.gscreen.add_alarm_entry("%s not_sensitive"%button)
                 return
-            self.widgets[button].emit("clicked")
+            button_pressed_list = ("rbt_manual","rbt_mdi","rbt_auto","rbt_setup")
+            if button in button_pressed_list:
+                self.widgets[button].set_active(True)
+                self.widgets[button].emit("pressed")
+            else:
+                self.widgets[button].emit("clicked")
         else:
             print("No button found in v_tabs from %s"%pin.name)
             self.gscreen.add_alarm_entry("No button found in v_tabs from %s"%pin.name)
