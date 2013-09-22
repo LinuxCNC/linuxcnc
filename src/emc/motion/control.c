@@ -479,14 +479,22 @@ static void process_inputs(void)
 	    scale = 0;
 	}
     }
+    /*non maskable (except during spinndle synch move) feed hold inhibit pin */
+	if ( enables & *emcmot_hal_data->feed_inhibit ) {
+	    scale = 0;
+	}
     /* save the resulting combined scale factor */
     emcmotStatus->net_feed_scale = scale;
 
-    /* now do spindle scaling: only one item to consider */
+    /* now do spindle scaling */
     scale = 1.0;
     if ( enables & SS_ENABLED ) {
 	scale *= emcmotStatus->spindle_scale;
     }
+    /*non maskable (except during spindle synch move) spindle inhibit pin */
+	if ( enables & *emcmot_hal_data->spindle_inhibit ) {
+	    scale = 0;
+	}
     /* save the resulting combined scale factor */
     emcmotStatus->net_spindle_scale = scale;
 

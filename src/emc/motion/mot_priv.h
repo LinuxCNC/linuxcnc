@@ -87,8 +87,10 @@ typedef struct {
     hal_bit_t *spindle_index_enable;
     hal_bit_t *spindle_is_atspeed;
     hal_float_t *spindle_revs;
+    hal_bit_t *spindle_inhibit;	/* RPI: set TRUE to stop spindle (non maskable)*/
     hal_float_t *adaptive_feed;	/* RPI: adaptive feedrate, 0.0 to 1.0 */
-    hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion */
+    hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion maskable with g53 P1*/
+    hal_bit_t *feed_inhibit;	/* RPI: set TRUE to stop motion (non maskable)*/
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
     hal_bit_t *in_position;	/* RPI: all joints are in position */
 //    hal_bit_t *inpos_output;	/* WPI: all joints are in position (used to power down steppers for example) */
