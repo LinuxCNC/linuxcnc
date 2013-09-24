@@ -804,6 +804,13 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                     chan->confs[i].DataDir);
             return -EINVAL;
         }
+        
+        if (strcmp(chan->confs[i].UnitString, "gray") == 0){
+            chan->pins[i].graycode = 1;
+        } else {
+            chan->pins[i].graycode = 0;
+        }
+
 
         switch (chan->confs[i].DataType){
             case LBP_PAD:
@@ -969,11 +976,7 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 }
                 break;
             case LBP_ENCODER:
-                if (strcmp(chan->confs[i].UnitString, "gray") == 0){
-                    chan->pins[i].graycode = 1;
-                } else {
-                    chan->pins[i].graycode = 0;
-                }
+            case LBP_ENCODER_H:
 
                 rtapi_snprintf(name, sizeof(name), "%s.%s.count",
                                chan->name, 
@@ -1057,7 +1060,9 @@ int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan){
                 chan->pins[i].fullscale = chan->confs[i].ParmMax;
                 chan->pins[i].u32_param = 256;
                 break;
-
+            case LBP_ENCODER_L:
+                //No pins for encoder L
+                break;
             default:
                 HM2_ERR("Unhandled sserial data type (%i) Name %s Units %s\n",
                         chan->confs[i].DataType, 
@@ -1344,6 +1349,9 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
 }
 
 int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
+    static int h_flag = 0, l_flag = 0;//these are the "memory" for 2-part 
+    static int bitshift = 1;               //Fanuc encoders where the full turns
+    static u64 buff_store;             //and part turns are not contiguous
     int b, p, r;
     int bitcount = 0;
     u64 buff;
@@ -1355,6 +1363,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
         hm2_sserial_pins_t *pin = &chan->pins[p];
         if (! (conf->DataDir & 0x80)){
             r = getbits(chan, &buff, bitcount, conf->DataLength);
+            
             switch (conf->DataType){
             case LBP_PAD:
                 // do nothing
@@ -1366,6 +1375,14 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 }
                 break;
             case LBP_UNSIGNED:
+                
+                if (pin->graycode){
+                    u64 mask;
+                    for(mask = buff >> 1 ; mask != 0 ; mask = mask >> 1){
+                        buff ^= mask;
+                    }
+                }
+                
                 *pin->float_pin = (buff * conf->ParmMax)
                 / ((1 << conf->DataLength) - 1);
                 break;
@@ -1381,27 +1398,53 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                 *pin->boolean = (buff != 0);
                 *pin->boolean2 = (buff == 0);
                 break;
+            case LBP_ENCODER_H:
+            case LBP_ENCODER_L:
+                if (conf->DataType == LBP_ENCODER_H){
+                    h_flag = conf->DataLength;
+                    buff_store |= (buff << bitshift);
+                } else {
+                    l_flag = conf->DataLength;
+                    bitshift = conf->DataLength;
+                    buff_store |= buff;
+                }
+                if ( ! (h_flag && l_flag)){
+                    break;
+                }
+                buff = buff_store;
+                /* no break */
             case LBP_ENCODER:
             {
+                int bitlength;
                 s32 rem1, rem2;
                 s64 previous;
                 u32 ppr = pin->u32_param;
+                
+                if (conf->DataType == LBP_ENCODER){
+                    bitlength = conf->DataLength;
+                } else {
+                    bitlength = h_flag + l_flag;
+                    h_flag = 0; l_flag = 0;
+                    buff_store = 0;
+                }
+                
+                
                 if (pin->graycode){
                     u64 mask;
                     for(mask = buff >> 1 ; mask != 0 ; mask = mask >> 1){
                         buff ^= mask;
                     }
                 }
+
                 // sign-extend buff into buff64
-                //buff64 = (~0ul >> (64 - conf->DataLength));
-                buff64 = (1U << (conf->DataLength - 1));
+                buff64 = (1U << (bitlength - 1));
                 buff64 = (buff ^ buff64) - buff64;
                 previous = pin->accum;
 
-                if ((buff64 - pin->oldval) > (1 << (conf->DataLength - 2))){
-                    pin->accum -= (1 << conf->DataLength);
-                } else if ((pin->oldval - buff64) > (1 << (conf->DataLength - 2))){
-                    pin->accum += (1 << conf->DataLength);
+                if ((buff64 - pin->oldval) > (1 << (bitlength - 2))){
+                    pin->accum -= (1 << bitlength);
+                } else if ((pin->oldval - buff64) > (1 << (bitlength - 2))){
+                    pin->accum += (1 << bitlength);
                 }
                 pin->accum += (buff64 - pin->oldval);
 

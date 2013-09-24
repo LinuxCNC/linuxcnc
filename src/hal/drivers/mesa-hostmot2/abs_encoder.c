@@ -84,11 +84,10 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     chan->reg_cs_addr = md->base_address 
             + (2 * md->register_stride)
             + chan->index * md->instance_stride;
+    hm2->absenc.ssi_global_start_addr = md->base_address 
+            + (3 * md->register_stride);
     chan->data_written = 0;
-    if (hm2->absenc.ssi_global_start_addr == 0){
-        hm2->absenc.ssi_global_start_addr = md->base_address 
-                + (3 * md->register_stride);
-    }
+
 
     rtapi_snprintf(name, sizeof(name), "%s.ssi.%02d.frequency-khz",
             hm2->llio->name, chan->index);
@@ -112,9 +111,69 @@ int hm2_absenc_setup_ssi(hostmot2_t *hm2, hm2_sserial_remote_t *chan,
     return 0;
 }
 
+int hm2_absenc_setup_fabs(hostmot2_t *hm2, hm2_sserial_remote_t *chan, 
+                         hm2_module_descriptor_t *md){
+    
+    char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
+    static bool funct_flag = false;
+
+    if ( hm2_sserial_create_pins(hm2, chan)) return -EINVAL;
+    
+    chan->params = hal_malloc(sizeof(hm2_sserial_params_t));
+    hm2->absenc.clock_frequency = md->clock_freq;
+    hm2->absenc.ssi_version = md->version;
+
+    chan->reg_0_addr = md->base_address 
+            + (0 * md->register_stride)
+            + chan->index * md->instance_stride;
+    chan->reg_1_addr = md->base_address 
+            + (1 * md->register_stride)
+            + chan->index * md->instance_stride;
+    chan->reg_2_addr = md->base_address 
+            + (2 * md->register_stride)
+            + chan->index * md->instance_stride;
+    chan->reg_cs_addr = md->base_address 
+            + (3 * md->register_stride)
+            + chan->index * md->instance_stride;
+    chan->data_reg_addr = md->base_address 
+            + (4 * md->register_stride)
+            + chan->index * md->instance_stride;
+    hm2->absenc.fabs_global_start_addr = md->base_address 
+            + (5 * md->register_stride);
+    chan->data_written = 0;
+
+
+    rtapi_snprintf(name, sizeof(name), "%s.fanuc.%02d.frequency-khz",
+            hm2->llio->name, chan->index);
+    if (hal_param_float_new(name, HAL_RW,
+            &(chan->params->float_param ),
+            hm2->llio->comp_id)){
+        HM2_ERR("error adding param '%s', aborting\n", name);
+        return -EINVAL;
+    }
+
+    // export the absenc to HAL
+    //Unlike most other Hostmot2 functions, this one needs to have a private
+    // "trigger" function directly callable from HAL.
+    if (! funct_flag){
+        rtapi_snprintf(name, sizeof(name),
+                "%s.trigger-ssi-encoders", hm2->llio->name);
+        hal_export_funct(name, hm2_absenc_trigger,
+                hm2, 0, 0,hm2->llio->comp_id);
+        funct_flag = true;
+    }
+    return 0;
+}
+
+
 int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *def){
+    char* AA64 = "p%5pbatt%1bp%2pvalid%1bp%9plow%20lp%2pencoder%16hp%2pcomm%10up%3pcrc%5u";
     char* format = def->string;
     char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
+    
+    if (chan->myinst == HM2_GTAG_FABS && strncmp(format, "AA64",4) == 0){
+        format = AA64;
+    }
     
     while(*format){
         if (*format == '%' && *name){
@@ -123,7 +182,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 HM2_ERR_NO_LL("Invalid field length specification, you may "
                         "not get the pins you expected\n");
             }
-            else if (strchr("bBuUsSeEfFpPgG", *format)){
+            else if (strchr("bBuUsSeEfFpPgGhHlL", *format)){
                 hm2_sserial_data_t *conf;
                 chan->num_confs++;
                 chan->confs = (hm2_sserial_data_t *)krealloc(chan->confs,
@@ -136,8 +195,12 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 strcpy(conf->NameString, name);
                 conf->RecordType = 0xA0;
                 conf->ParmAddr = 0;
-                strcpy(conf->UnitString, "none");
-
+                if (*format=='g' || *format=='G'){
+                    strcpy(conf->UnitString, "gray");
+                    format++;
+                } else {
+                    strcpy(conf->UnitString, "none");
+                }
                 switch(*format){
                 case 'b':
                 case 'B':
@@ -169,13 +232,21 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                     conf->ParmMax = 0;
                     conf->ParmMin = 0;
                     break;
-                case 'g':
-                case 'G':
-                    strcpy(conf->UnitString, "gray");
-                    /* no break */
                 case 'e':
                 case 'E':
                     conf->DataType = LBP_ENCODER;
+                    conf->ParmMax = 1;
+                    conf->ParmMin = 0;
+                    break;
+                case 'h':
+                case 'H':
+                    conf->DataType = LBP_ENCODER_H;
+                    conf->ParmMax = 1;
+                    conf->ParmMin = 0;
+                    break;
+                case 'l':
+                case 'L':
+                    conf->DataType = LBP_ENCODER_L;
                     conf->ParmMax = 1;
                     conf->ParmMin = 0;
                     break;
@@ -272,8 +343,8 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
                     break;
                 case HM2_GTAG_FABS:
                     rtapi_snprintf(chan->name, sizeof(chan->name),
-                            "%s.fabs.%02d", hm2->llio->name, index);
-                    //if (hm2_absenc_setup_fabs(hm2, chan, md)) goto fail1;
+                            "%s.fanuc.%02d", hm2->llio->name, index);
+                    if (hm2_absenc_setup_fabs(hm2, chan, md)) goto fail1;
                     break;
                 default:
                     HM2_ERR("Unsupported GTAG passed to hm2_absenc driver\n");

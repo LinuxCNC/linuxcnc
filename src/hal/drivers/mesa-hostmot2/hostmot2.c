@@ -376,7 +376,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 10;
             if (hm2_fabs_parse(hm2, token, HM2_GTAG_BISS)) goto fail;
             
-        } else if (strncmp(token, "fabs_chan_", 10) == 0) {
+        } else if (strncmp(token, "fanuc_chan_", 10) == 0) {
             token += 10;
             if (hm2_fabs_parse(hm2, token, HM2_GTAG_FABS)) goto fail;
 

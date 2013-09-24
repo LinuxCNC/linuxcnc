@@ -347,7 +347,7 @@ typedef struct {
 //
 
 #define MAX_ABSENCS (32)
-#define MAX_ABSENC_LEN (48)
+#define MAX_ABSENC_LEN (128)
 
 typedef struct {
     int gtag;
@@ -371,6 +371,8 @@ typedef struct {
     u8 biss_version;
     u8 fanuc_version;
     u32 ssi_global_start_addr;
+    u32 fabs_global_start_addr;
+    u32 biss_global_start_addr;
 } hm2_absenc_t;
 
 //
