@@ -40,7 +40,7 @@ variable u32 *CPLD_read;
 variable u32 *AD7329_write[8];
 variable u32 *AD7329_read[8];
 
-license "GPLv2+";
+license "GPL";
 author "Andy Pugh / Cliff Blackburn";
 
 include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";

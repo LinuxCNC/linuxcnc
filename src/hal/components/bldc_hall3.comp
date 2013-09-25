@@ -169,7 +169,7 @@ see_also """
 bldc_hall6 6-wire unipolar driver for BLDC motors.
 """;
 
-license "GPLv2+";
+license "GPL";
 
 author "Andy Pugh";
 

@@ -41,7 +41,7 @@ modparam dummy ioaddr """Base address of card. Separate each card base address
 with a comma but no space to load more than one card. eg
 loadrt pcl720 ioaddr=0x200,0x200. use 0xNNN to define addresses in Hex""";
 
-license "GPLv2+";
+license "GPL";
 author "Andy Pugh";
 ;;
 

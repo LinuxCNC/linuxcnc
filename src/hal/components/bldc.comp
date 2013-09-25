@@ -371,7 +371,7 @@ motor zero. Unfortunately the motor is rather \\fIspringy\\fR in this mode and
 so alignment is likely to be fairly sensitive to load.
 """;
 
-license "GPLv2+";
+license "GPL";
 
 author "Andy Pugh";
 
