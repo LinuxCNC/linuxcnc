@@ -24,8 +24,8 @@ variable unsigned i = 0;
 
 option extra_setup 1;
 
-author "andy pugh";
-license "GPL";
+author "Andy Pugh";
+license "GPLv2+";
 
 function _;
 

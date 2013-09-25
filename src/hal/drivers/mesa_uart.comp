@@ -34,7 +34,7 @@ Read the documents on "comp" for help with writing realtime components:
 http://www.linuxcnc.org/docview/html/hal/comp.html""";
 
 author "Andy Pugh andy@bodgesoc.org";
-license "GPL";
+license "GPLv2+";
 
 // undocumented feature of comp, and when it is interpreted this file has moved
 include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
