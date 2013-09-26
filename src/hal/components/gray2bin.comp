@@ -6,7 +6,7 @@ license "GPL";
 author "andy pugh";
 function _ nofp;
 ;;
-u32 mask;
+unsigned int mask;
 out = in;
 for(mask = in >> 1 ; mask != 0 ; mask = mask >> 1){
     out ^= mask;
