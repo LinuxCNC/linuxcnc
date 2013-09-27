@@ -143,7 +143,16 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
 	    $(VECHO) "in order to run in place." || true
 endif
+# see if logging is set up properly
+	@-../scripts/check-logging.sh
+
 endif # BUILD_ALL_FLAVORS
+
+log:
+	$(Q)echo installing log configuration to /etc/rsyslog.d/linuxcnc.conf
+	$(Q)cp rtapi/rsyslogd-linuxcnc.conf /etc/rsyslog.d/linuxcnc.conf
+	$(Q)echo restarting rsyslogd
+	$(Q)service rsyslog restart
 
 
 OBJDIR := objects/$(RTDIR_EXT)
