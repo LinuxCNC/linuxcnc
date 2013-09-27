@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy_es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-06-03 21:02+0200\n"
-"PO-Revision-Date: 2013-06-15 21:28+0100\n"
+"PO-Revision-Date: 2013-09-25 17:44+0100\n"
 "Last-Translator: Norbert Schechner <gmoccapy@web.de>\n"
 "Language-Team: Jorge Viloria <jlviloria@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -646,15 +646,15 @@ msgstr "Escala del avance de corte"
 
 #: gmoccapy.glade.h:84
 msgid "Scale jog velocity"
-msgstr "Escala de la velocidad manual"
+msgstr "Escala de la vel. manual"
 
 #: gmoccapy.glade.h:85
 msgid "Scale max velocity"
-msgstr "Escala de la velocidad max."
+msgstr "Escala de la vel. max."
 
 #: gmoccapy.glade.h:86
 msgid "Scale spindle override"
-msgstr "Escala del velocidad del husillo"
+msgstr "Escala del vel. del husillo"
 
 #: gmoccapy.glade.h:87
 msgid "Select the file you want to be loaded on start of gmoccapy"

@@ -1,3 +1,9 @@
+ver. 0.9.7.4
+- added the Serbian translation
+- corrected some mistakes in Spanish translation
+- moved some files to get them in the corresponding locale folder
+- modified .gitignore files so my locale folder will not be ignored any more
+
 ver 0.9.7.3.1
 - removed some print/debug lines
 - new order of the button in Auto Mode (requested from svenakela)
