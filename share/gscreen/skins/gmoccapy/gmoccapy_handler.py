@@ -239,8 +239,9 @@ class HandlerClass:
         # One from the released button and one from the pressed button
         # we make a list of the buttons to later add the hardware pins to them
         
-        rbt0 = gtk.RadioButton(None, "Continuous")
-        rbt0.connect("pressed", self.on_increment_changed,"Continuous")
+        label = _("Continuous")
+        rbt0 = gtk.RadioButton(None, label)
+        rbt0.connect("pressed", self.on_increment_changed,0)
         self.widgets.vbuttonbox2.pack_start(rbt0,True,True,0)
         rbt0.set_property("draw_indicator",False)
         rbt0.show()
@@ -872,7 +873,7 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry(_("entry for macro %s has been canceled")%o_codes[0])
                 return
             else:
-                self.gscreen.add_alarm_entry(_("macro {0} , parameter {1} set to {2:f}".format(o_codes[0],code,parameter)))
+                self.gscreen.add_alarm_entry(_("macro {0} , parameter {1} set to {2:f}").format(o_codes[0],code,parameter))
             command = command + " [" + str(parameter) + "] "
 # TODO: Should not only clear the plot, but also the loaded programm?
         #self.emc.emccommand.program_open("")
@@ -1331,10 +1332,14 @@ class HandlerClass:
     def on_adj_spindle_bar_min_value_changed(self, widget, data = None):
         if self.log: self.gscreen.add_alarm_entry("Spindle bar min has been set to %s"%widget.get_value())
         self.gscreen.prefs.putpref("spindle_bar_min", widget.get_value(),float)
+        self.widgets.adj_spindle_bar_min.set_value(widget.get_value())
+        self.widgets.hal_hbar_spindle_feedback.set_property("min",widget.get_value())
 
     def on_adj_spindle_bar_max_value_changed(self, widget, data = None):
         if self.log: self.gscreen.add_alarm_entry("Spindle bar max has been set to %s"%widget.get_value())
         self.gscreen.prefs.putpref("spindle_bar_max", widget.get_value(),float)
+        self.widgets.adj_spindle_bar_max.set_value(widget.get_value())
+        self.widgets.hal_hbar_spindle_feedback.set_property("max",widget.get_value())
 
     def _update_spindle_btn(self):
         if self.gscreen.emcstat.task_mode == _AUTO and self.interpreter == _RUN:
@@ -1417,10 +1422,10 @@ class HandlerClass:
     # This is the jogging part
     def on_increment_changed(self, widget = None, data = None):
         if self.log: self.gscreen.add_alarm_entry("increment_changed %s"%data)
-        if data != "Continuous":
-            self.distance = self.gscreen.parse_increment(data)
-        else:
+        if data == 0:
             self.distance = 0
+        else:
+            self.distance = self.gscreen.parse_increment(data)
         self.gscreen.halcomp["jog-increment"] = self.distance
 
     def on_adj_jog_vel_value_changed(self, widget, data = None):
@@ -1643,7 +1648,7 @@ class HandlerClass:
         if offset == "CANCEL" or offset == "ERROR":
             return
         if offset != False or offset == 0:
-            self.gscreen.add_alarm_entry(_("offset {0} set to {1:f}".format(axis,offset)))
+            self.gscreen.add_alarm_entry(_("offset {0} set to {1:f}").format(axis,offset))
             self.emc.set_mdi_mode()
             self.gscreen.mdi_control.set_axis(axis,offset)
             self.widgets.hal_action_reload.emit("activate")
@@ -1709,7 +1714,7 @@ class HandlerClass:
     def on_tbtn_rel_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_rel_toggled to %s"%widget.get_active())
         if widget.get_active():
-            widget.set_label("Abs.")
+            widget.set_label(_("Abs."))
             self.widgets.gremlin.set_property("use_relative",False)
             self.set_property_dro("reference_type", 0)
         else:
@@ -1722,11 +1727,11 @@ class HandlerClass:
     def on_tbtn_dtg_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("tbtn_dtg_toggled to %s"%widget.get_active())
         if widget.get_active():
-            widget.set_label("GTD.")
+            widget.set_label(_("GTD."))
             self.widgets.gremlin.set_property("show_dtg",True)
             self.set_property_dro("reference_type", 2)
         else:
-            widget.set_label("DTG.")
+            widget.set_label(_("DTG."))
             self.widgets.gremlin.set_property("show_dtg",False)
             if self.widgets.tbtn_rel.get_active():
                 self.set_property_dro("reference_type", 0)
@@ -2029,20 +2034,22 @@ class HandlerClass:
             self.gscreen.warning_dialog(_("Warning Tool Touch off not possible!"), True, message)
             return
 
-        value = self.entry_dialog(data = None, header = _("Enter value for axis %s to set:")%axis, 
-                                      label=_("Set parameter of tool {0:d} and axis {1} to:".format(self.data.tool_in_spindle,axis)),
-                                      integer = False)
+        value = self.entry_dialog(data = None, 
+                                  header = _("Enter value for axis %s to set:")%axis.upper(),
+                                  label=_("Set parameter of tool {0:d} and axis {1} to:").format(self.data.tool_in_spindle,axis.upper()),
+                                  integer = False)
+        
         if value == "ERROR":
-            message = _("Conversion error because of wrong entry for touch off axis %s")%axis
+            message = _("Conversion error because of wrong entry for touch off axis %s")%axis.upper()
             print(message)
             self.gscreen.add_alarm_entry(message)
             self.gscreen.warning_dialog(_("Conversion error !"), True, message)
             return
         elif value == "CANCEL":
-            self.gscreen.add_alarm_entry(_("entry for axis %s has been canceled")%axis)
+            self.gscreen.add_alarm_entry(_("entry for axis %s has been canceled")%axis.upper())
             return
         else:
-            self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}".format(axis,value)))
+            self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}").format(axis.upper(),value))
         self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
         self.widgets.rbt_manual.emit("pressed")
         self.widgets.rbt_manual.set_active(True)

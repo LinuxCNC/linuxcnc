@@ -1,3 +1,13 @@
+ver 0.9.7.5
+- translation of the Continious Jog Button now possible
+- solved a bug, when selecting the contionous jog button when it was translated
+- added ABS, DTG and GTD to translation file
+- added "show or hide tool path" to translation
+- corrected a bug changing spindle bar min and max values changed the widget only on restart
+- added to translation the complete gscreen.py file, even if there are a lot of things 
+  nowbody need to translate, but that gives the possibility to translade the entry dialogs 
+  and some button labels
+
 ver. 0.9.7.4
 - added the Serbian translation
 - corrected some mistakes in Spanish translation

@@ -56,9 +56,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="use_commanded">False</property>
                                             <property name="show_dtg">False</property>
                                             <property name="enable_dro">False</property>
+                                            <property name="use_commanded">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -243,7 +243,6 @@
                                             <child>
                                               <object class="GtkImage" id="imimg_toll_path">
                                                 <property name="visible">True</property>
-                                                <property name="tooltip_markup">Show or hide tool path</property>
                                                 <property name="pixbuf">icon/toolpath.png</property>
                                               </object>
                                             </child>
@@ -334,8 +333,8 @@
                                 <child>
                                   <object class="OffsetPage" id="offsetpage1">
                                     <property name="visible">True</property>
-                                    <property name="highlight_color">#adadd8d8e6e6</property>
                                     <property name="foreground_color">#ffff00000000</property>
+                                    <property name="highlight_color">#adadd8d8e6e6</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -430,7 +429,7 @@
                                     </child>
                                     <child>
                                       <object class="GtkToggleButton" id="tbtn_dtg">
-                                        <property name="label">DTG</property>
+                                        <property name="label" translatable="yes">DTG</property>
                                         <property name="width_request">48</property>
                                         <property name="height_request">48</property>
                                         <property name="visible">True</property>
@@ -506,8 +505,8 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="reference_type">2</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="reference_type">2</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -532,9 +531,9 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="joint_number">1</property>
-                                            <property name="reference_type">1</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="reference_type">1</property>
+                                            <property name="joint_number">1</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -561,9 +560,9 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="joint_number">2</property>
-                                            <property name="reference_type">1</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="reference_type">1</property>
+                                            <property name="joint_number">2</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -613,9 +612,9 @@
                                             <property name="xalign">1</property>
                                             <property name="label">label</property>
                                             <property name="actual">False</property>
-                                            <property name="joint_number">3</property>
-                                            <property name="reference_type">1</property>
                                             <property name="display_units_mm">True</property>
+                                            <property name="reference_type">1</property>
+                                            <property name="joint_number">3</property>
                                             <attributes>
                                               <attribute name="style" value="normal"/>
                                               <attribute name="weight" value="bold"/>
@@ -1882,15 +1881,15 @@
                                                     <child>
                                                       <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                         <property name="visible">True</property>
-                                                        <property name="z1_border">0.80000001192092896</property>
                                                         <property name="bg_color">#bebebebebebe</property>
                                                         <property name="z0_color">#0000ffff0000</property>
-                                                        <property name="text_template">%i</property>
                                                         <property name="z1_color">#0000ffff0000</property>
-                                                        <property name="z2_color">#0000ffff0000</property>
-                                                        <property name="max">6000</property>
                                                         <property name="target_color">#0000ffff0000</property>
+                                                        <property name="text_template">%i</property>
+                                                        <property name="z2_color">#0000ffff0000</property>
                                                         <property name="target_value">-0.039999999105930328</property>
+                                                        <property name="max">6000</property>
+                                                        <property name="z1_border">0.80000001192092896</property>
                                                         <property name="z0_border">0.40000000596046448</property>
                                                         <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                       </object>
@@ -3662,8 +3661,8 @@ Aux Screen</property>
                                               <object class="GtkFileChooserButton" id="jump_to_dir_chooser">
                                                 <property name="visible">True</property>
                                                 <property name="tooltip_text" translatable="yes">select the jump to dir for file open dialog</property>
-                                                <property name="show_hidden">True</property>
                                                 <property name="action">select-folder</property>
+                                                <property name="show_hidden">True</property>
                                                 <property name="title" translatable="yes">Select user dir</property>
                                                 <signal name="file_set" handler="on_jump_to_dir_chooser_file_set"/>
                                               </object>
