@@ -35,8 +35,8 @@ def introspect(self,*args):
     for x in self.sub_context[1].named_params:
         print "name:",x.key(),"value=",x.data().value, "attr=",x.data().attr
 
-    for r in self.remaps:
-        print r.key(), str(r.data())
+    #for r in self.remaps:
+    #    print r.key(), str(r.data())
 
     print "current oword subname=", self.blocks[0].o_name
     print "m_modes[0]=", self.blocks[0].m_modes[0]
