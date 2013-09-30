@@ -625,7 +625,7 @@ int read_inputs(setup_pointer settings);
  read_function_pointer _readers[256];
  static const read_function_pointer default_readers[256];
 
- static setup &_setup;
+ static setup _setup;
 
  enum {
      AXIS_MASK_X =   1, AXIS_MASK_Y =   2, AXIS_MASK_Z =   4,
