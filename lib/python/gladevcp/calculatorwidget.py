@@ -46,6 +46,7 @@ class Calculator(gtk.VBox):
         self.eval_string=""
         self.font="sans 12"
         self.is_editable=False
+        self.integer_only = False
         self.wTree = gtk.Builder()
         self.wTree.add_from_file(os.path.join(datadir, "calculator.glade") )
         dic = {
@@ -88,6 +89,15 @@ class Calculator(gtk.VBox):
             else:
                 temp.show()
 
+    def integer_entry_only(self,value):
+        temp = self.wTree.get_object('Dot')
+        if value:
+            temp.hide()
+            self.integer_only = True
+        else:
+            temp.show()
+            self.integer_only = False
+
     def set_editable(self,value):
         self.is_editable = value
         self.entry.set_editable(value)
@@ -126,7 +136,10 @@ class Calculator(gtk.VBox):
                 qualified = qualified + i
         #print qualified
         try   :
-            b=str(eval(qualified))
+            if self.integer_only:
+                b=str(int(eval(qualified)))
+            else:
+                b=str(eval(qualified))
         except:
             b= "Error"
             print"Calculator widget error, string:",self.eval_string,sys.exc_info()[0]

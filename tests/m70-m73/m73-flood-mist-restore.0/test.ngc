@@ -1,0 +1,19 @@
+;py,from interpreter import *
+
+o1000 sub
+M73
+M9 (mist+flood off)
+o1000 endsub
+
+
+m7 (mist on)
+m8 (flood on)
+
+o1000 call
+
+(mist+flood must be on again here since restored by M73:)
+
+;py,assert this.params["_mist"] == 1.0
+;py,assert this.params["_flood"] == 1.0
+
+m2

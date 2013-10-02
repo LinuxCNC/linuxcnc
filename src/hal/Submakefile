@@ -44,5 +44,6 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 
 
 
-TARGETS += $(HALLIB) ../lib/liblinuxcnchal.so.0
+modules: $(HALLIB) $(HALLIB).0
+TARGETS += $(HALLIB) $(HALLIB).0
 PYTARGETS += $(HALMODULE) 

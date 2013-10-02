@@ -427,16 +427,6 @@ static int message_thread()
 		// strip trailing newlines
 		while ((cp = strrchr(msg->buf,'\n')))
 		    *cp = '\0';
-
-		switch (msg->origin) {
-		case MSG_ULAPI:
-		    setlogmask(LOG_UPTO (rtapi2syslog(global_data->user_msg_level)));
-		    break;
-		case MSG_RTUSER:
-		case MSG_KERNEL:
-		    setlogmask(LOG_UPTO (rtapi2syslog(global_data->rt_msg_level)));
-		    break;
-		}
 		syslog(rtapi2syslog(msg->level), "%s:%d:%s %.*s",
 		       msg->tag, msg->pid, origins[msg->origin],
 		       (int) payload_length, msg->buf);
@@ -631,7 +621,6 @@ int main(int argc, char **argv)
     snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
 
     openlog(proctitle, option , SYSLOG_FACILITY);
-    setlogmask(LOG_UPTO(SYSLOG_FACILITY));
 
     // set new process name
     argv0_len = strlen(argv[0]);

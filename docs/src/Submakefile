@@ -44,6 +44,7 @@ DOC_SRCS_EN := \
 	common/User_Concepts.txt \
 	common/userforeword.txt \
 	common/user_intro.txt \
+	common/UnifiedBuild.txt \
 	config/copy_and_run.txt \
 	config/emc2hal.txt \
 	config/ini_config.txt \

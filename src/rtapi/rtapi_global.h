@@ -44,7 +44,7 @@
 #include "ring.h"             // ring buffer ops & structures
 
 
-#define MESSAGE_RING_SIZE 32768
+#define MESSAGE_RING_SIZE (4096 * 64)
 #define INSTANCE_NAME_LENGTH 32
 
 // the universally shared global structure

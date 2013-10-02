@@ -24,7 +24,7 @@ static char rcsid[] = "$NetBSD: s_ceil.c,v 1.8 1995/05/10 20:46:53 jtc Exp $";
  *	Inexact flag raised if x not equal to ceil(x).
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

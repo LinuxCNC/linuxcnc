@@ -356,10 +356,10 @@ typedef struct {
 
     } hal;
     
-    long long accum;
-    long long offset;
-    u32 old_reg;
-    u32 index_cnts;
+    __s64 accum;
+    __s64 offset;
+    __u32 old_reg;
+    __u32 index_cnts;
 
 } hm2_resolver_instance_t;
 
@@ -1079,8 +1079,9 @@ int hm2_sserial_check_errors(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
 int hm2_sserial_setup_channel(hostmot2_t *hm2, hm2_sserial_instance_t *inst, int index);
 int hm2_sserial_setup_remotes(hostmot2_t *hm2, hm2_sserial_instance_t *inst, hm2_module_descriptor_t *md);
 void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
-int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_instance_t *inst, hm2_sserial_remote_t *chan);
-int hm2_sserial_read_configs(hostmot2_t *hm2, hm2_sserial_instance_t *inst, hm2_sserial_remote_t *chan);
+int hm2_sserial_create_pins(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
+int hm2_sserial_register_tram(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
+int hm2_sserial_read_configs(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
 void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst);
 
 //

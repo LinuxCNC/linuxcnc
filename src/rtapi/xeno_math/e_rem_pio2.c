@@ -20,7 +20,7 @@ static char rcsid[] = "$NetBSD: e_rem_pio2.c,v 1.8 1995/05/10 20:46:02 jtc Exp $
  * use __kernel_rem_pio2()
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 /*

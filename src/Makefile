@@ -117,15 +117,15 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 # placed far away from all others.
 FLAVORUP = $(shell echo $(1) | tr a-z- A-Z_)
 FLAVORVAR = $($(call FLAVORUP,$(1))_THREADS_$(2))
-modules:
+modules:  userspace
 	@$(foreach f,$(BUILD_THREAD_FLAVORS),\
 	    echo "Making modules for flavor $(f)"; \
 	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
 		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
 		    echo "    kernel source dir $(kd)"; \
-		    $(MAKE) threads=$(f) KERNELDIR=$(kd);\
+		    $(MAKE) modules threads=$(f) KERNELDIR=$(kd);\
 		    ),\
-	        $(MAKE) threads=$(f);\
+	        $(MAKE) modules threads=$(f);\
 	    )\
 	)
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
@@ -553,18 +553,8 @@ endif
 ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),kbuild+yes)
 modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
 	mkdir -p $(RTLIBDIR)
-ifeq ($(THREADS),XENOMAI_KERNEL)
-	$(MAKE) \
-	    -C $(OBJDIR)/rtapi/xeno_math \
-	    BASEPWD=$(BASEPWD) \
-	    KERNELDIR=$(KERNELDIR) \
-	    KERNEL_MATH_CFLAGS="$(KERNEL_MATH_CFLAGS)" \
-	    V=$(BUILD_VERBOSE) $(PRECISE_MULTILIB_BUG) modules
-	cp $(OBJDIR)/rtapi/xeno_math/xeno_math.ko $(RTLIBDIR)
-endif
 	$(PYTHON) modsilent.py $(MAKE) \
 	    -C $(KERNELDIR) \
-	    KBUILD_EXTRA_SYMBOLS="$(KBUILD_EXTRA_SYMBOLS)" \
 	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
 	    CC=$(CC) KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
 	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
@@ -600,9 +590,6 @@ modclean:
 	find -name '.*.cmd' -or -name '*.ko' -or -name '*.mod.c' -or -name '*.mod.o' | xargs rm -f
 	-rm -rf .tmp_versions
 	-rm -rf halcomp-srcs
-	for flav in $(BUILD_THREAD_FLAVORS); do \
-	    rm -rf rtapi/$$flav; \
-	done
 	find . -name .tmp_versions |xargs rm -rf
 	-rm -f $(RTLIBDIR)/*.ko
 	-rm -f $(RTLIBDIR)/*.so
@@ -765,7 +752,7 @@ endif
 	cp --no-dereference \
 	    $(filter-out ../lib/ulapi-%.so,$(filter ../lib/%.so, $(TARGETS))) \
 	    $(DESTDIR)$(libdir)
-	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_DIR)
+	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
@@ -839,9 +826,9 @@ endif
 	for flavor in $(BUILD_THREAD_FLAVORS); do \
 	    if test $${flavor%-kernel} = $${flavor}; then \
 		echo Installing modules for userland flavor $$flavor; \
-		$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR)/$$flavor; \
+		$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
 		$(FILE) ../rtlib/$$flavor/* \
-		    $(DESTDIR)$(EMC2_RTLIB_DIR)/$$flavor; \
+		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
 	    else \
 		echo Installing modules for kthreads flavor $$flavor; \
 		for srcdir in ../rtlib/$$flavor/*; do \
@@ -897,6 +884,7 @@ ifneq ($(KERNELRELEASE),)
 include $(BASEPWD)/hal/components/Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
+include $(BASEPWD)/rtapi/xeno_math/Submakefile
 endif # KERNELRELEASE non-empty
 
 

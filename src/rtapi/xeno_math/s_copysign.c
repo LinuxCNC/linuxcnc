@@ -21,7 +21,7 @@ static char rcsid[] = "$NetBSD: s_copysign.c,v 1.8 1995/05/10 20:46:57 jtc Exp $
  * with the sign bit of y.
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

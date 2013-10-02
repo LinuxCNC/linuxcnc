@@ -13,6 +13,9 @@ rtapi_shmem \- Functions for managing shared memory blocks
 .HP
  int rtapi_shmem_getptr(int \fIshmem_id\fR, void ** \fIptr\fR)
 
+.HP
+ int rtapi_shmem_exists(int \fIkey\fR)
+
 .SH  ARGUMENTS
 .IP \fIkey\fB
 Identifies the memory block.  Key must be nonzero.  All modules wishing to use the same memory must use the same key.
@@ -44,12 +47,19 @@ On success, it returns a positive integer ID, which is used for
 all subsequent calls dealing with the block.  On failure it 
 returns a negative error code.
 
+Calling \fBrtapi_shmem_new\fR with a zero size argument will
+attach to an existing shared memory segment; if this segment does not  
+exist a negative error code is returned.
+
 \fBrtapi_shmem_delete\fR frees the shared memory block associated
 with \fIshmem_id\fR.  \fImodule_id\fR is the ID of the calling module.
 Returns a status code.
 
 \fBrtapi_shmem_getptr\fR sets \fI*ptr\fR to point to shared memory block
 associated with \fIshmem_id\fR.
+
+\fBrtapi_shmem_exists\fR may be used to test if a shared memory segment 
+exists. A value of 1 means the segment exists, a value of 0 means it doesnt.
 
 .SH REALTIME CONSIDERATIONS
 

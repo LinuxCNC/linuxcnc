@@ -93,23 +93,6 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
-AC_MSG_CHECKING(libgl1-mesa-dri workaround)
-
-PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
-if test  $? -ne 0 ; then
-   # real bad, the test failed - let me know
-   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
-   exit 1
-fi
-if test "x$PRELOAD_WORKAROUND" != "x" ; then
-   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
-else
-   AC_MSG_RESULT(not required)
-fi
-
-
-
-
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
@@ -644,7 +627,8 @@ check_kernel_source_configured() {
     AC_MSG_CHECKING([for configured kernel source in $ksrc_dir])
     # if .config and version.h both exist, then assume it's configured
     if test -f "$ksrc_dir/.config" -a \
-	    -f "$ksrc_dir/include/linux/version.h"; then
+	    \(  -f "$ksrc_dir/include/linux/version.h" -o \
+	    -f "$ksrc_dir/include/generated/uapi/linux/version.h"  \); then
 	AC_MSG_RESULT([found])
 	return 0
     else
@@ -1119,7 +1103,8 @@ AC_MSG_RESULT($with_xenomai_kernel)
 
 # check whether the gcc-multilib problem exists
 # see http://gcc.gnu.org/ml/gcc/2012-02/msg00314.html
-if test $with_xenomai_kernel = yes; then
+if test $with_xenomai_kernel = yes -a -x /usr/bin/lsb_release &&
+    test "$(lsb_release -cs)" = precise; then
     CFLAGS_save="$CFLAGS"
     CFLAGS="-nostdinc -I/usr/include"
     MULTILIB_HACK="/usr/include/$(gcc -print-multiarch)"
@@ -2483,6 +2468,20 @@ Install this version and specify --with-tclConfig and --with-tkConfig if necessa
 
     AC_MSG_CHECKING(for Xmu headers)
     AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
+fi
+
+AC_MSG_CHECKING(libgl1-mesa-dri workaround)
+
+PRELOAD_WORKAROUND=`../scripts/test-libgl-bug.sh 2>/dev/null`
+if test  $? -ne 0 ; then
+   # real bad, the test failed - let me know
+   AC_MSG_RESULT([test for libgl1-mesa-dri workaround failed, please file a bug])
+   exit 1
+fi
+if test "x$PRELOAD_WORKAROUND" != "x" ; then
+   AC_MSG_RESULT(required - need to preload $PRELOAD_WORKAROUND)
+else
+   AC_MSG_RESULT(not required)
 fi
 
 AC_SUBST([BUILD_PYTHON])

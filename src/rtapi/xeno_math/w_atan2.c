@@ -17,7 +17,7 @@ static char rcsid[] = "$NetBSD: w_atan2.c,v 1.6 1995/05/10 20:48:39 jtc Exp $";
 /* 
  * wrapper atan2(y,x)
  */
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 
 

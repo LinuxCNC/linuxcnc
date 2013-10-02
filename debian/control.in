@@ -51,6 +51,8 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python@PYTHON_VERSION@-numpy | python-numpy,
     python@PYTHON_VERSION@-imaging,
     python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
+    python-gtksourceview2,
+    python-vte,
     python-xlib, python-gtkglext1, python-configobj,
     tclreadline, bc, procps
 Description: PC based motion controller for real-time Linux

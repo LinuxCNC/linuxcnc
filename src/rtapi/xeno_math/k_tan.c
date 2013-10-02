@@ -48,7 +48,7 @@ static char rcsid[] = "$NetBSD: k_tan.c,v 1.8 1995/05/10 20:46:37 jtc Exp $";
  *		       = 1 - 2*(tan(y) - (tan(y)^2)/(1+tan(y)))
  */
 
-#include "math.h"
+#include "rtapi_math.h"
 #include "mathP.h"
 #ifdef __STDC__
 static const double 

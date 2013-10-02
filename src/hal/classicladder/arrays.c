@@ -199,7 +199,8 @@ int ClassicLadder_AllocAll()
     bytes += numWords * sizeof(int);
     bytes += numFloats * sizeof(double);
     bytes += numBits * sizeof(TYPE_FOR_BOOL_VAR);
-    
+
+
     // Attach SHMEM with proper size.
     if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0) 
               {
@@ -224,9 +225,17 @@ int ClassicLadder_AllocAll()
 
 #ifndef RTAPI// for user space
 
-	
+     // check if RT component was loaded:
+     if (!rtapi_shmem_exists(CL_SHMEM_KEY)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "classicladder: the classicladder_rt shared "
+			 "memory segment (%x) does not exist",CL_SHMEM_KEY);
+	 rtapi_print_msg(RTAPI_MSG_ERR, "classicladder_rt not loaded?");
+	 return FALSE;
+     }
+     
     // Attach SHMEM with proper size.
-    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, bytes)) < 0)
+    if ((ShmemId = rtapi_shmem_new(CL_SHMEM_KEY, compId, 0)) < 0)
               {
                rtapi_print("Failed to alloc shared memory (%x %d %lu) !\n",
                CL_SHMEM_KEY, compId, bytes);

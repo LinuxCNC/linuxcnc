@@ -357,15 +357,15 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
     modbus_set_debug(this_mb_link->modbus, this_mb_tx->protocol_debug);
 
     //set response and byte timeout according to each mb_tx
-    timeout.tv_sec  = (int)(float)(this_mb_tx->mb_response_timeout_ms / 1000.0);  //int part of the float
-    timeout.tv_usec = ((float)(this_mb_tx->mb_response_timeout_ms / 1000.0) - timeout.tv_sec) * 1000000;
+    timeout.tv_sec  = this_mb_tx->mb_response_timeout_ms / 1000;
+    timeout.tv_usec = (this_mb_tx->mb_response_timeout_ms % 1000) * 1000;
     modbus_set_response_timeout(this_mb_link->modbus, &timeout);
     //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] response timeout [%d] ([%d] [%d])",
     //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_response_timeout_ms,
     //    (int) timeout.tv_sec, (int) timeout.tv_usec);
 
-    timeout.tv_sec  = (int)(float)(this_mb_tx->mb_byte_timeout_ms / 1000.0);  //int part of the float
-    timeout.tv_usec = ((float)(this_mb_tx->mb_byte_timeout_ms / 1000.0) - timeout.tv_sec) * 1000000;
+    timeout.tv_sec  = this_mb_tx->mb_byte_timeout_ms / 1000;
+    timeout.tv_usec = (this_mb_tx->mb_byte_timeout_ms % 1000) * 1000;
     modbus_set_byte_timeout(this_mb_link->modbus, &timeout);
     //DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] byte timeout [%d] ([%d] [%d])",
     //    this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_tx->mb_byte_timeout_ms,

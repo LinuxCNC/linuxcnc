@@ -280,7 +280,13 @@ This can be used after filling out all the information for this axis.
 
 image::images/stepconf-test.png[align="center"]
 
-With Stepconf it is easy to try different values for acceleration and velocity.
+Test this axis is a basic tester that only outputs step and direction signals
+to try different values for acceleration and velocity.
+
+[IMPORTANT] 
+In order to use test this axis you have to manually enable the axis if this
+is required. If your driver has a charge pump you will have to bypass it.
+Test this axis does not react to limit switch inputs. Use with caution.
 
 ==== Finding Maximum Velocity[[finding-maximum-velocity]](((Finding Maximum Velocity)))
 
