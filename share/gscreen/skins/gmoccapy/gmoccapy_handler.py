@@ -34,6 +34,7 @@ import gladevcp.makepins # needed for the dialog"s calulator widget
 import locale            # for translations
 import subprocess        # to launch onboard and other proceses
 import tempfile          # needed only if the user click new in edit mode to open a new empty file
+import linuxcnc          # to get our own error sytsem
 
 # standard handler call
 def get_handlers(halcomp,builder,useropts,gscreen):
@@ -44,8 +45,9 @@ pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
 color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
+
 # constants
-_RELEASE = "0.9.7.5.1"
+_RELEASE = "0.9.8"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -54,6 +56,34 @@ _MDI = 3                # Check for the mode MDI
 _RUN = 1                # needed to check if the interpreter is running
 _IDLE = 0               # needed to check if the interpreter is idle
 _TEMPDIR = tempfile.gettempdir() # Now we know where the tempdir is, usualy /tmp
+
+
+# all this stuff is only needed, because we want to show icon in Notification 
+import sys
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+SKINPATH = os.path.join(BASE, "share","gscreen","skins","gmoccapy")
+IMAGEDIR = os.path.join(SKINPATH,"icon")
+CONFIGPATH = os.environ['CONFIG_DIR']
+
+# the ICONS should be in gmoccapy / icon, or we should rename the folder to images
+ALERT_ICON = os.path.join(IMAGEDIR,"applet-critical.png")
+INFO_ICON = os.path.join(IMAGEDIR,"std_info.gif")
+
+if os.path.exists(os.path.join(SKINPATH,"python")):
+    print ("\n\n*** GMOCCAPY INFO: ***\n found python subfolder in \n%s"%SKINPATH)
+    print ("added to python path\n*** GMOCCAPY INFO: *** \n\n")
+    sys.path.append(os.path.join(SKINPATH,"python"))
+    print sys.path
+else:
+    print ("\n*** GMOCCAPY INFO: *** no additional python path found")
+
+try:
+    import notification      # this is the module we use for our error handling
+except:
+    print("Error trying to import notification")
+    sys.exit()
+# TODO:End
+
 
 # This is a handler file for using Gscreen"s infrastructure
 # to load a completely custom glade screen
@@ -72,7 +102,9 @@ class HandlerClass:
         self.data = gscreen.data
         self.widgets = gscreen.widgets
         self.gscreen = gscreen
-        
+        self.emcstat = linuxcnc.stat()
+        self.emcerror = linuxcnc.error_channel()
+
         self.distance = 0         # This global will hold the jog distance
         self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actions are allowed
         self.wait_tool_change = False # this is needed to get back to manual mode after a tool change
@@ -88,6 +120,7 @@ class HandlerClass:
         self.system_list = (0,"G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3") # needed to display the labels
         self.axisnumber_four = ""   # we use this to get the number of the 4-th axis
         self.axisletter_four = None # we use this to get the letter of the 4-th axis
+        self.notification = notification.Notification() # Our own message system
 
     def initialize_preferences(self):
         self.data.theme_name = self.gscreen.prefs.getpref("gtk_theme", "Follow System Theme", str)
@@ -189,9 +222,29 @@ class HandlerClass:
 
         # Window position and size
         self.widgets.adj_x_pos.set_value(self.gscreen.prefs.getpref("x_pos", 10, float))
-        self.widgets.adj_y_pos.set_value(self.gscreen.prefs.getpref("y_pos", 10, float))
+        self.widgets.adj_y_pos.set_value(self.gscreen.prefs.getpref("y_pos", 25, float))
         self.widgets.adj_width.set_value(self.gscreen.prefs.getpref("width", 979, float))
         self.widgets.adj_height.set_value(self.gscreen.prefs.getpref("height", 750, float))
+
+        # Get the type of error handling
+        self.data.error_style = self.gscreen.prefs.getpref("error_style", "gmoccapy", str)
+        # and set the corresponding button active
+        self.widgets["rbt_use_%s"%self.data.error_style].set_active(True)
+        # unsensitize the gmoccastyle adjustments if gscreen shall be usede
+        if self.data.error_style == "gscreen":
+            self.widgets.frm_message_position.set_sensitive(False)
+        
+        # Popup Messages position and size
+        self.widgets.adj_x_pos_popup.set_value(self.gscreen.prefs.getpref("x_pos_popup", 15, float))
+        self.widgets.adj_y_pos_popup.set_value(self.gscreen.prefs.getpref("y_pos_popup", 55, float))
+        self.widgets.adj_width_popup.set_value(self.gscreen.prefs.getpref("width_popup", 250, float))
+        self.widgets.adj_max_messages.set_value(self.gscreen.prefs.getpref("max_messages", 10, float))
+        self.widgets.fontbutton_popup.set_font_name(self.gscreen.prefs.getpref("message_font", "sans 10", str))
+        self.widgets.chk_use_frames.set_active(self.gscreen.prefs.getpref("use_frames", True, bool))
+
+        # Use desktop notify ?
+        self.data.desktop_notify = self.gscreen.prefs.getpref("desktop_notify", False, bool)
+        self.widgets.chk_use_desktop_notify.set_active(self.data.desktop_notify)
 
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
@@ -202,7 +255,7 @@ class HandlerClass:
         self.widgets.rbt_manual.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_mdi.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_auto.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-        self.widgets.rbt_setup.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+        self.widgets.tbtn_setup.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.rbt_forward.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.rbt_reverse.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.rbt_stop.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -318,7 +371,7 @@ class HandlerClass:
         self.h_tabs.append(tab_file)
 
         self.v_tabs = [(0,"tbtn_estop"),(1,"tbtn_on"),(2,"rbt_manual"),(3,"rbt_mdi"),
-                       (4,"rbt_auto"),(5,"rbt_setup"),(6,"tbtn_user_tabs")
+                       (4,"rbt_auto"),(5,"tbtn_setup"),(6,"tbtn_user_tabs")
                       ]
 
         self.widgets.rbt_manual.set_active(True)
@@ -344,8 +397,6 @@ class HandlerClass:
         if self.gscreen.machine_units_mm == 1: # is needed to show vel in machine units
             self.gscreen.set_dro_units(_MM,True)
 
-        self.data.desktop_notify = self.gscreen.prefs.getpref("desktop_notify", False, bool)
-
         # get if run from line should be used
         rfl = self.gscreen.prefs.getpref("run_from_line", "no_run", str)
         # and set the corresponding button active
@@ -361,7 +412,7 @@ class HandlerClass:
         self.widgets["rbt_%s_unlock"%unlock].set_active(True)
         # if Hal pin should be used, only set the button active, if the pin is high
         if unlock == "hal" and not self.gscreen.halcomp["unlock-settings"]:
-            self.widgets.rbt_setup.set_sensitive(False)
+            self.widgets.tbtn_setup.set_sensitive(False)
         self.unlock_code = self.gscreen.prefs.getpref("unlock_code", "123", str) # get unlock code
 
         # get when the keyboard should be shown
@@ -554,10 +605,13 @@ class HandlerClass:
                 self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus,3,4,0,1,gtk.SHRINK, gtk.SHRINK)
                 self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus,3,4,2,3,gtk.SHRINK, gtk.SHRINK)
 
+        # this must be done last, otherwise we will get wrong values
+        # because the window is not fully realized
+        self.init_notification()
+
     # shows "Onboard" virtual keyboard if available
     # else error message
     def init_keyboard(self,args="",x="",y=""):
-        print args,x,y
 #         result = subprocess.call("setxkbmap -layout de",shell=True)
 #         if result<> 0:
 #             print("error",result)
@@ -613,6 +667,54 @@ class HandlerClass:
             names.append([system,name])
         self.widgets.offsetpage1.set_names(names)
 
+    # Notification stuff.
+    def init_notification(self):
+        start_as = "rbtn_" + self.gscreen.prefs.getpref("screen1", "window",str)
+        xpos,ypos = self.widgets.window1.window.get_origin()
+        self.notification.set_property('x_pos' , self.widgets.adj_x_pos_popup.get_value())
+        self.notification.set_property('y_pos' , self.widgets.adj_y_pos_popup.get_value())
+        self.notification.set_property('message_width' , self.widgets.adj_width_popup.get_value())
+        self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
+        self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
+        self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
+# TODO:
+        # this ones are not finished yet in notifications, we do add them at 
+        # a later development state, just to show they are there
+        self.notification.set_property('icon_size' , 1)
+        self.notification.set_property('top_to_bottom', True)
+# TODO: End
+
+    def on_adj_x_pos_popup_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref("x_pos_popup", widget.get_value(),float)
+        self.init_notification()
+
+    def on_adj_y_pos_popup_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref("y_pos_popup", widget.get_value(),float)
+        print("ypos = ",widget.get_value())
+        self.init_notification()
+
+    def on_adj_width_popup_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref("width_popup", widget.get_value(),float)
+        self.init_notification()
+
+    def on_adj_max_messages_value_changed(self, widget, data = None):
+        self.gscreen.prefs.putpref("max_messages", widget.get_value(),float)
+        self.init_notification()
+
+    def on_chk_use_frames_toggled(self, widget, data=None):
+        self.gscreen.prefs.putpref("use_frames", widget.get_active())
+        self.init_notification()
+
+    def on_fontbutton_popup_font_set(self,font):
+        self.gscreen.prefs.putpref("message_font", self.widgets.fontbutton_popup.get_font_name() , str)
+        self.init_notification()
+
+    def on_btn_launch_test_message_pressed(self, widget = None, data = None):
+        index = len(self.notification.messages)
+        text = _("Halo, welcome to the test message %d")%index
+        self.notification.add_message(text , INFO_ICON)
+
+    # Icon file selection stuff
     def init_IconFileSelection(self):
         # self.widgets.IconFileSelection1.set_property("start_dir",startdir)
         # is set in init with the selection of the NC_FILES path from INI
@@ -666,6 +768,7 @@ class HandlerClass:
 
         #get the keyname
         keyname = gtk.gdk.keyval_name(event.keyval)
+        #print("pressed key = ",keyname
 
         # estop with F1 shold work every time
         # so should also escape aboart actions
@@ -690,31 +793,17 @@ class HandlerClass:
         except:
             pass
 
-#         if keyname =="F5":
-#             self.notification.add_message("Dies ist die erste Nachricht")
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F6":
-#             self.notification.add_message("Dies ist die zweite Nachricht")
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F7":
-#             self.notification.add_message("Dies ist die dritte Nachricht")
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F8":
-#             self.notification.del_message(-1)
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F9":
-#             self.notification.del_message(5)
-#             self.widgets.window1.grab_focus()
-#             return True
-#         if keyname =="F10":
-#             self.notification.del_first()
-#             self.widgets.window1.grab_focus()
-#             return True
-            
+        if keyname =="space" and signal:
+            if event.state & gtk.gdk.CONTROL_MASK: # only do it when control is hold down
+                self.notification.del_message(-1)
+                self.widgets.window1.grab_focus()
+                return
+
+        if keyname =="Super_L" and signal: # Left Windows
+            self.notification.del_last()
+            self.widgets.window1.grab_focus()
+            return
+
         # if the user do not want to use keyboard shortcuts, we leave here
         # in this case we do not return true, otherwise entering code in MDI history 
         # and the integrated editor will not work
@@ -726,7 +815,7 @@ class HandlerClass:
         # in this case we do not return true, otherwise entering code in MDI history 
         # and the integrated editor will not work
         # we also check if we are in settings or terminal or alarm page
-        if self.gscreen.emcstat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+        if self.emcstat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
         # offset page is active, so keys must go through
@@ -742,6 +831,11 @@ class HandlerClass:
             if keyname == "Page_Up" or keyname == "Page_Down":
                 return
 
+        if event.state & gtk.gdk.SHIFT_MASK: # SHIFT is hold down, fast jogging active
+            fast = True
+        else:
+            fast = False
+
         if keyname == "Up":
             if self.data.lathe_mode:
                 if self.backtool_lathe:
@@ -751,7 +845,7 @@ class HandlerClass:
             else:
                 widget = self.widgets.btn_y_plus
             if signal:
-                self.on_btn_jog_pressed(widget)
+                self.on_btn_jog_pressed(widget,fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Down":
@@ -763,7 +857,7 @@ class HandlerClass:
             else:
                 widget = self.widgets.btn_y_minus
             if signal:
-                self.on_btn_jog_pressed(widget)
+                self.on_btn_jog_pressed(widget,fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Left":
@@ -772,7 +866,7 @@ class HandlerClass:
             else:
                 widget = self.widgets.btn_x_minus
             if signal:
-                self.on_btn_jog_pressed(widget)
+                self.on_btn_jog_pressed(widget,fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Right":
@@ -781,19 +875,19 @@ class HandlerClass:
             else:
                 widget = self.widgets.btn_x_plus
             if signal:
-                self.on_btn_jog_pressed(widget)
+                self.on_btn_jog_pressed(widget,fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Up":
             widget = self.widgets.btn_z_plus
             if signal:
-                self.on_btn_jog_pressed(widget)
+                self.on_btn_jog_pressed(widget,fast)
             else:
                 self.on_btn_jog_released(widget)
         elif keyname == "Page_Down":
             widget = self.widgets.btn_z_minus
             if signal:
-                self.on_btn_jog_pressed(widget)
+                self.on_btn_jog_pressed(widget,fast)
             else:
                 self.on_btn_jog_released(widget)
         else:
@@ -976,6 +1070,8 @@ class HandlerClass:
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
             self.emc.machine_on(1)
             self._update_widgets(True)
+            if self.widgets.ntb_main.get_current_page() != 0:
+                self.widgets.rbt_manual.emit("pressed")
         else:
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.emc.machine_off(1)
@@ -1019,44 +1115,49 @@ class HandlerClass:
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(2)
 
-    def on_rbt_setup_pressed(self, widget, data=None):
-        if self.widgets.ntb_main.get_current_page() == 1:
-# TODO: How to activate an other button, when clicking again
-#            self.widgets.rbt_setup.set_active(False)
-#            self.widgets.rbt_manual.set_active(True)
-#            self.widgets.rbt_manual.emit("pressed")
-# TODO: End
-            return
-        if self.log: self.gscreen.add_alarm_entry("rbt_setup_pressed")
-        code = False
-        # here the user don"t want an unlock code
-        if self.widgets.rbt_no_unlock.get_active():
-            code = True
-        # if hal pin is true, we are allowed to enter settings, this may be 
-        # realized using a key switch
-        if self.widgets.rbt_hal_unlock.get_active() and self.gscreen.halcomp["unlock-settings"]:
-            code = True
-        # else we ask for the code using the system.dialog
-        if self.widgets.rbt_use_unlock.get_active():
-            if self.system_dialog():
+    def on_ntb_main_switch_page(self, widget, page, page_num, data=None):
+        if self.log: 
+            message = "ntb_main_page changed to %s"%self.widgets.ntb_main.get_current_page()
+            self.gscreen.add_alarm_entry(message)
+        if self.widgets.tbtn_setup.get_active():
+            if page_num != 1L: # setup page is active,
+                 self.widgets.tbtn_setup.set_active(False)
+
+    def on_tbtn_setup_toggled(self, widget, data=None):
+        if widget.get_active():
+            if self.log: self.gscreen.add_alarm_entry("tbtn_setup_pressed")
+            code = False
+            # here the user don"t want an unlock code
+            if self.widgets.rbt_no_unlock.get_active():
                 code = True
+            # if hal pin is true, we are allowed to enter settings, this may be 
+            # realized using a key switch
+            if self.widgets.rbt_hal_unlock.get_active() and self.gscreen.halcomp["unlock-settings"]:
+                code = True
+            # else we ask for the code using the system.dialog
+            if self.widgets.rbt_use_unlock.get_active():
+                if self.system_dialog():
+                    code = True
+                else:
+                    code = False
+            # Lets see if the user has the right to enter settings
+            if code:
+                self.widgets.ntb_main.set_current_page(1)
+                self.widgets.ntb_setup.set_current_page(1)
+                self.widgets.ntb_button.set_current_page(5)
             else:
-                code = False
-        # Lets see if the user has the right to enter settings
-        if code:
-            self.widgets.ntb_main.set_current_page(1)
-            self.widgets.ntb_setup.set_current_page(1)
-            self.widgets.ntb_button.set_current_page(5)
+                if self.widgets.rbt_hal_unlock.get_active():
+                    message = _("Hal Pin is low, Access denied")
+                else:
+                    message = _("wrong code entered, Access denied")
+                self.gscreen.warning_dialog(_("Just to warn you"), True, message)
+                self.gscreen.add_alarm_entry( message)
+                self.widgets.statusbar1.push(1, message)
+                self.widgets.rbt_manual.emit("pressed")
+                self.widgets.rbt_manual.set_active(True)
         else:
-            if self.widgets.rbt_hal_unlock.get_active():
-                message = _("Hal Pin is low, Access denied")
-            else:
-                message = _("wrong code entered, Access denied")
-            self.gscreen.warning_dialog(_("Just to warn you"), True, message)
-            self.gscreen.add_alarm_entry( message)
-            self.widgets.statusbar1.push(1, message)
-            self.widgets.rbt_manual.emit("pressed")
             self.widgets.rbt_manual.set_active(True)
+            self.widgets.rbt_manual.pressed()
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -1342,7 +1443,7 @@ class HandlerClass:
         self.widgets.hal_hbar_spindle_feedback.set_property("max",widget.get_value())
 
     def _update_spindle_btn(self):
-        if self.gscreen.emcstat.task_mode == _AUTO and self.interpreter == _RUN:
+        if self.emcstat.task_mode == _AUTO and self.interpreter == _RUN:
             return
         if not self.data.spindle_speed:
             self.widgets.rbt_stop.set_active(True)
@@ -1440,8 +1541,15 @@ class HandlerClass:
 
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.gscreen.emcstat.task_mode == _MANUAL:
+        if not self.emcstat.task_mode == _MANUAL:
             return
+
+        # if data = True, then the user pressed SHIFT for Jogging and 
+        # want's to jog at full speed
+        if data:
+            self.emc.continuous_jog_velocity(self.gscreen.data.jog_rate_max)
+        else:
+            self.emc.continuous_jog_velocity(self.widgets.adj_jog_vel.get_value())
 
         axisletter = widget.get_label()[0]
         if not axisletter.lower() in "xyzabcuvw":
@@ -1821,6 +1929,19 @@ class HandlerClass:
         self.gscreen.prefs.putpref("scale_spindle_override", widget.get_value(), float)
         self.scale_spindle_override = widget.get_value()
 
+    def on_rbt_use_gmoccapy_toggled(self, widget):
+        if widget.get_active():
+            self.gscreen.prefs.putpref("error_style", "gmoccapy", str)
+            self.widgets.frm_message_position.set_sensitive(True)
+            print("gmoccapy_toggled")
+            self.init_notification()
+
+    def on_rbt_use_gscreen_toggled(self, widget):
+        if widget.get_active():
+            self.gscreen.prefs.putpref("error_style", "gscreen", str)
+            self.widgets.frm_message_position.set_sensitive(False)
+            print("gscreen_toggled")
+
     def on_rbtn_fullscreen_toggled(self, widget):
         if self.log: self.gscreen.add_alarm_entry("rbtn_fullscreen_toggled to %s"%widget.get_active())
         if widget.get_active():
@@ -1851,7 +1972,7 @@ class HandlerClass:
             self.widgets.window1.resize(int(self.widgets.adj_width.get_value()),
                                         int(self.widgets.adj_height.get_value()))
             self.gscreen.prefs.putpref("screen1", "window", str)
-        
+
     def on_adj_x_pos_value_changed(self, widget, data = None):
         self.gscreen.prefs.putpref("x_pos", widget.get_value(),float)
         position = self.widgets.window1.get_position()
@@ -2363,7 +2484,7 @@ class HandlerClass:
                       "btn_load", "btn_edit","tbtn_optional_blocks"
                      ]
         if not self.widgets.rbt_hal_unlock.get_active():
-            widgetlist.append("rbt_setup")
+            widgetlist.append("tbtn_setup")
         if self.data.all_homed or self.no_force_homing:
             widgetlist.append("rbt_mdi")
             widgetlist.append("rbt_auto")
@@ -2397,13 +2518,13 @@ class HandlerClass:
 
     def on_hal_status_interp_run(self,widget):
         self.gscreen.add_alarm_entry("run")
-        widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "rbt_setup", "btn_step","btn_index_tool",
+        widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_step","btn_index_tool",
                       "btn_from_line", "btn_change_tool","btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", 
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
-        if self.gscreen.emcstat.task_mode <> _MDI:
+        if self.emcstat.task_mode <> _MDI:
             widgetlist.append("ntb_jog")
         
         self.gscreen.sensitize_widgets(widgetlist,False)
@@ -2480,12 +2601,51 @@ class HandlerClass:
             elif len(i) == 4:
                 self.gscreen.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
 
-    
     # every 100 milli seconds this gets called
-    # add pass so gscreen doesn"t try to update it"s regular widgets or
+    # add pass so gscreen doesn't try to update it"s regular widgets or
     # add the individual function names that you would like to call.
-    # In this case we wish to call Gscreen"s default function for units button update
-    def periodic(self):
+    # In this case we wish to call Gscreen's default function for units button update
+    # check linuxcnc for status, error and then update the readout
+    def timer_interrupt(self):
+        self.emc.mask()
+        self.emcstat.poll()
+        self.gscreen.status.periodic()
+        e = self.emcerror.poll()
+        if e:
+            kind, text = e
+            print kind,text
+            if "joint" in text:
+                for letter in self.data.axis_list:
+                    axnum = "xyzabcuvws".index(letter)
+                    text = text.replace( "joint %d"%axnum,"Axis %s"%letter.upper() )
+            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+                icon = ALERT_ICON
+                type = _("Error Message")
+            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+                icon = INFO_ICON
+                type = _("Message")
+            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+                icon = INFO_ICON
+                type = _("Message")
+#            self.gscreen.add_alarm_entry(str(kind) + " " + text)
+            if self.widgets.rbt_use_gmoccapy.get_active():
+                self.notification.add_message(text,icon)
+            else:
+                if self.data.desktop_notify: # otherwise it will apear twice, 
+                                             # because notify add the message also to the statusbar
+                    self.gscreen.notify(type,text,icon,3)
+                else:
+                    self.widgets.statusbar1.push(1, str(kind) + " " + text)
+
+            if self.data.audio_available:
+                if kind != 13:
+                    self.gscreen.audio.set_sound(self.data.error_sound)
+                else:
+                    self.gscreen.audio.set_sound(self.data.alert_sound)
+                self.gscreen.audio.run()
+
+        self.emc.unmask()
+
         self.gscreen.update_active_gcodes()
         self.gscreen.update_active_mcodes()
         if "G8" in self.data.active_gcodes and self.data.lathe_mode and self.data.diameter_mode:
@@ -2511,6 +2671,8 @@ class HandlerClass:
                 self.widgets.tbtn_rel.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#28D0D9"))
             else:
                 self.widgets.tbtn_rel.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#DCDCDC"))
+
+        return True
 
     # Initialize the file to load dialog, setting an title and the correct
     # folder as well as a file filter
@@ -2631,7 +2793,7 @@ class HandlerClass:
     def _on_unlock_settings_changed(self, pin):
         if not self.widgets.rbt_hal_unlock.get_active():
             return
-        self.widgets.rbt_setup.set_sensitive(pin.get())
+        self.widgets.tbtn_setup.set_sensitive(pin.get())
 
     def _on_fo_counts_changed(self, pin, widget):
         counts = pin.get()
@@ -2740,7 +2902,7 @@ class HandlerClass:
                 print("%s not_sensitive"%button)
                 self.gscreen.add_alarm_entry("%s not_sensitive"%button)
                 return
-            button_pressed_list = ("rbt_manual","rbt_mdi","rbt_auto","rbt_setup")
+            button_pressed_list = ("rbt_manual","rbt_mdi","rbt_auto","tbtn_setup")
             if button in button_pressed_list:
                 self.widgets[button].set_active(True)
                 self.widgets[button].emit("pressed")
