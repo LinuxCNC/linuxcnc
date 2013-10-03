@@ -22,6 +22,7 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "tc.h"
+#include "motion_types.h"
 
 PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc) {
     PmCartesian v;
@@ -111,6 +112,8 @@ EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint)
         abc.tran = tc->coords.rigidtap.abc;
         uvw.tran = tc->coords.rigidtap.uvw;
     } else if (tc->motion_type == TC_LINEAR) {
+        // if this is rapid move, don't use feed override settings (max velocity override is still honoured)
+        if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {tc->feed_override = 1.0;}
         if (tc->coords.line.xyz.tmag > 0.) {
             // progress is along xyz, so uvw and abc move proportionally in order
             // to end at the same time.
