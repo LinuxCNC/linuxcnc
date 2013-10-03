@@ -1634,6 +1634,13 @@ If you have a REALLY large config that you wish to convert to this newer version
         if not letter == "s" or (letter == "s" and stepgen):
             print >>file, "MAX_VELOCITY = %s" % get("maxvel")
             print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
+            print >>file, "# The values below should be 25% larger than MAX_VELOCITY and MAX_ACCELERATION"
+            print >>file, "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
+            print >>file, "STEPGEN_MAXVEL = %.1f" % (float(get("maxvel")) * 1.25)
+            if self[letter + "usecomp"] or self[letter + "usebacklash"]:
+                print >>file, "STEPGEN_MAXACCEL = %.1f" % (float(get("maxacc")) * 2.0)
+            else:
+                print >>file, "STEPGEN_MAXACCEL = %.1f" % (float(get("maxacc")) * 1.25)
         if encoder or resolver:
             if closedloop:
                 print >>file, "P = %s" % get("P")
@@ -2072,8 +2079,10 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
             else:
-                print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
-                print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
+                print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
+                print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
+                #print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
+                #print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
             for i in stepinvertlist:
                    print >>file, "setp    "+i+".invert_output true"
             if let == "s":
