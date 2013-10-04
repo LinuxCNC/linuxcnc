@@ -2083,8 +2083,6 @@ If you have a REALLY large config that you wish to convert to this newer version
             else:
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
-                #print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
-                #print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
             for i in stepinvertlist:
                    print >>file, "setp    "+i+".invert_output true"
             if let == "s":
@@ -2121,8 +2119,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   " + steppinname + ".control-type     1"
             else:
                 print >>file, "setp   " + steppinname + ".control-type     0"
-            print >>file, "setp   " + steppinname + ".maxaccel         %.1f"%( (self[let+"maxacc"]*1.25) )
-            print >>file, "setp   " + steppinname + ".maxvel           %.1f"%( (self[let+"maxvel"]*1.25) )
+            print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]STEPGEN_MAXACCEL"% (title, axnum)
+            print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]STEPGEN_MAXVEL"% (title, axnum)
             for i in stepinvertlist2:
                    print >>file, "setp    "+i+".invert_output true"
             if closedloop:
