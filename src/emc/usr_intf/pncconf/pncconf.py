@@ -1840,6 +1840,7 @@ If you have a REALLY large config that you wish to convert to this newer version
            return test
 
     def connect_axis(self, file, num, let):
+        def get(s): return self[let + s]
         axnum = "xyzabcuvws".index(let)
         title = 'AXIS'
         if let == 's':
@@ -2008,7 +2009,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                 if closedloop:
                     print >>file, "net spindle-output      => " + potpinname + "spinout"
                 else:
-                    print >>file, "net spindle-vel-cmd     => " + potpinname + "spinout"
+                    if get("outputminlimit") == 0:
+                        signal = "spindle-vel-cmd-abs"
+                    else:
+                        signal = "spindle-vel-cmd"
+                    print >>file, "net %s     => %sspinout"%(signal,potpinname)
                 print >>file, "net machine-is-enabled      => " + potpinname +"spinena"
                 print >>file, "net spindle-ccw         => " + potpinname +"spindir"
                 print >>file
@@ -2024,12 +2029,16 @@ If you have a REALLY large config that you wish to convert to this newer version
                 print >>file, "setp   "+pwmpinname+"-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, axnum)
                 print >>file
                 if let == 's':
+                    if get("outputminlimit") == 0:
+                        signal = "spindle-vel-cmd-abs"
+                    else:
+                        signal = "spindle-vel-cmd"
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
                         print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
-                        print >>file, "net spindle-vel-cmd     => " + pwmpinname
+                        print >>file, "net %s     => %s"%(signal,pwmpinname)
                         print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
