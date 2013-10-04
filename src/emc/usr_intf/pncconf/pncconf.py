@@ -2688,8 +2688,8 @@ If you have a REALLY large config that you wish to convert to this newer version
             if self.userneededbldc:
                     self._bldcconfigstring = self._bldcconfigstring + self.userneededbldc + ","
             temp = self._bldcconfigstring.rstrip(",")
-            self._bldcconfigstring = temp
-            print >>file, "loadrt bldc cfg=%s"% temp
+            if not temp == "":
+                print >>file, "loadrt bldc cfg=%s"% temp
 
         if (self.pyvcp and self.pyvcpconnect == 1) or self.gladevcp or self.userneededabs >0:
             self.absnames=""
@@ -2704,7 +2704,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 self.absnames = self.absnames+"abs.%d"% (i)
                 if i <> self.userneededabs-1:
                     self.absnames = self.absnames+","
-            print >>file, "loadrt abs names=%s"% self.absnames
+            if not self.absnames == "":
+                print >>file, "loadrt abs names=%s"% self.absnames
 
         if (self.pyvcp and self.pyvcpconnect == 1) or self.gladevcp or self.userneededlowpass >0:
             self.lowpassnames=""
@@ -2717,7 +2718,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                 self.lowpassnames=self.lowpassnames+"lowpass.spindle"
             temp = self.lowpassnames.rstrip(",")
             self.lowpassnames = temp
-            print >>file, "loadrt lowpass names=%s"% temp
+            if not self.lowpassnames == "":
+                print >>file, "loadrt lowpass names=%s"% temp
 
         pytest = self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect == 1
         gladetest = self.gladevcp and self.spindlespeedbar
