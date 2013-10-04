@@ -2181,16 +2181,18 @@ If you have a REALLY large config that you wish to convert to this newer version
         if let =='s':
             print >>file, "# ---setup spindle control signals---" 
             print >>file
-            print >>file, "net spindle-vel-cmd-rps    <=  motion.spindle-speed-out-rps"
-            print >>file, "net spindle-vel-cmd        <=  motion.spindle-speed-out"
-            print >>file, "net spindle-on             <=  motion.spindle-on"
-            print >>file, "net spindle-cw             <=  motion.spindle-forward"
-            print >>file, "net spindle-ccw            <=  motion.spindle-reverse"
-            print >>file, "net spindle-brake          <=  motion.spindle-brake"            
-            print >>file, "net spindle-revs           =>  motion.spindle-revs"
-            print >>file, "net spindle-at-speed       =>  motion.spindle-at-speed"
-            print >>file, "net spindle-vel-fb         =>  motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable  <=>  motion.spindle-index-enable"
+            print >>file, "net spindle-vel-cmd-rps        <=  motion.spindle-speed-out-rps"
+            print >>file, "net spindle-vel-cmd-rps-abs    <=  motion.spindle-speed-out-rps-abs"
+            print >>file, "net spindle-vel-cmd            <=  motion.spindle-speed-out"
+            print >>file, "net spindle-vel-cmd-rpm-abs    <=  motion.spindle-speed-out-abs"
+            print >>file, "net spindle-on                 <=  motion.spindle-on"
+            print >>file, "net spindle-cw                 <=  motion.spindle-forward"
+            print >>file, "net spindle-ccw                <=  motion.spindle-reverse"
+            print >>file, "net spindle-brake              <=  motion.spindle-brake"            
+            print >>file, "net spindle-revs               =>  motion.spindle-revs"
+            print >>file, "net spindle-at-speed           =>  motion.spindle-at-speed"
+            print >>file, "net spindle-vel-fb             =>  motion.spindle-speed-in"
+            print >>file, "net spindle-index-enable      <=>  motion.spindle-index-enable"
             print >>file
             if not self.findsignal("spindle-at-speed"):
                 print >>file, "# ---Setup spindle at speed signals---"
@@ -2218,12 +2220,6 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file, ("net spindle-fb-filtered-rps    lowpass.spindle.out      =>   abs.spindle.in")
                     print >>file, ("net spindle-fb-filtered-abs-rps    abs.spindle.out      =>   scale.spindle.in")
                     print >>file, ("net spindle-fb-filtered-abs-rpm    scale.spindle.out")
-                else:
-                    print >>file, _("#  Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
-                    print >>file, _("#  COMMANDED velocity is signed so we use absolute component to remove sign")
-                    print >>file
-                    print >>file, ("net spindle-vel-cmd         =>    abs.spindle.in")
-                    print >>file, ("net absolute-spindle-vel    <=    abs.spindle.out")
             return
 
         min_limsig = self.min_lim_sig(let)
@@ -3296,7 +3292,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     if spindle_enc:
                         print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   gladevcp.spindle-speed")
                     else:
-                        print >>f1, ("net absolute-spindle-vel    =>    gladevcp.spindle-speed")
+                        print >>f1, ("net spindle-vel-cmd-rpm-abs    =>    gladevcp.spindle-speed")
                 if self.spindleatspeed:
                     print >>f1, ("net spindle-at-speed        =>    gladevcp.spindle-at-speed-led")
                 i = 0
@@ -3363,7 +3359,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             if spindle_enc:
                 print >>f1, ("net spindle-fb-filtered-abs-rpm       =>   pyvcp.spindle-speed")
             else:
-                print >>f1, ("net absolute-spindle-vel    =>    pyvcp.spindle-speed")
+                print >>f1, ("net spindle-vel-cmd-rpm-abs    =>    pyvcp.spindle-speed")
             print >>f1, ("net spindle-at-speed        =>    pyvcp.spindle-at-speed-led")
             print >>f1
             print >>f1, _("# **** Setup of spindle speed display using pyvcp -END ****")
