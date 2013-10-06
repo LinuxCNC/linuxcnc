@@ -22,6 +22,7 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_namedparams.cc \
 	interp_python.cc \
 	interp_remap.cc \
+	interp_setup.cc \
 	canonmodule.cc \
 	pyparamclass.cc \
 	pyemctypes.cc \
