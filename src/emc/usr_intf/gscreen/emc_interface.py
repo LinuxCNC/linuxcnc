@@ -387,10 +387,14 @@ class emc_status:
                         temp.append("%d" % (i/10))
                 else:
                         temp.append("%d.%d" % (i/10, i%10))
+            ipr = False
             for num,i in enumerate(temp):
                 if num == 8:active_codes.append("\n")
                 active_codes.append("G"+i)
+                if i == '95': ipr = True
+            self.data.IPR_mode = ipr
             self.data.active_gcodes = active_codes
+            # M codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.mcodes[1:]):
                 if i == -1: continue
@@ -398,8 +402,8 @@ class emc_status:
             for i in (temp):
                 active_codes.append("M"+i)
             self.data.active_mcodes = active_codes
-            feed_str = "%.1f" % self.emcstat.settings[1]
-            if feed_str.endswith(".0"): feed_str = feed_str[:-2]
+            feed_str = "%.3f" % self.emcstat.settings[1]
+            if feed_str.endswith(".000"): feed_str = feed_str[:-4]
             self.data.active_feed_command = feed_str
             self.data.active_spindle_command = "%.0f" % self.emcstat.settings[2]
 

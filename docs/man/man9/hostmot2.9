@@ -101,7 +101,7 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [num_resolvers=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_0=00000000\fB] [num_leds=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [ssi_chan_\fIN\fB=\fIabc%nq\fB][fanuc_chan_\fIN\fB=\fIabc%nq\fB] [num_resolvers=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_\fI0\fB=\fI00000000\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
@@ -123,6 +123,18 @@ supplied by the hostmot2-firmware packages, available from linuxcnc.org.
 Only enable the first N encoders.  If N is -1, all encoders are enabled.
 If N is 0, no encoders are enabled.  If N is greater than the number of
 encoders available in the firmware, the board will fail to register.
+.TP
+\fBssi_chan_N\fR [optional, default: ""]
+Specifies how the bit stream from a Synchronous Serial Interface device will be
+interpreted. There should be an entry for each device connected. Only channels
+with a format specifier will be enabled. (as the software can not guess data
+rates and bit lengths) 
+.TP
+\fBfanuc_chan_N\fR [optional, default: ""]
+Specifies how the bit stream from a Fanuc absolute encoder will be
+interpreted. There should be an entry for each device connected. Only channels
+with a format specifier will be enabled. (as the software can not guess data
+rates and bit lengths) 
 .TP
 \fBnum_resolvers\fR [optional, default: -1]
 Only enable the first N resolvers. If N = -1 then all resolvers are enabled.
@@ -278,6 +290,137 @@ can wait several iterations for the next pulse to arrive, all the while
 reporting the upper bound of the encoder velocity, which can be accurately
 guessed.  This parameter specifies how long to wait for the next pulse,
 before reporting the encoder stopped.  This parameter is in seconds.
+
+.SH Synchronous Serial Interface (SSI)
+(Not to be confused with the Smart Serial Interface)
+
+The names of the pins created by the SSI module will depend entirely on the 
+format string for each channel specified in the loadrt command line. 
+A typical format string might be
+ \fBssi_chan_0=error%1bposition%24g\fR
+ 
+This would interpret the LSB of the bit-stream as a bit-type pin named "error"
+and the next 24 bits as a Gray-coded encoder counter. The encoder-related HAL 
+pins would all begin with "position".
+
+There should be no spaces in the format string, as this is used as a delimiter
+by the low-level code. 
+
+The format consists of a string of alphanumeric characters that will form the 
+HAL pin names, followed by a % symbol, a bit-count and a data type. All bits
+in the packet must be defined, even if they are not used. 
+
+The valid format characters and the pins they create are:
+.TP
+p: (Pad). Does not create any pins, used to ignore sections of the bit stream that are not required. 
+.TP
+b: (Boolean). 
+  (bit, out) hm2_XiXX.N.ssi.MM.<name>. If any bits in the designated field width 
+are non-zero then the HAL pin will be "true".
+  (bit, out) hm2_XiXX.N.ssi.MM.<name>-not. An inverted version of the above, the 
+HAL pin will be "true" if all bits in the field are zero. 
+.TP
+u: (Unsigned)
+  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpeted as an
+unsigned integer then scaled such that the pin value will equal the scalemax 
+parameter value when all bits are high. (for example if the field is 8 bits 
+wide and the scalmax parameter was 20 then a value of 255 would return 20, and
+0 would return 0. 
+.TP
+s: (Signed)
+  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpreted as a 2s complement
+signed number then scaled similarly to the unsigned variant, except symmetrical 
+around zero. 
+.TP
+f: (bitField)
+  (bit, out) hm2_XiXX.N.ssi.MM.<name>-NN. The value of each individual bit in the
+data field. NN starts at 00 up to the number of bits in the field. 
+  (bit, out) hm2_XiXX.N.ssi.MM.<name>-NN-not. An inverted version of the individual
+bit values. 
+.TP
+e: (Encoder)
+ (s32, out) hm2_XiXX.N.ssi.MM.<name>.count. The lower 32 bits of the 
+total encoder counts. This value is reset both by the ...reset and the ...index-
+enable pins.
+ (s32, out) hm2_XiXX.N.ssi.MM.<name>.rawcounts. The lower 32 bits of 
+the total encoder counts. The pin is not affected by reset and index. 
+ (float, out) hm2_XiXX.N.ssi.MM.<name>.position. The encoder position
+in machine units. This is calculated from the full 64-bit buffers so will show
+a true value even after the counts pins have wrapped. It is zeroed by reset and
+index enable. 
+ (bit, IO) hm2_XiXX.N.ssi.MM.<name>.index-enable. When this pin is set
+"true" the module will wait until the raw encoder counts next passes through an 
+integer multiple of the number of counts specified by counts-per-rev parameter
+and then it will zero the counts and position pins, and set the index-enable
+pin back to "false" as a signal to the system that "index" has been passed. 
+this pin is used for spindle-synchronised motion and index-homing. 
+ (bit, in) (bit, out) hm2_XiXX.N.ssi.MM.<name>.reset. When this pin is set high 
+the counts and position pins are zeroed. 
+.TP
+h: (Split encoder, high-order bits)
+Some encoders (Including Fanuc) place the encoder part-turn counts and full-turn
+counts in separate, non-contiguous fields. This tag defines the high-order bits
+of such an encoder module. There can be only one h and one l tag per channel, 
+the behaviour with multiple such channels will be undefined. 
+.TP
+l: (Split encoder, low-order bits)
+Low order bits (see "h")
+.TP
+g: (Gray-code). This is a modifier that indicates that the following
+format string is gray-code encoded. This is only valid for encoders (e, h l) and 
+unsigned (u) data types.
+ 
+.TP
+Parameters:
+Only one parameter is universally created for all SSI instances
+
+.TP
+(float r/w) hm2_XiXX.N.ssi.MM.frequency-khz
+This parameter sets the SSI clock frequency. The units are kHz, so 500 will give
+a clock frequency of 500,000 Hz. 
+
+Other parameters depend on the data types specified in the config string.
+.TP
+p: (Pad) No Parameters.
+.TP
+b: (Boolean) No Parameters.
+.TP
+u: (Unsigned) 
+(float, r/w) hm2_XiXX.N.ssi.MM.<name>.scalemax. The scaling factor for the
+ channel.
+.TP
+s: (Signed)
+(float, r/w) hm2_XiXX.N.ssi.MM.<name>.scalemax. The scaling factor for the
+channel.
+.TP
+f: (bitField): No parameters.
+.TP
+e: (Encoder): 
+ (float, r/w) hm2_XiXX.N.ssi.MM.<name>.scale: (float, r.w) The encoder scale in
+counts per machine unit.
+ (u32, r/w) hm2_XiXX.N.ssi.MM.<name>.counts-per-rev (u32, r/w) Used to emulate
+the index behaviour of an incemental+index encoder. This would normally be set
+to the actual counts per rev of the encoder, but can be any whole number of
+revs. Integer divisors or multimpilers of the true PPR might be useful for 
+index-homing. Non-integer factors might be appropriate where there is a 
+synchronous drive ratio between the encoder and the spindle or ballscrew. 
+
+.SH Fanuc encoder. 
+The pins and format specifier for this module are identical to the SSI module
+described above, except that at least one pre-configured format is provided. 
+A modparam of fanuc_chan_N=AA64 (case sensitive) will configure the channel for
+a Fanuc Aa64 encoder. The pins created are:
+ hm2_XiXX.N.fanuc.MM.batt                indicates battery state
+ hm2_XiXX.N.fanuc.MM.batt-not            inverted version of above
+ hm2_XiXX.N.fanuc.MM.comm                The 0-1023 absolute output for motor commutation
+ hm2_XXiX.N.fanuc.MM.crc                 The CRC checksum. Currently HAL has no way to use this
+ hm2_XiXX.N.fanuc.MM.encoder.count       Encoder counts
+ hm2_XiXX.N.fanuc.MM.encoder.index-enable Simulated index. Set by counts-per-rev parameter
+ hm2_XiXX.N.fanuc.MM.encoder.position    Counts scaled by the ...scale paramter
+ hm2_XiXX.N.fanuc.MM.encoder.rawcounts   Raw counts, unaffected by reset or index
+ hm2_XiXX.N.fanuc.MM.encoder.reset       If high/true then counts and position = 0
+ hm2_XiXX.N.fanuc.MM.valid               Indicates that the absolute position is valid
+ hm2_XiXX.N.fanuc.MM.valid-not           Inverted version
 
 .SH resolver
 Resolvers have names like hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.resolver.\fI<Instance>\fR.

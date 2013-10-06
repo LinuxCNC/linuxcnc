@@ -475,14 +475,22 @@ static void process_inputs(void)
 	    scale = 0;
 	}
     }
+    /*non maskable (except during spinndle synch move) feed hold inhibit pin */
+	if ( enables & *emcmot_hal_data->feed_inhibit ) {
+	    scale = 0;
+	}
     /* save the resulting combined scale factor */
     emcmotStatus->net_feed_scale = scale;
 
-    /* now do spindle scaling: only one item to consider */
+    /* now do spindle scaling */
     scale = 1.0;
     if ( enables & SS_ENABLED ) {
 	scale *= emcmotStatus->spindle_scale;
     }
+    /*non maskable (except during spindle synch move) spindle inhibit pin */
+	if ( enables & *emcmot_hal_data->spindle_inhibit ) {
+	    scale = 0;
+	}
     /* save the resulting combined scale factor */
     emcmotStatus->net_spindle_scale = scale;
 
@@ -1777,6 +1785,8 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle_speed_out) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale;
 	*(emcmot_hal_data->spindle_speed_out_rps) = emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale / 60.;
     }
+	*(emcmot_hal_data->spindle_speed_out_abs) = fabs(*(emcmot_hal_data->spindle_speed_out));
+	*(emcmot_hal_data->spindle_speed_out_rps_abs) = fabs(*(emcmot_hal_data->spindle_speed_out_rps));
     *(emcmot_hal_data->spindle_speed_cmd_rps) = emcmotStatus->spindle.speed / 60.;
     *(emcmot_hal_data->spindle_on) = ((emcmotStatus->spindle.speed * emcmotStatus->net_spindle_scale) != 0) ? 1 : 0;
     *(emcmot_hal_data->spindle_forward) = (*emcmot_hal_data->spindle_speed_out > 0) ? 1 : 0;

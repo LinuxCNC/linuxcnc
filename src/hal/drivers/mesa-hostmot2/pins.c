@@ -41,7 +41,8 @@ RTAPI_MP_INT(debug_pin_descriptors, "Developer/debug use only!  Enable debug log
 static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
     static char unknown[100];
     int sec_pin = pin->sec_pin & 0x7F;  // turn off the "pin is an output" bit
-
+//FIXME: some pins use the same sec_tag but different meanings depending on
+//direction.
     switch (pin->sec_tag) {
 
         case HM2_GTAG_MUXED_ENCODER:
@@ -69,7 +70,23 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 5: return "Probe";
             }
             break;
-            
+        case HM2_GTAG_SSI:
+            switch (sec_pin) {
+                case 1: return "Clock";
+                case 2: return "ClockEnable";
+                case 3: return "Data";
+            }
+            break;
+
+        case HM2_GTAG_SPI: // Not supported yet
+                switch (sec_pin) {
+                    case 1: return "Frame";
+                    case 2: return "Out";
+                    case 3: return "Clock";
+                    case 4: return "In";
+                }
+                break;
+
         case HM2_GTAG_RESOLVER:
             switch (sec_pin) {
                 case 1: return "NC";
@@ -112,10 +129,12 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             switch (sec_pin) {
                 case 1: return "Step";
                 case 2: return "Direction";
-                case 3: return "(unused)";
-                case 4: return "(unused)";
-                case 5: return "(unused)";
-                case 6: return "(unused)";
+                case 3: return "Table2Pin";
+                case 4: return "Table3Pin";
+                case 5: return "Table4Pin";
+                case 6: return "Table5Pin";
+                case 7: return "Table6Pin";
+                case 8: return "Table7Pin";
             }
             break;
 
@@ -167,6 +186,22 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0xA: return "CS5";
                 case 0xB: return "CS6";
                 case 0xC: return "CS7";
+        }
+        break;
+
+        case HM2_GTAG_DBSPI: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x2: return "Serial Out";
+                case 0x3: return "Clock";
+                case 0x4: return "Serial In";
+                case 0x5: return "CS0";
+                case 0x6: return "CS1";
+                case 0x7: return "CS2";
+                case 0x8: return "CS3";
+                case 0x9: return "CS4";
+                case 0xA: return "CS5";
+                case 0xB: return "CS6";
+                case 0xC: return "CS7";
             }
             break;
 
@@ -182,7 +217,69 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
             }
             break;
 
-    }
+        case HM2_GTAG_DPLL: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x1: return "SynchIn";
+                case 0x2: return "MSBOut";
+                case 0x3: return "Fout";
+                case 0x4: return "PostOut";
+                case 0x5: return "SynchTog";
+            }
+            break;
+
+        case HM2_GTAG_WAVEGEN: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x1: return "PDMAOut";
+                case 0x2: return "PDMBOut";
+                case 0x3: return "Trigger0";
+                case 0x4: return "Trigger1";
+                case 0x5: return "Trigger2";
+                case 0x6: return "Trigger3";
+            }
+            break;
+
+        case HM2_GTAG_DAQFIFO: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x41: return "Strobe";
+                default:
+                    sprintf(unknown, "Data%02x",sec_pin - 1);
+                    return unknown;
+            }
+            break;
+
+        case HM2_GTAG_BINOSC: // Not Supported Currently
+             sprintf(unknown, "Out%02x",sec_pin -1);
+             return unknown;
+             break;
+
+        case HM2_GTAG_BISS: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x1: return "Clck";
+                case 0x2: return "Data";
+            }
+            break;
+
+        case HM2_GTAG_FABS: // Not Supported Currently
+            switch (sec_pin) {
+                case 0x1: return "Rq";
+                case 0x2: return "RqEn";
+                case 0x3: return "Data";
+                case 0x4: return "TestClk";
+            }
+            break;
+
+        case HM2_GTAG_TWIDDLER: // Not Supported Currently
+             if (sec_pin < 0x20){
+                 sprintf(unknown, "In%02x", sec_pin - 1);
+             } else if (sec_pin > 0xC0){
+                 sprintf(unknown, "IO%02x", sec_pin - 1);
+             } else {
+                 sprintf(unknown, "Out%02x", sec_pin - 1);
+             }
+             return unknown;
+             break;
+
+}
     rtapi_snprintf(unknown, sizeof(unknown), "unknown-pin-%d", sec_pin & 0x7F);
     return unknown;
 }
@@ -468,6 +565,8 @@ void hm2_configure_pins(hostmot2_t *hm2) {
 
     // encoder and pwmgen just get all their enabled instances' pins
     hm2_pins_allocate_all(hm2, HM2_GTAG_ENCODER, hm2->encoder.num_instances);
+    // Abs encoders are all packed together, not necessarily contiguously
+    hm2_pins_allocate_all(hm2, HM2_GTAG_SSI, MAX_ABSENCS);
     hm2_pins_allocate_all(hm2, HM2_GTAG_RESOLVER, hm2->resolver.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);

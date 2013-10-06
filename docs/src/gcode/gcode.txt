@@ -2142,6 +2142,7 @@ controlled point should move a certain number of inches per revolution
 of the spindle, depending on what length units are being used and which
 axis or axes are moving. G95 is not suitable for threading, for
 threading use G33 or G76.
+G95 requires that motion.spindle-speed-in to be connected.
 
 It is an error if:
 
