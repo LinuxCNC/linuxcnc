@@ -569,6 +569,9 @@ and is not represented here
 
 typedef struct setup_struct
 {
+  setup_struct();
+ ~setup_struct() { assert(!pythis || Py_IsInitialized()); }
+
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
   double AA_origin_offset;      // A-axis origin offset
