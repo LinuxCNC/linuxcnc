@@ -7,7 +7,10 @@
 //
 
 
-#include <linux/slab.h>
+
+#include "config_module.h"
+#include RTAPI_INC_SLAB_H
+#include "rtapi/rtapi_compat.h" //simple_strtol
 
 #include "rtapi.h"
 #include "rtapi_app.h"
