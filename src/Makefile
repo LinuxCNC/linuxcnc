@@ -314,13 +314,12 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
-# Compilation options.	Perhaps some of these should come from Makefile.inc?
+# Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 OPT := -Os
 DEBUG := -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI \
 	$(call cc-option, -Wdeclaration-after-statement)
-CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI
-
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS) $(BITOPS_DEFINE) $(DEBUG) $(OPT) -DULAPI 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
