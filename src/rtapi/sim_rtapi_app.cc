@@ -383,7 +383,7 @@ become_master:
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     struct sockaddr_un addr = { AF_UNIX, SOCKET_PATH };
-    int result = bind(fd, (sockaddr*)&addr, sizeof(addr));
+    int result = ::bind(fd, (sockaddr*)&addr, sizeof(addr));
 
     if(result == 0) {
         int result = listen(fd, 10);
