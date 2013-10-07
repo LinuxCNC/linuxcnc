@@ -76,7 +76,6 @@ elif [ -f /etc/lsb-release ]; then
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-echo DISTRIB_NAME=$DISTRIB_NAME
 if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
 	EXTRAS=extras-$DISTRIB_NAME/linuxcnc.files
 else
