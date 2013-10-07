@@ -1024,7 +1024,7 @@ become_master:
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     //struct sockaddr_un addr = { AF_UNIX, socket_path };
-    int result = bind(fd, (sockaddr*)&addr, sizeof(addr));
+    int result = ::bind(fd, (sockaddr*)&addr, sizeof(addr));
 
     // if the bind succeeded, nobody is listening on the socket,
     // so become master
