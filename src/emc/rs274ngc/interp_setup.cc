@@ -30,6 +30,7 @@ setup_struct::setup_struct() :
     axis_offset_y(0.0),
     axis_offset_z(0.0),
 
+    /* blocks(), */
     remap_level(0),
     control_mode(0),
     current_pocket(0),
@@ -146,7 +147,6 @@ setup_struct::setup_struct() :
     memset(log_file, 0, sizeof(log_file));
     memset(program_prefix, 0, sizeof(program_prefix));
     memset(wizard_root, 0, sizeof(wizard_root));
-    memset(blocks, 0, sizeof(blocks));
     memset(tool_table, 0, sizeof(tool_table));
     ZERO_EMC_POSE(tool_offset);
 
