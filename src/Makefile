@@ -317,9 +317,10 @@ endif
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 OPT := -Os
 DEBUG := -g -Wall
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI \
-	$(call cc-option, -Wdeclaration-after-statement)
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS) $(BITOPS_DEFINE) $(DEBUG) $(OPT) -DULAPI 
+
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   -DULAPI $(DEBUG) $(OPT)
+
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
 else
@@ -926,7 +927,7 @@ ifeq ($(TARGET_PLATFORM),beaglebone)
 EXTRA_CFLAGS += -I$(BASEPWD)/hal/support/pru
 endif
 ifeq ($(BUILD_SYS),kbuild)
-EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560)
+EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560) $(call cc-option,-Wno-declaration-after-statement)
 endif
 
 

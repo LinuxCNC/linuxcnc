@@ -48,7 +48,7 @@ PyObject *install(PyObject *s, PyObject *arg) {
         return Py_None;
     }
     if (Tcl_PkgProvide(trp, "Togl", TOGL_VERSION) != TCL_OK) {
-        PyErr_Format(PyExc_RuntimeError, "Tcl_PkgProvide failed: %s", trp->result);
+        PyErr_Format(PyExc_RuntimeError, "Tcl_PkgProvide failed: %s", Tcl_GetStringResult(trp));
         return NULL;
     }
 
