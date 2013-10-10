@@ -631,6 +631,15 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
         GETREG(SR_OUTPUT_VOLTAGE, &val);
         *(haldata->output_volt) =  val * 0.1;
 
+        {
+            float speed_error;
+            speed_error = (*haldata->RPM / *haldata->speed_command) - 1.0;
+            if (fabs(speed_error) > haldata->speed_tolerance) {
+                *haldata->at_speed = 0;
+            } else {
+                *haldata->at_speed = 1;
+            }
+        }
     } else {
         pollcount++;
     }
