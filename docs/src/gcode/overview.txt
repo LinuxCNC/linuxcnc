@@ -1236,7 +1236,7 @@ material removal rate.
 [[var_file_format]]
 
 The values of parameters in the persistent range are retained over
-time, even if the machining center is powered down.  EMC2 uses a
+time, even if the machining center is powered down.  LinuxCNC uses a
 parameter file to ensure persistence. It is managed by the
 Interpreter. The Interpreter reads the file when it starts up, and
 writes the file when it exits.
