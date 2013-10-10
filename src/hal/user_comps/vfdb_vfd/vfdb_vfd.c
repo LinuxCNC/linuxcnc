@@ -128,7 +128,6 @@
  */
 #define POLLCYCLES 	10      // read less important parameters only on every 10th transaction
 #define MODBUS_MIN_OK	10      // assert the modbus-ok pin after 10 successful modbus transactions
-#define MAX_RPM	        12000   // cap output RPM
 
 
 /* HAL data struct */
@@ -209,6 +208,8 @@ typedef struct params {
     int	last_errno;
     char *tcp_destip;
     int report_device;
+    int motor_hz;  // rated frequency of the motor
+    int motor_rpm;  // rated speed of the motor
 } params_type, *param_pointer;
 
 #define TYPE_RTU 0
@@ -249,6 +250,8 @@ static params_type param = {
         .last_errno = 0,
         .tcp_destip = "127.0.0.1",
         .report_device = 0,
+        .motor_hz = 50,     // 50 is common in Europe, 60 is common in the US
+        .motor_rpm = 1410,  // 1410 is common in Europe, 1730 is common in the US
 };
 
 
@@ -366,6 +369,9 @@ int read_ini(param_pointer p)
         iniFindInt(p->fp, "POLLCYCLES", p->section, &p->pollcycles);
         iniFindInt(p->fp, "PORT", p->section, &p->tcp_portno);
         iniFindInt(p->fp, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
+
+        iniFindInt(p->fp, "MOTOR_HZ", p->section, &p->motor_hz);
+        iniFindInt(p->fp, "MOTOR_RPM", p->section, &p->motor_rpm);
 
         if ((s = iniFind(p->fp, "TCPDEST", p->section))) {
             p->tcp_destip = strdup(s);
@@ -732,9 +738,9 @@ int set_defaults(param_pointer p)
 
     h->looptime = 0.1;
     h->speed_tolerance = 0.01;      // output frequency within 1% of target frequency
-    h->motor_nameplate_hz = 50;	    // folks in The Colonies typically would use 60Hz and 1730 rpm
-    h->motor_nameplate_RPM = 1410;
-    h->rpm_limit = MAX_RPM;
+    h->motor_nameplate_hz = p->motor_hz;
+    h->motor_nameplate_RPM = p->motor_rpm;
+    h->rpm_limit = p->motor_rpm;
 
     p->failed_reg = 0;
     return 0;
