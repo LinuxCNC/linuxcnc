@@ -19,6 +19,7 @@
 #include "motion_debug.h"
 #include "motion_struct.h"
 #include "mot_priv.h"
+#include "pause.h"
 #include "rtapi_math.h"
 
 // Mark strings for translation, but defer translation to userspace
@@ -94,6 +95,12 @@ struct emcmot_command_t *emcmotCommand = 0;
 struct emcmot_status_t *emcmotStatus = 0;
 struct emcmot_config_t *emcmotConfig = 0;
 struct emcmot_debug_t *emcmotDebug = 0;
+TP_STRUCT *emcmotPrimQueue = 0; // primary planner + queues
+TP_STRUCT *emcmotAltQueue = 0; // alternate planner + queues
+
+// emcmotQueue: this was formerly &emcmotDebug->queue
+TP_STRUCT *emcmotQueue = 0;     // current planner queue
+
 struct emcmot_error_t *emcmotError = 0;	/* unused for RT_FIFO */
 
 /***********************************************************************
@@ -391,6 +398,13 @@ static int init_hal_io(void)
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tooloffset_v), mot_comp_id, "motion.tooloffset.v")) != 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->tooloffset_w), mot_comp_id, "motion.tooloffset.w")) != 0) goto error;
 
+    // pause/jog while paused related pins
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->pause_state),
+				   mot_comp_id, "motion.pause-state")) < 0) return retval;
+
+    if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->jog_while_paused_enable),
+				   mot_comp_id, "motion.jog-while-paused-enable")) < 0) return retval;
+
     /* initialize machine wide pins and parameters */
     *emcmot_hal_data->spindle_is_atspeed = 1;
     *(emcmot_hal_data->adaptive_feed) = 1.0;
@@ -458,7 +472,6 @@ static int init_hal_io(void)
         if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_lim), mot_comp_id, "axis.%c.teleop-vel-lim", "xyzabcuvw"[n])) != 0) goto error;
         if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_tp_enable), mot_comp_id, "axis.%c.teleop-tp-enable", "xyzabcuvw"[n])) != 0) goto error;
     }
-
     /* Done! */
     rtapi_print_msg(RTAPI_MSG_INFO,
 	"MOTION: init_hal_io() complete, %d axes.\n", n);
@@ -568,7 +581,14 @@ static int init_comm_buffers(void)
     emcmotCommand = &emcmotStruct->command;
     emcmotStatus = &emcmotStruct->status;
     emcmotConfig = &emcmotStruct->config;
+
     emcmotDebug = &emcmotStruct->debug;
+    emcmotPrimQueue = &emcmotStruct->debug.coord_tp;     // primary motion queue
+    emcmotAltQueue = &emcmotStruct->debug.altqueue;   // alternate motion queue
+
+    // emcmotQueue: this was formerly &emcmotDebug->queue
+    emcmotQueue = emcmotPrimQueue;   // start on primary motion queue
+
     emcmotError = &emcmotStruct->error;
 
     /* init error struct */
@@ -616,7 +636,8 @@ static int init_comm_buffers(void)
     emcmotStatus->id = 0;
     emcmotStatus->depth = 0;
     emcmotStatus->activeDepth = 0;
-    emcmotStatus->paused = 0;
+    emcmotStatus->pause_state  = PS_RUNNING;
+    emcmotStatus->resuming = 0;
     emcmotStatus->overrideLimitMask = 0;
     emcmotStatus->spindle.speed = 0.0;
     SET_MOTION_INPOS_FLAG(1);
@@ -704,18 +725,33 @@ static int init_comm_buffers(void)
     emcmotDebug->start_time = etime();
     emcmotDebug->running_time = 0.0;
 
-    /* init motion emcmotDebug->coord_tp */
-    if (-1 == tpCreate(&emcmotDebug->coord_tp, DEFAULT_TC_QUEUE_SIZE,
+    emcmotPrimQueue = &emcmotStruct->debug.coord_tp;     // primary motion queue
+    emcmotAltQueue = &emcmotStruct->debug.altqueue;   // alternate motion queue
+
+    /* init motion emcmotDebug->queue */
+    if (-1 == tpCreate(emcmotPrimQueue, DEFAULT_TC_QUEUE_SIZE,
 	    emcmotDebug->queueTcSpace)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "MOTION: failed to create motion emcmotDebug->coord_tp\n");
+	    "MOTION: failed to create motion emcmotPrimQueue\n");
 	return -1;
     }
-//    tpInit(&emcmotDebug->coord_tp); // tpInit called from tpCreate
-    tpSetCycleTime(&emcmotDebug->coord_tp, emcmotConfig->trajCycleTime);
-    tpSetPos(&emcmotDebug->coord_tp, emcmotStatus->carte_pos_cmd);
-    tpSetVmax(&emcmotDebug->coord_tp, emcmotStatus->vel, emcmotStatus->vel);
-    tpSetAmax(&emcmotDebug->coord_tp, emcmotStatus->acc);
+    // and the alternate queue
+    if (-1 == tpCreate(emcmotAltQueue, DEFAULT_ALT_TC_QUEUE_SIZE,
+	    emcmotDebug->altqueueTcSpace)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "MOTION: failed to create motion emcmotAltQueue\n");
+	return -1;
+    }
+
+
+//    tpInit(&emcmotDebug->queue); // tpInit called from tpCreate
+    tpSetCycleTime(emcmotQueue, emcmotConfig->trajCycleTime);
+    tpSetPos(emcmotQueue, emcmotStatus->carte_pos_cmd);
+    tpSetVmax(emcmotQueue, emcmotStatus->vel, emcmotStatus->vel);
+    tpSetAmax(emcmotQueue, emcmotStatus->acc);
+
+    // the emcmotAltQueue parameters as per above are cloned
+    // by tpSnapshot() during switching queues
 
     emcmotStatus->tail = 0;
 
@@ -842,7 +878,7 @@ static int setTrajCycleTime(double secs)
         emcmotConfig->interpolationRate = 1;
 
     /* set traj planner */
-    tpSetCycleTime(&emcmotDebug->coord_tp, secs);
+    tpSetCycleTime(emcmotPrimQueue, secs);
 
     /* set the free planners, cubic interpolation rate and segment time */
     for (t = 0; t < emcmotConfig->numJoints; t++) {
