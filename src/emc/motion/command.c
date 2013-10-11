@@ -204,14 +204,16 @@ static int check_axis_constraint(double target, int id, char *move_type,
 
     if(target < nl) {
         in_range = 0;
-        reportError(_("%s move on line %d would exceed %c's %s limit"),
-                    move_type, id, axis_name, _("negative"));
+	if (move_type != NULL)
+	    reportError(_("%s move on line %d would exceed %c's %s limit"),
+			move_type, id, axis_name, _("negative"));
     }
 
     if(target > pl) {
         in_range = 0;
-        reportError(_("%s move on line %d would exceed %c's %s limit"),
-                    move_type, id, axis_name, _("positive"));
+	if (move_type != NULL)
+	    reportError(_("%s move on line %d would exceed %c's %s limit"),
+			move_type, id, axis_name, _("positive"));
     }
 
     return in_range;
@@ -219,8 +221,10 @@ static int check_axis_constraint(double target, int id, char *move_type,
 
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not.  It also reports an error for each joint limit
-   violation.  It's possible to get more than one violation per move. */
-static int inRange(EmcPose pos, int id, char *move_type)
+   violation.  It's possible to get more than one violation per move.
+   A NULL move_type suppresses error reporting.
+*/
+int inRange(EmcPose pos, int id, char *move_type)
 {
     double joint_pos[EMCMOT_MAX_JOINTS];
     int joint_num;
@@ -258,8 +262,9 @@ static int inRange(EmcPose pos, int id, char *move_type)
     /* now fill in with real values, for joints that are used */
     if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) < 0)
     {
-	reportError(_("%s move on line %d fails kinematicsInverse"),
-		    move_type, id);
+	if (move_type != NULL)
+	    reportError(_("%s move on line %d fails kinematicsInverse"),
+			move_type, id);
 	return 0;
     }
 
@@ -273,21 +278,24 @@ static int inRange(EmcPose pos, int id, char *move_type)
 	}
 	if(!isfinite(joint_pos[joint_num]))
 	{
-	    reportError(_("%s move on line %d gave non-finite joint location on joint %d"),
-		    move_type, id, joint_num);
+	    if (move_type != NULL)
+		reportError(_("%s move on line %d gave non-finite joint location on joint %d"),
+			    move_type, id, joint_num);
 	    in_range = 0;
 	    continue;
 	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
-	    reportError(_("%s move on line %d would exceed joint %d's positive limit"),
-			move_type, id, joint_num);
+	    if (move_type != NULL)
+		reportError(_("%s move on line %d would exceed joint %d's positive limit"),
+			    move_type, id, joint_num);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
-	    reportError(_("%s move on line %d would exceed joint %d's negative limit"),
-			move_type, id, joint_num);
+	    if (move_type != NULL)
+		reportError(_("%s move on line %d would exceed joint %d's negative limit"),
+			    move_type, id, joint_num);
 	}
     }
     return in_range;
@@ -779,18 +787,18 @@ check_stuff ( "before command_handler()" );
                     /* valid axis, point to it's data */
                     axis = &axes[axis_num];
                 }
-	        if (emcmotCommand->vel > 0.0) {
-		    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
-	        } else {
-		    axis->teleop_tp.pos_cmd = axis->min_pos_limit;
-	        }
-                /* set velocity of jog */
-	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
-	        /* use max axis accel */
-	        axis->teleop_tp.max_acc = axis->acc_limit;
-	        /* and let it go */
-	        axis->teleop_tp.enable = 1;
-            }
+		    if (emcmotCommand->vel > 0.0) {
+			axis->teleop_tp.pos_cmd = axis->max_pos_limit;
+		    } else {
+			axis->teleop_tp.pos_cmd = axis->min_pos_limit;
+		    }
+		    /* set velocity of jog */
+		    axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
+		    /* use max axis accel */
+		    axis->teleop_tp.max_acc = axis->acc_limit;
+		    /* and let it go */
+		    axis->teleop_tp.enable = 1;
+		}
 	    break;
 
 	case EMCMOT_JOG_INCR:
@@ -871,27 +879,27 @@ check_stuff ( "before command_handler()" );
                     /* valid axis, point to it's data */
                     axis = &axes[axis_num];
                 }
-	        if (emcmotCommand->vel > 0.0) {
-		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
-	        } else {
-		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
-	        }
-	        /* don't jog past limits */
-	        if (tmp1 > axis->max_pos_limit) {
-		    break;
-	        }
-	        if (tmp1 < axis->min_pos_limit) {
-		    break;
-	        }
-	        /* set target position */
-	        axis->teleop_tp.pos_cmd = tmp1;
-                /* set velocity of jog */
-	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
-	        /* use max axis accel */
-	        axis->teleop_tp.max_acc = axis->acc_limit;
-	        /* and let it go */
-	        axis->teleop_tp.enable = 1;
-            }
+		    if (emcmotCommand->vel > 0.0) {
+			tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
+		    } else {
+			tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
+		    }
+		    /* don't jog past limits */
+		    if (tmp1 > axis->max_pos_limit) {
+			break;
+		    }
+		    if (tmp1 < axis->min_pos_limit) {
+			break;
+		    }
+		    /* set target position */
+		    axis->teleop_tp.pos_cmd = tmp1;
+		    /* set velocity of jog */
+		    axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
+		    /* use max axis accel */
+		    axis->teleop_tp.max_acc = axis->acc_limit;
+		    /* and let it go */
+		    axis->teleop_tp.enable = 1;
+		}
 	    break;
 
 	case EMCMOT_JOG_ABS:
