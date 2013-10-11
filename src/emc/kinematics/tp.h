@@ -79,6 +79,7 @@ extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
                        double acc, unsigned char enables, char atspeed);
 extern int tpRunCycle(TP_STRUCT * tp, long period);
 extern int tpPause(TP_STRUCT * tp);
+extern int tpIsPaused(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);
 extern int tpAbort(TP_STRUCT * tp);
 extern EmcPose tpGetPos(TP_STRUCT * tp);
@@ -91,5 +92,7 @@ extern void tpToggleDIOs(TC_STRUCT * tc); //gets called when a new tc is taken f
 
 extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
 extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
+
+extern int tpSnapshot(TP_STRUCT * from, TP_STRUCT * to);
 
 #endif				/* TP_H */
