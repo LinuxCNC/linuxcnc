@@ -25,12 +25,13 @@
 #include "emc.hh"
 #include "emc_nml.hh"
 #include "kinematics.h"
+#include "pause.h"
 #include "config.h"
 #include "inifile.hh"
 #include "timer.hh"
 #include "nml_oi.hh"
 #include "rcs_print.hh"
-
+#include "pause.h"
 #include <cmath>
 
 #ifndef T_BOOL
@@ -356,6 +357,8 @@ static PyMemberDef Stat_members[] = {
     {(char*)"spindle_brake", T_INT, O(motion.spindle.brake), READONLY},
     {(char*)"spindle_increasing", T_INT, O(motion.spindle.increasing), READONLY},
     {(char*)"spindle_enabled", T_INT, O(motion.spindle.enabled), READONLY},
+    {(char*)"jog_while_paused_enabled", T_INT, O(motion.jog_while_paused_enable), READONLY},
+    {(char*)"pause_state", T_INT, O(motion.pause_state), READONLY},
 
 // io
 // EMC_TOOL_STAT io.tool
@@ -2277,6 +2280,15 @@ initlinuxcnc(void) {
     ENUM(RCS_DONE);
     ENUM(RCS_EXEC);
     ENUM(RCS_ERROR);
+
+    ENUM(PS_RUNNING);
+    ENUM(PS_PAUSING);
+    ENUM(PS_PAUSED);
+    ENUM(PS_PAUSED_IN_OFFSET);
+    ENUM(PS_JOGGING);
+    ENUM(PS_JOG_ABORTING);
+    ENUM(PS_RETURNING);
+    ENUM(PS_PAUSING_FOR_STEP);
 }
 
 
