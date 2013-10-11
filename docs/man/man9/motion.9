@@ -137,6 +137,22 @@ If this bit is driven FALSE, motion stops, the machine is placed in the "machine
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
 .TP
+\fBmotion.jog-while-paused-enable\fR IN BIT 
+If TRUE, NML jog commands  will be honored. See also the Jog-while-paused section.
+
+.TP
+\fBmotion.pause-state\fR OUT S32
+Reflects the state of the motion pause state machine. States are: 
+0=running (i.e. not paused); 
+1=pausing (motion looks for a pausable motion - e.g. spindle-synced moves cannot be paused); 
+2=paused (motion has stopped at the initial pause position);
+3=paused in offset (motion has stopped, and position is not at the initial pause position, meaning a reentry move must be issued at resume)
+4=jogging (a jog move is currently in progress)
+5=jog aborting (a jog move is currently being stopped, e.g. by releasing the cursor key)
+6=returning (a reentry move to the initial pause position is in progress)
+7=pausing for step (to handle stepping)
+
+.TP
 \fBmotion.motion-inpos\fR OUT BIT 
 TRUE if the machine is in position.
 
@@ -391,6 +407,20 @@ Processes motion commands coming from user space
 .TP
 \fBmotion-controller\fR 
 Runs the LinuxCNC motion controller
+
+.SH Jog-while-paused
+If the jog-while-paused-enable pin is true, behavior on pause changes as follows:
+
+Commanded jog in auto/coordinated mode is enabled.
+A step command will be handled as follows:
+if at the initial pause position, the current move completes (as before).
+if not at the initial pause position, a reentry move is issued.
+Motion stops once the initial pause position has been reached.
+
+A resume command will be handled as follows:
+if not at the initial pause position, a reentry move is issued first, as a straight line move from the current to the initial pause position.
+Once at the initial pause position, execution continues.
+
 
 .SH BUGS
 This manual page is horribly incomplete.
