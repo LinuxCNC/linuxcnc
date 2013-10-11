@@ -1362,8 +1362,8 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (stat->id != last_id) {
 	    if (last_id != last_id_printed) {
-		rcs_print("Motion id %d took %f seconds.\n", last_id,
-			  etime() - last_id_time);
+		rcs_print("Motion id %d took %f seconds (current %d)\n", last_id,
+			  etime() - last_id_time, stat->id);
 		last_id_printed = last_id;
 	    }
 	    last_id = stat->id;
@@ -1371,7 +1371,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 	}
     }
 
-    stat->paused = emcmotStatus.paused;
+    stat->paused = emcmotStatus.pause_state;
     stat->scale = emcmotStatus.feed_scale;
     stat->spindle_scale = emcmotStatus.spindle_scale;
 
@@ -1394,8 +1394,8 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
     if (EMC_DEBUG_MOTION_TIME & emc_debug) {
 	if (stat->status == RCS_DONE && last_status != RCS_DONE
 	    && stat->id != last_id_printed) {
-	    rcs_print("Motion id %d took %f seconds.\n", last_id,
-		      etime() - last_id_time);
+	    rcs_print("Motion id %d took %f seconds (current %d).\n", last_id,
+		      etime() - last_id_time, stat->id );
 	    last_id_printed = last_id = stat->id;
 	    last_id_time = etime();
 	}
@@ -1747,6 +1747,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
+    stat->jog_while_paused_enable = emcmotStatus.jog_while_paused_enable;
+    stat->pause_state = emcmotStatus.pause_state;
 
     // set the status flag
     error = 0;
