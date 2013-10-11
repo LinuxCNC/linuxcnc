@@ -88,6 +88,10 @@ to another.
 #define MOTION_INVALID_ID INT_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
+#define MOTION_PAUSED_RETURN_MOVE (MOTION_INVALID_ID+10)
+#define MOTION_PAUSED_JOG_MOVE (MOTION_INVALID_ID+11)
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -665,7 +669,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */
-	int paused;		/* Flag to signal motion paused */
+	int pause_state;	/* state of the motion pause FSM */
+	int resuming;	        /* resume operation in progress */
 	int overrideLimitMask;	/* non-zero means one or more limits ignored */
 				/* 1 << (joint-num*2) = ignore neg limit */
 				/* 2 << (joint-num*2) = ignore pos limit */
@@ -685,9 +690,15 @@ Suggestion: Split this in to an Error and a Status flag register..
         EmcPose tool_offset;
         int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
         int spindle_is_atspeed; /* hal input */
+
+	EmcPose pause_carte_pos;	// initial pause point (ipp) - where we switched to the altQueue
+	EmcPose pause_offset_carte_pos;	// ipp + current offset values, set by update_offset_pose()
+	int jog_while_paused_enable; // mirrors emcmot_hal_data->jog_while_paused_enable
+	double last_jog_vel;     // record vel of last jog - reused for return move
 	unsigned char tail;	/* flag count for mutex detect */
-        
+
     } emcmot_status_t;
+
 
 /*********************************
         CONFIG STRUCTURE
