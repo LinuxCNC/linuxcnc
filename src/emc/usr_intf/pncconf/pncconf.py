@@ -1007,6 +1007,8 @@ class Data:
         self.s32out = 10
         self.floatsin = 10
         self.floatsout = 10
+        self.bitmem = 50
+        self.wordmem = 50
         self.tempexists = 0 # not present ( a blank CL program edited through pncconf)
         self.laddername = "custom.clp"
         self.modbus = 0 # not included
@@ -2747,7 +2749,9 @@ If you have a REALLY large config that you wish to convert to this newer version
         if not at_speed and self.suseatspeed:
             print >>file, "loadrt near"
         if self.classicladder:
-            print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
+            print >>file, ("loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d"
+                          " numS32out=%d numFloatIn=%d numFloatOut=%d numBits=%d numWords=%d") \
+                          %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout,self.bitmem,self.wordmem)
         
         if self.externalmpg or self.externalfo or self.externalmvo or self.externalso or self.joystickjog or self.userneededmux16 > 0:
             self.mux16names=""
@@ -8183,6 +8187,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.widgets.s32out.set_value(self.data.s32out)
         self.widgets.floatsin.set_value(self.data.floatsin)
         self.widgets.floatsout.set_value(self.data.floatsout)
+        self.widgets.bitmem.set_value(self.data.bitmem)
+        self.widgets.wordmem.set_value(self.data.wordmem)
         self.widgets.halui.set_active(self.data.halui)
         self.widgets.ladderexist.set_active(self.data.ladderexist)
         self.widgets.laddertouchz.set_active(self.data.laddertouchz)
@@ -8200,6 +8206,8 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
         self.data.s32in = self.widgets.s32in.get_value()
         self.data.s32out = self.widgets.s32out.get_value()
         self.data.floatsin = self.widgets.floatsin.get_value()
+        self.data.bitmem = self.widgets.bitmem.get_value()
+        self.data.wordmem = self.widgets.wordmem.get_value()
         self.data.floatsout = self.widgets.floatsout.get_value()
         self.data.halui = self.widgets.halui.get_active()
         self.data.ladderexist = self.widgets.ladderexist.get_active()
@@ -8276,6 +8284,8 @@ different program to copy to your configuration file.\nThe edited program will b
         self.widgets.s32out.set_sensitive(i)
         self.widgets.floatsin.set_sensitive(i)
         self.widgets.floatsout.set_sensitive(i)
+        self.widgets.bitmem.set_sensitive(i)
+        self.widgets.wordmem.set_sensitive(i)
         self.widgets.modbus.set_sensitive(i)
         self.widgets.ladderblank.set_sensitive(i)
         self.widgets.ladder1.set_sensitive(i)
@@ -8292,6 +8302,8 @@ different program to copy to your configuration file.\nThe edited program will b
         self.widgets.label_s32out.set_sensitive(i)
         self.widgets.label_floatin.set_sensitive(i)
         self.widgets.label_floatout.set_sensitive(i)
+        self.widgets.label_bitmem.set_sensitive(i)
+        self.widgets.label_wordmem.set_sensitive(i)
         self.widgets.ladderconnect.set_sensitive(i)
         if self.widgets.laddertouchz.get_active():
             i = self.data.gladevcphaluicmds
@@ -8857,7 +8869,7 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write(""" 
               loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow 
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d\
-               numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d
+               numS32out=%(sout)d numFloatIn=%(fin)d numFloatOut=%(fout)d numBits=%(bmem)d numWords=%(wmem)d
                addf classicladder.0.refresh slow
                start\n""" % {
                       'din': self.widgets.digitsin.get_value(),
@@ -8866,6 +8878,8 @@ But there is not one in the machine-named folder.."""),True)
                       'sout': self.widgets.s32out.get_value(), 
                       'fin':self.widgets.floatsin.get_value(),
                       'fout':self.widgets.floatsout.get_value(),
+                      'bmem':self.widgets.bitmem.get_value(),
+                      'wmem':self.widgets.wordmem.get_value(),
                       'period':100000, 
                       'period2':self.data.servoperiod
                  })
