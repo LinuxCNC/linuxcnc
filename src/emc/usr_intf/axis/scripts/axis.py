@@ -2697,8 +2697,9 @@ jog_after = [None] * 9
 jog_cont  = [False] * 9
 jogging   = [0] * 9
 def jog_on(a, b):
-    if not manual_ok(): return
-    if not manual_tab_visible(): return
+    print "------jog on", a,b, widgets.jogincr.get()
+    #if not manual_ok(): return
+    #if not manual_tab_visible(): return
     if isinstance(a, (str, unicode)):
         a = "xyzabcuvw".index(a)
     if a < 3:
@@ -2711,16 +2712,19 @@ def jog_on(a, b):
     jogincr = widgets.jogincr.get()
     if jogincr != _("Continuous"):
         s.poll()
-        if s.state != 1: return
+        #if s.state != 1: return
         distance = parse_increment(jogincr)
-        jog(linuxcnc.JOG_INCREMENT, a, b, distance)
+        print "---JOG_INCR ",a,b,distance
+        c.jog(linuxcnc.JOG_INCREMENT, a, b, distance)
         jog_cont[a] = False
     else:
-        jog(linuxcnc.JOG_CONTINUOUS, a, b)
+        print "---JOG_CONTINUOUS ",a,b
+        c.jog(linuxcnc.JOG_CONTINUOUS, a, b)
         jog_cont[a] = True
         jogging[a] = b
 
 def jog_off(a):
+    print "--- jog_off ",a
     if isinstance(a, (str, unicode)):
         a = "xyzabcuvw".index(a)
     if jog_after[a]: return
@@ -2732,6 +2736,7 @@ def jog_off_actual(a):
     jog_after[a] = None
     jogging[a] = 0
     if jog_cont[a]:
+        print "---JOG_STOP ",a
         jog(linuxcnc.JOG_STOP, a)
 
 def jog_off_all():
