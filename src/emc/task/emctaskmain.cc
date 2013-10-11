@@ -1181,6 +1181,17 @@ static int emcTaskPlan(void)
 		    emcStatus->task.task_paused = 1;
 		    break;
 
+		    // pass on jog commands in paused/auto if pin set
+		case EMC_JOG_CONT_TYPE:
+		case EMC_JOG_INCR_TYPE:
+		case EMC_JOG_ABS_TYPE:
+		case EMC_JOG_STOP_TYPE:
+		    if (emcStatus->motion.jog_while_paused_enable) {
+			retval = emcTaskIssueCommand(emcCommand);
+			break;
+		    }
+		    // else fall through
+
 		    // otherwise we can't handle it
 		default:
 		    emcOperatorError(0, _
