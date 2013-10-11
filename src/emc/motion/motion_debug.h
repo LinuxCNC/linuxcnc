@@ -54,6 +54,9 @@
 /*! \todo FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
 
+	TP_STRUCT altqueue;	/* coordinated mode planner */
+	TC_STRUCT altqueueTcSpace[DEFAULT_ALT_TC_QUEUE_SIZE + 10];
+
 	int enabling;		/* starts up disabled */
 	int coordinating;	/* starts up in free mode */
 	int teleoperating;	/* starts up in free mode */
