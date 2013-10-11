@@ -66,6 +66,7 @@
 #include "mot_priv.h"
 #include "rtapi_math.h"
 #include "motion_types.h"
+#include "pause.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -395,6 +396,158 @@ static int is_feed_type(int motion_type)
     }
 }
 
+// replacement for tpAbort(emcmotQueue):
+//
+// if on alternate queue, and something goes haywire
+// properly switch back to primary queue, aborting
+// both tp queues
+// record current altq pos in primq so the proper value
+// gets reported on next tpRunCycle
+// clear pins, state and signal to task the paused motion
+// is now 'done' (otherwise task will hang in RCS_EXEC).
+int abort_and_switchback()
+{
+    if (emcmotQueue == emcmotAltQueue) {
+	EmcPose where = tpGetPos(emcmotAltQueue);
+	rtapi_print_msg(RTAPI_MSG_DBG, "\nabort_and_switchback at x=%f y=%f z=%f\n",
+				    where.tran.x,where.tran.y,where.tran.z);
+	tpAbort(emcmotAltQueue);
+	emcmotQueue = emcmotPrimQueue;
+	tpClear(emcmotQueue);
+	tpSetPos(emcmotQueue, where);
+	*emcmot_hal_data->pause_state = PS_RUNNING;
+	emcmotStatus->depth = 0; // end task wait
+    }
+    return tpAbort(emcmotQueue);
+}
+
+static void add_increment(EmcPose *dest,
+			  int axis_num,
+			  double delta)
+{
+    switch (axis_num) {
+    case 0: dest->tran.x += delta; break;
+    case 1: dest->tran.y += delta; break;
+    case 2: dest->tran.z += delta; break;
+    case 3: dest->a += delta; break;
+    case 4: dest->b += delta; break;
+    case 5: dest->c += delta; break;
+    case 6: dest->u += delta; break;
+    case 7: dest->v += delta; break;
+    case 8: dest->w += delta; break;
+    }
+}
+
+// given a start pose, an axis and axis_num, and a delta to be
+// applied to that axis, determine the end pose of the move
+// by pruning delta such that the end pose does not violate
+// axis or joint limits.
+// return zero if no solution found.
+int find_jog_endpoint(EmcPose start, EmcPose *dest,
+			     int axis_num,
+			     emcmot_axis_t *axis,
+			     double delta)
+{
+    EmcPose tmp = start;
+    double d = delta;
+    double incr;
+
+    add_increment(&tmp, axis_num, d);
+
+    // easy case: destination within limits
+    if (inRange(tmp, 0, NULL)) {
+	*dest = tmp;
+	return 1;
+    }
+    // if the starting point is outside limits as well, no point in
+    // trying to find a solution
+    if (!inRange(start, 0, NULL))
+	return 0;
+
+    // tmp not inRange, but start inRange.
+    // search a point inRange within a margin of delta.
+    d = 0;
+    incr = delta;
+    tmp = start;
+    do {
+	if (!inRange(tmp, 0, NULL)) {
+	    add_increment(&tmp, axis_num, -incr/2.0);
+	} else {
+	    if (fabs(incr) < 0.001) {
+		*dest = tmp;
+		return 1;
+	    }
+	    add_increment(&tmp, axis_num, incr/2.0);
+	}
+	incr = incr/2.0;
+    } while (1);
+
+    rtapi_print_msg(RTAPI_MSG_DBG, "find_jog_endpoint: outside range\n");
+    return 0;
+}
+
+static void jog_axis(int axis_num, emcmot_axis_t *axis, double delta, double vel)
+{
+    EmcPose startfrom, jogdest ;
+    int add_move = 0;
+
+    // came here because a NML jog incr command was issued
+    // while paused/in coord mode
+
+    // honor this only if state PS_PAUSED/PS_PAUSED_IN_OFFSET
+    switch (*emcmot_hal_data->pause_state) {
+
+    case PS_JOGGING:
+	// if already jogging, abort this move
+	// and insert a move to the new destination
+	tpAbort(emcmotQueue);
+	tpClear(emcmotQueue);
+	startfrom = emcmotStatus->pause_offset_carte_pos;
+	add_move = 1;
+	rtapi_print_msg(RTAPI_MSG_DBG, "re-issue JOG_INCR destination");
+	break;
+
+    case PS_PAUSED:
+    case PS_PAUSED_IN_OFFSET:
+	// insert move relative to current pos since we're stopped
+	// at the end of an increment
+	startfrom = tpGetPos(emcmotQueue);
+	add_move = 1;
+	break;
+    default:
+	rtapi_print_msg(RTAPI_MSG_DBG, " cant JOG_INCR in state %d",
+			*emcmot_hal_data->pause_state);
+    }
+    if (add_move && find_jog_endpoint(startfrom, &jogdest, axis_num, axis, delta)) {
+
+	// record new jog destination
+	emcmotStatus->pause_offset_carte_pos = jogdest;
+	// record last jog vel for return move
+	emcmotStatus->last_jog_vel = fabs(vel);
+	// add jog move
+	tpSetId(emcmotQueue, MOTION_PAUSED_JOG_MOVE);
+	if (-1 == tpAddLine(emcmotQueue,
+			    jogdest,
+			    TC_LINEAR,
+			    emcmotStatus->last_jog_vel,
+			    emcmotStatus->last_jog_vel,
+			    axis->acc_limit,
+			    emcmotStatus->enables_new,  // ???
+			    0, // dont wait for atspeed  ???
+			    -1)) { // no indexrotary action ???
+	    reportError(_("can't add linear coordinated jog move"));
+	    emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
+	    abort_and_switchback(); // reverts to PS_RUNNING
+	    SET_MOTION_ERROR_FLAG(1);
+	} else {
+	    emcmotStatus->id = MOTION_PAUSED_JOG_MOVE;
+	    SET_MOTION_ERROR_FLAG(0);
+	    *emcmot_hal_data->pause_state = PS_JOGGING;
+	}
+    }
+}
+
+
 /*
   emcmotCommandHandler() is called each main cycle to read the
   shared memory buffer
@@ -479,7 +632,8 @@ check_stuff ( "before command_handler()" );
 		    axis->teleop_tp.enable = 0;
                 }
 	    } else if (GET_MOTION_COORD_FLAG()) {
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback();
+
 	    } else {
 		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
 		    /* point to joint struct */
@@ -501,15 +655,20 @@ check_stuff ( "before command_handler()" );
 		SET_JOINT_ERROR_FLAG(joint, 0);
 		SET_JOINT_FAULT_FLAG(joint, 0);
 	    }
-	    emcmotStatus->paused = 0;
+	    emcmotStatus->pause_state =  *(emcmot_hal_data->pause_state) = PS_RUNNING;
+	    emcmotStatus->resuming = 0;
+
 	    break;
 
 	case EMCMOT_JOINT_ABORT:
 	    /* abort one joint */
 	    /* can happen at any time */
-	    /* this command stops a single joint.  It is only usefull
-	       in free mode, so in coord or teleop mode it does
-	       nothing. */
+	    /* this command stops a single joint.
+	       in free and coord mode this stops a jog in progress.
+	       technically the joint number is interpreted as an axis
+	       number in coord mode which is wrong until we have
+	       separate joint and axis jog commands
+	    */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ABORT");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
@@ -518,7 +677,17 @@ check_stuff ( "before command_handler()" );
 		axis->teleop_tp.enable = 0;
 		/* do nothing in teleop mode */
 	    } else if (GET_MOTION_COORD_FLAG()) {
-		/* do nothing in coord mode */
+
+		// if jogging during pause, then abort
+		// the current move, and signal pause FSM
+		// to handle the rest
+		switch (*emcmot_hal_data->pause_state) {
+		    case PS_JOGGING:
+			tpPause(emcmotQueue);
+			// temporary state until motion has stopped
+			*emcmot_hal_data->pause_state = PS_JOG_ABORTING;
+			break;
+		}
 	    } else {
 		/* validate joint */
 		if (joint == 0) {
@@ -725,7 +894,8 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* must be in free mode and enabled */
-	    if (GET_MOTION_COORD_FLAG()) {
+	    if (GET_MOTION_COORD_FLAG() &&
+		!emcmotStatus->jog_while_paused_enable) {
 		reportError(_("Can't jog joint in coordinated mode."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -744,7 +914,8 @@ check_stuff ( "before command_handler()" );
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
-            if (!GET_MOTION_TELEOP_FLAG()) {
+            if (!GET_MOTION_TELEOP_FLAG() &&
+		!GET_MOTION_COORD_FLAG()) {
 	        if (joint->wheel_jog_active) {
 		    /* can't do two kinds of jog at once */
 		    break;
@@ -787,6 +958,15 @@ check_stuff ( "before command_handler()" );
                     /* valid axis, point to it's data */
                     axis = &axes[axis_num];
                 }
+		if (GET_MOTION_COORD_FLAG()) {
+		    // insert a long move which will go beyond limits
+		    // jog_axis will prune this to within limits
+		    jog_axis(axis_num, axis, (emcmotCommand->vel > 0.0) ?
+			     (axis->max_pos_limit - axis->min_pos_limit) :
+			     -(axis->max_pos_limit - axis->min_pos_limit),
+			     emcmotCommand->vel);
+		} else {
+
 		    if (emcmotCommand->vel > 0.0) {
 			axis->teleop_tp.pos_cmd = axis->max_pos_limit;
 		    } else {
@@ -799,6 +979,7 @@ check_stuff ( "before command_handler()" );
 		    /* and let it go */
 		    axis->teleop_tp.enable = 1;
 		}
+	    }
 	    break;
 
 	case EMCMOT_JOG_INCR:
@@ -809,7 +990,9 @@ check_stuff ( "before command_handler()" );
 		break;
 	    }
 	    /* must be in free mode and enabled */
-	    if (GET_MOTION_COORD_FLAG()) {
+	    if (GET_MOTION_COORD_FLAG() &&
+		!emcmotStatus->jog_while_paused_enable) {
+
 		reportError(_("Can't jog joint in coordinated mode."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -828,7 +1011,10 @@ check_stuff ( "before command_handler()" );
 		/* don't jog if feedhold is on or if feed override is zero */
 		break;
 	    }
-            if (!GET_MOTION_TELEOP_FLAG()) {
+
+	    // joint mode jog
+            if (!GET_MOTION_TELEOP_FLAG() &&
+		!GET_MOTION_COORD_FLAG()) { // this mode representation is sick
 	        if (joint->wheel_jog_active) {
 		    /* can't do two kinds of jog at once */
 		    break;
@@ -874,11 +1060,20 @@ check_stuff ( "before command_handler()" );
 	           since homing, otherwise just do this one */
 	        clearHomes(joint_num);
             } else {
+		// teleop or coord mode jog
                 axis_num = emcmotCommand->joint;
                 if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
                     /* valid axis, point to it's data */
                     axis = &axes[axis_num];
                 }
+
+		if (GET_MOTION_COORD_FLAG()) {
+		    jog_axis(axis_num, axis, (emcmotCommand->vel > 0.0) ?
+			     emcmotCommand->offset :
+			     - emcmotCommand->offset, emcmotCommand->vel);
+		} else {
+		    // an NML jog command was issued in teleop mode
+
 		    if (emcmotCommand->vel > 0.0) {
 			tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
 		    } else {
@@ -900,6 +1095,7 @@ check_stuff ( "before command_handler()" );
 		    /* and let it go */
 		    axis->teleop_tp.enable = 1;
 		}
+            }
 	    break;
 
 	case EMCMOT_JOG_ABS:
@@ -967,11 +1163,11 @@ check_stuff ( "before command_handler()" );
 	case EMCMOT_SET_TERM_COND:
 	    /* sets termination condition for motion emcmotDebug->coord_tp */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TERM_COND");
-	    tpSetTermCond(&emcmotDebug->coord_tp, emcmotCommand->termCond, emcmotCommand->tolerance);
+	    tpSetTermCond(emcmotQueue, emcmotCommand->termCond, emcmotCommand->tolerance);
 	    break;
 
         case EMCMOT_SET_SPINDLESYNC:
-            tpSetSpindleSync(&emcmotDebug->coord_tp, emcmotCommand->spindlesync, emcmotCommand->flags);
+            tpSetSpindleSync(emcmotQueue, emcmotCommand->spindlesync, emcmotCommand->flags);
             break;
 
 	case EMCMOT_SET_LINE:
@@ -985,13 +1181,13 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Linear")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do linear move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
@@ -1002,15 +1198,15 @@ check_stuff ( "before command_handler()" );
             if(!is_feed_type(emcmotCommand->motion_type) && emcmotStatus->spindle.css_factor) {
                 emcmotStatus->atspeed_next_feed = 1;
             }
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, 
+	    /* append it to the emcmotDebug->queue */
+	    tpSetId(emcmotQueue, emcmotCommand->id);
+	    if (-1 == tpAddLine(emcmotQueue, emcmotCommand->pos, emcmotCommand->motion_type,
                                 emcmotCommand->vel, emcmotCommand->ini_maxvel, 
                                 emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
                                 emcmotCommand->turn)) {
 		reportError(_("can't add linear move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
@@ -1033,13 +1229,13 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Circular")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do circular move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
@@ -1047,17 +1243,17 @@ check_stuff ( "before command_handler()" );
                 issue_atspeed = 1;
                 emcmotStatus->atspeed_next_feed = 0;
             }
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
+	    /* append it to the emcmotDebug->queue */
+	    tpSetId(emcmotQueue, emcmotCommand->id);
 	    if (-1 ==
-		tpAddCircle(&emcmotDebug->coord_tp, emcmotCommand->pos,
+		tpAddCircle(emcmotQueue, emcmotCommand->pos,
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
                             emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
 		reportError(_("can't add circular move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
@@ -1074,7 +1270,8 @@ check_stuff ( "before command_handler()" );
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
 	    emcmotStatus->vel = emcmotCommand->vel;
-	    tpSetVmax(&emcmotDebug->coord_tp, emcmotStatus->vel, emcmotCommand->ini_maxvel);
+	    tpSetVmax(emcmotPrimQueue, emcmotStatus->vel,
+			    emcmotCommand->ini_maxvel);
 	    break;
 
 	case EMCMOT_SET_VEL_LIMIT:
@@ -1083,7 +1280,7 @@ check_stuff ( "before command_handler()" );
 	    /* set the absolute max velocity for all subsequent moves */
 	    /* can do it at any time */
 	    emcmotConfig->limitVel = emcmotCommand->vel;
-	    tpSetVlimit(&emcmotDebug->coord_tp, emcmotConfig->limitVel);
+	    tpSetVlimit(emcmotPrimQueue, emcmotConfig->limitVel);
 	    break;
 
 	case EMCMOT_SET_JOINT_VEL_LIMIT:
@@ -1117,37 +1314,49 @@ check_stuff ( "before command_handler()" );
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
 	    emcmotStatus->acc = emcmotCommand->acc;
-	    tpSetAmax(&emcmotDebug->coord_tp, emcmotStatus->acc);
+	    tpSetAmax(emcmotPrimQueue, emcmotStatus->acc);
 	    break;
 
 	case EMCMOT_PAUSE:
 	    /* pause the motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PAUSE");
-	    tpPause(&emcmotDebug->coord_tp);
-	    emcmotStatus->paused = 1;
+	    tpPause(emcmotQueue);
+	    // trigger pause FSM
+	    *(emcmot_hal_data->pause_state) = PS_PAUSING;
+	    emcmotStatus->resuming = 0;
+	    emcmotDebug->stepping = 0;
 	    break;
 
 	case EMCMOT_RESUME:
 	    /* resume paused motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RESUME");
-	    emcmotDebug->stepping = 0;
-	    tpResume(&emcmotDebug->coord_tp);
-	    emcmotStatus->paused = 0;
+	    // just signal pause fsm since a return move might be needed
+	    emcmotStatus->resuming = 1;
 	    break;
 
 	case EMCMOT_STEP:
 	    /* resume paused motion until id changes */
 	    /* can happen at any time */
             rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
-            if(emcmotStatus->paused) {
+
+	    switch (*emcmot_hal_data->pause_state) {
+	    case PS_JOGGING:
+		reportError(_("MOTION: can't STEP while jogging"));
+		break;
+	    case PS_RETURNING:
+		reportError(_("MOTION: can't STEP while in return move"));
+		break;
+
+	    case PS_PAUSED:
+	    case PS_PAUSED_IN_OFFSET:
                 emcmotDebug->idForStep = emcmotStatus->id;
                 emcmotDebug->stepping = 1;
-                tpResume(&emcmotDebug->coord_tp);
-                emcmotStatus->paused = 1;
-            } else {
-		reportError(_("MOTION: can't STEP while already executing"));
+		// defer resume to FSM
+		break;
+	    default:
+		reportError(_("MOTION: STEP while in state %d"),*emcmot_hal_data->pause_state);  // improve this FIXME
 	    }
 	    break;
 
@@ -1422,13 +1631,13 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Probe")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do probe move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!(emcmotCommand->probe_type & 1)) {
@@ -1445,18 +1654,18 @@ check_stuff ( "before command_handler()" );
                         reportError(_("Probe is already tripped when starting G38.2 or G38.3 move"));
 
                     emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-                    tpAbort(&emcmotDebug->coord_tp);
+                    abort_and_switchback(); // tpAbort(emcmotQueue);
                     SET_MOTION_ERROR_FLAG(1);
                     break;
                 }
             }
 
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1)) {
+	    /* append it to the emcmotDebug->queue */
+	    tpSetId(emcmotQueue, emcmotCommand->id);
+	    if (-1 == tpAddLine(emcmotQueue, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1)) {
 		reportError(_("can't add probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
@@ -1482,24 +1691,24 @@ check_stuff ( "before command_handler()" );
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Rigid tap")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do rigid tap move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
 
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    if (-1 == tpAddRigidTap(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
+	    /* append it to the emcmotDebug->queue */
+	    tpSetId(emcmotQueue, emcmotCommand->id);
+	    if (-1 == tpAddRigidTap(emcmotQueue, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new)) {
                 emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
 		reportError(_("can't add rigid tap move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		tpAbort(&emcmotDebug->coord_tp);
+		abort_and_switchback(); // tpAbort(emcmotQueue);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
@@ -1519,7 +1728,7 @@ check_stuff ( "before command_handler()" );
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotAioWrite(emcmotCommand->out, emcmotCommand->minLimit);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
-		tpSetAout(&emcmotDebug->coord_tp, emcmotCommand->out,
+		tpSetAout(emcmotQueue, emcmotCommand->out,
 		    emcmotCommand->minLimit, emcmotCommand->maxLimit);
 	    }
 	    break;
@@ -1529,7 +1738,7 @@ check_stuff ( "before command_handler()" );
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotDioWrite(emcmotCommand->out, emcmotCommand->start);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
-		tpSetDout(&emcmotDebug->coord_tp, emcmotCommand->out,
+		tpSetDout(emcmotQueue, emcmotCommand->out,
 		    emcmotCommand->start, emcmotCommand->end);
 	    }
 	    break;
@@ -1585,7 +1794,7 @@ check_stuff ( "before command_handler()" );
 		// mah:FIXME unsure wether this is ok or an error
 		/* reportError(_("orient already in progress")); */
 		/* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-		/* tpAbort(&emcmotDebug->queue); */
+		/* tpAbort(emcmotQueue); */
 		/* SET_MOTION_ERROR_FLAG(1); */
 	    }
 	    emcmotStatus->spindle.orient_state = EMCMOT_ORIENT_IN_PROGRESS;
