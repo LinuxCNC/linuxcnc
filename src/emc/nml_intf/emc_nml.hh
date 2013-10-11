@@ -1194,6 +1194,8 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     double analog_input[EMCMOT_MAX_AIO]; //motion analog inputs queried by interp
     double analog_output[EMCMOT_MAX_AIO]; //motion analog outputs queried by interp
     int debug;			// copy of EMC_DEBUG global
+    int jog_while_paused_enable;    // mirrors the pin
+    int pause_state;            // pause FSM state
 };
 
 // declarations for EMC_TASK classes

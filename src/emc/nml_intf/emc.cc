@@ -2569,6 +2569,8 @@ void EMC_MOTION_STAT::update(CMS * cms)
     for (int i_joint = 0; i_joint < EMCMOT_MAX_JOINTS; i_joint++)
 	joint[i_joint].update(cms);
     cms->update(debug);
+    cms->update(jog_while_paused_enable);
+    cms->update(pause_state);
 
     spindle.update(cms); //FIXME - is this needed ?
 
