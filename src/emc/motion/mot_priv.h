@@ -11,6 +11,8 @@
 #ifndef MOT_PRIV_H
 #define MOT_PRIV_H
 
+#include "tp.h"  // since we're referencing TP_STRUCT here
+
 /***********************************************************************
 *                       TYPEDEFS, ENUMS, ETC.                          *
 ************************************************************************/
@@ -183,6 +185,12 @@ typedef struct {
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
     axis_hal_t axis[EMCMOT_MAX_AXIS];	        /* data for each axis */
 
+    hal_s32_t *pause_state;  // mirror pause state in HAL
+
+    // in:  if true, motion will switch to the alternate motion queue on pause
+    // false: as before
+    hal_bit_t *jog_while_paused_enable;
+
 } emcmot_hal_data_t;
 
 /***********************************************************************
@@ -218,6 +226,10 @@ extern struct emcmot_status_t *emcmotStatus;
 extern struct emcmot_config_t *emcmotConfig;
 extern struct emcmot_debug_t *emcmotDebug;
 extern struct emcmot_error_t *emcmotError;
+
+extern TP_STRUCT *emcmotPrimQueue;
+extern TP_STRUCT *emcmotAltQueue;
+extern TP_STRUCT *emcmotQueue;
 
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *
