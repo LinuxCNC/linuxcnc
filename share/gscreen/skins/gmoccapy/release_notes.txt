@@ -1,3 +1,6 @@
+ver. 0.9.8.1
+- introduced new serbian translation
+
 ver. 0.9.8
 - introduced notification as gmoccapy error messaging system
 - rebuild the settings page to make the message system settings availible
