@@ -1,3 +1,8 @@
+ver. 0.9.8.2
+- make the design from spindle and coolant frames more beautifull
+- added both to a hbox, so later this box may be replaced by user controls,
+  i.e. plasma cutters
+
 ver. 0.9.8.1
 - introduced new serbian translation
 
