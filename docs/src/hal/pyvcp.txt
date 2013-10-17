@@ -920,13 +920,12 @@ image::images/pyvcp_table.png[]
 
 ==== Tabs
 
-A tabbed interface can save quite a bit of space.
+A tabbed interface can save quite a bit of space. Create one container for
+each tab name. Only one 'tabs' section can exist and 'tabs' can not be nested
+or stacked. The width of the widest item controls the width of the tabs.
 
 [source,xml]
 -----------------------------------------------------------
-<tabs>
-    <names> ["spindle","green eggs"]</names>
-</tabs>
 <tabs>
     <names>["Spindle", "Green Eggs", "Ham"]</names>
     <vbox>
