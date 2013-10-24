@@ -335,9 +335,9 @@ static void write_one(lcd_inst_t *inst){
     }
 }
 
-int num_digits_baseN(u64 val, int base){
+int num_digits_baseN(__u64 val, int base){
     int n = 1;
-    u64 m = 1;
+    __u64 m = 1;
     while ((m *= base) <= val){
         n += 1;
     }
@@ -493,7 +493,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             {
                 int i;
                 double v = *((hal_float_t*)val);
-                u64 tmp = 0; //enough bits for 9 decimal digits.
+                __u64 tmp = 0; //enough bits for 9 decimal digits.
                 int s = 0;
                 
                 if (sgn != ' ') s = 1;
