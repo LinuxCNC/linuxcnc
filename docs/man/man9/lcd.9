@@ -28,9 +28,10 @@ The input pins have types matched to the format string specifiers.
 Selects the page number. Multiple layouts may be defined, and this pin switches
 between them.
 .TP
-.B lcd.\fINN\fB.contrast\fR (u32) in
+.B lcd.\fINN\fB.contrast\fR (float) in
 Attempts to set the contrast of the LCD screen using the byte sequence ESC C and
-then a value from 0x20 to 0xBF. (matching the Mesa 7i73)
+then a value from 0x20 to 0xBF. (matching the Mesa 7i73). The value should be
+between 0 and 1. 
 
 .SH PARAMETERS
 .TP
@@ -108,7 +109,7 @@ formats.
 
 All the above modifiers are optional, but to specify a decimal precision the 
 decimal point must precede the precision. For example %.3f. 
- The default decimal precision is 6.
+ The default decimal precision is 4.
 
 The numerical formats supported are:
 
