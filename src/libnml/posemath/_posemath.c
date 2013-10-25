@@ -34,8 +34,6 @@
 
 #include "sincos.h"
 
-#include <stdio.h>
-
 /* global error number */
 int pmErrno = 0;
 
@@ -1707,6 +1705,8 @@ int pmCircleInit(PmCircle * const circle,
     if (turn > 0) {
         circle->angle += turn * 2.0 * PM_PI;
     }
+
+    //Default to invalid
 /* if 0'ed out while not debugging*/
 #if 0
     printf("\n\n");
