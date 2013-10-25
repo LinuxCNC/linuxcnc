@@ -100,7 +100,7 @@ PM_SPHERICAL::PM_SPHERICAL(PM_CONST PM_CARTESIAN PM_REF v)
     PmSpherical sph;
 
     toCart(v, &cart);
-    pmCartSphConvert(cart, &sph);
+    pmCartSphConvert(&cart, &sph);
     toSph(sph, this);
 }
 
@@ -160,7 +160,7 @@ PM_CYLINDRICAL::PM_CYLINDRICAL(PM_CONST PM_CARTESIAN PM_REF v)
     PmCylindrical cyl;
 
     toCart(v, &cart);
-    pmCartCylConvert(cart, &cyl);
+    pmCartCylConvert(&cart, &cyl);
     toCyl(cyl, this);
 }
 
@@ -919,7 +919,7 @@ double dot(PM_CARTESIAN v1, PM_CARTESIAN v2)
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    pmCartCartDot(_v1, _v2, &d);
+    pmCartCartDot(&_v1, &_v2, &d);
 
     return d;
 }
@@ -934,7 +934,7 @@ PM_CARTESIAN cross(PM_CARTESIAN v1, PM_CARTESIAN v2)
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    pmCartCartCross(_v1, _v2, &_v1);
+    pmCartCartCross(&_v1, &_v2, &_v1);
 
     toCart(_v1, &ret);
 
@@ -950,7 +950,7 @@ PM_CARTESIAN unit(PM_CARTESIAN v)
 
     toCart(v, &_v);
 
-    pmCartUnit(_v, &_v);
+    pmCartUnit(&_v, &_v);
 
     toCart(_v, &vout);
 
@@ -967,7 +967,7 @@ PM_CARTESIAN norm(PM_CARTESIAN v)
 
     toCart(v, &_v);
 
-    pmCartNorm(_v, &_v);
+    pmCartNorm(&_v, &_v);
 
     toCart(_v, &vout);
 
@@ -1024,7 +1024,7 @@ int isNorm(PM_CARTESIAN v)
 
     toCart(v, &_v);
 
-    return pmCartIsNorm(_v);
+    return pmCartIsNorm(&_v);
 }
 
 int isNorm(PM_QUATERNION q)
@@ -1063,7 +1063,7 @@ double mag(PM_CARTESIAN v)
 
     toCart(v, &_v);
 
-    pmCartMag(_v, &ret);
+    pmCartMag(&_v, &ret);
 
     return ret;
 }
@@ -1078,7 +1078,7 @@ double disp(PM_CARTESIAN v1, PM_CARTESIAN v2)
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    pmCartCartDisp(_v1, _v2, &ret);
+    pmCartCartDisp(&_v1, &_v2, &ret);
 
     return ret;
 }
@@ -1092,7 +1092,7 @@ PM_CARTESIAN inv(PM_CARTESIAN v)
 
     toCart(v, &_v);
 
-    pmCartInv(_v, &_v);
+    pmCartInv(&_v, &_v);
 
     toCart(_v, &ret);
 
@@ -1165,7 +1165,7 @@ PM_CARTESIAN proj(PM_CARTESIAN v1, PM_CARTESIAN v2)
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    pmCartCartProj(_v1, _v2, &_v1);
+    pmCartCartProj(&_v1, &_v2, &_v1);
 
     toCart(_v1, &ret);
 
@@ -1235,7 +1235,7 @@ int operator ==(PM_CARTESIAN v1, PM_CARTESIAN v2)
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    return pmCartCartCompare(_v1, _v2);
+    return pmCartCartCompare(&_v1, &_v2);
 }
 
 int operator ==(PM_QUATERNION q1, PM_QUATERNION q2)
@@ -1265,7 +1265,7 @@ int operator !=(PM_CARTESIAN v1, PM_CARTESIAN v2)
     toCart(v1, &_v1);
     toCart(v2, &_v2);
 
-    return !pmCartCartCompare(_v1, _v2);
+    return !pmCartCartCompare(&_v1, &_v2);
 }
 
 int operator !=(PM_QUATERNION q1, PM_QUATERNION q2)

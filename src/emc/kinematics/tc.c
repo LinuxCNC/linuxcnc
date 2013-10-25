@@ -28,44 +28,44 @@
 int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, out);
+        pmCartCartSub(&tc->coords.line.xyz.end.tran, &tc->coords.line.xyz.start.tran, out);
     } else {
         PmPose startpoint;
         PmCartesian radius;
         PmCartesian tan, perp;
 
         pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
-        pmCartCartSub(startpoint.tran, tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(tc->coords.circle.xyz.normal, radius, &tan);
-        pmCartUnit(tan, &tan);
+        pmCartCartSub(&startpoint.tran, &tc->coords.circle.xyz.center, &radius);
+        pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
+        pmCartUnit(&tan, &tan);
 
-        pmCartCartSub(tc->coords.circle.xyz.center, startpoint.tran, &perp);
-        pmCartUnit(perp, &perp);
+        pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint.tran, &perp);
+        pmCartUnit(&perp, &perp);
 
-        pmCartScalMult(tan, tc->maxaccel, &tan);
-        pmCartScalMult(perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
-        pmCartCartAdd(tan, perp, out);
+        pmCartScalMult(&tan, tc->maxaccel, &tan);
+        pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
+        pmCartCartAdd(&tan, &perp, out);
     }
-    pmCartUnit(*out, out);
+    pmCartUnit(out, out);
     return 0;
 }
 
 int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR) {
-        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, out);
+        pmCartCartSub(&tc->coords.line.xyz.end.tran, &tc->coords.line.xyz.start.tran, out);
     } else if(tc->motion_type == TC_RIGIDTAP) {
         // comes out the other way
-        pmCartCartSub(tc->coords.line.xyz.start.tran, tc->coords.line.xyz.end.tran, out);
+        pmCartCartSub(&tc->coords.line.xyz.start.tran, &tc->coords.line.xyz.end.tran, out);
     } else {
         PmPose endpoint;
         PmCartesian radius;
 
         pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
-        pmCartCartSub(endpoint.tran, tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(tc->coords.circle.xyz.normal, radius, out);
+        pmCartCartSub(&endpoint.tran, &tc->coords.circle.xyz.center, &radius);
+        pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
     }
-    pmCartUnit(*out, out);
+    pmCartUnit(out, out);
     return 0;
 }
 

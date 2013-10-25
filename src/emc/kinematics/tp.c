@@ -388,7 +388,7 @@ static inline double tpMaxTangentAngle(double v, double acc, double period) {
 
 static inline int tpFindIntersectionAngle(PmCartesian u1, PmCartesian u2, double* const theta) {
     double dot;
-    pmCartCartDot(u1, u2, &dot);
+    pmCartCartDot(&u1, &u2, &dot);
 
     if (dot > 1.0 || dot < -1.0) return -1;
 
@@ -575,7 +575,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
     pmLineInit(&line_abc, start_abc, end_abc);
 
     // find helix length
-    pmCartMag(circle.rHelix, &helix_z_component);
+    pmCartMag(&circle.rHelix, &helix_z_component);
     helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
             pmSq(helix_z_component));
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
@@ -685,7 +685,7 @@ static double tpComputeBlendVelocity(TC_STRUCT const * const tc, TC_STRUCT const
 
             tcGetEndingUnitVector(tc, &v1);
             tcGetStartingUnitVector(nexttc, &v2);
-            pmCartCartDot(v1, v2, &dot);
+            pmCartCartDot(&v1, &v2, &dot);
 
             theta = acos(-dot)/2.0; 
             if(cos(theta) > 0.001) {
@@ -959,7 +959,7 @@ static void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const
     EmcPose after;
     tcGetPos(tc, &after);
 
-    pmCartCartSub(after.tran, before->tran,
+    pmCartCartSub(&after.tran, &before->tran,
             &(displacement->tran));
     displacement->a = after.a - before->a;
     displacement->b = after.b - before->b;
@@ -976,7 +976,7 @@ static void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const
  */
 static void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement){
 
-    pmCartCartAdd(tp->currentPos.tran, displacement->tran,
+    pmCartCartAdd(&tp->currentPos.tran, &displacement->tran,
             &(tp->currentPos.tran));
     tp->currentPos.a += displacement->a;
     tp->currentPos.b += displacement->b;

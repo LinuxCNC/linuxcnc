@@ -1428,7 +1428,7 @@ check_stuff ( "before command_handler()" );
 	    } else {
 		double velmag;
 		emcmotDebug->teleop_data.desiredVel = emcmotCommand->pos;
-		pmCartMag(emcmotDebug->teleop_data.desiredVel.tran, &velmag);
+		pmCartMag(&emcmotDebug->teleop_data.desiredVel.tran, &velmag);
 		if (fabs(emcmotDebug->teleop_data.desiredVel.a) > velmag) {
 		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.a);
 		}
@@ -1439,7 +1439,7 @@ check_stuff ( "before command_handler()" );
 		    velmag = fabs(emcmotDebug->teleop_data.desiredVel.c);
 		}
 		if (velmag > emcmotConfig->limitVel) {
-		    pmCartScalMult(emcmotDebug->teleop_data.desiredVel.tran,
+		    pmCartScalMult(&emcmotDebug->teleop_data.desiredVel.tran,
 			emcmotConfig->limitVel / velmag,
 			&emcmotDebug->teleop_data.desiredVel.tran);
 		    emcmotDebug->teleop_data.desiredVel.a *=

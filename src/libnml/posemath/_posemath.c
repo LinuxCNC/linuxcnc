@@ -113,23 +113,23 @@ double pmSqrt(double x)
 
 /* Translation rep conversion functions */
 
-int pmCartSphConvert(PmCartesian v, PmSpherical * s)
+int pmCartSphConvert(PmCartesian const * const v, PmSpherical * s)
 {
     double _r;
 
-    s->theta = atan2(v.y, v.x);
-    s->r = pmSqrt(pmSq(v.x) + pmSq(v.y) + pmSq(v.z));
-    _r = pmSqrt(pmSq(v.x) + pmSq(v.y));
-    s->phi = atan2(_r, v.z);
+    s->theta = atan2(v->y, v->x);
+    s->r = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
+    _r = pmSqrt(pmSq(v->x) + pmSq(v->y));
+    s->phi = atan2(_r, v->z);
 
     return pmErrno = 0;
 }
 
-int pmCartCylConvert(PmCartesian v, PmCylindrical * c)
+int pmCartCylConvert(PmCartesian const * const v, PmCylindrical * c)
 {
-    c->theta = atan2(v.y, v.x);
-    c->r = pmSqrt(pmSq(v.x) + pmSq(v.y));
-    c->z = v.z;
+    c->theta = atan2(v->y, v->x);
+    c->r = pmSqrt(pmSq(v->x) + pmSq(v->y));
+    c->z = v->z;
 
     return pmErrno = 0;
 }
@@ -773,86 +773,86 @@ int pmHomPoseConvert(PmHomogeneous h, PmPose * p)
 
 /* PmCartesian functions */
 
-int pmCartCartCompare(PmCartesian v1, PmCartesian v2)
+int pmCartCartCompare(PmCartesian const * const v1, PmCartesian const * const v2)
 {
-    if (fabs(v1.x - v2.x) >= V_FUZZ ||
-	fabs(v1.y - v2.y) >= V_FUZZ || fabs(v1.z - v2.z) >= V_FUZZ) {
+    if (fabs(v1->x - v2->x) >= V_FUZZ ||
+	fabs(v1->y - v2->y) >= V_FUZZ || fabs(v1->z - v2->z) >= V_FUZZ) {
 	return 0;
     }
 
     return 1;
 }
 
-int pmCartCartDot(PmCartesian v1, PmCartesian v2, double *d)
+int pmCartCartDot(PmCartesian const * const v1, PmCartesian const * const v2, double *d)
 {
-    *d = v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+    *d = v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 
     return pmErrno = 0;
 }
 
-int pmCartCartCross(PmCartesian v1, PmCartesian v2, PmCartesian * vout)
+int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * vout)
 {
-    vout->x = v1.y * v2.z - v1.z * v2.y;
-    vout->y = v1.z * v2.x - v1.x * v2.z;
-    vout->z = v1.x * v2.y - v1.y * v2.x;
+    vout->x = v1->y * v2->z - v1->z * v2->y;
+    vout->y = v1->z * v2->x - v1->x * v2->z;
+    vout->z = v1->x * v2->y - v1->y * v2->x;
 
     return pmErrno = 0;
 }
 
-int pmCartMag(PmCartesian v, double *d)
+int pmCartMag(PmCartesian const * const v, double *d)
 {
-    *d = pmSqrt(pmSq(v.x) + pmSq(v.y) + pmSq(v.z));
+    *d = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
 
     return pmErrno = 0;
 }
 
 /** Find square of magnitude of a vector (useful for some calculations to save a sqrt).*/
-int pmCartMagSq(PmCartesian v, double *d)
+int pmCartMagSq(PmCartesian const * const v, double *d)
 {
-    *d = pmSq(v.x) + pmSq(v.y) + pmSq(v.z);
+    *d = pmSq(v->x) + pmSq(v->y) + pmSq(v->z);
 
     return pmErrno = 0;
 }
 
-int pmCartCartDisp(PmCartesian v1, PmCartesian v2, double *d)
+int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d)
 {
-    *d = pmSqrt(pmSq(v2.x - v1.x) + pmSq(v2.y - v1.y) + pmSq(v2.z - v1.z));
+    *d = pmSqrt(pmSq(v2->x - v1->x) + pmSq(v2->y - v1->y) + pmSq(v2->z - v1->z));
 
     return pmErrno = 0;
 }
 
-int pmCartCartAdd(PmCartesian v1, PmCartesian v2, PmCartesian * vout)
+int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * vout)
 {
-    vout->x = v1.x + v2.x;
-    vout->y = v1.y + v2.y;
-    vout->z = v1.z + v2.z;
+    vout->x = v1->x + v2->x;
+    vout->y = v1->y + v2->y;
+    vout->z = v1->z + v2->z;
 
     return pmErrno = 0;
 }
 
-int pmCartCartSub(PmCartesian v1, PmCartesian v2, PmCartesian * vout)
+int pmCartCartSub(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * vout)
 {
-    vout->x = v1.x - v2.x;
-    vout->y = v1.y - v2.y;
-    vout->z = v1.z - v2.z;
+    vout->x = v1->x - v2->x;
+    vout->y = v1->y - v2->y;
+    vout->z = v1->z - v2->z;
 
     return pmErrno = 0;
 }
 
-int pmCartScalMult(PmCartesian v1, double d, PmCartesian * vout)
+int pmCartScalMult(PmCartesian const * const v1, double d, PmCartesian * vout)
 {
-    vout->x = v1.x * d;
-    vout->y = v1.y * d;
-    vout->z = v1.z * d;
+    vout->x = v1->x * d;
+    vout->y = v1->y * d;
+    vout->z = v1->z * d;
 
     return pmErrno = 0;
 }
 
-int pmCartScalDiv(PmCartesian v1, double d, PmCartesian * vout)
+int pmCartScalDiv(PmCartesian const * const v1, double d, PmCartesian * vout)
 {
     if (d == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Divide by 0 in pmCartScalDiv\n");
+	pmPrintError(&"Divide by 0 in pmCartScalDiv\n");
 #endif
 	vout->x = DBL_MAX;
 	vout->y = DBL_MAX;
@@ -861,29 +861,29 @@ int pmCartScalDiv(PmCartesian v1, double d, PmCartesian * vout)
 	return pmErrno = PM_DIV_ERR;
     }
 
-    vout->x = v1.x / d;
-    vout->y = v1.y / d;
-    vout->z = v1.z / d;
+    vout->x = v1->x / d;
+    vout->y = v1->y / d;
+    vout->z = v1->z / d;
 
     return pmErrno = 0;
 }
 
-int pmCartNeg(PmCartesian v1, PmCartesian * vout)
+int pmCartNeg(PmCartesian const * const v1, PmCartesian * vout)
 {
-    vout->x = -v1.x;
-    vout->y = -v1.y;
-    vout->z = -v1.z;
+    vout->x = -v1->x;
+    vout->y = -v1->y;
+    vout->z = -v1->z;
 
     return pmErrno = 0;
 }
 
-int pmCartInv(PmCartesian v1, PmCartesian * vout)
+int pmCartInv(PmCartesian const * const v1, PmCartesian * vout)
 {
-    double size_sq = pmSq(v1.x) + pmSq(v1.y) + pmSq(v1.z);
+    double size_sq = pmSq(v1->x) + pmSq(v1->y) + pmSq(v1->z);
 
     if (size_sq == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Zero vector in pmCartInv\n");
+	pmPrintError(&"Zero vector in pmCartInv\n");
 #endif
 
 	vout->x = DBL_MAX;
@@ -893,22 +893,22 @@ int pmCartInv(PmCartesian v1, PmCartesian * vout)
 	return pmErrno = PM_NORM_ERR;
     }
 
-    vout->x = v1.x / size_sq;
-    vout->y = v1.y / size_sq;
-    vout->z = v1.z / size_sq;
+    vout->x = v1->x / size_sq;
+    vout->y = v1->y / size_sq;
+    vout->z = v1->z / size_sq;
 
     return pmErrno = 0;
 }
 
 // This used to be called pmCartNorm.
 
-int pmCartUnit(PmCartesian v, PmCartesian * vout)
+int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout)
 {
-    double size = pmSqrt(pmSq(v.x) + pmSq(v.y) + pmSq(v.z));
+    double size = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
 
     if (size == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Zero vector in pmCartUnit\n");
+	pmPrintError(&"Zero vector in pmCartUnit\n");
 #endif
 
 	vout->x = DBL_MAX;
@@ -918,9 +918,9 @@ int pmCartUnit(PmCartesian v, PmCartesian * vout)
 	return pmErrno = PM_NORM_ERR;
     }
 
-    vout->x = v.x / size;
-    vout->y = v.y / size;
-    vout->z = v.z / size;
+    vout->x = v->x / size;
+    vout->y = v->y / size;
+    vout->z = v->z / size;
 
     return pmErrno = 0;
 }
@@ -930,7 +930,7 @@ int pmCartUnit(PmCartesian v, PmCartesian * vout)
  Later we'll put this back. */
 #if 0
 
-int pmCartNorm(PmCartesian v, PmCartesian * vout)
+int pmCartNorm(PmCartesian const * const v, PmCartesian * vout)
 {
 
     vout->x = v.x;
@@ -941,31 +941,34 @@ int pmCartNorm(PmCartesian v, PmCartesian * vout)
 }
 #endif
 
-int pmCartIsNorm(PmCartesian v)
+int pmCartIsNorm(PmCartesian const * const v)
 {
-    return pmSqrt(pmSq(v.x) + pmSq(v.y) + pmSq(v.z)) - 1.0 <
-	UNIT_VEC_FUZZ ? 1 : 0;
+    return pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z)) - 1.0 < UNIT_VEC_FUZZ ? 1 : 0;
 }
 
-int pmCartCartProj(PmCartesian v1, PmCartesian v2, PmCartesian * vout)
+int pmCartCartProj(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * vout)
 {
-    int r1, r2, r3;
-    double d;
-
-    r1 = pmCartUnit(v2, &v2);
-    r2 = pmCartCartDot(v1, v2, &d);
-    r3 = pmCartScalMult(v2, d, vout);
+    int r1, r2;
+    int r3=1;
+    double d12;
+    double d22;
+    
+    r1 = pmCartCartDot(v1, v2, &d12);
+    r2 = pmCartCartDot(v2, v2, &d22);
+    if (!(r1 || r1)){
+        r3 = pmCartScalMult(v2, d12/d22, vout);
+    }
 
     return pmErrno = r1 || r2 || r3 ? PM_NORM_ERR : 0;
 }
 
-int pmCartPlaneProj(PmCartesian v, PmCartesian normal, PmCartesian * vout)
+int pmCartPlaneProj(PmCartesian const * const v, PmCartesian const * const normal, PmCartesian * vout)
 {
     int r1, r2;
     PmCartesian par;
 
     r1 = pmCartCartProj(v, normal, &par);
-    r2 = pmCartCartSub(v, par, vout);
+    r2 = pmCartCartSub(v, &par, vout);
 
     return pmErrno = r1 || r2 ? PM_NORM_ERR : 0;
 }
@@ -1127,10 +1130,9 @@ int pmMatIsNorm(PmRotationMatrix m)
 {
     PmCartesian u;
 
-    pmCartCartCross(m.x, m.y, &u);
+    pmCartCartCross(&m.x, &m.y, &u);
 
-    return (pmCartIsNorm(m.x) &&
-	pmCartIsNorm(m.y) && pmCartIsNorm(m.z) && pmCartCartCompare(u, m.z));
+    return (pmCartIsNorm(&m.x) && pmCartIsNorm(&m.y) && pmCartIsNorm(&m.z) && pmCartCartCompare(&u, &m.z));
 }
 
 int pmMatInv(PmRotationMatrix m, PmRotationMatrix * mout)
@@ -1341,7 +1343,7 @@ int pmQuatQuatMult(PmQuaternion q1, PmQuaternion q2, PmQuaternion * qout)
     return pmErrno = 0;
 }
 
-int pmQuatCartMult(PmQuaternion q1, PmCartesian v2, PmCartesian * vout)
+int pmQuatCartMult(PmQuaternion q1, PmCartesian  v2, PmCartesian * vout)
 {
     PmCartesian c;
 
@@ -1356,7 +1358,7 @@ int pmQuatCartMult(PmQuaternion q1, PmCartesian v2, PmCartesian * vout)
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q1)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatCartMult\n");
+	pmPrintError(&"Bad quaternion in pmQuatCartMult\n");
 #endif
 	return pmErrno = PM_NORM_ERR;
     }
@@ -1377,8 +1379,7 @@ int pmPosePoseCompare(PmPose p1, PmPose p2)
     }
 #endif
 
-    return pmErrno = (pmQuatQuatCompare(p1.rot, p2.rot) &&
-	pmCartCartCompare(p1.tran, p2.tran));
+    return pmErrno = (pmQuatQuatCompare(p1.rot, p2.rot) && pmCartCartCompare(&p1.tran, &p2.tran));
 }
 
 int pmPoseInv(PmPose p1, PmPose * p2)
@@ -1410,14 +1411,14 @@ int pmPoseCartMult(PmPose p1, PmCartesian v2, PmCartesian * vout)
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(p1.rot)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmPoseCartMult\n");
+	pmPrintError(&"Bad quaternion in pmPoseCartMult\n");
 #endif
 	return pmErrno = PM_NORM_ERR;
     }
 #endif
 
     r1 = pmQuatCartMult(p1.rot, v2, vout);
-    r2 = pmCartCartAdd(p1.tran, *vout, vout);
+    r2 = pmCartCartAdd(&p1.tran, vout, vout);
 
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : 0;
 }
@@ -1436,7 +1437,7 @@ int pmPosePoseMult(PmPose p1, PmPose p2, PmPose * pout)
 #endif
 
     r1 = pmQuatCartMult(p1.rot, p2.tran, &pout->tran);
-    r2 = pmCartCartAdd(p1.tran, pout->tran, &pout->tran);
+    r2 = pmCartCartAdd(&p1.tran, &pout->tran, &pout->tran);
     r3 = pmQuatQuatMult(p1.rot, p2.rot, &pout->rot);
 
     return pmErrno = (r1 || r2 || r3) ? PM_NORM_ERR : 0;
@@ -1499,18 +1500,18 @@ int pmLineInit(PmLine * line, PmPose start, PmPose end)
 
     line->start = start;
     line->end = end;
-    r1 = pmCartCartSub(end.tran, start.tran, &line->uVec);
+    r1 = pmCartCartSub(&end.tran, &start.tran, &line->uVec);
     if (r1) {
 	return r1;
     }
 
-    pmCartMag(line->uVec, &tmag);
+    pmCartMag(&line->uVec, &tmag);
     if (IS_FUZZ(tmag, CART_FUZZ)) {
 	line->uVec.x = 1.0;
 	line->uVec.y = 0.0;
 	line->uVec.z = 0.0;
     } else {
-	r2 = pmCartUnit(line->uVec, &line->uVec);
+	r2 = pmCartUnit(&line->uVec, &line->uVec);
     }
     line->tmag = tmag;
     line->rmag = rmag;
@@ -1529,8 +1530,8 @@ int pmLinePoint(PmLine const * const line, double len, PmPose * point)
 	point->tran = line->end.tran;
     } else {
 	/* return start + len * uVec */
-	r1 = pmCartScalMult(line->uVec, len, &point->tran);
-	r2 = pmCartCartAdd(line->start.tran, point->tran, &point->tran);
+	r1 = pmCartScalMult(&line->uVec, len, &point->tran);
+	r2 = pmCartCartAdd(&line->start.tran, &point->tran, &point->tran);
     }
 
     if (line->rmag_zero) {
@@ -1582,8 +1583,8 @@ int pmCircleInit(PmCircle * const circle,
 #endif
 
     /* adjust center */
-    pmCartCartSub(start->tran, *center, &v);
-    r1 = pmCartCartProj(v, *normal, &v);
+    pmCartCartSub(&start->tran, center, &v);
+    r1 = pmCartCartProj(&v, normal, &v);
     if (PM_NORM_ERR == r1) {
 	/* bad normal vector-- abort */
 #ifdef PM_PRINT_ERROR
@@ -1591,44 +1592,44 @@ int pmCircleInit(PmCircle * const circle,
 #endif
 	return -1;
     }
-    pmCartCartAdd(v, *center, &circle->center);
+    pmCartCartAdd(&v, center, &circle->center);
 
     /* normalize and redirect normal vector based on turns. If turn is less
        than 0, point normal vector in other direction and make turn positive, 
        -1 -> 0, -2 -> 1, etc. */
-    pmCartUnit(*normal, &circle->normal);
+    pmCartUnit(normal, &circle->normal);
     if (turn < 0) {
 	turn = -1 - turn;
-	pmCartScalMult(circle->normal, -1.0, &circle->normal);
+	pmCartScalMult(&circle->normal, -1.0, &circle->normal);
     }
 
     /* radius */
-    pmCartCartDisp(start->tran, circle->center, &circle->radius);
+    pmCartCartDisp(&start->tran, &circle->center, &circle->radius);
 
     /* vector in plane of circle from center to start, magnitude radius */
-    pmCartCartSub(start->tran, circle->center, &circle->rTan);
+    pmCartCartSub(&start->tran, &circle->center, &circle->rTan);
     /* vector in plane of circle perpendicular to rTan, magnitude radius */
-    pmCartCartCross(circle->normal, circle->rTan, &circle->rPerp);
+    pmCartCartCross(&circle->normal, &circle->rTan, &circle->rPerp);
 
     /* do rHelix, rEnd */
-    pmCartCartSub(end->tran, circle->center, &circle->rHelix);
-    pmCartPlaneProj(circle->rHelix, circle->normal, &rEnd);
-    pmCartMag(rEnd, &circle->spiral);
+    pmCartCartSub(&end->tran, &circle->center, &circle->rHelix);
+    pmCartPlaneProj(&circle->rHelix, &circle->normal, &rEnd);
+    pmCartMag(&rEnd, &circle->spiral);
     circle->spiral -= circle->radius;
-    pmCartCartSub(circle->rHelix, rEnd, &circle->rHelix);
-    pmCartUnit(rEnd, &rEnd);
-    pmCartScalMult(rEnd, circle->radius, &rEnd);
+    pmCartCartSub(&circle->rHelix, &rEnd, &circle->rHelix);
+    pmCartUnit(&rEnd, &rEnd);
+    pmCartScalMult(&rEnd, circle->radius, &rEnd);
 
     /* Patch for error spiral end same as spiral center */
-    pmCartMag(rEnd, &d);
+    pmCartMag(&rEnd, &d);
     if (d == 0.0) {
-	pmCartScalMult(circle->normal, DOUBLE_FUZZ, &v);
-	pmCartCartAdd(rEnd, v, &rEnd);
+	pmCartScalMult(&circle->normal, DOUBLE_FUZZ, &v);
+	pmCartCartAdd(&rEnd, &v, &rEnd);
     }
     /* end patch 03-mar-1999 Dirk Maij */
 
     /* angle */
-    pmCartCartDot(circle->rTan, rEnd, &dot);
+    pmCartCartDot(&circle->rTan, &rEnd, &dot);
     dot = dot / (circle->radius * circle->radius);
     if (dot > 1.0) {
 	circle->angle = 0.0;
@@ -1640,8 +1641,8 @@ int pmCircleInit(PmCircle * const circle,
     /* now angle is in range 0..PI . Check if cross is antiparallel to
        normal. If so, true angle is between PI..2PI. Need to subtract from
        2PI. */
-    pmCartCartCross(circle->rTan, rEnd, &v);
-    pmCartCartDot(v, circle->normal, &d);
+    pmCartCartCross(&circle->rTan, &rEnd, &v);
+    pmCartCartDot(&v, &circle->normal, &d);
     if (d < 0.0) {
 	circle->angle = PM_2_PI - circle->angle;
     }
@@ -1711,11 +1712,11 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * point)
 #endif
 
     /* compute components rel to center */
-    pmCartScalMult(circle->rTan, cos(angle), &par);
-    pmCartScalMult(circle->rPerp, sin(angle), &perp);
+    pmCartScalMult(&circle->rTan, cos(angle), &par);
+    pmCartScalMult(&circle->rPerp, sin(angle), &perp);
 
     /* add to get radius vector rel to center */
-    pmCartCartAdd(par, perp, &point->tran);
+    pmCartCartAdd(&par, &perp, &point->tran);
 
     /* get scale for spiral, helix interpolation */
     if (circle->angle == 0.0) {
@@ -1727,16 +1728,16 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * point)
     scale = angle / circle->angle;
 
     /* add scaled vector in radial dir for spiral */
-    pmCartUnit(point->tran, &par);
-    pmCartScalMult(par, scale * circle->spiral, &par);
-    pmCartCartAdd(point->tran, par, &point->tran);
+    pmCartUnit(&point->tran, &par);
+    pmCartScalMult(&par, scale * circle->spiral, &par);
+    pmCartCartAdd(&point->tran, &par, &point->tran);
 
     /* add scaled vector in helix dir */
-    pmCartScalMult(circle->rHelix, scale, &perp);
-    pmCartCartAdd(point->tran, perp, &point->tran);
+    pmCartScalMult(&circle->rHelix, scale, &perp);
+    pmCartCartAdd(&point->tran, &perp, &point->tran);
 
     /* add to center vector for final result */
-    pmCartCartAdd(circle->center, point->tran, &point->tran);
+    pmCartCartAdd(&circle->center, &point->tran, &point->tran);
 
     return pmErrno = 0;
 }

@@ -767,8 +767,8 @@ extern "C" {
 
 /* Translation rep conversion functions */
 
-    extern int pmCartSphConvert(PmCartesian, PmSpherical *);
-    extern int pmCartCylConvert(PmCartesian, PmCylindrical *);
+    extern int pmCartSphConvert(PmCartesian const * const, PmSpherical *);
+    extern int pmCartCylConvert(PmCartesian const * const, PmCylindrical *);
     extern int pmSphCartConvert(PmSpherical, PmCartesian *);
     extern int pmSphCylConvert(PmSpherical, PmCylindrical *);
     extern int pmCylCartConvert(PmCylindrical, PmCartesian *);
@@ -833,30 +833,30 @@ extern "C" {
 
 /* NOTE:  only Cartesian type supported in C now */
 
-    extern int pmCartCartCompare(PmCartesian, PmCartesian);
-    extern int pmCartCartDot(PmCartesian, PmCartesian, double *);
-    extern int pmCartCartCross(PmCartesian, PmCartesian, PmCartesian *);
-    extern int pmCartMag(PmCartesian, double *);
-    extern int pmCartMagSq(PmCartesian, double *);
-    extern int pmCartCartDisp(PmCartesian v1, PmCartesian v2, double *d);
-    extern int pmCartCartAdd(PmCartesian, PmCartesian, PmCartesian *);
-    extern int pmCartCartSub(PmCartesian, PmCartesian, PmCartesian *);
-    extern int pmCartScalMult(PmCartesian, double, PmCartesian *);
-    extern int pmCartScalDiv(PmCartesian, double, PmCartesian *);
-    extern int pmCartNeg(PmCartesian, PmCartesian *);
-    extern int pmCartUnit(PmCartesian v, PmCartesian * vout);
+    extern int pmCartCartCompare(PmCartesian const * const, PmCartesian const * const);
+    extern int pmCartCartDot(PmCartesian const * const, PmCartesian const * const, double *);
+    extern int pmCartCartCross(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
+    extern int pmCartMag(PmCartesian const * const, double *);
+    extern int pmCartMagSq(PmCartesian const * const, double *);
+    extern int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d);
+    extern int pmCartCartAdd(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
+    extern int pmCartCartSub(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
+    extern int pmCartScalMult(PmCartesian const * const, double, PmCartesian *);
+    extern int pmCartScalDiv(PmCartesian const * const, double, PmCartesian *);
+    extern int pmCartNeg(PmCartesian const * const, PmCartesian *);
+    extern int pmCartUnit(PmCartesian const * const v, PmCartesian * vout);
 /*! \todo Another #if 0 */
 #if 0
-    extern int pmCartNorm(PmCartesian v, PmCartesian * vout);
+    extern int pmCartNorm(PmCartesian const * const v, PmCartesian * vout);
 #else
 // Hopefully guaranteed to cause a compile error when used.
 #define pmCartNorm(a,b,c,d,e)  bad{a.b.c.d.e}
 #endif
 
-    extern int pmCartIsNorm(PmCartesian v);
-    extern int pmCartInv(PmCartesian, PmCartesian *);
-    extern int pmCartCartProj(PmCartesian, PmCartesian, PmCartesian *);
-    extern int pmCartPlaneProj(PmCartesian v, PmCartesian normal,
+    extern int pmCartIsNorm(PmCartesian const * const v);
+    extern int pmCartInv(PmCartesian const * const, PmCartesian *);
+    extern int pmCartCartProj(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
+    extern int pmCartPlaneProj(PmCartesian const * const v, PmCartesian const * const normal,
 	PmCartesian * vout);
 
 /* rotation functions */

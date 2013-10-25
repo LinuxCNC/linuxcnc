@@ -244,14 +244,14 @@ static int JInvMat(const EmcPose * pos,
   for (i = 0; i < NUM_STRUTS; i++) {
     /* run part of inverse kins to get strut vectors */
     pmMatCartMult(RMatrix, a[i], &RMatrix_a);
-    pmCartCartAdd(pos->tran, RMatrix_a, &aw);
-    pmCartCartSub(aw, b[i], &InvKinStrutVect);
+    pmCartCartAdd(&pos->tran, &RMatrix_a, &aw);
+    pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
 
     /* Determine RMatrix_a_cross_strut */
-    if (0 != pmCartUnit(InvKinStrutVect, &InvKinStrutVectUnit)) {
+    if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
       return -1;
     }
-    pmCartCartCross(RMatrix_a, InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
+    pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
 
     /* Build Inverse Jacobian Matrix */
     InverseJacobian[i][0] = InvKinStrutVectUnit.x;
@@ -426,16 +426,16 @@ int kinematicsForward(const double * joints,
      and compute inv J while we're at it */
     for (i = 0; i < NUM_STRUTS; i++) {
       pmMatCartMult(RMatrix, a[i], &RMatrix_a);
-      pmCartCartAdd(q_trans, RMatrix_a, &aw);
-      pmCartCartSub(aw,b[i], &InvKinStrutVect);
-      if (0 != pmCartUnit(InvKinStrutVect, &InvKinStrutVectUnit)) {
+      pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
+      pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
+      if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
 	return -1;
       }
-      pmCartMag(InvKinStrutVect, &InvKinStrutLength);
+      pmCartMag(&InvKinStrutVect, &InvKinStrutLength);
       StrutLengthDiff[i] = InvKinStrutLength - joints[i];
 
       /* Determine RMatrix_a_cross_strut */
-      pmCartCartCross(RMatrix_a, InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
+      pmCartCartCross(&RMatrix_a, &InvKinStrutVectUnit, &RMatrix_a_cross_Strut);
 
       /* Build Inverse Jacobian Matrix */
       InverseJacobian[i][0] = InvKinStrutVectUnit.x;
@@ -516,11 +516,11 @@ int kinematicsInverse(const EmcPose * pos,
     /* convert location of platform strut end from platform
        to world coordinates */
     pmMatCartMult(RMatrix, a[i], &temp);
-    pmCartCartAdd(pos->tran, temp, &aw);
+    pmCartCartAdd(&pos->tran, &temp, &aw);
 
     /* define strut lengths */
-    pmCartCartSub(aw, b[i], &temp);
-    pmCartMag(temp, &joints[i]);
+    pmCartCartSub(&aw, &b[i], &temp);
+    pmCartMag(&temp, &joints[i]);
   }
 
   return 0;
