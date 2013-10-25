@@ -23,7 +23,7 @@
 #include "emcpos.h"
 #include "tc.h"
 #include "motion_types.h"
-#include "math.h"
+#include "rtapi_math.h"
 
 int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
@@ -176,6 +176,92 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const po
     return 0;
 }
 
+/* Arc stuff */
+
+/**
+ * Define a 3D spherical arc based on three points and a radius.
+ */
+int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
+        PmCartesian const * const middle, PmCartesian const * const end,
+        double radius) {
+
+    //TODO macro this?
+    if (NULL == arc) {
+        rtapi_print("error: pmCircleFromPoints circle pointer is null\n");
+        return -1;
+    }
+
+    PmCartesian v1, v2;
+
+    //Find relative vectors from start to midpoint and mid to end point
+    pmCartCartSub(middle, start, &v1);
+    pmCartCartSub(end, middle, &v2);
+
+    //Calculate gram-schmidt orthonormals 
+    //For n2
+    PmCartesian u1, u2, n1, n2;
+    
+    pmCartCartProj(&v2, &v1, &u2);
+    pmCartCartSub(&v2, &u2, &n2);
+    pmCartUnit(&n2, &n2);
+
+    //For n1
+
+    pmCartCartProj(&v1, &v2, &u1);
+    pmCartCartSub(&v1, &u1, &n1);
+    pmCartUnit(&n1, &n1);
+
+    PmCartesian binormal;
+
+    pmCartCartCross(&v1, &v2, &binormal);
+    pmCartUnit(&binormal, &binormal);
+
+    //Find the angle between the two vectors
+    double dot;
+    //TODO function here
+    pmCartCartDot(&n1, &n2, &dot);
+    // Check if the vectors are valid and compute the angle between them
+    if (dot<1 && dot>-1) arc->angle=acos(dot);
+    else return -1;
+
+    //Overwrite v1 and v2 with normed v's
+    pmCartUnit(&v1, &v1);
+    pmCartUnit(&v2, &v2);
+
+    PmCartesian dv, dn;
+      
+    //Subtract vectors
+    pmCartCartSub(&n1, &n2, &dn);
+    pmCartCartAdd(&v1, &v2, &dv);
+
+    //Store the norms of each vector
+    double dv_mag, dn_mag;
+    pmCartMag(&dn, &dn_mag);
+    pmCartMag(&dv, &dv_mag);
+
+    arc->inscr_ratio = dn_mag / dv_mag;
+    double d = arc->inscr_ratio * radius;
+
+    //Prescale the unit vectors from before (not unit length anymore)
+    pmCartScalMult(&v2, d, &v2);
+    pmCartScalMult(&v1, -d, &v1);
+    pmCartScalMult(&n1, radius, &n1);
+    pmCartScalMult(&n2, radius, &n2);
+
+    PmCartesian center;
+    PmCartesian circ_start;
+    PmCartesian circ_end;
+
+    //Add one set of vectors to get the center
+    pmCartCartAdd(&v2, &n2, &center);
+    pmCartCartAdd(middle, &center, &center);
+    pmCartCartAdd(middle, &v1, &circ_start);
+    pmCartCartAdd(middle, &v2, &circ_end);
+
+    pmCircleInit(arc,&circ_start,&circ_end,&center,&binormal,0);
+
+    return 0;
+}
 /*!
  * \subsection TC queue functions
  * These following functions implement the motion queue that
