@@ -120,6 +120,10 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const o
 int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
+int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
+        PmCartesian const * const middle, PmCartesian const * const end,
+        double radius);
+
 /* queue of TC_STRUCT elements*/
 
 typedef struct {
