@@ -22,9 +22,10 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "tc.h"
+#include "motion_types.h"
 #include "math.h"
 
-int tcGetStartingUnitVector(TC_STRUCT * tc, PmCartesian * out) {
+int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
         pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, out);
@@ -49,7 +50,7 @@ int tcGetStartingUnitVector(TC_STRUCT * tc, PmCartesian * out) {
     return 0;
 }
 
-int tcGetEndingUnitVector(TC_STRUCT * tc, PmCartesian * out) {
+int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR) {
         pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, out);
@@ -83,17 +84,17 @@ int tcGetEndingUnitVector(TC_STRUCT * tc, PmCartesian * out) {
  * @return	 EmcPose   returns a position (\ref EmcPose = datatype carrying XYZABC information
  */   
 
-int tcGetPos(TC_STRUCT * tc, EmcPose * out) {
+int tcGetPos(TC_STRUCT const * const tc, EmcPose * const out) {
     tcGetPosReal(tc, 0, out);
     return 0;
 }
 
-int tcGetEndpoint(TC_STRUCT * tc, EmcPose * out) {
+int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out) {
     tcGetPosReal(tc, 0, out);
     return 0;
 }
 
-int tcGetPosReal(TC_STRUCT * tc, int of_endpoint, EmcPose * pos)
+int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const pos)
 {
     PmPose xyz;
     PmPose abc;
@@ -113,6 +114,11 @@ int tcGetPosReal(TC_STRUCT * tc, int of_endpoint, EmcPose * pos)
             uvw.tran = tc->coords.rigidtap.uvw;
             break;
         case TC_LINEAR:
+            //FIXME why is this here?
+#if 0
+            // if this is rapid move, don't use feed override settings (max velocity override is still honoured)
+            if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {tc->feed_override = 1.0;}
+#endif
             if (tc->coords.line.xyz.tmag > 0.) {
                 // progress is along xyz, so uvw and abc move proportionally in order
                 // to end at the same time.
@@ -180,7 +186,7 @@ int tcGetPosReal(TC_STRUCT * tc, int of_endpoint, EmcPose * pos)
  */
 
 /** Return 0 if queue is valid, -1 if not */
-static inline int tcqCheck(TC_QUEUE_STRUCT const * tcq)
+static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
 {
     if ((0 == tcq) || (0 == tcq->queue)) 
     {	        
@@ -202,7 +208,7 @@ static inline int tcqCheck(TC_QUEUE_STRUCT const * tcq)
  *
  * @return	 int	   returns success or failure
  */   
-int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
+int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
 {
     if (_size <= 0 || 0 == tcq) {
 	return -1;
@@ -233,7 +239,7 @@ int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
  *
  * @return	 int	   returns success
  */   
-int tcqDelete(TC_QUEUE_STRUCT * tcq)
+int tcqDelete(TC_QUEUE_STRUCT * const tcq)
 {
     if (!tcqCheck(tcq)) {
         /* free(tcq->queue); */
@@ -255,7 +261,7 @@ int tcqDelete(TC_QUEUE_STRUCT * tcq)
  *
  * @return	 int	   returns success or failure (if no tcq found)
  */
-int tcqInit(TC_QUEUE_STRUCT * tcq)
+int tcqInit(TC_QUEUE_STRUCT * const tcq)
 {
     if (tcqCheck(tcq)) return -1;
 
@@ -278,7 +284,7 @@ int tcqInit(TC_QUEUE_STRUCT * tcq)
  *
  * @return	 int	   returns success or failure
  */   
-int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT const * tc)
+int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
 {
     /* check for initialized */
     if (tcqCheck(tcq)) return -1;
@@ -318,7 +324,7 @@ int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT const * tc)
  *
  * @return	 int	   returns success or failure
  */   
-int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
+int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
 {
 
     if (n <= 0) {
@@ -348,7 +354,7 @@ int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
  *
  * @return	 int	   returns number of elements
  */   
-int tcqLen(TC_QUEUE_STRUCT const * tcq)
+int tcqLen(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) return -1;
 
@@ -365,7 +371,7 @@ int tcqLen(TC_QUEUE_STRUCT const * tcq)
  *
  * @return	 TC_STRUCT returns the TC elements
  */   
-TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * tcq, int n)
+TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
 {
     if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len)) return NULL;
 
@@ -389,7 +395,7 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * tcq, int n)
  *
  * @return	 int       returns status (0==not full, 1==full)
  */   
-int tcqFull(TC_QUEUE_STRUCT const * tcq)
+int tcqFull(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) {
 	   return 1;		/* null queue is full, for safety */
@@ -422,7 +428,7 @@ int tcqFull(TC_QUEUE_STRUCT const * tcq)
  *
  * @return	 TC_STRUCT returns the TC element
  */   
-TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * tcq)
+TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) return NULL;
     if (tcq->end>0) return &(tcq->queue[(tcq->end-1) % tcq->size]);

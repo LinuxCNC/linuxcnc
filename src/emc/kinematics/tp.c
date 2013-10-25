@@ -277,7 +277,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 /**
  * Check for valid tp before queueing additional moves.
  */
-int tpErrorCheck(TP_STRUCT const * tp) {
+int tpErrorCheck(TP_STRUCT const * const tp) {
 
     if (!tp) {
         rtapi_print_msg(RTAPI_MSG_ERR, "TP is null\n");
@@ -297,8 +297,8 @@ int tpErrorCheck(TP_STRUCT const * tp) {
  * anything, so it just treats ABC and UVW as additional orthogonal axes. If
  * NULL is passed for any of the pointers, then that component is unassigned.
  */
-static inline void tpConvertEmcPosetoPmPose(EmcPose const * pose, PmPose * xyz, PmPose *
-        abc, PmPose * uvw) {
+static inline void tpConvertEmcPosetoPmPose(EmcPose const * const pose, PmPose * const xyz, PmPose * const
+        abc, PmPose * const uvw) {
 
     //Direct copy of translation struct for xyz 
     if (xyz) {
@@ -328,7 +328,7 @@ static inline void tpConvertEmcPosetoPmPose(EmcPose const * pose, PmPose * xyz, 
  * Collect PmPose elements into 9D EmcPose structure.
  * TODO: move this to posemath
  */
-static inline void tpConvertPmPosetoEmcPose(PmPose const * xyz, PmPose const * abc, PmPose const * uvw, EmcPose * pose) {
+static inline void tpConvertPmPosetoEmcPose(PmPose const * const xyz, PmPose const * const abc, PmPose const * const uvw, EmcPose * const pose) {
 
     pose->tran = xyz->tran;
 
@@ -348,8 +348,8 @@ static inline void tpConvertPmPosetoEmcPose(PmPose const * xyz, PmPose const * a
  * get pretty long. If you need a custom setting, overwrite your particular
  * field after calling this function.
  */
-static inline void tpInitializeNewSegment(TP_STRUCT const * tp, 
-        TC_STRUCT * tc, double vel, double ini_maxvel, double acc, 
+static inline void tpInitializeNewSegment(TP_STRUCT const * const tp, 
+        TC_STRUCT * const tc, double vel, double ini_maxvel, double acc, 
         unsigned char enables){
 
     tc->sync_accel = 0;
@@ -570,7 +570,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose const * end,
     tpConvertEmcPosetoPmPose(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmPose(end, &end_xyz, &end_abc, &end_uvw);
 
-    pmCircleInit(&circle, start_xyz, end_xyz, center, normal, turn);
+    pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
     pmLineInit(&line_uvw, start_uvw, end_uvw);
     pmLineInit(&line_abc, start_abc, end_abc);
 
@@ -615,8 +615,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose const * end,
  * are parameterized by arc length, and the next move is tangent, just apply
  * overshoot to the next TC.
  */
-static void tpCheckOvershoot(TC_STRUCT * tc, TC_STRUCT * nexttc, EmcPose * secondary_before) {
-
+static void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, EmcPose * const secondary_before) {
     double overshoot=0.0;
 
     tcGetPos(nexttc, secondary_before);
@@ -648,7 +647,7 @@ static void tpCheckOvershoot(TC_STRUCT * tc, TC_STRUCT * nexttc, EmcPose * secon
  * safe blend velocity is based on the known trajectory parameters. This
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
-static double tpComputeBlendVelocity(TC_STRUCT * tc, TC_STRUCT * nexttc) {
+static double tpComputeBlendVelocity(TC_STRUCT const * const tc, TC_STRUCT const * const nexttc) {
 
     //Store local blend velocity copy
     double blend_vel=tc->blend_vel;
@@ -898,7 +897,7 @@ static void tpHandleRigidTap(emcmot_status_t* emcmotStatus,TC_STRUCT * tc, tp_sp
  * Based on the specified trajectory segment tc, read its progress and status
  * flags. Then, update the emcmotStatus structure with this information.
  */
-static void tpUpdateMovementStatus(TP_STRUCT * tp, emcmot_status_t * emcmotStatus, TC_STRUCT * tc ){
+static void tpUpdateMovementStatus(TP_STRUCT * const tp, emcmot_status_t * const emcmotStatus, TC_STRUCT const * const tc ){
     EmcPose target;
     tcGetEndpoint(tc,&target);
 
