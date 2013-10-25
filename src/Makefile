@@ -844,6 +844,8 @@ obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 obj-$(CONFIG_HAL_GM) += hal_gm.o
 hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
+obj-$(CONFIG_EPP) += epp.o
+epp-objs := hal/drivers/epp.o $(MATHSTUB)
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o setsserial.o
 hostmot2-objs :=			  \
