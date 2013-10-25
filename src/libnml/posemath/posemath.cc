@@ -227,7 +227,7 @@ PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(PM_CONST PM_QUATERNION PM_REF q)
     PmRotationVector rv;
 
     toQuat(q, &quat);
-    pmQuatRotConvert(quat, &rv);
+    pmQuatRotConvert(&quat, &rv);
     toRot(rv, this);
 }
 
@@ -312,7 +312,7 @@ PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CONST PM_QUATERNION PM_REF q)
     PmRotationMatrix mat;
 
     toQuat(q, &quat);
-    pmQuatMatConvert(quat, &mat);
+    pmQuatMatConvert(&quat, &mat);
     toMat(mat, this);
 }
 
@@ -393,7 +393,7 @@ PM_QUATERNION::PM_QUATERNION(double _s, double _x, double _y, double _z)
     quat.y = _y;
     quat.z = _z;
 
-    pmQuatNorm(quat, &quat);
+    pmQuatNorm(&quat, &quat);
 
     s = quat.s;
     x = quat.x;
@@ -464,7 +464,7 @@ void PM_QUATERNION::axisAngleMult(PM_AXIS _axis, double _angle)
     PmQuaternion quat;
 
     toQuat((*this), &quat);
-    pmQuatAxisAngleMult(quat, (PmAxis) _axis, _angle, &quat);
+    pmQuatAxisAngleMult(&quat, (PmAxis) _axis, _angle, &quat);
     toQuat(quat, this);
 }
 
@@ -518,7 +518,7 @@ PM_EULER_ZYZ::PM_EULER_ZYZ(PM_CONST PM_QUATERNION PM_REF q)
     PmEulerZyz zyz;
 
     toQuat(q, &quat);
-    pmQuatZyzConvert(quat, &zyz);
+    pmQuatZyzConvert(&quat, &zyz);
     toEulerZyz(zyz, this);
 }
 
@@ -578,7 +578,7 @@ PM_EULER_ZYX::PM_EULER_ZYX(PM_CONST PM_QUATERNION PM_REF q)
     PmEulerZyx zyx;
 
     toQuat(q, &quat);
-    pmQuatZyxConvert(quat, &zyx);
+    pmQuatZyxConvert(&quat, &zyx);
     toEulerZyx(zyx, this);
 }
 
@@ -647,7 +647,7 @@ PM_RPY::PM_RPY(PM_CONST PM_QUATERNION PM_REF q)
     PmRpy rpy;
 
     toQuat(q, &quat);
-    pmQuatRpyConvert(quat, &rpy);
+    pmQuatRpyConvert(&quat, &rpy);
     toRpy(rpy, this);
 }
 
@@ -1033,7 +1033,7 @@ int isNorm(PM_QUATERNION q)
 
     toQuat(q, &_q);
 
-    return pmQuatIsNorm(_q);
+    return pmQuatIsNorm(&_q);
 }
 
 int isNorm(PM_ROTATION_VECTOR r)
@@ -1120,7 +1120,7 @@ PM_QUATERNION inv(PM_QUATERNION q)
 
     toQuat(q, &_q);
 
-    pmQuatInv(_q, &_q);
+    pmQuatInv(&_q, &_q);
 
     toQuat(_q, &ret);
 
@@ -1202,7 +1202,7 @@ PM_QUATERNION operator -(PM_QUATERNION q)
 
     toQuat(q, &_q);
 
-    pmQuatInv(_q, &_q);
+    pmQuatInv(&_q, &_q);
 
     toQuat(_q, &ret);
 
@@ -1245,7 +1245,7 @@ int operator ==(PM_QUATERNION q1, PM_QUATERNION q2)
     toQuat(q1, &_q1);
     toQuat(q2, &_q2);
 
-    return pmQuatQuatCompare(_q1, _q2);
+    return pmQuatQuatCompare(&_q1, &_q2);
 }
 
 int operator ==(PM_POSE p1, PM_POSE p2)
@@ -1255,7 +1255,7 @@ int operator ==(PM_POSE p1, PM_POSE p2)
     toPose(p1, &_p1);
     toPose(p2, &_p2);
 
-    return pmPosePoseCompare(_p1, _p2);
+    return pmPosePoseCompare(&_p1, &_p2);
 }
 
 int operator !=(PM_CARTESIAN v1, PM_CARTESIAN v2)
@@ -1275,7 +1275,7 @@ int operator !=(PM_QUATERNION q1, PM_QUATERNION q2)
     toQuat(q1, &_q1);
     toQuat(q2, &_q2);
 
-    return !pmQuatQuatCompare(_q1, _q2);
+    return !pmQuatQuatCompare(&_q1, &_q2);
 }
 
 int operator !=(PM_POSE p1, PM_POSE p2)
@@ -1285,7 +1285,7 @@ int operator !=(PM_POSE p1, PM_POSE p2)
     toPose(p1, &_p1);
     toPose(p2, &_p2);
 
-    return !pmPosePoseCompare(_p1, _p2);
+    return !pmPosePoseCompare(&_p1, &_p2);
 }
 
 PM_CARTESIAN operator +(PM_CARTESIAN v1, PM_CARTESIAN v2)
@@ -1360,7 +1360,7 @@ PM_QUATERNION operator *(double s, PM_QUATERNION q)
 
     toQuat(q, &_q);
 
-    pmQuatScalMult(_q, s, &_q);
+    pmQuatScalMult(&_q, s, &_q);
 
     toQuat(_q, &qout);
 
@@ -1374,7 +1374,7 @@ PM_QUATERNION operator *(PM_QUATERNION q, double s)
 
     toQuat(q, &_q);
 
-    pmQuatScalMult(_q, s, &_q);
+    pmQuatScalMult(&_q, s, &_q);
 
     toQuat(_q, &qout);
 
@@ -1411,7 +1411,7 @@ PM_QUATERNION operator /(PM_QUATERNION q, double s)
 	quat.y = 0;
 	quat.z = 0;
 
-	pmQuatNorm(quat, &quat);
+	pmQuatNorm(&quat, &quat);
 
 	qout.s = quat.s;
 	qout.x = quat.x;
@@ -1423,7 +1423,7 @@ PM_QUATERNION operator /(PM_QUATERNION q, double s)
     }
 #endif
 
-    pmQuatScalMult(_q, 1.0 / s, &_q);
+    pmQuatScalMult(&_q, 1.0 / s, &_q);
     toQuat(_q, &qout);
 
     pmErrno = 0;
@@ -1439,7 +1439,7 @@ PM_CARTESIAN operator *(PM_QUATERNION q, PM_CARTESIAN v)
     toQuat(q, &_q);
     toCart(v, &_v);
 
-    pmQuatCartMult(_q, _v, &_v);
+    pmQuatCartMult(&_q, &_v, &_v);
 
     toCart(_v, &vout);
 
@@ -1454,7 +1454,7 @@ PM_QUATERNION operator *(PM_QUATERNION q1, PM_QUATERNION q2)
     toQuat(q1, &_q1);
     toQuat(q2, &_q2);
 
-    pmQuatQuatMult(_q1, _q2, &_q1);
+    pmQuatQuatMult(&_q1, &_q2, &_q1);
 
     toQuat(_q1, &ret);
 

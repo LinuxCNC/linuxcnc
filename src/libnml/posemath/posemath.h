@@ -767,58 +767,58 @@ extern "C" {
 
 /* Translation rep conversion functions */
 
-    extern int pmCartSphConvert(PmCartesian const * const, PmSpherical *);
-    extern int pmCartCylConvert(PmCartesian const * const, PmCylindrical *);
-    extern int pmSphCartConvert(PmSpherical, PmCartesian *);
-    extern int pmSphCylConvert(PmSpherical, PmCylindrical *);
-    extern int pmCylCartConvert(PmCylindrical, PmCartesian *);
-    extern int pmCylSphConvert(PmCylindrical, PmSpherical *);
+    extern int pmCartSphConvert(PmCartesian const * const, PmSpherical * const);
+    extern int pmCartCylConvert(PmCartesian const * const, PmCylindrical * const);
+    extern int pmSphCartConvert(PmSpherical, PmCartesian * const);
+    extern int pmSphCylConvert(PmSpherical, PmCylindrical * const);
+    extern int pmCylCartConvert(PmCylindrical, PmCartesian * const);
+    extern int pmCylSphConvert(PmCylindrical, PmSpherical * const);
 
 /* Rotation rep conversion functions */
 
-    extern int pmAxisAngleQuatConvert(PmAxis, double, PmQuaternion *);
+    extern int pmAxisAngleQuatConvert(PmAxis, double, PmQuaternion * const);
 
-    extern int pmRotQuatConvert(PmRotationVector, PmQuaternion *);
-    extern int pmRotMatConvert(PmRotationVector, PmRotationMatrix *);
-    extern int pmRotZyzConvert(PmRotationVector, PmEulerZyz *);
-    extern int pmRotZyxConvert(PmRotationVector, PmEulerZyx *);
-    extern int pmRotRpyConvert(PmRotationVector, PmRpy *);
+    extern int pmRotQuatConvert(PmRotationVector, PmQuaternion * const);
+    extern int pmRotMatConvert(PmRotationVector, PmRotationMatrix * const);
+    extern int pmRotZyzConvert(PmRotationVector, PmEulerZyz * const);
+    extern int pmRotZyxConvert(PmRotationVector, PmEulerZyx * const);
+    extern int pmRotRpyConvert(PmRotationVector, PmRpy * const);
 
-    extern int pmQuatRotConvert(PmQuaternion, PmRotationVector *);
-    extern int pmQuatMatConvert(PmQuaternion, PmRotationMatrix *);
-    extern int pmQuatZyzConvert(PmQuaternion, PmEulerZyz *);
-    extern int pmQuatZyxConvert(PmQuaternion, PmEulerZyx *);
-    extern int pmQuatRpyConvert(PmQuaternion, PmRpy *);
+    extern int pmQuatRotConvert(PmQuaternion const * const , PmRotationVector * const);
+    extern int pmQuatMatConvert(PmQuaternion const * const, PmRotationMatrix * const);
+    extern int pmQuatZyzConvert(PmQuaternion const * const, PmEulerZyz * const);
+    extern int pmQuatZyxConvert(PmQuaternion const * const, PmEulerZyx * const);
+    extern int pmQuatRpyConvert(PmQuaternion const * const, PmRpy * const);
 
-    extern int pmMatRotConvert(PmRotationMatrix, PmRotationVector *);
-    extern int pmMatQuatConvert(PmRotationMatrix, PmQuaternion *);
-    extern int pmMatZyzConvert(PmRotationMatrix, PmEulerZyz *);
-    extern int pmMatZyxConvert(PmRotationMatrix, PmEulerZyx *);
-    extern int pmMatRpyConvert(PmRotationMatrix, PmRpy *);
+    extern int pmMatRotConvert(PmRotationMatrix, PmRotationVector * const);
+    extern int pmMatQuatConvert(PmRotationMatrix, PmQuaternion * const);
+    extern int pmMatZyzConvert(PmRotationMatrix, PmEulerZyz * const);
+    extern int pmMatZyxConvert(PmRotationMatrix, PmEulerZyx * const);
+    extern int pmMatRpyConvert(PmRotationMatrix, PmRpy * const);
 
-    extern int pmZyzRotConvert(PmEulerZyz, PmRotationVector *);
-    extern int pmZyzQuatConvert(PmEulerZyz, PmQuaternion *);
-    extern int pmZyzMatConvert(PmEulerZyz, PmRotationMatrix *);
-    extern int pmZyzZyxConvert(PmEulerZyz, PmEulerZyx *);
-    extern int pmZyzRpyConvert(PmEulerZyz, PmRpy *);
+    extern int pmZyzRotConvert(PmEulerZyz, PmRotationVector * const);
+    extern int pmZyzQuatConvert(PmEulerZyz, PmQuaternion * const);
+    extern int pmZyzMatConvert(PmEulerZyz, PmRotationMatrix * const);
+    extern int pmZyzZyxConvert(PmEulerZyz, PmEulerZyx * const);
+    extern int pmZyzRpyConvert(PmEulerZyz, PmRpy * const);
 
-    extern int pmZyxRotConvert(PmEulerZyx, PmRotationVector *);
-    extern int pmZyxQuatConvert(PmEulerZyx, PmQuaternion *);
-    extern int pmZyxMatConvert(PmEulerZyx, PmRotationMatrix *);
-    extern int pmZyxZyzConvert(PmEulerZyx, PmEulerZyz *);
-    extern int pmZyxRpyConvert(PmEulerZyx, PmRpy *);
+    extern int pmZyxRotConvert(PmEulerZyx, PmRotationVector * const);
+    extern int pmZyxQuatConvert(PmEulerZyx, PmQuaternion * const);
+    extern int pmZyxMatConvert(PmEulerZyx, PmRotationMatrix * const);
+    extern int pmZyxZyzConvert(PmEulerZyx, PmEulerZyz * const);
+    extern int pmZyxRpyConvert(PmEulerZyx, PmRpy * const);
 
-    extern int pmRpyRotConvert(PmRpy, PmRotationVector *);
-    extern int pmRpyQuatConvert(PmRpy, PmQuaternion *);
-    extern int pmRpyMatConvert(PmRpy, PmRotationMatrix *);
-    extern int pmRpyZyzConvert(PmRpy, PmEulerZyz *);
-    extern int pmRpyZyxConvert(PmRpy, PmEulerZyx *);
+    extern int pmRpyRotConvert(PmRpy, PmRotationVector * const);
+    extern int pmRpyQuatConvert(PmRpy, PmQuaternion * const);
+    extern int pmRpyMatConvert(PmRpy, PmRotationMatrix * const);
+    extern int pmRpyZyzConvert(PmRpy, PmEulerZyz * const);
+    extern int pmRpyZyxConvert(PmRpy, PmEulerZyx * const);
 
 /* Combined rep conversion functions */
 
-    extern int pmPoseHomConvert(PmPose p, PmHomogeneous * h);
+    extern int pmPoseHomConvert(PmPose p, PmHomogeneous* const h);
 
-    extern int pmHomPoseConvert(PmHomogeneous h, PmPose * p);
+    extern int pmHomPoseConvert(PmHomogeneous h, PmPose * const p);
 
 /* Arithmetic functions
 
@@ -834,28 +834,28 @@ extern "C" {
 /* NOTE:  only Cartesian type supported in C now */
 
     extern int pmCartCartCompare(PmCartesian const * const, PmCartesian const * const);
-    extern int pmCartCartDot(PmCartesian const * const, PmCartesian const * const, double *);
-    extern int pmCartCartCross(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
-    extern int pmCartMag(PmCartesian const * const, double *);
-    extern int pmCartMagSq(PmCartesian const * const, double *);
+    extern int pmCartCartDot(PmCartesian const * const, PmCartesian const * const, double * const);
+    extern int pmCartCartCross(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
+    extern int pmCartMag(PmCartesian const * const, double * const);
+    extern int pmCartMagSq(PmCartesian const * const, double * const);
     extern int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d);
-    extern int pmCartCartAdd(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
-    extern int pmCartCartSub(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
-    extern int pmCartScalMult(PmCartesian const * const, double, PmCartesian *);
-    extern int pmCartScalDiv(PmCartesian const * const, double, PmCartesian *);
-    extern int pmCartNeg(PmCartesian const * const, PmCartesian *);
-    extern int pmCartUnit(PmCartesian const * const v, PmCartesian * vout);
+    extern int pmCartCartAdd(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
+    extern int pmCartCartSub(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
+    extern int pmCartScalMult(PmCartesian const * const, double, PmCartesian * const);
+    extern int pmCartScalDiv(PmCartesian const * const, double, PmCartesian * const);
+    extern int pmCartNeg(PmCartesian const * const, PmCartesian * const);
+    extern int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout);
 /*! \todo Another #if 0 */
 #if 0
-    extern int pmCartNorm(PmCartesian const * const v, PmCartesian * vout);
+    extern int pmCartNorm(PmCartesian const * const v, PmCartesian * const vout);
 #else
 // Hopefully guaranteed to cause a compile error when used.
 #define pmCartNorm(a,b,c,d,e)  bad{a.b.c.d.e}
 #endif
 
     extern int pmCartIsNorm(PmCartesian const * const v);
-    extern int pmCartInv(PmCartesian const * const, PmCartesian *);
-    extern int pmCartCartProj(PmCartesian const * const, PmCartesian const * const, PmCartesian *);
+    extern int pmCartInv(PmCartesian const * const, PmCartesian * const);
+    extern int pmCartCartProj(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartPlaneProj(PmCartesian const * const v, PmCartesian const * const normal,
 	PmCartesian * vout);
 
@@ -863,24 +863,24 @@ extern "C" {
 
 /* quaternion functions */
 
-    extern int pmQuatQuatCompare(PmQuaternion, PmQuaternion);
-    extern int pmQuatMag(PmQuaternion q, double *d);
-    extern int pmQuatNorm(PmQuaternion, PmQuaternion *);
-    extern int pmQuatInv(PmQuaternion, PmQuaternion *);
-    extern int pmQuatIsNorm(PmQuaternion);
-    extern int pmQuatScalMult(PmQuaternion q, double s, PmQuaternion * qout);
-    extern int pmQuatScalDiv(PmQuaternion q, double s, PmQuaternion * qout);
-    extern int pmQuatQuatMult(PmQuaternion, PmQuaternion, PmQuaternion *);
-    extern int pmQuatCartMult(PmQuaternion, PmCartesian, PmCartesian *);
-    extern int pmQuatAxisAngleMult(PmQuaternion, PmAxis, double,
+    extern int pmQuatQuatCompare(PmQuaternion const * const, PmQuaternion const * const);
+    extern int pmQuatMag(PmQuaternion const * const q, double *d);
+    extern int pmQuatNorm(PmQuaternion const * const, PmQuaternion * const);
+    extern int pmQuatInv(PmQuaternion const * const, PmQuaternion * const);
+    extern int pmQuatIsNorm(PmQuaternion const * const);
+    extern int pmQuatScalMult(PmQuaternion const * const q, double s, PmQuaternion * const qout);
+    extern int pmQuatScalDiv(PmQuaternion const * const q, double s, PmQuaternion * const qout);
+    extern int pmQuatQuatMult(PmQuaternion const * const, PmQuaternion const * const, PmQuaternion * const);
+    extern int pmQuatCartMult(PmQuaternion const * const, PmCartesian const * const, PmCartesian * const);
+    extern int pmQuatAxisAngleMult(PmQuaternion const * const, PmAxis, double,
 	PmQuaternion *);
 
 /* rotation vector functions */
 
-    extern int pmRotScalMult(PmRotationVector, double, PmRotationVector *);
-    extern int pmRotScalDiv(PmRotationVector, double, PmRotationVector *);
+    extern int pmRotScalMult(PmRotationVector, double, PmRotationVector * const);
+    extern int pmRotScalDiv(PmRotationVector, double, PmRotationVector * const);
     extern int pmRotIsNorm(PmRotationVector);
-    extern int pmRotNorm(PmRotationVector, PmRotationVector *);
+    extern int pmRotNorm(PmRotationVector, PmRotationVector * const);
 
 /* rotation matrix functions */
 
@@ -888,9 +888,9 @@ extern "C" {
 /*   M =  |  m.x.y   m.y.y   m.z.y  |   */
 /*        |  m.x.z   m.y.z   m.z.z  |   */
 
-    extern int pmMatNorm(PmRotationMatrix m, PmRotationMatrix * mout);
+    extern int pmMatNorm(PmRotationMatrix m, PmRotationMatrix * const mout);
     extern int pmMatIsNorm(PmRotationMatrix m);
-    extern int pmMatInv(PmRotationMatrix m, PmRotationMatrix * mout);
+    extern int pmMatInv(PmRotationMatrix m, PmRotationMatrix * const mout);
     extern int pmMatCartMult(PmRotationMatrix m, PmCartesian v,
 	PmCartesian * vout);
     extern int pmMatMatMult(PmRotationMatrix m1, PmRotationMatrix m2,
@@ -898,26 +898,26 @@ extern "C" {
 
 /* pose functions*/
 
-    extern int pmPosePoseCompare(PmPose, PmPose);
-    extern int pmPoseInv(PmPose p, PmPose *);
-    extern int pmPoseCartMult(PmPose, PmCartesian, PmCartesian *);
-    extern int pmPosePoseMult(PmPose, PmPose, PmPose *);
+    extern int pmPosePoseCompare(PmPose const * const, PmPose const * const);
+    extern int pmPoseInv(PmPose p, PmPose * const);
+    extern int pmPoseCartMult(PmPose, PmCartesian, PmCartesian * const);
+    extern int pmPosePoseMult(PmPose, PmPose, PmPose * const);
 
 /* homogeneous functions */
-    extern int pmHomInv(PmHomogeneous, PmHomogeneous *);
+    extern int pmHomInv(PmHomogeneous, PmHomogeneous * const);
 
 /* line functions */
 
-    extern int pmLineInit(PmLine * line, PmPose start, PmPose end);
-    extern int pmLinePoint(PmLine const * const line, double len, PmPose * point);
+    extern int pmLineInit(PmLine * const line, PmPose start, PmPose end);
+    extern int pmLinePoint(PmLine const * const line, double len, PmPose * const point);
 
 /* circle functions */
 
-    extern int pmCircleInit(PmCircle * circle,
+    extern int pmCircleInit(PmCircle * const circle,
             PmPose const * const start, PmPose const * const end,
             PmCartesian const * const center, PmCartesian const * const normal, int turn);
 
-    extern int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * point);
+    extern int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * const point);
 
 /* slicky macros for item-by-item copying between C and C++ structs */
 

@@ -160,7 +160,7 @@ int kinematicsForward(const double * joint,
 
    /* convert hom.rot to world->quat */
    pmHomPoseConvert(hom, &worldPose);
-   pmQuatRpyConvert(worldPose.rot,&rpy);
+   pmQuatRpyConvert(&worldPose.rot,&rpy);
    world->tran = worldPose.tran;
    world->a = rpy.r * 180.0/PM_PI;
    world->b = rpy.p * 180.0/PM_PI;
