@@ -148,16 +148,16 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const po
             // progress is always along the xyz circle.  This simplification 
             // is possible since zero-radius arcs are not allowed by the interp.
             pmCirclePoint(&tc->coords.circle.xyz,
-                    progress * tc->coords.circle.xyz.angle / tc->target, 
+                    progress * tc->coords.circle.xyz.angle / tc->target,
                     &xyz);
             // abc moves proportionally in order to end at the same time as the 
             // circular xyz move.
             pmLinePoint(&tc->coords.circle.abc,
-                    progress * tc->coords.circle.abc.tmag / tc->target, 
+                    progress * tc->coords.circle.abc.tmag / tc->target,
                     &abc);
             // same for uvw
             pmLinePoint(&tc->coords.circle.uvw,
-                    progress * tc->coords.circle.uvw.tmag / tc->target, 
+                    progress * tc->coords.circle.uvw.tmag / tc->target,
                     &uvw);
             break;
         case TC_SPHERICAL:
