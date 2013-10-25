@@ -1521,7 +1521,7 @@ int pmLineInit(PmLine * line, PmPose start, PmPose end)
     return pmErrno = (r1 || r2 || r3 || r4 || r5) ? PM_NORM_ERR : 0;
 }
 
-int pmLinePoint(PmLine * line, double len, PmPose * point)
+int pmLinePoint(PmLine const * const line, double len, PmPose * point)
 {
     int r1 = 0, r2 = 0, r3 = 0, r4 = 0;
 
@@ -1562,9 +1562,9 @@ int pmLinePoint(PmLine * line, double len, PmPose * point)
   to be in the plane defined by the normal vector. If this is not true, then
   it will be made true by moving the center vector onto the plane.
   */
-int pmCircleInit(PmCircle * circle,
-    PmPose start, PmPose end,
-    PmCartesian center, PmCartesian normal, int turn)
+int pmCircleInit(PmCircle * const circle,
+    PmPose const * const start, PmPose const * const end,
+    PmCartesian const * const center, PmCartesian const * const normal, int turn)
 {
     double dot;
     PmCartesian rEnd;
@@ -1582,8 +1582,8 @@ int pmCircleInit(PmCircle * circle,
 #endif
 
     /* adjust center */
-    pmCartCartSub(start.tran, center, &v);
-    r1 = pmCartCartProj(v, normal, &v);
+    pmCartCartSub(start->tran, *center, &v);
+    r1 = pmCartCartProj(v, *normal, &v);
     if (PM_NORM_ERR == r1) {
 	/* bad normal vector-- abort */
 #ifdef PM_PRINT_ERROR
@@ -1591,27 +1591,27 @@ int pmCircleInit(PmCircle * circle,
 #endif
 	return -1;
     }
-    pmCartCartAdd(v, center, &circle->center);
+    pmCartCartAdd(v, *center, &circle->center);
 
     /* normalize and redirect normal vector based on turns. If turn is less
        than 0, point normal vector in other direction and make turn positive, 
        -1 -> 0, -2 -> 1, etc. */
-    pmCartUnit(normal, &circle->normal);
+    pmCartUnit(*normal, &circle->normal);
     if (turn < 0) {
 	turn = -1 - turn;
 	pmCartScalMult(circle->normal, -1.0, &circle->normal);
     }
 
     /* radius */
-    pmCartCartDisp(start.tran, circle->center, &circle->radius);
+    pmCartCartDisp(start->tran, circle->center, &circle->radius);
 
     /* vector in plane of circle from center to start, magnitude radius */
-    pmCartCartSub(start.tran, circle->center, &circle->rTan);
+    pmCartCartSub(start->tran, circle->center, &circle->rTan);
     /* vector in plane of circle perpendicular to rTan, magnitude radius */
     pmCartCartCross(circle->normal, circle->rTan, &circle->rPerp);
 
     /* do rHelix, rEnd */
-    pmCartCartSub(end.tran, circle->center, &circle->rHelix);
+    pmCartCartSub(end->tran, circle->center, &circle->rHelix);
     pmCartPlaneProj(circle->rHelix, circle->normal, &rEnd);
     pmCartMag(rEnd, &circle->spiral);
     circle->spiral -= circle->radius;
@@ -1659,7 +1659,7 @@ int pmCircleInit(PmCircle * circle,
     printf("\n\n");
     printf("pmCircleInit:\n");
     printf(" \t start  : \t{x=%9.9f, y=%9.9f, z=%9.9f}\n",
-	start.tran.x, start.tran.y, start.tran.z);
+	start->tran.x, start.tran.y, start.tran.z);
     printf(" \t end    : \t{x=%9.9f, y=%9.9f, z=%9.9f}\n",
 	end.tran.x, end.tran.y, end.tran.z);
     printf(" \t center : \t{x=%9.9f, y=%9.9f, z=%9.9f}\n",
@@ -1682,19 +1682,20 @@ int pmCircleInit(PmCircle * circle,
     printf(" \t circle->rPerp : \t{x=%9.9f, y=%9.9f, z=%9.9f}\n",
 	circle->rPerp.x, circle->rPerp.y, circle->rPerp.z);
     printf(" \t circle->rHelix : \t{x=%9.9f, y=%9.9f, z=%9.9f}\n",
-	circle->rHelix.x, circle->rHelix.y, circle->rHelix.z);
+            circle->rHelix.x, circle->rHelix.y, circle->rHelix.z);
     printf("\n\n");
 #endif
 
     return pmErrno = 0;
 }
 
+
 /*
   pmCirclePoint() returns the point at the given angle along
   the circle. If the circle is a helix or spiral or combination, the
   point will include interpolation off the actual circle.
   */
-int pmCirclePoint(PmCircle * circle, double angle, PmPose * point)
+int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * point)
 {
     PmCartesian par, perp;
     double scale;
