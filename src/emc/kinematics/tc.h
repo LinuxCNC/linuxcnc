@@ -114,11 +114,11 @@ typedef struct {
 
 /* TC_STRUCT functions */
 
-extern int tcGetEndpoint(TC_STRUCT * tc, EmcPose * out);
-extern int tcGetPos(TC_STRUCT * tc,  EmcPose * out);
-int tcGetPosReal(TC_STRUCT * tc, int of_endpoint,  EmcPose * out);
-int tcGetEndingUnitVector(TC_STRUCT * tc, PmCartesian * out);
-int tcGetStartingUnitVector(TC_STRUCT * tc, PmCartesian * out);
+extern int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
+extern int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
+int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const out);
+int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
 
 /* queue of TC_STRUCT elements*/
@@ -134,33 +134,33 @@ typedef struct {
 /* TC_QUEUE_STRUCT functions */
 
 /* create queue of _size */
-extern int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size,
-		     TC_STRUCT * tcSpace);
+extern int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size,
+		     TC_STRUCT * const tcSpace);
 
 /* free up queue */
-extern int tcqDelete(TC_QUEUE_STRUCT * tcq);
+extern int tcqDelete(TC_QUEUE_STRUCT * const tcq);
 
 /* reset queue to empty */
-extern int tcqInit(TC_QUEUE_STRUCT * tcq);
+extern int tcqInit(TC_QUEUE_STRUCT * const tcq);
 
 /* put tc on end */
-extern int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT const * tc);
+extern int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc);
 
 /* remove n tcs from front */
-extern int tcqRemove(TC_QUEUE_STRUCT * tcq, int n);
+extern int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n);
 
 /* how many tcs on queue */
-extern int tcqLen(TC_QUEUE_STRUCT const * tcq);
+extern int tcqLen(TC_QUEUE_STRUCT const * const tcq);
 
 /* look at nth item, first is 0 */
-extern TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * tcq, int n);
+extern TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n);
 
 /**
  * Get the "end" of the queue, the most recently added item.
  */
-extern TC_STRUCT * tcqLast(TC_QUEUE_STRUCT const * tcq);
+extern TC_STRUCT * tcqLast(TC_QUEUE_STRUCT const * const tcq);
 
 /* get full status */
-extern int tcqFull(TC_QUEUE_STRUCT const * tcq);
+extern int tcqFull(TC_QUEUE_STRUCT const * const tcq);
 
 #endif				/* TC_H */

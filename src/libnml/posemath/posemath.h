@@ -909,14 +909,15 @@ extern "C" {
 /* line functions */
 
     extern int pmLineInit(PmLine * line, PmPose start, PmPose end);
-    extern int pmLinePoint(PmLine * line, double len, PmPose * point);
+    extern int pmLinePoint(PmLine const * const line, double len, PmPose * point);
 
 /* circle functions */
 
     extern int pmCircleInit(PmCircle * circle,
-            PmPose start, PmPose end,
-            PmCartesian center, PmCartesian normal, int turn);
-    extern int pmCirclePoint(PmCircle * circle, double angle, PmPose * point);
+            PmPose const * const start, PmPose const * const end,
+            PmCartesian const * const center, PmCartesian const * const normal, int turn);
+
+    extern int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * point);
 
 /* slicky macros for item-by-item copying between C and C++ structs */
 
