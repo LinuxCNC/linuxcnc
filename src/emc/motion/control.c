@@ -1244,7 +1244,7 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 	    tpRunCycle(&emcmotDebug->queue, period);
 	    /* gt new commanded traj pos */
-	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
+	    tpGetPos(&emcmotDebug->queue, &emcmotStatus->carte_pos_cmd);
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);
@@ -1295,7 +1295,7 @@ static void get_pos_cmds(long period)
 	    servo_period;
 
 	/* a Carthesian Accell is computed */
-	pmCartMag(emcmotDebug->teleop_data.desiredAccell.tran,
+	pmCartMag(&emcmotDebug->teleop_data.desiredAccell.tran,
 	    &accell_mag);
 
 	/* then the accells for the rotary axes */
@@ -1325,7 +1325,7 @@ static void get_pos_cmds(long period)
 	
 	if (accell_mag > emcmotStatus->acc) {
 	    /* if accell_mag is too great, all need resizing */
-	    pmCartScalMult(emcmotDebug->teleop_data.desiredAccell.tran, 
+	    pmCartScalMult(&emcmotDebug->teleop_data.desiredAccell.tran, 
 		emcmotStatus->acc / accell_mag,
 		&emcmotDebug->teleop_data.currentAccell.tran);
 	    emcmotDebug->teleop_data.currentAccell.a =
