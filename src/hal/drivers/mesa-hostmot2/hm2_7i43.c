@@ -1,6 +1,6 @@
 
 //
-//    Copyright (C) 2007-2008 Sebastian Kuzminsky
+//    Copyright (C) 2013 Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
 #include "rtapi_string.h"
 
 #include "hal.h"
+#include "hal/drivers/epp.h"
 
 #include "hal/drivers/mesa-hostmot2/bitfile.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
@@ -77,109 +78,6 @@ static int num_boards;
 
 
 
-// 
-// EPP I/O code
-// 
-
-static inline void hm2_7i43_epp_addr8(u8 addr, hm2_7i43_t *board) {
-    outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
-    LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
-}
-
-static inline void hm2_7i43_epp_addr16(u16 addr, hm2_7i43_t *board) {
-    outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
-    outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
-    LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
-}
-
-static inline void hm2_7i43_epp_write(int w, hm2_7i43_t *board) {
-    outb(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
-    LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
-}
-
-static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
-    int val;
-    val = inb(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
-    LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
-    return val;
-}
-
-static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
-    uint32_t data;
-
-    if (board->epp_wide) {
-	data = inl(board->port.base + HM2_7I43_EPP_DATA_OFFSET);
-        LL_PRINT_IF(debug_epp, "read data 0x%08X\n", data);
-    } else {
-        uint8_t a, b, c, d;
-        a = hm2_7i43_epp_read(board);
-        b = hm2_7i43_epp_read(board);
-        c = hm2_7i43_epp_read(board);
-        d = hm2_7i43_epp_read(board);
-        data = a + (b<<8) + (c<<16) + (d<<24);
-    }
-
-    return data;
-}
-
-static inline void hm2_7i43_epp_write32(uint32_t w, hm2_7i43_t *board) {
-    if (board->epp_wide) {
-	outl(w, board->port.base + HM2_7I43_EPP_DATA_OFFSET);
-        LL_PRINT_IF(debug_epp, "wrote data 0x%08X\n", w);
-    } else {
-        hm2_7i43_epp_write((w) & 0xFF, board);
-        hm2_7i43_epp_write((w >>  8) & 0xFF, board);
-        hm2_7i43_epp_write((w >> 16) & 0xFF, board);
-        hm2_7i43_epp_write((w >> 24) & 0xFF, board);
-    }
-}
-
-static inline uint8_t hm2_7i43_epp_read_status(hm2_7i43_t *board) {
-    uint8_t val;
-    val = inb(board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
-    LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
-    return val;
-}
-
-static inline void hm2_7i43_epp_write_status(uint8_t status_byte, hm2_7i43_t *board) {
-    outb(status_byte, board->port.base + HM2_7I43_EPP_STATUS_OFFSET);
-    LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
-}
-
-static inline void hm2_7i43_epp_write_control(uint8_t control_byte, hm2_7i43_t *board) {
-    outb(control_byte, board->port.base + HM2_7I43_EPP_CONTROL_OFFSET);
-    LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
-}
-
-// returns TRUE if there's a timeout
-static inline int hm2_7i43_epp_check_for_timeout(hm2_7i43_t *board) {
-    return (hm2_7i43_epp_read_status(board) & 0x01);
-}
-
-static int hm2_7i43_epp_clear_timeout(hm2_7i43_t *board) {
-    uint8_t status;
-
-    if (!hm2_7i43_epp_check_for_timeout(board)) {
-        return 1;
-    }
-
-    /* To clear timeout some chips require double read */
-    (void)hm2_7i43_epp_read_status(board);
-
-    // read in the actual status register
-    status = hm2_7i43_epp_read_status(board);
-
-    hm2_7i43_epp_write_status(status | 0x01, board);  // Some reset by writing 1
-    hm2_7i43_epp_write_status(status & 0xFE, board);  // Others by writing 0
-
-    if (hm2_7i43_epp_check_for_timeout(board)) {
-        LL_PRINT("failed to clear EPP Timeout!\n");
-        return 0;  // fail
-    }
-    return 1;  // success
-}
-
-
 //
 // misc generic helper functions
 //
@@ -209,23 +107,23 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 
-    hm2_7i43_epp_addr16(addr | HM2_7I43_ADDR_AUTOINCREMENT, board);
+    epp_addr16(addr | HM2_7I43_ADDR_AUTOINCREMENT, &board->epp_port);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        *((u32*)buffer) = hm2_7i43_epp_read32(board);
+        *((u32*)buffer) = epp_read32(&board->epp_port);
         buffer += 4;
     }
 
     for ( ; bytes_remaining > 0; bytes_remaining --) {
-        *((u8*)buffer) = hm2_7i43_epp_read(board);
+        *((u8*)buffer) = epp_read(&board->epp_port);
         buffer ++;
     }
 
-    if (hm2_7i43_epp_check_for_timeout(board)) {
+    if (epp_check_for_timeout(&board->epp_port)) {
         THIS_PRINT("EPP timeout on data cycle of read(addr=0x%04x, size=%d)\n", addr, size);
         (*this->io_error) = 1;
         this->needs_reset = 1;
-        hm2_7i43_epp_clear_timeout(board);
+        epp_clear_timeout(&board->epp_port);
         return 0;  // fail
     }
 
@@ -239,23 +137,23 @@ int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 
-    hm2_7i43_epp_addr16(addr | HM2_7I43_ADDR_AUTOINCREMENT, board);
+    epp_addr16(addr | HM2_7I43_ADDR_AUTOINCREMENT, &board->epp_port);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        hm2_7i43_epp_write32(*((u32*)buffer), board);
+        epp_write32(*((u32*)buffer), &board->epp_port);
         buffer += 4;
     }
 
     for ( ; bytes_remaining > 0; bytes_remaining --) {
-        hm2_7i43_epp_write(*((u8*)buffer), board);
+        epp_write(*((u8*)buffer), &board->epp_port);
         buffer ++;
     }
 
-    if (hm2_7i43_epp_check_for_timeout(board)) {
+    if (epp_check_for_timeout(&board->epp_port)) {
         THIS_PRINT("EPP timeout on data cycle of write(addr=0x%04x, size=%d)\n", addr, size);
         (*this->io_error) = 1;
         this->needs_reset = 1;
-        hm2_7i43_epp_clear_timeout(board);
+        epp_clear_timeout(&board->epp_port);
         return 0;
     }
 
@@ -281,10 +179,10 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     start_time = rtapi_get_time();
 
     // select the CPLD's data address
-    hm2_7i43_epp_addr8(0, board);
+    epp_addr8(0, &board->epp_port);
 
     for (i = 0; i < bitfile->e.size; i ++, firmware ++) {
-        hm2_7i43_epp_write(bitfile_reverse_bits(*firmware), board);
+        epp_write(bitfile_reverse_bits(*firmware), &board->epp_port);
     }
 
     end_time = rtapi_get_time();
@@ -292,7 +190,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
 
 
     // see if it worked
-    if (hm2_7i43_epp_check_for_timeout(board)) {
+    if (epp_check_for_timeout(&board->epp_port)) {
         THIS_PRINT("EPP Timeout while sending firmware!\n");
         return -EIO;
     }
@@ -334,10 +232,10 @@ int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
     // HostMot2 or GPIO firmware
     //
 
-    hm2_7i43_epp_addr16(0x7F7F, board);
-    hm2_7i43_epp_write(0x5A, board);
-    hm2_7i43_epp_addr16(0x7F7F, board);
-    hm2_7i43_epp_write(0x5A, board);
+    epp_addr16(0x7F7F, &board->epp_port);
+    epp_write(0x5A, &board->epp_port);
+    epp_addr16(0x7F7F, &board->epp_port);
+    epp_write(0x5A, &board->epp_port);
 
 
     // 
@@ -346,18 +244,18 @@ int hm2_7i43_reset(hm2_lowlevel_io_t *this) {
     //
 
     // select the control register
-    hm2_7i43_epp_addr8(1, board);
+    epp_addr8(1, &board->epp_port);
 
     // bring the Spartan3's PROG_B line low for 1 us (the specs require 300-500 ns or longer)
-    hm2_7i43_epp_write(0x00, board);
+    epp_write(0x00, &board->epp_port);
     hm2_7i43_nanosleep(1000);
 
     // bring the Spartan3's PROG_B line high and wait for 2 ms before sending firmware (required by spec)
-    hm2_7i43_epp_write(0x01, board);
+    epp_write(0x01, &board->epp_port);
     hm2_7i43_nanosleep(2 * 1000 * 1000);
 
     // make sure the FPGA is not asserting its /DONE bit
-    byte = hm2_7i43_epp_read(board);
+    byte = epp_read(&board->epp_port);
     if ((byte & 0x01) != 0) {
         LL_PRINT("/DONE is not low after CPLD reset!\n");
         return -EIO;
@@ -383,7 +281,7 @@ static void hm2_7i43_cleanup(void) {
         hm2_lowlevel_io_t *this = &board[i].llio;
         THIS_PRINT("releasing board\n");
         hm2_unregister(this);
-        hal_parport_release(&board[i].port);
+        epp_release(&board[i].epp_port);
     }
 }
 
@@ -401,29 +299,20 @@ static int hm2_7i43_setup(void) {
         hm2_lowlevel_io_t *this;
         int r;
 
-        board[i].epp_wide = epp_wide[i];
-
-        //
-        // claim the I/O regions for the parport
-        // 
-
-        r = hal_parport_get(comp_id, &board[i].port,
-                ioaddr[i], ioaddr_hi[i], PARPORT_MODE_EPP);
-        if(r < 0)
+        r = epp_get(&board[i].epp_port, ioaddr[i], ioaddr_hi[i], epp_wide[i]);
+        if (r != 0) {
+            LL_ERR(
+                "failed to get parport at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s)!\n",
+                ioaddr[i],
+                ioaddr_hi[i],
+                (epp_wide[i] ? "ON" : "OFF")
+            );
             return r;
-
-        // set up the parport for EPP
-	if(board[i].port.base_hi) {
-	    outb(0x94, board[i].port.base_hi + HM2_7I43_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
-        //
-        // when we get here, the parallel port is in epp mode and ready to go
-        //
-
         // select the device and tell it to make itself ready for io
-        hm2_7i43_epp_write_control(0x04, &board[i]);  // set control lines and input mode
-        hm2_7i43_epp_clear_timeout(&board[i]);
+        epp_write_control(0x04, &board[i].epp_port);  // set control lines and input mode
+        epp_clear_timeout(&board[i].epp_port);
 
         rtapi_snprintf(board[i].llio.name, sizeof(board[i].llio.name), "%s.%d", HM2_LLIO_NAME, i);
         board[i].llio.comp_id = comp_id;
@@ -453,9 +342,9 @@ static int hm2_7i43_setup(void) {
         hm2_7i43_reset(&board[i].llio);
 
         //  select CPLD data register
-        hm2_7i43_epp_addr8(0, &board[i]);
+        epp_addr8(0, &board[i].epp_port);
 
-        if (hm2_7i43_epp_read(&board[i]) & 0x01) {
+        if (epp_read(&board[i].epp_port) & 0x01) {
             board[i].llio.fpga_part_number = "3s400tq144";
         } else {
             board[i].llio.fpga_part_number = "3s200tq144";
@@ -467,20 +356,20 @@ static int hm2_7i43_setup(void) {
         if (r != 0) {
             THIS_ERR(
                 "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
-                board[i].port.base,
-                board[i].port.base_hi,
-                (board[i].epp_wide ? "ON" : "OFF")
+                ioaddr[i],
+                ioaddr_hi[i],
+                (epp_wide[i] ? "ON" : "OFF")
             );
 
-            hal_parport_release(&board[i].port);
+            epp_release(&board[i].epp_port);
             return r;
         }
 
         THIS_PRINT(
             "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
-            board[i].port.base,
-            board[i].port.base_hi,
-            (board[i].epp_wide ? "ON" : "OFF")
+            ioaddr[i],
+            ioaddr_hi[i],
+            (epp_wide[i] ? "ON" : "OFF")
         );
 
         num_boards ++;
