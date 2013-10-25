@@ -24,6 +24,8 @@
 #include "motion_types.h"
 
 #define debug_float(M) rtapi_print("var = %f\n",M)
+static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
+static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -371,6 +373,179 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
 }
 
+/**
+ * Find the maximum angle allowed between "tangent" segments.
+ * Since we are discretized by a timestep, the maximum allowable
+ * "kink" in a trajectory is bounded by normal acceleration. A small
+ * kink will effectively be one step along the tightest radius arc
+ * possible at a given speed.
+ */
+static inline double tpMaxTangentAngle(double v, double acc, double period) {
+    double dx = v / period;
+    if (dx > 0.0) return acc / dx;
+    else return 0.00000001;
+}
+
+static inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
+    double dot;
+    pmCartCartDot(u1, u2, &dot);
+
+    if (dot > 1.0 || dot < -1.0) return -1;
+
+    *theta = acos(-dot)/2.0;
+    return 0;
+}
+
+/**
+ * Build a spherical arc from the supplied parameters.
+ * @param start is the starting point of the arc as calculated by the blend routine.
+ * @param end is the end point of the arc on the next move.
+ *
+ * see pmSphericalArcInit for further details on how arcs are specified. Note that
+ * degenerate arcs/circles are not allowed. We are guaranteed to have a move in
+ * xyz so the target is always the length.
+ */
+static int tpApplyBlendArcParameters(TP_STRUCT const * const tp, TC_STRUCT * const tc, double vel, double acc)
+{
+    double length;
+    if (tpErrorCheck(tp)<0) return -1;
+    // find helix length
+    length = tc->coords.circle.xyz.angle * tc->coords.circle.xyz.radius;
+    tc->target = length;
+    //TODO acceleration bounded by optimizer
+    tc->motion_type = TC_CIRCULAR;
+    //Blend arc specific settings:
+    tc->term_cond = TC_TERM_COND_TANGENT;
+    tc->tolerance = 0.0;
+    return 0;
+}
+
+/**
+ * Initialize a spherical blend arc from its parent lines.
+ */
+static int tpInitSphericalArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
+        TC_STRUCT* const tc) {
+
+    if (tpErrorCheck(tp)<0) return -1;
+
+    // Treating arc as extension of prev_line_tc
+    tc->enables = prev_line_tc->enables;
+    tc->atspeed = prev_line_tc->atspeed;
+
+    //KLUDGE this init function is a bit overkill now...
+    tpInitializeNewSegment(tp, tc, 0, prev_line_tc->maxvel, 0, 0);
+
+    tc->motion_type = TC_CIRCULAR;
+    //FIXME what type is this?
+    tc->canon_motion_type = 0;
+
+    tc->synchronized = prev_line_tc->synchronized;
+    tc->velocity_mode = prev_line_tc->velocity_mode;
+    tc->uu_per_rev = prev_line_tc->uu_per_rev;
+    tc->indexrotary = -1;
+
+    //FIXME do we need this in a blend arc?
+    if (syncdio.anychanged != 0) {
+        tc->syncdio = syncdio; //enqueue the list of DIOs that need toggling
+        tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    } else {
+        tc->syncdio.anychanged = 0;
+    }
+
+    return 0;
+}
+
+
+/**
+ * Compute arc segment to blend between two lines.
+ */
+static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
+        TC_STRUCT const * const tc2, TC_STRUCT * const blend_tc) {
+
+
+    // Assume at this point that we've checked for dumb reasons not to
+    // calculate the blend arc, like intersection angle
+    // Calculate radius based on tolerances
+    //TODO calculate angle
+    double theta=0.0;
+    int res = tpFindIntersectionAngle(&tc1->coords.line.xyz.uVec, &tc1->coords.line.xyz.uVec, &theta);
+    if (res) {
+        //Can't get an intersection angle, bail
+        return -1;
+    }
+
+    //TODO make this a state of TC?
+    const double acc_ratio=1;
+    //Find common velocity and acceleration
+    double v_req=fmax(tc1->reqvel, tc2->reqvel);
+    rtapi_print("v_req=%f\n",v_req);
+    double a_max=fmin(tc1->maxaccel, tc2->maxaccel);
+    double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
+    double a_t_max=a_max/pmSqrt(1.0+pmSq(acc_ratio));
+
+    //Get 3D start, middle, end position
+    PmCartesian start, middle, end;
+    start = tc1->coords.line.xyz.start;
+    middle = tc1->coords.line.xyz.end;
+    end = tc2->coords.line.xyz.end;
+
+    //Find the minimum tolerance (in case it dropped between moves)
+    double T1=tc1->tolerance;
+    double T2=tc2->tolerance;
+    if ( 0 == T1) T1=10000000;
+    if ( 0 == T2) T2=10000000;
+
+    double tolerance=fmin(T1,T2);
+
+    //Store trig functions for later use
+    double Ctheta=cos(theta/2.0);
+    double Stheta=sin(theta/2.0);
+    double Ttheta=Stheta/Ctheta;
+
+    double h_tol=tolerance/(1.0-Stheta);
+    double d_tol=Ctheta*h_tol;
+
+    // Limit amount of line segment to blend so that we don't delete the line
+    // TODO allow for total replacement if tol allows it
+    const double blend_ratio = 0.4;
+    double d_geom=fmin(d_tol, fmin((tc1->target-tc1->progress) * blend_ratio,
+                (tc2->target-tc2->progress) * blend_ratio));
+
+    double R_geom=Ttheta * d_geom;
+
+    //Calculate limiting velocity due to radius and normal acceleration
+    double v_normal=pmSqrt(a_n_max*R_geom);
+
+    //The nominal speed of the blend arc should be the higher of the two segment speeds
+
+    //The new upper bound is the lower of the two speeds
+    double v_upper=fmin(v_req, v_normal);
+    rtapi_print("v_normal = %f\n",v_normal); 
+    rtapi_print("v_upper = %f\n",v_upper); 
+
+    //At this new limiting velocity, find the radius by the reverse formula
+    //TODO div by zero?
+    double R_normal=pmSq(v_upper)/a_n_max;
+
+    // Final radius calculations
+    double R_upper=fmin(R_normal, R_geom);
+
+    rtapi_print("R_upper = %f\n",R_upper); 
+
+    tpInitSphericalArc(tp, tc1, blend_tc);
+
+    //TODO Recycle calculations?
+    //TODO errors within this function
+    pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_upper);
+
+    rtapi_print("R_upper = %f\n",blend_tc->coords.circle.xyz.angle); 
+
+    tpApplyBlendArcParameters(tp, blend_tc, v_upper, a_t_max);
+
+    //TODO setup arc params in blend_tc
+    return 0;
+}
+
 
 /**
  * Add a newly created motion segment to the tp queue.
@@ -451,6 +626,71 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
     return tpAddSegmentToQueue(tp, &tc, end);
 }
 
+static int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc, 
+        TC_STRUCT const * const tc, double period) {
+    double omega=0.0;
+
+    if (prev_tc == NULL || tc == NULL) {
+        rtapi_print("prev_tc or tc doesn't exist\n");
+        return -1;
+    }
+
+    //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
+    if (tcFindLine9Angle(&(prev_tc->coords.line), &(tc->coords.line), &omega)) {
+        return -1;
+    }
+
+    double v_req=fmax(prev_tc->reqvel, tc->reqvel);
+    double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
+    double crit_angle = tpMaxTangentAngle(v_req, a_max, period);
+
+    rtapi_print("max tan angle is %f\n",crit_angle);
+    rtapi_print("angle between segs = %f\n",omega);
+    if (omega < crit_angle) {
+        //No blend arc needed, already tangent
+        return 1;
+    }
+
+    //If not linear blends, we can't easily compute an arc
+    if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
+        rtapi_print("Wrong motion type tc =%u, tc2=%u\n",prev_tc->motion_type,tc->motion_type);
+        return -1;
+    }
+
+    //If exact stop, we don't compute the arc
+    if (prev_tc->term_cond != TC_TERM_COND_BLEND) {
+        rtapi_print("Wrong term cond =%u\n", prev_tc->term_cond);
+        return -1;
+    }
+
+    //If we have any rotary axis motion, then don't create a blend arc
+    if (prev_tc->coords.line.abc.tmag > 0.000001 || tc->coords.line.abc.tmag > 0.000001) {
+        rtapi_print("ABC motion!\n");
+        return -1;
+    }
+
+    if (prev_tc->coords.line.uvw.tmag > 0.000001 || tc->coords.line.uvw.tmag > 0.000001) {
+        rtapi_print("UVW motion!\n");
+        return -1;
+    }
+    return 0;
+}
+
+static int tcConnectArc(TC_STRUCT * const tc1, TC_STRUCT * const tc2, TC_STRUCT const * const blend_tc){
+
+    //Scratch variables for arc end and start points
+    PmCartesian start_xyz, end_xyz;
+
+    //Get start and end points of blend arc to update lines
+    pmCirclePoint(&blend_tc->coords.circle.xyz, 0.0, &start_xyz);
+    pmCirclePoint(&blend_tc->coords.circle.xyz, blend_tc->coords.circle.xyz.angle, &end_xyz);
+
+    /* Only shift XYZ for now*/
+    pmCartLineInit(&tc1->coords.line.xyz, &tc1->coords.line.xyz.start,&start_xyz);
+    pmCartLineInit(&tc2->coords.line.xyz, &end_xyz, &tc2->coords.line.xyz.end);
+    return 0;
+}
+
 
 /**
  * Add a straight line to the tc queue.
@@ -510,6 +750,43 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.syncdio.anychanged = 0;
     }
 
+    rtapi_print("Starting blend stuff\n");
+
+    TC_STRUCT *prev_tc = tcqLast(&tp->queue);
+
+    /*rtapi_print("prev_tc = %d\n",prev_tc);*/
+
+    //TODO check for terminal condition
+    int res = tpCheckNeedBlendArc(prev_tc, &tc, tp->cycleTime);
+    /*debug_float(res);*/
+    TC_STRUCT blend_tc;
+
+    switch (res) {
+        case 0:
+            rtapi_print("Need a blend arc\n");
+            //make blend arc
+            res = tpCreateBlendArc(tp, prev_tc, &tc, &blend_tc);
+            if (res) {
+                rtapi_print("error creating arc?\n");
+                break;
+            }
+            //TODO adjust prev_tc and tc endpoints (and targets)
+            tcConnectArc(prev_tc, &tc, &blend_tc);
+            blend_tc.motion_type=0;
+            tpAddSegmentToQueue(tp, &blend_tc, end);
+        case 1: //Intentional waterfall
+            //Skip, already tangent
+            rtapi_print("tangent\n");
+            prev_tc->term_cond = TC_TERM_COND_TANGENT;
+            break;
+        default:
+            rtapi_print("Failed? res = %d\n",res);
+            //Numerical issue? any error means we can't blend, so leave final velocity zero
+            break;
+    }
+    //TODO run optimization
+    
+    //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, end);
 }
 
