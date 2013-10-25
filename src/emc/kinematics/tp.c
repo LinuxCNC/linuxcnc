@@ -33,7 +33,7 @@ static const PmQuaternion TP_IDENTITY_QUAT = { 1.0, 0.0, 0.0, 0.0 };
 /**
  * Create the trajectory planner structure with an empty queue.
  */
-int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace)
+int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace)
 {
     if (0 == tp) {
         return -1;
@@ -82,7 +82,7 @@ int tpClearDIOs() {
  *    intended to put the motion queue in the state it would be if all queued
  *    motions finished at the current position.
  */
-int tpClear(TP_STRUCT * tp)
+int tpClear(TP_STRUCT * const tp)
 {
     tcqInit(&tp->queue);
     tp->queueSize = 0;
@@ -114,7 +114,7 @@ int tpClear(TP_STRUCT * tp)
  * Sets tp configuration to default values and calls tpClear to create a fresh,
  * empty queue.
  */
-int tpInit(TP_STRUCT * tp)
+int tpInit(TP_STRUCT * const tp)
 {
     tp->cycleTime = 0.0;
     tp->vLimit = 0.0;
@@ -133,7 +133,7 @@ int tpInit(TP_STRUCT * tp)
 /**
  * Set the cycle time for the trajectory planner.
  */
-int tpSetCycleTime(TP_STRUCT * tp, double secs)
+int tpSetCycleTime(TP_STRUCT * const tp, double secs)
 {
     if (0 == tp || secs <= 0.0) {
         return -1;
@@ -152,7 +152,7 @@ int tpSetCycleTime(TP_STRUCT * tp, double secs)
  * allowed to go up to this high when feed override >100% is requested)  These
  * settings apply to subsequent moves until changed.
  */
-int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
+int tpSetVmax(TP_STRUCT * const tp, double vMax, double ini_maxvel)
 {
     if (0 == tp || vMax <= 0.0 || ini_maxvel <= 0.0) {
         return -1;
@@ -167,10 +167,10 @@ int tpSetVmax(TP_STRUCT * tp, double vMax, double ini_maxvel)
 /**
  * (?) Set the tool tip maximum velocity.
  * I think this is the [TRAJ] max velocity. This should be the max velocity of
- * the TOOL TIP, not necessarily any particular axis. This applies to
+ * const the TOOL TIP, not necessarily any particular axis. This applies to
  * subsequent moves until changed.
  */
-int tpSetVlimit(TP_STRUCT * tp, double vLimit)
+int tpSetVlimit(TP_STRUCT * const tp, double vLimit)
 {
     if (!tp) return -1;
 
@@ -183,7 +183,7 @@ int tpSetVlimit(TP_STRUCT * tp, double vLimit)
 }
 
 /** Sets the max acceleration for the trajectory planner. */
-int tpSetAmax(TP_STRUCT * tp, double aMax)
+int tpSetAmax(TP_STRUCT * const tp, double aMax)
 {
     if (0 == tp || aMax <= 0.0) {
         return -1;
@@ -201,7 +201,7 @@ int tpSetAmax(TP_STRUCT * tp, double aMax)
  * ids for each motion, call this before each motion you append and stick what
  * you want in here.
  */
-int tpSetId(TP_STRUCT * tp, int id)
+int tpSetId(TP_STRUCT * const tp, int id)
 {
 
     if (!MOTION_ID_VALID(id)) {
@@ -220,7 +220,7 @@ int tpSetId(TP_STRUCT * tp, int id)
 
 /** Returns the id of the last motion that is currently
   executing.*/
-int tpGetExecId(TP_STRUCT * tp)
+int tpGetExecId(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return -1;
@@ -235,7 +235,7 @@ int tpGetExecId(TP_STRUCT * tp)
  * begins. If cond is TC_TERM_BLEND, the following move is begun when the
  * current move decelerates.
  */
-int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance)
+int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
 {
     if (0 == tp) {
         return -1;
@@ -262,7 +262,7 @@ int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance)
  * It sets the current position AND the goal position to be the same.  Used
  * only at TP initialization and when switching modes.
  */
-int tpSetPos(TP_STRUCT * tp, EmcPose pos)
+int tpSetPos(TP_STRUCT * const tp, EmcPose pos)
 {
     if (0 == tp) {
         return -1;
@@ -348,8 +348,8 @@ static inline void tpConvertPmPosetoEmcPose(PmPose const * const xyz, PmPose con
  * get pretty long. If you need a custom setting, overwrite your particular
  * field after calling this function.
  */
-static inline void tpInitializeNewSegment(TP_STRUCT const * const tp, 
-        TC_STRUCT * const tc, double vel, double ini_maxvel, double acc, 
+static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
+        TC_STRUCT * const tc, double vel, double ini_maxvel, double acc,
         unsigned char enables){
 
     tc->sync_accel = 0;
@@ -386,7 +386,7 @@ static inline double tpMaxTangentAngle(double v, double acc, double period) {
     else return 0.0;
 }
 
-static inline int tpFindIntersectionAngle(PmCartesian u1, PmCartesian u2, double* theta) {
+static inline int tpFindIntersectionAngle(PmCartesian u1, PmCartesian u2, double* const theta) {
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
@@ -402,7 +402,7 @@ static inline int tpFindIntersectionAngle(PmCartesian u1, PmCartesian u2, double
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
-static inline int tpAddSegmentToQueue(TP_STRUCT * tp, TC_STRUCT const * tc, EmcPose const * end){
+static inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * const tc, EmcPose const * end){
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -422,7 +422,7 @@ static inline int tpAddSegmentToQueue(TP_STRUCT * tp, TC_STRUCT const * tc, EmcP
 /**
  * Adds a rigid tap cycle to the motion queue.
  */
-int tpAddRigidTap(TP_STRUCT * tp, EmcPose const * end, double vel, double ini_maxvel, 
+int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double ini_maxvel,
         double acc, unsigned char enables) {
     TC_STRUCT tc;
     PmLine line_xyz;
@@ -437,7 +437,7 @@ int tpAddRigidTap(TP_STRUCT * tp, EmcPose const * end, double vel, double ini_ma
 
     pmLineInit(&line_xyz, start_xyz, end_xyz);
 
-    tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
+    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     tc.coords.rigidtap.reversal_target = line_xyz.tmag;
 
@@ -483,7 +483,7 @@ int tpAddRigidTap(TP_STRUCT * tp, EmcPose const * end, double vel, double ini_ma
  * end of the previous move to the new end specified here at the
  * currently-active accel and vel settings from the tp struct.
  */
-int tpAddLine(TP_STRUCT * tp, EmcPose const * end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
+int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_uvw, line_abc;
@@ -502,7 +502,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose const * end, int type, double vel, double 
     pmLineInit(&line_uvw, start_uvw, end_uvw);
     pmLineInit(&line_abc, start_abc, end_abc);
 
-    tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
+    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     if (!line_xyz.tmag_zero) {
         tc.target = line_xyz.tmag;
@@ -550,7 +550,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose const * end, int type, double vel, double 
  * degenerate arcs/circles are not allowed. We are guaranteed to have a move in
  * xyz so the target is always the circle/arc/helical length.  
  */
-int tpAddCircle(TP_STRUCT * tp, EmcPose const * end,
+int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
         PmCartesian center, PmCartesian normal, int turn, int type,
         double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
 {
@@ -578,7 +578,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose const * end,
     pmCartMag(circle.rHelix, &helix_z_component);
     helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
             pmSq(helix_z_component));
-    tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
+    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     tc.target = helix_length;
     //Assume acceleration ratio of 1
@@ -628,8 +628,8 @@ static void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
             nexttc->progress = overshoot;
             nexttc->currentvel = tc->currentvel;
             tc->progress=tc->target;
-            rtapi_print_msg(RTAPI_MSG_DBG, "Overshot by %f at end of move %d\n",overshoot,tc->id);
-            rtapi_print_msg(RTAPI_MSG_DBG, "setting init vel to %f\n",nexttc->currentvel);
+            rtapi_print_msg(RTAPI_MSG_DBG, "Overshot by %f at end of move %d\n", overshoot, tc->id);
+            rtapi_print_msg(RTAPI_MSG_DBG, "setting init vel to %f\n", nexttc->currentvel);
         }
         else {
             //Kludge fix to see if we can catch the crash at the end of the dummy toolpath
@@ -665,7 +665,7 @@ static double tpComputeBlendVelocity(TC_STRUCT const * const tc, TC_STRUCT const
 
         if(tc->tolerance) {
             /* see diagram blend.fig.  T (blend tolerance) is given, theta
-             * is calculated from dot(s1,s2)
+             * is calculated from dot(s1, s2)
              *
              * blend criteria: we are decelerating at the end of segment s1
              * and we pass distance d from the end.  
@@ -718,7 +718,7 @@ static double saturate(double x, double max) {
  * velocity and acceleration limits. The formula has been tweaked slightly to
  * allow a non-zero velocity at the instant the target is reached.
  */
-void tcRunCycle(TP_STRUCT const * tp, TC_STRUCT * tc, double * v, int * on_final_decel) {
+void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, int * on_final_decel) {
     double discr, maxnewvel, newvel, newaccel=0, delta_pos;
     double discr_term1, discr_term2, discr_term3;
 
@@ -765,7 +765,7 @@ void tcRunCycle(TP_STRUCT const * tp, TC_STRUCT * tc, double * v, int * on_final
         newvel = newaccel = 0.0;
 
         if ( !(tc->term_cond == TC_TERM_COND_TANGENT) || (tc->progress < tc->target ) ) {
-            rtapi_print_msg(RTAPI_MSG_DBG, "calculated newvel = %f, with T = %f, P = %f", newvel,tc->target,tc->progress);
+            rtapi_print_msg(RTAPI_MSG_DBG, "calculated newvel = %f, with T = %f, P = %f", newvel, tc->target, tc->progress);
             tc->progress = tc->target;
         }
     }
@@ -784,7 +784,7 @@ void tcRunCycle(TP_STRUCT const * tp, TC_STRUCT * tc, double * v, int * on_final
 
         // get acceleration to reach newvel, bounded by machine maximum
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
-        newaccel = saturate(newaccel,tc->maxaccel);
+        newaccel = saturate(newaccel, tc->maxaccel);
 
         newvel = tc->currentvel + newaccel * tc->cycle_time;
         // update position in this tc using trapezoidal integration
@@ -793,13 +793,15 @@ void tcRunCycle(TP_STRUCT const * tp, TC_STRUCT * tc, double * v, int * on_final
         tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         tc->currentvel = newvel;
     }
-    rtapi_print_msg(RTAPI_MSG_DBG, "TC result: v = %f,dtg = %f, vf = %f, T = %f, P = %f", newvel, tc->target-tc->progress, final_vel,tc->target,tc->progress);
+    rtapi_print_msg(RTAPI_MSG_DBG, "TC result: v = %f, dtg = %f, vf = %f, T = %f, P = %f",
+            newvel, tc->target-tc->progress,
+            final_vel, tc->target, tc->progress);
 
     if (v) *v = newvel;
     if (on_final_decel) *on_final_decel = fabs(maxnewvel - newvel) < 0.001;
 }
 
-void tpToggleDIOs(TC_STRUCT * tc) {
+void tpToggleDIOs(TC_STRUCT * const tc) {
     int i=0;
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
         for (i=0; i < num_dio; i++) {
@@ -822,7 +824,8 @@ void tpToggleDIOs(TC_STRUCT * tc) {
  * during a reversal.
  * TODO: detailed documentation here
  */
-static void tpHandleRigidTap(emcmot_status_t* emcmotStatus,TC_STRUCT * tc, tp_spindle_status_t* status ){
+static void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
+        TC_STRUCT * const tc, tp_spindle_status_t * const status ){
 
     static double old_spindlepos;
     double new_spindlepos = emcmotStatus->spindleRevs;
@@ -848,16 +851,16 @@ static void tpHandleRigidTap(emcmot_status_t* emcmotStatus,TC_STRUCT * tc, tp_sp
                 pmLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
                 pmLineInit(aux, start, end);
-                rtapi_print_msg(RTAPI_MSG_DBG, "old target = %f",tc->target);
+                rtapi_print_msg(RTAPI_MSG_DBG, "old target = %f", tc->target);
                 tc->coords.rigidtap.reversal_target = aux->tmag;
                 tc->target = aux->tmag + 10. * tc->uu_per_rev;
                 tc->progress = 0.0;
-                rtapi_print_msg(RTAPI_MSG_DBG, "new target = %f",tc->target);
+                rtapi_print_msg(RTAPI_MSG_DBG, "new target = %f", tc->target);
 
                 tc->coords.rigidtap.state = RETRACTION;
             }
             old_spindlepos = new_spindlepos;
-            rtapi_print_msg(RTAPI_MSG_DBG, "Spindlepos = %f",new_spindlepos);
+            rtapi_print_msg(RTAPI_MSG_DBG, "Spindlepos = %f", new_spindlepos);
             break;
         case RETRACTION:
             rtapi_print_msg(RTAPI_MSG_DBG, "RETRACTION");
@@ -897,9 +900,10 @@ static void tpHandleRigidTap(emcmot_status_t* emcmotStatus,TC_STRUCT * tc, tp_sp
  * Based on the specified trajectory segment tc, read its progress and status
  * flags. Then, update the emcmotStatus structure with this information.
  */
-static void tpUpdateMovementStatus(TP_STRUCT * const tp, emcmot_status_t * const emcmotStatus, TC_STRUCT const * const tc ){
+static void tpUpdateMovementStatus(TP_STRUCT * const tp,
+        emcmot_status_t * const emcmotStatus, TC_STRUCT const * const tc ){
     EmcPose target;
-    tcGetEndpoint(tc,&target);
+    tcGetEndpoint(tc, &target);
 
     tp->motionType = tc->canon_motion_type;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
@@ -926,7 +930,8 @@ static void tpUpdateMovementStatus(TP_STRUCT * const tp, emcmot_status_t * const
  * Do a parabolic blend by updating the nexttc.
  * Perform the actual blending process by updating the nexttc.
  */
-static void tpDoParabolicBlend(TP_STRUCT * tp, TC_STRUCT * tc, TC_STRUCT * nexttc, double primary_vel){
+static void tpDoParabolicBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * nexttc, double primary_vel){
 
     /*EmcPose secondary_before = tcGetPos(nexttc);*/
     //Store the actual requested velocity
@@ -948,29 +953,30 @@ static void tpDoParabolicBlend(TP_STRUCT * tp, TC_STRUCT * tc, TC_STRUCT * nextt
  * based on an initial position. Because of the blending method, we need to use
  * displacement instead of absolute position when blending between moves.
  */
-static void tpFindDisplacement(TC_STRUCT * tc, EmcPose before, EmcPose* displacement){
+static void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const before,
+        EmcPose * const displacement){
 
     EmcPose after;
     tcGetPos(tc, &after);
 
-    pmCartCartSub(after.tran, before.tran, 
+    pmCartCartSub(after.tran, before->tran,
             &(displacement->tran));
-    displacement->a = after.a - before.a;
-    displacement->b = after.b - before.b;
-    displacement->c = after.c - before.c;
+    displacement->a = after.a - before->a;
+    displacement->b = after.b - before->b;
+    displacement->c = after.c - before->c;
 
-    displacement->u = after.u - before.u;
-    displacement->v = after.v - before.v;
-    displacement->w = after.w - before.w;
+    displacement->u = after.u - before->u;
+    displacement->v = after.v - before->v;
+    displacement->w = after.w - before->w;
 }
 
 
 /**
  * Update the planner's position, given a displacement.
  */
-static void tpUpdatePosition(TP_STRUCT * tp, EmcPose * displacement){
+static void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement){
 
-    pmCartCartAdd(tp->currentPos.tran, displacement->tran, 
+    pmCartCartAdd(tp->currentPos.tran, displacement->tran,
             &(tp->currentPos.tran));
     tp->currentPos.a += displacement->a;
     tp->currentPos.b += displacement->b;
@@ -988,7 +994,8 @@ static void tpUpdatePosition(TP_STRUCT * tp, EmcPose * displacement){
  * program OR QUEUE STARVATION.  In either case, I want to stop.  Some may not
  * agree that's what it should do.
  */
-static void tpHandleEmptyQueue(TP_STRUCT * tp, emcmot_status_t* emcmotStatus){
+static void tpHandleEmptyQueue(TP_STRUCT * const tp,
+        emcmot_status_t * const emcmotStatus) {
 
     tcqInit(&tp->queue);
     tp->goalPos = tp->currentPos;
@@ -1015,15 +1022,16 @@ static int tpGetRotaryIsUnlocked(int axis) {
 /**
  * Cleanup after a trajectory segment is complete.
  * If the current move is complete and we're not waiting on the spindle for
- * this move, then pop if off the queue and perform cleanup operations.
+ * const this move, then pop if off the queue and perform cleanup operations.
  * Finally, get the next move in the queue.
  */
-static TC_STRUCT * tpCompleteSegment(TP_STRUCT * tp, TC_STRUCT * tc, tp_spindle_status_t* status){
+static TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
+        const tc, tp_spindle_status_t * const status){
     // if we're synced, and this move is ending, save the
     // spindle position so the next synced move can be in
     // the right place.
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "Finished tc id %d",tc->id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "Finished tc id %d", tc->id);
     if(tc->synchronized)
         status->offset += tc->target/tc->uu_per_rev;
     else
@@ -1043,15 +1051,16 @@ static TC_STRUCT * tpCompleteSegment(TP_STRUCT * tp, TC_STRUCT * tc, tp_spindle_
     tcqRemove(&tp->queue, 1);
 
     // so get next move
-    tc = tcqItem(&tp->queue, 0);
+    TC_STRUCT * tc_next = tcqItem(&tp->queue, 0);
 
-    if(!tc) return NULL;
+    if(!tc_next) return NULL;
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "Found next tc id %d\n",tc->id);
-    return tc;
+    rtapi_print_msg(RTAPI_MSG_DBG, "Found next tc id %d\n", tc_next->id);
+    return tc_next;
 }
 
-static int tpHandleAbort(TP_STRUCT * tp, TC_STRUCT * tc, TC_STRUCT * nexttc, tp_spindle_status_t* status){
+static int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc, tp_spindle_status_t * const status){
 
     // an abort message has come
     if( MOTION_ID_VALID(status->waiting_for_index) ||
@@ -1087,7 +1096,7 @@ static int tpHandleAbort(TP_STRUCT * tp, TC_STRUCT * tc, TC_STRUCT * nexttc, tp_
  * something has gone wrong. The fix for now is to just update status so we're
  * waiting in the current segment instead. (Rob's understanding)
  */
-static int tpCheckWaiting(TC_STRUCT * tc, tp_spindle_status_t* status){
+static int tpCheckWaiting(TC_STRUCT const * const tc, tp_spindle_status_t * const status){
 
     // this is no longer the segment we were waiting_for_index for
     if (MOTION_ID_VALID(status->waiting_for_index) && status->waiting_for_index != tc->id) 
@@ -1126,7 +1135,9 @@ static int tpCheckWaiting(TC_STRUCT * tc, tp_spindle_status_t* status){
  * we can get it. it's not an error if nexttc is missing (like in the MDI, or
  * at the end of a path).
  */
-static TC_STRUCT * tpGetNextTC(TP_STRUCT * tp, TC_STRUCT * tc,int stepping){
+static TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
+        TC_STRUCT * const tc, int stepping) {
+
     TC_STRUCT * nexttc = NULL;
 
     if(!stepping && tc->term_cond) 
@@ -1162,8 +1173,8 @@ static TC_STRUCT * tpGetNextTC(TP_STRUCT * tp, TC_STRUCT * tc,int stepping){
  * This function handles initial setup of a new segment read off of the queue
  * for the first time.
  */
-static int tpActivateSegment(TP_STRUCT * tp, TC_STRUCT * tc, emcmot_status_t* emcmotStatus,
-        tp_spindle_status_t* status ){
+static int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        emcmot_status_t * const emcmotStatus, tp_spindle_status_t * const status ) {
 
     // wait for atspeed, if motion requested it.  also, force
     // atspeed check for the start of all spindle synchronized
@@ -1185,7 +1196,7 @@ static int tpActivateSegment(TP_STRUCT * tp, TC_STRUCT * tc, emcmot_status_t* em
     }
 
     // Temporary debug message
-    rtapi_print_msg(RTAPI_MSG_DBG, "Activate tc id %d\n",tc->id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "Activate tc id %d\n", tc->id);
 
     tc->active = 1;
     tc->currentvel = 0;
@@ -1218,7 +1229,7 @@ static int tpActivateSegment(TP_STRUCT * tp, TC_STRUCT * tc, emcmot_status_t* em
 }
 
 
-static void tcSyncVelocityMode(TC_STRUCT * tc, TC_STRUCT const * nexttc, double speed) {
+static void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc, double speed) {
     //NOTE: check for aborting outside of here
 
     double pos_error = fabs(speed) * tc->uu_per_rev;
@@ -1228,8 +1239,8 @@ static void tcSyncVelocityMode(TC_STRUCT * tc, TC_STRUCT const * nexttc, double 
 }
 
 
-static void tcSyncPositionMode(TC_STRUCT * tc, TC_STRUCT const * nexttc,
-        tp_spindle_status_t * status, double spindle_pos) {
+static void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
+        tp_spindle_status_t * const status, double spindle_pos) {
 
     double spindle_vel, target_vel;
     double oldrevs = status->revs;
@@ -1274,9 +1285,11 @@ static void tcSyncPositionMode(TC_STRUCT * tc, TC_STRUCT const * nexttc,
     }
 }
 
-static inline double tpGetSignedSpindlePosition(emcmot_status_t* emcmotStatus) {
+static inline double tpGetSignedSpindlePosition(emcmot_status_t * const emcmotStatus) {
     double spindle_pos = emcmotStatus->spindleRevs;
-    if (emcmotStatus->spindle.direction < 0.0) spindle_pos*=-1.0;
+    if (emcmotStatus->spindle.direction < 0.0) {
+        spindle_pos*=-1.0;
+    }
     return spindle_pos;
 }
 
@@ -1284,13 +1297,13 @@ static inline double tpGetSignedSpindlePosition(emcmot_status_t* emcmotStatus) {
  * Calculate an updated goal position for the next timestep.
  * This is the brains of the operation. It's called every TRAJ period and is
  * expected to set tp->currentPos to the new machine position. Lots of other
- * tp fields (depth, done, etc) have to be twiddled to communicate the status;
+ * const tp fields (depth, done, etc) have to be twiddled to communicate the status;
  * I think those are spelled out here correctly and I can't clean it up
  * without breaking the API that the TP presents to motion. It's not THAT bad
  Found next the interest of not touching stuff outside this directory, I'm going
- * to leave it for now.
+ * const to leave it for now.
  */
-int tpRunCycle(TP_STRUCT * tp, long period)
+int tpRunCycle(TP_STRUCT * const tp, long period)
 {
     // vel = (new position - old position) / cycle time
     // (two position points required)
@@ -1310,8 +1323,8 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
 
     // Persistant spindle data for spindle-synchronized motion
-    static tp_spindle_status_t spindle_status = {0.0,MOTION_INVALID_ID,
-        MOTION_INVALID_ID,0.0};
+    static tp_spindle_status_t spindle_status = {0.0, MOTION_INVALID_ID,
+        MOTION_INVALID_ID, 0.0};
 
     //Update motion status 
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
@@ -1322,7 +1335,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     tc = tcqItem(&tp->queue, 0);
 
     if(!tc) {
-        tpHandleEmptyQueue(tp,emcmotStatus);
+        tpHandleEmptyQueue(tp, emcmotStatus);
         return 0;
     }
 
@@ -1385,7 +1398,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
-        rtapi_print_msg(RTAPI_MSG_DBG, "Activate nexttc id %d\n",nexttc->id);
+        rtapi_print_msg(RTAPI_MSG_DBG, "Activate nexttc id %d\n", nexttc->id);
         nexttc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
@@ -1443,17 +1456,17 @@ int tpRunCycle(TP_STRUCT * tp, long period)
         tc->blend_vel = tpComputeBlendVelocity(tc, nexttc);
     }
 
-    tcGetPos(tc,&primary_before);
+    tcGetPos(tc, &primary_before);
 
     // Update the current tc
     tcRunCycle(tp, tc, &primary_vel, &on_final_decel);
     //If we've overshot the target, then fold this into the next move
-    if (tc->term_cond == TC_TERM_COND_TANGENT) tpCheckOvershoot(tc,nexttc,&secondary_before);
+    if (tc->term_cond == TC_TERM_COND_TANGENT) tpCheckOvershoot(tc, nexttc, &secondary_before);
 
     //Update 
-    tpFindDisplacement(tc,primary_before,&primary_displacement);
-    /*rtapi_print_msg(RTAPI_MSG_DBG, "Primary disp, X = %f,Y=%f,Z=%f",*/
-            /*primary_displacement.tran.x,primary_displacement.tran.y,primary_displacement.tran.z);*/
+    tpFindDisplacement(tc, &primary_before, &primary_displacement);
+    /*rtapi_print_msg(RTAPI_MSG_DBG, "Primary disp, X = %f, Y=%f, Z=%f", */
+            /*primary_displacement.tran.x, primary_displacement.tran.y, primary_displacement.tran.z);*/
 
     // Update the trajectory planner position based on the results
 
@@ -1467,18 +1480,18 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
     if (is_blend_start) tc->blending = 1;
 
-    tpUpdatePosition(tp,&primary_displacement);
+    tpUpdatePosition(tp, &primary_displacement);
     if(tc->blending && nexttc ) {
         // hack to show blends in axis
         tp->motionType = 0;
 
-        tcGetPos(nexttc,&secondary_before);
+        tcGetPos(nexttc, &secondary_before);
 
         tpDoParabolicBlend(tp, tc, nexttc, primary_vel);
-        tpFindDisplacement(nexttc,secondary_before,&secondary_displacement);
+        tpFindDisplacement(nexttc, &secondary_before, &secondary_displacement);
 
         //Add in contributions from both segments
-        tpUpdatePosition(tp,&secondary_displacement);
+        tpUpdatePosition(tp, &secondary_displacement);
 
         if(tc->currentvel > nexttc->currentvel) tpUpdateMovementStatus(tp, emcmotStatus, tc);
         else {
@@ -1494,12 +1507,12 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 
         if (is_tangent_blend_start){
             rtapi_print_msg(RTAPI_MSG_DBG, "Found Tangency at %d, T-P of tc is %f at_endpt = %d\n",
-                    tc->id,tc->target - tc->progress, tc->target == tc->progress);
+                    tc->id, tc->target - tc->progress, tc->target == tc->progress);
 
-            tpFindDisplacement(nexttc,secondary_before,&secondary_displacement);
-            /*rtapi_print_msg(RTAPI_MSG_DBG, "Secondary disp, X = %f,Y=%f,Z=%f",*/
-                    /*secondary_displacement.tran.x,secondary_displacement.tran.y,secondary_displacement.tran.z);*/
-            tpUpdatePosition(tp,&secondary_displacement);
+            tpFindDisplacement(nexttc, &secondary_before, &secondary_displacement);
+            /*rtapi_print_msg(RTAPI_MSG_DBG, "Secondary disp, X = %f, Y=%f, Z=%f", */
+                    /*secondary_displacement.tran.x, secondary_displacement.tran.y, secondary_displacement.tran.z);*/
+            tpUpdatePosition(tp, &secondary_displacement);
         }
         tpToggleDIOs(tc); //check and do DIO changes
         tpUpdateMovementStatus(tp, emcmotStatus, tc);
@@ -1508,7 +1521,7 @@ int tpRunCycle(TP_STRUCT * tp, long period)
     return 0;
 }
 
-int tpSetSpindleSync(TP_STRUCT * tp, double sync, int mode) {
+int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int mode) {
     if(sync) {
         tp->synchronized = 1;
         tp->uu_per_rev = sync;
@@ -1519,7 +1532,7 @@ int tpSetSpindleSync(TP_STRUCT * tp, double sync, int mode) {
     return 0;
 }
 
-int tpPause(TP_STRUCT * tp)
+int tpPause(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return -1;
@@ -1528,7 +1541,7 @@ int tpPause(TP_STRUCT * tp)
     return 0;
 }
 
-int tpResume(TP_STRUCT * tp)
+int tpResume(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return -1;
@@ -1537,26 +1550,26 @@ int tpResume(TP_STRUCT * tp)
     return 0;
 }
 
-int tpAbort(TP_STRUCT * tp)
+int tpAbort(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return -1;
     }
 
     if (!tp->aborting) {
-        /* to abort, signal a pause and set our abort flag */
+        /* const to abort, signal a pause and set our abort flag */
         tpPause(tp);
         tp->aborting = 1;
     }
     return tpClearDIOs(); //clears out any already cached DIOs
 }
 
-int tpGetMotionType(TP_STRUCT * tp)
+int tpGetMotionType(TP_STRUCT * const tp)
 {
     return tp->motionType;
 }
 
-EmcPose tpGetPos(TP_STRUCT * tp)
+EmcPose tpGetPos(TP_STRUCT * const tp)
 {
     EmcPose retval;
 
@@ -1568,7 +1581,7 @@ EmcPose tpGetPos(TP_STRUCT * tp)
     return tp->currentPos;
 }
 
-int tpIsDone(TP_STRUCT * tp)
+int tpIsDone(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return 0;
@@ -1577,7 +1590,7 @@ int tpIsDone(TP_STRUCT * tp)
     return tp->done;
 }
 
-int tpQueueDepth(TP_STRUCT * tp)
+int tpQueueDepth(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return 0;
@@ -1586,7 +1599,7 @@ int tpQueueDepth(TP_STRUCT * tp)
     return tp->depth;
 }
 
-int tpActiveDepth(TP_STRUCT * tp)
+int tpActiveDepth(TP_STRUCT * const tp)
 {
     if (0 == tp) {
         return 0;
@@ -1595,7 +1608,7 @@ int tpActiveDepth(TP_STRUCT * tp)
     return tp->activeDepth;
 }
 
-int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end) {
+int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end) {
     if (0 == tp) {
         return -1;
     }
@@ -1605,7 +1618,7 @@ int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end) {
     return 0;
 }
 
-int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end) {
+int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end) {
     if (0 == tp) {
         return -1;
     }
