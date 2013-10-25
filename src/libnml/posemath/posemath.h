@@ -837,6 +837,7 @@ extern "C" {
     extern int pmCartCartDot(PmCartesian, PmCartesian, double *);
     extern int pmCartCartCross(PmCartesian, PmCartesian, PmCartesian *);
     extern int pmCartMag(PmCartesian, double *);
+    extern int pmCartMagSq(PmCartesian, double *);
     extern int pmCartCartDisp(PmCartesian v1, PmCartesian v2, double *d);
     extern int pmCartCartAdd(PmCartesian, PmCartesian, PmCartesian *);
     extern int pmCartCartSub(PmCartesian, PmCartesian, PmCartesian *);
@@ -913,8 +914,8 @@ extern "C" {
 /* circle functions */
 
     extern int pmCircleInit(PmCircle * circle,
-	PmPose start, PmPose end,
-	PmCartesian center, PmCartesian normal, int turn);
+            PmPose start, PmPose end,
+            PmCartesian center, PmCartesian normal, int turn);
     extern int pmCirclePoint(PmCircle * circle, double angle, PmPose * point);
 
 /* slicky macros for item-by-item copying between C and C++ structs */

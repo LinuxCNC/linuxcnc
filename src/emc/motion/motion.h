@@ -190,6 +190,7 @@ extern "C" {
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
 #define EMCMOT_TERM_COND_BLEND 2
+#define EMCMOT_TERM_COND_TANGENT 3
 
 /*********************************
        COMMAND STRUCTURE

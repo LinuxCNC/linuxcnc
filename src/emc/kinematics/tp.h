@@ -16,6 +16,7 @@
 
 #include "posemath.h"
 #include "tc.h"
+#include <stdbool.h>
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 
@@ -26,6 +27,12 @@
 #define TP_VEL_EPSILON 1e-6
 #define TP_ACCEL_EPSILON 1e-6
 
+
+/**
+ * Trajectory planner state structure.
+ * Stores persistant data for the trajectory planner that should be accessible
+ * by outside functions.
+ */
 typedef struct {
     TC_QUEUE_STRUCT queue;
     int queueSize;
@@ -59,6 +66,19 @@ typedef struct {
     double uu_per_rev;          /* user units per spindle revolution */
 } TP_STRUCT;
 
+
+/**
+ * Persistant data for spindle status within tpRunCycle.
+ * This structure encapsulates some static variables to simplify refactoring of
+ * synchronized motion code.
+ */
+typedef struct {
+     double offset;
+     int waiting_for_index;
+     int waiting_for_atspeed;
+     double revs;
+} tp_spindle_status_t;
+
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
 extern int tpClear(TP_STRUCT * tp);
 extern int tpInit(TP_STRUCT * tp);
@@ -71,11 +91,11 @@ extern int tpSetId(TP_STRUCT * tp, int id);
 extern int tpGetExecId(TP_STRUCT * tp);
 extern int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
 extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
-extern int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
+extern int tpAddRigidTap(TP_STRUCT * tp, EmcPose const * end, double vel, double
         ini_maxvel, double acc, unsigned char enables);
-extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
+extern int tpAddLine(TP_STRUCT * tp, EmcPose const * end, int type, double vel, double
                      ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary);
-extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
+extern int tpAddCircle(TP_STRUCT * tp, EmcPose const * end, PmCartesian center,
         PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
                        double acc, unsigned char enables, char atspeed);
 extern int tpRunCycle(TP_STRUCT * tp, long period);
