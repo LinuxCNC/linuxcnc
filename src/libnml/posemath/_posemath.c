@@ -806,6 +806,14 @@ int pmCartMag(PmCartesian v, double *d)
     return pmErrno = 0;
 }
 
+/** Find square of magnitude of a vector (useful for some calculations to save a sqrt).*/
+int pmCartMagSq(PmCartesian v, double *d)
+{
+    *d = pmSq(v.x) + pmSq(v.y) + pmSq(v.z);
+
+    return pmErrno = 0;
+}
+
 int pmCartCartDisp(PmCartesian v1, PmCartesian v2, double *d)
 {
     *d = pmSqrt(pmSq(v2.x - v1.x) + pmSq(v2.y - v1.y) + pmSq(v2.z - v1.z));

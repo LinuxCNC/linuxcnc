@@ -18,14 +18,18 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
+#include <stdbool.h>
 
 /* values for endFlag */
+#define TC_TERM_COND_NONE 0
 #define TC_TERM_COND_STOP 1
 #define TC_TERM_COND_BLEND 2
+#define TC_TERM_COND_TANGENT 3
 
 #define TC_LINEAR 1
 #define TC_CIRCULAR 2
 #define TC_RIGIDTAP 3
+#define TC_SPHERICAL 4
 
 /* structure for individual trajectory elements */
 
@@ -75,6 +79,7 @@ typedef struct {
     double feed_override;   // feed override requested by user
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
+    double finalvel;        // velocity to aim for at end of segment
     
     int id;                 // segment's serial number
 
@@ -89,8 +94,9 @@ typedef struct {
                             // TC_RIGIDTAP (coords.rigidtap)
     char active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
-    int blend_with_next;    // gcode requests continuous feed at the end of 
+    int term_cond;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
+
     int blending;           // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move, 
@@ -108,11 +114,12 @@ typedef struct {
 
 /* TC_STRUCT functions */
 
-extern EmcPose tcGetEndpoint(TC_STRUCT * tc);
-extern EmcPose tcGetPos(TC_STRUCT * tc);
-EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint);
-PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc);
-PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc);
+extern int tcGetEndpoint(TC_STRUCT * tc, EmcPose * out);
+extern int tcGetPos(TC_STRUCT * tc,  EmcPose * out);
+int tcGetPosReal(TC_STRUCT * tc, int of_endpoint,  EmcPose * out);
+int tcGetEndingUnitVector(TC_STRUCT * tc, PmCartesian * out);
+int tcGetStartingUnitVector(TC_STRUCT * tc, PmCartesian * out);
+
 
 /* queue of TC_STRUCT elements*/
 
@@ -137,18 +144,23 @@ extern int tcqDelete(TC_QUEUE_STRUCT * tcq);
 extern int tcqInit(TC_QUEUE_STRUCT * tcq);
 
 /* put tc on end */
-extern int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc);
+extern int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT const * tc);
 
 /* remove n tcs from front */
 extern int tcqRemove(TC_QUEUE_STRUCT * tcq, int n);
 
 /* how many tcs on queue */
-extern int tcqLen(TC_QUEUE_STRUCT * tcq);
+extern int tcqLen(TC_QUEUE_STRUCT const * tcq);
 
 /* look at nth item, first is 0 */
-extern TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, long period);
+extern TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * tcq, int n);
+
+/**
+ * Get the "end" of the queue, the most recently added item.
+ */
+extern TC_STRUCT * tcqLast(TC_QUEUE_STRUCT const * tcq);
 
 /* get full status */
-extern int tcqFull(TC_QUEUE_STRUCT * tcq);
+extern int tcqFull(TC_QUEUE_STRUCT const * tcq);
 
 #endif				/* TC_H */
