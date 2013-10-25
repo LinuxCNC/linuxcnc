@@ -22,12 +22,12 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "tc.h"
+#include "math.h"
 
-PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc) {
-    PmCartesian v;
+int tcGetStartingUnitVector(TC_STRUCT * tc, PmCartesian * out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
+        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, out);
     } else {
         PmPose startpoint;
         PmCartesian radius;
@@ -43,30 +43,29 @@ PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc) {
 
         pmCartScalMult(tan, tc->maxaccel, &tan);
         pmCartScalMult(perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
-        pmCartCartAdd(tan, perp, &v);
+        pmCartCartAdd(tan, perp, out);
     }
-    pmCartUnit(v, &v);
-    return v;
+    pmCartUnit(*out, out);
+    return 0;
 }
 
-PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
-    PmCartesian v;
+int tcGetEndingUnitVector(TC_STRUCT * tc, PmCartesian * out) {
 
     if(tc->motion_type == TC_LINEAR) {
-        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, &v);
+        pmCartCartSub(tc->coords.line.xyz.end.tran, tc->coords.line.xyz.start.tran, out);
     } else if(tc->motion_type == TC_RIGIDTAP) {
         // comes out the other way
-        pmCartCartSub(tc->coords.line.xyz.start.tran, tc->coords.line.xyz.end.tran, &v);
+        pmCartCartSub(tc->coords.line.xyz.start.tran, tc->coords.line.xyz.end.tran, out);
     } else {
         PmPose endpoint;
         PmCartesian radius;
 
         pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
         pmCartCartSub(endpoint.tran, tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(tc->coords.circle.xyz.normal, radius, &v);
+        pmCartCartCross(tc->coords.circle.xyz.normal, radius, out);
     }
-    pmCartUnit(v, &v);
-    return v;
+    pmCartUnit(*out, out);
+    return 0;
 }
 
 /*! tcGetPos() function
@@ -84,84 +83,91 @@ PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc) {
  * @return	 EmcPose   returns a position (\ref EmcPose = datatype carrying XYZABC information
  */   
 
-EmcPose tcGetPos(TC_STRUCT * tc) {
-    return tcGetPosReal(tc, 0);
+int tcGetPos(TC_STRUCT * tc, EmcPose * out) {
+    tcGetPosReal(tc, 0, out);
+    return 0;
 }
 
-EmcPose tcGetEndpoint(TC_STRUCT * tc) {
-    return tcGetPosReal(tc, 1);
+int tcGetEndpoint(TC_STRUCT * tc, EmcPose * out) {
+    tcGetPosReal(tc, 0, out);
+    return 0;
 }
 
-EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint)
+int tcGetPosReal(TC_STRUCT * tc, int of_endpoint, EmcPose * pos)
 {
-    EmcPose pos;
     PmPose xyz;
     PmPose abc;
     PmPose uvw;
-    
+
     double progress = of_endpoint? tc->target: tc->progress;
 
-    if (tc->motion_type == TC_RIGIDTAP) {
-        if(tc->coords.rigidtap.state > REVERSING) {
-            pmLinePoint(&tc->coords.rigidtap.aux_xyz, progress, &xyz);
-        } else {
-            pmLinePoint(&tc->coords.rigidtap.xyz, progress, &xyz);
-        }
-        // no rotary move allowed while tapping
-        abc.tran = tc->coords.rigidtap.abc;
-        uvw.tran = tc->coords.rigidtap.uvw;
-    } else if (tc->motion_type == TC_LINEAR) {
-
-        if (tc->coords.line.xyz.tmag > 0.) {
-            // progress is along xyz, so uvw and abc move proportionally in order
-            // to end at the same time.
-            pmLinePoint(&tc->coords.line.xyz, progress, &xyz);
-            pmLinePoint(&tc->coords.line.uvw,
+    switch (tc->motion_type){
+        case TC_RIGIDTAP:
+            if(tc->coords.rigidtap.state > REVERSING) {
+                pmLinePoint(&tc->coords.rigidtap.aux_xyz, progress, &xyz);
+            } else {
+                pmLinePoint(&tc->coords.rigidtap.xyz, progress, &xyz);
+            }
+            // no rotary move allowed while tapping
+            abc.tran = tc->coords.rigidtap.abc;
+            uvw.tran = tc->coords.rigidtap.uvw;
+            break;
+        case TC_LINEAR:
+            if (tc->coords.line.xyz.tmag > 0.) {
+                // progress is along xyz, so uvw and abc move proportionally in order
+                // to end at the same time.
+                pmLinePoint(&tc->coords.line.xyz, progress, &xyz);
+                pmLinePoint(&tc->coords.line.uvw,
                         progress * tc->coords.line.uvw.tmag / tc->target,
                         &uvw);
-            pmLinePoint(&tc->coords.line.abc,
+                pmLinePoint(&tc->coords.line.abc,
                         progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
-        } else if (tc->coords.line.uvw.tmag > 0.) {
-            // xyz is not moving
-            pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-            pmLinePoint(&tc->coords.line.uvw, progress, &uvw);
-            // abc moves proportionally in order to end at the same time
-            pmLinePoint(&tc->coords.line.abc,
+            } else if (tc->coords.line.uvw.tmag > 0.) {
+                // xyz is not moving
+                pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
+                pmLinePoint(&tc->coords.line.uvw, progress, &uvw);
+                // abc moves proportionally in order to end at the same time
+                pmLinePoint(&tc->coords.line.abc,
                         progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
-        } else {
-            // if all else fails, it's along abc only
-            pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-            pmLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
-            pmLinePoint(&tc->coords.line.abc, progress, &abc);
-        }
-    } else { //we have TC_CIRCULAR
-        // progress is always along the xyz circle.  This simplification 
-        // is possible since zero-radius arcs are not allowed by the interp.
-        pmCirclePoint(&tc->coords.circle.xyz,
-		      progress * tc->coords.circle.xyz.angle / tc->target, 
-                      &xyz);
-        // abc moves proportionally in order to end at the same time as the 
-        // circular xyz move.
-        pmLinePoint(&tc->coords.circle.abc,
+            } else {
+                // if all else fails, it's along abc only
+                pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
+                pmLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
+                pmLinePoint(&tc->coords.line.abc, progress, &abc);
+            }
+            break;
+        case TC_CIRCULAR:
+            // progress is always along the xyz circle.  This simplification 
+            // is possible since zero-radius arcs are not allowed by the interp.
+            pmCirclePoint(&tc->coords.circle.xyz,
+                    progress * tc->coords.circle.xyz.angle / tc->target, 
+                    &xyz);
+            // abc moves proportionally in order to end at the same time as the 
+            // circular xyz move.
+            pmLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target, 
                     &abc);
-        // same for uvw
-        pmLinePoint(&tc->coords.circle.uvw,
+            // same for uvw
+            pmLinePoint(&tc->coords.circle.uvw,
                     progress * tc->coords.circle.uvw.tmag / tc->target, 
                     &uvw);
+            break;
+        case TC_SPHERICAL:
+            break;
+
     }
 
-    pos.tran = xyz.tran;
-    pos.a = abc.tran.x;
-    pos.b = abc.tran.y;
-    pos.c = abc.tran.z;
-    pos.u = uvw.tran.x;
-    pos.v = uvw.tran.y;
-    pos.w = uvw.tran.z;
+    pos->tran = xyz.tran;
+    pos->a = abc.tran.x;
+    pos->b = abc.tran.y;
+    pos->c = abc.tran.z;
+    pos->u = uvw.tran.x;
+    pos->v = uvw.tran.y;
+    pos->w = uvw.tran.z;
 
-    return pos;
+    return 0;
 }
 
 
@@ -173,6 +179,15 @@ EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint)
  * won't mess with them.
  */
 
+/** Return 0 if queue is valid, -1 if not */
+static inline int tcqCheck(TC_QUEUE_STRUCT const * tcq)
+{
+    if ((0 == tcq) || (0 == tcq->queue)) 
+    {	        
+        return -1;
+    }
+    return 0;
+}
 
 /*! tcqCreate() function
  *
@@ -220,9 +235,9 @@ int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size, TC_STRUCT * tcSpace)
  */   
 int tcqDelete(TC_QUEUE_STRUCT * tcq)
 {
-    if (0 != tcq && 0 != tcq->queue) {
-	/* free(tcq->queue); */
-	tcq->queue = 0;
+    if (!tcqCheck(tcq)) {
+        /* free(tcq->queue); */
+        tcq->queue = 0;
     }
 
     return 0;
@@ -242,9 +257,7 @@ int tcqDelete(TC_QUEUE_STRUCT * tcq)
  */
 int tcqInit(TC_QUEUE_STRUCT * tcq)
 {
-    if (0 == tcq) {
-	return -1;
-    }
+    if (tcqCheck(tcq)) return -1;
 
     tcq->_len = 0;
     tcq->start = tcq->end = 0;
@@ -265,12 +278,10 @@ int tcqInit(TC_QUEUE_STRUCT * tcq)
  *
  * @return	 int	   returns success or failure
  */   
-int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
+int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT const * tc)
 {
     /* check for initialized */
-    if (0 == tcq || 0 == tcq->queue) {
-	    return -1;
-    }
+    if (tcqCheck(tcq)) return -1;
 
     /* check for allFull, so we don't overflow the queue */
     if (tcq->allFull) {
@@ -278,7 +289,7 @@ int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc)
     }
 
     /* add it */
-    tcq->queue[tcq->end] = tc;
+    tcq->queue[tcq->end] = *tc;
     tcq->_len++;
 
     /* update end ptr, modulo size of queue */
@@ -314,9 +325,8 @@ int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
 	    return 0;		/* okay to remove 0 or fewer */
     }
 
-    if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
-	((tcq->start == tcq->end) && !tcq->allFull) ||	/* empty queue */
-	(n > tcq->_len)) {	/* too many requested */
+    if (tcqCheck(tcq) || ((tcq->start == tcq->end) && !tcq->allFull) || 
+            (n > tcq->_len)) {	/* too many requested */
 	    return -1;
     }
 
@@ -338,11 +348,9 @@ int tcqRemove(TC_QUEUE_STRUCT * tcq, int n)
  *
  * @return	 int	   returns number of elements
  */   
-int tcqLen(TC_QUEUE_STRUCT * tcq)
+int tcqLen(TC_QUEUE_STRUCT const * tcq)
 {
-    if (0 == tcq) {
-	    return -1;
-    }
+    if (tcqCheck(tcq)) return -1;
 
     return tcq->_len;
 }
@@ -357,15 +365,11 @@ int tcqLen(TC_QUEUE_STRUCT * tcq)
  *
  * @return	 TC_STRUCT returns the TC elements
  */   
-TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, long period)
+TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * tcq, int n)
 {
-    TC_STRUCT *t;
-    if ((0 == tcq) || (0 == tcq->queue) ||	/* not initialized */
-	(n < 0) || (n >= tcq->_len)) {	/* n too large */
-	return (TC_STRUCT *) 0;
-    }
-    t = &(tcq->queue[(tcq->start + n) % tcq->size]);
-    return t;
+    if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len)) return NULL;
+
+    return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }
 
 /*! 
@@ -385,9 +389,9 @@ TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, long period)
  *
  * @return	 int       returns status (0==not full, 1==full)
  */   
-int tcqFull(TC_QUEUE_STRUCT * tcq)
+int tcqFull(TC_QUEUE_STRUCT const * tcq)
 {
-    if (0 == tcq) {
+    if (tcqCheck(tcq)) {
 	   return 1;		/* null queue is full, for safety */
     }
 
@@ -407,5 +411,21 @@ int tcqFull(TC_QUEUE_STRUCT * tcq)
 
     /* we're not into the margin */
     return 0;
+}
+
+/*! tcqLast() function
+ *
+ * \brief gets the last TC element in the queue, without removing it
+ *
+ * 
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
+ *
+ * @return	 TC_STRUCT returns the TC element
+ */   
+TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * tcq)
+{
+    if (tcqCheck(tcq)) return NULL;
+    if (tcq->end>0) return &(tcq->queue[(tcq->end-1) % tcq->size]);
+    else return NULL;
 }
 
