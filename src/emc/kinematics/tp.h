@@ -95,14 +95,14 @@ extern int tpAddRigidTap(TP_STRUCT * tp, EmcPose const * end, double vel, double
         ini_maxvel, double acc, unsigned char enables);
 extern int tpAddLine(TP_STRUCT * tp, EmcPose const * end, int type, double vel, double
                      ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary);
-extern int tpAddCircle(TP_STRUCT * tp, EmcPose const * end, PmCartesian center,
-        PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
+extern int tpAddCircle(TP_STRUCT * tp, EmcPose const * end, PmCartesian const * const center,
+        PmCartesian const * const normal, int turn, int type, double vel, double ini_maxvel,
                        double acc, unsigned char enables, char atspeed);
 extern int tpRunCycle(TP_STRUCT * tp, long period);
 extern int tpPause(TP_STRUCT * tp);
 extern int tpResume(TP_STRUCT * tp);
 extern int tpAbort(TP_STRUCT * tp);
-extern EmcPose tpGetPos(TP_STRUCT * tp);
+extern int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
 extern int tpIsDone(TP_STRUCT * tp);
 extern int tpQueueDepth(TP_STRUCT * tp);
 extern int tpActiveDepth(TP_STRUCT * tp);

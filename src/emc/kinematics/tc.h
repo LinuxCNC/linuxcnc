@@ -34,15 +34,15 @@
 /* structure for individual trajectory elements */
 
 typedef struct {
-    PmLine xyz;
-    PmLine abc;
-    PmLine uvw;
+    PmCartLine xyz;
+    PmCartLine abc;
+    PmCartLine uvw;
 } PmLine9;
 
 typedef struct {
     PmCircle xyz;
-    PmLine abc;
-    PmLine uvw;
+    PmCartLine abc;
+    PmCartLine uvw;
 } PmCircle9;
 
 typedef enum {
@@ -60,8 +60,8 @@ typedef struct {
 } syncdio_t;
 
 typedef struct {
-    PmLine xyz;             // original, but elongated, move down
-    PmLine aux_xyz;         // this will be generated on the fly, for the other
+    PmCartLine xyz;             // original, but elongated, move down
+    PmCartLine aux_xyz;         // this will be generated on the fly, for the other
                             // two moves: retraction, final placement
     PmCartesian abc;
     PmCartesian uvw;

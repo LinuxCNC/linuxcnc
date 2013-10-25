@@ -159,8 +159,8 @@ int kinematicsForward(const double * joint,
    }
 
    /* convert hom.rot to world->quat */
-   pmHomPoseConvert(hom, &worldPose);
-   pmQuatRpyConvert(worldPose.rot,&rpy);
+   pmHomPoseConvert(&hom, &worldPose);
+   pmQuatRpyConvert(&worldPose.rot,&rpy);
    world->tran = worldPose.tran;
    world->a = rpy.r * 180.0/PM_PI;
    world->b = rpy.p * 180.0/PM_PI;
@@ -208,8 +208,8 @@ int kinematicsInverse(const EmcPose * world,
    rpy.r = world->a*PM_PI/180.0;
    rpy.p = world->b*PM_PI/180.0;
    rpy.y = world->c*PM_PI/180.0;
-   pmRpyQuatConvert(rpy,&worldPose.rot);
-   pmPoseHomConvert(worldPose, &hom);
+   pmRpyQuatConvert(&rpy,&worldPose.rot);
+   pmPoseHomConvert(&worldPose, &hom);
 
    /* Joint 1 (2 independent solutions) */
 
