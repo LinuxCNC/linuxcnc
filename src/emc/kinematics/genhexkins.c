@@ -238,12 +238,12 @@ static int JInvMat(const EmcPose * pos,
   rpy.r = pos->a * PM_PI / 180.0;
   rpy.p = pos->b * PM_PI / 180.0;
   rpy.y = pos->c * PM_PI / 180.0;
-  pmRpyMatConvert(rpy, &RMatrix);
+  pmRpyMatConvert(&rpy, &RMatrix);
 
   /* Enter for loop to build Inverse Jacobian */
   for (i = 0; i < NUM_STRUTS; i++) {
     /* run part of inverse kins to get strut vectors */
-    pmMatCartMult(RMatrix, a[i], &RMatrix_a);
+    pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
     pmCartCartAdd(&pos->tran, &RMatrix_a, &aw);
     pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
 
@@ -419,13 +419,13 @@ int kinematicsForward(const double * joints,
     }
 
     /* Convert q_RPY to Rotation Matrix */
-    pmRpyMatConvert(q_RPY, &RMatrix);
+    pmRpyMatConvert(&q_RPY, &RMatrix);
 
     /* compute StrutLengthDiff[] by running inverse kins on Cartesian
      estimate to get joint estimate, subtract joints to get joint deltas,
      and compute inv J while we're at it */
     for (i = 0; i < NUM_STRUTS; i++) {
-      pmMatCartMult(RMatrix, a[i], &RMatrix_a);
+      pmMatCartMult(&RMatrix, &a[i], &RMatrix_a);
       pmCartCartAdd(&q_trans, &RMatrix_a, &aw);
       pmCartCartSub(&aw, &b[i], &InvKinStrutVect);
       if (0 != pmCartUnit(&InvKinStrutVect, &InvKinStrutVectUnit)) {
@@ -509,13 +509,13 @@ int kinematicsInverse(const EmcPose * pos,
   rpy.r = pos->a * PM_PI / 180.0;
   rpy.p = pos->b * PM_PI / 180.0;
   rpy.y = pos->c * PM_PI / 180.0;
-  pmRpyMatConvert(rpy, &RMatrix);
+  pmRpyMatConvert(&rpy, &RMatrix);
 
   /* enter for loop to calculate joints (strut lengths) */
   for (i = 0; i < NUM_STRUTS; i++) {
     /* convert location of platform strut end from platform
        to world coordinates */
-    pmMatCartMult(RMatrix, a[i], &temp);
+    pmMatCartMult(&RMatrix, &a[i], &temp);
     pmCartCartAdd(&pos->tran, &temp, &aw);
 
     /* define strut lengths */
