@@ -1469,7 +1469,7 @@ int do_loadusr_cmd(char *args[])
                 fflush(stderr);
             }
         }
-        if (count >= 100) {
+        if (count >= 200) {
 	    /* terminate pacifier */
 	    fprintf(stderr, "\n");
 	}
