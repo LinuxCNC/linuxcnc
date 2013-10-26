@@ -41,6 +41,9 @@
 #define HALCMD_H
 #include <stdio.h>
 #include "hal.h"
+
+RTAPI_BEGIN_DECLS
+
 extern int halcmd_startup(int quiet);
 extern void halcmd_shutdown();
 extern int halcmd_parse_cmd(char * tokens[]);
@@ -89,5 +92,7 @@ extern FILE *halcmd_inifile;
 #define MAX_TOK 20
 #define MAX_CMD_LEN 1024
 #define MAX_EXPECTED_SIGS 999
+
+RTAPI_END_DECLS
 
 #endif
