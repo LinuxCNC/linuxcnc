@@ -132,8 +132,8 @@ also works by execing \fBlinuxcnc_module_helper\fR or \fBrtapi_app\fR, just like
 \fI[flags]\fR may be one or more of:
 .RS
 .IP \(bu 4
-\fB-W\fR to wait for the component to become ready.  The component
-is assumed to have the same name as the first argument of the command.
+\fB-W\fR to wait for the component to become ready.  If "-n" is not specified,
+any component that becomes ready will end the wait process.
 .IP \(bu 4
 \fB-Wn name\fR to wait for the component, which will have the given
 name.
