@@ -56,6 +56,10 @@
 #include <time.h>
 #include <fnmatch.h>
 
+template<class T>
+T* shmptr(int off) { return reinterpret_cast<T*>(SHMPTR(off)); }
+template<class T>
+T* halloc(size_t sz) { return reinterpret_cast<T*>(hal_malloc(sz)); }
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
@@ -82,8 +86,8 @@ static const char *pin_data_dir(int dir);
 static const char *param_data_dir(int dir);
 static const char *data_arrow1(int dir);
 static const char *data_arrow2(int dir);
-static char *data_value(int type, void *valptr);
-static char *data_value2(int type, void *valptr);
+static const char *data_value(int type, void *valptr);
+static const char *data_value2(int type, void *valptr);
 static void save_comps(FILE *dst);
 static void save_aliases(FILE *dst);
 static void save_signals(FILE *dst, int only_unlinked);
@@ -382,10 +386,10 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
         int next;
         for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr) 
         {
-            pin = SHMPTR(next);
-            if(SHMPTR(pin->signal) == sig && pin->dir == HAL_OUT)
+            pin = shmptr<hal_pin_t>(next);
+            if(shmptr<hal_sig_t>(pin->signal) == sig && pin->dir == HAL_OUT)
                 writer_name = pin->name;
-            if(SHMPTR(pin->signal) == sig && pin->dir == HAL_IO)
+            if(shmptr<hal_sig_t>(pin->signal) == sig && pin->dir == HAL_IO)
                 bidir_name = writer_name = pin->name;
         }
     }
@@ -403,7 +407,7 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 	    pincnt++;
 	    continue;
 	} else if(pin->signal != 0) {
-            hal_sig_t *osig = SHMPTR(pin->signal);
+            hal_sig_t *osig = shmptr<hal_sig_t>(pin->signal);
             halcmd_error("Pin '%s' was already linked to signal '%s'\n",
                     pin->name, osig->name);
             return -EINVAL;
@@ -807,7 +811,7 @@ int do_getp_cmd(char *name)
         /* found it */
         type = pin->type;
         if (pin->signal != 0) {
-            sig = SHMPTR(pin->signal);
+            sig = shmptr<hal_sig_t>(pin->signal);
             d_ptr = SHMPTR(sig->data_ptr);
         } else {
             sig = 0;
@@ -1052,7 +1056,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     char arg_string[MAX_CMD_LEN+1];
     int m=0, n=0, retval;
     hal_comp_t *comp;
-    char *argv[MAX_TOK+3];
+    const char *argv[MAX_TOK+3];
     char *cp1;
 #if defined(RTAPI_SIM)
     argv[m++] = "-Wn";
@@ -1065,9 +1069,9 @@ int do_loadrt_cmd(char *mod_name, char *args[])
         argv[m++] = args[n++];
     }
     argv[m++] = NULL;
-    retval = do_loadusr_cmd(argv);
+    retval = do_loadusr_cmd(const_cast<char**>(argv));
 #else
-    static char *rtmod_dir = EMC2_RTLIB_DIR;
+    static const char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
 
@@ -1087,7 +1091,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
         if (r < 0) {
             halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
             return -1;
-        } else if (r >= sizeof(mod_path)) {
+        } else if ((size_t)r >= sizeof(mod_path)) {
             // truncation!
             halcmd_error("module path too long (max %lu) for %s/%s%s\n", (unsigned long)sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
             return -1;
@@ -1113,7 +1117,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     /* add a NULL to terminate the argv array */
     argv[m] = NULL;
 
-    retval = hal_systemv(argv);
+    retval = hal_systemv(const_cast<char**>(argv));
 #endif
 
     if ( retval != 0 ) {
@@ -1132,7 +1136,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	strncat(arg_string, " ", MAX_CMD_LEN);
     }
     /* allocate HAL shmem for the string */
-    cp1 = hal_malloc(strlen(arg_string)+1);
+    cp1 = halloc<char>(strlen(arg_string)+1);
     if ( cp1 == NULL ) {
 	halcmd_error("failed to allocate memory for module args\n");
 	return -1;
@@ -1177,7 +1181,7 @@ int do_delsig_cmd(char *mod_name)
 
 	next = hal_data->sig_list_ptr;
 	while (next != 0) {
-	    sig = SHMPTR(next);
+	    sig = shmptr<hal_sig_t>(next);
 	    /* we want to unload this signal, remember its name */
 	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
 	        strncpy(sigs[n], sig->name, HAL_NAME_LEN );
@@ -1234,7 +1238,7 @@ int do_unloadusr_cmd(char *mod_name)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
-	comp = SHMPTR(next);
+	comp = shmptr<hal_comp_t>(next);
 	if ( comp->type == 0 && comp->pid != ourpid) {
 	    /* found a userspace component besides us */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
@@ -1266,7 +1270,7 @@ int do_unloadrt_cmd(char *mod_name)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
-	comp = SHMPTR(next);
+	comp = shmptr<hal_comp_t>(next);
 	if ( comp->type == 1 ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
@@ -1311,7 +1315,7 @@ int do_unloadrt_cmd(char *mod_name)
 static int unloadrt_comp(char *mod_name)
 {
     int retval;
-    char *argv[4];
+    const char *argv[4];
 
 #if defined(RTAPI_SIM)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
@@ -1324,7 +1328,7 @@ static int unloadrt_comp(char *mod_name)
     /* add a NULL to terminate the argv array */
     argv[3] = NULL;
 
-    retval = hal_systemv(argv);
+    retval = hal_systemv(const_cast<char**>(argv));
 
     if ( retval != 0 ) {
 	halcmd_error("rmmod failed, returned %d\n", retval);
@@ -1568,7 +1572,7 @@ static void print_comp_info(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
-	comp = SHMPTR(next);
+	comp = shmptr<hal_comp_t>(next);
 	if ( match(patterns, comp->name) ) {
             if(comp->type == 2) {
                 hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
@@ -1610,11 +1614,11 @@ static void print_pin_info(int type, char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
-	pin = SHMPTR(next);
+	pin = shmptr<hal_pin_t>(next);
 	if ( tmatch(type, pin->type) && match(patterns, pin->name) ) {
-	    comp = SHMPTR(pin->owner_ptr);
+	    comp = shmptr<hal_comp_t>(pin->owner_ptr);
 	    if (pin->signal != 0) {
-		sig = SHMPTR(pin->signal);
+		sig = shmptr<hal_sig_t>(pin->signal);
 		dptr = SHMPTR(sig->data_ptr);
 	    } else {
 		sig = 0;
@@ -1660,10 +1664,10 @@ static void print_pin_aliases(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
-	pin = SHMPTR(next);
+	pin = shmptr<hal_pin_t>(next);
 	if ( pin->oldname != 0 ) {
 	    /* name is an alias */
-	    oldname = SHMPTR(pin->oldname);
+	    oldname = shmptr<hal_oldname_t>(pin->oldname);
 	    if ( match(patterns, pin->name) || match(patterns, oldname->name) ) {
 		if (scriptmode == 0) {
 		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, pin->name, oldname->name);
@@ -1694,7 +1698,7 @@ static void print_sig_info(int type, char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
-	sig = SHMPTR(next);
+	sig = shmptr<hal_sig_t>(next);
 	if ( tmatch(type, sig->type) && match(patterns, sig->name) ) {
 	    dptr = SHMPTR(sig->data_ptr);
 	    halcmd_output("%s  %s  %s\n", data_type((int) sig->type),
@@ -1726,7 +1730,7 @@ static void print_script_sig_info(int type, char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
-	sig = SHMPTR(next);
+	sig = shmptr<hal_sig_t>(next);
 	if ( tmatch(type, sig->type) && match(patterns, sig->name) ) {
 	    dptr = SHMPTR(sig->data_ptr);
 	    halcmd_output("%s  %s  %s", data_type((int) sig->type),
@@ -1759,9 +1763,9 @@ static void print_param_info(int type, char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	param = SHMPTR(next);
+	param = shmptr<hal_param_t>(next);
 	if ( tmatch(type, param->type), match(patterns, param->name) ) {
-	    comp = SHMPTR(param->owner_ptr);
+	    comp = shmptr<hal_comp_t>(param->owner_ptr);
 	    if (scriptmode == 0) {
 		halcmd_output(" %5d  %5s %-3s  %9s  %s\n",
 		    comp->comp_id, data_type((int) param->type),
@@ -1795,10 +1799,10 @@ static void print_param_aliases(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	param = SHMPTR(next);
+	param = shmptr<hal_param_t>(next);
 	if ( param->oldname != 0 ) {
 	    /* name is an alias */
-	    oldname = SHMPTR(param->oldname);
+	    oldname = shmptr<hal_oldname_t>(param->oldname);
 	    if ( match(patterns, param->name) || match(patterns, oldname->name) ) {
 		if (scriptmode == 0) {
 		    halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, param->name, oldname->name);
@@ -1826,9 +1830,9 @@ static void print_funct_info(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->funct_list_ptr;
     while (next != 0) {
-	fptr = SHMPTR(next);
+	fptr = shmptr<hal_funct_t>(next);
 	if ( match(patterns, fptr->name) ) {
-	    comp = SHMPTR(fptr->owner_ptr);
+	    comp = shmptr<hal_comp_t>(fptr->owner_ptr);
 	    if (scriptmode == 0) {
 		halcmd_output(" %05d  %08lx  %08lx  %-3s  %5d   %s\n",
 		    comp->comp_id,
@@ -1864,7 +1868,7 @@ static void print_thread_info(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
-	tptr = SHMPTR(next_thread);
+	tptr = shmptr<hal_thread_t>(next_thread);
 	if ( match(patterns, tptr->name) ) {
 		/* note that the scriptmode format string has no \n */
 		// TODO FIXME add thread runtime and max runtime to this print
@@ -1876,7 +1880,7 @@ static void print_thread_info(char **patterns)
 	    while (list_entry != list_root) {
 		/* print the function info */
 		fentry = (hal_funct_entry_t *) list_entry;
-		funct = SHMPTR(fentry->funct_ptr);
+		funct = shmptr<hal_funct_t>(fentry->funct_ptr);
 		/* scriptmode only uses one line per thread, which contains: 
 		   thread period, FP flag, name, then all functs separated by spaces  */
 		if (scriptmode == 0) {
@@ -1905,7 +1909,7 @@ static void print_comp_names(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
-	comp = SHMPTR(next);
+	comp = shmptr<hal_comp_t>(next);
 	if ( match(patterns, comp->name) ) {
 	    halcmd_output("%s ", comp->name);
 	}
@@ -1923,7 +1927,7 @@ static void print_pin_names(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
-	pin = SHMPTR(next);
+	pin = shmptr<hal_pin_t>(next);
 	if ( match(patterns, pin->name) ) {
 	    halcmd_output("%s ", pin->name);
 	}
@@ -1941,7 +1945,7 @@ static void print_sig_names(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
-	sig = SHMPTR(next);
+	sig = shmptr<hal_sig_t>(next);
 	if ( match(patterns, sig->name) ) {
 	    halcmd_output("%s ", sig->name);
 	}
@@ -1959,7 +1963,7 @@ static void print_param_names(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	param = SHMPTR(next);
+	param = shmptr<hal_param_t>(next);
 	if ( match(patterns, param->name) ) {
 	    halcmd_output("%s ", param->name);
 	}
@@ -1977,7 +1981,7 @@ static void print_funct_names(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->funct_list_ptr;
     while (next != 0) {
-	fptr = SHMPTR(next);
+	fptr = shmptr<hal_funct_t>(next);
 	if ( match(patterns, fptr->name) ) {
 	    halcmd_output("%s ", fptr->name);
 	}
@@ -1995,7 +1999,7 @@ static void print_thread_names(char **patterns)
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
-	tptr = SHMPTR(next_thread);
+	tptr = shmptr<hal_thread_t>(next_thread);
 	if ( match(patterns, tptr->name) ) {
 	    halcmd_output("%s ", tptr->name);
 	}
@@ -2066,13 +2070,13 @@ static void print_mem_status()
     next = hal_data->pin_list_ptr;
     active = 0;
     while (next != 0) {
-	pin = SHMPTR(next);
+	pin = shmptr<hal_pin_t>(next);
 	if ( pin->oldname != 0 ) active++;
 	next = pin->next_ptr;
     }
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	param = SHMPTR(next);
+	param = shmptr<hal_param_t>(next);
 	if ( param->oldname != 0 ) active++;
 	next = param->next_ptr;
     }
@@ -2229,9 +2233,9 @@ static const char *data_arrow2(int dir)
 
 /* Switch function to return var value for the print_*_list functions  */
 /* the value is printed in a 12 character wide field */
-static char *data_value(int type, void *valptr)
+static const char *data_value(int type, void *valptr)
 {
-    char *value_str;
+    const char *value_str;
     static char buf[15];
 
     switch (type) {
@@ -2262,9 +2266,9 @@ static char *data_value(int type, void *valptr)
 
 /* Switch function to return var value in string form  */
 /* the value is printed as a packed string (no whitespace */
-static char *data_value2(int type, void *valptr)
+static const char *data_value2(int type, void *valptr)
 {
-    char *value_str;
+    const char *value_str;
     static char buf[15];
 
     switch (type) {
@@ -2293,8 +2297,9 @@ static char *data_value2(int type, void *valptr)
     return value_str;
 }
 
-int do_save_cmd(char *type, char *filename)
+int do_save_cmd(char *type_, char *filename)
 {
+    const char *type = type_;
     FILE *dst;
 
     if (rtapi_get_msg_level() == RTAPI_MSG_NONE) {
@@ -2369,7 +2374,7 @@ static void save_comps(FILE *dst)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->comp_list_ptr;
     while (next != 0) {
-	comp = SHMPTR(next);
+	comp = shmptr<hal_comp_t>(next);
 	if ( comp->type == 1 ) {
 	    /* only print realtime components */
 	    if ( comp->insmod_args == 0 ) {
@@ -2406,10 +2411,10 @@ static void save_aliases(FILE *dst)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
-	pin = SHMPTR(next);
+	pin = shmptr<hal_pin_t>(next);
 	if ( pin->oldname != 0 ) {
 	    /* name is an alias */
-	    oldname = SHMPTR(pin->oldname);
+	    oldname = shmptr<hal_oldname_t>(pin->oldname);
 	    fprintf(dst, "alias pin %s %s\n", oldname->name, pin->name);
 	}
 	next = pin->next_ptr;
@@ -2417,10 +2422,10 @@ static void save_aliases(FILE *dst)
     fprintf(dst, "# param aliases\n");
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	param = SHMPTR(next);
+	param = shmptr<hal_param_t>(next);
 	if ( param->oldname != 0 ) {
 	    /* name is an alias */
-	    oldname = SHMPTR(param->oldname);
+	    oldname = shmptr<hal_oldname_t>(param->oldname);
 	    fprintf(dst, "alias param %s %s\n", oldname->name, param->name);
 	}
 	next = param->next_ptr;
@@ -2437,7 +2442,7 @@ static void save_signals(FILE *dst, int only_unlinked)
     rtapi_mutex_get(&(hal_data->mutex));
     
     for( next = hal_data->sig_list_ptr; next; next = sig->next_ptr) {
-	sig = SHMPTR(next);
+	sig = shmptr<hal_sig_t>(next);
         if(only_unlinked && (sig->readers || sig->writers)) continue;
 	fprintf(dst, "newsig %s %s\n", sig->name, data_type((int) sig->type));
     }
@@ -2455,9 +2460,9 @@ static void save_links(FILE *dst, int arrow)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
-	pin = SHMPTR(next);
+	pin = shmptr<hal_pin_t>(next);
 	if (pin->signal != 0) {
-	    sig = SHMPTR(pin->signal);
+	    sig = shmptr<hal_sig_t>(pin->signal);
 	    if (arrow != 0) {
 		arrow_str = data_arrow1((int) pin->dir);
 	    } else {
@@ -2481,7 +2486,7 @@ static void save_nets(FILE *dst, int arrow)
     rtapi_mutex_get(&(hal_data->mutex));
     
     for (next = hal_data->sig_list_ptr; next != 0; next = sig->next_ptr) {
-	sig = SHMPTR(next);
+	sig = shmptr<hal_sig_t>(next);
         if(arrow == 3) {
             int state = 0, first = 1;
 
@@ -2562,7 +2567,7 @@ static void save_params(FILE *dst)
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	param = SHMPTR(next);
+	param = shmptr<hal_param_t>(next);
 	if (param->dir != HAL_RO) {
 	    /* param is writable, save its value */
 	    fprintf(dst, "setp %s %s\n", param->name,
@@ -2585,13 +2590,13 @@ static void save_threads(FILE *dst)
     rtapi_mutex_get(&(hal_data->mutex));
     next_thread = hal_data->thread_list_ptr;
     while (next_thread != 0) {
-	tptr = SHMPTR(next_thread);
+	tptr = shmptr<hal_thread_t>(next_thread);
 	list_root = &(tptr->funct_list);
 	list_entry = list_next(list_root);
 	while (list_entry != list_root) {
 	    /* print the function info */
 	    fentry = (hal_funct_entry_t *) list_entry;
-	    funct = SHMPTR(fentry->funct_ptr);
+	    funct = shmptr<hal_funct_t>(fentry->funct_ptr);
 	    fprintf(dst, "addf %s %s\n", funct->name, tptr->name);
 	    list_entry = list_next(list_entry);
 	}
