@@ -47,7 +47,7 @@ INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 
 # constants
-_RELEASE = "0.9.8.2"
+_RELEASE = "0.9.8.3"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -248,8 +248,9 @@ class HandlerClass:
 
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
-        self.widgets.tbtn_on.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
-        self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
+#        self.widgets.tbtn_on.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#FF0000"))
+        self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
+#        self.widgets.tbtn_on.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#00FF00"))
         self.widgets.tbtn_estop.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FF0000"))
         self.widgets.tbtn_estop.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#00FF00"))
         self.widgets.rbt_manual.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
@@ -1017,6 +1018,7 @@ class HandlerClass:
 
         # does the user want to show screen2 
         self.widgets.tbtn_use_screen2.set_active(self.gscreen.prefs.getpref("use_screen2", False, bool))
+        self.emc.set_manual_mode()
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
@@ -1046,13 +1048,13 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("tbtn_estop_clicked")
         if self.widgets.tbtn_estop.get_active(): # estop is active, open circuit
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
+            self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
             self.emc.estop(1)
             self.widgets.tbtn_on.set_sensitive(False)
             self.widgets.tbtn_on.set_active(False)
         else:   # estop circuit is fine
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.emc.estop_reset(1)
             self.widgets.tbtn_on.set_sensitive(True)
 
@@ -2579,6 +2581,30 @@ class HandlerClass:
         if not self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(True)
 
+    def on_hal_status_mode_manual(self,widget):
+        print("manual mode")
+        if self.widgets.rbt_manual.get_active():
+            return
+        else:
+            self.widgets.rbt_manual.emit("pressed")
+            self.widgets.rbt_manual.set_active(True)
+
+    def on_hal_status_mode_mdi(self,widget):
+        print("mdi mode")
+        if self.widgets.rbt_mdi.get_active():
+            return
+        else:
+            self.widgets.rbt_mdi.emit("pressed")
+            self.widgets.rbt_mdi.set_active(True)
+
+    def on_hal_status_mode_auto(self,widget):
+        print("auto mode")
+        if self.widgets.rbt_auto.get_active():
+            return
+        else:
+            self.widgets.rbt_auto.emit("pressed")
+            self.widgets.rbt_auto.set_active(True)
+
     def change_sound(self,widget,sound):
         file = widget.get_filename()
         if file:
@@ -2610,6 +2636,7 @@ class HandlerClass:
         self.emc.mask()
         self.emcstat.poll()
         self.gscreen.status.periodic()
+        self.data.system = self.gscreen.status.get_current_system()
         e = self.emcerror.poll()
         if e:
             kind, text = e
@@ -2919,9 +2946,9 @@ class HandlerClass:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.jog_increments = increments.split()
-            self.data.jog_increments.insert(0,_("Continuous"))
+            self.data.jog_increments.insert(0,0)
         else:
-            self.data.jog_increments = [_("Continuous"),"1,000","0,100","0,010","0,001"]
+            self.data.jog_increments = [0,"1,000","0,100","0,010","0,001"]
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
         self.no_increments = len(self.data.jog_increments)
         if self.no_increments > 10:

@@ -5,7 +5,6 @@ http://code.google.com/p/moccagui/
 with the friendly permission from the owner 
 info@jetsport.de
 
-auto.gif
 coolant_off.png
 coolant_on.png   (modified by nieson@web.de)
 editor.png
@@ -13,9 +12,6 @@ E-Stop.gif
 estopred.png
 forward.png
 forward_on.png   (modified by nieson@web.de)
-jog.png
-machineoff.png
-mdi.png
 mist_off.png
 mist_on.png      (modified by nieson@web.de)
 pause.png
@@ -25,7 +21,6 @@ refy.png
 refz.png
 reverse.png
 reverse_on.png  (modified by nieson@web.de)
-run.png
 runfrom.png
 start.png
 step.png
@@ -48,6 +43,12 @@ Logo.png
 index_tool.png
 tool_by_no.svg
 user_tabs.png (modified two icon from openiconlibrary)
+refa.png (modified from moccagui)
+refb.png (modified from moccagui)
+refc.png (modified from moccagui)
+refu.png (modified from moccagui)
+refv.png (modified from moccagui)
+refw.png (modified from moccagui)
 
 the following Icons are from linuxcnc
 toolaxisp.png
@@ -55,7 +56,10 @@ toolaxisx.png
 toolaxisy.png
 toolaxisz.png
 tool_blockdelete.gif
-tool_rotate.gif
+toolpath.png
+applet-critical.png
+clear.png
+std_info.gif
 
 and this icons are from openiconlibrary.sourceforge.net
 clear.png
@@ -72,4 +76,12 @@ toolpath.png
 zoom-in.png
 zoom-out.png
 fullscreen_preview.png
+
+and this one are from Dejan (probamo from linuxcnc forum)
+machine_off.png
+machine_on.png
+manual_mode.png
+mdi_mode.png
+auto_mode.png
+
 
