@@ -489,6 +489,8 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
     middle = tc1->coords.line.xyz.end;
     end = tc2->coords.line.xyz.end;
 
+
+
     //Find the minimum tolerance (in case it dropped between moves)
     double T1=tc1->tolerance;
     double T2=tc2->tolerance;
@@ -538,7 +540,7 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
     //TODO errors within this function
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_upper);
 
-    rtapi_print("R_upper = %f\n",blend_tc->coords.circle.xyz.angle); 
+    rtapi_print("angle = %f\n",blend_tc->coords.circle.xyz.angle); 
 
     tpApplyBlendArcParameters(tp, blend_tc, v_upper, a_t_max);
 
@@ -688,6 +690,11 @@ static int tcConnectArc(TC_STRUCT * const tc1, TC_STRUCT * const tc2, TC_STRUCT 
     /* Only shift XYZ for now*/
     pmCartLineInit(&tc1->coords.line.xyz, &tc1->coords.line.xyz.start,&start_xyz);
     pmCartLineInit(&tc2->coords.line.xyz, &end_xyz, &tc2->coords.line.xyz.end);
+
+    rtapi_print("Old target = %f\n",tc1->target);
+    tc1->target=tc1->coords.line.xyz.tmag;
+    rtapi_print("Target = %f\n",tc1->target);
+    tc2->target=tc2->coords.line.xyz.tmag;
     return 0;
 }
 
@@ -772,12 +779,13 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
             }
             //TODO adjust prev_tc and tc endpoints (and targets)
             tcConnectArc(prev_tc, &tc, &blend_tc);
-            blend_tc.motion_type=0;
+            /*blend_tc.motion_type=0;*/
             tpAddSegmentToQueue(tp, &blend_tc, end);
         case 1: //Intentional waterfall
             //Skip, already tangent
-            rtapi_print("tangent\n");
-            prev_tc->term_cond = TC_TERM_COND_TANGENT;
+            rtapi_print("Marking segment as tangent (exact stop)\n");
+            //
+            prev_tc->term_cond = TC_TERM_COND_STOP;
             break;
         default:
             rtapi_print("Failed? res = %d\n",res);
