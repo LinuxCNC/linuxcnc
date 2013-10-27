@@ -829,11 +829,6 @@ if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
     if ( test "none" = "$PDFLATEX" ) ; then
 	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
     fi
-
-    AC_PATH_PROG(EPSTOPDF,epstopdf,"none")
-    if ( test "none" = "$EPSTOPDF" ) ; then
-	AC_MSG_ERROR([no epstopdf, PDF documentation cannot be built])
-    fi
 fi
 
 # Programs required only for building the HTML documentation
