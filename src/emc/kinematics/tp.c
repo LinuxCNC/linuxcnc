@@ -381,9 +381,9 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
  * possible at a given speed.
  */
 static inline double tpMaxTangentAngle(double v, double acc, double period) {
-    double dx = v * period;
+    double dx = v / period;
     if (dx > 0.0) return acc / dx;
-    else return 0.0;
+    else return 0.00000001;
 }
 
 static inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
@@ -462,24 +462,6 @@ static int tpInitSphericalArc(TP_STRUCT const * const tp, TC_STRUCT const * cons
 static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
         TC_STRUCT const * const tc2, TC_STRUCT * const blend_tc) {
 
-    //Dumb error condition: missing a TC
-    if (!tc1 || !tc2) {
-        return -1;
-    }
-
-    //If not linear blends, we can't easily compute an arc
-    if (!(tc1->motion_type == TC_LINEAR) || !(tc2->motion_type == TC_LINEAR)) {
-        return -1;
-    }
-
-    //If we have any rotary axis motion, then don't create a blend arc
-    if (tc1->coords.line.abc.tmag > 0.000001 || tc2->coords.line.abc.tmag > 0.000001) {
-        return -1;
-    }
-
-    if (tc1->coords.line.uvw.tmag > 0.000001 || tc2->coords.line.uvw.tmag > 0.000001) {
-        return -1;
-    }
 
     // Assume at this point that we've checked for dumb reasons not to
     // calculate the blend arc, like intersection angle
@@ -496,6 +478,7 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
     const double acc_ratio=1;
     //Find common velocity and acceleration
     double v_req=fmax(tc1->reqvel, tc2->reqvel);
+    rtapi_print("v_req=%f\n",v_req);
     double a_max=fmin(tc1->maxaccel, tc2->maxaccel);
     double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
     double a_t_max=a_max/pmSqrt(1.0+pmSq(acc_ratio));
@@ -507,7 +490,12 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
     end = tc2->coords.line.xyz.end;
 
     //Find the minimum tolerance (in case it dropped between moves)
-    double tolerance=fmin(tc1->tolerance, tc2->tolerance);
+    double T1=tc1->tolerance;
+    double T2=tc2->tolerance;
+    if ( 0 == T1) T1=10000000;
+    if ( 0 == T2) T2=10000000;
+
+    double tolerance=fmin(T1,T2);
 
     //Store trig functions for later use
     double Ctheta=cos(theta/2.0);
@@ -532,23 +520,25 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
 
     //The new upper bound is the lower of the two speeds
     double v_upper=fmin(v_req, v_normal);
-    debug_float(v_normal); 
-    debug_float(v_upper); 
+    rtapi_print("v_normal = %f\n",v_normal); 
+    rtapi_print("v_upper = %f\n",v_upper); 
 
     //At this new limiting velocity, find the radius by the reverse formula
     //TODO div by zero?
     double R_normal=pmSq(v_upper)/a_n_max;
-    debug_float(R_normal); 
 
     // Final radius calculations
     double R_upper=fmin(R_normal, R_geom);
 
-    debug_float(R_upper); 
+    rtapi_print("R_upper = %f\n",R_upper); 
 
     tpInitSphericalArc(tp, tc1, blend_tc);
 
     //TODO Recycle calculations?
+    //TODO errors within this function
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_upper);
+
+    rtapi_print("R_upper = %f\n",blend_tc->coords.circle.xyz.angle); 
 
     tpApplyBlendArcParameters(tp, blend_tc, v_upper, a_t_max);
 
@@ -639,20 +629,49 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
 static int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc, 
         TC_STRUCT const * const tc, double period) {
     double omega=0.0;
+
+    if (prev_tc == NULL || tc == NULL) {
+        rtapi_print("prev_tc or tc doesn't exist\n");
+        return -1;
+    }
+
+    //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
+    if (tcFindLine9Angle(&(prev_tc->coords.line), &(tc->coords.line), &omega)) {
+        return -1;
+    }
+
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
+    double crit_angle = tpMaxTangentAngle(v_req, a_max, period);
 
-    if (prev_tc != NULL) {
-        //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
-        if (tcFindLine9Angle(&(prev_tc->coords.line), &(tc->coords.line), &omega)) {
-            return -1;
-        }
+    rtapi_print("max tan angle is %f\n",crit_angle);
+    rtapi_print("angle between segs = %f\n",omega);
+    if (omega < crit_angle) {
+        //No blend arc needed, already tangent
+        return 1;
+    }
 
-        double crit_angle = tpMaxTangentAngle(v_req, a_max, period);
-        if (omega < crit_angle) {
-            //No blend arc needed, already tangent
-            return 1;
-        }
+    //If not linear blends, we can't easily compute an arc
+    if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
+        rtapi_print("Wrong motion type tc =%u, tc2=%u\n",prev_tc->motion_type,tc->motion_type);
+        return -1;
+    }
+
+    //If exact stop, we don't compute the arc
+    if (prev_tc->term_cond != TC_TERM_COND_BLEND) {
+        rtapi_print("Wrong term cond =%u\n", prev_tc->term_cond);
+        return -1;
+    }
+
+    //If we have any rotary axis motion, then don't create a blend arc
+    if (prev_tc->coords.line.abc.tmag > 0.000001 || tc->coords.line.abc.tmag > 0.000001) {
+        rtapi_print("ABC motion!\n");
+        return -1;
+    }
+
+    if (prev_tc->coords.line.uvw.tmag > 0.000001 || tc->coords.line.uvw.tmag > 0.000001) {
+        rtapi_print("UVW motion!\n");
+        return -1;
     }
     return 0;
 }
@@ -731,23 +750,37 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.syncdio.anychanged = 0;
     }
 
+    rtapi_print("Starting blend stuff\n");
+
     TC_STRUCT *prev_tc = tcqLast(&tp->queue);
+
+    /*rtapi_print("prev_tc = %d\n",prev_tc);*/
 
     //TODO check for terminal condition
     int res = tpCheckNeedBlendArc(prev_tc, &tc, tp->cycleTime);
+    /*debug_float(res);*/
     TC_STRUCT blend_tc;
 
     switch (res) {
         case 0:
+            rtapi_print("Need a blend arc\n");
             //make blend arc
-            tpCreateBlendArc(tp, prev_tc, &tc, &blend_tc);
+            res = tpCreateBlendArc(tp, prev_tc, &tc, &blend_tc);
+            if (res) {
+                rtapi_print("error creating arc?\n");
+                break;
+            }
             //TODO adjust prev_tc and tc endpoints (and targets)
             tcConnectArc(prev_tc, &tc, &blend_tc);
+            blend_tc.motion_type=0;
+            tpAddSegmentToQueue(tp, &blend_tc, end);
         case 1: //Intentional waterfall
             //Skip, already tangent
+            rtapi_print("tangent\n");
             prev_tc->term_cond = TC_TERM_COND_TANGENT;
             break;
         default:
+            rtapi_print("Failed? res = %d\n",res);
             //Numerical issue? any error means we can't blend, so leave final velocity zero
             break;
     }
