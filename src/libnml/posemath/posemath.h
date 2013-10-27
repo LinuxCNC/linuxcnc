@@ -908,7 +908,7 @@ extern "C" {
 
 /* line functions */
 
-    extern int pmLineInit(PmLine * const line, PmPose start, PmPose end);
+    extern int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * const end);
     extern int pmLinePoint(PmLine const * const line, double len, PmPose * const point);
 
 /* circle functions */

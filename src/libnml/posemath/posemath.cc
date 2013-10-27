@@ -834,7 +834,7 @@ int PM_LINE::init(PM_POSE start, PM_POSE end)
     toPose(start, &_start);
     toPose(end, &_end);
 
-    retval = pmLineInit(&_line, _start, _end);
+    retval = pmLineInit(&_line, &_start, &_end);
 
     toLine(_line, this);
 

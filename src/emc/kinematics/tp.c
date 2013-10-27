@@ -435,7 +435,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
     tpConvertEmcPosetoPmPose(&(tp->goalPos), &start_xyz, &abc, &uvw);
     tpConvertEmcPosetoPmPose(end, &end_xyz, NULL, NULL);
 
-    pmLineInit(&line_xyz, start_xyz, end_xyz);
+    pmLineInit(&line_xyz, &start_xyz, &end_xyz);
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
@@ -498,9 +498,9 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     tpConvertEmcPosetoPmPose(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmPose(end, &end_xyz, &end_abc, &end_uvw);
 
-    pmLineInit(&line_xyz, start_xyz, end_xyz);
-    pmLineInit(&line_uvw, start_uvw, end_uvw);
-    pmLineInit(&line_abc, start_abc, end_abc);
+    pmLineInit(&line_xyz, &start_xyz, &end_xyz);
+    pmLineInit(&line_uvw, &start_uvw, &end_uvw);
+    pmLineInit(&line_abc, &start_abc, &end_abc);
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
@@ -571,8 +571,8 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
     tpConvertEmcPosetoPmPose(end, &end_xyz, &end_abc, &end_uvw);
 
     pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    pmLineInit(&line_uvw, start_uvw, end_uvw);
-    pmLineInit(&line_abc, start_abc, end_abc);
+    pmLineInit(&line_uvw, &start_uvw, &end_uvw);
+    pmLineInit(&line_abc, &start_abc, &end_abc);
 
     // find helix length
     pmCartMag(&circle.rHelix, &helix_z_component);
@@ -850,7 +850,7 @@ static void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
 
                 pmLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
-                pmLineInit(aux, start, end);
+                pmLineInit(aux, &start, &end);
                 rtapi_print_msg(RTAPI_MSG_DBG, "old target = %f", tc->target);
                 tc->coords.rigidtap.reversal_target = aux->tmag;
                 tc->target = aux->tmag + 10. * tc->uu_per_rev;
@@ -876,7 +876,7 @@ static void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
                 PmLine *aux = &tc->coords.rigidtap.aux_xyz;
                 pmLinePoint(aux, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
-                pmLineInit(aux, start, end);
+                pmLineInit(aux, &start, &end);
                 tc->target = aux->tmag;
                 tc->progress = 0.0;
                 //No longer need spindle sync at this point

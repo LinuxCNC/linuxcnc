@@ -1469,7 +1469,7 @@ int pmHomInv(PmHomogeneous const * const h1, PmHomogeneous * const h2)
 
 /* line functions */
 
-int pmLineInit(PmLine * const line, PmPose start, PmPose end)
+int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * const end)
 {
     int r1 = 0, r2 = 0, r3 = 0, r4 = 0, r5 = 0;
     double tmag = 0.0;
@@ -1480,12 +1480,12 @@ int pmLineInit(PmLine * const line, PmPose start, PmPose end)
 	return (pmErrno = PM_ERR);
     }
 
-    r3 = pmQuatInv(&start.rot, &startQuatInverse);
+    r3 = pmQuatInv(&start->rot, &startQuatInverse);
     if (r3) {
 	return r3;
     }
 
-    r4 = pmQuatQuatMult(&startQuatInverse, &end.rot, &line->qVec);
+    r4 = pmQuatQuatMult(&startQuatInverse, &end->rot, &line->qVec);
     if (r4) {
 	return r4;
     }
@@ -1498,9 +1498,9 @@ int pmLineInit(PmLine * const line, PmPose start, PmPose end)
 	}
     }
 
-    line->start = start;
-    line->end = end;
-    r1 = pmCartCartSub(&end.tran, &start.tran, &line->uVec);
+    line->start = *start;
+    line->end = *end;
+    r1 = pmCartCartSub(&end->tran, &start->tran, &line->uVec);
     if (r1) {
 	return r1;
     }
