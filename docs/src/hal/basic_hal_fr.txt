@@ -69,7 +69,7 @@ Les drapeaux peuvent être un ou plusieurs parmis les suivants:
      pour attendre que le composant soit prêt. Le composant est supposé
     avoir le même nom que le premier argument de la commande.
 
--Wn <nom> ::
+-Wn <nom> ::
     pour attendre un composant, qui porte le nom donné sous la forme <nom>.
 
 -w ::

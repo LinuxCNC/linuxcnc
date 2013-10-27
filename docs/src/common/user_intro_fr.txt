@@ -129,7 +129,7 @@ travail sont les preuves des leçons retenues. Aucune machine, aucun
 programme ne peut remplacer l'expérience humaine.
 
 Maintenant que vous commencez à travailler avec le programme LinuxCNC,
-vous devez vous placer dans la peau d'un opérateur. Vous devez être 
+vous devez vous placer dans la peau d'un opérateur. Vous devez être 
 dans le rôle de quelqu'un qui a la charge d'une machine. C'est une
 machine qui attendra vos commandes puis qui exécutera les ordres que
 vous lui donnerez. Dans ces pages, nous donnerons les explications qui

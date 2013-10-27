@@ -68,7 +68,7 @@ Flags may be one or more of the following:
 -W:: to wait for the component to become ready. The component is assumed to
     have the same name as the first argument of the command.
 
--Wn <name>:: to wait for the component, which will have the given <name>.
+-Wn <name>:: to wait for the component, which will have the given <name>.
     This only applies if the component has a name option.
 
 -w:: to wait for the program to exit

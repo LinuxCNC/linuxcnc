@@ -552,7 +552,7 @@ The following only work for machines using auxiliary I/O
 
 === Manual Mode (((Manual)))
 
-* '1-9 0' - set feed override to 10%-90%, 0 is 100%
+* '1-9 0' - set feed override to 10%-90%, 0 is 100%
 * '~' - set feed override to 0 or feedhold
 * 'x' - select X axis
 * 'y' - select Y axis
@@ -560,13 +560,13 @@ The following only work for machines using auxiliary I/O
 * 'a' - select A axis
 * 'b' - select B axis
 * 'c' - select C axis
-* 'Left Right Arrow' - jog X axis
-* 'Up Down Arrow' - jog Y axis
-* 'Page Up Down' - jog Z axis 
-* '- _' - jog the active axis in the minus direction 
-* '+ =' - jog the active axis in the plus direction.
+* 'Left Right Arrow' - jog X axis
+* 'Up Down Arrow' - jog Y axis
+* 'Page Up Down' - jog Z axis 
+* '- _' - jog the active axis in the minus direction 
+* '+ =' - jog the active axis in the plus direction.
 * 'Home' - home selected axis
-* 'i I' - toggle through jog increments 
+* 'i I' - toggle through jog increments 
 
 The following only work with a machine using auxiliary I/O
 

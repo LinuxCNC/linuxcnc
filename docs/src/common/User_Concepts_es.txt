@@ -87,7 +87,7 @@ The trajectory control commands are as follows:
     allow enough distance to clear obstacles based on the acceleration
     capabilities of your machine.
 
-* 'G64 P- Q-' - (Blend With Tolerance Mode) This enables the 'naive cam detector' and
+* 'G64 P- Q-' - (Blend With Tolerance Mode) This enables the 'naive cam detector' and
     enables blending with a tolerance. If you program G64 P0.05, you tell
     the planner that you want continuous feed, but at programmed corners
     you want it to slow down enough so that the tool path can stay within
@@ -101,14 +101,14 @@ The trajectory control commands are as follows:
     compatibility for old G Code programs. See the G Code Chapter for more
     information on G64 P- Q-.
 
-* 'Blending without tolerance' - The controlled point will touch each specified movement at at least
+* 'Blending without tolerance' - The controlled point will touch each specified movement at at least
     one point. The machine will never move at such a speed that it cannot
     come to an exact stop at the end of the current movement (or next
     movement, if you pause when blending has already started). The distance
     from the end point of the move is as large as it needs to be to keep up
     the best contouring feed.
 
-* 'Naive Cam Detector' - Successive G1 moves that involve only the XYZ axes that deviate less
+* 'Naive Cam Detector' - Successive G1 moves that involve only the XYZ axes that deviate less
     than Q- from a straight line are merged into a single straight line.
     This merged movement replaces the individual G1 movements for the
     purposes of blending with tolerance. Between successive movements, the

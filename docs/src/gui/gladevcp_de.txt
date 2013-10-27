@@ -341,7 +341,7 @@ Usage: gladevcp [options] myfile.ui
 
 Options:
 
--h, --help::
+-h, --help::
     show this help message and exit
 
 -c NAME::

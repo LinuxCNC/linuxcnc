@@ -772,7 +772,7 @@ Point d'origine machine::
     Dans Axis, le symbole indiquant que l'origine machine de l'axe est connue
     s'affichera alors à droite de la visu de l'axe concerné.
 
-Course de la table::
+Course de la table::
      C'est la distance maximale que l'axe peut parcourir dans chaque direction.
     Ceci peut ou ne peut pas être mesuré directement de l'origine aux contacts
     de fin de course. Le cumul des courses positives et négatives sera égal à la
@@ -807,7 +807,7 @@ Position du contact d'origine machine::
     éventuelle pour attendre l'index suivant, si une règle de mesure, ou un codeur
     de position avec index sont utilisés).
 
-Vitesse de recherche du contact d'origine machine::
+Vitesse de recherche du contact d'origine machine::
     Vitesse utilisée pendant le déplacement vers le contact d'origine machine en
     unités par minute.
 

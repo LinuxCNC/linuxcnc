@@ -603,7 +603,7 @@ It is an error if:
 
 .G10 L2 Example Line
 ----
-G10 L2 P1 X3.5 Y17.2
+G10 L2 P1 X3.5 Y17.2
 ----
 
 In the above example the origin of the first coordinate system
@@ -613,7 +613,7 @@ the other coordinates are not changed.
 
 .G2 L2 Example Line
 ----
-G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
+G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
 
 The above example sets the XYZ coordinates of the coordinate system 1 to the machine origin.
@@ -1434,7 +1434,7 @@ G76 P- Z- I- J- R- K- Q- H- E- L-
 image::images/g76-threads.png[align="center"]
 
 
-* 'Drive Line' - A line through the initial X position parallel to the Z.
+* 'Drive Line' - A line through the initial X position parallel to the Z.
 
 * 'P-' - The 'thread pitch' in distance per revolution.
 

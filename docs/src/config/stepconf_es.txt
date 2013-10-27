@@ -32,7 +32,7 @@ Instrucciones paso a paso
 
 image::images/stepconf-config.png[align="center"]
 
-Create New::
+Create New::
     Crea una configuracion nueva.
 
 Modify::
@@ -41,13 +41,13 @@ Modify::
     aparecera y usted devera el archivo con extencion .stepconf que dese modificar.
     Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini estas modificaciones se perderan.
     Modificaciones a los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
-    asistente Stepconf.Create Desktop Shortcut::
+    asistente Stepconf.Create Desktop Shortcut::
     This will place a link on your desktop to the files.
 
-Create Desktop Shortcut::
+Create Desktop Shortcut::
     Se generara un acceso rapido en su a los archivos. 
 
-Create Desktop Launcher::
+Create Desktop Launcher::
     Se generara un acceso rapido pra iniciar la aplicacion.
 
 
@@ -57,22 +57,22 @@ Create Desktop Launcher::
 
 image::images/stepconf-basic.png[]
 
-Machine Name::
+Machine Name::
     (((Machine Name)))
     Seleccione un nombre para su maquina
     Utilise solo letras mayusculas, minusculas, digitos, '-' y '_'.
 
-Axis Configuration::
+Axis Configuration::
     (((Axis Configuration)))
     Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
 
-Machine Units::
+Machine Units::
     (((Machine Units)))
     Seleccione entre pulgadas y milimetros. Todas las preguntas posteriores
     (Tales como el largo de los ejes, el paso de los tornillos, etc)
     deveran ser contestadas utilizando las unidades seleccionadas
 
-Driver Type::
+Driver Type::
     (((Driver Type)))
     Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
     En cualquier otor caso, busque los 4 valores de tiempo necesarios
@@ -90,44 +90,44 @@ pueden imponer diferentes valores de tiempo a los normales de su controlador.
 Puede ser el caso que se requiera agregar tiempo extra a los valores de tiepo para compensar los filtros o aislamientos.
 La seccionde seleccion de configuracion tiene las maquinas de marca Sherline ya configuradas para su uso en caso de que posea una de estas.
 
-Step Time::
+Step Time::
     Cuanto tiempo el pulso de paso esta "Encendido" en nanosegundos.
 
-Step Space::
+Step Space::
     Tiempo minimo entre dos pulsos de paso en nanosegundos.
 
-Direction Hold::
+Direction Hold::
     Cuanto tiempo el pin de direccion deve ser mantenido despues de un cambio de direecion en nanosegundos.
 
-Direction Setup::
+Direction Setup::
      Cuanto tiempo debe aver antes de un cambio de direccion despues del ultimo pulso de paso.
 
-First Parport::
+First Parport::
     Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378. 
 
-Second Parport::
+Second Parport::
     En caso de ser necesario especificar un puerto paralelo extra introduca la direccion
     y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
     vea la seccion Port Address en el manual de integrador. (Trate primero con 0x278 o 0x3BC)
 
 
-Base Period Maximum Jitter::
+Base Period Maximum Jitter::
     (((Base Period Maximum Jitter)))
     Introduca el resultado de la prueba de latencia.
     Para correr la prueba de latencia precione el boton "Test Base Period Jitter".
     Vea la seccion de la prueba de latencia para mas detalles.
 
-Max Step Rate::
+Max Step Rate::
     (((Max Step Rate)))
     Stepconf automaticamente calculara la taza maxima de pulsos de pasos
     basandose en las caracteristicas del controlador de motor a pasos y el resultado de la prueba de latencia.
 
-Min Base Period::
+Min Base Period::
     (((Min Base Period)))
     Stepconf automaticamente calculara el periodo base minimo
     basandose en las caracteristicas del controlador de motor a pasos y el resultado de la prueba de latencia.    
 
-Onscreen Prompt For Tool Change::
+Onscreen Prompt For Tool Change::
     (((Onscreen Prompt For Tool Change)))
     Si esta casilla es seleccionada, LinuxCNC pausara la ejecucion de un programa y le preguntara
     por el cambio de herramienta cuando el comando *M6* sea encontrado en el codigo G.
@@ -212,11 +212,11 @@ Señal de Paro Externo (E stop)::
     Esta señal pude ser tipicamente seleccionado en la casilla desplegable.
     Una cadena de señal de paro tipica utiliza solo contactos normalmnete cerrados en serie.
 
-Posicion de inicio y limites de seguridad (Homing & Limit Switches)::
+Posicion de inicio y limites de seguridad (Homing & Limit Switches)::
     Estos pines pueden ser seleccionados para la mayoria de las configuraciones
     utilizando la casilla desplegable.
 
-Bomba de Carga (Charge Pump)::
+Bomba de Carga (Charge Pump)::
     Si el controlador de motores requiere de una se;al de bomba de carga
     simplemente seleccione esta opcion de lalista desplegable y conecte la señal
     al pin seleccionado.
@@ -230,26 +230,26 @@ Bomba de Carga (Charge Pump)::
 
 image::images/stepconf-axis.png[align="center"]
 
-Pasos del motor por revolucion (Motor Steps Per Revolution)::
+Pasos del motor por revolucion (Motor Steps Per Revolution)::
     (((Motor Steps Per Revolution)))
     El numero de pasos completos por revolucion del motor.
     Si solo se tiene el dato de los grados por paso del motor (ejemplo 1.8 grados),
     se deve dividir 360 por el numero de grados por paso
     para encontrar el numero de pasos por revolucion.
 
-Micro pasos (Driver Microstepping)::
+Micro pasos (Driver Microstepping)::
     (((Driver Microstepping)))
     El numero de micropasos producidos por el controlador por cada paso fisico completo del motor.
     entre "2" para medio paso.
     (ejemplo, si el controlador produce 1/10 de giro de un paso completo
     en la flecha del motor por cada pulso de paso que recive, escriva 10 en la casilla.
 
-Relacion de Poleas (Pulley Ratio)::
+Relacion de Poleas (Pulley Ratio)::
     (((Pulley Ratio)))
     Si su maquina tiene poleas o engranes entre el motor y el tornillo,
     escriva la relacion aqui. Si no, escriva "1:1".
 
-Paso del tornillo (Leadscrew Pitch)::
+Paso del tornillo (Leadscrew Pitch)::
     (((Leadscrew Pitch)))
     Entre el paso del tornillo aqui.
     Si se selecciono unidades en "Inch", entre el numero de 
@@ -261,18 +261,18 @@ Paso del tornillo (Leadscrew Pitch)::
     Si la maquina se mueve en la direccion opuesta a la esperada,
     entre un valor negativo, o invierta la direccion del pin para el eje.
 
-Velocidad Maxima (Maximum Velocity)::
+Velocidad Maxima (Maximum Velocity)::
     (((Maximum Velocity)))
     Entre la velocidad maxima del eje en unidades por segundo.
 
-Aceleracion Maxima (Maximum Acceleration)::
+Aceleracion Maxima (Maximum Acceleration)::
     (((Maximum Acceleration)))
     El valor correcto de esta casilla solo puede ser determinado
     por experimentacion. Vea 
     <<sub:Finding-Maximum-Velocity>> para ajustar la velocidad
     <<sub:Finding-Maximum-Acceleration>> para ajustar la aceleracion.
 
-Posicion de Inicio (Home Location)::        
+Posicion de Inicio (Home Location)::        
     (((Home Location)))
     La posicion a la que la maquina se movera despues de completar
     el procedimiento de inicio del eje.
@@ -283,14 +283,14 @@ Posicion de Inicio (Home Location)::
     se devera mover la maquina fuera del interruptor para inicializar el eje
     o se recivira un error de limite en el eje.
 
-Area de la bancada (Table Travel)::
+Area de la bancada (Table Travel)::
     (((Table Travel)))
     El rango de viaje que el codigo g no podra sobrepasar.
     La posicion de inicializacion del eje deve estar dentro del area de bancada.
     En particular, tener la posicion de inicializacion (Home) de un eje exactamente
     en un limite del area de bancada producira una configuracion invalida.    
 
-Localizacionde los interruptores de inializacion(Home Switch Location)::
+Localizacionde los interruptores de inializacion(Home Switch Location)::
     (((Home Switch Location)))
     La posicion en la cual el interruptor de inializacion se activa o desactiva
     durante un proceso de inicializacion. Este apartado y los dos siguientes
@@ -299,7 +299,7 @@ Localizacionde los interruptores de inializacion(Home Switch Location)::
     interruptores de limite y de inicializacion la posicion del interruptor de inicializacion
     no puede ser la misma que la posicoin de inicializacion o se producira un error de limite en el eje.
     
-Velocidad de inicializacion (Home Search Velocity)::
+Velocidad de inicializacion (Home Search Velocity)::
     (((Home Search Velocity)))
     La velocidad usada en la busqueda de los interruptores.
     Si el interruptor se encuentra cercano al limite de viaje del eje,
@@ -315,7 +315,7 @@ Velocidad de inicializacion (Home Search Velocity)::
     cambie el signo a negativo del parametro *Home Search Velocity*.
 
 
-Direccion de busqueda de posicion de inicio (Home Latch Direction)::
+Direccion de busqueda de posicion de inicio (Home Latch Direction)::
     (((Home Latch Direction)))
     Seleccione "Igual (Same)" para que el interruptor sea liberado
     y posteriormente la maquina se acerque a el a muy baja velocidad.
@@ -323,26 +323,26 @@ Direccion de busqueda de posicion de inicio (Home Latch Direction)::
     Seleccione "Opuesto (Opposite)" para realizar la inializacion moviendose despacio fuera del interruptor,
     cuando el interruptor se habra la posiocion de inializacion sera marcada.
 
-Tiempo para acelerar a maxima velocidad (Time to accelerate to max speed)::
+Tiempo para acelerar a maxima velocidad (Time to accelerate to max speed)::
     (((Time to accelerate to max speed)))
     Tiempo calculado. 
 
-Distancia para acelerar a maxima velocidad (Distance to accelerate to max speed)::
+Distancia para acelerar a maxima velocidad (Distance to accelerate to max speed)::
     (((Distance to accelerate to max speed)))
     Distancia calculada.
 
-Taza de generacion de pulsos a maxima velocidad (Pulse rate at max speed)::
+Taza de generacion de pulsos a maxima velocidad (Pulse rate at max speed)::
     (((Pulse rate at max speed)))
     Este dato se calcula en base a los valores anteriores.
     El valor maximo de la *Taza de generacion de pulsos a maxima velocidad* determina el *Periodo base*.
     Valores por encima de 20000Hz pueden producir tiempos de respuesta muy bajos o incluso bloqueos
     (La taza de generacion maxima de pulsos varia entre computadoras)
 
-Escala del Eje (Axis SCALE)::
+Escala del Eje (Axis SCALE)::
     El numero que sera usado en el archivo ini en la seccion [SCALE].
     Representa cuantos pasos se deven dar por unidad de usuario.
 
-Probar este Eje (Test this axis)::
+Probar este Eje (Test this axis)::
     (((Test this axis)))
     Esta opcion abre una ventana para permitir probar cada eje.
     Esta opcion puede ser utilizada despues de llenar toda la informacion referente al eje.
@@ -425,14 +425,14 @@ pagina de seleccion de las salidad 'Parallel Port Pinout
 Si la opcion 'Spindle PWM' fue seleccionada en el mapeo de salidas, 
 la siguiente informacion deve ser proporcionada:
 
-Taza de PWM (PWM Rate)::
+Taza de PWM (PWM Rate)::
     (((PWM Rate)))
     La frecuencia portadora de la señal PWM que controlara la velocidad del Husillo.
     Introdusca un '0' para modo PDM,
     El cual es util para generar un voltage de control.
     Revisese la documentacion del controlador del husillo para el valor adecuado.
 
-Velocidad 1 y 2, PWM 1 y 2::
+Velocidad 1 y 2, PWM 1 y 2::
     (((Speed 1 and 2)))(((PWM 1 and 2)))
     Los archivos de configuracion generados usan una relacion lineal simple
     para determinar el valor de PWM para un valor de RPM dado.
@@ -524,16 +524,16 @@ vusque los valores de PWM que proporcionen 1600 RPM (40%) y 2800 RPM (70%).
 
 image::images/stepconf-advanced.png[align="center"]
 
-Incluir Halui::
+Incluir Halui::
     Esta opcion incluira la interface de usuario Halui.
     (Control remoto de los parametros de pantalla de la GUI)
     Vea el manual del integrador para mas detalles.
 
-Incluir pyVCP::
+Incluir pyVCP::
     Esta opcion agrega el pnel base de pyVCP y un archivo simple para comenzar a trabajar en el.
     Vea el manual del integrador para mas detalles.
  
-Incluir ClassicLadder PLC::
+Incluir ClassicLadder PLC::
     Esta opcion agregara el ClassicLadder PLC (Programmable Logic Controller). 
     Vea el manual del integrador para mas detalles.
 

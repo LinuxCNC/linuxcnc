@@ -103,7 +103,7 @@ Recharger...::
     a été stoppé, pour le reprendre depuis le début, le recharger.
     Le bouton _Recharger_ a le même effet que l'option de menu.
 
-Enregistrer le G-code sous...::
+Enregistrer le G-code sous...::
      Enregistre le fichier courant sous un nouveau nom.
 
 Propriétés...::
@@ -112,7 +112,7 @@ Propriétés...::
     trajectoire, de sorte qu'il ne donne jamais de temps inférieur au temps réel
     d'exécution.
 
-Éditer la table d'outils...::
+Éditer la table d'outils...::
      Ouvre un dialogue permettant d'éditer les valeurs de la table d'outils.
 
 Recharger la table d'outils...::
@@ -127,13 +127,13 @@ Quitter...::
 
 ==== Menu Machine
 
-Arrêt d'Urgence F1...::
+Arrêt d'Urgence F1...::
      (bascule) Active/désactive l'arrêt d'urgence.
 
-Marche/Arrêt F2...::
+Marche/Arrêt F2...::
      (bascule) Active/désactive la puissance machine.
 
-Démarrer le programme...::
+Démarrer le programme...::
      Lance l'exécution du programme G-code.
 
 Démarrer à la ligne sélectionnée...::
@@ -154,16 +154,16 @@ Reprise...::
 Stopper...::
     Stoppe le programme en marche.
 
-Arrêt sur M1...::
+Arrêt sur M1...::
      Si un M1 est rencontré et que cette option est cochée, l'exécution
     du programme s'interrompra à la ligne du M1.
     Presser _Reprise_ pour continuer.
 
-Sauter les lignes avec "/"...::
+Sauter les lignes avec "/"...::
      Si une ligne commençant par / est rencontrée et que cette option est 
     cochée, cette ligne sera sautée.
 
-Vider l'historique du MDI...::
+Vider l'historique du MDI...::
     Efface l'historique des données manuelles.
 
 Copier depuis l'historique du MDI...::
@@ -177,23 +177,23 @@ Calibration...::
      Lance un assistant de réglage de PID. Cette option n'est utile qu'avec
     un système à servomoteurs.
 
-Afficher configuration de HAL...::
+Afficher configuration de HAL...::
      Ouvre une fenêtre sur la configuration de HAL depuis laquelle il est
     possible de visualiser tous les _Components_, _Pins_, _Parameters_,
     _Signals_, _Functions_ et _Threads_ de HAL.
 
-HAL Mètre...::
+HAL Mètre...::
      Ouvre une fenêtre dans laquelle il est possible de visualiser un seul
     _Signal, HAL Pin_, ou _Parameter_ de HAL.
 
-HAL Scope...::
+HAL Scope...::
      Ouvre un oscilloscope virtuel qui permet de tracer dans le temps,
     les valeurs de HAL.
 
-Afficher l'état de LinuxCNC...::
+Afficher l'état de LinuxCNC...::
      Ouvre une fenêtre montrant l'état de LinuxCNC.
 
-Choisir le niveau de Debug...::
+Choisir le niveau de Debug...::
      Ouvre une fenêtre dans laquelle les niveaux de débogage sont visibles
     et certains réglables.
 

@@ -145,7 +145,7 @@ This driver features:
     never negative. The corresponding digital ouput invert may be set to
     TRUE to make DNx active low rather than active high. 
 
-* 'QAx, QBx' - The A and B signals for Quadrature counter X. May be used as a digital
+* 'QAx, QBx' - The A and B signals for Quadrature counter X. May be used as a digital
     input if the corresponding quadrature channel is unused.
 
 * 'QZx' - The Z (index) signal for quadrature counter X. May be used as a

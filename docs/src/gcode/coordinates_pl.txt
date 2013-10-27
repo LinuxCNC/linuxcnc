@@ -57,12 +57,12 @@ variable numbers.
 [width="40%",cols="^,^",options="header"]
 |===============
 |Variable |Value
-|5241 |0.000000
-|5242 |0.000000
-|5243 |0.000000
-|5244 |0.000000
-|5245 |0.000000
-|5246 |0.000000
+|5241 |0.000000
+|5242 |0.000000
+|5243 |0.000000
+|5244 |0.000000
+|5245 |0.000000
+|5246 |0.000000
 |===============
 
 In the VAR file scheme, the first variable number stores the X offset,
@@ -79,12 +79,12 @@ that G55 takes on the following values.
 [width="40%",cols="^,^",options="header"]
 |===============
 |Variable |Value
-|5241 |2.000000
-|5242 |1.000000
-|5243 |-2.000000
-|5244 |0.000000
-|5245 |0.000000
-|5246 |0.000000
+|5241 |2.000000
+|5242 |1.000000
+|5243 |-2.000000
+|5244 |0.000000
+|5245 |0.000000
+|5246 |0.000000
 |===============
 
 You should read this as moving the zero positions of G55 to X = 2
@@ -124,15 +124,15 @@ returned to using the G55 offsets because that coordinate system would
 still be in effect. 
 
 ----
-G54   use preset work coordinate system 1
-G55   use preset work coordinate system 2
-G56   use preset work coordinate system 3
-G57   use preset work coordinate system 4
-G58   use preset work coordinate system 5
-G59   use preset work coordinate system 6
+G54   use preset work coordinate system 1
+G55   use preset work coordinate system 2
+G56   use preset work coordinate system 3
+G57   use preset work coordinate system 4
+G58   use preset work coordinate system 5
+G59   use preset work coordinate system 6
 G59.1 use preset work coordinate system 7
-G59.2 use preset work coordinate system 8
-G59.3 use preset work coordinate system 9
+G59.2 use preset work coordinate system 8
+G59.3 use preset work coordinate system 9
 ----
 
 === Default coordinate system
@@ -231,12 +231,12 @@ The variables are named:
 [width="40%",cols="^,^",options="header"]
 |===============
 |Variable |Value
-|5211 | 0.000000
-|5212 | 0.000000
-|5213 | 0.000000
-|5214 | 0.000000
-|5215 | 0.000000
-|5216 | 0.000000
+|5211 | 0.000000
+|5212 | 0.000000
+|5213 | 0.000000
+|5214 | 0.000000
+|5215 | 0.000000
+|5216 | 0.000000
 |===============
 
 where 5211 is the X axis offset and so on. If you are seeing
