@@ -15,7 +15,7 @@ l'affichage de l'interface graphique.
 [[cap:Fenetre-AXIS]]
 .Fenêtre d'AXIS
 
-image::images/axis_2.5_fr.png[]
+image::images/axis_25_fr.png[]
 
 == Commencer avec AXIS
 
