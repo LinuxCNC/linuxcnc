@@ -107,7 +107,7 @@ G64::
     distance pour éviter les obstacles selon les capacités d'accélérations
     de la machine.
 
-G64 Px.xxx::
+G64 Px.xxx::
      (mode trajectoire continue avec tolérance) Ce mode active le _Détecteur 
     naive CAM_" et active le mode trajectoire continue avec tolérance. Si
     vous utilisez le millimètre comme unité et programmez G64 P1.27, vous
@@ -125,7 +125,7 @@ G64 Px.xxx::
     G-code. Voir le chapitre sur le G-code pour plus d'information sur
     G64 P- Q-.
 
-Trajectoire continue sans tolérance::
+Trajectoire continue sans tolérance::
      Le point contrôlé touchera chaque mouvement spécifié à au moins un
     point. La machine ne pourra jamais se déplacer à une vitesse d'avance
     telle qu'elle ne puisse pas s'arrêter avec précision à la fin du
@@ -134,7 +134,7 @@ Trajectoire continue sans tolérance::
     final du mouvement est aussi grande que nécessaire pour maintenir la
     meilleure vitesse d'avance possible pendant le parcours.
 
-Détecteur Naive Cam::
+Détecteur Naive Cam::
       Les mouvements successifs en G1, concernant uniquement les axes
     XYZ, dont la déviation par rapport à une ligne droite est inférieur à
     P, sont fusionnés en une seule ligne droite. Ce mouvement fusionné

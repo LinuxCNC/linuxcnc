@@ -162,7 +162,7 @@ loadusr -Wn monpanneau pyvcp -g WxH+X+Y -c monpanneau <path/>fichier_panneau.xml
 Vous l'utiliserez pour avoir un panneau flottant ou un panneau avec
 une interface graphique autre que Axis.
 
-* '-Wn monpanneau' - 
+* '-Wn monpanneau' - 
      Fait attendre à HAL que le composant _monpanneau_ soit chargé
     (devienne _ready_ en langage HAL), avant d'exécuter d'autres commandes HAL.
     C'est important parce-que les panneaux PyVCP exportent des pins de HAL
@@ -171,14 +171,14 @@ une interface graphique autre que Axis.
     minuscule. Si vous utilisez l'option -Wn vous devez également utiliser
     l'option -c pour nommer le panneau.
 
-* 'pyvcp < -g> < -c> panneau.xml' - 
+* 'pyvcp < -g> < -c> panneau.xml' - 
      Construit le panneau avec la géométrie optionnelle et/ou le nom de panneau
     depuis le fichier panneau.xml. Le fichier panneau.xml peut avoir n'importe
     quel nom avec l'extension .xml. Le fichier .xml décrit comment construire
     le panneau. Il est nécessaire d'ajouter le nom du chemin si le panneau
     n'est pas dans le répertoire dans lequel se trouve le script HAL.
 
-* '-g <WxH><+X+Y>' - 
+* '-g <WxH><+X+Y>' - 
      Spécifie la géométrie à utiliser quand le panneau est construit. La
     syntaxe est _Largeur x Hauteur + Ancrage X + Ancrage Y_. La taille ou la
     position, ou les deux peuvent être fixés. Le point d'ancrage est le coin
@@ -186,7 +186,7 @@ une interface graphique autre que Axis.
     panneau à 250 pixels de large, 500 pixels de haut avec le point d'ancrage
     placé en X800 Y0.
 
-* '-c nompanneau' - 
+* '-c nompanneau' - 
      Indique à PyVCP quel composant appeler et le titre de la fenêtre.
     Le nom du fichier _nompanneau_ peut être n'importe quel nom sans espace.
 

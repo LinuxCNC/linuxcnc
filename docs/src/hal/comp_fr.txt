@@ -155,7 +155,7 @@ exemple: _min_), puissent être utilisés.
 |x.##    | x(MM)         | x.MM
 |========================================
 
-if CONDITION::
+if CONDITION::
      Une expression impliquant la _personnalité_ d'une variable non nulle
     quand la variable ou le paramètre doit être
     créé.
@@ -164,7 +164,7 @@ SIZE::
      Un nombre donnant la taille d'un tableau. Les items des tableaux sont
     numérotés de 0 à _SIZE_-1.
 
-MAXSIZE : CONDSIZE::
+MAXSIZE : CONDSIZE::
      Un nombre donnant la taille maximum d'un tableau, suivi d'une
     expression impliquant la _personnalité_ d'une variable et qui aura
     toujours une valeur inférieure à _MAXSIZE_. Quand le tableau est créé
@@ -221,19 +221,19 @@ Selon le nom de l'option OPT, les valeurs VALUE varient. Les options
 actuellement définies sont les suivantes:
 
 OPT, VALUE:
-    option singleton yes;;
+    option singleton yes;;
         (défaut: no)
         Ne crée pas le paramètre numéro de module et crée toujours une seule
         instance. Avec _singleton_, les items sont nommés
         _composant-name.item-name_ et sans _singleton_, les items des
         différentes instances sont nommés _composant-name.<num>.item-name_.
     
-    option default_count ;;
+    option default_count ;;
         _number_ (défaut: 1)
         Normalement, le paramètre _count_ par défaut est 0. Si spécifié,
         _count_ remplace la valeur par défaut.
     
-    option count_function yes;;
+    option count_function yes;;
         (défaut: no)
         Normalement, le numéro des instances à créer est specifié dans le
         paramètre _count_ du module, si _count_function_ est spécifié, la
@@ -241,7 +241,7 @@ OPT, VALUE:
         utilisée à la place de la valeur par défaut et le paramètre _count_ 
         du module n'est pas défini.
     
-    option rtapi_app no;;
+    option rtapi_app no;;
         (défaut: yes)
         Normalement, les fonctions _rtapi_app_main_ et _rtapi_app_exit_ sont
         définies automatiquement. Avec _option rtapi_app no_, elles ne le
@@ -251,7 +251,7 @@ OPT, VALUE:
         fonction _int export(char _prefix, long extra_arg)_ pour enregistrer
         les pins, paramètres et fonctions pour _préfix_er.
     
-    option data ;;
+    option data ;;
         _type_ (défaut: none) deprecated
         If specified, each instance of the component will have an associated
         data block of _type_ (which can be a simple type like _float_ or the
@@ -259,17 +259,17 @@ OPT, VALUE:
         
         In new components, _variable_ should be used instead.
     
-    option extra_setup yes;;
+    option extra_setup yes;;
         (défaut: no)
     
-    option extra_cleanup yes;;
+    option extra_cleanup yes;;
         (défaut: no)
         Si spécifié, appelle la fonction définie par _EXTRA_CLEANUP_
         depuis la fonction définie automatiquement _rtapi_app_exit_, 
         ou une erreur est détectée dans la fonction automatiquement 
         définie _rtapi_app_main_.
     
-    option userspace yes;;
+    option userspace yes;;
         (défaut: no)
         Si spécifié, ce fichier décrit un composant d'espace utilisateur,
         plutôt que le réel. Un composant d'espace utilisateur peut ne pas avoir 
@@ -278,12 +278,12 @@ OPT, VALUE:
         _user_mainloop()_  est appelée. Dès la fin de cette fonction, le 
         composant se termine. 
         En règle générale, _user_mainloop()_ va utiliser _FOR_ALL_INSTS()_ 
-        pour effectuer la mise à  jour pour chaque action, puis attendre un
+        pour effectuer la mise à  jour pour chaque action, puis attendre un
         court instant. Une autre action commune dans _user_mainloop()_ peut 
         être d'appeler le gestionnaire de boucles d'événements d'une 
         interface graphique.
     
-    option userinit yes;;
+    option userinit yes;;
         (défaut: no)
         Si spécifiée, la fonction _userinit(argc,argv)_ est appelée avant
         _rtapi_app_main()_ (et cela avant l'appel de _hal_init()_ ). Cette
@@ -310,17 +310,17 @@ AUTHOR::
 
 === Stockage des données *par instance*
 
-variable ::
-    _CTYPE NAME_;
+variable ::
+    _CTYPE NAME_;
 
-variable ::
-    _CTYPE NAME_[_SIZE_];
+variable ::
+    _CTYPE NAME_[_SIZE_];
 
-variable ::
-    _CTYPE NAME = default_;
+variable ::
+    _CTYPE NAME = default_;
 
-variable ::
-    _CTYPE NAME_[_SIZE_] = _default_;
+variable ::
+    _CTYPE NAME_[_SIZE_] = _default_;
     Déclare la variable _par-instance_ _NAME_ de type _CTYPE_,
     optionnellement comme un tableau de _SIZE_ items et optionnellement
     avec une valeur par default. Les items sans _default_ sont initialisés
@@ -417,7 +417,7 @@ fperiod::
      Le nombre de secondes en virgule flottante entre les appels à cette
     fonction temps réel.
 
-FOR_ALL_INSTS() {*…*}::
+FOR_ALL_INSTS() {*…*}::
     Pour les composants de l'espace utilisateur. Cette macro utilise
     la variable *struct state _inst_ pour itérer au dessus de toutes 
     les instances définies. Dans le corps 

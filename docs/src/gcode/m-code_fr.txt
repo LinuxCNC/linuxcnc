@@ -215,7 +215,7 @@ réglage de la vitesse de broche>>.
 
 Quand la vitesse adaptative est utilisée, certaines valeurs externes sont
 utilisées avec les correcteurs de vitesse de l'interface utilisateur et
-les vitesses programmées pour obtenir la vitesse travail.
+les vitesses programmées pour obtenir la vitesse travail.
 Dans LinuxCNC, la HAL pin _motion.adaptive-feed_ est utilisée dans ce but.
 Les valeurs de _motion.adaptive-feed_ doivent être dans comprises
 entre 0 (vitesse nulle) et 1 (pleine vitesse).
