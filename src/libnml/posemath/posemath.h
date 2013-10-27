@@ -608,6 +608,15 @@ extern "C" {
 
     } PmPose;
 
+/* PmCartLine */
+    typedef struct {
+        PmCartesian start;
+        PmCartesian end;
+        PmCartesian uVec;
+        double tmag;
+        int tmag_zero;
+    } PmCartLine;
+
 /* Homogeneous transform PmHomogeneous */
 
     typedef struct {
@@ -911,13 +920,17 @@ extern "C" {
     extern int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * const end);
     extern int pmLinePoint(PmLine const * const line, double len, PmPose * const point);
 
+/* pure cartesian line functions */
+    extern int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmCartesian const * const end);
+    extern int pmCartLinePoint(PmCartLine const * const line, double len, PmCartesian * const point);
+
 /* circle functions */
 
     extern int pmCircleInit(PmCircle * const circle,
-            PmPose const * const start, PmPose const * const end,
+            PmCartesian const * const start, PmCartesian const * const end,
             PmCartesian const * const center, PmCartesian const * const normal, int turn);
 
-    extern int pmCirclePoint(PmCircle const * const circle, double angle, PmPose * const point);
+    extern int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * const point);
 
 /* slicky macros for item-by-item copying between C and C++ structs */
 

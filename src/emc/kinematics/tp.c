@@ -292,52 +292,49 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 
 /** 
- * Break out a 9D EmcPose structure into 3 PmPose pieces for processing.
+ * Break out a 9D EmcPose structure into 3 PmCartesian pieces for processing.
  * This functiona assumes that we're not using the rotation component for
  * anything, so it just treats ABC and UVW as additional orthogonal axes. If
  * NULL is passed for any of the pointers, then that component is unassigned.
  */
-static inline void tpConvertEmcPosetoPmPose(EmcPose const * const pose, PmPose * const xyz, PmPose * const
-        abc, PmPose * const uvw) {
+static inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose, PmCartesian * const xyz, PmCartesian * const
+        abc, PmCartesian * const uvw) {
 
     //Direct copy of translation struct for xyz 
     if (xyz) {
-        xyz->tran = pose->tran;
-        xyz->rot = TP_IDENTITY_QUAT;
+        *xyz = pose->tran;
     }
 
     //Convert ABCUVW axes into 2 pairs of 3D lines
     if (abc) {
-        abc->tran.x = pose->a;
-        abc->tran.y = pose->b;
-        abc->tran.z = pose->c;
-        abc->rot = TP_IDENTITY_QUAT;
+        abc->x = pose->a;
+        abc->y = pose->b;
+        abc->z = pose->c;
     }
 
     if (uvw) {
-        uvw->tran.x = pose->u;
-        uvw->tran.y = pose->v;
-        uvw->tran.z = pose->w;
-        uvw->rot = TP_IDENTITY_QUAT;
+        uvw->x = pose->u;
+        uvw->y = pose->v;
+        uvw->z = pose->w;
     }
 
 }
 
 
 /** 
- * Collect PmPose elements into 9D EmcPose structure.
+ * Collect PmCartesian elements into 9D EmcPose structure.
  * TODO: move this to posemath
  */
-static inline void tpConvertPmPosetoEmcPose(PmPose const * const xyz, PmPose const * const abc, PmPose const * const uvw, EmcPose * const pose) {
+static inline void tpConvertPmCartesiantoEmcPose(PmCartesian const * const xyz, PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose) {
 
-    pose->tran = xyz->tran;
+    pose->tran = *xyz;
 
-    pose->a = abc->tran.x;
-    pose->b = abc->tran.y;
-    pose->c = abc->tran.z;
-    pose->u = uvw->tran.x;
-    pose->v = uvw->tran.y;
-    pose->w = uvw->tran.z;
+    pose->a = abc->x;
+    pose->b = abc->y;
+    pose->c = abc->z;
+    pose->u = uvw->x;
+    pose->v = uvw->y;
+    pose->w = uvw->z;
 
 }
 
@@ -425,17 +422,17 @@ static inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * co
 int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double ini_maxvel,
         double acc, unsigned char enables) {
     TC_STRUCT tc;
-    PmLine line_xyz;
-    PmPose start_xyz, end_xyz;
-    PmPose abc, uvw;
+    PmCartLine line_xyz;
+    PmCartesian start_xyz, end_xyz;
+    PmCartesian abc, uvw;
 
     if (tpErrorCheck(tp)) return -1;
 
     //Slightly more allocation this way, but much easier to read
-    tpConvertEmcPosetoPmPose(&(tp->goalPos), &start_xyz, &abc, &uvw);
-    tpConvertEmcPosetoPmPose(end, &end_xyz, NULL, NULL);
+    tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &abc, &uvw);
+    tpConvertEmcPosetoPmCartesian(end, &end_xyz, NULL, NULL);
 
-    pmLineInit(&line_xyz, &start_xyz, &end_xyz);
+    pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
@@ -447,8 +444,8 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
     tc.atspeed = 1;
 
     tc.coords.rigidtap.xyz = line_xyz;
-    tc.coords.rigidtap.abc = abc.tran;
-    tc.coords.rigidtap.uvw = uvw.tran;
+    tc.coords.rigidtap.abc = abc;
+    tc.coords.rigidtap.uvw = uvw;
     tc.coords.rigidtap.state = TAPPING;
     tc.motion_type = TC_RIGIDTAP;
     tc.canon_motion_type = 0;
@@ -486,21 +483,21 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
 int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
 {
     TC_STRUCT tc;
-    PmLine line_xyz, line_uvw, line_abc;
-    PmPose start_xyz, end_xyz;
-    PmPose start_uvw, end_uvw;
-    PmPose start_abc, end_abc;
+    PmCartLine line_xyz, line_uvw, line_abc;
+    PmCartesian start_xyz, end_xyz;
+    PmCartesian start_uvw, end_uvw;
+    PmCartesian start_abc, end_abc;
 
     if (tpErrorCheck(tp)<0) {
         return -1;
     }
     
-    tpConvertEmcPosetoPmPose(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    tpConvertEmcPosetoPmPose(end, &end_xyz, &end_abc, &end_uvw);
+    tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
+    tpConvertEmcPosetoPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
 
-    pmLineInit(&line_xyz, &start_xyz, &end_xyz);
-    pmLineInit(&line_uvw, &start_uvw, &end_uvw);
-    pmLineInit(&line_abc, &start_abc, &end_abc);
+    pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
+    pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    pmCartLineInit(&line_abc, &start_abc, &end_abc);
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
@@ -556,10 +553,10 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
 {
     TC_STRUCT tc;
     PmCircle circle;
-    PmLine line_uvw, line_abc;
-    PmPose start_xyz, end_xyz;
-    PmPose start_uvw, end_uvw;
-    PmPose start_abc, end_abc;
+    PmCartLine line_uvw, line_abc;
+    PmCartesian start_xyz, end_xyz;
+    PmCartesian start_uvw, end_uvw;
+    PmCartesian start_abc, end_abc;
     double helix_z_component;   // z of the helix's cylindrical coord system
     double helix_length;
 
@@ -567,12 +564,12 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
         return -1;
     }
 
-    tpConvertEmcPosetoPmPose(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    tpConvertEmcPosetoPmPose(end, &end_xyz, &end_abc, &end_uvw);
+    tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
+    tpConvertEmcPosetoPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
 
     pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    pmLineInit(&line_uvw, &start_uvw, &end_uvw);
-    pmLineInit(&line_abc, &start_abc, &end_abc);
+    pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    pmCartLineInit(&line_abc, &start_abc, &end_abc);
 
     // find helix length
     pmCartMag(&circle.rHelix, &helix_z_component);
@@ -843,14 +840,14 @@ static void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
         case REVERSING:
             rtapi_print_msg(RTAPI_MSG_DBG, "REVERSING");
             if (new_spindlepos < old_spindlepos) {
-                PmPose start, end;
-                PmLine *aux = &tc->coords.rigidtap.aux_xyz;
+                PmCartesian start, end;
+                PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
                 // we've stopped, so set a new target at the original position
                 tc->coords.rigidtap.spindlerevs_at_reversal = new_spindlepos + status->offset;
 
-                pmLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
+                pmCartLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
-                pmLineInit(aux, &start, &end);
+                pmCartLineInit(aux, &start, &end);
                 rtapi_print_msg(RTAPI_MSG_DBG, "old target = %f", tc->target);
                 tc->coords.rigidtap.reversal_target = aux->tmag;
                 tc->target = aux->tmag + 10. * tc->uu_per_rev;
@@ -872,11 +869,11 @@ static void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
         case FINAL_REVERSAL:
             rtapi_print_msg(RTAPI_MSG_DBG, "FINAL_REVERSAL");
             if (new_spindlepos > old_spindlepos) {
-                PmPose start, end;
-                PmLine *aux = &tc->coords.rigidtap.aux_xyz;
-                pmLinePoint(aux, tc->progress, &start);
+                PmCartesian start, end;
+                PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
+                pmCartLinePoint(aux, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
-                pmLineInit(aux, &start, &end);
+                pmCartLineInit(aux, &start, &end);
                 tc->target = aux->tmag;
                 tc->progress = 0.0;
                 //No longer need spindle sync at this point

@@ -885,7 +885,7 @@ int PM_CIRCLE::init(PM_POSE start, PM_POSE end,
     toCart(center, &_center);
     toCart(normal, &_normal);
 
-    retval = pmCircleInit(&_circle, &_start, &_end, &_center, &_normal, turn);
+    retval = pmCircleInit(&_circle, &_start.tran, &_end.tran, &_center, &_normal, turn);
 
     toCircle(_circle, this);
 
@@ -900,7 +900,7 @@ int PM_CIRCLE::point(double angle, PM_POSE * point)
 
     toCircle(*this, &_circle);
 
-    retval = pmCirclePoint(&_circle, angle, &_point);
+    retval = pmCirclePoint(&_circle, angle, &_point.tran);
 
     toPose(_point, point);
 

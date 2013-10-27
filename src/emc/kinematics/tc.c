@@ -28,18 +28,18 @@
 int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        pmCartCartSub(&tc->coords.line.xyz.end.tran, &tc->coords.line.xyz.start.tran, out);
+        pmCartCartSub(&tc->coords.line.xyz.end, &tc->coords.line.xyz.start, out);
     } else {
-        PmPose startpoint;
+        PmCartesian startpoint;
         PmCartesian radius;
         PmCartesian tan, perp;
 
         pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
-        pmCartCartSub(&startpoint.tran, &tc->coords.circle.xyz.center, &radius);
+        pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
         pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
         pmCartUnit(&tan, &tan);
 
-        pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint.tran, &perp);
+        pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
         pmCartUnit(&perp, &perp);
 
         pmCartScalMult(&tan, tc->maxaccel, &tan);
@@ -53,16 +53,16 @@ int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
 int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR) {
-        pmCartCartSub(&tc->coords.line.xyz.end.tran, &tc->coords.line.xyz.start.tran, out);
+        pmCartCartSub(&tc->coords.line.xyz.end, &tc->coords.line.xyz.start, out);
     } else if(tc->motion_type == TC_RIGIDTAP) {
         // comes out the other way
-        pmCartCartSub(&tc->coords.line.xyz.start.tran, &tc->coords.line.xyz.end.tran, out);
+        pmCartCartSub(&tc->coords.line.xyz.start, &tc->coords.line.xyz.end, out);
     } else {
-        PmPose endpoint;
+        PmCartesian endpoint;
         PmCartesian radius;
 
         pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
-        pmCartCartSub(&endpoint.tran, &tc->coords.circle.xyz.center, &radius);
+        pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
         pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
     }
     pmCartUnit(out, out);
@@ -96,22 +96,22 @@ int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out) {
 
 int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const pos)
 {
-    PmPose xyz;
-    PmPose abc;
-    PmPose uvw;
+    PmCartesian xyz;
+    PmCartesian abc;
+    PmCartesian uvw;
 
     double progress = of_endpoint? tc->target: tc->progress;
 
     switch (tc->motion_type){
         case TC_RIGIDTAP:
             if(tc->coords.rigidtap.state > REVERSING) {
-                pmLinePoint(&tc->coords.rigidtap.aux_xyz, progress, &xyz);
+                pmCartLinePoint(&tc->coords.rigidtap.aux_xyz, progress, &xyz);
             } else {
-                pmLinePoint(&tc->coords.rigidtap.xyz, progress, &xyz);
+                pmCartLinePoint(&tc->coords.rigidtap.xyz, progress, &xyz);
             }
             // no rotary move allowed while tapping
-            abc.tran = tc->coords.rigidtap.abc;
-            uvw.tran = tc->coords.rigidtap.uvw;
+            abc = tc->coords.rigidtap.abc;
+            uvw = tc->coords.rigidtap.uvw;
             break;
         case TC_LINEAR:
             //FIXME why is this here?
@@ -122,26 +122,26 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const po
             if (tc->coords.line.xyz.tmag > 0.) {
                 // progress is along xyz, so uvw and abc move proportionally in order
                 // to end at the same time.
-                pmLinePoint(&tc->coords.line.xyz, progress, &xyz);
-                pmLinePoint(&tc->coords.line.uvw,
+                pmCartLinePoint(&tc->coords.line.xyz, progress, &xyz);
+                pmCartLinePoint(&tc->coords.line.uvw,
                         progress * tc->coords.line.uvw.tmag / tc->target,
                         &uvw);
-                pmLinePoint(&tc->coords.line.abc,
+                pmCartLinePoint(&tc->coords.line.abc,
                         progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
             } else if (tc->coords.line.uvw.tmag > 0.) {
                 // xyz is not moving
-                pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-                pmLinePoint(&tc->coords.line.uvw, progress, &uvw);
+                pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
+                pmCartLinePoint(&tc->coords.line.uvw, progress, &uvw);
                 // abc moves proportionally in order to end at the same time
-                pmLinePoint(&tc->coords.line.abc,
+                pmCartLinePoint(&tc->coords.line.abc,
                         progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
             } else {
                 // if all else fails, it's along abc only
-                pmLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-                pmLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
-                pmLinePoint(&tc->coords.line.abc, progress, &abc);
+                pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
+                pmCartLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
+                pmCartLinePoint(&tc->coords.line.abc, progress, &abc);
             }
             break;
         case TC_CIRCULAR:
@@ -152,11 +152,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const po
                     &xyz);
             // abc moves proportionally in order to end at the same time as the 
             // circular xyz move.
-            pmLinePoint(&tc->coords.circle.abc,
+            pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
                     &abc);
             // same for uvw
-            pmLinePoint(&tc->coords.circle.uvw,
+            pmCartLinePoint(&tc->coords.circle.uvw,
                     progress * tc->coords.circle.uvw.tmag / tc->target,
                     &uvw);
             break;
@@ -165,13 +165,13 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const po
 
     }
 
-    pos->tran = xyz.tran;
-    pos->a = abc.tran.x;
-    pos->b = abc.tran.y;
-    pos->c = abc.tran.z;
-    pos->u = uvw.tran.x;
-    pos->v = uvw.tran.y;
-    pos->w = uvw.tran.z;
+    pos->tran = xyz;
+    pos->a = abc.x;
+    pos->b = abc.y;
+    pos->c = abc.z;
+    pos->u = uvw.x;
+    pos->v = uvw.y;
+    pos->w = uvw.z;
 
     return 0;
 }
