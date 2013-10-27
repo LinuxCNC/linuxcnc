@@ -1,3 +1,6 @@
+*.js
+*.css
+!linuxcnc.css
 *.html
 *.xml
 *.png

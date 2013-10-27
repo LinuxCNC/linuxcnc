@@ -105,3 +105,5 @@ tristate_bit.9
 updown.9
 wcomp.9
 xor2.9
+bin2gray.9
+gray2bin.9
