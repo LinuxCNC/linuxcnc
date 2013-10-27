@@ -192,6 +192,9 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     }
 
     PmCartesian v1, v2;
+    rtapi_print(" start = %f,%f,%f\n",start->x,start->y, start->z);
+    rtapi_print(" middle = %f,%f,%f\n",middle->x,middle->y, middle->z);
+    rtapi_print(" end = %f,%f,%f\n",end->x,end->y, end->z);
 
     //Find relative vectors from start to midpoint and mid to end point
     pmCartCartSub(middle, start, &v1);
@@ -202,19 +205,27 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     PmCartesian u1, u2, n1, n2;
     
     pmCartCartProj(&v2, &v1, &u2);
-    pmCartCartSub(&v2, &u2, &n2);
-    pmCartUnit(&n2, &n2);
+    pmCartCartSub(&v2, &u2, &n1);
+    pmCartUnit(&n1, &n1);
+
+    rtapi_print(" n1 = %f,%f,%f\n",n1.x,n1.y, n1.z);
 
     //For n1
 
     pmCartCartProj(&v1, &v2, &u1);
-    pmCartCartSub(&v1, &u1, &n1);
-    pmCartUnit(&n1, &n1);
+    pmCartCartSub(&v1, &u1, &n2);
+    pmCartUnit(&n2, &n2);
+    pmCartScalMult(&n2, -1.0, &n2);
+    rtapi_print(" n2 = %f,%f,%f\n",n2.x,n2.y, n2.z);
 
     PmCartesian binormal;
 
     pmCartCartCross(&v1, &v2, &binormal);
     pmCartUnit(&binormal, &binormal);
+
+    rtapi_print(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
+    rtapi_print(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
+    rtapi_print(" binormal = %f,%f,%f\n",binormal.x,binormal.y, binormal.z);
 
     //Find the angle between the two vectors
     double dot;
@@ -253,12 +264,25 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     PmCartesian circ_end;
 
     //Add one set of vectors to get the center
+    rtapi_print("v2 = %f, %f,%f\n",v2.x,v2.y,v2.z);
+    rtapi_print("n2 = %f, %f,%f\n",n2.x,n2.y,n2.z);
     pmCartCartAdd(&v2, &n2, &center);
+
+    rtapi_print("v2 + n2 = %f, %f,%f\n",center.x,center.y,center.z);
     pmCartCartAdd(middle, &center, &center);
     pmCartCartAdd(middle, &v1, &circ_start);
     pmCartCartAdd(middle, &v2, &circ_end);
 
+    rtapi_print("d = %f\n",d);
+    rtapi_print("center = %f, %f,%f\n",center.x,center.y,center.z);
+    rtapi_print("circ_start = %f, %f,%f\n",circ_start.x,circ_start.y,circ_start.z);
+    rtapi_print("circ_end = %f, %f,%f\n",circ_end.x,circ_end.y,circ_end.z);
+
     pmCircleInit(arc,&circ_start,&circ_end,&center,&binormal,0);
+
+    rtapi_print("center = %f, %f,%f\n",arc->center.x,arc->center.y,arc->center.z);
+    rtapi_print("rTan = %f, %f,%f\n",arc->rTan.x,arc->rTan.y,arc->rTan.z);
+    rtapi_print("rPerp = %f, %f,%f\n",arc->rPerp.x,arc->rPerp.y,arc->rPerp.z);
 
     return 0;
 }
