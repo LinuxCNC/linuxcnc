@@ -1244,7 +1244,7 @@ static void get_pos_cmds(long period)
 	    /* run coordinated trajectory planning cycle */
 	    tpRunCycle(&emcmotDebug->queue, period);
 	    /* gt new commanded traj pos */
-	    emcmotStatus->carte_pos_cmd = tpGetPos(&emcmotDebug->queue);
+	    tpGetPos(&emcmotDebug->queue, &emcmotStatus->carte_pos_cmd);
 	    /* OUTPUT KINEMATICS - convert to joints in local array */
 	    kinematicsInverse(&emcmotStatus->carte_pos_cmd, positions,
 		&iflags, &fflags);

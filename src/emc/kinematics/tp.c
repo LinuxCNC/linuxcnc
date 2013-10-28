@@ -28,7 +28,6 @@ extern emcmot_debug_t *emcmotDebug;
 
 int output_chan = 0;
 syncdio_t syncdio; //record tpSetDout's here
-static const PmQuaternion TP_IDENTITY_QUAT = { 1.0, 0.0, 0.0, 0.0 };
 
 /**
  * Create the trajectory planner structure with an empty queue.
@@ -370,36 +369,13 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
 }
 
-/**
- * Find the maximum angle allowed between "tangent" segments.
- * Since we are discretized by a timestep, the maximum allowable
- * "kink" in a trajectory is bounded by normal acceleration. A small
- * kink will effectively be one step along the tightest radius arc
- * possible at a given speed.
- */
-static inline double tpMaxTangentAngle(double v, double acc, double period) {
-    double dx = v * period;
-    if (dx > 0.0) return acc / dx;
-    else return 0.0;
-}
-
-static inline int tpFindIntersectionAngle(PmCartesian u1, PmCartesian u2, double* const theta) {
-    double dot;
-    pmCartCartDot(&u1, &u2, &dot);
-
-    if (dot > 1.0 || dot < -1.0) return -1;
-
-    *theta = acos(-dot)/2.0;
-    return 0;
-}
-
 
 /**
  * Add a newly created motion segment to the tp queue.
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
-static inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * const tc, EmcPose const * end){
+static inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * const tc, EmcPose const * const end){
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -548,7 +524,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
  * xyz so the target is always the circle/arc/helical length.  
  */
 int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
-        PmCartesian center, PmCartesian normal, int turn, int type,
+        PmCartesian const * const center, PmCartesian const * const normal, int turn, int type,
         double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
 {
     TC_STRUCT tc;
@@ -567,7 +543,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
 
-    pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
+    pmCircleInit(&circle, &start_xyz, &end_xyz, center, normal, turn);
     pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
     pmCartLineInit(&line_abc, &start_abc, &end_abc);
 
@@ -1159,8 +1135,6 @@ static TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
         nexttc = NULL;
     }
 
-    //TODO rest of nexttc here
-
     return nexttc;
 }
 
@@ -1328,7 +1302,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //FIXME why is this zero?
     emcmotStatus->requested_vel = 0.0;
     //Define TC as the "first" element in the queue
-    //FIXME remove period field from this function
     tc = tcqItem(&tp->queue, 0);
 
     if(!tc) {
@@ -1470,10 +1443,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     /* BLENDING STUFF */
     // make sure we continue to blend this segment even when its 
     // accel reaches 0 (at the very end)
-    // TODO make sure these conditions accept tangent "blends" as well
-    bool is_blend_start = (tc->term_cond == TC_TERM_COND_BLEND ) && nexttc && on_final_decel && (primary_vel < tc->blend_vel);
+    bool is_blend_start = (tc->term_cond == TC_TERM_COND_BLEND ) && nexttc &&
+        on_final_decel && (primary_vel < tc->blend_vel);
 
-    bool is_tangent_blend_start = (tc->term_cond == TC_TERM_COND_TANGENT ) && nexttc && tc->target==tc->progress;
+    bool is_tangent_blend_start = (tc->term_cond == TC_TERM_COND_TANGENT ) &&
+        nexttc && (tc->target == tc->progress);
 
     if (is_blend_start) tc->blending = 1;
 
@@ -1566,16 +1540,17 @@ int tpGetMotionType(TP_STRUCT * const tp)
     return tp->motionType;
 }
 
-EmcPose tpGetPos(TP_STRUCT * const tp)
+int tpGetPos(TP_STRUCT const * const tp, EmcPose * const pos)
 {
-    EmcPose retval;
 
     if (0 == tp) {
-        ZERO_EMC_POSE(retval);
-        return retval;
+        ZERO_EMC_POSE((*pos));
+        return -1;
+    } else {
+        *pos = tp->currentPos;
     }
 
-    return tp->currentPos;
+    return 0;
 }
 
 int tpIsDone(TP_STRUCT * const tp)

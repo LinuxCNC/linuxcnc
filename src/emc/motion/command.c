@@ -943,7 +943,7 @@ check_stuff ( "before command_handler()" );
 	    tpSetId(&emcmotDebug->queue, emcmotCommand->id);
 	    if (-1 ==
 		tpAddCircle(&emcmotDebug->queue, &emcmotCommand->pos,
-                            emcmotCommand->center, emcmotCommand->normal,
+                            &emcmotCommand->center, &emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
                             emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed)) {
