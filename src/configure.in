@@ -772,6 +772,11 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
     fi
 
+    AC_PATH_PROG(A2X,a2x,"none")
+    if ( test "none" = "$A2X" ) ; then
+	AC_MSG_ERROR([no a2x, documentation cannot be built])
+    fi
+
     AC_MSG_CHECKING([asciidoc version])
     set -- `asciidoc --version`; ASCIIDOC_VER=$2
     set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
@@ -784,6 +789,27 @@ On Hardy, install the backported asciidoc available from the linuxcnc.org debian
 On other systems, do what you need to install asciidoc version 8.5 or newer.])
     fi
     AC_MSG_RESULT([$ASCIIDOC_VER])
+
+    AC_MSG_CHECKING([whether to specify latex.encoding])
+    temp_asciidoc=`tempfile --suffix=.txt`
+    cat > $temp_asciidoc <<EOF
+:lang: fr
+:ascii-ids:
+
+....
+umläut nuß
+....
+EOF
+    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
+    then
+        A2X_LATEX_ENCODING="-P latex.encoding=utf-8"
+        AC_MSG_RESULT(yes)
+    else
+        A2X_LATEX_ENCODING=""
+        AC_MSG_RESULT(no)
+    fi
+    AC_SUBST(A2X_LATEX_ENCODING)
+    rm -f $temp_asciidoc ${temp_asciidoc%.txt}.pdf
 
     AC_PATH_PROG(DBLATEX,dblatex,"none")
     if ( test "none" = "$DBLATEX" ) ; then
