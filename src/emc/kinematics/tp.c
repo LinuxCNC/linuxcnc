@@ -417,6 +417,8 @@ static int tpApplyBlendArcParameters(TP_STRUCT const * const tp, TC_STRUCT * con
     //Blend arc specific settings:
     tc->term_cond = TC_TERM_COND_TANGENT;
     tc->tolerance = 0.0;
+    tc->reqvel = vel;
+    tc->maxaccel = acc;
     return 0;
 }
 
@@ -459,16 +461,14 @@ static int tpInitSphericalArc(TP_STRUCT const * const tp, TC_STRUCT const * cons
 /**
  * Compute arc segment to blend between two lines.
  */
-static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
-        TC_STRUCT const * const tc2, TC_STRUCT * const blend_tc) {
-
+static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_tc,
+        TC_STRUCT const * const tc, TC_STRUCT * const blend_tc) {
 
     // Assume at this point that we've checked for dumb reasons not to
     // calculate the blend arc, like intersection angle
     // Calculate radius based on tolerances
-    //TODO calculate angle
     double theta=0.0;
-    int res = tpFindIntersectionAngle(&tc1->coords.line.xyz.uVec, &tc1->coords.line.xyz.uVec, &theta);
+    int res = tpFindIntersectionAngle(&prev_tc->coords.line.xyz.uVec, &prev_tc->coords.line.xyz.uVec, &theta);
     if (res) {
         //Can't get an intersection angle, bail
         return -1;
@@ -477,23 +477,25 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
     //TODO make this a state of TC?
     const double acc_ratio=1;
     //Find common velocity and acceleration
-    double v_req=fmax(tc1->reqvel, tc2->reqvel);
+    double v_req=fmax(prev_tc->reqvel, tc->reqvel);
+    rtapi_print("blend_tc->maxvel=%f\n",blend_tc->maxvel);
     rtapi_print("v_req=%f\n",v_req);
-    double a_max=fmin(tc1->maxaccel, tc2->maxaccel);
+    double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
     double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
     double a_t_max=a_max/pmSqrt(1.0+pmSq(acc_ratio));
 
+    blend_tc->maxaccel=a_t_max;
+
     //Get 3D start, middle, end position
     PmCartesian start, middle, end;
-    start = tc1->coords.line.xyz.start;
-    middle = tc1->coords.line.xyz.end;
-    end = tc2->coords.line.xyz.end;
-
+    start = prev_tc->coords.line.xyz.start;
+    middle = prev_tc->coords.line.xyz.end;
+    end = tc->coords.line.xyz.end;
 
 
     //Find the minimum tolerance (in case it dropped between moves)
-    double T1=tc1->tolerance;
-    double T2=tc2->tolerance;
+    double T1=prev_tc->tolerance;
+    double T2=tc->tolerance;
     if ( 0 == T1) T1=10000000;
     if ( 0 == T2) T2=10000000;
 
@@ -510,8 +512,8 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
     // Limit amount of line segment to blend so that we don't delete the line
     // TODO allow for total replacement if tol allows it
     const double blend_ratio = 0.4;
-    double d_geom=fmin(d_tol, fmin((tc1->target-tc1->progress) * blend_ratio,
-                (tc2->target-tc2->progress) * blend_ratio));
+    double d_geom=fmin(d_tol, fmin((prev_tc->target-prev_tc->progress) * blend_ratio * 2.0,
+                (tc->target-tc->progress) * blend_ratio));
 
     double R_geom=Ttheta * d_geom;
 
@@ -534,7 +536,7 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const tc1,
 
     rtapi_print("R_upper = %f\n",R_upper); 
 
-    tpInitSphericalArc(tp, tc1, blend_tc);
+    tpInitSphericalArc(tp, prev_tc, blend_tc);
 
     //TODO Recycle calculations?
     //TODO errors within this function
@@ -678,7 +680,7 @@ static int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     return 0;
 }
 
-static int tcConnectArc(TC_STRUCT * const tc1, TC_STRUCT * const tc2, TC_STRUCT const * const blend_tc){
+static int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT const * const blend_tc){
 
     //Scratch variables for arc end and start points
     PmCartesian start_xyz, end_xyz;
@@ -688,13 +690,13 @@ static int tcConnectArc(TC_STRUCT * const tc1, TC_STRUCT * const tc2, TC_STRUCT 
     pmCirclePoint(&blend_tc->coords.circle.xyz, blend_tc->coords.circle.xyz.angle, &end_xyz);
 
     /* Only shift XYZ for now*/
-    pmCartLineInit(&tc1->coords.line.xyz, &tc1->coords.line.xyz.start,&start_xyz);
-    pmCartLineInit(&tc2->coords.line.xyz, &end_xyz, &tc2->coords.line.xyz.end);
+    pmCartLineInit(&prev_tc->coords.line.xyz, &prev_tc->coords.line.xyz.start,&start_xyz);
+    pmCartLineInit(&tc->coords.line.xyz, &end_xyz, &tc->coords.line.xyz.end);
 
-    rtapi_print("Old target = %f\n",tc1->target);
-    tc1->target=tc1->coords.line.xyz.tmag;
-    rtapi_print("Target = %f\n",tc1->target);
-    tc2->target=tc2->coords.line.xyz.tmag;
+    rtapi_print("Old target = %f\n",prev_tc->target);
+    prev_tc->target=prev_tc->coords.line.xyz.tmag;
+    rtapi_print("Target = %f\n",prev_tc->target);
+    tc->target=tc->coords.line.xyz.tmag;
     return 0;
 }
 
@@ -785,7 +787,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
             //Skip, already tangent
             rtapi_print("Marking segment as tangent (exact stop)\n");
             //
-            prev_tc->term_cond = TC_TERM_COND_STOP;
+            prev_tc->term_cond = TC_TERM_COND_TANGENT;
             break;
         default:
             rtapi_print("Failed? res = %d\n",res);
