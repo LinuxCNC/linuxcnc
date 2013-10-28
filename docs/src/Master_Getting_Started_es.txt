@@ -3,6 +3,8 @@ Primeros pasos V2.5, {localdate}
 
 :lang: es
 
+:ascii-ids:
+
 :masterdir: {indir}
 
 The LinuxCNC Team

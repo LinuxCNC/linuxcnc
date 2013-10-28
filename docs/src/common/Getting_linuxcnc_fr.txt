@@ -384,7 +384,7 @@ C'est aussi la plus populaire.
 
 .Interface Axis[[cap:Interface-Axis]]
 
-image::images/axis_2.5_fr.png[]
+image::images/axis_25_fr.png[]
 
 === Les étapes suivantes de la configuration
 

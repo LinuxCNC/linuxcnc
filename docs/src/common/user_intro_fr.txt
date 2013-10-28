@@ -59,7 +59,7 @@ interfaces utilisateurs graphiques:
 * <<cha:Axis,_Axis_>>, l'interface utilisateur standard.
 
 .L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
-image::images/axis_2.5_fr.png[align="center"]
+image::images/axis_25_fr.png[align="center"]
 
 * <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écran tactile.
 

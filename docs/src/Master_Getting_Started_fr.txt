@@ -1,4 +1,5 @@
 :lang: fr
+:ascii-ids:
 :toc:
 :localdate: {sys: date +%d/%m/%Y}
 Guide de démarrage V2.5  {localdate}
