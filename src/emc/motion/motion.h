@@ -95,9 +95,9 @@ extern "C" {
 
     typedef struct _EMC_TELEOP_DATA {
 	EmcPose currentVel;
-	EmcPose currentAccell;
+	EmcPose currentAccel;
 	EmcPose desiredVel;
-	EmcPose desiredAccell;
+	EmcPose desiredAccel;
     } EMC_TELEOP_DATA;
 
 /* This enum lists all the possible commands */
