@@ -265,8 +265,8 @@ static void write_one(lcd_inst_t *inst){
     inst->buff[0] = 0;
     
     if (*inst->page_num != inst->last_page){
-        if (*inst->page_num > inst->num_pages) return; // should this error?
         inst->last_page = *inst->page_num;
+        if (*inst->page_num >= inst->num_pages) return; // should this error?
         *inst->out = 0x11; //cursor off
         inst->buff[0] = 0x1A; //dummy
         inst->buff[1] = 0; //end
@@ -355,6 +355,15 @@ static void write_one(lcd_inst_t *inst){
     }
 }
 
+int num_digits_baseN(__u64 val, int base){
+    int n = 1;
+    __u64 m = 1;
+    while ((m *= base) <= val){
+        n += 1;
+    }
+    return n;
+}
+
 static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
     /*parse val into the format in in pointed to by ptr.
      if out is null, then simply return the type of the format
@@ -387,6 +396,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 break;
             case '+':
                 sgn = '+';
+                break;
             case '0':
                 if (c < 0 && d == 0){
                     fill = '0';
@@ -437,10 +447,8 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 int i;
                 unsigned int v = *((hal_u32_t*)val);
 
-                if (c < 1) {
-                    tmp = v;
-                    for (c = 1; (tmp /= base) > 0 ; c++){} //don't have a logN
-                }
+                if (c < 1) c = num_digits_baseN(v, base);
+
                 tmp = v;
                 for (i = c - 1; i >= 0; i--){
                     if (tmp != 0 || i == (c-1)){
@@ -468,12 +476,10 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 int v = *((hal_s32_t*)val);
                 
                 if (sgn == '+') s = 1;
-                if (v < 0) {s = 1; sgn = '-';}
+                if (v < 0) {s = 1; sgn = '-'; v = -v;}
                 
-                if (c < 1) {
-                    tmp = v;
-                    for (c = 1 + s; (tmp /= 10) != 0 ; c++){} //don't have a log10
-                }
+                if (c < 1) c = num_digits_baseN(v, base) + s;
+ 
                 tmp = abs(v);
                 for (i = c - 1; i >= s; i--){
                     if (tmp != 0 || i == c - 1){
@@ -507,25 +513,22 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             {
                 int i;
                 double v = *((hal_float_t*)val);
-                unsigned long long tmp = 0; //enough bits for 9 decimal digits.
+                __u64 tmp = 0; //enough bits for 9 decimal digits.
                 int s = 0;
                 
                 if (sgn != ' ') s = 1;
-                if (v < 0) {s = 1; sgn = '-';}
+                if (v < 0) {s = 1; sgn = '-'; v = -v;}
                 
-                if (m < 0) m = 6;
+                if (m < 0) m = 4;
                 
-                if (c < 1) {
-                    tmp = abs(v);
-                    for (c = m + 1 + s; (do_div(tmp, 10)) > 0 ; c++){} //don't have a log10
-                }
+                if (c < 1) c = num_digits_baseN(v, base) + m + 1 + s;
                 
                 if (c > MAX_ENTRY){ // then it won't fit
                     tmp = 2;
                     goto overflow;
                 }
                 
-                tmp = (v < 0)? -(v * pow10[m] - 0.5) : (v * pow10[m] + 0.5); // no 64-bit abs? 
+                tmp = v * pow10[m] + 0.5;
                 
                 for (i = c - 1; i > c - m - 1 ; i--){
                     out[i] = digits[do_div(tmp, 10)];
