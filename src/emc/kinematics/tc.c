@@ -199,6 +199,10 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     //Find relative vectors from start to midpoint and mid to end point
     pmCartCartSub(middle, start, &v1);
     pmCartCartSub(end, middle, &v2);
+    
+    rtapi_print(" Initial vectors\n");
+    rtapi_print(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
+    rtapi_print(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
 
     //Calculate gram-schmidt orthonormals 
     //For n2
@@ -206,7 +210,13 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     
     pmCartCartProj(&v2, &v1, &u2);
     pmCartCartSub(&v2, &u2, &n1);
-    pmCartUnit(&n1, &n1);
+
+    int res;
+    res = pmCartUnit(&n1, &n1);
+
+    if (res) {
+        return res;
+    }
 
     rtapi_print(" n1 = %f,%f,%f\n",n1.x,n1.y, n1.z);
 
@@ -214,14 +224,23 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
 
     pmCartCartProj(&v1, &v2, &u1);
     pmCartCartSub(&v1, &u1, &n2);
-    pmCartUnit(&n2, &n2);
+    res = pmCartUnit(&n2, &n2);
+
+    if (res) {
+        return res;
+    }
     pmCartScalMult(&n2, -1.0, &n2);
     rtapi_print(" n2 = %f,%f,%f\n",n2.x,n2.y, n2.z);
 
     PmCartesian binormal;
 
     pmCartCartCross(&v1, &v2, &binormal);
-    pmCartUnit(&binormal, &binormal);
+
+    res=pmCartUnit(&binormal, &binormal);
+
+    if (res) {
+        return res;
+    }
 
     rtapi_print(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
     rtapi_print(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);

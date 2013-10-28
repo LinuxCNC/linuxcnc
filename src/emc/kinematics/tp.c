@@ -386,6 +386,7 @@ static inline double tpMaxTangentAngle(double v, double acc, double period) {
     else return 0.00000001;
 }
 
+
 static inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
     double dot;
     pmCartCartDot(u1, u2, &dot);
@@ -393,6 +394,17 @@ static inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartes
     if (dot > 1.0 || dot < -1.0) return -1;
 
     *theta = acos(-dot)/2.0;
+    return 0;
+}
+
+
+static inline int tpFindSegmentAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
+    double dot;
+    pmCartCartDot(u1, u2, &dot);
+
+    if (dot > 1.0 || dot < -1.0) return -1;
+
+    *theta = acos(dot);
     return 0;
 }
 
@@ -471,6 +483,7 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     int res = tpFindIntersectionAngle(&prev_tc->coords.line.xyz.uVec, &prev_tc->coords.line.xyz.uVec, &theta);
     if (res) {
         //Can't get an intersection angle, bail
+        rtapi_print("Failed to find intersection angle!\n");
         return -1;
     }
 
@@ -640,9 +653,10 @@ static int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     }
 
     //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
-    if (tcFindLine9Angle(&(prev_tc->coords.line), &(tc->coords.line), &omega)) {
+    if (tpFindSegmentAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
         return -1;
     }
+
 
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
@@ -703,9 +717,33 @@ static int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRU
     prev_tc->target=prev_tc->coords.line.xyz.tmag;
     rtapi_print("Target = %f\n",prev_tc->target);
     tc->target=tc->coords.line.xyz.tmag;
+    prev_tc->term_cond = TC_TERM_COND_TANGENT;
     return 0;
 }
 
+static int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
+    //Just loop over everything 
+    unsigned int ind, x;
+    //Assume that length won't change during a run
+    TC_STRUCT *tc=NULL;
+    double peak_vel=0.0;
+    double vs;
+    for (x = 1; x < tcqLen(&tp->queue); ++x) {
+        //Start at most recently added
+        ind=tcqLen(&tp->queue)-x;
+        rtapi_print("  ind = %u\n", ind);
+        
+        tc=tcqItem(&tp->queue, ind);
+        if (tc == NULL) {
+            return -1;
+        }
+        
+        vs = pmSqrt(pmSq(tc->finalvel) + 2*tc->maxaccel*tc->target);
+        rtapi_print("  vs = %f\n", vs);
+
+    }
+    return 0;
+}
 
 /**
  * Add a straight line to the tc queue.
@@ -765,7 +803,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.syncdio.anychanged = 0;
     }
 
-    rtapi_print("Starting blend stuff\n");
+    rtapi_print("----------------------\nStarting blend stuff\n");
 
     TC_STRUCT *prev_tc = tcqLast(&tp->queue);
 
@@ -789,6 +827,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
             tcConnectArc(prev_tc, &tc, &blend_tc);
             /*blend_tc.motion_type=0;*/
             tpAddSegmentToQueue(tp, &blend_tc, end);
+            break;
         case 1: //Intentional waterfall
             //Skip, already tangent
             rtapi_print("Marking segment as tangent (exact stop)\n");
@@ -801,9 +840,13 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
             break;
     }
     //TODO run optimization
-    
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, end);
+    int retval =  tpAddSegmentToQueue(tp, &tc, end);
+    if (retval) {
+        return retval;
+    }
+    /*tpRunBackwardsOptimization(tp);*/
+    return 0;
 }
 
 
