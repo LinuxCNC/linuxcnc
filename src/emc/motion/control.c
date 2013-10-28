@@ -856,8 +856,8 @@ static void set_operating_mode(void)
 	    /* Initialize things to do when starting teleop mode. */
 	    ZERO_EMC_POSE(emcmotDebug->teleop_data.currentVel);
 	    ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredVel);
-	    ZERO_EMC_POSE(emcmotDebug->teleop_data.currentAccell);
-	    ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredAccell);
+	    ZERO_EMC_POSE(emcmotDebug->teleop_data.currentAccel);
+	    ZERO_EMC_POSE(emcmotDebug->teleop_data.desiredAccel);
 	    SET_MOTION_TELEOP_FLAG(1);
 	    SET_MOTION_ERROR_FLAG(0);
 	} else {
@@ -1279,86 +1279,86 @@ static void get_pos_cmds(long period)
 	break;
     case EMCMOT_MOTION_TELEOP:
 
-	/* first the desired Accell's are computed based on
+	/* first the desired Accel's are computed based on
 	    desired Velocity, current velocity and period */
-	emcmotDebug->teleop_data.desiredAccell.tran.x =
+	emcmotDebug->teleop_data.desiredAccel.tran.x =
 	    (emcmotDebug->teleop_data.desiredVel.tran.x -
 	    emcmotDebug->teleop_data.currentVel.tran.x) /
 	    servo_period;
-	emcmotDebug->teleop_data.desiredAccell.tran.y =
+	emcmotDebug->teleop_data.desiredAccel.tran.y =
 	    (emcmotDebug->teleop_data.desiredVel.tran.y -
 	    emcmotDebug->teleop_data.currentVel.tran.y) /
 	    servo_period;
-	emcmotDebug->teleop_data.desiredAccell.tran.z =
+	emcmotDebug->teleop_data.desiredAccel.tran.z =
 	    (emcmotDebug->teleop_data.desiredVel.tran.z -
 	    emcmotDebug->teleop_data.currentVel.tran.z) /
 	    servo_period;
 
-	/* a Carthesian Accell is computed */
-	pmCartMag(&emcmotDebug->teleop_data.desiredAccell.tran,
+	/* a Carthesian Accel is computed */
+	pmCartMag(&emcmotDebug->teleop_data.desiredAccel.tran,
 	    &accell_mag);
 
 	/* then the accells for the rotary axes */
-	emcmotDebug->teleop_data.desiredAccell.a =
+	emcmotDebug->teleop_data.desiredAccel.a =
 	    (emcmotDebug->teleop_data.desiredVel.a -
 	    emcmotDebug->teleop_data.currentVel.a) /
 	    servo_period;
-	emcmotDebug->teleop_data.desiredAccell.b =
+	emcmotDebug->teleop_data.desiredAccel.b =
 	    (emcmotDebug->teleop_data.desiredVel.b -
 	    emcmotDebug->teleop_data.currentVel.b) /
 	    servo_period;
-	emcmotDebug->teleop_data.desiredAccell.c =
+	emcmotDebug->teleop_data.desiredAccel.c =
 	    (emcmotDebug->teleop_data.desiredVel.c -
 	    emcmotDebug->teleop_data.currentVel.c) /
 	    servo_period;
-	if (fabs(emcmotDebug->teleop_data.desiredAccell.a) > accell_mag) {
-	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccell.a);
+	if (fabs(emcmotDebug->teleop_data.desiredAccel.a) > accell_mag) {
+	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccel.a);
 	}
-	if (fabs(emcmotDebug->teleop_data.desiredAccell.b) > accell_mag) {
-	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccell.b);
+	if (fabs(emcmotDebug->teleop_data.desiredAccel.b) > accell_mag) {
+	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccel.b);
 	}
-	if (fabs(emcmotDebug->teleop_data.desiredAccell.c) > accell_mag) {
-	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccell.c);
+	if (fabs(emcmotDebug->teleop_data.desiredAccel.c) > accell_mag) {
+	    accell_mag = fabs(emcmotDebug->teleop_data.desiredAccel.c);
 	}
 	
 	/* accell_mag should now hold the max accell */
 	
 	if (accell_mag > emcmotStatus->acc) {
 	    /* if accell_mag is too great, all need resizing */
-	    pmCartScalMult(&emcmotDebug->teleop_data.desiredAccell.tran, 
+	    pmCartScalMult(&emcmotDebug->teleop_data.desiredAccel.tran, 
 		emcmotStatus->acc / accell_mag,
-		&emcmotDebug->teleop_data.currentAccell.tran);
-	    emcmotDebug->teleop_data.currentAccell.a =
-		emcmotDebug->teleop_data.desiredAccell.a *
+		&emcmotDebug->teleop_data.currentAccel.tran);
+	    emcmotDebug->teleop_data.currentAccel.a =
+		emcmotDebug->teleop_data.desiredAccel.a *
 		emcmotStatus->acc / accell_mag;
-	    emcmotDebug->teleop_data.currentAccell.b =
-		emcmotDebug->teleop_data.desiredAccell.b *
+	    emcmotDebug->teleop_data.currentAccel.b =
+		emcmotDebug->teleop_data.desiredAccel.b *
 		emcmotStatus->acc / accell_mag;
-	    emcmotDebug->teleop_data.currentAccell.c =
-		emcmotDebug->teleop_data.desiredAccell.c *
+	    emcmotDebug->teleop_data.currentAccel.c =
+		emcmotDebug->teleop_data.desiredAccel.c *
 		emcmotStatus->acc / accell_mag;
 	    emcmotDebug->teleop_data.currentVel.tran.x +=
-		emcmotDebug->teleop_data.currentAccell.tran.x *
+		emcmotDebug->teleop_data.currentAccel.tran.x *
 		servo_period;
 	    emcmotDebug->teleop_data.currentVel.tran.y +=
-		emcmotDebug->teleop_data.currentAccell.tran.y *
+		emcmotDebug->teleop_data.currentAccel.tran.y *
 		servo_period;
 	    emcmotDebug->teleop_data.currentVel.tran.z +=
-		emcmotDebug->teleop_data.currentAccell.tran.z *
+		emcmotDebug->teleop_data.currentAccel.tran.z *
 		servo_period;
 	    emcmotDebug->teleop_data.currentVel.a +=
-		emcmotDebug->teleop_data.currentAccell.a *
+		emcmotDebug->teleop_data.currentAccel.a *
 		servo_period;
 	    emcmotDebug->teleop_data.currentVel.b +=
-		emcmotDebug->teleop_data.currentAccell.b *
+		emcmotDebug->teleop_data.currentAccel.b *
 		servo_period;
 	    emcmotDebug->teleop_data.currentVel.c +=
-		emcmotDebug->teleop_data.currentAccell.c *
+		emcmotDebug->teleop_data.currentAccel.c *
 		servo_period;
 	} else {
 	    /* if accell_mag is not greater, the computed accell's stay as is */
-	    emcmotDebug->teleop_data.currentAccell =
-		emcmotDebug->teleop_data.desiredAccell;
+	    emcmotDebug->teleop_data.currentAccel =
+		emcmotDebug->teleop_data.desiredAccel;
 	    emcmotDebug->teleop_data.currentVel =
 		emcmotDebug->teleop_data.desiredVel;
 	}
