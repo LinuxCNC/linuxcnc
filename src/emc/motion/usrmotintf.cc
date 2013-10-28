@@ -290,18 +290,18 @@ void usrmotPrintEmcmotDebug(emcmot_debug_t *d, int which)
 	    d->teleop_data.currentVel.tran.z,
 	    d->teleop_data.currentVel.a,
 	    d->teleop_data.currentVel.b, d->teleop_data.currentVel.c);
-	printf("teleop desiredAccell: \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    d->teleop_data.desiredAccell.tran.x,
-	    d->teleop_data.desiredAccell.tran.y,
-	    d->teleop_data.desiredAccell.tran.z,
-	    d->teleop_data.desiredAccell.a,
-	    d->teleop_data.desiredAccell.b, d->teleop_data.desiredAccell.c);
-	printf("teleop currentAccell: \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    d->teleop_data.currentAccell.tran.x,
-	    d->teleop_data.currentAccell.tran.y,
-	    d->teleop_data.currentAccell.tran.z,
-	    d->teleop_data.currentAccell.a,
-	    d->teleop_data.currentAccell.b, d->teleop_data.currentAccell.c);
+	printf("teleop desiredAccel: \t%f\t%f\t%f\t%f\t%f\t%f\n",
+	    d->teleop_data.desiredAccel.tran.x,
+	    d->teleop_data.desiredAccel.tran.y,
+	    d->teleop_data.desiredAccel.tran.z,
+	    d->teleop_data.desiredAccel.a,
+	    d->teleop_data.desiredAccel.b, d->teleop_data.desiredAccel.c);
+	printf("teleop currentAccel: \t%f\t%f\t%f\t%f\t%f\t%f\n",
+	    d->teleop_data.currentAccel.tran.x,
+	    d->teleop_data.currentAccel.tran.y,
+	    d->teleop_data.currentAccel.tran.z,
+	    d->teleop_data.currentAccel.a,
+	    d->teleop_data.currentAccel.b, d->teleop_data.currentAccel.c);
 	break;
 /*! \todo Another #if 0 */
 #if 0
