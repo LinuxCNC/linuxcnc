@@ -34,6 +34,8 @@
 
 #include "sincos.h"
 
+#include <stdio.h>
+
 /* global error number */
 int pmErrno = 0;
 
@@ -1477,41 +1479,41 @@ int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * c
     PmQuaternion startQuatInverse;
 
     if (0 == line) {
-	return (pmErrno = PM_ERR);
+        return (pmErrno = PM_ERR);
     }
 
     r3 = pmQuatInv(&start->rot, &startQuatInverse);
     if (r3) {
-	return r3;
+        return r3;
     }
 
     r4 = pmQuatQuatMult(&startQuatInverse, &end->rot, &line->qVec);
     if (r4) {
-	return r4;
+        return r4;
     }
 
     pmQuatMag(&line->qVec, &rmag);
     if (rmag > Q_FUZZ) {
-	r5 = pmQuatScalMult(&line->qVec, 1 / rmag, &(line->qVec));
-	if (r5) {
-	    return r5;
-	}
+        r5 = pmQuatScalMult(&line->qVec, 1 / rmag, &(line->qVec));
+        if (r5) {
+            return r5;
+        }
     }
 
     line->start = *start;
     line->end = *end;
     r1 = pmCartCartSub(&end->tran, &start->tran, &line->uVec);
     if (r1) {
-	return r1;
+        return r1;
     }
 
     pmCartMag(&line->uVec, &tmag);
     if (IS_FUZZ(tmag, CART_FUZZ)) {
-	line->uVec.x = 1.0;
-	line->uVec.y = 0.0;
-	line->uVec.z = 0.0;
+        line->uVec.x = 1.0;
+        line->uVec.y = 0.0;
+        line->uVec.z = 0.0;
     } else {
-	r2 = pmCartUnit(&line->uVec, &line->uVec);
+        r2 = pmCartUnit(&line->uVec, &line->uVec);
     }
     line->tmag = tmag;
     line->rmag = rmag;
