@@ -120,7 +120,6 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const o
 int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
-
 /* queue of TC_STRUCT elements*/
 
 typedef struct {
