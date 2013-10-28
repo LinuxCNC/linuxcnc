@@ -802,7 +802,7 @@ umläut nuß
 EOF
     if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
     then
-        A2X_LATEX_ENCODING="-P latex.encoding=utf-8"
+        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
         AC_MSG_RESULT(yes)
     else
         A2X_LATEX_ENCODING=""
