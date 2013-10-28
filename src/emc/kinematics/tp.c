@@ -655,6 +655,12 @@ static int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
         return 1;
     }
 
+    if ((PM_PI - omega) < crit_angle ) {
+        //corner too tight
+        rtapi_print("Corner too tight, omega = %f\n",omega);
+        return -1;
+    }
+
     //If not linear blends, we can't easily compute an arc
     if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
         rtapi_print("Wrong motion type tc =%u, tc2=%u\n",prev_tc->motion_type,tc->motion_type);
