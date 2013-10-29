@@ -371,6 +371,7 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->enables=enables;
 
+    tc->atpeak=0;
 }
 
 /**
@@ -723,25 +724,65 @@ static int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRU
 
 static int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
     //Just loop over everything 
-    unsigned int ind, x;
+    int ind, x;
     //Assume that length won't change during a run
     TC_STRUCT *tc=NULL;
-    double peak_vel=0.0;
-    double vs;
-    for (x = 1; x < tcqLen(&tp->queue); ++x) {
+    TC_STRUCT *prev_tc=NULL;
+    /*double peak_vel=0.0;*/
+    double vs=0.0,vsf=0.0;
+
+    int length = tcqLen(&tp->queue);
+    if (length < 2) {
+        return 0;
+    }
+
+    rtapi_print("  _len = %u\n", length);
+    for (x = 1; x < tp->queue.end; ++x) {
         //Start at most recently added
-        ind=tcqLen(&tp->queue)-x;
+        
+        ind=length-x;
         rtapi_print("  ind = %u\n", ind);
         
         tc=tcqItem(&tp->queue, ind);
-        if (tc == NULL) {
-            return -1;
+        prev_tc=tcqItem(&tp->queue, ind-1);
+
+        rtapi_print("  tc = %u, prev_tc = %u\n", tc,prev_tc);
+
+        if ( !prev_tc || !tc) {
+            return 0;
         }
         
+        rtapi_print("  prev term = %u, tc term = %u\n",prev_tc->term_cond,tc->term_cond);
+
+        if (prev_tc->term_cond != TC_TERM_COND_TANGENT) {
+            return 0;
+        }
+
+        if (prev_tc->progress>0) {
+            rtapi_print("segment %d already started, progress is %f!\n",ind-1,prev_tc->progress);
+            return 0;
+        }
+
         vs = pmSqrt(pmSq(tc->finalvel) + 2*tc->maxaccel*tc->target);
-        rtapi_print("  vs = %f\n", vs);
+        rtapi_print(" vs = %f, reqvel = %f\n",vs,tc->reqvel);
+        if (vs > tc->maxvel) {
+            //Found a peak
+            vs = tc->reqvel;
+            prev_tc->finalvel = vs;
+            prev_tc->atpeak=1;
+            rtapi_print("found peak\n");
+        } else {
+            prev_tc->finalvel = vs;
+            prev_tc->atpeak=0;
+        }
+
+        rtapi_print(" prev_tc-> fv = %f, tc->fv = %f\n", prev_tc->finalvel,tc->finalvel);
+        /*if (prev_tc->atpeak) {*/
+            /*return 0;*/
+        /*}*/
 
     }
+
     return 0;
 }
 
@@ -827,6 +868,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
             tcConnectArc(prev_tc, &tc, &blend_tc);
             /*blend_tc.motion_type=0;*/
             tpAddSegmentToQueue(tp, &blend_tc, end);
+
+            tpRunBackwardsOptimization(tp);
             break;
         case 1: //Intentional waterfall
             //Skip, already tangent
@@ -845,7 +888,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     if (retval) {
         return retval;
     }
-    /*tpRunBackwardsOptimization(tp);*/
     return 0;
 }
 
@@ -1090,8 +1132,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
         // maxvel) except when it's synced to spindle position.
         if (!is_pure_rotary && !is_position_synced && newvel > tp->vLimit) {
             newvel = tp->vLimit;
-
-
         }
 
         // get acceleration to reach newvel, bounded by machine maximum
