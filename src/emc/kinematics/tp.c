@@ -506,7 +506,6 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     middle = prev_tc->coords.line.xyz.end;
     end = tc->coords.line.xyz.end;
 
-
     //Find the minimum tolerance (in case it dropped between moves)
     double T1=prev_tc->tolerance;
     double T2=tc->tolerance;
@@ -525,9 +524,10 @@ static int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     // Limit amount of line segment to blend so that we don't delete the line
     // TODO allow for total replacement if tol allows it
-    const double blend_ratio = 0.4;
-    double d_geom=fmin(d_tol, fmin((prev_tc->target-prev_tc->progress) * blend_ratio * 2.0,
+    const double blend_ratio = 0.5;
+    double d_geom=fmin(d_tol, fmin((prev_tc->target-prev_tc->progress) ,
                 (tc->target-tc->progress) * blend_ratio));
+
 
     double R_geom=Ttheta * d_geom;
 
@@ -717,8 +717,16 @@ static int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRU
     rtapi_print("Old target = %f\n",prev_tc->target);
     prev_tc->target=prev_tc->coords.line.xyz.tmag;
     rtapi_print("Target = %f\n",prev_tc->target);
+
+    //FIXME use defined epsilon
     tc->target=tc->coords.line.xyz.tmag;
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
+
+    if (prev_tc->target < 0.000001 ) {
+        rtapi_print("Flagged prev_tc for removal\n");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -729,7 +737,7 @@ static int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
     TC_STRUCT *tc=NULL;
     TC_STRUCT *prev_tc=NULL;
     /*double peak_vel=0.0;*/
-    double vs=0.0,vsf=0.0;
+    double vs=0.0;
 
     int length = tcqLen(&tp->queue);
     if (length < 2) {
@@ -746,7 +754,7 @@ static int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
         tc=tcqItem(&tp->queue, ind);
         prev_tc=tcqItem(&tp->queue, ind-1);
 
-        rtapi_print("  tc = %u, prev_tc = %u\n", tc,prev_tc);
+        /*rtapi_print("  tc = %u, prev_tc = %u\n", tc,prev_tc);*/
 
         if ( !prev_tc || !tc) {
             return 0;
@@ -848,24 +856,40 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
 
     TC_STRUCT *prev_tc = tcqLast(&tp->queue);
 
+    if ( !prev_tc || prev_tc->progress > 0.0) {
+        //Too late to do traditional blending, just add this segment and bail
+        return tpAddSegmentToQueue(tp, &tc, end);
+    }
+
     /*rtapi_print("prev_tc = %d\n",prev_tc);*/
 
     //TODO check for terminal condition
-    int res = tpCheckNeedBlendArc(prev_tc, &tc, tp->cycleTime);
+    int need_arc = tpCheckNeedBlendArc(prev_tc, &tc, tp->cycleTime);
     /*debug_float(res);*/
     TC_STRUCT blend_tc;
 
-    switch (res) {
+    switch (need_arc) {
         case 0:
             rtapi_print("Need a blend arc\n");
             //make blend arc
-            res = tpCreateBlendArc(tp, prev_tc, &tc, &blend_tc);
-            if (res) {
+            int arc_fail = tpCreateBlendArc(tp, prev_tc, &tc, &blend_tc);
+            if (arc_fail) {
                 rtapi_print("error creating arc?\n");
                 break;
             }
             //TODO adjust prev_tc and tc endpoints (and targets)
-            tcConnectArc(prev_tc, &tc, &blend_tc);
+            int arc_connect_stat = tcConnectArc(prev_tc, &tc, &blend_tc);
+            
+            if ( 1 == arc_connect_stat){
+                //Remove previous segment that is now zero length
+                int trim_fail = tcqPopBack(&tp->queue);
+                if (trim_fail) {
+                    //Really should not happen...
+                    rtapi_print("Failed to pop last segment!\n");
+                    break;
+                }
+                //TODO check for failure, bail if we can't blend
+            }
             /*blend_tc.motion_type=0;*/
             tpAddSegmentToQueue(tp, &blend_tc, end);
 
@@ -878,12 +902,13 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
             prev_tc->term_cond = TC_TERM_COND_TANGENT;
             break;
         default:
-            rtapi_print("Failed? res = %d\n",res);
+            rtapi_print("Failed? need_arc = %d\n", need_arc);
             //Numerical issue? any error means we can't blend, so leave final velocity zero
             break;
     }
     //TODO run optimization
     //Assume non-zero error code is failure
+    rtapi_print("adding line segment to queue");
     int retval =  tpAddSegmentToQueue(tp, &tc, end);
     if (retval) {
         return retval;
