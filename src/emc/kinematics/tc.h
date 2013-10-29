@@ -150,6 +150,9 @@ extern int tcqInit(TC_QUEUE_STRUCT * const tcq);
 /* put tc on end */
 extern int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc);
 
+/* put tc on end */
+extern int tcqPopBack(TC_QUEUE_STRUCT * const tcq);
+
 /* remove n tcs from front */
 extern int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n);
 

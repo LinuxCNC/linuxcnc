@@ -437,6 +437,37 @@ int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
     return 0;
 }
 
+
+/*! tcqPopBack() function
+ *
+ * \brief removes the newest TC element (converse of tcqRemove)
+ * 
+ * @param    tcq       pointer to the new TC_QUEUE_STRUCT
+ * @param	 tc        the new TC element to be added
+ *
+ * @return	 int	   returns success or failure
+ */   
+int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
+{
+    /* check for initialized */
+    if (tcqCheck(tcq)) return -1;
+
+    /* Too short to pop! */
+    if (tcq->_len < 1) {
+        return -1;
+    }
+
+    //HACK - check if segment is started and abort?
+    /*if ((tcq->queue[tcq->end]).progress > 0.0) {*/
+        /*return -1;*/
+    /*}*/
+    tcq->end = (tcq->end -1) % tcq->size;
+    tcq->allFull = 0;
+    tcq->_len -= 1;
+
+    return 0;
+}
+
 /*! tcqRemove() function
  *
  * \brief removes n items from the queue
