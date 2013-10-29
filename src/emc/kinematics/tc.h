@@ -110,6 +110,7 @@ typedef struct {
     char atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
     int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
+    int atpeak;             //At peak velocity during blends)
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
