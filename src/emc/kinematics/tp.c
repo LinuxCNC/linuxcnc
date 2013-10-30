@@ -27,6 +27,7 @@ static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 /*#define TP_DEBUG*/
+#define TP_CHECK_MORE
 
 #ifdef TP_DEBUG
 #define tp_debug_print(...) rtapi_print(__VA_ARGS__)
@@ -360,13 +361,21 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->sync_accel = 0;
     tc->cycle_time = tp->cycleTime;
+    tc->id = tp->nextId;
 
     tc->progress = 0.0;
-    tc->reqvel = vel;
     tc->maxaccel = acc;
     tc->feed_override = 0.0;
     tc->maxvel = ini_maxvel;
-    tc->id = tp->nextId;
+    //Note: capping reqvel here since maxvel never changes for a given segment
+    tc->reqvel = fmin(vel,ini_maxvel);
+#ifdef TP_CHECK_MORE
+    if (tc->reqvel <= 0) {
+        tp_debug_print(" Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
+    }
+
+#endif
+
     tc->active = 0;
 
     tc->currentvel = 0.0;
@@ -1103,18 +1112,21 @@ static double saturate(double x, double max) {
 void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, int * on_final_decel) {
     double discr, maxnewvel, newvel, newaccel=0, delta_pos;
     double discr_term1, discr_term2, discr_term3;
-
-    // Find maximum allowed velocity from feed and machine limits
+    
+    // Remove feed rate override from rapid motion
     if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {
         tc->feed_override = 1.0;
     }
+    // Find maximum allowed velocity from feed and machine limits
     double req_vel = tc->reqvel * tc->feed_override;
-    // Store a copy of final velocity since it has to change based on
-    double final_vel = tc->finalvel * tc->feed_override;
+    // Store a copy of final velocity without feed rate override.
+    double final_vel = tc->finalvel;
 
+    //Clamp the requested velocity by the maximum velocity allowed.
+    //TODO remove this if we can check during add
     if (req_vel > tc->maxvel) req_vel = tc->maxvel;
-    //Clamp final velocity to the max velocity we can achieve
 
+    //Clamp final velocity to the max velocity we can achieve
     if (final_vel > req_vel) final_vel = req_vel;
     // Need this to plan down to zero V
     if (tp->pausing) final_vel = 0.0;
