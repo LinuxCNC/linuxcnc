@@ -1,6 +1,6 @@
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install python pythonclean
+.PHONY: default userspace modules clean modclean depclean install python pythonclean cscope
 
 # A "trivial build" is one which should not include dependency information
 # either because it should be usable before dependency information can be
@@ -16,6 +16,7 @@ else
 TRIVIAL_BUILD=no
 endif
 endif
+
 
 # Beautify output
 # ---------------------------------------------------------------------------
@@ -74,7 +75,7 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: configs userspace modules
+default: configs userspace modules cscope
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),sim)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -1037,4 +1038,6 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 ../lib/%.so: ../lib/%.so.0
 	ln -sf $(notdir $<) $@
 
+cscope:
+	cscope -Rb
 # vim:ts=8:sts=8:sw=8:noet:
