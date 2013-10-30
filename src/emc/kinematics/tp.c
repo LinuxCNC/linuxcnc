@@ -27,13 +27,8 @@ static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 /*#define TP_DEBUG*/
-#define TP_CHECK_MORE
+#include "tp_debug.h"
 
-#ifdef TP_DEBUG
-#define tp_debug_print(...) rtapi_print(__VA_ARGS__)
-#else
-#define tp_debug_print(...) 
-#endif
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
@@ -808,6 +803,65 @@ static int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
     return 0;
 }
 
+static int tpAddBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
+
+    tp_debug_print("----------------------\nStarting blend stuff\n");
+
+    TC_STRUCT *prev_tc = tcqLast(&tp->queue);
+
+    if ( !prev_tc || prev_tc->progress > 0.0) {
+        //Too late to do traditional blending, just add this segment and bail
+        return -1;
+    }
+
+    /*tp_debug_print("prev_tc = %d\n",prev_tc);*/
+
+    //TODO check for terminal condition
+    int need_arc = tpCheckNeedBlendArc(prev_tc, tc, tp->cycleTime);
+    /*debug_float(res);*/
+    TC_STRUCT blend_tc;
+
+    switch (need_arc) {
+        case 0:
+            tp_debug_print("Need a blend arc\n");
+            //make blend arc
+            int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
+            if (arc_fail) {
+                tp_debug_print("error creating arc?\n");
+                return -1;
+            }
+            //TODO adjust prev_tc and tc endpoints (and targets)
+            int arc_connect_stat = tcConnectArc(prev_tc, tc, &blend_tc);
+            
+            if ( 1 == arc_connect_stat){
+                //Remove previous segment that is now zero length
+                int trim_fail = tcqPopBack(&tp->queue);
+                if (trim_fail) {
+                    //Really should not happen...
+                    tp_debug_print("Failed to pop last segment!\n");
+                    return -1;
+                }
+                //TODO check for failure, bail if we can't blend
+            }
+            /*blend_tc.motion_type=0;*/
+            tpAddSegmentToQueue(tp, &blend_tc, end);
+
+            tpRunBackwardsOptimization(tp);
+            break;
+        case 1: //Intentional waterfall
+            //Skip, already tangent
+            tp_debug_print("Marking segment as tangent (exact stop)\n");
+            //
+            prev_tc->term_cond = TC_TERM_COND_TANGENT;
+            break;
+        default:
+            tp_debug_print("Failed? need_arc = %d\n", need_arc);
+            //Numerical issue? any error means we can't blend, so leave final velocity zero
+            return -1;
+    }
+    return 0;
+}
+
 /**
  * Add a straight line to the tc queue.
  * This is a coordinated move in any or all of the six axes. It goes from the
@@ -866,61 +920,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.syncdio.anychanged = 0;
     }
 
-    tp_debug_print("----------------------\nStarting blend stuff\n");
+    tpAddBlendArc(tp, &tc, end);
 
-    TC_STRUCT *prev_tc = tcqLast(&tp->queue);
-
-    if ( !prev_tc || prev_tc->progress > 0.0) {
-        //Too late to do traditional blending, just add this segment and bail
-        return tpAddSegmentToQueue(tp, &tc, end);
-    }
-
-    /*tp_debug_print("prev_tc = %d\n",prev_tc);*/
-
-    //TODO check for terminal condition
-    int need_arc = tpCheckNeedBlendArc(prev_tc, &tc, tp->cycleTime);
-    /*debug_float(res);*/
-    TC_STRUCT blend_tc;
-
-    switch (need_arc) {
-        case 0:
-            tp_debug_print("Need a blend arc\n");
-            //make blend arc
-            int arc_fail = tpCreateBlendArc(tp, prev_tc, &tc, &blend_tc);
-            if (arc_fail) {
-                tp_debug_print("error creating arc?\n");
-                break;
-            }
-            //TODO adjust prev_tc and tc endpoints (and targets)
-            int arc_connect_stat = tcConnectArc(prev_tc, &tc, &blend_tc);
-            
-            if ( 1 == arc_connect_stat){
-                //Remove previous segment that is now zero length
-                int trim_fail = tcqPopBack(&tp->queue);
-                if (trim_fail) {
-                    //Really should not happen...
-                    tp_debug_print("Failed to pop last segment!\n");
-                    break;
-                }
-                //TODO check for failure, bail if we can't blend
-            }
-            /*blend_tc.motion_type=0;*/
-            tpAddSegmentToQueue(tp, &blend_tc, end);
-
-            tpRunBackwardsOptimization(tp);
-            break;
-        case 1: //Intentional waterfall
-            //Skip, already tangent
-            tp_debug_print("Marking segment as tangent (exact stop)\n");
-            //
-            prev_tc->term_cond = TC_TERM_COND_TANGENT;
-            break;
-        default:
-            tp_debug_print("Failed? need_arc = %d\n", need_arc);
-            //Numerical issue? any error means we can't blend, so leave final velocity zero
-            break;
-    }
-    //TODO run optimization
     //Assume non-zero error code is failure
     tp_debug_print("adding line segment to queue");
     int retval =  tpAddSegmentToQueue(tp, &tc, end);
