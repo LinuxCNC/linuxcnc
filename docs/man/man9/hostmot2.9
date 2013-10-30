@@ -101,7 +101,7 @@ Best to try loading it and see what the detection order is.
 
 The format of each board's config string is:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [ssi_chan_\fIN\fB=\fIabc%nq\fB][fanuc_chan_\fIN\fB=\fIabc%nq\fB] [num_resolvers=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_\fI0\fB=\fI00000000\fB] [num_leds=\fIN\fB] [enable_raw]
+.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [ssi_chan_\fIN\fB=\fIabc%nq\fB] [biss_chan_\fIN\fB=\fIabc%nq\fB] [fanuc_chan_\fIN\fB=\fIabc%nq\fB] [num_resolvers=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_\fI0\fB=\fI00000000\fB] [num_leds=\fIN\fB] [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
@@ -119,6 +119,13 @@ for F might be "hm2/5i20/SVST8_4.BIT".  The hostmot2 firmware files are
 supplied by the hostmot2-firmware packages, available from linuxcnc.org.
 .RE
 .TP
+\fBnum_hm2_dplls\fR [optional, default: -1]
+The hm2_dpll is a phase-locked loop timer module which may be used to trigger
+certain types of encoder. This parameter can be used to disable the hm2_dpll by
+setting the number to 0. There is only ever one module of this type, with 4 
+timer channels, so the other valid numbers are -1 (enable all) and 1, both of
+which end up meaning the same thing. 
+.TP
 \fBnum_encoders\fR [optional, default: -1]
 Only enable the first N encoders.  If N is -1, all encoders are enabled.
 If N is 0, no encoders are enabled.  If N is greater than the number of
@@ -129,6 +136,9 @@ Specifies how the bit stream from a Synchronous Serial Interface device will be
 interpreted. There should be an entry for each device connected. Only channels
 with a format specifier will be enabled. (as the software can not guess data
 rates and bit lengths) 
+.TP
+\fBbiss_chan_N\fR [optional, default: ""]
+As for ssi_chan_N, but for BiSS devices
 .TP
 \fBfanuc_chan_N\fR [optional, default: ""]
 Specifies how the bit stream from a Fanuc absolute encoder will be
@@ -188,7 +198,60 @@ pins for all the LEDs will be created. If N=0 then no pins will be added.
 \fBenable_raw\fR [optional]
 If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
+
 .RE
+.SH hm2dpll
+The hm2_dpll module has pins like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll\fR"
+It is likely that the pin-count will decrease in the future and that some pins
+will become parameters. 
+This module is a phase-locked loop that will synchronise itself with the thread
+in which the hostmot2 "read" function is installed and will trigger other
+functions that are allocated to it at a specified time before or after the 
+"read" function runs. This can currently only be applied to the three absolute
+encoder types and is intended to ensure that the data is ready when needed, and
+as fresh as possible. 
+
+Pins:
+.TP
+(float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.NN.timer-us
+This pin sets the triggering offset of the associated timer. There are 4 timers
+numbered 01 to 04, represented by the NN digits in the pin name. 
+The units are micro-seconds. Negative numbers indicate that the trigger should
+occur prior to the main hostmot2 write. It is anticipated that this value will
+be calculated from the known bit-count and data-rate of the functions to be
+triggered. Alternatively you can just keep making the number more negative
+until the over-run error bit in the encoder goes false. 
+The default value is set to 100uS, enough time for approximately 50 bits to be
+transmitted at 500kHz. For very critical systems it may be worth reducing this 
+until errors appear, and for very long bit-length or slow encoders it will need
+to be increased. 
+
+.TP
+(float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.base-freq-khz
+This pin sets the base frequency of the phase-locked loop. by default it will 
+be set to the nominal frequency of the thread in which the PLL is running and
+wil not normally need to be changed. 
+.TP
+(float, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.phase-error-us
+Indicates the phase eror of the DPLL. If the number cycles by a large amount 
+it is likely that the PLL has failed to achieve lock and adjustments will need
+to be made. 
+.TP
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.time-const"
+The filter time-constant for the PLL. Default 40960 (0xA000)
+.TP
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.plimit"
+Sets the phase adjustment limit of the PLL. If the value is zero then the PLL
+will free-run at the base frequency independent of the servo thread rate. This
+is probably not what you want. Default 4194304 (0x400000) Units not known...
+.TP
+(u32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.ddsize
+Used internally by the driver, likely to disappear. 
+.TP
+(u32, in)  hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.prescale
+Prescale factor for the rate generator. Default 1. 
+
+
 .SH encoder
 
 Encoders have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.encoder.\fI<Instance>\fR".
@@ -294,6 +357,16 @@ before reporting the encoder stopped.  This parameter is in seconds.
 .SH Synchronous Serial Interface (SSI)
 (Not to be confused with the Smart Serial Interface)
 
+One pin is created for each SSI instance regardless of data format:
+(bit, in) hm2_XiXX.NN.ssi.MM.data-incomplete
+This pin will be set "true" if the module was still transferring data when the 
+value was read. When this problem exists there will also be a limited number of 
+error messages printed to the UI. This pin should be used to monitor whether 
+the problem has been addressed by config changes. 
+Solutions to the problem dpend on whether the encoder read is being triggered by
+the hm2dpll phase-locked-loop timer (described above) or by the trigger-encoders
+function (described below).
+
 The names of the pins created by the SSI module will depend entirely on the 
 format string for each channel specified in the loadrt command line. 
 A typical format string might be
@@ -308,7 +381,8 @@ by the low-level code.
 
 The format consists of a string of alphanumeric characters that will form the 
 HAL pin names, followed by a % symbol, a bit-count and a data type. All bits
-in the packet must be defined, even if they are not used. 
+in the packet must be defined, even if they are not used. There is a limit of 
+64 bits in total.
 
 The valid format characters and the pins they create are:
 .TP
@@ -328,9 +402,9 @@ wide and the scalmax parameter was 20 then a value of 255 would return 20, and
 0 would return 0. 
 .TP
 s: (Signed)
-  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpreted as a 2s complement
-signed number then scaled similarly to the unsigned variant, except symmetrical 
-around zero. 
+  (float, out) hm2_XiXX.N.ssi.MM.<name>. The value of the bits interpreted as a
+2s complement signed number then scaled similarly to the unsigned variant,
+except symmetrical around zero. 
 .TP
 f: (bitField)
   (bit, out) hm2_XiXX.N.ssi.MM.<name>-NN. The value of each individual bit in the
@@ -372,12 +446,20 @@ unsigned (u) data types.
  
 .TP
 Parameters:
-Only one parameter is universally created for all SSI instances
+Two parameters is universally created for all SSI instances
 
 .TP
 (float r/w) hm2_XiXX.N.ssi.MM.frequency-khz
 This parameter sets the SSI clock frequency. The units are kHz, so 500 will give
 a clock frequency of 500,000 Hz. 
+
+.TP 
+(u32 r/w) hm2_XiXX.N.ssi.MM.timer-num
+This parameter allocates the SSI module to a specific hm2dpll timer instance.
+This pin is only of use in firmwares which contain a hm2_dpll function and will
+default to 1 in cases where there is such a function, and 0 if there is not. 
+The pin can be used to disable reads of the encoder, by setting to a
+nonexistent timer number, or to 0. 
 
 Other parameters depend on the data types specified in the config string.
 .TP
@@ -404,6 +486,30 @@ to the actual counts per rev of the encoder, but can be any whole number of
 revs. Integer divisors or multimpilers of the true PPR might be useful for 
 index-homing. Non-integer factors might be appropriate where there is a 
 synchronous drive ratio between the encoder and the spindle or ballscrew. 
+
+
+.SH BiSS
+BiSS is a bidirectional variant of SSI. Currently only a single direction is
+supported by LinuxCNC (encoder to PC). 
+
+One pin is created for each BiSS instance regardless of data format:
+
+(bit, in) hm2_XiXX.NN.biss.MM.data-incomplete
+This pin will be set "true" if the module was still transferring data when the 
+value was read. When this problem exists there will also be a limited number of 
+error messages printed to the UI. This pin should be used to monitor whether 
+the problem has been addressed by config changes. 
+Solutions to the problem dpend on whether the encoder read is being triggered by
+the hm2dpll phase-locked-loop timer (described above) or by the trigger-encoders
+function (described below)
+ 
+The names of the pins created by the BiSS module will depend entirely on the 
+format string for each channel specified in the loadrt command line and follow
+closely the format defined above for SSI. 
+Currently data packets of up to 96 bits are supported by the LinuxCNC driver, 
+although the Mesa Hostmot2 module can handle 512 bit packets. It should be
+possible to extend the number of packets supported by the driver if there is a
+requirement to do so. 
 
 .SH Fanuc encoder. 
 The pins and format specifier for this module are identical to the SSI module
@@ -1000,30 +1106,7 @@ internal state to the syslog, and set the pin back to False.
 
 .SH Setting up Smart Serial devices 
 
-If a Smart Serial port is stopped, it is then possible to read and set the 
-onboard firmware settings using "setp" commands from within halrun or with
-halcmd. The hostmot read function needs to be attached to a realtime thread to
-allow parameters to be read and set, but the write thread is not needed.
-A typical command-line sequence to read the max current setting of an 8i20 on 
-channel 1 of port 0 would be:
-
-$>halrun
-
- halcmd: loadrt hostmot2
- halcmd: loadrt hm2_pci config="firmware=hm2/5i23/svss8_44 sserial_port_0=x0xxxxxxx"
- halcmd: loadrt threads
- halcmd: addf hm2_5i23.0.read thread1
- halcmd: addf hm2_5i23.0.write thread1
- halcmd: start
- halcmd: setp hm2_5i23.0.sserial.0.port-0.run 0
- halcmd: setp hm2_5i23.0.sserial.0.port 0
- halcmd: setp hm2_5i23.0.sserial.0.channel 1
- halcmd: setp hm2_5i23.0.sserial.0.0.parameter 0x8e8
- halcmd: setp hm2_5i23.0.sserial.0.0.read 1
- halcmd: show pin hm2_5i23.0.sserial.0.0.value
-
-It is not expected that this would be a frequent task.
-The pin descriptions appear earlier in this document. 
+See man setsserial for the current way to set smart-serial eeprom parameters. 
 
 .SH FUNCTIONS
 .TP
@@ -1053,6 +1136,19 @@ above.  Normally only .write() is used.  The only reason to call this
 function is if you want to do GPIO things in a faster-than-servo thread.
 (This function is not available on the 7i43 due to limitations of the
 EPP bus.)
+.TP
+fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger-encoders\fR
+This function will only appear if the firmware contains a BiSS, Fanuc or SSI 
+encoder module and if the firmare does not contain a hm2dpll 
+module (qv) or if the modparam contains num_hm2_dplls=0.
+This function should be inserted first in the thread so that the encoder data is
+ready when the main \fBhm2_XiXX.NN.read\fR function runs. An error message will
+be printed if the encoder read is not finished in time. It may be possible to
+avoid this by increasing the data rate. If the problem persists and if "stale"
+data is acceptable then the function may be placed later in the thread, allowing
+a full servo cycle for the data to be transferred from the devices. If available
+it is better to use the synchronous hm2dpll triggering function. 
+
 .SH SEE ALSO
 
 hm2_7i43(9)
