@@ -21,13 +21,13 @@
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "posemath.h"
 #include "emcpos.h"
-
-//#define TP_DEBUG
-
 #include "tc.h"
 #include "motion_types.h"
 #include "rtapi_math.h"
 
+//Debug output
+//#define TP_DEBUG
+#include "tp_debug.h"
 
 int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 

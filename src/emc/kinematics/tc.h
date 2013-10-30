@@ -31,8 +31,6 @@
 #define TC_RIGIDTAP 3
 #define TC_SPHERICAL 4
 
-//Debug output
-#include "tp_debug.h"
 
 /* structure for individual trajectory elements */
 
