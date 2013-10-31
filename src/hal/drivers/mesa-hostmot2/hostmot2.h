@@ -811,12 +811,12 @@ typedef struct {
     hal_u32_t *ddssize;
     hal_u32_t *time_const;
     hal_u32_t *prescale;
-} hm2_hm2dpll_pins_t ;
+} hm2_dpll_pins_t ;
 
 typedef struct {
 
     int num_instances ;
-    hm2_hm2dpll_pins_t *pins ;
+    hm2_dpll_pins_t *pins ;
 
     u32 base_rate_addr;
     u32 base_rate_written;
@@ -830,11 +830,11 @@ typedef struct {
     u32 timer_12_written;
     u32 timer_34_addr;
     u32 timer_34_written;
-    u32 hm2_hm2dpll_sync_addr;
-    u32 *hm2_hm2dpll_sync_reg;
+    u32 hm2_dpll_sync_addr;
+    u32 *hm2_dpll_sync_reg;
     u32 clock_frequency;
 
-} hm2_hm2dpll_t ;
+} hm2_dpll_t ;
 
 
 // 
@@ -963,7 +963,7 @@ typedef struct {
         int num_sserials;
         int num_bspis;
         int num_uarts;
-        int num_hm2dplls;
+        int num_dplls;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1003,7 +1003,7 @@ typedef struct {
     hm2_uart_t uart;
     hm2_ioport_t ioport;
     hm2_watchdog_t watchdog;
-    hm2_hm2dpll_t hm2dpll;
+    hm2_dpll_t dpll;
     hm2_led_t led;
 
     hm2_raw_t *raw;
@@ -1232,11 +1232,11 @@ int hm2_uart_read(char *name, unsigned char data[]);
 // hm2dpll functions
 //
 
-void hm2_hm2dpl_cleanup(hostmot2_t *hm2);
-int hm2_hm2dpll_force_write(hostmot2_t *hm2);
-int hm2_hm2dpll_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_hm2dpll_process_tram_read(hostmot2_t *hm2, long period);
-void hm2_hm2dpll_write(hostmot2_t *hm2, long period);
+void hm2_dpl_cleanup(hostmot2_t *hm2);
+int hm2_dpll_force_write(hostmot2_t *hm2);
+int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period);
+void hm2_dpll_write(hostmot2_t *hm2, long period);
 
 // 
 // watchdog functions

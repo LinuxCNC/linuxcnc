@@ -119,9 +119,9 @@ for F might be "hm2/5i20/SVST8_4.BIT".  The hostmot2 firmware files are
 supplied by the hostmot2-firmware packages, available from linuxcnc.org.
 .RE
 .TP
-\fBnum_hm2_dplls\fR [optional, default: -1]
-The hm2_dpll is a phase-locked loop timer module which may be used to trigger
-certain types of encoder. This parameter can be used to disable the hm2_dpll by
+\fBnum_dplls\fR [optional, default: -1]
+The hm2dpll is a phase-locked loop timer module which may be used to trigger
+certain types of encoder. This parameter can be used to disable the hm2dpll by
 setting the number to 0. There is only ever one module of this type, with 4 
 timer channels, so the other valid numbers are -1 (enable all) and 1, both of
 which end up meaning the same thing. 
@@ -200,8 +200,8 @@ If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
 
 .RE
-.SH hm2dpll
-The hm2_dpll module has pins like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll\fR"
+.SH dpll
+The hm2dpll module has pins like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll\fR"
 It is likely that the pin-count will decrease in the future and that some pins
 will become parameters. 
 This module is a phase-locked loop that will synchronise itself with the thread
@@ -213,7 +213,7 @@ as fresh as possible.
 
 Pins:
 .TP
-(float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.NN.timer-us
+(float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.NN.timer-us
 This pin sets the triggering offset of the associated timer. There are 4 timers
 numbered 01 to 04, represented by the NN digits in the pin name. 
 The units are micro-seconds. Negative numbers indicate that the trigger should
@@ -227,28 +227,28 @@ until errors appear, and for very long bit-length or slow encoders it will need
 to be increased. 
 
 .TP
-(float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.base-freq-khz
+(float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.base-freq-khz
 This pin sets the base frequency of the phase-locked loop. by default it will 
 be set to the nominal frequency of the thread in which the PLL is running and
 wil not normally need to be changed. 
 .TP
-(float, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.phase-error-us
+(float, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.phase-error-us
 Indicates the phase eror of the DPLL. If the number cycles by a large amount 
 it is likely that the PLL has failed to achieve lock and adjustments will need
 to be made. 
 .TP
-(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.time-const"
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.time-const"
 The filter time-constant for the PLL. Default 40960 (0xA000)
 .TP
-(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.plimit"
+(u32, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.plimit"
 Sets the phase adjustment limit of the PLL. If the value is zero then the PLL
 will free-run at the base frequency independent of the servo thread rate. This
 is probably not what you want. Default 4194304 (0x400000) Units not known...
 .TP
-(u32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.ddsize
+(u32, out) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.ddsize
 Used internally by the driver, likely to disappear. 
 .TP
-(u32, in)  hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.hm2dpll.prescale
+(u32, in)  hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.prescale
 Prescale factor for the rate generator. Default 1. 
 
 
@@ -456,7 +456,7 @@ a clock frequency of 500,000 Hz.
 .TP 
 (u32 r/w) hm2_XiXX.N.ssi.MM.timer-num
 This parameter allocates the SSI module to a specific hm2dpll timer instance.
-This pin is only of use in firmwares which contain a hm2_dpll function and will
+This pin is only of use in firmwares which contain a hm2dpll function and will
 default to 1 in cases where there is such a function, and 0 if there is not. 
 The pin can be used to disable reads of the encoder, by setting to a
 nonexistent timer number, or to 0. 
@@ -1140,7 +1140,7 @@ EPP bus.)
 fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger-encoders\fR
 This function will only appear if the firmware contains a BiSS, Fanuc or SSI 
 encoder module and if the firmare does not contain a hm2dpll 
-module (qv) or if the modparam contains num_hm2_dplls=0.
+module (qv) or if the modparam contains num_dplls=0.
 This function should be inserted first in the thread so that the encoder data is
 ready when the main \fBhm2_XiXX.NN.read\fR function runs. An error message will
 be printed if the encoder read is not finished in time. It may be possible to

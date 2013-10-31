@@ -130,7 +130,7 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
     
     // If there is no dpll to link to, then we export the trigger function.
     
-    if (hm2->config.num_hm2dplls == 0){
+    if (hm2->config.num_dplls == 0){
         char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
         rtapi_snprintf(name, sizeof(name),
                 "%s.trigger-encoders", hm2->llio->name);

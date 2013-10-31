@@ -100,7 +100,7 @@ static void hm2_read(void *void_hm2, long period) {
     //UARTS need to be explicity handled by an external component
 
     hm2_tp_pwmgen_read(hm2); // check the status of the fault bit
-    hm2_hm2dpll_process_tram_read(hm2, period);
+    hm2_dpll_process_tram_read(hm2, period);
     hm2_raw_read(hm2);
 }
 
@@ -136,7 +136,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_encoder_write(hm2);   // update ctrl register if needed
     hm2_absenc_write(hm2);    // set bit-lengths and frequency
     hm2_resolver_write(hm2, period); // Update the excitation frequency
-    hm2_hm2dpll_write(hm2, period); // Update the timer phases
+    hm2_dpll_write(hm2, period); // Update the timer phases
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
@@ -278,7 +278,6 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_UART_RX:         return "UART Receive Channel";
         case HM2_GTAG_UART_TX:         return "UART Transmit Channel";
         case HM2_GTAG_DPLL:            return "DPLL";      
-        case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
@@ -346,7 +345,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_stepgens = -1;
     hm2->config.num_bspis = -1;
     hm2->config.num_uarts = -1;
-    hm2->config.num_hm2dplls = -1;
+    hm2->config.num_dplls = -1;
     hm2->config.num_leds = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
@@ -440,9 +439,9 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 9;
             hm2->config.num_leds = simple_strtol(token, NULL, 0);
             
-        } else if (strncmp(token, "num_hm2_dplls=", 14) == 0) {
-            token += 14;
-            hm2->config.num_hm2dplls = simple_strtol(token, NULL, 0);
+        } else if (strncmp(token, "num_dplls=", 10) == 0) {
+            token += 10;
+            hm2->config.num_dplls = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "enable_raw", 10) == 0) {
             hm2->config.enable_raw = 1;
@@ -911,7 +910,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 break;
                 
             case HM2_GTAG_HM2DPLL:
-                md_accepted = hm2_hm2dpll_parse_md(hm2, md_index);
+                md_accepted = hm2_dpll_parse_md(hm2, md_index);
                 break;
                 
             case HM2_GTAG_LED:
@@ -1613,6 +1612,6 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_tp_pwmgen_force_write(hm2);
     hm2_sserial_force_write(hm2);
     hm2_bspi_force_write(hm2);
-    hm2_hm2dpll_force_write(hm2);
+    hm2_dpll_force_write(hm2);
 }
 
