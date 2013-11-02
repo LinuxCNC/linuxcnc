@@ -1958,7 +1958,9 @@ for drilling or milling.
 
  . Preliminary motion, as described above. 
  . Move the Z-axis only at the current feed rate to the Z position.
- . Retract the Z-axis at the current feed rate to clear Z. 
+ . Retract the Z-axis at the current feed rate to the R plane if it is lower 
+ then the initial Z.
+ . Retract at the traverse rate to clear Z. 
 
 [[sec:G86-Boring-Rapid-Out]]
 == G86 Boring Cycle, Spindle Stop, Rapid Out
