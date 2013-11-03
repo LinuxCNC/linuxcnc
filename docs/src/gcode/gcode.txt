@@ -1959,7 +1959,7 @@ for drilling or milling.
  . Preliminary motion, as described above. 
  . Move the Z-axis only at the current feed rate to the Z position.
  . Retract the Z-axis at the current feed rate to the R plane if it is lower 
- then the initial Z.
+ than the initial Z.
  . Retract at the traverse rate to clear Z. 
 
 [[sec:G86-Boring-Rapid-Out]]
@@ -2196,7 +2196,7 @@ of one or more contiguous canned cycles was started.
 
 Program a 'G98' and the canned cycle will use the Z position prior to
 the canned cycle as the Z return position if it is higher than the R
-value specified in the cycle. If it is lower then the R value will be
+value specified in the cycle. If it is lower, the R value will be
 used. The R word has different meanings in absolute distance mode and
 incremental distance mode.
 
