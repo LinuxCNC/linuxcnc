@@ -27,7 +27,6 @@ xeno_math-objs += rtapi/xeno_math/s_sin.o
 xeno_math-objs += rtapi/xeno_math/k_sin.o
 xeno_math-objs += rtapi/xeno_math/s_cos.o
 xeno_math-objs += rtapi/xeno_math/k_cos.o
-xeno_math-objs += rtapi/xeno_math/rndint.o
 xeno_math-objs += rtapi/xeno_math/e_rem_pio2.o
 xeno_math-objs += rtapi/xeno_math/k_rem_pio2.o
 xeno_math-objs += rtapi/xeno_math/s_scalbn.o
