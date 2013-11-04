@@ -23,6 +23,7 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 
+//Enable this for building with RT (leave off for simulation)
 #if 0
 static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
@@ -97,7 +98,7 @@ int tpClear(TP_STRUCT * const tp)
     tp->nextId = 0;
     tp->execId = 0;
     tp->motionType = 0;
-    tp->termCond = TC_TERM_COND_BLEND;
+    tp->termCond = TC_TERM_COND_PARABOLIC_BLEND;
     tp->tolerance = 0.0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
@@ -239,7 +240,7 @@ int tpGetExecId(TP_STRUCT * const tp)
 /**
  * Sets the termination condition for all subsequent queued moves.
  * If cond is TC_TERM_COND_STOP, motion comes to a stop before a subsequent move
- * begins. If cond is TC_TERM_COND_BLEND, the following move is begun when the
+ * begins. If cond is TC_TERM_COND_PARABOLIC_BLEND, the following move is begun when the
  * current move decelerates.
  */
 int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
@@ -250,7 +251,7 @@ int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
 
     switch (cond) {
         //Purposeful waterfall for now
-        case TC_TERM_COND_BLEND:
+        case TC_TERM_COND_PARABOLIC_BLEND:
         case TC_TERM_COND_TANGENT:
         case TC_TERM_COND_STOP:
             tp->termCond = cond;
@@ -724,7 +725,7 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     }
 
     //If exact stop, we don't compute the arc
-    if (prev_tc->term_cond != TC_TERM_COND_BLEND) {
+    if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC_BLEND) {
         tp_debug_print("Wrong term cond =%u\n", prev_tc->term_cond);
         return -1;
     }
@@ -781,9 +782,16 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     return 0;
 }
 
-#define TP_LOOKAHEAD_DEPTH 10
 
-STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
+/**
+ * Do "rising tide" optimization to find allowable final velocities for each queued segment.
+ * Walk along the queue from the back to the front. Based on the "current"
+ * segment's final velocity, calculate the previous segment's maximum allowable
+ * final velocity. The depth we walk along the queue is controlled by the
+ * TP_LOOKAHEAD_DEPTH constant for now. The process safetly aborts early due to
+ * a short queue or other conflicts.
+ */
+STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     //Just loop over everything 
     int ind, x;
     //Assume that length won't change during a run
@@ -908,7 +916,7 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             /*blend_tc.motion_type=0;*/
             tpAddSegmentToQueue(tp, &blend_tc, end);
 
-            tpRunBackwardsOptimization(tp);
+            tpRunOptimization(tp);
             break;
         case 1: //Intentional waterfall
             //Skip, already tangent
@@ -1678,7 +1686,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // honor accel constraint in case we happen to make an acute angle
     // with the next segment.
     // TODO better acceleration constraints?
-    if(tc->term_cond == TC_TERM_COND_BLEND) {
+    if(tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
         tc->maxaccel /= 2.0;
         tp_debug_print("Parabolic blend, reducing tc maxaccel to %f\n",tc->maxaccel);
     }
@@ -1701,7 +1709,12 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
 }
 
 
-STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc, double speed) {
+/**
+ * Run velocity mode synchronization.
+ * Update requested velocity to follow the spindle's velocity (scaled by feed rate).
+ */
+STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
+        double speed) {
     //NOTE: check for aborting outside of here
 
     double pos_error = fabs(speed) * tc->uu_per_rev;
@@ -1711,6 +1724,10 @@ STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc, d
 }
 
 
+/**
+ * Run position mode synchronization.
+ * Updates requested velocity for a trajectory segment to track the spindle's position.
+ */
 STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
         tp_spindle_status_t * const status, double spindle_pos) {
 
@@ -1757,6 +1774,10 @@ STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
     }
 }
 
+
+/**
+ * Convert the 2-part spindle position and sign to a signed double.
+ */
 STATIC inline double tpGetSignedSpindlePosition(emcmot_status_t * const emcmotStatus) {
     double spindle_pos = emcmotStatus->spindleRevs;
     if (emcmotStatus->spindle.direction < 0.0) {
@@ -1882,7 +1903,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         // honor accel constraint if we happen to make an acute angle with the
         // above segment or the following one
         // TODO: replace this with better acceleration constraint
-        if(tc->term_cond == TC_TERM_COND_BLEND || nexttc->term_cond == TC_TERM_COND_BLEND) {
+        if(tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND || nexttc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
             nexttc->maxaccel /= 2.0;
             tp_debug_print("Parabolic blend, reducing nexttc maxaccel to %f\n",tc->maxaccel);
         }
@@ -1928,7 +1949,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }
     }
 
-    if (tc->term_cond == TC_TERM_COND_BLEND) {
+    if (tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
         tc->blend_vel = tpComputeBlendVelocity(tc, nexttc);
     }
 
@@ -1949,7 +1970,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     /* BLENDING STUFF */
     // make sure we continue to blend this segment even when its
     // accel reaches 0 (at the very end)
-    bool is_blend_start = (tc->term_cond == TC_TERM_COND_BLEND ) && nexttc &&
+    bool is_blend_start = (tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND ) && nexttc &&
         on_final_decel && (primary_vel < tc->blend_vel);
 
     bool is_tangent_blend_start = (tc->term_cond == TC_TERM_COND_TANGENT ) &&
