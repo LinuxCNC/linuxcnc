@@ -28,7 +28,7 @@ static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-#define TP_DEBUG
+/*#define TP_DEBUG*/
 #define STATIC static
 #include "tp_debug.h"
 
@@ -800,10 +800,12 @@ STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
             prev_tc->finalvel = vs;
             prev_tc->atpeak=1;
             tp_debug_print("found peak\n");
-            break;
         } else {
             prev_tc->finalvel = vs;
             prev_tc->atpeak=0;
+        }
+        if (tc->atpeak) {
+            break;
         }
 
         tp_debug_print(" prev_tc-> fv = %f, tc->fv = %f\n", prev_tc->finalvel,tc->finalvel);
