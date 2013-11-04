@@ -404,7 +404,7 @@ STATIC inline double tpMaxTangentAngle(double v, double acc, double period) {
     } else {
         tp_debug_print(" Velocity or period is negative!\n");
         //Should not happen...
-        return 0.00000001;
+        return TP_ANGLE_EPSILON;
     }
 }
 
@@ -730,20 +730,26 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
-    //TODO replace small value with named constant
-    if (prev_tc->coords.line.abc.tmag > 0.000001 || tc->coords.line.abc.tmag > 0.000001) {
-        tp_debug_print("ABC motion!\n");
+    if (prev_tc->coords.line.abc.tmag > TP_MAG_EPSILON ||
+            tc->coords.line.abc.tmag > TP_MAG_EPSILON) {
+        tp_debug_print("ABC motion, can't do 3D arc blend\n");
         return -1;
     }
 
-    if (prev_tc->coords.line.uvw.tmag > 0.000001 || tc->coords.line.uvw.tmag > 0.000001) {
-        tp_debug_print("UVW motion!\n");
+    if (prev_tc->coords.line.uvw.tmag > TP_MAG_EPSILON ||
+            tc->coords.line.uvw.tmag > TP_MAG_EPSILON) {
+        tp_debug_print("UVW motion, can't do 3D arc blend\n");
         return -1;
     }
     return 0;
 }
 
-STATIC int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
+
+/**
+ * Connect a blend arc to the two line segments it blends.
+ *
+ */
+STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         TC_STRUCT const * const blend_tc){
 
     //Scratch variables for arc end and start points
@@ -851,23 +857,30 @@ STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
 }
 
 
-
-static int tpAddBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
+/**
+ * Handle creating a blend arc when a new line segment is about to enter the queue.
+ * This function handles the checks, setup, and calculations for creating a new
+ * blend arc. Essentially all of the blend arc functions are called through
+ * here to isolate this process from tpAddLine.
+ * TODO: remove "end" as a parameter since it gets thrown out by the next line
+ * added after this.
+ */
+static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
 
     tp_debug_print("----------------------\nStarting blend stuff\n");
 
     TC_STRUCT *prev_tc = tcqLast(&tp->queue);
 
+    //If the previous segment has already started, then don't create a blend
+    //arc for the next pair.
+    // TODO May be able to lift this restriction if we can ensure that we leave
+    // 1 timestep's worth of distance in prev_tc
     if ( !prev_tc || prev_tc->progress > 0.0) {
-        //Too late to do traditional blending, just add this segment and bail
         return -1;
     }
 
-    /*tp_debug_print("prev_tc = %d\n",prev_tc);*/
-
-    //TODO check for terminal condition
     int need_arc = tpCheckNeedBlendArc(prev_tc, tc, tp->cycleTime);
-    /*debug_float(res);*/
+
     TC_STRUCT blend_tc;
 
     switch (need_arc) {
@@ -879,8 +892,8 @@ static int tpAddBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose con
                 tp_debug_print("error creating arc?\n");
                 return -1;
             }
-            //TODO adjust prev_tc and tc endpoints (and targets)
-            int arc_connect_stat = tcConnectArc(prev_tc, tc, &blend_tc);
+
+            int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
             
             if ( 1 == arc_connect_stat){
                 //Remove previous segment that is now zero length
@@ -969,15 +982,12 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.syncdio.anychanged = 0;
     }
 
-    tpAddBlendArc(tp, &tc, end);
+    tpHandleBlendArc(tp, &tc, end);
 
     //Assume non-zero error code is failure
     tp_debug_print("Adding line segment to queue\n");
     int retval =  tpAddSegmentToQueue(tp, &tc, end);
-    if (retval) {
-        return retval;
-    }
-    return 0;
+    return retval;
 }
 
 
@@ -1273,8 +1283,8 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
 /**
  * Handle special cases for rigid tapping.
  * This function deals with updating the goal position and spindle position
- * during a reversal.
- * TODO: detailed documentation here
+ * during a rigid tap cycle. In particular, the target and spindle goal need to
+ * be carefully handled since we're reversing direction.
  */
 STATIC void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
         TC_STRUCT * const tc, tp_spindle_status_t * const status ){
@@ -1426,6 +1436,8 @@ STATIC void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const
 
 /**
  * Update the planner's position, given a displacement.
+ * This function stores the result of the internal calculations in tpRunCycle,
+ * updating the global position of tp.
  */
 STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement){
 
@@ -1443,9 +1455,9 @@ STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displac
 
 /**
  * Cleanup if tc is not valid (empty queue).
- * This can represent the end of the
- * program OR QUEUE STARVATION.  In either case, I want to stop.  Some may not
- * agree that's what it should do.
+ * If the program ends, or we hit QUEUE STARVATION, do a soft reset on the trajectory planner.
+ * TODO: Is this necessary?
+ * TODO: Can this be handled by tpClear?
  */
 STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp,
         emcmot_status_t * const emcmotStatus) {
@@ -1462,11 +1474,12 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp,
     emcmotStatus->enables_queued = emcmotStatus->enables_new;
 }
 
-//TODO document
+/** Wrapper function to unlock rotary axes */
 STATIC void tpSetRotaryUnlock(int axis, int unlock) {
     emcmotSetRotaryUnlock(axis, unlock);
 }
 
+/** Wrapper function to check rotary axis lock */
 STATIC int tpGetRotaryIsUnlocked(int axis) {
     return emcmotGetRotaryIsUnlocked(axis);
 }
@@ -1512,11 +1525,15 @@ STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
     return tc_next;
 }
 
+
+/**
+ * Handle an abort command.
+ * Based on the current motion state, handle the consequences of an abort command.
+ */
 STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc, tp_spindle_status_t * const status){
 
-
-    // an abort message has come
+    //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(status->waiting_for_index) ||
             MOTION_ID_VALID(status->waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && !nexttc) ||
@@ -1535,6 +1552,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tpResume(tp);
         return 0;
     } else {
+        //Request that we slow to a stop
         tc->reqvel = 0.0;
         if(nexttc) nexttc->reqvel = 0.0;
     }
@@ -1787,13 +1805,14 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //Define TC as the "first" element in the queue
     tc = tcqItem(&tp->queue, 0);
 
+    //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
         tpHandleEmptyQueue(tp, emcmotStatus);
         return 0;
     }
 
+    //If we can't get a valid tc (end of move, waiting on spindle), we're done for now.
     if (tc->target == tc->progress && spindle_status.waiting_for_atspeed != tc->id) {
-        //If we can't get a valid tc (end of move, waiting on spindle), we're done for now.
         tc = tpCompleteSegment(tp, tc, &spindle_status);
         if (!tc)  return 0;
     }
@@ -1801,11 +1820,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
 
     if(tp->aborting) {
-        bool ready = tpHandleAbort(tp, tc, nexttc, &spindle_status);
-        if (!ready){
-            return 0;
-
+        int slowing = tpHandleAbort(tp, tc, nexttc, &spindle_status);
+        if (!slowing) {
             rtapi_print_msg(RTAPI_MSG_DBG, "  Early stop at tpHandleAbort?\n");
+            return 0;
         }
     }
 
@@ -1845,9 +1863,13 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }
     }
 
-    if (tc->motion_type == TC_RIGIDTAP) tpHandleRigidTap(emcmotStatus, tc, &spindle_status);
+    if (tc->motion_type == TC_RIGIDTAP) {
+        tpHandleRigidTap(emcmotStatus, tc, &spindle_status);
+    }
 
-    if(!tc->synchronized) emcmotStatus->spindleSync = 0;
+    if(!tc->synchronized) {
+        emcmotStatus->spindleSync = 0;
+    }
 
     if(nexttc && nexttc->active == 0) {
         // this means this tc is being read for the first time.
