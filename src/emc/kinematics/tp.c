@@ -23,9 +23,10 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 
-
+#if 0
 static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
+#endif
 
 #define TP_DEBUG
 #define STATIC static
@@ -36,8 +37,6 @@ extern emcmot_debug_t *emcmotDebug;
 
 int output_chan = 0;
 syncdio_t syncdio; //record tpSetDout's here
-
-static inline int min ( int a, int b ) { return a > b ? a : b; }
 
 /**
  * Create the trajectory planner structure with an empty queue.
@@ -760,7 +759,7 @@ STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
     double vs=0.0;
 
     int len = tcqLen(&tp->queue);
-    int walk = min(len-1,TP_LOOKAHEAD_DEPTH);
+    int walk = TP_LOOKAHEAD_DEPTH;
 
     if (len < 2) {
         return 0;
@@ -932,13 +931,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     }
 
     tpAddBlendArc(tp, &tc, end);
-
-
-
-
-
-
-
 
     //Assume non-zero error code is failure
     tp_debug_print("Adding line segment to queue\n");
