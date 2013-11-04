@@ -26,6 +26,9 @@
 /* closeness to zero, for determining if vel and accel are effectively zero */
 #define TP_VEL_EPSILON 1e-6
 #define TP_ACCEL_EPSILON 1e-6
+//TODO tune these values. Current values are a conservative guess
+#define TP_ANGLE_EPSILON 1e-6
+#define TP_MAG_EPSILON 1e-6
 
 
 /**
