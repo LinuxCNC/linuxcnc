@@ -12,7 +12,7 @@ controlled by signals of type 'step & direction'.
 
 Stepconf is installed when you install LinuxCNC and is in the CNC menu.
 
-Stepconf places a file in the emc2/config directory
+Stepconf places a file in the linuxcnc/config directory
 to store the choices for each configuration you create.
 When you change something, you need to pick the file
 that matches your configuration name.
@@ -67,7 +67,7 @@ For example, enter 4.5us as 4500ns.
 
 A list of some popular drives, along with their timing values, is on the
 LinuxCNC.org Wiki under
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Stepper Drive Timing].
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing].
 
 Additional signal conditioning or isolation such as optocouplers and RC filters
 on break out boards can impose timing constraints of their own, in addition
@@ -144,7 +144,7 @@ SMI issues, and a number of other things can hurt the latency.
 ************************************************************
 Fixing Realtime problems caused by SMI on Ubuntu
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?FixingSMIIssues
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
 ************************************************************
 
 The important numbers are the 'max jitter'. In the example above 9075
