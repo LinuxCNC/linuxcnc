@@ -29,7 +29,6 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 /*#define TP_DEBUG*/
-#define STATIC static
 #include "tp_debug.h"
 
 extern emcmot_status_t *emcmotStatus;
@@ -396,11 +395,24 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
  */
 STATIC inline double tpMaxTangentAngle(double v, double acc, double period) {
     double dx = v / period;
-    if (dx > 0.0) return acc / dx;
-    else return 0.00000001;
+    // Hand-wavy constant to be more conservative.
+    // TODO calculate / experimentally determine if we need this
+    const double safety_factor = 10.0;
+
+    if (dx > 0.0) {
+        return ((acc / dx) / safety_factor);
+    } else {
+        tp_debug_print(" Velocity or period is negative!\n");
+        //Should not happen...
+        return 0.00000001;
+    }
 }
 
 
+/**
+ * Somewhat redundant function to calculate the segment intersection angle.
+ * This is PI - the acute angle between the unit vectors.
+ */
 STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
     double dot;
     pmCartCartDot(u1, u2, &dot);
@@ -416,7 +428,11 @@ STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartes
 }
 
 
-STATIC inline int tpFindSegmentAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
+/**
+ * Calculate the angle between two unit cartesian vectors.
+ * TODO Make this a posemath function?
+ */
+STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
@@ -427,35 +443,36 @@ STATIC inline int tpFindSegmentAngle(PmCartesian const * const u1, PmCartesian c
 }
 
 /**
- * Build a spherical arc from the supplied parameters.
+ * Apply calculated blend arc parameters to a TC.
  * @param start is the starting point of the arc as calculated by the blend routine.
  * @param end is the end point of the arc on the next move.
+ * @param 
  *
  * see pmSphericalArcInit for further details on how arcs are specified. Note that
  * degenerate arcs/circles are not allowed. We are guaranteed to have a move in
  * xyz so the target is always the length.
  */
-STATIC int tpApplyBlendArcParameters(TP_STRUCT const * const tp, TC_STRUCT * const tc, double vel, double acc)
+STATIC int tpApplyBlendArcParameters(TP_STRUCT const * const tp, TC_STRUCT * const blend_tc, double vel, double acc)
 {
     double length;
     if (tpErrorCheck(tp)<0) return -1;
-    // find helix length
-    length = tc->coords.circle.xyz.angle * tc->coords.circle.xyz.radius;
-    tc->target = length;
-    //TODO acceleration bounded by optimizer
-    tc->motion_type = TC_CIRCULAR;
+    // find "helix" length
+    length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
+    blend_tc->target = length;
+    //TODO acceleration limits tweaked by optimization
+    blend_tc->motion_type = TC_CIRCULAR;
     //Blend arc specific settings:
-    tc->term_cond = TC_TERM_COND_TANGENT;
-    tc->tolerance = 0.0;
-    tc->reqvel = vel;
-    tc->maxaccel = acc;
+    blend_tc->term_cond = TC_TERM_COND_TANGENT;
+    blend_tc->tolerance = 0.0;
+    blend_tc->reqvel = vel;
+    blend_tc->maxaccel = acc;
     return 0;
 }
 
 /**
  * Initialize a spherical blend arc from its parent lines.
  */
-STATIC int tpInitSphericalArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
+STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
         TC_STRUCT* const tc) {
 
     if (tpErrorCheck(tp)<0) return -1;
@@ -567,7 +584,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("R_upper = %f\n",R_upper); 
 
-    tpInitSphericalArc(tp, prev_tc, blend_tc);
+    tpInitBlendArc(tp, prev_tc, blend_tc);
 
     //TODO Recycle calculations?
     //TODO errors within this function
@@ -671,31 +688,38 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     }
 
     //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
-    if (tpFindSegmentAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
+    if (tpCalculateUnitCartAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
         return -1;
     }
 
-
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
+
+    // Calculate the maximum angle between unit vectors that can still be
+    // considered "tangent" (i.e. small enough that the
+    // acceleration/deceleration spike is within limits).
     double crit_angle = tpMaxTangentAngle(v_req, a_max, period)/10.0;
 
     tp_debug_print("max tan angle is %f\n",crit_angle);
     tp_debug_print("angle between segs = %f\n",omega);
+
+    //If the segments are nearly tangent, just treat it as tangent since the
+    //acceleration is within bounds.
     if (omega < crit_angle) {
-        //No blend arc needed, already tangent
         return 1;
     }
 
+    //If the corner is too tight, a circular arc would have zero radius. Fall
+    //back to default blend.
     if ((PM_PI - omega) < crit_angle ) {
-        //corner too tight
         tp_debug_print("Corner too tight, omega = %f\n",omega);
         return -1;
     }
 
     //If not linear blends, we can't easily compute an arc
     if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
-        tp_debug_print("Wrong motion type tc =%u, tc2=%u\n",prev_tc->motion_type,tc->motion_type);
+        tp_debug_print("Wrong motion type tc =%u, tc2=%u\n",
+                prev_tc->motion_type,tc->motion_type);
         return -1;
     }
 
@@ -706,6 +730,7 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
+    //TODO replace small value with named constant
     if (prev_tc->coords.line.abc.tmag > 0.000001 || tc->coords.line.abc.tmag > 0.000001) {
         tp_debug_print("ABC motion!\n");
         return -1;
@@ -718,17 +743,20 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     return 0;
 }
 
-STATIC int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT const * const blend_tc){
+STATIC int tcConnectArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
+        TC_STRUCT const * const blend_tc){
 
     //Scratch variables for arc end and start points
     PmCartesian start_xyz, end_xyz;
 
     //Get start and end points of blend arc to update lines
     pmCirclePoint(&blend_tc->coords.circle.xyz, 0.0, &start_xyz);
-    pmCirclePoint(&blend_tc->coords.circle.xyz, blend_tc->coords.circle.xyz.angle, &end_xyz);
+    pmCirclePoint(&blend_tc->coords.circle.xyz,
+            blend_tc->coords.circle.xyz.angle, &end_xyz);
 
     /* Only shift XYZ for now*/
-    pmCartLineInit(&prev_tc->coords.line.xyz, &prev_tc->coords.line.xyz.start,&start_xyz);
+    pmCartLineInit(&prev_tc->coords.line.xyz,
+            &prev_tc->coords.line.xyz.start,&start_xyz);
     pmCartLineInit(&tc->coords.line.xyz, &end_xyz, &tc->coords.line.xyz.end);
 
     tp_debug_print("Old target = %f\n",prev_tc->target);
@@ -755,7 +783,6 @@ STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
     //Assume that length won't change during a run
     TC_STRUCT *tc=NULL;
     TC_STRUCT *prev_tc=NULL;
-    /*double peak_vel=0.0;*/
     double vs=0.0;
 
     int len = tcqLen(&tp->queue);
@@ -775,24 +802,31 @@ STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
         tc=tcqItem(&tp->queue, ind);
         prev_tc=tcqItem(&tp->queue, ind-1);
 
-        /*tp_debug_print("  tc = %u, prev_tc = %u\n", tc,prev_tc);*/
-
         if ( !prev_tc || !tc) {
             break;
         }
 
-        tp_debug_print("  prev term = %u, tc term = %u\n",prev_tc->term_cond,tc->term_cond);
+        tp_debug_print("  prev term = %u, tc term = %u\n",
+                prev_tc->term_cond,tc->term_cond);
 
+        // stop optimizing if we hit a non-tangent segment (final velocity
+        // stays zero)
         if (prev_tc->term_cond != TC_TERM_COND_TANGENT) {
             break;
         }
 
+        //Abort if a segment is already in progress
+        //TODO: do we need to do this? The calculation should compensate
         if (prev_tc->progress>0) {
-            tp_debug_print("segment %d already started, progress is %f!\n",ind-1,prev_tc->progress);
+            tp_debug_print("segment %d already started, progress is %f!\n",
+                    ind-1,prev_tc->progress);
             break;
         }
 
+        //Calculate the maximum starting velocity vs of segment tc, given the
+        //trajectory parameters
         vs = pmSqrt(pmSq(tc->finalvel) + 2*tc->maxaccel*tc->target);
+
         tp_debug_print(" vs = %f, reqvel = %f\n",vs,tc->reqvel);
         if (vs > tc->maxvel) {
             //Found a peak
@@ -808,12 +842,15 @@ STATIC int tpRunBackwardsOptimization(TP_STRUCT * const tp) {
             break;
         }
 
-        tp_debug_print(" prev_tc-> fv = %f, tc->fv = %f\n", prev_tc->finalvel,tc->finalvel);
+        tp_debug_print(" prev_tc-> fv = %f, tc->fv = %f\n",
+                prev_tc->finalvel, tc->finalvel);
 
     }
 
     return 0;
 }
+
+
 
 static int tpAddBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
 
@@ -942,7 +979,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     }
     return 0;
 }
-
 
 
 /**
@@ -1137,15 +1173,23 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
     double final_vel = tc->finalvel;
 
     //Clamp the requested velocity by the maximum velocity allowed.
-    //TODO remove this if we can check during add
-    if (req_vel > tc->maxvel) req_vel = tc->maxvel;
+    //TODO remove this since we check limits during initial setup
+    if (req_vel > tc->maxvel) {
+        req_vel = tc->maxvel;
+    }
 
     //Clamp final velocity to the max velocity we can achieve
-    if (final_vel > req_vel) final_vel = req_vel;
+    if (final_vel > req_vel) {
+        final_vel = req_vel;
+    }
     // Need this to plan down to zero V
-    if (tp->pausing) final_vel = 0.0;
+    if (tp->pausing) {
+        final_vel = 0.0;
+    }
 
-    if (!tc->blending) tc->vel_at_blend_start = tc->currentvel;
+    if (!tc->blending) {
+        tc->vel_at_blend_start = tc->currentvel;
+    }
 
     delta_pos = tc->target - tc->progress;
 
@@ -1176,8 +1220,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
             rtapi_print_msg(RTAPI_MSG_DBG, "calculated newvel = %f, with T = %f, P = %f", newvel, tc->target, tc->progress);
             tc->progress = tc->target;
         }
-    }
-    else {
+    } else {
 
         bool is_pure_rotary = (tc->motion_type == TC_LINEAR) &&
             (tc->coords.line.xyz.tmag_zero) && (tc->coords.line.uvw.tmag_zero);
