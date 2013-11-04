@@ -1,3 +1,21 @@
+ver 0.9.8.3
+- BUG: forget to update the cooordiante system after changing the error system,
+  causing the ABS/REL button not showing the correct label, fixed
+- BUG: inserted Jog Increment continious insteadt of 0, so could cause an exception
+  on translated GUI, fixed
+- BUG: when changing the mode from outside, i.e. starting a program with an external button, 
+  the GUI did not change the style to auto mode, so it was not consistent, fixed
+- deleted unnecessary icon and introduced new icon for machine on off and for the
+  mode button (Thanks to Dejan/probamo)
+
+ver. 0.9.8.2
+- make the design from spindle and coolant frames more beautifull
+- added both to a hbox, so later this box may be replaced by user controls,
+  i.e. plasma cutters
+
+ver. 0.9.8.1
+- introduced new serbian translation
+
 ver. 0.9.8
 - introduced notification as gmoccapy error messaging system
 - rebuild the settings page to make the message system settings availible

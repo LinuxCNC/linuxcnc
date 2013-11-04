@@ -230,7 +230,7 @@ public:
                              CANON_DIRECTION direction,
                              CANON_SPEED_FEED_MODE mode);
  int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
-                             double clear_z, double bottom_z);
+                             double r, double clear_z, double bottom_z);
  int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell,
                              CANON_DIRECTION direction);

@@ -83,7 +83,7 @@ l'option num_aio au chargement de motmod.
 
 motion.adaptive-feed::
      (float, in) Quand la vitesse est placée en mode adaptatif avec
-    _M52 P1_ la vitesse commandée est multipliée par cette valeur. Cet
+    _M52 P1_ la vitesse commandée est multipliée par cette valeur. Cet
     effet est
      multiplicatif avec _motion.feed-hold_ et la valeur du correcteur de
     vitesse du niveau NML.
@@ -123,7 +123,7 @@ motion.enable::
 
 motion.feed-hold::
      (bit, in) Quand la vitesse est placée en mode arrêt contrôlé avec
-    _M53 P1_ et que ce bit est TRUE, la vitesse est fixée à 0.
+    _M53 P1_ et que ce bit est TRUE, la vitesse est fixée à 0.
 
 motion.motion-inposition::
     (bit, out) TRUE si la machine est en position.

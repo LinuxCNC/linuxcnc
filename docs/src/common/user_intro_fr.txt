@@ -59,7 +59,7 @@ interfaces utilisateurs graphiques:
 * <<cha:Axis,_Axis_>>, l'interface utilisateur standard.
 
 .L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
-image::images/axis_2.5_fr.png[align="center"]
+image::images/axis_25_fr.png[align="center"]
 
 * <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écran tactile.
 
@@ -129,7 +129,7 @@ travail sont les preuves des leçons retenues. Aucune machine, aucun
 programme ne peut remplacer l'expérience humaine.
 
 Maintenant que vous commencez à travailler avec le programme LinuxCNC,
-vous devez vous placer dans la peau d'un opérateur. Vous devez être 
+vous devez vous placer dans la peau d'un opérateur. Vous devez être 
 dans le rôle de quelqu'un qui a la charge d'une machine. C'est une
 machine qui attendra vos commandes puis qui exécutera les ordres que
 vous lui donnerez. Dans ces pages, nous donnerons les explications qui

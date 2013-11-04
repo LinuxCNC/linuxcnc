@@ -67,12 +67,12 @@ est enregistrée dans une variable numérotée.
 [width="40%",cols="^,^",options="header"]
 |==============
 |Variable|Valeur
-|5241 |0.000000
-|5242 |0.000000
-|5243 |0.000000
-|5244 |0.000000
-|5245 |0.000000
-|5246 |0.000000
+|5241 |0.000000
+|5242 |0.000000
+|5243 |0.000000
+|5244 |0.000000
+|5245 |0.000000
+|5246 |0.000000
 |==============
 
 Dans le schéma d'un fichier VAR, la première variable contient la
@@ -89,12 +89,12 @@ directement le fichier pour que G55 prenne les valeurs suivantes:
 [width="40%",cols="^,^",options="header"]
 |==============
 |Variable|Valeur
-|5241 |2.000000
-|5242 |1.000000
-|5243 |-2.000000
-|5244 |0.000000
-|5245 |0.000000
-|5246 |0.000000
+|5241 |2.000000
+|5242 |1.000000
+|5243 |-2.000000
+|5244 |0.000000
+|5245 |0.000000
+|5246 |0.000000
 |==============
 
 Vous pouvez voir que les positions zéro de G55 sont passées en X = 2, 
@@ -252,12 +252,12 @@ peut les rendre de nouveau actives. Les variables sont numérotées:
 [width="40%",cols="^,^",options="header"]
 |==============
 |Variable|Valeur
-|5211 | 0.000000
-|5212 | 0.000000
-|5213 | 0.000000
-|5214 | 0.000000
-|5215 | 0.000000
-|5216 | 0.000000
+|5211 | 0.000000
+|5212 | 0.000000
+|5213 | 0.000000
+|5214 | 0.000000
+|5215 | 0.000000
+|5216 | 0.000000
 |==============
 
 où 5211 est le numéro du décalage de l'axe X et ainsi de suite. Si

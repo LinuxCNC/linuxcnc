@@ -234,7 +234,7 @@ machine et la valeur courante de current_z dans le modèle est ajustée.
 L'effet de la compensation de longueur d'outil est illustrée dans la
 capture ci-dessous. Noter que la longueur de l'outil est soustraite de
 Z pour que le point contrôlé programmé corresponde à la pointe de
-l'outil. Il faut également noter que l'effet de la compensation de
+l'outil. Il faut également noter que l'effet de la compensation de
 longueur est immédiat quand on voit la position de Z comme une
 coordonnée relative mais il est sans effet sur la position actuelle de
 la machine jusqu'à ce qu'un mouvement en Z soit programmé.

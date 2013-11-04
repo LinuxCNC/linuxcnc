@@ -30,7 +30,7 @@ bonnes interfaces.
 * Règle de clarté: La Clarté vaut mieux que l'ingéniosité.
 
 * Règle de composition: Concevoir des programmes qui peuvent être
-reliés à d'autres programmes.
+reliés à d'autres programmes.
 
 * Règle de séparation: Séparer les règles du fonctionnement; Séparer
 les interfaces du mécanisme.footnote:[Trouvé

@@ -169,9 +169,6 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 
-# list of supported hostmot2 boards
-HM2_BOARDS = 3x20 4i65 4i68 5i20 5i22 5i23 7i43
-
 # Print 'entering' all the time
 MAKEFLAGS += w
 
@@ -439,6 +436,7 @@ HEADERS := \
     emc/nml_intf/motion_types.h \
     emc/nml_intf/debugflags.h \
     emc/rs274ngc/interp_internal.hh \
+    emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/rs274ngc.hh \
     hal/hal.h \
     hal/hal_parport.h \
@@ -1128,6 +1126,7 @@ hostmot2-objs :=			  \
 	hal/drivers/mesa-hostmot2/uart.o	  \
     hal/drivers/mesa-hostmot2/watchdog.o  \
     hal/drivers/mesa-hostmot2/pins.o	  \
+    hal/drivers/mesa-hostmot2/dpll.o  \
     hal/drivers/mesa-hostmot2/led.o	  \
     hal/drivers/mesa-hostmot2/tram.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
