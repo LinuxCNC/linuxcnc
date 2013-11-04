@@ -354,7 +354,7 @@ STATIC inline void tpConvertPmCartesiantoEmcPose(PmCartesian const * const xyz, 
  */
 STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double vel, double ini_maxvel, double acc,
-        unsigned char enables){
+        unsigned char enables) {
 
     tc->sync_accel = 0;
     tc->cycle_time = tp->cycleTime;
@@ -604,7 +604,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
-STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * const tc, EmcPose const * const end){
+STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * const tc, EmcPose const * const end) {
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -750,7 +750,7 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
  *
  */
 STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        TC_STRUCT const * const blend_tc){
+        TC_STRUCT const * const blend_tc) {
 
     //Scratch variables for arc end and start points
     PmCartesian start_xyz, end_xyz;
@@ -895,7 +895,7 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
 
             int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
             
-            if ( 1 == arc_connect_stat){
+            if ( 1 == arc_connect_stat) {
                 //Remove previous segment that is now zero length
                 int trim_fail = tcqPopBack(&tp->queue);
                 if (trim_fail) {
@@ -1075,7 +1075,7 @@ STATIC void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
     if (tc->progress > tc->target) {
         //Store previous position
         overshoot = tc->progress - tc->target;
-        if (nexttc){
+        if (nexttc) {
             nexttc->progress = overshoot;
             nexttc->currentvel = tc->currentvel;
             tc->progress=tc->target;
@@ -1287,7 +1287,7 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
  * be carefully handled since we're reversing direction.
  */
 STATIC void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
-        TC_STRUCT * const tc, tp_spindle_status_t * const status ){
+        TC_STRUCT * const tc, tp_spindle_status_t * const status ) {
 
     static double old_spindlepos;
     double new_spindlepos = emcmotStatus->spindleRevs;
@@ -1363,7 +1363,7 @@ STATIC void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
  * flags. Then, update the emcmotStatus structure with this information.
  */
 STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp,
-        emcmot_status_t * const emcmotStatus, TC_STRUCT const * const tc ){
+        emcmot_status_t * const emcmotStatus, TC_STRUCT const * const tc ) {
     EmcPose target;
     tcGetEndpoint(tc, &target);
 
@@ -1393,7 +1393,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp,
  * Perform the actual blending process by updating the nexttc.
  */
 STATIC void tpDoParabolicBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * nexttc, double primary_vel){
+        TC_STRUCT * nexttc, double primary_vel) {
 
     /*EmcPose secondary_before = tcGetPos(nexttc);*/
     //Store the actual requested velocity
@@ -1416,7 +1416,7 @@ STATIC void tpDoParabolicBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * displacement instead of absolute position when blending between moves.
  */
 STATIC void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const before,
-        EmcPose * const displacement){
+        EmcPose * const displacement) {
 
     EmcPose after;
     tcGetPos(tc, &after);
@@ -1439,7 +1439,7 @@ STATIC void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const
  * This function stores the result of the internal calculations in tpRunCycle,
  * updating the global position of tp.
  */
-STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement){
+STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement) {
 
     pmCartCartAdd(&tp->currentPos.tran, &displacement->tran,
             &(tp->currentPos.tran));
@@ -1492,7 +1492,7 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
  * Finally, get the next move in the queue.
  */
 STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
-        const tc, tp_spindle_status_t * const status){
+        const tc, tp_spindle_status_t * const status) {
     // if we're synced, and this move is ending, save the
     // spindle position so the next synced move can be in
     // the right place.
@@ -1531,7 +1531,7 @@ STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
  * Based on the current motion state, handle the consequences of an abort command.
  */
 STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, tp_spindle_status_t * const status){
+        TC_STRUCT * const nexttc, tp_spindle_status_t * const status) {
 
     //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(status->waiting_for_index) ||
@@ -1568,7 +1568,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * something has gone wrong. The fix for now is to just update status so we're
  * waiting in the current segment instead. (Rob's understanding)
  */
-STATIC int tpCheckWaiting(TC_STRUCT const * const tc, tp_spindle_status_t * const status){
+STATIC int tpCheckWaiting(TC_STRUCT const * const tc, tp_spindle_status_t * const status) {
 
     // this is no longer the segment we were waiting_for_index for
     if (MOTION_ID_VALID(status->waiting_for_index) && status->waiting_for_index != tc->id)
@@ -1678,7 +1678,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // honor accel constraint in case we happen to make an acute angle
     // with the next segment.
     // TODO better acceleration constraints?
-    if(tc->term_cond == TC_TERM_COND_BLEND){
+    if(tc->term_cond == TC_TERM_COND_BLEND) {
         tc->maxaccel /= 2.0;
         tp_debug_print("Parabolic blend, reducing tc maxaccel to %f\n",tc->maxaccel);
     }
@@ -1882,7 +1882,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         // honor accel constraint if we happen to make an acute angle with the
         // above segment or the following one
         // TODO: replace this with better acceleration constraint
-        if(tc->term_cond == TC_TERM_COND_BLEND || nexttc->term_cond == TC_TERM_COND_BLEND){
+        if(tc->term_cond == TC_TERM_COND_BLEND || nexttc->term_cond == TC_TERM_COND_BLEND) {
             nexttc->maxaccel /= 2.0;
             tp_debug_print("Parabolic blend, reducing nexttc maxaccel to %f\n",tc->maxaccel);
         }
@@ -1928,7 +1928,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }
     }
 
-    if (tc->term_cond == TC_TERM_COND_BLEND){
+    if (tc->term_cond == TC_TERM_COND_BLEND) {
         tc->blend_vel = tpComputeBlendVelocity(tc, nexttc);
     }
 
@@ -1983,7 +1983,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
     else {
 
-        if (is_tangent_blend_start){
+        if (is_tangent_blend_start) {
             rtapi_print_msg(RTAPI_MSG_DBG, "Found Tangency at %d, T-P of tc is %f at_endpt = %d\n",
                     tc->id, tc->target - tc->progress, tc->target == tc->progress);
 
