@@ -1,12 +1,23 @@
 #!/bin/bash
 
-#export PATH=$PATH:$EMC2_HOME/tests/helpers
-#source $EMC2_HOME/tests/helpers/test-functions.sh
+rm -f result.halsamples sim.var sim.var.bak
 
-emc motion-test.ini &
+linuxcnc -r motion-test.ini &
 
-# let emc come up
-sleep 4 
+# let linuxcnc come up
+TOGO=80
+while [  $TOGO -gt 0 ]; do
+    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    if nc -z localhost 5007; then
+        break
+    fi
+    sleep 0.25
+    TOGO=$(($TOGO - 1))
+done
+if [  $TOGO -eq 0 ]; then
+    echo connection to linuxcncrsh timed out
+    exit 1
+fi
 
 (
     echo starting to capture data
@@ -27,7 +38,7 @@ sleep 4
     echo set home 2
 
     # give emc a second to home
-    sleep 1.0
+    sleep 2.0
 
     echo set mode mdi
     echo set mdi g0x1
@@ -39,7 +50,7 @@ sleep 4
 ) | nc localhost 5007
 
 
-# wait for emc to finish
+# wait for linuxcnc to finish
 wait
 
 exit 0
