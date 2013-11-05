@@ -61,6 +61,16 @@ static double tpGetFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const 
     return tc->finalvel * tpGetFeedOverride(tp,tc);
 }
 
+static int tpClipVelocityLimit(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+    // Nyquist-like velocity limits
+    double sample_maxvel = 0.5 * tc->target / tp->cycleTime;
+    if (tc->maxvel > sample_maxvel) {
+        tp_debug_print("Clipped maxvel from %f to %f in tc #%d\n",tc->maxvel,sample_maxvel,tc->id);
+        tc->maxvel = sample_maxvel;
+    }
+    return 0;
+}
+
 
 /**
  * Convert the 2-part spindle position and sign to a signed double.
@@ -393,7 +403,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->sync_accel = 0;
     tc->cycle_time = tp->cycleTime;
-    tc->id = tp->nextId;
+    tc->id = -1; //ID to be set when added to queue
 
     tc->progress = 0.0;
     tc->maxaccel = acc;
@@ -638,6 +648,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
  */
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
 
+    tc->id=tp->nextId;
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
         return -1;
@@ -648,7 +659,6 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
-    tc->id=tp->nextId;
     tp_debug_print("Adding TC id %d of type %d\n",tc->id,tc->motion_type);
     tp->nextId++;
 
@@ -877,7 +887,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         tp_debug_print(" vs = %f, reqvel = %f\n",vs,tc->reqvel);
         if (vs > tc->maxvel) {
             //Found a peak
-            vs = tc->reqvel;
+            vs = tc->maxvel;
             prev_tc->finalvel = vs;
             prev_tc->atpeak=1;
             tp_debug_print("found peak\n");
@@ -947,6 +957,10 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
                 //TODO check for failure, bail if we can't blend
             }
 
+            tpClipVelocityLimit(tp, prev_tc);
+            tpClipVelocityLimit(tp, &blend_tc);
+            //TC is clipped later
+
             tpAddSegmentToQueue(tp, &blend_tc, end);
 
             tpRunOptimization(tp);
@@ -1000,6 +1014,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.target = line_abc.tmag;
     }
 
+
     tc.atspeed = atspeed;
 
     tc.coords.line.xyz = line_xyz;
@@ -1023,6 +1038,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     }
 
     tpHandleBlendArc(tp, &tc, end);
+
+    tpClipVelocityLimit(tp, &tc);
 
     int retval =  tpAddSegmentToQueue(tp, &tc, end);
     return retval;
@@ -1086,6 +1103,11 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = -1;
 
+    // Nyquist-like velocity limits
+    // TODO: deal with shortening of segment in blend arc
+    double sample_maxvel = 0.5* tc.target / tp->cycleTime;
+    tc.maxvel = fmin(sample_maxvel,tc.maxvel);
+
     if (syncdio.anychanged != 0) {
         tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
         tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
@@ -1093,6 +1115,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
         tc.syncdio.anychanged = 0;
     }
 
+    tpClipVelocityLimit(tp, &tc);
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, end);
 }
@@ -1115,6 +1138,10 @@ STATIC void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
         tp_debug_print("Overshot by %f at end of move %d\n", overshoot, tc->id);
         if (nexttc) {
             nexttc->progress = overshoot;
+            if (overshoot > nexttc->target) {
+                //trouble...
+                tp_debug_print("Overshot beyond nexttc, OS = %f, targ = %f\n",overshoot,nexttc->target);
+            }
             nexttc->currentvel = tc->currentvel;
             tc->progress=tc->target;
             tp_debug_print("setting init vel to %f\n", nexttc->currentvel);
@@ -1142,8 +1169,7 @@ STATIC double tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const
     double blend_vel=tc->blend_vel;
 
     if(nexttc && nexttc->maxaccel) {
-        blend_vel = nexttc->maxaccel *
-            pmSqrt(nexttc->target / nexttc->maxaccel);
+        blend_vel = pmSqrt(nexttc->target * nexttc->maxaccel);
         if(blend_vel > tpGetReqVel(tp,nexttc)) {
             // segment has a cruise phase so let's blend over the
             // whole accel period if possible
@@ -1227,8 +1253,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
         final_vel = req_vel;
     }
 
-    tp_debug_print("tcRunCycle req_vel is %f\n",req_vel);
-    tp_debug_print("tcRunCycle final_vel is %f\n",final_vel);
     // Need this to plan down to zero V
     if (tp->pausing) {
         final_vel = 0.0;
@@ -1322,7 +1346,7 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
  * during a rigid tap cycle. In particular, the target and spindle goal need to
  * be carefully handled since we're reversing direction.
  */
-STATIC void tpHandleRigidTap(emcmot_status_t * const emcmotStatus,
+STATIC void tpHandleRigidTap(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, tp_spindle_status_t * const status ) {
 
     static double old_spindlepos;
@@ -1834,7 +1858,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     EmcPose primary_before, primary_displacement;
     EmcPose secondary_before, secondary_displacement;
 
-
     // Persistant spindle data for spindle-synchronized motion
     static tp_spindle_status_t spindle_status = {0.0, MOTION_INVALID_ID,
         MOTION_INVALID_ID, 0.0};
@@ -1905,7 +1928,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     if (tc->motion_type == TC_RIGIDTAP) {
-        tpHandleRigidTap(emcmotStatus, tc, &spindle_status);
+        tpHandleRigidTap(tp, tc, &spindle_status);
     }
 
     if(!tc->synchronized) {
