@@ -1,5 +1,7 @@
 /*
     gs2_vfd.c
+    Copyright (C) 2013 Sebastian Kuzminsky
+    Copyright (C) 2009 John Thornton
     Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
 
     Based on a work (test-modbus program, part of libmodbus) which is
@@ -22,7 +24,6 @@
     This is a userspace program that interfaces the Automation Direct
     GS2 VFD to the LinuxCNC HAL.
 
-    Add is-stopped pin John Thornton
 */
 
 #include <stdio.h>
