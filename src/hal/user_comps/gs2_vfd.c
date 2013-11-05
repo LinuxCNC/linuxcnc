@@ -232,8 +232,10 @@ void usage(int argc, char **argv) {
     "    Set number of data bits to <n>, where n must be from 5 to 8 inclusive\n"
     "-d or --device <path> (default /dev/ttyS0)\n"
     "    Set the name of the serial device node to use\n"
-    "-v or --verbose or -g or --debug\n"
-    "    Turn on verbose mode.  This will cause all modbus messages to be\n"
+    "-v or --verbose\n"
+    "    Turn on verbose mode.\n"
+    "-g or --debug\n"
+    "    Turn on debug mode.  This will cause all modbus messages to be\n"
     "    printed in hex on the terminal.\n"
     "-n or --name <string> (default gs2_vfd)\n"
     "    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
@@ -303,7 +305,7 @@ int main(int argc, char **argv)
     int slave;
     int hal_comp_id;
     struct timespec loop_timespec, remaining;
-    int baud, bits, stopbits, verbose;
+    int baud, bits, stopbits, verbose, debug;
     char *device, *endarg;
     char parity;
     int opt;
@@ -314,6 +316,7 @@ int main(int argc, char **argv)
     baud = 38400;
     bits = 8;
     stopbits = 1;
+    debug = 0;
     verbose = 0;
     device = "/dev/ttyS0";
     parity = 'O';
@@ -347,6 +350,8 @@ int main(int argc, char **argv)
                 device = strdup(optarg);
                 break;
             case 'g':
+                debug = 1;
+                break;
             case 'v':
                 verbose = 1;
                 break;
@@ -402,8 +407,8 @@ int main(int argc, char **argv)
         }
     }
 
-    printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d, verbose=%d\n",
-           modname, device, baud, parity, bits, stopbits, slave, verbose);
+    printf("%s: device='%s', baud=%d, parity='%c', bits=%d, stopbits=%d, address=%d\n",
+           modname, device, baud, parity, bits, stopbits, slave);
     /* point TERM and INT signals at our quit function */
     /* if a signal is received between here and the main loop, it should prevent
             some initialization from happening */
@@ -423,7 +428,7 @@ int main(int argc, char **argv)
         goto out_noclose;
     }
 
-    modbus_set_debug(mb_ctx, verbose);
+    modbus_set_debug(mb_ctx, debug);
 
     modbus_set_slave(mb_ctx, slave);
 

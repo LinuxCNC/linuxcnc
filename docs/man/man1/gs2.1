@@ -48,7 +48,10 @@ component. This component reads and writes to the GS2 via a modbus connection.
 .IP -d,\ --device\ <path>
 (default /dev/ttyS0) Set the name of the serial device node to use.
 .B
-.IP -v,\ --verbose,\ -g,\ --debug
+.IP -v,\ --verbose
+Turn on verbose mode.
+.B
+.IP -g,\ --debug
 Turn on debug messages. Note that if there are serial errors, this may
 become annoying.  Debug mode will cause all modbus messages to be printed
 in hex on the terminal.
