@@ -29,7 +29,7 @@ static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-/*#define TP_DEBUG*/
+#define TP_DEBUG
 #include "tp_debug.h"
 
 extern emcmot_status_t *emcmotStatus;
@@ -37,6 +37,41 @@ extern emcmot_debug_t *emcmotDebug;
 
 int output_chan = 0;
 syncdio_t syncdio; //record tpSetDout's here
+
+/**
+ * Get a TC's feed rate override based on emcmotStatus.
+ * This function is designed to eliminate duplicate states, since this leads to bugs.
+ * TODO: move to tc?
+ */
+static double tpGetFeedOverride(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+    //All reasons to disable feed override go here
+    if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION)  {
+        return 1.0;
+    } else {
+        return emcmotStatus->net_feed_scale;
+    }
+}
+
+
+static double tpGetReqVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+    return tc->reqvel * tpGetFeedOverride(tp,tc);
+}
+
+static double tpGetFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+    return tc->finalvel * tpGetFeedOverride(tp,tc);
+}
+
+
+/**
+ * Convert the 2-part spindle position and sign to a signed double.
+ */
+STATIC inline double tpGetSignedSpindlePosition() {
+    double spindle_pos = emcmotStatus->spindleRevs;
+    if (emcmotStatus->spindle.direction < 0.0) {
+        spindle_pos*=-1.0;
+    }
+    return spindle_pos;
+}
 
 /**
  * Create the trajectory planner structure with an empty queue.
@@ -106,7 +141,6 @@ int tpClear(TP_STRUCT * const tp)
     tp->pausing = 0;
     tp->vScale = emcmotStatus->net_feed_scale;
     tp->synchronized = 0;
-    tp->velocity_mode = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
     emcmotStatus->current_vel = 0.0;
@@ -363,7 +397,6 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->progress = 0.0;
     tc->maxaccel = acc;
-    tc->feed_override = 0.0;
     tc->maxvel = ini_maxvel;
     //Note: capping reqvel here since maxvel never changes for a given segment
     tc->reqvel = fmin(vel,ini_maxvel);
@@ -486,11 +519,9 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     tpInitializeNewSegment(tp, tc, 0, prev_line_tc->maxvel, 0, 0);
 
     tc->motion_type = TC_CIRCULAR;
-    //FIXME what type is this?
-    tc->canon_motion_type = 0;
+    tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
 
     tc->synchronized = prev_line_tc->synchronized;
-    tc->velocity_mode = prev_line_tc->velocity_mode;
     tc->uu_per_rev = prev_line_tc->uu_per_rev;
     tc->indexrotary = -1;
 
@@ -605,7 +636,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
-STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * const tc, EmcPose const * const end) {
+STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
 
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
@@ -616,6 +647,9 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT const * co
     tp->goalPos = *end;
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
+    //Fixing issue with duplicate id's?
+    tc->id=tp->nextId;
+    tp_debug_print("Adding TC id %d of type %d\n",tc->id,tc->motion_type);
     tp->nextId++;
 
     return 0;
@@ -665,7 +699,6 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
     tc.synchronized = tp->synchronized;
 
     tc.uu_per_rev = tp->uu_per_rev;
-    tc.velocity_mode = tp->velocity_mode;
     tc.indexrotary = -1;
 
     if (syncdio.anychanged != 0) {
@@ -913,7 +946,7 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
                 }
                 //TODO check for failure, bail if we can't blend
             }
-            /*blend_tc.motion_type=0;*/
+
             tpAddSegmentToQueue(tp, &blend_tc, end);
 
             tpRunOptimization(tp);
@@ -979,7 +1012,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
-    tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = indexrotary;
 
@@ -992,8 +1024,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
 
     tpHandleBlendArc(tp, &tc, end);
 
-    //Assume non-zero error code is failure
-    tp_debug_print("Adding line segment to queue\n");
     int retval =  tpAddSegmentToQueue(tp, &tc, end);
     return retval;
 }
@@ -1053,7 +1083,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
-    tc.velocity_mode = tp->velocity_mode;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = -1;
 
@@ -1083,15 +1112,16 @@ STATIC void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
     if (tc->progress > tc->target) {
         //Store previous position
         overshoot = tc->progress - tc->target;
+        tp_debug_print("Overshot by %f at end of move %d\n", overshoot, tc->id);
         if (nexttc) {
             nexttc->progress = overshoot;
             nexttc->currentvel = tc->currentvel;
             tc->progress=tc->target;
-            tp_debug_print("Overshot by %f at end of move %d\n", overshoot, tc->id);
             tp_debug_print("setting init vel to %f\n", nexttc->currentvel);
         }
         else {
-            //Kludge fix to see if we can catch the crash at the end of the dummy toolpath
+            
+            tp_debug_print("No more moves! This should not happen\n");
             tc->progress=tc->target;
         }
     }
@@ -1106,7 +1136,7 @@ STATIC void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
  * safe blend velocity is based on the known trajectory parameters. This
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
-STATIC double tpComputeBlendVelocity(TC_STRUCT const * const tc, TC_STRUCT const * const nexttc) {
+STATIC double tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc) {
 
     //Store local blend velocity copy
     double blend_vel=tc->blend_vel;
@@ -1114,10 +1144,10 @@ STATIC double tpComputeBlendVelocity(TC_STRUCT const * const tc, TC_STRUCT const
     if(nexttc && nexttc->maxaccel) {
         blend_vel = nexttc->maxaccel *
             pmSqrt(nexttc->target / nexttc->maxaccel);
-        if(blend_vel > nexttc->reqvel * nexttc->feed_override) {
+        if(blend_vel > tpGetReqVel(tp,nexttc)) {
             // segment has a cruise phase so let's blend over the
             // whole accel period if possible
-            blend_vel = nexttc->reqvel * nexttc->feed_override;
+            blend_vel = tpGetReqVel(tp,nexttc);
         }
         if(tc->maxaccel < nexttc->maxaccel)
             blend_vel *= tc->maxaccel/nexttc->maxaccel;
@@ -1180,15 +1210,11 @@ STATIC double saturate(double x, double max) {
 void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, int * on_final_decel) {
     double discr, maxnewvel, newvel, newaccel=0, delta_pos;
     double discr_term1, discr_term2, discr_term3;
-    
-    // Remove feed rate override from rapid motion
-    if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {
-        tc->feed_override = 1.0;
-    }
+   
     // Find maximum allowed velocity from feed and machine limits
-    double req_vel = tc->reqvel * tc->feed_override;
-    // Store a copy of final velocity without feed rate override.
-    double final_vel = tc->finalvel;
+    double req_vel = tpGetReqVel(tp,tc);
+    // Store a copy of final velocity
+    double final_vel = tpGetFinalVel(tp,tc);
 
     //Clamp the requested velocity by the maximum velocity allowed.
     //TODO remove this since we check limits during initial setup
@@ -1200,6 +1226,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
     if (final_vel > req_vel) {
         final_vel = req_vel;
     }
+
+    tp_debug_print("tcRunCycle req_vel is %f\n",req_vel);
+    tp_debug_print("tcRunCycle final_vel is %f\n",final_vel);
     // Need this to plan down to zero V
     if (tp->pausing) {
         final_vel = 0.0;
@@ -1242,12 +1271,11 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
 
         bool is_pure_rotary = (tc->motion_type == TC_LINEAR) &&
             (tc->coords.line.xyz.tmag_zero) && (tc->coords.line.uvw.tmag_zero);
-        bool is_position_synced = (!tc->synchronized) || tc->velocity_mode;
 
         // if the motion is not purely rotary axes (and therefore in angular
         // units), clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip
         // maxvel) except when it's synced to spindle position.
-        if (!is_pure_rotary && !is_position_synced && newvel > tp->vLimit) {
+        if (!is_pure_rotary && tc->synchronized != TC_SYNC_POSITION && newvel > tp->vLimit) {
             newvel = tp->vLimit;
         }
 
@@ -1407,9 +1435,12 @@ STATIC void tpDoParabolicBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //Store the actual requested velocity
     double save_vel = nexttc->reqvel;
 
-    nexttc->reqvel = nexttc->feed_override > 0.0 ?
-        ((tc->vel_at_blend_start - primary_vel) / nexttc->feed_override) :
-        0.0;
+    if (tpGetFeedOverride(tp,nexttc) > 0.0) {
+        nexttc->reqvel =  ((tc->vel_at_blend_start - primary_vel) / tpGetFeedOverride(tp, nexttc));
+    } else {
+        nexttc->reqvel = 0.0;
+    }
+
     tcRunCycle(tp, nexttc, NULL, NULL);
     //Restore the blend velocity
     nexttc->reqvel = save_vel;
@@ -1506,7 +1537,7 @@ STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
     // the right place.
 
     rtapi_print_msg(RTAPI_MSG_DBG, "Finished tc id %d", tc->id);
-    if(tc->synchronized)
+    if(tc->synchronized != TC_SYNC_NONE)
         status->offset += tc->target/tc->uu_per_rev;
     else
         status->offset = 0.0;
@@ -1625,9 +1656,7 @@ STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
     else
         nexttc = NULL;
 
-    int this_synch_pos = tc->synchronized && !tc->velocity_mode;
-    int next_synch_pos = nexttc && nexttc->synchronized && !nexttc->velocity_mode;
-    if(!this_synch_pos && next_synch_pos) {
+    if( tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tc->term_cond = TC_TERM_COND_STOP;
@@ -1658,7 +1687,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // atspeed check for the start of all spindle synchronized
     // moves.
     bool needs_atspeed = tc->atspeed ||
-        (tc->synchronized && !(tc->velocity_mode) && !(emcmotStatus->spindleSync));
+        (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
     if( needs_atspeed && !(emcmotStatus->spindle_is_atspeed)) {
         status->waiting_for_atspeed = tc->id;
         return 0;
@@ -1691,17 +1720,15 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tp_debug_print("Parabolic blend, reducing tc maxaccel to %f\n",tc->maxaccel);
     }
 
-    if(tc->synchronized) {
-        if(!tc->velocity_mode && !(emcmotStatus->spindleSync)) {
-            // if we aren't already synced, wait
-            status->waiting_for_index = tc->id;
-            // ask for an index reset
-            emcmotStatus->spindle_index_enable = 1;
-            status->offset = 0.0;
-            rtapi_print_msg(RTAPI_MSG_DBG, "Waiting on sync...\n");
-            // don't move: wait
-            return 0;
-        }
+    if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
+        // if we aren't already synced, wait
+        status->waiting_for_index = tc->id;
+        // ask for an index reset
+        emcmotStatus->spindle_index_enable = 1;
+        status->offset = 0.0;
+        rtapi_print_msg(RTAPI_MSG_DBG, "Waiting on sync...\n");
+        // don't move: wait
+        return 0;
     }
 
     //Keep going:
@@ -1713,10 +1740,9 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Run velocity mode synchronization.
  * Update requested velocity to follow the spindle's velocity (scaled by feed rate).
  */
-STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
-        double speed) {
+STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc) {
     //NOTE: check for aborting outside of here
-
+    double speed = emcmotStatus->spindleSpeedIn;
     double pos_error = fabs(speed) * tc->uu_per_rev;
     //Take into account blending?
     if(nexttc) pos_error -= nexttc->progress; /* ?? */
@@ -1729,8 +1755,9 @@ STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
  * Updates requested velocity for a trajectory segment to track the spindle's position.
  */
 STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
-        tp_spindle_status_t * const status, double spindle_pos) {
+        tp_spindle_status_t * const status) {
 
+    double spindle_pos = tpGetSignedSpindlePosition();
     double spindle_vel, target_vel;
     double oldrevs = status->revs;
 
@@ -1772,19 +1799,12 @@ STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
         if(pos_error<0) errorvel = -errorvel;
         tc->reqvel = target_vel + errorvel;
     }
-}
-
-
-/**
- * Convert the 2-part spindle position and sign to a signed double.
- */
-STATIC inline double tpGetSignedSpindlePosition(emcmot_status_t * const emcmotStatus) {
-    double spindle_pos = emcmotStatus->spindleRevs;
-    if (emcmotStatus->spindle.direction < 0.0) {
-        spindle_pos*=-1.0;
+    //Finally, clip requested velocity at zero
+    if (tc->reqvel < 0.0) {
+        tc->reqvel = 0.0;
     }
-    return spindle_pos;
 }
+
 
 /**
  * Calculate an updated goal position for the next timestep.
@@ -1910,47 +1930,29 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
-    if(tc->synchronized) {
-
-        //Update requested velocity based on tracking error and sync mode
-        if(tc->velocity_mode) {
-            tcSyncVelocityMode(tc, nexttc, emcmotStatus->spindleSpeedIn);
-            tc->feed_override = emcmotStatus->net_feed_scale;
-        } else {
-            tcSyncPositionMode(tc, nexttc, &spindle_status,
-                    tpGetSignedSpindlePosition(emcmotStatus));
-
-            tc->feed_override = 1.0;
-        }
-        if(tc->reqvel < 0.0) tc->reqvel = 0.0;
-
-        if(nexttc) {
-            if (nexttc->synchronized) {
-                //If the next move is synchronized too, then match it's
-                //requested velocity to the current move
-                nexttc->reqvel = tc->reqvel;
-                nexttc->feed_override = 1.0;
-                if(nexttc->reqvel < 0.0) nexttc->reqvel = 0.0;
-            } else {
-                nexttc->feed_override = emcmotStatus->net_feed_scale;
-            }
-        }
-    }
-    else {
-        tc->feed_override = emcmotStatus->net_feed_scale;
-        if(nexttc) nexttc->feed_override = emcmotStatus->net_feed_scale;
+    switch (tc->synchronized) {
+        case TC_SYNC_NONE:
+            break;
+        case TC_SYNC_VELOCITY:
+            tcSyncVelocityMode(tc, nexttc);
+            break;
+        case TC_SYNC_POSITION:
+            tcSyncPositionMode(tc, nexttc, &spindle_status);
+        default:
+            tp_debug_print("unrecognized spindle sync state!\n");
+            break;
     }
 
-    /* handle pausing */
-    if(tp->pausing && (!tc->synchronized || tc->velocity_mode)) {
-        tc->feed_override = 0.0;
-        if(nexttc) {
-            nexttc->feed_override = 0.0;
-        }
+    if(nexttc) {
+        if (nexttc->synchronized) {
+            //If the next move is synchronized too, then match it's
+            //requested velocity to the current move
+            nexttc->reqvel = tc->reqvel;
+        }   
     }
 
     if (tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
-        tc->blend_vel = tpComputeBlendVelocity(tc, nexttc);
+        tc->blend_vel = tpComputeBlendVelocity(tp, tc, nexttc);
     }
 
     tcGetPos(tc, &primary_before);

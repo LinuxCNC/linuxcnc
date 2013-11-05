@@ -31,6 +31,9 @@
 #define TC_RIGIDTAP 3
 #define TC_SPHERICAL 4
 
+#define TC_SYNC_NONE 0
+#define TC_SYNC_VELOCITY 1
+#define TC_SYNC_POSITION 2
 
 /* structure for individual trajectory elements */
 
@@ -77,7 +80,6 @@ typedef struct {
     double target;          // segment length
     double reqvel;          // vel requested by F word, calc'd by task
     double maxaccel;        // accel calc'd by task
-    double feed_override;   // feed override requested by user
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
@@ -94,16 +96,15 @@ typedef struct {
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
     char active;            // this motion is being executed
-    int canon_motion_type;  // this motion is due to which canon function?
-    int term_cond;    // gcode requests continuous feed at the end of 
+    char canon_motion_type;  // this motion is due to which canon function?
+    char term_cond;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
 
-    int blending;           // segment is being blended into following segment
+    char blending;           // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
-    int synchronized;       // spindle sync required for this move
-    int velocity_mode;	    // TRUE if spindle sync is in velocity mode, FALSE if in position mode
+    char synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle
@@ -111,7 +112,7 @@ typedef struct {
     char atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
     int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
-    int atpeak;             //At peak velocity during blends)
+    char atpeak;             //At peak velocity during blends)
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
