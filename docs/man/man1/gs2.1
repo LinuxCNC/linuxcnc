@@ -71,6 +71,22 @@ in hex on the terminal.
 .IP -t,\ --target\ <n>
 (default 1) Set MODBUS target (slave) number. This must match the device number you set on the GS2.
 .B
+.IP -A,\ --accel-seconds\ <n>
+(default 10.0) Seconds to accelerate the spindle from 0 to Max RPM.
+.B
+.IP -D,\ --decel-seconds\ <n>
+(default 0.0) Seconds to decelerate the spindle from Max RPM to 0.
+If set to 0.0 the spindle will be allowed to coast to a stop without
+controlled deceleration.
+.B
+.IP -R,\ --braking-resistor
+This argument should be used when a braking resistor is installed on the
+GS2 VFD (see Appendix A of the GS2 manual).  It disables deceleration
+over-voltage stall prevention (see GS2 modbus Parameter 6.05), allowing
+the VFD to keep braking even in situations where the motor is regenerating
+high voltage.  The regenerated voltage gets safely dumped into the
+braking resistor.
+.B
 
 .SH PINS
 .B

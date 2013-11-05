@@ -63,6 +63,20 @@
 #define START_REGISTER_W	0x091A
 #define NUM_REGISTERS_W		5
 
+
+#define GS2_REG_STOP_METHOD                             0x0100
+#define GS2_REG_STOP_METHOD__RAMP_TO_STOP               0
+#define GS2_REG_STOP_METHOD__COAST_TO_STOP              1
+
+#define GS2_REG_ACCELERATION_TIME_1                     0x0101
+
+#define GS2_REG_DECELERATION_TIME_1                     0x0102
+
+#define GS2_REG_OVER_VOLTAGE_STALL_PREVENTION           0x0605
+#define GS2_REG_OVER_VOLTAGE_STALL_PREVENTION__ENABLE   0
+#define GS2_REG_OVER_VOLTAGE_STALL_PREVENTION__DISABLE  1
+
+
 /* modbus slave data struct */
 typedef struct {
 	int slave;		/* slave address */
@@ -120,6 +134,9 @@ static struct option long_options[] = {
     {"stopbits", 1, 0, 's'},
     {"target", 1, 0, 't'},
     {"verbose", 0, 0, 'v'},
+    {"accel-seconds", required_argument, NULL, 'A'},
+    {"decel-seconds", required_argument, NULL, 'D'},
+    {"braking-resistor", no_argument, NULL, 'R'},
     {0,0,0,0}
 };
 
@@ -161,6 +178,161 @@ int match_string(char *string, char **matches) {
     }
     return match;
 }
+
+
+int gs2_set_accel_time(modbus_t *mb_ctx, float accel_time) {
+    int data = accel_time * 10;
+    int r;
+
+    r = modbus_write_register(mb_ctx, GS2_REG_ACCELERATION_TIME_1, data);
+    if (r != 1) {
+        fprintf(
+            stderr,
+            "failed to set register P0x%04x to 0x%04x (%d): %s\n",
+            GS2_REG_ACCELERATION_TIME_1,
+            data, data,
+            strerror(errno)
+        );
+        return -1;
+    }
+
+    return 0;
+}
+
+
+int gs2_set_decel_time(modbus_t *mb_ctx, float decel_time) {
+    int data;
+    int stop_method;
+    int r;
+
+    if (decel_time == 0.0) {
+        stop_method = GS2_REG_STOP_METHOD__COAST_TO_STOP;
+        decel_time = 20.0;
+    } else {
+        stop_method = GS2_REG_STOP_METHOD__RAMP_TO_STOP;
+    }
+    r = modbus_write_register(mb_ctx, GS2_REG_STOP_METHOD, stop_method);
+    if (r != 1) {
+        fprintf(
+            stderr,
+            "failed to set register P0x%04x to 0x%04x: %s\n",
+            GS2_REG_STOP_METHOD,
+            stop_method,
+            strerror(errno)
+        );
+        return -1;
+    }
+
+    data = decel_time * 10;
+    r = modbus_write_register(mb_ctx, GS2_REG_DECELERATION_TIME_1, data);
+    if (r != 1) {
+        fprintf(
+            stderr,
+            "failed to set register P0x%04x to 0x%04x (%d): %s\n",
+            GS2_REG_DECELERATION_TIME_1,
+            data, data,
+            strerror(errno)
+        );
+        return -1;
+    }
+
+    return 0;
+}
+
+
+int gs2_set_braking_resistor(modbus_t *mb_ctx, int braking_resistor) {
+    int data;
+    int r;
+
+    if (braking_resistor) {
+        data = GS2_REG_OVER_VOLTAGE_STALL_PREVENTION__DISABLE;
+    } else {
+        data = GS2_REG_OVER_VOLTAGE_STALL_PREVENTION__ENABLE;
+    }
+    r = modbus_write_register(
+        mb_ctx,
+        GS2_REG_OVER_VOLTAGE_STALL_PREVENTION,
+        data
+    );
+    if (r != 1) {
+        fprintf(
+            stderr,
+            "failed to set register P0x%04x to 0x%04x: %s\n",
+            GS2_REG_OVER_VOLTAGE_STALL_PREVENTION,
+            data,
+            strerror(errno)
+        );
+        return -1;
+    }
+
+    return 0;
+}
+
+
+typedef struct {
+    uint8_t param_group, param_number;
+    const char *name;
+} gs2_reg;
+
+gs2_reg gs2_register[] = {
+    { 0x00, 0x00, "Motor Nameplate Voltage" },
+    { 0x00, 0x01, "Motor Nameplate Amps" },
+    { 0x00, 0x02, "Motor Base Frequency" },
+    { 0x00, 0x03, "Motor Base RPM" },
+    { 0x00, 0x04, "Motor Max RPM" },
+    { 0x01, 0x00, "Stop Method" },
+    { 0x01, 0x01, "Acceleration Time 1 (0.1 seconds)" },
+    { 0x01, 0x02, "Deceleration Time 1 (0.1 seconds)" },
+    { 0x01, 0x03, "Accel S-Curve" },
+    { 0x01, 0x04, "Decel S-Curve" },
+    { 0x01, 0x05, "Acceleration Time 2 (0.1 seconds)" },
+    { 0x01, 0x06, "Deceleration Time 2 (0.1 seconds)" },
+    { 0x02, 0x00, "Volts/Hertz Settings" },
+    { 0x02, 0x05, "Mid-point Frequency" },
+    { 0x02, 0x05, "Mid-point Voltage" },
+    { 0x02, 0x06, "Minimum Output Frequency" },
+    { 0x02, 0x07, "Minimum Output Voltage" },
+    { 0x06, 0x05, "Over-Voltage Stall Prevention" },
+    { 0x06, 0x06, "Auto Adjustable Accel/Decel" },
+    { 0x09, 0x27, "Firmware Version" },
+    { 0x09, 0x29, "GS Series Number" },
+    { 0x09, 0x2a, "Manufacturer Model Information" },
+    { 0x00, 0x00, NULL }  // NULL name mean "end of list"
+};
+
+
+void gs2_show_config(modbus_t *mb_ctx) {
+    gs2_reg *reg;
+    int r;
+
+    for (reg = &gs2_register[0]; reg->name != NULL; reg ++) {
+        int address;
+        uint16_t data;
+
+        address = (reg->param_group << 8) | reg->param_number;
+
+        r = modbus_read_registers(mb_ctx, address, 1, &data);
+        if (r != 1) {
+            fprintf(
+                stderr,
+                "failed to read register P%d.%02d (%s)\n",
+                reg->param_group,
+                reg->param_number,
+                reg->name
+            );
+            return;
+        }
+        printf(
+            "P%d.%02d %s: 0x%04x (%d)\n",
+            reg->param_group,
+            reg->param_number,
+            reg->name,
+            data,
+            data
+        );
+    }
+}
+
 
 int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
 //  int write_data[MAX_WRITE_REGS];
@@ -249,6 +421,19 @@ void usage(int argc, char **argv) {
     "    Set serial stop bits to 1 or 2\n"
     "-t or --target <n> (default 1)\n"
     "    Set MODBUS target (slave) number.  This must match the device number you set on the GS2.\n"
+    "-A, --accel-seconds <n>\n"
+    "    (default 10.0) Seconds to accelerate the spindle from 0 to Max RPM.\n"
+    "-D, --decel-seconds <n>\n"
+    "    (default 0.0) Seconds to decelerate the spindle from Max RPM to 0.\n"
+    "    If set to 0.0 the spindle will be allowed to coast to a stop without\n"
+    "    controlled deceleration.\n"
+    "-R, --braking-resistor\n"
+    "    This argument should be used when a braking resistor is installed on the\n"
+    "    GS2 VFD (see Appendix A of the GS2 manual).  It disables deceleration\n"
+    "    over-voltage stall prevention (see GS2 modbus Parameter 6.05), allowing\n"
+    "    the VFD to keep braking even in situations where the motor is regenerating\n"
+    "    high voltage.  The regenerated voltage gets safely dumped into the\n"
+    "    braking resistor.\n"
     );
 }
 int read_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *hal_data_block) {
@@ -310,6 +495,12 @@ int main(int argc, char **argv)
     char parity;
     int opt;
     int argindex, argvalue;
+
+    float accel_time = 10.0;
+    float decel_time = 0.0;  // this means: coast to a stop, don't try to control deceleration time
+    int braking_resistor = 0;
+
+
     done = 0;
 
     // assume that nothing is specified on the command line
@@ -399,6 +590,25 @@ int main(int argc, char **argv)
                 }
                 slave = argvalue;
                 break;
+            case 'A':
+                accel_time = strtof(optarg, &endarg);
+                if (*endarg != '\0') {
+                    printf("gs2_vfd: ERROR: invalid acceleration time: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                break;
+            case 'D':
+                decel_time = strtof(optarg, &endarg);
+                if (*endarg != '\0') {
+                    printf("gs2_vfd: ERROR: invalid deceleration time: %s\n", optarg);
+                    retval = -1;
+                    goto out_noclose;
+                }
+                break;
+            case 'R':
+                braking_resistor = 1;
+                break;
             case 'h':
             default:
                 usage(argc, argv);
@@ -431,6 +641,30 @@ int main(int argc, char **argv)
     modbus_set_debug(mb_ctx, debug);
 
     modbus_set_slave(mb_ctx, slave);
+
+
+    //
+    // configure the gs2 vfd based on command-line arguments
+    //
+    if (gs2_set_accel_time(mb_ctx, accel_time) != 0) {
+        retval = 1;
+        goto out_close;
+    }
+
+    if (gs2_set_decel_time(mb_ctx, decel_time) != 0) {
+        retval = 1;
+        goto out_close;
+    }
+
+    if (gs2_set_braking_resistor(mb_ctx, braking_resistor) != 0) {
+        retval = 1;
+        goto out_close;
+    }
+
+    // show the gs2 vfd configuration
+    if (verbose) {
+        gs2_show_config(mb_ctx);
+    }
 
     /* create HAL component */
     hal_comp_id = hal_init(modname);
