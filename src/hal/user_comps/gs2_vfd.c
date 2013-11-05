@@ -19,30 +19,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
 
 
-    This is a userspace HAL program, which may be loaded using the halcmd "loadusr" command:
-        loadusr gs2_vfd
-    There are several command-line options.  Options that have a set list of possible values may
-        be set by using any number of characters that are unique.  For example, --rate 5 will use
-        a baud rate of 57600, since no other available baud rates start with "5"
-    -b or --bits <n> (default 8)
-        Set number of data bits to <n>, where n must be from 5 to 8 inclusive
-    -d or --device <path> (default /dev/ttyS0)
-        Set the name of the serial device node to use
-    -v or --verbose or -g or --debug
-        Turn on debugging messages.  Debug mode will cause all modbus
-        messages to be printed in hex on the terminal.
-    -n or --name <string> (default gs2_vfd)
-        Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin
-        and parameter names will begin with <string>.
-    -p or --parity {even,odd,none} (defalt odd)
-        Set serial parity to even, odd, or none.
-    -r or --rate <n> (default 38400)
-        Set baud rate to <n>.  It is an error if the rate is not one of the following:
-        110, 300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200
-    -s or --stopbits {1,2} (default 1)
-        Set serial stop bits to 1 or 2
-    -t or --target <n> (default 1)
-        Set MODBUS target (slave) number.  This must match the device number you set on the GS2.
+    This is a userspace program that interfaces the Automation Direct
+    GS2 VFD to the LinuxCNC HAL.
 
     Add is-stopped pin John Thornton
 */
