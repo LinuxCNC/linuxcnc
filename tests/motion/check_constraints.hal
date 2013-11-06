@@ -1,0 +1,80 @@
+# HAL config file to check vel/acc constraints
+
+loadrt wcomp names=wcomp_x_acc,wcomp_x_vel,wcomp_y_acc,wcomp_y_vel,wcomp_z_acc,wcomp_z_vel,wcomp_xyz_vel,wcomp_xyz_acc
+
+addf wcomp_x_acc servo-thread
+addf wcomp_x_vel servo-thread
+addf wcomp_y_acc servo-thread
+addf wcomp_y_vel servo-thread
+addf wcomp_z_acc servo-thread
+addf wcomp_z_vel servo-thread
+addf wcomp_xyz_acc servo-thread
+addf wcomp_xyz_vel servo-thread
+
+net Xacc => wcomp_x_acc.in
+net Xvel => wcomp_x_vel.in
+net Yacc => wcomp_y_acc.in
+net Yvel => wcomp_y_vel.in
+net Zacc => wcomp_z_acc.in
+net Zvel => wcomp_z_vel.in
+net XYZ_acc => wcomp_xyz_acc.in
+net XYZvel => wcomp_xyz_vel.in
+
+net acc-ok-x <= wcomp_x_acc.out
+net vel-ok-x <= wcomp_x_vel.out
+net acc-ok-y <= wcomp_y_acc.out
+net vel-ok-y <= wcomp_y_vel.out
+net acc-ok-z <= wcomp_z_acc.out
+net vel-ok-z <= wcomp_z_vel.out
+net acc-ok-xyz <= wcomp_xyz_acc.out
+net vel-ok-xyz <= wcomp_xyz_vel.out
+
+net x-acc-max => wcomp_x_acc.max
+net x-acc-min => wcomp_x_acc.min
+
+net x-vel-max wcomp_x_vel.max
+net x-vel-min wcomp_x_vel.min
+
+net y-acc-max wcomp_y_acc.max
+net y-acc-min wcomp_y_acc.min
+
+net y-vel-max wcomp_y_vel.max
+net y-vel-min wcomp_y_vel.min
+
+net z-acc-max wcomp_z_acc.max
+net z-acc-min wcomp_z_acc.min
+
+net z-vel-max wcomp_z_vel.max
+net z-vel-min wcomp_z_vel.min
+
+net xyz-acc-max wcomp_xyz_acc.max
+net xyz-acc-min wcomp_xyz_acc.min
+
+net xyz-vel-max wcomp_xyz_vel.max
+net xyz-vel-min wcomp_xyz_vel.min
+
+loadrt match8 names=match_all
+
+addf match_all servo-thread
+
+net acc-ok-x => match_all.a0
+setp match_all.b0 1
+net vel-ok-x => match_all.a1
+setp match_all.b1 1
+net acc-ok-y => match_all.a2
+setp match_all.b2 1
+net vel-ok-y => match_all.a3
+setp match_all.b3 1
+net acc-ok-z => match_all.a4
+setp match_all.b4 1
+net vel-ok-z => match_all.a5
+setp match_all.b5 1
+net acc-ok-xyz => match_all.a6
+setp match_all.b6 1
+net vel-ok-xyz => match_all.a7
+setp match_all.b7 1
+
+setp match_all.in 1
+
+net constraints-ok <= match_all.out
+net constraints-ok => motion.enable

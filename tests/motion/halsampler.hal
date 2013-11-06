@@ -1,0 +1,17 @@
+
+# sample where motion tells the machine to go
+
+loadrt sampler depth=2666 cfg=fffbb
+
+addf sampler.0              servo-thread
+
+net Xpos => sampler.0.pin.0
+net Xvel => sampler.0.pin.1
+net Xacc => sampler.0.pin.2
+net constraints-ok => sampler.0.pin.3
+net motion-ok <= motion.motion-enabled
+net motion-ok => sampler.0.pin.4
+
+loadusr -w rm -f result.halsamples
+loadusr halsampler -t -n 20000 result.halsamples
+

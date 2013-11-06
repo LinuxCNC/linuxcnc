@@ -1,0 +1,33 @@
+
+net x-acc-max <= test-ui.x-acc-max
+net x-acc-min <= test-ui.x-acc-min
+net Xacc => test-ui.x-acc
+
+net x-vel-max <= test-ui.x-vel-max
+net x-vel-min <= test-ui.x-vel-min
+net Xvel => test-ui.x-vel
+
+net y-acc-max <= test-ui.y-acc-max
+net y-acc-min <= test-ui.y-acc-min
+net Yacc => test-ui.y-acc
+
+net y-vel-max <= test-ui.y-vel-max
+net y-vel-min <= test-ui.y-vel-min
+net Yvel => test-ui.y-vel
+
+net z-acc-max <= test-ui.z-acc-max
+net z-acc-min <= test-ui.z-acc-min
+net Zacc => test-ui.z-acc
+
+net z-vel-max <= test-ui.z-vel-max
+net z-vel-min <= test-ui.z-vel-min
+net Zvel => test-ui.z-vel
+
+net xyz-acc-max <= test-ui.xyz-acc-max
+net xyz-acc-min <= test-ui.xyz-acc-min
+net XYZacc => test-ui.xyz-acc
+
+net xyz-vel-max <= test-ui.xyz-vel-max
+net xyz-vel-min <= test-ui.xyz-vel-min
+net XYZvel => test-ui.xyz-vel
+
