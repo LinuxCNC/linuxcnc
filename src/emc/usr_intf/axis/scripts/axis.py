@@ -1123,6 +1123,8 @@ def open_file_guts(f, filtered=False, addrecent=True):
         o.lp.set_depth(from_internal_linear_unit(o.get_foam_z()),
                        from_internal_linear_unit(o.get_foam_w()))
 
+    except Exception as e:
+        notifications.add("error", str(e))
     finally:
         # Before unbusying, I update again, so that any keystroke events
         # that reached the program while it was busy are sent to the
