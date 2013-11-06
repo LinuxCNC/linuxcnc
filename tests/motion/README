@@ -1,6 +1,21 @@
 
-The "motion" tests start a full emc in sim mode, with linuxcncrsh as the UI.
+The "motion" tests aim to test the motion module's behavior.
+
+start a full emc in sim mode, with linuxcncrsh as the UI.
 
 They run g-code programs and use halsampler to monitor the motions that
 motmod emits to HAL.
+
+
+Todo:
+
+    use the configs/sim/check_constraints.hal file instead of checkresults?
+
+        include wcomp outputs in halsampler so we can see what went wrong
+
+    add blending tests
+
+    test pause/resume in the middle of a move
+
+    test maxvel changing in a move
 
