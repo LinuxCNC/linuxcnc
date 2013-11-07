@@ -676,7 +676,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
 /**
  * Adds a rigid tap cycle to the motion queue.
  */
-int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double ini_maxvel,
+int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxvel,
         double acc, unsigned char enables) {
     TC_STRUCT tc;
     PmCartLine line_xyz;
@@ -687,7 +687,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
 
     //Slightly more allocation this way, but much easier to read
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &abc, &uvw);
-    tpConvertEmcPosetoPmCartesian(end, &end_xyz, NULL, NULL);
+    tpConvertEmcPosetoPmCartesian(&end, &end_xyz, NULL, NULL);
 
     pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
 
@@ -726,7 +726,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose const * end, double vel, double 
     }
 
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, end);
+    return tpAddSegmentToQueue(tp, &tc, &end);
 }
 
 STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc, 
@@ -992,7 +992,7 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
  * end of the previous move to the new end specified here at the
  * currently-active accel and vel settings from the tp struct.
  */
-int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
+int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
 {
     TC_STRUCT tc;
     PmCartLine line_xyz, line_uvw, line_abc;
@@ -1005,7 +1005,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
     }
 
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    tpConvertEmcPosetoPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
+    tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
     pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
     pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
@@ -1044,11 +1044,11 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
         tc.syncdio.anychanged = 0;
     }
 
-    tpHandleBlendArc(tp, &tc, end);
+    tpHandleBlendArc(tp, &tc, &end);
 
     tpClipVelocityLimit(tp, &tc);
 
-    int retval =  tpAddSegmentToQueue(tp, &tc, end);
+    int retval =  tpAddSegmentToQueue(tp, &tc, &end);
     return retval;
 }
 
@@ -1063,8 +1063,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose const * end, int type, double vel, d
  * degenerate arcs/circles are not allowed. We are guaranteed to have a move in
  * xyz so the target is always the circle/arc/helical length.
  */
-int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
-        PmCartesian const * const center, PmCartesian const * const normal, int turn, int type,
+int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
+        PmCartesian center, PmCartesian normal, int turn, int type,
         double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
 {
     TC_STRUCT tc;
@@ -1081,9 +1081,9 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
     }
 
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    tpConvertEmcPosetoPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
+    tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
-    pmCircleInit(&circle, &start_xyz, &end_xyz, center, normal, turn);
+    pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
     pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
     pmCartLineInit(&line_abc, &start_abc, &end_abc);
 
@@ -1124,7 +1124,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose const * end,
 
     tpClipVelocityLimit(tp, &tc);
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, end);
+    return tpAddSegmentToQueue(tp, &tc, &end);
 }
 
 /**
