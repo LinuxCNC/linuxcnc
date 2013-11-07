@@ -32,6 +32,18 @@
 #define TP_ANGLE_EPSILON 1e-6
 #define TP_MAG_EPSILON 1e-6
 
+/**
+ * Persistant data for spindle status within tpRunCycle.
+ * This structure encapsulates some static variables to simplify refactoring of
+ * synchronized motion code.
+ */
+typedef struct {
+     double offset;
+     double revs;
+     int waiting_for_index;
+     int waiting_for_atspeed;
+} tp_spindle_status_t;
+
 
 /**
  * Trajectory planner state structure.
@@ -69,20 +81,9 @@ typedef struct {
     int velocity_mode; 	        /* TRUE if spindle sync is in velocity mode,
 				   FALSE if in position mode */
     double uu_per_rev;          /* user units per spindle revolution */
+
+    tp_spindle_status_t spindle; //Spindle data
 } TP_STRUCT;
-
-
-/**
- * Persistant data for spindle status within tpRunCycle.
- * This structure encapsulates some static variables to simplify refactoring of
- * synchronized motion code.
- */
-typedef struct {
-     double offset;
-     int waiting_for_index;
-     int waiting_for_atspeed;
-     double revs;
-} tp_spindle_status_t;
 
 extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
 extern int tpClear(TP_STRUCT * tp);
