@@ -178,6 +178,11 @@ int tpInit(TP_STRUCT * const tp)
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
 
+    tp->spindle.offset = 0.0;
+    tp->spindle.revs = 0.0;
+    tp->spindle.waiting_for_index = MOTION_INVALID_ID;
+    tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
+
     ZERO_EMC_POSE(tp->currentPos);
 
     return tpClear(tp);
@@ -1349,7 +1354,7 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
  * be carefully handled since we're reversing direction.
  */
 STATIC void tpHandleRigidTap(TP_STRUCT const * const tp,
-        TC_STRUCT * const tc, tp_spindle_status_t * const status ) {
+        TC_STRUCT * const tc) {
 
     static double old_spindlepos;
     double new_spindlepos = emcmotStatus->spindleRevs;
@@ -1370,7 +1375,7 @@ STATIC void tpHandleRigidTap(TP_STRUCT const * const tp,
                 PmCartesian start, end;
                 PmCartLine *aux = &tc->coords.rigidtap.aux_xyz;
                 // we've stopped, so set a new target at the original position
-                tc->coords.rigidtap.spindlerevs_at_reversal = new_spindlepos + status->offset;
+                tc->coords.rigidtap.spindlerevs_at_reversal = new_spindlepos + tp->spindle.offset;
 
                 pmCartLinePoint(&tc->coords.rigidtap.xyz, tc->progress, &start);
                 end = tc->coords.rigidtap.xyz.start;
@@ -1557,16 +1562,16 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
  * Finally, get the next move in the queue.
  */
 STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
-        const tc, tp_spindle_status_t * const status) {
+        const tc) {
     // if we're synced, and this move is ending, save the
     // spindle position so the next synced move can be in
     // the right place.
 
     rtapi_print_msg(RTAPI_MSG_DBG, "Finished tc id %d", tc->id);
     if(tc->synchronized != TC_SYNC_NONE)
-        status->offset += tc->target/tc->uu_per_rev;
+        tp->spindle.offset += tc->target/tc->uu_per_rev;
     else
-        status->offset = 0.0;
+        tp->spindle.offset = 0.0;
 
     if(tc->indexrotary != -1) {
         // this was an indexing move, so before we remove it we must
@@ -1596,11 +1601,11 @@ STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
  * Based on the current motion state, handle the consequences of an abort command.
  */
 STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, tp_spindle_status_t * const status) {
+        TC_STRUCT * const nexttc) {
 
     //If the motion has stopped, then it's safe to reset the TP struct.
-    if( MOTION_ID_VALID(status->waiting_for_index) ||
-            MOTION_ID_VALID(status->waiting_for_atspeed) ||
+    if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
+            MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
             (tc->currentvel == 0.0 && !nexttc) ||
             (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
         tcqInit(&tp->queue);
@@ -1611,8 +1616,8 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tp->execId = 0;
         tp->motionType = 0;
         tp->synchronized = 0;
-        status->waiting_for_index = MOTION_INVALID_ID;
-        status->waiting_for_atspeed = MOTION_INVALID_ID;
+        tp->spindle.waiting_for_index = MOTION_INVALID_ID;
+        tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
         emcmotStatus->spindleSync = 0;
         tpResume(tp);
         return 0;
@@ -1628,32 +1633,32 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * something has gone wrong. The fix for now is to just update status so we're
  * waiting in the current segment instead. (Rob's understanding)
  */
-STATIC int tpCheckWaiting(TC_STRUCT const * const tc, tp_spindle_status_t * const status) {
+STATIC int tpCheckWaiting(TP_STRUCT * const tp, TC_STRUCT const * const tc) {
 
     // this is no longer the segment we were waiting_for_index for
-    if (MOTION_ID_VALID(status->waiting_for_index) && status->waiting_for_index != tc->id)
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_index) && tp->spindle.waiting_for_index != tc->id)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Was waiting for index on motion id %d, but reached id %d\n",
-                status->waiting_for_index, tc->id);
-        status->waiting_for_index = MOTION_INVALID_ID;
+                tp->spindle.waiting_for_index, tc->id);
+        tp->spindle.waiting_for_index = MOTION_INVALID_ID;
     }
 
-    if (MOTION_ID_VALID(status->waiting_for_atspeed) && status->waiting_for_atspeed != tc->id)
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) && tp->spindle.waiting_for_atspeed != tc->id)
     {
 
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "Was waiting for atspeed on motion id %d, but reached id %d\n",
-                status->waiting_for_atspeed, tc->id);
-        status->waiting_for_atspeed = MOTION_INVALID_ID;
+                tp->spindle.waiting_for_atspeed, tc->id);
+        tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
     }
 
-    if (MOTION_ID_VALID(status->waiting_for_atspeed)) {
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed)) {
         if(!emcmotStatus->spindle_is_atspeed) {
             // spindle is still not at the right speed, so wait another cycle
             return 1;
         } else {
-            status->waiting_for_atspeed = MOTION_INVALID_ID;
+            tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
         }
     }
 
@@ -1702,7 +1707,7 @@ STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
  * for the first time.
  */
 STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        emcmot_status_t * const emcmotStatus, tp_spindle_status_t * const status ) {
+        emcmot_status_t * const emcmotStatus) {
 
     // wait for atspeed, if motion requested it.  also, force
     // atspeed check for the start of all spindle synchronized
@@ -1710,7 +1715,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     bool needs_atspeed = tc->atspeed ||
         (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
     if( needs_atspeed && !(emcmotStatus->spindle_is_atspeed)) {
-        status->waiting_for_atspeed = tc->id;
+        tp->spindle.waiting_for_atspeed = tc->id;
         return 0;
     }
 
@@ -1743,10 +1748,10 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
         // if we aren't already synced, wait
-        status->waiting_for_index = tc->id;
+        tp->spindle.waiting_for_index = tc->id;
         // ask for an index reset
         emcmotStatus->spindle_index_enable = 1;
-        status->offset = 0.0;
+        tp->spindle.offset = 0.0;
         rtapi_print_msg(RTAPI_MSG_DBG, "Waiting on sync...\n");
         // don't move: wait
         return 0;
@@ -1761,7 +1766,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Run velocity mode synchronization.
  * Update requested velocity to follow the spindle's velocity (scaled by feed rate).
  */
-STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc) {
+STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_STRUCT const * nexttc) {
     //NOTE: check for aborting outside of here
     double speed = emcmotStatus->spindleSpeedIn;
     double pos_error = fabs(speed) * tc->uu_per_rev;
@@ -1775,35 +1780,34 @@ STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc) {
  * Run position mode synchronization.
  * Updates requested velocity for a trajectory segment to track the spindle's position.
  */
-STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
-        tp_spindle_status_t * const status) {
+STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_STRUCT const * nexttc ) {
 
     double spindle_pos = tpGetSignedSpindlePosition(emcmotStatus->spindleRevs,emcmotStatus->spindle.direction);
     double spindle_vel, target_vel;
-    double oldrevs = status->revs;
+    double oldrevs = tp->spindle.revs;
 
     /*double new_spindlepos = emcmotStatus->spindleRevs;*/
 
     if(tc->motion_type == TC_RIGIDTAP &&
             (tc->coords.rigidtap.state == RETRACTION ||
              tc->coords.rigidtap.state == FINAL_REVERSAL))
-        status->revs = tc->coords.rigidtap.spindlerevs_at_reversal -
+        tp->spindle.revs = tc->coords.rigidtap.spindlerevs_at_reversal -
             spindle_pos;
     else
-        status->revs = spindle_pos;
+        tp->spindle.revs = spindle_pos;
 
-    double pos_error = (status->revs - status->offset) * tc->uu_per_rev - tc->progress;
+    double pos_error = (tp->spindle.revs - tp->spindle.offset) * tc->uu_per_rev - tc->progress;
 
     if(nexttc) pos_error -= nexttc->progress;
 
     if(tc->sync_accel) {
         // detect when velocities match, and move the target accordingly.
         // acceleration will abruptly stop and we will be on our new target.
-        spindle_vel = status->revs/(tc->cycle_time * tc->sync_accel++);
+        spindle_vel = tp->spindle.revs/(tc->cycle_time * tc->sync_accel++);
         target_vel = spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= target_vel) {
             // move target so as to drive pos_error to 0 next cycle
-            status->offset = status->revs - tc->progress/tc->uu_per_rev;
+            tp->spindle.offset = tp->spindle.revs - tc->progress/tc->uu_per_rev;
             tc->sync_accel = 0;
             tc->reqvel = target_vel;
         } else {
@@ -1814,7 +1818,7 @@ STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
         double errorvel;
-        spindle_vel = (status->revs - oldrevs) / tc->cycle_time;
+        spindle_vel = (tp->spindle.revs - oldrevs) / tc->cycle_time;
         target_vel = spindle_vel * tc->uu_per_rev;
         errorvel = pmSqrt(fabs(pos_error) * tc->maxaccel);
         if(pos_error<0) errorvel = -errorvel;
@@ -1855,10 +1859,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     EmcPose primary_before, primary_displacement;
     EmcPose secondary_before, secondary_displacement;
 
-    // Persistant spindle data for spindle-synchronized motion
-    static tp_spindle_status_t spindle_status = {0.0, MOTION_INVALID_ID,
-        MOTION_INVALID_ID, 0.0};
-
     //Update motion status
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
     //FIXME why is this zero?
@@ -1873,59 +1873,48 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     //If we can't get a valid tc (end of move, waiting on spindle), we're done for now.
-    if (tc->target == tc->progress && spindle_status.waiting_for_atspeed != tc->id) {
-        tc = tpCompleteSegment(tp, tc, &spindle_status);
+    if (tc->target == tc->progress && tp->spindle.waiting_for_atspeed != tc->id) {
+        tc = tpCompleteSegment(tp, tc);
         if (!tc)  return 0;
     }
 
     nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
 
     if(tp->aborting) {
-        int slowing = tpHandleAbort(tp, tc, nexttc, &spindle_status);
+        int slowing = tpHandleAbort(tp, tc, nexttc);
         if (!slowing) {
             rtapi_print_msg(RTAPI_MSG_DBG, "  Early stop at tpHandleAbort?\n");
             return 0;
         }
     }
 
-    int tc_wait = tpCheckWaiting(tc, &spindle_status);
+    int tc_wait = tpCheckWaiting(tp, tc);
     if (tc_wait) return 0;
-
-    // FIXME: roll this into tpCheckWaiting and return an error code?
-    // check for at-speed before marking the tc active
-    if (MOTION_ID_VALID(spindle_status.waiting_for_atspeed)) {
-        if(!emcmotStatus->spindle_is_atspeed) {
-            /* spindle is still not at the right speed: wait */
-            return 0;
-        } else {
-            spindle_status.waiting_for_atspeed = MOTION_INVALID_ID;
-        }
-    }
 
     //TODO refactor
     if(tc->active == 0) {
-        bool ready = tpActivateSegment(tp, tc, emcmotStatus, &spindle_status);
+        bool ready = tpActivateSegment(tp, tc, emcmotStatus);
         // Need to wait to continue motion, end planning here
         if (!ready) {
             return 0;
         }
     }
 
-    if (MOTION_ID_VALID(spindle_status.waiting_for_index)) {
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_index)) {
         if(emcmotStatus->spindle_index_enable) {
             /* haven't passed index yet */
             return 0;
         } else {
             /* passed index, start the move */
             emcmotStatus->spindleSync = 1;
-            spindle_status.waiting_for_index = MOTION_INVALID_ID;
+            tp->spindle.waiting_for_index = MOTION_INVALID_ID;
             tc->sync_accel=1;
-            spindle_status.revs=0;
+            tp->spindle.revs=0;
         }
     }
 
     if (tc->motion_type == TC_RIGIDTAP) {
-        tpHandleRigidTap(tp, tc, &spindle_status);
+        tpHandleRigidTap(tp, tc);
     }
 
     if(!tc->synchronized) {
@@ -1954,10 +1943,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         case TC_SYNC_NONE:
             break;
         case TC_SYNC_VELOCITY:
-            tcSyncVelocityMode(tc, nexttc);
+            tpSyncVelocityMode(tp, tc, nexttc);
             break;
         case TC_SYNC_POSITION:
-            tcSyncPositionMode(tc, nexttc, &spindle_status);
+            tpSyncPositionMode(tp, tc, nexttc);
         default:
             tp_debug_print("unrecognized spindle sync state!\n");
             break;
