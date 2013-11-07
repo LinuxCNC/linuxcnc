@@ -570,6 +570,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         tp_debug_print("Failed to find intersection angle!\n");
         return -1;
     }
+    tp_debug_print("theta=%f\n",theta);
 
     //TODO make this a state of TC?
     const double acc_ratio=1;
@@ -578,7 +579,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("blend_tc->maxvel=%f\n",blend_tc->maxvel);
     tp_debug_print("v_req=%f\n",v_req);
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
-    double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
+    // Hack to give us a little room to play with d_upper later
+    // FIXME formally prove the min. safety factor needed
+    const double acc_safety_factor=.98;
+    double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio)) * acc_safety_factor;
     double a_t_max=a_max/pmSqrt(1.0+pmSq(acc_ratio));
 
     blend_tc->maxaccel=a_t_max;
@@ -599,25 +603,41 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print(" Blend Tolerance = %f\n",tolerance);
 
     //Store trig functions for later use
+    //TODO is this the right theta???
     double Ctheta=cos(theta);
     double Stheta=sin(theta);
-    double Ttheta=Stheta/Ctheta;
+    double Ttheta=tan(theta);
+    
+    double tmp = 1.0 - Stheta;
+    double h_tol;
+    if (tmp>TP_ANGLE_EPSILON) {
+        h_tol=tolerance/tmp;
+    } else {
+        tp_debug_print("h_tol too large! theta = %f\n",theta);
+        return -1;
+    }
 
-    double h_tol=tolerance/(1.0-Stheta);
     double d_tol=Ctheta*h_tol;
 
     // Limit amount of line segment to blend so that we don't delete the line
     // TODO allow for total replacement if tol allows it
     const double blend_ratio = 0.5;
-    double d_geom=fmin(d_tol, fmin((prev_tc->target-prev_tc->progress) ,
-                (tc->target-tc->progress) * blend_ratio));
+
+    //HACK Assume that we are not working on segments already traversed for now
+    double L1 = prev_tc->target;
+    double L2 = tc->target;
+
+    double d_prev = L1 * 1.0; //Blend over the whole previous segment
+    double d_next = L2 * blend_ratio; //Blend over a portion of the next
+
+    /*double v_sample = (L1+L2) / (3.0 * tp->cycleTime);*/
+
+    double d_geom=fmin(fmin(d_prev, d_next), d_tol);
 
     double R_geom=Ttheta * d_geom;
 
     //Calculate limiting velocity due to radius and normal acceleration
     double v_normal=pmSqrt(a_n_max*R_geom);
-
-    //The nominal speed of the blend arc should be the higher of the two segment speeds
 
     //The new upper bound is the lower of the two speeds
     double v_upper=fmin(v_req, v_normal);
@@ -625,13 +645,40 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("v_upper = %f\n",v_upper); 
 
     //At this new limiting velocity, find the radius by the reverse formula
-    //TODO div by zero?
-    double R_normal=pmSq(v_upper)/a_n_max;
+
+    double R_normal;
+    if (a_n_max>TP_ACCEL_EPSILON) {
+        R_normal=pmSq(v_upper)/a_n_max;
+    } else {
+        R_normal=0.0;
+        tp_debug_print("a_n_max = %f, too low!\n",a_n_max);
+        return -1;
+    }
 
     // Final radius calculations
     double R_upper=fmin(R_normal, R_geom);
-
     tp_debug_print("R_upper = %f\n",R_upper); 
+
+    //Check for segment length limits
+    char full_blend;
+    double v_sample=100000000; //HACK make this big to make it not matter
+    //TODO div by zero
+    double d_upper = R_upper / Ttheta;
+    double s_arc = (PM_PI- theta * 2.0) * R_upper;
+    double L_prev = L1 - d_upper;
+    double L_next = L2 - d_upper;
+    if (L_prev<TP_MAG_EPSILON) {
+        //Just make it a zero length segment
+        d_upper += L_prev;
+        R_upper = d_upper*Ttheta;
+        tp_debug_print("adjusted R_upper = %f\n",R_upper); 
+    } else {
+        //Need to make sure we're not hitting a sample limit
+        //This is the sampling limit 
+        v_sample = (L_prev + L_next + s_arc) / (3.0 * tp->cycleTime);
+    }
+
+    tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
 
     tpInitBlendArc(tp, prev_tc, blend_tc);
 
