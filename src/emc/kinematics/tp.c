@@ -47,6 +47,8 @@ static double tpGetFeedOverride(TP_STRUCT const * const tp, TC_STRUCT const * co
     //All reasons to disable feed override go here
     if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION)  {
         return 1.0;
+    } else if (tp->pausing || tp->aborting) {
+        return 0.0;
     } else {
         return emcmotStatus->net_feed_scale;
     }
@@ -75,9 +77,8 @@ static int tpClipVelocityLimit(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 /**
  * Convert the 2-part spindle position and sign to a signed double.
  */
-STATIC inline double tpGetSignedSpindlePosition() {
-    double spindle_pos = emcmotStatus->spindleRevs;
-    if (emcmotStatus->spindle.direction < 0.0) {
+STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_dir) {
+    if (spindle_dir < 0.0) {
         spindle_pos*=-1.0;
     }
     return spindle_pos;
@@ -534,6 +535,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     tc->synchronized = prev_line_tc->synchronized;
     tc->uu_per_rev = prev_line_tc->uu_per_rev;
     tc->indexrotary = -1;
+    tc->enables = prev_line_tc->enables;
 
     //FIXME do we need this in a blend arc?
     if (syncdio.anychanged != 0) {
@@ -1614,12 +1616,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         emcmotStatus->spindleSync = 0;
         tpResume(tp);
         return 0;
-    } else {
-        //Request that we slow to a stop
-        tc->reqvel = 0.0;
-        if(nexttc) nexttc->reqvel = 0.0;
-    }
-    //FIXME consistent error codes
+    }  //FIXME consistent error codes
     return 1;
 
 }
@@ -1781,7 +1778,7 @@ STATIC void tcSyncVelocityMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc) {
 STATIC void tcSyncPositionMode(TC_STRUCT * const tc, TC_STRUCT const * nexttc,
         tp_spindle_status_t * const status) {
 
-    double spindle_pos = tpGetSignedSpindlePosition();
+    double spindle_pos = tpGetSignedSpindlePosition(emcmotStatus->spindleRevs,emcmotStatus->spindle.direction);
     double spindle_vel, target_vel;
     double oldrevs = status->revs;
 
