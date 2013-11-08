@@ -1278,11 +1278,15 @@ STATIC void tpCheckOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
  */
 STATIC double tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc) {
 
-    //Store local blend velocity copy
-    double blend_vel=tc->blend_vel;
+    double blend_vel;
+    double v_peak_this;
+    double v_peak_next;
 
     if(nexttc && nexttc->maxaccel) {
-        blend_vel = pmSqrt(nexttc->target * nexttc->maxaccel);
+        v_peak_this = pmSqrt(tc->target * tc->maxaccel);
+        v_peak_next = pmSqrt(nexttc->target * nexttc->maxaccel);
+        blend_vel=fmin(v_peak_this,v_peak_next);
+
         if(blend_vel > tpGetReqVel(tp,nexttc)) {
             // segment has a cruise phase so let's blend over the
             // whole accel period if possible
