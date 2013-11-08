@@ -23,7 +23,7 @@
 /* values for endFlag */
 #define TC_TERM_COND_NONE 0
 #define TC_TERM_COND_STOP 1
-#define TC_TERM_COND_PARABOLIC_BLEND 2
+#define TC_TERM_COND_PARABOLIC 2
 #define TC_TERM_COND_TANGENT 3
 
 #define TC_LINEAR 1
