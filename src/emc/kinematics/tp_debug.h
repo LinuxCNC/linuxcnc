@@ -14,8 +14,11 @@
 #define TP_DEBUG_H
 
 #ifdef TP_DEBUG
-
-#define tp_debug_print(...) rtapi_print(__VA_ARGS__)
+//Kludge because I didn't know any better at the time
+//FIXME replace these with better names?
+#define tp_debug_print(...) rtapi_print_msg(RTAPI_MSG_DBG, __VA_ARGS__)
+#define tp_info_print(...) rtapi_print_msg(RTAPI_MSG_INFO, __VA_ARGS__)
+#define tp_err_print(...) rtapi_print_msg(RTAPI_MSG_ERR, __VA_ARGS__)
 #define STATIC
 
 #else
@@ -23,6 +26,12 @@
 #define tp_debug_print(...) 
 #define STATIC static
 
+#endif
+
+#ifdef TC_DEBUG
+#define tc_debug_print(...) rtapi_print_msg(RTAPI_MSG_DBG, __VA_ARGS__)
+#else
+#define tc_debug_print(...) 
 #endif
 
 #endif
