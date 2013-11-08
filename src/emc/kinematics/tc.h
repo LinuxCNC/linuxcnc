@@ -80,6 +80,7 @@ typedef struct {
     double target;          // segment length
     double reqvel;          // vel requested by F word, calc'd by task
     double maxaccel;        // accel calc'd by task
+    double accel_scale;       // acceleration reduction factor for blends
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
@@ -107,7 +108,7 @@ typedef struct {
     char synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
-    int sync_accel;         // we're accelerating up to sync with the spindle
+    char sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     char atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
