@@ -23,8 +23,7 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 
-//Enable this for building with RT (leave off for simulation)
-#if 0
+#ifndef SIM
 static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
@@ -660,23 +659,49 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("R_upper = %f\n",R_upper); 
 
     //Check for segment length limits
-    char full_blend;
-    double v_sample=100000000; //HACK make this big to make it not matter
     //TODO div by zero
     double d_upper = R_upper / Ttheta;
-    double s_arc = (PM_PI- theta * 2.0) * R_upper;
+    double phi = (PM_PI- theta * 2.0);
+    double s_arc = phi * R_upper;
     double L_prev = L1 - d_upper;
     double L_next = L2 - d_upper;
-    if (L_prev<TP_MAG_EPSILON) {
-        //Just make it a zero length segment
+
+    if (L_prev < -TP_MAG_EPSILON) {
+        //Something is very wrong here...
+        tp_debug_print("Cannot have negative segment length!\n");
+        return -1;
+    } else if (L_prev < TP_MAG_EPSILON) {
+        //Force the prev. segment to be consumed since we're otherwise going to
+        //cause degeneracy
         d_upper += L_prev;
-        R_upper = d_upper*Ttheta;
-        tp_debug_print("adjusted R_upper = %f\n",R_upper); 
     } else {
-        //Need to make sure we're not hitting a sample limit
-        //This is the sampling limit 
-        v_sample = (L_prev + L_next + s_arc) / (3.0 * tp->cycleTime);
+        // Test if our ideal lower bound on d (from arc equation) is lower than
+        // our ideal upper bound on d based on the sample time. Usually there
+        // will be overlap, and we can proceed as normal. If there isn't, then
+        // we have short segments, and need to compromise on segment length to
+        // avoid degeneracy.
+        
+        double v_sample = phi * d_upper * Ttheta / tp->cycleTime;
+
+        // The blend velocity we can actually get is limited by the sample rate
+        v_upper = fmin(v_upper,v_sample);
+
+        // d required to meet v_upper
+        double d_sample = v_upper * tp->cycleTime / (phi * Ttheta);
+
+        double v1_sample = (L1-d_sample) / tp->cycleTime;
+
+        //If we take too big a bite out of the previous line, we won't be able
+        //to move fast enough through the segment to reach v_upper anyway.
+        //Compromise if this is an issue:
+        if (v1_sample < v_upper) {
+            d_upper=L1/(1+phi*Ttheta);
+        } 
+        tp_debug_print("Adjusted v_upper = %f, d_upper = %f\n",v_upper,d_upper);
     }
+
+    R_upper = d_upper*Ttheta;
+    tp_debug_print("adjusted R_upper = %f\n",R_upper); 
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
 
