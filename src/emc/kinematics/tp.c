@@ -1420,7 +1420,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
         newvel = newaccel = 0.0;
 
         if ( !(tc->term_cond == TC_TERM_COND_TANGENT) || (tc->progress < tc->target ) ) {
-            rtapi_print_msg(RTAPI_MSG_DBG, "calculated newvel = %f, with T = %f, P = %f", newvel, tc->target, tc->progress);
+            tc_debug_print("calculated newvel = %f, with T = %f, P = %f", newvel, tc->target, tc->progress);
             tc->progress = tc->target;
         }
     } else {
@@ -1446,7 +1446,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc, double * v, in
         tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         tc->currentvel = newvel;
     }
-    rtapi_print_msg(RTAPI_MSG_DBG, "TC result: v = %f, dtg = %f, vf = %f, T = %f, P = %f",
+    tc_debug_print("TC result: v = %f, dtg = %f, vf = %f, T = %f, P = %f",
             newvel, tc->target-tc->progress,
             final_vel, tc->target, tc->progress);
 
