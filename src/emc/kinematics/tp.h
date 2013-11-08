@@ -32,6 +32,11 @@
 #define TP_ANGLE_EPSILON 1e-6
 #define TP_MAG_EPSILON 1e-6
 
+//ERROR codes for TP functions
+#define TP_ERR_OK 0
+#define TP_ERR_FAIL -1
+#define TP_ERR_NO_ACTION 1
+
 /**
  * Persistant data for spindle status within tpRunCycle.
  * This structure encapsulates some static variables to simplify refactoring of

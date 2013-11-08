@@ -114,6 +114,7 @@ typedef struct {
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
     int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
     char atpeak;             //At peak velocity during blends)
+    char on_final_decel;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
