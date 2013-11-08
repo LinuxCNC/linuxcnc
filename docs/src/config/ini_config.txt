@@ -312,7 +312,7 @@ treated as g-code. One such example script is available at
 nc_files/holecircle.py. This script creates g-code for drilling a
 series of holes along the circumference of a circle. Many more g-code
 generators are on the LinuxCNC Wiki site
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl].
+http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org/].
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form
