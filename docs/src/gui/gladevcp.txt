@@ -394,7 +394,7 @@ Options:
 
 -t THEME::
     set gtk theme. Default is system theme. Different panels can have different themes.
-    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[EMC Wiki].
+    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GTK_Themes[EMC Wiki].
 
 -x XID::
      Re-parent GladeVCP into an existing window XID instead of creating a
