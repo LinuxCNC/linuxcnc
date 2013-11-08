@@ -37,6 +37,10 @@ extern emcmot_debug_t *emcmotDebug;
 int output_chan = 0;
 syncdio_t syncdio; //record tpSetDout's here
 
+
+STATIC double tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc);
+
+
 /**
  * Get a TC's feed rate override based on emcmotStatus.
  * This function is designed to eliminate duplicate states, since this leads to bugs.
@@ -143,7 +147,7 @@ int tpClear(TP_STRUCT * const tp)
     tp->nextId = 0;
     tp->execId = 0;
     tp->motionType = 0;
-    tp->termCond = TC_TERM_COND_PARABOLIC_BLEND;
+    tp->termCond = TC_TERM_COND_PARABOLIC;
     tp->tolerance = 0.0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
@@ -289,7 +293,7 @@ int tpGetExecId(TP_STRUCT * const tp)
 /**
  * Sets the termination condition for all subsequent queued moves.
  * If cond is TC_TERM_COND_STOP, motion comes to a stop before a subsequent move
- * begins. If cond is TC_TERM_COND_PARABOLIC_BLEND, the following move is begun when the
+ * begins. If cond is TC_TERM_COND_PARABOLIC, the following move is begun when the
  * current move decelerates.
  */
 int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
@@ -300,7 +304,7 @@ int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
 
     switch (cond) {
         //Purposeful waterfall for now
-        case TC_TERM_COND_PARABOLIC_BLEND:
+        case TC_TERM_COND_PARABOLIC:
         case TC_TERM_COND_TANGENT:
         case TC_TERM_COND_STOP:
             tp->termCond = cond;
@@ -557,7 +561,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
  * Compute arc segment to blend between two lines.
  */
 STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_tc,
-        TC_STRUCT const * const tc, TC_STRUCT * const blend_tc) {
+        TC_STRUCT  * const tc, TC_STRUCT * const blend_tc) {
 
     // Assume at this point that we've checked for dumb reasons not to
     // calculate the blend arc, like intersection angle
@@ -575,12 +579,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     const double acc_ratio=1;
     //Find common velocity and acceleration
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("blend_tc->maxvel=%f\n",blend_tc->maxvel);
+    tp_debug_print("vr1 = %f, vr2 = %f\n",prev_tc->reqvel,tc->reqvel);
     tp_debug_print("v_req=%f\n",v_req);
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
+    tp_debug_print("a_max=%f\n",a_max);
     // Hack to give us a little room to play with d_upper later
     // FIXME formally prove the min. safety factor needed
-    const double acc_safety_factor=.98;
+    double acc_safety_factor=.98;
     double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio)) * acc_safety_factor;
     double a_t_max=a_max/pmSqrt(1.0+pmSq(acc_ratio));
 
@@ -602,7 +607,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print(" Blend Tolerance = %f\n",tolerance);
 
     //Store trig functions for later use
-    //TODO is this the right theta???
     double Ctheta=cos(theta);
     double Stheta=sin(theta);
     double Ttheta=tan(theta);
@@ -619,7 +623,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double d_tol=Ctheta*h_tol;
 
     // Limit amount of line segment to blend so that we don't delete the line
-    // TODO allow for total replacement if tol allows it
     const double blend_ratio = 0.5;
 
     //HACK Assume that we are not working on segments already traversed for now
@@ -632,8 +635,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     /*double v_sample = (L1+L2) / (3.0 * tp->cycleTime);*/
 
     double d_geom=fmin(fmin(d_prev, d_next), d_tol);
+    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
 
     double R_geom=Ttheta * d_geom;
+    tp_debug_print("R_geom = %f\n",R_geom);
 
     //Calculate limiting velocity due to radius and normal acceleration
     double v_normal=pmSqrt(a_n_max*R_geom);
@@ -695,15 +700,43 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         //to move fast enough through the segment to reach v_upper anyway.
         //Compromise if this is an issue:
         if (v1_sample < v_upper) {
-            d_upper=L1/(1+phi*Ttheta);
+            d_upper = L1/(1+phi*Ttheta);
+            //FIXME variable reuse
+            v_upper = v1_sample;
         } 
         tp_debug_print("Adjusted v_upper = %f, d_upper = %f\n",v_upper,d_upper);
     }
 
     R_upper = d_upper*Ttheta;
     tp_debug_print("adjusted R_upper = %f\n",R_upper); 
+    tp_debug_print("effective a_n = %f\n", pmSq(v_upper)/R_upper); 
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
+
+    /* Additional quality / performance checks.
+     * If for whatever reason we can't get parabolic-equivalent performance (by
+     * checking against the parabolic velocity), then abort arc creation and
+     * fall back to parabolic blends */
+    
+    //FIXME hack to get proper accelerations for this calculation
+    tc->maxaccel/=2.0;
+    prev_tc->maxaccel/=2.0;
+    double v_parabolic = tpComputeBlendVelocity(tp, prev_tc, tc);
+    tc->maxaccel*=2.0;
+    prev_tc->maxaccel*=2.0;
+
+    tp_debug_print("Speed Comparison: v_arc %f, v_para %f\n",v_upper,v_parabolic);
+    if (v_upper < v_parabolic) {
+        tp_debug_print("v_arc lower, abort arc creation\n");
+        return -1;
+    }
+
+    //If for some reason we get too small a radius, the blend will fail. This
+    //shouldn't happen if everything upstream is working.
+    if (R_upper < TP_MAG_EPSILON) {
+        tp_debug_print("Blend radius too small, aborting...\n");
+        return -1;
+    }
 
     tpInitBlendArc(tp, prev_tc, blend_tc);
 
@@ -815,13 +848,15 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
         return -1;
     }
 
+    //TODO check if this would benefit from being clipped by max delta V
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
+    //TODO can we make this max? does it even matter?
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
 
     // Calculate the maximum angle between unit vectors that can still be
     // considered "tangent" (i.e. small enough that the
     // acceleration/deceleration spike is within limits).
-    double crit_angle = tpMaxTangentAngle(v_req, a_max, period)/10.0;
+    double crit_angle = TP_ANGLE_EPSILON;
 
     tp_debug_print("max tan angle is %f\n",crit_angle);
     tp_debug_print("angle between segs = %f\n",omega);
@@ -847,7 +882,7 @@ STATIC int tpCheckNeedBlendArc(TC_STRUCT const * const prev_tc,
     }
 
     //If exact stop, we don't compute the arc
-    if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC_BLEND) {
+    if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC) {
         tp_debug_print("Wrong term cond =%u\n", prev_tc->term_cond);
         return -1;
     }
@@ -1019,7 +1054,7 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             //make blend arc
             int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
             if (arc_fail) {
-                tp_debug_print("error creating arc?\n");
+                tp_debug_print("error creating arc\n");
                 return -1;
             }
 
@@ -1092,7 +1127,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double in
     } else {
         tc.target = line_abc.tmag;
     }
-
 
     tc.atspeed = atspeed;
 
@@ -1289,8 +1323,8 @@ STATIC double tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const
             }
         }
     }
+    tp_debug_print("Blend vel of id %d is %f\n", tc->id, blend_vel);
     return blend_vel;
-    tp_debug_print("Blend vel of id %d is %f\n", tc->id, tc->blend_vel);
 }
 
 /**
@@ -1813,7 +1847,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     // honor accel constraint in case we happen to make an acute angle
     // with the next segment.
     // TODO better acceleration constraints?
-    if(tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
+    if(tc->term_cond == TC_TERM_COND_PARABOLIC) {
         tc->maxaccel /= 2.0;
         tp_debug_print("Parabolic blend, reducing tc maxaccel to %f\n",tc->maxaccel);
     }
@@ -2004,7 +2038,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         // honor accel constraint if we happen to make an acute angle with the
         // above segment or the following one
         // TODO: replace this with better acceleration constraint
-        if(tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND || nexttc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
+        if(tc->term_cond == TC_TERM_COND_PARABOLIC || nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
             nexttc->maxaccel /= 2.0;
             tp_debug_print("Parabolic blend, reducing nexttc maxaccel to %f\n",tc->maxaccel);
         }
@@ -2032,7 +2066,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }   
     }
 
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND) {
+    if (tc->term_cond == TC_TERM_COND_PARABOLIC) {
         tc->blend_vel = tpComputeBlendVelocity(tp, tc, nexttc);
     }
 
@@ -2053,7 +2087,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     /* BLENDING STUFF */
     // make sure we continue to blend this segment even when its
     // accel reaches 0 (at the very end)
-    bool is_blend_start = (tc->term_cond == TC_TERM_COND_PARABOLIC_BLEND ) && nexttc &&
+    bool is_blend_start = (tc->term_cond == TC_TERM_COND_PARABOLIC ) && nexttc &&
         on_final_decel && (primary_vel < tc->blend_vel);
 
     bool is_tangent_blend_start = (tc->term_cond == TC_TERM_COND_TANGENT ) &&
