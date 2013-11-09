@@ -47,7 +47,7 @@ INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 
 # constants
-_RELEASE = "0.9.8.3"
+_RELEASE = "0.9.8.4"
 _MM = 1                 # Metric units are used
 _IMPERIAL = 0           # Imperial Units are used
 _MANUAL = 1             # Check for the mode Manual
@@ -312,7 +312,7 @@ class HandlerClass:
             self.incr_rbt_list.append(rbt)
 
         self.set_property_dro("reference_type", 1)
-        self.set_property_dro("display_units_mm", True)
+        self.set_property_dro("display_units_mm", (self.data.dro_units == _MM))
 
         # This is needed only because we connect all the horizontal button
         # to hal pins, so the user can conect them to hardware buttons
@@ -395,8 +395,6 @@ class HandlerClass:
 
         if "ntb_preview" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property("show-tabs", True)
-        if self.gscreen.machine_units_mm == 1: # is needed to show vel in machine units
-            self.gscreen.set_dro_units(_MM,True)
 
         # get if run from line should be used
         rfl = self.gscreen.prefs.getpref("run_from_line", "no_run", str)
@@ -1512,15 +1510,21 @@ class HandlerClass:
 
     # Update the velocity labels
     def _update_vel(self):
-        self.widgets.lbl_current_vel.set_text("%d" %self.data.velocity)
+        self.widgets.lbl_active_feed.set_label(self.data.active_feed_command)
         feed_override = self.widgets.scl_feed.get_value() / 100
         real_feed = float(self.widgets.lbl_active_feed.get_text()) * feed_override
-        if "G95" in self.data.active_gcodes:
-            self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
-            self.widgets.lbl_active_feed.set_label("%.2f"%float(self.data.active_feed_command))
+        if self.data.dro_units == _MM:
+            self.widgets.lbl_current_vel.set_text("%d" %self.data.velocity)
+            if "G95" in self.data.active_gcodes:
+                self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
+            else:
+                self.widgets.lbl_feed_act.set_text("F  %d" %real_feed)
         else:
-            self.widgets.lbl_feed_act.set_text("F  %d" %real_feed)
-            self.widgets.lbl_active_feed.set_label(self.data.active_feed_command)
+            self.widgets.lbl_current_vel.set_text("%.2f" %self.data.velocity)
+            if "G95" in self.data.active_gcodes:
+                self.widgets.lbl_feed_act.set_text("F  %.4f" %real_feed)
+            else:
+                self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
 
     # This is the jogging part
     def on_increment_changed(self, widget = None, data = None):
@@ -1855,9 +1859,11 @@ class HandlerClass:
         if widget.get_active():
             widget.set_label("Inch")
             self.data.dro_units = _IMPERIAL     # 0 = _IMPERIAL ; 1 = _MM
+            self.gscreen.status.mm = 0
         else:
             widget.set_label("mm")
             self.data.dro_units = _MM     # 0 = _IMPERIAL ; 1 = _MM
+            self.gscreen.status.mm = 1
         self.set_property_dro("display_units_mm", not widget.get_active())
         self.widgets.gremlin.set_property("metric_units", not widget.get_active())
 
@@ -1865,7 +1871,10 @@ class HandlerClass:
         for axis in self.data.axis_list:
             if axis not in "xyz":
                 axis = "4"
+            print("hal_dro_%s"%axis, property,status)
             self.widgets["hal_dro_%s"%axis].set_property(property,status)
+        if self.data.lathe_mode:
+            self.widgets.hal_dro_y.set_property(property,status)
 
     # choose a theme to aply
     def on_theme_choice_changed(self, widget):
@@ -2795,8 +2804,12 @@ class HandlerClass:
         self.pin_offset_z.connect("value_changed", self._offset_changed,"tooloffset_z")
 
     def _offset_changed(self,pin,tooloffset):
-        self.widgets.lbl_tool_offset_z.set_text("%.3f"%self.gscreen.halcomp["tooloffset_z"])
-        self.widgets.lbl_tool_offset_x.set_text("%.3f"%self.gscreen.halcomp["tooloffset_x"])
+        if self.data.dro_units == _MM:
+            self.widgets.lbl_tool_offset_z.set_text("%.3f"%self.gscreen.halcomp["tooloffset_z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.3f"%self.gscreen.halcomp["tooloffset_x"])
+        else:
+            self.widgets.lbl_tool_offset_z.set_text("%.4f"%self.gscreen.halcomp["tooloffset_z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.4f"%self.gscreen.halcomp["tooloffset_x"])
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
         if not pin.get(): 

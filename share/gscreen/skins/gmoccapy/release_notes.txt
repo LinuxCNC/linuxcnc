@@ -1,3 +1,10 @@
+ver. 0.9.8.4
+- diameter dro does not show imperial units, even if machine units are imperial, fixed.
+- tool info only with three digits in imperial mode, now 4 digits
+- active feed and active vel label not in machine units, if in imperial mode, fixed
+- cosmetic changes to gmoccapy_lathe.ini
+- introduced a imperial lathe ini
+
 ver 0.9.8.3
 - BUG: forget to update the cooordiante system after changing the error system,
   causing the ABS/REL button not showing the correct label, fixed
