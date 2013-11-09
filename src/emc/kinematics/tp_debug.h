@@ -19,6 +19,8 @@
 #define tp_debug_print(...) rtapi_print(__VA_ARGS__)
 #define STATIC
 
+
+
 #else
 
 #define tp_debug_print(...) 

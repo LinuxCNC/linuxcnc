@@ -93,28 +93,28 @@ typedef struct {
         PmRigidTap rigidtap;
     } coords;
 
-    char motion_type;       // TC_LINEAR (coords.line) or 
+    int motion_type;       // TC_LINEAR (coords.line) or 
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
-    char active;            // this motion is being executed
-    char canon_motion_type;  // this motion is due to which canon function?
-    char term_cond;    // gcode requests continuous feed at the end of 
+    int active;            // this motion is being executed
+    int canon_motion_type;  // this motion is due to which canon function?
+    int term_cond;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
 
-    char blending;           // segment is being blended into following segment
+    int blending;           // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
-    char synchronized;       // spindle sync state
+    int synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
-    char sync_accel;         // we're accelerating up to sync with the spindle
+    int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
-    char atspeed;           // wait for the spindle to be at-speed before starting this move
+    int atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
     int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
-    char atpeak;             //At peak velocity during blends)
-    char on_final_decel;
+    int atpeak;             //At peak velocity during blends)
+    int on_final_decel;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
