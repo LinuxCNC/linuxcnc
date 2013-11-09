@@ -546,16 +546,17 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
 
 
 static int hm2_read_idrom(hostmot2_t *hm2) {
+    u32 read_data;
 
     //
     // find the idrom offset
     //
 
-    if (!hm2->llio->read(hm2->llio, HM2_ADDR_IDROM_OFFSET, &hm2->idrom_offset, 2)) {
+    if (!hm2->llio->read(hm2->llio, HM2_ADDR_IDROM_OFFSET, &read_data, 4)) {
         HM2_ERR("error reading IDROM Offset\n");
         return -EIO;
     }
-
+    hm2->idrom_offset = read_data & 0xFFFF;
 
     //
     // first read in the idrom type to make sure we know how to deal with it
