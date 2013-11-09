@@ -93,10 +93,11 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
     return tc->maxaccel * tc->accel_scale;
 }
 
+
 /**
  * Clip velocity of tangent segments to prevent overshooting.
  */
-STATIC int tpClipVelocityLimit(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC inline int tpClipVelocityLimit(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     if (!tc) {
         return TP_ERR_FAIL;
     }
@@ -626,6 +627,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // FIXME formally prove the min. safety factor needed
     double acc_safety_factor=.98;
     double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio)) * acc_safety_factor;
+    tp_debug_print("a_n_max = %f\n",a_n_max);
     blend_tc->accel_scale=1/pmSqrt(1.0+pmSq(acc_ratio));
 
     blend_tc->maxaccel=a_max;
@@ -732,6 +734,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
         // d required to meet v_upper
         double d_sample = v_upper * tp->cycleTime / (phi * Ttheta);
+        //TODO this doesn't catch all errors
 
         double v1_sample = (L1-d_sample) / tp->cycleTime;
 
@@ -757,8 +760,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * checking against the parabolic velocity), then abort arc creation and
      * fall back to parabolic blends */
     
+    //TODO move this above to save processing time?
     double v_parabolic=0.0;
-    tpComputeBlendVelocity(tp, prev_tc, tc,&v_parabolic);
+    tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
 
     tp_debug_print("Speed Comparison: v_arc %f, v_para %f\n",v_upper,v_parabolic);
     if (v_upper < v_parabolic) {
@@ -772,9 +776,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         tp_debug_print("Blend radius too small, aborting...\n");
         return TP_ERR_FAIL;
     }
-
-    //TEMPORARY - always fail here to check degradation
-    return TP_ERR_FAIL;
 
     tpInitBlendArc(tp, prev_tc, blend_tc);
 
@@ -872,7 +873,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     return tpAddSegmentToQueue(tp, &tc, &end);
 }
 
-STATIC int tpCheckNeedBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
+STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
         TC_STRUCT const * const tc, double period) {
     double omega=0.0;
 
@@ -883,6 +884,7 @@ STATIC int tpCheckNeedBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 
     //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
     if (tpCalculateUnitCartAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
+        tp_debug_print("Can't calculate angle\n");
         return TP_ERR_FAIL;
     }
 
@@ -904,6 +906,7 @@ STATIC int tpCheckNeedBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     //If the segments are nearly tangent, just treat it as tangent since the
     //acceleration is within bounds.
     if (omega < crit_angle) {
+        tp_debug_print("segments nearly tangent\n");
         return TP_ERR_NO_ACTION;
     }
 
@@ -1073,7 +1076,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
  */
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
 
-    tp_debug_print("----------------------\nStarting blend stuff\n");
+    tc_debug_print("********************\nStarting blend stuff\n");
 
     TC_STRUCT *prev_tc = tcqLast(&tp->queue);
 
@@ -1085,51 +1088,37 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
         return TP_ERR_FAIL;
     }
 
-    int need_arc = tpCheckNeedBlendArc(tp,prev_tc, tc, tp->cycleTime);
-
     TC_STRUCT blend_tc;
 
-    switch (need_arc) {
-        case 0:
-            tp_debug_print("Need a blend arc\n");
-            //make blend arc
-            int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
-            if (arc_fail) {
-                tp_debug_print("error creating arc\n");
+    if (!tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
+        tp_debug_print("Need a blend arc\n");
+        //make blend arc
+        int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
+        if (arc_fail) {
+            tp_debug_print("error creating arc\n");
+            return TP_ERR_FAIL;
+        }
+
+        int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
+
+        if ( 1 == arc_connect_stat) {
+            //Remove previous segment that is now zero length
+            int trim_fail = tcqPopBack(&tp->queue);
+            if (trim_fail) {
+                //Really should not happen...
+                tp_debug_print("Failed to pop last segment!\n");
                 return TP_ERR_FAIL;
             }
+            //TODO check for failure, bail if we can't blend
+        }
 
-            int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
-            
-            if ( 1 == arc_connect_stat) {
-                //Remove previous segment that is now zero length
-                int trim_fail = tcqPopBack(&tp->queue);
-                if (trim_fail) {
-                    //Really should not happen...
-                    tp_debug_print("Failed to pop last segment!\n");
-                    return TP_ERR_FAIL;
-                }
-                //TODO check for failure, bail if we can't blend
-            }
+        /*tpClipVelocityLimit(tp, prev_tc);*/
+        /*tpClipVelocityLimit(tp, &blend_tc);*/
+        //TC is clipped later
 
-            tpClipVelocityLimit(tp, prev_tc);
-            tpClipVelocityLimit(tp, &blend_tc);
-            //TC is clipped later
+        tpAddSegmentToQueue(tp, &blend_tc, end);
 
-            tpAddSegmentToQueue(tp, &blend_tc, end);
-
-            tpRunOptimization(tp);
-            break;
-        case 1: //Intentional waterfall
-            //Skip, already tangent
-            tp_debug_print("Marking segment as tangent (exact stop)\n");
-            //
-            prev_tc->term_cond = TC_TERM_COND_TANGENT;
-            break;
-        default:
-            tp_debug_print("Failed? need_arc = %d\n", need_arc);
-            //Numerical issue? any error means we can't blend, so leave final velocity zero
-            return TP_ERR_FAIL;
+        tpRunOptimization(tp);
     }
     return TP_ERR_OK;
 }
@@ -1191,9 +1180,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         tc.syncdio.anychanged = 0;
     }
 
-    /*tpHandleBlendArc(tp, &tc, &end);*/
-
-    tpClipVelocityLimit(tp, &tc);
+    tpHandleBlendArc(tp, &tc, &end);
 
     int retval =  tpAddSegmentToQueue(tp, &tc, &end);
     return retval;
@@ -1269,7 +1256,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tc.syncdio.anychanged = 0;
     }
 
-    tpClipVelocityLimit(tp, &tc);
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, &end);
 }
@@ -1342,8 +1328,9 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
     double v_peak_this;
     double v_peak_next;
 
-    double acc_this = tpGetScaledAccel(tp,tc);
-    double acc_next = tpGetScaledAccel(tp,nexttc);
+    //KLUDGE just to get this working. a fixed scale factor doesn't make sense anymore...
+    double acc_this = tc->maxaccel * 0.5;
+    double acc_next = tc->maxaccel * 0.5;
 
     v_peak_this = pmSqrt(tc->target * acc_this);
     v_peak_next = pmSqrt(nexttc->target * acc_next);
@@ -2189,7 +2176,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }
     }
 
-    tp_debug_print("-------------------\n");
+    tc_debug_print("-------------------\n");
 
     nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
 
