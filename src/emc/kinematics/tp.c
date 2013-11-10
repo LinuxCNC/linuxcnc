@@ -86,6 +86,7 @@ STATIC inline double tpGetFinalVel(TP_STRUCT const * const tp, TC_STRUCT const *
 
 STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     if (tc->accel_scale < 0.0) {
+        tp_debug_print("accel_scale < 0, %f\n",tc->accel_scale);
         //TODO silent error ok?
         return 0.0;
     }
@@ -617,8 +618,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     const double acc_ratio=1;
     //Find common velocity and acceleration
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("vr1 = %f, vr2 = %f\n",prev_tc->reqvel,tc->reqvel);
-    tp_debug_print("v_req=%f\n",v_req);
+    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
+    tp_debug_print("v_req=%f\n", v_req);
     
     //Want the raw accelerations here
     double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
@@ -627,9 +628,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // FIXME formally prove the min. safety factor needed
     double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
     tp_debug_print("a_n_max = %f\n",a_n_max);
-    blend_tc->accel_scale=1/pmSqrt(1.0+pmSq(acc_ratio));
-
-    blend_tc->maxaccel=a_max;
 
     //Get 3D start, middle, end position
     PmCartesian start, middle, end;
@@ -663,13 +661,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double d_tol=Ctheta*h_tol;
 
     // Limit amount of line segment to blend so that we don't delete the line
-    const double blend_ratio = 0.50;
+    const double blend_ratio = 0.33333;
 
     //HACK Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->target;
     double L2 = tc->target;
 
-    double d_prev = L1 * 1.0; //Blend over the whole previous segment
+    double d_prev = L1 * blend_ratio/(1.0-blend_ratio); //Blend over the whole previous segment
     double d_next = L2 * blend_ratio; //Blend over a portion of the next
 
     /*double v_sample = (L1+L2) / (3.0 * tp->cycleTime);*/
@@ -716,7 +714,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // will be overlap, and we can proceed as normal. If there isn't, then
     // we have short segments, and need to compromise on segment length to
     // avoid degeneracy.
-    if (L_prev > TP_MAG_EPSILON) {
+    if (L_prev > 0.0) {
         double v_sample = phi * d_upper * Ttheta / tp->cycleTime;
 
         // The blend velocity we can actually get is limited by the sample rate
@@ -742,12 +740,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
         R_upper = d_upper*Ttheta;
         tp_debug_print("adjusted R_upper = %f\n",R_upper); 
-    } else {
-        //Consume the rest of the segment
-        d_upper+=L_prev;
-        R_upper = d_upper*Ttheta;
-    }
-
+    } 
     tp_debug_print("effective a_n = %f\n", pmSq(v_upper)/R_upper); 
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
@@ -774,7 +767,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-    tpInitBlendArc(tp, prev_tc, blend_tc);
+    blend_tc->accel_scale=1/pmSqrt(1.0+pmSq(acc_ratio));
+    blend_tc->maxaccel=a_max;
+
+    gdb_fake_assert(a_max < TP_ACCEL_EPSILON);
 
     //TODO Recycle calculations?
     //TODO errors within this function
@@ -1085,31 +1081,42 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
     }
 
     TC_STRUCT blend_tc;
+    tpInitBlendArc(tp, prev_tc, &blend_tc);
 
-    if (!tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
-        tp_debug_print("Need a blend arc\n");
-        //make blend arc
-        int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
-        if (arc_fail) {
-            tp_debug_print("error creating arc\n");
-            return TP_ERR_FAIL;
-        }
-
-        int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
-
-        if ( 1 == arc_connect_stat) {
-            //Remove previous segment that is now zero length
-            int trim_fail = tcqPopBack(&tp->queue);
-            if (trim_fail) {
-                //Really should not happen...
-                tp_debug_print("Failed to pop last segment!\n");
+    switch (tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
+        case 0:
+            tp_debug_print("Need a blend arc\n");
+            //make blend arc
+            int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
+            if (arc_fail) {
+                tp_debug_print("error creating arc\n");
                 return TP_ERR_FAIL;
-            } 
-        }
+            }
 
-        tpAddSegmentToQueue(tp, &blend_tc, end);
+            int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
+            prev_tc->term_cond=TC_TERM_COND_TANGENT;
 
-        tpRunOptimization(tp);
+            if ( 1 == arc_connect_stat) {
+                //Remove previous segment that is now zero length
+                int trim_fail = tcqPopBack(&tp->queue);
+                if (trim_fail) {
+                    //Really should not happen...
+                    tp_debug_print("Failed to pop last segment!\n");
+                    return TP_ERR_FAIL;
+                } 
+            }
+
+
+            tpAddSegmentToQueue(tp, &blend_tc, end);
+
+            tpRunOptimization(tp);
+            break;
+        case 1:
+            //already tangent
+            prev_tc->term_cond=TC_TERM_COND_TANGENT;
+            break;
+        default:
+            tp_debug_print("Unknown blend arc condition\n");
     }
     return TP_ERR_OK;
 }
@@ -1172,6 +1179,9 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
 
     tpHandleBlendArc(tp, &tc, &end);
+
+    gdb_fake_assert(tc.maxaccel<TP_ACCEL_EPSILON);
+    tp_debug_print("AddLine maxaccel = %f\n",tc.maxaccel);
 
     return tpAddSegmentToQueue(tp, &tc, &end);
 }
@@ -1320,7 +1330,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
 
     //KLUDGE just to get this working. a fixed scale factor doesn't make sense anymore...
     double acc_this = tc->maxaccel * 0.5;
-    double acc_next = tc->maxaccel * 0.5;
+    double acc_next = nexttc->maxaccel * 0.5;
 
     v_peak_this = pmSqrt(tc->target * acc_this);
     v_peak_next = pmSqrt(nexttc->target * acc_next);
@@ -1420,6 +1430,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     delta_pos = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
+    gdb_fake_assert(maxaccel<TP_ACCEL_EPSILON);
 
     discr_term1 = pmSq(tc_finalvel);
     discr_term2 = maxaccel * (2.0 * delta_pos - tc->currentvel * tc->cycle_time);
@@ -1436,12 +1447,15 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     } else {
         newvel = maxnewvel = -0.5 * maxaccel * tc->cycle_time + pmSqrt(discr);
     }
+    tc_debug_print("maxaccel = %f\n",maxaccel);
 
     if (newvel > tc_reqvel) {
+        tc_debug_print("reached v_req\n");
         newvel = tc_reqvel;
     }
 
     if (newvel < 0.0 ) {
+        tc_debug_print("newvel = %f\n",newvel);
         //If we're not hitting a tangent move, then we need to throw out any overshoot to force an exact stop.
         //FIXME this could mean a momentary spike in acceleration, test to see if it's a problem
 
