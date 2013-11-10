@@ -29,8 +29,10 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 #define TP_DEBUG
-/*#define TC_DEBUG*/
+#define TC_DEBUG
 #include "tp_debug.h"
+
+#define TP_ARC_BLENDS
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -39,7 +41,8 @@ int output_chan = 0;
 syncdio_t syncdio; //record tpSetDout's here
 
 /** static function primitives */
-STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double * const blend_vel);
+STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
+        const tc, TC_STRUCT const * const nexttc, double * const blend_vel);
 
 //Empty function to act as an assert for GDB in simulation
 STATIC int gdb_fake_catch(int condition){
@@ -565,31 +568,30 @@ STATIC int tpApplyBlendArcParameters(TP_STRUCT const * const tp, TC_STRUCT * con
  * Initialize a spherical blend arc from its parent lines.
  */
 STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
-        TC_STRUCT* const tc) {
+        TC_STRUCT* const blend_tc, double vel, double ini_maxvel, double acc) {
 
     if (tpErrorCheck(tp)<0) return TP_ERR_FAIL;
 
     // Treating arc as extension of prev_line_tc
-    tc->enables = prev_line_tc->enables;
-    tc->atspeed = prev_line_tc->atspeed;
+    blend_tc->atspeed = prev_line_tc->atspeed;
 
     //KLUDGE this init function is a bit overkill now...
-    tpInitializeNewSegment(tp, tc, 0, prev_line_tc->maxvel, 0, 0);
+    tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
 
-    tc->motion_type = TC_CIRCULAR;
-    tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
+    blend_tc->motion_type = TC_CIRCULAR;
+    blend_tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
 
-    tc->synchronized = prev_line_tc->synchronized;
-    tc->uu_per_rev = prev_line_tc->uu_per_rev;
-    tc->indexrotary = -1;
-    tc->enables = prev_line_tc->enables;
+    blend_tc->synchronized = prev_line_tc->synchronized;
+    blend_tc->uu_per_rev = prev_line_tc->uu_per_rev;
+    blend_tc->indexrotary = -1;
+    blend_tc->enables = prev_line_tc->enables;
 
     //FIXME do we need this in a blend arc?
     if (syncdio.anychanged != 0) {
-        tc->syncdio = syncdio; //enqueue the list of DIOs that need toggling
+        blend_tc->syncdio = syncdio; //enqueue the list of DIOs that need toggling
         tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
     } else {
-        tc->syncdio.anychanged = 0;
+        blend_tc->syncdio.anychanged = 0;
     }
 
     return TP_ERR_OK;
@@ -614,10 +616,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
     tp_debug_print("theta=%f\n",theta);
 
-    //TODO make this a state of TC?
-    const double acc_ratio=1;
     //Find common velocity and acceleration
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
+    double v_max=fmax(prev_tc->maxvel, tc->maxvel);
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_req=%f\n", v_req);
     
@@ -626,7 +627,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("a_max=%f\n",a_max);
     // Hack to give us a little room to play with d_upper later
     // FIXME formally prove the min. safety factor needed
-    double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
+    double a_n_max=a_max*pmSqrt(3.0)/2.0;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
     //Get 3D start, middle, end position
@@ -670,8 +671,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double d_prev = L1 * blend_ratio/(1.0-blend_ratio); //Blend over the whole previous segment
     double d_next = L2 * blend_ratio; //Blend over a portion of the next
 
-    /*double v_sample = (L1+L2) / (3.0 * tp->cycleTime);*/
-
     double d_geom=fmin(fmin(d_prev, d_next), d_tol);
     tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
 
@@ -688,11 +687,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //At this new limiting velocity, find the radius by the reverse formula
 
-    double R_normal;
+    double R_normal=0.0;
     if (a_n_max>TP_ACCEL_EPSILON) {
         R_normal=pmSq(v_upper)/a_n_max;
     } else {
-        R_normal=0.0;
         tp_debug_print("a_n_max = %f, too low!\n",a_n_max);
         return TP_ERR_FAIL;
     }
@@ -767,8 +765,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-    blend_tc->accel_scale=1/pmSqrt(1.0+pmSq(acc_ratio));
-    blend_tc->maxaccel=a_max;
+    tpInitBlendArc(tp, prev_tc, blend_tc, v_upper, v_max, a_max);
+    //Changed to have same 1/2 factor as parabolic blends, allowing more normal acceleration
+    blend_tc->accel_scale=0.5;
 
     gdb_fake_assert(a_max < TP_ACCEL_EPSILON);
 
@@ -790,9 +789,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
-STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
+STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end, int inc_id) {
+
 
     tc->id=tp->nextId;
+    if (inc_id) {
+        tp->nextId++;
+    }
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
         return TP_ERR_FAIL;
@@ -804,7 +807,6 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
     tp_debug_print("Adding TC id %d of type %d\n",tc->id,tc->motion_type);
-    tp->nextId++;
 
     return TP_ERR_OK;
 }
@@ -863,7 +865,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     }
 
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, &end);
+    return tpAddSegmentToQueue(tp, &tc, &end, true);
 }
 
 STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
@@ -966,7 +968,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     tc->target=tc->coords.line.xyz.tmag;
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
 
-    if (prev_tc->target < TP_MAG_EPSILON ) {
+    if (prev_tc->target == 0.0 ) {
         tp_debug_print("Flagged prev_tc for removal\n");
         return TP_ERR_NO_ACTION;
     }
@@ -1012,8 +1014,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             break;
         }
 
-        tp_debug_print("  prev term = %u, tc term = %u\n",
-                prev_tc->term_cond,tc->term_cond);
+        tp_debug_print("  prev term = %u, type = %u, id = %u, \n",
+                prev_tc->term_cond, prev_tc->motion_type, prev_tc->id);
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
@@ -1081,7 +1083,6 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
     }
 
     TC_STRUCT blend_tc;
-    tpInitBlendArc(tp, prev_tc, &blend_tc);
 
     switch (tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
         case 0:
@@ -1107,9 +1108,8 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             }
 
 
-            tpAddSegmentToQueue(tp, &blend_tc, end);
+            tpAddSegmentToQueue(tp, &blend_tc, end,false);
 
-            tpRunOptimization(tp);
             break;
         case 1:
             //already tangent
@@ -1178,12 +1178,16 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         tc.syncdio.anychanged = 0;
     }
 
+#ifdef TP_ARC_BLENDS
     tpHandleBlendArc(tp, &tc, &end);
+#endif
 
     gdb_fake_assert(tc.maxaccel<TP_ACCEL_EPSILON);
     tp_debug_print("AddLine maxaccel = %f\n",tc.maxaccel);
 
-    return tpAddSegmentToQueue(tp, &tc, &end);
+    int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
+    tpRunOptimization(tp);
+    return retval; 
 }
 
 
@@ -1257,7 +1261,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     }
 
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, &end);
+    return tpAddSegmentToQueue(tp, &tc, &end,true);
 }
 
 /**
@@ -1601,6 +1605,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
     EmcPose target;
     tcGetEndpoint(tc, &target);
 
+    tc_debug_print("tc id = %u, canon_type = %u, mot type = %u\n",tc->id,tc->canon_motion_type,tc->motion_type);
     tp->motionType = tc->canon_motion_type;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
     emcmotStatus->enables_queued = tc->enables;
@@ -1941,7 +1946,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     // TODO better acceleration constraints?
     if(tc->term_cond == TC_TERM_COND_PARABOLIC) {
         tc->accel_scale = 0.5;
-        tp_debug_print("Parabolic blend, reduce maxaccel by %f\n",tc->accel_scale);
+        tp_debug_print("Parabolic blend, accel scale is %f\n",tc->accel_scale);
     }
 
     if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
@@ -2226,10 +2231,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         emcmotStatus->spindleSync = 0;
     }
 
-    if(nexttc && nexttc->active == 0) {
+    if(nexttc && nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
         // this means this tc is being read for the first time.
         tp_debug_print("Activate nexttc id %d\n", nexttc->id);
-        /*nexttc->currentvel = 0;*/
+        nexttc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
         nexttc->blending = 0;
@@ -2240,7 +2245,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         // TODO: replace this with better acceleration constraint
         if(tc->term_cond == TC_TERM_COND_PARABOLIC || nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
             nexttc->accel_scale = 0.5;
-            tp_debug_print("Parabolic blend, nexttc accel scale %f\n",tc->accel_scale);
+            tp_debug_print("G64, nexttc accel scale %f\n",tc->accel_scale);
         }
     }
 
@@ -2279,10 +2284,12 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tpDoTangentBlending(tp, tc, nexttc, &secondary_before);
 
+#ifdef TP_DEBUG
     double mag = -1;
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag);
     tc_debug_print("primary movement = %f\n", mag);
     gdb_fake_assert(mag > (tc->maxvel * tp->cycleTime));
+#endif
 
     return TP_ERR_OK;
 }
