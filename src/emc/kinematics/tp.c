@@ -599,7 +599,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
  * Compute arc segment to blend between two lines.
  */
 STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_tc,
-        TC_STRUCT  * const tc, TC_STRUCT * const blend_tc) {
+        TC_STRUCT * const tc, TC_STRUCT * const blend_tc) {
 
     // Assume at this point that we've checked for dumb reasons not to
     // calculate the blend arc, like intersection angle
@@ -625,8 +625,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("a_max=%f\n",a_max);
     // Hack to give us a little room to play with d_upper later
     // FIXME formally prove the min. safety factor needed
-    double acc_safety_factor=.98;
-    double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio)) * acc_safety_factor;
+    double a_n_max=a_max/pmSqrt(1.0+1.0/pmSq(acc_ratio));
     tp_debug_print("a_n_max = %f\n",a_n_max);
     blend_tc->accel_scale=1/pmSqrt(1.0+pmSq(acc_ratio));
 
@@ -664,7 +663,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double d_tol=Ctheta*h_tol;
 
     // Limit amount of line segment to blend so that we don't delete the line
-    const double blend_ratio = 0.5;
+    const double blend_ratio = 0.50;
 
     //HACK Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->target;
@@ -712,21 +711,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L_prev = L1 - d_upper;
     double L_next = L2 - d_upper;
 
-    if (L_prev < -TP_MAG_EPSILON) {
-        //Something is very wrong here...
-        tp_debug_print("Cannot have negative segment length!\n");
-        return TP_ERR_FAIL;
-    } else if (L_prev < TP_MAG_EPSILON) {
-        //Force the prev. segment to be consumed since we're otherwise going to
-        //cause degeneracy
-        d_upper += L_prev;
-    } else {
-        // Test if our ideal lower bound on d (from arc equation) is lower than
-        // our ideal upper bound on d based on the sample time. Usually there
-        // will be overlap, and we can proceed as normal. If there isn't, then
-        // we have short segments, and need to compromise on segment length to
-        // avoid degeneracy.
-        
+    // Test if our ideal lower bound on d (from arc equation) is lower than
+    // our ideal upper bound on d based on the sample time. Usually there
+    // will be overlap, and we can proceed as normal. If there isn't, then
+    // we have short segments, and need to compromise on segment length to
+    // avoid degeneracy.
+    if (L_prev > TP_MAG_EPSILON) {
         double v_sample = phi * d_upper * Ttheta / tp->cycleTime;
 
         // The blend velocity we can actually get is limited by the sample rate
@@ -746,13 +736,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
             //FIXME variable reuse
             v_upper = pmSqrt(a_n_max * (d_upper*Ttheta));
             L_prev = L1 - d_upper;
-            L_next = L2 -d_upper;
+            L_next = L2 - d_upper;
         } 
         tp_debug_print("Adjusted v_upper = %f, d_upper = %f\n",v_upper,d_upper);
+
+        R_upper = d_upper*Ttheta;
+        tp_debug_print("adjusted R_upper = %f\n",R_upper); 
+    } else {
+        //Consume the rest of the segment
+        d_upper+=L_prev;
+        R_upper = d_upper*Ttheta;
     }
 
-    R_upper = d_upper*Ttheta;
-    tp_debug_print("adjusted R_upper = %f\n",R_upper); 
     tp_debug_print("effective a_n = %f\n", pmSq(v_upper)/R_upper); 
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
@@ -972,11 +967,10 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     prev_tc->target=prev_tc->coords.line.xyz.tmag;
     tp_debug_print("Target = %f\n",prev_tc->target);
 
-    //FIXME use defined epsilon
     tc->target=tc->coords.line.xyz.tmag;
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
 
-    if (prev_tc->target < 0.000001 ) {
+    if (prev_tc->target < TP_MAG_EPSILON ) {
         tp_debug_print("Flagged prev_tc for removal\n");
         return TP_ERR_NO_ACTION;
     }
@@ -1110,13 +1104,8 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
                 //Really should not happen...
                 tp_debug_print("Failed to pop last segment!\n");
                 return TP_ERR_FAIL;
-            }
-            //TODO check for failure, bail if we can't blend
+            } 
         }
-
-        /*tpClipVelocityLimit(tp, prev_tc);*/
-        /*tpClipVelocityLimit(tp, &blend_tc);*/
-        //TC is clipped later
 
         tpAddSegmentToQueue(tp, &blend_tc, end);
 
@@ -1184,8 +1173,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     tpHandleBlendArc(tp, &tc, &end);
 
-    int retval =  tpAddSegmentToQueue(tp, &tc, &end);
-    return retval;
+    return tpAddSegmentToQueue(tp, &tc, &end);
 }
 
 
