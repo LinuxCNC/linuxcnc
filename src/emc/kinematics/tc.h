@@ -35,6 +35,10 @@
 #define TC_SYNC_VELOCITY 1
 #define TC_SYNC_POSITION 2
 
+#define TC_GET_PROGRESS 0
+#define TC_GET_STARTPOINT 1
+#define TC_GET_ENDPOINT 2
+
 /* structure for individual trajectory elements */
 
 typedef struct {
@@ -120,6 +124,7 @@ typedef struct {
 /* TC_STRUCT functions */
 
 extern int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
+extern int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 extern int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
 int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const out);
 int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
