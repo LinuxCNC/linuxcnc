@@ -734,9 +734,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
         // d required to meet v_upper
         double d_sample = v_upper * tp->cycleTime / (phi * Ttheta);
-        //TODO this doesn't catch all errors
+        double d_req1 = fmax(d_sample,d_upper);
 
-        double v1_sample = (L1-d_sample) / tp->cycleTime;
+        double v1_sample = (L1-d_req1) / tp->cycleTime;
 
         //If we take too big a bite out of the previous line, we won't be able
         //to move fast enough through the segment to reach v_upper anyway.
@@ -744,7 +744,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         if (v1_sample < v_upper) {
             d_upper = L1/(1+phi*Ttheta);
             //FIXME variable reuse
-            v_upper = v1_sample;
+            v_upper = pmSqrt(a_n_max * (d_upper*Ttheta));
+            L_prev = L1 - d_upper;
+            L_next = L2 -d_upper;
         } 
         tp_debug_print("Adjusted v_upper = %f, d_upper = %f\n",v_upper,d_upper);
     }
