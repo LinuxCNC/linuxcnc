@@ -1934,7 +1934,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tp_debug_print( "Activate tc id %d\n", tc->id);
 
     tc->active = 1;
-    tc->currentvel = 0;
+    //Do not change initial velocity here, since tangent blending already sets this up
     //FIXME activedepth might change meaning with lookahead?
     tp->depth = tp->activeDepth = 1;
     tp->motionType = tc->canon_motion_type;

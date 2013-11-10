@@ -89,22 +89,38 @@ int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
  */   
 
 int tcGetPos(TC_STRUCT const * const tc, EmcPose * const out) {
-    tcGetPosReal(tc, 0, out);
+    tcGetPosReal(tc, TC_GET_PROGRESS, out);
+    return 0;
+}
+
+int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out) {
+    tcGetPosReal(tc, TC_GET_STARTPOINT, out);
     return 0;
 }
 
 int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out) {
-    tcGetPosReal(tc, 0, out);
+    tcGetPosReal(tc, TC_GET_ENDPOINT, out);
     return 0;
 }
 
-int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint, EmcPose * const pos)
+int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
 {
     PmCartesian xyz;
     PmCartesian abc;
     PmCartesian uvw;
+    double progress=0.0;
 
-    double progress = of_endpoint? tc->target: tc->progress;
+    switch (of_point) {
+        case TC_GET_PROGRESS:
+            progress = tc->progress;
+            break;
+        case TC_GET_ENDPOINT:
+            progress = tc->target;
+            break;
+        case TC_GET_STARTPOINT:
+            progress = 0.0;
+            break;
+    }
 
     switch (tc->motion_type){
         case TC_RIGIDTAP:
