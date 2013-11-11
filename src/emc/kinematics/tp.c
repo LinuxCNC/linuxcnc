@@ -29,7 +29,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 #define TP_DEBUG
-#define TC_DEBUG
+/*#define TC_DEBUG*/
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
@@ -662,7 +662,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double d_tol=Ctheta*h_tol;
 
     // Limit amount of line segment to blend so that we don't delete the line
-    const double blend_ratio = 0.33333;
+    const double blend_ratio = 0.5;
 
     //HACK Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->target;
@@ -713,16 +713,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // we have short segments, and need to compromise on segment length to
     // avoid degeneracy.
     if (L_prev > 0.0) {
-        double v_sample = phi * d_upper * Ttheta / tp->cycleTime;
+        double v_sample = 0.5 * phi * d_upper * Ttheta / tp->cycleTime;
 
         // The blend velocity we can actually get is limited by the sample rate
         v_upper = fmin(v_upper,v_sample);
 
         // d required to meet v_upper
-        double d_sample = v_upper * tp->cycleTime / (phi * Ttheta);
+        double d_sample = 2.0 * v_upper * tp->cycleTime / (phi * Ttheta);
         double d_req1 = fmax(d_sample,d_upper);
 
-        double v1_sample = (L1-d_req1) / tp->cycleTime;
+        double v1_sample = 0.5 * (L1-d_req1) / tp->cycleTime;
 
         //If we take too big a bite out of the previous line, we won't be able
         //to move fast enough through the segment to reach v_upper anyway.
@@ -753,10 +753,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
 
     tp_debug_print("Speed Comparison: v_arc %f, v_para %f\n",v_upper,v_parabolic);
-    if (v_upper < v_parabolic) {
-        tp_debug_print("v_arc lower, abort arc creation\n");
-        return TP_ERR_FAIL;
-    }
+    //Temporarily surpress fallback
+    /*if (v_upper < v_parabolic) {*/
+        /*tp_debug_print("v_arc lower, abort arc creation\n");*/
+        /*return TP_ERR_FAIL;*/
+    /*}*/
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
@@ -1034,12 +1035,16 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         //Calculate the maximum starting velocity vs of segment tc, given the
         //trajectory parameters
         double acc = tpGetScaledAccel(tp,tc);
-        vs = pmSqrt(pmSq(tc->finalvel) + 2 * acc * tc->target);
+        vs = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc * tc->target);
 
         tp_debug_print(" vs = %f, reqvel = %f\n",vs,tc->reqvel);
-        if (vs > tc->maxvel) {
+
+        //TODO incoporate max feed override? now we assume 120% is max
+        double goal_vel = fmin(tc->maxvel, tc->reqvel * 1.2);
+
+        if (vs > goal_vel) {
             //Found a peak
-            vs = tc->maxvel;
+            vs = goal_vel;
             prev_tc->finalvel = vs;
             prev_tc->atpeak=1;
             tp_debug_print("found peak\n");
