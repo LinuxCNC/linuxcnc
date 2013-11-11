@@ -71,7 +71,7 @@ def test_jog_continuous(axis, vel):
 #
 
 e = LinuxcncControl()
-e.g_raise_except = True
+e.g_raise_except = False
 
 
 #
@@ -154,9 +154,24 @@ e.set_mode(linuxcnc.MODE_MANUAL)
 #
 
 test_jog_continuous('x', vel=1.000)
+e.s.poll()
+if e.s.estop:
+    sys.exit(1)
+
 test_jog_continuous('x', vel=0.123)
+e.s.poll()
+if e.s.estop:
+    sys.exit(1)
+
 test_jog_continuous('x', vel=2.999)
+e.s.poll()
+if e.s.estop:
+    sys.exit(1)
+
 test_jog_continuous('x', vel=6.000)
+e.s.poll()
+if e.s.estop:
+    sys.exit(1)
 
 
 # If the test had jogged in to any any velocity or acceleration constraint

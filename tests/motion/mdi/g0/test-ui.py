@@ -16,7 +16,7 @@ import os
 #
 
 e = LinuxcncControl()
-e.g_raise_except = True
+e.g_raise_except = False
 
 
 #
@@ -97,17 +97,15 @@ e.set_mode(linuxcnc.MODE_MDI)
 # run a single g0 command by mdi
 #
 
-try:
-    e.g('g0x1', wait=False)
+e.g('g0x1', wait=False)
 
-    # have to sleep here, can't use wait=True above because it doesn't
-    # return upon estop
-    time.sleep(2)
+# have to sleep here, can't use wait=True above because it doesn't
+# return upon estop
+time.sleep(2)
 
-except LinuxcncError, e:
-    print "Linuxcnc Error: ", str(e)
+e.s.poll()
+if e.s.estop:
     sys.exit(1)
-
 
 # we return success, here, but test success/failure is determined by
 # checkresults, which verifies the trajectory
