@@ -66,7 +66,7 @@ to another.
    emcmotStruct shared memory area, for debugging purposes.
 */
 
-// #define STRUCTS_IN_SHMEM
+#define STRUCTS_IN_SHMEM
 
 
 
