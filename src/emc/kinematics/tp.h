@@ -30,7 +30,7 @@
 #define TP_ACCEL_EPSILON 1e-6
 //TODO tune these values. Current values are a conservative guess
 #define TP_ANGLE_EPSILON 1e-6
-#define TP_MAG_EPSILON 1e-6
+#define TP_MAG_EPSILON 1e-10
 
 //ERROR codes for TP functions
 #define TP_ERR_OK 0
