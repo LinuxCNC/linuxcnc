@@ -29,7 +29,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 #define TP_DEBUG
-/*#define TC_DEBUG*/
+#define TC_DEBUG
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
@@ -622,11 +622,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_req=%f\n", v_req);
     
-    //Want the raw accelerations here
-    double a_max=fmin(prev_tc->maxaccel, tc->maxaccel);
+    // Safe acceleration limit is to use the lowest bound on the linear axes,
+    // rather than using the trajectory max accels. These are computed with the
+    // infinity norm, which means we can't just assume that the smaller of the two is within the limits.
+    PmCartesian acc_bound;
+    //FIXME check for number of axes first!
+    acc_bound.x = emcmotDebug->joints[0].acc_limit;
+    acc_bound.y = emcmotDebug->joints[1].acc_limit;
+    acc_bound.z = emcmotDebug->joints[2].acc_limit;
+
+    double a_max=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
     tp_debug_print("a_max=%f\n",a_max);
-    // Hack to give us a little room to play with d_upper later
-    // FIXME formally prove the min. safety factor needed
+
     double a_n_max=a_max*pmSqrt(3.0)/2.0;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
@@ -712,7 +719,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // will be overlap, and we can proceed as normal. If there isn't, then
     // we have short segments, and need to compromise on segment length to
     // avoid degeneracy.
-    if (L_prev > 0.0) {
+    if (L_prev >= TP_MAG_EPSILON) {
         double v_sample = 0.5 * phi * d_upper * Ttheta / tp->cycleTime;
 
         // The blend velocity we can actually get is limited by the sample rate
@@ -753,11 +760,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
 
     tp_debug_print("Speed Comparison: v_arc %f, v_para %f\n",v_upper,v_parabolic);
-    //Temporarily surpress fallback
-    /*if (v_upper < v_parabolic) {*/
-        /*tp_debug_print("v_arc lower, abort arc creation\n");*/
-        /*return TP_ERR_FAIL;*/
-    /*}*/
+
+#if TP_FALLBACK_PARABOLIC
+    if (v_upper < v_parabolic) {
+        tp_debug_print("v_arc lower, abort arc creation\n");
+        return TP_ERR_FAIL;
+    }
+#endif
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
@@ -969,7 +978,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     tc->target=tc->coords.line.xyz.tmag;
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
 
-    if (prev_tc->target == 0.0 ) {
+    if (prev_tc->target <= TP_MAG_EPSILON ) {
         tp_debug_print("Flagged prev_tc for removal\n");
         return TP_ERR_NO_ACTION;
     }
@@ -1090,7 +1099,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
     TC_STRUCT blend_tc;
 
     switch (tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
-        case 0:
+        case TP_ERR_OK:
             tp_debug_print("Need a blend arc\n");
             //make blend arc
             int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
@@ -1116,9 +1125,11 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             tpAddSegmentToQueue(tp, &blend_tc, end,false);
 
             break;
-        case 1:
+        case TP_ERR_NO_ACTION:
             //already tangent
             prev_tc->term_cond=TC_TERM_COND_TANGENT;
+            break;
+        case TP_ERR_FAIL:
             break;
         default:
             tp_debug_print("Unknown blend arc condition\n");
@@ -1188,7 +1199,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 #endif
 
     gdb_fake_assert(tc.maxaccel<TP_ACCEL_EPSILON);
-    tp_debug_print("AddLine maxaccel = %f\n",tc.maxaccel);
 
     int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
     tpRunOptimization(tp);
@@ -1276,7 +1286,12 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
  * overshoot to the next TC.
  */
 STATIC int tpHandleOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, EmcPose * const secondary_before) {
-    if (!nexttc || !tc) {
+    if (!tc) {
+        return TP_ERR_FAIL;
+    }
+
+    if (!nexttc) {
+        tp_debug_print("Missing nexttc in check overshoot\n");
         return TP_ERR_FAIL;
     }
 
@@ -1456,7 +1471,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     } else {
         newvel = maxnewvel = -0.5 * maxaccel * tc->cycle_time + pmSqrt(discr);
     }
-    tc_debug_print("maxaccel = %f\n",maxaccel);
+    /*tc_debug_print("maxaccel = %f\n",maxaccel);*/
 
     if (newvel > tc_reqvel) {
         tc_debug_print("reached v_req\n");
