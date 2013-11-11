@@ -790,7 +790,18 @@ int pmCartCartDot(PmCartesian const * const v1, PmCartesian const * const v2, do
     return pmErrno = 0;
 }
 
-int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * const vout)
+int pmCartCartMult(PmCartesian const * const v1, PmCartesian const * const v2,
+        PmCartesian * const out)
+{
+    out->x = v1->x * v2->x;
+    out->y = v1->y * v2->y;
+    out->z = v1->z * v2->z;
+
+    return pmErrno = 0;
+}
+
+int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2,
+        PmCartesian * const vout)
 {
     vout->x = v1->y * v2->z - v1->z * v2->y;
     vout->y = v1->z * v2->x - v1->x * v2->z;
@@ -814,14 +825,16 @@ int pmCartMagSq(PmCartesian const * const v, double *d)
     return pmErrno = 0;
 }
 
-int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d)
+int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2,
+        double *d)
 {
     *d = pmSqrt(pmSq(v2->x - v1->x) + pmSq(v2->y - v1->y) + pmSq(v2->z - v1->z));
 
     return pmErrno = 0;
 }
 
-int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * const vout)
+int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2,
+        PmCartesian * const vout)
 {
     vout->x = v1->x + v2->x;
     vout->y = v1->y + v2->y;
@@ -830,7 +843,8 @@ int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2, Pm
     return pmErrno = 0;
 }
 
-int pmCartCartSub(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * const vout)
+int pmCartCartSub(PmCartesian const * const v1, PmCartesian const * const v2,
+        PmCartesian * const vout)
 {
     vout->x = v1->x - v2->x;
     vout->y = v1->y - v2->y;
