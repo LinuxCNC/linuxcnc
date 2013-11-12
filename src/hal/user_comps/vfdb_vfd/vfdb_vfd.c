@@ -160,7 +160,6 @@ typedef struct params {
     int bits;
     char parity;
     int stopbits;
-    int serial_mode;
     struct timeval response_timeout;
     struct timeval byte_timeout;
     int tcp_portno;
@@ -201,7 +200,6 @@ static params_type param = {
         .bits = 8,
         .parity = 'E',
         .stopbits = 1,
-        .serial_mode = -1,
         .response_timeout = { .tv_sec = 0, .tv_usec = 500000 },
         .byte_timeout = {.tv_sec = 0, .tv_usec = 500000},
         .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
@@ -366,12 +364,6 @@ int read_ini(param_pointer p)
                 NULL) == KEYWORD_INVALID)
             return -1;
         p->parity = value;
-
-        if (findkwd(p,"SERIAL_MODE", &p->serial_mode,
-                "rs232", MODBUS_RTU_RS232,
-                "rs485", MODBUS_RTU_RS485,
-                NULL) == KEYWORD_INVALID)
-            return -1;
 
         if (findkwd(p, "TYPE", &p->type,
                 "rtu", TYPE_RTU,
