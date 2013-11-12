@@ -74,15 +74,15 @@
 #define REG_UPPERLIMIT                  0x0100  // limit on output frequency in VFD
 
 // bits in register FA00 - main command register
-#define CMD_COMMAND_PRIORITY 	0x8000
+#define CMD_COMMAND_PRIORITY	0x8000
 #define CMD_FREQUENCY_PRIORITY	0x4000
 #define CMD_FAULT_RESET		0x2000
 #define CMD_EMERGENCY_STOP	0x1000
 #define CMD_COAST_STOP		0x0800
 #define CMD_RUN			0x0002
-#define CMD_STOP               0x0001
+#define CMD_STOP                0x0001
 #define CMD_REVERSE		0x0020
-#define CMD_FORWARD            0x0010
+#define CMD_FORWARD             0x0010
 #define CMD_JOG_RUN		0x0003
 #define CMD_DC_BRAKE		0x0080
 #define CMD_ACCEL_PATTERN_2	0x0040
