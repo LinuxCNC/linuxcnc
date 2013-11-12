@@ -6,8 +6,10 @@
   Yishin Li, adapted from Michael Haberler's vfs11_vfd/.
 
   Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
+  Copyright (C) 2009 John Thornton
   Copyright (C) 2009,2010,2011,2012 Michael Haberler
   Copyright (C) 2013 Yishin Li
+  Copyright (C) 2013 Sebastian Kuzminsky
 
   Based on a work (test-modbus program, part of libmodbus) which is
   Copyright (C) 2001-2005 Stéphane Raimbault <stephane.raimbault@free.fr>
@@ -26,8 +28,6 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA.
 
   see 'man vfdb_vfd' and the VFD-B section in the Drivers manual.
-
-  Add is-stopped pin John Thornton
 
  */
 
