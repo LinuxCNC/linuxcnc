@@ -130,7 +130,6 @@ typedef struct {
     hal_float_t	*speed_command;	// speed command input
 
     hal_bit_t	*spindle_on;	// spindle 1=on, 0=off
-    hal_bit_t 	*spindle_rev;	// on when in rev and running
     // hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
     hal_bit_t	*jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
     hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
@@ -663,7 +662,6 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_volt), id, "%s.output-voltage", name));
     PIN(hal_pin_float_newf(HAL_IN, &(h->speed_command), id, "%s.speed-command", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_on), id, "%s.spindle-on", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_rev), id, "%s.spindle-rev", name)); //JET
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->error_code), id, "%s.error-code", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->status), id, "%s.status", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->max_speed), id, "%s.max-speed", name));
@@ -700,7 +698,6 @@ int set_defaults(param_pointer p)
     *(h->modbus_ok) = 0;
 
     *(h->spindle_on) = 0;
-    *(h->spindle_rev) = 0;
     // *(h->err_reset) = 0;
     *(h->jog_mode) = 0;
     *(h->enabled) = 0;
