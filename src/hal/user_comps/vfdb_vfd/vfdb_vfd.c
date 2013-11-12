@@ -760,8 +760,8 @@ int main(int argc, char **argv)
     struct timespec loop_timespec, remaining;
     int opt;
     param_pointer p = &param;
-    int retval = 0;
-    retval = -1;
+    int retval = -1;
+
     p->progname = argv[0];
     connection_state = NOT_CONNECTED;
     p->inifile = getenv("INI_FILE_NAME");
