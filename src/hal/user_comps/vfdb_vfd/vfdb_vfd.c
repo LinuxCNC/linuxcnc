@@ -155,7 +155,7 @@ typedef struct {
     hal_bit_t 	*DC_brake;	// setting this will turn off the spindle and engage the DC brake
     hal_bit_t	*spindle_fwd;	// direction, 0=fwd, 1=rev
     hal_bit_t 	*spindle_rev;	// on when in rev and running
-    hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
+    // hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
     hal_bit_t	*jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
     hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
 
@@ -201,7 +201,7 @@ typedef struct params {
     haldata_t *haldata;
     int hal_comp_id;
     int read_initial_done;
-    int old_err_reset; 
+    // int old_err_reset;
     uint16_t old_cmd1_reg;		// copy of last write to FA00 */
     int modbus_ok;
     uint16_t failed_reg;		// remember register for failed modbus transaction for debugging
@@ -243,7 +243,7 @@ static params_type param = {
         .haldata = NULL,
         .hal_comp_id = -1,
         .read_initial_done = 0,
-        .old_err_reset = 0,
+        // .old_err_reset = 0,
         .old_cmd1_reg = 0,
         .modbus_ok = 0,    // set modbus-ok bit if last MODBUS_OK transactions went well
         .failed_reg =0,
@@ -678,7 +678,7 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_current), id, "%s.output-current", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->DC_brake), id, "%s.dc-brake", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->enabled), id, "%s.enable", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->err_reset), id, "%s.err-reset", name));
+    // PIN(hal_pin_bit_newf(HAL_IN, &(h->err_reset), id, "%s.err-reset", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->jog_mode), id, "%s.jog-mode", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->estop), id, "%s.estop", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->freq_cmd), id, "%s.frequency-command", name));
@@ -738,7 +738,7 @@ int set_defaults(param_pointer p)
     *(h->DC_brake) = 0;
     *(h->spindle_fwd) = 1;
     *(h->spindle_rev) = 0;
-    *(h->err_reset) = 0;
+    // *(h->err_reset) = 0;
     *(h->jog_mode) = 0;
     *(h->enabled) = 0;
     *(h->acc_dec_pattern) = 0;
