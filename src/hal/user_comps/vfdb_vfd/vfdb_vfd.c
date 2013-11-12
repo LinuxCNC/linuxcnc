@@ -123,7 +123,6 @@ typedef struct {
     hal_float_t	*torque_ratio;
     hal_float_t	*output_current;
     hal_float_t *max_rpm;	// calculated based on VFD max frequency setup parameter
-    hal_s32_t	*alarm_code;
     hal_bit_t	*at_speed;	// when drive freq_cmd == freq_out and running
     hal_bit_t	*is_stopped;	// when drive freq out is 0
     hal_bit_t	*estop;		// set estop bit in 0xFA00 - causes 'E trip'
@@ -650,7 +649,6 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 int hal_setup(int id, haldata_t *h, const char *name)
 {
     int status;
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->alarm_code), id, "%s.alarm-code", name));
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->at_speed), id, "%s.at-speed", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_current), id, "%s.output-current", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->DC_brake), id, "%s.dc-brake", name));
@@ -701,7 +699,6 @@ int set_defaults(param_pointer p)
     *(h->torque_ratio) = 0;
     *(h->output_current) = 0;
     *(h->upper_limit_hz) = 0;
-    *(h->alarm_code) = 0;
     *(h->at_speed) = 0;
     *(h->is_stopped) = 0;
     *(h->estop) = 0;

@@ -137,12 +137,6 @@ and is generally printed on the motor's name plate.
 
 .SH PINS
 .B
-.IP <name>.alarm-code\ (s32,\ out)
-non-zero if drive is in alarmed state. Bitmap describing alarm information
-(see register FC91 description). Use
-.I err-reset
-(see below) to clear the alarm.
-.B
 .IP <name>.at-speed\ (bit,\ out)
 when drive is at commanded speed (see
 .I
