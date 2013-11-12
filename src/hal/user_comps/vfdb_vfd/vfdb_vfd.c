@@ -160,7 +160,6 @@ typedef struct params {
     int bits;
     char parity;
     int stopbits;
-    struct timeval response_timeout;
     struct timeval byte_timeout;
     int tcp_portno;
     char *progname;
@@ -200,7 +199,6 @@ static params_type param = {
         .bits = 8,
         .parity = 'E',
         .stopbits = 1,
-        .response_timeout = { .tv_sec = 0, .tv_usec = 500000 },
         .byte_timeout = {.tv_sec = 0, .tv_usec = 500000},
         .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
         .progname = "vfdb_vfd",
@@ -347,10 +345,6 @@ int read_ini(param_pointer p)
         }
         if ((s = iniFind(p->fp, "DEVICE", p->section))) {
             p->device = strdup(s);
-        }
-        if (iniFindDouble(p->fp, "RESPONSE_TIMEOUT", p->section, &f)) {
-            p->response_timeout.tv_sec = (int) f;
-            p->response_timeout.tv_usec = (f-p->response_timeout.tv_sec) * 1000000;
         }
         if (iniFindDouble(p->fp, "BYTE_TIMEOUT", p->section, &f)) {
             p->byte_timeout.tv_sec = (int) f;
