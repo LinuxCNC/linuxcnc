@@ -145,8 +145,6 @@ typedef struct {
     hal_float_t	motor_nameplate_hz;	// speeds are scaled in Hz, not RPM
     hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
     hal_float_t	rpm_limit;		// do-not-exceed output frequency
-    hal_bit_t	*acc_dec_pattern;	// if set: choose ramp times as defined in F500+F501
-    // if zero (default): choose ramp times as defined in ACC and DEC
     hal_bit_t	*enabled;		// if set: control VFD via Modbus commands, panel control disabled
     // if zero (default): manual control through panel enabled
     hal_float_t	*upper_limit_hz;		// VFD setup parameter - maximum output frequency in HZ
@@ -653,7 +651,6 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 int hal_setup(int id, haldata_t *h, const char *name)
 {
     int status;
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->acc_dec_pattern), id, "%s.acceleration-pattern", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->alarm_code), id, "%s.alarm-code", name));
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->at_speed), id, "%s.at-speed", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_current), id, "%s.output-current", name));
@@ -722,7 +719,6 @@ int set_defaults(param_pointer p)
     // *(h->err_reset) = 0;
     *(h->jog_mode) = 0;
     *(h->enabled) = 0;
-    *(h->acc_dec_pattern) = 0;
     *(h->errorcount) = 0;
     *(h->max_speed) = 0;
 
