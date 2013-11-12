@@ -130,7 +130,6 @@ typedef struct {
     hal_float_t	*speed_command;	// speed command input
 
     hal_bit_t	*spindle_on;	// spindle 1=on, 0=off
-    hal_bit_t 	*DC_brake;	// setting this will turn off the spindle and engage the DC brake
     hal_bit_t	*spindle_fwd;	// direction, 0=fwd, 1=rev
     hal_bit_t 	*spindle_rev;	// on when in rev and running
     // hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
@@ -650,7 +649,6 @@ int hal_setup(int id, haldata_t *h, const char *name)
     int status;
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->at_speed), id, "%s.at-speed", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_current), id, "%s.output-current", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->DC_brake), id, "%s.dc-brake", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->enabled), id, "%s.enable", name));
     // PIN(hal_pin_bit_newf(HAL_IN, &(h->err_reset), id, "%s.err-reset", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->jog_mode), id, "%s.jog-mode", name));
@@ -704,7 +702,6 @@ int set_defaults(param_pointer p)
     *(h->modbus_ok) = 0;
 
     *(h->spindle_on) = 0;
-    *(h->DC_brake) = 0;
     *(h->spindle_fwd) = 1;
     *(h->spindle_rev) = 0;
     // *(h->err_reset) = 0;
