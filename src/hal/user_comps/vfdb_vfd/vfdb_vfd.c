@@ -160,7 +160,6 @@ typedef struct params {
     int bits;
     char parity;
     int stopbits;
-    int tcp_portno;
     char *progname;
     char *section;
     FILE *fp;
@@ -198,7 +197,6 @@ static params_type param = {
         .bits = 8,
         .parity = 'E',
         .stopbits = 1,
-        .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
         .progname = "vfdb_vfd",
         .section = "VFD-B",
         .fp = NULL,
@@ -331,7 +329,6 @@ int read_ini(param_pointer p)
         iniFindInt(p->fp, "STOPBITS", p->section, &p->stopbits);
         iniFindInt(p->fp, "TARGET", p->section, &p->slave);
         iniFindInt(p->fp, "POLLCYCLES", p->section, &p->pollcycles);
-        iniFindInt(p->fp, "PORT", p->section, &p->tcp_portno);
         iniFindInt(p->fp, "RECONNECT_DELAY", p->section, &p->reconnect_delay);
 
         iniFindInt(p->fp, "MOTOR_HZ", p->section, &p->motor_hz);
