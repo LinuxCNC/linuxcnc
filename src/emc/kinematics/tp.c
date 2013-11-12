@@ -23,16 +23,21 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 
-#ifndef SIM
+#ifdef SIM
+
+#define TP_DEBUG
+#define TC_DEBUG
+
+#else
+//Need manual definitions for these functions since they're missing from rtapi_math.h
 static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-#define TP_DEBUG
-#define TC_DEBUG
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
+#define TP_FALLBACK_PARABOLIC
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -761,7 +766,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("Speed Comparison: v_arc %f, v_para %f\n",v_upper,v_parabolic);
 
-#if TP_FALLBACK_PARABOLIC
+#ifdef TP_FALLBACK_PARABOLIC
     if (v_upper < v_parabolic) {
         tp_debug_print("v_arc lower, abort arc creation\n");
         return TP_ERR_FAIL;
