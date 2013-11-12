@@ -36,6 +36,7 @@
 #define TP_ERR_OK 0
 #define TP_ERR_FAIL -1
 #define TP_ERR_NO_ACTION 1
+#define TP_ERR_REMOVE_LAST 2
 
 /**
  * Persistant data for spindle status within tpRunCycle.
