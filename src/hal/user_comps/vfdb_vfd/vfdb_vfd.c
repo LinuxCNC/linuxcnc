@@ -149,7 +149,6 @@ typedef struct {
 
 // configuration and execution state
 typedef struct params {
-    int type;
     char *modname;
     int modbus_debug;
     int debug;
@@ -179,13 +178,8 @@ typedef struct params {
     int motor_rpm;  // rated speed of the motor
 } params_type, *param_pointer;
 
-#define TYPE_RTU 0
-#define TYPE_TCP_SERVER 1
-#define TYPE_TCP_CLIENT 2
-
 // default options; read from inifile or command line
 static params_type param = {
-        .type = -1,
         .modname = NULL,
         .modbus_debug = 0,
         .debug = 0,
@@ -343,16 +337,6 @@ int read_ini(param_pointer p)
                 NULL) == KEYWORD_INVALID)
             return -1;
         p->parity = value;
-
-        if (findkwd(p, "TYPE", &p->type,
-                "rtu", TYPE_RTU,
-                "tcpserver", TYPE_TCP_SERVER,
-                "tcpclient", TYPE_TCP_CLIENT,
-                NULL) == NAME_NOT_FOUND) {
-            fprintf(stderr, "%s: missing required TYPE in section %s\n",
-                    p->progname, p->section);
-            return -1;
-        }
     } else {
         fprintf(stderr, "%s:cant open inifile '%s'\n",
                 p->progname, p->inifile);
@@ -745,32 +729,22 @@ int main(int argc, char **argv)
 
     DBG("using libmodbus version %s\n", LIBMODBUS_VERSION_STRING);
 
-    switch (p->type) {
-
-    case TYPE_RTU:
-        connection_state = OPENING;
-        if ((p->ctx = modbus_new_rtu(p->device, p->baud, p->parity, p->bits, p->stopbits)) == NULL) {
-            fprintf(stderr, "%s: ERROR: modbus_new_rtu(%s): %s\n",
-                    p->progname, p->device, modbus_strerror(errno));
-            goto finish;
-        }
-        DBG("device(%s) baud(%d) parity(%s) bits(%d) stopbits(%d)\n", p->device, p->baud, &(p->parity), p->bits, p->stopbits);
-        if (modbus_set_slave(p->ctx, p->slave) < 0) {
-            fprintf(stderr, "%s: ERROR: invalid slave number: %d\n", p->modname, p->slave);
-            goto finish;
-        }
-        if ((retval = modbus_connect(p->ctx)) != 0) {
-            fprintf(stderr, "%s: ERROR: couldn't open serial device: %s\n", p->modname, modbus_strerror(errno));
-            goto finish;
-        }
-        DBG("%s: serial port %s connected\n", p->progname, p->device);
-        break;
-
-    default:
-        fprintf(stderr, "%s: ERROR: invalid connection type %d\n",
-                p->progname, p->type);
+    connection_state = OPENING;
+    if ((p->ctx = modbus_new_rtu(p->device, p->baud, p->parity, p->bits, p->stopbits)) == NULL) {
+        fprintf(stderr, "%s: ERROR: modbus_new_rtu(%s): %s\n",
+                p->progname, p->device, modbus_strerror(errno));
         goto finish;
     }
+    DBG("device(%s) baud(%d) parity(%s) bits(%d) stopbits(%d)\n", p->device, p->baud, &(p->parity), p->bits, p->stopbits);
+    if (modbus_set_slave(p->ctx, p->slave) < 0) {
+        fprintf(stderr, "%s: ERROR: invalid slave number: %d\n", p->modname, p->slave);
+        goto finish;
+    }
+    if ((retval = modbus_connect(p->ctx)) != 0) {
+        fprintf(stderr, "%s: ERROR: couldn't open serial device: %s\n", p->modname, modbus_strerror(errno));
+        goto finish;
+    }
+    DBG("%s: serial port %s connected\n", p->progname, p->device);
 
     modbus_set_debug(p->ctx, p->modbus_debug);
     if (modbus_set_slave(p->ctx, p->slave) < 0) {
@@ -833,27 +807,21 @@ int main(int argc, char **argv)
             set_defaults(p);
             p->read_initial_done = 0;
             // reestablish connection to slave
-            switch (p->type) {
 
-            case TYPE_RTU:
-                modbus_flush(p->ctx);
-                modbus_close(p->ctx);
-                while ((connection_state != CONNECTED) &&
-                        (connection_state != DONE)) {
-                    sleep(p->reconnect_delay);
-                    if (!modbus_connect(p->ctx)) {
-                        connection_state = CONNECTED;
-                        DBG("rtu/tcpclient reconnect\n");
-                    } else {
-                        fprintf(stderr, "%s: recovery: modbus_connect(): %s\n",
-                                p->progname, modbus_strerror(errno));
-                    }
+            modbus_flush(p->ctx);
+            modbus_close(p->ctx);
+            while ((connection_state != CONNECTED) &&
+                    (connection_state != DONE)) {
+                sleep(p->reconnect_delay);
+                if (!modbus_connect(p->ctx)) {
+                    connection_state = CONNECTED;
+                    DBG("rtu/tcpclient reconnect\n");
+                } else {
+                    fprintf(stderr, "%s: recovery: modbus_connect(): %s\n",
+                            p->progname, modbus_strerror(errno));
                 }
-                break;
-
-            default:
-                break;
             }
+
             break;
             default: ;
         }
