@@ -160,7 +160,6 @@ typedef struct params {
     int bits;
     char parity;
     int stopbits;
-    struct timeval byte_timeout;
     int tcp_portno;
     char *progname;
     char *section;
@@ -199,7 +198,6 @@ static params_type param = {
         .bits = 8,
         .parity = 'E',
         .stopbits = 1,
-        .byte_timeout = {.tv_sec = 0, .tv_usec = 500000},
         .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
         .progname = "vfdb_vfd",
         .section = "VFD-B",
@@ -321,7 +319,6 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
 int read_ini(param_pointer p)
 {
     const char *s;
-    double f;
     int value;
 
     if ((p->fp = fopen(p->inifile,"r")) != NULL) {
@@ -345,10 +342,6 @@ int read_ini(param_pointer p)
         }
         if ((s = iniFind(p->fp, "DEVICE", p->section))) {
             p->device = strdup(s);
-        }
-        if (iniFindDouble(p->fp, "BYTE_TIMEOUT", p->section, &f)) {
-            p->byte_timeout.tv_sec = (int) f;
-            p->byte_timeout.tv_usec = (f-p->byte_timeout.tv_sec) * 1000000;
         }
         value = p->parity;
         if (findkwd(p, "PARITY", &value,
