@@ -160,7 +160,6 @@ typedef struct params {
     int bits;
     char parity;
     int stopbits;
-    int rts_mode;
     int serial_mode;
     struct timeval response_timeout;
     struct timeval byte_timeout;
@@ -203,7 +202,6 @@ static params_type param = {
         .parity = 'E',
         .stopbits = 1,
         .serial_mode = -1,
-        .rts_mode = -1,
         .response_timeout = { .tv_sec = 0, .tv_usec = 500000 },
         .byte_timeout = {.tv_sec = 0, .tv_usec = 500000},
         .tcp_portno = 1502, // MODBUS_TCP_DEFAULT_PORT (502) would require root privileges
@@ -369,21 +367,6 @@ int read_ini(param_pointer p)
             return -1;
         p->parity = value;
 
-#ifdef MODBUS_RTU_RTS_UP	
-        if (findkwd(p, "RTS_MODE", &p->rts_mode,
-                "up", MODBUS_RTU_RTS_UP,
-                "down", MODBUS_RTU_RTS_DOWN,
-                "none", MODBUS_RTU_RTS_NONE,
-                NULL) == KEYWORD_INVALID)
-            return -1;
-#else
-        if (iniFind(p->fp, "RTS_MODE", p->section) != NULL) {
-            fprintf(stderr,"%s: warning - the RTS_MODE feature is not available with the installed libmodbus version (%s).\n"
-                    "to enable it, uninstall libmodbus-dev and rebuild with "
-                    "libmodbus built http://github.com/stephane/libmodbus:master .\n",
-                    LIBMODBUS_VERSION_STRING, p->progname);
-        }
-#endif
         if (findkwd(p,"SERIAL_MODE", &p->serial_mode,
                 "rs232", MODBUS_RTU_RS232,
                 "rs485", MODBUS_RTU_RS485,
