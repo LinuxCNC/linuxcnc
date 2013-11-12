@@ -125,7 +125,6 @@ typedef struct {
     hal_float_t *max_rpm;	// calculated based on VFD max frequency setup parameter
     hal_bit_t	*at_speed;	// when drive freq_cmd == freq_out and running
     hal_bit_t	*is_stopped;	// when drive freq out is 0
-    hal_bit_t	*estop;		// set estop bit in 0xFA00 - causes 'E trip'
     hal_bit_t	*is_e_stopped;	// true if emergency stop status set in 0xFD00
     hal_bit_t	*modbus_ok;	// the last MODBUS_OK transactions returned successfully
     hal_float_t	*speed_command;	// speed command input
@@ -655,7 +654,6 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_bit_newf(HAL_IN, &(h->enabled), id, "%s.enable", name));
     // PIN(hal_pin_bit_newf(HAL_IN, &(h->err_reset), id, "%s.err-reset", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->jog_mode), id, "%s.jog-mode", name));
-    PIN(hal_pin_bit_newf(HAL_IN, &(h->estop), id, "%s.estop", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->freq_cmd), id, "%s.frequency-command", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->freq_out), id, "%s.frequency-out", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->torque_ratio), id, "%s.inverter-load-percentage", name));
@@ -701,7 +699,6 @@ int set_defaults(param_pointer p)
     *(h->upper_limit_hz) = 0;
     *(h->at_speed) = 0;
     *(h->is_stopped) = 0;
-    *(h->estop) = 0;
     *(h->is_e_stopped) = 0;
     *(h->speed_command) = 0;
     *(h->modbus_ok) = 0;
