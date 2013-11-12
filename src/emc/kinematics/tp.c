@@ -985,7 +985,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     if (prev_tc->target <= TP_MAG_EPSILON ) {
         tp_debug_print("Flagged prev_tc for removal\n");
-        return TP_ERR_NO_ACTION;
+        return TP_ERR_REMOVE_LAST;
     }
 
     return TP_ERR_OK;
@@ -1114,9 +1114,8 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             }
 
             int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
-            prev_tc->term_cond=TC_TERM_COND_TANGENT;
 
-            if ( 1 == arc_connect_stat) {
+            if ( TP_ERR_REMOVE_LAST == arc_connect_stat) {
                 //Remove previous segment that is now zero length
                 int trim_fail = tcqPopBack(&tp->queue);
                 if (trim_fail) {
@@ -1200,13 +1199,17 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
 
 #ifdef TP_ARC_BLENDS
-    tpHandleBlendArc(tp, &tc, &end);
+    int arc_err = tpHandleBlendArc(tp, &tc, &end);
 #endif
 
     gdb_fake_assert(tc.maxaccel<TP_ACCEL_EPSILON);
 
     int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
-    tpRunOptimization(tp);
+#ifdef TP_ARC_BLENDS
+    if ( arc_err == TP_ERR_OK) {
+        tpRunOptimization(tp);
+    }
+#endif
     return retval; 
 }
 
