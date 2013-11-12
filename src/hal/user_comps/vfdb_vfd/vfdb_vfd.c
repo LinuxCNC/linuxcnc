@@ -66,41 +66,22 @@
 
 // command registers for DELTA VFD-B Inverter
 #define REG_COMMAND1                    0x2000  // "Communication command" - start/stop, fwd/reverse, DC break, fault reset, panel override
-#define REG_COMMAND2                    0xFA20
-#define REG_COMMAND3                    0xFA26
 #define REG_FREQUENCY                   0x2001  // Set frequency in 0.01Hz steps
-#define REG_TERMINAL_OUTPUT             0xFA50
-#define REG_ANALOG_OUTPUT               0xFA51
 #define REG_UPPERLIMIT                  0x0100  // limit on output frequency in VFD
 
-// bits in register FA00 - main command register
-#define CMD_COMMAND_PRIORITY	0x8000
-#define CMD_FREQUENCY_PRIORITY	0x4000
+// command bits
 #define CMD_FAULT_RESET		0x2000
 #define CMD_EMERGENCY_STOP	0x1000
-#define CMD_COAST_STOP		0x0800
 #define CMD_RUN			0x0002
 #define CMD_STOP                0x0001
 #define CMD_REVERSE		0x0020
 #define CMD_FORWARD             0x0010
 #define CMD_JOG_RUN		0x0003
-#define CMD_DC_BRAKE		0x0080
-#define CMD_ACCEL_PATTERN_2	0x0040
-#define CMD_DISABLE_PI_CONTROL	0x0020
-#define CMD_SELECT_MOTOR1_2	0x0010
-#define CMD_SPEED_PRESET1	0x0008
-#define CMD_SPEED_PRESET2	0x0004
-#define CMD_SPEED_PRESET3	0x0002
-#define CMD_SPEED_PRESET4	0x0001
 
 // status registers for DELTA VFD-B Inverter
 #define SR_ERROR_CODE           0x2100                  //
 #define SR_INV_OPSTATUS         0x2101                   //
 #define SR_OUTPUT_FREQ          0x2103                   // 0.01Hz units
-#define SR_TRIPCODE_PAST1       0x0608          // last 4 trips
-#define SR_TRIPCODE_PAST2       0x0609
-#define SR_TRIPCODE_PAST3       0x0610
-#define SR_TRIPCODE_PAST4       0x0611
 #define ST_EMERGENCY_STOPPED    0x0021          // EF1/ESTOP
 
 #define SR_MOTOR_SPEED          0x210C          // RPM
