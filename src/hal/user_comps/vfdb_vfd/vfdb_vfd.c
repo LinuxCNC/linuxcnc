@@ -174,7 +174,6 @@ typedef struct params {
     int modbus_ok;
     uint16_t failed_reg;		// remember register for failed modbus transaction for debugging
     int	last_errno;
-    char *tcp_destip;
     int report_device;
     int motor_hz;  // rated frequency of the motor
     int motor_rpm;  // rated speed of the motor
@@ -211,7 +210,6 @@ static params_type param = {
         .modbus_ok = 0,    // set modbus-ok bit if last MODBUS_OK transactions went well
         .failed_reg =0,
         .last_errno = 0,
-        .tcp_destip = "127.0.0.1",
         .report_device = 0,
         .motor_hz = 50,     // 50 is common in Europe, 60 is common in the US
         .motor_rpm = 1410,  // 1410 is common in Europe, 1730 is common in the US
@@ -334,9 +332,6 @@ int read_ini(param_pointer p)
         iniFindInt(p->fp, "MOTOR_HZ", p->section, &p->motor_hz);
         iniFindInt(p->fp, "MOTOR_RPM", p->section, &p->motor_rpm);
 
-        if ((s = iniFind(p->fp, "TCPDEST", p->section))) {
-            p->tcp_destip = strdup(s);
-        }
         if ((s = iniFind(p->fp, "DEVICE", p->section))) {
             p->device = strdup(s);
         }
