@@ -23,12 +23,22 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 
-#ifdef SIM
 
-#define TP_DEBUG
-#define TC_DEBUG
+/**
+ * @section tpdebugflags TP debugging flags
+ * Enable / disable various debugging functions here.
+ * These flags control debug printing from RTAPI. These functions are
+ * admittedly kludged on top of the existing rtapi_print framework. As written,
+ * though, it's an easy way to selectively compile functions as static or not,
+ * and selectively compile in assertions and debug printing.
+ */
 
-#else
+/*#define TP_DEBUG*/
+/*#define TC_DEBUG*/
+#define TP_POSITION_LOGGING
+#define TP_INFO_LOGGING
+
+#ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
 static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
@@ -37,12 +47,12 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
-#define TP_FALLBACK_PARABOLIC
+/*#define TP_FALLBACK_PARABOLIC*/
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
-int output_chan = 0;
+//TODO merge into TP_STRUCT?
 syncdio_t syncdio; //record tpSetDout's here
 
 /** static function primitives */
@@ -132,6 +142,11 @@ STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_
     }
     return spindle_pos;
 }
+
+
+/**
+ * @section tpaccess tp class-like API
+ */
 
 /**
  * Create the trajectory planner structure with an empty queue.
@@ -340,11 +355,11 @@ int tpGetExecId(TP_STRUCT * const tp)
  * Sets the termination condition for all subsequent queued moves.
  * If cond is TC_TERM_COND_STOP, motion comes to a stop before a subsequent move
  * begins. If cond is TC_TERM_COND_PARABOLIC, the following move is begun when the
- * current move decelerates.
+ * current move slows below a calculated blend velocity.
  */
 int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
 {
-    if (0 == tp) {
+    if (!tp) {
         return TP_ERR_FAIL;
     }
 
@@ -543,31 +558,6 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
     return TP_ERR_OK;
 }
 
-/**
- * Apply calculated blend arc parameters to a TC.
- * @param start is the starting point of the arc as calculated by the blend routine.
- * @param end is the end point of the arc on the next move.
- * @param 
- *
- * see pmSphericalArcInit for further details on how arcs are specified. Note that
- * degenerate arcs/circles are not allowed. We are guaranteed to have a move in
- * xyz so the target is always the length.
- */
-STATIC int tpApplyBlendArcParameters(TP_STRUCT const * const tp, TC_STRUCT * const blend_tc, double vel)
-{
-    double length;
-    if (tpErrorCheck(tp)<0) return TP_ERR_FAIL;
-    // find "helix" length
-    length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
-    blend_tc->target = length;
-    //TODO acceleration limits tweaked by optimization
-    blend_tc->motion_type = TC_CIRCULAR;
-    //Blend arc specific settings:
-    blend_tc->term_cond = TC_TERM_COND_TANGENT;
-    blend_tc->tolerance = 0.0;
-    blend_tc->reqvel = vel;
-    return TP_ERR_OK;
-}
 
 /**
  * Initialize a spherical blend arc from its parent lines.
@@ -598,6 +588,18 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     } else {
         blend_tc->syncdio.anychanged = 0;
     }
+
+    double length;
+    if (tpErrorCheck(tp)<0) return TP_ERR_FAIL;
+    // find "helix" length
+    length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
+    blend_tc->target = length;
+    //TODO acceleration limits tweaked by optimization
+    blend_tc->motion_type = TC_CIRCULAR;
+    //Blend arc specific settings:
+    blend_tc->term_cond = TC_TERM_COND_TANGENT;
+    blend_tc->tolerance = 0.0;
+    blend_tc->reqvel = vel;
 
     return TP_ERR_OK;
 }
@@ -780,7 +782,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-    tpInitBlendArc(tp, prev_tc, blend_tc, v_upper, v_max, a_max);
     //Changed to have same 1/2 factor as parabolic blends, allowing more normal acceleration
     blend_tc->accel_scale=0.5;
 
@@ -792,7 +793,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle); 
 
-    tpApplyBlendArcParameters(tp, blend_tc, v_upper);
+    tpInitBlendArc(tp, prev_tc, blend_tc, v_upper, v_max, a_max);
 
     //TODO setup arc params in blend_tc
     return TP_ERR_OK;
@@ -1053,8 +1054,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 
         tp_debug_print(" vs = %f, reqvel = %f\n",vs,tc->reqvel);
 
-        //TODO incoporate max feed override? now we assume 120% is max
-        double goal_vel = fmin(tc->maxvel, tc->reqvel * 1.2);
+        //TODO incoporate max feed override
+        double goal_vel = fmin(tc->maxvel, tc->reqvel );
 
         if (vs > goal_vel) {
             //Found a peak
@@ -1959,12 +1960,11 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Temporary debug message
-    tp_debug_print( "Activate tc id %d\n", tc->id);
+    tp_info_print( "Activate tc id %d\n", tc->id);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
     //FIXME activedepth might change meaning with lookahead?
-    tp->depth = tp->activeDepth = 1;
     tp->motionType = tc->canon_motion_type;
     tc->blending = 0;
     tc->on_final_decel = 0;
@@ -2199,6 +2199,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //Define TC as the "first" element in the queue
     tc = tcqItem(&tp->queue, 0);
 
+
+
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
         tpHandleEmptyQueue(tp, emcmotStatus);
@@ -2214,8 +2216,17 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     tc_debug_print("-------------------\n");
-
     nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
+
+#ifdef TP_POSITION_LOGGING
+    double s_init,s_init_next;
+    s_init=tc->progress;
+    if (nexttc) {
+        s_init_next=nexttc->progress;
+    } else {
+        s_init_next = 0.0;
+    }
+#endif
 
     if(tp->aborting) {
         int slowing = tpHandleAbort(tp, tc, nexttc);
@@ -2317,6 +2328,17 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag);
     tc_debug_print("primary movement = %f\n", mag);
     gdb_fake_assert(mag > (tc->maxvel * tp->cycleTime));
+#endif
+
+#ifdef TP_POSITION_LOGGING
+    double delta_s = tc->progress-s_init;
+    //Note: v_nominal does not factor in nexttc
+    if (nexttc) {
+        delta_s +=(nexttc->progress-s_init_next);
+    }
+    PmCartesian *pos = &tp->currentPos.tran;
+
+    tp_position_print("%d %.12e %.12e %.12e %.12e\n",tp->execId,pos->x,pos->y,pos->z,delta_s);
 #endif
 
     return TP_ERR_OK;

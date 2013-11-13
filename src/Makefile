@@ -1124,5 +1124,5 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	ln -sf $(notdir $<) $@
 
 cscope:
-	cscope -Rb
+	cscope -Rbk
 # vim:ts=8:sts=8:sw=8:noet:
