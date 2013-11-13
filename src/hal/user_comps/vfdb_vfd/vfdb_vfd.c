@@ -606,7 +606,6 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->upper_limit_hz), id, "%s.frequency-limit", name));
 
-    // the following limit must be set manually from the panel since its in EEPROM
     PIN(hal_param_float_newf(HAL_RW, &(h->looptime), id, "%s.loop-time", name));
     PIN(hal_param_float_newf(HAL_RW, &(h->motor_nameplate_hz), id, "%s.nameplate-HZ", name));
     PIN(hal_param_float_newf(HAL_RW, &(h->motor_nameplate_RPM), id, "%s.nameplate-RPM", name));
