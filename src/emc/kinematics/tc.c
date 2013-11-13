@@ -325,6 +325,7 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
 
     return 0;
 }
+
 /*!
  * \subsection TC queue functions
  * These following functions implement the motion queue that
