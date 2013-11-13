@@ -89,7 +89,6 @@ section in the ini file. Defaults to 'VFD-B'.
 report device propertiers on console at startup
 
 .SH INI CONFIG VARIABLES
-Fixme: These ini config variables need to be documented better...
 .B
 .IP DEBUG
 Set to a non-zero value to enable general debug output from the VFD-B
@@ -99,21 +98,32 @@ driver.  Optional.
 Set to a non-zero value to enable modbus debug output from the VFD-B
 driver.  Optional.
 .B
-.IP BITS
+.IP DEVICE
+Serial port device file to use for Modbus communication with the VFD-B.
+Defaults to '/dev/ttyS0'.
 .B
 .IP BAUD
+Modbus baud rate.  Defaults to 19200.
 .B
-.IP STOPBITS
-.B
-.IP TARGET
-.B
-.IP POLLCYCLES
-.B
-.IP RECONNECT_DELAY
-.B
-.IP DEVICE
+.IP BITS
+Modbus data bits.  Defaults to 8.
 .B
 .IP PARITY
+Modbus parity.  Defaults to Even.  Accepts 'Even', 'Odd', or 'None'.
+.B
+.IP STOPBITS
+Modbus stop bits.  Defaults to 1.
+.B
+.IP TARGET
+Modbus target number of the VFD-B to speak to.  Defaults to 1.
+.B
+.IP POLLCYCLES
+Only read the less important variables from the VFD-B once in this many
+poll cycles.  Defaults to 10.
+.B
+.IP RECONNECT_DELAY
+If the connection to the VFD-B is broken, wait this many seconds before
+reconnecting.  Defaults to 1.
 .B
 .IP MOTOR_HZ,\ MOTOR_RPM
 The frequency of the motor (in Hz) and the corresponding speed of the
