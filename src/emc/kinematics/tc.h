@@ -123,6 +123,7 @@ typedef struct {
 
 /* TC_STRUCT functions */
 
+
 extern int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 extern int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 extern int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
