@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-/*#define TP_DEBUG*/
-#define TC_DEBUG
+#define TP_DEBUG
+/*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
-/*#define TP_INFO_LOGGING*/
+#define TP_INFO_LOGGING
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -48,6 +48,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_ARC_BLENDS
 #define TP_FALLBACK_PARABOLIC
+#define TP_SMOOTH_VEL
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -723,7 +724,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L2 = tc->nominal_length;
 
     // Limit amount of line segment to blend
-    double blend_ratio = fmin(d_prev/L1,.5);
+    double blend_ratio = fmin(d_prev/L1,.3333);
     tp_debug_print(" blend ratio = %f\n",blend_ratio);
 
     // Do 1/3 blending since we can't absorb the previous
@@ -781,12 +782,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         prev_tc->reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
     }
 #ifdef TP_SMOOTH_VEL
-    double smooth_vel = fmin(prev_tc->reqvel,v_final);
+    double smooth_vel = fmin(fmin(prev_tc->reqvel,v_final),tc->reqvel);
     //Make the prev segment and it's blend arc have the same velocity
     //TODO how well does this handle big segments?
     v_final = smooth_vel;
     prev_tc->reqvel = smooth_vel;
-    /*tc->reqvel = fmin(tc->reqvel,smooth_vel);*/
+    tc->reqvel = smooth_vel;
 #endif
 
 
@@ -823,7 +824,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle); 
 
-    tpInitBlendArc(tp, prev_tc, blend_tc, v_upper, v_max, a_max);
+    tpInitBlendArc(tp, prev_tc, blend_tc, v_final, v_max, a_max);
 
     //TODO setup arc params in blend_tc
     return TP_ERR_OK;
