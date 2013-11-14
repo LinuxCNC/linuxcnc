@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-#define TP_DEBUG
-/*#define TC_DEBUG*/
+/*#define TP_DEBUG*/
+#define TC_DEBUG
 /*#define TP_POSITION_LOGGING*/
-#define TP_INFO_LOGGING
+/*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -89,6 +89,7 @@ STATIC double tpGetFeedOverride(TP_STRUCT const * const tp, TC_STRUCT const * co
     if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION)  {
         return 1.0;
     } else if (tp->pausing || tp->aborting) {
+        tc_debug_print("pausing or aborting\n");
         return 0.0;
     } else {
         return emcmotStatus->net_feed_scale;
@@ -1049,7 +1050,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         //Start at most recently added
 
         ind=len-x;
-        tp_info_print(" x=%u, ind = %u\n", x,ind);
+        /*tp_info_print(" x=%u, ind = %u\n", x,ind);*/
 
         tc=tcqItem(&tp->queue, ind);
         prev1_tc=tcqItem(&tp->queue, ind-1);
@@ -1092,8 +1093,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 
         vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
 
-        tp_info_print(" vs_back = %f, reqvel = %f\n", vs_back, tc->reqvel);
-
         //TODO incoporate max feed override
         double v_sample_this = tc->target / (tp->cycleTime * 2.0);
         double vel_limit_this = fmin(tc->maxvel, tc->reqvel );
@@ -1101,6 +1100,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         double vel_limit_prev = fmin(fmin(prev1_tc->maxvel, prev1_tc->reqvel ),v_sample_this);
         double goal_vel = fmin(vel_limit_this,vel_limit_prev);
         double vs = fmin(vs_back,vs_forward);
+        tp_info_print(" goal_vel = %f, vel_limit_prev = %f, vel_limit_this =%f\n",
+                goal_vel, vel_limit_prev,vel_limit_this);
 
         if (vs > goal_vel ) {
             //Found a peak
@@ -1108,6 +1109,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             prev1_tc->finalvel = vs;
             prev1_tc->atpeak=1;
             tp_debug_print("found peak\n");
+        tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
+                prev1_tc->finalvel, tc->finalvel);
             return TP_ERR_OK;
         } else {
             prev1_tc->finalvel = vs;
@@ -1495,9 +1498,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     double tc_finalvel = tpGetFinalVel(tp,tc);
 
     //Clamp the requested velocity by the maximum velocity allowed.
-    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->reqvel>tc->finalvel && tc->finalvel>TP_MAG_EPSILON) {
-        tc_reqvel=tc->finalvel;
-    }
+    /*if (tc->term_cond == TC_TERM_COND_TANGENT && tc->reqvel>tc->finalvel && tc->finalvel>TP_MAG_EPSILON) {*/
+        /*tc_reqvel=tc->finalvel;*/
+    /*}*/
 
     //TODO check if this works with the max velocity slider?
     if (tc_reqvel > tc->maxvel) {
@@ -1509,11 +1512,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc_finalvel = tc_reqvel;
     }
 
-    // Need this to plan down to zero V
-    if (tp->pausing) {
-        tc_finalvel = 0.0;
-    }
-
     if (!tc->blending_next) {
         tc->vel_at_blend_start = tc->currentvel;
     }
@@ -1521,6 +1519,8 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     delta_pos = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
     gdb_fake_assert(maxaccel<TP_ACCEL_EPSILON);
+
+    tc_debug_print(" runcycle state: vr = %f, vf = %f, maxvel = %f\n",tc_reqvel,tc_finalvel,tc->maxvel);
 
     discr_term1 = pmSq(tc_finalvel);
     discr_term2 = maxaccel * (2.0 * delta_pos - tc->currentvel * tc->cycle_time);
