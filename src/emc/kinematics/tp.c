@@ -103,15 +103,15 @@ STATIC inline double tpGetFinalVel(TP_STRUCT const * const tp, TC_STRUCT const *
 }
 
 STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    if (tc->accel_scale < 0.0) {
-        tp_debug_print("accel_scale < 0, %f\n",tc->accel_scale);
-        //TODO silent error ok?
-        return 0.0;
+    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type == TC_CIRCULAR || tc->blend_prev) {
+        return tc->maxaccel * 0.5;
+    } else if (tc->term_cond == TC_TERM_COND_TANGENT && tc->motion_type == TC_LINEAR) {
+        //Assume this is a tangent line so we can go full accel
+        return tc->maxaccel;
+    } else {
+        return tc->maxaccel;
     }
-    /*tp_debug_print("Accel scale = %f, accel = %f\n",tc->accel_scale, tc->maxaccel * tc->accel_scale);*/
-    return tc->maxaccel * tc->accel_scale;
 }
-
 
 /**
  * Clip velocity of tangent segments to prevent overshooting.
@@ -141,27 +141,6 @@ STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_
         spindle_pos*=-1.0;
     }
     return spindle_pos;
-}
-
-STATIC inline int tpSetTCTermCond(TP_STRUCT const * const tp, TC_STRUCT * const tc, int term_cond) {
-    if (!tc) {
-        return TP_ERR_FAIL;
-    }
-    tc->term_cond = term_cond;
-    switch(term_cond) {
-        case TC_TERM_COND_STOP:
-        case TC_TERM_COND_TANGENT:
-            tc->accel_scale=1.0;
-            break;
-        case TC_TERM_COND_PARABOLIC:
-            tc->accel_scale=0.5;
-            break;
-    }
-
-    if (tc->motion_type == TC_CIRCULAR) {
-        tc->accel_scale = 0.5;
-    }
-
 }
 
 /**
@@ -510,7 +489,8 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->active = 0;
 
     tc->currentvel = 0.0;
-    tc->blending = 0;
+    tc->blending_next = 0;
+    tc->blend_prev = 0;
     tc->blend_vel = 0.0;
     tc->vel_at_blend_start = 0.0;
     tc->finalvel = 0.0;
@@ -518,7 +498,6 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->enables=enables;
 
     tc->atpeak=0;
-    tc->accel_scale=1.0;
     tc->on_final_decel=0;
 }
 
@@ -618,7 +597,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
     blend_tc->target = length;
     //Blend arc specific settings:
-    tpSetTCTermCond(tp, blend_tc, TC_TERM_COND_TANGENT);
+    blend_tc->term_cond = TC_TERM_COND_TANGENT;
     blend_tc->tolerance = 0.0;
     blend_tc->reqvel = vel;
 
@@ -697,14 +676,15 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double d_tol=Ctheta*h_tol;
 
     // Limit amount of line segment to blend so that we don't delete the line
-    const double blend_ratio = 0.5;
+    const double blend_ratio = 0.33333333333333333333333333333;
 
     //HACK Assume that we are not working on segments already traversed for now
-    double L1 = prev_tc->target;
-    double L2 = tc->target;
+    double L1 = prev_tc->nominal_length;
+    double L2 = tc->nominal_length;
 
-    double d_prev = L1 * blend_ratio/(1.0-blend_ratio); //Blend over the whole previous segment
-    double d_next = L2 * blend_ratio; //Blend over a portion of the next
+    //Clip to target length just in case
+    double d_prev = fmin(L1 * blend_ratio,prev_tc->target);
+    double d_next = fmin(L2 * blend_ratio, tc->target);
 
     double d_geom=fmin(fmin(d_prev, d_next), d_tol);
     tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
@@ -803,9 +783,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-    //Changed to have same 1/2 factor as parabolic blends, allowing more normal acceleration
-    blend_tc->accel_scale=0.5;
-
     gdb_fake_assert(a_max < TP_ACCEL_EPSILON);
 
     //TODO Recycle calculations?
@@ -873,6 +850,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
     // allow 10 turns of the spindle to stop - we don't want to just go on forever
     tc.target = line_xyz.tmag + 10. * tp->uu_per_rev;
+    tc.nominal_length=-1;
 
     tc.atspeed = 1;
 
@@ -1004,7 +982,6 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     tc->target=tc->coords.line.xyz.tmag;
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
-    prev_tc->accel_scale = 1.0;
 
     if (prev_tc->target <= TP_MAG_EPSILON ) {
         tp_debug_print("Flagged prev_tc for removal\n");
@@ -1198,6 +1175,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     } else {
         tc.target = line_abc.tmag;
     }
+    tc.nominal_length = tc.target;
 
     tc.atspeed = atspeed;
 
@@ -1207,7 +1185,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tc.motion_type = TC_LINEAR;
     tc.canon_motion_type = type;
 
-    tpSetTCTermCond(tp,&tc,tp->termCond);
+    tc.term_cond = tp->termCond;
     //At this point a typical line has accel scale = 0.5
     tc.tolerance = tp->tolerance;
 
@@ -1279,6 +1257,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     tc.target = helix_length;
+    tc.nominal_length = helix_length;
     //Assume acceleration ratio of 1
     tc.atspeed = atspeed;
     //TODO acceleration bounded by optimizer
@@ -1294,11 +1273,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.synchronized = tp->synchronized;
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = -1;
-
-    // Nyquist-like velocity limits
-    // TODO: deal with shortening of segment in blend arc
-    double sample_maxvel = 0.5* tc.target / tp->cycleTime;
-    tc.maxvel = fmin(sample_maxvel,tc.maxvel);
 
     if (syncdio.anychanged != 0) {
         tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
@@ -1484,7 +1458,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc_finalvel = 0.0;
     }
 
-    if (!tc->blending) {
+    if (!tc->blending_next) {
         tc->vel_at_blend_start = tc->currentvel;
         tc_debug_print("vel at blend start = %f\n",tc->vel_at_blend_start);
     }
@@ -1990,7 +1964,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     //Do not change initial velocity here, since tangent blending already sets this up
     //FIXME activedepth might change meaning with lookahead?
     tp->motionType = tc->canon_motion_type;
-    tc->blending = 0;
+    tc->blending_next = 0;
     tc->on_final_decel = 0;
 
     if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
@@ -2017,7 +1991,7 @@ STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
     //NOTE: check for aborting outside of here
     double speed = emcmotStatus->spindleSpeedIn;
     double pos_error = fabs(speed) * tc->uu_per_rev;
-    //Take into account blending?
+    //Take into account blending_next?
     if(nexttc) pos_error -= nexttc->progress; /* ?? */
     tc->reqvel = pos_error;
 }
@@ -2078,14 +2052,14 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
 }
 
 STATIC int tcIsBlending(TC_STRUCT * const tc) {
-    int is_blending =  (tc->term_cond == TC_TERM_COND_PARABOLIC ) && 
+    int is_blending_next =  (tc->term_cond == TC_TERM_COND_PARABOLIC ) && 
         tc->on_final_decel && (tc->currentvel < tc->blend_vel);
 
-    //Latch up the blending status here, so that even if the prev conditions
+    //Latch up the blending_next status here, so that even if the prev conditions
     //aren't necessarily true we still blend to completion once the blend
     //starts.
-    tc->blending |= is_blending;
-    return tc->blending;
+    tc->blending_next |= is_blending_next;
+    return tc->blending_next;
 }
 
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
@@ -2097,7 +2071,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         return TP_ERR_NO_ACTION;
     }
 
-    //Check if the end condition specifies parabolic blending
+    //Check if the end condition specifies parabolic blending_next
     if (tc->term_cond != TC_TERM_COND_PARABOLIC )  {
         return TP_ERR_NO_ACTION;
     }
@@ -2292,16 +2266,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         nexttc->currentvel = 0;
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
-        nexttc->blending = 0;
-        nexttc->on_final_decel = 0;
+        //Indicate that this segment is blending with the previous segment
+        nexttc->blend_prev = 1;
 
-        // honor accel constraint if we happen to make an acute angle with the
-        // above segment or the following one
-        // TODO: replace this with better acceleration constraint
-        if(tc->term_cond == TC_TERM_COND_PARABOLIC || nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
-            nexttc->accel_scale = 0.5;
-            tp_debug_print("G64, nexttc accel scale %f\n",tc->accel_scale);
-        }
     }
 
     /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
