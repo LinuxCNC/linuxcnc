@@ -33,9 +33,9 @@
  * and selectively compile in assertions and debug printing.
  */
 
-/*#define TP_DEBUG*/
+#define TP_DEBUG
 /*#define TC_DEBUG*/
-#define TP_POSITION_LOGGING
+/*#define TP_POSITION_LOGGING*/
 #define TP_INFO_LOGGING
 
 #ifndef SIM
@@ -143,6 +143,26 @@ STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_
     return spindle_pos;
 }
 
+STATIC inline int tpSetTCTermCond(TP_STRUCT const * const tp, TC_STRUCT * const tc, int term_cond) {
+    if (!tc) {
+        return TP_ERR_FAIL;
+    }
+    tc->term_cond = term_cond;
+    switch(term_cond) {
+        case TC_TERM_COND_STOP:
+        case TC_TERM_COND_TANGENT:
+            tc->accel_scale=1.0;
+            break;
+        case TC_TERM_COND_PARABOLIC:
+            tc->accel_scale=0.5;
+            break;
+    }
+
+    if (tc->motion_type == TC_CIRCULAR) {
+        tc->accel_scale = 0.5;
+    }
+
+}
 
 /**
  * @section tpaccess tp class-like API
@@ -590,14 +610,15 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     }
 
     double length;
-    if (tpErrorCheck(tp)<0) return TP_ERR_FAIL;
+    if (tpErrorCheck(tp)<0){
+        return TP_ERR_FAIL;
+    }
+
     // find "helix" length
     length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
     blend_tc->target = length;
-    //TODO acceleration limits tweaked by optimization
-    blend_tc->motion_type = TC_CIRCULAR;
     //Blend arc specific settings:
-    blend_tc->term_cond = TC_TERM_COND_TANGENT;
+    tpSetTCTermCond(tp, blend_tc, TC_TERM_COND_TANGENT);
     blend_tc->tolerance = 0.0;
     blend_tc->reqvel = vel;
 
@@ -911,7 +932,7 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     // acceleration/deceleration spike is within limits).
     double crit_angle = TP_ANGLE_EPSILON;
 
-    tp_debug_print("max tan angle is %f\n",crit_angle);
+    /*tp_debug_print("max tan angle is %f\n",crit_angle);*/
     tp_debug_print("angle between segs = %f\n",omega);
 
     //If the segments are nearly tangent, just treat it as tangent since the
@@ -983,6 +1004,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     tc->target=tc->coords.line.xyz.tmag;
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
+    prev_tc->accel_scale = 1.0;
 
     if (prev_tc->target <= TP_MAG_EPSILON ) {
         tp_debug_print("Flagged prev_tc for removal\n");
@@ -1185,7 +1207,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tc.motion_type = TC_LINEAR;
     tc.canon_motion_type = type;
 
-    tc.term_cond = tp->termCond;
+    tpSetTCTermCond(tp,&tc,tp->termCond);
+    //At this point a typical line has accel scale = 0.5
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
@@ -1321,7 +1344,12 @@ STATIC int tpHandleOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
         case TC_TERM_COND_STOP:
             break;
         case TC_TERM_COND_TANGENT:
-            nexttc->progress += overshoot;
+            //Assumes that nexttc starts from zero here
+            if (nexttc->progress != 0.0) {
+                tp_debug_print("warning: nexttc progress is %f at overshoot\n",nexttc->progress);
+            }
+
+            nexttc->progress = overshoot;
             if (nexttc->progress > nexttc->target) {
                 //This should never happen if the checks are working up to this point.
                 tp_debug_print("Overshot beyond nexttc, OS = %f, targ = %f\n",overshoot,nexttc->target);
@@ -1933,10 +1961,6 @@ STATIC int tpCalculateEmcPoseMagnitude(TP_STRUCT const * const tp, EmcPose const
  */
 STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
-    // wait for atspeed, if motion requested it.  also, force
-    // atspeed check for the start of all spindle synchronized
-    // moves.
-
     //Check if already active
     if (!tc || tc->active) {
         return TP_ERR_NO_ACTION;
@@ -1968,14 +1992,6 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tp->motionType = tc->canon_motion_type;
     tc->blending = 0;
     tc->on_final_decel = 0;
-
-    // honor accel constraint in case we happen to make an acute angle
-    // with the next segment.
-    // TODO better acceleration constraints?
-    if(tc->term_cond == TC_TERM_COND_PARABOLIC) {
-        tc->accel_scale = 0.5;
-        tp_debug_print("Parabolic blend, accel scale is %f\n",tc->accel_scale);
-    }
 
     if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
         // if we aren't already synced, wait
