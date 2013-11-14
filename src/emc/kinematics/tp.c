@@ -37,6 +37,7 @@
 /*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
 #define TP_INFO_LOGGING
+#define TP_SMOOTH_VEL
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -766,12 +767,17 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //TODO address feed override here
 
     //Limit all velocities by what we can sample
+    
+    tc->reqvel = fmin(tc->reqvel, 0.5 * L_next / tp->cycleTime);
+    v_final = fmin(v_final, 0.5 * s_arc / tp->cycleTime);
     if (L_prev > 0.0) {
         prev_tc->reqvel = fmin(prev_tc->reqvel, 0.5 * L_prev / tp->cycleTime);
     }
-    tc->reqvel = fmin(tc->reqvel, 0.5 * L_next / tp->cycleTime);
-    v_final = fmin(v_final, 0.5 * s_arc / tp->cycleTime);
-
+#ifdef TP_SMOOTH_VEL
+    double smooth_vel = fmin(prev_tc->reqvel,v_final);
+    v_final = smooth_vel;
+    prev_tc->reqvel = smooth_vel;
+#endif
 
 #ifdef TP_FALLBACK_PARABOLIC
     tp_debug_print(" Check: v_prev = %f, v_para = %f\n", prev_tc->reqvel, v_parabolic);
@@ -1459,7 +1465,11 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     double tc_finalvel = tpGetFinalVel(tp,tc);
 
     //Clamp the requested velocity by the maximum velocity allowed.
-    //TODO remove this since we check limits during initial setup
+    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->reqvel>tc->finalvel) {
+        tc_reqvel=tc->finalvel;
+    }
+
+    //TODO check if this works with the max velocity slider?
     if (tc_reqvel > tc->maxvel) {
         tc_reqvel = tc->maxvel;
     }
