@@ -104,7 +104,8 @@ STATIC inline double tpGetFinalVel(TP_STRUCT const * const tp, TC_STRUCT const *
 }
 
 STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type == TC_CIRCULAR || tc->blend_prev) {
+    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type ==
+            TC_CIRCULAR || tc->blend_prev || tc->islast) {
         return tc->maxaccel * 0.5;
     } else if (tc->term_cond == TC_TERM_COND_TANGENT && tc->motion_type == TC_LINEAR) {
         //Assume this is a tangent line so we can go full accel
@@ -489,6 +490,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->atpeak=0;
     tc->on_final_decel=0;
+    tc->islast=0;
 }
 
 /**
@@ -658,6 +660,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double phi = (PM_PI- theta * 2.0);
 
+    const double min_segment_cycles = 2.0;
+    double min_segment_time = tp->cycleTime * min_segment_cycles;
+
     double a_max, v_max;
     tpGetMachineLimits(&a_max, &v_max); 
     double a_n_max=a_max*pmSqrt(3.0)/2.0;
@@ -709,7 +714,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Pre-factor out the 2
     tp_debug_print("prev targ = %f\n",prev_tc->target);
-    double B = -prev_tc->target - 2.0*a_n_max * Ttheta * pmSq(tp->cycleTime);
+    double B = -prev_tc->target - a_n_max * Ttheta * pmSq(min_segment_time);
     double C = pmSq(prev_tc->target);
     double d_prev = -B - pmSqrt(pmSq(B)-C);
 
@@ -768,16 +773,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Limit all velocities by what we can sample
     
-    tc->reqvel = fmin(tc->reqvel, 0.5 * L_next / tp->cycleTime);
-    v_final = fmin(v_final, 0.5 * s_arc / tp->cycleTime);
+    tc->reqvel = fmin(tc->reqvel,L_next / min_segment_time);
+    v_final = fmin(v_final, s_arc / min_segment_time);
     if (L_prev > 0.0) {
-        prev_tc->reqvel = fmin(prev_tc->reqvel, 0.5 * L_prev / tp->cycleTime);
+        prev_tc->reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
     }
 #ifdef TP_SMOOTH_VEL
     double smooth_vel = fmin(prev_tc->reqvel,v_final);
     v_final = smooth_vel;
     prev_tc->reqvel = smooth_vel;
+    tc->reqvel = fmin(tc->reqvel,smooth_vel);
 #endif
+
 
 #ifdef TP_FALLBACK_PARABOLIC
     tp_debug_print(" Check: v_prev = %f, v_para = %f\n", prev_tc->reqvel, v_parabolic);
@@ -1025,7 +1032,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     //Just loop over everything 
     int ind, x;
     //Assume that length won't change during a run
-    TC_STRUCT *tc=NULL;
+    TC_STRUCT *tc=tcqLast(&tp->queue);
+    tc->islast=1;
     TC_STRUCT *prev_tc=NULL;
     double vs=0.0;
 
@@ -1046,9 +1054,11 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         tc=tcqItem(&tp->queue, ind);
         prev_tc=tcqItem(&tp->queue, ind-1);
 
+
         if ( !prev_tc || !tc) {
             break;
         }
+        prev_tc->islast=0;
 
         tp_debug_print("  prev term = %u, type = %u, id = %u, \n",
                 prev_tc->term_cond, prev_tc->motion_type, prev_tc->id);
@@ -2216,7 +2226,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     tc = tcqItem(&tp->queue, 0);
 
 
-
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
         tpHandleEmptyQueue(tp, emcmotStatus);
@@ -2233,6 +2242,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tc_debug_print("-------------------\n");
     nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
+    tc->islast=(!nexttc);
 
 #ifdef TP_POSITION_LOGGING
     double s_init,s_init_next;
