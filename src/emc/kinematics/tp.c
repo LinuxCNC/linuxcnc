@@ -33,8 +33,8 @@
  * and selectively compile in assertions and debug printing.
  */
 
-/*#define TP_DEBUG*/
-#define TC_DEBUG
+#define TP_DEBUG
+/*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
 /*#define TP_INFO_LOGGING*/
 
@@ -709,7 +709,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         d_tol=Ctheta*h_tol;
     }
 
-    double v_upper = fmin(v_req,v_max);
     double R_final = 0.0;
     double d_final = 0.0;
     double v_final = 0.0;
@@ -725,7 +724,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L2 = tc->nominal_length;
 
     // Limit amount of line segment to blend
-    double blend_ratio = fmin(d_prev/L1,.3333);
+    /*const double max_blend_ratio = 0.3333333333333333333333333333333333333;*/
+    /*const double max_blend_ratio = 0.5;*/
+    const double max_blend_ratio = 0.3;
+    double blend_ratio = fmin(d_prev/L1,max_blend_ratio);
     tp_debug_print(" blend ratio = %f\n",blend_ratio);
 
     // Do 1/3 blending since we can't absorb the previous
@@ -777,38 +779,25 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Limit all velocities by what we can sample
     
-    tc->reqvel = fmin(tc->reqvel,L_next / min_segment_time);
+    double tc_reqvel = fmin(tc->reqvel,L_next / min_segment_time);
     v_final = fmin(v_final, s_arc / min_segment_time);
+    double prev_reqvel=0.0;
     if (L_prev > 0.0) {
-        prev_tc->reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
+        prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
     }
-#ifdef TP_SMOOTH_VEL
-    double smooth_vel = fmin(fmin(prev_tc->reqvel,v_final),tc->reqvel);
+
+    double smooth_vel = fmin(fmin(prev_reqvel,v_final),tc_reqvel);
+
+    tp_debug_print(" Check: v_final = %f, v_para = %f\n", v_final, v_parabolic);
+    if ( smooth_vel <= v_parabolic) {
+        return TP_ERR_FAIL;
+    }
     //Make the prev segment and it's blend arc have the same velocity
     //TODO how well does this handle big segments?
+
     v_final = smooth_vel;
     prev_tc->reqvel = smooth_vel;
     tc->reqvel = smooth_vel;
-#endif
-
-
-#ifdef TP_FALLBACK_PARABOLIC
-    tp_debug_print(" Check: v_prev = %f, v_para = %f\n", prev_tc->reqvel, v_parabolic);
-    if ( prev_tc->reqvel <= v_prev_parabolic) {
-        return TP_ERR_FAIL;
-    }
-
-    tp_debug_print(" Check: v_next = %f, v_para = %f\n", tc->reqvel, v_parabolic);
-    if ( tc->reqvel <= v_parabolic) {
-        return TP_ERR_FAIL;
-    }
-    
-    tp_debug_print(" Check: v_final = %f, v_para = %f\n", v_final, v_parabolic);
-    if ( v_final <= v_parabolic) {
-        return TP_ERR_FAIL;
-    }
-
-#endif
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
@@ -1111,10 +1100,12 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tp_debug_print("found peak\n");
         tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
                 prev1_tc->finalvel, tc->finalvel);
-            return TP_ERR_OK;
         } else {
             prev1_tc->finalvel = vs;
             prev1_tc->atpeak=0;
+        }
+        if (tc->atpeak) {
+            return TP_ERR_OK;
         }
 
         tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
@@ -1167,7 +1158,8 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             }
 
             int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
-
+            //Don't bother clipping segments since we can't do it reliably
+#if 0
             if ( TP_ERR_REMOVE_LAST == arc_connect_stat) {
                 //Remove previous segment that is now zero length
                 int trim_fail = tcqPopBack(&tp->queue);
@@ -1177,7 +1169,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
                     return TP_ERR_FAIL;
                 } 
             }
-
+#endif
 
             tpAddSegmentToQueue(tp, &blend_tc, end,false);
 
