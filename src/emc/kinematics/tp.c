@@ -640,7 +640,6 @@ STATIC int tpGetMachineLimits(double * const acc_limit, double * const vel_limit
     return TP_ERR_OK;
 }
 
-
 /**
  * Compute arc segment to blend between two lines.
  */
@@ -770,7 +769,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double v_parabolic=0.0;
     tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
     //FIXME need blend acceleration here
-    double v_prev_parabolic=pmSqrt(prev_tc->target * tpGetScaledAccel(tp,tc));
+    /*double v_prev_parabolic=pmSqrt(prev_tc->target * tpGetScaledAccel(tp,tc));*/
 
     /* Additional quality / performance checks: If we aren't moving faster than
      * the equivalent parabolic blend, then fall back to parabolic 
@@ -1172,6 +1171,21 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
 #endif
 
             tpAddSegmentToQueue(tp, &blend_tc, end,false);
+            //Debug section to check for gaps
+            EmcPose Q1_line,Q2_line;
+            EmcPose Q1_arc,Q2_arc;
+
+            tcGetStartpoint(&blend_tc,&Q1_arc);
+            tcGetEndpoint(&blend_tc,&Q2_arc);
+
+            tcGetEndpoint(prev_tc,&Q1_line);
+            tcGetStartpoint(tc,&Q2_line);
+
+            tp_debug_print("Q1_arc:  %.12f,%.12f,%.12f\n",Q1_arc.tran.x,Q1_arc.tran.y,Q1_arc.tran.z);
+            tp_debug_print("Q1_line: %.12f,%.12f,%.12f\n",Q1_line.tran.x,Q1_line.tran.y,Q1_line.tran.z);
+            tp_debug_print("Q2_arc:  %.12f,%.12f,%.12f\n",Q2_arc.tran.x,Q2_arc.tran.y,Q2_arc.tran.z);
+            tp_debug_print("Q2_line: %.12f,%.12f,%.12f\n",Q2_line.tran.x,Q2_line.tran.y,Q2_line.tran.z);
+
 
             break;
         case TP_ERR_NO_ACTION:
