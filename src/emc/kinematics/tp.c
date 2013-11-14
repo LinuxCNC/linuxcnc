@@ -47,7 +47,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
-/*#define TP_FALLBACK_PARABOLIC*/
+#define TP_FALLBACK_PARABOLIC
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -114,24 +114,13 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
 }
 
 /**
- * Clip velocity of tangent segments to prevent overshooting.
+ * Cap velocity based on trajectory properties
  */
-STATIC inline int tpClipVelocityLimit(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    if (!tc) {
-        return TP_ERR_FAIL;
-    }
-    if (tc->term_cond != TC_TERM_COND_TANGENT) {
-        return TP_ERR_NO_ACTION;
-    }
-
-    double sample_maxvel = 0.5 * tc->target / tp->cycleTime;
-    if (tc->maxvel > sample_maxvel) {
-        tp_debug_print("Clipped maxvel from %f to %f in tc #%d\n",tc->maxvel,sample_maxvel,tc->id);
-        tc->maxvel = sample_maxvel;
-    }
-    return TP_ERR_OK;
+STATIC inline double tpGetSampleVelocity(double vel, double length, double dt) {
+    //FIXME div by zero check
+    double v_sample = length / dt;
+    return fmin(vel,v_sample);
 }
-
 
 /**
  * Convert the 2-part spindle position and sign to a signed double.
@@ -606,6 +595,48 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 
 
 /**
+ * Find the minimum segment length for a given velocity and timestep.
+ */
+STATIC double tpCalculateMinLength(double velocity, double dt, double * const out) {
+     if (dt<=0) {
+         return TP_ERR_FAIL;
+     }
+
+     if (!out) {
+         return TP_ERR_FAIL;
+     }
+
+     *out = 2.0*velocity/dt;
+     return TP_ERR_OK;
+}
+
+// Safe acceleration limit is to use the lowest bound on the linear axes,
+// rather than using the trajectory max accels. These are computed with the
+// infinity norm, which means we can't just assume that the smaller of the two is within the limits.
+STATIC int tpGetMachineLimits(double * const acc_limit, double * const vel_limit) {
+
+    PmCartesian acc_bound;
+    //FIXME check for number of axes first!
+    acc_bound.x = emcmotDebug->joints[0].acc_limit;
+    acc_bound.y = emcmotDebug->joints[1].acc_limit;
+    acc_bound.z = emcmotDebug->joints[2].acc_limit;
+
+    *acc_limit=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
+    tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
+
+    PmCartesian vel_bound;
+    //FIXME check for number of axes first!
+    vel_bound.x = emcmotDebug->joints[0].vel_limit;
+    vel_bound.y = emcmotDebug->joints[1].vel_limit;
+    vel_bound.z = emcmotDebug->joints[2].vel_limit;
+
+    *vel_limit = fmin(fmin(vel_bound.x,vel_bound.y),vel_bound.z);
+    tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
+    return TP_ERR_OK;
+}
+
+
+/**
  * Compute arc segment to blend between two lines.
  */
 STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_tc,
@@ -615,7 +646,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // calculate the blend arc, like intersection angle
     // Calculate radius based on tolerances
     double theta=0.0;
-    int res = tpFindIntersectionAngle(&prev_tc->coords.line.xyz.uVec, &tc->coords.line.xyz.uVec, &theta);
+    int res = tpFindIntersectionAngle(&prev_tc->coords.line.xyz.uVec,
+            &tc->coords.line.xyz.uVec, &theta);
     if (res) {
         //Can't get an intersection angle, bail
         tp_debug_print("Failed to find intersection angle!\n");
@@ -625,57 +657,49 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Find common velocity and acceleration
     double v_req=fmax(prev_tc->reqvel, tc->reqvel);
-    double v_max=fmax(prev_tc->maxvel, tc->maxvel);
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_req=%f\n", v_req);
     
-    // Safe acceleration limit is to use the lowest bound on the linear axes,
-    // rather than using the trajectory max accels. These are computed with the
-    // infinity norm, which means we can't just assume that the smaller of the two is within the limits.
-    PmCartesian acc_bound;
-    //FIXME check for number of axes first!
-    acc_bound.x = emcmotDebug->joints[0].acc_limit;
-    acc_bound.y = emcmotDebug->joints[1].acc_limit;
-    acc_bound.z = emcmotDebug->joints[2].acc_limit;
-
-    double a_max=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
-    tp_debug_print("a_max=%f\n",a_max);
-
+    double a_max,v_max;
+    tpGetMachineLimits(&a_max, &v_max); 
     double a_n_max=a_max*pmSqrt(3.0)/2.0;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
     //Get 3D start, middle, end position
-    PmCartesian start, middle, end;
-    start = prev_tc->coords.line.xyz.start;
-    middle = prev_tc->coords.line.xyz.end;
-    end = tc->coords.line.xyz.end;
-
-    //Find the minimum tolerance (in case it dropped between moves)
-    double T1=prev_tc->tolerance;
-    double T2=tc->tolerance;
-    if ( 0.0 == T1) T1=10000000;
-    if ( 0.0 == T2) T2=10000000;
-
-    double tolerance=fmin(T1,T2);
-    tp_debug_print(" Blend Tolerance = %f\n",tolerance);
+    PmCartesian start = prev_tc->coords.line.xyz.start;
+    PmCartesian middle = prev_tc->coords.line.xyz.end;
+    PmCartesian end = tc->coords.line.xyz.end;
 
     //Store trig functions for later use
     double Ctheta=cos(theta);
     double Stheta=sin(theta);
     double Ttheta=tan(theta);
-    
-    double tmp = 1.0 - Stheta;
-    double h_tol;
-    if (tmp>TP_ANGLE_EPSILON) {
-        h_tol=tolerance/tmp;
+
+    //Find the minimum tolerance (in case it dropped between moves)
+    double T1=prev_tc->tolerance;
+    double T2=tc->tolerance;
+    double d_tol;
+
+    if ( TP_BIG_NUM == T1 && TP_BIG_NUM == T2) {
+        d_tol = TP_BIG_NUM;
     } else {
-        tp_debug_print("h_tol too large! theta = %f\n",theta);
-        return TP_ERR_FAIL;
+        double tolerance=fmin(T1,T2);
+
+        tp_debug_print(" Blend Tolerance = %f\n",tolerance);
+
+        double tmp = 1.0 - Stheta;
+        double h_tol;
+        if (tmp>TP_ANGLE_EPSILON) {
+            h_tol=tolerance/tmp;
+        } else {
+            tp_debug_print("intersection angle theta = %f, too close to tangent\n",theta);
+            return TP_ERR_FAIL;
+        }
+
+        d_tol=Ctheta*h_tol;
     }
 
-    double d_tol=Ctheta*h_tol;
-
-    // Limit amount of line segment to blend so that we don't delete the line
+    // Limit amount of line segment to blend
     const double blend_ratio = 0.33333333333333333333333333333;
 
     //HACK Assume that we are not working on segments already traversed for now
@@ -683,7 +707,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L2 = tc->nominal_length;
 
     //Clip to target length just in case
-    double d_prev = fmin(L1 * blend_ratio,prev_tc->target);
+    double d_prev = fmin(L1 * blend_ratio, prev_tc->target);
     double d_next = fmin(L2 * blend_ratio, tc->target);
 
     double d_geom=fmin(fmin(d_prev, d_next), d_tol);
@@ -722,58 +746,39 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L_prev = L1 - d_upper;
     double L_next = L2 - d_upper;
 
-    // Test if our ideal lower bound on d (from arc equation) is lower than
-    // our ideal upper bound on d based on the sample time. Usually there
-    // will be overlap, and we can proceed as normal. If there isn't, then
-    // we have short segments, and need to compromise on segment length to
-    // avoid degeneracy.
-    if (L_prev >= TP_MAG_EPSILON) {
-        double v_sample = 0.5 * phi * d_upper * Ttheta / tp->cycleTime;
-
-        // The blend velocity we can actually get is limited by the sample rate
-        v_upper = fmin(v_upper,v_sample);
-
-        // d required to meet v_upper
-        double d_sample = 2.0 * v_upper * tp->cycleTime / (phi * Ttheta);
-        double d_req1 = fmax(d_sample,d_upper);
-
-        double v1_sample = 0.5 * (L1-d_req1) / tp->cycleTime;
-
-        //If we take too big a bite out of the previous line, we won't be able
-        //to move fast enough through the segment to reach v_upper anyway.
-        //Compromise if this is an issue:
-        if (v1_sample < v_upper) {
-            d_upper = L1/(1+phi*Ttheta);
-            //FIXME variable reuse
-            v_upper = pmSqrt(a_n_max * (d_upper*Ttheta));
-            L_prev = L1 - d_upper;
-            L_next = L2 - d_upper;
-        } 
-        tp_debug_print("Adjusted v_upper = %f, d_upper = %f\n",v_upper,d_upper);
-
-        R_upper = d_upper*Ttheta;
-        tp_debug_print("adjusted R_upper = %f\n",R_upper); 
-    } 
     tp_debug_print("effective a_n = %f\n", pmSq(v_upper)/R_upper); 
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
-
-    /* Additional quality / performance checks.
-     * If for whatever reason we can't get parabolic-equivalent performance (by
-     * checking against the parabolic velocity), then abort arc creation and
-     * fall back to parabolic blends */
-    
     //TODO move this above to save processing time?
     double v_parabolic=0.0;
     tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
 
-    tp_debug_print("Speed Comparison: v_arc %f, v_para %f\n",v_upper,v_parabolic);
+    /* Additional quality / performance checks: If we aren't moving faster than
+     * the equivalent parabolic blend, then fall back to parabolic 
+     */
+    //TODO address feed override here
+
+    //Limit all velocities by what we can sample
+    prev_tc->reqvel = fmin(prev_tc->reqvel, 0.5 * L_prev / tp->cycleTime);
+    tc->reqvel = fmin(tc->reqvel, 0.5 * L_next / tp->cycleTime);
+    v_upper = fmin(v_upper, 0.5 * s_arc / tp->cycleTime);
 
 #ifdef TP_FALLBACK_PARABOLIC
-    if (v_upper < v_parabolic) {
-        tp_debug_print("v_arc lower, abort arc creation\n");
+    tp_debug_print(" Check: v_prev = %f, v_para = %f\n", prev_tc->reqvel, v_parabolic);
+    if ( prev_tc->reqvel <= v_parabolic) {
         return TP_ERR_FAIL;
     }
+
+    tp_debug_print(" Check: v_next = %f, v_para = %f\n", tc->reqvel, v_parabolic);
+    if ( tc->reqvel <= v_parabolic) {
+        return TP_ERR_FAIL;
+    }
+    
+    tp_debug_print(" Check: v_upper = %f, v_para = %f\n", v_upper, v_parabolic);
+    if ( v_upper <= v_parabolic) {
+        return TP_ERR_FAIL;
+    }
+
 #endif
 
     //If for some reason we get too small a radius, the blend will fail. This
@@ -1186,8 +1191,11 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tc.canon_motion_type = type;
 
     tc.term_cond = tp->termCond;
-    //At this point a typical line has accel scale = 0.5
-    tc.tolerance = tp->tolerance;
+    if (tp->tolerance == 0.0) {
+        tc.tolerance = TP_BIG_NUM;
+    } else {
+        tc.tolerance = tp->tolerance;
+    }
 
     tc.synchronized = tp->synchronized;
     tc.uu_per_rev = tp->uu_per_rev;
@@ -1258,7 +1266,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
 
     tc.target = helix_length;
     tc.nominal_length = helix_length;
-    //Assume acceleration ratio of 1
     tc.atspeed = atspeed;
     //TODO acceleration bounded by optimizer
 
@@ -1297,7 +1304,6 @@ STATIC int tpHandleOvershoot(TC_STRUCT * const tc, TC_STRUCT * const nexttc, Emc
     }
 
     if (!nexttc) {
-        tp_debug_print("Missing nexttc in check overshoot\n");
         return TP_ERR_FAIL;
     }
 
