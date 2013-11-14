@@ -120,6 +120,7 @@ typedef struct {
     int atpeak;             //At peak velocity during blends)
     int on_final_decel;
     int blend_prev;
+    int islast;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
