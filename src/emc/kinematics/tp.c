@@ -655,16 +655,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
     tp_debug_print("theta=%f\n",theta);
 
-    //Find common velocity and acceleration
-    double v_req=fmax(prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_req=%f\n", v_req);
-    
-    double a_max,v_max;
+    double phi = (PM_PI- theta * 2.0);
+
+    double a_max, v_max;
     tpGetMachineLimits(&a_max, &v_max); 
     double a_n_max=a_max*pmSqrt(3.0)/2.0;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
+    //Find common velocity and acceleration
+    double v_req=fmax(prev_tc->reqvel, tc->reqvel);
+    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
+    tp_debug_print("v_req = %f, v_max = %f\n", v_req,v_max);
+    
     //Get 3D start, middle, end position
     PmCartesian start = prev_tc->coords.line.xyz.start;
     PmCartesian middle = prev_tc->coords.line.xyz.end;
@@ -699,54 +701,77 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         d_tol=Ctheta*h_tol;
     }
 
+    double R_final = 0.0;
+    double d_final = 0.0;
+    double v_final = 0.0;
+
     // Limit amount of line segment to blend
     const double blend_ratio = 0.33333333333333333333333333333;
+
+    const double ideal_ratio = 0.5;
 
     //HACK Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->nominal_length;
     double L2 = tc->nominal_length;
 
     //Clip to target length just in case
-    double d_prev = fmin(L1 * blend_ratio, prev_tc->target);
-    double d_next = fmin(L2 * blend_ratio, tc->target);
+    double d_prev_ideal = fmin(L1 * ideal_ratio, prev_tc->target);
+    double d_next_ideal = fmin(L2 * ideal_ratio, tc->target);
+    double d_geom_ideal = fmin(fmin(d_prev_ideal, d_next_ideal), d_tol);
 
-    double d_geom=fmin(fmin(d_prev, d_next), d_tol);
-    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
+    double R_geom_ideal = Ttheta * d_geom_ideal;
+    double v_geom_ideal = pmSqrt(a_n_max * d_geom_ideal * Ttheta);
+    
+    double arc_length_ideal = R_geom_ideal * phi;
 
-    double R_geom=Ttheta * d_geom;
-    tp_debug_print("R_geom = %f\n",R_geom);
+    double v_upper = fmin(v_req,v_max);
 
-    //Calculate limiting velocity due to radius and normal acceleration
-    double v_normal=pmSqrt(a_n_max*R_geom);
+    if (v_geom_ideal <= fmin(v_req,v_max) && prev_tc->target <= d_geom_ideal &&
+            arc_length_ideal >= (tp->cycleTime / v_geom_ideal)) {
+        tp_debug_print("Can remove last segment\n");
+        //we want to remove the last segment entirely, and the next segment is longer than or equal to
+        R_final = d_geom_ideal / Ttheta;
+        d_final = d_geom_ideal;
+        v_final = fmin(v_req,v_max);
+        tp_debug_print("v_final = %f\n",v_final); 
 
-    //The new upper bound is the lower of the two speeds
-    double v_upper=fmin(v_req, v_normal);
-    tp_debug_print("v_normal = %f\n",v_normal); 
-    tp_debug_print("v_upper = %f\n",v_upper); 
-
-    //At this new limiting velocity, find the radius by the reverse formula
-
-    double R_normal=0.0;
-    if (a_n_max>TP_ACCEL_EPSILON) {
-        R_normal=pmSq(v_upper)/a_n_max;
     } else {
-        tp_debug_print("a_n_max = %f, too low!\n",a_n_max);
-        return TP_ERR_FAIL;
+        // Do 1/3 blending since we can't absorb the previous
+        double d_prev = fmin(L1 * blend_ratio, prev_tc->target);
+        double d_next = fmin(L2 * blend_ratio, tc->target);
+
+        double d_geom=fmin(fmin(d_prev, d_next), d_tol);
+
+        double R_geom = Ttheta * d_geom;
+        tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
+
+        tp_debug_print("R_geom = %f\n",R_geom);
+
+        //Calculate limiting velocity due to radius and normal acceleration
+        double v_normal=pmSqrt(a_n_max*R_geom);
+
+        //The new upper bound is the lower of the two speeds
+        v_final=fmin(v_req, v_normal);
+        tp_debug_print("v_normal = %f\n",v_normal); 
+        tp_debug_print("v_final = %f\n",v_final); 
+
+        //At this new limiting velocity, find the radius by the reverse formula
+
+        double R_normal=pmSq(v_final)/a_n_max;
+
+        // Final radius calculations
+        R_final=fmin(R_normal, R_geom);
+        tp_debug_print("R_final = %f\n",R_final); 
+
+        //Check for segment length limits
+        //TODO div by zero
+        d_final = R_final / Ttheta;
+        tp_debug_print("effective a_n = %f\n", pmSq(v_final)/R_final); 
     }
 
-    // Final radius calculations
-    double R_upper=fmin(R_normal, R_geom);
-    tp_debug_print("R_upper = %f\n",R_upper); 
-
-    //Check for segment length limits
-    //TODO div by zero
-    double d_upper = R_upper / Ttheta;
-    double phi = (PM_PI- theta * 2.0);
-    double s_arc = phi * R_upper;
-    double L_prev = L1 - d_upper;
-    double L_next = L2 - d_upper;
-
-    tp_debug_print("effective a_n = %f\n", pmSq(v_upper)/R_upper); 
+    double s_arc = phi * R_final;
+    double L_prev = prev_tc->target - d_final;
+    double L_next = tc->target - d_final;
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
@@ -759,9 +784,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //TODO address feed override here
 
     //Limit all velocities by what we can sample
-    prev_tc->reqvel = fmin(prev_tc->reqvel, 0.5 * L_prev / tp->cycleTime);
+    if (L_prev > 0.0) {
+        prev_tc->reqvel = fmin(prev_tc->reqvel, 0.5 * L_prev / tp->cycleTime);
+    }
     tc->reqvel = fmin(tc->reqvel, 0.5 * L_next / tp->cycleTime);
-    v_upper = fmin(v_upper, 0.5 * s_arc / tp->cycleTime);
+    v_final = fmin(v_final, 0.5 * s_arc / tp->cycleTime);
+
 
 #ifdef TP_FALLBACK_PARABOLIC
     tp_debug_print(" Check: v_prev = %f, v_para = %f\n", prev_tc->reqvel, v_parabolic);
@@ -774,8 +802,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
     
-    tp_debug_print(" Check: v_upper = %f, v_para = %f\n", v_upper, v_parabolic);
-    if ( v_upper <= v_parabolic) {
+    tp_debug_print(" Check: v_final = %f, v_para = %f\n", v_final, v_parabolic);
+    if ( v_final <= v_parabolic) {
         return TP_ERR_FAIL;
     }
 
@@ -783,7 +811,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
-    if (R_upper < TP_MAG_EPSILON) {
+    if (R_final < TP_MAG_EPSILON) {
         tp_debug_print("Blend radius too small, aborting...\n");
         return TP_ERR_FAIL;
     }
@@ -792,7 +820,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //TODO Recycle calculations?
     //TODO errors within this function
-    pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_upper);
+    pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_final);
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle); 
 
