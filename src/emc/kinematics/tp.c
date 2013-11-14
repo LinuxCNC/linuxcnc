@@ -707,7 +707,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double v_final = 0.0;
 
     //Pre-factor out the 2
-    double B = -prev_tc->target-a_n_max*Ttheta*phi*pmSq(tp->cycleTime);
+    tp_debug_print("prev targ = %f\n",prev_tc->target);
+    double B = -prev_tc->target - 2.0*a_n_max * Ttheta * pmSq(tp->cycleTime);
     double C = pmSq(prev_tc->target);
     double d_prev = -B - pmSqrt(pmSq(B)-C);
 
@@ -716,7 +717,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L2 = tc->nominal_length;
 
     // Limit amount of line segment to blend
-    double blend_ratio = d_prev/L1;
+    double blend_ratio = fmin(d_prev/L1,.5);
     tp_debug_print(" blend ratio = %f\n",blend_ratio);
 
     // Do 1/3 blending since we can't absorb the previous
