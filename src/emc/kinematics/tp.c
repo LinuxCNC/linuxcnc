@@ -34,7 +34,7 @@
  */
 
 /*#define TP_DEBUG*/
-/*#define TC_DEBUG*/
+#define TC_DEBUG
 /*#define TP_POSITION_LOGGING*/
 /*#define TP_INFO_LOGGING*/
 
@@ -469,6 +469,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->maxvel = ini_maxvel;
     //Note: capping reqvel here since maxvel never changes for a given segment
     tc->reqvel = fmin(vel,ini_maxvel);
+
 #ifdef TP_CHECK_MORE
     if (tc->reqvel <= 0) {
         tp_debug_print(" Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
@@ -925,13 +926,6 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         return TP_ERR_FAIL;
     }
 
-#if 0
-    //TODO check if this would benefit from being clipped by max delta V
-    double v_req=fmax(prev_tc->reqvel, tc->reqvel);
-    //TODO can we make this max? does it even matter?
-    double a_max=fmin(tpGetScaledAccel(tp, prev_tc),
-            tpGetScaledAccel(tp, tc));
-#endif
     // Calculate the maximum angle between unit vectors that can still be
     // considered "tangent" (i.e. small enough that the
     // acceleration/deceleration spike is within limits).
@@ -1044,7 +1038,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     }
 
     tp_debug_print("  queue _len = %d\n", len);
-    for (x = 2; x < walk; ++x) {
+    for (x = 1; x < walk; ++x) {
         //Start at most recently added
 
         ind=len-x;
@@ -1081,7 +1075,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         double acc = tpGetScaledAccel(tp,tc);
         vs = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc * tc->target);
 
-        tp_debug_print(" vs = %f, reqvel = %f\n",vs,tc->reqvel);
+        tp_debug_print(" vs = %f, reqvel = %f\n", vs, tc->reqvel);
 
         //TODO incoporate max feed override
         double goal_vel = fmin(tc->maxvel, tc->reqvel );
@@ -1096,7 +1090,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             prev_tc->finalvel = vs;
             prev_tc->atpeak=0;
         }
-        if (tc->atpeak) {
+        if (prev_tc->atpeak) {
             break;
         }
 
@@ -1474,7 +1468,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     double tc_finalvel = tpGetFinalVel(tp,tc);
 
     //Clamp the requested velocity by the maximum velocity allowed.
-    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->reqvel>tc->finalvel) {
+    if (tc->term_cond == TC_TERM_COND_TANGENT && tc->reqvel>tc->finalvel && tc->finalvel>TP_MAG_EPSILON) {
         tc_reqvel=tc->finalvel;
     }
 
@@ -1531,7 +1525,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
         gdb_fake_assert(fabs(tc->target-tc->progress) > (tc->maxvel * tc->cycle_time));
         newvel = 0.0;
-        if ( !(tc->term_cond == TC_TERM_COND_TANGENT)) {
+        if ( !(tc->term_cond == TC_TERM_COND_TANGENT) || tc->progress < tc->target) {
             tc_debug_print("calculated newvel = %f, with T = %f, P = %f\n", newvel, tc->target, tc->progress);
             tc->progress = tc->target;
         }
