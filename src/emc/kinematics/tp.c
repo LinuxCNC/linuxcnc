@@ -1042,24 +1042,24 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         //Start at most recently added
 
         ind=len-x;
-        tp_debug_print(" x=%u, ind = %u\n", x,ind);
+        tp_info_print(" x=%u, ind = %u\n", x,ind);
 
         tc=tcqItem(&tp->queue, ind);
         prev_tc=tcqItem(&tp->queue, ind-1);
 
 
         if ( !prev_tc || !tc) {
-            break;
+            return TP_ERR_OK;
         }
         prev_tc->islast=0;
 
-        tp_debug_print("  prev term = %u, type = %u, id = %u, \n",
+        tp_info_print("  prev term = %u, type = %u, id = %u, \n",
                 prev_tc->term_cond, prev_tc->motion_type, prev_tc->id);
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
         if (prev_tc->term_cond != TC_TERM_COND_TANGENT) {
-            break;
+            return TP_ERR_OK;
         }
 
         //Abort if a segment is already in progress
@@ -1067,7 +1067,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         if (prev_tc->progress>0) {
             tp_debug_print("segment %d already started, progress is %f!\n",
                     ind-1,prev_tc->progress);
-            break;
+            return TP_ERR_OK;
         }
 
         //Calculate the maximum starting velocity vs of segment tc, given the
@@ -1075,7 +1075,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         double acc = tpGetScaledAccel(tp,tc);
         vs = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc * tc->target);
 
-        tp_debug_print(" vs = %f, reqvel = %f\n", vs, tc->reqvel);
+        tp_info_print(" vs = %f, reqvel = %f\n", vs, tc->reqvel);
 
         //TODO incoporate max feed override
         double goal_vel = fmin(tc->maxvel, tc->reqvel );
@@ -1090,15 +1090,16 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             prev_tc->finalvel = vs;
             prev_tc->atpeak=0;
         }
+
         if (prev_tc->atpeak) {
-            break;
+            return TP_ERR_OK;
         }
 
-        tp_debug_print(" prev_tc-> fv = %f, tc->fv = %f\n",
+        tp_info_print(" prev_tc-> fv = %f, tc->fv = %f\n",
                 prev_tc->finalvel, tc->finalvel);
 
     }
-
+    tp_debug_print("Reached end of backward walk\n");
     return TP_ERR_OK;
 }
 
@@ -1113,15 +1114,21 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
  */
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
 
-    tc_debug_print("********************\nStarting blend stuff\n");
+    tp_debug_print("********************\n Handle Blend Arc\n");
 
-    TC_STRUCT *prev_tc = tcqLast(&tp->queue);
+    TC_STRUCT *prev_tc;
+    prev_tc = tcqLast(&tp->queue);
 
     //If the previous segment has already started, then don't create a blend
     //arc for the next pair.
     // TODO May be able to lift this restriction if we can ensure that we leave
     // 1 timestep's worth of distance in prev_tc
-    if ( !prev_tc || prev_tc->progress > 0.0) {
+    if ( !prev_tc) {
+        tp_debug_print(" queue empty\n");
+        return TP_ERR_FAIL;
+    }
+    if (prev_tc->progress > 0.0) {
+        tp_debug_print(" prev_tc progress = %f, aborting arc\n", prev_tc->progress);
         return TP_ERR_FAIL;
     }
 
@@ -1154,6 +1161,8 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
 
             break;
         case TP_ERR_NO_ACTION:
+
+            tp_debug_print("Line already tangent\n");
             //already tangent
             prev_tc->term_cond=TC_TERM_COND_TANGENT;
             break;
@@ -1435,7 +1444,6 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
         }
     }
     *blend_vel=vel;
-    tc_debug_print("blendvel = %f\n",*blend_vel);
     return TP_ERR_OK;
 }
 
@@ -1489,7 +1497,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     if (!tc->blending_next) {
         tc->vel_at_blend_start = tc->currentvel;
-        tc_debug_print("vel at blend start = %f\n",tc->vel_at_blend_start);
     }
 
     delta_pos = tc->target - tc->progress;
@@ -1514,7 +1521,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     /*tc_debug_print("maxaccel = %f\n",maxaccel);*/
 
     if (newvel > tc_reqvel) {
-        tc_debug_print("reached v_req\n");
+        /*tc_debug_print("reached v_req\n");*/
         newvel = tc_reqvel;
     }
 
@@ -1525,10 +1532,12 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
         gdb_fake_assert(fabs(tc->target-tc->progress) > (tc->maxvel * tc->cycle_time));
         newvel = 0.0;
-        if ( !(tc->term_cond == TC_TERM_COND_TANGENT) || tc->progress < tc->target) {
-            tc_debug_print("calculated newvel = %f, with T = %f, P = %f\n", newvel, tc->target, tc->progress);
+        if ( !(tc->term_cond == TC_TERM_COND_TANGENT) ) {
             tc->progress = tc->target;
         }
+        if (tc->progress < tc->target) {
+        }
+        tc_debug_print("Setting newvel = %f, with T = %f, P = %f\n", newvel, tc->target, tc->progress);
     } else {
 
         bool is_pure_rotary = (tc->motion_type == TC_LINEAR) &&
@@ -1987,7 +1996,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Temporary debug message
-    tp_info_print( "Activate tc id %d\n", tc->id);
+    tp_debug_print( "Activate tc id %d\n", tc->id);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
