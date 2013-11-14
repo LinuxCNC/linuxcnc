@@ -765,6 +765,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //TODO move this above to save processing time?
     double v_parabolic=0.0;
     tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
+    //FIXME need blend acceleration here
+    double v_prev_parabolic=pmSqrt(prev_tc->target * tpGetScaledAccel(tp,tc));
 
     /* Additional quality / performance checks: If we aren't moving faster than
      * the equivalent parabolic blend, then fall back to parabolic 
@@ -780,15 +782,17 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
 #ifdef TP_SMOOTH_VEL
     double smooth_vel = fmin(prev_tc->reqvel,v_final);
+    //Make the prev segment and it's blend arc have the same velocity
+    //TODO how well does this handle big segments?
     v_final = smooth_vel;
     prev_tc->reqvel = smooth_vel;
-    tc->reqvel = fmin(tc->reqvel,smooth_vel);
+    /*tc->reqvel = fmin(tc->reqvel,smooth_vel);*/
 #endif
 
 
 #ifdef TP_FALLBACK_PARABOLIC
     tp_debug_print(" Check: v_prev = %f, v_para = %f\n", prev_tc->reqvel, v_parabolic);
-    if ( prev_tc->reqvel <= v_parabolic) {
+    if ( prev_tc->reqvel <= v_prev_parabolic) {
         return TP_ERR_FAIL;
     }
 
@@ -1027,8 +1031,10 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     //Assume that length won't change during a run
     TC_STRUCT *tc=tcqLast(&tp->queue);
     tc->islast=1;
-    TC_STRUCT *prev_tc=NULL;
-    double vs=0.0;
+    TC_STRUCT *prev1_tc=NULL;
+    TC_STRUCT *prev2_tc=NULL;
+    double vs_back=0.0;
+    double vs_forward=0.0;
 
     int len = tcqLen(&tp->queue);
     int walk = TP_LOOKAHEAD_DEPTH;
@@ -1045,61 +1051,73 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         tp_info_print(" x=%u, ind = %u\n", x,ind);
 
         tc=tcqItem(&tp->queue, ind);
-        prev_tc=tcqItem(&tp->queue, ind-1);
+        prev1_tc=tcqItem(&tp->queue, ind-1);
+        prev2_tc=tcqItem(&tp->queue, ind-2);
 
-
-        if ( !prev_tc || !tc) {
+        if ( !prev1_tc || !tc) {
+            tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
         }
-        prev_tc->islast=0;
+        prev1_tc->islast=0;
 
         tp_info_print("  prev term = %u, type = %u, id = %u, \n",
-                prev_tc->term_cond, prev_tc->motion_type, prev_tc->id);
+                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
-        if (prev_tc->term_cond != TC_TERM_COND_TANGENT) {
+        if (prev1_tc->term_cond != TC_TERM_COND_TANGENT) {
             return TP_ERR_OK;
         }
 
         //Abort if a segment is already in progress
         //TODO: do we need to do this? The calculation should compensate
-        if (prev_tc->progress>0) {
+        if (prev1_tc->progress>0) {
             tp_debug_print("segment %d already started, progress is %f!\n",
-                    ind-1,prev_tc->progress);
+                    ind-1,prev1_tc->progress);
             return TP_ERR_OK;
         }
 
-        //Calculate the maximum starting velocity vs of segment tc, given the
+        //Calculate the maximum starting velocity vs_back of segment tc, given the
         //trajectory parameters
-        double acc = tpGetScaledAccel(tp,tc);
-        vs = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc * tc->target);
+        double acc_this = tpGetScaledAccel(tp, tc);
+        double acc_prev = tpGetScaledAccel(tp, prev1_tc);
+        // Find the reachable velocity of tc, moving backwards in time
+        vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
+        // Find the reachable velocity of prev1_tc, moving forwards in time
+        double vf2=0.0;
+        if (prev2_tc) {
+            vf2=prev2_tc->finalvel;
+        }
 
-        tp_info_print(" vs = %f, reqvel = %f\n", vs, tc->reqvel);
+        vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
+
+        tp_info_print(" vs_back = %f, reqvel = %f\n", vs_back, tc->reqvel);
 
         //TODO incoporate max feed override
-        double goal_vel = fmin(tc->maxvel, tc->reqvel );
+        double v_sample_this = tc->target / (tp->cycleTime * 2.0);
+        double vel_limit_this = fmin(tc->maxvel, tc->reqvel );
+        //Limit the PREVIOUS velocity by how much we can overshoot into 
+        double vel_limit_prev = fmin(fmin(prev1_tc->maxvel, prev1_tc->reqvel ),v_sample_this);
+        double goal_vel = fmin(vel_limit_this,vel_limit_prev);
+        double vs = fmin(vs_back,vs_forward);
 
-        if (vs > goal_vel) {
+        if (vs > goal_vel ) {
             //Found a peak
             vs = goal_vel;
-            prev_tc->finalvel = vs;
-            prev_tc->atpeak=1;
+            prev1_tc->finalvel = vs;
+            prev1_tc->atpeak=1;
             tp_debug_print("found peak\n");
-        } else {
-            prev_tc->finalvel = vs;
-            prev_tc->atpeak=0;
-        }
-
-        if (prev_tc->atpeak) {
             return TP_ERR_OK;
+        } else {
+            prev1_tc->finalvel = vs;
+            prev1_tc->atpeak=0;
         }
 
-        tp_info_print(" prev_tc-> fv = %f, tc->fv = %f\n",
-                prev_tc->finalvel, tc->finalvel);
+        tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
+                prev1_tc->finalvel, tc->finalvel);
 
     }
-    tp_debug_print("Reached end of backward walk\n");
+    tp_debug_print("Reached optimization depth limit\n");
     return TP_ERR_OK;
 }
 
