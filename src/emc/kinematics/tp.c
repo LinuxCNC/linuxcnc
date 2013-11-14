@@ -701,73 +701,54 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         d_tol=Ctheta*h_tol;
     }
 
+    double v_upper = fmin(v_req,v_max);
     double R_final = 0.0;
     double d_final = 0.0;
     double v_final = 0.0;
 
-    // Limit amount of line segment to blend
-    const double blend_ratio = 0.33333333333333333333333333333;
+    //Pre-factor out the 2
+    double B = -prev_tc->target-a_n_max*Ttheta*phi*pmSq(tp->cycleTime);
+    double C = pmSq(prev_tc->target);
+    double d_prev = -B - pmSqrt(pmSq(B)-C);
 
-    const double ideal_ratio = 0.5;
-
-    //HACK Assume that we are not working on segments already traversed for now
+    // Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->nominal_length;
     double L2 = tc->nominal_length;
 
-    //Clip to target length just in case
-    double d_prev_ideal = fmin(L1 * ideal_ratio, prev_tc->target);
-    double d_next_ideal = fmin(L2 * ideal_ratio, tc->target);
-    double d_geom_ideal = fmin(fmin(d_prev_ideal, d_next_ideal), d_tol);
+    // Limit amount of line segment to blend
+    double blend_ratio = d_prev/L1;
+    tp_debug_print(" blend ratio = %f\n",blend_ratio);
 
-    double R_geom_ideal = Ttheta * d_geom_ideal;
-    double v_geom_ideal = pmSqrt(a_n_max * d_geom_ideal * Ttheta);
-    
-    double arc_length_ideal = R_geom_ideal * phi;
+    // Do 1/3 blending since we can't absorb the previous
+    double d_next = fmin(L2 * blend_ratio, tc->target);
 
-    double v_upper = fmin(v_req,v_max);
+    double d_geom=fmin(fmin(d_prev, d_next), d_tol);
 
-    if (v_geom_ideal <= fmin(v_req,v_max) && prev_tc->target <= d_geom_ideal &&
-            arc_length_ideal >= (tp->cycleTime / v_geom_ideal)) {
-        tp_debug_print("Can remove last segment\n");
-        //we want to remove the last segment entirely, and the next segment is longer than or equal to
-        R_final = d_geom_ideal / Ttheta;
-        d_final = d_geom_ideal;
-        v_final = fmin(v_req,v_max);
-        tp_debug_print("v_final = %f\n",v_final); 
+    double R_geom = Ttheta * d_geom;
 
-    } else {
-        // Do 1/3 blending since we can't absorb the previous
-        double d_prev = fmin(L1 * blend_ratio, prev_tc->target);
-        double d_next = fmin(L2 * blend_ratio, tc->target);
+    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
+    tp_debug_print("R_geom = %f\n",R_geom);
 
-        double d_geom=fmin(fmin(d_prev, d_next), d_tol);
+    //Calculate limiting velocity due to radius and normal acceleration
+    double v_normal=pmSqrt(a_n_max*R_geom);
 
-        double R_geom = Ttheta * d_geom;
-        tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
+    //The new upper bound is the lower of the two speeds
+    v_final=fmin(v_req, v_normal);
+    tp_debug_print("v_normal = %f\n",v_normal); 
+    tp_debug_print("v_final = %f\n",v_final); 
 
-        tp_debug_print("R_geom = %f\n",R_geom);
+    //At this new limiting velocity, find the radius by the reverse formula
 
-        //Calculate limiting velocity due to radius and normal acceleration
-        double v_normal=pmSqrt(a_n_max*R_geom);
+    double R_normal=pmSq(v_final)/a_n_max;
 
-        //The new upper bound is the lower of the two speeds
-        v_final=fmin(v_req, v_normal);
-        tp_debug_print("v_normal = %f\n",v_normal); 
-        tp_debug_print("v_final = %f\n",v_final); 
+    // Final radius calculations
+    R_final=fmin(R_normal, R_geom);
+    tp_debug_print("R_final = %f\n",R_final); 
 
-        //At this new limiting velocity, find the radius by the reverse formula
-
-        double R_normal=pmSq(v_final)/a_n_max;
-
-        // Final radius calculations
-        R_final=fmin(R_normal, R_geom);
-        tp_debug_print("R_final = %f\n",R_final); 
-
-        //Check for segment length limits
-        //TODO div by zero
-        d_final = R_final / Ttheta;
-        tp_debug_print("effective a_n = %f\n", pmSq(v_final)/R_final); 
-    }
+    //Check for segment length limits
+    //TODO div by zero
+    d_final = R_final / Ttheta;
+    tp_debug_print("effective a_n = %f\n", pmSq(v_final)/R_final); 
 
     double s_arc = phi * R_final;
     double L_prev = prev_tc->target - d_final;
