@@ -610,8 +610,13 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
  */   
 TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
 {
-    if (tcqCheck(tcq)) return NULL;
-    if (tcq->end>0) return &(tcq->queue[(tcq->end-1) % tcq->size]);
-    else return NULL;
+    if (tcqCheck(tcq)) {
+        return NULL;
+    }
+    if (tcq->_len == 0) {
+        return NULL;
+    }
+    return &(tcq->queue[(tcq->end-1) % tcq->size]);
+
 }
 
