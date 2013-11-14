@@ -33,11 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-#define TP_DEBUG
+/*#define TP_DEBUG*/
 /*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
-#define TP_INFO_LOGGING
-#define TP_SMOOTH_VEL
+/*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -1045,7 +1044,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     }
 
     tp_debug_print("  queue _len = %d\n", len);
-    for (x = 1; x < walk; ++x) {
+    for (x = 2; x < walk; ++x) {
         //Start at most recently added
 
         ind=len-x;
