@@ -82,11 +82,11 @@ typedef struct {
     double cycle_time;
     double progress;        // where are we in the segment?  0..target
     double target;          // segment length
+    double nominal_length;
     double reqvel;          // vel requested by F word, calc'd by task
     double maxaccel;        // accel calc'd by task
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
-    double accel_scale;
     double finalvel;        // velocity to aim for at end of segment
     
     int id;                 // segment's serial number
@@ -105,7 +105,7 @@ typedef struct {
     int term_cond;    // gcode requests continuous feed at the end of 
                             // this segment (g64 mode)
 
-    int blending;           // segment is being blended into following segment
+    int blending_next;      // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
@@ -119,6 +119,7 @@ typedef struct {
     int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
     int atpeak;             //At peak velocity during blends)
     int on_final_decel;
+    int blend_prev;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
