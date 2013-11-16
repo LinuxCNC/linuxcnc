@@ -105,11 +105,10 @@ STATIC inline double tpGetFinalVel(TP_STRUCT const * const tp, TC_STRUCT const *
 }
 
 STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type ==
+    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type == 
             TC_CIRCULAR || tc->blend_prev || tc->islast) {
         return tc->maxaccel * 0.5;
     } else if (tc->term_cond == TC_TERM_COND_TANGENT && tc->motion_type == TC_LINEAR) {
-        //Assume this is a tangent line so we can go full accel
         return tc->maxaccel * 0.5;
     } else {
         return tc->maxaccel;
@@ -694,32 +693,32 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     PmCartesian end = tc->coords.line.xyz.end;
 
     //Store trig functions for later use
-    double Ctheta=cos(theta);
-    double Stheta=sin(theta);
-    double Ttheta=tan(theta);
+    double Ctheta = cos(theta);
+    double Stheta = sin(theta);
+    double Ttheta = tan(theta);
 
     //Find the minimum tolerance (in case it dropped between moves)
-    double T1=prev_tc->tolerance;
-    double T2=tc->tolerance;
+    double T1 = prev_tc->tolerance;
+    double T2 = tc->tolerance;
     double d_tol;
 
     if ( TP_BIG_NUM == T1 && TP_BIG_NUM == T2) {
         d_tol = TP_BIG_NUM;
     } else {
-        double tolerance=fmin(T1,T2);
+        double tolerance = fmin(T1,T2);
 
         tp_debug_print(" Blend Tolerance = %f\n",tolerance);
 
         double tmp = 1.0 - Stheta;
         double h_tol;
         if (tmp>TP_ANGLE_EPSILON) {
-            h_tol=tolerance/tmp;
+            h_tol = tolerance/tmp;
         } else {
             tp_debug_print("intersection angle theta = %f, too close to tangent\n",theta);
             return TP_ERR_FAIL;
         }
 
-        d_tol=Ctheta*h_tol;
+        d_tol = Ctheta*h_tol;
     }
 
     double R_final = 0.0;
@@ -746,7 +745,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // Do 1/3 blending since we can't absorb the previous
     double d_next = fmin(L2 * blend_ratio, tc->target);
 
-    double d_geom=fmin(fmin(d_prev, d_next), d_tol);
+    double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
     double R_geom = Ttheta * d_geom;
 
@@ -754,19 +753,20 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("R_geom = %f\n",R_geom);
 
     //Calculate limiting velocity due to radius and normal acceleration
-    double v_normal=pmSqrt(a_n_max*R_geom);
+    double v_normal = pmSqrt(a_n_max*R_geom);
+
 
     //The new upper bound is the lower of the two speeds
-    v_final=fmin(v_req, v_normal);
+    v_final = fmin(v_req, v_normal);
     tp_debug_print("v_normal = %f\n",v_normal); 
     tp_debug_print("v_final = %f\n",v_final); 
 
     //At this new limiting velocity, find the radius by the reverse formula
 
-    double R_normal=pmSq(v_final)/a_n_max;
+    double R_normal = pmSq(v_final)/a_n_max;
 
     // Final radius calculations
-    R_final=fmin(R_normal, R_geom);
+    R_final = fmin(R_normal, R_geom);
     tp_debug_print("R_final = %f\n",R_final); 
 
     //Check for segment length limits
@@ -780,10 +780,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
-    double v_parabolic=0.0;
+    double v_parabolic = 0.0;
     tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
-    //FIXME need blend acceleration here
-    /*double v_prev_parabolic=pmSqrt(prev_tc->target * tpGetScaledAccel(tp,tc));*/
 
     /* Additional quality / performance checks: If we aren't moving faster than
      * the equivalent parabolic blend, then fall back to parabolic 
@@ -794,7 +792,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     
     double tc_reqvel = fmin(tc->reqvel,L_next / min_segment_time);
     v_final = fmin(v_final, s_arc / min_segment_time);
-    double prev_reqvel=0.0;
+    double prev_reqvel = 0.0;
     if (L_prev > 0.0) {
         prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
     }
@@ -808,11 +806,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //Make the prev segment and it's blend arc have the same velocity
     //TODO how well does this handle big segments?
 
-#ifdef TP_SMOOTHING
-    v_final = smooth_vel;
-    prev_tc->reqvel = smooth_vel;
-    tc->reqvel = smooth_vel;
-#endif
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
@@ -820,6 +813,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         tp_debug_print("Blend radius too small, aborting...\n");
         return TP_ERR_FAIL;
     }
+
+#ifdef TP_SMOOTHING
+    v_final = smooth_vel;
+    prev_tc->reqvel = smooth_vel;
+    tc->reqvel = smooth_vel;
+#endif
 
     gdb_fake_assert(a_max < TP_ACCEL_EPSILON);
 
@@ -829,7 +828,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle); 
 
-    tpInitBlendArc(tp, prev_tc, blend_tc, v_final, v_max, a_max);
+    //set the max velocity to v_normal, since we'll violate constraints otherwise.
+    tpInitBlendArc(tp, prev_tc, blend_tc, v_final, v_normal, a_max);
 
     //TODO setup arc params in blend_tc
     return TP_ERR_OK;
@@ -844,7 +844,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end, int inc_id) {
 
 
-    tc->id=tp->nextId;
+    tc->id = tp->nextId;
     if (inc_id) {
         tp->nextId++;
     }
@@ -888,7 +888,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
     // allow 10 turns of the spindle to stop - we don't want to just go on forever
     tc.target = line_xyz.tmag + 10. * tp->uu_per_rev;
-    tc.nominal_length=-1;
+    tc.nominal_length = -1;
 
     tc.atspeed = 1;
 
@@ -923,7 +923,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
 STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
         TC_STRUCT const * const tc, double period) {
-    double omega=0.0;
+    double omega = 0.0;
 
     if (prev_tc == NULL || tc == NULL) {
         tp_debug_print("prev_tc or tc doesn't exist\n");
@@ -960,14 +960,14 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 
     //If not linear blends, we can't easily compute an arc
     if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
-        tp_debug_print("Wrong motion type tc =%u, tc2=%u\n",
+        tp_debug_print("Wrong motion type tc = %u, tc2 = %u\n",
                 prev_tc->motion_type,tc->motion_type);
         return TP_ERR_FAIL;
     }
 
     //If exact stop, we don't compute the arc
     if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("Wrong term cond =%u\n", prev_tc->term_cond);
+        tp_debug_print("Wrong term cond = %u\n", prev_tc->term_cond);
         return TP_ERR_FAIL;
     }
 
@@ -1008,10 +1008,10 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     pmCartLineInit(&tc->coords.line.xyz, &end_xyz, &tc->coords.line.xyz.end);
 
     tp_debug_print("Old target = %f\n",prev_tc->target);
-    prev_tc->target=prev_tc->coords.line.xyz.tmag;
+    prev_tc->target = prev_tc->coords.line.xyz.tmag;
     tp_debug_print("Target = %f\n",prev_tc->target);
 
-    tc->target=tc->coords.line.xyz.tmag;
+    tc->target = tc->coords.line.xyz.tmag;
 
     //Setup tangent blending constraints
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
@@ -1057,18 +1057,18 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     for (x = 1; x < walk; ++x) {
         //Start at most recently added
 
-        ind=len-x;
-        /*tp_info_print(" x=%u, ind = %u\n", x,ind);*/
+        ind = len-x;
+        /*tp_info_print(" x = %u, ind = %u\n", x,ind);*/
 
-        tc=tcqItem(&tp->queue, ind);
-        prev1_tc=tcqItem(&tp->queue, ind-1);
-        prev2_tc=tcqItem(&tp->queue, ind-2);
+        tc = tcqItem(&tp->queue, ind);
+        prev1_tc = tcqItem(&tp->queue, ind-1);
+        prev2_tc = tcqItem(&tp->queue, ind-2);
 
         if ( !prev1_tc || !tc) {
             tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
         }
-        prev1_tc->islast=0;
+        prev1_tc->islast = 0;
 
         tp_info_print("  prev term = %u, type = %u, id = %u, \n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
@@ -1094,9 +1094,9 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         // Find the reachable velocity of tc, moving backwards in time
         vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
         // Find the reachable velocity of prev1_tc, moving forwards in time
-        double vf2=0.0;
+        double vf2 = 0.0;
         if (prev2_tc) {
-            vf2=prev2_tc->finalvel;
+            vf2 = prev2_tc->finalvel;
         }
 
         vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
@@ -1108,20 +1108,20 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         double vel_limit_prev = fmin(fmin(prev1_tc->maxvel, prev1_tc->reqvel ),v_sample_this);
         double goal_vel = fmin(vel_limit_this,vel_limit_prev);
         double vs = fmin(vs_back,vs_forward);
-        tp_info_print(" goal_vel = %f, vel_limit_prev = %f, vel_limit_this =%f\n",
+        tp_info_print(" goal_vel = %f, vel_limit_prev = %f, vel_limit_this = %f\n",
                 goal_vel, vel_limit_prev,vel_limit_this);
 
         if (vs > goal_vel ) {
             //Found a peak
             vs = goal_vel;
             prev1_tc->finalvel = vs;
-            prev1_tc->atpeak=1;
+            prev1_tc->atpeak = 1;
             tp_debug_print("found peak\n");
         tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
                 prev1_tc->finalvel, tc->finalvel);
         } else {
             prev1_tc->finalvel = vs;
-            prev1_tc->atpeak=0;
+            prev1_tc->atpeak = 0;
         }
         if (tc->atpeak) {
             return TP_ERR_OK;
@@ -1213,7 +1213,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
 
             tp_debug_print("Line already tangent\n");
             //already tangent
-            prev_tc->term_cond=TC_TERM_COND_TANGENT;
+            prev_tc->term_cond = TC_TERM_COND_TANGENT;
             break;
         case TP_ERR_FAIL:
             break;
@@ -1442,7 +1442,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
         return TP_ERR_FAIL;
     }
     
-    double vel=0.0;
+    double vel = 0.0;
     double v_peak_this;
     double v_peak_next;
 
@@ -1492,7 +1492,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
                 vel = tblend_vel;
         }
     }
-    *blend_vel=vel;
+    *blend_vel = vel;
     return TP_ERR_OK;
 }
 
@@ -1526,7 +1526,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     //Clamp the requested velocity by the maximum velocity allowed.
     /*if (tc->term_cond == TC_TERM_COND_TANGENT && tc->reqvel>tc->finalvel && tc->finalvel>TP_MAG_EPSILON) {*/
-        /*tc_reqvel=tc->finalvel;*/
+        /*tc_reqvel = tc->finalvel;*/
     /*}*/
 
     //TODO check if this works with the max velocity slider?
