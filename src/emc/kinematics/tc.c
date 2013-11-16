@@ -42,7 +42,9 @@ int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
         pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
         pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
         pmCartUnit(&tan, &tan);
-
+        //The unit vector's actual direction is adjusted by the normal
+        //acceleration here. This unit vector is NOT simply the tangent
+        //direction.
         pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
         pmCartUnit(&perp, &perp);
 
