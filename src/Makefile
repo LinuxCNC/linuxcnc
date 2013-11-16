@@ -1,6 +1,6 @@
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install python pythonclean cscope
+.PHONY: default userspace modules clean modclean depclean install python pythonclean cscope cscopeclean
 
 # A "trivial build" is one which should not include dependency information
 # either because it should be usable before dependency information can be
@@ -386,7 +386,7 @@ pythonclean:
 	find ../lib/python -name '*.so' -exec rm {} +
 python: $(PYTARGETS)
 userspace: python
-clean: docclean pythonclean
+clean: docclean pythonclean cscopeclean
 endif
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
@@ -1039,5 +1039,8 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	ln -sf $(notdir $<) $@
 
 cscope:
-	cscope -Rbk
+	cscope -Rbq
+
+cscopeclean:
+	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
 # vim:ts=8:sts=8:sw=8:noet:
