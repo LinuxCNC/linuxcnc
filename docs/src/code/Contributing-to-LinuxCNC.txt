@@ -101,7 +101,8 @@ like this:
 
 * Share your changes with the other project developers in one of two ways:
 
-** Push your branch to a publicly visible git repo, or
+** Push your branch to a publicly visible git repo (such as github,
+   bitbucket, your own publicly-accessible server, etc), or
 
 ** Email your commits to the emc-developers mailing list (using `git
    format-patch`)
