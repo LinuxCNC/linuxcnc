@@ -950,27 +950,6 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         return TP_ERR_FAIL;
     }
 
-    // Calculate the maximum angle between unit vectors that can still be
-    // considered "tangent" (i.e. small enough that the
-    // acceleration/deceleration spike is within limits).
-    double crit_angle = TP_ANGLE_EPSILON;
-
-    /*tp_debug_print("max tan angle is %f\n",crit_angle);*/
-    tp_debug_print("angle between segs = %f\n",omega);
-
-    //If the segments are nearly tangent, just treat it as tangent since the
-    //acceleration is within bounds.
-    if (omega < crit_angle) {
-        tp_debug_print("segments nearly tangent\n");
-        return TP_ERR_NO_ACTION;
-    }
-
-    //If the corner is too tight, a circular arc would have zero radius. Fall
-    //back to default blend.
-    if ((PM_PI - omega) < crit_angle ) {
-        tp_debug_print("Corner too tight, omega = %f\n",omega);
-        return TP_ERR_FAIL;
-    }
 
     //If not linear blends, we can't easily compute an arc
     if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
@@ -997,6 +976,31 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         tp_debug_print("UVW motion, can't do 3D arc blend\n");
         return TP_ERR_FAIL;
     }
+
+    // At this point, we have a line, so we can trust the calculation
+    
+    // Calculate the maximum angle between unit vectors that can still be
+    // considered "tangent" (i.e. small enough that the
+    // acceleration/deceleration spike is within limits).
+    double crit_angle = TP_ANGLE_EPSILON;
+
+    /*tp_debug_print("max tan angle is %f\n",crit_angle);*/
+    tp_debug_print("angle between segs = %f\n",omega);
+
+    //If the segments are nearly tangent, just treat it as tangent since the
+    //acceleration is within bounds.
+    if (omega < crit_angle) {
+        tp_debug_print("segments nearly tangent\n");
+        return TP_ERR_NO_ACTION;
+    }
+
+    //If the corner is too tight, a circular arc would have zero radius. Fall
+    //back to default blend.
+    if ((PM_PI - omega) < crit_angle ) {
+        tp_debug_print("Corner too tight, omega = %f\n",omega);
+        return TP_ERR_FAIL;
+    }
+
     return TP_ERR_OK;
 }
 
