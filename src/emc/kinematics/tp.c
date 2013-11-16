@@ -48,7 +48,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_ARC_BLENDS
 #define TP_FALLBACK_PARABOLIC
-#define TP_SMOOTH_VEL
+#define TP_SMOOTHING
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -110,7 +110,7 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
         return tc->maxaccel * 0.5;
     } else if (tc->term_cond == TC_TERM_COND_TANGENT && tc->motion_type == TC_LINEAR) {
         //Assume this is a tangent line so we can go full accel
-        return tc->maxaccel;
+        return tc->maxaccel * 0.5;
     } else {
         return tc->maxaccel;
     }
@@ -472,12 +472,9 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     //Note: capping reqvel here since maxvel never changes for a given segment
     tc->reqvel = fmin(vel,ini_maxvel);
 
-#ifdef TP_CHECK_MORE
     if (tc->reqvel <= 0) {
-        tp_debug_print(" Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
+        rtapi_print_msg(RTAPI_MSG_ERR," Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
     }
-
-#endif
 
     tc->active = 0;
 
@@ -602,6 +599,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 /**
  * Find the minimum segment length for a given velocity and timestep.
  */
+#if 0
 STATIC double tpCalculateMinLength(double velocity, double dt, double * const out) {
      if (dt<=0) {
          return TP_ERR_FAIL;
@@ -614,11 +612,16 @@ STATIC double tpCalculateMinLength(double velocity, double dt, double * const ou
      *out = 2.0*velocity/dt;
      return TP_ERR_OK;
 }
+#endif
+
 
 // Safe acceleration limit is to use the lowest bound on the linear axes,
 // rather than using the trajectory max accels. These are computed with the
 // infinity norm, which means we can't just assume that the smaller of the two is within the limits.
-STATIC int tpGetMachineLimits(double * const acc_limit, double * const vel_limit) {
+STATIC int tpGetMachineAccelLimit(double * const acc_limit) { 
+    if (!acc_limit) {
+        return TP_ERR_FAIL;
+    }
 
     PmCartesian acc_bound;
     //FIXME check for number of axes first!
@@ -628,6 +631,16 @@ STATIC int tpGetMachineLimits(double * const acc_limit, double * const vel_limit
 
     *acc_limit=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
     tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
+    return TP_ERR_OK;
+}
+    
+
+    
+STATIC int tpGetMachineVelLimit(double * const vel_limit) {
+
+    if (!vel_limit) {
+        return TP_ERR_FAIL;
+    }
 
     PmCartesian vel_bound;
     //FIXME check for number of axes first!
@@ -665,7 +678,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double min_segment_time = tp->cycleTime * min_segment_cycles;
 
     double a_max, v_max;
-    tpGetMachineLimits(&a_max, &v_max); 
+    tpGetMachineAccelLimit(&a_max);
+    tpGetMachineVelLimit(&v_max); 
     double a_n_max=a_max*pmSqrt(3.0)/2.0;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
@@ -794,9 +808,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //Make the prev segment and it's blend arc have the same velocity
     //TODO how well does this handle big segments?
 
+#ifdef TP_SMOOTHING
     v_final = smooth_vel;
     prev_tc->reqvel = smooth_vel;
     tc->reqvel = smooth_vel;
+#endif
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
@@ -996,7 +1012,11 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     tp_debug_print("Target = %f\n",prev_tc->target);
 
     tc->target=tc->coords.line.xyz.tmag;
+
+    //Setup tangent blending constraints
     prev_tc->term_cond = TC_TERM_COND_TANGENT;
+    /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
+    tpGetMachineAccelLimit(&prev_tc->maxaccel);
 
     if (prev_tc->target <= TP_MAG_EPSILON ) {
         tp_debug_print("Flagged prev_tc for removal\n");
@@ -1156,9 +1176,10 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
                 return TP_ERR_FAIL;
             }
 
-            int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
+            tcConnectBlendArc(prev_tc, tc, &blend_tc);
             //Don't bother clipping segments since we can't do it reliably
 #if 0
+            int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
             if ( TP_ERR_REMOVE_LAST == arc_connect_stat) {
                 //Remove previous segment that is now zero length
                 int trim_fail = tcqPopBack(&tp->queue);
@@ -1495,7 +1516,7 @@ STATIC double saturate(double x, double max) {
  * allow a non-zero velocity at the instant the target is reached.
  */
 void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    double discr, maxnewvel, newvel, newaccel=0, delta_pos;
+    double discr, maxnewvel, newvel, newaccel=0.0, delta_pos;
     double discr_term1, discr_term2, discr_term3;
    
     // Find maximum allowed velocity from feed and machine limits
@@ -1575,6 +1596,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
             newvel = tp->vLimit;
         }
 
+        newaccel = 0.0;
         // get acceleration to reach newvel, bounded by machine maximum
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
         newaccel = saturate(newaccel, maxaccel);
@@ -1586,9 +1608,8 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         tc->currentvel = newvel;
     }
-    tc_debug_print("TC result: v = %f, dtg = %f, vf = %f, T = %f, P = %f\n",
-            newvel, tc->target-tc->progress,
-            tc_finalvel, tc->target, tc->progress);
+
+    tc_debug_print("tcRunCycle: v = %f, vf = %f, acc = %f,T = %f, P = %f\n", newvel, tc_finalvel, newaccel, tc->target, tc->progress);
     tc->on_final_decel = (fabs(maxnewvel - newvel) < 0.001) && (newaccel < 0.0);
     if (tc->on_final_decel) {
         tc_debug_print("on final decel\n");
@@ -1834,7 +1855,7 @@ STATIC TC_STRUCT * tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT *
     // spindle position so the next synced move can be in
     // the right place.
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "Finished tc id %d", tc->id);
+    rtapi_print_msg(RTAPI_MSG_DBG, "Finished tc id %d\n", tc->id);
     if(tc->synchronized != TC_SYNC_NONE)
         tp->spindle.offset += tc->target/tc->uu_per_rev;
     else
@@ -2031,6 +2052,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     tc->on_final_decel = 0;
 
     if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
+        tp_debug_print("Setting up position sync\n");
         // if we aren't already synced, wait
         tp->spindle.waiting_for_index = tc->id;
         // ask for an index reset
