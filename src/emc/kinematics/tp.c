@@ -1072,7 +1072,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     }
 
     tp_debug_print("  queue _len = %d\n", len);
-    for (x = 1; x < walk; ++x) {
+    for (x = 2; x < walk; ++x) {
         //Start at most recently added
 
         ind = len-x;
@@ -1088,8 +1088,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         }
         prev1_tc->islast = 0;
 
-        tp_info_print("  prev term = %u, type = %u, id = %u, \n",
-                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
@@ -1104,6 +1102,11 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
                     ind-1,prev1_tc->progress);
             return TP_ERR_OK;
         }
+
+        tp_info_print("  current term = %u, type = %u, id = %u, \n",
+                tc->term_cond, tc->motion_type, tc->id);
+        tp_info_print("  prev term = %u, type = %u, id = %u, \n",
+                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
 
         //Calculate the maximum starting velocity vs_back of segment tc, given the
         //trajectory parameters
@@ -1124,14 +1127,14 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         double vel_limit_this = fmin(tc->maxvel, tc->reqvel );
         //Limit the PREVIOUS velocity by how much we can overshoot into 
         double vel_limit_prev = fmin(fmin(prev1_tc->maxvel, prev1_tc->reqvel ),v_sample_this);
-        /*double vel_limit = fmin(vel_limit_this,vel_limit_prev);*/
+        double vel_limit = fmin(vel_limit_this,vel_limit_prev);
         double vs = fmin(vs_back,vs_forward);
         tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",
                 vel_limit_prev,vel_limit_this);
 
-        if (vs >= vel_limit_prev ) {
+        if (vs >= vel_limit ) {
             //If we've hit the requested velocity, then prev_tc is definitely a "peak"
-            vs = vel_limit_prev;
+            vs = vel_limit;
             prev1_tc->atpeak = 1;
             tp_debug_print("found peak due to v_limit\n");
         } else {
@@ -1562,7 +1565,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     double maxaccel = tpGetScaledAccel(tp, tc);
     gdb_fake_assert(maxaccel<TP_ACCEL_EPSILON);
 
-    tc_debug_print(" runcycle state: vr = %f, vf = %f, maxvel = %f\n",tc_target_vel,tc_finalvel,tc->maxvel);
 
     discr_term1 = pmSq(tc_finalvel);
     discr_term2 = maxaccel * (2.0 * delta_pos - tc->currentvel * tc->cycle_time);
@@ -1609,7 +1611,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
             newvel = tp->vLimit;
         }
 
-        newaccel = 0.0;
         // get acceleration to reach newvel, bounded by machine maximum
         newaccel = (newvel - tc->currentvel) / tc->cycle_time;
         newaccel = saturate(newaccel, maxaccel);
@@ -1619,10 +1620,16 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         // Note that progress can be greater than the target after this step.
         // TODO: handle this in tp
         tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
-        tc->currentvel = newvel;
+    }
+    tc->currentvel = newvel;
+    if (tc->currentvel > tc->target_vel) {
+        tc_debug_print("Warning: exceeding target velocity!\n");
     }
 
-    tc_debug_print("tcRunCycle: v = %f, vf = %f, acc = %f,T = %f, P = %f\n", newvel, tc_finalvel, newaccel, tc->target, tc->progress);
+    tc_debug_print("tc       : vr = %f, vf = %f, maxvel = %f, current_vel = %f\n", 
+            tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel);
+    tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
+            newvel, newaccel, tc->target, tc->progress);
     tc->on_final_decel = (fabs(maxnewvel - newvel) < 0.001) && (newaccel < 0.0);
     if (tc->on_final_decel) {
         tc_debug_print("on final decel\n");
@@ -1762,6 +1769,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
 STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * nexttc) {
 
+    double save_vel = nexttc->target_vel;
     if (tpGetFeedScale(tp,nexttc) > 0.0) {
         nexttc->target_vel =  ((tc->vel_at_blend_start - tc->currentvel) / tpGetFeedScale(tp, nexttc));
     } else {
@@ -1770,7 +1778,7 @@ STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     tcRunCycle(tp, nexttc);
     //Restore the blend velocity
-    nexttc->target_vel = nexttc->reqvel;
+    nexttc->target_vel = save_vel;
 
 }
 
