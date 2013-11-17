@@ -212,11 +212,11 @@ Total number of transactions returning a Modbus error.
 .IP <name>.error-code\ (s32,\ out)
 Most recent Error Code from VFD.
 .B
+.IP <name>.frequency-limit\ (float,\ out)
+Upper limit read from VFD setup.
+.B
 
 .SH PARAMETERS
-.B
-.IP <name>.frequency-limit\ (float,\ RO)
-upper limit read from VFD setup.
 .B
 .IP <name>.loop-time\ (float,\ RW)
 How often the Modbus is polled (default interval 0.1 seconds).
