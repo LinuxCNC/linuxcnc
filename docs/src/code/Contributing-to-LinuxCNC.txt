@@ -201,7 +201,7 @@ possibly editing commits, dropping commits, or squashing (combining)
 commits with others.  Rebase can also be used to split individual commits
 into multiple new commits.
 
-===  Making sure every commit builds
+===  Make sure every commit builds
 
 If your change consists of several patches, `git rebase -i` may be used to
 reorder these patches into a sequence of commits which more clearly lays
