@@ -3252,11 +3252,11 @@ for app in tkapps:
 
 o.update_idletasks()
 
-import _tk_seticon
-from rs274.icon import icon
-_tk_seticon.seticon(root_window, icon)
-_tk_seticon.seticon(widgets.about_window, icon)
-_tk_seticon.seticon(widgets.help_window, icon)
+
+icons = (root_window.tk.call("load_image", "axis-48x48"),
+         root_window.tk.call("load_image", "axis-24x24"))
+for win in root_window, widgets.about_window, widgets.help_window:
+    root_window.tk.call("wm", "iconphoto", win, *icons)
 
 vars.kinematics_type.set(s.kinematics_type)
 vars.max_queued_mdi_commands.set(int(inifile.find("TASK", "MDI_QUEUED_COMMANDS") or  10))
