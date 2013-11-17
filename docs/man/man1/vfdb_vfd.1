@@ -162,7 +162,7 @@ True when the VFD reports 0 Hz output.
 1 for ON and 0 for OFF, enables the VFD-B 'jog mode'. Speed control
 is disabled.  This might be useful for spindle orientation.
 .B
-.IP <name>.max-rpm\ (float,\ R)
+.IP <name>.max-rpm\ (float,\ out)
 Actual RPM limit based on maximum frequency the VFD may generate, and
 the motors nameplate values. For instance, if
 .I nameplate-HZ
@@ -203,7 +203,7 @@ during spindle positioning.
 .IP <name>.status\ (s32,\ out)
 Drive Status of the VFD (see the VFD manual). A bitmap.
 .B
-.IP <name>.error-count\ (s32,\ RW)
+.IP <name>.error-count\ (s32,\ out)
 Total number of transactions returning a Modbus error.
 .B
 
