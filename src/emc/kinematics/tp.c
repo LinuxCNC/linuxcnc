@@ -760,6 +760,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     /*const double max_blend_ratio = 0.5;*/
     /*const double max_blend_ratio = 0.3;*/
     double blend_ratio = fmin(d_prev/L1,max_blend_ratio);
+
+
     tp_debug_print(" blend ratio = %f\n",blend_ratio);
 
     // Do 1/3 blending since we can't absorb the previous
@@ -830,12 +832,14 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-    //Do this with optimization
-#ifdef TP_SMOOTHING
-    v_final = smooth_vel;
-    prev_tc->target_vel = smooth_vel;
-    tc->reqvel = fmin(v_final,tc->reqvel);
-#endif
+    //Define smoothing based on blend ratio: 
+    if (blend_ratio >= TP_MIN_BLEND_RATIO){
+
+        v_final = smooth_vel;
+        prev_tc->target_vel = smooth_vel;
+        tc->target_vel = fmin(v_final,tc->reqvel);
+    }
+
 
     //TODO Recycle calculations?
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_final);
