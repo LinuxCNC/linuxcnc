@@ -1,6 +1,6 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
-.TH hm2_tram_add_bspi_frame "3hm2" "2011-05-31" "EMC Documentation" "Hostmot2"
+.TH hm2_tram_add_bspi_frame "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
 .SH NAME
 
 hm2_tram_add_bspi_frame \- add a register-write to the Hostmot2 TRAM
