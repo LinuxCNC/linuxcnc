@@ -138,16 +138,9 @@ True when drive is at commanded speed (see
 speed-tolerance
 below)
 .B
-.IP <name>.current-load-percentage\ (float,\ out)
-reported from the VFD
-.B
 .IP <name>.enable\ (bit,\ in)
 Enable the VFD. If False, all operating parameters are still read but
 control is released and panel control is enabled (subject to VFD setup).
-.B
-.IP <name>.err-reset\ (bit,\ in)
-reset errors (alarms a.k.a Trip and e-stop status). Resetting the VFD may
-cause a 2-second delay until it's rebooted and Modbus is up again.
 .B
 .IP <name>.frequency-command\ (float,\ out)
 Current target frequency in HZ as set through speed-command (which is in
@@ -189,11 +182,6 @@ transactions returned without error.
 .IP <name>.motor-RPM\ (float,\ out)
 Estimated current RPM value, from the VFD.
 .B
-.IP <name>.output-current-percentage\ (float,\ out)
-from the VFD
-.B
-.IP <name>.output-voltage-percentage\ (float,\ out)
-from the VFD
 .B
 .IP <name>.output-voltage\ (float,\ out)
 From the VFD.
