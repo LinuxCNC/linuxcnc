@@ -188,6 +188,9 @@ Estimated current RPS value, from the VFD.
 .IP <name>.output-voltage\ (float,\ out)
 From the VFD.
 .B
+.IP <name>.output-current\ (float,\ out)
+From the VFD.
+.B
 .IP <name>.speed-command\ (float,\ in)
 Speed sent to VFD in RPM. It is an error to send a speed faster than the
 Motor Max RPM as set in the VFD.
@@ -205,6 +208,9 @@ Drive Status of the VFD (see the VFD manual). A bitmap.
 .B
 .IP <name>.error-count\ (s32,\ out)
 Total number of transactions returning a Modbus error.
+.B
+.IP <name>.error-code\ (s32,\ out)
+Most recent Error Code from VFD.
 .B
 
 .SH PARAMETERS
