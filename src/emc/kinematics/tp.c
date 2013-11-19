@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-/*#define TP_DEBUG*/
-/*#define TC_DEBUG*/
+#define TP_DEBUG
+#define TC_DEBUG
 /*#define TP_POSITION_LOGGING*/
-/*#define TP_INFO_LOGGING*/
+#define TP_INFO_LOGGING
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -79,6 +79,13 @@ STATIC int gdb_fake_assert(int condition){
  * segment's feed override, while taking into account the status of tp itself.
  */
 
+
+STATIC int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
+    tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
+    tc->term_cond = term_cond;
+    return 0;
+}
+
 /**
  * Get a TC's feed rate override based on emcmotStatus.
  * This function is designed to eliminate duplicate states, since this leads to bugs.
@@ -114,7 +121,11 @@ STATIC inline double tpGetGoalVel(TP_STRUCT const * const tp, TC_STRUCT const * 
  * final velocity to the maximum velocity and the requested velocity.
  */
 STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc),tc->maxvel);
+    if (emcmotDebug->stepping) {
+        return 0.0;
+    } else {
+        return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc),tc->maxvel);
+    }
 }
 
 STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
@@ -603,7 +614,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
     blend_tc->target = length;
     //Blend arc specific settings:
-    blend_tc->term_cond = TC_TERM_COND_TANGENT;
+    tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
     blend_tc->tolerance = 0.0;
     blend_tc->reqvel = vel;
     blend_tc->target_vel = vel;
@@ -762,6 +773,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     // Do 1/3 blending since we can't absorb the previous
     double d_next = fmin(L2 * blend_ratio, tc->target);
+    d_prev = fmin(L1 * blend_ratio, d_prev);
 
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
@@ -848,20 +860,34 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-    //Define smoothing based on blend ratio: 
-    if (blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+    double prev_blend_ratio = d_plan / L1;
+    tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
+
+    // Optionally enable prev smoothing
+    if (blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+        tp_debug_print(" prev smoothing enabled\n");
 
         prev_tc->target_vel = smooth_vel;
-        tc->target_vel = fmin(v_actual,tc->reqvel);
 
         //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
         prev_tc->maxvel = fmin(prev_tc->maxvel,v_plan);
-        tc->maxvel = fmin(tc->maxvel,v_plan);
-        tc->smoothing = 1;
         prev_tc->smoothing = 1;
-        blend_tc->smoothing = 1;
+        /*blend_tc->smoothing = 1;*/
     }
 
+    // Optionally enable next smoothing
+    double next_blend_ratio = d_plan / L2;
+    tp_debug_print(" next blend ratio = %f\n",next_blend_ratio);
+    if (next_blend_ratio >= TP_MIN_BLEND_RATIO && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+        tp_debug_print(" next smoothing enabled\n");
+
+        tc->target_vel = fmin(v_actual,tc->reqvel);
+
+        //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
+        tc->maxvel = fmin(tc->maxvel,v_plan);
+        tc->smoothing = 1;
+        /*blend_tc->smoothing = 1;*/
+    }
     
     //TODO Recycle calculations?
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_plan);
@@ -1058,7 +1084,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     tc->target = tc->coords.line.xyz.tmag;
 
     //Setup tangent blending constraints
-    prev_tc->term_cond = TC_TERM_COND_TANGENT;
+    tcSetTermCond(prev_tc,  TC_TERM_COND_TANGENT);
     /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
     tpGetMachineAccelLimit(&prev_tc->maxaccel);
 
@@ -1146,8 +1172,10 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     //Always clamp the maximum velocities by the sampling limit
     prev1_tc = tcqItem(&tp->queue,len-2);
 
-    double Ts = 2.0 * tp->cycleTime;
-    prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
+    if (prev1_tc && prev1_tc->term_cond == TC_TERM_COND_TANGENT) {
+        double Ts = 2.0 * tp->cycleTime;
+        prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
+    }
 
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
@@ -1188,7 +1216,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         if (tc->atpeak) {
             return TP_ERR_OK;
         }
-
 
     }
     tp_debug_print("Reached optimization depth limit\n");
@@ -1262,7 +1289,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
 
             tp_debug_print("Line already tangent\n");
             //already tangent
-            prev_tc->term_cond = TC_TERM_COND_TANGENT;
+            tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
             tc->maxvel = fmin(tc->maxvel, 0.5 * tc->target / tp->cycleTime);
 
             break;
@@ -1584,6 +1611,10 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc_finalvel = tc_target_vel;
     }
 
+    if (tc_finalvel > 0.0 && tc->term_cond != TC_TERM_COND_TANGENT) {
+        tc_debug_print("Warning: nonzero final velocity with non-tangent segment!\n");
+    }
+
     if (!tc->blending_next) {
         tc->vel_at_blend_start = tc->currentvel;
     }
@@ -1646,8 +1677,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         // update position in this tc using trapezoidal integration
         // Note that progress can be greater than the target after this step.
         double progress =  tc->progress + (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
-        if (progress > tc->target && tc->term_cond == TC_TERM_COND_TANGENT) {
-            // Choose to magically be at our goal velocity since we're not going to exactly hit the target distance.
+        if (progress > tc->target) {
+            tc_debug_print("passed target on tangent move, seeking finalvel\n");
+            //Seek the goal velocity within bounds of acceleration
             newvel = tc_finalvel;
             newaccel = (newvel - tc->currentvel) / tc->cycle_time;
             newaccel = saturate(newaccel, maxaccel);
@@ -2014,11 +2046,11 @@ STATIC int tpCheckWaiting(TP_STRUCT * const tp, TC_STRUCT const * const tc) {
  * at the end of a path).
  */
 STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, int stepping) {
+        TC_STRUCT * const tc) {
 
     TC_STRUCT * nexttc = NULL;
 
-    if(!stepping && tc->term_cond)
+    if(!emcmotDebug->stepping && tc->term_cond)
         nexttc = tcqItem(&tp->queue, 1);
     else
         nexttc = NULL;
@@ -2345,7 +2377,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     tc_debug_print("-------------------\n");
-    nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
+    nexttc = tpGetNextTC(tp, tc);
 
 #ifdef TP_POSITION_LOGGING
     double s_init,s_init_next;
