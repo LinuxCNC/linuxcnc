@@ -481,7 +481,6 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->progress = 0.0;
     tc->maxaccel = acc;
-    tc->currentaccel = 0;
     tc->maxvel = ini_maxvel;
     //Store this verbatim, as it may affect expectations about feed rate.
     //Capping at maxvel means linear reduction from 100% to zero, which may be confusing.
@@ -1645,9 +1644,12 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         // update position in this tc using trapezoidal integration
         // Note that progress can be greater than the target after this step.
         double progress =  tc->progress + (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
-        if (progress > tc->target) {
-            //Cruise at current rate since we're doomed to overshoot anyway
-            newvel = tc->currentvel;
+        if (progress > tc->target && tc->term_cond == TC_TERM_COND_TANGENT) {
+            // Choose to magically be at our goal velocity since we're not going to exactly hit the target distance.
+            maxnewvel = tc_finalvel;
+            newaccel = (newvel - tc->currentvel) / tc->cycle_time;
+            newaccel = saturate(newaccel, maxaccel);
+            newvel = tc->currentvel + newaccel * tc->cycle_time;
             tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         } else {
             tc->progress = progress;
@@ -1655,7 +1657,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
             
     }
     tc->currentvel = newvel;
-    tc->currentaccel = newaccel;
     if (tc->currentvel > tc->target_vel) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
