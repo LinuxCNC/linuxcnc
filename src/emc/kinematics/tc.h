@@ -93,6 +93,7 @@ typedef struct {
 
     //Acceleration
     double maxaccel;        // accel calc'd by task
+    double currentaccel;    
     
     int id;                 // segment's serial number
 

@@ -46,9 +46,6 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #include "tp_debug.h"
 
-
-double debug_mag = 0.0;
-
 #define TP_ARC_BLENDS
 #define TP_FALLBACK_PARABOLIC
 #define TP_SMOOTHING
@@ -484,6 +481,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->progress = 0.0;
     tc->maxaccel = acc;
+    tc->currentaccel = 0;
     tc->maxvel = ini_maxvel;
     //Store this verbatim, as it may affect expectations about feed rate.
     //Capping at maxvel means linear reduction from 100% to zero, which may be confusing.
@@ -811,11 +809,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("v_actual = %f\n", v_actual); 
 
     //Check for segment length limits
+#ifdef TP_DEBUG
     double a_n_effective = pmSq(v_plan)/R_plan;
+
     tp_debug_print("effective a_n = %f\n",a_n_effective); 
+#endif
 
     double L_prev = prev_tc->target - d_plan;
+#ifdef TP_DEBUG
     double L_next = tc->target - d_plan;
+#endif
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
@@ -1641,10 +1644,19 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         newvel = tc->currentvel + newaccel * tc->cycle_time;
         // update position in this tc using trapezoidal integration
         // Note that progress can be greater than the target after this step.
-        // TODO: handle this in tp
-        tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+        double progress =  tc->progress + (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+        if (progress > tc->target) {
+            //Cruise at current rate since we're doomed to overshoot anyway
+            newaccel = tc->currentaccel;
+            newvel = tc->currentvel + newaccel * tc->cycle_time;
+            tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+        } else {
+            tc->progress = progress;
+        }
+            
     }
     tc->currentvel = newvel;
+    tc->currentaccel = newaccel;
     if (tc->currentvel > tc->target_vel) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
@@ -2187,7 +2199,7 @@ STATIC int tcIsBlending(TC_STRUCT * const tc) {
 }
 
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, EmcPose * const secondary_before) {
+        TC_STRUCT * const nexttc, EmcPose * const secondary_before, double * const mag) {
     /* Early abort checks here */
 
     //Check if we have valid TC's to blend with
@@ -2242,17 +2254,15 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //Update velocity status based on both tc and nexttc
     emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
 
-    double mag = -1;
-    tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, &mag);
-    tc_debug_print("secondary movement = %f\n",mag);
-    debug_mag += mag;
-    gdb_fake_assert(mag > (nexttc->maxvel * tp->cycleTime));
+    tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, mag);
+    tc_debug_print("secondary movement = %f\n",*mag);
+    gdb_fake_assert(*mag > (nexttc->maxvel * tp->cycleTime));
 
     return TP_ERR_OK;
 }
 
 STATIC int tpDoTangentBlending(TP_STRUCT * const tp, TC_STRUCT * const
-        tc, TC_STRUCT * const nexttc, EmcPose const * const secondary_before) {
+        tc, TC_STRUCT * const nexttc, EmcPose const * const secondary_before, double * const mag) {
     if (!nexttc || !tc) {
         return TP_ERR_NO_ACTION;
     }
@@ -2278,10 +2288,8 @@ STATIC int tpDoTangentBlending(TP_STRUCT * const tp, TC_STRUCT * const
     tpToggleDIOs(tc); //check and do DIO changes
     tpUpdateMovementStatus(tp, tc);
 
-    double mag = -1;
-    tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, &mag);
-    tc_debug_print("secondary movement = %f\n",mag);
-    debug_mag += mag;
+    tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, mag);
+    tc_debug_print("secondary movement = %f\n",*mag);
 
     return TP_ERR_OK;
 }
@@ -2431,18 +2439,19 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     // Update the trajectory planner position based on the results
     tpUpdatePosition(tp, &primary_displacement);
 
-    debug_mag = 0.0;
     /* BLENDING STUFF */
-    tpDoParabolicBlending(tp, tc, nexttc, &secondary_before);
 
-    tpDoTangentBlending(tp, tc, nexttc, &secondary_before);
+    double mag1=0;
+    tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag1);
 
-    double mag = -1;
-    tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag);
-    tc_debug_print("primary movement = %f\n", mag);
-    gdb_fake_assert(mag > (tc->maxvel * tp->cycleTime));
-    debug_mag += mag;
-    tc_debug_print("total movement = %f\n", mag);
+    double mag2=0;
+    tpDoTangentBlending(tp, tc, nexttc, &secondary_before, &mag2);
+
+    double mag3=0;
+    tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
+    tc_debug_print("primary movement = %f\n", mag3);
+    gdb_fake_assert(mag3 > (tc->maxvel * tp->cycleTime));
+    tc_debug_print("total movement = %f\n", mag1+mag2+mag3);
 
 #ifdef TP_POSITION_LOGGING
     double delta_s = tc->progress-s_init;
