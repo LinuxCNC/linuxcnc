@@ -34,7 +34,7 @@
  */
 
 /*#define TP_DEBUG*/
-#define TC_DEBUG
+/*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
 /*#define TP_INFO_LOGGING*/
 
