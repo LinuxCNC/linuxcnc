@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-#define TP_DEBUG
-/*#define TC_DEBUG*/
+/*#define TP_DEBUG*/
+#define TC_DEBUG
 /*#define TP_POSITION_LOGGING*/
-#define TP_INFO_LOGGING
+/*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -1068,14 +1068,14 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double acc_this = tpGetScaledAccel(tp, tc);
     double acc_prev = tpGetScaledAccel(tp, prev1_tc);
     // Find the reachable velocity of tc, moving backwards in time
-    double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
+    double vs_back = pmSqrt(pmSq(tc->finalvel) +  acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
     double vf2 = 0.0;
     if (prev2_tc) {
         vf2 = prev2_tc->finalvel;
     }
 
-    double vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
+    double vs_forward = pmSqrt(pmSq(vf2) + acc_prev * prev1_tc->target);
 
     //TODO incoporate max feed override
     double vf_limit_this = fmin(tc->maxvel, tc->reqvel );
@@ -1116,20 +1116,23 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
  * a short queue or other conflicts.
  */
 STATIC int tpRunOptimization(TP_STRUCT * const tp) {
-    //Just loop over everything 
-    int ind, x;
-    //Assume that length won't change during a run
-    TC_STRUCT *tc=tcqLast(&tp->queue);
-    TC_STRUCT *prev1_tc=NULL;
-    TC_STRUCT *prev2_tc=NULL;
-    double vs_back=0.0;
-    double vs_forward=0.0;
+    // Pointers to the "current", previous, and 2nd previous trajectory
+    // components. Current in this context means the segment being optimized,
+    // NOT the segment being currently executed in tcRunCycle.
 
+    TC_STRUCT *tc;
+    TC_STRUCT *prev1_tc;
+    TC_STRUCT *prev2_tc;
+
+
+    int ind, x;
     int len = tcqLen(&tp->queue);
     //TODO make lookahead depth configurable from the INI file
     int walk = TP_LOOKAHEAD_DEPTH;
 
-    if (len < 3) {
+
+    //If the queue is not at least 3 elements deep, then we can't optimize
+    if (len < 2) {
         return TP_ERR_OK;
     }
 
@@ -1143,7 +1146,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
     for (x = 2; x < walk; ++x) {
-        //Start at most recently added
 
         // Update the pointers to the 3 queue elements in use
         ind = len-x;
@@ -1155,8 +1157,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
         }
-        //Clamp TC maxvel to sample time
-        tc->maxvel = fmin(tc->maxvel, 0.5 * tc->target / tp->cycleTime);
 
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
