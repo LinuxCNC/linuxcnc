@@ -98,9 +98,6 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
         tc_debug_print("pausing or aborting\n");
         return 0.0;
     } else {
-        /*if (tc->term_cond == TC_TERM_COND_TANGENT && emcmotStatus->net_feed_scale > 1.0) {*/
-            /*return 1.0;*/
-        /*}*/
         return emcmotStatus->net_feed_scale;
     }
 }
@@ -121,7 +118,9 @@ STATIC inline double tpGetGoalVel(TP_STRUCT const * const tp, TC_STRUCT const * 
  * final velocity to the maximum velocity and the requested velocity.
  */
 STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    if (emcmotDebug->stepping) {
+    //If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop
+    //If the term_cond gets changed out from under us, detect this and force final velocity to zero
+    if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
         return 0.0;
     } else {
         return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc),tc->maxvel);
@@ -1165,7 +1164,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 
 
     //If the queue is not at least 3 elements deep, then we can't optimize
-    if (len < 2) {
+    if (len < 3) {
         return TP_ERR_OK;
     }
 
@@ -1601,18 +1600,13 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     // Store a copy of final velocity
     double tc_finalvel = tpGetRealFinalVel(tp,tc);
 
-    //TODO check if this works with the max velocity slider?
-    if (tc_target_vel > tc->maxvel) {
-        tc_target_vel = tc->maxvel;
-    }
-
     //Clamp final velocity to the max velocity we can achieve
     if (tc_finalvel > tc_target_vel) {
         tc_finalvel = tc_target_vel;
     }
 
     if (tc_finalvel > 0.0 && tc->term_cond != TC_TERM_COND_TANGENT) {
-        tc_debug_print("Warning: nonzero final velocity with non-tangent segment!\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "Final velocity of %f with non-tangent segment!\n",tc_finalvel);
     }
 
     if (!tc->blending_next) {
@@ -1655,6 +1649,8 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
             tc->progress = tc->target;
         }
         if (tc->progress < tc->target) {
+            rtapi_print_msg(RTAPI_MSG_ERR,"Undershoot of %f, assumed to be at target\n", tc->target-tc->progress);
+            tc->progress = tc->target;
         }
         tc_debug_print("Setting newvel = %f, with T = %f, P = %f\n", newvel, tc->target, tc->progress);
     } else {
@@ -1678,7 +1674,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         // Note that progress can be greater than the target after this step.
         double progress =  tc->progress + (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         if (progress > tc->target) {
-            tc_debug_print("passed target on tangent move, seeking finalvel\n");
+            tc_debug_print("passed target, recalculate with newvel = finalvel\n");
             //Seek the goal velocity within bounds of acceleration
             newvel = tc_finalvel;
             newaccel = (newvel - tc->currentvel) / tc->cycle_time;
@@ -2058,7 +2054,7 @@ STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
     if( tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
-        tc->term_cond = TC_TERM_COND_STOP;
+        tcSetTermCond(tc,TC_TERM_COND_STOP);
         nexttc = NULL;
     }
 
@@ -2066,7 +2062,7 @@ STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
         // we'll have to wait for the spindle to be at-speed; might as well
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
-        tc->term_cond = TC_TERM_COND_STOP;
+        tcSetTermCond(tc,TC_TERM_COND_STOP);
         nexttc = NULL;
     }
 
