@@ -1647,8 +1647,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         double progress =  tc->progress + (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         if (progress > tc->target) {
             //Cruise at current rate since we're doomed to overshoot anyway
-            newaccel = tc->currentaccel;
-            newvel = tc->currentvel + newaccel * tc->cycle_time;
+            newvel = tc->currentvel;
             tc->progress += (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         } else {
             tc->progress = progress;
