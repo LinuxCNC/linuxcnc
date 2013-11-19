@@ -1062,6 +1062,50 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     return TP_ERR_OK;
 }
 
+STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc, TC_STRUCT const * const prev2_tc) {
+    //Calculate the maximum starting velocity vs_back of segment tc, given the
+    //trajectory parameters
+    double acc_this = tpGetScaledAccel(tp, tc);
+    double acc_prev = tpGetScaledAccel(tp, prev1_tc);
+    // Find the reachable velocity of tc, moving backwards in time
+    double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
+    // Find the reachable velocity of prev1_tc, moving forwards in time
+    double vf2 = 0.0;
+    if (prev2_tc) {
+        vf2 = prev2_tc->finalvel;
+    }
+
+    double vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
+
+    //TODO incoporate max feed override
+    double vf_limit_this = fmin(tc->maxvel, tc->reqvel );
+    //Limit the PREVIOUS velocity by how much we can overshoot into 
+    double vf_limit_prev = fmin(prev1_tc->maxvel, prev1_tc->reqvel);
+    double vf_limit = fmin(vf_limit_this,vf_limit_prev);
+    double vs = fmin(vs_back,vs_forward);
+    tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",
+            vf_limit_prev,vf_limit_this);
+
+    if (vs >= vf_limit ) {
+        //If we've hit the requested velocity, then prev_tc is definitely a "peak"
+        vs = vf_limit;
+        prev1_tc->atpeak = 1;
+        tp_debug_print("found peak due to v_limit\n");
+    } else {
+        prev1_tc->atpeak = 0;
+    }
+
+    //Limit tc's target velocity to avoid creating "humps" in the velocity profile
+    tc->target_vel = fmin(fmax(vs,tc->finalvel),vf_limit_this);
+    prev1_tc->finalvel = vs;
+    prev1_tc->target_vel = fmin(fmax(vf2,vs),vf_limit_prev);
+
+    tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
+            prev1_tc->finalvel, tc->finalvel);
+
+    return TP_ERR_OK;
+}
+
 
 /**
  * Do "rising tide" optimization to find allowable final velocities for each queued segment.
@@ -1082,19 +1126,27 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     double vs_forward=0.0;
 
     int len = tcqLen(&tp->queue);
+    //TODO make lookahead depth configurable from the INI file
     int walk = TP_LOOKAHEAD_DEPTH;
 
     if (len < 3) {
         return TP_ERR_OK;
     }
 
-    tp_debug_print("  queue _len = %d\n", len);
+    //Always clamp the maximum velocities by the sampling limit
+    prev1_tc = tcqItem(&tp->queue,len-2);
+
+    double Ts = 2.0 * tp->cycleTime;
+    prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
+
+    /* Starting at the 2nd to last element in the queue, work backwards towards
+     * the front. We can't do anything with the very last element because its
+     * length may change if a new line is added to the queue.*/
     for (x = 2; x < walk; ++x) {
         //Start at most recently added
 
+        // Update the pointers to the 3 queue elements in use
         ind = len-x;
-        /*tp_info_print(" x = %u, ind = %u\n", x,ind);*/
-
         tc = tcqItem(&tp->queue, ind);
         prev1_tc = tcqItem(&tp->queue, ind-1);
         prev2_tc = tcqItem(&tp->queue, ind-2);
@@ -1120,48 +1172,12 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
+        tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
+
         tp_info_print("  current term = %u, type = %u, id = %u, \n",
                 tc->term_cond, tc->motion_type, tc->id);
         tp_info_print("  prev term = %u, type = %u, id = %u, \n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
-
-        //Calculate the maximum starting velocity vs_back of segment tc, given the
-        //trajectory parameters
-        double acc_this = tpGetScaledAccel(tp, tc);
-        double acc_prev = tpGetScaledAccel(tp, prev1_tc);
-        // Find the reachable velocity of tc, moving backwards in time
-        vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
-        // Find the reachable velocity of prev1_tc, moving forwards in time
-        double vf2 = 0.0;
-        if (prev2_tc) {
-            vf2 = prev2_tc->finalvel;
-        }
-
-        vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
-
-        //TODO incoporate max feed override
-        double vf_limit_this = fmin(tc->maxvel, tc->reqvel );
-        //Limit the PREVIOUS velocity by how much we can overshoot into 
-        double vf_limit_prev = fmin(prev1_tc->maxvel, prev1_tc->reqvel);
-        double vf_limit = fmin(vf_limit_this,vf_limit_prev);
-        double vs = fmin(vs_back,vs_forward);
-        tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",
-                vf_limit_prev,vf_limit_this);
-
-        if (vs >= vf_limit ) {
-            //If we've hit the requested velocity, then prev_tc is definitely a "peak"
-            vs = vf_limit;
-            prev1_tc->atpeak = 1;
-            tp_debug_print("found peak due to v_limit\n");
-        } else {
-            prev1_tc->atpeak = 0;
-        }
-
-        prev1_tc->finalvel = vs;
-        prev1_tc->target_vel = fmin(fmax(vf2,vs),vf_limit_prev);
-        tc->target_vel = fmin(fmax(vs,tc->finalvel),vf_limit_this);
-        tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
-                prev1_tc->finalvel, tc->finalvel);
         if (tc->atpeak) {
             return TP_ERR_OK;
         }
