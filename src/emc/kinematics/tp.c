@@ -48,7 +48,6 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_ARC_BLENDS
 #define TP_FALLBACK_PARABOLIC
-#define TP_SMOOTHING
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -488,7 +487,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->reqvel = vel;
     tc->target_vel = vel;
 
-    if (tc->reqvel <= 0) {
+    if (tc->reqvel < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR," Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
     }
 
@@ -505,6 +504,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->atpeak=0;
     tc->on_final_decel=0;
+    tc->smoothing = 0;
 }
 
 /**
@@ -579,7 +579,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
 
     blend_tc->motion_type = TC_CIRCULAR;
-    blend_tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
+    blend_tc->canon_motion_type = prev_line_tc->canon_motion_type;
 
     blend_tc->synchronized = prev_line_tc->synchronized;
     blend_tc->uu_per_rev = prev_line_tc->uu_per_rev;
@@ -849,7 +849,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
 
     //Define smoothing based on blend ratio: 
-    if (blend_ratio >= TP_MIN_BLEND_RATIO){
+    if (blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
 
         prev_tc->target_vel = smooth_vel;
         tc->target_vel = fmin(v_actual,tc->reqvel);
@@ -857,6 +857,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
         prev_tc->maxvel = fmin(prev_tc->maxvel,v_plan);
         tc->maxvel = fmin(tc->maxvel,v_plan);
+        tc->smoothing = 1;
+        prev_tc->smoothing = 1;
+        blend_tc->smoothing = 1;
     }
 
     
@@ -1096,9 +1099,13 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     }
 
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
-    tc->target_vel = fmin(fmax(vs,tc->finalvel),vf_limit_this);
     prev1_tc->finalvel = vs;
-    prev1_tc->target_vel = fmin(fmax(vf2,vs),vf_limit_prev);
+    if (tc->smoothing) {
+        tc->target_vel = fmin(fmax(vs,tc->finalvel),vf_limit_this);
+    }
+    if (prev1_tc->smoothing) {
+        prev1_tc->target_vel = fmin(fmax(vf2,vs),vf_limit_prev);
+    }
 
     tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
             prev1_tc->finalvel, tc->finalvel);

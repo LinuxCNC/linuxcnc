@@ -21,7 +21,7 @@
 #define TP_DEFAULT_QUEUE_SIZE 32
 //TODO Assign by config file
 #define TP_LOOKAHEAD_DEPTH 30
-#define TP_MIN_BLEND_RATIO 0.1
+#define TP_MIN_BLEND_RATIO 0.2
 
 /* closeness to zero, for determining if a move is pure rotation */
 #define TP_PURE_ROTATION_EPSILON 1e-6
