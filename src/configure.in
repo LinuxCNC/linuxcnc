@@ -2170,12 +2170,9 @@ if test -z "$TKCONFIG"; then
 fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh 2>/dev/null \
+    TKCONFIG=$(find /usr/lib /usr/lib64 /usr/local/lib \
+        -maxdepth 2 -name tkConfig.sh 2>/dev/null \
 	| head -n1)
-    if (test "x$TKCONFIG" = "x"); then
-	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh \
-	    2>/dev/null | head -n1)
-    fi
 fi
 
 if (test "x$TKCONFIG" = "x"); then
