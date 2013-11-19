@@ -11,12 +11,18 @@ rm -f gcode-output
 
 linuxcnc -r sim.ini &
 
+# Post EL6, netcat nc is replaced by nmap, which has no -z equivalent arg
+if test -x /usr/bin/tcping; then
+    TCPING=tcping
+else
+    TCPING="nc -z"
+fi
 
 # let linuxcnc come up
 TOGO=80
 while [  $TOGO -gt 0 ]; do
     echo trying to connect to linuxcncrsh TOGO=$TOGO
-    if nc -z localhost 5007; then
+    if $TCPING localhost 5007; then
         break
     fi
     sleep 0.25
