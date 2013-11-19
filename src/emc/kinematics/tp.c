@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-/*#define TP_DEBUG*/
-#define TC_DEBUG
+#define TP_DEBUG
+/*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
-/*#define TP_INFO_LOGGING*/
+#define TP_INFO_LOGGING
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -120,7 +120,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
 
 STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type == 
-            TC_CIRCULAR || tc->blend_prev || tc->islast) {
+            TC_CIRCULAR || tc->blend_prev) {
         return tc->maxaccel * 0.5;
     } else if (tc->term_cond == TC_TERM_COND_TANGENT && tc->motion_type == TC_LINEAR) {
         return tc->maxaccel * 0.5;
@@ -505,7 +505,6 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->atpeak=0;
     tc->on_final_decel=0;
-    tc->islast=0;
 }
 
 /**
@@ -1060,11 +1059,6 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
     tpGetMachineAccelLimit(&prev_tc->maxaccel);
 
-    if (prev_tc->target <= TP_MAG_EPSILON ) {
-        tp_debug_print("Flagged prev_tc for removal\n");
-        return TP_ERR_REMOVE_LAST;
-    }
-
     return TP_ERR_OK;
 }
 
@@ -1082,7 +1076,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     int ind, x;
     //Assume that length won't change during a run
     TC_STRUCT *tc=tcqLast(&tp->queue);
-    tc->islast=1;
     TC_STRUCT *prev1_tc=NULL;
     TC_STRUCT *prev2_tc=NULL;
     double vs_back=0.0;
@@ -1110,7 +1103,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
         }
-        prev1_tc->islast = 0;
         //Clamp TC maxvel to sample time
         tc->maxvel = fmin(tc->maxvel, 0.5 * tc->target / tp->cycleTime);
 
@@ -1222,19 +1214,6 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             }
 
             tcConnectBlendArc(prev_tc, tc, &blend_tc);
-            //Don't bother clipping segments since we can't do it reliably
-#if 0
-            int arc_connect_stat = tcConnectBlendArc(prev_tc, tc, &blend_tc);
-            if ( TP_ERR_REMOVE_LAST == arc_connect_stat) {
-                //Remove previous segment that is now zero length
-                int trim_fail = tcqPopBack(&tp->queue);
-                if (trim_fail) {
-                    //Really should not happen...
-                    tp_debug_print("Failed to pop last segment!\n");
-                    return TP_ERR_FAIL;
-                } 
-            }
-#endif
 
             tpAddSegmentToQueue(tp, &blend_tc, end,false);
 #if 0
@@ -1646,7 +1625,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         double progress =  tc->progress + (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         if (progress > tc->target && tc->term_cond == TC_TERM_COND_TANGENT) {
             // Choose to magically be at our goal velocity since we're not going to exactly hit the target distance.
-            maxnewvel = tc_finalvel;
+            newvel = tc_finalvel;
             newaccel = (newvel - tc->currentvel) / tc->cycle_time;
             newaccel = saturate(newaccel, maxaccel);
             newvel = tc->currentvel + newaccel * tc->cycle_time;
@@ -2344,7 +2323,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tc_debug_print("-------------------\n");
     nexttc = tpGetNextTC(tp, tc, emcmotDebug->stepping);
-    tc->islast=(!nexttc);
 
 #ifdef TP_POSITION_LOGGING
     double s_init,s_init_next;
