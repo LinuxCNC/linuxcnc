@@ -1962,6 +1962,7 @@ static void update_status(void)
 
     /* check to see if we should pause in order to implement
        single emcmotDebug->stepping */
+
     if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
       tpPause(&emcmotDebug->queue);
       emcmotDebug->stepping = 0;
