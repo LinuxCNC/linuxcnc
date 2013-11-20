@@ -31,6 +31,10 @@
 #include <stdlib.h>
 #endif
 
+#ifndef abs
+int abs(int x) { if(x < 0) return -x; else return x; }
+#endif
+
 /* module information */
 MODULE_AUTHOR("Andy Pugh");
 MODULE_DESCRIPTION("Hal-to-text component for Mesa 7i73 and similar");
