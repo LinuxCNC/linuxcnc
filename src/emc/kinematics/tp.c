@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
-#define TP_DEBUG
-#define TC_DEBUG
+/*#define TP_DEBUG*/
+/*#define TC_DEBUG*/
 /*#define TP_POSITION_LOGGING*/
-#define TP_INFO_LOGGING
+/*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -1640,19 +1640,13 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     if (newvel < 0.0 ) {
         tc_debug_print("newvel = %f\n",newvel);
-        //If we're not hitting a tangent move, then we need to throw out any overshoot to force an exact stop.
-        //FIXME this could mean a momentary spike in acceleration, test to see if it's a problem
-
+        //If we're not hitting a tangent move, then we need to throw out any
+        //overshoot to force an exact stop.
         gdb_fake_assert(fabs(tc->target-tc->progress) > (tc->maxvel * tc->cycle_time));
         newvel = 0.0;
-        if ( !(tc->term_cond == TC_TERM_COND_TANGENT) ) {
-            tc->progress = tc->target;
-        }
-        if (tc->progress < tc->target) {
-            rtapi_print_msg(RTAPI_MSG_ERR,"Undershoot of %f, assumed to be at target\n", tc->target-tc->progress);
-            tc->progress = tc->target;
-        }
-        tc_debug_print("Setting newvel = %f, with T = %f, P = %f\n", newvel, tc->target, tc->progress);
+        tc->progress = tc->target;
+        tc_debug_print("Setting newvel = %f, with T = %f, P = %f\n", 
+                newvel, tc->target, tc->progress);
     } else {
 
         bool is_pure_rotary = (tc->motion_type == TC_LINEAR) &&
@@ -2293,16 +2287,14 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
 STATIC int tpDoTangentBlending(TP_STRUCT * const tp, TC_STRUCT * const
         tc, TC_STRUCT * const nexttc, EmcPose const * const secondary_before, double * const mag) {
-    if (!nexttc || !tc) {
-        return TP_ERR_NO_ACTION;
-    }
 
     int tangent = (tc->term_cond == TC_TERM_COND_TANGENT ) &&
         (tc->target == tc->progress);
 
-    if (!tangent) {
+    if (!tangent || !nexttc) {
+        tpUpdateMovementStatus(tp, tc);
         return TP_ERR_NO_ACTION;
-    }
+    } 
 
     EmcPose secondary_displacement;
     tc_debug_print("Found Tangency at %d, T-P of tc is %f at_endpt = %d\n",
@@ -2316,10 +2308,10 @@ STATIC int tpDoTangentBlending(TP_STRUCT * const tp, TC_STRUCT * const
     tpUpdatePosition(tp, &secondary_displacement);
 
     tpToggleDIOs(tc); //check and do DIO changes
-    tpUpdateMovementStatus(tp, tc);
 
     tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, mag);
     tc_debug_print("secondary movement = %f\n",*mag);
+    tpUpdateMovementStatus(tp, nexttc);
 
     return TP_ERR_OK;
 }
