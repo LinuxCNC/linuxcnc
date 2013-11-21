@@ -22,6 +22,7 @@
 //TODO Assign by config file
 #define TP_LOOKAHEAD_DEPTH 30
 #define TP_MIN_BLEND_RATIO 0.3
+#define TP_MAX_FEED_SCALE 1.5
 
 /* closeness to zero, for determining if a move is pure rotation */
 #define TP_PURE_ROTATION_EPSILON 1e-6

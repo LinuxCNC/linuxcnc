@@ -102,6 +102,18 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
     }
 }
 
+#if 0
+//Get worst case final velocity to check for overshooting
+STATIC double tpGetMaxFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+
+    if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION ) {
+        return 1.0*tc->finalvel;
+    } else {  
+        return fmin(fmin(tc->finalvel,tc->target_vel) * TP_MAX_FEED_SCALE,tc->maxvel);
+    }
+}
+#endif
+
 
 /**
  * Get the "real" requested velocity for a tc.
@@ -123,6 +135,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
     if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
         return 0.0;
     } else {
+        //TODO eliminate redundant checks here
         return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc),tc->maxvel);
     }
 }
@@ -717,11 +730,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
     //Find common velocity and acceleration
-    const double max_override = 1.2;
     double v_req = fmax(prev_tc->reqvel, tc->reqvel);
-    double v_goal = v_req * max_override;
+    double v_goal = v_req * TP_MAX_FEED_SCALE;
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, v_max = %f, max scale = %f\n", v_goal, v_max, max_override);
+    tp_debug_print("v_goal = %f, v_max = %f, max scale = %f\n", v_goal, v_max, TP_MAX_FEED_SCALE);
 
     //Get 3D start, middle, end position
     PmCartesian start = prev_tc->coords.line.xyz.start;
@@ -815,7 +827,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //We need to unscale the velocity by the max override to get the actual
     //target velocity for the arc.
-    double v_actual = v_plan / max_override;
+    double v_actual = v_plan / TP_MAX_FEED_SCALE;
 
     tp_debug_print("v_actual = %f\n", v_actual); 
 
@@ -1615,6 +1627,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         // update position in this tc using trapezoidal integration
         // Note that progress can be greater than the target after this step.
         tc->progress+= (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+        if (tc->progress > tc->target) {
+            tc_debug_print("passed target!\n");
+        }
     }
 
     tc->currentvel = newvel;
@@ -1622,8 +1637,10 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
 
-    tc_debug_print("tc       : vr = %f, vf = %f, maxvel = %f, current_vel = %f, term = %d\n", 
-            tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,tc->term_cond);
+    
+
+    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f, current_vel = %f, fs = %f, term = %d\n", 
+            tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,tpGetFeedScale(tp,tc),tc->term_cond);
     tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
             newvel, newaccel, tc->target, tc->progress);
     tc->on_final_decel = (fabs(maxnewvel - newvel) < 0.001) && (newaccel < 0.0);
@@ -2228,7 +2245,7 @@ STATIC int tpHandleTangency(TP_STRUCT * const tp,
     tpUpdateMovementStatus(tp, tc);
 
     EmcPose secondary_displacement;
-    tc_debug_print("Found Tangency with next segment %d\n",
+    tc_debug_print("Finishing split-cycle on id %d\n",
             tc->id );
 
     //Run partial cycle on tc
@@ -2388,45 +2405,78 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     double mag2=0;
     // Update the current tc
     if (tc->done) {
-        tp_debug_print("tc id %d done, handling tangent\n",tc->id);
+        tp_debug_print("tc id %d done\n",tc->id);
         tc->progress = tc->target;
         nexttc->currentvel = tc->final_actual_vel;
         tpHandleTangency(tp, nexttc, &secondary_before, &mag2);
     } else {
         tc->cycle_time = tp->cycleTime;
         tcRunCycle(tp, tc);
-    }
 
-    //Check the time remaining to completion, and if we're going to
-    //split a timestep, detect it early and flag the tc as done for
-    //next time.
-    if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT) {
-        //Initial guess at dt for next round
-        double v_f = tpGetRealFinalVel(tp,tc);
-        double dx = tc->target - tc->progress;
-        double dt = 2.0 * dx / (tc->currentvel + v_f);
-        if (dt<=tp->cycleTime ) {
-            //Our initial guess of dt is not perfect, but if the optimizer
-            //works, it will never under-estimate when we cross the threshold.
-            //As such, we can bail here if we're not actually at the last
-            //timestep.
+        //Check the time remaining to completion, and if we're going to
+        //split a timestep, detect it early and flag the tc as done for
+        //next time.
+        if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT) {
+            //Initial guess at dt for next round
+            double dx = tc->target - tc->progress;
+            //Get dt assuming that we can magically reach the final velocity at
+            //the end of the move.
+            double dt = 2.0 * dx / (tc->currentvel + tpGetRealFinalVel(tp,tc));
+
+            //Calculate the acceleration this would take:
+            double v_f = tpGetRealFinalVel(tp,tc);
             double a_f = (v_f - tc->currentvel)/dt;
-            double a = saturate(a_f, tpGetScaledAccel(tp,tc));
+
+            //If this is a valid acceleration, then we're done. If not, then we solve for v_f and dt given a limiting a:
+            double a_max = tpGetScaledAccel(tp,tc);
+            double a = a_f;
+
+            tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n",dx,dt,a_f,v_f);
+            int recalc = 0;
+            if (a_f > a_max) {
+                a = a_max;
+                recalc=1;
+            } else if (a_f < -a_max) {
+                recalc=1;
+                a = -a_max;
+            }
+
             //Need to recalculate vf and above
-            tp_debug_print("Found possible tangency with estimated dt = %f\n",dt);
-            tp_debug_print("v_f = %f, dt = %f, a_f = %f, a = %f\n",v_f,dt,a_f,a);
+            // Change which zero we use based on the sign of a
+            if (recalc) {
 
-            v_f = tc->currentvel + a*dt;
-            tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
-            //TC is done if we're here, so this is just bookkeeping
-            tc->done = 1;
-            tc->final_actual_vel = v_f;
-            nexttc->cycle_time = tp->cycleTime - dt;
-            tp_debug_print("split time is %f\n",nexttc->cycle_time);
-        } else {
-            tp_debug_print("dt not at end yet\n");
+                tp_debug_print("recalculating with a_f = %f, a = %f\n",a_f,a);
+                double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
+                if (disc < 0 ) {
+                    //Should mean that dx is too big, i.e. we're not close enough
+                    /*tp_debug_print("disc < 0 in vf calc!\n");*/
+                } else {
+                    if (a>0) {
+                        dt = -tc->currentvel / a + pmSqrt(disc);
+                    } else {
+                        dt = -tc->currentvel / a - pmSqrt(disc);
+                    }
+                    tp_debug_print(" dt = %f\n", dt);
+                    v_f = tc->currentvel+dt*a;
+                }
+            }
+
+            if (dt<=tp->cycleTime ) {
+                //Our initial guess of dt is not perfect, but if the optimizer
+                //works, it will never under-estimate when we cross the threshold.
+                //As such, we can bail here if we're not actually at the last
+                //timestep.
+
+                tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
+                //TC is done if we're here, so this is just bookkeeping
+                tc->done = 1;
+                tc->final_actual_vel = v_f;
+                nexttc->cycle_time = tp->cycleTime - dt;
+                tp_debug_print("split time is %f\n",nexttc->cycle_time);
+            } else {
+                tp_debug_print("dt =%f, not at end yet\n",dt);
+            }
         }
-
     }
 
     //Update
