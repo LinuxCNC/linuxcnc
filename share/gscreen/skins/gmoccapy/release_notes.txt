@@ -1,3 +1,26 @@
+ver. 0.9.9
+- introduced a new DRO, showing all three positions (Abs, Rel, DTG) at ones
+  user can toggle the DRO by clicking on them
+- The new DRO also indicates the actual coordinate system
+- The new DRO will change its units according to the active gcode (G20 / G21)
+- There are still the three buttons, but they are hidden by default,
+  this can be changed on the settings page, but when the buttons are vissible,
+  the user looses the auto units feature of the DRO
+  Hope too get the permission from the users to delete that button as soon as possible
+- made the documentation for IconViewFileSelection
+- made the documentation for Combi_DRO
+- This change saved some lines of code in gmoccapy.py and made the code
+  a lot easier to understand
+- updated German translation
+- updated Spanish translation
+
+ver. 0.9.8.4
+- diameter dro does not show imperial units, even if machine units are imperial, fixed.
+- tool info only with three digits in imperial mode, now 4 digits
+- active feed and active vel label not in machine units, if in imperial mode, fixed
+- cosmetic changes to gmoccapy_lathe.ini
+- introduced a imperial lathe ini
+
 ver 0.9.8.3
 - BUG: forget to update the cooordiante system after changing the error system,
   causing the ABS/REL button not showing the correct label, fixed

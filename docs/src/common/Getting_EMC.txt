@@ -108,7 +108,7 @@ that anyone can add to or edit.
 The user maintained LinuxCNC Wiki site contains a 
 wealth of information and tips at:
 
-link:http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl[wiki.linuxcnc.org]
+link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
 
 == Getting LinuxCNC
 

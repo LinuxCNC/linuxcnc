@@ -5,7 +5,7 @@ rm -f sim.var
 
 # reset the tool table to a known starting configuration
 rm -f tool.tbl
-cp tool.tbl.orig tool.tbl
+cp tool.tbl.original tool.tbl
 
 rm -f gcode-output
 

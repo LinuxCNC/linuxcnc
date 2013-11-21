@@ -16,6 +16,7 @@ from calculatorwidget import Calculator
 from tooledit_widget import ToolEdit
 from drowidget import HAL_DRO
 from iconview import IconFileSelection
+from combi_dro import Combi_DRO
 from offsetwidget import HAL_Offset
 from offsetpage_widget import OffsetPage
 from hal_bar import HAL_HBar, HAL_VBar

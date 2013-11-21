@@ -1386,7 +1386,7 @@ int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a 
 
   plane = CANON_PLANE_VW;
   if (settings->motion_mode != motion) {
-    CHKS((!block->x_flag),
+    CHKS((!block->u_flag),
         _readers[(int)'u']? NCE_U_VALUE_UNSPECIFIED_IN_VW_PLANE_CANNED_CYCLE: _("G19.1 canned cycle is not possible on a machine without U axis"));
   }
   block->u_number =

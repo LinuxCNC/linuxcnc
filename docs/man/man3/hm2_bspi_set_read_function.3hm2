@@ -1,7 +1,7 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 
-.TH hm2_bspi_set_read_function "3hm2" "2011-05-31" "EMC Documentation" "Hostmot2"
+.TH hm2_bspi_set_read_function "3hm2" "2011-05-31" "LinuxCNC Documentation" "Hostmot2"
 .SH NAME
 
 hm2_bspi_set_read_function \- Register a function to handle the tram write phase

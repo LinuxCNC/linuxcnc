@@ -548,16 +548,17 @@ static void hm2_print_idrom(hostmot2_t *hm2) {
 
 
 static int hm2_read_idrom(hostmot2_t *hm2) {
+    u32 read_data;
 
     //
     // find the idrom offset
     //
 
-    if (!hm2->llio->read(hm2->llio, HM2_ADDR_IDROM_OFFSET, &hm2->idrom_offset, 2)) {
+    if (!hm2->llio->read(hm2->llio, HM2_ADDR_IDROM_OFFSET, &read_data, 4)) {
         HM2_ERR("error reading IDROM Offset\n");
         return -EIO;
     }
-
+    hm2->idrom_offset = read_data & 0xFFFF;
 
     //
     // first read in the idrom type to make sure we know how to deal with it
@@ -1117,14 +1118,6 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         return -EINVAL;
     }
 
-    // NOTE: reset and program_fpga are allowed be NULL
-
-
-    if (config_string == NULL) {
-        HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
-    }
-
-
     //
     // make a hostmot2_t struct to represent this device
     //
@@ -1158,6 +1151,15 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
     }
 
 
+
+    // NOTE: program_fpga will be NULL for 6i25 and 5i25 (and future cards 
+    // with EPROM firmware, probably. 
+
+    if ((llio->program_fpga != NULL) && (hm2->config.firmware == NULL)) {
+        HM2_PRINT_NO_LL("no firmware specified in config modparam!  the board had better have firmware configured already, or this won't work\n");
+    }
+
+    
     //
     // if programming of the fpga is supported by the board and the user
     // requested a firmware file, fetch it from userspace and program

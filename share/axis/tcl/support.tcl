@@ -16,6 +16,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+package require Img
+package require img::png
+
 proc make_color { c d } {
     if {![catch {winfo rgb . $c}]} {
         set d $c
@@ -38,9 +41,13 @@ proc vrule {path args} { eval [concat frame $path $args -class Vrule] }
 proc hrule {path args} { eval [concat frame $path $args -class Hrule] }
 proc tab {path args} { eval [concat frame $path] }
 
-proc find_gif {name} {
+proc find_image {name} {
     set initial [string index $name 0]
     foreach p $::imagedir {
+        set q [file join $p ${name}.png]
+        if {[file exists $q]} { return $q }
+        set q [file join $p $initial ${name}.png]
+        if {[file exists $q]} { return $q }
         set q [file join $p ${name}.gif]
         if {[file exists $q]} { return $q }
         set q [file join $p $initial ${name}.gif]
@@ -53,8 +60,8 @@ proc find_gif {name} {
 proc load_image { name {img ""}} {
     if {$img == ""} { set img icon_$name }
     if {[lsearch [image names] $img] != -1}  { return $img }
-    set file [find_gif $name]
-    image create photo $img -format gif -file $file
+    set file [find_image $name]
+    image create photo $img -file $file
     return $img
 }
 

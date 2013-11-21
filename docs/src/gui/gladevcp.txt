@@ -7,7 +7,7 @@
 // - restructure faq/troubleshooting/notes section
 // - check wiki vs docs
 // - check other gladevcp docs branch against this
-// - when emc action widgits are renamed then re-brand this chapter
+// - when emc action widgets are renamed then re-brand this chapter
 
 
 :ini: {basebackend@docbook:'':ini}
@@ -23,7 +23,7 @@
 
 GladeVCP is an LinuxCNC component which adds the ability to add a new user
 interface panel to LinuxCNC user interfaces like Axis or Touchy. Unlike
-PyVCP, GladeVCP is not limitied to displaying and setting HAL pins, as
+PyVCP, GladeVCP is not limited to displaying and setting HAL pins, as
 arbitrary actions can be executed in Python code - in fact, a
 complete LinuxCNC user interface could be built with GladeVCP and Python.
 
@@ -74,7 +74,7 @@ Configurations > sim > gladevcp' branch.
 
 .Git Checkout
 The following instructions only apply if your using a git checkout. Open a
-terminal and change to the directory created by git then issue the commmands
+terminal and change to the directory created by git then issue the commands
 as shown.
 
 [NOTE]
@@ -178,7 +178,7 @@ displayed, and can be changed, in the right bottom window.
 
 To see how MDI commands are passed from the MDI Action widgets,
 explore the widgets listed under 'Actions' in the top right window,
-and in the right bottom window, unter the 'General' tab, the 'MDI
+and in the right bottom window, under the 'General' tab, the 'MDI
 command' property.
 
 === Exploring the Python callback
@@ -394,7 +394,7 @@ Options:
 
 -t THEME::
     set gtk theme. Default is system theme. Different panels can have different themes.
-    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?GTK_Themes[EMC Wiki].
+    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GTK_Themes[EMC Wiki].
 
 -x XID::
      Re-parent GladeVCP into an existing window XID instead of creating a
@@ -475,6 +475,9 @@ label your panel.
    <<gladevcp:HAL_Scales,HAL_HScale and HAL_VScale>>
  - Helper widgets: <<gladevcp:HAL_HBox_Table,HAL_HBox and HAL_Table>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
+ - Widgets to show axis positions: <<gladevcp::DRO_widget, DRO Widget>>,
+   <<gladevcp::Combi_DRO, Combi DRO Widget>>
+ - Widgets for file handling: <<gladevcp::IconView, IconView File Selection>>
 
 === Widget and HAL pin naming
 
@@ -981,6 +984,7 @@ Hints::
 Example:
 image:images/gremlin.png[]
 
+[[gladevcp::DRO_widget]]
 === DRO widget
 The DRO widget is used to display the current axis position.
 It has the following properties:
@@ -993,7 +997,7 @@ Text template for imperial units::
     You can use python formatting to display the position with different precision.
 Reference Type::
     Absolute (machine origin), Relative (to current user coordinate origin - G5x)
-    or Distance-to-go (realtive to current user coordinate origin)
+    or Distance-to-go (relative to current user coordinate origin)
 Joint Number::
     Used to select which axis (technically which joint) is displayed.
     On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
@@ -1032,11 +1036,272 @@ Direct program control::
         [widget name].set_dro_inch()
         [widget name].set_dro_metric()
 
+[[gladevcp::Combi_DRO]]
+=== Combi_DRO widget
+The Combi_DRO widget is used to display the current , the relative axis position and the distance to go in one DRO. +
+By clicking on the DRO the Order of the DRO will toggle around. +
+In Relative Mode the actual coordinate system will be displayed.
+
+It has the following properties:
+====
+joint_number::
+    Used to select which axis (technically which joint) is displayed. +
+    On a trivialkins machine (mill, lathe, router) axis vrs. joint number are: +
+    '0:X  1:Y  2:Z  etc'
+
+actual::
+    select actual (feedback) or commanded position.
+
+metric_units::
+    Used to toggle the display units between metric and imperial.
+
+auto_units::
+    Units will toggle between metric and imperial according to the
+    active gcode being G20 or G21
+
+diameter::
+    Whether to display position as diameter or radius, in diameter mode
+    the DRO will display the joint value multiplied by 2
+
+mm_text_template::
+    You can use python formatting to display the position with different precision. +
+    default is "%10.3f"
+
+imperial_text_template::
+    You can use python formatting to display the position with different precision. +
+    default is "%9.4f"
+
+homed_color::
+    The foreground color of the DRO numbers if the joint is homed +
+    default is green
+
+unhomed_color::
+    The foreground color of the DRO numbers if the joint is not homed +
+    default is red
+
+abs_color::
+    the background color of the DRO, if main DRO shows absolute coordinates +
+    default is blue
+
+rel_color::
+    the background color of the DRO, if main DRO shows relative coordinates +
+    default is black
+
+dtg_color::
+    the background color of the DRO, if main DRO shows distance to go +
+    default is yellow
+
+font_size::
+    The font size of the big numbers, the small ones will be 2.5 times smaller,
+    the value must be an integer in the range of 8 to 96, +
+    default is 25
+====
+
+Direct program control::
+======
+Using goobject to set the above listed properties:
+
+    [widget name].set_property(property,value)
+
+There are several python methods to control the widget:
+
+    [widget name].set_to_inch(state)
+        sets the DRO to show imperial units
+        state = boolean (True or False)
+
+    [widget name].set_auto_units(state)
+        if True the DRO will change units according to active gcode (G20 / G21)
+        state = boolean (True or False)
+        Default is True
+
+    [widget name].set_to_diameter(state)
+        if True the DRO will show the diameter not the radius, specially needed for lathes
+        the DRO will display the axis value multiplied by 2
+        state = boolean (True or False)
+        Default is False
+
+    [widget name].toggle_readout()
+        toggles the order of the DRO in the widget
+
+    [widget name].change_axisletter(letter)
+        changes the automatically given axis letter
+        very useful to change an lathe DRO from X to R or D
+        letter = string
+
+    [widget name].get_order()
+        returns the order of the DRO in the widget mainly used to maintain them consistent
+        the order will also be transmitted with the clicked signal
+        returns a list containing the order
+
+    [widget name].set_order(order)
+        sets the order of the DRO, mainly used to maintain them consistent
+        order = list object, must be one of
+	        ["Rel", "Abs", "DTG"]
+	        ["DTG", "Rel", "Abs"]
+	        ["Abs", "DTG", "Rel"]
+        Default = ["Rel", "Abs", "DTG"]
+
+    [widget name].get_position()
+        returns the position of the DRO as a list of floats
+        the order is independent of the order shown on the DRO
+        and will be given as [Absolute , relative , DTG]
+        Absolute = the machine coordinates, depends on the actual property
+	               will give actual or commanded position
+        Relative = will be the coordinates of the actual coordinate system
+        DTG = the distance to go, will mostly be 0, as this function should not be used
+	          while the machine is moving, because of time delays
+
+The widget will emit the following signals:
+
+    clicked
+        This signal is emitted, when the user has clicked on the Combi_DRO widget,
+        it will send the following data:
+        widget = widget object = The widget object that sends the signal
+        joint_number = integer = The joint number of the DRO, where '0:X  1:Y  2:Z  etc'
+        order = list object = the order of the DRO in that widget
+                              the order may be used to set other Combi_DRO widgets to the same order with [widget name].set_order(order)
+
+    units_changed
+        This signal is emitted, if the DRO units are changed, it will send the following data:
+        widget = widget object = The widget object that sends the signal
+        metric_units = boolean = True if the DRO does display metric units, False in case of imperial display
+
+    system_changed
+        This signal is emitted, if the DRO units are changed, it will send the following data:
+        widget = widget object = The widget object that sends the signal
+        system = string = The actual coordinate system. Will be one of
+                          G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3
+                          or Rel if non has been selected at all, what will only happen in Glade with no linuxcnc running
+
+There are some information you can get through commands, witch may be of ineterst for you:
+
+    [widget name].system
+        The actual system, as mentioned in the system_changed signal
+
+    [widget name].homed
+        True if the joint is homed
+
+    [widget name].machine_units
+        0 if Imperial, 1 if Metric
+
+======
+
+Example, Three Combi_DRO in a window +
+X = Relative Mode +
+Y = Absolute Mode +
+Z = DTG Mode +
+
+image::images/combi_dro.png[]
+
+[[gladevcp::IconView]]
+=== IconView (File selection) widget
+
+This is touch screen friendly widget to select a file and to change directories.
+
+The widget has the following properties:
+====
+
+icon_size::
+    Sets the size of the displayed icon. +
+    Allowed values are integers in the range from 12 to 96 +
+    default is 48
+
+start_dir::
+    Sets the directory to start in when the widget is shown first time, +
+    must be a string, containing a valid directory path, +
+    default is "/"
+
+jump_to_dir::
+    Sets the directory "jump to" directory,  witch is selected by the corresponding
+    button in the bottom button list, the 5th button counting from the left, +
+    must be a string, containing a valid directory path, +
+    default is "~"
+
+filetypes::
+    Sets the file filter for the objects to be shown +
+    Must be a string containing a comma separated list of extensions to be shown +
+    Default is "ngc,py"
+
+sortorder::
+    Sets the sorting order of the displayed icon
+    must be an integer value from 0 to 3, where +
+    0 = ASCENDING (sorted according to file names) +
+    1 = DESCENDING (sorted according to file names) +
+    2 = FOLDERFIRST (show the folders first, then the files) +
+    3 = FILEFIRST (show the files first, then the folders), +
+    Default = 2 = FOLDERFIRST
+
+====
+
+Direct program control::
+======
+Using goobject to set the above listed properties:
+
+    [widget name].set_property(property,Value)
+
+There are python methods to control the widget:
+
+    [widget name].show_buttonbox(state)
+        if False the bottom button box will be hidden, this is helpful in custom screens,
+        with special buttons layouts to not alter the layout of the GUI, good example
+        for that is gmoccapy
+        state = boolean (True or False)
+        Default is True
+
+    [widget name].show_filelabel(state)
+        if True the file label (between the IconView window and the bottom button box will be shown.
+        Hiding this label may save place, but showing it is very useful for debugging reasons,
+        state = boolean (True or False)
+        Default is True
+
+    [widget name].set_icon_size(iconsize)
+        sets the icon size
+        must be an integer in the range from 12 to 96
+        Default = 48
+
+    [widget name].set_directory(directory)
+        Allows to set an directory to be shown
+        directory = string (a valid file path)
+
+    [widget name].set_filetypes(filetypes)
+        sets the file filter to be used, only files with the given extensions will be shown
+        filetypes = string containing a comma separated list of extensions
+        Default = "ngc,py"
+
+    [widget name].get_selected()
+        Returns the path of the selected file, or None if an directory has been selected
+
+If the button box has been hidden, you can reach the functions of this button
+through it's clicked signals like so:
+
+    [widget name].btn_home.emit("clicked")
+    [widget name].btn_jump_to.emit("clicked")
+    [widget name].btn_sel_prev.emit("clicked")
+    [widget name].btn_sel_next.emit("clicked")
+    [widget name].btn_get_selected.emit("clicked")
+    [widget name].btn_dir_up.emit("clicked")
+    [widget name].btn_exit.emit("clicked")
+
+The widget will emit the following signals:
+
+    selected
+        This signal is emitted, when the user selects an icon, it will return a string containing a
+        file path if a file has been selected, or None if an directory has been selected
+    exit
+        This signal is Emmit, when the exit button has been pressed to close the IconView
+        mostly needed if the application is started as stand alone.
+
+======
+
+Example:
+
+image::images/iconview.png[]
+
 === Calculator widget
 
 This is a simple calculator widget, that can be used for numerical input.
 You can preset the display and retrieve the result or that preset value.
-It has the following propeties:
+It has the following properties:
 
 Is editable::
     This allows the entry display to be typed into from a keyboard.

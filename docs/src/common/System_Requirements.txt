@@ -14,7 +14,7 @@ software step generation. More information on the Latency Test is
 
 Additional information is on the LinuxCNC Wiki site:
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Wiki.LinuxCNC.org, Hardware_Requirements]
 
 LinuxCNC and Ubuntu should run reasonably well on a computer with the
 following minimum hardware specification. These numbers are not the
