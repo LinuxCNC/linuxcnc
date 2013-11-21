@@ -15,7 +15,7 @@ fi
 
 if test ! -f $logconf
 then
-    echo "$logfile does not exist - consider running 'sudo make log'"
+    echo "$logconf does not exist - consider running 'sudo make log'"
     exit 1
 fi
 
