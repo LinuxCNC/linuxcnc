@@ -46,13 +46,6 @@ domain="glade-3" depends="gtk+">
         </properties>
     </glade-widget-class>
     <glade-widget-class name="HAL_DRO" generic-name="hal_dro" title="HAL DRO"/>
-    <glade-widget-class name="Combi_DRO" generic-name="Combi_DRO" title="Combi DRO">
-	<properties>
-            <property id="size" query="False" default="1" visible="False"/>
-            <property id="spacing" query="False" default="0" visible="False"/>
-            <property id="homogeneous" query="False" default="0" visible="False"/>
-        </properties>
-    </glade-widget-class>
     <glade-widget-class name="IconFileSelection" generic-name="IconFileSelection" title="IconFileSelection">
 	<properties>
             <property id="size" query="False" default="1" visible="False"/>
@@ -135,7 +128,6 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="ToolEdit"/>
    <glade-widget-class-ref name="Calculator"/>
    <glade-widget-class-ref name="HAL_DRO"/>
-   <glade-widget-class-ref name="Combi_DRO"/>
    <glade-widget-class-ref name="IconFileSelection"/>
    <glade-widget-class-ref name="HAL_Offset"/>
    <glade-widget-class-ref name="OffsetPage"/>
