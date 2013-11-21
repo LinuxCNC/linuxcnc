@@ -126,6 +126,8 @@ typedef struct {
     int on_final_decel;
     int blend_prev;
     int smoothing;
+    int done; //FLag to indicate that the TC is less than one timestep from the finish. Note that at the instant the flag is enabled, it is not actually done yet. This just means we don't execute tcRunCycle on this anymore, and just treat it like it's at the end.
+    double final_actual_vel;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
