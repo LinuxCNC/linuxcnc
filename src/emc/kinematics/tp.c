@@ -36,7 +36,7 @@
 #define TP_DEBUG
 #define TC_DEBUG
 /*#define TP_POSITION_LOGGING*/
-#define TP_INFO_LOGGING
+/*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -47,7 +47,9 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
+#define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
+const double min_segment_cycles = 2.0;
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -714,7 +716,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double phi = (PM_PI- theta * 2.0);
 
-    const double min_segment_cycles = 2.0;
     //TODO change this to reference tc? does it matter?
     double min_segment_time = tp->cycleTime * min_segment_cycles;
 
@@ -859,10 +860,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
     }
 
-    double smooth_vel = fmin(prev_reqvel,v_actual);
 
     tp_debug_print(" Check: v_actual = %f, v_para = %f\n", v_actual, v_parabolic);
-    if ( smooth_vel <= v_parabolic) {
+    if ( v_actual <= v_parabolic) {
         return TP_ERR_FAIL;
     }
 
@@ -878,10 +878,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
 #endif
 
+#ifdef TP_SMOOTHING
     // Optionally enable prev smoothing
     if (blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" prev smoothing enabled\n");
 
+        double smooth_vel = fmin(prev_reqvel,v_actual);
         prev_tc->target_vel = smooth_vel;
 
         //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
@@ -903,6 +905,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         tc->smoothing = 1;
         /*blend_tc->smoothing = 1;*/
     }
+#endif
 
     //TODO Recycle calculations?
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_plan);
@@ -1112,14 +1115,14 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double acc_this = tpGetScaledAccel(tp, tc);
     double acc_prev = tpGetScaledAccel(tp, prev1_tc);
     // Find the reachable velocity of tc, moving backwards in time
-    double vs_back = pmSqrt(pmSq(tc->finalvel) +  acc_this * tc->target);
+    double vs_back = pmSqrt(pmSq(tc->finalvel) + 1.0 * acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
     double vf2 = 0.0;
     if (prev2_tc) {
         vf2 = prev2_tc->finalvel;
     }
 
-    double vs_forward = pmSqrt(pmSq(vf2) + acc_prev * prev1_tc->target);
+    double vs_forward = pmSqrt(pmSq(vf2) + 1.0 * acc_prev * prev1_tc->target);
 
     //TODO incoporate max feed override
     double vf_limit_this = fmin(tc->maxvel, tc->reqvel );
@@ -1188,7 +1191,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     prev1_tc = tcqItem(&tp->queue,len-2);
 
     if (prev1_tc && prev1_tc->term_cond == TC_TERM_COND_TANGENT) {
-        double Ts = 2.0 * tp->cycleTime;
+        double Ts = min_segment_cycles * tp->cycleTime;
         prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
     }
 
@@ -1305,7 +1308,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             tp_debug_print("Line already tangent\n");
             //already tangent
             tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-            tc->maxvel = fmin(tc->maxvel, 0.5 * tc->target / tp->cycleTime);
+            tc->maxvel = fmin(tc->maxvel, tc->target / (tp->cycleTime * min_segment_cycles));
 
             break;
         case TP_ERR_FAIL:
@@ -1628,7 +1631,8 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         // Note that progress can be greater than the target after this step.
         tc->progress+= (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
         if (tc->progress > tc->target) {
-            tc_debug_print("passed target!\n");
+            tc_debug_print("passed target, cutting off at target!\n");
+            tc->progress = tc->target;
         }
     }
 
