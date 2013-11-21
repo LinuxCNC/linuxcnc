@@ -270,7 +270,8 @@ void init_global_data(global_data_t * data, int flavor,
 
     // next value returned by rtapi_init (userland threads)
     // those dont use fixed sized arrays 
-    data->next_module_id = 0;
+    // start at 1 because the meaning of zero is special
+    data->next_module_id = 1;
 
     // tell the others what we determined as the proper flavor
     data->rtapi_thread_flavor = flavor;
