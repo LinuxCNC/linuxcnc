@@ -33,10 +33,10 @@
  * and selectively compile in assertions and debug printing.
  */
 
+//TODO clean up these names
 #define TP_DEBUG
 #define TC_DEBUG
-/*#define TP_POSITION_LOGGING*/
-/*#define TP_INFO_LOGGING*/
+#define TP_INFO_LOGGING
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -47,10 +47,9 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #include "tp_debug.h"
 
 #define TP_ARC_BLENDS
-#define TP_SMOOTHING
+//NOTE: disabled for stress testing since this forces higher accelerations
+/*#define TP_SMOOTHING*/
 #define TP_FALLBACK_PARABOLIC
-//Must be >=2, since we need one step for the split time update, and one complete timestep within a segment
-const double min_segment_cycles = 2.0;
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -117,7 +116,6 @@ STATIC double tpGetMaxFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * con
 }
 #endif
 
-
 /**
  * Get the "real" requested velocity for a tc.
  * This gives the requested velocity, capped by the segments maximum velocity.
@@ -139,7 +137,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
         return 0.0;
     } else {
         //TODO eliminate redundant checks here
-        return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc),tc->maxvel);
+        return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc)/TP_MAX_FEED_SCALE,tc->maxvel);
     }
 }
 
@@ -718,7 +716,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double phi = (PM_PI- theta * 2.0);
 
     //TODO change this to reference tc? does it matter?
-    double min_segment_time = tp->cycleTime * min_segment_cycles;
+    double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
     double a_max, v_max;
     tpGetMachineAccelLimit(&a_max);
@@ -809,7 +807,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     if (v_normal > v_goal) {
         v_plan = v_goal;
         //At this new limiting velocity, find the radius by the reverse formula
-        R_plan = pmSq(v_plan / a_n_max);
+        R_plan = pmSq(v_plan) / a_n_max;
     }
 
     // Poor naming here: v_normal represents the physical maximum velocity we
@@ -856,12 +854,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Limit all velocities by what we can sample
 
-    double prev_reqvel = 0.0;
-    if (L_prev > 0.0) {
-        prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
-    }
-
-
     tp_debug_print(" Check: v_actual = %f, v_para = %f\n", v_actual, v_parabolic);
     if ( v_actual <= v_parabolic) {
         return TP_ERR_FAIL;
@@ -874,12 +866,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-
 #ifdef TP_SMOOTHING
+    double prev_reqvel = 0.0;
+    if (L_prev > 0.0) {
+        prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
+    }
+
     // Optionally enable prev smoothing
     double prev_blend_ratio = d_plan / L1;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
-    if (prev_blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+    if (prev_blend_ratio >= TP_SMOOTHING_THRESHOLD && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" prev smoothing enabled\n");
 
         double smooth_vel = fmin(prev_reqvel,v_actual);
@@ -894,7 +890,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // Optionally enable next smoothing
     double next_blend_ratio = d_plan / L2;
     tp_debug_print(" next blend ratio = %f\n",next_blend_ratio);
-    if (next_blend_ratio >= TP_MIN_BLEND_RATIO && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+    if (next_blend_ratio >= TP_SMOOTHING_THRESHOLD && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" next smoothing enabled\n");
 
         tc->target_vel = fmin(v_actual,tc->reqvel);
@@ -1190,7 +1186,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     prev1_tc = tcqItem(&tp->queue,len-2);
 
     if (prev1_tc && prev1_tc->term_cond == TC_TERM_COND_TANGENT) {
-        double Ts = min_segment_cycles * tp->cycleTime;
+        double Ts = TP_MIN_SEGMENT_CYCLES * tp->cycleTime;
         prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
     }
 
@@ -1307,7 +1303,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             tp_debug_print("Line already tangent\n");
             //already tangent
             tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-            tc->maxvel = fmin(tc->maxvel, tc->target / (tp->cycleTime * min_segment_cycles));
+            tc->maxvel = fmin(tc->maxvel, tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
 
             break;
         case TP_ERR_FAIL:
@@ -1636,7 +1632,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     }
 
     tc->currentvel = newvel;
-    if (tc->currentvel > tc->target_vel) {
+    if (tc->currentvel > tc_target_vel) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
 
