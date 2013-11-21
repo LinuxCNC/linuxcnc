@@ -2222,7 +2222,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 }
 
 STATIC int tpHandleTangency(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, EmcPose const * const secondary_before, double * const mag) {
+        TC_STRUCT * const tc, EmcPose * const secondary_before, double * const mag) {
 
     //Update 
     tpUpdateMovementStatus(tp, tc);
@@ -2232,12 +2232,13 @@ STATIC int tpHandleTangency(TP_STRUCT * const tp,
             tc->id );
 
     //Run partial cycle on tc
+
+    tcGetPos(tc, secondary_before);
     tcRunCycle(tp, tc);
+    //Reset cycle time since we've run this successfully.
+    tc->cycle_time=tp->cycleTime;
+    //TODO what happens if we're within a timestep of the end? currently we don't handle this
     tpFindDisplacement(tc, secondary_before, &secondary_displacement);
-    tc_debug_print("Secondary disp, X = %f, Y=%f, Z=%f\n", 
-            secondary_displacement.tran.x, 
-            secondary_displacement.tran.y, 
-            secondary_displacement.tran.z);
     tpUpdatePosition(tp, &secondary_displacement);
 
     tpToggleDIOs(tc); //check and do DIO changes
@@ -2269,6 +2270,8 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  */
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
+    //Hack debug output for timesteps
+    static long long int timestep = 0;
     //Pointers to current and next trajectory component
     TC_STRUCT *tc;
     TC_STRUCT *nexttc;
@@ -2298,6 +2301,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     tc_debug_print("-------------------\n");
+    //Hack debug output for timesteps
+    timestep++;
     nexttc = tpGetNextTC(tp, tc);
 
 #ifdef TP_POSITION_LOGGING
@@ -2383,13 +2388,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     double mag2=0;
     // Update the current tc
     if (tc->done) {
-        tp_debug_print("tc done, handling tangent\n");
+        tp_debug_print("tc id %d done, handling tangent\n",tc->id);
         tc->progress = tc->target;
-        if (nexttc) {
-            nexttc->currentvel = tc->final_actual_vel;
-            //TODO: strip out this function, simplify
-            tpHandleTangency(tp, nexttc, &secondary_before, &mag2);
-        }
+        nexttc->currentvel = tc->final_actual_vel;
+        tpHandleTangency(tp, nexttc, &secondary_before, &mag2);
     } else {
         tc->cycle_time = tp->cycleTime;
         tcRunCycle(tp, tc);
@@ -2401,23 +2403,28 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT) {
         //Initial guess at dt for next round
         double v_f = tpGetRealFinalVel(tp,tc);
-        double dt = 2.0 * tc->progress / (tc->currentvel + v_f);
-        double a_f = (v_f - tc->currentvel)/dt;
-        double a = saturate(a_f, tpGetScaledAccel(tp,tc));
-        //Need to recalculate vf and above
+        double dx = tc->target - tc->progress;
+        double dt = 2.0 * dx / (tc->currentvel + v_f);
+        if (dt<=tp->cycleTime ) {
+            //Our initial guess of dt is not perfect, but if the optimizer
+            //works, it will never under-estimate when we cross the threshold.
+            //As such, we can bail here if we're not actually at the last
+            //timestep.
+            double a_f = (v_f - tc->currentvel)/dt;
+            double a = saturate(a_f, tpGetScaledAccel(tp,tc));
+            //Need to recalculate vf and above
+            tp_debug_print("Found possible tangency with estimated dt = %f\n",dt);
+            tp_debug_print("v_f = %f, dt = %f, a_f = %f, a = %f\n",v_f,dt,a_f,a);
 
-        tp_debug_print("v_f = %f, dt = %f, a_f = %f, a = %f\n",v_f,dt,a_f,a);
-        v_f = tc->currentvel + a*dt;
-        tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
-        if (dt<tp->cycleTime ) {
+            v_f = tc->currentvel + a*dt;
+            tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
             //TC is done if we're here, so this is just bookkeeping
-            tc->cycle_time = dt;
             tc->done = 1;
             tc->final_actual_vel = v_f;
             nexttc->cycle_time = tp->cycleTime - dt;
             tp_debug_print("split time is %f\n",nexttc->cycle_time);
         } else {
-            nexttc->cycle_time = tp->cycleTime;
+            tp_debug_print("dt not at end yet\n");
         }
 
     }
@@ -2438,8 +2445,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     double mag3=0;
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
-    tc_debug_print("primary movement = %f\n", mag3);
-    tc_debug_print("total movement = %f\n", mag1+mag2+mag3);
+    tc_debug_print("id: %lld primary movement = %f\n", timestep, mag3);
+    tc_debug_print("id: %lld total movement  = %f\n", timestep, mag1+mag2+mag3);
 
 #ifdef TP_POSITION_LOGGING
     double delta_s = tc->progress-s_init;
