@@ -137,7 +137,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
         return 0.0;
     } else {
         //TODO eliminate redundant checks here
-        return fmin(fmin(tc->finalvel,tc->target_vel) * tpGetFeedScale(tp,tc)/TP_MAX_FEED_SCALE,tc->maxvel);
+        return fmin(fmin(tc->finalvel,tc->target_vel) * fmin(tpGetFeedScale(tp,tc),1.0),tc->maxvel);
     }
 }
 
