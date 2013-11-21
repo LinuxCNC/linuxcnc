@@ -49,6 +49,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #define TP_ARC_BLENDS
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
+//Must be >=2, since we need one step for the split time update, and one complete timestep within a segment
 const double min_segment_cycles = 2.0;
 
 extern emcmot_status_t *emcmotStatus;
@@ -873,14 +874,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-#ifdef TP_DEBUG
-    double prev_blend_ratio = d_plan / L1;
-    tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
-#endif
 
 #ifdef TP_SMOOTHING
     // Optionally enable prev smoothing
-    if (blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+    double prev_blend_ratio = d_plan / L1;
+    tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
+    if (prev_blend_ratio >= TP_MIN_BLEND_RATIO && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" prev smoothing enabled\n");
 
         double smooth_vel = fmin(prev_reqvel,v_actual);
@@ -1115,14 +1114,14 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double acc_this = tpGetScaledAccel(tp, tc);
     double acc_prev = tpGetScaledAccel(tp, prev1_tc);
     // Find the reachable velocity of tc, moving backwards in time
-    double vs_back = pmSqrt(pmSq(tc->finalvel) + 1.0 * acc_this * tc->target);
+    double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
     double vf2 = 0.0;
     if (prev2_tc) {
         vf2 = prev2_tc->finalvel;
     }
 
-    double vs_forward = pmSqrt(pmSq(vf2) + 1.0 * acc_prev * prev1_tc->target);
+    double vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
 
     //TODO incoporate max feed override
     double vf_limit_this = fmin(tc->maxvel, tc->reqvel );
