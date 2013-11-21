@@ -803,7 +803,8 @@ a G28 is issued.
 
 * 'G28 axes' - will make a rapid traverse move to the position specified by
 'axes' including any offsets, then will make a rapid traverse move to the
-'absolute' position of the values in parameters 5161-5166.
+'absolute' position of the values in parameters 5161-5166 for 'axes'
+specified. Any 'axis' not specified will not move.
 
 * 'G28.1' - stores the current 'absolute' position into parameters 5161-5166.
 
@@ -839,7 +840,8 @@ if [TOOL_CHANGE_AT_G30]=1 is in the [EMCIO] section of the ini file.
 
 * 'G30 axes' - moves in a rapid traverse to the position specified by
 'axes' including any offsets, then will make a rapid traverse move to the
-'absolute' position of the values in parameters 5181-5186.
+'absolute' position of the values in parameters 5181-5186 for 'axes'
+specified. Any 'axis' not specified will not move.
 
 * 'G30.1' - stores the current absolute position into parameters 5181-5186.
 
