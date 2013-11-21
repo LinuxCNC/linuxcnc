@@ -12,6 +12,7 @@
 #define RS485MODUL_ID_8INPUT 0x1
 #define RS485MODUL_ID_8OUTPUT 0x2
 #define RS485MODUL_ID_DACADC 0x3
+#define RS485MODUL_ID_TEACHPAD 0x04
 
 #define IDmask_card 	0xF0000000
 #define cardVersion1 	0x10000000

@@ -14,13 +14,13 @@ loadusr halmeter
 # 			Adding functions				#
 #########################################################################
 
-addf gm.0.read servo-thread -1
-addf gm.0.write servo-thread -1
-#addf gm.0.RS485 servo-thread -1
-
+addf gm.0.read servo-thread
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
+addf gm.0.write servo-thread
+
 addf not.0 servo-thread
+addf gm.0.RS485 servo-thread
 
 #########################################################################
 #				card mgt				#
