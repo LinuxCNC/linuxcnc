@@ -34,9 +34,9 @@
  */
 
 //TODO clean up these names
-#define TP_DEBUG
-#define TC_DEBUG
-#define TP_INFO_LOGGING
+/*#define TP_DEBUG*/
+/*#define TC_DEBUG*/
+/*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
@@ -48,7 +48,7 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_ARC_BLENDS
 //NOTE: disabled for stress testing since this forces higher accelerations
-/*#define TP_SMOOTHING*/
+#define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
 
 extern emcmot_status_t *emcmotStatus;
