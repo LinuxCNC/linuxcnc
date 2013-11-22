@@ -32,3 +32,5 @@ lib/python/touchy
 configs/sim/gmoccapy/*.pref
 configs/sim/gmoccapy/gmoccapy_plasma/*.pref
 cscope
+cscope.*
+*.kdev*
