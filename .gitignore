@@ -30,3 +30,5 @@ docs/html/drivers
 lib/python/gremlin.py
 lib/python/touchy
 cscope
+cscope.*
+*.kdev*
