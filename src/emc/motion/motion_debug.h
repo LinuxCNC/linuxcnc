@@ -67,7 +67,7 @@
 	/* flag that all active axes are homed */
 	unsigned char allHomed;
 
-	TP_STRUCT queue;	/* coordinated mode planner */
+	TP_STRUCT tp;	/* coordinated mode planner */
 
 /* space for trajectory planner queues, plus 10 more for safety */
 /*! \todo FIXME-- default is used; dynamic is not honored */
