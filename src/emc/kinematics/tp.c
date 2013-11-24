@@ -82,11 +82,6 @@ STATIC int gdb_fake_assert(int condition){
  */
 
 
-STATIC int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
-    tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
-    tc->term_cond = term_cond;
-    return 0;
-}
 
 /**
  * Get a TC's feed rate override based on emcmotStatus.

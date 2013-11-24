@@ -328,6 +328,13 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     return 0;
 }
 
+
+int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
+    tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
+    tc->term_cond = term_cond;
+    return 0;
+}
+
 /*!
  * \subsection TC queue functions
  * These following functions implement the motion queue that
