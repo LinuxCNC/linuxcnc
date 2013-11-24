@@ -100,17 +100,6 @@ static double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
     }
 }
 
-#if 0
-//Get worst case final velocity to check for overshooting
-static double tpGetMaxFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-
-    if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION ) {
-        return 1.0*tc->finalvel;
-    } else {  
-        return fmin(fmin(tc->finalvel,tc->target_vel) * TP_MAX_FEED_SCALE,tc->maxvel);
-    }
-}
-#endif
 
 /**
  * Get the "real" requested velocity for a tc.
@@ -646,25 +635,6 @@ static int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 
     return TP_ERR_OK;
 }
-
-
-/**
- * Find the minimum segment length for a given velocity and timestep.
- */
-#if 0
-static double tpCalculateMinLength(double velocity, double dt, double * const out) {
-    if (dt<=0) {
-        return TP_ERR_FAIL;
-    }
-
-    if (!out) {
-        return TP_ERR_FAIL;
-    }
-
-    *out = 2.0*velocity/dt;
-    return TP_ERR_OK;
-}
-#endif
 
 
 // Safe acceleration limit is to use the lowest bound on the linear axes,
@@ -1290,7 +1260,8 @@ static int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             tcConnectBlendArc(prev_tc, tc, &blend_tc);
 
             tpAddSegmentToQueue(tp, &blend_tc, end,false);
-#if 0
+
+#ifdef TP_CHECK_GAPS
             //Debug section to check for gaps
             EmcPose Q1_line,Q2_line;
             EmcPose Q1_arc,Q2_arc;
