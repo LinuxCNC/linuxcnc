@@ -1487,13 +1487,20 @@ static int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
     return TP_ERR_OK;
 }
 
+
 /**
  * Clip (saturate) a value x to be within +/- max.
  */
 static double saturate(double x, double max) {
-    if ( x > max ) return max;
-    else if ( x < (-max) ) return -max;
-    else return x;
+    if ( x > max ) {
+        return max;
+    }
+    else if ( x < (-max) ) {
+        return -max;
+    }
+    else {
+        return x;
+    }
 }
 
 
