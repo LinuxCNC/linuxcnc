@@ -144,6 +144,8 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
         double radius);
 
+int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+
 /* queue of TC_STRUCT elements*/
 
 typedef struct {
