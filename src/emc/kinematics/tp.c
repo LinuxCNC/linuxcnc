@@ -81,10 +81,11 @@ static int gdb_fake_assert(int condition){
  */
 static double fsign(double f) {
     if (f>0) {
-        return 1;
+        return 1.0;
     } else if (f < 0) {
-        return -1;
+        return -1.0;
     } else {
+        //Technically this should be NAN but that's a useless result for tp purposes
         return 0;
     }
 }
@@ -96,7 +97,6 @@ static double fsign(double f) {
  * These functions return the "actual" values of things like a trajectory
  * segment's feed override, while taking into account the status of tp itself.
  */
-
 
 
 /**
@@ -117,16 +117,16 @@ static double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
 
 
 /**
- * Get the "real" requested velocity for a tc.
+ * Get target velocity for a tc based on the trajectory planner state.
  * This gives the requested velocity, capped by the segments maximum velocity.
  */
-static inline double tpGetGoalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+static inline double tpGetRealTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
 }
 
 
 /**
- * Get the final velocity for tc based on the current state.
+ * Get final velocity for a tc based on the trajectory planner state.
  * This function factors in the feed override and TC limits. It clamps the
  * final velocity to the maximum velocity and the requested velocity.
  */
@@ -141,6 +141,10 @@ static inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
     }
 }
 
+
+/**
+ * Get acceleration for a tc based on the trajectory planner state.
+ */
 static inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type ==
             TC_CIRCULAR || tc->blend_prev) {
@@ -1484,7 +1488,7 @@ static int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
 
     vel = fmin(v_peak_this,v_peak_next);
     // cap the blend velocity at the requested speed
-    vel = fmin(vel, tpGetGoalVel(tp,nexttc));
+    vel = fmin(vel, tpGetRealTargetVel(tp,nexttc));
 
     if (acc_this < acc_next) {
         vel *= acc_this / acc_next;
@@ -1557,7 +1561,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     double discr_term1, discr_term2, discr_term3;
 
     // Find maximum allowed velocity from feed and machine limits
-    double tc_target_vel = tpGetGoalVel(tp,tc);
+    double tc_target_vel = tpGetRealTargetVel(tp,tc);
     // Store a copy of final velocity
     double tc_finalvel = tpGetRealFinalVel(tp,tc);
 
