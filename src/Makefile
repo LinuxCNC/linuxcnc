@@ -190,7 +190,7 @@ endif
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 OPT := -Os
-DEBUG := -g -Wall
+DEBUG := $(DEBUG) -g -Wall
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT)
 
