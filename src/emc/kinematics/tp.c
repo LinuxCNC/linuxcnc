@@ -2250,8 +2250,6 @@ static int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 static int tpHandleTangency(TP_STRUCT * const tp,
         TC_STRUCT * const tc, EmcPose * const secondary_before, double * const mag) {
 
-    //Update
-    tpUpdateMovementStatus(tp, tc);
 
     EmcPose secondary_displacement;
     tc_debug_print("Finishing split-cycle on id %d\n",
@@ -2267,10 +2265,12 @@ static int tpHandleTangency(TP_STRUCT * const tp,
     tpFindDisplacement(tc, secondary_before, &secondary_displacement);
     tpUpdatePosition(tp, &secondary_displacement);
 
-    tpToggleDIOs(tc); //check and do DIO changes
-
     tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, mag);
     tc_debug_print("secondary movement = %f\n",*mag);
+
+    // Status updates
+
+    tpToggleDIOs(tc);
     tpUpdateMovementStatus(tp, tc);
 
     return TP_ERR_OK;
@@ -2533,6 +2533,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tc->cycle_time = tp->cycleTime;
         tcRunCycle(tp, tc);
         tpCheckEndCondition(tp, tc, nexttc);
+
+        //Update motion status as normal
+        tpToggleDIOs(tc);
+        tpUpdateMovementStatus(tp, tc);
     }
 
     //Update displacement 
