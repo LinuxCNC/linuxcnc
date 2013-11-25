@@ -34,8 +34,8 @@
  */
 
 //TODO clean up these names
-#define TP_DEBUG
-#define TC_DEBUG
+/*#define TP_DEBUG*/
+/*#define TC_DEBUG*/
 /*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
@@ -527,7 +527,8 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->target_vel = vel;
 
     if (tc->reqvel < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR," Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                " Requested velocity %f of TC id %u is <= 0.0!\n", tc->reqvel, tc->id);
     }
 
     tc->active = 0;
