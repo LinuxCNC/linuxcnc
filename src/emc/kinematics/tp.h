@@ -64,6 +64,11 @@ typedef struct {
  */
 typedef struct {
     TC_QUEUE_STRUCT queue;
+    tp_spindle_status_t spindle; //Spindle data
+
+    EmcPose currentPos;
+    EmcPose goalPos;
+
     int queueSize;
     double cycleTime;
     double vMax;		/* vel for subsequent moves */
@@ -71,15 +76,13 @@ typedef struct {
                                    constraints (ini file) for
                                    subsequent moves */
     double vScale;		/* feed override value */
-    double aMax;
+    double aMax;        /* max accel (unused) */
     double vLimit;		/* absolute upper limit on all vels */
     double wMax;		/* rotational velocity max */
     double wDotMax;		/* rotational accelleration max */
     int nextId;
     int execId;
     int termCond;
-    EmcPose currentPos;
-    EmcPose goalPos;
     int done;
     int depth;			/* number of total queued motions */
     int activeDepth;		/* number of motions blending */
@@ -94,13 +97,15 @@ typedef struct {
 				   FALSE if in position mode */
     double uu_per_rev;          /* user units per spindle revolution */
 
-    tp_spindle_status_t spindle; //Spindle data
+
+    syncdio_t syncdio; //record tpSetDout's here
+
 } TP_STRUCT;
 
 int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
 int tpClear(TP_STRUCT * tp);
 int tpInit(TP_STRUCT * tp);
-int tpClearDIOs(void);
+int tpClearDIOs(TP_STRUCT * const tp);
 int tpSetCycleTime(TP_STRUCT * tp, double secs);
 int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
 int tpSetVlimit(TP_STRUCT * tp, double limit);
