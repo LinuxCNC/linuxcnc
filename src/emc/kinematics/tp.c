@@ -513,17 +513,39 @@ static inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double vel, double ini_maxvel, double acc,
         unsigned char enables) {
 
-    memset(tc, 0, sizeof(TC_STRUCT));
-
-    //Non-zero entries
+    tc->sync_accel = 0;
+    tc->cycle_time = tp->cycleTime;
     tc->id = -1; //ID to be set when added to queue
+
+    tc->progress = 0.0;
     tc->maxaccel = acc;
     tc->maxvel = ini_maxvel;
+    //Store this verbatim, as it may affect expectations about feed rate.
+    //Capping at maxvel means linear reduction from 100% to zero, which may be confusing.
+    //TODO decide which behavior is better
     tc->reqvel = vel;
     tc->target_vel = vel;
-    tc->cycle_time = tp->cycleTime;
-}
 
+    if (tc->reqvel < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR," Requested velocity %f of TC id %u is <= 0.0!\n",tc->reqvel,tc->id);
+    }
+
+    tc->active = 0;
+
+    tc->currentvel = 0.0;
+    tc->blending_next = 0;
+    tc->blend_prev = 0;
+    tc->blend_vel = 0.0;
+    tc->vel_at_blend_start = 0.0;
+    tc->finalvel = 0.0;
+
+    tc->enables=enables;
+
+    tc->atpeak=0;
+    tc->on_final_decel=0;
+    tc->smoothing = 0;
+    tc->done = 0;
+}
 
 /**
  * Find the maximum angle allowed between "tangent" segments.
