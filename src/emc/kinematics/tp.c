@@ -34,8 +34,8 @@
  */
 
 //TODO clean up these names
-/*#define TP_DEBUG*/
-/*#define TC_DEBUG*/
+#define TP_DEBUG
+#define TC_DEBUG
 /*#define TP_INFO_LOGGING*/
 
 #ifndef SIM
@@ -72,6 +72,21 @@ static int gdb_fake_assert(int condition){
         return gdb_fake_catch(condition);
     }
     return condition;
+}
+
+
+/**
+ * Simple signum-like function to get sign of a double.
+ * There's probably a better way to do this...
+ */
+static double fsign(double f) {
+    if (f>0) {
+        return 1;
+    } else if (f < 0) {
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 
@@ -2242,6 +2257,116 @@ static int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
     return TP_ERR_OK;
 }
 
+/**
+ * Check remaining time in a segment and calculate split cycle if necessary.
+ * This function estimates how much time we need to complete the next segment.
+ * If it's greater than one timestep, then we do nothing and carry on. If not,
+ * then we flag the segment as "done", so that the next time tpRunCycle runs,
+ * it handles the transition to the next segment.
+ */
+static int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
+
+    if (!nexttc) {
+        return TP_ERR_FAIL;
+    }
+
+    if (tc->term_cond != TC_TERM_COND_TANGENT) {
+        return TP_ERR_NO_ACTION;
+    }
+
+    //Initial guess at dt for next round
+    double dx = tc->target - tc->progress;
+
+    //If we're at the target, then it's too late to do anything about it
+    if (dx < TP_MAG_EPSILON) {
+        tp_debug_print("prematurely close to target, dx = %f, assume tc is done\n",dx);
+        tc->done = 1;
+        //FIXME should we be able to get here?
+        return TP_ERR_OK;
+    }
+
+    double v_avg = tc->currentvel + tpGetRealFinalVel(tp,tc);
+
+    //Check that we have a non-zero "average" velocity between now and the
+    //finish. If not, it means that we have to accelerate from a stop, which
+    //will take longer than the minimum 2 timesteps that each segment takes, so
+    //we're safely far form the end.
+    if (v_avg < TP_VEL_EPSILON) {
+        tc->done = 0;
+        return TP_ERR_NO_ACTION;
+    } 
+
+    //Get dt assuming that we can magically reach the final velocity at
+    //the end of the move.
+    double dt = 2.0 * dx / v_avg;
+    //Calculate the acceleration this would take:
+    double v_f = tpGetRealFinalVel(tp,tc);
+
+
+    double a_f;
+    double dv = v_f - tc->currentvel;
+    if (dt < TP_TIME_EPSILON) {
+        tp_debug_print("dt = %f, assuming large final accel\n", dt);
+        a_f = TP_BIG_NUM * fsign(dv);
+    }
+    a_f = dv / dt;
+
+    //If this is a valid acceleration, then we're done. If not, then we solve
+    //for v_f and dt given the max acceleration allowed.
+    double a_max = tpGetScaledAccel(tp,tc);
+    tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n",dx,dt,a_f,v_f);
+
+    //If we exceed the maximum acceleration, then the dt estimate is too small. 
+    int recalc = 0;
+    double a;
+    if (a_f > a_max) {
+        a = a_max;
+        recalc=1;
+    } else if (a_f < -a_max) {
+        recalc=1;
+        a = -a_max;
+    } else {
+        a = a_f;
+    }
+
+    //Need to recalculate vf and above
+    if (recalc) {
+
+        tp_debug_print(" recalculating with a_f = %f, a = %f\n",a_f,a);
+        double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
+        if (disc < 0 ) {
+            //Should mean that dx is too big, i.e. we're not close enough
+            return TP_ERR_NO_ACTION;
+        }
+
+        // Change which zero we use based on the sign of the acceleration
+        if (a>0) {
+            dt = -tc->currentvel / a + pmSqrt(disc);
+        } else {
+            dt = -tc->currentvel / a - pmSqrt(disc);
+        }
+
+        tp_debug_print(" revised dt = %f\n", dt);
+        v_f = tc->currentvel+dt*a;
+    }
+
+    if (dt <= tp->cycleTime ) {
+        //Our initial guess of dt is not perfect, but if the optimizer
+        //works, it will never under-estimate when we cross the threshold.
+        //As such, we can bail here if we're not actually at the last
+        //timestep.
+
+        tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
+        //TC is done if we're here, so this is just bookkeeping
+        tc->done = 1;
+        tc->final_actual_vel = v_f;
+        nexttc->cycle_time = tp->cycleTime - dt;
+        tp_debug_print(" split time is %f\n",nexttc->cycle_time);
+    } else {
+        tp_debug_print(" dt = %f, not at end yet\n",dt);
+    }
+    return TP_ERR_OK;
+}
 
 /**
  * Calculate an updated goal position for the next timestep.
@@ -2269,7 +2394,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     tpUpdateInitialStatus(tp);
     //Define TC as the "first" element in the queue
     tc = tcqItem(&tp->queue, 0);
-
 
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
@@ -2338,6 +2462,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpHandleRigidTap(tp, tc);
     }
 
+    //TODO revisit this logic and pack this into the status update function
     if(!tc->synchronized) {
         emcmotStatus->spindleSync = 0;
     }
@@ -2350,7 +2475,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         nexttc->active = 1;
         //Indicate that this segment is blending with the previous segment
         nexttc->blend_prev = 1;
-
     }
 
     /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
@@ -2368,6 +2492,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             break;
     }
 
+    //Store initial position before trajectory updates
     tcGetPos(tc, &primary_before);
 
     double mag2=0;
@@ -2380,74 +2505,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     } else {
         tc->cycle_time = tp->cycleTime;
         tcRunCycle(tp, tc);
-
-        //Check the time remaining to completion, and if we're going to
-        //split a timestep, detect it early and flag the tc as done for
-        //next time.
-        if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT) {
-            //Initial guess at dt for next round
-            double dx = tc->target - tc->progress;
-            //Get dt assuming that we can magically reach the final velocity at
-            //the end of the move.
-            double dt = 2.0 * dx / (tc->currentvel + tpGetRealFinalVel(tp,tc));
-
-            //Calculate the acceleration this would take:
-            double v_f = tpGetRealFinalVel(tp,tc);
-            double a_f = (v_f - tc->currentvel)/dt;
-
-            //If this is a valid acceleration, then we're done. If not, then we solve for v_f and dt given a limiting a:
-            double a_max = tpGetScaledAccel(tp,tc);
-            double a = a_f;
-
-            tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n",dx,dt,a_f,v_f);
-            int recalc = 0;
-            if (a_f > a_max) {
-                a = a_max;
-                recalc=1;
-            } else if (a_f < -a_max) {
-                recalc=1;
-                a = -a_max;
-            }
-
-            //Need to recalculate vf and above
-            // Change which zero we use based on the sign of a
-            if (recalc) {
-
-                tp_debug_print("recalculating with a_f = %f, a = %f\n",a_f,a);
-                double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
-                if (disc < 0 ) {
-                    //Should mean that dx is too big, i.e. we're not close enough
-                    /*tp_debug_print("disc < 0 in vf calc!\n");*/
-                } else {
-                    if (a>0) {
-                        dt = -tc->currentvel / a + pmSqrt(disc);
-                    } else {
-                        dt = -tc->currentvel / a - pmSqrt(disc);
-                    }
-                    tp_debug_print(" dt = %f\n", dt);
-                    v_f = tc->currentvel+dt*a;
-                }
-            }
-
-            if (dt<=tp->cycleTime ) {
-                //Our initial guess of dt is not perfect, but if the optimizer
-                //works, it will never under-estimate when we cross the threshold.
-                //As such, we can bail here if we're not actually at the last
-                //timestep.
-
-                tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
-                //TC is done if we're here, so this is just bookkeeping
-                tc->done = 1;
-                tc->final_actual_vel = v_f;
-                nexttc->cycle_time = tp->cycleTime - dt;
-                tp_debug_print("split time is %f\n",nexttc->cycle_time);
-            } else {
-                tp_debug_print("dt =%f, not at end yet\n",dt);
-            }
-        }
+        tpCheckEndCondition(tp, tc, nexttc);
     }
 
-    //Update
+    //Update displacement 
     tpFindDisplacement(tc, &primary_before, &primary_displacement);
     tc_debug_print("Primary disp, X = %f, Y=%f, Z=%f\n",
             primary_displacement.tran.x, primary_displacement.tran.y, primary_displacement.tran.z);
@@ -2459,7 +2520,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     double mag1=0;
     tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag1);
-
 
     double mag3=0;
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
