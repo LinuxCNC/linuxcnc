@@ -105,11 +105,11 @@ static double fsign(double f) {
  */
 static double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     //All reasons to disable feed override go here
-    if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION ) {
-        return 1.0;
-    } else if (tp->pausing || tp->aborting) {
+    if (tp->pausing || tp->aborting) {
         tc_debug_print("pausing or aborting\n");
         return 0.0;
+    } else if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION ) {
+        return 1.0;
     } else {
         return emcmotStatus->net_feed_scale;
     }
