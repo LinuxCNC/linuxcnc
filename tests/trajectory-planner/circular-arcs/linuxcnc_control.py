@@ -173,5 +173,13 @@ class LinuxcncControl:
         self.c.feedrate(scale)
         self.c.wait_complete(self.timeout)
 
+    def wait_on_program(self):
+        motion_type = -1;
+        while motion_type>0:
+            self.s.poll()
+            motion_type = self.s.motion_type
+            sleep(1)
+
+
 def introspect():
     os.system("halcmd show pin python-ui")
