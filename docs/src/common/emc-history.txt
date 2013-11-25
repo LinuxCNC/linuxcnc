@@ -3,7 +3,7 @@
 [[cha:linuxcnc-history]] (((LinuxCNC History)))
 
 EMC (the Enhanced Machine Controller) was created by
-http://www.nist.gov/index.html/[NIST] , the National Institute of Standards
+http://www.nist.gov/index.html[NIST] , the National Institute of Standards
 and Technology, which is an agency of the Commerce Department of the United
 States government.
 
