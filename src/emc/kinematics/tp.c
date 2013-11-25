@@ -54,9 +54,6 @@ static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
-//TODO merge into TP_STRUCT?
-syncdio_t syncdio; //record tpSetDout's here
-
 /** static function primitives */
 static int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
         const tc, TC_STRUCT const * const nexttc, double * const blend_vel);
@@ -212,16 +209,18 @@ int tpCreate(TP_STRUCT * const tp, int _queueSize, TC_STRUCT * const tcSpace)
  * If any DIOs need to be changed: dios[i] = 1, DIO needs to get turned on, -1
  * = off
  */
-int tpClearDIOs() {
+int tpClearDIOs(TP_STRUCT * const tp) {
     //XXX: All IO's will be flushed on next synced aio/dio! Is it ok?
     int i;
-    syncdio.anychanged = 0;
-    syncdio.dio_mask = 0;
-    syncdio.aio_mask = 0;
-    for (i = 0; i < num_dio; i++)
-        syncdio.dios[i] = 0;
-    for (i = 0; i < num_aio; i++)
-        syncdio.aios[i] = 0;
+    tp->syncdio.anychanged = 0;
+    tp->syncdio.dio_mask = 0;
+    tp->syncdio.aio_mask = 0;
+    for (i = 0; i < num_dio; i++) {
+        tp->syncdio.dios[i] = 0;
+    }
+    for (i = 0; i < num_aio; i++) {
+        tp->syncdio.aios[i] = 0;
+    }
 
     return TP_ERR_OK;
 }
@@ -259,7 +258,7 @@ int tpClear(TP_STRUCT * const tp)
     emcmotStatus->distance_to_go = 0.0;
     ZERO_EMC_POSE(emcmotStatus->dtg);
 
-    return tpClearDIOs();
+    return tpClearDIOs(tp);
 }
 
 
@@ -631,13 +630,7 @@ static int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     blend_tc->indexrotary = -1;
     blend_tc->enables = prev_line_tc->enables;
 
-    //FIXME do we need this in a blend arc?
-    if (syncdio.anychanged != 0) {
-        blend_tc->syncdio = syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
-    } else {
-        blend_tc->syncdio.anychanged = 0;
-    }
+    blend_tc->syncdio = prev_line_tc->syncdio; //enqueue the list of DIOs that need toggling
 
     double length;
     if (tpErrorCheck(tp)<0){
@@ -990,9 +983,9 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = -1;
 
-    if (syncdio.anychanged != 0) {
-        tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    if (tp->syncdio.anychanged != 0) {
+        tc.syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
+        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
     } else {
         tc.syncdio.anychanged = 0;
     }
@@ -1370,9 +1363,9 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = indexrotary;
 
-    if (syncdio.anychanged != 0) {
-        tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    if (tp->syncdio.anychanged != 0) {
+        tc.syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
+        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
     } else {
         tc.syncdio.anychanged = 0;
     }
@@ -1450,9 +1443,9 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.uu_per_rev = tp->uu_per_rev;
     tc.indexrotary = -1;
 
-    if (syncdio.anychanged != 0) {
-        tc.syncdio = syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(); // clear out the list, in order to prepare for the next time we need to use it
+    if (tp->syncdio.anychanged != 0) {
+        tc.syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
+        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
     } else {
         tc.syncdio.anychanged = 0;
     }
@@ -2615,7 +2608,7 @@ int tpAbort(TP_STRUCT * const tp)
         tpPause(tp);
         tp->aborting = 1;
     }
-    return tpClearDIOs(); //clears out any already cached DIOs
+    return tpClearDIOs(tp); //clears out any already cached DIOs
 }
 
 
@@ -2673,9 +2666,9 @@ int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double en
     if (0 == tp) {
         return TP_ERR_FAIL;
     }
-    syncdio.anychanged = 1; //something has changed
-    syncdio.aio_mask |= (1 << index);
-    syncdio.aios[index] = start;
+    tp->syncdio.anychanged = 1; //something has changed
+    tp->syncdio.aio_mask |= (1 << index);
+    tp->syncdio.aios[index] = start;
     return TP_ERR_OK;
 }
 
@@ -2684,12 +2677,12 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
     if (0 == tp) {
         return TP_ERR_FAIL;
     }
-    syncdio.anychanged = 1; //something has changed
-    syncdio.dio_mask |= (1 << index);
+    tp->syncdio.anychanged = 1; //something has changed
+    tp->syncdio.dio_mask |= (1 << index);
     if (start > 0)
-        syncdio.dios[index] = 1; // the end value can't be set from canon currently, and has the same value as start
+        tp->syncdio.dios[index] = 1; // the end value can't be set from canon currently, and has the same value as start
     else
-        syncdio.dios[index] = -1;
+        tp->syncdio.dios[index] = -1;
     return TP_ERR_OK;
 }
 
