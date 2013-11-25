@@ -35,6 +35,7 @@
 //TODO tune these values. Current values are a conservative guess
 #define TP_ANGLE_EPSILON 1e-6
 #define TP_MAG_EPSILON 1e-10
+#define TP_TIME_EPSILON 1e-9
 #define TP_BIG_NUM 1e10
 
 //ERROR codes for TP functions
@@ -96,38 +97,38 @@ typedef struct {
     tp_spindle_status_t spindle; //Spindle data
 } TP_STRUCT;
 
-extern int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
-extern int tpClear(TP_STRUCT * tp);
-extern int tpInit(TP_STRUCT * tp);
-extern int tpClearDIOs(void);
-extern int tpSetCycleTime(TP_STRUCT * tp, double secs);
-extern int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
-extern int tpSetVlimit(TP_STRUCT * tp, double limit);
-extern int tpSetAmax(TP_STRUCT * tp, double amax);
-extern int tpSetId(TP_STRUCT * tp, int id);
-extern int tpGetExecId(TP_STRUCT * tp);
-extern int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
-extern int tpSetPos(TP_STRUCT * tp, EmcPose pos);
-extern int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
+int tpCreate(TP_STRUCT * tp, int _queueSize, TC_STRUCT * tcSpace);
+int tpClear(TP_STRUCT * tp);
+int tpInit(TP_STRUCT * tp);
+int tpClearDIOs(void);
+int tpSetCycleTime(TP_STRUCT * tp, double secs);
+int tpSetVmax(TP_STRUCT * tp, double vmax, double ini_maxvel);
+int tpSetVlimit(TP_STRUCT * tp, double limit);
+int tpSetAmax(TP_STRUCT * tp, double amax);
+int tpSetId(TP_STRUCT * tp, int id);
+int tpGetExecId(TP_STRUCT * tp);
+int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
+int tpSetPos(TP_STRUCT * tp, EmcPose pos);
+int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
         ini_maxvel, double acc, unsigned char enables);
-extern int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double
                      ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary);
-extern int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
+int tpAddCircle(TP_STRUCT * tp, EmcPose end, PmCartesian center,
         PmCartesian normal, int turn, int type, double vel, double ini_maxvel,
                        double acc, unsigned char enables, char atspeed);
-extern int tpRunCycle(TP_STRUCT * tp, long period);
-extern int tpPause(TP_STRUCT * tp);
-extern int tpResume(TP_STRUCT * tp);
-extern int tpAbort(TP_STRUCT * tp);
-extern int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
-extern int tpIsDone(TP_STRUCT * tp);
-extern int tpQueueDepth(TP_STRUCT * tp);
-extern int tpActiveDepth(TP_STRUCT * tp);
-extern int tpGetMotionType(TP_STRUCT * tp);
-extern int tpSetSpindleSync(TP_STRUCT * tp, double sync, int wait);
-extern void tpToggleDIOs(TC_STRUCT * tc); //gets called when a new tc is taken from the queue. it checks and toggles all needed DIO's
+int tpRunCycle(TP_STRUCT * tp, long period);
+int tpPause(TP_STRUCT * tp);
+int tpResume(TP_STRUCT * tp);
+int tpAbort(TP_STRUCT * tp);
+int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
+int tpIsDone(TP_STRUCT * tp);
+int tpQueueDepth(TP_STRUCT * tp);
+int tpActiveDepth(TP_STRUCT * tp);
+int tpGetMotionType(TP_STRUCT * tp);
+int tpSetSpindleSync(TP_STRUCT * tp, double sync, int wait);
+void tpToggleDIOs(TC_STRUCT * tc); //gets called when a new tc is taken from the queue. it checks and toggles all needed DIO's
 
-extern int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
-extern int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
+int tpSetAout(TP_STRUCT * tp, unsigned char index, double start, double end);
+int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
 
 #endif				/* TP_H */
