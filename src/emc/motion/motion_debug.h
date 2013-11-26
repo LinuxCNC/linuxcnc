@@ -40,7 +40,7 @@
 
 /*! \todo FIXME - this has become a dumping ground for all kinds of stuff */
 
-    typedef struct emcmot_debug_t {
+typedef struct emcmot_debug_t {
 	unsigned char head;	/* flag count for mutex detect */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
