@@ -648,7 +648,6 @@ class LivePlotter:
         self.last_limit = None
         self.last_motion_mode = None
         self.last_joint_position = None
-        self.set_manual_mode = False
         self.notifications_clear = False
         self.notifications_clear_info = False
         self.notifications_clear_error = False
@@ -767,11 +766,6 @@ class LivePlotter:
         vupdate(vars.interp_state, self.stat.interp_state)
         vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
         if hal_present == 1 :
-            set_manual_mode = comp["set-manual-mode"]
-            if self.set_manual_mode != set_manual_mode:
-                 self.set_manual_mode = set_manual_mode
-                 if self.set_manual_mode:
-                     root_window.tk.eval(pane_top + ".tabs raise manual")
             notifications_clear = comp["notifications-clear"]
             if self.notifications_clear != notifications_clear:
                  self.notifications_clear = notifications_clear
@@ -3104,7 +3098,6 @@ if hal_present == 1 :
     comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
-    comp.newpin("set-manual-mode",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
