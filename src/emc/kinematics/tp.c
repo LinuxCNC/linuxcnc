@@ -56,8 +56,8 @@ extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
 /** static function primitives */
-STATIC int tpComputeRealBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
-        const tc, TC_STRUCT const * const nexttc, double * const blend_vel);
+STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
+        const tc, TC_STRUCT const * const nexttc, int use_max_scale, double * const blend_vel);
 
 //Empty function to act as an assert for GDB in simulation
 STATIC int gdb_fake_catch(int condition){
@@ -161,6 +161,11 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
  */
 STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
+}
+
+
+STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+    return fmin(tc->target_vel * TP_MAX_FEED_SCALE, tc->maxvel);
 }
 
 
@@ -827,7 +832,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
     double v_parabolic = 0.0;
-    tpComputeParabolicBlendVelocity(tp, prev_tc, tc, &v_parabolic);
+    tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_parabolic);
 
     /* Additional quality / performance checks: If we aren't moving faster than
      * the equivalent parabolic blend, then fall back to parabolic
@@ -1455,12 +1460,14 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
  * safe blend velocity is based on the known trajectory parameters. This
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
-STATIC int tpComputeRealBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double * const blend_vel) {
+STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
+        TC_STRUCT const * const tc, TC_STRUCT const * const nexttc,
+        int use_max_scale, double * const blend_vel) {
     /* Pre-checks for valid pointers */
     if (!nexttc) {
         tp_debug_print("missing nexttc in compute vel?\n");
         *blend_vel=0.0;
-        return TP_ERR_FAIL;
+        return TP_ERR_NO_ACTION;
     }
 
     double acc_this = tpGetScaledAccel(tp, tc);
@@ -1468,8 +1475,14 @@ STATIC int tpComputeRealBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT cons
     double v_peak_next = pmSqrt(nexttc->target * acc_next);
 
     // cap the blend velocity at the current requested speed (factoring in feed override)
-    double v_blend_next = fmin(v_peak_next, tpGetRealTargetVel(tp,nexttc));
+    double target_vel_next;
+    if (use_max_scale) {
+        target_vel_next = tpGetMaxTargetVel(tp, nexttc);
+    } else {
+        target_vel_next = tpGetRealTargetVel(tp, nexttc);
+    }
 
+    double v_blend_next = fmin(v_peak_next, target_vel_next);
     /* Scale blend velocity to match blends between current and next segment.
      *
      * The blend time t_b should be the same for this segment and the next
@@ -1513,7 +1526,7 @@ STATIC int tpComputeRealBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT cons
         pmCartCartDot(&v1, &v2, &dot);
 
         theta = acos(-dot)/2.0;
-        /*  Minimum value of cos(theta) to prevent numerical instability */
+        /* Minimum value of cos(theta) to prevent numerical instability */
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_ANGLE_EPSILON);
         if (cos(theta) > min_cos_theta) {
             tblend_vel = 2.0 * pmSqrt(acc_this * tc->tolerance / cos(theta));
@@ -1780,14 +1793,20 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
 
 /**
  * Do a parabolic blend by updating the nexttc.
- * Perform the actual blending process by updating the nexttc.
+ * Perform the actual blending process by updating the target velocity for the
+ * next segment.
  */
 STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * nexttc) {
 
     double save_vel = nexttc->target_vel;
-    if (tpGetFeedScale(tp,nexttc) > 0.0) {
-        nexttc->target_vel =  ((tc->vel_at_blend_start - tc->currentvel) / tpGetFeedScale(tp, nexttc));
+    // Get the accelerations of the current and next segment to properly scale the blend velocity
+    double acc_this = tpGetScaledAccel(tp, tc);
+    double acc_next = tpGetScaledAccel(tp, nexttc);
+
+    if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
+        double dv = tc->vel_at_blend_start - tc->currentvel;
+        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc) * acc_next / acc_this;
     } else {
         nexttc->target_vel = 0.0;
     }
@@ -2196,7 +2215,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     EmcPose secondary_displacement; //The displacement due to the nexttc's motion
 
-    tpComputeRealBlendVelocity(tp, tc, nexttc, &tc->blend_vel);
+    tpComputeBlendVelocity(tp, tc, nexttc, false, &tc->blend_vel);
 
     if (nexttc->synchronized) {
         //If the next move is synchronized too, then match it's
