@@ -71,13 +71,17 @@ typedef struct {
 
     int queueSize;
     double cycleTime;
+
     double vMax;		/* vel for subsequent moves */
     double ini_maxvel;          /* max velocity allowed by machine 
                                    constraints (ini file) for
                                    subsequent moves */
     double vScale;		/* feed override value */
-    double aMax;        /* max accel (unused) */
     double vLimit;		/* absolute upper limit on all vels */
+
+    double aMax;        /* max accel (unused) */
+    double aLimit;        /* max accel (unused) */
+
     double wMax;		/* rotational velocity max */
     double wDotMax;		/* rotational accelleration max */
     int nextId;

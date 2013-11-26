@@ -3,6 +3,7 @@
 
 import linuxcnc
 import os
+from time import sleep
 
 
 # this is how long we wait for linuxcnc to do our bidding
@@ -65,7 +66,6 @@ class LinuxcncControl:
         return current mode
         '''
         self.s.poll()
-        print self.s.task_mode
         if self.s.task_mode == m :
             return m
         self.c.state(m)
@@ -174,11 +174,11 @@ class LinuxcncControl:
         self.c.wait_complete(self.timeout)
 
     def wait_on_program(self):
-        motion_type = -1;
+        motion_type = 4;
         while motion_type>0:
             self.s.poll()
             motion_type = self.s.motion_type
-            sleep(1)
+            sleep(.5)
 
 
 def introspect():
