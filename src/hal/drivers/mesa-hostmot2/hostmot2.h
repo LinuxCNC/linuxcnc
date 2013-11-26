@@ -673,6 +673,7 @@ typedef struct {
             hal_u32_t dirhold;
 
             hal_u32_t step_type;
+            hal_u32_t table[5]; // the Fifth Element is used as a very crude hash
         } param;
 
     } hal;
@@ -691,8 +692,9 @@ typedef struct {
     u32 written_stepspace;
     u32 written_dirsetup;
     u32 written_dirhold;
-
     u32 written_step_type;
+    u32 table_width;
+    
 } hm2_stepgen_instance_t;
 
 
