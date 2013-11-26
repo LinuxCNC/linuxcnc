@@ -11,7 +11,7 @@ function say_failed {
 set -o monitor
 ./build-profile.sh
 cp position.blank position.txt
-operf rtapi_app > runlog.txt &
+operf rtapi_app &
 linuxcnc -r circular_arcs.ini & 
 LOCAL_LCNC_PID=$!
 echo $LOCAL_LCNC_PID
