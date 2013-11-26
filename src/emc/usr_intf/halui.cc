@@ -1044,6 +1044,10 @@ static int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
 
+    if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
+        return 0;
+    }
+
     mode_msg.mode = EMC_TASK_MODE_MANUAL;
     mode_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(mode_msg);
@@ -1054,6 +1058,10 @@ static int sendAuto()
 {
     EMC_TASK_SET_MODE mode_msg;
 
+    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+        return 0;
+    }
+
     mode_msg.mode = EMC_TASK_MODE_AUTO;
     mode_msg.serial_number = ++emcCommandSerialNumber;
     emcCommandBuffer->write(mode_msg);
@@ -1063,6 +1071,10 @@ static int sendAuto()
 static int sendMdi()
 {
     EMC_TASK_SET_MODE mode_msg;
+
+    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+        return 0;
+    }
 
     mode_msg.mode = EMC_TASK_MODE_MDI;
     mode_msg.serial_number = ++emcCommandSerialNumber;
