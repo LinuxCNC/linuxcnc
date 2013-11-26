@@ -1386,12 +1386,15 @@ static int sendJogCont(int axis, double speed)
     EMC_AXIS_JOG emc_axis_jog_msg;
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
-    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
+    if (emcStatus->task.state != EMC_TASK_STATE_ON) {
 	return -1;
+    }
 
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
 	return -1;
     }
+
+    sendManual();
 
     if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
 	emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
@@ -1433,11 +1436,14 @@ static int sendJogInc(int axis, double speed, double inc)
 {
     EMC_AXIS_INCR_JOG emc_axis_jog_msg;
 
-    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
+    if (emcStatus->task.state != EMC_TASK_STATE_ON) {
 	return -1;
+    }
 
     if (axis < 0 || axis >= EMC_AXIS_MAX)
 	return -1;
+
+    sendManual();
 
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
     	return -1;
