@@ -40,8 +40,8 @@
 
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
-static inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
-static inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
+STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
+STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 #include "tp_debug.h"
@@ -75,7 +75,7 @@ STATIC int gdb_fake_assert(int condition){
  * Simple signum-like function to get sign of a double.
  * There's probably a better way to do this...
  */
-static double fsign(double f) {
+STATIC double fsign(double f) {
     if (f>0) {
         return 1.0;
     } else if (f < 0) {
@@ -93,6 +93,47 @@ static double fsign(double f) {
  * These functions return the "actual" values of things like a trajectory
  * segment's feed override, while taking into account the status of tp itself.
  */
+
+
+/**
+ * Get a safe maximum acceleration based on X,Y, and Z. 
+ * Use the lowest bound on the linear axes, rather than using the
+ * trajectory max accels. These are computed with the infinity norm, which
+ * means we can't just assume that the smaller of the two is within the limits.
+ */
+STATIC int tpGetMachineAccelLimit(double * const acc_limit) { 
+    if (!acc_limit) {
+        return TP_ERR_FAIL;
+    }
+
+    PmCartesian acc_bound;
+    //FIXME check for number of axes first!
+    acc_bound.x = emcmotDebug->joints[0].acc_limit;
+    acc_bound.y = emcmotDebug->joints[1].acc_limit;
+    acc_bound.z = emcmotDebug->joints[2].acc_limit;
+
+    *acc_limit=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
+    tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
+    return TP_ERR_OK;
+}
+
+
+STATIC int tpGetMachineVelLimit(double * const vel_limit) {
+
+    if (!vel_limit) {
+        return TP_ERR_FAIL;
+    }
+
+    PmCartesian vel_bound;
+    //FIXME check for number of axes first!
+    vel_bound.x = emcmotDebug->joints[0].vel_limit;
+    vel_bound.y = emcmotDebug->joints[1].vel_limit;
+    vel_bound.z = emcmotDebug->joints[2].vel_limit;
+
+    *vel_limit = fmin(fmin(vel_bound.x,vel_bound.y),vel_bound.z);
+    tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
+    return TP_ERR_OK;
+}
 
 
 /**
@@ -116,7 +157,7 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
  * Get target velocity for a tc based on the trajectory planner state.
  * This gives the requested velocity, capped by the segments maximum velocity.
  */
-static inline double tpGetRealTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
 }
 
@@ -264,8 +305,6 @@ int tpInit(TP_STRUCT * const tp)
     tp->cycleTime = 0.0;
     tp->vLimit = 0.0;
     tp->vScale = 1.0;
-    tp->aMax = 0.0;
-    tp->vMax = 0.0;
     tp->ini_maxvel = 0.0;
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
@@ -276,6 +315,9 @@ int tpInit(TP_STRUCT * const tp)
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
 
     ZERO_EMC_POSE(tp->currentPos);
+
+    tpGetMachineAccelLimit(&tp->aLimit);
+    /*tpGetMachineVelLimit(&tp->vMax);*/
 
     return tpClear(tp);
 }
@@ -633,44 +675,6 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 }
 
 
-// Safe acceleration limit is to use the lowest bound on the linear axes,
-// rather than using the trajectory max accels. These are computed with the
-// infinity norm, which means we can't just assume that the smaller of the two is within the limits.
-STATIC int tpGetMachineAccelLimit(double * const acc_limit) { 
-    if (!acc_limit) {
-        return TP_ERR_FAIL;
-    }
-
-    PmCartesian acc_bound;
-    //FIXME check for number of axes first!
-    acc_bound.x = emcmotDebug->joints[0].acc_limit;
-    acc_bound.y = emcmotDebug->joints[1].acc_limit;
-    acc_bound.z = emcmotDebug->joints[2].acc_limit;
-
-    *acc_limit=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
-    tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
-    return TP_ERR_OK;
-}
-
-
-
-STATIC int tpGetMachineVelLimit(double * const vel_limit) {
-
-    if (!vel_limit) {
-        return TP_ERR_FAIL;
-    }
-
-    PmCartesian vel_bound;
-    //FIXME check for number of axes first!
-    vel_bound.x = emcmotDebug->joints[0].vel_limit;
-    vel_bound.y = emcmotDebug->joints[1].vel_limit;
-    vel_bound.z = emcmotDebug->joints[2].vel_limit;
-
-    *vel_limit = fmin(fmin(vel_bound.x,vel_bound.y),vel_bound.z);
-    tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
-    return TP_ERR_OK;
-}
-
 /**
  * Compute arc segment to blend between two lines.
  */
@@ -690,14 +694,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
     tp_debug_print("theta=%f\n",theta);
 
-    double phi = (PM_PI- theta * 2.0);
+    double phi = (PM_PI - theta * 2.0);
 
     //TODO change this to reference tc? does it matter?
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
-    double a_max, v_max;
-    tpGetMachineAccelLimit(&a_max);
-    tpGetMachineVelLimit(&v_max);
+    double a_max = tp->aLimit;
+    double v_max = tp->vMax;
     /* Note: hard-coded sqrt(3)/2 as normal accel because we're using 0.5 as
      * the tangential acceleration. Since changing acceleration values between
      * segments is undesirable, it's better to restrict tangential acceleration
@@ -802,9 +805,14 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double d_plan = R_plan / Ttheta;
 
-    //We need to unscale the velocity by the max override to get the actual
-    //target velocity for the arc.
-    double v_actual = v_plan / TP_MAX_FEED_SCALE;
+    //Now we store the "actual" velocity. Recall that v_plan may be greater
+    //than v_req by the max feed override. If our worst-case planned velocity is higher than the requested velocity, then clip at the requested velocity. This allows us to increase speed above the feed override limits
+    double v_actual;
+    if (v_plan > v_req) {
+        v_actual = v_req;
+    } else {
+        v_actual = v_plan;
+    }
 
     tp_debug_print("v_actual = %f\n", v_actual);
 
@@ -829,11 +837,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * the equivalent parabolic blend, then fall back to parabolic
      */
 
-    //Limit all velocities by what we can sample
-
     tp_debug_print(" Check: v_actual = %f, v_para = %f\n", v_actual, v_parabolic);
     if ( v_actual <= v_parabolic) {
-        return TP_ERR_FAIL;
+        return TP_ERR_NO_ACTION;
     }
 
     //If for some reason we get too small a radius, the blend will fail. This
@@ -1249,8 +1255,8 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             //make blend arc
             int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
             if (arc_fail) {
-                tp_debug_print("error creating arc\n");
-                return TP_ERR_FAIL;
+                tp_debug_print("blend arc NOT created\n");
+                return arc_fail;
             }
 
             tcConnectBlendArc(prev_tc, tc, &blend_tc);
@@ -2265,7 +2271,7 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  * then we flag the segment as "done", so that the next time tpRunCycle runs,
  * it handles the transition to the next segment.
  */
-static int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
 
     if (!nexttc) {
         return TP_ERR_FAIL;

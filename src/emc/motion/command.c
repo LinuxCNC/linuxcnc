@@ -70,6 +70,8 @@
 #include "rtapi_math.h"
 #include "motion_types.h"
 
+#include "../kinematics/tp_debug.h"
+
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
 
@@ -114,7 +116,7 @@ int checkAllHomed(void) {
 
 /* limits_ok() returns 1 if none of the hard limits are set,
    0 if any are set. Called on a linear and circular move. */
-static int limits_ok(void)
+STATIC int limits_ok(void)
 {
     int joint_num;
     emcmot_joint_t *joint;
@@ -138,7 +140,7 @@ static int limits_ok(void)
 /* check the value of the joint and velocity against current position,
    returning 1 (okay) if the request is to jog off the limit, 0 (bad)
    if the request is to jog further past a limit. */
-static int jog_ok(int joint_num, double vel)
+STATIC int jog_ok(int joint_num, double vel)
 {
     emcmot_joint_t *joint;
     int neg_limit_override, pos_limit_override;
@@ -208,7 +210,7 @@ void refresh_jog_limits(emcmot_joint_t *joint)
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not.  It also reports an error for each joint limit
    violation.  It's possible to get more than one violation per move. */
-static int inRange(EmcPose pos, int id, char *move_type)
+STATIC int inRange(EmcPose pos, int id, char *move_type)
 {
     double joint_pos[EMCMOT_MAX_JOINTS];
     int joint_num;
@@ -326,7 +328,7 @@ void emcmotAioWrite(int index, double value)
     }
 }
 
-static int is_feed_type(int motion_type)
+STATIC int is_feed_type(int motion_type)
 {
     switch(motion_type) {
     case EMC_MOTION_TYPE_ARC:
