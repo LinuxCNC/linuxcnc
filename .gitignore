@@ -32,3 +32,5 @@ lib/python/touchy
 cscope
 cscope.*
 *.kdev*
+oprofile*
+*.log
