@@ -623,10 +623,10 @@ gm.<nr of card>.read
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
 | Parameters            | Type and direction | Parameter description
-| gm.0.estop.0.in-0     | (bit, Out)         | Estop 0 input
-| gm.0.estop.0.in-not-0 | (bit, Out)         | Negated Estop 0 input
-| gm.0.estop.0.in-1     | (bit, Out)         | Estop 1 input
-| gm.0.estop.0.in-not-1 | (bit, Out)         | Negated Estop 1 input
+| gm.0.estop.0.in       | (bit, Out)         | Estop 0 input
+| gm.0.estop.0.in-not   | (bit, Out)         | Negated Estop 0 input
+| gm.0.estop.1.in       | (bit, Out)         | Estop 1 input
+| gm.0.estop.1.in-not   | (bit, Out)         | Negated Estop 1 input
 |========================================
 
 == Status LEDs
@@ -840,7 +840,7 @@ gm.<nr. of card>.rs485.<modul ID>
 
 ==== Parameters
 
-.Relay output module parameters[[table:rs485-dacadc-parameters]](((rs485-dacadc-parameters)))
+.DAC & ADC module parameters[[table:rs485-dacadc-parameters]](((rs485-dacadc-parameters)))
 
 [width="80%", options="header", cols="<3,^2,<6"]
 |========================================
@@ -862,4 +862,82 @@ gm.0.rs485.0.adc-0 # First analogue channel of the node.
 # .rs485.0 - Select node with address 0 on the RS485 bus
 # .adc-0   - Select the first analogue input of the module
 ----
+
+=== Teach Pendant module
+
+For pinout, connection and electrical charasteristics of the module, please refer to the
+http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
+
+All the pins and parameters are updated by the following function:
+
+----
+gm.<nr. of card>.rs485
+----
+
+It should be added to servo thread or other thread with larger period to avoid CPU overload.
+Every RS485 module pin and parameter name begins as follows:
+
+----
+gm.<nr. of card>.rs485.<modul ID>
+----
+
+,where <modul ID> is form 00 to 15. Note that on the Teach Pendant module it cannot be changed, and pre-programmed as zero. Upon request it can be delivered with firmware pre-programmed different ID.
+
+==== Pins
+
+.Teach Pendant module pins[[table:rs485-teachpendant-pins]](((rs485-teachpendant-pins)))
+
+[width="80%", options="header", cols="<3,^2,<6"]
+|========================================
+| Pins                | Type and direction | Pin description
+| .adc-<0-5>          | (float, Out)       | Value of ADC input in Volts.
+| .enc-reset          | (bit, In)          | When True, resets counts and position to zero.
+| .enc-counts         | (s32, Out)         | Position in encoder counts.
+| .enc-rawcounts      | (s32, Out)         | The raw count is the counts, but unaffected by reset.
+| .enc-position       | (float, Out)       | Position in scaled units (=.enc-counts/.enc-position-scale).
+| .in-<0-7>           | (bit, Out)         | Input pin
+| .in-not-<0-7>       | (bit, Out)         | Negated input pin
+|========================================
+
+==== Parameters
+
+.Teach Pendant module parameters[[table:rs485-teachpendant-parameters]](((rs485-teachpendant-parameters)))
+
+[width="80%", options="header", cols="<3,^2,<6"]
+|========================================
+| Parameters            | Type and direction | Parameter description
+| .adc-scale-<0-5>      | (float, R/W)       | The input voltage will be multiplied by 
+                                               scale before being output to .adc- pin.
+| .adc-offset-<0-5>     | (float, R/W)       | Offset is subtracted from the hardware input 
+                                               voltage after the scale multiplier has been applied.
+| .enc-position-scale   | (float, R/W)       | Scale in per length unit.
+|========================================
+
+==== HAL example
+
+----
+gm.0.rs485.0.adc-0 # First analogue channel of the node.
+# gm.0     - Means the first GM6-PCI motion control card (PCI card address = 0)
+# .rs485.0 - Select node with address 0 on the RS485 bus
+# .adc-0   - Select the first analogue input of the module
+----
+
+
+== Errata
+
+=== GM6-PCI card Errata
+
+The revision number in this section refers to the revision of the GM6-PCI card device.
+
+==== Rev. 1.2
+
+*  Error:
+The PCI card do not boot, when Axis 1. END B switch is active (low).
+Found on November 16, 2013.
+
+*  Reason:
+This switch is connected to a boot setting pin of FPGA
+
+*  Problem fix/workaround:
+Use other switch pin, or connect only normally open switch to this switch input pin.
 

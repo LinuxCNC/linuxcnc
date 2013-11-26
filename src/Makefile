@@ -239,12 +239,6 @@ Makefile: config.h
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
-INFILES_MOVE = \
-        ../docs/man/man1/linuxcnc.1
-
-../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
-	./config.status --file=$@:$<
-
 INFILES = \
         ../scripts/linuxcnc ../scripts/realtime \
 	../scripts/haltcl ../scripts/rtapi.conf Makefile.inc Makefile.modinc \
@@ -263,7 +257,7 @@ endif
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: $(INFILES) $(INFILES_MOVE)
+default: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
@@ -593,7 +587,7 @@ install-python: install-dirs
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
 	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
-	$(FILE) ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
+	$(FILE) ../share/axis/images/*.png ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
