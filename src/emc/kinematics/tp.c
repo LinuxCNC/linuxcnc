@@ -46,7 +46,8 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #include "tp_debug.h"
 
-#define TP_ARC_BLENDS
+//Disable arc blends temporarily to test parabolic blend velocity function
+/*#define TP_ARC_BLENDS*/
 //NOTE: disabled for stress testing since this forces higher accelerations
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
@@ -55,7 +56,7 @@ extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
 /** static function primitives */
-STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
+STATIC int tpComputeRealBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
         const tc, TC_STRUCT const * const nexttc, double * const blend_vel);
 
 //Empty function to act as an assert for GDB in simulation
@@ -117,7 +118,7 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     return TP_ERR_OK;
 }
 
-
+#if 0
 STATIC int tpGetMachineVelLimit(double * const vel_limit) {
 
     if (!vel_limit) {
@@ -134,6 +135,7 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
     tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
     return TP_ERR_OK;
 }
+#endif
 
 
 /**
@@ -700,7 +702,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
     double a_max = tp->aLimit;
-    double v_max = tp->vMax;
     /* Note: hard-coded sqrt(3)/2 as normal accel because we're using 0.5 as
      * the tangential acceleration. Since changing acceleration values between
      * segments is undesirable, it's better to restrict tangential acceleration
@@ -713,12 +714,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double v_req = fmax(prev_tc->reqvel, tc->reqvel);
     double v_goal = v_req * TP_MAX_FEED_SCALE;
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, v_max = %f, max scale = %f\n", v_goal, v_max, TP_MAX_FEED_SCALE);
-
-    //Get 3D start, middle, end position
-    PmCartesian start = prev_tc->coords.line.xyz.start;
-    PmCartesian middle = prev_tc->coords.line.xyz.end;
-    PmCartesian end = tc->coords.line.xyz.end;
+    tp_debug_print("v_goal = %f, max scale = %f\n", v_goal, TP_MAX_FEED_SCALE);
 
     //Store trig functions for later use
     double Ctheta = cos(theta);
@@ -831,7 +827,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
     double v_parabolic = 0.0;
-    tpComputeBlendVelocity(tp, prev_tc, tc, &v_parabolic);
+    tpComputeParabolicBlendVelocity(tp, prev_tc, tc, &v_parabolic);
 
     /* Additional quality / performance checks: If we aren't moving faster than
      * the equivalent parabolic blend, then fall back to parabolic
@@ -886,7 +882,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 #endif
 
     //TODO Recycle calculations?
-    pmCircleFromPoints(&blend_tc->coords.circle.xyz, &start, &middle, &end, R_plan);
+
+    //Get 3D start, middle, end position
+    /*PmCartesian start = prev_tc->coords.line.xyz.start;*/
+    /*PmCartesian middle = prev_tc->coords.line.xyz.end;*/
+    /*PmCartesian end = tc->coords.line.xyz.end;*/
+
+    pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
+            &prev_tc->coords.line.xyz.start,
+            &prev_tc->coords.line.xyz.end, 
+            &tc->coords.line.xyz.end, R_plan);
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
 
@@ -1103,9 +1108,9 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
 
     //TODO incoporate max feed override
-    double vf_limit_this = fmin(tc->maxvel, tc->reqvel );
+    double vf_limit_this = tc->maxvel;
     //Limit the PREVIOUS velocity by how much we can overshoot into
-    double vf_limit_prev = fmin(prev1_tc->maxvel, prev1_tc->reqvel);
+    double vf_limit_prev = prev1_tc->maxvel;
     double vf_limit = fmin(vf_limit_this,vf_limit_prev);
     double vs = fmin(vs_back,vs_forward);
     tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",
@@ -1450,31 +1455,37 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
  * safe blend velocity is based on the known trajectory parameters. This
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
-STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double * const blend_vel) {
+STATIC int tpComputeRealBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double * const blend_vel) {
     /* Pre-checks for valid pointers */
-    if (!nexttc || !tc) {
+    if (!nexttc) {
         tp_debug_print("missing nexttc in compute vel?\n");
+        *blend_vel=0.0;
         return TP_ERR_FAIL;
     }
 
-    double vel = 0.0;
-    double v_peak_this;
-    double v_peak_next;
+    double acc_this = tpGetScaledAccel(tp, tc);
+    double acc_next = tpGetScaledAccel(tp, nexttc);
+    double v_peak_next = pmSqrt(nexttc->target * acc_next);
 
-    //KLUDGE just to get this working. a fixed scale factor doesn't make sense anymore...
-    double acc_this = tc->maxaccel * 0.5;
-    double acc_next = nexttc->maxaccel * 0.5;
+    // cap the blend velocity at the current requested speed (factoring in feed override)
+    double v_blend_next = fmin(v_peak_next, tpGetRealTargetVel(tp,nexttc));
 
-    v_peak_this = pmSqrt(tc->target * acc_this);
-    v_peak_next = pmSqrt(nexttc->target * acc_next);
-
-    vel = fmin(v_peak_this,v_peak_next);
-    // cap the blend velocity at the requested speed
-    vel = fmin(vel, tpGetRealTargetVel(tp,nexttc));
-
-    if (acc_this < acc_next) {
-        vel *= acc_this / acc_next;
-    }
+    /* Scale blend velocity to match blends between current and next segment.
+     *
+     * The blend time t_b should be the same for this segment and the next
+     * segment. This is the time it takes to decelerate from v_blend_this to 0
+     * at a rate of acc_this , and accelerate from 0 to v_blend next at a rate
+     * of acc_next.
+     *
+     * t_b = v_blend_this / acc_this = v_blend_next / acc_next
+     *
+     * Solving for v_blend_this by cross multiplying, we get:
+     *
+     * v_blend_this = v_blend_next * acc_this / acc_next
+     *
+     * TODO figure illustrating this
+     */
+    double v_blend_this = v_blend_next * acc_this / acc_next;
 
     if (tc->tolerance) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1496,18 +1507,20 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
         double theta;
         PmCartesian v1, v2;
 
+        //TODO break out normal acceleration calculation instead of changing the unit vector's direction
         tcGetEndingUnitVector(tc, &v1);
         tcGetStartingUnitVector(nexttc, &v2);
         pmCartCartDot(&v1, &v2, &dot);
 
         theta = acos(-dot)/2.0;
-        if (cos(theta) > 0.001) {
+        /*  Minimum value of cos(theta) to prevent numerical instability */
+        const double min_cos_theta = cos(PM_PI / 2.0 - TP_ANGLE_EPSILON);
+        if (cos(theta) > min_cos_theta) {
             tblend_vel = 2.0 * pmSqrt(acc_this * tc->tolerance / cos(theta));
-            if (tblend_vel < vel)
-                vel = tblend_vel;
+            v_blend_this = fmin(v_blend_this, tblend_vel);
         }
     }
-    *blend_vel = vel;
+    *blend_vel = v_blend_this;
     return TP_ERR_OK;
 }
 
@@ -2183,7 +2196,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     EmcPose secondary_displacement; //The displacement due to the nexttc's motion
 
-    tpComputeBlendVelocity(tp, tc, nexttc, &tc->blend_vel);
+    tpComputeRealBlendVelocity(tp, tc, nexttc, &tc->blend_vel);
 
     if (nexttc->synchronized) {
         //If the next move is synchronized too, then match it's
@@ -2534,7 +2547,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     double mag3=0;
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
     tc_debug_print("id: %lld primary movement = %f\n", timestep, mag3);
-    tc_debug_print("id: %lld total movement  = %f\n", timestep, mag1+mag2+mag3);
+    tc_debug_print("id: %lld total movement  = %f vel = %f\n", timestep,
+            mag1+mag2+mag3, emcmotStatus->current_vel);
 
 #ifdef TP_POSITION_LOGGING
     double delta_s = tc->progress-s_init;
