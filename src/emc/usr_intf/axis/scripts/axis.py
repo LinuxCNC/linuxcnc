@@ -661,6 +661,7 @@ class LivePlotter:
             self.stat = linuxcnc.stat()
         except linuxcnc.error:
             return False
+        self.current_task_mode = self.stat.task_mode
         def C(s):
             a = o.colors[s + "_alpha"]
             s = o.colors[s]
@@ -715,6 +716,16 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
+        if (self.stat.task_mode != self.current_task_mode):
+            self.current_task_mode = self.stat.task_mode
+            if (self.current_task_mode == linuxcnc.MODE_MANUAL):
+                root_window.tk.eval(pane_top + ".tabs raise manual")
+            if (self.current_task_mode == linuxcnc.MODE_MDI):
+                root_window.tk.eval(pane_top + ".tabs raise mdi")
+            if (self.current_task_mode == linuxcnc.MODE_AUTO):
+                # not sure if anything needs to be done for this
+                pass
+
         self.after = self.win.after(update_ms, self.update)
 
         self.win.set_current_line(self.stat.id or self.stat.motion_line)
