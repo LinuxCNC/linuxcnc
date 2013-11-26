@@ -1,3 +1,9 @@
+ver. 0.9.9.1
+- solved a bug showing the gremlin DRO, caused by a typo in a widget name
+- some buttons and widgets did not have tooltip text, added that ones
+- corrected German translation
+- corrected Spanish translation
+
 ver. 0.9.9
 - introduced a new DRO, showing all three positions (Abs, Rel, DTG) at ones
   user can toggle the DRO by clicking on them

@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9"
+_RELEASE = "0.9.9.1"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -142,6 +142,7 @@ class HandlerClass:
             self.widgets.Combi_DRO_4.set_property("imperial_text_template","%11.2f")
         image = self.widgets["img_home_%s"%self.axisletter_four]
         self.widgets.btn_home_4.set_image(image)
+        self.widgets.btn_home_4.set_property("tooltip-text",_("Home axis %s")%self.axisletter_four.upper())
         # We have to change the size of the DRO, to make 4 DRO fit the space we got
         for axis in self.data.axis_list:
             if axis == self.axisletter_four:
@@ -2020,7 +2021,7 @@ class HandlerClass:
 
     def on_chk_show_dro_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("show_gremlin_DRO =  %s"%widget.get_active())
-        self.widgets.gremlin.set_property("metric_units", self.widgets.Comi_DRO_x.metric_units)
+        self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
         self.widgets.gremlin.set_property("enable_dro",widget.get_active())
         self.gscreen.prefs.putpref("enable_dro", widget.get_active(), bool)
         self.widgets.chk_show_offsets.set_sensitive(widget.get_active())
