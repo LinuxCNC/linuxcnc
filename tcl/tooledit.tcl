@@ -1084,7 +1084,7 @@ proc ::tooledit::column_sort {e parm {initialize 0} } {
 
 #------------------------------------------------------------------------
 set ::te(allcolumns)  {x y z a b c u v w diam front back orien}
-if {[info script] == $::argv0} {
+proc standalone_tooledit {args} {
   # configure for standalone usage:
   set ::te(standalone) 1
   wm withdraw .
@@ -1113,5 +1113,7 @@ if {[info script] == $::argv0} {
     tkwait variable ::tooledit::finis
     exit 0
   }
-}
+} ;# standalone_tooledit
+
+if {[info script] == $::argv0} standalone_tooledit
 

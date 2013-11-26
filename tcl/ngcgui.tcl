@@ -3920,16 +3920,15 @@ proc ::ngcgui::wmrestore {hdl} {
    }
 } ;# wmrestore
 
-if [catch {
-  # configure standalone usage:
-
-  if {[info exists ::argv0] && [info script] == $::argv0} {
+# configure standalone usage:
+proc ::ngcgui::standalone_ngcgui {args} {
     # setup ::ngcgui::control() with defaults
     set hdl 0
     ::ngcgui::preset $hdl ::ngcgui::control
     package require Tk
-    # configure for standalone usage:
-    set ::ngcgui::control(any,app) [file tail $argv0]
+    # configure for standalone usage
+    # map dot (.) to underline (_) to preclude window naming errors:
+    set ::ngcgui::control(any,app) [string map {. _} [file tail $::argv0]]
 
     while {[llength $::argv] >0} {
       # beware wish handling of reserved cmdline arguments
@@ -4048,5 +4047,6 @@ if [catch {
     eval ::ngcgui::top $hdl ::ngcgui::control
     tkwait variable ::ngcgui::finis
     exit 0
-  }
-} msg] {puts "ngcgui.tcl:msg=$msg"}
+} ;# standalone_ngcgui
+
+if {[info exists ::argv0] && [info script] == $::argv0} ::ngcgui::standalone_ngcgui

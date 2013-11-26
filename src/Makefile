@@ -362,11 +362,41 @@ TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
+# tooledit as standalone app:
+TARGETS += ../bin/tooledit
+../bin/tooledit: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(TCLSH)")>|$@
+	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/tooledit.tcl")>>$@
+	$(Q)(echo "standalone_tooledit")>>$@
+	$(Q)chmod +x $@
+
 # ngcgui as standalone app:
 TARGETS += ../bin/ngcgui
-../bin/ngcgui: ../tcl/ngcgui.tcl
-	cp $< $@
-	chmod +x $@
+../bin/ngcgui: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(TCLSH)")>|$@
+	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/ngcgui.tcl")>>$@
+	$(Q)(echo "::ngcgui::standalone_ngcgui")>>$@
+	$(Q)chmod +x $@
+
+# pyngcgui as standalone app:
+TARGETS += ../bin/pyngcgui
+../bin/pyngcgui: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(PYTHON)")>|$@
+	$(Q)(echo "import pyngcgui")>>$@
+	$(Q)(echo "pyngcgui.standalone_pyngcgui()")>>$@
+	$(Q)chmod +x $@
+
+# gremlin_view as standalone app:
+TARGETS += ../bin/gremlin_view
+../bin/gremlin_view: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(PYTHON)")>|$@
+	$(Q)(echo "import gremlin_view")>>$@
+	$(Q)(echo "gremlin_view.standalone_gremlin_view()")>>$@
+	$(Q)chmod +x $@
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
@@ -534,7 +564,6 @@ ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyhistogram $(DESTDIR)$(bindir)
 endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)

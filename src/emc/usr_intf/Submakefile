@@ -31,26 +31,6 @@ endif
 $(call TOOBJSDEPS, $(TCLSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
 $(call TOOBJSDEPS, $(EMCSHSRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS) -fPIC
 
-../bin/tooledit: emc/usr_intf/tooledit.tcl
-	cp $< $@
-	chmod +x $@
-TARGETS += ../bin/tooledit
-
-../lib/python/pyngcgui.py: emc/usr_intf/pyngcgui.py
-	cp $< $@
-	chmod +x $@
-TARGETS += ../lib/python/pyngcgui.py
-
-# use link so BASE works for module and standalone in RIP build
-../bin/pyngcgui: ../lib/python/pyngcgui.py
-	ln -sf $< $@
-TARGETS += ../bin/pyngcgui
-
-../share/linuxcnc/popupkeyboard.ui: emc/usr_intf/popupkeyboard.ui
-	mkdir -p ../share/linuxcnc
-	cp $< $@
-TARGETS += ../share/linuxcnc/popupkeyboard.ui
-
 ../tcl/linuxcnc.so: $(call TOOBJS, $(EMCSHSRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) -shared $(LDFLAGS) -o $@ $(ULFLAGS) $(TCL_CFLAGS) $^ $(TCL_LIBS) -lXinerama
