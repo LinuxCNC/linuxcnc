@@ -38,26 +38,29 @@
 /*#define TC_DEBUG*/
 /*#define TP_INFO_LOGGING*/
 
+#include "tp_debug.h"
+
 #ifndef SIM
 //Need manual definitions for these functions since they're missing from rtapi_math.h
 STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-#include "tp_debug.h"
-
 //Disable arc blends temporarily to test parabolic blend velocity function
-/*#define TP_ARC_BLENDS*/
+#define TP_ARC_BLENDS
 //NOTE: disabled for stress testing since this forces higher accelerations
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
+#define TP_SHOW_BLENDS
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
 /** static function primitives */
-STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const *
-        const tc, TC_STRUCT const * const nexttc, int use_max_scale, double * const blend_vel);
+STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc,
+        TC_STRUCT const * const nexttc, int use_max_scale, double * const blend_vel);
+
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
 //Empty function to act as an assert for GDB in simulation
 STATIC int gdb_fake_catch(int condition){
@@ -328,7 +331,6 @@ int tpInit(TP_STRUCT * const tp)
 
     ZERO_EMC_POSE(tp->currentPos);
 
-    tpGetMachineAccelLimit(&tp->aLimit);
     /*tpGetMachineVelLimit(&tp->vMax);*/
 
     return tpClear(tp);
@@ -586,6 +588,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->on_final_decel=0;
     tc->smoothing = 0;
     tc->done = 0;
+    tc->split_time = 0;
 }
 
 /**
@@ -660,7 +663,12 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
 
     blend_tc->motion_type = TC_CIRCULAR;
+
+#ifdef TP_SHOW_BLENDS
+    blend_tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
+#else
     blend_tc->canon_motion_type = prev_line_tc->canon_motion_type;
+#endif
 
     blend_tc->synchronized = prev_line_tc->synchronized;
     blend_tc->uu_per_rev = prev_line_tc->uu_per_rev;
@@ -711,7 +719,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //TODO change this to reference tc? does it matter?
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
-    double a_max = tp->aLimit;
+    double a_max;
+    //TODO move this function into setup somewhere because this should be constant
+    tpGetMachineAccelLimit(&a_max);
     /* Note: hard-coded sqrt(3)/2 as normal accel because we're using 0.5 as
      * the tangential acceleration. Since changing acceleration values between
      * segments is undesirable, it's better to restrict tangential acceleration
@@ -843,8 +853,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * the equivalent parabolic blend, then fall back to parabolic
      */
 
-    tp_debug_print(" Check: v_actual = %f, v_para = %f\n", v_actual, v_parabolic);
-    if ( v_actual <= v_parabolic) {
+    tp_debug_print(" Check: v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
+    if ( v_plan <= v_parabolic) {
         return TP_ERR_NO_ACTION;
     }
 
@@ -1097,7 +1107,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     //Setup tangent blending constraints
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
     /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
-    tpGetMachineAccelLimit(&prev_tc->maxaccel);
+    /*tpGetMachineAccelLimit(&prev_tc->maxaccel);*/
 
     return TP_ERR_OK;
 }
@@ -1378,7 +1388,13 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     int arc_err = tpHandleBlendArc(tp, &tc, &end);
 #endif
 
-    gdb_fake_assert(tc.maxaccel<TP_ACCEL_EPSILON);
+    //Flag this as blending with previous segment if the previous segment is set to blend with this one
+    TC_STRUCT *prev_tc;
+    prev_tc = tcqLast(&tp->queue);
+    if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
+        tp_debug_print("prev segment parabolic, flagging blend_prev\n");
+        tc.blend_prev = 1;
+    }
 
     int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
 #ifdef TP_ARC_BLENDS
@@ -1386,6 +1402,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         tpRunOptimization(tp);
     }
 #endif
+
     return retval;
 }
 
@@ -1461,6 +1478,14 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tc.syncdio.anychanged = 0;
     }
 
+    //Flag this as blending with previous segment if the previous segment is set to blend with this one
+    TC_STRUCT *prev_tc;
+    prev_tc = tcqLast(&tp->queue);
+    if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
+        tp_debug_print("prev segment parabolic, flagging blend_prev\n");
+        tc.blend_prev = 1;
+    }
+
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, &end,true);
 }
@@ -1510,7 +1535,12 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      *
      * TODO figure illustrating this
      */
-    double v_blend_this = v_blend_next * acc_this / acc_next;
+    double v_blend_this;
+    if (acc_this < acc_next) {
+        v_blend_this = v_blend_next * acc_this / acc_next;
+    } else {
+        v_blend_this = v_blend_next;
+    }
 
     if (tc->tolerance) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1600,8 +1630,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     delta_pos = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
-    gdb_fake_assert(maxaccel<TP_ACCEL_EPSILON);
-
 
     discr_term1 = pmSq(tc_finalvel);
     discr_term2 = maxaccel * (2.0 * delta_pos - tc->currentvel * tc->cycle_time);
@@ -1665,10 +1693,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
 
-
-
-    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f, current_vel = %f, fs = %f, term = %d\n",
-            tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,tpGetFeedScale(tp,tc),tc->term_cond);
+    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f, current_vel = %f, fs = %f, tc = %f, term = %d\n",
+            tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,
+            tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
     tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
             newvel, newaccel, tc->target, tc->progress);
     tc->on_final_decel = (fabs(maxnewvel - newvel) < 0.001) && (newaccel < 0.0);
@@ -1813,12 +1840,12 @@ STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     double save_vel = nexttc->target_vel;
     // Get the accelerations of the current and next segment to properly scale the blend velocity
-    double acc_this = tpGetScaledAccel(tp, tc);
-    double acc_next = tpGetScaledAccel(tp, nexttc);
+    /*double acc_this = tpGetScaledAccel(tp, tc);*/
+    /*double acc_next = tpGetScaledAccel(tp, nexttc);*/
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc) * acc_next / acc_this;
+        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc) ;
     } else {
         nexttc->target_vel = 0.0;
     }
@@ -2239,13 +2266,12 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         return TP_ERR_NO_ACTION;
     }
 
-    // hack to show blends in axis
-    tp->motionType = 0;
 
     tcGetPos(nexttc, secondary_before);
 
     //Calculate change in position due to the nexttc during the blend
     tpUpdateSecondary(tp, tc, nexttc);
+    tpCheckEndCondition(tp, nexttc);
 
     //Find the overall displacement due to the movement along nexttc
     tpFindDisplacement(nexttc, secondary_before, &secondary_displacement);
@@ -2261,6 +2287,10 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tpToggleDIOs(nexttc);
         tpUpdateMovementStatus(tp, nexttc);
     }
+#ifdef TP_SHOW_BLENDS
+    // hack to show blends in axis
+    tp->motionType = 0;
+#endif
 
     //Update velocity status based on both tc and nexttc
     emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
@@ -2315,11 +2345,7 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  * then we flag the segment as "done", so that the next time tpRunCycle runs,
  * it handles the transition to the next segment.
  */
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
-
-    if (!nexttc) {
-        return TP_ERR_FAIL;
-    }
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     if (tc->term_cond != TC_TERM_COND_TANGENT) {
         return TP_ERR_NO_ACTION;
@@ -2411,8 +2437,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         //TC is done if we're here, so this is just bookkeeping
         tc->done = 1;
         tc->final_actual_vel = v_f;
-        nexttc->cycle_time = tp->cycleTime - dt;
-        tp_debug_print(" split time is %f\n",nexttc->cycle_time);
+        tc->split_time = dt;
+        tp_debug_print(" split time is %f\n", tc->split_time);
     } else {
         tp_debug_print(" dt = %f, not at end yet\n",dt);
     }
@@ -2524,7 +2550,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tp->depth = tp->activeDepth = 1;
         nexttc->active = 1;
         //Indicate that this segment is blending with the previous segment
-        nexttc->blend_prev = 1;
     }
 
     /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
@@ -2550,12 +2575,15 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     if (tc->done) {
         tp_debug_print("tc id %d done\n",tc->id);
         tc->progress = tc->target;
-        nexttc->currentvel = tc->final_actual_vel;
-        tpHandleTangency(tp, nexttc, &secondary_before, &mag2);
+        if (nexttc) {
+            nexttc->currentvel = tc->final_actual_vel;
+            nexttc->cycle_time-=tc->split_time;
+            tpHandleTangency(tp, nexttc, &secondary_before, &mag2);
+        }
     } else {
         tc->cycle_time = tp->cycleTime;
         tcRunCycle(tp, tc);
-        tpCheckEndCondition(tp, tc, nexttc);
+        tpCheckEndCondition(tp, tc);
 
         //Update motion status as normal
         tpToggleDIOs(tc);
