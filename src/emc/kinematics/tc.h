@@ -128,10 +128,10 @@ typedef struct {
     int smoothing;
     int done; //FLag to indicate that the TC is less than one timestep from the finish. Note that at the instant the flag is enabled, it is not actually done yet. This just means we don't execute tcRunCycle on this anymore, and just treat it like it's at the end.
     double final_actual_vel;
+    double split_time;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
-
 
 extern int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 extern int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
