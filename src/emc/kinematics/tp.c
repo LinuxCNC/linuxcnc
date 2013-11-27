@@ -198,9 +198,8 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
         a_scale*=.5;
     } 
     if (tc->motion_type == TC_CIRCULAR) {
-        /* Allocate sqrt(3)/2 of the total acceleration to normal acceleration,
-         * and 0.5 of the total to tangential acceleration. */
-        a_scale*=.5;
+        //Limit acceleration for cirular arcs to allow for normal acceleration
+        a_scale*=TP_ACC_RATIO_TANGENTIAL;
     }
     return a_scale;
 }
@@ -718,7 +717,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * segments is undesirable, it's better to restrict tangential acceleration
      * to parabolic blend levels.
      */
-    double a_n_max=a_max*pmSqrt(3.0)/2.0;
+    double a_n_max=a_max * TP_ACC_RATIO_NORMAL;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
     //Find common velocity and acceleration
@@ -1097,7 +1096,6 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     //Setup tangent blending constraints
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-    tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
     /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
     tpGetMachineAccelLimit(&prev_tc->maxaccel);
 
@@ -1435,8 +1433,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     //velocity slightly lower than what would be allowed by normal acceleration
     //alone. This is a hack to do this here and really should be handled in the
     //interpreter.
-    const double parabolic_vel_ratio = pmSqrt(pmSqrt(3.0)/2.0);
-    double corrected_maxvel = ini_maxvel * parabolic_vel_ratio;
+    double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_NORMAL);
 
     tpInitializeNewSegment(tp, &tc, vel, corrected_maxvel, acc, enables);
 
