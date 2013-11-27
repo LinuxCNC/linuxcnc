@@ -70,14 +70,3 @@ setp match_all.in 1
 
 net constraints-ok <= match_all.out
 
-#loadrt sampler depth=1000 cfg=fff
-
-#net Xacc => sampler.0.pin.0
-#net Yacc => sampler.0.pin.1
-#net Zacc => sampler.0.pin.2
-
-#setp sampler.0.enable 1
-#addf sampler.0 servo-thread
-
-#loadusr halsampler -c 0 ~/linuxcnc-dev/logs/acc-samples.txt
-#loadusr linuxcncrsh -n CIRCULAR_ARC_TEST
