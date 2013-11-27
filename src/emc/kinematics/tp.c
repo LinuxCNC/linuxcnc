@@ -185,18 +185,23 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
     }
 }
 
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
 /**
  * Get acceleration for a tc based on the trajectory planner state.
  */
-    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->motion_type ==
-            TC_CIRCULAR || tc->blend_prev) {
-        return tc->maxaccel * 0.5;
-    } else if (tc->term_cond == TC_TERM_COND_TANGENT && tc->motion_type == TC_LINEAR) {
-        return tc->maxaccel * 0.5;
-    } else {
-        return tc->maxaccel;
+STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+    double a_scale = tc->maxaccel;
+    /* Parabolic blending conditions: If the next segment or previous segment
+     * has a parabolic blend with this one, acceleration is scaled down by 1/2
+     * so that the sum of the two does not exceed the maximum.
+     */
+    if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
+        a_scale*=.5;
+    } else if (tc->motion_type == TC_CIRCULAR) {
+        /* Allocate sqrt(3)/2 of the total acceleration to normal acceleration,
+         * and 0.5 of the total to tangential acceleration. */
+        a_scale*=.5;
     }
+    return a_scale;
 }
 
 /**
