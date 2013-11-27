@@ -196,7 +196,8 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
      */
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
         a_scale*=.5;
-    } else if (tc->motion_type == TC_CIRCULAR) {
+    } 
+    if (tc->motion_type == TC_CIRCULAR) {
         /* Allocate sqrt(3)/2 of the total acceleration to normal acceleration,
          * and 0.5 of the total to tangential acceleration. */
         a_scale*=.5;
@@ -1095,7 +1096,8 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     tc->target = tc->coords.line.xyz.tmag;
 
     //Setup tangent blending constraints
-    tcSetTermCond(prev_tc,  TC_TERM_COND_TANGENT);
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+    tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
     /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
     tpGetMachineAccelLimit(&prev_tc->maxaccel);
 
@@ -1428,7 +1430,15 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     pmCartMag(&circle.rHelix, &helix_z_component);
     helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
             pmSq(helix_z_component));
-    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
+
+    //If we're doing parabolic blending, then we need to cap the maximum
+    //velocity slightly lower than what would be allowed by normal acceleration
+    //alone. This is a hack to do this here and really should be handled in the
+    //interpreter.
+    const double parabolic_vel_ratio = pmSqrt(pmSqrt(3.0)/2.0);
+    double corrected_maxvel = ini_maxvel * parabolic_vel_ratio;
+
+    tpInitializeNewSegment(tp, &tc, vel, corrected_maxvel, acc, enables);
 
     tc.target = helix_length;
     tc.nominal_length = helix_length;
@@ -2424,7 +2434,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
     //Hack debug output for timesteps
-    static long long int timestep = 0;
+    static double time_elapsed = 0;
     //Pointers to current and next trajectory component
     TC_STRUCT *tc;
     TC_STRUCT *nexttc;
@@ -2454,7 +2464,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tc_debug_print("-------------------\n");
     //Hack debug output for timesteps
-    timestep++;
+    time_elapsed+=tp->cycleTime;
     nexttc = tpGetNextTC(tp, tc);
 
 #ifdef TP_POSITION_LOGGING
@@ -2570,8 +2580,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     double mag3=0;
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
-    tc_debug_print("id: %lld primary movement = %f\n", timestep, mag3);
-    tc_debug_print("id: %lld total movement  = %f vel = %f\n", timestep,
+    tc_debug_print("time: %f primary movement = %.12e\n", time_elapsed, mag3);
+    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
             mag1+mag2+mag3, emcmotStatus->current_vel);
 
 #ifdef TP_POSITION_LOGGING
