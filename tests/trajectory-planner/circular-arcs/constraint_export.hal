@@ -1,0 +1,12 @@
+loadrt sampler depth=1000 cfg=fffb
+
+net Xacc => sampler.0.pin.0
+net Yacc => sampler.0.pin.1
+net Zacc => sampler.0.pin.2
+
+net constraints-ok => sampler.0.pin.3
+
+setp sampler.0.enable 1
+addf sampler.0 servo-thread
+
+loadusr halsampler -c 0 constraints.log
