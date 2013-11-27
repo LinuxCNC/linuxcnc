@@ -1535,12 +1535,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      *
      * TODO figure illustrating this
      */
-    double v_blend_this;
-    if (acc_this < acc_next) {
-        v_blend_this = v_blend_next * acc_this / acc_next;
-    } else {
-        v_blend_this = v_blend_next;
-    }
+    double v_blend_this = v_blend_next * acc_this / acc_next;
 
     if (tc->tolerance) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1840,12 +1835,12 @@ STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     double save_vel = nexttc->target_vel;
     // Get the accelerations of the current and next segment to properly scale the blend velocity
-    /*double acc_this = tpGetScaledAccel(tp, tc);*/
-    /*double acc_next = tpGetScaledAccel(tp, nexttc);*/
+    double acc_this = tpGetScaledAccel(tp, tc);
+    double acc_next = tpGetScaledAccel(tp, nexttc);
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc) ;
+        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc) * acc_next / acc_this;
     } else {
         nexttc->target_vel = 0.0;
     }
