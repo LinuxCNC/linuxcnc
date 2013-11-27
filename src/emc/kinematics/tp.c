@@ -1446,13 +1446,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
             pmSq(helix_z_component));
 
-    //If we're doing parabolic blending, then we need to cap the maximum
-    //velocity slightly lower than what would be allowed by normal acceleration
-    //alone. This is a hack to do this here and really should be handled in the
-    //interpreter.
-    double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_NORMAL);
-
-    tpInitializeNewSegment(tp, &tc, vel, corrected_maxvel, acc, enables);
+    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     tc.target = helix_length;
     tc.nominal_length = helix_length;
@@ -1462,9 +1456,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.coords.circle.xyz = circle;
     tc.coords.circle.uvw = line_uvw;
     tc.coords.circle.abc = line_abc;
-    tc.motion_type = TC_CIRCULAR;
     tc.canon_motion_type = type;
-    tc.term_cond = tp->termCond;
     tc.tolerance = tp->tolerance;
 
     tc.synchronized = tp->synchronized;
@@ -1485,6 +1477,16 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tp_debug_print("prev segment parabolic, flagging blend_prev\n");
         tc.blend_prev = 1;
     }
+
+    // Motion parameters
+    tc.motion_type = TC_CIRCULAR;
+    tc.term_cond = tp->termCond;
+
+    //Calculate actual max velocity based on scaled acceleration
+    /*double a_scaled = tpGetScaledAccel(tp, &tc);*/
+    //Hack to deal with the "double" scaling of acceleration. Temporary solution because this only works due to the specific implementation of GetScaledAccel
+    double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
+    tc.maxvel = corrected_maxvel;
 
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, &end,true);
