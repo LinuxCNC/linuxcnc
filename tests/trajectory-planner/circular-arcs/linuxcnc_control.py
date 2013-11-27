@@ -174,11 +174,10 @@ class LinuxcncControl:
         self.c.wait_complete(self.timeout)
 
     def wait_on_program(self):
-        motion_type = 4;
-        while motion_type>0:
-            self.s.poll()
-            motion_type = self.s.motion_type
+        self.s.poll()
+        while self.s.motion_type>0 or self.s.interp_state != linuxcnc.INTERP_IDLE:
             sleep(.5)
+            self.s.poll()
 
 
 def introspect():
