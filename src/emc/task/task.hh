@@ -37,7 +37,7 @@ int emcTaskPlanClearWait();
 int emcTaskPlanSynch();
 int emcTaskPlanSetOptionalStop(bool state);
 int emcTaskPlanSetBlockDelete(bool state);
-int emcTaskPlanExit();
+void emcTaskPlanExit();
 int emcTaskPlanOpen(const char *file);
 int emcTaskPlanRead();
 int emcTaskPlanExecute(const char *command);
