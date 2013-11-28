@@ -23,7 +23,6 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 
-
 /**
  * @section tpdebugflags TP debugging flags
  * Enable / disable various debugging functions here.
