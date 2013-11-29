@@ -21,7 +21,7 @@
 #define TP_DEFAULT_QUEUE_SIZE 32
 //TODO Assign by config file
 #define TP_LOOKAHEAD_DEPTH 30
-#define TP_SMOOTHING_THRESHOLD 0.3
+#define TP_SMOOTHING_THRESHOLD 0.33
 //TODO Assign by config file
 #define TP_MAX_FEED_SCALE 2.0
 #define TP_MIN_SEGMENT_CYCLES 2.0
