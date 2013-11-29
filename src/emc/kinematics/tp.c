@@ -769,19 +769,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double C = pmSq(prev_tc->target);
     double d_prev = -B - pmSqrt(pmSq(B)-C);
 
+    B = -tc->target/2.0 - a_n_max * Ttheta * pmSq(min_segment_time);
+    C = pmSq(tc->target/2.0);
+    double d_next = -B - pmSqrt(pmSq(B)-C);
+
     // Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->nominal_length;
     double L2 = tc->nominal_length;
 
     // Limit amount of line segment to blend
-    const double max_blend_ratio = 1.0/3.0;
-    double blend_ratio = fmin(d_prev/L1,max_blend_ratio);
-
-    tp_debug_print(" blend ratio = %f\n",blend_ratio);
-
-    // Do 1/3 blending since we can't absorb the previous
-    double d_next = fmin(L2 * blend_ratio, tc->target);
-    d_prev = fmin(L1 * blend_ratio, d_prev);
+    double blend_ratio = d_prev / L1;
 
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
@@ -852,10 +849,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * the equivalent parabolic blend, then fall back to parabolic
      */
 
+#ifdef TP_FALLBACK_PARABOLIC
     tp_debug_print(" Check: v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
     if ( v_plan <= v_parabolic) {
         return TP_ERR_NO_ACTION;
     }
+#endif
 
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
@@ -864,13 +863,19 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         return TP_ERR_FAIL;
     }
 
-#ifdef TP_SMOOTHING
+    //Cap the previous segment's velocity at the limit imposed by the update rate
     double prev_reqvel = 0.0;
     if (L_prev > 0.0) {
         prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
+        prev_tc->target_vel = prev_reqvel;
     }
 
-    // Optionally enable prev smoothing
+#ifdef TP_SMOOTHING
+
+    /* Enable velocity "smoothing" if the blend arc is above a critical size.
+     * The primary assumption here is that we want to do smoothing only if
+     * we're "consuming" the majority of the previous segment.
+     */
     double prev_blend_ratio = d_plan / L1;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
     if (prev_blend_ratio >= TP_SMOOTHING_THRESHOLD && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
@@ -882,31 +887,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
         prev_tc->maxvel = fmin(prev_tc->maxvel,v_plan);
         prev_tc->smoothing = 1;
-        /*blend_tc->smoothing = 1;*/
     }
 
-    // Optionally enable next smoothing
-    double next_blend_ratio = d_plan / L2;
-    tp_debug_print(" next blend ratio = %f\n",next_blend_ratio);
-    if (next_blend_ratio >= TP_SMOOTHING_THRESHOLD && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
-        tp_debug_print(" next smoothing enabled\n");
-
-        tc->target_vel = fmin(v_actual,tc->reqvel);
-
-        //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
-        tc->maxvel = fmin(tc->maxvel,v_plan);
-        tc->smoothing = 1;
-        /*blend_tc->smoothing = 1;*/
-    }
 #endif
 
-    //TODO Recycle calculations?
-
     //Get 3D start, middle, end position
-    /*PmCartesian start = prev_tc->coords.line.xyz.start;*/
-    /*PmCartesian middle = prev_tc->coords.line.xyz.end;*/
-    /*PmCartesian end = tc->coords.line.xyz.end;*/
-
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
             &prev_tc->coords.line.xyz.start,
             &prev_tc->coords.line.xyz.end, 
@@ -914,10 +899,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
 
-    //set the max velocity to v_normal, since we'll violate constraints otherwise.
+    //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
 
-    //TODO setup arc params in blend_tc
     return TP_ERR_OK;
 }
 
@@ -1197,6 +1181,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
     }
 
+    int done = 0;
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
@@ -1227,13 +1212,16 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
-
         tp_info_print("  current term = %u, type = %u, id = %u, \n",
                 tc->term_cond, tc->motion_type, tc->id);
         tp_info_print("  prev term = %u, type = %u, id = %u, \n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
+        tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
+
+        //Hack to take another cycle
         if (tc->atpeak) {
+            done=1;
+        } else if (done) {
             return TP_ERR_OK;
         }
 
