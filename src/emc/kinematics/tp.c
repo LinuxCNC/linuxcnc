@@ -775,11 +775,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     // Assume that we are not working on segments already traversed for now
     double L1 = prev_tc->nominal_length;
-    double L2 = tc->nominal_length;
 
     // Limit amount of line segment to blend
-    double blend_ratio = d_prev / L1;
-
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
     double R_geom = Ttheta * d_geom;
@@ -1161,12 +1158,10 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     TC_STRUCT *prev1_tc;
     TC_STRUCT *prev2_tc;
 
-
     int ind, x;
     int len = tcqLen(&tp->queue);
     //TODO make lookahead depth configurable from the INI file
     int walk = TP_LOOKAHEAD_DEPTH;
-
 
     //If the queue is not at least 3 elements deep, then we can't optimize
     if (len < 3) {
@@ -1274,24 +1269,6 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             tcConnectBlendArc(prev_tc, tc, &blend_tc);
 
             tpAddSegmentToQueue(tp, &blend_tc, end,false);
-
-#ifdef TP_CHECK_GAPS
-            //Debug section to check for gaps
-            EmcPose Q1_line,Q2_line;
-            EmcPose Q1_arc,Q2_arc;
-
-            tcGetStartpoint(&blend_tc,&Q1_arc);
-            tcGetEndpoint(&blend_tc,&Q2_arc);
-
-            tcGetEndpoint(prev_tc,&Q1_line);
-            tcGetStartpoint(tc,&Q2_line);
-
-            tp_debug_print("Q1_arc:  %.12f,%.12f,%.12f\n",Q1_arc.tran.x,Q1_arc.tran.y,Q1_arc.tran.z);
-            tp_debug_print("Q1_line: %.12f,%.12f,%.12f\n",Q1_line.tran.x,Q1_line.tran.y,Q1_line.tran.z);
-            tp_debug_print("Q2_arc:  %.12f,%.12f,%.12f\n",Q2_arc.tran.x,Q2_arc.tran.y,Q2_arc.tran.z);
-            tp_debug_print("Q2_line: %.12f,%.12f,%.12f\n",Q2_line.tran.x,Q2_line.tran.y,Q2_line.tran.z);
-#endif
-
 
             break;
         case TP_ERR_NO_ACTION:
