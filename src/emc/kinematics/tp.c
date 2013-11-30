@@ -764,24 +764,30 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         d_tol = Ctheta*h_tol;
     }
 
-    tp_debug_print("prev targ = %f\n",prev_tc->target);
-    double B = -prev_tc->target - a_n_max * Ttheta * pmSq(min_segment_time);
-    double C = pmSq(prev_tc->target);
-    double d_prev = -B - pmSqrt(pmSq(B)-C);
+    //Consider L1 / L2 to be the length available to blend over
+    double L1 = prev_tc->target;
+    double L2 = tc->target/2.0;
 
-    B = -tc->target/2.0 - a_n_max * Ttheta * pmSq(min_segment_time);
-    C = pmSq(tc->target/2.0);
-    double d_next = -B - pmSqrt(pmSq(B)-C);
+    double K = a_n_max * Ttheta * pmSq(min_segment_time) / 2.0;
+    double disc_prev = 2.0 * L1 * K + pmSq(K);
+    gdb_fake_assert(disc_prev < 0.0);
+    double d_prev = L1 + K - pmSqrt(disc_prev);
 
+    double disc_next = 2.0 * L2 * K + pmSq(K);
+    gdb_fake_assert(disc_next < 0.0);
+    double d_next = L2 + K - pmSqrt(disc_next);
+
+    tp_debug_print(" prev length L1 = %f\n", L1);
+    tp_debug_print(" next length L2 = %f\n", L2);
+    tp_debug_print(" K = %f\n", K);
     // Assume that we are not working on segments already traversed for now
-    double L1 = prev_tc->nominal_length;
 
     // Limit amount of line segment to blend
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
     double R_geom = Ttheta * d_geom;
 
-    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n",d_geom,d_prev,d_next);
+    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n", d_geom, d_prev, d_next);
     tp_debug_print("R_geom = %f\n",R_geom);
 
     //Calculate limiting velocity due to radius and normal acceleration, and
@@ -806,6 +812,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double v_sample_arc = s_arc / min_segment_time;
     //Clip the planning velocity the same way
     if (v_plan > v_sample_arc) {
+        tp_debug_print("v_plan %f > v_sample %f for arc\n", v_plan, v_sample_arc);
         v_plan = v_sample_arc;
     }
 
@@ -873,7 +880,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * The primary assumption here is that we want to do smoothing only if
      * we're "consuming" the majority of the previous segment.
      */
-    double prev_blend_ratio = d_plan / L1;
+    double prev_blend_ratio = d_plan / prev_tc->nominal_length;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
     if (prev_blend_ratio >= TP_SMOOTHING_THRESHOLD && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" prev smoothing enabled\n");
