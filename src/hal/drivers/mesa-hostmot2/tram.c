@@ -52,6 +52,8 @@ int hm2_register_tram_read_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 siz
         return -ENOMEM;
     }
 
+    rtapi_print("hm2_register_tram_read_region: %X - size %d\n", addr, size);
+
     tram_entry->addr = addr;
     tram_entry->size = size;
     tram_entry->buffer = buffer;
@@ -70,6 +72,8 @@ int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 si
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
     }
+
+    rtapi_print("hm2_register_tram_write_region: %X - size %d\n", addr, size);
 
     tram_entry->addr = addr;
     tram_entry->size = size;
@@ -146,12 +150,14 @@ int hm2_tram_read(hostmot2_t *hm2) {
     rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
 
-        if (!hm2->llio->read(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
+        if (!hm2->llio->queue_read(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
             HM2_ERR("TRAM read error! (addr=0x%04x, size=%d, iter=%u)\n", tram_entry->addr, tram_entry->size, tram_read_iteration);
             return -EIO;
         }
     }
 
+    if (!hm2->llio->queue_read(hm2->llio, 0, NULL, -1)) {
+    }
     tram_read_iteration ++;
 
     return 0;
@@ -165,12 +171,14 @@ int hm2_tram_write(hostmot2_t *hm2) {
     rtapi_list_for_each(ptr, &hm2->tram_write_entries) {
         hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
 
-        if (!hm2->llio->write(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
+        if (!hm2->llio->queue_write(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
             HM2_ERR("TRAM write error! (addr=0x%04x, size=%d, iter=%u)\n", tram_entry->addr, tram_entry->size, tram_write_iteration);
             return -EIO;
         }
     }
 
+    if (!hm2->llio->queue_write(hm2->llio, 0, NULL, -1)) {
+    }
     tram_write_iteration ++;
 
     return 0;
