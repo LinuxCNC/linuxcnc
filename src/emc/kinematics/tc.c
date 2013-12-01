@@ -29,10 +29,10 @@
 //#define TP_DEBUG
 #include "tp_debug.h"
 
-int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        pmCartCartSub(&tc->coords.line.xyz.end, &tc->coords.line.xyz.start, out);
+        *out=tc->coords.line.xyz.uVec;
     } else {
         PmCartesian startpoint;
         PmCartesian radius;
@@ -51,18 +51,18 @@ int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
         pmCartScalMult(&tan, tc->maxaccel, &tan);
         pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
         pmCartCartAdd(&tan, &perp, out);
+        pmCartUnit(out, out);
     }
-    pmCartUnit(out, out);
     return 0;
 }
 
-int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR) {
-        pmCartCartSub(&tc->coords.line.xyz.end, &tc->coords.line.xyz.start, out);
+        *out=tc->coords.line.xyz.uVec;
     } else if(tc->motion_type == TC_RIGIDTAP) {
         // comes out the other way
-        pmCartCartSub(&tc->coords.line.xyz.start, &tc->coords.line.xyz.end, out);
+        pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
     } else {
         PmCartesian endpoint;
         PmCartesian radius;
@@ -70,8 +70,61 @@ int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
         pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
         pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
         pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
+        pmCartUnit(out, out);
     }
-    pmCartUnit(out, out);
+    return 0;
+}
+
+static int tcGetHelicalTangentVector(PmCircle const * const circle, double progress,
+        PmCartesian * const out) {
+
+    PmCartesian startpoint;
+    PmCartesian radius;
+    PmCartesian tan, helix;
+
+    pmCirclePoint(circle, 0.0, &startpoint);
+    pmCartCartSub(&startpoint, &circle->center, &radius);
+    pmCartCartCross(&circle->normal, &radius, &tan);
+
+    //Helix component
+    double h;
+    pmCartMag(&circle->rHelix, &h);
+    if (h>0.0){
+        //Pre-scale tangent vector to unit length
+        pmCartUnit(&tan, &tan);
+        //No degeneracy because we have nonzero angle and radius
+        double ratio = 1.0 / (circle->radius * circle->angle);
+        //Scale the helix vector to be proportional to the unit tangent vector
+        pmCartScalMult(&circle->rHelix, ratio, &helix);
+        //Add scaled helix vector to "plane tangent" to get curve tangent vector
+        pmCartCartAdd(&helix, &tan, &tan);
+    }
+    //Normalize final output vector
+    pmCartUnit(&tan, out);
+    return 0;
+}
+
+int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+
+    if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
+        *out=tc->coords.line.xyz.uVec;
+    } else {
+        tcGetHelicalTangentVector(&tc->coords.circle.xyz, 0.0, out);
+    }
+    return 0;
+}
+
+int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+
+    if(tc->motion_type == TC_LINEAR) {
+        *out=tc->coords.line.xyz.uVec;
+    } else if(tc->motion_type == TC_RIGIDTAP) {
+        // comes out the other way
+        pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
+    } else {
+        tcGetHelicalTangentVector(&tc->coords.circle.xyz,
+                tc->coords.circle.xyz.angle, out);
+    }
     return 0;
 }
 
