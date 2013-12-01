@@ -643,9 +643,9 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
 COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe cooltool) \
 	$(patsubst %,../configs/%/core_servo.hal, motenc stg vti) \
-	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim) \
+	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim gladevcp) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
-	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
+	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto plasma-thc-sim plasma-thc)
 
 configs: $(COPY_CONFIGS)
 
