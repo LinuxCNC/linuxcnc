@@ -137,8 +137,10 @@ extern int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 extern int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
 extern int tcGetPos(TC_STRUCT const * const tc,  EmcPose * const out);
 int tcGetPosReal(TC_STRUCT const * const tc, int of_endpoint,  EmcPose * const out);
-int tcGetEndingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
-int tcGetStartingUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
+int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
 int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
