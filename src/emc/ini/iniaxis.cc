@@ -28,6 +28,7 @@
 #include "emcglb.h"		// EMC_DEBUG
 #include "emccfg.h"		// default values for globals
 
+#include "inihal.hh"
 
 /*
   loadAxis(int axis)
@@ -75,6 +76,8 @@
   emcAxisLoadComp(int axis, const char * file);
   emcAxisLoadComp(int axis, const char * file);
   */
+
+extern value_inihal_data old_inihal_data;
 
 static int loadAxis(int axis, EmcIniFile *axisIniFile)
 {
@@ -143,6 +146,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        old_inihal_data.backlash[axis] = backlash;
 
         // set min position limit
         limit = -1e99;	                // default
@@ -154,6 +158,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        old_inihal_data.min_limit[axis] = limit;
 
         // set max position limit
         limit = 1e99;	                // default
@@ -165,6 +170,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        old_inihal_data.max_limit[axis] = limit;
 
         // set following error limit (at max speed)
         ferror = 1;	                // default
@@ -176,6 +182,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        old_inihal_data.ferror[axis] = ferror;
 
         // do MIN_FERROR, if it's there. If not, use value of maxFerror above
         axisIniFile->Find(&ferror, "MIN_FERROR", axisString);
@@ -186,6 +193,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        old_inihal_data.min_ferror[axis] = ferror;
 
         // set homing paramsters (total of 6)
         home = 0;	                // default
@@ -255,6 +263,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         }
     }
 
+
     catch(EmcIniFile::Exception &e){
         e.Print();
         return -1;
@@ -305,7 +314,6 @@ int iniAxis(int axis, const char *filename)
     if (0 != loadAxis(axis, &axisIniFile)) {
         return -1;
     }
-
     return 0;
 }
 

@@ -264,6 +264,7 @@ HEADERS := \
     emc/ini/iniaxis.hh \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \
+    emc/ini/inihal.hh \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \

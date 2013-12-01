@@ -121,7 +121,7 @@ proc add_number_item_to_gui {f id} {
 } ;# add_number_item_to_gui
 
 proc item_info {itemname id} {
-  set fmt "item: %-30s %5s %3s %s"
+  set fmt "sim_pin: %-30s %5s %3s %s"
   set theitem "-----"
   set dir "---"
   # try pin:
