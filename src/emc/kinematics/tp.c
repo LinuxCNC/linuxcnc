@@ -874,6 +874,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         prev_tc->target_vel = prev_reqvel;
     }
 
+
+    //Get 3D start, middle, end position
+    pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
+            &prev_tc->coords.line.xyz.start,
+            &prev_tc->coords.line.xyz.end, 
+            &tc->coords.line.xyz.end, R_plan);
+
+    tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
+
+    //set the max velocity to v_plan, since we'll violate constraints otherwise.
+    tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
+
 #ifdef TP_SMOOTHING
 
     /* Enable velocity "smoothing" if the blend arc is above a critical size.
@@ -895,17 +907,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
 
 #endif
-
-    //Get 3D start, middle, end position
-    pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
-            &prev_tc->coords.line.xyz.start,
-            &prev_tc->coords.line.xyz.end, 
-            &tc->coords.line.xyz.end, R_plan);
-
-    tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
-
-    //set the max velocity to v_plan, since we'll violate constraints otherwise.
-    tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
 
     return TP_ERR_OK;
 }
@@ -1130,13 +1131,9 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
         double v_max_end = fmax(prev1_tc->finalvel, tc->finalvel);
         tc->target_vel = fmin(v_max_end, tc->maxvel);
     }
-    /*if (prev1_tc->smoothing) {*/
-        /*double v_max_end = fmax(vf2, prev1_tc->finalvel);*/
-        /*prev1_tc->target_vel = fmin(v_max_end, prev1_tc->maxvel);*/
-    /*}*/
 
-    tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
-            prev1_tc->finalvel, tc->finalvel);
+    tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f, capped target = %f\n",
+            prev1_tc->finalvel, tc->finalvel, tc->target_vel);
 
     return TP_ERR_OK;
 }
@@ -1177,7 +1174,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
     }
 
-    int done = 0;
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
@@ -1208,18 +1204,11 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        tp_info_print("  current term = %u, type = %u, id = %u, \n",
-                tc->term_cond, tc->motion_type, tc->id);
-        tp_info_print("  prev term = %u, type = %u, id = %u, \n",
-                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id);
+        tp_info_print("  current term = %u, type = %u, id = %u, smoothing = %d\n",
+                tc->term_cond, tc->motion_type, tc->id, tc->smoothing);
+        tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
+                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->smoothing);
         tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
-
-        //Hack to take another cycle
-        /*if (tc->atpeak) {*/
-            /*done=1;*/
-        /*} else if (done) {*/
-            /*return TP_ERR_OK;*/
-        /*}*/
 
     }
     tp_debug_print("Reached optimization depth limit\n");
@@ -2125,7 +2114,8 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Temporary debug message
-    tp_debug_print("Activate tc id = %d target_vel = %f final_vel = %f\n",tc->id,tc->target_vel,tc->finalvel);
+    tp_debug_print("Activate tc id = %d target_vel = %f final_vel = %f\n",
+            tc->id, tc->target_vel,tc->finalvel);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
