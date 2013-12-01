@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.1"
+_RELEASE = "0.9.9.2"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -2331,7 +2331,7 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("btn_edit_clicked")
         self.widgets.ntb_button.set_current_page(6)
         self.widgets.ntb_preview.hide()
-        self.widgets.hbx_dro.hide()
+        self.widgets.hbox_dro.hide()
         w1 , h1 = self.widgets.window1.get_size_request()
         w2 , h2 = self.widgets.vbtb_main.get_size_request()
         self.widgets.vbx_jog.set_size_request(w1 - w2 , -1)
@@ -2380,7 +2380,7 @@ class HandlerClass:
             self.widgets.tbtn_fullsize_preview.set_active(False)
         if self.widgets.ntb_button.get_current_page() == 6 or self.widgets.ntb_preview.get_current_page() == 3:
             self.widgets.ntb_preview.show()
-            self.widgets.hbx_dro.show()
+            self.widgets.hbox_dro.show()
             self.widgets.vbx_jog.set_size_request(360 , -1)
             self.widgets.gcode_view.set_sensitive(0)
             self.widgets.btn_save.set_sensitive(True)
