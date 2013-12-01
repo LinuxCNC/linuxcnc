@@ -20,14 +20,14 @@
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 //TODO Assign by config file
-#define TP_LOOKAHEAD_DEPTH 30
+#define TP_LOOKAHEAD_DEPTH 40
 #define TP_SMOOTHING_THRESHOLD 0.33
 //TODO Assign by config file
 #define TP_MAX_FEED_SCALE 2.0
-#define TP_MIN_SEGMENT_CYCLES 2.0
+//Make this slightly larger than the theoretical minimum of 2
+#define TP_MIN_SEGMENT_CYCLES 2.5
 #define TP_ACC_RATIO_NORMAL (pmSqrt(3.0)/2.0)
 #define TP_ACC_RATIO_TANGENTIAL 0.5
-
 
 /* closeness to zero, for determining if a move is pure rotation */
 #define TP_PURE_ROTATION_EPSILON 1e-6

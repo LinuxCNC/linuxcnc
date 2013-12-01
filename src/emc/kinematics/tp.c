@@ -197,11 +197,11 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
      * so that the sum of the two does not exceed the maximum.
      */
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
-        a_scale*=.5;
+        a_scale *= 0.5;
     } 
     if (tc->motion_type == TC_CIRCULAR) {
         //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale*=TP_ACC_RATIO_TANGENTIAL;
+        a_scale *= TP_ACC_RATIO_TANGENTIAL;
     }
     return a_scale;
 }
@@ -885,12 +885,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     if (prev_blend_ratio >= TP_SMOOTHING_THRESHOLD && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" prev smoothing enabled\n");
 
-        double smooth_vel = fmin(prev_reqvel,v_actual);
-        prev_tc->target_vel = smooth_vel;
+        /*double smooth_vel = fmin(prev_reqvel,v_actual);*/
+        /*prev_tc->target_vel = smooth_vel;*/
 
         //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
-        prev_tc->maxvel = fmin(prev_tc->maxvel,v_plan);
+        /*prev_tc->maxvel = fmin(prev_tc->maxvel,v_plan);*/
         prev_tc->smoothing = 1;
+        blend_tc->smoothing = 1;
     }
 
 #endif
@@ -999,7 +1000,7 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         TC_STRUCT const * const tc, double period) {
     double omega = 0.0;
 
-    if (prev_tc == NULL || tc == NULL) {
+    if (!prev_tc || !tc) {
         tp_debug_print("prev_tc or tc doesn't exist\n");
         return TP_ERR_FAIL;
     }
@@ -1009,7 +1010,6 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         tp_debug_print("Can't calculate angle\n");
         return TP_ERR_FAIL;
     }
-
 
     //If not linear blends, we can't easily compute an arc
     if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
@@ -1042,21 +1042,13 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     // Calculate the maximum angle between unit vectors that can still be
     // considered "tangent" (i.e. small enough that the
     // acceleration/deceleration spike is within limits).
-    double crit_angle = TP_ANGLE_EPSILON;
 
     /*tp_debug_print("max tan angle is %f\n",crit_angle);*/
     tp_debug_print("angle between segs = %f\n",omega);
 
-    //If the segments are nearly tangent, just treat it as tangent since the
-    //acceleration is within bounds.
-    if (omega < crit_angle) {
-        tp_debug_print("segments nearly tangent\n");
-        return TP_ERR_NO_ACTION;
-    }
-
     //If the corner is too tight, a circular arc would have zero radius. Fall
     //back to default blend.
-    if ((PM_PI - omega) < crit_angle ) {
+    if ((PM_PI - omega) < TP_ANGLE_EPSILON ) {
         tp_debug_print("Corner too tight, omega = %f\n",omega);
         return TP_ERR_FAIL;
     }
@@ -1120,8 +1112,8 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double vf_limit_prev = prev1_tc->maxvel;
     double vf_limit = fmin(vf_limit_this,vf_limit_prev);
     double vs = fmin(vs_back,vs_forward);
-    tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",
-            vf_limit_prev,vf_limit_this);
+    /*tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",*/
+            /*vf_limit_prev,vf_limit_this);*/
 
     if (vs >= vf_limit ) {
         //If we've hit the requested velocity, then prev_tc is definitely a "peak"
@@ -1135,11 +1127,13 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
     prev1_tc->finalvel = vs;
     if (tc->smoothing) {
-        tc->target_vel = fmin(fmax(vs,tc->finalvel),vf_limit_this);
+        double v_max_end = fmax(prev1_tc->finalvel, tc->finalvel);
+        tc->target_vel = fmin(v_max_end, tc->maxvel);
     }
-    if (prev1_tc->smoothing) {
-        prev1_tc->target_vel = fmin(fmax(vf2,vs),vf_limit_prev);
-    }
+    /*if (prev1_tc->smoothing) {*/
+        /*double v_max_end = fmax(vf2, prev1_tc->finalvel);*/
+        /*prev1_tc->target_vel = fmin(v_max_end, prev1_tc->maxvel);*/
+    /*}*/
 
     tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f\n",
             prev1_tc->finalvel, tc->finalvel);
@@ -1221,17 +1215,56 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
 
         //Hack to take another cycle
-        if (tc->atpeak) {
-            done=1;
-        } else if (done) {
-            return TP_ERR_OK;
-        }
+        /*if (tc->atpeak) {*/
+            /*done=1;*/
+        /*} else if (done) {*/
+            /*return TP_ERR_OK;*/
+        /*}*/
 
     }
     tp_debug_print("Reached optimization depth limit\n");
     return TP_ERR_OK;
 }
 
+
+
+/**
+ * Check for tangency between the current segment and previous segment.
+ * If the current and previous segment are tangent, then flag the previous
+ * segment as tangent, and limit the current segment's velocity by the sampling
+ * rate.
+ */
+STATIC int tpSetupTangent(TP_STRUCT const * const tp, 
+        TC_STRUCT * const prev_tc, TC_STRUCT * const tc) {
+    if (!tc || !prev_tc) {
+        return TP_ERR_FAIL;
+    }
+
+    PmCartesian prev_tan, this_tan;
+
+    tcGetEndTangentUnitVector(prev_tc, &prev_tan);
+    tcGetStartTangentUnitVector(tc, &this_tan);
+
+    tp_debug_print("prev tan = %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
+    tp_debug_print("this tan = %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
+
+    const double min_dot = cos(TP_ANGLE_EPSILON);
+
+    double dot;
+    pmCartCartDot(&prev_tan, &this_tan, &dot);
+
+    if (dot >= min_dot) {
+        tp_debug_print(" New segment is tangent, skipping arc\n");
+        //already tangent
+        tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+        //Clip maximum velocity by sample rate
+        tc->maxvel = fmin(tc->maxvel, tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
+        return TP_ERR_OK;
+    } else {
+        return TP_ERR_NO_ACTION;
+    }
+
+}
 
 /**
  * Handle creating a blend arc when a new line segment is about to enter the queue.
@@ -1261,35 +1294,24 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
         return TP_ERR_FAIL;
     }
 
+    if (TP_ERR_OK == tpSetupTangent(tp, prev_tc, tc)) {
+        //Marked segment as tangent
+        return TP_ERR_NO_ACTION;
+    }
+
     TC_STRUCT blend_tc;
 
-    switch (tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
-        case TP_ERR_OK:
-            tp_debug_print("Need a blend arc\n");
-            //make blend arc
-            int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
-            if (arc_fail) {
-                tp_debug_print("blend arc NOT created\n");
-                return arc_fail;
-            }
+    if (TP_ERR_OK == tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
+        //Try to create a blend arc
+        int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
+        if (arc_fail) {
+            tp_debug_print("blend arc NOT created\n");
+            return arc_fail;
+        }
 
-            tcConnectBlendArc(prev_tc, tc, &blend_tc);
+        tcConnectBlendArc(prev_tc, tc, &blend_tc);
 
-            tpAddSegmentToQueue(tp, &blend_tc, end,false);
-
-            break;
-        case TP_ERR_NO_ACTION:
-
-            tp_debug_print("Line already tangent\n");
-            //already tangent
-            tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-            tc->maxvel = fmin(tc->maxvel, tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
-
-            break;
-        case TP_ERR_FAIL:
-            break;
-        default:
-            tp_debug_print("Unknown blend arc condition\n");
+        tpAddSegmentToQueue(tp, &blend_tc, end,false);
     }
     return TP_ERR_OK;
 }
@@ -1459,6 +1481,10 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
     tc.maxvel = corrected_maxvel;
 
+    // Setup steps if the previous segment is tangent with this one
+    tp_debug_print("tpAddCircle: checking for tangent with previous\n");
+    tpSetupTangent(tp, prev_tc, &tc);
+
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, &end,true);
 }
@@ -1531,8 +1557,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         PmCartesian v1, v2;
 
         //TODO break out normal acceleration calculation instead of changing the unit vector's direction
-        tcGetEndingUnitVector(tc, &v1);
-        tcGetStartingUnitVector(nexttc, &v2);
+        tcGetEndAccelUnitVector(tc, &v1);
+        tcGetStartAccelUnitVector(nexttc, &v2);
         pmCartCartDot(&v1, &v2, &dot);
 
         theta = acos(-dot)/2.0;
@@ -2099,7 +2125,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Temporary debug message
-    tp_debug_print( "Activate tc id %d\n", tc->id);
+    tp_debug_print("Activate tc id = %d target_vel = %f final_vel = %f\n",tc->id,tc->target_vel,tc->finalvel);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
