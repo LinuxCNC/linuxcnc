@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.2"
+_RELEASE = "0.9.9.3"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -2402,14 +2402,18 @@ class HandlerClass:
     def on_btn_new_clicked(self, widget, data=None):
         tempfilename = os.path.join(_TEMPDIR,"temp.ngc")
         content = self.gscreen.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE")
+        if content == None:
+            content = " "
         content += "\n\n\n\nM2"
         gcodefile = open(tempfilename,"w")
         gcodefile.write(content)
         gcodefile.close()
-        self.emc.emccommand.program_open(tempfilename)
+        if self.widgets.lbl_program.get_label() == tempfilename:
+            self.widgets.hal_action_reload.emit("activate")
+        else:
+            self.emc.emccommand.program_open(tempfilename)
         self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
-        self.widgets.lbl_program.set_label("")
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_tbtn_optional_blocks_toggled to %s"%widget.get_active())

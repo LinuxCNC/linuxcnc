@@ -1,3 +1,11 @@
+ver. 0.9.9.3
+- if the user tried to make a new file and there where no 
+  RS274NGC_STARTUP_CODE in the INI file, an exception has been thrown
+  fixed that bug
+- if the user tried to make a new file, after he made allready one,
+  an exception has been trown, because the file was loaded allready
+  fixed that bug
+
 ver. 0.9.9.2
 - solved a bug, entering the edit mode from auto mode, caused by 
   a typo in a widget name
