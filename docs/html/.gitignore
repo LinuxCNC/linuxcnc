@@ -2,6 +2,8 @@
 *.css
 !linuxcnc.css
 *.html
+!gcode.html
+!gcode_fr.html
 *.xml
 *.png
 *.gif
@@ -14,3 +16,4 @@ gui
 hal
 install
 motion
+examples
