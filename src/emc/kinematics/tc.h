@@ -127,6 +127,7 @@ typedef struct {
     int blend_prev;
     int smoothing;
     int done; //FLag to indicate that the TC is less than one timestep from the finish. Note that at the instant the flag is enabled, it is not actually done yet. This just means we don't execute tcRunCycle on this anymore, and just treat it like it's at the end.
+    int remove;             // Flag to remove the segment from the queue
     double final_actual_vel;
     double split_time;
 } TC_STRUCT;
