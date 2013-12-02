@@ -12,18 +12,3 @@ PYI18NSRCS += emc/usr_intf/gremlin/gremlin.py
 	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
-
-../lib/python/gremlin_view.py: emc/usr_intf/gremlin/gremlin_view.py
-	cp $< $@
-	chmod +x $@
-TARGETS += ../lib/python/gremlin_view.py
-
-# use link so BASE works for module and standalone in RIP build
-../bin/gremlin_view: ../lib/python/gremlin_view.py
-	ln -sf $< $@
-TARGETS += ../bin/gremlin_view
-
-../share/linuxcnc/gremlin_view.ui: emc/usr_intf/gremlin/gremlin_view.ui
-	mkdir -p ../share/linuxcnc
-	cp $< $@
-TARGETS += ../share/linuxcnc/gremlin_view.ui

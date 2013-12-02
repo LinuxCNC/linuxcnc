@@ -25,5 +25,33 @@ extern int emcIoPluginCall(EMC_IO_PLUGIN_CALL *call_msg);
 extern int emcTaskOnce(const char *inifile);
 extern int emcRunHalFiles(const char *filename);
 
+int emcTaskInit();
+int emcTaskHalt();
+int emcTaskAbort();
+int emcTaskSetMode(int mode);
+int emcTaskSetState(int state);
+int emcTaskPlanInit();
+int emcTaskPlanSetWait();
+int emcTaskPlanIsWait();
+int emcTaskPlanClearWait();
+int emcTaskPlanSynch();
+int emcTaskPlanSetOptionalStop(bool state);
+int emcTaskPlanSetBlockDelete(bool state);
+void emcTaskPlanExit();
+int emcTaskPlanOpen(const char *file);
+int emcTaskPlanRead();
+int emcTaskPlanExecute(const char *command);
+int emcTaskPlanExecute(const char *command, int line_number); //used in case of MDI to pass the pseudo line number to interp
+int emcTaskPlanPause();
+int emcTaskPlanResume();
+int emcTaskPlanClose();
+int emcTaskPlanReset();
+
+int emcTaskPlanLine();
+int emcTaskPlanLevel();
+int emcTaskPlanCommand(char *cmd);
+
+int emcTaskUpdate(EMC_TASK_STAT * stat);
+
 #endif
 

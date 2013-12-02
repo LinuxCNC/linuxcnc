@@ -793,8 +793,8 @@ feedback from the first stepgen of the second 5i22 board is:
 hm2_5i22.1.stepgen.00.position-fb (this assumes that the firmware in
 that board is configured so that this HAL object is available)
 
-Each stepgen uses 2 IO pins.  The signals on these pins depends on the
-step_type parameter (described below).
+Each stepgen uses between 2 and 6 IO pins.  The signals on these pins depends on
+the step_type parameter (described below).
 
 The stepgen representation is modeled on the stepgen software component.
 Each stepgen instance has the following pins and parameters:
@@ -886,9 +886,24 @@ step ends, in nanoseconds.
 .TP
 (u32 r/w) step_type
 Output format, like the step_type modparam to the
-software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature.
+software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature, 3+ =
+table-lookup mode. In this mode the step_type parameter determines how long the
+step sequence is. The maximum length is 16. Table mode is not enabled in most of
+the distributed firmwares. 
+
 In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
-cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes.
+cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes. In table mode
+up to 6 IO pins are individually controlled in an arbitrary sequence up to 16
+phases long. 
+
+.TP
+(u32 r/w) table-data-N
+There are 4 table-data-N parameters, table-data-0 to table-data-3. These each 
+contain 4 bytes corresponding to 4 stages in the step sequence. For example 
+table-data-0 = 0x00000001 would set stepgen pin 0 (always called "Step" in 
+the dmesg output) on the first phase of the step sequence, and table-data-4 =
+0x20000000 would set stepgen pin 6 ("Table5Pin" in the dmesg output) on the 16th
+stage of the step sequence. 
 
 .SH Smart Serial Interface
 

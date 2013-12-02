@@ -1,3 +1,21 @@
+ver. 0.9.9.3
+- if the user tried to make a new file and there where no 
+  RS274NGC_STARTUP_CODE in the INI file, an exception has been thrown
+  fixed that bug
+- if the user tried to make a new file, after he made allready one,
+  an exception has been trown, because the file was loaded allready
+  fixed that bug
+
+ver. 0.9.9.2
+- solved a bug, entering the edit mode from auto mode, caused by 
+  a typo in a widget name
+
+ver. 0.9.9.1
+- solved a bug showing the gremlin DRO, caused by a typo in a widget name
+- some buttons and widgets did not have tooltip text, added that ones
+- corrected German translation
+- corrected Spanish translation
+
 ver. 0.9.9
 - introduced a new DRO, showing all three positions (Abs, Rel, DTG) at ones
   user can toggle the DRO by clicking on them

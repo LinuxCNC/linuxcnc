@@ -19,7 +19,7 @@ Casi ninguna funcionara sin el hardware espcifico instalado.
 Las configuraciones que están en la categoría  "sim" se ejecutan completamente
 Sin ningun hardware conectado.
 
-Figura <<cap:EMC2-seleccion-de-configuracion>> muestra la apariencia
+Figura <<cap:LinuxCNC-Configuration-Selector>> muestra la apariencia
 De ventana de selección de configuración.
 
 .LinuxCNC seleccion de configuración[[cap:LinuxCNC-Configuration-Selector]]

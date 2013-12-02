@@ -76,13 +76,8 @@ mdir = os.path.abspath(os.path.join(
                        os.path.dirname(
                        os.path.realpath(__file__))))
 
-if (mdir.split('/')[-1] == "bin"):
-    # for standalone copy of this file installed in a bin directory:
-    BASE = os.path.abspath(os.path.join(mdir,".."))
-else:
-    BASE = os.path.abspath(os.path.join(mdir,"../.."))
-    if (BASE.split('/')[-1] == 'lib'):
-        BASE = os.path.abspath(os.path.join(mdir,"../../.."))
+# this must work for RIP and install by deb:
+BASE = os.path.abspath(os.path.join(mdir,"../.."))
 
 g_ui_dir = os.path.join(BASE, "share", "linuxcnc")
 
@@ -3126,8 +3121,8 @@ Notes:
     """ % sys.argv[0])
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
-if __name__ == "__main__":
 
+def standalone_pyngcgui():
     # make widgets for test cases:
     top = gtk.Window(gtk.WINDOW_TOPLEVEL)
     top.set_title('top')

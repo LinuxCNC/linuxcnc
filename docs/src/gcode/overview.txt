@@ -1242,9 +1242,9 @@ Interpreter. The Interpreter reads the file when it starts up, and
 writes the file when it exits.
 
 The format of a parameter file is shown in Table
-<<cap:Parameter-File-Format,Parameter File Format>>. 
+<<cap:format-parameter-file,Parameter File Format>>. 
 
-The Interpreter expects the file to have two colums. It skips any
+The Interpreter expects the file to have two columns. It skips any
 lines which do not contain exactly two numeric values. The first
 column is expected to contain an integer value (the parameter's
 number). The second column contains a floating point number (this
@@ -1260,13 +1260,13 @@ Missing Parameters in the persistent range will be initialized to zero
 and written with their current values on the next save operation.
 
 The parameter numbers must be arranged in ascending order. An
-`Parameter file out of order` error  will be signalled if they are  not in
+`Parameter file out of order` error  will be signaled if they are  not in
 ascending order. 
 
 The original file is saved as a backup file when the new file
 is written. 
 
-.Parameter File Format[[cap:Parameter-File-Format]]
+.Parameter File Format[[format-parameter-file]]
 
 [width="90%", options="header"]
 |========================================

@@ -12,7 +12,7 @@ build-stamp
 *.cmd
 .tmp*
 # Ignore generated html files, 
-*.html
+/docs/**/*.html
 # Except Gcode quick-ref cards (en,de,sp,fr) which are maintained by hand
 !docs/html/gcode*.html
 # Ignore all LyX files, we're done with them now. 
