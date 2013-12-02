@@ -113,6 +113,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
     }
     else {
         rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
+        return -1;
     }
     return 0;
 }
@@ -129,6 +130,7 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
                 tc->coords.circle.xyz.angle, out);
     } else {
         rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
+        return -1;
     }
     return 0;
 }
