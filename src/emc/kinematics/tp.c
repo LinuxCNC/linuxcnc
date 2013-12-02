@@ -46,7 +46,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 //Disable arc blends temporarily to test parabolic blend velocity function
-/*#define TP_ARC_BLENDS*/
+#define TP_ARC_BLENDS
 //NOTE: disabled for stress testing since this forces higher accelerations
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
@@ -62,11 +62,11 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
 //Empty function to act as an assert for GDB in simulation
-STATIC int gdb_fake_catch(int condition){
+int gdb_fake_catch(int condition){
     return condition;
 }
 
-STATIC int gdb_fake_assert(int condition){
+int gdb_fake_assert(int condition){
     if (condition) {
         return gdb_fake_catch(condition);
     }
@@ -1075,9 +1075,12 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
             blend_tc->coords.circle.xyz.angle, &end_xyz);
 
     /* Only shift XYZ for now*/
-    pmCartLineInit(&prev_tc->coords.line.xyz,
+    int res1 = pmCartLineInit(&prev_tc->coords.line.xyz,
             &prev_tc->coords.line.xyz.start,&start_xyz);
-    pmCartLineInit(&tc->coords.line.xyz, &end_xyz, &tc->coords.line.xyz.end);
+    int res2 = pmCartLineInit(&tc->coords.line.xyz, &end_xyz, &tc->coords.line.xyz.end);
+    if (res1 || res2) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Got PM errors %d and %d during blend arc connect!\n",res1,res2);
+    }
 
     tp_debug_print("Old target = %f\n",prev_tc->target);
     prev_tc->target = prev_tc->coords.line.xyz.tmag;
@@ -1237,13 +1240,16 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     tp_debug_print("prev tan = %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
     tp_debug_print("this tan = %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
+    double mag;
+    pmCartMagSq(&prev_tan,&mag);
+    gdb_fake_assert(mag > 1.0000000001);
 
     const double min_dot = cos(TP_ANGLE_EPSILON);
 
     double dot;
     pmCartCartDot(&prev_tan, &this_tan, &dot);
 
-    if (dot >= min_dot) {
+    if (dot >= min_dot ) {
         tp_debug_print(" New segment is tangent, skipping arc\n");
         //already tangent
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
@@ -1326,9 +1332,12 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
-    pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
-    pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
-    pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    int res=pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
+    gdb_fake_assert(res<0);
+    res = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    gdb_fake_assert(res<0);
+    res = pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    gdb_fake_assert(res<0);
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
@@ -1420,9 +1429,12 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
-    pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
-    pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    int res = pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
+    gdb_fake_assert(res<0);
+    res = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    gdb_fake_assert(res<0);
+    res = pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    gdb_fake_assert(res<0);
 
     // find helix length
     pmCartMag(&circle.rHelix, &helix_z_component);
@@ -1682,6 +1694,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     }
 
     if (tc->progress >= tc->target) {
+        tc_debug_print("segment %d at target in runcycle\n",tc->id);
         tc->remove = 1;
     }
 
@@ -1876,8 +1889,8 @@ STATIC void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const
 
 /**
  * Update the planner's position, given a displacement.
- * This function stores the result of the internal calculations in tpRunCycle,
- * updating the global position of tp.
+ * This function updates the trajectory planner's overall position from a given
+ * cycle's displacement.
  */
 STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement) {
 
@@ -2121,8 +2134,8 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Temporary debug message
-    tp_debug_print("Activate tc id = %d target_vel = %f final_vel = %f\n",
-            tc->id, tc->target_vel,tc->finalvel);
+    tp_debug_print("Activate tc id = %d target_vel = %f final_vel = %f length = %f\n",
+            tc->id, tc->target_vel,tc->finalvel,tc->target);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up

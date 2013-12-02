@@ -50,5 +50,6 @@
 #define tp_info_print(...)
 #endif
 
-
+int gdb_fake_catch(int condition);
+int gdb_fake_assert(int condition);
 #endif
