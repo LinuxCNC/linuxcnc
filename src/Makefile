@@ -645,7 +645,7 @@ COPY_CONFIGS := \
 	$(patsubst %,../configs/%/core_servo.hal, motenc stg vti) \
 	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim gladevcp) \
 	$(patsubst %,../configs/%/core_sim9.hal, sim) \
-	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto plasma-thc-sim plasma-thc)
+	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto plasma-thc-sim)
 
 configs: $(COPY_CONFIGS)
 
