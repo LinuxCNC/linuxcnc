@@ -771,11 +771,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double K = a_n_max * Ttheta * pmSq(min_segment_time) / 2.0;
     double disc_prev = 2.0 * L1 * K + pmSq(K);
-    gdb_fake_assert(disc_prev < 0.0);
     double d_prev = L1 + K - pmSqrt(disc_prev);
 
     double disc_next = 2.0 * L2 * K + pmSq(K);
-    gdb_fake_assert(disc_next < 0.0);
     double d_next = L2 + K - pmSqrt(disc_next);
 
     tp_debug_print(" prev length L1 = %f\n", L1);
@@ -874,7 +872,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
         prev_tc->target_vel = prev_reqvel;
     }
-
 
     //Get 3D start, middle, end position
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
@@ -1240,21 +1237,16 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     tp_debug_print("prev tan = %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
     tp_debug_print("this tan = %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
-    double mag;
-    pmCartMagSq(&prev_tan,&mag);
-    gdb_fake_assert(mag > 1.0000000001);
 
-    const double min_dot = cos(TP_ANGLE_EPSILON);
-
-    double dot;
-    pmCartCartDot(&prev_tan, &this_tan, &dot);
-
-    if (dot >= min_dot ) {
-        tp_debug_print(" New segment is tangent, skipping arc\n");
+    double theta;
+    int failed = tpFindIntersectionAngle(&prev_tan, &this_tan, &theta);
+    double phi =  PM_PI - 2.0 * theta;
+    if (!failed && (phi < TP_ANGLE_EPSILON) ) {
+        tp_debug_print(" New segment is tangent with angle %g, skipping arc\n", phi);
         //already tangent
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Clip maximum velocity by sample rate
-        tc->maxvel = fmin(tc->maxvel, tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
+        prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
         return TP_ERR_OK;
     } else {
         return TP_ERR_NO_ACTION;
@@ -1415,6 +1407,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
 {
     TC_STRUCT tc;
     PmCircle circle;
+    //TODO replace these placeholder variables with pointers to TC fields
     PmCartLine line_uvw, line_abc;
     PmCartesian start_xyz, end_xyz;
     PmCartesian start_uvw, end_uvw;
@@ -1429,12 +1422,9 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
-    int res = pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    gdb_fake_assert(res<0);
-    res = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
-    gdb_fake_assert(res<0);
-    res = pmCartLineInit(&line_abc, &start_abc, &end_abc);
-    gdb_fake_assert(res<0);
+    pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
+    pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    pmCartLineInit(&line_abc, &start_abc, &end_abc);
 
     // find helix length
     pmCartMag(&circle.rHelix, &helix_z_component);
@@ -1446,7 +1436,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.target = helix_length;
     tc.nominal_length = helix_length;
     tc.atspeed = atspeed;
-    //TODO acceleration bounded by optimizer
 
     tc.coords.circle.xyz = circle;
     tc.coords.circle.uvw = line_uvw;
@@ -1477,9 +1466,8 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.motion_type = TC_CIRCULAR;
     tc.term_cond = tp->termCond;
 
-    //Calculate actual max velocity based on scaled acceleration
-    /*double a_scaled = tpGetScaledAccel(tp, &tc);*/
-    //Hack to deal with the "double" scaling of acceleration. Temporary solution because this only works due to the specific implementation of GetScaledAccel
+    //FIXME Hack to deal with the "double" scaling of acceleration. This only
+    //works due to the specific implementation of GetScaledAccel
     double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
     tc.maxvel = corrected_maxvel;
 
@@ -1563,7 +1551,6 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         double theta;
         PmCartesian v1, v2;
 
-        //TODO break out normal acceleration calculation instead of changing the unit vector's direction
         tcGetEndAccelUnitVector(tc, &v1);
         tcGetStartAccelUnitVector(nexttc, &v2);
         pmCartCartDot(&v1, &v2, &dot);
@@ -1845,8 +1832,8 @@ STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     double save_vel = nexttc->target_vel;
     // Get the accelerations of the current and next segment to properly scale the blend velocity
-    double acc_this = tpGetScaledAccel(tp, tc);
-    double acc_next = tpGetScaledAccel(tp, nexttc);
+    /*double acc_this = tpGetScaledAccel(tp, tc);*/
+    /*double acc_next = tpGetScaledAccel(tp, nexttc);*/
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
@@ -2429,7 +2416,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
         if (disc < 0 ) {
             //Should mean that dx is too big, i.e. we're not close enough
-            tp_debug_print(" dx too large, not at end yet\n",dt);
+            tp_debug_print(" dx = %f, too large, not at end yet\n",dx);
             return TP_ERR_NO_ACTION;
         }
 
