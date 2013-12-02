@@ -1,0 +1,5 @@
+pyngcgui_touchy_lathe
+
+demonstrate pyngcgui and gremlin_view
+as gladevcp apps in touchy gui
+for lathe applications

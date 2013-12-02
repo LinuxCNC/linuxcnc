@@ -1,0 +1,7 @@
+low_graphics
+
+configs which don't use opengl or
+other graphics features
+
+these configs are useful for isolating
+probems with video card compatibility
