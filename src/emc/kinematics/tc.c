@@ -28,6 +28,7 @@
 //Debug output
 #include "tp_debug.h"
 
+//Empty function to act as an assert for GDB in simulation
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
@@ -114,6 +115,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 }
 
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
+    gdb_fake_assert(tc->motion_type == 0);
 
     if(tc->motion_type == TC_LINEAR) {
         *out=tc->coords.line.xyz.uVec;
@@ -677,7 +679,9 @@ TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
     if (tcq->_len == 0) {
         return NULL;
     }
-    return &(tcq->queue[(tcq->end-1) % tcq->size]);
+    //Fix for negative modulus error
+    int n = tcq->end-1 + tcq->size;
+    return &(tcq->queue[n % tcq->size]);
 
 }
 
