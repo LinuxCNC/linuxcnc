@@ -391,7 +391,7 @@ class Gscreen:
         global xmlname2
         global gscreen_debug
         global verbose_debug
-        skinname = "gscreen"
+        self.skinname = "gscreen"
         self.inipath = sys.argv[2]
         (progdir, progname) = os.path.split(sys.argv[0])
 
@@ -401,7 +401,7 @@ class Gscreen:
             if temp == '-c':
                 try:
                     print ("**** GSCREEN INFO: Skin name ="),sys.argv[num+1]
-                    skinname = sys.argv[num+1]
+                    self.skinname = sys.argv[num+1]
                 except:
                     pass
             if temp == '-d': gscreen_debug = True
@@ -411,14 +411,14 @@ class Gscreen:
         locallocale = os.path.join(CONFIGPATH,"locale")
         if os.path.exists(locallocale):
             LOCALEDIR = locallocale
-            domain = skinname
-            print ("**** GSCREEN INFO: CUSTOM locale name =",LOCALEDIR,skinname)
+            domain = self.skinname
+            print ("**** GSCREEN INFO: CUSTOM locale name =",LOCALEDIR,self.skinname)
         else:
-            locallocale = os.path.join(SKINPATH,"%s/locale"%skinname)
+            locallocale = os.path.join(SKINPATH,"%s/locale"%self.skinname)
             if os.path.exists(locallocale):
                 LOCALEDIR = locallocale
-                domain = skinname
-                print ("**** GSCREEN INFO: SKIN locale name =",LOCALEDIR,skinname)
+                domain = self.skinname
+                print ("**** GSCREEN INFO: SKIN locale name =",LOCALEDIR,self.skinname)
             else:
                 LOCALEDIR = os.path.join(BASE, "share", "locale")
                 domain = "linuxcnc"
@@ -428,12 +428,12 @@ class Gscreen:
         gettext.bindtextdomain(domain, LOCALEDIR)
 
         # main screen
-        localglade = os.path.join(CONFIGPATH,"%s.glade"%skinname)
+        localglade = os.path.join(CONFIGPATH,"%s.glade"%self.skinname)
         if os.path.exists(localglade):
             print _("\n**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"% localglade)
             xmlname = localglade
         else:
-            localglade = os.path.join(SKINPATH,"%s/%s.glade"%(skinname,skinname))
+            localglade = os.path.join(SKINPATH,"%s/%s.glade"%(self.skinname,self.skinname))
             if os.path.exists(localglade):
                 print _("\n**** GSCREEN INFO:  Using SKIN glade file from %s ****"% localglade)
                 xmlname = localglade
@@ -447,12 +447,12 @@ class Gscreen:
             print _("**** Gscreen GLADE ERROR:    With main screen xml file: %s"% xmlname)
             sys.exit(0)
         # second screen
-        localglade = os.path.join(CONFIGPATH,"%s2.glade"%skinname)
+        localglade = os.path.join(CONFIGPATH,"%s2.glade"%self.skinname)
         if os.path.exists(localglade):
             print _("\n**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"% localglade)
             xmlname2 = localglade
         else:
-            localglade = os.path.join(SKINPATH,"%s/%s2.glade"%(skinname,skinname))
+            localglade = os.path.join(SKINPATH,"%s/%s2.glade"%(self.skinname,self.skinname))
             if os.path.exists(localglade):
                 print _("\n**** GSCREEN INFO:  Using SKIN glade file from %s ****"% localglade)
                 xmlname2 = localglade
@@ -520,9 +520,9 @@ class Gscreen:
         # at this point, any glade HAL widgets and their pins are set up.
 
         # look for custom handler files:
-        HANDLER_FN = "%s_handler.py"%skinname
+        HANDLER_FN = "%s_handler.py"%self.skinname
         local_handler_path = os.path.join(CONFIGPATH,HANDLER_FN)
-        skin_handler_path = os.path.join(SKINPATH,"%s/%s"%(skinname,HANDLER_FN))
+        skin_handler_path = os.path.join(SKINPATH,"%s/%s"%(self.skinname,HANDLER_FN))
         if os.path.exists(local_handler_path):
             temp = [local_handler_path]
         elif os.path.exists(skin_handler_path):
@@ -702,24 +702,6 @@ class Gscreen:
         else:
             self.connect_signals(handlers)
 
-        # dynamic tabs setup
-        self._dynamic_childs = {}
-        atexit.register(self.kill_dynamic_childs)
-        self.set_dynamic_tabs()
-
-        # set title and display everything including the second screen if requested
-        if skinname == "gscreen":
-            title = "Gscreen"
-        else:
-            title = "Gscreen-%s"% skinname
-        self.widgets.window1.set_title("%s for linuxcnc"% title)
-        if self.screen2:
-            self.widgets.window2.show()
-            self.widgets.window2.move(0,0)
-            if not self.data.use_screen2:
-                self.widgets.window2.hide()
-        self.widgets.window1.show()
-
         # Set up the widgets
         if "initialize_widgets" in dir(self.handler_instance):
             self.handler_instance.initialize_widgets()
@@ -796,6 +778,8 @@ class Gscreen:
 
     # initialize default widgets
     def initialize_widgets(self):
+        self.init_show_windows()
+        self.init_dynamic_tabs()
         self.init_axis_frames()
         self.init_dro_colors()
         self.init_screen2()
@@ -813,7 +797,6 @@ class Gscreen:
         self.init_themes()
         self.init_screen1_geometry()
         self.init_running_options()
-        self.init_hide_cursor()
         self.init_mode()
         self.init_sensitive_on_off()
         self.init_sensitive_run_idle()
@@ -822,6 +805,7 @@ class Gscreen:
         self.init_sensitive_override_mode()
         self.init_sensitive_graphics_mode()
         self.init_sensitive_origin_mode()
+        self.init_hide_cursor()
 
         self.init_state()
 
@@ -836,30 +820,20 @@ class Gscreen:
             print formatted_lines[-1]
 
     def init_axis_frames(self):
-        temp = self.data.axis_list
-        try:
-            if "a" in temp:
-                self.widgets.frame_a.show()
-                self.widgets.image6.hide() # make more room for axis display
-        except:
-            self.show_try_errors()
-        try:
-            if "b" in temp:
-                self.widgets.frame_b.show()
-                self.widgets.image6.hide() # make more room for axis display
-        except:
-            self.show_try_errors()
-        try:
-            if "c" in temp:
-                self.widgets.frame_c.show()
-                self.widgets.image6.hide() # make more room for axis display
-        except:
-            self.show_try_errors()
-        try:
-            if "y" in temp:
-                self.widgets.frame_y.show()
-        except:
-            self.show_try_errors()
+        for letter in ('x','y','z','a','b','c','u','v','w'):
+            try:
+                frame_for_letter = eval("self.widgets." + 'frame_' + letter)
+            except:
+                self.show_try_errors()
+                continue
+            if letter in self.data.axis_list:
+                frame_for_letter.show()
+                # don't show image6 when axes other than xyz are present
+                if letter in ('a','b','c','u','v','w'):
+                    self.widgets.image6.hide() ;# make more room for axis display
+            else:
+                # hide unneeded frames for axes not in use
+                frame_for_letter.hide() ;# frame not relevant
         if self.data.rotary_joints:
             try:
                 self.widgets.button_select_rotary_adjust.show()
@@ -867,6 +841,12 @@ class Gscreen:
                 self.widgets.angular_jog_rate.show()
             except:
                 self.show_try_errors()
+
+    def init_dynamic_tabs(self):
+        # dynamic tabs setup
+        self._dynamic_childs = {}
+        atexit.register(self.kill_dynamic_childs)
+        self.set_dynamic_tabs()
 
     def init_dro_colors(self):
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
@@ -1061,7 +1041,25 @@ class Gscreen:
         except:
             self.show_try_errors()
         self.on_hal_status_state_off(None)
+        try:
+            self.widgets.search_box.hide()
+        except:
+            self.show_try_errors()
         self.add_alarm_entry(_("Control powered up and initialized"))
+
+    def init_show_windows(self):
+        # set title and display everything including the second screen if requested
+        if self.skinname == "gscreen":
+            title = "Gscreen"
+        else:
+            title = "Gscreen-%s"% self.skinname
+        self.widgets.window1.set_title("%s for linuxcnc"% title)
+        if self.screen2:
+            self.widgets.window2.show()
+            self.widgets.window2.move(0,0)
+            if not self.data.use_screen2:
+                self.widgets.window2.hide()
+        self.widgets.window1.show()
 
     def init_unlock_code(self):
         print "unlock code #",int(self.data.unlock_code)

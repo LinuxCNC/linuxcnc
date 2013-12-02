@@ -53,6 +53,8 @@ class HandlerClass:
     # To truely be friendly, we should add a way to change the theme directly in the custom screen.
     # we also set up the statusbar and add a ready-to-home message
     def initialize_widgets(self):
+        self.gscreen.init_show_windows()
+        self.gscreen.init_dynamic_tabs()
         self.gscreen.change_theme(self.data.theme_name)
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")

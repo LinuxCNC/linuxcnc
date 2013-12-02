@@ -160,6 +160,8 @@ class HandlerClass:
     # we also set up the statusbar and add a ready-to-home message
     def initialize_widgets(self):
         # These are gscreen widgets included in this screen
+        self.gscreen.init_show_windows()
+        self.gscreen.init_dynamic_tabs()
         self.gscreen.init_statusbar()
         self.gscreen.init_tooleditor()
         self.gscreen.init_embeded_terminal()
