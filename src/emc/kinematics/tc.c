@@ -82,7 +82,7 @@ static int tcGetHelicalTangentVector(PmCircle const * const circle, double progr
     PmCartesian radius;
     PmCartesian tan, helix;
 
-    pmCirclePoint(circle, 0.0, &startpoint);
+    pmCirclePoint(circle, progress, &startpoint);
     pmCartCartSub(&startpoint, &circle->center, &radius);
     pmCartCartCross(&circle->normal, &radius, &tan);
 
@@ -108,23 +108,27 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
         *out=tc->coords.line.xyz.uVec;
-    } else {
+    } else if (tc->motion_type == TC_CIRCULAR) {
         tcGetHelicalTangentVector(&tc->coords.circle.xyz, 0.0, out);
+    }
+    else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
     }
     return 0;
 }
 
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
-    gdb_fake_assert(tc->motion_type == 0);
 
     if(tc->motion_type == TC_LINEAR) {
         *out=tc->coords.line.xyz.uVec;
     } else if(tc->motion_type == TC_RIGIDTAP) {
         // comes out the other way
         pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
-    } else {
+    } else if (tc->motion_type == TC_CIRCULAR){
         tcGetHelicalTangentVector(&tc->coords.circle.xyz,
                 tc->coords.circle.xyz.angle, out);
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
     }
     return 0;
 }
