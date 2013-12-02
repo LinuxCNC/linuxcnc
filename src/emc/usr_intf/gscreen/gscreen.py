@@ -216,6 +216,7 @@ class Data:
         self.display_order = (_REL,_DTG,_ABS)
         self.mode_order = (_MAN,_MDI,_AUTO)
         self.mode_labels = ["Manual Mode","MDI Mode","Auto Mode"]
+        self.IPR_mode = False
         self.plot_view = ("p","x","y","y2","z","z2")
         self.task_mode = 0
         self.active_gcodes = []
@@ -3412,6 +3413,11 @@ class Gscreen:
 
     def update_feed_speed_label(self):
         data = self.data.velocity
+        if self.data.IPR_mode:
+            try:
+                data = data/abs(self.halcomp["spindle-readout-in"])
+            except:
+                data = 0
         if self.data.dro_units == _MM:
             text = "%.2f"% (data)
         else:

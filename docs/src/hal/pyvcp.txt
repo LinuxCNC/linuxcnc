@@ -147,7 +147,7 @@ loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml
 You would use this if you wanted a floating panel or a panel with a
 GUI other than AXIS.
 
-* '-Wn panelname' - 
+* '-Wn panelname' - 
      makes HAL wait for the component 'panelname' to finish loading
     ('become ready' in HAL speak) before processing more HAL commands. This
     is important because PyVCP panels export HAL pins, and other HAL
@@ -155,21 +155,21 @@ GUI other than AXIS.
     W and lowercase n. If you use the -Wn option you must use the -c option
     to name the panel.
 
-* 'pyvcp < -g> < -c> panel.xml' - 
+* 'pyvcp < -g> < -c> panel.xml' - 
      builds the panel with the optional geometry and/or panelname from the
     xml panel file. The panel.xml can be any name that ends in .xml. The
     .xml file is the file that describes how to build the panel. You must
     add the path name if the panel is not in the directory that the HAL
     script is in. 
 
-* '-g <WxH><+X+Y>' - 
+* '-g <WxH><+X+Y>' - 
      specifies the geometry to be used when constructing the panel. The
     syntax is 'Width x Height + X Anchor + Y Anchor'. You can set the size
     or position or both. The anchor point is the upper left corner of the
     panel. An example is -g 250x500+800+0 This sets the panel at 250 pixels
     wide, 500 pixels tall, and anchors it at X800 Y0.
 
-* '-c panelname' - 
+* '-c panelname' - 
      tells PyVCP what to call the component and also the title of the
     window. The panelname can be any name without spaces. 
 
@@ -191,7 +191,7 @@ controller such as for testing or a standalone DRO.
 The loadusr command is used when you also load a component that will
 stop HAL from closing until it's done. If you loaded a panel and then
 loaded Classic Ladder using 'loadusr -w classicladder', 
-CL would hold HAL open (and the panel)  until you closed CL. 
+CL would hold HAL open (and the panel)  until you closed CL. 
 The '-Wn' above means wait for the component '-Wn "name"' to become ready. 
 ('name' can be any name. Note the capital W and lowercase n.) 
 The -c tells PyVCP to build a panel with the
@@ -920,13 +920,12 @@ image::images/pyvcp_table.png[]
 
 ==== Tabs
 
-A tabbed interface can save quite a bit of space.
+A tabbed interface can save quite a bit of space. Create one container for
+each tab name. Only one 'tabs' section can exist and 'tabs' can not be nested
+or stacked. The width of the widest item controls the width of the tabs.
 
 [source,xml]
 -----------------------------------------------------------
-<tabs>
-    <names> ["spindle","green eggs"]</names>
-</tabs>
 <tabs>
     <names>["Spindle", "Green Eggs", "Ham"]</names>
     <vbox>

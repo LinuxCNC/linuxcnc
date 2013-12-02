@@ -14,6 +14,8 @@
 #define INTERP_INTERNAL_HH
 
 #include <boost/python.hpp>
+#include <boost/range/end.hpp>
+#include <algorithm>
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
@@ -339,6 +341,29 @@ typedef int_remap_map::iterator int_remap_iterator;
 
 typedef struct block_struct
 {
+  block_struct ()
+    : a_flag(0), a_number(0), b_flag(0), b_number(0),
+      c_flag(0), c_number(0), d_number_float(0), d_flag(0),
+      e_flag(0), e_number(0), f_flag(0), f_number(0),
+    /* g_modes, */ h_flag(0), h_number(0), i_flag(0), i_number(0),
+    j_flag(0), j_number(0), k_flag(0), k_number(0),
+    l_number(0), l_flag(0), line_number(0), saved_line_number(0),
+    n_number(0), motion_to_be(0), m_count(0), /* m_modes, */
+    p_number(0), p_flag(0), q_number(0), q_flag(0),
+    r_flag(0), r_number(0), s_flag(0), s_number(0),
+    t_flag(0), t_number(0), u_flag(0), u_number(0),
+    v_flag(0), v_number(0), w_flag(0), w_number(0),
+    x_flag(0), x_number(0), y_flag(0), y_number(0),
+    z_flag(0), z_number(0),
+
+    radius_flag(0), radius(0), theta_flag(0), theta(0),
+    offset(0), o_type(0), call_type(0), o_name(NULL),
+    /* params, */ param_cnt(0), breadcrumbs(),
+    executing_remap(NULL), remappings(), phase(0), builtin_used(0) {
+        std::fill(g_modes, boost::end(g_modes), 0);
+        std::fill(m_modes, boost::end(m_modes), 0);
+        std::fill(params, boost::end(params), 0);
+    }
   bool a_flag;
   double a_number;
   bool b_flag;
@@ -569,6 +594,9 @@ and is not represented here
 
 typedef struct setup_struct
 {
+  setup_struct();
+ ~setup_struct() { assert(!pythis || Py_IsInitialized()); }
+
   double AA_axis_offset;        // A-axis g92 offset
   double AA_current;            // current A-axis position
   double AA_origin_offset;      // A-axis origin offset

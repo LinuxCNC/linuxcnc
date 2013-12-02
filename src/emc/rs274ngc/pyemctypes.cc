@@ -43,22 +43,31 @@ static void tool_zero( CANON_TOOL_TABLE &t) {
     t.backangle = 0.0;
     t.orientation = 0;
 }
+static void carte_zero( PmCartesian &c) { 
+    c.x = 0.0;
+    c.y = 0.0;
+    c.z = 0.0;
+}
+
+static void pose_zero( EmcPose &p) { ZERO_EMC_POSE(p); }
+
 
 void export_EmcTypes()
 {
     using namespace boost::python;
     using namespace boost;
 
-    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition",no_init)
+    // PmCartesian and EmcPose make sense to be instantiable 
+    // within Python, since some canon calls take these as parameter
+    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition")
 	.def_readwrite("x",&PmCartesian::x)
 	.def_readwrite("y",&PmCartesian::y)
 	.def_readwrite("z",&PmCartesian::z)
 	.def("__str__", &pmcartesian_str)
+	.def("zero", &carte_zero)
 	;
 
-    // leave EmcPose copyable/assignable because it's used as a parameter
-    // value (eg emcSetToolOffset)
-    class_<EmcPose>("EmcPose","EMC pose",no_init)
+    class_<EmcPose>("EmcPose","EMC pose")
 	.def_readwrite("tran",&EmcPose::tran)
 	.add_property("x", &get_x, &set_x)
 	.add_property("y", &get_y, &set_y)
@@ -70,6 +79,7 @@ void export_EmcTypes()
 	.def_readwrite("v",&EmcPose::v)
 	.def_readwrite("w",&EmcPose::w)
 	.def("__str__", &emcpose_str)
+	.def("zero", &pose_zero)
 	;
 
     // leave CANON_TOOL_TABLE copyable/assignable because assignment is

@@ -309,9 +309,7 @@ const read_function_pointer Interp::default_readers[256] = {
 /****************************************************************************/
 
 /* There are four global variables*. The first three are _gees, _ems,
-and _readers. The last one, declared here, is for interpreter settings */
-
-setup Interp::_setup;
+and _readers. */
 
 /* The notion of "global variables" is a misnomer - These last four should only
    be accessable by the interpreter and not exported to the rest of emc */

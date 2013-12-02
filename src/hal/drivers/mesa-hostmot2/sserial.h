@@ -75,6 +75,8 @@
 #define LBP_STREAM              0x06
 #define LBP_BOOLEAN             0x07
 #define LBP_ENCODER             0x08
+#define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
+#define LBP_ENCODER_L           0x28 // part and full count fields. 
 
 typedef struct {
     unsigned char RecordType;
@@ -171,6 +173,8 @@ typedef struct {
     hal_float_t maxlim;
     hal_float_t minlim;
     hal_float_t fullscale;
+    hal_u32_t u32_param;
+    hal_bit_t graycode;
     s64 oldval; // not pins, but this way every pin can have one
     s64 accum; // these two are only currently used by encoders
     s64 offset;
@@ -180,6 +184,8 @@ typedef struct {
     hal_u32_t u32_param;
     hal_s32_t s32_param;
     hal_float_t float_param;
+    hal_u32_t timer_num;
+    hal_bit_t *error;
 }hm2_sserial_params_t;
 
 typedef struct {
@@ -187,6 +193,8 @@ typedef struct {
     int num_modes;
     int num_globals;
     int num_pins;
+    int num_read_bits;
+    int num_write_bits;
     hm2_sserial_mode_t *modes;
     hm2_sserial_data_t *confs;
     hm2_sserial_data_t *globals;
@@ -210,6 +218,9 @@ typedef struct {
     int index;
     u32 command_reg_addr; // a duplicate so that a single channel can be passed
     u32 data_reg_addr;
+    u32 data_written;
+    u32 data2_written;
+    u32 data3_written;
     int myinst;
     char name[21];
     

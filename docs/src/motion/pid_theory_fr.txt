@@ -150,17 +150,17 @@ la méthode dépendra en grande partie de la possibilité ou non de mettre
 la boucle «hors production» pour la mise au point ainsi que de la
 vitesse de réponse du système. Si le système peut être mis hors
 production, la meilleure méthode de réglage consiste souvent à
-soumettre le système à un changement de consigne, à mesurer la réponse
+soumettre le système à un changement de consigne, à mesurer la réponse
 en fonction du temps et à l'aide de cette réponse à déterminer les
 paramètres de la régulation.
 
 ==== Méthode simple
 
 Si le système doit rester en production, une méthode de réglage
-consiste à mettre les valeurs I et D à  zéro. Augmenter ensuite le gain
-P jusqu'à ce que la sortie de la boucle oscille. Puis, augmenter le
-gain I jusqu'à ce que cesse l'oscillation. Enfin, augmenter le gain D
-jusqu'à  ce que la boucle soit suffisamment rapide pour atteindre
+consiste à mettre les valeurs I et D à  zéro. Augmenter ensuite le gain
+P jusqu'à ce que la sortie de la boucle oscille. Puis, augmenter le
+gain I jusqu'à ce que cesse l'oscillation. Enfin, augmenter le gain D
+jusqu'à  ce que la boucle soit suffisamment rapide pour atteindre
 rapidement sa consigne. Le réglage d'une boucle PID rapide provoque
 habituellement un léger dépassement de consigne pour avoir une montée
 plus rapide, mais certains systèmes ne le permettent pas.

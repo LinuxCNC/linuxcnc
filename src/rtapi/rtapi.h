@@ -892,6 +892,10 @@ extern void rtapi_autorelease_mutex(void *variable);
 // configurable at rtapi.so module load time _only_
 extern int rtapi_instance;
 
+#if defined(BUILD_SYS_USER_DSO)
+extern long int simple_strtol(const char *nptr, char **endptr, int base);
+#endif
+
 #ifdef ULAPI
 // the ulapi constructor and destructor
 // these attach/detach the rtapi shm segments to/from ULAPI

@@ -207,8 +207,8 @@ void TCPMEM::verify_bufname()
     set_socket_fds(read_socket_fd);
 
     putbe32(temp_buffer, (uint32_t) serial_number);
-    putbe32(temp_buffer + 1, REMOTE_CMS_GET_BUF_NAME_REQUEST_TYPE);
-    putbe32(temp_buffer + 2, buffer_number);
+    putbe32(temp_buffer + 4, REMOTE_CMS_GET_BUF_NAME_REQUEST_TYPE);
+    putbe32(temp_buffer + 8, buffer_number);
     if (sendn(socket_fd, temp_buffer, 20, 0, timeout) < 0) {
 	reconnect_needed = 1;
 	fatal_error_occurred = 1;

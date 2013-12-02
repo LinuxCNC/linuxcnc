@@ -20,7 +20,7 @@ Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
 
 == HAL Tree Area
 
-At the left of its display as shown in figure  <<cap:Halshow-Layout>>
+At the left of its display as shown in figure  <<cap:Halshow-Layout>>
 is a tree view, somewhat like you might see with some file browsers. At
 the right is a tabbed notebook with tabs for show and watch.
 
@@ -47,7 +47,7 @@ image::images/halshow-3.png[align="center"]
 
 Clicking on the node name, the word "Components" for example, will
 show you (under the "Show" tab) all that HAL knows about the contents
-of that node. Figure  <<cap:Halshow-Layout>> shows a list exactly like
+of that node. Figure  <<cap:Halshow-Layout>> shows a list exactly like
 you will see if you click the "Components" name while you are running a
 standard m5i20 servo card. The information display is exactly like
 those shown in traditional text based HAL analysis tools. The advantage
@@ -158,7 +158,7 @@ addf ddt.0 servo-thread
 ----
 
 This is just for viewing, so we leave position blank and get the last
-position in the thread. Figure  <<cap:Addf-Command>> shows the state of
+position in the thread. Figure  <<cap:Addf-Command>> shows the state of
 halshow after this command has been issued.
 
 .Addf Command[[cap:Addf-Command]]

@@ -60,25 +60,25 @@ configuration.
 
 image::images/stepconf-basic_fr.png[]
 
-* _Nom de la machine_ - 
-(((Nom de la machine)))
+* _Nom de la machine_ - 
+(((Nom de la machine)))
 Choisir un nom pour la machine.
 Utiliser uniquement des lettres majuscules, minuscules, des chiffres
 ou "-" et "_".
 
-* _Configuration des axes_ - 
-(((Configuration des axes)))
+* _Configuration des axes_ - 
+(((Configuration des axes)))
 Choisir les axes correspondants à la machine:
 XYZ (fraiseuse 3 axes), XYZA (fraiseuse 4 axes) ou XZ (tour).
 
-* _Unité machine_ - 
-(((Unité machine)))
+* _Unité machine_ - 
+(((Unité machine)))
 Choisir entre le pouce et le millimètre. Toutes les questions suivantes
 (telles que la longueur des courses, le pas de la vis, etc)
 devront obtenir des réponses dans l'unité choisie ici.
 
-* _Caractéristiques du pilote_ - 
-(((Caractéristiques du pilote)))
+* _Caractéristiques du pilote_ - 
+(((Caractéristiques du pilote)))
 Si un des pilotes énumérés dans la liste déroulante peut être utilisé,
 cliquer	sur son nom. Sinon, trouver les 4 valeurs de timing dans la fiche
 de caractéristiques fournie par le fabricant du pilote et les saisir.
@@ -206,7 +206,7 @@ Pour chacune des broches, choisir le signal correspondant au brochage entre
 le port parallèle et l'interface matérielle. Cocher la case inverser
 si le signal est inversé (0V pour vrai/actif, 5V pour faux/inactif).
 
-* _Sorties présélectionnées_ - 
+* _Sorties présélectionnées_ - 
 (((Sorties présélectionnées)))
 Réglage automatique des pins 2 à 9
 Direction sur les pins 2, 4, 6, 8, selon le _type Sherline_
@@ -244,25 +244,25 @@ maxi des pas affichée sur la page des informations machine.
 
 image::images/stepconf-axis_fr.png[]
 
-* _Nombre de pas moteur par tour_ - 
-(((Nombre de pas par tour)))
+* _Nombre de pas moteur par tour_ - 
+(((Nombre de pas par tour)))
 Nombre de pas entiers par tour de moteur. Si l'angle d'un pas en degrés est
 connu (par exemple, 1.8 degrés), diviser 360 par cet angle
 pour obtenir le nombre de pas par tour du moteur.
 
-* _Micropas du pilote_ - 
-(((Micropas du pilote)))
+* _Micropas du pilote_ - 
+(((Micropas du pilote)))
 Le nombre de micropas produits par le pilote. Entrer par exemple 2
 pour le demi pas ou une des valeurs permise par le pilote du moteur.
 
-* _Dents des poulies_ - 
-(((Dents des poulies)))
+* _Dents des poulies_ - 
+(((Dents des poulies)))
 Si entre le moteur et la vis un réducteur poulie/courroie est présent,
 entrer ici le nombre de dents de chacune des poulies.
 Pour un entrainement direct, entrer 1:1.
 
-* _Pas de la vis_ - 
-(((Pas de la vis)))
+* _Pas de la vis_ - 
+(((Pas de la vis)))
 Entrer ici le pas de la vis. Si le pouce a été choisi comme
 unité, entrer ici le nombre de filets par pouce.
 Si le mm a été choisi, entrer ici le pas du filet en millimètres.
@@ -271,21 +271,21 @@ déplace le mobile par tour de vis et entrer cette valeur ici.
 Si la machine se déplace dans la mauvaise direction,
 entrer une valeur négative au lieu d'une positive, et vice-versa.
 
-* _Vitesse maximale_ - 
-(((Vitesse maximale)))
+* _Vitesse maximale_ - 
+(((Vitesse maximale)))
 Entrer ici la vitesse de déplacement maximale de l'axe, en unités par
 seconde.
 
-* _Accélération maximale_ - 
-(((Accélération maximale)))
+* _Accélération maximale_ - 
+(((Accélération maximale)))
 Les valeurs correctes pour ces deux entrées ne peuvent être
 déterminées que par l'expérimentation. Consulter
 <<sec:Trouver-Vitesse-Maximale, le calcul de la vitesse>> pour trouver la
 vitesse et <<sec:Trouver-Acceleration-Maximale, le calcul de l'accélération>>
 pour trouver l'accélération maximale.
 
-* _Emplacement de l'origine machine_ - 
-(((Emplacement de l'origine machine)))
+* _Emplacement de l'origine machine_ - 
+(((Emplacement de l'origine machine)))
 Position sur laquelle la machine se place après avoir terminé la
 procédure de prise d'origine de cet axe.
 Pour les machines sans contact placé au point d'origine,
@@ -295,22 +295,22 @@ Si des capteurs de fin de course sont utilisés pour la prise d'origine,
 le point d'origine ne doit pas se trouver au même coordonnées que le
 capteur. Une erreur de limite simultanée à l'origine surviendrait.
 
-* _Course de la table_ - 
-(((Course de la table)))
+* _Course de la table_ - 
+(((Course de la table)))
 Étendue de la course que le programme en G-code ne doit jamais dépasser.
 L'origine machine doit être située à l'intérieur de cette course.
 En particulier, avoir un point d'origine exactement égal à cette course est
 une configuration incorrecte.
 
-* _Position du contact d'origine machine_ - 
-(((Position du contact d'origine machine)))
+* _Position du contact d'origine machine_ - 
+(((Position du contact d'origine machine)))
 Position à laquelle le contact d'origine machine est activé ou relâché
 pendant la procédure de prise d'origine machine. Ces entrées et les
 deux suivantes, n'apparaissent que si les contacts d'origine ont été
 sélectionnés dans le réglage des broches du port parallèle.
 
-* _Vitesse de recherche de l'origine_ - 
-(((Vitesse de recherche de l'origine)))
+* _Vitesse de recherche de l'origine_ - 
+(((Vitesse de recherche de l'origine)))
 Vitesse utilisée pendant le déplacement vers le contact d'origine machine.
 Si le contact est proche d'une limite physique de déplacement de la table,
 cette vitesse doit être suffisamment basse pour permettre de décélérer et de
@@ -324,8 +324,8 @@ du contact. Si la machine se déplace dans la mauvaise direction au début de
 la procédure de prise d'origine machine, rendre négative la valeur de
 _Vitesse de recherche de l'origine_.
 
-* _Dégagement du contact d'origine_ - 
-(((Dégagement du contact d'origine)))
+* _Dégagement du contact d'origine_ - 
+(((Dégagement du contact d'origine)))
 Choisir _Identique_ pour que la machine reparte d'abord en arrière pour
 dégager le contact, puis revienne de nouveau vers lui à très petite
 vitesse. La seconde fois que le contact se ferme, la position de l'origine
@@ -333,17 +333,17 @@ machine est acquise.  Choisir _Opposition_ pour que la machine
 reparte en arrière à très petite vitesse jusqu'au dégagement du contact.
 Quand le contact s'ouvre, la position de l'origine machine est acquise.
 
-* _Temps pour accélérer à la vitesse maxi_ - 
-(((Temps pour accélérer à la vitesse maxi)))
+* _Temps pour accélérer à la vitesse maxi_ - 
+(((Temps pour accélérer à la vitesse maxi)))
 Temps en secondes, calculé en fonction des paramètres renseignés
 précédemment.
 
-* _Distance pour accélérer à la vitesse maxi_ - 
-(((Distance pour accélérer à la vitesse maxi)))
+* _Distance pour accélérer à la vitesse maxi_ - 
+(((Distance pour accélérer à la vitesse maxi)))
 Distance en mm, calculée en fonction des paramètres renseignés précédemment.
 
-* _Fréquence des impulsions à la vitesse maxi_ - 
-(((Fréquence des impulsions à la vitesse maxi)))
+* _Fréquence des impulsions à la vitesse maxi_ - 
+(((Fréquence des impulsions à la vitesse maxi)))
 Informations calculées sur la base des informations entrées précédemment.
 Il faut rechercher la plus haute fréquence des impulsions à la vitesse maxi
 possible, elle détermine la période de base: BASE_PERIOD.
@@ -448,16 +448,16 @@ réglage du port parallèle.
 Si _PWM broche_ apparaît dans le réglage du port parallèle, les
 informations suivantes doivent être renseignées:
 
-* _Fréquence PWM_ - 
-(((Fréquence PWM)))
+* _Fréquence PWM_ - 
+(((Fréquence PWM)))
 La fréquence porteuse du signal PWM (modulation de largeur d'impulsions)
 du moteur de broche.  Entrer 0 pour le mode PDM (modulation de
 densité d'impulsions), qui est très utile pour générer une tension de
 consigne analogique. Se reporter à la documentation du variateur de broche
 pour connaître la valeur appropriée.
 
-* _Vitesse 1 et 2, PWM 1 et 2_ - 
-(((Vitesse 1 et 2)))(((PWM 1 et 2)))
+* _Vitesse 1 et 2, PWM 1 et 2_ - 
+(((Vitesse 1 et 2)))(((PWM 1 et 2)))
 Le fichier de configuration généré utilise une simple relation linéaire
 pour déterminer la valeur PWM correspondant à une vitesse de rotation.
 Si les valeurs ne sont pas connues, elles peuvent être déterminées.
@@ -473,19 +473,19 @@ connectés au port parallèle, LinuxCNC peut être utilisé pour les usinages
 avec broche synchronisée comme le filetage ou le taraudage rigide.
 Ces signaux son:
 
-* _Index broche_ - 
-(((Index codeur broche)))
+* _Index broche_ - 
+(((Index codeur broche)))
 Également appelé PPR broche, c'est une impulsion produite à chaque
 tour de broche.
 
-* _Phase A broche_ - 
-(((Phase A codeur broche)))
+* _Phase A broche_ - 
+(((Phase A codeur broche)))
 C'est une suite d'impulsions carrées générées sur la voie A du codeur
 pendant la rotation de la broche. Le nombre d'impulsions pour un
 tour correspond à la résolution du codeur.
 
-* _Phase B broche_ (optionnelle) - 
-(((Phase B codeur broche)))
+* _Phase B broche_ (optionnelle) - 
+(((Phase B codeur broche)))
 C'est une seconde suite d'impulsions, générées sur la voie B du codeur
 et décalées par rapport à celle de la voie A. L'utilisation de ces
 deux signaux permet d’accroitre l'immunité au bruit et la résolution
@@ -495,8 +495,8 @@ Si _Phase A broche_ et _Index broche_ apparaissent dans le
 réglage des broches du port, l'information suivante doit être renseignée sur
 la page de configuration broche:
 
-* _Cycles par tour_ - 
-(((Cycles par tour)))
+* _Cycles par tour_ - 
+(((Cycles par tour)))
 Le nombre d'impulsions par tour sur la broche Phase A broche.
 
 * _La vitesse maximale en filetage_ - 

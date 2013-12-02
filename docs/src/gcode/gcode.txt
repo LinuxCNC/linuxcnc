@@ -531,7 +531,7 @@ image:images/nurbs01.png[align="center"]
 
 More information on NURBs can be found here:
 
-http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?NURBS]
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
 
 [[sec:G7-Diameter-Mode]]
 == G7 Lathe Diameter Mode
@@ -654,7 +654,7 @@ It is an error if:
 .G10 L2 Example Line
 [source,{ngc}]
 ----
-G10 L2 P1 X3.5 Y17.2
+G10 L2 P1 X3.5 Y17.2
 ----
 
 In the above example the origin of the first coordinate system
@@ -665,7 +665,7 @@ the other coordinates are not changed.
 .G10 L2 Example Line
 [source,{ngc}]
 ----
-G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
+G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
 
 The above example sets the XYZ coordinates of the coordinate system 1 to the machine origin.
@@ -1391,7 +1391,7 @@ G76 P- Z- I- J- R- K- Q- H- E- L-
 image::images/g76-threads.png[align="center"]
 
 
-* 'Drive Line' - A line through the initial X position parallel to the Z.
+* 'Drive Line' - A line through the initial X position parallel to the Z.
 
 * 'P-' - The 'thread pitch' in distance per revolution.
 
@@ -1958,7 +1958,9 @@ for drilling or milling.
 
  . Preliminary motion, as described above. 
  . Move the Z-axis only at the current feed rate to the Z position.
- . Retract the Z-axis at the current feed rate to clear Z. 
+ . Retract the Z-axis at the current feed rate to the R plane if it is lower 
+ than the initial Z.
+ . Retract at the traverse rate to clear Z. 
 
 [[sec:G86-Boring-Rapid-Out]]
 == G86 Boring Cycle, Spindle Stop, Rapid Out
@@ -2142,6 +2144,7 @@ controlled point should move a certain number of inches per revolution
 of the spindle, depending on what length units are being used and which
 axis or axes are moving. G95 is not suitable for threading, for
 threading use G33 or G76.
+G95 requires that motion.spindle-speed-in to be connected.
 
 It is an error if:
 
@@ -2193,7 +2196,7 @@ of one or more contiguous canned cycles was started.
 
 Program a 'G98' and the canned cycle will use the Z position prior to
 the canned cycle as the Z return position if it is higher than the R
-value specified in the cycle. If it is lower then the R value will be
+value specified in the cycle. If it is lower, the R value will be
 used. The R word has different meanings in absolute distance mode and
 incremental distance mode.
 

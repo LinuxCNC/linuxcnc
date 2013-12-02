@@ -51,7 +51,7 @@ image::images/halshow-3.png[]
 
 En cliquant sur un nom dans l'arborescence plutôt que sur son signe
 plus ou moins, par exemple le mot _Components_, HAL affichera tout ce
-qu'il connait du contenu de celui-ci. La figure 
+qu'il connait du contenu de celui-ci. La figure 
 <<cap:Fenetre-Halshow, halshow>> montre une liste comme celle que vous verrez si
 vous cliquez sur _Components_ avec une carte servo standard m5i20 en
 fonctionnement. L'affichage des informations est exactement le même que
@@ -160,7 +160,7 @@ addf ddt.0 servo-thread
 ----
 
 Comme c'est juste pour visualiser, nous laissons la position en blanc
-pour obtenir la dernière position dans le thread. La figure 
+pour obtenir la dernière position dans le thread. La figure 
 <<cap:Commande-addf, sur la commande addf>> affiche l'état de halshow après
 que cette commande a été exécutée.
 

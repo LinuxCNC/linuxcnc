@@ -61,7 +61,6 @@ SUPPORT_BEGIN_DECLS
 
 extern int is_module_loaded(const char *module);
 extern int load_module(const char *module, const char *modargs);
-extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();

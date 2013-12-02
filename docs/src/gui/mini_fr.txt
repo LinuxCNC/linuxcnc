@@ -640,7 +640,7 @@ F12::
 
 === Mode Manuel (((Manuel)))
 
-1-9 0::
+1-9 0::
      Positionne le correcteur de vitesse d'avance travail de 10% en 10%, de
     0 à 100%
 
@@ -665,25 +665,25 @@ b::
 c::
     Sélectionne l'axe C
 
-Gauche Droite::
+Gauche Droite::
     jog de l'axe X
 
-Haut Bas::
+Haut Bas::
     jog de l'axe Y
 
-Pg.préc Pg.suiv::
+Pg.préc Pg.suiv::
     jog de l'axe Z
 
-- _::
+- _::
     jog de l'axe actif dans la direction moins
 
-+ =::
++ =::
     jog l'axe actif dans la direction plus
 
 Origine::
     POM de l'axe actif
 
-i I::
+i I::
     Bascule cyclique des incréments de jog
 
 Les touches suivantes ne fonctionnent que sur les machines utilisant

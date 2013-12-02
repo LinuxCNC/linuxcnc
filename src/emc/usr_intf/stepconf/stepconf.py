@@ -2228,7 +2228,7 @@ class App:
             widgets.testvel.set_digits(2)
             widgets.testacc.set_digits(2)
             widgets.testamplitude.set_digits(2)
-            widgets.testamplitude.set_value(.5)
+            widgets.testamplitude.set_value(15)
         else:
             widgets.testvelunit.set_text(_("in / s"))
             widgets.testaccunit.set_text(_("in / s²"))
@@ -2242,7 +2242,7 @@ class App:
             widgets.testvel.set_digits(1)
             widgets.testacc.set_digits(1)
             widgets.testamplitude.set_digits(1)
-            widgets.testamplitude.set_value(15)
+            widgets.testamplitude.set_value(.5)
 
         self.jogplus = self.jogminus = 0
         self.widgets.testdir.set_active(0)

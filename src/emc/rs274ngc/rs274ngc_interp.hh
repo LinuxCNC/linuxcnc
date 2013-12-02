@@ -17,6 +17,7 @@
 #ifndef RS274NGC_INTERP_H
 #define RS274NGC_INTERP_H
 #include "rs274ngc.hh"
+#include "interp_internal.hh"
 
 class Interp : public InterpBase {
 
@@ -229,7 +230,7 @@ public:
                              CANON_DIRECTION direction,
                              CANON_SPEED_FEED_MODE mode);
  int convert_cycle_g85(block_pointer block, CANON_PLANE plane, double x, double y,
-                             double clear_z, double bottom_z);
+                             double r, double clear_z, double bottom_z);
  int convert_cycle_g86(block_pointer block, CANON_PLANE plane, double x, double y,
                              double clear_z, double bottom_z, double dwell,
                              CANON_DIRECTION direction);
@@ -625,7 +626,7 @@ int read_inputs(setup_pointer settings);
  read_function_pointer _readers[256];
  static const read_function_pointer default_readers[256];
 
- static setup _setup;
+ setup _setup;
 
  enum {
      AXIS_MASK_X =   1, AXIS_MASK_Y =   2, AXIS_MASK_Z =   4,

@@ -1,7 +1,107 @@
-ver 0.9.7.2
+ver. 0.9.9
+- introduced a new DRO, showing all three positions (Abs, Rel, DTG) at ones
+  user can toggle the DRO by clicking on them
+- The new DRO also indicates the actual coordinate system
+- The new DRO will change its units according to the active gcode (G20 / G21)
+- There are still the three buttons, but they are hidden by default,
+  this can be changed on the settings page, but when the buttons are vissible,
+  the user looses the auto units feature of the DRO
+  Hope too get the permission from the users to delete that button as soon as possible
+- made the documentation for IconViewFileSelection
+- made the documentation for Combi_DRO
+- This change saved some lines of code in gmoccapy.py and made the code
+  a lot easier to understand
+- updated German translation
+- updated Spanish translation
+
+ver. 0.9.8.4
+- diameter dro does not show imperial units, even if machine units are imperial, fixed.
+- tool info only with three digits in imperial mode, now 4 digits
+- active feed and active vel label not in machine units, if in imperial mode, fixed
+- cosmetic changes to gmoccapy_lathe.ini
+- introduced a imperial lathe ini
+
+ver 0.9.8.3
+- BUG: forget to update the cooordiante system after changing the error system,
+  causing the ABS/REL button not showing the correct label, fixed
+- BUG: inserted Jog Increment continious insteadt of 0, so could cause an exception
+  on translated GUI, fixed
+- BUG: when changing the mode from outside, i.e. starting a program with an external button, 
+  the GUI did not change the style to auto mode, so it was not consistent, fixed
+- deleted unnecessary icon and introduced new icon for machine on off and for the
+  mode button (Thanks to Dejan/probamo)
+
+ver. 0.9.8.2
+- make the design from spindle and coolant frames more beautifull
+- added both to a hbox, so later this box may be replaced by user controls,
+  i.e. plasma cutters
+
+ver. 0.9.8.1
+- introduced new serbian translation
+
+ver. 0.9.8
+- introduced notification as gmoccapy error messaging system
+- rebuild the settings page to make the message system settings availible
+- new default startup position
+- changed DRO textcolor label to DRO background color label, because that is what you change
+- jogging with keyboard will jog full speed if SHIFT is hold down
+- <Super_L> key will delete the last message og gmoccapy message system
+- <STRG>+<SPACE> delete all gmoccapy messages at once
+- switching on the machine will reset the GUI to manual mode
+- the setup button is no longer a member of the mode radiobuttons
+  it is now a toggle button, so pressing it twice will bring
+  you to manual mode
+
+ver. 0.9.7.5.1
+- missed to change the version number in gmoccapy_handler.py
+  corrected that
+
+ver. 0.9.7.5
+- translation of the Continious Jog Button now possible
+- solved a bug, when selecting the contionous jog button when it was translated
+- added ABS, DTG and GTD to translation file
+- added "show or hide tool path" to translation
+- corrected a bug changing spindle bar min and max values changed the widget only on restart
+- added to translation the complete gscreen.py file, even if there are a lot of things 
+  nowbody need to translate, but that gives the possibility to translade the entry dialogs 
+  and some button labels
+
+ver. 0.9.7.4
+- added the Serbian translation
+- corrected some mistakes in Spanish translation
+- moved some files to get them in the corresponding locale folder
+- modified .gitignore files so my locale folder will not be ignored any more
+
+ver. 0.9.7.3.1
+- removed some print/debug lines
+- new order of the button in Auto Mode (requested from svenakela)
+- corrected some translation errors
+- changed the order of the jog button and the DRO, now when jogging on a touch screen, the
+  right hand will not cover the DRO. Better handling?!
+- deleted the button reload from auto to get space for fullsize_preview, so the user can switch to
+  fullsize preview, while the program runs.
+- errased the close button in botton button list edit, because the back button does the same 
+- corrected the hardware button behavior, was needed because of the new order and 
+  the reason that not "clicked" is emitted, but "pressed"
+- button edit offsets now shows automaticaly the offset page
+- the buttons for fullsize preview on auto and edit offsets getting yellow when active
+- pressing the button new in edit mode will make a new file in /tmp with the content from
+  [RS274NGC] "RS274NGC_STARTUP_CODE" follod by 3 linefeed and an M2
+
+ver. 0.9.7.3
+- the buttons tbtn_view_dimension and tbtn_view_tool_path of the gremlin view
+  was in an undefined state after the start of gmoccapy. Now the state will be 
+  set according to the state when leaving the GUI, default is show both
+- the state view of gremlin was by default "p" no the state on leaving the gui 
+  will be restored after restarting the GUI
+- corrected an error entering the settings page, and aborting the dialog, then the
+  message aperears two times, because the signal used was clicked and that is emited twice
+  on a rbt when changing the state of the buttons in the group
+
+ver. 0.9.7.2
 - check for NO_FORCE_HOMING included
 
-ver 0.9.7.1
+ver. 0.9.7.1
 - changed the structure of the files, so the user do not need to copy files after an update
   he only needs to adapt his conig files, this follows the new gscreen structure and 
   all files should be present after installing linuxcnc
@@ -12,7 +112,7 @@ ver 0.9.7.1
   format in an own function, taken in care in IconFileSelection and file to load chooser
 - solved an error in IconFileSelection, crashing the GUI if button up was pressed being in the root dir
 
-ver 0.9.7
+ver. 0.9.7
 - added a file selection dialog, for touch screen use
 - in MDI mode it is now possible to add more commands, even if the interpreter is running
 - do not block any more the spindle buttons while the interpreter is running,
@@ -109,7 +209,7 @@ ver. 0.9.3
 - the btn_view_Y2 has now a yellow background
 - changing the max vel slider had no efekt, I fixed this
 
-ver 0.9.2
+ver. 0.9.2
 - added lathe mode
 - added classicladder button
 - added button for tool touchoff in X and Z axis
@@ -126,7 +226,7 @@ ver. 0.9.1.2
   on the settings page, resulting in an exception
   solved this renaming the widget in gmoccapy
 
-ver 0.9.1
+ver. 0.9.1
 - show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 
   is actice, other behavior makes no sense
 - settings page can be reached now also in estop state
@@ -408,7 +508,7 @@ ver. 0.6.05
   not working jet, still work to do
   The grafics part is finished, just the icon are not very nice
 
-ver 0.6.04
+ver. 0.6.04
 - changed hal pin connections to control homing to gscreen matter
   so nearly all conections to postgui hal are not needed any more
 - all messages prepared to get translated _(message)
@@ -430,7 +530,7 @@ ver. 0.6.03
   messages.
 - changed the test files to have optional blocks and stops.
 
-ver 0.6.02
+ver. 0.6.02
 - all icons moved to icon folder
 - implemented get toolinfo, tool frame now shows correct data
 - implemented user mdi command through gscreen, so there is no need
@@ -452,7 +552,7 @@ ver. 0.5.08
 - after pushing manual button staying in settings, main button list was not changed back to manual
 - max velocity now again in units per minute, seems Chris changed it back
 
-ver 0.5.07
+ver. 0.5.07
 - axis setting to an value with preferences is working fine
 - DRO labels changing colors like they should
 - Added a button to set tool with M61 Q?
