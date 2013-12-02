@@ -160,7 +160,6 @@ class Combi_DRO(gtk.VBox):
 
         self.eventbox.connect("button_press_event", self._on_eventbox_clicked)
 
-        self.add(self.eventbox)
         self.show_all()
 
         # add the timer at a period of 100 ms
@@ -189,7 +188,7 @@ class Combi_DRO(gtk.VBox):
         attr = pango.AttrList()
         bg_color = pango.AttrBackground(bgcolor[0],bgcolor[1],bgcolor[2], 0, -1)
         attr.insert(bg_color)
-        size_attr = pango.AttrSize(size[0], size[1], size[2])
+        size_attr = pango.AttrSize(int(size[0]), int(size[1]), int(size[2]))
         attr.insert(size_attr)
         weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
         attr.insert(weight_attr)
