@@ -37,10 +37,10 @@
 #endif
 
 /** TP position data output to debug acceleration spikes */
-#ifdef TP_POSITION_LOGGING
-#define tp_position_print(...) rtapi_print(__VA_ARGS__)
+#ifdef TP_POSEMATH_DEBUG
+#define tp_posemath_debug(...) rtapi_print(__VA_ARGS__)
 #else
-#define tp_position_print(...)
+#define tp_posemath_debug(...)
 #endif
 
 /** TP misc data logging */
