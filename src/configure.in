@@ -1873,7 +1873,7 @@ On other systems, do what you need to install asciidoc version 8.5 or newer.])
     AC_MSG_RESULT([$ASCIIDOC_VER])
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`tempfile --suffix=.txt`
+    temp_asciidoc=`mktemp --suffix=.txt`
     cat > $temp_asciidoc <<EOF
 :lang: fr
 :ascii-ids:
