@@ -26,7 +26,6 @@
 #include "rtapi_math.h"
 
 //Debug output
-//#define TP_DEBUG
 #include "tp_debug.h"
 
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
@@ -262,22 +261,22 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
 
     //TODO macro this?
     if (NULL == arc) {
-        tp_debug_print("error: pmCircleFromPoints circle pointer is null\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,"pmCircleFromPoints circle pointer is null\n");
         return -1;
     }
 
     PmCartesian v1, v2;
-    tp_debug_print(" start = %f,%f,%f\n",start->x,start->y, start->z);
-    tp_debug_print(" middle = %f,%f,%f\n",middle->x,middle->y, middle->z);
-    tp_debug_print(" end = %f,%f,%f\n",end->x,end->y, end->z);
+    tp_posemath_debug(" start = %f,%f,%f\n",start->x,start->y, start->z);
+    tp_posemath_debug(" middle = %f,%f,%f\n",middle->x,middle->y, middle->z);
+    tp_posemath_debug(" end = %f,%f,%f\n",end->x,end->y, end->z);
 
     //Find relative vectors from start to midpoint and mid to end point
     pmCartCartSub(middle, start, &v1);
     pmCartCartSub(end, middle, &v2);
     
-    tp_debug_print(" Initial vectors\n");
-    tp_debug_print(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
-    tp_debug_print(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
+    tp_posemath_debug(" Initial vectors\n");
+    tp_posemath_debug(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
+    tp_posemath_debug(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
 
     //Calculate gram-schmidt orthonormals 
     //For n2
@@ -293,7 +292,7 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         return res;
     }
 
-    tp_debug_print(" n1 = %f,%f,%f\n",n1.x,n1.y, n1.z);
+    tp_posemath_debug(" n1 = %f,%f,%f\n",n1.x,n1.y, n1.z);
 
     //For n1
 
@@ -305,7 +304,7 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         return res;
     }
     pmCartScalMult(&n2, -1.0, &n2);
-    tp_debug_print(" n2 = %f,%f,%f\n",n2.x,n2.y, n2.z);
+    tp_posemath_debug(" n2 = %f,%f,%f\n",n2.x,n2.y, n2.z);
 
     PmCartesian binormal;
 
@@ -317,9 +316,9 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         return res;
     }
 
-    tp_debug_print(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
-    tp_debug_print(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
-    tp_debug_print(" binormal = %f,%f,%f\n",binormal.x,binormal.y, binormal.z);
+    tp_posemath_debug(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
+    tp_posemath_debug(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
+    tp_posemath_debug(" binormal = %f,%f,%f\n",binormal.x,binormal.y, binormal.z);
 
     //Find the angle between the two vectors
     double dot;
@@ -358,32 +357,32 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     PmCartesian circ_end;
 
     //Add one set of vectors to get the center
-    tp_debug_print("v2 = %f, %f,%f\n",v2.x,v2.y,v2.z);
-    tp_debug_print("n2 = %f, %f,%f\n",n2.x,n2.y,n2.z);
+    tp_posemath_debug("v2 = %f, %f,%f\n",v2.x,v2.y,v2.z);
+    tp_posemath_debug("n2 = %f, %f,%f\n",n2.x,n2.y,n2.z);
     pmCartCartAdd(&v2, &n2, &center);
 
-    tp_debug_print("v2 + n2 = %f, %f,%f\n",center.x,center.y,center.z);
+    tp_posemath_debug("v2 + n2 = %f, %f,%f\n",center.x,center.y,center.z);
     pmCartCartAdd(middle, &center, &center);
     pmCartCartAdd(middle, &v1, &circ_start);
     pmCartCartAdd(middle, &v2, &circ_end);
 
-    tp_debug_print("d = %f\n",d);
-    tp_debug_print("center = %f, %f,%f\n",center.x,center.y,center.z);
-    tp_debug_print("circ_start = %f, %f,%f\n",circ_start.x,circ_start.y,circ_start.z);
-    tp_debug_print("circ_end = %f, %f,%f\n",circ_end.x,circ_end.y,circ_end.z);
+    tp_posemath_debug("d = %f\n",d);
+    tp_posemath_debug("center = %f, %f,%f\n",center.x,center.y,center.z);
+    tp_posemath_debug("circ_start = %f, %f,%f\n",circ_start.x,circ_start.y,circ_start.z);
+    tp_posemath_debug("circ_end = %f, %f,%f\n",circ_end.x,circ_end.y,circ_end.z);
 
     pmCircleInit(arc,&circ_start,&circ_end,&center,&binormal,0);
 
-    tp_debug_print("center = %f, %f,%f\n",arc->center.x,arc->center.y,arc->center.z);
-    tp_debug_print("rTan = %f, %f,%f\n",arc->rTan.x,arc->rTan.y,arc->rTan.z);
-    tp_debug_print("rPerp = %f, %f,%f\n",arc->rPerp.x,arc->rPerp.y,arc->rPerp.z);
+    tp_posemath_debug("center = %f, %f,%f\n",arc->center.x,arc->center.y,arc->center.z);
+    tp_posemath_debug("rTan = %f, %f,%f\n",arc->rTan.x,arc->rTan.y,arc->rTan.z);
+    tp_posemath_debug("rPerp = %f, %f,%f\n",arc->rPerp.x,arc->rPerp.y,arc->rPerp.z);
 
     return 0;
 }
 
 
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
-    tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
+    tc_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
     tc->term_cond = term_cond;
     return 0;
 }
