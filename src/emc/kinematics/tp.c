@@ -46,7 +46,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 //Disable arc blends temporarily to test parabolic blend velocity function
-#define TP_ARC_BLENDS
+/*#define TP_ARC_BLENDS*/
 //NOTE: disabled for stress testing since this forces higher accelerations
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
@@ -1524,7 +1524,12 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      *
      * TODO figure illustrating this
      */
-    double v_blend_this = v_blend_next * acc_this / acc_next;
+    double v_blend_this;
+    if(acc_this < acc_next) {
+        v_blend_this = v_blend_next * acc_this / acc_next;
+    } else {
+        v_blend_this = v_blend_next;
+    }
 
     if (tc->tolerance) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1832,7 +1837,7 @@ STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc) * acc_next / acc_this;
+        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc);
     } else {
         nexttc->target_vel = 0.0;
     }
