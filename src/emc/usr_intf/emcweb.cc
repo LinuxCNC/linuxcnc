@@ -5,7 +5,7 @@
 *   this file was originally named main.cpp
 *
 * Author: Sergey U. Kaydalov
-* License: GPL Version 2
+* License: GPL Version 2 or later
 * System: Linux
 *
 * Copyright (c) 2012 All rights reserved.
