@@ -13,6 +13,10 @@
  *  Last change: 
  *  2012-Dec-17 Charles Steinkuehler
  *              Imported initial version
+ *  License: GPL (Linux kernel code)
+ *
+ *  Note: this should be replced by the BSD-licensed <sys/queue.h>
+ *        that comes with glibc ,see man 3 queue
  ********************************************************************/
 
 #ifndef __LIST_H
