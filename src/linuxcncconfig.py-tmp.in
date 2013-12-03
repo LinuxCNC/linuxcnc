@@ -13,7 +13,9 @@
 # run src/configure
 # this will build lib/python/linuxcncconfig.py
 #
-# Michael Haberler 3/2013
+# Author: Michael Haberler <license AT mah DOT priv DOT at>
+# License: GPL Version 2 or later
+# Copyright (c) 2013 All rights reserved.
 
 rtstyles =  ['xenomai-kernel', 'xenomai',
              'rt-preempt', 'rtai', 'posix']
