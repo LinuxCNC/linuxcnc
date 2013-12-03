@@ -1,3 +1,15 @@
+/////////////////////////////////////////////////////////////////////////////
+// Copyright (c) 2010-2012 Piotr Likus
+// Name:        mongcpp.cpp
+// Project:     mongoose
+// Purpose:     C++ wrapper for mongoose.
+// Author:      Piotr Likus
+// Modified by:
+// Created:     15/12/2010
+// Licence:     MIT
+/////////////////////////////////////////////////////////////////////////////
+
+
 #include <cctype>
 #include <cstring>
 #include <sstream>
