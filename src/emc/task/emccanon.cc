@@ -1617,6 +1617,12 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
+
+	if(axis_len > 0.001)
+	  circularMoveMsg.acc /= sqrt(3.);
+	else
+	  circularMoveMsg.acc /= sqrt(2.);
+
         if(vel && acc) {
             interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
