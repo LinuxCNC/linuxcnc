@@ -377,8 +377,13 @@ Plus de détails à ce sujet sont disponibles dans le manuel de l'intégrateur.
 
 image::images/stepconf-test_fr.png[]
 
-Avec Stepconf il est facile d'essayer différentes valeurs d'accélération et de
-vitesse.
+Tester cet axe et un test simple pour définir les signaux de directions et de
+pas, ainsi que les valeurs d'accélération et de vitesse.
+
+[IMPORTANT]
+Pour pouvoir utiliser ce test d'axe, il sera peut-être nécessaire de valider
+manuellement l'axe à tester. Si le driver utilise une pompe de charge, il faudra
+la bi-passer pour essayer les différentes valeurs de vitesse et d'accélération.
 
 [[sec:Trouver-Vitesse-Maximale]]
 == Trouver la vitesse maximale

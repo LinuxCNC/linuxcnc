@@ -224,16 +224,16 @@ plan de l'arc. Par exemple, si nous sommes dans le plan _G17_, inclure
 un mot _Z_, ceci provoquera un mouvement de l'axe _Z_ vers valeur programmée
 durant tout le mouvement circulaire _XY_. 
 
-Pour programmer un arc qui fera plus d'un tour complet, utiliser un
-mot _P_ spécifiant le nombre de tours complets ou partiels de l'arc.
+Pour programmer un arc supérieur à un tour complet, utiliser un
+mot _P_ spécifiant alors le nombre de tours complets en plus de l'arc.
 Si _P_ n'est pas spécifié, le comportement sera comme si _P1_ avait été
-donné, ceci étant, un seul tour complet ou partiel sera effectué,
+donné: ceci étant, un seul tour complet ou partiel sera effectué,
 donnant un arc plus petit ou égal à un tour complet.
-Par exemple, si un arc est programmé avec P2, le mouvement résultant
-sera supérieur à un tour complet, il sera au maximum de deux tours, selon
-où est programmé le point d'arrivée. Les arcs hélicoïdaux multi-tours sont
+Par exemple, si un arc de 180° est programmé avec P2, le mouvement résultant
+sera d'un tour et demi. Pour chaque incrément de P au delà de 1, un tour complet
+sera ajouté à l'arc programmé. Les arcs hélicoïdaux multitours sont
 supportés ce qui donne des mouvements très intéressants pour usiner des
-trous ou des formes.
+alésages ou des filetages.
 
 Si une ligne de G-code crée un arc et inclus le mouvement d'un
 axe rotatif, l'axe rotatif tournera à vitesse constante de sorte que
@@ -365,6 +365,7 @@ Ceci donne un décalage de 1 depuis la position de départ sur l'axe X et
 
 Le G-code de cet exemple serait:
 ----
+G0 X0 Y0
 G2 X1 Y1 I1 F10 (arc en sens horaire dans le plan XY)
 ----
 
@@ -382,6 +383,7 @@ celui du mouvement G3 est -0.5.
 
 Le G-code de cet exemple serait:
 ----
+G0 X0 Y0
 G2 X0 Y1 I1 J0.5 F25 (arc en sens horaire dans le plan XY)
 G3 X0 Y0 I1 J-0.5 F25 (arc en sens anti-horaire dans le plan XY)
 ----
@@ -393,7 +395,14 @@ image::images/g2-3_fr.png[align="center"]
 
 Voici un exemple au format centre pour usiner une hélice:
 ----
-G17 G2 X10 Y16 I3 J4 Z9 (arc hélicoïde avec mouvement en Z)
+G0 X0 Y0 Z0
+G17 G2 X10 Y16 I3 J4 Z-1 (Arc hélicoïdal avec ajout de Z)
+----
+
+.exemple avec P
+----
+G0 X0 Y0 Z0
+G2 X0 Y1 Z-1 I1 J0.5 P2 F25
 ----
 
 Cet exemple signifie, faire un mouvement circulaire ou hélicoïdal en
@@ -835,12 +844,12 @@ machine natives, telles que fixées dans le fichier ini. Tous les axes définis
 dans le fichier ini seront déplacés lors d'un G28.
 
 * G28 - effectue un mouvement en vitesse rapide de la position courante à la
-position _absolue_ définie dans les paramètres 5161 à 5166.
+position _absolue_ enregistrée dans les paramètres 5161 à 5166.
 
-* _G28 axes_ - effectue un déplacement en vitesse rapide depuis la position
+* _G28 axes_ - effectue un déplacement en vitesse rapide à la position
 spécifiée par _axes_ y compris les décalages, puis effectuera un mouvement en
 vitesse rapide aux coordonnées _absolues_ stockées dans les paramètres 5161
-à 5166.
+à 5166 pour les axes spécifiés.
 
 * G28.1 - enregistre la position _absolue_ courante dans les paramètres 5161
 à 5166.
@@ -871,7 +880,7 @@ coordonnées absolues qui est le système de coordonnées machine.
 * _G30 axes_ - effectue un déplacement en vitesse rapide depuis la position
 courante jusqu'à la position spécifiée par _axes_, y compris les décalages,
 suivi d'un mouvement rapide à la position _absolue_ stockée dans les paramètres
-5181 à 5186.
+5181 à 5186 pour les axes spécifiés. Les axes non spécifiés ne bougeront pas.
 
 * _G30.1_ - enregistre la position absolue courante dans les paramètres 5181 à
 5186.

@@ -90,7 +90,7 @@ loadusr -Wn spindle gs2_vfd -n spindle
 En anglais ça donne _loadusr wait for name spindle component gs2_vfd name spindle_. 
 Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr. 
 
-=== net
+=== net[[sub:net]]
 
 La commande _net_ crée une _connexion_ entre un signal et une ou plusieurs pins.
 Si le signal n'existe pas, net le crée. Les indicateurs de direction _<=_ et _=>_
@@ -173,6 +173,26 @@ Syntaxe et exemple:
 setp parport.0.pin-08-out TRUE
 ----
 
+=== sets [[sub:sets]] (((sets)))
+
+La commande _sets_ positionne la valeur d'un signal.
+
+Syntaxe et exemple:
+
+----
+sets <signal-name> <value>
+
+net mysignal and2.0.in0 pyvcp.my-led
+
+sets mysignal 1
+----
+
+C'est une erreur si:
+
+* Le nom de signal n'existe pas
+* Le signal à déjà été écrit
+* La valeur n'est pas du type correct pour le signal
+
 === unlinkp
 
 La commande _unlinkp_ déconnecte la pin du signal auquel elle est connectée. 
@@ -187,7 +207,10 @@ Syntaxe et exemple:
 unlinkp parport.0.pin-02-out 
 ----
 
-== Commandes obsolètes
+=== Commandes obsolètes
+
+Les commandes suivantes sont dépréciées et seront retirées dans les futures
+versions. Toute nouvelle configuration doit utiliser la commande <<sub:net,'net'>>.
 
 === linksp
 
