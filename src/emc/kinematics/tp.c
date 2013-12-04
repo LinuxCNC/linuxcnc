@@ -919,12 +919,12 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
 
 
     tc->id = tp->nextId;
-    if (inc_id) {
-        tp->nextId++;
-    }
     if (tcqPut(&tp->queue, tc) == -1) {
         rtapi_print_msg(RTAPI_MSG_ERR, "tcqPut failed.\n");
         return TP_ERR_FAIL;
+    }
+    if (inc_id) {
+        tp->nextId++;
     }
 
     // Store end of current move as new final goal of TP
@@ -1284,7 +1284,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
 
     if (TP_ERR_OK == tpSetupTangent(tp, prev_tc, tc)) {
         //Marked segment as tangent
-        return TP_ERR_NO_ACTION;
+        return TP_ERR_OK;
     }
 
     TC_STRUCT blend_tc;
@@ -1369,6 +1369,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
 
 #ifdef TP_ARC_BLENDS
+    //TODO add check for two spaces in queue?
     int arc_err = tpHandleBlendArc(tp, &tc, &end);
 #endif
 
