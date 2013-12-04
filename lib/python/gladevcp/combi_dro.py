@@ -109,7 +109,7 @@ class Combi_DRO(gtk.VBox):
         self.dtg_color = gtk.gdk.Color("yellow")
         self.mm_text_template = "%10.3f"
         self.imperial_text_template = "%9.4f"
-        self.font_size = 25000
+        self.font_size = 25
         self.metric_units = True
         self.machine_units = _MM
         self.unit_convert = 1
@@ -123,7 +123,7 @@ class Combi_DRO(gtk.VBox):
         self.eventbox.add(vbox_main)
         hbox_up = gtk.HBox(False, 0)
         vbox_main.pack_start(hbox_up)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size, 0, -1), (600, 0, -1))
+        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size * 1000, 0, -1), (600, 0, -1))
         self.lbl_axisletter = gtk.Label(_AXISLETTERS[self.joint_number])
         self.lbl_axisletter.set_attributes(attr)
         hbox_up.pack_start(self.lbl_axisletter, False, False)
@@ -131,7 +131,7 @@ class Combi_DRO(gtk.VBox):
         hbox_up.pack_start(vbox_ref_type, False, False)
         lbl_space = gtk.Label("")
         vbox_ref_type.pack_start(lbl_space)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size / 2.5, 0, -1), (600, 0, -1))
+        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
         self.lbl_sys_main = gtk.Label(self.system)
         vbox_ref_type.pack_start(self.lbl_sys_main, False, False)
         self.lbl_sys_main.set_attributes(attr)
@@ -144,7 +144,7 @@ class Combi_DRO(gtk.VBox):
         vbox_main.pack_start(hbox_down)
         self.lbl_sys_left = gtk.Label("Abs")
         hbox_down.pack_start(self.lbl_sys_left)
-        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (self.font_size / 2.5, 0, -1), (600, 0, -1))
+        attr = self._set_attributes((0, 0, 0), (65535, 0, 0), (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
         self.lbl_sys_left.set_attributes(attr)
         self.dro_left = gtk.Label("-11.111")
         hbox_down.pack_start(self.dro_left)
@@ -188,7 +188,7 @@ class Combi_DRO(gtk.VBox):
         attr = pango.AttrList()
         bg_color = pango.AttrBackground(bgcolor[0],bgcolor[1],bgcolor[2], 0, -1)
         attr.insert(bg_color)
-        size_attr = pango.AttrSize(int(size[0]), int(size[1]), int(size[2]))
+        size_attr = pango.AttrSize(size[0], size[1], size[2])
         attr.insert(size_attr)
         weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
         attr.insert(weight_attr)
@@ -243,7 +243,7 @@ class Combi_DRO(gtk.VBox):
                     self.joint_number = value
                     self.change_axisletter(_AXISLETTERS[self.joint_number])
                 if name == "font_size":
-                    self.font_size = value * 1000
+                    self.font_size = value
                     self._set_labels()
                 if name in ('metric_units','actual','diameter'):
                     setattr(self, name, value)
@@ -299,13 +299,13 @@ class Combi_DRO(gtk.VBox):
         else:
             fg_color = self.unhomed_color
         fg_color = self._convert_to_rgb(fg_color)
-        attr = self._set_attributes(bg_color, fg_color, (self.font_size / 2.5, 0, -1), (600, 0, -1))
+        attr = self._set_attributes(bg_color, fg_color, (int(self.font_size * 1000 / 2.5), 0, -1), (600, 0, -1))
         self.lbl_sys_main.set_attributes(attr)
         self.lbl_sys_left.set_attributes(attr)
         self.lbl_sys_right.set_attributes(attr)
         self.dro_left.set_attributes(attr)
         self.dro_right.set_attributes(attr)
-        attr = self._set_attributes(bg_color, fg_color, (self.font_size, 0, -1), (600, 0, -1))
+        attr = self._set_attributes(bg_color, fg_color, (self.font_size * 1000, 0, -1), (600, 0, -1))
         self.main_dro.set_attributes(attr)
         self.lbl_axisletter.set_attributes(attr)
 
