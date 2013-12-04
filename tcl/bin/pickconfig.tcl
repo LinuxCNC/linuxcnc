@@ -37,6 +37,19 @@ option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
 
+# emphasize sim ini configs that have the most support by reordering
+# reorder: priority low to high:
+set ::preferred_names [list \
+                       low_graphics \
+                       gmoccapy \
+                       gscreen \
+                       touchy \
+                       ngcgui \
+                       axis \
+                       by_machine \
+                       by_interface \
+                       sim \
+                       ]
 ################### PROCEDURE DEFINITIONS #####################
 
 set desktopdir [exec bash -c {test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs; echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}}]
@@ -57,6 +70,7 @@ proc initialize_config {} {
             set rcstring [read $programin]
             catch {close $programin}
             set ret [getVal $rcstring PICKCONFIG LAST_CONFIG ]
+            set ::openmode 1
             return $ret
         }
     }
@@ -172,7 +186,12 @@ proc node_clicked {} {
        $::detail_box insert end $descr
    } else {
        if [file isdirectory $node] {
-           # leave detail_box empty
+          if {"$node" == "$::myconfigs_node"} {
+             $::detail_box insert end "Your existing configs"
+          } elseif { "$node" == "$::sampleconfigs_node"} {
+             $::detail_box insert end "Available configs"
+          }
+          #  else leave detail_box empty
        } else {
            # no description, gotta tell the user something
            $::detail_box insert end [msgcat::mc "No details available."]
@@ -265,31 +284,35 @@ pack $f5 -side bottom -anchor e -fill x -expand n -padx 15
 pack $f1 -fill both -expand y
 
 set ::config_count 0
-
 proc describe {dir} {
     if {[string compare $dir $linuxcnc::USER_CONFIG_DIR] == 0} {
+        set ::myconfigs_node $dir
 	return [msgcat::mc "My Configurations"]
     }
     if {[string compare $dir [lindex $linuxcnc::CONFIG_DIR end]] == 0} {
+        set ::sampleconfigs_node $dir
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
 }
 
 proc walktree {dir} {
-   if ![info exists ::openmode] {set ::openmode 1}
+   if ![info exists ::openmode] {set ::openmode 0}
    if ![$::tree exists $dir] {
      set ::lvl $dir
      $::tree insert end root $dir -text [describe $dir] -open $::openmode
    }
-  foreach f [lsort [glob -nocomplain $dir/*]] {
+  set flist [rearrange [lsort [glob -nocomplain $dir/*]]]
+  foreach f $flist {
      if [file isdirectory $f] {
        set foundini [exec find $f -type f -name "*.ini"]
        if {"$foundini" == ""} {
          verbose "no ini files, skipping $f"
          continue
        }
-       $::tree insert end $::lvl $f -text [file tail $f] -open $::openmode
+
+       set text [file tail $f]
+       $::tree insert end $::lvl $f -text $text -open $::openmode
        set restore $::lvl
        set ::lvl $f
        walktree $f ;# recursion
@@ -306,6 +329,23 @@ proc walktree {dir} {
      }
   }
 } ;# walktree
+
+proc rearrange l {
+  set taillist {}
+  foreach item $l {
+    lappend taillist [file tail $item]
+  }
+  foreach name $::preferred_names {
+    set idx [lsearch $taillist $name]
+    if {$idx < 0} continue
+    set found [lindex $l $idx]
+    set taillist [lreplace $taillist $idx $idx]
+    set taillist [linsert $taillist 0 $name]
+    set l [lreplace $l $idx $idx]
+    set l [linsert $l 0 $found]
+  }
+  return $l
+} ;# rearrange
 
 proc verbose {msg} {
   if ![info exists ::env(verbose_pickconfig)] return
@@ -481,6 +521,8 @@ proc prompt_copy configname {
 	    file attributes $f -permissions u+w
 	    if {[file extension $f] == ".ini"} {
 		set c [get_file_contents $f]
+		# note: the following regsub _typically_ forces:
+		# PROGRAM_PREFIX=/home/username/linuxcnc/nc_files
 		regsub {(?n)^(PROGRAM_PREFIX\s*=\s*).*$} $c "\\1$ncfiles" c
 		put_file_contents $f $c
 	    }
@@ -532,7 +574,16 @@ while {1} {
     vwait ::choice
 
     if { $::choice == "OK" } {
-        if {![file writable [file dirname $::inifile]]} {
+        # the following test determines when to copy files to user.
+        # if selected file is not writable, then it must be a
+        # system dir running from an install (by deb typically)
+        # so install the configuration
+        #
+        # for convience in testing rip builds: export debug_pickconfig=1
+
+        if {   ![file writable [file dirname $::inifile]]
+            ||  [info exists ::env(debug_pickconfig)]
+           } {
             set copied_inifile [prompt_copy $::inifile]
             if {$copied_inifile == ""} { continue }
             set ::inifile $copied_inifile
