@@ -631,7 +631,7 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
  * \def TC_QUEUE_MARGIN
  * sets up a margin at the end of the queue, to reduce effects of race conditions
  */
-#define TC_QUEUE_MARGIN 10
+#define TC_QUEUE_MARGIN 20
 
 /*! tcqFull() function
  *
