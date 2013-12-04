@@ -1,22 +1,15 @@
 /********************************************************************
  *  Description: module.h
- *  Provides functions for running linux kernel modules in user space,
- *  emulating part of
- *  #include <linux/module.h>
  *
- *  Author(s): Charles Steinkuehler
- *  License: GNU LGPL Version 2.1 or (at your option) any later version.
+ *  Provides functions for running linux kernel modules in user space,
+ *  emulating part of #include <linux/module.h> 
+ *
+ *  Copyright (C) 2012  Charles Steinkuehler
+ *                      <charles AT steinkuehler DOT net>
  *
  *  Last change: 
  *  2012-Dec-17 Charles Steinkuehler
  *              Initial version
- ********************************************************************/
-
-/********************************************************************
- *  This file is part of LinuxCNC RTAPI / HAL
- *
- *  Copyright (C) 2012  Charles Steinkuehler
- *                      <charles AT steinkuehler DOT net>
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
