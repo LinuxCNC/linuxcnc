@@ -1,3 +1,7 @@
+ver. 0.9.9.4
+- initializing some warnings at start up, corrected that
+- deleted some unneeded print messages
+
 ver. 0.9.9.3
 - if the user tried to make a new file and there where no 
   RS274NGC_STARTUP_CODE in the INI file, an exception has been thrown

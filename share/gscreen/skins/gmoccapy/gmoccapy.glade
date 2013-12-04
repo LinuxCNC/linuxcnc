@@ -57,9 +57,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
+                                            <property name="enable_dro">False</property>
                                             <property name="show_dtg">False</property>
                                             <property name="use_commanded">False</property>
-                                            <property name="enable_dro">False</property>
                                           </object>
                                         </child>
                                       </object>
@@ -481,12 +481,12 @@
                                       <object class="Combi_DRO" id="Combi_DRO_x">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="font_size">28000</property>
+                                        <property name="font_size">28</property>
                                         <signal name="system_changed" handler="on_Combi_DRO_system_changed"/>
                                         <signal name="units_changed" handler="on_Combi_DRO_units_changed"/>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
@@ -499,13 +499,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_y">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="joint_number">1</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="font_size">28000</property>
+                                        <property name="font_size">28</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -516,13 +516,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_z">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="joint_number">2</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="font_size">28000</property>
+                                        <property name="font_size">28</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -533,13 +533,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_4">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
                                         <property name="joint_number">3</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="homed_color">#0000ffff0000</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="font_size">20000</property>
+                                        <property name="font_size">28</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -1773,16 +1773,16 @@
                                                           <object class="HAL_HBar" id="hal_hbar_spindle_feedback">
                                                             <property name="visible">True</property>
                                                             <property name="tooltip_text" translatable="yes">The feedback spindle speed</property>
-                                                            <property name="z2_color">#0000ffff0000</property>
                                                             <property name="target_value">-0.039999999105930328</property>
+                                                            <property name="max">6000</property>
                                                             <property name="z0_color">#0000ffff0000</property>
-                                                            <property name="z0_border">0.40000000596046448</property>
-                                                            <property name="z1_border">0.80000001192092896</property>
                                                             <property name="z1_color">#0000ffff0000</property>
                                                             <property name="bg_color">#bebebebebebe</property>
                                                             <property name="text_template">%i</property>
+                                                            <property name="z1_border">0.80000001192092896</property>
+                                                            <property name="z2_color">#0000ffff0000</property>
                                                             <property name="target_color">#0000ffff0000</property>
-                                                            <property name="max">6000</property>
+                                                            <property name="z0_border">0.40000000596046448</property>
                                                             <signal name="hal_pin_changed" handler="on_hal_hbar_spindle_feedback_hal_pin_changed"/>
                                                           </object>
                                                           <packing>
@@ -2971,8 +2971,8 @@ Aux Screen</property>
                                               <object class="GtkFileChooserButton" id="jump_to_dir_chooser">
                                                 <property name="visible">True</property>
                                                 <property name="tooltip_text" translatable="yes">Select the directory to jump to while loading a file</property>
-                                                <property name="action">select-folder</property>
                                                 <property name="show_hidden">True</property>
+                                                <property name="action">select-folder</property>
                                                 <property name="title" translatable="yes">Select user dir</property>
                                                 <signal name="file_set" handler="on_jump_to_dir_chooser_file_set"/>
                                               </object>
@@ -6093,7 +6093,6 @@ selected</property>
     <property name="upper">10500</property>
     <property name="step_increment">50</property>
     <property name="page_increment">500</property>
-    <property name="page_size">500</property>
     <signal name="value_changed" handler="on_adj_jog_vel_value_changed"/>
   </object>
   <object class="GtkActionGroup" id="actiongroup1"/>
@@ -6108,7 +6107,6 @@ selected</property>
     <property name="upper">6000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">1</property>
-    <property name="page_size">1</property>
   </object>
   <object class="GtkAdjustment" id="adj_feed">
     <property name="value">100</property>
@@ -6116,7 +6114,6 @@ selected</property>
     <property name="upper">160</property>
     <property name="step_increment">10</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
   <object class="GtkAdjustment" id="adj_max_vel">
     <property name="value">1800</property>
@@ -6124,7 +6121,6 @@ selected</property>
     <property name="upper">8500</property>
     <property name="step_increment">100</property>
     <property name="page_increment">50</property>
-    <property name="page_size">50</property>
     <signal name="value_changed" handler="on_adj_max_vel_value_changed"/>
   </object>
   <object class="GtkImage" id="img_machine_on">
@@ -6291,7 +6287,6 @@ selected</property>
     <property name="upper">10000</property>
     <property name="step_increment">50</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_spindle_bar_min_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_spindle_bar_max">
@@ -6299,7 +6294,6 @@ selected</property>
     <property name="upper">100000</property>
     <property name="step_increment">50</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_spindle_bar_max_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_scale_max_vel">
@@ -6308,7 +6302,6 @@ selected</property>
     <property name="upper">1000</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_scale_max_vel_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_scale_jog_vel">
@@ -6317,7 +6310,6 @@ selected</property>
     <property name="upper">1000</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_scale_jog_vel_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_scale_feed_override">
@@ -6326,7 +6318,6 @@ selected</property>
     <property name="upper">10</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
-    <property name="page_size">1</property>
     <signal name="value_changed" handler="on_adj_scale_feed_override_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_scale_spindle_override">
@@ -6335,7 +6326,6 @@ selected</property>
     <property name="upper">10</property>
     <property name="step_increment">0.10000000000000001</property>
     <property name="page_increment">1</property>
-    <property name="page_size">1</property>
     <signal name="value_changed" handler="on_adj_scale_spindle_override_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_x_pos">
@@ -6343,7 +6333,6 @@ selected</property>
     <property name="upper">1024</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_x_pos_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_y_pos">
@@ -6351,7 +6340,6 @@ selected</property>
     <property name="upper">768</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_y_pos_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_width">
@@ -6360,7 +6348,6 @@ selected</property>
     <property name="upper">1280</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_width_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_height">
@@ -6369,7 +6356,6 @@ selected</property>
     <property name="upper">2000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_height_value_changed"/>
   </object>
   <object class="GtkImage" id="img_back_ref">
@@ -6482,7 +6468,6 @@ selected</property>
     <property name="upper">2000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_x_pos_popup_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_y_pos_popup">
@@ -6490,7 +6475,6 @@ selected</property>
     <property name="upper">2000</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_y_pos_popup_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_width_popup">
@@ -6499,7 +6483,6 @@ selected</property>
     <property name="upper">1280</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
-    <property name="page_size">10</property>
     <signal name="value_changed" handler="on_adj_width_popup_value_changed"/>
   </object>
   <object class="GtkAdjustment" id="adj_max_messages">
@@ -6508,7 +6491,6 @@ selected</property>
     <property name="upper">25</property>
     <property name="step_increment">1</property>
     <property name="page_increment">1</property>
-    <property name="page_size">1</property>
     <signal name="value_changed" handler="on_adj_max_messages_value_changed"/>
   </object>
   <object class="GtkImage" id="img_coolant_off">

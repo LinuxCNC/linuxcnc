@@ -257,7 +257,6 @@ class HandlerClass:
         self.widgets.chk_auto_units.set_active(self.gscreen.prefs.getpref("use_auto_units", True, bool))
         self.on_chk_show_dro_btn_toggled(None)
         self.on_chk_auto_units_toggled(None)
-        print self.data.dro_units
         if self.widgets.Combi_DRO_x.machine_units == 0:
             self.widgets.tbtn_units.set_active(True)
 
@@ -504,7 +503,6 @@ class HandlerClass:
             # is this a backtool lathe?
             temp = self.gscreen.inifile.find("DISPLAY", "BACK_TOOL_LATHE")
             self.backtool_lathe = bool(temp == "1" or temp == "True" or temp == "true")
-            print("backtool = ",self.backtool_lathe)
 
             # we first hide the Y button to home and touch off 
             self.widgets.btn_home_y.hide()
@@ -609,7 +607,7 @@ class HandlerClass:
                                    stdout=subprocess.PIPE,
                                    close_fds=True)
             sid = self.data.ob.stdout.readline()
-            print"keyboard", sid # skip header line
+            #print"keyboard", sid # skip header line
             socket = gtk.Socket()
             socket.show()
             self.widgets.key_box.add(socket)
@@ -778,7 +776,6 @@ class HandlerClass:
 
     def on_adj_y_pos_popup_value_changed(self, widget, data = None):
         self.gscreen.prefs.putpref("y_pos_popup", widget.get_value(),float)
-        print("ypos = ",widget.get_value())
         self.init_notification()
 
     def on_adj_width_popup_value_changed(self, widget, data = None):
@@ -1720,7 +1717,7 @@ class HandlerClass:
 
     def _show_offset_tab(self,state):
         page = self.widgets.ntb_preview.get_nth_page(1)
-        print("offset",state,page.get_visible())
+        #print("offset",state,page.get_visible())
         if page.get_visible()and state or not page.get_visible()and not state:
             return
         if state:
@@ -1838,7 +1835,7 @@ class HandlerClass:
         dialog.destroy()
         if response == gtk.RESPONSE_ACCEPT:
             if value!= None:
-                print("Value = ",value)
+                #print("Value = ",value)
                 return float(value)
             else:
                 return "ERROR"
@@ -1912,14 +1909,12 @@ class HandlerClass:
         if widget.get_active():
             self.gscreen.prefs.putpref("error_style", "gmoccapy", str)
             self.widgets.frm_message_position.set_sensitive(True)
-            print("gmoccapy_toggled")
             self.init_notification()
 
     def on_rbt_use_gscreen_toggled(self, widget):
         if widget.get_active():
             self.gscreen.prefs.putpref("error_style", "gscreen", str)
             self.widgets.frm_message_position.set_sensitive(False)
-            print("gscreen_toggled")
 
     def on_rbtn_fullscreen_toggled(self, widget):
         if self.log: self.gscreen.add_alarm_entry("rbtn_fullscreen_toggled to %s"%widget.get_active())
@@ -2047,7 +2042,6 @@ class HandlerClass:
 
     def _show_tooledit_tab(self,state):
         page = self.widgets.ntb_preview.get_nth_page(2)
-        print("tooledit",state,page.get_visible())
         if page.get_visible()and state or not page.get_visible()and not state:
             return
         if state:
@@ -2312,7 +2306,6 @@ class HandlerClass:
         self.widgets.IconFileSelection1.btn_select.emit("clicked")
 
     def on_IconFileSelection1_selected(self,widget,path=None):
-        print(path)
         if path:
             try:
                 self.widgets.hal_action_open.load_file(path)
@@ -2521,7 +2514,6 @@ class HandlerClass:
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         self.gscreen.add_alarm_entry(_("tool_in_spindle has changed to %s"%new_tool_no))
-        print("hal_status tool changed emitted")
         self._update_toolinfo(new_tool_no)
 
     def on_hal_status_state_estop(self,widget=None):
@@ -2561,7 +2553,6 @@ class HandlerClass:
             self.widgets.tbtn_on.set_active(True)
 
     def on_hal_status_mode_manual(self,widget):
-        print("manual mode")
         if self.widgets.rbt_manual.get_active():
             return
         else:
@@ -2569,7 +2560,6 @@ class HandlerClass:
             self.widgets.rbt_manual.set_active(True)
 
     def on_hal_status_mode_mdi(self,widget):
-        print("mdi mode")
         if self.widgets.rbt_mdi.get_active():
             return
         else:
@@ -2577,7 +2567,6 @@ class HandlerClass:
             self.widgets.rbt_mdi.set_active(True)
 
     def on_hal_status_mode_auto(self,widget):
-        print("auto mode")
         if self.widgets.rbt_auto.get_active():
             return
         else:
@@ -2619,7 +2608,7 @@ class HandlerClass:
         e = self.emcerror.poll()
         if e:
             kind, text = e
-            print kind,text
+            #print kind,text
             if "joint" in text:
                 for letter in self.data.axis_list:
                     axnum = "xyzabcuvws".index(letter)
