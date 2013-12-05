@@ -1024,14 +1024,14 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
-    if (prev_tc->coords.line.abc.tmag > TP_MAG_EPSILON ||
-            tc->coords.line.abc.tmag > TP_MAG_EPSILON) {
+    if (!prev_tc->coords.line.abc.tmag_zero ||
+            tc->coords.line.abc.tmag_zero ) {
         tp_debug_print("ABC motion, can't do 3D arc blend\n");
         return TP_ERR_FAIL;
     }
 
-    if (prev_tc->coords.line.uvw.tmag > TP_MAG_EPSILON ||
-            tc->coords.line.uvw.tmag > TP_MAG_EPSILON) {
+    if (prev_tc->coords.line.uvw.tmag_zero ||
+            tc->coords.line.uvw.tmag_zero) {
         tp_debug_print("UVW motion, can't do 3D arc blend\n");
         return TP_ERR_FAIL;
     }
@@ -1228,6 +1228,10 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         TC_STRUCT * const prev_tc, TC_STRUCT * const tc) {
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
+    }
+    //If we have ABCUVW movement, then don't check for tangency
+    if (!tc->coords.line.uvw.tmag_zero || !tc->coords.line.abc.tmag_zero) {
+        return TP_ERR_NO_ACTION;
     }
 
     PmCartesian prev_tan, this_tan;
@@ -2604,7 +2608,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
     tc_debug_print("time: %f primary movement = %.12e\n", time_elapsed, mag3);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
-            mag1+mag2+mag3, emcmotStatus->current_vel);
+            mag1 + mag2 + mag3, emcmotStatus->current_vel);
 
     // If TC is complete, remove it from the queue. 
     if (tc->remove) {
