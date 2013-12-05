@@ -2359,7 +2359,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     double dx = tc->target - tc->progress;
 
     //If we're at the target, then it's too late to do anything about it
-    if (dx <= 0.0) {
+    if (dx <= TP_MAG_EPSILON) {
         tp_debug_print("prematurely at/passed target, dx = %.12f, assume tc is done\n",dx);
         tc->done = 1;
         //FIXME should we be able to get here?
@@ -2397,9 +2397,9 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     if (dt < TP_TIME_EPSILON) {
         tp_debug_print("dt = %f, assuming large final accel\n", dt);
         a_f = TP_BIG_NUM * fsign(dv);
+    } else {
+        a_f = dv / dt;
     }
-
-    a_f = dv / dt;
 
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
