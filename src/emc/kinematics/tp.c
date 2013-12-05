@@ -1324,12 +1324,15 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
-    int res=pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
-    gdb_fake_assert(res<0);
-    res = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
-    gdb_fake_assert(res<0);
-    res = pmCartLineInit(&line_abc, &start_abc, &end_abc);
-    gdb_fake_assert(res<0);
+    int xyz_fail = pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
+    int abc_fail = pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    int uvw_fail = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+
+    if (xyz_fail || abc_fail || uvw_fail) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Line9, err codes %d, %d, %d\n",
+                xyz_fail,abc_fail,uvw_fail);
+        return TP_ERR_FAIL;
+    }
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
@@ -1423,9 +1426,15 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
-    pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
-    pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    int xyz_fail = pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
+    int abc_fail =pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    int uvw_fail =pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+
+    if (xyz_fail || abc_fail || uvw_fail) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
+                xyz_fail, abc_fail, uvw_fail);
+        return TP_ERR_FAIL;
+    }
 
     // find helix length
     pmCartMag(&circle.rHelix, &helix_z_component);
