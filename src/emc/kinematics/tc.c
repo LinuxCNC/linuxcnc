@@ -196,11 +196,6 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             uvw = tc->coords.rigidtap.uvw;
             break;
         case TC_LINEAR:
-            //FIXME why is this here?
-#if 0
-            // if this is rapid move, don't use feed override settings (max velocity override is still honoured)
-            if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {tc->feed_override = 1.0;}
-#endif
             if (tc->coords.line.xyz.tmag > 0.) {
                 // progress is along xyz, so uvw and abc move proportionally in order
                 // to end at the same time.
@@ -287,7 +282,6 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     tp_posemath_debug(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
 
     //Calculate gram-schmidt orthonormals 
-    //For n2
     PmCartesian u1, u2, n1, n2;
     
     pmCartCartProj(&v2, &v1, &u2);
