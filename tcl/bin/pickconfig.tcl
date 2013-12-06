@@ -302,12 +302,25 @@ proc walktree {dir} {
      set ::lvl $dir
      $::tree insert end root $dir -text [describe $dir] -open $::openmode
    }
-  set flist [lsort [glob -nocomplain $dir/*]]
+  set bothlist [lsort [glob -nocomplain $dir/*]]
   if {   [info exists ::sampleconfigs_node]
       && "$dir" == "$::sampleconfigs_node"} {
-    set flist [rearrange $flist]
+    set bothlist [rearrange $bothlist]
   }
-  foreach f $flist {
+  set sortedlist {}
+  set filelist {}
+  set dirlist {}
+  # display files before directories
+  foreach item $bothlist {
+     if [file isdirectory $item] {
+       lappend dirlist $item
+     } else {
+       lappend sortedlist $item
+     }
+  }
+  foreach f $dirlist { lappend sortedlist $f }
+
+  foreach f $sortedlist {
      if [file isdirectory $f] {
        set foundini [exec find $f -type f -name "*.ini"]
        if {"$foundini" == ""} {
