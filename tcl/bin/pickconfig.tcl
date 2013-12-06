@@ -526,8 +526,12 @@ proc prompt_copy configname {
         # are copied.  The target of a linked file is copied
         foreach f [glob -directory $configdir *] {
           switch [file type $f] {
-            link      {file copy [file join $configdir \
-                                 [file readlink $f]] $copydir}
+            link      {
+                       #file copy [file join $configdir \
+                       #[file readlink $f]] $copydir
+                       # to follow sym links correctly, use system cp:
+                       exec cp [file join $configdir $f] $copydir
+                      }
             file      {file copy "$f" $copydir}
             directory {}
             default   {puts stderr \
@@ -596,10 +600,19 @@ while {1} {
         # system dir running from an install (by deb typically)
         # so install the configuration
         #
-        # for convience in testing rip builds: export debug_pickconfig=1
+        # for convience in testing pickconfig by itself in rip builds:
+        # export debug_pickconfig=1
+
+        if {    [info exists ::env(debug_pickconfig)] \
+             && [string first $::myconfigs_node $::inifile]} {
+          set writeanyway 1
+          puts stderr "debug_pickconfig: writeanyway"
+        } else {
+          set writeanyway 0
+        }
 
         if {   ![file writable [file dirname $::inifile]]
-            ||  [info exists ::env(debug_pickconfig)]
+            || $writeanyway
            } {
             set copied_inifile [prompt_copy $::inifile]
             if {$copied_inifile == ""} { continue }
