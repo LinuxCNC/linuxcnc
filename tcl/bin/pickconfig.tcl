@@ -302,7 +302,11 @@ proc walktree {dir} {
      set ::lvl $dir
      $::tree insert end root $dir -text [describe $dir] -open $::openmode
    }
-  set flist [rearrange [lsort [glob -nocomplain $dir/*]]]
+  set flist [lsort [glob -nocomplain $dir/*]]
+  if {   [info exists ::sampleconfigs_node]
+      && "$dir" == "$::sampleconfigs_node"} {
+    set flist [rearrange $flist]
+  }
   foreach f $flist {
      if [file isdirectory $f] {
        set foundini [exec find $f -type f -name "*.ini"]
