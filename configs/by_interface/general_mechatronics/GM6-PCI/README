@@ -8,5 +8,3 @@ This configuration shows how to set up encoder and axis DAC, and how to connect 
 
 3-axis-stepper:
 This configuration shows how to set up stepgen module. All 3 axes use one home switch and two limit switches. Power fault input is connected to E-stop hal pin.
-
-

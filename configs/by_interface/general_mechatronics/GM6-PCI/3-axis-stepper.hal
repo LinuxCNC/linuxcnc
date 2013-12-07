@@ -109,6 +109,3 @@ net lim-sw-y-home gm.0.axis.1.home-sw-in-not => axis.1.home-sw-in
 net lim-sw-z-pos gm.0.axis.2.pos-lim-sw-in-not => axis.2.pos-lim-sw-in
 net lim-sw-z-neg gm.0.axis.2.neg-lim-sw-in-not => axis.2.neg-lim-sw-in
 net lim-sw-z-home gm.0.axis.2.home-sw-in-not => axis.2.home-sw-in
-
-
-
