@@ -235,7 +235,7 @@ pack $logo -side left -anchor nw
 pack $top -side left -expand yes -fill both
 
 wm geo . 780x480
-wm resiz . 0 0
+wm minsize . 780 480
 
 proc SW { args } {
     set res [eval ScrolledWindow $args]
