@@ -31,7 +31,7 @@ DOC_SRCS_EN := \
 	code/NML_Messages.txt \
 	code/Contributing-to-LinuxCNC.txt \
 	common/emc-history.txt \
-	common/Getting_EMC.txt \
+	common/Getting_LinuxCNC.txt \
 	common/Glossary.txt \
 	common/GPLD_Copyright.txt \
 	common/Integrator_Concepts.txt \
@@ -41,7 +41,7 @@ DOC_SRCS_EN := \
 	common/starting-emc.txt \
 	common/Stepper_Diagnostics.txt \
 	common/System_Requirements.txt \
-	common/Updating_EMC.txt \
+	common/Updating_LinuxCNC.txt \
 	common/User_Concepts.txt \
 	common/userforeword.txt \
 	common/user_intro.txt \
