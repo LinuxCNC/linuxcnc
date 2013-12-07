@@ -37,6 +37,9 @@ option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
 
+# start on this node if no ~/.linuxcncrc:
+set ::default_start_node sim/axis/axis.ini
+
 # emphasize sim ini configs that have the most support by reordering
 # reorder: priority low to high:
 set ::preferred_names [list \
@@ -202,7 +205,22 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
+
+# order conventions for items in the linuxcnc::USER_CONFIG_DIR list:
+set ::myconfigs     [lindex $linuxcnc::USER_CONFIG_DIR   0]
+set ::sampleconfigs [lindex $linuxcnc::CONFIG_DIR      end]
+
 set configs_dir_list $linuxcnc::CONFIG_DIR
+
+set ::last_ini "none"
+set ::last_ini [initialize_config]
+
+set ::openmode 0
+if {   [file exists [file join $::sampleconfigs $::default_start_node]]
+    || "$::last_ini" != ""
+   } {
+  set ::openmode 1
+}
 
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
@@ -218,9 +236,6 @@ pack $top -side left -expand yes -fill both
 
 wm geo . 780x480
 wm resiz . 0 0
-
-set last_ini "none"
-set last_ini [initialize_config]
 
 proc SW { args } {
     set res [eval ScrolledWindow $args]
@@ -285,11 +300,11 @@ pack $f1 -fill both -expand y
 
 set ::config_count 0
 proc describe {dir} {
-    if {[string compare $dir $linuxcnc::USER_CONFIG_DIR] == 0} {
+    if {"$dir" == "$::myconfigs"} {
         set ::myconfigs_node $dir
 	return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir [lindex $linuxcnc::CONFIG_DIR end]] == 0} {
+    if {"$dir" == "$::sampleconfigs"} {
         set ::sampleconfigs_node $dir
 	return [msgcat::mc "Sample Configurations"]
     }
@@ -560,11 +575,21 @@ proc prompt_copy configname {
 }
 
 
-# add the selection set if a last_ini has been found in ~/.linuxcncrc
+# add the selection set if a ::last_ini has been found in ~/.linuxcncrc
 
-if {$last_ini != -1 && [file exists $last_ini] && ![catch {$::tree index $last_ini}]} {
-    $::tree selection set $last_ini
-    wait_and_see $last_ini
+if {   $::last_ini != -1 
+    && [file exists $::last_ini]
+    && ![catch {$::tree index $::last_ini}]} {
+    set start_node $::last_ini
+} else {
+    set start_node ${::sampleconfigs}/$::default_start_node
+}
+if [catch {
+            $::tree selection set $start_node
+            wait_and_see $start_node
+           }] {
+  set ::openmode 0
+  puts stderr "pickconfig: cannot find expected start_node <$start_node>, continuing"
 }
 
 proc make_shortcut {inifile} {
@@ -625,7 +650,7 @@ while {1} {
         # or make this file and add the var.
 
         if {[file exists ~/.linuxcncrc]} {
-            if {$::inifile == $last_ini} {
+            if {$::inifile == $::last_ini} {
                 exit
             } else {
                 if {[catch {open ~/.linuxcncrc} programin]} {
