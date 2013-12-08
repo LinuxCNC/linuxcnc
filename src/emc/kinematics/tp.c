@@ -61,6 +61,10 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
+STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
+        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
+        PmCartesian const * const circ_end);
+
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
     return condition;
@@ -787,11 +791,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double R_geom = Ttheta * d_geom;
 
     tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n", d_geom, d_prev, d_next);
-    tp_debug_print("R_geom = %f\n",R_geom);
+    tp_debug_print("R_geom = %f\n", R_geom);
 
     //Calculate limiting velocity due to radius and normal acceleration, and
     //trajectory sampling rate
-    double v_normal = pmSqrt(a_n_max*R_geom);
+    double v_normal = pmSqrt(a_n_max * R_geom);
     tp_debug_print("v_normal = %f\n", v_normal);
 
     double v_plan = v_normal;
@@ -873,11 +877,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         prev_tc->target_vel = prev_reqvel;
     }
 
+    PmCartesian circ_start, circ_end;
+
     //Get 3D start, middle, end position
     pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
             &prev_tc->coords.line.xyz.start,
             &prev_tc->coords.line.xyz.end, 
-            &tc->coords.line.xyz.end, R_plan);
+            &tc->coords.line.xyz.end, R_plan, &circ_start, &circ_end);
 
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
 
@@ -906,7 +912,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
 #endif
 
-    return TP_ERR_OK;
+    return tcConnectBlendArc(prev_tc, tc, blend_tc, &circ_start, &circ_end);
+
 }
 
 
@@ -1061,20 +1068,13 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
  *
  */
 STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        TC_STRUCT const * const blend_tc) {
-
-    //Scratch variables for arc end and start points
-    PmCartesian start_xyz, end_xyz;
-
-    //Get start and end points of blend arc to update lines
-    pmCirclePoint(&blend_tc->coords.circle.xyz, 0.0, &start_xyz);
-    pmCirclePoint(&blend_tc->coords.circle.xyz,
-            blend_tc->coords.circle.xyz.angle, &end_xyz);
+        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start, PmCartesian const * const circ_end) {
 
     /* Only shift XYZ for now*/
     int res1 = pmCartLineInit(&prev_tc->coords.line.xyz,
-            &prev_tc->coords.line.xyz.start,&start_xyz);
-    int res2 = pmCartLineInit(&tc->coords.line.xyz, &end_xyz, &tc->coords.line.xyz.end);
+            &prev_tc->coords.line.xyz.start, circ_start);
+    int res2 = pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
+
     if (res1 || res2) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Got PM errors %d and %d during blend arc connect!\n",res1,res2);
     }
@@ -1087,8 +1087,6 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     //Setup tangent blending constraints
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-    /* Override calculated acceleration with machine limit to prevent acceleration spikes*/
-    /*tpGetMachineAccelLimit(&prev_tc->maxaccel);*/
 
     return TP_ERR_OK;
 }
@@ -1301,7 +1299,6 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
             return arc_fail;
         }
 
-        tcConnectBlendArc(prev_tc, tc, &blend_tc);
 
         tpAddSegmentToQueue(tp, &blend_tc, end,false);
     }
