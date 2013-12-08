@@ -378,7 +378,7 @@ copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
-checkref: checkref_en checkref_fr
+checkref: checkref_en checkref_fr checkref_es
 
 checkref_en: $(DOC_TARGETS_HTML_EN)
 	@$(DOC_SRCDIR)/checkref English $^
@@ -386,9 +386,9 @@ checkref_en: $(DOC_TARGETS_HTML_EN)
 checkref_fr: $(DOC_TARGETS_HTML_FR)
 	@$(DOC_SRCDIR)/checkref French $^
 
-# These targets don't work yet since we don't have the associated translations
-checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+# the spanish docs are full of broken links, only warn on failure
+checkref_es: $(DOC_TARGETS_HTML_ES)
+	@$(DOC_SRCDIR)/checkref --warn-on-failure Spanish $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
