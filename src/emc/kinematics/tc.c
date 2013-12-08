@@ -256,11 +256,48 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
 /* Arc stuff */
 
 /**
+ * Define a 3D spherical arc based on 2 line segments and a radius.
+ */
+int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
+        PmCartLine const * const line2, double blend_dist,
+        double radius, double angle, PmCartesian * const start, PmCartesian * const end) {
+
+    PmCartesian center, normal, binormal;
+
+    // Pointer to middle point of line segment pair
+    PmCartesian const * const middle = &line1->end;
+    //TODO assert line1 end = line2 start?
+
+    //Calculate the normal direction of the arc from the difference
+    //between the unit vectors
+    pmCartCartSub(&line2->uVec, &line1->uVec, &normal);
+    pmCartUnit(&normal,&normal);
+    pmCartScalMult(&normal, radius, &normal);
+    pmCartCartAdd(middle, &normal, &center);
+
+    //Calculate the binormal (vector perpendicular to the plane of the
+    //arc)
+    pmCartCartCross(&line1->uVec, &line2->uVec, &binormal);
+    pmCartUnit(&binormal, &binormal);
+
+    // Start point is blend_dist away from middle point in the
+    // negative direction of line1
+    pmCartScalMult(&line1->uVec, -blend_dist, start);
+    pmCartCartAdd(start, middle, start);
+
+    // End point is blend_dist away from middle point in the positive
+    // direction of line2
+    pmCartScalMult(&line2->uVec, blend_dist, end);
+    pmCartCartAdd(end, middle, end);
+    return pmCircleInit(arc, start, end, &center, &binormal, 0);
+    
+}
+/**
  * Define a 3D spherical arc based on three points and a radius.
  */
 int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
-        double radius) {
+        double radius, PmCartesian * const circ_start, PmCartesian * const circ_end) {
 
     //TODO macro this?
     if (NULL == arc) {
@@ -355,8 +392,6 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     pmCartScalMult(&n2, radius, &n2);
 
     PmCartesian center;
-    PmCartesian circ_start;
-    PmCartesian circ_end;
 
     //Add one set of vectors to get the center
     tp_posemath_debug("v2 = %f, %f,%f\n",v2.x,v2.y,v2.z);
@@ -365,15 +400,15 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
 
     tp_posemath_debug("v2 + n2 = %f, %f,%f\n",center.x,center.y,center.z);
     pmCartCartAdd(middle, &center, &center);
-    pmCartCartAdd(middle, &v1, &circ_start);
-    pmCartCartAdd(middle, &v2, &circ_end);
+    pmCartCartAdd(middle, &v1, circ_start);
+    pmCartCartAdd(middle, &v2, circ_end);
 
     tp_posemath_debug("d = %f\n",d);
     tp_posemath_debug("center = %f, %f,%f\n",center.x,center.y,center.z);
-    tp_posemath_debug("circ_start = %f, %f,%f\n",circ_start.x,circ_start.y,circ_start.z);
-    tp_posemath_debug("circ_end = %f, %f,%f\n",circ_end.x,circ_end.y,circ_end.z);
+    tp_posemath_debug("circ_start = %f, %f,%f\n",circ_start->x,circ_start->y,circ_start->z);
+    tp_posemath_debug("circ_end = %f, %f,%f\n",circ_end->x,circ_end->y,circ_end->z);
 
-    pmCircleInit(arc,&circ_start,&circ_end,&center,&binormal,0);
+    pmCircleInit(arc, circ_start, circ_end, &center,&binormal,0);
 
     tp_posemath_debug("center = %f, %f,%f\n",arc->center.x,arc->center.y,arc->center.z);
     tp_posemath_debug("rTan = %f, %f,%f\n",arc->rTan.x,arc->rTan.y,arc->rTan.z);
