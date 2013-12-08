@@ -144,7 +144,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 
 int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
-        double radius);
+        double radius, PmCartesian * const circ_start, PmCartesian * const circ_end);
 
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
 
