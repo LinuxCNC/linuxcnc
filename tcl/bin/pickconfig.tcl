@@ -37,6 +37,11 @@ option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
 
+
+################### MAINTENANCE ITEMS #####################
+
+set ::make_flat_user_dirs 0 ;# 0 ==> hierarchical
+
 # start on this node if no ~/.linuxcncrc:
 set ::default_start_node sim/axis/axis.ini
 
@@ -53,6 +58,7 @@ set ::preferred_names [list \
                        by_interface \
                        sim \
                        ]
+
 ################### PROCEDURE DEFINITIONS #####################
 
 set desktopdir [exec bash -c {test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs; echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}}]
@@ -205,12 +211,10 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
-
-# order conventions for items in the linuxcnc::USER_CONFIG_DIR list:
-set ::myconfigs     [lindex $linuxcnc::USER_CONFIG_DIR   0]
-set ::sampleconfigs [lindex $linuxcnc::CONFIG_DIR      end]
-
-set configs_dir_list $linuxcnc::CONFIG_DIR
+set ::configs_dir_list $linuxcnc::CONFIG_DIR
+set ::myconfigs        $linuxcnc::USER_CONFIG_DIR
+# order convention for items in the linuxcnc::USER_CONFIG_DIR list:
+set ::sampleconfigs [lindex $::configs_dir_list end] ;# last item
 
 set ::last_ini "none"
 set ::last_ini [initialize_config]
@@ -441,32 +445,39 @@ proc prompt_copy configname {
     set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "Would you like to copy the %s configuration to your home directory so you can customize it?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "Cancel"]]
 
     if {$res == -1 || $res == 1} { return "" }
-    set configdir [format %s [file dirname $configname]]
-    foreach d $linuxcnc::CONFIG_DIR {
-      if {"$d" == "$configdir"} {
-        # found configdir at level 0 of a directory in the linuxcnc::CONFIG_DIR list
-        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR [file tail $configdir]]]
+    set chosendir [format %s [file dirname $configname]]
+    foreach d $::configs_dir_list {
+      if {"$d" == "$chosendir"} {
+        # found chosendir at level 0 of a directory in the ::configs_dir_list
+        set copytodir [format %s [file join $::myconfigs [file tail $chosendir]]]
         break
       }
-      # if configdir not found at level 0, try subdirs
+      # if chosendir not found at level 0, try subdirs
       if {0 != [string first "$d" $configname]} {
         continue
       } else {
-        # found configdir as a subdir so create copydir at same level
-        # so that ini file items specified as relative links (like ../../)
-        # will work in both run-in-place and packaged builds
-        set     idx [expr 1 + [string length $d]]
-        set copydir [string range $configdir $idx end]
-        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR $copydir]]
+        # found chosendir as a subdir
+        set idx [expr 1 + [string length $d]] ;#
+        set hiername [string range $chosendir $idx end]
+        if $::make_flat_user_dirs {
+          # Flat dir structure for copied configs
+          # create copytodir at one level below ::myconfigs
+          set flatname  [string map {/ .} $hiername]
+          set copytodir [format %s [file join $::myconfigs $flatname]]
+        } else {
+          # Hierarchical dir structure for copied configs
+          # create copytodir following hierarchy
+          set copytodir [format %s [file join $::myconfigs $hiername]]
+        }
         break
       }
     }
-    set copybase $copydir
+    set copybase $copytodir
 
     set i 0
     # distribution config ini files expect nc_files at same level as configs dir
-    set ncfiles [file normalize [file join $linuxcnc::USER_CONFIG_DIR ../nc_files]]
-    file mkdir [file join $linuxcnc::USER_CONFIG_DIR]
+    set ncfiles [file normalize [file join $::myconfigs ../nc_files]]
+    file mkdir [file join $::myconfigs]
 
     set obsoletedir [file normalize [file join ~ emc2]]
     if [file isdir $obsoletedir] {
@@ -475,7 +486,7 @@ proc prompt_copy configname {
                   $obsoletedir\n \
                   exists \n\n \
                   You may want to copy items to the new directory:\n \
-                  [file normalize [file join $linuxcnc::USER_CONFIG_DIR ..]]" \
+                  [file normalize [file join $::myconfigs ..]]" \
         -type ok
     }
 
@@ -517,21 +528,21 @@ proc prompt_copy configname {
         close $fd
     }
     while {1} {
-        if [file exists $copydir] {
+        if [file exists $copytodir] {
           incr i
-          set copydir "$copybase-$i" ;# user may have protected directory, so bump name
+          set copytodir "$copybase-$i" ;# user may have protected directory, so bump name
           # limit attempts to avoid infinite loop for hard error
           if {$i > 1000} {
              puts stderr "$::argv0:$msg"
              tk_messageBox -icon error -type ok \
-                  -message [msgcat::mc "Failed to mkdir for $copydir\n<$msg>"]
+                  -message [msgcat::mc "Failed to mkdir for $copytodir\n<$msg>"]
              destroy .
              exit
           }
           continue ;# try again
         } else {
           # note: file mkdir will make parents as required
-          if [catch { file mkdir $copydir } msg] {
+          if [catch { file mkdir $copytodir } msg] {
             continue ;# try again
           }
         }
@@ -539,21 +550,22 @@ proc prompt_copy configname {
         # User selects an offered ini file.
         # All files in same directory (but not subdirectories)
         # are copied.  The target of a linked file is copied
-        foreach f [glob -directory $configdir *] {
+        foreach f [glob -directory $chosendir *] {
+          # nc_files may be present as required for rip testing
+          # nc_files not copied here (handled elsewhere)
+          if {[file tail $f] == "nc_files"} continue 
           switch [file type $f] {
             link      {
-                       #file copy [file join $configdir \
-                       #[file readlink $f]] $copydir
                        # to follow sym links correctly, use system cp:
-                       exec cp [file join $configdir $f] $copydir
+                       exec cp [file join $chosendir $f] $copytodir
                       }
-            file      {file copy "$f" $copydir}
+            file      {file copy "$f" $copytodir}
             directory {}
             default   {puts stderr \
                        "prompt_copy:unsupported type=[file type $f] for $f"}
           }
         }
-        foreach f [glob -directory $copydir *] {
+        foreach f [glob -directory $copytodir *] {
 	    file attributes $f -permissions u+w
 	    if {[file extension $f] == ".ini"} {
 		set c [get_file_contents $f]
@@ -569,9 +581,9 @@ proc prompt_copy configname {
         break
     }
 
-    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting LinuxCNC." $copydir] info 0 [msgcat::mc "OK"]
+    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting LinuxCNC." $copytodir] info 0 [msgcat::mc "OK"]
 
-    return $copydir/[file tail $configname]
+    return $copytodir/[file tail $configname]
 }
 
 
@@ -625,7 +637,7 @@ while {1} {
         # system dir running from an install (by deb typically)
         # so install the configuration
         #
-        # for convience in testing pickconfig by itself in rip builds:
+        # for convenience in testing pickconfig by itself in rip builds:
         # export debug_pickconfig=1
 
         if {    [info exists ::env(debug_pickconfig)] \
