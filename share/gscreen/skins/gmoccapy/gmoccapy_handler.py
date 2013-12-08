@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.4"
+_RELEASE = "0.9.9.5"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -461,9 +461,13 @@ class HandlerClass:
         self.data.abs_color = self.gscreen.prefs.getpref("abs_color", "blue", str)
         self.data.rel_color = self.gscreen.prefs.getpref("rel_color", "black", str)
         self.data.dtg_color = self.gscreen.prefs.getpref("dtg_color", "yellow", str)
+        self.data.homed_color = self.gscreen.prefs.getpref("homed_color", "green", str)
+        self.data.unhomed_color = self.gscreen.prefs.getpref("unhomed_color", "red", str)
         self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_color))
         self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.data.rel_color))
         self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.data.dtg_color))
+        self.widgets.homed_colorbtn.set_color(gtk.gdk.color_parse(self.data.homed_color))
+        self.widgets.unhomed_colorbtn.set_color(gtk.gdk.color_parse(self.data.unhomed_color))
 
         for axis in self.data.axis_list:
             if axis == self.axisletter_four:
@@ -471,6 +475,9 @@ class HandlerClass:
             self.widgets["Combi_DRO_%s"%axis].set_property("abs_color", gtk.gdk.color_parse(self.data.abs_color))
             self.widgets["Combi_DRO_%s"%axis].set_property("rel_color", gtk.gdk.color_parse(self.data.rel_color))
             self.widgets["Combi_DRO_%s"%axis].set_property("dtg_color", gtk.gdk.color_parse(self.data.dtg_color))
+            self.widgets["Combi_DRO_%s"%axis].set_property("homed_color", gtk.gdk.color_parse(self.data.homed_color))
+            self.widgets["Combi_DRO_%s"%axis].set_property("unhomed_color", gtk.gdk.color_parse(self.data.unhomed_color))
+
 
         self.widgets.adj_start_spindle_RPM.set_value(self.data.spindle_start_rpm)
         self.widgets.gcode_view.set_sensitive(False)
@@ -539,6 +546,13 @@ class HandlerClass:
             # we change the axis letters of the DRO's
             self.widgets.Combi_DRO_x.change_axisletter("R")
             self.widgets.Combi_DRO_y.change_axisletter("D")
+
+            # and we will have to change the colors of the Y DRO according to the settings
+            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.data.abs_color))
+            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.data.rel_color))
+            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.data.dtg_color))
+            self.widgets.Combi_DRO_y.set_property("homed_color", gtk.gdk.color_parse(self.data.homed_color))
+            self.widgets.Combi_DRO_y.set_property("unhomed_color", gtk.gdk.color_parse(self.data.unhomed_color))
 
             # For gremlin we don"t need the following button
             if self.backtool_lathe:
@@ -1975,30 +1989,60 @@ class HandlerClass:
             self.widgets.window1.window.set_cursor(INVISABLE)
         else:
             self.widgets.window1.window.set_cursor(None)
-
+        self.data.abs_color = self.gscreen.prefs.getpref("abs_color", "blue", str)
+        self.data.rel_color = self.gscreen.prefs.getpref("rel_color", "black", str)
+        self.data.dtg_color = self.gscreen.prefs.getpref("dtg_color", "yellow", str)
+        self.data.homed_color = self.gscreen.prefs.getpref("homed_color", "green", str)
+        self.data.unhomed_color = self.gscreen.prefs.getpref("unhomed_color", "red", str)
     def on_rel_colorbutton_color_set(self, widget):
         color = widget.get_color()
         if self.log: self.gscreen.add_alarm_entry("rel color set to %s"%color)
         self.gscreen.prefs.putpref('rel_color', color, str)
         self._change_dro_color("rel_color", color)
+        self.data.rel_color = str(color)
 
     def on_abs_colorbutton_color_set(self, widget):
         color = widget.get_color()
         if self.log: self.gscreen.add_alarm_entry("abs color set to %s"%color)
         self.gscreen.prefs.putpref('abs_color', widget.get_color(), str)
         self._change_dro_color("abs_color", color)
+        self.data.abs_color = str(color)
 
     def on_dtg_colorbutton_color_set(self, widget):
         color = widget.get_color()
         if self.log: self.gscreen.add_alarm_entry("dtg color set to %s"%color)
         self.gscreen.prefs.putpref('dtg_color', widget.get_color(), str)
         self._change_dro_color("dtg_color", color)
+        self.data.dtg_color = str(color)
+
+    def on_homed_colorbtn_color_set(self, widget):
+        color = widget.get_color()
+        if self.log: self.gscreen.add_alarm_entry("homed color set to %s"%color)
+        self.gscreen.prefs.putpref('homed_color', widget.get_color(), str)
+        self._change_dro_color("homed_color", color)
+        self.data.homed_color = str(color)
+
+    def on_unhomed_colorbtn_color_set(self, widget):
+        color = widget.get_color()
+        if self.log: self.gscreen.add_alarm_entry("unhomed color set to %s"%color)
+        self.gscreen.prefs.putpref('unhomed_color', widget.get_color(), str)
+        self._change_dro_color("unhomed_color", color)
+        self.data.unhomed_color = str(color)
 
     def _change_dro_color(self, property, color):
         for axis in self.data.axis_list:
             if axis == self.axisletter_four:
                 axis = 4
             self.widgets["Combi_DRO_%s"%axis].set_property(property, color)
+        if self.data.lathe_mode:
+            self.widgets.Combi_DRO_y.set_property(property, color)
+            # check if G7 or G8 is active
+            # this is set on purpose wrong, because we want the periodic 
+            # to update the state correctly
+            if "G7" in self.data.active_gcodes:
+                self.data.diameter_mode = False
+            else:
+                self.data.diameter_mode = True
 
     def on_file_to_load_chooser_file_set(self, widget):
         if self.log: self.gscreen.add_alarm_entry("file to load on startup set to : %s"%widget.get_filename())
@@ -2643,8 +2687,6 @@ class HandlerClass:
         self.gscreen.update_active_gcodes()
         self.gscreen.update_active_mcodes()
         if "G8" in self.data.active_gcodes and self.data.lathe_mode and self.data.diameter_mode:
-            homed_color = self.widgets.Combi_DRO_y.get_property("homed_color")
-            unhomed_color = self.widgets.Combi_DRO_y.get_property("unhomed_color")
             self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))

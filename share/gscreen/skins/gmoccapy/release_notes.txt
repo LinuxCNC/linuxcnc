@@ -1,3 +1,8 @@
+ver. 0.9.9.5
+- added color chooser for homed and unhomed colors, as recommended
+  by BigJohnT to help people suffering from protanopia (red/green weakness)
+- corrected an error updating the DRO colors in lathe mode
+
 ver. 0.9.9.4
 - initializing some warnings at start up, corrected that
 - deleted some unneeded print messages
