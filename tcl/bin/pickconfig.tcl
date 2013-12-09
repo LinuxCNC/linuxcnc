@@ -40,10 +40,25 @@ option add *Tree*background white
 
 ################### MAINTENANCE ITEMS #####################
 
-set ::make_flat_user_dirs 0 ;# 0 ==> hierarchical
+# flat structure:
+#    ini files should always refer to ../../nc_files
+#    config subdirs can be moved with little imapact
+#
+# hierarchical structure:
+#    ini files must refer to appropriate nc_files and
+#    must be edited if config subdirs are moved to
+#    a different depth in the tree
+#
+set ::make_flat_user_dirs  1 ;# 0 ==> hierarchical
+
+# experimental:
+set ::copy_special_subdirs 1 ;# enable copy of tagged subdirs
 
 # start on this node if no ~/.linuxcncrc:
 set ::default_start_node sim/axis/axis.ini
+
+# support filenames that are never copied to user:
+set ::never_copy_list [list maintainer.txt]
 
 # emphasize sim ini configs that have the most support by reordering
 # reorder: priority low to high:
@@ -496,10 +511,10 @@ proc prompt_copy configname {
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
         # example: ngcgui uses lib named ngcgui_lib
-        set liblist {ngcgui gladevcp}
+        set liblist {ngcgui_lib gladevcp_lib remap_lib}
         foreach lib $liblist {
-           file link -symbolic [file join $ncfiles/${lib}_lib] \
-                               [file join $linuxcnc::NCFILES_DIR ${lib}_lib]
+           file link -symbolic [file join $ncfiles/$lib] \
+                               [file join $linuxcnc::NCFILES_DIR $lib]
         }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]
@@ -548,19 +563,43 @@ proc prompt_copy configname {
         }
         # A hierarchy of directories is allowed.
         # User selects an offered ini file.
-        # All files in same directory (but not subdirectories)
-        # are copied.  The target of a linked file is copied
+        # All files in same directory are copied.
+        # The target of a linked file is copied
         foreach f [glob -directory $chosendir *] {
-          # nc_files may be present as required for rip testing
-          # nc_files not copied here (handled elsewhere)
-          if {[file tail $f] == "nc_files"} continue 
+          # nc_files (as a symlink) may be present for rip testing
+          # nc_files (as a symlink) not copied here (handled elsewhere)
+          if {   [file tail $f] == "nc_files"
+              && [file type $f] == "link" } {
+            puts stderr "pickconfig: not copying link: $f"
+            continue 
+          }
+          if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
+          # is_special: subdir is to be copied
+          set is_special 0
+          if {   $::copy_special_subdirs } {
+             if [catch {glob $f/*.ini}] {
+                # ok: no ini file so the directory can be copied
+                set is_special 1
+             }
+          }
           switch [file type $f] {
             link      {
-                       # to follow sym links correctly, use system cp:
-                       exec cp [file join $chosendir $f] $copytodir
+                        if {$is_special} {
+                          # since link require:
+                          # -r recursive, -L dereference
+                          exec cp -rL [file join $chosendir $f] $copytodir
+                        } else {
+                          # to follow sym links correctly, use system cp:
+                          exec cp [file join $chosendir $f] $copytodir
+                        }
                       }
             file      {file copy "$f" $copytodir}
-            directory {}
+            directory { # recursive copy of subdirs
+                        if {$is_special } {
+                          # -r recursive
+                          exec cp -r [file join $chosendir $f] $copytodir
+                        }
+                      }
             default   {puts stderr \
                        "prompt_copy:unsupported type=[file type $f] for $f"}
           }
