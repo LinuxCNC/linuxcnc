@@ -83,22 +83,14 @@ import datetime
 import gobject
 import glib # for glib.GError
 
-# __file__ is name of module
-mdir = os.path.abspath(os.path.join(
-                       os.path.dirname(
-                       os.path.realpath(__file__))))
-
-# this must work for RIP and install by deb:
-BASE = os.path.abspath(os.path.join(mdir,"../.."))
-
-g_ui_dir          = os.path.join(BASE, "share", "linuxcnc")
+g_ui_dir          = linuxcnc.SHARE + "/linuxcnc"
 g_periodic_secs   = 1 # integer
 g_delta_pixels    = 10
 g_move_delay_secs = 0.2
 g_progname        = os.path.basename(sys.argv[0])
 g_verbose         = False
 
-LOCALEDIR = os.path.join(BASE, "share", "locale")
+LOCALEDIR = linuxcnc.SHARE + "/locale"
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
 def ini_setup ():
