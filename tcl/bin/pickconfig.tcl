@@ -57,6 +57,9 @@ set ::copy_special_subdirs 1 ;# enable copy of tagged subdirs
 # start on this node if no ~/.linuxcncrc:
 set ::default_start_node sim/axis/axis.ini
 
+# exclude directories that should never be offered
+set ::exclude_list [list common]
+
 # support filenames that are never copied to user:
 set ::never_copy_list [list maintainer.txt]
 
@@ -356,6 +359,7 @@ proc walktree {dir} {
 
   foreach f $sortedlist {
      if [file isdirectory $f] {
+       if {[lsearch $::exclude_list [file tail $f]] == 0} continue
        set foundini [exec find $f -type f -name "*.ini"]
        if {"$foundini" == ""} {
          verbose "no ini files, skipping $f"
