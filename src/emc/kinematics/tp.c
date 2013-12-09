@@ -1059,6 +1059,9 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 }
 
 STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc, TC_STRUCT const * const prev2_tc) {
+    if (prev1_tc->optimization_state == TC_OPTIM_AT_MAX) {
+        return TP_ERR_NO_ACTION;
+    }
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
     double acc_this = tpGetScaledAccel(tp, tc);
@@ -1404,8 +1407,8 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
     int xyz_fail = pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    int abc_fail =pmCartLineInit(&line_abc, &start_abc, &end_abc);
-    int uvw_fail =pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    int abc_fail = pmCartLineInit(&line_abc, &start_abc, &end_abc);
+    int uvw_fail = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
 
     if (xyz_fail || abc_fail || uvw_fail) {
         rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
@@ -2217,7 +2220,6 @@ STATIC int tcIsBlending(TC_STRUCT * const tc) {
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc, EmcPose * const secondary_before, double * const mag) {
     /* Early abort checks here */
-
     //Check if we have valid TC's to blend with
     if (!nexttc || !tc) {
         return TP_ERR_NO_ACTION;
@@ -2243,7 +2245,6 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
     if ( !tcIsBlending(tc) ){
         return TP_ERR_NO_ACTION;
     }
-
 
     tcGetPos(nexttc, secondary_before);
 
@@ -2543,15 +2544,31 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //Store initial position before trajectory updates
     tcGetPos(tc, &primary_before);
 
-    double mag2=0;
+    double mag_primary=0;
+    double mag_secondary=0;
+    EmcPose split_before, split_displacement;
     // Update the current tc
     if (tc->done) {
         tp_debug_print("tc id %d done\n",tc->id);
+        //Shortcut tc update by assuming we arrive at end
         tc->progress = tc->target;
-        if (nexttc) {
-            nexttc->currentvel = tc->final_actual_vel;
-            nexttc->cycle_time-=tc->split_time;
-            tpHandleTangency(tp, nexttc, &secondary_before, &mag2);
+        tpFindDisplacement(tc, &primary_before, &primary_displacement);
+        tpUpdatePosition(tp, &primary_displacement);
+
+        //If we're doing tangent blending
+        if (nexttc){
+            if (tc->term_cond == TC_TERM_COND_TANGENT) {
+                nexttc->currentvel = tc->final_actual_vel;
+                nexttc->cycle_time-=tc->split_time;
+                tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
+            } else if (nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
+                nexttc->cycle_time-=tc->split_time;
+                // update 2nd half of split cycle normally (not blending)
+                tcRunCycle(tp, nexttc);
+                tpFindDisplacement(tc, &split_before, &split_displacement);
+                tpUpdatePosition(tp, &split_displacement);
+                tpCheckEndCondition(tp,nexttc);
+            }
         }
         tc->remove = 1;
     } else {
@@ -2564,24 +2581,21 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         //Update motion status as normal
         tpToggleDIOs(tc);
         tpUpdateMovementStatus(tp, tc);
+
+        //Update displacement 
+        tpFindDisplacement(tc, &primary_before, &primary_displacement);
+
+        // Update the trajectory planner position based on the results
+        tpUpdatePosition(tp, &primary_displacement);
+
+        /* BLENDING STUFF */
+        
+        tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
     }
 
-    //Update displacement 
-    tpFindDisplacement(tc, &primary_before, &primary_displacement);
-
-    // Update the trajectory planner position based on the results
-    tpUpdatePosition(tp, &primary_displacement);
-
-    /* BLENDING STUFF */
-
-    double mag1=0;
-    tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag1);
-
-    double mag3=0;
-    tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag3);
-    tc_debug_print("time: %f primary movement = %.12e\n", time_elapsed, mag3);
+    tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag_primary);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
-            mag1 + mag2 + mag3, emcmotStatus->current_vel);
+            mag_primary + mag_secondary, emcmotStatus->current_vel);
 
     // If TC is complete, remove it from the queue. 
     if (tc->remove) {
