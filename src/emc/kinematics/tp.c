@@ -879,12 +879,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     PmCartesian circ_start, circ_end;
 
-    //Get 3D start, middle, end position
-    pmCircleFromPoints(&blend_tc->coords.circle.xyz, 
-            &prev_tc->coords.line.xyz.start,
-            &prev_tc->coords.line.xyz.end, 
-            &tc->coords.line.xyz.end, R_plan, &circ_start, &circ_end);
-
+    pmCircleFromLines(&blend_tc->coords.circle.xyz, 
+            &prev_tc->coords.line.xyz,
+            &tc->coords.line.xyz, R_plan, d_plan, &circ_start, &circ_end);
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
@@ -912,6 +909,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
 #endif
 
+    tp_debug_print("Connecting blend arc to lines\n");
     return tcConnectBlendArc(prev_tc, tc, blend_tc, &circ_start, &circ_end);
 
 }
@@ -1032,13 +1030,13 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 
     //If we have any rotary axis motion, then don't create a blend arc
     if (!prev_tc->coords.line.abc.tmag_zero ||
-            tc->coords.line.abc.tmag_zero ) {
+            !tc->coords.line.abc.tmag_zero ) {
         tp_debug_print("ABC motion, can't do 3D arc blend\n");
         return TP_ERR_FAIL;
     }
 
-    if (prev_tc->coords.line.uvw.tmag_zero ||
-            tc->coords.line.uvw.tmag_zero) {
+    if (!prev_tc->coords.line.uvw.tmag_zero ||
+            !tc->coords.line.uvw.tmag_zero) {
         tp_debug_print("UVW motion, can't do 3D arc blend\n");
         return TP_ERR_FAIL;
     }
@@ -1088,7 +1086,7 @@ STATIC int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     //Setup tangent blending constraints
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
-    return TP_ERR_OK;
+    return res1 || res2;
 }
 
 STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc, TC_STRUCT const * const prev2_tc) {

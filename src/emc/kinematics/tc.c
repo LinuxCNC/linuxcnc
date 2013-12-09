@@ -259,8 +259,8 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
  * Define a 3D spherical arc based on 2 line segments and a radius.
  */
 int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
-        PmCartLine const * const line2, double blend_dist,
-        double radius, double angle, PmCartesian * const start, PmCartesian * const end) {
+        PmCartLine const * const line2, double radius,
+        double blend_dist, PmCartesian * const start, PmCartesian * const end) {
 
     PmCartesian center, normal, binormal;
 
