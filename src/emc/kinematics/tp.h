@@ -28,6 +28,7 @@
 #define TP_MIN_SEGMENT_CYCLES 2.1
 #define TP_ACC_RATIO_NORMAL (pmSqrt(3.0)/2.0)
 #define TP_ACC_RATIO_TANGENTIAL 0.5
+#define TP_OPTIMIZATION_CUTOFF 3
 
 /* closeness to zero, for determining if a move is pure rotation */
 #define TP_PURE_ROTATION_EPSILON 1e-6
