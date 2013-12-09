@@ -3,7 +3,7 @@
  * http://miniemc2.googlecode.com
  *
  * Copyright 2012, Sergey Kaydalov, kayserg@gmail.com
- * Licensed under the GPL Version 2 or later.
+ * Licensed under the GPL Version 2 licenses.
  */
 function miniemc2Init() {
     miniemc2Init.filelist_inited = false;
