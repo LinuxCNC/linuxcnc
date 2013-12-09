@@ -146,8 +146,14 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
         double radius, PmCartesian * const circ_start, PmCartesian * const circ_end);
 
-int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
+        PmCartLine const * const line2, double radius,
+        double blend_dist, PmCartesian * const start, PmCartesian * const end);
 
+int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
+int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
+        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
+        PmCartesian const * const circ_end);
 /* queue of TC_STRUCT elements*/
 
 typedef struct {
