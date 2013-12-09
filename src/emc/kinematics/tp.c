@@ -51,6 +51,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
 #define TP_SHOW_BLENDS
+#define TP_OPTIMIZATION_LAZY 
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -583,7 +584,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
 
     tc->enables=enables;
 
-    tc->atpeak=0;
+    tc->optimization_state=0;
     tc->on_final_decel=0;
     tc->smoothing = 0;
     tc->done = 0;
@@ -1084,11 +1085,9 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     if (vs >= vf_limit ) {
         //If we've hit the requested velocity, then prev_tc is definitely a "peak"
         vs = vf_limit;
-        prev1_tc->atpeak = 1;
+        prev1_tc->optimization_state = TC_OPTIM_AT_MAX;
         tp_debug_print("found peak due to v_limit\n");
-    } else {
-        prev1_tc->atpeak = 0;
-    }
+    } 
 
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
     prev1_tc->finalvel = vs;
@@ -1139,6 +1138,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
     }
 
+    int hit_peaks = 0;
+
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
@@ -1169,11 +1170,20 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
+
         tp_info_print("  current term = %u, type = %u, id = %u, smoothing = %d\n",
                 tc->term_cond, tc->motion_type, tc->id, tc->smoothing);
         tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->smoothing);
         tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
+#ifdef TP_OPTIMIZATION_LAZY
+        if (tc->optimization_state == TC_OPTIM_AT_MAX) {
+            hit_peaks++;
+        }
+        if (hit_peaks > TP_OPTIMIZATION_CUTOFF) {
+            return TP_ERR_OK;
+        }
+#endif
 
     }
     tp_debug_print("Reached optimization depth limit\n");
