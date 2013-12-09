@@ -51,9 +51,6 @@ option add *Tree*background white
 #
 set ::make_flat_user_dirs  1 ;# 0 ==> hierarchical
 
-# experimental:
-set ::copy_special_subdirs 1 ;# enable copy of tagged subdirs
-
 # start on this node if no ~/.linuxcncrc:
 set ::default_start_node sim/axis/axis.ini
 
@@ -580,11 +577,9 @@ proc prompt_copy configname {
           if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
           # is_special: subdir is to be copied
           set is_special 0
-          if {   $::copy_special_subdirs } {
-             if [catch {glob $f/*.ini}] {
-                # ok: no ini file so the directory can be copied
-                set is_special 1
-             }
+          if [catch {glob $f/*.ini}] {
+             # ok: no ini file so the directory can be copied
+             set is_special 1
           }
           switch [file type $f] {
             link      {
