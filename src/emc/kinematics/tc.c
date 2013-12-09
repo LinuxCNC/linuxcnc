@@ -289,6 +289,9 @@ int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
     // direction of line2
     pmCartScalMult(&line2->uVec, blend_dist, end);
     pmCartCartAdd(end, middle, end);
+
+    tp_posemath_debug(" start = %f,%f,%f\n",start->x,start->y, start->z);
+    tp_posemath_debug(" end = %f,%f,%f\n",end->x,end->y, end->z);
     return pmCircleInit(arc, start, end, &center, &binormal, 0);
     
 }
@@ -454,6 +457,17 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     //Setup tangent blending constraints
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
+    tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
+            prev_tc->coords.line.xyz.end.y,
+            prev_tc->coords.line.xyz.end.z);
+
+    tp_debug_print(" L2 start: %f %f %f\n",tc->coords.line.xyz.start.x,
+            tc->coords.line.xyz.start.y,
+            tc->coords.line.xyz.start.z);
+
+    tp_debug_print("       Q1: %f %f %f\n",circ_start->x,circ_start->y,circ_start->z);
+    tp_debug_print("       Q2: %f %f %f\n",circ_end->x,circ_end->y,circ_end->z);
 
     return res1 || res2;
 }
