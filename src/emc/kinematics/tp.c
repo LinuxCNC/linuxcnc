@@ -1059,9 +1059,9 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 }
 
 STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc, TC_STRUCT const * const prev2_tc) {
-    if (prev1_tc->optimization_state == TC_OPTIM_AT_MAX) {
-        return TP_ERR_NO_ACTION;
-    }
+    /*if (prev1_tc->optimization_state == TC_OPTIM_AT_MAX) {*/
+        /*return TP_ERR_NO_ACTION;*/
+    /*}*/
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
     double acc_this = tpGetScaledAccel(tp, tc);
@@ -2057,6 +2057,30 @@ STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
     return nexttc;
 }
 
+STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
+    if (!pose) {
+        return TP_ERR_FAIL;
+    }
+
+    double mag = 0.0;
+    mag+=pmSq(pose->tran.x - tp->currentPos.tran.x);
+    mag+=pmSq(pose->tran.y - tp->currentPos.tran.y);
+    mag+=pmSq(pose->tran.z - tp->currentPos.tran.z);
+    mag+=pmSq(pose->a - tp->currentPos.a);
+    mag+=pmSq(pose->b - tp->currentPos.b);
+    mag+=pmSq(pose->c - tp->currentPos.c);
+    mag+=pmSq(pose->u - tp->currentPos.u);
+    mag+=pmSq(pose->v - tp->currentPos.v);
+    mag+=pmSq(pose->w - tp->currentPos.w);
+    mag = pmSqrt(mag);
+
+    *magnitude = mag;
+    return TP_ERR_OK;
+
+}
+
+
+
 STATIC int tpCalculateEmcPoseMagnitude(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
 
     if (!pose) {
@@ -2547,6 +2571,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     double mag_primary=0;
     double mag_secondary=0;
     EmcPose split_before, split_displacement;
+#ifdef TP_DEBUG
+    EmcPose pos_before = tp->currentPos;
+#endif
     // Update the current tc
     if (tc->done) {
         tp_debug_print("tc id %d done\n",tc->id);
@@ -2557,12 +2584,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
         //If we're doing tangent blending
         if (nexttc){
+            nexttc->cycle_time-=tc->split_time;
             if (tc->term_cond == TC_TERM_COND_TANGENT) {
                 nexttc->currentvel = tc->final_actual_vel;
-                nexttc->cycle_time-=tc->split_time;
                 tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
             } else if (nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
-                nexttc->cycle_time-=tc->split_time;
                 // update 2nd half of split cycle normally (not blending)
                 tcRunCycle(tp, nexttc);
                 tpFindDisplacement(tc, &split_before, &split_displacement);
@@ -2593,7 +2619,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
     }
 
-    tpCalculateEmcPoseMagnitude(tp, &primary_displacement, &mag_primary);
+    tpCalculateTotalDisplacement(tp, &primary_displacement, &mag_primary);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
             mag_primary + mag_secondary, emcmotStatus->current_vel);
 
