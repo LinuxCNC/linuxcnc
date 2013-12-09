@@ -424,6 +424,41 @@ int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
     return 0;
 }
 
+
+/**
+ * Connect a blend arc to the two line segments it blends.
+ * Starting with two adjacent line segments, this function shortens each
+ * segment to connect them with the newly created blend arc. The "previous"
+ * segment gets a new end point, while the next segment gets a new start point.
+ * After the operation is complete the result is a set of 3 connected segments
+ * (line-arc-line).
+ */
+int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
+        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
+        PmCartesian const * const circ_end) {
+
+    /* Only shift XYZ for now*/
+    int res1 = pmCartLineInit(&prev_tc->coords.line.xyz,
+            &prev_tc->coords.line.xyz.start, circ_start);
+    int res2 = pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
+
+    if (res1 || res2) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Got PM errors %d and %d during blend arc connect!\n",res1,res2);
+    }
+
+    tp_debug_print("Old target = %f\n",prev_tc->target);
+    prev_tc->target = prev_tc->coords.line.xyz.tmag;
+    tp_debug_print("Target = %f\n",prev_tc->target);
+
+    tc->target = tc->coords.line.xyz.tmag;
+
+    //Setup tangent blending constraints
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
+    return res1 || res2;
+}
+
+
 /*!
  * \subsection TC queue functions
  * These following functions implement the motion queue that
