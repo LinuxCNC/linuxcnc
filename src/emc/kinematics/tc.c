@@ -260,7 +260,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
  */
 int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
         PmCartLine const * const line2, double radius,
-        double blend_dist, PmCartesian * const start, PmCartesian * const end) {
+        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end) {
 
     PmCartesian center, normal, binormal;
 
@@ -272,7 +272,7 @@ int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
     //between the unit vectors
     pmCartCartSub(&line2->uVec, &line1->uVec, &normal);
     pmCartUnit(&normal,&normal);
-    pmCartScalMult(&normal, radius, &normal);
+    pmCartScalMult(&normal, center_dist, &normal);
     pmCartCartAdd(middle, &normal, &center);
 
     //Calculate the binormal (vector perpendicular to the plane of the

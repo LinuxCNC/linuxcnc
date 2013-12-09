@@ -875,9 +875,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     PmCartesian circ_start, circ_end;
 
+    double h_plan = R_plan / Stheta;
     pmCircleFromLines(&blend_tc->coords.circle.xyz, 
             &prev_tc->coords.line.xyz,
-            &tc->coords.line.xyz, R_plan, d_plan, &circ_start, &circ_end);
+            &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end);
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
