@@ -1595,6 +1595,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     // Store a copy of final velocity
     double tc_finalvel = tpGetRealFinalVel(tp,tc);
 
+    //RT build check
+    tc_debug_print("currentvel=%g\n",tc->currentvel);
+
     //Clamp final velocity to the max velocity we can achieve
     if (tc_finalvel > tc_target_vel) {
         tc_finalvel = tc_target_vel;
@@ -1668,6 +1671,8 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         }
     }
 
+    //RT build check
+    tc_debug_print("check: newvel=%g\n",newvel);
     tc->currentvel = newvel;
     if (tc->currentvel > tc_target_vel) {
         tc_debug_print("Warning: exceeding target velocity!\n");
@@ -1678,7 +1683,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc->remove = 1;
     }
 
-    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f, current_vel = %f, fs = %f, tc = %f, term = %d\n",
+    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f\n,    current_vel = %f, fs = %f, tc = %f, term = %d\n",
             tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,
             tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
     tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
