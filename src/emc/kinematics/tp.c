@@ -846,8 +846,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
-    double v_parabolic = 0.0;
-    tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_parabolic);
+    double v_blend = 0.0;
+    tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_blend);
+
+    //This is the actual velocity at the center of the parabolic blend
+    double v_parabolic = pmSqrt(pmSq(v_blend / 2.0)*(2.0-2.0*cos(2.0*theta)));
 
     /* Additional quality / performance checks: If we aren't moving faster than
      * the equivalent parabolic blend, then fall back to parabolic
