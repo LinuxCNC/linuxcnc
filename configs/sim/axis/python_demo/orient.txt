@@ -8,8 +8,11 @@ added to the R word.
 run, and execute in MDI:
 
 M19
+
 M5
+
 M19 R45 P1
+
 S500 M3
 
 Acknowledge an spindle-orient request by

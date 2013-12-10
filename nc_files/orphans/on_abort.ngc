@@ -1,3 +1,6 @@
+; superseded: nc_files/remap_lib/common_nc_subs/on_abort.ngc
+
+
 ; This oword sub is called on IoAborts if so defined in the ini file
 ;
 ; to activate, incantate as follows:
