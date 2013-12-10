@@ -139,8 +139,6 @@ sys.excepthook = excepthook
 # constants
 X = 0;Y = 1;Z = 2;A = 3;B = 4;C = 5;U = 6;V = 7;W = 8
 _ABS = 0;_REL = 1;_DTG = 2
-_MAN = 0;_MDI = 1;_AUTO = 2
-_MM = 1;_IMPERIAL = 0
 _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3;_DEGREE_INPUT = 4
 
 # the player class does the work of playing the audio hints
@@ -193,9 +191,18 @@ class Widgets:
 # here we intialize the data
 class Data:
     def __init__(self):
+        # constants for mode idenity
+        self._MAN = 0
+        self._MDI = 1
+        self._AUTO = 2
+        self._JOG = 3
+        self._MM = 1
+        self._IMPERIAL = 0
+        # paths included to give access to handler files
         self.SKINPATH = SKINPATH
         self.CONFIGPATH = CONFIGPATH
         self.BASEPATH = BASE
+
         self.audio_available = False
         self.use_screen2 = False
         self.theme_name = "Follow System Theme"
@@ -214,7 +221,7 @@ class Data:
         self.highlight_color = (65535,65535,65535)
         self.highlight_major = False
         self.display_order = (_REL,_DTG,_ABS)
-        self.mode_order = (_MAN,_MDI,_AUTO)
+        self.mode_order = (self._MAN,self._MDI,self._AUTO)
         self.mode_labels = ["Manual Mode","MDI Mode","Auto Mode"]
         self.IPR_mode = False
         self.plot_view = ("p","x","y","y2","z","z2")
@@ -235,8 +242,8 @@ class Data:
         self.active_feed_command = "" # feed command setting
         self.system = 1
         self.estopped = True
-        self.dro_units = _IMPERIAL
-        self.machine_units = _IMPERIAL
+        self.dro_units = self._IMPERIAL
+        self.machine_units = self._IMPERIAL
         self.tool_in_spindle = 0
         self.flood = False
         self.mist = False
@@ -563,7 +570,7 @@ class Gscreen:
             else:
                 self.data.jog_increments = increments.split()
         else:
-            if self.machine_units_mm ==_MM:
+            if self.machine_units_mm ==self.data._MM:
                 self.data.jog_increments = [".01 mm",".1 mm","1 mm","continuous"]
             else:
                 self.data.jog_increments = [".001 in",".01 in",".1 in","continuous"]
@@ -819,6 +826,11 @@ class Gscreen:
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
             print formatted_lines[-1]
 
+    def verbosely_print(self,data):
+        global verbose_debug
+        if verbose_debug:
+            print data
+
     def init_axis_frames(self):
         for letter in ('x','y','z','a','b','c','u','v','w'):
             try:
@@ -868,7 +880,7 @@ class Gscreen:
         self.widgets.grid_size.set_value(self.data.grid_size) 
         self.widgets.gremlin.grid_size = self.data.grid_size
         self.widgets.gremlin.set_property('view',self.data.plot_view[0])
-        self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == _MM))
+        self.widgets.gremlin.set_property('metric_units',(self.data.dro_units == self.data._MM))
 
     def init_manual_spindle_controls(self):
         self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
@@ -1144,9 +1156,9 @@ class Gscreen:
         print gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods,
         return True
 
-    def on_key_event(self,widget, event,signal):
+    def on_key_event(self,widget, event,state):
         keyname = gtk.gdk.keyval_name(event.keyval)
-        print "Key %s (%d) was pressed" % (keyname, event.keyval),signal, self.data.key_event_last
+        self.verbosely_print("Key %s (%d) was pressed state: %d last: %s" % (keyname, event.keyval,state, self.data.key_event_last))
         if event.state & gtk.gdk.CONTROL_MASK:
             print "Control was being held down"
         if event.state & gtk.gdk.MOD1_MASK:
@@ -1154,50 +1166,51 @@ class Gscreen:
         if event.state & gtk.gdk.SHIFT_MASK:
             print "Shift was being held down"
         try:
-            if keyname =="F1" and signal:
+            if keyname =="F1" and state:
                 self.widgets.button_estop.emit("clicked")
-            elif keyname =="F2" and signal:
+            elif keyname =="F2" and state:
                 self.widgets.button_machine_on.emit("clicked")
-            elif keyname =="Escape" and signal:
+            elif keyname =="Escape" and state:
                 self.widgets.hal_action_stop.emit("activate")
         except:
-            pass
-        if keyname in( "Shift_L","Shift_R"): return True
-        if self.data.key_event_last[0] == keyname and self.data.key_event_last[1] == signal : return True
-        if self.data.mode_order[0] == _MAN and self.widgets.notebook_main.get_current_page() == 0:
+            self.show_try_errors()
+        if keyname in( "Shift_L","Shift_R"): return True # ignore shift key press
+        if self.data.key_event_last[0] == keyname and self.data.key_event_last[1] == state : return True
+        if self.data._MAN in self.check_mode(): # manual mode required
             if keyname == "Up":
-                self.do_key_jog(1,1,signal)
+                self.do_key_jog(1,1,state)
             elif keyname == "Down":
-                self.do_key_jog(1,0,signal)
+                self.do_key_jog(1,0,state)
             elif keyname == "Left":
-                self.do_key_jog(0,0,signal)
+                self.do_key_jog(0,0,state)
             elif keyname == "Right":
-                self.do_key_jog(0,1,signal)
+                self.do_key_jog(0,1,state)
             elif keyname == "Page_Down":
-                self.do_key_jog(2,0,signal)
+                self.do_key_jog(2,0,state)
             elif keyname == "Page_Up":
-                self.do_key_jog(2,1,signal)
+                self.do_key_jog(2,1,state)
             elif keyname == "bracketleft":
-                self.do_key_jog(3,0,signal)
+                self.do_key_jog(3,0,state)
             elif keyname == "bracketright":
-                self.do_key_jog(3,1,signal)
+                self.do_key_jog(3,1,state)
             elif keyname in ("I","i"):
-                if signal:
+                if state:
                     if event.state & gtk.gdk.SHIFT_MASK:
                         self.set_jog_increments(index_dir = -1)
                     else:
                         self.set_jog_increments(index_dir = 1)
-            self.data.key_event_last = keyname,signal
+            self.data.key_event_last = keyname,state
             return True
+        self.data.key_event_last = keyname,state
 
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
         h = self.halcomp
         if not h["cycle-start"]: return
-        if self.data.mode_order[0] == _AUTO:
+        if self.data.mode_order[0] == self.data._AUTO:
             self.add_alarm_entry(_("Cycle start pressed in AUTO mode"))
             self.widgets.hal_toggleaction_run.emit('activate')
-        elif self.data.mode_order[0] == _MDI:
+        elif self.data.mode_order[0] == self.data._MDI:
             self.add_alarm_entry(_("Cycle start pressed in MDI mode"))
             self.widgets.hal_mdihistory.submit()
 
@@ -1232,7 +1245,7 @@ class Gscreen:
         if self.mdi_control.mdi_is_reading():
             self.notify(_("INFO:"),_("Can't start spindle manually while MDI busy"),INFO_ICON)
             return
-        elif self.data.mode_order[0] == _AUTO:
+        elif self.data.mode_order[0] == self.data._AUTO:
             self.notify(_("INFO:"),_("can't start spindle manually in Auto mode"),INFO_ICON)
             return
         if widget == self.widgets.spindle_increase:
@@ -1245,7 +1258,7 @@ class Gscreen:
         if self.mdi_control.mdi_is_reading():
             self.notify(_("INFO:"),_("Can't start spindle manually while MDI busy"),INFO_ICON)
             return
-        elif self.data.mode_order[0] == _AUTO:
+        elif self.data.mode_order[0] == self.data._AUTO:
             self.notify(_("INFO:"),_("can't start spindle manually in Auto mode"),INFO_ICON)
             return
         if not self.data.spindle_speed == 0:
@@ -1626,7 +1639,7 @@ class Gscreen:
     def on_move_to_clicked(self,widget):
         # Move-to button
         # manual mode and jog mode active
-        if self.data.mode_order[0] == _MAN and self.widgets.button_jog_mode.get_active():
+        if self.data.mode_order[0] == self.data._MAN and self.widgets.button_jog_mode.get_active():
             self.launch_numerical_input("on_adj_overrides_entry_return",widget,True)
 
     def on_tool_touchoff_clicked(self,widget):
@@ -1762,7 +1775,7 @@ class Gscreen:
         self.sensitize_widgets(self.data.sensitive_all_homed,state)
         mode = self.emc.get_mode()
         print "mode",mode,self.data.mode_order[0]
-        if self.data.mode_order[0] == _MAN and not mode == 1:
+        if self.data.mode_order[0] == self.data._MAN and not mode == 1:
             print "set to manual"
             self.emc.set_manual_mode()
 
@@ -1814,12 +1827,12 @@ class Gscreen:
             self.kill_keyboard()
         else:
             self.launch_keyboard()
-            if self.data.mode_order[0] == _MDI:
+            if self.data.mode_order[0] == self.data._MDI:
                 try:
                     self.widgets.hal_mdihistory.entry.grab_focus()
                 except:
                     dbg("**** GSCREEN ERROR: can't set focus to hal_mdihistory when Onboard launched - Is this widget name in glade file?")
-            elif self.data.mode_order[0] == _AUTO:
+            elif self.data.mode_order[0] == self.data._AUTO:
                 try:
                     self.widgets.gcode_view.grab_focus()
                 except:
@@ -1890,6 +1903,18 @@ class Gscreen:
         self.set_full_graphics_view(widget.get_active())
 
 # ****** do stuff *****
+
+    def check_mode(self):
+        try:
+            return self.handler_instance.check_mode()
+        except:
+            pass
+        string=[]
+        if self.data.mode_order[0] == self.data._MAN and self.widgets.notebook_main.get_current_page() == 0:
+            string.append( self.data._MAN)
+            if self.widgets.button_jog_mode.get_active(): # jog mode active
+                string.append(self.data._JOG)
+        return string
 
     def spindle_dialog(self):
         if not self.data.spindle_control_dialog:
@@ -2414,7 +2439,7 @@ class Gscreen:
             else: return
             self.change_origin_system(None,change)
         # Jogging mode (This needs to be last)
-        elif self.data.mode_order[0] == _MAN and self.widgets.button_jog_mode.get_active(): # manual mode and jog mode active
+        elif self.data.mode_order[0] == self.data._MAN and self.widgets.button_jog_mode.get_active(): # manual mode and jog mode active
             # what axis is set
             if widget == self.widgets.button_zero_origin:
                 print "zero button",action
@@ -2867,7 +2892,7 @@ class Gscreen:
 
     def set_dro_units(self, data, save=True):
         print "toggle dro units",self.data.dro_units,data
-        if data == _IMPERIAL:
+        if data == self.data._IMPERIAL:
             print "switch to imperial"
             self.status.dro_inch(1)
             self.widgets.gremlin.set_property('metric_units',False)
@@ -2958,7 +2983,7 @@ class Gscreen:
         # if manual mode, if jogging
         # if only one axis button pressed
         # jog positive  at selected rate
-        if self.data.mode_order[0] == _MAN:
+        if self.data.mode_order[0] == self.data._MAN:
             if len(self.data.active_axis_buttons) > 1:
                 self.notify(_("INFO:"),_("Can't jog multiple axis"),INFO_ICON)
                 print self.data.active_axis_buttons
@@ -2986,7 +3011,7 @@ class Gscreen:
                         self.emc.incremental_jog(self.data.active_axis_buttons[0][1],cmd,distance)
 
     def do_key_jog(self,axis,direction,action):
-        if self.data.mode_order[0] == _MAN and self.widgets.button_jog_mode.get_active(): # jog mode active:
+        if self.data._JOG in self.check_mode(): # jog mode active:
                     if not action: cmd = 0
                     elif direction: cmd = 1
                     else: cmd = -1
@@ -3077,7 +3102,7 @@ class Gscreen:
             if "G21" in self.data.active_gcodes: g21 = True
 
             # metric DRO - imperial mode
-            if self.data.dro_units == _MM:
+            if self.data.dro_units == self.data._MM:
                 if not g21:
                     raw = raw / 25.4
             # imperial DRO - metric mode
@@ -3148,7 +3173,7 @@ class Gscreen:
 
     # move axis to a position (while in manual mode)
     def move_to(self,data):
-        if self.data.mode_order[0] == _MAN:# if in manual mode
+        if self.data.mode_order[0] == self.data._MAN:# if in manual mode
             if self.widgets.button_jog_mode.get_active(): # jog mode active
                 print "jog to position"
                 self.do_jog_to_position(data)
@@ -3221,7 +3246,7 @@ class Gscreen:
     # adjust the screen as per each mode toggled 
     def mode_changed(self,mode):
 
-        if mode == _MAN: 
+        if mode == self.data._MAN: 
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
             self.widgets.notebook_mode.hide()
@@ -3229,7 +3254,7 @@ class Gscreen:
             self.widgets.button_homing.show()
             self.widgets.dro_frame.show()
             self.widgets.spare.hide()
-        elif mode == _MDI:
+        elif mode == self.data._MDI:
             if self.widgets.button_homing.get_active():
                 self.widgets.button_homing.emit("clicked")
             if self.data.plot_hidden:
@@ -3239,7 +3264,7 @@ class Gscreen:
             self.widgets.vmode0.show()
             self.widgets.vmode1.hide()
             self.widgets.notebook_mode.hide()
-        elif mode == _AUTO:
+        elif mode == self.data._AUTO:
             self.widgets.vmode0.hide()
             self.widgets.vmode1.show()
             if self.data.full_graphics:
@@ -3247,7 +3272,7 @@ class Gscreen:
             else:
                 self.widgets.notebook_mode.show()
             self.widgets.hal_mdihistory.hide()
-        if not mode == _MAN:
+        if not mode == self.data._MAN:
             self.widgets.button_jog_mode.set_active(False)
             self.widgets.button_homing.set_active(False)
             self.widgets.button_homing.hide()
@@ -3374,7 +3399,7 @@ class Gscreen:
                 h = " "
                 if current == _ABS and self.data["%s_is_homed"% i]: h = "*"
                 if self.data.diameter_mode and i == 'x': data = data * 2.0
-                if self.data.dro_units == _MM:
+                if self.data.dro_units == self.data._MM:
                     text = "%s% 10.3f"% (h,data)
                 else:
                     text = "%s% 9.4f"% (h,data)
@@ -3416,7 +3441,7 @@ class Gscreen:
                 data = data/abs(self.halcomp["spindle-readout-in"])
             except:
                 data = 0
-        if self.data.dro_units == _MM:
+        if self.data.dro_units == self.data._MM:
             text = "%.2f"% (data)
         else:
             text = "%.3f"% (data)
@@ -3456,7 +3481,7 @@ class Gscreen:
     # then set the display according to the current display units.
     def update_jog_rate_label(self):
         rate = round(self.status.convert_units(self.data.jog_rate),2)
-        if self.data.dro_units == _MM:
+        if self.data.dro_units == self.data._MM:
             text = "%4.2f mm/min"% (rate)
         else:
             text = "%3.2f IPM"% (rate)
