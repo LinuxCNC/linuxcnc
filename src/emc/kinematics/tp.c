@@ -62,6 +62,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * 
 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc);
 
+STATIC int tpUpdateCycle(TP_STRUCT * const tp,
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc, double * const mag);
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
     return condition;
@@ -1839,8 +1841,8 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
  * Perform the actual blending process by updating the target velocity for the
  * next segment.
  */
-STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * nexttc) {
+STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc, double * const mag) {
 
     double save_vel = nexttc->target_vel;
     // Get the accelerations of the current and next segment to properly scale the blend velocity
@@ -1854,7 +1856,7 @@ STATIC void tpUpdateSecondary(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = 0.0;
     }
 
-    tcRunCycle(tp, nexttc);
+    tpUpdateCycle(tp, nexttc, NULL, mag);
     //Restore the blend velocity
     nexttc->target_vel = save_vel;
 
@@ -2264,9 +2266,7 @@ STATIC int tcIsBlending(TC_STRUCT * const tc) {
 }
 
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, EmcPose * const secondary_before, double * const mag) {
-
-    EmcPose secondary_displacement; //The displacement due to the nexttc's motion
+        TC_STRUCT * const nexttc, double * const mag) {
 
     if (nexttc->synchronized) {
         //If the next move is synchronized too, then match it's
@@ -2274,20 +2274,11 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = tc->target_vel;
     }
 
-    tcGetPos(nexttc, secondary_before);
+    tpUpdateBlend(tp,tc,nexttc,mag);
+    tc_debug_print("secondary movement = %f\n",*mag);
 
-    //Calculate change in position due to the nexttc during the blend
-    tpUpdateSecondary(tp, tc, nexttc);
-    tpCheckEndCondition(tp, nexttc, NULL);
-
-    //Find the overall displacement due to the movement along nexttc
-    tpFindDisplacement(nexttc, secondary_before, &secondary_displacement);
-
-    //Add in contributions from both segments
-    tpUpdatePosition(tp, &secondary_displacement);
-
-    //We tell the GUI which segment we're "on" based on which one is moving
-    //faster
+    /* Status updates */
+    //Decide which segment we're in depending on which is moving faster
     if(tc->currentvel > nexttc->currentvel) {
         tpUpdateMovementStatus(tp, tc);
     } else {
@@ -2302,43 +2293,39 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //Update velocity status based on both tc and nexttc
     emcmotStatus->current_vel = tc->currentvel + nexttc->currentvel;
 
-    tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, mag);
-    tc_debug_print("secondary movement = %f\n",*mag);
-
     return TP_ERR_OK;
 }
 
-STATIC int tpHandleTangency(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, EmcPose * const secondary_before, double * const mag) {
 
+/**
+ * Do a complete update on one segment.
+ */
+STATIC int tpUpdateCycle(TP_STRUCT * const tp,
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc, double * const mag) {
 
-    EmcPose secondary_displacement;
-    tc_debug_print("Finishing split-cycle on id %d\n",
-            tc->id );
+    //placeholders for position for this update
+    EmcPose position9_before, displacement9;
 
-    //Run partial cycle on tc
+    //Store the current position due to this TC
+    tcGetPos(tc, &position9_before);
 
-    tcGetPos(tc, secondary_before);
+    //Run cycle update with stored cycle time
     tcRunCycle(tp, tc);
-    //Reset cycle time since we've run this successfully.
-    tc->cycle_time=tp->cycleTime;
 
-    //Check in case of very short segments
-    tpCheckEndCondition(tp, tc, NULL);
-    //TODO what happens if we're within a timestep of the end? currently we don't handle this
-    tpFindDisplacement(tc, secondary_before, &secondary_displacement);
-    tpUpdatePosition(tp, &secondary_displacement);
+    //Check if we're near the end of the cycle and set appropriate changes
+    tpCheckEndCondition(tp, tc, nexttc);
 
-    tpCalculateEmcPoseMagnitude(tp, &secondary_displacement, mag);
-    tc_debug_print("secondary movement = %f\n",*mag);
+    tpFindDisplacement(tc, &position9_before, &displacement9);
+    tpUpdatePosition(tp, &displacement9);
 
-    // Status updates
-
-    tpToggleDIOs(tc);
-    tpUpdateMovementStatus(tp, tc);
+#ifdef TC_DEBUG
+    tpCalculateEmcPoseMagnitude(tp, &displacement9, mag);
+    tc_debug_print("cycle movement = %f\n",*mag);
+#endif
 
     return TP_ERR_OK;
 }
+
 
 STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
     // Update queue length
@@ -2500,7 +2487,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //Pose data used for intermediate calculations
     EmcPose primary_before;
     EmcPose primary_displacement;
-    EmcPose secondary_before;
 
     tpUpdateInitialStatus(tp);
     //Define TC as the "first" element in the queue
@@ -2605,32 +2591,36 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             nexttc->cycle_time-=tc->split_time;
             nexttc->currentvel = tc->final_actual_vel;
             tp_debug_print("Doing tangent split\n");
-            tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
+            tpUpdateCycle(tp, nexttc, NULL, &mag_secondary);
+            //Update status for the split portion
+            if (tc->split_time > nexttc->cycle_time) {
+                //Majority of time spent in current segment
+                tpToggleDIOs(tc);
+                tpUpdateMovementStatus(tp, tc);
+            } else {
+                tpToggleDIOs(nexttc);
+                tpUpdateMovementStatus(tp, nexttc);
+            }
+            //Reset cycle time after completing tangent update
+            nexttc->cycle_time = tp->cycleTime;
         }
         tc->remove = 1;
     } else {
-        //Run normally
-        /*tc_debug_print("Running normal cycle\n");*/
+        //Run with full cycle time
         tc->cycle_time = tp->cycleTime;
-        tcRunCycle(tp, tc);
-        tpCheckEndCondition(tp, tc, nexttc);
-
-        //Update displacement 
-        tpFindDisplacement(tc, &primary_before, &primary_displacement);
-
-        // Update the trajectory planner position based on the results
-        tpUpdatePosition(tp, &primary_displacement);
+        tpUpdateCycle(tp,tc,nexttc,&mag_primary);
 
         /* BLENDING STUFF */
          
         tpComputeBlendVelocity(tp, tc, nexttc, false, &tc->blend_vel);
         if (nexttc && tcIsBlending(tc)) {
-            tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
+            tpDoParabolicBlending(tp, tc, nexttc, &mag_secondary);
         } else {
-            //Update motion status as normal
+            //Update status for a normal step
             tpToggleDIOs(tc);
             tpUpdateMovementStatus(tp, tc);
         }
+
     }
 
 #ifdef TP_DEBUG
