@@ -102,6 +102,7 @@ import linuxcnc
 from gscreen import emc_interface
 from gscreen import mdi
 from gscreen import preferences
+from gscreen import keybindings
 
 # this is for hiding the pointer when using a touch screen
 pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
@@ -137,7 +138,7 @@ def excepthook(exc_type, exc_obj, exc_tb):
 sys.excepthook = excepthook
 
 # constants
-X = 0;Y = 1;Z = 2;A = 3;B = 4;C = 5;U = 6;V = 7;W = 8
+_X = 0;_Y = 1;_Z = 2;_A = 3;_B = 4;_C = 5;_U = 6;_V = 7;_W = 8
 _ABS = 0;_REL = 1;_DTG = 2
 _SPINDLE_INPUT = 1;_PERCENT_INPUT = 2;_VELOCITY_INPUT = 3;_DEGREE_INPUT = 4
 
@@ -473,6 +474,7 @@ class Gscreen:
             self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
+        self.keylookup = keybindings.Keylookup()
 
         if _AUDIO_AVAILABLE:
             self.audio = Player()
@@ -1133,6 +1135,49 @@ class Gscreen:
 
 # *** GLADE callbacks ****
 
+    def on_keycall_ABORT(self,state,SHIFT,CNTRL,ALT):
+        if state: # only activate when pushed not when released
+            self.widgets.hal_action_stop.emit("activate")
+    def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
+        if state:
+            self.widgets.button_estop.emit('clicked')
+    def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
+        if state:
+            self.widgets.button_machine_on.emit('clicked')
+    def on_keycall_XPOS(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_X,1,state)
+    def on_keycall_XNEG(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_X,0,state)
+    def on_keycall_YPOS(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_Y,1,state)
+    def on_keycall_YNEG(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_Y,0,state)
+    def on_keycall_ZPOS(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_Z,1,state)
+    def on_keycall_ZNEG(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_Z,0,state)
+    def on_keycall_APOS(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_A,1,state)
+    def on_keycall_ANEG(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            self.do_key_jog(_A,0,state)
+    def on_keycall_INCREMENTS(self,state,SHIFT,CNTRL,ALT):
+        if state: 
+            if SHIFT:
+                self.set_jog_increments(index_dir = -1)
+            else:
+                self.set_jog_increments(index_dir = 1)
+    def on_keycall_(self,state,SHIFT,CNTRL,ALT):
+        if self.data._MAN in self.check_mode(): # manual mode required
+            pass
+
     def on_button_spindle_controls_clicked(self,widget):
         self.spindle_dialog()
 
@@ -1157,51 +1202,32 @@ class Gscreen:
         return True
 
     def on_key_event(self,widget, event,state):
+        CNTRL = SHIFT = ALT = 0
         keyname = gtk.gdk.keyval_name(event.keyval)
         self.verbosely_print("Key %s (%d) was pressed state: %d last: %s" % (keyname, event.keyval,state, self.data.key_event_last))
         if event.state & gtk.gdk.CONTROL_MASK:
-            print "Control was being held down"
+            CNTRL = 1
+            self.verbosely_print("Control was being held down")
         if event.state & gtk.gdk.MOD1_MASK:
-            print "Alt was being held down"
+            ALT = 1
+            self.verbosely_print("Alt was being held down")
         if event.state & gtk.gdk.SHIFT_MASK:
-            print "Shift was being held down"
-        try:
-            if keyname =="F1" and state:
-                self.widgets.button_estop.emit("clicked")
-            elif keyname =="F2" and state:
-                self.widgets.button_machine_on.emit("clicked")
-            elif keyname =="Escape" and state:
-                self.widgets.hal_action_stop.emit("activate")
-        except:
-            self.show_try_errors()
+            SHIFT = 1
+            self.verbosely_print("Shift was being held down")
         if keyname in( "Shift_L","Shift_R"): return True # ignore shift key press
         if self.data.key_event_last[0] == keyname and self.data.key_event_last[1] == state : return True
-        if self.data._MAN in self.check_mode(): # manual mode required
-            if keyname == "Up":
-                self.do_key_jog(1,1,state)
-            elif keyname == "Down":
-                self.do_key_jog(1,0,state)
-            elif keyname == "Left":
-                self.do_key_jog(0,0,state)
-            elif keyname == "Right":
-                self.do_key_jog(0,1,state)
-            elif keyname == "Page_Down":
-                self.do_key_jog(2,0,state)
-            elif keyname == "Page_Up":
-                self.do_key_jog(2,1,state)
-            elif keyname == "bracketleft":
-                self.do_key_jog(3,0,state)
-            elif keyname == "bracketright":
-                self.do_key_jog(3,1,state)
-            elif keyname in ("I","i"):
-                if state:
-                    if event.state & gtk.gdk.SHIFT_MASK:
-                        self.set_jog_increments(index_dir = -1)
-                    else:
-                        self.set_jog_increments(index_dir = 1)
-            self.data.key_event_last = keyname,state
-            return True
         self.data.key_event_last = keyname,state
+        try:
+            method = self.keylookup.convert(keyname)
+            if method:
+                try:
+                    self.handler_instance[method](state,SHIFT,CNTRL,ALT)
+                    return True
+                except:
+                    self[method](state,SHIFT,CNTRL,ALT) 
+                    return True                             
+        except:
+            self.show_try_errors()
 
     def on_cycle_start_changed(self,hal_object):
         print "cycle start change"
