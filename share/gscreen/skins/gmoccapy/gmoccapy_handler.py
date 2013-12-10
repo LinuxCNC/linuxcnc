@@ -411,6 +411,18 @@ class HandlerClass:
         if "ntb_preview" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property("show-tabs", True)
 
+        if "box_coolant_and_spindle" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
+            widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings", "active_speed_label", "lbl_speed"]
+            for widget in widgetlist:
+                self.widgets[widget].hide()
+
+        if "box_tool_and_code_info" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
+            widgetlist = ["frm_tool_info"]
+            for widget in widgetlist:
+                self.widgets[widget].hide()
+            self.widgets.btn_tool.set_sensitive(False)
+            self.widgets.tbtn_user_tabs.set_sensitive(False)
+
         # get if run from line should be used
         rfl = self.gscreen.prefs.getpref("run_from_line", "no_run", str)
         # and set the corresponding button active
