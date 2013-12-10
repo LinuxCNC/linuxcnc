@@ -2438,10 +2438,9 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
             //Should mean that dx is too big, i.e. we're not close enough
             tp_debug_print(" dx = %f, too large, not at end yet\n",dx);
             return TP_ERR_NO_ACTION;
-        }
-
-        // Change which zero we use based on the sign of the acceleration
-        if (a>0) {
+        } else if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
+            dt =  -tc->currentvel / a;
+        } else if (a>0) {
             dt = -tc->currentvel / a + pmSqrt(disc);
         } else {
             dt = -tc->currentvel / a - pmSqrt(disc);
@@ -2451,7 +2450,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         v_f = tc->currentvel+dt*a;
     }
 
-    if (dt <= tp->cycleTime ) {
+    if (dt < tp->cycleTime ) {
         //Our initial guess of dt is not perfect, but if the optimizer
         //works, it will never under-estimate when we cross the threshold.
         //As such, we can bail here if we're not actually at the last
