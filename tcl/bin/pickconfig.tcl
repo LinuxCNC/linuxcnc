@@ -416,6 +416,9 @@ proc minimal_tree {node} {
 
 foreach dir $::configs_dir_list {
   if {[info exists visited($dir)]} continue
+  if {![file isdirectory $dir]} {
+    puts stderr "pickconfig: skipping <$dir>, not a directory"
+  } 
   set visited($dir) {}
   walktree $dir
 }
