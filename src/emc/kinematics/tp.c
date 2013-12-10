@@ -588,7 +588,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->optimization_state=0;
     tc->on_final_decel=0;
     tc->smoothing = 0;
-    tc->done = 0;
+    tc->splitting = 0;
     tc->split_time = 0;
     tc->remove = 0;
 }
@@ -2352,7 +2352,7 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  * Check remaining time in a segment and calculate split cycle if necessary.
  * This function estimates how much time we need to complete the next segment.
  * If it's greater than one timestep, then we do nothing and carry on. If not,
- * then we flag the segment as "done", so that the next time tpRunCycle runs,
+ * then we flag the segment as "splitting", so that the next time tpRunCycle runs,
  * it handles the transition to the next segment.
  */
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
@@ -2386,12 +2386,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     if (v_avg < TP_VEL_EPSILON) {
 
         if ( dx > (v_avg * tp->cycleTime)) {
-            tp_debug_print(" below velocity threshold, not done\n");
-            tc->done = 0;
+            tp_debug_print(" below velocity threshold, assuming far from end\n");
             return TP_ERR_NO_ACTION;
         } else {
-            tp_debug_print(" close to target, assuming done\n");
-            tc->done = 1;
+            tp_debug_print(" close to target by velocity check, assuming cycle split\n");
+            tc->splitting = 1;
             return TP_ERR_OK;
         }
     }  
@@ -2459,6 +2458,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         tp_debug_print("revised dt small, finishing tc\n");
         tc->remove = 1;
         tc->progress = tc->target;
+        //TODO decide on a flow here. Either store to field in TC or do the tangent handling here.
         if (nexttc) {
             nexttc->currentvel = tc->currentvel;
         }
@@ -2470,7 +2470,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
 
         tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
         //TC is done if we're here, so this is just bookkeeping
-        tc->done = 1;
+        tc->splitting = 1;
         tc->final_actual_vel = v_f;
         tc->split_time = dt;
         tp_debug_print(" split time is %g\n", tc->split_time);
@@ -2589,12 +2589,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     double mag_primary=0;
     double mag_secondary=0;
-    EmcPose split_before, split_displacement;
 #ifdef TP_DEBUG
     EmcPose pos_before = tp->currentPos;
 #endif
     // Update the current tc
-    if (tc->done) {
+    if (tc->splitting) {
         tp_debug_print("tc id %d splitting\n",tc->id);
         //Shortcut tc update by assuming we arrive at end
         tc->progress = tc->target;
