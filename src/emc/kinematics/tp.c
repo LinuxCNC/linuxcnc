@@ -60,7 +60,7 @@ extern emcmot_debug_t *emcmotDebug;
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc,
         TC_STRUCT const * const nexttc, int use_max_scale, double * const blend_vel);
 
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc);
 
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
@@ -861,14 +861,14 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     if ( v_plan <= v_parabolic) {
         return TP_ERR_NO_ACTION;
     }
-#endif
-
+#else
     //If for some reason we get too small a radius, the blend will fail. This
     //shouldn't happen if everything upstream is working.
     if (R_plan < TP_MAG_EPSILON) {
         tp_debug_print("Blend radius too small, aborting...\n");
         return TP_ERR_FAIL;
     }
+#endif
 
     //Cap the previous segment's velocity at the limit imposed by the update rate
     double prev_reqvel = 0.0;
@@ -1595,9 +1595,6 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     // Store a copy of final velocity
     double tc_finalvel = tpGetRealFinalVel(tp,tc);
 
-    //RT build check
-    tc_debug_print("currentvel=%g\n",tc->currentvel);
-
     //Clamp final velocity to the max velocity we can achieve
     if (tc_finalvel > tc_target_vel) {
         tc_finalvel = tc_target_vel;
@@ -1671,16 +1668,15 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         }
     }
 
-    //RT build check
-    tc_debug_print("check: newvel=%g\n",newvel);
     tc->currentvel = newvel;
     if (tc->currentvel > tc_target_vel) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
 
-    if (tc->progress >= tc->target) {
-        tc_debug_print("segment %d at target in runcycle\n",tc->id);
+    if (tc->progress >= (tc->target - TP_MAG_EPSILON)) {
+        tc_debug_print("segment %d close to target in runcycle\n",tc->id);
         tc->remove = 1;
+        tc->progress = tc->target;
     }
 
     tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f\n,    current_vel = %f, fs = %f, tc = %f, term = %d\n",
@@ -2275,14 +2271,17 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
 
     if ( !tcIsBlending(tc) ){
+        tp_debug_print("Not blending\n");
         return TP_ERR_NO_ACTION;
+    } else {
+        tp_debug_print("blending\n");
     }
 
     tcGetPos(nexttc, secondary_before);
 
     //Calculate change in position due to the nexttc during the blend
     tpUpdateSecondary(tp, tc, nexttc);
-    tpCheckEndCondition(tp, nexttc);
+    tpCheckEndCondition(tp, nexttc, NULL);
 
     //Find the overall displacement due to the movement along nexttc
     tpFindDisplacement(nexttc, secondary_before, &secondary_displacement);
@@ -2328,7 +2327,7 @@ STATIC int tpHandleTangency(TP_STRUCT * const tp,
     tc->cycle_time=tp->cycleTime;
 
     //Check in case of very short segments
-    tpCheckEndCondition(tp, tc);
+    tpCheckEndCondition(tp, tc, NULL);
     //TODO what happens if we're within a timestep of the end? currently we don't handle this
     tpFindDisplacement(tc, secondary_before, &secondary_displacement);
     tpUpdatePosition(tp, &secondary_displacement);
@@ -2359,20 +2358,24 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  * then we flag the segment as "done", so that the next time tpRunCycle runs,
  * it handles the transition to the next segment.
  */
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
 
     if (tc->term_cond != TC_TERM_COND_TANGENT) {
         return TP_ERR_NO_ACTION;
     }
+    tp_debug_print("in tpCheckEndCondition\n");
 
     //Initial guess at dt for next round
     double dx = tc->target - tc->progress;
 
     //If we're at the target, then it's too late to do anything about it
     if (dx <= TP_MAG_EPSILON) {
-        tp_debug_print("prematurely at/passed target, dx = %.12f, assume tc is done\n",dx);
-        tc->done = 1;
-        //FIXME should we be able to get here?
+        tp_debug_print("close to target, dx = %.12f\n",dx);
+        tc->progress=tc->target;
+        tc->remove = 1;
+        if (nexttc) {
+            nexttc->currentvel = tc->currentvel;
+        }
         return TP_ERR_OK;
     }
 
@@ -2419,10 +2422,10 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     //If we exceed the maximum acceleration, then the dt estimate is too small. 
     int recalc = 0;
     double a;
-    if (a_f > a_max) {
+    if (a_f > (a_max + TP_ACCEL_EPSILON)) {
         a = a_max;
         recalc=1;
-    } else if (a_f < -a_max) {
+    } else if (a_f < (-a_max-TP_ACCEL_EPSILON)) {
         recalc=1;
         a = -a_max;
     } else {
@@ -2434,15 +2437,19 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
         tp_debug_print(" recalculating with a_f = %f, a = %f\n",a_f,a);
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
+        tp_debug_print("disc = %g\n",disc);
         if (disc < 0 ) {
             //Should mean that dx is too big, i.e. we're not close enough
             tp_debug_print(" dx = %f, too large, not at end yet\n",dx);
             return TP_ERR_NO_ACTION;
         } else if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
+            tp_debug_print("disc too small, skipping sqrt\n");
             dt =  -tc->currentvel / a;
         } else if (a>0) {
+            tp_debug_print("using positive sqrt\n");
             dt = -tc->currentvel / a + pmSqrt(disc);
         } else {
+            tp_debug_print("using negative sqrt\n");
             dt = -tc->currentvel / a - pmSqrt(disc);
         }
 
@@ -2583,7 +2590,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 #endif
     // Update the current tc
     if (tc->done) {
-        tp_debug_print("tc id %d done\n",tc->id);
+        tp_debug_print("tc id %d splitting\n",tc->id);
         //Shortcut tc update by assuming we arrive at end
         tc->progress = tc->target;
         tpFindDisplacement(tc, &primary_before, &primary_displacement);
@@ -2594,13 +2601,15 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             nexttc->cycle_time-=tc->split_time;
             if (tc->term_cond == TC_TERM_COND_TANGENT) {
                 nexttc->currentvel = tc->final_actual_vel;
+                tp_debug_print("Doing tangent split\n");
                 tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
             } else if (nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
+                tp_debug_print("Doing parabolic split\n");
                 // update 2nd half of split cycle normally (not blending)
                 tcRunCycle(tp, nexttc);
                 tpFindDisplacement(tc, &split_before, &split_displacement);
                 tpUpdatePosition(tp, &split_displacement);
-                tpCheckEndCondition(tp,nexttc);
+                tpCheckEndCondition(tp,nexttc,NULL);
             }
         }
         tc->remove = 1;
@@ -2609,7 +2618,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         /*tc_debug_print("Running normal cycle\n");*/
         tc->cycle_time = tp->cycleTime;
         tcRunCycle(tp, tc);
-        tpCheckEndCondition(tp, tc);
+        tpCheckEndCondition(tp, tc, nexttc);
 
         //Update motion status as normal
         tpToggleDIOs(tc);
@@ -2626,7 +2635,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
     }
 
-    tpCalculateTotalDisplacement(tp, &primary_displacement, &mag_primary);
+    tpCalculateTotalDisplacement(tp, &pos_before, &mag_primary);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
             mag_primary + mag_secondary, emcmotStatus->current_vel);
 

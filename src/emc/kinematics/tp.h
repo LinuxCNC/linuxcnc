@@ -36,10 +36,12 @@
 /* closeness to zero, for determining if vel and accel are effectively zero */
 #define TP_VEL_EPSILON 1e-6
 #define TP_ACCEL_EPSILON 1e-6
-//TODO Experimentally increase to improve "rough" tangents
 #define TP_ANGLE_EPSILON 1e-3
-#define TP_MAG_EPSILON 1e-10
-#define TP_TIME_EPSILON 1e-9
+/*Most CNC applications will have accuracies / repeatability on the order of
+1e-4 inches*/
+#define TP_MAG_EPSILON 1e-6
+//Typical RT jitter is 1-10 us, use 1/10th of that for smallest time unit
+#define TP_TIME_EPSILON 1e-7
 #define TP_BIG_NUM 1e10
 
 //ERROR codes for TP functions
