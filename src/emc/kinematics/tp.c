@@ -560,6 +560,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->id = -1; //ID to be set when added to queue
 
     tc->progress = 0.0;
+    tc->displacement = 0.0;
     tc->maxaccel = acc;
     tc->maxvel = ini_maxvel;
     //Store this verbatim, as it may affect expectations about feed rate.
@@ -1588,7 +1589,7 @@ STATIC double saturate(double x, double max) {
  * allow a non-zero velocity at the instant the target is reached.
  */
 void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    double maxnewvel, newvel, newaccel=0.0;
+    double newaccel=0.0;
 
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp,tc);
@@ -1615,30 +1616,43 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     double discr_term1 = pmSq(tc_finalvel);
     double discr_term2 = maxaccel * (2.0 * delta_pos - tc->currentvel * tc->cycle_time);
-    double discr_term3 = pmSq(maxaccel * tc->cycle_time / 2.0);
+    double tmp_adt = maxaccel * tc->cycle_time * 0.5;
+    double discr_term3 = pmSq(tmp_adt);
 
     double discr = discr_term1 + discr_term2 + discr_term3;
 
     // Descriminant is a little more complicated with final velocity term. If
     // descriminant < 0, we've overshot (or are about to). Do the best we can
     // in this situation
+#ifdef TP_DEBUG
     if (discr < 0.0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"discriminant < 0 in velocity calculation!\n");
-        newvel = maxnewvel = 0.0;
-    } else {
-        newvel = maxnewvel = -0.5 * maxaccel * tc->cycle_time + pmSqrt(discr);
-    }
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "discriminant %f < 0 in velocity calculation!\n", discr);
+    } 
+#endif
+    //Start with -B/2 portion of quadratic formula
+    double maxnewvel = -tmp_adt;
 
-    // Limit desired velocity to target velocity.
+    //If the discriminant term brings our velocity above zero, add it to the total
+    //We can ignore the calculation otherwise because negative velocities are clipped to zero
+    if (discr > discr_term3) {
+        maxnewvel += pmSqrt(discr); 
+    }
+    //Copy calculated maxnewvel to give an initial value for newvel
+    double newvel = maxnewvel;
+
+    // Limit newvel to target velocity.
     if (newvel > tc_target_vel) {
         newvel = tc_target_vel;
     }
 
     // If the resulting velocity is less than zero, than we're done. This
-    // technically means a small overshoot, but in practice it doesn't matter.
+    // causes a small overshoot, but in practice it is very small.
     if (newvel < 0.0 ) {
         tc_debug_print(" Found newvel = %f, assuming segment is done\n",newvel);
         newvel = 0.0;
+        //Assume we're on target exactly
+        tc->displacement = tc->target-tc->progress;
         tc->progress = tc->target;
         //Since we're handling completion here, directly flag this as ready to be removed
     } else {
@@ -1660,11 +1674,15 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         newvel = tc->currentvel + newaccel * tc->cycle_time;
         // update position in this tc using trapezoidal integration
         // Note that progress can be greater than the target after this step.
-        tc->progress+= (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
-        if (tc->progress > tc->target) {
+        tc->displacement = (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
+        if (tc->progress + tc->displacement > tc->target) {
             tc_debug_print("passed target by %g, cutting off at target!\n",
-                    tc->progress-tc->target);
+                    tc->progress + tc->displacement - tc->target);
+            //Force displacement and progress to end exactly.
+            tc->displacement = tc->target - tc->progress;
             tc->progress = tc->target;
+        } else {
+            tc->progress += tc->displacement;
         }
     }
 
