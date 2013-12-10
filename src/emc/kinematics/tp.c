@@ -2625,9 +2625,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             tpUpdateMovementStatus(tp, tc);
     }
 
+#ifdef TP_DEBUG
     tpCalculateTotalDisplacement(tp, &pos_before, &mag_primary);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
             mag_primary + mag_secondary, emcmotStatus->current_vel);
+#endif
 
     // If TC is complete, remove it from the queue. 
     if (tc->remove) {
