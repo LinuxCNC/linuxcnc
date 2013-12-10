@@ -2584,21 +2584,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpUpdatePosition(tp, &primary_displacement);
 
         //If we're doing tangent blending
-        if (nexttc){
+        if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
             nexttc->cycle_time-=tc->split_time;
-            if (tc->term_cond == TC_TERM_COND_TANGENT) {
-                nexttc->currentvel = tc->final_actual_vel;
-                tp_debug_print("Doing tangent split\n");
-                tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
-            } else if (nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
-                //FIXME doesn't do anything yet
-                tp_debug_print("Doing parabolic split\n");
-                // update 2nd half of split cycle normally (not blending)
-                tcRunCycle(tp, nexttc);
-                tpFindDisplacement(tc, &split_before, &split_displacement);
-                tpUpdatePosition(tp, &split_displacement);
-                tpCheckEndCondition(tp,nexttc,NULL);
-            }
+            nexttc->currentvel = tc->final_actual_vel;
+            tp_debug_print("Doing tangent split\n");
+            tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
         }
         tc->remove = 1;
     } else {
@@ -2619,10 +2609,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpComputeBlendVelocity(tp, tc, nexttc, false, &tc->blend_vel);
         if (nexttc && tcIsBlending(tc)) {
             tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
-        } 
+        } else {
             //Update motion status as normal
             tpToggleDIOs(tc);
             tpUpdateMovementStatus(tp, tc);
+        }
     }
 
 #ifdef TP_DEBUG
