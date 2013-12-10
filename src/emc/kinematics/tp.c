@@ -2247,34 +2247,13 @@ STATIC int tcIsBlending(TC_STRUCT * const tc) {
 
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc, EmcPose * const secondary_before, double * const mag) {
-    /* Early abort checks here */
-    //Check if we have valid TC's to blend with
-    if (!nexttc || !tc) {
-        return TP_ERR_NO_ACTION;
-    }
-
-    //Check if the end condition specifies parabolic blending_next
-    if (tc->term_cond != TC_TERM_COND_PARABOLIC )  {
-        return TP_ERR_NO_ACTION;
-    }
-
-    /* Blending process starts here*/
 
     EmcPose secondary_displacement; //The displacement due to the nexttc's motion
-
-    tpComputeBlendVelocity(tp, tc, nexttc, false, &tc->blend_vel);
 
     if (nexttc->synchronized) {
         //If the next move is synchronized too, then match it's
         //requested velocity to the current move
         nexttc->target_vel = tc->target_vel;
-    }
-
-    if ( !tcIsBlending(tc) ){
-        tp_debug_print("Not blending\n");
-        return TP_ERR_NO_ACTION;
-    } else {
-        tp_debug_print("blending\n");
     }
 
     tcGetPos(nexttc, secondary_before);
@@ -2457,7 +2436,15 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         v_f = tc->currentvel+dt*a;
     }
 
-    if (dt < tp->cycleTime ) {
+    if (dt < TP_TIME_EPSILON) {
+        //Close enough, call it done
+        tp_debug_print("revised dt small, finishing tc\n");
+        tc->remove = 1;
+        tc->progress = tc->target;
+        if (nexttc) {
+            nexttc->currentvel = tc->currentvel;
+        }
+    } else if (dt < tp->cycleTime ) {
         //Our initial guess of dt is not perfect, but if the optimizer
         //works, it will never under-estimate when we cross the threshold.
         //As such, we can bail here if we're not actually at the last
@@ -2604,6 +2591,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
                 tp_debug_print("Doing tangent split\n");
                 tpHandleTangency(tp, nexttc, &secondary_before, &mag_secondary);
             } else if (nexttc->term_cond == TC_TERM_COND_PARABOLIC) {
+                //FIXME doesn't do anything yet
                 tp_debug_print("Doing parabolic split\n");
                 // update 2nd half of split cycle normally (not blending)
                 tcRunCycle(tp, nexttc);
@@ -2620,10 +2608,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tcRunCycle(tp, tc);
         tpCheckEndCondition(tp, tc, nexttc);
 
-        //Update motion status as normal
-        tpToggleDIOs(tc);
-        tpUpdateMovementStatus(tp, tc);
-
         //Update displacement 
         tpFindDisplacement(tc, &primary_before, &primary_displacement);
 
@@ -2631,8 +2615,14 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpUpdatePosition(tp, &primary_displacement);
 
         /* BLENDING STUFF */
-        
-        tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
+         
+        tpComputeBlendVelocity(tp, tc, nexttc, false, &tc->blend_vel);
+        if (nexttc && tcIsBlending(tc)) {
+            tpDoParabolicBlending(tp, tc, nexttc, &secondary_before, &mag_secondary);
+        } 
+            //Update motion status as normal
+            tpToggleDIOs(tc);
+            tpUpdateMovementStatus(tp, tc);
     }
 
     tpCalculateTotalDisplacement(tp, &pos_before, &mag_primary);
