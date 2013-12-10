@@ -418,6 +418,7 @@ foreach dir $::configs_dir_list {
   if {[info exists visited($dir)]} continue
   if {![file isdirectory $dir]} {
     puts stderr "pickconfig: skipping <$dir>, not a directory"
+    continue
   } 
   set visited($dir) {}
   walktree $dir
@@ -580,10 +581,15 @@ proc prompt_copy configname {
           if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
           # is_special: subdir is to be copied
           set is_special 0
-          if [catch {glob $f/*.ini}] {
+#         if [catch {glob $f/*.ini}] {
+#            # ok: no ini file so the directory can be copied
+#            set is_special 1
+#         }
+          if { "" == [exec find $f -type f -name "*.ini"]} {
              # ok: no ini file so the directory can be copied
              set is_special 1
           }
+
           switch [file type $f] {
             link      {
                         if {$is_special} {
