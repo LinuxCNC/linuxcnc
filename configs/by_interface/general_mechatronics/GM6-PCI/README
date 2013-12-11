@@ -1,5 +1,8 @@
 This configuration uses the General Mechatronics GM6-PCI board, which can control machines up to 6 axis. It has a wide I/O expansion opportunity: isolated home- and end-switches for each axis, 4x8 digital I/O, isolated digital and analogue I/O modules for RS485 field bus.
-Please read the GM6-PCI Driver section of the Integrator Manual or visit www.generalmechatronics.com for more information.
+
+Please read the GM6-PCI Driver section of the Integrator Manual or visit:
+   www.generalmechatronics.com
+for more information.
 
 Description of sample configurations:
 

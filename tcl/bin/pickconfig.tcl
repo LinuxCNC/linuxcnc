@@ -204,9 +204,7 @@ proc node_clicked {} {
    if { [ file readable $readme ] } {
        # description found, read it
        set descr [ read -nonewline [ open $readme ]]
-       # reformat - remove line breaks, preserve paragraph breaks
-       regsub -all {([^\n])\n([^\n])} $descr {\1 \2} descr
-       # and display it
+       # expect file with unbroken paragraphs
        $::detail_box insert end $descr
    } else {
        if [file isdirectory $node] {

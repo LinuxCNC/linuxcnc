@@ -2,9 +2,9 @@ This shows how cycles can be made out of O-word subroutines or directly coded in
 
 # Assume G84.2 is remapped to Python g842 like so in the [RS274NGC] ini section:
 # REMAP=G84.2 argspec=xyzqp python=g842 modalgroup=1
-#    
+#
 # then executing
-#   
+#
 #    G84.2 x1 y1 (line1)
 #    x3 y3       (line2)
 #    y5          (line3)
@@ -14,16 +14,16 @@ This shows how cycles can be made out of O-word subroutines or directly coded in
 #   *G84.2 x1 y1
 #    G84.2 x3 y3
 #    G84.2 x3 y5
-#    
+#
 # until motion is cleared with G80 or some other motion is executed.
-#   
+#
 # This enables writing cycles in Python, or as Oword procedures; in the
 # latter case the self.motion_mode should be set in the Python epilog.
-# 
+#
 
 And the same thing as an Oword procedure:
 
-# a cycle with an Oword sub 
+# a cycle with an Oword sub
 #REMAP=G84.3  modalgroup=1 argspec=xyzqp prolog=g843_prolog ngc=g843 epilog=g843_epilog
 
 
