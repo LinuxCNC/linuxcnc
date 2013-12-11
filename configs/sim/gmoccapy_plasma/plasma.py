@@ -52,8 +52,6 @@ class PlasmaClass:
         self.Piercing_autostart = self.builder.get_object("Piercing_autostart")
         self.Piercing_autostart.connect("toggled",self.on_Piercing_autostart_toggled,self.Piercing_autostart)
 
-        self.connect_signals()
-
     def on_btn_torch_toggled(self, widget, data=None):
         if widget.get_active():
             print("active")
