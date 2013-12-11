@@ -4677,6 +4677,7 @@ Ok to reset data and start a new configuration?"),False):
             pinconvertnone = {"NOT USED":NUSED}
             count = 0
             for i,j in enumerate(pins):
+                instance_num = 9999
                 temppinunit = []
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
@@ -10098,6 +10099,9 @@ if mode:
     data = Data()
     data.load(filename, None, force)
     data.save()
+if debugswitch:
+    app = App(1)
+    app.run()
 elif args:
     app = App()
     app.run(args[0])
