@@ -1661,8 +1661,8 @@ regardless of the start point of the canned cycle.
 == G80 Cancel Canned Cycle
 (((G80 Cancel Modal Motion)))
 
-* 'G80' - cancel canned cycle modal motion. 'G80' is part of modal group 0,
-          so programming any other G code from modal group 0 will also
+* 'G80' - cancel canned cycle modal motion. 'G80' is part of modal group 1,
+          so programming any other G code from modal group 1 will also
           cancel the canned cycle.
 
 It is an error if:
