@@ -1,0 +1,25 @@
+
+############### Torch Height Control Python Widgets #################### 
+
+# Hook up plasma pins using the net command
+
+# in pin
+#net PierceDelayTimer        =>  plasma.PierceDelayTimer
+#net CurrentVoltage          =>  plasma.THC_CurrentVoltage
+
+# out pin
+#net CHLThreshold        plasma.CHL_Threshold => 
+#net CHLEnable           plasma.enable_HeightLock => 
+#net TravelHeight        plasma.TravelHeight-f => 
+#net PierceDelay         plasma.PierceDelay-f => 
+#net THCStepSize         plasma.THC_StepSize-f => 
+#net PierceGap           plasma.PierceGap-f => 
+#net SwitchTravel        plasma.SwitchTravel-f => 
+#net Autostart           plasma.Piercing_autostart => 
+
+# for simulation mode we connect them directly
+net torch       plasma.btn_torch           => signals.led_TorchOn => signals.led_ArcOK
+net voltage     plasma.THC_TargetVoltage-f => plasma.THC_CurrentVoltage
+net delay       plasma.PierceDelay-f       => plasma.PierceDelayTimer
+net HeightLock  plasma.enable_HeightLock   => signals.led_HeightLock
+
