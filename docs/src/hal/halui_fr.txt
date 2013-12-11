@@ -41,8 +41,8 @@ Axes:: (axis)
 
 Arrêt d'urgence:: (E-Stop)
  - halui.estop.activate (bit, in) - pin de requête d'arrêt d'urgence (E-Stop)
- - halui.estop.is-activated (bit, in) - indique si l'arrêt d'urgence est actif
- - halui.estop.reset (bit, out) - pin de requête de relâchement de l'arrêt d'urgence (E-Stop reset)
+ - halui.estop.is-activated (bit, out) - indique si l'arrêt d'urgence est actif
+ - halui.estop.reset (bit, in) - pin de requête de relâchement de l'arrêt d'urgence (E-Stop reset)
 
 Correcteur de vitesse d'avance:: (Feed override)
  - halui.feed-override.count-enable (bit, in) - doit être vraie pour que 
