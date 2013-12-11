@@ -8,7 +8,7 @@
 #<xscale> = 1.0
 #<yscale> = 1.0
 #<zscale> = 1.0
-#<fscale> = 1.0
+#<fscale> = 10000.0
 #<toolno> = 1
 #<rpm>    = 1600
 
