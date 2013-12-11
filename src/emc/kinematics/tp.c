@@ -45,9 +45,7 @@ STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-//Disable arc blends temporarily to test parabolic blend velocity function
 #define TP_ARC_BLENDS
-//NOTE: disabled for stress testing since this forces higher accelerations
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
 #define TP_SHOW_BLENDS
@@ -112,35 +110,31 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
         return TP_ERR_FAIL;
     }
 
-    PmCartesian acc_bound;
     //FIXME check for number of axes first!
-    acc_bound.x = emcmotDebug->joints[0].acc_limit;
-    acc_bound.y = emcmotDebug->joints[1].acc_limit;
-    acc_bound.z = emcmotDebug->joints[2].acc_limit;
+    double x = emcmotDebug->joints[0].acc_limit;
+    double y = emcmotDebug->joints[1].acc_limit;
+    double z = emcmotDebug->joints[2].acc_limit;
 
-    *acc_limit=fmin(fmin(acc_bound.x,acc_bound.y),acc_bound.z);
+    *acc_limit=fmin(fmin(x,y),z);
     tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
     return TP_ERR_OK;
 }
 
-#if 0
 STATIC int tpGetMachineVelLimit(double * const vel_limit) {
 
     if (!vel_limit) {
         return TP_ERR_FAIL;
     }
 
-    PmCartesian vel_bound;
     //FIXME check for number of axes first!
-    vel_bound.x = emcmotDebug->joints[0].vel_limit;
-    vel_bound.y = emcmotDebug->joints[1].vel_limit;
-    vel_bound.z = emcmotDebug->joints[2].vel_limit;
+    double x = emcmotDebug->joints[0].vel_limit;
+    double y = emcmotDebug->joints[1].vel_limit;
+    double z = emcmotDebug->joints[2].vel_limit;
 
-    *vel_limit = fmin(fmin(vel_bound.x,vel_bound.y),vel_bound.z);
+    *vel_limit = fmin(fmin(x,y),z);
     tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
     return TP_ERR_OK;
 }
-#endif
 
 
 /**
@@ -177,16 +171,21 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
 /**
  * Get final velocity for a tc based on the trajectory planner state.
  * This function factors in the feed override and TC limits. It clamps the
- * final velocity to the maximum velocity and the requested velocity.
+ * final velocity to the maximum velocity and the current target velocity.
  */
-STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc, double target_vel) {
     //If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop
     //If the term_cond gets changed out from under us, detect this and force final velocity to zero
     if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
         return 0.0;
     } else {
         //TODO eliminate redundant checks here
-        return fmin(fmin(tc->finalvel,tc->target_vel) * fmin(tpGetFeedScale(tp,tc),1.0),tc->maxvel);
+        //Clamp final velocity to the max velocity we can achieve
+        double finalvel = tc->finalvel * fmin(tpGetFeedScale(tp,tc),1.0);
+        if (finalvel > target_vel) {
+            finalvel = target_vel;
+        }
+        return finalvel;
     }
 }
 
@@ -1064,42 +1063,29 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     return TP_ERR_OK;
 }
 
-STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc, TC_STRUCT const * const prev2_tc) {
-    /*if (prev1_tc->optimization_state == TC_OPTIM_AT_MAX) {*/
-        /*return TP_ERR_NO_ACTION;*/
-    /*}*/
+STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc) {
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
     double acc_this = tpGetScaledAccel(tp, tc);
-    double acc_prev = tpGetScaledAccel(tp, prev1_tc);
     // Find the reachable velocity of tc, moving backwards in time
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
-    double vf2 = 0.0;
-    if (prev2_tc) {
-        vf2 = prev2_tc->finalvel;
-    }
-
-    double vs_forward = pmSqrt(pmSq(vf2) + 2.0 * acc_prev * prev1_tc->target);
 
     //TODO incoporate max feed override
     double vf_limit_this = tc->maxvel;
     //Limit the PREVIOUS velocity by how much we can overshoot into
     double vf_limit_prev = prev1_tc->maxvel;
     double vf_limit = fmin(vf_limit_this,vf_limit_prev);
-    double vs = fmin(vs_back,vs_forward);
-    /*tp_info_print("vel_limit_prev = %f, vel_limit_this = %f\n",*/
-            /*vf_limit_prev,vf_limit_this);*/
 
-    if (vs >= vf_limit ) {
+    if (vs_back >= vf_limit ) {
         //If we've hit the requested velocity, then prev_tc is definitely a "peak"
-        vs = vf_limit;
+        vs_back = vf_limit;
         prev1_tc->optimization_state = TC_OPTIM_AT_MAX;
         tp_debug_print("found peak due to v_limit\n");
     } 
 
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
-    prev1_tc->finalvel = vs;
+    prev1_tc->finalvel = vs_back;
     if (tc->smoothing) {
         double v_max_end = fmax(prev1_tc->finalvel, tc->finalvel);
         tc->target_vel = fmin(v_max_end, tc->maxvel);
@@ -1127,7 +1113,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 
     TC_STRUCT *tc;
     TC_STRUCT *prev1_tc;
-    TC_STRUCT *prev2_tc;
 
     int ind, x;
     int len = tcqLen(&tp->queue);
@@ -1158,7 +1143,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         ind = len-x;
         tc = tcqItem(&tp->queue, ind);
         prev1_tc = tcqItem(&tp->queue, ind-1);
-        prev2_tc = tcqItem(&tp->queue, ind-2);
 
         if ( !prev1_tc || !tc) {
             tp_debug_print(" Reached end of queue in optimization\n");
@@ -1184,7 +1168,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
                 tc->term_cond, tc->motion_type, tc->id, tc->smoothing);
         tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->smoothing);
-        tpComputeOptimalVelocity(tp, tc, prev1_tc, prev2_tc);
+        tpComputeOptimalVelocity(tp, tc, prev1_tc);
 #ifdef TP_OPTIMIZATION_LAZY
         if (tc->optimization_state == TC_OPTIM_AT_MAX) {
             hit_peaks++;
@@ -1594,14 +1578,9 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     double newaccel=0.0;
 
     // Find maximum allowed velocity from feed and machine limits
-    double tc_target_vel = tpGetRealTargetVel(tp,tc);
+    double tc_target_vel = tpGetRealTargetVel(tp, tc);
     // Store a copy of final velocity
-    double tc_finalvel = tpGetRealFinalVel(tp,tc);
-
-    //Clamp final velocity to the max velocity we can achieve
-    if (tc_finalvel > tc_target_vel) {
-        tc_finalvel = tc_target_vel;
-    }
+    double tc_finalvel = tpGetRealFinalVel(tp, tc, tc_target_vel);
 
     if (tc_finalvel > 0.0 && tc->term_cond != TC_TERM_COND_TANGENT) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Final velocity of %f with non-tangent segment!\n",tc_finalvel);
@@ -2363,7 +2342,10 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         return TP_ERR_OK;
     }
 
-    double v_avg = tc->currentvel + tpGetRealFinalVel(tp,tc);
+    //TODO limit by target velocity?
+    double target_vel = tpGetRealTargetVel(tp, tc);
+    double v_f = tpGetRealFinalVel(tp, tc, target_vel);
+    double v_avg = tc->currentvel + v_f;
 
     //Check that we have a non-zero "average" velocity between now and the
     //finish. If not, it means that we have to accelerate from a stop, which
@@ -2386,7 +2368,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     //the end of the move.
     double dt = 2.0 * dx / v_avg;
     //Calculate the acceleration this would take:
-    double v_f = tpGetRealFinalVel(tp,tc);
 
     double a_f;
     double dv = v_f - tc->currentvel;
