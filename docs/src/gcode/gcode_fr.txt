@@ -1729,9 +1729,9 @@ mot G de mouvement.
 
 Si un cycle de perçage n'est pas révoqué avec G80 ou un autre mot G
 de mouvement, le cycle de perçage attend de se répéter en utilisant
-le prochaine ligne de code contenant un (ou plusieurs) mot d'axe X, Y
-ou Z. Le fichier suivant perce (G81) un ensemble de huit trous, tel que montré
-sur l'image qui suit.
+la prochaine ligne de code contenant un ou plusieurs mots d'axe. Le fichier
+suivant perce (G81) un ensemble de huit trous, tel que montré sur l'image qui
+suit.
 
 .Exemple 2 avec G80:
 ----
