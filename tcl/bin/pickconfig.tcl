@@ -142,6 +142,15 @@ proc sSlide {f a b} {
     $f.sc set $a $b
 }
 
+proc title {node} {
+  if [file isfile $node] {
+    set txt "CURRENT: [file tail $::selected_node]"
+  } else {
+    set txt ""
+  }
+  wm title . "[msgcat::mc "LinuxCNC Configuration Selector"] $txt"
+}
+
 # if node is an ini file named xxx.ini, then:
 #    show xxx.txt      if it exists
 # else
@@ -156,6 +165,8 @@ proc sSlide {f a b} {
 proc node_clicked {} {
 
     set node [$::tree selection get]
+    set ::selected_node $node
+    title $node
     if {$node == ""} return
     set node [lindex $node 0]
 
@@ -251,7 +262,7 @@ foreach class { Button Entry Label Listbox Scale Text } {
 }
 
 # make a toplevel and a master frame.
-wm title . [msgcat::mc "LinuxCNC Configuration Selector"]
+title ""
 set logo [label .logo -image $logo]
 set top [frame .main -borderwidth 0 -relief flat ]
 pack $logo -side left -anchor nw
@@ -281,7 +292,9 @@ set f2 [ frame $f1.f2 -borderwidth 0 -relief flat -padx 15 ]
 set s1 [ SW $f2.f3 -auto both]
 $s1 configure -relief sunken -borderwidth 2
 # the tree
-set ::tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4 ]
+set ::tree [Tree $s1.tree -highlightthickness 0 \
+                          -width 25 -relief flat -padx 4 \
+                          ]
 $s1 setwidget $::tree
 pack $s1 -fill y -expand n -side left
 
@@ -333,6 +346,31 @@ proc describe {dir} {
     }
     return $dir/
 }
+
+proc treeopen {args} {
+  set beforevisible [$::tree visible $::selected_node]
+  update
+  set visible [$::tree visible $::selected_node]
+  if {!$beforevisible && $visible && [info exists ::restorebox] } {
+    set state [$::detail_box cget -state]
+    $::detail_box configure -state normal
+    $::detail_box insert end $::restorebox
+    $::detail_box configure -state $state
+    unset ::restorebox
+  }
+} ;# treeopen
+
+proc treeclose {args} {
+  update
+  set visible [$::tree visible $::selected_node]
+  if {!$visible && ![info exists ::restorebox] } {
+    set ::restorebox [$::detail_box get 1.0 end]
+    set state [$::detail_box cget -state]
+    $::detail_box configure -state normal
+    $::detail_box delete 1.0 end
+    $::detail_box configure -state $state
+  }
+} ;# treeclose
 
 proc walktree {dir} {
    if ![info exists ::openmode] {set ::openmode 0}
@@ -579,7 +617,7 @@ proc prompt_copy configname {
           # nc_files (as a symlink) not copied here (handled elsewhere)
           if {   [file tail $f] == "nc_files"
               && [file type $f] == "link" } {
-            puts stderr "pickconfig: not copying link: $f"
+            verbose "pickconfig: not copying link: $f"
             continue 
           }
           if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
@@ -650,6 +688,13 @@ if [catch {
   set ::openmode 0
   puts stderr "pickconfig: cannot find expected start_node <$start_node>, continuing"
 }
+# update and enable commands after initial setup of tree
+update
+set ::selected_node [$::tree selection get]
+title $::selected_node
+$::tree configure \
+        -closecmd treeclose \
+        -opencmd  treeopen
 
 proc make_shortcut {inifile} {
     if {[catch {open $inifile} inifd]} { return }
