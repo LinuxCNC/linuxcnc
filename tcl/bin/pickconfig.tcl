@@ -41,13 +41,19 @@ option add *Tree*background white
 ################### MAINTENANCE ITEMS #####################
 
 # flat structure:
-#    ini files should always refer to ../../nc_files
-#    config subdirs can be moved with little imapact
+#    Ini files should always refer to ../../nc_files so
+#    that hey will work in run-in-place and deb-installed
+#    systems.
+#    Config subdirs can be moved with little impact when
+#    ../../nc_files relative link is used.
 #
 # hierarchical structure:
-#    ini files must refer to appropriate nc_files and
-#    must be edited if config subdirs are moved to
-#    a different depth in the tree
+#    Ini files must refer to appropriate nc_files by
+#    relative links so that they will work in run-in-place
+#    and deb-installed systems.
+#    Ini files must be edited if config subdirs are moved to
+#    a different depth in the tree to update the relative
+#    links
 #
 set ::make_flat_user_dirs  1 ;# 0 ==> hierarchical
 
@@ -415,7 +421,7 @@ proc minimal_tree {node} {
 foreach dir $::configs_dir_list {
   if {[info exists visited($dir)]} continue
   if {![file isdirectory $dir]} {
-    puts stderr "pickconfig: skipping <$dir>, not a directory"
+    verbose "pickconfig: skipping <$dir>, not a directory"
     continue
   } 
   set visited($dir) {}
@@ -579,10 +585,6 @@ proc prompt_copy configname {
           if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
           # is_special: subdir is to be copied
           set is_special 0
-#         if [catch {glob $f/*.ini}] {
-#            # ok: no ini file so the directory can be copied
-#            set is_special 1
-#         }
           if { "" == [exec find $f -type f -name "*.ini"]} {
              # ok: no ini file so the directory can be copied
              set is_special 1
@@ -591,7 +593,7 @@ proc prompt_copy configname {
           switch [file type $f] {
             link      {
                         if {$is_special} {
-                          # since link require:
+                          # since is link, require:
                           # -r recursive, -L dereference
                           exec cp -rL [file join $chosendir $f] $copytodir
                         } else {
