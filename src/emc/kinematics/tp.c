@@ -58,10 +58,10 @@ extern emcmot_debug_t *emcmotDebug;
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc,
         TC_STRUCT const * const nexttc, int use_max_scale, double * const blend_vel);
 
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc);
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, TC_STRUCT * const nexttc, double * const mag);
+        TC_STRUCT * const tc, double * const mag);
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
     return condition;
@@ -1835,7 +1835,7 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = 0.0;
     }
 
-    tpUpdateCycle(tp, nexttc, NULL, mag);
+    tpUpdateCycle(tp, nexttc, mag);
     //Restore the blend velocity
     nexttc->target_vel = save_vel;
 
@@ -2027,26 +2027,19 @@ STATIC int tpCheckWaiting(TP_STRUCT * const tp, TC_STRUCT const * const tc) {
 
 
 /**
- * Get a pointer to nexttc if we can, based on conditions.
- * Once an active TC is created in the planner, we want to know the nexttc if
- * we can get it. it's not an error if nexttc is missing (like in the MDI, or
- * at the end of a path).
+ * Check for early stop conditions.
+ * If a variety of conditions are true, then we can't do blending as we expect.
+ * This function checks for any conditions that force us to stop on the current
+ * segment. This is different from pausing or aborting, which can happen any
+ * time.
  */
-STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
-        TC_STRUCT * const tc) {
+STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
 
-    TC_STRUCT * nexttc = NULL;
-
-    if(!emcmotDebug->stepping && tc->term_cond)
-        nexttc = tcqItem(&tp->queue, 1);
-    else
-        nexttc = NULL;
-
-    if( tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
+    if(tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tcSetTermCond(tc,TC_TERM_COND_STOP);
-        nexttc = NULL;
     }
 
     if(nexttc && nexttc->atspeed) {
@@ -2054,10 +2047,9 @@ STATIC TC_STRUCT * const tpGetNextTC(TP_STRUCT * const tp,
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
         tcSetTermCond(tc,TC_TERM_COND_STOP);
-        nexttc = NULL;
     }
 
-    return nexttc;
+    return TP_ERR_OK;
 }
 
 STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
@@ -2280,7 +2272,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Do a complete update on one segment.
  */
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, TC_STRUCT * const nexttc, double * const mag) {
+        TC_STRUCT * const tc, double * const mag) {
 
     //placeholders for position for this update
     EmcPose position9_before, displacement9;
@@ -2292,7 +2284,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     tcRunCycle(tp, tc);
 
     //Check if we're near the end of the cycle and set appropriate changes
-    tpCheckEndCondition(tp, tc, nexttc);
+    tpCheckEndCondition(tp, tc);
 
     tpFindDisplacement(tc, &position9_before, &displacement9);
     tpUpdatePosition(tp, &displacement9);
@@ -2318,10 +2310,10 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  * Check remaining time in a segment and calculate split cycle if necessary.
  * This function estimates how much time we need to complete the next segment.
  * If it's greater than one timestep, then we do nothing and carry on. If not,
- * then we flag the segment as "splitting", so that the next time tpRunCycle runs,
+ * then we flag the segment as "splitting", so that during the next cycle,
  * it handles the transition to the next segment.
  */
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     if (tc->term_cond != TC_TERM_COND_TANGENT) {
         return TP_ERR_NO_ACTION;
@@ -2335,10 +2327,9 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     if (dx <= TP_MAG_EPSILON) {
         tp_debug_print("close to target, dx = %.12f\n",dx);
         tc->progress=tc->target;
-        tc->remove = 1;
-        if (nexttc) {
-            nexttc->currentvel = tc->currentvel;
-        }
+        tc->splitting = 1;
+        tc->final_actual_vel = tc->currentvel;
+        tc->split_time = 0.0;
         return TP_ERR_OK;
     }
 
@@ -2360,6 +2351,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         } else {
             tp_debug_print(" close to target by velocity check, assuming cycle split\n");
             tc->splitting = 1;
+            tc->final_actual_vel = v_f;
             return TP_ERR_OK;
         }
     }  
@@ -2424,12 +2416,10 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
     if (dt < TP_TIME_EPSILON) {
         //Close enough, call it done
         tp_debug_print("revised dt small, finishing tc\n");
-        tc->remove = 1;
         tc->progress = tc->target;
-        //TODO decide on a flow here. Either store to field in TC or do the tangent handling here.
-        if (nexttc) {
-            nexttc->currentvel = tc->currentvel;
-        }
+        tc->splitting = 1;
+        tc->final_actual_vel = v_f;
+        tc->split_time = 0.0;
     } else if (dt < tp->cycleTime ) {
         //Our initial guess of dt is not perfect, but if the optimizer
         //works, it will never under-estimate when we cross the threshold.
@@ -2459,19 +2449,16 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc,
  */
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
-    //Hack debug output for timesteps
-    static double time_elapsed = 0;
     //Pointers to current and next trajectory component
     TC_STRUCT *tc;
     TC_STRUCT *nexttc;
 
-    //Pose data used for intermediate calculations
-    EmcPose primary_before;
-    EmcPose primary_displacement;
-
     tpUpdateInitialStatus(tp);
-    //Define TC as the "first" element in the queue
+
+    //Get pointers to the current and future motions. It's ok here if future
+    //motions don't exist (NULL pointers) as we check for this later).
     tc = tcqItem(&tp->queue, 0);
+    nexttc = tcqItem(&tp->queue, 1);
 
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
@@ -2480,9 +2467,14 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     tc_debug_print("-------------------\n");
+
+#ifdef TC_DEBUG
     //Hack debug output for timesteps
+    static double time_elapsed = 0;
     time_elapsed+=tp->cycleTime;
-    nexttc = tpGetNextTC(tp, tc);
+#endif
+
+    tpCheckEarlyStop(tp, tc, nexttc);
 
     if(tp->aborting) {
         int slowing = tpHandleAbort(tp, tc, nexttc);
@@ -2551,8 +2543,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             break;
     }
 
-    //Store initial position before trajectory updates
-    tcGetPos(tc, &primary_before);
 
     double mag_primary=0;
     double mag_secondary=0;
@@ -2561,18 +2551,26 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 #endif
     // Update the current tc
     if (tc->splitting) {
+
+        //Pose data to calculate movement due to finishing current TC
+        EmcPose pos_before;
+        EmcPose pos_displacement;
+
+        //Store initial position before trajectory updates
+        tcGetPos(tc, &pos_before);
+
         tp_debug_print("tc id %d splitting\n",tc->id);
         //Shortcut tc update by assuming we arrive at end
         tc->progress = tc->target;
-        tpFindDisplacement(tc, &primary_before, &primary_displacement);
-        tpUpdatePosition(tp, &primary_displacement);
+        tpFindDisplacement(tc, &pos_before, &pos_displacement);
+        tpUpdatePosition(tp, &pos_displacement);
 
         //If we're doing tangent blending
         if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
-            nexttc->cycle_time-=tc->split_time;
+            nexttc->cycle_time -= tc->split_time;
             nexttc->currentvel = tc->final_actual_vel;
             tp_debug_print("Doing tangent split\n");
-            tpUpdateCycle(tp, nexttc, NULL, &mag_secondary);
+            tpUpdateCycle(tp, nexttc, &mag_secondary);
             //Update status for the split portion
             if (tc->split_time > nexttc->cycle_time) {
                 //Majority of time spent in current segment
@@ -2589,7 +2587,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     } else {
         //Run with full cycle time
         tc->cycle_time = tp->cycleTime;
-        tpUpdateCycle(tp,tc,nexttc,&mag_primary);
+        tpUpdateCycle(tp, tc, &mag_primary);
 
         /* BLENDING STUFF */
          
