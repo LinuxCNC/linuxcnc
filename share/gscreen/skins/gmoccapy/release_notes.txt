@@ -1,3 +1,6 @@
+ver. 0.9.9.6.1
+- solved a bug in plasma.py, having a call without function
+
 ver. 0.9.9.6
 - made a new config folder to show gmoccapy as plasma screen
 - included some minor changes to be able to place user glade panels 
