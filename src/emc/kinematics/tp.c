@@ -56,7 +56,7 @@ extern emcmot_debug_t *emcmotDebug;
 
 /** static function primitives */
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, int use_max_scale, double * const blend_vel);
+        TC_STRUCT * const nexttc, int planning, double * const blend_vel);
 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
@@ -1474,6 +1474,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tp_debug_print("tpAddCircle: checking for tangent with previous\n");
     tpSetupTangent(tp, prev_tc, &tc);
 
+    tpRunOptimization(tp);
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, &end,true);
 }
