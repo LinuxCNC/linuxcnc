@@ -116,6 +116,8 @@ typedef struct {
 
     int blending_next;      // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
+    double triangle_vel;  /* theoretical max velocity assuming no
+                               limits other than acceleration */
     double tolerance;       // during the blend at the end of this move, 
                             // stay within this distance from the path.
     int synchronized;       // spindle sync state
