@@ -141,7 +141,8 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
  * Get a TC's feed rate override based on emcmotStatus.
  * This function is designed to eliminate duplicate states, since this leads to bugs.
  */
-STATIC double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC double tpGetFeedScale(TP_STRUCT const * const tp, 
+        TC_STRUCT const * const tc) {
     //All reasons to disable feed override go here
     if (tp->pausing || tp->aborting) {
         tc_debug_print("pausing or aborting\n");
@@ -158,7 +159,8 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp, TC_STRUCT const * const
  * Get target velocity for a tc based on the trajectory planner state.
  * This gives the requested velocity, capped by the segments maximum velocity.
  */
-STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp, 
+        TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
 }
 
@@ -299,7 +301,6 @@ int tpClear(TP_STRUCT * const tp)
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
     tp->pausing = 0;
-    tp->vScale = emcmotStatus->net_feed_scale;
     tp->synchronized = 0;
     tp->uu_per_rev = 0.0;
     emcmotStatus->spindleSync = 0;
@@ -319,9 +320,13 @@ int tpClear(TP_STRUCT * const tp)
 int tpInit(TP_STRUCT * const tp)
 {
     tp->cycleTime = 0.0;
+    //Velocity limits
     tp->vLimit = 0.0;
-    tp->vScale = 1.0;
     tp->ini_maxvel = 0.0;
+    //Accelerations
+    tp->aLimit = 0.0;
+    tpGetMachineAccelLimit(&tp->aMax);
+    //Angular limits
     tp->wMax = 0.0;
     tp->wDotMax = 0.0;
 
@@ -592,6 +597,7 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->splitting = 0;
     tc->split_time = 0;
     tc->remove = 0;
+    tc->active_depth = 0;
 }
 
 /**
@@ -851,6 +857,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double v_blend = 0.0;
     tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_blend);
 
+#ifdef TP_FALLBACK_PARABOLIC
     //This is the actual velocity at the center of the parabolic blend
     double v_parabolic = pmSqrt(pmSq(v_blend / 2.0)*(2.0-2.0*cos(2.0*theta)));
 
@@ -858,7 +865,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * the equivalent parabolic blend, then fall back to parabolic
      */
 
-#ifdef TP_FALLBACK_PARABOLIC
     tp_debug_print(" Check: v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
     if ( v_plan <= v_parabolic) {
         return TP_ERR_NO_ACTION;
@@ -1169,6 +1175,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->smoothing);
         tpComputeOptimalVelocity(tp, tc, prev1_tc);
+        tc->active_depth = x - 2 - hit_peaks;
 #ifdef TP_OPTIMIZATION_LAZY
         if (tc->optimization_state == TC_OPTIM_AT_MAX) {
             hit_peaks++;
@@ -1667,15 +1674,24 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         }
     }
 
+    //Update current velocity with new velocity
     tc->currentvel = newvel;
+
     if (tc->currentvel > tc_target_vel) {
         tc_debug_print("Warning: exceeding target velocity!\n");
     }
 
     if (tc->progress >= (tc->target - TP_MAG_EPSILON)) {
+        //We've hit the target
         tc_debug_print("segment %d close to target in runcycle\n",tc->id);
-        tc->remove = 1;
+        tc->splitting = 1;
+        tc->split_time = 0.0;
         tc->progress = tc->target;
+        tc->final_actual_vel = tc->currentvel;
+        //Kludge to keep the segment around for another cycle to copy velocity over
+        if (tc->term_cond != TC_TERM_COND_TANGENT) {
+            tc->remove = 1;
+        }
     }
 
     tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f\n,    current_vel = %f, fs = %f, tc = %f, term = %d\n",
@@ -1793,7 +1809,8 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
     EmcPose target;
     tcGetEndpoint(tc, &target);
 
-    tc_debug_print("tc id = %u, canon_type = %u, mot type = %u\n",tc->id,tc->canon_motion_type,tc->motion_type);
+    tc_debug_print("tc id = %u canon_type = %u mot type = %u\n",
+            tc->id, tc->canon_motion_type, tc->motion_type);
     tp->motionType = tc->canon_motion_type;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
     emcmotStatus->enables_queued = tc->enables;
@@ -2326,7 +2343,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     //If we're at the target, then it's too late to do anything about it
     if (dx <= TP_MAG_EPSILON) {
         tp_debug_print("close to target, dx = %.12f\n",dx);
-        tc->progress=tc->target;
+        tc->progress = tc->target;
         tc->splitting = 1;
         tc->final_actual_vel = tc->currentvel;
         tc->split_time = 0.0;
@@ -2351,7 +2368,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         } else {
             tp_debug_print(" close to target by velocity check, assuming cycle split\n");
             tc->splitting = 1;
-            tc->final_actual_vel = v_f;
+            tc->final_actual_vel = tc->currentvel;
+            tc->split_time = 0.0;
             return TP_ERR_OK;
         }
     }  
@@ -2522,11 +2540,13 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     if(nexttc && nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
         // this means this tc is being read for the first time.
         tp_debug_print("Activate nexttc id %d\n", nexttc->id);
-        nexttc->currentvel = 0;
-        tp->depth = tp->activeDepth = 1;
+        nexttc->currentvel = 0.0;
+        tp->activeDepth = 1;
         nexttc->active = 1;
-        //Indicate that this segment is blending with the previous segment
+    } else if (tc->term_cond == TC_TERM_COND_TANGENT) {
+        tp->activeDepth = tc->active_depth;
     }
+
 
     /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
     switch (tc->synchronized) {
@@ -2546,24 +2566,22 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     double mag_primary=0;
     double mag_secondary=0;
-#ifdef TP_DEBUG
     EmcPose pos_before = tp->currentPos;
-#endif
     // Update the current tc
     if (tc->splitting) {
 
         //Pose data to calculate movement due to finishing current TC
-        EmcPose pos_before;
-        EmcPose pos_displacement;
+        EmcPose position9_before;
+        EmcPose displacement9;
 
         //Store initial position before trajectory updates
-        tcGetPos(tc, &pos_before);
+        tcGetPos(tc, &position9_before);
 
         tp_debug_print("tc id %d splitting\n",tc->id);
         //Shortcut tc update by assuming we arrive at end
         tc->progress = tc->target;
-        tpFindDisplacement(tc, &pos_before, &pos_displacement);
-        tpUpdatePosition(tp, &pos_displacement);
+        tpFindDisplacement(tc, &position9_before, &displacement9);
+        tpUpdatePosition(tp, &displacement9);
 
         //If we're doing tangent blending
         if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
@@ -2586,6 +2604,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tc->remove = 1;
     } else {
         //Run with full cycle time
+        tc_debug_print("Normal cycle\n");
         tc->cycle_time = tp->cycleTime;
         tpUpdateCycle(tp, tc, &mag_primary);
 
@@ -2602,11 +2621,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     }
 
-#ifdef TP_DEBUG
+    //For some reason, this has to be here to prevent graphical glitches in simulation. 
+    //FIXME minor algorithm or optimization issue that causes this to happen?
     tpCalculateTotalDisplacement(tp, &pos_before, &mag_primary);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
             mag_primary + mag_secondary, emcmotStatus->current_vel);
-#endif
 
     // If TC is complete, remove it from the queue. 
     if (tc->remove) {
