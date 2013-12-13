@@ -62,6 +62,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc, double * const mag);
+
+STATIC int tpRunOptimization(TP_STRUCT * const tp);
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
     return condition;
@@ -1025,7 +1027,10 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     tpCalculateTriangleVel(tp, &tc);
 
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, &end, true);
+    int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
+
+    tpRunOptimization(tp);
+    return retval;
 }
 
 STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
@@ -1474,9 +1479,11 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tp_debug_print("tpAddCircle: checking for tangent with previous\n");
     tpSetupTangent(tp, prev_tc, &tc);
 
-    tpRunOptimization(tp);
     //Assume non-zero error code is failure
-    return tpAddSegmentToQueue(tp, &tc, &end,true);
+    int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
+
+    tpRunOptimization(tp);
+    return retval;
 }
 
 
@@ -2148,6 +2155,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     //Check if already active
     if (!tc || tc->active) {
+
         return TP_ERR_NO_ACTION;
     }
 
