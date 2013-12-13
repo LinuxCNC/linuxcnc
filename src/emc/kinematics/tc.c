@@ -457,6 +457,8 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
 
     //Setup tangent blending constraints
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+    //Disable flag for parabolic blending with previous
+    tc->blend_prev = 0;
 
     tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
             prev_tc->coords.line.xyz.end.y,
