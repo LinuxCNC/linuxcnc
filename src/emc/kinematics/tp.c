@@ -55,8 +55,8 @@ extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 
 /** static function primitives */
-STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT const * const tc,
-        TC_STRUCT const * const nexttc, int use_max_scale, double * const blend_vel);
+STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc, int use_max_scale, double * const blend_vel);
 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
@@ -1485,8 +1485,8 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
  * function updates the TC_STRUCT data with a safe blend velocity.
  */
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
-        TC_STRUCT const * const tc, TC_STRUCT const * const nexttc,
-        int use_max_scale, double * const blend_vel) {
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc,
+        int planning, double * const blend_vel) {
     /* Pre-checks for valid pointers */
     if (!nexttc || !tc) {
 
@@ -1503,13 +1503,13 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
 
     // cap the blend velocity at the current requested speed (factoring in feed override)
     double target_vel_next;
-    if (use_max_scale) {
+    if (planning) {
         target_vel_next = tpGetMaxTargetVel(tp, nexttc);
     } else {
         target_vel_next = tpGetRealTargetVel(tp, nexttc);
     }
 
-    double v_blend_next = fmin(nexttc->triangle_vel, target_vel_next);
+    double v_reachable_next = fmin(nexttc->triangle_vel, target_vel_next);
     /* Scale blend velocity to match blends between current and next segment.
      *
      * The blend time t_b should be the same for this segment and the next
@@ -1525,12 +1525,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      *
      * TODO figure illustrating this
      */
-    double v_blend_this;
-    if(acc_this < acc_next) {
-        v_blend_this = v_blend_next * acc_this / acc_next;
-    } else {
-        v_blend_this = v_blend_next;
-    }
+
+    double v_blend_this = v_reachable_next * acc_this / acc_next;
 
     if (tc->tolerance) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
@@ -1564,7 +1560,15 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
             v_blend_this = fmin(v_blend_this, tblend_vel);
         }
     }
-    *blend_vel = v_blend_this;
+    //Store blend velocities for use during parabolic blending
+    if (!planning) {
+        tc->blend_vel = v_blend_this;
+        nexttc->blend_vel = v_reachable_next;
+    }
+    //Output blend velocity for reference if desired
+    if (blend_vel) {
+        *blend_vel = v_blend_this;
+    }
     return TP_ERR_OK;
 }
 
@@ -1861,7 +1865,9 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        nexttc->target_vel = dv / tpGetFeedScale(tp, nexttc);
+        //TODO check for divide by zero
+        double blend_progress = dv / tc->vel_at_blend_start;
+        nexttc->target_vel = blend_progress * nexttc->blend_vel;
     } else {
         nexttc->target_vel = 0.0;
     }
@@ -2626,7 +2632,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
         /* BLENDING STUFF */
          
-        tpComputeBlendVelocity(tp, tc, nexttc, false, &tc->blend_vel);
+        tpComputeBlendVelocity(tp, tc, nexttc, false, NULL);
         if (nexttc && tcIsBlending(tc)) {
             tpDoParabolicBlending(tp, tc, nexttc, &mag_secondary);
         } else {
