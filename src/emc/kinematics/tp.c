@@ -1148,7 +1148,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
-    for (x = 2; x < TP_LOOKAHEAD_DEPTH; ++x) {
+    for (x = 2; x < TP_LOOKAHEAD_DEPTH + 2; ++x) {
+        tp_info_print("==== Optimization step %d ====\n",x-2);
 
         // Update the pointers to the trajectory segments in use
         ind = len-x;
