@@ -557,7 +557,7 @@ STATIC inline void tpConvertPmCartesiantoEmcPose(PmCartesian const * const xyz, 
  * get pretty long. If you need a custom setting, overwrite your particular
  * field after calling this function.
  */
-STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
+STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double vel, double ini_maxvel, double acc,
         unsigned char enables) {
 
@@ -568,10 +568,15 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->progress = 0.0;
     tc->displacement = 0.0;
     tc->maxaccel = acc;
-    tc->maxvel = ini_maxvel;
+
+    //Always clamp max velocity by sample rate, since we require TP to hit every segment at least once.
+    double Ts = TP_MIN_SEGMENT_CYCLES * tp->cycleTime;
+    tc->maxvel = fmin(ini_maxvel, tc->target / Ts);
+
     //Store this verbatim, as it may affect expectations about feed rate.
     //Capping at maxvel means linear reduction from 100% to zero, which may be confusing.
     //TODO decide which behavior is better
+
     tc->reqvel = vel;
     tc->target_vel = vel;
 
@@ -598,6 +603,19 @@ STATIC inline void tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->split_time = 0;
     tc->remove = 0;
     tc->active_depth = 0;
+
+    return TP_ERR_OK;
+}
+
+STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+    //Compute peak velocity for blend calculations
+    double acc_scaled = tpGetScaledAccel(tp, tc);
+    //Note that using nominal length only works because we're limited to
+    //consuming 1/2 of the nominal length per blend arc.
+    tc->triangle_vel = pmSqrt( acc_scaled * tc->nominal_length); 
+    //FIXME id kludge
+    tp_debug_print("id %d Triangle vel = %f\n", tp->nextId, tc->triangle_vel);
+    return 0;
 }
 
 /**
@@ -668,9 +686,6 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     // Treating arc as extension of prev_line_tc
     blend_tc->atspeed = prev_line_tc->atspeed;
 
-    //KLUDGE this init function is a bit overkill now...
-    tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
-
     blend_tc->motion_type = TC_CIRCULAR;
 
 #ifdef TP_SHOW_BLENDS
@@ -697,8 +712,9 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     //Blend arc specific settings:
     tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
     blend_tc->tolerance = 0.0;
-    blend_tc->reqvel = vel;
-    blend_tc->target_vel = vel;
+
+    //KLUDGE this init function is a bit overkill now...
+    tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
 
     return TP_ERR_OK;
 }
@@ -775,7 +791,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
 
     //Consider L1 / L2 to be the length available to blend over
-    double L1 = prev_tc->target;
+    double L1 = fmin(prev_tc->target, prev_tc->nominal_length / 2.0);
     double L2 = tc->target/2.0;
 
     double K = a_n_max * Ttheta * pmSq(min_segment_time) / 2.0;
@@ -942,7 +958,9 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     }
 
     // Store end of current move as new final goal of TP
-    tp->goalPos = *end;
+    if (end) {
+        tp->goalPos = *end;
+    }
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
@@ -969,8 +987,6 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, NULL, NULL);
 
     pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
-
-    tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
 
     tc.coords.rigidtap.reversal_target = line_xyz.tmag;
 
@@ -1004,6 +1020,9 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     } else {
         tc.syncdio.anychanged = 0;
     }
+
+    tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
+    tpCalculateTriangleVel(tp, &tc);
 
     //Assume non-zero error code is failure
     return tpAddSegmentToQueue(tp, &tc, &end, true);
@@ -1123,29 +1142,15 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     int ind, x;
     int len = tcqLen(&tp->queue);
     //TODO make lookahead depth configurable from the INI file
-    int walk = TP_LOOKAHEAD_DEPTH;
-
-    //If the queue is not at least 3 elements deep, then we can't optimize
-    if (len < 3) {
-        return TP_ERR_OK;
-    }
-
-    //Always clamp the maximum velocities by the sampling limit
-    prev1_tc = tcqItem(&tp->queue,len-2);
-
-    if (prev1_tc && prev1_tc->term_cond == TC_TERM_COND_TANGENT) {
-        double Ts = TP_MIN_SEGMENT_CYCLES * tp->cycleTime;
-        prev1_tc->maxvel = fmin(prev1_tc->maxvel, prev1_tc->target / Ts);
-    }
 
     int hit_peaks = 0;
 
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
-    for (x = 2; x < walk; ++x) {
+    for (x = 2; x < TP_LOOKAHEAD_DEPTH; ++x) {
 
-        // Update the pointers to the 3 queue elements in use
+        // Update the pointers to the trajectory segments in use
         ind = len-x;
         tc = tcqItem(&tp->queue, ind);
         prev1_tc = tcqItem(&tp->queue, ind-1);
@@ -1158,6 +1163,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         // stop optimizing if we hit a non-tangent segment (final velocity
         // stays zero)
         if (prev1_tc->term_cond != TC_TERM_COND_TANGENT) {
+            tp_debug_print("Found non-tangent segment, stopping optimization\n");
             return TP_ERR_OK;
         }
 
@@ -1236,11 +1242,11 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
  * Handle creating a blend arc when a new line segment is about to enter the queue.
  * This function handles the checks, setup, and calculations for creating a new
  * blend arc. Essentially all of the blend arc functions are called through
- * here to isolate this process from tpAddLine.
+ * here to isolate the process.
  * TODO: remove "end" as a parameter since it gets thrown out by the next line
  * added after this.
  */
-STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end) {
+STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     tp_debug_print("********************\n Handle Blend Arc\n");
 
@@ -1273,10 +1279,12 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose 
         if (arc_fail) {
             tp_debug_print("blend arc NOT created\n");
             return arc_fail;
-        }
+        } 
+        //Need to do this here since the length changed
+        tpCalculateTriangleVel(tp, prev_tc);
+        tpCalculateTriangleVel(tp, tc);
 
-
-        tpAddSegmentToQueue(tp, &blend_tc, end,false);
+        tpAddSegmentToQueue(tp, &blend_tc, NULL, false);
     }
     return TP_ERR_OK;
 }
@@ -1311,8 +1319,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         return TP_ERR_FAIL;
     }
 
-    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
-
     if (!line_xyz.tmag_zero) {
         tc.target = line_xyz.tmag;
     } else if (!line_uvw.tmag_zero) {
@@ -1321,6 +1327,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         tc.target = line_abc.tmag;
     }
     tc.nominal_length = tc.target;
+
 
     tc.atspeed = atspeed;
 
@@ -1348,12 +1355,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         tc.syncdio.anychanged = 0;
     }
 
-#ifdef TP_ARC_BLENDS
-    //TODO add check for two spaces in queue?
-    int arc_err = tpHandleBlendArc(tp, &tc, &end);
-#endif
+    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
-    //Flag this as blending with previous segment if the previous segment is set to blend with this one
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
     if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
@@ -1361,12 +1364,17 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         tc.blend_prev = 1;
     }
 
-    int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
+    tpCalculateTriangleVel(tp, &tc);
 #ifdef TP_ARC_BLENDS
-    if ( arc_err == TP_ERR_OK) {
-        tpRunOptimization(tp);
-    }
+    //TODO add check for two spaces in queue?
+    tpHandleBlendArc(tp, &tc);
 #endif
+
+    //Flag this as blending with previous segment if the previous segment is set to blend with this one
+ 
+    int retval = tpAddSegmentToQueue(tp, &tc, &end, true);
+    //Run speed optimization (will abort safely if there are no tangent segments)
+    tpRunOptimization(tp);
 
     return retval;
 }
@@ -1418,11 +1426,10 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
             pmSq(helix_z_component));
 
-    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
-
     tc.target = helix_length;
     tc.nominal_length = helix_length;
     tc.atspeed = atspeed;
+
 
     tc.coords.circle.xyz = circle;
     tc.coords.circle.uvw = line_uvw;
@@ -1453,10 +1460,14 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.motion_type = TC_CIRCULAR;
     tc.term_cond = tp->termCond;
 
+    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
+
     //FIXME Hack to deal with the "double" scaling of acceleration. This only
     //works due to the specific implementation of GetScaledAccel
     double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
     tc.maxvel = corrected_maxvel;
+
+    tpCalculateTriangleVel(tp, &tc);
 
     // Setup steps if the previous segment is tangent with this one
     tp_debug_print("tpAddCircle: checking for tangent with previous\n");
@@ -1477,15 +1488,18 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc, TC_STRUCT const * const nexttc,
         int use_max_scale, double * const blend_vel) {
     /* Pre-checks for valid pointers */
-    if (!nexttc) {
+    if (!nexttc || !tc) {
+
         tp_debug_print("missing nexttc in compute vel?\n");
-        *blend_vel=0.0;
+        return TP_ERR_FAIL;
+    }
+
+    if (tc->term_cond != TC_TERM_COND_PARABOLIC) {
         return TP_ERR_NO_ACTION;
     }
 
     double acc_this = tpGetScaledAccel(tp, tc);
     double acc_next = tpGetScaledAccel(tp, nexttc);
-    double v_peak_next = pmSqrt(nexttc->target * acc_next);
 
     // cap the blend velocity at the current requested speed (factoring in feed override)
     double target_vel_next;
@@ -1495,7 +1509,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         target_vel_next = tpGetRealTargetVel(tp, nexttc);
     }
 
-    double v_blend_next = fmin(v_peak_next, target_vel_next);
+    double v_blend_next = fmin(nexttc->triangle_vel, target_vel_next);
     /* Scale blend velocity to match blends between current and next segment.
      *
      * The blend time t_b should be the same for this segment and the next
@@ -1741,7 +1755,7 @@ STATIC void tpHandleRigidTap(TP_STRUCT const * const tp,
             rtapi_print_msg(RTAPI_MSG_DBG, "TAPPING");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
                 // command reversal
-                emcmotStatus->spindle.speed *= -1;
+                emcmotStatus->spindle.speed *= -1.0;
                 tc->coords.rigidtap.state = REVERSING;
             }
             break;
@@ -2243,8 +2257,10 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
 }
 
 STATIC int tcIsBlending(TC_STRUCT * const tc) {
-    int is_blending_next =  (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
-        tc->on_final_decel && (tc->currentvel < tc->blend_vel);
+    //FIXME Disabling blends for rigid tap cycle until changes can be verified.
+    int is_blending_next = (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
+        tc->on_final_decel && (tc->currentvel < tc->blend_vel) &&
+        tc->motion_type != TC_RIGIDTAP;
 
     //Latch up the blending_next status here, so that even if the prev conditions
     //aren't necessarily true we still blend to completion once the blend
