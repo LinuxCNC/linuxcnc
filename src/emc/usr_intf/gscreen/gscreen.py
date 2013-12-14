@@ -257,7 +257,7 @@ class Data:
         self.jog_rate = 15
         self.jog_rate_inc = 1
         self.jog_rate_max = 60
-        self.jog_increments = ['.001 in ,.01 in ,.1 in']
+        self.jog_increments = []
         self.current_jogincr_index = 0
         self.angular_jog_adjustment_flag = False
         self.angular_jog_increments = []
@@ -573,9 +573,9 @@ class Gscreen:
                 self.data.jog_increments = increments.split()
         else:
             if self.machine_units_mm ==self.data._MM:
-                self.data.jog_increments = [".01 mm",".1 mm","1 mm","continuous"]
+                self.data.jog_increments = [".001 mm",".01 mm",".1 mm","1 mm","continuous"]
             else:
-                self.data.jog_increments = [".001 in",".01 in",".1 in","continuous"]
+                self.data.jog_increments = [".0001 in",".001 in",".01 in",".1 in","continuous"]
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
 
         # angular jogging increments
@@ -1477,7 +1477,10 @@ class Gscreen:
         calc.entry.connect("activate", lambda w : self.data.entry_dialog.emit('response',gtk.RESPONSE_ACCEPT))
         self.data.entry_dialog.parse_geometry("400x400")
         #self.data.entry_dialog.set_decorated(False)
-        self.data.entry_dialog.connect("response", self[callback],calc,data,data2)
+        if callback in dir(self.handler_instance):
+            self.data.entry_dialog.connect("response", self.handler_instance[callback],calc,data,data2)
+        else:
+            self.data.entry_dialog.connect("response", self[callback],calc,data,data2)
         self.data.entry_dialog.show_all()
 
     def on_numerical_entry_return(self,widget,result,calc,userdata,userdata2):
