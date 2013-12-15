@@ -43,6 +43,7 @@
 //Typical RT jitter is 1-10 us, use 1/10th of that for smallest time unit
 #define TP_TIME_EPSILON 1e-8
 #define TP_BIG_NUM 1e10
+#define TP_KINK_FACTOR 0.1
 
 //ERROR codes for TP functions
 #define TP_ERR_OK 0
