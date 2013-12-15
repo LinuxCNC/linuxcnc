@@ -488,6 +488,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="related_action">hal_action_home_y</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -502,6 +503,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
+                                                <property name="related_action">hal_action_home_z</property>
                                               </object>
                                               <packing>
                                                 <property name="left_attach">1</property>
@@ -952,13 +954,13 @@
                                     <child>
                                       <object class="Combi_DRO" id="dro_x">
                                         <property name="visible">True</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="auto_units">False</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
-                                        <property name="auto_units">False</property>
-                                        <property name="font_size">50</property>
                                         <property name="homed_color">#0000ffff0000</property>
+                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="font_size">50</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -969,14 +971,14 @@
                                     <child>
                                       <object class="Combi_DRO" id="dro_y">
                                         <property name="visible">True</property>
-                                        <property name="joint_number">1</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="auto_units">False</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
-                                        <property name="auto_units">False</property>
-                                        <property name="font_size">50</property>
                                         <property name="homed_color">#0000ffff0000</property>
+                                        <property name="joint_number">1</property>
+                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="font_size">50</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -987,14 +989,14 @@
                                     <child>
                                       <object class="Combi_DRO" id="dro_z">
                                         <property name="visible">True</property>
-                                        <property name="joint_number">2</property>
-                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="auto_units">False</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
-                                        <property name="auto_units">False</property>
-                                        <property name="font_size">50</property>
                                         <property name="homed_color">#0000ffff0000</property>
+                                        <property name="joint_number">2</property>
+                                        <property name="abs_color">#00000000ffff</property>
+                                        <property name="font_size">50</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -1423,5 +1425,13 @@ Down</property>
         </child>
       </object>
     </child>
+  </object>
+  <object class="EMC_Action_Home" id="hal_action_home_y">
+    <property name="axis">1</property>
+    <property name="confirm_homed">True</property>
+  </object>
+  <object class="EMC_Action_Home" id="hal_action_home_z">
+    <property name="axis">2</property>
+    <property name="confirm_homed">True</property>
   </object>
 </interface>
