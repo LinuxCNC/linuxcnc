@@ -1181,7 +1181,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-
         tp_info_print("  current term = %u, type = %u, id = %u, smoothing = %d\n",
                 tc->term_cond, tc->motion_type, tc->id, tc->smoothing);
         tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
@@ -1969,8 +1968,8 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
  * const this move, then pop if off the queue and perform cleanup operations.
  * Finally, get the next move in the queue.
  */
-STATIC int tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT const *
-        const tc) {
+STATIC int tpCompleteSegment(TP_STRUCT * const tp, 
+        TC_STRUCT const * const tc) {
 
     if (tp->spindle.waiting_for_atspeed == tc->id) {
         return TP_ERR_FAIL;
@@ -1979,10 +1978,11 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT const *
     // if we're synced, and this move is ending, save the
     // spindle position so the next synced move can be in
     // the right place.
-    if(tc->synchronized != TC_SYNC_NONE)
-        tp->spindle.offset += tc->target/tc->uu_per_rev;
-    else
+    if(tc->synchronized != TC_SYNC_NONE) {
+        tp->spindle.offset += tc->target / tc->uu_per_rev;
+    } else {
         tp->spindle.offset = 0.0;
+    }
 
     if(tc->indexrotary != -1) {
         // this was an indexing move, so before we remove it we must
@@ -1990,8 +1990,9 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp, TC_STRUCT const *
         tpSetRotaryUnlock(tc->indexrotary, 0);
         // if it is now locked, fall through and remove the finished move.
         // otherwise, just come back later and check again
-        if(tpGetRotaryIsUnlocked(tc->indexrotary))
+        if(tpGetRotaryIsUnlocked(tc->indexrotary)) {
             return TP_ERR_FAIL;
+        }
     }
 
     // done with this move
@@ -2012,8 +2013,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
-            (tc->currentvel == 0.0 && !nexttc) ||
-            (tc->currentvel == 0.0 && nexttc && nexttc->currentvel == 0.0) ) {
+            (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
         tp->done = 1;
@@ -2222,34 +2222,39 @@ STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
  * Run position mode synchronization.
  * Updates requested velocity for a trajectory segment to track the spindle's position.
  */
-STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_STRUCT const * nexttc ) {
+STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc ) {
 
-    double spindle_pos = tpGetSignedSpindlePosition(emcmotStatus->spindleRevs,emcmotStatus->spindle.direction);
+    double spindle_pos = tpGetSignedSpindlePosition(emcmotStatus->spindleRevs,
+            emcmotStatus->spindle.direction);
     double spindle_vel, target_vel;
     double oldrevs = tp->spindle.revs;
 
-    /*double new_spindlepos = emcmotStatus->spindleRevs;*/
-
-    if(tc->motion_type == TC_RIGIDTAP &&
-            (tc->coords.rigidtap.state == RETRACTION ||
-             tc->coords.rigidtap.state == FINAL_REVERSAL))
-        tp->spindle.revs = tc->coords.rigidtap.spindlerevs_at_reversal -
-            spindle_pos;
-    else
+    if(tc->motion_type == TC_RIGIDTAP) {
+        if (tc->coords.rigidtap.state == RETRACTION ||
+                tc->coords.rigidtap.state == FINAL_REVERSAL) {
+            tp->spindle.revs = tc->coords.rigidtap.spindlerevs_at_reversal -
+                spindle_pos;
+        }
+    } else {
         tp->spindle.revs = spindle_pos;
+    }
 
-    double pos_error = (tp->spindle.revs - tp->spindle.offset) * tc->uu_per_rev - tc->progress;
+    double pos_desired = (tp->spindle.revs - tp->spindle.offset) * tc->uu_per_rev;
+    double pos_error = pos_desired - tc->progress;
 
-    if(nexttc) pos_error -= nexttc->progress;
+    if(nexttc) {
+        pos_error -= nexttc->progress;
+    }
 
     if(tc->sync_accel) {
         // detect when velocities match, and move the target accordingly.
         // acceleration will abruptly stop and we will be on our new target.
-        spindle_vel = tp->spindle.revs/(tc->cycle_time * tc->sync_accel++);
+        spindle_vel = tp->spindle.revs / (tc->cycle_time * tc->sync_accel++);
         target_vel = spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= target_vel) {
             // move target so as to drive pos_error to 0 next cycle
-            tp->spindle.offset = tp->spindle.revs - tc->progress/tc->uu_per_rev;
+            tp->spindle.offset = tp->spindle.revs - tc->progress / tc->uu_per_rev;
             tc->sync_accel = 0;
             tc->target_vel = target_vel;
         } else {
@@ -2260,15 +2265,24 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_ST
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
         double errorvel;
-        spindle_vel = (tp->spindle.revs - oldrevs) / tc->cycle_time;
+        spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
         target_vel = spindle_vel * tc->uu_per_rev;
         errorvel = pmSqrt(fabs(pos_error) * tpGetScaledAccel(tp,tc));
-        if(pos_error<0) errorvel = -errorvel;
+        if(pos_error<0) {
+            errorvel *= -1.0;
+        }
         tc->target_vel = target_vel + errorvel;
     }
+
     //Finally, clip requested velocity at zero
     if (tc->target_vel < 0.0) {
         tc->target_vel = 0.0;
+    }
+
+    if (nexttc && nexttc->synchronized) {
+        //If the next move is synchronized too, then match it's
+        //requested velocity to the current move
+        nexttc->target_vel = tc->target_vel;
     }
 }
 
@@ -2287,12 +2301,6 @@ STATIC int tcIsBlending(TC_STRUCT * const tc) {
 
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc, double * const mag) {
-
-    if (nexttc->synchronized) {
-        //If the next move is synchronized too, then match it's
-        //requested velocity to the current move
-        nexttc->target_vel = tc->target_vel;
-    }
 
     tpUpdateBlend(tp,tc,nexttc,mag);
     tc_debug_print("secondary movement = %f\n",*mag);
@@ -2529,7 +2537,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     if(tp->aborting) {
         int slowing = tpHandleAbort(tp, tc, nexttc);
         if (!slowing) {
-            rtapi_print_msg(RTAPI_MSG_DBG, "  Early stop at tpHandleAbort?\n");
             return TP_ERR_OK;
         }
     }
@@ -2600,7 +2607,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     double mag_secondary=0;
     EmcPose pos_before = tp->currentPos;
     // Update the current tc
-    if (tc->splitting) {
+    if (tc->splitting && !tc->remove) {
 
         //Pose data to calculate movement due to finishing current TC
         EmcPose position9_before;
@@ -2633,8 +2640,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             //Reset cycle time after completing tangent update
             nexttc->cycle_time = tp->cycleTime;
         }
+        //This is the only place remove should be triggered
         tc->remove = 1;
-    } else {
+    } else if (!tc->remove){
         //Run with full cycle time
         tc_debug_print("Normal cycle\n");
         tc->cycle_time = tp->cycleTime;
