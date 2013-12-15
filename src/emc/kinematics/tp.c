@@ -94,6 +94,40 @@ STATIC double fsign(double f) {
 
 
 /**
+ * @section tpcheck Internal state check functions.
+ * These functions compartmentalize some of the messy state checks.
+ * Hopefully this makes changes easier to track as much of the churn will be on small functions.
+ */
+
+
+
+/**
+ * Returns an error if there is rotary motion.
+ * This function is useful for identifying motions that can't be blended using
+ * 3d spherical arcs.
+ */
+STATIC int tpCheckHasRotary(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+    switch (tc->motion_type) {
+        //Note lack of break statements due to every path returning
+        case TC_RIGIDTAP:
+            return TP_ERR_OK;
+        case TC_LINEAR:
+            if (tc->coords.line.abc.tmag_zero && tc->coords.line.uvw.tmag_zero) {
+                return TP_ERR_OK;
+            } else {
+                return TP_ERR_FAIL;
+            }
+        case TC_CIRCULAR:
+            if (tc->coords.circle.abc.tmag_zero && tc->coords.circle.uvw.tmag_zero) {
+                return TP_ERR_OK;
+            } else {
+                return TP_ERR_FAIL;
+            }
+    }
+}
+
+
+/**
  * @section tpgetset Internal Get/Set functions
  * @brief Calculation / status functions for commonly used values.
  * These functions return the "actual" values of things like a trajectory
@@ -651,9 +685,10 @@ STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartes
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
-    tp_debug_print("u1 = %f %f %f u2 = %f %f %f\n", u1->x, u1->y, u1->z, u2->x, u2->y, u2->z);
+    /*tp_debug_print("u1 = %f %f %f u2 = %f %f %f\n", u1->x, u1->y, u1->z, u2->x, u2->y, u2->z);*/
 
     if (dot > 1.0 || dot < -1.0) {
+        tp_debug_print("dot product %f outside domain of acos!\n",dot);
         return TP_ERR_FAIL;
     }
 
@@ -1062,15 +1097,8 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
-    if (!prev_tc->coords.line.abc.tmag_zero ||
-            !tc->coords.line.abc.tmag_zero ) {
-        tp_debug_print("ABC motion, can't do 3D arc blend\n");
-        return TP_ERR_FAIL;
-    }
-
-    if (!prev_tc->coords.line.uvw.tmag_zero ||
-            !tc->coords.line.uvw.tmag_zero) {
-        tp_debug_print("UVW motion, can't do 3D arc blend\n");
+    if (tpCheckHasRotary(tp, tc)) {
+        tp_debug_print("Segment has rotary motion, aborting blend arc");
         return TP_ERR_FAIL;
     }
 
@@ -1202,7 +1230,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 }
 
 
-
 /**
  * Check for tangency between the current segment and previous segment.
  * If the current and previous segment are tangent, then flag the previous
@@ -1212,10 +1239,12 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
 STATIC int tpSetupTangent(TP_STRUCT const * const tp, 
         TC_STRUCT * const prev_tc, TC_STRUCT * const tc) {
     if (!tc || !prev_tc) {
+        tp_debug_print("missing tc or prev tc in tangent check\n");
         return TP_ERR_FAIL;
     }
     //If we have ABCUVW movement, then don't check for tangency
-    if (!tc->coords.line.uvw.tmag_zero || !tc->coords.line.abc.tmag_zero) {
+    if (tpCheckHasRotary(tp, tc)) {
+        tp_debug_print("found rotary axis motion, aborting tangent check\n");
         return TP_ERR_NO_ACTION;
     }
 
@@ -1229,9 +1258,15 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     double theta;
     int failed = tpFindIntersectionAngle(&prev_tan, &this_tan, &theta);
+    if (failed) {
+        return TP_ERR_FAIL;
+    }
+
     double phi =  PM_PI - 2.0 * theta;
-    if (!failed && (phi < TP_ANGLE_EPSILON) ) {
-        tp_debug_print(" New segment is tangent with angle %g, skipping arc\n", phi);
+    tp_debug_print("phi = %f\n", phi);
+
+    if (phi < TP_ANGLE_EPSILON) {
+        tp_debug_print(" New segment is tangent with angle %g\n", phi);
         //already tangent
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Clip maximum velocity by sample rate
@@ -1453,13 +1488,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tc.syncdio.anychanged = 0;
     }
 
-    //Flag this as blending with previous segment if the previous segment is set to blend with this one
-    TC_STRUCT *prev_tc;
-    prev_tc = tcqLast(&tp->queue);
-    if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("prev segment parabolic, flagging blend_prev\n");
-        tc.blend_prev = 1;
-    }
 
     // Motion parameters
     tc.motion_type = TC_CIRCULAR;
@@ -1467,16 +1495,33 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
-    //FIXME Hack to deal with the "double" scaling of acceleration. This only
-    //works due to the specific implementation of GetScaledAccel
-    double corrected_maxvel = ini_maxvel * pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
-    tc.maxvel = corrected_maxvel;
+    TC_STRUCT *prev_tc;
+    prev_tc = tcqLast(&tp->queue);
+
+    int failed = tpSetupTangent(tp, prev_tc, &tc);
+
+    //Apply velocity corrections
+    if (failed) {
+        //FIXME Hack to deal with the "double" scaling of
+        //acceleration. This only works due to the specific
+        //implementation of GetScaledAccel
+        double parabolic_maxvel = ini_maxvel *
+            pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
+        tc.maxvel = parabolic_maxvel;
+
+        if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
+            tp_debug_print("prev segment parabolic, flagging blend_prev\n");
+            tc.blend_prev = 1;
+        }
+    } else {
+        //Tangent case can handle higher accelerations
+        double tangent_maxvel = ini_maxvel *
+            pmSqrt(TP_ACC_RATIO_NORMAL); 
+        tc.maxvel = tangent_maxvel;
+        tc.blend_prev = 0;
+    }
 
     tpCalculateTriangleVel(tp, &tc);
-
-    // Setup steps if the previous segment is tangent with this one
-    tp_debug_print("tpAddCircle: checking for tangent with previous\n");
-    tpSetupTangent(tp, prev_tc, &tc);
 
     //Assume non-zero error code is failure
     int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
