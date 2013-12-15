@@ -663,12 +663,9 @@ STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const 
  */
 STATIC inline double tpMaxTangentAngle(double v, double acc, double period) {
     double dx = v / period;
-    // Hand-wavy constant to be more conservative.
-    // TODO calculate / experimentally determine if we need this
-    const double safety_factor = 10.0;
-
+    double scaled_accel = TP_KINK_FACTOR * acc;
     if (dx > 0.0) {
-        return ((acc / dx) / safety_factor);
+        return (scaled_accel / dx);
     } else {
         tp_debug_print(" Velocity or period is negative!\n");
         //Should not happen...
@@ -1077,16 +1074,16 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         return TP_ERR_FAIL;
     }
 
-    //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
-    if (tpCalculateUnitCartAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
-        tp_debug_print("Can't calculate angle\n");
-        return TP_ERR_FAIL;
-    }
-
     //If not linear blends, we can't easily compute an arc
     if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
         tp_debug_print("Wrong motion type tc = %u, tc2 = %u\n",
                 prev_tc->motion_type,tc->motion_type);
+        return TP_ERR_FAIL;
+    }
+
+    //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
+    if (tpCalculateUnitCartAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
+        tp_debug_print("Can't calculate angle\n");
         return TP_ERR_FAIL;
     }
 
@@ -1101,15 +1098,6 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         tp_debug_print("Segment has rotary motion, aborting blend arc");
         return TP_ERR_FAIL;
     }
-
-    // At this point, we have a line, so we can trust the calculation
-
-    // Calculate the maximum angle between unit vectors that can still be
-    // considered "tangent" (i.e. small enough that the
-    // acceleration/deceleration spike is within limits).
-
-    /*tp_debug_print("max tan angle is %f\n",crit_angle);*/
-    tp_debug_print("angle between segs = %f\n",omega);
 
     //If the corner is too tight, a circular arc would have zero radius. Fall
     //back to default blend.
@@ -1266,13 +1254,14 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     tp_debug_print("phi = %f\n", phi);
 
     if (phi < TP_ANGLE_EPSILON) {
-        tp_debug_print(" New segment is tangent with angle %g\n", phi);
+        tp_debug_print(" New segment tangent with angle %g\n", phi);
         //already tangent
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
         return TP_ERR_OK;
     } else {
+        tp_debug_print(" New segment not tangent, angle %g\n", phi);
         return TP_ERR_NO_ACTION;
     }
 
