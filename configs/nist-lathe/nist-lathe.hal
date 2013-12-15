@@ -115,7 +115,6 @@ net spindle-forward => pwmgen.0.enable
 # -- if these numbers are accurate, then top speed at this gearing is about
 # 1200 rpm
 #
-# note that this does not depend on the base_period, unlike freqgen
 # gain = 1/1128 ~ .00089
 # offset = .07
 # PWM    Measured RPM
