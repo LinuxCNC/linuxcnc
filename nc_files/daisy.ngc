@@ -7,17 +7,17 @@ O110 else
 #62=#1
 O110 endif
 
-O110 if [#3 gt 0]
+O111 if [#3 gt 0]
 #63=#3
-O110 else
+O111 else
 #63=#1
-O110 endif
+O111 endif
 
-O110 if [#4 gt 0]
+O112 if [#4 gt 0]
 #64=#4
-O110 else
+O112 else
 #64=#1
-O110 endif
+O112 endif
 
 #41=0 #42=0 #43=0 #44=0
 G0  X0Y0Z0A0
