@@ -1,3 +1,9 @@
+ver- 0.9.9.6.2
+- added a lot of hal pin to gmoccapy_plasma, with the new 
+  plasma.py file 
+- reworked the plasma.glade file to fit Marius needs
+- new order of configs, many files have been moved by Dewey Garret
+
 ver. 0.9.9.6.1
 - solved a bug in plasma.py, having a call without function
 

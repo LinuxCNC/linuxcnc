@@ -3,23 +3,35 @@
 
 # Hook up plasma pins using the net command
 
-# in pin
-#net PierceDelayTimer        =>  plasma.PierceDelayTimer
-#net CurrentVoltage          =>  plasma.THC_CurrentVoltage
-
 # out pin
-#net CHLThreshold        plasma.CHL_Threshold => 
-#net CHLEnable           plasma.enable_HeightLock => 
-#net TravelHeight        plasma.TravelHeight-f => 
-#net PierceDelay         plasma.PierceDelay-f => 
-#net THCStepSize         plasma.THC_StepSize-f => 
-#net PierceGap           plasma.PierceGap-f => 
-#net SwitchTravel        plasma.SwitchTravel-f => 
-#net Autostart           plasma.Piercing_autostart => 
+# plasma.CHL_Threshold             (float)
+# plasma.enable_HeightLock         (bool)
+# plasma.enable_HeightLock-not     (bool)
+# plasma.btn_torch-not             (bool)
+# plasma.btn_torch                 (bool)
+# plasma.Target-Voltage            (float)
+# plasma.THC-Speed                 (float)
+# plasma.Piercing_autostart-not    (bool)
+# plasma.Piercing_autostart        (bool)
+# plasma.Pierce-Gap                (float)
+# plasma.Pierce-Delay              (float)
+# plasma.G0-Gap                    (float)
+# plasma.Cut-Gap                   (float)
+
+# in pin
+# plasma.hal_lbl_pierce_gap
+# plasma.hal_lbl_pierce_delay
+# plasma.hal_lbl_g0_height
+# plasma.hal_lbl_cut_speed
+# plasma.hal_lbl_cut_gap
+# plasma.hal_lbl_cur_volt
 
 # for simulation mode we connect them directly
-net torch       plasma.btn_torch           => signals.led_TorchOn => signals.led_ArcOK
-net voltage     plasma.THC_TargetVoltage-f => plasma.THC_CurrentVoltage
-net delay       plasma.PierceDelay-f       => plasma.PierceDelayTimer
-net HeightLock  plasma.enable_HeightLock   => signals.led_HeightLock
+net torch       plasma.btn_torch        => signals.led_TorchOn => signals.led_ArcOK
+net piercegap   plasma.Pierce-Gap       => plasma.hal_lbl_pierce_gap
+net piercedelay plasma.Pierce-Delay     => plasma.hal_lbl_pierce_delay
+net g0height    plasma.G0-Gap           => plasma.hal_lbl_g0_height
+net cutspeed    plasma.THC-Speed        => plasma.hal_lbl_cut_speed
+net cutgap      plasma.Cut-Gap          => plasma.hal_lbl_cut_gap
+net curvolt     plasma.Target-Voltage   => plasma.hal_lbl_cur_volt
 
