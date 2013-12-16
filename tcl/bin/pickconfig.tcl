@@ -242,7 +242,7 @@ proc node_clicked {} {
 
 ################ MAIN PROGRAM STARTS HERE ####################
 set ::configs_dir_list $linuxcnc::CONFIG_DIR
-set ::myconfigs        $linuxcnc::USER_CONFIG_DIR
+set ::myconfigs_node   $linuxcnc::USER_CONFIG_DIR
 # order convention for items in the linuxcnc::USER_CONFIG_DIR list:
 set ::sampleconfigs [lindex $::configs_dir_list end] ;# last item
 
@@ -335,10 +335,10 @@ pack $f5 -side bottom -anchor e -fill x -expand n -padx 15
 pack $f1 -fill both -expand y
 
 set ::config_count 0
+
 proc describe {dir} {
-    if {"$dir" == "$::myconfigs"} {
-        set ::myconfigs_node $dir
-	return [msgcat::mc "My Configurations"]
+    if {"$dir" == "$::myconfigs_node"} {
+	    return [msgcat::mc "My Configurations"]
     }
     if {"$dir" == "$::sampleconfigs"} {
         set ::sampleconfigs_node $dir
@@ -511,7 +511,7 @@ proc prompt_copy configname {
     foreach d $::configs_dir_list {
       if {"$d" == "$chosendir"} {
         # found chosendir at level 0 of a directory in the ::configs_dir_list
-        set copytodir [format %s [file join $::myconfigs [file tail $chosendir]]]
+        set copytodir [format %s [file join $::myconfigs_node [file tail $chosendir]]]
         break
       }
       # if chosendir not found at level 0, try subdirs
@@ -523,13 +523,13 @@ proc prompt_copy configname {
         set hiername [string range $chosendir $idx end]
         if $::make_flat_user_dirs {
           # Flat dir structure for copied configs
-          # create copytodir at one level below ::myconfigs
+          # create copytodir at one level below ::myconfigs_node
           set flatname  [string map {/ .} $hiername]
-          set copytodir [format %s [file join $::myconfigs $flatname]]
+          set copytodir [format %s [file join $::myconfigs_node $flatname]]
         } else {
           # Hierarchical dir structure for copied configs
           # create copytodir following hierarchy
-          set copytodir [format %s [file join $::myconfigs $hiername]]
+          set copytodir [format %s [file join $::myconfigs_node $hiername]]
         }
         break
       }
@@ -538,8 +538,8 @@ proc prompt_copy configname {
 
     set i 0
     # distribution config ini files expect nc_files at same level as configs dir
-    set ncfiles [file normalize [file join $::myconfigs ../nc_files]]
-    file mkdir [file join $::myconfigs]
+    set ncfiles [file normalize [file join $::myconfigs_node ../nc_files]]
+    file mkdir [file join $::myconfigs_node]
 
     set obsoletedir [file normalize [file join ~ emc2]]
     if [file isdir $obsoletedir] {
@@ -548,7 +548,7 @@ proc prompt_copy configname {
                   $obsoletedir\n \
                   exists \n\n \
                   You may want to copy items to the new directory:\n \
-                  [file normalize [file join $::myconfigs ..]]" \
+                  [file normalize [file join $::myconfigs_node ..]]" \
         -type ok
     }
 
@@ -731,7 +731,6 @@ while {1} {
         #
         # for convenience in testing pickconfig by itself in rip builds:
         # export debug_pickconfig=1
-
         if {    [info exists ::env(debug_pickconfig)] \
              && [string first $::myconfigs_node $::inifile]} {
           set writeanyway 1
