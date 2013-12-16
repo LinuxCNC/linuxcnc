@@ -19,13 +19,13 @@
 #include <stdbool.h>
 
 #define TP_DEFAULT_QUEUE_SIZE 32
-//TODO Assign by config file
 #define TP_LOOKAHEAD_DEPTH 40
 #define TP_SMOOTHING_THRESHOLD 0.33
-//TODO Assign by config file
 #define TP_MAX_FEED_SCALE 2.0
-//Make this slightly larger than the theoretical minimum of 2
+//Make this slightly larger than the theoretical minimum
 #define TP_MIN_SEGMENT_CYCLES 1.1
+//Values chosen for accel ratio to match parabolic blend acceleration
+//limits.
 #define TP_ACC_RATIO_NORMAL (pmSqrt(3.0)/2.0)
 #define TP_ACC_RATIO_TANGENTIAL 0.5
 #define TP_OPTIMIZATION_CUTOFF 4
@@ -33,14 +33,12 @@
 /* closeness to zero, for determining if a move is pure rotation */
 #define TP_PURE_ROTATION_EPSILON 1e-6
 
-/* closeness to zero, for determining if vel and accel are effectively zero */
+/* "neighborhood" size (if two values differ by less than the epsilon,
+ * then they are effectively equal.)*/
 #define TP_VEL_EPSILON 1e-8
 #define TP_ACCEL_EPSILON 1e-8
 #define TP_ANGLE_EPSILON 1e-3
-/*Most CNC applications will have accuracies / repeatability on the order of
-1e-4 inches*/
 #define TP_MAG_EPSILON 1e-7
-//Typical RT jitter is 1-10 us, use 1/10th of that for smallest time unit
 #define TP_TIME_EPSILON 1e-8
 #define TP_BIG_NUM 1e10
 #define TP_KINK_FACTOR 0.1

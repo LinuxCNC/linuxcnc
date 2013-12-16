@@ -162,6 +162,11 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_acceleration = acc;
+        //TODO LOOKAHEAD_DEPTH
+        //TODO ARC_BLEND_ENABLE
+        //TODO PARABOLIC_FALLBACK_ENABLE
+        //TODO BLEND_SMOOTHING_THRESHOLD
+        //TODO MAX_FEED_OVERRIDE
     }
 
     catch(EmcIniFile::Exception &e){
