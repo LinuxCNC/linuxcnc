@@ -271,8 +271,6 @@ voir la section <<sec:Codeur, codeur>>
 * _stepgen_ - (((stepgen)))Générateur d'impulsions de pas logiciel,
 voir la section <<sec:Stepgen, stepgen>>
 
-* _freqgen_ - (((freqgen)))Générateur logiciel d'impulsions de pas.
-
 === BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
 
 * _bldc_hall3_ - (((bldc_hall3)))Commutateur bipolaire trapézoïdal à 3 directions

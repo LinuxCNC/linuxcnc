@@ -243,8 +243,6 @@ encoder:: (((encoder)))Software counting of quadrature encoder signals. <<sec:En
 
 stepgen:: (((stepgen)))Software step pulse generation. <<sec:Stepgen,Description>>.
 
-freqgen:: (((freqgen)))Software step pulse generation.
-
 === BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
 
 

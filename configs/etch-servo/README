@@ -1,5 +1,5 @@
 Etch-servo drives two servo motors using a simple parallel-port-attached
-circuit.  'freqgen' produces an enable waveform to turn the servo motors at a
+circuit.  'pwmgen' produces an enable waveform to turn the servo motors at a
 variable speed, and 'encoder' reads TTL-level quadrature inputs to close the
 loop.
 
