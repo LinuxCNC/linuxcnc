@@ -45,6 +45,31 @@ class HandlerClass:
         self.widgets.notebook_debug.set_show_tabs(self.widgets.menuitem5.get_active())
         self.widgets.notebook_debug.set_current_page(0)
 
+    def on_gremlin_radiobutton_toggled(self,widget):
+        data = widget.get_active()
+        if data:
+            if widget == self.widgets.show_dro:
+                state = dro = True
+                offsets = False
+            elif widget == self.widgets.show_offsets:
+                dro = offsets = True
+                state = False
+            else:
+                offsets = dro = False
+                state = True
+            self.widgets.gremlin.set_property('enable_dro', dro)
+            self.widgets.gremlin.set_property('show_program', state)
+            self.widgets.gremlin.set_property('show_limits', state)
+            self.widgets.gremlin.set_property('show_extents_option', state)
+            self.widgets.gremlin.set_property('show_live_plot', state)
+            self.widgets.gremlin.set_property('show_tool', state)
+            self.widgets.gremlin.show_offsets = offsets
+
+    def on_gremlin_view_toggled(self,widget):
+        self.gscreen.toggle_view()
+        label = self.data.plot_view[0].upper()
+        widget.set_label('View %s'% label)
+
     # erase the ready-to-home message on statusbar
     def on_hal_status_all_homed(self,widget):
         print "all-homed"
@@ -78,6 +103,12 @@ class HandlerClass:
         self.widgets.scale_so.connect("value_changed",self.on_scale_so_value_changed)
         self.widgets.scale_mv.connect("value_changed",self.on_scale_mv_value_changed)
         self.widgets.menuitem5.connect("activate",self.on_show_alarm_page)
+        self.widgets.show_dro.connect('toggled',self.on_gremlin_radiobutton_toggled)
+        self.widgets.show_offsets.connect('toggled',self.on_gremlin_radiobutton_toggled)
+        self.widgets.show_clean.connect('toggled',self.on_gremlin_radiobutton_toggled)
+        self.widgets.view.connect('clicked',self.on_gremlin_view_toggled)
+        self.widgets.zoom_in.connect("clicked",lambda i:self.gscreen.zoom_in())
+        self.widgets.zoom_out.connect("clicked",lambda i:self.gscreen.zoom_out())
         self.widgets.jog_speed.connect("changed",self.on_jog_speed_changed)
         self.widgets.sneg.connect("clicked",lambda i:self.gscreen.spindle_adjustment(False,True))
         self.widgets.spos.connect("clicked",lambda i:self.gscreen.spindle_adjustment(True,True))
@@ -122,7 +153,7 @@ class HandlerClass:
         self.gscreen.keylookup.add_conversion('F4','TEST2','on_keycall_POWER')
         #self.gscreen.keylookup.add_binding('F4','TEST2')
         #self.gscreen.keylookup.add_call('TEST2','on_keycall_POWER')
-
+        self.widgets.show_dro.set_active(True)
     # If we need extra HAL pins here is where we do it.
     # Note you must import hal at the top of this script to do it.
     # For gaxis there is no extra pins but since we don't want gscreen to

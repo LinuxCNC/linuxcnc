@@ -184,8 +184,8 @@
                     <child>
                       <object class="GtkToggleToolButton" id="button_estop">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">emc_toggle_estop</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="label" translatable="yes">ESTOP</property>
                         <property name="use_underline">True</property>
                       </object>
@@ -197,8 +197,8 @@
                     <child>
                       <object class="GtkToggleToolButton" id="button_machine_on">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">emc_toggle_power</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="label" translatable="yes">Power</property>
                         <property name="use_underline">True</property>
                       </object>
@@ -979,9 +979,115 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <child>
-                                      <object class="HAL_Gremlin" id="gremlin">
+                                      <object class="GtkHBox" id="hbox6">
                                         <property name="visible">True</property>
-                                        <property name="double_buffered">False</property>
+                                        <child>
+                                          <object class="HAL_Gremlin" id="gremlin">
+                                            <property name="visible">True</property>
+                                            <property name="double_buffered">False</property>
+                                          </object>
+                                          <packing>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkToolbar" id="toolbar2">
+                                            <property name="visible">True</property>
+                                            <property name="orientation">vertical</property>
+                                            <child>
+                                              <object class="GtkToolButton" id="zoom_in">
+                                                <property name="visible">True</property>
+                                                <property name="use_underline">True</property>
+                                                <property name="icon_name">zoom-in</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkToolButton" id="zoom_out">
+                                                <property name="visible">True</property>
+                                                <property name="use_underline">True</property>
+                                                <property name="icon_name">zoom-out</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSeparatorToolItem" id="toolbutton3">
+                                                <property name="visible">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkRadioToolButton" id="show_dro">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes">DRO</property>
+                                                <property name="active">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkRadioToolButton" id="show_offsets">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes">Offsets</property>
+                                                <property name="use_underline">True</property>
+                                                <property name="active">True</property>
+                                                <property name="group">show_dro</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkRadioToolButton" id="show_clean">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes">Clean</property>
+                                                <property name="use_underline">True</property>
+                                                <property name="active">True</property>
+                                                <property name="group">show_dro</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSeparatorToolItem" id="toolbutton4">
+                                                <property name="visible">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkToolButton" id="view">
+                                                <property name="visible">True</property>
+                                                <property name="label" translatable="yes">View</property>
+                                                <property name="use_underline">True</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="homogeneous">True</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                     </child>
                                     <child type="tab">
@@ -1000,13 +1106,13 @@
                                         <child>
                                           <object class="Combi_DRO" id="dro_x">
                                             <property name="visible">True</property>
-                                            <property name="font_size">50</property>
-                                            <property name="abs_color">#00000000ffff</property>
-                                            <property name="homed_color">#0000ffff0000</property>
+                                            <property name="unhomed_color">#ffff00000000</property>
+                                            <property name="auto_units">False</property>
                                             <property name="dtg_color">#ffffffff0000</property>
                                             <property name="rel_color">#000000000000</property>
-                                            <property name="auto_units">False</property>
-                                            <property name="unhomed_color">#ffff00000000</property>
+                                            <property name="homed_color">#0000ffff0000</property>
+                                            <property name="abs_color">#00000000ffff</property>
+                                            <property name="font_size">50</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1017,14 +1123,14 @@
                                         <child>
                                           <object class="Combi_DRO" id="dro_y">
                                             <property name="visible">True</property>
-                                            <property name="font_size">50</property>
-                                            <property name="abs_color">#00000000ffff</property>
-                                            <property name="homed_color">#0000ffff0000</property>
-                                            <property name="joint_number">1</property>
+                                            <property name="unhomed_color">#ffff00000000</property>
+                                            <property name="auto_units">False</property>
                                             <property name="dtg_color">#ffffffff0000</property>
                                             <property name="rel_color">#000000000000</property>
-                                            <property name="auto_units">False</property>
-                                            <property name="unhomed_color">#ffff00000000</property>
+                                            <property name="homed_color">#0000ffff0000</property>
+                                            <property name="joint_number">1</property>
+                                            <property name="abs_color">#00000000ffff</property>
+                                            <property name="font_size">50</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1035,14 +1141,14 @@
                                         <child>
                                           <object class="Combi_DRO" id="dro_z">
                                             <property name="visible">True</property>
-                                            <property name="font_size">50</property>
-                                            <property name="abs_color">#00000000ffff</property>
-                                            <property name="homed_color">#0000ffff0000</property>
-                                            <property name="joint_number">2</property>
+                                            <property name="unhomed_color">#ffff00000000</property>
+                                            <property name="auto_units">False</property>
                                             <property name="dtg_color">#ffffffff0000</property>
                                             <property name="rel_color">#000000000000</property>
-                                            <property name="auto_units">False</property>
-                                            <property name="unhomed_color">#ffff00000000</property>
+                                            <property name="homed_color">#0000ffff0000</property>
+                                            <property name="joint_number">2</property>
+                                            <property name="abs_color">#00000000ffff</property>
+                                            <property name="font_size">50</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1129,7 +1235,7 @@
                                       <object class="GtkScrolledWindow" id="terminal_window">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="hscrollbar_policy">never</property>
+                                        <property name="hscrollbar_policy">automatic</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -1271,7 +1377,12 @@ Halshow</property>
               <object class="GtkAlignment" id="alignment_vcp">
                 <property name="visible">True</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkVBox" id="vcp_box">
+                    <property name="visible">True</property>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </object>
                 </child>
               </object>
               <packing>
