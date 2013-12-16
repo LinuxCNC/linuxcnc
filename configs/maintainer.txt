@@ -92,7 +92,7 @@ These conventions work because:
       users' directories nor when moved within the
       distribution tree
 
-  2) Since ymlinks are usually required to make ../../nc_files
+  2) Since symlinks are usually required to make ../../nc_files
      resolve to root/nc_files (for RIP usage).
 
      Because of this, symlinks for nc_files are never copied
