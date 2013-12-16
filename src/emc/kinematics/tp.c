@@ -123,6 +123,9 @@ STATIC int tpCheckHasRotary(TP_STRUCT const * const tp, TC_STRUCT const * const 
             } else {
                 return TP_ERR_FAIL;
             }
+        default:
+            tp_debug_print("Unknown motion type!\n");
+            return TP_ERR_FAIL;
     }
 }
 
@@ -1117,7 +1120,6 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
 
-    //TODO incoporate max feed override
     double vf_limit_this = tc->maxvel;
     //Limit the PREVIOUS velocity by how much we can overshoot into
     double vf_limit_prev = prev1_tc->maxvel;
@@ -1189,11 +1191,11 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        //Abort if a segment is already in progress
-        //TODO: do we need to do this? The calculation should compensate
+        //Abort if a segment is already in progress, so that we don't step on
+        //split cycle calculation
         if (prev1_tc->progress>0) {
             tp_debug_print("segment %d already started, progress is %f!\n",
-                    ind-1,prev1_tc->progress);
+                    ind-1, prev1_tc->progress);
             return TP_ERR_OK;
         }
 
@@ -1201,7 +1203,16 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
                 tc->term_cond, tc->motion_type, tc->id, tc->smoothing);
         tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
                 prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->smoothing);
+
+        if (tc->atspeed) {
+            //Assume worst case that we have a stop at this point. This may cause a
+            //slight hiccup, but the alternative is a sudden hard stop.
+            tp_debug_print("Found atspeed at id %d\n",tc->id);
+            tc->finalvel = 0.0;
+        }
+
         tpComputeOptimalVelocity(tp, tc, prev1_tc);
+
         tc->active_depth = x - 2 - hit_peaks;
 #ifdef TP_OPTIMIZATION_LAZY
         if (tc->optimization_state == TC_OPTIM_AT_MAX) {
@@ -1241,8 +1252,8 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     tcGetEndTangentUnitVector(prev_tc, &prev_tan);
     tcGetStartTangentUnitVector(tc, &this_tan);
 
-    tp_debug_print("prev tan = %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
-    tp_debug_print("this tan = %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
+    tp_debug_print("prev tangent vector: %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
+    tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
 
     double theta;
     int failed = tpFindIntersectionAngle(&prev_tan, &this_tan, &theta);
@@ -1309,6 +1320,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             tp_debug_print("blend arc NOT created\n");
             return arc_fail;
         } 
+
         //Need to do this here since the length changed
         tpCalculateTriangleVel(tp, prev_tc);
         tpCalculateTriangleVel(tp, tc);
