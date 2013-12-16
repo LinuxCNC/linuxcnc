@@ -1,1 +1,0 @@
-mini.ini -- a tcl/tk interface

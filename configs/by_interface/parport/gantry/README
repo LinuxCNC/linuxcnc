@@ -1,0 +1,9 @@
+Stepper Gantry basic configurations using gantrykins.
+
+gantry has no home switches
+
+This configuration is a stepper based configuration for a gantry type of device using independent Y axis steppers on the gantry. When this configuration is started you will be in joint mode and each axis can be jogged independently. This allows you to square up the gantry to match marks then home each joint. Once this is completed switch to world mode before trying to jog the gantry.
+
+gantry-hs has home switches for each joint
+
+This configuration is just like gantry.ini with the addition of home switches. Homing is done in joint mode. It is very important for gantries to set initial home switch positions before first homing so they reach home switches at a very similar time. To remove any skewing on the gantry adjust of home offset of one joint. After homing switch to world mode.

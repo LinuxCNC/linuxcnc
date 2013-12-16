@@ -1,0 +1,5 @@
+pyngcgui_gscreen_popupkeyboard
+
+demonstrates pyngcgui as a gladevcp app in gscreen gui
+
+includes a popup keyboard for use with touch screens

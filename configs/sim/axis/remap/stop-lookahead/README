@@ -1,0 +1,14 @@
+This is an example remapped code to demonstrate how the interpreter lookahead can be controlled.
+
+See also this forum thread:
+  http://www.linuxcnc.org/index.php/english/forum/10-advanced-configuration/25994-abort-msg-in-o-sub?start=12#28355
+
+Related:
+
+see 'G103 Lookahead Mode', page 152,
+
+PMAC-NC2 Pro2 Software reference, Delta Tau Systems Inc
+
+http://www.deltatau.com/manuals/pdfs/PMAC-NC%20PRO2.pdf?id=634701792253582640
+
+

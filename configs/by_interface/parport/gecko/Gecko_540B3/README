@@ -1,0 +1,12 @@
+Gecko_540B3 configuration for a 3 axis machine with X Y Z axes.
+
+To use the charge pump on a G540 your base period must be set to 50,000 or lower. Otherwise disable the charge pump feature.
+
+The Stepconf Wizard XML file is included so you can open it up and customize the configuration to suit your machine. After installing this configuration move the Gecko_540B3.stepconf file to the configs directory, then run the Stepconf Wizard and select Modify a configuration already created with this program.
+
+Run the latency test to determine your max jitter and enter that in the Stepconf Wizard.
+
+Set the axis limits, gearing for each axis.
+
+Customize as needed to suit your machine.
+
