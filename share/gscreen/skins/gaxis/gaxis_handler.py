@@ -32,11 +32,18 @@ class HandlerClass:
     def on_scale_fo_value_changed(self,widget):
         self.gscreen.set_feed_override((widget.get_value()/100),True)
 
+    def on_scale_so_value_changed(self,widget):
+        self.gscreen.set_spindle_override((widget.get_value()/100),True)
+
     def on_scale_mv_value_changed(self,widget):
         self.gscreen.set_velocity_override((widget.get_value()/100),True)
 
     def on_jog_speed_changed(self,widget):
         self.data.current_jogincr_index = widget.get_active()
+
+    def on_show_alarm_page(self,widget):
+        self.widgets.notebook_debug.set_show_tabs(self.widgets.menuitem5.get_active())
+        self.widgets.notebook_debug.set_current_page(0)
 
     # erase the ready-to-home message on statusbar
     def on_hal_status_all_homed(self,widget):
@@ -54,6 +61,12 @@ class HandlerClass:
                         ["spindle_preset","clicked", "on_preset_spindle"],
                         ["spindle_increase","clicked", "on_spindle_speed_adjust"],
                         ["spindle_decrease","clicked", "on_spindle_speed_adjust"],
+                        ["run_halshow","clicked", "on_halshow"],
+                        ["run_calibration","clicked", "on_calibration"],
+                        ["run_status","clicked", "on_status"],
+                        ["run_halmeter","clicked", "on_halmeter"],
+                        ["run_halscope","clicked", "on_halscope"],
+                        ["run_ladder","clicked", "on_ladder"],
                     ]
         for i in signal_list:
             if len(i) == 3:
@@ -62,8 +75,9 @@ class HandlerClass:
                 self.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
         self.widgets.scale_jog.connect("value_changed",self.on_scale_jog_value_changed)
         self.widgets.scale_fo.connect("value_changed",self.on_scale_fo_value_changed)
+        self.widgets.scale_so.connect("value_changed",self.on_scale_so_value_changed)
         self.widgets.scale_mv.connect("value_changed",self.on_scale_mv_value_changed)
-        self.widgets.menuitem5.connect("activate",lambda i:self.widgets.notebook_tab.set_current_page(2))
+        self.widgets.menuitem5.connect("activate",self.on_show_alarm_page)
         self.widgets.jog_speed.connect("changed",self.on_jog_speed_changed)
         self.widgets.sneg.connect("clicked",lambda i:self.gscreen.spindle_adjustment(False,True))
         self.widgets.spos.connect("clicked",lambda i:self.gscreen.spindle_adjustment(True,True))
@@ -86,6 +100,7 @@ class HandlerClass:
     def initialize_widgets(self):
         self.gscreen.init_show_windows()
         self.gscreen.init_dynamic_tabs()
+        self.gscreen.init_embeded_terminal()
         self.gscreen.change_theme(self.data.theme_name)
         self.gscreen.statusbar_id = self.widgets.statusbar1.get_context_id("Statusbar1")
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
@@ -101,6 +116,9 @@ class HandlerClass:
         self.widgets.adjustment_jog.set_value(self.data.jog_rate)
         self.widgets.adjustment_fo.set_upper(self.data.feed_override_max*100)
         self.widgets.adjustment_fo.set_value(self.data.feed_override*100)
+        self.widgets.adjustment_so.set_upper(self.data.spindle_override_max*100)
+        self.widgets.adjustment_so.set_value(self.data.spindle_override*100)
+        self.widgets.notebook_debug.set_show_tabs(False)
         self.gscreen.keylookup.add_conversion('F4','TEST2','on_keycall_POWER')
         #self.gscreen.keylookup.add_binding('F4','TEST2')
         #self.gscreen.keylookup.add_call('TEST2','on_keycall_POWER')
