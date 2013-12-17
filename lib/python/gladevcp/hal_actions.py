@@ -412,7 +412,7 @@ class EMC_Action_MDI(_EMC_Action):
 
     def _hal_init(self):
         _EMC_Action._hal_init(self)
-
+        self.set_sensitive(False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
@@ -456,6 +456,14 @@ class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
     axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to unhome. -1 to unhome all')
+    def _hal_init(self):
+        _EMC_Action._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+
     def on_activate(self, w):
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
         self.linuxcnc.unhome(self.axis)
@@ -474,6 +482,14 @@ class EMC_Action_Home(_EMC_Action):
                                     blurb='Axis to home. -1 to home all')
     confirm_homed = gobject.property(type=bool, default=False, nick='Confirm rehoming',
                                      blurb='Ask user if axis is already homed')
+    def _hal_init(self):
+        _EMC_Action._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+
     def homed(self):
         if self.axis != -1:
             return self.stat.homed[self.axis]
