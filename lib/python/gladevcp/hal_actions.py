@@ -60,6 +60,18 @@ class _EMC_ActionBase(_HalWidgetBase):
         self.stat.poll()
         return self.stat.task_state > linuxcnc.STATE_OFF
 
+    def is_all_homed(self):
+        self.stat.poll()
+        axis_count = count = 0
+        for i,h in enumerate(self.stat.homed):
+            if h:
+                count +=1
+            if self.stat.axis_mask & (1<<i) == 0: continue
+            axis_count += 1
+        if count == axis_count:
+            return True
+        return False
+
     def safe_handler(self, f):
         def _f(self, *a, **kw):
             if self._stop_emission:
@@ -415,8 +427,9 @@ class EMC_Action_MDI(_EMC_Action):
         self.set_sensitive(False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and self.is_all_homed()))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+        self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
 
     def on_activate(self, w):
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
