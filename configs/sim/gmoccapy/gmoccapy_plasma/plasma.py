@@ -67,7 +67,7 @@ class PlasmaClass:
         self.adj_G0_gap.lower = float(self.inifile.find("PLASMA","G0_Gap_min"))
         self.adj_G0_gap.set_value(float(self.inifile.find("PLASMA","G0_Gap")))
 
-        self.Piercing_autostart = self.builder.get_object("Piercing_autostart")
+        self.Piercing_autostart = self.builder.get_object("Piercing-autostart")
         value = self.inifile.find("PLASMA","Piercing_autostart")
         self.Piercing_autostart.set_active(int(value))
 
@@ -95,7 +95,7 @@ class PlasmaClass:
         self.adj_pierce_delay.lower = float(self.inifile.find("PLASMA","Pierce_Delay_min"))
         self.adj_pierce_delay.set_value(float(self.inifile.find("PLASMA","Pierce_Delay")))
 
-        self.enable_HeightLock = self.builder.get_object("enable_HeightLock")
+        self.enable_HeightLock = self.builder.get_object("enable-HeightLock")
         value = self.inifile.find("PLASMA","enable_Height_Lock")
         self.enable_HeightLock.set_active(int(value))
 
@@ -111,13 +111,29 @@ class PlasmaClass:
         self.btn_THC_target_plus = self.builder.get_object("btn_THC_target_plus")
         self.btn_THC_target_plus.connect("pressed",self.on_btn_THC_target_pressed, 1)
 
+        #self.lbl_prog_volt = self.builder.get_object("lbl_prog_volt")
+
         self.adj_THC_Voltage = self.builder.get_object("adj_THC_Voltage")
         self.adj_THC_Voltage.connect("value_changed", self.on_adj_THC_Voltage_value_changed)
         self.adj_THC_Voltage.upper = float(self.inifile.find("PLASMA","THC_Target_Voltage_max"))
         self.adj_THC_Voltage.lower = float(self.inifile.find("PLASMA","THC_Target_Voltage_min"))
         self.adj_THC_Voltage.set_value(float(self.inifile.find("PLASMA","THC_Target_Voltage")))
 
-        self.lbl_programed_volt = self.builder.get_object("lbl_programed_volt")
+        self.lbl_prog_volt = self.builder.get_object("lbl_prog_volt")
+        self.lbl_cut_speed = self.builder.get_object("lbl_cut_speed")
+        self.lbl_cut_gap = self.builder.get_object("lbl_cut_gap")
+        self.lbl_g0_gap = self.builder.get_object("lbl_g0_gap")
+        self.lbl_pierce_gap = self.builder.get_object("lbl_pierce_gap")
+        self.lbl_pierce_delay = self.builder.get_object("lbl_pierce_delay")
+        self.init_labels()
+
+    def init_labels(self):
+        self.lbl_prog_volt.set_label("%d" %self.adj_THC_Voltage.get_value())
+        self.lbl_cut_speed.set_label("%.1f" %self.adj_THC_speed.get_value())
+        self.lbl_cut_gap.set_label("%.3f" %self.adj_cut_gap.get_value())
+        self.lbl_g0_gap.set_label("%.3f" %self.adj_G0_gap.get_value())
+        self.lbl_pierce_gap.set_label("%.3f" %self.adj_pierce_gap.get_value())
+        self.lbl_pierce_delay.set_label("%.2f" %self.adj_pierce_delay.get_value())
 
     # What to do on button pres events?
     def on_btn_THC_speed_pressed(self, widget, dir):
@@ -161,6 +177,7 @@ class PlasmaClass:
             self.btn_THC_speed_plus.set_sensitive(True)
             self.btn_THC_speed_minus.set_sensitive(True)
         self.halcomp["THC-Speed"] = widget.get_value()
+        self.lbl_cut_speed.set_label("%.1f"%(widget.get_value()))
 
     def on_adj_cut_gap_value_changed(self, widget, data=None):
         print("cut gap value = ",widget.get_value())
@@ -172,6 +189,7 @@ class PlasmaClass:
             self.btn_cut_gap_plus.set_sensitive(True)
             self.btn_cut_gap_minus.set_sensitive(True)
         self.halcomp["Cut-Gap"] = widget.get_value()
+        self.lbl_cut_gap.set_label("%.3f"%(widget.get_value()))
 
     def on_adj_G0_gap_value_changed(self, widget, data=None):
         print("G0 Gap value = ",widget.get_value())
@@ -183,6 +201,7 @@ class PlasmaClass:
             self.btn_g0_plus.set_sensitive(True)
             self.btn_g0_minus.set_sensitive(True)
         self.halcomp["G0-Gap"] = widget.get_value()
+        self.lbl_g0_gap.set_label("%.3f"%(widget.get_value()))
 
     def on_adj_pierce_gap_value_changed(self, widget, data=None):
         print("Pierce Gap value = ",widget.get_value())
@@ -194,6 +213,7 @@ class PlasmaClass:
             self.btn_pierce_gap_plus.set_sensitive(True)
             self.btn_pierce_gap_minus.set_sensitive(True)
         self.halcomp["Pierce-Gap"] = widget.get_value()
+        self.lbl_pierce_gap.set_label("%.3f"%(widget.get_value()))
 
     def on_adj_pierce_delay_value_changed(self, widget, data=None):
         print("Pierce_delay value = ",widget.get_value())
@@ -205,6 +225,7 @@ class PlasmaClass:
             self.btn_pierce_delay_plus.set_sensitive(True)
             self.btn_pierce_delay_minus.set_sensitive(True)
         self.halcomp["Pierce-Delay"] = widget.get_value()
+        self.lbl_pierce_delay.set_label("%.2f"%(widget.get_value()))
 
     def on_adj_CHL_threshold_value_changed(self, widget, data=None):
         print("CHL Threshold value = ",widget.get_value())
@@ -219,7 +240,7 @@ class PlasmaClass:
             self.btn_THC_target_plus.set_sensitive(True)
             self.btn_THC_target_minus.set_sensitive(True)
         self.halcomp["Target-Voltage"] = widget.get_value()
-        self.lbl_programed_volt.set_label("%d"%(widget.get_value()))
+        self.lbl_prog_volt.set_label("%d"%(widget.get_value()))
 
 def get_handlers(halcomp,builder,useropts):
     return(PlasmaClass(halcomp,builder,useropts))

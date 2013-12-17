@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="width_request">500</property>
@@ -10,16 +10,155 @@
       <object class="GtkHBox" id="hbox_plasma_settings">
         <property name="visible">True</property>
         <child>
+          <object class="GtkVBox" id="vbox1">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkFrame" id="frm_control">
+                <property name="visible">True</property>
+                <property name="label_xalign">0.5</property>
+                <child>
+                  <object class="GtkVBox" id="vbx_correction">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="lbl_correction">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Corr.</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_Label" id="hal-lbl-corr">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">0.0</property>
+                        <property name="label_pin_type">1</property>
+                        <property name="text_template">%3.1f</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="lbl_frm_control">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Control&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame" id="frm_limit">
+                <property name="visible">True</property>
+                <property name="label_xalign">0.5</property>
+                <child>
+                  <object class="GtkAlignment" id="ali_limits">
+                    <property name="visible">True</property>
+                    <property name="top_padding">2</property>
+                    <property name="bottom_padding">2</property>
+                    <property name="left_padding">2</property>
+                    <property name="right_padding">2</property>
+                    <child>
+                      <object class="GtkTable" id="table2">
+                        <property name="visible">True</property>
+                        <property name="n_rows">4</property>
+                        <child>
+                          <object class="HAL_LED" id="led-pos-limit">
+                            <property name="visible">True</property>
+                            <property name="pick_color_on">#ffff00000000</property>
+                            <property name="led_size">7</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_LED" id="led-neg-limit">
+                            <property name="visible">True</property>
+                            <property name="pick_color_on">#ffff00000000</property>
+                            <property name="led_size">7</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">3</property>
+                            <property name="bottom_attach">4</property>
+                            <property name="y_options">GTK_SHRINK</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_pos_limit">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Pos.</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="lbl_neg_limit">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Neg.</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="label2">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">&lt;b&gt;limits&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="HAL_ToggleButton" id="hal-btn-THC">
+                <property name="label" translatable="yes">THC</property>
+                <property name="width_request">48</property>
+                <property name="height_request">48</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkFrame" id="frm_cutting">
             <property name="visible">True</property>
             <property name="label_xalign">0.5</property>
             <child>
               <object class="GtkAlignment" id="ali_cutting">
                 <property name="visible">True</property>
-                <property name="top_padding">5</property>
-                <property name="bottom_padding">5</property>
-                <property name="left_padding">5</property>
-                <property name="right_padding">5</property>
+                <property name="top_padding">2</property>
+                <property name="bottom_padding">2</property>
+                <property name="left_padding">2</property>
+                <property name="right_padding">2</property>
                 <child>
                   <object class="GtkTable" id="table1">
                     <property name="visible">True</property>
@@ -30,12 +169,9 @@
                       <object class="GtkHBox" id="hbx_cutting_speed">
                         <property name="visible">True</property>
                         <child>
-                          <object class="HAL_Label" id="hal_lbl_cut_speed">
+                          <object class="GtkLabel" id="lbl_cut_speed">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">15</property>
-                            <property name="selectable">True</property>
-                            <property name="text_template">%d</property>
-                            <property name="label_pin_type">1</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -60,11 +196,9 @@
                       <object class="GtkHBox" id="hbx_cut_gap">
                         <property name="visible">True</property>
                         <child>
-                          <object class="HAL_Label" id="hal_lbl_cut_gap">
+                          <object class="GtkLabel" id="lbl_cut_gap">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">4.123</property>
-                            <property name="text_template">%.3f</property>
-                            <property name="label_pin_type">1</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -90,11 +224,9 @@
                       <object class="GtkHBox" id="hbx_g0_gap">
                         <property name="visible">True</property>
                         <child>
-                          <object class="HAL_Label" id="hal_lbl_g0_height">
+                          <object class="GtkLabel" id="lbl_g0_gap">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">50.123</property>
-                            <property name="text_template">%.3f</property>
-                            <property name="label_pin_type">1</property>
+                            <property name="label" translatable="yes">52.123</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -213,7 +345,7 @@
             </child>
           </object>
           <packing>
-            <property name="position">0</property>
+            <property name="position">1</property>
           </packing>
         </child>
         <child>
@@ -223,17 +355,17 @@
             <child>
               <object class="GtkAlignment" id="ali_piercing">
                 <property name="visible">True</property>
-                <property name="top_padding">5</property>
-                <property name="bottom_padding">5</property>
-                <property name="left_padding">5</property>
-                <property name="right_padding">5</property>
+                <property name="top_padding">2</property>
+                <property name="bottom_padding">2</property>
+                <property name="left_padding">2</property>
+                <property name="right_padding">2</property>
                 <child>
                   <object class="GtkTable" id="tbl_piercing">
                     <property name="visible">True</property>
                     <property name="n_rows">5</property>
                     <property name="n_columns">2</property>
                     <child>
-                      <object class="HAL_CheckButton" id="Piercing_autostart">
+                      <object class="HAL_CheckButton" id="Piercing-autostart">
                         <property name="label" translatable="yes">Autostart</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
@@ -251,8 +383,8 @@
                       <object class="GtkButton" id="btn_pierce_delay_minus">
                         <property name="label" translatable="yes">Delay
     -</property>
-                        <property name="width_request">56</property>
-                        <property name="height_request">56</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -268,8 +400,8 @@
                       <object class="GtkButton" id="btn_pierce_delay_plus">
                         <property name="label" translatable="yes">Delay
    +</property>
-                        <property name="width_request">56</property>
-                        <property name="height_request">56</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -287,8 +419,8 @@
                       <object class="GtkButton" id="btn_pierce_gap_minus">
                         <property name="label" translatable="yes">Gap
   -</property>
-                        <property name="width_request">56</property>
-                        <property name="height_request">56</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -304,8 +436,8 @@
                       <object class="GtkButton" id="btn_pierce_gap_plus">
                         <property name="label" translatable="yes">Gap
   +</property>
-                        <property name="width_request">56</property>
-                        <property name="height_request">56</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -323,11 +455,9 @@
                       <object class="GtkHBox" id="hbx_pierce_gap">
                         <property name="visible">True</property>
                         <child>
-                          <object class="HAL_Label" id="hal_lbl_pierce_gap">
+                          <object class="GtkLabel" id="lbl_pierce_gap">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">7.123</property>
-                            <property name="text_template">%.3f</property>
-                            <property name="label_pin_type">1</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -353,11 +483,9 @@
                       <object class="GtkHBox" id="hbx_pierce_delay">
                         <property name="visible">True</property>
                         <child>
-                          <object class="HAL_Label" id="hal_lbl_pierce_delay">
+                          <object class="GtkLabel" id="lbl_pierce_delay">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">0.5</property>
-                            <property name="text_template">%2.2f</property>
-                            <property name="label_pin_type">1</property>
                           </object>
                           <packing>
                             <property name="position">0</property>
@@ -392,7 +520,7 @@
             </child>
           </object>
           <packing>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
         <child>
@@ -403,19 +531,19 @@
                 <property name="visible">True</property>
                 <property name="label_xalign">0</property>
                 <child>
-                  <object class="GtkAlignment" id="ali_corner_height_lock">
+                  <object class="GtkAlignment" id="ali_corner_lock">
                     <property name="visible">True</property>
-                    <property name="top_padding">5</property>
-                    <property name="bottom_padding">5</property>
-                    <property name="left_padding">5</property>
-                    <property name="right_padding">5</property>
+                    <property name="top_padding">2</property>
+                    <property name="bottom_padding">2</property>
+                    <property name="left_padding">2</property>
+                    <property name="right_padding">2</property>
                     <child>
-                      <object class="GtkTable" id="table_corner_height_lock">
+                      <object class="GtkTable" id="table_corner_lock">
                         <property name="visible">True</property>
                         <property name="n_rows">3</property>
                         <property name="n_columns">2</property>
                         <child>
-                          <object class="HAL_CheckButton" id="enable_HeightLock">
+                          <object class="HAL_CheckButton" id="enable-HeightLock">
                             <property name="label" translatable="yes">Enable</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
@@ -441,7 +569,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="HAL_HScale" id="CHL_Threshold">
+                          <object class="HAL_HScale" id="CHL-Threshold">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="adjustment">adj_CHL_threshold</property>
@@ -472,9 +600,9 @@
               </packing>
             </child>
             <child>
-              <object class="HAL_ToggleButton" id="btn_torch">
-                <property name="width_request">56</property>
-                <property name="height_request">56</property>
+              <object class="HAL_ToggleButton" id="hal-btn-torch">
+                <property name="width_request">48</property>
+                <property name="height_request">48</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -488,13 +616,15 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="padding">5</property>
+                <property name="padding">2</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="position">2</property>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">3</property>
           </packing>
         </child>
         <child>
@@ -504,10 +634,10 @@
             <child>
               <object class="GtkAlignment" id="ali_THC_voltage">
                 <property name="visible">True</property>
-                <property name="top_padding">5</property>
-                <property name="bottom_padding">5</property>
-                <property name="left_padding">5</property>
-                <property name="right_padding">5</property>
+                <property name="top_padding">2</property>
+                <property name="bottom_padding">2</property>
+                <property name="left_padding">2</property>
+                <property name="right_padding">2</property>
                 <child>
                   <object class="GtkTable" id="tbl_voltage">
                     <property name="visible">True</property>
@@ -516,8 +646,8 @@
                     <child>
                       <object class="GtkButton" id="btn_THC_target_minus">
                         <property name="label" translatable="yes">-</property>
-                        <property name="width_request">56</property>
-                        <property name="height_request">56</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -532,8 +662,8 @@
                     <child>
                       <object class="GtkButton" id="btn_THC_target_plus">
                         <property name="label" translatable="yes">+</property>
-                        <property name="width_request">56</property>
-                        <property name="height_request">56</property>
+                        <property name="width_request">48</property>
+                        <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -562,11 +692,11 @@
                       <object class="GtkHBox" id="hbx_actual_volt">
                         <property name="visible">True</property>
                         <child>
-                          <object class="HAL_Label" id="hal_lbl_cur_volt">
+                          <object class="HAL_Label" id="hal-lbl-cur-volt">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">000</property>
-                            <property name="text_template">%3.0f</property>
                             <property name="label_pin_type">1</property>
+                            <property name="text_template">%3.0f</property>
                             <attributes>
                               <attribute name="style" value="normal"/>
                               <attribute name="weight" value="bold"/>
@@ -607,7 +737,7 @@
                       <object class="GtkHBox" id="hbx_programed_volt">
                         <property name="visible">True</property>
                         <child>
-                          <object class="GtkLabel" id="lbl_programed_volt">
+                          <object class="GtkLabel" id="lbl_prog_volt">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">100</property>
                             <attributes>
@@ -621,7 +751,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="lbl_programed_volts">
+                          <object class="GtkLabel" id="lbl_volt">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">V</property>
                             <attributes>
@@ -658,7 +788,7 @@
             </child>
           </object>
           <packing>
-            <property name="position">3</property>
+            <property name="position">4</property>
           </packing>
         </child>
       </object>

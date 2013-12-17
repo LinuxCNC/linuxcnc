@@ -1,37 +1,31 @@
 
-############### Torch Height Control Python Widgets #################### 
-
-# Hook up plasma pins using the net command
+############### plasma hal pins #################### 
 
 # out pin
-# plasma.CHL_Threshold             (float)
-# plasma.enable_HeightLock         (bool)
-# plasma.enable_HeightLock-not     (bool)
-# plasma.btn_torch-not             (bool)
-# plasma.btn_torch                 (bool)
+# plasma.CHL-Threshold             (float)
+# plasma.enable-HeightLock         (bool)
+# plasma.enable-HeightLock-not     (bool)
+# plasma.hal-btn-torch-not         (bool)
+# plasma.hal-btn-torch             (bool)
 # plasma.Target-Voltage            (float)
 # plasma.THC-Speed                 (float)
-# plasma.Piercing_autostart-not    (bool)
-# plasma.Piercing_autostart        (bool)
+# plasma.Piercing-autostart-not    (bool)
+# plasma.Piercing-autostart        (bool)
 # plasma.Pierce-Gap                (float)
 # plasma.Pierce-Delay              (float)
 # plasma.G0-Gap                    (float)
 # plasma.Cut-Gap                   (float)
 
 # in pin
-# plasma.hal_lbl_pierce_gap
-# plasma.hal_lbl_pierce_delay
-# plasma.hal_lbl_g0_height
-# plasma.hal_lbl_cut_speed
-# plasma.hal_lbl_cut_gap
-# plasma.hal_lbl_cur_volt
+# plasma.led-pos-limit             (bool)
+# plasma.led-neg-limit             (bool)
+# plasma.hal-lbl-corr              (float)
+# plasma.hal_lbl_cur_volt          (float)
+
+
+# Hook up plasma pins using the net command
 
 # for simulation mode we connect them directly
-net torch       plasma.btn_torch        => signals.led_TorchOn => signals.led_ArcOK
-net piercegap   plasma.Pierce-Gap       => plasma.hal_lbl_pierce_gap
-net piercedelay plasma.Pierce-Delay     => plasma.hal_lbl_pierce_delay
-net g0height    plasma.G0-Gap           => plasma.hal_lbl_g0_height
-net cutspeed    plasma.THC-Speed        => plasma.hal_lbl_cut_speed
-net cutgap      plasma.Cut-Gap          => plasma.hal_lbl_cut_gap
-net curvolt     plasma.Target-Voltage   => plasma.hal_lbl_cur_volt
+net torch       plasma.hal-btn-torch    => signals.led_TorchOn => signals.led_ArcOK
+net curvolt     plasma.Target-Voltage   => plasma.hal-lbl-cur-volt
 

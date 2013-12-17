@@ -1,3 +1,7 @@
+ver- 0.9.9.6.3
+- changed again the plasma layout, as Marius still want more widgets
+- most hal labels are not needed any more, so I changed them to gtk.label
+
 ver- 0.9.9.6.2
 - added a lot of hal pin to gmoccapy_plasma, with the new 
   plasma.py file 
