@@ -124,4 +124,33 @@
         <halpin>"resetmm"</halpin>
         <text>"reset"</text>
     </button>
+    <hbox>
+        <label>
+            <text>"Cycle Time"</text>
+            <font>("Helvetica",14)</font>
+        </label>
+        <u32>
+            <halpin>"time-hours"</halpin>
+            <font>("Helvetica",14)</font>
+            <format>"2d"</format>
+        </u32>
+        <label>
+            <text>":"</text>
+            <font>("Helvetica",14)</font>
+        </label>
+        <u32>
+            <halpin>"time-minutes"</halpin>
+            <font>("Helvetica",14)</font>
+            <format>"2d"</format>
+        </u32>
+        <label>
+            <text>":"</text>
+            <font>("Helvetica",14)</font>
+        </label>
+        <u32>
+            <halpin>"time-seconds"</halpin>
+            <font>("Helvetica",14)</font>
+            <format>"2d"</format>
+        </u32>
+    </hbox>
 </pyvcp>

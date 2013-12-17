@@ -17,8 +17,6 @@ sleep(3)
 h = hal.component("python-ui")
 h.ready() # mark the component as 'ready'
 
-os.system("halcmd source ./postgui.hal")
-
 #
 # connect to LinuxCNC
 #
