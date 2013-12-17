@@ -16,7 +16,6 @@ addf mm_yvel servo-thread
 addf mm_zacc servo-thread
 addf mm_zvel servo-thread
 
-
 net Xacc => wcomp_xacc.in mm_xacc.in
 net Xvel => wcomp_xvel.in mm_xvel.in
 net Yacc => wcomp_yacc.in mm_yacc.in
@@ -31,6 +30,7 @@ net vel-ok-y <= wcomp_yvel.out
 net acc-ok-z <= wcomp_zacc.out
 net vel-ok-z <= wcomp_zvel.out
 
+#FIXME hard coded acceleration bounds
 setp wcomp_xacc.max 30.005
 setp wcomp_xacc.min -30.005
 setp wcomp_xvel.max 8.339
