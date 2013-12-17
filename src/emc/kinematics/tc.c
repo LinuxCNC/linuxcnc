@@ -28,7 +28,11 @@
 //Debug output
 #include "tp_debug.h"
 
-//Empty function to act as an assert for GDB in simulation
+
+/**
+ * Get the acceleration direction unit vector for blend velocity calculations.
+ * This calculates the direction of acceleration at the start of a segment.
+ */
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
@@ -56,6 +60,10 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
     return 0;
 }
 
+/**
+ * Get the acceleration direction unit vector for blend velocity calculations.
+ * This calculates the direction of acceleration at the end of a segment.
+ */
 int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR) {
@@ -75,6 +83,12 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
     return 0;
 }
 
+
+/**
+ * Find the geometric tangent vector to a helical arc.
+ * Unlike the acceleration vector, the result of this calculation is a vector
+ * tangent to the helical arc. This is called by wrapper functions for the case of a circular or helical arc.
+ */
 static int tcGetHelicalTangentVector(PmCircle const * const circle, double progress,
         PmCartesian * const out) {
 
@@ -104,6 +118,10 @@ static int tcGetHelicalTangentVector(PmCircle const * const circle, double progr
     return 0;
 }
 
+
+/**
+ * Calulate the unit tangent vector at the start of a move for any segment.
+ */
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
@@ -118,6 +136,9 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
     return 0;
 }
 
+/**
+ * Calulate the unit tangent vector at the end of a move for any segment.
+ */
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
     if(tc->motion_type == TC_LINEAR) {
@@ -297,6 +318,7 @@ int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
 }
 /**
  * Define a 3D spherical arc based on three points and a radius.
+ * @note Deprecated as of 12/16/2013.
  */
 int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
@@ -421,6 +443,10 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
 }
 
 
+/**
+ * Set the terminal condition of a segment.
+ * This function will eventually handle state changes associated with altering a terminal condition.
+ */
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
     tc_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
     tc->term_cond = term_cond;
@@ -475,6 +501,13 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     return res1 || res2;
 }
 
+
+/**
+ * Check if the current segment is actively blending.
+ * Checks if a blend should start based on acceleration and velocity criteria.
+ * Also saves this status so that the blend continues until the segment is
+ * done.
+ */
 int tcIsBlending(TC_STRUCT * const tc) {
     //FIXME Disabling blends for rigid tap cycle until changes can be verified.
     int is_blending_next = (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
@@ -487,7 +520,6 @@ int tcIsBlending(TC_STRUCT * const tc) {
     tc->blending_next |= is_blending_next;
     return tc->blending_next;
 }
-
 
 
 /*!
