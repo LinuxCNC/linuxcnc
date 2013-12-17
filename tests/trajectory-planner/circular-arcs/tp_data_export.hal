@@ -12,7 +12,7 @@ net Zpos => sampler.0.pin.8
 
 net constraints-ok => sampler.0.pin.9
 
-setp sampler.0.enable 1
+net coord_mode <= motion.coord-mode => sampler.0.enable
 addf sampler.0 servo-thread
 
 loadusr halsampler -c 0 constraints.log
