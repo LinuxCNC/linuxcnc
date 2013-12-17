@@ -27,6 +27,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     __gtype_name__ = 'EMC_MDIHistory'
     def __init__(self, *a, **kw):
         gtk.VBox.__init__(self, *a, **kw)
+        self.gstat = GStat()
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.ini = linuxcnc.ini(inifile)
 
@@ -62,7 +63,11 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
 
         self.pack_start(scroll, True)
         self.pack_start(self.entry, False)
-
+        self.set_sensitive(False)
+        self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and self.is_all_homed()))
+        self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
         self.reload()
         self.show_all()
 
