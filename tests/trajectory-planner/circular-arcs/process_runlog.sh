@@ -21,5 +21,5 @@ set -o nounset                              # Treat unset variables as an error
 
 if [ -a $1 ] 
 then
-    awk '/total/ {print $2,$6,$9}' $1 > movement.log
+    awk '/total movement/ {print $2,$6,$9}' $1 > movement.log
 fi
