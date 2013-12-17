@@ -154,7 +154,12 @@ static int loadTraj(EmcIniFile *trajInifile)
                 rcs_print("bad return value from emcTrajSetMaxAcceleration\n");
             }
             return -1;
-        }
+        } 
+        //TODO LOOKAHEAD_DEPTH
+        //TODO ARC_BLEND_ENABLE
+        //TODO PARABOLIC_FALLBACK_ENABLE
+        //TODO BLEND_SMOOTHING_THRESHOLD
+        //TODO MAX_FEED_OVERRIDE
     }
 
     catch(EmcIniFile::Exception &e){
