@@ -2340,15 +2340,14 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     double spindle_pos = tpGetSignedSpindlePosition(emcmotStatus->spindleRevs,
             emcmotStatus->spindle.direction);
+    tp_debug_print("Spindle at %f\n",spindle_pos);
     double spindle_vel, target_vel;
     double oldrevs = tp->spindle.revs;
 
-    if(tc->motion_type == TC_RIGIDTAP) {
-        if (tc->coords.rigidtap.state == RETRACTION ||
-                tc->coords.rigidtap.state == FINAL_REVERSAL) {
+    if ((tc->motion_type == TC_RIGIDTAP) && (tc->coords.rigidtap.state == RETRACTION ||
+                tc->coords.rigidtap.state == FINAL_REVERSAL)) {
             tp->spindle.revs = tc->coords.rigidtap.spindlerevs_at_reversal -
                 spindle_pos;
-        }
     } else {
         tp->spindle.revs = spindle_pos;
     }
@@ -2366,17 +2365,20 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
         spindle_vel = tp->spindle.revs / (tc->cycle_time * tc->sync_accel++);
         target_vel = spindle_vel * tc->uu_per_rev;
         if(tc->currentvel >= target_vel) {
+            tc_debug_print("Hit accel target in pos sync\n");
             // move target so as to drive pos_error to 0 next cycle
             tp->spindle.offset = tp->spindle.revs - tc->progress / tc->uu_per_rev;
             tc->sync_accel = 0;
             tc->target_vel = target_vel;
         } else {
+            tc_debug_print("accelerating in pos_sync\n");
             // beginning of move and we are behind: accel as fast as we can
             tc->target_vel = tc->maxvel;
         }
     } else {
         // we have synced the beginning of the move as best we can -
         // track position (minimize pos_error).
+        tc_debug_print("tracking in pos_sync\n");
         double errorvel;
         spindle_vel = (tp->spindle.revs - oldrevs) / tp->cycleTime;
         target_vel = spindle_vel * tc->uu_per_rev;
@@ -2709,9 +2711,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         case TC_SYNC_NONE:
             break;
         case TC_SYNC_VELOCITY:
+            tp_debug_print("sync velocityyn");
             tpSyncVelocityMode(tp, tc, nexttc);
             break;
         case TC_SYNC_POSITION:
+            tp_debug_print("sync position\n");
             tpSyncPositionMode(tp, tc, nexttc);
             break;
         default:
@@ -2793,9 +2797,12 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int mode) {
     //TODO update these fields to match new TC fields
     if(sync) {
-        tp->synchronized = 1;
+        if (mode) {
+            tp->synchronized = TC_SYNC_VELOCITY;
+        } else {
+            tp->synchronized = TC_SYNC_POSITION;
+        }
         tp->uu_per_rev = sync;
-        tp->velocity_mode = mode;
     } else
         tp->synchronized = 0;
 
