@@ -61,7 +61,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const 
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
 
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, double * const mag);
+        TC_STRUCT * const tc);
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
 //Empty function to act as an assert for GDB in simulation
@@ -817,7 +817,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
         double tmp = 1.0 - Stheta;
         double h_tol;
-        if (tmp>TP_ANGLE_EPSILON) {
+        if (phi>TP_ANGLE_EPSILON) {
             h_tol = tolerance/tmp;
         } else {
             tp_debug_print("intersection angle theta = %f, too close to tangent\n",theta);
@@ -1910,7 +1910,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
  * next segment.
  */
 STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, double * const mag) {
+        TC_STRUCT * const nexttc) {
 
     double save_vel = nexttc->target_vel;
     // Get the accelerations of the current and next segment to properly scale the blend velocity
@@ -1926,7 +1926,7 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = 0.0;
     }
 
-    tpUpdateCycle(tp, nexttc, mag);
+    tpUpdateCycle(tp, nexttc);
     //Restore the blend velocity
     nexttc->target_vel = save_vel;
 
@@ -2131,14 +2131,14 @@ STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
     if(tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
-        tcSetTermCond(tc,TC_TERM_COND_STOP);
+        tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
     if(nexttc && nexttc->atspeed) {
         // we'll have to wait for the spindle to be at-speed; might as well
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
-        tcSetTermCond(tc,TC_TERM_COND_STOP);
+        tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
     return TP_ERR_OK;
@@ -2346,10 +2346,9 @@ STATIC int tcIsBlending(TC_STRUCT * const tc) {
 }
 
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc, double * const mag) {
+        TC_STRUCT * const nexttc) {
 
-    tpUpdateBlend(tp,tc,nexttc,mag);
-    tc_debug_print("secondary movement = %f\n",*mag);
+    tpUpdateBlend(tp,tc,nexttc);
 
     /* Status updates */
     //Decide which segment we're in depending on which is moving faster
@@ -2375,7 +2374,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Do a complete update on one segment.
  */
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, double * const mag) {
+        TC_STRUCT * const tc) {
 
     //placeholders for position for this update
     EmcPose position9_before, displacement9;
@@ -2393,8 +2392,9 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     tpUpdatePosition(tp, &displacement9);
 
 #ifdef TC_DEBUG
-    tpCalculateEmcPoseMagnitude(tp, &displacement9, mag);
-    tc_debug_print("cycle movement = %f\n",*mag);
+    double mag;
+    tpCalculateEmcPoseMagnitude(tp, &displacement9, &mag);
+    tc_debug_print("cycle movement = %f\n",mag);
 #endif
 
     return TP_ERR_OK;
@@ -2580,6 +2580,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     tpCheckEarlyStop(tp, tc, nexttc);
 
+    //Check for early stop conditions for next-next segment as well to prevent over-speed during parabolic blend
+    TC_STRUCT * next2_tc;
+    next2_tc = tcqItem(&tp->queue, 2);
+    tpCheckEarlyStop(tp, nexttc, next2_tc);
+
     if(tp->aborting) {
         int slowing = tpHandleAbort(tp, tc, nexttc);
         if (!slowing) {
@@ -2648,9 +2653,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             break;
     }
 
-
-    double mag_primary=0;
-    double mag_secondary=0;
     EmcPose pos_before = tp->currentPos;
     // Update the current tc
     if (tc->splitting && !tc->remove) {
@@ -2673,7 +2675,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             nexttc->cycle_time -= tc->split_time;
             nexttc->currentvel = tc->final_actual_vel;
             tp_debug_print("Doing tangent split\n");
-            tpUpdateCycle(tp, nexttc, &mag_secondary);
+            tpUpdateCycle(tp, nexttc);
             //Update status for the split portion
             if (tc->split_time > nexttc->cycle_time) {
                 //Majority of time spent in current segment
@@ -2692,13 +2694,13 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         //Run with full cycle time
         tc_debug_print("Normal cycle\n");
         tc->cycle_time = tp->cycleTime;
-        tpUpdateCycle(tp, tc, &mag_primary);
+        tpUpdateCycle(tp, tc);
 
         /* BLENDING STUFF */
          
         tpComputeBlendVelocity(tp, tc, nexttc, false, NULL);
         if (nexttc && tcIsBlending(tc)) {
-            tpDoParabolicBlending(tp, tc, nexttc, &mag_secondary);
+            tpDoParabolicBlending(tp, tc, nexttc);
         } else {
             //Update status for a normal step
             tpToggleDIOs(tc);
@@ -2709,9 +2711,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     //For some reason, this has to be here to prevent graphical glitches in simulation. 
     //FIXME minor algorithm or optimization issue that causes this to happen?
-    tpCalculateTotalDisplacement(tp, &pos_before, &mag_primary);
+    double mag;
+    tpCalculateTotalDisplacement(tp, &pos_before, &mag);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
-            mag_primary + mag_secondary, emcmotStatus->current_vel);
+            mag, emcmotStatus->current_vel);
 
     // If TC is complete, remove it from the queue. 
     if (tc->remove) {
