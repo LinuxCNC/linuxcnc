@@ -440,6 +440,7 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
         PmCartesian const * const circ_end) {
 
+    tp_debug_print("Connecting blend arc to lines\n");
     /* Only shift XYZ for now*/
     int res1 = pmCartLineInit(&prev_tc->coords.line.xyz,
             &prev_tc->coords.line.xyz.start, circ_start);
