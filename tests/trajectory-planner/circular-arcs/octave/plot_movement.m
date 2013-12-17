@@ -2,6 +2,6 @@
 load movement.log
 %Assume 1kHz
 dt=diff(movement(:,1));
-v=movement(:,3);
-a=diff(v)./dt;
-plot(movement(:,1),movement(:,2:end))
+v_nominal=movement(:,3);
+dx = [0;diff(movement(:,2))./dt];
+dv = [0;diff(dx)./dt];
