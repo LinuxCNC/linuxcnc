@@ -64,6 +64,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc);
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
+
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
     return condition;
@@ -99,6 +100,12 @@ STATIC double fsign(double f) {
  * Hopefully this makes changes easier to track as much of the churn will be on small functions.
  */
 
+
+/**
+ * Check if the tail of the queue has a parabolic blend condition and update tc appropriately.
+ * This sets flags so that accelerations are correct due to the current segment
+ * having to blend with the previous.
+ */
 STATIC int tpCheckLastParabolic(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
@@ -168,6 +175,11 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     return TP_ERR_OK;
 }
 
+
+/**
+ * Get a same maximum velocity for XYZ.
+ * This function returns the worst-case safe velocity in any direction along XYZ.
+ */
 STATIC int tpGetMachineVelLimit(double * const vel_limit) {
 
     if (!vel_limit) {
@@ -186,8 +198,8 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
 
 
 /**
- * Get a TC's feed rate override based on emcmotStatus.
- * This function is designed to eliminate duplicate states, since this leads to bugs.
+ * Get a segment's feed scale based on the current planner state and emcmotStatus.
+ * @note depends on emcmotStatus for system information.
  */
 STATIC double tpGetFeedScale(TP_STRUCT const * const tp, 
         TC_STRUCT const * const tc) {
@@ -213,6 +225,9 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 }
 
 
+/**
+ * Get the worst-case target velocity for a segment based on the trajectory planner state.
+ */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * TP_MAX_FEED_SCALE, tc->maxvel);
 }
@@ -655,6 +670,12 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     return TP_ERR_OK;
 }
 
+
+/**
+ * Find the "peak" velocity a segment can acheive if its velocity profile is triangular.
+ * This is used to estimate blend velocity, though by itself is not enough
+ * (since requested velocity and max velocity could be lower).
+ */
 STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tp, tc);
@@ -686,9 +707,13 @@ STATIC inline double tpMaxTangentAngle(double v, double acc, double period) {
 
 /**
  * Somewhat redundant function to calculate the segment intersection angle.
- * This is PI - the acute angle between the unit vectors.
+ * The intersection angle is half of the supplement of the "divergence" angle
+ * between unit vectors. If two unit vectors are pointing in the same
+ * direction, then the intersection angle is PI/2. This is based on the
+ * simple_tp formulation for tolerances.
  */
-STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
+STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1,
+        PmCartesian const * const u2, double * const theta) {
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
@@ -706,7 +731,6 @@ STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1, PmCartes
 
 /**
  * Calculate the angle between two unit cartesian vectors.
- * TODO Make this a posemath function?
  */
 STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
     double dot;
@@ -720,7 +744,10 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
 
 
 /**
- * Initialize a spherical blend arc from its parent lines.
+ * Initialize a blend arc from its parent lines.
+ * This copies and initializes properties from the previous and next lines to
+ * initialize a blend arc. This function does not handle connecting the
+ * segments together, however.
  */
 STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
         TC_STRUCT* const blend_tc, double vel, double ini_maxvel, double acc) {
@@ -766,6 +793,10 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 
 /**
  * Compute arc segment to blend between two lines.
+ * A workhorse function to calculate all the required parameters for a new
+ * blend arc, then create and connect it to existing pair of line segments.
+ * This function has grown rather large, but isn't easy to split up due to the
+ * many variables that can be reused.
  */
 STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_tc,
         TC_STRUCT * const tc, TC_STRUCT * const blend_tc) {
@@ -834,10 +865,15 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         d_tol = Ctheta*h_tol;
     }
 
+    //TODO "greedy" arc sizing step here
+
     //Consider L1 / L2 to be the length available to blend over
     double L1 = fmin(prev_tc->target, prev_tc->nominal_length / 2.0);
     double L2 = tc->target/2.0;
 
+    //Solve quadratic equation to find segment length that matches peak
+    //velocity of blend arc. This way the line is not too short (hitting a
+    //sampling limit) or too long (reducing the size of the arc).
     double K = a_n_max * Ttheta * pmSq(min_segment_time) / 2.0;
     double disc_prev = 2.0 * L1 * K + pmSq(K);
     double d_prev = L1 + K - pmSqrt(disc_prev);
@@ -1117,6 +1153,14 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     return TP_ERR_OK;
 }
 
+
+/**
+ * Based on the nth and (n-1)th segment, find a safe final velocity for the (n-1)th segment.
+ * This function also caps the target velocity if smoothing is enabled. If we
+ * don't do this, then the linear segments (with higher tangential
+ * acceleration) will speed up and slow down to reach their target velocity,
+ * creating "humps" in the velocity profile.
+ */
 STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT * const prev1_tc) {
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
@@ -1924,7 +1968,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
 /**
  * Do a parabolic blend by updating the nexttc.
  * Perform the actual blending process by updating the target velocity for the
- * next segment.
+ * next segment, then running a cycle update.
  */
 STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
@@ -1978,7 +2022,7 @@ STATIC void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const
 /**
  * Update the planner's position, given a displacement.
  * This function updates the trajectory planner's overall position from a given
- * cycle's displacement.
+ * cycle's displacement. This function mostly exists because of the odd format of EmcPose.
  */
 STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement) {
 
@@ -2161,6 +2205,10 @@ STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
     return TP_ERR_OK;
 }
 
+
+/**
+ * Find magnitude of displacement between a pose and the current position in TP.
+ */
 STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
     if (!pose) {
         return TP_ERR_FAIL;
@@ -2184,7 +2232,9 @@ STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp, EmcPose cons
 }
 
 
-
+/**
+ * Find the magnitude of an EmcPose position, treating it like a single vector.
+ */
 STATIC int tpCalculateEmcPoseMagnitude(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
 
     if (!pose) {
@@ -2349,19 +2399,12 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
 }
 
-STATIC int tcIsBlending(TC_STRUCT * const tc) {
-    //FIXME Disabling blends for rigid tap cycle until changes can be verified.
-    int is_blending_next = (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
-        tc->on_final_decel && (tc->currentvel < tc->blend_vel) &&
-        tc->motion_type != TC_RIGIDTAP;
 
-    //Latch up the blending_next status here, so that even if the prev conditions
-    //aren't necessarily true we still blend to completion once the blend
-    //starts.
-    tc->blending_next |= is_blending_next;
-    return tc->blending_next;
-}
-
+/**
+ * Perform parabolic blending if needed between segments and handle status updates.
+ * This isolates most of the parabolic blend stuff to make the code path
+ * between tangent and parabolic blends easier to follow.
+ */
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
@@ -2389,6 +2432,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
 /**
  * Do a complete update on one segment.
+ * Handles the majority of updates on a single segment for the current cycle.
  */
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc) {
@@ -2418,6 +2462,9 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 }
 
 
+/**
+ * Send default values to status structure.
+ */
 STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
     // Update queue length
     emcmotStatus->tcqlen = tcqLen(&tp->queue);
@@ -2558,6 +2605,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     }
     return TP_ERR_OK;
 }
+
+
 /**
  * Calculate an updated goal position for the next timestep.
  * This is the brains of the operation. It's called every TRAJ period and is
@@ -2742,6 +2791,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 }
 
 int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int mode) {
+    //TODO update these fields to match new TC fields
     if(sync) {
         tp->synchronized = 1;
         tp->uu_per_rev = sync;
