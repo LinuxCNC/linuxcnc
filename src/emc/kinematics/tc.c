@@ -475,6 +475,20 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     return res1 || res2;
 }
 
+int tcIsBlending(TC_STRUCT * const tc) {
+    //FIXME Disabling blends for rigid tap cycle until changes can be verified.
+    int is_blending_next = (tc->term_cond == TC_TERM_COND_PARABOLIC ) &&
+        tc->on_final_decel && (tc->currentvel < tc->blend_vel) &&
+        tc->motion_type != TC_RIGIDTAP;
+
+    //Latch up the blending_next status here, so that even if the prev conditions
+    //aren't necessarily true we still blend to completion once the blend
+    //starts.
+    tc->blending_next |= is_blending_next;
+    return tc->blending_next;
+}
+
+
 
 /*!
  * \subsection TC queue functions
