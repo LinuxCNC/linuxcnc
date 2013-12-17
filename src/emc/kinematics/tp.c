@@ -99,6 +99,15 @@ STATIC double fsign(double f) {
  * Hopefully this makes changes easier to track as much of the churn will be on small functions.
  */
 
+STATIC int tpCheckLastParabolic(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+    TC_STRUCT *prev_tc;
+    prev_tc = tcqLast(&tp->queue);
+    if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
+        tp_debug_print("prev segment parabolic, flagging blend_prev\n");
+        tc->blend_prev = 1;
+    }
+    return TP_ERR_OK;
+}
 
 
 /**
@@ -649,9 +658,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
 STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tp, tc);
-    //Note that using nominal length only works because we're limited to
-    //consuming 1/2 of the nominal length per blend arc.
-    tc->triangle_vel = pmSqrt( acc_scaled * tc->nominal_length); 
+    tc->triangle_vel = pmSqrt( acc_scaled * tc->target); 
     //FIXME id kludge
     tp_debug_print("id %d Triangle vel = %f\n", tp->nextId, tc->triangle_vel);
     return 0;
@@ -1313,7 +1320,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     TC_STRUCT blend_tc;
 
-    if (TP_ERR_OK == tpCheckSkipBlendArc(tp,prev_tc, tc, tp->cycleTime)) {
+    if (TP_ERR_OK == tpCheckSkipBlendArc(tp, prev_tc, tc, tp->cycleTime)) {
         //Try to create a blend arc
         int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
         if (arc_fail) {
@@ -1398,13 +1405,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
-    TC_STRUCT *prev_tc;
-    prev_tc = tcqLast(&tp->queue);
-    if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("prev segment parabolic, flagging blend_prev\n");
-        tc.blend_prev = 1;
-    }
-
+    tpCheckLastParabolic(tp, &tc);
     tpCalculateTriangleVel(tp, &tc);
 #ifdef TP_ARC_BLENDS
     //TODO add check for two spaces in queue?
@@ -1510,16 +1511,12 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
             pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
         tc.maxvel = parabolic_maxvel;
 
-        if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
-            tp_debug_print("prev segment parabolic, flagging blend_prev\n");
-            tc.blend_prev = 1;
-        }
+        tpCheckLastParabolic(tp, &tc);
     } else {
         //Tangent case can handle higher accelerations
         double tangent_maxvel = ini_maxvel *
             pmSqrt(TP_ACC_RATIO_NORMAL); 
         tc.maxvel = tangent_maxvel;
-        tc.blend_prev = 0;
     }
 
     tpCalculateTriangleVel(tp, &tc);
