@@ -80,6 +80,9 @@ set ::preferred_names [list \
                        sim \
                        ]
 
+# support creation of links for newly added _lib dirs in nc_files
+set ::always_update_nc_files 1
+
 ################### PROCEDURE DEFINITIONS #####################
 
 set desktopdir [exec bash -c {test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs; echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}}]
@@ -552,16 +555,32 @@ proc prompt_copy configname {
         -type ok
     }
 
-    if {![file exists $ncfiles]} {
-        file mkdir $ncfiles
-        file link -symbolic [file join $ncfiles/examples] $linuxcnc::NCFILES_DIR
+    if {$::always_update_nc_files || ![file exists $ncfiles]} {
+        file mkdir $ncfiles ;# tcl: ok if it exists
+        set refname  $linuxcnc::NCFILES_DIR
+        set linkname [file join $ncfiles examples]
+        if {[file exists $linkname]} {
+          # tcl wont overwrite any existing link, so remove
+          file delete $linkname
+        }
+        file link -symbolic $linkname $refname
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
         # example: ngcgui uses lib named ngcgui_lib
-        set liblist {ngcgui_lib gladevcp_lib remap_lib}
+
+        set _libs [glob [file join $linuxcnc::NCFILES_DIR *_lib]]
+        foreach lib $_libs {
+           if ![file isdir $lib] continue
+           lappend liblist $lib
+        }
         foreach lib $liblist {
-           file link -symbolic [file join $ncfiles/$lib] \
-                               [file join $linuxcnc::NCFILES_DIR $lib]
+           set refname  [file join $linuxcnc::NCFILES_DIR $lib]
+           set linkname [file join $ncfiles [file tail $lib]]
+           if {[file exists $linkname]} {
+             # tcl wont overwrite any existing link, so remove
+             file delete $linkname
+           }
+           file link -symbolic $linkname $refname
         }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]
