@@ -45,7 +45,7 @@ STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-#define TP_ARC_BLENDS
+/*#define TP_ARC_BLENDS*/
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
 #define TP_SHOW_BLENDS
@@ -1624,16 +1624,24 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      * TODO figure illustrating this
      */
 
-    double v_blend_this = v_reachable_next * acc_this / acc_next;
-    double v_blend_next = v_reachable_next;
+    double v_blend_this, v_blend_next;
+    if (tc->motion_type == TC_LINEAR && tc->motion_type == TC_LINEAR) {
 
-    //The shorter of the two segments is our constraint
-    if (v_reachable_this < v_reachable_next) {
-        v_blend_this = fmin(v_reachable_this, v_blend_this);
-        v_blend_next = fmin(v_reachable_this * acc_next / acc_this, v_blend_next);
+        v_blend_this = v_reachable_next * acc_this / acc_next;
+        v_blend_next = v_reachable_next;
+
+        //The shorter of the two segments is our constraint
+        if (v_reachable_this < v_reachable_next) {
+            v_blend_this = fmin(v_reachable_this, v_blend_this);
+            v_blend_next = fmin(v_reachable_this * acc_next / acc_this, v_blend_next);
+        } else {
+            v_blend_this = fmin(v_blend_this, v_reachable_next * acc_this / acc_next);
+            v_blend_next = fmin(v_blend_next, v_reachable_next);
+        }
     } else {
-        v_blend_this = fmin(v_blend_this, v_reachable_next * acc_this / acc_next);
-        v_blend_next = fmin(v_blend_next, v_reachable_next);
+        double v_blend_safe = acc_next < acc_this ? v_reachable * acc_next / acc_this : v_reachable;
+        v_blend_this = v_blend_safe;
+        v_blend_next = v_blend_safe;
     }
 
     double theta;
