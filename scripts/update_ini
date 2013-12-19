@@ -1,0 +1,246 @@
+#!/usr/bin/python
+
+THIS_VERSION = "1.0"
+
+import sys
+import os
+import shutil
+import linuxcnc
+import re
+import datetime
+
+if len(sys.argv) < 2:
+    print "Usage: update_ini <path to file>"
+    exit()
+
+filename = sys.argv[1]
+
+if not os.path.isfile(filename):
+    print "file %s not found" % filename
+    exit()
+
+try:
+    ini = linuxcnc.ini(filename)
+except:
+    print "%s is not a valid ini file" % filename
+    exit()
+
+version = ini.find('EMC', 'VERSION')
+if not version:
+    version = "0.0"
+
+if version == "$Revision$":
+    pass
+elif version >= THIS_VERSION:
+    print """The supplied INI file is already at version %s and should not need
+     updating""" % version
+    exit()
+
+if ini.find('KINS', 'JOINTS'):
+    if raw_input("""The supplied INI file already has a [KINS] section.
+    this probably means that it was previously converted by hand.
+    Continue y/N? """) != "y":
+        exit()
+
+# Looks like we are good to go, so first let's put the original configs
+# somewhere safe.
+
+backupdir = (os.path.splitext(filename)[0]) + ".old"
+while os.path.isdir(backupdir):
+    backupdir += ".old"
+
+os.mkdir(backupdir)
+old_ini =  os.path.join(backupdir, os.path.basename(filename))
+shutil.copyfile(filename, old_ini)
+
+#From now on, we use the backup copy as the reference
+ini = linuxcnc.ini(old_ini)
+
+#And the hal files too.
+halfiles = ini.findall('HAL', 'HALFILE')
+halfiles += ini.findall('HAL', 'POSTGUI_HALFILE')
+halfiles += {'touchy.hal'}
+
+halfiles[:] = [f for f in halfiles if os.path.isfile(f)]
+
+for halfile in halfiles:
+    shutil.copyfile(halfile, os.path.join(backupdir, halfile))
+
+inistring = open(filename,'r').read()
+newini = open(filename, 'w')
+
+def copysection(block):
+    #Just makes a straight copy of blocks that don't need any work
+    regex = "\[%s\](.+?)(?:\n\[|$)" % block
+    section = re.search(regex, inistring, re.DOTALL)
+    newini.write("\n[%s]" % block)
+    if section != None:
+        newini.write(section.group(1))
+        all_sections.remove(block)
+    else:
+         newini.write("\n#No Content. This is probably an error\n")
+
+# Get a list of all sections
+all_sections = re.findall("\n\[(.+)\]", inistring)
+
+# A c-style Switch would be nice here, to allow us to fall thrugh successive
+# version updates.
+# At the moment there is only one update, but any future updates should be
+# a second "if version == 1.0" and so on. The first "if" needs to change the
+# version string, though.
+
+
+if version == "$Revision$" or version < "1.0":
+
+    newini.write("This config file was created %s by the update_ini script\n" % datetime.datetime.now())
+    newini.write("The original config files may be found in the %s directory\n\n" % backupdir)
+
+    # There may be comments at the top.
+    section = re.search("(.+?)\[", inistring, re.DOTALL)
+    if section !=None:
+        newini.write(section.group(1))
+
+    #[EMC] Section, change the version number
+    all_sections.remove("EMC")
+    section = re.search("\[EMC\](.+?)\n\[", inistring, re.DOTALL)
+    if section: section = section.group(1)
+    newini.write("[EMC]/n")
+    if section != None:
+        if version != "0.0":
+            section = re.sub("VERSION (.+)", "VERSION %s" % THIS_VERSION, section)
+        else:
+            newini.write("# The version string for this INI file.\n")
+            newini.write("VERSION = %s\n" % THIS_VERSION)
+        newini.write(section)
+    else:
+         newini.write("VERSION = %s\n" % THIS_VERSION)
+
+    #These sections don't need any work.
+    copysection("DISPLAY")
+    copysection("FILTER")
+    copysection("RS274NGC")
+    copysection("EMCMOT")
+    copysection("TASK")
+    copysection("HAL")
+    copysection("HALUI")
+    copysection("TRAJ")
+    copysection("EMCIO")
+
+    # Insert the new-fangled [KINS] section
+    # Search the Halfiles to find the kinematics.
+    for halfile in halfiles:
+        hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
+        for line in hal.readlines():
+            kins = re.match('[loadrt|#autoconverted][\w]+(.+kins)', line)
+            if kins:
+                kins = kins.group(1)
+                print kins
+                break
+        if kins: break
+    if not kins: kins = "trivkins"
+
+    newini.write("\n\n[KINS]\n")
+    newini.write("KINEMATICS = %s\n" % kins)
+    newini.write("#This is a best-guess at the number of joints, it should be checked\n")
+    joints = ini.find("TRAJ", "JOINTS")
+    if joints == None: joints = ini.find("TRAJ", "AXES")
+    if joints == None: joints = "3"
+    newini.write("JOINTS = " + joints + "\n\n")
+
+    j = 0
+    while 1:
+         # Search preerentially in "[JOINT_N] in case the file is part-converted already
+        if re.search("(\[JOINT_%i\])"%j, inistring):
+            if re.search("(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring):
+                copysection("AXIS_%s" % "XYZABCUVW"[j])
+                copysection("JOINT_%i" % j)
+            else:
+                newini.write("\n[AXIS_%s]" % "XYZABCUVW"[j])
+                newini.write("HOME = %s\n" % ini.find("JOINT_%i" % j, "HOME"))
+                newini.write("MIN_LIMIT = %s\n" % ini.find("JOINT_%i" % j, "MIN_LIMIT"))
+                newini.write("MAX_LIMIT = %s\n" % ini.find("JOINT_%i" % j, "MAX_LIMIT"))
+                newini.write("MAX_VELOCITY = %s\n" % ini.find("JOINT_%i" % j, "MAX_VELOCITY"))
+                newini.write("MAX_ACCELERATION = %s\n\n" % ini.find("JOINT_%i" % j, "MAX_ACCELERATION"))
+                copysection({"[JOINT_%i]" % j})
+        elif  re.search("\[AXIS_%i\]" % j, inistring): #Looks like an [AXIS_0] style layout
+                newini.write("\n[AXIS_%s]" % "XYZABCUVW"[j])
+                newini.write("HOME = %s\n" % ini.find("AXIS_%i" % j, "HOME"))
+                newini.write("MIN_LIMIT = %s\n" % ini.find("AXIS_%i" % j, "MIN_LIMIT"))
+                newini.write("MAX_LIMIT = %s\n" % ini.find("AXIS_%i" % j, "MAX_LIMIT"))
+                newini.write("MAX_VELOCITY = %s\n" % ini.find("AXIS_%i" % j, "MAX_VELOCITY"))
+                newini.write("MAX_ACCELERATION = %s\n\n" % ini.find("AXIS_%i" % j, "MAX_ACCELERATION"))
+                newini.write("\n[JOINT_%i]\n" % j)
+                section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % j, inistring, re.DOTALL)
+                all_sections.remove("AXIS_%i" % j)
+                if section:
+                    newini.write(section.group(1))
+                else:
+                    print "File parsing error, found an [AXIS_%i] section, but no content" % j
+                    exit()
+        elif j >= 9:
+            break
+        else:
+            pass
+
+        j += 1
+
+    # If there were any custom sections, tag them on the end.
+    while all_sections:
+        copysection(all_sections[0])
+
+    #That's the INI file done:
+    newini.close()
+
+    # Now change all the pin names etc in the linked HAL files.
+    subs = {'axis.(.).active':    'joint.\\1.active',
+    'axis.(.).amp-enable-out':    'joint.\\1.amp-enable-out',
+    'axis.(.).amp-fault-in':      'joint.\\1.amp-fault-in',
+    'axis.(.).backlash-corr':     'joint.\\1.backlash-corr',
+    'axis.(.).backlash-filt':     'joint.\\1.backlash-filt',
+    'axis.(.).backlash-vel':      'joint.\\1.backlash-vel',
+    'axis.(.).coarse-pos-cmd':    'joint.\\1.coarse-pos-cmd',
+    'axis.(.).error':             'joint.\\1.error',
+    'axis.(.).f-error':           'joint.\\1.f-error',
+    'axis.(.).f-error-lim':       'joint.\\1.f-error-lim',
+    'axis.(.).f-errored':         'joint.\\1.f-errored',
+    'axis.(.).faulted':           'joint.\\1.faulted',
+    'axis.(.).free-pos-cmd':      'joint.\\1.free-pos-cmd',
+    'axis.(.).free-tp-enable':    'joint.\\1.free-tp-enable',
+    'axis.(.).free-vel-lim':      'joint.\\1.free-vel-lim',
+    'axis.(.).home-state':        'joint.\\1.home-state',
+    'axis.(.).home-sw-in':        'joint.\\1.home-sw-in',
+    'axis.(.).homed':             'joint.\\1.homed',
+    'axis.(.).homing':            'joint.\\1.homing',
+    'axis.(.).in-position':       'joint.\\1.in-position',
+    'axis.(.).index-enable':      'joint.\\1.index-enable',
+    'axis.(.).jog-counts':        'joint.\\1.jog-counts',
+    'axis.(.).jog-enable':        'joint.\\1.jog-enable',
+    'axis.(.).jog-scale':         'joint.\\1.jog-scale',
+    'axis.(.).jog-vel-mode':      'joint.\\1.jog-vel-mode',
+    'axis.(.).joint-pos-cmd':     'joint.\\1.pos-cmd',
+    'axis.(.).joint-pos-fb':      'joint.\\1.pos-fb',
+    'axis.(.).joint-vel-cmd':     'joint.\\1.vel-cmd',
+    'axis.(.).kb-jog-active':     'joint.\\1.kb-jog-active',
+    'axis.(.).motor-offset':      'joint.\\1.motor-offset',
+    'axis.(.).motor-pos-cmd':     'joint.\\1.motor-pos-cmd',
+    'axis.(.).motor-pos-fb':      'joint.\\1.motor-pos-fb',
+    'axis.(.).neg-hard-limit':    'joint.\\1.neg-hard-limit',
+    'axis.(.).neg-lim-sw-in':     'joint.\\1.neg-lim-sw-in',
+    'axis.(.).pos-hard-limit':    'joint.\\1.pos-hard-limit',
+    'axis.(.).pos-lim-sw-in':     'joint.\\1.pos-lim-sw-in',
+    'axis.(.).wheel-jog-active':  'joint.\\1.wheel-jog-active',
+    'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
+    'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
+    '\[AXIS_(.)\]':               '[JOINT_\\1]'}
+
+    for halfile in halfiles:
+        halstring = open(halfile,'r').read()
+        for sub in subs:
+            halstring = re.sub(sub, subs[sub], halstring)
+        newhal = open(halfile, 'w')
+        newhal.write(halstring)
+        newhal.close()
+
+elif version == "1.0":
+        print """This file does not need converting, and furthermore execution
+        should never have reached this spot"""
