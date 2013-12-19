@@ -28,9 +28,10 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
     def __init__(self, *a, **kw):
         gtk.VBox.__init__(self, *a, **kw)
         self.gstat = GStat()
+        # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.ini = linuxcnc.ini(inifile)
-
+        no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
         path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.filename = os.path.expanduser(path)
 
@@ -66,7 +67,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.set_sensitive(False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and self.is_all_homed()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or no_home_required ) ))
         self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
         self.reload()
         self.show_all()

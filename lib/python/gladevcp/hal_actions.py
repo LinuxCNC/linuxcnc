@@ -55,6 +55,10 @@ class _EMC_ActionBase(_HalWidgetBase):
     def _hal_init(self):
         self.linuxcnc, self.stat, self.gstat = self.linuxcnc_static.get()
         self._stop_emission = False
+        # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
+        inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
+        ini = linuxcnc.ini(inifile)
+        self.no_f_home = int(ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
 
     def machine_on(self):
         self.stat.poll()
@@ -71,6 +75,9 @@ class _EMC_ActionBase(_HalWidgetBase):
         if count == axis_count:
             return True
         return False
+
+    def no_home_required(self):
+        return self.no_f_home
 
     def safe_handler(self, f):
         def _f(self, *a, **kw):
@@ -427,7 +434,7 @@ class EMC_Action_MDI(_EMC_Action):
         self.set_sensitive(False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and self.is_all_homed()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) ))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
         self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
 
