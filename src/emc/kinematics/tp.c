@@ -45,7 +45,7 @@ STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-/*#define TP_ARC_BLENDS*/
+#define TP_ARC_BLENDS
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
 #define TP_SHOW_BLENDS
@@ -229,7 +229,11 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
  * Get the worst-case target velocity for a segment based on the trajectory planner state.
  */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    return fmin(tc->target_vel * TP_MAX_FEED_SCALE, tc->maxvel);
+    double tc_maxvel = tc->maxvel;
+    if (tc->motion_type == TC_CIRCULAR) {
+        
+    }
+    return fmin(tc->target_vel * TP_MAX_FEED_SCALE, tc_maxvel);
 }
 
 
@@ -1019,12 +1023,41 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
 
 /**
+ * After adding a new segment, run this on the previous segment to validate
+ */
+STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+    //Apply velocity corrections
+    if (!tc) {
+        return TP_ERR_FAIL;
+    }
+    if (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC) {
+        tp_debug_print("Setting parabolic maxvel\v");
+        //FIXME Hack to deal with the "double" scaling of
+        //acceleration. This only works due to the specific
+        //implementation of GetScaledAccel
+        double parabolic_maxvel = tc->maxvel *
+            pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
+        tc->maxvel = parabolic_maxvel;
+
+        tpCheckLastParabolic(tp, tc);
+    } else {
+        tp_debug_print("Setting tangent maxvel\v");
+        //Tangent case can handle higher accelerations
+        double tangent_maxvel = tc->maxvel *
+            pmSqrt(TP_ACC_RATIO_NORMAL); 
+        tc->maxvel = tangent_maxvel;
+    }
+
+    tpCalculateTriangleVel(tp, tc);
+    return TP_ERR_OK;
+}
+
+/**
  * Add a newly created motion segment to the tp queue.
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end, int inc_id) {
-
 
     tc->id = tp->nextId;
     if (tcqPut(&tp->queue, tc) == -1) {
@@ -1053,7 +1086,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
  */
 int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxvel,
         double acc, unsigned char enables) {
-    TC_STRUCT tc;
+    TC_STRUCT tc, *prev_tc;
     PmCartLine line_xyz;
     PmCartesian start_xyz, end_xyz;
     PmCartesian abc, uvw;
@@ -1103,8 +1136,9 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     tpCalculateTriangleVel(tp, &tc);
 
     //Assume non-zero error code is failure
+    prev_tc = tcqLast(&tp->queue);
     int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
-
+    tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
     return retval;
 }
@@ -1386,7 +1420,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  */
 int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary) {
-    TC_STRUCT tc;
+    TC_STRUCT tc, *prev_tc;
     PmCartLine line_xyz, line_uvw, line_abc;
     PmCartesian start_xyz, end_xyz;
     PmCartesian start_uvw, end_uvw;
@@ -1456,8 +1490,10 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     //Flag this as blending with previous segment if the previous segment is set to blend with this one
  
+    prev_tc = tcqLast(&tp->queue);
     int retval = tpAddSegmentToQueue(tp, &tc, &end, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
+    tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
 
     return retval;
@@ -1545,28 +1581,10 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
 
     int failed = tpSetupTangent(tp, prev_tc, &tc);
 
-    //Apply velocity corrections
-    if (failed) {
-        //FIXME Hack to deal with the "double" scaling of
-        //acceleration. This only works due to the specific
-        //implementation of GetScaledAccel
-        double parabolic_maxvel = ini_maxvel *
-            pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
-        tc.maxvel = parabolic_maxvel;
-
-        tpCheckLastParabolic(tp, &tc);
-    } else {
-        //Tangent case can handle higher accelerations
-        double tangent_maxvel = ini_maxvel *
-            pmSqrt(TP_ACC_RATIO_NORMAL); 
-        tc.maxvel = tangent_maxvel;
-    }
-
-    tpCalculateTriangleVel(tp, &tc);
 
     //Assume non-zero error code is failure
     int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
-
+    tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
     return retval;
 }
@@ -1625,23 +1643,17 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
      */
 
     double v_blend_this, v_blend_next;
-    if (tc->motion_type == TC_LINEAR && tc->motion_type == TC_LINEAR) {
 
-        v_blend_this = v_reachable_next * acc_this / acc_next;
-        v_blend_next = v_reachable_next;
+    v_blend_this = v_reachable_next * acc_this / acc_next;
+    v_blend_next = v_reachable_next;
 
-        //The shorter of the two segments is our constraint
-        if (v_reachable_this < v_reachable_next) {
-            v_blend_this = fmin(v_reachable_this, v_blend_this);
-            v_blend_next = fmin(v_reachable_this * acc_next / acc_this, v_blend_next);
-        } else {
-            v_blend_this = fmin(v_blend_this, v_reachable_next * acc_this / acc_next);
-            v_blend_next = fmin(v_blend_next, v_reachable_next);
-        }
+    //The shorter of the two segments is our constraint
+    if (v_reachable_this < v_reachable_next) {
+        v_blend_this = fmin(v_reachable_this, v_blend_this);
+        v_blend_next = fmin(v_reachable_this * acc_next / acc_this, v_blend_next);
     } else {
-        double v_blend_safe = acc_next < acc_this ? v_reachable * acc_next / acc_this : v_reachable;
-        v_blend_this = v_blend_safe;
-        v_blend_next = v_blend_safe;
+        v_blend_this = fmin(v_blend_this, v_reachable_next * acc_this / acc_next);
+        v_blend_next = fmin(v_blend_next, v_reachable_next);
     }
 
     double theta;
@@ -1990,7 +2002,8 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         double dv = tc->vel_at_blend_start - tc->currentvel;
         //TODO check for divide by zero
         double blend_progress = fmin(dv / tc->vel_at_blend_start, 1.0);
-        nexttc->target_vel = blend_progress * nexttc->blend_vel;
+        double blend_scale = tc->vel_at_blend_start / tc->blend_vel;
+        nexttc->target_vel = blend_progress * nexttc->blend_vel * blend_scale;
     } else {
         nexttc->target_vel = 0.0;
     }
