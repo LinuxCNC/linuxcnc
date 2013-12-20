@@ -8,21 +8,62 @@ import shutil
 import linuxcnc
 import re
 import datetime
+from Tkinter import *
+import tkMessageBox
 
-if len(sys.argv) < 2:
-    print "Usage: update_ini <path to file>"
+
+force = 0
+dialogs = 0
+
+filename = None
+for opt in sys.argv[1:]:
+    if opt == '-d':
+        dialogs = 1
+        r = Tk()
+        r.option_add('*Dialog.msg.font', 'Times 12')
+        r.option_add('*Dialog.msg.wrapLength', '6i')
+
+    elif opt == '-f':
+        force = 1
+    elif opt[0] == '-':
+        print "Unknown command line option to update_ini, exiting"
+        exit()
+    elif os.path.isfile(opt):
+        filename = opt
+
+if filename == None:
+    t = """Usage: update_ini [-d] [-f] filename.ini\n
+If the -d flag is used then a dialog box will be displayed
+describing the purpose of this script, and giving the user the option
+to change their minds\nIf the -f flag is used then no questions will be
+asked and the conversion will proceed blindly"""
+    if dialogs:
+        tkMessageBox.showerror('invalid options', str(t))
+    elif not force:
+        print t
     exit()
 
-filename = sys.argv[1]
-
-if not os.path.isfile(filename):
-    print "file %s not found" % filename
-    exit()
+if dialogs:
+    if tkMessageBox.askokcancel("Confirm automatic update",
+                                "This version of LinuxCNC separates the concepts of Axes and "
+                                "Joints which necessitates changes to the INI and HAL files\n"
+                                "The changes required are described here:\n"
+                                "http://wiki.linuxcnc.org/cgi-bin/wiki.pl?JointAxesBranch\n"
+                                "A script exists that can attempt to automatically "
+                                "reconfigure your configuration files.\nPress OK to perform "
+                                "the conversion, or Cancel to exit LinuxCNC.\n"
+                                "The process can not be automatically reversed, though a "
+                                "backup version of your entire existing config will be created.")  == False:
+        exit()
 
 try:
     ini = linuxcnc.ini(filename)
 except:
-    print "%s is not a valid ini file" % filename
+    t =  "%s is not a valid ini file" % filename
+    if dialogs:
+        tkMessageBox.showerror('invalid options', t)
+    elif not force:
+        print t
     exit()
 
 version = ini.find('EMC', 'VERSION')
@@ -32,26 +73,41 @@ if not version:
 if version == "$Revision$":
     pass
 elif version >= THIS_VERSION:
-    print """The supplied INI file is already at version %s and should not need
-     updating""" % version
+    t =  """The supplied INI file is already at version %s and should not need
+    updating""" % version
+    if dialogs:
+        tkMessageBox.showerror('conversion not needed', t)
+    elif not force:
+        print t
     exit()
 
-if ini.find('KINS', 'JOINTS'):
-    if raw_input("""The supplied INI file already has a [KINS] section.
-    this probably means that it was previously converted by hand.
-    Continue y/N? """) != "y":
-        exit()
+if ini.find('KINS', 'JOINTS') and not force:
+    if dialogs:
+        if tkMessageBox.askquestion("Already Converted",
+        "The supplied INI file already has a [KINS] section. this probably "
+        "means that it was previously converted by hand. Continue") != 'yes':
+            exit()
+    else:
+        if raw_input("""The supplied INI file already has a [KINS] section.
+        this probably means that it was previously converted by hand.
+        Continue y/N? """) != "y":
+            exit()
 
 # Looks like we are good to go, so first let's put the original configs
 # somewhere safe.
 
-backupdir = (os.path.splitext(filename)[0]) + ".old"
+basedir = os.path.dirname(os.path.abspath(filename))
+backupdir = os.path.join(basedir, os.path.splitext(os.path.basename(filename))[0] + ".old")
+print basedir, backupdir
 while os.path.isdir(backupdir):
     backupdir += ".old"
-
 os.mkdir(backupdir)
 old_ini =  os.path.join(backupdir, os.path.basename(filename))
-shutil.copyfile(filename, old_ini)
+for f in os.listdir(basedir):
+    if os.path.isdir(f):
+        pass
+    else:
+        shutil.copy(f, os.path.join(backupdir, os.path.basename(f)))
 
 #From now on, we use the backup copy as the reference
 ini = linuxcnc.ini(old_ini)
@@ -62,9 +118,6 @@ halfiles += ini.findall('HAL', 'POSTGUI_HALFILE')
 halfiles += {'touchy.hal'}
 
 halfiles[:] = [f for f in halfiles if os.path.isfile(f)]
-
-for halfile in halfiles:
-    shutil.copyfile(halfile, os.path.join(backupdir, halfile))
 
 inistring = open(filename,'r').read()
 newini = open(filename, 'w')
@@ -104,10 +157,10 @@ if version == "$Revision$" or version < "1.0":
     all_sections.remove("EMC")
     section = re.search("\[EMC\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
-    newini.write("[EMC]/n")
+    newini.write("[EMC]\n")
     if section != None:
         if version != "0.0":
-            section = re.sub("VERSION (.+)", "VERSION %s" % THIS_VERSION, section)
+            section = re.sub("VERSION (.+)", "VERSION = %s" % THIS_VERSION, section)
         else:
             newini.write("# The version string for this INI file.\n")
             newini.write("VERSION = %s\n" % THIS_VERSION)
@@ -134,7 +187,6 @@ if version == "$Revision$" or version < "1.0":
             kins = re.match('[loadrt|#autoconverted][\w]+(.+kins)', line)
             if kins:
                 kins = kins.group(1)
-                print kins
                 break
         if kins: break
     if not kins: kins = "trivkins"
@@ -244,3 +296,6 @@ if version == "$Revision$" or version < "1.0":
 elif version == "1.0":
         print """This file does not need converting, and furthermore execution
         should never have reached this spot"""
+
+if force:
+    shutil.rmtree(backupdir)
