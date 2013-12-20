@@ -2259,12 +2259,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                         if i: print >>file, "net %s     <= %s-not" % (p, pinname)
                         else: print >>file, "net %s     <= %s" % (p, pinname)
                     elif "sserial" in pname:
-                        if "7i64" in pinname:
-                            if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
-                            else: print >>file, "net %s     <=  "% (p)+pinname +".in"
-                        else:
-                            if i: print >>file, "net %s     <=  "% (p)+pinname +"-not"
-                            else: print >>file, "net %s     <=  "% (p)+pinname
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +"-not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname
                     else:
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
@@ -2361,11 +2357,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s %s"% (p,pinname)
                     else:
                         if "sserial" in pname:
-                            # different sserial have different endings
-                            if "7i64" in pinname:
-                                temp = pinname + ".out"
-                            else:
-                                temp = pinname
+                            temp = pinname
                         # mainboard GPIOO require extra setup commands
                         else:
                             print >>file, "setp %s true"% (pinname + ".is_output")
@@ -2378,10 +2370,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s %s"% (p,temp)
                     if i: # invert pin
                         if "sserial" in pname: 
-                            if "7i64" in pinname:
-                                ending = ".invert"
-                            else:
-                                ending = "-invert"
+                            ending = "-invert"
                         elif "parport" in pinname: ending = "-invert"
                         else: ending = ".invert_output"
                         print >>file, "setp %s true"%  (pinname + ending )
@@ -3831,14 +3820,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
-                    if "7i64" in(subboardname):
-                        if ptype in(GPIOO,GPIOD):
-                            comptype = "digout"
-                            pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
-                        if ptype == GPIOI:
-                            comptype = "digin"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (pinnum)
-                    elif "7i77" in (subboardname) or "7i76" in(subboardname):
+                    if "7i77" in (subboardname) or "7i76" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             if pinnum >15 and pinnum <24:
@@ -3850,7 +3832,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                             if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i69" in (subboardname) or "7i73" in (subboardname):
+                    elif "7i69" in (subboardname) or "7i73" in (subboardname) or "7i64" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             pinnum -= 24
@@ -3873,11 +3855,10 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (ANALOGIN):
                     if "7i64" in(subboardname):
-                        comptype = "adcin"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (compnum)+".in"
+                        comptype = "analog"
                     else:
                         comptype = "analogin"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (ENCA):
                     comptype = "enc"
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
