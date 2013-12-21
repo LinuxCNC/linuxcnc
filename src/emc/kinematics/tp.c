@@ -1030,25 +1030,16 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
     if (!tc) {
         return TP_ERR_FAIL;
     }
-    if (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC) {
+    if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC)) {
         tp_debug_print("Setting parabolic maxvel\v");
         //FIXME Hack to deal with the "double" scaling of
         //acceleration. This only works due to the specific
         //implementation of GetScaledAccel
-        double parabolic_maxvel = tc->maxvel *
-            pmSqrt(TP_ACC_RATIO_TANGENTIAL * TP_ACC_RATIO_NORMAL) ;
-        tc->maxvel = parabolic_maxvel;
+        tc->maxvel *= pmSqrt(TP_ACC_RATIO_TANGENTIAL);
 
         tpCheckLastParabolic(tp, tc);
-    } else {
-        tp_debug_print("Setting tangent maxvel\v");
-        //Tangent case can handle higher accelerations
-        double tangent_maxvel = tc->maxvel *
-            pmSqrt(TP_ACC_RATIO_NORMAL); 
-        tc->maxvel = tangent_maxvel;
-    }
-
-    tpCalculateTriangleVel(tp, tc);
+        tpCalculateTriangleVel(tp, tc);
+    } 
     return TP_ERR_OK;
 }
 
@@ -1551,7 +1542,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.nominal_length = helix_length;
     tc.atspeed = atspeed;
 
-
     tc.coords.circle.xyz = circle;
     tc.coords.circle.uvw = line_uvw;
     tc.coords.circle.abc = line_abc;
@@ -1569,7 +1559,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tc.syncdio.anychanged = 0;
     }
 
-
     // Motion parameters
     tc.motion_type = TC_CIRCULAR;
     tc.term_cond = tp->termCond;
@@ -1579,11 +1568,13 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
-    int failed = tpSetupTangent(tp, prev_tc, &tc);
-
+    tpSetupTangent(tp, prev_tc, &tc);
 
     //Assume non-zero error code is failure
-    int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
+    tp_debug_print("Setting tangent maxvel\v");
+    //Tangent case can handle higher accelerations
+    tc.maxvel *= pmSqrt(TP_ACC_RATIO_NORMAL);
+    int retval = tpAddSegmentToQueue(tp, &tc, &end, true);
     tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
     return retval;
