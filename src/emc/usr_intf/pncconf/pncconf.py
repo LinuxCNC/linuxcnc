@@ -4060,10 +4060,11 @@ class App:
             gtk.main_iteration()
 
     def __init__(self, debug=0):
-        print 'debug=',debug
         if debug:
-            global _DEBUGSTRING
-            _DEBUGSTRING = ['all']
+           print 'PNCconf debug -ALL'
+           global _DEBUGSTRING
+           _DEBUGSTRING = ['all']
+
         gnome.init("pncconf", "0.6") 
         
         self.splash_screen()
@@ -9480,12 +9481,7 @@ But there is not one in the machine-named folder.."""),True)
         self.widgets.jogplus.set_sensitive(self.enable_amp)
         self.update_axis_params()
 
-    def run(self, debug=None):
-        print "debug",debug
-        if debug is not None:
-            global _DEBUGSTRING
-            _DEBUGSTRING = debug.split(',')
-            print "debug",_DEBUGSTRING
+    def run(self):
         gtk.main()
 
     def hal_test_signals(self, axis):
