@@ -2038,17 +2038,22 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
-                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                        if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
                         print >>file, "net %s     => %s"%(signal,pwmpinname)
                         print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                        if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
                     print >>file, "net %s-enable     axis.%d.amp-enable-out"% (let,axnum)
+                    if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                        print >>file, "net %s-enable   %spinena"% (let,rawpinname)
                     if let == "x":
                         print >>file, "# enable _all_ sserial pwmgens"
-                        print >>file, "net %s-enable   %sanalogena"% (let,rawpinname) 
+                        print >>file, "net %s-enable   %sanalogena"% (let,rawpinname)
                 print >>file
 
             else:
@@ -2968,6 +2973,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         # check for shared MPG 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
+            print "shared MPG", pinname
             ending = ""
             if "encoder" in pinname: ending = ".count"
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
@@ -9343,7 +9349,11 @@ But there is not one in the machine-named folder.."""),True)
 
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
-                halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
+                if 'analogout5' in self.pwm:
+                    enable ='spinena'
+                else:
+                    enable ='analogena'
+                halrun.write("net enable %s \n"%  (pwm_enable + enable))
                 halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
                 halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)
                 halrun.write("setp   "+self.pwm+"-scalemax %.1f\n"% pwmmaxoutput)
