@@ -64,6 +64,14 @@ class _EMC_ActionBase(_HalWidgetBase):
         self.stat.poll()
         return self.stat.task_state > linuxcnc.STATE_OFF
 
+    def is_file_loaded(self):
+        self.stat.poll()
+        print "file name:",self.stat.file
+        if self.stat.file:
+            return True
+        else:
+            return False
+
     def is_all_homed(self):
         self.stat.poll()
         axis_count = count = 0
@@ -356,10 +364,15 @@ class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
 
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive( self.machine_on() and self.is_all_homed() and self.is_file_loaded() ))
         self.gstat.connect('interp-idle', lambda w: self.set_active_safe(False))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-run', lambda w: self.set_active_safe(True))
+        self.gstat.connect('all-homed', lambda w: self.set_sensitive( self.machine_on() and self.is_file_loaded() ))
+        self.gstat.connect('file-loaded', self.file_loaded_check)
+
+    def file_loaded_check(self,widget,filename):
+        self.set_sensitive( self.machine_on() and self.is_all_homed() )
 
     def set_restart_line(self,line,resetline=0):
         self.program_start_line = line
