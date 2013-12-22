@@ -4070,7 +4070,11 @@ class App:
         while gtk.events_pending():
             gtk.main_iteration()
 
-    def __init__(self):
+    def __init__(self,debug=0):
+        if debug:
+           print 'PNCconf debug -ALL'
+           global _DEBUGSTRING
+           _DEBUGSTRING = ['all']
         gnome.init("pncconf", "0.6") 
         
         self.splash_screen()
@@ -4670,6 +4674,7 @@ Ok to reset data and start a new configuration?"),False):
             pinconvertnone = {"NOT USED":NUSED}
             count = 0
             for i,j in enumerate(pins):
+                instance_num = 9999
                 temppinunit = []
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
@@ -9484,12 +9489,7 @@ But there is not one in the machine-named folder.."""),True)
         self.widgets.jogplus.set_sensitive(self.enable_amp)
         self.update_axis_params()
 
-    def run(self, debug=None):
-        print "debug",debug
-        if debug is not None:
-            global _DEBUGSTRING
-            _DEBUGSTRING = debug.split(',')
-            print "debug",_DEBUGSTRING
+    def run(self):
         gtk.main()
 
     def hal_test_signals(self, axis):
@@ -10081,18 +10081,22 @@ def makedirs(d):
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
-opts, args = getopt.getopt(sys.argv[1:], "fr")
+opts, args = getopt.getopt(sys.argv[1:], "dfr")
 mode = 0
 force = 0
+debugswitch = 0
 for k, v in opts:
     if k == "-r": mode = 1
     if k == "-f": force = 1
-
+    if k == "-d": debugswitch = 1
 if mode:
     filename = args[0]
     data = Data()
     data.load(filename, None, force)
     data.save()
+if debugswitch:
+    app = App(1)
+    app.run()
 elif args:
     app = App()
     app.run(args[0])
