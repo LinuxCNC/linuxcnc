@@ -111,7 +111,6 @@ domain="glade-3" depends="gtk+">
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
-   <glade-widget-class-ref name="HAL_HBox"/>
    <glade-widget-class-ref name="HAL_Table"/>
    <glade-widget-class-ref name="State_Sensitive_Table"/>
    <glade-widget-class-ref name="HAL_LED"/>
