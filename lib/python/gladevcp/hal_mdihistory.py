@@ -68,6 +68,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or no_home_required ) ))
+        self.gstat.connect('interp-run', lambda w: self.set_sensitive(not self.is_auto_mode()))
         self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
         self.reload()
         self.show_all()
