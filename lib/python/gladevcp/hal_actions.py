@@ -64,6 +64,11 @@ class _EMC_ActionBase(_HalWidgetBase):
         self.stat.poll()
         return self.stat.task_state > linuxcnc.STATE_OFF
 
+    def is_auto_mode(self):
+        self.stat.poll()
+        print self.stat.task_mode, linuxcnc.MODE_AUTO
+        return self.stat.task_mode == linuxcnc.MODE_AUTO
+
     def is_file_loaded(self):
         self.stat.poll()
         print "file name:",self.stat.file
