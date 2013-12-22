@@ -3,8 +3,9 @@ domain="glade-3" depends="gtk+">
  <init-function>glade_python_init</init-function>
 
  <glade-widget-classes>
-   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL_HBox"/>
-   <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL_table"/>
+   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL Sensitive HBox"/>
+   <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL Sensitive table"/>
+   <glade-widget-class name="State_Sensitive_Table" generic-name="state_sensitive_table" title="State_Sensitive_table"/>
    <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox"/>
    <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button"/>
    <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton"/>
@@ -112,6 +113,7 @@ domain="glade-3" depends="gtk+">
  <glade-widget-group name="python" title="HAL Python">
    <glade-widget-class-ref name="HAL_HBox"/>
    <glade-widget-class-ref name="HAL_Table"/>
+   <glade-widget-class-ref name="State_Sensitive_Table"/>
    <glade-widget-class-ref name="HAL_LED"/>
    <glade-widget-class-ref name="HAL_ComboBox"/>
    <glade-widget-class-ref name="HAL_Button"/>

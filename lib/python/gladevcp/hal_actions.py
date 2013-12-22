@@ -525,3 +525,28 @@ class EMC_Action_Home(_EMC_Action):
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
         self.linuxcnc.home(self.axis)
+
+
+class State_Sensitive_Table(gtk.Table, _EMC_ActionBase):
+    __gtype_name__ = "State_Sensitive_Table"
+    is_homed = gobject.property(type=bool, default=True, nick='Must Be Homed',
+                                    blurb='Machine Must be homed for widgets to be sensitive to input')
+    is_on = gobject.property(type=bool, default=True, nick='Must Be On',
+                                    blurb='Machine Must be On for widgets to be sensitive to input')
+    is_idle = gobject.property(type=bool, default=True, nick='Must Be Idle',
+                                    blurb='Machine Must be Idle for widgets to be sensitive to input')
+
+    def _hal_init(self):
+        _EMC_ActionBase._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        if self.is_on:
+            self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) ))
+        else:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()) )
+        if self.is_idle:
+            self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
