@@ -11,6 +11,22 @@ import datetime
 from Tkinter import *
 import tkMessageBox
 
+def copysection(block):
+    #Just makes a straight copy of blocks that don't need any work
+    regex = "\[%s\](.+?)(?:\n\[|$)" % block
+    section = re.search(regex, inistring, re.DOTALL)
+    newini.write("\n[%s]" % block)
+    if section != None:
+        newini.write(section.group(1))
+        all_sections.remove(block)
+    else:
+         newini.write("\n#No Content\n")
+
+def writeifexists(file, section, src_item, dest_item = "None"):
+    #Writes a new entry to the file, but only if it exists
+    if dest_item == 'None': dest_item = src_item
+    val = ini.find(section, src_item)
+    if val: file.write("%s = %s\n" % (dest_item, val))
 
 force = 0
 dialogs = 0
@@ -44,17 +60,22 @@ asked and the conversion will proceed blindly"""
     exit()
 
 if dialogs:
-    if tkMessageBox.askokcancel("Confirm automatic update",
-                                "This version of LinuxCNC separates the concepts of Axes and "
-                                "Joints which necessitates changes to the INI and HAL files\n"
-                                "The changes required are described here:\n"
-                                "http://wiki.linuxcnc.org/cgi-bin/wiki.pl?JointAxesBranch\n"
-                                "A script exists that can attempt to automatically "
-                                "reconfigure your configuration files.\nPress OK to perform "
-                                "the conversion, or Cancel to exit LinuxCNC.\n"
-                                "The process can not be automatically reversed, though a "
-                                "backup version of your entire existing config will be created.")  == False:
-        exit()
+    ret = tkMessageBox._show("Confirm automatic update",
+                           "This version of LinuxCNC separates the concepts of Axes and "
+                           "Joints which necessitates changes to the INI and HAL files."
+                           "The changes required are described here:\n"
+                           "http://wiki.linuxcnc.org/cgi-bin/wiki.pl?JointAxesBranch\n"
+                           "The [EMC]VERSION data in your INI file indicates that your "
+                           "configuration requires update.\n"
+                           "A script exists that can attempt to automatically "
+                           "reconfigure your configuration files.\nPress 'Yes' to perform "
+                           "the conversion, 'No' to continue with the current configuration "
+                           "files or 'Cancel' to exit LinuxCNC.\n"
+                           "The process can not be automatically reversed, though a "
+                           "backup version of your entire existing config will be created.",
+                           tkMessageBox.QUESTION, tkMessageBox.YESNOCANCEL)
+    if ret == 'cancel': exit(1)
+    elif ret == 'no': exit(0)
 
 try:
     ini = linuxcnc.ini(filename)
@@ -85,29 +106,33 @@ if ini.find('KINS', 'JOINTS') and not force:
     if dialogs:
         if tkMessageBox.askquestion("Already Converted",
         "The supplied INI file already has a [KINS] section. this probably "
-        "means that it was previously converted by hand. Continue") != 'yes':
-            exit()
+        "means that it was previously converted by hand. Continue conversion?"
+        "(Change [EMC]VERSION to %s to suppress these messages)"
+        % THIS_VERSION) != 'yes':
+            exit(0)
     else:
-        if raw_input("""The supplied INI file already has a [KINS] section.
-        this probably means that it was previously converted by hand.
-        Continue y/N? """) != "y":
-            exit()
+        if raw_input("The supplied INI file already has a [KINS] section."
+        "this probably means that it was previously converted by hand. "
+        "Continue y/N? (Change [EMC]VERSION to %s to suppress these messages)"
+        % THIS_VERSION) != "y":
+            exit(0)
 
 # Looks like we are good to go, so first let's put the original configs
 # somewhere safe.
 
 basedir = os.path.dirname(os.path.abspath(filename))
 backupdir = os.path.join(basedir, os.path.splitext(os.path.basename(filename))[0] + ".old")
-print basedir, backupdir
+
 while os.path.isdir(backupdir):
     backupdir += ".old"
 os.mkdir(backupdir)
 old_ini =  os.path.join(backupdir, os.path.basename(filename))
 for f in os.listdir(basedir):
-    if os.path.isdir(f):
+    if os.path.isdir(os.path.join(basedir, os.path.basename(f))):
         pass
     else:
-        shutil.copy(f, os.path.join(backupdir, os.path.basename(f)))
+        shutil.copy(os.path.join(basedir, os.path.basename(f)), 
+                    os.path.join(backupdir, os.path.basename(f)))
 
 #From now on, we use the backup copy as the reference
 ini = linuxcnc.ini(old_ini)
@@ -115,23 +140,16 @@ ini = linuxcnc.ini(old_ini)
 #And the hal files too.
 halfiles = ini.findall('HAL', 'HALFILE')
 halfiles += ini.findall('HAL', 'POSTGUI_HALFILE')
-halfiles += {'touchy.hal'}
+halfiles += ['touchy.hal']
+print "halfiles = ", halfiles
 
-halfiles[:] = [f for f in halfiles if os.path.isfile(f)]
+halfiles[:] = [os.path.join(basedir, f) for f in halfiles 
+               if os.path.isfile(os.path.join(basedir, f))]
+
+print "halfiles = ", halfiles
 
 inistring = open(filename,'r').read()
 newini = open(filename, 'w')
-
-def copysection(block):
-    #Just makes a straight copy of blocks that don't need any work
-    regex = "\[%s\](.+?)(?:\n\[|$)" % block
-    section = re.search(regex, inistring, re.DOTALL)
-    newini.write("\n[%s]" % block)
-    if section != None:
-        newini.write(section.group(1))
-        all_sections.remove(block)
-    else:
-         newini.write("\n#No Content. This is probably an error\n")
 
 # Get a list of all sections
 all_sections = re.findall("\n\[(.+)\]", inistring)
@@ -181,6 +199,7 @@ if version == "$Revision$" or version < "1.0":
 
     # Insert the new-fangled [KINS] section
     # Search the Halfiles to find the kinematics.
+    kins = None
     for halfile in halfiles:
         hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
         for line in hal.readlines():
@@ -207,20 +226,20 @@ if version == "$Revision$" or version < "1.0":
                 copysection("AXIS_%s" % "XYZABCUVW"[j])
                 copysection("JOINT_%i" % j)
             else:
-                newini.write("\n[AXIS_%s]" % "XYZABCUVW"[j])
-                newini.write("HOME = %s\n" % ini.find("JOINT_%i" % j, "HOME"))
-                newini.write("MIN_LIMIT = %s\n" % ini.find("JOINT_%i" % j, "MIN_LIMIT"))
-                newini.write("MAX_LIMIT = %s\n" % ini.find("JOINT_%i" % j, "MAX_LIMIT"))
-                newini.write("MAX_VELOCITY = %s\n" % ini.find("JOINT_%i" % j, "MAX_VELOCITY"))
-                newini.write("MAX_ACCELERATION = %s\n\n" % ini.find("JOINT_%i" % j, "MAX_ACCELERATION"))
-                copysection({"[JOINT_%i]" % j})
+                newini.write("\n[AXIS_%s]\n" % "XYZABCUVW"[j])
+                writeifexists(newini, "JOINT_%i" % j, "HOME")
+                writeifexists(newini, "JOINT_%i" % j, "MIN_LIMIT")
+                writeifexists(newini, "JOINT_%i" % j, "MAX_LIMIT")
+                writeifexists(newini, "JOINT_%i" % j, "MAX_VELOCITY")
+                writeifexists(newini, "JOINT_%i" % j, "MAX_ACCELERATION")
+                copysection("[JOINT_%i]" % j)
         elif  re.search("\[AXIS_%i\]" % j, inistring): #Looks like an [AXIS_0] style layout
-                newini.write("\n[AXIS_%s]" % "XYZABCUVW"[j])
-                newini.write("HOME = %s\n" % ini.find("AXIS_%i" % j, "HOME"))
-                newini.write("MIN_LIMIT = %s\n" % ini.find("AXIS_%i" % j, "MIN_LIMIT"))
-                newini.write("MAX_LIMIT = %s\n" % ini.find("AXIS_%i" % j, "MAX_LIMIT"))
-                newini.write("MAX_VELOCITY = %s\n" % ini.find("AXIS_%i" % j, "MAX_VELOCITY"))
-                newini.write("MAX_ACCELERATION = %s\n\n" % ini.find("AXIS_%i" % j, "MAX_ACCELERATION"))
+                newini.write("\n[AXIS_%s]\n" % "XYZABCUVW"[j])
+                writeifexists(newini, "AXIS_%i" % j, "HOME")
+                writeifexists(newini, "AXIS_%i" % j, "MIN_LIMIT")
+                writeifexists(newini, "AXIS_%i" % j, "MAX_LIMIT")
+                writeifexists(newini, "AXIS_%i" % j, "MAX_VELOCITY")
+                writeifexists(newini, "AXIS_%i" % j, "MAX_ACCELERATION")
                 newini.write("\n[JOINT_%i]\n" % j)
                 section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % j, inistring, re.DOTALL)
                 all_sections.remove("AXIS_%i" % j)
