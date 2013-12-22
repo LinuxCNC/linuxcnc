@@ -2973,13 +2973,12 @@ If you have a REALLY large config that you wish to convert to this newer version
         # check for shared MPG 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
-            print "shared MPG", pinname
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
             print >>file, "net joint-selected-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3002,11 +3001,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
                 if pinname:
                     ending = ""
-                    if "encoder" in pinname: ending = ".count"
+                    if "enc" in pinname: ending = ".count"
                     print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
                     print >>file
                     print >>file, "net %s-jog-count          <=  %s%s"% (axletter, pinname,ending)
-                    if ending:
+                    if 'encoder' in ending:
                         print >>file, "setp    %s.filter true" % pinname
                         print >>file, "setp    %s.counter-mode false" % pinname
                     print >>file
@@ -3045,11 +3044,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net fo-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3095,11 +3094,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---max velocity override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net mvo-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3149,11 +3148,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---spindle override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net so-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
