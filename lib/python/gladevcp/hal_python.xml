@@ -29,6 +29,8 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
 
+    <glade-widget-class name="JogWheel" generic-name="jog_wheel" title="Jog Wheel"/>
+
     <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
     <glade-widget-class name="HAL_GremlinPlus" generic-name="hal_gremlin_plus" title="HAL Gremlin Plus"/>
 
@@ -129,6 +131,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
+   <glade-widget-class-ref name="JogWheel"/>
 
    <glade-widget-class-ref name="PyNgcGui"/>
    <glade-widget-class-ref name="HAL_GremlinPlus"/>
@@ -136,8 +139,10 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="ToolEdit"/>
    <glade-widget-class-ref name="Calculator"/>
    <glade-widget-class-ref name="HAL_DRO"/>
+
    <glade-widget-class-ref name="Combi_DRO"/>
    <glade-widget-class-ref name="IconFileSelection"/>
+
    <glade-widget-class-ref name="HAL_Offset"/>
    <glade-widget-class-ref name="OffsetPage"/>
    <glade-widget-class-ref name="EMC_Stat"/>
