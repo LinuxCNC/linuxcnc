@@ -826,12 +826,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double a_max;
     //TODO move this function into setup somewhere because this should be constant
     tpGetMachineAccelLimit(&a_max);
-    /* Note: hard-coded sqrt(3)/2 as normal accel because we're using 0.5 as
-     * the tangential acceleration. Since changing acceleration values between
-     * segments is undesirable, it's better to restrict tangential acceleration
-     * to parabolic blend levels.
-     */
-    double a_n_max=a_max * TP_ACC_RATIO_NORMAL;
+
+    double a_n_max = a_max * TP_ACC_RATIO_NORMAL;
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
     //Find common velocity and acceleration
