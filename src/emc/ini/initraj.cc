@@ -168,7 +168,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         int arcBlendOptDepth = 0;
         double  arcBlendSmoothingThreshold = 0.4;
         trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
-        trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK", "TRAJ");
+        trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK_ENABLE", "TRAJ");
         trajInifile->Find(&arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
         trajInifile->Find(&arcBlendSmoothingThreshold, "ARC_BLEND_SMOOTHING_THRESHOLD", "TRAJ");
 
