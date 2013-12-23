@@ -700,15 +700,24 @@ text_template::
 	3 fractional digits padded with zeros for a FLOAT pin.
 
 [[gladevcp:HAL_HBox_Table]]
-=== Containers: HAL_HBox and HAL_Table
-
-Compared to their Gtk counterparts they have one input BIT pin which
+=== Containers: HAL_Table State_Sensitive_Table and HAL_HBox *
+These containers are meant to be used to sensitize (grey out) their children.
+Insensitived children will not respond to input.
+HAL_Table and HAL_Hbox have one HAL BIT input pin which
 controls if their child widgets are sensitive or not. If the pin is low
 then child widgets are inactive which is the default.
+State_Sensitive_table responds to the state to linuxcnc's interpreter.
+optionally selectable to respond to 'must-be-all-homed','must-be-on' and 'must-be-idle'
+You can combine them. It will always be insensitive at Estop.
+
+* HAL_Hbox is depreceiated - use HAL_Table. 
+If current panels use it it won't fail. You just won't find it in the GLADE editor anymore.
+Future vesions of gladeVCP may remove this widget completely and then you will need
+to update the panel.
 
 [TIP]
 If you find some part of your GladeVCP application is 'grayed
-out' (insensitive), see whether a container's pin is unset.
+out' (insensitive), see whether a HAL_Table pin is unset or unconnected
 
 [[gladevcp:HAL_LED]]
 === LED
