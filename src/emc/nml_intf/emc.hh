@@ -573,6 +573,12 @@ extern int emcInit();
 extern int emcHalt();
 extern int emcAbort();
 
+int emcSetMaxFeedOverride(double maxFeedScale);
+int emcSetupArcBlends(int arcBlendEnable,
+        int arcBlendFallbackEnable,
+        int arcBlendOptDepth,
+        double arcBlendSmoothingThreshold);
+
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status
 extern EMC_STAT *emcStatus;
