@@ -472,7 +472,7 @@ label your panel.
    <<gladevcp:HAL_ProgressBar,HAL_ProgressBar>>,
    <<gladevcp:HAL_Bars,HAL_HBar and HAL_VBar>>, <<gladevcp:HAL_Meter,HAL_Meter>>
  - Widgets for controlling "number" signals: <<gladevcp:HAL_SpinButton,HAL_SpinButton>>,
-   <<gladevcp:HAL_Scales,HAL_HScale and HAL_VScale>>
+   <<gladevcp:HAL_Scales,HAL_HScale and HAL_VScale>>, <<gladevcp:JogWheel, Jog Wheel>>
  - Helper widgets: <<gladevcp:HAL_HBox_Table,HAL_HBox and HAL_Table>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
  - Widgets to show axis positions: <<gladevcp::DRO_widget, DRO Widget>>,
@@ -642,6 +642,43 @@ see above.
 Example SpinButton:
 image:images/spinbutton.png[]
 .
+
+[[gladevcp:JogWheel]]
+=== Jog Wheel
+
+The jogwheel widget simulates a real jogwheel and it exports it's count value as
+
+<widgetname>-s::
+	 out S32 pin
+
+It has the following properties:
+
+size::
+    Sets the size in pixel of the widget, allowed values are in the range of 100 to 500
+    default = 200
+cpr::
+    Sets the Counts per Revolution, allowed values are in the range from 25 to 100
+    default = 40
+show_counts::
+    Set this to False, if you want to hide the counts display in the middle of the widget.
+
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    Using goobject to set the above listed properties:
+        [widget name].set_property("size",int(value))
+        [widget name].set_property("cpr",int(value))
+        [widget name].set_property("show_counts, True)
+
+    There are two python methods:
+        [widget name].get_value()
+        Will return the counts value as integer
+
+Example JogWheel:
+
+image::images/JogWheel.png[]
+
 
 [[gladevcp:HAL_Label]]
 === Label
