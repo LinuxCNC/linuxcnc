@@ -930,6 +930,9 @@ z0_border, z1_border::
 Example HAL Meters:
 image:images/hal_meter.png[]
 .
+=== HAL_Graph
+
+This widget is for plotting values over time.
 
 [[gladevcp:HAL_Gremlin]]
 === Gremlin tool path preview for .ngc files
