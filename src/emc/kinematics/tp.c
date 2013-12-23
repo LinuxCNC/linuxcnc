@@ -45,7 +45,6 @@ STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-#define TP_ARC_BLENDS
 #define TP_SMOOTHING
 #define TP_FALLBACK_PARABOLIC
 #define TP_SHOW_BLENDS
@@ -53,6 +52,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
+extern emcmot_config_t *emcmotConfig;
 
 /** static function primitives */
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
@@ -233,7 +233,7 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
     if (tc->motion_type == TC_CIRCULAR) {
         
     }
-    return fmin(tc->target_vel * TP_MAX_FEED_SCALE, tc_maxvel);
+    return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc_maxvel);
 }
 
 
@@ -661,10 +661,10 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->vel_at_blend_start = 0.0;
     tc->finalvel = 0.0;
 
-    tc->enables=enables;
+    tc->enables = enables;
 
-    tc->optimization_state=0;
-    tc->on_final_decel=0;
+    tc->optimization_state = 0;
+    tc->on_final_decel = 0;
     tc->smoothing = 0;
     tc->splitting = 0;
     tc->split_time = 0;
@@ -836,9 +836,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Find common velocity and acceleration
     double v_req = fmax(prev_tc->reqvel, tc->reqvel);
-    double v_goal = v_req * TP_MAX_FEED_SCALE;
+    double v_goal = v_req * emcmotConfig->maxFeedScale;
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, max scale = %f\n", v_goal, TP_MAX_FEED_SCALE);
+    tp_debug_print("v_goal = %f, max scale = %f\n", v_goal, emcmotConfig->maxFeedScale);
 
     //Store trig functions for later use
     double Ctheta = cos(theta);
@@ -955,28 +955,27 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
     //TODO move this above to save processing time?
 
-#ifdef TP_FALLBACK_PARABOLIC
-    double v_parabolic = 0.0;
-    tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_parabolic);
-    //This is the actual velocity at the center of the parabolic blend
+    if (emcmotConfig->arcBlendFallbackEnable) {
+        double v_parabolic = 0.0;
+        tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_parabolic);
+        //This is the actual velocity at the center of the parabolic blend
 
-    /* Additional quality / performance checks: If we aren't moving faster than
-     * the equivalent parabolic blend, then fall back to parabolic
-     */
+        /* Additional quality / performance checks: If we aren't moving faster than
+         * the equivalent parabolic blend, then fall back to parabolic
+         */
 
-    tp_debug_print(" Check: v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
-    if ( v_plan <= v_parabolic) {
-        return TP_ERR_NO_ACTION;
+        tp_debug_print(" Check: v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
+        if ( v_plan <= v_parabolic) {
+            return TP_ERR_NO_ACTION;
+        }
+    } else {
+        //If for some reason we get too small a radius, the blend will fail. This
+        //shouldn't happen if everything upstream is working.
+        if (R_plan < TP_MAG_EPSILON) {
+            tp_debug_print("Blend radius too small, aborting...\n");
+            return TP_ERR_FAIL;
+        }
     }
-#else
-    //If for some reason we get too small a radius, the blend will fail. This
-    //shouldn't happen if everything upstream is working.
-    if (R_plan < TP_MAG_EPSILON) {
-        tp_debug_print("Blend radius too small, aborting...\n");
-        return TP_ERR_FAIL;
-    }
-#endif
-
     //Cap the previous segment's velocity at the limit imposed by the update rate
     double prev_reqvel = 0.0;
     if (L_prev > 0.0) {
@@ -1003,7 +1002,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      */
     double prev_blend_ratio = d_plan / prev_tc->nominal_length;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
-    if (prev_blend_ratio >= TP_SMOOTHING_THRESHOLD && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
+    if (prev_blend_ratio >= emcmotConfig->arcBlendSmoothingThreshold && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
         tp_debug_print(" prev smoothing enabled\n");
 
         /*double smooth_vel = fmin(prev_reqvel,v_actual);*/
@@ -1245,7 +1244,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
-    for (x = 2; x < TP_LOOKAHEAD_DEPTH + 2; ++x) {
+    for (x = 2; x < emcmotConfig->arcBlendOptDepth + 2; ++x) {
         tp_info_print("==== Optimization step %d ====\n",x-2);
 
         // Update the pointers to the trajectory segments in use
@@ -1474,10 +1473,10 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     tpCheckLastParabolic(tp, &tc);
     tpCalculateTriangleVel(tp, &tc);
-#ifdef TP_ARC_BLENDS
-    //TODO add check for two spaces in queue?
-    tpHandleBlendArc(tp, &tc);
-#endif
+    if (emcmotConfig->arcBlendEnable){
+        //TODO add check for two spaces in queue?
+        tpHandleBlendArc(tp, &tc);
+    }
 
     //Flag this as blending with previous segment if the previous segment is set to blend with this one
  
@@ -1843,6 +1842,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
             tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
     tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
             newvel, newaccel, tc->target, tc->progress);
+    //FIXME numerical constant
     tc->on_final_decel = (fabs(maxnewvel - newvel) < 0.001) && (newaccel < 0.0);
     if (tc->on_final_decel) {
         tc_debug_print("on final decel\n");
