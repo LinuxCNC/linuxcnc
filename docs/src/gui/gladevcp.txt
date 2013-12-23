@@ -1033,6 +1033,23 @@ Hints::
 Example:
 image:images/gremlin.png[]
 
+[[gladevcp::HAL_Offset]]
+== HAL_Offset
+The HAL_Offset widget is used to display the offset of a single axis.
+It has the following properties:
+
+Joint Number::
+    Used to select which axis (technically which joint) is displayed.
+    On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+
+    0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+Text template for metric units::
+    You can use python formatting to display the position with different precision.
+Text template for imperial units::
+    You can use python formatting to display the position with different precision.
+Reference Type::
+    0:G5x 1:tool 2:G92 3:Rotation around Z
+
 [[gladevcp::DRO_widget]]
 === DRO widget
 The DRO widget is used to display the current axis position.
