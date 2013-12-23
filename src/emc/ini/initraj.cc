@@ -162,11 +162,33 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_acceleration = acc;
-        //TODO LOOKAHEAD_DEPTH
-        //TODO ARC_BLEND_ENABLE
-        //TODO PARABOLIC_FALLBACK_ENABLE
-        //TODO BLEND_SMOOTHING_THRESHOLD
-        //TODO MAX_FEED_OVERRIDE
+
+        int arcBlendEnable = 0;
+        int arcBlendFallbackEnable = 0;
+        int arcBlendOptDepth = 0;
+        double  arcBlendSmoothingThreshold = 0.4;
+        trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
+        trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK", "TRAJ");
+        trajInifile->Find(&arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
+        trajInifile->Find(&arcBlendSmoothingThreshold, "ARC_BLEND_SMOOTHING_THRESHOLD", "TRAJ");
+
+        if (0 != emcSetupArcBlends(arcBlendEnable, arcBlendFallbackEnable,
+                    arcBlendOptDepth, arcBlendSmoothingThreshold)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcSetupArcBlends\n");
+            }
+            return -1;
+        } 
+
+        double maxFeedScale;
+        trajInifile->Find(&maxFeedScale, "MAX_FEED_OVERRIDE", "DISPLAY");
+
+        if (0 != emcSetMaxFeedOverride(maxFeedScale)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcSetMaxFeedOverride\n");
+            }
+            return -1;
+        } 
     }
 
     catch(EmcIniFile::Exception &e){

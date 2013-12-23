@@ -1628,6 +1628,15 @@ check_stuff ( "before command_handler()" );
 	    reportError(_("unrecognized command %d"), emcmotCommand->command);
 	    emcmotStatus->commandStatus = EMCMOT_COMMAND_UNKNOWN_COMMAND;
 	    break;
+        case EMCMOT_SET_MAX_FEED_OVERRIDE:
+            emcmotConfig->maxFeedScale = emcmotCommand->maxFeedScale;
+            break;
+        case EMCMOT_SETUP_ARC_BLENDS:
+            emcmotConfig->arcBlendEnable = emcmotCommand->arcBlendEnable;
+            emcmotConfig->arcBlendFallbackEnable = emcmotCommand->arcBlendFallbackEnable;
+            emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
+            emcmotConfig->arcBlendSmoothingThreshold = emcmotCommand->arcBlendSmoothingThreshold;
+            break;
 
 	}			/* end of: command switch */
 	if (emcmotStatus->commandStatus != EMCMOT_COMMAND_OK) {
