@@ -1079,8 +1079,14 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS -g $flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
-    test "$($XENOMAI_THREADS_RTS --arch)" = x86 && \    
+    if test "$($XENOMAI_THREADS_RTS --arch)" = x86; then
         flags="$flags -msse -funsafe-math-optimizations"
+        # When using SSE instructions, not normally allowed in the
+        # kernel, the stack must be aligned at 16 bytes.  Later
+        # kernels (3.8.13, but not 3.5.7) try to set
+        # -mpreferred-stack-boundary=3 on x86_64 arch, so force it.
+	flags="$flags -mpreferred-stack-boundary=4"
+    fi
     XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
