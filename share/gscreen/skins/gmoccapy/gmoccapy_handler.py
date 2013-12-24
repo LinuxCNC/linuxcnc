@@ -2544,7 +2544,8 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(widgetlist,widget.get_active())
 
     def on_btn_stop_clicked(self, widget, data=None):
-        self.gscreen.update_restart_line(0,0)
+        pass
+    #    self.gscreen.update_restart_line(0)
 
     def on_hal_status_interp_run(self,widget):
         self.gscreen.add_alarm_entry("run")
