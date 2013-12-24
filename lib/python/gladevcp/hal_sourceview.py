@@ -55,6 +55,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         _EMC_ActionBase._hal_init(self)
         self.gstat.connect('file-loaded', lambda w, f: gobject.timeout_add(1, self.load_file, f))
         self.gstat.connect('line-changed', self.highlight_line)
+        self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))
 
     def get_filename(self):
         return self.filename
