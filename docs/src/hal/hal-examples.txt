@@ -17,17 +17,19 @@ each tool change then it is best just to split up your g code. To use
 the HAL Manual Toolchange window you basically have to load the 
 hal_manualtoolchange component then send the iocontrol 'tool change' to 
 the hal_manualtoolchange 'change' and send the hal_manualtoolchange 
-'changed' back to the iocontrol 'tool changed'.
+'changed' back to the iocontrol 'tool changed'. A pin is provided for an
+external input to indicate the tool change is complete.
 
 This is an example of manual toolchange 'with' 
 the HAL Manual Toolchange component: 
 
 ----
 loadusr -W hal_manualtoolchange 
-net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change 
-net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed 
-net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number 
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
+net external-tool-changed hal_manualtoolchange.change_button <= parport.0.pin-12-in
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 ----
 
 This is an example of manual toolchange 'without' 
