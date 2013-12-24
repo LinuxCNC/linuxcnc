@@ -314,7 +314,7 @@ MODULE_DESCRIPTION("Step Pulse Generator for EMC HAL");
 MODULE_LICENSE("GPL");
 int step_type[] = { [0 ... MAX_CHAN-1] = -1 } ;
 RTAPI_MP_ARRAY_INT(step_type,MAX_CHAN,"stepping types for up to 16 channels");
-const char *ctrl_type[MAX_CHAN];
+char *ctrl_type[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(ctrl_type,MAX_CHAN,"control type (pos or vel) for up to 16 channels");
 int user_step_type[] = { [0 ... MAX_CYCLE-1] = -1 };
 RTAPI_MP_ARRAY_INT(user_step_type, MAX_CYCLE,

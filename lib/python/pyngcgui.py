@@ -71,15 +71,7 @@ import traceback   # for debug printing
 import hal         # notused except for debug
 from gladevcp import hal_actions
 
-# __file__ is name of module
-mdir = os.path.abspath(os.path.join(
-                       os.path.dirname(
-                       os.path.realpath(__file__))))
-
-# this must work for RIP and install by deb:
-BASE = os.path.abspath(os.path.join(mdir,"../.."))
-
-g_ui_dir = os.path.join(BASE, "share", "linuxcnc")
+g_ui_dir = linuxcnc.SHARE + "/linuxcnc"
 
 # determine if glade interface designer is running
 # in order to prevent connection of most signals
@@ -95,7 +87,7 @@ if (     ('glade'        in sys.argv[0])
 g_alive = not g_is_glade
 
 import gettext
-LOCALEDIR = os.path.join(BASE, "share", "locale")
+LOCALEDIR = linuxcnc.SHARE + "/locale"
 gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
 
 try:

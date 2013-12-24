@@ -70,6 +70,7 @@ setup_struct::setup_struct() :
     rotation_xy (0.0),
 
     parameter_occurrence(0),
+    named_parameter_occurrence(0),
     percent_flag(0),
     plane(0),
     probe_flag(0),

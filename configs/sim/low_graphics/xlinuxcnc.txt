@@ -1,0 +1,3 @@
+xlinuxcnc.ini
+
+A native X interface, runs ok on older machines

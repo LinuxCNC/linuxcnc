@@ -1,0 +1,39 @@
+Smithy
+
+www.smithy.com
+
+
+These configurations are for the following Smithy machines:
+
+1240 - Mill equipped with Leadshine axis drives, VFD and 1.5kW AC induction type spindle motor, and controlled by signals from a Mesa 5i20 FPGA card.
+
+1240_4axis - Mill equipped with Leadshine axis drives, VFD and 1.5kW AC induction type spindle motor, rotary 4th axis, and controlled by signals from a Mesa 5i20 FPGA card.
+
+1240combined - Mill equipped with Leadshine three phase axis drives, Mesa 8i20 BLDC spindle motor drive and 6000RPM spindle motor, and controlled by signals from a Mesa 5i20 FPGA card.
+
+1240combined_4axis - Mill equipped with Leadshine three phase axis drives, Mesa 8i20 BLDC spindle motor drive and 6000RPM spindle motor, rotary 4th axis (two phase), and controlled by signals from a Mesa 5i20 FPGA card.
+
+1240combined_mm - Metric version of 1240combined.
+
+1034gecko/1240gecko - Mill equipped with Gecko G201 axis drives, VFD and 1.5kW AC induction type spindle motor, and controlled by signals from a PC parallel port.
+
+1240rutex - Mill equipped with Rutex DC brush servo axis drives, 1.5kW AC induction type spindle motor with forward and reverse, and controlled by signals from a PC parallel port.
+
+1240rutex_4axis - Mill equipped with Rutex DC brush servo axis drives, 1.5kW AC induction type spindle motor with forward and reverse, rotary 4th axis, and controlled by signals from a PC parallel port.
+
+516gecko - Mill equipped with Gecko G201 axis drives, Sieg variable speed brushless DC spindle, and controlled by signals from a PC parallel port.
+
+622 - Mill equipped with YAKO Automation axis drives, Sieg variable speed brushless DC spindle, and controlled by signals from a Mesa 5i20 FPGA card.
+
+622_4axis - Mill equipped with YAKO Automation axis drives, Sieg variable speed brushless DC spindle, rotary 4th axis, and controlled by signals from a Mesa 5i20 FPGA card.
+
+622gecko - Mill equipped with Gecko G201 axis drives, Sieg variable speed brushless DC spindle, and controlled by signals from a PC parallel port.
+
+622keyence - Mill equipped with Leadshine MD2278 axis drives, Sieg variable speed brushless DC spindle, Keyence digital contact sensor, chip vacuum and controlled by signals from a Mesa 5i20 FPGA card.
+
+622leadshine - Mill equipped with Leadshine MD2278 axis drives, Sieg variable speed brushless DC spindle, and controlled by signals from a Mesa 5i20 FPGA card.
+
+924 - Lathe equipped with YAKO Automation axis drives, Sieg variable speed brushless DC spindle, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card.
+
+6130 - Lathe equipped with Leadshine three phase axis drives, VFD and AC induction type spindle motor, programable power tool post, and controlled by signals from a Mesa 5i20 FPGA card.
+

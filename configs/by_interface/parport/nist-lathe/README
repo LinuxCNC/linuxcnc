@@ -1,0 +1,5 @@
+This is the config for the stepper-driven Sherline lathe which is generously on loan from NIST.
+
+It has spindle speed control by analog input, which is driven by software-generated PWM on a parallel port pin.  The motors are driven with step/dir and the spindle encoder (for synchronized motion/threading) is counted by software on the parallel port too.
+
+This all makes for a fully functional lathe using simple hardware.  The power is all in HAL; the hardware is just a single parallel port interface and simple stepper drivers.

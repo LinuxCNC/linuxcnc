@@ -1,0 +1,1 @@
+A configuration for the Universal Stepper card from Pico systems.  This configuration includes motion connections and an IO set for handling estop within HAL.  ini file parameters INPUT_SCALE are for the encoder counts/user unit, OUTPUT_SCALE is the scaling for the drive steps per user unit (which can be different).

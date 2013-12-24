@@ -2038,17 +2038,22 @@ If you have a REALLY large config that you wish to convert to this newer version
                     print >>file
                     if closedloop:
                         print >>file, "net spindle-output      => " + pwmpinname
-                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                        if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
                         print >>file, "net %s     => %s"%(signal,pwmpinname)
                         print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
+                        if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                            print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
                     print >>file, "net %s-output                             => "% (let) + pwmpinname
                     print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
                     print >>file, "net %s-enable     axis.%d.amp-enable-out"% (let,axnum)
+                    if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
+                        print >>file, "net %s-enable   %spinena"% (let,rawpinname)
                     if let == "x":
                         print >>file, "# enable _all_ sserial pwmgens"
-                        print >>file, "net %s-enable   %sanalogena"% (let,rawpinname) 
+                        print >>file, "net %s-enable   %sanalogena"% (let,rawpinname)
                 print >>file
 
             else:
@@ -2259,12 +2264,8 @@ If you have a REALLY large config that you wish to convert to this newer version
                         if i: print >>file, "net %s     <= %s-not" % (p, pinname)
                         else: print >>file, "net %s     <= %s" % (p, pinname)
                     elif "sserial" in pname:
-                        if "7i64" in pinname:
-                            if i: print >>file, "net %s     <=  "% (p)+pinname +".in-not"
-                            else: print >>file, "net %s     <=  "% (p)+pinname +".in"
-                        else:
-                            if i: print >>file, "net %s     <=  "% (p)+pinname +"-not"
-                            else: print >>file, "net %s     <=  "% (p)+pinname
+                        if i: print >>file, "net %s     <=  "% (p)+pinname +"-not"
+                        else: print >>file, "net %s     <=  "% (p)+pinname
                     else:
                         if i: print >>file, "net %s     <=  "% (p)+pinname +".in_not"
                         else: print >>file, "net %s     <=  "% (p)+pinname +".in"
@@ -2361,11 +2362,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s %s"% (p,pinname)
                     else:
                         if "sserial" in pname:
-                            # different sserial have different endings
-                            if "7i64" in pinname:
-                                temp = pinname + ".out"
-                            else:
-                                temp = pinname
+                            temp = pinname
                         # mainboard GPIOO require extra setup commands
                         else:
                             print >>file, "setp %s true"% (pinname + ".is_output")
@@ -2378,10 +2375,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                             print >>file, "net %s %s"% (p,temp)
                     if i: # invert pin
                         if "sserial" in pname: 
-                            if "7i64" in pinname:
-                                ending = ".invert"
-                            else:
-                                ending = "-invert"
+                            ending = "-invert"
                         elif "parport" in pinname: ending = "-invert"
                         else: ending = ".invert_output"
                         print >>file, "setp %s true"%  (pinname + ending )
@@ -2980,11 +2974,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
             print >>file
             print >>file, "net joint-selected-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3007,11 +3001,11 @@ If you have a REALLY large config that you wish to convert to this newer version
                 pinname = self.make_pinname(self.findsignal(axletter+"-mpg-a"))
                 if pinname:
                     ending = ""
-                    if "encoder" in pinname: ending = ".count"
+                    if "enc" in pinname: ending = ".count"
                     print >>file, "# ---jogwheel signals to mesa encoder - %s axis MPG---"% axletter
                     print >>file
                     print >>file, "net %s-jog-count          <=  %s%s"% (axletter, pinname,ending)
-                    if ending:
+                    if 'encoder' in ending:
                         print >>file, "setp    %s.filter true" % pinname
                         print >>file, "setp    %s.counter-mode false" % pinname
                     print >>file
@@ -3050,11 +3044,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("fo-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---feed override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net fo-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3100,11 +3094,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("mvo-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---max velocity override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net mvo-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3154,11 +3148,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         pinname = self.make_pinname(self.findsignal("so-mpg-a"))
         if pinname:
             ending = ""
-            if "encoder" in pinname: ending = ".count"
+            if "enc" in pinname: ending = ".count"
             print >>file, "# ---spindle override signals to mesa encoder - mpg---"
             print >>file
             print >>file, "net so-count     <=  %s%s"% (pinname,ending)
-            if ending:
+            if 'encoder' in ending:
                 print >>file, "setp    %s.filter true" % pinname
                 print >>file, "setp    %s.counter-mode true" % pinname
             print >>file
@@ -3831,14 +3825,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
                 if gpionumber or ptype in(GPIOI,GPIOO,GPIOD):
-                    if "7i64" in(subboardname):
-                        if ptype in(GPIOO,GPIOD):
-                            comptype = "digout"
-                            pinnum = pinnum-24 # adjustment for 7i64 pin numbering of output pins vrs pnccnonf numbering
-                        if ptype == GPIOI:
-                            comptype = "digin"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (pinnum)
-                    elif "7i77" in (subboardname) or "7i76" in(subboardname):
+                    if "7i77" in (subboardname) or "7i76" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             if pinnum >15 and pinnum <24:
@@ -3850,7 +3837,7 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                             if pinnum >23 and pinnum < 40:
                                 pinnum = pinnum-8
                         return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"-%02d"% (pinnum)
-                    elif "7i69" in (subboardname) or "7i73" in (subboardname):
+                    elif "7i69" in (subboardname) or "7i73" in (subboardname) or "7i64" in(subboardname):
                         if ptype in(GPIOO,GPIOD):
                             comptype = "output"
                             pinnum -= 24
@@ -3873,11 +3860,10 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (ANALOGIN):
                     if "7i64" in(subboardname):
-                        comptype = "adcin"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+".%02d"% (compnum)+".in"
+                        comptype = "analog"
                     else:
                         comptype = "analogin"
-                        return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
+                    return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
                 elif ptype == (ENCA):
                     comptype = "enc"
                     return "hm2_%s.%d.%s.%d.%d."% (boardname,halboardnum,subboardname,portnum,channel) + comptype+"%d"% (compnum)
@@ -4073,10 +4059,11 @@ class App:
             gtk.main_iteration()
 
     def __init__(self, debug=0):
-        print 'debug=',debug
         if debug:
-            global _DEBUGSTRING
-            _DEBUGSTRING = ['all']
+           print 'PNCconf debug -ALL'
+           global _DEBUGSTRING
+           _DEBUGSTRING = ['all']
+
         gnome.init("pncconf", "0.6") 
         
         self.splash_screen()
@@ -4677,6 +4664,7 @@ Ok to reset data and start a new configuration?"),False):
             pinconvertnone = {"NOT USED":NUSED}
             count = 0
             for i,j in enumerate(pins):
+                instance_num = 9999
                 temppinunit = []
                 temp = pins[i].find("connector").text
                 tempcon = int(temp.strip("P"))
@@ -9361,7 +9349,11 @@ But there is not one in the machine-named folder.."""),True)
 
             else: # sserial PWM
                 pwm_enable = self.data.make_pinname(pwm_sig,False,True) # get prefix only
-                halrun.write("net enable %s \n"%  (pwm_enable +"analogena"))
+                if 'analogout5' in self.pwm:
+                    enable ='spinena'
+                else:
+                    enable ='analogena'
+                halrun.write("net enable %s \n"%  (pwm_enable + enable))
                 halrun.write("setp   "+self.pwm+"-minlim   %.1f\n"% pwmminlimit)
                 halrun.write("setp   "+self.pwm+"-maxlim   %.1f\n"% pwmmaxlimit)
                 halrun.write("setp   "+self.pwm+"-scalemax %.1f\n"% pwmmaxoutput)
@@ -9488,12 +9480,7 @@ But there is not one in the machine-named folder.."""),True)
         self.widgets.jogplus.set_sensitive(self.enable_amp)
         self.update_axis_params()
 
-    def run(self, debug=None):
-        print "debug",debug
-        if debug is not None:
-            global _DEBUGSTRING
-            _DEBUGSTRING = debug.split(',')
-            print "debug",_DEBUGSTRING
+    def run(self):
         gtk.main()
 
     def hal_test_signals(self, axis):
@@ -10098,6 +10085,9 @@ if mode:
     data = Data()
     data.load(filename, None, force)
     data.save()
+if debugswitch:
+    app = App(1)
+    app.run()
 elif args:
     app = App()
     app.run(args[0])

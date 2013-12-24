@@ -2191,6 +2191,8 @@ initlinuxcnc(void) {
     PyModule_AddObject(m, "positionlogger", (PyObject*)&PositionLoggerType);
     pthread_mutex_init(&mutex, NULL);
 
+    PyModule_AddStringConstant(m, "PREFIX", EMC2_HOME);
+    PyModule_AddStringConstant(m, "SHARE", EMC2_HOME "/share");
     PyModule_AddStringConstant(m, "nmlfile", EMC2_DEFAULT_NMLFILE);
 
     PyModule_AddIntConstant(m, "OPERATOR_ERROR", EMC_OPERATOR_ERROR_TYPE);

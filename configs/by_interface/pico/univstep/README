@@ -1,0 +1,1 @@
+A configuration for the Universal Stepper card from Pico systems.  This configuration includes motion connections and an IO set for handling estop within HAL.  The IO configuration in univstep_io.hal does not include signal connections for other bridgeportio like signal handling.

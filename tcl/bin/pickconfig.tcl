@@ -37,6 +37,52 @@ option add *Entry*background white
 option add *Listbox*background white
 option add *Tree*background white
 
+
+################### MAINTENANCE ITEMS #####################
+
+# flat structure:
+#    Ini files should always refer to ../../nc_files so
+#    that hey will work in run-in-place and deb-installed
+#    systems.
+#    Config subdirs can be moved with little impact when
+#    ../../nc_files relative link is used.
+#
+# hierarchical structure:
+#    Ini files must refer to appropriate nc_files by
+#    relative links so that they will work in run-in-place
+#    and deb-installed systems.
+#    Ini files must be edited if config subdirs are moved to
+#    a different depth in the tree to update the relative
+#    links
+#
+set ::make_flat_user_dirs  1 ;# 0 ==> hierarchical
+
+# start on this node if no ~/.linuxcncrc:
+set ::default_start_node sim/axis/axis.ini
+
+# exclude directories that should never be offered
+set ::exclude_list [list common]
+
+# support filenames that are never copied to user:
+set ::never_copy_list [list maintainer.txt]
+
+# emphasize sim ini configs that have the most support by reordering
+# reorder: priority low to high:
+set ::preferred_names [list \
+                       low_graphics \
+                       gmoccapy \
+                       gscreen \
+                       touchy \
+                       ngcgui \
+                       axis \
+                       by_machine \
+                       by_interface \
+                       sim \
+                       ]
+
+# support creation of links for newly added _lib dirs in nc_files
+set ::always_update_nc_files 1
+
 ################### PROCEDURE DEFINITIONS #####################
 
 set desktopdir [exec bash -c {test -f ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs && . ${XDG_CONFIG_HOME:-~/.config}/user-dirs.dirs; echo ${XDG_DESKTOP_DIR:-$HOME/Desktop}}]
@@ -57,6 +103,7 @@ proc initialize_config {} {
             set rcstring [read $programin]
             catch {close $programin}
             set ret [getVal $rcstring PICKCONFIG LAST_CONFIG ]
+            set ::openmode 1
             return $ret
         }
     }
@@ -98,6 +145,15 @@ proc sSlide {f a b} {
     $f.sc set $a $b
 }
 
+proc title {node} {
+  if [file isfile $node] {
+    set txt "CURRENT: [file tail $::selected_node]"
+  } else {
+    set txt ""
+  }
+  wm title . "[msgcat::mc "LinuxCNC Configuration Selector"] $txt"
+}
+
 # if node is an ini file named xxx.ini, then:
 #    show xxx.txt      if it exists
 # else
@@ -112,6 +168,8 @@ proc sSlide {f a b} {
 proc node_clicked {} {
 
     set node [$::tree selection get]
+    set ::selected_node $node
+    title $node
     if {$node == ""} return
     set node [lindex $node 0]
 
@@ -166,13 +224,16 @@ proc node_clicked {} {
    if { [ file readable $readme ] } {
        # description found, read it
        set descr [ read -nonewline [ open $readme ]]
-       # reformat - remove line breaks, preserve paragraph breaks
-       regsub -all {([^\n])\n([^\n])} $descr {\1 \2} descr
-       # and display it
+       # expect file with unbroken paragraphs
        $::detail_box insert end $descr
    } else {
        if [file isdirectory $node] {
-           # leave detail_box empty
+          if {"$node" == "$::myconfigs_node"} {
+             $::detail_box insert end "Your existing configs"
+          } elseif { "$node" == "$::sampleconfigs_node"} {
+             $::detail_box insert end "Available configs"
+          }
+          #  else leave detail_box empty
        } else {
            # no description, gotta tell the user something
            $::detail_box insert end [msgcat::mc "No details available."]
@@ -183,7 +244,20 @@ proc node_clicked {} {
 }
 
 ################ MAIN PROGRAM STARTS HERE ####################
-set configs_dir_list $linuxcnc::CONFIG_DIR
+set ::configs_dir_list $linuxcnc::CONFIG_DIR
+set ::myconfigs_node   $linuxcnc::USER_CONFIG_DIR
+# order convention for items in the linuxcnc::USER_CONFIG_DIR list:
+set ::sampleconfigs [lindex $::configs_dir_list end] ;# last item
+
+set ::last_ini "none"
+set ::last_ini [initialize_config]
+
+set ::openmode 0
+if {   [file exists [file join $::sampleconfigs $::default_start_node]]
+    || "$::last_ini" != ""
+   } {
+  set ::openmode 1
+}
 
 # set options that are common to all widgets
 foreach class { Button Entry Label Listbox Scale Text } {
@@ -191,17 +265,14 @@ foreach class { Button Entry Label Listbox Scale Text } {
 }
 
 # make a toplevel and a master frame.
-wm title . [msgcat::mc "LinuxCNC Configuration Selector"]
+title ""
 set logo [label .logo -image $logo]
 set top [frame .main -borderwidth 0 -relief flat ]
 pack $logo -side left -anchor nw
 pack $top -side left -expand yes -fill both
 
 wm geo . 780x480
-wm resiz . 0 0
-
-set last_ini "none"
-set last_ini [initialize_config]
+wm minsize . 780 480
 
 proc SW { args } {
     set res [eval ScrolledWindow $args]
@@ -224,7 +295,9 @@ set f2 [ frame $f1.f2 -borderwidth 0 -relief flat -padx 15 ]
 set s1 [ SW $f2.f3 -auto both]
 $s1 configure -relief sunken -borderwidth 2
 # the tree
-set ::tree [Tree $s1.tree -highlightthickness 0 -width 25 -relief flat -padx 4 ]
+set ::tree [Tree $s1.tree -highlightthickness 0 \
+                          -width 25 -relief flat -padx 4 \
+                          ]
 $s1 setwidget $::tree
 pack $s1 -fill y -expand n -side left
 
@@ -267,29 +340,76 @@ pack $f1 -fill both -expand y
 set ::config_count 0
 
 proc describe {dir} {
-    if {[string compare $dir $linuxcnc::USER_CONFIG_DIR] == 0} {
-	return [msgcat::mc "My Configurations"]
+    if {"$dir" == "$::myconfigs_node"} {
+	    return [msgcat::mc "My Configurations"]
     }
-    if {[string compare $dir [lindex $linuxcnc::CONFIG_DIR end]] == 0} {
+    if {"$dir" == "$::sampleconfigs"} {
+        set ::sampleconfigs_node $dir
 	return [msgcat::mc "Sample Configurations"]
     }
     return $dir/
 }
 
+proc treeopen {args} {
+  set beforevisible [$::tree visible $::selected_node]
+  update
+  set visible [$::tree visible $::selected_node]
+  if {!$beforevisible && $visible && [info exists ::restorebox] } {
+    set state [$::detail_box cget -state]
+    $::detail_box configure -state normal
+    $::detail_box insert end $::restorebox
+    $::detail_box configure -state $state
+    unset ::restorebox
+  }
+} ;# treeopen
+
+proc treeclose {args} {
+  update
+  set visible [$::tree visible $::selected_node]
+  if {!$visible && ![info exists ::restorebox] } {
+    set ::restorebox [$::detail_box get 1.0 end]
+    set state [$::detail_box cget -state]
+    $::detail_box configure -state normal
+    $::detail_box delete 1.0 end
+    $::detail_box configure -state $state
+  }
+} ;# treeclose
+
 proc walktree {dir} {
-   if ![info exists ::openmode] {set ::openmode 1}
+   if ![info exists ::openmode] {set ::openmode 0}
    if ![$::tree exists $dir] {
      set ::lvl $dir
      $::tree insert end root $dir -text [describe $dir] -open $::openmode
    }
-  foreach f [lsort [glob -nocomplain $dir/*]] {
+  set bothlist [lsort [glob -nocomplain $dir/*]]
+  if {   [info exists ::sampleconfigs_node]
+      && "$dir" == "$::sampleconfigs_node"} {
+    set bothlist [rearrange $bothlist]
+  }
+  set sortedlist {}
+  set filelist {}
+  set dirlist {}
+  # display files before directories
+  foreach item $bothlist {
+     if [file isdirectory $item] {
+       lappend dirlist $item
+     } else {
+       lappend sortedlist $item
+     }
+  }
+  foreach f $dirlist { lappend sortedlist $f }
+
+  foreach f $sortedlist {
      if [file isdirectory $f] {
+       if {[lsearch $::exclude_list [file tail $f]] == 0} continue
        set foundini [exec find $f -type f -name "*.ini"]
        if {"$foundini" == ""} {
          verbose "no ini files, skipping $f"
          continue
        }
-       $::tree insert end $::lvl $f -text [file tail $f] -open $::openmode
+
+       set text [file tail $f]
+       $::tree insert end $::lvl $f -text $text -open $::openmode
        set restore $::lvl
        set ::lvl $f
        walktree $f ;# recursion
@@ -306,6 +426,23 @@ proc walktree {dir} {
      }
   }
 } ;# walktree
+
+proc rearrange l {
+  set taillist {}
+  foreach item $l {
+    lappend taillist [file tail $item]
+  }
+  foreach name $::preferred_names {
+    set idx [lsearch $taillist $name]
+    if {$idx < 0} continue
+    set found [lindex $l $idx]
+    set taillist [lreplace $taillist $idx $idx]
+    set taillist [linsert $taillist 0 $name]
+    set l [lreplace $l $idx $idx]
+    set l [linsert $l 0 $found]
+  }
+  return $l
+} ;# rearrange
 
 proc verbose {msg} {
   if ![info exists ::env(verbose_pickconfig)] return
@@ -324,6 +461,10 @@ proc minimal_tree {node} {
 
 foreach dir $::configs_dir_list {
   if {[info exists visited($dir)]} continue
+  if {![file isdirectory $dir]} {
+    verbose "pickconfig: skipping <$dir>, not a directory"
+    continue
+  } 
   set visited($dir) {}
   walktree $dir
 }
@@ -369,32 +510,39 @@ proc prompt_copy configname {
     set res [tk_dialog .d [msgcat::mc "Copy Configuration?"] [msgcat::mc "Would you like to copy the %s configuration to your home directory so you can customize it?" $configname] warning 0 [msgcat::mc "Yes"] [msgcat::mc "Cancel"]]
 
     if {$res == -1 || $res == 1} { return "" }
-    set configdir [format %s [file dirname $configname]]
-    foreach d $linuxcnc::CONFIG_DIR {
-      if {"$d" == "$configdir"} {
-        # found configdir at level 0 of a directory in the linuxcnc::CONFIG_DIR list
-        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR [file tail $configdir]]]
+    set chosendir [format %s [file dirname $configname]]
+    foreach d $::configs_dir_list {
+      if {"$d" == "$chosendir"} {
+        # found chosendir at level 0 of a directory in the ::configs_dir_list
+        set copytodir [format %s [file join $::myconfigs_node [file tail $chosendir]]]
         break
       }
-      # if configdir not found at level 0, try subdirs
+      # if chosendir not found at level 0, try subdirs
       if {0 != [string first "$d" $configname]} {
         continue
       } else {
-        # found configdir as a subdir so create copydir at same level
-        # so that ini file items specified as relative links (like ../../)
-        # will work in both run-in-place and packaged builds
-        set     idx [expr 1 + [string length $d]]
-        set copydir [string range $configdir $idx end]
-        set copydir [format %s [file join $linuxcnc::USER_CONFIG_DIR $copydir]]
+        # found chosendir as a subdir
+        set idx [expr 1 + [string length $d]] ;#
+        set hiername [string range $chosendir $idx end]
+        if $::make_flat_user_dirs {
+          # Flat dir structure for copied configs
+          # create copytodir at one level below ::myconfigs_node
+          set flatname  [string map {/ .} $hiername]
+          set copytodir [format %s [file join $::myconfigs_node $flatname]]
+        } else {
+          # Hierarchical dir structure for copied configs
+          # create copytodir following hierarchy
+          set copytodir [format %s [file join $::myconfigs_node $hiername]]
+        }
         break
       }
     }
-    set copybase $copydir
+    set copybase $copytodir
 
     set i 0
     # distribution config ini files expect nc_files at same level as configs dir
-    set ncfiles [file normalize [file join $linuxcnc::USER_CONFIG_DIR ../nc_files]]
-    file mkdir [file join $linuxcnc::USER_CONFIG_DIR]
+    set ncfiles [file normalize [file join $::myconfigs_node ../nc_files]]
+    file mkdir [file join $::myconfigs_node]
 
     set obsoletedir [file normalize [file join ~ emc2]]
     if [file isdir $obsoletedir] {
@@ -403,20 +551,36 @@ proc prompt_copy configname {
                   $obsoletedir\n \
                   exists \n\n \
                   You may want to copy items to the new directory:\n \
-                  [file normalize [file join $linuxcnc::USER_CONFIG_DIR ..]]" \
+                  [file normalize [file join $::myconfigs_node ..]]" \
         -type ok
     }
 
-    if {![file exists $ncfiles]} {
-        file mkdir $ncfiles
-        file link -symbolic [file join $ncfiles/examples] $linuxcnc::NCFILES_DIR
+    if {$::always_update_nc_files || ![file exists $ncfiles]} {
+        file mkdir $ncfiles ;# tcl: ok if it exists
+        set refname  $linuxcnc::NCFILES_DIR
+        set linkname [file join $ncfiles examples]
+        if {[file exists $linkname]} {
+          # tcl wont overwrite any existing link, so remove
+          file delete $linkname
+        }
+        file link -symbolic $linkname $refname
 
         # liblist: libs used in inifiles for [RS274NGC]SUBROUTINE_PATH
         # example: ngcgui uses lib named ngcgui_lib
-        set liblist {ngcgui gladevcp}
+
+        set _libs [glob [file join $linuxcnc::NCFILES_DIR *_lib]]
+        foreach lib $_libs {
+           if ![file isdir $lib] continue
+           lappend liblist $lib
+        }
         foreach lib $liblist {
-           file link -symbolic [file join $ncfiles/${lib}_lib] \
-                               [file join $linuxcnc::NCFILES_DIR ${lib}_lib]
+           set refname  [file join $linuxcnc::NCFILES_DIR $lib]
+           set linkname [file join $ncfiles [file tail $lib]]
+           if {[file exists $linkname]} {
+             # tcl wont overwrite any existing link, so remove
+             file delete $linkname
+           }
+           file link -symbolic $linkname $refname
         }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]
@@ -445,42 +609,72 @@ proc prompt_copy configname {
         close $fd
     }
     while {1} {
-        if [file exists $copydir] {
+        if [file exists $copytodir] {
           incr i
-          set copydir "$copybase-$i" ;# user may have protected directory, so bump name
+          set copytodir "$copybase-$i" ;# user may have protected directory, so bump name
           # limit attempts to avoid infinite loop for hard error
           if {$i > 1000} {
              puts stderr "$::argv0:$msg"
              tk_messageBox -icon error -type ok \
-                  -message [msgcat::mc "Failed to mkdir for $copydir\n<$msg>"]
+                  -message [msgcat::mc "Failed to mkdir for $copytodir\n<$msg>"]
              destroy .
              exit
           }
           continue ;# try again
         } else {
           # note: file mkdir will make parents as required
-          if [catch { file mkdir $copydir } msg] {
+          if [catch { file mkdir $copytodir } msg] {
             continue ;# try again
           }
         }
         # A hierarchy of directories is allowed.
         # User selects an offered ini file.
-        # All files in same directory (but not subdirectories)
-        # are copied.  The target of a linked file is copied
-        foreach f [glob -directory $configdir *] {
+        # All files in same directory are copied.
+        # The target of a linked file is copied
+        foreach f [glob -directory $chosendir *] {
+          # nc_files (as a symlink) may be present for rip testing
+          # nc_files (as a symlink) not copied here (handled elsewhere)
+          if {   [file tail $f] == "nc_files"
+              && [file type $f] == "link" } {
+            verbose "pickconfig: not copying link: $f"
+            continue 
+          }
+          if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
+          # is_special: subdir is to be copied
+          set is_special 0
+          if { "" == [exec find $f -type f -name "*.ini"]} {
+             # ok: no ini file so the directory can be copied
+             set is_special 1
+          }
+
           switch [file type $f] {
-            link      {file copy [file join $configdir \
-                                 [file readlink $f]] $copydir}
-            file      {file copy "$f" $copydir}
-            directory {}
+            link      {
+                        if {$is_special} {
+                          # since is link, require:
+                          # -r recursive, -L dereference
+                          exec cp -rL [file join $chosendir $f] $copytodir
+                        } else {
+                          # to follow sym links correctly, use system cp:
+                          exec cp [file join $chosendir $f] $copytodir
+                        }
+                      }
+            file      {file copy "$f" $copytodir}
+            directory { # recursive copy of subdirs
+                        if {$is_special } {
+                          # -r recursive
+                          exec cp -r [file join $chosendir $f] $copytodir
+                        }
+                      }
             default   {puts stderr \
                        "prompt_copy:unsupported type=[file type $f] for $f"}
           }
         }
-        foreach f [glob -directory $copydir *] {
+        foreach f [glob -directory $copytodir *] {
 	    file attributes $f -permissions u+w
 	    if {[file extension $f] == ".ini"} {
 		set c [get_file_contents $f]
+		# note: the following regsub _typically_ forces:
+		# PROGRAM_PREFIX=/home/username/linuxcnc/nc_files
 		regsub {(?n)^(PROGRAM_PREFIX\s*=\s*).*$} $c "\\1$ncfiles" c
 		put_file_contents $f $c
 	    }
@@ -491,18 +685,35 @@ proc prompt_copy configname {
         break
     }
 
-    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting LinuxCNC." $copydir] info 0 [msgcat::mc "OK"]
+    tk_dialog .d [msgcat::mc "Configuration Copied"] [msgcat::mc "The configuration file has been copied to %s. Next time, choose this location when starting LinuxCNC." $copytodir] info 0 [msgcat::mc "OK"]
 
-    return $copydir/[file tail $configname]
+    return $copytodir/[file tail $configname]
 }
 
 
-# add the selection set if a last_ini has been found in ~/.linuxcncrc
+# add the selection set if a ::last_ini has been found in ~/.linuxcncrc
 
-if {$last_ini != -1 && [file exists $last_ini] && ![catch {$::tree index $last_ini}]} {
-    $::tree selection set $last_ini
-    wait_and_see $last_ini
+if {   $::last_ini != -1 
+    && [file exists $::last_ini]
+    && ![catch {$::tree index $::last_ini}]} {
+    set start_node $::last_ini
+} else {
+    set start_node ${::sampleconfigs}/$::default_start_node
 }
+if [catch {
+            $::tree selection set $start_node
+            wait_and_see $start_node
+           }] {
+  set ::openmode 0
+  puts stderr "pickconfig: cannot find expected start_node <$start_node>, continuing"
+}
+# update and enable commands after initial setup of tree
+update
+set ::selected_node [$::tree selection get]
+title $::selected_node
+$::tree configure \
+        -closecmd treeclose \
+        -opencmd  treeopen
 
 proc make_shortcut {inifile} {
     if {[catch {open $inifile} inifd]} { return }
@@ -532,7 +743,24 @@ while {1} {
     vwait ::choice
 
     if { $::choice == "OK" } {
-        if {![file writable [file dirname $::inifile]]} {
+        # the following test determines when to copy files to user.
+        # if selected file is not writable, then it must be a
+        # system dir running from an install (by deb typically)
+        # so install the configuration
+        #
+        # for convenience in testing pickconfig by itself in rip builds:
+        # export debug_pickconfig=1
+        if {    [info exists ::env(debug_pickconfig)] \
+             && [string first $::myconfigs_node $::inifile]} {
+          set writeanyway 1
+          puts stderr "debug_pickconfig: writeanyway"
+        } else {
+          set writeanyway 0
+        }
+
+        if {   ![file writable [file dirname $::inifile]]
+            || $writeanyway
+           } {
             set copied_inifile [prompt_copy $::inifile]
             if {$copied_inifile == ""} { continue }
             set ::inifile $copied_inifile
@@ -544,7 +772,7 @@ while {1} {
         # or make this file and add the var.
 
         if {[file exists ~/.linuxcncrc]} {
-            if {$::inifile == $last_ini} {
+            if {$::inifile == $::last_ini} {
                 exit
             } else {
                 if {[catch {open ~/.linuxcncrc} programin]} {

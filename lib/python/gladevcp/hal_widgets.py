@@ -60,6 +60,14 @@ class _HalSensitiveBase(_HalWidgetBase):
         self.hal_pin.connect('value-changed', lambda s: self.set_sensitive(s.value))
         self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
 
+class _HalJogWheelBase(_HalWidgetBase):
+    def _hal_init(self):
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_S32, hal.HAL_OUT)
+
+    def hal_update(self, *a):
+        data = self.get_value()
+        self.hal_pin.set(int(data))
+
 """ Real widgets """
 
 class HAL_HBox(gtk.HBox, _HalSensitiveBase):

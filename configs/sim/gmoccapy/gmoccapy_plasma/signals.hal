@@ -1,0 +1,10 @@
+# Hook up signal pins connecting
+
+# Out pin
+#net MoveDown      => signals.led_MoveDown
+#net MoveUp        => signals.led_MoveUp
+#net FloatSwitch   => signals.led_FloatSwitch
+#net ArcOK         => signals.led_ArcOK
+#net TorchOn       => signals.led_TorchOn
+#net HeightLock    => signals.led_HeightLock
+

@@ -13,6 +13,14 @@ def hal_in_background():
     if not h.change:
         app.tk.call("set", "::tkPriv(button)", -1)
         return
+
+    if (h.change_button):
+        h.changed = True
+        app.update()
+        app.tk.call("set", "::tkPriv(button)", -1)
+        stop_polling_hal_in_background()
+        return
+
     _after = app.after(100, hal_in_background)
 
 def poll_hal_in_background():
@@ -45,6 +53,7 @@ def do_change(n):
 h = hal.component("hal_manualtoolchange")
 h.newpin("number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("change", hal.HAL_BIT, hal.HAL_IN)
+h.newpin("change_button", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("changed", hal.HAL_BIT, hal.HAL_OUT)
 h.ready()
 

@@ -31,7 +31,7 @@ DOC_SRCS_EN := \
 	code/NML_Messages.txt \
 	code/Contributing-to-LinuxCNC.txt \
 	common/emc-history.txt \
-	common/Getting_EMC.txt \
+	common/Getting_LinuxCNC.txt \
 	common/Glossary.txt \
 	common/GPLD_Copyright.txt \
 	common/Integrator_Concepts.txt \
@@ -41,7 +41,7 @@ DOC_SRCS_EN := \
 	common/starting-emc.txt \
 	common/Stepper_Diagnostics.txt \
 	common/System_Requirements.txt \
-	common/Updating_EMC.txt \
+	common/Updating_LinuxCNC.txt \
 	common/User_Concepts.txt \
 	common/userforeword.txt \
 	common/user_intro.txt \
@@ -300,6 +300,13 @@ DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
+DOC_TARGETS_XML_ES := $(filter %_es.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML)) )
+DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) )
+
 MAN_HTML_TARGETS := $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
@@ -372,19 +379,17 @@ copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
-checkref: checkref_en checkref_fr
+checkref: checkref_en checkref_fr checkref_es
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/copy_and_run.html $(DOC_DIR)/html/config/emc2hal.html $(DOC_DIR)/html/config/ini_config.html $(DOC_DIR)/html/config/ini_homing.html $(DOC_DIR)/html/config/lathe_config.html $(DOC_DIR)/html/config/pncconf.html $(DOC_DIR)/html/config/stepconf.html $(DOC_DIR)/html/config/stepper.html $(DOC_DIR)/html/code/Contributing-to-LinuxCNC.html
-	python $(DOC_SRCDIR)/checklinks.py $^
-	$(DOC_SRCDIR)/checkref English $^
+checkref_en: $(DOC_TARGETS_HTML_EN)
+	@$(DOC_SRCDIR)/checkref English $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
-	python $(DOC_SRCDIR)/checklinks.py $^
-	$(DOC_SRCDIR)/checkref French $^
+checkref_fr: $(DOC_TARGETS_HTML_FR)
+	@$(DOC_SRCDIR)/checkref French $^
 
-# These targets don't work yet since we don't have the associated translations
-checkref_es: $(DOC_DIR)/html/gcode_es.html $(DOC_DIR)/html/gcode/gcode_es.html
-	-python $(DOC_SRCDIR)/checklinks.py $^
+# the spanish docs are full of broken links, only warn on failure
+checkref_es: $(DOC_TARGETS_HTML_ES)
+	@$(DOC_SRCDIR)/checkref --warn-on-failure Spanish $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
@@ -474,14 +479,6 @@ depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
-
-
-DOC_TARGETS_XML_ES := $(filter %_es.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML)) )
-DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(DOC_TARGETS_HTML)) ) )
 
 objects/xref_es.xml: $(DOC_TARGETS_XML_ES) $(DOC_SRCDIR)/xref.py
 	(cd objects; ../../docs/src/xref.py $(filter %.xml, $(patsubst objects/%,%,$^))) > $@

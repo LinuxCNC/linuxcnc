@@ -1,0 +1,10 @@
+This example of a racktoolchanger attempts a transliteration of micges racktoolchanger patch.
+
+This assumes tool number == pocket number; the pocket number in the tool.tbl is currently ignored.
+
+See http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?RackToolChanger .
+
+NB:
+
+I dont fully understand the meanings of the pins involved, and the dwell and moves.  This has NOT been tested on a real machine. Use as starting point for your own experimentation.
+

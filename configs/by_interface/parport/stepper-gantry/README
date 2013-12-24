@@ -1,0 +1,5 @@
+This config is for a XYZ setup where the Y axis is a gantry style system driven by two motors.
+
+The config uses stepper motors with metric units and includes a charge pump. The pinout is consistent with the breakout/combo boards from Bob Campbell.
+
+The plasma-thc config is based on this config but has torch height control and external estop in addition to this config

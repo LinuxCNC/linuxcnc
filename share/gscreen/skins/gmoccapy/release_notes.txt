@@ -1,3 +1,37 @@
+ver- 0.9.9.6.3
+- changed again the plasma layout, as Marius still want more widgets
+- most hal labels are not needed any more, so I changed them to gtk.label
+
+ver- 0.9.9.6.2
+- added a lot of hal pin to gmoccapy_plasma, with the new 
+  plasma.py file 
+- reworked the plasma.glade file to fit Marius needs
+- new order of configs, many files have been moved by Dewey Garret
+
+ver. 0.9.9.6.1
+- solved a bug in plasma.py, having a call without function
+
+ver. 0.9.9.6
+- made a new config folder to show gmoccapy as plasma screen
+- included some minor changes to be able to place user glade panels 
+  over the coolant and spindle frame, hiding the original widgets
+  so plasma screen can easy be realized
+  This will hide also the spindle speed label in gcode info frame.
+- the tool info frame can also be hidden by a user glade file, because tool
+  info is not needed for plasma.
+- corrected an error in handling python calls in / for user glade screens,
+  as example introduced plasma.glade plasma.hal and plasma.py demonstrating
+  all possible communications
+
+ver. 0.9.9.5
+- added color chooser for homed and unhomed colors, as recommended
+  by BigJohnT to help people suffering from protanopia (red/green weakness)
+- corrected an error updating the DRO colors in lathe mode
+
+ver. 0.9.9.4
+- initializing some warnings at start up, corrected that
+- deleted some unneeded print messages
+
 ver. 0.9.9.3
 - if the user tried to make a new file and there where no 
   RS274NGC_STARTUP_CODE in the INI file, an exception has been thrown

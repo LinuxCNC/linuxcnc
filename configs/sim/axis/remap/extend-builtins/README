@@ -1,0 +1,26 @@
+This shows how the builtin T,M6,M61,S,F codes can be redefined, optionally by referring to the builtin behaviour in the remap procedure.
+
+The collection of prologs and epilogs in python-stdglue is intended to be a boilerplate set of Python glue which covers most use cases. Normally you shouldnt need to touch any of these.
+
+The ngc remap routines in nc_subroutines have been set up to:
+
+show the 'exposed parameters' with a debug statement
+
+refer to the builtin codes within the remap procedure, such that execution effect is the same as not remapping that code (i.e. the remap result is idempotent)
+
+to work with the stdglue prologs and epilogs
+
+'exposed parameters' are local variables in the remap procedure which can be read, and changed - any changes will be picked up by the epilog and used to commit the result
+
+
+Note that using M61 requires iocontrol-v2 as set tool number support in iocontrol is broken.
+
+update:
+
+Remapping and extending of M0,M1,M60 added.
+See also thread:
+  http://linuxcnc.org/index.php/english/component/kunena/?func=view&catid=38&id=17637&limit=6#17637
+
+-mah
+
+
