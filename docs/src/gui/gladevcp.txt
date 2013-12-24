@@ -473,11 +473,15 @@ label your panel.
    <<gladevcp:HAL_Bars,HAL_HBar and HAL_VBar>>, <<gladevcp:HAL_Meter,HAL_Meter>>
  - Widgets for controlling "number" signals: <<gladevcp:HAL_SpinButton,HAL_SpinButton>>,
    <<gladevcp:HAL_Scales,HAL_HScale and HAL_VScale>>, <<gladevcp:JogWheel, Jog Wheel>>
- - Helper widgets: <<gladevcp:HAL_HBox_Table,HAL_HBox and HAL_Table>>
+ - Sensitive control widgets: <<gladevcp:HAL_Table, State_Sensitive_Table HAL_Table and HAL_HBox>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
  - Widgets to show axis positions: <<gladevcp::DRO_widget, DRO Widget>>,
    <<gladevcp::Combi_DRO, Combi DRO Widget>>
  - Widgets for file handling: <<gladevcp::IconView, IconView File Selection>>
+ - Widgets for display/edit of all axes offsets: <<gladevcp::Offsetpage, OffsetPage >>
+ - Widgets for display/edit of all tool offsets: <<gladevcp::tooledit, Tooloffset editor >>
+ - Widget for Gcode display and edit: <<gladevcp::HAL_sourceview, HAL_Sourceview >>
+ - widget for MDI input and history display: <<gladevcp:MDI_History, MDI History >>
 
 === Widget and HAL pin naming
 
@@ -715,7 +719,7 @@ text_template::
 	Example: +Distance: %.03f+ will display the text and the pin value with
 	3 fractional digits padded with zeros for a FLOAT pin.
 
-[[gladevcp:HAL_HBox_Table]]
+[[gladevcp:HAL_Table]]
 === Containers: HAL_Table State_Sensitive_Table and HAL_HBox *
 These containers are meant to be used to sensitize (grey out) their children. +
 Insensitived children will not respond to input. +
@@ -1540,6 +1544,7 @@ Direct program control::
 
 image::images/hal_sourceview.png[]
 
+[[gladevcp:MDI_History]]
 === MDI history
 
 This is for displaying and entering MDI codes. +
