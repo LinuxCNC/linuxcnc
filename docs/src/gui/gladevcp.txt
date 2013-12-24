@@ -642,17 +642,29 @@ see above.
 Example SpinButton:
 image:images/spinbutton.png[]
 .
-
 [[gladevcp:JogWheel]]
 === Jog Wheel
 
-The jogwheel widget simulates a real jogwheel and it exports it's count value as
+The jogwheel widget simulates a real jogwheel. +
+It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the JogWheel widget, +
+or you push the left mouse button and move the cursor in circular direction to increase or degrease the counts. +
+
+ * Counterclockwise = reduce counts
+ * Clockwise        = increase counts
+ * Wheel up         = increase counts
+ * Wheel down       = reduce counts
+
+As moving the mouse the drag and drob way may be faster than the widget can update itself, you may loose counts turning to fast.
+It is recommended to use the mouse wheel, and only for very rough movements the drag and drob way.
+====
+JogWheel exports it's count value as hal pin:
 
 <widgetname>-s::
 	 out S32 pin
+====
 
 It has the following properties:
-
+=====
 size::
     Sets the size in pixel of the widget, allowed values are in the range of 100 to 500
     default = 200
@@ -661,9 +673,12 @@ cpr::
     default = 40
 show_counts::
     Set this to False, if you want to hide the counts display in the middle of the widget.
+label::
+    Set the content of the label witch may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
+=====
 
 Direct program control::
-
+======
     There a couple ways to directly control the widget using Python.
 
     Using goobject to set the above listed properties:
@@ -674,11 +689,12 @@ Direct program control::
     There are two python methods:
         [widget name].get_value()
         Will return the counts value as integer
-
+        [widget name].set_label("string")
+        Sets the label content with "string"
+======  
 Example JogWheel:
 
 image::images/JogWheel.png[]
-
 
 [[gladevcp:HAL_Label]]
 === Label
