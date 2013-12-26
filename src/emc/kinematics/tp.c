@@ -853,16 +853,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
         tp_debug_print(" Blend Tolerance = %f\n",tolerance);
 
-        double tmp = 1.0 - Stheta;
-        double h_tol;
-        if (phi>TP_ANGLE_EPSILON) {
-            h_tol = tolerance/tmp;
-        } else {
-            tp_debug_print("intersection angle theta = %f, too close to tangent\n",theta);
-            return TP_ERR_FAIL;
-        }
+        double h_tol = tolerance / (1.0 - Stheta);
 
-        d_tol = Ctheta*h_tol;
+        d_tol = Ctheta * h_tol;
+        tp_debug_print(" d_tol = %f\n",d_tol);
     }
 
     //TODO "greedy" arc sizing step here
@@ -1043,7 +1037,7 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
  * Returns an error code if the queue operation fails, otherwise adds a new
  * segment to the queue and updates the end point of the trajectory planner.
  */
-STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, EmcPose const * const end, int inc_id) {
+STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id) {
 
     tc->id = tp->nextId;
     if (tcqPut(&tp->queue, tc) == -1) {
@@ -1055,9 +1049,7 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     }
 
     // Store end of current move as new final goal of TP
-    if (end) {
-        tp->goalPos = *end;
-    }
+    tcGetEndpoint(tc, &tp->goalPos);
     tp->done = 0;
     tp->depth = tcqLen(&tp->queue);
     //Fixing issue with duplicate id's?
@@ -1123,7 +1115,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
     //Assume non-zero error code is failure
     prev_tc = tcqLast(&tp->queue);
-    int retval = tpAddSegmentToQueue(tp, &tc, &end,true);
+    int retval = tpAddSegmentToQueue(tp, &tc, true);
     tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
     return retval;
@@ -1394,7 +1386,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         tpCalculateTriangleVel(tp, prev_tc);
         tpCalculateTriangleVel(tp, tc);
 
-        tpAddSegmentToQueue(tp, &blend_tc, NULL, false);
+        tpAddSegmentToQueue(tp, &blend_tc, false);
     }
     return TP_ERR_OK;
 }
@@ -1415,6 +1407,10 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     if (tpErrorCheck(tp)<0) {
         return TP_ERR_FAIL;
     }
+    tp_info_print(" New line end = %f %f %f\n",
+            end.tran.x,
+            end.tran.y,
+            end.tran.z);
 
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
@@ -1477,7 +1473,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     //Flag this as blending with previous segment if the previous segment is set to blend with this one
  
     prev_tc = tcqLast(&tp->queue);
-    int retval = tpAddSegmentToQueue(tp, &tc, &end, true);
+    int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
     tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
@@ -1566,10 +1562,10 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpSetupTangent(tp, prev_tc, &tc);
 
     //Assume non-zero error code is failure
-    tp_debug_print("Setting tangent maxvel\v");
+    tp_debug_print("Setting tangent maxvel\n");
     //Tangent case can handle higher accelerations
     tc.maxvel *= pmSqrt(TP_ACC_RATIO_NORMAL);
-    int retval = tpAddSegmentToQueue(tp, &tc, &end, true);
+    int retval = tpAddSegmentToQueue(tp, &tc, true);
     tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
     return retval;
