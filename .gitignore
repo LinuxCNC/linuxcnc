@@ -29,8 +29,11 @@ docs/html/drivers
 /docs/src/source-highlight/local
 lib/python/gremlin.py
 lib/python/touchy
+# Miscellaneous generated files (Rob)
 cscope
 cscope.*
 *.kdev*
 oprofile*
 *.log
+position.txt
+*.9
