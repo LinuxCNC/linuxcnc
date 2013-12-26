@@ -1505,8 +1505,6 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
 	}
 	if (naivecam_tolerance >= 0) {
 	    SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
-	} else if (tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(tolerance);   // if no naivecam_tolerance specified use same for both
 	} else {
 	    SET_NAIVECAM_TOLERANCE(0);
 	}
