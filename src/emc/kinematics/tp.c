@@ -808,7 +808,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // Assume at this point that we've checked for dumb reasons not to
     // calculate the blend arc, like intersection angle
     // Calculate radius based on tolerances
-    double theta=0.0;
+    double theta = 0.0;
     int res = tpFindIntersectionAngle(&prev_tc->coords.line.xyz.uVec,
             &tc->coords.line.xyz.uVec, &theta);
     if (res) {
@@ -816,7 +816,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         tp_debug_print("Failed to find intersection angle!\n");
         return TP_ERR_FAIL;
     }
-    tp_debug_print("theta=%f\n",theta);
+    tp_debug_print("theta = %f\n",theta);
 
     double phi = (PM_PI - theta * 2.0);
 
@@ -1026,7 +1026,7 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
         return TP_ERR_FAIL;
     }
     if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC)) {
-        tp_debug_print("Setting parabolic maxvel\v");
+        tp_debug_print("Setting parabolic maxvel\n");
         //FIXME Hack to deal with the "double" scaling of
         //acceleration. This only works due to the specific
         //implementation of GetScaledAccel
