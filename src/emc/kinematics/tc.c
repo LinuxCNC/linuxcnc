@@ -8,7 +8,7 @@
 *
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -162,14 +162,14 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
  *
  * As we move along a TC, from zero to its length, we call this function repeatedly,
  * with an increasing tc->progress.
- * This function calculates the machine position along the motion's path 
+ * This function calculates the machine position along the motion's path
  * corresponding to the current progress.
  * It gets called at the end of tpRunCycle()
- * 
+ *
  * @param    tc    the current TC that is being planned
  *
  * @return	 EmcPose   returns a position (\ref EmcPose = datatype carrying XYZABC information
- */   
+ */
 
 int tcGetPos(TC_STRUCT const * const tc, EmcPose * const out) {
     tcGetPosReal(tc, TC_GET_PROGRESS, out);
@@ -243,12 +243,12 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             }
             break;
         case TC_CIRCULAR:
-            // progress is always along the xyz circle.  This simplification 
+            // progress is always along the xyz circle.  This simplification
             // is possible since zero-radius arcs are not allowed by the interp.
             pmCirclePoint(&tc->coords.circle.xyz,
-                    progress * tc->coords.circle.xyz.angle / tc->target, 
+                    progress * tc->coords.circle.xyz.angle / tc->target,
                     &xyz);
-            // abc moves proportionally in order to end at the same time as the 
+            // abc moves proportionally in order to end at the same time as the
             // circular xyz move.
             pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
@@ -314,7 +314,7 @@ int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
     tp_posemath_debug(" start = %f,%f,%f\n",start->x,start->y, start->z);
     tp_posemath_debug(" end = %f,%f,%f\n",end->x,end->y, end->z);
     return pmCircleInit(arc, start, end, &center, &binormal, 0);
-    
+
 }
 /**
  * Define a 3D spherical arc based on three points and a radius.
@@ -338,14 +338,14 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     //Find relative vectors from start to midpoint and mid to end point
     pmCartCartSub(middle, start, &v1);
     pmCartCartSub(end, middle, &v2);
-    
+
     tp_posemath_debug(" Initial vectors\n");
     tp_posemath_debug(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
     tp_posemath_debug(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
 
-    //Calculate gram-schmidt orthonormals 
+    //Calculate gram-schmidt orthonormals
     PmCartesian u1, u2, n1, n2;
-    
+
     pmCartCartProj(&v2, &v1, &u2);
     pmCartCartSub(&v2, &u2, &n1);
 
@@ -397,7 +397,7 @@ int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
     pmCartUnit(&v2, &v2);
 
     PmCartesian dv, dn;
-      
+
     //Subtract vectors
     pmCartCartSub(&n1, &n2, &dn);
     pmCartCartAdd(&v1, &v2, &dv);
@@ -466,37 +466,36 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
         PmCartesian const * const circ_end) {
 
-    tp_debug_print("Connecting blend arc to lines\n");
     /* Only shift XYZ for now*/
     int res1 = pmCartLineInit(&prev_tc->coords.line.xyz,
             &prev_tc->coords.line.xyz.start, circ_start);
+
+    tp_info_print(" L1: old target = %f\n", prev_tc->target);
+    prev_tc->target = prev_tc->coords.line.xyz.tmag;
+    tp_info_print(" L1: new target = %f\n", prev_tc->target);
+
+    //previous segment is now tangent with blend arc
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
     int res2 = pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
 
-    if (res1 || res2) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Got PM errors %d and %d during blend arc connect!\n",res1,res2);
-    }
-
-    tp_debug_print("Old target = %f\n",prev_tc->target);
-    prev_tc->target = prev_tc->coords.line.xyz.tmag;
-    tp_debug_print("Target = %f\n",prev_tc->target);
-
+    tp_info_print(" L2: old target = %f\n", tc->target);
     tc->target = tc->coords.line.xyz.tmag;
+    tp_info_print(" L2: new target = %f\n", tc->target);
 
-    //Setup tangent blending constraints
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
     //Disable flag for parabolic blending with previous
     tc->blend_prev = 0;
 
-    tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
+    tp_info_print(" L1: new end = %f %f %f\n",prev_tc->coords.line.xyz.end.x,
             prev_tc->coords.line.xyz.end.y,
             prev_tc->coords.line.xyz.end.z);
 
-    tp_debug_print(" L2 start: %f %f %f\n",tc->coords.line.xyz.start.x,
+    tp_info_print(" L2: new start = %f %f %f\n",tc->coords.line.xyz.start.x,
             tc->coords.line.xyz.start.y,
             tc->coords.line.xyz.start.z);
 
-    tp_debug_print("       Q1: %f %f %f\n",circ_start->x,circ_start->y,circ_start->z);
-    tp_debug_print("       Q2: %f %f %f\n",circ_end->x,circ_end->y,circ_end->z);
+    tp_info_print("       Q1: %f %f %f\n",circ_start->x,circ_start->y,circ_start->z);
+    tp_info_print("       Q2: %f %f %f\n",circ_end->x,circ_end->y,circ_end->z);
 
     return res1 || res2;
 }
@@ -533,8 +532,8 @@ int tcIsBlending(TC_STRUCT * const tc) {
 /** Return 0 if queue is valid, -1 if not */
 static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
 {
-    if ((0 == tcq) || (0 == tcq->queue)) 
-    {	        
+    if ((0 == tcq) || (0 == tcq->queue))
+    {
         return -1;
     }
     return 0;
@@ -544,15 +543,15 @@ static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
  *
  * \brief Creates a new queue for TC elements.
  *
- * This function creates a new queue for TC elements. 
+ * This function creates a new queue for TC elements.
  * It gets called by tpCreate()
- * 
+ *
  * @param    tcq       pointer to the new TC_QUEUE_STRUCT
  * @param	 _size	   size of the new queue
  * @param	 tcSpace   holds the space allocated for the new queue, allocated in motion.c
  *
  * @return	 int	   returns success or failure
- */   
+ */
 int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
 {
     if (_size <= 0 || 0 == tcq) {
@@ -576,14 +575,14 @@ int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
  * \brief Deletes a queue holding TC elements.
  *
  * This function creates deletes a queue. It doesn't free the space
- * only throws the pointer away. 
- * It gets called by tpDelete() 
+ * only throws the pointer away.
+ * It gets called by tpDelete()
  * \todo FIXME, it seems tpDelete() is gone, and this function isn't used.
- * 
+ *
  * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 int	   returns success
- */   
+ */
 int tcqDelete(TC_QUEUE_STRUCT * const tcq)
 {
     if (!tcqCheck(tcq)) {
@@ -598,10 +597,10 @@ int tcqDelete(TC_QUEUE_STRUCT * const tcq)
  *
  * \brief Initializes a queue with TC elements.
  *
- * This function initializes a queue with TC elements. 
- * It gets called by tpClear() and  
+ * This function initializes a queue with TC elements.
+ * It gets called by tpClear() and
  * 	  	   		  by tpRunCycle() when we are aborting
- * 
+ *
  * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 int	   returns success or failure (if no tcq found)
@@ -621,14 +620,14 @@ int tcqInit(TC_QUEUE_STRUCT * const tcq)
  *
  * \brief puts a TC element at the end of the queue
  *
- * This function adds a tc element at the end of the queue. 
+ * This function adds a tc element at the end of the queue.
  * It gets called by tpAddLine() and tpAddCircle()
- * 
+ *
  * @param    tcq       pointer to the new TC_QUEUE_STRUCT
  * @param	 tc        the new TC element to be added
  *
  * @return	 int	   returns success or failure
- */   
+ */
 int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
 {
     /* check for initialized */
@@ -658,12 +657,12 @@ int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
 /*! tcqPopBack() function
  *
  * \brief removes the newest TC element (converse of tcqRemove)
- * 
+ *
  * @param    tcq       pointer to the new TC_QUEUE_STRUCT
  * @param	 tc        the new TC element to be added
  *
  * @return	 int	   returns success or failure
- */   
+ */
 int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
 {
     /* check for initialized */
@@ -690,16 +689,16 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
  * \brief removes n items from the queue
  *
  * This function removes the first n items from the queue,
- * after checking that they can be removed 
- * (queue initialized, queue not empty, enough elements in it) 
+ * after checking that they can be removed
+ * (queue initialized, queue not empty, enough elements in it)
  * Function gets called by tpRunCycle() with n=1
  * \todo FIXME: Optimize the code to remove only 1 element, might speed it up
- * 
+ *
  * @param    tcq       pointer to the new TC_QUEUE_STRUCT
  * @param	 n         the number of TC elements to be removed
  *
  * @return	 int	   returns success or failure
- */   
+ */
 int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
 {
 
@@ -707,7 +706,7 @@ int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
 	    return 0;		/* okay to remove 0 or fewer */
     }
 
-    if (tcqCheck(tcq) || ((tcq->start == tcq->end) && !tcq->allFull) || 
+    if (tcqCheck(tcq) || ((tcq->start == tcq->end) && !tcq->allFull) ||
             (n > tcq->_len)) {	/* too many requested */
 	    return -1;
     }
@@ -725,11 +724,11 @@ int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
  * \brief returns the number of elements in the queue
  *
  * Function gets called by tpSetVScale(), tpAddLine(), tpAddCircle()
- * 
+ *
  * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 int	   returns number of elements
- */   
+ */
 int tcqLen(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) return -1;
@@ -742,11 +741,11 @@ int tcqLen(TC_QUEUE_STRUCT const * const tcq)
  * \brief gets the n-th TC element in the queue, without removing it
  *
  * Function gets called by tpSetVScale(), tpRunCycle(), tpIsPaused()
- * 
+ *
  * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 TC_STRUCT returns the TC elements
- */   
+ */
 TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
 {
     if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len)) return NULL;
@@ -754,7 +753,7 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
     return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }
 
-/*! 
+/*!
  * \def TC_QUEUE_MARGIN
  * sets up a margin at the end of the queue, to reduce effects of race conditions
  */
@@ -762,15 +761,15 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
 
 /*! tcqFull() function
  *
- * \brief get the full status of the queue 
+ * \brief get the full status of the queue
  * Function returns full if the count is closer to the end of the queue than TC_QUEUE_MARGIN
  *
- * Function called by update_status() in control.c 
- * 
+ * Function called by update_status() in control.c
+ *
  * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 int       returns status (0==not full, 1==full)
- */   
+ */
 int tcqFull(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) {
@@ -778,7 +777,7 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
     }
 
     /* call the queue full if the length is into the margin, so reduce the
-       effect of a race condition where the appending process may not see the 
+       effect of a race condition where the appending process may not see the
        full status immediately and send another motion */
 
     if (tcq->size <= TC_QUEUE_MARGIN) {
@@ -799,11 +798,11 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
  *
  * \brief gets the last TC element in the queue, without removing it
  *
- * 
+ *
  * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 TC_STRUCT returns the TC element
- */   
+ */
 TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
 {
     if (tcqCheck(tcq)) {
