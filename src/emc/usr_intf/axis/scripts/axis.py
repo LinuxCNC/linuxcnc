@@ -1935,6 +1935,31 @@ class TclCommands(nf.TclCommands):
         if loaded_file is None:
             pass
         else:
+            omode = 0
+            showname = os.path.basename(loaded_file)
+            if not os.access(loaded_file,os.W_OK):
+                omode = root_window.tk.call(
+                      "nf_dialog",
+                      ".filenotwritable",
+                      _("File not Writable:") + showname,
+                      _("This file is not writable\n"
+                      "You can Edit-readonly\n\n"
+                      "or\n\n"
+                      "Save it to your own directory\n"
+                      "then open that saved, writable file"),
+                      "warning",
+                      0,
+                      _("Edit-readonly"),
+                      _("Save"),
+                      _("Cancel")
+                      )
+
+            if omode == 1:
+                root_window.tk.call("save_gcode",
+                                   "my_" + showname)
+                return
+            elif omode == 2: return
+
             e = string.split(editor)
             e.append(loaded_file)
             e.append("&")
@@ -2454,9 +2479,14 @@ class TclCommands(nf.TclCommands):
 
     def save_gcode(*args):
         if not loaded_file: return
+        initialfile = ''
+        if len(args):
+           initialfile = args[0]
         global open_directory
         f = root_window.tk.call("tk_getSaveFile", "-initialdir", open_directory,
-            "-filetypes", ((_("rs274ngc files"), ".ngc"),))
+            "-initialfile", initialfile,
+            "-filetypes",
+             ((_("rs274ngc files"), ".ngc"),))
         if not f: return
         f = unicode(f)
         open_directory = os.path.dirname(f)
@@ -2465,7 +2495,7 @@ class TclCommands(nf.TclCommands):
         else:
             srcfile = loaded_file
         try:
-            shutil.copy(srcfile, f)
+            shutil.copyfile(srcfile, f)
         except (shutil.Error, os.error, IOError), detail:
             tb = traceback.format_exc()
             root_window.tk.call("nf_dialog", ".error", _("Error saving file"),
