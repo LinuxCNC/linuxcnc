@@ -16,12 +16,9 @@
 
 #include "posemath.h"
 #include "tc.h"
-#include <stdbool.h>
 
 #define TP_DEFAULT_QUEUE_SIZE 32
-#define TP_LOOKAHEAD_DEPTH 40
 #define TP_SMOOTHING_THRESHOLD 0.33
-#define TP_MAX_FEED_SCALE 2.0
 //Make this slightly larger than the theoretical minimum
 #define TP_MIN_SEGMENT_CYCLES 1.1
 //Values chosen for accel ratio to match parabolic blend acceleration
@@ -39,7 +36,7 @@
 #define TP_ACCEL_EPSILON 1e-8
 #define TP_ANGLE_EPSILON 1e-3
 #define TP_MAG_EPSILON 1e-7
-#define TP_TIME_EPSILON 1e-8
+#define TP_TIME_EPSILON 1e-7
 #define TP_BIG_NUM 1e10
 #define TP_KINK_FACTOR 0.1
 
@@ -47,7 +44,6 @@
 #define TP_ERR_OK 0
 #define TP_ERR_FAIL -1
 #define TP_ERR_NO_ACTION 1
-#define TP_ERR_REMOVE_LAST 2
 
 /**
  * Persistant data for spindle status within tpRunCycle.

@@ -46,7 +46,6 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
 #define TP_SMOOTHING
-#define TP_FALLBACK_PARABOLIC
 #define TP_SHOW_BLENDS
 #define TP_OPTIMIZATION_LAZY 
 
@@ -1308,6 +1307,12 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         return TP_ERR_NO_ACTION;
     }
 
+    if (emcmotConfig->arcBlendOptDepth < 2) {
+        tp_debug_print("Optimization depth %d too low, ignoring any tangents\n",
+                emcmotConfig->arcBlendOptDepth);
+        return TP_ERR_NO_ACTION;
+    }
+
     PmCartesian prev_tan, this_tan;
 
     tcGetEndTangentUnitVector(prev_tc, &prev_tan);
@@ -1322,7 +1327,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         return TP_ERR_FAIL;
     }
 
-    double phi =  PM_PI - 2.0 * theta;
+    double phi = PM_PI - 2.0 * theta;
     tp_debug_print("phi = %f\n", phi);
 
     if (phi < TP_ANGLE_EPSILON) {
@@ -1380,7 +1385,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         if (arc_fail) {
             tp_debug_print("blend arc NOT created\n");
             return arc_fail;
-        } 
+        }
 
         //Need to do this here since the length changed
         tpCalculateTriangleVel(tp, prev_tc);
