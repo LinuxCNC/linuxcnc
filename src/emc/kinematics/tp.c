@@ -584,8 +584,9 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
  * anything, so it just treats ABC and UVW as additional orthogonal axes. If
  * NULL is passed for any of the pointers, then that component is unassigned.
  */
-STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose, PmCartesian * const xyz, PmCartesian * const
-        abc, PmCartesian * const uvw) {
+STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose,
+        PmCartesian * const xyz, PmCartesian * const abc, PmCartesian * const uvw)
+{
 
     //Direct copy of translation struct for xyz
     if (xyz) {
@@ -612,7 +613,9 @@ STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose, PmC
  * Collect PmCartesian elements into 9D EmcPose structure.
  * TODO: move this to posemath
  */
-STATIC inline void tpConvertPmCartesianToEmcPose(PmCartesian const * const xyz, PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose) {
+STATIC inline void tpConvertPmCartesianToEmcPose(PmCartesian const * const xyz,
+        PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose)
+{
 
     pose->tran = *xyz;
 
@@ -697,6 +700,7 @@ STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const 
     tp_debug_print("id %d Triangle vel = %f\n", tp->nextId, tc->triangle_vel);
     return 0;
 }
+
 
 /**
  * Find the maximum angle allowed between "tangent" segments.
@@ -2652,7 +2656,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     return TP_ERR_OK;
 }
 
-STATIC int tpSetupNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
+
+STATIC int tpActivateNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc)
 {
     if (!nexttc) {
@@ -2666,16 +2671,6 @@ STATIC int tpSetupNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     return TP_ERR_OK;
 }
 
-STATIC inline int tpUpdateActiveDepth(TP_STRUCT * const tp,
-        TC_STRUCT const * const tc)
-{
-    if (tc->term_cond == TC_TERM_COND_TANGENT) {
-        tp->activeDepth = tc->active_depth;
-    } else {
-        tp->activeDepth = 1;
-    }
-    return 0;
-}
 
 STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc)
@@ -2817,7 +2812,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
     //Activate next segment if need be
-    tpSetupNextSegment(tp, tc, nexttc);
+    tpActivateNextSegment(tp, tc, nexttc);
 
     /** If synchronized with spindle, calculate requested velocity to track
      * spindle motion.*/
