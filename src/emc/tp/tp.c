@@ -34,11 +34,6 @@
  * and selectively compile in assertions and debug printing.
  */
 
-//TODO clean up these names
-/*#define TP_DEBUG*/
-/*#define TC_DEBUG*/
-/*#define TP_INFO_LOGGING*/
-
 #include "tp_debug.h"
 
 #ifndef SIM
@@ -1235,10 +1230,6 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
 
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
     prev1_tc->finalvel = vs_back;
-    if (tc->smoothing) {
-        double v_max_end = fmax(prev1_tc->finalvel, tc->finalvel);
-        tc->target_vel = fmin(v_max_end, tc->maxvel);
-    }
 
     //Reduce max velocity to match sample rate
     double sample_maxvel = tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
@@ -1777,7 +1768,10 @@ STATIC double saturate(double x, double max) {
 }
 
 
-int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel, double * const v_out, double * const acc_out)
+/**
+ * Calculate distance update from velocity and acceleration
+ */
+STATIC int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel, double * const v_out, double * const acc_out)
 {
     // Calculate acceleration needed to reach newvel, bounded by machine maximum
     double maxnewaccel = (newvel - tc->currentvel) / tc->cycle_time;
@@ -1800,12 +1794,6 @@ int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel
     // Note that progress can be greater than the target after this step.
     double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
     tc->progress += displacement;
-
-    if (tc->progress > tc->target) {
-        tc_debug_print("passed target by %g, cutting off at target!\n",
-                tc->progress - tc->target);
-        tc->progress = tc->target;
-    }
 
     *v_out = v_next;
     *acc_out = newaccel;
@@ -1897,6 +1885,55 @@ void tpTrapezoidalCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     }
 }
 
+/**
+ * Compute a smoothed position and velocity update.
+ *
+ * This function creates the trapezoidal velocity profile based on tc's
+ * velocity and acceleration limits. The formula has been tweaked slightly to
+ * allow a non-zero velocity at the instant the target is reached.
+ */
+STATIC int tpSmoothCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+    //Initial guess at dt for next round
+    double dx = tc->target - tc->progress;
+
+    if (!tc->blending_next) {
+        tc->vel_at_blend_start = tc->currentvel;
+    }
+
+    double target_vel = tpGetRealTargetVel(tp, tc);
+    double vel_final = tpGetRealFinalVel(tp, tc, target_vel);
+    double vel_avg = tc->currentvel + vel_final;
+
+    /* Check if the average velocity is too low to properly ramp up. This
+     * happens if the initial / final velocity are both zero, for example.
+     */
+    if (vel_avg < TP_VEL_EPSILON) {
+        tp_debug_print(" vel_avg %f too low for smoothing\n", vel_avg);
+        return TP_ERR_FAIL;
+    }
+
+    // Calculate time remaining in this segment assuming constant acceleration
+    double dt = fmax(2.0 * dx / vel_avg, TP_TIME_EPSILON);
+
+    // Calculate velocity change between final and current velocity
+    double dv = vel_final - tc->currentvel;
+
+    // Estimate constant acceleration required
+    double acc_final = dv / dt;
+
+    // Saturate estimated acceleration against maximum allowed by segment
+    double acc_max = tpGetScaledAccel(tp, tc);
+    double acc = saturate(acc_final, acc_max);
+
+    // Calculate 
+    double newvel = acc * tc->cycle_time + tc->currentvel;
+    tc->progress += (tc->currentvel + newvel) / 2.0 * tc->cycle_time;
+    tc->currentvel = newvel;
+    tc_debug_print(" tc result (ramping): dx = %f, dt = %f, acc_final = %f, vel_final = %f\n", 
+            dx, dt, acc, vel_final);
+
+    return TP_ERR_OK;
+}
 
 void tpToggleDIOs(TC_STRUCT * const tc) {
 
@@ -2421,7 +2458,13 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     tcGetPos(tc, &before);
 
     //Run cycle update with stored cycle time
-    tpTrapezoidalCycleStep(tp, tc);
+    int res = 1;
+    if (tc->smoothing) {
+        res = tpSmoothCycleStep(tp, tc);
+    }
+    if (res) {
+        tpTrapezoidalCycleStep(tp, tc);
+    }
 
     //Check if we're near the end of the cycle and set appropriate changes
     tpCheckEndCondition(tp, tc);
