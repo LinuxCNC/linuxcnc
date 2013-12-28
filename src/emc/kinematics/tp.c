@@ -47,7 +47,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_SMOOTHING
 #define TP_SHOW_BLENDS
-#define TP_OPTIMIZATION_LAZY 
+#define TP_OPTIMIZATION_LAZY
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -154,12 +154,12 @@ STATIC int tpCheckHasRotary(TP_STRUCT const * const tp, TC_STRUCT const * const 
 
 
 /**
- * Get a safe maximum acceleration based on X,Y, and Z. 
+ * Get a safe maximum acceleration based on X,Y, and Z.
  * Use the lowest bound on the linear axes, rather than using the
  * trajectory max accels. These are computed with the infinity norm, which
  * means we can't just assume that the smaller of the two is within the limits.
  */
-STATIC int tpGetMachineAccelLimit(double * const acc_limit) { 
+STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     if (!acc_limit) {
         return TP_ERR_FAIL;
     }
@@ -200,7 +200,7 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
  * Get a segment's feed scale based on the current planner state and emcmotStatus.
  * @note depends on emcmotStatus for system information.
  */
-STATIC double tpGetFeedScale(TP_STRUCT const * const tp, 
+STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     //All reasons to disable feed override go here
     if (tp->pausing || tp->aborting) {
@@ -218,7 +218,7 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
  * Get target velocity for a tc based on the trajectory planner state.
  * This gives the requested velocity, capped by the segments maximum velocity.
  */
-STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp, 
+STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
 }
@@ -230,7 +230,7 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     double tc_maxvel = tc->maxvel;
     if (tc->motion_type == TC_CIRCULAR) {
-        
+  
     }
     return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc_maxvel);
 }
@@ -241,7 +241,8 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
  * This function factors in the feed override and TC limits. It clamps the
  * final velocity to the maximum velocity and the current target velocity.
  */
-STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc, double target_vel) {
+STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
+        TC_STRUCT const * const tc, double target_vel) {
     //If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop
     //If the term_cond gets changed out from under us, detect this and force final velocity to zero
     if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
@@ -260,7 +261,8 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
 /**
  * Get acceleration for a tc based on the trajectory planner state.
  */
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
+        TC_STRUCT const * const tc) {
     double a_scale = tc->maxaccel;
     /* Parabolic blending conditions: If the next segment or previous segment
      * has a parabolic blend with this one, acceleration is scaled down by 1/2
@@ -268,7 +270,7 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
      */
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
         a_scale *= 0.5;
-    } 
+    }
     if (tc->motion_type == TC_CIRCULAR) {
         //Limit acceleration for cirular arcs to allow for normal acceleration
         a_scale *= TP_ACC_RATIO_TANGENTIAL;
@@ -571,7 +573,7 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 /**
  * Break out a 9D EmcPose structure into 3 PmCartesian pieces for processing.
- * This functiona assumes that we're not using the rotation component for
+ * This function assumes that we're not using the rotation component for
  * anything, so it just treats ABC and UVW as additional orthogonal axes. If
  * NULL is passed for any of the pointers, then that component is unassigned.
  */
@@ -603,13 +605,14 @@ STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose, PmC
  * Collect PmCartesian elements into 9D EmcPose structure.
  * TODO: move this to posemath
  */
-STATIC inline void tpConvertPmCartesiantoEmcPose(PmCartesian const * const xyz, PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose) {
+STATIC inline void tpConvertPmCartesianToEmcPose(PmCartesian const * const xyz, PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose) {
 
     pose->tran = *xyz;
 
     pose->a = abc->x;
     pose->b = abc->y;
     pose->c = abc->z;
+
     pose->u = uvw->x;
     pose->v = uvw->y;
     pose->w = uvw->z;
@@ -682,7 +685,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
 STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tp, tc);
-    tc->triangle_vel = pmSqrt( acc_scaled * tc->target); 
+    tc->triangle_vel = pmSqrt( acc_scaled * tc->target);
     //FIXME id kludge
     tp_debug_print("id %d Triangle vel = %f\n", tp->nextId, tc->triangle_vel);
     return 0;
@@ -960,7 +963,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     } else {
         //If for some reason we get too small a radius, the blend will fail. This
         //shouldn't happen if everything upstream is working.
-        if (R_plan < TP_MAG_EPSILON) {
+        if (R_plan < TP_POS_EPSILON) {
             tp_debug_print("Blend radius too small, aborting...\n");
             return TP_ERR_FAIL;
         }
@@ -975,7 +978,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     PmCartesian circ_start, circ_end;
 
     double h_plan = R_plan / Stheta;
-    pmCircleFromLines(&blend_tc->coords.circle.xyz, 
+    pmCircleFromLines(&blend_tc->coords.circle.xyz,
             &prev_tc->coords.line.xyz,
             &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end);
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
@@ -1027,7 +1030,7 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
 
         tpCheckLastParabolic(tp, tc);
         tpCalculateTriangleVel(tp, tc);
-    } 
+    }
     return TP_ERR_OK;
 }
 
@@ -1120,7 +1123,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     return retval;
 }
 
-STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
+STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double period) {
     double omega = 0.0;
 
@@ -1190,7 +1193,7 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
         vs_back = vf_limit;
         prev1_tc->optimization_state = TC_OPTIM_AT_MAX;
         tp_debug_print("found peak due to v_limit\n");
-    } 
+    }
 
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
     prev1_tc->finalvel = vs_back;
@@ -1476,7 +1479,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
 
     //Flag this as blending with previous segment if the previous segment is set to blend with this one
- 
+
     prev_tc = tcqLast(&tp->queue);
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
@@ -1738,7 +1741,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc->vel_at_blend_start = tc->currentvel;
     }
 
-    /* Calculations for desired velocity base don trapezoidal profile */
+    /* Calculations for desired velocity based on trapezoidal profile */
     double delta_pos = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
 
@@ -1756,7 +1759,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     if (discr < 0.0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "discriminant %f < 0 in velocity calculation!\n", discr);
-    } 
+    }
 #endif
     //Start with -B/2 portion of quadratic formula
     double maxnewvel = -tmp_adt;
@@ -2084,7 +2087,7 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
  * const this move, then pop if off the queue and perform cleanup operations.
  * Finally, get the next move in the queue.
  */
-STATIC int tpCompleteSegment(TP_STRUCT * const tp, 
+STATIC int tpCompleteSegment(TP_STRUCT * const tp,
         TC_STRUCT const * const tc) {
 
     if (tp->spindle.waiting_for_atspeed == tc->id) {
@@ -2218,7 +2221,8 @@ STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
 /**
  * Find magnitude of displacement between a pose and the current position in TP.
  */
-STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
+STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp,
+        EmcPose const * const pose, double * const magnitude) {
     if (!pose) {
         return TP_ERR_FAIL;
     }
@@ -2533,7 +2537,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
             tc->split_time = 0.0;
             return TP_ERR_OK;
         }
-    }  
+    }
 
     //Get dt assuming that we can magically reach the final velocity at
     //the end of the move.
@@ -2554,7 +2558,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     double a_max = tpGetScaledAccel(tp,tc);
     tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n",dx,dt,a_f,v_f);
 
-    //If we exceed the maximum acceleration, then the dt estimate is too small. 
+    //If we exceed the maximum acceleration, then the dt estimate is too small.
     int recalc = 0;
     double a;
     if (a_f > (a_max + TP_ACCEL_EPSILON)) {
@@ -2622,11 +2626,9 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
  * Calculate an updated goal position for the next timestep.
  * This is the brains of the operation. It's called every TRAJ period and is
  * expected to set tp->currentPos to the new machine position. Lots of other
- * const tp fields (depth, done, etc) have to be twiddled to communicate the status;
- * I think those are spelled out here correctly and I can't clean it up
- * without breaking the API that the TP presents to motion. It's not THAT bad
- Found next the interest of not touching stuff outside this directory, I'm going
- * const to leave it for now.
+ * const tp fields (depth, done, etc) have to be twiddled to communicate the
+ * status; I think those are spelled out here correctly and I can't clean it up
+ * without breaking the API that the TP presents to motion.
  */
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
@@ -2715,7 +2717,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     }
 
 
-    /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
+    /** If synchronized with spindle, calculate requested velocity to track
+     * spindle motion.*/
     switch (tc->synchronized) {
         case TC_SYNC_NONE:
             break;
@@ -2788,14 +2791,15 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     }
 
-    //For some reason, this has to be here to prevent graphical glitches in simulation. 
+    //For some reason, this has to be here to prevent graphical glitches in simulation.
     //FIXME minor algorithm or optimization issue that causes this to happen?
     double mag;
     tpCalculateTotalDisplacement(tp, &pos_before, &mag);
-    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
+    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
+            time_elapsed,
             mag, emcmotStatus->current_vel);
 
-    // If TC is complete, remove it from the queue. 
+    // If TC is complete, remove it from the queue.
     if (tc->remove) {
         tpCompleteSegment(tp, tc);
     }
