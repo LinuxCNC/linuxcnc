@@ -741,7 +741,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	KINEMATICS_TYPE kinematics_type;
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
-        double arcBlendOptDepth;
+        int arcBlendOptDepth;
         int arcBlendEnable;
         int arcBlendFallbackEnable;
         double arcBlendSmoothingThreshold;
