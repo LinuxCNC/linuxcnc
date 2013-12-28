@@ -47,7 +47,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_SMOOTHING
 #define TP_SHOW_BLENDS
-#define TP_OPTIMIZATION_LAZY 
+#define TP_OPTIMIZATION_LAZY
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -117,31 +117,38 @@ STATIC int tpCheckLastParabolic(TP_STRUCT const * const tp, TC_STRUCT * const tc
 
 
 /**
- * Returns an error if there is rotary motion.
- * This function is useful for identifying motions that can't be blended using
- * 3d spherical arcs.
+ * Returns true if there is motion along ABC or UVW axes, false otherwise.
  */
-STATIC int tpCheckHasRotary(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     switch (tc->motion_type) {
         //Note lack of break statements due to every path returning
         case TC_RIGIDTAP:
-            return TP_ERR_OK;
+            return false;
         case TC_LINEAR:
             if (tc->coords.line.abc.tmag_zero && tc->coords.line.uvw.tmag_zero) {
-                return TP_ERR_OK;
+                return false;
             } else {
-                return TP_ERR_FAIL;
+                return true;
             }
         case TC_CIRCULAR:
             if (tc->coords.circle.abc.tmag_zero && tc->coords.circle.uvw.tmag_zero) {
-                return TP_ERR_OK;
+                return false;
             } else {
-                return TP_ERR_FAIL;
+                return true;
             }
         default:
             tp_debug_print("Unknown motion type!\n");
-            return TP_ERR_FAIL;
+            return false;
     }
+}
+
+
+/** Returns true if segment has ONLY rotary motion, false otherwise. */
+STATIC int tpPureRotaryCheck(TP_STRUCT const * const tp, TC_STRUCT const * const tc)
+{
+    return (tc->motion_type == TC_LINEAR) &&
+        (tc->coords.line.xyz.tmag_zero) &&
+        (tc->coords.line.uvw.tmag_zero);
 }
 
 
@@ -154,12 +161,12 @@ STATIC int tpCheckHasRotary(TP_STRUCT const * const tp, TC_STRUCT const * const 
 
 
 /**
- * Get a safe maximum acceleration based on X,Y, and Z. 
+ * Get a safe maximum acceleration based on X,Y, and Z.
  * Use the lowest bound on the linear axes, rather than using the
  * trajectory max accels. These are computed with the infinity norm, which
  * means we can't just assume that the smaller of the two is within the limits.
  */
-STATIC int tpGetMachineAccelLimit(double * const acc_limit) { 
+STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     if (!acc_limit) {
         return TP_ERR_FAIL;
     }
@@ -200,7 +207,7 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
  * Get a segment's feed scale based on the current planner state and emcmotStatus.
  * @note depends on emcmotStatus for system information.
  */
-STATIC double tpGetFeedScale(TP_STRUCT const * const tp, 
+STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     //All reasons to disable feed override go here
     if (tp->pausing || tp->aborting) {
@@ -218,7 +225,7 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
  * Get target velocity for a tc based on the trajectory planner state.
  * This gives the requested velocity, capped by the segments maximum velocity.
  */
-STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp, 
+STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
 }
@@ -230,7 +237,7 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     double tc_maxvel = tc->maxvel;
     if (tc->motion_type == TC_CIRCULAR) {
-        
+  
     }
     return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc_maxvel);
 }
@@ -241,7 +248,8 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
  * This function factors in the feed override and TC limits. It clamps the
  * final velocity to the maximum velocity and the current target velocity.
  */
-STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc, double target_vel) {
+STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
+        TC_STRUCT const * const tc, double target_vel) {
     //If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop
     //If the term_cond gets changed out from under us, detect this and force final velocity to zero
     if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
@@ -260,7 +268,8 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp, TC_STRUCT con
 /**
  * Get acceleration for a tc based on the trajectory planner state.
  */
-STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
+STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
+        TC_STRUCT const * const tc) {
     double a_scale = tc->maxaccel;
     /* Parabolic blending conditions: If the next segment or previous segment
      * has a parabolic blend with this one, acceleration is scaled down by 1/2
@@ -268,7 +277,7 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp, TC_STRUCT cons
      */
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
         a_scale *= 0.5;
-    } 
+    }
     if (tc->motion_type == TC_CIRCULAR) {
         //Limit acceleration for cirular arcs to allow for normal acceleration
         a_scale *= TP_ACC_RATIO_TANGENTIAL;
@@ -571,12 +580,13 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 /**
  * Break out a 9D EmcPose structure into 3 PmCartesian pieces for processing.
- * This functiona assumes that we're not using the rotation component for
+ * This function assumes that we're not using the rotation component for
  * anything, so it just treats ABC and UVW as additional orthogonal axes. If
  * NULL is passed for any of the pointers, then that component is unassigned.
  */
-STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose, PmCartesian * const xyz, PmCartesian * const
-        abc, PmCartesian * const uvw) {
+STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose,
+        PmCartesian * const xyz, PmCartesian * const abc, PmCartesian * const uvw)
+{
 
     //Direct copy of translation struct for xyz
     if (xyz) {
@@ -603,13 +613,16 @@ STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose, PmC
  * Collect PmCartesian elements into 9D EmcPose structure.
  * TODO: move this to posemath
  */
-STATIC inline void tpConvertPmCartesiantoEmcPose(PmCartesian const * const xyz, PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose) {
+STATIC inline void tpConvertPmCartesianToEmcPose(PmCartesian const * const xyz,
+        PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose)
+{
 
     pose->tran = *xyz;
 
     pose->a = abc->x;
     pose->b = abc->y;
     pose->c = abc->z;
+
     pose->u = uvw->x;
     pose->v = uvw->y;
     pose->w = uvw->z;
@@ -668,7 +681,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->splitting = 0;
     tc->split_time = 0;
     tc->remove = 0;
-    tc->active_depth = 0;
+    tc->active_depth = 1;
 
     return TP_ERR_OK;
 }
@@ -682,11 +695,12 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
 STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tp, tc);
-    tc->triangle_vel = pmSqrt( acc_scaled * tc->target); 
+    tc->triangle_vel = pmSqrt( acc_scaled * tc->target);
     //FIXME id kludge
     tp_debug_print("id %d Triangle vel = %f\n", tp->nextId, tc->triangle_vel);
     return 0;
 }
+
 
 /**
  * Find the maximum angle allowed between "tangent" segments.
@@ -739,7 +753,9 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
-    if (dot > 1.0 || dot < -1.0) return TP_ERR_FAIL;
+    if (dot > 1.0 || dot < -1.0) {
+        return TP_ERR_FAIL;
+    }
 
     *theta = acos(dot);
     return TP_ERR_OK;
@@ -960,7 +976,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     } else {
         //If for some reason we get too small a radius, the blend will fail. This
         //shouldn't happen if everything upstream is working.
-        if (R_plan < TP_MAG_EPSILON) {
+        if (R_plan < TP_POS_EPSILON) {
             tp_debug_print("Blend radius too small, aborting...\n");
             return TP_ERR_FAIL;
         }
@@ -975,7 +991,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     PmCartesian circ_start, circ_end;
 
     double h_plan = R_plan / Stheta;
-    pmCircleFromLines(&blend_tc->coords.circle.xyz, 
+    pmCircleFromLines(&blend_tc->coords.circle.xyz,
             &prev_tc->coords.line.xyz,
             &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end);
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
@@ -1027,7 +1043,7 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
 
         tpCheckLastParabolic(tp, tc);
         tpCalculateTriangleVel(tp, tc);
-    } 
+    }
     return TP_ERR_OK;
 }
 
@@ -1120,7 +1136,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     return retval;
 }
 
-STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc, 
+STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double period) {
     double omega = 0.0;
 
@@ -1149,7 +1165,7 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
-    if (tpCheckHasRotary(tp, tc)) {
+    if (tpRotaryMotionCheck(tp, tc)) {
         tp_debug_print("Segment has rotary motion, aborting blend arc");
         return TP_ERR_FAIL;
     }
@@ -1190,7 +1206,7 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
         vs_back = vf_limit;
         prev1_tc->optimization_state = TC_OPTIM_AT_MAX;
         tp_debug_print("found peak due to v_limit\n");
-    } 
+    }
 
     //Limit tc's target velocity to avoid creating "humps" in the velocity profile
     prev1_tc->finalvel = vs_back;
@@ -1295,14 +1311,14 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
  * segment as tangent, and limit the current segment's velocity by the sampling
  * rate.
  */
-STATIC int tpSetupTangent(TP_STRUCT const * const tp, 
+STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         TC_STRUCT * const prev_tc, TC_STRUCT * const tc) {
     if (!tc || !prev_tc) {
         tp_debug_print("missing tc or prev tc in tangent check\n");
         return TP_ERR_FAIL;
     }
     //If we have ABCUVW movement, then don't check for tangency
-    if (tpCheckHasRotary(tp, tc)) {
+    if (tpRotaryMotionCheck(tp, tc)) {
         tp_debug_print("found rotary axis motion, aborting tangent check\n");
         return TP_ERR_NO_ACTION;
     }
@@ -1476,7 +1492,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
 
     //Flag this as blending with previous segment if the previous segment is set to blend with this one
- 
+
     prev_tc = tcqLast(&tp->queue);
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
@@ -1660,14 +1676,11 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
          * equate the two expressions for d and solve for v
          */
         double tblend_vel;
-        double dot;
         PmCartesian v1, v2;
 
         tcGetEndAccelUnitVector(tc, &v1);
         tcGetStartAccelUnitVector(nexttc, &v2);
-        pmCartCartDot(&v1, &v2, &dot);
-
-        theta = acos(-dot)/2.0;
+        tpFindIntersectionAngle(&v1, &v2, &theta);
         /* Minimum value of cos(theta) to prevent numerical instability */
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_ANGLE_EPSILON);
         if (cos(theta) > min_cos_theta) {
@@ -1711,18 +1724,57 @@ STATIC double saturate(double x, double max) {
 }
 
 
+int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel, double * const v_out, double * const acc_out)
+{
+    // Calculate acceleration needed to reach newvel, bounded by machine maximum
+    double maxnewaccel = (newvel - tc->currentvel) / tc->cycle_time;
+    double newaccel = saturate(maxnewaccel, maxaccel);
+
+    // If the resulting velocity is less than zero, than we're done. This
+    // causes a small overshoot, but in practice it is very small.
+    if (newvel < 0.0 ) {
+        tc_debug_print(" Found newvel = %f, assuming segment is done\n",newvel);
+        newvel = 0.0;
+        //Assume we're on target exactly
+        tc->displacement = tc->target - tc->progress;
+        tc->progress = tc->target;
+        *v_out = newvel;
+        *acc_out = newaccel;
+        return TP_ERR_OK;
+    }
+
+    double v_next = tc->currentvel + newaccel * tc->cycle_time;
+    // update position in this tc using trapezoidal integration
+    // Note that progress can be greater than the target after this step.
+    tc->displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
+
+    if (tc->progress + tc->displacement > tc->target) {
+        tc_debug_print("passed target by %g, cutting off at target!\n",
+                tc->progress + tc->displacement - tc->target);
+        //Force displacement and progress to end exactly.
+        tc->displacement = tc->target - tc->progress;
+        tc->progress = tc->target;
+    } else {
+        tc->progress += tc->displacement;
+    }
+
+    *v_out = v_next;
+    *acc_out = newaccel;
+
+    return TP_ERR_OK;
+}
+
+
 /**
- * Compute the updated position and velocity over one timestep.
- * @param tc trajectory component being processed
- * @param v optional velocity output as reference
- * @param on_final_decel optional output flag indicating we are slowing towards the goal speed.
+ * Compute updated position and velocity for a timestep based on a trapezoidal
+ * motion profile.
+ * @param tc trajectory segment being processed.
  *
- * This function creates the trapezoidal velocity profile based on tc's
- * velocity and acceleration limits. The formula has been tweaked slightly to
- * allow a non-zero velocity at the instant the target is reached.
+ * Creates the trapezoidal velocity profile based on the segment's velocity and
+ * acceleration limits. The formula has been tweaked slightly to allow a
+ * non-zero velocity at the instant the target is reached.
  */
-void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    double newaccel=0.0;
+void tpTrapezoidalCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp, tc);
@@ -1738,7 +1790,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
         tc->vel_at_blend_start = tc->currentvel;
     }
 
-    /* Calculations for desired velocity base don trapezoidal profile */
+    /* Calculations for desired velocity based on trapezoidal profile */
     double delta_pos = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
 
@@ -1756,7 +1808,7 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     if (discr < 0.0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "discriminant %f < 0 in velocity calculation!\n", discr);
-    } 
+    }
 #endif
     //Start with -B/2 portion of quadratic formula
     double maxnewvel = -tmp_adt;
@@ -1764,86 +1816,47 @@ void tcRunCycle(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //If the discriminant term brings our velocity above zero, add it to the total
     //We can ignore the calculation otherwise because negative velocities are clipped to zero
     if (discr > discr_term3) {
-        maxnewvel += pmSqrt(discr); 
-    }
-    //Copy calculated maxnewvel to give an initial value for newvel
-    double newvel = maxnewvel;
-
-    // Limit newvel to target velocity.
-    if (newvel > tc_target_vel) {
-        newvel = tc_target_vel;
+        maxnewvel += pmSqrt(discr);
     }
 
-    // If the resulting velocity is less than zero, than we're done. This
-    // causes a small overshoot, but in practice it is very small.
-    if (newvel < 0.0 ) {
-        tc_debug_print(" Found newvel = %f, assuming segment is done\n",newvel);
-        newvel = 0.0;
-        //Assume we're on target exactly
-        tc->displacement = tc->target-tc->progress;
-        tc->progress = tc->target;
-        //Since we're handling completion here, directly flag this as ready to be removed
-    } else {
+    // Find bounded new velocity based on target velocity
+    double goalvel = saturate(maxnewvel, tc_target_vel);
 
-        bool is_pure_rotary = (tc->motion_type == TC_LINEAR) &&
-            (tc->coords.line.xyz.tmag_zero) && (tc->coords.line.uvw.tmag_zero);
-
-        // if the motion is not purely rotary axes (and therefore in angular
-        // units), clamp motion's velocity at TRAJ MAX_VELOCITY (tooltip
-        // maxvel) except when it's synced to spindle position.
-        if (!is_pure_rotary && tc->synchronized != TC_SYNC_POSITION && newvel > tp->vLimit) {
-            newvel = tp->vLimit;
-        }
-
-        // get acceleration to reach newvel, bounded by machine maximum
-        newaccel = (newvel - tc->currentvel) / tc->cycle_time;
-        newaccel = saturate(newaccel, maxaccel);
-
-        newvel = tc->currentvel + newaccel * tc->cycle_time;
-        // update position in this tc using trapezoidal integration
-        // Note that progress can be greater than the target after this step.
-        tc->displacement = (newvel + tc->currentvel) * 0.5 * tc->cycle_time;
-        if (tc->progress + tc->displacement > tc->target) {
-            tc_debug_print("passed target by %g, cutting off at target!\n",
-                    tc->progress + tc->displacement - tc->target);
-            //Force displacement and progress to end exactly.
-            tc->displacement = tc->target - tc->progress;
-            tc->progress = tc->target;
-        } else {
-            tc->progress += tc->displacement;
-        }
+    // If we have cartesian motion that's not synched with spindle position,
+    // then clamp the tool tip velocity at the limit specified in the INI file.
+    if (!tpPureRotaryCheck(tp, tc) && (tc->synchronized != TC_SYNC_POSITION)){
+        goalvel = saturate(goalvel, tp->vLimit);
     }
+
+    double newvel = 0.0;
+    double newaccel = 0.0;
+    tcUpdateCyclePosFromVel(tc, goalvel, maxaccel, &newvel, &newaccel);
 
     //Update current velocity with new velocity
     tc->currentvel = newvel;
 
-    if (tc->currentvel > tc_target_vel) {
-        tc_debug_print("Warning: exceeding target velocity!\n");
-    }
-
-    if (tc->progress >= (tc->target - TP_MAG_EPSILON)) {
-        //We've hit the target
-        tc_debug_print("segment %d close to target in runcycle\n",tc->id);
-        tc->splitting = 1;
-        tc->split_time = 0.0;
-        tc->progress = tc->target;
-        tc->final_actual_vel = tc->currentvel;
-        //Kludge to keep the segment around for another cycle to copy velocity over
-        if (tc->term_cond != TC_TERM_COND_TANGENT) {
-            tc->remove = 1;
-        }
-    }
-
-    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f\n,    current_vel = %f, fs = %f, tc = %f, term = %d\n",
+    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f\n, current_vel = %f, fs = %f, tc = %f, term = %d\n",
             tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,
             tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
     tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
             newvel, newaccel, tc->target, tc->progress);
     //FIXME numerical constant
-    tc->on_final_decel = (fabs(maxnewvel - newvel) < 0.001) && (newaccel < 0.0);
+    tc_debug_print(" end check: maxnewvel = %g, newvel = %g\n",maxnewvel,newvel);
+    tc->on_final_decel = (fabs(maxnewvel - newvel) < TP_VEL_EPSILON) && (newaccel < 0.0);
     if (tc->on_final_decel) {
         tc_debug_print("on final decel\n");
     }
+}
+
+/**
+ * Compute a smoothed position and velocity update.
+ *
+ * This function creates the trapezoidal velocity profile based on tc's
+ * velocity and acceleration limits. The formula has been tweaked slightly to
+ * allow a non-zero velocity at the instant the target is reached.
+ */
+void tpSmoothCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+#warning function not implemented
 }
 
 void tpToggleDIOs(TC_STRUCT * const tc) {
@@ -1870,7 +1883,7 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
  * during a rigid tap cycle. In particular, the target and spindle goal need to
  * be carefully handled since we're reversing direction.
  */
-STATIC void tpHandleRigidTap(TP_STRUCT const * const tp,
+STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
         TC_STRUCT * const tc) {
 
     static double old_spindlepos;
@@ -1953,6 +1966,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
     tc_debug_print("tc id = %u canon_type = %u mot type = %u\n",
             tc->id, tc->canon_motion_type, tc->motion_type);
     tp->motionType = tc->canon_motion_type;
+    tp->activeDepth = tc->active_depth;
     emcmotStatus->distance_to_go = tc->target - tc->progress;
     emcmotStatus->enables_queued = tc->enables;
     // report our line number to the guis
@@ -2084,7 +2098,7 @@ STATIC int tpGetRotaryIsUnlocked(int axis) {
  * const this move, then pop if off the queue and perform cleanup operations.
  * Finally, get the next move in the queue.
  */
-STATIC int tpCompleteSegment(TP_STRUCT * const tp, 
+STATIC int tpCompleteSegment(TP_STRUCT * const tp,
         TC_STRUCT const * const tc) {
 
     if (tp->spindle.waiting_for_atspeed == tc->id) {
@@ -2126,6 +2140,10 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
 STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
+    if(!tp->aborting) {
+        //Don't need to do anything if not aborting
+        return TP_ERR_NO_ACTION;
+    }
     //If the motion has stopped, then it's safe to reset the TP struct.
     if( MOTION_ID_VALID(tp->spindle.waiting_for_index) ||
             MOTION_ID_VALID(tp->spindle.waiting_for_atspeed) ||
@@ -2142,10 +2160,9 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
         tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
         emcmotStatus->spindleSync = 0;
         tpResume(tp);
-        return TP_ERR_OK;
+        return TP_ERR_STOPPED;
     }  //FIXME consistent error codes
-    return TP_ERR_NO_ACTION;
-
+    return TP_ERR_SLOWING;
 }
 
 
@@ -2155,7 +2172,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * something has gone wrong. The fix for now is to just update status so we're
  * waiting in the current segment instead. (Rob's understanding)
  */
-STATIC int tpCheckWaiting(TP_STRUCT * const tp, TC_STRUCT const * const tc) {
+STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     // this is no longer the segment we were waiting_for_index for
     if (MOTION_ID_VALID(tp->spindle.waiting_for_index) && tp->spindle.waiting_for_index != tc->id)
@@ -2184,6 +2201,19 @@ STATIC int tpCheckWaiting(TP_STRUCT * const tp, TC_STRUCT const * const tc) {
         }
     }
 
+    if (MOTION_ID_VALID(tp->spindle.waiting_for_index)) {
+        if(emcmotStatus->spindle_index_enable) {
+            /* haven't passed index yet */
+            return TP_ERR_NO_ACTION;
+        } else {
+            /* passed index, start the move */
+            emcmotStatus->spindleSync = 1;
+            tp->spindle.waiting_for_index = MOTION_INVALID_ID;
+            tc->sync_accel=1;
+            tp->spindle.revs=0;
+        }
+    }
+
     return TP_ERR_OK;
 }
 
@@ -2195,12 +2225,13 @@ STATIC int tpCheckWaiting(TP_STRUCT * const tp, TC_STRUCT const * const tc) {
  * segment. This is different from pausing or aborting, which can happen any
  * time.
  */
-STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
+STATIC int tpFlagEarlyStop(TP_STRUCT * const tp,
         TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
 
     if(tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
+        tc_debug_print("waiting on spindle sync for tc %d\n", tc->id);
         tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
@@ -2208,6 +2239,7 @@ STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
         // we'll have to wait for the spindle to be at-speed; might as well
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
+        tc_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
         tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
@@ -2218,7 +2250,8 @@ STATIC int tpCheckEarlyStop(TP_STRUCT * const tp,
 /**
  * Find magnitude of displacement between a pose and the current position in TP.
  */
-STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
+STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp,
+        EmcPose const * const pose, double * const magnitude) {
     if (!pose) {
         return TP_ERR_FAIL;
     }
@@ -2419,6 +2452,7 @@ STATIC void tpSyncPositionMode(TP_STRUCT * const tp, TC_STRUCT * const tc,
 STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
+    tc_debug_print("in DoParabolicBlend\n");
     tpUpdateBlend(tp,tc,nexttc);
 
     /* Status updates */
@@ -2455,7 +2489,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     tcGetPos(tc, &position9_before);
 
     //Run cycle update with stored cycle time
-    tcRunCycle(tp, tc);
+    tpTrapezoidalCycleStep(tp, tc);
 
     //Check if we're near the end of the cycle and set appropriate changes
     tpCheckEndCondition(tp, tc);
@@ -2493,23 +2527,28 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  */
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
-    if (tc->term_cond != TC_TERM_COND_TANGENT) {
-        return TP_ERR_NO_ACTION;
-    }
-    tp_debug_print("in tpCheckEndCondition\n");
-
     //Initial guess at dt for next round
     double dx = tc->target - tc->progress;
 
-    //If we're at the target, then it's too late to do anything about it
-    if (dx <= TP_MAG_EPSILON) {
+    if (dx <= TP_POS_EPSILON) {
+        //If the segment is close to the target position, then we assume that it's done.
         tp_debug_print("close to target, dx = %.12f\n",dx);
         tc->progress = tc->target;
         tc->splitting = 1;
         tc->final_actual_vel = tc->currentvel;
         tc->split_time = 0.0;
+        if (tc->term_cond != TC_TERM_COND_TANGENT) {
+            tc->remove = 1;
+        }
         return TP_ERR_OK;
+    } else if (tc->term_cond != TC_TERM_COND_TANGENT) {
+        // Abort check here since split cycles are not handled for
+        // non-tangent segments.
+        return TP_ERR_NO_ACTION;
     }
+
+    tp_debug_print("in tpCheckEndCondition\n");
+
 
     //TODO limit by target velocity?
     double target_vel = tpGetRealTargetVel(tp, tc);
@@ -2533,7 +2572,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
             tc->split_time = 0.0;
             return TP_ERR_OK;
         }
-    }  
+    }
 
     //Get dt assuming that we can magically reach the final velocity at
     //the end of the move.
@@ -2554,7 +2593,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     double a_max = tpGetScaledAccel(tp,tc);
     tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n",dx,dt,a_f,v_f);
 
-    //If we exceed the maximum acceleration, then the dt estimate is too small. 
+    //If we exceed the maximum acceleration, then the dt estimate is too small.
     int recalc = 0;
     double a;
     if (a_f > (a_max + TP_ACCEL_EPSILON)) {
@@ -2618,28 +2657,114 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 }
 
 
+STATIC int tpActivateNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc)
+{
+    if (!nexttc) {
+        return TP_ERR_NO_ACTION;
+    }
+    //Setup nexttc if this is the first time it's been accessed
+    if(nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
+        tp_debug_print("Activate nexttc id %d\n", nexttc->id);
+        nexttc->active = 1;
+    }
+    return TP_ERR_OK;
+}
+
+
+STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc)
+{
+    if (tc->remove) {
+        //Don't need to update since this segment is flagged for removal
+        return TP_ERR_NO_ACTION;
+    }
+
+    //Pose data to calculate movement due to finishing current TC
+    EmcPose position9_before;
+    EmcPose displacement9;
+
+    //Store initial position before trajectory updates
+    tcGetPos(tc, &position9_before);
+
+    tp_debug_print("tc id %d splitting\n",tc->id);
+    //Shortcut tc update by assuming we arrive at end
+    tc->progress = tc->target;
+    tpFindDisplacement(tc, &position9_before, &displacement9);
+    tpUpdatePosition(tp, &displacement9);
+
+    //Run remaining cycle time in nexttc
+    if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
+        nexttc->cycle_time -= tc->split_time;
+        nexttc->currentvel = tc->final_actual_vel;
+        tp_debug_print("Doing tangent split\n");
+        tpUpdateCycle(tp, nexttc);
+        //Update status for the split portion
+        if (tc->split_time > nexttc->cycle_time) {
+            //Majority of time spent in current segment
+            tpToggleDIOs(tc);
+            tpUpdateMovementStatus(tp, tc);
+        } else {
+            tpToggleDIOs(nexttc);
+            tpUpdateMovementStatus(tp, nexttc);
+        }
+        //Reset cycle time after completing tangent update
+        nexttc->cycle_time = tp->cycleTime;
+    }
+    //This is the only place remove should be triggered
+    tc->remove = 1;
+    return TP_ERR_OK;
+}
+
+STATIC int tpHandleRegularCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc)
+{
+    if (tc->remove) {
+        //Don't need to update since this segment is flagged for removal
+        return TP_ERR_NO_ACTION;
+    }
+    //Run with full cycle time
+    tc_debug_print("Normal cycle\n");
+    tc->cycle_time = tp->cycleTime;
+    tpUpdateCycle(tp, tc);
+
+    /* Parabolic blending */
+
+    tpComputeBlendVelocity(tp, tc, nexttc, false, NULL);
+    if (nexttc && tcIsBlending(tc)) {
+        tpDoParabolicBlending(tp, tc, nexttc);
+    } else {
+        //Update status for a normal step
+        tpToggleDIOs(tc);
+        tpUpdateMovementStatus(tp, tc);
+    }
+    return TP_ERR_OK;
+}
+
 /**
  * Calculate an updated goal position for the next timestep.
  * This is the brains of the operation. It's called every TRAJ period and is
  * expected to set tp->currentPos to the new machine position. Lots of other
- * const tp fields (depth, done, etc) have to be twiddled to communicate the status;
- * I think those are spelled out here correctly and I can't clean it up
- * without breaking the API that the TP presents to motion. It's not THAT bad
- Found next the interest of not touching stuff outside this directory, I'm going
- * const to leave it for now.
+ * const tp fields (depth, done, etc) have to be twiddled to communicate the
+ * status; I think those are spelled out here correctly and I can't clean it up
+ * without breaking the API that the TP presents to motion.
  */
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
     //Pointers to current and next trajectory component
     TC_STRUCT *tc;
     TC_STRUCT *nexttc;
+    TC_STRUCT * next2_tc;
 
-    tpUpdateInitialStatus(tp);
-
-    //Get pointers to the current and future motions. It's ok here if future
-    //motions don't exist (NULL pointers) as we check for this later).
+    /* Get pointers to current and relevant future segments. It's ok here if
+     * future segments don't exist (NULL pointers) as we check for this later).
+     */
     tc = tcqItem(&tp->queue, 0);
     nexttc = tcqItem(&tp->queue, 1);
+    next2_tc = tcqItem(&tp->queue, 2);
+
+    //Set GUI status to "zero" state
+    tpUpdateInitialStatus(tp);
 
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
@@ -2655,22 +2780,17 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     time_elapsed+=tp->cycleTime;
 #endif
 
-    tpCheckEarlyStop(tp, tc, nexttc);
+    //Check if we need to stop after this segment due to synchronization with
+    //spindle or other conditions
+    tpFlagEarlyStop(tp, tc, nexttc);
+    tpFlagEarlyStop(tp, nexttc, next2_tc);
 
-    //Check for early stop conditions for next-next segment as well to prevent over-speed during parabolic blend
-    TC_STRUCT * next2_tc;
-    next2_tc = tcqItem(&tp->queue, 2);
-    tpCheckEarlyStop(tp, nexttc, next2_tc);
-
-    if(tp->aborting) {
-        int slowing = tpHandleAbort(tp, tc, nexttc);
-        if (!slowing) {
-            return TP_ERR_OK;
-        }
+    if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
+        return TP_ERR_OK;
     }
 
-    if (tpCheckWaiting(tp, tc) != TP_ERR_OK){
-        //FIXME counterintuitive naming...
+    //Return early if we have a reason to wait (i.e. not ready for motion)
+    if (tpHandleWaiting(tp, tc) != TP_ERR_OK){
         return TP_ERR_OK;
     }
 
@@ -2682,21 +2802,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }
     }
 
-    if (MOTION_ID_VALID(tp->spindle.waiting_for_index)) {
-        if(emcmotStatus->spindle_index_enable) {
-            /* haven't passed index yet */
-            return TP_ERR_OK;
-        } else {
-            /* passed index, start the move */
-            emcmotStatus->spindleSync = 1;
-            tp->spindle.waiting_for_index = MOTION_INVALID_ID;
-            tc->sync_accel=1;
-            tp->spindle.revs=0;
-        }
-    }
-
     if (tc->motion_type == TC_RIGIDTAP) {
-        tpHandleRigidTap(tp, tc);
+        tpUpdateRigidTapState(tp, tc);
     }
 
     //TODO revisit this logic and pack this into the status update function
@@ -2704,18 +2811,11 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         emcmotStatus->spindleSync = 0;
     }
 
-    if(nexttc && nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
-        // this means this tc is being read for the first time.
-        tp_debug_print("Activate nexttc id %d\n", nexttc->id);
-        nexttc->currentvel = 0.0;
-        tp->activeDepth = 1;
-        nexttc->active = 1;
-    } else if (tc->term_cond == TC_TERM_COND_TANGENT) {
-        tp->activeDepth = tc->active_depth;
-    }
+    //Activate next segment if need be
+    tpActivateNextSegment(tp, tc, nexttc);
 
-
-    /** If synchronized with spindle, calculate requested velocity to track spindle motion.*/
+    /** If synchronized with spindle, calculate requested velocity to track
+     * spindle motion.*/
     switch (tc->synchronized) {
         case TC_SYNC_NONE:
             break;
@@ -2734,68 +2834,21 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     EmcPose pos_before = tp->currentPos;
     // Update the current tc
-    if (tc->splitting && !tc->remove) {
-
-        //Pose data to calculate movement due to finishing current TC
-        EmcPose position9_before;
-        EmcPose displacement9;
-
-        //Store initial position before trajectory updates
-        tcGetPos(tc, &position9_before);
-
-        tp_debug_print("tc id %d splitting\n",tc->id);
-        //Shortcut tc update by assuming we arrive at end
-        tc->progress = tc->target;
-        tpFindDisplacement(tc, &position9_before, &displacement9);
-        tpUpdatePosition(tp, &displacement9);
-
-        //If we're doing tangent blending
-        if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
-            nexttc->cycle_time -= tc->split_time;
-            nexttc->currentvel = tc->final_actual_vel;
-            tp_debug_print("Doing tangent split\n");
-            tpUpdateCycle(tp, nexttc);
-            //Update status for the split portion
-            if (tc->split_time > nexttc->cycle_time) {
-                //Majority of time spent in current segment
-                tpToggleDIOs(tc);
-                tpUpdateMovementStatus(tp, tc);
-            } else {
-                tpToggleDIOs(nexttc);
-                tpUpdateMovementStatus(tp, nexttc);
-            }
-            //Reset cycle time after completing tangent update
-            nexttc->cycle_time = tp->cycleTime;
-        }
-        //This is the only place remove should be triggered
-        tc->remove = 1;
-    } else if (!tc->remove){
-        //Run with full cycle time
-        tc_debug_print("Normal cycle\n");
-        tc->cycle_time = tp->cycleTime;
-        tpUpdateCycle(tp, tc);
-
-        /* BLENDING STUFF */
-         
-        tpComputeBlendVelocity(tp, tc, nexttc, false, NULL);
-        if (nexttc && tcIsBlending(tc)) {
-            tpDoParabolicBlending(tp, tc, nexttc);
-        } else {
-            //Update status for a normal step
-            tpToggleDIOs(tc);
-            tpUpdateMovementStatus(tp, tc);
-        }
-
+    if (tc->splitting) {
+        tpHandleSplitCycle(tp, tc, nexttc);
+    } else {
+        tpHandleRegularCycle(tp, tc, nexttc);
     }
 
-    //For some reason, this has to be here to prevent graphical glitches in simulation. 
+    //For some reason, this has to be here to prevent graphical glitches in simulation.
     //FIXME minor algorithm or optimization issue that causes this to happen?
     double mag;
     tpCalculateTotalDisplacement(tp, &pos_before, &mag);
-    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n", time_elapsed,
+    tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
+            time_elapsed,
             mag, emcmotStatus->current_vel);
 
-    // If TC is complete, remove it from the queue. 
+    // If TC is complete, remove it from the queue.
     if (tc->remove) {
         tpCompleteSegment(tp, tc);
     }

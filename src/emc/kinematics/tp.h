@@ -32,18 +32,29 @@
 
 /* "neighborhood" size (if two values differ by less than the epsilon,
  * then they are effectively equal.)*/
-#define TP_VEL_EPSILON 1e-8
-#define TP_ACCEL_EPSILON 1e-8
+#define TP_ACCEL_EPSILON 1e-3
+#define TP_VEL_EPSILON   1e-6
+#define TP_POS_EPSILON   1e-9
 #define TP_ANGLE_EPSILON 1e-3
-#define TP_MAG_EPSILON 1e-7
 #define TP_TIME_EPSILON 1e-7
 #define TP_BIG_NUM 1e10
 #define TP_KINK_FACTOR 0.1
 
-//ERROR codes for TP functions
-#define TP_ERR_OK 0
-#define TP_ERR_FAIL -1
-#define TP_ERR_NO_ACTION 1
+
+/**
+ * TP return codes.
+ * This enum is a catch-all for useful return statuses from TP
+ * internal functions. This may be replaced with a better system in
+ * the future.
+ */
+typedef enum {
+    TP_ERR_FAIL = -1,
+    TP_ERR_OK = 0,
+    TP_ERR_NO_ACTION,
+    TP_ERR_SLOWING,
+    TP_ERR_STOPPED,
+    TP_ERR_LAST
+} tp_err_code_t;
 
 /**
  * Persistant data for spindle status within tpRunCycle.
