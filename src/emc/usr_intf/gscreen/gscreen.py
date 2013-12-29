@@ -3527,6 +3527,13 @@ class Gscreen:
             self.widgets.angular_jog_rate.set_text(text)
         except:
             pass
+        try:
+            jogincr = self.data.jog_increments[self.data.current_jogincr_index]
+            self.widgets.jog_increments.set_text(jogincr)
+            jogincr = self.data.angular_jog_increments[self.data.current_angular_jogincr_index]
+            self.widgets.angular_jog_increments.set_text(jogincr)
+        except:
+            pass
 
     def update_mode_label(self):
         # Mode / view
