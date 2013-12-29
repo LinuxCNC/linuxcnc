@@ -1153,7 +1153,7 @@ status</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="angular_jog_rates">
+                                  <object class="GtkLabel" id="angular_jog_rate">
                                     <property name="xalign">0</property>
                                     <property name="xpad">5</property>
                                     <property name="label" translatable="yes">10 d/m</property>
