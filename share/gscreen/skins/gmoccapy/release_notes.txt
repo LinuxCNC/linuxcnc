@@ -1,3 +1,7 @@
+ver 0.9.9.7.1
+- replaced the hal_scale_jog_vel with a normal scale,
+  as there is no need for a additional hal pin
+
 ver. 0.9.9.7
 - make gmoccapy react to external mode changes, i.e. start program with
   net start halui.mode.auto => halui.program.run <= hardware.button

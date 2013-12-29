@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7"
+_RELEASE = "0.9.9.7.1"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -2857,7 +2857,7 @@ class HandlerClass:
         self.spindle_override_counts.connect("value_changed", self._on_so_counts_changed, "scl_spindle")
         self.jog_speed_counts = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-speed-counts", hal.HAL_S32, 
                                                                           hal.HAL_IN))
-        self.jog_speed_counts.connect("value_changed", self._on_jv_counts_changed, "hal_scl_jog_vel")
+        self.jog_speed_counts.connect("value_changed", self._on_jv_counts_changed, "scl_jog_vel")
         self.max_vel_counts = hal_glib.GPin(self.gscreen.halcomp.newpin("max-vel-counts", hal.HAL_S32, 
                                                                         hal.HAL_IN))
         self.max_vel_counts.connect("value_changed", self._on_mv_counts_changed, "scl_max_vel")
