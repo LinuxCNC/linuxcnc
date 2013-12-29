@@ -2550,9 +2550,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     if (dx <= TP_POS_EPSILON) {
         //If the segment is close to the target position, then we assume that it's done.
         tp_debug_print("close to target, dx = %.12f\n",dx);
+        //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tc->target;
         tcSetSplitCycle(tc, 0.0, tc->currentvel);
         if (tc->term_cond != TC_TERM_COND_TANGENT) {
+            //Non-tangent segments don't need a split cycle, so flag removal here
             tc->remove = 1;
         }
         return TP_ERR_OK;
@@ -2604,7 +2606,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
     double a_max = tpGetScaledAccel(tp,tc);
-    tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n",dx,dt,a_f,v_f);
+    tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n", 
+            dx, dt, a_f, v_f);
 
     //If we exceed the maximum acceleration, then the dt estimate is too small.
     int recalc = 0;
@@ -2613,8 +2616,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         a = a_max;
         recalc=1;
     } else if (a_f < (-a_max-TP_ACCEL_EPSILON)) {
-        recalc=1;
         a = -a_max;
+        recalc=1;
     } else {
         a = a_f;
     }
@@ -2624,12 +2627,13 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
         tp_debug_print(" recalculating with a_f = %f, a = %f\n",a_f,a);
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
-        tp_debug_print("disc = %g\n",disc);
         if (disc < 0 ) {
             //Should mean that dx is too big, i.e. we're not close enough
             tp_debug_print(" dx = %f, too large, not at end yet\n",dx);
             return TP_ERR_NO_ACTION;
-        } else if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
+        }
+
+        if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
             tp_debug_print("disc too small, skipping sqrt\n");
             dt =  -tc->currentvel / a;
         } else if (a>0) {
@@ -2702,7 +2706,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     //Run remaining cycle time in nexttc
     if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
-        tp_debug_print("split cycle time is %f\n",tc->cycle_time);
         nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
         nexttc->currentvel = tc->final_actual_vel;
         tp_debug_print("Doing tangent split\n");
