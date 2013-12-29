@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.6.3"
+_RELEASE = "0.9.9.7"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -1095,6 +1095,7 @@ class HandlerClass:
 
     # There are some settings we can only do if the window is on the screen allready
     def on_window1_show(self, widget, data=None):
+
         # it is time to get the correct estop state and set the button status
         self.gscreen.status.emcstat.poll()
         estop = self.gscreen.status.emcstat.task_state == self.gscreen.status.emc.STATE_ESTOP
@@ -1106,7 +1107,7 @@ class HandlerClass:
             self.widgets.tbtn_estop.set_active(False)
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
             self.widgets.tbtn_on.set_sensitive(True)
-        
+
         # if a file should be loaded, we will do so
         file = self.gscreen.prefs.getpref("open_file", " ", str)
         if file:
@@ -1183,7 +1184,7 @@ class HandlerClass:
             self.emc.machine_on(1)
             self._update_widgets(True)
             if self.widgets.ntb_main.get_current_page() != 0:
-                self.widgets.rbt_manual.emit("pressed")
+                self.emc.set_manual_mode()
         else:
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.emc.machine_off(1)
@@ -1202,30 +1203,30 @@ class HandlerClass:
     def on_rbt_manual_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_manual_pressed")
         self.emc.set_manual_mode()
-        self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_button.set_current_page(0)
-        self.widgets.ntb_info.set_current_page(0)
-        self.widgets.ntb_jog.set_current_page(0)
+        #self.widgets.ntb_main.set_current_page(0)
+        #self.widgets.ntb_button.set_current_page(0)
+        #self.widgets.ntb_info.set_current_page(0)
+        #self.widgets.ntb_jog.set_current_page(0)
 
     def on_rbt_mdi_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_mdi_pressed")
         self.emc.set_mdi_mode()
-        if self.widgets.chk_use_kb_on_mdi.get_active():
-            self.widgets.ntb_info.set_current_page(1)
-        else:
-            self.widgets.ntb_info.set_current_page(0)
-        self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_button.set_current_page(1)
-        self.widgets.ntb_jog.set_current_page(1)
-        self.widgets.hal_mdihistory.entry.grab_focus()
+        #if self.widgets.chk_use_kb_on_mdi.get_active():
+        #    self.widgets.ntb_info.set_current_page(1)
+        #else:
+        #    self.widgets.ntb_info.set_current_page(0)
+        #self.widgets.ntb_main.set_current_page(0)
+        #self.widgets.ntb_button.set_current_page(1)
+        #self.widgets.ntb_jog.set_current_page(1)
+        #self.widgets.hal_mdihistory.entry.grab_focus()
 
     def on_rbt_auto_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_auto_pressed")
         self.emc.set_auto_mode()
-        self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_button.set_current_page(2)
-        self.widgets.ntb_info.set_current_page(0)
-        self.widgets.ntb_jog.set_current_page(2)
+        #self.widgets.ntb_main.set_current_page(0)
+        #self.widgets.ntb_button.set_current_page(2)
+        #self.widgets.ntb_info.set_current_page(0)
+        #self.widgets.ntb_jog.set_current_page(2)
 
     def on_ntb_main_switch_page(self, widget, page, page_num, data=None):
         if self.log: 
@@ -1236,7 +1237,15 @@ class HandlerClass:
                  self.widgets.tbtn_setup.set_active(False)
 
     def on_tbtn_setup_toggled(self, widget, data=None):
+        # first we set to manual mode, as we do not allow changing settings in other modes
+        # otherwise external halui commands could start a program while we are in settings
+        self.emc.set_manual_mode()
+
         if widget.get_active():
+            # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
+            self.widgets.rbt_manual.set_sensitive(False)
+            self.widgets.rbt_mdi.set_sensitive(False)
+            self.widgets.rbt_auto.set_sensitive(False)
             if self.log: self.gscreen.add_alarm_entry("tbtn_setup_pressed")
             code = False
             # here the user don"t want an unlock code
@@ -1254,6 +1263,7 @@ class HandlerClass:
                     code = False
             # Lets see if the user has the right to enter settings
             if code:
+#                self.emc.set_manual_mode()
                 self.widgets.ntb_main.set_current_page(1)
                 self.widgets.ntb_setup.set_current_page(1)
                 self.widgets.ntb_button.set_current_page(5)
@@ -1265,11 +1275,30 @@ class HandlerClass:
                 self.gscreen.warning_dialog(_("Just to warn you"), True, message)
                 self.gscreen.add_alarm_entry( message)
                 self.widgets.statusbar1.push(1, message)
-                self.widgets.rbt_manual.emit("pressed")
-                self.widgets.rbt_manual.set_active(True)
         else:
-            self.widgets.rbt_manual.set_active(True)
-            self.widgets.rbt_manual.pressed()
+            # check witch button should be sensitive, depending on the state of the machine
+            if self.data.estopped:
+                # estoped no mode availible
+                self.widgets.rbt_manual.set_sensitive(False)
+                self.widgets.rbt_mdi.set_sensitive(False)
+                self.widgets.rbt_auto.set_sensitive(False)
+            if self.data.machine_on and not self.data.all_homed:
+                # machine on, but not homed, only manual allowed
+                self.widgets.rbt_manual.set_sensitive(True)
+                self.widgets.rbt_mdi.set_sensitive(False)
+                self.widgets.rbt_auto.set_sensitive(False)
+            if self.data.machine_on and self.data.all_homed:
+                # all OK, make all modes availible
+                self.widgets.rbt_manual.set_sensitive(True)
+                self.widgets.rbt_mdi.set_sensitive(True)
+                self.widgets.rbt_auto.set_sensitive(True)
+#            self.emc.set_manual_mode()
+            # set the pages to manual mode page, this is needed here, because we do not 
+            # change mode, so on_hal_status_manual will not be called
+            self.widgets.ntb_main.set_current_page(0)
+            self.widgets.ntb_button.set_current_page(0)
+            self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_jog.set_current_page(0)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -2610,24 +2639,50 @@ class HandlerClass:
             self.widgets.tbtn_on.set_active(True)
 
     def on_hal_status_mode_manual(self,widget):
-        if self.widgets.rbt_manual.get_active():
+        print"Manual"
+        self.widgets.rbt_manual.set_active(True)
+        # setup page will be activated, if we don't leave, the pages will be reset with this call
+        if self.widgets.tbtn_setup.get_active() == True:
             return
-        else:
-            self.widgets.rbt_manual.emit("pressed")
-            self.widgets.rbt_manual.set_active(True)
+        self.widgets.ntb_main.set_current_page(0)
+        self.widgets.ntb_button.set_current_page(0)
+        self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_jog.set_current_page(0)
 
     def on_hal_status_mode_mdi(self,widget):
-        if self.widgets.rbt_mdi.get_active():
+        print "MDI"
+        # if MDI button is not sensitive, we are not ready for MDI commands 
+        # so we have to aboart external commands and get back to manual mode
+        # This will hapen mostly, if we are in settings mode, as we do disable the mode button
+        if not self.widgets.rbt_mdi.get_sensitive():
+            self.emc.abort()
+            self.emc.set_manual_mode()
             return
         else:
-            self.widgets.rbt_mdi.emit("pressed")
+            if self.widgets.chk_use_kb_on_mdi.get_active():
+                self.widgets.ntb_info.set_current_page(1)
+            else:
+                self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_main.set_current_page(0)
+            self.widgets.ntb_button.set_current_page(1)
+            self.widgets.ntb_jog.set_current_page(1)
+            self.widgets.hal_mdihistory.entry.grab_focus()
             self.widgets.rbt_mdi.set_active(True)
 
     def on_hal_status_mode_auto(self,widget):
-        if self.widgets.rbt_auto.get_active():
+        print "auto"
+        # if Auto button is not sensitive, we are not ready for AUTO commands 
+        # so we have to aboart external commands and get back to manual mode
+        # This will hapen mostly, if we are in settings mode, as we do disable the mode button
+        if not self.widgets.rbt_auto.get_sensitive():
+            self.emc.abort()
+            self.emc.set_manual_mode()
             return
         else:
-            self.widgets.rbt_auto.emit("pressed")
+            self.widgets.ntb_main.set_current_page(0)
+            self.widgets.ntb_button.set_current_page(2)
+            self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_jog.set_current_page(2)
             self.widgets.rbt_auto.set_active(True)
 
     def change_sound(self,widget,sound):

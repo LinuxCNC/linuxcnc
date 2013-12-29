@@ -1,4 +1,8 @@
-ver- 0.9.9.6.3
+ver. 0.9.9.7
+- make gmoccapy react to external mode changes, i.e. start program with
+  net start halui.mode.auto => halui.program.run <= hardware.button
+
+ver. 0.9.9.6.3
 - changed again the plasma layout, as Marius still want more widgets
 - most hal labels are not needed any more, so I changed them to gtk.label
 
