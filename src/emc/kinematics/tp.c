@@ -1576,7 +1576,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tpSetupTangent(tp, prev_tc, &tc);
 
     double tan_maxvel = pmSqrt(TP_ACC_RATIO_NORMAL) * tc.maxvel;
-    tp_debug_print("Adjusting maxvel from %f to %f for tangential acceleration\n");
+    tp_debug_print("Adjusting maxvel from %f to %f for tangential acceleration\n", tc.maxvel, tan_maxvel);
     tc.maxvel = tan_maxvel;
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
@@ -2515,6 +2515,23 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
     return TP_ERR_OK;
 }
 
+
+/**
+ * Flag a segment as needing a split cycle.
+ * In addition to flagging a segment as splitting, do any preparations to store
+ * data for the next cycle.
+ */
+STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
+        double v_f)
+{
+    tp_debug_print("split time for id %d is %f\n", tc->id, split_time);
+    tc->splitting = 1;
+    tc->cycle_time = split_time;
+    tc->final_actual_vel = v_f;
+    return 0;
+}
+
+
 /**
  * Check remaining time in a segment and calculate split cycle if necessary.
  * This function estimates how much time we need to complete the next segment.
@@ -2524,6 +2541,9 @@ STATIC int tpUpdateInitialStatus(TP_STRUCT const * const tp) {
  */
 STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
+    //Assume no split time unless we find otherwise
+    tc->cycle_time = tp->cycleTime;
+
     //Initial guess at dt for next round
     double dx = tc->target - tc->progress;
 
@@ -2531,8 +2551,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //If the segment is close to the target position, then we assume that it's done.
         tp_debug_print("close to target, dx = %.12f\n",dx);
         tc->progress = tc->target;
-        tc->splitting = 1;
-        tc->final_actual_vel = tc->currentvel;
+        tcSetSplitCycle(tc, 0.0, tc->currentvel);
         if (tc->term_cond != TC_TERM_COND_TANGENT) {
             tc->remove = 1;
         }
@@ -2563,8 +2582,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
             return TP_ERR_NO_ACTION;
         } else {
             tp_debug_print(" close to target by velocity check, assuming cycle split\n");
-            tc->splitting = 1;
-            tc->final_actual_vel = tc->currentvel;
+            tcSetSplitCycle(tc, 0.0, tc->currentvel);
             return TP_ERR_OK;
         }
     }
@@ -2623,27 +2641,22 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         }
 
         tp_debug_print(" revised dt = %f\n", dt);
-        v_f = tc->currentvel+dt*a;
+        //Update final velocity with actual result
+        v_f = tc->currentvel + dt * a;
     }
 
     if (dt < TP_TIME_EPSILON) {
         //Close enough, call it done
         tp_debug_print("revised dt small, finishing tc\n");
         tc->progress = tc->target;
-        tc->splitting = 1;
-        tc->final_actual_vel = v_f;
+        tcSetSplitCycle(tc, dt, v_f);
     } else if (dt < tp->cycleTime ) {
         //Our initial guess of dt is not perfect, but if the optimizer
         //works, it will never under-estimate when we cross the threshold.
         //As such, we can bail here if we're not actually at the last
         //timestep.
-
-        tp_debug_print(" actual v_f = %f, a = %f\n",v_f,a);
-        //TC is done if we're here, so this is just bookkeeping
-        tc->splitting = 1;
-        tc->final_actual_vel = v_f;
-        tc->cycle_time = dt;
-        tp_debug_print(" split time is %g\n", tc->cycle_time);
+        tp_debug_print(" corrected v_f = %f, a = %f\n", v_f, a);
+        tcSetSplitCycle(tc, dt, v_f);
     } else {
         tp_debug_print(" dt = %f, not at end yet\n",dt);
     }
@@ -2658,7 +2671,7 @@ STATIC int tpActivateNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
         return TP_ERR_NO_ACTION;
     }
     //Setup nexttc if this is the first time it's been accessed
-    if(nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
+    if (nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
         tp_debug_print("Activate nexttc id %d\n", nexttc->id);
         nexttc->active = 1;
     }
@@ -2689,7 +2702,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     //Run remaining cycle time in nexttc
     if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
-        nexttc->cycle_time -= tc->cycle_time;
+        tp_debug_print("split cycle time is %f\n",tc->cycle_time);
+        nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
         nexttc->currentvel = tc->final_actual_vel;
         tp_debug_print("Doing tangent split\n");
         tpUpdateCycle(tp, nexttc);
@@ -2702,8 +2716,6 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             tpToggleDIOs(nexttc);
             tpUpdateMovementStatus(tp, nexttc);
         }
-        //Reset cycle time after completing tangent update
-        nexttc->cycle_time = tp->cycleTime;
     }
     //This is the only place remove should be triggered
     tc->remove = 1;
