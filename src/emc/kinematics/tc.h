@@ -136,7 +136,6 @@ typedef struct {
                             // away from the end.
     int remove;             // Flag to remove the segment from the queue
     double final_actual_vel;
-    double split_time;
     int active_depth;       /* Active depth (i.e. how many segments
                             * after this will it take to slow to zero
                             * speed) */
