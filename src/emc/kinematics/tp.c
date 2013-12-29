@@ -237,7 +237,7 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     double tc_maxvel = tc->maxvel;
     if (tc->motion_type == TC_CIRCULAR) {
-  
+
     }
     return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc_maxvel);
 }
@@ -640,12 +640,12 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double vel, double ini_maxvel, double acc,
         unsigned char enables) {
 
-    tc->sync_accel = 0;
+    /** Segment settings passed down from interpreter*/
+    tc->enables = enables;
     tc->cycle_time = tp->cycleTime;
-    tc->id = -1; //ID to be set when added to queue
 
-    tc->progress = 0.0;
-    tc->displacement = 0.0;
+    tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
+
     tc->maxaccel = acc;
 
     //Always clamp max velocity by sample rate, since we require TP to hit every segment at least once.
@@ -659,27 +659,27 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->reqvel = vel;
     tc->target_vel = vel;
 
-    if (tc->reqvel < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                " Requested velocity %f of TC id %u is <= 0.0!\n", tc->reqvel, tc->id);
-    }
+    /** Segment settings (given values during setup optimization) */
+    tc->blend_prev = 0;
+    tc->optimization_state = 0;
+    tc->finalvel = 0.0;
+    tc->smoothing = 0;
 
+    /** Segment status flags that are used during trajectory execution. */
     tc->active = 0;
 
+    tc->progress = 0.0;
+    tc->displacement = 0.0;
+
+    tc->sync_accel = 0;
     tc->currentvel = 0.0;
-    tc->blending_next = 0;
-    tc->blend_prev = 0;
-    tc->blend_vel = 0.0;
+
     tc->vel_at_blend_start = 0.0;
-    tc->finalvel = 0.0;
-
-    tc->enables = enables;
-
-    tc->optimization_state = 0;
+    tc->blend_vel = 0.0;
+    tc->blending_next = 0;
     tc->on_final_decel = 0;
-    tc->smoothing = 0;
+
     tc->splitting = 0;
-    tc->split_time = 0;
     tc->remove = 0;
     tc->active_depth = 1;
 
@@ -1007,14 +1007,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      */
     double prev_blend_ratio = d_plan / prev_tc->nominal_length;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
-    if (prev_blend_ratio >= emcmotConfig->arcBlendSmoothingThreshold && prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
-        tp_debug_print(" prev smoothing enabled\n");
+    if (prev_blend_ratio >= emcmotConfig->arcBlendSmoothingThreshold &&
+            prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
 
-        /*double smooth_vel = fmin(prev_reqvel,v_actual);*/
-        /*prev_tc->target_vel = smooth_vel;*/
+        tp_debug_print(" smoothing enabled\n");
 
-        //Clip max velocity of segments here too, so that feed override doesn't ruin the smoothing
-        /*prev_tc->maxvel = fmin(prev_tc->maxvel,v_plan);*/
         prev_tc->smoothing = 1;
         blend_tc->smoothing = 1;
     }
@@ -1455,7 +1452,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
     tc.nominal_length = tc.target;
 
-
     tc.atspeed = atspeed;
 
     tc.coords.line.xyz = line_xyz;
@@ -1582,12 +1578,16 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
 
     tpSetupTangent(tp, prev_tc, &tc);
 
-    //Assume non-zero error code is failure
-    tp_debug_print("Setting tangent maxvel\n");
-    //Tangent case can handle higher accelerations
-    tc.maxvel *= pmSqrt(TP_ACC_RATIO_NORMAL);
+    double tan_maxvel = pmSqrt(TP_ACC_RATIO_NORMAL) * tc.maxvel;
+    tp_debug_print("Adjusting maxvel from %f to %f for tangential acceleration\n");
+    tc.maxvel = tan_maxvel;
+
     int retval = tpAddSegmentToQueue(tp, &tc, true);
+
+    //Check the previous segment for parabolic blends and reduce max velocity if needed
     tpFinalizeSegmentLimits(tp, prev_tc);
+
+    //Run speed optimization here
     tpRunOptimization(tp);
     return retval;
 }
@@ -2195,22 +2195,22 @@ STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     if (MOTION_ID_VALID(tp->spindle.waiting_for_atspeed)) {
         if(!emcmotStatus->spindle_is_atspeed) {
             // spindle is still not at the right speed, so wait another cycle
-            return TP_ERR_NO_ACTION;
+            return TP_ERR_WAITING;
         } else {
             tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
         }
     }
 
     if (MOTION_ID_VALID(tp->spindle.waiting_for_index)) {
-        if(emcmotStatus->spindle_index_enable) {
+        if (emcmotStatus->spindle_index_enable) {
             /* haven't passed index yet */
-            return TP_ERR_NO_ACTION;
+            return TP_ERR_WAITING;
         } else {
             /* passed index, start the move */
             emcmotStatus->spindleSync = 1;
             tp->spindle.waiting_for_index = MOTION_INVALID_ID;
-            tc->sync_accel=1;
-            tp->spindle.revs=0;
+            tc->sync_accel = 1;
+            tp->spindle.revs = 0;
         }
     }
 
@@ -2536,7 +2536,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         tc->progress = tc->target;
         tc->splitting = 1;
         tc->final_actual_vel = tc->currentvel;
-        tc->split_time = 0.0;
         if (tc->term_cond != TC_TERM_COND_TANGENT) {
             tc->remove = 1;
         }
@@ -2569,7 +2568,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
             tp_debug_print(" close to target by velocity check, assuming cycle split\n");
             tc->splitting = 1;
             tc->final_actual_vel = tc->currentvel;
-            tc->split_time = 0.0;
             return TP_ERR_OK;
         }
     }
@@ -2637,7 +2635,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         tc->progress = tc->target;
         tc->splitting = 1;
         tc->final_actual_vel = v_f;
-        tc->split_time = 0.0;
     } else if (dt < tp->cycleTime ) {
         //Our initial guess of dt is not perfect, but if the optimizer
         //works, it will never under-estimate when we cross the threshold.
@@ -2648,8 +2645,8 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //TC is done if we're here, so this is just bookkeeping
         tc->splitting = 1;
         tc->final_actual_vel = v_f;
-        tc->split_time = dt;
-        tp_debug_print(" split time is %g\n", tc->split_time);
+        tc->cycle_time = dt;
+        tp_debug_print(" split time is %g\n", tc->cycle_time);
     } else {
         tp_debug_print(" dt = %f, not at end yet\n",dt);
     }
@@ -2695,12 +2692,12 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
     //Run remaining cycle time in nexttc
     if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
-        nexttc->cycle_time -= tc->split_time;
+        nexttc->cycle_time -= tc->cycle_time;
         nexttc->currentvel = tc->final_actual_vel;
         tp_debug_print("Doing tangent split\n");
         tpUpdateCycle(tp, nexttc);
         //Update status for the split portion
-        if (tc->split_time > nexttc->cycle_time) {
+        if (tc->cycle_time > nexttc->cycle_time) {
             //Majority of time spent in current segment
             tpToggleDIOs(tc);
             tpUpdateMovementStatus(tp, tc);
