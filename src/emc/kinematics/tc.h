@@ -83,7 +83,6 @@ typedef struct {
 typedef struct {
     double cycle_time;
     //Position stuff
-    double nominal_length;  // "original" length of a segment before arc blends
     double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
     double displacement;    // displacement along segment as calcualted by the most recent update
