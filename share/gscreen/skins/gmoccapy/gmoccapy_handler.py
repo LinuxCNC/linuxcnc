@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.1"
+_RELEASE = "0.9.9.7.2"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -465,9 +465,10 @@ class HandlerClass:
         self.widgets.chk_use_kb_shortcuts.set_active(self.gscreen.prefs.getpref("use_keyboard_shortcuts", 
                                                                                 False, bool))
 
-# TODO: check in settings if the user like the highlighting or not
-#        self.widgets.gcode_view.buf.set_language(None)
-# TODO: End
+        # check the highlighting type
+        self.widgets.gcode_view.set_language("gcode", SKINPATH)
+        # the following would load the python language
+        # self.widgets.gcode_view.set_language("python")
 
         # set the user colors of the DRO
         self.data.abs_color = self.gscreen.prefs.getpref("abs_color", "blue", str)

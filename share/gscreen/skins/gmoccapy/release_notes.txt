@@ -1,3 +1,6 @@
+ver 0.9.9.7.2
+- introduced an better gcode highlight for sourceview
+
 ver 0.9.9.7.1
 - replaced the hal_scale_jog_vel with a normal scale,
   as there is no need for a additional hal pin
