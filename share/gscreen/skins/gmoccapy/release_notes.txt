@@ -1,6 +1,10 @@
 ver 0.9.9.7.1
 - replaced the hal_scale_jog_vel with a normal scale,
   as there is no need for a additional hal pin
+- renamed hal pin 
+  gscreen.hal_hbar_spindle_feedback to be gscreen.spindle_feedback_bar
+  gscreen.hal_led_spindle_at_speed to be gscreen.spindle_at_speed_led
+  This way all spindle pins are together in halshow 
 
 ver. 0.9.9.7
 - make gmoccapy react to external mode changes, i.e. start program with

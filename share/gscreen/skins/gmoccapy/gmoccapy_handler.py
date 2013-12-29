@@ -227,8 +227,8 @@ class HandlerClass:
         self.max_spindle_rev = self.gscreen.prefs.getpref("spindle_bar_max", 6000.0, float)
         self.widgets.adj_spindle_bar_min.set_value((self.min_spindle_rev))
         self.widgets.adj_spindle_bar_max.set_value((self.max_spindle_rev))
-        self.widgets.hal_hbar_spindle_feedback.set_property("min",float(self.min_spindle_rev))
-        self.widgets.hal_hbar_spindle_feedback.set_property("max",float(self.max_spindle_rev))
+        self.widgets.spindle_feedback_bar.set_property("min",float(self.min_spindle_rev))
+        self.widgets.spindle_feedback_bar.set_property("max",float(self.max_spindle_rev))
 
         # Window position and size
         self.widgets.adj_x_pos.set_value(self.gscreen.prefs.getpref("x_pos", 10, float))
@@ -1460,13 +1460,13 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("rbt_reverse_clicked")
         if self.widgets.rbt_reverse.get_active():
             self.widgets.rbt_reverse.set_image(self.widgets.img_reverse_on)
-            self.widgets.hal_hbar_spindle_feedback.set_property("max",float(self.min_spindle_rev)*-1)
-            self.widgets.hal_hbar_spindle_feedback.set_property("min",float(self.max_spindle_rev)*-1)
+            self.widgets.spindle_feedback_bar.set_property("max",float(self.min_spindle_rev)*-1)
+            self.widgets.spindle_feedback_bar.set_property("min",float(self.max_spindle_rev)*-1)
             self._set_spindle(widget)
         else:
             self.widgets.rbt_reverse.set_image(self.widgets.img_reverse)
-            self.widgets.hal_hbar_spindle_feedback.set_property("min",float(self.min_spindle_rev))
-            self.widgets.hal_hbar_spindle_feedback.set_property("max",float(self.max_spindle_rev))
+            self.widgets.spindle_feedback_bar.set_property("min",float(self.min_spindle_rev))
+            self.widgets.spindle_feedback_bar.set_property("max",float(self.max_spindle_rev))
 
     def on_rbt_stop_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_stop_clicked")
@@ -1476,8 +1476,8 @@ class HandlerClass:
         else:
             self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
 
-    def on_hal_hbar_spindle_feedback_hal_pin_changed(self, widget, data=None):
-        self.widgets.lbl_spindle_act.set_text("S %s"%int(self.widgets.hal_hbar_spindle_feedback.value))
+    def on_spindle_feedback_bar_hal_pin_changed(self, widget, data=None):
+        self.widgets.lbl_spindle_act.set_text("S %s"%int(self.widgets.spindle_feedback_bar.value))
 
     def on_btn_spindle_100_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_spindle_100_clicked")
@@ -1506,13 +1506,13 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("Spindle bar min has been set to %s"%widget.get_value())
         self.gscreen.prefs.putpref("spindle_bar_min", widget.get_value(),float)
         self.widgets.adj_spindle_bar_min.set_value(widget.get_value())
-        self.widgets.hal_hbar_spindle_feedback.set_property("min",widget.get_value())
+        self.widgets.spindle_feedback_bar.set_property("min",widget.get_value())
 
     def on_adj_spindle_bar_max_value_changed(self, widget, data = None):
         if self.log: self.gscreen.add_alarm_entry("Spindle bar max has been set to %s"%widget.get_value())
         self.gscreen.prefs.putpref("spindle_bar_max", widget.get_value(),float)
         self.widgets.adj_spindle_bar_max.set_value(widget.get_value())
-        self.widgets.hal_hbar_spindle_feedback.set_property("max",widget.get_value())
+        self.widgets.spindle_feedback_bar.set_property("max",widget.get_value())
 
     def _update_spindle_btn(self):
         if self.emcstat.task_mode == _AUTO and self.interpreter == _RUN:
