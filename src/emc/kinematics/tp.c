@@ -1243,6 +1243,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     /* Starting at the 2nd to last element in the queue, work backwards towards
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
+
     for (x = 2; x < emcmotConfig->arcBlendOptDepth + 2; ++x) {
         tp_info_print("==== Optimization step %d ====\n",x-2);
 
@@ -2307,16 +2308,15 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     //Check if already active
     if (!tc || tc->active) {
-
-        return TP_ERR_NO_ACTION;
+        return TP_ERR_OK;
     }
 
     bool needs_atspeed = tc->atspeed ||
         (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
 
-    if( needs_atspeed && !(emcmotStatus->spindle_is_atspeed)) {
+    if ( needs_atspeed && !(emcmotStatus->spindle_is_atspeed)) {
         tp->spindle.waiting_for_atspeed = tc->id;
-        return TP_ERR_OK;
+        return TP_ERR_WAITING;
     }
 
     if (tc->indexrotary != -1) {
@@ -2325,7 +2325,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         // if it is unlocked, fall through and start the move.
         // otherwise, just come back later and check again
         if (!tpGetRotaryIsUnlocked(tc->indexrotary))
-            return TP_ERR_OK;
+            return TP_ERR_WAITING;
     }
 
     // Temporary debug message
@@ -2334,12 +2334,11 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
-    //FIXME activedepth might change meaning with lookahead?
     tp->motionType = tc->canon_motion_type;
     tc->blending_next = 0;
     tc->on_final_decel = 0;
 
-    if(TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
+    if (TC_SYNC_POSITION == tc->synchronized && !(emcmotStatus->spindleSync)) {
         tp_debug_print("Setting up position sync\n");
         // if we aren't already synced, wait
         tp->spindle.waiting_for_index = tc->id;
@@ -2347,12 +2346,10 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         emcmotStatus->spindle_index_enable = 1;
         tp->spindle.offset = 0.0;
         rtapi_print_msg(RTAPI_MSG_DBG, "Waiting on sync...\n");
-        // don't move: wait
-        return TP_ERR_OK;
+        return TP_ERR_WAITING;
     }
 
-    //Keep going:
-    return TP_ERR_NO_ACTION;
+    return TP_ERR_OK;
 }
 
 
@@ -2778,7 +2775,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //If we have a NULL pointer, then the queue must be empty, so we're done.
     if(!tc) {
         tpHandleEmptyQueue(tp, emcmotStatus);
-        return TP_ERR_OK;
+        return TP_ERR_WAITING;
     }
 
     tc_debug_print("-------------------\n");
@@ -2795,19 +2792,19 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     tpFlagEarlyStop(tp, nexttc, next2_tc);
 
     if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
-        return TP_ERR_OK;
+        return TP_ERR_STOPPED;
     }
 
     //Return early if we have a reason to wait (i.e. not ready for motion)
     if (tpHandleWaiting(tp, tc) != TP_ERR_OK){
-        return TP_ERR_OK;
+        return TP_ERR_WAITING;
     }
 
     if(tc->active == 0) {
-        bool ready = tpActivateSegment(tp, tc);
+        int res = tpActivateSegment(tp, tc);
         // Need to wait to continue motion, end planning here
-        if (!ready) {
-            return TP_ERR_OK;
+        if (res == TP_ERR_WAITING) {
+            return TP_ERR_WAITING;
         }
     }
 
