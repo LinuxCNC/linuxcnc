@@ -898,7 +898,7 @@ class Data:
             print >>file, "setp pwmgen.0.dither-pwm true"
         else: 
             print >>file, "net spindle-cmd <= motion.spindle-speed-out"
-
+        print >>file, "net spindle-at-speed => motion.spindle-at-speed"
         if ON in outputs and not pwm:
             print >>file, "net spindle-on <= motion.spindle-on"
         if CW in outputs:
@@ -1038,10 +1038,9 @@ class Data:
                 shutil.copy( custom,os.path.join(base,"postgui_backup.hal") ) 
             f1 = open(custom, "w")
             print >>f1, _("# Include your customized HAL commands here")
-            print >>f1, _("""\
-# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
+            print >>f1, _("""# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
             print >>f1
-            if self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
+            if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
@@ -1079,6 +1078,8 @@ class Data:
                       print >>f1
                       print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
                       print >>f1, ("sets spindle-at-speed true")
+            else:
+                 print >>f1, ("sets spindle-at-speed true")
 
         if self.customhal or self.classicladder or self.halui:
             custom = os.path.join(base, "custom.hal")
