@@ -669,7 +669,6 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->active = 0;
 
     tc->progress = 0.0;
-    tc->displacement = 0.0;
 
     tc->sync_accel = 0;
     tc->currentvel = 0.0;
@@ -1734,7 +1733,6 @@ int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel
         tc_debug_print(" Found newvel = %f, assuming segment is done\n",newvel);
         newvel = 0.0;
         //Assume we're on target exactly
-        tc->displacement = tc->target - tc->progress;
         tc->progress = tc->target;
         *v_out = newvel;
         *acc_out = newaccel;
@@ -1744,16 +1742,13 @@ int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel
     double v_next = tc->currentvel + newaccel * tc->cycle_time;
     // update position in this tc using trapezoidal integration
     // Note that progress can be greater than the target after this step.
-    tc->displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
+    double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
+    tc->progress += displacement;
 
-    if (tc->progress + tc->displacement > tc->target) {
+    if (tc->progress > tc->target) {
         tc_debug_print("passed target by %g, cutting off at target!\n",
-                tc->progress + tc->displacement - tc->target);
-        //Force displacement and progress to end exactly.
-        tc->displacement = tc->target - tc->progress;
+                tc->progress - tc->target);
         tc->progress = tc->target;
-    } else {
-        tc->progress += tc->displacement;
     }
 
     *v_out = v_next;
@@ -2311,7 +2306,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_OK;
     }
 
-    bool needs_atspeed = tc->atspeed ||
+    int needs_atspeed = tc->atspeed ||
         (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
 
     if ( needs_atspeed && !(emcmotStatus->spindle_is_atspeed)) {
@@ -2524,7 +2519,7 @@ STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
     tp_debug_print("split time for id %d is %f\n", tc->id, split_time);
     tc->splitting = 1;
     tc->cycle_time = split_time;
-    tc->final_actual_vel = v_f;
+    tc->vel_at_blend_start = v_f;
     return 0;
 }
 
@@ -2704,7 +2699,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //Run remaining cycle time in nexttc
     if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
         nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
-        nexttc->currentvel = tc->final_actual_vel;
+        nexttc->currentvel = tc->vel_at_blend_start;
         tp_debug_print("Doing tangent split\n");
         tpUpdateCycle(tp, nexttc);
         //Update status for the split portion
