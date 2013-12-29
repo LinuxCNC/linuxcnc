@@ -21,6 +21,7 @@
 #include "hal.h"
 #include "../motion/mot_priv.h"
 #include "motion_debug.h"
+#include "motion_types.h"
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -1012,12 +1013,19 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    nexttc->feed_override = emcmotStatus->net_feed_scale;
 	}
     }
+    // if this is rapid move, don't use feed override settings (max velocity override is still honoured)
+    if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {
+        tc->feed_override = 1.0;
+        if(nexttc) {
+        nexttc->feed_override = 1.0;
+        }
+    }
     /* handle pausing */
     if(tp->pausing && (!tc->synchronized || tc->velocity_mode)) {
         tc->feed_override = 0.0;
         if(nexttc) {
-	    nexttc->feed_override = 0.0;
-	}
+        nexttc->feed_override = 0.0;
+        }
     }
 
     // calculate the approximate peak velocity the nexttc will hit.
