@@ -83,14 +83,12 @@ typedef struct {
 typedef struct {
     double cycle_time;
     //Position stuff
-    double nominal_length;  // "original" length of a segment before arc blends
     double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
-    double displacement;    // displacement along segment as calcualted by the most recent update
 
     //Velocity
     double reqvel;          // vel requested by F word, calc'd by task
-    double target_vel;         // velocity to actually track, limited by other factors
+    double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
@@ -106,19 +104,19 @@ typedef struct {
         PmRigidTap rigidtap;
     } coords;
 
-    int motion_type;       // TC_LINEAR (coords.line) or 
+    int motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
     int active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
-    int term_cond;    // gcode requests continuous feed at the end of 
+    int term_cond;          // gcode requests continuous feed at the end of
                             // this segment (g64 mode)
 
     int blending_next;      // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
     double triangle_vel;  /* theoretical max velocity assuming no
                                limits other than acceleration */
-    double tolerance;       // during the blend at the end of this move, 
+    double tolerance;       // during the blend at the end of this move,
                             // stay within this distance from the path.
     int synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
@@ -135,8 +133,6 @@ typedef struct {
     int splitting;          // the segment is less than 1 cycle time
                             // away from the end.
     int remove;             // Flag to remove the segment from the queue
-    double final_actual_vel;
-    double split_time;
     int active_depth;       /* Active depth (i.e. how many segments
                             * after this will it take to slow to zero
                             * speed) */
