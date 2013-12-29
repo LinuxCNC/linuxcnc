@@ -877,7 +877,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     //TODO "greedy" arc sizing step here
 
     //Consider L1 / L2 to be the length available to blend over
-    double L1 = fmin(prev_tc->target, prev_tc->nominal_length / 2.0);
+    double L1 = prev_tc->target;
     double L2 = tc->target/2.0;
 
     //Solve quadratic equation to find segment length that matches peak
@@ -1005,7 +1005,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * The primary assumption here is that we want to do smoothing only if
      * we're "consuming" the majority of the previous segment.
      */
-    double prev_blend_ratio = d_plan / prev_tc->nominal_length;
+    double prev_blend_ratio = d_plan / prev_tc->target;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
     if (prev_blend_ratio >= emcmotConfig->arcBlendSmoothingThreshold &&
             prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
@@ -1093,7 +1093,6 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
     // allow 10 turns of the spindle to stop - we don't want to just go on forever
     tc.target = line_xyz.tmag + 10. * tp->uu_per_rev;
-    tc.nominal_length = -1;
 
     tc.atspeed = 1;
 
@@ -1450,7 +1449,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     } else {
         tc.target = line_abc.tmag;
     }
-    tc.nominal_length = tc.target;
 
     tc.atspeed = atspeed;
 
@@ -1547,7 +1545,6 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
             pmSq(helix_z_component));
 
     tc.target = helix_length;
-    tc.nominal_length = helix_length;
     tc.atspeed = atspeed;
 
     tc.coords.circle.xyz = circle;
