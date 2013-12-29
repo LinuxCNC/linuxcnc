@@ -53,6 +53,7 @@ typedef enum {
     TP_ERR_NO_ACTION,
     TP_ERR_SLOWING,
     TP_ERR_STOPPED,
+    TP_ERR_WAITING,
     TP_ERR_LAST
 } tp_err_code_t;
 
@@ -85,7 +86,7 @@ typedef struct {
     double cycleTime;
 
     double vMax;		/* vel for subsequent moves */
-    double ini_maxvel;          /* max velocity allowed by machine 
+    double ini_maxvel;          /* max velocity allowed by machine
                                    constraints (ini file) for
                                    subsequent moves */
     double vLimit;		/* absolute upper limit on all vels */
