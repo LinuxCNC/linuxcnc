@@ -73,7 +73,11 @@ int gdb_fake_assert(int condition){
     return condition;
 }
 
-#if 0
+/**
+ * @section tputil Utility functions
+ * Simple utility functions to perform common operations.
+ */
+
 /**
  * Simple signum-like function to get sign of a double.
  * There's probably a better way to do this...
@@ -89,6 +93,55 @@ STATIC double fsign(double f) {
     }
 }
 #endif
+
+/**
+ * Saturate a value x to be within +/- max.
+ */
+STATIC double saturate(double x, double max) {
+    if ( x > max ) {
+        return max;
+    }
+    else if ( x < (-max) ) {
+        return -max;
+    }
+    else {
+        return x;
+    }
+}
+
+
+/** In-place saturation function */
+STATIC int sat_inplace(double * const x, double max) {
+    if ( *x > max ) {
+        *x = max;
+        return 1;
+    }
+    else if ( *x < -max ) {
+        *x = -max;
+        return -1;
+    }
+    return 0;
+}
+
+
+/** Clip the input at the specified minimum (in place). */
+STATIC int clip_min(double * const x, double min) {
+    if ( *x < min ) {
+        *x = min;
+        return 1;
+    }
+    return 0;
+}
+
+
+/** Clip the input at the specified maximum (in place). */
+STATIC int clip_max(double * const x, double max) {
+    if ( *x > max ) {
+        *x = max;
+        return 1;
+    }
+    return 0;
+}
 
 /**
  * @section tpcheck Internal state check functions.
@@ -1753,54 +1806,51 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
 
 
 /**
- * Clip (saturate) a value x to be within +/- max.
+ * Calculate distance update from velocity and acceleration.
  */
-STATIC double saturate(double x, double max) {
-    if ( x > max ) {
-        return max;
-    }
-    else if ( x < (-max) ) {
-        return -max;
-    }
-    else {
-        return x;
-    }
-}
-
-
-/**
- * Calculate distance update from velocity and acceleration
- */
-STATIC int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double maxaccel, double * const v_out, double * const acc_out)
+STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_desired)
 {
-    // Calculate acceleration needed to reach newvel, bounded by machine maximum
-    double maxnewaccel = (newvel - tc->currentvel) / tc->cycle_time;
-    double newaccel = saturate(maxnewaccel, maxaccel);
-
     // If the resulting velocity is less than zero, than we're done. This
     // causes a small overshoot, but in practice it is very small.
-    if (newvel < 0.0 ) {
-        tc_debug_print(" Found newvel = %f, assuming segment is done\n",newvel);
-        newvel = 0.0;
-        //Assume we're on target exactly
-        tc->progress = tc->target;
-        *v_out = newvel;
-        *acc_out = newaccel;
-        return TP_ERR_OK;
-    }
-
-    double v_next = tc->currentvel + newaccel * tc->cycle_time;
+    double v_next = tc->currentvel + acc * tc->cycle_time;
     // update position in this tc using trapezoidal integration
     // Note that progress can be greater than the target after this step.
-    double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
-    tc->progress += displacement;
+    if (v_next < 0.0) {
+        tc->progress = tc->target;
+        v_next = 0.0;
+    } else {
+        double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
+        tc->progress += displacement;
+        clip_max(&tc->progress,tc->target);
+    }
+    tc->currentvel = v_next;
 
-    *v_out = v_next;
-    *acc_out = newaccel;
+    // Check if we can make the desired velocity
+    tc->on_final_decel = (fabs(vel_desired - tc->currentvel) < TP_VEL_EPSILON) && (acc < 0.0);
 
     return TP_ERR_OK;
 }
 
+STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const tc, double acc) {
+#ifdef TC_DEBUG
+    // Find maximum allowed velocity from feed and machine limits
+    double tc_target_vel = tpGetRealTargetVel(tp, tc);
+    // Store a copy of final velocity
+    double tc_finalvel = tpGetRealFinalVel(tp, tc, tc_target_vel);
+
+    /* Debug Output */
+    rtapi_print("tc state: vr = %f, vf = %f, maxvel = %f\n",
+            tc_target_vel, tc_finalvel, tc->maxvel);
+    rtapi_print("          currentvel = %f, fs = %f, tc = %f, term = %d\n",
+            tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
+    rtapi_print("          acc = %f,T = %f, P = %f\n", acc, 
+            tc->target, tc->progress);
+
+    if (tc->on_final_decel) {
+        rtapi_print(" on final decel\n");
+    }
+#endif
+}
 
 /**
  * Compute updated position and velocity for a timestep based on a trapezoidal
@@ -1811,28 +1861,28 @@ STATIC int tcUpdateCyclePosFromVel(TC_STRUCT * const tc, double newvel, double m
  * acceleration limits. The formula has been tweaked slightly to allow a
  * non-zero velocity at the instant the target is reached.
  */
-void tpTrapezoidalCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, 
+        double * const acc, double * const vel_desired)
+{
 
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp, tc);
     // Store a copy of final velocity
     double tc_finalvel = tpGetRealFinalVel(tp, tc, tc_target_vel);
 
+#ifdef TP_PEDANTIC
     if (tc_finalvel > 0.0 && tc->term_cond != TC_TERM_COND_TANGENT) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Final velocity of %f with non-tangent segment!\n",tc_finalvel);
         tc_finalvel = 0.0;
     }
-
-    if (!tc->blending_next) {
-        tc->vel_at_blend_start = tc->currentvel;
-    }
+#endif
 
     /* Calculations for desired velocity based on trapezoidal profile */
-    double delta_pos = tc->target - tc->progress;
+    double dx = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
 
     double discr_term1 = pmSq(tc_finalvel);
-    double discr_term2 = maxaccel * (2.0 * delta_pos - tc->currentvel * tc->cycle_time);
+    double discr_term2 = maxaccel * (2.0 * dx - tc->currentvel * tc->cycle_time);
     double tmp_adt = maxaccel * tc->cycle_time * 0.5;
     double discr_term3 = pmSq(tmp_adt);
 
@@ -1841,7 +1891,7 @@ void tpTrapezoidalCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     // Descriminant is a little more complicated with final velocity term. If
     // descriminant < 0, we've overshot (or are about to). Do the best we can
     // in this situation
-#ifdef TP_DEBUG
+#ifdef TP_PEDANTIC
     if (discr < 0.0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                 "discriminant %f < 0 in velocity calculation!\n", discr);
@@ -1857,42 +1907,27 @@ void tpTrapezoidalCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     }
 
     // Find bounded new velocity based on target velocity
-    double goalvel = saturate(maxnewvel, tc_target_vel);
+    // Note that we use a separate variable later to check if we're on final decel
+    double newvel = saturate(maxnewvel, tc_target_vel);
 
     // If we have cartesian motion that's not synched with spindle position,
     // then clamp the tool tip velocity at the limit specified in the INI file.
     if (!tpPureRotaryCheck(tp, tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        goalvel = saturate(goalvel, tp->vLimit);
+        sat_inplace(&newvel, tp->vLimit);
     }
 
-    double newvel = 0.0;
-    double newaccel = 0.0;
-    tcUpdateCyclePosFromVel(tc, goalvel, maxaccel, &newvel, &newaccel);
-
-    //Update current velocity with new velocity
-    tc->currentvel = newvel;
-
-    tc_debug_print("tc state : vr = %f, vf = %f, maxvel = %f\n, current_vel = %f, fs = %f, tc = %f, term = %d\n",
-            tc_target_vel, tc_finalvel, tc->maxvel, tc->currentvel,
-            tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
-    tc_debug_print("tc result: v = %f, acc = %f,T = %f, P = %f\n",
-            newvel, newaccel, tc->target, tc->progress);
-    //FIXME numerical constant
-    tc_debug_print(" end check: maxnewvel = %g, newvel = %g\n",maxnewvel,newvel);
-    tc->on_final_decel = (fabs(maxnewvel - newvel) < TP_VEL_EPSILON) && (newaccel < 0.0);
-    if (tc->on_final_decel) {
-        tc_debug_print("on final decel\n");
-    }
+    // Calculate acceleration needed to reach newvel, bounded by machine maximum
+    double maxnewaccel = (newvel - tc->currentvel) / tc->cycle_time;
+    *acc = saturate(maxnewaccel, maxaccel);
+    *vel_desired = maxnewvel;
 }
 
 /**
- * Compute a smoothed position and velocity update.
- *
- * This function creates the trapezoidal velocity profile based on tc's
- * velocity and acceleration limits. The formula has been tweaked slightly to
- * allow a non-zero velocity at the instant the target is reached.
+ * Calculate "ramp" acceleration for a cycle.
  */
-STATIC int tpSmoothCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp, 
+        TC_STRUCT * const tc, double * const acc, double * const vel_desired)
+{
     //Initial guess at dt for next round
     double dx = tc->target - tc->progress;
 
@@ -1923,14 +1958,10 @@ STATIC int tpSmoothCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
 
     // Saturate estimated acceleration against maximum allowed by segment
     double acc_max = tpGetScaledAccel(tp, tc);
-    double acc = saturate(acc_final, acc_max);
 
-    // Calculate 
-    double newvel = acc * tc->cycle_time + tc->currentvel;
-    tc->progress += (tc->currentvel + newvel) / 2.0 * tc->cycle_time;
-    tc->currentvel = newvel;
-    tc_debug_print(" tc result (ramping): dx = %f, dt = %f, acc_final = %f, vel_final = %f\n", 
-            dx, dt, acc, vel_final);
+    // Output acceleration and velocity for position update
+    *acc = saturate(acc_final, acc_max);
+    *vel_desired = vel_final;
 
     return TP_ERR_OK;
 }
@@ -2063,9 +2094,6 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
     double save_vel = nexttc->target_vel;
-    // Get the accelerations of the current and next segment to properly scale the blend velocity
-    /*double acc_this = tpGetScaledAccel(tp, tc);*/
-    /*double acc_next = tpGetScaledAccel(tp, nexttc);*/
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
@@ -2459,12 +2487,21 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     //Run cycle update with stored cycle time
     int res = 1;
+    double acc, vel_desired;
+
+    //Store current velocity as blend velocity if we pass the test
+    if (!tc->blending_next) {
+        tc->vel_at_blend_start = tc->currentvel;
+    }
     if (tc->smoothing) {
-        res = tpSmoothCycleStep(tp, tc);
+        res = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
     }
     if (res) {
-        tpTrapezoidalCycleStep(tp, tc);
+        tpCalculateTrapezoidalAccel(tp, tc, &acc, &vel_desired);
     }
+
+    tcUpdateDistFromAccel(tc, acc, vel_desired);
+    tpDebugCycleInfo(tp, tc, acc);
 
     //Check if we're near the end of the cycle and set appropriate changes
     tpCheckEndCondition(tp, tc);
@@ -2529,6 +2566,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     //Initial guess at dt for next round
     double dx = tc->target - tc->progress;
+    tc_debug_print("tpCheckEndCondition: dx = %e\n",dx);
 
     if (dx <= TP_POS_EPSILON) {
         //If the segment is close to the target position, then we assume that it's done.
