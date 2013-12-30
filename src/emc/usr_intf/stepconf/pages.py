@@ -254,6 +254,12 @@ class Pages:
     def on_calculate_ideal_period(self,widget):
         self.a.calculate_ideal_period()
 
+    def on_units_changed(self,widget):
+        if not self.d.units == widget.get_active():
+            # change the XYZ axis defaults to metric or imperial
+            # This erases any entered data that would make sense to change
+            self.d.set_axis_unit_defaults(not widget.get_active())
+
 #***************
 # options PAGE
 #***************

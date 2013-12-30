@@ -308,14 +308,14 @@ class Data:
         self.xpulleynum = 1
         self.xpulleyden = 1
         self.xleadscrew = 20
-        self.xmaxvel = 1
-        self.xmaxacc = 30
+        self.xmaxvel = 0
+        self.xmaxacc = 0
 
         self.xhomepos = 0
         self.xminlim =  0
-        self.xmaxlim =  8
+        self.xmaxlim =  0
         self.xhomesw =  0
-        self.xhomevel = .05
+        self.xhomevel = 0
         self.xlatchdir = 0
         self.xscale = 0
 
@@ -324,14 +324,14 @@ class Data:
         self.ypulleynum = 1
         self.ypulleyden = 1
         self.yleadscrew = 20
-        self.ymaxvel = 1
-        self.ymaxacc = 30
+        self.ymaxvel = 0
+        self.ymaxacc = 0
 
         self.yhomepos = 0
         self.yminlim =  0
-        self.ymaxlim =  8
+        self.ymaxlim =  0
         self.yhomesw =  0
-        self.yhomevel = .05
+        self.yhomevel = 0
         self.ylatchdir = 0
         self.yscale = 0
 
@@ -341,17 +341,19 @@ class Data:
         self.zpulleynum = 1
         self.zpulleyden = 1
         self.zleadscrew = 20
-        self.zmaxvel = 1
-        self.zmaxacc = 30
+        self.zmaxvel = 0
+        self.zmaxacc = 0
 
         self.zhomepos = 0
-        self.zminlim = -4
+        self.zminlim = 0
         self.zmaxlim =  0
         self.zhomesw = 0
-        self.zhomevel = .05
+        self.zhomevel = 0
         self.zlatchdir = 0
         self.zscale = 0
 
+        # set xyz axes defaults depending on units true = imperial
+        self.set_axis_unit_defaults(True)
 
         self.asteprev = 200
         self.amicrostep = 2
@@ -388,6 +390,34 @@ class Data:
         self.halui = 0
         self.createsymlink = 1
         self.createshortcut = 1
+
+    # change the XYZ axis defaults to metric or imperial
+    # This only sets data that makes sense to change eg gear ratio don't change
+    def set_axis_unit_defaults(self, units=True):
+        if units: # imperial
+            for i in ('x','y','z'):
+                self[i+'maxvel'] = 1
+                self[i+'maxacc'] = 30
+                self[i+'homevel'] = .05
+                self[i+'leadscrew'] = 20
+                if not i == 'z':
+                    self[i+'minlim'] = 0
+                    self[i+'maxlim'] = 8
+                else:
+                    self.zminlim = -4
+                    self.zmaxlim = 0
+        else: # metric
+            for i in ('x','y','z'):
+                self[i+'maxvel'] = 25
+                self[i+'maxacc'] = 750
+                self[i+'homevel'] = 1.5
+                self[i+'leadscrew'] = 5
+                if not i =='z':
+                    self[i+'minlim'] = 0
+                    self[i+'maxlim'] = 200
+                else:
+                    self.zminlim = -100
+                    self.zmaxlim = 0
 
     def hz(self, axname):
         steprev = getattr(self, axname+"steprev")
