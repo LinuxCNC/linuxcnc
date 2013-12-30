@@ -411,10 +411,13 @@ class HandlerClass:
         if "ntb_preview" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property("show-tabs", True)
 
+        # This is normaly only used for the plasma screen layout
         if "box_coolant_and_spindle" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
-            widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings", "active_speed_label", "lbl_speed"]
+            widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings", "active_speed_label", 
+                          "lbl_speed", "vbox_vel_info"]
             for widget in widgetlist:
                 self.widgets[widget].hide()
+            self.widgets.tbtn_user_tabs.set_sensitive(False)
 
         if "box_tool_and_code_info" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             widgetlist = ["frm_tool_info"]

@@ -1,7 +1,11 @@
-ver 0.9.9.7.2
+ver. 0.9.9.7.3
+- plasma screen now hide also the vel_info_box
+- minimal changes on the glade files
+
+ver. 0.9.9.7.2
 - introduced an better gcode highlight for sourceview
 
-ver 0.9.9.7.1
+ver. 0.9.9.7.1
 - replaced the hal_scale_jog_vel with a normal scale,
   as there is no need for a additional hal pin
 - renamed hal pin 
