@@ -1,6 +1,9 @@
 ver. 0.9.9.7.3
 - plasma screen now hide also the vel_info_box
 - minimal changes on the glade files
+- modified the plasma.py file to suport persistance variables
+  the settings will be stored in plasma.var in your config dir
+- I set the plasma.py file under GPL license
 
 ver. 0.9.9.7.2
 - introduced an better gcode highlight for sourceview
