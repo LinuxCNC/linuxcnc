@@ -357,6 +357,7 @@ int tcIsBlending(TC_STRUCT * const tc) {
     //aren't necessarily true we still blend to completion once the blend
     //starts.
     tc->blending_next |= is_blending_next;
+
     return tc->blending_next;
 }
 
