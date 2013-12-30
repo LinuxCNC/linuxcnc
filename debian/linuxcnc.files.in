@@ -1,5 +1,7 @@
 etc/linuxcnc/*
 etc/rsyslog.d/linuxcnc.conf
+etc/security/limits.d/linuxcnc.conf
+etc/udev/rules.d/50-LINUXCNC-shmdrv.rules
 etc/X11/app-defaults/*
 usr/lib/*.so.*
 usr/lib/tcltk/linuxcnc

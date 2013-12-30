@@ -143,16 +143,8 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
 	    $(VECHO) "in order to run in place." || true
 endif
-# see if logging is set up properly
-	@-../scripts/check-logging.sh
 
 endif # BUILD_ALL_FLAVORS
-
-log:
-	$(Q)echo installing log configuration to /etc/rsyslog.d/linuxcnc.conf
-	$(Q)cp rtapi/rsyslogd-linuxcnc.conf /etc/rsyslog.d/linuxcnc.conf
-	$(Q)echo restarting rsyslogd
-	$(Q)service rsyslog restart
 
 
 OBJDIR := objects/$(RTDIR_EXT)
@@ -649,26 +641,18 @@ endif
 fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
-setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules \
-		/etc/security/limits.d/linuxcnc.conf
+setuid:
 	$(call fix_perms,../libexec/linuxcnc_module_helper)
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)),\
 	    $(call fix_perms,../libexec/rtapi_app_$(f));)
+# check system configuration:  logging, ulimits, udev
+	@-../scripts/check-system-configuration.sh
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
 endif
-
-/etc/security/limits.d/linuxcnc.conf: rtapi/shmdrv/limits.d-linuxcnc.conf
-	$(Q)echo installing $@
-	$(Q)cp  $^ $@
-
-/etc/udev/rules.d/50-LINUXCNC-shmdrv.rules: rtapi/shmdrv/shmdrv.rules
-	$(Q)echo installing $@
-	$(Q)cp  $^ $@
-
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
@@ -751,8 +735,10 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
-		$(DESTDIR)$(sysconfdir)/rsyslog.d
-		$(DIR) $(DESTDIR)$(sampleconfsdir)
+		$(DESTDIR)$(sysconfdir)/rsyslog.d \
+		$(DESTDIR)$(sysconfdir)/security/limits.d \
+		$(DESTDIR)$(sysconfdir)/udev/rules.d \
+		$(DESTDIR)$(sampleconfsdir)
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -814,6 +800,10 @@ endif
 
 	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
 	$(FILE) rtapi/rsyslogd-linuxcnc.conf $(DESTDIR)$(sysconfdir)/rsyslog.d/linuxcnc.conf
+	$(FILE) rtapi/shmdrv/limits.d-linuxcnc.conf \
+		$(DESTDIR)$(sysconfdir)/security/limits.d/linuxcnc.conf
+	$(FILE) rtapi/shmdrv/shmdrv.rules \
+		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-LINUXCNC-shmdrv.rules
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
