@@ -78,6 +78,7 @@ int gdb_fake_assert(int condition){
  * Simple utility functions to perform common operations.
  */
 
+#if 0
 /**
  * Simple signum-like function to get sign of a double.
  * There's probably a better way to do this...
@@ -1757,7 +1758,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     }
 
     double theta;
-    if (tc->tolerance || planning) {
+    if (tc->tolerance < TP_BIG_NUM || planning) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
          * is calculated from dot(s1, s2)
          *
@@ -1843,7 +1844,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
             tc_target_vel, tc_finalvel, tc->maxvel);
     rtapi_print("          currentvel = %f, fs = %f, tc = %f, term = %d\n",
             tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
-    rtapi_print("          acc = %f,T = %f, P = %f\n", acc, 
+    rtapi_print("          acc = %f,T = %f, P = %f\n", acc,
             tc->target, tc->progress);
 
     if (tc->on_final_decel) {
@@ -1861,7 +1862,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
  * acceleration limits. The formula has been tweaked slightly to allow a
  * non-zero velocity at the instant the target is reached.
  */
-void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, 
+void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         double * const acc, double * const vel_desired)
 {
 
@@ -1925,7 +1926,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 /**
  * Calculate "ramp" acceleration for a cycle.
  */
-STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp, 
+STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double * const acc, double * const vel_desired)
 {
     //Initial guess at dt for next round
@@ -2485,18 +2486,22 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     //Store the current position due to this TC
     tcGetPos(tc, &before);
 
-    //Run cycle update with stored cycle time
-    int res = 1;
-    double acc, vel_desired;
-
-    //Store current velocity as blend velocity if we pass the test
+    // Update the start velocity if we're not blending yet
     if (!tc->blending_next) {
         tc->vel_at_blend_start = tc->currentvel;
     }
+
+    // Run cycle update with stored cycle time
+    int res = 1;
+    double acc, vel_desired;
+
+    // If velocity smoothing is on, use a "ramp" velocity profile instead of
+    // a trapezoidal velocity profile
     if (tc->smoothing) {
         res = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
     }
-    if (res) {
+
+    if (res != TP_ERR_OK) {
         tpCalculateTrapezoidalAccel(tp, tc, &acc, &vel_desired);
     }
 
@@ -2587,8 +2592,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     tp_debug_print("in tpCheckEndCondition\n");
 
-
-    //TODO limit by target velocity?
     double target_vel = tpGetRealTargetVel(tp, tc);
     double v_f = tpGetRealFinalVel(tp, tc, target_vel);
     double v_avg = tc->currentvel + v_f;
@@ -2620,26 +2623,15 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
     double a_max = tpGetScaledAccel(tp,tc);
-    tp_debug_print(" initial results: dx= %f,dt = %f, a_f = %f, v_f = %f\n", 
-            dx, dt, a_f, v_f);
 
     //If we exceed the maximum acceleration, then the dt estimate is too small.
-    int recalc = 0;
-    double a;
-    if (a_f > a_max) {
-        a = a_max;
-        recalc=1;
-    } else if (a_f < -a_max) {
-        a = -a_max;
-        recalc=1;
-    } else {
-        a = a_f;
-    }
+    double a = a_f;
+    int recalc = sat_inplace(&a, a_max);
 
     //Need to recalculate vf and above
     if (recalc) {
 
-        tp_debug_print(" recalculating with a_f = %f, a = %f\n",a_f,a);
+        tp_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
         if (disc < 0 ) {
             //Should mean that dx is too big, i.e. we're not close enough
@@ -2669,10 +2661,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         tc->progress = tc->target;
         tcSetSplitCycle(tc, dt, v_f);
     } else if (dt < tp->cycleTime ) {
-        //Our initial guess of dt is not perfect, but if the optimizer
-        //works, it will never under-estimate when we cross the threshold.
-        //As such, we can bail here if we're not actually at the last
-        //timestep.
         tp_debug_print(" corrected v_f = %f, a = %f\n", v_f, a);
         tcSetSplitCycle(tc, dt, v_f);
     } else {
