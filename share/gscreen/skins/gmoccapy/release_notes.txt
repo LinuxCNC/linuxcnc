@@ -1,3 +1,7 @@
+ver. 0.9.9.7.4
+- the default tool change dialog now shows 
+  the tool number and the tool description
+
 ver. 0.9.9.7.3
 - plasma screen now hide also the vel_info_box
 - minimal changes on the glade files

@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.3"
+_RELEASE = "0.9.9.7.4"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -2149,6 +2149,21 @@ class HandlerClass:
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
 
+    # Here we create a manual tool change dialog
+    # This overrides gscreen handler file
+    def on_tool_change(self,widget):
+        halcomp = self.gscreen.halcomp
+        change = halcomp['change-tool']
+        toolnumber = halcomp['tool-number']
+        changedone = halcomp['tool-changed']
+        if change:
+            tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
+            message =  _("Please change to tool\n\n# %s     %s\n\n then click OK."%(toolnumber, tooldescr))
+            self.data.tool_message = self.gscreen.notify(_("INFO:"),message,None)
+            self.gscreen.warning_dialog(message, True,pinname="TOOLCHANGE")
+        else:
+            halcomp['tool-changed'] = False
+
     def _update_toolinfo(self, tool):
         toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
         if toolinfo:
@@ -2240,8 +2255,7 @@ class HandlerClass:
         else:
             self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}").format(axis.upper(),value))
         self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
-        self.widgets.rbt_manual.emit("pressed")
-        self.widgets.rbt_manual.set_active(True)
+        self.emc.set_manual_mode()
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
@@ -2534,6 +2548,7 @@ class HandlerClass:
         if self.log:self.gscreen.add_alarm_entry(_("Axis %s are homed")%"XYZABCUVW"[int(data[0])])
 
     def on_hal_status_file_loaded(self, widget, filename):
+        #print("hal-status message file_loaded_%s"%filename)
         self.gscreen.add_alarm_entry("file_loaded_%s"%filename)
         if len(filename) > 50:
             filename = filename[0:10] + "..." + filename[len(filename)-39:len(filename)]
@@ -2563,8 +2578,7 @@ class HandlerClass:
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
         if self.wait_tool_change == True:
-            self.widgets.rbt_manual.emit("pressed")
-            self.widgets.rbt_manual.set_active(True)
+            self.emc.set_manual_mode()
             self.wait_tool_change = False
         self.interpreter = _IDLE
         self.data.restart_dialog = None
@@ -2626,7 +2640,7 @@ class HandlerClass:
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self.gscreen.sensitize_widgets(widgetlist,False)
-        self.widgets.rbt_manual.set_active(True)
+        #self.widgets.rbt_manual.set_active(True)
         if self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(False)
 
