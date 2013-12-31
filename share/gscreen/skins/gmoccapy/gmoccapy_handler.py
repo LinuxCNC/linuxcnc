@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.4"
+_RELEASE = "0.9.9.7.3"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -2158,7 +2158,7 @@ class HandlerClass:
         changedone = halcomp['tool-changed']
         if change:
             tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
-            message =  _("Please change to tool\n\n# %s     %s\n\n then click OK."%(toolnumber, tooldescr))
+            message =  _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
             self.data.tool_message = self.gscreen.notify(_("INFO:"),message,None)
             self.gscreen.warning_dialog(message, True,pinname="TOOLCHANGE")
         else:
