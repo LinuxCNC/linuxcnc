@@ -236,9 +236,6 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     double tc_maxvel = tc->maxvel;
-    if (tc->motion_type == TC_CIRCULAR) {
-
-    }
     return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc_maxvel);
 }
 
@@ -250,12 +247,12 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
  */
 STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc, double target_vel) {
-    //If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop
-    //If the term_cond gets changed out from under us, detect this and force final velocity to zero
+    /* If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop.
+     * If the term_cond gets changed out from under us, detect this and force final velocity to zero
+     */
     if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
         return 0.0;
     } else {
-        //TODO eliminate redundant checks here
         //Clamp final velocity to the max velocity we can achieve
         double finalvel = tc->finalvel * fmin(tpGetFeedScale(tp,tc),1.0);
         if (finalvel > target_vel) {
