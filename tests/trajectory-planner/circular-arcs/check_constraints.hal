@@ -31,16 +31,16 @@ net acc-ok-z <= wcomp_zacc.out
 net vel-ok-z <= wcomp_zvel.out
 
 #FIXME hard coded acceleration bounds
-setp wcomp_xacc.max 30.005
-setp wcomp_xacc.min -30.005
+setp wcomp_xacc.max 30.0015
+setp wcomp_xacc.min -30.0015
 setp wcomp_xvel.max 8.339
 setp wcomp_xvel.min -8.339
-setp wcomp_yacc.max 30.005
-setp wcomp_yacc.min -30.005
+setp wcomp_yacc.max 30.0015
+setp wcomp_yacc.min -30.0015
 setp wcomp_yvel.max 8.339
 setp wcomp_yvel.min -8.339
-setp wcomp_zacc.max 30.005
-setp wcomp_zacc.min -30.005
+setp wcomp_zacc.max 30.0015
+setp wcomp_zacc.min -30.0015
 setp wcomp_zvel.max 8.339
 setp wcomp_zvel.min -8.339
 
@@ -68,5 +68,5 @@ setp match_all.b7 0
 
 setp match_all.in 1
 
-#net constraints-ok <= match_all.out => motion.enable
+net constraints-ok <= match_all.out => motion.enable
 
