@@ -20,10 +20,18 @@
                 <property name="layout_style">end</property>
                 <child>
                   <object class="GtkButton" id="button_help">
-                    <property name="label" translatable="yes">Help</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <child>
+                      <object class="GtkLabel" id="label_help">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Help</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -33,11 +41,19 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="button_cancel">
-                    <property name="label" translatable="yes">Cancel</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <signal name="clicked" handler="on_window1_destroy"/>
+                    <child>
+                      <object class="GtkLabel" id="label_cancel">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Cancel</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -92,8 +108,16 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="image">image3</property>
                     <signal name="clicked" handler="on_button_back_clicked"/>
+                    <child>
+                      <object class="GtkLabel" id="label_back">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Back</property>
+                        <attributes>
+                          <attribute name="weight" value="bold"/>
+                        </attributes>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -108,9 +132,29 @@
                     <property name="receives_default">True</property>
                     <signal name="clicked" handler="on_button_fwd_clicked"/>
                     <child>
-                      <object class="GtkImage" id="fwd_image">
+                      <object class="GtkHBox" id="hbox7">
                         <property name="visible">True</property>
-                        <property name="stock">gtk-go-forward</property>
+                        <child>
+                          <object class="GtkLabel" id="label_fwd">
+                            <property name="visible">True</property>
+                            <property name="ypad">6</property>
+                            <property name="label" translatable="yes">Start</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkImage" id="apply_image">
+                            <property name="stock">gtk-apply</property>
+                          </object>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -198,10 +242,6 @@ Stepconf requires a minimum 800 X 600 display resolution.</property>
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
     <property name="stock">gtk-go-back</property>
-  </object>
-  <object class="GtkImage" id="apply_image">
-    <property name="visible">True</property>
-    <property name="stock">gtk-apply</property>
   </object>
   <object class="GtkDialog" id="dialog1">
     <property name="title">dialog1</property>

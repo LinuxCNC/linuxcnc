@@ -69,15 +69,19 @@ class Pages:
                     dbg("set %d current"%u)
                 break
             u +=1
-        # second-to-last page? change the fwd button to finish
+        # second-to-last page? change the fwd button to finish and show icon
         if u == len(self._p.available_page)-1:
-            self.w.button_fwd.set_image(self.w.apply_image)
+            self.w.apply_image.set_visible(True)
+            self.w.label_fwd.set_text(self._p.MESS_DONE)
         # last page? nothing to prepare just finish
         elif u == len(self._p.available_page):
             name,text,state = self._p.available_page[cur]
             self['%s_finish'%name]()
-        if cur ==0:
+        # if comming from page 0 to page 1 sensitize 
+        # the back button and change fwd button text
+        if cur == 0:
             self.w.button_back.set_sensitive(True)
+            self.w.label_fwd.set_text(self._p.MESS_FWD)
 
     # seaches (self._p.available_page) from the current page backward,
     # for the next page that is True or till first page.
@@ -99,11 +103,14 @@ class Pages:
                 dbg("set %d current"%u)
                 break
             u -=1
-        # Not last page? change finish button label
+        # Not last page? change finish button text and hide icon
         if u <= len(self._p.available_page):
-            self.w.button_fwd.set_image(self.w.fwd_image)
+            self.w.apply_image.set_visible(False)
+            self.w.label_fwd.set_text(self._p.MESS_FWD)
+        # page 0 ? de-sensitize the back button and change fwd button text 
         if u == 0:
             self.w.button_back.set_sensitive(False)
+            self.w.label_fwd.set_text(self._p.MESS_START)
 
     def set_buttons_sensitive(self,fstate,bstate):
         self.w.button_fwd.set_sensitive(fstate)

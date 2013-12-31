@@ -4,7 +4,7 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkTextBuffer" id="textbuffer1">
     <property name="text" translatable="yes">All the necessary information has now been gathered. 
-Click "Apply" to write your configuration files to disk.
+Click "Done" to write your configuration files to disk.
 
 If you experience lockups while running LinuxCNC:
 -you will need to decrease the maximum velocity which will have the effect of increasing BASE_PERIOD.
