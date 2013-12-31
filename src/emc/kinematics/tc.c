@@ -477,10 +477,6 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
     //previous segment is now tangent with blend arc
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
-    //Reduce max velocity to match sample rate
-    prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
-            (1.1 * prev_tc->cycle_time));
-
     int res2 = pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
 
     tp_info_print(" L2: old target = %f\n", tc->target);
