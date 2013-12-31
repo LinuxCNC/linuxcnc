@@ -649,8 +649,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->maxaccel = acc;
 
     //Always clamp max velocity by sample rate, since we require TP to hit every segment at least once.
-    double Ts = TP_MIN_SEGMENT_CYCLES * tp->cycleTime;
-    tc->maxvel = fmin(ini_maxvel, tc->target / Ts);
+    tc->maxvel = fmin(ini_maxvel, tc->target / tp->cycleTime);
 
     //Store this verbatim, as it may affect expectations about feed rate.
     //Capping at maxvel means linear reduction from 100% to zero, which may be confusing.
@@ -703,16 +702,18 @@ STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const 
 
 /**
  * Find the maximum angle allowed between "tangent" segments.
+ * @param v speed of motion in worst case (i.e. at max feed).
+ * @param acc magnitude of acceleration allowed during "kink".
+ *
  * Since we are discretized by a timestep, the maximum allowable
  * "kink" in a trajectory is bounded by normal acceleration. A small
  * kink will effectively be one step along the tightest radius arc
  * possible at a given speed.
  */
-STATIC inline double tpMaxTangentAngle(double v, double acc, double period) {
-    double dx = v / period;
-    double scaled_accel = TP_KINK_FACTOR * acc;
+STATIC inline double tpMaxTangentAngle(TP_STRUCT const * const tp, double v, double acc) {
+    double dx = v / tp->cycleTime;
     if (dx > 0.0) {
-        return (scaled_accel / dx);
+        return (acc / dx);
     } else {
         tp_debug_print(" Velocity or period is negative!\n");
         //Should not happen...
@@ -834,8 +835,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double phi = (PM_PI - theta * 2.0);
 
-    //TODO change this to reference tc? does it matter?
-    double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
     double a_max;
     //TODO move this function into setup somewhere because this should be constant
@@ -879,6 +878,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L1 = prev_tc->target;
     double L2 = tc->target/2.0;
 
+    double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
     //Solve quadratic equation to find segment length that matches peak
     //velocity of blend arc. This way the line is not too short (hitting a
     //sampling limit) or too long (reducing the size of the arc).
@@ -1194,7 +1194,7 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double vf_limit_this = tc->maxvel;
     //Limit the PREVIOUS velocity by how much we can overshoot into
     double vf_limit_prev = prev1_tc->maxvel;
-    double vf_limit = fmin(vf_limit_this,vf_limit_prev);
+    double vf_limit = fmin(vf_limit_this, vf_limit_prev);
 
     if (vs_back >= vf_limit ) {
         //If we've hit the requested velocity, then prev_tc is definitely a "peak"
@@ -1209,6 +1209,10 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
         double v_max_end = fmax(prev1_tc->finalvel, tc->finalvel);
         tc->target_vel = fmin(v_max_end, tc->maxvel);
     }
+
+    //Reduce max velocity to match sample rate
+    double sample_maxvel = tc->target / tp->cycleTime;
+    tc->maxvel = fmin(tc->maxvel, sample_maxvel);
 
     tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f, capped target = %f\n",
             prev1_tc->finalvel, tc->finalvel, tc->target_vel);
@@ -1342,12 +1346,20 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double phi = PM_PI - 2.0 * theta;
     tp_debug_print("phi = %f\n", phi);
 
-    if (phi < TP_ANGLE_EPSILON) {
+    double v_reachable = fmax(tpGetMaxTargetVel(tp, tc),
+            tpGetMaxTargetVel(tp, prev_tc));
+    double acc_limit;
+    tpGetMachineAccelLimit(&acc_limit);
+    double acc_margin = (1.0 - TP_ACC_RATIO_NORMAL) * acc_limit;
+    double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin);
+
+    if (phi <= max_angle) {
         tp_debug_print(" New segment tangent with angle %g\n", phi);
         //already tangent
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Clip maximum velocity by sample rate
-        prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES));
+        prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
+                tp->cycleTime);
         return TP_ERR_OK;
     } else {
         tp_debug_print(" New segment not tangent, angle %g\n", phi);
@@ -1424,10 +1436,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     if (tpErrorCheck(tp)<0) {
         return TP_ERR_FAIL;
     }
-    tp_info_print(" New line end = %f %f %f\n",
-            end.tran.x,
-            end.tran.y,
-            end.tran.z);
+    tp_info_print("===============\n");
 
     tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
@@ -2604,10 +2613,10 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     //If we exceed the maximum acceleration, then the dt estimate is too small.
     int recalc = 0;
     double a;
-    if (a_f > (a_max + TP_ACCEL_EPSILON)) {
+    if (a_f > a_max) {
         a = a_max;
         recalc=1;
-    } else if (a_f < (-a_max-TP_ACCEL_EPSILON)) {
+    } else if (a_f < -a_max) {
         a = -a_max;
         recalc=1;
     } else {
