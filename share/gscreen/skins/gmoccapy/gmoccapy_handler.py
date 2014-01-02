@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.3"
+_RELEASE = "0.9.9.7.4"
 _IMPERIAL = 0           # Imperial Units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -1113,7 +1113,7 @@ class HandlerClass:
             self.widgets.tbtn_on.set_sensitive(True)
 
         # if a file should be loaded, we will do so
-        file = self.gscreen.prefs.getpref("open_file", " ", str)
+        file = self.gscreen.prefs.getpref("open_file", "", str)
         if file:
             self.widgets.file_to_load_chooser.set_filename(file)
             self.widgets.hal_action_open.load_file(file)

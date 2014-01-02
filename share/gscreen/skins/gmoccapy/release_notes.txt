@@ -1,6 +1,8 @@
 ver. 0.9.9.7.4
 - the default tool change dialog now shows 
   the tool number and the tool description
+- after deleting the preferences file you get an error starting the GUI, 
+  because it tried to load a file " ", I deleted the SPACE to solve that
 
 ver. 0.9.9.7.3
 - plasma screen now hide also the vel_info_box
