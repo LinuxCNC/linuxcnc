@@ -1,3 +1,15 @@
+ver. 0.9.9.7.5
+- deleted the statusbar widget
+- no more option to use gscreen error handling
+- no more option to use desktop notify
+- the optional stops button worked oposite it should
+- renamed some stuff from emc to linuxcnc or shortend the names
+- onboard keyboard showing in edit mode corrected
+- plasma.py changed order of getting widgets from builder, 
+  to avoid errors at load time
+- notification change line wrape mode to caracter, 
+  so longer file names will not be cut
+
 ver. 0.9.9.7.4
 - the default tool change dialog now shows 
   the tool number and the tool description

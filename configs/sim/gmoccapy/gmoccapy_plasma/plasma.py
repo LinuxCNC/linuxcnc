@@ -89,6 +89,13 @@ class PlasmaClass:
         self.target_voltage = hal_glib.GPin(halcomp.newpin("Target-Voltage", hal.HAL_FLOAT, hal.HAL_OUT))
 
         # get all widgets and connect them
+        self.lbl_prog_volt = self.builder.get_object("lbl_prog_volt")
+        self.lbl_cut_speed = self.builder.get_object("lbl_cut_speed")
+        self.lbl_cut_gap = self.builder.get_object("lbl_cut_gap")
+        self.lbl_g0_gap = self.builder.get_object("lbl_g0_gap")
+        self.lbl_pierce_gap = self.builder.get_object("lbl_pierce_gap")
+        self.lbl_pierce_delay = self.builder.get_object("lbl_pierce_delay")
+
         self.btn_THC_speed_minus = self.builder.get_object("btn_THC_speed_minus")
         self.btn_THC_speed_minus.connect("pressed", self.on_btn_THC_speed_pressed, -1)
 
@@ -179,24 +186,8 @@ class PlasmaClass:
         self.adj_THC_Voltage.lower = self.thctargetvoltmin
         self.adj_THC_Voltage.set_value(self.thctargetvoltval)
 
-        self.lbl_prog_volt = self.builder.get_object("lbl_prog_volt")
-        self.lbl_cut_speed = self.builder.get_object("lbl_cut_speed")
-        self.lbl_cut_gap = self.builder.get_object("lbl_cut_gap")
-        self.lbl_g0_gap = self.builder.get_object("lbl_g0_gap")
-        self.lbl_pierce_gap = self.builder.get_object("lbl_pierce_gap")
-        self.lbl_pierce_delay = self.builder.get_object("lbl_pierce_delay")
-        self.init_labels()
-
     def _on_destroy(self, obj, data = None):
         self.ini.save_state(self)
-
-    def init_labels(self):
-        self.lbl_prog_volt.set_label("%d" %self.adj_THC_Voltage.get_value())
-        self.lbl_cut_speed.set_label("%.1f" %self.adj_THC_speed.get_value())
-        self.lbl_cut_gap.set_label("%.3f" %self.adj_cut_gap.get_value())
-        self.lbl_g0_gap.set_label("%.3f" %self.adj_G0_gap.get_value())
-        self.lbl_pierce_gap.set_label("%.3f" %self.adj_pierce_gap.get_value())
-        self.lbl_pierce_delay.set_label("%.2f" %self.adj_pierce_delay.get_value())
 
     # What to do on button pres events?
     def on_btn_THC_speed_pressed(self, widget, dir):

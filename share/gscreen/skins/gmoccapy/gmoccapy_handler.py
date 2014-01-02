@@ -46,8 +46,8 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.4"
-_IMPERIAL = 0           # Imperial Units are active
+_RELEASE = "0.9.9.7.5"
+_INCH = 0               # imperial units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
 _AUTO = 2               # Check for the mode Auto
@@ -98,8 +98,8 @@ class HandlerClass:
         self.data = gscreen.data
         self.widgets = gscreen.widgets
         self.gscreen = gscreen
-        self.emcstat = linuxcnc.stat()
-        self.emcerror = linuxcnc.error_channel()
+        self.stat = linuxcnc.stat()
+        self.error_channel = linuxcnc.error_channel()
 
         self.distance = 0         # This global will hold the jog distance
         self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actions are allowed
@@ -120,7 +120,12 @@ class HandlerClass:
 
     def initialize_preferences(self):
         self.data.theme_name = self.gscreen.prefs.getpref("gtk_theme", "Follow System Theme", str)
-        self.gscreen.init_general_pref()
+        self.data.alert_sound = self.gscreen.prefs.getpref('audio_alert', self.data.alert_sound, str)
+        self.data.error_sound = self.gscreen.prefs.getpref('audio_error', self.data.error_sound, str)
+        self.data.grid_size = self.gscreen.prefs.getpref('grid_size', 1.0 , float)
+        self.data.hide_cursor = self.gscreen.prefs.getpref('hide_cursor', False, bool)
+        self.data.plot_voniew = self.gscreen.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
+        self.data.spindle_start_rpm = self.gscreen.prefs.getpref('spindle_start_rpm', 300 , float)
         self._init_axis_four()
 
     def _init_axis_four(self):
@@ -157,12 +162,10 @@ class HandlerClass:
     # gscreen.change_theme() is a method in gscreen that changes the GTK theme of window1
     # gscreen.data.theme_name is the name of the theme from the preference file 
     # To truely be friendly, we should add a way to change the theme directly in the custom screen.
-    # we also set up the statusbar and add a ready-to-home message
     def initialize_widgets(self):
         # These are gscreen widgets included in this screen
         self.gscreen.init_show_windows()
         self.gscreen.init_dynamic_tabs()
-        self.gscreen.init_statusbar()
         self.gscreen.init_tooleditor()
         self.gscreen.init_embeded_terminal()
         self.gscreen.init_themes() # load all avaiable themes in the combo box
@@ -195,7 +198,7 @@ class HandlerClass:
                 print(_("Default path to ~/linuxcnc/nc_files does not exist"))
                 print(_("setting now home as path"))
                 default_path = os.path.expanduser("~/")
-        self.widgets.hal_action_open.currentfolder = os.path.expanduser(default_path)
+        #self.widgets.hal_action_open.currentfolder = os.path.expanduser(default_path)
         self.widgets.IconFileSelection1.set_property("start_dir",default_path)
 
         # set the slider limmits
@@ -236,14 +239,6 @@ class HandlerClass:
         self.widgets.adj_width.set_value(self.gscreen.prefs.getpref("width", 979, float))
         self.widgets.adj_height.set_value(self.gscreen.prefs.getpref("height", 750, float))
 
-        # Get the type of error handling
-        self.data.error_style = self.gscreen.prefs.getpref("error_style", "gmoccapy", str)
-        # and set the corresponding button active
-        self.widgets["rbt_use_%s"%self.data.error_style].set_active(True)
-        # unsensitize the gmoccastyle adjustments if gscreen shall be usede
-        if self.data.error_style == "gscreen":
-            self.widgets.frm_message_position.set_sensitive(False)
-        
         # Popup Messages position and size
         self.widgets.adj_x_pos_popup.set_value(self.gscreen.prefs.getpref("x_pos_popup", 15, float))
         self.widgets.adj_y_pos_popup.set_value(self.gscreen.prefs.getpref("y_pos_popup", 55, float))
@@ -264,10 +259,6 @@ class HandlerClass:
         self.widgets.tbtn_dtg.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_units.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
 # end of the button usage
-
-        # Use desktop notify ?
-        self.data.desktop_notify = self.gscreen.prefs.getpref("desktop_notify", False, bool)
-        self.widgets.chk_use_desktop_notify.set_active(self.data.desktop_notify)
 
         # this sets the background colors of several buttons
         # the colors are different for the states of the button
@@ -506,10 +497,6 @@ class HandlerClass:
         self.add_macro_button()
         if not self.gscreen.inifile.find("DISPLAY", "EMBED_TAB_COMMAND"):
             self.widgets.tbtn_user_tabs.set_sensitive(False)
-
-        # we click the clear button from statusbar, because else ready for homing will be displayed.
-        # but this is not true, because the machine is not in On state
-        self.widgets.btn_clear_statusbar.emit("clicked") 
 
         # call the function to change the button status
         # so every thing is ready to start
@@ -930,7 +917,7 @@ class HandlerClass:
         # in this case we do not return true, otherwise entering code in MDI history 
         # and the integrated editor will not work
         # we also check if we are in settings or terminal or alarm page
-        if self.emcstat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+        if self.stat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
         # offset page is active, so keys must go through
@@ -1057,7 +1044,6 @@ class HandlerClass:
             message += _("so the corresponding file could not be found")
             self.gscreen.warning_dialog(_("Important Warning"), True, message)
             self.gscreen.add_alarm_entry( message)
-            self.widgets.statusbar1.push(1, message)
             return
         file = subroutines_folder + "/" + o_codes[0] + ".ngc"
         if not os.path.isfile(file):
@@ -1065,7 +1051,6 @@ class HandlerClass:
             message += _("we searched in subdirectory %s"%[subroutines_folder])
             self.gscreen.warning_dialog(_("Important Warning"), True, message)
             self.gscreen.add_alarm_entry( message)
-            self.widgets.statusbar1.push(1, message)
             return
         command = str("O<" + o_codes[0] + "> call")
         for code in o_codes[1:]:
@@ -1114,8 +1099,9 @@ class HandlerClass:
 
         # if a file should be loaded, we will do so
         file = self.gscreen.prefs.getpref("open_file", "", str)
-        if file:
+        if file :
             self.widgets.file_to_load_chooser.set_filename(file)
+            #self.emc.emccommand.program_open(file)
             self.widgets.hal_action_open.load_file(file)
 
         # check how to start the GUI
@@ -1207,30 +1193,14 @@ class HandlerClass:
     def on_rbt_manual_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_manual_pressed")
         self.emc.set_manual_mode()
-        #self.widgets.ntb_main.set_current_page(0)
-        #self.widgets.ntb_button.set_current_page(0)
-        #self.widgets.ntb_info.set_current_page(0)
-        #self.widgets.ntb_jog.set_current_page(0)
 
     def on_rbt_mdi_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_mdi_pressed")
         self.emc.set_mdi_mode()
-        #if self.widgets.chk_use_kb_on_mdi.get_active():
-        #    self.widgets.ntb_info.set_current_page(1)
-        #else:
-        #    self.widgets.ntb_info.set_current_page(0)
-        #self.widgets.ntb_main.set_current_page(0)
-        #self.widgets.ntb_button.set_current_page(1)
-        #self.widgets.ntb_jog.set_current_page(1)
-        #self.widgets.hal_mdihistory.entry.grab_focus()
 
     def on_rbt_auto_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_auto_pressed")
         self.emc.set_auto_mode()
-        #self.widgets.ntb_main.set_current_page(0)
-        #self.widgets.ntb_button.set_current_page(2)
-        #self.widgets.ntb_info.set_current_page(0)
-        #self.widgets.ntb_jog.set_current_page(2)
 
     def on_ntb_main_switch_page(self, widget, page, page_num, data=None):
         if self.log: 
@@ -1267,7 +1237,6 @@ class HandlerClass:
                     code = False
             # Lets see if the user has the right to enter settings
             if code:
-#                self.emc.set_manual_mode()
                 self.widgets.ntb_main.set_current_page(1)
                 self.widgets.ntb_setup.set_current_page(1)
                 self.widgets.ntb_button.set_current_page(5)
@@ -1278,7 +1247,6 @@ class HandlerClass:
                     message = _("wrong code entered, Access denied")
                 self.gscreen.warning_dialog(_("Just to warn you"), True, message)
                 self.gscreen.add_alarm_entry( message)
-                self.widgets.statusbar1.push(1, message)
         else:
             # check witch button should be sensitive, depending on the state of the machine
             if self.data.estopped:
@@ -1296,8 +1264,7 @@ class HandlerClass:
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(True)
                 self.widgets.rbt_auto.set_sensitive(True)
-#            self.emc.set_manual_mode()
-            # set the pages to manual mode page, this is needed here, because we do not 
+            # this is needed here, because we do not 
             # change mode, so on_hal_status_manual will not be called
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_button.set_current_page(0)
@@ -1519,7 +1486,7 @@ class HandlerClass:
         self.widgets.spindle_feedback_bar.set_property("max",widget.get_value())
 
     def _update_spindle_btn(self):
-        if self.emcstat.task_mode == _AUTO and self.interpreter == _RUN:
+        if self.stat.task_mode == _AUTO and self.interpreter == _RUN:
             return
         if not self.data.spindle_speed:
             self.widgets.rbt_stop.set_active(True)
@@ -1623,7 +1590,7 @@ class HandlerClass:
 
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.emcstat.task_mode == _MANUAL:
+        if not self.stat.task_mode == _MANUAL:
             return
 
         # if data = True, then the user pressed SHIFT for Jogging and 
@@ -1721,6 +1688,14 @@ class HandlerClass:
             self.widgets.ntb_info.set_current_page(0)
         else:
             self.widgets.ntb_info.set_current_page(1)
+        # special case if we are in edit mode
+        if self.widgets.ntb_button.get_current_page() == 6:
+            if self.widgets.ntb_info.get_visible():
+                self.widgets.box_info.set_size_request(-1,50)
+                self.widgets.ntb_info.hide()
+            else:
+                self.widgets.box_info.set_size_request(-1,250)
+                self.widgets.ntb_info.show()
 
     def on_ntb_info_switch_page(self, widget, page, page_num, data=None):
         if self.emc.get_mode() == _MDI:
@@ -1740,9 +1715,6 @@ class HandlerClass:
             self.widgets.ntb_button.set_current_page(0)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_preview.set_current_page(0)
-
-    def on_btn_clear_statusbar_clicked(self, widget, data=None):
-        self.widgets.statusbar1.pop(self.gscreen.statusbar_id)
 
     # The offset settings, set to zero
     def on_btn_touch_clicked(self, widget, data=None):
@@ -1938,10 +1910,6 @@ class HandlerClass:
     def on_chk_use_kb_on_file_selection_toggled(self, widget, data = None):
         self.gscreen.prefs.putpref("show_keyboard_on_file_selection", widget.get_active(), bool)
 
-    def on_chk_use_desktop_notify_toggled(self, widget, data = None):
-        self.gscreen.prefs.putpref("desktop_notify", widget.get_active(), bool)
-        self.data.desktop_notify = widget.get_active()
-
     def on_chk_use_kb_shortcuts_toggled(self, widget, data = None):
         self.gscreen.prefs.putpref("use_keyboard_shortcuts", widget.get_active(), bool)
 
@@ -1963,17 +1931,6 @@ class HandlerClass:
     def on_adj_scale_spindle_override_value_changed(self, widget, data = None):
         self.gscreen.prefs.putpref("scale_spindle_override", widget.get_value(), float)
         self.scale_spindle_override = widget.get_value()
-
-    def on_rbt_use_gmoccapy_toggled(self, widget):
-        if widget.get_active():
-            self.gscreen.prefs.putpref("error_style", "gmoccapy", str)
-            self.widgets.frm_message_position.set_sensitive(True)
-            self.init_notification()
-
-    def on_rbt_use_gscreen_toggled(self, widget):
-        if widget.get_active():
-            self.gscreen.prefs.putpref("error_style", "gscreen", str)
-            self.widgets.frm_message_position.set_sensitive(False)
 
     def on_rbtn_fullscreen_toggled(self, widget):
         if self.log: self.gscreen.add_alarm_entry("rbtn_fullscreen_toggled to %s"%widget.get_active())
@@ -2159,7 +2116,6 @@ class HandlerClass:
         if change:
             tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
             message =  _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
-            self.data.tool_message = self.gscreen.notify(_("INFO:"),message,None)
             self.gscreen.warning_dialog(message, True,pinname="TOOLCHANGE")
         else:
             halcomp['tool-changed'] = False
@@ -2310,7 +2266,6 @@ class HandlerClass:
         else:
             message = _("Could not understand the entered tool number. Will not change anything")
             self.gscreen.warning_dialog(_("Important Warning!"), True, message)
-            self.widgets.statusbar1.push(1,message)
 
     # gremlin relevant calls
     def on_rbt_view_p_toggled(self, widget, data=None):
@@ -2411,13 +2366,16 @@ class HandlerClass:
     def on_IconFileSelection1_selected(self,widget,path=None):
         if path:
             try:
-                self.widgets.hal_action_open.load_file(path)
+                #self.emc.emccommand.program_open(path)
+                self.widgets.hhal_action_open.load_file(path)
                 self.widgets.ntb_preview.set_current_page(0)
                 self.widgets.tbtn_fullsize_preview.set_active(False)
                 self.widgets.ntb_button.set_current_page(2)
+                self._show_iconview_tab(False)
             except:
-                print(_("error trying opening file %s"%path))
-            self._show_iconview_tab(False)
+                message = _("error trying opening file %s"%path)
+                self.gscreen.warning_dialog(_("Important Warning"), True, message)
+                self.notification.add_message(message, INFO_ICON)
 
     def on_IconFileSelection1_exit(self,widget):
         self.widgets.ntb_preview.set_current_page(0)
@@ -2437,9 +2395,11 @@ class HandlerClass:
         self.widgets.gcode_view.grab_focus()
         if self.widgets.chk_use_kb_on_edit.get_active():
             self.widgets.ntb_info.set_current_page(1)
+            self.widgets.box_info.set_size_request(-1,250)
         else:
-            self.widgets.ntb_info.set_current_page(0)
-        self.widgets.ntb_message.set_current_page(1)
+            self.widgets.ntb_info.hide()
+            self.widgets.box_info.set_size_request(-1,50)
+        self.widgets.tbl_search.show()
 
     # search forward while in edit mode
     def on_btn_search_forward_clicked(self, widget, data=None):
@@ -2484,7 +2444,9 @@ class HandlerClass:
             self.widgets.btn_save.set_sensitive(True)
             self.widgets.hal_action_reload.emit("activate")
             self.widgets.ntb_info.set_current_page(0)
-            self.widgets.ntb_message.set_current_page(0)
+            self.widgets.ntb_info.show()
+            self.widgets.box_info.set_size_request(-1,200)
+            self.widgets.tbl_search.hide()
 
     # Save all changes and run the program
     def on_btn_save_and_run_clicked(self, widget, data=None):
@@ -2509,7 +2471,8 @@ class HandlerClass:
         if self.widgets.lbl_program.get_label() == tempfilename:
             self.widgets.hal_action_reload.emit("activate")
         else:
-            self.emc.emccommand.program_open(tempfilename)
+            self.widgets.hal_action_open.load_file(tempfilename)
+            #self.emc.emccommand.program_open(tempfilename)
         self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
 
@@ -2521,15 +2484,14 @@ class HandlerClass:
 
     def on_tbtn_optional_stops_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_tbtn_optional_stops_toggled to %s"%widget.get_active())
-        self.emc.opstop(not widget.get_active())
-        self.gscreen.prefs.putpref("opstop", not widget.get_active())
+        self.emc.opstop(widget.get_active())
+        self.gscreen.prefs.putpref("opstop", widget.get_active())
 
     # use the hal_status widget to control buttons and 
     # actions allowed by the user and sensitive widgets
     def on_hal_status_all_homed(self,widget):
         self.data.all_homed = True
         self.gscreen.add_alarm_entry("all_homed")
-        self.widgets.statusbar1.push(1,"")
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool","btn_select_tool_by_no", 
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
@@ -2602,7 +2564,7 @@ class HandlerClass:
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
-        if self.emcstat.task_mode <> _MDI:
+        if self.stat.task_mode <> _MDI:
             widgetlist.append("ntb_jog")
         
         self.gscreen.sensitize_widgets(widgetlist,False)
@@ -2732,10 +2694,10 @@ class HandlerClass:
     # check linuxcnc for status, error and then update the readout
     def timer_interrupt(self):
         self.emc.mask()
-        self.emcstat.poll()
+        self.stat.poll()
         self.gscreen.status.periodic()
         self.data.system = self.gscreen.status.get_current_system()
-        e = self.emcerror.poll()
+        e = self.error_channel.poll()
         if e:
             kind, text = e
             #print kind,text
@@ -2752,14 +2714,7 @@ class HandlerClass:
             elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
                 icon = INFO_ICON
                 type = _("Message")
-            if self.widgets.rbt_use_gmoccapy.get_active():
-                self.notification.add_message(text,icon)
-            else:
-                if self.data.desktop_notify: # otherwise it will apear twice, 
-                                             # because notify add the message also to the statusbar
-                    self.gscreen.notify(type,text,icon,3)
-                else:
-                    self.widgets.statusbar1.push(1, str(kind) + " " + text)
+            self.notification.add_message(text,icon)
 
             if self.data.audio_available:
                 if kind != 13:
