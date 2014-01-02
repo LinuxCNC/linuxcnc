@@ -2367,7 +2367,7 @@ class HandlerClass:
         if path:
             try:
                 #self.emc.emccommand.program_open(path)
-                self.widgets.hhal_action_open.load_file(path)
+                self.widgets.hal_action_open.load_file(path)
                 self.widgets.ntb_preview.set_current_page(0)
                 self.widgets.tbtn_fullsize_preview.set_active(False)
                 self.widgets.ntb_button.set_current_page(2)
