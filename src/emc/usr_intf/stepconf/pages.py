@@ -185,7 +185,6 @@ class Pages:
 #************
     def base_prepare(self):
         self.w.drivetime_expander.set_expanded(True)
-        self.w.parport_expander.set_expanded(True)
         self.w.machinename.set_text(self.d.machinename)
         self.w.axes.set_active(self.d.axes)
         self.w.units.set_active(self.d.units)
@@ -199,18 +198,17 @@ class Pages:
         self.w.ioaddr.set_text(self.d.ioaddr)
         self.w.machinename.grab_focus()
         self.w.ioaddr2.set_text(self.d.ioaddr2) 
-        self.w.ioaddr3.set_text(self.d.ioaddr3)
-        self.w.pp2_direction.set_active(self.d.pp2_direction)
-        self.w.pp3_direction.set_active(self.d.pp3_direction)
+        #self.w.ioaddr3.set_text(self.d.ioaddr3)
+        #self.w.pp3_direction.set_active(self.d.pp3_direction)
         if self.d.number_pports>2:
-             self.w.pp2_checkbutton.set_active(1)
-             self.w.pp3_checkbutton.set_active(1)
+             self.w.radio_pp3.set_active(True)
         elif self.d.number_pports>1:
-             self.w.pp2_checkbutton.set_active(1)
+             self.w.radio_pp2.set_active(True)
+        else:
+             self.w.radio_pp1.set_active(True)
 
     def base_finish(self):
         self.w.drivetime_expander.set_expanded(False)
-        self.w.parport_expander.set_expanded(False)
         machinename = self.w.machinename.get_text()
         self.d.machinename = machinename.replace(" ","_")
         self.d.axes = self.w.axes.get_active()
@@ -222,17 +220,13 @@ class Pages:
         self.d.dirhold = self.w.dirhold.get_value()
         self.d.latency = self.w.latency.get_value()
         self.d.manualtoolchange = self.w.manualtoolchange.get_active()
-        self.d.ioaddr = self.w.ioaddr.get_text()
-        self.d.ioaddr2 = self.w.ioaddr2.get_text()
-        self.d.ioaddr3 = self.w.ioaddr3.get_text()
-        self.d.pp2_direction = self.w.pp2_direction.get_active()
-        self.d.pp3_direction = self.w.pp3_direction.get_active()
-        if self.w.pp3_checkbutton.get_active() and self.w.pp2_checkbutton.get_active():
+        if self.w.radio_pp3.get_active() and self.w.radio_pp2.get_active():
             self.d.number_pports = 3
-        elif self.w.pp2_checkbutton.get_active():
+        elif self.w.radio_pp2.get_active():
             self.d.number_pports = 2
         else:
             self.d.number_pports = 1
+        self.page_set_state('pport2',self.w.radio_pp2.get_active())
         dbg("active axes: %s = %d"% (self.w.axes.get_active_text(),self.d.axes))
         self.page_set_state('axisz','Z' in self.w.axes.get_active_text())
         self.page_set_state('axisy','Y' in self.w.axes.get_active_text())
@@ -378,7 +372,7 @@ class Pages:
 # pport1 PAGE
 #************
     def pport1_prepare(self):
-        self.in_pport_prepare = True
+        self._p.in_pport_prepare = True
         model = self.w.output_list
         model.clear()
         for name in self._p.human_output_names: model.append((name,))
@@ -398,7 +392,8 @@ class Pages:
             p = 'pin%dinv' % pin
             self.w[p].set_active(self.d[p])
         self.w.pin1.grab_focus()
-        self.in_pport_prepare = False
+        self.w.ioaddr.set_text(self.d.ioaddr)
+        self._p.in_pport_prepare = False
 
     def pport1_finish(self):
         for pin in (10,11,12,13,15):
@@ -410,21 +405,13 @@ class Pages:
         for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
-        self.d.pp2_direction = self.w.pp2_direction.get_active()
-        self.d.pp3_direction = self.w.pp3_direction.get_active()
+        self.d.ioaddr = self.w.ioaddr.get_text()
         self.page_set_state('spindle',self.a.has_spindle_speed_control())
 
     # pport1 callbacks
-    def on_pin10_changed(self, *args):
-        self.a.do_exclusive_inputs(10)
-    def on_pin11_changed(self, *args):
-        self.a.do_exclusive_inputs(11)
-    def on_pin12_changed(self, *args):
-        self.a.do_exclusive_inputs(12)
-    def on_pin13_changed(self, *args):
-        self.a.do_exclusive_inputs(13)
-    def on_pin15_changed(self, *args):
-        self.a.do_exclusive_inputs(15)
+    def on_exclusive_check_pp1(self, widget):
+        self.a.do_exclusive_inputs(widget,1)
+
     def on_sherlinedefault_clicked(self, *args):
         self.w.pin2.set_active(1)
         self.w.pin3.set_active(0)
@@ -444,6 +431,55 @@ class Pages:
         self.w.pin7.set_active(5)
         self.w.pin8.set_active(6)
         self.w.pin9.set_active(7)
+
+#************
+# pport2 PAGE
+#************
+    def pport2_prepare(self):
+        self._p.in_pport_prepare = True
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            p = 'pp2_pin%d' % pin
+            self.w[p].set_wrap_width(3)
+            self.w[p].set_active(self._p.hal_output_names.index(self.d[p])-8)
+            p = 'pp2_pin%dinv' % pin
+            self.w[p].set_active(self.d[p])
+
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = 'pp2_pin%d_in' % pin
+            self.w[p].set_wrap_width(3)
+            self.w[p].set_active(self._p.hal_input_names.index(self.d[p]))
+            p = 'pp2_pin%d_in_inv' % pin
+            self.w[p].set_active(self.d[p])
+        self.w.pp2_pin1.grab_focus()
+        self.w.pp2_direction.set_active(self.d.pp2_direction)
+        self.on_pp2_direction_changed(self.w.pp2_direction)
+        self.w.ioaddr2.set_text(self.d.ioaddr2)
+        self._p.in_pport_prepare = False
+
+    def pport2_finish(self):
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            p = 'pp2_pin%d' % pin
+            self.d[p] = self._p.hal_output_names[self.w[p].get_active()+8]
+            p = 'pp2_pin%dinv' % pin
+            self.d[p] = self.w[p].get_active()
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = 'pp2_pin%d_in' % pin
+            self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
+            p = 'pp2_pin%d_in_inv' % pin
+            self.d[p] = self.w[p].get_active()
+        self.d.pp2_direction = self.w.pp2_direction.get_active()
+        self.d.ioaddr2 = self.w.ioaddr2.get_text()
+
+    # pport2 callbacks:
+    def on_pp2_direction_changed(self,widget):
+        state = widget.get_active()
+        for i in (2,3,4,5,6,7,8,9):
+            self.w['pp2_pin%s_in_box'%i].set_visible(state)
+            self.w['pp2_pin%s_out_box'%i].set_visible(not state)
+
+    def on_exclusive_check_pp2(self, widget):
+        self.a.do_exclusive_inputs(widget,2)
+
 
 #*******************
 # AXIS X PAGE

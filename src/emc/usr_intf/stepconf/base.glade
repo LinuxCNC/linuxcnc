@@ -325,172 +325,6 @@
       </packing>
     </child>
     <child>
-      <object class="GtkExpander" id="parport_expander">
-        <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <child>
-          <object class="GtkTable" id="table3">
-            <property name="visible">True</property>
-            <property name="n_rows">3</property>
-            <property name="n_columns">3</property>
-            <child>
-              <object class="GtkLabel" id="label207">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">First Parport _Base Address:</property>
-                <property name="use_underline">True</property>
-                <property name="justify">right</property>
-                <property name="mnemonic_widget">ioaddr</property>
-              </object>
-              <packing>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="ioaddr">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label10">
-                <property name="visible">True</property>
-                <property name="xalign">0.20999999344348907</property>
-                <property name="label" translatable="yes">     Out</property>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="pp2_direction">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="model">liststore4</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_EXPAND</property>
-                <property name="y_options">GTK_EXPAND</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="pp3_direction">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="model">liststore4</property>
-                <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options">GTK_EXPAND</property>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="ioaddr2">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="ioaddr3">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="pp2_checkbutton">
-                <property name="label" translatable="yes">S_econd Parport Address:</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_underline">True</property>
-                <property name="xalign">0</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_pp2_checkbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="pp3_checkbutton">
-                <property name="label" translatable="yes">T_hird Parport Address:</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_underline">True</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_pp3_checkbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options">GTK_FILL</property>
-              </packing>
-            </child>
-          </object>
-        </child>
-        <child type="label">
-          <object class="GtkLabel" id="label9">
-            <property name="visible">True</property>
-            <property name="label" translatable="yes"> Parallel Port Settings</property>
-          </object>
-        </child>
-      </object>
-      <packing>
-        <property name="right_attach">3</property>
-        <property name="top_attach">9</property>
-        <property name="bottom_attach">10</property>
-        <property name="y_options">GTK_EXPAND | GTK_SHRINK | GTK_FILL</property>
-      </packing>
-    </child>
-    <child>
       <object class="GtkButton" id="latency_test">
         <property name="label" translatable="yes">_Test Base
 Period Jitter </property>
@@ -830,7 +664,61 @@ tool change</property>
       </packing>
     </child>
     <child>
-      <placeholder/>
+      <object class="GtkHBox" id="hbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkRadioButton" id="radio_pp1">
+            <property name="label" translatable="yes">One Parport</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="radio_pp2">
+            <property name="label" translatable="yes">Two Parports</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">radio_pp1</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkRadioButton" id="radio_pp3">
+            <property name="label" translatable="yes">Three Parports</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="active">True</property>
+            <property name="draw_indicator">True</property>
+            <property name="group">radio_pp1</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="right_attach">4</property>
+        <property name="top_attach">9</property>
+        <property name="bottom_attach">10</property>
+        <property name="y_options"></property>
+      </packing>
     </child>
     <child>
       <placeholder/>
@@ -885,20 +773,6 @@ tool change</property>
     </child>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1"/>
-  <object class="GtkListStore" id="liststore4">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">In</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Out</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkListStore" id="liststore3">
     <columns>
       <!-- column-name gchararray1 -->

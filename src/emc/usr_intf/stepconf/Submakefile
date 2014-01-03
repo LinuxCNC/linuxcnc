@@ -5,6 +5,7 @@ PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxc
 	../share/linuxcnc/base.glade \
 	../share/linuxcnc/start.glade \
 	../share/linuxcnc/pport1.glade \
+	../share/linuxcnc/pport2.glade \
 	../share/linuxcnc/spindle.glade \
 	../share/linuxcnc/options.glade \
 	../share/linuxcnc/axisx.glade \
@@ -18,6 +19,7 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	emc/usr_intf/stepconf/base.glade \
 	emc/usr_intf/stepconf/start.glade \
 	emc/usr_intf/stepconf/pport1.glade \
+	emc/usr_intf/stepconf/pport2.glade \
 	emc/usr_intf/stepconf/spindle.glade \
 	emc/usr_intf/stepconf/options.glade \
 	emc/usr_intf/stepconf/axisx.glade \
@@ -54,6 +56,11 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	$(Q)cp -f $< $@
 
 ../share/linuxcnc/pport1.glade: emc/usr_intf/stepconf/pport1.glade
+	$(ECHO) Copying glade file $(notdir $@)
+	$(Q)mkdir -p $(dir $@)
+	$(Q)cp -f $< $@
+
+../share/linuxcnc/pport2.glade: emc/usr_intf/stepconf/pport2.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@

@@ -125,9 +125,10 @@ def md5sum(filename):
 
 class Private_Data:
     def __init__(self):
+        self.in_pport_prepare = True
         self.distdir = distdir
         self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
-                                ['base',_('Base Information'),True],['pport1', _('Parallel Port 1'),True],
+                                ['base',_('Base Information'),True],['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
                                 ['options',_('Options'), True],['axisx', _('Axis X'), True],
                                 ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],['axisa', _('Axis A'), True],
                                 ['spindle',_('Spindle'), True],['finished',_('Almost Done'),True]
@@ -249,9 +250,9 @@ class Data:
         self.period = 25000
 
         self.ioaddr = "0x378"
-        self.ioaddr2 = _("Enter Address")
+        self.ioaddr2 = _("Enter")
         self.pp2_direction = 0 # output
-        self.ioaddr3 = _("Enter Address")
+        self.ioaddr3 = _("Enter")
         self.pp3_direction = 0 # output
         self.number_pports = 1
 
@@ -305,6 +306,18 @@ class Data:
         self.pin12 = SIG.UNUSED_INPUT
         self.pin13 = SIG.UNUSED_INPUT
         self.pin15 = SIG.UNUSED_INPUT
+
+        #   port 2
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            p = 'pp2_pin%d' % pin
+            self[p] = SIG.UNUSED_OUTPUT
+            p = 'pp2_pin%dinv' % pin
+            self[p] = 0
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = 'pp2_pin%d_in' % pin
+            self[p] = SIG.UNUSED_INPUT
+            p = 'pp2_pin%d_in_inv' % pin
+            self[p] = 0
 
         self.xsteprev = 200
         self.xmicrostep = 2
@@ -631,7 +644,9 @@ class StepconfApp:
     def __init__(self, dbgstate):
         global debug
         debug = dbgstate
+        global dbg
         dbg = self.dbg
+        self.recursive_block = False
 
         # Private data holds the array of pages to load
         self._p = Private_Data()
@@ -671,6 +686,15 @@ class StepconfApp:
         self.w.label_fwd.set_text(self._p.MESS_START)
         if debug:
             self.w.window1.set_title('Stepconf -debug mode')
+        # pport2
+        model = self.w.pp2_output_list
+        model.clear()
+        for ind,name in enumerate(self._p.human_output_names):
+            if not ind in( 0,1,2,3,4,5,6,7):
+                model.append((name,))
+        model = self.w.pp2_input_list
+        model.clear()
+        for name in self._p.human_input_names: model.append((name,))
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
@@ -841,8 +865,12 @@ class StepconfApp:
 
     # pport functions
     # disallow some signal combinations
-    def do_exclusive_inputs(self, pin):
-        if self.p.in_pport_prepare: return
+    def do_exclusive_inputs(self, pin,port):
+        # If initializing the Pport pages we don't want the signal calls to register here.
+        # if we are working in here we don't want signal calls because of changes made in here
+        # GTK supports signal blocking but then you can't assign signal names in GLADE -slaps head
+        if self._p.in_pport_prepare or self.recursive_block: return
+        self.recursive_block = True
         SIG = self._p
         exclusive = {
             SIG.HOME_X: (SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
@@ -903,17 +931,34 @@ class StepconfApp:
                 SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
                 SIG.ALL_LIMIT, SIG.ALL_HOME),
         }
-        p = 'pin%d' % pin
-        v = self.w[p].get_active()
-        name = self._p.hal_input_names[self.w[p].get_active()]
-        ex = exclusive.get(self._p.hal_input_names[v], ())
+        v = pin.get_active()
+        name = self._p.hal_input_names[v]
+        ex = exclusive.get(name, ())
+        # search pport1 for the illegal signals and change them to unused.
+        dbg( 'looking for %s in pport1'%name)
         for pin1 in (10,11,12,13,15):
-            if pin1 == pin: continue
             p = 'pin%d' % pin1
+            if self.w[p] == pin: continue
             v1 = self._p.hal_input_names[self.w[p].get_active()]
             if v1 in ex or v1 == name:
+                dbg( 'found %s, at %s'%(name,p))
                 self.w[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
-
+                if not port ==1: # if on the other page must change the data model too
+                    dbg( 'found on other pport page')
+                    self.d[p] = SIG.UNUSED_INPUT
+        # search pport2 for the illegal signals and change them to unused.
+        dbg( 'looking for %s in pport2'%name)
+        for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p2 = 'pp2_pin%d_in' % pin1
+            if self.w[p2] == pin: continue
+            v2 = self._p.hal_input_names[self.w[p2].get_active()]
+            if v2 in ex or v2 == name:
+                dbg( 'found %s, at %s'%(name,p2))
+                self.w[p2].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                if not port ==2:# if on the other page must change the data model too
+                    dbg( 'found on other pport page')
+                    self.d[p2] = SIG.UNUSED_INPUT
+        self.recursive_block = False
 #**************
 # Latency test
 #**************
@@ -1042,13 +1087,36 @@ class StepconfApp:
         halrun.write("""
             loadrt steptest
             loadrt stepgen step_type=0
-            loadrt probe_parport
-            loadrt hal_parport cfg=%(ioaddr)s
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
+            loadrt probe_parport 
+            """)
 
+        port3name=port2name=port2dir=port3dir=""
+        if self.d.number_pports>2:
+             port3name = ' '+self.d.ioaddr3
+             if self.d.pp3_direction: # Input option
+                port3dir =" in"
+             else: 
+                port3dir =" out"
+        if self.d.number_pports>1:
+             port2name = ' '+self.d.ioaddr2
+             if self.d.pp2_direction: # Input option
+                port2dir =" in"
+             else: 
+                port2dir =" out"
+        halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
+        halrun.write("""
+            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
             addf stepgen.make-pulses fast
             addf parport.0.write fast
+            """%{'period': period})
 
+        if self.d.number_pports>1:
+            halrun.write( "addf parport.0.write fast\n")
+        if self.d.number_pports>2:
+            halrun.write( "addf parport.0.write fast\n")
+        step_pin,dummy = self.find_output(step)
+        dir_pin,dummy = self.find_output(dir)
+        halrun.write("""
             addf stepgen.capture-position slow
             addf steptest.0 slow
             addf stepgen.update-freq slow
@@ -1067,10 +1135,8 @@ class StepconfApp:
 
             setp stepgen.0.enable 1
         """ % {
-            'period': period,
-            'ioaddr': self.d.ioaddr,
-            'steppin': self.find_output(step),
-            'dirpin': self.find_output(dir),
+            'steppin': step_pin,
+            'dirpin': dir_pin,
             'dirhold': self.d.dirhold + self.d.latency,
             'dirsetup': self.d.dirsetup + self.d.latency,
             'onestep': abs(1. / self.d[axis + "scale"]),
@@ -1085,15 +1151,15 @@ class StepconfApp:
             """ % {
                 'resettime': self.d['steptime']
             })
-        amp = self.find_output(SIG.AMP)
+        amp,amp_port = self.find_output(SIG.AMP)
         if amp:
-            halrun.write("setp parport.0.pin-%(enablepin)02d-out 1\n"
-                % {'enablepin': amp})
+            halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
+                % {'enablepin': amp,'portnum': amp_port})
 
-        estop = self.find_output(SIG.ESTOP)
+        estop,e_port = self.find_output(SIG.ESTOP)
         if estop:
-            halrun.write("setp parport.0.pin-%(estoppin)02d-out 1\n"
-                % {'estoppin': estop})
+            halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
+                % {'estoppin': estop,'portnum': e_port})
 
         for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
             inv = getattr(self.d, "pin%dinv" % pin)
@@ -1162,9 +1228,9 @@ class StepconfApp:
         self.w.dialog1.hide()
         
         if amp:
-            halrun.write("""setp parport.0.pin-%02d-out 0\n""" % amp)
+            halrun.write("""setp parport.%d.pin-%02d-out 0\n""" % (amp_port,amp))
         if estop:
-            halrun.write("""setp parport.0.pin-%02d-out 0\n""" % estop)
+            halrun.write("""setp parport.%d.pin-%02d-out 0\n""" % (e_port,estop))
 
         time.sleep(.001)
         halrun.close()
@@ -1207,12 +1273,22 @@ class StepconfApp:
         return None
 
     def find_output(self, output):
-        outputs = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
-        for i in outputs:
+        out_list = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
+        port = 0
+        for i in out_list:
             pin = self.d["pin%d" % i]
             inv = self.d["pin%dinv" % i]
-            if pin == output: return i
-        return None
+            if pin == output: return i,port
+        if self.d.number_pports > 1:
+            port = 1
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                p = 'pp2_pin%d' % pin
+                if pin == output: return i,port
+        return None,None
 
     def doublestep(self, steptime=None):
         if steptime is None: steptime = self.d.steptime
@@ -1220,7 +1296,17 @@ class StepconfApp:
 
     def home_sig(self, axis):
         SIG = self._p
-        inputs = set((self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15))
+        in_pins =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
+
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
+            else:
+                in_list =(10,11,12,13,15)
+            for pin in (in_list):
+                p = 'pp2_pin%d_in' % pin
+                in_pins +=(self.d[p],)
+        inputs = set(in_pins)
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         for i in inputs:

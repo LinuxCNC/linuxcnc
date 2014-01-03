@@ -33,10 +33,25 @@ class HAL:
         self.a = app    # The parent, stepconf
 
     def write_halfile(self, base):
-        inputs = set((self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15))
-        outputs = set((self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5,
+        input_set =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
+        output_set =(self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5,
             self.d.pin6, self.d.pin7, self.d.pin8, self.d.pin9, self.d.pin14, self.d.pin16,
-            self.d.pin17))
+            self.d.pin17)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
+                out_list =(1,14,16,17)
+            else:
+                in_list =(10,11,12,13,15)
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (in_list):
+                p = 'pp2_pin%d_in' % pin
+                input_set +=(self.d[p],)
+            for pin in (out_list):
+                p = 'pp2_pin%d' % pin
+                output_set += (self.d[p],)
+        inputs = set(input_set)
+        outputs = set(output_set)
 
         filename = os.path.join(base, self.d.machinename + ".hal")
         file = open(filename, "w")
@@ -49,18 +64,18 @@ class HAL:
         print >>file, "loadrt probe_parport"
         port3name=port2name=port2dir=port3dir=""
         if self.d.number_pports>2:
-             port3name = self.d.ioaddr3
-             if self.d.pp3_direction:
+             port3name = ' '+self.d.ioaddr3
+             if self.d.pp3_direction: # Input option
                 port3dir =" in"
              else: 
                 port3dir =" out"
         if self.d.number_pports>1:
-             port2name = self.d.ioaddr2
-             if self.d.pp2_direction:
+             port2name = ' '+self.d.ioaddr2
+             if self.d.pp2_direction: # Input option
                 port2dir =" in"
              else: 
                 port2dir =" out"
-        print >>file, "loadrt hal_parport cfg=\"%s out %s%s %s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
+        print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
         if self.a.doublestep():
             print >>file, "setp parport.0.reset-time %d" % self.d.steptime
         encoder = SIG.PHA in inputs
@@ -204,11 +219,24 @@ class HAL:
 
         print >>file
         for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)      
-        print >>file
-            
-        print >>file
+        if self.d.number_pports>1:
+            if self.d.pp2_direction:# Input option
+                pinlist = (1,14,16,17)
+            else:
+                pinlist = (1,2,3,4,5,6,7,8,9,14,16,17)
+            print >>file
+            for i in pinlist: self.connect_output(file, i,1)
+            print >>file
+
         for i in (10,11,12,13,15): self.connect_input(file, i)
-        print >>file
+        if self.d.number_pports>1:
+            if self.d.pp2_direction: # Input option
+                pinlist = (2,3,4,5,6,7,8,9,10,11,12,13,15)
+            else:
+                pinlist = (10,11,12,13,15)
+            print >>file
+            for i in pinlist: self.connect_input(file, i,1)
+            print >>file
 
         if limits_homes:
             print >>file, "setp lut5.0.function 0x10000"
@@ -379,24 +407,32 @@ class HAL:
         if max_limsig:
             print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
 
-    def connect_input(self, file, num):
-        p = self.d['pin%d' % num]
-        i = self.d['pin%dinv' % num]
-        if p == SIG.UNUSED_INPUT: return
-
-        if i:
-            print >>file, "net %s <= parport.0.pin-%02d-in-not" \
-                % (p, num)
+    def connect_input(self, file, num,port=0):
+        if port == 0:
+            p = self.d['pin%d' % num]
+            i = self.d['pin%dinv' % num]
         else:
-            print >>file, "net %s <= parport.0.pin-%02d-in" \
-                % (p, num)
+            p = self.d['pp2_pin%d_in' % num]
+            i = self.d['pp2_pin%d_in_inv' % num]
 
-    def connect_output(self, file, num):
-        p = self.d['pin%d' % num]
-        i = self.d['pin%dinv' % num]
+        if p == SIG.UNUSED_INPUT: return
+        if i:
+            print >>file, "net %s <= parport.%d.pin-%02d-in-not" \
+                % (p, port, num)
+        else:
+            print >>file, "net %s <= parport.%d.pin-%02d-in" \
+                % (p, port, num)
+
+    def connect_output(self, file, num,port=0):
+        if port == 0:
+            p = self.d['pin%d' % num]
+            i = self.d['pin%dinv' % num]
+        else:
+            p = self.d['pp2_pin%d' % num]
+            i = self.d['pp2_pin%dinv' % num]
         if p == SIG.UNUSED_OUTPUT: return
-        if i: print >>file, "setp parport.0.pin-%02d-out-invert 1" % num
-        print >>file, "net %s => parport.0.pin-%02d-out" % (p, num)
+        if i: print >>file, "setp parport.%d.pin-%02d-out-invert 1" %(port, num)
+        print >>file, "net %s => parport.%d.pin-%02d-out" % (p, port, num)
         if self.a.doublestep():
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP):
                 print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
