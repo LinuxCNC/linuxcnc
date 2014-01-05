@@ -825,6 +825,64 @@ class StepconfApp:
             self.w.dirsetup.set_sensitive(1)
         self.calculate_ideal_period()
 
+    # preset out pins
+    def preset_sherline_outputs(self):
+        self.w.pin2.set_active(1)
+        self.w.pin3.set_active(0)
+        self.w.pin4.set_active(3)
+        self.w.pin5.set_active(2)
+        self.w.pin6.set_active(5)
+        self.w.pin7.set_active(4)
+        self.w.pin8.set_active(7)
+        self.w.pin9.set_active(6)
+
+    def preset_xylotex_outputs(self):
+        self.w.pin2.set_active(0)
+        self.w.pin3.set_active(1)
+        self.w.pin4.set_active(2)
+        self.w.pin5.set_active(3)
+        self.w.pin6.set_active(4)
+        self.w.pin7.set_active(5)
+        self.w.pin8.set_active(6)
+        self.w.pin9.set_active(7)
+
+    def preset_tb6560_3axes_outputs(self):
+        SIG = self._p
+        def index(signal):
+            return self._p.hal_output_names.index(signal)
+        # x axis
+        self.w.pin1.set_active(index(SIG.XSTEP))
+        self.w.pin16.set_active(index(SIG.XDIR))
+        self.w.pin4.set_active(index(SIG.AMP))
+        # Y axis
+        self.w.pin14.set_active(index(SIG.YSTEP))
+        self.w.pin7.set_active(index(SIG.YDIR))
+        self.w.pin17.set_active(index(SIG.AMP))
+        # Z axis
+        self.w.pin3.set_active(index(SIG.ZSTEP))
+        self.w.pin6.set_active(index(SIG.ZDIR))
+        self.w.pin5.set_active(index(SIG.AMP))
+        # spindle
+        self.w.pin2.set_active(index(SIG.ON))
+
+    def preset_tb6560_4axes_outputs(self):
+        SIG = self._p
+        def index(signal):
+            return self._p.hal_output_names.index(signal)
+        # x axis
+        self.w.pin2.set_active(index(SIG.XSTEP))
+        self.w.pin3.set_active(index(SIG.XDIR))
+        self.w.pin1.set_active(index(SIG.AMP))
+        # Y axis
+        self.w.pin4.set_active(index(SIG.YSTEP))
+        self.w.pin5.set_active(index(SIG.YDIR))
+        # Z axis
+        self.w.pin6.set_active(index(SIG.ZSTEP))
+        self.w.pin7.set_active(index(SIG.ZDIR))
+        # A axis
+        self.w.pin8.set_active(index(SIG.ASTEP))
+        self.w.pin9.set_active(index(SIG.ADIR))
+
     # check for spindle output signal
     def has_spindle_speed_control(self):
         d = self.d

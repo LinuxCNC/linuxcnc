@@ -412,25 +412,17 @@ class Pages:
     def on_exclusive_check_pp1(self, widget):
         self.a.do_exclusive_inputs(widget,1)
 
-    def on_sherlinedefault_clicked(self, *args):
-        self.w.pin2.set_active(1)
-        self.w.pin3.set_active(0)
-        self.w.pin4.set_active(3)
-        self.w.pin5.set_active(2)
-        self.w.pin6.set_active(5)
-        self.w.pin7.set_active(4)
-        self.w.pin8.set_active(7)
-        self.w.pin9.set_active(6)
-
-    def on_xylotexdefault_clicked(self, *args):
-        self.w.pin2.set_active(0)
-        self.w.pin3.set_active(1)
-        self.w.pin4.set_active(2)
-        self.w.pin5.set_active(3)
-        self.w.pin6.set_active(4)
-        self.w.pin7.set_active(5)
-        self.w.pin8.set_active(6)
-        self.w.pin9.set_active(7)
+    def on_preselect_button_clicked(self, widget):
+        state = self.w.preset_combo.get_active()
+        print state
+        if state == 0:
+            self.a.preset_sherline_outputs()
+        elif state ==1:
+            self.a.preset_xylotex_outputs()
+        elif state ==2:
+            self.a.preset_tb6560_3axes_outputs()
+        elif state ==3:
+            self.a.preset_tb6560_4axes_outputs()
 
 #************
 # pport2 PAGE

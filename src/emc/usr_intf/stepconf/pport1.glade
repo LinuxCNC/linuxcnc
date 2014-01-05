@@ -915,42 +915,6 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="sherlinedefault">
-            <property name="label" translatable="yes">_Sherline Outputs</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="use_underline">True</property>
-            <signal name="clicked" handler="on_sherlinedefault_clicked"/>
-          </object>
-          <packing>
-            <property name="left_attach">5</property>
-            <property name="right_attach">6</property>
-            <property name="top_attach">11</property>
-            <property name="bottom_attach">12</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options"></property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="xylotexdefault">
-            <property name="label" translatable="yes">_Xylotex Outputs</property>
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <property name="use_underline">True</property>
-            <signal name="clicked" handler="on_xylotexdefault_clicked"/>
-          </object>
-          <packing>
-            <property name="left_attach">5</property>
-            <property name="right_attach">6</property>
-            <property name="top_attach">12</property>
-            <property name="bottom_attach">13</property>
-            <property name="x_options">GTK_FILL</property>
-            <property name="y_options"></property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkLabel" id="label178">
             <property name="visible">True</property>
             <property name="xalign">0</property>
@@ -1039,7 +1003,24 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkComboBox" id="preset_combo">
+            <property name="visible">True</property>
+            <property name="model">liststore1</property>
+            <property name="active">0</property>
+            <child>
+              <object class="GtkCellRendererText" id="cellrenderertext13"/>
+              <attributes>
+                <attribute name="text">0</attribute>
+              </attributes>
+            </child>
+          </object>
+          <packing>
+            <property name="left_attach">5</property>
+            <property name="right_attach">6</property>
+            <property name="top_attach">11</property>
+            <property name="bottom_attach">12</property>
+            <property name="y_options"></property>
+          </packing>
         </child>
         <child>
           <placeholder/>
@@ -1115,6 +1096,26 @@
         </child>
         <child>
           <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <object class="GtkButton" id="preselect_button">
+            <property name="label" translatable="yes">Preset</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_preselect_button_clicked"/>
+          </object>
+          <packing>
+            <property name="left_attach">5</property>
+            <property name="right_attach">6</property>
+            <property name="top_attach">12</property>
+            <property name="bottom_attach">13</property>
+            <property name="x_options">GTK_EXPAND</property>
+            <property name="y_options"></property>
+          </packing>
         </child>
       </object>
       <packing>
@@ -1141,5 +1142,25 @@
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
     </columns>
+  </object>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Sherline</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Xylotex</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">TB6560 3 axes</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">TB6560 4 axes</col>
+      </row>
+    </data>
   </object>
 </interface>
