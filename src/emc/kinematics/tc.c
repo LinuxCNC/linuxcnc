@@ -217,7 +217,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             uvw = tc->coords.rigidtap.uvw;
             break;
         case TC_LINEAR:
-            if (tc->coords.line.xyz.tmag > 0.) {
+            if (!tc->coords.line.xyz.tmag_zero) {
                 // progress is along xyz, so uvw and abc move proportionally in order
                 // to end at the same time.
                 pmCartLinePoint(&tc->coords.line.xyz, progress, &xyz);
@@ -227,7 +227,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                 pmCartLinePoint(&tc->coords.line.abc,
                         progress * tc->coords.line.abc.tmag / tc->target,
                         &abc);
-            } else if (tc->coords.line.uvw.tmag > 0.) {
+            } else if (!tc->coords.line.uvw.tmag_zero) {
                 // xyz is not moving
                 pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
                 pmCartLinePoint(&tc->coords.line.uvw, progress, &uvw);
