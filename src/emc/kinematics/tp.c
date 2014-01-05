@@ -807,6 +807,25 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 }
 
 
+STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc)
+{
+    double T1 = prev_tc->tolerance;
+    double T2 = tc->tolerance;
+    double tolerance;
+    if ( 0 == T1 && 0 == T2) {
+        tolerance = TP_BIG_NUM;
+    } else if (T1 == 0) {
+        tolerance = T2;
+    } else if (T2 == 0) {
+        tolerance = T1;
+    } else {
+        tolerance = fmin(T1,T2);
+    }
+    return tolerance;
+}
+
+
 /**
  * Compute arc segment to blend between two lines.
  * A workhorse function to calculate all the required parameters for a new
@@ -851,24 +870,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double Stheta = sin(theta);
     double Ttheta = tan(theta);
 
-    //Find the minimum tolerance (in case it dropped between moves)
-    double T1 = prev_tc->tolerance;
-    double T2 = tc->tolerance;
-    double d_tol;
-
-    if ( TP_BIG_NUM == T1 && TP_BIG_NUM == T2) {
-        d_tol = TP_BIG_NUM;
-    } else {
-        double tolerance = fmin(T1,T2);
-
-        tp_debug_print(" Blend Tolerance = %f\n",tolerance);
-
-        double h_tol = tolerance / (1.0 - Stheta);
-
-        d_tol = Ctheta * h_tol;
-        tp_debug_print(" d_tol = %f\n",d_tol);
-    }
-
     //TODO "greedy" arc sizing step here
 
     //Consider L1 / L2 to be the length available to blend over
@@ -890,6 +891,15 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print(" next length L2 = %f\n", L2);
     tp_debug_print(" K = %f\n", K);
     // Assume that we are not working on segments already traversed for now
+
+    //Find blend tolerance from prev and current lines
+    //Find the minimum tolerance (in case it dropped between moves)
+    double tolerance = tcFindBlendTolerance(prev_tc, tc);
+    double h_tol = tolerance / (1.0 - Stheta);
+    double d_tol = Ctheta * h_tol;
+
+    // Debug output for tolerances
+    tp_debug_print(" d_tol = %f\n",d_tol);
 
     // Limit amount of line segment to blend
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
@@ -1465,11 +1475,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tc.canon_motion_type = type;
 
     tc.term_cond = tp->termCond;
-    if (tp->tolerance == 0.0) {
-        tc.tolerance = TP_BIG_NUM;
-    } else {
-        tc.tolerance = tp->tolerance;
-    }
 
     tc.synchronized = tp->synchronized;
     tc.uu_per_rev = tp->uu_per_rev;
