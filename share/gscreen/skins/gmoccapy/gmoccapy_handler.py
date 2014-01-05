@@ -124,7 +124,7 @@ class HandlerClass:
         self.data.error_sound = self.gscreen.prefs.getpref('audio_error', self.data.error_sound, str)
         self.data.grid_size = self.gscreen.prefs.getpref('grid_size', 1.0 , float)
         self.data.hide_cursor = self.gscreen.prefs.getpref('hide_cursor', False, bool)
-        self.data.plot_voniew = self.gscreen.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
+        self.data.plot_view = self.gscreen.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
         self.data.spindle_start_rpm = self.gscreen.prefs.getpref('spindle_start_rpm', 300 , float)
         self.data.dro_units = self.gscreen.prefs.getpref('dro_is_metric', True, bool)
         if self.data.dro_units: # set linuxcnc as well

@@ -1,4 +1,5 @@
 ver. 0.9.9.7.5
+- typo in initialize_preferences 
 - deleted the statusbar widget
 - no more option to use gscreen error handling
 - no more option to use desktop notify
