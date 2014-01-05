@@ -860,7 +860,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     tp_debug_print("a_n_max = %f\n",a_n_max);
 
     //Find common velocity and acceleration
-    double v_req = fmax(prev_tc->reqvel, tc->reqvel);
+    double v_req = fmin(prev_tc->reqvel, tc->reqvel);
     double v_goal = v_req * emcmotConfig->maxFeedScale;
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_goal = %f, max scale = %f\n", v_goal, emcmotConfig->maxFeedScale);
@@ -1174,8 +1174,9 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 
     //If the corner is too tight, a circular arc would have zero radius. Fall
     //back to default blend.
-    if ((PM_PI - omega) < TP_ANGLE_EPSILON ) {
-        tp_debug_print("Corner too tight, omega = %f\n",omega);
+    const double min_angle = PM_PI / 3.0;
+    if ((PM_PI - omega) < min_angle ) {
+        tp_debug_print("Corner angle omega = %f < min angle %f\n", omega, min_angle);
         return TP_ERR_FAIL;
     }
 
