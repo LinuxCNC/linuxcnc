@@ -676,23 +676,6 @@ class Gscreen:
         # see if the user specified a tool editor
         self.data.varfile = self.inifile.find("RS274NGC","PARAMETER_FILE")
 
-        # toolsetting reference type
-        if self.prefs.getpref('toolsetting_fixture', False):
-            self.g10l11 = 1
-        else:
-            self.g10l11 = 0
-
-        # set the display options from preference file
-        if self.prefs.getpref('dro_is_metric', False):
-            self.status.dro_mm(0)
-        else:
-            self.status.dro_inch(0)
-
-        if self.prefs.getpref('dro_actual', False):
-           self.status.dro_actual(0)
-        else:
-           self.status.dro_commanded(0)
-
         if "initialize_keybindings" in dir(self.handler_instance):
             self.handler_instance.initialize_keybindings()
         else:
@@ -774,6 +757,10 @@ class Gscreen:
         self.data.diameter_mode = self.prefs.getpref('diameter_mode', False, bool)
         self.data.display_order = self.prefs.getpref('display_order', (0,1,2), repr)
         self.data.dro_units = self.prefs.getpref('dro_is_metric', False, bool)
+        if self.data.dro_units: # set linuxcnc as well
+            self.status.dro_mm(0)
+        else:
+            self.status.dro_inch(0)
         self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
         self.data.error_font_name = self.prefs.getpref('error_font', 'Sans Bold 10', str)
         self.data.err_textcolor = self.prefs.getpref('err_textcolor', 'default', str)
@@ -784,6 +771,19 @@ class Gscreen:
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
         self.data.unlock_code = self.prefs.getpref('unlock_code', '123', str)
         self.data.embedded_keyboard = self.prefs.getpref('embedded_keyboard', True, bool)
+        if self.prefs.getpref('dro_actual', False, bool):
+           self.status.dro_actual(0)
+        else:
+           self.status.dro_commanded(0)
+        # toolsetting reference type
+        if self.prefs.getpref('toolsetting_fixture', False, bool):
+            self.g10l11 = 1
+        else:
+            self.g10l11 = 0
+
+
+
+
 
     # initialize default widgets
     def initialize_widgets(self):
