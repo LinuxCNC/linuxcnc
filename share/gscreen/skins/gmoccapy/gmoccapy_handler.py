@@ -126,6 +126,11 @@ class HandlerClass:
         self.data.hide_cursor = self.gscreen.prefs.getpref('hide_cursor', False, bool)
         self.data.plot_voniew = self.gscreen.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
         self.data.spindle_start_rpm = self.gscreen.prefs.getpref('spindle_start_rpm', 300 , float)
+        self.data.dro_units = self.gscreen.prefs.getpref('dro_is_metric', True, bool)
+        if self.data.dro_units: # set linuxcnc as well
+            self.gscreen.status.dro_mm(0)
+        else:
+            self.gscreen.status.dro_inch(0)
         self._init_axis_four()
 
     def _init_axis_four(self):
