@@ -2684,9 +2684,13 @@ STATIC int tpActivateNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
     //Setup nexttc if this is the first time it's been accessed
     if (nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
-        tp_debug_print("Activate nexttc id %d\n", nexttc->id);
+        tp_debug_print("Activate nexttc id %d for parabolic blending\n", nexttc->id);
+        nexttc->active = 1;
+    } else if (TC_TERM_COND_TANGENT == tc->term_cond && tc->splitting) {
+        tp_debug_print("Activate nexttc id %d for tangent split\n", nexttc->id);
         nexttc->active = 1;
     }
+
     return TP_ERR_OK;
 }
 
