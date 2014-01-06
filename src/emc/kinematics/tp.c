@@ -646,11 +646,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->maxaccel = acc;
 
     //Always clamp max velocity by sample rate, since we require TP to hit every segment at least once.
-    tc->maxvel = fmin(ini_maxvel, tc->target / tp->cycleTime);
-
-    //Store this verbatim, as it may affect expectations about feed rate.
-    //Capping at maxvel means linear reduction from 100% to zero, which may be confusing.
-    //TODO decide which behavior is better
+    tc->maxvel = ini_maxvel;
 
     tc->reqvel = vel;
     tc->target_vel = vel;
@@ -1222,7 +1218,7 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     }
 
     //Reduce max velocity to match sample rate
-    double sample_maxvel = tc->target / tp->cycleTime;
+    double sample_maxvel = tc->target / (tp->cycleTime * TP_MIN_SEGMENT_CYCLES);
     tc->maxvel = fmin(tc->maxvel, sample_maxvel);
 
     tp_info_print(" prev1_tc-> fv = %f, tc->fv = %f, capped target = %f\n",
