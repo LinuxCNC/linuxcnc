@@ -872,7 +872,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     //Consider L1 / L2 to be the length available to blend over
     double L1 = prev_tc->target;
-    double L2 = tc->target/2.0;
+    double L2 = tc->target / 2.0;
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
     //Solve quadratic equation to find segment length that matches peak
@@ -2586,7 +2586,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     //we're safely far form the end.
 
     if (v_avg < TP_VEL_EPSILON) {
-
         if ( dx > (v_avg * tp->cycleTime)) {
             tp_debug_print(" below velocity threshold, assuming far from end\n");
             return TP_ERR_NO_ACTION;
@@ -2599,17 +2598,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     //Get dt assuming that we can magically reach the final velocity at
     //the end of the move.
-    double dt = 2.0 * dx / v_avg;
+    double dt = fmax(2.0 * dx / v_avg, TP_TIME_EPSILON);
     //Calculate the acceleration this would take:
 
-    double a_f;
     double dv = v_f - tc->currentvel;
-    if (dt < TP_TIME_EPSILON) {
-        tp_debug_print("dt = %f, assuming large final accel\n", dt);
-        a_f = TP_BIG_NUM * fsign(dv);
-    } else {
-        a_f = dv / dt;
-    }
+    double a_f = dv / dt;
 
     //If this is a valid acceleration, then we're done. If not, then we solve
     //for v_f and dt given the max acceleration allowed.
