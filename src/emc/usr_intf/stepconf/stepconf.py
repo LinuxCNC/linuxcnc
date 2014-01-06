@@ -642,12 +642,12 @@ class StepconfApp:
  
     def __init__(self, dbgstate):
         global debug
-        debug = dbgstate
+        debug = self.debug = dbgstate
         global dbg
         dbg = self.dbg
         self.recursive_block = False
-
-        # Private data holds the array of pages to load
+        self.axis_under_test = None
+        # Private data holds the array of pages to load, signals, and messages
         self._p = Private_Data()
         self.d = Data(self._p)
 
@@ -670,30 +670,10 @@ class StepconfApp:
         self.HAL = build_HAL.HAL(self)
         self.builder.set_translation_domain(domain) # for locale translations
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
-        window.show()
-
-        # Initialize data
-        self.axis_under_test = None
-        for i in self._p.alldrivertypes:
-            self.w.drivertype.append_text(i[1])
-        self.w.drivertype.append_text(_("Other"))
         wiz_pic = gtk.gdk.pixbuf_new_from_file(wizard)
         self.w.wizard_image.set_from_pixbuf(wiz_pic)
-        self.p.intro_prepare()
-        self.w.title_label.set_text(self._p.available_page[0][1])
-        self.w.button_back.set_sensitive(False)
-        self.w.label_fwd.set_text(self._p.MESS_START)
-        if debug:
-            self.w.window1.set_title('Stepconf -debug mode')
-        # pport2
-        model = self.w.pp2_output_list
-        model.clear()
-        for ind,name in enumerate(self._p.human_output_names):
-            if not ind in( 0,1,2,3,4,5,6,7):
-                model.append((name,))
-        model = self.w.pp2_input_list
-        model.clear()
-        for name in self._p.human_input_names: model.append((name,))
+        self.p.initialize()
+        window.show()
 
     def build_base(self):
         base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)

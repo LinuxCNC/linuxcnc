@@ -38,8 +38,11 @@ class Pages:
         self.w = app.w      # widget names
         self.a = app        # parent, stepconf
         self._p = app._p    # private data
+        global debug
+        debug = self.a.debug
         global dbg
         dbg = self.a.dbg
+
 #********************
 # Notebook Controls
 #********************
@@ -132,6 +135,36 @@ class Pages:
 #####################################################
 # All Page Methods
 #####################################################
+#***************
+# Intialize
+#***************
+    def initialize(self):
+        # one time initialized data
+        for i in self._p.alldrivertypes:
+            self.w.drivertype.append_text(i[1])
+        self.w.drivertype.append_text(_("Other"))
+        self.w.title_label.set_text(self._p.available_page[0][1])
+        self.w.button_back.set_sensitive(False)
+        self.w.label_fwd.set_text(self._p.MESS_START)
+        if debug:
+            self.w.window1.set_title('Stepconf -debug mode')
+        # pport1 combo boxes
+        model = self.w.output_list
+        model.clear()
+        for name in self._p.human_output_names: model.append((name,))
+        model = self.w.input_list
+        model.clear()
+        for name in self._p.human_input_names: model.append((name,))
+        # pport2 comboboxes
+        model = self.w.pp2_output_list
+        model.clear()
+        for ind,name in enumerate(self._p.human_output_names):
+            if not ind in( 0,1,2,3,4,5,6,7):
+                model.append((name,))
+        model = self.w.pp2_input_list
+        model.clear()
+        for name in self._p.human_input_names: model.append((name,))
+        self.intro_prepare()
 
 #************
 # INTRO PAGE
@@ -373,18 +406,12 @@ class Pages:
 #************
     def pport1_prepare(self):
         self._p.in_pport_prepare = True
-        model = self.w.output_list
-        model.clear()
-        for name in self._p.human_output_names: model.append((name,))
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.w[p].set_wrap_width(3)
             self.w[p].set_active(self._p.hal_output_names.index(self.d[p]))
             p = 'pin%dinv' % pin
             self.w[p].set_active(self.d[p])
-        model = self.w.input_list
-        model.clear()
-        for name in self._p.human_input_names: model.append((name,))
         for pin in (10,11,12,13,15):
             p = 'pin%d' % pin
             self.w[p].set_wrap_width(3)
