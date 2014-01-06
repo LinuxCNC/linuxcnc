@@ -194,7 +194,6 @@ class Pages:
         self.w.dirsetup.set_value(self.d.dirsetup)
         self.w.dirhold.set_value(self.d.dirhold)
         self.w.drivertype.set_active(self.a.drivertype_toindex())
-        self.w.manualtoolchange.set_active(self.d.manualtoolchange)
         self.w.ioaddr.set_text(self.d.ioaddr)
         self.w.machinename.grab_focus()
         self.w.ioaddr2.set_text(self.d.ioaddr2) 
@@ -219,7 +218,6 @@ class Pages:
         self.d.dirsetup = self.w.dirsetup.get_value()
         self.d.dirhold = self.w.dirhold.get_value()
         self.d.latency = self.w.latency.get_value()
-        self.d.manualtoolchange = self.w.manualtoolchange.get_active()
         if self.w.radio_pp3.get_active() and self.w.radio_pp2.get_active():
             self.d.number_pports = 3
         elif self.w.radio_pp2.get_active():
@@ -282,6 +280,7 @@ class Pages:
         self.w.ladderconnect.set_active(self.d.ladderconnect)
         self.w.pyvcpconnect.set_active(self.d.pyvcpconnect)
         self.on_classicladder_toggled()
+        self.w.manualtoolchange.set_active(self.d.manualtoolchange)
         if  not self.w.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
                 self.w.radiobutton4.set_active(True)
@@ -299,7 +298,8 @@ class Pages:
         self.d.floatsout = self.w.floatsout.get_value()
         self.d.halui = self.w.halui.get_active()    
         self.d.pyvcpconnect = self.w.pyvcpconnect.get_active()  
-        self.d.ladderconnect = self.w.ladderconnect.get_active()          
+        self.d.ladderconnect = self.w.ladderconnect.get_active()   
+        self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
         if self.d.classicladder:
            if self.w.radiobutton1.get_active() == True:
               if self.d.tempexists:
