@@ -76,6 +76,12 @@ class HandlerClass:
         self.data.all_homed = True
         self.widgets.statusbar1.remove_message(self.gscreen.statusbar_id,self.gscreen.homed_status_message)
 
+    # when run is pressed, destroy the restart dialog if it's showing
+    def on_toolbutton_run_toggled(self,widget):
+        if not self.data.restart_dialog == None:
+            self.data.restart_dialog.destroy()
+            self.data.restart_dialog = None
+
     # This connects signals without using glade's autoconnect method
     def connect_signals(self,handlers):
         signal_list = [ ["window1","destroy", "on_window1_destroy"],
@@ -98,6 +104,7 @@ class HandlerClass:
                 self.widgets[i[0]].connect(i[1], self.gscreen[i[2]])
             elif len(i) == 4:
                 self.widgets[i[0]].connect(i[1], self.gscreen[i[2]],i[3])
+        self.widgets.toolbutton_run.connect("toggled",self.on_toolbutton_run_toggled)
         self.widgets.scale_jog.connect("value_changed",self.on_scale_jog_value_changed)
         self.widgets.scale_fo.connect("value_changed",self.on_scale_fo_value_changed)
         self.widgets.scale_so.connect("value_changed",self.on_scale_so_value_changed)

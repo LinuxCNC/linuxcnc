@@ -160,7 +160,7 @@
                 <property name="left_padding">2</property>
                 <property name="right_padding">2</property>
                 <child>
-                  <object class="GtkTable" id="table1">
+                  <object class="GtkTable" id="tbl_cutting">
                     <property name="visible">True</property>
                     <property name="n_rows">6</property>
                     <property name="n_columns">2</property>

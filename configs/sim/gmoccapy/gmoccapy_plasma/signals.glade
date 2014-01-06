@@ -28,11 +28,8 @@
                       <object class="GtkLabel" id="lbl_flood_switch">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Float Switch</property>
+                        <property name="label" translatable="yes">Float Sw</property>
                         <property name="width_chars">8</property>
-                        <attributes>
-                          <attribute name="style" value="normal"/>
-                        </attributes>
                       </object>
                       <packing>
                         <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
@@ -41,9 +38,9 @@
                     <child>
                       <object class="HAL_LED" id="led_TorchOn">
                         <property name="visible">True</property>
-                        <property name="led_size">5</property>
                         <property name="pick_color_off">#7d7d7d7d7d7d</property>
                         <property name="pick_color_on">#ffffffff0000</property>
+                        <property name="led_size">5</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -70,9 +67,9 @@
                     <child>
                       <object class="HAL_LED" id="led_FloatSwitch">
                         <property name="visible">True</property>
-                        <property name="led_size">5</property>
                         <property name="pick_color_off">#7d7d7d7d7d7d</property>
-                        <property name="pick_color_on">#00000000ffff</property>
+                        <property name="pick_color_on">#ffffffff0000</property>
+                        <property name="led_size">5</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -97,9 +94,9 @@
                     <child>
                       <object class="HAL_LED" id="led_ArcOK">
                         <property name="visible">True</property>
-                        <property name="led_size">5</property>
                         <property name="pick_color_off">#7d7d7d7d7d7d</property>
                         <property name="pick_color_on">#0000ffff0000</property>
+                        <property name="led_size">5</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -134,7 +131,7 @@
                       <object class="GtkLabel" id="lbl_move_up">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Move up</property>
+                        <property name="label" translatable="yes">Z up</property>
                       </object>
                       <packing>
                         <property name="y_options">GTK_EXPAND | GTK_SHRINK</property>
@@ -145,7 +142,7 @@
                       <object class="GtkLabel" id="lbl_move_down">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Move down</property>
+                        <property name="label" translatable="yes">Z down</property>
                       </object>
                       <packing>
                         <property name="top_attach">1</property>
@@ -157,9 +154,9 @@
                     <child>
                       <object class="HAL_LED" id="led_MoveUp">
                         <property name="visible">True</property>
-                        <property name="led_size">5</property>
                         <property name="pick_color_off">#7d7d7d7d7d7d</property>
                         <property name="pick_color_on">#0000ffff0000</property>
+                        <property name="led_size">5</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -171,9 +168,9 @@
                     <child>
                       <object class="HAL_LED" id="led_MoveDown">
                         <property name="visible">True</property>
-                        <property name="led_size">5</property>
                         <property name="pick_color_off">#7d7d7d7d7d7d</property>
                         <property name="pick_color_on">#0000ffff0000</property>
+                        <property name="led_size">5</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -188,7 +185,7 @@
                       <object class="GtkLabel" id="lbl_height_lock">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Height locked</property>
+                        <property name="label" translatable="yes">Cnr lock</property>
                       </object>
                       <packing>
                         <property name="top_attach">2</property>
@@ -200,9 +197,9 @@
                     <child>
                       <object class="HAL_LED" id="led_HeightLock">
                         <property name="visible">True</property>
-                        <property name="led_size">5</property>
                         <property name="pick_color_off">#7d7d7d7d7d7d</property>
                         <property name="pick_color_on">#0000ffff0000</property>
+                        <property name="led_size">5</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>

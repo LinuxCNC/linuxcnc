@@ -18,7 +18,7 @@
 #         reduce subroutine parm name lengths and/or comment string length
 
 #------------------------------------------------------------------------------
-# Copyright: 2013
+# Copyright: 2013-4
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -3018,7 +3018,7 @@ class SaveSection():
             calltxt = calltxt + '[%s]' % value
             # these appear only for not-expandsub
             tmpsdata.append("(%11s = %12s = %12s)\n" % (
-                              '#'+str(idx),name,dvalue))
+                              '#'+str(idx),name,value))
         if emsg:
             user_message(mtype=gtk.MESSAGE_ERROR
                         ,title=_('SaveSection Error')

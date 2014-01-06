@@ -473,11 +473,15 @@ label your panel.
    <<gladevcp:HAL_Bars,HAL_HBar and HAL_VBar>>, <<gladevcp:HAL_Meter,HAL_Meter>>
  - Widgets for controlling "number" signals: <<gladevcp:HAL_SpinButton,HAL_SpinButton>>,
    <<gladevcp:HAL_Scales,HAL_HScale and HAL_VScale>>, <<gladevcp:JogWheel, Jog Wheel>>
- - Helper widgets: <<gladevcp:HAL_HBox_Table,HAL_HBox and HAL_Table>>
+ - Sensitive control widgets: <<gladevcp:HAL_Table, State_Sensitive_Table HAL_Table and HAL_HBox>>
  - Tool Path preview: <<gladevcp:HAL_Gremlin,HAL_Gremlin>>
  - Widgets to show axis positions: <<gladevcp::DRO_widget, DRO Widget>>,
    <<gladevcp::Combi_DRO, Combi DRO Widget>>
  - Widgets for file handling: <<gladevcp::IconView, IconView File Selection>>
+ - Widgets for display/edit of all axes offsets: <<gladevcp::Offsetpage, OffsetPage >>
+ - Widgets for display/edit of all tool offsets: <<gladevcp::tooledit, Tooloffset editor >>
+ - Widget for Gcode display and edit: <<gladevcp::HAL_sourceview, HAL_Sourceview >>
+ - widget for MDI input and history display: <<gladevcp:MDI_History, MDI History >>
 
 === Widget and HAL pin naming
 
@@ -642,17 +646,29 @@ see above.
 Example SpinButton:
 image:images/spinbutton.png[]
 .
-
 [[gladevcp:JogWheel]]
 === Jog Wheel
 
-The jogwheel widget simulates a real jogwheel and it exports it's count value as
+The jogwheel widget simulates a real jogwheel. +
+It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the JogWheel widget, +
+or you push the left mouse button and move the cursor in circular direction to increase or degrease the counts. +
+
+ * Counterclockwise = reduce counts
+ * Clockwise        = increase counts
+ * Wheel up         = increase counts
+ * Wheel down       = reduce counts
+
+As moving the mouse the drag and drob way may be faster than the widget can update itself, you may loose counts turning to fast.
+It is recommended to use the mouse wheel, and only for very rough movements the drag and drob way.
+====
+JogWheel exports it's count value as hal pin:
 
 <widgetname>-s::
 	 out S32 pin
+====
 
 It has the following properties:
-
+=====
 size::
     Sets the size in pixel of the widget, allowed values are in the range of 100 to 500
     default = 200
@@ -661,9 +677,12 @@ cpr::
     default = 40
 show_counts::
     Set this to False, if you want to hide the counts display in the middle of the widget.
+label::
+    Set the content of the label witch may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
+=====
 
 Direct program control::
-
+======
     There a couple ways to directly control the widget using Python.
 
     Using goobject to set the above listed properties:
@@ -674,11 +693,12 @@ Direct program control::
     There are two python methods:
         [widget name].get_value()
         Will return the counts value as integer
-
+        [widget name].set_label("string")
+        Sets the label content with "string"
+======  
 Example JogWheel:
 
 image::images/JogWheel.png[]
-
 
 [[gladevcp:HAL_Label]]
 === Label
@@ -699,23 +719,30 @@ text_template::
 	Example: +Distance: %.03f+ will display the text and the pin value with
 	3 fractional digits padded with zeros for a FLOAT pin.
 
-[[gladevcp:HAL_HBox_Table]]
-=== Containers: HAL_HBox and HAL_Table
-
-Compared to their Gtk counterparts they have one input BIT pin which
-controls if their child widgets are sensitive or not. If the pin is low
-then child widgets are inactive which is the default.
+[[gladevcp:HAL_Table]]
+=== Containers: HAL_Table State_Sensitive_Table and HAL_HBox *
+These containers are meant to be used to sensitize (grey out) their children. +
+Insensitived children will not respond to input. +
+HAL_Table and HAL_Hbox have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
+If the pin is low then child widgets are inactive which is the default state. +
+State_Sensitive_table responds to the state to linuxcnc's interpreter. +
+optionally selectable to respond to 'must-be-all-homed','must-be-on' and 'must-be-idle' +
+You can combine them. It will always be insensitive at Estop. +
+ +
+* HAL_Hbox is depreceiated - use HAL_Table. +
+If current panels use it it won't fail. You just won't find it in the GLADE editor anymore. +
+Future vesions of gladeVCP may remove this widget completely and then you will need to update the panel. +
 
 [TIP]
 If you find some part of your GladeVCP application is 'grayed
-out' (insensitive), see whether a container's pin is unset.
+out' (insensitive), see whether a HAL_Table pin is unset or unconnected.
 
 [[gladevcp:HAL_LED]]
 === LED
 
-The hal_led simulates a real indicator LED. It has a single input BIT
-pin which controls it's state: ON or OFF. LEDs have several properties
-which control their look and feel:
+The hal_led simulates a real indicator LED. +
+It has a single input BIT pin which controls it's state: ON or OFF. +
+LEDs have several properties which control their look and feel: +
 
 on_color::
    a String defining ON color of LED. May be any valid
@@ -921,6 +948,9 @@ z0_border, z1_border::
 Example HAL Meters:
 image:images/hal_meter.png[]
 .
+=== HAL_Graph
+
+This widget is for plotting values over time.
 
 [[gladevcp:HAL_Gremlin]]
 === Gremlin tool path preview for .ngc files
@@ -1020,6 +1050,23 @@ Hints::
     
 Example:
 image:images/gremlin.png[]
+
+[[gladevcp::HAL_Offset]]
+=== HAL_Offset
+The HAL_Offset widget is used to display the offset of a single axis.
+It has the following properties:
+
+Joint Number::
+    Used to select which axis (technically which joint) is displayed.
+    On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+
+    0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+Text template for metric units::
+    You can use python formatting to display the position with different precision.
+Text template for imperial units::
+    You can use python formatting to display the position with different precision.
+Reference Type::
+    0:G5x 1:tool 2:G92 3:Rotation around Z
 
 [[gladevcp::DRO_widget]]
 === DRO widget
@@ -1336,8 +1383,8 @@ image::images/iconview.png[]
 
 === Calculator widget
 
-This is a simple calculator widget, that can be used for numerical input.
-You can preset the display and retrieve the result or that preset value.
+This is a simple calculator widget, that can be used for numerical input. +
+You can preset the display and retrieve the result or that preset value. +
 It has the following properties:
 
 Is editable::
@@ -1354,42 +1401,155 @@ Direct program control::
         [widget name].set_property("font","sans 25")
 
     There are python methods:
-       [widget name].set_value(2.5)         -This presets the display and is recorded.
+       [widget name].set_value(2.5)
+            This presets the display and is recorded.
        [widget name].set_font("sans 25")
        [widget name].set_editable(True)
-       [widget name].get_value()            -Returns a float.
+       [widget name].get_value()
+            Returns the calculated value - a float.
        [widget name].set_editable(True)
-       [widget name].get_preset_value()     -Returns the recorded value: a float.
+       [widget name].get_preset_value()
+            Returns the recorded value: a float.
 
+[[gladevcp::tooledit]]
 === Tooleditor widget
 
-This is a tooleditor widget for displaying and modifying a tool editor file.
-It checks the current file once a second to see if linuxcnc updated it.
+This is a tooleditor widget for displaying and modifying a tool editor file. +
+It checks the current file once a second to see if linuxcnc updated it. +
 It has the following properties:
 
 Hidden Columns::
-    This will hide the given columns: The columns are designated (in order) as such:
-    s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,;
-    You can hide any number of columns including the select and comments
+    This will hide the given columns: The columns are designated (in order) as such: +
+    s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,; +
+    You can hide any number of columns including the select and comments +
 Direct program control::
 
     There a couple ways to directly control the widget using Python.
 
     using goobject to set the above listed properties:
-        [widget name].set_properties('hide_columns','uvwijq')   -This would hide the uvwij and q columns and show all others.
+        [widget name].set_properties('hide_columns','uvwijq')
+            This would hide the uvwij and q columns and show all others.
 
     There are python methods:
-        [widget name].set_visible("ijq",False)                  -Would hide ij and Q columns and leave the rest as they were.
-        [widget name].set_filename(path_to_file)                -Sets and loads the tool file.
-        [widget name].reload(None)                              -Reloads the current toolfile
+        [widget name].set_visible("ijq",False)
+            Would hide ij and Q columns and leave the rest as they were.
+        [widget name].set_filename(path_to_file)
+            Sets and loads the tool file.
+        [widget name].reload(None)
+            Reloads the current toolfile
 
-=== Sourceview widget
+image::images/gtk-tooledit.png[]
 
-This is for displaying and simple editing of Gcode.
+[[gladevcp::Offsetpage]]
+=== Offsetpage
 
+The Offsetpage widget is used to display/edit the offsets of all the axes. +
+It has convience buttons for zeroing G92 and Rotation-Around-Z offsets. +
+It will only allow you to select the edit mode when the machine is on and idle. +
+You can directly edit the offsets in the table at this time. Unselect the edit +
+button to allow the OffsetPage to reflect changes.
+
+It has the following properties:
+
+Hidden Columns::
+    A no-space list of columns to hide: The columns are designated (in order) as such: +
+    xyzabcuvwt +
+    You can hide any of the columns.
+Hidden Rows::
+    A no-space list of rows to hide: the rows are designated (in order) as such +
+    0123456789abc +
+    You can hide any of the rows.
+Pango Font::
+    Sets text font type and size
+HighLight color::
+    when editing this is the high light color
+Active color::
+    when OffsetPage detects an active user coordinate system it will use this +
+    color for the text
+Text template for metric units::
+    You can use python formatting to display the position with different precision.
+Text template for imperial units::
+    You can use python formatting to display the position with different precision.
+
+Direct program control::
+
+    There a couple ways to directly control the widget using Python.
+
+    Using goobject to set the above listed properties:
+    [widget name].set_property("highlight_color",gtk.gdk.Color('blue'))
+    [widget name].set_property("foreground_color",gtk.gdk.Color('black'))
+    [widget name].set_property("hide_columns","xyzabcuvwt")
+    [widget name].set_property("hide_rows","123456789abc")
+    [widget name].set_property("font","sans 25")
+
+    There are python methods to control the widget:
+    [widget name].set_filename("../../../configs/sim/gscreen_custom/sim.var")
+    [widget name].set_col_visible("Yabuvw",False)
+    [widget name].set_row_visible("456789abc",False)
+    [widget name].set_to_mm()
+    [widget name].set_to_inch()
+    [widget name].hide_button_box(True)
+    [widget name].set_font("sans 20")
+    [widget name].set_highlight_color("violet")
+    [widget name].set_foreground_color("yellow")
+    [widget name].mark_active("G55")
+        Allows you to directly set a row to highlight.
+        (eg in case you wish to use your own navigation controls. See Gmoccapy 
+    [widget name].selection_mask = ("Tool","Rot","G5x")
+        These rows are NOT selectable in edit mode.
+    [widget name].set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])
+        This allows you to set the text of the 'T' column of each/any row.
+        This is a list of a list of offset-name/user-name pairs.
+        The default text is the same as the offset name.
+    [widget name].get_names()
+        This returns a list of a list of row-keyword/user-name pairs.
+        The user name column is editable, so saving this list is user friendly.
+        see set_names above.
+
+image::images/offsetpage.png[]
+
+[[gladevcp::HAL_sourceview]]
+=== HAL_sourceview widget
+
+This is for displaying and simple editing of Gcode. +
+It looks for .ngc highlight specs in ~/share/gtksourceview-2.0/language-specs/
+The current running line will be highlighted. +
+With external python glue code: +
+    *It can search for text, undo and redo changes. +
+    *It can be used for program line selection. +
+
+
+Direct program control::
+
+    There are python methods to control the widget:
+
+    [widget name].redo()
+        redo one level of changes.
+    [widget name].undo()
+        undo one level of changes
+    [widget name].text_search(direction=True,mixed_case=True,text='G92')
+        Searches forward (direction = True) or back, +
+        Searches with mixed case (mixed_case = True) or exact match
+    [widget name].set_line_number(linenumber)
+        Sets the line to high light. Uses the sourceview line numbers.
+    [widget name].get_line_number()
+        returns the currenly high lighted line.
+    [widget name].line_up()
+        Moves the High lighted line up one line
+    [widget name].line_down()
+        Moves the High lighted line down one line
+    [widget name].load_file('filename')
+        loads a file. Using None (not a filename string) will reload the same program.
+    [widget name].get_filename()
+
+image::images/hal_sourceview.png[]
+
+[[gladevcp:MDI_History]]
 === MDI history
 
-This is for displaying and entering MDI codes.
+This is for displaying and entering MDI codes. +
+It will automatically grey out when MDI is not available. +
+Eg during Estop and program running.
 
 === Animated function diagrams: HAL widgets in a bitmap
 

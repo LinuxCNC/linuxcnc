@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-12-08 18:53+0100\n"
+"POT-Creation-Date: 2013-12-31 15:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,364 +55,357 @@ msgstr ""
 msgid "Continuous"
 msgstr ""
 
-#: gmoccapy_handler.py:630
+#: gmoccapy_handler.py:646
 msgid ""
 "Error with launching 'Onboard' on-screen keyboard program, is onboard "
 "installed?"
 msgstr ""
 
-#: gmoccapy_handler.py:813
+#: gmoccapy_handler.py:829
 #, python-format
 msgid "Halo, welcome to the test message %d"
 msgstr ""
 
-#: gmoccapy_handler.py:1003
+#: gmoccapy_handler.py:1019
 msgid "no more than 9 macros are allowed, only the first 9 will be used"
 msgstr ""
 
-#: gmoccapy_handler.py:1040
+#: gmoccapy_handler.py:1056
 msgid "No subroutine folder or program prefix is given in the ini file \n"
 msgstr ""
 
-#: gmoccapy_handler.py:1041
+#: gmoccapy_handler.py:1057
 msgid "so the corresponding file could not be found"
 msgstr ""
 
-#: gmoccapy_handler.py:1042 gmoccapy_handler.py:1050
+#: gmoccapy_handler.py:1058 gmoccapy_handler.py:1066
 msgid "Important Warning"
 msgstr ""
 
-#: gmoccapy_handler.py:1048
+#: gmoccapy_handler.py:1064
 #, python-format
 msgid "File %s of the macro could not be found\n"
 msgstr ""
 
-#: gmoccapy_handler.py:1049
+#: gmoccapy_handler.py:1065
 #, python-format
 msgid "we searched in subdirectory %s"
 msgstr ""
 
-#: gmoccapy_handler.py:1056
+#: gmoccapy_handler.py:1072
 msgid "Enter value:"
 msgstr ""
 
-#: gmoccapy_handler.py:1057
+#: gmoccapy_handler.py:1073
 #, python-format
 msgid "Set parameter %s to:"
 msgstr ""
 
-#: gmoccapy_handler.py:1059
+#: gmoccapy_handler.py:1075
 msgid "conversion error"
 msgstr ""
 
-#: gmoccapy_handler.py:1060
+#: gmoccapy_handler.py:1076
 #, python-format
 msgid "Conversion error because off wrong entry for macro %s"
 msgstr ""
 
-#: gmoccapy_handler.py:1062 gmoccapy_handler.py:2190 gmoccapy_handler.py:2210
+#: gmoccapy_handler.py:1078 gmoccapy_handler.py:2250 gmoccapy_handler.py:2269
 msgid "Conversion error !"
 msgstr ""
 
-#: gmoccapy_handler.py:1063 gmoccapy_handler.py:1806
+#: gmoccapy_handler.py:1079 gmoccapy_handler.py:1851
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
 msgstr ""
 
-#: gmoccapy_handler.py:1066
+#: gmoccapy_handler.py:1082
 #, python-format
 msgid "entry for macro %s has been canceled"
 msgstr ""
 
-#: gmoccapy_handler.py:1069
+#: gmoccapy_handler.py:1085
 msgid "macro {0} , parameter {1} set to {2:f}"
 msgstr ""
 
-#: gmoccapy_handler.py:1081
+#: gmoccapy_handler.py:1097
 msgid "interrupt running macro"
 msgstr ""
 
-#: gmoccapy_handler.py:1250
+#: gmoccapy_handler.py:1276
 msgid "Hal Pin is low, Access denied"
 msgstr ""
 
-#: gmoccapy_handler.py:1252
+#: gmoccapy_handler.py:1278
 msgid "wrong code entered, Access denied"
 msgstr ""
 
-#: gmoccapy_handler.py:1253
+#: gmoccapy_handler.py:1279
 msgid "Just to warn you"
 msgstr ""
 
-#: gmoccapy_handler.py:1265 gmoccapy_handler.py:1270
+#: gmoccapy_handler.py:1310 gmoccapy_handler.py:1315
 msgid "Enter System Unlock Code"
 msgstr ""
 
-#: gmoccapy_handler.py:1375
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1225
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1233
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1236
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1246
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1249
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1255
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1547
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1720
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2963
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2966
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3010
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3030
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3033
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3103
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3106
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3113
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3116
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3125
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3136
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3142
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3145
+#: gmoccapy_handler.py:1420 gmoccapy_handler.py:2162
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1264
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1272
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1275
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1285
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1288
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1294
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1589
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1762
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3024
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3027
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3071
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3091
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3094
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3164
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3167
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3174
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3177
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3186
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3197
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3203
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3206
 msgid "INFO:"
 msgstr ""
 
-#: gmoccapy_handler.py:1376
+#: gmoccapy_handler.py:1421
 msgid "Classicladder real-time component not detected"
 msgstr ""
 
-#: gmoccapy_handler.py:1377
+#: gmoccapy_handler.py:1422
 msgid "ladder not available - is the real-time component loaded?"
 msgstr ""
 
-#: gmoccapy_handler.py:1404
+#: gmoccapy_handler.py:1449
 msgid "Something went wrong, we have an unknown widget"
 msgstr ""
 
-#: gmoccapy_handler.py:1627
+#: gmoccapy_handler.py:1672
 msgid "Do you really want to delete the MDI history?\n"
 msgstr ""
 
-#: gmoccapy_handler.py:1628
+#: gmoccapy_handler.py:1673
 msgid "this will not delete the MDI History file, but will\n"
 msgstr ""
 
-#: gmoccapy_handler.py:1629
+#: gmoccapy_handler.py:1674
 msgid "delete the listbox entries for this session"
 msgstr ""
 
-#: gmoccapy_handler.py:1630
+#: gmoccapy_handler.py:1675
 msgid "Attention!!"
 msgstr ""
 
-#: gmoccapy_handler.py:1635
+#: gmoccapy_handler.py:1680
 msgid "Question"
 msgstr ""
 
-#: gmoccapy_handler.py:1635
+#: gmoccapy_handler.py:1680
 msgid "Please decide:"
 msgstr ""
 
-#: gmoccapy_handler.py:1673
+#: gmoccapy_handler.py:1718
 msgid "This button will show or hide the keyboard"
 msgstr ""
 
-#: gmoccapy_handler.py:1787
+#: gmoccapy_handler.py:1832
 #, python-format
 msgid "Offset %s could not be set, because off unknown axis"
 msgstr ""
 
-#: gmoccapy_handler.py:1791
+#: gmoccapy_handler.py:1836
 #, python-format
 msgid "Enter value for axis %s"
 msgstr ""
 
-#: gmoccapy_handler.py:1792
+#: gmoccapy_handler.py:1837
 #, python-format
 msgid "Set axis %s to:"
 msgstr ""
 
-#: gmoccapy_handler.py:1796
+#: gmoccapy_handler.py:1841
 msgid "offset {0} set to {1:f}"
 msgstr ""
 
-#: gmoccapy_handler.py:1803
+#: gmoccapy_handler.py:1848
 msgid "Conversion error in btn_set_value"
 msgstr ""
 
-#: gmoccapy_handler.py:1804
+#: gmoccapy_handler.py:1849
 msgid "Offset conversion error because off wrong entry"
 msgstr ""
 
-#: gmoccapy_handler.py:1805
+#: gmoccapy_handler.py:1850
 msgid "Conversion error in btn_set_value!"
 msgstr ""
 
-#: gmoccapy_handler.py:1812
+#: gmoccapy_handler.py:1857
 msgid ""
 "you did not selected a system to be changed to, so nothing will be changed"
 msgstr ""
 
-#: gmoccapy_handler.py:1813 gmoccapy_handler.py:2218 gmoccapy_handler.py:2232
-#: gmoccapy_handler.py:2237 gmoccapy_handler.py:2253
+#: gmoccapy_handler.py:1858 gmoccapy_handler.py:2277 gmoccapy_handler.py:2291
+#: gmoccapy_handler.py:2296 gmoccapy_handler.py:2312
 msgid "Important Warning!"
 msgstr ""
 
-#: gmoccapy_handler.py:1823
+#: gmoccapy_handler.py:1868
 msgid "Enter value"
 msgstr ""
 
-#: gmoccapy_handler.py:1823
+#: gmoccapy_handler.py:1868
 msgid "Enter the value to set"
 msgstr ""
 
-#: gmoccapy_handler.py:2134 gmoccapy.glade.h:94
+#: gmoccapy_handler.py:2161
+msgid ""
+"Please change to tool\n"
+"\n"
+"# {0:d}     {1}\n"
+"\n"
+" then click OK."
+msgstr ""
+
+#: gmoccapy_handler.py:2194 gmoccapy.glade.h:94
 msgid "No tool description available"
 msgstr ""
 
-#: gmoccapy_handler.py:2169
+#: gmoccapy_handler.py:2229
 msgid "Real big error!"
 msgstr ""
 
-#: gmoccapy_handler.py:2170
+#: gmoccapy_handler.py:2230
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 
-#: gmoccapy_handler.py:2174
+#: gmoccapy_handler.py:2234
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
 
-#: gmoccapy_handler.py:2175
+#: gmoccapy_handler.py:2235
 msgid "Please emit an G40 before tool touch off"
 msgstr ""
 
-#: gmoccapy_handler.py:2178
+#: gmoccapy_handler.py:2238
 msgid "Warning Tool Touch off not possible!"
 msgstr ""
 
-#: gmoccapy_handler.py:2182
+#: gmoccapy_handler.py:2242
 #, python-format
 msgid "Enter value for axis %s to set:"
 msgstr ""
 
-#: gmoccapy_handler.py:2183
+#: gmoccapy_handler.py:2243
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr ""
 
-#: gmoccapy_handler.py:2187
+#: gmoccapy_handler.py:2247
 #, python-format
 msgid "Conversion error because of wrong entry for touch off axis %s"
 msgstr ""
 
-#: gmoccapy_handler.py:2193
+#: gmoccapy_handler.py:2253
 #, python-format
 msgid "entry for axis %s has been canceled"
 msgstr ""
 
-#: gmoccapy_handler.py:2196
+#: gmoccapy_handler.py:2256
 msgid "axis {0} , has been set to {1:f}"
 msgstr ""
 
-#: gmoccapy_handler.py:2203
+#: gmoccapy_handler.py:2262
 msgid "Enter the tool number as integer "
 msgstr ""
 
-#: gmoccapy_handler.py:2204
+#: gmoccapy_handler.py:2263
 msgid "Select the tool to change"
 msgstr ""
 
-#: gmoccapy_handler.py:2206
+#: gmoccapy_handler.py:2265
 msgid "Conversion error because of wrong entry for tool number\n"
 msgstr ""
 
-#: gmoccapy_handler.py:2207
+#: gmoccapy_handler.py:2266
 msgid "enter only integer nummbers"
 msgstr ""
 
-#: gmoccapy_handler.py:2213
+#: gmoccapy_handler.py:2272
 msgid "entry for selection of tool number has been canceled"
 msgstr ""
 
-#: gmoccapy_handler.py:2217 gmoccapy_handler.py:2236
+#: gmoccapy_handler.py:2276 gmoccapy_handler.py:2295
 msgid "Selected tool is already in spindle, no change needed."
 msgstr ""
 
-#: gmoccapy_handler.py:2231
+#: gmoccapy_handler.py:2290
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
 
-#: gmoccapy_handler.py:2252
+#: gmoccapy_handler.py:2311
 msgid "Could not understand the entered tool number. Will not change anything"
 msgstr ""
 
-#: gmoccapy_handler.py:2360
+#: gmoccapy_handler.py:2419
 #, python-format
 msgid "error trying opening file %s"
 msgstr ""
 
-#: gmoccapy_handler.py:2489
+#: gmoccapy_handler.py:2548
 #, python-format
 msgid "Axis %s are homed"
 msgstr ""
 
-#: gmoccapy_handler.py:2560
+#: gmoccapy_handler.py:2620
 #, python-format
 msgid "tool_in_spindle has changed to %s"
 msgstr ""
 
-#: gmoccapy_handler.py:2662
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3204
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3287
+#: gmoccapy_handler.py:2748
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3265
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3348
 msgid "Error Message"
 msgstr ""
 
-#: gmoccapy_handler.py:2665 gmoccapy_handler.py:2668
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3289
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3291
+#: gmoccapy_handler.py:2751 gmoccapy_handler.py:2754
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3350
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3352
 msgid "Message"
 msgstr ""
 
-#: gmoccapy_handler.py:2718
+#: gmoccapy_handler.py:2804
 msgid "Select the file you want to be loaded at program start"
 msgstr ""
 
-#: gmoccapy_handler.py:2965
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:570
+#: gmoccapy_handler.py:3051
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:579
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: gmoccapy_handler.py:2968
+#: gmoccapy_handler.py:3054
 msgid "To many increments given in INI File for this screen"
 msgstr ""
 
-#: gmoccapy_handler.py:2969
+#: gmoccapy_handler.py:3055
 msgid "Only the first 10 will be reachable through this screen"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:330
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:338
 #, python-format
 msgid "adding import dir %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:336
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:344
 #, python-format
 msgid "module '%s' imported OK"
-msgstr ""
-
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:433
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:452
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
-msgstr ""
-
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:438
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:457
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Using SKIN glade file from %s ****"
 msgstr ""
 
 #: ../../../../src/emc/usr_intf/gscreen/gscreen.py:441
@@ -420,342 +413,358 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
+"**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
+msgstr ""
+
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:446
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:465
+#, python-format
+msgid ""
+"\n"
+"**** GSCREEN INFO:  Using SKIN glade file from %s ****"
+msgstr ""
+
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:449
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:468
+#, python-format
+msgid ""
+"\n"
 "**** GSCREEN INFO:  using STOCK glade file from: %s ****"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:447
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:455
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With main screen xml file: %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:465
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:473
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:504
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:513
 msgid "No UNITS entry found in [TRAJ] or [AXIS_0] of INI file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:517
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:526
 msgid ""
 "*** Gscreen ERROR:    Asking for a HAL component using a name that already "
 "exists."
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:583
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:592
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:592
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:601
 #, python-format
 msgid ""
 "No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:603
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:612
 #, python-format
 msgid ""
 "No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:610
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:619
 msgid "No MAX_VELOCITY found in [TRAJ] of the INI file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:623
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:632
 #, python-format
 msgid ""
 "No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:634
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:643
 #, python-format
 msgid ""
 "No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:642
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:651
 msgid "No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:648
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:657
 msgid "No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:654
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:663
 msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:659
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:668
 msgid "This screen will be orientated for Lathe options"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:724
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:733
 msgid "CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:727
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:736
 msgid "CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:729
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:738
 #, python-format
 msgid "timeout %d"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:960
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:974
 msgid ""
 "**** WARNING GSCREEN: could not understand the window geometry info in "
 "hidden preference file"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1048
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1062
 msgid "Control powered up and initialized"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1198
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1237
 msgid "Cycle start pressed in AUTO mode"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1201
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1240
 msgid "Cycle start pressed in MDI mode"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1224
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1263
 #, python-format
 msgid "Please change to tool # %s, then click OK."
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1233
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1246
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1272
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1285
 msgid "Can't start spindle manually while MDI busy"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1236
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1249
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1275
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1288
 msgid "can't start spindle manually in Auto mode"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1255
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3010
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1294
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3071
 msgid "No direction selected for spindle"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1265
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1267
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1304
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1306
 msgid "Spindle Speed Preset Entry"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1296
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1301
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1335
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1340
 msgid "Manual Tool Index Entry"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1423
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1462
 msgid "Entry dialog"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1547
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1589
 msgid "Classicladder realtime component not detected"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1548
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1590
 msgid "ladder not available - is the realtime component loaded?"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1622
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1664
 msgid "Override Entry"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1650
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1692
 msgid "Machine powered on"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1655
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1697
 msgid "Machine Estopped!"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1658
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1700
 msgid "Calculator"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1788
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1830
 #, python-format
 msgid "Axes %s are homed"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1795
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1837
 msgid "All the axes have been homed"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1805
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1847
 #, python-format
 msgid "There are unhomed axes: %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1810
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1852
 #, python-format
 msgid "Program loaded: %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1896
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1950
 msgid "Manual Spindle Control"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1953
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2007
 msgid "Keyboard"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:1986
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2040
 msgid "Error with launching 'Onboard' on-screen keyboard program"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2134
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2188
 #, python-format
 msgid "**** GSCREEN INFO: Overriding internal signal call to %s"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2562
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2616
 msgid " Zero Origin"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2563
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2617
 msgid "Offset Origin"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2578
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2632
 msgid ""
 "**** Gscreen ERROR:    Invalid message configuration (missing text or type) "
 "in INI File [DISPLAY] section"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2580
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2634
 msgid ""
 "**** Gscreen ERROR:    Invalid message configuration (missing pinname) in "
 "INI File [DISPLAY] section"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2582
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2636
 msgid ""
 "**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in "
 "INI File [DISPLAY] section"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2586
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2640
 #, python-format
 msgid ""
 "**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2618
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2672
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2620
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2674
 msgid "Manual Toolchange"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2622
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2676
 msgid "Operator Message"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2652
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2656
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2710
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2714
 msgid "Restart Entry"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2665
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2723
 msgid "Up"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2667
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2725
 msgid "Enter"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2669
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2727
 msgid "Down"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2686
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2747
 #, python-format
-msgid "Restart program from line %d"
+msgid "Ready to Restart program from line %d"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2719
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2780
 msgid "Invalid embeded tab configuration"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2963
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3030
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3024
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3091
 msgid "Can't jog multiple axis"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:2966
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3027
 msgid "No axis selected to jog"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3033
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3094
 msgid "No axis selected to move"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3103
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3164
 msgid "Can't home multiple axis - select HOME ALL instead"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3106
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3167
 msgid "No axis selected to home"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3113
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3174
 msgid "Can't unhome multiple axis"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3116
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3177
 msgid "No axis selected to unhome"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3125
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3186
 msgid "No axis selected for origin zeroing"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3136
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3197
 msgid "No axis selected for origin touch-off"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3142
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3203
 msgid "Can't tool touch-off multiple axes"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3145
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3206
 msgid "No axis selected for tool touch-off"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3204
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3265
 #, python-format
 msgid "Tool editor error - is the %s editor available?"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3321
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3382
 #, python-format
 msgid "%d RPM"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3326
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3327
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3387
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3388
 msgid "Start"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3328
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3329
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3389
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3390
 msgid "Stop"
 msgstr ""
 
-#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3428
+#: ../../../../src/emc/usr_intf/gscreen/gscreen.py:3489
 msgid "Machine"
 msgstr ""
 
@@ -1542,291 +1551,287 @@ msgid "adjust max vel of machine"
 msgstr ""
 
 #: gmoccapy.glade.h:194
-msgid "adjust the jogging speed"
-msgstr ""
-
-#: gmoccapy.glade.h:195
 msgid ""
 "apply the changes you made, G43 will be excecuted only if it is active g-code"
 msgstr ""
 
-#: gmoccapy.glade.h:196
+#: gmoccapy.glade.h:195
 msgid "buttons to jog the different axis"
 msgstr ""
 
-#: gmoccapy.glade.h:197
+#: gmoccapy.glade.h:196
 msgid "change tool to the selected one"
 msgstr ""
 
-#: gmoccapy.glade.h:198
+#: gmoccapy.glade.h:197
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr ""
 
-#: gmoccapy.glade.h:199
+#: gmoccapy.glade.h:198
 msgid "clear plot"
 msgstr ""
 
-#: gmoccapy.glade.h:200
+#: gmoccapy.glade.h:199
 msgid "clear the edit field and make a new file"
 msgstr ""
 
-#: gmoccapy.glade.h:201
+#: gmoccapy.glade.h:200
 msgid "clear the statusbar messages"
 msgstr ""
 
-#: gmoccapy.glade.h:202
+#: gmoccapy.glade.h:201
 msgid ""
 "current\n"
 "   file"
 msgstr ""
 
-#: gmoccapy.glade.h:204
+#: gmoccapy.glade.h:203
 msgid "delete MDI"
 msgstr ""
 
-#: gmoccapy.glade.h:205
+#: gmoccapy.glade.h:204
 msgid "delete MDI history"
 msgstr ""
 
-#: gmoccapy.glade.h:206
+#: gmoccapy.glade.h:205
 msgid "delete selected tool or tools"
 msgstr ""
 
-#: gmoccapy.glade.h:207
+#: gmoccapy.glade.h:206
 msgid "enter MDI mode to launch g-code commands"
 msgstr ""
 
-#: gmoccapy.glade.h:208
+#: gmoccapy.glade.h:207
 msgid "enter auto mode to run programs"
 msgstr ""
 
-#: gmoccapy.glade.h:209
+#: gmoccapy.glade.h:208
 msgid "enter manual mode to jog axis by hand or touch off"
 msgstr ""
 
-#: gmoccapy.glade.h:210
+#: gmoccapy.glade.h:209
 msgid "enter the textr to search for"
 msgstr ""
 
-#: gmoccapy.glade.h:211
+#: gmoccapy.glade.h:210
 msgid "go back to main button list"
 msgstr ""
 
-#: gmoccapy.glade.h:212
+#: gmoccapy.glade.h:211
 msgid "hide cursor"
 msgstr ""
 
-#: gmoccapy.glade.h:213
+#: gmoccapy.glade.h:212
 msgid "home all axis"
 msgstr ""
 
-#: gmoccapy.glade.h:214
+#: gmoccapy.glade.h:213
 msgid "home x axis"
 msgstr ""
 
-#: gmoccapy.glade.h:215
+#: gmoccapy.glade.h:214
 msgid "home y axis"
 msgstr ""
 
-#: gmoccapy.glade.h:216
+#: gmoccapy.glade.h:215
 msgid "home z axis"
 msgstr ""
 
-#: gmoccapy.glade.h:217
+#: gmoccapy.glade.h:216
 msgid ""
 "ignore limits / turn on this if you need to move an axis which is in contact "
 "with the end switch"
 msgstr ""
 
-#: gmoccapy.glade.h:218
+#: gmoccapy.glade.h:217
 msgid "launch calibration"
 msgstr ""
 
-#: gmoccapy.glade.h:219
+#: gmoccapy.glade.h:218
 msgid "launch hal meter"
 msgstr ""
 
-#: gmoccapy.glade.h:220
+#: gmoccapy.glade.h:219
 msgid "launch hal scope"
 msgstr ""
 
-#: gmoccapy.glade.h:221
+#: gmoccapy.glade.h:220
 msgid "launch linuxcnc status"
 msgstr ""
 
-#: gmoccapy.glade.h:222
+#: gmoccapy.glade.h:221
 msgid "make the preview as large as possible"
 msgstr ""
 
-#: gmoccapy.glade.h:223
+#: gmoccapy.glade.h:222
 msgid "max."
 msgstr ""
 
-#: gmoccapy.glade.h:224
+#: gmoccapy.glade.h:223
 msgid "none"
 msgstr ""
 
-#: gmoccapy.glade.h:225
+#: gmoccapy.glade.h:224
 msgid "offset x"
 msgstr ""
 
-#: gmoccapy.glade.h:226
+#: gmoccapy.glade.h:225
 msgid "offset z"
 msgstr ""
 
-#: gmoccapy.glade.h:227
+#: gmoccapy.glade.h:226
 msgid "open homing button list"
 msgstr ""
 
-#: gmoccapy.glade.h:228
+#: gmoccapy.glade.h:227
 msgid "open touch off button list"
 msgstr ""
 
-#: gmoccapy.glade.h:229
+#: gmoccapy.glade.h:228
 msgid "opens the show hal tool"
 msgstr ""
 
-#: gmoccapy.glade.h:230
+#: gmoccapy.glade.h:229
 msgid "pause the running program"
 msgstr ""
 
-#: gmoccapy.glade.h:231
+#: gmoccapy.glade.h:230
 msgid "redo"
 msgstr ""
 
-#: gmoccapy.glade.h:232
+#: gmoccapy.glade.h:231
 msgid "reload tool table from file"
 msgstr ""
 
-#: gmoccapy.glade.h:234
+#: gmoccapy.glade.h:233
 msgid "reset feed override to 100 %"
 msgstr ""
 
-#: gmoccapy.glade.h:235
+#: gmoccapy.glade.h:234
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checed!"
 msgstr ""
 
-#: gmoccapy.glade.h:236
+#: gmoccapy.glade.h:235
 msgid "save the file with a new name"
 msgstr ""
 
-#: gmoccapy.glade.h:237
+#: gmoccapy.glade.h:236
 msgid "save the file with the original name"
 msgstr ""
 
-#: gmoccapy.glade.h:238
+#: gmoccapy.glade.h:237
 msgid "save the program reload it and run it"
 msgstr ""
 
-#: gmoccapy.glade.h:239
+#: gmoccapy.glade.h:238
 msgid ""
 "search\n"
 "  fwd"
 msgstr ""
 
-#: gmoccapy.glade.h:241
+#: gmoccapy.glade.h:240
 msgid ""
 "search\n"
 " back"
 msgstr ""
 
-#: gmoccapy.glade.h:243
+#: gmoccapy.glade.h:242
 msgid "select jog distance"
 msgstr ""
 
-#: gmoccapy.glade.h:244 ../../../../lib/python/gladevcp/iconview.py:167
+#: gmoccapy.glade.h:243 ../../../../lib/python/gladevcp/iconview.py:167
 msgid "select the highlighted file and return the path"
 msgstr ""
 
-#: gmoccapy.glade.h:245
+#: gmoccapy.glade.h:244
 msgid "set the selected coordinate system to be the active one"
 msgstr ""
 
-#: gmoccapy.glade.h:246
+#: gmoccapy.glade.h:245
 msgid "show offsets"
 msgstr ""
 
-#: gmoccapy.glade.h:247
+#: gmoccapy.glade.h:246
 msgid "show preview"
 msgstr ""
 
-#: gmoccapy.glade.h:248
+#: gmoccapy.glade.h:247
 msgid "show user tabs"
 msgstr ""
 
-#: gmoccapy.glade.h:249
+#: gmoccapy.glade.h:248
 msgid "shows the source of the loaded program"
 msgstr ""
 
-#: gmoccapy.glade.h:250
+#: gmoccapy.glade.h:249
 msgid "touch off X / set X to 0"
 msgstr ""
 
-#: gmoccapy.glade.h:251
+#: gmoccapy.glade.h:250
 msgid "touch off X / set X to an desired value"
 msgstr ""
 
-#: gmoccapy.glade.h:252
+#: gmoccapy.glade.h:251
 msgid "touch off Y / set Y to 0"
 msgstr ""
 
-#: gmoccapy.glade.h:253
+#: gmoccapy.glade.h:252
 msgid "touch off Y / set Y to an desired value"
 msgstr ""
 
-#: gmoccapy.glade.h:254
+#: gmoccapy.glade.h:253
 msgid "touch off Z / set Z to 0"
 msgstr ""
 
-#: gmoccapy.glade.h:255
+#: gmoccapy.glade.h:254
 msgid "touch off Z / set Z to an desired value"
 msgstr ""
 
-#: gmoccapy.glade.h:256
+#: gmoccapy.glade.h:255
 msgid "touch off the tool and set the value to the tool table"
 msgstr ""
 
-#: gmoccapy.glade.h:257
+#: gmoccapy.glade.h:256
 msgid ""
 "touchoff\n"
 "  tool x"
 msgstr ""
 
-#: gmoccapy.glade.h:259
+#: gmoccapy.glade.h:258
 msgid ""
 "touchoff\n"
 "  tool z"
 msgstr ""
 
-#: gmoccapy.glade.h:261
+#: gmoccapy.glade.h:260
 msgid "undo"
 msgstr ""
 
-#: gmoccapy.glade.h:262
+#: gmoccapy.glade.h:261
 msgid "view along the X axis from positive to negative"
 msgstr ""
 
-#: gmoccapy.glade.h:263
+#: gmoccapy.glade.h:262
 msgid "view along the Y axis from positive to negative"
 msgstr ""
 
-#: gmoccapy.glade.h:264
+#: gmoccapy.glade.h:263
 msgid ""
 "view along the Y axis from positive to negative as viewn for a back tool "
 "lathe"
 msgstr ""
 
-#: gmoccapy.glade.h:265
+#: gmoccapy.glade.h:264
 msgid "view along the Z axis from positive to negative"
 msgstr ""
 
-#: gmoccapy.glade.h:266
+#: gmoccapy.glade.h:265
 msgid "view perspective"
 msgstr ""
 
-#: gmoccapy.glade.h:267
+#: gmoccapy.glade.h:266
 msgid ""
 "zero\n"
 "G92"

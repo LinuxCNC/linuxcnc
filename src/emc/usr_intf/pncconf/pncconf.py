@@ -2973,6 +2973,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         # check for shared MPG 
         pinname = self.make_pinname(self.findsignal("select-mpg-a"))
         if pinname:
+            print "shared MPG", pinname
             ending = ""
             if "enc" in pinname: ending = ".count"
             print >>file, "# ---jogwheel signals to mesa encoder - shared MPG---"
