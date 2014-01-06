@@ -1137,7 +1137,8 @@ class StepconfApp:
             period = 100000
 
         self.halrun = halrun = os.popen("halrun -Is", "w")
-
+        if debug:
+            halrun.write("echo\n")
         axnum = "xyza".index(axis)
         step = axis + "step"
         dir = axis + "dir"
