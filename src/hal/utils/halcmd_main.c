@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     keep_going = 0;
     /* start parsing the command line, options first */
     while(1) {
-        c = getopt(argc, argv, "+RCfi:kqQsvVh");
+        c = getopt(argc, argv, "+RCfi:kqQsvVhe");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -134,6 +134,9 @@ int main(int argc, char **argv)
 	    case 'V':
 		/* -V = very verbose */
 		rtapi_set_msg_level(RTAPI_MSG_ALL);
+		break;
+	    case 'e':
+                echo_mode = 1;
 		break;
 	    case 'f':
                 filemode = 1;
@@ -243,6 +246,9 @@ int main(int argc, char **argv)
 	    halcmd_set_linenumber(linenumber++);
 	    /* remove comments, do var substitution, and tokenise */
 	    retval = halcmd_preprocess_line(raw_buf, tokens);
+        if(echo_mode) { 
+            halcmd_echo("%s\n", raw_buf);
+        }
 	    if (retval == 0) {
 		/* the "quit" command is not handled by parse_line() */
 		if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
@@ -347,6 +353,7 @@ static void print_help_general(int showR)
     printf("\nUsage:   halcmd [options] [cmd [args]]\n\n");
     printf("\n         halcmd [options] -f [filename]\n\n");
     printf("options:\n\n");
+    printf("  -e             echo the commands from stdin to stderr\n");
     printf("  -f [filename]  Read commands from 'filename', not command\n");
     printf("                 line.  If no filename, read from stdin.\n");
 #ifndef NO_INI
@@ -367,7 +374,7 @@ static void print_help_general(int showR)
     printf("commands:\n\n");
     printf("  loadrt, loadusr, waitusr, unload, lock, unlock, net, linkps, linksp,\n");
     printf("  unlinkp, newsig, delsig, setp, getp, ptype, sets, gets, stype,\n");
-    printf("  addf, delf, show, list, save, status, start, stop, source, quit, exit\n");
+    printf("  addf, delf, show, list, save, status, start, stop, source, echo, unecho, quit, exit\n");
     printf("  help           Lists all commands with short descriptions\n");
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
@@ -437,5 +444,13 @@ void halcmd_info(const char *format, ...) {
     fprintf(stdout, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
     va_start(ap, format);
     vfprintf(stdout, format, ap);
+    va_end(ap);
+}
+
+void halcmd_echo(const char *format, ...) {
+    va_list ap;
+    fprintf(stderr, "(%d)<echo>: ", halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
     va_end(ap);
 }

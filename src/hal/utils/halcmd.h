@@ -46,13 +46,14 @@ extern void halcmd_shutdown();
 extern int halcmd_parse_cmd(char * tokens[]);
 extern int halcmd_parse_line(char * line);
 extern void halcmd_shutdown(void);
-extern int prompt_mode, errorcount, halcmd_done;
+extern int prompt_mode, echo_mode, errorcount, halcmd_done;
 extern int halcmd_preprocess_line ( char *line, char **tokens);
 
 void halcmd_info(const char *format,...) __attribute__((format(printf,1,2)));
 void halcmd_output(const char *format,...) __attribute__((format(printf,1,2)));
 void halcmd_warning(const char *format,...) __attribute__((format(printf,1,2)));
 void halcmd_error(const char *format,...) __attribute__((format(printf,1,2)));
+void halcmd_echo(const char *format,...) __attribute__((format(printf,1,2)));
 
 void halcmd_set_filename(const char *new_filename);
 const char *halcmd_get_filename(void);
