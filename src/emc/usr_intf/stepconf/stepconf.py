@@ -28,8 +28,7 @@ import gtk
 import gtk.glade
 import sys
 import os
-import getopt
-#from optparse import Option, OptionParser
+from optparse import Option, OptionParser
 import hal
 import xml.dom.minidom
 import hashlib
@@ -1378,10 +1377,13 @@ class StepconfApp:
 
 # starting with 'stepconf -d' gives debug messages
 if __name__ == "__main__":
-    opts, args = getopt.getopt(sys.argv[1:], "d")
-    mode = False
-    for k, v in opts:
-        if k == "-d": mode = True
-    app = StepconfApp(dbgstate=mode)
+    usage = "usage: Stepconf -[options]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
+    (options, args) = parser.parse_args()
+    if options.debug:
+        app = StepconfApp(dbgstate=True)
+    else:
+        app = StepconfApp(False)
     gtk.main()
 
