@@ -249,9 +249,9 @@ class Data:
         self.period = 25000
 
         self.ioaddr = "0x378"
-        self.ioaddr2 = _("Enter")
+        self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
-        self.ioaddr3 = _("Enter")
+        self.ioaddr3 = "2"
         self.pp3_direction = 0 # output
         self.number_pports = 1
 
