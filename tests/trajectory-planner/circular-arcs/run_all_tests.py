@@ -17,7 +17,7 @@ def find_test_nc_files(testpath='nc_files'):
 
 """Run the test"""
 #Hack to make this wait while LCNC loads
-sleep(3)
+sleep(8)
 
 h = hal.component("python-ui")
 h.ready() # mark the component as 'ready'
@@ -45,13 +45,13 @@ test_files = find_test_nc_files(testpath)
 for f in test_files:
     if re.search('.ngc$',f):
         print "Loading program {0}".format(f)
-        sleep(.5)
+        sleep(1)
         e.set_mode(linuxcnc.MODE_AUTO)
-        sleep(.5)
+        sleep(1)
         e.open_program("{0}/{1}".format(testpath,f))
         sleep(1)
         e.run_full_program()
-        sleep(2)
+        sleep(1)
         res = e.wait_on_program()
         if res == False:
             print "Program {0} failed to complete!".format(f)
