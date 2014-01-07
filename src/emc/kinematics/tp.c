@@ -834,8 +834,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double disc_prev = 2.0 * L1 * K + pmSq(K);
     double d_prev = L1 + K - pmSqrt(disc_prev);
 
-    double disc_next = 2.0 * L2 * K + pmSq(K);
-    double d_next = L2 + K - pmSqrt(disc_next);
+    double L_remain = L1 - d_prev;
+    double d_next = (tc->target - L_remain) / 2.0;
 
     tp_debug_print(" prev length L1 = %f\n", L1);
     tp_debug_print(" next length L2 = %f\n", L2);
@@ -856,7 +856,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double R_geom = Ttheta * d_geom;
 
-    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n", d_geom, d_prev, d_next);
+    tp_debug_print("d_tol = %f, d_prev = %f, d_next = %f\n", d_tol, d_prev, d_next);
     tp_debug_print("R_geom = %f\n", R_geom);
 
     //Calculate limiting velocity due to radius and normal acceleration, and
