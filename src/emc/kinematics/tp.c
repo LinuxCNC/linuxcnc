@@ -1173,7 +1173,7 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 
     //If the corner is too tight, a circular arc would have zero radius. Fall
     //back to default blend.
-    const double min_angle = TP_ANGLE_EPSILON;
+    const double min_angle = TP_MIN_ARC_ANGLE;
     if ((PM_PI - omega) < min_angle ) {
         tp_debug_print("Corner angle omega = %f < min angle %f\n", omega, min_angle);
         return TP_ERR_FAIL;
@@ -1692,7 +1692,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         tcGetStartAccelUnitVector(nexttc, &v2);
         tpFindIntersectionAngle(&v1, &v2, &theta);
         /* Minimum value of cos(theta) to prevent numerical instability */
-        const double min_cos_theta = cos(PM_PI / 2.0 - TP_ANGLE_EPSILON);
+        const double min_cos_theta = cos(PM_PI / 2.0 - TP_MIN_ARC_ANGLE);
         if (cos(theta) > min_cos_theta) {
             tblend_vel = 2.0 * pmSqrt(acc_this * tc->tolerance / cos(theta));
             tc_debug_print("using tolerance, clipping blend vel at %f\n", tblend_vel);
