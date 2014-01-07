@@ -34,7 +34,7 @@
 #define TP_ACCEL_EPSILON 1e-3
 #define TP_VEL_EPSILON   1e-6
 #define TP_POS_EPSILON   1e-9
-#define TP_TIME_EPSILON 1e-7
+#define TP_TIME_EPSILON  1e-10
 #define TP_ANGLE_EPSILON 1e-6
 #define TP_MIN_ARC_ANGLE 1e-3
 #define TP_BIG_NUM 1e10
