@@ -41,15 +41,14 @@ e.set_mode(linuxcnc.MODE_AUTO)
 #HACK hard coded path,make this an argument / config?
 testpath = 'nc_files'
 test_files = find_test_nc_files(testpath)
-
+sleep(1)
 for f in test_files:
     if re.search('.ngc$',f):
         print "Loading program {0}".format(f)
-        sleep(1)
         e.set_mode(linuxcnc.MODE_AUTO)
-        sleep(1)
+        sleep(2)
         e.open_program("{0}/{1}".format(testpath,f))
-        sleep(1)
+        sleep(5)
         e.run_full_program()
         sleep(1)
         res = e.wait_on_program()
