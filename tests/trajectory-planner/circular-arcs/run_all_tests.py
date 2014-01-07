@@ -4,9 +4,9 @@
 import linuxcnc
 from linuxcnc_control import  LinuxcncControl
 import hal
+import sys
 
 from time import sleep
-import os
 
 from os import listdir
 from os.path import isfile, join
@@ -22,7 +22,8 @@ sleep(3)
 h = hal.component("python-ui")
 h.ready() # mark the component as 'ready'
 
-os.system("halcmd source ./postgui.hal")
+#Don't need this with axis?
+#os.system("halcmd source ./postgui.hal")
 
 #
 # connect to LinuxCNC
@@ -37,20 +38,26 @@ e.do_home(-1)
 sleep(1)
 e.set_mode(linuxcnc.MODE_AUTO)
 
-testpath = 'nc_files'
+#HACK hard coded path,make this an argument / config?
+testpath = 'external_nc_files/batch'
 test_files = find_test_nc_files(testpath)
 
 for f in test_files:
     if re.search('.ngc$',f):
-        print "Loading program {}".format(f)
+        print "Loading program {0}".format(f)
         sleep(.5)
         e.set_mode(linuxcnc.MODE_AUTO)
         sleep(.5)
-        e.open_program("{}/{}".format(testpath,f))
+        e.open_program("{0}/{1}".format(testpath,f))
         sleep(1)
         e.run_full_program()
         sleep(2)
-        e.wait_on_program()
-        #Wait on program completion for some reason
-        sleep(2)
+        res = e.wait_on_program()
+        if res == False:
+            print "Program {0} failed to complete!".format(f)
+            sys.exit(1)
+        else:
+            #Wait on program completion for some reason
+            sleep(2)
 
+print "All tests completed!"

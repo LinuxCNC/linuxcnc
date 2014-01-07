@@ -31,18 +31,21 @@ net acc-ok-z <= wcomp_zacc.out
 net vel-ok-z <= wcomp_zvel.out
 
 #FIXME hard coded acceleration bounds
-setp wcomp_xacc.max 30.0015
-setp wcomp_xacc.min -30.0015
-setp wcomp_xvel.max 8.339
-setp wcomp_xvel.min -8.339
-setp wcomp_yacc.max 30.0015
-setp wcomp_yacc.min -30.0015
-setp wcomp_yvel.max 8.339
-setp wcomp_yvel.min -8.339
-setp wcomp_zacc.max 30.0015
-setp wcomp_zacc.min -30.0015
-setp wcomp_zvel.max 8.339
-setp wcomp_zvel.min -8.339
+set constraint_bound 1.0001
+setp wcomp_xacc.max $::AXIS_0(MAX_ACCELERATION)*$constraint_bound
+setp wcomp_xacc.min $::AXIS_0(MAX_ACCELERATION)*-1.0*$constraint_bound
+setp wcomp_xvel.max $::AXIS_0(MAX_VELOCITY)*$constraint_bound
+setp wcomp_xvel.min $::AXIS_0(MAX_VELOCITY)*-1.0*$constraint_bound
+
+setp wcomp_yacc.max $::AXIS_1(MAX_ACCELERATION)*$constraint_bound
+setp wcomp_yacc.min $::AXIS_1(MAX_ACCELERATION)*-1.0*$constraint_bound
+setp wcomp_yvel.max $::AXIS_1(MAX_VELOCITY)*$constraint_bound
+setp wcomp_yvel.min $::AXIS_1(MAX_VELOCITY)*-1.0*$constraint_bound
+
+setp wcomp_zacc.max $::AXIS_2(MAX_ACCELERATION)*$constraint_bound
+setp wcomp_zacc.min $::AXIS_2(MAX_ACCELERATION)*-1.0*$constraint_bound
+setp wcomp_zvel.max $::AXIS_2(MAX_VELOCITY)*$constraint_bound
+setp wcomp_zvel.min $::AXIS_2(MAX_VELOCITY)*-1.0*$constraint_bound
 
 loadrt match8 names=match_all
 
