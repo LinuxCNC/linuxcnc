@@ -39,7 +39,7 @@ sleep(1)
 e.set_mode(linuxcnc.MODE_AUTO)
 
 #HACK hard coded path,make this an argument / config?
-testpath = 'external_nc_files/batch'
+testpath = 'nc_files'
 test_files = find_test_nc_files(testpath)
 
 for f in test_files:
