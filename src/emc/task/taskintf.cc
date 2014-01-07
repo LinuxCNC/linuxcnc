@@ -1544,13 +1544,15 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
-        double arcBlendSmoothingThreshold) {
+        double arcBlendSmoothingThreshold,
+        double arcBlendGreediness) {
 
     emcmotCommand.command = EMCMOT_SETUP_ARC_BLENDS;
     emcmotCommand.arcBlendEnable = arcBlendEnable;
     emcmotCommand.arcBlendFallbackEnable = arcBlendFallbackEnable;
     emcmotCommand.arcBlendOptDepth = arcBlendOptDepth;
     emcmotCommand.arcBlendSmoothingThreshold = arcBlendSmoothingThreshold;
+    emcmotCommand.arcBlendGreediness = arcBlendGreediness;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 

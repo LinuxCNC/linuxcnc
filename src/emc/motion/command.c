@@ -1636,6 +1636,7 @@ check_stuff ( "before command_handler()" );
             emcmotConfig->arcBlendFallbackEnable = emcmotCommand->arcBlendFallbackEnable;
             emcmotConfig->arcBlendOptDepth = emcmotCommand->arcBlendOptDepth;
             emcmotConfig->arcBlendSmoothingThreshold = emcmotCommand->arcBlendSmoothingThreshold;
+            emcmotConfig->arcBlendGreediness = emcmotCommand->arcBlendGreediness;
             break;
 
 	}			/* end of: command switch */
