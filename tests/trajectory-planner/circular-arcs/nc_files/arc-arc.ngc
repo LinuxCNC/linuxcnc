@@ -1,8 +1,0 @@
-G20 G90 G64
-
-G0 X0 Y3 Z0
-G1 Y0 F999
-G3 X[1-sqrt[2]/2] Y[sqrt[2]/2] I1 F999
-G1 X1 Y-3
-G0 X0 Y3 Z0
-M2
