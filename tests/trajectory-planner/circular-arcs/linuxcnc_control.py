@@ -175,8 +175,8 @@ class LinuxcncControl:
 
     def wait_on_program(self):
         self.s.poll()
-        while self.s.exec_state != linuxcnc.EXEC_DONE or self.s.state != linuxcnc.RCS_DONE:
-            sleep(.25)
+        while self.s.exec_state != linuxcnc.EXEC_DONE or self.s.state != linuxcnc.RCS_DONE and self.s.task_state == linuxcnc.STATE_ON:
+            sleep(1)
             self.s.poll()
             if self.s.task_state != linuxcnc.STATE_ON:
                 return False
