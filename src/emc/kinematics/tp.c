@@ -996,10 +996,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
             &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end);
     tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
 
-    PmCartesian const zero = {0,0,0};
-    pmCartLineInit(&blend_tc->coords.circle.abc, &zero, &zero);
-    pmCartLineInit(&blend_tc->coords.circle.uvw, &zero, &zero);
-
+    // Note that previous restrictions don't allow ABC or UVW movement, so the end and start points should be identical
+    pmCartLineInit(&blend_tc->coords.circle.abc, &prev_tc->coords.line.abc.end, &tc->coords.line.abc.start);
+    pmCartLineInit(&blend_tc->coords.circle.uvw, &prev_tc->coords.line.uvw.end, &tc->coords.line.uvw.start);
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
