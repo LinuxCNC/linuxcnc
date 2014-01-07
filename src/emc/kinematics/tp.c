@@ -820,11 +820,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double Stheta = sin(theta);
     double Ttheta = tan(theta);
 
-    //TODO "greedy" arc sizing step here
-
-    //Consider L1 / L2 to be the length available to blend over
+    // Consider L1 to be the length available to blend over
     double L1 = prev_tc->target;
-    double L2 = tc->target / 2.0;
+    if (prev_tc->blend_prev) {
+        // Reduce blend length to 1/2 of overall if coming off of a parabolic blend
+        L1 /= 2.0;
+        tp_debug_print("prev blend parabolic, shortening blend length to %f\n", L1);
+    }
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
     //Solve quadratic equation to find segment length that matches peak
@@ -837,8 +839,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L_remain = L1 - d_prev;
     double d_next = (tc->target - L_remain) / 2.0;
 
-    tp_debug_print(" prev length L1 = %f\n", L1);
-    tp_debug_print(" next length L2 = %f\n", L2);
+    tp_debug_print(" prev available length L1 = %f\n", L1);
     tp_debug_print(" K = %f\n", K);
     // Assume that we are not working on segments already traversed for now
 
