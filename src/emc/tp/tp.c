@@ -1938,18 +1938,18 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 
     double target_vel = tpGetRealTargetVel(tp, tc);
     double vel_final = tpGetRealFinalVel(tp, tc, target_vel);
-    double vel_avg = tc->currentvel + vel_final;
 
-    /* Check if the average velocity is too low to properly ramp up. This
-     * happens if the initial / final velocity are both zero, for example.
+    /* Check if the final velocity is too low to properly ramp up.
      */
-    if (vel_avg < TP_VEL_EPSILON) {
+    if (vel_final < TP_VEL_EPSILON) {
         tp_debug_print(" vel_avg %f too low for smoothing\n", vel_avg);
         return TP_ERR_FAIL;
     }
 
+    double vel_avg = (tc->currentvel + vel_final) / 2.0;
+
     // Calculate time remaining in this segment assuming constant acceleration
-    double dt = fmax(2.0 * dx / vel_avg, TP_TIME_EPSILON);
+    double dt = fmax( dx / vel_avg, TP_TIME_EPSILON);
 
     // Calculate velocity change between final and current velocity
     double dv = vel_final - tc->currentvel;
