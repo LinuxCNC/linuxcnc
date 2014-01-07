@@ -1358,7 +1358,8 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double acc_limit;
     tpGetMachineAccelLimit(&acc_limit);
     double acc_margin = (1.0 - TP_ACC_RATIO_NORMAL) * acc_limit;
-    double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin);
+    //Scale this down to check if tangent accelerations are causing the small overages
+    double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin) / 100.0;
 
     if (phi <= max_angle) {
         tp_debug_print(" New segment tangent with angle %g\n", phi);
