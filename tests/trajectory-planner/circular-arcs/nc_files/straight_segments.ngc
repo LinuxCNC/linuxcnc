@@ -13,9 +13,6 @@ o101 while [#1 LT 1000]
 o101 endwhile
 G90
 X0 Y0 Z0
-
-O100 endsub
-
 O100 endsub
 
 G0 X0 Y0 Z0
