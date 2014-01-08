@@ -46,6 +46,8 @@ extern int do_addf_cmd(char *funct, char *thread, char *tokens[]);
 extern int do_alias_cmd(char *pinparam, char *name, char *alias);
 extern int do_unalias_cmd(char *pinparam, char *name);
 extern int do_delf_cmd(char *funct, char *thread);
+extern int do_echo_cmd();
+extern int do_unecho_cmd();
 extern int do_linkps_cmd(char *pin, char *signal);
 extern int do_linksp_cmd(char *signal, char *pin);
 extern int do_start_cmd();
