@@ -1581,6 +1581,7 @@ if:
 If other planes are active, the error conditions are analogous to the
 XY conditions above.
 
+[[section:preliminary-motion]]
 === Preliminary and In-Between Motion
 
 Preliminary motion is a set of motions that is common to all of the
@@ -1742,7 +1743,8 @@ The 'G81' cycle is intended for drilling.
 
 The cycle functions as follows:
 
-. Preliminary motion to start position.
+ . Preliminary motion, as described in the
+   <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
 
 . Move the Z-axis only at the current feed rate to the Z position.
 
@@ -1882,7 +1884,8 @@ G82 (X- Y- Z-) or (U- V- W-) R- L- P-
 The 'G82' cycle is intended for drilling with a dwell at the bottom of
 the hole.
 
- . Preliminary motion, as described above.
+ . Preliminary motion, as described in the
+   <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Dwell for the P number of seconds.
  . Retract the Z-axis at traverse rate to clear Z.
@@ -1910,7 +1913,8 @@ honor the G98/99 in effect. G83 functions the same as G81 with the addition
 of retracts during the drilling operation.
 
 
- . Preliminary motion, as described above.
+ . Preliminary motion, as described in the
+   <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
  . Move the Z-axis only at the current feed rate downward by delta or to
    the Z position, whichever is less deep. 
  . Rapid back out to the retract plane specified by the R word.
@@ -1940,7 +1944,8 @@ G85 (X- Y- Z-) or (U- V- W-) R- L-
 The 'G85' cycle is intended for boring or reaming, but could be used
 for drilling or milling.
 
- . Preliminary motion, as described above. 
+ . Preliminary motion, as described in the
+   <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Retract the Z-axis at the current feed rate to clear Z. 
 
@@ -1955,7 +1960,8 @@ G86 (X- Y- Z-) or (U- V- W-) R- L- P-
 The 'G86' cycle is intended for boring. This cycle uses a P number
 for the number of seconds to dwell.
 
- . Preliminary motion, as described above. 
+ . Preliminary motion, as described in the
+   <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Dwell for the P number of seconds.
  . Stop the spindle turning.
@@ -1991,7 +1997,8 @@ G89 (X- Y- Z-) or (U- V- W-) R- L- P-
 The 'G89' cycle is intended for boring. This cycle uses a P number,
 where P specifies the number of seconds to dwell.
 
- . Preliminary motion, as described above.
+ . Preliminary motion, as described in the
+   <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
  . Move the Z-axis only at the current feed rate to the Z position.
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 
