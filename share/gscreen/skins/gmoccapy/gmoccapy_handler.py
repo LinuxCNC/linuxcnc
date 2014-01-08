@@ -46,7 +46,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.5"
+_RELEASE = "0.9.9.7.6"
 _INCH = 0               # imperial units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -98,8 +98,12 @@ class HandlerClass:
         self.data = gscreen.data
         self.widgets = gscreen.widgets
         self.gscreen = gscreen
+
         self.stat = linuxcnc.stat()
         self.error_channel = linuxcnc.error_channel()
+        # initial poll, so all is up to date
+        self.stat.poll()
+        self.error_channel.poll()
 
         self.distance = 0         # This global will hold the jog distance
         self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actions are allowed
@@ -126,11 +130,6 @@ class HandlerClass:
         self.data.hide_cursor = self.gscreen.prefs.getpref('hide_cursor', False, bool)
         self.data.plot_view = self.gscreen.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
         self.data.spindle_start_rpm = self.gscreen.prefs.getpref('spindle_start_rpm', 300 , float)
-        self.data.dro_units = self.gscreen.prefs.getpref('dro_is_metric', True, bool)
-        if self.data.dro_units: # set linuxcnc as well
-            self.gscreen.status.dro_mm(0)
-        else:
-            self.gscreen.status.dro_inch(0)
         self._init_axis_four()
 
     def _init_axis_four(self):
@@ -712,18 +711,23 @@ class HandlerClass:
 # to here only needed, if the DRO button will remain in gmoccapy
 
     def on_Combi_DRO_units_changed(self, widget, metric_units):
-# from here only needed, if the DRO button will remain in gmoccapy
+        # if the user do not wish to use auto units, we leave here
         if not self.widgets.chk_auto_units.get_active():
             return
-# to here only needed, if the DRO button will remain in gmoccapy
+        # debug printing
+        print("Combi_DRO units changed", metric_units)
+        print("Machine units = ", self.stat.linear_units)
+        print("program units = ", self.stat.program_units)
 
-        # This is needed to set, because otherwise we will get the speed values
-        # only in machine units, now they are converted according active gcode
-        # gscreen.status also changes the value of self.data.dro_units
-        if metric_units:
-            self.gscreen.status.dro_mm(1)
+        # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
+        if metric_units != int(self.stat.linear_units):
+            print(" Faktor needed ")
+            if self.stat.linear_units == _MM:
+                print(" Faktor would be %.4f"%(1.0 / 25.4))
+            else:
+                print(" Faktor would be %s"%(25.4))
         else:
-            self.gscreen.status.dro_inch(1)
+            print(" Faktor would be 1.0 ")
 
 # from here only needed, if the DRO button will remain in gmoccapy
     def on_Combi_DRO_system_changed(self, widget, system):
@@ -1561,14 +1565,15 @@ class HandlerClass:
         self.widgets.lbl_active_feed.set_label(self.data.active_feed_command)
         feed_override = self.widgets.scl_feed.get_value() / 100
         real_feed = float(self.widgets.lbl_active_feed.get_text()) * feed_override
-        if self.data.dro_units == _MM:
-            self.widgets.lbl_current_vel.set_text("%d" %self.data.velocity)
+        # self.stat.program_units will return 1 for inch, 2 for mm and 3 for cm
+        if self.stat.program_units == 2:
+            self.widgets.lbl_current_vel.set_text("%d" %(self.stat.current_vel * 60.0 ))
             if "G95" in self.data.active_gcodes:
                 self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
             else:
                 self.widgets.lbl_feed_act.set_text("F  %d" %real_feed)
         else:
-            self.widgets.lbl_current_vel.set_text("%.2f" %self.data.velocity)
+            self.widgets.lbl_current_vel.set_text("%.2f" %(self.stat.current_vel * 60.0 ))
             if "G95" in self.data.active_gcodes:
                 self.widgets.lbl_feed_act.set_text("F  %.4f" %real_feed)
             else:

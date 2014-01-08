@@ -1,3 +1,8 @@
+ver. 0.9.9.7.6
+- solved the bug wrong units on start up without the preference file
+  I needed to replace gscreen.status with my my own status, because gscreen 
+  does deliver wrong values!
+
 ver. 0.9.9.7.5
 - typo in initialize_preferences 
 - deleted the statusbar widget
