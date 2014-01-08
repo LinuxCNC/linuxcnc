@@ -4,7 +4,11 @@ ver. 0.9.9.7.6
   does deliver wrong values!
 - changed some more gscreen.data stuff to self.stat..., 
   because IMHO it is not necessary to use data to store something what is availible
-  through stat module 
+  through stat module
+- replaced the preference file handling from gscreen to an own one, expecting that
+  gscreen does not mess my files up, if no preference file will be given in the INI,
+  we will use gmoccapy.pref stored in the config folder, so there could be differnt 
+  configs with different settings 
 
 ver. 0.9.9.7.5
 - typo in initialize_preferences 
