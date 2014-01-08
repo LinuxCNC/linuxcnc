@@ -206,8 +206,8 @@ class HandlerClass:
         self.widgets.IconFileSelection1.set_property("start_dir",default_path)
 
         # set the slider limmits
-        self.widgets.adj_max_vel.configure(self.data._maxvelocity * 60, self.data._maxvelocity * 0.1,
-                                           self.data._maxvelocity * 60 + 1, 1, 1, 1)
+        self.widgets.adj_max_vel.configure(self.stat.max_velocity * 60, self.stat.max_velocity * 0.1,
+                                           self.stat.max_velocity * 60 + 1, 1, 1, 1)
         self.widgets.adj_jog_vel.configure(self.data.jog_rate, 0, 
                                            self.gscreen.data.jog_rate_max + 1, 1, 1, 1)
         self.widgets.adj_spindle.configure(100, self.data.spindle_override_min * 100, 
@@ -1765,7 +1765,7 @@ class HandlerClass:
             page.show()
             self.widgets.ntb_preview.set_property("show-tabs",state)
             self.widgets.ntb_preview.set_current_page(1)
-            self.widgets.offsetpage1.mark_active((self.system_list[self.data.system]).lower())
+            self.widgets.offsetpage1.mark_active((self.system_list[self.stat.g5x_index]).lower())
             if self.widgets.chk_use_kb_on_offset.get_active():
                 self.widgets.ntb_info.set_current_page(1)
         else:
@@ -1840,7 +1840,7 @@ class HandlerClass:
             self.gscreen.warning_dialog(_("Important Warning!"), True, message)
             self.gscreen.add_alarm_entry(message)
             return
-        if system == self.system_list[self.data.system]:
+        if system == self.system_list[self.stat.g5x_index]:
             return
         else:
             self.emc.set_mdi_mode()
@@ -2706,7 +2706,6 @@ class HandlerClass:
         self.emc.mask()
         self.stat.poll()
         self.gscreen.status.periodic()
-        self.data.system = self.gscreen.status.get_current_system()
         e = self.error_channel.poll()
         if e:
             kind, text = e

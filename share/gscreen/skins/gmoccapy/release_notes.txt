@@ -2,6 +2,9 @@ ver. 0.9.9.7.6
 - solved the bug wrong units on start up without the preference file
   I needed to replace gscreen.status with my my own status, because gscreen 
   does deliver wrong values!
+- changed some more gscreen.data stuff to self.stat..., 
+  because IMHO it is not necessary to use data to store something what is availible
+  through stat module 
 
 ver. 0.9.9.7.5
 - typo in initialize_preferences 
