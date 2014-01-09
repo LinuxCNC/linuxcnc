@@ -1147,6 +1147,7 @@ class HandlerClass:
         # does the user want to show screen2 
         self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
         self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
@@ -1202,6 +1203,7 @@ class HandlerClass:
             self._update_widgets(True)
             if self.widgets.ntb_main.get_current_page() != 0:
                 self.command.mode(self.linuxcnc.MODE_MANUAL)
+                self.command.wait_complete()
         else:
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(self.linuxcnc.STATE_OFF)
@@ -1244,6 +1246,7 @@ class HandlerClass:
         # first we set to manual mode, as we do not allow changing settings in other modes
         # otherwise external halui commands could start a program while we are in settings
         self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
         if widget.get_active():
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
@@ -1767,7 +1770,8 @@ class HandlerClass:
         
         if not state: # we must switch back to manual mode, otherwise jogging is not possible
             self.command.mode(self.linuxcnc.MODE_MANUAL)
-        
+            self.command.wait_complete()
+
         # show virtual keyboard
         if state:
             self.widgets.ntb_info.set_current_page(1)
