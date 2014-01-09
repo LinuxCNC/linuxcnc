@@ -70,7 +70,7 @@
 #include "rtapi_math.h"
 #include "motion_types.h"
 
-#include "../kinematics/tp_debug.h"
+#include "tp_debug.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
