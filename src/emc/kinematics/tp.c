@@ -2232,14 +2232,18 @@ STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 STATIC int tpFlagEarlyStop(TP_STRUCT * const tp,
         TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
 
-    if(tc->synchronized != TC_SYNC_POSITION && nexttc && nexttc->synchronized == TC_SYNC_POSITION) {
+    if (!tc || !nexttc) {
+        return TP_ERR_NO_ACTION;
+    }
+
+    if(tc->synchronized != TC_SYNC_POSITION && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
         tc_debug_print("waiting on spindle sync for tc %d\n", tc->id);
         tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
-    if(nexttc && nexttc->atspeed) {
+    if(nexttc->atspeed) {
         // we'll have to wait for the spindle to be at-speed; might as well
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
