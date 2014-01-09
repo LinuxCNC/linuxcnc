@@ -68,12 +68,12 @@ GladeVCP panel windows may be run in three different setups:
  - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
 .Installed LinuxCNC
-If your using an installed version of LinuxCNC the examples shown below are in
+If you're using an installed version of LinuxCNC the examples shown below are in
 the <<cha:starting-linuxcnc,configuration picker>> in the 'Sample
 Configurations > sim > gladevcp' branch.
 
 .Git Checkout
-The following instructions only apply if your using a git checkout. Open a
+The following instructions only apply if you're using a git checkout. Open a
 terminal and change to the directory created by git then issue the commmands
 as shown.
 
@@ -1682,7 +1682,7 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 
 == Troubleshooting
 
- -  make sure your have the development version of LinuxCNC installed. You
+ -  make sure you have the development version of LinuxCNC installed. You
    don't need the axisrc file any more, this was mentioned in the old
    GladeVcp wiki page.
  -  run GladeVCP or Axis from a terminal window. If you get Python errors,
