@@ -9,6 +9,8 @@ ver. 0.9.9.7.6
   gscreen does not mess my files up, if no preference file will be given in the INI,
   we will use gmoccapy.pref stored in the config folder, so there could be differnt 
   configs with different settings 
+- don't need gscreen.emc any more, all is done now directly with the linuxcnc python bindings
+- I do not use any more the gscreen.ini, we use now the linuxcnc.ini version from the python module
 
 ver. 0.9.9.7.5
 - typo in initialize_preferences 

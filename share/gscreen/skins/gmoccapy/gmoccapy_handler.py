@@ -97,12 +97,13 @@ class HandlerClass:
     def __init__(self, halcomp,builder,useropts,gscreen):
 
 # ToDo: get this later without the need of gscreen
-        self.emc = gscreen.emc
         self.data = gscreen.data
         self.widgets = gscreen.widgets
         self.gscreen = gscreen
 # ToDo: End
 
+        self.linuxcnc = linuxcnc
+        self.command = linuxcnc.command()
         self.stat = linuxcnc.stat()
         self.error_channel = linuxcnc.error_channel()
         # initial poll, so all is up to date
@@ -207,10 +208,10 @@ class HandlerClass:
         self._show_iconview_tab(False)
 
         # check if NO_FORCE_HOMING is used in ini
-        self.no_force_homing = self.gscreen.inifile.find("TRAJ", "NO_FORCE_HOMING")
+        self.no_force_homing = self.ini.find("TRAJ", "NO_FORCE_HOMING")
 
         # and we want to set the default path
-        default_path = self.gscreen.inifile.find("DISPLAY", "PROGRAM_PREFIX")
+        default_path = self.ini.find("DISPLAY", "PROGRAM_PREFIX")
         if not os.path.exists(os.path.expanduser(default_path)):
             print(_("Path %s from DISPLAY , PROGRAM_PREFIX does not exist")%default_path)
             print(_("Trying default path..."))
@@ -405,9 +406,9 @@ class HandlerClass:
         self.widgets.rbt_manual.set_active(True)
         self.widgets.ntb_jog.set_current_page(0)
         self.widgets.tbtn_optional_blocks.set_active(self.prefs.getpref("blockdel", False))
-        self.emc.blockdel(self.widgets.tbtn_optional_blocks.get_active())
+        self.command.set_block_delete(self.widgets.tbtn_optional_blocks.get_active())
         self.widgets.tbtn_optional_stops.set_active(not self.prefs.getpref("opstop", False))
-        self.emc.opstop(self.widgets.tbtn_optional_stops.get_active())
+        self.command.set_optional_stop(self.widgets.tbtn_optional_stops.get_active())
         self.log = self.prefs.getpref("log_actions", False, bool)
         self.widgets.tbtn_log_actions.set_active(self.log)
         self.widgets.chk_show_dro.set_active(self.prefs.getpref("enable_dro", False))
@@ -420,18 +421,18 @@ class HandlerClass:
         view = self.prefs.getpref("gremlin_view","rbt_view_p",str)
         self.widgets[view].set_active(True)
 
-        if "ntb_preview" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
+        if "ntb_preview" in self.ini.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             self.widgets.ntb_preview.set_property("show-tabs", True)
 
         # This is normaly only used for the plasma screen layout
-        if "box_coolant_and_spindle" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
+        if "box_coolant_and_spindle" in self.ini.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings", "active_speed_label", 
                           "lbl_speed", "vbox_vel_info"]
             for widget in widgetlist:
                 self.widgets[widget].hide()
             self.widgets.tbtn_user_tabs.set_sensitive(False)
 
-        if "box_tool_and_code_info" in self.gscreen.inifile.findall("DISPLAY", "EMBED_TAB_LOCATION"):
+        if "box_tool_and_code_info" in self.ini.findall("DISPLAY", "EMBED_TAB_LOCATION"):
             widgetlist = ["frm_tool_info"]
             for widget in widgetlist:
                 self.widgets[widget].hide()
@@ -516,7 +517,7 @@ class HandlerClass:
         self.widgets.tooledit1.hide_buttonbox(True)
         self.widgets.ntb_user_tabs.remove_page(0)
         self.add_macro_button()
-        if not self.gscreen.inifile.find("DISPLAY", "EMBED_TAB_COMMAND"):
+        if not self.ini.find("DISPLAY", "EMBED_TAB_COMMAND"):
             self.widgets.tbtn_user_tabs.set_sensitive(False)
 
         # call the function to change the button status
@@ -532,7 +533,7 @@ class HandlerClass:
         # Do we control a lathe?
         if self.data.lathe_mode:
             # is this a backtool lathe?
-            temp = self.gscreen.inifile.find("DISPLAY", "BACK_TOOL_LATHE")
+            temp = self.ini.find("DISPLAY", "BACK_TOOL_LATHE")
             self.backtool_lathe = bool(temp == "1" or temp == "True" or temp == "true")
 
             # we first hide the Y button to home and touch off 
@@ -901,10 +902,10 @@ class HandlerClass:
         # estop with F1 shold work every time
         # so should also escape aboart actions
         if keyname == "F1": # will estop the machine, but not reset estop!
-            self.emc.estop(1)
+            self.command.state(self.linuxcnc.STATE_ESTOP)
             return True
         if keyname == "Escape":
-            self.emc.abort()
+            self.command.abort()
             return True
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
@@ -1026,7 +1027,7 @@ class HandlerClass:
 
     # check if macros are in the INI file and add them to MDI Button List
     def add_macro_button(self):
-        macros = self.gscreen.inifile.findall("MACROS", "MACRO")
+        macros = self.ini.findall("MACROS", "MACRO")
         num_macros = len(macros)
         if num_macros > 9:
             message = _("no more than 9 macros are allowed, only the first 9 will be used")
@@ -1062,9 +1063,9 @@ class HandlerClass:
     # What to do if a macro button has been pushed
     def on_btn_macro_pressed(self, widget = None, data = None):
         o_codes = data.split()
-        subroutines_folder = self.gscreen.inifile.find("RS274NGC", "SUBROUTINE_PATH")
+        subroutines_folder = self.ini.find("RS274NGC", "SUBROUTINE_PATH")
         if not subroutines_folder:
-            subroutines_folder = self.gscreen.inifile.find("DISPLAY", "PROGRAM_PREFIX")
+            subroutines_folder = self.ini.find("DISPLAY", "PROGRAM_PREFIX")
         if not subroutines_folder:
             message = _("No subroutine folder or program prefix is given in the ini file \n")
             message += _("so the corresponding file could not be found")
@@ -1096,8 +1097,8 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry(_("macro {0} , parameter {1} set to {2:f}").format(o_codes[0],code,parameter))
             command = command + " [" + str(parameter) + "] "
 # TODO: Should not only clear the plot, but also the loaded programm?
-        #self.emc.emccommand.program_open("")
-        #self.emc.emccommand.reset_interpreter()
+        #self.command.program_open("")
+        #self.command.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
 # TODO: End
         self.gscreen.mdi_control.user_command(command)
@@ -1127,7 +1128,7 @@ class HandlerClass:
         file = self.prefs.getpref("open_file", "", str)
         if file :
             self.widgets.file_to_load_chooser.set_filename(file)
-            #self.emc.emccommand.program_open(file)
+            #self.command.program_open(file)
             self.widgets.hal_action_open.load_file(file)
 
         # check how to start the GUI
@@ -1145,14 +1146,14 @@ class HandlerClass:
 
         # does the user want to show screen2 
         self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data=None):
         self.kill_keyboard()
         print "estopping / killing gscreen"
-        self.emc.machine_off(1)
-        self.emc.estop(1)
+        self.command.state(self.linuxcnc.STATE_OFF)
+        self.command.state(self.linuxcnc.STATE_ESTOP)
         time.sleep(2)
         gtk.main_quit()
 
@@ -1176,13 +1177,13 @@ class HandlerClass:
         if self.widgets.tbtn_estop.get_active(): # estop is active, open circuit
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
-            self.emc.estop(1)
+            self.command.state(self.linuxcnc.STATE_ESTOP)
             self.widgets.tbtn_on.set_sensitive(False)
             self.widgets.tbtn_on.set_active(False)
         else:   # estop circuit is fine
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
-            self.emc.estop_reset(1)
+            self.command.state(self.linuxcnc.STATE_ESTOP_RESET)
             self.widgets.tbtn_on.set_sensitive(True)
 
 # TODO: find out why the values are modified by 1 on startup 
@@ -1197,13 +1198,13 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry("hal_tgbt_on_clicked")
         if self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
-            self.emc.machine_on(1)
+            self.command.state(self.linuxcnc.STATE_ON)
             self._update_widgets(True)
             if self.widgets.ntb_main.get_current_page() != 0:
-                self.emc.set_manual_mode()
+                self.command.mode(self.linuxcnc.MODE_MANUAL)
         else:
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
-            self.emc.machine_off(1)
+            self.command.state(self.linuxcnc.STATE_OFF)
             self._update_widgets(False)
 
     def _update_widgets(self,state):
@@ -1218,15 +1219,18 @@ class HandlerClass:
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_manual_pressed")
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
     def on_rbt_mdi_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_mdi_pressed")
-        self.emc.set_mdi_mode()
+        self.command.mode(self.linuxcnc.MODE_MDI)
+        self.command.wait_complete()
 
     def on_rbt_auto_pressed(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("rbt_auto_pressed")
-        self.emc.set_auto_mode()
+        self.command.mode(self.linuxcnc.MODE_AUTO)
+        self.command.wait_complete()
 
     def on_ntb_main_switch_page(self, widget, page, page_num, data=None):
         if self.log: 
@@ -1239,7 +1243,7 @@ class HandlerClass:
     def on_tbtn_setup_toggled(self, widget, data=None):
         # first we set to manual mode, as we do not allow changing settings in other modes
         # otherwise external halui commands could start a program while we are in settings
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
 
         if widget.get_active():
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
@@ -1341,12 +1345,14 @@ class HandlerClass:
 
     def on_btn_home_all_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("button ref all clicked")
-        self.emc.home_all(1)
+        # home -1 means all
+        self.command.home(-1)
 
     def on_btn_unhome_all_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("button unhome all clicked")
         self.data.all_homed = False
-        self.emc.unhome_all(1)
+        # -1 for all
+        self.command.unhome(-1)
 
     def on_btn_home_selected_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("button home selected clicked")
@@ -1358,11 +1364,12 @@ class HandlerClass:
             axis = 2
         elif widget == self.widgets.btn_home_4:
             axis = "xyzabcuvw".index(self.axisletter_four)
-        self.emc.home_selected(axis)
+        self.command.home(axis)
 
     def on_chk_ignore_limits_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("chk_ignore_limits_toggled %s"%widget.get_active())
-        self.emc.override_limits(self.widgets.chk_ignore_limits.get_active())
+        if self.widgets.chk_ignore_limits.get_active():
+            self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("Fullsize Preview set to %s"%widget.get_active())
@@ -1433,11 +1440,11 @@ class HandlerClass:
         self._check_spindle_max(rpm)
         
         if widget == self.widgets.rbt_forward:
-            self.emc.emccommand.spindle(1,rpm)
+            self.command.spindle(1,rpm)
         elif widget == self.widgets.rbt_reverse:
-            self.emc.emccommand.spindle(-1,rpm)
+            self.command.spindle(-1,rpm)
         elif widget == self.widgets.rbt_stop:
-            self.emc.emccommand.spindle(0)
+            self.command.spindle(0)
         else:
              self.gscreen.add_alarm_entry(_("Something went wrong, we have an unknown widget"))
 
@@ -1492,7 +1499,7 @@ class HandlerClass:
             except:
                 pass
         self.widgets.lbl_spindle_act.set_text("S %d" %real_spindle_speed)
-        self.emc.spindle_override(spindle_override)
+        self.command.spindleoverride(spindle_override)
 
     def on_adj_start_spindle_RPM_value_changed(self, widget, data = None):
         if self.log: self.gscreen.add_alarm_entry("sbtn_spindle_start_rpm_clicked")
@@ -1533,10 +1540,10 @@ class HandlerClass:
             return
         elif self.widgets.tbtn_flood.get_active():
             self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_on)
-            self.emc.flood_on(1)
+            self.command.flood(self.linuxcnc.FLOOD_ON)
         else:
             self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_off)
-            self.emc.flood_off(1)
+            self.command.flood(self.linuxcnc.FLOOD_OFF)
 
     def on_tbtn_mist_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("tbtn_mist_clicked")
@@ -1546,10 +1553,10 @@ class HandlerClass:
             return
         elif self.widgets.tbtn_mist.get_active():
             self.widgets.tbtn_mist.set_image(self.widgets.img_mist_on)
-            self.emc.mist_on(1)
+            self.command.mist(self.linuxcnc.MIST_ON)
         else:
             self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
-            self.emc.mist_off(1)
+            self.command.mist(self.linuxcnc.MIST_OFF)
 
     def _update_coolant(self):
         if self.data.flood:
@@ -1571,7 +1578,7 @@ class HandlerClass:
 
     # feed stuff
     def on_scl_feed_value_changed(self, widget, data=None):
-        self.emc.feed_override(self.widgets.scl_feed.get_value() / 100)
+        self.command.feedrate(self.widgets.scl_feed.get_value() / 100)
 
     def on_btn_feed_100_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_feed_100_clicked")
@@ -1608,29 +1615,31 @@ class HandlerClass:
     def on_adj_jog_vel_value_changed(self, widget, data = None):
         if widget.get_value() > self.widgets.adj_max_vel.get_value():
             widget.set_value(self.widgets.adj_max_vel.get_value())
-        self.emc.continuous_jog_velocity(widget.get_value())
 
     def on_adj_max_vel_value_changed(self, widget, data = None):
         if widget.get_value() < self.widgets.adj_jog_vel.get_value():
             self.widgets.adj_jog_vel.set_value(widget.get_value())
-        self.emc.max_velocity(widget.get_value() / 60)
+        self.command.maxvel(widget.get_value() / 60)
 
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
         if not self.stat.task_mode == _MANUAL:
             return
 
-        # if data = True, then the user pressed SHIFT for Jogging and 
-        # want's to jog at full speed
-        if data:
-            self.emc.continuous_jog_velocity(self.gscreen.data.jog_rate_max)
-        else:
-            self.emc.continuous_jog_velocity(self.widgets.adj_jog_vel.get_value())
-
         axisletter = widget.get_label()[0]
         if not axisletter.lower() in "xyzabcuvw":
             print ("unknown axis %s"%axisletter)
             return
+
+        # get the axisnumber
+        axisnumber = "xyzabcuvws".index(axisletter.lower())
+
+        # if data = True, then the user pressed SHIFT for Jogging and 
+        # want's to jog at full speed
+        if data:
+            velocity = self.stat.max_velocity
+        else:
+            velocity = self.widgets.adj_jog_vel.get_value() / 60
 
         dir = widget.get_label()[1]
         if dir == "+":
@@ -1638,15 +1647,12 @@ class HandlerClass:
         else:
             direction = -1
 
-        axis = "xyzabcuvw".index(axisletter.lower())
-
-        self.gscreen.add_alarm_entry("btn_jog_%i_%i"%(axis,direction))
+        self.gscreen.add_alarm_entry("btn_jog_%i_%i"%(axisnumber,direction))
 
         if self.distance <> 0:  # incremental jogging
-            # DOKU : emc.incremental_jog(<axis number>,<direction>,<distance to jog>)
-            self.emc.incremental_jog(axis, direction, self.distance)
+            self.command.jog(self.linuxcnc.JOG_INCREMENT,axisnumber,direction * velocity, self.distance)
         else:                   # continuous jogging
-            self.emc.continuous_jog(axis,direction)
+            self.command.jog(self.linuxcnc.JOG_CONTINUOUS,axisnumber,direction * velocity)
 
     def on_btn_jog_released(self, widget, data = None):
         axisletter = widget.get_label()[0]
@@ -1659,7 +1665,7 @@ class HandlerClass:
         if self.distance <>0:
             pass
         else:
-            self.emc.continuous_jog(axis,0)
+            self.command.jog(self.linuxcnc.JOG_STOP,axis)
 
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
@@ -1705,7 +1711,7 @@ class HandlerClass:
         # if the image is img_brake macro, we want to interupt the running macro
         if self.widgets.btn_show_kbd.get_image() == self.widgets.img_brake_macro:
             if self.log: self.gscreen.add_alarm_entry("btn_brake macro_clicked")
-            self.emc.abort()
+            self.command.abort()
             for btn in self.macrobuttons:
                 btn.set_sensitive(True)
             self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
@@ -1725,9 +1731,9 @@ class HandlerClass:
                 self.widgets.ntb_info.show()
 
     def on_ntb_info_switch_page(self, widget, page, page_num, data=None):
-        if self.emc.get_mode() == _MDI:
+        if self.stat.task_mode == _MDI:
             self.widgets.hal_mdihistory.entry.grab_focus()
-        elif self.emc.get_mode() == _AUTO:
+        elif self.stat.task_mode == _AUTO:
             self.widgets.gcode_view.grab_focus()
 
     # Three back buttons to be able to leave notebook pages
@@ -1760,7 +1766,7 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(widgetlist,not state)
         
         if not state: # we must switch back to manual mode, otherwise jogging is not possible
-            self.emc.set_manual_mode()
+            self.command.mode(self.linuxcnc.MODE_MANUAL)
         
         # show virtual keyboard
         if state:
@@ -1800,24 +1806,30 @@ class HandlerClass:
 # TODO: what to do when there are more axis?
     def on_btn_zero_x_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_X_clicked")
-        self.emc.set_mdi_mode()
+        self.command.mode(self.linuxcnc.MODE_MDI)
+        self.command.wait_complete()
         self.gscreen.mdi_control.set_axis("X",0)
         self.widgets.hal_action_reload.emit("activate")
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
     def on_btn_zero_y_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Y_clicked")
-        self.emc.set_mdi_mode()
+        self.command.mode(self.linuxcnc.MODE_MDI)
+        self.command.wait_complete()
         self.gscreen.mdi_control.set_axis("Y",0)
         self.widgets.hal_action_reload.emit("activate")
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
     def on_btn_zero_z_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("btn_zero_Z_clicked")
-        self.emc.set_mdi_mode()
+        self.command.mode(self.linuxcnc.MODE_MDI)
+        self.command.wait_complete()
         self.gscreen.mdi_control.set_axis("Z",0)
         self.widgets.hal_action_reload.emit("activate")
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
     def on_btn_set_value_clicked(self, widget, data=None):
         if widget == self.widgets.btn_set_value_x:
@@ -1838,10 +1850,12 @@ class HandlerClass:
             return
         if offset != False or offset == 0:
             self.gscreen.add_alarm_entry(_("offset {0} set to {1:f}").format(axis,offset))
-            self.emc.set_mdi_mode()
+            self.command.mode(self.linuxcnc.MODE_MDI)
+            self.command.wait_complete()
             self.gscreen.mdi_control.set_axis(axis,offset)
             self.widgets.hal_action_reload.emit("activate")
-            self.emc.set_manual_mode()
+            self.command.mode(self.linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
             self.prefs.putpref("offset_axis_%s"%axis, offset, float)
         else:
             print(_("Conversion error in btn_set_value"))
@@ -1860,9 +1874,11 @@ class HandlerClass:
         if system == self.system_list[self.stat.g5x_index]:
             return
         else:
-            self.emc.set_mdi_mode()
+            self.command.mode(self.linuxcnc.MODE_MDI)
+            self.command.wait_complete()
             self.gscreen.mdi_control.user_command(system)
-            self.emc.set_manual_mode()
+            self.command.mode(self.linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
 
     def entry_dialog(self, data=None, header=_("Enter value") ,label=_("Enter the value to set"), integer = False):
         dialog = gtk.Dialog(header,
@@ -2176,11 +2192,11 @@ class HandlerClass:
             self.widgets.lbl_tool_dia.set_text("0")
             self.widgets.lbl_tool_name.set_text(_("No tool description available"))
         if "G43" in self.data.active_gcodes:
-            mode = self.emc.get_mode()
-            if mode != _AUTO:
-                self.emc.set_mdi_mode()
+            if self.stat.task_mode != _AUTO:
+                self.command.mode(self.linuxcnc.MODE_MDI)
+                self.command.wait_complete()
                 self.gscreen.mdi_control.user_command("G43")
-            if mode == _MANUAL:
+            if self.stat.task_mode == _MANUAL:
                 self.wait_tool_change = True
                 self.on_hal_status_interp_idle(self)
 
@@ -2238,7 +2254,8 @@ class HandlerClass:
         else:
             self.gscreen.add_alarm_entry(_("axis {0} , has been set to {1:f}").format(axis.upper(),value))
         self.gscreen.mdi_control.touchoff(self.widgets.tooledit1.get_selected_tool(),axis,value)
-        self.emc.set_manual_mode()
+        self.command.mode(self.linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked(self, widget, data=None):
@@ -2261,7 +2278,8 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry(message)
                 return
             self.wait_tool_change = True
-            self.emc.set_mdi_mode()
+            self.command.mode(self.linuxcnc.MODE_MDI)
+            self.command.wait_complete()
             command = "T%s M6"%int(value)
             self.gscreen.mdi_control.user_command(command)
             self.wait_tool_change = True
@@ -2282,7 +2300,8 @@ class HandlerClass:
         if tool or tool == 0:
             tool = int(tool)
             self.wait_tool_change = True
-            self.emc.set_mdi_mode()
+            self.command.mode(self.linuxcnc.MODE_MDI)
+            self.command.wait_complete()
             
             if widget == self.widgets.btn_change_tool:
                 command = "T%s M6"%tool
@@ -2393,7 +2412,7 @@ class HandlerClass:
     def on_IconFileSelection1_selected(self,widget,path=None):
         if path:
             try:
-                #self.emc.emccommand.program_open(path)
+                #self.command.program_open(path)
                 self.widgets.hal_action_open.load_file(path)
                 self.widgets.ntb_preview.set_current_page(0)
                 self.widgets.tbtn_fullsize_preview.set_active(False)
@@ -2488,7 +2507,7 @@ class HandlerClass:
     # make a new file
     def on_btn_new_clicked(self, widget, data=None):
         tempfilename = os.path.join(_TEMPDIR,"temp.ngc")
-        content = self.gscreen.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE")
+        content = self.ini.find("RS274NGC", "RS274NGC_STARTUP_CODE")
         if content == None:
             content = " "
         content += "\n\n\n\nM2"
@@ -2499,19 +2518,19 @@ class HandlerClass:
             self.widgets.hal_action_reload.emit("activate")
         else:
             self.widgets.hal_action_open.load_file(tempfilename)
-            #self.emc.emccommand.program_open(tempfilename)
+            #selfcommand.program_open(tempfilename)
         self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_tbtn_optional_blocks_toggled to %s"%widget.get_active())
-        self.emc.blockdel(widget.get_active())
+        self.command.set_block_delete(widget.get_active())
         self.prefs.putpref("blockdel", widget.get_active())
         self.widgets.hal_action_reload.emit("activate")
 
     def on_tbtn_optional_stops_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("on_tbtn_optional_stops_toggled to %s"%widget.get_active())
-        self.emc.opstop(widget.get_active())
+        self.command.set_optional_stop(widget.get_active())
         self.prefs.putpref("opstop", widget.get_active())
 
     # use the hal_status widget to control buttons and 
@@ -2567,7 +2586,8 @@ class HandlerClass:
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
         if self.wait_tool_change == True:
-            self.emc.set_manual_mode()
+            self.command.mode(self.linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
             self.wait_tool_change = False
         self.interpreter = _IDLE
         self.data.restart_dialog = None
@@ -2662,8 +2682,9 @@ class HandlerClass:
         # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_mdi.get_sensitive():
-            self.emc.abort()
-            self.emc.set_manual_mode()
+            self.command.abort()
+            self.command.mode(self.linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
             return
         else:
             if self.widgets.chk_use_kb_on_mdi.get_active():
@@ -2682,8 +2703,9 @@ class HandlerClass:
         # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
         if not self.widgets.rbt_auto.get_sensitive():
-            self.emc.abort()
-            self.emc.set_manual_mode()
+            self.command.abort()
+            self.command.mode(self.linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
             return
         else:
             self.widgets.ntb_main.set_current_page(0)
@@ -2720,7 +2742,7 @@ class HandlerClass:
     # In this case we wish to call Gscreen's default function for units button update
     # check linuxcnc for status, error and then update the readout
     def timer_interrupt(self):
-        self.emc.mask()
+        #self.emc.mask()
         self.stat.poll()
         self.gscreen.status.periodic()
         e = self.error_channel.poll()
@@ -2749,7 +2771,7 @@ class HandlerClass:
                     self.gscreen.audio.set_sound(self.data.alert_sound)
                 self.gscreen.audio.run()
 
-        self.emc.unmask()
+        #self.emc.unmask()
 
         self.gscreen.update_active_gcodes()
         self.gscreen.update_active_mcodes()
@@ -2780,7 +2802,7 @@ class HandlerClass:
     # Initialize the file to load dialog, setting an title and the correct
     # folder as well as a file filter
     def init_file_to_load(self):
-        file_dir = self.gscreen.inifile.find("DISPLAY", "PROGRAM_PREFIX")
+        file_dir = self.ini.find("DISPLAY", "PROGRAM_PREFIX")
         self.widgets.file_to_load_chooser.set_current_folder(file_dir)
         title = _("Select the file you want to be loaded at program start")
         self.widgets.file_to_load_chooser.set_title(title)
@@ -2791,7 +2813,7 @@ class HandlerClass:
             self.widgets.ff_file_to_load.add_pattern(ext)
 
     def _get_file_ext(self):
-        file_ext = self.gscreen.inifile.findall("FILTER", "PROGRAM_EXTENSION")
+        file_ext = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
         if file_ext:
             ext_list =["*.ngc"]
             for data in file_ext:
@@ -3020,7 +3042,7 @@ class HandlerClass:
             self.gscreen.add_alarm_entry("No button found in v_tabs from %s"%pin.name)
 
     def _check_len_increments(self):
-        increments = self.gscreen.inifile.find("DISPLAY", "INCREMENTS")
+        increments = self.ini.find("DISPLAY", "INCREMENTS")
         if increments:
             if "," in increments:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
