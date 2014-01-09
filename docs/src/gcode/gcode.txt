@@ -49,7 +49,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 [width="75%", options="header", cols="2^,5<"]
 |====================================================================
 |Code                               |Description
-|<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid
+|<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid Rate
 |<<sec:G1-Linear-Motion,G1>>        |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2 G3>>            |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
@@ -101,8 +101,8 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |====================================================================
 
 [[sec:G0]]
-== G0 Rapid Motion
-(((G0 Rapid)))(((Rapid Motion)))
+== G0 Rapid Move
+(((G0 Rapid Move)))(((Rapid Move)))
 
 ----
 G0 axes
@@ -111,9 +111,19 @@ G0 axes
 For rapid linear (straight line) motion, program 'G0 'axes'', where
 all the axis words are optional. The 'G0' is optional if the current
 motion mode is 'G0'. This will produce coordinated linear motion to
-the destination point at the current maximum traverse rate (or slower if
-the machine will not go that fast). It is expected that cutting 
-will not take place when a 'G0' command is executing.
+the destination point at the maximum rapid rate (or slower).
+It is expected that cutting will not take place when a 'G0' command is
+executing.
+
+[[sub:rapid-velocity]]
+=== Rapid Velocity Rate
+
+The MAX_VELOCITY setting in the ini file [TRAJ] section defines the maximum
+rapid traverse rate. The maximum rapid traverse rate can be higher than the
+individual axes MAX_VELOCITY setting during a coordinated move. The maximum
+rapid traverse rate can be slower than the MAX_VELOCITY setting in the [TRAJ]
+section if an axis MAX_VELOCITY or trajectory constraints limit it.
+
 
 .G0 Example
 ----
@@ -129,25 +139,28 @@ the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<sec:G53-Move-in,G53>> Section for more information.
 
+The path of a G0 rapid motion can be rounded at direction changes and depends
+on the <<sec:trajectory-control,trajectory control>> settings and maximum
+acceleration of the axes.
+
 It is an error if:
 
 * An axis letter is without a real value.
 * An axis letter is used that is not configured
 
 [[sec:G1-Linear-Motion]]
-== G1 Linear Feed
-(((G1 Linear Motion)))(((Linear Motion)))
+== G1 Linear Move
+(((G1 Linear Move)))(((Linear Move)))
 
 ----
 G1 axes
 ----
 
-For linear (straight line) motion at programed feed rate (for cutting
-or not), program 'G1 'axes'', where all the axis words are optional.
-The 'G1' is optional if the current motion mode is 'G1'. This will
-produce coordinated linear motion to the destination point
-at the current feed rate (or slower if the machine will not go that
-fast).
+For linear (straight line) motion at programed <<sec:F-feed-rate,feed rate>>
+(for cutting or not), program 'G1 'axes'', where all the axis words are
+optional. The 'G1' is optional if the current motion mode is 'G1'. This will
+produce coordinated linear motion to the destination point at the current feed
+rate (or slower if the machine will not go that fast).
 
 .G1 Example
 ----
@@ -157,7 +170,8 @@ Z-2.3 (linear move at same feed rate from current position to Z-2.3)
 Z1 F25 (linear move at a feed rate of 25 from current position to Z1)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:F-feed-rate,F>> & <<sec:M2-M30,M2>> sections for more information.
+* See <<sec:G90-G91,G90>> & <<sec:F-feed-rate,F>> & <<sec:M2-M30,M2>> sections
+for more information.
 
 If cutter compensation is active, the motion will differ from
 the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
@@ -172,8 +186,8 @@ It is an error if:
 * An axis letter is used that is not configured
 
 [[sec:G2-G3-Arc]]
-== G2, G3 Arc Feed
-(((G2, G3 Arc)))(((Arc Motion)))
+== G2, G3 Arc Move
+(((G2, G3 Arc Move)))(((Arc Move)))
 
 ----
 G2 or G3 axes offsets (center format)
@@ -182,9 +196,9 @@ G2 or G3 offsets <P-> (full circles)
 ----
 
 A circular or helical arc is specified using either 'G2' (clockwise
-arc) or 'G3' (counterclockwise arc). The direction (CW, CCW) is as
-viewed from the positive end of the axis about which the
-circular motion occurs.
+arc) or 'G3' (counterclockwise arc) at the current 
+<<sec:F-feed-rate,feed rate>>. The direction (CW, CCW) is as viewed from the
+positive end of the axis about which the circular motion occurs.
 
 The axis of the circle or helix must be parallel to the
 X, Y, or Z axis of the machine coordinate system.
@@ -206,7 +220,7 @@ must be an integer. If 'P' is unspecified, the behavior is as if 'P1' was
 given: that is, only one full or partial turn will result. For example, if a
 180 degree arc is programmed with a P2, the resulting motion will be 1 1/2
 rotations. For each P increment above 1 an extra full circle is added to the
-progrmmed arc. Multi turn helical arcs are supported and give motion useful
+programmed arc. Multi turn helical arcs are supported and give motion useful
 for milling holes or threads.
 
 If a line of code makes an arc and includes rotary axis motion,
@@ -448,7 +462,7 @@ G4 P0.5 (wait for 0.5 seconds before proceeding)
 
 It is an error if:
 
-* the P number is negative or not specificed.
+* the P number is negative or not specified.
 
 [[sec:G5_1-B-spline]]
 == G5.1 Quadratic B-spline
@@ -798,13 +812,13 @@ values are 'absolute' machine coordinates in the native machine 'units' as
 specifed in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued.
 
-* 'G28' - makes a rapid traverse move from the current position to the
-'absolute' position of the values in parameters 5161-5166.
+* 'G28' - makes a <<sec:G0,rapid move>> from the current
+  position to the 'absolute' position of the values in parameters 5161-5166.
 
-* 'G28 axes' - will make a rapid traverse move to the position specified by
-'axes' including any offsets, then will make a rapid traverse move to the
-'absolute' position of the values in parameters 5161-5166 for 'axes'
-specified. Any 'axis' not specified will not move.
+* 'G28 axes' - makes a <<sec:G0,rapid move>> to the
+  position specified by 'axes' including any offsets, then will make a rapid
+  move to the 'absolute' position of the values in parameters 5161-5166 for
+  'axes' specified. Any 'axis' not specified will not move.
 
 * 'G28.1' - stores the current 'absolute' position into parameters 5161-5166.
 
@@ -835,13 +849,13 @@ All axes defined in the ini file will be moved when a G30 is issued.
 G30 parameters will be used to move the tool when a M6 is programmed
 if [TOOL_CHANGE_AT_G30]=1 is in the [EMCIO] section of the ini file.
 
-* 'G30' - makes a rapid traverse move from the current position to the
-'absolute' position of the values in parameters 5181-5186.
+* 'G30' - makes a <<sec:G0,rapid move>> from the current
+  position to the 'absolute' position of the values in parameters 5181-5186.
 
-* 'G30 axes' - moves in a rapid traverse to the position specified by
-'axes' including any offsets, then will make a rapid traverse move to the
-'absolute' position of the values in parameters 5181-5186 for 'axes'
-specified. Any 'axis' not specified will not move.
+* 'G30 axes' - makes a <<sec:G0,rapid move>> to the position specified
+  by 'axes' including any offsets, then will make a rapid move to the
+  'absolute' position of the values in parameters 5181-5186 for 'axes'
+  specified. Any 'axis' not specified will not move.
 
 * 'G30.1' - stores the current absolute position into parameters 5181-5186.
 
@@ -933,7 +947,8 @@ A rigid tapping move consists of the following sequence:
 [WARNING]
 If the X Y coordinates specified are not the current coordinates when
 calling G33.1 for tapping the move will not be along the Z axis
-but will traverse from the current location to the X Y specified.
+but will <<sec:G0,rapid move>> from the current location to
+the X Y location specified.
 
 . A move to the specified coordinate, synchronized with the spindle at
    the given ratio and starting with a spindle index pulse.
@@ -1001,7 +1016,7 @@ The tool in the spindle must be a probe or contact a probe switch.
 
 In response to this command, the machine moves the controlled point
 (which should be at the center of the probe ball) in a straight line at the
-current feed rate toward the programmed point.
+current <<sec:F-feed-rate,feed rate>> toward the programmed point.
 In inverse time feed mode, the feed rate is such that the whole motion
 from the current point to the programmed point would take the specified time.
 The move stops (within machine acceleration limits)
@@ -1078,11 +1093,11 @@ redundant and need not be supplied), but it may be any valid tool number.
 
 [NOTE]
 'G41/G42 D0' is a little special.  Its behavior is different on
-random toolchanger machines and nonrandom toolchanger machines
+random tool changer machines and nonrandom tool changer machines
 (see the <<sec:Tool-Changers,Tool Changers>> section).  On nonrandom
-toolchanger machines, 'G41/G42 D0' applies the TLO of the tool currently
+tool changer machines, 'G41/G42 D0' applies the TLO of the tool currently
 in the spindle, or a TLO of 0 if no tool is in the spindle.  On random
-toolchanger machines, 'G41/G42 D0' applies the TLO of the tool T0 defined
+tool changer machines, 'G41/G42 D0' applies the TLO of the tool T0 defined
 in the tool table file (or causes an error if T0 is not defined in the
 tool table).
 
@@ -1153,10 +1168,10 @@ that axis's endpoint is the compensated location.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
-toolchanger machines and nonrandom toolchanger machines (see the
-<<sec:Tool-Changers,Tool Changers>> section).  On nonrandom toolchanger
+tool changer machines and nonrandom tool changer machines (see the
+<<sec:Tool-Changers,Tool Changers>> section).  On nonrandom tool changer
 machines, 'G43 H0' applies the TLO of the tool currently in the spindle,
-or a TLO of 0 if no tool is in the spindle.  On random toolchanger
+or a TLO of 0 if no tool is in the spindle.  On random tool changer
 machines, 'G43 H0' applies the TLO of the tool T0 defined in the tool
 table file (or causes an error if T0 is not defined in the tool table).
 
@@ -1172,7 +1187,7 @@ It is an error if:
 * the H number is negative, or
 
 * the H number is not a valid tool number (though note that 0 is a valid
-    tool number on nonrandom toolchanger machines, it means "the tool
+    tool number on nonrandom tool changer machines, it means "the tool
     currently in the spindle")
 
 
@@ -1185,9 +1200,9 @@ G43.1 axes
 ----
 
 * 'G43.1 axes' - change subsequent motions by offsetting the Z and/or X
-                 offsets stored in the tool table. G43.1 does not cause any
-                 motion. The next time a compensated axis is moved, that axis's
-                 endpoint is the compensated location.
+   offsets stored in the tool table. G43.1 does not cause any
+   motion. The next time a compensated axis is moved, that axis's
+   endpoint is the compensated location.
 
 .G43.1 Example
 ----
@@ -1196,7 +1211,8 @@ T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows 
 G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
 M2 (end program)
 ----
-* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>> sections for more information.
+* See <<sec:G90-G91,G90>> & <<sec:T-Select-Tool,T>> & <<sec:M6-Tool-Change,M6>>
+  sections for more information.
 
 It is an error if:
 
@@ -1311,9 +1327,9 @@ between speed and accuracy. The P- tolerance means that the actual path
 will be no more than P- away from the programmed endpoint. The velocity
 will be reduced if needed to maintain the path. In addition, when you
 activate G64 P- Q- it turns on the 'naive cam detector'; when there are
-a series of linear XYZ feed moves at the same feed rate that are less
-than Q- away from being collinear, they are collapsed into a single
-linear move. On G2/G3 moves in the G17 (XY) plane when the maximum
+a series of linear XYZ feed moves at the same <<sec:F-feed-rate,feed rate>>
+that are less than Q- away from being collinear, they are collapsed into a
+single linear move. On G2/G3 moves in the G17 (XY) plane when the maximum
 deviation of an arc from a straight line is less than the G64 P-
 tolerance the arc is broken into two lines (from start of arc to
 midpoint, and from midpoint to end). those lines are then subject to
@@ -1351,13 +1367,13 @@ This cycle takes a Q number which represents a 'delta' increment along the Z axi
 
  . Preliminary motion.
    ** If the current Z position is below the R position,
-   the Z axis is traversed to the R position.
+   the Z axis moves to the R position at maximum velocity.
    ** Move to the X Y coordinates
- . Move the Z-axis only at the current feed rate downward by delta or to
-   the Z position, whichever is less deep.
+ . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> downward
+   by delta or to the Z position, whichever is less deep.
  . Rapid up a bit.
  . Repeat steps 2 and 3 until the Z position is reached at step 2.
- . Retract the Z-axis at traverse rate to R. 
+ . The Z axis moves to the R position at maximum velocity.
 
 It is an error if:
 
@@ -1428,10 +1444,10 @@ thread. For a 45 degree taper program E the same as K
 
 * 'L-' - Specifies which ends of the thread get the taper. Program 'L0' for no
 taper (the default), 'L1' for entry taper, 'L2' for exit taper, or 'L3'
-for both entry and exit tapers. Entry tapers will pause at the drive
-line to synchronize with the index pulse then feed in to the beginning
-of the taper. No entry taper and the tool will rapid to the cut depth
-then synchronize and begin the cut.
+for both entry and exit tapers. Entry tapers will pause at the drive line to
+synchronize with the index pulse then move at the <<sec:F-feed-rate,feed rate>>
+in to the beginning of the taper. No entry taper and the tool will rapid to the
+cut depth then synchronize and begin the cut.
 
 The tool is moved to the initial X and Z positions prior to issuing
 the G76. The X position is the 'drive line' and the Z position is the
@@ -1442,9 +1458,9 @@ pass, so a relief groove will be required at the entry unless the
 beginning of the thread is past the end of the material or an entry
 taper is used.
 
-Unless using an exit taper, the exit move (traverse to original X) is
-not synchronized to the spindle speed. With a slow spindle, the exit
-move might take only a small fraction of a revolution. If the spindle
+Unless using an exit taper, the exit move is not synchronized to the spindle
+speed and will be a <<sec:G0,rapid move>>. With a slow spindle, the
+exit move might take only a small fraction of a revolution. If the spindle
 speed is increased after several passes are complete, subsequent exit
 moves will require a larger portion of a revolution, resulting in a
 very heavy cut during the exit move. This can be avoided by providing a
@@ -1586,15 +1602,16 @@ XY conditions above.
 
 Preliminary motion is a set of motions that is common to all of the
 milling canned cycles. If the current Z position is below the R position,
-the Z axis is traversed to the R position. This happens only once,
-regardless of the value of L.
+the Z axis moves to the R position at maximum velocity. This happens only
+once, regardless of the value of L.
 
 In addition, at the beginning of the first cycle and each repeat, the
 following one or two moves are made
 
-. a straight traverse parallel to the XY-plane to the given XY-position,
-. a straight traverse of the Z-axis only to the R position, if it is not
- already at the R position. 
+. A <<sec:G0,rapid move>> parallel to the XY-plane to
+  the given XY-position,
+. The Z-axis make a rapid move to the R position, if it is
+  not already at the R position.
 
 If another plane is active, the preliminary and in-between motions are
 analogous.
@@ -1605,8 +1622,8 @@ There are at least two reasons for using canned cycles. The first is
 the economy of code. A single bore would take several lines of code to
 execute.
 
-The G81 <<G81-example-1,Example 1>> demonstrates how a canned cycle could be used to
-produce 8 holes with ten lines of G code within the canned cycle mode.
+The G81 <<G81-example-1,Example 1>> demonstrates how a canned cycle could be
+used to produce 8 holes with ten lines of G code within the canned cycle mode.
 The program below will produce the same set of 8 holes using five lines
 for the canned cycle. It does not follow exactly the same path nor does
 it drill in the same order as the earlier example. But the program
@@ -1645,7 +1662,7 @@ X0 Y1 R0 L3 (repeat)
 X-1 Y0 L3 (repeat)
 X0 Y-1 L2 (repeat)
 G80 (turn off canned cycle)
-G90 G0 X0 (rapid home)
+G90 G0 X0 (rapid move home)
 Y0
 Z0
 M2 (program end)
@@ -1674,7 +1691,7 @@ It is an error if:
 ----
 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
 G80 (turn off canned cycle motion)
-G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+G0 X0 Y0 Z0 (rapid move to coordinate home)
 ----
 
 The following code produces the same final position and machine state as
@@ -1683,7 +1700,7 @@ the previous code.
 .G0 Example
 ----
 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
-G0 X0 Y0 Z0 (turn on rapid traverse and move to coordinate home)
+G0 X0 Y0 Z0 (rapid move to coordinate home)
 ----
 
 The advantage of the first set is that, the G80 line clearly turns off the
@@ -1709,7 +1726,7 @@ N170 X3
 N180 X2
 N190 X1
 N200 G80 (turn off canned cycle)
-N210 G0 X0 (rapid home moves)
+N210 G0 X0 (rapid move home)
 N220 Y0
 N230 Z0
 N240 M2 (program end)
@@ -1746,10 +1763,10 @@ The cycle functions as follows:
  . Preliminary motion, as described in the
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
 
-. Move the Z-axis only at the current feed rate to the Z position.
+. Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> to the Z
+  position.
 
-. Retract the Z-axis at traverse rate to clear Z. This cycle was used
-  in the description of G80 above but is explained in detail here.
+. Retract the Z-axis at maximum velocity to clear Z.
 
 .Example 1 - Absolute Position G81[[G81-example-1]]
 
@@ -1773,13 +1790,13 @@ The R value and clear Z are 2.8. OLD_Z is 3.
 
 The following moves take place:
 
-. a traverse parallel to the XY plane to (X4, Y5, Z3)
+. a <<sec:G0,rapid move>> parallel to the XY plane to (X4, Y5)
 
-. a traverse parallel to the Z-axis to (X4, Y5, Z2.8).
+. a rapid move move parallel to the Z-axis to (Z2.8).
 
-. a feed parallel to the Z-axis to (X4, Y5, Z1.5)
+. move parallel to the Z-axis at the <<sec:F-feed-rate,feed rate>> to (Z1.5)
 
-. a traverse parallel to the Z-axis to (X4, Y5, Z3)
+. a rapid move parallel to the Z-axis to (Z3)
 
 image::images/G81ex1.png[align="center"]
 
@@ -1799,34 +1816,34 @@ R value is 1.8. The initial X position is 5 (=1+4), the initial Y
 position is 7 (=2+5), the clear Z position is 4.8 (=1.8+3), and the Z
 position is 4.2 (=4.8-0.6). OLD_Z is 3.
 
-The first preliminary move is a traverse along the Z axis to
+The first preliminary move is a maximum rapid move along the Z axis to
 (X1,Y2,Z4.8), since OLD_Z < clear Z.
 
 The first repeat consists of 3 moves.
 
-. a traverse parallel to the XY-plane to (X5, Y7, Z4.8)
+. a <<sec:G0,rapid move>> parallel to the XY-plane to (X5, Y7)
 
-. a feed parallel to the Z-axis to (X5, Y7, Z4.2)
+. move parallel to the Z-axis at the <<sec:F-feed-rate,feed rate>> to (Z4.2)
 
-. a traverse parallel to the Z-axis to (X5, Y7, Z4.8) 
+. a rapid move parallel to the Z-axis to (X5, Y7, Z4.8) 
 
 The second repeat consists of 3 moves. The X position is reset to
  9 (=5+4) and the Y position to 12 (=7+5).
 
-. a traverse parallel to the XY-plane to (X9, Y12, Z4.8)
+. a <<sec:G0,rapid move>> parallel to the XY-plane to (X9, Y12, Z4.8)
 
-. a feed parallel to the Z-axis to (X9, Y12, Z4.2)
+. move parallel to the Z-axis at the feed rate to (X9, Y12, Z4.2)
 
-. a traverse parallel to the Z-axis to (X9, Y12, Z4.8) 
+. a rapid move parallel to the Z-axis to (X9, Y12, Z4.8) 
 
 The third repeat consists of 3 moves. The X position is reset to
  13 (=9+4) and the Y position to 17 (=12+5).
 
-. a traverse parallel to the XY-plane to (X13, Y17, Z4.8)
+. a <<sec:G0,rapid move>> parallel to the XY-plane to (X13, Y17, Z4.8)
 
-. a feed parallel to the Z-axis to (X13, Y17, Z4.2)
+. move parallel to the Z-axis at the feed rate to (X13, Y17, Z4.2)
 
-. a traverse parallel to the Z-axis to (X13, Y17, Z4.8)
+. a rapid move parallel to the Z-axis to (X13, Y17, Z4.8)
 
 image::images/G81ex2.png[align="center"]
 
@@ -1855,7 +1872,7 @@ G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
 ----
 
 Since this plot starts with (X0, Y0, Z0), the interpreter adds the
-initial Z0 and R1.8 and rapids to that location. After that initial Z
+initial Z0 and R1.8 and rapid moves to that location. After that initial Z
 move, the repeat feature works the same as it did in example 3 with the
 final Z depth being 0.6 below the R value.
 
@@ -1867,11 +1884,11 @@ image::images/G81a.png[align="center"]
 G90 G98 G81 X4 Y5 Z-0.6 R1.8
 ----
 
-Since this plot starts with (X0, Y0, Z0), the interpreter adds the
-initial Z0 and R1.8 and rapids to that location as in 'Example 4'.
-After that initial Z move, the rapid traverse move to X4 Y5 is done.
-Then the final Z depth being 0.6 below the R value. The repeat
-function would make the Z move in the same location again.
+Since this plot starts with (X0, Y0, Z0), the interpreter adds the initial Z0
+and R1.8 and rapid moves to that location as in 'Example 4'. After that initial Z
+move, the <<sec:G0,rapid move>> to X4 Y5 is done. Then the final Z
+depth being 0.6 below the R value. The repeat function would make the Z move
+in the same location again.
 
 [[sec:G82-Drilling-Dwell]]
 == G82 Drilling Cycle, Dwell
@@ -1886,9 +1903,9 @@ the hole.
 
  . Preliminary motion, as described in the
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current feed rate to the Z position.
+ . Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> to the Z position.
  . Dwell for the P number of seconds.
- . Retract the Z-axis at traverse rate to clear Z.
+ . Retract the Z-axis at maximum velocity to clear Z.
 
 The motion of a G82 canned cycle looks just like G81 with the
 addition of a dwell at the bottom of the Z move. The length of
@@ -1915,12 +1932,12 @@ of retracts during the drilling operation.
 
  . Preliminary motion, as described in the
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current feed rate downward by delta or to
-   the Z position, whichever is less deep. 
- . Rapid back out to the retract plane specified by the R word.
- . Rapid back down to the current hole bottom, backed off a bit.
+ . Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> downward by
+   delta or to the Z position, whichever is less deep. 
+ . Rapid move back out to the retract plane specified by the R word.
+ . Rapid move back down to the current hole bottom, backed off a bit.
  . Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
- . Retract the Z-axis at traverse rate to clear Z. 
+ . Retract the Z-axis at maximum velocity to clear Z. 
 
 It is an error if:
 
@@ -1946,12 +1963,13 @@ for drilling or milling.
 
  . Preliminary motion, as described in the
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current feed rate to the Z position.
+ . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> to the Z
+   position.
  . Retract the Z-axis at the current feed rate to clear Z. 
 
 [[sec:G86-Boring-Rapid-Out]]
-== G86 Boring Cycle, Spindle Stop, Rapid Out
-(((G86 Boring, Spindle Stop, Rapid Out)))
+== G86 Boring Cycle, Spindle Stop, Rapid Move Out
+(((G86 Boring, Spindle Stop, Rapid Move Out)))
 
 ----
 G86 (X- Y- Z-) or (U- V- W-) R- L- P-
@@ -1962,10 +1980,11 @@ for the number of seconds to dwell.
 
  . Preliminary motion, as described in the
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current feed rate to the Z position.
+ . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> to the Z
+   position.
  . Dwell for the P number of seconds.
  . Stop the spindle turning.
- . Retract the Z-axis at traverse rate to clear Z.
+ . Retract the Z-axis at maximum velocity rate to clear Z.
  . Restart the spindle in the direction it was going. 
 
 It is an error if:
@@ -1999,7 +2018,8 @@ where P specifies the number of seconds to dwell.
 
  . Preliminary motion, as described in the
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
- . Move the Z-axis only at the current feed rate to the Z position.
+ . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> to the Z
+   position.
  . Dwell for the P number of seconds. 
  . Retract the Z-axis at the current feed rate to clear Z. 
 
@@ -2008,25 +2028,25 @@ where P specifies the number of seconds to dwell.
 (((G90, G91 Distance Mode)))
 
 * 'G90' - absolute distance mode In absolute 
-          distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W)
-          usually represent positions in terms of the currently active
-          coordinate system. Any exceptions to that rule are described
-          explicitly in the <<sec:G80-G89,G80 G89>> Section.
+  distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W)
+  usually represent positions in terms of the currently active
+  coordinate system. Any exceptions to that rule are described
+  explicitly in the <<sec:G80-G89,G80 G89>> Section.
 
 * 'G91' - incremental distance mode In incremental
-          distance mode, axis numbers usually represent
-          increments from the current coordinate.
+  distance mode, axis numbers usually represent
+  increments from the current coordinate.
 
 .G90 Example
 ----
 G90 (set absolute distance mode)
-G0 X2.5 (rapid linear move to coordinate X2.5 including any offsets in effect)
+G0 X2.5 (rapid move to coordinate X2.5 including any offsets in effect)
 ----
 
 .G91 Example
 ----
 G91 (set incremental distance mode)
-G0 X2.5 (rapid linear move 2.5 from current position along the X axis)
+G0 X2.5 (rapid move 2.5 from current position along the X axis)
 ----
 
 * See <<sec:G0,G0>> section for more information.
@@ -2036,11 +2056,11 @@ G0 X2.5 (rapid linear move 2.5 from current position along the X axis)
 (((Arc Distance Mode)))
 
 * 'G90.1' - absolute distance mode for I, J & K offsets.
-            When G90.1 is in effect I and J both must be specified with G2/3
-            for the XY plane or J and K for the XZ plane or it is an error.
+  When G90.1 is in effect I and J both must be specified with G2/3
+  for the XY plane or J and K for the XZ plane or it is an error.
 
 * 'G91.1' - incremental distance mode for I, J & K offsets. G91.1 Returns 
-            I, J & K to their default behavior.
+  I, J & K to their default behavior.
 
 [[sec:G92]]
 == G92 Coordinate System Offset
@@ -2091,7 +2111,7 @@ See the <<sec:parameters,Parameters>> Section for more information.
 == G92.1, G92.2 Reset Coordinate System Offsets
 
 * 'G92.1' - reset axis offsets to zero and set <<sub:numbered-parameters,parameters>>
-            5211 - 5219 to zero.
+  5211 - 5219 to zero.
 * 'G92.2' - reset axis offsets to zero.
 
 [[sec:G92_3]]
@@ -2112,17 +2132,17 @@ the offsets saved in the first program.
 (((G93, G94, G95: Feed Rate Mode)))
 
 * 'G93' - is Inverse Time Mode. In inverse time feed rate mode, an F word
-          means the move should be completed in [one divided by the F number]
-          minutes. For example, if the F number is 2.0, the move should be
-          completed in half a minute.
+  means the move should be completed in [one divided by the F number]
+  minutes. For example, if the F number is 2.0, the move should be
+  completed in half a minute.
 +
 When the inverse time feed rate mode is active, an F word must appear
 on every line which has a G1, G2, or G3 motion, and an F word on a line
 that does not have G1, G2, or G3 is ignored. Being in inverse time feed
-rate mode does not affect G0 (rapid traverse) motions.
+rate mode does not affect G0 (<<sec:G0,rapid move>>) motions.
 
 * 'G94' - is Units per Minute Mode.
-In units per minute feed rate mode, an F word is interpreted to mean
+In units per minute feed mode, an F word is interpreted to mean
 the controlled point should move at a certain number of inches per
 minute, millimeters per minute, or degrees per minute, depending upon
 what length units are being used and which axis or axes are moving.
@@ -2136,7 +2156,7 @@ threading use G33 or G76.
 
 It is an error if:
 
-* Inverse time feed rate mode is active and a line with G1, G2, or G3
+* Inverse time feed mode is active and a line with G1, G2, or G3
    (explicitly or implicitly) does not have an F word.
 * A new feed rate is not specified after switching to G94 or G95
 
