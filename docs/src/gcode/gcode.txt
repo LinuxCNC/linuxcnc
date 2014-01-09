@@ -50,7 +50,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |====================================================================
 |Code                               |Description
 |<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid Rate
-|<<sec:G1-Linear-Motion,G1>>        |Coordinated Straight Motion Feed Rate
+|<<sec:G1,G1>>        |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2 G3>>            |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
 |<<sec:G5_1-B-spline,G5.1>>         |Quadratic B-Spline
@@ -148,7 +148,7 @@ It is an error if:
 * An axis letter is without a real value.
 * An axis letter is used that is not configured
 
-[[sec:G1-Linear-Motion]]
+[[sec:G1]]
 == G1 Linear Move
 (((G1 Linear Move)))(((Linear Move)))
 
