@@ -73,7 +73,17 @@ int emcPoseSub(EmcPose const * const p1, EmcPose const * const p2, EmcPose * con
 
 }
 
-extern int emcPoseToPmCartesian(EmcPose const * const pose,
+int emcPoseSelfAdd(EmcPose * const self, EmcPose const * const p2)
+{
+    return emcPoseAdd(self, p2, self);
+}
+
+int emcPoseSelfSub(EmcPose * const self, EmcPose const * const p2)
+{
+    return emcPoseSub(self, p2, self);
+}
+
+int emcPoseToPmCartesian(EmcPose const * const pose,
         PmCartesian * const xyz, PmCartesian * const abc, PmCartesian * const uvw)
 {
 
@@ -104,7 +114,7 @@ extern int emcPoseToPmCartesian(EmcPose const * const pose,
 /**
  * Collect PmCartesian elements into 9D EmcPose structure.
  */
-extern int pmCartesianToEmcPose(PmCartesian const * const xyz,
+int pmCartesianToEmcPose(PmCartesian const * const xyz,
         PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose)
 {
 #ifdef EMCPOSE_PEDANTIC
@@ -126,7 +136,24 @@ extern int pmCartesianToEmcPose(PmCartesian const * const xyz,
     pose->v = uvw->y;
     pose->w = uvw->z;
     return EMCPOSE_ERR_OK;
+}
 
+
+int emcPoseSetXYZ(PmCartesian const * const xyz, EmcPose * const pose)
+{
+#ifdef EMCPOSE_PEDANTIC
+    if (!pose) {
+        return EMCPOSE_ERR_OUTPUT_MISSING;
+    }
+    if (!xyz) {
+        return EMCPOSE_ERR_INPUT_MISSING;
+   }
+#endif
+
+    pose->tran.x = xyz->x;
+    pose->tran.y = xyz->y;
+    pose->tran.z = xyz->z;
+    return EMCPOSE_ERR_OK;
 }
 
 
@@ -163,6 +190,24 @@ int emcPoseSetUVW(PmCartesian const * const uvw, EmcPose * const pose)
     pose->v = uvw->y;
     pose->w = uvw->z;
 
+    return EMCPOSE_ERR_OK;
+}
+
+
+int emcPoseGetXYZ(EmcPose const * const pose, PmCartesian * const xyz)
+{
+#ifdef EMCPOSE_PEDANTIC
+    if (!pose) {
+        return EMCPOSE_ERR_OUTPUT_MISSING;
+    }
+    if (!xyz) {
+        return EMCPOSE_ERR_INPUT_MISSING;
+   }
+#endif
+
+    xyz->x = pose->tran.x;
+    xyz->y = pose->tran.y;
+    xyz->z = pose->tran.z;
     return EMCPOSE_ERR_OK;
 }
 
