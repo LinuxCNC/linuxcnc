@@ -47,7 +47,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.7.6"
+_RELEASE = "0.9.9.8"
 _INCH = 0               # imperial units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -139,14 +139,16 @@ class HandlerClass:
         self.axisnumber_four = ""   # we use this to get the number of the 4-th axis
         self.axisletter_four = None # we use this to get the letter of the 4-th axis
         self.notification = notification.Notification() # Our own message system
+        self.last_key_event = None, 0 # needed to avoid the auto repeat function of the keyboard
+        self.all_homed = False    # will hold True if all axis are homed
+        self.faktor = 1.0         # needed to calculate velocitys
 
     def initialize_preferences(self):
         self.data.theme_name = self.prefs.getpref("gtk_theme", "Follow System Theme", str)
         self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
         self.data.error_sound = self.prefs.getpref('audio_error', self.data.error_sound, str)
         self.data.grid_size = self.prefs.getpref('grid_size', 1.0 , float)
-        self.data.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
-        self.data.plot_view = self.prefs.getpref('view', ("p","x","y","y2","z","z2"), repr)
+        self.hide_cursor = self.prefs.getpref('hide_cursor', False, bool)
         self.data.spindle_start_rpm = self.prefs.getpref('spindle_start_rpm', 300 , float)
         self._init_axis_four()
 
@@ -201,7 +203,7 @@ class HandlerClass:
         self.init_IconFileSelection()
 
         # now we initialize the file to load widget
-        self.init_file_to_load()
+        self._init_file_to_load()
 
         self._show_offset_tab(False)
         self._show_tooledit_tab(False)
@@ -227,13 +229,21 @@ class HandlerClass:
         self.widgets.adj_max_vel.configure(self.stat.max_velocity * 60, self.stat.max_velocity * 0.1,
                                            self.stat.max_velocity * 60 + 1, 1, 1, 1)
         self.widgets.adj_jog_vel.configure(self.data.jog_rate, 0, 
-                                           self.gscreen.data.jog_rate_max + 1, 1, 1, 1)
+                                           self.data.jog_rate_max + 1, 1, 1, 1)
         self.widgets.adj_spindle.configure(100, self.data.spindle_override_min * 100, 
                                            self.data.spindle_override_max * 100 + 1, 1, 1, 1)
         self.widgets.adj_feed.configure(100, 0, self.data.feed_override_max * 100 + 1, 1, 1, 1)
 
+        # and according to machine units the digits to display
+        if self.stat.linear_units == _MM:
+            self.widgets.scl_max_vel.set_digits(0)
+            self.widgets.scl_jog_vel.set_digits(0)
+        else:
+            self.widgets.scl_max_vel.set_digits(3)
+            self.widgets.scl_jog_vel.set_digits(3)
+
         # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
-        default = (self.data._maxvelocity * 60 - self.data._maxvelocity * 0.1)/100
+        default = (self.stat.max_velocity * 60 - self.stat.max_velocity * 0.1)/100
         self.scale_max_vel = self.prefs.getpref("scale_max_vel", default, float)
         self.widgets.adj_scale_max_vel.set_value(self.scale_max_vel)
         default = (self.data.jog_rate_max / 100)
@@ -592,9 +602,9 @@ class HandlerClass:
             # this is set on purpose wrong, because we want the periodic 
             # to update the state correctly
             if "G7" in self.data.active_gcodes:
-                self.data.diameter_mode = False
+                self.diameter_mode = False
             else:
-                self.data.diameter_mode = True
+                self.diameter_mode = True
 
         else:
             # the Y2 view is not needed on a mill
@@ -641,11 +651,11 @@ class HandlerClass:
 #         if result<> 0:
 #             print("error",result)
         try:
-            self.data.ob = subprocess.Popen(["onboard","--xid",args,x,y],
+            self.onboard_kb = subprocess.Popen(["onboard","--xid",args,x,y],
                                    stdin=subprocess.PIPE,
                                    stdout=subprocess.PIPE,
                                    close_fds=True)
-            sid = self.data.ob.stdout.readline()
+            sid = self.onboard_kb.stdout.readline()
             #print"keyboard", sid # skip header line
             socket = gtk.Socket()
             socket.show()
@@ -657,14 +667,14 @@ class HandlerClass:
     def kill_keyboard(self):
         try:
             self.widgets.key_box.hide()
-            self.data.ob.kill()
-            self.data.ob.terminate()
-            self.data.ob = None
+            self.onboard_kb.kill()
+            self.onboard_kb.terminate()
+            self.onboard_kb = None
         except:
             try:
-                self.data.ob.kill()
-                self.data.ob.terminate()
-                self.data.ob = None
+                self.onboard_kb.kill()
+                self.onboard_kb.terminate()
+                self.onboard_kb = None
             except:
                 pass
 
@@ -732,20 +742,47 @@ class HandlerClass:
         # if the user do not wish to use auto units, we leave here
         if not self.widgets.chk_auto_units.get_active():
             return
+
+        # set gremlin_units
+        self.widgets.gremlin.set_property("metric_units", metric_units)
+
         # debug printing
-        print("Combi_DRO units changed", metric_units)
-        print("Machine units = ", self.stat.linear_units)
-        print("program units = ", self.stat.program_units)
+        #print("Combi_DRO units changed", metric_units)
+        #print("Machine units = ", self.stat.linear_units)
+        #print("program units = ", self.stat.program_units)
+
+        widgetlist = ["adj_jog_vel", "adj_max_vel"]
 
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
         if metric_units != int(self.stat.linear_units):
-            print(" Faktor needed ")
             if self.stat.linear_units == _MM:
-                print(" Faktor would be %.4f"%(1.0 / 25.4))
+                self.faktor = (1.0 / 25.4)
             else:
-                print(" Faktor would be %s"%(25.4))
+                self.faktor = 25.4
+            self._update_slider(widgetlist, self.faktor)
         else:
-            print(" Faktor would be 1.0 ")
+            if self.faktor != 1.0:
+                self.faktor = 1 / self.faktor
+                self._update_slider(widgetlist, self.faktor)
+                self.faktor = 1.0
+
+        if metric_units:
+            self.widgets.scl_max_vel.set_digits(0)
+            self.widgets.scl_jog_vel.set_digits(0)
+        else:
+            self.widgets.scl_max_vel.set_digits(3)
+            self.widgets.scl_jog_vel.set_digits(3)
+
+    def _update_slider(self,widgetlist,faktor):
+        # update scales and sliders
+        for widget in widgetlist:
+            value = self.widgets[widget].get_value()
+            max = self.widgets[widget].upper
+            min = self.widgets[widget].lower
+            self.widgets[widget].lower = min * self.faktor
+            self.widgets[widget].upper = max * self.faktor
+            self.widgets[widget].set_value(value * self.faktor)
+            print self.stat.program_units
 
 # from here only needed, if the DRO button will remain in gmoccapy
     def on_Combi_DRO_system_changed(self, widget, system):
@@ -792,6 +829,8 @@ class HandlerClass:
             self.widgets["Combi_DRO_%s"%axis].set_to_inch(not metric_units)
         if self.data.lathe_mode:
             self.widgets.Combi_DRO_y.set_to_inch(not metric_units)
+        # set gremlin_units
+        self.widgets.gremlin.set_property("metric_units", metric_units)
 
     def on_chk_auto_units_toggled(self, widget, data=None):
         for axis in self.data.axis_list:
@@ -859,7 +898,7 @@ class HandlerClass:
         jump_to_dir = self.prefs.getpref("jump_to_dir", os.path.expanduser("~"),str)
         self.widgets.jump_to_dir_chooser.set_current_folder(jump_to_dir)
         self.widgets.IconFileSelection1.set_property("jump_to_dir", jump_to_dir)
-        
+
         self.widgets.IconFileSelection1.show_buttonbox(False)
         self.widgets.IconFileSelection1.show_filelabel(False)
 
@@ -867,15 +906,16 @@ class HandlerClass:
     def init_gremlin(self):
         self.widgets.grid_size.set_value(self.data.grid_size) 
         self.widgets.gremlin.grid_size = self.data.grid_size
-        self.widgets.gremlin.set_property("view",self.data.plot_view[0])
-        self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
+        view = self.prefs.getpref('view', "p", str)
+        self.widgets.gremlin.set_property("view",view)
+        self.widgets.gremlin.set_property("metric_units", int(self.stat.linear_units))
 
     # init the function to hide the cursor 
     def init_hide_cursor(self):
-        self.widgets.chk_hide_cursor.set_active(self.data.hide_cursor)
+        self.widgets.chk_hide_cursor.set_active(self.hide_cursor)
         # if hide cursor requested
         # we set the graphics to use touchscreen controls
-        if self.data.hide_cursor:
+        if self.hide_cursor:
             self.widgets.window1.window.set_cursor(INVISABLE)
             self.widgets.gremlin.set_property("use_default_controls",False)
         else:
@@ -909,7 +949,7 @@ class HandlerClass:
             return True
 
         # This will avoid excecuting the key press event several times caused by keyboard auto repeat
-        if self.data.key_event_last[0] == keyname and self.data.key_event_last[1] == signal:
+        if self.last_key_event[0] == keyname and self.last_key_event[1] == signal:
             return True
 
         try:
@@ -1021,8 +1061,8 @@ class HandlerClass:
                 self.on_btn_jog_released(widget)
         else:
             print("This key has not been implemented yet")
-            print "Key %s (%d) was pressed" % (keyname, event.keyval),signal, self.data.key_event_last
-        self.data.key_event_last = keyname,signal
+            print "Key %s (%d) was pressed" % (keyname, event.keyval),signal, self.last_key_event
+        self.last_key_event = keyname, signal
         return True
 
     # check if macros are in the INI file and add them to MDI Button List
@@ -1160,10 +1200,10 @@ class HandlerClass:
 
     # use the current loaded file to be loaded on start up
     def on_btn_use_current_clicked(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("use_current_clicked %s"%self.data.file)
-        if self.data.file:
-            self.widgets.file_to_load_chooser.set_filename(self.data.file)
-            self.prefs.putpref("open_file", self.data.file, str)
+        if self.log: self.gscreen.add_alarm_entry("use_current_clicked %s"%self.stat.file)
+        if self.stat.file:
+            self.widgets.file_to_load_chooser.set_filename(self.stat.file)
+            self.prefs.putpref("open_file", self.stat.file, str)
 
     # Clear the status to load a file on start up, so ther will not be loaded a programm
     # on the next start of the GUI
@@ -1282,17 +1322,18 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry( message)
         else:
             # check witch button should be sensitive, depending on the state of the machine
-            if self.data.estopped:
+            print self.stat.task_state , self.linuxcnc.STATE_ESTOP, self.linuxcnc.STATE_ESTOP_RESET,self.linuxcnc.STATE_ON,self.linuxcnc.STATE_OFF
+            if self.stat.task_state == self.linuxcnc.STATE_ESTOP:
                 # estoped no mode availible
                 self.widgets.rbt_manual.set_sensitive(False)
                 self.widgets.rbt_mdi.set_sensitive(False)
                 self.widgets.rbt_auto.set_sensitive(False)
-            if self.data.machine_on and not self.data.all_homed:
+            if (self.stat.task_state == self.linuxcnc.STATE_ON) and not self.all_homed:
                 # machine on, but not homed, only manual allowed
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(False)
                 self.widgets.rbt_auto.set_sensitive(False)
-            if self.data.machine_on and self.data.all_homed:
+            if (self.stat.task_state == self.linuxcnc.STATE_ON) and self.all_homed:
                 # all OK, make all modes availible
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(True)
@@ -1353,7 +1394,7 @@ class HandlerClass:
 
     def on_btn_unhome_all_clicked(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("button unhome all clicked")
-        self.data.all_homed = False
+        self.all_homed = False
         # -1 for all
         self.command.unhome(-1)
 
@@ -1382,7 +1423,7 @@ class HandlerClass:
             self.widgets.gremlin.set_property("metric_units", self.widgets.Combi_DRO_x.metric_units)
             self.widgets.gremlin.set_property("enable_dro", True)
             if self.data.lathe_mode:
-                self.widgets.gremlin.set_property("show_lathe_radius", not self.data.diameter_mode)
+                self.widgets.gremlin.set_property("show_lathe_radius", not self.diameter_mode)
         else:
             self.widgets.box_info.show()
             self.widgets.vbx_jog.show()
@@ -1524,22 +1565,22 @@ class HandlerClass:
     def _update_spindle_btn(self):
         if self.stat.task_mode == _AUTO and self.interpreter == _RUN:
             return
-        if not self.data.spindle_speed:
+        if not abs(self.stat.spindle_speed):
             self.widgets.rbt_stop.set_active(True)
             return
-        if self.data.spindle_dir > 0:
+        if self.stat.spindle_direction > 0:
             self.widgets.rbt_forward.set_active(True)
-        elif self.data.spindle_dir < 0:
+        elif self.stat.spindle_direction < 0:
             self.widgets.rbt_reverse.set_active(True)
         elif not self.widgets.rbt_stop.get_active():
             self.widgets.rbt_stop.set_active(True)
 
     # Coolant an mist coolant button
     def on_tbtn_flood_toggled(self, widget, data=None):
-        if self.log: self.gscreen.add_alarm_entry("tbtn_flood_clicked")
-        if self.data.flood and self.widgets.tbtn_flood.get_active():
+        if self.log: self.gscreen.add_alarm_entry("tbtn_flood_clicked, flood is now ", self.stat.flood)
+        if self.stat.flood and self.widgets.tbtn_flood.get_active():
             return
-        elif not self.data.flood and not self.widgets.tbtn_flood.get_active():
+        elif not self.stat.flood and not self.widgets.tbtn_flood.get_active():
             return
         elif self.widgets.tbtn_flood.get_active():
             self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_on)
@@ -1550,9 +1591,9 @@ class HandlerClass:
 
     def on_tbtn_mist_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("tbtn_mist_clicked")
-        if self.data.mist and self.widgets.tbtn_mist.get_active():
+        if self.stat.mist and self.widgets.tbtn_mist.get_active():
             return
-        elif not self.data.mist and not self.widgets.tbtn_mist.get_active():
+        elif not self.stat.mist and not self.widgets.tbtn_mist.get_active():
             return
         elif self.widgets.tbtn_mist.get_active():
             self.widgets.tbtn_mist.set_image(self.widgets.img_mist_on)
@@ -1562,7 +1603,7 @@ class HandlerClass:
             self.command.mist(self.linuxcnc.MIST_OFF)
 
     def _update_coolant(self):
-        if self.data.flood:
+        if self.stat.flood:
             if not self.widgets.tbtn_flood.get_active():
                 self.widgets.tbtn_flood.set_active(True)
                 self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_on)
@@ -1570,7 +1611,7 @@ class HandlerClass:
             if self.widgets.tbtn_flood.get_active():
                 self.widgets.tbtn_flood.set_active(False)
                 self.widgets.tbtn_flood.set_image(self.widgets.img_coolant_off)
-        if self.data.mist:
+        if self.stat.mist:
             if not self.widgets.tbtn_mist.get_active():
                 self.widgets.tbtn_mist.set_active(True)
                 self.widgets.tbtn_mist.set_image(self.widgets.img_mist_on)
@@ -1589,22 +1630,32 @@ class HandlerClass:
 
     # Update the velocity labels
     def _update_vel(self):
-        self.widgets.lbl_active_feed.set_label(self.data.active_feed_command)
-        feed_override = self.widgets.scl_feed.get_value() / 100
-        real_feed = float(self.widgets.lbl_active_feed.get_text()) * feed_override
         # self.stat.program_units will return 1 for inch, 2 for mm and 3 for cm
-        if self.stat.program_units == 2:
-            self.widgets.lbl_current_vel.set_text("%d" %(self.stat.current_vel * 60.0 ))
+        real_feed = float(self.stat.settings[1] * self.stat.feedrate)
+        if self.stat.program_units != 1:
+            self.widgets.lbl_current_vel.set_text("%d" %(self.stat.current_vel * 60.0 * self.faktor))
             if "G95" in self.data.active_gcodes:
-                self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
+                feed_str = "%d" % self.stat.settings[1]
+                real_feed_str = "F  %.2f" % real_feed
             else:
-                self.widgets.lbl_feed_act.set_text("F  %d" %real_feed)
+                feed_str = "%d" % self.stat.settings[1]
+                real_feed_str = "F  %.d" % real_feed
         else:
-            self.widgets.lbl_current_vel.set_text("%.2f" %(self.stat.current_vel * 60.0 ))
+            self.widgets.lbl_current_vel.set_text("%.3f" %(self.stat.current_vel * 60.0 * self.faktor))
             if "G95" in self.data.active_gcodes:
-                self.widgets.lbl_feed_act.set_text("F  %.4f" %real_feed)
+                feed_str = "%.4f" % self.stat.settings[1]
+                real_feed_str = "F %.4f" % real_feed
             else:
-                self.widgets.lbl_feed_act.set_text("F  %.2f" %real_feed)
+                feed_str = "%.3f" % self.stat.settings[1]
+                real_feed_str = "F %.3f" % real_feed
+
+        # converting 0.0 to string brings nothing, so the string is empty
+        # happens only on start up
+        if not real_feed:
+            real_feed_str = "F  0"
+
+        self.widgets.lbl_active_feed.set_label(feed_str)
+        self.widgets.lbl_feed_act.set_text(real_feed_str)
 
     # This is the jogging part
     def on_increment_changed(self, widget = None, data = None):
@@ -1640,7 +1691,7 @@ class HandlerClass:
         # if data = True, then the user pressed SHIFT for Jogging and 
         # want's to jog at full speed
         if data:
-            velocity = self.stat.max_velocity
+            velocity = self.widgets.adj_max_vel.get_value() / 60
         else:
             velocity = self.widgets.adj_jog_vel.get_value() / 60
 
@@ -2033,7 +2084,7 @@ class HandlerClass:
     def on_chk_hide_cursor_toggled(self, widget, data=None):
         if self.log: self.gscreen.add_alarm_entry("hide_cursor_toggled to %s"%widget.get_active())
         self.prefs.putpref("hide_cursor", widget.get_active())
-        self.data.hide_cursor = widget.get_active()
+        self.hide_cursor = widget.get_active()
         if widget.get_active():
             self.widgets.window1.window.set_cursor(INVISABLE)
         else:
@@ -2043,6 +2094,7 @@ class HandlerClass:
         self.data.dtg_color = self.prefs.getpref("dtg_color", "yellow", str)
         self.data.homed_color = self.prefs.getpref("homed_color", "green", str)
         self.data.unhomed_color = self.prefs.getpref("unhomed_color", "red", str)
+
     def on_rel_colorbutton_color_set(self, widget):
         color = widget.get_color()
         if self.log: self.gscreen.add_alarm_entry("rel color set to %s"%color)
@@ -2089,9 +2141,9 @@ class HandlerClass:
             # this is set on purpose wrong, because we want the periodic 
             # to update the state correctly
             if "G7" in self.data.active_gcodes:
-                self.data.diameter_mode = False
+                self.diameter_mode = False
             else:
-                self.data.diameter_mode = True
+                self.diameter_mode = True
 
     def on_file_to_load_chooser_file_set(self, widget):
         if self.log: self.gscreen.add_alarm_entry("file to load on startup set to : %s"%widget.get_filename())
@@ -2540,7 +2592,7 @@ class HandlerClass:
     # use the hal_status widget to control buttons and 
     # actions allowed by the user and sensitive widgets
     def on_hal_status_all_homed(self,widget):
-        self.data.all_homed = True
+        self.all_homed = True
         self.gscreen.add_alarm_entry("all_homed")
         self.widgets.ntb_button.set_current_page(0)
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_change_tool","btn_select_tool_by_no", 
@@ -2549,7 +2601,7 @@ class HandlerClass:
         self.gscreen.sensitize_widgets(widgetlist,True)
         
     def on_hal_status_not_all_homed(self,*args):
-        self.data.all_homed = False
+        self.all_homed = False
         self.gscreen.add_alarm_entry("not_all_homed")
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_touch", "btn_change_tool","btn_select_tool_by_no", 
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
@@ -2575,7 +2627,7 @@ class HandlerClass:
                      ]
         if not self.widgets.rbt_hal_unlock.get_active():
             widgetlist.append("tbtn_setup")
-        if self.data.all_homed or self.no_force_homing:
+        if self.all_homed or self.no_force_homing:
             widgetlist.append("rbt_mdi")
             widgetlist.append("rbt_auto")
             widgetlist.append("btn_index_tool")
@@ -2624,6 +2676,10 @@ class HandlerClass:
         if self.data.restart_dialog:
             self.data.restart_dialog.destroy()
             self.data.restart_dialog = None
+
+        self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
+        self.widgets.btn_show_kbd.set_property("tooltip-text",_("interrupt running macro"))
+
 
     def on_btn_from_line_clicked(self, widget, data=None):
         self.gscreen.add_alarm_entry("Restart the program from line clicked")
@@ -2779,22 +2835,22 @@ class HandlerClass:
 
         self.gscreen.update_active_gcodes()
         self.gscreen.update_active_mcodes()
-        if "G8" in self.data.active_gcodes and self.data.lathe_mode and self.data.diameter_mode:
+        if "G8" in self.data.active_gcodes and self.data.lathe_mode and self.diameter_mode:
             self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse(self.data.abs_color))
             self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse(self.data.rel_color))
             self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse(self.data.dtg_color))
-            self.data.diameter_mode = False
-        elif "G7" in self.data.active_gcodes and self.data.lathe_mode and not self.data.diameter_mode:
+            self.diameter_mode = False
+        elif "G7" in self.data.active_gcodes and self.data.lathe_mode and not self.diameter_mode:
             self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
             self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.data.abs_color))
             self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.data.rel_color))
             self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.data.dtg_color))
-            self.data.diameter_mode = True
+            self.diameter_mode = True
         self._update_vel()
         self._update_coolant()
         self._update_spindle_btn()
@@ -2805,7 +2861,7 @@ class HandlerClass:
 
     # Initialize the file to load dialog, setting an title and the correct
     # folder as well as a file filter
-    def init_file_to_load(self):
+    def _init_file_to_load(self):
         file_dir = self.ini.find("DISPLAY", "PROGRAM_PREFIX")
         self.widgets.file_to_load_chooser.set_current_folder(file_dir)
         title = _("Select the file you want to be loaded at program start")
