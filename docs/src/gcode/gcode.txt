@@ -1366,14 +1366,14 @@ The 'G73' cycle is drilling or milling with chip breaking.
 This cycle takes a Q number which represents a 'delta' increment along the Z axis.
 
  . Preliminary motion.
-   ** If the current Z position is below the R position,
-   the Z axis moves to the R position at maximum velocity.
+   ** If the current Z position is below the R position, The Z axis does a
+   <<sec:G0,rapid move>> to the R position.
    ** Move to the X Y coordinates
  . Move the Z-axis only at the current <<sec:F-feed-rate,feed rate>> downward
    by delta or to the Z position, whichever is less deep.
  . Rapid up a bit.
  . Repeat steps 2 and 3 until the Z position is reached at step 2.
- . The Z axis moves to the R position at maximum velocity.
+ . The Z axis does a rapid move to the R position.
 
 It is an error if:
 
@@ -1602,7 +1602,7 @@ XY conditions above.
 
 Preliminary motion is a set of motions that is common to all of the
 milling canned cycles. If the current Z position is below the R position,
-the Z axis moves to the R position at maximum velocity. This happens only
+the Z axis does a <<sec:G0,rapid move>> to the R position. This happens only
 once, regardless of the value of L.
 
 In addition, at the beginning of the first cycle and each repeat, the
@@ -1766,7 +1766,7 @@ The cycle functions as follows:
 . Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> to the Z
   position.
 
-. Retract the Z-axis at maximum velocity to clear Z.
+. The Z-axis does a <<sec:G0,rapid move>> to clear Z.
 
 .Example 1 - Absolute Position G81[[G81-example-1]]
 
@@ -1905,7 +1905,7 @@ the hole.
    <<section:preliminary-motion,Preliminary and In-Between Motion>> section.
  . Move the Z-axis at the current <<sec:F-feed-rate,feed rate>> to the Z position.
  . Dwell for the P number of seconds.
- . Retract the Z-axis at maximum velocity to clear Z.
+ . The Z-axis does a <<sec:G0,rapid move>> to clear Z.
 
 The motion of a G82 canned cycle looks just like G81 with the
 addition of a dwell at the bottom of the Z move. The length of
@@ -1937,7 +1937,7 @@ of retracts during the drilling operation.
  . Rapid move back out to the retract plane specified by the R word.
  . Rapid move back down to the current hole bottom, backed off a bit.
  . Repeat steps 2, 3, and 4 until the Z position is reached at step 2.
- . Retract the Z-axis at maximum velocity to clear Z. 
+ . The Z-axis does a <<sec:G0,rapid move>> to clear Z. 
 
 It is an error if:
 
@@ -1984,7 +1984,7 @@ for the number of seconds to dwell.
    position.
  . Dwell for the P number of seconds.
  . Stop the spindle turning.
- . Retract the Z-axis at maximum velocity rate to clear Z.
+ . The Z-axis does a <<sec:G0,rapid move>> to clear Z.
  . Restart the spindle in the direction it was going. 
 
 It is an error if:
