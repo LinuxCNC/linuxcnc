@@ -20,7 +20,7 @@
   */
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "posemath.h"
-#include "emcpos.h"
+#include "emcpose.h"
 #include "tc.h"
 #include "motion_types.h"
 #include "rtapi_math.h"
@@ -263,14 +263,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
 
     }
 
-    pos->tran = xyz;
-    pos->a = abc.x;
-    pos->b = abc.y;
-    pos->c = abc.z;
-    pos->u = uvw.x;
-    pos->v = uvw.y;
-    pos->w = uvw.z;
-
+    pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
     return 0;
 }
 
