@@ -16,6 +16,7 @@
 #include "posemath.h"
 #include "tc.h"
 #include "tp.h"
+#include "emcpose.h"
 #include "rtapi_math.h"
 #include "../motion/motion.h"
 #include "hal.h"
@@ -76,7 +77,7 @@ int gdb_fake_assert(int condition){
     return condition;
 }
 
-
+#if 0
 /**
  * Simple signum-like function to get sign of a double.
  * There's probably a better way to do this...
@@ -91,7 +92,7 @@ STATIC double fsign(double f) {
         return 0;
     }
 }
-
+#endif
 
 /**
  * @section tpcheck Internal state check functions.
@@ -576,58 +577,6 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 
 /**
- * Break out a 9D EmcPose structure into 3 PmCartesian pieces for processing.
- * This function assumes that we're not using the rotation component for
- * anything, so it just treats ABC and UVW as additional orthogonal axes. If
- * NULL is passed for any of the pointers, then that component is unassigned.
- */
-STATIC inline void tpConvertEmcPosetoPmCartesian(EmcPose const * const pose,
-        PmCartesian * const xyz, PmCartesian * const abc, PmCartesian * const uvw)
-{
-
-    //Direct copy of translation struct for xyz
-    if (xyz) {
-        *xyz = pose->tran;
-    }
-
-    //Convert ABCUVW axes into 2 pairs of 3D lines
-    if (abc) {
-        abc->x = pose->a;
-        abc->y = pose->b;
-        abc->z = pose->c;
-    }
-
-    if (uvw) {
-        uvw->x = pose->u;
-        uvw->y = pose->v;
-        uvw->z = pose->w;
-    }
-
-}
-
-
-/**
- * Collect PmCartesian elements into 9D EmcPose structure.
- * TODO: move this to posemath
- */
-STATIC inline void tpConvertPmCartesianToEmcPose(PmCartesian const * const xyz,
-        PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose)
-{
-
-    pose->tran = *xyz;
-
-    pose->a = abc->x;
-    pose->b = abc->y;
-    pose->c = abc->z;
-
-    pose->u = uvw->x;
-    pose->v = uvw->y;
-    pose->w = uvw->z;
-
-}
-
-
-/**
  * Initialize a new queue segment with common parameters.
  * This function is mostly to save space in the tpAddXXX functions, since they
  * get pretty long. If you need a custom setting, overwrite your particular
@@ -1088,8 +1037,8 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     if (tpErrorCheck(tp)) return TP_ERR_FAIL;
 
     //Slightly more allocation this way, but much easier to read
-    tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &abc, &uvw);
-    tpConvertEmcPosetoPmCartesian(&end, &end_xyz, NULL, NULL);
+    emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &abc, &uvw);
+    emcPoseGetXYZ(&end, &end_xyz);
 
     pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
 
@@ -1444,8 +1393,8 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     }
     tp_info_print("===============\n");
 
-    tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
+    emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
+    emcPoseToPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
     int xyz_fail = pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
     int abc_fail = pmCartLineInit(&line_abc, &start_abc, &end_abc);
@@ -1537,8 +1486,8 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         return TP_ERR_FAIL;
     }
 
-    tpConvertEmcPosetoPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    tpConvertEmcPosetoPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
+    emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
+    emcPoseToPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
 
     int xyz_fail = pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
     int abc_fail = pmCartLineInit(&line_abc, &start_abc, &end_abc);
@@ -1852,16 +1801,6 @@ void tpTrapezoidalCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     }
 }
 
-/**
- * Compute a smoothed position and velocity update.
- *
- * This function creates the trapezoidal velocity profile based on tc's
- * velocity and acceleration limits. The formula has been tweaked slightly to
- * allow a non-zero velocity at the instant the target is reached.
- */
-void tpSmoothCycleStep(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-#warning function not implemented
-}
 
 void tpToggleDIOs(TC_STRUCT * const tc) {
 
@@ -1978,16 +1917,7 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
     emcmotStatus->requested_vel = tc->reqvel;
     emcmotStatus->current_vel = tc->currentvel;
 
-    emcmotStatus->dtg.tran.x = target.tran.x - tp->currentPos.tran.x;
-    emcmotStatus->dtg.tran.y = target.tran.y - tp->currentPos.tran.y;
-    emcmotStatus->dtg.tran.z = target.tran.z - tp->currentPos.tran.z;
-    emcmotStatus->dtg.a = target.a - tp->currentPos.a;
-    emcmotStatus->dtg.b = target.b - tp->currentPos.b;
-    emcmotStatus->dtg.c = target.c - tp->currentPos.c;
-    emcmotStatus->dtg.u = target.u - tp->currentPos.u;
-    emcmotStatus->dtg.v = target.v - tp->currentPos.v;
-    emcmotStatus->dtg.w = target.w - tp->currentPos.w;
-
+    emcPoseSub(&target, &tp->currentPos, &emcmotStatus->dtg);
 }
 
 
@@ -2018,50 +1948,6 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //Restore the blend velocity
     nexttc->target_vel = save_vel;
 
-}
-
-
-/**
- * Calculate the displacement between a previous pose and the current tc position.
- * This function encapsulates the simple but verbose displacement calculation
- * based on an initial position. Because of the blending method, we need to use
- * displacement instead of absolute position when blending between moves.
- */
-STATIC void tpFindDisplacement(TC_STRUCT const * const tc, EmcPose const * const before,
-        EmcPose * const displacement) {
-
-    EmcPose after;
-    tcGetPos(tc, &after);
-
-    pmCartCartSub(&after.tran, &before->tran,
-            &(displacement->tran));
-    displacement->a = after.a - before->a;
-    displacement->b = after.b - before->b;
-    displacement->c = after.c - before->c;
-
-    displacement->u = after.u - before->u;
-    displacement->v = after.v - before->v;
-    displacement->w = after.w - before->w;
-
-}
-
-
-/**
- * Update the planner's position, given a displacement.
- * This function updates the trajectory planner's overall position from a given
- * cycle's displacement. This function mostly exists because of the odd format of EmcPose.
- */
-STATIC void tpUpdatePosition(TP_STRUCT * const tp, EmcPose const * const displacement) {
-
-    pmCartCartAdd(&tp->currentPos.tran, &displacement->tran,
-            &(tp->currentPos.tran));
-    tp->currentPos.a += displacement->a;
-    tp->currentPos.b += displacement->b;
-    tp->currentPos.c += displacement->c;
-
-    tp->currentPos.u += displacement->u;
-    tp->currentPos.v += displacement->v;
-    tp->currentPos.w += displacement->w;
 }
 
 
@@ -2256,60 +2142,6 @@ STATIC int tpFlagEarlyStop(TP_STRUCT * const tp,
 
 
 /**
- * Find magnitude of displacement between a pose and the current position in TP.
- */
-STATIC int tpCalculateTotalDisplacement(TP_STRUCT const * const tp,
-        EmcPose const * const pose, double * const magnitude) {
-    if (!pose) {
-        return TP_ERR_FAIL;
-    }
-
-    double mag = 0.0;
-    mag+=pmSq(pose->tran.x - tp->currentPos.tran.x);
-    mag+=pmSq(pose->tran.y - tp->currentPos.tran.y);
-    mag+=pmSq(pose->tran.z - tp->currentPos.tran.z);
-    mag+=pmSq(pose->a - tp->currentPos.a);
-    mag+=pmSq(pose->b - tp->currentPos.b);
-    mag+=pmSq(pose->c - tp->currentPos.c);
-    mag+=pmSq(pose->u - tp->currentPos.u);
-    mag+=pmSq(pose->v - tp->currentPos.v);
-    mag+=pmSq(pose->w - tp->currentPos.w);
-    mag = pmSqrt(mag);
-
-    *magnitude = mag;
-    return TP_ERR_OK;
-
-}
-
-
-/**
- * Find the magnitude of an EmcPose position, treating it like a single vector.
- */
-STATIC int tpCalculateEmcPoseMagnitude(TP_STRUCT const * const tp, EmcPose const * const pose, double * const magnitude) {
-
-    if (!pose) {
-        return TP_ERR_FAIL;
-    }
-
-    double mag = 0.0;
-    mag+=pmSq(pose->tran.x);
-    mag+=pmSq(pose->tran.y);
-    mag+=pmSq(pose->tran.z);
-    mag+=pmSq(pose->a);
-    mag+=pmSq(pose->b);
-    mag+=pmSq(pose->c);
-    mag+=pmSq(pose->u);
-    mag+=pmSq(pose->v);
-    mag+=pmSq(pose->w);
-    mag = pmSqrt(mag);
-
-    *magnitude = mag;
-    return TP_ERR_OK;
-
-}
-
-
-/**
  * "Activate" a segment being read for the first time.
  * This function handles initial setup of a new segment read off of the queue
  * for the first time.
@@ -2487,10 +2319,10 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc) {
 
     //placeholders for position for this update
-    EmcPose position9_before, displacement9;
+    EmcPose before;
 
     //Store the current position due to this TC
-    tcGetPos(tc, &position9_before);
+    tcGetPos(tc, &before);
 
     //Run cycle update with stored cycle time
     tpTrapezoidalCycleStep(tp, tc);
@@ -2498,12 +2330,17 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     //Check if we're near the end of the cycle and set appropriate changes
     tpCheckEndCondition(tp, tc);
 
-    tpFindDisplacement(tc, &position9_before, &displacement9);
-    tpUpdatePosition(tp, &displacement9);
+    EmcPose displacement;
+
+    //Calculate displacement
+    tcGetPos(tc, &displacement);
+    emcPoseSelfSub(&displacement, &before);
+
+    emcPoseSelfAdd(&tp->currentPos, &displacement);
 
 #ifdef TC_DEBUG
     double mag;
-    tpCalculateEmcPoseMagnitude(tp, &displacement9, &mag);
+    emcPoseMagnitude(&displacement, &mag);
     tc_debug_print("cycle movement = %f\n",mag);
 #endif
 
@@ -2696,17 +2533,25 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
 
     //Pose data to calculate movement due to finishing current TC
-    EmcPose position9_before;
-    EmcPose displacement9;
-
-    //Store initial position before trajectory updates
-    tcGetPos(tc, &position9_before);
+    EmcPose before;
+    tcGetPos(tc, &before);
 
     tp_debug_print("tc id %d splitting\n",tc->id);
     //Shortcut tc update by assuming we arrive at end
     tc->progress = tc->target;
-    tpFindDisplacement(tc, &position9_before, &displacement9);
-    tpUpdatePosition(tp, &displacement9);
+    //Get displacement from prev. position
+    EmcPose displacement;
+    tcGetPos(tc, &displacement);
+    emcPoseSelfSub(&displacement, &before);
+
+    //Update tp's position
+    emcPoseSelfAdd(&tp->currentPos, &displacement);
+
+#ifdef TC_DEBUG
+    double mag;
+    emcPoseMagnitude(&displacement, &mag);
+    tc_debug_print("cycle movement = %f\n",mag);
+#endif
 
     //Run remaining cycle time in nexttc
     if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
@@ -2845,7 +2690,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
             break;
     }
 
+#ifdef TC_DEBUG
     EmcPose pos_before = tp->currentPos;
+#endif
+
     // Update the current tc
     if (tc->splitting) {
         tpHandleSplitCycle(tp, tc, nexttc);
@@ -2853,13 +2701,13 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         tpHandleRegularCycle(tp, tc, nexttc);
     }
 
-    //For some reason, this has to be here to prevent graphical glitches in simulation.
-    //FIXME minor algorithm or optimization issue that causes this to happen?
+#ifdef TC_DEBUG
     double mag;
-    tpCalculateTotalDisplacement(tp, &pos_before, &mag);
+    emcPoseMagnitude(&pos_before, &mag);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
             time_elapsed,
             mag, emcmotStatus->current_vel);
+#endif
 
     // If TC is complete, remove it from the queue.
     if (tc->remove) {
