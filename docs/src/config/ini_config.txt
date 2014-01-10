@@ -124,7 +124,7 @@ setp stepgen.0.position-scale [AXIS_0]SCALE
 ----
 
 [NOTE]
-The value stored in the variable must match the type specificied by the
+The value stored in the variable must match the type specified by the
 component pin.
 
 == INI File Sections[[sec:INI-Detail]]
@@ -207,7 +207,7 @@ The following [DISPLAY] items are for the AXIS interface only.
 
 * 'DEFAULT_ANGULAR_VELOCITY = .25' - The default velocity for angular jogs, in machine units per second.
 
-* 'MIN_ANGULAR_VELOCITY = .01' - The approximate lowest value the jog slider.
+* 'MIN_ANGULAR_VELOCITY = .01' - The approximate lowest value the angular jog slider.
 
 * 'MAX_ANGULAR_VELOCITY = 1.0' - The maximum velocity for angular jogs, in machine units per second.
 
@@ -222,7 +222,7 @@ The following [DISPLAY] items are for the AXIS interface only.
 * 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts. Use
    a blank string "" and no file will be loaded at start up.
 
-* 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the gcode 
+* 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G code 
     from the AXIS menu. This must be configured for this menu item to
     work. Another valid entry is gnome-terminal -e vim.
 
@@ -385,13 +385,13 @@ if __name__ == "__main__":
     [WIZARD]WIZARD_ROOT (if specified). The paths are searched in the order
     that they are listed. The first matching subroutine file
     found in the search is used. Directories are specified relative to the
-    current directory for the inifile or as absolute paths. The list must
+    current directory for the ini file or as absolute paths. The list must
     contain no intervening whitespace.
 
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Specifies a list of colon (:) separated directories for user defined
    functions. Directories are specified relative to the current directory
-   for the inifile or as absolute paths. The list must contain no intervening
+   for the ini file or as absolute paths. The list must contain no intervening
    whitespace.
 +
 A search is made for each possible user defined function, typically
