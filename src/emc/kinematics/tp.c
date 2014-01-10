@@ -1324,7 +1324,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         return TP_ERR_FAIL;
     }
     //If we have ABCUVW movement, then don't check for tangency
-    if (tpRotaryMotionCheck(tp, tc)) {
+    if (tpRotaryMotionCheck(tp, tc) || tpRotaryMotionCheck(tp, prev_tc)) {
         tp_debug_print("found rotary axis motion, aborting tangent check\n");
         return TP_ERR_NO_ACTION;
     }
