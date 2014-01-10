@@ -688,7 +688,12 @@ class Gscreen:
             self.handler_instance.initialize_pins()
         else:
             self.initialize_pins()
-        self.initialize_manual_toolchange()
+
+        if "initialize_manual_toolchange" in dir(self.handler_instance):
+            self.handler_instance.initialize_manual_toolchange()
+        else:
+            self.initialize_manual_toolchange()
+
         if "connect_signals" in dir(self.handler_instance):
             self.handler_instance.connect_signals(handlers)
         else:
