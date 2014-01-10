@@ -47,7 +47,7 @@ for f in test_files:
         print "Loading program {0}".format(f)
         e.set_mode(linuxcnc.MODE_AUTO)
         sleep(2)
-        e.open_program("{0}/{1}".format(testpath,f))
+        e.open_program("../{0}/{1}".format(testpath,f))
         sleep(5)
         e.run_full_program()
         sleep(1)
