@@ -1165,8 +1165,8 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
-    if (tpRotaryMotionCheck(tp, tc)) {
-        tp_debug_print("Segment has rotary motion, aborting blend arc");
+    if (tpRotaryMotionCheck(tp, tc) || tpRotaryMotionCheck(tp, prev_tc)) {
+        tp_debug_print("One of the segments has rotary motion, aborting blend arc\n");
         return TP_ERR_FAIL;
     }
 
