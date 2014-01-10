@@ -1,3 +1,10 @@
+ver. 0.9.9.8.1
+- self.data.jog_increments now is self.jog_increments
+  changed the increments handling a little bit
+  so there is no need any more for self.no_increments
+- changed code from self.gscreen.halcomp to self.halcomp, because it is the same ;-)
+- prepared to be able to get an gmoccapy hal component
+
 ver. 0.9.9.8
 - bug in jogging with buttons and SHIFT hold down, as that would
   result in a move at max velocity, not taking in care the max vel slider

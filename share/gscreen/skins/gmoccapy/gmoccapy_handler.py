@@ -47,7 +47,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.8"
+_RELEASE = "0.9.9.8.1"
 _INCH = 0               # imperial units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
@@ -102,6 +102,8 @@ class HandlerClass:
         self.gscreen = gscreen
 # ToDo: End
 
+        #self.halcomp = hal.component("gmoccapy")
+        self.halcomp = halcomp
         self.linuxcnc = linuxcnc
         self.command = linuxcnc.command()
         self.stat = linuxcnc.stat()
@@ -124,7 +126,7 @@ class HandlerClass:
         self.prefs = preferences.preferences(temp)
 
         self.distance = 0         # This global will hold the jog distance
-        self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actions are allowed
+#        self.interpreter = _IDLE  # This hold the interpreter state, so we could check if actions are allowed
         self.wait_tool_change = False # this is needed to get back to manual mode after a tool change
         self.macrobuttons =[]     # The list of all macrios defined in the INI file
         self.log = False          # decide if the actions should be loged
@@ -133,7 +135,8 @@ class HandlerClass:
         self.jv_counts = 0        # need to calculate diference in counts to change the jog_vel slider
         self.mv_counts = 0        # need to calculate diference in counts to change the max_speed slider
         self.incr_rbt_list= []    # we use this list to add hal pin to the button later
-        self.no_increments = 0    # number of increments from INI File, because of space we allow a max of 10
+        self.jog_increments = []  # This holds the increment values
+#        self.no_increments = 0    # number of increments from INI File, because of space we allow a max of 10
         self.unlock = False       # this value will be set using the hal pin unlock settings
         self.system_list = (0,"G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3") # needed to display the labels
         self.axisnumber_four = ""   # we use this to get the number of the 4-th axis
@@ -222,7 +225,6 @@ class HandlerClass:
                 print(_("Default path to ~/linuxcnc/nc_files does not exist"))
                 print(_("setting now home as path"))
                 default_path = os.path.expanduser("~/")
-        #self.widgets.hal_action_open.currentfolder = os.path.expanduser(default_path)
         self.widgets.IconFileSelection1.set_property("start_dir",default_path)
 
         # set the slider limmits
@@ -343,10 +345,10 @@ class HandlerClass:
         self.incr_rbt_list.append(rbt0)
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
-        for increment in range(1,self.no_increments):
-            rbt = "rbt%d"%(increment)
-            rbt = gtk.RadioButton(rbt0, self.data.jog_increments[increment])
-            rbt.connect("pressed", self.on_increment_changed,self.data.jog_increments[increment])
+        for item in range(1,len(self.jog_increments)):
+            rbt = "rbt%d"%(item)
+            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
+            rbt.connect("pressed", self.on_increment_changed,self.jog_increments[item])
             self.widgets.vbuttonbox2.pack_start(rbt,True,True,0)
             rbt.set_property("draw_indicator",False)
             rbt.show()
@@ -463,7 +465,7 @@ class HandlerClass:
         # and set the corresponding button active
         self.widgets["rbt_%s_unlock"%unlock].set_active(True)
         # if Hal pin should be used, only set the button active, if the pin is high
-        if unlock == "hal" and not self.gscreen.halcomp["unlock-settings"]:
+        if unlock == "hal" and not self.halcomp["unlock-settings"]:
             self.widgets.tbtn_setup.set_sensitive(False)
         self.unlock_code = self.prefs.getpref("unlock_code", "123", str) # get unlock code
 
@@ -1300,7 +1302,7 @@ class HandlerClass:
                 code = True
             # if hal pin is true, we are allowed to enter settings, this may be 
             # realized using a key switch
-            if self.widgets.rbt_hal_unlock.get_active() and self.gscreen.halcomp["unlock-settings"]:
+            if self.widgets.rbt_hal_unlock.get_active() and self.halcomp["unlock-settings"]:
                 code = True
             # else we ask for the code using the system.dialog
             if self.widgets.rbt_use_unlock.get_active():
@@ -1660,11 +1662,14 @@ class HandlerClass:
     # This is the jogging part
     def on_increment_changed(self, widget = None, data = None):
         if self.log: self.gscreen.add_alarm_entry("increment_changed %s"%data)
+        print data
         if data == 0:
             self.distance = 0
         else:
+# ToDo: get this gscreen function in a helper modul
             self.distance = self.gscreen.parse_increment(data)
-        self.gscreen.halcomp["jog-increment"] = self.distance
+# ToDo: End
+        self.halcomp["jog-increment"] = self.distance
 
     def on_adj_jog_vel_value_changed(self, widget, data = None):
         if widget.get_value() > self.widgets.adj_max_vel.get_value():
@@ -2208,16 +2213,15 @@ class HandlerClass:
     # Here we create a manual tool change dialog
     # This overrides gscreen handler file
     def on_tool_change(self,widget):
-        halcomp = self.gscreen.halcomp
-        change = halcomp['change-tool']
-        toolnumber = halcomp['tool-number']
-        changedone = halcomp['tool-changed']
+        change = self.halcomp['change-tool']
+        toolnumber = self.halcomp['tool-number']
+        changedone = self.halcomp['tool-changed']
         if change:
             tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
             message =  _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
             self.gscreen.warning_dialog(message, True,pinname="TOOLCHANGE")
         else:
-            halcomp['tool-changed'] = False
+            self.halcomp['tool-changed'] = False
 
     def _update_toolinfo(self, tool):
         toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
@@ -2894,13 +2898,13 @@ class HandlerClass:
     def initialize_pins(self):
         # generate the horizontal button pins 
         for h_button in range(0,10):
-            self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("h-button-%s"%h_button, 
+            self.signal = hal_glib.GPin(self.halcomp.newpin("h-button-%s"%h_button, 
                                                                     hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_h_button_changed)
             
         # generate the vertical button pins 
         for v_button in range(0,7):
-            self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("v-button-%s"%v_button, 
+            self.signal = hal_glib.GPin(self.halcomp.newpin("v-button-%s"%v_button, 
                                                                     hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_v_button_changed)
 
@@ -2908,38 +2912,38 @@ class HandlerClass:
         for jog_button in self.data.axis_list:
             if jog_button not in "xyz":
                 jog_button = self.axisletter_four
-            self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-%s-plus"%jog_button, 
+            self.signal = hal_glib.GPin(self.halcomp.newpin("jog-%s-plus"%jog_button, 
                                                                     hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_pin_jog_changed, jog_button,1)
-            self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-%s-minus"%jog_button, 
+            self.signal = hal_glib.GPin(self.halcomp.newpin("jog-%s-minus"%jog_button, 
                                                                     hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_pin_jog_changed, jog_button,-1)
 
         # jog_increment out pin 
-        self.jog_increment = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-increment", 
+        self.jog_increment = hal_glib.GPin(self.halcomp.newpin("jog-increment", 
                                                                        hal.HAL_FLOAT, hal.HAL_OUT))
 
         # generate the pins to set the increments
         self._check_len_increments()
-        for buttonnumber in range(0,self.no_increments):
-            self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-inc-%s"%buttonnumber, 
+        for buttonnumber in range(0,len(self.jog_increments)):
+            self.signal = hal_glib.GPin(self.halcomp.newpin("jog-inc-%s"%buttonnumber, 
                                                                     hal.HAL_BIT, hal.HAL_IN))
             self.signal.connect("value_changed", self._on_pin_incr_changed, buttonnumber)
 
-        self.signal = hal_glib.GPin(self.gscreen.halcomp.newpin("unlock-settings", hal.HAL_BIT, hal.HAL_IN))
+        self.signal = hal_glib.GPin(self.halcomp.newpin("unlock-settings", hal.HAL_BIT, hal.HAL_IN))
         self.signal.connect("value_changed", self._on_unlock_settings_changed)
 
         # generate the pins to connect encoders to the sliders
-        self.feed_override_counts = hal_glib.GPin(self.gscreen.halcomp.newpin("feed-override-counts", 
+        self.feed_override_counts = hal_glib.GPin(self.halcomp.newpin("feed-override-counts", 
                                                                              hal.HAL_S32, hal.HAL_IN))
         self.feed_override_counts.connect("value_changed", self._on_fo_counts_changed, "scl_feed")
-        self.spindle_override_counts = hal_glib.GPin(self.gscreen.halcomp.newpin("spindle-override-counts", 
+        self.spindle_override_counts = hal_glib.GPin(self.halcomp.newpin("spindle-override-counts", 
                                                                                 hal.HAL_S32, hal.HAL_IN))
         self.spindle_override_counts.connect("value_changed", self._on_so_counts_changed, "scl_spindle")
-        self.jog_speed_counts = hal_glib.GPin(self.gscreen.halcomp.newpin("jog-speed-counts", hal.HAL_S32, 
+        self.jog_speed_counts = hal_glib.GPin(self.halcomp.newpin("jog-speed-counts", hal.HAL_S32, 
                                                                           hal.HAL_IN))
         self.jog_speed_counts.connect("value_changed", self._on_jv_counts_changed, "scl_jog_vel")
-        self.max_vel_counts = hal_glib.GPin(self.gscreen.halcomp.newpin("max-vel-counts", hal.HAL_S32, 
+        self.max_vel_counts = hal_glib.GPin(self.halcomp.newpin("max-vel-counts", hal.HAL_S32, 
                                                                         hal.HAL_IN))
         self.max_vel_counts.connect("value_changed", self._on_mv_counts_changed, "scl_max_vel")
 
@@ -2947,23 +2951,23 @@ class HandlerClass:
         self.widgets.btn_feed_100.emit("clicked")
 
         # make pins to react to tool_offset changes
-        self.pin_offset_x = hal_glib.GPin(self.gscreen.halcomp.newpin("tooloffset_x", hal.HAL_FLOAT, hal.HAL_IN))
+        self.pin_offset_x = hal_glib.GPin(self.halcomp.newpin("tooloffset_x", hal.HAL_FLOAT, hal.HAL_IN))
         self.pin_offset_x.connect("value_changed", self._offset_changed,"tooloffset_x")
-        self.pin_offset_z = hal_glib.GPin(self.gscreen.halcomp.newpin("tooloffset_z", hal.HAL_FLOAT, hal.HAL_IN))
+        self.pin_offset_z = hal_glib.GPin(self.halcomp.newpin("tooloffset_z", hal.HAL_FLOAT, hal.HAL_IN))
         self.pin_offset_z.connect("value_changed", self._offset_changed,"tooloffset_z")
 
     def _offset_changed(self,pin,tooloffset):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
-            self.widgets.lbl_tool_offset_z.set_text("%.3f"%self.gscreen.halcomp["tooloffset_z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.3f"%self.gscreen.halcomp["tooloffset_x"])
+            self.widgets.lbl_tool_offset_z.set_text("%.3f"%self.halcomp["tooloffset_z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.3f"%self.halcomp["tooloffset_x"])
         else:
-            self.widgets.lbl_tool_offset_z.set_text("%.4f"%self.gscreen.halcomp["tooloffset_z"])
-            self.widgets.lbl_tool_offset_x.set_text("%.4f"%self.gscreen.halcomp["tooloffset_x"])
+            self.widgets.lbl_tool_offset_z.set_text("%.4f"%self.halcomp["tooloffset_z"])
+            self.widgets.lbl_tool_offset_x.set_text("%.4f"%self.halcomp["tooloffset_x"])
 
     def _on_pin_incr_changed(self, pin, buttonnumber):
         if not pin.get(): 
             return
-        data = self.data.jog_increments[int(buttonnumber)]
+        data = self.jog_increments[int(buttonnumber)]
         self.on_increment_changed(self.incr_rbt_list[int(buttonnumber)], data)
         self.incr_rbt_list[int(buttonnumber)].set_active(True)
 
@@ -3105,15 +3109,16 @@ class HandlerClass:
         increments = self.ini.find("DISPLAY", "INCREMENTS")
         if increments:
             if "," in increments:
-                self.data.jog_increments = [i.strip() for i in increments.split(",")]
+                for i in increments.split(","):
+                    self.jog_increments.append(i.strip())
             else:
-                self.data.jog_increments = increments.split()
-            self.data.jog_increments.insert(0,0)
+                self.jog_increments = increments.split()
+            self.jog_increments.insert(0,0)
         else:
-            self.data.jog_increments = [0,"1,000","0,100","0,010","0,001"]
+            self.jog_increments = [0,"1,000","0,100","0,010","0,001"]
             self.add_alarm_entry(_("No default jog increments entry found in [DISPLAY] of INI file"))
-        self.no_increments = len(self.data.jog_increments)
-        if self.no_increments > 10:
+        if len(self.jog_increments) > 10:
             print(_("To many increments given in INI File for this screen"))
             print(_("Only the first 10 will be reachable through this screen"))
-            self.no_increments = 10
+            # we shorten the incrementlist to 10 (first is default = 0)
+            self.jog_increments = self.jog_increments[0:11]
