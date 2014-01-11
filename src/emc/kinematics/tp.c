@@ -23,6 +23,7 @@
 #include "../motion/mot_priv.h"
 #include "motion_debug.h"
 #include "motion_types.h"
+#include "spherical_arc.h"
 
 /**
  * @section tpdebugflags TP debugging flags
@@ -182,7 +183,7 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     return TP_ERR_OK;
 }
 
-
+#if 0
 /**
  * Get a same maximum velocity for XYZ.
  * This function returns the worst-case safe velocity in any direction along XYZ.
@@ -202,7 +203,7 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
     tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
     return TP_ERR_OK;
 }
-
+#endif
 
 /**
  * Get a segment's feed scale based on the current planner state and emcmotStatus.
