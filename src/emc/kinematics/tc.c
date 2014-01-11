@@ -29,33 +29,60 @@
 //Debug output
 #include "tp_debug.h"
 
+
+int tcCircleStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
+{
+    PmCartesian startpoint;
+    PmCartesian radius;
+    PmCartesian tan, perp;
+
+    pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
+    pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
+    pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
+    pmCartUnit(&tan, &tan);
+    //The unit vector's actual direction is adjusted by the normal
+    //acceleration here. This unit vector is NOT simply the tangent
+    //direction.
+    pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
+    pmCartUnit(&perp, &perp);
+
+    pmCartScalMult(&tan, tc->maxaccel, &tan);
+    pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
+    pmCartCartAdd(&tan, &perp, out);
+    pmCartUnit(out, out);
+    return 0;
+}
+
+int tcCircleEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
+{
+    PmCartesian endpoint;
+    PmCartesian radius;
+
+    pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
+    pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
+    pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
+    pmCartUnit(out, out);
+    return 0;
+}
+
 /**
  * Get the acceleration direction unit vector for blend velocity calculations.
  * This calculates the direction of acceleration at the start of a segment.
  */
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
-    if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        *out=tc->coords.line.xyz.uVec;
-    } else {
-        PmCartesian startpoint;
-        PmCartesian radius;
-        PmCartesian tan, perp;
-
-        pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
-        pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
-        pmCartUnit(&tan, &tan);
-        //The unit vector's actual direction is adjusted by the normal
-        //acceleration here. This unit vector is NOT simply the tangent
-        //direction.
-        pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
-        pmCartUnit(&perp, &perp);
-
-        pmCartScalMult(&tan, tc->maxaccel, &tan);
-        pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
-        pmCartCartAdd(&tan, &perp, out);
-        pmCartUnit(out, out);
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+        case TC_RIGIDTAP:
+            *out=tc->coords.line.xyz.uVec;
+            break;
+        case TC_CIRCULAR:
+            tcCircleStartAccelUnitVector(tc,out);
+            break;
+        case TC_SPHERICAL:
+            return -1;
+        default:
+            return -1;
     }
     return 0;
 }
@@ -66,19 +93,20 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
  */
 int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
-    if(tc->motion_type == TC_LINEAR) {
-        *out=tc->coords.line.xyz.uVec;
-    } else if(tc->motion_type == TC_RIGIDTAP) {
-        // comes out the other way
-        pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
-    } else {
-        PmCartesian endpoint;
-        PmCartesian radius;
-
-        pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
-        pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
-        pmCartUnit(out, out);
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            *out=tc->coords.line.xyz.uVec;
+            break;
+        case TC_RIGIDTAP:
+            pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
+            break;
+        case TC_CIRCULAR:
+            tcCircleEndAccelUnitVector(tc,out);
+            break;
+       case TC_SPHERICAL:
+            return -1;
+       default:
+            return -1;
     }
     return 0;
 }
@@ -468,7 +496,7 @@ int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
  * (line-arc-line).
  */
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
+        PmCartesian const * const circ_start,
         PmCartesian const * const circ_end) {
 
     /* Only shift XYZ for now*/
