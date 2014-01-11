@@ -23,6 +23,7 @@
 #include "../motion/mot_priv.h"
 #include "motion_debug.h"
 #include "motion_types.h"
+#include "spherical_arc.h"
 
 /**
  * @section tpdebugflags TP debugging flags
@@ -137,6 +138,12 @@ STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * con
             } else {
                 return true;
             }
+        case TC_SPHERICAL:
+            if (tc->coords.arc.abc.tmag_zero && tc->coords.arc.uvw.tmag_zero) {
+                return false;
+            } else {
+                return true;
+            }
         default:
             tp_debug_print("Unknown motion type!\n");
             return false;
@@ -182,7 +189,7 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     return TP_ERR_OK;
 }
 
-
+#if 0
 /**
  * Get a same maximum velocity for XYZ.
  * This function returns the worst-case safe velocity in any direction along XYZ.
@@ -202,7 +209,7 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
     tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
     return TP_ERR_OK;
 }
-
+#endif
 
 /**
  * Get a segment's feed scale based on the current planner state and emcmotStatus.
@@ -276,7 +283,7 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
     if (tc->term_cond == TC_TERM_COND_PARABOLIC || tc->blend_prev) {
         a_scale *= 0.5;
     }
-    if (tc->motion_type == TC_CIRCULAR) {
+    if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         //Limit acceleration for cirular arcs to allow for normal acceleration
         a_scale *= TP_ACC_RATIO_TANGENTIAL;
     }
@@ -718,7 +725,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
     // Treating arc as extension of prev_line_tc
     blend_tc->atspeed = prev_line_tc->atspeed;
 
-    blend_tc->motion_type = TC_CIRCULAR;
+    blend_tc->motion_type = TC_SPHERICAL;
 
 #ifdef TP_SHOW_BLENDS
     blend_tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
@@ -733,13 +740,13 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 
     blend_tc->syncdio = prev_line_tc->syncdio; //enqueue the list of DIOs that need toggling
 
-    double length;
     if (tpErrorCheck(tp)<0){
         return TP_ERR_FAIL;
     }
 
     // find "helix" length
-    length = blend_tc->coords.circle.xyz.angle * blend_tc->coords.circle.xyz.radius;
+    double length;
+    arcLength(&blend_tc->coords.arc.xyz, &length);
     blend_tc->target = length;
     //Blend arc specific settings:
     tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
@@ -940,14 +947,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     PmCartesian circ_start, circ_end;
 
     double h_plan = R_plan / Stheta;
-    pmCircleFromLines(&blend_tc->coords.circle.xyz,
+    arcFromLines(&blend_tc->coords.arc.xyz,
             &prev_tc->coords.line.xyz,
             &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end);
-    tp_debug_print("angle = %f\n",blend_tc->coords.circle.xyz.angle);
+    tp_debug_print("angle = %f\n",blend_tc->coords.arc.xyz.angle);
+
+    tp_debug_print("R_plan = %f, radius_calc = %f\n", R_plan, blend_tc->coords.arc.xyz.radius);
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the end and start points should be identical
-    pmCartLineInit(&blend_tc->coords.circle.abc, &prev_tc->coords.line.abc.end, &tc->coords.line.abc.start);
-    pmCartLineInit(&blend_tc->coords.circle.uvw, &prev_tc->coords.line.uvw.end, &tc->coords.line.uvw.start);
+    pmCartLineInit(&blend_tc->coords.arc.abc, &prev_tc->coords.line.abc.end, &tc->coords.line.abc.start);
+    pmCartLineInit(&blend_tc->coords.arc.uvw, &prev_tc->coords.line.uvw.end, &tc->coords.line.uvw.start);
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
@@ -971,7 +980,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
 #endif
 
-    return tcConnectBlendArc(prev_tc, tc, blend_tc, &circ_start, &circ_end);
+    return tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
 
 }
 

@@ -22,6 +22,7 @@
 #include "posemath.h"
 #include "emcpose.h"
 #include "tc.h"
+#include "spherical_arc.h"
 #include "motion_types.h"
 #include "rtapi_math.h"
 
@@ -29,33 +30,59 @@
 #include "tp_debug.h"
 
 
+int tcCircleStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
+{
+    PmCartesian startpoint;
+    PmCartesian radius;
+    PmCartesian tan, perp;
+
+    pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
+    pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
+    pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
+    pmCartUnit(&tan, &tan);
+    //The unit vector's actual direction is adjusted by the normal
+    //acceleration here. This unit vector is NOT simply the tangent
+    //direction.
+    pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
+    pmCartUnit(&perp, &perp);
+
+    pmCartScalMult(&tan, tc->maxaccel, &tan);
+    pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
+    pmCartCartAdd(&tan, &perp, out);
+    pmCartUnit(out, out);
+    return 0;
+}
+
+int tcCircleEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
+{
+    PmCartesian endpoint;
+    PmCartesian radius;
+
+    pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
+    pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
+    pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
+    pmCartUnit(out, out);
+    return 0;
+}
+
 /**
  * Get the acceleration direction unit vector for blend velocity calculations.
  * This calculates the direction of acceleration at the start of a segment.
  */
 int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
-    if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        *out=tc->coords.line.xyz.uVec;
-    } else {
-        PmCartesian startpoint;
-        PmCartesian radius;
-        PmCartesian tan, perp;
-
-        pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
-        pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
-        pmCartUnit(&tan, &tan);
-        //The unit vector's actual direction is adjusted by the normal
-        //acceleration here. This unit vector is NOT simply the tangent
-        //direction.
-        pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
-        pmCartUnit(&perp, &perp);
-
-        pmCartScalMult(&tan, tc->maxaccel, &tan);
-        pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
-        pmCartCartAdd(&tan, &perp, out);
-        pmCartUnit(out, out);
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+        case TC_RIGIDTAP:
+            *out=tc->coords.line.xyz.uVec;
+            break;
+        case TC_CIRCULAR:
+            tcCircleStartAccelUnitVector(tc,out);
+            break;
+        case TC_SPHERICAL:
+            return -1;
+        default:
+            return -1;
     }
     return 0;
 }
@@ -66,19 +93,20 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
  */
 int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
-    if(tc->motion_type == TC_LINEAR) {
-        *out=tc->coords.line.xyz.uVec;
-    } else if(tc->motion_type == TC_RIGIDTAP) {
-        // comes out the other way
-        pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
-    } else {
-        PmCartesian endpoint;
-        PmCartesian radius;
-
-        pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
-        pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
-        pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
-        pmCartUnit(out, out);
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            *out=tc->coords.line.xyz.uVec;
+            break;
+        case TC_RIGIDTAP:
+            pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
+            break;
+        case TC_CIRCULAR:
+            tcCircleEndAccelUnitVector(tc,out);
+            break;
+       case TC_SPHERICAL:
+            return -1;
+       default:
+            return -1;
     }
     return 0;
 }
@@ -217,221 +245,42 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             uvw = tc->coords.rigidtap.uvw;
             break;
         case TC_LINEAR:
-            if (!tc->coords.line.xyz.tmag_zero) {
-                // progress is along xyz, so uvw and abc move proportionally in order
-                // to end at the same time.
-                pmCartLinePoint(&tc->coords.line.xyz, progress, &xyz);
-                pmCartLinePoint(&tc->coords.line.uvw,
-                        progress * tc->coords.line.uvw.tmag / tc->target,
-                        &uvw);
-                pmCartLinePoint(&tc->coords.line.abc,
-                        progress * tc->coords.line.abc.tmag / tc->target,
-                        &abc);
-            } else if (!tc->coords.line.uvw.tmag_zero) {
-                // xyz is not moving
-                pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-                pmCartLinePoint(&tc->coords.line.uvw, progress, &uvw);
-                // abc moves proportionally in order to end at the same time
-                pmCartLinePoint(&tc->coords.line.abc,
-                        progress * tc->coords.line.abc.tmag / tc->target,
-                        &abc);
-            } else {
-                // if all else fails, it's along abc only
-                pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-                pmCartLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
-                pmCartLinePoint(&tc->coords.line.abc, progress, &abc);
-            }
+            pmCartLinePoint(&tc->coords.line.xyz,
+                    progress * tc->coords.line.xyz.tmag / tc->target,
+                    &xyz);
+            pmCartLinePoint(&tc->coords.line.uvw,
+                    progress * tc->coords.line.uvw.tmag / tc->target,
+                    &uvw);
+            pmCartLinePoint(&tc->coords.line.abc,
+                    progress * tc->coords.line.abc.tmag / tc->target,
+                    &abc);
             break;
         case TC_CIRCULAR:
-            // progress is always along the xyz circle.  This simplification
-            // is possible since zero-radius arcs are not allowed by the interp.
             pmCirclePoint(&tc->coords.circle.xyz,
                     progress * tc->coords.circle.xyz.angle / tc->target,
                     &xyz);
-            // abc moves proportionally in order to end at the same time as the
-            // circular xyz move.
             pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
                     &abc);
-            // same for uvw
             pmCartLinePoint(&tc->coords.circle.uvw,
                     progress * tc->coords.circle.uvw.tmag / tc->target,
                     &uvw);
             break;
         case TC_SPHERICAL:
+            arcPoint(&tc->coords.arc.xyz,
+                    progress * tc->coords.arc.xyz.angle / tc->target,
+                    &xyz);
+            pmCartLinePoint(&tc->coords.arc.abc,
+                    progress * tc->coords.arc.abc.tmag / tc->target,
+                    &abc);
+            pmCartLinePoint(&tc->coords.arc.uvw,
+                    progress * tc->coords.arc.uvw.tmag / tc->target,
+                    &uvw);
             break;
 
     }
 
     pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
-    return 0;
-}
-
-/* Arc stuff */
-
-/**
- * Define a 3D spherical arc based on 2 line segments and a radius.
- */
-int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
-        PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end) {
-
-    PmCartesian center, normal, binormal;
-
-    // Pointer to middle point of line segment pair
-    PmCartesian const * const middle = &line1->end;
-    //TODO assert line1 end = line2 start?
-
-    //Calculate the normal direction of the arc from the difference
-    //between the unit vectors
-    pmCartCartSub(&line2->uVec, &line1->uVec, &normal);
-    pmCartUnit(&normal,&normal);
-    pmCartScalMult(&normal, center_dist, &normal);
-    pmCartCartAdd(middle, &normal, &center);
-
-    //Calculate the binormal (vector perpendicular to the plane of the
-    //arc)
-    pmCartCartCross(&line1->uVec, &line2->uVec, &binormal);
-    pmCartUnit(&binormal, &binormal);
-
-    // Start point is blend_dist away from middle point in the
-    // negative direction of line1
-    pmCartScalMult(&line1->uVec, -blend_dist, start);
-    pmCartCartAdd(start, middle, start);
-
-    // End point is blend_dist away from middle point in the positive
-    // direction of line2
-    pmCartScalMult(&line2->uVec, blend_dist, end);
-    pmCartCartAdd(end, middle, end);
-
-    tp_posemath_debug(" start = %f,%f,%f\n",start->x,start->y, start->z);
-    tp_posemath_debug(" end = %f,%f,%f\n",end->x,end->y, end->z);
-    return pmCircleInit(arc, start, end, &center, &binormal, 0);
-
-}
-/**
- * Define a 3D spherical arc based on three points and a radius.
- * @note Deprecated as of 12/16/2013.
- */
-int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
-        PmCartesian const * const middle, PmCartesian const * const end,
-        double radius, PmCartesian * const circ_start, PmCartesian * const circ_end) {
-
-    //TODO macro this?
-    if (NULL == arc) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"pmCircleFromPoints circle pointer is null\n");
-        return -1;
-    }
-
-    PmCartesian v1, v2;
-    tp_posemath_debug(" start = %f,%f,%f\n",start->x,start->y, start->z);
-    tp_posemath_debug(" middle = %f,%f,%f\n",middle->x,middle->y, middle->z);
-    tp_posemath_debug(" end = %f,%f,%f\n",end->x,end->y, end->z);
-
-    //Find relative vectors from start to midpoint and mid to end point
-    pmCartCartSub(middle, start, &v1);
-    pmCartCartSub(end, middle, &v2);
-
-    tp_posemath_debug(" Initial vectors\n");
-    tp_posemath_debug(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
-    tp_posemath_debug(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
-
-    //Calculate gram-schmidt orthonormals
-    PmCartesian u1, u2, n1, n2;
-
-    pmCartCartProj(&v2, &v1, &u2);
-    pmCartCartSub(&v2, &u2, &n1);
-
-    int res;
-    res = pmCartUnit(&n1, &n1);
-
-    if (res) {
-        return res;
-    }
-
-    tp_posemath_debug(" n1 = %f,%f,%f\n",n1.x,n1.y, n1.z);
-
-    //For n1
-
-    pmCartCartProj(&v1, &v2, &u1);
-    pmCartCartSub(&v1, &u1, &n2);
-    res = pmCartUnit(&n2, &n2);
-
-    if (res) {
-        return res;
-    }
-    pmCartScalMult(&n2, -1.0, &n2);
-    tp_posemath_debug(" n2 = %f,%f,%f\n",n2.x,n2.y, n2.z);
-
-    PmCartesian binormal;
-
-    pmCartCartCross(&v1, &v2, &binormal);
-
-    res=pmCartUnit(&binormal, &binormal);
-
-    if (res) {
-        return res;
-    }
-
-    tp_posemath_debug(" v1 = %f,%f,%f\n",v1.x,v1.y, v1.z);
-    tp_posemath_debug(" v2 = %f,%f,%f\n",v2.x,v2.y, v2.z);
-    tp_posemath_debug(" binormal = %f,%f,%f\n",binormal.x,binormal.y, binormal.z);
-
-    //Find the angle between the two vectors
-    double dot;
-    //TODO function here
-    pmCartCartDot(&n1, &n2, &dot);
-    // Check if the vectors are valid and compute the angle between them
-    if (dot<1 && dot>-1) arc->angle=acos(dot);
-    else return -1;
-
-    //Overwrite v1 and v2 with normed v's
-    pmCartUnit(&v1, &v1);
-    pmCartUnit(&v2, &v2);
-
-    PmCartesian dv, dn;
-
-    //Subtract vectors
-    pmCartCartSub(&n1, &n2, &dn);
-    pmCartCartAdd(&v1, &v2, &dv);
-
-    //Store the norms of each vector
-    double dv_mag, dn_mag;
-    pmCartMag(&dn, &dn_mag);
-    pmCartMag(&dv, &dv_mag);
-
-    arc->inscr_ratio = dn_mag / dv_mag;
-    double d = arc->inscr_ratio * radius;
-
-    //Prescale the unit vectors from before (not unit length anymore)
-    pmCartScalMult(&v2, d, &v2);
-    pmCartScalMult(&v1, -d, &v1);
-    pmCartScalMult(&n1, radius, &n1);
-    pmCartScalMult(&n2, radius, &n2);
-
-    PmCartesian center;
-
-    //Add one set of vectors to get the center
-    tp_posemath_debug("v2 = %f, %f,%f\n",v2.x,v2.y,v2.z);
-    tp_posemath_debug("n2 = %f, %f,%f\n",n2.x,n2.y,n2.z);
-    pmCartCartAdd(&v2, &n2, &center);
-
-    tp_posemath_debug("v2 + n2 = %f, %f,%f\n",center.x,center.y,center.z);
-    pmCartCartAdd(middle, &center, &center);
-    pmCartCartAdd(middle, &v1, circ_start);
-    pmCartCartAdd(middle, &v2, circ_end);
-
-    tp_posemath_debug("d = %f\n",d);
-    tp_posemath_debug("center = %f, %f,%f\n",center.x,center.y,center.z);
-    tp_posemath_debug("circ_start = %f, %f,%f\n",circ_start->x,circ_start->y,circ_start->z);
-    tp_posemath_debug("circ_end = %f, %f,%f\n",circ_end->x,circ_end->y,circ_end->z);
-
-    pmCircleInit(arc, circ_start, circ_end, &center,&binormal,0);
-
-    tp_posemath_debug("center = %f, %f,%f\n",arc->center.x,arc->center.y,arc->center.z);
-    tp_posemath_debug("rTan = %f, %f,%f\n",arc->rTan.x,arc->rTan.y,arc->rTan.z);
-    tp_posemath_debug("rPerp = %f, %f,%f\n",arc->rPerp.x,arc->rPerp.y,arc->rPerp.z);
-
     return 0;
 }
 
@@ -456,7 +305,7 @@ int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
  * (line-arc-line).
  */
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
+        PmCartesian const * const circ_start,
         PmCartesian const * const circ_end) {
 
     /* Only shift XYZ for now*/
