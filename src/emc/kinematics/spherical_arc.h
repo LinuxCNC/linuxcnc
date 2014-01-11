@@ -41,6 +41,7 @@ typedef struct {
     double radius;
     // Angle that the arc encloses
     double angle;
+    double sinAngle;
 } SphericalArc;
 
 typedef struct {
@@ -61,4 +62,8 @@ int arcPoint(SphericalArc const * const arc, double angle_in, PmCartesian * cons
 int arcNormalizedSlerp(SphericalArc const * const arc, double t, PmCartesian * const out);
 
 int arcLength(SphericalArc const * const arc, double * const length);
+
+int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
+        PmCartLine const * const line2, double radius,
+        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end);
 #endif
