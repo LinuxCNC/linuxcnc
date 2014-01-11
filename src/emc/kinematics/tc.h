@@ -15,6 +15,7 @@
 #ifndef TC_H
 #define TC_H
 
+#include "spherical_arc.h"
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
@@ -102,6 +103,7 @@ typedef struct {
         PmLine9 line;
         PmCircle9 circle;
         PmRigidTap rigidtap;
+        Arc9 arc;
     } coords;
 
     int motion_type;       // TC_LINEAR (coords.line) or
