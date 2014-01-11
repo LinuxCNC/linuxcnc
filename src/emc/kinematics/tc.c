@@ -245,43 +245,23 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             uvw = tc->coords.rigidtap.uvw;
             break;
         case TC_LINEAR:
-            if (!tc->coords.line.xyz.tmag_zero) {
-                // progress is along xyz, so uvw and abc move proportionally in order
-                // to end at the same time.
-                pmCartLinePoint(&tc->coords.line.xyz, progress, &xyz);
-                pmCartLinePoint(&tc->coords.line.uvw,
-                        progress * tc->coords.line.uvw.tmag / tc->target,
-                        &uvw);
-                pmCartLinePoint(&tc->coords.line.abc,
-                        progress * tc->coords.line.abc.tmag / tc->target,
-                        &abc);
-            } else if (!tc->coords.line.uvw.tmag_zero) {
-                // xyz is not moving
-                pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-                pmCartLinePoint(&tc->coords.line.uvw, progress, &uvw);
-                // abc moves proportionally in order to end at the same time
-                pmCartLinePoint(&tc->coords.line.abc,
-                        progress * tc->coords.line.abc.tmag / tc->target,
-                        &abc);
-            } else {
-                // if all else fails, it's along abc only
-                pmCartLinePoint(&tc->coords.line.xyz, 0.0, &xyz);
-                pmCartLinePoint(&tc->coords.line.uvw, 0.0, &uvw);
-                pmCartLinePoint(&tc->coords.line.abc, progress, &abc);
-            }
+            pmCartLinePoint(&tc->coords.line.xyz,
+                    progress * tc->coords.line.xyz.tmag / tc->target,
+                    &xyz);
+            pmCartLinePoint(&tc->coords.line.uvw,
+                    progress * tc->coords.line.uvw.tmag / tc->target,
+                    &uvw);
+            pmCartLinePoint(&tc->coords.line.abc,
+                    progress * tc->coords.line.abc.tmag / tc->target,
+                    &abc);
             break;
         case TC_CIRCULAR:
-            // progress is always along the xyz circle.  This simplification
-            // is possible since zero-radius arcs are not allowed by the interp.
             pmCirclePoint(&tc->coords.circle.xyz,
                     progress * tc->coords.circle.xyz.angle / tc->target,
                     &xyz);
-            // abc moves proportionally in order to end at the same time as the
-            // circular xyz move.
             pmCartLinePoint(&tc->coords.circle.abc,
                     progress * tc->coords.circle.abc.tmag / tc->target,
                     &abc);
-            // same for uvw
             pmCartLinePoint(&tc->coords.circle.uvw,
                     progress * tc->coords.circle.uvw.tmag / tc->target,
                     &uvw);
@@ -290,12 +270,9 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             arcPoint(&tc->coords.arc.xyz,
                     progress * tc->coords.arc.xyz.angle / tc->target,
                     &xyz);
-            // abc moves proportionally in order to end at the same time as the
-            // circular xyz move.
             pmCartLinePoint(&tc->coords.arc.abc,
                     progress * tc->coords.arc.abc.tmag / tc->target,
                     &abc);
-            // same for uvw
             pmCartLinePoint(&tc->coords.arc.uvw,
                     progress * tc->coords.arc.uvw.tmag / tc->target,
                     &uvw);
