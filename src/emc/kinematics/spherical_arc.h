@@ -43,6 +43,12 @@ typedef struct {
     double angle;
 } SphericalArc;
 
+typedef struct {
+    SphericalArc xyz;
+    PmCartLine abc;
+    PmCartLine uvw;
+} Arc9;
+
 int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         PmCartesian const * const end, PmCartesian const * const center);
 
@@ -50,7 +56,8 @@ int arcInitFromVectors(SphericalArc * const arc, PmCartesian const * const vec0,
         PmCartesian const * const vec1,
         PmCartesian const * const center);
 
-int arcSlerp(SphericalArc const * const arc, double angle_in, PmCartesian * const out);
+int arcPoint(SphericalArc const * const arc, double angle_in, PmCartesian * const out);
+
 int arcNormalizedSlerp(SphericalArc const * const arc, double t, PmCartesian * const out);
 
 int arcLength(SphericalArc const * const arc, double * const length);

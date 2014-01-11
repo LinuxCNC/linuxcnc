@@ -68,7 +68,7 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     return ARC_ERR_OK;
 }
 
-int arcSlerp(SphericalArc const * const arc, double angle_in, PmCartesian * const out)
+int arcPoint(SphericalArc const * const arc, double angle_in, PmCartesian * const out)
 {
     //TODO pedantic
 
