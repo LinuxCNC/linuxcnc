@@ -980,7 +980,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
 #endif
 
-    return tcConnectBlendArc(prev_tc, tc, blend_tc, &circ_start, &circ_end);
+    return tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
 
 }
 

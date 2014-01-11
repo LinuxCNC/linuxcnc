@@ -161,7 +161,7 @@ int pmCircleFromLines(PmCircle * const arc, PmCartLine const * const line1,
 
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond);
 int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
-        TC_STRUCT const * const blend_tc, PmCartesian const * const circ_start,
+        PmCartesian const * const circ_start,
         PmCartesian const * const circ_end);
 
 int tcIsBlending(TC_STRUCT * const tc);
