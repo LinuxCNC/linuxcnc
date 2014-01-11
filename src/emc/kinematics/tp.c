@@ -820,11 +820,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double Stheta = sin(theta);
     double Ttheta = tan(theta);
 
-    //TODO "greedy" arc sizing step here
-
-    //Consider L1 / L2 to be the length available to blend over
+    // Consider L1 to be the length available to blend over
     double L1 = prev_tc->target;
-    double L2 = tc->target / 2.0;
+    if (prev_tc->blend_prev) {
+        // Reduce blend length to 1/2 of overall if coming off of a parabolic blend
+        L1 /= 2.0;
+        tp_debug_print("prev blend parabolic, shortening blend length to %f\n", L1);
+    }
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
     //Solve quadratic equation to find segment length that matches peak
@@ -834,11 +836,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double disc_prev = 2.0 * L1 * K + pmSq(K);
     double d_prev = L1 + K - pmSqrt(disc_prev);
 
-    double disc_next = 2.0 * L2 * K + pmSq(K);
-    double d_next = L2 + K - pmSqrt(disc_next);
+    double L_remain = L1 - d_prev;
+    double d_next = (tc->target - L_remain) / 2.0;
 
-    tp_debug_print(" prev length L1 = %f\n", L1);
-    tp_debug_print(" next length L2 = %f\n", L2);
+    tp_debug_print(" prev available length L1 = %f\n", L1);
     tp_debug_print(" K = %f\n", K);
     // Assume that we are not working on segments already traversed for now
 
@@ -856,7 +857,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double R_geom = Ttheta * d_geom;
 
-    tp_debug_print("d_geom = %f, d_prev = %f, d_next = %f\n", d_geom, d_prev, d_next);
+    tp_debug_print("d_tol = %f, d_prev = %f, d_next = %f\n", d_tol, d_prev, d_next);
     tp_debug_print("R_geom = %f\n", R_geom);
 
     //Calculate limiting velocity due to radius and normal acceleration, and
