@@ -22,12 +22,12 @@
 #include "posemath.h"
 #include "emcpose.h"
 #include "tc.h"
+#include "spherical_arc.h"
 #include "motion_types.h"
 #include "rtapi_math.h"
 
 //Debug output
 #include "tp_debug.h"
-
 
 /**
  * Get the acceleration direction unit vector for blend velocity calculations.
@@ -259,6 +259,18 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
                     &uvw);
             break;
         case TC_SPHERICAL:
+            arcPoint(&tc->coords.arc.xyz,
+                    progress * tc->coords.circle.xyz.angle / tc->target,
+                    &xyz);
+            // abc moves proportionally in order to end at the same time as the
+            // circular xyz move.
+            pmCartLinePoint(&tc->coords.circle.abc,
+                    progress * tc->coords.arc.abc.tmag / tc->target,
+                    &abc);
+            // same for uvw
+            pmCartLinePoint(&tc->coords.circle.uvw,
+                    progress * tc->coords.arc.uvw.tmag / tc->target,
+                    &uvw);
             break;
 
     }
