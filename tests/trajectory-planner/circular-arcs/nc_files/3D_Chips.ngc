@@ -15,7 +15,7 @@
 G21
 G90
 G64 P.1
-T#<toolno>M6
+(T#<toolno>M6)
 M8
 S#<rpm>M3
 G0 Z[#<zscale>*10.]
