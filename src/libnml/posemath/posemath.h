@@ -847,6 +847,7 @@ extern "C" {
     extern int pmCartCartDot(PmCartesian const * const, PmCartesian const * const, double * const);
     extern int pmCartCartCross(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartCartMult(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
+    extern int pmCartCartDiv(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartMag(PmCartesian const * const, double * const);
     extern int pmCartMagSq(PmCartesian const * const, double * const);
     extern int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2, double *d);
@@ -856,6 +857,7 @@ extern "C" {
     extern int pmCartScalDiv(PmCartesian const * const, double, PmCartesian * const);
     extern int pmCartNeg(PmCartesian const * const, PmCartesian * const);
     extern int pmCartUnit(PmCartesian const * const, PmCartesian * const);
+    extern int pmCartAbs(PmCartesian const * const, PmCartesian * const);
 /*! \todo Another #if 0 */
 #if 0
     extern int pmCartNorm(PmCartesian const * const v, PmCartesian * const vout);
