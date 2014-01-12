@@ -258,8 +258,13 @@ STATIC int tpGetPlanarAccelLimit(PmCartesian const * const normal,
     acc_bound.x = emcmotDebug->joints[0].acc_limit;
     acc_bound.y = emcmotDebug->joints[1].acc_limit;
     acc_bound.z = emcmotDebug->joints[2].acc_limit;
-    tpGetPlanarLimit(normal, &acc_bound, acc_limit);
-    return TP_ERR_OK;
+    int res = TP_ERR_OK;
+    if (acc_bound.x == acc_bound.y && acc_bound.y == acc_bound.z) {
+        *acc_limit = acc_bound.x;
+    } else {
+        res = tpGetPlanarLimit(normal, &acc_bound, acc_limit);
+    }
+    return res;
 }
 
 #if 0
