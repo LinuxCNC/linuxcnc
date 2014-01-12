@@ -192,7 +192,7 @@ class INI:
         print >>file, "MIN_LIMIT = %s" % minlim
         print >>file, "MAX_LIMIT = %s" % maxlim
 
-        inputs = set((self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15))
+        inputs = self.a.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
                             "max-home-" + letter, "both-home-" + letter))
         # no need to set HOME_IGNORE_LIMITS when ALL_LIMIT_HOME, HAL logic will do the trick

@@ -1302,6 +1302,32 @@ class StepconfApp:
 # Common helper functions
 #**********************************
 
+    def build_input_set(self):
+        input_set =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
+            else:
+                in_list =(10,11,12,13,15)
+            for pin in (in_list):
+                p = 'pp2_pin%d_in' % pin
+                input_set +=(self.d[p],)
+        return set(input_set)
+
+    def build_output_set(self):
+        output_set =(self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5,
+            self.d.pin6, self.d.pin7, self.d.pin8, self.d.pin9, self.d.pin14, self.d.pin16,
+            self.d.pin17)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                p = 'pp2_pin%d' % pin
+                output_set += (self.d[p],)
+        return set(output_set)
+
     def find_input(self, input):
         inputs = set((10, 11, 12, 13, 15))
         for i in inputs:
@@ -1334,17 +1360,7 @@ class StepconfApp:
 
     def home_sig(self, axis):
         SIG = self._p
-        in_pins =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
-
-        if self.d.number_pports > 1:
-            if self.d.pp2_direction:# Input option
-                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
-            else:
-                in_list =(10,11,12,13,15)
-            for pin in (in_list):
-                p = 'pp2_pin%d_in' % pin
-                in_pins +=(self.d[p],)
-        inputs = set(in_pins)
+        inputs = self.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         for i in inputs:

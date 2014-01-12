@@ -342,7 +342,7 @@ class Pages:
                    self.d.ladderhaltype = 0
            if self.w.radiobutton2.get_active() == True:
               self.d.laddername = 'estop.clp'
-              inputs = set((self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15))
+              inputs = self.a.build_input_set()
               if SIG.ESTOP_IN not in inputs:
                  self.a.warning_dialog(self._p.MESS_NO_ESTOP,True)
                  return True # don't advance the page
@@ -627,7 +627,7 @@ class Pages:
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 
-        inputs = set((self.d.pin10, self.d.pin11, self.d.pin12, self.d.pin13, self.d.pin15))
+        inputs = self.a.build_input_set()
         thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
                             "max-home-" + axis, "both-home-" + axis))
         homes = bool(inputs & thisaxishome)

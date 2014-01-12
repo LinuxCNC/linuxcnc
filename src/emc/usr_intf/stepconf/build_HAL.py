@@ -33,25 +33,8 @@ class HAL:
         self.a = app    # The parent, stepconf
 
     def write_halfile(self, base):
-        input_set =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
-        output_set =(self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5,
-            self.d.pin6, self.d.pin7, self.d.pin8, self.d.pin9, self.d.pin14, self.d.pin16,
-            self.d.pin17)
-        if self.d.number_pports > 1:
-            if self.d.pp2_direction:# Input option
-                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
-                out_list =(1,14,16,17)
-            else:
-                in_list =(10,11,12,13,15)
-                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
-            for pin in (in_list):
-                p = 'pp2_pin%d_in' % pin
-                input_set +=(self.d[p],)
-            for pin in (out_list):
-                p = 'pp2_pin%d' % pin
-                output_set += (self.d[p],)
-        inputs = set(input_set)
-        outputs = set(output_set)
+        inputs = self.a.build_input_set()
+        outputs = self.a.build_output_set()
 
         filename = os.path.join(base, self.d.machinename + ".hal")
         file = open(filename, "w")
@@ -438,7 +421,7 @@ class HAL:
                 print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
 
     def min_lim_sig(self, axis):
-        inputs = set((self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15))
+        inputs = self.a.build_input_set()
         thisaxisminlimits = set((SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME, "min-" + axis, "min-home-" + axis,
                                "both-" + axis, "both-home-" + axis))
         for i in inputs:
@@ -450,7 +433,7 @@ class HAL:
                     return i
 
     def max_lim_sig(self, axis):
-        inputs = set((self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15))
+        inputs = self.a.build_input_set()
         thisaxismaxlimits = set((SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME, "max-" + axis, "max-home-" + axis,
                                "both-" + axis, "both-home-" + axis))
         for i in inputs:
