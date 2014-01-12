@@ -33,9 +33,14 @@ PASM_BINFLAGS := -b -L -d
 #$(PRU_BIN): $(PRU_SRCS)
 $(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PASM) 
 
-# I think we need a bit of Jeff handholding on generating by mkdep.py and including this .d file 
-# at the right momemnt:
-# depends/rthal/drivers/hal_pru_generic/%.d
+
+PRU_DEPS :=  $(patsubst %,objects/%,$(patsubst %.p,%.d,$(PRU_SRCS)))
+
+objects/%.d: 	%.p
+	$(Q)mkdir -p $(dir $@)
+	$(ECHO) generate PRU dependency $@ from $<
+	$(Q)cpp -MM -MG -MT objects$(patsubst %.p,%.bin,$<)  $< $@
+
 
 $(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PRU_SRC_DIR)/%.p $(PASM)
 	$(Q)mkdir -p $(RTLIBDIR)
