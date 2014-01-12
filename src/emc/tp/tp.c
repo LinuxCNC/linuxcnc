@@ -189,34 +189,42 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     return TP_ERR_OK;
 }
 
+
+/** Calculate the minimum of the three values in a PmCartesian. */
 STATIC double pmCartMin(PmCartesian const * const in)
 {
     return fmin(fmin(in->x,in->y),in->z);
 }
 
+
+/**
+ * Calculate the diameter of a circle incscribed on a central cross section of a 3D
+ * rectangular prism.
+ *
+ * @param normal normal direction of plane slicing prism.
+ * @param extents distance from center to one corner of the prism.
+ * @param diameter diameter of inscribed circle on cross section.
+ *
+ */
 STATIC int tpGetPlanarLimit(PmCartesian const * const normal,
-        PmCartesian * const bounds, double * const limit)
+        PmCartesian * const extents, double * const diameter)
 {
     if (!normal ) {
         return TP_ERR_MISSING_INPUT;
     }
-
-    const PmCartesian x_dir = {1,0,0};
-    const PmCartesian y_dir = {0,1,0};
-    const PmCartesian z_dir = {0,0,1};
 
     PmCartesian planar_x,planar_y,planar_z;
 
     //Find perpendicular component of unit directions
     // FIXME Assumes normal is unit length
     // FIXME use plane project?
-    pmCartScalMult(normal, normal->x, &planar_x);
-    pmCartScalMult(normal, normal->y, &planar_y);
-    pmCartScalMult(normal, normal->z, &planar_z);
+    pmCartScalMult(normal, -normal->x, &planar_x);
+    pmCartScalMult(normal, -normal->y, &planar_y);
+    pmCartScalMult(normal, -normal->z, &planar_z);
 
-    pmCartCartSub(&x_dir, &planar_x, &planar_x);
-    pmCartCartSub(&y_dir, &planar_y, &planar_y);
-    pmCartCartSub(&z_dir, &planar_z, &planar_z);
+    planar_x.x+=1.0;
+    planar_y.y+=1.0;
+    planar_z.z+=1.0;
 
     pmCartAbs(&planar_x, &planar_x);
     pmCartAbs(&planar_y, &planar_y);
@@ -227,12 +235,22 @@ STATIC int tpGetPlanarLimit(PmCartesian const * const normal,
     pmCartMag(&planar_y, &planar_scales.y);
     pmCartMag(&planar_z, &planar_scales.z);
 
-    pmCartCartDiv(bounds, &planar_scales, bounds);
+    pmCartCartDiv(extents, &planar_scales, extents);
 
-    *limit = pmCartMin(bounds);
+    *diameter = pmCartMin(extents);
     return TP_ERR_OK;
 }
 
+
+/**
+ * Calculate acceleration bounds for blend arcs based on the plane containing
+ * the two lines.
+ * Since two linear moves will always lie in a common plane, a blend arc
+ * between them will also lie in that plane, as will the acceleration vector.
+ * This is useful if one axis has a low acceleration compared to the other two.
+ * Calculating limits in the plane means that a slow Z axis will not affect
+ * XY-only moves.
+ */
 STATIC int tpGetPlanarAccelLimit(PmCartesian const * const normal,
         double * const acc_limit)
 {
