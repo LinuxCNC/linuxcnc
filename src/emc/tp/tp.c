@@ -189,6 +189,84 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     return TP_ERR_OK;
 }
 
+
+/** Calculate the minimum of the three values in a PmCartesian. */
+STATIC double pmCartMin(PmCartesian const * const in)
+{
+    return fmin(fmin(in->x,in->y),in->z);
+}
+
+
+/**
+ * Calculate the diameter of a circle incscribed on a central cross section of a 3D
+ * rectangular prism.
+ *
+ * @param normal normal direction of plane slicing prism.
+ * @param extents distance from center to one corner of the prism.
+ * @param diameter diameter of inscribed circle on cross section.
+ *
+ */
+STATIC int tpGetPlanarLimit(PmCartesian const * const normal,
+        PmCartesian * const extents, double * const diameter)
+{
+    if (!normal ) {
+        return TP_ERR_MISSING_INPUT;
+    }
+
+    PmCartesian planar_x,planar_y,planar_z;
+
+    //Find perpendicular component of unit directions
+    // FIXME Assumes normal is unit length
+    // FIXME use plane project?
+    pmCartScalMult(normal, -normal->x, &planar_x);
+    pmCartScalMult(normal, -normal->y, &planar_y);
+    pmCartScalMult(normal, -normal->z, &planar_z);
+
+    planar_x.x+=1.0;
+    planar_y.y+=1.0;
+    planar_z.z+=1.0;
+
+    pmCartAbs(&planar_x, &planar_x);
+    pmCartAbs(&planar_y, &planar_y);
+    pmCartAbs(&planar_z, &planar_z);
+
+    PmCartesian planar_scales;
+    pmCartMag(&planar_x, &planar_scales.x);
+    pmCartMag(&planar_y, &planar_scales.y);
+    pmCartMag(&planar_z, &planar_scales.z);
+
+    pmCartCartDiv(extents, &planar_scales, extents);
+
+    *diameter = pmCartMin(extents);
+    return TP_ERR_OK;
+}
+
+
+/**
+ * Calculate acceleration bounds for blend arcs based on the plane containing
+ * the two lines.
+ * Since two linear moves will always lie in a common plane, a blend arc
+ * between them will also lie in that plane, as will the acceleration vector.
+ * This is useful if one axis has a low acceleration compared to the other two.
+ * Calculating limits in the plane means that a slow Z axis will not affect
+ * XY-only moves.
+ */
+STATIC int tpGetPlanarAccelLimit(PmCartesian const * const normal,
+        double * const acc_limit)
+{
+    PmCartesian acc_bound;
+    acc_bound.x = emcmotDebug->joints[0].acc_limit;
+    acc_bound.y = emcmotDebug->joints[1].acc_limit;
+    acc_bound.z = emcmotDebug->joints[2].acc_limit;
+    int res = TP_ERR_OK;
+    if (acc_bound.x == acc_bound.y && acc_bound.y == acc_bound.z) {
+        *acc_limit = acc_bound.x;
+    } else {
+        res = tpGetPlanarLimit(normal, &acc_bound, acc_limit);
+    }
+    return res;
+}
+
 #if 0
 /**
  * Get a same maximum velocity for XYZ.
@@ -801,13 +879,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double phi = (PM_PI - theta * 2.0);
 
-
+    PmCartesian normal;
+    pmCartCartCross(&prev_tc->coords.line.xyz.uVec,
+            &tc->coords.line.xyz.uVec,
+            &normal);
+    pmCartUnit(&normal,&normal);
+    tp_debug_print("normal = [%f %f %f]\n",normal.x, normal.y,normal.z);
     double a_max;
     //TODO move this function into setup somewhere because this should be constant
-    tpGetMachineAccelLimit(&a_max);
+    tpGetPlanarAccelLimit(&normal, &a_max);
 
     double a_n_max = a_max * TP_ACC_RATIO_NORMAL;
-    tp_debug_print("a_n_max = %f\n",a_n_max);
+    tp_debug_print("a_max = %f, a_n_max = %f\n",a_max, a_n_max);
 
     //Find common velocity and acceleration
     double v_req = fmin(prev_tc->reqvel, tc->reqvel);

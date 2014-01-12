@@ -48,6 +48,8 @@
  * the future.
  */
 typedef enum {
+    TP_ERR_MISSING_OUTPUT = -3,
+    TP_ERR_MISSING_INPUT = -2,
     TP_ERR_FAIL = -1,
     TP_ERR_OK = 0,
     TP_ERR_NO_ACTION,
