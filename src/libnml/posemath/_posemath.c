@@ -800,6 +800,16 @@ int pmCartCartMult(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = 0;
 }
 
+int pmCartCartDiv(PmCartesian const * const v1, PmCartesian const * const v2,
+        PmCartesian * const out)
+{
+    out->x = v1->x / v2->x;
+    out->y = v1->y / v2->y;
+    out->z = v1->z / v2->z;
+
+    return pmErrno = 0;
+}
+
 int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2,
         PmCartesian * const vout)
 {
@@ -935,6 +945,16 @@ int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout)
     vout->x = v->x / size;
     vout->y = v->y / size;
     vout->z = v->z / size;
+
+    return pmErrno = 0;
+}
+
+int pmCartAbs(PmCartesian const * const v, PmCartesian * const vout)
+{
+
+    vout->x = fabs(v->x);
+    vout->y = fabs(v->y);
+    vout->z = fabs(v->z);
 
     return pmErrno = 0;
 }
