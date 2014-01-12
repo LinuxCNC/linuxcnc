@@ -552,6 +552,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
 		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
+		$(DESTDIR)$(datadir)/linuxcnc/pncconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help
 
 install-kernel-indep: install-dirs
@@ -604,7 +605,7 @@ endif
 	$(FILE) ../share/linuxcnc/gscreen.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gscreen2.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/gmoccapy/gmoccapy.glade $(DESTDIR)$(prefix)/share/gmoccapy
-	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/pncconf/*.glade $(DESTDIR)$(prefix)/share/linuxcnc/pncconf
 	$(FILE) ../share/linuxcnc/gremlin_view.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/popupkeyboard.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../configs/common/linuxcnc.nml $(DESTDIR)$(prefix)/share/linuxcnc
