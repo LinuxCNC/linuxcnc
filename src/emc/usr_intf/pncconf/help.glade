@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="help_window">
+    <signal name="delete_event" handler="on_help_window_delete_event"/>
+    <child>
+      <object class="GtkNotebook" id="helpnotebook">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolledwindow1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="window_placement">top-right</property>
+            <property name="window_placement_set">True</property>
+            <child>
+              <object class="GtkTextView" id="helpview">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="editable">False</property>
+                <property name="wrap_mode">word</property>
+                <property name="cursor_visible">False</property>
+                <property name="accepts_tab">False</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label595">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Help Page</property>
+          </object>
+          <packing>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkNotebook" id="notebook3">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <child>
+              <object class="GtkVBox" id="vbox7">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkImage" id="helppic0">
+                    <property name="visible">True</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow7">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">never</property>
+                    <child>
+                      <object class="GtkTextView" id="textview1">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="buffer">mill_textbuffer</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label949">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Mill</property>
+              </object>
+              <packing>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="vbox28">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkImage" id="helppic1">
+                    <property name="visible">True</property>
+                    <property name="stock">gtk-missing-image</property>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="pictext1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Total Travel = 4 + 6 = 10
+Z Home Offset = Origin to Home Switch distance = 10
+Z Neg Travel Distance = Origin to neg limit distance = 0
+Z Pos Travel Distance = Total Travel - neg travel distance = 10
+Z Home Position = Origin to Home Position distance = 4
+
+X axis would be similar but not shown fully for clarity.
+This is just a sample reference other switch combinations are
+possible.</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label950">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Lathe</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label596">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Diagram</property>
+          </object>
+          <packing>
+            <property name="position">1</property>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkScrolledWindow" id="scrolledwindow6">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="window_placement">top-right</property>
+            <property name="window_placement_set">True</property>
+            <child>
+              <object class="GtkTextView" id="textoutput">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="editable">False</property>
+                <property name="wrap_mode">word</property>
+                <property name="cursor_visible">False</property>
+                <property name="buffer">textoutput_buffer</property>
+                <property name="accepts_tab">False</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label884">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Output</property>
+          </object>
+          <packing>
+            <property name="position">2</property>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkTextView" id="textview2">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="buffer">about_textbuffer</property>
+          </object>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child type="tab">
+          <object class="GtkLabel" id="label191">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">About</property>
+          </object>
+          <packing>
+            <property name="position">3</property>
+            <property name="tab_fill">False</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkTextBuffer" id="textoutput_buffer"/>
+  <object class="GtkTextBuffer" id="mill_textbuffer">
+    <property name="text" translatable="yes">X axis:
+Total Travel = 10
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = 0
+Pos Travel Distance = Total Travel - neg travel distance = 10
+Home Position = Origin to Home Position distance = 6
+
+Y axis:
+Total Travel = 8
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = -8
+Pos Travel Distance = Total Travel - neg travel distance = 0
+Home Position = Origin to Home Position distance = 0
+
+Z axis:
+Total Travel = 12
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = -12
+Pos Travel Distance = Total Travel - neg travel distance = 0
+Home Position = Origin to Home Position distance = 0
+
+Note that the direction indicators on the top right show 
+movement of the TOOL and on the actual machine,
+often it is the table that actually moves. In that case the 
+directions are opposite of shown.
+
+Note this is an example, Many other combinations are 
+possible</property>
+  </object>
+  <object class="GtkTextBuffer" id="about_textbuffer">
+    <property name="text" translatable="yes">				PNCconf - Point aNd Click CONFigurator
+PNCconf is a configuration program for Linuxcnc.
+It configures machines using Mesa I/O cards.
+It configures servo,stepper or closed loop stepper machines.
+It supports some of Mesa's sserial cards.
+It will forever be a work in progress as Linuxcnc changes.
+
+Many thanks To:
+Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with techincal difficulties.
+Big John T - John drew the original machine illustrations. Testing and suggestions.
+Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample equipment to test with.
+Andy Pugh - suggestions, questions answered and many pin name changes :) 
+Dave Armstrong - testing and suggestions expecially with resolvers.
+Everyone who gave a bug report ! I cannot test everything thoughly enough so reports help.
+
+Beta 1 version</property>
+  </object>
+</interface>
