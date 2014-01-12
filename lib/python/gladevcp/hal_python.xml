@@ -3,8 +3,9 @@ domain="glade-3" depends="gtk+">
  <init-function>glade_python_init</init-function>
 
  <glade-widget-classes>
-   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL_HBox"/>
-   <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL_table"/>
+   <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL Sensitive HBox"/>
+   <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL Sensitive table"/>
+   <glade-widget-class name="State_Sensitive_Table" generic-name="state_sensitive_table" title="State_Sensitive_table"/>
    <glade-widget-class name="HAL_ComboBox" generic-name="hal_combobox" title="HAL_ComboBox"/>
    <glade-widget-class name="HAL_Button" generic-name="hal_button" title="HAL_Button"/>
    <glade-widget-class name="HAL_CheckButton" generic-name="hal_checkbutton" title="HAL_CheckButton"/>
@@ -27,6 +28,8 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Gremlin" generic-name="hal_gremlin" title="HAL Gremlin"/>
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
+
+    <glade-widget-class name="JogWheel" generic-name="jog_wheel" title="Jog Wheel"/>
 
     <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
     <glade-widget-class name="HAL_GremlinPlus" generic-name="hal_gremlin_plus" title="HAL Gremlin Plus"/>
@@ -110,8 +113,8 @@ domain="glade-3" depends="gtk+">
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
-   <glade-widget-class-ref name="HAL_HBox"/>
    <glade-widget-class-ref name="HAL_Table"/>
+   <glade-widget-class-ref name="State_Sensitive_Table"/>
    <glade-widget-class-ref name="HAL_LED"/>
    <glade-widget-class-ref name="HAL_ComboBox"/>
    <glade-widget-class-ref name="HAL_Button"/>
@@ -128,6 +131,7 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="HAL_Gremlin"/>
    <glade-widget-class-ref name="HAL_Meter"/>
    <glade-widget-class-ref name="HAL_Graph"/>
+   <glade-widget-class-ref name="JogWheel"/>
 
    <glade-widget-class-ref name="PyNgcGui"/>
    <glade-widget-class-ref name="HAL_GremlinPlus"/>
@@ -135,8 +139,10 @@ domain="glade-3" depends="gtk+">
    <glade-widget-class-ref name="ToolEdit"/>
    <glade-widget-class-ref name="Calculator"/>
    <glade-widget-class-ref name="HAL_DRO"/>
+
    <glade-widget-class-ref name="Combi_DRO"/>
    <glade-widget-class-ref name="IconFileSelection"/>
+
    <glade-widget-class-ref name="HAL_Offset"/>
    <glade-widget-class-ref name="OffsetPage"/>
    <glade-widget-class-ref name="EMC_Stat"/>

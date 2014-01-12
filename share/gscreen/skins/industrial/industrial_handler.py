@@ -277,6 +277,8 @@ class HandlerClass:
     # We don't want Gscreen to initialize ALL it's regular widgets because this custom
     # screen doesn't have them all -just most of them. So we call the ones we want
     def initialize_widgets(self):
+        self.gscreen.init_show_windows()
+        self.gscreen.init_dynamic_tabs()
         #self.gscreen.init_axis_frames()
         #self.gscreen.init_dro_colors()
         self.gscreen.init_screen2()

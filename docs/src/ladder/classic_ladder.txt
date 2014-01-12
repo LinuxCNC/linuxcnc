@@ -50,7 +50,7 @@ if your working from a Stepconf generated configuration. These must not
 be placed in the custom_postgui.hal file or the Ladder Editor menu will
 be grayed out.
 
-Ladder files (.clp) must not contain any blank spaces in the name.
+NOTE: Ladder files (.clp) must not contain any blank spaces in the name.
 
 === Realtime Module
 
@@ -142,6 +142,9 @@ To load the user module:
 ----
 loadusr classicladder
 ----
+
+NOTE: Only one .clp file can be loaded. If you need to divide your ladder
+use Sections.
 
 To load a ladder file:
 

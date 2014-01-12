@@ -1,0 +1,19 @@
+ngcgui -- Create tabs in the axis gui for subroutines.
+
+pyngcgui -- python, gladevcp implementation of ngcgui that can be embedded in guis like touchy, gscreen gmoccapy
+
+In the packaged version of linuxCNC, ngcgui_lib is created as a symbolic link to a system directory owned by root:
+
+/usr/share/linuxcnc/ncfiles/ngcgui_lib
+
+This library is not ordinarily changed by the user.  To modify a library .ngc file, copy the .ngc file to the [DISPLAY]PROGRAM_PREFIX directory or to a directory that is included in the path specified by [RS274NGC]SUBROUTINE_PATH and (optionally) change the filename.
+
+The search path for linuxCNC and ngcgui is:
+   [DISPLAY]PROGRAM_PREFIX
+
+followed in order by all the colon (:) separated directories listed in:
+   [RS274NGC]SUBROUTINE_PATH
+
+The search for subroutine files uses the first file found with a matching name.
+
+See the examples and the documentation for configuring ngcgui in the startup ini file.

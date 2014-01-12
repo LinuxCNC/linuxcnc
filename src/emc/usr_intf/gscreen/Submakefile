@@ -1,4 +1,4 @@
-GSCREEN_MODULES = mdi emc_interface preferences
+GSCREEN_MODULES = mdi emc_interface preferences keybindings
 
 PYTARGETS += ../bin/gscreen ../lib/python/gscreen/__init__.py $(patsubst %,../lib/python/gscreen/%.py,$(GSCREEN_MODULES)) \
 	../share/linuxcnc/gscreen.glade \

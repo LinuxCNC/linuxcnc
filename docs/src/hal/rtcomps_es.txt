@@ -37,9 +37,8 @@ step type are set independently, and any combination can be selected.
 
 image::images/stepgen-block-diag.eps[]
 
-.Step Pulse Generator Block Diagram (velocity mode)[[fig:Freqgen-Block-Diag]]
-
-image::images/freqgen-block-diag.eps[]
+.Step Pulse Generator Block Diagram (velocity mode)[[fig:Stepgen-Block-Diag]]
+image::images/stepgen-block-diag.eps[]
 
 === Installing
 

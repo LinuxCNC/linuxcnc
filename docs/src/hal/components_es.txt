@@ -124,8 +124,6 @@ feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to 
 
 flipflop:: (((flipflop)))D type flip-flop. 
 
-freqgen:: (((freqgen)))Software step pulse generation. 
-
 gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple joints. 
 
 gearchange:: (((gearchange)))Select from one of two speed ranges. 

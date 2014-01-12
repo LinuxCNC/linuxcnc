@@ -21,9 +21,9 @@ include::common/overleaf.txt[]
 
 include::common/System_Requirements.txt[]
 
-include::common/Getting_EMC.txt[]
+include::common/Getting_LinuxCNC.txt[]
 
-include::common/Updating_EMC.txt[]
+include::common/Updating_LinuxCNC.txt[]
 
 include::quickstart/stepper_quickstart.txt[]
 

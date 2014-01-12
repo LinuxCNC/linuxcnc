@@ -1,15 +1,32 @@
-// the RTAPI message deamon
-//
-// polls the rtapi message ring in the global data segment and eventually logs them
-// this is the single place for RTAPI and any ULAPI processes where log messages
-// pass through, regardless of origin or thread style (kernel, rtapi_app, ULAPI)
+/********************************************************************
+ * Description:  the RTAPI message deamon
+ *
+ * polls the rtapi message ring in the global data segment and eventually logs them
+ * this is the single place for RTAPI and any ULAPI processes where log messages
+ * pass through, regardless of origin or thread style (kernel, rtapi_app, ULAPI)
 
-// eventually this will become a zeroMQ PUBLISH server making messages available
-// to any interested subscribers
-// the PUBLISH/SUBSCRIBE pattern will also fix the current situation where an error 
-// message consumed by an entity is not seen by any other entities
-//
-// Michael Haberler fecit A.D. 2013
+ * eventually this will become a zeroMQ PUBLISH server making messages available
+ * to any interested subscribers
+ * the PUBLISH/SUBSCRIBE pattern will also fix the current situation where an error 
+ * message consumed by an entity is not seen by any other entities
+ *
+ *
+ * Copyright (C) 2012, 2013  Michael Haberler <license AT mah DOT priv DOT at>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ ********************************************************************/
 
 #include "rtapi.h"
 #include "rtapi_compat.h"

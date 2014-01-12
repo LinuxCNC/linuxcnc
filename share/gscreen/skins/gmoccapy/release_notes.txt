@@ -1,3 +1,96 @@
+ver. 0.9.9.7.5
+- typo in initialize_preferences 
+- deleted the statusbar widget
+- no more option to use gscreen error handling
+- no more option to use desktop notify
+- the optional stops button worked oposite it should
+- renamed some stuff from emc to linuxcnc or shortend the names
+- onboard keyboard showing in edit mode corrected
+- plasma.py changed order of getting widgets from builder, 
+  to avoid errors at load time
+- notification change line wrape mode to caracter, 
+  so longer file names will not be cut
+
+ver. 0.9.9.7.4
+- the default tool change dialog now shows 
+  the tool number and the tool description
+- after deleting the preferences file you get an error starting the GUI, 
+  because it tried to load a file " ", I deleted the SPACE to solve that
+
+ver. 0.9.9.7.3
+- plasma screen now hide also the vel_info_box
+- minimal changes on the glade files
+- modified the plasma.py file to suport persistance variables
+  the settings will be stored in plasma.var in your config dir
+- I set the plasma.py file under GPL license
+
+ver. 0.9.9.7.2
+- introduced an better gcode highlight for sourceview
+
+ver. 0.9.9.7.1
+- replaced the hal_scale_jog_vel with a normal scale,
+  as there is no need for a additional hal pin
+- renamed hal pin 
+  gscreen.hal_hbar_spindle_feedback to be gscreen.spindle_feedback_bar
+  gscreen.hal_led_spindle_at_speed to be gscreen.spindle_at_speed_led
+  This way all spindle pins are together in halshow 
+
+ver. 0.9.9.7
+- make gmoccapy react to external mode changes, i.e. start program with
+  net start halui.mode.auto => halui.program.run <= hardware.button
+
+ver. 0.9.9.6.3
+- changed again the plasma layout, as Marius still want more widgets
+- most hal labels are not needed any more, so I changed them to gtk.label
+
+ver- 0.9.9.6.2
+- added a lot of hal pin to gmoccapy_plasma, with the new 
+  plasma.py file 
+- reworked the plasma.glade file to fit Marius needs
+- new order of configs, many files have been moved by Dewey Garret
+
+ver. 0.9.9.6.1
+- solved a bug in plasma.py, having a call without function
+
+ver. 0.9.9.6
+- made a new config folder to show gmoccapy as plasma screen
+- included some minor changes to be able to place user glade panels 
+  over the coolant and spindle frame, hiding the original widgets
+  so plasma screen can easy be realized
+  This will hide also the spindle speed label in gcode info frame.
+- the tool info frame can also be hidden by a user glade file, because tool
+  info is not needed for plasma.
+- corrected an error in handling python calls in / for user glade screens,
+  as example introduced plasma.glade plasma.hal and plasma.py demonstrating
+  all possible communications
+
+ver. 0.9.9.5
+- added color chooser for homed and unhomed colors, as recommended
+  by BigJohnT to help people suffering from protanopia (red/green weakness)
+- corrected an error updating the DRO colors in lathe mode
+
+ver. 0.9.9.4
+- initializing some warnings at start up, corrected that
+- deleted some unneeded print messages
+
+ver. 0.9.9.3
+- if the user tried to make a new file and there where no 
+  RS274NGC_STARTUP_CODE in the INI file, an exception has been thrown
+  fixed that bug
+- if the user tried to make a new file, after he made allready one,
+  an exception has been trown, because the file was loaded allready
+  fixed that bug
+
+ver. 0.9.9.2
+- solved a bug, entering the edit mode from auto mode, caused by 
+  a typo in a widget name
+
+ver. 0.9.9.1
+- solved a bug showing the gremlin DRO, caused by a typo in a widget name
+- some buttons and widgets did not have tooltip text, added that ones
+- corrected German translation
+- corrected Spanish translation
+
 ver. 0.9.9
 - introduced a new DRO, showing all three positions (Abs, Rel, DTG) at ones
   user can toggle the DRO by clicking on them

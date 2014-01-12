@@ -39,12 +39,12 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.update_iter()
         self.buf.connect('changed', self.update_iter)
         self.set_buffer(self.buf)
-        lm = gtksourceview.LanguageManager()
+        self.lm = gtksourceview.LanguageManager()
         if 'EMC2_HOME' in os.environ:
             path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
-            lm.set_search_path(lm.get_search_path() + [path])
+            self.lm.set_search_path(self.lm.get_search_path() + [path])
 
-        self.buf.set_language(lm.get_language('.ngc'))
+        self.buf.set_language(self.lm.get_language('.ngc'))
         self.set_show_line_numbers(True)
         self.set_show_line_marks(True)
         self.set_highlight_current_line(True)
@@ -55,6 +55,16 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         _EMC_ActionBase._hal_init(self)
         self.gstat.connect('file-loaded', lambda w, f: gobject.timeout_add(1, self.load_file, f))
         self.gstat.connect('line-changed', self.highlight_line)
+        self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))
+
+    def set_language(self, lang, path = None):
+        # path = the search path for the langauage file
+        # if none, set to default
+        # lang = the lang file to set
+        if path == None:
+            path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
+        self.lm.set_search_path(path)
+        self.buf.set_language(self.lm.get_language(lang))
 
     def get_filename(self):
         return self.filename

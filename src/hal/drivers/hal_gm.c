@@ -159,6 +159,61 @@ typedef struct { //RS485_DacAdc_t
 	hal_float_t			ADC_7_scale;
 } RS485_DacAdc_t;
 
+typedef struct { //RS485_TeachPad_t
+    // Pins.
+	//6 ADC channel
+	hal_float_t			*ADC_0;
+	hal_float_t			*ADC_1;
+	hal_float_t			*ADC_2;
+	hal_float_t			*ADC_3;
+	hal_float_t			*ADC_4;
+	hal_float_t			*ADC_5;
+	//8 digital input
+	hal_bit_t			*in_0;
+	hal_bit_t			*inNot_0;
+	hal_bit_t			*in_1;
+	hal_bit_t			*inNot_1;
+	hal_bit_t			*in_2;
+	hal_bit_t			*inNot_2;
+	hal_bit_t			*in_3;
+	hal_bit_t			*inNot_3;
+	hal_bit_t			*in_4;
+	hal_bit_t			*inNot_4;
+	hal_bit_t			*in_5;
+	hal_bit_t			*inNot_5;
+	hal_bit_t			*in_6;
+	hal_bit_t			*inNot_6;
+	hal_bit_t			*in_7;
+	hal_bit_t			*inNot_7;	
+	//encoder
+	hal_bit_t			*enc_reset;
+	hal_s32_t			*enc_counts;
+	hal_float_t			*enc_position;
+	hal_s32_t			*enc_rawcounts;
+
+    // Parameters
+	//6 ADC channels
+	hal_float_t			ADC_0_offset;
+	hal_float_t			ADC_1_offset;
+	hal_float_t			ADC_2_offset;
+	hal_float_t			ADC_3_offset;
+	hal_float_t			ADC_4_offset;
+	hal_float_t			ADC_5_offset;
+	hal_float_t			ADC_0_scale;
+	hal_float_t			ADC_1_scale;
+	hal_float_t			ADC_2_scale;
+	hal_float_t			ADC_3_scale;
+	hal_float_t			ADC_4_scale;
+	hal_float_t			ADC_5_scale;
+	//encoder
+	hal_float_t			enc_position_scale;
+	
+    // Private data
+       //encoder
+       hal_s32_t			enc_raw_offset;
+
+} RS485_TeachPad_t;
+
 typedef struct { //RS485_mgr_t
 	hal_u32_t			ID[16];
 	hal_u32_t			BYTES_TO_WRITE[16];
@@ -266,6 +321,7 @@ typedef struct { //gm_device_t
 	RS485_8input_t		RS485_8input[16];
 	RS485_8output_t		RS485_8output[16];
 	RS485_DacAdc_t		RS485_DacAdc[16];
+	RS485_TeachPad_t	RS485_TeachPad[16];
 	
 	CAN_GM_t		CAN_GM[6];
 	
@@ -345,7 +401,7 @@ rtapi_app_main(void)
 
 	msgLevel = rtapi_get_msg_level();
 	rtapi_set_msg_level(RTAPI_MSG_ALL);
-	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.0 loading...\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.1 loading...\n");
 
 	// Connect to the HAL.
 	driver.comp_id = hal_init("hal_gm");
@@ -773,6 +829,71 @@ ExportRS485(void *arg, int comp_id, int version)
 			device->RS485_DacAdc[i].ADC_5_scale = 1;
 			device->RS485_DacAdc[i].ADC_6_scale = 1;
 			device->RS485_DacAdc[i].ADC_7_scale = 1;
+		    break;		    
+		    case RS485MODUL_ID_TEACHPAD:
+			device-> RS485_mgr.BYTES_TO_WRITE[i]=0;
+			device-> RS485_mgr.BYTES_TO_READ[i]=12;	//1 for 8 digit input, 6 for adc, 4 for encoder + 1 CRC		
+			
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_0), comp_id, "gm.%1d.rs485.%02d.in-0", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_0), comp_id, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_1), comp_id, "gm.%1d.rs485.%02d.in-1", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_1), comp_id, "gm.%1d.rs485.%02d.in-not-1", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_2), comp_id, "gm.%1d.rs485.%02d.in-2", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_2), comp_id, "gm.%1d.rs485.%02d.in-not-2", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_3), comp_id, "gm.%1d.rs485.%02d.in-3", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_3), comp_id, "gm.%1d.rs485.%02d.in-not-3", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_4), comp_id, "gm.%1d.rs485.%02d.in-4", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_4), comp_id, "gm.%1d.rs485.%02d.in-not-4", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_5), comp_id, "gm.%1d.rs485.%02d.in-5", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_5), comp_id, "gm.%1d.rs485.%02d.in-not-5", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_6), comp_id, "gm.%1d.rs485.%02d.in-6", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_6), comp_id, "gm.%1d.rs485.%02d.in-not-6", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_7), comp_id, "gm.%1d.rs485.%02d.in-7", boardId, i);
+			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_7), comp_id, "gm.%1d.rs485.%02d.in-not-7", boardId, i);	
+
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_0), comp_id, "gm.%1d.rs485.%02d.adc-0", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_1), comp_id, "gm.%1d.rs485.%02d.adc-1", boardId, i);      
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_2), comp_id, "gm.%1d.rs485.%02d.adc-2", boardId, i);      
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_3), comp_id, "gm.%1d.rs485.%02d.adc-3", boardId, i);        
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_4), comp_id, "gm.%1d.rs485.%02d.adc-4", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].ADC_5), comp_id, "gm.%1d.rs485.%02d.adc-5", boardId, i);  
+			
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_0_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-0", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_1_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-1", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_2_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-2", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_3_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-3", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_4_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-4", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_5_offset), comp_id, "gm.%1d.rs485.%02d.adc-offset-5", boardId, i);
+			
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_0_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-0", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_1_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-1", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_2_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-2", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_3_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-3", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_4_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-4", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].ADC_5_scale), comp_id, "gm.%1d.rs485.%02d.adc-scale-5", boardId, i);
+			
+			if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_TeachPad[i].enc_reset), comp_id, "gm.%1d.rs485.%02d.enc-reset", boardId, i);
+			if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_counts), comp_id, "gm.%1d.rs485.%02d.enc-counts", boardId, i);
+			if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_position), comp_id, "gm.%1d.rs485.%02d.enc-position", boardId, i);
+			if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->RS485_TeachPad[i].enc_rawcounts), comp_id, "gm.%1d.rs485.%02d.enc-rawcounts", boardId, i);
+			if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->RS485_TeachPad[i].enc_position_scale), comp_id, "gm.%1d.rs485.%02d.enc-position-scale", boardId, i);
+			
+			device->RS485_TeachPad[i].ADC_0_scale = 1;
+			device->RS485_TeachPad[i].ADC_1_scale = 1;
+			device->RS485_TeachPad[i].ADC_2_scale = 1;
+			device->RS485_TeachPad[i].ADC_3_scale = 1;
+			device->RS485_TeachPad[i].ADC_4_scale = 1;
+			device->RS485_TeachPad[i].ADC_5_scale = 1;
+			
+			device->RS485_TeachPad[i].ADC_0_offset = 0;
+			device->RS485_TeachPad[i].ADC_1_offset = 0;
+			device->RS485_TeachPad[i].ADC_2_offset = 0;
+			device->RS485_TeachPad[i].ADC_3_offset = 0;
+			device->RS485_TeachPad[i].ADC_4_offset = 0;
+			device->RS485_TeachPad[i].ADC_5_offset = 0;
+			
+			device->RS485_TeachPad[i].enc_raw_offset = 0;
+			device->RS485_TeachPad[i].enc_position_scale=1;
 		    break;
 		    default:
 			rtapi_print_msg(RTAPI_MSG_ERR, "General Mechatronics: ERROR, unknown rs485 module type.\nPlease, download the latest driver.\n");
@@ -1314,8 +1435,7 @@ encoder(void *arg, long period)
 		*(device->encoder[i].rawcounts) =  temp1 - device->encoder[i].raw_offset;
 		*(device->encoder[i].counts) = *(device->encoder[i].rawcounts) - device->encoder[i].index_offset;
 		
-
-		if(device->encoder[i].position_scale < 0.000001)  device->encoder[i].position_scale = 1; //Dont like to devide by 0
+		if((device->encoder[i].position_scale < 0.000001) && (device->encoder[i].position_scale > -0.000001))  device->encoder[i].position_scale = 1; //Dont like to devide by 0
 		*(device->encoder[i].position) = (hal_float_t) *(device->encoder[i].counts) / device->encoder[i].position_scale;
 		
 		vel = (hal_float_t) pCard->ENC_period[i];
@@ -1348,7 +1468,11 @@ stepgen(void *arg, long period)
 	for(i=0;i<6;i++)
 	{
 	  if(*(device->stepgen[i].enable) == 1) device->stepgen_status |= (0x1 << i);	//six stepgens share one status reg, 5 bits for each.
-	  else device->stepgen_status &= ~(0x1 << i);			//LS bits of 5 bits are the enable bits
+	  else
+          {
+            device->stepgen_status &= ~(0x1 << i);			//LS bits of 5 bits are the enable bits
+            pCard->StepGen_steprate[i] = 0;
+          }
 	}
 
       //Check parameter changes, if enabled
@@ -1603,11 +1727,49 @@ RS485(void *arg, long period)
 	
 	unsigned int i, j;
 	hal_float_t temp;
+        hal_u32_t temp_u32;
+        bool data_wr = 0;
+        static hal_bit_t failed=0;
 	
 	//for write function
 	hal_u32_t RS485DataIn8[32], RS485DataOut32[8];
 	//for read function
 	hal_u32_t RS485DataIn32[8], RS485DataOut8[32];
+
+       //Check modules if any of it failed:
+       //READ IDs of correctly connected modules and compare it with saved ID-s.
+	for(i=0; i<8; i++)
+	{
+	temp_u32=(hal_u32_t)pCard->moduleId[i];
+		 
+	  if(((temp_u32 & 0xff)^0xaa) == ((temp_u32 & 0xff00)>>8)) 
+	  {
+	    if((device-> RS485_mgr.ID[2*i]) != ((temp_u32 >> 8) & 0xff)) 
+            {
+              //RS485 module falled off, error
+              if(failed == 0) //Msg only first time, do not put 100 error msg
+              {
+                failed=1;
+                rtapi_print_msg(RTAPI_MSG_ERR, "GM: ERROR: RS485 module ID:%2d failed.\n", 2*i);
+              }
+              *(device->cardMgr.power_fault) = 1;
+            }
+	  }
+		 
+	  if(((temp_u32 & 0xff0000)^0xaa0000) == ((temp_u32 & 0xff000000)>>8))
+	  {
+	    if((device-> RS485_mgr.ID[2*i+1]) != ((temp_u32 & 0xff000000)>>24))
+            {
+              //RS485 module falled off, error
+              if(failed == 0) //Msg only first time, do not put 100 error msg
+              {
+                failed=1; 
+                rtapi_print_msg(RTAPI_MSG_ERR, "GM: ERROR: RS485 module ID:%2d failed.\n", 2*i+1);
+              }
+              *(device->cardMgr.power_fault) = 1;
+            }
+	  }
+        }
   
        //read RS485-s
 	for(i=0;i<16;i++) if((device-> RS485_mgr.ID[i] != 0) && (device-> RS485_mgr.BYTES_TO_READ[i] != 0)) //If the modul is presented and not write only
@@ -1656,14 +1818,50 @@ RS485(void *arg, long period)
 			
 		      break;
 		      
+		   case RS485MODUL_ID_TEACHPAD:
+
+			*(device->RS485_TeachPad[i].in_0) = ((hal_bit_t)(RS485DataOut8[0] & 0x1) ? 1 : 0);
+			*(device->RS485_TeachPad[i].inNot_0) = (hal_bit_t)(RS485DataOut8[0] & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_1) = (hal_bit_t)((RS485DataOut8[0] >> 1) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_1) = (hal_bit_t)((RS485DataOut8[0] >> 1) & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_2) = (hal_bit_t)((RS485DataOut8[0] >> 2) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_2) = (hal_bit_t)((RS485DataOut8[0] >> 2) & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_3) = (hal_bit_t)((RS485DataOut8[0] >> 3) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_3) = (hal_bit_t)((RS485DataOut8[0] >> 3) & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_4) = (hal_bit_t)((RS485DataOut8[0] >> 4) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_4) = (hal_bit_t)((RS485DataOut8[0] >> 4) & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_5) = (hal_bit_t)((RS485DataOut8[0] >> 5) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_5) = (hal_bit_t)((RS485DataOut8[0] >> 5) & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_6) = (hal_bit_t)((RS485DataOut8[0] >> 6) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_6) = (hal_bit_t)((RS485DataOut8[0] >> 6) & 0x1) ? 0 : 1;
+			*(device->RS485_TeachPad[i].in_7) = (hal_bit_t)((RS485DataOut8[0] >> 7) & 0x1) ? 1 : 0;
+			*(device->RS485_TeachPad[i].inNot_7) = (hal_bit_t)((RS485DataOut8[0] >> 7) & 0x1) ? 0 : 1;
+
+			*(device->RS485_TeachPad[i].ADC_0) = (hal_float_t)RS485DataOut8[1]/51.2 * device->RS485_TeachPad[i].ADC_0_scale - device->RS485_TeachPad[i].ADC_0_offset;
+			*(device->RS485_TeachPad[i].ADC_1) = (hal_float_t)RS485DataOut8[2]/51.2 * device->RS485_TeachPad[i].ADC_1_scale - device->RS485_TeachPad[i].ADC_1_offset;
+			*(device->RS485_TeachPad[i].ADC_2) = (hal_float_t)RS485DataOut8[3]/51.2 * device->RS485_TeachPad[i].ADC_2_scale - device->RS485_TeachPad[i].ADC_2_offset;
+			*(device->RS485_TeachPad[i].ADC_3) = (hal_float_t)RS485DataOut8[4]/51.2 * device->RS485_TeachPad[i].ADC_3_scale - device->RS485_TeachPad[i].ADC_3_offset;
+			*(device->RS485_TeachPad[i].ADC_4) = (hal_float_t)RS485DataOut8[5]/51.2 * device->RS485_TeachPad[i].ADC_4_scale - device->RS485_TeachPad[i].ADC_4_offset;
+			*(device->RS485_TeachPad[i].ADC_5) = (hal_float_t)RS485DataOut8[6]/51.2 * device->RS485_TeachPad[i].ADC_5_scale - device->RS485_TeachPad[i].ADC_5_offset;
+			
+			*(device->RS485_TeachPad[i].enc_rawcounts)= (RS485DataOut8[7] & 0xff) | ((RS485DataOut8[8] & 0xff) << 8) | ((RS485DataOut8[9] & 0xff) << 16) | (RS485DataOut8[10] << 24);
+			if(*(device->RS485_TeachPad[i].enc_reset))
+			{
+			  device->RS485_TeachPad[i].enc_raw_offset = *(device->RS485_TeachPad[i].enc_rawcounts);
+			}
+			*(device->RS485_TeachPad[i].enc_counts) = *(device->RS485_TeachPad[i].enc_rawcounts) - device->RS485_TeachPad[i].enc_raw_offset;
+			
+			if((device->RS485_TeachPad[i].enc_position_scale < 0.000001) && (device->RS485_TeachPad[i].enc_position_scale > -0.000001)) device->RS485_TeachPad[i].enc_position_scale=1; //dont devide by 0
+			
+			*(device->RS485_TeachPad[i].enc_position) = *(device->RS485_TeachPad[i].enc_counts) / device->RS485_TeachPad[i].enc_position_scale;
+			
 		    default:
 		      break;     
 		  }
 		    
 		}
 	}
-	
-	
+
       //Write serial IOs
 	for(i=0;i<16;i++) if((device-> RS485_mgr.ID[i] != 0) && (device-> RS485_mgr.BYTES_TO_WRITE[i] != 0)) //If the modul is presented and not read only
 	{
@@ -1754,7 +1952,10 @@ RS485(void *arg, long period)
 		 {
 		    *(&(pCard->serialModulesDataOut[i][j])) = RS485DataOut32[j];
 		 }
+                 data_wr=1;
 	  }
+          //Ping RS485 BUS if no RS485 module with output is connected
+          if(data_wr == 0) *(&(pCard->serialModulesDataOut[0][0])) = 0;
 }
 
 static void

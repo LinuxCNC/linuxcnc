@@ -55,10 +55,42 @@ class _EMC_ActionBase(_HalWidgetBase):
     def _hal_init(self):
         self.linuxcnc, self.stat, self.gstat = self.linuxcnc_static.get()
         self._stop_emission = False
+        # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
+        inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
+        ini = linuxcnc.ini(inifile)
+        self.no_f_home = int(ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
 
     def machine_on(self):
         self.stat.poll()
         return self.stat.task_state > linuxcnc.STATE_OFF
+
+    def is_auto_mode(self):
+        self.stat.poll()
+        print self.stat.task_mode, linuxcnc.MODE_AUTO
+        return self.stat.task_mode == linuxcnc.MODE_AUTO
+
+    def is_file_loaded(self):
+        self.stat.poll()
+        print "file name:",self.stat.file
+        if self.stat.file:
+            return True
+        else:
+            return False
+
+    def is_all_homed(self):
+        self.stat.poll()
+        axis_count = count = 0
+        for i,h in enumerate(self.stat.homed):
+            if h:
+                count +=1
+            if self.stat.axis_mask & (1<<i) == 0: continue
+            axis_count += 1
+        if count == axis_count:
+            return True
+        return False
+
+    def no_home_required(self):
+        return self.no_f_home
 
     def safe_handler(self, f):
         def _f(self, *a, **kw):
@@ -337,10 +369,15 @@ class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
 
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive( self.machine_on() and self.is_all_homed() and self.is_file_loaded() ))
         self.gstat.connect('interp-idle', lambda w: self.set_active_safe(False))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-run', lambda w: self.set_active_safe(True))
+        self.gstat.connect('all-homed', lambda w: self.set_sensitive( self.machine_on() and self.is_file_loaded() ))
+        self.gstat.connect('file-loaded', self.file_loaded_check)
+
+    def file_loaded_check(self,widget,filename):
+        self.set_sensitive( self.machine_on() and self.is_all_homed() )
 
     def set_restart_line(self,line,resetline=0):
         self.program_start_line = line
@@ -412,11 +449,12 @@ class EMC_Action_MDI(_EMC_Action):
 
     def _hal_init(self):
         _EMC_Action._hal_init(self)
-
+        self.set_sensitive(False)
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) ))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+        self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
 
     def on_activate(self, w):
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
@@ -456,6 +494,14 @@ class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Unhome'
     axis = gobject.property(type=int, default=-1, minimum=-1, nick='Axis',
                                     blurb='Axis to unhome. -1 to unhome all')
+    def _hal_init(self):
+        _EMC_Action._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+
     def on_activate(self, w):
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
         self.linuxcnc.unhome(self.axis)
@@ -474,6 +520,14 @@ class EMC_Action_Home(_EMC_Action):
                                     blurb='Axis to home. -1 to home all')
     confirm_homed = gobject.property(type=bool, default=False, nick='Confirm rehoming',
                                      blurb='Ask user if axis is already homed')
+    def _hal_init(self):
+        _EMC_Action._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+
     def homed(self):
         if self.axis != -1:
             return self.stat.homed[self.axis]
@@ -489,3 +543,28 @@ class EMC_Action_Home(_EMC_Action):
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
         self.linuxcnc.home(self.axis)
+
+
+class State_Sensitive_Table(gtk.Table, _EMC_ActionBase):
+    __gtype_name__ = "State_Sensitive_Table"
+    is_homed = gobject.property(type=bool, default=True, nick='Must Be Homed',
+                                    blurb='Machine Must be homed for widgets to be sensitive to input')
+    is_on = gobject.property(type=bool, default=True, nick='Must Be On',
+                                    blurb='Machine Must be On for widgets to be sensitive to input')
+    is_idle = gobject.property(type=bool, default=True, nick='Must Be Idle',
+                                    blurb='Machine Must be Idle for widgets to be sensitive to input')
+
+    def _hal_init(self):
+        _EMC_ActionBase._hal_init(self)
+        self.set_sensitive(False)
+        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
+        if self.is_on:
+            self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) ))
+        else:
+            self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()) )
+        if self.is_idle:
+            self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
+        if self.is_homed:
+            self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))

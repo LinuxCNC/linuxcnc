@@ -1,4 +1,0 @@
-This configuration step is intended for Sherline stepper lathes.
-
-There are 2 ini files, one for inch setups (SherlineLathe_inch.ini) and one for
-metric setups (SherlineLathe_mm.ini).

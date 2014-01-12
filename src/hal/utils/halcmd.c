@@ -86,6 +86,7 @@ int hal_flag = 0;	/* used to indicate that halcmd might have the
 int halcmd_done = 0;		/* used to break out of processing loop */
 int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) */
 int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
+int echo_mode = 0;
 char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halcmd */
 
 static void quit(int);
@@ -138,6 +139,7 @@ struct halcmd_command halcmd_commands[] = {
     {"alias",   FUNCT(do_alias_cmd),   A_THREE },
     {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
     {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
+    {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
     {"gets",    FUNCT(do_gets_cmd),    A_ONE },
     {"ptype",   FUNCT(do_ptype_cmd),   A_ONE },
@@ -163,6 +165,7 @@ struct halcmd_command halcmd_commands[] = {
     {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
     {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
     {"unalias", FUNCT(do_unalias_cmd), A_TWO },
+    {"unecho",  FUNCT(do_unecho_cmd),  A_ZERO },
     {"unlinkp", FUNCT(do_unlinkp_cmd), A_ONE },
     {"unload",  FUNCT(do_unload_cmd),  A_ONE },
     {"unloadrt", FUNCT(do_unloadrt_cmd), A_ONE },
@@ -389,7 +392,8 @@ static int parse_cmd1(char **argv) {
 	    }
 	}
 #endif
-
+	if(!strcmp(command->name, "echo")) {echo_mode = 1;}
+	if(!strcmp(command->name, "unecho")) {echo_mode = 0;}
 	switch(nargs | is_plus) {
 	case A_ZERO: {
 	    result = command->func();

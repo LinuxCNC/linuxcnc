@@ -1,1 +1,0 @@
-keystick.ini -- a curses (terminal) based, non-X interface

@@ -1,0 +1,20 @@
+The 'vismach' directory contains a number of configurations that display a 3D model of the simulated machine.
+
+These simulations are mostly intended to testing of complex kinematics code by people who don't have those somewhat exotic machines.
+
+All of these configurations work without realtime and without hardware or drivers.
+
+All of the simulations use the Axis GUI.  It is expected that these configurations will need to be modified as work on joints vs. axes occurs.
+
+Choices are:
+
+-- max5triv.ini: Chris Radek's MaxNC which has been modified to have B and C angular axes.  This version uses trivkins, so does not provide proper multi-axis behavior.
+
+-- max5kins.ini: Chris Radek's MaxNC which has been modified to have B and C angular axes.  This version uses maxkins, and allows full 9-axis g-code.
+
+-- hbm.ini: A large horizontal boring mill.  The quill is configured as the W axis.
+
+-- 5axis
+-- hexapod-sim
+-- puma
+-- scara

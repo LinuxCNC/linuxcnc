@@ -306,8 +306,6 @@ endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES))
-
-
 ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
@@ -371,12 +369,6 @@ Makefile: config.h
 config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
-INFILES_MOVE = \
-        ../docs/man/man1/linuxcnc.1
-
-../docs/man/man1/linuxcnc.1: ../docs/src/man/man1/linuxcnc.1.in config.status
-	./config.status --file=$@:$<
-
 INFILES = \
 	../scripts/linuxcnc \
 	../scripts/realtime \
@@ -402,7 +394,7 @@ endif
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: $(INFILES) $(INFILES_MOVE)
+default: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
@@ -534,11 +526,41 @@ TARGETS += $(USERPCI_HEADERS)
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
+# tooledit as standalone app:
+TARGETS += ../bin/tooledit
+../bin/tooledit: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(TCLSH)")>|$@
+	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/tooledit.tcl")>>$@
+	$(Q)(echo "standalone_tooledit")>>$@
+	$(Q)chmod +x $@
+
 # ngcgui as standalone app:
 TARGETS += ../bin/ngcgui
-../bin/ngcgui: ../tcl/ngcgui.tcl
-	cp $< $@
-	chmod +x $@
+../bin/ngcgui: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(TCLSH)")>|$@
+	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/ngcgui.tcl")>>$@
+	$(Q)(echo "::ngcgui::standalone_ngcgui")>>$@
+	$(Q)chmod +x $@
+
+# pyngcgui as standalone app:
+TARGETS += ../bin/pyngcgui
+../bin/pyngcgui: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(PYTHON)")>|$@
+	$(Q)(echo "import pyngcgui")>>$@
+	$(Q)(echo "pyngcgui.standalone_pyngcgui()")>>$@
+	$(Q)chmod +x $@
+
+# gremlin_view as standalone app:
+TARGETS += ../bin/gremlin_view
+../bin/gremlin_view: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(PYTHON)")>|$@
+	$(Q)(echo "import gremlin_view")>>$@
+	$(Q)(echo "gremlin_view.standalone_gremlin_view()")>>$@
+	$(Q)chmod +x $@
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
@@ -756,7 +778,6 @@ ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latencyhistogram $(DESTDIR)$(bindir)
 endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
-	$(EXE) ../bin/tooledit $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference \
 	    $(filter-out ../lib/ulapi-%.so,$(filter ../lib/%.so, $(TARGETS))) \
@@ -861,14 +882,44 @@ endif # ! RUN_IN_PLACE
 
 CONF=../configs
 COMMON=$(CONF)/common
-CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON), $(wildcard $(CONF)/*)))
+CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
+                                         ${shell find ${CONF} -type d -print}))
+
 .PHONY: configs
-COPY_CONFIGS := \
-	$(patsubst %,../configs/%/core_stepper.hal, demo_step_cl stepper demo_sim_cl Sherline3Axis SherlineLathe cooltool) \
-	$(patsubst %,../configs/%/core_servo.hal, motenc stg vti) \
-	$(patsubst %,../configs/%/core_sim.hal, halui_pyvcp sim) \
-	$(patsubst %,../configs/%/core_sim9.hal, sim) \
-	$(patsubst %,../configs/%/axis_manualtoolchange.hal, sim lathe-pluto)
+COPY_CONFIGS = $(patsubst %,../configs/%/core_stepper.hal, \
+                sim \
+                by_interface/parport/stepper \
+                by_machine/sherline/Sherline3Axis \
+                by_machine/sherline/SherlineLathe \
+                by_machine/cooltool \
+                by_interface/parport/classicladder/demo_step_cl \
+                by_interface/parport/classicladder/demo_sim_cl)
+
+COPY_CONFIGS += $(patsubst %,../configs/%/core_servo.hal, \
+                sim \
+                by_interface/vitalsystems \
+                by_interface/servotogo \
+                by_interface/vigilant)
+
+COPY_CONFIGS += $(patsubst %,../configs/%/core_sim.hal, \
+                sim)
+
+COPY_CONFIGS += $(patsubst %,../configs/%/core_sim9.hal, \
+                sim)
+
+COPY_CONFIGS += $(patsubst %,../configs/%/axis_manualtoolchange.hal, \
+                sim \
+                by_interface/pluto/lathe-pluto\
+                by_interface/parport/plasma-thc-sim)
+
+show_configs_copy_stuff:
+	@echo CONFILES=$(CONFILES)
+	@echo CALL:$(call CONFILES,axis_manualtoolchange.hal)
+	@echo CALL:$(call CONFILES,core_stepper.hal)
+	@echo CALL:$(call CONFILES,core_servo.hal)
+	@echo CALL:$(call CONFILES,core_sim.hal)
+	@echo CALL:$(call CONFILES,core_sim9.hal)
+	@echo COPY_CONFIGS=$(COPY_CONFIGS)
 
 configs: $(COPY_CONFIGS)
 
@@ -994,8 +1045,6 @@ obj-$(CONFIG_MATRIX_KB) += matrix_kb.o
 matrix_kb-objs := hal/components/matrix_kb.o $(MATHSTUB)
 obj-$(CONFIG_MUX_GENERIC) += mux_generic.o
 mux_generic-objs := hal/components/mux_generic.o $(MATHSTUB)
-obj-$(CONFIG_FREQGEN) += freqgen.o
-freqgen-objs := hal/components/freqgen.o $(MATHSTUB)
 obj-$(CONFIG_PWMGEN) += pwmgen.o
 pwmgen-objs := hal/components/pwmgen.o $(MATHSTUB)
 obj-$(CONFIG_SIGGEN) += siggen.o

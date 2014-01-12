@@ -19,7 +19,7 @@ include::common/System_Requirements_es.txt[]
 
 include::common/Getting_EMC_es.txt[]
 
-include::common/Updating_EMC.txt[]
+include::common/Updating_EMC_es.txt[]
 
 include::quickstart/stepper_quickstart_es.txt[]
 

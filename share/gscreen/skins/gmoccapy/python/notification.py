@@ -101,6 +101,7 @@ class Notification(gtk.Window):
         hbox.pack_start(icon)
         label=gtk.Label()
         label.set_line_wrap(True)
+        label.set_line_wrap_mode(pango.WRAP_CHAR)
         label.set_text(text)
         label.set_size_request(self.message_width,-1)
         font_desc = pango.FontDescription(self.font)

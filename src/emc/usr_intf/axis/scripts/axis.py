@@ -648,7 +648,6 @@ class LivePlotter:
         self.last_limit = None
         self.last_motion_mode = None
         self.last_joint_position = None
-        self.set_manual_mode = False
         self.notifications_clear = False
         self.notifications_clear_info = False
         self.notifications_clear_error = False
@@ -661,6 +660,7 @@ class LivePlotter:
             self.stat = linuxcnc.stat()
         except linuxcnc.error:
             return False
+        self.current_task_mode = self.stat.task_mode
         def C(s):
             a = o.colors[s + "_alpha"]
             s = o.colors[s]
@@ -715,6 +715,16 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
+        if (self.stat.task_mode != self.current_task_mode):
+            self.current_task_mode = self.stat.task_mode
+            if (self.current_task_mode == linuxcnc.MODE_MANUAL):
+                root_window.tk.eval(pane_top + ".tabs raise manual")
+            if (self.current_task_mode == linuxcnc.MODE_MDI):
+                root_window.tk.eval(pane_top + ".tabs raise mdi")
+            if (self.current_task_mode == linuxcnc.MODE_AUTO):
+                # not sure if anything needs to be done for this
+                pass
+
         self.after = self.win.after(update_ms, self.update)
 
         self.win.set_current_line(self.stat.id or self.stat.motion_line)
@@ -756,11 +766,6 @@ class LivePlotter:
         vupdate(vars.interp_state, self.stat.interp_state)
         vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
         if hal_present == 1 :
-            set_manual_mode = comp["set-manual-mode"]
-            if self.set_manual_mode != set_manual_mode:
-                 self.set_manual_mode = set_manual_mode
-                 if self.set_manual_mode:
-                     root_window.tk.eval(pane_top + ".tabs raise manual")
             notifications_clear = comp["notifications-clear"]
             if self.notifications_clear != notifications_clear:
                  self.notifications_clear = notifications_clear
@@ -1930,6 +1935,31 @@ class TclCommands(nf.TclCommands):
         if loaded_file is None:
             pass
         else:
+            omode = 0
+            showname = os.path.basename(loaded_file)
+            if not os.access(loaded_file,os.W_OK):
+                omode = root_window.tk.call(
+                      "nf_dialog",
+                      ".filenotwritable",
+                      _("File not Writable:") + showname,
+                      _("This file is not writable\n"
+                      "You can Edit-readonly\n\n"
+                      "or\n\n"
+                      "Save it to your own directory\n"
+                      "then open that saved, writable file"),
+                      "warning",
+                      0,
+                      _("Edit-readonly"),
+                      _("Save"),
+                      _("Cancel")
+                      )
+
+            if omode == 1:
+                root_window.tk.call("save_gcode",
+                                   "my_" + showname)
+                return
+            elif omode == 2: return
+
             e = string.split(editor)
             e.append(loaded_file)
             e.append("&")
@@ -2449,9 +2479,14 @@ class TclCommands(nf.TclCommands):
 
     def save_gcode(*args):
         if not loaded_file: return
+        initialfile = ''
+        if len(args):
+           initialfile = args[0]
         global open_directory
         f = root_window.tk.call("tk_getSaveFile", "-initialdir", open_directory,
-            "-filetypes", ((_("rs274ngc files"), ".ngc"),))
+            "-initialfile", initialfile,
+            "-filetypes",
+             ((_("rs274ngc files"), ".ngc"),))
         if not f: return
         f = unicode(f)
         open_directory = os.path.dirname(f)
@@ -2460,7 +2495,7 @@ class TclCommands(nf.TclCommands):
         else:
             srcfile = loaded_file
         try:
-            shutil.copy(srcfile, f)
+            shutil.copyfile(srcfile, f)
         except (shutil.Error, os.error, IOError), detail:
             tb = traceback.format_exc()
             root_window.tk.call("nf_dialog", ".error", _("Error saving file"),
@@ -3093,7 +3128,6 @@ if hal_present == 1 :
     comp.newpin("jog.v", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.w", hal.HAL_BIT, hal.HAL_OUT)
     comp.newpin("jog.increment", hal.HAL_FLOAT, hal.HAL_OUT)
-    comp.newpin("set-manual-mode",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-info",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)

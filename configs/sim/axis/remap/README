@@ -1,0 +1,27 @@
+Sample configurations for remapped codes
+
+This is what the example configs do:
+
+getting-started: introduces defining new codes in NGC procedures and Python
+
+extend-builtins: demonstrates remapping builtins T,M6,M61,S,F. This could be a starting point for your own configuration. Also shows how to refer to the builtin behaviour of codes.
+
+manual-toolchange-with-tool-length-switch: extend M6 so it does a tool length probe after the change.
+
+rack-toolchange: this tries to mimick the racktoolchanger patch - without a patch, but with remapping codes
+
+cycles: a demo how new cycle codes can be created with O-word subroutines or in Python
+
+iocontrol-removed: a 'research part' of the (now merged) remapping branch: It demonstrates removing iocontrol altogether, and replacing it by a Python plugin in task.  Other than that, the rack-toolchanger example is used. Also, experimentally use sqlite3 for tooltable storage.
+
+>>>>>>>>>>>  Not suggested for production use. <<<<<<<<<<<<<<<<<<<<<<<<
+
+python-stdglue contains embedded Python code supporting the above examples. This should eventually evolve into canned code which users need not touch except in more exotic circumstances. Note all examples above use the same glue code from remap.py.
+
+common_nc_subs: this contains reset_state.ngc, which should be called from ON_ABORT procedure.  Note that it is in particular important to reset the modal state after a failed remap procedure because this can lead to susequent failures (e.g. bug ID 3437928).  The demos use their own on_abort sub and call reset_state.
+
+Remapping Documentation:
+  http://www.linuxcnc.org/docs/devel/html/remap/structure.html
+
+see also:
+  http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?RemappingStatus

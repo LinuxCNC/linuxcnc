@@ -1,4 +1,0 @@
-This configuration step is intended for Sherline 3-axis stepper machines.
-
-There are 2 ini files, one for inch setups (Sherline3Axis_inch.ini) and one for
-metric setups (Sherline3Axis_mm.ini).

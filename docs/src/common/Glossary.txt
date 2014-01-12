@@ -279,23 +279,22 @@ Rapid rate::
     testing a g-code program for the first time.
 
 Real-time::
-     (((real-time)))[[glo:real-time]] Software that is intended to meet very
-    strict timing deadlines. Under Linux, in order to meet these
-    requirements it is necessary to install RTAI or RTLINUX and build the
-    software to run in those special environments. For this reason
-    real-time software runs in kernel-space.
+    (((real-time)))[[glo:real-time]] Software that is intended to meet
+    very strict timing deadlines. Under Linux, in order to meet these
+    requirements it is necessary to install a realtime kernel such
+    as RTAI and build the software to run in the special real-time
+    environment. For this reason real-time software runs in kernel-space.
 
 RTAI::
      (((RTAI)))[[glo:RTAI]] Real Time Application Interface, see
-    https://www.rtai.org/[https://www.rtai.org/], one of two real-time
-    extensions for Linux that LinuxCNC can use to achieve real-time
-    performance.
+    https://www.rtai.org/[https://www.rtai.org/], the real-time extensions
+    for Linux that LinuxCNC can use to achieve real-time performance.
 
 RTLINUX::
-     (((RTLINUX)))[[glo:RTLINUX]] See
-    http://www.rtlinux.org[http://www.rtlinux.org], one of two real-time
-    extensions for Linux that LinuxCNC can use to achieve real-time
-    performance.
+    (((RTLINUX)))[[glo:RTLINUX]] See
+    https://en.wikipedia.org/wiki/RTLinux[https://en.wikipedia.org/wiki/RTLinux],
+    an older real-time extension for Linux that LinuxCNC used to use to
+    achieve real-time performance.  Obsolete, replaced by RTAI.
 
 RTAPI::
      (((RTAPI)))A portable interface to real-time operating systems

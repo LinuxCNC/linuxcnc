@@ -1,0 +1,7 @@
+touchy.ini -- a touchscreen gui
+
+External buttons required:
+   touchy.cycle-start
+   touchy.abort
+
+External Jogwheel recommended

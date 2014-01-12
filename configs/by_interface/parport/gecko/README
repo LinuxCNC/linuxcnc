@@ -1,0 +1,5 @@
+Basic Configurations for Gecko Drives
+
+Gecko_540B3 configuration for a 3 axis machine with X Y Z axes.  To use the charge pump on a G540 your base period must be set to 50,000 or lower. Otherwise disable the charge pump feature.
+
+Gecko_540B4 configuration for a 4 axis machine with X Y Z A axes.  To use the charge pump on a G540 your base period must be set to 50,000 or lower. Otherwise disable the charge pump feature.

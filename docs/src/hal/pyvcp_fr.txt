@@ -956,12 +956,13 @@ image::images/pyvcp_table.png[]
 
 === Onglets (Tabs)
 
-Une interface à onglets peut économiser énormément d'espace.
+Une interface à onglets permet d'économiser l'espace en créant un container pour
+chaque nom d'onglet (tabs). Une seule section _tabs_ peut exister, les _tabs_ ne
+peuvent pas être imbriqués ni empilés. La largeur de l'onglet le plus large,
+determine la largeur des onglets.
+
 [source,xml]
 ----
-<tabs> 
-    <names> ["spindle","green eggs"]</names> 
-</tabs> 
 <tabs> 
     <names>["Spindle", "Green Eggs", "Ham"]</names> 
     <vbox> 

@@ -878,6 +878,9 @@ find_kernels
 # do not build all by default.
 all_flavors_default=yes
 
+# Set to 'yes' when either xenomai or rt-preempt will be built
+with_userland_rt_threads=no
+
 AC_PRESERVE_HELP_ORDER()
 AC_ARG_WITH(posix,
     [AS_HELP_STRING([--with-posix],
@@ -982,9 +985,10 @@ test "$with_rt_preempt" = check && with_rt_preempt=yes
 test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
 if test "$with_rt_preempt" = yes; then
-   RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
-   RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
-   BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rt-preempt"
+    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
+    RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
+    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rt-preempt"
+    with_userland_rt_threads=yes
 fi
 
 
@@ -1075,8 +1079,14 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS -g $flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
-    test "$($XENOMAI_THREADS_RTS --arch)" = x86 && \    
+    if test "$($XENOMAI_THREADS_RTS --arch)" = x86; then
         flags="$flags -msse -funsafe-math-optimizations"
+        # When using SSE instructions, not normally allowed in the
+        # kernel, the stack must be aligned at 16 bytes.  Later
+        # kernels (3.8.13, but not 3.5.7) try to set
+        # -mpreferred-stack-boundary=3 on x86_64 arch, so force it.
+	flags="$flags -mpreferred-stack-boundary=4"
+    fi
     XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
@@ -1087,8 +1097,10 @@ fi
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
 test "$with_xenomai" = check && with_xenomai=yes
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
-test $with_xenomai = yes && \
-     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai"
+if test $with_xenomai = yes; then
+    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai"
+    with_userland_rt_threads=yes
+fi
 AC_MSG_RESULT($with_xenomai)
 
 AC_MSG_CHECKING(whether to build Xenomai kernel threads)
@@ -1228,27 +1240,29 @@ if test "$with_drivers" = check; then
 fi
 AC_MSG_RESULT($with_drivers)
 
-AC_MSG_CHECKING(whether to build usermode PCI hardware drivers)
+
 AC_ARG_ENABLE(usermode-pci,
     [AS_HELP_STRING([--enable-usermode-pci],
-        [Build PCI drivers with usermode PCI support])],
+	[Build PCI drivers with usermode PCI support])],
     [with_usermode_pci=$enableval],
     [with_usermode_pci=check])
-if test "$with_drivers" = no -o "$TARGET_PLATFORM" != PC; then
-    with_usermode_pci=no
-elif test "$with_usermode_pci" = check; then
-    if test "$with_rt_preempt" = "yes" -o "$with_xenomai" = "yes"; then
-        with_usermode_pci=yes
-    else
-        with_usermode_pci=no
-    fi
+# record what was requested on the command line
+if test $with_usermode_pci = yes; then
+    usermode_pci_requested_cmdline=yes
+else
+    usermode_pci_requested_cmdline=no
 fi
-AC_MSG_RESULT($with_usermode_pci)
+if test $with_drivers = yes -a $with_usermode_pci != no; then
+    usermode_pci_disabled_cmdline=no
+else
+    usermode_pci_disabled_cmdline=yes
+fi
 
-# now test if libudev is usable if USERMODE_PCI was chosen
+# test usability of libudev, needed by userland drivers
 LIBUDEV_CFLAGS=
 LIBUDEV_LIBS=
-if test "$with_usermode_pci" = "yes"; then
+with_libudev=no
+if test "$with_drivers" = "yes" -a $with_usermode_pci != no; then
    AC_MSG_CHECKING(for libudev)
    if pkg-config libudev >/dev/null 2>&1; then
       LIBUDEV_VER=`pkg-config libudev --version`
@@ -1260,12 +1274,45 @@ if test "$with_usermode_pci" = "yes"; then
       AC_CHECK_LIB(udev, udev_new, [],
           [AC_MSG_ERROR(libudev unusable)])
       LIBS=$LIBS_hold
+      with_libudev=yes
+   elif test -x /usr/bin/lsb_release && test "$(lsb_release -cs)" = hardy; then
+       # hardy has no libudev; disable usermode PCI & tell user why
+       AC_MSG_RESULT([not available on Ubuntu Hardy])
    else
        AC_MSG_RESULT(not found)
-       AC_MSG_ERROR(libudev required but not found)
    fi
 fi
 
+AC_MSG_CHECKING(whether to build usermode PCI hardware drivers)
+if test "$usermode_pci_disabled_cmdline" = yes; then
+    # user explicitly disabled either userland drivers or all drivers
+    with_usermode_pci=no
+    AC_MSG_RESULT([disabled by user])
+elif test "$with_usermode_pci" = check -a $with_userland_rt_threads = no; then
+    with_usermode_pci=no
+    AC_MSG_RESULT([default disabled for no userland RT threads])
+elif test "$TARGET_PLATFORM" != PC; then
+    with_usermode_pci=no
+    AC_MSG_RESULT([not available on non-PC platforms])
+elif test $with_libudev = no; then
+    with_usermode_pci=no
+    AC_MSG_RESULT([no; depends on libudev])
+elif test "$with_usermode_pci" = check -a $with_userland_rt_threads = yes; then
+    with_usermode_pci=yes
+    AC_MSG_RESULT([default enabled for userland RT threads])
+else
+    # catchall
+    AC_MSG_RESULT($with_usermode_pci)
+fi
+# if --with-usermode-pci was specified on the cmdline but is
+# unavailable, consider it an error
+test $usermode_pci_requested_cmdline = yes -a $with_usermode_pci = no && \
+    AC_MSG_ERROR([Usermode PCI drivers requested but unavailable])
+# if xenomai or rt-preempt will be built and userland drivers were
+# not explicitly disabled but will not be built, issue a warning
+test $with_usermode_pci = no -a $usermode_pci_disabled_cmdline = no \
+	-a $with_userland_rt_threads = yes -a "$TARGET_PLATFORM" = PC && \
+    AC_MSG_WARN([Usermode PCI drivers will not be available])
 
 ##############################################################################
 # Subsection 2.7                                                             #
@@ -1832,7 +1879,7 @@ On other systems, do what you need to install asciidoc version 8.5 or newer.])
     AC_MSG_RESULT([$ASCIIDOC_VER])
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
-    temp_asciidoc=`tempfile --suffix=.txt`
+    temp_asciidoc=`mktemp --suffix=.txt`
     cat > $temp_asciidoc <<EOF
 :lang: fr
 :ascii-ids:
@@ -2129,12 +2176,9 @@ if test -z "$TKCONFIG"; then
 fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh 2>/dev/null \
+    TKCONFIG=$(find /usr/lib /usr/lib64 /usr/local/lib \
+        -maxdepth 2 -name tkConfig.sh 2>/dev/null \
 	| head -n1)
-    if (test "x$TKCONFIG" = "x"); then
-	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh \
-	    2>/dev/null | head -n1)
-    fi
 fi
 
 if (test "x$TKCONFIG" = "x"); then
