@@ -285,10 +285,12 @@ CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
 
 ifeq ($(TRIVIAL_BUILD),no)
-ifeq ($(USE_PROTOBUF),yes)
-Makefile:	depends/protodeps.d $(GENERATED)
--include depends/protodeps.d
+
+ifeq ($(TARGET_PLATFORM),beaglebone)
+Makefile:	$(PRU_DEPS)
+-include $(PRU_DEPS)
 endif
+
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 READ_DEPS = $(wildcard $(DEPS))
