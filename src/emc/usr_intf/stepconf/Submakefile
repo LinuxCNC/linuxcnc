@@ -1,18 +1,18 @@
 STEPCONF_MODULES = pages build_INI build_HAL
 
 PYTARGETS += ../bin/stepconf  ../lib/python/stepconf/__init__.py ../share/linuxcnc/linuxcnc-wizard.gif $(patsubst %,../lib/python/stepconf/%.py,$(STEPCONF_MODULES)) \
-	../share/linuxcnc/main_page.glade \
-	../share/linuxcnc/base.glade \
-	../share/linuxcnc/start.glade \
-	../share/linuxcnc/pport1.glade \
-	../share/linuxcnc/pport2.glade \
-	../share/linuxcnc/spindle.glade \
-	../share/linuxcnc/options.glade \
-	../share/linuxcnc/axisx.glade \
-	../share/linuxcnc/axisy.glade \
-	../share/linuxcnc/axisz.glade \
-	../share/linuxcnc/axisa.glade \
-	../share/linuxcnc/finished.glade
+	../share/linuxcnc/stepconf/main_page.glade \
+	../share/linuxcnc/stepconf/base.glade \
+	../share/linuxcnc/stepconf/start.glade \
+	../share/linuxcnc/stepconf/pport1.glade \
+	../share/linuxcnc/stepconf/pport2.glade \
+	../share/linuxcnc/stepconf/spindle.glade \
+	../share/linuxcnc/stepconf/options.glade \
+	../share/linuxcnc/stepconf/axisx.glade \
+	../share/linuxcnc/stepconf/axisy.glade \
+	../share/linuxcnc/stepconf/axisz.glade \
+	../share/linuxcnc/stepconf/axisa.glade \
+	../share/linuxcnc/stepconf/finished.glade
 
 PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepconf/%.py,$(STEPCONF_MODULES)) \
 	emc/usr_intf/stepconf/main_page.glade \
@@ -40,62 +40,62 @@ PYI18NSRCS += emc/usr_intf/stepconf/stepconf.py $(patsubst %,emc/usr_intf/stepco
 	$(Q)mkdir -p ../lib/python/stepconf
 	$(Q)cp $< $@
 
-../share/linuxcnc/main_page.glade: emc/usr_intf/stepconf/main_page.glade
+../share/linuxcnc/stepconf/main_page.glade: emc/usr_intf/stepconf/main_page.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/base.glade: emc/usr_intf/stepconf/base.glade
+../share/linuxcnc/stepconf/base.glade: emc/usr_intf/stepconf/base.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/start.glade: emc/usr_intf/stepconf/start.glade
+../share/linuxcnc/stepconf/start.glade: emc/usr_intf/stepconf/start.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/pport1.glade: emc/usr_intf/stepconf/pport1.glade
+../share/linuxcnc/stepconf/pport1.glade: emc/usr_intf/stepconf/pport1.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/pport2.glade: emc/usr_intf/stepconf/pport2.glade
+../share/linuxcnc/stepconf/pport2.glade: emc/usr_intf/stepconf/pport2.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/spindle.glade: emc/usr_intf/stepconf/spindle.glade
+../share/linuxcnc/stepconf/spindle.glade: emc/usr_intf/stepconf/spindle.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/options.glade: emc/usr_intf/stepconf/options.glade
+../share/linuxcnc/stepconf/options.glade: emc/usr_intf/stepconf/options.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/axisx.glade: emc/usr_intf/stepconf/axisx.glade
+../share/linuxcnc/stepconf/axisx.glade: emc/usr_intf/stepconf/axisx.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/axisy.glade: emc/usr_intf/stepconf/axisy.glade
+../share/linuxcnc/stepconf/axisy.glade: emc/usr_intf/stepconf/axisy.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/axisz.glade: emc/usr_intf/stepconf/axisz.glade
+../share/linuxcnc/stepconf/axisz.glade: emc/usr_intf/stepconf/axisz.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/axisa.glade: emc/usr_intf/stepconf/axisa.glade
+../share/linuxcnc/stepconf/axisa.glade: emc/usr_intf/stepconf/axisa.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
 
-../share/linuxcnc/finished.glade: emc/usr_intf/stepconf/finished.glade
+../share/linuxcnc/stepconf/finished.glade: emc/usr_intf/stepconf/finished.glade
 	$(ECHO) Copying glade file $(notdir $@)
 	$(Q)mkdir -p $(dir $@)
 	$(Q)cp -f $< $@
