@@ -28,7 +28,7 @@
 #include <assert.h>
 #include <signal.h>
 #include <string.h>
-#include <libusb-1.0/libusb.h>
+#include <libusb.h>
 #include <unistd.h>
 #include <stdarg.h>
 
