@@ -32,8 +32,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-#define ULAPI
-#include <linuxcnc/hal.h>
+#include <hal.h>
 #include <inifile.hh>
 
 const char *modname = "xhc-hb04";
