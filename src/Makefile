@@ -287,8 +287,12 @@ CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 ifeq ($(TRIVIAL_BUILD),no)
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
-Makefile:	$(PRU_DEPS)
--include $(PRU_DEPS)
+ifneq ($(PRU_DEPS),)
+Makefile: $(PRU_DEPS)
+READ_PRU_DEPS = $(wildcard $(PRU_DEPS))
+$(shell echo 1>&2 Reading $(words $(READ_PRU_DEPS))/$(words $(PRU_DEPS)) PRU dependency files)
+-include $(wildcard $(READ_PRU_DEPS))
+endif
 endif
 
 # Find the dependency filenames, then include them all

@@ -2,49 +2,58 @@ ifeq ($(TARGET_PLATFORM),beaglebone)
 
 # support for ARM335x PRU (Programmable Realtime Unit) components and
 SUPPORT_DIR := hal/support
-PRU_SRC_DIR := hal/drivers/hal_pru_generic/
-PRU_MAIN    := pru_generic
+PRU_SRC_DIR := hal/drivers/hal_pru_generic
+PRU_MAINS   := pru_generic
 
 # The PRU assembler proper
 PASM := ../bin/pasm
 
-## install PRU, prussdrv includes
-## not needed for now
-##../include/%.h: $(SUPPORT_DIR)/%.h
-##	cp $^ $@
-
 # Assembly of PRU code
 # the list of assembly source files
-PRU_SRCS := $(wildcard $(PRU_SRC_DIR)/*.p)
+PRU_FILES := $(wildcard $(PRU_SRC_DIR)/*.p)
 
 # .bin file produced by PASM -b goes in rtlib
-PRU_BIN := $(RTLIBDIR)/$(PRU_MAIN).bin
-PRU_DBG := $(RTLIBDIR)/$(PRU_MAIN).dbg
+PRU_BIN := $(patsubst %,$(RTLIBDIR)/%.bin,$(PRU_MAINS))
+PRU_DBG := $(patsubst %,$(RTLIBDIR)/%.dbg,$(PRU_MAINS))
 
 # .bin files are targets
-TARGETS +=  $(PRU_BIN) $(PRU_DBG)
-USERSRCS += $(PRU_SRCS)
+# Adding to TARGETS builds the PRU code once and puts it in the RTLIBDIR for
+# the first defined RTOS flavor (typically posix)
+#TARGETS +=  $(PRU_BIN) $(PRU_DBG)
+# Only build PRU code for the Xenomai RTOS flavor
+ifeq ($(threads),xenomai)
+modules : $(PRU_BIN) $(PRU_DBG)
+endif
 
 # .bin output, create listing
 PASM_BINFLAGS := -b -L -d
 
 # conversion rule for the above
 # assemble .p  into .bin object files
-#$(PRU_BIN): $(PRU_SRCS)
+
 $(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PASM) 
 
 
-PRU_DEPS :=  $(patsubst %,objects/%,$(patsubst %.p,%.d,$(PRU_SRCS)))
+PRU_DEPS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.d,$(PRU_MAINS)))
+PRU_OBJS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.bin,$(PRU_MAINS)))
+PRU_DBGS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.dbg,$(PRU_MAINS)))
 
-objects/%.d: 	%.p
+$(PRU_DEPS): objects/%.d : %.p
 	$(Q)mkdir -p $(dir $@)
 	$(ECHO) generate PRU dependency $@ from $<
-	$(Q)cpp -MM -MG -MT objects$(patsubst %.p,%.bin,$<)  $< $@
+	$(Q)cpp -MM -MG -MT objects/$(patsubst %.p,%.bin,$<)  $< $@
 
-
-$(RTLIBDIR)/%.bin $(RTLIBDIR)/%.dbg: $(PRU_SRC_DIR)/%.p $(PASM)
+$(PRU_OBJS): objects/%.bin : %.p objects/%.d $(PASM)
 	$(Q)mkdir -p $(RTLIBDIR)
 	$(ECHO) Assembling PRU code $@ 
-	$(Q)$(PASM) $(PASM_BINFLAGS) $(filter-out $(PASM),$^) $(basename $@)
+	$(Q)$(PASM) $(PASM_BINFLAGS) $< $(basename $@)
+
+$(PRU_DBGS): objects/%.dbg : objects/%.bin
+
+$(PRU_BIN): $(RTLIBDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
+	cp $^ $@
+
+$(PRU_DBG): $(RTLIBDIR)/%.dbg : objects/$(PRU_SRC_DIR)/%.dbg
+	cp $^ $@
 
 endif
