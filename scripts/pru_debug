@@ -58,7 +58,7 @@ if [ ! -r /sys/class/uio/uio0 ] ; then
 	exit 1;
 fi
 
-UIPATH="$EMC2_HOME/configs/BeagleBone/PRU-Debugger"
+UIPATH="$EMC2_HOME/configs/ARM/PRU-Debugger"
 
 halcmd -f << _EOF_ > /dev/null
 
