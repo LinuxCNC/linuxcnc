@@ -1,13 +1,15 @@
 # HAL config file for using classic ladder
-# Loads the core_stepper.hal file first to set up motion and stepgen
-# This adds limits and home from limit to the motion module
-# adds the possibility of an external momentary or sustained NC estop button 
-# includes intermittent lube pump and pressure or level sensing.
-# includes coolant and spindle forward, reverse
 
-# from standard pinout config file for 3-axis steppers
+# The core_sim.hal file sets up motion, stepgen and other common items
+# Remove core_sim.hal connections for the following pins and implement 
+# using classic latter functionality instead:
+unlinkp iocontrol.0.user-enable-out
+unlinkp iocontrol.0.emc-enable-in
 
-# This configuration uses classicladder for machine logic
+# This file adds:
+# the possibility of an external momentary or sustained NC estop button 
+# and includes intermittent lube pump and pressure or level sensing.
+
 # (load the realtime portion)
 # these classicladder parameters need to be optimized after ladder completion
 loadrt classicladder_rt numRungs=12 numBits=20 numWords=4 numTimers=5 numMonostables=2 numPhysInputs=10 numPhysOutputs=10 numArithmExpr=4 numSections=4
