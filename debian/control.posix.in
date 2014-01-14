@@ -1,0 +1,13 @@
+
+Package: linuxcnc-posix
+Conflicts: emc2, emc2-sim, linuxcnc-sim (<< 1:2.6.0~pre1), linuxcnc (<< 1:2.6.0~pre1)
+Architecture: any
+Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, @POSIX_DEPENDS@
+Recommends: @POSIX_RECOMMENDS@
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package provides components and drivers that run on a non-realtime
+ (Posix) system.

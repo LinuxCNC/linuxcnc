@@ -1,0 +1,3 @@
+usr/lib/linuxcnc/posix/*.so
+usr/lib/linuxcnc/ulapi-posix.so
+usr/libexec/linuxcnc/rtapi_app_posix

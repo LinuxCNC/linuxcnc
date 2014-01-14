@@ -16,7 +16,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-kernel_version = @KERNEL_VERSION@
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -37,11 +36,7 @@ build-stamp:
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "sim"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation=pdf
-else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-kernel=/boot/config-$(kernel_version) --enable-build-documentation=pdf
-endif
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-build-documentation=pdf @SRC_CONFIGURE@
 	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
 	touch build-stamp
 
@@ -51,11 +46,7 @@ clean: debian/control
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "sim"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
-else
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-kernel=/boot/config-$(kernel_version) 
-endif
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-build-documentation=pdf @SRC_CONFIGURE@
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
@@ -69,7 +60,7 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
-	-(cd debian/@EXTRAS@ && find . | cpio -pdmuv ../tmp)
+	-(cd debian/@EXTRA_DIR@ && find . | cpio -pdmuv ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
@@ -104,12 +95,12 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
-	dh_fixperms -X/linuxcnc_module_helper
+	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_posix -X/rtapi_app_xenomai -X/rtapi_app_rt-preempt
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
-	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
-	dh_shlibdeps -l debian/@MAIN_PACKAGE_NAME@/usr/lib
+	cat debian/linuxcnc/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
+	dh_shlibdeps -l debian/linuxcnc/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb

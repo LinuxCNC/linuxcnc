@@ -1,329 +1,308 @@
-#!/bin/bash
-# dpkg configuration script for linuxcnc
-# Copyright (C) 2006 Jeff Epler
+#!/usr/bin/python
 #
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
+# Copyright 2014 Sebastian Kuzminsky
 #
-# When used to produce a debian package, this file is a script "used to
-# control compilation and installation of the executable"
+# Debian source package configuration script for LinuxCNC.
+#
 
-usage () {
-    P=${0##*/}
-    cat <<EOF
-$P: Set up debian/ files to build for a particular kernel
 
-Usage:
-    $P sim
-        Build for a system without a realtime kernel
+import sys
+import os
+import glob
+import re
+import subprocess
 
-    $P [kernel-version]
-        Build for the realtime kernel [kernel-version], such as 2.6.12-magma
 
-    $P -r
-        Build for the currently running kernel
+#
+# Important state variables.  These get built up as the program runs.
+#
 
-    $P -a
-        If the currently running kernel has realtime extensions, use it.
-        Otherwise use any available realtime kernel it can find.
-EOF
-}
+config = {}
 
-cd "${0%/*}"
+# enabled flavor names
+config['flavors'] = set()
 
-if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+# packages we build-depend on
+config['build-depends'] = set()
+
+# Depends, Recommends, and Suggests for the main package (linuxcnc.deb)
+config['depends'] = set()
+config['recommends'] = set()
+config['suggests'] = set()
+
+# Depends and Recommends for the flavor packages (linuxcnc-$FLAVOR.deb)
+config['posix-depends'] = set()
+config['posix-recommends'] = set()
+
+config['rtai-depends'] = set()
+config['rtai-recommends'] = set()
+
+config['rtpreempt-depends'] = set()
+config['rtpreempt-recommends'] = set()
+
+config['xenomai-depends'] = set()
+config['xenomai-recommends'] = set()
+
+config['xenomai-kernel-depends'] = set()
+config['xenomai-kernel-recommends'] = set()
+
+# arguments passed to src/configure to select build flavors
+config['src/configure'] = set()
+
+
+def usage():
+    print """\
+usage: debian/configure [OPTIONS]
+configure debian source package
+OPTIONS:
+    --help, -h    This help.
+    --posix, sim  Configure for the Posix flavor only.
+    -r            Configure for the running realtime flavor (and Posix).
+    --all         Detect all available realtime flavors (installed and
+                  not), configure for all of them (and Posix).
+"""
+
+
+#
+# This function inspects the config file of the specified installed kernel
+# version.
+# If it finds a realtime flavor, it appends the detected flavor to flavors,
+# appends the flavor-appropriate packages to Build-depends, Depends, and
+# Recommends
+# If the specified kernel does not provide a realtime flavor, it prints an
+# error message and exits.
+#
+def configure_for_installed_realtime_kernel(kernel_version, config):
+    try:
+        f = open("/boot/config-%s" % kernel_version)
+    except IOError:
+        print "no kernel configuration found for %s" % kernel_version
+        sys.exit(1)
+    l = f.read(-1)
+    f.close()
+
+    config_ipipe = re.search('^CONFIG_IPIPE', l, re.MULTILINE)
+    config_xeno = re.search('^CONFIG_XENO_', l, re.MULTILINE)
+    config_rtpreempt = re.search('^CONFIG_PREEMPT_RT', l, re.MULTILINE)
+
+    if config_ipipe and not config_xeno and not config_rtpreempt:
+        config['flavors'].add('rtai')
+        config['build-depends'].add("linux-headers-%s" % kernel_version)
+        config['build-depends'].add("rtai-modules-%s" % kernel_version)  # the rtai-modules package also includes rtai headers and the rtai-config program
+        config['rtai-depends'].add("rtai-modules-%s" % kernel_version)
+        config['rtai-depends'].add("linux-image-%s" % kernel_version)
+
+    elif config_ipipe and config_xeno and not config_rtpreempt:
+        config['flavors'].add('xenomai')
+        config['flavors'].add('xenomai-kernel')
+        config['build-depends'].add('libpth-dev')
+        config['build-depends'].add("linux-headers-%s" % kernel_version)
+        config['build-depends'].add('libxenomai-dev')
+        config['build-depends'].add('libudev-dev')
+        config['xenomai-depends'].add('libxenomai1')
+        config['xenomai-depends'].add('xenomai-runtime')
+        config['xenomai-kernel-depends'].add('linux-image-%s' % kernel_version)
+
+    elif not config_ipipe and not config_xeno and config_rtpreempt:
+        config['flavors'].add('rtpreempt')
+        config['build-depends'].add('libpth-dev')
+        config['build-depends'].add('libudev-dev')
+        config['rtpreempt-depends'].add('linux-image-%s' % kernel_version)
+
+    else:
+        print "kernel %s has no realtime extensions" % kernel_version
+        sys.exit(1)
+
+
+def configure_for_distro(config):
+    # 'Ubuntu' or 'Debian'
+    distributor_id = subprocess.Popen(["lsb_release", "--id", "--short"], stdout=subprocess.PIPE).communicate()[0]
+    distributor_id = distributor_id[:-1]  # strip trailing newline
+
+    # for example '12.04' or '7.3.0'
+    release = subprocess.Popen(["lsb_release", "--short", "--release"], stdout=subprocess.PIPE).communicate()[0]
+    release = release[:-1]  # strip trailing newline
+
+    print "configuring for %s %s" % (distributor_id, release)
+
+    # configure the tcl/tk version
+    # Lucid's default tcl/tk version is 8.4, we need to override it to 8.5
+    # all other distros can use the default version
+    if distributor_id == 'Ubuntu' and release == '10.04':
+        config['build-depends'].add('tcl8.5-dev')
+        config['build-depends'].add('tk8.5-dev')
+        config['depends'].add('tcl8.5')
+        config['depends'].add('tk8.5')
+    else:
+        config['build-depends'].add('tcl-dev')
+        config['build-depends'].add('tk-dev')
+        config['depends'].add('tcl')
+        config['depends'].add('tk')
+
+    # 'extra-dir' selects a directory (in debian/) to include in the main
+    # deb.  This one is not actually distro-dependent currently (all
+    # distros use the same extra-files dir), but it seems like we might
+    # want it to be at some point.
+    config['extra-dir'] = 'extras'
+
+
+def append_file(additional_filename, base_filename):
+    base_file = open(base_filename, 'a')
+    additional_file = open(additional_filename, 'r')
+    base_file.write(additional_file.read())
+    additional_file.close()
+    base_file.close()
+
+
+def add_flavor_to_control(flavor, config):
+    subst('control.%s.in' % flavor, 'control.%s' % flavor, config)
+    append_file('control.%s' % flavor, 'control')
+
+
+def subst(infile, outfile, config):
+    try:
+        retcode = subprocess.call(
+            "sed -e 's`@BUILD_DEPENDS@`%s`g'" % ', '.join(config['build-depends'])
+            + " -e 's`@DEPENDS@`%s`g'" % ', '.join(config['depends'])
+            + " -e 's`@RECOMMENDS@`%s`g'" % ', '.join(config['recommends'])
+            + " -e 's`@SUGGESTS@`%s`g'" % ', '.join(config['suggests'])
+            + " -e 's`@SRC_CONFIGURE@`%s`g'" % ' '.join(config['src/configure'])
+            + " -e 's`@PYTHON_VERSION@`%d.%d`g'" % (sys.version_info[0], sys.version_info[1])
+            + " -e 's`@PYTHON_VERSION_NEXT@`%d.%d`g'" % (sys.version_info[0], 1 + sys.version_info[1])
+            + " -e 's`@EXTRA_DIR@`%s`g'" % config['extra-dir']
+            + " -e 's`@POSIX_DEPENDS@`%s`g'" % ', '.join(config['posix-depends'])
+            + " -e 's`@POSIX_RECOMMENDS@`%s`g'" % ', '.join(config['posix-recommends'])
+            + " -e 's`@RTAI_DEPENDS@`%s`g'" % ', '.join(config['rtai-depends'])
+            + " -e 's`@RTAI_RECOMMENDS@`%s`g'" % ', '.join(config['rtai-recommends'])
+            + " -e 's`@RTPREEMPT_DEPENDS@`%s`g'" % ', '.join(config['rtpreempt-depends'])
+            + " -e 's`@RTPREEMPT_RECOMMENDS@`%s`g'" % ', '.join(config['rtpreempt-recommends'])
+            + " -e 's`@XENOMAI_DEPENDS@`%s`g'" % ', '.join(config['xenomai-depends'])
+            + " -e 's`@XENOMAI_RECOMMENDS@`%s`g'" % ', '.join(config['xenomai-recommends'])
+            + " -e 's`@XENOMAI_KERNEL_DEPENDS@`%s`g'" % ', '.join(config['xenomai-kernel-depends'])
+            + " -e 's`@XENOMAI_KERNEL_RECOMMENDS@`%s`g'" % ', '.join(config['xenomai-kernel-recommends'])
+            + " %s > %s" % (infile, outfile),
+            shell=True
+        )
+        if retcode < 0:
+            print >>sys.stderr, "Child was terminated by signal", -retcode
+    except OSError:
+        print >>sys.stderr, "Failed to run sed!"
+
+
+# posix is always enabled
+config['flavors'].add('posix')
+
+
+if len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
+    usage()
+    sys.exit(0)
+
+elif sys.argv[1] == '--posix' or sys.argv[1] == 'sim':
+    # the user just wants posix, and it's always enabled (above)
+    pass
+
+elif sys.argv[1] == '-r':
+    running_kernel_version = os.uname()[2]
+    print "configuring for running realtime kernel %s" % running_kernel_version
+    configure_for_installed_realtime_kernel(running_kernel_version, config)
+
+elif sys.argv[1] == '--all':
+    # detect_available_realtime_kernels
+    print "Not implemented yet!"
+    sys.exit(1)
+
+else:
+    print "invalid command line"
     usage
-    if [ $# -ne 1 ]; then
-        exit 1
-    fi
-    exit 0
-fi
+    sys.exit(1)
 
 
-# This function autodetects the kernel type based on settings in
-# its /boot/config.  It looks at the kernel identified by $KERNEL and sets
-# $KTYPE to one of "rtai", "xenomai", "rt-preempt", or "vanilla", and sets
-# $DEFAULT_THREAD_STYLE appropriately.
-inspect_kernel() {
+configure_for_distro(config)
 
-    KCONFIG="/boot/config-$KERNEL"
-    if test ! -f "$KCONFIG"; then 
-	if test -f "/proc/config.gz"; then
-	    KCONFIG="/proc/config.gz"
-	else
-	    echo no kernel configuration found : $KCONFIG
-	    exit 1
-	fi
+
+for flavor in (config['flavors']):
+    if flavor == 'posix':
+        config['build-depends'].add('libpth-dev')
+        config['src/configure'].add('--with-posix')
+
+    elif flavor == 'rtai':
+        config['rtai-recommends'].add('hostmot2-firmware')
+        config['src/configure'].add('--with-rtai-kernel')
+
+    elif flavor == 'xenomai':
+        config['xenomai-recommends'].add('hostmot2-firmware')
+        config['src/configure'].add('--with-xenomai')
+
+    elif flavor == 'xenomai-kernel':
+        config['xenomai-kernel-recommends'].add('hostmot2-firmware')
+        config['src/configure'].add('--with-xenomai-kernel')
+
+    elif flavor == 'rtpreempt':
+        config['rtpreempt-recommends'].add('hostmot2-firmware')
+        config['src/configure'].add('--with-rt-preempt')
+
+    else:
+        print "Warning: ignoring unknown flavor %s" % flavor
+        config['flavors'].remove(flavor)
+
+# report the final set of enabled flavors
+print "enabled flavors: " + ', '.join(config['flavors'])
+
+
+#
+# All done configuring!  Time to start creating debian files!
+#
+
+# the main package Depends on any of the flavor packages and Suggests all of them
+flavor_packages = set()
+for f in config['flavors']:
+    flavor_packages.add('linuxcnc-' + f)
+
+config['depends'].add(' | '.join(flavor_packages))
+config['suggests'].add(', '.join(flavor_packages))
+
+
+subst('control.in', 'control', config)
+for flavor in (config['flavors']):
+    add_flavor_to_control(flavor, config)
+
+subst('rules.in', 'rules', config)
+mode = os.stat('rules').st_mode
+mode |= 0111
+os.chmod('rules', mode)
+
+for infile in glob.glob('*.files.in'):
+    cooked_file = infile[:-3]
+    subst(infile, cooked_file, config)
+
+    extra_file = config['extra-dir'] + '/' + cooked_file
+    if os.access(extra_file, os.R_OK):
+        append_file(extra_file, cooked_file)
+
+
+ignore = """
+
+
+function detect_available_realtime_kernels() {
+    RTAI_HEADERS=$(apt-cache search 'linux-headers.*-rtai')
+    XENOMAI_HEADERS=$(apt-cache search 'linux-headers.*-xenomai')
+    RTPREEMPT_HEADERS=$(apt-cache search 'linux-headers.*-rt([^a]|$)')
+
+    if [ ! -z "$RTAI_HEADERS" ]; then
+        echo found rtai headers:
+        echo $RTAI_HEADERS
     fi
-    opt_ipipe=`zgrep '^CONFIG_IPIPE' $KCONFIG |wc -l`
-    opt_xeno=`zgrep '^CONFIG_XENO_' $KCONFIG |wc -l`
-    opt_preempt_rt=`zgrep '^CONFIG_PREEMPT_RT' $KCONFIG |wc -l`
-   
-    #echo "forensics: ipipe=$opt_ipipe xeno=$opt_xeno preempt=$opt_preempt_rt"
-    if test $opt_ipipe -gt 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-        KTYPE=rtai
-        DEFAULT_THREAD_STYLE=rtai
-    elif test $opt_ipipe -gt 0 -a \( $opt_xeno -gt 0 \) -a \( $opt_preempt_rt -eq 0 \); then
-        KTYPE=xenomai
-        DEFAULT_THREAD_STYLE=xenomai
-    elif test $opt_ipipe -eq 0 -a \( $opt_xeno -eq 0 \) -a \( $opt_preempt_rt -gt 0 \); then
-        KTYPE=rt-preempt
-        DEFAULT_THREAD_STYLE=rt-preempt
-    else
-        KTYPE=vanilla
-        DEFAULT_THREAD_STYLE=posix
+
+    if [ ! -z "$XENOMAI_HEADERS" ]; then
+        echo found xenomai headers:
+        echo $XENOMAI_HEADERS
     fi
-    #echo THREADS=$DEFAULT_THREAD_STYLE KTYPE=$KTYPE
+
+    if [ ! -z "$RTPREEMPT_HEADERS" ]; then
+        echo found rtpreempt headers:
+        echo $RTPREEMPT_HEADERS
+    fi
 }
 
-if [ $1 = "-r" ]; then
-    KERNEL="$(uname -r)"
-    inspect_kernel
-elif [ $1 = "sim" ]; then
-    KTYPE=vanilla
-    DEFAULT_THREAD_STYLE=posix
-    KERNEL="sim"
-elif [ $1 = "-a" ]; then
-    KERNEL="$(uname -r)"
-    inspect_kernel
-    if [ "$KTYPE" = "vanilla" ]; then
-        for KERNEL in $(ls -1 /boot/config-* | cut -d - -f 2-); do
-            inspect_kernel
-            if [ "$KTYPE" != "vanilla" ]; then
-                break
-            fi
-        done
-    fi
-    if [ "$KTYPE" = "vanilla" ]; then
-        echo "no realtime kernels found!"
-        exit 1
-    fi
-else
-    KERNEL=$1
-    inspect_kernel
-fi
 
-# need kernel headers for rtai
-if [ "$KTYPE" == "rtai" ]; then
-    if [ ! -d "/usr/realtime-$KERNEL" ]; then
-	echo "rtai: no kernel headers found for $KERNEL"
-	exit 1
-    fi
-fi
-
-TARGET=$KERNEL
-
-MODULE_PATH=usr/realtime-$KERNEL/modules/linuxcnc
-MODULE_EXT=.ko
-KERNEL_DEPENDS=linux-image-$KERNEL,rtai-modules-$KERNEL
-KERNEL_HEADERS=linux-headers-$KERNEL
-EXTRA_FILES="usr/bin/linuxcnc_module_helper"
-KERNEL_VERSION=$KERNEL
-DRIVERS=drivers.files.in
-PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
-PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
-BUILD_SYS=kbuild  # for rtai, override with BUILD_SYS=user-dso for sim and userland thread styles
-
-# hope this works on other systems too
-DISTRIB_NAME=
-if [ "$(which lsb_release)" != "" ]; then
-    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
-elif [ -f /etc/lsb-release ]; then
-    source /etc/lsb-release
-    DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
-fi
-
-if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
-	EXTRAS=extras-$DISTRIB_NAME/linuxcnc.files
-else
-	EXTRAS=extras
-fi
-
-#echo DISTRIB_NAME=$DISTRIB_NAME
-
-
-case $DISTRIB_NAME in
-Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-11.04) # natty
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-10.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,texlive-lang-french,texlive-lang-spanish,texlive-font-utils
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-9.10)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,texlive-lang-french,texlive-lang-spanish
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-8.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,texlive-lang-french,texlive-lang-spanish
-	TCLTK_VERSION=8.4
-	;;
-Debian-testing|Debian-[67].[0-9]*)
-	EXTRA_BUILD=dvipng
-	TCLTK_VERSION=8.5
-	;;
-Debian-5.0*)
-	EXTRA_BUILD=dvipng
-	TCLTK_VERSION=8.4
-	;;
-*)
-        echo "unknown distribution: $DISTRIB_NAME"
-        echo "configuration may be wrong!"
-	EXTRA_BUILD=dvipng
-	TCLTK_VERSION=8.4
-	;;
-esac
-
-DOC_BUILD=
-MAIN_PACKAGE_NAME=linuxcnc
-CONFLICT=linuxcnc-sim,linuxcnc-xenomai,linuxcnc-rtpreempt
-CONFLICT_DEV=linuxcnc-sim-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
-OLD_PACKAGE_NAME=emc2
-EXTRA_RECOMMENDS=hostmot2-firmware
-
-case $KTYPE in
-    vanilla)
-        MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
-	DRIVERS=
-        EXTRA_FILES="usr/bin/rtapi_app"
-	MAIN_PACKAGE_NAME=linuxcnc-sim
-	CONFLICT=linuxcnc,linuxcnc-xenomai,linuxcnc-rtpreempt
-	CONFLICT_DEV=linuxcnc-dev,linuxcnc-xenomai-dev,linuxcnc-rtpreempt-dev
-	OLD_PACKAGE_NAME=emc2-sim
-	BUILD_SYS=user-dso
-
-        # don't bother recommending hostmot2 firmware on sim
-        EXTRA_RECOMMENDS=
-        ;;
-    rtai)
-        ;;
-    xenomai)
-        MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
-        EXTRA_FILES="usr/bin/rtapi_app"
-	BUILD_SYS=user-dso
-
-	# linux-headers-$TARGET would be needed if one were to package
-	# xenomai-kernel threads (not recommended)
-
-	KERNEL_DEPENDS=linux-image-$TARGET,libxenomai-dev,libxenomai1,xenomai-runtime,libudev-dev
-	MAIN_PACKAGE_NAME=linuxcnc-xenomai
-
-	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-rtpreempt
-	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-rtpreempt-dev
-	;;
-    rt-preempt)
-	MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
-        EXTRA_FILES="usr/bin/rtapi_app"
-	BUILD_SYS=user-dso
-
-	KERNEL_DEPENDS=linux-image-$TARGET,libudev-dev
-	MAIN_PACKAGE_NAME=linuxcnc-rtpreempt
-
-	CONFLICT=linuxcnc,linuxcnc-sim,linuxcnc-xenomai
-	CONFLICT_DEV=linuxcnc-dev,linuxcnc-sim-dev,linuxcnc-xenomai-dev
-        ;;
-    *)
-        echo unknown kernel type $KTYPE
-        exit 1
-        ;;
-esac
-
-# I guess we need specific compiler versions to build against these old
-# kernels?  FIXME?
-case $KERNEL in
-    2.6.12-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
-    ;;
-    2.6.15-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
-    ;;
-    2.6.22.6-magma|2.6.24-16-rtai)
-        KERNEL_HEADERS="$KERNEL_HEADERS"
-    ;;
-    2.6.24-16-rtai)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
-    ;;
-esac
-
-subst () {
-sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
-    -e "s|@MODULE_EXT@|$MODULE_EXT|g" \
-    -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
-    -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
-    -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
-    -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
-    -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
-    -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
-    -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
-    -e "s|@EXTRAS@|$EXTRAS|g" \
-    -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
-    -e "s|@TARGET@|$TARGET|g" \
-    -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
-    -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
-    -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
-    -e "s|@BUILD_SYS@|$BUILD_SYS|g" \
-    -e "s|@CONFLICT@|$CONFLICT|g" \
-    -e "s|@CONFLICT_DEV@|$CONFLICT_DEV|g" \
-    $*
-}
-
-subst control.in > control
-
-if [ "$TARGET" == "sim" ]; then
-    cp linuxcnc-dev.files.in linuxcnc-sim-dev.files
-else
-    if [ "$KTYPE" == "rtai" ]; then
-	cp linuxcnc-dev.files.in linuxcnc-dev.files
-	if [ "$BUILD_SYS" == "kbuild" ]; then
-	    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
-	fi
-    else
-	cp linuxcnc-dev.files.in linuxcnc-$KTYPE-dev.files
-	if [ "$BUILD_SYS" == "kbuild" ]; then
-	    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-$KTYPE-dev.files
-	fi
-    fi
-fi
-
-subst rules.in > rules; chmod +x rules
-
-if [ -f $EXTRAS/linuxcnc.files ]; then
-    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
-else
-    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
-fi
-
-DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es})
-for P in $DOCS_PACKAGES; do
-    if [ -f $EXTRAS/$P.files ]; then
-        cat $P.files.in $EXTRAS/$P.files > $P.files
-    else
-        cat $P.files.in > $P.files
-    fi
-done
-
-rm -f ../build-stamp
-echo "successfully configured!"
-echo "    distribution: $DISTRIB_NAME"
-echo "    kernel type: $KTYPE"
-echo "    target/kernel version: $TARGET"
+"""

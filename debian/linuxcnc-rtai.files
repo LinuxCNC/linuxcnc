@@ -1,0 +1,3 @@
+lib/modules/*/linuxcnc/Module.symvers
+lib/modules/*/linuxcnc/*.ko
+usr/lib/linuxcnc/ulapi-rtai-kernel.so

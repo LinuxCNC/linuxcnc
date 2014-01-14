@@ -1,0 +1,12 @@
+
+Package: linuxcnc-rtai
+Conflicts: emc2, emc2-sim, linuxcnc-sim (<< 1:2.6.0~pre1), linuxcnc (<< 1:2.6.0~pre1)
+Architecture: any
+Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, @RTAI_DEPENDS@
+Recommends: @RTAI_RECOMMENDS@
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package provides components and drivers that run on an RTAI system.
