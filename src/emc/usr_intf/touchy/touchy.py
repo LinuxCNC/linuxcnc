@@ -83,12 +83,17 @@ invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 
 class touchy:
         def __init__(self, inifile):
+		# System default Glade file:
+                self.gladefile = os.path.join(datadir, "touchy.glade")
                 if inifile:
                         self.ini = linuxcnc.ini(inifile)
+                        alternate_gladefile = self.ini.find("DISPLAY", "GLADEFILE")
+                        if alternate_gladefile:
+                                self.gladefile = alternate_gladefile
                 else:
                         self.ini = None
-		#Set the Glade file
-		self.gladefile = os.path.join(datadir, "touchy.glade")
+
+
 	        self.wTree = gtk.glade.XML(self.gladefile) 
 
 		for w in ['wheelinc1', 'wheelinc2', 'wheelinc3',
