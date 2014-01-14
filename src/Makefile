@@ -645,8 +645,7 @@ COPY_CONFIGS = $(patsubst %,../configs/%/core_stepper.hal, \
                 by_machine/sherline/Sherline3Axis \
                 by_machine/sherline/SherlineLathe \
                 by_machine/cooltool \
-                by_interface/parport/classicladder/demo_step_cl \
-                by_interface/parport/classicladder/demo_sim_cl)
+                by_interface/parport/classicladder/demo_step_cl)
 
 COPY_CONFIGS += $(patsubst %,../configs/%/core_servo.hal, \
                 sim \
