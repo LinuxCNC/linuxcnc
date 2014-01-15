@@ -16,7 +16,6 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-python_version = @PYTHON_VERSION@
 kernel_version = @KERNEL_VERSION@
 BUILD_SYS =      @BUILD_SYS@
 
