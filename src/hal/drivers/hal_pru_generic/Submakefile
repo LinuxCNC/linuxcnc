@@ -43,12 +43,10 @@ $(PRU_DEPS): objects/%.d : %.p
 	$(ECHO) generate PRU dependency $@ from $<
 	$(Q)cpp -MM -MG -MT objects/$(patsubst %.p,%.bin,$<)  $< $@
 
-$(PRU_OBJS): objects/%.bin : %.p objects/%.d $(PASM)
+objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM)
 	$(Q)mkdir -p $(RTLIBDIR)
 	$(ECHO) Assembling PRU code $@ 
 	$(Q)$(PASM) $(PASM_BINFLAGS) $< $(basename $@)
-
-$(PRU_DBGS): objects/%.dbg : objects/%.bin
 
 $(PRU_BIN): $(RTLIBDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
 	cp $^ $@
