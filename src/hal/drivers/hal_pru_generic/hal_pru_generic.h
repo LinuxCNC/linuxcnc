@@ -125,6 +125,8 @@ typedef struct {
 
             hal_u32_t       steppin;
             hal_u32_t       dirpin;
+
+            hal_bit_t       stepinv;
         } param;
 
     } hal;
@@ -144,6 +146,7 @@ typedef struct {
     u32 written_dirsetup;
     u32 written_dirhold;
     u32 written_task;
+    hal_bit_t written_stepinv;
 } hpg_stepgen_instance_t;
 
 typedef struct {

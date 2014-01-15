@@ -150,17 +150,18 @@
 #ifndef _hal_pru_generic_H_
     .struct stepgen_state
         .u32    Rate
-        .u16    Dly_step_high
+        .u16    Dly_step_len
         .u16    Dly_dir_hold
-        .u16    Dly_step_low
+        .u16    Dly_step_space
         .u16    Dly_dir_setup
         .u32    Accum
         .u32    Pos
         .u16    T_Pulse
         .u16    T_Dir
-        .u16    Reserved1
         .u8     StepQ
         .u8     RateQ
+		.u8     Reserved1
+		.u8     StepInvert
     .ends
 #else
     typedef struct  {
@@ -173,7 +174,8 @@
         u16     dirsetup;
         u32     accum;
         u32     pos;
-        u32     reserved[2];
+        u8      reserved[7];
+		u8      stepinv;
     } PRU_task_stepdir_t;
 #endif
 
