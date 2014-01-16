@@ -695,6 +695,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->active = 0;
 
     tc->progress = 0.0;
+    tc->nominal_length = tc->target;
 
     tc->sync_accel = 0;
     tc->currentvel = 0.0;
@@ -905,6 +906,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     // Consider L1 to be the length available to blend over
     double L1 = prev_tc->target;
+    int prev_removable = 1;
+
     if (prev_tc->blend_prev) {
         // Reduce blend length to 1/2 of overall if coming off of a parabolic blend
         L1 /= 2.0;
@@ -935,6 +938,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // Debug output for tolerances
     tp_debug_print(" d_tol = %f\n",d_tol);
 
+    double L2_greedy = tc->target * emcmotConfig->arcBlendGreediness;
+    //Check for arc length restrictions that mean we can't consume the previous segment.
+    double d_geom = fmin(fmin(L1, L2_greedy), d_tol);
     // Limit amount of line segment to blend
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
@@ -1051,7 +1057,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
      * The primary assumption here is that we want to do smoothing only if
      * we're "consuming" the majority of the previous segment.
      */
-    double prev_blend_ratio = d_plan / prev_tc->target;
+    double prev_blend_ratio = (prev_tc->target - d_plan) / prev_tc->nominal_length;
     tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
     if (prev_blend_ratio >= emcmotConfig->arcBlendSmoothingThreshold &&
             prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
