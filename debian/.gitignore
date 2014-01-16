@@ -1,6 +1,3 @@
-linuxcnc-common
-linuxcnc-firmware
-linuxcnc-firmware-*
 linuxcnc-uspace
 files
 rules
@@ -9,7 +6,6 @@ tmp
 linuxcnc
 linuxcnc-dev
 linuxcnc-uspace-dev
-linuxcnc-python
 linuxcnc-doc-*/
 *.substvars
 /linuxcnc.files
