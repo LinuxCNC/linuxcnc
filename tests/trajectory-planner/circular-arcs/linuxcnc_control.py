@@ -157,6 +157,9 @@ class LinuxcncControl:
     def open_program(self,filename):
         '''Open an nc file'''
         self.s.poll()
+        self.set_mode(linuxcnc.MODE_AUTO)
+        self.c.wait_complete()
+        sleep(.25)
         self.c.program_open(filename)
         self.c.wait_complete()
 
@@ -165,6 +168,7 @@ class LinuxcncControl:
         self.s.poll()
         self.c.auto(linuxcnc.AUTO_RUN, 0)
         self.c.wait_complete(self.timeout)
+        return self.check_rcs_error()
 
     def set_feed_scale(self,scale):
         '''Assign a feed scale'''
@@ -176,13 +180,22 @@ class LinuxcncControl:
     def wait_on_program(self):
         self.s.poll()
         while self.s.exec_state != linuxcnc.EXEC_DONE or self.s.state != linuxcnc.RCS_DONE and self.s.task_state == linuxcnc.STATE_ON:
-            sleep(1)
+            sleep(.25)
             self.s.poll()
             if self.s.task_state != linuxcnc.STATE_ON:
                 return False
+            if self.check_rcs_error():
+                print "Found RCS error while waiting, running again"
+                self.run_full_program()
 
         return True
 
+    def check_rcs_error(self):
+        self.s.poll()
+        if self.s.state == linuxcnc.RCS_ERROR:
+            print "detected RCS error"
+            return True
+        return False
 
 def introspect():
     os.system("halcmd show pin python-ui")
