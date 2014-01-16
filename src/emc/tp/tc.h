@@ -86,6 +86,7 @@ typedef struct {
     //Position stuff
     double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
+    double nominal_length;
 
     //Velocity
     double reqvel;          // vel requested by F word, calc'd by task
