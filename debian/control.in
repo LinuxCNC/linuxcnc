@@ -20,7 +20,6 @@ Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: emc2-dev, emc2-sim-dev, linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Replaces: @OLD_PACKAGE_NAME_DEV@
-Provides: @OLD_PACKAGE_NAME_DEV@
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
@@ -37,7 +36,6 @@ Description: PC based motion controller for real-time Linux
 
 Package: @MAIN_PACKAGE_NAME@
 Replaces: @OLD_PACKAGE_NAME@
-Provides: @OLD_PACKAGE_NAME@
 Conflicts: emc2, emc2-sim, linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
 Architecture: any
 Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
@@ -64,7 +62,7 @@ Description: PC based motion controller for real-time Linux
 Package: linuxcnc-doc-en
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-en
 Replaces: emc2-doc-en
-Provides: emc2-doc-en, linuxcnc-doc
+Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -78,7 +76,7 @@ Description: PC based motion controller for real-time Linux
 Package: linuxcnc-doc-fr
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-fr
 Replaces: emc2-doc-fr
-Provides: emc2-doc-fr, linuxcnc-doc
+Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
@@ -92,7 +90,7 @@ Description: PC based motion controller for real-time Linux
 Package: linuxcnc-doc-es
 Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-es
 Replaces: emc2-doc-es
-Provides: emc2-doc-es, linuxcnc-doc
+Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
