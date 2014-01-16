@@ -1,15 +1,9 @@
-linuxcnc-common
-linuxcnc-firmware
-linuxcnc-firmware-*
-linuxcnc-sim
 files
 rules
 control
 tmp
 linuxcnc
 linuxcnc-dev
-linuxcnc-sim-dev
-linuxcnc-python
 linuxcnc-doc-*/
 *.substvars
 /linuxcnc.files
