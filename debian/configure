@@ -209,7 +209,7 @@ elif sys.argv[1] == '--posix' or sys.argv[1] == 'sim':
     # the user just wants posix, and it's always enabled (above)
     pass
 
-elif sys.argv[1] == '-r':
+elif sys.argv[1] == '-r' or sys.argv[1] == '-a':
     running_kernel_version = os.uname()[2]
     print "configuring for running realtime kernel %s" % running_kernel_version
     configure_for_installed_realtime_kernel(running_kernel_version, config)
