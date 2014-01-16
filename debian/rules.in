@@ -17,7 +17,6 @@
 #export DH_VERBOSE=1
 
 kernel_version = @KERNEL_VERSION@
-BUILD_SYS =      @BUILD_SYS@
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -105,9 +104,7 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
-ifeq ($(BUILD_SYS),kbuild)
 	dh_fixperms -X/linuxcnc_module_helper
-endif
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
