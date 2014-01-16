@@ -1,9 +1,9 @@
 #!/bin/bash
 set -o monitor
 cp position.blank position.txt
+touch constraints.log
 rm constraints.log
 #Assume build without TP debug logging enabled
-linuxcnc circular_arcs_rt.ini > test.log &
+linuxcnc $1 > test.log &
 python run_all_tests.py
 fg
-exit $1
