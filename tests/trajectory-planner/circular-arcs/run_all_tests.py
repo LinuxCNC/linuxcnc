@@ -45,7 +45,7 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 def find_test_nc_files(testpath='nc_files', show=False):
-    files = [ f for f in listdir(testpath) if isfile(join(testpath,f)) and re.search('.ngc$',f) is not None ]
+    files = [ testpath + '/' + f for f in listdir(testpath) if isfile(join(testpath,f)) and re.search('.ngc$',f) is not None ]
     if show:
         print "In folder {0}, found {1} files:".format(testpath,len(files))
         for f in files:
@@ -54,6 +54,8 @@ def find_test_nc_files(testpath='nc_files', show=False):
 
 
 """Run the test"""
+
+raw_input("Press any key when the LinuxCNC GUI has loaded")
 test_files = []
 run_quick = query_yes_no("Run quick tests?")
 if run_quick:
@@ -69,8 +71,6 @@ run_performance = query_yes_no("Do run time performance tests?")
 if run_performance:
     test_files.extend(find_test_nc_files('nc_files/performance',True))
 
-#Hack to make this wait while LCNC loads
-sleep(8)
 
 h = hal.component("python-ui")
 h.ready() # mark the component as 'ready'
@@ -90,26 +90,20 @@ e.set_state(linuxcnc.STATE_ON)
 e.do_home(-1)
 sleep(1)
 e.set_mode(linuxcnc.MODE_AUTO)
-
-#HACK hard coded path,make this an argument / config?
-testpath = 'nc_files'
-test_files = find_test_nc_files(testpath)
 sleep(1)
 for f in test_files:
-    if re.search('.ngc$',f):
+    if re.search('\.ngc$',f) is not None:
         print "Loading program {0}".format(f)
         e.set_mode(linuxcnc.MODE_AUTO)
-        sleep(2)
-        e.open_program("../{0}/{1}".format(testpath,f))
-        sleep(5)
-        e.run_full_program()
         sleep(1)
+        e.open_program("../{0}".format(f))
+        sleep(1)
+        e.set_mode(linuxcnc.MODE_AUTO)
+        while e.run_full_program():
+            sleep(.5)
         res = e.wait_on_program()
         if res == False:
             print "Program {0} failed to complete!".format(f)
             sys.exit(1)
-        else:
-            #Wait on program completion for some reason
-            sleep(2)
 
 print "All tests completed!"
