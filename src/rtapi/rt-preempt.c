@@ -313,8 +313,7 @@ static int realtime_set_affinity(task_data *task) {
 extern rtapi_exception_handler_t rt_exception_handler;
 #endif
 
-#ifndef RTAPI_POSIX
- static int realtime_set_priority(task_data *task) {
+static int realtime_set_priority(task_data *task) {
     struct sched_param schedp;
 
     memset(&schedp, 0, sizeof(schedp));
@@ -328,7 +327,6 @@ extern rtapi_exception_handler_t rt_exception_handler;
 
     return 0;
 }
-#endif
 
 static void *realtime_thread(void *arg) {
     task_data *task = arg;
@@ -350,10 +348,18 @@ static void *realtime_thread(void *arg) {
 
     if (realtime_set_affinity(task))
 	goto error;
-#ifndef RTAPI_POSIX // This requires privs; skip it in simulator build
-    if (realtime_set_priority(task))
+    if (realtime_set_priority(task)) {
+#ifdef RTAPI_POSIX // This requires privs - tell user how to obtain them
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"to get non-preemptive scheduling with POSIX threads,");
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
+	rtapi_print_msg(RTAPI_MSG_ERR, 
+			"your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
+#else
 	goto error;
 #endif
+    }
 
     /* We're done initializing. Open the barrier. */
     pthread_barrier_wait(&extra_task_data[task_id(task)].thread_init_barrier);
