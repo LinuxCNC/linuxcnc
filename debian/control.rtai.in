@@ -1,6 +1,6 @@
 
 Package: linuxcnc-rtai
-Conflicts: emc2, emc2-sim, linuxcnc-sim (<< 1:2.6.0~pre1), linuxcnc (<< 1:2.6.0~pre1)
+Conflicts: emc2, emc2-sim, linuxcnc-sim
 Architecture: any
 Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, @RTAI_DEPENDS@
 Recommends: @RTAI_RECOMMENDS@
