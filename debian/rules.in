@@ -59,7 +59,7 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
-	-(cd debian/@EXTRA_DIR@ && find . | cpio -pdmuv ../tmp)
+	-(cd debian/@EXTRA_DIR@ && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
