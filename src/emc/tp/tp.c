@@ -873,7 +873,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
             &tc->coords.line.xyz.uVec, &theta);
     if (res) {
         //Can't get an intersection angle, bail
-        tp_debug_print("Failed to find intersection angle!\n");
+        tp_debug_print("#Failed to find intersection angle!\n");
         return TP_ERR_FAIL;
     }
     tp_debug_print("theta = %f\n",theta);
@@ -908,11 +908,13 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L1 = prev_tc->target;
     int prev_removable = 1;
 
+    double L1 = fmin(prev_tc->target, prev_tc->nominal_length * emcmotConfig->arcBlendGreediness);
     if (prev_tc->blend_prev) {
-        // Reduce blend length to 1/2 of overall if coming off of a parabolic blend
+        tp_debug_print("reducing L1 due to blend_prev\n");
         L1 /= 2.0;
         tp_debug_print("prev blend parabolic, shortening blend length to %f\n", L1);
     }
+    double L2 = tc->target * emcmotConfig->arcBlendGreediness;
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
     //Solve quadratic equation to find segment length that matches peak
@@ -938,9 +940,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // Debug output for tolerances
     tp_debug_print(" d_tol = %f\n",d_tol);
 
-    double L2_greedy = tc->target * emcmotConfig->arcBlendGreediness;
     //Check for arc length restrictions that mean we can't consume the previous segment.
-    double d_geom = fmin(fmin(L1, L2_greedy), d_tol);
+    double d_geom = fmin(fmin(L1, L2), d_tol);
     // Limit amount of line segment to blend
     double d_geom = fmin(fmin(d_prev, d_next), d_tol);
 
@@ -960,6 +961,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     // If our goal velocity is lower, reduce the arc size proportionally
     if (v_normal > v_goal) {
         v_plan = v_goal;
+        tp_debug_print("v_goal = %f\n", v_goal);
         //At this new limiting velocity, find the radius by the reverse formula
         R_plan = pmSq(v_plan) / a_n_max;
     }
@@ -971,8 +973,19 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double v_sample_arc = s_arc / min_segment_time;
     //Clip the planning velocity the same way
     if (v_plan > v_sample_arc) {
-        tp_debug_print("v_plan %f > v_sample %f for arc\n", v_plan, v_sample_arc);
-        v_plan = v_sample_arc;
+        tp_debug_print("#v_plan %f > v_sample %f for arc, recalc\n", v_plan, v_sample_arc);
+        double d_balance = L1 / (1.0+phi * Ttheta);
+        R_plan = d_balance * Ttheta;
+        d_plan = d_balance;
+        v_plan = pmSqrt(a_n_max * R_plan);
+    }
+
+    if (!prev_removable || d_plan < (prev_tc->target - TP_POS_EPSILON)) {
+        tp_debug_print("#Can't consume previous segment, recalculating d_plan\n");
+        d_plan = fmin(d_prev, d_plan);
+        prev_removable = 0;
+    } else {
+        d_plan = prev_tc->target;
     }
 
     tp_debug_print("v_plan = %f\n", v_plan);
@@ -995,7 +1008,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 #ifdef TP_DEBUG
     double a_n_effective = pmSq(v_plan)/R_plan;
 
-    tp_debug_print("effective a_n = %f\n",a_n_effective);
+    tp_debug_print("a_n_effective = %f\n",a_n_effective);
 #endif
 
     double L_prev = prev_tc->target - d_plan;
@@ -1003,7 +1016,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double L_next = tc->target - d_plan;
 #endif
 
-    tp_debug_print("arc length = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
+    tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
+    tp_debug_print("v_sample_prev = %f\n", L_prev / (TP_MIN_SEGMENT_CYCLES * tp->cycleTime));
     //TODO move this above to save processing time?
 
     if (emcmotConfig->arcBlendFallbackEnable) {
@@ -1015,7 +1029,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
          * the equivalent parabolic blend, then fall back to parabolic
          */
 
-        tp_debug_print(" Check: v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
+        tp_debug_print("v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
         if ( v_plan <= v_parabolic) {
             return TP_ERR_NO_ACTION;
         }
@@ -1023,7 +1037,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         //If for some reason we get too small a radius, the blend will fail. This
         //shouldn't happen if everything upstream is working.
         if (R_plan < TP_POS_EPSILON) {
-            tp_debug_print("Blend radius too small, aborting...\n");
+            tp_debug_print("#Blend radius too small, aborting...\n");
             return TP_ERR_FAIL;
         }
     }
@@ -1071,7 +1085,14 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 #endif
 
     return tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
-
+        if (!prev2_tc || prev2_tc->progress > 0.0) {
+            return TP_ERR_FAIL;
+        }
+        tcSetTermCond(prev2_tc, TC_TERM_COND_TANGENT);
+        tpFinalizeSegmentLimits(tp, prev2_tc);
+        EmcPose end;
+        tcGetEndpoint(prev2_tc, &end);
+        tp_info_print(" prev2 end: %f %f %f\n",end.tran.x,end.tran.y,end.tran.z);
 }
 
 
@@ -1413,7 +1434,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
-                tp->cycleTime);
+                tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
         return TP_ERR_OK;
     } else {
         tp_debug_print(" New segment not tangent, angle %g\n", phi);
