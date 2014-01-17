@@ -709,6 +709,8 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->remove = 0;
     tc->active_depth = 1;
 
+    tc->finalized = 0;
+
     return TP_ERR_OK;
 }
 
@@ -854,6 +856,29 @@ STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
     return tolerance;
 }
 
+/**
+ * After adding a new segment, run this on the previous segment to validate
+ */
+STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+    //Apply velocity corrections
+    if (!tc) {
+        return TP_ERR_FAIL;
+    }
+    tp_debug_print("Finalizing tc id %d, type %d\n", tc->id, tc->motion_type);
+    if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC)) {
+        tp_debug_print("Setting parabolic maxvel\n");
+        //FIXME Hack to deal with the "double" scaling of
+        //acceleration. This only works due to the specific
+        //implementation of GetScaledAccel
+        tc->maxvel *= pmSqrt(TP_ACC_RATIO_TANGENTIAL);
+
+        tpCheckLastParabolic(tp, tc);
+        tpCalculateTriangleVel(tp, tc);
+    }
+    tc->finalized = 1;
+    return TP_ERR_OK;
+}
+
 
 /**
  * Compute arc segment to blend between two lines.
@@ -862,7 +887,7 @@ STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
  * This function has grown rather large, but isn't easy to split up due to the
  * many variables that can be reused.
  */
-STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_tc,
+STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         TC_STRUCT * const tc, TC_STRUCT * const blend_tc) {
 
     // Assume at this point that we've checked for dumb reasons not to
@@ -905,12 +930,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double Ttheta = tan(theta);
 
     // Consider L1 to be the length available to blend over
-    double L1 = prev_tc->target;
     int prev_removable = 1;
 
     double L1 = fmin(prev_tc->target, prev_tc->nominal_length * emcmotConfig->arcBlendGreediness);
     if (prev_tc->blend_prev) {
-        tp_debug_print("reducing L1 due to blend_prev\n");
         L1 /= 2.0;
         tp_debug_print("prev blend parabolic, shortening blend length to %f\n", L1);
     }
@@ -936,14 +959,16 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     double tolerance = tcFindBlendTolerance(prev_tc, tc);
     double h_tol = tolerance / (1.0 - Stheta);
     double d_tol = Ctheta * h_tol;
+    double d_keep = fmin(d_prev,d_next);
+    if (d_keep > d_tol) {
+        prev_removable = 0;
+    }
 
     // Debug output for tolerances
     tp_debug_print(" d_tol = %f\n",d_tol);
 
     //Check for arc length restrictions that mean we can't consume the previous segment.
-    double d_geom = fmin(fmin(L1, L2), d_tol);
-    // Limit amount of line segment to blend
-    double d_geom = fmin(fmin(d_prev, d_next), d_tol);
+    double d_geom = fmin(L1, L2);
 
     double R_geom = Ttheta * d_geom;
 
@@ -957,6 +982,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     double v_plan = v_normal;
     double R_plan = R_geom;
+    double d_plan = R_plan / Ttheta;
 
     // If our goal velocity is lower, reduce the arc size proportionally
     if (v_normal > v_goal) {
@@ -982,16 +1008,18 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
 
     if (!prev_removable || d_plan < (prev_tc->target - TP_POS_EPSILON)) {
         tp_debug_print("#Can't consume previous segment, recalculating d_plan\n");
-        d_plan = fmin(d_prev, d_plan);
+        d_plan = fmin(fmin(d_plan,d_keep),d_tol);
         prev_removable = 0;
     } else {
         d_plan = prev_tc->target;
     }
 
+    //Update plan params
+    R_plan = d_plan * Ttheta;
+    v_plan = pmSqrt(R_plan * a_n_max);
+
     tp_debug_print("v_plan = %f\n", v_plan);
     tp_debug_print("R_plan = %f\n", R_plan);
-
-    double d_plan = R_plan / Ttheta;
 
     //Now we store the "actual" velocity. Recall that v_plan may be greater
     //than v_req by the max feed override. If our worst-case planned velocity is higher than the requested velocity, then clip at the requested velocity. This allows us to increase speed above the feed override limits
@@ -1043,7 +1071,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
     }
     //Cap the previous segment's velocity at the limit imposed by the update rate
     double prev_reqvel = 0.0;
-    if (L_prev > 0.0) {
+    if (!prev_removable) {
+        tp_debug_print("Clipping velocity for prev segment\n");
         prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
         prev_tc->target_vel = prev_reqvel;
     }
@@ -1081,41 +1110,35 @@ STATIC int tpCreateBlendArc(TP_STRUCT const * const tp, TC_STRUCT * const prev_t
         prev_tc->smoothing = 1;
         blend_tc->smoothing = 1;
     }
+    tp_debug_print("prev_tc->finalized = %d\n",prev_tc->finalized);
 
 #endif
+    int retval = 0;
+    tpFinalizeSegmentLimits(tp, blend_tc);
+    if (prev_removable) {
+        retval = tcqPopBack(&tp->queue);
+        if (retval) {
+            tp_debug_print("PopBack failed\n");
+            return TP_ERR_FAIL;
+        }
+        TC_STRUCT * prev2_tc;
 
-    return tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
+        prev2_tc = tcqLast(&tp->queue);
         if (!prev2_tc || prev2_tc->progress > 0.0) {
             return TP_ERR_FAIL;
         }
         tcSetTermCond(prev2_tc, TC_TERM_COND_TANGENT);
         tpFinalizeSegmentLimits(tp, prev2_tc);
-        EmcPose end;
-        tcGetEndpoint(prev2_tc, &end);
-        tp_info_print(" prev2 end: %f %f %f\n",end.tran.x,end.tran.y,end.tran.z);
+        retval = tcConnectBlendArc(NULL, tc, &circ_start, &circ_end);
+    } else {
+        retval = tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
+        tpFinalizeSegmentLimits(tp, prev_tc);
+    }
+
+    return retval;
+
 }
 
-
-/**
- * After adding a new segment, run this on the previous segment to validate
- */
-STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    //Apply velocity corrections
-    if (!tc) {
-        return TP_ERR_FAIL;
-    }
-    if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC)) {
-        tp_debug_print("Setting parabolic maxvel\n");
-        //FIXME Hack to deal with the "double" scaling of
-        //acceleration. This only works due to the specific
-        //implementation of GetScaledAccel
-        tc->maxvel *= pmSqrt(TP_ACC_RATIO_TANGENTIAL);
-
-        tpCheckLastParabolic(tp, tc);
-        tpCalculateTriangleVel(tp, tc);
-    }
-    return TP_ERR_OK;
-}
 
 /**
  * Add a newly created motion segment to the tp queue.
@@ -1322,7 +1345,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
      * the front. We can't do anything with the very last element because its
      * length may change if a new line is added to the queue.*/
 
-    for (x = 2; x < emcmotConfig->arcBlendOptDepth + 2; ++x) {
+    for (x = 1; x < emcmotConfig->arcBlendOptDepth + 2; ++x) {
         tp_info_print("==== Optimization step %d ====\n",x-2);
 
         // Update the pointers to the trajectory segments in use
@@ -1333,6 +1356,10 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
         if ( !prev1_tc || !tc) {
             tp_debug_print(" Reached end of queue in optimization\n");
             return TP_ERR_OK;
+        }
+        if (!tc->finalized) {
+            tp_debug_print("Segment %d, type %d not finalized, continuing\n",tc->id,tc->motion_type);
+            continue;
         }
 
         // stop optimizing if we hit a non-tangent segment (final velocity
@@ -1435,6 +1462,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
+        tpFinalizeSegmentLimits(tp, prev_tc);
         return TP_ERR_OK;
     } else {
         tp_debug_print(" New segment not tangent, angle %g\n", phi);
@@ -1562,15 +1590,19 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tpCalculateTriangleVel(tp, &tc);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
-        tpHandleBlendArc(tp, &tc);
+        int blend_fail = tpHandleBlendArc(tp, &tc);
+        if (blend_fail) {
+            tp_debug_print("blend arc failed, finalizing prev line\n");
+            prev_tc = tcqLast(&tp->queue);
+            tpFinalizeSegmentLimits(tp, prev_tc);
+        }
     }
 
-    //Flag this as blending with previous segment if the previous segment is set to blend with this one
+    //Flag this as blending with previous segment if the previous segment is
+    //set to blend with this one
 
-    prev_tc = tcqLast(&tp->queue);
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
-    tpFinalizeSegmentLimits(tp, prev_tc);
     tpRunOptimization(tp);
 
     return retval;
@@ -2637,25 +2669,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 }
 
 
-STATIC int tpActivateNextSegment(TP_STRUCT * const tp, TC_STRUCT * const tc,
-        TC_STRUCT * const nexttc)
-{
-    if (!nexttc) {
-        return TP_ERR_NO_ACTION;
-    }
-    //Setup nexttc if this is the first time it's been accessed
-    if (nexttc->active == 0 && TC_TERM_COND_PARABOLIC == tc->term_cond) {
-        tp_debug_print("Activate nexttc id %d for parabolic blending\n", nexttc->id);
-        nexttc->active = 1;
-    } else if (TC_TERM_COND_TANGENT == tc->term_cond && tc->splitting) {
-        tp_debug_print("Activate nexttc id %d for tangent split\n", nexttc->id);
-        nexttc->active = 1;
-    }
-
-    return TP_ERR_OK;
-}
-
-
 STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc)
 {
@@ -2801,9 +2814,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         emcmotStatus->spindleSync = 0;
     }
 
-    //Activate next segment if need be
-    tpActivateNextSegment(tp, tc, nexttc);
-
     /** If synchronized with spindle, calculate requested velocity to track
      * spindle motion.*/
     switch (tc->synchronized) {
@@ -2835,7 +2845,9 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
 #ifdef TC_DEBUG
     double mag;
-    emcPoseMagnitude(&pos_before, &mag);
+    EmcPose disp;
+    emcPoseSub(&tp->currentPos,&pos_before, &disp);
+    emcPoseMagnitude(&disp, &mag);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
             time_elapsed,
             mag, emcmotStatus->current_vel);
