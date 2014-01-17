@@ -139,6 +139,7 @@ typedef struct {
     int active_depth;       /* Active depth (i.e. how many segments
                             * after this will it take to slow to zero
                             * speed) */
+    int finalized;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */
