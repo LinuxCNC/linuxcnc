@@ -1,0 +1,22 @@
+
+ifeq ($(LIBMODBUS3_USABLE),yes)
+
+WJ200_SRCS = hal/user_comps/wj200_vfd/wj200_vfd.c
+WJ200_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
+WJ200_LIBS = $(LIBMODBUS_LIBS)
+
+$(call TOOBJSDEPS, $(WJ200_SRCS)) : EXTRAFLAGS += $(WJ200_CFLAGS)
+
+USERSRCS += $(WJ200_SRCS)
+
+../bin/wj200_vfd: $(call TOOBJS, $(WJ200_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(WJ200_LIBS) 
+
+hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp
+	$(ECHO) "Preprocessing wj200_vfd.comp"
+	$(Q)../bin/comp hal/user_comps/wj200_vfd/wj200_vfd.comp
+
+TARGETS += ../bin/wj200_vfd
+endif
+
