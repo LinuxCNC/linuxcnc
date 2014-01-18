@@ -26,6 +26,6 @@
 # Hook up plasma pins using the net command
 
 # for simulation mode we connect them directly
-net torch       plasma.hal-btn-torch    => signals.led_TorchOn => signals.led_ArcOK
+net torch       plasma.hal-btn-torch    => signals.led-torch-on => signals.led-arc-ok
 net curvolt     plasma.Target-Voltage   => plasma.hal-lbl-cur-volt
 

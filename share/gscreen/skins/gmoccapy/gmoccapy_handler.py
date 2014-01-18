@@ -47,7 +47,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
 
 # constants
-_RELEASE = "0.9.9.8.1"
+_RELEASE = "0.9.9.8.2"
 _INCH = 0               # imperial units are active
 _MM = 1                 # metric units are active
 _MANUAL = 1             # Check for the mode Manual
