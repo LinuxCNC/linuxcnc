@@ -1,15 +1,7 @@
-( AXIS "splash g-code" Not intended for actual milling )
-( To run this code anyway you might have to Touch Off the Z axis)
-( depending on your setup. As if you had some material in your mill... )
-( Hint jog the Z axis down a bit then touch off )
-( Also press the Toggle Skip Lines with "/" to see that part )
-( If the program is too big or small for your machine, change the scale #3 )
-( LinuxCNC 19/1/2012 2:13:51 PM )
+( Excerpt from AXIS "splash g-code")
 G21 G90 G64 G40
 G0 Z3.0
-( engraving )
 G17
-M3 S10000
 G0 X1.75781 Y0.5
 G1 F100000000.0 Z-2.0
 G1 F40000000.0 X5.95508 Y20.54297
@@ -91,5 +83,4 @@ G2 X44.63379 Y5.43705 I10.83187 J-0.52256
 G2 X44.91992 Y6.92578 I45.15644 J-7.90718
 G1 X46.14777 Y12.78778
 G0 Z3.0
-M5
 M2
