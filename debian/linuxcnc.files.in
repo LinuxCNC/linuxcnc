@@ -1,4 +1,5 @@
 etc/linuxcnc/*
+etc/rsyslog.d/linuxcnc.conf
 etc/X11/app-defaults/*
 usr/lib/*.so.*
 usr/lib/tcltk/linuxcnc

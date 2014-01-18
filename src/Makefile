@@ -751,6 +751,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
+		$(DESTDIR)$(sysconfdir)/rsyslog.d
 		$(DIR) $(DESTDIR)$(sampleconfsdir)
 
 install-kernel-indep: install-dirs
@@ -814,6 +815,7 @@ endif
 	$(FILE) ../lib/python/gladevcp/widget*.png  $(DESTDIR)$(datadir)/glade3/pixmaps/
 
 	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
+	$(FILE) rtapi/rsyslogd-linuxcnc.conf $(DESTDIR)$(sysconfdir)/rsyslog.d/linuxcnc.conf
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
