@@ -268,14 +268,10 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
         case TC_SPHERICAL:
             arcPoint(&tc->coords.arc.xyz,
-                    progress * tc->coords.arc.xyz.angle / tc->target,
+                    progress,
                     &xyz);
-            pmCartLinePoint(&tc->coords.arc.abc,
-                    progress * tc->coords.arc.abc.tmag / tc->target,
-                    &abc);
-            pmCartLinePoint(&tc->coords.arc.uvw,
-                    progress * tc->coords.arc.uvw.tmag / tc->target,
-                    &uvw);
+            abc = tc->coords.arc.abc;
+            uvw = tc->coords.arc.uvw;
             break;
     }
 
