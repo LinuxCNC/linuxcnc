@@ -67,37 +67,45 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     if (arc->angle < ARC_MIN_ANGLE) {
         return ARC_ERR_GEOM;
     }
-    arc->sinAngle = sin(arc->angle);
+    arc->Sangle = sin(arc->angle);
 
     return ARC_ERR_OK;
 }
 
-int arcPoint(SphericalArc const * const arc, double angle_in, PmCartesian * const out)
+int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * const out)
 {
     //TODO pedantic
-    tp_debug_print("angle_in = %f, angle_total = %f\n",angle_in, arc->angle);
+    tp_debug_print("progress = %f, angle_total = %f\n", progress, arc->angle);
 
-    double scale0 = sin(arc->angle - angle_in) / arc->sinAngle;
-    double scale1 = sin(angle_in) / arc->sinAngle;
+    //Convert progress to actual progress around the arc
+    double angle_in = progress - arc->line_length;
+    if (angle_in <= 0.0 && arc->line_length > 0) {
+        //Get position on line (not actually an angle in this case)
+        pmCartScalMult(&arc->uTan, -angle_in, out);
+        pmCartCartAdd(out, &arc->start, out);
+    } else {
+        double scale0 = sin(arc->angle - angle_in) / arc->Sangle;
+        double scale1 = sin(angle_in) / arc->Sangle;
 
-    PmCartesian interp0,interp1;
-    pmCartScalMult(&arc->rStart, scale0, &interp0);
-    pmCartScalMult(&arc->rEnd, scale1, &interp1);
+        PmCartesian interp0,interp1;
+        pmCartScalMult(&arc->rStart, scale0, &interp0);
+        pmCartScalMult(&arc->rEnd, scale1, &interp1);
 
-    pmCartCartAdd(&interp0, &interp1, out);
-    pmCartCartAdd(&arc->center, out, out);
+        pmCartCartAdd(&interp0, &interp1, out);
+        pmCartCartAdd(&arc->center, out, out);
+    }
     return ARC_ERR_OK;
 }
 
 int arcLength(SphericalArc const * const arc, double * const length)
 {
-    *length = arc->radius * arc->angle;
+    *length = arc->radius * arc->angle + arc->line_length;
     return ARC_ERR_OK;
 }
 
 int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
         PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end) {
+        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume) {
 
     PmCartesian center, normal, binormal;
 
@@ -126,6 +134,14 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     // direction of line2
     pmCartScalMult(&line2->uVec, blend_dist, end);
     pmCartCartAdd(end, middle, end);
+
+    //Handle line portion of line-arc
+    arc->uTan = line1->uVec;
+    if (consume) {
+        arc->line_length = line1->tmag - blend_dist;
+    } else {
+        arc->line_length = 0;
+    }
 
     return arcInitFromPoints(arc, start, end, &center);
 }

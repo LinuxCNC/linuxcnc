@@ -139,11 +139,7 @@ STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * con
                 return true;
             }
         case TC_SPHERICAL:
-            if (tc->coords.arc.abc.tmag_zero && tc->coords.arc.uvw.tmag_zero) {
-                return false;
-            } else {
-                return true;
-            }
+            return true;
         default:
             tp_debug_print("Unknown motion type!\n");
             return false;
@@ -928,61 +924,34 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     double Ctheta = cos(theta);
     double Stheta = sin(theta);
     double Ttheta = tan(theta);
-
-    // Consider L1 to be the length available to blend over
-    int prev_removable = 1;
-
-    double L1 = fmin(prev_tc->target, prev_tc->nominal_length * emcmotConfig->arcBlendGreediness);
-    if (prev_tc->blend_prev) {
-        L1 /= 2.0;
-        tp_debug_print("prev blend parabolic, shortening blend length to %f\n", L1);
-    }
-    double L2 = tc->target * emcmotConfig->arcBlendGreediness;
+    
+    double greediness = fmin(emcmotConfig->arcBlendGreediness, 1.0);
+    //Nominal length restriction prevents gobbling too much of parabolic blends
+    double L1 = fmin(prev_tc->target, prev_tc->nominal_length * greediness);
+    double L2 = tc->target * greediness;
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
-    //Solve quadratic equation to find segment length that matches peak
-    //velocity of blend arc. This way the line is not too short (hitting a
-    //sampling limit) or too long (reducing the size of the arc).
-    double K = a_n_max * Ttheta * pmSq(min_segment_time) / 2.0;
-    double disc_prev = 2.0 * L1 * K + pmSq(K);
-    double d_prev = L1 + K - pmSqrt(disc_prev);
-
-    double L_remain = L1 - d_prev;
-    double d_next = (tc->target - L_remain) / 2.0;
-
-    tp_debug_print(" prev available length L1 = %f\n", L1);
-    tp_debug_print(" K = %f\n", K);
-    // Assume that we are not working on segments already traversed for now
 
     //Find blend tolerance from prev and current lines
     //Find the minimum tolerance (in case it dropped between moves)
     double tolerance = tcFindBlendTolerance(prev_tc, tc);
     double h_tol = tolerance / (1.0 - Stheta);
     double d_tol = Ctheta * h_tol;
-    double d_keep = fmin(d_prev,d_next);
-    if (d_keep > d_tol) {
-        prev_removable = 0;
-    }
-
     // Debug output for tolerances
     tp_debug_print(" d_tol = %f\n",d_tol);
 
-    //Check for arc length restrictions that mean we can't consume the previous segment.
-    double d_geom = fmin(L1, L2);
-
+    //Find min length due to segment limits
+    double d_lengths = fmin(L1,L2);
+    double d_geom = fmin(d_lengths,d_tol); 
     double R_geom = Ttheta * d_geom;
 
-    tp_debug_print("d_tol = %f, d_prev = %f, d_next = %f\n", d_tol, d_prev, d_next);
-    tp_debug_print("R_geom = %f\n", R_geom);
+    tp_debug_print("d_tol = %f, d_prev = %f, d_next = %f\n", d_tol, L1, L2);
 
-    //Calculate limiting velocity due to radius and normal acceleration, and
-    //trajectory sampling rate
     double v_normal = pmSqrt(a_n_max * R_geom);
     tp_debug_print("v_normal = %f\n", v_normal);
 
     double v_plan = v_normal;
     double R_plan = R_geom;
-    double d_plan = R_plan / Ttheta;
 
     // If our goal velocity is lower, reduce the arc size proportionally
     if (v_normal > v_goal) {
@@ -991,35 +960,21 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         //At this new limiting velocity, find the radius by the reverse formula
         R_plan = pmSq(v_plan) / a_n_max;
     }
+    tp_debug_print("R_plan = %f\n", R_plan);
+    double d_plan = R_plan / Ttheta;
 
-    // Poor naming here: v_normal represents the physical maximum velocity we
-    // can get in the arc, regardless of requested feed or overrides.
-    // TODO: check how often this is an issue. This may not be necessary to check here.
+    tp_debug_print("R_geom = %f\nd_plan = %f\n", R_geom, d_plan);
+
     double s_arc = phi * R_plan;
-    double v_sample_arc = s_arc / min_segment_time;
+    double l_total = s_arc + (L1 - d_plan);
+    double v_sample_arc = l_total / min_segment_time;
     //Clip the planning velocity the same way
     if (v_plan > v_sample_arc) {
-        tp_debug_print("#v_plan %f > v_sample %f for arc, recalc\n", v_plan, v_sample_arc);
-        double d_balance = L1 / (1.0+phi * Ttheta);
-        R_plan = d_balance * Ttheta;
-        d_plan = d_balance;
-        v_plan = pmSqrt(a_n_max * R_plan);
+        v_plan = v_sample_arc;
+        tp_debug_print("#v_plan %f > v_sample %f for arc\n", v_plan, v_sample_arc);
     }
-
-    if (!prev_removable || d_plan < (prev_tc->target - TP_POS_EPSILON)) {
-        tp_debug_print("#Can't consume previous segment, recalculating d_plan\n");
-        d_plan = fmin(fmin(d_plan,d_keep),d_tol);
-        prev_removable = 0;
-    } else {
-        d_plan = prev_tc->target;
-    }
-
-    //Update plan params
-    R_plan = d_plan * Ttheta;
-    v_plan = pmSqrt(R_plan * a_n_max);
 
     tp_debug_print("v_plan = %f\n", v_plan);
-    tp_debug_print("R_plan = %f\n", R_plan);
 
     //Now we store the "actual" velocity. Recall that v_plan may be greater
     //than v_req by the max feed override. If our worst-case planned velocity is higher than the requested velocity, then clip at the requested velocity. This allows us to increase speed above the feed override limits
@@ -1040,13 +995,12 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 #endif
 
     double L_prev = prev_tc->target - d_plan;
+    double prev_seg_time = L_prev / v_plan;
 #ifdef TP_DEBUG
     double L_next = tc->target - d_plan;
 #endif
-
-    tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f\n", s_arc, L_prev, L_next);
-    tp_debug_print("v_sample_prev = %f\n", L_prev / (TP_MIN_SEGMENT_CYCLES * tp->cycleTime));
-    //TODO move this above to save processing time?
+    tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f, prev_seg_time = %f\n", s_arc, L_prev, L_next, prev_seg_time);
+    int consume = (prev_seg_time < min_segment_time);
 
     if (emcmotConfig->arcBlendFallbackEnable) {
         double v_parabolic = 0.0;
@@ -1069,68 +1023,41 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             return TP_ERR_FAIL;
         }
     }
-    //Cap the previous segment's velocity at the limit imposed by the update rate
-    double prev_reqvel = 0.0;
-    if (!prev_removable) {
-        tp_debug_print("Clipping velocity for prev segment\n");
-        prev_reqvel = fmin(prev_tc->reqvel, L_prev / min_segment_time);
-        prev_tc->target_vel = prev_reqvel;
-    }
 
     PmCartesian circ_start, circ_end;
 
     double h_plan = R_plan / Stheta;
     arcFromLines(&blend_tc->coords.arc.xyz,
             &prev_tc->coords.line.xyz,
-            &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end);
+            &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end, consume);
     tp_debug_print("angle = %f\n",blend_tc->coords.arc.xyz.angle);
 
     tp_debug_print("R_plan = %f, radius_calc = %f\n", R_plan, blend_tc->coords.arc.xyz.radius);
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the end and start points should be identical
-    pmCartLineInit(&blend_tc->coords.arc.abc, &prev_tc->coords.line.abc.end, &tc->coords.line.abc.start);
-    pmCartLineInit(&blend_tc->coords.arc.uvw, &prev_tc->coords.line.uvw.end, &tc->coords.line.uvw.start);
-
+    blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
+    blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
+    tp_debug_print("arc line length = %f\n", blend_tc->coords.arc.xyz.line_length);
     tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
 
-#ifdef TP_SMOOTHING
+    prev_tc->smoothing = 0;
+    blend_tc->smoothing = 0;
 
-    /* Enable velocity "smoothing" if the blend arc is above a critical size.
-     * The primary assumption here is that we want to do smoothing only if
-     * we're "consuming" the majority of the previous segment.
-     */
-    double prev_blend_ratio = (prev_tc->target - d_plan) / prev_tc->nominal_length;
-    tp_debug_print(" prev blend ratio = %f\n", prev_blend_ratio);
-    if (prev_blend_ratio >= emcmotConfig->arcBlendSmoothingThreshold &&
-            prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE){
-
-        tp_debug_print(" smoothing enabled\n");
-
-        prev_tc->smoothing = 1;
-        blend_tc->smoothing = 1;
-    }
-    tp_debug_print("prev_tc->finalized = %d\n",prev_tc->finalized);
-
-#endif
     int retval = 0;
     tpFinalizeSegmentLimits(tp, blend_tc);
-    if (prev_removable) {
+
+    if (consume) {
         retval = tcqPopBack(&tp->queue);
+        tp_debug_print("consume previous line\n");
         if (retval) {
             tp_debug_print("PopBack failed\n");
             return TP_ERR_FAIL;
         }
-        TC_STRUCT * prev2_tc;
-
-        prev2_tc = tcqLast(&tp->queue);
-        if (!prev2_tc || prev2_tc->progress > 0.0) {
-            return TP_ERR_FAIL;
-        }
-        tcSetTermCond(prev2_tc, TC_TERM_COND_TANGENT);
-        tpFinalizeSegmentLimits(tp, prev2_tc);
         retval = tcConnectBlendArc(NULL, tc, &circ_start, &circ_end);
     } else {
+        tp_debug_print("keeping previous line\n");
+        blend_tc->coords.arc.xyz.line_length = 0;
         retval = tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
         tpFinalizeSegmentLimits(tp, prev_tc);
     }
@@ -1730,7 +1657,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         return TP_ERR_FAIL;
     }
 
-    if (tc->term_cond != TC_TERM_COND_PARABOLIC) {
+    if (tc->term_cond != TC_TERM_COND_PARABOLIC && !planning) {
         return TP_ERR_NO_ACTION;
     }
 
