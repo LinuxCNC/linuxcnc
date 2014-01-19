@@ -966,8 +966,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tp_debug_print("R_geom = %f\nd_plan = %f\n", R_geom, d_plan);
 
     double s_arc = phi * R_plan;
-    double l_total = s_arc + (L1 - d_plan);
-    double v_sample_arc = l_total / min_segment_time;
+    //TODO add line length here? may not be signifcant...
+    double v_sample_arc = s_arc / min_segment_time;
     //Clip the planning velocity the same way
     if (v_plan > v_sample_arc) {
         v_plan = v_sample_arc;
