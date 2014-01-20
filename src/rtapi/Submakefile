@@ -83,12 +83,12 @@ endif
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
 
-ULAPISO := ../lib/ulapi-$(threads).so
+ULAPISO := ../rtlib/ulapi-$(threads).so
 
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(ULAPI_SRCS))
 	$(ECHO) Creating shared object $@
-	@mkdir -p ../lib/$(RTDIR_EXT)
+	@mkdir -p ../rtlib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \

@@ -780,10 +780,8 @@ ifeq ($(HAVE_WORKING_BLT),yes)
 endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
-	cp --no-dereference \
-	    $(filter-out ../lib/ulapi-%.so,$(filter ../lib/%.so, $(TARGETS))) \
-	    $(DESTDIR)$(libdir)
-	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
+	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
