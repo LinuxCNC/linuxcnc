@@ -839,14 +839,15 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc)
 {
-    double T1 = fmin(prev_tc->tolerance, prev_tc->nominal_length / 4.0);
-    double T2 = fmin(tc->tolerance, tc->nominal_length / 4.0);
+    const double tolerance_ratio = 0.5;
+    double T1 = fmin(prev_tc->tolerance, prev_tc->nominal_length * tolerance_ratio);
+    double T2 = fmin(tc->tolerance, tc->nominal_length * tolerance_ratio);
     //Detect zero tolerance = no tolerance and force to reasonable maximum
     if (T1 == 0) {
-        T1 = prev_tc->nominal_length / 4.0;
+        T1 = prev_tc->nominal_length * tolerance_ratio;
     }
     if (T2 == 0) {
-        T2 = tc->nominal_length / 4.0;
+        T2 = tc->nominal_length * tolerance_ratio;
     }
     double tolerance = fmin(T1,T2);
     return tolerance;
