@@ -839,7 +839,7 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc)
 {
-    const double tolerance_ratio = 0.5;
+    const double tolerance_ratio = 0.25;
     double T1 = fmin(prev_tc->tolerance, prev_tc->nominal_length * tolerance_ratio);
     double T2 = fmin(tc->tolerance, tc->nominal_length * tolerance_ratio);
     //Detect zero tolerance = no tolerance and force to reasonable maximum
@@ -966,28 +966,11 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     tp_debug_print("R_geom = %f\nd_plan = %f\n", R_geom, d_plan);
 
-    double s_arc = phi * R_plan;
-    //TODO add line length here? may not be signifcant...
-    double v_sample_arc = s_arc / min_segment_time;
-    //Clip the planning velocity the same way
-    if (v_plan > v_sample_arc) {
-        v_plan = v_sample_arc;
-        tp_debug_print("#v_plan %f > v_sample %f for arc\n", v_plan, v_sample_arc);
-    }
 
     tp_debug_print("v_plan = %f\n", v_plan);
 
     //Now we store the "actual" velocity. Recall that v_plan may be greater
     //than v_req by the max feed override. If our worst-case planned velocity is higher than the requested velocity, then clip at the requested velocity. This allows us to increase speed above the feed override limits
-    double v_actual;
-    if (v_plan > v_req) {
-        v_actual = v_req;
-    } else {
-        v_actual = v_plan;
-    }
-
-    tp_debug_print("v_actual = %f\n", v_actual);
-
     //Check for segment length limits
 #ifdef TP_DEBUG
     double a_n_effective = pmSq(v_plan)/R_plan;
@@ -1000,8 +983,30 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 #ifdef TP_DEBUG
     double L_next = tc->target - d_plan;
 #endif
-    tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f, prev_seg_time = %f\n", s_arc, L_prev, L_next, prev_seg_time);
+
     int consume = (prev_seg_time < min_segment_time);
+    double s_arc = phi * R_plan;
+    if (consume) {
+        s_arc += L_prev;
+    }
+    
+    //Reduce velocity if necessary 
+    double v_sample_arc = s_arc / min_segment_time;
+    if (v_plan > v_sample_arc) {
+        v_plan = v_sample_arc;
+        tp_debug_print("#v_plan %f > v_sample %f for arc\n", v_plan, v_sample_arc);
+    }
+    tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f, prev_seg_time = %f\n", s_arc, L_prev, L_next, prev_seg_time);
+
+    
+    double v_actual;
+    if (v_plan > v_req) {
+        v_actual = v_req;
+    } else {
+        v_actual = v_plan;
+    }
+
+    tp_debug_print("v_actual = %f\n", v_actual);
 
     if (emcmotConfig->arcBlendFallbackEnable) {
         double v_parabolic = 0.0;
