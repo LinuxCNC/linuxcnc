@@ -78,12 +78,13 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
     tp_debug_print("progress = %f, angle_total = %f\n", progress, arc->angle);
 
     //Convert progress to actual progress around the arc
-    double angle_in = progress - arc->line_length;
-    if (angle_in <= 0.0 && arc->line_length > 0) {
+    double net_progress = progress - arc->line_length;
+    if (net_progress <= 0.0 && arc->line_length > 0) {
         //Get position on line (not actually an angle in this case)
-        pmCartScalMult(&arc->uTan, -angle_in, out);
+        pmCartScalMult(&arc->uTan, -net_progress, out);
         pmCartCartAdd(out, &arc->start, out);
     } else {
+        double angle_in = net_progress / arc->radius;
         double scale0 = sin(arc->angle - angle_in) / arc->Sangle;
         double scale1 = sin(angle_in) / arc->Sangle;
 
