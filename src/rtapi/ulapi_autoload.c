@@ -231,8 +231,8 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
 	return -EINVAL;
     }
 
-    snprintf(ulapi_lib_fname,PATH_MAX,"%s-%s%s",
-	     ulapi_lib, flavor->name, flavor->so_ext);
+    snprintf(ulapi_lib_fname,PATH_MAX,"%s/%s-%s%s",
+	     EMC2_RTLIB_DIR, ulapi_lib, flavor->name, flavor->so_ext);
 
     // dynload the proper ulapi.so:
     if ((ulapi_so = dlopen(ulapi_lib_fname, RTLD_GLOBAL|RTLD_NOW))  == NULL) {
