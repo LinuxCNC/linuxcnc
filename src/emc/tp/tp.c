@@ -1065,7 +1065,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         tp_debug_print("keeping previous line\n");
         blend_tc->coords.arc.xyz.line_length = 0;
         retval = tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
-        tpFinalizeSegmentLimits(tp, prev_tc);
     }
 
     return retval;
@@ -1523,12 +1522,12 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tpCalculateTriangleVel(tp, &tc);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
+        prev_tc = tcqLast(&tp->queue);
         int blend_fail = tpHandleBlendArc(tp, &tc);
         if (blend_fail) {
             tp_debug_print("blend arc failed, finalizing prev line\n");
-            prev_tc = tcqLast(&tp->queue);
-            tpFinalizeSegmentLimits(tp, prev_tc);
         }
+        tpFinalizeSegmentLimits(tp, prev_tc);
     }
 
     //Flag this as blending with previous segment if the previous segment is
