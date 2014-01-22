@@ -1,3 +1,10 @@
+ver. 0.9.9.9
+- gmoccapy is now able to do auto tool measurement after an manual tool change
+- introduced a ini config to simulate that
+- still to do: If user clickes on aboart while the tool change message window is still open
+  or he closes the window with the small X on the right upper corner, the hal pin will
+  not be reste propery
+
 ver. 0.9.9.8.2
 - gmoccapy_plasma, changed pin names to follow the pin naming convention
 - included THC Button state in persistaence (plasma.var)
