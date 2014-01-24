@@ -309,7 +309,18 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
         // watchdog is disabled, MSb=1 is secret handshake with FPGA
         hm2->watchdog.timer_reg[0] = 0x80000000;
     } else {
-        tmp = (hm2->watchdog.instance[0].hal.param.timeout_ns * ((double)hm2->watchdog.clock_frequency / (double)(1000 * 1000 * 1000))) - 1;
+#ifdef __KERNEL__
+	/* some gccs don't include 64-bit integer functions until
+         linking with gcc, but kbuild links directly with ld; instead,
+         use kernel-supplied functions; in this case, replace
+         __udivdi3 with do_div */
+        tmp = ((u64)hm2->watchdog.instance[0].hal.param.timeout_ns *
+               hm2->watchdog.clock_frequency);
+        do_div(tmp,(u64)(1000 * 1000 * 1000)) - 1;
+#else
+        tmp = ((u64)hm2->watchdog.instance[0].hal.param.timeout_ns *
+	       hm2->watchdog.clock_frequency / (1000 * 1000 * 1000)) - 1;
+#endif
         if (tmp < 0x80000000) {
             hm2->watchdog.timer_reg[0] = tmp;
         } else {

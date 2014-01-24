@@ -1279,8 +1279,14 @@ void hm2_sserial_prepare_tram_write(hostmot2_t *hm2, long period){
                                     val = *pin->float_pin;
                                     if (val > pin->maxlim) val = pin->maxlim;
                                     if (val < pin->minlim) val = pin->minlim;
-                                    buff = (u64)((val / pin->fullscale) 
-                                                 * (~0ull >> (64 - conf->DataLength)));
+				    /* convert to u32 before u64 to
+				     avoid needing __fixunsdfdi() in
+				     libgcc.a from some gccs on 32-bit
+				     arches
+				    */
+                                    buff = (u64)(u32)
+					((val / (float)pin->fullscale)
+					 * (~0ull >> (64 - conf->DataLength)));
                                     break;
                                 case LBP_SIGNED:
                                     //this only works if DataLength <= 32
