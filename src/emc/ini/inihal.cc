@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------
 This work derived from alex joni's halui.cc
-Copyright: 2013
+Copyright: 2013,2014
 Author:    Dewey Garrett <dgarrett@panix.com>
 
 This program is free software; you can redistribute it and/or modify
@@ -98,6 +98,7 @@ int ini_hal_init(void)
         MAKE_FLOAT_PIN_IDX(min_limit,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(max_limit,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(max_velocity,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(max_acceleration,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(ferror,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(min_ferror,HAL_IN,idx);
     }
@@ -123,6 +124,7 @@ int ini_hal_init_pins()
         INIT_PIN(min_limit[idx]);
         INIT_PIN(max_limit[idx]);
         INIT_PIN(max_velocity[idx]);
+        INIT_PIN(max_acceleration[idx]);
         INIT_PIN(ferror[idx]);
         INIT_PIN(min_ferror[idx]);
     }
@@ -215,6 +217,15 @@ int check_ini_hal_items()
             if (0 != emcAxisSetMaxVelocity(idx, NEW(max_velocity[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxVelocity\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(max_acceleration,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(max_acceleration,idx);
+            UPDATE_IDX(max_acceleration,idx);
+            if (0 != emcAxisSetMaxAcceleration(idx, NEW(max_acceleration[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
                 }
             }
         }

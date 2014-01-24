@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 This work derived from alex joni's halui.cc
-Copyright: 2013
+Copyright: 2013,2014
 Author:    Dewey Garrett <dgarrett@panix.com>
 
 This program is free software; you can redistribute it and/or modify
@@ -58,6 +58,7 @@ int ini_hal_init_pins(void);
     ARRAY(hal_float_t,min_limit,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,max_limit,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,max_velocity,EMCMOT_MAX_JOINTS) \
+    ARRAY(hal_float_t,max_acceleration,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,ferror,EMCMOT_MAX_JOINTS) \
     ARRAY(hal_float_t,min_ferror,EMCMOT_MAX_JOINTS) \
 

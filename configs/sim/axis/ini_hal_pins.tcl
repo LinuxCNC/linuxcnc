@@ -1,7 +1,7 @@
 #!/usr/bin/tclsh
 
 #-----------------------------------------------------------------------
-# Copyright: 2013
+# Copyright: 2013,2014
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ set pins [list \
              ini.traj_max_velocity \
              ini.traj_max_acceleration \
              ini.0.max_velocity \
+             ini.0.max_acceleration \
              ini.0.min_limit \
              ini.0.max_limit \
              ini.0.backlash \
