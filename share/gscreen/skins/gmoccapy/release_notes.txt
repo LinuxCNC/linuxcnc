@@ -1,3 +1,7 @@
+ver. 0.9.9.9.1
+- there was a bug in tool touch off, discovered by Jim
+  solved that
+
 ver. 0.9.9.9
 - gmoccapy is now able to do auto tool measurement after an manual tool change
 - introduced a ini config to simulate that

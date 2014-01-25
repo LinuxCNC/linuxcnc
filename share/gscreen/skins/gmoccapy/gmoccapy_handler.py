@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9"
+_RELEASE = "0.9.9.9.1"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -989,7 +989,6 @@ class HandlerClass:
         self.widgets.window1.connect( "key_release_event", self.on_key_event, 0 )
 
     def on_key_event( self, widget, event, signal ):
-
 
         # get the keyname
         keyname = gtk.gdk.keyval_name( event.keyval )
@@ -2065,7 +2064,7 @@ class HandlerClass:
         origin = float( self.ini.find( "AXIS_2", "MIN_LIMIT" ) ) + blockheight
         self.command.mode( self.linuxcnc.MODE_MDI )
         self.command.wait_complete()
-        self.gscreen.mdi_control.user_command( "G10 L2 P0 Z%s" % origin )
+        self.command.mdi( "G10 L2 P0 Z%s" % origin )
         self.widgets.hal_action_reload.emit( "activate" )
         self.command.mode( self.linuxcnc.MODE_MANUAL )
         self.command.wait_complete()
@@ -2319,6 +2318,7 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry( "btn_tool_clicked" )
         self.widgets.ntb_button.set_current_page( 7 )
         self._show_tooledit_tab( True )
+        self._update_toolinfo( self.stat.tool_in_spindle )
 
     def _show_tooledit_tab( self, state ):
         page = self.widgets.ntb_preview.get_nth_page( 2 )
@@ -2329,7 +2329,7 @@ class HandlerClass:
             self.widgets.ntb_preview.set_property( "show-tabs", not state )
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page( 2 )
-            self.widgets.tooledit1.set_selected_tool( self.data.tool_in_spindle )
+            self.widgets.tooledit1.set_selected_tool( self.stat.tool_in_spindle )
             if self.widgets.chk_use_kb_on_tooledit.get_active():
                 self.widgets.ntb_info.set_current_page( 1 )
         else:
@@ -2345,15 +2345,36 @@ class HandlerClass:
     def on_tool_change( self, widget ):
         change = self.halcomp['change-tool']
         toolnumber = self.halcomp['tool-number']
-        changedone = self.halcomp['tool-changed']
+#        changedone = self.halcomp['tool-changed']
         if change:
-            tooldescr = self.widgets.tooledit1.get_toolinfo( toolnumber )[16]
-            message = _( "Please change to tool\n\n# {0:d}     {1}\n\n then click OK." ).format( toolnumber, tooldescr )
+            # if toolnumber = 0 we will get an error because we will not be able to get
+            # any tooldescription, so we avoid that case
+            if toolnumber == 0:
+                message = _( "Please remove the mounted tool and press OK when done" )
+            else:
+                tooldescr = self.widgets.tooledit1.get_toolinfo( toolnumber )[16]
+                message = _( "Please change to tool\n\n# {0:d}     {1}\n\n then click OK." ).format( toolnumber, tooldescr )
             self.gscreen.warning_dialog( message, True, pinname = "TOOLCHANGE" )
         else:
             self.halcomp['tool-changed'] = False
 
+#     # message dialog returns a response here
+#     # this def overrides the gscreen response
+#     # This includes the manual tool change dialog
+#     # We know this by the pinname being called 'TOOLCHANGE'
+#     def dialog_return( self, widget, result, dialogtype, pinstatus, pinname ):
+#         if pinname == "TOOLCHANGE":
+#             self.halcomp["tool-changed"] = True
+#             widget.destroy()
+#         print( "Result = ", result )
+#         widget.destroy()
+
     def _update_toolinfo( self, tool ):
+        # lets get the mode we are at the moment
+        # so after emmitting MDI commands we can switch back to wheer we started
+        mode = self.stat.task_mode
+        print ( "mode = ", mode )
+        print self.linuxcnc.MODE_MANUAL, self.linuxcnc.MODE_MDI, self.linuxcnc.MODE_AUTO
         toolinfo = self.widgets.tooledit1.get_toolinfo( tool )
         if toolinfo:
             # Doku
@@ -2377,18 +2398,39 @@ class HandlerClass:
             self.widgets.lbl_tool_no.set_text( str( toolinfo[1] ) )
             self.widgets.lbl_tool_dia.set_text( toolinfo[12] )
             self.widgets.lbl_tool_name.set_text( toolinfo[16] )
+
+        # we do not allow touch off with no tool mounted, so we set the
+        # coresponding widgets unsensitive and set the description acordingly
         if tool == 0:
             self.widgets.lbl_tool_no.set_text( "0" )
             self.widgets.lbl_tool_dia.set_text( "0" )
             self.widgets.lbl_tool_name.set_text( _( "No tool description available" ) )
-        if "G43" in self.data.active_gcodes:
-            if self.stat.task_mode != _AUTO:
-                self.command.mode( self.linuxcnc.MODE_MDI )
-                self.command.wait_complete()
-                self.gscreen.mdi_control.user_command( "G43" )
-            if self.stat.task_mode == _MANUAL:
-                self.wait_tool_change = True
-                self.on_hal_status_interp_idle( self )
+            self.widgets.btn_tool_touchoff_x.set_sensitive( False )
+            self.widgets.btn_tool_touchoff_z.set_sensitive( False )
+        else:
+            self.widgets.btn_tool_touchoff_x.set_sensitive( True )
+            self.widgets.btn_tool_touchoff_z.set_sensitive( True )
+
+        if "G43" in self.data.active_gcodes and self.stat.task_mode != _AUTO:
+            self.command.mode( self.linuxcnc.MODE_MDI )
+            self.command.wait_complete()
+            self.gscreen.mdi_control.user_command( "G43" )
+
+        # if we are in the tooledit page, we set the current tool active
+        if self.widgets.ntb_button.get_current_page() == 7:
+            self.widgets.tooledit1.set_selected_tool( tool )
+
+        # now lets see if we have to change back to old mode
+        if self.stat.task_mode != mode:
+            self.command.mode( mode )
+            self.command.wait_complete()
+
+#        # If we are on page 1, we are in MDI Mode, so we would not go back
+#        # to manual mode, in any other case we will do that
+#        if self.widgets.ntb_button.get_current_page() != 1:
+#            self.wait_tool_change = True
+#            self.on_hal_status_interp_idle( self )
+
 
     def on_btn_delete_tool_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "on_btn_delete_tool_clicked" )
@@ -2409,14 +2451,21 @@ class HandlerClass:
 
     def on_btn_tool_touchoff_clicked( self, widget, data = None ):
         if not self.widgets.tooledit1.get_selected_tool():
+            message = _( "No or more than one tool selected in tool table" )
+            message += _( "Please select only one tool in the table" )
+            print( message )
+            self.gscreen.add_alarm_entry( message )
+            self.gscreen.warning_dialog( _( "Warning Tool Touch off not possible!" ), True, message )
             return
-        if widget == self.widgets.btn_tool_touchoff_x:
-            axis = "x"
-        elif widget == self.widgets.btn_tool_touchoff_z:
-            axis = "z"
-        else:
-            self.gscreen.warning_dialog( _( "Real big error!" ), True,
-                                        _( "You managed to come to a place that is not possible in on_btn_tool_touchoff" ) )
+
+        if self.widgets.tooledit1.get_selected_tool() != self.stat.tool_in_spindle:
+            message = _( "you can not touch of a tool, witch is not mounted in the spindle" )
+            message += _( "your selection has been reseted to the tool in spindle" )
+            print( message )
+            self.gscreen.add_alarm_entry( message )
+            self.gscreen.warning_dialog( _( "Warning Tool Touch off not possible!" ), True, message )
+            self.widgets.tooledit1.reload( self )
+            self.widgets.tooledit1.set_selected_tool( self.stat.tool_in_spindle )
             return
 
         if "G41" in self.data.active_gcodes or "G42" in self.data.active_gcodes:
@@ -2425,6 +2474,15 @@ class HandlerClass:
             print( message )
             self.gscreen.add_alarm_entry( message )
             self.gscreen.warning_dialog( _( "Warning Tool Touch off not possible!" ), True, message )
+            return
+
+        if widget == self.widgets.btn_tool_touchoff_x:
+            axis = "x"
+        elif widget == self.widgets.btn_tool_touchoff_z:
+            axis = "z"
+        else:
+            self.gscreen.warning_dialog( _( "Real big error!" ), True,
+                                        _( "You managed to come to a place that is not possible in on_btn_tool_touchoff" ) )
             return
 
         value = self.entry_dialog( data = None,
@@ -2443,9 +2501,14 @@ class HandlerClass:
             return
         else:
             self.gscreen.add_alarm_entry( _( "axis {0} , has been set to {1:f}" ).format( axis.upper(), value ) )
-        self.gscreen.mdi_control.touchoff( self.widgets.tooledit1.get_selected_tool(), axis, value )
-        self.command.mode( self.linuxcnc.MODE_MANUAL )
-        self.command.wait_complete()
+            command = "G10 L10 P%d %s%f" % ( self.stat.tool_in_spindle, axis, value )
+            self.command.mode( self.linuxcnc.MODE_MDI )
+            self.command.wait_complete()
+            self.command.mdi( command )
+            self.command.wait_complete()
+            self.command.mode( self.linuxcnc.MODE_MANUAL )
+            self.command.wait_complete()
+            self._update_toolinfo( self.stat.tool_in_spindle )
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked( self, widget, data = None ):
@@ -2461,17 +2524,16 @@ class HandlerClass:
         elif value == "CANCEL":
             self.gscreen.add_alarm_entry( _( "entry for selection of tool number has been canceled" ) )
             return
+        elif int( value ) == self.stat.tool_in_spindle:
+            message = _( "Selected tool is already in spindle, no change needed." )
+            self.gscreen.warning_dialog( _( "Important Warning!" ), True, message )
+            self.gscreen.add_alarm_entry( message )
+            return
         else:
-            if int( value ) == self.gscreen.data.tool_in_spindle:
-                message = _( "Selected tool is already in spindle, no change needed." )
-                self.gscreen.warning_dialog( _( "Important Warning!" ), True, message )
-                self.gscreen.add_alarm_entry( message )
-                return
-            self.wait_tool_change = True
             self.command.mode( self.linuxcnc.MODE_MDI )
             self.command.wait_complete()
             command = "T%s M6" % int( value )
-            self.gscreen.mdi_control.user_command( command )
+            self.command.mdi( command )
             self.wait_tool_change = True
 
     # set tool with M61 Q? or with T? M6
@@ -2482,7 +2544,7 @@ class HandlerClass:
             self.gscreen.warning_dialog( _( "Important Warning!" ), True, message )
             self.gscreen.add_alarm_entry( message )
             return
-        if tool == self.gscreen.data.tool_in_spindle:
+        if tool == self.stat.tool_in_spindle:
             message = _( "Selected tool is already in spindle, no change needed." )
             self.gscreen.warning_dialog( _( "Important Warning!" ), True, message )
             self.gscreen.add_alarm_entry( message )
