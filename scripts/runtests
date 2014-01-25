@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # When running with "-v", the test itself runs in a pipeline with tee, and
 # without pipefail we get the exit value from tee instead of from the test.
@@ -36,12 +36,13 @@ run_shell_script () {
     testdir=$(dirname $1)
 
     pushd $testdir > /dev/null
+    exitcode=0
     if [ $VERBOSE -eq 1 ]; then
-        (bash -x $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+        (bash -x $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr || \
+	    exitcode=$?
     else
-        bash -x $testname > result 2> stderr
+        bash -x $testname > result 2> stderr || exitcode=$?
     fi
-    exitcode=$?
     popd > /dev/null
     return $exitcode
 }
@@ -51,12 +52,12 @@ run_executable () {
     testdir=$(dirname $1)
 
     pushd $testdir > /dev/null
+    exitcode=0
     if [ $VERBOSE -eq 1 ]; then
-        (./$testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+        (./$testname | tee result) 3>&1 1>&2 2>&3 | tee stderr || exitcode=$?
     else
-        ./$testname > result 2> stderr
+        ./$testname > result 2> stderr || exitcode=$?
     fi
-    exitcode=$?
     popd > /dev/null
     return $exitcode
 }
@@ -68,12 +69,13 @@ run_without_overruns () {
         if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test" 1>&2 ; fi
 
         pushd $testdir > /dev/null
+	exitcode=0
         if [ $VERBOSE -eq 1 ]; then
-            (halrun -f $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr
+            (halrun -f $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr \
+		|| exitcode=$?
         else
-            halrun -f $testname > result 2> stderr
+            halrun -f $testname > result 2> stderr || exitcode=$?
         fi
-        exitcode=$?
         popd > /dev/null
 
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
@@ -101,22 +103,22 @@ run_tests () {
 	NUM=$(($NUM+1))
 	logger -p local1.info "Running test: $testdir"
 	echo "Running test: $testdir" 1>&2
+	exitcode=0
         case $testname in
-        *.hal) run_without_overruns $testname ;;
-        *.sh) run_shell_script $testname ;;
-        *) run_executable $testname ;;
+        *.hal) run_without_overruns $testname || exitcode=$? ;;
+        *.sh) run_shell_script $testname || exitcode=$? ;;
+        *) run_executable $testname || exitcode=$? ;;
         esac
-	exitcode=$?
 	if [ $exitcode -ne 0 ]; then
 	    reason="test run exited with $exitcode"
 	else
 	    if [ -e $testdir/checkresult ]; then
-		$testdir/checkresult $testdir/result
-		exitcode=$?
+		exitcode=0
+		$testdir/checkresult $testdir/result || exitcode=$?
 		reason="checkresult exited with $exitcode"
 	    elif [ -f $testdir/expected ]; then
-		cmp -s $testdir/expected $testdir/result
-		exitcode=$?
+		exitcode=0
+		cmp -s $testdir/expected $testdir/result || exitcode=$?
 		reason="result differed from expected"
 		if [ $exitcode -ne 0 ]; then
 		    diff -u $testdir/expected $testdir/result > $TMPDIR/diff
