@@ -1,3 +1,7 @@
+ver. 0.9.9.9.2
+- scl_feed_override did not take influence on G0 velocities
+  now it will take influence G1 and G0 velocities
+
 ver. 0.9.9.9.1
 - there was a bug in tool touch off, discovered by Jim
   solved that
