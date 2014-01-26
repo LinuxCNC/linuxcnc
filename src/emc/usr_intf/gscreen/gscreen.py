@@ -457,21 +457,16 @@ class Gscreen:
         # second screen
         localglade = os.path.join(CONFIGPATH,"%s2.glade"%self.skinname)
         if os.path.exists(localglade):
-            print _("\n**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"% localglade)
+            print _("\n**** GSCREEN INFO:  Screen 2 -Using CUSTOM glade file from %s ****"% localglade)
             xmlname2 = localglade
+            try:
+                self.xml.add_from_file(xmlname2)
+                self.screen2 = True
+            except:
+                print _("**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname)
         else:
-            localglade = os.path.join(SKINPATH,"%s/%s2.glade"%(self.skinname,self.skinname))
-            if os.path.exists(localglade):
-                print _("\n**** GSCREEN INFO:  Using SKIN glade file from %s ****"% localglade)
-                xmlname2 = localglade
-            else:
-                print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2)
-        try:
-            self.xml.add_from_file(xmlname2)
-            self.screen2 = True
-        except:
-            print _("**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname)
-            self.screen2 = False
+            print _("\n**** GSCREEN INFO:  No Screen 2 glade file present") 
+        self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
         self.keylookup = keybindings.Keylookup()
@@ -688,7 +683,12 @@ class Gscreen:
             self.handler_instance.initialize_pins()
         else:
             self.initialize_pins()
-        self.initialize_manual_toolchange()
+
+        if "initialize_manual_toolchange" in dir(self.handler_instance):
+            self.handler_instance.initialize_manual_toolchange()
+        else:
+            self.initialize_manual_toolchange()
+
         if "connect_signals" in dir(self.handler_instance):
             self.handler_instance.connect_signals(handlers)
         else:

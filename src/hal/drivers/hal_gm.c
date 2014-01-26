@@ -368,8 +368,8 @@ static gm_driver_t				driver;
   static void stepgenControl(void *arg, long period, unsigned int i);
   static void stepgenCheckParameters(void *arg, long period, unsigned int channel);
   //RS485
-  static unsigned int RS485_CheckCrc(hal_u32_t* data, hal_u32_t length);
-  static unsigned int RS485_CalcCrc(hal_u32_t* data, hal_u32_t length);
+  static unsigned int RS485_CheckChecksum(hal_u32_t* data, hal_u32_t length);
+  static unsigned int RS485_CalcChecksum(hal_u32_t* data, hal_u32_t length);
   static void RS485_OrderDataRead(hal_u32_t* dataIn32, hal_u32_t* dataOut8, hal_u32_t length);
   static void RS485_OrderDataWrite(hal_u32_t* dataIn8, hal_u32_t* dataOut32, hal_u32_t length);
   //Encoders
@@ -722,7 +722,7 @@ ExportRS485(void *arg, int comp_id, int version)
 		  break;	  
 		 case RS485MODUL_ID_8INPUT:	    
 			device-> RS485_mgr.BYTES_TO_WRITE[i]=0;
-			device-> RS485_mgr.BYTES_TO_READ[i]=2;	//1 data byte + 1 CRC
+			device-> RS485_mgr.BYTES_TO_READ[i]=2;	//1 data byte + 1 Checksum
 			
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].in_0), comp_id, "gm.%1d.rs485.%02d.in-0", boardId, i);
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_0), comp_id, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
@@ -742,7 +742,7 @@ ExportRS485(void *arg, int comp_id, int version)
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_8input[i].inNot_7), comp_id, "gm.%1d.rs485.%02d.in-not-7", boardId, i);	
 		  break;		  
 		  case RS485MODUL_ID_8OUTPUT:
-			device-> RS485_mgr.BYTES_TO_WRITE[i]=2; // 1 data byte + 1 CRC
+			device-> RS485_mgr.BYTES_TO_WRITE[i]=2; // 1 data byte + 1 Checksum
 			device-> RS485_mgr.BYTES_TO_READ[i]=0;
 			
 		    	if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->RS485_8output[i].out_0), comp_id, "gm.%1d.rs485.%02d.relay-0", boardId, i);
@@ -765,7 +765,7 @@ ExportRS485(void *arg, int comp_id, int version)
 
 		  break;
 		  case RS485MODUL_ID_DACADC:
-			device-> RS485_mgr.BYTES_TO_WRITE[i]=5; // 8 data byte + 1 CRC
+			device-> RS485_mgr.BYTES_TO_WRITE[i]=5; // 8 data byte + 1 Checksum
 			device-> RS485_mgr.BYTES_TO_READ[i]=9; 
 		      
 			if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->RS485_DacAdc[i].DAC_0), comp_id, "gm.%1d.rs485.%02d.dac-0", boardId, i);
@@ -832,7 +832,7 @@ ExportRS485(void *arg, int comp_id, int version)
 		    break;		    
 		    case RS485MODUL_ID_TEACHPAD:
 			device-> RS485_mgr.BYTES_TO_WRITE[i]=0;
-			device-> RS485_mgr.BYTES_TO_READ[i]=12;	//1 for 8 digit input, 6 for adc, 4 for encoder + 1 CRC		
+			device-> RS485_mgr.BYTES_TO_READ[i]=12;	//1 for 8 digit input, 6 for adc, 4 for encoder + 1 Checksum		
 			
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].in_0), comp_id, "gm.%1d.rs485.%02d.in-0", boardId, i);
 			if(error == 0) error = hal_pin_bit_newf(HAL_OUT, &(device->RS485_TeachPad[i].inNot_0), comp_id, "gm.%1d.rs485.%02d.in-not-0", boardId, i);
@@ -1173,6 +1173,10 @@ GM_CAN_SERVO(void *arg)
 	    CAN_msg.data[1] = (temp >> 8) & 0xFF;
 	    CAN_msg.data[2] = (temp >> 16) & 0xFF;
 	    CAN_msg.data[3] = (temp >> 24) & 0xFF;
+            CAN_msg.data[4] = 0;
+            CAN_msg.data[5] = 0;
+            CAN_msg.data[6] = 0;
+            CAN_msg.data[7] = 0;
 
 	    CAN_SendDataFrame(arg, &CAN_msg);
 	  }
@@ -1609,7 +1613,6 @@ stepgenControl(void *arg, long period, unsigned int channel)
     	card	*pCard = device->pCard;
 	
 	hal_s32_t stepgen_fb, stepgen_fb_int, last_count_fb_LS16_bits, last_count_fb_MS16_bits, last_count_fb;	
-	hal_float_t	last_position_fb;
 	hal_float_t	ref_vel, match_acc, match_time, avg_v, est_out, est_cmd, est_err, dp;
 	
      //read and count feedbacks
@@ -1636,7 +1639,6 @@ stepgenControl(void *arg, long period, unsigned int channel)
 	}
 
       //save old position and get new one
-	last_position_fb = *(device->stepgen[channel].position_fb);
 	*(device->stepgen[channel].position_fb) = (*(device->stepgen[channel].count_fb) + ((hal_float_t)(stepgen_fb & 0xFFFF))/65536)/device->stepgen[channel].position_scale;	//[pos_unit]
 	
       //velocity control is easy
@@ -1782,8 +1784,8 @@ RS485(void *arg, long period)
 		
 	      //Order data to RS485DataOut8 buffer
 		RS485_OrderDataRead(RS485DataIn32, RS485DataOut8, device-> RS485_mgr.BYTES_TO_READ[i]);
-	      //Process data if CRC is OK
-		if(RS485_CheckCrc(RS485DataOut8,  device-> RS485_mgr.BYTES_TO_READ[i]) == 0)
+	      //Process data if Checksum is OK
+		if(RS485_CheckChecksum(RS485DataOut8,  device-> RS485_mgr.BYTES_TO_READ[i]) == 0)
 		{
 		  switch (device-> RS485_mgr.ID[i])
 		  {
@@ -1943,8 +1945,8 @@ RS485(void *arg, long period)
 		    break;     
 		  }
 		  
-		//Calc CRC
-		RS485DataIn8[device-> RS485_mgr.BYTES_TO_WRITE[i]-1]=RS485_CalcCrc(RS485DataIn8, device-> RS485_mgr.BYTES_TO_WRITE[i] - 1);
+		//Calc Checksum
+		RS485DataIn8[device-> RS485_mgr.BYTES_TO_WRITE[i]-1]=RS485_CalcChecksum(RS485DataIn8, device-> RS485_mgr.BYTES_TO_WRITE[i] - 1);
 		//Order 8 bit data to send to 32 bit PCI
 		RS485_OrderDataWrite(RS485DataIn8, RS485DataOut32, device-> RS485_mgr.BYTES_TO_WRITE[i]); //order 8 bit bytes to 32 bit words
 	      	//Send data      	      
@@ -1995,31 +1997,31 @@ RS485_OrderDataWrite(hal_u32_t* dataIn8, hal_u32_t* dataOut32, hal_u32_t length)
  }
  
 static unsigned int
-RS485_CheckCrc(hal_u32_t* data, hal_u32_t length)
+RS485_CheckChecksum(hal_u32_t* data, hal_u32_t length)
 {
-      unsigned int i, tempCRC=0;
+      unsigned int i=0, tempChecksum=0;
       
       if(length > 0 && length < 32)
       for(i=0; i < length-1; i++)
       {
-	   tempCRC += data[i];
+	   tempChecksum += data[i];
       }
-      if((data[i] ^ 0xaa) == (tempCRC & 0xff)) return 0;
+      if((data[i] ^ 0xaa) == (tempChecksum & 0xff)) return 0;
 
       return -1;
       
 }
 
 static unsigned int
-RS485_CalcCrc(hal_u32_t* data, hal_u32_t length)
+RS485_CalcChecksum(hal_u32_t* data, hal_u32_t length)
 {
-      unsigned int i, tempCRC=0;
+      unsigned int i, tempChecksum=0;
       
       if(length > 0 && length < 32)
       for(i=0; i < length; i++)
       {
-	   tempCRC += data[i];
+	   tempChecksum += data[i];
       }
-     return (tempCRC & 0xff) ^ 0xaa;
+     return (tempChecksum & 0xff) ^ 0xaa;
       
 }

@@ -1,7 +1,12 @@
-#!/usr/bin/python2.4
+#!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+#
 #    This is stepconf, a graphical configuration editor for LinuxCNC
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
+#
+#    stepconf 1.1 revamped by Chris Morley 2014
+#    replaced Gnome Druid as that is not available in future linux distrubutions
+#    and because of GTK/GLADE bugs, the GLADE file could only be edited with Ubuntu 8.04
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -16,34 +21,33 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-import sys
-import os
-import pwd
-import errno
-import time
-import hashlib
-import pickle
-import shutil
-import math
-import getopt
-import textwrap
-import commands
-
-import gobject
+#
+import pygtk
+pygtk.require("2.0")
 import gtk
 import gtk.glade
-import gnome.ui
+import sys
+import os
+from optparse import Option, OptionParser
 import hal
 import xml.dom.minidom
+import hashlib
+import math
+import errno
+import textwrap
+import commands
+import hal
+import gobject
+import shutil
+import time
 
 import traceback
-
 # otherwise, on hardy the user is shown spurious "[application] closed
 # unexpectedly" messages but denied the ability to actually "report [the]
 # problem"
 def excepthook(exc_type, exc_obj, exc_tb):
     try:
-        w = app.widgets.window1
+        w = app.w.window1
     except NameError:
         w = None
     lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
@@ -59,37 +63,17 @@ def excepthook(exc_type, exc_obj, exc_tb):
 sys.excepthook = excepthook
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+
+# translations,locale
+import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
-import gettext
-gettext.install("linuxcnc", localedir=LOCALEDIR, unicode=True)
-gtk.glade.bindtextdomain("linuxcnc", LOCALEDIR)
-gtk.glade.textdomain("linuxcnc")
+domain = "linuxcnc"
+gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+locale.setlocale(locale.LC_ALL, '')
+locale.bindtextdomain(domain, LOCALEDIR)
+gettext.bindtextdomain(domain, LOCALEDIR)
 
-# internalname / displayed name / steptime/ step space / direction hold / direction setup
-drivertypes = [
-    ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
-    ["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
-    ["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
-    ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
-    ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
-    ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-    ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
-    ["l297", _("L297"), 500,  4000, 4000, 1000],
-    ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
-    ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
-    ["xylotex", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
-    ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
-    ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
-    ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
-    ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
-]
-
-def iceil(x):
-    if isinstance(x, (int, long)): return x
-    if isinstance(x, basestring): x = float(x)
-    return int(math.ceil(x))
-
-datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
+datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc","stepconf")
 wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
     wizard = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
@@ -116,66 +100,19 @@ if not os.path.isdir(distdir):
 if not os.path.isdir(distdir):
     distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
 
-(XSTEP, XDIR, YSTEP, YDIR,
-ZSTEP, ZDIR, ASTEP, ADIR,
-ON, CW, CCW, PWM, BRAKE,
-MIST, FLOOD, ESTOP, AMP,
-PUMP, DOUT0, DOUT1, DOUT2, DOUT3,
-UNUSED_OUTPUT) = hal_output_names = [
-"xstep", "xdir", "ystep", "ydir",
-"zstep", "zdir", "astep", "adir",
-"spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
-"coolant-mist", "coolant-flood", "estop-out", "xenable",
-"charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
-"unused-output"]
 
-(ESTOP_IN, PROBE, PPR, PHA, PHB,
-HOME_X, HOME_Y, HOME_Z, HOME_A,
-MIN_HOME_X, MIN_HOME_Y, MIN_HOME_Z, MIN_HOME_A,
-MAX_HOME_X, MAX_HOME_Y, MAX_HOME_Z, MAX_HOME_A,
-BOTH_HOME_X, BOTH_HOME_Y, BOTH_HOME_Z, BOTH_HOME_A,
-MIN_X, MIN_Y, MIN_Z, MIN_A,
-MAX_X, MAX_Y, MAX_Z, MAX_A,
-BOTH_X, BOTH_Y, BOTH_Z, BOTH_A,
-ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME, DIN0, DIN1, DIN2, DIN3,
-UNUSED_INPUT) = hal_input_names = [
-"estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
-"home-x", "home-y", "home-z", "home-a",
-"min-home-x", "min-home-y", "min-home-z", "min-home-a",
-"max-home-x", "max-home-y", "max-home-z", "max-home-a",
-"both-home-x", "both-home-y", "both-home-z", "both-home-a",
-"min-x", "min-y", "min-z", "min-a",
-"max-x", "max-y", "max-z", "max-a",
-"both-x", "both-y", "both-z", "both-a",
-"all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
-"unused-input"]
+from stepconf import pages
+from stepconf import build_INI
+from stepconf import build_HAL
 
-human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
-_("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
-_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
-_("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
-_("Charge Pump"),
-_("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
-_("Unused"))
+debug = False
 
-human_input_names = (_("ESTOP In"), _("Probe In"),
-_("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
-_("Home X"), _("Home Y"), _("Home Z"), _("Home A"),
-_("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
-_("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
-_("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
-_("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
-_("Both Limit + Home X"), _("Both Limit + Home Y"),
-_("Both Limit + Home Z"), _("Both Limit + Home A"),
-_("Minimum Limit X"), _("Minimum Limit Y"),
-_("Minimum Limit Z"), _("Minimum Limit A"),
-_("Maximum Limit X"), _("Maximum Limit Y"),
-_("Maximum Limit Z"), _("Maximum Limit A"),
-_("Both Limit X"), _("Both Limit Y"),
-_("Both Limit Z"), _("Both Limit A"),
-_("All limits"), _("All home"), _("All limits + homes"),
-_("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-_("Unused"))
+def makedirs(d):
+    try:
+        os.makedirs(d)
+    except os.error, detail:
+        if detail.errno != errno.EEXIST: raise
+makedirs(os.path.expanduser("~/linuxcnc/configs"))
 
 def md5sum(filename):
     try:
@@ -185,25 +122,125 @@ def md5sum(filename):
     else:
         return hashlib.md5(f.read()).hexdigest()
 
-class Widgets:
-    def __init__(self, xml):
-        self._xml = xml
-    def __getattr__(self, attr):
-        r = self._xml.get_widget(attr)
-        if r is None: raise AttributeError, "No widget %r" % attr
-        return r
-    def __getitem__(self, attr):
-        r = self._xml.get_widget(attr)
-        if r is None: raise IndexError, "No widget %r" % attr
-        return r
+class Private_Data:
+    def __init__(self):
+        self.in_pport_prepare = True
+        self.distdir = distdir
+        self.available_page =[['intro', _('Stepconf'), True],['start', _('Start'), True],
+                                ['base',_('Base Information'),True],['pport1', _('Parallel Port 1'),True],['pport2', _('Parallel Port 2'),True],
+                                ['options',_('Options'), True],['axisx', _('Axis X'), True],
+                                ['axisy', _('Axis Y'), True],['axisz', _('Axis Z'), True],['axisa', _('Axis A'), True],
+                                ['spindle',_('Spindle'), True],['finished',_('Almost Done'),True]
+                             ]
+        # internalname / displayed name / steptime/ step space / direction hold / direction setup
+        self.alldrivertypes = [
+                            ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
+                            ["gecko202", _("Gecko 202"), 500, 4500, 20000, 1000],
+                            ["gecko203v", _("Gecko 203v"), 1000, 2000, 200 , 200],
+                            ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
+                            ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
+                            ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
+                            ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
+                            ["l297", _("L297"), 500,  4000, 4000, 1000],
+                            ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
+                            ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
+                            ["xylotex", _("Xylotex 8S-3"), 2000, 1000, 200, 200],
+                            ["oem750", _("Parker-Compumotor oem750"), 1000, 1000, 1000, 200000],
+                            ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
+                            ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
+                            ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
+                            ]
+
+        (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
+            self.ZSTEP, self.ZDIR, self.ASTEP, self.ADIR,
+            self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
+            self.MIST, self.FLOOD, self.ESTOP, self.AMP,
+            self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
+            self.UNUSED_OUTPUT 
+        ) = self.hal_output_names = [
+            "xstep", "xdir", "ystep", "ydir",
+            "zstep", "zdir", "astep", "adir",
+            "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
+            "coolant-mist", "coolant-flood", "estop-out", "xenable",
+            "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
+            "unused-output"]
+
+        (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
+            self.HOME_X, self.HOME_Y, self.HOME_Z, self.HOME_A,
+            self.MIN_HOME_X, self.MIN_HOME_Y, self.MIN_HOME_Z, self.MIN_HOME_A,
+            self.MAX_HOME_X, self.MAX_HOME_Y, self.MAX_HOME_Z, self.MAX_HOME_A,
+            self.BOTH_HOME_X, self.BOTH_HOME_Y, self.BOTH_HOME_Z, self.BOTH_HOME_A,
+            self.MIN_X, self.MIN_Y, self.MIN_Z, self.MIN_A,
+            self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,
+            self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,
+            self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
+            self.UNUSED_INPUT
+        ) = self.hal_input_names = [
+            "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
+            "home-x", "home-y", "home-z", "home-a",
+            "min-home-x", "min-home-y", "min-home-z", "min-home-a",
+            "max-home-x", "max-home-y", "max-home-z", "max-home-a",
+            "both-home-x", "both-home-y", "both-home-z", "both-home-a",
+            "min-x", "min-y", "min-z", "min-a",
+            "max-x", "max-y", "max-z", "max-a",
+            "both-x", "both-y", "both-z", "both-a",
+            "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
+            "unused-input"]
+
+        self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
+            _("Z Step"), _("Z Direction"), _("A Step"), _("A Direction"),
+            _("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle PWM"), _("Spindle Brake"),
+            _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
+            _("Charge Pump"),
+            _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
+            _("Unused"))
+
+        self.human_input_names = (_("ESTOP In"), _("Probe In"),
+            _("Spindle Index"), _("Spindle Phase A"), _("Spindle Phase B"),
+            _("Home X"), _("Home Y"), _("Home Z"), _("Home A"),
+            _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
+            _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
+            _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
+            _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
+            _("Both Limit + Home X"), _("Both Limit + Home Y"),
+            _("Both Limit + Home Z"), _("Both Limit + Home A"),
+            _("Minimum Limit X"), _("Minimum Limit Y"),
+            _("Minimum Limit Z"), _("Minimum Limit A"),
+            _("Maximum Limit X"), _("Maximum Limit Y"),
+            _("Maximum Limit Z"), _("Maximum Limit A"),
+            _("Both Limit X"), _("Both Limit Y"),
+            _("Both Limit Z"), _("Both Limit A"),
+            _("All limits"), _("All home"), _("All limits + homes"),
+            _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
+            _("Unused"))
+
+        self.MESS_START = _('Start')
+        self.MESS_FWD = _('Forward')
+        self.MESS_DONE = _('Done')
+        self.MESS_CL_REWRITE =_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. ")
+        self.MESS_CL_EDITED = _("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  ")
+        self.MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
+        self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. ")
+        self.MESS_ABORT = _("Quit Stepconf and discard changes?")
+        self.MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
+        self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
+        self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
+                 unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
+            "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 class Data:
-    def __init__(self):
-        pw = pwd.getpwuid(os.getuid())
+    def __init__(self,SIG):
+        #pw = pwd.getpwuid(os.getuid())
+
         self.machinename = _("my-mill")
         self.axes = 0 # XYZ
         self.units = 0 # inch
-        self.drivertype = "other"
+        self.drivertype = "Other"
         self.steptime = 5000
         self.stepspace = 5000
         self.dirhold = 20000 
@@ -212,9 +249,9 @@ class Data:
         self.period = 25000
 
         self.ioaddr = "0x378"
-        self.ioaddr2 = _("Enter Address")
+        self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
-        self.ioaddr3 = _("Enter Address")
+        self.ioaddr3 = "2"
         self.pp3_direction = 0 # output
         self.number_pports = 1
 
@@ -250,38 +287,50 @@ class Data:
         self.pin16inv = 0
         self.pin17inv = 0
 
-        self.pin1 = ESTOP
-        self.pin2 = XSTEP
-        self.pin3 = XDIR
-        self.pin4 = YSTEP
-        self.pin5 = YDIR
-        self.pin6 = ZSTEP
-        self.pin7 = ZDIR
-        self.pin8 = ASTEP
-        self.pin9 = ADIR
-        self.pin14 = CW
-        self.pin16 = PWM
-        self.pin17 = AMP
+        self.pin1 = SIG.ESTOP
+        self.pin2 = SIG.XSTEP
+        self.pin3 = SIG.XDIR
+        self.pin4 = SIG.YSTEP
+        self.pin5 = SIG.YDIR
+        self.pin6 = SIG.ZSTEP
+        self.pin7 = SIG.ZDIR
+        self.pin8 = SIG.ASTEP
+        self.pin9 = SIG.ADIR
+        self.pin14 = SIG.CW
+        self.pin16 = SIG.PWM
+        self.pin17 = SIG.AMP
 
-        self.pin10 = UNUSED_INPUT
-        self.pin11 = UNUSED_INPUT
-        self.pin12 = UNUSED_INPUT
-        self.pin13 = UNUSED_INPUT
-        self.pin15 = UNUSED_INPUT
+        self.pin10 = SIG.UNUSED_INPUT
+        self.pin11 = SIG.UNUSED_INPUT
+        self.pin12 = SIG.UNUSED_INPUT
+        self.pin13 = SIG.UNUSED_INPUT
+        self.pin15 = SIG.UNUSED_INPUT
+
+        #   port 2
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            p = 'pp2_pin%d' % pin
+            self[p] = SIG.UNUSED_OUTPUT
+            p = 'pp2_pin%dinv' % pin
+            self[p] = 0
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p = 'pp2_pin%d_in' % pin
+            self[p] = SIG.UNUSED_INPUT
+            p = 'pp2_pin%d_in_inv' % pin
+            self[p] = 0
 
         self.xsteprev = 200
         self.xmicrostep = 2
         self.xpulleynum = 1
         self.xpulleyden = 1
         self.xleadscrew = 20
-        self.xmaxvel = 1
-        self.xmaxacc = 30
+        self.xmaxvel = 0
+        self.xmaxacc = 0
 
         self.xhomepos = 0
         self.xminlim =  0
-        self.xmaxlim =  8
+        self.xmaxlim =  0
         self.xhomesw =  0
-        self.xhomevel = .05
+        self.xhomevel = 0
         self.xlatchdir = 0
         self.xscale = 0
 
@@ -290,14 +339,14 @@ class Data:
         self.ypulleynum = 1
         self.ypulleyden = 1
         self.yleadscrew = 20
-        self.ymaxvel = 1
-        self.ymaxacc = 30
+        self.ymaxvel = 0
+        self.ymaxacc = 0
 
         self.yhomepos = 0
         self.yminlim =  0
-        self.ymaxlim =  8
+        self.ymaxlim =  0
         self.yhomesw =  0
-        self.yhomevel = .05
+        self.yhomevel = 0
         self.ylatchdir = 0
         self.yscale = 0
 
@@ -307,17 +356,19 @@ class Data:
         self.zpulleynum = 1
         self.zpulleyden = 1
         self.zleadscrew = 20
-        self.zmaxvel = 1
-        self.zmaxacc = 30
+        self.zmaxvel = 0
+        self.zmaxacc = 0
 
         self.zhomepos = 0
-        self.zminlim = -4
+        self.zminlim = 0
         self.zmaxlim =  0
         self.zhomesw = 0
-        self.zhomevel = .05
+        self.zhomevel = 0
         self.zlatchdir = 0
         self.zscale = 0
 
+        # set xyz axes defaults depending on units true = imperial
+        self.set_axis_unit_defaults(True)
 
         self.asteprev = 200
         self.amicrostep = 2
@@ -355,214 +406,33 @@ class Data:
         self.createsymlink = 1
         self.createshortcut = 1
 
-    def load(self, filename, app=None, force=False):
-        def str2bool(s):
-            return s == 'True'
-
-        converters = {'string': str, 'float': float, 'int': int, 'bool': str2bool, 'eval': eval}
-
-        d = xml.dom.minidom.parse(open(filename, "r"))
-        for n in d.getElementsByTagName("property"):
-            name = n.getAttribute("name")
-            conv = converters[n.getAttribute('type')]
-            text = n.getAttribute('value')
-            setattr(self, name, conv(text))
-
-        warnings = []
-        for f, m in self.md5sums:
-            m1 = md5sum(f)
-            if m1 and m != m1:
-                warnings.append(_("File %r was modified since it was written by stepconf") % f)
-        if warnings:
-            warnings.append("")
-            warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
-            if app:
-                dialog = gtk.MessageDialog(app.widgets.window1,
-                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                    gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
-                         "\n".join(warnings))
-                dialog.show_all()
-                dialog.run()
-                dialog.destroy()
-            else:
-                for para in warnings:
-                    for line in textwrap.wrap(para, 78): print line
-                    print
-                print
-                if force: return
-                response = raw_input(_("Continue? "))
-                if response[0] not in _("yY"): raise SystemExit, 1
-
-        legacy_hal_output_names = ["xstep", "xdir", "ystep", "ydir",
-        "zstep", "zdir", "astep", "adir",
-        "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm",
-        "coolant-mist", "coolant-flood", "estop-out", "xenable",
-        "charge-pump", "unused-output"]
-
-        legacy_hal_input_names = ["estop-ext", "probe-in",
-        "spindle-index", "spindle-phase-a", "spindle-phase-b",
-        "home-x", "home-y", "home-z", "home-a",
-        "min-home-x", "min-home-y", "min-home-z", "min-home-a",
-        "max-home-x", "max-home-y", "max-home-z", "max-home-a",
-        "both-home-x", "both-home-y", "both-home-z", "both-home-a",
-        "min-x", "min-y", "min-z", "min-a",
-        "max-x", "max-y", "max-z", "max-a",
-        "both-x", "both-y", "both-z", "both-a",
-        "all-limit", "all-home", "unused-input"]
-
-        for p in (10,11,12,13,15):
-            pin = "pin%d" % p
-            p = self[pin]
-            if isinstance(p, int):
-                self[pin] = legacy_hal_input_names[p]
-
-        for p in (1,2,3,4,5,6,7,8,9,14,16,17):
-            pin = "pin%d" % p
-            p = self[pin]
-            if isinstance(p, int):
-                self[pin] = legacy_hal_output_names[p]
-
-        legacy_driver_type = [  # Must exactly match texts in drivertypes
-            "gecko201",
-            "l297",
-            "pmdx150",
-            "sherline",
-            "xylotex",
-            "oem750",
-        ]
-
-        if isinstance(self.drivertype, int):
-            if self.drivertype < len(legacy_driver_type):
-                self.drivertype = legacy_driver_type[self.drivertype]
-            else:
-                self.drivertype = "other"
-
-    def add_md5sum(self, filename, mode="r"):
-        self.md5sums.append((filename, md5sum(filename)))
-
-    def write_inifile(self, base):
-        filename = os.path.join(base, self.machinename + ".ini")
-        file = open(filename, "w")
-        print >>file, _("# Generated by stepconf at %s") % time.asctime()
-        print >>file, _("# If you make changes to this file, they will be")
-        print >>file, _("# overwritten when you run stepconf again")
-
-        print >>file
-        print >>file, "[EMC]"
-        print >>file, "MACHINE = %s" % self.machinename
-        print >>file, "DEBUG = 0"
-
-        print >>file
-        print >>file, "[DISPLAY]"
-        print >>file, "DISPLAY = axis"
-        print >>file, "EDITOR = gedit"
-        print >>file, "POSITION_OFFSET = RELATIVE"
-        print >>file, "POSITION_FEEDBACK = ACTUAL"
-        print >>file, "MAX_FEED_OVERRIDE = 1.2"
-        print >>file, "INTRO_GRAPHIC = linuxcnc.gif"
-        print >>file, "INTRO_TIME = 5"
-        print >>file, "PROGRAM_PREFIX = %s" % \
-                                    os.path.expanduser("~/linuxcnc/nc_files")
-        if self.units:
-            print >>file, "INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm .005mm"
-        else:
-            print >>file, "INCREMENTS = .1in .05in .01in .005in .001in .0005in .0001in"
-        if self.pyvcp:
-            print >>file, "PYVCP = custompanel.xml"
-
-        if self.axes == 2:
-            print >>file, "LATHE = 1"
-
-        print >>file
-        print >>file, "[FILTER]"
-        print >>file, "PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image"
-        print >>file, "PROGRAM_EXTENSION = .py Python Script"
-        print >>file, "png = image-to-gcode"
-        print >>file, "gif = image-to-gcode"
-        print >>file, "jpg = image-to-gcode"
-        print >>file, "py = python"        
-
-        print >>file
-        print >>file, "[TASK]"
-        print >>file, "TASK = milltask"
-        print >>file, "CYCLE_TIME = 0.010"
-
-        print >>file
-        print >>file, "[RS274NGC]"
-        print >>file, "PARAMETER_FILE = linuxcnc.var"
-
-        base_period = self.ideal_period()
-
-        print >>file
-        print >>file, "[EMCMOT]"
-        print >>file, "EMCMOT = motmod"
-        print >>file, "COMM_TIMEOUT = 1.0"
-        print >>file, "COMM_WAIT = 0.010"
-        print >>file, "BASE_PERIOD = %d" % base_period
-        print >>file, "SERVO_PERIOD = 1000000"
-
-        print >>file
-        print >>file, "[HAL]"
-        if self.halui:
-            print >>file,"HALUI = halui"          
-        print >>file, "HALFILE = %s.hal" % self.machinename
-        if self.customhal:
-            print >>file, "HALFILE = custom.hal"
-            print >>file, "POSTGUI_HALFILE = custom_postgui.hal"
-
-        if self.halui:
-           print >>file
-           print >>file, "[HALUI]"
-           print >>file, _("# add halui MDI commands here (max 64) ")
-
-        print >>file
-        print >>file, "[TRAJ]"
-        if self.axes == 1:
-            print >>file, "AXES = 4"
-            print >>file, "COORDINATES = X Y Z A"
-            print >>file, "MAX_ANGULAR_VELOCITY = %.2f" % self.amaxvel
-            defvel = min(60, self.amaxvel/10.)
-            print >>file, "DEFAULT_ANGULAR_VELOCITY = %.2f" % defvel
-        elif self.axes == 0:
-            print >>file, "AXES = 3"
-            print >>file, "COORDINATES = X Y Z"
-        else:
-            print >>file, "AXES = 3"
-            print >>file, "COORDINATES = X Z"
-        if self.units:
-            print >>file, "LINEAR_UNITS = mm"
-        else:
-            print >>file, "LINEAR_UNITS = inch"
-        print >>file, "ANGULAR_UNITS = degree"
-        print >>file, "CYCLE_TIME = 0.010"
-        if self.axes == 2:
-            maxvel = max(self.xmaxvel, self.zmaxvel)        
-        else:
-            maxvel = max(self.xmaxvel, self.ymaxvel, self.zmaxvel)        
-        hypotvel = (self.xmaxvel**2 + self.ymaxvel**2 + self.zmaxvel**2) **.5
-        defvel = min(maxvel, max(.1, maxvel/10.))
-        print >>file, "DEFAULT_VELOCITY = %.2f" % defvel
-        print >>file, "MAX_LINEAR_VELOCITY = %.2f" % maxvel
-
-        print >>file
-        print >>file, "[EMCIO]"
-        print >>file, "EMCIO = io"
-        print >>file, "CYCLE_TIME = 0.100"
-        print >>file, "TOOL_TABLE = tool.tbl"
-
-        all_homes = self.home_sig("x") and self.home_sig("z")
-        if self.axes != 2: all_homes = all_homes and self.home_sig("y")
-        if self.axes == 4: all_homes = all_homes and self.home_sig("a")
-
-        self.write_one_axis(file, 0, "x", "LINEAR", all_homes)
-        if self.axes != 2:
-            self.write_one_axis(file, 1, "y", "LINEAR", all_homes)
-        self.write_one_axis(file, 2, "z", "LINEAR", all_homes)
-        if self.axes == 1:
-            self.write_one_axis(file, 3, "a", "ANGULAR", all_homes)
-
-        file.close()
-        self.add_md5sum(filename)
+    # change the XYZ axis defaults to metric or imperial
+    # This only sets data that makes sense to change eg gear ratio don't change
+    def set_axis_unit_defaults(self, units=True):
+        if units: # imperial
+            for i in ('x','y','z'):
+                self[i+'maxvel'] = 1
+                self[i+'maxacc'] = 30
+                self[i+'homevel'] = .05
+                self[i+'leadscrew'] = 20
+                if not i == 'z':
+                    self[i+'minlim'] = 0
+                    self[i+'maxlim'] = 8
+                else:
+                    self.zminlim = -4
+                    self.zmaxlim = 0
+        else: # metric
+            for i in ('x','y','z'):
+                self[i+'maxvel'] = 25
+                self[i+'maxacc'] = 750
+                self[i+'homevel'] = 1.5
+                self[i+'leadscrew'] = 5
+                if not i =='z':
+                    self[i+'minlim'] = 0
+                    self[i+'maxlim'] = 200
+                else:
+                    self.zminlim = -100
+                    self.zmaxlim = 0
 
     def hz(self, axname):
         steprev = getattr(self, axname+"steprev")
@@ -616,510 +486,83 @@ class Data:
         else:
             return abs(.95 * .5 * 1e9 / self.ideal_period() / scale)
 
-    def write_one_axis(self, file, num, letter, type, all_homes):
-        order = "1203"
-        def get(s): return self[letter + s]
-        scale = get("scale")
-        vel = min(get("maxvel"), self.ideal_maxvel(scale))
-        print >>file
-        print >>file, "[AXIS_%d]" % num
-        print >>file, "TYPE = %s" % type
-        print >>file, "HOME = %s" % get("homepos")
-        print >>file, "MAX_VELOCITY = %s" % vel
-        print >>file, "MAX_ACCELERATION = %s" % get("maxacc")
-        print >>file, "STEPGEN_MAXACCEL = %s" % (1.25 * get("maxacc"))
-        print >>file, "SCALE = %s" % scale
-        if num == 3:
-            print >>file, "FERROR = 1"
-            print >>file, "MIN_FERROR = .25"
-        elif self.units:
-            print >>file, "FERROR = 1"
-            print >>file, "MIN_FERROR = .25"
-        else:
-            print >>file, "FERROR = 0.05"
-            print >>file, "MIN_FERROR = 0.01"
+    def load(self, filename, app=None, force=False):
+        def str2bool(s):
+            return s == 'True'
 
-        # linuxcnc doesn't like having home right on an end of travel,
-        # so extend the travel limit by up to .01in or .1mm
-        minlim = get("minlim")
-        maxlim = get("maxlim")
-        home = get("homepos")
-        if self.units: extend = .001
-        else: extend = .01
-        minlim = min(minlim, home - extend)
-        maxlim = max(maxlim, home + extend)
-        print >>file, "MIN_LIMIT = %s" % minlim
-        print >>file, "MAX_LIMIT = %s" % maxlim
+        converters = {'string': str, 'float': float, 'int': int, 'bool': str2bool, 'eval': eval}
 
-        inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + letter, "min-home-" + letter,
-                            "max-home-" + letter, "both-home-" + letter))
-        # no need to set HOME_IGNORE_LIMITS when ALL_LIMIT_HOME, HAL logic will do the trick
-        ignore = set(("min-home-" + letter, "max-home-" + letter,
-                            "both-home-" + letter))
-        homes = bool(inputs & thisaxishome)
-    
-        if homes:
-            print >>file, "HOME_OFFSET = %f" % get("homesw")
-            print >>file, "HOME_SEARCH_VEL = %f" % get("homevel")
-            latchvel = get("homevel") / abs(get("homevel"))
-            if get("latchdir"): latchvel = -latchvel
-            # set latch velocity to one step every two servo periods
-            # to ensure that we can capture the position to within one step
-            latchvel = latchvel * 500 / get("scale")
-            # don't do the latch move faster than the search move
-            if abs(latchvel) > abs(get("homevel")):
-                latchvel = latchvel * (abs(get("homevel"))/abs(latchvel))
-            print >>file, "HOME_LATCH_VEL = %f" % latchvel
-            if inputs & ignore:
-                print >>file, "HOME_IGNORE_LIMITS = YES"
-            if all_homes:
-                print >>file, "HOME_SEQUENCE = %s" % order[num]
-        else:
-            print >>file, "HOME_OFFSET = %s" % get("homepos")
+        d = xml.dom.minidom.parse(open(filename, "r"))
+        for n in d.getElementsByTagName("property"):
+            name = n.getAttribute("name")
+            conv = converters[n.getAttribute('type')]
+            text = n.getAttribute('value')
+            setattr(self, name, conv(text))
 
-    def home_sig(self, axis):
-        inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
-                            "max-home-" + axis, "both-home-" + axis))
-        for i in inputs:
-            if i in thisaxishome: return i
-
-    def min_lim_sig(self, axis):
-           inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxisminlimits = set((ALL_LIMIT, ALL_LIMIT_HOME, "min-" + axis, "min-home-" + axis,
-                               "both-" + axis, "both-home-" + axis))
-           for i in inputs:
-               if i in thisaxisminlimits:
-                   if i==ALL_LIMIT_HOME:
-                       # ALL_LIMIT is reused here as filtered signal
-                       return ALL_LIMIT
-                   else:
-                       return i
-
-    def max_lim_sig(self, axis):
-           inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-           thisaxismaxlimits = set((ALL_LIMIT, ALL_LIMIT_HOME, "max-" + axis, "max-home-" + axis,
-                               "both-" + axis, "both-home-" + axis))
-           for i in inputs:
-               if i in thisaxismaxlimits:
-                   if i==ALL_LIMIT_HOME:
-                       # ALL_LIMIT is reused here as filtered signal
-                       return ALL_LIMIT
-                   else:
-                       return i
- 
-    def connect_axis(self, file, num, let):
-        axnum = "xyza".index(let)
-        lat = self.latency
-        print >>file
-        print >>file, "setp stepgen.%d.position-scale [AXIS_%d]SCALE" % (num, axnum)
-        print >>file, "setp stepgen.%d.steplen 1" % num
-        if self.doublestep():
-            print >>file, "setp stepgen.%d.stepspace 0" % num
-        else:
-            print >>file, "setp stepgen.%d.stepspace 1" % num
-        print >>file, "setp stepgen.%d.dirhold %d" % (num, self.dirhold + lat)
-        print >>file, "setp stepgen.%d.dirsetup %d" % (num, self.dirsetup + lat)
-        print >>file, "setp stepgen.%d.maxaccel [AXIS_%d]STEPGEN_MAXACCEL" % (num, axnum)
-        print >>file, "net %spos-cmd axis.%d.motor-pos-cmd => stepgen.%d.position-cmd" % (let, axnum, num)
-        print >>file, "net %spos-fb stepgen.%d.position-fb => axis.%d.motor-pos-fb" % (let, num, axnum)
-        print >>file, "net %sstep <= stepgen.%d.step" % (let, num)
-        print >>file, "net %sdir <= stepgen.%d.dir" % (let, num)
-        print >>file, "net %senable axis.%d.amp-enable-out => stepgen.%d.enable" % (let, axnum, num)
-        homesig = self.home_sig(let)
-        if homesig:
-            print >>file, "net %s => axis.%d.home-sw-in" % (homesig, axnum)
-        min_limsig = self.min_lim_sig(let)
-        if min_limsig:
-            print >>file, "net %s => axis.%d.neg-lim-sw-in" % (min_limsig, axnum)
-        max_limsig = self.max_lim_sig(let)
-        if max_limsig:
-            print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
-
-    def connect_input(self, file, num):
-        p = self['pin%d' % num]
-        i = self['pin%dinv' % num]
-        if p == UNUSED_INPUT: return
-
-        if i:
-            print >>file, "net %s <= parport.0.pin-%02d-in-not" \
-                % (p, num)
-        else:
-            print >>file, "net %s <= parport.0.pin-%02d-in" \
-                % (p, num)
-
-    def find_input(self, input):
-        inputs = set((10, 11, 12, 13, 15))
-        for i in inputs:
-            pin = getattr(self, "pin%d" % i)
-            inv = getattr(self, "pin%dinv" % i)
-            if pin == input: return i
-        return None
-
-    def find_output(self, output):
-        outputs = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
-        for i in outputs:
-            pin = getattr(self, "pin%d" % i)
-            inv = getattr(self, "pin%dinv" % i)
-            if pin == output: return i
-        return None
-
-    def connect_output(self, file, num):
-        p = self['pin%d' % num]
-        i = self['pin%dinv' % num]
-        if p == UNUSED_OUTPUT: return
-        if i: print >>file, "setp parport.0.pin-%02d-out-invert 1" % num
-        print >>file, "net %s => parport.0.pin-%02d-out" % (p, num)
-        if self.doublestep():
-            if p in (XSTEP, YSTEP, ZSTEP, ASTEP):
-                print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
-
-    def write_halfile(self, base):
-        inputs = set((self.pin10,self.pin11,self.pin12,self.pin13,self.pin15))
-        outputs = set((self.pin1, self.pin2, self.pin3, self.pin4, self.pin5,
-            self.pin6, self.pin7, self.pin8, self.pin9, self.pin14, self.pin16,
-            self.pin17))
-
-        filename = os.path.join(base, self.machinename + ".hal")
-        file = open(filename, "w")
-        print >>file, _("# Generated by stepconf at %s") % time.asctime()
-        print >>file, _("# If you make changes to this file, they will be")
-        print >>file, _("# overwritten when you run stepconf again")
-
-        print >>file, "loadrt trivkins"
-        print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
-        print >>file, "loadrt probe_parport"
-        port3name=port2name=port2dir=port3dir=""
-        if self.number_pports>2:
-             port3name = self.ioaddr3
-             if self.pp3_direction:
-                port3dir =" in"
-             else: 
-                port3dir =" out"
-        if self.number_pports>1:
-             port2name = self.ioaddr2
-             if self.pp2_direction:
-                port2dir =" in"
-             else: 
-                port2dir =" out"
-        print >>file, "loadrt hal_parport cfg=\"%s out %s%s %s%s\"" % (self.ioaddr, port2name, port2dir, port3name, port3dir)
-        if self.doublestep():
-            print >>file, "setp parport.0.reset-time %d" % self.steptime
-        encoder = PHA in inputs
-        counter = PHB not in inputs
-        probe = PROBE in inputs
-        limits_homes = ALL_LIMIT_HOME in inputs
-        pwm = PWM in outputs
-        pump = PUMP in outputs
-        if self.axes == 2:
-            print >>file, "loadrt stepgen step_type=0,0"
-        elif self.axes == 1:
-            print >>file, "loadrt stepgen step_type=0,0,0,0"
-        else:
-            print >>file, "loadrt stepgen step_type=0,0,0"
-
-        if encoder:
-            print >>file, "loadrt encoder num_chan=1"
-        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
-            print >>file, "loadrt abs count=1"
-            if encoder:
-               print >>file, "loadrt scale count=1"
-               print >>file, "loadrt lowpass count=1"
-               if self.usespindleatspeed:
-                   print >>file, "loadrt near"
-        if pump:
-            print >>file, "loadrt charge_pump"
-            print >>file, "net estop-out charge-pump.enable iocontrol.0.user-enable-out"
-            print >>file, "net charge-pump <= charge-pump.out"
-
-        if limits_homes:
-            print >>file, "loadrt lut5"
-
-        if pwm:
-            print >>file, "loadrt pwmgen output_type=1"
-
-
-        if self.classicladder:
-            print >>file, "loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d numS32out=%d numFloatIn=%d numFloatOut=%d" %(self.digitsin , self.digitsout , self.s32in, self.s32out, self.floatsin, self.floatsout)
-
-        print >>file
-        print >>file, "addf parport.0.read base-thread"
-        if self.number_pports > 1:
-            print >>file, "addf parport.1.read base-thread"
-        if self.number_pports > 2:
-            print >>file, "addf parport.2.read base-thread"
-
-        print >>file, "addf stepgen.make-pulses base-thread"
-        if encoder: print >>file, "addf encoder.update-counters base-thread"
-        if pump: print >>file, "addf charge-pump base-thread"
-        if pwm: print >>file, "addf pwmgen.make-pulses base-thread"
-        print >>file, "addf parport.0.write base-thread"
-        if self.doublestep():
-            print >>file, "addf parport.0.reset base-thread"
-        if self.number_pports > 1:
-            print >>file, "addf parport.1.write base-thread"
-        if self.number_pports > 2:
-            print >>file, "addf parport.2.write base-thread"
-        print >>file
-        print >>file, "addf stepgen.capture-position servo-thread"
-        if encoder: print >>file, "addf encoder.capture-position servo-thread"
-        print >>file, "addf motion-command-handler servo-thread"
-        print >>file, "addf motion-controller servo-thread"
-        if self.classicladder:
-            print >>file,"addf classicladder.0.refresh servo-thread"
-        print >>file, "addf stepgen.update-freq servo-thread"
-
-        if limits_homes:
-            print >>file, "addf lut5.0 servo-thread"
-
-        if pwm: print >>file, "addf pwmgen.update servo-thread"
-        if self.pyvcphaltype == 1 and self.pyvcpconnect == 1:
-            print >>file, "addf abs.0 servo-thread"
-            if encoder:
-               print >>file, "addf scale.0 servo-thread"
-               print >>file, "addf lowpass.0 servo-thread"
-               if self.usespindleatspeed:
-                   print >>file, "addf near.0 servo-thread"
-        if pwm:
-            x1 = self.spindlepwm1
-            x2 = self.spindlepwm2
-            y1 = self.spindlespeed1
-            y2 = self.spindlespeed2
-            scale = (y2-y1) / (x2-x1)
-            offset = x1 - y1 / scale
-            print >>file
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
-            print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
-            print >>file, "net spindle-pwm <= pwmgen.0.pwm"
-            print >>file, "setp pwmgen.0.pwm-freq %s" % self.spindlecarrier        
-            print >>file, "setp pwmgen.0.scale %s" % scale
-            print >>file, "setp pwmgen.0.offset %s" % offset
-            print >>file, "setp pwmgen.0.dither-pwm true"
-        else: 
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out"
-        print >>file, "net spindle-at-speed => motion.spindle-at-speed"
-        if ON in outputs and not pwm:
-            print >>file, "net spindle-on <= motion.spindle-on"
-        if CW in outputs:
-            print >>file, "net spindle-cw <= motion.spindle-forward"
-        if CCW in outputs:
-            print >>file, "net spindle-ccw <= motion.spindle-reverse"
-        if BRAKE in outputs:
-            print >>file, "net spindle-brake <= motion.spindle-brake"
-
-        if MIST in outputs:
-            print >>file, "net coolant-mist <= iocontrol.0.coolant-mist"
-
-        if FLOOD in outputs:
-            print >>file, "net coolant-flood <= iocontrol.0.coolant-flood"
-
-        if encoder:
-            print >>file
-            if PHB not in inputs:
-                print >>file, "setp encoder.0.position-scale %f"\
-                     % self.spindlecpr
-                print >>file, "setp encoder.0.counter-mode 1"
+        warnings = []
+        for f, m in self.md5sums:
+            m1 = md5sum(f)
+            if m1 and m != m1:
+                warnings.append(_("File %r was modified since it was written by stepconf") % f)
+        if warnings:
+            warnings.append("")
+            warnings.append(_("Saving this configuration file will discard configuration changes made outside stepconf."))
+            if app:
+                dialog = gtk.MessageDialog(app.w.window1,
+                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                    gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                         "\n".join(warnings))
+                dialog.show_all()
+                dialog.run()
+                dialog.destroy()
             else:
-                print >>file, "setp encoder.0.position-scale %f" \
-                    % ( 4.0 * int(self.spindlecpr))
-            print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
-            print >>file, "net spindle-velocity encoder.0.velocity => motion.spindle-speed-in"
-            print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
-            print >>file, "net spindle-phase-a encoder.0.phase-A"
-            print >>file, "net spindle-phase-b encoder.0.phase-B"
-            print >>file, "net spindle-index encoder.0.phase-Z"
+                for para in warnings:
+                    for line in textwrap.wrap(para, 78): print line
+                    print
+                print
+                if force: return
+                response = raw_input(_("Continue? "))
+                if response[0] not in _("yY"): raise SystemExit, 1
 
+        for p in (10,11,12,13,15):
+            pin = "pin%d" % p
+            p = self[pin]
+        for p in (1,2,3,4,5,6,7,8,9,14,16,17):
+            pin = "pin%d" % p
+            p = self[pin]
 
-        if probe:
-            print >>file
-            print >>file, "net probe-in => motion.probe-input"
-
-        for i in range(4):
-            dout = "dout-%02d" % i
-            if dout in outputs:
-                print >>file, "net %s <= motion.digital-out-%02d" % (dout, i)
-
-        for i in range(4):
-            din = "din-%02d" % i
-            if din in inputs:
-                print >>file, "net %s => motion.digital-in-%02d" % (din, i)
-
-        print >>file
-        for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)      
-        print >>file
-            
-        print >>file
-        for i in (10,11,12,13,15): self.connect_input(file, i)
-        print >>file
-
-        if limits_homes:
-            print >>file, "setp lut5.0.function 0x10000"
-            print >>file, "net all-limit-home => lut5.0.in-4"
-            print >>file, "net all-limit <= lut5.0.out"
-            if self.axes == 2:
-                print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
-                print >>file, "net homing-z <= axis.1.homing => lut5.0.in-1"
-            elif self.axes == 0:
-                print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
-                print >>file, "net homing-y <= axis.1.homing => lut5.0.in-1"
-                print >>file, "net homing-z <= axis.2.homing => lut5.0.in-2"
-            elif self.axes == 1:
-                print >>file, "net homing-x <= axis.0.homing => lut5.0.in-0"
-                print >>file, "net homing-y <= axis.1.homing => lut5.0.in-1"
-                print >>file, "net homing-z <= axis.2.homing => lut5.0.in-2"
-                print >>file, "net homing-a <= axis.3.homing => lut5.0.in-3"
-
-
-        if self.axes == 2:
-            self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'z')
-        elif self.axes == 0:
-            self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'y')
-            self.connect_axis(file, 2, 'z')
-        elif self.axes == 1:
-            self.connect_axis(file, 0, 'x')
-            self.connect_axis(file, 1, 'y')
-            self.connect_axis(file, 2, 'z')
-            self.connect_axis(file, 3, 'a')
-
-        print >>file
-        print >>file, "net estop-out <= iocontrol.0.user-enable-out"
-        if  self.classicladder and self.ladderhaltype == 1 and self.ladderconnect: # external estop program
-            print >>file 
-            print >>file, _("# **** Setup for external estop ladder program -START ****")
-            print >>file
-            print >>file, "net estop-out => classicladder.0.in-00"
-            print >>file, "net estop-ext => classicladder.0.in-01"
-            print >>file, "net estop-strobe classicladder.0.in-02 <= iocontrol.0.user-request-enable"
-            print >>file, "net estop-outcl classicladder.0.out-00 => iocontrol.0.emc-enable-in"
-            print >>file
-            print >>file, _("# **** Setup for external estop ladder program -END ****")
-        elif ESTOP_IN in inputs:
-            print >>file, "net estop-ext => iocontrol.0.emc-enable-in"
-        else:
-            print >>file, "net estop-out => iocontrol.0.emc-enable-in"
-
-        print >>file
-        if self.manualtoolchange:
-            print >>file, "loadusr -W hal_manualtoolchange"
-            print >>file, "net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change"
-            print >>file, "net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed"
-            print >>file, "net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number"
-
-        else:
-            print >>file, "net tool-number <= iocontrol.0.tool-prep-number"
-            print >>file, "net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed"
-        print >>file, "net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared"
-        if self.classicladder:
-            print >>file
-            if self.modbus:
-                print >>file, _("# Load Classicladder with modbus master included (GUI must run for Modbus)")
-                print >>file, "loadusr classicladder --modmaster custom.clp"
-            else:
-                print >>file, _("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI")
-                print >>file, "loadusr classicladder --nogui custom.clp"
-        if self.pyvcp:
-            vcp = os.path.join(base, "custompanel.xml")
-            if not os.path.exists(vcp):
-                f1 = open(vcp, "w")
-
-                print >>f1, "<?xml version='1.0' encoding='UTF-8'?>"
-
-                print >>f1, "<!-- "
-                print >>f1, _("Include your PyVCP panel here.\n")
-                print >>f1, "-->"
-                print >>f1, "<pyvcp>"
-                print >>f1, "</pyvcp>"
-        if self.pyvcp or self.customhal:
-            custom = os.path.join(base, "custom_postgui.hal")
-            if os.path.exists(custom): 
-                shutil.copy( custom,os.path.join(base,"postgui_backup.hal") ) 
-            f1 = open(custom, "w")
-            print >>f1, _("# Include your customized HAL commands here")
-            print >>f1, _("""# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts""") 
-            print >>f1
-            if self.pyvcp and self.pyvcphaltype == 1 and self.pyvcpconnect: # spindle speed/tool # display
-                  print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
-                  if encoder:
-                      print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
-                      print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
-                      print >>f1
-                      print >>f1, ("setp scale.0.gain 60")
-                      print >>f1, ("setp lowpass.0.gain %f")% self.spindlefiltergain
-                      print >>f1, ("net spindle-velocity => lowpass.0.in")
-                      print >>f1, ("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
-                      print >>f1, ("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
-                      print >>f1, ("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed")
-                      print >>f1
-                      print >>f1, _("# **** set up spindle at speed indicator ****")
-                      if self.usespindleatspeed:
-                          print >>f1
-                          print >>f1, ("net spindle-cmd            =>  near.0.in1")
-                          print >>f1, ("net spindle-velocity       =>  near.0.in2")
-                          print >>f1, ("net spindle-at-speed       <=  near.0.out")
-                          print >>f1, ("setp near.0.scale %f")% self.spindlenearscale
-                      else:
-                          print >>f1, ("# **** force spindle at speed indicator true because we chose no feedback ****")
-                          print >>f1
-                          print >>f1, ("sets spindle-at-speed true")
-                      print >>f1, ("net spindle-at-speed       => pyvcp.spindle-at-speed-led")
-                  else:
-                      print >>f1, _("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
-                      print >>f1
-                      print >>f1, ("net spindle-cmd => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
-                      print >>f1
-                      print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
-                      print >>f1
-                      print >>f1, ("net spindle-at-speed => pyvcp.spindle-at-speed-led")
-                      print >>f1, ("sets spindle-at-speed true")
-            else:
-                 print >>f1, ("sets spindle-at-speed true")
-
-        if self.customhal or self.classicladder or self.halui:
-            custom = os.path.join(base, "custom.hal")
-            if not os.path.exists(custom):
-                f1 = open(custom, "w")
-                print >>f1, _("# Include your customized HAL commands here")
-                print >>f1, _("# This file will not be overwritten when you run stepconf again") 
-        file.close()
-        self.add_md5sum(filename)
-
-    def write_readme(self, base):
-        filename = os.path.join(base, "README")
-        file = open(filename, "w")
-        print >>file, _("Generated by stepconf at %s") % time.asctime()
-        file.close()
-        self.add_md5sum(filename)
-
-    def copy(self, base, filename):
-        dest = os.path.join(base, filename)
-        if not os.path.exists(dest):
-            shutil.copy(os.path.join(distdir, filename), dest)
-
-    def save(self):
-        base = os.path.expanduser("~/linuxcnc/configs/%s" % self.machinename)
-        ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
-        if not os.path.exists(ncfiles):
-            makedirs(ncfiles)
-            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
-            if not os.path.exists(examples):
-                examples = os.path.join(BASE, "nc_files")
-            if os.path.exists(examples):
-                os.symlink(examples, os.path.join(ncfiles, "examples"))
-        
-        makedirs(base)
-
+    def save(self,basedir):
+        base = basedir
         self.md5sums = []
-        self.write_readme(base)
-        self.write_inifile(base)
-        self.write_halfile(base)
-        self.copy(base, "tool.tbl")
+
+        if self.classicladder: 
+           if not self.laddername == "custom.clp":
+                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.laddername)
+                original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.machinename)
+                if os.path.exists(filename):     
+                  if os.path.exists(original):
+                     print "custom file already exists"
+                     shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( filename,original)
+                  print "copied ladder program to usr directory"
+                  print"%s" % filename
+                else:
+                     print "Master or temp ladder files missing from configurable_options dir"
+
+        if self.pyvcp and not self.pyvcpname == "custompanel.xml":                
+           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.pyvcpname)
+           originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.machinename)
+           if os.path.exists(panelname):     
+                  if os.path.exists(originalname):
+                     print "custom PYVCP file already exists"
+                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.machinename) ) 
+                     print "made backup of existing custom"
+                  shutil.copy( panelname,originalname)
+                  print "copied PYVCP program to usr directory"
+                  print"%s" % panelname
+           else:
+                  print "Master PYVCP files missing from configurable_options dir"
 
         filename = "%s.stepconf" % base
 
@@ -1174,89 +617,124 @@ class Data:
             # Ubuntu 10.04 require launcher to have execute permissions
             os.chmod(filename,0775)
 
+    def add_md5sum(self, filename, mode="r"):
+        self.md5sums.append((filename, md5sum(filename)))
+
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-class App:
-    fname = 'stepconf.glade'  # XXX search path
+# a class for holding the glade widgets rather then searching for them each time
+class Widgets:
+    def __init__(self, xml):
+        self._xml = xml
+    def __getattr__(self, attr):
+        r = self._xml.get_object(attr)
+        if r is None: raise AttributeError, "No widget %r" % attr
+        return r
+    def __getitem__(self, attr):
+        r = self._xml.get_object(attr)
+        if r is None: raise IndexError, "No widget %r" % attr
+        return r
 
-    def _getwidget(self, doc, id):
-        for i in doc.getElementsByTagName('widget'):
-            if i.getAttribute('id') == id: return i
+class StepconfApp:
+ 
+    def __init__(self, dbgstate):
+        global debug
+        debug = self.debug = dbgstate
+        global dbg
+        dbg = self.dbg
+        self.recursive_block = False
+        self.axis_under_test = None
+        # Private data holds the array of pages to load, signals, and messages
+        self._p = Private_Data()
+        self.d = Data(self._p)
 
-    def make_axispage(self, doc, axisname):
-        axispage = self._getwidget(doc, 'xaxis').parentNode.cloneNode(True)
-        nextpage = self._getwidget(doc, 'spindle').parentNode
-        widget = self._getwidget(axispage, "xaxis")
-        for node in widget.childNodes:
-            if (node.nodeType == xml.dom.Node.ELEMENT_NODE
-                    and node.tagName == "property"
-                    and node.getAttribute('name') == "title"):
-                node.childNodes[0].data = _("%s Axis Configuration") % axisname.upper()
-        for node in axispage.getElementsByTagName("widget"):
-            id = node.getAttribute('id')
-            if id.startswith("x"):
-                node.setAttribute('id', axisname + id[1:])
-            else:
-                node.setAttribute('id', axisname + id)
-        for node in axispage.getElementsByTagName("signal"):
-            handler = node.getAttribute('handler')
-            node.setAttribute('handler', handler.replace("on_x", "on_" + axisname))
-        for node in axispage.getElementsByTagName("property"):
-            name = node.getAttribute('name')
-            if name == "mnemonic_widget":
-                node.childNodes[0].data = axisname + node.childNodes[0].data[1:]
-        nextpage.parentNode.insertBefore(axispage, nextpage)
+        # build the glade files
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
+        window = self.builder.get_object("window1")
+        notebook1 = self.builder.get_object("notebook1")
+        for x,y,z in (self._p.available_page):
+            if x == 'intro':continue
+            dbg("loading glade page REFERENCE:%s TITLE:%s STATE:%s"% (x,y,z))
+            self.builder.add_from_file(os.path.join(datadir, '%s.glade'%x))
+            page = self.builder.get_object(x)
+            notebook1.append_page(page)
+        notebook1.set_show_tabs(False)
 
-    def __init__(self):
-        gnome.init("stepconf", "0.6") 
-        glade = xml.dom.minidom.parse(os.path.join(datadir, self.fname))
-        self.make_axispage(glade, 'y')
-        self.make_axispage(glade, 'z')
-        self.make_axispage(glade, 'a')
-        doc = glade.toxml().encode("utf-8")
+        self.w = Widgets(self.builder)
+        self.p = pages.Pages(self)
+        self.INI = build_INI.INI(self)
+        self.HAL = build_HAL.HAL(self)
+        self.builder.set_translation_domain(domain) # for locale translations
+        self.builder.connect_signals( self.p ) # register callbacks from Pages class
+        wiz_pic = gtk.gdk.pixbuf_new_from_file(wizard)
+        self.w.wizard_image.set_from_pixbuf(wiz_pic)
+        self.p.initialize()
+        window.show()
 
-        self.xml = gtk.glade.xml_new_from_buffer(doc, len(doc), domain="linuxcnc")
-        self.widgets = Widgets(self.xml)
+    def build_base(self):
+        base = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
+        ncfiles = os.path.expanduser("~/linuxcnc/nc_files")
+        if not os.path.exists(ncfiles):
+            makedirs(ncfiles)
+            examples = os.path.join(BASE, "share", "linuxcnc", "ncfiles")
+            if not os.path.exists(examples):
+                examples = os.path.join(BASE, "nc_files")
+            if os.path.exists(examples):
+                os.symlink(examples, os.path.join(ncfiles, "examples"))
+        makedirs(base)
+        return base
 
-        self.watermark = gtk.gdk.pixbuf_new_from_file(wizard)
-        self.widgets.dialog1.hide()
-        self.widgets.druidpagestart1.set_watermark(self.watermark)
-        self.widgets.complete.set_watermark(self.watermark)
-        self.widgets.druidpagestart1.show()
-        self.widgets.complete.show()
-        
-        self.xml.signal_autoconnect(self)
+    def copy(self, base, filename):
+        dest = os.path.join(base, filename)
+        if not os.path.exists(dest):
+            shutil.copy(os.path.join(distdir, filename), dest)
 
-        self.in_pport_prepare = False
-        self.axis_under_test = False
-        self.jogminus = self.jogplus = 0
-
-        for i in drivertypes:
-            self.widgets.drivertype.append_text(i[1])
-        self.widgets.drivertype.append_text(_("Other"))
-        self.data = Data()
-   
-        tempfile = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")
-        if os.path.exists(tempfile):
-           os.remove(tempfile)
-
-    def gtk_main_quit(self, *args):
-        gtk.main_quit()
-
-    def on_window1_delete_event(self, *args):
-        if self.warning_dialog (_("Quit Stepconf and discard changes?"),False):
+    def buid_config(self):
+        base = self.build_base()
+        self.d.save(base)
+        #self.write_readme(base)
+        self.INI.write_inifile(base)
+        self.HAL.write_halfile(base)
+        self.copy(base, "tool.tbl")
+        if self.warning_dialog(self._p.MESS_QUIT,False):
             gtk.main_quit()
-            return False
+
+#*******************
+# GUI Helper functions
+#*******************
+
+    # print debug strings
+    def dbg(self,str):
+        global debug
+        if not debug: return
+        print "DEBUG: %s"%str
+
+    # check for realtime kernel
+    def check_for_rt(self):
+        actual_kernel = os.uname()[2]
+        if hal.is_sim :
+            self.warning_dialog(self._p.MESS_NO_REALTIME,True)
+            if debug:
+                return True
+            else:
+                return False
+        elif hal.is_rt and not hal.kernel_version == actual_kernel:
+            self.warning_dialog(self._p.MESS_KERNAL_WRONG + '%s'%hal.kernel_version,True)
+            if debug:
+                return True
+            else:
+                return False
         else:
             return True
-    on_druid1_cancel = on_window1_delete_event
-    
+
+    # pop up dialog
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = gtk.MessageDialog(app.widgets.window1,
+           dialog = gtk.MessageDialog(app.w.window1,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                 gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
            dialog.show_all()
@@ -1264,7 +742,7 @@ class App:
            dialog.destroy()
            return True
         else:   
-            dialog = gtk.MessageDialog(self.widgets.window1,
+            dialog = gtk.MessageDialog(self.w.window1,
                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
             dialog.show_all()
@@ -1275,789 +753,293 @@ class App:
             else:
                 return False
 
-    def check_for_rt(self):
-        actual_kernel = os.uname()[2]
-        if hal.is_sim :
-            self.warning_dialog(_("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable."),True)
-            return False
-        elif hal.is_rt and not hal.kernel_version == actual_kernel:
-            self.warning_dialog(_("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
-                 unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-                 "You are using the  %(actual)s  kernel.\nYou need to use the  %(needed)s  kernel.")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
-            return False
-        else:
-            return True
-
-    def on_page_newormodify_prepare(self, *args):
-        self.widgets.createsymlink.set_active(self.data.createsymlink)
-        self.widgets.createshortcut.set_active(self.data.createshortcut)
-
-    def on_page_newormodify_next(self, *args):
-        if not self.widgets.createconfig.get_active():
-            filter = gtk.FileFilter()
-            filter.add_pattern("*.stepconf")
-            filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
-            dialog = gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.widgets.window1, gtk.FILE_CHOOSER_ACTION_OPEN,
-                (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                 gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-            dialog.set_default_response(gtk.RESPONSE_OK)
-            dialog.add_filter(filter) 
-            dialog.add_shortcut_folder(os.path.expanduser("~/linuxcnc/configs"))
-            dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
-            dialog.show_all()
-            result = dialog.run()
-            if result == gtk.RESPONSE_OK:
-                filename = dialog.get_filename()
-                dialog.destroy()
-                self.data.load(filename, self)
-            else:
-                dialog.destroy()
-                return True
-        self.data.createsymlink = self.widgets.createsymlink.get_active()
-        self.data.createshortcut = self.widgets.createshortcut.get_active()
-
+# Driver functions
     def drivertype_fromid(self):
-        for d in drivertypes:
-            if d[0] == self.data.drivertype: return d[1]
+        for d in self._p.alldrivertypes:
+            if d[0] == self.d.drivertype: return d[1]
 
     def drivertype_toid(self, what=None):
         if not isinstance(what, int): what = self.drivertype_toindex(what)
-        if what < len(drivertypes): return drivertypes[what][0]
+        if what < len(self._p.alldrivertypes): return self._p.alldrivertypes[what][0]
         return "other"
 
     def drivertype_toindex(self, what=None):
-        if what is None: what = self.data.drivertype
-        for i, d in enumerate(drivertypes):
+        if what is None: what = self.d.drivertype
+        for i, d in enumerate(self._p.alldrivertypes):
             if d[0] == what: return i
-        return len(drivertypes)
+        return len(self._p.alldrivertypes)
 
     def drivertype_fromindex(self):
-        i = self.widgets.drivertype.get_active()
-        if i < len(drivertypes): return drivertypes[i][1]
+        i = self.w.drivertype.get_active()
+        if i < len(self._p.alldrivertypes): return self._p.alldrivertypes[i][1]
         return _("Other")
 
-    def on_basicinfo_prepare(self, *args):
-        self.widgets.drivetime_expander.set_expanded(True)
-        self.widgets.parport_expander.set_expanded(True)
-        self.widgets.machinename.set_text(self.data.machinename)
-        self.widgets.axes.set_active(self.data.axes)
-        self.widgets.units.set_active(self.data.units)
-        self.widgets.latency.set_value(self.data.latency)
-        self.widgets.steptime.set_value(self.data.steptime)
-        self.widgets.stepspace.set_value(self.data.stepspace)
-        self.widgets.dirsetup.set_value(self.data.dirsetup)
-        self.widgets.dirhold.set_value(self.data.dirhold)
-        self.widgets.drivertype.set_active(self.drivertype_toindex())
-        self.widgets.manualtoolchange.set_active(self.data.manualtoolchange)
-        self.widgets.ioaddr.set_text(self.data.ioaddr)
-        self.widgets.machinename.grab_focus()
-        self.widgets.ioaddr2.set_text(self.data.ioaddr2) 
-        self.widgets.ioaddr3.set_text(self.data.ioaddr3)
-        self.widgets.pp2_direction.set_active(self.data.pp2_direction)
-        self.widgets.pp3_direction.set_active(self.data.pp3_direction)
-        if self.data.number_pports>2:
-             self.widgets.pp2_checkbutton.set_active(1)
-             self.widgets.pp3_checkbutton.set_active(1)
-        elif self.data.number_pports>1:
-             self.widgets.pp2_checkbutton.set_active(1)
-        
-        
+    def calculate_ideal_period(self):
+        steptime = self.w.steptime.get_value()
+        stepspace = self.w.stepspace.get_value()
+        latency = self.w.latency.get_value()
+        minperiod = self.d.minperiod(steptime, stepspace, latency)
+        maxhz = int(1e9 / minperiod)
+        if not self.d.doublestep(steptime): maxhz /= 2
+        self.w.baseperiod.set_text("%d ns" % minperiod)
+        self.w.maxsteprate.set_text("%d Hz" % maxhz)
 
-    def on_basicinfo_next(self, *args):
-        self.widgets.drivetime_expander.set_expanded(False)
-        self.widgets.parport_expander.set_expanded(False)
-        machinename = self.widgets.machinename.get_text()
-        self.data.machinename = machinename.replace(" ","_")
-        self.data.axes = self.widgets.axes.get_active()
-        self.data.units = self.widgets.units.get_active()
-        self.data.drivertype = self.drivertype_toid(self.widgets.drivertype.get_active())
-        self.data.steptime = self.widgets.steptime.get_value()
-        self.data.stepspace = self.widgets.stepspace.get_value()
-        self.data.dirsetup = self.widgets.dirsetup.get_value()
-        self.data.dirhold = self.widgets.dirhold.get_value()
-        self.data.latency = self.widgets.latency.get_value()
-        self.data.manualtoolchange = self.widgets.manualtoolchange.get_active()
-        self.data.ioaddr = self.widgets.ioaddr.get_text()
-        self.data.ioaddr2 = self.widgets.ioaddr2.get_text()
-        self.data.ioaddr3 = self.widgets.ioaddr3.get_text()
-        self.data.pp2_direction = self.widgets.pp2_direction.get_active()
-        self.data.pp3_direction = self.widgets.pp3_direction.get_active()
-        if self.widgets.pp3_checkbutton.get_active() and self.widgets.pp2_checkbutton.get_active():
-            self.data.number_pports = 3
-        elif self.widgets.pp2_checkbutton.get_active():
-            self.data.number_pports = 2
+    def update_drivertype_info(self):
+        v = self.w.drivertype.get_active()
+        if v < len(self._p.alldrivertypes):
+            d = self._p.alldrivertypes[v]
+            self.w.steptime.set_value(d[2])
+            self.w.stepspace.set_value(d[3])
+            self.w.dirhold.set_value(d[4])
+            self.w.dirsetup.set_value(d[5])
+
+            self.w.steptime.set_sensitive(0)
+            self.w.stepspace.set_sensitive(0)
+            self.w.dirhold.set_sensitive(0)
+            self.w.dirsetup.set_sensitive(0)
         else:
-            self.data.number_pports = 1
+            self.w.steptime.set_sensitive(1)
+            self.w.stepspace.set_sensitive(1)
+            self.w.dirhold.set_sensitive(1)
+            self.w.dirsetup.set_sensitive(1)
+        self.calculate_ideal_period()
 
+    # preset out pins
+    def preset_sherline_outputs(self):
+        self.w.pin2.set_active(1)
+        self.w.pin3.set_active(0)
+        self.w.pin4.set_active(3)
+        self.w.pin5.set_active(2)
+        self.w.pin6.set_active(5)
+        self.w.pin7.set_active(4)
+        self.w.pin8.set_active(7)
+        self.w.pin9.set_active(6)
 
-    def on_advanced_prepare(self, *args):       
-        self.widgets.pyvcp.set_active(self.data.pyvcp)
-        self.on_pyvcp_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.data.machinename)):
-                self.widgets.radiobutton8.set_active(True)
-        self.widgets.classicladder.set_active(self.data.classicladder)
-        self.widgets.modbus.set_active(self.data.modbus)
-        self.widgets.digitsin.set_value(self.data.digitsin)
-        self.widgets.digitsout.set_value(self.data.digitsout)
-        self.widgets.s32in.set_value(self.data.s32in)
-        self.widgets.s32out.set_value(self.data.s32out)
-        self.widgets.floatsin.set_value(self.data.floatsin)
-        self.widgets.floatsout.set_value(self.data.floatsout)
-        self.widgets.halui.set_active(self.data.halui)
-        self.widgets.ladderconnect.set_active(self.data.ladderconnect)
-        self.widgets.pyvcpconnect.set_active(self.data.pyvcpconnect)
-        self.on_classicladder_toggled()
-        if  not self.widgets.createconfig.get_active():
-           if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)):
-                self.widgets.radiobutton4.set_active(True)
+    def preset_xylotex_outputs(self):
+        self.w.pin2.set_active(0)
+        self.w.pin3.set_active(1)
+        self.w.pin4.set_active(2)
+        self.w.pin5.set_active(3)
+        self.w.pin6.set_active(4)
+        self.w.pin7.set_active(5)
+        self.w.pin8.set_active(6)
+        self.w.pin9.set_active(7)
 
-    def on_advanced_next(self, *args):
-        self.data.pyvcp = self.widgets.pyvcp.get_active()
-        self.data.classicladder = self.widgets.classicladder.get_active()
-        self.data.modbus = self.widgets.modbus.get_active()
-        self.data.digitsin = self.widgets.digitsin.get_value()
-        self.data.digitsout = self.widgets.digitsout.get_value()
-        self.data.s32in = self.widgets.s32in.get_value()
-        self.data.s32out = self.widgets.s32out.get_value()
-        self.data.floatsin = self.widgets.floatsin.get_value()
-        self.data.floatsout = self.widgets.floatsout.get_value()
-        self.data.halui = self.widgets.halui.get_active()    
-        self.data.pyvcpconnect = self.widgets.pyvcpconnect.get_active()  
-        self.data.ladderconnect = self.widgets.ladderconnect.get_active()          
-        if self.data.classicladder:
-           if self.widgets.radiobutton1.get_active() == True:
-              if self.data.tempexists:
-                   self.data.laddername='TEMP.clp'
-              else:
-                   self.data.laddername= 'blank.clp'
-                   self.data.ladderhaltype = 0
-           if self.widgets.radiobutton2.get_active() == True:
-              self.data.laddername = 'estop.clp'
-              inputs = set((self.data.pin10,self.data.pin11,self.data.pin12,self.data.pin13,self.data.pin15))
-              if ESTOP_IN not in inputs:
-                 self.warning_dialog(_("You need to designate an E-stop input pin in the Parallel Port Setup page for this program."),True)
-                 self.widgets.druid1.set_page(self.widgets.advanced)
-                 return True
-              self.data.ladderhaltype = 1
-           if self.widgets.radiobutton3.get_active() == True:
-                 self.data.laddername = 'serialmodbus.clp'
-                 self.data.modbus = 1
-                 self.widgets.modbus.set_active(self.data.modbus) 
-                 self.data.ladderhaltype = 0          
-           if self.widgets.radiobutton4.get_active() == True:
-              self.data.laddername='custom.clp'
-           else:
-               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)):
-                  if not self.warning_dialog(_("OK to replace existing custom ladder program?\nExisting Custom.clp will be renamed custom_backup.clp.\nAny existing file named -custom_backup.clp- will be lost. "),False):
-                     self.widgets.druid1.set_page(self.widgets.advanced)
-                     return True 
-           if self.widgets.radiobutton1.get_active() == False:
-              if os.path.exists(os.path.join(distdir, "configurable_options/ladder/TEMP.clp")):
-                 if not self.warning_dialog(_("You edited a ladder program and have selected a different program to copy to your configuration file.\nThe edited program will be lost.\n\nAre you sure?  "),False):
-                   self.widgets.druid1.set_page(self.widgets.advanced)
-                   return True       
-        if self.data.pyvcp == True:
-           if self.widgets.radiobutton5.get_active() == True:
-              self.data.pyvcpname = "blank.xml"
-              self.pyvcphaltype = 0
-           if self.widgets.radiobutton6.get_active() == True:
-              self.data.pyvcpname = "spindle.xml"
-              self.data.pyvcphaltype = 1
-           if self.widgets.radiobutton8.get_active() == True:
-              self.data.pyvcpname = "custompanel.xml"
-           else:
-              if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.data.machinename)):
-                 if not self.warning_dialog(_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. "),False):
-                   return True
+    def preset_tb6560_3axes_outputs(self):
+        SIG = self._p
+        def index(signal):
+            return self._p.hal_output_names.index(signal)
+        # x axis
+        self.w.pin1.set_active(index(SIG.XSTEP))
+        self.w.pin16.set_active(index(SIG.XDIR))
+        self.w.pin4.set_active(index(SIG.AMP))
+        # Y axis
+        self.w.pin14.set_active(index(SIG.YSTEP))
+        self.w.pin7.set_active(index(SIG.YDIR))
+        self.w.pin17.set_active(index(SIG.AMP))
+        # Z axis
+        self.w.pin3.set_active(index(SIG.ZSTEP))
+        self.w.pin6.set_active(index(SIG.ZDIR))
+        self.w.pin5.set_active(index(SIG.AMP))
+        # spindle
+        self.w.pin2.set_active(index(SIG.ON))
 
-    def on_machinename_changed(self, *args):
-        temp = self.widgets.machinename.get_text()
-        self.widgets.confdir.set_text("~/linuxcnc/configs/%s" % temp.replace(" ","_"))
+    def preset_tb6560_4axes_outputs(self):
+        SIG = self._p
+        def index(signal):
+            return self._p.hal_output_names.index(signal)
+        # x axis
+        self.w.pin2.set_active(index(SIG.XSTEP))
+        self.w.pin3.set_active(index(SIG.XDIR))
+        self.w.pin1.set_active(index(SIG.AMP))
+        # Y axis
+        self.w.pin4.set_active(index(SIG.YSTEP))
+        self.w.pin5.set_active(index(SIG.YDIR))
+        # Z axis
+        self.w.pin6.set_active(index(SIG.ZSTEP))
+        self.w.pin7.set_active(index(SIG.ZDIR))
+        # A axis
+        self.w.pin8.set_active(index(SIG.ASTEP))
+        self.w.pin9.set_active(index(SIG.ADIR))
 
-    def on_drivertype_changed(self, *args):
-        v = self.widgets.drivertype.get_active()
-        if v < len(drivertypes):
-            d = drivertypes[v]
-            self.widgets.steptime.set_value(d[2])
-            self.widgets.stepspace.set_value(d[3])
-            self.widgets.dirhold.set_value(d[4])
-            self.widgets.dirsetup.set_value(d[5])
-
-            self.widgets.steptime.set_sensitive(0)
-            self.widgets.stepspace.set_sensitive(0)
-            self.widgets.dirhold.set_sensitive(0)
-            self.widgets.dirsetup.set_sensitive(0)
-        else:
-            self.widgets.steptime.set_sensitive(1)
-            self.widgets.stepspace.set_sensitive(1)
-            self.widgets.dirhold.set_sensitive(1)
-            self.widgets.dirsetup.set_sensitive(1)
-        self.on_calculate_ideal_period()
-
-    def do_exclusive_inputs(self, pin):
-        if self.in_pport_prepare: return
-        exclusive = {
-            HOME_X: (MAX_HOME_X, MIN_HOME_X, BOTH_HOME_X, ALL_HOME, ALL_LIMIT_HOME),
-            HOME_Y: (MAX_HOME_Y, MIN_HOME_Y, BOTH_HOME_Y, ALL_HOME, ALL_LIMIT_HOME),
-            HOME_Z: (MAX_HOME_Z, MIN_HOME_Z, BOTH_HOME_Z, ALL_HOME, ALL_LIMIT_HOME),
-            HOME_A: (MAX_HOME_A, MIN_HOME_A, BOTH_HOME_A, ALL_HOME, ALL_LIMIT_HOME),
-
-            MAX_HOME_X: (HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            MAX_HOME_Y: (HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            MAX_HOME_Z: (HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            MAX_HOME_A: (HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-
-            MIN_HOME_X: (HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            MIN_HOME_Y: (HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            MIN_HOME_Z: (HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            MIN_HOME_A: (HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-
-            BOTH_HOME_X: (HOME_X, MAX_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            BOTH_HOME_Y: (HOME_Y, MAX_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            BOTH_HOME_Z: (HOME_Z, MAX_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-            BOTH_HOME_A: (HOME_A, MAX_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_HOME, ALL_LIMIT_HOME),
-
-            MIN_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
-            MIN_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
-            MIN_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
-            MIN_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
-
-            MAX_X: (BOTH_X, BOTH_HOME_X, MIN_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
-            MAX_Y: (BOTH_Y, BOTH_HOME_Y, MIN_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
-            MAX_Z: (BOTH_Z, BOTH_HOME_Z, MIN_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
-            MAX_A: (BOTH_A, BOTH_HOME_A, MIN_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
-
-            BOTH_X: (MIN_X, MAX_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X, ALL_LIMIT, ALL_LIMIT_HOME),
-            BOTH_Y: (MIN_Y, MAX_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y, ALL_LIMIT, ALL_LIMIT_HOME),
-            BOTH_Z: (MIN_Z, MAX_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z, ALL_LIMIT, ALL_LIMIT_HOME),
-            BOTH_A: (MIN_A, MAX_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A, ALL_LIMIT, ALL_LIMIT_HOME),
-
-            ALL_LIMIT: (
-                MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-                MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-                MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-                MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-                ALL_LIMIT_HOME),
-            ALL_HOME: (
-                HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-                HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-                HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-                HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-                ALL_LIMIT_HOME),
-            ALL_LIMIT_HOME: (
-                HOME_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-                HOME_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-                HOME_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-                HOME_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-                MIN_X, MAX_X, BOTH_X, MIN_HOME_X, MAX_HOME_X, BOTH_HOME_X,
-                MIN_Y, MAX_Y, BOTH_Y, MIN_HOME_Y, MAX_HOME_Y, BOTH_HOME_Y,
-                MIN_Z, MAX_Z, BOTH_Z, MIN_HOME_Z, MAX_HOME_Z, BOTH_HOME_Z,
-                MIN_A, MAX_A, BOTH_A, MIN_HOME_A, MAX_HOME_A, BOTH_HOME_A,
-                ALL_LIMIT, ALL_HOME),
-        } 
-
-        p = 'pin%d' % pin
-        v = self.widgets[p].get_active()
-        ex = exclusive.get(hal_input_names[v], ())
-
-        for pin1 in (10,11,12,13,15):
-            if pin1 == pin: continue
-            p = 'pin%d' % pin1
-            v1 = hal_input_names[self.widgets[p].get_active()]
-            if v1 in ex or v1 == v:
-                self.widgets[p].set_active(hal_input_names.index(UNUSED_INPUT))
-
-    def on_pin10_changed(self, *args):
-        self.do_exclusive_inputs(10)
-    def on_pin11_changed(self, *args):
-        self.do_exclusive_inputs(11)
-    def on_pin12_changed(self, *args):
-        self.do_exclusive_inputs(12)
-    def on_pin13_changed(self, *args):
-        self.do_exclusive_inputs(13)
-    def on_pin15_changed(self, *args):
-        self.do_exclusive_inputs(15)
-           
-    def on_pport_prepare(self, *args):
-        self.in_pport_prepare = True
-        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = 'pin%d' % pin
-            model = self.widgets[p].get_model()
-            model.clear()        
-            for name in human_output_names: model.append((name,))
-            self.widgets[p].set_wrap_width(3)
-            self.widgets[p].set_active(hal_output_names.index(self.data[p]))
-            p = 'pin%dinv' % pin
-            self.widgets[p].set_active(self.data[p])
-        for pin in (10,11,12,13,15):
-            p = 'pin%d' % pin
-            model = self.widgets[p].get_model()
-            model.clear()
-            for name in human_input_names: model.append((name,))
-            self.widgets[p].set_wrap_width(3)
-            self.widgets[p].set_active(hal_input_names.index(self.data[p]))
-            p = 'pin%dinv' % pin
-            self.widgets[p].set_active(self.data[p])
-        self.widgets.pin1.grab_focus()
-        self.in_pport_prepare = False
-
-    def on_pp2_checkbutton_toggled(self, *args): 
-        i = self.widgets.pp2_checkbutton.get_active()   
-        self.widgets.pp2_direction.set_sensitive(i)
-        self.widgets.ioaddr2.set_sensitive(i)
-        if i == 0:
-           self.widgets.pp3_checkbutton.set_active(i)
-           self.widgets.ioaddr3.set_sensitive(i)
-
-    def on_pp3_checkbutton_toggled(self, *args): 
-        i = self.widgets.pp3_checkbutton.get_active() 
-        if self.widgets.pp2_checkbutton.get_active() ==0:
-          i=0  
-          self.widgets.pp3_checkbutton.set_active(0)
-        self.widgets.pp3_direction.set_sensitive(i)
-        self.widgets.ioaddr3.set_sensitive(i)
-        
- 
-    def on_pport_next(self, *args):
-        for pin in (10,11,12,13,15):
-            p = 'pin%d' % pin
-            self.data[p] = hal_input_names[self.widgets[p].get_active()]
-        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
-            p = 'pin%d' % pin
-            self.data[p] = hal_output_names[self.widgets[p].get_active()]
-        for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
-            p = 'pin%dinv' % pin
-            self.data[p] = self.widgets[p].get_active()
-        self.data.pp2_direction = self.widgets.pp2_direction.get_active()
-        self.data.pp3_direction = self.widgets.pp3_direction.get_active()
-    on_pport_back = on_pport_next
-
-    def on_sherlinedefault_clicked(self, *args):
-        self.widgets.pin2.set_active(1)
-        self.widgets.pin3.set_active(0)
-        self.widgets.pin4.set_active(3)
-        self.widgets.pin5.set_active(2)
-        self.widgets.pin6.set_active(5)
-        self.widgets.pin7.set_active(4)
-        self.widgets.pin8.set_active(7)
-        self.widgets.pin9.set_active(6)
-
-    def on_xylotexdefault_clicked(self, *args):
-        self.widgets.pin2.set_active(0)
-        self.widgets.pin3.set_active(1)
-        self.widgets.pin4.set_active(2)
-        self.widgets.pin5.set_active(3)
-        self.widgets.pin6.set_active(4)
-        self.widgets.pin7.set_active(5)
-        self.widgets.pin8.set_active(6)
-        self.widgets.pin9.set_active(7)
-
-    def axis_prepare(self, axis):
-        d = self.data
-        w = self.widgets
-        def set_text(n): w[axis + n].set_text("%s" % d[axis + n])
-        def set_active(n): w[axis + n].set_active(d[axis + n])
-        set_text("steprev")
-        set_text("microstep")
-        set_text("pulleynum")
-        set_text("pulleyden")
-        set_text("leadscrew")
-        set_text("maxvel")
-        set_text("maxacc")
-        set_text("homepos")
-        set_text("minlim")
-        set_text("maxlim")
-        set_text("homesw")
-        set_text("homevel")
-        set_active("latchdir")
-
-        if axis == "a":
-            w[axis + "screwunits"].set_text(_("degree / rev"))
-            w[axis + "velunits"].set_text(_("deg / s"))
-            w[axis + "accunits"].set_text(_("deg / s²"))
-            w[axis + "accdistunits"].set_text(_("deg"))
-            w[axis + "scaleunits"].set_text(_("Steps / deg"))
-        elif d.units:
-            w[axis + "screwunits"].set_text(_("mm / rev"))
-            w[axis + "velunits"].set_text(_("mm / s"))
-            w[axis + "accunits"].set_text(_("mm / s²"))
-            w[axis + "accdistunits"].set_text(_("mm"))
-            w[axis + "scaleunits"].set_text(_("Steps / mm"))
-        else:
-            w[axis + "screwunits"].set_text(_("rev / in"))
-            w[axis + "velunits"].set_text(_("in / s"))
-            w[axis + "accunits"].set_text(_("in / s²"))
-            w[axis + "accdistunits"].set_text(_("in"))
-            w[axis + "scaleunits"].set_text(_("Steps / in"))
-
-        inputs = set((d.pin10, d.pin11, d.pin12, d.pin13, d.pin15))
-        thisaxishome = set((ALL_HOME, ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
-                            "max-home-" + axis, "both-home-" + axis))
-        homes = bool(inputs & thisaxishome)
-        w[axis + "homesw"].set_sensitive(homes)
-        w[axis + "homevel"].set_sensitive(homes)
-        w[axis + "latchdir"].set_sensitive(homes)
-
-        w[axis + "steprev"].grab_focus()
-        gobject.idle_add(lambda: self.update_pps(axis))
-
-    def axis_done(self, axis):
-        d = self.data
-        w = self.widgets
-        def get_text(n): d[axis + n] = float(w[axis + n].get_text())
-        def get_active(n): d[axis + n] = w[axis + n].get_active()
-        get_text("steprev")
-        get_text("microstep")
-        get_text("pulleynum")
-        get_text("pulleyden")
-        get_text("leadscrew")
-        get_text("maxvel")
-        get_text("maxacc")
-        get_text("homepos")
-        get_text("minlim")
-        get_text("maxlim")
-        get_text("homesw")
-        get_text("homevel")
-        get_active("latchdir")
-        
-    def on_xaxis_prepare(self, *args): self.axis_prepare('x')
-    def on_yaxis_prepare(self, *args): self.axis_prepare('y')
-    def on_zaxis_prepare(self, *args): self.axis_prepare('z')
-    def on_aaxis_prepare(self, *args): self.axis_prepare('a')
-
-    def on_xaxis_back(self, *args): self.axis_done('x')
-    def on_yaxis_back(self, *args): self.axis_done('y')
-    def on_zaxis_back(self, *args):
-        self.axis_done('z')
-        if self.data.axes == 2:
-            self.widgets.druid1.set_page(self.widgets.xaxis)
-            return True
-    def on_aaxis_back(self, *args): self.axis_done('a')
-
-    def on_xaxistest_clicked(self, *args): self.test_axis('x')
-    def on_yaxistest_clicked(self, *args): self.test_axis('y')
-    def on_zaxistest_clicked(self, *args): self.test_axis('z')
-    def on_aaxistest_clicked(self, *args): self.test_axis('a')
-
-    def on_spindle_prepare(self, *args):
-        self.widgets['spindlecarrier'].set_text("%s" % self.data.spindlecarrier)
-        self.widgets['spindlespeed1'].set_text("%s" % self.data.spindlespeed1)
-        self.widgets['spindlespeed2'].set_text("%s" % self.data.spindlespeed2)
-        self.widgets['spindlepwm1'].set_text("%s" % self.data.spindlepwm1)
-        self.widgets['spindlepwm2'].set_text("%s" % self.data.spindlepwm2)
-        self.widgets['spindlecpr'].set_text("%s" % self.data.spindlecpr)
-        self.widgets['spindlenearscale'].set_value(self.data.spindlenearscale * 100)
-        self.widgets['spindlefiltergain'].set_value(self.data.spindlefiltergain)
-        self.widgets['usespindleatspeed'].set_active(self.data.usespindleatspeed)
-
-        data = self.data
-        if PHA in (data.pin10, data.pin11, data.pin12, data.pin13, data.pin15):
-            self.widgets.spindlecpr.set_sensitive(1)
-            self.widgets.spindlefiltergain.show()
-            self.widgets.spindlefiltergainlabel.show()
-            self.widgets.spindlenearscale.show()
-            self.widgets.usespindleatspeed.show()
-            self.widgets.spindlenearscaleunitlabel.show()
-        else:
-            self.widgets.spindlecpr.set_sensitive(0)
-            self.widgets.spindlefiltergain.hide()
-            self.widgets.spindlefiltergainlabel.hide()
-            self.widgets.spindlenearscale.hide()
-            self.widgets.usespindleatspeed.hide()
-            self.widgets.spindlenearscaleunitlabel.hide()
-
-    def on_usespindleatspeed_toggled(self,*args):
-        self.widgets.spindlenearscale.set_sensitive(self.widgets.usespindleatspeed.get_active())
-
-    def on_spindle_next(self, *args):
-        self.data.spindlecarrier = float(self.widgets.spindlecarrier.get_text())
-        self.data.spindlespeed1 = float(self.widgets.spindlespeed1.get_text())
-        self.data.spindlespeed2 = float(self.widgets.spindlespeed2.get_text())
-        self.data.spindlepwm1 = float(self.widgets.spindlepwm1.get_text())
-        self.data.spindlepwm2 = float(self.widgets.spindlepwm2.get_text())
-        self.data.spindlecpr = float(self.widgets.spindlecpr.get_text())
-        self.data.spindlenearscale = self.widgets.spindlenearscale.get_value()/100
-        self.data.spindlefiltergain = self.widgets.spindlefiltergain.get_value()
-        self.data.usespindleatspeed = self.widgets['usespindleatspeed'].get_active()
-        
-
-    def on_spindle_back(self, *args):
-        self.on_spindle_next()
-        if self.data.axes != 1:
-            self.widgets.druid1.set_page(self.widgets.zaxis)
-        else:
-            self.widgets.druid1.set_page(self.widgets.aaxis)
-        return True
-
-    def on_loadladder_clicked(self, *args):self.load_ladder(self)
-
-    def on_classicladder_toggled(self, *args):
-
-        i= self.widgets.classicladder.get_active()
-        self.widgets.digitsin.set_sensitive(i)
-        self.widgets.digitsout.set_sensitive(i)
-        self.widgets.s32in.set_sensitive(i)
-        self.widgets.s32out.set_sensitive(i)
-        self.widgets.floatsin.set_sensitive(i)
-        self.widgets.floatsout.set_sensitive(i)
-        self.widgets.modbus.set_sensitive(i)
-        self.widgets.radiobutton1.set_sensitive(i)
-        self.widgets.radiobutton2.set_sensitive(i)
-        self.widgets.radiobutton3.set_sensitive(i)
-        if  self.widgets.createconfig.get_active():
-            self.widgets.radiobutton4.set_sensitive(False)
-        else:
-            self.widgets.radiobutton4.set_sensitive(i)
-        self.widgets.loadladder.set_sensitive(i)
-        self.widgets.label_digin.set_sensitive(i)
-        self.widgets.label_digout.set_sensitive(i)
-        self.widgets.label_s32in.set_sensitive(i)
-        self.widgets.label_s32out.set_sensitive(i)
-        self.widgets.label_floatin.set_sensitive(i)
-        self.widgets.label_floatout.set_sensitive(i)
-        self.widgets.ladderconnect.set_sensitive(i)
-        self.widgets.clpins_expander.set_sensitive(i)
-
-    def on_pyvcp_toggled(self,*args):
-        i= self.widgets.pyvcp.get_active()
-        self.widgets.radiobutton5.set_sensitive(i)
-        self.widgets.radiobutton6.set_sensitive(i)
-        if  self.widgets.createconfig.get_active():
-            self.widgets.radiobutton8.set_sensitive(False)
-        else:
-            self.widgets.radiobutton8.set_sensitive(i)
-        self.widgets.displaypanel.set_sensitive(i)
-        self.widgets.pyvcpconnect.set_sensitive(i)
-
-    def on_displaypanel_clicked(self,*args):
-        print"clicked"
-        self.testpanel(self)
-
-    def on_complete_back(self, *args):
-        self.widgets.druid1.set_page(self.widgets.advanced)
-        return True
-
-    def on_xaxis_next(self, *args):
-        self.axis_done('x')
-        if self.data.axes == 2:
-            self.widgets.druid1.set_page(self.widgets.zaxis)
-            return True
-
-    def on_yaxis_next(self, *args): self.axis_done('y')
-
-    def on_zaxis_next(self, *args):
-        self.axis_done('z')
-        if self.data.axes != 1:
-            if self.has_spindle_speed_control():
-                self.widgets.druid1.set_page(self.widgets.spindle)
-            else:
-                self.widgets.druid1.set_page(self.widgets.complete)
-            return True
-
-    def on_aaxis_next(self, *args):
-        self.axis_done('a')
-        if self.has_spindle_speed_control():
-            self.widgets.druid1.set_page(self.widgets.spindle)
-        else:
-            self.widgets.druid1.set_page(self.widgets.complete)
-        return True
-
+    # check for spindle output signal
     def has_spindle_speed_control(self):
-        d = self.data
-        return PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6, d.pin7,
+        d = self.d
+        SIG = self._p
+        return SIG.PWM in (d.pin1, d.pin2, d.pin3, d.pin4, d.pin5, d.pin6, d.pin7,
             d.pin8, d.pin9, d.pin14, d.pin16, d.pin17) or \
-                PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) or \
-                PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) \
+                SIG.PPR in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) or \
+                SIG.PHA in (d.pin10, d.pin11, d.pin12, d.pin13, d.pin15) \
 
+    # for Axis page calculation updates
     def update_pps(self, axis):
-        w = self.widgets
-        d = self.data
-        def get(n): return float(w[axis + n].get_text())
+        def get(n): return float(self.w[axis + n].get_text())
 
         try:
             pitch = get("leadscrew")
-            if d.units == 1 or axis == 'a': pitch = 1./pitch
+            if self.d.units == 1 or axis == 'a': pitch = 1./pitch
             pps = (pitch * get("steprev") * get("microstep") *
                 (get("pulleynum") / get("pulleyden")) * get("maxvel"))
             if pps == 0: raise ValueError
             pps = abs(pps)
             acctime = get("maxvel") / get("maxacc")
             accdist = acctime * .5 * get("maxvel")
-            w[axis + "acctime"].set_text("%.4f" % acctime)
-            w[axis + "accdist"].set_text("%.4f" % accdist)
-            w[axis + "hz"].set_text("%.1f" % pps)
-            scale = self.data[axis + "scale"] = (1.0 * pitch * get("steprev")
+            self.w[axis + "acctime"].set_text("%.4f" % acctime)
+            self.w[axis + "accdist"].set_text("%.4f" % accdist)
+            self.w[axis + "hz"].set_text("%.1f" % pps)
+            scale = self.d[axis + "scale"] = (1.0 * pitch * get("steprev")
                 * get("microstep") * (get("pulleynum") / get("pulleyden")))
-            w[axis + "scale"].set_text("%.1f" % scale)
-            self.widgets.druid1.set_buttons_sensitive(1,1,1,1)
-            w[axis + "axistest"].set_sensitive(1)
+            self.w[axis + "scale"].set_text("%.1f" % scale)
+            self.p.set_buttons_sensitive(1,1)
+            self.w[axis + "axistest"].set_sensitive(1)
         except (ValueError, ZeroDivisionError): # Some entries not numbers or not valid
-            w[axis + "acctime"].set_text("")
-            w[axis + "accdist"].set_text("")
-            w[axis + "hz"].set_text("")
-            w[axis + "scale"].set_text("")
-            self.widgets.druid1.set_buttons_sensitive(1,0,1,1)
-            w[axis + "axistest"].set_sensitive(0)
+            self.w[axis + "acctime"].set_text("")
+            self.w[axis + "accdist"].set_text("")
+            self.w[axis + "hz"].set_text("")
+            self.w[axis + "scale"].set_text("")
+            self.p.set_buttons_sensitive(0,0)
+            self.w[axis + "axistest"].set_sensitive(0)
 
-    def on_xsteprev_changed(self, *args): self.update_pps('x')
-    def on_ysteprev_changed(self, *args): self.update_pps('y')
-    def on_zsteprev_changed(self, *args): self.update_pps('z')
-    def on_asteprev_changed(self, *args): self.update_pps('a')
+    # pport functions
+    # disallow some signal combinations
+    def do_exclusive_inputs(self, pin,port):
+        # If initializing the Pport pages we don't want the signal calls to register here.
+        # if we are working in here we don't want signal calls because of changes made in here
+        # GTK supports signal blocking but then you can't assign signal names in GLADE -slaps head
+        if self._p.in_pport_prepare or self.recursive_block: return
+        self.recursive_block = True
+        SIG = self._p
+        exclusive = {
+            SIG.HOME_X: (SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.HOME_Y: (SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.HOME_Z: (SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.HOME_A: (SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
-    def on_xmicrostep_changed(self, *args): self.update_pps('x')
-    def on_ymicrostep_changed(self, *args): self.update_pps('y')
-    def on_zmicrostep_changed(self, *args): self.update_pps('z')
-    def on_amicrostep_changed(self, *args): self.update_pps('a')
+            SIG.MAX_HOME_X: (SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_HOME_Y: (SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_HOME_Z: (SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_HOME_A: (SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
-    def on_xpulleynum_changed(self, *args): self.update_pps('x')
-    def on_ypulleynum_changed(self, *args): self.update_pps('y')
-    def on_zpulleynum_changed(self, *args): self.update_pps('z')
-    def on_apulleynum_changed(self, *args): self.update_pps('a')
+            SIG.MIN_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
-    def on_xpulleyden_changed(self, *args): self.update_pps('x')
-    def on_ypulleyden_changed(self, *args): self.update_pps('y')
-    def on_zpulleyden_changed(self, *args): self.update_pps('z')
-    def on_apulleyden_changed(self, *args): self.update_pps('a')
+            SIG.BOTH_HOME_X:  (SIG.HOME_X, SIG.MAX_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_HOME_Y:  (SIG.HOME_Y, SIG.MAX_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_HOME_Z:  (SIG.HOME_Z, SIG.MAX_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_HOME_A:  (SIG.HOME_A, SIG.MAX_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_HOME, SIG.ALL_LIMIT_HOME),
 
-    def on_xleadscrew_changed(self, *args): self.update_pps('x')
-    def on_yleadscrew_changed(self, *args): self.update_pps('y')
-    def on_zleadscrew_changed(self, *args): self.update_pps('z')
-    def on_aleadscrew_changed(self, *args): self.update_pps('a')
+            SIG.MIN_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MIN_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
 
-    def on_xmaxvel_changed(self, *args): self.update_pps('x')
-    def on_ymaxvel_changed(self, *args): self.update_pps('y')
-    def on_zmaxvel_changed(self, *args): self.update_pps('z')
-    def on_amaxvel_changed(self, *args): self.update_pps('a')
+            SIG.MAX_X: (SIG.BOTH_X, SIG.BOTH_HOME_X, SIG.MIN_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_Y: (SIG.BOTH_Y, SIG.BOTH_HOME_Y, SIG.MIN_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_Z: (SIG.BOTH_Z, SIG.BOTH_HOME_Z, SIG.MIN_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.MAX_A: (SIG.BOTH_A, SIG.BOTH_HOME_A, SIG.MIN_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
 
-    def on_xmaxacc_changed(self, *args): self.update_pps('x')
-    def on_ymaxacc_changed(self, *args): self.update_pps('y')
-    def on_zmaxacc_changed(self, *args): self.update_pps('z')
-    def on_amaxacc_changed(self, *args): self.update_pps('a')
+            SIG.BOTH_X: (SIG.MIN_X, SIG.MAX_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_Y: (SIG.MIN_Y, SIG.MAX_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_Z: (SIG.MIN_Z, SIG.MAX_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
+            SIG.BOTH_A: (SIG.MIN_A, SIG.MAX_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A, SIG.ALL_LIMIT, SIG.ALL_LIMIT_HOME),
 
-    def on_complete_finish(self, *args):
-        self.data.save()        
-        if self.data.classicladder: 
-           if not self.data.laddername == "custom.clp":
-                filename = os.path.join(distdir, "configurable_options/ladder/%s" % self.data.laddername)
-                original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)
-                if os.path.exists(filename):     
-                  if os.path.exists(original):
-                     print "custom file already exists"
-                     shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/custom_backup.clp" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( filename,original)
-                  print "copied ladder program to usr directory"
-                  print"%s" % filename
-                else:
-                     print "Master or temp ladder files missing from configurable_options dir"
-
-        if self.data.pyvcp and not self.widgets.radiobutton8.get_active() == True:                
-           panelname = os.path.join(distdir, "configurable_options/pyvcp/%s" % self.data.pyvcpname)
-           originalname = os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.data.machinename)
-           if os.path.exists(panelname):     
-                  if os.path.exists(originalname):
-                     print "custom PYVCP file already exists"
-                     shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/custompanel_backup.xml" % self.data.machinename) ) 
-                     print "made backup of existing custom"
-                  shutil.copy( panelname,originalname)
-                  print "copied PYVCP program to usr directory"
-                  print"%s" % panelname
-           else:
-                  print "Master PYVCP files missing from configurable_options dir"
-        gtk.main_quit()
-
-    def on_complete_back(self, *args):
-        if self.has_spindle_speed_control():
-            self.widgets.druid1.set_page(self.widgets.spindle)
-        elif self.data.axes != 1:
-            self.widgets.druid1.set_page(self.widgets.zaxis)
-        else:
-            self.widgets.druid1.set_page(self.widgets.aaxis)
-        return True
-
-    def on_calculate_ideal_period(self, *args):
-        steptime = self.widgets.steptime.get_value()
-        stepspace = self.widgets.stepspace.get_value()
-        latency = self.widgets.latency.get_value()
-        minperiod = self.data.minperiod(steptime, stepspace, latency)
-        maxhz = int(1e9 / minperiod)
-        if not self.data.doublestep(steptime): maxhz /= 2
-        self.widgets.baseperiod.set_text("%d ns" % minperiod)
-        self.widgets.maxsteprate.set_text("%d Hz" % maxhz)
-
-    def on_latency_test_clicked(self, w):
+            SIG.ALL_LIMIT: (
+                SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
+                SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
+                SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
+                SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.ALL_LIMIT_HOME),
+            SIG.ALL_HOME: (
+                SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
+                SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
+                SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
+                SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.ALL_LIMIT_HOME),
+            SIG.ALL_LIMIT_HOME: (
+                SIG.HOME_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
+                SIG.HOME_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
+                SIG.HOME_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
+                SIG.HOME_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.MIN_X, SIG.MAX_X, SIG.BOTH_X, SIG.MIN_HOME_X, SIG.MAX_HOME_X, SIG.BOTH_HOME_X,
+                SIG.MIN_Y, SIG.MAX_Y, SIG.BOTH_Y, SIG.MIN_HOME_Y, SIG.MAX_HOME_Y, SIG.BOTH_HOME_Y,
+                SIG.MIN_Z, SIG.MAX_Z, SIG.BOTH_Z, SIG.MIN_HOME_Z, SIG.MAX_HOME_Z, SIG.BOTH_HOME_Z,
+                SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
+                SIG.ALL_LIMIT, SIG.ALL_HOME),
+        }
+        v = pin.get_active()
+        name = self._p.hal_input_names[v]
+        ex = exclusive.get(name, ())
+        # search pport1 for the illegal signals and change them to unused.
+        dbg( 'looking for %s in pport1'%name)
+        for pin1 in (10,11,12,13,15):
+            p = 'pin%d' % pin1
+            if self.w[p] == pin: continue
+            v1 = self._p.hal_input_names[self.w[p].get_active()]
+            if v1 in ex or v1 == name:
+                dbg( 'found %s, at %s'%(name,p))
+                self.w[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                if not port ==1: # if on the other page must change the data model too
+                    dbg( 'found on other pport page')
+                    self.d[p] = SIG.UNUSED_INPUT
+        # search pport2 for the illegal signals and change them to unused.
+        dbg( 'looking for %s in pport2'%name)
+        for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            p2 = 'pp2_pin%d_in' % pin1
+            if self.w[p2] == pin: continue
+            v2 = self._p.hal_input_names[self.w[p2].get_active()]
+            if v2 in ex or v2 == name:
+                dbg( 'found %s, at %s'%(name,p2))
+                self.w[p2].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                if not port ==2:# if on the other page must change the data model too
+                    dbg( 'found on other pport page')
+                    self.d[p2] = SIG.UNUSED_INPUT
+        self.recursive_block = False
+#**************
+# Latency test
+#**************
+    def run_latency_test(self):
         self.latency_pid = os.spawnvp(os.P_NOWAIT,
                                 "latency-test", ["latency-test"])
-        self.widgets['window1'].set_sensitive(0)
+        self.w['window1'].set_sensitive(0)
         gobject.timeout_add(15, self.latency_running_callback)
 
     def latency_running_callback(self):
         pid, status = os.waitpid(self.latency_pid, os.WNOHANG)
         if pid:
-            self.widgets['window1'].set_sensitive(1)
+            self.w['window1'].set_sensitive(1)
             return False
         return True
 
-    def update_axis_params(self, *args):
-        axis = self.axis_under_test
-        if axis is None: return
-        halrun = self.halrun
-        halrun.write("""
-            setp stepgen.0.maxaccel %(accel)f
-            setp stepgen.0.maxvel %(vel)f
-            setp steptest.0.jog-minus %(jogminus)s
-            setp steptest.0.jog-plus %(jogplus)s
-            setp steptest.0.run %(run)s
-            setp steptest.0.amplitude %(amplitude)f
-            setp steptest.0.maxvel %(vel)f
-            setp steptest.0.dir %(dir)s
-        """ % {
-            'jogminus': self.jogminus,
-            'jogplus': self.jogplus,
-            'run': self.widgets.run.get_active(),
-            'amplitude': self.widgets.testamplitude.get_value(),
-            'accel': self.widgets.testacc.get_value(),
-            'vel': self.widgets.testvel.get_value(),
-            'dir': self.widgets.testdir.get_active(),
-        })
-        halrun.flush()
-
-    def on_jogminus_pressed(self, w):
-        self.jogminus = 1
-        self.update_axis_params()
-    def on_jogminus_released(self, w):
-        self.jogminus = 0
-        self.update_axis_params()
-
-    def on_jogplus_pressed(self, w):
-        self.jogplus = 1
-        self.update_axis_params()
-    def on_jogplus_released(self, w):
-        self.jogplus = 0
-        self.update_axis_params()
-    
+#***************
+# PYVCP TEST
+#***************
     def testpanel(self,w):
         panelname = os.path.join(distdir, "configurable_options/pyvcp")
-        if self.widgets.radiobutton5.get_active() == True:
-           return True
-        if self.widgets.radiobutton6.get_active() == True:
-           panel = "spindle.xml"
-        if self.widgets.radiobutton8.get_active() == True:
-           panel = "custompanel.xml"
-           panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.data.machinename)
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -sf > /dev/null"% {'panelname':panelname,}, "w" )    
+        if self.w.radiobutton5.get_active() == True:
+            print 'no sample requested'
+            return True
+        if self.w.radiobutton6.get_active() == True:
+            panel = "spindle.xml"
+        if self.w.radiobutton8.get_active() == True:
+            panel = "custompanel.xml"
+            panelname = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
+        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
         halrun.write("loadusr -Wn displaytest pyvcp -c displaytest %(panel)s\n" %{'panel':panel,})
-        if self.widgets.radiobutton6.get_active() == True:
-                halrun.write("setp displaytest.spindle-speed 1000\n")
-        halrun.write("waitusr displaytest\n"); halrun.flush()
+        if self.w.radiobutton6.get_active() == True:
+            halrun.write("setp displaytest.spindle-speed 1000\n")
+        halrun.write("waitusr displaytest\n")
+        halrun.flush()
         halrun.close()   
 
+#**************
+# LADDER TEST
+#**************
     def load_ladder(self,w):         
         newfilename = os.path.join(distdir, "configurable_options/ladder/TEMP.clp")    
-        self.data.modbus = self.widgets.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
+        self.d.modbus = self.w.modbus.get_active()
+        self.halrun = halrun = os.popen("halrun -Is", "w")
         halrun.write(""" 
               loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
               loadrt classicladder_rt numPhysInputs=%(din)d numPhysOutputs=%(dout)d numS32in=%(sin)d numS32out=%(sout)d\
@@ -2066,30 +1048,30 @@ class App:
               start\n
                       """ % {
                       'period': 50000,
-                      'din': self.widgets.digitsin.get_value(),
-                      'dout': self.widgets.digitsout.get_value(),
-                      'sin': self.widgets.s32in.get_value(),
-                      'sout': self.widgets.s32out.get_value(), 
-                      'fin':self.widgets.floatsin.get_value(),
-                      'fout':self.widgets.floatsout.get_value(),
+                      'din': self.w.digitsin.get_value(),
+                      'dout': self.w.digitsout.get_value(),
+                      'sin': self.w.s32in.get_value(),
+                      'sout': self.w.s32out.get_value(), 
+                      'fin':self.w.floatsin.get_value(),
+                      'fout':self.w.floatsout.get_value(),
                  })
-        if self.widgets.radiobutton1.get_active() == True:
-            if self.data.tempexists:
-               self.data.laddername='TEMP.clp'
+        if self.w.radiobutton1.get_active() == True:
+            if self.d.tempexists:
+               self.d.laddername='TEMP.clp'
             else:
-               self.data.laddername= 'blank.clp'
-        if self.widgets.radiobutton2.get_active() == True:
-            self.data.laddername= 'estop.clp'
-        if self.widgets.radiobutton3.get_active() == True:
-            self.data.laddername = 'serialmodbus.clp'
-            self.data.modbus = True
-            self.widgets.modbus.set_active(self.data.modbus)
-        if self.widgets.radiobutton4.get_active() == True:
-            self.data.laddername='custom.clp'
-            originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.data.machinename)
+               self.d.laddername= 'blank.clp'
+        if self.w.radiobutton2.get_active() == True:
+            self.d.laddername= 'estop.clp'
+        if self.w.radiobutton3.get_active() == True:
+            self.d.laddername = 'serialmodbus.clp'
+            self.d.modbus = True
+            self.w.modbus.set_active(self.d.modbus)
+        if self.w.radiobutton4.get_active() == True:
+            self.d.laddername='custom.clp'
+            originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
         else:
-            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.data.laddername)        
-        if self.data.modbus == True: 
+            filename = os.path.join(distdir, "configurable_options/ladder/"+ self.d.laddername)        
+        if self.d.modbus == True: 
             halrun.write("loadusr -w classicladder --modmaster --newpath=%(newfilename)s %(filename)s\
                 \n" %          { 'newfilename':newfilename ,'filename':filename })
         else:
@@ -2097,57 +1079,82 @@ class App:
         halrun.flush()
         halrun.close()
         if os.path.exists(newfilename):
-            self.data.tempexists = True
-            self.widgets.newladder.set_text('Edited ladder program')
-            self.widgets.radiobutton1.set_active(True)
+            self.d.tempexists = True
+            self.w.newladder.set_text('Edited ladder program')
+            self.w.radiobutton1.set_active(True)
         else:
-            self.data.tempexists = 0
-        
+            self.d.tempexists = 0
 
+#**********
+# Axis Test
+#***********
     def test_axis(self, axis):
         if not self.check_for_rt(): return
-        data = self.data
-        widgets = self.widgets
+        SIG = self._p
 
-        vel = float(widgets[axis + "maxvel"].get_text())
-        acc = float(widgets[axis + "maxacc"].get_text())
+        vel = float(self.w[axis + "maxvel"].get_text())
+        acc = float(self.w[axis + "maxacc"].get_text())
 
-        scale = data[axis + "scale"]
+        scale = self.d[axis + "scale"]
         maxvel = 1.5 * vel
-        if data.doublestep():
+        if self.d.doublestep():
                 period = int(1e9 / maxvel / scale)
         else:
                 period = int(.5e9 / maxvel / scale)
 
-        steptime = self.widgets.steptime.get_value()
-        stepspace = self.widgets.stepspace.get_value()
-        latency = self.widgets.latency.get_value()
-        minperiod = self.data.minperiod()
+        steptime = self.w.steptime.get_value()
+        stepspace = self.w.stepspace.get_value()
+        latency = self.w.latency.get_value()
+        minperiod = self.d.minperiod()
 
         if period < minperiod:
             period = minperiod
-            if data.doublestep():
+            if self.d.doublestep():
                 maxvel = 1e9 / minperiod / abs(scale)
             else:
                 maxvel = 1e9 / minperiod / abs(scale)
         if period > 100000:
             period = 100000
 
-        self.halrun = halrun = os.popen("halrun -sf > /dev/null", "w")
-
+        self.halrun = halrun = os.popen("halrun -Is", "w")
+        if debug:
+            halrun.write("echo\n")
         axnum = "xyza".index(axis)
         step = axis + "step"
         dir = axis + "dir"
         halrun.write("""
             loadrt steptest
             loadrt stepgen step_type=0
-            loadrt probe_parport
-            loadrt hal_parport cfg=%(ioaddr)s
-            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow\n
+            loadrt probe_parport 
+            """)
 
+        port3name=port2name=port2dir=port3dir=""
+        if self.d.number_pports>2:
+             port3name = ' '+self.d.ioaddr3
+             if self.d.pp3_direction: # Input option
+                port3dir =" in"
+             else: 
+                port3dir =" out"
+        if self.d.number_pports>1:
+             port2name = ' '+self.d.ioaddr2
+             if self.d.pp2_direction: # Input option
+                port2dir =" in"
+             else: 
+                port2dir =" out"
+        halrun.write( "loadrt hal_parport cfg=\"%s out%s%s%s%s\"\n" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir))
+        halrun.write("""
+            loadrt threads period1=%(period)d name1=fast fp1=0 period2=1000000 name2=slow
             addf stepgen.make-pulses fast
             addf parport.0.write fast
+            """%{'period': period})
 
+        if self.d.number_pports>1:
+            halrun.write( "addf parport.0.write fast\n")
+        if self.d.number_pports>2:
+            halrun.write( "addf parport.0.write fast\n")
+        step_pin,dummy = self.find_output(step)
+        dir_pin,dummy = self.find_output(dir)
+        halrun.write("""
             addf stepgen.capture-position slow
             addf steptest.0 slow
             addf stepgen.update-freq slow
@@ -2166,140 +1173,214 @@ class App:
 
             setp stepgen.0.enable 1
         """ % {
-            'period': period,
-            'ioaddr': data.ioaddr,
-            'steppin': data.find_output(step),
-            'dirpin': data.find_output(dir),
-            'dirhold': data.dirhold + data.latency,
-            'dirsetup': data.dirsetup + data.latency,
-            'onestep': abs(1. / data[axis + "scale"]),
-            'scale': data[axis + "scale"],
+            'steppin': step_pin,
+            'dirpin': dir_pin,
+            'dirhold': self.d.dirhold + self.d.latency,
+            'dirsetup': self.d.dirsetup + self.d.latency,
+            'onestep': abs(1. / self.d[axis + "scale"]),
+            'scale': self.d[axis + "scale"],
         })
 
-        if data.doublestep():
+        if self.doublestep():
             halrun.write("""
                 setp parport.0.reset-time %(resettime)d
                 setp stepgen.0.stepspace 0
                 addf parport.0.reset fast
             """ % {
-                'resettime': data['steptime']
+                'resettime': self.d['steptime']
             })
-        amp = data.find_output(AMP)
+        amp,amp_port = self.find_output(SIG.AMP)
         if amp:
-            halrun.write("setp parport.0.pin-%(enablepin)02d-out 1\n"
-                % {'enablepin': amp})
+            halrun.write("setp parport.%(portnum)d.pin-%(enablepin)02d-out 1\n"
+                % {'enablepin': amp,'portnum': amp_port})
 
-        estop = data.find_output(ESTOP)
+        estop,e_port = self.find_output(SIG.ESTOP)
         if estop:
-            halrun.write("setp parport.0.pin-%(estoppin)02d-out 1\n"
-                % {'estoppin': estop})
+            halrun.write("setp parport.%(portnum)d.pin-%(estoppin)02d-out 1\n"
+                % {'estoppin': estop,'portnum': e_port})
 
         for pin in 1,2,3,4,5,6,7,8,9,14,16,17:
-            inv = getattr(data, "pin%dinv" % pin)
+            inv = getattr(self.d, "pin%dinv" % pin)
             if inv:
                 halrun.write("setp parport.0.pin-%(pin)02d-out-invert 1\n"
                     % {'pin': pin}) 
+        if debug:
+            halrun.write("loadusr halmeter sig cmd -g 275 415\n")
 
-        widgets.dialog1.set_title(_("%s Axis Test") % axis.upper())
+        self.w.dialog1.set_title(_("%s Axis Test") % axis.upper())
 
         if axis == "a":
-            widgets.testvelunit.set_text(_("deg / s"))
-            widgets.testaccunit.set_text(_("deg / s²"))
-            widgets.testampunit.set_text(_("deg"))
-            widgets.testvel.set_increments(1,5)
-            widgets.testacc.set_increments(1,5)
-            widgets.testamplitude.set_increments(1,5)
-            widgets.testvel.set_range(0, maxvel)
-            widgets.testacc.set_range(1, 360000)
-            widgets.testamplitude.set_range(0, 1440)
-            widgets.testvel.set_digits(1)
-            widgets.testacc.set_digits(1)
-            widgets.testamplitude.set_digits(1)
-            widgets.testamplitude.set_value(10)
-        elif data.units:
-            widgets.testvelunit.set_text(_("mm / s"))
-            widgets.testaccunit.set_text(_("mm / s²"))
-            widgets.testampunit.set_text(_("mm"))
-            widgets.testvel.set_increments(1,5)
-            widgets.testacc.set_increments(1,5)
-            widgets.testamplitude.set_increments(1,5)
-            widgets.testvel.set_range(0, maxvel)
-            widgets.testacc.set_range(1, 100000)
-            widgets.testamplitude.set_range(0, 1000)
-            widgets.testvel.set_digits(2)
-            widgets.testacc.set_digits(2)
-            widgets.testamplitude.set_digits(2)
-            widgets.testamplitude.set_value(15)
+            self.w.testvelunit.set_text(_("deg / s"))
+            self.w.testaccunit.set_text(_("deg / s²"))
+            self.w.testampunit.set_text(_("deg"))
+            self.w.testvel.set_increments(1,5)
+            self.w.testacc.set_increments(1,5)
+            self.w.testamplitude.set_increments(1,5)
+            self.w.testvel.set_range(0, maxvel)
+            self.w.testacc.set_range(1, 360000)
+            self.w.testamplitude.set_range(0, 1440)
+            self.w.testvel.set_digits(1)
+            self.w.testacc.set_digits(1)
+            self.w.testamplitude.set_digits(1)
+            self.w.testamplitude.set_value(10)
+        elif self.d.units:
+            self.w.testvelunit.set_text(_("mm / s"))
+            self.w.testaccunit.set_text(_("mm / s²"))
+            self.w.testampunit.set_text(_("mm"))
+            self.w.testvel.set_increments(1,5)
+            self.w.testacc.set_increments(1,5)
+            self.w.testamplitude.set_increments(1,5)
+            self.w.testvel.set_range(0, maxvel)
+            self.w.testacc.set_range(1, 100000)
+            self.w.testamplitude.set_range(0, 1000)
+            self.w.testvel.set_digits(2)
+            self.w.testacc.set_digits(2)
+            self.w.testamplitude.set_digits(2)
+            self.w.testamplitude.set_value(15)
         else:
-            widgets.testvelunit.set_text(_("in / s"))
-            widgets.testaccunit.set_text(_("in / s²"))
-            widgets.testampunit.set_text(_("in"))
-            widgets.testvel.set_increments(.1,5)
-            widgets.testacc.set_increments(1,5)
-            widgets.testamplitude.set_increments(.1,5)
-            widgets.testvel.set_range(0, maxvel)
-            widgets.testacc.set_range(1, 3600)
-            widgets.testamplitude.set_range(0, 36)
-            widgets.testvel.set_digits(1)
-            widgets.testacc.set_digits(1)
-            widgets.testamplitude.set_digits(1)
-            widgets.testamplitude.set_value(.5)
+            self.w.testvelunit.set_text(_("in / s"))
+            self.w.testaccunit.set_text(_("in / s²"))
+            self.w.testampunit.set_text(_("in"))
+            self.w.testvel.set_increments(.1,5)
+            self.w.testacc.set_increments(1,5)
+            self.w.testamplitude.set_increments(.1,5)
+            self.w.testvel.set_range(0, maxvel)
+            self.w.testacc.set_range(1, 3600)
+            self.w.testamplitude.set_range(0, 36)
+            self.w.testvel.set_digits(1)
+            self.w.testacc.set_digits(1)
+            self.w.testamplitude.set_digits(1)
+            self.w.testamplitude.set_value(.5)
 
         self.jogplus = self.jogminus = 0
-        self.widgets.testdir.set_active(0)
-        self.widgets.run.set_active(0)
-        self.widgets.testacc.set_value(acc)
-        self.widgets.testvel.set_value(vel)
+        self.w.testdir.set_active(0)
+        self.w.run.set_active(0)
+        self.w.testacc.set_value(acc)
+        self.w.testvel.set_value(vel)
         self.axis_under_test = axis
-        self.update_axis_params()
+        self.update_axis_test()
 
         halrun.write("start\n"); halrun.flush()
-        widgets.dialog1.show_all()
-        result = widgets.dialog1.run()
-        widgets.dialog1.hide()
+        self.w.dialog1.show_all()
+        result = self.w.dialog1.run()
+        self.w.dialog1.hide()
         
         if amp:
-            halrun.write("""setp parport.0.pin-%02d-out 0\n""" % amp)
+            halrun.write("""setp parport.%d.pin-%02d-out 0\n""" % (amp_port,amp))
         if estop:
-            halrun.write("""setp parport.0.pin-%02d-out 0\n""" % estop)
+            halrun.write("""setp parport.%d.pin-%02d-out 0\n""" % (e_port,estop))
 
         time.sleep(.001)
+        halrun.close()
 
-        halrun.close()        
+    def update_axis_test(self, *args):
+        print 'update'
+        axis = self.axis_under_test
+        if axis is None: return
+        halrun = self.halrun
+        halrun.write("""
+            setp stepgen.0.maxaccel %(accel)f
+            setp stepgen.0.maxvel %(vel)f
+            setp steptest.0.jog-minus %(jogminus)s
+            setp steptest.0.jog-plus %(jogplus)s
+            setp steptest.0.run %(run)s
+            setp steptest.0.amplitude %(amplitude)f
+            setp steptest.0.maxvel %(vel)f
+            setp steptest.0.dir %(dir)s
+        """ % {
+            'jogminus': self.jogminus,
+            'jogplus': self.jogplus,
+            'run': self.w.run.get_active(),
+            'amplitude': self.w.testamplitude.get_value(),
+            'accel': self.w.testacc.get_value(),
+            'vel': self.w.testvel.get_value(),
+            'dir': self.w.testdir.get_active(),
+        })
+        halrun.flush()
 
-        if result == gtk.RESPONSE_OK:
-            widgets[axis+"maxacc"].set_text("%s" % widgets.testacc.get_value())
-            widgets[axis+"maxvel"].set_text("%s" % widgets.testvel.get_value())
-        self.axis_under_test = None
+#**********************************
+# Common helper functions
+#**********************************
 
-    def run(self, filename=None):
-        if filename is not None:
-            self.data.load(filename, self)
-            self.widgets.druid1.set_page(self.widgets.basicinfo)
-        gtk.main()
+    def build_input_set(self):
+        input_set =(self.d.pin10,self.d.pin11,self.d.pin12,self.d.pin13,self.d.pin15)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                in_list =(2,3,4,5,6,7,8,9,10,11,12,13,15)
+            else:
+                in_list =(10,11,12,13,15)
+            for pin in (in_list):
+                p = 'pp2_pin%d_in' % pin
+                input_set +=(self.d[p],)
+        return set(input_set)
 
-def makedirs(d):
-    try:
-        os.makedirs(d)
-    except os.error, detail:
-        if detail.errno != errno.EEXIST: raise
-makedirs(os.path.expanduser("~/linuxcnc/configs"))
+    def build_output_set(self):
+        output_set =(self.d.pin1, self.d.pin2, self.d.pin3, self.d.pin4, self.d.pin5,
+            self.d.pin6, self.d.pin7, self.d.pin8, self.d.pin9, self.d.pin14, self.d.pin16,
+            self.d.pin17)
+        if self.d.number_pports > 1:
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                p = 'pp2_pin%d' % pin
+                output_set += (self.d[p],)
+        return set(output_set)
 
-opts, args = getopt.getopt(sys.argv[1:], "fr")
-mode = 0
-force = 0
-for k, v in opts:
-    if k == "-r": mode = 1
-    if k == "-f": force = 1
+    def find_input(self, input):
+        inputs = set((10, 11, 12, 13, 15))
+        for i in inputs:
+            pin = getattr(self.d, "pin%d" % i)
+            inv = getattr(self.d, "pin%dinv" % i)
+            if pin == input: return i
+        return None
 
-if mode:
-    filename = args[0]
-    data = Data()
-    data.load(filename, None, force)
-    data.save()
-elif args:
-    app = App()
-    app.run(args[0])
-else:
-    app = App()
-    app.run()
+    def find_output(self, output):
+        out_list = set((1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 16, 17))
+        port = 0
+        for i in out_list:
+            pin = self.d["pin%d" % i]
+            inv = self.d["pin%dinv" % i]
+            if pin == output: return i,port
+        if self.d.number_pports > 1:
+            port = 1
+            if self.d.pp2_direction:# Input option
+                out_list =(1,14,16,17)
+            else:
+                out_list =(1,2,3,4,5,6,7,8,9,14,16,17)
+            for pin in (out_list):
+                p = 'pp2_pin%d' % pin
+                if pin == output: return i,port
+        return None,None
+
+    def doublestep(self, steptime=None):
+        if steptime is None: steptime = self.d.steptime
+        return steptime <= 5000
+
+    def home_sig(self, axis):
+        SIG = self._p
+        inputs = self.build_input_set()
+        thisaxishome = set((SIG.ALL_HOME, SIG.ALL_LIMIT_HOME, "home-" + axis, "min-home-" + axis,
+                            "max-home-" + axis, "both-home-" + axis))
+        for i in inputs:
+            if i in thisaxishome: return i
+
+# Boiler code
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+# starting with 'stepconf -d' gives debug messages
+if __name__ == "__main__":
+    usage = "usage: Stepconf -[options]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
+    (options, args) = parser.parse_args()
+    if options.debug:
+        app = StepconfApp(dbgstate=True)
+    else:
+        app = StepconfApp(False)
+    gtk.main()
+

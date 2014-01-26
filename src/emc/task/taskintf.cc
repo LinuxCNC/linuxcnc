@@ -29,6 +29,9 @@
 #include "inifile.hh"
 #include "iniaxis.hh"
 #include "initraj.hh"
+#include "inihal.hh"
+
+value_inihal_data old_inihal_data;
 
 /* define this to catch isnan errors, for rtlinux FPU register 
    problem testing */
@@ -1263,10 +1266,19 @@ int emcMotionInit()
 	}
     }
 
+
     r3 = emcPositionLoad();
 
     if (r1 == 0 && r2 == 0 && r3 == 0) {
 	emcmotion_initialized = 1;
+    }
+
+    if (ini_hal_init()) {
+	rcs_print("emcMotionInit: ini_hal_init fail\n");
+    }
+
+    if (ini_hal_init_pins()) {
+	rcs_print("emcMotionInit: ini_hal_init_pins fail\n");
     }
 
     return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;

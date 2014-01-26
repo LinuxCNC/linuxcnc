@@ -1,14 +1,73 @@
+ver. 0.9.9.9.1
+- there was a bug in tool touch off, discovered by Jim
+  solved that
+
+ver. 0.9.9.9
+- gmoccapy is now able to do auto tool measurement after an manual tool change
+- introduced a ini config to simulate that
+- still to do: If user clickes on aboart while the tool change message window is still open
+  or he closes the window with the small X on the right upper corner, the hal pin will
+  not be reste propery
+
+ver. 0.9.9.8.2
+- gmoccapy_plasma, changed pin names to follow the pin naming convention
+- included THC Button state in persistaence (plasma.var)
+
+ver. 0.9.9.8.1
+- self.data.jog_increments now is self.jog_increments
+  changed the increments handling a little bit
+  so there is no need any more for self.no_increments
+- changed code from self.gscreen.halcomp to self.halcomp, because it is the same ;-)
+- prepared to be able to get an gmoccapy hal component
+
+ver. 0.9.9.8
+- bug in jogging with buttons and SHIFT hold down, as that would
+  result in a move at max velocity, not taking in care the max vel slider
+- renamed self.data.ob to self.onboard_kb to make code clearer
+- self.data.plot_view was a relict from gscreen, because gscreen needs to toggle 
+  through the views, we can select them directly, so this data is gone now
+- self.data.hide_cursor is now self.hide_cursor so this is different to gscreen, so 
+  both GUI should not influence each other
+- self.data.key_event_last changed to self.last_key_event (distinguish from gscreen)
+- corrected some typo in release notes
+- self.data.file replaced with self.stat.file, as it is not necessary to hold that on data
+- self.data.estopped replaced with self.stat.task_state
+- self.data.machine_on replaced with self.stat.task_state
+- self.data.all_homed is now self.all_homed so I know that this value is not set from gscreen
+- self.data.spindle_speed and self.data.spindle_direction replaced with self.stat statemenets
+- self.data.flood and self.data.mist replaced with stat statements
+- self.data.active_feed replaced with stat statements, resulting in auto units change also for
+  the speed labels
+- self.data.diameter_mode is now self.diameter_mode so its clear it come from gmoccapy
+- gremlin does react now on auto_units behavior of Combi_DRO
+- all sliders (scales) change according to active Gcode G20 / G21
+- executing an MDI command will change the keyboard button to allow linuxcnc.aboart()
+
+ver. 0.9.9.7.6
+- solved the bug wrong units on start up without the preference file
+  I needed to replace gscreen.status with my my own status, because gscreen 
+  does deliver wrong values!
+- changed some more gscreen.data stuff to self.stat..., 
+  because IMHO it is not necessary to use data to store something what is available
+  through stat module
+- replaced the preference file handling from gscreen to an own one, expecting that
+  gscreen does not mess my files up, if no preference file will be given in the INI,
+  we will use gmoccapy.pref stored in the config folder, so there could be different 
+  configs with different settings 
+- don't need gscreen.emc any more, all is done now directly with the linuxcnc python bindings
+- I do not use any more the gscreen.ini, we use now the linuxcnc.ini version from the python module
+
 ver. 0.9.9.7.5
 - typo in initialize_preferences 
 - deleted the statusbar widget
 - no more option to use gscreen error handling
 - no more option to use desktop notify
-- the optional stops button worked oposite it should
-- renamed some stuff from emc to linuxcnc or shortend the names
+- the optional stops button worked opposite it should
+- renamed some stuff from emc to linuxcnc or shortened the names
 - onboard keyboard showing in edit mode corrected
 - plasma.py changed order of getting widgets from builder, 
   to avoid errors at load time
-- notification change line wrape mode to caracter, 
+- notification change line wrap mode to character, 
   so longer file names will not be cut
 
 ver. 0.9.9.7.4
@@ -20,7 +79,7 @@ ver. 0.9.9.7.4
 ver. 0.9.9.7.3
 - plasma screen now hide also the vel_info_box
 - minimal changes on the glade files
-- modified the plasma.py file to suport persistance variables
+- modified the plasma.py file to support persistence variables
   the settings will be stored in plasma.var in your config dir
 - I set the plasma.py file under GPL license
 
@@ -77,8 +136,8 @@ ver. 0.9.9.3
 - if the user tried to make a new file and there where no 
   RS274NGC_STARTUP_CODE in the INI file, an exception has been thrown
   fixed that bug
-- if the user tried to make a new file, after he made allready one,
-  an exception has been trown, because the file was loaded allready
+- if the user tried to make a new file, after he made already one,
+  an exception has been thrown, because the file was loaded already
   fixed that bug
 
 ver. 0.9.9.2
@@ -97,7 +156,7 @@ ver. 0.9.9
 - The new DRO also indicates the actual coordinate system
 - The new DRO will change its units according to the active gcode (G20 / G21)
 - There are still the three buttons, but they are hidden by default,
-  this can be changed on the settings page, but when the buttons are vissible,
+  this can be changed on the settings page, but when the buttons are visible,
   the user looses the auto units feature of the DRO
   Hope too get the permission from the users to delete that button as soon as possible
 - made the documentation for IconViewFileSelection
@@ -115,9 +174,9 @@ ver. 0.9.8.4
 - introduced a imperial lathe ini
 
 ver 0.9.8.3
-- BUG: forget to update the cooordiante system after changing the error system,
+- BUG: forget to update the coordinate system after changing the error system,
   causing the ABS/REL button not showing the correct label, fixed
-- BUG: inserted Jog Increment continious insteadt of 0, so could cause an exception
+- BUG: inserted Jog Increment continuous instead of 0, so could cause an exception
   on translated GUI, fixed
 - BUG: when changing the mode from outside, i.e. starting a program with an external button, 
   the GUI did not change the style to auto mode, so it was not consistent, fixed
@@ -125,20 +184,20 @@ ver 0.9.8.3
   mode button (Thanks to Dejan/probamo)
 
 ver. 0.9.8.2
-- make the design from spindle and coolant frames more beautifull
+- make the design from spindle and coolant frames more beautiful
 - added both to a hbox, so later this box may be replaced by user controls,
   i.e. plasma cutters
 
 ver. 0.9.8.1
-- introduced new serbian translation
+- introduced new Serbian translation
 
 ver. 0.9.8
 - introduced notification as gmoccapy error messaging system
-- rebuild the settings page to make the message system settings availible
+- rebuild the settings page to make the message system settings available
 - new default startup position
 - changed DRO textcolor label to DRO background color label, because that is what you change
 - jogging with keyboard will jog full speed if SHIFT is hold down
-- <Super_L> key will delete the last message og gmoccapy message system
+- <Super_L> key will delete the last message of gmoccapy message system
 - <STRG>+<SPACE> delete all gmoccapy messages at once
 - switching on the machine will reset the GUI to manual mode
 - the setup button is no longer a member of the mode radiobuttons
@@ -150,13 +209,13 @@ ver. 0.9.7.5.1
   corrected that
 
 ver. 0.9.7.5
-- translation of the Continious Jog Button now possible
-- solved a bug, when selecting the contionous jog button when it was translated
+- translation of the Continuous Jog Button now possible
+- solved a bug, when selecting the continuous jog button when it was translated
 - added ABS, DTG and GTD to translation file
 - added "show or hide tool path" to translation
 - corrected a bug changing spindle bar min and max values changed the widget only on restart
 - added to translation the complete gscreen.py file, even if there are a lot of things 
-  nowbody need to translate, but that gives the possibility to translade the entry dialogs 
+  nobody need to translate, but that gives the possibility to translate the entry dialogs 
   and some button labels
 
 ver. 0.9.7.4
@@ -173,13 +232,13 @@ ver. 0.9.7.3.1
   right hand will not cover the DRO. Better handling?!
 - deleted the button reload from auto to get space for fullsize_preview, so the user can switch to
   fullsize preview, while the program runs.
-- errased the close button in botton button list edit, because the back button does the same 
+- errased the close button in bottom button list edit, because the back button does the same 
 - corrected the hardware button behavior, was needed because of the new order and 
   the reason that not "clicked" is emitted, but "pressed"
-- button edit offsets now shows automaticaly the offset page
+- button edit offsets now shows automatically the offset page
 - the buttons for fullsize preview on auto and edit offsets getting yellow when active
 - pressing the button new in edit mode will make a new file in /tmp with the content from
-  [RS274NGC] "RS274NGC_STARTUP_CODE" follod by 3 linefeed and an M2
+  [RS274NGC] "RS274NGC_STARTUP_CODE" followed by 3 linefeed and an M2
 
 ver. 0.9.7.3
 - the buttons tbtn_view_dimension and tbtn_view_tool_path of the gremlin view
@@ -188,7 +247,7 @@ ver. 0.9.7.3
 - the state view of gremlin was by default "p" no the state on leaving the gui 
   will be restored after restarting the GUI
 - corrected an error entering the settings page, and aborting the dialog, then the
-  message aperears two times, because the signal used was clicked and that is emited twice
+  message appears two times, because the signal used was clicked and that is emitted twice
   on a rbt when changing the state of the buttons in the group
 
 ver. 0.9.7.2
@@ -196,7 +255,7 @@ ver. 0.9.7.2
 
 ver. 0.9.7.1
 - changed the structure of the files, so the user do not need to copy files after an update
-  he only needs to adapt his conig files, this follows the new gscreen structure and 
+  he only needs to adapt his config files, this follows the new gscreen structure and 
   all files should be present after installing linuxcnc
 - corrected some typos in code
 - changed my way to show the entry dialog as integer only to the gscreen way
@@ -211,13 +270,13 @@ ver. 0.9.7
 - do not block any more the spindle buttons while the interpreter is running,
   so spindle can be switched on and of at any time
 - added a selection for show keyboard on file selection in settings page
-- changes button home_4 to show differnt icon, depending on INI settings of 4th axis
+- changes button home_4 to show different icon, depending on INI settings of 4th axis
 - moved some code "G95 related" from periodic to _update_vel
-- corrected some align valuse in glade file
+- corrected some align values in glade file
 - removed units from max_vel_label (glade file)
 - corrected hardware button behavior
 - added again a sim hardware ini file
-- uniform usage of "" instedt of sometime '' (just to clear python style)
+- uniform usage of "" instead of sometime '' (just to clear python style)
 - user can select on settings page, if he want the offsettab or the preview tab 
   to be displayed as default, the ntb_tabs are shown, so changing is possible at any time
 - prepared to get later our own error handling, introduced Notification Class, at the moment disabled
@@ -225,25 +284,25 @@ ver. 0.9.7
 
 ver. 0.9.6.1
 - fixed a bug editing a tool while G43 is active!
-- added a feature, that will update G43 after a toolchange if it was activ on toolchange start
-- tooloffset in Information frame does now oshow the real pin values motion.tooloffset.z if
+- added a feature, that will update G43 after a toolchange if it was active on toolchange start
+- tooloffset in Information frame does now show the real pin values motion.tooloffset.z if
   connected to gscreen.tooloffset_z in postgui.hal file (for lathe also x values)
-- cleared the code from some unnecesary ".gscreen." 
+- cleared the code from some unnecessary ".gscreen." 
 
 ver. 0.9.6
 - included the 4-th axis, buttons will change according to INI file settings
 - corrected not taken care of PROGRAM_PREFIX path set in the INI file
 - G95 Bug solved, it was caused from sim_spindle_encoder.hal, using now a modificated hal from axis
-- cleared a warning of missing han
+- cleared a warning of missing handler
 
 ver. 0.9.5.1
 - bug in spindle switching while in LOG Mode
-- ESC and F1 keys will work now, even if use Keyboart shortcuts is not axtivated
+- ESC and F1 keys will work now, even if use Keyboard shortcuts is not activated
 - solved a bug in run_from_line, the start line was not reseted after program stop, 
   and I missed to reset self.data.restart_dialog to None
 
 ver. 0.9.5
-- Keyboart shortcuts, now ESCAPE only aboarts and F1 emit estop
+- Keyboard shortcuts, now ESCAPE only aborts and F1 emit estop
 - spindle can be switched on and off while program is paused, without getting an error
 - sourceview now with search and do / redo, while in edit mode
 - added an offset page in ntb_preview with the possibility 
@@ -258,10 +317,10 @@ ver. 0.9.5
 - changes in gscreen broke gmoccapy cycle start seems that hal_action run is not any longer permitted,
   now hal toggle action is needed, corrected this
 - changed the entry dialog, so in some cases it is only possible to enter integer values
-- added a button to select a tool by its number, it is easear, if you have a lot of tools
+- added a button to select a tool by its number, it is easier, if you have a lot of tools
 - cleared the code a lot
 - settings page, it is possible to select if you want to use the onbord keyboard also in tooledit page 
-  and in offset page edditing
+  and in offset page editing
 - deleted the hardware button simulation ini, because it will not work as it should and I was not able
   to find a solution. 
 
