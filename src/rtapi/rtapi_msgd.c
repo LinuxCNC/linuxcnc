@@ -45,6 +45,9 @@
 #include <errno.h>
 #include <assert.h>
 #include <syslog.h>
+#include <poll.h>
+#include <sys/signalfd.h>
+#include <assert.h>
 
 #include <rtapi.h>
 #include "rtapi/shmdrv/shmdrv.h"
@@ -70,7 +73,7 @@ static int hal_thread_stack_size = HAL_STACKSIZE;
 // if no messages are pending
 // this way we retrieve bunched messages fast without much overhead in idle times
 
-static int msg_poll_max = 200; // maximum msgq checking interval
+static int msg_poll_max = 200; // maximum msgq checking interval, mS
 static int msg_poll_min = 1;   // minimum msgq checking interval
 static int msg_poll_inc = 2;   // increment interval if no message read up to msg_poll_max
 static int msg_poll = 1;       // current delay; startup fast
@@ -358,7 +361,7 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
     return retval;
 }
 
-static void signal_handler(int sig, siginfo_t *si, void *context)
+static void signal_handler(int sig)
 {
     if (global_data) {
 	global_data->magic = GLOBAL_EXITED;
@@ -368,8 +371,8 @@ static void signal_handler(int sig, siginfo_t *si, void *context)
     switch (sig) {
     case SIGTERM:
     case SIGINT:
-	syslog(LOG_INFO, "msgd:%d: SIGTERM - shutting down\n",
-	       rtapi_instance);
+	syslog(LOG_INFO, "msgd:%d: %s - shutting down\n",
+	       rtapi_instance, strsignal(sig));
 
 	// hint if error ring couldnt be served fast enough,
 	// or there was contention
@@ -386,8 +389,8 @@ static void signal_handler(int sig, siginfo_t *si, void *context)
 
     default: // pretty bad
 	syslog(LOG_ERR,
-	       "msgd:%d: caught signal %d - dumping core\n",
-	       rtapi_instance, sig);
+	       "msgd:%d: caught signal %d '%s' - dumping core (current dir=%s)\n",
+	       rtapi_instance, sig, strsignal(sig), get_current_dir_name());
 	closelog();
 	sleep(1); // let syslog drain
 	signal(SIGABRT, SIG_DFL);
@@ -426,6 +429,27 @@ static int message_thread()
     size_t payload_length;
     int retval;
     char *cp;
+    int sigfd;
+    sigset_t sigset;
+
+    // sigset of all the signals that we're interested in
+    assert(sigemptyset(&sigset) == 0);
+    assert(sigaddset(&sigset, SIGINT) == 0);
+    assert(sigaddset(&sigset, SIGKILL) == 0);
+    assert(sigaddset(&sigset, SIGTERM) == 0);
+    assert(sigaddset(&sigset, SIGSEGV) == 0);
+    assert(sigaddset(&sigset, SIGFPE) == 0);
+
+    // block the signals in order for signalfd to receive them
+    assert(sigprocmask(SIG_BLOCK, &sigset, NULL) == 0);
+
+    assert((sigfd = signalfd(-1, &sigset, 0)) != -1);
+
+    struct pollfd pfd[1];
+    int ret;
+    
+    pfd[0].fd = sigfd;
+    pfd[0].events = POLLIN | POLLERR | POLLHUP;
 
     global_data->magic = GLOBAL_READY;
 
@@ -459,9 +483,19 @@ static int message_thread()
 	    record_shift(&rtapi_msg_buffer);
 	    msg_poll = msg_poll_min;
 	}
-	struct timespec ts = {0, msg_poll * 1000 * 1000};
 
-	nanosleep(&ts, NULL);
+	ret = poll(pfd, 1, msg_poll);
+	if (ret < 0) {
+	    syslog(LOG_ERR, "msgd:%d: poll(): %s - shutting down\n",
+		   rtapi_instance, strerror(errno));
+	    msgd_exit++;
+	} else if (pfd[0].revents & POLLIN) { // signal received
+	    struct signalfd_siginfo info;
+	    size_t bytes = read(sigfd, &info, sizeof(info));
+	    assert(bytes == sizeof(info));
+	    signal_handler(info.ssi_signo);
+	}
+	
 	msg_poll += msg_poll_inc;
 	if (msg_poll > msg_poll_max)
 	    msg_poll = msg_poll_max;
@@ -492,7 +526,6 @@ int main(int argc, char **argv)
     int c, i, retval;
     int option = LOG_NDELAY;
     pid_t pid, sid;
-    struct sigaction sig_act;
     size_t argv0_len, procname_len, max_procname_len;
 
     progname = argv[0];
@@ -683,22 +716,6 @@ int main(int argc, char **argv)
     close(STDOUT_FILENO);
     if (!log_stderr)
 	close(STDERR_FILENO);
-
-    sigemptyset( &sig_act.sa_mask );
-    sig_act.sa_handler = SIG_IGN;
-    sig_act.sa_sigaction = NULL;
-
-    // prevent stopping by ^Z
-    sigaction(SIGTSTP, &sig_act, (struct sigaction *) NULL); 
-
-    sig_act.sa_sigaction = signal_handler;
-    sig_act.sa_flags   = SA_SIGINFO;
-
-    sigaction(SIGINT,  &sig_act, (struct sigaction *) NULL);
-    sigaction(SIGKILL, &sig_act, (struct sigaction *) NULL);
-    sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
-    sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
-    sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
 
     message_thread();
 
