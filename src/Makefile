@@ -83,7 +83,7 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: configs userspace modules cscope
+default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),sim)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -1127,7 +1127,7 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	ln -sf $(notdir $<) $@
 
 cscope:
-	cscope -Rbq
+	cscope -Rb
 
 cscopeclean:
 	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
