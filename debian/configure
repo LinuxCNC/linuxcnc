@@ -51,6 +51,10 @@ config['dev-depends'] = set()
 # arguments we want debian/rules to pass to src/configure
 config['src/configure'] = set()
 
+# arguments passed to debian/configure (us, now!) so we can rerun it via
+# debian/rules if any of the .in files change
+config['debian/configure'] = []
+
 
 def usage():
     print """\
@@ -127,6 +131,7 @@ def subst(infile, outfile, config):
             + " -e 's`@SUGGESTS@`%s`g'" % ', '.join(config['suggests'])
             + " -e 's`@DEV_DEPENDS@`%s`g'" % ', '.join(config['dev-depends'])
             + " -e 's`@SRC_CONFIGURE@`%s`g'" % ' '.join(config['src/configure'])
+            + " -e 's`@DEBIAN_CONFIGURE@`%s`g'" % ' '.join(config['debian/configure'])
             + " -e 's`@PYTHON_VERSION@`%d.%d`g'" % (sys.version_info[0], sys.version_info[1])
             + " -e 's`@PYTHON_VERSION_NEXT@`%d.%d`g'" % (sys.version_info[0], 1 + sys.version_info[1])
             + " -e 's`@EXTRA_DIR@`%s`g'" % config['extra-dir']
@@ -142,6 +147,10 @@ def subst(infile, outfile, config):
             print >>sys.stderr, "Child was terminated by signal", -retcode
     except OSError:
         print >>sys.stderr, "Failed to run sed!"
+
+
+# save off the arguments the user just gave us
+config['debian/configure'] = sys.argv[1:]
 
 
 #
