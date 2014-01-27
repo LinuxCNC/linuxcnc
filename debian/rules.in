@@ -23,10 +23,9 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 endif
 
 
-debian/control:
-	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
-	sed -e 's/@@KVERSION@@/$(kernel_version)/g' \
-	    debian/control.in >> debian/control
+debian/control debian/rules: debian/configure debian/*.in
+	@echo rebuilding debian/control and debian/rules
+	(cd debian; ./configure @DEBIAN_CONFIGURE@)
 
 build: build-arch build-indep
 build-arch: build-stamp
@@ -107,6 +106,3 @@ binary-arch: build install
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install
-
-debian/rules: debian/configure debian/*.in
-	debian/configure @TARGET@
