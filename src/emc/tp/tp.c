@@ -765,13 +765,11 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
  * This is used to estimate blend velocity, though by itself is not enough
  * (since requested velocity and max velocity could be lower).
  */
-STATIC int tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Compute peak velocity for blend calculations
     double acc_scaled = tpGetScaledAccel(tp, tc);
-    tc->triangle_vel = pmSqrt( acc_scaled * tc->target);
-    //FIXME id kludge
-    tp_debug_print("id %d Triangle vel = %f\n", tp->nextId, tc->triangle_vel);
-    return 0;
+    double triangle_vel = pmSqrt( acc_scaled * tc->target);
+    return triangle_vel;
 }
 
 
@@ -925,10 +923,8 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
         //acceleration. This only works due to the specific
         //implementation of GetScaledAccel
         tc->maxvel *= pmSqrt(TP_ACC_RATIO_TANGENTIAL);
-
-        tpCheckLastParabolic(tp, tc);
-        tpCalculateTriangleVel(tp, tc);
     }
+    tpCheckLastParabolic(tp, tc);
     tc->finalized = 1;
     return TP_ERR_OK;
 }
@@ -1211,7 +1207,6 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     }
 
     tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
-    tpCalculateTriangleVel(tp, &tc);
 
     //Assume non-zero error code is failure
     prev_tc = tcqLast(&tp->queue);
@@ -1470,6 +1465,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
 }
 
+
 /**
  * Handle creating a blend arc when a new line segment is about to enter the queue.
  * This function handles the checks, setup, and calculations for creating a new
@@ -1512,10 +1508,6 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             tp_debug_print("blend arc NOT created\n");
             return arc_fail;
         }
-
-        //Need to do this here since the length changed
-        tpCalculateTriangleVel(tp, prev_tc);
-        tpCalculateTriangleVel(tp, tc);
 
         tpAddSegmentToQueue(tp, &blend_tc, false);
     }
@@ -1586,7 +1578,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     tpCheckLastParabolic(tp, &tc);
-    tpCalculateTriangleVel(tp, &tc);
     prev_tc = tcqLast(&tp->queue);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
@@ -1747,8 +1738,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         target_vel_next = tpGetRealTargetVel(tp, nexttc);
     }
 
-    double v_reachable_this = fmin(tc->triangle_vel, target_vel_this);
-    double v_reachable_next = fmin(nexttc->triangle_vel, target_vel_next);
+    double v_reachable_this = fmin(tpCalculateTriangleVel(tp,tc), target_vel_this);
+    double v_reachable_next = fmin(tpCalculateTriangleVel(tp,nexttc), target_vel_next);
     /* Scale blend velocity to match blends between current and next segment.
      *
      * The blend time t_b should be the same for this segment and the next
