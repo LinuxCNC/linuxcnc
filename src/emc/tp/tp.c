@@ -1103,6 +1103,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tpFinalizeSegmentLimits(tp, blend_tc);
 
     if (consume) {
+        prev_tc->smoothing = 1;
+        blend_tc->smoothing = 1;
         retval = tcqPopBack(&tp->queue);
         tp_debug_print("consume previous line\n");
         if (retval) {
@@ -1942,7 +1944,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
     /* Check if the final velocity is too low to properly ramp up.
      */
     if (vel_final < TP_VEL_EPSILON) {
-        tp_debug_print(" vel_avg %f too low for smoothing\n", vel_avg);
+        tp_debug_print(" vel_final %f too low for smoothing\n", vel_final);
         return TP_ERR_FAIL;
     }
 
