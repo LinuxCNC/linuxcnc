@@ -1104,7 +1104,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
 
     int retval = 0;
-    tpFinalizeSegmentLimits(tp, blend_tc);
 
     if (consume) {
         //Since we're consuming the previous segment, pop the last line off of the queue
@@ -1577,7 +1576,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
-    tpCheckLastParabolic(tp, &tc);
     prev_tc = tcqLast(&tp->queue);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
@@ -1590,6 +1588,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     //Flag this as blending with previous segment if the previous segment is
     //set to blend with this one
+    tpCheckLastParabolic(tp, &tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
