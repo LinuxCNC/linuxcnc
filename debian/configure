@@ -49,6 +49,10 @@ config['xenomai-kernel-recommends'] = set()
 # arguments passed to src/configure to select build flavors
 config['src/configure'] = set()
 
+# arguments passed to debian/configure (us, now!) so we can rerun it via
+# debian/rules if any of the .in files change
+config['debian/configure'] = []
+
 
 def usage():
     print """\
@@ -167,6 +171,7 @@ def subst(infile, outfile, config):
             + " -e 's`@RECOMMENDS@`%s`g'" % ', '.join(config['recommends'])
             + " -e 's`@SUGGESTS@`%s`g'" % ', '.join(config['suggests'])
             + " -e 's`@SRC_CONFIGURE@`%s`g'" % ' '.join(config['src/configure'])
+            + " -e 's`@DEBIAN_CONFIGURE@`%s`g'" % ' '.join(config['debian/configure'])
             + " -e 's`@PYTHON_VERSION@`%d.%d`g'" % (sys.version_info[0], sys.version_info[1])
             + " -e 's`@PYTHON_VERSION_NEXT@`%d.%d`g'" % (sys.version_info[0], 1 + sys.version_info[1])
             + " -e 's`@EXTRA_DIR@`%s`g'" % config['extra-dir']
@@ -191,6 +196,9 @@ def subst(infile, outfile, config):
 
 # posix is always enabled
 config['flavors'].add('posix')
+
+# save off the arguments the user just gave us
+config['debian/configure'] = sys.argv[1:]
 
 
 if len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
