@@ -813,7 +813,7 @@ STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1,
 
     if (dot > 1.0 || dot < -1.0) {
         tp_debug_print("dot product %f outside domain of acos!\n",dot);
-        return TP_ERR_FAIL;
+        sat_inplace(&dot,1.0);
     }
 
     *theta = acos(-dot)/2.0;
@@ -829,7 +829,8 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
     pmCartCartDot(u1, u2, &dot);
 
     if (dot > 1.0 || dot < -1.0) {
-        return TP_ERR_FAIL;
+        tp_debug_print("dot product %f outside domain of acos!\n",dot);
+        sat_inplace(&dot,1.0);
     }
 
     *theta = acos(dot);
