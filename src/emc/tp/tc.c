@@ -152,14 +152,19 @@ static int tcGetHelicalTangentVector(PmCircle const * const circle, double progr
  */
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
-    if(tc->motion_type == TC_LINEAR || tc->motion_type == TC_RIGIDTAP) {
-        *out=tc->coords.line.xyz.uVec;
-    } else if (tc->motion_type == TC_CIRCULAR) {
-        tcGetHelicalTangentVector(&tc->coords.circle.xyz, 0.0, out);
-    }
-    else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
-        return -1;
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            *out=tc->coords.line.xyz.uVec;
+            break;
+        case TC_RIGIDTAP:
+            *out=tc->coords.rigidtap.xyz.uVec;
+            break;
+        case TC_CIRCULAR:
+            tcGetHelicalTangentVector(&tc->coords.circle.xyz, 0.0, out);
+            break;
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
+            return -1;
     }
     return 0;
 }
@@ -169,17 +174,20 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
  */
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
-    if(tc->motion_type == TC_LINEAR) {
-        *out=tc->coords.line.xyz.uVec;
-    } else if(tc->motion_type == TC_RIGIDTAP) {
-        // comes out the other way
-        pmCartScalMult(&tc->coords.line.xyz.uVec, -1.0, out);
-    } else if (tc->motion_type == TC_CIRCULAR){
-        tcGetHelicalTangentVector(&tc->coords.circle.xyz,
-                tc->coords.circle.xyz.angle, out);
-    } else {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
-        return -1;
+    switch (tc->motion_type) {
+        case TC_LINEAR:
+            *out=tc->coords.line.xyz.uVec;
+            break;
+        case TC_RIGIDTAP:
+            pmCartScalMult(&tc->coords.rigidtap.xyz.uVec, -1.0, out);
+            break;
+        case TC_CIRCULAR:
+            tcGetHelicalTangentVector(&tc->coords.circle.xyz,
+                    tc->coords.circle.xyz.angle, out);
+            break;
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
+            return -1;
     }
     return 0;
 }
