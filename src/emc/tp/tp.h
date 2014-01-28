@@ -22,8 +22,8 @@
 #define TP_MIN_SEGMENT_CYCLES 1.02
 //Values chosen for accel ratio to match parabolic blend acceleration
 //limits.
-#define TP_ACC_RATIO_NORMAL (pmSqrt(3.0)/2.0)
 #define TP_ACC_RATIO_TANGENTIAL 0.5
+#define TP_ACC_RATIO_NORMAL (pmSqrt(1.0 - pmSq(TP_ACC_RATIO_TANGENTIAL)))
 #define TP_OPTIMIZATION_CUTOFF 4
 
 /* closeness to zero, for determining if a move is pure rotation */
