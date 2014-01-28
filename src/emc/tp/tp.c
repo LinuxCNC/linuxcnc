@@ -60,6 +60,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc);
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
+STATIC double saturate(double x, double max);
 
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
@@ -886,8 +887,8 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 }
 
 
-STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc)
+STATIC int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance)
 {
     const double tolerance_ratio = 0.25;
     double T1 = fmin(prev_tc->tolerance, prev_tc->nominal_length * tolerance_ratio);
@@ -899,8 +900,14 @@ STATIC double tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
     if (T2 == 0) {
         T2 = tc->nominal_length * tolerance_ratio;
     }
-    double tolerance = fmin(T1,T2);
-    return tolerance;
+    *nominal_tolerance = fmin(T1,T2);
+    //Blend tolerance is the limit of what we can reach by blending alone,
+    //consuming half a segment or less (parabolic equivalent)
+    double blend_tolerance = fmin(fmin(*nominal_tolerance, 
+                prev_tc->nominal_length * tolerance_ratio),
+            tc->nominal_length * tolerance_ratio);
+    *T_blend = blend_tolerance;
+    return TP_ERR_OK;
 }
 
 /**
@@ -952,15 +959,15 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     double phi = (PM_PI - theta * 2.0);
 
-    PmCartesian normal;
+    PmCartesian binormal;
     pmCartCartCross(&prev_tc->coords.line.xyz.uVec,
             &tc->coords.line.xyz.uVec,
-            &normal);
-    pmCartUnit(&normal,&normal);
-    tp_debug_print("normal = [%f %f %f]\n",normal.x, normal.y,normal.z);
+            &binormal);
+    pmCartUnit(&binormal,&binormal);
+    tp_debug_print("binormal = [%f %f %f]\n", binormal.x,binormal.y,binormal.z);
     double a_max;
     //TODO move this function into setup somewhere because this should be constant
-    tpGetPlanarAccelLimit(&normal, &a_max);
+    tpGetPlanarAccelLimit(&binormal, &a_max);
 
     double a_n_max = a_max * TP_ACC_RATIO_NORMAL;
     tp_debug_print("a_max = %f, a_n_max = %f\n",a_max, a_n_max);
@@ -983,9 +990,9 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
-    //Find blend tolerance from prev and current lines
-    //Find the minimum tolerance (in case it dropped between moves)
-    double tolerance = tcFindBlendTolerance(prev_tc, tc);
+    //TODO get tolerance from blend here 
+    double tolerance,nominal_tolerance;
+    tcFindBlendTolerance(prev_tc,tc,&tolerance,&nominal_tolerance);
     double h_tol = tolerance / (1.0 - Stheta);
     double d_tol = Ctheta * h_tol;
     // Debug output for tolerances
@@ -1034,7 +1041,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     double L_next = tc->target - d_plan;
 #endif
 
-    int consume = (prev_seg_time < min_segment_time);
+    int consume = (prev_seg_time < emcmotConfig->arcBlendGapCycles * min_segment_time);
     double s_arc = phi * R_plan;
     if (consume) {
         s_arc += L_prev;
@@ -1106,6 +1113,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     if (consume) {
         prev_tc->smoothing = 1;
         blend_tc->smoothing = 1;
+
         retval = tcqPopBack(&tp->queue);
         tp_debug_print("consume previous line\n");
         if (retval) {
@@ -1118,6 +1126,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         blend_tc->coords.arc.xyz.line_length = 0;
         retval = tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
     }
+    tpFinalizeSegmentLimits(tp, blend_tc);
 
     return retval;
 
