@@ -166,17 +166,17 @@ static int loadTraj(EmcIniFile *trajInifile)
         int arcBlendEnable = 0;
         int arcBlendFallbackEnable = 0;
         int arcBlendOptDepth = 0;
-        double arcBlendSmoothingThreshold = 0.4;
+        double arcBlendGapCycles = 2;
         double arcBlendGreediness = 0.5;
 
         trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
         trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK_ENABLE", "TRAJ");
         trajInifile->Find(&arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
-        trajInifile->Find(&arcBlendSmoothingThreshold, "ARC_BLEND_SMOOTHING_THRESHOLD", "TRAJ");
+        trajInifile->Find(&arcBlendGapCycles, "ARC_BLEND_GAP_CYCLES", "TRAJ");
         trajInifile->Find(&arcBlendGreediness, "ARC_BLEND_GREEDINESS", "TRAJ");
 
         if (0 != emcSetupArcBlends(arcBlendEnable, arcBlendFallbackEnable,
-                    arcBlendOptDepth, arcBlendSmoothingThreshold, arcBlendGreediness)) {
+                    arcBlendOptDepth, arcBlendGapCycles, arcBlendGreediness)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcSetupArcBlends\n");
             }
