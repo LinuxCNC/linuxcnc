@@ -244,12 +244,21 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer,
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
     if (size == -1) {
-        int send, recv, i;
+        int send, recv, i = 0;
+        long long t0, t1, t2;
         u8 tmp_buffer[queue_buff_size];
     
         read_cnt++;
+        t0 = rtapi_get_time();
         send = eth_socket_send(sockfd, (void*) &queue_packets, sizeof(lbp16_cmd_addr)*queue_reads_count, 0);
-        recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, queue_buff_size, 0);
+        t1 = rtapi_get_time();
+        do {
+            rtapi_delay(10000);
+            recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, queue_buff_size, 0);
+            t2 = rtapi_get_time();
+            i++;
+        } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
+        LL_PRINT_IF(debug, "enqueue_read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", read_cnt, recv, i, t2 - t1);
         
         for (i = 0; i < queue_reads_count; i++) {
             memcpy(queue_reads[i].buffer, &tmp_buffer[queue_reads[i].from], queue_reads[i].size);
