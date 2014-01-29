@@ -42,7 +42,6 @@ STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
 STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 #endif
 
-#define TP_SMOOTHING
 #define TP_SHOW_BLENDS
 #define TP_OPTIMIZATION_LAZY
 
@@ -735,7 +734,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->blend_prev = 0;
     tc->optimization_state = 0;
     tc->finalvel = 0.0;
-    tc->smoothing = 0;
+    tc->accel_mode = TC_ACCEL_TRAPZ;
 
     /** Segment status flags that are used during trajectory execution. */
     tc->active = 0;
@@ -919,7 +918,8 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
         return TP_ERR_FAIL;
     }
     tp_debug_print("Finalizing tc id %d, type %d\n", tc->id, tc->motion_type);
-    if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC)) {
+    if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond ==
+                TC_TERM_COND_PARABOLIC)) {
         tp_debug_print("Setting parabolic maxvel\n");
         //FIXME Hack to deal with the "double" scaling of
         //acceleration. This only works due to the specific
@@ -987,6 +987,8 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     //Nominal length restriction prevents gobbling too much of parabolic blends
     double L1 = fmin(prev_tc->target, prev_tc->nominal_length * greediness);
     double L2 = tc->target * greediness;
+    tp_debug_print("prev. nominal length = %f, next nominal_length = %f\n",
+            prev_tc->nominal_length, tc->nominal_length);
 
     double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
 
@@ -1097,29 +1099,27 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     tp_debug_print("R_plan = %f, radius_calc = %f\n", R_plan, blend_tc->coords.arc.xyz.radius);
 
-    // Note that previous restrictions don't allow ABC or UVW movement, so the end and start points should be identical
+    // Note that previous restrictions don't allow ABC or UVW movement, so the
+    // end and start points should be identical
     blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tp_debug_print("arc line length = %f\n", blend_tc->coords.arc.xyz.line_length);
     tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
 
-    prev_tc->smoothing = 0;
-    blend_tc->smoothing = 0;
-
     int retval = 0;
     tpFinalizeSegmentLimits(tp, blend_tc);
 
     if (consume) {
-        prev_tc->smoothing = 1;
-        blend_tc->smoothing = 1;
-
+        //Since we're consuming the previous segment, pop the last line off of the queue
         retval = tcqPopBack(&tp->queue);
         tp_debug_print("consume previous line\n");
         if (retval) {
             tp_debug_print("PopBack failed\n");
             return TP_ERR_FAIL;
         }
+        //Since the blend arc meets the end of the previous line, we only need
+        //to "connect" to the next line
         retval = tcConnectBlendArc(NULL, tc, &circ_start, &circ_end);
     } else {
         tp_debug_print("keeping previous line\n");
@@ -1269,7 +1269,7 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
 
 /**
  * Based on the nth and (n-1)th segment, find a safe final velocity for the (n-1)th segment.
- * This function also caps the target velocity if smoothing is enabled. If we
+ * This function also caps the target velocity if velocity ramping is enabled. If we
  * don't do this, then the linear segments (with higher tangential
  * acceleration) will speed up and slow down to reach their target velocity,
  * creating "humps" in the velocity profile.
@@ -1366,10 +1366,10 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
             return TP_ERR_OK;
         }
 
-        tp_info_print("  current term = %u, type = %u, id = %u, smoothing = %d\n",
-                tc->term_cond, tc->motion_type, tc->id, tc->smoothing);
-        tp_info_print("  prev term = %u, type = %u, id = %u, smoothing = %d\n",
-                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->smoothing);
+        tp_info_print("  current term = %u, type = %u, id = %u, accel_mode = %d\n",
+                tc->term_cond, tc->motion_type, tc->id, tc->accel_mode);
+        tp_info_print("  prev term = %u, type = %u, id = %u, accel_mode = %d\n",
+                prev1_tc->term_cond, prev1_tc->motion_type, prev1_tc->id, prev1_tc->accel_mode);
 
         if (tc->atspeed) {
             //Assume worst case that we have a stop at this point. This may cause a
@@ -1577,15 +1577,15 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     tpCheckLastParabolic(tp, &tc);
     tpCalculateTriangleVel(tp, &tc);
+    prev_tc = tcqLast(&tp->queue);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
-        prev_tc = tcqLast(&tp->queue);
         int blend_fail = tpHandleBlendArc(tp, &tc);
         if (blend_fail) {
             tp_debug_print("blend arc failed, finalizing prev line\n");
         }
-        tpFinalizeSegmentLimits(tp, prev_tc);
     }
+    tpFinalizeSegmentLimits(tp, prev_tc);
 
     //Flag this as blending with previous segment if the previous segment is
     //set to blend with this one
@@ -1770,7 +1770,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     }
 
     double theta;
-    if (tc->tolerance < TP_BIG_NUM || planning) {
+    if (tc->tolerance > 0 || planning) {
         /* see diagram blend.fig.  T (blend tolerance) is given, theta
          * is calculated from dot(s1, s2)
          *
@@ -1954,7 +1954,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
     /* Check if the final velocity is too low to properly ramp up.
      */
     if (vel_final < TP_VEL_EPSILON) {
-        tp_debug_print(" vel_final %f too low for smoothing\n", vel_final);
+        tp_debug_print(" vel_final %f too low for velocity ramping\n", vel_final);
         return TP_ERR_FAIL;
     }
 
@@ -2327,6 +2327,25 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_OK;
     }
 
+    // Test if we need ramping or trapezoidal acceleration for this move
+    // FIXME: move this to INI setting
+    const double cutoff_freq = 50.0; //Hz
+    double cutoff_time = 1.0 / (cutoff_freq);
+
+    double length = (tc->target-tc->progress);
+    double segment_time = 2.0 * length / (tc->currentvel + tc->finalvel);
+    /*double segment_cycles = segment_time / tp->cycle_time;*/
+
+    if (segment_time < cutoff_time &&
+            tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
+            tc->term_cond == TC_TERM_COND_TANGENT)
+    {
+        tp_debug_print("segment_time = %f, cutoff_time = %f, ramping\n",
+                segment_time, cutoff_time);
+        tc->accel_mode = TC_ACCEL_RAMP;
+    }
+
+    // Do at speed checks
     int needs_atspeed = tc->atspeed ||
         (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
 
@@ -2507,12 +2526,12 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     int res = 1;
     double acc, vel_desired;
 
-    // If velocity smoothing is on, use a "ramp" velocity profile instead of
-    // a trapezoidal velocity profile
-    if (tc->smoothing) {
+    // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
+    if (tc->accel_mode) {
         res = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
     }
 
+    // Check the return in case the ramp calculation failed, fall back to trapezoidal
     if (res != TP_ERR_OK) {
         tpCalculateTrapezoidalAccel(tp, tc, &acc, &vel_desired);
     }
