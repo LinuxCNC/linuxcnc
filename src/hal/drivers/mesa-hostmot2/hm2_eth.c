@@ -71,6 +71,8 @@ int queue_buff_size = 0;
 static u8 write_packet[1400];
 void *write_packet_ptr = &write_packet;
 int write_packet_size = 0;
+int read_cnt = 0;
+int write_cnt = 0;
 
 /// ethernet io functions
 
@@ -205,26 +207,33 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags) {
 /// hm2_eth io functions
 
 static int hm2_eth_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
-    int send, recv;
+    int send, recv, i = 0;
     u8 tmp_buffer[size + 4];
     long long t0, t1, t2;
 
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    read_cnt++;
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
     t0 = rtapi_get_time();
     send = eth_socket_send(sockfd, (void*) &read_packet, sizeof(read_packet), 0);
-    LL_PRINT_IF(debug, "read() : PACKET SENDED [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", read_packet.cmd_hi, read_packet.cmd_lo, 
+    LL_PRINT_IF(debug, "read(%d) : PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", read_cnt, read_packet.cmd_hi, read_packet.cmd_lo, 
       read_packet.addr_lo, read_packet.addr_hi, size);
     t1 = rtapi_get_time();
     do {
         rtapi_delay(10000);
         recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, size, 0);
         t2 = rtapi_get_time();
+        i++;
     } while ((recv < 0) && ((t2 - t1) < 200*1000*1000));
 
+    if (recv == 4) {
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [DATA: %08X | SIZE: %d | TRIES: %d | TIME: %llu]\n", read_cnt, *tmp_buffer, recv, i, t2 - t1);
+    } else {
+        LL_PRINT_IF(debug, "read(%d) : PACKET RECV [SIZE: %d | TRIES: %d | TIME: %llu]\n", read_cnt, recv, i, t2 - t1);
+    }
     if (recv < 0)
         return 0;
     memcpy(buffer, tmp_buffer, size);
@@ -238,6 +247,7 @@ static int hm2_eth_enqueue_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer,
         int send, recv, i;
         u8 tmp_buffer[queue_buff_size];
     
+        read_cnt++;
         send = eth_socket_send(sockfd, (void*) &queue_packets, sizeof(lbp16_cmd_addr)*queue_reads_count, 0);
         recv = eth_socket_recv(sockfd, (void*) &tmp_buffer, queue_buff_size, 0);
         
@@ -267,12 +277,13 @@ static int hm2_eth_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int si
 
     if (comm_active == 0) return 1;
     if (size == 0) return 1;
+    write_cnt++;
 
     memcpy(packet.tmp_buffer, buffer, size);
     LBP16_INIT_PACKET4(packet.wr_packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr & 0xFFFF);
 
     send = eth_socket_send(sockfd, (void*) &packet, sizeof(lbp16_cmd_addr) + size, 0);
-    LL_PRINT_IF(debug, "write(): PACKET SENDED [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo, 
+    LL_PRINT_IF(debug, "write(%d): PACKET SENT [CMD:%02X%02X | ADDR: %02X%02X | SIZE: %d]\n", write_cnt, packet.wr_packet.cmd_hi, packet.wr_packet.cmd_lo, 
       packet.wr_packet.addr_lo, packet.wr_packet.addr_hi, size);
 
     return 1;  // success
@@ -283,6 +294,7 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer
     if (size == 0) return 1;
     if (size == -1) {
         int send;
+    write_cnt++;
 
         //lbp16_cmd_addr *packet = (lbp16_cmd_addr *) write_packet_ptr;
 
