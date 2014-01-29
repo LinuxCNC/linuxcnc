@@ -42,6 +42,9 @@
 #define TC_OPTIM_UNTOUCHED 0
 #define TC_OPTIM_AT_MAX 1
 
+#define TC_ACCEL_TRAPZ 0
+#define TC_ACCEL_RAMP 1
+
 /* structure for individual trajectory elements */
 
 typedef struct {
@@ -132,7 +135,7 @@ typedef struct {
     int optimization_state;             // At peak velocity during blends)
     int on_final_decel;
     int blend_prev;
-    int smoothing;
+    int accel_mode;
     int splitting;          // the segment is less than 1 cycle time
                             // away from the end.
     int remove;             // Flag to remove the segment from the queue
