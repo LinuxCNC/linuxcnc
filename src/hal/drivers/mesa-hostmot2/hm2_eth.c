@@ -303,7 +303,7 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer
     if (size == 0) return 1;
     if (size == -1) {
         int send;
-    write_cnt++;
+        write_cnt++;
 
         //lbp16_cmd_addr *packet = (lbp16_cmd_addr *) write_packet_ptr;
 

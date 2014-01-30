@@ -86,12 +86,11 @@ static void hm2_read(void *void_hm2, long period) {
     if (hm2->watchdog.num_instances > 0) {
         // we're reading from the hm2 board now, so turn on the watchdog
         hm2->watchdog.instance[0].enable = 1;
-
-        hm2_watchdog_read(hm2);  // look for bite
     }
 
     hm2_tram_read(hm2);
     if ((*hm2->llio->io_error) != 0) return;
+    hm2_watchdog_process_tram_read(hm2);
     hm2_ioport_gpio_process_tram_read(hm2);
     hm2_encoder_process_tram_read(hm2, period);
     hm2_resolver_process_tram_read(hm2, period);

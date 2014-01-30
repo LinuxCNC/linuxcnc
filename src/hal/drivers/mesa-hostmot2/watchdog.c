@@ -86,7 +86,7 @@ static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
 }
 
 
-void hm2_watchdog_read(hostmot2_t *hm2) {
+void hm2_watchdog_process_tram_read(hostmot2_t *hm2) {
     // if there is no watchdog, then there's nothing to do
     if (hm2->watchdog.num_instances == 0) return;
 
@@ -102,7 +102,6 @@ void hm2_watchdog_read(hostmot2_t *hm2) {
 
     // last time we were here, everything was fine
     // see if the watchdog has bit since then
-    hm2->llio->read(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, (hm2->watchdog.num_instances * sizeof(u32)));
     if ((*hm2->llio->io_error) != 0) return;
     if (hm2->watchdog.status_reg[0] & 0x1) {
         HM2_PRINT("Watchdog has bit! (set the .has-bit pin to False to resume)\n");
@@ -165,6 +164,12 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->watchdog.status_addr = md->base_address + (1 * md->register_stride);
     hm2->watchdog.reset_addr = md->base_address + (2 * md->register_stride);
 
+
+    r = hm2_register_tram_read_region(hm2, hm2->watchdog.status_addr, (hm2->watchdog.num_instances * sizeof(u32)), &hm2->watchdog.status_reg);
+    if (r < 0) {
+        HM2_ERR("error registering tram read region for watchdog (%d)\n", r);
+        goto fail0;
+    }
 
     // 
     // allocate memory for register buffers
