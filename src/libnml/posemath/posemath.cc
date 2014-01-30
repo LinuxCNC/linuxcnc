@@ -950,7 +950,7 @@ PM_CARTESIAN unit(PM_CARTESIAN v)
 
     toCart(v, &_v);
 
-    pmCartUnit(&_v, &_v);
+    pmCartUnitEq(&_v);
 
     toCart(_v, &vout);
 
