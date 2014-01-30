@@ -858,6 +858,13 @@ extern "C" {
     extern int pmCartNeg(PmCartesian const * const, PmCartesian * const);
     extern int pmCartUnit(PmCartesian const * const, PmCartesian * const);
     extern int pmCartAbs(PmCartesian const * const, PmCartesian * const);
+    // Equivalent of compound operators like +=, -=, etc. Basically, these functions work directly on the first PmCartesian
+    extern int pmCartCartAddEq(PmCartesian * const, PmCartesian const * const);
+    extern int pmCartCartSubEq(PmCartesian * const, PmCartesian const * const);
+    extern int pmCartScalMultEq(PmCartesian * const, double);
+    extern int pmCartScalDivEq(PmCartesian * const, double);
+    extern int pmCartUnitEq(PmCartesian * const);
+    extern int pmCartNegEq(PmCartesian * const);
 /*! \todo Another #if 0 */
 #if 0
     extern int pmCartNorm(PmCartesian const * const v, PmCartesian * const vout);
@@ -868,6 +875,7 @@ extern "C" {
 
     extern int pmCartIsNorm(PmCartesian const * const v);
     extern int pmCartInv(PmCartesian const * const, PmCartesian * const);
+    extern int pmCartInvEq(PmCartesian * const);
     extern int pmCartCartProj(PmCartesian const * const, PmCartesian const * const, PmCartesian * const);
     extern int pmCartPlaneProj(PmCartesian const * const v, PmCartesian const * const normal,
 	PmCartesian * vout);

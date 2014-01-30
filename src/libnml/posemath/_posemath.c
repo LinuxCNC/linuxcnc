@@ -813,6 +813,9 @@ int pmCartCartDiv(PmCartesian const * const v1, PmCartesian const * const v2,
 int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2,
         PmCartesian * const vout)
 {
+    if (vout == v1 || vout == v2) {
+        return pmErrno = PM_IMPL_ERR;
+    }
     vout->x = v1->y * v2->z - v1->z * v2->y;
     vout->y = v1->z * v2->x - v1->x * v2->z;
     vout->z = v1->x * v2->y - v1->y * v2->x;
@@ -865,61 +868,62 @@ int pmCartCartSub(PmCartesian const * const v1, PmCartesian const * const v2,
 
 int pmCartScalMult(PmCartesian const * const v1, double d, PmCartesian * const vout)
 {
-    vout->x = v1->x * d;
-    vout->y = v1->y * d;
-    vout->z = v1->z * d;
-
-    return pmErrno = 0;
+    if (v1 != vout) {
+        *vout = *v1;
+    }
+    return pmCartScalMultEq(vout, d);
 }
 
 int pmCartScalDiv(PmCartesian const * const v1, double d, PmCartesian * const vout)
 {
-    if (d == 0.0) {
-#ifdef PM_PRINT_ERROR
-	pmPrintError(&"Divide by 0 in pmCartScalDiv\n");
-#endif
-	vout->x = DBL_MAX;
-	vout->y = DBL_MAX;
-	vout->z = DBL_MAX;
-
-	return pmErrno = PM_DIV_ERR;
+    if (v1 != vout) {
+        *vout = *v1;
     }
-
-    vout->x = v1->x / d;
-    vout->y = v1->y / d;
-    vout->z = v1->z / d;
-
-    return pmErrno = 0;
+    return pmCartScalDivEq(vout, d);
 }
 
 int pmCartNeg(PmCartesian const * const v1, PmCartesian * const vout)
 {
-    vout->x = -v1->x;
-    vout->y = -v1->y;
-    vout->z = -v1->z;
+    if (v1 != vout) {
+        *vout = *v1;
+    }
+
+    return pmCartNegEq(vout);
+}
+
+int pmCartNegEq(PmCartesian * const v1)
+{
+    v1->x = -v1->x;
+    v1->y = -v1->y;
+    v1->z = -v1->z;
 
     return pmErrno = 0;
 }
 
 int pmCartInv(PmCartesian const * const v1, PmCartesian * const vout)
 {
-    double size_sq = pmSq(v1->x) + pmSq(v1->y) + pmSq(v1->z);
+    if (v1 != vout) {
+        *vout = *v1;
+    }
+
+    return pmCartInvEq(vout);
+}
+
+int pmCartInvEq(PmCartesian * const v)
+{
+    double size_sq;
+    pmCartMagSq(v,&size_sq);
 
     if (size_sq == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError(&"Zero vector in pmCartInv\n");
+        pmPrintError(&"Zero vector in pmCartInv\n");
 #endif
-
-	vout->x = DBL_MAX;
-	vout->y = DBL_MAX;
-	vout->z = DBL_MAX;
-
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 
-    vout->x = v1->x / size_sq;
-    vout->y = v1->y / size_sq;
-    vout->z = v1->z / size_sq;
+    v->x /= size_sq;
+    v->y /= size_sq;
+    v->z /= size_sq;
 
     return pmErrno = 0;
 }
@@ -928,25 +932,10 @@ int pmCartInv(PmCartesian const * const v1, PmCartesian * const vout)
 
 int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout)
 {
-    double size = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
-
-    if (size == 0.0) {
-#ifdef PM_PRINT_ERROR
-	pmPrintError(&"Zero vector in pmCartUnit\n");
-#endif
-
-	vout->x = DBL_MAX;
-	vout->y = DBL_MAX;
-	vout->z = DBL_MAX;
-
-	return pmErrno = PM_NORM_ERR;
+    if (vout != v) {
+        *vout = *v;
     }
-
-    vout->x = v->x / size;
-    vout->y = v->y / size;
-    vout->z = v->z / size;
-
-    return pmErrno = 0;
+    return pmCartUnitEq(vout);
 }
 
 int pmCartAbs(PmCartesian const * const v, PmCartesian * const vout)
@@ -955,6 +944,72 @@ int pmCartAbs(PmCartesian const * const v, PmCartesian * const vout)
     vout->x = fabs(v->x);
     vout->y = fabs(v->y);
     vout->z = fabs(v->z);
+
+    return pmErrno = 0;
+}
+
+/* Compound assign operator equivalent functions. These are to prevent issues with passing the same variable as both input (const) and output */
+
+int pmCartCartAddEq(PmCartesian * const v, PmCartesian const * const v_add)
+{
+    v->x += v_add->x;
+    v->y += v_add->y;
+    v->z += v_add->z;
+
+    return pmErrno = 0;
+}
+
+int pmCartCartSubEq(PmCartesian * const v, PmCartesian const * const v_sub)
+{
+    v->x -= v_sub->x;
+    v->y -= v_sub->y;
+    v->z -= v_sub->z;
+
+    return pmErrno = 0;
+}
+
+int pmCartScalMultEq(PmCartesian * const v, double d)
+{
+
+    v->x *= d;
+    v->y *= d;
+    v->z *= d;
+
+    return pmErrno = 0;
+}
+
+int pmCartScalDivEq(PmCartesian * const v, double d)
+{
+
+    if (d == 0.0) {
+#ifdef PM_PRINT_ERROR
+        pmPrintError(&"Divide by 0 in pmCartScalDiv\n");
+#endif
+
+        return pmErrno = PM_DIV_ERR;
+    }
+
+    v->x /= d;
+    v->y /= d;
+    v->z /= d;
+
+    return pmErrno = 0;
+}
+
+int pmCartUnitEq(PmCartesian * const v)
+{
+    double size = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
+
+    if (size == 0.0) {
+#ifdef PM_PRINT_ERROR
+        pmPrintError("Zero vector in pmCartUnit\n");
+#endif
+        return pmErrno = PM_NORM_ERR;
+    }
+
+    v->x /= size;
+    v->y /= size;
+    v->z /= size;
 
     return pmErrno = 0;
 }
@@ -1631,7 +1686,6 @@ int pmCartLinePoint(PmCartLine const * const line, double len, PmCartesian * con
 
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : 0;
 }
-
 
 /* circle functions */
 
