@@ -1,0 +1,40 @@
+These sim configurations demonstrate use of an XHC-HB04 wireless MPG pendant in LinuxCNC using a HAL module created by Frederic Rible (frible@teaser.fr) (Copyright (C) 2013).  Ref:
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
+
+The HAL module is designed for the XHC-HB04 V3.0 identified as USB device 10CE:EB70.
+Most of the pendant features are handled:
+- buttons converted to hal pins
+- jog wheel with variable scale (use STEP button to select scale)
+- LCD screen
+
+Sim configurations are provided for several know button configurations:
+
+layout1 -- 16 buttons
+layout2 -- 18 buttons (more common)
+
+A working and connected xhc-hb04 device is required for the demonstration.  If not connected, the sim configs will start anyway.
+
+A udev rules file:
+  /etc/udev/rules.d/90-xhc.rules
+must be added to the system:
+SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
+
+Or for later operating systems (like ubuntu12.x):
+ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
+
+The sim configurations use a single halfile: xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
+  [HAL]HALFILE=xhc-hb04.tcl
+
+Typically, this HALFILE entry should follow other entries.  A thread named servo-thread is assumed and required.
+
+Other ini file entries used are:
+[XHC_HB04_CONFIG]layout=2        (1|2)
+[XHC_HB04_CONFIG]coords= x y z a (typ)
+[XHC_HB04_CONFIG]coefs=  1 1 1 1 (optional, not usually needed since xhc-hb04 smooths)
+[XHC_HB04_CONFIG]scales= 1 1 1 1 (optional, rotaries may require bigger scale)
+
+[XHC_HB04_BUTTONS]name=pin define button connections for the buttons defined in the layout file
+[HALUI]MDI_COMMAND=...     define pins useful for connection to the buttons
+
+See the ini files for more detailed examples.
