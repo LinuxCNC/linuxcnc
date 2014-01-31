@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.2"
+_RELEASE = "0.9.9.9.3"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -1670,8 +1670,8 @@ class HandlerClass:
 
     # feed stuff
     def on_scl_feed_value_changed( self, widget, data = None ):
-        self.command.feedrate( self.widgets.scl_feed.get_value() / 100 )
-        self.command.maxvel( float( self.scale_max_vel * self.scale_feed_override ) )
+        self.command.feedrate( widget.get_value() / 100 )
+        self.widgets.adj_max_vel.set_value( float( self.widgets.adj_max_vel.upper * widget.get_value() / 100 ) )
 
     def on_btn_feed_100_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "btn_feed_100_clicked" )
