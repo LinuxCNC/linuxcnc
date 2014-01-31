@@ -404,7 +404,6 @@ int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bit_t ** data_ptr_addr, int comp_id
 
 static void hal_setup()
 {
-	int num_devices = 0;
 	int r, i;
 
 	if (!simu_mode) {
@@ -470,7 +469,6 @@ static void hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_a), hal_comp_id, "%s.jog.plus-a", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_a), hal_comp_id, "%s.jog.minus-a", modname);
 
-fail1:
 	return;
 }
 
@@ -517,9 +515,8 @@ int main (int argc,char **argv)
 	libusb_context *ctx = NULL;
 	int r;
 	ssize_t cnt;
-	unsigned char data[256];
 
-    int flags, opt;
+    int opt;
 
     while ((opt = getopt(argc, argv, "HhI:")) != -1) {
         switch (opt) {
@@ -575,7 +572,6 @@ int main (int argc,char **argv)
 		printf("found XHC-HB04 device\n");
 
 		if (dev_handle) {
-			int actual;
 			if 	(libusb_kernel_driver_active(dev_handle, 0) == 1) {
 				libusb_detach_kernel_driver(dev_handle, 0);
 			}
