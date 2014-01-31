@@ -477,7 +477,6 @@ int read_ini_file(char *filename)
 	FILE *fd = fopen(filename, "r");
 	const char *bt;
 	int nb_buttons = 0;
-
 	if (!fd) {
 		perror(filename);
 		return -1;
@@ -515,6 +514,8 @@ int main (int argc,char **argv)
 	libusb_context *ctx = NULL;
 	int r;
 	ssize_t cnt;
+#define MAX_WAIT_SECS 10
+	int wait_secs = 0;
 
     int opt;
 
@@ -531,14 +532,11 @@ int main (int argc,char **argv)
             exit(EXIT_FAILURE);
         }
     }
-
-	hal_setup();
+	if (simu_mode) hal_setup();
 	xhc.step = 1;
 
 	signal(SIGINT, quit);
 	signal(SIGTERM, quit);
-
-	if (!simu_mode) hal_ready(hal_comp_id);
 
 	while (!do_exit) {
     	//on reconnect wait for device to be gone
@@ -555,7 +553,7 @@ int main (int argc,char **argv)
 		}
 		libusb_set_debug(ctx, 3);
 
-		printf("waiting for XHC-HB04 device\n");
+		printf("%s: waiting for XHC-HB04 device\n",modname);
 
 		do {
 			cnt = libusb_get_device_list(ctx, &devs);
@@ -566,10 +564,24 @@ int main (int argc,char **argv)
 
 			dev_handle = libusb_open_device_with_vid_pid(ctx, 0x10CE, 0xEB70);
 			libusb_free_device_list(devs, 1);
-			if (dev_handle == NULL) sleep(1);
+			if (dev_handle == NULL) {
+				wait_secs++;
+				if (wait_secs >= MAX_WAIT_SECS/2) {
+					printf("%s: waiting for XHC-HB04 device (%d)\n",modname,wait_secs);
+				}
+				if (wait_secs > MAX_WAIT_SECS) {
+					printf("%s: MAX_WAIT_SECS exceeded, exiting\n",modname);
+					exit(1);
+				}
+				sleep(1);
+			}
 		} while(dev_handle == NULL && !do_exit);
+        if (!simu_mode) {
+			hal_setup();
+			hal_ready(hal_comp_id);
+		}
 
-		printf("found XHC-HB04 device\n");
+		printf("%s: found XHC-HB04 device\n",modname);
 
 		if (dev_handle) {
 			if 	(libusb_kernel_driver_active(dev_handle, 0) == 1) {
@@ -598,7 +610,7 @@ int main (int argc,char **argv)
 				if (simu_mode) linuxcnc_simu(xhc.hal);
 				xhc_set_display(dev_handle, &xhc);
 			}
-			printf("connection lost, cleaning up\n");
+			printf("%s: connection lost, cleaning up\n",modname);
 			libusb_cancel_transfer(transfer_in);
 			libusb_free_transfer(transfer_in);
 			libusb_release_interface(dev_handle, 0);
