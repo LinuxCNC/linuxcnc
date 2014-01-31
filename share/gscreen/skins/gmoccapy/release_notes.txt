@@ -1,3 +1,6 @@
+ver. 0.9.9.9.4
+- added a new pin to delete the last message
+
 ver. 0.9.9.9.3
 - scl_feed_override bug at start up,
   did not handle G0 Override correct, 

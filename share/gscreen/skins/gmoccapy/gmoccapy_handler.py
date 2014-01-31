@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.3"
+_RELEASE = "0.9.9.9.4"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -3144,6 +3144,10 @@ class HandlerClass:
         self.pin_offset_z = hal_glib.GPin( self.halcomp.newpin( "tooloffset_z", hal.HAL_FLOAT, hal.HAL_IN ) )
         self.pin_offset_z.connect( "value_changed", self._offset_changed, "tooloffset_z" )
 
+        # make a pin to delete a notification message
+        self.pin_del_message = hal_glib.GPin( self.halcomp.newpin( "delete-message", hal.HAL_BIT, hal.HAL_IN ) )
+        self.pin_del_message.connect( "value_changed", self._del_message_changed )
+
     def _offset_changed( self, pin, tooloffset ):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
             self.widgets.lbl_tool_offset_z.set_text( "%.3f" % self.halcomp["tooloffset_z"] )
@@ -3151,6 +3155,10 @@ class HandlerClass:
         else:
             self.widgets.lbl_tool_offset_z.set_text( "%.4f" % self.halcomp["tooloffset_z"] )
             self.widgets.lbl_tool_offset_x.set_text( "%.4f" % self.halcomp["tooloffset_x"] )
+
+    def _del_message_changed( self, pin ):
+        if pin.get():
+            self.notification.del_last()
 
     def _on_pin_incr_changed( self, pin, buttonnumber ):
         if not pin.get():
