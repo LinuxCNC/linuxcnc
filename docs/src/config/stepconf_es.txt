@@ -269,8 +269,8 @@ Aceleracion Maxima (Maximum Acceleration)::
     (((Maximum Acceleration)))
     El valor correcto de esta casilla solo puede ser determinado
     por experimentacion. Vea 
-    <<sub:Finding-Maximum-Velocity,encontrar la máxima velocidad>> para ajustar la velocidad
-    <<sub:Finding-Maximum-Acceleration,encontrar la máxima accelration>> para ajustar la aceleracion.
+    <<finding-maximum-velocity>> para ajustar la velocidad
+    <<finding-maximum-acceleration>> para ajustar la aceleracion.
 
 Posicion de Inicio (Home Location)::
     (((Home Location)))

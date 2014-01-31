@@ -208,7 +208,7 @@ int rtapi_get_msg_level() {
 long long rtapi_get_time(void) {
     struct timeval tv;
     gettimeofday(&tv, 0);
-    return tv.tv_sec * 1000 * 1000 * 1000 + tv.tv_usec * 1000;
+    return tv.tv_sec * 1000000000LL + tv.tv_usec * 1000;
 }
 
 #ifdef MSR_H_USABLE
