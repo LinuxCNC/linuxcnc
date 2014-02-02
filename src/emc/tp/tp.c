@@ -1263,6 +1263,11 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
         return TP_ERR_FAIL;
     }
 
+    if (tc->finalized || prev_tc->finalized) {
+        tp_debug_print("Can't create blend when segment lengths are finalized\n");
+        return TP_ERR_FAIL;
+    }
+
     return TP_ERR_OK;
 }
 
@@ -2287,26 +2292,38 @@ STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 }
 
 /**
- * Check for zero final velocity with tangential blend.
+ * Finalize the length of a segment and re-run optimization.
+ * This function is a kludgy fix for the problem of finalizing the very last
+ * segment in a program. Since the last segment is never blending with a "next"
+ * segment, it's never marked as finalized. 
+ *
+ * @param tp trajectory planner struct pointer
+ * @param tc segment to check for finalized length
+ *
+ * Usage: call this function on a near-future segment in tpRunCycle (at least 2
+ * segments ahead of the "current" segment). If we detect that tc is not
+ * finalized, then force it to be finalized and re-run optimization. 
+ *
+ * If this isn't actually the end (say we have queue starvation), the blend arc
+ * functions will detect that the prev. line is finalized and skip that blend
+ * arc.
  */
-STATIC int tpFlagSlowTangential(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
+STATIC int tpForceFinalizeSegment(TP_STRUCT * const tp,
+        TC_STRUCT * const tc) {
 
-    if (!tc || !nexttc) {
+    if (!tc) {
         return TP_ERR_NO_ACTION;
     }
 
-    if(tc->term_cond == TC_TERM_COND_TANGENT && tc->finalvel < TP_VEL_EPSILON && nexttc->finalized == 0) {
+    if(tc->finalized == 0) {
         //The next segment is not finalized, but if we've reached it, it means it won't change.
-        tc_debug_print("reached tc %d, tangent with final_vel = 0\n", tc->id);
-        tcSetTermCond(tc, TC_TERM_COND_PARABOLIC);
-        if (nexttc){
-            nexttc->blend_prev = 1;
-        }
-        tpCalculateTriangleVel(tp, tc);
+        tc->finalized = 1;
+        tpRunOptimization(tp);
+        return TP_ERR_OK;
+    } else {
+        return TP_ERR_NO_ACTION;
     }
 
-    return TP_ERR_OK;
 }
 
 /**
@@ -2554,7 +2571,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     double acc, vel_desired;
 
     // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
-    if (tc->accel_mode) {
+    // Also, don't ramp up for parabolic blends
+    if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
         res = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
     }
 
@@ -2846,7 +2864,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //spindle or other conditions
     tpFlagEarlyStop(tp, tc, nexttc);
     tpFlagEarlyStop(tp, nexttc, next2_tc);
-    tpFlagSlowTangential(tp, tc,nexttc);
+    tpForceFinalizeSegment(tp, next2_tc);
 
     if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
         return TP_ERR_STOPPED;
