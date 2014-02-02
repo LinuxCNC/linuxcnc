@@ -1278,6 +1278,11 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     //Calculate the maximum starting velocity vs_back of segment tc, given the
     //trajectory parameters
     double acc_this = tpGetScaledAccel(tp, tc);
+
+    if (tc->finalvel < TP_VEL_EPSILON) {
+        //KLUDGE scale the acceleration down for the "last" segment in case we want to fall back to parabolic later
+        acc_this *= 0.5;
+    }
     // Find the reachable velocity of tc, moving backwards in time
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
@@ -2281,6 +2286,28 @@ STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     return TP_ERR_OK;
 }
 
+/**
+ * Check for zero final velocity with tangential blend.
+ */
+STATIC int tpFlagSlowTangential(TP_STRUCT * const tp,
+        TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
+
+    if (!tc || !nexttc) {
+        return TP_ERR_NO_ACTION;
+    }
+
+    if(tc->term_cond == TC_TERM_COND_TANGENT && tc->finalvel < TP_VEL_EPSILON && nexttc->finalized == 0) {
+        //The next segment is not finalized, but if we've reached it, it means it won't change.
+        tc_debug_print("reached tc %d, tangent with final_vel = 0\n", tc->id);
+        tcSetTermCond(tc, TC_TERM_COND_PARABOLIC);
+        if (nexttc){
+            nexttc->blend_prev = 1;
+        }
+        tpCalculateTriangleVel(tp, tc);
+    }
+
+    return TP_ERR_OK;
+}
 
 /**
  * Check for early stop conditions.
@@ -2819,6 +2846,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //spindle or other conditions
     tpFlagEarlyStop(tp, tc, nexttc);
     tpFlagEarlyStop(tp, nexttc, next2_tc);
+    tpFlagSlowTangential(tp, tc,nexttc);
 
     if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
         return TP_ERR_STOPPED;
