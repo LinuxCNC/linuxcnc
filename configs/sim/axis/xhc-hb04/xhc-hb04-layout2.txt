@@ -24,9 +24,10 @@ xhc-hb04-layout2
 
 Button codes defined in xhc-hb04-layout2.cfg
 
-The STEP button is used to change the wheel multiplier and can also be connected to a pin.
+The STEP button is used to change the wheel multiplier (1 10 100 1000) and can also be connected to a pin (with caution).
 
-The Start/Pause button is reserved to control halui.program.run,pause,resume.
+The Start/Pause button can be connected for standard behavior with:
+  [XHC_HB04_BUTTON]start-pause = std_start_pause
 
 The other buttons can be connected to hal pins -- typically halui provided pins.  MDI commands can be executed using halui.mdi-command-nn pins defined in the ini file with [HALUI]MDI_COMMAND= entries.
 

@@ -12,6 +12,7 @@
 #   coords = x y z a (any unique four of xyzabcuvw)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
 #   scales = 1 1 1 1 (optional)
+#   threadname = servo-thread (optional)
 
 #   [XHC-HB04_BUTTONS]
 #   name = pin  (connect button to hal pin)
@@ -19,11 +20,11 @@
 #   (see ini files for more exanples)
 
 # Notes:
-#    1) presumes an existing thread named servo-thread
-#    2) the 'start-pause' pin is RESERVED since it is connected herein
-#    3) the 'step' pin is used by xhc-hb04.cc to manage the jogwheel
+#    1) the 'start-pause' pin can be set to "std_start_pause" to 
+#       implement default behavior
+#    2) the 'step' pin is used by xhc-hb04.cc to manage the jogwheel
 #       step sizes so use caution in connecting it for other purposes
-#    2) non-root access to the usb device requires an additional
+#    3) non-root access to the usb device requires an additional
 #       udev rule.  Typically, create /etc/udev/rules.d/90-xhc.rules:
 #       SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
 #       or (for ubuntu12 and up):
@@ -48,7 +49,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #-----------------------------------------------------------------------
 
-proc is_uniq {list_name} {  ;# make list unique
+proc is_uniq {list_name} {
   set tmp(xxxxxxxx) "" ;# make an array first
   foreach item $list_name {
     if {[array names tmp $item] == $item} {
@@ -81,16 +82,16 @@ proc connect_pins {} {
       #puts stderr "$::progname: no pin defined for <$bname>"
       continue
     }
-    # this pin is reserved for use with xhc-hb04-util
-    if {[string tolower $bname] == "start-pause"} {
-      puts stderr "$::progname: skipping button start-pause <$thepin>"
-      puts stderr "$::progname: the start-pause pin usage is builtin"
+    # this pin is can specify std behavior
+    if {   ([string tolower $bname] == "start-pause")
+        && ([string tolower $thepin] == "std_start_pause")
+       } {
+      std_start_pause_button
+      puts stderr "$::progname: using std_start_pause_button"
       continue
     }
-    # these are used in the ini file examples but aren't real pins
-    if {   [string tolower "$thepin"] == "reserved"
-        || [string tolower "$thepin"] == "caution"
-       } {
+    # these are warnings in the ini file examples but aren't real pins
+    if {[string tolower "$thepin"] == "caution"} {
       puts stderr "$::progname: skipping button $bname marked <$thepin>"
       continue
     }
@@ -115,7 +116,6 @@ proc wheel_setup {} {
   set ::XHC_HB04_CONFIG(coef,2) 1.0
   set ::XHC_HB04_CONFIG(coef,3) 1.0
   if [info exists ::XHC_HB04_CONFIG(coefs)] {
-    set ::XHC_HB04_CONFIG(coefs) [string trim $::XHC_HB04_CONFIG(coefs) "{}"]
     set idx 0
     foreach g $::XHC_HB04_CONFIG(coefs) {
       set g1 $g
@@ -137,7 +137,6 @@ proc wheel_setup {} {
   set ::XHC_HB04_CONFIG(scale,2) 1.0
   set ::XHC_HB04_CONFIG(scale,3) 1.0
   if [info exists ::XHC_HB04_CONFIG(scales)] {
-    set ::XHC_HB04_CONFIG(scales) [string trim $::XHC_HB04_CONFIG(scales) "{}"]
     set idx 0
     foreach g $::XHC_HB04_CONFIG(scales) {
       set ::XHC_HB04_CONFIG(scale,$idx) $g
@@ -161,7 +160,6 @@ proc wheel_setup {} {
   #
   set idx 0
   foreach coord $::XHC_HB04_CONFIG(coords) {
-    set coord [string trim [string tolower $coord] -] ;# strip -
     set axno $::XHC_HB04_CONFIG($coord,axno)
 
     setp pendant_util.coef$idx  $::XHC_HB04_CONFIG(coef,$idx)
@@ -204,10 +202,8 @@ proc wheel_setup {} {
                          => xhc-hb04.spindle-rps
 } ;# wheel_setup
 
-proc start_pause_button {} {
+proc std_start_pause_button {} {
   # hardcoded setup for button-start-pause
-  loadrt xhc_hb04_util names=pendant_util
-  addf   pendant_util servo-thread ;# hardcoded thread name
   net    pendant:start-or-pause <= xhc-hb04.button-start-pause \
                                 => pendant_util.start-or-pause
 
@@ -221,7 +217,7 @@ proc start_pause_button {} {
   net    pendant:program-resume pendant_util.resume => halui.program.resume
   net    pendant:program-pause  pendant_util.pause => halui.program.pause
   net    pendant:program-run    pendant_util.run => halui.program.run
-} ;# start_pause_button
+} ;# std_start_pause_button
 
 proc popup_msg {msg} {
   puts stderr "$msg"
@@ -245,6 +241,10 @@ proc err_exit {msg} {
 # begin------------------------------------------------------------------------
 set ::progname "xhc-hb04.tcl"
 set cfg xhc-hb04-layout2.cfg ;# default
+
+foreach name [array names ::XHC_HB04_CONFIG] {
+  set ::XHC_HB04_CONFIG($name) [string trim $::XHC_HB04_CONFIG($name) "{}"]
+}
 
 if [info exists ::XHC_HB04_CONFIG(layout)] {
   switch ${::XHC_HB04_CONFIG(layout)} {
@@ -280,7 +280,6 @@ set ct 0; foreach coord {x y z a b c u v w} {
 }
 
 if [info exists ::XHC_HB04_CONFIG(coords)] {
-  set ::XHC_HB04_CONFIG(coords) [string trim $::XHC_HB04_CONFIG(coords) "{}"]
   if ![is_uniq $::XHC_HB04_CONFIG(coords)] {
     err_exit "coords must be unique, not: <$::XHC_HB04_CONFIG(coords)>"
   }
@@ -288,7 +287,12 @@ if [info exists ::XHC_HB04_CONFIG(coords)] {
   set ::XHC_HB04_CONFIG(coords) {x y z a} ;# default
 }
 
-start_pause_button ;# special handling for this button
+if ![info exists ::XHC_HB04_CONFIG(threadname)] {
+  set ::XHC_HB04_CONFIG(threadname) "servo-thread" ;# default
+}
+loadrt xhc_hb04_util names=pendant_util
+addf   pendant_util $::XHC_HB04_CONFIG(threadname)
+
 connect_pins       ;# per ini file items: [XHC_HB04_BUTTONS]buttonname=pin
 wheel_setup        ;# jog wheel per ini file items:
                     #     [XHC_HB04_CONFIG]coords,coefs,scales

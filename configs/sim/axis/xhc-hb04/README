@@ -5,19 +5,19 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
 The HAL module is designed for the XHC-HB04 V3.0 identified as USB device 10CE:EB70.
 Most of the pendant features are handled:
 - buttons converted to hal pins
-- jog wheel with variable scale (use STEP button to select scale)
-- LCD screen
+- jog wheel with variable scale (use STEP button to change in 1 10 100 1000 sequence)
+- LCD screen displays machine and relative positions
 
-Sim configurations are provided for several know button configurations:
+Sim configurations are provided for two known button configurations:
 
 layout1 -- 16 buttons
 layout2 -- 18 buttons (more common)
 
-A working and connected xhc-hb04 device is required for the demonstration.  If not connected, the sim configs will start anyway.
+A working and connected xhc-hb04 device is required for the demonstration.  If not connected, the sim configs will start without pendant functionality.
 
 A udev rules file:
   /etc/udev/rules.d/90-xhc.rules
-must be added to the system:
+must be added to the system to give correct user permissions for USB access:
 SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
 
 Or for later operating systems (like ubuntu12.x):
@@ -26,15 +26,42 @@ ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP
 The sim configurations use a single halfile: xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
   [HAL]HALFILE=xhc-hb04.tcl
 
-Typically, this HALFILE entry should follow other entries.  A thread named servo-thread is assumed and required.
+This HALFILE entry should follow other HALFILE entries.
 
-Other ini file entries used are:
-[XHC_HB04_CONFIG]layout=2        (1|2)
-[XHC_HB04_CONFIG]coords= x y z a (typ)
-[XHC_HB04_CONFIG]coefs=  1 1 1 1 (optional, not usually needed since xhc-hb04 smooths)
-[XHC_HB04_CONFIG]scales= 1 1 1 1 (optional, rotaries may require bigger scale)
+Optional configuration ini file items and the defaults values are:
 
-[XHC_HB04_BUTTONS]name=pin define button connections for the buttons defined in the layout file
-[HALUI]MDI_COMMAND=...     define pins useful for connection to the buttons
+[XHC_HB04_CONFIG]
+layout     = 2       (1|2)
+coords     = x y z a (4 max)
+coefs      = 1 1 1 1 (filter coefs 0 < coef < 1)
+scales     = 1 1 1 1 (plus/minus factors)
+threadname = servo-thread
 
-See the ini files for more detailed examples.
+The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.  The movement per wheel increment is set with the STEP button (1 10 100 1000).  The scale factor for each axis can be set with the scales item.
+
+Pendant buttons are connected to hal pins with ini file items.
+Examples:
+[XHC_HB04_BUTTONS]
+stop        = halui.program.stop
+rewind      = halui.program.step
+goto-zero   = halui.mdi-command-00
+macro-1     = halui.mdi-command-01
+mode        = ""  (placeholder)
+
+Note: MDI commands are defined in a [HALUI] stanza:
+[HALUI]
+MDI_COMMAND = G0 X0 Y0 Z0
+MDI_COMMAND = M101
+
+
+An xhc-hb04 pendant can be added to existing configurations.
+  1) copy files to the configuration directory:
+     $ cp xhc-hb04.tcl         your_config_dir/
+     $ cp xhc-hb04-layout*.cfg your_config_dir/
+  2) Edit existing configuration ini file to:
+    a) add [HAL]HALFILE=xhc-hb04.tcl
+    b) add stanza [XHC-HB04_CONFIG]
+    c) add stanza [XHC-HB04_BUTTONS]
+    c) add or update stanza for [HALUI]
+
+See the demo ini files for more detailed examples.
