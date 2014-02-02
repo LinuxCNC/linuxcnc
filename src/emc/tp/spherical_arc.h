@@ -38,16 +38,19 @@ typedef struct {
     // These are cached here since they'll be reused during SLERP
     PmCartesian rStart;
     PmCartesian rEnd;
+    PmCartesian uTan;   /* Tangent vector at start of arc (copied from
+                           prev. tangent line)*/
     double radius;
     // Angle that the arc encloses
     double angle;
-    double sinAngle;
+    double Sangle;
+    double line_length;
 } SphericalArc;
 
 typedef struct {
     SphericalArc xyz;
-    PmCartLine abc;
-    PmCartLine uvw;
+    PmCartesian abc;
+    PmCartesian uvw;
 } Arc9;
 
 int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
@@ -65,5 +68,5 @@ int arcLength(SphericalArc const * const arc, double * const length);
 
 int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
         PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end);
+        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume);
 #endif

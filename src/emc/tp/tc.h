@@ -42,6 +42,9 @@
 #define TC_OPTIM_UNTOUCHED 0
 #define TC_OPTIM_AT_MAX 1
 
+#define TC_ACCEL_TRAPZ 0
+#define TC_ACCEL_RAMP 1
+
 /* structure for individual trajectory elements */
 
 typedef struct {
@@ -86,6 +89,7 @@ typedef struct {
     //Position stuff
     double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
+    double nominal_length;
 
     //Velocity
     double reqvel;          // vel requested by F word, calc'd by task
@@ -131,13 +135,14 @@ typedef struct {
     int optimization_state;             // At peak velocity during blends)
     int on_final_decel;
     int blend_prev;
-    int smoothing;
+    int accel_mode;
     int splitting;          // the segment is less than 1 cycle time
                             // away from the end.
     int remove;             // Flag to remove the segment from the queue
     int active_depth;       /* Active depth (i.e. how many segments
                             * after this will it take to slow to zero
                             * speed) */
+    int finalized;
 } TC_STRUCT;
 
 /* TC_STRUCT functions */

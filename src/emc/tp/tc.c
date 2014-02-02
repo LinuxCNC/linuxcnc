@@ -268,16 +268,11 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
             break;
         case TC_SPHERICAL:
             arcPoint(&tc->coords.arc.xyz,
-                    progress * tc->coords.arc.xyz.angle / tc->target,
+                    progress,
                     &xyz);
-            pmCartLinePoint(&tc->coords.arc.abc,
-                    progress * tc->coords.arc.abc.tmag / tc->target,
-                    &abc);
-            pmCartLinePoint(&tc->coords.arc.uvw,
-                    progress * tc->coords.arc.uvw.tmag / tc->target,
-                    &uvw);
+            abc = tc->coords.arc.abc;
+            uvw = tc->coords.arc.uvw;
             break;
-
     }
 
     pmCartesianToEmcPose(&xyz, &abc, &uvw, pos);
@@ -309,37 +304,40 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_end) {
 
     /* Only shift XYZ for now*/
-    int res1 = pmCartLineInit(&prev_tc->coords.line.xyz,
-            &prev_tc->coords.line.xyz.start, circ_start);
+    if (prev_tc) {
+        tp_debug_print("connect: keep prev_tc\n");
+        //Have prev line, need to shorten it
+        pmCartLineInit(&prev_tc->coords.line.xyz,
+                &prev_tc->coords.line.xyz.start, circ_start);
+        tp_debug_print("Old target = %f\n", prev_tc->target);
+        prev_tc->target = prev_tc->coords.line.xyz.tmag;
+        tp_debug_print("Target = %f\n",prev_tc->target);
+        //Setup tangent blending constraints
+        tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+        tp_debug_print(" L1 end  : %f %f %f\n",prev_tc->coords.line.xyz.end.x,
+                prev_tc->coords.line.xyz.end.y,
+                prev_tc->coords.line.xyz.end.z);
+    } else {
+        tp_debug_print("connect: consume prev_tc\n");
+    }
 
-    tp_info_print(" L1: old target = %f\n", prev_tc->target);
-    prev_tc->target = prev_tc->coords.line.xyz.tmag;
-    tp_info_print(" L1: new target = %f\n", prev_tc->target);
-
-    //previous segment is now tangent with blend arc
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-
-    int res2 = pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
+    //Shorten next line
+    pmCartLineInit(&tc->coords.line.xyz, circ_end, &tc->coords.line.xyz.end);
 
     tp_info_print(" L2: old target = %f\n", tc->target);
     tc->target = tc->coords.line.xyz.tmag;
     tp_info_print(" L2: new target = %f\n", tc->target);
+    tp_debug_print(" L2 start  : %f %f %f\n",tc->coords.line.xyz.start.x,
+            tc->coords.line.xyz.start.y,
+            tc->coords.line.xyz.start.z);
 
     //Disable flag for parabolic blending with previous
     tc->blend_prev = 0;
 
-    tp_info_print(" L1: new end = %f %f %f\n",prev_tc->coords.line.xyz.end.x,
-            prev_tc->coords.line.xyz.end.y,
-            prev_tc->coords.line.xyz.end.z);
-
-    tp_info_print(" L2: new start = %f %f %f\n",tc->coords.line.xyz.start.x,
-            tc->coords.line.xyz.start.y,
-            tc->coords.line.xyz.start.z);
-
     tp_info_print("       Q1: %f %f %f\n",circ_start->x,circ_start->y,circ_start->z);
     tp_info_print("       Q2: %f %f %f\n",circ_end->x,circ_end->y,circ_end->z);
 
-    return res1 || res2;
+    return 0;
 }
 
 
@@ -359,6 +357,7 @@ int tcIsBlending(TC_STRUCT * const tc) {
     //aren't necessarily true we still blend to completion once the blend
     //starts.
     tc->blending_next |= is_blending_next;
+
     return tc->blending_next;
 }
 
@@ -500,8 +499,7 @@ int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
  *
  * \brief removes the newest TC element (converse of tcqRemove)
  *
- * @param    tcq       pointer to the new TC_QUEUE_STRUCT
- * @param	 tc        the new TC element to be added
+ * @param    tcq       pointer to the TC_QUEUE_STRUCT
  *
  * @return	 int	   returns success or failure
  */
@@ -515,13 +513,9 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
         return -1;
     }
 
-    //HACK - check if segment is started and abort?
-    /*if ((tcq->queue[tcq->end]).progress > 0.0) {*/
-        /*return -1;*/
-    /*}*/
-    tcq->end = (tcq->end -1) % tcq->size;
-    tcq->allFull = 0;
-    tcq->_len -= 1;
+    int n = tcq->end - 1 + tcq->size;
+    tcq->end = n % tcq->size;
+    tcq->_len--;
 
     return 0;
 }

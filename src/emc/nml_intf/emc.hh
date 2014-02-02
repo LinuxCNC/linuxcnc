@@ -548,7 +548,8 @@ int emcSetMaxFeedOverride(double maxFeedScale);
 int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
-        double arcBlendSmoothingThreshold);
+        double arcBlendGapCycles,
+        double arcBlendGreediness);
 
 extern int emcUpdate(EMC_STAT * stat);
 // full EMC status
