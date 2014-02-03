@@ -24,8 +24,6 @@ xhc-hb04-layout2
 
 Button codes defined in xhc-hb04-layout2.cfg
 
-The STEP button is used to change the wheel multiplier (1 10 100 1000) and can also be connected to a pin (with caution).
-
 The Start/Pause button can be connected for standard behavior with:
   [XHC_HB04_BUTTON]start-pause = std_start_pause
 

@@ -55,6 +55,7 @@ typedef enum {
 	axis_feed = 0x15
 } xhc_axis_t;
 
+static unsigned char _old_button_step = -1;
 static unsigned char _button_step = 0;
 #define NB_MAX_BUTTONS 32
 
@@ -82,11 +83,13 @@ typedef struct {
 	hal_float_t *jog_increment;
 	hal_bit_t *jog_plus_x, *jog_plus_y, *jog_plus_z, *jog_plus_a;
 	hal_bit_t *jog_minus_x, *jog_minus_y, *jog_minus_z, *jog_minus_a;
+
+	hal_bit_t *inc_step;
+	hal_s32_t *step;
 } xhc_hal_t;
 
 typedef struct {
 	xhc_hal_t *hal;
-	int step;
 	xhc_axis_t axis;
 	xhc_button_t buttons[NB_MAX_BUTTONS];
 	unsigned char button_code;
@@ -159,7 +162,7 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	p += xhc_encode_s16(round(60.0 * *(xhc->hal->feedrate)), p);
 	p += xhc_encode_s16(round(60.0 * *(xhc->hal->spindle_rps)), p);
 
-	switch (xhc->step) {
+	switch (*(xhc->hal->step)) {
 	case 1:
 		buf[35] = 0x01;
 		break;
@@ -305,12 +308,6 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		if (_button_step && xhc.button_code == _button_step) {
-			xhc.step = 10*xhc.step;
-			if (xhc.step > 1000 || xhc.step <= 0) xhc.step = 1;
-		}
-
-		*(xhc.hal->jog_scale) = xhc.step * 0.001f;
 		*(xhc.hal->jog_counts) += ((char)in_buf[4]);
 		*(xhc.hal->jog_counts_neg) = - *(xhc.hal->jog_counts);
 		*(xhc.hal->jog_enable_off) = (xhc.axis == axis_off);
@@ -443,8 +440,9 @@ static void hal_setup()
 	for (i=0; i<NB_MAX_BUTTONS; i++) {
 		if (!xhc.buttons[i].pin_name[0]) continue;
 		r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
-		if (strcmp("button-step", xhc.buttons[i].pin_name) == 0) _button_step = xhc.buttons[i].code;
 	}
+    r |= _hal_pin_bit_newf(HAL_IN, &(xhc.hal->inc_step), hal_comp_id, "%s.stepsize-up", modname);
+    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->step), hal_comp_id, "%s.stepsize", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_y), hal_comp_id, "%s.jog.enable-y", modname);
@@ -533,7 +531,6 @@ int main (int argc,char **argv)
         }
     }
 	if (simu_mode) hal_setup();
-	xhc.step = 1;
 
 	signal(SIGINT, quit);
 	signal(SIGTERM, quit);
@@ -607,8 +604,20 @@ int main (int argc,char **argv)
 				tv.tv_usec = 30000;
 				r = libusb_handle_events_timeout(NULL, &tv);
 				compute_velocity(&xhc);
-				if (simu_mode) linuxcnc_simu(xhc.hal);
+				if (!simu_mode) {
+					_button_step = *(xhc.hal->inc_step);
+					if (_button_step  &&  ! _old_button_step) {
+						*(xhc.hal->step) = 10* *(xhc.hal->step);
+					}
+					*(xhc.hal->jog_scale) = *(xhc.hal->step) * 0.001f;
+					_old_button_step = _button_step;
+				}
+			    if (simu_mode) linuxcnc_simu(xhc.hal);
 				xhc_set_display(dev_handle, &xhc);
+				if (   *(xhc.hal->step) > 1000
+					|| *(xhc.hal->step) <= 0) {
+					*(xhc.hal->step) = 1;
+				}
 			}
 			printf("%s: connection lost, cleaning up\n",modname);
 			libusb_cancel_transfer(transfer_in);

@@ -22,8 +22,7 @@
 # Notes:
 #    1) the 'start-pause' pin can be set to "std_start_pause" to 
 #       implement default behavior
-#    2) the 'step' pin is used by xhc-hb04.cc to manage the jogwheel
-#       step sizes so use caution in connecting it for other purposes
+#    2) the 'step' pin is normally connected to xhc-hb04.stepsize-up
 #    3) non-root access to the usb device requires an additional
 #       udev rule.  Typically, create /etc/udev/rules.d/90-xhc.rules:
 #       SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"

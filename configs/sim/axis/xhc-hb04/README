@@ -42,6 +42,7 @@ The filter coefs can be used to slow the response to wheel steps but are usually
 Pendant buttons are connected to hal pins with ini file items.
 Examples:
 [XHC_HB04_BUTTONS]
+step        = xhc-hb04.stepsize-up
 stop        = halui.program.stop
 rewind      = halui.program.step
 goto-zero   = halui.mdi-command-00
@@ -52,7 +53,6 @@ Note: MDI commands are defined in a [HALUI] stanza:
 [HALUI]
 MDI_COMMAND = G0 X0 Y0 Z0
 MDI_COMMAND = M101
-
 
 An xhc-hb04 pendant can be added to existing configurations.
   1) copy files to the configuration directory:
