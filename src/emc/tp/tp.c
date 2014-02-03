@@ -312,7 +312,22 @@ STATIC int tpGetPlanarAccelLimit(PmCartesian const * const normal,
     return res;
 }
 
-#if 0
+STATIC int tpGetPlanarVelLimit(PmCartesian const * const normal,
+        double * const vel_limit)
+{
+    PmCartesian vel_bound;
+    vel_bound.x = emcmotDebug->joints[0].vel_limit;
+    vel_bound.y = emcmotDebug->joints[1].vel_limit;
+    vel_bound.z = emcmotDebug->joints[2].vel_limit;
+    int res = TP_ERR_OK;
+    if (vel_bound.x == vel_bound.y && vel_bound.y == vel_bound.z) {
+        *vel_limit = vel_bound.x;
+    } else {
+        res = tpGetPlanarLimit(normal, &vel_bound, vel_limit);
+    }
+    return res;
+}
+
 /**
  * Get a same maximum velocity for XYZ.
  * This function returns the worst-case safe velocity in any direction along XYZ.
@@ -332,7 +347,6 @@ STATIC int tpGetMachineVelLimit(double * const vel_limit) {
     tp_debug_print(" arc blending v_max=%f\n", *vel_limit);
     return TP_ERR_OK;
 }
-#endif
 
 /**
  * Get a segment's feed scale based on the current planner state and emcmotStatus.
@@ -540,7 +554,7 @@ int tpInit(TP_STRUCT * const tp)
 
     ZERO_EMC_POSE(tp->currentPos);
 
-    /*tpGetMachineVelLimit(&tp->vMax);*/
+    tpGetMachineVelLimit(&tp->vMax);
 
     return tpClear(tp);
 }
@@ -971,6 +985,10 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     //Find common velocity and acceleration
     double v_req = fmin(prev_tc->reqvel, tc->reqvel);
     double v_goal = v_req * emcmotConfig->maxFeedScale;
+    double v_max = 0.0;
+    tpGetPlanarVelLimit(&binormal,&v_max);
+    v_goal = fmin(v_goal,v_max);
+
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_goal = %f, max scale = %f\n", v_goal, emcmotConfig->maxFeedScale);
 
@@ -1682,15 +1700,13 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     tc.motion_type = TC_CIRCULAR;
     tc.term_cond = tp->termCond;
 
-    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
+    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc);
+    tpInitializeNewSegment(tp, &tc, vel, v_max_actual, acc, enables);
 
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
     tpSetupTangent(tp, prev_tc, &tc);
-
-    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc);
-    tc.maxvel = v_max_actual;
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
 
