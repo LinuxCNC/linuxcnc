@@ -959,7 +959,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     pmCartCartCross(&prev_tc->coords.line.xyz.uVec,
             &tc->coords.line.xyz.uVec,
             &binormal);
-    pmCartUnit(&binormal,&binormal);
+    pmCartUnitEq(&binormal);
     tp_debug_print("binormal = [%f %f %f]\n", binormal.x,binormal.y,binormal.z);
     double a_max;
     //TODO move this function into setup somewhere because this should be constant
