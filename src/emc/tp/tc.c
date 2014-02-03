@@ -39,17 +39,17 @@ int tcCircleStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const
     pmCirclePoint(&tc->coords.circle.xyz, 0.0, &startpoint);
     pmCartCartSub(&startpoint, &tc->coords.circle.xyz.center, &radius);
     pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, &tan);
-    pmCartUnit(&tan, &tan);
+    pmCartUnitEq(&tan);
     //The unit vector's actual direction is adjusted by the normal
     //acceleration here. This unit vector is NOT simply the tangent
     //direction.
     pmCartCartSub(&tc->coords.circle.xyz.center, &startpoint, &perp);
-    pmCartUnit(&perp, &perp);
+    pmCartUnitEq(&perp);
 
     pmCartScalMult(&tan, tc->maxaccel, &tan);
-    pmCartScalMult(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius, &perp);
+    pmCartScalMultEq(&perp, pmSq(0.5 * tc->reqvel)/tc->coords.circle.xyz.radius);
     pmCartCartAdd(&tan, &perp, out);
-    pmCartUnit(out, out);
+    pmCartUnitEq(out);
     return 0;
 }
 
@@ -61,7 +61,7 @@ int tcCircleEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const o
     pmCirclePoint(&tc->coords.circle.xyz, tc->coords.circle.xyz.angle, &endpoint);
     pmCartCartSub(&endpoint, &tc->coords.circle.xyz.center, &radius);
     pmCartCartCross(&tc->coords.circle.xyz.normal, &radius, out);
-    pmCartUnit(out, out);
+    pmCartUnitEq(out);
     return 0;
 }
 
@@ -133,7 +133,7 @@ static int tcGetHelicalTangentVector(PmCircle const * const circle, double progr
     pmCartMag(&circle->rHelix, &h);
     if (h>0.0){
         //Pre-scale tangent vector to unit length
-        pmCartUnit(&tan, &tan);
+        pmCartUnitEq(&tan);
         //No degeneracy because we have nonzero angle and radius
         double ratio = 1.0 / (circle->radius * circle->angle);
         //Scale the helix vector to be proportional to the unit tangent vector
