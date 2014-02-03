@@ -996,7 +996,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     double Ctheta = cos(theta);
     double Stheta = sin(theta);
     double Ttheta = tan(theta);
-    
+
     double greediness = fmin(emcmotConfig->arcBlendGreediness, 1.0);
     //Nominal length restriction prevents gobbling too much of parabolic blends
     double L1 = fmin(prev_tc->target, prev_tc->nominal_length * greediness);
@@ -1062,7 +1062,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     if (consume) {
         s_arc += L_prev;
     }
-    
     //Reduce velocity if necessary 
     double v_sample_arc = s_arc / min_segment_time;
     if (v_plan > v_sample_arc) {
@@ -1071,7 +1070,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     }
     tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f, prev_seg_time = %f\n", s_arc, L_prev, L_next, prev_seg_time);
 
-    
     double v_actual;
     if (v_plan > v_req) {
         v_actual = v_req;
@@ -1845,7 +1843,6 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
     // update position in this tc using trapezoidal integration
     // Note that progress can be greater than the target after this step.
     if (v_next < 0.0) {
-        tc->progress = tc->target;
         v_next = 0.0;
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
@@ -2676,27 +2673,26 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     double target_vel = tpGetRealTargetVel(tp, tc);
     double v_f = tpGetRealFinalVel(tp, tc, target_vel);
-    double v_avg = tc->currentvel + v_f;
+    double v_avg = (tc->currentvel + v_f) / 2.0;
 
     //Check that we have a non-zero "average" velocity between now and the
     //finish. If not, it means that we have to accelerate from a stop, which
     //will take longer than the minimum 2 timesteps that each segment takes, so
     //we're safely far form the end.
 
-    if (v_avg < TP_VEL_EPSILON) {
+    //Get dt assuming that we can magically reach the final velocity at
+    //the end of the move.
+    double dt = TP_TIME_EPSILON / 2.0;
+    if (v_avg > TP_VEL_EPSILON) {
+        //Get dt from distance and velocity (avoid div by zero)
+        dt = fmax(dt,dx / v_avg);
+    } else {
         if ( dx > (v_avg * tp->cycleTime)) {
             tp_debug_print(" below velocity threshold, assuming far from end\n");
             return TP_ERR_NO_ACTION;
-        } else {
-            tp_debug_print(" close to target by velocity check, assuming cycle split\n");
-            tcSetSplitCycle(tc, 0.0, tc->currentvel);
-            return TP_ERR_OK;
         }
     }
 
-    //Get dt assuming that we can magically reach the final velocity at
-    //the end of the move.
-    double dt = fmax(2.0 * dx / v_avg, TP_TIME_EPSILON);
     //Calculate the acceleration this would take:
 
     double dv = v_f - tc->currentvel;
@@ -2712,7 +2708,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     //Need to recalculate vf and above
     if (recalc) {
-
         tp_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
         if (disc < 0 ) {
