@@ -926,9 +926,13 @@ STATIC int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
 }
 
 /**
- * After adding a new segment, run this on the previous segment to validate
+ * "Finalizes" a segment so that its length can't change.
+ * By setting the finalized flag, we tell the optimizer that this segment's
+ * length won't change anymore. Since any blends are already set up, we can
+ * trust that the length will be the same, and so can use the length in the
+ * velocity optimization.
  */
-STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC int tpFinalizeSegmentLength(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Apply velocity corrections
     if (!tc) {
         tp_debug_print("Missing prev_tc in finalize!\n");
@@ -1248,7 +1252,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
     //Assume non-zero error code is failure
     prev_tc = tcqLast(&tp->queue);
-    tpFinalizeSegmentLimits(tp, prev_tc);
+    tpFinalizeSegmentLength(tp, prev_tc);
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     tpRunOptimization(tp);
     return retval;
@@ -1519,7 +1523,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
  */
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
-    tp_debug_print("********************\n Handle Blend Arc\n");
+    tp_debug_print("********************\nHandle Blend Arc\n");
 
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
@@ -1642,11 +1646,11 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
         //TODO add check for two spaces in queue?
         tpHandleBlendArc(tp, &tc);
     }
-    tpFinalizeSegmentLimits(tp, prev_tc);
+    tcCheckLastParabolic(&tc, prev_tc);
+    tpFinalizeSegmentLength(tp, prev_tc);
 
     //Flag this as blending with previous segment if the previous segment is
     //set to blend with this one
-    tcCheckLastParabolic(&tc, prev_tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
@@ -1750,7 +1754,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tpHandleBlendArc(tp, &tc);
     }
     tcCheckLastParabolic(&tc, prev_tc);
-    tpFinalizeSegmentLimits(tp, prev_tc);
+    tpFinalizeSegmentLength(tp, prev_tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
 
@@ -1851,7 +1855,6 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_MIN_ARC_ANGLE);
         if (cos(theta) > min_cos_theta) {
             tblend_vel = 2.0 * pmSqrt(acc_this * tc->tolerance / cos(theta));
-            tc_debug_print("using tolerance, clipping blend vel at %f\n", tblend_vel);
             v_blend_this = fmin(v_blend_this, tblend_vel);
             v_blend_next = fmin(v_blend_next, tblend_vel);
         }
