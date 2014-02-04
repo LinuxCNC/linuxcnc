@@ -156,16 +156,14 @@ STATIC int clip_max(double * const x, double max) {
  * This sets flags so that accelerations are correct due to the current segment
  * having to blend with the previous.
  */
-STATIC int tpCheckLastParabolic(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    TC_STRUCT *prev_tc;
-    prev_tc = tcqLast(&tp->queue);
+STATIC int tcCheckLastParabolic(TC_STRUCT * const tc,
+        TC_STRUCT const * const prev_tc) {
     if (prev_tc && prev_tc->term_cond == TC_TERM_COND_PARABOLIC) {
         tp_debug_print("prev segment parabolic, flagging blend_prev\n");
         tc->blend_prev = 1;
     }
     return TP_ERR_OK;
 }
-
 
 /**
  * Returns true if there is motion along ABC or UVW axes, false otherwise.
@@ -893,6 +891,9 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 
     //KLUDGE this init function is a bit overkill now...
     tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
+    //NOTE: blend arc radius and everything else is finalized, so set this to 1.
+    //In the future, radius may be adjustable.
+    blend_tc->finalized = 1;
 
     return TP_ERR_OK;
 }
@@ -927,18 +928,19 @@ STATIC int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
 STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
     //Apply velocity corrections
     if (!tc) {
+        tp_debug_print("Missing prev_tc in finalize!\n");
         return TP_ERR_FAIL;
     }
     tp_debug_print("Finalizing tc id %d, type %d\n", tc->id, tc->motion_type);
-    if (tc->motion_type == TC_CIRCULAR && (tc->blend_prev || tc->term_cond ==
-                TC_TERM_COND_PARABOLIC)) {
+    //TODO function to check for parabolic?
+    int parabolic = (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC);
+    tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
+
+    if (tc->motion_type == TC_CIRCULAR && parabolic) {
         tp_debug_print("Setting parabolic maxvel\n");
-        //FIXME Hack to deal with the "double" scaling of
-        //acceleration. This only works due to the specific
-        //implementation of GetScaledAccel
-        tc->maxvel *= pmSqrt(TP_ACC_RATIO_TANGENTIAL);
+        //TODO make this 0.5 a constant
+        tc->maxvel *= pmSqrt(0.5);
     }
-    tpCheckLastParabolic(tp, tc);
     tc->finalized = 1;
     return TP_ERR_OK;
 }
@@ -1139,8 +1141,6 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         blend_tc->coords.arc.xyz.line_length = 0;
         retval = tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
     }
-    tpFinalizeSegmentLimits(tp, blend_tc);
-
     return retval;
 
 }
@@ -1473,7 +1473,6 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
-        tpFinalizeSegmentLimits(tp, prev_tc);
         return TP_ERR_OK;
     } else {
         tp_debug_print(" New segment not tangent, angle %g\n", phi);
@@ -1606,7 +1605,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
     //Flag this as blending with previous segment if the previous segment is
     //set to blend with this one
-    tpCheckLastParabolic(tp, &tc);
+    tcCheckLastParabolic(&tc, prev_tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
@@ -1707,6 +1706,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     prev_tc = tcqLast(&tp->queue);
 
     tpSetupTangent(tp, prev_tc, &tc);
+    tcCheckLastParabolic(&tc, prev_tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
 
