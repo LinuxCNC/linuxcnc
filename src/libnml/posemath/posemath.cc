@@ -67,6 +67,19 @@ double &PM_CARTESIAN::operator [] (int n) {
     }
 }
 
+PM_CARTESIAN & PM_CARTESIAN::operator -= (const PM_CARTESIAN &o) {
+    x-=o.x;
+    y-=o.y;
+    z-=o.z;
+    return *this;
+}
+PM_CARTESIAN & PM_CARTESIAN::operator += (const PM_CARTESIAN &o) {
+    x+=o.x;
+    y+=o.y;
+    z+=o.z;
+    return *this;
+}
+
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
 PM_CARTESIAN::PM_CARTESIAN(PM_CCONST PM_CARTESIAN & v)
 {
@@ -75,15 +88,6 @@ PM_CARTESIAN::PM_CARTESIAN(PM_CCONST PM_CARTESIAN & v)
     z = v.z;
 }
 #endif
-
-PM_CARTESIAN PM_CARTESIAN::operator =(PM_CARTESIAN v)
-{
-    x = v.x;
-    y = v.y;
-    z = v.z;
-
-    return v;
-}
 
 // PM_SPHERICAL
 
@@ -135,16 +139,6 @@ PM_SPHERICAL::PM_SPHERICAL(PM_CCONST PM_SPHERICAL & s)
     r = s.r;
 }
 #endif
-
-PM_SPHERICAL PM_SPHERICAL::operator =(PM_SPHERICAL s)
-{
-    theta = s.theta;
-    phi = s.phi;
-    r = s.r;
-
-    return s;
-}
-
 // PM_CYLINDRICAL
 
 PM_CYLINDRICAL::PM_CYLINDRICAL(double _theta, double _r, double _z)
@@ -195,16 +189,6 @@ PM_CYLINDRICAL::PM_CYLINDRICAL(PM_CCONST PM_CYLINDRICAL & c)
     z = c.z;
 }
 #endif
-
-PM_CYLINDRICAL PM_CYLINDRICAL::operator =(PM_CYLINDRICAL c)
-{
-    theta = c.theta;
-    r = c.r;
-    z = c.z;
-
-    return c;
-}
-
 // PM_ROTATION_VECTOR
 
 PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(double _s, double _x,
@@ -255,17 +239,6 @@ PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(PM_CCONST PM_ROTATION_VECTOR & r)
     z = r.z;
 }
 #endif
-
-PM_ROTATION_VECTOR PM_ROTATION_VECTOR::operator =(PM_ROTATION_VECTOR r)
-{
-    s = r.s;
-    x = r.x;
-    y = r.y;
-    z = r.z;
-
-    return r;
-}
-
 // PM_ROTATION_MATRIX class
 
 // ctors/dtors
@@ -372,16 +345,6 @@ PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CCONST PM_ROTATION_MATRIX & m)
     z = m.z;
 }
 #endif
-
-PM_ROTATION_MATRIX PM_ROTATION_MATRIX::operator =(PM_ROTATION_MATRIX m)
-{
-    x = m.x;
-    y = m.y;
-    z = m.z;
-
-    return m;
-}
-
 // PM_QUATERNION class
 
 PM_QUATERNION::PM_QUATERNION(double _s, double _x, double _y, double _z)
@@ -482,17 +445,6 @@ double &PM_QUATERNION::operator [] (int n) {
 	return noElement;	// need to return a double &
     }
 }
-
-PM_QUATERNION PM_QUATERNION::operator =(PM_QUATERNION q)
-{
-    s = q.s;
-    x = q.x;
-    y = q.y;
-    z = q.z;
-
-    return q;
-}
-
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
 PM_QUATERNION::PM_QUATERNION(PM_CCONST PM_QUATERNION & q)
 {
@@ -554,15 +506,6 @@ PM_EULER_ZYZ::PM_EULER_ZYZ(PM_CCONST PM_EULER_ZYZ & zyz)
 }
 #endif
 
-PM_EULER_ZYZ PM_EULER_ZYZ::operator =(PM_EULER_ZYZ zyz)
-{
-    z = zyz.z;
-    y = zyz.y;
-    zp = zyz.zp;
-
-    return zyz;
-}
-
 // PM_EULER_ZYX class
 
 PM_EULER_ZYX::PM_EULER_ZYX(double _z, double _y, double _x)
@@ -613,16 +556,6 @@ PM_EULER_ZYX::PM_EULER_ZYX(PM_CCONST PM_EULER_ZYX & zyx)
     x = zyx.x;
 }
 #endif
-
-PM_EULER_ZYX PM_EULER_ZYX::operator =(PM_EULER_ZYX zyx)
-{
-    z = zyx.z;
-    y = zyx.y;
-    x = zyx.x;
-
-    return zyx;
-}
-
 // PM_RPY class
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
@@ -672,15 +605,6 @@ double &PM_RPY::operator [] (int n) {
     default:
 	return noElement;	// need to return a double &
     }
-}
-
-PM_RPY PM_RPY::operator =(PM_RPY rpy)
-{
-    r = rpy.r;
-    p = rpy.p;
-    y = rpy.y;
-
-    return rpy;
 }
 
 // PM_POSE class
@@ -746,15 +670,6 @@ PM_POSE::PM_POSE(PM_CCONST PM_POSE & p)
     rot = p.rot;
 }
 #endif
-
-PM_POSE PM_POSE::operator =(PM_POSE p)
-{
-    tran = p.tran;
-    rot = p.rot;
-
-    return p;
-}
-
 // PM_HOMOGENEOUS class
 
 PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CARTESIAN v, PM_ROTATION_MATRIX m)
@@ -805,14 +720,6 @@ PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CCONST PM_HOMOGENEOUS & h)
     rot = h.rot;
 }
 #endif
-
-PM_HOMOGENEOUS PM_HOMOGENEOUS::operator =(PM_HOMOGENEOUS h)
-{
-    tran = h.tran;
-    rot = h.rot;
-
-    return h;
-}
 
 // PM_LINE class
 
@@ -911,7 +818,7 @@ int PM_CIRCLE::point(double angle, PM_POSE * point)
 
 // dot
 
-double dot(PM_CARTESIAN v1, PM_CARTESIAN v2)
+double dot(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     double d;
     PmCartesian _v1, _v2;
@@ -926,7 +833,7 @@ double dot(PM_CARTESIAN v1, PM_CARTESIAN v2)
 
 // cross
 
-PM_CARTESIAN cross(PM_CARTESIAN v1, PM_CARTESIAN v2)
+PM_CARTESIAN cross(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PM_CARTESIAN ret;
     PmCartesian _v1, _v2;
@@ -943,7 +850,7 @@ PM_CARTESIAN cross(PM_CARTESIAN v1, PM_CARTESIAN v2)
 
 //unit
 
-PM_CARTESIAN unit(PM_CARTESIAN v)
+PM_CARTESIAN unit(const PM_CARTESIAN &v)
 {
     PM_CARTESIAN vout;
     PmCartesian _v;
@@ -1056,7 +963,7 @@ int isNorm(PM_ROTATION_MATRIX m)
 
 // mag
 
-double mag(PM_CARTESIAN v)
+double mag(const PM_CARTESIAN &v)
 {
     double ret;
     PmCartesian _v;
@@ -1070,7 +977,7 @@ double mag(PM_CARTESIAN v)
 
 // disp
 
-double disp(PM_CARTESIAN v1, PM_CARTESIAN v2)
+double disp(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     double ret;
     PmCartesian _v1, _v2;
@@ -1085,7 +992,7 @@ double disp(PM_CARTESIAN v1, PM_CARTESIAN v2)
 
 // inv
 
-PM_CARTESIAN inv(PM_CARTESIAN v)
+PM_CARTESIAN inv(const PM_CARTESIAN &v)
 {
     PM_CARTESIAN ret;
     PmCartesian _v;
@@ -1099,7 +1006,7 @@ PM_CARTESIAN inv(PM_CARTESIAN v)
     return ret;
 }
 
-PM_ROTATION_MATRIX inv(PM_ROTATION_MATRIX m)
+PM_ROTATION_MATRIX inv(const PM_ROTATION_MATRIX &m)
 {
     PM_ROTATION_MATRIX ret;
     PmRotationMatrix _m;
@@ -1113,7 +1020,7 @@ PM_ROTATION_MATRIX inv(PM_ROTATION_MATRIX m)
     return ret;
 }
 
-PM_QUATERNION inv(PM_QUATERNION q)
+PM_QUATERNION inv(const PM_QUATERNION &q)
 {
     PM_QUATERNION ret;
     PmQuaternion _q;
@@ -1127,7 +1034,7 @@ PM_QUATERNION inv(PM_QUATERNION q)
     return ret;
 }
 
-PM_POSE inv(PM_POSE p)
+PM_POSE inv(const PM_POSE &p)
 {
     PM_POSE ret;
     PmPose _p;
@@ -1141,7 +1048,7 @@ PM_POSE inv(PM_POSE p)
     return ret;
 }
 
-PM_HOMOGENEOUS inv(PM_HOMOGENEOUS h)
+PM_HOMOGENEOUS inv(const PM_HOMOGENEOUS &h)
 {
     PM_HOMOGENEOUS ret;
     PmHomogeneous _h;
@@ -1157,7 +1064,7 @@ PM_HOMOGENEOUS inv(PM_HOMOGENEOUS h)
 
 // project
 
-PM_CARTESIAN proj(PM_CARTESIAN v1, PM_CARTESIAN v2)
+PM_CARTESIAN proj(const PM_CARTESIAN &v1, PM_CARTESIAN &v2)
 {
     PM_CARTESIAN ret;
     PmCartesian _v1, _v2;
@@ -1174,12 +1081,12 @@ PM_CARTESIAN proj(PM_CARTESIAN v1, PM_CARTESIAN v2)
 
 // overloaded arithmetic operators
 
-PM_CARTESIAN operator +(PM_CARTESIAN v)
+PM_CARTESIAN operator +(const PM_CARTESIAN &v)
 {
     return v;
 }
 
-PM_CARTESIAN operator -(PM_CARTESIAN v)
+PM_CARTESIAN operator -(const PM_CARTESIAN &v)
 {
     PM_CARTESIAN ret;
 
@@ -1190,12 +1097,12 @@ PM_CARTESIAN operator -(PM_CARTESIAN v)
     return ret;
 }
 
-PM_QUATERNION operator +(PM_QUATERNION q)
+PM_QUATERNION operator +(const PM_QUATERNION &q)
 {
     return q;
 }
 
-PM_QUATERNION operator -(PM_QUATERNION q)
+PM_QUATERNION operator -(const PM_QUATERNION &q)
 {
     PM_QUATERNION ret;
     PmQuaternion _q;
@@ -1209,12 +1116,12 @@ PM_QUATERNION operator -(PM_QUATERNION q)
     return ret;
 }
 
-PM_POSE operator +(PM_POSE p)
+PM_POSE operator +(const PM_POSE &p)
 {
     return p;
 }
 
-PM_POSE operator -(PM_POSE p)
+PM_POSE operator -(const PM_POSE &p)
 {
     PM_POSE ret;
     PmPose _p;
@@ -1228,7 +1135,7 @@ PM_POSE operator -(PM_POSE p)
     return ret;
 }
 
-int operator ==(PM_CARTESIAN v1, PM_CARTESIAN v2)
+int operator ==(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PmCartesian _v1, _v2;
 
@@ -1238,7 +1145,7 @@ int operator ==(PM_CARTESIAN v1, PM_CARTESIAN v2)
     return pmCartCartCompare(&_v1, &_v2);
 }
 
-int operator ==(PM_QUATERNION q1, PM_QUATERNION q2)
+int operator ==(const PM_QUATERNION &q1, PM_QUATERNION &q2)
 {
     PmQuaternion _q1, _q2;
 
@@ -1248,7 +1155,7 @@ int operator ==(PM_QUATERNION q1, PM_QUATERNION q2)
     return pmQuatQuatCompare(&_q1, &_q2);
 }
 
-int operator ==(PM_POSE p1, PM_POSE p2)
+int operator ==(const PM_POSE &p1, const PM_POSE &p2)
 {
     PmPose _p1, _p2;
 
@@ -1258,7 +1165,7 @@ int operator ==(PM_POSE p1, PM_POSE p2)
     return pmPosePoseCompare(&_p1, &_p2);
 }
 
-int operator !=(PM_CARTESIAN v1, PM_CARTESIAN v2)
+int operator !=(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PmCartesian _v1, _v2;
 
@@ -1268,7 +1175,7 @@ int operator !=(PM_CARTESIAN v1, PM_CARTESIAN v2)
     return !pmCartCartCompare(&_v1, &_v2);
 }
 
-int operator !=(PM_QUATERNION q1, PM_QUATERNION q2)
+int operator !=(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
 {
     PmQuaternion _q1, _q2;
 
@@ -1278,7 +1185,7 @@ int operator !=(PM_QUATERNION q1, PM_QUATERNION q2)
     return !pmQuatQuatCompare(&_q1, &_q2);
 }
 
-int operator !=(PM_POSE p1, PM_POSE p2)
+int operator !=(const PM_POSE &p1, const PM_POSE &p2)
 {
     PmPose _p1, _p2;
 
@@ -1288,7 +1195,7 @@ int operator !=(PM_POSE p1, PM_POSE p2)
     return !pmPosePoseCompare(&_p1, &_p2);
 }
 
-PM_CARTESIAN operator +(PM_CARTESIAN v1, PM_CARTESIAN v2)
+PM_CARTESIAN operator +(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PM_CARTESIAN ret;
 
@@ -1299,7 +1206,7 @@ PM_CARTESIAN operator +(PM_CARTESIAN v1, PM_CARTESIAN v2)
     return ret;
 }
 
-PM_CARTESIAN operator -(PM_CARTESIAN v1, PM_CARTESIAN v2)
+PM_CARTESIAN operator -(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PM_CARTESIAN ret;
 
@@ -1310,7 +1217,7 @@ PM_CARTESIAN operator -(PM_CARTESIAN v1, PM_CARTESIAN v2)
     return ret;
 }
 
-PM_CARTESIAN operator *(PM_CARTESIAN v, double s)
+PM_CARTESIAN operator *(const PM_CARTESIAN &v, double s)
 {
     PM_CARTESIAN ret;
 
@@ -1321,7 +1228,7 @@ PM_CARTESIAN operator *(PM_CARTESIAN v, double s)
     return ret;
 }
 
-PM_CARTESIAN operator *(double s, PM_CARTESIAN v)
+PM_CARTESIAN operator *(double s, const PM_CARTESIAN &v)
 {
     PM_CARTESIAN ret;
 
@@ -1332,7 +1239,7 @@ PM_CARTESIAN operator *(double s, PM_CARTESIAN v)
     return ret;
 }
 
-PM_CARTESIAN operator /(PM_CARTESIAN v, double s)
+PM_CARTESIAN operator /(const PM_CARTESIAN &v, double s)
 {
     PM_CARTESIAN ret;
 
@@ -1353,7 +1260,7 @@ PM_CARTESIAN operator /(PM_CARTESIAN v, double s)
     return ret;
 }
 
-PM_QUATERNION operator *(double s, PM_QUATERNION q)
+PM_QUATERNION operator *(double s, const PM_QUATERNION &q)
 {
     PM_QUATERNION qout;
     PmQuaternion _q;
@@ -1367,7 +1274,7 @@ PM_QUATERNION operator *(double s, PM_QUATERNION q)
     return qout;
 }
 
-PM_QUATERNION operator *(PM_QUATERNION q, double s)
+PM_QUATERNION operator *(const PM_QUATERNION &q, double s)
 {
     PM_QUATERNION qout;
     PmQuaternion _q;
@@ -1381,7 +1288,7 @@ PM_QUATERNION operator *(PM_QUATERNION q, double s)
     return qout;
 }
 
-PM_QUATERNION operator /(PM_QUATERNION q, double s)
+PM_QUATERNION operator /(const PM_QUATERNION &q, double s)
 {
     PM_QUATERNION qout;
     PmQuaternion _q;
@@ -1430,7 +1337,7 @@ PM_QUATERNION operator /(PM_QUATERNION q, double s)
     return qout;
 }
 
-PM_CARTESIAN operator *(PM_QUATERNION q, PM_CARTESIAN v)
+PM_CARTESIAN operator *(const PM_QUATERNION &q, const PM_CARTESIAN &v)
 {
     PM_CARTESIAN vout;
     PmQuaternion _q;
@@ -1446,7 +1353,7 @@ PM_CARTESIAN operator *(PM_QUATERNION q, PM_CARTESIAN v)
     return vout;
 }
 
-PM_QUATERNION operator *(PM_QUATERNION q1, PM_QUATERNION q2)
+PM_QUATERNION operator *(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
 {
     PM_QUATERNION ret;
     PmQuaternion _q1, _q2;
@@ -1461,7 +1368,7 @@ PM_QUATERNION operator *(PM_QUATERNION q1, PM_QUATERNION q2)
     return ret;
 }
 
-PM_ROTATION_MATRIX operator *(PM_ROTATION_MATRIX m1, PM_ROTATION_MATRIX m2)
+PM_ROTATION_MATRIX operator *(const PM_ROTATION_MATRIX &m1, const PM_ROTATION_MATRIX &m2)
 {
     PM_ROTATION_MATRIX ret;
     PmRotationMatrix _m1, _m2;
@@ -1476,7 +1383,7 @@ PM_ROTATION_MATRIX operator *(PM_ROTATION_MATRIX m1, PM_ROTATION_MATRIX m2)
     return ret;
 }
 
-PM_POSE operator *(PM_POSE p1, PM_POSE p2)
+PM_POSE operator *(const PM_POSE &p1, const PM_POSE &p2)
 {
     PM_POSE ret;
     PmPose _p1, _p2;
@@ -1491,7 +1398,7 @@ PM_POSE operator *(PM_POSE p1, PM_POSE p2)
     return ret;
 }
 
-PM_CARTESIAN operator *(PM_POSE p, PM_CARTESIAN v)
+PM_CARTESIAN operator *(const PM_POSE &p, const PM_CARTESIAN &v)
 {
     PM_CARTESIAN ret;
     PmPose _p;
