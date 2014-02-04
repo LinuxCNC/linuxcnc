@@ -1227,8 +1227,8 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
     //Assume non-zero error code is failure
     prev_tc = tcqLast(&tp->queue);
-    int retval = tpAddSegmentToQueue(tp, &tc, true);
     tpFinalizeSegmentLimits(tp, prev_tc);
+    int retval = tpAddSegmentToQueue(tp, &tc, true);
     tpRunOptimization(tp);
     return retval;
 }
@@ -1707,13 +1707,10 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
 
     tpSetupTangent(tp, prev_tc, &tc);
     tcCheckLastParabolic(&tc, prev_tc);
+    tpFinalizeSegmentLimits(tp, prev_tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
 
-    //Check the previous segment for parabolic blends and reduce max velocity if needed
-    tpFinalizeSegmentLimits(tp, prev_tc);
-
-    //Run speed optimization here
     tpRunOptimization(tp);
     return retval;
 }
