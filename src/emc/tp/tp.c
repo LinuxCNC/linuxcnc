@@ -1322,10 +1322,6 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     //trajectory parameters
     double acc_this = tpGetScaledAccel(tp, tc);
 
-    if (tc->finalvel < TP_VEL_EPSILON) {
-        //KLUDGE scale the acceleration down for the "last" segment in case we want to fall back to parabolic later
-        acc_this *= 0.5;
-    }
     // Find the reachable velocity of tc, moving backwards in time
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     // Find the reachable velocity of prev1_tc, moving forwards in time
@@ -1496,13 +1492,23 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     //TODO move this to setup
     tpGetMachineAccelLimit(&acc_limit);
 
-    double acc_margin = (1.0 - TP_ACC_RATIO_NORMAL) * acc_limit;
+    // FIXME hard-coded max "normal" acceleration for a tangent intersection
+    const double TP_ACC_RATIO_TANGENT_NORMAL = TP_ACC_RATIO_NORMAL * 0.2;
+    double acc_margin = TP_ACC_RATIO_TANGENT_NORMAL * acc_limit;
+    tp_debug_print("acc_margin = %f\n", acc_margin);
     double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin);
+    double a_n_actual = sin(phi) * v_reachable / tp->cycleTime;
+    double a_t_ratio = pmSqrt(1 - pmSq(a_n_actual / acc_limit));
+    tp_debug_print("a_t_ratio = %f\n", a_t_ratio);
 
     if (phi <= max_angle) {
         tp_debug_print(" New segment tangent with angle %g\n", phi);
-        //already tangent
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+        //Calculate actual normal acceleration during tangent transition
+
+        prev_tc->maxaccel *= a_t_ratio;
+        tc->maxaccel *= a_t_ratio;
+
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
@@ -1943,6 +1949,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
 void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         double * const acc, double * const vel_desired)
 {
+    tc_debug_print("using trapezoidal acceleration\n");
 
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp, tc);
@@ -2007,6 +2014,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double * const acc, double * const vel_desired)
 {
+    tc_debug_print("using ramped acceleration\n");
     //Initial guess at dt for next round
     double dx = tc->target - tc->progress;
 
@@ -2027,7 +2035,10 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
     double vel_avg = (tc->currentvel + vel_final) / 2.0;
 
     // Calculate time remaining in this segment assuming constant acceleration
-    double dt = fmax( dx / vel_avg, TP_TIME_EPSILON);
+    double dt = 1e-16;
+    if (vel_avg > TP_VEL_EPSILON) {
+        dt = fmax( dx / vel_avg, 1e-16);
+    }
 
     // Calculate velocity change between final and current velocity
     double dv = vel_final - tc->currentvel;
