@@ -86,6 +86,7 @@ typedef struct {
 
 	hal_bit_t *inc_step;
 	hal_s32_t *step;
+	hal_bit_t *sleeping;
 } xhc_hal_t;
 
 typedef struct {
@@ -103,6 +104,8 @@ static xhc_t xhc;
 
 static int do_exit = 0;
 static int do_reconnect = 0;
+
+static struct timeval last_wakeup;
 
 struct libusb_transfer *transfer_in  = NULL;
 unsigned char in_buf[32];
@@ -196,7 +199,14 @@ void xhc_set_display(libusb_device_handle *dev_handle, xhc_t *xhc)
 	xhc_display_encode(xhc, data, sizeof(data));
 
 	for (packet=0; packet<6; packet++) {
-		int r = libusb_control_transfer(dev_handle, 0x21, 0x09, 0x0306, 0x00, data+8*packet, 8, 0);
+		int r = libusb_control_transfer(dev_handle,
+		              LIBUSB_DT_HID, //bmRequestType 0x21
+		              LIBUSB_REQUEST_SET_CONFIGURATION, //bRequest 0x09
+		              0x0306,         //wValue
+		              0x00,           //wIndex
+		              data+8*packet,  //*data
+		              8,              //wLength
+		              0);             //timeout
 		if (r < 0) {
 			do_reconnect = 1;
 		}
@@ -317,7 +327,6 @@ void cb_response_in(struct libusb_transfer *transfer)
 		*(xhc.hal->jog_enable_a) = (xhc.axis == axis_a);
 		*(xhc.hal->jog_enable_feedrate) = (xhc.axis == axis_feed);
 		*(xhc.hal->jog_enable_spindle) = (xhc.axis == axis_spindle);
-
 		for (i=0; i<NB_MAX_BUTTONS; i++) {
 			if (!xhc.hal->button_pin[i]) continue;
 			*(xhc.hal->button_pin[i]) = (xhc.button_code == xhc.buttons[i].code);
@@ -325,6 +334,30 @@ void cb_response_in(struct libusb_transfer *transfer)
 		}
 
 		if (simu_mode) printf("\n");
+
+		//detect pendant going to sleep
+		if (   in_buf[0]==0x04
+			&& in_buf[1]==0
+			&& in_buf[2]==0
+			&& in_buf[3]==0
+			&& in_buf[4]==0
+			&& in_buf[5]==0) {
+				*(xhc.hal->sleeping) = 1;
+				if (simu_mode) {
+					struct timeval now;
+					gettimeofday(&now, NULL);
+					fprintf(stderr,"Sleep, idle for %ld seconds\n",
+						               now.tv_sec - last_wakeup.tv_sec);
+				}
+			} else {
+				gettimeofday(&last_wakeup, NULL);
+				if (*(xhc.hal->sleeping)) {
+					if (simu_mode) {
+						fprintf(stderr,"Wake\n");
+					}
+				}
+				*(xhc.hal->sleeping) = 0;
+			}
 	}
 
 	setup_asynch_transfer(transfer->dev_handle);
@@ -441,8 +474,11 @@ static void hal_setup()
 		if (!xhc.buttons[i].pin_name[0]) continue;
 		r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
 	}
-    r |= _hal_pin_bit_newf(HAL_IN, &(xhc.hal->inc_step), hal_comp_id, "%s.stepsize-up", modname);
+
+    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->sleeping), hal_comp_id, "%s.sleeping", modname);
+    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->inc_step), hal_comp_id, "%s.stepsize-up", modname);
     r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->step), hal_comp_id, "%s.stepsize", modname);
+
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_y), hal_comp_id, "%s.jog.enable-y", modname);
