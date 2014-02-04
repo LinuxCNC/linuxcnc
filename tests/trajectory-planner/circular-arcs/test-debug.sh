@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o monitor
 ./build-debug.sh
-cp position.blank position.txt
+cp position.blank configs/position.txt
 linuxcnc $1 > test.log &
 python machine_setup.py $2
 fg
