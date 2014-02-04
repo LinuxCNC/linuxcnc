@@ -1497,8 +1497,8 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double acc_margin = TP_ACC_RATIO_TANGENT_NORMAL * acc_limit;
     tp_debug_print("acc_margin = %f\n", acc_margin);
     double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin);
-    double a_n_actual = sin(phi) * v_reachable / tp->cycleTime;
-    double a_t_ratio = pmSqrt(1 - pmSq(a_n_actual / acc_limit));
+    double a_n_actual = 2.0 * sin(phi/2.0) * v_reachable / tp->cycleTime;
+    double a_t_ratio = 1.0 - a_n_actual / acc_limit;
     tp_debug_print("a_t_ratio = %f\n", a_t_ratio);
 
     if (phi <= max_angle) {
