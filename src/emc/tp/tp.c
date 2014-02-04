@@ -903,8 +903,8 @@ STATIC int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance)
 {
     const double tolerance_ratio = 0.25;
-    double T1 = fmin(prev_tc->tolerance, prev_tc->nominal_length * tolerance_ratio);
-    double T2 = fmin(tc->tolerance, tc->nominal_length * tolerance_ratio);
+    double T1 = prev_tc->tolerance;
+    double T2 = tc->tolerance;
     //Detect zero tolerance = no tolerance and force to reasonable maximum
     if (T1 == 0) {
         T1 = prev_tc->nominal_length * tolerance_ratio;
@@ -1596,10 +1596,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     prev_tc = tcqLast(&tp->queue);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
-        int blend_fail = tpHandleBlendArc(tp, &tc);
-        if (blend_fail) {
-            tp_debug_print("blend arc failed, finalizing prev line\n");
-        }
+        tpHandleBlendArc(tp, &tc);
     }
     tpFinalizeSegmentLimits(tp, prev_tc);
 
