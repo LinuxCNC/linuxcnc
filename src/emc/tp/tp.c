@@ -44,6 +44,7 @@ STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
 
 #define TP_SHOW_BLENDS
 #define TP_OPTIMIZATION_LAZY
+#define TP_PEDANTIC
 
 extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
@@ -61,6 +62,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
 STATIC double saturate(double x, double max);
 
+STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc);
+STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
     return condition;
@@ -945,6 +948,24 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
     return TP_ERR_OK;
 }
 
+STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
+{
+    #warning not implemented
+    return TP_ERR_FAIL;
+}
+
+
+STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
+{
+    #warning not implemented
+    return TP_ERR_FAIL;
+}
+
+STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc)
+{
+#warning Not implemented yet
+    return TP_ERR_FAIL;
+}
 
 /**
  * Compute arc segment to blend between two lines.
@@ -953,7 +974,7 @@ STATIC int tpFinalizeSegmentLimits(TP_STRUCT const * const tp, TC_STRUCT * const
  * This function has grown rather large, but isn't easy to split up due to the
  * many variables that can be reused.
  */
-STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
+STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         TC_STRUCT * const tc, TC_STRUCT * const blend_tc) {
 
     // Assume at this point that we've checked for dumb reasons not to
@@ -1233,38 +1254,26 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     return retval;
 }
 
-STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_tc,
+STATIC blend_type_t tpCheckBlendArcType(TP_STRUCT const * const tp,
+        TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double period) {
     double omega = 0.0;
 
     if (!prev_tc || !tc) {
         tp_debug_print("prev_tc or tc doesn't exist\n");
-        return TP_ERR_FAIL;
-    }
-
-    //If not linear blends, we can't easily compute an arc
-    if (!(prev_tc->motion_type == TC_LINEAR) || !(tc->motion_type == TC_LINEAR)) {
-        tp_debug_print("Wrong motion type tc = %u, tc2 = %u\n",
-                prev_tc->motion_type,tc->motion_type);
-        return TP_ERR_FAIL;
-    }
-
-    //Abort blend arc if the intersection angle calculation fails (not the same as tangent case)
-    if (tpCalculateUnitCartAngle(&(prev_tc->coords.line.xyz.uVec), &(tc->coords.line.xyz.uVec), &omega)) {
-        tp_debug_print("Can't calculate angle\n");
-        return TP_ERR_FAIL;
+        return BLEND_NONE;
     }
 
     //If exact stop, we don't compute the arc
     if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC) {
         tp_debug_print("Wrong term cond = %u\n", prev_tc->term_cond);
-        return TP_ERR_FAIL;
+        return BLEND_NONE;
     }
 
     //If we have any rotary axis motion, then don't create a blend arc
     if (tpRotaryMotionCheck(tp, tc) || tpRotaryMotionCheck(tp, prev_tc)) {
         tp_debug_print("One of the segments has rotary motion, aborting blend arc\n");
-        return TP_ERR_FAIL;
+        return BLEND_NONE;
     }
 
     //If the corner is too tight, a circular arc would have zero radius. Fall
@@ -1272,15 +1281,28 @@ STATIC int tpCheckSkipBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * con
     const double min_angle = TP_MIN_ARC_ANGLE;
     if ((PM_PI - omega) < min_angle ) {
         tp_debug_print("Corner angle omega = %f < min angle %f\n", omega, min_angle);
-        return TP_ERR_FAIL;
+        return BLEND_NONE;
     }
 
     if (tc->finalized || prev_tc->finalized) {
         tp_debug_print("Can't create blend when segment lengths are finalized\n");
-        return TP_ERR_FAIL;
+        return BLEND_NONE;
     }
 
-    return TP_ERR_OK;
+    tp_debug_print("Motion types: prev_tc = %u, tc = %u\n",
+            prev_tc->motion_type,tc->motion_type);
+    //If not linear blends, we can't easily compute an arc
+    if ((prev_tc->motion_type == TC_LINEAR) && (tc->motion_type == TC_LINEAR)) {
+        return BLEND_LINE_LINE;
+    } else if (prev_tc->motion_type == TC_LINEAR && tc->motion_type == TC_CIRCULAR) {
+        return BLEND_LINE_ARC;
+    } else if (prev_tc->motion_type == TC_CIRCULAR && tc->motion_type == TC_LINEAR) {
+        return BLEND_ARC_LINE;
+    } else if (prev_tc->motion_type == TC_CIRCULAR && tc->motion_type == TC_CIRCULAR) {
+        return BLEND_ARC_ARC;
+    } else {
+        return BLEND_NONE;
+    }
 }
 
 
@@ -1444,8 +1466,13 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     PmCartesian prev_tan, this_tan;
 
-    tcGetEndTangentUnitVector(prev_tc, &prev_tan);
-    tcGetStartTangentUnitVector(tc, &this_tan);
+    int err1 = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
+    int err2 = tcGetStartTangentUnitVector(tc, &this_tan);
+#ifdef TP_PEDANTIC
+    if (err1 || err2) {
+        tp_debug_print("Got %d and %d from tangent vector calc\n",err1,err2);
+    }
+#endif
 
     tp_debug_print("prev tangent vector: %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
     tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
@@ -1462,7 +1489,9 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     double v_reachable = fmax(tpGetMaxTargetVel(tp, tc),
             tpGetMaxTargetVel(tp, prev_tc));
     double acc_limit;
+    //TODO move this to setup
     tpGetMachineAccelLimit(&acc_limit);
+
     double acc_margin = (1.0 - TP_ACC_RATIO_NORMAL) * acc_limit;
     double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin);
 
@@ -1487,8 +1516,6 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
  * This function handles the checks, setup, and calculations for creating a new
  * blend arc. Essentially all of the blend arc functions are called through
  * here to isolate the process.
- * TODO: remove "end" as a parameter since it gets thrown out by the next line
- * added after this.
  */
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
@@ -1517,16 +1544,33 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     TC_STRUCT blend_tc;
 
-    if (TP_ERR_OK == tpCheckSkipBlendArc(tp, prev_tc, tc, tp->cycleTime)) {
-        //Try to create a blend arc
-        int arc_fail = tpCreateBlendArc(tp, prev_tc, tc, &blend_tc);
-        if (arc_fail) {
+    blend_type_t type = tpCheckBlendArcType(tp, prev_tc, tc, tp->cycleTime);
+    int res=TP_ERR_FAIL;
+    switch (type) { 
+        case BLEND_LINE_LINE:
+            res = tpCreateLineLineBlend(tp, prev_tc, tc, &blend_tc);
+            break;
+        case BLEND_LINE_ARC:
+            res = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);
+            break;
+        case BLEND_ARC_LINE:
+            res = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);
+            break;
+        case BLEND_ARC_ARC:
+            res = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);
+            break;
+        default:
             tp_debug_print("blend arc NOT created\n");
-            return arc_fail;
-        }
-
-        tpAddSegmentToQueue(tp, &blend_tc, false);
+            break;
     }
+
+    if (res == TP_ERR_OK) {
+        //Need to do this here since the length changed
+        tpAddSegmentToQueue(tp, &blend_tc, false);
+    } else {
+        return res;
+    }
+
     return TP_ERR_OK;
 }
 
@@ -1702,7 +1746,9 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
-    tpSetupTangent(tp, prev_tc, &tc);
+    if (emcmotConfig->arcBlendEnable){
+        tpHandleBlendArc(tp, &tc);
+    }
     tcCheckLastParabolic(&tc, prev_tc);
     tpFinalizeSegmentLimits(tp, prev_tc);
 
