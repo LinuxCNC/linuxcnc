@@ -118,14 +118,14 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     //Calculate the normal direction of the arc from the difference
     //between the unit vectors
     pmCartCartSub(&line2->uVec, &line1->uVec, &normal);
-    pmCartUnit(&normal,&normal);
-    pmCartScalMult(&normal, center_dist, &normal);
+    pmCartUnitEq(&normal);
+    pmCartScalMultEq(&normal, center_dist);
     pmCartCartAdd(middle, &normal, &center);
 
     //Calculate the binormal (vector perpendicular to the plane of the
     //arc)
     pmCartCartCross(&line1->uVec, &line2->uVec, &binormal);
-    pmCartUnit(&binormal, &binormal);
+    pmCartUnitEq(&binormal);
 
     // Start point is blend_dist away from middle point in the
     // negative direction of line1
@@ -135,7 +135,7 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     // End point is blend_dist away from middle point in the positive
     // direction of line2
     pmCartScalMult(&line2->uVec, blend_dist, end);
-    pmCartCartAdd(end, middle, end);
+    pmCartCartAddEq(end, middle);
 
     //Handle line portion of line-arc
     arc->uTan = line1->uVec;

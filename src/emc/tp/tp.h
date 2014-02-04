@@ -58,6 +58,14 @@ typedef enum {
     TP_ERR_LAST
 } tp_err_code_t;
 
+typedef enum {
+    BLEND_NONE,
+    BLEND_LINE_LINE,
+    BLEND_LINE_ARC,
+    BLEND_ARC_LINE,
+    BLEND_ARC_ARC,
+} blend_type_t;
+
 /**
  * Persistant data for spindle status within tpRunCycle.
  * This structure encapsulates some static variables to simplify refactoring of
