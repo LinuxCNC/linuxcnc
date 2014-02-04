@@ -978,6 +978,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     double a_max;
     //TODO move this function into setup somewhere because this should be constant
     tpGetPlanarAccelLimit(&binormal, &a_max);
+    /*tpGetMachineAccelLimit(&a_max);*/
 
     double a_n_max = a_max * TP_ACC_RATIO_NORMAL;
     tp_debug_print("a_max = %f, a_n_max = %f\n",a_max, a_n_max);
@@ -987,6 +988,7 @@ STATIC int tpCreateBlendArc(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     double v_goal = v_req * emcmotConfig->maxFeedScale;
     double v_max = 0.0;
     tpGetPlanarVelLimit(&binormal,&v_max);
+    /*tpGetMachineVelLimit(&a_max);*/
     v_goal = fmin(v_goal,v_max);
 
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
@@ -1844,6 +1846,14 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
     // Note that progress can be greater than the target after this step.
     if (v_next < 0.0) {
         v_next = 0.0;
+        //KLUDGE: the trapezoidal planner undershoots by half a cycle time, so
+        //forcing the endpoint here is necessary. However, velocity undershoot
+        //also occurs during pausing and stopping, which can happen far from
+        //the end. If we could "cruise" to the endpoint within a cycle at our
+        //current speed, then assume that we want to be at the end.
+        if ((tc->target - tc->progress) < (tc->currentvel *  tc->cycle_time)) {
+            tc->progress = tc->target;
+        }
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
         tc->progress += displacement;
@@ -2682,12 +2692,14 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     //Get dt assuming that we can magically reach the final velocity at
     //the end of the move.
+    //
+    //KLUDGE: start with a value below the cutoff
     double dt = TP_TIME_EPSILON / 2.0;
     if (v_avg > TP_VEL_EPSILON) {
         //Get dt from distance and velocity (avoid div by zero)
-        dt = fmax(dt,dx / v_avg);
+        dt = fmax(dt, dx / v_avg);
     } else {
-        if ( dx > (v_avg * tp->cycleTime)) {
+        if ( dx > (v_avg * tp->cycleTime) && dx > TP_POS_EPSILON) {
             tp_debug_print(" below velocity threshold, assuming far from end\n");
             return TP_ERR_NO_ACTION;
         }
@@ -2736,7 +2748,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //Close enough, call it done
         tp_debug_print("revised dt small, finishing tc\n");
         tc->progress = tc->target;
-        tcSetSplitCycle(tc, dt, v_f);
+        tcSetSplitCycle(tc, 0.0, v_f);
     } else if (dt < tp->cycleTime ) {
         tp_debug_print(" corrected v_f = %f, a = %f\n", v_f, a);
         tcSetSplitCycle(tc, dt, v_f);
