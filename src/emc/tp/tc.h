@@ -169,6 +169,10 @@ int tcConnectBlendArc(TC_STRUCT * const prev_tc, TC_STRUCT * const tc,
         PmCartesian const * const circ_end);
 
 int tcIsBlending(TC_STRUCT * const tc);
+
+int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance);
+
 /* queue of TC_STRUCT elements*/
 
 typedef struct {

@@ -24,6 +24,7 @@
 #include "motion_debug.h"
 #include "motion_types.h"
 #include "spherical_arc.h"
+#include "blendmath.h"
 
 /**
  * @section tpdebugflags TP debugging flags
@@ -60,9 +61,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         TC_STRUCT * const tc);
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
-STATIC double saturate(double x, double max);
 
-STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc);
+/*STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc);*/
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
 //Empty function to act as an assert for GDB in simulation
 int gdb_fake_catch(int condition){
@@ -97,55 +97,6 @@ STATIC double fsign(double f) {
     }
 }
 #endif
-
-/**
- * Saturate a value x to be within +/- max.
- */
-STATIC double saturate(double x, double max) {
-    if ( x > max ) {
-        return max;
-    }
-    else if ( x < (-max) ) {
-        return -max;
-    }
-    else {
-        return x;
-    }
-}
-
-
-/** In-place saturation function */
-STATIC int sat_inplace(double * const x, double max) {
-    if ( *x > max ) {
-        *x = max;
-        return 1;
-    }
-    else if ( *x < -max ) {
-        *x = -max;
-        return -1;
-    }
-    return 0;
-}
-
-
-/** Clip the input at the specified minimum (in place). */
-STATIC int clip_min(double * const x, double min) {
-    if ( *x < min ) {
-        *x = min;
-        return 1;
-    }
-    return 0;
-}
-
-
-/** Clip the input at the specified maximum (in place). */
-STATIC int clip_max(double * const x, double max) {
-    if ( *x > max ) {
-        *x = max;
-        return 1;
-    }
-    return 0;
-}
 
 /**
  * @section tpcheck Internal state check functions.
@@ -214,6 +165,18 @@ STATIC int tpPureRotaryCheck(TP_STRUCT const * const tp, TC_STRUCT const * const
  */
 
 
+STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
+    if (!acc_bound) {
+        return TP_ERR_FAIL;
+    }
+
+    acc_bound->x = emcmotDebug->joints[0].acc_limit;
+    acc_bound->y = emcmotDebug->joints[1].acc_limit;
+    acc_bound->z = emcmotDebug->joints[2].acc_limit;
+    return TP_ERR_OK;
+}
+
+
 /**
  * Get a safe maximum acceleration based on X,Y, and Z.
  * Use the lowest bound on the linear axes, rather than using the
@@ -225,109 +188,27 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
         return TP_ERR_FAIL;
     }
 
-    //FIXME check for number of axes first!
-    double x = emcmotDebug->joints[0].acc_limit;
-    double y = emcmotDebug->joints[1].acc_limit;
-    double z = emcmotDebug->joints[2].acc_limit;
+    PmCartesian acc_bound;
+    tpGetMachineAccelBounds(&acc_bound);
 
-    *acc_limit=fmin(fmin(x,y),z);
+    *acc_limit = pmCartMin(&acc_bound);
     tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
     return TP_ERR_OK;
 }
 
 
-/** Calculate the minimum of the three values in a PmCartesian. */
-STATIC double pmCartMin(PmCartesian const * const in)
-{
-    return fmin(fmin(in->x,in->y),in->z);
-}
 
-
-/**
- * Calculate the diameter of a circle incscribed on a central cross section of a 3D
- * rectangular prism.
- *
- * @param normal normal direction of plane slicing prism.
- * @param extents distance from center to one corner of the prism.
- * @param diameter diameter of inscribed circle on cross section.
- *
- */
-STATIC int tpGetPlanarLimit(PmCartesian const * const normal,
-        PmCartesian * const extents, double * const diameter)
-{
-    if (!normal ) {
-        return TP_ERR_MISSING_INPUT;
+STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
+    if (!vel_bound) {
+        return TP_ERR_FAIL;
     }
 
-    PmCartesian planar_x,planar_y,planar_z;
-
-    //Find perpendicular component of unit directions
-    // FIXME Assumes normal is unit length
-    // FIXME use plane project?
-    pmCartScalMult(normal, -normal->x, &planar_x);
-    pmCartScalMult(normal, -normal->y, &planar_y);
-    pmCartScalMult(normal, -normal->z, &planar_z);
-
-    planar_x.x+=1.0;
-    planar_y.y+=1.0;
-    planar_z.z+=1.0;
-
-    pmCartAbs(&planar_x, &planar_x);
-    pmCartAbs(&planar_y, &planar_y);
-    pmCartAbs(&planar_z, &planar_z);
-
-    PmCartesian planar_scales;
-    pmCartMag(&planar_x, &planar_scales.x);
-    pmCartMag(&planar_y, &planar_scales.y);
-    pmCartMag(&planar_z, &planar_scales.z);
-
-    pmCartCartDiv(extents, &planar_scales, extents);
-
-    *diameter = pmCartMin(extents);
+    vel_bound->x = emcmotDebug->joints[0].vel_limit;
+    vel_bound->y = emcmotDebug->joints[1].vel_limit;
+    vel_bound->z = emcmotDebug->joints[2].vel_limit;
     return TP_ERR_OK;
 }
 
-
-/**
- * Calculate acceleration bounds for blend arcs based on the plane containing
- * the two lines.
- * Since two linear moves will always lie in a common plane, a blend arc
- * between them will also lie in that plane, as will the acceleration vector.
- * This is useful if one axis has a low acceleration compared to the other two.
- * Calculating limits in the plane means that a slow Z axis will not affect
- * XY-only moves.
- */
-STATIC int tpGetPlanarAccelLimit(PmCartesian const * const normal,
-        double * const acc_limit)
-{
-    PmCartesian acc_bound;
-    acc_bound.x = emcmotDebug->joints[0].acc_limit;
-    acc_bound.y = emcmotDebug->joints[1].acc_limit;
-    acc_bound.z = emcmotDebug->joints[2].acc_limit;
-    int res = TP_ERR_OK;
-    if (acc_bound.x == acc_bound.y && acc_bound.y == acc_bound.z) {
-        *acc_limit = acc_bound.x;
-    } else {
-        res = tpGetPlanarLimit(normal, &acc_bound, acc_limit);
-    }
-    return res;
-}
-
-STATIC int tpGetPlanarVelLimit(PmCartesian const * const normal,
-        double * const vel_limit)
-{
-    PmCartesian vel_bound;
-    vel_bound.x = emcmotDebug->joints[0].vel_limit;
-    vel_bound.y = emcmotDebug->joints[1].vel_limit;
-    vel_bound.z = emcmotDebug->joints[2].vel_limit;
-    int res = TP_ERR_OK;
-    if (vel_bound.x == vel_bound.y && vel_bound.y == vel_bound.z) {
-        *vel_limit = vel_bound.x;
-    } else {
-        res = tpGetPlanarLimit(normal, &vel_bound, vel_limit);
-    }
-    return res;
-}
 
 /**
  * Get a same maximum velocity for XYZ.
@@ -812,34 +693,6 @@ STATIC inline double tpMaxTangentAngle(TP_STRUCT const * const tp, double v, dou
 
 
 /**
- * Somewhat redundant function to calculate the segment intersection angle.
- * The intersection angle is half of the supplement of the "divergence" angle
- * between unit vectors. If two unit vectors are pointing in the same
- * direction, then the intersection angle is PI/2. This is based on the
- * simple_tp formulation for tolerances.
- */
-STATIC inline int tpFindIntersectionAngle(PmCartesian const * const u1,
-        PmCartesian const * const u2, double * const theta) {
-    double dot;
-    pmCartCartDot(u1, u2, &dot);
-
-    /*tp_debug_print("u1 = %f %f %f u2 = %f %f %f\n", u1->x, u1->y, u1->z, u2->x, u2->y, u2->z);*/
-
-    if (dot > 1.0 || dot < -1.0) {
-        tp_debug_print("dot product %f outside domain of acos!\n",dot);
-        sat_inplace(&dot,1.0);
-    }
-
-    *theta = acos(-dot)/2.0;
-    if (*theta < TP_MIN_ARC_ANGLE) {
-        return TP_ERR_FAIL;
-    } else {
-        return TP_ERR_OK;
-    }
-}
-
-
-/**
  * Calculate the angle between two unit cartesian vectors.
  */
 STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
@@ -862,7 +715,7 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
  * initialize a blend arc. This function does not handle connecting the
  * segments together, however.
  */
-STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
+STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
         TC_STRUCT* const blend_tc, double vel, double ini_maxvel, double acc) {
 
     if (tpErrorCheck(tp)<0) return TP_ERR_FAIL;
@@ -907,29 +760,6 @@ STATIC int tpInitBlendArc(TP_STRUCT const * const tp, TC_STRUCT const * const pr
 }
 
 
-STATIC int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance)
-{
-    const double tolerance_ratio = 0.25;
-    double T1 = prev_tc->tolerance;
-    double T2 = tc->tolerance;
-    //Detect zero tolerance = no tolerance and force to reasonable maximum
-    if (T1 == 0) {
-        T1 = prev_tc->nominal_length * tolerance_ratio;
-    }
-    if (T2 == 0) {
-        T2 = tc->nominal_length * tolerance_ratio;
-    }
-    *nominal_tolerance = fmin(T1,T2);
-    //Blend tolerance is the limit of what we can reach by blending alone,
-    //consuming half a segment or less (parabolic equivalent)
-    double blend_tolerance = fmin(fmin(*nominal_tolerance, 
-                prev_tc->nominal_length * tolerance_ratio),
-            tc->nominal_length * tolerance_ratio);
-    *T_blend = blend_tolerance;
-    return TP_ERR_OK;
-}
-
 /**
  * "Finalizes" a segment so that its length can't change.
  * By setting the finalized flag, we tell the optimizer that this segment's
@@ -970,9 +800,21 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
 STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc)
 {
+    // Do convexity tests for each arc
+    PmCartesian u1, u2;
+    tcGetEndTangentUnitVector(prev_tc, &u1);
+    tcGetStartTangentUnitVector(tc, &u2);
+    bool convex1 = tpArcConvexTest(&prev_tc->coords.circle.xyz.center, &u1, false);
+    bool convex2 = tpArcConvexTest(&tc->coords.circle.xyz.center, &u1, true);
+
+    //Identify max angle for first arc by blend limits and 
+    double phi1_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, PM_PI / 2.0);
+    double phi2_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, PM_PI / 2.0);
+
     return TP_ERR_FAIL;
 }
 
+#if 0
 /**
  * Compute arc segment to blend between two lines.
  * A workhorse function to calculate all the required parameters for a new
@@ -1163,6 +1005,9 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     PmCartesian circ_start, circ_end;
 
     double h_plan = R_plan / Stheta;
+
+    // Actual work with blend_tc begins here
+    //
     arcFromLines(&blend_tc->coords.arc.xyz,
             &prev_tc->coords.line.xyz,
             &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end, consume);
@@ -1176,7 +1021,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tp_debug_print("arc line length = %f\n", blend_tc->coords.arc.xyz.line_length);
-    tpInitBlendArc(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
 
     int retval = 0;
 
@@ -1190,7 +1035,11 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         }
         //Since the blend arc meets the end of the previous line, we only need
         //to "connect" to the next line
-        retval = tcConnectBlendArc(NULL, tc, &circ_start, &circ_end);
+        :cn
+        :
+
+:w
+
     } else {
         tp_debug_print("keeping previous line\n");
         blend_tc->coords.arc.xyz.line_length = 0;
@@ -1198,6 +1047,58 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     }
     return retval;
 
+}
+
+#endif
+
+STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
+        TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
+{
+
+    PmCartesian acc_bound, vel_bound;
+    
+    //Get machine limits
+    tpGetMachineAccelBounds(&acc_bound);
+    tpGetMachineVelBounds(&vel_bound);
+    
+    //TODO initialize here
+    LineLineData data;
+    bmLineLineInit(&data, prev_tc, tc, &acc_bound, &vel_bound, emcmotConfig->maxFeedScale);
+    bmLineLineCalculateNormals(&data);
+    bmLineLineParameters(&data);
+    bmLineLineCheckConsume(&data, prev_tc, emcmotConfig->arcBlendGapCycles);
+    bmLineLinePoints(&data);
+
+    // Set up actual blend arc here
+    bmArcFromLineLine(&blend_tc->coords.arc.xyz, &data);
+
+    // Note that previous restrictions don't allow ABC or UVW movement, so the
+    // end and start points should be identical
+    blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
+    blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
+
+    //set the max velocity to v_plan, since we'll violate constraints otherwise.
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, data.v_actual, data.v_plan, data.a_max);
+
+    int retval = 0;
+
+    if (data.consume) {
+        //Since we're consuming the previous segment, pop the last line off of the queue
+        retval = tcqPopBack(&tp->queue);
+        tp_debug_print("consume previous line\n");
+        if (retval) {
+            tp_debug_print("PopBack failed\n");
+            return TP_ERR_FAIL;
+        }
+        //Since the blend arc meets the end of the previous line, we only need
+        //to "connect" to the next line
+        retval = tcConnectBlendArc(NULL, tc, &data.arc_start, &data.arc_end);
+    } else {
+        tp_debug_print("keeping previous line\n");
+        blend_tc->coords.arc.xyz.line_length = 0;
+        retval = tcConnectBlendArc(prev_tc, tc, &data.arc_start, &data.arc_end);
+    }
+    return retval;
 }
 
 
@@ -1514,7 +1415,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
 
     double theta;
-    int failed = tpFindIntersectionAngle(&prev_tan, &this_tan, &theta);
+    int failed = findIntersectionAngle(&prev_tan, &this_tan, &theta);
     if (failed) {
         return TP_ERR_FAIL;
     }
@@ -1597,13 +1498,16 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             res = tpCreateLineLineBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_LINE_ARC:
-            res = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);
+            /*res = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);*/
+            return TP_ERR_FAIL;
             break;
         case BLEND_ARC_LINE:
-            res = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);
+            /*res = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);*/
+            return TP_ERR_FAIL;
             break;
         case BLEND_ARC_ARC:
-            res = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);
+            return TP_ERR_FAIL;
+            /*res = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);*/
             break;
         default:
             tp_debug_print("blend arc NOT created\n");
@@ -1891,7 +1795,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
 
         tcGetEndAccelUnitVector(tc, &v1);
         tcGetStartAccelUnitVector(nexttc, &v2);
-        tpFindIntersectionAngle(&v1, &v2, &theta);
+        findIntersectionAngle(&v1, &v2, &theta);
         /* Minimum value of cos(theta) to prevent numerical instability */
         const double min_cos_theta = cos(PM_PI / 2.0 - TP_MIN_ARC_ANGLE);
         if (cos(theta) > min_cos_theta) {

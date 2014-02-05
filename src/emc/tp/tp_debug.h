@@ -13,6 +13,8 @@
 #ifndef TP_DEBUG_H
 #define TP_DEBUG_H
 
+#include "rtapi.h"
+
 /** TP debug stuff */
 #ifdef TP_DEBUG
 //Kludge because I didn't know any better at the time
