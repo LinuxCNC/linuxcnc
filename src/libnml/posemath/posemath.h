@@ -650,7 +650,6 @@ extern "C" {
 	double radius;
 	double angle;
 	double spiral;
-    double inscr_ratio;
 
     } PmCircle;
 
@@ -935,6 +934,7 @@ extern "C" {
 /* pure cartesian line functions */
     extern int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmCartesian const * const end);
     extern int pmCartLinePoint(PmCartLine const * const line, double len, PmCartesian * const point);
+    extern int pmCartLineStretch(PmCartLine * const line, double new_len, int from_end);
 
 /* circle functions */
 
@@ -943,6 +943,7 @@ extern "C" {
             PmCartesian const * const center, PmCartesian const * const normal, int turn);
 
     extern int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * const point);
+    extern int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end);
 
 /* slicky macros for item-by-item copying between C and C++ structs */
 
