@@ -75,6 +75,9 @@ typedef struct {
     PmCartesian binormal;
 } LineLineData;
 
+
+double fsign(double f);
+
 int clip_min(double * const x, double min);
 
 int clip_max(double * const x, double max);
@@ -92,8 +95,6 @@ double pmCartMin(PmCartesian const * const in);
 
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
-
-int bmLineArcProcess(LineArcData * const data);
 
 int bmLineLineInit(LineLineData * const data, TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
