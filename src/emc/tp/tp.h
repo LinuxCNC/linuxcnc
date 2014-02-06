@@ -16,6 +16,7 @@
 
 #include "posemath.h"
 #include "tc.h"
+#include "tcq.h"
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 //Minimum length of a segment in cycles (must be greater than 1 to ensure each segment is hit at least once.)

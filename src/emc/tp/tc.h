@@ -59,6 +59,12 @@ typedef struct {
     PmCartLine uvw;
 } PmCircle9;
 
+typedef struct {
+    SphericalArc xyz;
+    PmCartesian abc;
+    PmCartesian uvw;
+} Arc9;
+
 typedef enum {
     TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
 } RIGIDTAP_STATE;
@@ -172,50 +178,5 @@ int tcIsBlending(TC_STRUCT * const tc);
 
 int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance);
-
-/* queue of TC_STRUCT elements*/
-
-typedef struct {
-    TC_STRUCT *queue;		/* ptr to the tcs */
-    int size;			/* size of queue */
-    int _len;			/* number of tcs now in queue */
-    int start, end;		/* indices to next to get, next to put */
-    int allFull;		/* flag meaning it's actually full */
-} TC_QUEUE_STRUCT;
-
-/* TC_QUEUE_STRUCT functions */
-
-/* create queue of _size */
-extern int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size,
-		     TC_STRUCT * const tcSpace);
-
-/* free up queue */
-extern int tcqDelete(TC_QUEUE_STRUCT * const tcq);
-
-/* reset queue to empty */
-extern int tcqInit(TC_QUEUE_STRUCT * const tcq);
-
-/* put tc on end */
-extern int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc);
-
-/* remove a single tc from the back of the queue */
-extern int tcqPopBack(TC_QUEUE_STRUCT * const tcq);
-
-/* remove n tcs from front */
-extern int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n);
-
-/* how many tcs on queue */
-extern int tcqLen(TC_QUEUE_STRUCT const * const tcq);
-
-/* look at nth item, first is 0 */
-extern TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n);
-
-/**
- * Get the "end" of the queue, the most recently added item.
- */
-extern TC_STRUCT * tcqLast(TC_QUEUE_STRUCT const * const tcq);
-
-/* get full status */
-extern int tcqFull(TC_QUEUE_STRUCT const * const tcq);
 
 #endif				/* TC_H */
