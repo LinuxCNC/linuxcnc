@@ -49,10 +49,10 @@ net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
 
 # create signals for tool loading loopback
 net tool-prepare <= iocontrol.0.tool-prepare
-net tool-prepared => iocontrol.0.tool-prepared
+net tool-prepare => iocontrol.0.tool-prepared
 
 net tool-change <= iocontrol.0.tool-change
-net tool-changed => iocontrol.0.tool-changed
+net tool-change => iocontrol.0.tool-changed
 
 net tool-number <= iocontrol.0.tool-number
 net tool-prep-number <= iocontrol.0.tool-prep-number
