@@ -1,3 +1,9 @@
+ver. 0.9.9.9.5
+- changed override behavior:
+  feed override reduce the max velocity and the feed velocity, 
+  but the jog vel slider will remain with it's value, 
+  the override value will reduce the jog vel also!
+
 ver. 0.9.9.9.4
 - added a new pin to delete the last message
 

@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.4"
+_RELEASE = "0.9.9.9.5"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -246,7 +246,7 @@ class HandlerClass:
         self.widgets.IconFileSelection1.set_property( "start_dir", default_path )
 
         # set the slider limmits
-        self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, self.stat.max_velocity * 0.1,
+        self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, 0.0,
                                            self.stat.max_velocity * 60 + 1, 1, 1, 1 )
         self.widgets.adj_jog_vel.configure( self.data.jog_rate, 0,
                                            self.data.jog_rate_max + 1, 1, 1, 1 )
@@ -1190,7 +1190,8 @@ class HandlerClass:
         # self.command.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
 # TODO: End
-        self.gscreen.mdi_control.user_command( command )
+        self.command.mdi( command )
+        # self.gscreen.mdi_control.user_command( command )
         for btn in self.macrobuttons:
             btn.set_sensitive( False )
         # we change the widget_image and use the button to interupt running macros
@@ -1254,7 +1255,7 @@ class HandlerClass:
             self.widgets.file_to_load_chooser.set_filename( self.stat.file )
             self.prefs.putpref( "open_file", self.stat.file, str )
 
-    # Clear the status to load a file on start up, so ther will not be loaded a programm
+    # Clear the status to load a file on start up, so there will not be loaded a programm
     # on the next start of the GUI
     def on_btn_none_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "button none clicked %s" )
@@ -1718,12 +1719,9 @@ class HandlerClass:
         self.halcomp["jog-increment"] = self.distance
 
     def on_adj_jog_vel_value_changed( self, widget, data = None ):
-        if widget.get_value() > self.widgets.adj_max_vel.get_value():
-            widget.set_value( self.widgets.adj_max_vel.get_value() )
+        pass
 
     def on_adj_max_vel_value_changed( self, widget, data = None ):
-        if widget.get_value() < self.widgets.adj_jog_vel.get_value():
-            self.widgets.adj_jog_vel.set_value( widget.get_value() )
         self.command.maxvel( widget.get_value() / 60 )
 
     def on_btn_jog_pressed( self, widget, data = None ):
