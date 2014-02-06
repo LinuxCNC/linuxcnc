@@ -1014,6 +1014,9 @@ int Interp::unwind_call(int status, const char *file, int line)
 	    _setup.file_pointer = fopen(sub->filename, "r");
 	    logDebug("unwind_call: reopening '%s' at %ld\n",
 		    sub->filename, sub->position);
+            if (_setup.file_pointer == NULL) {
+                // FIXME: clean up here, but how?
+            }
 	    strcpy(_setup.filename, sub->filename);
 	}
 
