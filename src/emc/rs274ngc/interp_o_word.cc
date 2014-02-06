@@ -448,6 +448,10 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
               fclose(settings->file_pointer);
               settings->file_pointer = 
               fopen(settings->sub_context[settings->call_level].filename, "r");
+              if (settings->file_pointer == NULL) {
+                  // FIXME: clean up here too, but how
+                  logDebug("failed to open %s, this can not end well\n", settings->sub_context[settings->call_level].filename);
+              }
 
               strcpy(settings->filename,
                      settings->sub_context[settings->call_level].filename);
