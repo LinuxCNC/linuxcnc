@@ -1016,6 +1016,7 @@ int Interp::unwind_call(int status, const char *file, int line)
 		    sub->filename, sub->position);
             if (_setup.file_pointer == NULL) {
                 // FIXME: clean up here, but how?
+                continue;
             }
 	    strcpy(_setup.filename, sub->filename);
 	}
