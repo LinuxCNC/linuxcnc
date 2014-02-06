@@ -997,9 +997,13 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     double phi = (PM_PI - theta * 2.0);
 
     PmCartesian binormal;
-    pmCartCartCross(&prev_tc->coords.line.xyz.uVec,
+    int res_cross = pmCartCartCross(&prev_tc->coords.line.xyz.uVec,
             &tc->coords.line.xyz.uVec,
             &binormal);
+    if (res_cross) {
+        tp_debug_print("got %d from cross product, aborting\n",res_cross);
+        return TP_ERR_FAIL;
+    }
     pmCartUnitEq(&binormal);
     tp_debug_print("binormal = [%f %f %f]\n", binormal.x,binormal.y,binormal.z);
     double a_max;
@@ -1125,9 +1129,14 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //If for some reason we get too small a radius, the blend will fail. This
         //shouldn't happen if everything upstream is working.
         if (R_plan < TP_POS_EPSILON) {
-            tp_debug_print("#Blend radius too small, aborting...\n");
+            tp_debug_print("#Blend radius too small, aborting arc\n");
             return TP_ERR_FAIL;
         }
+        if (s_arc < TP_MIN_ARC_LENGTH) {
+            tp_debug_print("#Blend arc length too small, aborting arc\n");
+            return TP_ERR_FAIL;
+        }
+
     }
 
     PmCartesian circ_start, circ_end;
