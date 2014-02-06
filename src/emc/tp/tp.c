@@ -62,7 +62,6 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
-/*STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc);*/
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
 
 /**
@@ -762,7 +761,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     return TP_ERR_FAIL;
 }
 
-STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc)
+STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
     //TODO type checks
 
@@ -788,8 +787,8 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const pre
 
     res_blend |= blendComputeParameters(&param);
     res_blend |= blendFindPoints3(&points_approx, &geom, &param);
-    res_blend |= blendArcArcPostProcess(&points_approx,
-            &points_exact,
+    res_blend |= blendArcArcPostProcess(&points_exact,
+            &points_approx,
             &param, 
             &geom, &prev_tc->coords.circle.xyz,
             &tc->coords.circle.xyz);
@@ -806,14 +805,32 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const pre
     blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
 
+    //No consuming
+    blend_tc->coords.arc.xyz.line_length = 0;
+
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
 
+    double phi1_new = prev_tc->coords.circle.xyz.angle - points_exact.trim1;
+    double phi2_new = tc->coords.circle.xyz.angle - points_exact.trim2;
 
-    blend_tc->coords.arc.xyz.line_length = 0;
-
-    return TP_ERR_FAIL;
+    //Change lengths of circles
+    res_blend |= pmCircleStretch(&prev_tc->coords.circle.xyz,
+            phi1_new,
+            false);
+    res_blend |= pmCircleStretch(&tc->coords.circle.xyz,
+            phi2_new,
+            true);
+    //Update targets with new arc length
+    prev_tc->target = prev_tc->coords.circle.xyz.angle *
+        prev_tc->coords.circle.xyz.radius;
+    tc->target = tc->coords.circle.xyz.angle *
+        tc->coords.circle.xyz.radius;
+    //Cleanup any mess from parabolic
+    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+    return res_blend;
 }
 
 
@@ -841,6 +858,11 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     int res_blend = blendComputeParameters(&param);
     blendCheckConsume(&param, prev_tc, emcmotConfig->arcBlendGapCycles);
     blendFindPoints3(&points, &geom, &param);
+    if (param.consume) {
+        blend_tc->coords.arc.xyz.line_length = param.L1 - points.trim1;
+    } else {
+        blend_tc->coords.arc.xyz.line_length = 0;
+    }
 
     if (res_blend != TP_ERR_OK) {
         return res_blend;
@@ -852,6 +874,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     // end and start points should be identical
     blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
+
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
@@ -873,7 +896,6 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         retval = tcConnectBlendArc(NULL, tc, &points.arc_start, &points.arc_end);
     } else {
         tp_debug_print("keeping previous line\n");
-        blend_tc->coords.arc.xyz.line_length = 0;
         retval = tcConnectBlendArc(prev_tc, tc, &points.arc_start, &points.arc_end);
     }
     return retval;
@@ -1276,12 +1298,10 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
             res = tpCreateLineLineBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_LINE_ARC:
-            /*res = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);*/
-            return TP_ERR_FAIL;
+            res = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_ARC_LINE:
-            /*res = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);*/
-            return TP_ERR_FAIL;
+            res = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_ARC_ARC:
             res = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);
