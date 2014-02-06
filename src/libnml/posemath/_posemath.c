@@ -1687,6 +1687,31 @@ int pmCartLinePoint(PmCartLine const * const line, double len, PmCartesian * con
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : 0;
 }
 
+
+int pmCartLineStretch(PmCartLine * const line, double new_len, int from_end)
+{
+    int r1 = 0, r2 = 0;
+
+    if (line->tmag_zero) {
+        return PM_ERR;
+    }
+
+    if (from_end) {
+        // Store the new relative position from end in the start point
+        r1 = pmCartScalMult(&line->uVec, -new_len, &line->start);
+        // Offset the new start point by the current end point
+        r2 = pmCartCartAddEq(&line->start, &line->end);
+    } else {
+        // Store the new relative position from start in the end point:
+        r1 = pmCartScalMult(&line->uVec, new_len, &line->end);
+        // Offset the new end point by the current start point
+        r2 = pmCartCartAdd(&line->start, &line->end, &line->end);
+    }
+    line->tmag = new_len;
+
+    return pmErrno = (r1 || r2) ? PM_NORM_ERR : 0;
+}
+
 /* circle functions */
 
 /*
@@ -1880,4 +1905,29 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
     pmCartCartAdd(&circle->center, point, point);
 
     return pmErrno = 0;
+}
+
+int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
+{
+
+    double mag = 0;
+    pmCartMagSq(&circ->rHelix, &mag);
+    if ( mag > 1e-6 ) {
+        //Can't handle helices or spirals
+        return PM_ERR;
+    }
+    if (from_end) {
+        //Not implemented yet, way more reprocessing...
+        PmCartesian new_start;
+        double start_angle = circ->angle - new_angle;
+        pmCirclePoint(circ, start_angle, &new_start);
+        pmCartCartSub(&new_start, &circ->center, &circ->rTan);
+        pmCartCartCross(&circ->normal, &circ->rTan, &circ->rPerp);
+        circ->angle = new_angle;
+    } else {
+        // Easy to grow / shrink from start
+        circ->angle = new_angle;
+    }
+
+    return 0;
 }
