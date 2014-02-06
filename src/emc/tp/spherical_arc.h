@@ -47,11 +47,6 @@ typedef struct {
     double line_length;
 } SphericalArc;
 
-typedef struct {
-    SphericalArc xyz;
-    PmCartesian abc;
-    PmCartesian uvw;
-} Arc9;
 
 int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         PmCartesian const * const end, PmCartesian const * const center);
