@@ -51,6 +51,9 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     arc->radius = mag0;
 
     if (mag0 < ARC_MIN_RADIUS) {
+        tp_debug_print("radius %f below min radius %f, aborting arc\n",
+                arc->radius,
+                ARC_MIN_RADIUS);
         return ARC_ERR_RADIUS;
     }
 
@@ -63,8 +66,12 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     double dot;
     pmCartCartDot(&u0,&u1,&dot);
     arc->angle = acos(dot);
+    tp_debug_print("angle = %f\n", arc->angle);
 
     if (arc->angle < ARC_MIN_ANGLE) {
+        tp_debug_print("angle %f below min angle %f, aborting arc\n",
+                arc->angle,
+                ARC_MIN_ANGLE);
         return ARC_ERR_GEOM;
     }
     arc->Sangle = sin(arc->angle);
@@ -102,6 +109,7 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
 int arcLength(SphericalArc const * const arc, double * const length)
 {
     *length = arc->radius * arc->angle + arc->line_length;
+    tp_debug_print("arc length = %f\n", *length);
     return ARC_ERR_OK;
 }
 
@@ -157,6 +165,7 @@ int arcConvexTest(PmCartesian const * const center,
     pmCartCartSub(P, center, &diff);
     pmCartCartDot(&diff, uVec, &dot);
 
+    tp_debug_print("convex test: dot = %f, reverse_dir = %d\n", dot, reverse_dir);
     int convex = (reverse_dir != 0) ^ (dot < 0);
     return convex;
 }

@@ -69,6 +69,8 @@ typedef struct {
     double v_actual;    /* velocity at feedscale = 1.0 */
     double s_arc;       /* arc length */
     int consume;        /* Consume the previous segment */
+    int convex1;
+    int convex2;
     
 } BlendParameters;
 
@@ -140,4 +142,8 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
         BlendGeom3 const * const geom, BlendParameters const * const param);
 
+//Not implemented yet
+int blendGeom3Print(BlendGeom3 const * const geom);
+int blendParamPrint(BlendParameters const * const param);
+int blendPoints3Print(BlendPoints3 const * const points);
 #endif
