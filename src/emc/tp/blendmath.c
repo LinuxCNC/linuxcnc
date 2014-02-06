@@ -21,6 +21,18 @@
 
 /** @section utilityfuncs Utility functions */
 
+double fsign(double f)
+{
+    if (f>0) {
+        return 1.0;
+    } else if (f < 0) {
+        return -1.0;
+    } else {
+        //Technically this should be NAN but that's a useless result for tp purposes
+        return 0;
+    }
+}
+
 /** Clip the input at the specified minimum (in place). */
 int clip_min(double * const x, double min) {
     if ( *x < min ) {

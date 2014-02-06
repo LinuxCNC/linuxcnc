@@ -64,39 +64,6 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
 /*STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc);*/
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
-//Empty function to act as an assert for GDB in simulation
-int gdb_fake_catch(int condition){
-    return condition;
-}
-
-int gdb_fake_assert(int condition){
-    if (condition) {
-        return gdb_fake_catch(condition);
-    }
-    return condition;
-}
-
-/**
- * @section tputil Utility functions
- * Simple utility functions to perform common operations.
- */
-
-#if 0
-/**
- * Simple signum-like function to get sign of a double.
- * There's probably a better way to do this...
- */
-STATIC double fsign(double f) {
-    if (f>0) {
-        return 1.0;
-    } else if (f < 0) {
-        return -1.0;
-    } else {
-        //Technically this should be NAN but that's a useless result for tp purposes
-        return 0;
-    }
-}
-#endif
 
 /**
  * @section tpcheck Internal state check functions.
@@ -163,8 +130,6 @@ STATIC int tpPureRotaryCheck(TP_STRUCT const * const tp, TC_STRUCT const * const
  * These functions return the "actual" values of things like a trajectory
  * segment's feed override, while taking into account the status of tp itself.
  */
-
-
 STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
     if (!acc_bound) {
         return TP_ERR_FAIL;
@@ -195,7 +160,6 @@ STATIC int tpGetMachineAccelLimit(double * const acc_limit) {
     tp_debug_print(" arc blending a_max=%f\n", *acc_limit);
     return TP_ERR_OK;
 }
-
 
 
 STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
@@ -801,255 +765,18 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc)
 {
     // Do convexity tests for each arc
-    PmCartesian u1, u2;
-    tcGetEndTangentUnitVector(prev_tc, &u1);
-    tcGetStartTangentUnitVector(tc, &u2);
-    bool convex1 = tpArcConvexTest(&prev_tc->coords.circle.xyz.center, &u1, false);
-    bool convex2 = tpArcConvexTest(&tc->coords.circle.xyz.center, &u1, true);
+    /*tcGetEndTangentUnitVector(prev_tc, &u1);*/
+    /*tcGetStartTangentUnitVector(tc, &u2);*/
+    /*bool convex1 = tpArcConvexTest(&prev_tc->coords.circle.xyz.center, &u1, false);*/
+    /*bool convex2 = tpArcConvexTest(&tc->coords.circle.xyz.center, &u1, true);*/
 
-    //Identify max angle for first arc by blend limits and 
-    double phi1_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, PM_PI / 2.0);
-    double phi2_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, PM_PI / 2.0);
+    /*//Identify max angle for first arc by blend limits and */
+    /*double phi1_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, PM_PI / 2.0);*/
+    /*double phi2_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, PM_PI / 2.0);*/
 
     return TP_ERR_FAIL;
 }
 
-#if 0
-/**
- * Compute arc segment to blend between two lines.
- * A workhorse function to calculate all the required parameters for a new
- * blend arc, then create and connect it to existing pair of line segments.
- * This function has grown rather large, but isn't easy to split up due to the
- * many variables that can be reused.
- */
-STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
-        TC_STRUCT * const tc, TC_STRUCT * const blend_tc) {
-
-    // Assume at this point that we've checked for dumb reasons not to
-    // calculate the blend arc, like intersection angle
-    // Calculate radius based on tolerances
-    double theta = 0.0;
-    int res = tpFindIntersectionAngle(&prev_tc->coords.line.xyz.uVec,
-            &tc->coords.line.xyz.uVec, &theta);
-    if (res) {
-        //Can't get an intersection angle, bail
-        tp_debug_print("#Failed to find intersection angle!\n");
-        return TP_ERR_FAIL;
-    }
-    tp_debug_print("theta = %f\n",theta);
-
-    double phi = (PM_PI - theta * 2.0);
-
-    PmCartesian binormal;
-    int res_cross = pmCartCartCross(&prev_tc->coords.line.xyz.uVec,
-            &tc->coords.line.xyz.uVec,
-            &binormal);
-    if (res_cross) {
-        tp_debug_print("got %d from cross product, aborting\n",res_cross);
-        return TP_ERR_FAIL;
-    }
-    pmCartUnitEq(&binormal);
-    tp_debug_print("binormal = [%f %f %f]\n", binormal.x,binormal.y,binormal.z);
-    double a_max;
-    //TODO move this function into setup somewhere because this should be constant
-    tpGetPlanarAccelLimit(&binormal, &a_max);
-    /*tpGetMachineAccelLimit(&a_max);*/
-
-    double a_n_max = a_max * TP_ACC_RATIO_NORMAL;
-    tp_debug_print("a_max = %f, a_n_max = %f\n",a_max, a_n_max);
-
-    //Find common velocity and acceleration
-    double v_req = fmin(prev_tc->reqvel, tc->reqvel);
-    double v_goal = v_req * emcmotConfig->maxFeedScale;
-    double v_max = 0.0;
-    tpGetPlanarVelLimit(&binormal,&v_max);
-    /*tpGetMachineVelLimit(&a_max);*/
-    v_goal = fmin(v_goal,v_max);
-
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, max scale = %f\n", v_goal, emcmotConfig->maxFeedScale);
-
-    //Store trig functions for later use
-    double Ctheta = cos(theta);
-    double Stheta = sin(theta);
-    double Ttheta = tan(theta);
-
-    double greediness = fmin(emcmotConfig->arcBlendGreediness, 1.0);
-    //Nominal length restriction prevents gobbling too much of parabolic blends
-    double L1 = fmin(prev_tc->target, prev_tc->nominal_length * greediness);
-    double L2 = tc->target * greediness;
-    tp_debug_print("prev. nominal length = %f, next nominal_length = %f\n",
-            prev_tc->nominal_length, tc->nominal_length);
-
-    double min_segment_time = tp->cycleTime * TP_MIN_SEGMENT_CYCLES;
-
-    //TODO get tolerance from blend here 
-    double tolerance,nominal_tolerance;
-    tcFindBlendTolerance(prev_tc,tc,&tolerance,&nominal_tolerance);
-    double h_tol = tolerance / (1.0 - Stheta);
-    double d_tol = Ctheta * h_tol;
-    // Debug output for tolerances
-    tp_debug_print(" d_tol = %f\n",d_tol);
-
-    //Find min length due to segment limits
-    double d_lengths = fmin(L1,L2);
-    double d_geom = fmin(d_lengths,d_tol); 
-    double R_geom = Ttheta * d_geom;
-
-    tp_debug_print("d_tol = %f, d_prev = %f, d_next = %f\n", d_tol, L1, L2);
-
-    double v_normal = pmSqrt(a_n_max * R_geom);
-    tp_debug_print("v_normal = %f\n", v_normal);
-
-    double v_plan = v_normal;
-
-    // If our goal velocity is lower, reduce the arc size proportionally
-    if (v_normal > v_goal) {
-        v_plan = v_goal;
-        tp_debug_print("v_goal = %f\n", v_goal);
-    }
-
-    /*Get the limiting velocity of the equivalent parabolic blend. We use the
-     * time it would take to do a "stock" parabolic blend as a metric for how
-     * much of the segment to consume. A long segment will have a high
-     * "triangle" velocity, so the radius will only be as large as is needed to
-     * reach the cornering speed. A short segment will have a low triangle
-     * velocity, much lower than the actual curvature limit, which can be used
-     * to calculate an equivalent blend radius.
-     * */
-    double a_parabolic = a_max * 0.5;
-    double v_triangle = pmSqrt(2.0 * a_parabolic  * d_geom);
-    double t_blend = fmin(v_triangle, v_plan) / (a_parabolic);
-    double s_blend = t_blend * v_plan;
-    double R_blend = fmin(s_blend / phi, R_geom);   //Clamp by limiting radius
-
-    double R_plan = fmax(pmSq(v_plan) / a_n_max, R_blend);
-
-    tp_debug_print("R_plan = %f\n", R_plan);
-    double d_plan = R_plan / Ttheta;
-
-    tp_debug_print("R_geom = %f\nd_plan = %f\n", R_geom, d_plan);
-
-    tp_debug_print("v_plan = %f\n", v_plan);
-
-
-#ifdef TP_DEBUG
-    double a_n_effective = pmSq(v_plan)/R_plan;
-
-    tp_debug_print("a_n_effective = %f\n",a_n_effective);
-#endif
-
-    double L_prev = prev_tc->target - d_plan;
-    double prev_seg_time = L_prev / v_plan;
-#ifdef TP_DEBUG
-    double L_next = tc->target - d_plan;
-#endif
-
-    int consume = (prev_seg_time < emcmotConfig->arcBlendGapCycles * min_segment_time);
-    double s_arc = phi * R_plan;
-    if (consume) {
-        s_arc += L_prev;
-    }
-
-    //Reduce velocity if necessary 
-    //TODO redundant with optimization?
-    double v_sample_arc = s_arc / min_segment_time;
-    if (v_plan > v_sample_arc) {
-        v_plan = v_sample_arc;
-        tp_debug_print("#v_plan %f > v_sample %f for arc\n", v_plan, v_sample_arc);
-    }
-    tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f, prev_seg_time = %f\n", s_arc, L_prev, L_next, prev_seg_time);
-
-    /* Now we store the "actual" velocity. Recall that v_plan may be greater
-     * than v_req by the max feed override. If our worst-case planned velocity
-     * is higher than the requested velocity, then clip at the requested
-     * velocity. This allows us to increase speed above the feed override
-     * limits
-     * */
-    double v_actual;
-    if (v_plan > v_req) {
-        v_actual = v_req;
-    } else {
-        v_actual = v_plan;
-    }
-
-    tp_debug_print("v_actual = %f\n", v_actual);
-
-    if (emcmotConfig->arcBlendFallbackEnable) {
-        double v_parabolic = 0.0;
-        tpComputeBlendVelocity(tp, prev_tc, tc, 1, &v_parabolic);
-        //This is the actual velocity at the center of the parabolic blend
-
-        /* Additional quality / performance checks: If we aren't moving faster than
-         * the equivalent parabolic blend, then fall back to parabolic
-         */
-
-        tp_debug_print("v_plan = %f, v_para = %f\n", v_plan, v_parabolic);
-        if ( v_plan <= v_parabolic) {
-            return TP_ERR_NO_ACTION;
-        }
-    } else {
-        //If for some reason we get too small a radius, the blend will fail. This
-        //shouldn't happen if everything upstream is working.
-        if (R_plan < TP_POS_EPSILON) {
-            tp_debug_print("#Blend radius too small, aborting arc\n");
-            return TP_ERR_FAIL;
-        }
-        if (s_arc < TP_MIN_ARC_LENGTH) {
-            tp_debug_print("#Blend arc length too small, aborting arc\n");
-            return TP_ERR_FAIL;
-        }
-
-    }
-
-    PmCartesian circ_start, circ_end;
-
-    double h_plan = R_plan / Stheta;
-
-    // Actual work with blend_tc begins here
-    //
-    arcFromLines(&blend_tc->coords.arc.xyz,
-            &prev_tc->coords.line.xyz,
-            &tc->coords.line.xyz, R_plan, d_plan, h_plan, &circ_start, &circ_end, consume);
-    tp_debug_print("angle = %f\n",blend_tc->coords.arc.xyz.angle);
-
-    tp_debug_print("R_plan = %f, radius_calc = %f\n", R_plan, blend_tc->coords.arc.xyz.radius);
-
-    // Note that previous restrictions don't allow ABC or UVW movement, so the
-    // end and start points should be identical
-    blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
-    blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
-    //set the max velocity to v_plan, since we'll violate constraints otherwise.
-    tp_debug_print("arc line length = %f\n", blend_tc->coords.arc.xyz.line_length);
-    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, v_actual, v_plan, a_max);
-
-    int retval = 0;
-
-    if (consume) {
-        //Since we're consuming the previous segment, pop the last line off of the queue
-        retval = tcqPopBack(&tp->queue);
-        tp_debug_print("consume previous line\n");
-        if (retval) {
-            tp_debug_print("PopBack failed\n");
-            return TP_ERR_FAIL;
-        }
-        //Since the blend arc meets the end of the previous line, we only need
-        //to "connect" to the next line
-        :cn
-        :
-
-:w
-
-    } else {
-        tp_debug_print("keeping previous line\n");
-        blend_tc->coords.arc.xyz.line_length = 0;
-        retval = tcConnectBlendArc(prev_tc, tc, &circ_start, &circ_end);
-    }
-    return retval;
-
-}
-
-#endif
 
 STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
