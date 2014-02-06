@@ -148,3 +148,15 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     return arcInitFromPoints(arc, start, end, &center);
 }
 
+int arcConvexTest(PmCartesian const * const center,
+        PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir)
+{
+    //Check if an arc-line intersection is concave or convex
+    double dot;
+    PmCartesian diff;
+    pmCartCartSub(P, center, &diff);
+    pmCartCartDot(&diff, uVec, &dot);
+
+    int convex = (reverse_dir != 0) ^ (dot < 0);
+    return convex;
+}

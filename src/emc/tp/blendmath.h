@@ -16,65 +16,78 @@
 #include "posemath.h"
 #include "tc.h"
 
-/* LineArc data */
-//TODO add other useful stuff here as well, like normals.
-//TODO make this a general struct for all blend types?
-typedef struct {
-    PmCartesian u1;
-    PmCartesian u2;
-    PmCartesian P;
-    PmCartesian C1;
-    double R1;
-    double phi1;
-    double tolerance;
-    double L2;
-    double v_req;
-    double a_max;
 
-    //These fields are populated by the ProcessLineArc function
-    double v_plan;
-    double v_actual;
-    double dphi1;
-    double R_plan;
-    double d_plan;
-    PmCartesian C;
-    PmCartesian Q1;
-    PmCartesian Q2;
-    PmCartesian normal;
-    PmCartesian binormal;
-} LineArcData;
-
+/**
+ * 3D Input geometry for a spherical blend arc. 
+ * This structure contains all of the basic geometry in 3D for a blend arc.
+ */
 typedef struct {
-    PmCartesian u1;     /* unit vector along line 1 */
-    PmCartesian u2;     /* unit vector along line 2 */
-    PmCartesian P;      /* Intersection point */
-    
+    PmCartesian u1;         /* unit vector along line 1 */
+    PmCartesian u2;         /* unit vector along line 2 */
+    PmCartesian P;          /* Intersection point */
+    PmCartesian normal;   /* normal unit vector to plane containing lines */
+    PmCartesian binormal;   /* binormal unit vector to plane containing lines */
+} BlendGeom3;
+
+/**
+ * 9D Input geometry for a spherical blend arc.
+ */
+#if BLEND_9D
+typedef struct {
+//Not implemented yet
+} BlendGeom9;
+#endif 
+
+
+/**
+ * Blend arc parameters (abstracted).
+ * This structure holds blend arc parameters that have been abstracted from the
+ * physical geometry. This data is used to find the maximum radius given the
+ * constraints on the blend. By abstracting the parameters from the geometry,
+ * the same calculations can be used with any input geometry (lines, arcs, 6 or
+ * 9 dimensional lines). 
+ */
+typedef struct {
     double tolerance;   /* Net blend tolerance (min of line 1 and 2) */
     double L1;          /* Available part of line 1 to blend over */
     double L2;          /* Available part of line 2 to blend over */
     double v_req;       /* requsted velocity for the blend arc */
     double a_max;       /* max acceleration allowed for blend */
 
-    // These fields are considered "output"
+    /* These fields are considered "output", and may be refactored into a
+     * separate structure in the future */
+    
     double theta;       /* Intersection angle, half of angle between -u1 and u2 */
     double phi;         /* supplement of intersection angle, angle between u1 and u2 */
     double a_n_max;     /* max normal acceleration allowed */
-    PmCartesian arc_start;     /* start point for blend arc */
-    PmCartesian arc_end;     /* end point for blend arc */
-    PmCartesian arc_center;     /* center point for blend arc */
 
     double R_plan;      /* planned radius for blend arc */
-    double d_plan;      /* distance along each line to Q1, Q2 */
+    double d_plan;      /* distance along each line to arc endpoints */
 
     double v_goal;      /* desired velocity at max feed override */
     double v_plan;      /* planned max velocity at max feed override */
     double v_actual;    /* velocity at feedscale = 1.0 */
+    double s_arc;       /* arc length */
     int consume;        /* Consume the previous segment */
+    
+} BlendParameters;
 
-    PmCartesian normal;
-    PmCartesian binormal;
-} LineLineData;
 
+/**
+ * Output geometry in 3D.
+ * Stores the three points representing a simple 3D spherical arc.
+ */
+typedef struct {
+    PmCartesian arc_start;     /* start point for blend arc */
+    PmCartesian arc_end;     /* end point for blend arc */
+    PmCartesian arc_center;     /* center point for blend arc */
+} BlendPoints3;
+
+#if BLEND_9D
+typedef struct {
+//Not implemented yet
+} BlendPoints9;
+#endif
 
 double fsign(double f);
 
@@ -86,8 +99,6 @@ double saturate(double x, double max);
 
 int sat_inplace(double * const x, double max);
 
-int bmLineArcProcess(LineArcData * const);
-
 int findIntersectionAngle(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta);
 
@@ -96,21 +107,35 @@ double pmCartMin(PmCartesian const * const in);
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
 
-int bmLineLineInit(LineLineData * const data, TC_STRUCT const * const prev_tc,
+int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
         PmCartesian const * const vel_bound,
         double maxFeedScale);
 
-int bmLineLineCalculateNormals(LineLineData * const data);
+int blendCalculateNormals3(BlendGeom3 * const geom);
 
-int bmLineLineParameters(LineLineData * const data);
+int blendComputeParameters(BlendParameters * const param);
 
-int bmLineLineCheckConsume(LineLineData * const data,
+int blendCheckConsume(BlendParameters * const param,
         TC_STRUCT const * const prev_tc, int gap_cycles);
 
-int bmLineLinePoints(LineLineData * const data);
+int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
+        BlendParameters const * const param);
 
-int bmArcFromLineLine(SphericalArc * const arc, LineLineData const * const data);
+int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc,
+        PmCartesian const * const acc_bound,
+        PmCartesian const * const vel_bound,
+        double maxFeedScale);
+
+int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
+        BlendParameters * const param, BlendGeom3 const * const geom,
+        PmCircle const * const circ1, PmCircle const * const circ2);
+
+int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
+        BlendGeom3 const * const geom, BlendParameters const * const param);
 
 #endif
