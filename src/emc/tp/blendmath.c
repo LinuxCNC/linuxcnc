@@ -681,6 +681,10 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
             points->arc_end.y,
             points->arc_end.z);
 
+    //For line case, just copy over d_plan since it's the same
+    points->trim1 = param->d_plan;
+    points->trim2 = param->d_plan;
+
     return TP_ERR_OK;
 }
 
@@ -758,6 +762,12 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     tp_debug_print("center_dist = %f\n", h);
 
     double T_final = h - R_final;
+   if (T_final > param->tolerance) {
+       tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
+               T_final,
+               param->tolerance);
+       return TP_ERR_FAIL;
+   }
     tp_debug_print("T_final = %f\n",T_final);
 
     //Find intersection points from
@@ -782,7 +792,10 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 
     tp_debug_print("dphi1 = %f, dphi2 = %f\n", dphi1, dphi2);
 
-    return TP_ERR_FAIL;
+    points->trim1 = dphi1;
+    points->trim2 = dphi1;
+
+    return TP_ERR_OK;
 
 }
 
