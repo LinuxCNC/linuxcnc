@@ -40,7 +40,6 @@
 #define TP_MIN_ARC_LENGTH 1e-6
 #define TP_BIG_NUM 1e10
 
-
 /**
  * TP return codes.
  * This enum is a catch-all for useful return statuses from TP
