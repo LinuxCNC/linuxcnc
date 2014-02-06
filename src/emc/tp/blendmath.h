@@ -78,9 +78,11 @@ typedef struct {
  * Stores the three points representing a simple 3D spherical arc.
  */
 typedef struct {
-    PmCartesian arc_start;     /* start point for blend arc */
-    PmCartesian arc_end;     /* end point for blend arc */
+    PmCartesian arc_start;      /* start point for blend arc */
+    PmCartesian arc_end;        /* end point for blend arc */
     PmCartesian arc_center;     /* center point for blend arc */
+    double trim1;               /* length (line) or angle (arc) to cut from prev_tc */
+    double trim2;               /* length (line) or angle (arc) to cut from tc */
 } BlendPoints3;
 
 #if BLEND_9D

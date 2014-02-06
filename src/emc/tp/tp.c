@@ -764,8 +764,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
 STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc)
 {
-    // Do convexity tests for each arc
-
+    //TODO type checks
 
     PmCartesian acc_bound, vel_bound;
     
@@ -779,20 +778,40 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const pre
     BlendPoints3 points_approx;
     BlendPoints3 points_exact;
 
-    blendInit3FromArcs(&geom, &param,
+    int res_blend=0;
+    res_blend |= blendInit3FromArcs(&geom, &param,
             prev_tc,
             tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
 
-    blendComputeParameters(&param);
-    blendFindPoints3(&points_approx, &geom, &param);
-    blendArcArcPostProcess(&points_approx, 
+    res_blend |= blendComputeParameters(&param);
+    res_blend |= blendFindPoints3(&points_approx, &geom, &param);
+    res_blend |= blendArcArcPostProcess(&points_approx,
             &points_exact,
             &param, 
             &geom, &prev_tc->coords.circle.xyz,
             &tc->coords.circle.xyz);
+
+    //TODO create blends
+    if (res_blend != TP_ERR_OK) {
+        return res_blend;
+    }
+    // Set up actual blend arc here
+    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+
+    // Note that previous restrictions don't allow ABC or UVW movement, so the
+    // end and start points should be identical
+    blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
+    blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
+
+    //set the max velocity to v_plan, since we'll violate constraints otherwise.
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+            param.v_plan, param.a_max);
+
+
+    blend_tc->coords.arc.xyz.line_length = 0;
 
     return TP_ERR_FAIL;
 }
