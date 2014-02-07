@@ -563,6 +563,14 @@ TARGETS += ../bin/gremlin_view
 	$(Q)(echo "gremlin_view.standalone_gremlin_view()")>>$@
 	$(Q)chmod +x $@
 
+# halshow as standalone app:
+TARGETS += ../bin/halshow
+../bin/halshow: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(TCLSH)")>|$@
+	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/bin/halshow.tcl")>>$@
+	$(Q)chmod +x $@
+
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
 

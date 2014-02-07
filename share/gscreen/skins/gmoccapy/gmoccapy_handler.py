@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.1"
+_RELEASE = "0.9.9.9.5"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -246,7 +246,7 @@ class HandlerClass:
         self.widgets.IconFileSelection1.set_property( "start_dir", default_path )
 
         # set the slider limmits
-        self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, self.stat.max_velocity * 0.1,
+        self.widgets.adj_max_vel.configure( self.stat.max_velocity * 60, 0.0,
                                            self.stat.max_velocity * 60 + 1, 1, 1, 1 )
         self.widgets.adj_jog_vel.configure( self.data.jog_rate, 0,
                                            self.data.jog_rate_max + 1, 1, 1, 1 )
@@ -801,11 +801,6 @@ class HandlerClass:
         # set gremlin_units
         self.widgets.gremlin.set_property( "metric_units", metric_units )
 
-        # debug printing
-        # print("Combi_DRO units changed", metric_units)
-        # print("Machine units = ", self.stat.linear_units)
-        # print("program units = ", self.stat.program_units)
-
         widgetlist = ["adj_jog_vel", "adj_max_vel"]
 
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
@@ -837,7 +832,6 @@ class HandlerClass:
             self.widgets[widget].lower = min * self.faktor
             self.widgets[widget].upper = max * self.faktor
             self.widgets[widget].set_value( value * self.faktor )
-            print self.stat.program_units
 
 # from here only needed, if the DRO button will remain in gmoccapy
     def on_Combi_DRO_system_changed( self, widget, system ):
@@ -1196,7 +1190,8 @@ class HandlerClass:
         # self.command.reset_interpreter()
         self.widgets.gremlin.clear_live_plotter()
 # TODO: End
-        self.gscreen.mdi_control.user_command( command )
+        self.command.mdi( command )
+        # self.gscreen.mdi_control.user_command( command )
         for btn in self.macrobuttons:
             btn.set_sensitive( False )
         # we change the widget_image and use the button to interupt running macros
@@ -1260,7 +1255,7 @@ class HandlerClass:
             self.widgets.file_to_load_chooser.set_filename( self.stat.file )
             self.prefs.putpref( "open_file", self.stat.file, str )
 
-    # Clear the status to load a file on start up, so ther will not be loaded a programm
+    # Clear the status to load a file on start up, so there will not be loaded a programm
     # on the next start of the GUI
     def on_btn_none_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "button none clicked %s" )
@@ -1377,7 +1372,6 @@ class HandlerClass:
                 self.gscreen.add_alarm_entry( message )
         else:
             # check witch button should be sensitive, depending on the state of the machine
-            print self.stat.task_state , self.linuxcnc.STATE_ESTOP, self.linuxcnc.STATE_ESTOP_RESET, self.linuxcnc.STATE_ON, self.linuxcnc.STATE_OFF
             if self.stat.task_state == self.linuxcnc.STATE_ESTOP:
                 # estoped no mode availible
                 self.widgets.rbt_manual.set_sensitive( False )
@@ -1677,7 +1671,8 @@ class HandlerClass:
 
     # feed stuff
     def on_scl_feed_value_changed( self, widget, data = None ):
-        self.command.feedrate( self.widgets.scl_feed.get_value() / 100 )
+        self.command.feedrate( widget.get_value() / 100 )
+        self.widgets.adj_max_vel.set_value( float( self.widgets.adj_max_vel.upper * widget.get_value() / 100 ) )
 
     def on_btn_feed_100_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "btn_feed_100_clicked" )
@@ -1715,7 +1710,6 @@ class HandlerClass:
     # This is the jogging part
     def on_increment_changed( self, widget = None, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "increment_changed %s" % data )
-        print data
         if data == 0:
             self.distance = 0
         else:
@@ -1725,12 +1719,9 @@ class HandlerClass:
         self.halcomp["jog-increment"] = self.distance
 
     def on_adj_jog_vel_value_changed( self, widget, data = None ):
-        if widget.get_value() > self.widgets.adj_max_vel.get_value():
-            widget.set_value( self.widgets.adj_max_vel.get_value() )
+        pass
 
     def on_adj_max_vel_value_changed( self, widget, data = None ):
-        if widget.get_value() < self.widgets.adj_jog_vel.get_value():
-            self.widgets.adj_jog_vel.set_value( widget.get_value() )
         self.command.maxvel( widget.get_value() / 60 )
 
     def on_btn_jog_pressed( self, widget, data = None ):
@@ -1882,6 +1873,8 @@ class HandlerClass:
         else:
             self.widgets.ntb_preview.set_current_page( 0 )
 
+        # we have to replace button calls in our list to make all hardware button
+        # activate the correct button call
         if state and self.widgets.chk_use_tool_measurement.get_active():
             self.widgets.btn_zero_g92.show()
             self.widgets.btn_block_height.hide()
@@ -1890,8 +1883,6 @@ class HandlerClass:
             self.widgets.btn_zero_g92.hide()
             self.widgets.btn_block_height.show()
             self._replace_list_item( 4, "btn_zero_g92", "btn_block_height" )
-
-        print self.h_tabs[4]
 
         if not state: # we must switch back to manual mode, otherwise jogging is not possible
             self.command.mode( self.linuxcnc.MODE_MANUAL )
@@ -1917,14 +1908,12 @@ class HandlerClass:
 
     def _show_offset_tab( self, state ):
         page = self.widgets.ntb_preview.get_nth_page( 1 )
-        # print("offset",state,page.get_visible())
         if page.get_visible()and state or not page.get_visible()and not state:
             return
         if state:
             page.show()
             self.widgets.ntb_preview.set_property( "show-tabs", state )
             self.widgets.ntb_preview.set_current_page( 1 )
-            print self.system_list[self.stat.g5x_index].lower()
             self.widgets.offsetpage1.mark_active( ( self.system_list[self.stat.g5x_index] ).lower() )
             if self.widgets.chk_use_kb_on_offset.get_active():
                 self.widgets.ntb_info.set_current_page( 1 )
@@ -2098,7 +2087,6 @@ class HandlerClass:
         dialog.destroy()
         if response == gtk.RESPONSE_ACCEPT:
             if value != None:
-                # print("Value = ",value)
                 return float( value )
             else:
                 return "ERROR"
@@ -2373,8 +2361,6 @@ class HandlerClass:
         # lets get the mode we are at the moment
         # so after emmitting MDI commands we can switch back to wheer we started
         mode = self.stat.task_mode
-        print ( "mode = ", mode )
-        print self.linuxcnc.MODE_MANUAL, self.linuxcnc.MODE_MDI, self.linuxcnc.MODE_AUTO
         toolinfo = self.widgets.tooledit1.get_toolinfo( tool )
         if toolinfo:
             # Doku
@@ -2810,7 +2796,6 @@ class HandlerClass:
         if self.log:self.gscreen.add_alarm_entry( _( "Axis %s are homed" ) % "XYZABCUVW"[int( data[0] )] )
 
     def on_hal_status_file_loaded( self, widget, filename ):
-        # print("hal-status message file_loaded_%s"%filename)
         self.gscreen.add_alarm_entry( "file_loaded_%s" % filename )
         if len( filename ) > 50:
             filename = filename[0:10] + "..." + filename[len( filename ) - 39:len( filename )]
@@ -3157,6 +3142,10 @@ class HandlerClass:
         self.pin_offset_z = hal_glib.GPin( self.halcomp.newpin( "tooloffset_z", hal.HAL_FLOAT, hal.HAL_IN ) )
         self.pin_offset_z.connect( "value_changed", self._offset_changed, "tooloffset_z" )
 
+        # make a pin to delete a notification message
+        self.pin_del_message = hal_glib.GPin( self.halcomp.newpin( "delete-message", hal.HAL_BIT, hal.HAL_IN ) )
+        self.pin_del_message.connect( "value_changed", self._del_message_changed )
+
     def _offset_changed( self, pin, tooloffset ):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
             self.widgets.lbl_tool_offset_z.set_text( "%.3f" % self.halcomp["tooloffset_z"] )
@@ -3164,6 +3153,10 @@ class HandlerClass:
         else:
             self.widgets.lbl_tool_offset_z.set_text( "%.4f" % self.halcomp["tooloffset_z"] )
             self.widgets.lbl_tool_offset_x.set_text( "%.4f" % self.halcomp["tooloffset_x"] )
+
+    def _del_message_changed( self, pin ):
+        if pin.get():
+            self.notification.del_last()
 
     def _on_pin_incr_changed( self, pin, buttonnumber ):
         if not pin.get():
