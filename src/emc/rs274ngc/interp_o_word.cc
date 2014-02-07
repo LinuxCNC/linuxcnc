@@ -19,6 +19,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -408,6 +409,11 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		if (0 != strcmp(settings->filename, previous_frame->filename))  {
 		    fclose(settings->file_pointer);
 		    settings->file_pointer = fopen(previous_frame->filename, "r");
+		    if (settings->file_pointer == NULL)  {
+			ERS(NCE_CANNOT_REOPEN_FILE, 
+			    settings->sub_context[settings->call_level].filename,
+			    strerror(errno));
+		    }
 		    strcpy(settings->filename, previous_frame->filename);
 		}
 		fseek(settings->file_pointer, previous_frame->position, SEEK_SET);
