@@ -130,6 +130,10 @@ INTERP_SUB_PARAMS = 30 # (1-based) conform to:
 # src/emc/rs274ngc/interp_internal.hh:#define INTERP_SUB_PARAMS 30
 g_max_parm       = INTERP_SUB_PARAMS
 
+g_gcmc_exe = None
+g_gcmc_funcname = 'tmpgcmc'
+g_gcmc_id = 0
+
 black_color   = gtk.gdk.color_parse('black')
 white_color   = gtk.gdk.color_parse('white')
 error_color   = gtk.gdk.color_parse('red')
@@ -155,7 +159,7 @@ def exception_show(ename,detail,src=''):
     print('   detail: %s' % detail )
     if type(detail) == exceptions.ValueError:
         for x in detail:
-            if type(x) == StringType:
+            if type(x) in (StringType, UnicodeType):
                 print('detail(s):',x)
             else:
                 for y in x:
@@ -210,6 +214,13 @@ def dummy_send(filename):
 def default_send(filename):
     import gladevcp.hal_filechooser
     try:
+        s = linuxcnc.stat().poll()
+    except:
+        user_message(mtype=gtk.MESSAGE_ERROR
+            ,title=_('linuxcnc not running')
+            ,msg = _('cannot send, linuxcnc not running'))
+        return False
+    try:
         fchooser = gladevcp.hal_filechooser.EMC_Action_Open()
         fchooser._hal_init()
         fchooser._load_file(filename)
@@ -251,6 +262,8 @@ def file_save(fname,title_message='Save File'):
     filter.add_pattern('*.NGC')
     filter.add_pattern('*.nc')
     filter.add_pattern('*.NC')
+    filter.add_pattern('*.gcmc')
+    filter.add_pattern('*.GCMC')
     fc.add_filter(filter)
     fc.set_current_name(os.path.basename(fname)) # suggest name (for save)
     fname = None
@@ -743,6 +756,35 @@ def update_fonts(fontname):
     for obj in g_font_users:
         mod_font_by_category(obj)
 
+def clean_tmpgcmc(odir):
+    if odir == "":
+        odir = g_searchpath[0]
+    savedir = os.path.join("/tmp", g_gcmc_funcname) # typ /tmp/tmpgcmc
+    if not os.path.isdir(savedir):
+        os.mkdir(savedir,0755)
+    for f in glob.glob(os.path.join(odir,g_gcmc_funcname + "*.ngc")):
+        # rename ng across file systems
+        shutil.move(f,os.path.join(savedir,os.path.basename(f)))
+
+def find_gcmc():
+    global g_gcmc_exe # find on first request
+    if g_gcmc_exe == "NOTFOUND": return False # earlier search failed
+    if g_gcmc_exe is not None: return True    # already found
+
+    for dir in os.environ["PATH"].split(os.pathsep):
+        exe = os.path.join(dir,'gcmc')
+        if os.path.isfile(exe):
+            if os.access(exe,os.X_OK):
+                clean_tmpgcmc("") # clean on first find_gcmc
+                g_gcmc_exe = exe
+                return True # success
+    g_gcmc_exe = "NOTFOUND"
+    user_message(mtype=gtk.MESSAGE_ERROR
+                ,title=_('Error for:')
+                ,msg = _('gcmc executable not available:'
+                + '\nCheck path and permissions'))
+    return False # fail
+
 #-----------------------------------------------------------------------------
 
 make_g_styles()
@@ -876,7 +918,11 @@ class CandidateFiles():
             mtime = mtime.strftime(g_dtfmt) # truncate fractional seconds
             iter = self.treestore.append(None, [dir,"Directory",mtime])
             fidx = 0
-            for f in sorted(glob.glob(os.path.join(dir,"*.ngc"))):
+            for f in ( sorted(glob.glob(os.path.join(dir,"*.ngc")))
+                     + sorted(glob.glob(os.path.join(dir,"*.NGC")))
+                     + sorted(glob.glob(os.path.join(dir,"*.gcmc")))
+                     + sorted(glob.glob(os.path.join(dir,"*.GCMC")))
+                     ):
                 fname = os.path.basename(f)
                 self.tdict[didx,fidx] = fname
 
@@ -884,6 +930,9 @@ class CandidateFiles():
                 fd = open(f)
                 ftxt = fd.read()
                 fd.close()
+
+                if os.path.splitext(fname)[-1] in ['.gcmc','.GCMC']:
+                    stat = '%sgcmc:ok' % stat
 
                 if ftxt.find('not_a_subfile') >= 0:
                     stat = '%snot_a_subfile ' % stat
@@ -1097,8 +1146,9 @@ class LinuxcncInterface():
     def get_program_prefix(self):
         if self.ini_data:
             dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
-            if not os.path.abspath(dir):
-                dir = os.path.join(self.ini_file,dir)
+            if not os.path.isabs(dir):
+                # relative, base on inidir
+                dir = os.path.join(os.path.dirname(self.ini_file),dir)
             return(dir)
         else:
             return(None)
@@ -1162,28 +1212,6 @@ class SubFile():
     """SubFile: subfile data"""
     def __init__(self,thefile):
         self.sub_file = thefile
-        self.read()
-
-    def clear(self):
-        self.sub_file = ''
-        self.pdict = {}
-        self.ndict = {}
-        self.ldict = {}
-        self.inputlines = []
-
-    def flagerror(self,e):
-        # accumulate erors from read() so entire file can be processed
-        self.errlist.append(e)
-
-    def specialcomments(self,s):
-        if s.find(' FEATURE ')    >= 0 :
-            self.flagerror(
-            "Disallowed use of ngcgui generated file as Subfile")
-        if s.find('not_a_subfile') >= 0 :
-            self.flagerror(
-            "marked (not_a_subfile)\nNot intended for use as a subfile")
-
-    def read(self):
         self.min_num = sys.maxint
         self.max_num = 0
         self.pdict = {} # named items:   pdict[keyword] = value
@@ -1196,15 +1224,56 @@ class SubFile():
         self.errlist=[]
         self.md5 = None
         self.mtime = None
-
         if self.sub_file == '': return
-        thesubname = os.path.splitext(os.path.basename(self.sub_file))[0]
 
         self.mtime = os.path.getmtime(self.sub_file)
         self.md5 = md5sum(self.sub_file)
+
+        if os.path.splitext(self.sub_file)[-1] in ['.ngc','.NGC','.nc','.NC']:
+            self.read_ngc()
+        elif os.path.splitext(self.sub_file)[-1] in ['.gcmc','.GCMC']:
+            self.read_gcmc()
+        else:
+            user_message(mtype=gtk.MESSAGE_ERROR
+                    ,title=_('Unknown file suffix')
+                    ,msg = _('Unknown suffix for: %s:')
+                             % os.path.basename(self.sub_file)
+                            )
+            return
+
+    def clear(self):
+        self.sub_file = ''
+        self.pdict = {}
+        self.ndict = {}
+        self.ldict = {}
+        self.inputlines = []
+
+    def flagerror(self,e):
+        # accumulate erors from read() so entire file can be processed
+        self.errlist.append(e)
+
+    def specialcomments_ngc(self,s):
+        if s.find(' FEATURE ')    >= 0 :
+            self.flagerror(
+            "Disallowed use of ngcgui generated file as Subfile")
+        if s.find('not_a_subfile') >= 0 :
+            self.flagerror(
+            "marked (not_a_subfile)\nNot intended for use as a subfile")
+
+    def re_read(self):
+        if self.pdict.has_key('isgcmc'):
+            self.read_gcmc()
+        else:
+            self.read_ngc()
+
+    def read_ngc(self):
+
+        thesubname = os.path.splitext(os.path.basename(self.sub_file))[0]
+
         f = open(self.sub_file)
+        self.inputlines = [] # in case rereading
         for l in f.readlines():
-            self.specialcomments(l) # for compat, check on unaltered line
+            self.specialcomments_ngc(l) # for compat, check on unaltered line
             self.inputlines.append(l)
         idx = 1 # 1 based for labels ldict
         nextparm = 0
@@ -1301,6 +1370,61 @@ class SubFile():
             self.errlist.append('SUBERROR')
             raise ValueError,self.errlist
 
+    def read_gcmc(self):
+        self.gcmc_opts = [] # list of options for gcmc
+        pnum = 0
+        f = open(self.sub_file)
+        for l in f.readlines():
+            rinfo = re.search(r'^ *\/\/ *ngcgui *: *info: *(.*)' ,l)
+            if rinfo:
+                #print 'info read_gcmc:g1:',rinfo.group(1)
+                self.pdict['info'] = rinfo.group(1) # last one wins
+                continue
+
+            ropt = re.search(r'^ *\/\/ *ngcgui *: *(-.*)$' ,l)
+            if ropt:
+                self.gcmc_opts.append(ropt.group(1))
+                continue
+
+            name = None
+            dvalue =  None
+            comment = ''
+            r3 = re.search(r'^ *\/\/ *ngcgui *: *(.*?) *= *(.*?) *\, *(.*?) *$', l)
+            r2 = re.search(r'^ *\/\/ *ngcgui *: *(.*?) *= *(.*?) *$', l)
+            r1 = re.search(r'^ *\\/\\/ *ngcgui *: *\(.*?\) *$', l)
+            if r3:
+                name = r3.group(1)
+                dvalue = r3.group(2)
+                comment = r3.group(3)
+            elif r2:
+                name = r2.group(1)
+                dvalue = r2.group(2)
+            elif r1:
+                print 'r1-1 opt read_gcmc:g1:',r1.group(1)
+                name = r1.group(1)
+
+            if dvalue:
+                # this is a convenience to make it simple to edit to
+                # add a var without removing the semicolon
+                #    xstart = 10;
+                #    //ngcgui: xstart = 10;
+                dvalue = dvalue.split(";")[0] # ignore all past a ;
+            else:
+                dvalue = ''
+
+            if name:
+                if comment is '':
+                    comment = name
+                pnum += 1
+                self.ndict[pnum] = (name,dvalue,comment)
+
+        self.pdict['isgcmc'] = True
+        self.pdict['lastparm'] = pnum
+        self.pdict['subname'] = os.path.splitext(os.path.basename(self.sub_file))[0]
+        if self.pdict['info'] == '':
+            self.pdict['info'] = 'gcmc: '+ self.pdict['subname']
+        f.close()
+        return True # ok
 
 class FileSet():
     """FileSet: set of preamble,subfile,postamble files"""
@@ -1690,12 +1814,12 @@ class ControlPanel():
                 ,pst_file=''
                 ):
         self.mypg = mypg
-
+ 
         frame = gtk.Frame()
         frame.set_shadow_type(gtk.SHADOW_ETCHED_IN)
         frame.set_border_width(2)
         self.box = frame
-
+        
         cpbox  = gtk.VBox()
         # fixed width so it doesn't change when switching tabs
         # fixed height to allow room for buttons below image
@@ -1893,7 +2017,7 @@ class ControlPanel():
             vprint('reread_files NULL subfile')
             return False
         self.mypg.fset.pre_data.read()
-        self.mypg.fset.sub_data.read()
+        self.mypg.fset.sub_data.re_read() # handle ngc or gcmc
         self.mypg.fset.pst_data.read()
 
         self.mypg.update_onepage('pre',self.mypg.pre_file)
@@ -1957,9 +2081,32 @@ class ControlPanel():
         p.sub_data = SubFile(m.sub_file) # error for ''
         p.pst_data = PstFile(m.pst_file) # may be ''
 
+        if p.sub_data.pdict.has_key('isgcmc'):
+            stat = self.savesection_gcmc()
+        else:
+            stat = self.savesection_ngc()
+
+        if stat:
+            if m.feature_ct > 0:
+                self.mypg.update_tab_label('multiple')
+            else:
+                self.mypg.update_tab_label('created')
+
+            m.feature_ct = m.feature_ct + 1
+            self.lfct.set_label(str(m.feature_ct))
+
+            self.set_message(_('Created Feature #%d') % m.feature_ct)
+        else:
+            #print "savesection fail"
+            pass
+
+    def savesection_ngc(self):
+        m=self.mypg
+        p=self.mypg.fset
         force_expand = False
         # if file not in path and got this far, force expand
         fname,stat = m.nset.intfc.find_file_in_path(m.sub_file)
+
         if stat == 'NOTFOUND':
             force_expand = True
             user_message(mtype=gtk.MESSAGE_INFO
@@ -1981,17 +2128,110 @@ class ControlPanel():
                                 ,force_expand = force_expand
                                 )
                      )
-            if m.feature_ct > 0:
-                self.mypg.update_tab_label('multiple')
-            else:
-                self.mypg.update_tab_label('created')
-
-            m.feature_ct = m.feature_ct + 1
-            self.lfct.set_label(str(m.feature_ct))
-
-            self.set_message(_('Created Feature #%d') % m.feature_ct)
         except ValueError:
-            dprint('SAVESECTION: failed')
+            dprint('SAVESECTION_ngc: failed')
+        return True # success
+
+    def savesection_gcmc(self):
+        m=self.mypg
+        p=self.mypg.fset
+        intfc = self.mypg.nset.intfc
+
+        global g_gcmc_exe
+        xcmd = []
+        xcmd.append(g_gcmc_exe)
+
+        global g_gcmc_funcname
+        global g_gcmc_id
+        g_gcmc_id += 1
+        # gcmc chars in funcname: (allowed: [a-z0-9_-])
+        funcname = "%s_%02d"%(g_gcmc_funcname,g_gcmc_id)
+
+        p.sub_data.pdict['subname'] = funcname
+
+        outdir = g_searchpath[0] # first in path
+        ofile = os.path.join(outdir,funcname) + ".ngc"
+
+        xcmd.append("--output")
+        xcmd.append(ofile)
+
+        xcmd.append('--gcode-function')
+        xcmd.append(funcname)
+
+        for opt in p.sub_data.gcmc_opts:
+            splitopts = opt.split(' ')
+            xcmd.append(str(splitopts[0]))
+            if len(splitopts) > 1:
+                xcmd.append(str(splitopts[1])) # presumes only one token
+
+
+        for k in p.sub_data.ndict.keys():
+            #print 'k=',k,p.sub_data.ndict[k]
+            name,dvalue,comment = p.sub_data.ndict[k]
+            xcmd.append('--define=' + name + '=' + m.efields.pentries[k].getentry())
+
+        xcmd.append(m.sub_file)
+        print "xcmd=",xcmd
+        e_message = ".*Runtime message\(\): *(.*)"
+        e_warning = ".*Runtime warning\(\): *(.*)"
+        e_error   = ".*Runtime error\(\): *(.*)"
+
+        s = subprocess.Popen(xcmd
+                             ,stdout=subprocess.PIPE
+                             ,stderr=subprocess.PIPE
+                             )
+        sout,eout = s.communicate()
+        m_txt = ""
+        w_txt = ""
+        e_txt = ""
+        compile_txt = ""
+
+        if eout:
+            for line in eout.split("\n"):
+                r_message = re.search(e_message,line)
+                r_warning = re.search(e_warning,line)
+                r_error = re.search(e_error,line)
+                if r_message:
+                    m_txt += r_message.group(1) + "\n"
+                elif r_warning:
+                    w_txt += r_warning.group(1) + "\n"
+                elif r_error:
+                    e_txt += r_error.group(1) + "\n"
+                else:
+                    compile_txt += line
+
+        if m_txt != "":
+            user_message(mtype=gtk.MESSAGE_INFO
+                ,title='gcmc INFO'
+                ,msg="gcmc File:\n%s\n\n%s"%(m.sub_file,m_txt)
+                )
+        if w_txt != "":
+            user_message(mtype=gtk.MESSAGE_WARNING
+                ,title='gcmc WARNING'
+                ,msg="gcmc File:\n%s\n\n%s"%(m.sub_file,w_txt)
+                )
+        if e_txt != "":
+            user_message(mtype=gtk.MESSAGE_ERROR
+                ,title='gcmc ERROR'
+                ,msg="gcmc File:\n%s\n\n%s"%(m.sub_file,e_txt)
+                )
+        if compile_txt != "":
+            user_message(mtype=gtk.MESSAGE_ERROR
+                ,title='gcmc Compile ERROR'
+                ,msg="gcmc File:%s"%(compile_txt)
+                )
+        if s.returncode:
+            return False ;# fail
+
+        self.mypg.savesec.append(
+                 SaveSection(mypg     = self.mypg
+                            ,pre_info = p.pre_data
+                            ,sub_info = p.sub_data
+                            ,pst_info = p.pst_data
+                            ,force_expand = False # never for gcmc
+                            )
+                 )
+        return True # success
 
     def finalize_features(self):
         mypg = self.mypg
@@ -2004,6 +2244,7 @@ class ControlPanel():
                     ,title='No Features'
                     ,msg=msg)
             return
+
         if len(mypg.savesec) == 0:
             msg = 'finalize_features: Unexpected: No features'
             self.set_message(_('No features'))
@@ -2785,6 +3026,8 @@ class NgcGui():
                     )
                 sys.exit(1)
 
+        global g_searchpath; g_searchpath = self.intfc.subroutine_path
+
 
         # multiple pages can be specified with __init__()
         initsublist= []
@@ -2914,6 +3157,10 @@ class NgcGui():
             pass
 
     def add_page(self,pre_file,sub_file,pst_file,imageoffpage=False):
+        # look for gcmc on first request for .gcmc file:
+        if os.path.splitext(sub_file)[-1] in ['.gcmc','.GCMC']:
+            if not find_gcmc(): return None
+
         self.nextpage_idx = self.nextpage_idx + 1
         opage = OnePg(pre_file=pre_file
                      ,sub_file=sub_file
@@ -3015,7 +3262,12 @@ class SaveSection():
                 value = str(float(value.lower() ))
 
             parmlist.append(value)
-            calltxt = calltxt + '[%s]' % value
+            if sub_info.pdict.has_key('isgcmc'):
+                # just print value of gcmc parm embedded in gcmc result
+                # the call requires no parms
+                pass
+            else:
+                calltxt = calltxt + '[%s]' % value
             # these appear only for not-expandsub
             tmpsdata.append("(%11s = %12s = %12s)\n" % (
                               '#'+str(idx),name,value))
@@ -3026,7 +3278,11 @@ class SaveSection():
             mypg.cpanel.set_message(_('Failed to create feature'))
             raise ValueError
         calltxt = calltxt + '\n'
-
+        # expandsub not honored for gcmc
+        if (mypg.expandsub and sub_info.pdict.has_key('isgcmc')):
+            print(_('expandsub not honored for gcmc file: %s')%
+                     os.path.basename(sub_info.sub_file))
+            mypg.expandsub = 0
         #---------------------------------------------------------------------
         if (not mypg.expandsub) and (not force_expand):
             self.sdata.append("(%s: call subroutine file: %s)\n" % (

@@ -1,0 +1,49 @@
+//ngcgui: info: SQUARE -- simple gcmc example
+
+/*COPY this file to a directory in your subroutine search path that
+*      precedes the directory of this library file and edit as
+*      required
+*
+*      ngcgui uses the editor specified by $VISUAL
+*/
+
+//--------------------------------------------------------------------
+// Variables
+// Precede any of the following lines with
+//    //ngcgui:
+// to make an entry box
+// Omit the "//ngcgui:" to use the hard-coded value
+
+//ngcgui:  frate =  100; //, Feed Rate
+//ngcgui:     x1 =    0; //, xoffset
+//ngcgui:     y1 =    0; //, yoffset
+//ngcgui:  width =    1;
+//ngcgui: height =    1;
+//ngcgui:  zsafe =  0.1;
+//ngcgui:   zcut = -0.1; //, zcut (neg)
+//--------------------------------------------------------------------
+comment("debug, square.gcmc:start");
+feedrate(frate);
+
+goto([x1, y1, zsafe]);
+
+move([x1, y1, zcut]);
+move([x1 + width, y1, zcut]);
+move([x1 + width, y1 + height, zcut]);
+move([x1, y1 + height, zcut]);
+move([x1, y1, zcut]);
+
+goto([-, -, zsafe]);
+comment("debug, square.gcmc:end");
+
+// uncomment to see how message()s are handled:
+//message("1test message in gcmc file");
+//message("2test message in gcmc file");
+
+// uncomment to see how warning()s are handled:
+//warning("1test warning in gcmc file");
+//warning("2test warning in gcmc file");
+
+// uncomment to see how error()s are handled:
+//error("1test error in gcmc file");
+//error("2test error in gcmc file");
