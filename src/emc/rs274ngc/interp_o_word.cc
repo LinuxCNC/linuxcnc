@@ -17,6 +17,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
@@ -448,7 +449,11 @@ int Interp::convert_control_functions( /* ARGUMENTS           */
               fclose(settings->file_pointer);
               settings->file_pointer = 
               fopen(settings->sub_context[settings->call_level].filename, "r");
-
+	      if(settings->file_pointer == NULL)  {
+		  ERS(NCE_CANNOT_REOPEN_FILE, 
+		      settings->sub_context[settings->call_level].filename,
+		      strerror(errno));
+	      }
               strcpy(settings->filename,
                      settings->sub_context[settings->call_level].filename);
           }

@@ -187,6 +187,7 @@
 #define NCE_NESTED_SUBROUTINE_DEFN _("Nested subroutine definition")
 #define NCE_NOT_IN_SUBROUTINE_DEFN _("Not in subroutine definition")
 #define NCE_FILE_NOT_OPEN _("File not open")
+#define NCE_CANNOT_REOPEN_FILE _("cannot reopen file %s - removed or renamed? (%s)")
 #define NCE_TXX_MISSING_FOR_M6 _("Need tool prepared -Txx- for toolchange")
 #define NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON _("Cannot change planes with cutter radius compensation on")
 #define NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ _("Cutter radius compensation allowed only in XY, XZ planes")
