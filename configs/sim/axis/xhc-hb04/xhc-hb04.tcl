@@ -20,7 +20,7 @@
 #   (see ini files for more exanples)
 
 # Notes:
-#    1) the 'start-pause' pin can be set to "std_start_pause" to 
+#    1) the 'start-pause' pin can be set to "std_start_pause" to
 #       implement default behavior
 #    2) the 'step' pin is normally connected to xhc-hb04.stepsize-up
 #    3) non-root access to the usb device requires an additional
@@ -108,7 +108,7 @@ proc connect_pins {} {
   }
 } ;# connect_pins
 
-proc wheel_setup {} {
+proc wheel_setup {jogmode} {
   # defaults if not in inifile:
   set ::XHC_HB04_CONFIG(coef,0) 1.0
   set ::XHC_HB04_CONFIG(coef,1) 1.0
@@ -170,14 +170,47 @@ proc wheel_setup {} {
     net pendant:pos-rel-$coord    halui.axis.$axno.pos-relative \
                                => xhc-hb04.$acoord.pos-relative
 
-    net pendant:jog-$coord    xhc-hb04.jog.enable-$acoord \
-                           => axis.$axno.jog-enable
     net pendant:jog-scale => axis.$axno.jog-scale
 
     net pendant:jog-counts                 => pendant_util.in$idx
     net pendant:jog-counts-$coord-filtered <= pendant_util.out$idx \
                                            => axis.$axno.jog-counts
+
+    switch $jogmode {
+      normal - vnormal {
+        net pendant:jog-$coord    xhc-hb04.jog.enable-$acoord \
+                               => axis.$axno.jog-enable
+      }
+      plus-minus {
+        # connect halui plus,minus pins
+        net jog-plus-$coord     xhc-hb04.jog.plus-$acoord  \
+                             => halui.jog.$axno.plus
+        net jog-minus-$coord    xhc-hb04.jog.minus-$acoord \
+                             => halui.jog.$axno.minus
+      }
+    }
+    switch $jogmode {
+      vnormal {
+        setp axis.$axno.jog-vel-mode 1
+      }
+    }
+
     incr idx
+  }
+
+  switch $jogmode {
+    normal - vnormal {
+      net pendant:jog-speed <= halui.max-velocity.value
+      # not used: xhc-hb04.jog.velocity
+      # not used: xhc-hb04.jog.max-velocity
+    }
+    plus-minus {
+      # the driver manages jog.velocity
+      net pendant:jog-max-velocity <= halui.max-velocity.value
+      net pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
+      net pendant:jog-speed        <= xhc-hb04.jog.velocity
+      net pendant:jog-speed        => halui.jog-speed
+    }
   }
 
   setp halui.feed-override.scale 0.01
@@ -186,7 +219,6 @@ proc wheel_setup {} {
   setp halui.spindle-override.scale 0.01
   net pendant:jog-counts  => halui.spindle-override.counts
 
-  net pendant:jog-speed      halui.jog-speed <= halui.max-velocity.value
 
   net pendant:jog-feed      halui.feed-override.count-enable \
                          <= xhc-hb04.jog.enable-feed-override
@@ -223,7 +255,7 @@ proc popup_msg {msg} {
   if [catch {package require Tk
              wm withdraw .
              tk_messageBox \
-                 -title "$::progname: loadusr fail" \
+                 -title "$::progname: loadusr" \
                  -type ok \
                  -message "$msg"
              destroy .
@@ -274,6 +306,34 @@ if [catch {loadusr -W xhc-hb04 -I $cfg -H} msg] {
   return ;# not an exit
 }
 
+# jogmodes:
+#   normal: use motion pins:
+#               axis.N.jog-counts
+#               axis.N.jog-enable
+#               axis.N.jog-scale    (machine units per count)
+
+#   plus-minus: use halui pins:
+#               halui.jog.N.plus  (jog in + dir at jog-speed)
+#               halui.jog.N.minus (jog in - dir at jog-speed)
+#               halui.jog-speed    (applies to plus-minus jogging
+#
+if ![info exists ::XHC_HB04_CONFIG(jogmode)] {
+  set ::XHC_HB04_CONFIG(jogmode) normal ;# default
+}
+
+set jogmode $::XHC_HB04_CONFIG(jogmode)
+switch $jogmode {
+  normal {}
+  vnormal {}
+  plus-minus {}
+  default {
+    set ::XHC_HB04_CONFIG(jogmode) normal
+    set msg "Unkknown jogmode <$jogmode>"
+    set msg "$msg  Using $::XHC_HB04_CONFIG(jogmode)"
+    popup_msg "$msg"
+  }
+}
+
 set ct 0; foreach coord {x y z a b c u v w} {
   set ::XHC_HB04_CONFIG($coord,axno) $ct;  incr ct
 }
@@ -292,7 +352,8 @@ if ![info exists ::XHC_HB04_CONFIG(threadname)] {
 loadrt xhc_hb04_util names=pendant_util
 addf   pendant_util $::XHC_HB04_CONFIG(threadname)
 
-connect_pins       ;# per ini file items: [XHC_HB04_BUTTONS]buttonname=pin
-wheel_setup        ;# jog wheel per ini file items:
-                    #     [XHC_HB04_CONFIG]coords,coefs,scales
+connect_pins    ;# per ini file items: [XHC_HB04_BUTTONS]buttonname=pin
+wheel_setup  $::XHC_HB04_CONFIG(jogmode)
+                 # jog wheel per ini file items:
+                 #     [XHC_HB04_CONFIG]coords,coefs,scales
 #parray ::XHC_HB04_CONFIG
