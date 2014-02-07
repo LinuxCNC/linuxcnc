@@ -33,12 +33,10 @@ double fsign(double f)
     }
 }
 
-double negate(double f, bool neg) 
+/** negate a value (or not) based on a bool parameter */
+inline double negate(double f, bool neg)
 {
-    if (neg) {
-        return -f;
-    }
-    return f;
+    return (neg) ? -f : f;
 }
 
 /** Clip the input at the specified minimum (in place). */
@@ -168,6 +166,8 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     return TP_ERR_OK;
 }
 
+
+/** Find real roots of a quadratic equation in standard form. */
 int quadraticFormula(double A, double B, double C, double * const root0,
         double * const root1)
 {
@@ -185,6 +185,7 @@ int quadraticFormula(double A, double B, double C, double * const root0,
 /**
  * @section linearc Line-Arc blending functions
  */
+
 
 STATIC int findArcLineDist(double a, double b, double R1, double T,
         int convex, double * const d)
@@ -263,148 +264,25 @@ STATIC int findDistFromRadius(double a, double b, double R1, double R, int conve
     return err;
 }
 
-#if 0
-int bmLineArcProcess(LineArcData * const data)
-{
-    // Check for coplanarity
-    // arc-line equations
-    pmCartCartCross(&data->u1, &data->u2, &data->binormal);
-    pmCartUnitEq(&data->binormal);
-    pmCartCartCross(&data->binormal, &data->u2, &data->normal);
-
-    bool convex = arcConvexTest(&data->C1, &data->P,
-            &data->u2, false);
-    double sgn = 1.0;
-    if (convex) {
-        tp_debug_print("Arc is convex wrt. line\n");
-        sgn=-1.0;
-    } else {
-        tp_debug_print("Arc is concave wrt. line\n");
-    }
-
-    //Parallel and perp. components of P-C1
-    PmCartesian r_C1P;
-    pmCartCartSub(&data->P,&data->C1, &r_C1P);
-
-    //Project C1 - P onto u2 and normal
-    double a, b;
-    pmCartCartDot(&r_C1P, &data->u2, &a);
-    pmCartCartDot(&r_C1P, &data->normal, &b);
-    tp_debug_print("r_C1P components: a = %f, b = %f\n",a,b);
-
-    double d_tol;
-    int err = findArcLineDist(a, b, data->R1, data->tolerance, convex, &d_tol);
-    if (err) {
-        return err;
-    }
-
-    double d_arc = 0;
-    if (!convex) {
-        //phi1 is the blendable length
-        d_arc = data->phi1 * data->R1;
-    } else {
-        //Calculate "beta" angle = deviation from tangent
-        // Find minimum angle for convex case
-        double dot;
-        pmCartCartDot(&data->u1, &data->u2, &dot);
-        double angle_from_tan = acos(dot);
-        double gamma = fmin(PM_PI - angle_from_tan, data->phi1);
-        d_arc = data->R1 * sin(gamma);
-    }
-    //Find distance bounded by length of line move
-    double d_line = data->L2;
-    tp_debug_print("d_arc = %f, d_tol = %f, d_line = %f\n",d_arc,d_tol,d_line);
-
-    double d_geom = fmin(fmin(d_line,d_tol),d_arc);
-
-    //Find corresponding radius to d_line
-    double R_line = 0;
-    err = findRadiusFromDist(a,b,data->R1,d_geom,convex, &R_line);
-    if (err)  {
-        return err;
-    }
-
-    //New upper bound is the lower of the two
-    //FIXME -code upper bound until we figure out a better way
-    double R_bound = 10000;
-    double R_geom = fmin(R_line, R_bound);
-    tp_debug_print("R_geom = %f\n",R_geom);
-
-    //The new radius and line distance is found based on limits of v_req
-    // Based on motion segments, compute the maximum velocity we can get based
-    //on the requested blend radius and the normal acceleration bounds. Use this
-    //to compute the actual upper limit on blend radius.
-
-    //The nominal speed of the blend arc should be the higher of the two segment speeds
-
-    double a_max;
-    tpGetMachineAccelLimit(&a_max);
-    data->a_max = a_max;
-
-    double a_n_max=a_max * TP_ACC_RATIO_NORMAL;
-
-    //Calculate limiting velocity due to radius and normal acceleration
-    double v_normal = pmSqrt(a_n_max * R_geom);
-    tp_debug_print("v_normal = %f\n",v_normal);
-
-    //If the requested feed is lower than the peak velocity, reduce the arc size to match
-    double v_upper = fmin(data->v_req, v_normal);
-
-    double R_upper = pmSq(v_upper)/a_n_max;
-    data->R = R_upper;
-
-    double d_upper=0;
-    err = findDistFromRadius(a,b, data->R1, R_upper, convex, &d_upper);
-    if (err) {
-        return err;
-    }
-    data->d = d_upper;
-
-    tp_debug_print("R_upper = %f, d_upper = %f\n",R_upper,d_upper);
-
-    //Store velocity
-    data->v_plan = v_upper;
-    tp_debug_print("v_upper = %f\n", v_upper);
-
-    //Find the blend arc's center
-    /*double C = P + d_upper*u2 + R_upper*normal*/
-    PmCartesian tmp;
-    pmCartScalMult(&data->u2, d_upper, &data->C);
-    pmCartScalMult(&data->normal, R_upper, &tmp);
-    pmCartCartAdd(&data->P, &data->C, &data->C);
-    pmCartCartAdd(&tmp, &data->C, &data->C);
-
-    PmCartesian r_CC1, uc;
-    pmCartCartSub(&data->C1, &data->C, &r_CC1);
-    pmCartUnit(&r_CC1, &uc);
-
-    //Calculate blend arc intersections with original segments
-    //Q1=C+sgn*uc*R_upper
-    pmCartScalMult(&uc, R_upper*sgn, &data->Q1);
-    pmCartCartAdd(&data->Q1, &data->C, &data->Q1);
-    //Q2=P+d_upper*u2
-    pmCartScalMult(&data->u2, d_upper, &data->Q2);
-    pmCartCartAdd(&data->P, &data->Q2, &data->Q2);
-
-    //Calculate angle reduction for arc
-    PmCartesian up;
-    pmCartUnit(&r_C1P,&up);
-   
-    double dot = 0;
-    pmCartCartDot(&up,&uc,&dot);
-    //FIXME domain bound
-    data->dphi1 = acos(-dot);
-
-    tp_debug_print("dphi1 = %f, phi1 = %f, ratio = %f\n",
-            data->dphi1, data->phi1, data->dphi1 / data->phi1);
-    return 0;
-}
-#endif
 
 /**
- * @section bmLineLine LineLineData functions
+ * @section line3d 3D Line blending functions
  */
 
+/**
+ * Setup blend paramaters based on two circular arc segments.
+ * This function populates the geom structure and "input" fields of
+ * the blend parameter structure. It returns an error if the segments
+ * are not coplanar, or if one or both segments is not a circular arc.
+ *
+ * @param geom Stores simplified geometry used to calculate blend params.
+ * @param param Abstracted parameters for blending calculations
+ * @param prev_tc first linear move to blend
+ * @param tc second linear move to blend
+ * @param acc_bound maximum X, Y, Z machine acceleration
+ * @param vel_bound maximum X, Y, Z machine velocity
+ * @param maxFeedScale maximum allowed feed override (set in INI)
+ */
 int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
@@ -416,6 +294,8 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
     if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_CIRCULAR) {
         return TP_ERR_FAIL;
     }
+
+
 
     //Get tangent unit vectors at endpoint
     PmCartesian u_tan1, u_tan2;
@@ -526,6 +406,17 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
     return TP_ERR_OK;
 }
 
+/**
+ * Setup blend paramaters based on two linear segments.
+ * This function populates the geom structure and "input" fields of the blend parameter structure based.
+ * @param geom Stores simplified geometry used to calculate blend params.
+ * @param param Abstracted parameters for blending calculations
+ * @param prev_tc first linear move to blend
+ * @param tc second linear move to blend
+ * @param acc_bound maximum X, Y, Z machine acceleration
+ * @param vel_bound maximum X, Y, Z machine velocity
+ * @param maxFeedScale maximum allowed feed override (set in INI)
+ */
 int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
