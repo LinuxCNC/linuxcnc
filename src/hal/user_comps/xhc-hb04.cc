@@ -87,6 +87,7 @@ typedef struct {
 	hal_bit_t *stepsize_up;
 	hal_s32_t *stepsize;
 	hal_bit_t *sleeping;
+	hal_bit_t *connected;
 } xhc_hal_t;
 
 typedef struct {
@@ -508,6 +509,7 @@ static void hal_setup()
 	}
 
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->sleeping), hal_comp_id, "%s.sleeping", modname);
+    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
     r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
 
@@ -633,6 +635,8 @@ int main (int argc,char **argv)
 		libusb_set_debug(ctx, 3);
 
 		printf("%s: waiting for XHC-HB04 device\n",modname);
+		*(xhc.hal->connected) = 0;
+		wait_secs = 0;
 
 		do {
 			cnt = libusb_get_device_list(ctx, &devs);
@@ -644,13 +648,15 @@ int main (int argc,char **argv)
 			dev_handle = libusb_open_device_with_vid_pid(ctx, 0x10CE, 0xEB70);
 			libusb_free_device_list(devs, 1);
 			if (dev_handle == NULL) {
-				wait_secs++;
-				if (wait_secs >= MAX_WAIT_SECS/2) {
-					printf("%s: waiting for XHC-HB04 device (%d)\n",modname,wait_secs);
-				}
-				if (wait_secs > MAX_WAIT_SECS) {
-					printf("%s: MAX_WAIT_SECS exceeded, exiting\n",modname);
-					exit(1);
+				if (wait_for_pendant_before_HAL) {
+					wait_secs++;
+					if (wait_secs >= MAX_WAIT_SECS/2) {
+						printf("%s: waiting for XHC-HB04 device (%d)\n",modname,wait_secs);
+					}
+					if (wait_secs > MAX_WAIT_SECS) {
+						printf("%s: MAX_WAIT_SECS exceeded, exiting\n",modname);
+						exit(1);
+					}
 				}
 				sleep(1);
 			}
@@ -669,6 +675,8 @@ int main (int argc,char **argv)
 				return 1;
 			}
 		}
+
+		*(xhc.hal->connected) = 1;
 
 	    if (!hal_ready_done && !simu_mode) {
 	    	hal_ready(hal_comp_id);
@@ -691,6 +699,7 @@ int main (int argc,char **argv)
 				handle_step(&xhc);
 				xhc_set_display(dev_handle, &xhc);
 			}
+			*(xhc.hal->connected) = 0;
 			printf("%s: connection lost, cleaning up\n",modname);
 			libusb_cancel_transfer(transfer_in);
 			libusb_free_transfer(transfer_in);
