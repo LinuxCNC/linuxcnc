@@ -571,6 +571,7 @@ static void Usage(char *name)
     fprintf(stderr, " -I ini-file: configuration file defining the MPG keyboard layout\n");
     fprintf(stderr, " -h: usage\n");
     fprintf(stderr, " -H: run in real-time HAL mode (run in simulation mode by default)\n");
+    fprintf(stderr, " -x: wait for pendant detection before creating HAL pins\n");
 }
 
 int main (int argc,char **argv)
@@ -584,10 +585,12 @@ int main (int argc,char **argv)
 	int wait_secs = 0;
 
     int opt;
+    bool wait_for_pendant_before_HAL = false;
+    bool hal_ready_done = false;
 
     init_xhc(&xhc);
 
-    while ((opt = getopt(argc, argv, "HhI:")) != -1) {
+    while ((opt = getopt(argc, argv, "HhI:x")) != -1) {
         switch (opt) {
         case 'I':
             if (read_ini_file(optarg)) exit(EXIT_FAILURE);
@@ -595,18 +598,24 @@ int main (int argc,char **argv)
         case 'H':
         	simu_mode = false;
         	break;
+        case 'x':
+        	wait_for_pendant_before_HAL = true;
+        	break;
         default:
         	Usage(argv[0]);
             exit(EXIT_FAILURE);
         }
     }
 
-    hal_setup();
+	hal_setup();
 
-	signal(SIGINT, quit);
+    signal(SIGINT, quit);
 	signal(SIGTERM, quit);
 
-	if (!simu_mode) hal_ready(hal_comp_id);
+    if (!wait_for_pendant_before_HAL && !simu_mode) {
+    	hal_ready(hal_comp_id);
+    	hal_ready_done = true;
+    }
 
 	while (!do_exit) {
     	//on reconnect wait for device to be gone
@@ -660,6 +669,11 @@ int main (int argc,char **argv)
 				return 1;
 			}
 		}
+
+	    if (!hal_ready_done && !simu_mode) {
+	    	hal_ready(hal_comp_id);
+	    	hal_ready_done = true;
+	    }
 
 		if (dev_handle) {
 			setup_asynch_transfer(dev_handle);
