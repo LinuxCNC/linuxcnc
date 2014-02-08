@@ -117,32 +117,38 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
  * Unlike the acceleration vector, the result of this calculation is a vector
  * tangent to the helical arc. This is called by wrapper functions for the case of a circular or helical arc.
  */
-static int tcGetHelicalTangentVector(PmCircle const * const circle, double progress,
+static int tcGetHelicalTangentVector(PmCircle const * const circle, double angle_in,
         PmCartesian * const out) {
 
     PmCartesian startpoint;
     PmCartesian radius;
-    PmCartesian tan, helix;
+    PmCartesian uTan, dHelix, dRadial;
 
-    pmCirclePoint(circle, progress, &startpoint);
+    // Get vector in radial direction
+    pmCirclePoint(circle, angle_in, &startpoint);
     pmCartCartSub(&startpoint, &circle->center, &radius);
-    pmCartCartCross(&circle->normal, &radius, &tan);
 
-    //Helix component
+    // Find local tangent vector using planar normal
+    pmCartCartCross(&circle->normal, &radius, &uTan);
+    pmCartUnitEq(&uTan);
+
+    // find dz/dtheta and get differential movement along helical axis
     double h;
     pmCartMag(&circle->rHelix, &h);
-    if (h>0.0){
-        //Pre-scale tangent vector to unit length
-        pmCartUnitEq(&tan);
-        //No degeneracy because we have nonzero angle and radius
-        double ratio = 1.0 / (circle->radius * circle->angle);
-        //Scale the helix vector to be proportional to the unit tangent vector
-        pmCartScalMult(&circle->rHelix, ratio, &helix);
-        //Add scaled helix vector to "plane tangent" to get curve tangent vector
-        pmCartCartAdd(&helix, &tan, &tan);
-    }
+
+    double dz = 1.0 / circle->angle;
+    pmCartScalMult(&circle->rHelix, dz, &dHelix);
+
+    pmCartCartAddEq(&uTan, &dHelix);
+
+    // Find dr/dtheta and get differential movement radially due to spiral
+    double dr = circle->spiral / circle->angle;
+    pmCartUnit(&radius, &dRadial);
+    pmCartScalMultEq(&dRadial, dr);
+    pmCartCartAddEq(&uTan,&dRadial);
+
     //Normalize final output vector
-    pmCartUnit(&tan, out);
+    pmCartUnit(&uTan, out);
     return 0;
 }
 

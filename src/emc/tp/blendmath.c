@@ -34,7 +34,7 @@ double fsign(double f)
 }
 
 /** negate a value (or not) based on a bool parameter */
-inline double negate(double f, bool neg)
+inline double negate(double f, bool neg) 
 {
     return (neg) ? -f : f;
 }
@@ -87,6 +87,32 @@ int sat_inplace(double * const x, double max) {
     return 0;
 }
 
+
+/**
+ * Check if two cartesian vectors are parallel.
+ * The input tolerance specifies what the maximum angle between the
+ * lines containing two vectors is. Note that vectors pointing in
+ * opposite directions are still considered parallel, since their
+ * containing lines are parallel.
+ * @param v1 input vector 1
+ * @param v2 input vector 2
+ * @param tol angle tolerance for parallelism
+ */
+bool pmCartCartParallel(PmCartesian const * const v1,
+        PmCartesian const * const v2, double tol)
+{
+    PmCartesian u1,u2;
+    pmCartUnit(v1,&u1);
+    pmCartUnit(v2,&u2);
+    double dot;
+    pmCartCartDot(&u1, &u2, &dot);
+    double theta = acos(fabs(dot));
+    if (theta < tol) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 
 /**
@@ -295,7 +321,7 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
         return TP_ERR_FAIL;
     }
 
-
+    
 
     //Get tangent unit vectors at endpoint
     PmCartesian u_tan1, u_tan2;
@@ -321,16 +347,16 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
 
     //Identify max angle for first arc by blend limits
     // TODO better name?
-    double blend_angle_1 = param->convex1 ? theta_tan : PM_PI / 2.0;
-    double blend_angle_2 = param->convex2 ? theta_tan : PM_PI / 2.0;
+    double blend_angle_1 = param->convex1 ? theta_tan/2.0 : PM_PI / 2.0;
+    double blend_angle_2 = param->convex2 ? theta_tan/2.0 : PM_PI / 2.0;
 
-    double phi1_max = fmin(prev_tc->coords.circle.xyz.angle / 3.0, blend_angle_1);
-    double phi2_max = fmin(tc->coords.circle.xyz.angle / 3.0, blend_angle_2);
+    param->phi1_max = fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
+    param->phi2_max = fmin(tc->coords.circle.xyz.angle / 3.0, blend_angle_2);
     // Build the correct unit vector for the linear approximation
     if (param->convex1) {
         PmCartesian blend_point;
         pmCirclePoint(&prev_tc->coords.circle.xyz,
-                prev_tc->coords.circle.xyz.angle - phi1_max,
+                prev_tc->coords.circle.xyz.angle - param->phi1_max,
                 &blend_point);
         //Create new unit vector based on secant line
         // Direction is toward P (at end of segment)
@@ -345,7 +371,7 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
     if (param->convex2) {
         PmCartesian blend_point;
         pmCirclePoint(&tc->coords.circle.xyz,
-                phi2_max,
+                param->phi2_max,
                 &blend_point);
         //Create new unit vector based on secant line
         // Direction is away from P (at start of segment)
@@ -389,14 +415,16 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
     tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
 
     //Nominal length restriction prevents gobbling too much of parabolic blends
-    param->L1 = phi1_max * prev_tc->coords.circle.xyz.radius;
-    param->L2 = phi2_max * tc->coords.circle.xyz.radius;
+    param->L1 = param->phi1_max * prev_tc->coords.circle.xyz.radius;
+    param->L2 = param->phi2_max * tc->coords.circle.xyz.radius;
 
     if (param->convex1) {
-        param->L1 /= 2.0;
+        //use half of the length of the chord
+        param->L1 = sin(param->phi1_max/2.0) * prev_tc->coords.circle.xyz.radius;
     }
     if (param->convex2) {
-        param->L2 /= 2.0;
+        //use half of the length of the chord
+        param->L2 = sin(param->phi2_max/2.0) * tc->coords.circle.xyz.radius;
     }
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
@@ -650,7 +678,6 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     tp_debug_print("circ1 radius = %f\n", circ1->radius);
     tp_debug_print("circ2 radius = %f\n", circ2->radius);
 
-
     //TODO need convex1 / convex2 here to flip signs on radius
     //Find the distance from the approximate center to each circle center
     double d_guess1, d_guess2;
@@ -661,18 +688,31 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     pmCartCartSub(&points_in->arc_center, &circ2->center, &diff);
     pmCartMag(&diff, &d_guess2);
 
+    //Guess at 
+    double s_arc1 = circ1->radius * circ1->angle;
+    double s_arc2 = circ2->radius * circ2->angle;
+
+    double t1 = (1.0 - (s_arc1 - param->L1) / s_arc1);
+    double t2 = param->L2 / s_arc2;
+    double R1_local = circ1->radius + circ1->spiral * t1;
+    double R2_local = circ2->radius + circ2->spiral * t2;
+
     // From the guessed center, find the minimum radius required to intersect the circles
-    double R_final = fmin(negate(d_guess1 - circ1->radius, param->convex1),
-            negate(d_guess2 - circ2->radius, param->convex2));
+    double R_final = fmin(negate(d_guess1 - R1_local, param->convex1),
+            negate(d_guess2 - R2_local, param->convex2));
     //KLUDGE force to less than original radius or solution breaks down
     R_final = fmin(R_final, circ1->radius);
     R_final = fmin(R_final, circ2->radius);
+    if (param->convex1 || param->convex2) {
+        // Convex blends have weird side-effects, so don't increase radius
+        R_final = fmin(R_final, param->R_plan);
+    }
     tp_debug_print("d_guess1 = %f, d_guess2 = %f\n", d_guess1, d_guess2);
     tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
 
     // Define distances from actual center to circle centers
-    double d1 = negate(R_final, param->convex1) + circ1->radius;
-    double d2 = negate(R_final, param->convex2) + circ2->radius;
+    double d1 = negate(R_final, param->convex1) + R1_local;
+    double d2 = negate(R_final, param->convex2) + R2_local;
     tp_debug_print("d1 = %f, d2 = %f\n", d1, d2);
 
 
@@ -750,9 +790,6 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     PmCartesian r_C2C;
     pmCartCartSub(&points->arc_center, &circ2->center, &r_C2C);
 
-
-
-
     PmCartesian r_PC;
     pmCartCartSub(&points->arc_center, &geom->P, &r_PC);
 
@@ -762,12 +799,12 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     tp_debug_print("center_dist = %f\n", h);
 
     double T_final = h - R_final;
-   if (T_final > param->tolerance) {
-       tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
-               T_final,
-               param->tolerance);
-       return TP_ERR_FAIL;
-   }
+    if (T_final > param->tolerance) {
+        tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
+                T_final,
+                param->tolerance);
+        return TP_ERR_FAIL;
+    }
     tp_debug_print("T_final = %f\n",T_final);
 
     //Find intersection points from
@@ -787,18 +824,17 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
             points->arc_end.y,
             points->arc_end.z);
 
-
     PmCartesian r_C1P;
     pmCartCartSub(&geom->P, &circ1->center, &r_C1P);
 
     double dot;
     pmCartCartDot(&r_C1P, &r_C1C, &dot);
-    double dphi1=acos(dot / (circ1->radius * d1));
+    double dphi1=acos(saturate(dot / (circ1->radius * d1),1.0));
 
     PmCartesian r_C2P;
     pmCartCartSub(&geom->P, &circ2->center, &r_C2P);
     pmCartCartDot(&r_C2P, &r_C2C, &dot);
-    double dphi2=acos(dot / (circ2->radius * d2));
+    double dphi2=acos(saturate(dot / (circ2->radius * d2),1.0));
 
     tp_debug_print("dphi1 = %f, dphi2 = %f\n", dphi1, dphi2);
 
@@ -847,3 +883,26 @@ int blendGeom3Print(BlendGeom3 const * const geom)
             geom->u2.z);
     return 0;
 }
+
+int blendPoints3Print(BlendPoints3 const * const points)
+{
+    tp_debug_print("arc_start = %f %f %f\n",
+            points->arc_start.x,
+            points->arc_start.y,
+            points->arc_start.z);
+
+    tp_debug_print("arc_center = %f %f %f\n",
+            points->arc_center.x,
+            points->arc_center.y,
+            points->arc_center.z);
+
+    tp_debug_print("arc_end = %f %f %f\n",
+            points->arc_end.x,
+            points->arc_end.y,
+            points->arc_end.z);
+
+    return 0;
+
+}
+
+

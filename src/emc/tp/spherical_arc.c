@@ -42,13 +42,29 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     pmCartMag(&arc->rStart, &mag0);
     pmCartMag(&arc->rEnd, &mag1);
 
-    if (fabs(mag0-mag1) > ARC_POS_EPSILON) {
-        tp_debug_print("radii %f and %f are different, aborting...\n", mag0, mag1);
-        return ARC_ERR_GEOM;
-    }
+    //TODO take angle as input? might save computations
+    // Find angle between vectors to get arc angle
+    PmCartesian u0,u1;
+    pmCartUnit(&arc->rStart, &u0);
+    pmCartUnit(&arc->rEnd, &u1);
+
+#if 0
+    //Correct center by 1/2 error method
+    double err = mag1-mag0;
+    PmCartesian dStart,dEnd;
+    pmCartScalMult(&u0, err/2.0, &dStart);
+    pmCartScalMult(&u1, -err/2.0, &dEnd);
+    pmCartCartAddEq(&arc->center,&dStart);
+    pmCartCartAddEq(&arc->center,&dEnd);
+    pmCartCartSub(&arc->start, &arc->center, &arc->rStart);
+    pmCartCartSub(&arc->end, &arc->center, &arc->rEnd);
+    pmCartMag(&arc->rStart, &mag0);
+    pmCartMag(&arc->rEnd, &mag1);
+    tp_debug_print("New radii are %f and %f\n",mag0,mag1);
+#endif
 
     //Assign radius and check for validity
-    arc->radius = mag0;
+    arc->radius = (mag0 + mag1)/2.0;
 
     if (mag0 < ARC_MIN_RADIUS) {
         tp_debug_print("radius %f below min radius %f, aborting arc\n",
@@ -57,11 +73,6 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         return ARC_ERR_RADIUS;
     }
 
-    //TODO take angle as input? might save computations
-    // Find angle between vectors to get arc angle
-    PmCartesian u0,u1;
-    pmCartUnit(&arc->rStart, &u0);
-    pmCartUnit(&arc->rEnd, &u1);
 
     double dot;
     pmCartCartDot(&u0,&u1,&dot);

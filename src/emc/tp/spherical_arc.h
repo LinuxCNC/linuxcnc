@@ -18,6 +18,9 @@
 #define ARC_POS_EPSILON 1e-12
 #define ARC_MIN_RADIUS 1e-12
 #define ARC_MIN_ANGLE 1e-6
+//FIXME relate this to cornering acceleration?
+#define ARC_ABS_ERR 5e-4
+#define ARC_REL_ERR 5e-4
 
 typedef enum {
     ARC_ERR_OK = 0,
