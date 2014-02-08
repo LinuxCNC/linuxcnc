@@ -69,8 +69,11 @@ typedef struct {
     double v_actual;    /* velocity at feedscale = 1.0 */
     double s_arc;       /* arc length */
     int consume;        /* Consume the previous segment */
+    //Arc specific stuff
     int convex1;
     int convex2;
+    double phi1_max;
+    double phi2_max;
     
 } BlendParameters;
 
@@ -110,6 +113,9 @@ double pmCartMin(PmCartesian const * const in);
 
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
+
+bool pmCartCartParallel(PmCartesian const * const v1,
+        PmCartesian const * const v2, double tol);
 
 int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
