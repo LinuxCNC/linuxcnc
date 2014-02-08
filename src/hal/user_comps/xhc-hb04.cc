@@ -35,6 +35,8 @@
 #include <hal.h>
 #include <inifile.hh>
 
+#include "config.h"
+
 const char *modname = "xhc-hb04";
 int hal_comp_id;
 const char *section = "XHC-HB04";
@@ -55,8 +57,6 @@ typedef enum {
 	axis_feed = 0x15
 } xhc_axis_t;
 
-static unsigned char _old_button_step = -1;
-static unsigned char _button_step = 0;
 #define NB_MAX_BUTTONS 32
 
 typedef struct {
@@ -84,8 +84,8 @@ typedef struct {
 	hal_bit_t *jog_plus_x, *jog_plus_y, *jog_plus_z, *jog_plus_a;
 	hal_bit_t *jog_minus_x, *jog_minus_y, *jog_minus_z, *jog_minus_a;
 
-	hal_bit_t *inc_step;
-	hal_s32_t *step;
+	hal_bit_t *stepsize_up;
+	hal_s32_t *stepsize;
 	hal_bit_t *sleeping;
 } xhc_hal_t;
 
@@ -95,17 +95,20 @@ typedef struct {
 	xhc_button_t buttons[NB_MAX_BUTTONS];
 	unsigned char button_code;
 
+	unsigned char old_inc_step_status;
+	unsigned char button_step;	// Used in simulation mode to handle the STEP increment
+
 	// Variables for velocity computation
 	hal_s32_t last_jog_counts;
 	struct timeval last_tv;
+
+	struct timeval last_wakeup;
 } xhc_t;
 
 static xhc_t xhc;
 
 static int do_exit = 0;
 static int do_reconnect = 0;
-
-static struct timeval last_wakeup;
 
 struct libusb_transfer *transfer_in  = NULL;
 unsigned char in_buf[32];
@@ -118,6 +121,13 @@ iniFind(FILE *fp, const char *tag, const char *section)
     IniFile                     f(false, fp);
 
     return(f.Find(tag, section));
+}
+
+void init_xhc(xhc_t *xhc)
+{
+	memset(xhc, 0, sizeof(*xhc));
+	xhc->old_inc_step_status = -1;
+	gettimeofday(&xhc->last_wakeup, NULL);
 }
 
 int xhc_encode_float(float v, unsigned char *buf)
@@ -165,7 +175,7 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	p += xhc_encode_s16(round(60.0 * *(xhc->hal->feedrate)), p);
 	p += xhc_encode_s16(round(60.0 * *(xhc->hal->spindle_rps)), p);
 
-	switch (*(xhc->hal->step)) {
+	switch (*(xhc->hal->stepsize)) {
 	case 1:
 		buf[35] = 0x01;
 		break;
@@ -220,12 +230,16 @@ void hexdump(unsigned char *data, int len)
 	for (i=0; i<len; i++) printf("%02X ", data[i]);
 }
 
-void linuxcnc_simu(xhc_hal_t *hal)
+void linuxcnc_simu(xhc_t *xhc)
 {
 	static int last_jog_counts;
+	xhc_hal_t *hal = xhc->hal;
+
+	*(hal->stepsize_up) = (xhc->button_step && xhc->button_code == xhc->button_step);
 
 	if (*(hal->jog_counts) != last_jog_counts) {
-		float delta = (*(hal->jog_counts) - last_jog_counts) * *(hal->jog_scale);
+		int delta_int = *(hal->jog_counts) - last_jog_counts;
+		float delta = delta_int * *(hal->jog_scale);
 		if (*(hal->jog_enable_x)) {
 			*(hal->x_mc) += delta;
 			*(hal->x_wc) += delta;
@@ -247,17 +261,17 @@ void linuxcnc_simu(xhc_hal_t *hal)
 		}
 
 		if (*(hal->jog_enable_spindle)) {
-			*(hal->spindle_override) += (*hal->jog_counts) * 0.01;
+			*(hal->spindle_override) += delta_int * 0.01;
 			if (*(hal->spindle_override) > 1) *(hal->spindle_override) = 1;
 			if (*(hal->spindle_override) < 0) *(hal->spindle_override) = 0;
 			*(hal->spindle_rps) = 25000.0/60.0 * *(hal->spindle_override);
 		}
 
 		if (*(hal->jog_enable_feedrate)) {
-			*(hal->feedrate_override) += (*hal->jog_counts) * 0.01;
+			*(hal->feedrate_override) += delta_int * 0.01;
 			if (*(hal->feedrate_override) > 1) *(hal->feedrate_override) = 1;
 			if (*(hal->feedrate_override) < 0) *(hal->feedrate_override) = 0;
-			*(hal->feedrate) = 3000.0 * *(hal->feedrate_override);
+			*(hal->feedrate) = 3000.0/60.0 * *(hal->feedrate_override);
 		}
 
 		last_jog_counts = *(hal->jog_counts);
@@ -306,7 +320,23 @@ void compute_velocity(xhc_t *xhc)
 			*(xhc->hal->jog_minus_a) = 0;
 		}
 	}
- }
+}
+
+void handle_step(xhc_t *xhc)
+{
+	int _inc_step_status = 0;
+	int _stepsize = *(xhc->hal->stepsize);	// Use a local variable to avoid STEP display as 0 on pendant during transitions
+
+	_inc_step_status = *(xhc->hal->stepsize_up);
+	_inc_step_status = (xhc->button_step && xhc->button_code == xhc->button_step);
+
+	if (_inc_step_status  &&  ! xhc->old_inc_step_status) _stepsize = 10 * _stepsize;
+
+	xhc->old_inc_step_status = _inc_step_status;
+	if (_stepsize > 1000 || _stepsize <= 0) _stepsize = 1;
+	*(xhc->hal->stepsize) = _stepsize;
+	*(xhc->hal->jog_scale) = *(xhc->hal->stepsize) * 0.001f;
+}
 
 void cb_response_in(struct libusb_transfer *transfer)
 {
@@ -327,6 +357,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 		*(xhc.hal->jog_enable_a) = (xhc.axis == axis_a);
 		*(xhc.hal->jog_enable_feedrate) = (xhc.axis == axis_feed);
 		*(xhc.hal->jog_enable_spindle) = (xhc.axis == axis_spindle);
+
 		for (i=0; i<NB_MAX_BUTTONS; i++) {
 			if (!xhc.hal->button_pin[i]) continue;
 			*(xhc.hal->button_pin[i]) = (xhc.button_code == xhc.buttons[i].code);
@@ -347,10 +378,10 @@ void cb_response_in(struct libusb_transfer *transfer)
 					struct timeval now;
 					gettimeofday(&now, NULL);
 					fprintf(stderr,"Sleep, idle for %ld seconds\n",
-						               now.tv_sec - last_wakeup.tv_sec);
+						               now.tv_sec - xhc.last_wakeup.tv_sec);
 				}
 			} else {
-				gettimeofday(&last_wakeup, NULL);
+				gettimeofday(&xhc.last_wakeup, NULL);
 				if (*(xhc.hal->sleeping)) {
 					if (simu_mode) {
 						fprintf(stderr,"Wake\n");
@@ -473,11 +504,12 @@ static void hal_setup()
 	for (i=0; i<NB_MAX_BUTTONS; i++) {
 		if (!xhc.buttons[i].pin_name[0]) continue;
 		r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
+		if (strcmp("button-step", xhc.buttons[i].pin_name) == 0) xhc.button_step = xhc.buttons[i].code;
 	}
 
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->sleeping), hal_comp_id, "%s.sleeping", modname);
-    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->inc_step), hal_comp_id, "%s.stepsize-up", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->step), hal_comp_id, "%s.stepsize", modname);
+    r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
+    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
 
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
@@ -534,7 +566,7 @@ int read_ini_file(char *filename)
 
 static void Usage(char *name)
 {
-	fprintf(stderr, "%s version %s by Frederic RIBLE (frible@teaser.fr)\n", name, STRINGIFY(VERSION));
+	fprintf(stderr, "%s version %s by Frederic RIBLE (frible@teaser.fr)\n", name, PACKAGE_VERSION);
     fprintf(stderr, "Usage: %s [-I ini-file] [-h] [-H]\n", name);
     fprintf(stderr, " -I ini-file: configuration file defining the MPG keyboard layout\n");
     fprintf(stderr, " -h: usage\n");
@@ -553,6 +585,8 @@ int main (int argc,char **argv)
 
     int opt;
 
+    init_xhc(&xhc);
+
     while ((opt = getopt(argc, argv, "HhI:")) != -1) {
         switch (opt) {
         case 'I':
@@ -566,10 +600,13 @@ int main (int argc,char **argv)
             exit(EXIT_FAILURE);
         }
     }
-	if (simu_mode) hal_setup();
+
+    hal_setup();
 
 	signal(SIGINT, quit);
 	signal(SIGTERM, quit);
+
+	if (!simu_mode) hal_ready(hal_comp_id);
 
 	while (!do_exit) {
     	//on reconnect wait for device to be gone
@@ -609,10 +646,6 @@ int main (int argc,char **argv)
 				sleep(1);
 			}
 		} while(dev_handle == NULL && !do_exit);
-        if (!simu_mode) {
-			hal_setup();
-			hal_ready(hal_comp_id);
-		}
 
 		printf("%s: found XHC-HB04 device\n",modname);
 
@@ -640,20 +673,9 @@ int main (int argc,char **argv)
 				tv.tv_usec = 30000;
 				r = libusb_handle_events_timeout(NULL, &tv);
 				compute_velocity(&xhc);
-				if (!simu_mode) {
-					_button_step = *(xhc.hal->inc_step);
-					if (_button_step  &&  ! _old_button_step) {
-						*(xhc.hal->step) = 10* *(xhc.hal->step);
-					}
-					*(xhc.hal->jog_scale) = *(xhc.hal->step) * 0.001f;
-					_old_button_step = _button_step;
-				}
-			    if (simu_mode) linuxcnc_simu(xhc.hal);
+			    if (simu_mode) linuxcnc_simu(&xhc);
+				handle_step(&xhc);
 				xhc_set_display(dev_handle, &xhc);
-				if (   *(xhc.hal->step) > 1000
-					|| *(xhc.hal->step) <= 0) {
-					*(xhc.hal->step) = 1;
-				}
 			}
 			printf("%s: connection lost, cleaning up\n",modname);
 			libusb_cancel_transfer(transfer_in);
