@@ -1,3 +1,9 @@
+ver. 0.9.9.9.6
+- solved show tool edit after program run
+  after running a program and changing back to manual mode it was not 
+  possible to enter again the tool edit tab, as we where taken to MDI mode
+  this was mainly caused by the check for G43 beeing active.
+
 ver. 0.9.9.9.5
 - changed override behavior:
   feed override reduce the max velocity and the feed velocity, 

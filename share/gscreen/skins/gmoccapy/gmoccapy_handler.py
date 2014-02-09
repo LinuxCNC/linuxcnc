@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.5"
+_RELEASE = "0.9.9.9.6"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -145,7 +145,7 @@ class HandlerClass:
 
         self.distance = 0 # This global will hold the jog distance
         self.interpreter = _IDLE # This hold the interpreter state, so we could check if actions are allowed
-        self.wait_tool_change = False # this is needed to get back to manual mode after a tool change
+        self.tool_change = False # this is needed to get back to manual mode after selecting tools by button
         self.macrobuttons = [] # The list of all macrios defined in the INI file
         self.log = False # decide if the actions should be loged
         self.fo_counts = 0 # need to calculate diference in counts to change the feed override slider
@@ -705,7 +705,7 @@ class HandlerClass:
                                    stdout = subprocess.PIPE,
                                    close_fds = True )
             sid = self.onboard_kb.stdout.readline()
-            # print"keyboard", sid # skip header line
+            # print("keyboard", sid # skip header line)
             socket = gtk.Socket()
             socket.show()
             self.widgets.key_box.add( socket )
@@ -1110,7 +1110,7 @@ class HandlerClass:
                 self.on_btn_jog_released( widget )
         else:
             print( "This key has not been implemented yet" )
-            print "Key %s (%d) was pressed" % ( keyname, event.keyval ), signal, self.last_key_event
+            print( "Key %s (%d) was pressed" % ( keyname, event.keyval ), signal, self.last_key_event )
         self.last_key_event = keyname, signal
         return True
 
@@ -1242,7 +1242,7 @@ class HandlerClass:
     # kill keyboard and estop machine before closing
     def on_window1_destroy( self, widget, data = None ):
         self.kill_keyboard()
-        print "estopping / killing gscreen"
+        print ( "estopping / killing gscreen" )
         self.command.state( self.linuxcnc.STATE_OFF )
         self.command.state( self.linuxcnc.STATE_ESTOP )
         time.sleep( 2 )
@@ -1900,7 +1900,7 @@ class HandlerClass:
             if item[1] == old_value:
                 new_tupple = ( item[0], new_value )
                 item = new_tupple
-                print"replaced %s to %s" % ( old_value, new_value )
+                print( "replaced %s to %s" % ( old_value, new_value ) )
             self.h_tabs[int_tab].append( item )
 
     def on_btn_zero_g92_clicked( self, widget, data = None ):
@@ -2305,8 +2305,8 @@ class HandlerClass:
     def on_btn_tool_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "btn_tool_clicked" )
         self.widgets.ntb_button.set_current_page( 7 )
+        # self._update_toolinfo( self.stat.tool_in_spindle )
         self._show_tooledit_tab( True )
-        self._update_toolinfo( self.stat.tool_in_spindle )
 
     def _show_tooledit_tab( self, state ):
         page = self.widgets.ntb_preview.get_nth_page( 2 )
@@ -2346,21 +2346,7 @@ class HandlerClass:
         else:
             self.halcomp['tool-changed'] = False
 
-#     # message dialog returns a response here
-#     # this def overrides the gscreen response
-#     # This includes the manual tool change dialog
-#     # We know this by the pinname being called 'TOOLCHANGE'
-#     def dialog_return( self, widget, result, dialogtype, pinstatus, pinname ):
-#         if pinname == "TOOLCHANGE":
-#             self.halcomp["tool-changed"] = True
-#             widget.destroy()
-#         print( "Result = ", result )
-#         widget.destroy()
-
     def _update_toolinfo( self, tool ):
-        # lets get the mode we are at the moment
-        # so after emmitting MDI commands we can switch back to wheer we started
-        mode = self.stat.task_mode
         toolinfo = self.widgets.tooledit1.get_toolinfo( tool )
         if toolinfo:
             # Doku
@@ -2397,26 +2383,16 @@ class HandlerClass:
             self.widgets.btn_tool_touchoff_x.set_sensitive( True )
             self.widgets.btn_tool_touchoff_z.set_sensitive( True )
 
-        if "G43" in self.data.active_gcodes and self.stat.task_mode != _AUTO:
+        if "G43" in self.data.active_gcodes and self.stat.task_mode != self.linuxcnc.MODE_AUTO:
             self.command.mode( self.linuxcnc.MODE_MDI )
             self.command.wait_complete()
-            self.gscreen.mdi_control.user_command( "G43" )
-
-        # if we are in the tooledit page, we set the current tool active
-        if self.widgets.ntb_button.get_current_page() == 7:
-            self.widgets.tooledit1.set_selected_tool( tool )
-
-        # now lets see if we have to change back to old mode
-        if self.stat.task_mode != mode:
-            self.command.mode( mode )
+            self.command.mdi( "G43" )
             self.command.wait_complete()
 
-#        # If we are on page 1, we are in MDI Mode, so we would not go back
-#        # to manual mode, in any other case we will do that
-#        if self.widgets.ntb_button.get_current_page() != 1:
-#            self.wait_tool_change = True
-#            self.on_hal_status_interp_idle( self )
-
+        if self.tool_change:
+            self.tool_change = False
+            self.command.mode( self.linuxcnc.MODE_MANUAL )
+            self.command.wait_complete()
 
     def on_btn_delete_tool_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "on_btn_delete_tool_clicked" )
@@ -2494,7 +2470,7 @@ class HandlerClass:
             self.command.wait_complete()
             self.command.mode( self.linuxcnc.MODE_MANUAL )
             self.command.wait_complete()
-            self._update_toolinfo( self.stat.tool_in_spindle )
+            # self._update_toolinfo( self.stat.tool_in_spindle )
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked( self, widget, data = None ):
@@ -2516,11 +2492,11 @@ class HandlerClass:
             self.gscreen.add_alarm_entry( message )
             return
         else:
+            self.tool_change = True
             self.command.mode( self.linuxcnc.MODE_MDI )
             self.command.wait_complete()
             command = "T%s M6" % int( value )
             self.command.mdi( command )
-            self.wait_tool_change = True
 
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked( self, widget, data = None ):
@@ -2536,8 +2512,8 @@ class HandlerClass:
             self.gscreen.add_alarm_entry( message )
             return
         if tool or tool == 0:
+            self.tool_change = True
             tool = int( tool )
-            self.wait_tool_change = True
             self.command.mode( self.linuxcnc.MODE_MDI )
             self.command.wait_complete()
 
@@ -2824,10 +2800,6 @@ class HandlerClass:
             btn.set_sensitive( True )
         self.widgets.btn_show_kbd.set_image( self.widgets.img_keyboard )
         self.widgets.btn_run.set_sensitive( True )
-        if self.wait_tool_change == True:
-            self.command.mode( self.linuxcnc.MODE_MANUAL )
-            self.command.wait_complete()
-            self.wait_tool_change = False
         self.interpreter = _IDLE
         self.data.restart_dialog = None
 
@@ -2909,7 +2881,7 @@ class HandlerClass:
             self.widgets.tbtn_on.set_active( True )
 
     def on_hal_status_mode_manual( self, widget ):
-        print"Manual"
+        print( "Manual Mode" )
         self.widgets.rbt_manual.set_active( True )
         # setup page will be activated, if we don't leave, the pages will be reset with this call
         if self.widgets.tbtn_setup.get_active() == True:
@@ -2920,7 +2892,9 @@ class HandlerClass:
         self.widgets.ntb_jog.set_current_page( 0 )
 
     def on_hal_status_mode_mdi( self, widget ):
-        print "MDI"
+        print ( "MDI Mode" )
+        if self.tool_change:
+            return
         # if MDI button is not sensitive, we are not ready for MDI commands
         # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
@@ -2941,7 +2915,7 @@ class HandlerClass:
             self.widgets.rbt_mdi.set_active( True )
 
     def on_hal_status_mode_auto( self, widget ):
-        print "auto"
+        print ( "Auto Mode" )
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
@@ -2991,7 +2965,7 @@ class HandlerClass:
         e = self.error_channel.poll()
         if e:
             kind, text = e
-            # print kind,text
+            # print( kind,text)
             if "joint" in text:
                 for letter in self.data.axis_list:
                     axnum = "xyzabcuvws".index( letter )
