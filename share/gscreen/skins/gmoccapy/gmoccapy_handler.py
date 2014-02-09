@@ -3264,10 +3264,14 @@ class HandlerClass:
                 print( "%s not_sensitive" % button )
                 self.gscreen.add_alarm_entry( "%s not_sensitive" % button )
                 return
-            button_pressed_list = ( "rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup" )
+            button_pressed_list = ( "rbt_manual", "rbt_mdi", "rbt_auto" )
+            button_toggled_list = ( "tbtn_setup" )
             if button in button_pressed_list:
                 self.widgets[button].set_active( True )
                 self.widgets[button].emit( "pressed" )
+            elif button in button_toggled_list:
+                state = self.widgets[button].get_active()
+                self.widgets[button].set_active( not state )
             else:
                 self.widgets[button].emit( "clicked" )
         else:

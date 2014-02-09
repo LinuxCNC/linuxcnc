@@ -1,3 +1,7 @@
+ver. 0.9.9.9.8
+- toggle button setup was not handled correct by hardware 
+  momentary switches, fixed that
+
 ver. 0.9.9.9.7
 - add gcode highlight by clicking in the preview
   clicking a line in the preview will highlight the
