@@ -97,6 +97,7 @@ typedef struct {
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
+    double term_vel;        // actual velocity at termination of segment
 
     //Acceleration
     double maxaccel;        // accel calc'd by task
