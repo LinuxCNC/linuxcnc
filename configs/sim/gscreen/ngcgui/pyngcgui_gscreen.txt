@@ -1,4 +1,5 @@
-pyngcgui_gscreen
+Demonstrates gladevcp apps in gscreen tabs:
+   
+ pyngcgui ------ subroutine utility 
+ gremlin_view -- gremlin with some buttons
 
-demonstrates pyngcgui as a gladevcp app
-in gscreen gui

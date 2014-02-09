@@ -1,0 +1,10 @@
+
+o<sub> sub
+    g91
+    g0 x0.001
+    g4 p0.5
+    t#1 m6
+o<sub> endsub
+
+m2
+

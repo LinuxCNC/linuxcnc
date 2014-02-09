@@ -240,6 +240,8 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             return -1;
         }
 
+        old_inihal_data.max_velocity[axis] = maxVelocity;
+
         maxAcceleration = DEFAULT_AXIS_MAX_ACCELERATION;
         axisIniFile->Find(&maxAcceleration, "MAX_ACCELERATION", axisString);
 
@@ -249,6 +251,8 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+
+        old_inihal_data.max_acceleration[axis] = maxAcceleration;
 
         comp_file_type = 0;             // default
         axisIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", axisString);

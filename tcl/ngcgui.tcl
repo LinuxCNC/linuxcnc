@@ -38,7 +38,7 @@
 # named "O" words available since: LinuxCNC 2.3.0, April 19, 2009
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2012
+# Copyright: 2010-2013
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -439,6 +439,19 @@
 #     global named readonly variables.
 #     Ngcgui support for input global variables is a declining feature
 #     to be removed for 2.6
+
+# 27. Ngcgui supports .gcmc files (for gcmc the G-Code Meta Compiler)
+#         http://www.vagrearg.org/content/gcmc
+#     Special tags in the .gcmc file are used to:
+#         1) specify the info text for the tab page (optional)
+#         1) specify variable names requiring an ngcgui entry box
+#         2) specify gcmc options (optional)
+#
+#     When creating a feature from a gcmc file, the gcmc program
+#     is run with the variable values from the entry boxes and the gcmc
+#     options specified.
+#     
+
 #-----------------------------------------------------------------------
 
 namespace eval ::ngcgui {
@@ -463,7 +476,7 @@ if {"" == [info command "_"]} {
 }
 
 #-----------------------------------------------------------------------
-proc ::ngcgui::parse {hdl ay_name filename args} {
+proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
   # return 1 for ok
   # return 0 for error and lappend to (parse,msg)
   upvar $ay_name ay
@@ -483,41 +496,9 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   set basename [file tail $filename]
   set idx [string last . $basename]
   set ay($hdl,subroutine,name) [string replace $basename $idx end]
-#puts "parse $hdl $filename"
   new_image $hdl $filename
 
-  if {$ay($hdl,retainvalues)} {
-    # _globals:             retain all
-    # positional parameters: retain some
-    foreach n [array names ay $hdl,arg,name,*] {
-      # example:
-      # exists    arg,name,03      == xloc
-      #           arg,value,03     == 999
-      # set       arg,byname,xloc  == 999
-      set num [string range $n [expr 1+[string last , $n]] end]
-      set name $ay($n)
-      if ![info exists ay($hdl,arg,value,$num)] continue
-      if {[string first # $name] != 0} {
-        set ay($hdl,arg,byname,$name) $ay($hdl,arg,value,$num)
-      }
-    }
-  } else {
-    # retaining none
-    foreach n [array names ay $hdl,global,name,*]    {unset ay($n)}
-    foreach n [array names ay $hdl,global,value,*]   {unset ay($n)}
-    foreach n [array names ay $hdl,arg,value*]       {unset ay($n)}
-    foreach n [array names ay $hdl,arg,byname,*]     {unset ay($n)}
-  }
-  # always unset these
-  foreach n [array names ay $hdl,arg,name,*]           {unset ay($n)}
-  foreach n [array names ay $hdl,arg,comment,*]        {unset ay($n)}
-  foreach n [array names ay $hdl,arg,value,*]          {unset ay($n)}
-  foreach n [array names ay $hdl,arg,dvalue,*]         {unset ay($n)}
-  foreach n [array names ay $hdl,global,name,*]        {unset ay($n)}
-  foreach n [array names ay $hdl,global,comment,*]     {unset ay($n)}
-  foreach n [array names ay $hdl,global,dvalue,*]      {unset ay($n)}
-  foreach n [array names ay $hdl,global,entrywidget,*] {unset ay($n)}
-  foreach n [array names ay $hdl,arg,entrywidget,*]    {unset ay($n)}
+  retain_or_unset $hdl $ay_name
 
   set min_num 999999; set max_num -1
   set last_num 0
@@ -905,6 +886,211 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   return 1 ;# ok
 } ;# parse
 
+proc retain_or_unset {hdl ay_name} {
+  upvar $ay_name ay
+  if {$ay($hdl,retainvalues)} {
+    # _globals:             retain all
+    # positional parameters: retain some
+    foreach n [array names ay $hdl,arg,name,*] {
+      # example:
+      # exists    arg,name,03      == xloc
+      #           arg,value,03     == 999
+      # set       arg,byname,xloc  == 999
+      set num [string range $n [expr 1+[string last , $n]] end]
+      set name $ay($n)
+      if ![info exists ay($hdl,arg,value,$num)] continue
+      if {[string first # $name] != 0} {
+        set ay($hdl,arg,byname,$name) $ay($hdl,arg,value,$num)
+      }
+    }
+  } else {
+    # retaining none
+    foreach n [array names ay $hdl,global,name,*]    {unset ay($n)}
+    foreach n [array names ay $hdl,global,value,*]   {unset ay($n)}
+    foreach n [array names ay $hdl,arg,value*]       {unset ay($n)}
+    foreach n [array names ay $hdl,arg,byname,*]     {unset ay($n)}
+  }
+  # always unset these
+  foreach n [array names ay $hdl,arg,name,*]           {unset ay($n)}
+  foreach n [array names ay $hdl,arg,comment,*]        {unset ay($n)}
+  foreach n [array names ay $hdl,arg,value,*]          {unset ay($n)}
+  foreach n [array names ay $hdl,arg,dvalue,*]         {unset ay($n)}
+  foreach n [array names ay $hdl,global,name,*]        {unset ay($n)}
+  foreach n [array names ay $hdl,global,comment,*]     {unset ay($n)}
+  foreach n [array names ay $hdl,global,dvalue,*]      {unset ay($n)}
+  foreach n [array names ay $hdl,global,entrywidget,*] {unset ay($n)}
+  foreach n [array names ay $hdl,arg,entrywidget,*]    {unset ay($n)}
+
+  catch {
+    foreach n [array names ::ngc_sub $hdl,*] {
+      unset ::ngc_sub($n)
+    }
+  }
+} ;# retain_or_unset
+#-----------------------------------------------------------------------
+proc ::ngcgui::find_gcmc {} {
+  if [catch {set found [exec which gcmc]} msg] {
+    puts stderr "find_gcmc:NOTfound:<$msg>"
+    return ""
+  } else {
+    #puts stderr "find_gcmc:found:$found"
+  }
+  return $found
+} ;# find_gcmc
+
+proc ::ngcgui::parse_gcmc {hdl ay_name filename args} {
+  # return 1 for ok
+  # return 0 for error and lappend to (parse,msg)
+  upvar $ay_name ay
+  set ay($hdl,parse,msg) ""
+
+  if ![info exists ::ngc(any,gcmc,executable)] {
+    set result [find_gcmc]
+    if {"$result" == ""} {
+      lappend ay($hdl,parse,msg) "[_ "Cannot find gcmc executable"]"
+      lappend ay($hdl,parse,msg) "[_ "Please Install in path"]"
+      return 0
+    } else {
+      set ::ngc(any,gcmc,executable) [find_gcmc]
+      # outdir has to be in path
+      # use first dir in path as dir for temporary ofile
+      set ::ngc(any,gcmc,outdir) [file normalize [lindex $::ngc(any,paths) 0]]
+
+      set ::ngc(any,gcmc,funcname) tmpgcmc ;# append session id and suffix
+      # clean up prior runs by moving to tmp
+      if ![catch  {set flist [glob [file join $::ngc(any,gcmc,outdir) \
+                             $::ngc(any,gcmc,funcname)]*] } msg] {
+        file mkdir /tmp/oldgcmc
+        foreach f $flist {
+           #puts " file rename $f /tmp/[file tail $f]"
+           file rename -force $f [file join /tmp/oldgcmc [file tail $f]]
+        }
+      }
+    }
+    
+    set ct 1
+    # catch: early versions of gcmc returns $?=1
+    if [catch {set ans [exec $::ngc(any,gcmc,executable) --version]
+              }  msg ] {
+      puts stderr "parse_gcmc: unexpected version:<$msg>"
+    } else {
+      foreach line [split $ans \n] {
+        set ::ngc(any,gcmc,version,line$ct) $line
+        incr ct
+      }
+      puts stderr "gcmc    path: $::ngc(any,gcmc,executable)"
+      puts stderr "gcmc version: $::ngc(any,gcmc,version,line1)"
+    }
+  }
+
+  # default info, supersede expected:
+  set ay($hdl,info) "[_ "Current subfile: $filename"]"
+  catch {unset ::ngc($hdl,gcmc,opts)} ;# no retain on reread
+
+  if {"$filename" == ""} {
+    lappend ay($hdl,parse,msg) "[_ "Need non-null file name"]"
+    return 0
+  }
+  if [catch {set fd [open $filename r]} msg] {
+    lappend ay($hdl,parse,msg) $msg
+    return 0
+  }
+  set basename [file tail $filename]
+  set idx [string last . $basename]
+  set ay($hdl,subroutine,name) [string replace $basename $idx end]
+  new_image $hdl $filename
+
+  retain_or_unset $hdl $ay_name 
+
+  set min_num 999999; set max_num -1
+  set ay($hdl,label_maxwidth) 0
+
+  set lno 1
+  set num 1
+  set num02 [format %02d $num]
+  set names {}
+  while {![eof $fd]} {
+    gets $fd theline
+    incr lno
+    #remove blanks and tabs
+    set theline [string trim $theline]
+    # consider // comments only
+    if {[string first "//" $theline] != 0} continue
+    # The '*', '+', and '?' qualifiers are all greedy.
+    #    Greedy <.*>  matches all of <H1>title</H1>
+    # NonGreedy <.*?> matches the only first <H1>
+
+    # // ngcgui : info: describing text
+    set einfo "^ *\\/\\/ *ngcgui *: *info: *\(.*?\)"
+    if {[regexp $einfo $theline match info]} {
+      set ay($hdl,info) $info
+      continue
+    }
+
+    set eopt "^ *\\/\\/ *ngcgui *: *\(-.*\)$"
+    if {[regexp $eopt $theline match opt]} {
+      lappend ::ngc($hdl,gcmc,opts) $opt
+      continue
+    }
+
+    catch {unset name dvalue comment}
+    # // ngcgui : name [= value [,comment]]
+    set e1 "^ *\\/\\/ *ngcgui *: *\(.*?\) *= *\(.*?\) *\, *\(.*?\) *$"
+    set e2 "^ *\\/\\/ *ngcgui *: *\(.*?\) *= *\(.*?\) *$"
+    set e3 "^ *\\/\\/ *ngcgui *: *\(.*?\) *$"
+    if {[regexp $e1 $theline match name dvalue comment]} {
+      #puts "1_____<$name>,<$dvalue>,<$comment>"
+    } elseif {[regexp $e2 $theline match name dvalue]} {
+      #puts "2_____<$name>,<$dvalue>"
+    } elseif {[regexp $e3 $theline match name]} {
+      #puts "3_____<$name>"
+    } else {
+      continue
+    }
+    if {[lsearch $names $name] >= 0} {
+      puts "duplicate name, first one wins <$name>"
+      # could be an error:
+      # lappend emsg "[_ "duplicate name <$name>"]"
+      continue
+    }
+    lappend names $name
+    set ay($hdl,arg,name,$num02) $name
+    if [info exists dvalue] {
+      # this is a convenience to make it simple to edit to
+      # add a var without removing the semicolon
+      #    xstart = 10;
+      #    //ngcgui: xstart = 10;
+      set dvalue [lindex [split $dvalue ";"] 0] ;# strip after a ";"
+      set ay($hdl,arg,dvalue,$num02) $dvalue
+    }
+    if [info exists comment] {
+      set ay($hdl,arg,comment,$num02) $comment
+    } else {
+      set ay($hdl,arg,comment,$num02) $name
+    }
+    incr num
+    set num02 [format %02d $num]
+  } ;# while !eof
+
+  close $fd
+  set ay($hdl,argct) [llength $names]
+
+   # gcmc files with no args are allowed
+   #  if {$ay($hdl,argct) <= 0} {
+   #     lappend emsg "[_ "gcmc file with no args"]"
+   #  }
+  if {$ay($hdl,argct) > 30} {
+     lappend emsg "[_ "gcmc file with too many args <$::ay($hdl,argct)"]"
+  }
+
+  # error checks
+  if [info exists emsg] {
+    set ay($hdl,parse,msg) $emsg
+    return 0
+  }
+  return 1 ;# ok
+} ;# parse_gcmc
+
 proc ::ngcgui::dt {} {
   return [clock format [clock seconds] -format %y%m%d:%H.%M.%S]
 } ;# dt
@@ -1057,8 +1243,9 @@ proc ::ngcgui::gui {hdl mode args} {
       set ::ngc($hdl,id)      0
       set ::ngc($hdl,savect)  0
       conf $hdl restart,widget state disabled
-      set ::ngc($hdl,ftypes)  { {{NGC} {.ngc}} }
-
+      set ::ngc($hdl,ftypes)  { {{NGC}   {.ngc}} \
+                                {{GCMC} {.gcmc}} \
+                              }
       # initializations:
       set ::ngc($hdl,data,preamble)    ""
       set ::ngc($hdl,data,postamble)   ""
@@ -1191,6 +1378,7 @@ proc ::ngcgui::gui {hdl mode args} {
             -command [list ::ngcgui::aftertoggle $hdl expandsubroutine] \
             -variable ::ngc($hdl,expandsubroutine)]
       pack $b -side left -fill x -expand 1
+      set ::ngc($hdl,expandsubroutine,widget) $b
 
 if {1} {
       set w [frame $wI.[qid]]
@@ -1466,7 +1654,17 @@ if {0} {
       return
     }
     readsubfile {
-      if {   ![string match *.ngc $::ngc($hdl,fname,subfile)] } {
+      set parsecmd ::ngcgui::parse_ngc
+      if {[string match *.gcmc $::ngc($hdl,fname,subfile)] } {
+        set parsecmd ::ngcgui::parse_gcmc
+        set ::ngc($hdl,gcmc,file) $::ngc($hdl,fname,subfile)
+        $::ngc($hdl,expandsubroutine,widget) configure -state disable
+      } else {
+        $::ngc($hdl,expandsubroutine,widget) configure -state normal
+      }
+      if {   ![string match *.ngc $::ngc($hdl,fname,subfile)] \
+          && ![string match *.gcmc $::ngc($hdl,fname,subfile)] \
+         } {
         set ::ngc($hdl,fname,subfile) "$::ngc($hdl,fname,subfile).ngc"
       }
       # uses two pack/unpack frames wG,wP
@@ -1488,9 +1686,8 @@ if {0} {
        set ::ngc($hdl,fname,subfile) "$::ngc($hdl,fname,subfile).ngc"
       }
       # read and parse the file
-
       set ::ngc($hdl,dname,subfile) [file tail $::ngc($hdl,fname,subfile)]
-      if ![parse $hdl ::ngc $::ngc($hdl,fname,subfile)] {
+      if ![$parsecmd $hdl ::ngc $::ngc($hdl,fname,subfile)] {
         # case where user can't recover
         if {$::ngc(opt,noinput) && !$::ngc($hdl,chooser)} {
           set ::ngc($hdl,fail) "subfile:$::ngc($hdl,parse,msg)";# unrecoverable
@@ -1683,6 +1880,9 @@ if {0} {
         if {[string match *.ngc $tabname] } {
           set     idx [string last .ngc $tabname]
           set tabname [string replace $tabname $idx end ""]
+        } elseif {[string match *.gcmc $tabname] } {
+          set     idx [string last .gcmc $tabname]
+          set tabname [string replace $tabname $idx end ""]
         }
         # show last subfile used as page name
         $::ngc(any,axis,parent) itemconfigure $::ngc($hdl,axis,page) \
@@ -1789,10 +1989,6 @@ if {0} {
         return
       }
 
-      # could check for number here using %f
-      set gfmt "% 12s = %s"  ;# _global
-      set pfmt "%12s = %s"   ;# positional
-      set cfmt "(%11s = %12s = %12s)" ;# positional comment form
 
       if $::ngc($hdl,verbose) {
         lappend ::ngc($hdl,data,section) \
@@ -1847,52 +2043,10 @@ if {0} {
         }
       }
 
-      if {$::ngc($hdl,expandsubroutine)} {
-        # id for unique label when expanding multiple sub files
-        set id $::ngc($hdl,id)
-        set uwidth 3 ;# extra width for unique label 000-999
-        # $uwdith characters in unique ids
-        set id [format %0${uwidth}d $::ngc($hdl,id)]
-        incr ::ngc($hdl,id)
-        lappend ::ngc($hdl,data,section) \
-                 "([_ "Positional parameters for"] $::ngc($hdl,fname,subfile):)"
-        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
-          set num02 [format %02d $i]
-          set name  $::ngc($hdl,arg,value,$num02)
-          lappend ::ngc($hdl,data,section) [format $pfmt #$i $name ]
-        }
-        # expand the subroutine in place
-        lappend ::ngc($hdl,data,section) \
-                "([_ "expanded file"]: $::ngc($hdl,fname,subfile))"
-        for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
-          if [info exists ::ngc_sub($hdl,$i,label)] {
-            lappend ::ngc($hdl,data,section) \
-                    "o<$id$::ngc_sub($hdl,$i,label)> $::ngc_sub($hdl,$i)"
-          } else {
-            lappend ::ngc($hdl,data,section)  \
-                    [format %${uwidth}s%s "" " $::ngc_sub($hdl,$i)"]
-          }
-        }
+      if [info exists ::ngc($hdl,gcmc,file)] {
+        if ![savesection_gcmc $hdl] {return} ;# .gcmc file
       } else {
-        # insert the subroutine call
-        if $::ngc($hdl,verbose) {
-          lappend ::ngc($hdl,data,section) \
-               "($::ngc(any,app): [_ "call subroutine file"]: $::ngc($hdl,fname,subfile))"
-          lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
-        }
-        set cline "o<$::ngc($hdl,subroutine,name)> call "
-        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
-          set num02 [format %02d $i]
-          set name  $::ngc($hdl,arg,name,$num02)
-          if {[string first # $name] == 0} {set name "?"}
-          # documenting comment
-          if $::ngc($hdl,verbose) {
-            lappend ::ngc($hdl,data,section) \
-                  [format $cfmt #$i $name $::ngc($hdl,arg,value,$num02)]
-          }
-          set cline "$cline\[$::ngc($hdl,arg,value,$num02)\]"
-        }
-          lappend ::ngc($hdl,data,section) "$cline"
+        if ![savesection_ngc $hdl] {return} ;# conventional .ngc file
       }
 
      if {"$::ngc($hdl,fname,postamble)" == "IMMEDIATE"} {
@@ -2044,6 +2198,7 @@ if {0} {
         }
       }
       close $fout
+      set ::ngc(any,gcmc,id) 0 ;# restart after finalize
 
       set ::ngc($hdl,last,outfile) $::ngc($hdl,fname,outfile)
       # just in case you need it later, save a dated copy in /tmp
@@ -2080,6 +2235,220 @@ if {0} {
   }
   puts stderr "[_ "NOTREACHED mode"]=<$mode>"
 } ;# gui
+
+proc ::ngcgui::savesection_ngc {hdl} {
+  # could check for number here using %f
+  set gfmt "% 12s = %s"  ;# _global
+  set pfmt "%12s = %s"   ;# positional
+  set cfmt "(%11s = %12s = %12s)" ;# positional comment form
+
+  if {$::ngc($hdl,expandsubroutine)} {
+    # id for unique label when expanding multiple sub files
+    set id $::ngc($hdl,id)
+    set uwidth 3 ;# extra width for unique label 000-999
+    # $uwdith characters in unique ids
+    set id [format %0${uwidth}d $::ngc($hdl,id)]
+    incr ::ngc($hdl,id)
+    lappend ::ngc($hdl,data,section) \
+             "([_ "Positional parameters for"] $::ngc($hdl,fname,subfile):)"
+    for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+      set num02 [format %02d $i]
+      set name  $::ngc($hdl,arg,value,$num02)
+      lappend ::ngc($hdl,data,section) [format $pfmt #$i $name ]
+    }
+    # expand the subroutine in place
+    lappend ::ngc($hdl,data,section) \
+            "([_ "expanded file"]: $::ngc($hdl,fname,subfile))"
+    for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
+      if [info exists ::ngc_sub($hdl,$i,label)] {
+        lappend ::ngc($hdl,data,section) \
+                "o<$id$::ngc_sub($hdl,$i,label)> $::ngc_sub($hdl,$i)"
+      } else {
+        lappend ::ngc($hdl,data,section)  \
+                [format %${uwidth}s%s "" " $::ngc_sub($hdl,$i)"]
+      }
+    }
+  } else {
+    # insert the subroutine call
+    if $::ngc($hdl,verbose) {
+      lappend ::ngc($hdl,data,section) \
+           "($::ngc(any,app): [_ "call subroutine file"]: $::ngc($hdl,fname,subfile))"
+      lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
+    }
+    set cline "o<$::ngc($hdl,subroutine,name)> call "
+    for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+      set num02 [format %02d $i]
+      set name  $::ngc($hdl,arg,name,$num02)
+      if {[string first # $name] == 0} {set name "?"}
+      # documenting comment
+      if $::ngc($hdl,verbose) {
+        lappend ::ngc($hdl,data,section) \
+              [format $cfmt #$i $name $::ngc($hdl,arg,value,$num02)]
+      }
+      set cline "$cline\[$::ngc($hdl,arg,value,$num02)\]"
+    }
+    lappend ::ngc($hdl,data,section) "$cline"
+  }
+  return 1 ;# ok
+} ;# savesection_ngc
+
+proc ::ngcgui::savesection_gcmc {hdl} {
+#puts =====================================
+#parray ::ngc $hdl,arg,*
+#parray ::ngc $hdl,gcmc,*
+#parray ::ngc any,gcmc,*
+#parray ::ngc $hdl,argct
+#puts =====================================
+  # could check for number here using %f
+  set cfmt "(%12s = %12s)" ;# positional comment form
+
+  # maybe implement later, expand after calling gcmc below
+  if {$::ngc($hdl,expandsubroutine)} {
+    set answer [tk_dialog .notdoneyet \
+      "Not done yet"\
+      "Expand subroutine not supported for gcmc files - continuing"\
+      warning -1 \
+      "OK"]
+  }
+
+    if ![info exists ::ngc(any,gcmc,id)] {
+      set ::ngc(any,gcmc,id) 0
+    }
+    incr ::ngc(any,gcmc,id) ;# id for any hdl
+
+    set funcname $::ngc(any,gcmc,funcname)
+    # gcmc chars: (allowed: [a-z0-9_-])
+    set funcname ${funcname}-[format %02d $::ngc(any,gcmc,id)]
+
+    # use first one found in searchpath:
+    set ifile [file normalize \
+                    [pathto [file tail $::ngc($hdl,gcmc,file)]]]
+    set ::ngc($hdl,gcmc,realfile) $ifile
+
+    set ofile [file join $::ngc(any,gcmc,outdir) $funcname.ngc]
+
+    set cmd $::ngc(any,gcmc,executable)
+    set opts ""
+    set opts "$opts --output $ofile"
+    set opts "$opts --gcode-function $funcname"
+    if [info exists ::ngc($hdl,gcmc,opts)] {
+      foreach opt $::ngc($hdl,gcmc,opts) {
+        set opts "$opts $opt"
+      }
+    }
+    if {$::ngc($hdl,argct) > 0} {
+      for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+        set idx [format %02d $i]
+        set opts "$opts --define=$::ngc($hdl,arg,name,$idx)=$::ngc($hdl,arg,value,$idx)"
+      }
+    }
+     
+#   puts stderr "     cmd=$cmd"
+#   puts stderr "    opts=$opts"
+#   puts stderr "   ifile=$ifile"
+#   puts stderr "funcname=$funcname"
+#   puts stderr "     pwd=[pwd]"
+#   puts stderr "  exists=[file exists $ifile]"
+
+    set eline "$cmd $opts $ifile"
+    if $::ngc($hdl,verbose) {
+      puts stdout "eline=$eline"
+    }
+
+    #tclsh considers any output on stderr as an error
+    # -ignorestderr lets it pass so that --precision 2 
+    # would not cause an error but then there are no
+    # error messages even for hard ($? !=0) errors, just 
+    #    "child process exited abnormally"
+    # so warnings ($?=0) cause abort even though file created
+    # partial file may be left on error so you cant tell by existence
+    # so, parse each warning message 
+
+    # parse messages on stderr from gcmc
+    set e_message ".*Runtime message\\(\\): *\(.*\)"
+    set e_warning ".*Runtime warning\\(\\): *\(.*\)"
+    set e_error   ".*Runtime error\\(\\): *\(.*\)"
+
+    set m_txt ""; set w_txt ""; set e_txt ""; set compile_txt ""
+    if [catch {set result [eval exec $eline]} msg] {
+      set lmsg [split $msg \n]
+      foreach line $lmsg {
+        #puts l=$line
+        if {[regexp $e_message $line match txt]} {
+          set  m_txt "$m_txt\n$txt"
+        } elseif { [regexp $e_warning $line match txt]} {
+          set  w_txt "$w_txt\n$txt"
+        } elseif { [regexp $e_error $line match txt]} {
+          set  e_txt "$e_txt\n$txt"
+        } else {
+          if {"$line" != ""} {
+            set  compile_txt "$compile_txt\n$line"
+          }
+        }
+      }
+      if {"$m_txt" != ""} {
+        set answer [tk_dialog .gcmcinfor \
+            "gcmc INFO"\
+            "gcmc file:\n$ifile\n\n$m_txt"\
+            info -1 \
+            "OK"]
+      }
+      if {"$w_txt" != ""} {
+        set answer [tk_dialog .gcmcwarning \
+            "gcmc WARNING"\
+            "gcmc file:\n$ifile\n\n$w_txt"\
+            warning -1 \
+            "OK"]
+      }
+      if {"$e_txt" != ""} {
+        set answer [tk_dialog .gcmcerror \
+            "gcmc ERROR"\
+            "gcmc file:\n$ifile\n\n$e_txt"\
+            error -1 \
+            "OK"]
+      }
+      if {"$compile_txt" != ""} {
+        set answer [tk_dialog .gcmcerror \
+            "gcmc compile ERROR"\
+            "gcmc file:$compile_txt"\
+            error -1 \
+            "OK"]
+      }
+      if {"$e_txt" != ""} {
+        return 0 ;# fail
+      }
+    } else {
+      #puts "savesection_gcmc OK<$result>"
+    }
+
+
+    # insert the subroutine call
+    lappend ::ngc($hdl,data,section) \
+          "\n(NOTE: $funcname is provided by a one-time, gcmc-created file:)"
+    lappend ::ngc($hdl,data,section) \
+            "(      $ofile)"
+    lappend ::ngc($hdl,data,section) \
+          "(gcmc: File: $::ngc($hdl,gcmc,realfile))"
+    lappend ::ngc($hdl,data,section) \
+          "(gcmc: Options:                        )"
+    if [info exists ::ngc($hdl,gcmc,opts)] {
+      foreach opt $::ngc($hdl,gcmc,opts) {
+         lappend ::ngc($hdl,data,section) \
+            "(              $opt)"
+      }
+    }
+    lappend ::ngc($hdl,data,section) \
+          "(gcmc: Variable substitions:)"
+    for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+       set num02 [format %02d $i]
+       set name  $::ngc($hdl,arg,name,$num02)
+       lappend ::ngc($hdl,data,section) \
+              [format $cfmt $name $::ngc($hdl,arg,value,$num02)]
+    }
+    lappend ::ngc($hdl,data,section) "o<$funcname> call "
+
+    return 1 ;# ok
+} ;# savesection_gcmc
 
 proc ::ngcgui::conf {hdl wsuffix item value} {
   set w $hdl,$wsuffix
@@ -3567,7 +3936,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
 
   if {[lsearch $options expandsub ] >=0} {set ::ngc($hdl,expandsubroutine)   1}
 
-  # special options 
+  # special options
   if {[lsearch $options nopathcheck ] >=0} {set ::ngc($hdl,nopathcheck)   1}
 
   if $::ngc(opt,noauto) {
@@ -3641,11 +4010,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   return $hdl
 } ;# embed_in_axis_tab
 
-proc ::ngcgui::pathto {fname  {mode info}} {
-  # for embedded usage, find configuration file using a search path
-  set fname [string trim $fname]
-  if {"$fname" == ""} {return ""}
-
+proc ::ngcgui::set_path {} {
   # set ::ngc(any,paths) on first use:
   if ![info exists ::ngc(any,paths)] {
     # expect single item, so take end item in list:
@@ -3653,6 +4018,14 @@ proc ::ngcgui::pathto {fname  {mode info}} {
     set tmp [lindex [inifindall RS274NGC SUBROUTINE_PATH] end]
     foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
   }
+} ;# get_path
+
+proc ::ngcgui::pathto {fname  {mode info}} {
+  # for embedded usage, find configuration file using a search path
+  set fname [string trim $fname]
+  if {"$fname" == ""} {return ""}
+
+  set_path ;# if not set, will set
 
   if {   [string first "/" $fname] == 0
       || [string first "~" $fname] == 0
@@ -3827,7 +4200,9 @@ proc ::ngcgui::image_widget {hdl f} {
 
 proc ::ngcgui::new_image {hdl ngcfilename} {
   set idx [string first .ngc $ngcfilename]
-  if {$idx < 0} {return -code error "new_image <$ngcfilename>"}
+  if {$idx < 0} { set idx [string first .gcmc $ngcfilename]}
+  if {$idx < 0}  { return -code error \
+                   "new_image: unexpected filename: <$ngcfilename>"}
 
   set filestart [string range $ngcfilename 0 $idx]
   foreach suffix {png gif jpg pgm} {
@@ -4050,3 +4425,4 @@ proc ::ngcgui::standalone_ngcgui {args} {
 } ;# standalone_ngcgui
 
 if {[info exists ::argv0] && [info script] == $::argv0} ::ngcgui::standalone_ngcgui
+

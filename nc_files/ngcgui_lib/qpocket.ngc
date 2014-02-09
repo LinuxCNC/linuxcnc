@@ -9,6 +9,9 @@
 ;   Ramps to depth for each z increment
 ;   Mirror about x axis for negative scale
 
+;   too small diameter tools and/or small stepovers may exceed outlinepasslimit
+;   too large diameter tools may case gouging errors
+
 ; Works for most rectangles and parallelograms but may require some care
 ; for specifying:
 ;      point ordering (see entry move notes below)
@@ -34,7 +37,7 @@
 ;   Offsets are applied last.
 
 ;----------------------------------------------------------------------
-; Copyright: 2012
+; Copyright: 2012,2014
 ; Author:    Dewey Garrett <dgarrett@panix.com>
 ;
 ; This program is free software; you can redistribute it and/or modify
@@ -83,7 +86,7 @@ o<qpocket>  sub
 
   #<depthpasslimit> = 100    ; outer loop
 #<outlinepasslimit> = 100    ; inner loop
-          #<tdelta> = 0.0001 ; small increment to tool diameter
+          #<tdelta> = 0.01  ; small increment to tool diameter
         #<cutdepth> = [0 - #<cutdepth>]
            #<zincr> = [0 - #<zincr>]
 
@@ -336,15 +339,40 @@ o<wh22>      endif
              #<seq> = [#<outlinepass> mod 4]
 o<wh23>      if [#<outlinepass> EQ 1]
                ; move through smallest interior outline
+
+o<ramp1>     if [#<seq> EQ 1]
                g1 x #<x2i> y #<y2i> z#<zcurrent> ;ramp down to zcurrent
-                  x #<x3i> y #<y3i>
-                  x #<x4i> y #<y4i>
-                  x #<x1i> y #<y1i>
-                  x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+               g1 x #<x4i> y #<y4i>
+               g1 x #<x1i> y #<y1i>
+               g1 x #<x2i> y #<y2i>
+o<ramp1>     endif
+o<ramp2>     if [#<seq> EQ 2]
+               g1 x #<x3i> y #<y3i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x4i> y #<y4i>
+               g1 x #<x1i> y #<y1i>
+               g1 x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+o<ramp2>     endif
+o<ramp3>     if [#<seq> EQ 3]
+               g1 x #<x4i> y #<y4i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x1i> y #<y1i>
+               g1 x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+               g1 x #<x4i> y #<y4i>
+o<ramp3>     endif
+o<ramp0>     if [#<seq> EQ 0]
+               g1 x #<x1i> y #<y1i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+               g1 x #<x4i> y #<y4i>
+               g1 x #<x1i> y #<y1i>
+o<ramp0>     endif
+
                #<outlinepass> = [#<outlinepass> + 1]
 o<wh23>      else
                ; increasingly larger outlines
-               #<size>        = [#<size> + #<stepover> * #<tooldiam>]
+               #<size>        = [#<size> + #<stepover> * #<sizei>]
                #<qscale>      = [#<scale> * #<size>]
                #<outlinepass> = [#<outlinepass> + 1]
 o<wh24>        if [#<qscale> GE #<scale>]

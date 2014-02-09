@@ -1,0 +1,15 @@
+ngcgui embedded as axis tab
+
+with support for .gcmc (G-Code Meta Compiler) files
+
+The .ngc and .gcmc files can be intermixed with
+ini file lines like:
+
+NGCGUI_SUBFILE    = drill.gcmc
+NGCGUI_SUBFILE    = wheels.gcmc
+NGCGUI_SUBFILE    = star.gcmc
+NGCGUI_SUBFILE    = simp.ngc
+NGCGUI_SUBFILE    = ""
+
+See the ini file for example details
+
