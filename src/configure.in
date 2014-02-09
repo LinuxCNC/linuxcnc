@@ -2174,7 +2174,7 @@ AC_ARG_WITH(tkConfig,
     ])
 
 # if not specified, search for tclConfig.sh
-if test -z "$TKCONFIG"; then
+if test -z "$TKCONFIG" -a -n "$TCLCONFIG"; then
     TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
     if ! test -f $TKCONFIG; then unset TKCONFIG; fi
 fi
