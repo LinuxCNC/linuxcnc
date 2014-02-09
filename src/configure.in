@@ -1538,11 +1538,11 @@ AC_ARG_WITH(
                                           the drivers that use libmodbus
                                           (defaults to "yes")],
     [WITH_LIBMODBUS=$withval],
-    [WITH_LIBMODBUS=yes]
+    [WITH_LIBMODBUS=check]
 )
 
 AS_IF(
-    [test "x$WITH_LIBMODBUS" = "xyes"],
+    [test $WITH_LIBMODBUS = yes -o $WITH_LIBMODBUS = check ],
     [
         AC_MSG_CHECKING([for libmodbus3])
         if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
@@ -1559,10 +1559,13 @@ AS_IF(
             )
             AC_SUBST(HAVE_LIBMODBUS3, yes)
         else
-          AC_MSG_RESULT(no)
-          AC_MSG_ERROR([libmodbus3 not found!
-install with "sudo apt-get install libmodbus-dev" or disable with
-"configure --without-libmodbus"])
+	    if test $WITH_LIBMODBUS = yes; then
+	        # if --with-libmodbus specified and we got here, error
+		AC_MSG_RESULT(no)
+	        AC_MSG_ERROR([libmodbus3 requested but not found])
+	    else	    
+	        AC_MSG_RESULT([not found; disabling])
+	    fi
         fi
     ]
 )
