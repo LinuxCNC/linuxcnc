@@ -88,6 +88,7 @@ typedef struct {
 	hal_s32_t *stepsize;
 	hal_bit_t *sleeping;
 	hal_bit_t *connected;
+	hal_bit_t *require_pendant;
 } xhc_hal_t;
 
 typedef struct {
@@ -110,6 +111,7 @@ static xhc_t xhc;
 
 static int do_exit = 0;
 static int do_reconnect = 0;
+static bool wait_for_pendant_before_HAL = false;
 
 struct libusb_transfer *transfer_in  = NULL;
 unsigned char in_buf[32];
@@ -512,6 +514,7 @@ static void hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
     r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
+    r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->require_pendant), hal_comp_id, "%s.require_pendant", modname);
 
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_off), hal_comp_id, "%s.jog.enable-off", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_x), hal_comp_id, "%s.jog.enable-x", modname);
@@ -587,7 +590,6 @@ int main (int argc,char **argv)
 	int wait_secs = 0;
 
     int opt;
-    bool wait_for_pendant_before_HAL = false;
     bool hal_ready_done = false;
 
     init_xhc(&xhc);
@@ -637,6 +639,7 @@ int main (int argc,char **argv)
 		printf("%s: waiting for XHC-HB04 device\n",modname);
 		*(xhc.hal->connected) = 0;
 		wait_secs = 0;
+		*(xhc.hal->require_pendant) = wait_for_pendant_before_HAL;
 
 		do {
 			cnt = libusb_get_device_list(ctx, &devs);

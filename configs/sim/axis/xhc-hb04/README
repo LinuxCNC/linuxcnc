@@ -5,7 +5,7 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
 The HAL module is designed for the XHC-HB04 V3.0 identified as USB device 10CE:EB70.
 Most of the pendant features are handled:
 - buttons converted to hal pins
-- jog wheel with variable scale (use STEP button to change in 1 10 100 1000 sequence)
+- jog wheel with variable scale (use stepsize-up pin to change in 1 10 100 1000 sequence)
 - LCD screen displays machine and relative positions
 
 Sim configurations are provided for two known button configurations:
@@ -36,10 +36,12 @@ coords     = x y z a (4 max)
 coefs      = 1 1 1 1 (filter coefs 0 < coef < 1)
 scales     = 1 1 1 1 (plus/minus factors)
 threadname = servo-thread
+require_pendant = yes 
 jogmode    = normal  (normal | vnormal | plus-minus)
 
-The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.  The movement per wheel increment is set with the STEP button (1 10 100 1000).  The scale factor for each axis can be set with the scales item.
+The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.  The movement per wheel increment is set by connecting the STEP button to the hal pin xhc-hb04.stepsize-up (values: 1 10 100 1000).  The scale factor for each axis can be set with the scales item.
 
+When require_pendant = no, the xhc-hb04 hal pins will be created even if the pendant is not connected at startup.  A new connection, a disconnect, and a reconnect are supported.
 ----------------------------------
 jogmodes:
   normal: postion mode, the axis will move exactly regardless of how long it takes.  Beware: the machine may keep moving after you stop rotating the jog wheel.
@@ -67,11 +69,13 @@ MDI_COMMAND = M101
 An xhc-hb04 pendant can be added to existing configurations.
   1) copy files to the configuration directory:
      $ cp xhc-hb04.tcl         your_config_dir/
+     $ cp monitor_xhc-hb04.tcl your_config_dir/
      $ cp xhc-hb04-layout*.cfg your_config_dir/
   2) Edit existing configuration ini file to:
     a) add [HAL]HALFILE=xhc-hb04.tcl
-    b) add stanza [XHC-HB04_CONFIG]
-    c) add stanza [XHC-HB04_BUTTONS]
-    c) add or update stanza for [HALUI]
+    b) add [HAL]HALFILE=monitor_xhc-hb04.tcl
+    c) add stanza [XHC-HB04_CONFIG]
+    d) add stanza [XHC-HB04_BUTTONS]
+    e) add or update stanza for [HALUI]
 
 See the demo ini files for more detailed examples.

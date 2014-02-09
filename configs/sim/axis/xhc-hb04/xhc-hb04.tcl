@@ -297,7 +297,17 @@ if ![file exists $cfg] {
   return ;# not an exit
 }
 
-if [catch {loadusr -W xhc-hb04 -I $cfg -H} msg] {
+# require_pendant==yes: use -x, dont create pins unless connected
+# require_pendant==no:          create pins if not connected
+if ![info exists ::XHC_HB04_CONFIG(require_pendant)] {
+  set ::XHC_HB04_CONFIG(require_pendant) yes ;# default
+}
+set dashx -x
+switch $::XHC_HB04_CONFIG(require_pendant) {
+  no      {set dashx ""}
+}
+
+if [catch {eval loadusr -W xhc-hb04 $dashx -I $cfg -H} msg] {
   set msg "\n$::progname: loadusr xhc-hb04:\n<$msg>\n\n"
   set msg "$msg Is it plugged in?\n\n"
   set msg "$msg Are permissions correct?\n\n"
