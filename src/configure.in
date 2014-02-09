@@ -1637,7 +1637,7 @@ else
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     EMC2_RTLIB_DIR=${prefix}/lib/linuxcnc
-    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
+    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc

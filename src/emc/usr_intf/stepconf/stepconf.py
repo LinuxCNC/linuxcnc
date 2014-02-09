@@ -108,13 +108,13 @@ if not os.path.isfile(linuxcncicon):
 
 distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "linuxcnc", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
     distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "linuxcnc", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "doc", "linuxcnc", "examples", "sample-configs", "common")
+    distdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc", "examples", "sample-configs", "common")
 if not os.path.isdir(distdir):
-    distdir = "/usr/share/doc/linuxcnc/examples/sample-configs/common"
+    distdir = "/usr/share/linuxcnc/examples/sample-configs/common"
 
 (XSTEP, XDIR, YSTEP, YDIR,
 ZSTEP, ZDIR, ASTEP, ADIR,

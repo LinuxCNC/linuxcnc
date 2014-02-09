@@ -70,7 +70,7 @@ install: build
 	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
-	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
+	-rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \

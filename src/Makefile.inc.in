@@ -92,19 +92,17 @@ libdir = @libdir@
 infodir = @infodir@
 mandir = @mandir@
 includedir = @includedir@
+docdir = @docdir@
+sampleconfsdir = ${datadir}/linuxcnc/examples/sample-configs
+ncfilesdir = ${datadir}/linuxcnc/ncfiles
+tcldir = ${prefix}/lib/tcltk/linuxcnc
 
 # i18n variables:
 
 package = @PACKAGE@
+PACKAGE_TARNAME = @PACKAGE_TARNAME@
 localedir = @LOCALEDIR@
 LANGUAGES = @LANGUAGES@
-
-#still needs discussion
-# do we really need these?
-docsdir = ${prefix}/share/doc/linuxcnc
-sampleconfsdir = ${prefix}/share/doc/linuxcnc/examples/sample-configs
-ncfilesdir = ${prefix}/share/linuxcnc/ncfiles
-tcldir = ${prefix}/lib/tcltk/linuxcnc
 
 
 # /Standard configure directories

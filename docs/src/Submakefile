@@ -583,12 +583,12 @@ $(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_S
 default: docs
 
 install-doc-pdf:
-	$(DIR) $(DESTDIR)$(docsdir)
-	$(FILE) $(PDF_TARGETS) $(DESTDIR)$(docsdir)
+	$(DIR) $(DESTDIR)$(docdir)
+	$(FILE) $(PDF_TARGETS) $(DESTDIR)$(docdir)
 
 install-doc-html:
-	$(DIR) $(DESTDIR)$(docsdir)
-	cp -a $(DOC_DIR)/html $(DESTDIR)$(docsdir)
+	$(DIR) $(DESTDIR)$(docdir)
+	cp -a $(DOC_DIR)/html $(DESTDIR)$(docdir)
 install-kernel-indep: install-doc
 else
 docs:

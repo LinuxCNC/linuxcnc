@@ -29,8 +29,6 @@ usr/share/doc/linuxcnc/xlinuxcnc.txt
 usr/share/doc/linuxcnc/README
 usr/share/doc/linuxcnc/tklinuxcnc.txt
 usr/share/doc/linuxcnc/README.axis
-usr/share/doc/linuxcnc/examples/sample-configs/*/*
-usr/share/doc/linuxcnc/examples/sample-configs/maintainer.txt
 usr/share/linuxcnc/*
 usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/man/man1/*
