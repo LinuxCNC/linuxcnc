@@ -761,6 +761,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->currentvel = 0.0;
 
     tc->vel_at_blend_start = 0.0;
+    tc->term_vel = 0.0;
     tc->blend_vel = 0.0;
     tc->blending_next = 0;
     tc->on_final_decel = 0;
@@ -2192,12 +2193,14 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
 STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
+    tp_debug_print("updating blend\n");
     double save_vel = nexttc->target_vel;
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        //TODO check for divide by zero
-        double blend_progress = fmin(dv / tc->vel_at_blend_start, 1.0);
+        double vel_start = fmax(tc->vel_at_blend_start,TP_VEL_EPSILON);
+        // Clip the ratio at 1 and 0
+        double blend_progress = fmax(fmin(dv / vel_start, 1.0),0.0);
         double blend_scale = tc->vel_at_blend_start / tc->blend_vel;
         nexttc->target_vel = blend_progress * nexttc->blend_vel * blend_scale;
     } else {
@@ -2702,9 +2705,14 @@ STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
         double v_f)
 {
     tp_debug_print("split time for id %d is %f\n", tc->id, split_time);
+    if (tc->splitting != 0) {
+        //already splitting?
+        rtapi_print_msg(RTAPI_MSG_ERR,"already splitting on id %d with cycle time %f\n",tc->id, tc->cycle_time);
+        return TP_ERR_FAIL;
+    }
     tc->splitting = 1;
     tc->cycle_time = split_time;
-    tc->vel_at_blend_start = v_f;
+    tc->term_vel = v_f;
     return 0;
 }
 
@@ -2731,15 +2739,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tc->target;
         tcSetSplitCycle(tc, 0.0, tc->currentvel);
-        if (tc->term_cond != TC_TERM_COND_TANGENT) {
-            //Non-tangent segments don't need a split cycle, so flag removal here
-            tc->remove = 1;
-        }
         return TP_ERR_OK;
-    } else if (tc->term_cond != TC_TERM_COND_TANGENT) {
-        // Abort check here since split cycles are not handled for
-        // non-tangent segments.
-        return TP_ERR_NO_ACTION;
     }
 
     tp_debug_print("in tpCheckEndCondition\n");
@@ -2851,24 +2851,42 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     tc_debug_print("cycle movement = %f\n",mag);
 #endif
 
-    //Run remaining cycle time in nexttc
-    if (nexttc && tc->term_cond == TC_TERM_COND_TANGENT){
-        nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
-        nexttc->currentvel = tc->vel_at_blend_start;
-        tp_debug_print("Doing tangent split\n");
-        tpUpdateCycle(tp, nexttc);
-        //Update status for the split portion
-        if (tc->cycle_time > nexttc->cycle_time) {
-            //Majority of time spent in current segment
-            tpToggleDIOs(tc);
-            tpUpdateMovementStatus(tp, tc);
-        } else {
-            tpToggleDIOs(nexttc);
-            tpUpdateMovementStatus(tp, nexttc);
-        }
-    }
-    //This is the only place remove should be triggered
+    // Trigger removal of current segment at the end of the cycle
     tc->remove = 1;
+
+    if (!nexttc) {
+        tp_debug_print("no nexttc in split cycle\n");
+        return TP_ERR_OK;
+    }
+
+    switch (tc->term_cond) {
+        case TC_TERM_COND_TANGENT:
+            nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
+            nexttc->currentvel = tc->term_vel;
+            tp_debug_print("Doing tangent split\n");
+            break;
+        case TC_TERM_COND_PARABOLIC:
+            break;
+        case TC_TERM_COND_STOP:
+            break;
+        default:
+            rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",tc->term_cond, tc->id);
+    }
+
+    // Run split cycle update with remaining time in nexttc
+    tpUpdateCycle(tp, nexttc);
+
+    // Update status for the split portion
+    // FIXME redundant tangent check, refactor to switch
+    if (tc->cycle_time > nexttc->cycle_time && tc->term_cond == TC_TERM_COND_TANGENT) {
+        //Majority of time spent in current segment
+        tpToggleDIOs(tc);
+        tpUpdateMovementStatus(tp, tc);
+    } else {
+        tpToggleDIOs(nexttc);
+        tpUpdateMovementStatus(tp, nexttc);
+    }
+
     return TP_ERR_OK;
 }
 
