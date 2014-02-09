@@ -369,7 +369,7 @@ class EMC_ToggleAction_Run(_EMC_ToggleAction, EMC_Action_Run):
         self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
         self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
 
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive( self.machine_on() and self.is_all_homed() and self.is_file_loaded() ))
+        self.gstat.connect( 'interp-idle', lambda w: self.set_sensitive( self.machine_on() and ( self.is_all_homed() or self.no_home_required() ) and self.is_file_loaded() ) )
         self.gstat.connect('interp-idle', lambda w: self.set_active_safe(False))
         self.gstat.connect('interp-run', lambda w: self.set_sensitive(False))
         self.gstat.connect('interp-run', lambda w: self.set_active_safe(True))
