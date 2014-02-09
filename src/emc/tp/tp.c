@@ -761,6 +761,7 @@ STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
     tc->currentvel = 0.0;
 
     tc->vel_at_blend_start = 0.0;
+    tc->term_vel = 0.0;
     tc->blend_vel = 0.0;
     tc->blending_next = 0;
     tc->on_final_decel = 0;
@@ -2192,12 +2193,14 @@ STATIC void tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const
 STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc) {
 
+    tp_debug_print("updating blend\n");
     double save_vel = nexttc->target_vel;
 
     if (tpGetFeedScale(tp,nexttc) > TP_VEL_EPSILON) {
         double dv = tc->vel_at_blend_start - tc->currentvel;
-        //TODO check for divide by zero
-        double blend_progress = fmin(dv / tc->vel_at_blend_start, 1.0);
+        double vel_start = fmax(tc->vel_at_blend_start,TP_VEL_EPSILON);
+        // Clip the ratio at 1 and 0
+        double blend_progress = fmax(fmin(dv / vel_start, 1.0),0.0);
         double blend_scale = tc->vel_at_blend_start / tc->blend_vel;
         nexttc->target_vel = blend_progress * nexttc->blend_vel * blend_scale;
     } else {
@@ -2709,7 +2712,7 @@ STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
     }
     tc->splitting = 1;
     tc->cycle_time = split_time;
-    tc->vel_at_blend_start = v_f;
+    tc->term_vel = v_f;
     return 0;
 }
 
@@ -2859,7 +2862,7 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     switch (tc->term_cond) {
         case TC_TERM_COND_TANGENT:
             nexttc->cycle_time = tp->cycleTime - tc->cycle_time;
-            nexttc->currentvel = tc->vel_at_blend_start;
+            nexttc->currentvel = tc->term_vel;
             tp_debug_print("Doing tangent split\n");
             break;
         case TC_TERM_COND_PARABOLIC:
