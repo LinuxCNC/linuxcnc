@@ -767,7 +767,18 @@ int blendComputeParameters(BlendParameters * const param)
     tp_debug_print("v_normal = %f\n", v_normal);
 
     param->v_plan = fmin(v_normal, param->v_goal);
-    param->R_plan = pmSq(param->v_plan) / param->a_n_max;
+    /*param->R_plan = pmSq(param->v_plan) / param->a_n_max;*/
+    /*param->d_plan = param->R_plan / tan(param->theta);*/
+
+    //Find soft lower bound on radius from max ripple acceleration
+    const double a_ripple_goal = 1.0;
+    double R_ripple = fmin(pmSq(param->v_plan) / a_ripple_goal, R_geom);
+    double a_ripple = pmSq(param->v_plan) / R_ripple;
+
+    tp_debug_print("R_ripple = %f\n", R_ripple);
+    tp_debug_print("a_ripple = %f\n", a_ripple);
+
+    param->R_plan = R_ripple;
     param->d_plan = param->R_plan / tan(param->theta);
 
     tp_debug_print("v_plan = %f\n", param->v_plan);
