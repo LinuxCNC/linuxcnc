@@ -1,3 +1,8 @@
+ver. 0.9.9.9.7
+- add gcode highlight by clicking in the preview
+  clicking a line in the preview will highlight the
+  corresponding line in gcode listing
+
 ver. 0.9.9.9.6
 - solved show tool edit after program run
   after running a program and changing back to manual mode it was not 

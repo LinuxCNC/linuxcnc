@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.6"
+_RELEASE = "0.9.9.9.7"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -2305,7 +2305,6 @@ class HandlerClass:
     def on_btn_tool_clicked( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "btn_tool_clicked" )
         self.widgets.ntb_button.set_current_page( 7 )
-        # self._update_toolinfo( self.stat.tool_in_spindle )
         self._show_tooledit_tab( True )
 
     def _show_tooledit_tab( self, state ):
@@ -2470,7 +2469,6 @@ class HandlerClass:
             self.command.wait_complete()
             self.command.mode( self.linuxcnc.MODE_MANUAL )
             self.command.wait_complete()
-            # self._update_toolinfo( self.stat.tool_in_spindle )
 
     # select a tool entering a number
     def on_btn_select_tool_by_no_clicked( self, widget, data = None ):
@@ -2579,6 +2577,9 @@ class HandlerClass:
         if self.log: self.gscreen.add_alarm_entry( "btn_view_tool_path_clicked" )
         self.widgets.gremlin.set_property( "show_live_plot", widget.get_active() )
         self.prefs.putpref( "view_tool_path", self.widgets.tbtn_view_tool_path.get_active(), bool )
+
+    def on_gremlin_line_clicked( self, widget, line ):
+        self.widgets.gcode_view.set_line_number( line )
 
     def _show_iconview_tab( self, state ):
         page = self.widgets.ntb_preview.get_nth_page( 3 )
