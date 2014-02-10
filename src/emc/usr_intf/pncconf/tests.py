@@ -40,7 +40,7 @@ class TESTS:
     def parporttest(self,w):
         if not self.a.check_for_rt(self):
             return
-        panelname = os.path.join(self._p.DISTDIR, "configurable_options/pyvcp")
+        panelname = os.path.join(_PD.DISTDIR, "configurable_options/pyvcp")
         self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )  
         halrun.write("loadrt threads period1=100000 name1=fast fp1=0 period2=%d name2=slow\n"% self.d.servoperiod)
         self.hal_cmnds("LOAD")
@@ -88,7 +88,7 @@ class TESTS:
     def testpanel(self,w):
         pos = "+0+0"
         size = ""
-        panelname = os.path.join(self._p.DISTDIR, "configurable_options/pyvcp")
+        panelname = os.path.join(_PD.DISTDIR, "configurable_options/pyvcp")
         if self.w.pyvcpblank.get_active() == True:
            return True
         if self.w.pyvcp1.get_active() == True:
@@ -121,7 +121,7 @@ class TESTS:
         if not self.w.createconfig.get_active() and self.w.gladeexists.get_active():
             folder = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
             if not os.path.exists(folder + "/gvcp-panel.ui"):
-                self.warning_dialog (_("""You specified there is an existing gladefile, \
+                self.a.warning_dialog (_("""You specified there is an existing gladefile, \
 But there is not one in the machine-named folder.."""),True)
                 return
         self.gladevcptestpanel(self)
@@ -360,7 +360,7 @@ But there is not one in the machine-named folder.."""),True)
 
     # for classicladder test  
     def load_ladder(self,w): 
-        newfilename = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")    
+        newfilename = os.path.join(_PD.DISTDIR, "configurable_options/ladder/TEMP.clp")    
         self.d.modbus = self.w.modbus.get_active()
         self.halrun = halrun = os.popen("halrun -Is > /dev/null", "w")
         if debug:
@@ -402,7 +402,7 @@ But there is not one in the machine-named folder.."""),True)
             self.d.laddername='custom.clp'
             originalfile = filename = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
         else:
-            filename = os.path.join(self._p.DISTDIR, "configurable_options/ladder/"+ self.d.laddername)        
+            filename = os.path.join(_PD.DISTDIR, "configurable_options/ladder/"+ self.d.laddername)        
         if self.d.modbus == True: 
             halrun.write("loadusr -w classicladder --modmaster --newpath=%(newname)s %(filename)s\n" %                                  {'newname':newfilename,'filename':filename})
         else:
@@ -447,7 +447,7 @@ But there is not one in the machine-named folder.."""),True)
             w.xstep.set_sensitive(0)
             w.xsteptable.set_sensitive(0)
             text = _("Servo tuning is not avaiable in PNCconf yet\n")
-            self.warning_dialog(text,True)
+            self.a.warning_dialog(text,True)
             return
 
         if axis == "a":
@@ -638,7 +638,7 @@ But there is not one in the machine-named folder.."""),True)
             w[axis+"FF2"].set_value( get_value(w.xtunecurrentFF2))
             w[axis+"bias"].set_value( get_value(w.xtunecurrentbias))
             w[axis+"deadband"].set_value( get_value(w.xtunecurrentdeadband))
-            w[axis+"tunecurrentbias"].set_value(w.xbias.get_value())
+            w[axis+"bias"].set_value(w.xtunecurrentbias.get_value())
             w[axis+"steptime"].set_value(get_value(w.xtunecurrentsteptime))
             w[axis+"stepspace"].set_value(get_value(w.xtunecurrentstepspace))
             w[axis+"dirhold"].set_value(get_value(w.xtunecurrentdirhold))
@@ -650,20 +650,20 @@ But there is not one in the machine-named folder.."""),True)
         halrun.close()  
         self.w['window1'].set_sensitive(1)
 
-    def update_tune_axis_params(self, *args):       
+    def update_tune_test_params(self, *args):       
         axis = self.axis_under_tune
         if axis is None or not self.updaterunning: return   
-        temp = not self.w[axis+"tunerun"].get_active()
-        self.w[axis+"tuneinvertmotor"].set_sensitive( temp)
-        self.w[axis+"tuneamplitude"].set_sensitive( temp)
-        self.w[axis+"tunedir"].set_sensitive( temp)
-        self.w[axis+"tunejogminus"].set_sensitive(temp)
-        self.w[axis+"tunejogplus"].set_sensitive(temp)
-        temp = self.w[axis+"tuneenable"].get_active()
-        if not self.w[axis+"tunerun"].get_active():
-            self.w[axis+"tunejogminus"].set_sensitive(temp)
-            self.w[axis+"tunejogplus"].set_sensitive(temp)
-        self.w[axis+"tunerun"].set_sensitive(temp)
+        temp = not self. w.xtunerun.get_active()
+        self.w.xtuneinvertmotor.set_sensitive( temp)
+        self.w.xtuneamplitude.set_sensitive( temp)
+        self.w.xtunedir.set_sensitive( temp)
+        self.w.xtunejogminus.set_sensitive(temp)
+        self.w.xtunejogplus.set_sensitive(temp)
+        temp = self.w.xtuneenable.get_active()
+        if not self.w.xtunerun.get_active():
+            self.w.xtunejogminus.set_sensitive(temp)
+            self.w.xtunejogplus.set_sensitive(temp)
+        self.w.xtunerun.set_sensitive(temp)
         halrun = self.halrun
         if self.stepgen:
             halrun.write("""
@@ -686,22 +686,22 @@ But there is not one in the machine-named folder.."""),True)
                 sets estop-out %(estop)s
             """ % {
                 'scale':self.scale,
-                'len':self.w[axis+"tunecurrentsteptime"].get_value(),
-                'space':self.w[axis+"tunecurrentstepspace"].get_value(),
-                'hold':self.w[axis+"tunecurrentdirhold"].get_value(),
-                'setup':self.w[axis+"tunecurrentdirsetup"].get_value(),
+                'len':self.w.xtunecurrentsteptime.get_value(),
+                'space':self.w.xtunecurrentstepspace.get_value(),
+                'hold':self.w.xtunecurrentdirhold.get_value(),
+                'setup':self.w.xtunecurrentdirsetup.get_value(),
                 'stepgen': self.step_signalname,               
                 'jogminus': self.tunejogminus,
                 'jogplus': self.tunejogplus,
-                'run': self.w[axis+"tunerun"].get_active(),
-                'amplitude': self.w[axis+"tuneamplitude"].get_value(),
-                'accel': self.w[axis+"tuneacc"].get_value(),
-                'vel': self.w[axis+"tunevel"].get_value(),
-                'velps': (self.w[axis+"tunevel"].get_value()/60),
-                'dir': self.w[axis+"tunedir"].get_active(),
-                'pause':int(self.w[axis+"tunepause"].get_value()),
-                'enable':self.w[axis+"tuneenable"].get_active(),
-                'estop':(self.w[axis+"tuneenable"].get_active())
+                'run': self.w.xtunerun.get_active(),
+                'amplitude': self.w.xtuneamplitude.get_value(),
+                'accel': self.w.xtuneacc.get_value(),
+                'vel': self.w.xtunevel.get_value(),
+                'velps': (self.w.xtunevel.get_value()/60),
+                'dir': self.w.xtunedir.get_active(),
+                'pause':int(self.w.xtunepause.get_value()),
+                'enable':self.w.xtuneenable.get_active(),
+                'estop':(self.w.xtuneenable.get_active())
             })
         else:
             halrun.write("""  
@@ -724,49 +724,45 @@ But there is not one in the machine-named folder.."""),True)
                 setp steptest.0.pause %(pause)d
                 sets enable %(enable)s
             """ % {
-                'p':self.w[axis+"tunecurrentP"].get_value(),
-                'i':self.w[axis+"tunecurrentI"].get_value(),
-                'd':self.w[axis+"tunecurrentD"].get_value(),
-                'ff0':self.w[axis+"tunecurrentFF0"].get_value(),
-                'ff1':self.w[axis+"tunecurrentFF1"].get_value(),
-                'ff2':self.w[axis+"tunecurrentFF2"].get_value(),
-                'bias':self.w[axis+"tunecurrentbias"].get_value(),
-                'deadband':self.w[axis+"tunecurrentdeadband"].get_value(),
-                'invert':self.w[axis+"tuneinvertmotor"].get_active(),
+                'p':self.w.xtunecurrentP.get_value(),
+                'i':self.w.xtunecurrentI.get_value(),
+                'd':self.w.xtunecurrentD.get_value(),
+                'ff0':self.w.xtunecurrentFF0.get_value(),
+                'ff1':self.w.xtunecurrentFF1.get_value(),
+                'ff2':self.w.xtunecurrentFF2.get_value(),
+                'bias':self.w.xtunecurrentbias.get_value(),
+                'deadband':self.w.xtunecurrentdeadband.get_value(),
+                'invert':self.w.xtuneinvertmotor.get_active(),
                 'jogminus': self.tunejogminus,
                 'jogplus': self.tunejogplus,
-                'run': self.w[axis+"tunerun"].get_active(),
-                'amplitude': self.w[axis+"tuneamplitude"].get_value(),
-                'accel': self.w[axis+"tuneacc"].get_value(),
-                'vel': self.w[axis+"tunevel"].get_value(),
-                'velps': (self.w[axis+"tunevel"].get_value()/60),
-                'dir': self.w[axis+"tunedir"].get_active(),
-                'pause':int(self.w[axis+"tunepause"].get_value()),
-                'enable':self.w[axis+"tuneenable"].get_active()
+                'run': self.w.xtunerun.get_active(),
+                'amplitude': self.w.xtuneamplitude.get_value(),
+                'accel': self.w.xtuneacc.get_value(),
+                'vel': self.w.xtunevel.get_value(),
+                'velps': (self.w.xtunevel.get_value()/60),
+                'dir': self.w.xtunedir.get_active(),
+                'pause':int(self.w.xtunepause.get_value()),
+                'enable':self.w.xtuneenable.get_active()
             })
         halrun.flush()
 
-    def on_tunejogminus_pressed(self, w):
-        self.tunejogminus = 1
-        self.update_tune_axis_params()
-    def on_tunejogminus_released(self, w):
-        self.tunejogminus = 0
-        self.update_tune_axis_params()
-    def on_tunejogplus_pressed(self, w):
-        self.tunejogplus = 1
-        self.update_tune_axis_params()
-    def on_tunejogplus_released(self, w):
-        self.tunejogplus = 0
-        self.update_tune_axis_params()
+    def tune_jogminus(self, direction):
+        self.tunejogminus = direction
+        self.update_tune_test_params()
+    def tune_jogplus(self, direction):
+        self.tunejogplus = direction
+        self.update_tune_test_params()
     # TODO fix scaling for servos:
-    def on_tuneinvertmotor_toggled(self, w):
+    def toggle_tuneinvertmotor(self):
+        def get_value(d):
+            return self.a.get_value(d)
         axis = self.axis_under_tune
         w = self.w
-        if w[axis+"tuneinvertmotor"].get_active():
+        if w.xtuneinvertmotor.get_active():
             self.scale = get_value(w[axis + "stepscale"]) * -1
         else:
             self.scale = get_value(w[axis + "stepscale"])                 
-        self.update_tune_axis_params()
+        self.update_tune_test_params()
 
     # openloop servo test
     def test_axis(self, axis):
@@ -787,14 +783,16 @@ But there is not one in the machine-named folder.."""),True)
 
         if axis == "s":
             if (not self.pwm and not self.pot) and (not self.enc and not self.res):
-                self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal for this axis test") , True)
+                self.a.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal for this axis test") , True)
                 return
         else:
             if not self.pwm or (not self.enc and not self.res) :
-                self.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
+                self.a.warning_dialog( _(" You must designate a ENCODER / RESOLVER signal and a PWM signal for this axis test") , True)
                 return           
 
-        self.halrun = halrun = os.popen("halrun -Is > /dev/null", "w")  
+        self.halrun = halrun = os.popen("halrun -Is > /dev/null", "w")
+        if debug:
+            halrun.write("echo\n")
         data = self.d
         widgets = self.w
         axnum = "xyzas".index(axis)
@@ -921,6 +919,8 @@ But there is not one in the machine-named folder.."""),True)
         self.w['window1'].set_sensitive(1)
     
     def update_axis_params(self, *args):
+        def get_value(d):
+            return self.a.get_value(d)
         axis = self.axis_under_test
         if axis is None: return
         halrun = self.halrun
@@ -965,32 +965,18 @@ But there is not one in the machine-named folder.."""),True)
                 halrun.write("sets dir-not true\n")
         halrun.flush()
 
-    def jogminus_pressed(self, w):
-        self.jogminus = 1
+    def oloop_jogminus(self, direction):
+        self.jogminus = direction
         self.update_axis_params()
-    def jogminus_released(self, w):
-        self.jogminus = 0
-        self.update_axis_params()
-    def jogplus_pressed(self, w):
-        self.jogplus = 1
-        self.update_axis_params()
-    def jogplus_released(self, w):
-        self.jogplus = 0
+    def oloop_jogplus(self, direction):
+        self.jogplus = direction
         self.update_axis_params()
 
-    def on_resetbutton_pressed(self, w):
-        self.enc_reset = self.res_reset = 1
+    def oloop_resetencoder(self, state):
+        self.enc_reset = self.res_reset = state
         self.update_axis_params()
-    def on_resetbutton_released(self, w):
-        self.enc_reset = self.res_reset = 0
-        self.update_axis_params()
-    def on_testinvertmotor_toggled(self, w):
-        self.update_axis_params()
-    def on_testinvertencoder_toggled(self, w):
-        self.update_axis_params()
-    def on_testoutputoffset_value_changed(self, w):
-        self.update_axis_params()
-    def on_enableamp_toggled(self, w):
+
+    def oloop_enableamp(self):
         self.enable_amp = self.enable_amp * -1 + 1
         self.w.jogminus.set_sensitive(self.enable_amp)
         self.w.jogplus.set_sensitive(self.enable_amp)
@@ -1058,7 +1044,7 @@ But there is not one in the machine-named folder.."""),True)
                 port = 0
                 for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
                     if channel >4: break # TODO only have 5 channels worth of glade widgets
-                    for pin in range (0,self._p._SSCOMBOLEN):
+                    for pin in range (0,_PD._SSCOMBOLEN):
                         pname = 'mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)
                         p = self.d['mesa%dsserial%d_%dpin%d' % (boardnum,port,channel,pin)]
                         i = self.d['mesa%dsserial%d_%dpin%dinv' % (boardnum,port,channel,pin)]

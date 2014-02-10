@@ -74,8 +74,8 @@ class Pages:
             name,text,init_state,state = self._p.available_page[u]
             dbg( "FWD search %s,%s,%s,%s,%s,of %d pages"%(u,name,text,init_state,state,len(self._p.available_page)-1))
             if state and not init_state:
-                dbg( 'Loading page %s'%name)
                 self.set_buttons_sensitive(0,0)
+                dbg( 'Loading page %s'%name)
                 self.a.builder.add_from_file(os.path.join(self._p.DATADIR, '%s.glade'%name))
                 page = self.a.builder.get_object(name)
                 self.w.notebook1.remove_page(u) #remove place holding page
@@ -1226,19 +1226,41 @@ different program to copy to your configuration file.\nThe edited program will b
         self.a.clean_unused_ports()
         self.a.buid_config()
 #**************
-# stepper test
+# tune test
 #**************
     # callbacks
-    def on_update_axis_params(self, *args):
-        self.a.update_axis_params()
-    def on_jogminus_pressed(self, w):
-        self.a.jogminus_pressed()
-    def on_jogminus_released(self, w):
-        self.a.jogminus_released()
-    def on_jogplus_pressed(self, w):
-        self.a.jogplus_pressed()
-    def on_jogplus_released(self, w):
-        self.a.jogplus_released()
+    def on_update_tune_params(self, *args):
+        self.t.update_tune_test_params()
+    def on_tune_jogminus_pressed(self, w):
+        self.t.tune_jogminus(1)
+    def on_tune_jogminus_released(self, w):
+        self.t.tune_jogminus(0)
+    def on_tune_jogplus_pressed(self, w):
+        self.t.tune_jogplus(1)
+    def on_tune_jogplus_released(self, w):
+        self.t.tune_jogplus(0)
+    def on_tuneinvertmotor_toggled(self,w):
+        self.t.toggle_tuneinvertmotor()
+#**************
+# openloop test
+#**************
+    # callbacks
+    def update_oloop_params(self, w):
+        self.t.update_axis_params()
+    def on_oloop_enableamp_toggled(self, w):
+        self.t.oloop_enableamp()
+    def on_oloop_jogminus_pressed(self, w):
+        self.t.oloop_jogminus(1)
+    def on_oloop_jogminus_released(self, w):
+        self.t.oloop_jogminus(0)
+    def on_oloop_jogplus_pressed(self, w):
+        self.t.oloop_jogplus(1)
+    def on_oloop_jogplus_released(self, w):
+        self.t.oloop_jogplus(0)
+    def on_resetbutton_pressed(self, w):
+        self.t.oloop_resetencoder(1)
+    def on_resetbutton_released(self, w):
+        self.t.oloop_resetencoder(0)
 
 # BOILER CODE
     def __getitem__(self, item):
