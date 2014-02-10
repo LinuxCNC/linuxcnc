@@ -1056,20 +1056,28 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     tp_debug_print("v_normal = %f\n", v_normal);
 
     double v_plan = v_normal;
-    double R_plan = R_geom;
 
     // If our goal velocity is lower, reduce the arc size proportionally
     if (v_normal > v_goal) {
         v_plan = v_goal;
         tp_debug_print("v_goal = %f\n", v_goal);
-        //At this new limiting velocity, find the radius by the reverse formula
-        R_plan = pmSq(v_plan) / a_n_max;
     }
-    //FIXME hard-coded ripple acceleration
-    const double a_ripple = 1.0;
-    double R_ripple = fmin(fmax(pmSq(v_plan) / a_ripple, R_plan), R_geom);
-    tp_debug_print("R_ripple = %f\n", R_ripple);
-    R_plan = R_ripple;
+
+    /*Get the limiting velocity of the equivalent parabolic blend. We use the
+     * time it would take to do a "stock" parabolic blend as a metric for how
+     * much of the segment to consume. A long segment will have a high
+     * "triangle" velocity, so the radius will only be as large as is needed to
+     * reach the cornering speed. A short segment will have a low triangle
+     * velocity, much lower than the actual curvature limit, which can be used
+     * to calculate an equivalent blend radius.
+     * */
+    double a_parabolic = a_max * 0.5;
+    double v_triangle = pmSqrt(2.0 * a_parabolic  * d_geom);
+    double t_blend = fmin(v_triangle, v_plan) / (a_parabolic);
+    double s_blend = t_blend * v_plan;
+    double R_blend = fmin(s_blend / phi, R_geom);   //Clamp by limiting radius
+
+    double R_plan = fmax(pmSq(v_plan) / a_n_max, R_blend);
 
     tp_debug_print("R_plan = %f\n", R_plan);
     double d_plan = R_plan / Ttheta;
@@ -1078,9 +1086,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
 
     tp_debug_print("v_plan = %f\n", v_plan);
 
-    //Now we store the "actual" velocity. Recall that v_plan may be greater
-    //than v_req by the max feed override. If our worst-case planned velocity is higher than the requested velocity, then clip at the requested velocity. This allows us to increase speed above the feed override limits
-    //Check for segment length limits
+
 #ifdef TP_DEBUG
     double a_n_effective = pmSq(v_plan)/R_plan;
 
@@ -1098,7 +1104,9 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     if (consume) {
         s_arc += L_prev;
     }
+
     //Reduce velocity if necessary 
+    //TODO redundant with optimization?
     double v_sample_arc = s_arc / min_segment_time;
     if (v_plan > v_sample_arc) {
         v_plan = v_sample_arc;
@@ -1106,6 +1114,12 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     }
     tp_debug_print("s_arc = %f, L_prev = %f, L_next = %f, prev_seg_time = %f\n", s_arc, L_prev, L_next, prev_seg_time);
 
+    /* Now we store the "actual" velocity. Recall that v_plan may be greater
+     * than v_req by the max feed override. If our worst-case planned velocity
+     * is higher than the requested velocity, then clip at the requested
+     * velocity. This allows us to increase speed above the feed override
+     * limits
+     * */
     double v_actual;
     if (v_plan > v_req) {
         v_actual = v_req;
@@ -2454,7 +2468,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     // Test if we need ramping or trapezoidal acceleration for this move
     // FIXME: move this to INI setting
-    const double cutoff_freq = 50.0; //Hz
+    const double cutoff_freq = 10.0; //Hz
     double cutoff_time = 1.0 / (cutoff_freq);
 
     double length = (tc->target-tc->progress);
