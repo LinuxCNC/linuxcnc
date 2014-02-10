@@ -1068,11 +1068,16 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //At this new limiting velocity, find the radius by the reverse formula
         R_plan = pmSq(v_plan) / a_n_max;
     }
+    //FIXME hard-coded ripple acceleration
+    const double a_ripple = 1.0;
+    double R_ripple = fmin(fmax(pmSq(v_plan) / a_ripple, R_plan), R_geom);
+    tp_debug_print("R_ripple = %f\n", R_ripple);
+    R_plan = R_ripple;
+
     tp_debug_print("R_plan = %f\n", R_plan);
     double d_plan = R_plan / Ttheta;
 
     tp_debug_print("R_geom = %f\nd_plan = %f\n", R_geom, d_plan);
-
 
     tp_debug_print("v_plan = %f\n", v_plan);
 
