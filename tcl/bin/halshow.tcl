@@ -602,12 +602,6 @@ if {[llength $::argv] > 0} {
   set idx 0
   while {$idx < [llength $::argv]} {
      switch [lindex $::argv $idx] {
-       "-ini" {
-               #the axis guis offers this but it is not used herein
-               #puts "inifile = [lindex $::argv $idx]"
-               incr idx
-               incr idx
-              }
        "--help" {incr idx; usage}
        default { set watchfile [lindex $::argv $idx]
                  if [file readable $watchfile] {

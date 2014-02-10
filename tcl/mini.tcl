@@ -988,7 +988,7 @@ $settingsmenu add separator
 $settingsmenu add command -label [msgcat::mc "Calibration..."] \
     -command "exec $linuxcnc::TCL_BIN_DIR/emccalib.tcl -- -ini $EMC_INIFILE &"
 $settingsmenu add command -label [msgcat::mc "HAL Show..."] \
-    -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
+    -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl &"
 $settingsmenu add command -label [msgcat::mc "HAL Config..."] \
     -command "exec $linuxcnc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
