@@ -2747,8 +2747,6 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         return TP_ERR_OK;
     }
 
-    tp_debug_print("in tpCheckEndCondition\n");
-
     double target_vel = tpGetRealTargetVel(tp, tc);
     double v_f = tpGetRealFinalVel(tp, tc, target_vel);
     double v_avg = (tc->currentvel + v_f) / 2.0;
@@ -2790,7 +2788,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
     if (recalc) {
         tp_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
-        if (disc < 0 ) {
+        if (disc < 0) {
             //Should mean that dx is too big, i.e. we're not close enough
             tp_debug_print(" dx = %f, too large, not at end yet\n",dx);
             return TP_ERR_NO_ACTION;
@@ -2799,7 +2797,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
             tp_debug_print("disc too small, skipping sqrt\n");
             dt =  -tc->currentvel / a;
-        } else if (a>0) {
+        } else if (a > 0) {
             tp_debug_print("using positive sqrt\n");
             dt = -tc->currentvel / a + pmSqrt(disc);
         } else {
