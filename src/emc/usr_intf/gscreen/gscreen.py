@@ -1562,7 +1562,7 @@ class Gscreen:
     # opens halshow
     def on_halshow(self,*args):
         print "halshow",TCLPATH
-        p = os.popen("tclsh %s/bin/halshow.tcl -- -ini %s &" % (TCLPATH,self.inipath))
+        p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
 
     # opens the calibration program
     def on_calibration(self,*args):
