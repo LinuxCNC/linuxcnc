@@ -1243,9 +1243,8 @@ proc ::ngcgui::gui {hdl mode args} {
       set ::ngc($hdl,id)      0
       set ::ngc($hdl,savect)  0
       conf $hdl restart,widget state disabled
-      set ::ngc($hdl,ftypes)  { {{NGC}   {.ngc}} \
-                                {{GCMC} {.gcmc}} \
-                              }
+      set ::ngc($hdl,ftypes,subfile) { {{GCODE,GCMC}   {.ngc .gcmc}} }
+      set ::ngc($hdl,ftypes,other)   { {{NGC}   {.ngc}} }
       # initializations:
       set ::ngc($hdl,data,preamble)    ""
       set ::ngc($hdl,data,postamble)   ""
@@ -1513,7 +1512,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,preamble)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,other) \
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
@@ -1594,7 +1593,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,postamble)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,other) \
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
@@ -1644,7 +1643,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,subfile)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,subfile) \
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
@@ -1967,7 +1966,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,outfile)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,subfile) \
            ]
       set filename [string trim $filename]
       # sometimes leading blanks get in
