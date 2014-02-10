@@ -955,20 +955,17 @@ STATIC int tpFinalizeSegmentLength(TP_STRUCT const * const tp, TC_STRUCT * const
 
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
-    #warning not implemented
     return TP_ERR_FAIL;
 }
 
 
 STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
-    #warning not implemented
     return TP_ERR_FAIL;
 }
 
 STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT * const blend_tc)
 {
-#warning Not implemented yet
     return TP_ERR_FAIL;
 }
 
@@ -1275,7 +1272,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 
 STATIC blend_type_t tpCheckBlendArcType(TP_STRUCT const * const tp,
         TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc, double period) {
+        TC_STRUCT const * const tc) {
     double omega = 0.0;
 
     if (!prev_tc || !tc) {
@@ -1569,7 +1566,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     TC_STRUCT blend_tc;
 
-    blend_type_t type = tpCheckBlendArcType(tp, prev_tc, tc, tp->cycleTime);
+    blend_type_t type = tpCheckBlendArcType(tp, prev_tc, tc);
     int res=TP_ERR_FAIL;
     switch (type) { 
         case BLEND_LINE_LINE:
@@ -2961,6 +2958,8 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //spindle or other conditions
     tpFlagEarlyStop(tp, tc, nexttc);
     tpFlagEarlyStop(tp, nexttc, next2_tc);
+
+    //If the segment after next is the last in the queue, then assume we're at the end of the program and run the optimizer over it
     tpForceFinalizeSegment(tp, next2_tc);
 
     if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
