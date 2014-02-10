@@ -45,6 +45,7 @@
                 <property name="invisible_char">&#x25CF;</property>
                 <property name="adjustment">slow_dac_adjust</property>
                 <property name="digits">2</property>
+                <signal name="value_changed" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -60,6 +61,7 @@
                 <property name="invisible_char">&#x25CF;</property>
                 <property name="adjustment">fast_dac_adjust</property>
                 <property name="digits">2</property>
+                <signal name="value_changed" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -90,6 +92,7 @@
                 <property name="receives_default">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
+                <signal name="group_changed" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="top_attach">1</property>
@@ -117,6 +120,8 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <signal name="pressed" handler="on_oloop_jogplus_pressed"/>
+                    <signal name="released" handler="on_oloop_jogplus_released"/>
                     <child>
                       <object class="GtkImage" id="image4">
                         <property name="visible">True</property>
@@ -135,6 +140,8 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <signal name="pressed" handler="on_oloop_jogminus_pressed"/>
+                    <signal name="released" handler="on_oloop_jogminus_released"/>
                     <child>
                       <object class="GtkImage" id="image10">
                         <property name="visible">True</property>
@@ -164,6 +171,7 @@
                 <property name="invisible_char">&#x25CF;</property>
                 <property name="adjustment">dac_offset_adjust</property>
                 <property name="digits">4</property>
+                <signal name="value_changed" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -200,6 +208,7 @@
                 <property name="invisible_char">&#x25CF;</property>
                 <property name="adjustment">openloop_encoder_adjust</property>
                 <property name="digits">3</property>
+                <signal name="value_changed" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -214,6 +223,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <signal name="pressed" handler="on_resetbutton_pressed"/>
+                <signal name="released" handler="on_resetbutton_released"/>
               </object>
               <packing>
                 <property name="top_attach">11</property>
@@ -226,6 +237,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <signal name="toggled" handler="on_oloop_enableamp_toggled"/>
               </object>
               <packing>
                 <property name="top_attach">8</property>
@@ -239,6 +251,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -254,6 +267,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="draw_indicator">True</property>
+                <signal name="toggled" handler="update_oloop_params"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -349,7 +363,6 @@
             <child>
               <object class="GtkTable" id="xtunepage">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="n_rows">10</property>
                 <property name="n_columns">2</property>
                 <child>
@@ -384,6 +397,7 @@
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_tuneinvertmotor_toggled"/>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -401,6 +415,8 @@
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="pressed" handler="on_tune_jogminus_pressed"/>
+                        <signal name="released" handler="on_tune_jogminus_released"/>
                         <child>
                           <object class="GtkImage" id="image6">
                             <property name="visible">True</property>
@@ -421,6 +437,8 @@
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <signal name="pressed" handler="on_tune_jogplus_pressed"/>
+                        <signal name="released" handler="on_tune_jogplus_released"/>
                         <child>
                           <object class="GtkImage" id="image7">
                             <property name="visible">True</property>
@@ -480,6 +498,14 @@
                     <child>
                       <object class="GtkComboBox" id="xtunedir">
                         <property name="visible">True</property>
+                        <property name="model">test_direction_store</property>
+                        <signal name="changed" handler="on_update_tune_params"/>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -494,6 +520,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_length_adjust</property>
                         <property name="climb_rate">1</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -544,6 +571,7 @@
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_pause_adjust</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -585,6 +613,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <signal name="toggled" handler="on_update_tune_params"/>
                     <child>
                       <object class="GtkHBox" id="hbox17">
                         <property name="visible">True</property>
@@ -629,6 +658,7 @@
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <signal name="toggled" handler="on_update_tune_params"/>
                     <child>
                       <object class="GtkHBox" id="hbox35">
                         <property name="visible">True</property>
@@ -647,7 +677,6 @@
                         <child>
                           <object class="GtkLabel" id="label486">
                             <property name="visible">True</property>
-                            <property name="sensitive">False</property>
                             <property name="label" translatable="yes">Run</property>
                             <property name="use_underline">True</property>
                           </object>
@@ -702,6 +731,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_accl_adjust</property>
                         <property name="climb_rate">1</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -739,6 +769,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_vel_adjust</property>
                         <property name="climb_rate">1</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -971,6 +1002,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_p_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -985,6 +1017,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_i_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -999,6 +1032,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_d_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -1013,6 +1047,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_ff0_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -1027,6 +1062,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_ff1_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -1041,6 +1077,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_ff2_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -1099,6 +1136,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_bias_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -1113,6 +1151,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">tune_deadband_adjust</property>
                         <property name="digits">4</property>
                       </object>
                       <packing>
@@ -1231,6 +1270,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">step_time_adjust</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1244,6 +1285,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">step_space_adjust</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1257,6 +1300,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">dir_hold_adjust</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1270,6 +1315,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">dir_setup_adjust</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2686,21 +2733,24 @@
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="fast_dac_adjust">
+    <property name="value">1</property>
     <property name="upper">100</property>
     <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="slow_dac_adjust">
+    <property name="value">0.5</property>
     <property name="upper">100</property>
-    <property name="step_increment">1</property>
+    <property name="step_increment">0.25</property>
   </object>
   <object class="GtkAdjustment" id="dac_offset_adjust">
     <property name="lower">-100</property>
     <property name="upper">100</property>
-    <property name="step_increment">1</property>
   </object>
   <object class="GtkAdjustment" id="openloop_encoder_adjust">
+    <property name="value">1000</property>
+    <property name="lower">1</property>
     <property name="upper">100000</property>
-    <property name="step_increment">0.97999999999999998</property>
+    <property name="step_increment">100</property>
   </object>
   <object class="GtkAdjustment" id="tune_vel_adjust">
     <property name="upper">6000</property>
@@ -2716,6 +2766,79 @@
   </object>
   <object class="GtkAdjustment" id="tune_pause_adjust">
     <property name="upper">15</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="step_time_adjust">
+    <property name="value">1000</property>
+    <property name="lower">100</property>
+    <property name="upper">5000</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="step_space_adjust">
+    <property name="value">1000</property>
+    <property name="lower">100</property>
+    <property name="upper">5000</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="dir_hold_adjust">
+    <property name="value">1000</property>
+    <property name="lower">100</property>
+    <property name="upper">5000</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="dir_setup_adjust">
+    <property name="value">1000</property>
+    <property name="lower">100</property>
+    <property name="upper">5000</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkListStore" id="test_direction_store">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">&#xB1;</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">+</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">-</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="tune_p_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_i_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_d_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_ff0_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_ff1_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_ff2_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_bias_adjust">
+    <property name="upper">6000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="tune_deadband_adjust">
+    <property name="upper">6000</property>
     <property name="step_increment">1</property>
   </object>
 </interface>

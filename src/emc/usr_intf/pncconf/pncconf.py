@@ -665,8 +665,6 @@ class Data:
             self[temp+"comptype"]= 0
             self[temp+"usebacklash"]= 0
             self[temp+"backlash"]= 0
-            self[temp+"maxvel"]= 1.667
-            self[temp+"maxacc"]= 2
             self[temp+"invertmotor"]= 0
             self[temp+"invertencoder"]= 0
             self[temp+"3pwmscale"]= 1
@@ -687,21 +685,14 @@ class Data:
             self[temp+"stepspace"]= 1000
             self[temp+"dirhold"]= 1000
             self[temp+"dirsetup"]= 1000
-            self[temp+"minferror"]= .0005
-            self[temp+"maxferror"]= .005
             self[temp+"homepos"]= 0
-            self[temp+"minlim"]=  0
-            self[temp+"maxlim"]=  8
             self[temp+"homesw"]=  0
-            self[temp+"homesearchvel"]= .05
-            self[temp+"homelatchvel"]= .025
             self[temp+"homefinalvel"]= 0
             self[temp+"latchdir"]= 0
             self[temp+"searchdir"]= 0
             self[temp+"usehomeindex"]= 0
             self[temp+"stepscale"]= 0
             self[temp+"encoderscale"]= 0
-
             self[temp+"bldc_option"]= False
             self[temp+"bldc_config"]= ""
             self[temp+"bldc_no_feedback"]= False
@@ -749,6 +740,10 @@ class Data:
                 self[i+'maxvel'] = 1
                 self[i+'maxacc'] = 30
                 self[i+'homevel'] = .05
+                self[i+"homesearchvel"]= .05
+                self[i+"homelatchvel"]= .025
+                self[i+"minferror"]= .05
+                self[i+"maxferror"]= .5
                 if not i == 'z':
                     self[i+'minlim'] = 0
                     self[i+'maxlim'] = 8
@@ -760,6 +755,10 @@ class Data:
                 self[i+'maxvel'] = 25
                 self[i+'maxacc'] = 750
                 self[i+'homevel'] = 1.5
+                self[i+"homesearchvel"]= 1
+                self[i+"homelatchvel"]= .5
+                self[i+"minferror"]= 1
+                self[i+"maxferror"]= 10
                 if not i =='z':
                     self[i+'minlim'] = 0
                     self[i+'maxlim'] = 200
