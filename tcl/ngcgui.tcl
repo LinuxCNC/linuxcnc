@@ -954,8 +954,12 @@ proc ::ngcgui::parse_gcmc {hdl ay_name filename args} {
       set ::ngc(any,gcmc,executable) [find_gcmc]
       # outdir has to be in path
       # use first dir in path as dir for temporary ofile
-      set ::ngc(any,gcmc,outdir) [file normalize [lindex $::ngc(any,paths) 0]]
+      if ![info exists ::ngc(any,paths)] {
+        set ::ngc(any,paths) [file normalize [file dirname $filename]]
+        puts "\nngcgui: [_ "not embedded, deriving outdir from:"] $filename\n"
+      }
 
+      set ::ngc(any,gcmc,outdir) [file normalize [lindex $::ngc(any,paths) 0]]
       set ::ngc(any,gcmc,funcname) tmpgcmc ;# append session id and suffix
       # clean up prior runs by moving to tmp
       if ![catch  {set flist [glob [file join $::ngc(any,gcmc,outdir) \
@@ -1659,6 +1663,8 @@ if {0} {
         set ::ngc($hdl,gcmc,file) $::ngc($hdl,fname,subfile)
         $::ngc($hdl,expandsubroutine,widget) configure -state disable
       } else {
+        # in case earlier an earlier find for gcmc failed;
+        catch {unset ::ngc($hdl,gcmc,file)}
         $::ngc($hdl,expandsubroutine,widget) configure -state normal
       }
       if {   ![string match *.ngc $::ngc($hdl,fname,subfile)] \
@@ -2322,6 +2328,9 @@ proc ::ngcgui::savesection_gcmc {hdl} {
     # use first one found in searchpath:
     set ifile [file normalize \
                     [pathto [file tail $::ngc($hdl,gcmc,file)]]]
+    if {"$ifile" == ""} {
+      return 0 ;# fail
+    }
     set ::ngc($hdl,gcmc,realfile) $ifile
 
     set ofile [file join $::ngc(any,gcmc,outdir) $funcname.ngc]
