@@ -1207,7 +1207,6 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
 STATIC blend_type_t tpCheckBlendArcType(TP_STRUCT const * const tp,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc) {
-    double omega = 0.0;
 
     if (!prev_tc || !tc) {
         tp_debug_print("prev_tc or tc doesn't exist\n");
@@ -1223,14 +1222,6 @@ STATIC blend_type_t tpCheckBlendArcType(TP_STRUCT const * const tp,
     //If we have any rotary axis motion, then don't create a blend arc
     if (tpRotaryMotionCheck(tp, tc) || tpRotaryMotionCheck(tp, prev_tc)) {
         tp_debug_print("One of the segments has rotary motion, aborting blend arc\n");
-        return BLEND_NONE;
-    }
-
-    //If the corner is too tight, a circular arc would have zero radius. Fall
-    //back to default blend.
-    const double min_angle = TP_MIN_ARC_ANGLE;
-    if ((PM_PI - omega) < min_angle ) {
-        tp_debug_print("Corner angle omega = %f < min angle %f\n", omega, min_angle);
         return BLEND_NONE;
     }
 
@@ -2677,12 +2668,14 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tc->target;
         tcSetSplitCycle(tc, 0.0, tc->currentvel);
+        if (tc->term_cond == TC_TERM_COND_STOP) {
+            tc->remove = 1;
+        }
         return TP_ERR_OK;
+    } else if (tc->term_cond == TC_TERM_COND_STOP) {
+        return TP_ERR_NO_ACTION;
     }
 
-    if (tc->term_cond == TC_TERM_COND_STOP) {
-        return TP_ERR_OK;
-    }
 
     double target_vel = tpGetRealTargetVel(tp, tc);
     double v_f = tpGetRealFinalVel(tp, tc, target_vel);
