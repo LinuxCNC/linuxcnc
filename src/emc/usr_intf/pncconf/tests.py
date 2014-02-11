@@ -41,19 +41,52 @@ class TESTS:
         if not self.a.check_for_rt(self):
             return
         panelname = os.path.join(_PD.DISTDIR, "configurable_options/pyvcp")
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )  
+        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null "% {'panelname':panelname,}, "w" )
+        if debug:
+            halrun.write("echo\n")
         halrun.write("loadrt threads period1=100000 name1=base-thread fp1=0 period2=%d name2=servo-thread\n"% self.d.servoperiod)
-        self.hal_cmnds("LOAD")
+        halrun.write("loadrt probe_parport\n")
+        load,read,write = self.a.pport_command_string()
+        for i in load:
+            halrun.write('%s\n'%i)
         for i in range(0,self.d.number_pports ):
             halrun.write("loadusr -Wn parport%(number)dtest pyvcp -g +%(pos)d+0 -c parport%(number)dtest %(panel)s\n" 
                     % {'pos':(i*300),'number':i,'panel':"parportpanel.xml\n",})
         halrun.write("loadrt or2 count=%d\n"%(self.d.number_pports * 12))
-        self.hal_cmnds("READ")
+        for i in read:
+            halrun.write('%s\n'%i)
         for i in range(0,(self.d.number_pports * 12)):
            halrun.write("addf or2.%d base-thread\n"% i)
         halrun.write("loadusr halmeter pin parport.0.pin-01-out -g 0 500\n")
-        self.hal_cmnds("WRITE")
-        
+        for i in write:
+            halrun.write('%s\n'%i)
+        # print out signals to help page:
+        signaltext=''
+        portname = 'pp1'
+        for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
+            pinv = '%s_Ipin%d_inv' % (portname, pin)
+            signaltree = self.d._gpioisignaltree
+            signaltocheck =_PD.hal_input_names
+            p, signal, invert = self.a.pport_push_data(portname,'Ipin',pin,pinv,signaltree,signaltocheck)
+            signaltext += '%s %s %s\n'%(p,signal,invert)
+        # check output pins
+        for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
+            pinv = '%s_Opin%d_inv' % (portname, pin)
+            signaltree = self.d._gpioosignaltree
+            signaltocheck = _PD.hal_output_names
+            p, signal, invert = self.a.pport_push_data(portname,'Opin',pin,pinv,signaltree,signaltocheck)
+            signaltext += '%s %s %s\n'%(p,signal,invert)
+        textbuffer = self.w.textoutput.get_buffer()
+        try :         
+            textbuffer.set_text(signaltext)
+            self.w.helpnotebook.set_current_page(2)
+            self.w.help_window.show_all()
+            while gtk.events_pending():
+                gtk.main_iteration()
+        except:
+            text = _("Pin names are unavailable\n")
+            self.a.warning_dialog(text,True)
+
         templist = ("pp1","pp2","pp3")
         for j in range(self.d.number_pports):         
             if self.d[templist[j]+"_direction"] == 1:
@@ -106,11 +139,14 @@ class TESTS:
             width = self.w.pyvcpwidth.get_value()
             height = self.w.pyvcpheight.get_value()
             size = "%dx%d"% (width,height)    
-        self.halrun = halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )    
+        halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null"% {'panelname':panelname,}, "w" )
+        if debug:
+            halrun.write("echo\n")
         halrun.write("loadusr -Wn displaytest pyvcp -g %(size)s%(pos)s -c displaytest %(panel)s\n" %{'size':size,'pos':pos,'panel':panel,})
         if self.w.pyvcp1.get_active() == True:
                 halrun.write("setp displaytest.spindle-speed 1000\n")
-        halrun.write("waitusr displaytest\n"); halrun.flush()
+        halrun.write("waitusr displaytest\n")
+        halrun.flush()
         halrun.close()
 
     def display_gladevcp_panel(self):
@@ -136,8 +172,11 @@ But there is not one in the machine-named folder.."""),True)
         if not self.w.gladevcptheme.get_active_text() == "Follow System Theme":
             options ="-t %s"% (self.w.gladevcptheme.get_active_text())
             print options
-        self.halrun = halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )    
-        halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{'size':size,'pos':pos,'option':options})
+        halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
+        if debug:
+            halrun.write("echo\n")
+        halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{
+                        'size':size,'pos':pos,'option':options})
         if self.w.spindlespeedbar.get_active():
             halrun.write("setp displaytest.spindle-speed 500\n")
         if self.w.zerox.get_active():
@@ -153,7 +192,8 @@ But there is not one in the machine-named folder.."""),True)
         if self.w.spindleatspeed.get_active():
             halrun.write("setp displaytest.spindle-at-speed-led true\n")
         halrun.write("setp displaytest.button-box-active true\n")
-        halrun.write("waitusr displaytest\n"); halrun.flush()
+        halrun.write("waitusr displaytest\n")
+        halrun.flush()
         halrun.close()
 
     def gladevcptestpanel(self,w):
@@ -356,13 +396,11 @@ But there is not one in the machine-named folder.."""),True)
 </interface>""")
         file.close()
 
-
-
     # for classicladder test  
     def load_ladder(self,w): 
         newfilename = os.path.join(_PD.DISTDIR, "configurable_options/ladder/TEMP.clp")    
         self.d.modbus = self.w.modbus.get_active()
-        self.halrun = halrun = os.popen("halrun -Is > /dev/null", "w")
+        halrun = os.popen("halrun -Is > /dev/null", "w")
         if debug:
             halrun.write("echo\n")
         halrun.write(""" 
@@ -404,10 +442,12 @@ But there is not one in the machine-named folder.."""),True)
         else:
             filename = os.path.join(_PD.DISTDIR, "configurable_options/ladder/"+ self.d.laddername)        
         if self.d.modbus == True: 
-            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newname)s %(filename)s\n" %                                  {'newname':newfilename,'filename':filename})
+            halrun.write("loadusr -w classicladder --modmaster --newpath=%(newname)s %(filename)s\n" %                                  {
+                            'newname':newfilename,'filename':filename})
         else:
             halrun.write("loadusr -w classicladder --newpath=%(newname)s %(filename)s\n" % { 'newname':newfilename ,'filename':filename })
-        halrun.write("start\n"); halrun.flush()
+        halrun.write("start\n")
+        halrun.flush()
         halrun.close()
         if os.path.exists(newfilename):
             self.d.tempexists = True
@@ -420,6 +460,7 @@ But there is not one in the machine-named folder.."""),True)
     def tune_axis(self, axis):
         def get_value(d):
             return self.a.get_value(d)
+
         if not self.a.check_for_rt(self):
             return
         d = self.d
@@ -513,8 +554,11 @@ But there is not one in the machine-named folder.."""),True)
         """ % {'period':100000, 'period2':self.d.servoperiod })   
         if not self.stepgen: 
             halrun.write("loadrt pid num_chan=1\n")
-        self.hal_cmnds("LOAD")
-        self.hal_cmnds("READ")
+        load,read,write = self.a.hostmot2_command_string()
+        for i in load:
+            halrun.write('%s\n'%i)
+        for i in read:
+            halrun.write('%s\n'%i)
         if pump:
             halrun.write( "loadrt charge_pump\n")
             halrun.write( "net enable charge-pump.enable\n")
@@ -524,7 +568,8 @@ But there is not one in the machine-named folder.."""),True)
         if not self.stepgen: 
             halrun.write("addf pid.0.do-pid-calcs servo-thread \n")
         halrun.write("addf scale_to_rpm servo-thread \n")
-        self.hal_cmnds("WRITE")
+        for i in write:
+            halrun.write('%s\n'%i)
         halrun.write( "newsig estop-out bit\n")
         halrun.write( "sets estop-out false\n")
         # search and connect I/o signals needed to enable amps etc
@@ -620,7 +665,8 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("net feedback steptest.0.position-fb <= %s.position \n"% (self.enc_signalname))
    
         self.updaterunning = True
-        halrun.write("start\n"); halrun.flush()
+        halrun.write("start\n")
+        halrun.flush()
         w.tunedialog.set_title(_("%s Axis Tune") % axis.upper())
         w.tunedialog.move(550,0)
         w.tunedialog.show_all()
@@ -808,18 +854,20 @@ But there is not one in the machine-named folder.."""),True)
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.d.findsignal("charge-pump")
 
-        halrun.write("loadrt threads period1=%d name1=base-thread fp1=0 period2=%d name2=servo-thread \n" % (100000, self.d.servoperiod  ))       
-        self.hal_cmnds("LOAD")
-        #halrun.write("loadrt steptest\n")
+        halrun.write("loadrt threads period1=%d name1=base-thread fp1=0 period2=%d name2=servo-thread \n" % (100000, self.d.servoperiod  ))
+        load,read,write = self.a.hostmot2_command_string()
+        for i in load:
+            halrun.write('%s\n'%i)
         halrun.write("loadusr halscope\n")
-        self.hal_cmnds("READ")
+        for i in read:
+            halrun.write('%s\n'%i)
         if pump:
             halrun.write( "loadrt charge_pump\n")
             halrun.write( "net enable charge-pump.enable\n")
             halrun.write( "net charge-pump <= charge-pump.out\n")
             halrun.write( "addf charge-pump servo-thread\n")
-        #halrun.write("addf steptest.0 servo-thread\n")
-        self.hal_cmnds("WRITE")
+        for i in write:
+            halrun.write('%s\n'%i)
         halrun.write( "newsig estop-out bit\n")
         halrun.write( "sets estop-out false\n")
         halrun.write( "newsig enable-not bit\n")
@@ -1062,141 +1110,23 @@ But there is not one in the machine-named folder.."""),True)
                 if not p == "unused-output":
                     write_pins(pname,p,i,None)
 
-    def hal_cmnds(self,command ):
-        halrun = self.halrun
-        if command == "LOAD":
-            halrun.write("loadrt probe_parport\n")
-            # parport stuff
-            if self.d.number_pports>0:
-                port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
-                if self.d.number_pports>2:
-                     port3name = " " + self.d.ioaddr3
-                     if self.d.pp3_direction:
-                        port3dir =" out"
-                     else: 
-                        port3dir =" in"
-                if self.d.number_pports>1:
-                     port2name = " " + self.d.ioaddr2
-                     if self.d.pp2_direction:
-                        port2dir =" out"
-                     else: 
-                        port2dir =" in"
-                port1name = self.d.ioaddr1
-                if self.d.pp1_direction:
-                   port1dir =" out"
-                else: 
-                   port1dir =" in"
-                halrun.write("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
-            # mesa stuff
-            halrun.write("loadrt hostmot2\n")
-            board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
-            board1 = self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
-            driver0 = self.d.mesa0_currentfirmwaredata[_PD._HALDRIVER]
-            driver1 = self.d.mesa1_currentfirmwaredata[_PD._HALDRIVER]
-            directory0 = self.d.mesa0_currentfirmwaredata[_PD._DIRECTORY]
-            directory1 = self.d.mesa1_currentfirmwaredata[_PD._DIRECTORY]
-            firm0 = self.d.mesa0_currentfirmwaredata[_PD._FIRMWARE]
-            firm1 = self.d.mesa1_currentfirmwaredata[_PD._FIRMWARE]
-            firmstring0 = firmstring1 = ""
-            if not "5i25" in board0:
-                firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
-            if not "5i25" in board1:
-                firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
-            # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-            if self.d.mesa0_numof_sserialports:
-                for i in range(1,9):
-                    if i <= self.d.mesa0_numof_sserialchannels:
-                        # if m1 in the name then it needs mode 1
-                        if "m1" in self.d["mesa0sserial0_%dsubboard"% (i-1)]:
-                            temp = temp + "1"
-                        else:
-                            temp = temp + "0"
-                    else:
-                        temp = temp + "x"
-                ssconfig0 = "sserial_port_0=%s"% temp
-            if self.d.mesa1_numof_sserialports:
-                for i in range(1,9):
-                    if i <= self.d.mesa1_numof_sserialchannels:
-                        # if m1 in the name then it needs mode 1
-                        if "m1" in self.d["mesa1sserial1_%dsubboard"% (i-1)]:
-                            temp = temp + "1"
-                        else:
-                            temp = temp + "0"
-                    else:
-                        temp = temp + "x"
-                ssconfig1 = "sserial_port_0=%s"% temp
-            if self.d.mesa0_numof_resolvers:
-                resolver0 = "num_resolvers=%d"% self.d.mesa0_numof_resolvers
-            if self.d.mesa1_numof_resolvers:
-                resolver1 = "num_resolvers=%d"% self.d.mesa1_numof_resolvers
-
-            if self.d.number_mesa == 1:            
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
-                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens, ssconfig0, resolver0))
-            elif self.d.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,\
-                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n""" % (
-                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, self.d.mesa0_numof_tppwmgens,
-                        self.d.mesa0_numof_stepgens, ssconfig0, resolver0, firmstring1, self.d.mesa1_numof_encodergens,
- self.d.mesa1_numof_pwmgens, self.d.mesa1_numof_tppwmgens,self.d.mesa1_numof_stepgens, ssconfig1, resolver1))
-            elif self.d.number_mesa == 2:
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" %s %s\n """ % (
-                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens, ssconfig0, resolver0 ))
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
-                    driver1, firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, self.d.mesa0_numof_tppwmgens, self.d.mesa1_numof_stepgens, ssconfig1, resolver1 ))
-            for boardnum in range(0,int(self.d.number_mesa)):
-                if boardnum == 1 and (board0 == board1):
-                    halnum = 1
-                else:
-                    halnum = 0
-                if self.d["mesa%d_numof_pwmgens"% boardnum] > 0:
-                    halrun.write( "    setp hm2_%s.%d.pwmgen.pwm_frequency %d\n"% (
-                     self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum, self.d["mesa%d_pwm_frequency"% boardnum] ))
-                    halrun.write( "    setp hm2_%s.%d.pwmgen.pdm_frequency %d\n"% ( 
-                    self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum,self.d["mesa%d_pdm_frequency"% boardnum] ))
-                halrun.write( "    setp hm2_%s.%d.watchdog.timeout_ns %d\n"% ( 
-                    self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum,self.d["mesa%d_watchdog_timeout"% boardnum] ))  
-        if command == "READ":
-            if self.d.number_pports > 0:
-                halrun.write( "addf parport.0.read base-thread\n")
-            if self.d.number_pports > 1:
-                halrun.write( "addf parport.1.read base-thread\n")
-            if self.d.number_pports > 2:
-                halrun.write( "addf parport.2.read base-thread\n")
-            for boardnum in range(0,int(self.d.number_mesa)):
-                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
-                    halnum = 1
-                else:
-                    halnum = 0         
-                halrun.write( "addf hm2_%s.%d.read servo-thread\n"% (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
-                halrun.write( "addf hm2_%s.%d.pet_watchdog  servo-thread\n"% (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
-        if command == "WRITE":
-            if self.d.number_pports > 0:
-                halrun.write( "addf parport.0.write base-thread\n")
-            if self.d.number_pports > 1:
-                halrun.write( "addf parport.1.write base-thread\n")
-            if self.d.number_pports > 2:
-                halrun.write( "addf parport.2.write base-thread\n")
-            for boardnum in range(0,int(self.d.number_mesa)):
-                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
-                    halnum = 1
-                else:
-                    halnum = 0         
-                halrun.write( "addf hm2_%s.%d.write servo-thread\n"% (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
-
-
     def launch_mesa_panel(self):
         if not self.a.check_for_rt(): return
         if not self.a.warning_dialog(_("Do to technical reasons this test panel can be loaded only once without reloading pncconf.\
 You also will not be able to do any other testing untill you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
 I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
                         return
-        self.halrun = os.popen("halrun -Is > /dev/null", "w") 
+        self.halrun = os.popen("halrun -Is > /dev/null", "w")
+        if debug:
+            halrun.write("echo\n")
         self.halrun.write("loadrt threads period1=50000 name1=base-thread fp1=0 period2=1000000 name2=servo-thread\n")
-        self.hal_cmnds("LOAD")
-        self.hal_cmnds("READ")
-        self.hal_cmnds("WRITE")
+        load,read,write= self.a.hostmot2_command_string()
+        for i in load:
+            halrun.write('%s\n'%i)
+        for i in read:
+            halrun.write('%s\n'%i)
+        for i in write:
+            halrun.write('%s\n'%i)
         self.halrun.write("start\n")
         self.halrun.write("loadusr  halmeter\n")
         self.halrun.flush()

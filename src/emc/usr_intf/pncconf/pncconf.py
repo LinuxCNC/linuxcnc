@@ -4025,8 +4025,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             #self.debug_iter(piter,p,"signal")
             dummy, index = signaltree.get(piter,0,1)
             #print "signaltree: ",dummy
-            self.d[p] = signaltocheck[index]
-            self.d[pinv] = self.widgets[pinv].get_active()
+            return p, signaltocheck[index], self.widgets[pinv].get_active()
 
     def set_pport_combo(self,pinname):
             #print pinname
