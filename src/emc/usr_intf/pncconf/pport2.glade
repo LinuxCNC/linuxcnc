@@ -1445,7 +1445,20 @@
           <placeholder/>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkButton" id="pp2_testbutton">
+            <property name="label" translatable="yes">Launch Test Panel</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">3</property>
+            <property name="right_attach">4</property>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+            <property name="x_options">GTK_FILL</property>
+            <property name="y_options"></property>
+          </packing>
         </child>
       </object>
       <packing>
