@@ -80,92 +80,20 @@ class HAL:
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
         print >>file, "loadrt probe_parport"
-        print >>file, "loadrt hostmot2"
-        board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
-        board1 = self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
-        driver0 = self.d.mesa0_currentfirmwaredata[_PD._HALDRIVER]
-        driver1 = self.d.mesa1_currentfirmwaredata[_PD._HALDRIVER]
-        directory0 = self.d.mesa0_currentfirmwaredata[_PD._DIRECTORY]
-        directory1 = self.d.mesa1_currentfirmwaredata[_PD._DIRECTORY]
-        firm0 = self.d.mesa0_currentfirmwaredata[_PD._FIRMWARE]
-        firm1 = self.d.mesa1_currentfirmwaredata[_PD._FIRMWARE]
-        # TODO fix this hardcoded hack: only one serial port
-        ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-        if self.d.mesa0_numof_resolvers:
-            resolver0 = "num_resolvers=%d"% self.d.mesa0_numof_resolvers
-        if self.d.mesa1_numof_resolvers:
-            resolver1 = "num_resolvers=%d"% self.d.mesa1_numof_resolvers
-        if self.d.mesa0_numof_sserialports:
-            for i in range(1,9):
-                if i <= self.d.mesa0_numof_sserialchannels:
-                    # if m1 in the name then it needs mode 1
-                    if "m1" in self.d["mesa0sserial0_%dsubboard"% (i-1)]:
-                        temp = temp + "1"
-                    else:
-                        temp = temp + "0"
-                else:
-                    temp = temp + "x"
-            ssconfig0 = "sserial_port_0=%s"% temp
-        if self.d.mesa1_numof_sserialports:
-            for i in range(1,9):
-                if i <= self.d.mesa1_numof_sserialchannels:
-                    # if m1 in the name then it needs mode 1
-                    if "m1" in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
-                        temp = temp + "1"
-                    else:
-                        temp = temp + "0"
-                else:
-                    temp = temp + "x"
-            ssconfig1 = "sserial_port_0=%s"% temp
-        firmstring0 = firmstring1 = ""
-        if not "5i25" in board0:
-            firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
-        if not "5i25" in board1:
-            firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
-        if self.d.number_mesa == 1:            
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens ,ssconfig0, resolver0)
-        elif self.d.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"
-                    """ % ( driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens, ssconfig0, resolver0,firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, self.d.mesa1_numof_tppwmgens, self.d.mesa1_numof_stepgens, ssconfig1, resolver1 )
-        elif self.d.number_mesa == 2:
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, self.d.mesa0_numof_tppwmgens,self.d.mesa0_numof_stepgens, ssconfig0, resolver0 )
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    driver1, firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, self.d.mesa0_numof_tppwmgens,self.d.mesa1_numof_stepgens, ssconfig1, resolver1 )
-        for boardnum in range(0,int(self.d.number_mesa)):
-            if boardnum == 1 and (board0 == board1):
-                halnum = 1
-            else:
-                halnum = 0
-            if self.d["mesa%d_numof_pwmgens"% boardnum] > 0:
-                print >>file, "setp     hm2_%s.%d.pwmgen.pwm_frequency %d"% ( self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],
-                     halnum, self.d["mesa%d_pwm_frequency"% boardnum] )
-                print >>file, "setp     hm2_%s.%d.pwmgen.pdm_frequency %d"% ( self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],
-                     halnum,self.d["mesa%d_pdm_frequency"% boardnum] )
-            print >>file, "setp     hm2_%s.%d.watchdog.timeout_ns %d"% ( self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],
-                     halnum,self.d["mesa%d_watchdog_timeout"% boardnum] )
+        # pre process mesa commands
+        mesa_load_cmnd,mesa_read_cmnd,mesa_write_cmnd = self.a.hostmot2_command_string()
+        if self.d.number_pports:
+            # pre process pport commands
+            pport_load_cmnd,pport_read_cmnd,pport_write_cmnd = self.a.pport_command_string()
+        # print the mesa load commands
+        for i in mesa_load_cmnd:
+            print >>file, "%s"%i
 
         if self.d.number_pports>0:
-            port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
-            if self.d.number_pports>2:
-                 port3name = " " + self.d.ioaddr3
-                 if self.d.pp3_direction:
-                    port3dir =" out"
-                 else: 
-                    port3dir =" in"
-            if self.d.number_pports>1:
-                 port2name = " " + self.d.ioaddr2
-                 if self.d.pp2_direction:
-                    port2dir =" out"
-                 else: 
-                    port2dir =" in"
-            port1name = self.d.ioaddr1
-            if self.d.pp1_direction:
-               port1dir =" out"
-            else: 
-               port1dir =" in"
-            print >>file, "loadrt hal_parport cfg=\"%s%s%s%s%s%s\"" % (port1name, port1dir, port2name, port2dir, port3name, port3dir)
+            # print the pport load commands
+            for i in pport_load_cmnd:
+                print >>file, "%s"%i
+
 
         if self.d.joystickjog:
             print >>file, "loadusr -W hal_input -KRAL %s\n"% self.d.usbdevicename
@@ -314,12 +242,10 @@ class HAL:
                 print >>file, i 
 
         print >>file
-        if self.d.number_pports > 0:
-            print >>file, "addf parport.0.read servo-thread"
-        if self.d.number_pports > 1:
-            print >>file, "addf parport.1.read servo-thread"
-        if self.d.number_pports > 2:
-            print >>file, "addf parport.2.read servo-thread"
+        # print parport read commands
+        if self.d.number_pports:
+            for i in pport_read_cmnd:
+                print >>file, "%s"%i
  
         if pump: print >>file, "addf charge-pump servo-thread"
            
@@ -327,23 +253,13 @@ class HAL:
             if not i == '':
                 print >>file, i +" base-thread"
 
-        if self.d.number_pports > 0:
-            print >>file, "addf parport.0.write servo-thread"         
-        if self.d.number_pports > 1:
-            print >>file, "addf parport.1.write servo-thread"
-        if self.d.number_pports > 2:
-            print >>file, "addf parport.2.write servo-thread"
+        # print mesa read commands
         if self.d.number_mesa:
-            for boardnum in range(0,int(self.d.number_mesa)):
-                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
-                    halnum = 1
-                else:
-                    halnum = 0
-                if self.d.number_mesa> 0:
-                    print >>file, "addf hm2_%s.%d.read servo-thread"% (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum)
+            for i in mesa_read_cmnd:
+                print >>file, "%s"%i
             
-        print >>file, "addf motion-command-handler servo-thread"
-        print >>file, "addf motion-controller servo-thread"
+        print >>file, "addf motion-command-handler   servo-thread"
+        print >>file, "addf motion-controller        servo-thread"
 
         if not pidlist == "":
             temp = pidlist.split(",")
@@ -390,14 +306,14 @@ class HAL:
                 print >>file, i +" servo-thread"
         if not at_speed and self.d.suseatspeed:
             print >>file, "addf near.0                   servo-thread"
+        # print parport write commands
+        if self.d.number_pports:
+            for i in pport_write_cmnd:
+                print >>file, "%s"%i
         if self.d.number_mesa:
-            for boardnum in range(0,int(self.d.number_mesa)):
-                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
-                    halnum = 1
-                else:
-                    halnum = 0         
-                print >>file, "addf hm2_%s.%d.write         servo-thread"% (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum)
-                print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum)
+            # print mesa write commands
+            for i in mesa_write_cmnd:
+                print >>file, "%s"%i
 
         if chargepump:
             steppinname = self.d.make_pinname(chargepump)

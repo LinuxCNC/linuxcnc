@@ -5039,6 +5039,143 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
             print formatted_lines[-1]
 
+    def hostmot2_command_string(self):
+            # mesa stuff
+            load_cmnds = []
+            load_cmnds.append("loadrt hostmot2")
+            board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
+            board1 = self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
+            driver0 = self.d.mesa0_currentfirmwaredata[_PD._HALDRIVER]
+            driver1 = self.d.mesa1_currentfirmwaredata[_PD._HALDRIVER]
+            directory0 = self.d.mesa0_currentfirmwaredata[_PD._DIRECTORY]
+            directory1 = self.d.mesa1_currentfirmwaredata[_PD._DIRECTORY]
+            firm0 = self.d.mesa0_currentfirmwaredata[_PD._FIRMWARE]
+            firm1 = self.d.mesa1_currentfirmwaredata[_PD._FIRMWARE]
+            firmstring0 = firmstring1 = ""
+            if not "5i25" in board0:
+                firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
+            if not "5i25" in board1:
+                firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
+            # TODO fix this hardcoded hack: only one serialport
+            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
+            if self.d.mesa0_numof_sserialports:
+                for i in range(1,9):
+                    if i <= self.d.mesa0_numof_sserialchannels:
+                        # if m1 in the name then it needs mode 1
+                        if "m1" in self.d["mesa0sserial0_%dsubboard"% (i-1)]:
+                            temp = temp + "1"
+                        else:
+                            temp = temp + "0"
+                    else:
+                        temp = temp + "x"
+                ssconfig0 = "sserial_port_0=%s"% temp
+            if self.d.mesa1_numof_sserialports:
+                for i in range(1,9):
+                    if i <= self.d.mesa1_numof_sserialchannels:
+                        # if m1 in the name then it needs mode 1
+                        if "m1" in self.d["mesa1sserial1_%dsubboard"% (i-1)]:
+                            temp = temp + "1"
+                        else:
+                            temp = temp + "0"
+                    else:
+                        temp = temp + "x"
+                ssconfig1 = "sserial_port_0=%s"% temp
+            if self.d.mesa0_numof_resolvers:
+                resolver0 = "num_resolvers=%d"% self.d.mesa0_numof_resolvers
+            if self.d.mesa1_numof_resolvers:
+                resolver1 = "num_resolvers=%d"% self.d.mesa1_numof_resolvers
+
+            if self.d.number_mesa == 1:            
+                load_cmnds.append( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, 
+                    self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens, ssconfig0, resolver0))
+            elif self.d.number_mesa == 2 and (driver0 == driver1):
+                load_cmnds.append( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,\
+                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens,
+                     self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens, ssconfig0, resolver0, firmstring1,
+                    self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, self.d.mesa1_numof_tppwmgens,
+                    self.d.mesa1_numof_stepgens, ssconfig1, resolver1))
+            elif self.d.number_mesa == 2:
+                load_cmnds.append( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" %s %s """ % (
+                    driver0, firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens,
+                    self.d.mesa0_numof_tppwmgens, self.d.mesa0_numof_stepgens, ssconfig0, resolver0 ))
+                load_cmnds.append( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver1, firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens,
+                    self.d.mesa0_numof_tppwmgens, self.d.mesa1_numof_stepgens, ssconfig1, resolver1 ))
+            for boardnum in range(0,int(self.d.number_mesa)):
+                if boardnum == 1 and (board0 == board1):
+                    halnum = 1
+                else:
+                    halnum = 0
+                if self.d["mesa%d_numof_pwmgens"% boardnum] > 0:
+                    load_cmnds.append( "setp    hm2_%s.%d.pwmgen.pwm_frequency %d"% (
+                     self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum, self.d["mesa%d_pwm_frequency"% boardnum] ))
+                    load_cmnds.append( "setp    hm2_%s.%d.pwmgen.pdm_frequency %d"% ( 
+                    self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum,self.d["mesa%d_pdm_frequency"% boardnum] ))
+                load_cmnds.append( "setp    hm2_%s.%d.watchdog.timeout_ns %d"% ( 
+                    self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum,self.d["mesa%d_watchdog_timeout"% boardnum] ))
+            # READ
+            read_cmnds = []
+            for boardnum in range(0,int(self.d.number_mesa)):
+                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
+                    halnum = 1
+                else:
+                    halnum = 0         
+                read_cmnds.append( "addf hm2_%s.%d.read          servo-thread"%
+                    (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+            # WRITE
+            write_cmnds = []
+            for boardnum in range(0,int(self.d.number_mesa)):
+                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
+                    halnum = 1
+                else:
+                    halnum = 0         
+                write_cmnds.append( "addf hm2_%s.%d.write         servo-thread"%
+                    (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+                write_cmnds.append( "addf hm2_%s.%d.pet_watchdog  servo-thread"%
+                    (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
+            return load_cmnds,read_cmnds,write_cmnds
+
+    def pport_command_string(self):
+        # LOAD
+        load_cmnds = []
+        # parport stuff
+        port3name = port2name = port1name = port3dir = port2dir = port1dir = ""
+        if self.d.number_pports>2:
+             port3name = " " + self.d.ioaddr3
+             if self.d.pp3_direction:
+                port3dir =" out"
+             else: 
+                port3dir =" in"
+        if self.d.number_pports>1:
+             port2name = " " + self.d.ioaddr2
+             if self.d.pp2_direction:
+                port2dir =" out"
+             else: 
+                port2dir =" in"
+        port1name = self.d.ioaddr1
+        if self.d.pp1_direction:
+            port1dir =" out"
+        else: 
+           port1dir =" in"
+        load_cmnds.append("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
+        # READ
+        read_cmnds = []
+        read_cmnds.append(      "addf parport.0.read           servo-thread")
+        if self.d.number_pports > 1:
+            read_cmnds.append(  "addf parport.1.read           servo-thread")
+        if self.d.number_pports > 2:
+            read_cmnds.append(  "addf parport.2.read           servo-thread")
+        # WRITE
+        write_cmnds = []
+        write_cmnds.append(     "addf parport.0.write          servo-thread")
+        if self.d.number_pports > 1:
+            write_cmnds.append( "addf parport.1.write          servo-thread")
+        if self.d.number_pports > 2:
+            write_cmnds.append( "addf parport.2.write          servo-thread")
+        return load_cmnds,read_cmnds,write_cmnds
+
 # Boiler code
     def __getitem__(self, item):
         return getattr(self, item)
