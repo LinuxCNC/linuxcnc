@@ -11,6 +11,7 @@ from time import sleep
 from os import listdir
 from os.path import isfile, join
 import re
+import Tkinter, os
 
 def query_yes_no(question, default="yes"):
     """Ask a yes/no question via raw_input() and return their answer.
@@ -52,6 +53,11 @@ def find_test_nc_files(testpath='nc_files', show=False):
             print f
     return files
 
+def axis_open_program(t,f):
+    return t.tk.call("send", "axis", ("remote","open_file_name", os.path.abspath(f)))
+
+t = Tkinter.Tk()
+t.wm_withdraw()
 
 """Run the test"""
 
@@ -64,7 +70,7 @@ if run_quick:
 run_spindle = query_yes_no("Run spindle synchronization tests?")
 
 if run_spindle:
-    test_files.extend(find_test_nc_files('nc_files/spindle-sync',True))
+    test_files.extend(find_test_nc_files('nc_files/spindle',True))
 
 run_performance = query_yes_no("Do run time performance tests?")
 
@@ -96,7 +102,7 @@ for f in test_files:
         print "Loading program {0}".format(f)
         e.set_mode(linuxcnc.MODE_AUTO)
         sleep(1)
-        e.open_program("../{0}".format(f))
+        axis_open_program(t,f)
         sleep(1)
         e.set_mode(linuxcnc.MODE_AUTO)
         while e.run_full_program():
