@@ -75,6 +75,8 @@ class Pages:
             dbg( "FWD search %s,%s,%s,%s,%s,of %d pages"%(u,name,text,init_state,state,len(self._p.available_page)-1))
             if state and not init_state:
                 self.set_buttons_sensitive(0,0)
+                while gtk.events_pending():
+                    gtk.main_iteration()
                 dbg( 'Loading page %s'%name)
                 self.a.builder.add_from_file(os.path.join(self._p.DATADIR, '%s.glade'%name))
                 page = self.a.builder.get_object(name)
@@ -866,6 +868,12 @@ class Pages:
             p = 'pp1_Ipin%d_inv' % pin
             self.w[p].set_active(self.d[p])
 
+        # Can't use parport test till all the parport pages are loaded
+        if  self.d.number_pports >1:
+            state = False
+        else:
+            state = True
+        self.w.pp1_testbutton.set_visible(state)
         self.w.pp1_Opin1.grab_focus()
         self.w.pp1_direction.set_active(self.d.pp1_direction)
         self.on_pp1_direction_changed(self.w.pp1_direction)
@@ -880,14 +888,18 @@ class Pages:
             pinv = '%s_Ipin%d_inv' % (portname, pin)
             signaltree = self.d._gpioisignaltree
             signaltocheck = self._p.hal_input_names
-            self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            p, signal, invert = self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            self.d[p] = signal
+            self.d[pinv] = invert
         # check output pins
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):           
             direction = "Opin"
             pinv = '%s_Opin%d_inv' % (portname, pin)
             signaltree = self.d._gpioosignaltree
             signaltocheck = self._p.hal_output_names
-            self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            p, signal, invert = self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            self.d[p] = signal
+            self.d[pinv] = invert
         self.d.pp1_direction = self.w.pp1_direction.get_active()
         self.d.ioaddr1 = self.w.ioaddr1.get_text()
 
@@ -929,6 +941,7 @@ class Pages:
                 self.d[i] = int(self.w[cb].child.connect("activate", self.a.on_general_pin_changed,"parport",connector,"Opin",None,pin,True))
         self.w.pp2_direction.connect('changed', self.on_pp2_direction_changed)
         self.w.pp2_address_search.connect('clicked', self.on_address_search_clicked)
+        self.w.pp2_testbutton.connect('clicked', self.on_pport_panel_clicked)
 
     def pport2_prepare(self):
         self.d.help = 5
@@ -960,14 +973,18 @@ class Pages:
             pinv = '%s_Ipin%d_inv' % (portname, pin)
             signaltree = self.d._gpioisignaltree
             signaltocheck = self._p.hal_input_names
-            self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            p, signal, invert = self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            self.d[p] = signal
+            self.d[pinv] = invert
         # check output pins
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):           
             direction = "Opin"
             pinv = '%s_Opin%d_inv' % (portname, pin)
             signaltree = self.d._gpioosignaltree
             signaltocheck = self._p.hal_output_names
-            self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            p, signal, invert = self.a.pport_push_data(portname,direction,pin,pinv,signaltree,signaltocheck)
+            self.d[p] = signal
+            self.d[pinv] = invert
         self.d.pp2_direction = self.w.pp2_direction.get_active()
         self.d.ioaddr2 = self.w.ioaddr2.get_text()
 
