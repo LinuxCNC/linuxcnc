@@ -2758,6 +2758,10 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         return TP_ERR_OK;
     }
 
+    if (tc->term_cond == TC_TERM_COND_STOP) {
+        return TP_ERR_OK;
+    }
+
     double target_vel = tpGetRealTargetVel(tp, tc);
     double v_f = tpGetRealFinalVel(tp, tc, target_vel);
     double v_avg = (tc->currentvel + v_f) / 2.0;
