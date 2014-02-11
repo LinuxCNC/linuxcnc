@@ -1223,6 +1223,21 @@ STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc
     return TP_ERR_OK;
 }
 
+STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const tc)
+{
+    if (!tc || !prev_tc) {
+        return TP_ERR_FAIL;
+    }
+
+    if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE) ||
+            (prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
+        tp_debug_print("Can't blend between rapid and feed move\n");
+        tcSetTermCond(prev_tc,TC_TERM_COND_STOP);
+    }
+    return TP_ERR_OK;
+
+}
+
 
 /**
  * Adds a rigid tap cycle to the motion queue.
@@ -1674,15 +1689,13 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
 
     prev_tc = tcqLast(&tp->queue);
+    tpCheckCanonType(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         //TODO add check for two spaces in queue?
         tpHandleBlendArc(tp, &tc);
     }
     tcCheckLastParabolic(&tc, prev_tc);
     tpFinalizeSegmentLength(tp, prev_tc);
-
-    //Flag this as blending with previous segment if the previous segment is
-    //set to blend with this one
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
@@ -1782,6 +1795,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
 
+    tpCheckCanonType(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
         tpHandleBlendArc(tp, &tc);
     }
