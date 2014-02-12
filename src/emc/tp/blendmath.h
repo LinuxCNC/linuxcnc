@@ -69,6 +69,7 @@ typedef struct {
     double v_actual;    /* velocity at feedscale = 1.0 */
     double s_arc;       /* arc length */
     int consume;        /* Consume the previous segment */
+    double line_length;
     //Arc specific stuff
     int convex1;
     int convex2;
