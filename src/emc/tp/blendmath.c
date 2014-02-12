@@ -609,6 +609,11 @@ int blendCheckConsume(BlendParameters * const param,
     double prev_seg_time = L_prev / param->v_plan;
 
     param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time);
+    if (param->consume) {
+        param->line_length = L_prev;
+    } else {
+        param->line_length = 0;
+    }
     return 0;
 }
 
@@ -859,11 +864,7 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
 {
     // If we consume the previous line, the remaining line length gets added here
     arc->uTan = geom->u1;
-    if (param->consume) {
-        arc->line_length = param->L1 - param->d_plan;
-    } else {
-        arc->line_length = 0;
-    }
+    arc->line_length = param->line_length;
 
     // Create the arc from the processed points
     return arcInitFromPoints(arc, &points->arc_start,
