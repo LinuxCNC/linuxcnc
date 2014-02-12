@@ -118,12 +118,8 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
 bool pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol);
 
-int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale);
+bool pmCircLineCoplanar(PmCircle const * const circ,
+        PmCartLine const * const line, double tol);
 
 int blendCalculateNormals3(BlendGeom3 * const geom);
 
@@ -135,6 +131,27 @@ int blendCheckConsume(BlendParameters * const param,
 int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
         BlendParameters const * const param);
 
+int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc,
+        PmCartesian const * const acc_bound,
+        PmCartesian const * const vel_bound,
+        double maxFeedScale);
+
+int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc,
+        PmCartesian const * const acc_bound,
+        PmCartesian const * const vel_bound,
+        double maxFeedScale);
+
+int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc,
+        PmCartesian const * const acc_bound,
+        PmCartesian const * const vel_bound,
+        double maxFeedScale);
+
 int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
@@ -145,6 +162,14 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
 int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
         BlendParameters * const param, BlendGeom3 const * const geom,
         PmCircle const * const circ1, PmCircle const * const circ2);
+
+int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
+        BlendParameters * const param, BlendGeom3 const * const geom,
+        PmCartLine const * const line1, PmCircle const * const circ2);
+
+int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
+        BlendParameters * const param, BlendGeom3 const * const geom,
+        PmCircle const * const circ1, PmCartLine const * const line2);
 
 int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
         BlendGeom3 const * const geom, BlendParameters const * const param);

@@ -754,13 +754,241 @@ STATIC int tpFinalizeSegmentLength(TP_STRUCT const * const tp, TC_STRUCT * const
 
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
-    return TP_ERR_FAIL;
+    //TODO type checks
+    int coplanar = pmCircLineCoplanar(&tc->coords.circle.xyz,
+            &prev_tc->coords.line.xyz, TP_ANGLE_EPSILON);
+    if (!coplanar) {
+        return TP_ERR_FAIL;
+    }
+
+    PmCartesian acc_bound, vel_bound;
+    
+    //Get machine limits
+    tpGetMachineAccelBounds(&acc_bound);
+    tpGetMachineVelBounds(&vel_bound);
+
+    //Populate blend geometry struct
+    BlendGeom3 geom;
+    BlendParameters param;
+    BlendPoints3 points_approx;
+    BlendPoints3 points_exact;
+
+    int res_init = blendInit3FromLineArc(&geom, &param,
+            prev_tc,
+            tc,
+            &acc_bound,
+            &vel_bound,
+            emcmotConfig->maxFeedScale);
+    int res_param = blendComputeParameters(&param);
+    blendCheckConsume(&param, prev_tc, emcmotConfig->arcBlendGapCycles);
+
+    int res_points = blendFindPoints3(&points_approx, &geom, &param);
+    
+    int res_post = blendLineArcPostProcess(&points_exact,
+            &points_approx,
+            &param, 
+            &geom, &prev_tc->coords.line.xyz,
+            &tc->coords.circle.xyz);
+
+    //Catch errors in blend setup
+    if (res_init || res_param || res_points || res_post) {
+        return TP_ERR_FAIL;
+    }
+    
+    /* If blend calculations were successful, then we're ready to create the
+     * blend arc.
+     */
+
+    double phi2_new = tc->coords.circle.xyz.angle - points_exact.trim2;
+
+    // TODO pare down this debug output
+    tp_debug_print("phi2_new = %f\n",phi2_new);
+    tp_debug_print("circ2 angle = %f\n",
+            tc->coords.circle.xyz.angle);
+    tp_debug_print("next spiral = %f\n",
+            tc->coords.circle.xyz.spiral);
+    tp_debug_print("normal = %f %f %f\n",
+            tc->coords.circle.xyz.normal.x,
+            tc->coords.circle.xyz.normal.y,
+            tc->coords.circle.xyz.normal.z);
+    tp_debug_print("rHelix = %f %f %f\n",
+            tc->coords.circle.xyz.rHelix.x,
+            tc->coords.circle.xyz.rHelix.y,
+            tc->coords.circle.xyz.rHelix.z);
+
+    if (points_exact.trim2 > param.phi2_max) {
+        tp_debug_print("trim2 %f > phi2_max %f, aborting arc...\n",
+                points_exact.trim2,
+                param.phi2_max);
+        return TP_ERR_FAIL;
+    }
+
+    // Change lengths of circles
+    // FIXME partial failure after this point leaves us in an unrecoverable
+    // state. We might need to do a copy and swap to
+    // ensure that we can quit at any time without borking the existing
+    // geometry.
+    double new_len1 = prev_tc->target - points_exact.trim1;
+    int res_stretch1 = pmCartLineStretch(&prev_tc->coords.line.xyz,
+            new_len1,
+            false);
+    //TODO create blends
+    if (res_stretch1 != TP_ERR_OK) {
+        return TP_ERR_FAIL;
+    }
+
+    int res_stretch2 = pmCircleStretch(&tc->coords.circle.xyz,
+            phi2_new,
+            true);
+    //TODO create blends
+    if (res_stretch2 != TP_ERR_OK) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"aborting after length change!\n");
+        return TP_ERR_FAIL;
+    }
+
+    //Update targets with new arc length
+    prev_tc->target = prev_tc->coords.line.xyz.tmag;
+    tc->target = tc->coords.circle.xyz.angle *
+        tc->coords.circle.xyz.radius;
+
+    //Cleanup any mess from parabolic
+    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
+    blendPoints3Print(&points_exact);
+    //Get exact start and end points to account for spiral in arcs
+    pmCirclePoint(&tc->coords.circle.xyz,
+            0.0,
+            &points_exact.arc_end);
+    //TODO deal with large spiral values, or else detect and fall back?
+
+    tp_debug_print("Modified arc points\n");
+    blendPoints3Print(&points_exact);
+    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+
+    // Note that previous restrictions don't allow ABC or UVW movement, so the
+    // end and start points should be identical
+    blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
+    blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
+
+    //set the max velocity to v_plan, since we'll violate constraints otherwise.
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+            param.v_plan, param.a_max);
+    return TP_ERR_OK;
 }
 
 
 STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
-    return TP_ERR_FAIL;
+    //TODO type checks
+    int coplanar = pmCircLineCoplanar(&prev_tc->coords.circle.xyz,
+            &tc->coords.line.xyz, TP_ANGLE_EPSILON);
+    if (!coplanar) {
+        return TP_ERR_FAIL;
+    }
+
+    PmCartesian acc_bound, vel_bound;
+    
+    //Get machine limits
+    tpGetMachineAccelBounds(&acc_bound);
+    tpGetMachineVelBounds(&vel_bound);
+
+    //Populate blend geometry struct
+    BlendGeom3 geom;
+    BlendParameters param;
+    BlendPoints3 points_approx;
+    BlendPoints3 points_exact;
+    param.consume = 0;
+
+    int res_init = blendInit3FromArcLine(&geom, &param,
+            prev_tc,
+            tc,
+            &acc_bound,
+            &vel_bound,
+            emcmotConfig->maxFeedScale);
+    int res_param = blendComputeParameters(&param);
+    blendCheckConsume(&param, prev_tc, emcmotConfig->arcBlendGapCycles);
+
+    int res_points = blendFindPoints3(&points_approx, &geom, &param);
+    
+    int res_post = blendArcLinePostProcess(&points_exact,
+            &points_approx,
+            &param, 
+            &geom, &prev_tc->coords.circle.xyz,
+            &tc->coords.line.xyz);
+
+    //Catch errors in blend setup
+    if (res_init || res_param || res_points || res_post) {
+        return TP_ERR_FAIL;
+    }
+    
+    /* If blend calculations were successful, then we're ready to create the
+     * blend arc.
+     */
+
+    double phi1_new = prev_tc->coords.circle.xyz.angle - points_exact.trim1;
+
+    if (points_exact.trim1 > param.phi1_max) {
+        tp_debug_print("trim1 %f > phi1_max %f, aborting arc...\n",
+                points_exact.trim1,
+                param.phi1_max);
+        return TP_ERR_FAIL;
+    }
+
+    // Change lengths of circles
+    // FIXME partial failure after this point leaves us in an unrecoverable
+    // state. We might need to do a copy and swap to
+    // ensure that we can quit at any time without borking the existing
+    // geometry.
+    double new_len2 = tc->target - points_exact.trim2;
+    int res_stretch2 = pmCartLineStretch(&tc->coords.line.xyz,
+            new_len2,
+            true);
+    //TODO create blends
+    if (res_stretch2 != TP_ERR_OK) {
+        return TP_ERR_FAIL;
+    }
+
+    int res_stretch1 = pmCircleStretch(&prev_tc->coords.circle.xyz,
+            phi1_new,
+            false);
+    //TODO create blends
+    if (res_stretch1 != TP_ERR_OK) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"aborting after length change!\n");
+        return TP_ERR_FAIL;
+    }
+
+    //Update targets with new arc length
+    tc->target = tc->coords.line.xyz.tmag;
+    prev_tc->target = prev_tc->coords.circle.xyz.angle *
+        prev_tc->coords.circle.xyz.radius;
+
+    //Cleanup any mess from parabolic
+    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
+    blendPoints3Print(&points_exact);
+    //Get exact start and end points to account for spiral in arcs
+    /*pmCirclePoint(&prev_tc->coords.circle.xyz,*/
+            /*prev_tc->coords.circle.xyz.angle,*/
+            /*&points_exact.arc_start);*/
+
+    tp_debug_print("Modified arc points\n");
+    blendPoints3Print(&points_exact);
+    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+
+    // Note that previous restrictions don't allow ABC or UVW movement, so the
+    // end and start points should be identical
+    blend_tc->coords.arc.abc = tc->coords.line.abc.start;
+    blend_tc->coords.arc.uvw = tc->coords.line.uvw.start;
+
+    //No consuming
+    blend_tc->coords.arc.xyz.line_length = 0;
+
+    //set the max velocity to v_plan, since we'll violate constraints otherwise.
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+            param.v_plan, param.a_max);
+    return TP_ERR_OK;
 }
 
 STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
@@ -785,36 +1013,35 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     BlendPoints3 points_approx;
     BlendPoints3 points_exact;
 
-    int res_blend=0;
-    res_blend |= blendInit3FromArcs(&geom, &param,
+    int res_init = blendInit3FromArcs(&geom, &param,
             prev_tc,
             tc,
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
-    const double theta_min = PM_PI / 12.0;
-    if (param.theta < theta_min) {
-        tp_debug_print("theta = %f < min %f, aborting arc...\n",
-                param.theta,
-                theta_min);
-    }
 
-    res_blend |= blendComputeParameters(&param);
-    res_blend |= blendFindPoints3(&points_approx, &geom, &param);
-    res_blend |= blendArcArcPostProcess(&points_exact,
+    int res_param = blendComputeParameters(&param);
+    int res_points = blendFindPoints3(&points_approx, &geom, &param);
+    
+    int res_post = blendArcArcPostProcess(&points_exact,
             &points_approx,
             &param, 
             &geom, &prev_tc->coords.circle.xyz,
             &tc->coords.circle.xyz);
-    if (res_blend) {
+
+    //Catch errors in blend setup
+    if (res_init || res_param || res_points || res_post) {
         return TP_ERR_FAIL;
     }
-
-    // Set up actual blend arc here
+    
+    /* If blend calculations were successful, then we're ready to create the
+     * blend arc.
+     */
 
     double phi1_new = prev_tc->coords.circle.xyz.angle - points_exact.trim1;
     double phi2_new = tc->coords.circle.xyz.angle - points_exact.trim2;
 
+    // TODO pare down this debug output
     tp_debug_print("phi2_new = %f\n",phi2_new);
     tp_debug_print("circ2 angle = %f\n",
             tc->coords.circle.xyz.angle);
@@ -844,7 +1071,12 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
                 points_exact.trim2);
         return TP_ERR_FAIL;
     }
-    //Change lengths of circles
+
+    // Change lengths of circles
+    // FIXME partial failure after this point leaves us in an unrecoverable
+    // state. We might need to do a copy and swap to
+    // ensure that we can quit at any time without borking the existing
+    // geometry.
     int res_stretch1 = pmCircleStretch(&prev_tc->coords.circle.xyz,
             phi1_new,
             false);
@@ -887,8 +1119,8 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
-    blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
-    blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
+    blend_tc->coords.arc.abc = prev_tc->coords.circle.abc.end;
+    blend_tc->coords.arc.uvw = prev_tc->coords.circle.uvw.end;
 
     //No consuming
     blend_tc->coords.arc.xyz.line_length = 0;
@@ -896,7 +1128,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
-    return res_blend;
+    return TP_ERR_OK;
 }
 
 
