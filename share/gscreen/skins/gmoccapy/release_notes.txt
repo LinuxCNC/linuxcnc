@@ -1,3 +1,14 @@
+ver. 0.9.9.9.9
+- I added three new hal pin. This pin do allow to reduce or 
+  enlarge the soft limits, so a pin is able to protect your 
+  rotary table from colision, because if you do not use it, 
+  you just reduce your soft limits, or you got a tool changer
+  in the working area, you do not want a collision during normal
+  work, but you are forced to enter the tool change area to change 
+  a tool, so during tool change you enlarge the soft limits.
+  The pins are documented in the WIKI. You will get an error if you
+  reduce the limits and you are outside the area!
+
 ver. 0.9.9.9.8
 - toggle button setup was not handled correct by hardware 
   momentary switches, fixed that

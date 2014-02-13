@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.7"
+_RELEASE = "0.9.9.9.9"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -3121,6 +3121,14 @@ class HandlerClass:
         self.pin_del_message = hal_glib.GPin( self.halcomp.newpin( "delete-message", hal.HAL_BIT, hal.HAL_IN ) )
         self.pin_del_message.connect( "value_changed", self._del_message_changed )
 
+        # make some pin to be able to enlarge the working limits, i.e. if the tool changer is in that place
+        # and the soft limits are set to not have colision with the changer, you can use this pin to change
+        # the working area, you are responsible to be in the area if you reduce it!
+        self.pin_axis_to_set = hal_glib.GPin( self.halcomp.newpin( "axis-to-set", hal.HAL_S32, hal.HAL_IN ) )
+        self.pin_set_max_limit = hal_glib.GPin( self.halcomp.newpin( "set-max-limit", hal.HAL_BIT, hal.HAL_IN ) )
+        self.pin_limit_value = hal_glib.GPin( self.halcomp.newpin( "limit-value", hal.HAL_FLOAT, hal.HAL_IN ) )
+        self.pin_limit_value.connect( "value_changed", self._axis_limit_changed )
+
     def _offset_changed( self, pin, tooloffset ):
         if self.widgets.Combi_DRO_x.machine_units == _MM:
             self.widgets.lbl_tool_offset_z.set_text( "%.3f" % self.halcomp["tooloffset_z"] )
@@ -3132,6 +3140,14 @@ class HandlerClass:
     def _del_message_changed( self, pin ):
         if pin.get():
             self.notification.del_last()
+
+    def _axis_limit_changed( self, pin ):
+        if not pin.get() or self.stat.task_state == ( linuxcnc.STATE_ESTOP or linuxcnc.STATE_OFF ):
+            return
+        if self.halcomp["set-max-limit"] == True:
+            self.command.set_max_limit( self.halcomp["axis-to-set"], self.halcomp["limit-value"] )
+        else:
+            self.command.set_min_limit( self.halcomp["axis-to-set"], self.halcomp["limit-value"] )
 
     def _on_pin_incr_changed( self, pin, buttonnumber ):
         if not pin.get():
