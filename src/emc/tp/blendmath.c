@@ -907,7 +907,11 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     double s_arc2 = circ2->radius * circ2->angle;
     double t2 = param->L2 / s_arc2;
     double R2_local = circ2->radius + circ2->spiral * t2;
-    double R_final = fmin(param->R_plan,R2_local);
+    double R_final = param->R_plan;
+    if (param->convex2) {
+        R_final = fmin(R_final, circ2->radius / 2.0);
+        R_final = fmin(R_final, R2_local / 2.0);
+    }
 
     tp_debug_print("d_guess2 = %f\n", d_guess2);
     tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
@@ -1041,7 +1045,12 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     double s_arc1 = circ1->radius * circ1->angle;
     double t1 = (1.0 - (s_arc1 - param->L1) / s_arc1);
     double R1_local = circ1->radius + circ1->spiral * t1;
-    double R_final = fmin(param->R_plan, R1_local);
+
+    double R_final = param->R_plan;
+    if (param->convex1) {
+        R_final = fmin(R_final, circ1->radius / 2.0);
+        R_final = fmin(R_final, R1_local / 2.0);
+    }
 
     tp_debug_print("d_guess1 = %f\n", d_guess1);
     tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
@@ -1194,13 +1203,17 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     // From the guessed center, find the minimum radius required to intersect the circles
     double R_final = fmin(negate(d_guess1 - R1_local, param->convex1),
             negate(d_guess2 - R2_local, param->convex2));
-    //KLUDGE force to less than original radius or solution breaks down
-    R_final = fmin(R_final, circ1->radius);
-    R_final = fmin(R_final, circ2->radius);
-    if (param->convex1 || param->convex2) {
+
+    if (param->convex1){
         // Convex blends have weird side-effects, so don't increase radius
-        R_final = fmin(R_final, param->R_plan);
+        R_final = fmin(R_final, circ1->radius / 2.0);
+        R_final = fmin(R_final, R1_local / 2.0);
     }
+    if (param->convex2) {
+        R_final = fmin(R_final, circ2->radius / 2.0);
+        R_final = fmin(R_final, R2_local / 2.0);
+    }
+
     tp_debug_print("d_guess1 = %f, d_guess2 = %f\n", d_guess1, d_guess2);
     tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
 
