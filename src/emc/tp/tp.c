@@ -968,10 +968,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     blendPoints3Print(&points_exact);
-    //Get exact start and end points to account for spiral in arcs
-    /*pmCirclePoint(&prev_tc->coords.circle.xyz,*/
-            /*prev_tc->coords.circle.xyz.angle,*/
-            /*&points_exact.arc_start);*/
 
     tp_debug_print("Modified arc points\n");
     blendPoints3Print(&points_exact);
