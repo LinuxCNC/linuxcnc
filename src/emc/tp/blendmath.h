@@ -27,6 +27,8 @@ typedef struct {
     PmCartesian P;          /* Intersection point */
     PmCartesian normal;   /* normal unit vector to plane containing lines */
     PmCartesian binormal;   /* binormal unit vector to plane containing lines */
+    PmCartesian u_tan1;     /* Actual tangent vector to 1 (used for arcs only) */
+    PmCartesian u_tan2;
 } BlendGeom3;
 
 /**

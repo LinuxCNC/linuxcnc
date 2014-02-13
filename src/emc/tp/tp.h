@@ -40,6 +40,7 @@
 #define TP_MIN_ARC_ANGLE 1e-3
 #define TP_MIN_ARC_LENGTH 1e-6
 #define TP_BIG_NUM 1e10
+#define TP_ARC_ACCEL_REDUCTION 1.0
 
 /**
  * TP return codes.
