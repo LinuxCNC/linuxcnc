@@ -558,8 +558,6 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
         geom->u1 = u_tan1;
     }
 
-    blendGeom3Print(geom);
-
     if (param->convex2) {
         PmCartesian blend_point;
         pmCirclePoint(&tc->coords.circle.xyz,
@@ -572,6 +570,7 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
     } else {
         geom->u2 = u_tan2;
     }
+    blendGeom3Print(geom);
 
     // Calculate angles between lines
     int res_angle = findIntersectionAngle(&geom->u1,
@@ -942,7 +941,10 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     }
     double C = pmSq(c2_u) - pmSq(d2) + pmSq(R_final - c2_n);
     double root0,root1;
-    quadraticFormula(A, B, C, &root0, &root1);
+    int res_dist = quadraticFormula(A, B, C, &root0, &root1);
+    if (res_dist) {
+        return TP_ERR_FAIL;
+    }
 
     tp_debug_print("root0 = %f, root1 = %f\n",root0, 
             root1);
@@ -1022,6 +1024,11 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         BlendParameters * const param, BlendGeom3 const * const geom,
         PmCircle const * const circ1, PmCartLine const * const line2)
 {
+    tp_debug_print("circ1 center = %f %f %f\n",
+            circ1->center.x,
+            circ1->center.y,
+            circ1->center.z);
+    tp_debug_print("circ1 radius = %f\n", circ1->radius);
 
     //TODO need convex1 / convex2 here to flip signs on radius
     //Find the distance from the approximate center to each circle center
@@ -1068,7 +1075,10 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     }
     double C = pmSq(c1_u) - pmSq(d1) + pmSq(R_final - c1_n);
     double root0,root1;
-    quadraticFormula(A, B, C, &root0, &root1);
+    int res_dist = quadraticFormula(A, B, C, &root0, &root1);
+    if (res_dist) {
+        return TP_ERR_FAIL;
+    }
 
     tp_debug_print("root0 = %f, root1 = %f\n",root0, 
             root1);
@@ -1344,7 +1354,9 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
     // If we consume the previous line, the remaining line length gets added here
     arc->uTan = geom->u1;
     arc->line_length = param->line_length;
-    tp_debug_print("consumed prev line with length %f\n", param->line_length);
+    if (param->consume) {
+        tp_debug_print("consumed prev line with length %f\n", param->line_length);
+    }
 
     // Create the arc from the processed points
     return arcInitFromPoints(arc, &points->arc_start,
