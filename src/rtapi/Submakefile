@@ -276,3 +276,25 @@ TARGETS += ../libexec/flavor
 	@mkdir -p $(dir $@)
 	bash $< > $@
 TARGETS += ../etc/linuxcnc/rtapi.ini
+
+##################################################################
+#                    RTAPI Python bindings
+#                    flavor introspection etc
+##################################################################
+RTAPIMODULESRCS := rtapi/rtapimodule.cc
+PYSRCS += $(RTAPIMODULESRCS)
+
+RTAPIMODULE := ../lib/python/rtapi.so
+
+BOOST_PYTHON_LIBS := -lboost_python
+
+$(call TOOBJSDEPS, $(RTAPIMODULESRCS)): \
+	EXTRAFLAGS += -fPIC $(shell python-config --cflags)
+
+$(RTAPIMODULE): $(call TOOBJS, $(RTAPIMODULESRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
+	$(BOOST_PYTHON_LIBS) \
+	$(shell python-config --libs)  $(HALLIB)
+
+PYTARGETS +=  $(RTAPIMODULE)
