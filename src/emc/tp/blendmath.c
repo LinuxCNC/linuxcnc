@@ -233,86 +233,8 @@ int quadraticFormula(double A, double B, double C, double * const root0,
 }
 
 /**
- * @section linearc Line-Arc blending functions
+ * @section blending blend math functions 
  */
-
-
-STATIC int findArcLineDist(double a, double b, double R1, double T,
-        int convex, double * const d)
-{
-    /* Compute distance along line segment where tangent arc with tolerance T will hit.*/
-    /*   a = (P-C1) . u2*/
-    /*   b = (P-C1) . n2*/
-    if (!d) {
-        return TP_ERR_MISSING_OUTPUT;
-    }
-    double sgn = 1.0;
-    if (convex) {
-        sgn=-1.0;
-    }
-
-    double A = T/(b-sgn*R1)-1.0;
-    double B = T*a/(b-sgn*R1);
-    double C = pmSq(T);;
-
-    double d0 = 0;
-    double d1 = 0;
-
-    int err = quadraticFormula(A, B, C, &d0, &d1);
-    if (d0>0 && d1>0) {
-        *d=fmin(d0,d1);
-    } else {
-        *d=fmax(d0,d1);
-    }
-    return err;
-
-}
-
-STATIC int findRadiusFromDist(double a, double b, double R1, double d, int convex, double * const R)
-{
-
-    if (!R) {
-        return TP_ERR_MISSING_OUTPUT;
-    }
-    //For the arc-line case, when a distance d is specified, find the corresponding radius
-    double sgn = convex ? -1.0 : 1.0;
-
-    double den = (R1-sgn*b);
-    if (fabs(den) < TP_POS_EPSILON) {
-        tp_debug_print("den = %g, near 0\n", den);
-        return TP_ERR_FAIL;
-    }
-
-    *R = sgn * (pmSq(d) / 2.0 + a * d) / den;
-
-    return TP_ERR_OK;
-
-}
-
-STATIC int findDistFromRadius(double a, double b, double R1, double R, int convex, double * const d)
-{
-    if (!d) {
-        return TP_ERR_MISSING_OUTPUT;
-    }
-    double sgn = 1.0;
-    if (convex) {
-        sgn=-1;
-    }
-
-    double A = 1.0;
-    double B = 2.0*a;
-    double C = 2.0*(-sgn * R1 + b) * R;
-    double d0=0;
-    double d1=0;
-
-    int err = quadraticFormula(A,B,C,&d0,&d1);
-    if (d0>0 && d1>0){
-        *d=fmin(d0,d1);
-    } else {
-        *d=fmax(d0,d1);
-    }
-    return err;
-}
 
 /**
  * Setup blend paramaters based on a line and an arc.
