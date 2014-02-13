@@ -320,6 +320,11 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
     return 0;
 }
 
+// determine if ulapi.so loaded
+int ulapi_loaded(void) {
+    return (rtapi_switch->thread_flavor_id != RTAPI_NOTLOADED_ID);
+}
+
 //  ULAPI cleanup. Call the exit handler and unload ulapi-<flavor>.so.
 void ulapi_cleanup(void)
 {
