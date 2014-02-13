@@ -59,6 +59,38 @@ typedef enum {
 
 #define NB_MAX_BUTTONS 32
 
+#define STEPSIZE_BYTE 35
+
+// the defines below were found for an 18 button device
+// bit 'or' patterns for STEPSIZE_BYTE
+#define DISPLAY_HOME_ICON           0x10
+#define DISPLAY_HEIGHT_SETTING_ICON 0x20
+#define DISPLAY_HEIGHT_UNKNOWN_40   0x40
+#define DISPLAY_HEIGHT_UNKNOWN_80   0x80
+
+#define STEPSIZE_DISPLAY_0          0x00
+#define STEPSIZE_DISPLAY_1          0x01
+#define STEPSIZE_DISPLAY_5          0x02
+#define STEPSIZE_DISPLAY_10         0x03
+#define STEPSIZE_DISPLAY_20         0x04
+#define STEPSIZE_DISPLAY_30         0x05
+#define STEPSIZE_DISPLAY_40         0x06
+#define STEPSIZE_DISPLAY_50         0x07
+#define STEPSIZE_DISPLAY_100        0x08
+#define STEPSIZE_DISPLAY_500        0x09
+#define STEPSIZE_DISPLAY_1000       0x0A
+#define STEPSIZE_DISPLAY_P6         0x0B
+#define STEPSIZE_DISPLAY_UNKNOWN_0C 0x0C
+#define STEPSIZE_DISPLAY_UNKNOWN_0D 0x0D
+#define STEPSIZE_DISPLAY_UNKNOWN_0E 0x0E
+#define STEPSIZE_DISPLAY_UNKNOWN_0F 0x0F
+
+// alternate stepsize sequences (use STEPSIZE_DISPLAY_*), terminate with 0:
+static const int  stepsize_sequence_1[] = {1,10,100,1000,0}; // default
+static const int  stepsize_sequence_2[] = {1,5,10,20,0};
+static const int* stepsize_sequence = stepsize_sequence_1; // use the default
+static int stepsize_idx = 0; // start at initial (zeroth) sequence
+
 typedef struct {
 	hal_float_t *x_wc, *y_wc, *z_wc, *a_wc;
 	hal_float_t *x_mc, *y_mc, *z_mc, *a_mc;
@@ -179,18 +211,19 @@ void xhc_display_encode(xhc_t *xhc, unsigned char *data, int len)
 	p += xhc_encode_s16(round(60.0 * *(xhc->hal->spindle_rps)), p);
 
 	switch (*(xhc->hal->stepsize)) {
-	case 1:
-		buf[35] = 0x01;
-		break;
-	case 10:
-		buf[35] = 0x03;
-		break;
-	case 100:
-		buf[35] = 0x08;
-		break;
-	case 1000:
-		buf[35] = 0x0A;
-		break;
+	case    0: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_0; break;
+	case    1: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_1; break;
+	case    5: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_5; break;
+	case   10: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_10; break;
+	case   20: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_20; break;
+	case   30: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_30; break;
+	case   40: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_40; break;
+	case   50: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_50; break;
+	case  100: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_100; break;
+	case  500: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_500; break;
+	case 1000: buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_1000; break;
+	default:   //stepsize not supported on the display:
+			   buf[STEPSIZE_BYTE] = STEPSIZE_DISPLAY_0; break;
 	}
 
 	// Multiplex to 6 USB transactions
@@ -331,12 +364,16 @@ void handle_step(xhc_t *xhc)
 	int _stepsize = *(xhc->hal->stepsize);	// Use a local variable to avoid STEP display as 0 on pendant during transitions
 
 	_inc_step_status = *(xhc->hal->stepsize_up);
-	_inc_step_status = (xhc->button_step && xhc->button_code == xhc->button_step);
 
-	if (_inc_step_status  &&  ! xhc->old_inc_step_status) _stepsize = 10 * _stepsize;
+	if (_inc_step_status  &&  ! xhc->old_inc_step_status) {
+		stepsize_idx++;
+		// restart idx when 0 terminator reached:
+		if (stepsize_sequence[stepsize_idx] == 0) stepsize_idx = 0;
+		_stepsize = stepsize_sequence[stepsize_idx];
+	}
 
 	xhc->old_inc_step_status = _inc_step_status;
-	if (_stepsize > 1000 || _stepsize <= 0) _stepsize = 1;
+
 	*(xhc->hal->stepsize) = _stepsize;
 	*(xhc->hal->jog_scale) = *(xhc->hal->stepsize) * 0.001f;
 }
@@ -572,11 +609,14 @@ int read_ini_file(char *filename)
 static void Usage(char *name)
 {
 	fprintf(stderr, "%s version %s by Frederic RIBLE (frible@teaser.fr)\n", name, PACKAGE_VERSION);
-    fprintf(stderr, "Usage: %s [-I ini-file] [-h] [-H]\n", name);
+    fprintf(stderr, "Usage: %s [-I ini-file] [-h] [-H] [-s 1|2]\n", name);
     fprintf(stderr, " -I ini-file: configuration file defining the MPG keyboard layout\n");
     fprintf(stderr, " -h: usage\n");
     fprintf(stderr, " -H: run in real-time HAL mode (run in simulation mode by default)\n");
     fprintf(stderr, " -x: wait for pendant detection before creating HAL pins\n");
+    fprintf(stderr, " -s: step sequence (*.001 unit):\n");
+    fprintf(stderr, "     1: 1,10,100,1000 (default)\n");
+    fprintf(stderr, "     2: 1,5,10,20\n");
 }
 
 int main (int argc,char **argv)
@@ -594,14 +634,29 @@ int main (int argc,char **argv)
 
     init_xhc(&xhc);
 
-    while ((opt = getopt(argc, argv, "HhI:x")) != -1) {
+    while ((opt = getopt(argc, argv, "HhI:xs:")) != -1) {
         switch (opt) {
         case 'I':
-            if (read_ini_file(optarg)) exit(EXIT_FAILURE);
+            if (read_ini_file(optarg)) {
+                printf("Problem reading ini file: %s\n\n",optarg);
+                Usage(argv[0]);
+                exit(EXIT_FAILURE);
+            }
             break;
         case 'H':
         	simu_mode = false;
         	break;
+        case 's':
+            switch (optarg[0]) {
+              case '1': stepsize_sequence = stepsize_sequence_1;break;
+              case '2': stepsize_sequence = stepsize_sequence_2;break;
+              default:
+                printf("Unknown sequence: %s\n\n",optarg);
+                Usage(argv[0]);
+                exit(EXIT_FAILURE);
+                break;
+            }
+            break;
         case 'x':
         	wait_for_pendant_before_HAL = true;
         	break;
@@ -640,6 +695,7 @@ int main (int argc,char **argv)
 		*(xhc.hal->connected) = 0;
 		wait_secs = 0;
 		*(xhc.hal->require_pendant) = wait_for_pendant_before_HAL;
+		*(xhc.hal->stepsize) = stepsize_sequence[0];
 
 		do {
 			cnt = libusb_get_device_list(ctx, &devs);

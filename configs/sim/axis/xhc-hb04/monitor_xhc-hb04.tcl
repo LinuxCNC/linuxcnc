@@ -59,7 +59,13 @@ proc start_monitor {} {
   pack [label ${::popupw}.l -text "startup" -font bold]
   pack [button ${::popupw}.b -text "OK" -command dismiss] -anchor e
 
-  set value [hal getp xhc-hb04.connected]
+  if [catch {set value [hal getp xhc-hb04.connected]} msg ] {
+    # this can occur if loadusr xhc-hb04 fails, 
+    puts "$::progname: xhc-hb04 comp not loaded" 
+    puts "$::progname: <$msg>"
+    puts "$::progname: exiting"
+    return
+  }
   set ::connected false
   if [catch { set ::connected [hal getp xhc-hb04.connected]
             } msg] {
@@ -136,7 +142,7 @@ proc check {} {
         set msg "$msg\nUnexpected"
       } else {
         # xhc-hb04 will timeout and exit so no more checks
-        set msg "$msg\nReconnect not supported for require_pendant==0"
+        set msg "$msg\nReconnect not supported for require_pendant==1"
         set allow_recheck 0
       }
     }

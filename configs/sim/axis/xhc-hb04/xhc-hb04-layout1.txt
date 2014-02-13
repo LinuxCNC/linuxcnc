@@ -30,7 +30,9 @@ The Start/Pause button can be connected for standard behavior with:
 The STEP button is normally connected with:
   [XHC_HB04_BUTTON]step = xhc-hb04.stepsize-up
 
-The other buttons can be connected to hal pins -- typically halui provided pins.  MDI commands can be executed using halui.mdi-command-nn pins defined in the ini file with [HALUI]MDI_COMMAND= entries.
+The other buttons can be connected to hal pins -- typically halui provided pins.
+
+MDI commands can be executed using halui.mdi-command-nn pins defined in the ini file with entries like: [HALUI]MDI_COMMAND = mdi_command 
 
 The rotary switch selects the axis, spindle, or feedoverride for control by the jogwheel.
 

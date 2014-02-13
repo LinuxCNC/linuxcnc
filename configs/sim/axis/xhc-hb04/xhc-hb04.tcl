@@ -13,10 +13,16 @@
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
 #   scales = 1 1 1 1 (optional)
 #   threadname = servo-thread (optional)
+#   sequence = 1     (optional: 1|2)
+#   jogmode = normal (optional: normal|vnormal|plus-minus)
+#   require_pendant = yes (optional: yes|no)
 
 #   [XHC-HB04_BUTTONS]
 #   name = pin  (connect button to hal pin)
 #   name = ""   (no connect button)
+#   special cases:
+#   start-pause = std_start_pause  (for usual behavior)
+#   step = xhc-hb04.stepsize-up    (for usual behavior)
 #   (see ini files for more exanples)
 
 # Notes:
@@ -28,6 +34,15 @@
 #       SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
 #       or (for ubuntu12 and up):
 #       ATTR{idProduct}=="eb70",  ATTR{idVendor}=="10ce",  MODE="666", OWNER="root", GROUP="users"
+#    4) For jogmode==vnormal (man motion -- see axis.N.jog-vel-mode),
+#       the max movement is limited by the machine velocity and acceleration limits
+#       such that delta_x = 0.5 * vmax**2/accelmx
+#       so for sim example:
+#       inch: vmax= 1.2   accelmax= 20  delta_x=0.036
+#       mm:   vmax=30.48  acclemax=508  delta_x=0.9144
+#       Typically:
+#         (-s1) sequence 1 (1,10,100,1000) is ok for mm-based machines
+#         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
 
 #-----------------------------------------------------------------------
 # Copyright: 2014
@@ -307,11 +322,19 @@ switch $::XHC_HB04_CONFIG(require_pendant) {
   no      {set dashx ""}
 }
 
-if [catch {eval loadusr -W xhc-hb04 $dashx -I $cfg -H} msg] {
+if [info exists ::XHC_HB04_CONFIG(sequence)] {
+  set dashs "-s $::XHC_HB04_CONFIG(sequence)"
+} else {
+  set dashs ""
+}
+
+set cmd "loadusr -W xhc-hb04 $dashx $dashs -I $cfg -H"
+if [catch {eval $cmd} msg] {
   set msg "\n$::progname: loadusr xhc-hb04:\n<$msg>\n\n"
   set msg "$msg Is it plugged in?\n\n"
   set msg "$msg Are permissions correct?\n\n"
   set msg "$msg Continuing without xhc-hb04\n"
+  set msg "$msg \nFailing cmd:\n$cmd"
   popup_msg "$msg"
   return ;# not an exit
 }
@@ -320,12 +343,12 @@ if [catch {eval loadusr -W xhc-hb04 $dashx -I $cfg -H} msg] {
 #   normal: use motion pins:
 #               axis.N.jog-counts
 #               axis.N.jog-enable
-#               axis.N.jog-scale    (machine units per count)
+#               axis.N.jog-scale  (machine units per count)
 
 #   plus-minus: use halui pins:
 #               halui.jog.N.plus  (jog in + dir at jog-speed)
 #               halui.jog.N.minus (jog in - dir at jog-speed)
-#               halui.jog-speed    (applies to plus-minus jogging
+#               halui.jog-speed   (applies to plus-minus jogging only)
 #
 if ![info exists ::XHC_HB04_CONFIG(jogmode)] {
   set ::XHC_HB04_CONFIG(jogmode) normal ;# default
