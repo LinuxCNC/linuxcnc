@@ -1227,16 +1227,13 @@ STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
     }
-
     if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE) ||
             (prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
         tp_debug_print("Can't blend between rapid and feed move\n");
         tcSetTermCond(prev_tc,TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
-
 }
-
 
 /**
  * Adds a rigid tap cycle to the motion queue.
