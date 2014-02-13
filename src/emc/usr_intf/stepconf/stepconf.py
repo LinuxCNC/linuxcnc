@@ -715,6 +715,13 @@ class StepconfApp:
 
     # check for realtime kernel
     def check_for_rt(self):
+
+        # skip this test - logic needs to be adapted for non-compiled-in thread
+        # flavors
+
+        print "warning - skipping test for RT kernel"
+        return True
+
         actual_kernel = os.uname()[2]
         if hal.is_sim :
             self.warning_dialog(self._p.MESS_NO_REALTIME,True)

@@ -4294,6 +4294,13 @@ class App:
             self.warning_dialog(text,True)
 
     def check_for_rt(self,fussy=True):
+
+        # skip this test - logic needs to be adapted for non-compiled-in thread
+        # flavors
+
+        print "warning - skipping test for RT kernel"
+        return True
+
         actual_kernel = os.uname()[2]
         if hal.is_sim == 1 :
             if fussy:
