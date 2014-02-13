@@ -767,18 +767,22 @@ int blendComputeParameters(BlendParameters * const param)
     tp_debug_print("v_normal = %f\n", v_normal);
 
     param->v_plan = fmin(v_normal, param->v_goal);
-    /*param->R_plan = pmSq(param->v_plan) / param->a_n_max;*/
-    /*param->d_plan = param->R_plan / tan(param->theta);*/
 
-    //Find soft lower bound on radius from max ripple acceleration
-    const double a_ripple_goal = 1.0;
-    double R_ripple = fmin(pmSq(param->v_plan) / a_ripple_goal, R_geom);
-    double a_ripple = pmSq(param->v_plan) / R_ripple;
+    /*Get the limiting velocity of the equivalent parabolic blend. We use the
+     * time it would take to do a "stock" parabolic blend as a metric for how
+     * much of the segment to consume. A long segment will have a high
+     * "triangle" velocity, so the radius will only be as large as is needed to
+     * reach the cornering speed. A short segment will have a low triangle
+     * velocity, much lower than the actual curvature limit, which can be used
+     * to calculate an equivalent blend radius.
+     * */
+    double a_parabolic = param->a_max * 0.5;
+    double v_triangle = pmSqrt(2.0 * a_parabolic  * d_geom);
+    double t_blend = fmin(v_triangle, param->v_plan) / (a_parabolic);
+    double s_blend = t_blend * param->v_plan;
+    double R_blend = fmin(s_blend / param->phi, R_geom);   //Clamp by limiting radius
 
-    tp_debug_print("R_ripple = %f\n", R_ripple);
-    tp_debug_print("a_ripple = %f\n", a_ripple);
-
-    param->R_plan = R_ripple;
+    param->R_plan = fmax(pmSq(param->v_plan) / param->a_n_max, R_blend);
     param->d_plan = param->R_plan / tan(param->theta);
 
     tp_debug_print("v_plan = %f\n", param->v_plan);
