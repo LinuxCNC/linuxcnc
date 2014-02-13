@@ -9,6 +9,7 @@ $(call TOOBJSDEPS, $(MODULE_HELPERSRCS)) : \
 ../libexec/linuxcnc_module_helper: $(call TOOBJS, $(MODULE_HELPERSRCS)) \
 		../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
+	@mkdir -p $(dir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^
 
 TARGETS += ../libexec/linuxcnc_module_helper
