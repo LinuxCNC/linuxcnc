@@ -72,40 +72,40 @@ domain="glade-3" depends="gtk+">
         </properties>
     </glade-widget-class>
     <!-- Actions -->
-    <glade-widget-class name="EMC_Action_ESTOP" generic-name="hal_action_estop" title="EMC Action ESTOP" icon-name='gtk-stop'/>
-    <glade-widget-class name="EMC_Action_ESTOP_RESET" generic-name="hal_action_estop_reset" title="EMC Action ESTOP RESET" icon-name='gtk-stop'/>
-    <glade-widget-class name="EMC_Action_ON" generic-name="hal_action_on" title="EMC Action ON" icon-name='gtk-connect'/>
-    <glade-widget-class name="EMC_Action_OFF" generic-name="hal_action_off" title="EMC Action OFF" icon-name='gtk-disconnect'/>
-    <glade-widget-class name="EMC_Action_Run" generic-name="hal_action_run" title="EMC Action Run" icon-name='gtk-media-play-ltr'/>
-    <glade-widget-class name="EMC_Action_Step" generic-name="hal_action_run" title="EMC Action Step" icon-name='gtk-media-next-ltr'/>
-    <glade-widget-class name="EMC_Action_Pause" generic-name="hal_action_run" title="EMC Action Pause" icon-name='gtk-media-pause'/>
-    <glade-widget-class name="EMC_Action_Resume" generic-name="hal_action_run" title="EMC Action Resume" icon-name='gtk-media-pause'/>
-    <glade-widget-class name="EMC_Action_Stop" generic-name="hal_action_stop" title="EMC Action Stop" icon-name='gtk-media-stop'/>
-    <glade-widget-class name="EMC_Action_MDI" generic-name="hal_action_mdi" title="EMC Action MDI" icon-name='gtk-execute'/>
-    <glade-widget-class name="EMC_Action_Home" generic-name="hal_action_home" title="EMC Action Home" icon-name='gtk-home'/>
-    <glade-widget-class name="EMC_Action_Unhome" generic-name="hal_action_unhome" title="EMC Action Unhome" icon-name='gtk-home'/>
+    <glade-widget-class name="EMC_Action_ESTOP" generic-name="vcp_action_estop" title="VCP Action ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_Action_ESTOP_RESET" generic-name="vcp_action_estop_reset" title="VCP Action ESTOP RESET" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_Action_ON" generic-name="vcp_action_on" title="VCP Action ON" icon-name='gtk-connect'/>
+    <glade-widget-class name="EMC_Action_OFF" generic-name="vcp_action_off" title="VCP Action OFF" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_Action_Run" generic-name="vcp_action_run" title="VCP Action Run" icon-name='gtk-media-play-ltr'/>
+    <glade-widget-class name="EMC_Action_Step" generic-name="vcp_action_run" title="VCP Action Step" icon-name='gtk-media-next-ltr'/>
+    <glade-widget-class name="EMC_Action_Pause" generic-name="vcp_action_run" title="VCP Action Pause" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_Action_Resume" generic-name="vcp_action_run" title="VCP Action Resume" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_Action_Stop" generic-name="vcp_action_stop" title="VCP Action Stop" icon-name='gtk-media-stop'/>
+    <glade-widget-class name="EMC_Action_MDI" generic-name="vcp_action_mdi" title="VCP Action MDI" icon-name='gtk-execute'/>
+    <glade-widget-class name="EMC_Action_Home" generic-name="vcp_action_home" title="VCP Action Home" icon-name='gtk-home'/>
+    <glade-widget-class name="EMC_Action_Unhome" generic-name="vcp_action_unhome" title="VCP Action Unhome" icon-name='gtk-home'/>
 
-    <glade-widget-class name="EMC_ToggleAction_ESTOP" generic-name="hal_toggleaction_estop" title="EMC ToggleAction ESTOP" icon-name='gtk-stop'/>
-    <glade-widget-class name="EMC_ToggleAction_Power" generic-name="hal_toggleaction_power" title="EMC ToggleAction Power" icon-name='gtk-disconnect'/>
-    <glade-widget-class name="EMC_ToggleAction_Run" generic-name="hal_toggleaction_run" title="EMC ToggleAction Run" icon-name='gtk-media-play-ltr'/>
-    <glade-widget-class name="EMC_ToggleAction_Stop" generic-name="hal_toggleaction_stop" title="EMC ToggleAction Stop" icon-name='gtk-media-stop'/>
-    <glade-widget-class name="EMC_ToggleAction_Pause" generic-name="hal_toggleaction_pause" title="EMC ToggleAction Pause" icon-name='gtk-media-pause'/>
-    <glade-widget-class name="EMC_ToggleAction_MDI" generic-name="hal_toggleaction_mdi" title="EMC ToggleAction MDI" icon-name='gtk-execute'/>
+    <glade-widget-class name="EMC_ToggleAction_ESTOP" generic-name="vcp_toggleaction_estop" title="VCP ToggleAction ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_ToggleAction_Power" generic-name="vcp_toggleaction_power" title="VCP ToggleAction Power" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_ToggleAction_Run" generic-name="vcp_toggleaction_run" title="VCP ToggleAction Run" icon-name='gtk-media-play-ltr'/>
+    <glade-widget-class name="EMC_ToggleAction_Stop" generic-name="vcp_toggleaction_stop" title="VCP ToggleAction Stop" icon-name='gtk-media-stop'/>
+    <glade-widget-class name="EMC_ToggleAction_Pause" generic-name="vcp_toggleaction_pause" title="VCP ToggleAction Pause" icon-name='gtk-media-pause'/>
+    <glade-widget-class name="EMC_ToggleAction_MDI" generic-name="vcp_toggleaction_mdi" title="VCP ToggleAction MDI" icon-name='gtk-execute'/>
 
-    <glade-widget-class name="EMC_RadioAction_ESTOP" generic-name="hal_radioaction_estop" title="EMC RadioAction ESTOP" icon-name='gtk-stop'/>
-    <glade-widget-class name="EMC_RadioAction_ESTOP_RESET" generic-name="hal_radioaction_estop_reset" title="EMC RadioAction ESTOP RESET" icon-name='gtk-stop'/>
-    <glade-widget-class name="EMC_RadioAction_ON" generic-name="hal_radioaction_on" title="EMC RadioAction ON" icon-name='gtk-connect'/>
-    <glade-widget-class name="EMC_RadioAction_OFF" generic-name="hal_radioaction_off" title="EMC RadioAction OFF" icon-name='gtk-disconnect'/>
+    <glade-widget-class name="EMC_RadioAction_ESTOP" generic-name="vcp_radioaction_estop" title="VCP RadioAction ESTOP" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_RadioAction_ESTOP_RESET" generic-name="vcp_radioaction_estop_reset" title="VCP RadioAction ESTOP RESET" icon-name='gtk-stop'/>
+    <glade-widget-class name="EMC_RadioAction_ON" generic-name="vcp_radioaction_on" title="VCP RadioAction ON" icon-name='gtk-connect'/>
+    <glade-widget-class name="EMC_RadioAction_OFF" generic-name="vcp_radioaction_off" title="VCP RadioAction OFF" icon-name='gtk-disconnect'/>
 
-    <glade-widget-class name="EMC_Stat" generic-name="hal_stat" title="EMC Stat" icon-name='gtk-properties' toplevel='yes'/>
-    <glade-widget-class name="EMC_FileChooserDialog" generic-name="hal_filechooserdialog" title="EMC FileChooserDialog"/>
-    <glade-widget-class name="EMC_FileChooserButton" generic-name="hal_filechooserbutton" title="EMC FileChooserButton"/>
-    <glade-widget-class name="EMC_Action_Open" generic-name="hal_action_open" title="EMC Action Open" icon-name='gtk-open'/>
-    <glade-widget-class name="EMC_Action_Reload" generic-name="hal_action_reload" title="EMC Action Reload" icon-name='gtk-refresh'/>
-    <glade-widget-class name="EMC_Action_Save" generic-name="hal_action_save" title="EMC Action Save" icon-name='gtk-save'/>
-    <glade-widget-class name="EMC_Action_SaveAs" generic-name="hal_action_saveas" title="EMC Action Save As" icon-name='gtk-save-as'/>
-    <glade-widget-class name="EMC_SourceView" generic-name="hal_sourceview" title="EMC SourceView"/>
-    <glade-widget-class name="EMC_MDIHistory" generic-name="hal_mdihistory" title="EMC MDIHistory">
+    <glade-widget-class name="EMC_Stat" generic-name="vcp_stat" title="VCP Stat" icon-name='gtk-properties' toplevel='yes'/>
+    <glade-widget-class name="EMC_FileChooserDialog" generic-name="vcp_filechooserdialog" title="VCP FileChooserDialog"/>
+    <glade-widget-class name="EMC_FileChooserButton" generic-name="vcp_filechooserbutton" title="VCP FileChooserButton"/>
+    <glade-widget-class name="EMC_Action_Open" generic-name="vcp_action_open" title="VCP Action Open" icon-name='gtk-open'/>
+    <glade-widget-class name="EMC_Action_Reload" generic-name="vcp_action_reload" title="VCP Action Reload" icon-name='gtk-refresh'/>
+    <glade-widget-class name="EMC_Action_Save" generic-name="vcp_action_save" title="VCP Action Save" icon-name='gtk-save'/>
+    <glade-widget-class name="EMC_Action_SaveAs" generic-name="vcp_action_saveas" title="VCP Action Save As" icon-name='gtk-save-as'/>
+    <glade-widget-class name="EMC_SourceView" generic-name="vcp_sourceview" title="VCP SourceView"/>
+    <glade-widget-class name="EMC_MDIHistory" generic-name="vcp_mdihistory" title="VCP MDIHistory">
         <properties>
             <property id="size" query="False" default="0" visible="False"/>
         </properties>
@@ -155,7 +155,7 @@ domain="glade-3" depends="gtk+">
 
 
  </glade-widget-group>
- <glade-widget-group name="python" title="EMC Actions">
+ <glade-widget-group name="python" title="VCP Actions">
    <glade-widget-class-ref name="EMC_Action_ESTOP"/>
    <glade-widget-class-ref name="EMC_Action_ESTOP_RESET"/>
    <glade-widget-class-ref name="EMC_Action_ON"/>
