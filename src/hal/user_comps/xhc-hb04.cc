@@ -752,7 +752,7 @@ int main (int argc,char **argv)
 				struct timeval tv;
 				tv.tv_sec  = 0;
 				tv.tv_usec = 30000;
-				r = libusb_handle_events_timeout(NULL, &tv);
+				r = libusb_handle_events_timeout(ctx, &tv);
 				compute_velocity(&xhc);
 			    if (simu_mode) linuxcnc_simu(&xhc);
 				handle_step(&xhc);
