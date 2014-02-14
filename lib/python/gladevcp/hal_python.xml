@@ -29,7 +29,7 @@ domain="glade-3" depends="gtk+">
     <glade-widget-class name="HAL_Meter" generic-name="hal_meter" title="HAL Meter"/>
     <glade-widget-class name="HAL_Graph" generic-name="hal_graph" title="HAL Graph"/>
 
-    <glade-widget-class name="JogWheel" generic-name="jog_wheel" title="Jog Wheel"/>
+    <glade-widget-class name="JogWheel" generic-name="jogwheel" title="Jog Wheel"/>
 
     <glade-widget-class name="PyNgcGui" generic-name="pyngcgui" title="Python NgcGui"/>
     <glade-widget-class name="HAL_GremlinPlus" generic-name="hal_gremlin_plus" title="HAL Gremlin Plus"/>
@@ -49,14 +49,14 @@ domain="glade-3" depends="gtk+">
         </properties>
     </glade-widget-class>
     <glade-widget-class name="HAL_DRO" generic-name="hal_dro" title="HAL DRO"/>
-    <glade-widget-class name="Combi_DRO" generic-name="Combi_DRO" title="Combi DRO">
+    <glade-widget-class name="Combi_DRO" generic-name="combi_dro" title="Combi DRO">
 	<properties>
             <property id="size" query="False" default="1" visible="False"/>
             <property id="spacing" query="False" default="0" visible="False"/>
             <property id="homogeneous" query="False" default="0" visible="False"/>
         </properties>
     </glade-widget-class>
-    <glade-widget-class name="IconFileSelection" generic-name="IconFileSelection" title="IconFileSelection">
+    <glade-widget-class name="IconFileSelection" generic-name="icon_filechooser" title="Icon File Chooser">
 	<properties>
             <property id="size" query="False" default="1" visible="False"/>
             <property id="spacing" query="False" default="0" visible="False"/>
