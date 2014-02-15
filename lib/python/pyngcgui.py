@@ -531,6 +531,7 @@ def spath_from_inifile(fname):
         l.extend(p.split(':'))
     lfull = []
     for d in l:
+        d = os.path.expanduser(d)
         if os.path.isabs(d):
             lfull.append(d)
         else:

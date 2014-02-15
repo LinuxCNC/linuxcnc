@@ -3054,11 +3054,12 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     update
     after 5000 {destroy .problem}
   }
+  # note: normalize filename to honor tilde (~)
   switch $mode {
     last {
       if {   [info exists ::ngc($hdl,last,outfile)] \
           && "$::ngc($hdl,last,outfile)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,last,outfile) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,last,outfile)] &
       } else {
         simple_text .problem "[_ "No file available for editing yet"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3067,7 +3068,7 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     }
     source {
       if {"$::ngc($hdl,fname,subfile)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,fname,subfile) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,fname,subfile)] &
       } else {
         simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3076,7 +3077,7 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     }
     preamble {
       if {"$::ngc($hdl,fname,preamble)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,fname,preamble) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,fname,preamble)] &
       } else {
         simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
