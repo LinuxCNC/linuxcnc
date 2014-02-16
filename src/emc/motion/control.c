@@ -826,7 +826,7 @@ static void set_operating_mode(void)
 
     /* check for emcmotDebug->enabling */
     if (emcmotDebug->enabling && !GET_MOTION_ENABLE_FLAG()) {
-	tpSetPos(&emcmotDebug->tp, emcmotStatus->carte_pos_cmd);
+	tpSetPos(&emcmotDebug->tp, &emcmotStatus->carte_pos_cmd);
 	for (joint_num = 0; joint_num < num_joints; joint_num++) {
 	    /* point to joint data */
 	    joint = &joints[joint_num];
@@ -851,7 +851,7 @@ static void set_operating_mode(void)
 	if (GET_MOTION_INPOS_FLAG()) {
 
 	    /* update coordinated emcmotDebug->tp position */
-	    tpSetPos(&emcmotDebug->tp, emcmotStatus->carte_pos_cmd);
+	    tpSetPos(&emcmotDebug->tp, &emcmotStatus->carte_pos_cmd);
 	    /* drain the cubics so they'll synch up */
 	    for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		/* point to joint data */
@@ -889,7 +889,7 @@ static void set_operating_mode(void)
 	if (emcmotDebug->coordinating && !GET_MOTION_COORD_FLAG()) {
 	    if (GET_MOTION_INPOS_FLAG()) {
 		/* preset traj planner to current position */
-		tpSetPos(&emcmotDebug->tp, emcmotStatus->carte_pos_cmd);
+		tpSetPos(&emcmotDebug->tp, &emcmotStatus->carte_pos_cmd);
 		/* drain the cubics so they'll synch up */
 		for (joint_num = 0; joint_num < num_joints; joint_num++) {
 		    /* point to joint data */

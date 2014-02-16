@@ -536,17 +536,58 @@ int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
  * It sets the current position AND the goal position to be the same.  Used
  * only at TP initialization and when switching modes.
  */
-int tpSetPos(TP_STRUCT * const tp, EmcPose pos)
+int tpSetPos(TP_STRUCT * const tp, EmcPose const * const pos)
 {
     if (0 == tp) {
         return TP_ERR_FAIL;
     }
 
-    tp->currentPos = pos;
-    tp->goalPos = pos;
+    int res_invalid = tpSetCurrentPos(tp, pos);
+    if (res_invalid) {
+        return TP_ERR_FAIL;
+    }
 
+    tp->goalPos = *pos;
     return TP_ERR_OK;
 }
+
+
+/**
+ * Set current position.
+ * It sets the current position AND the goal position to be the same.  Used
+ * only at TP initialization and when switching modes.
+ */
+int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos)
+{
+    if (0 == tp) {
+        return TP_ERR_FAIL;
+    }
+
+    if (emcPoseValid(pos)) {
+        tp->currentPos = *pos;
+        return TP_ERR_OK;
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos!\n");
+        return TP_ERR_FAIL;
+    }
+}
+
+
+int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp)
+{
+    if (0 == tp) {
+        return TP_ERR_FAIL;
+    }
+
+    if (emcPoseValid(disp)) {
+        emcPoseSelfAdd(&tp->currentPos, disp);
+        return TP_ERR_OK;
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Tried to set invalid pose in tpSetCurrentPos!\n");
+        return TP_ERR_FAIL;
+    }
+}
+
 
 /**
  * Check for valid tp before queueing additional moves.
@@ -766,6 +807,7 @@ STATIC int tpDebugTangentInfo(TC_STRUCT const * const prev_tc, TC_STRUCT const *
     pmCartCartCross(&geom->binormal, &blend_tc->coords.arc.xyz.rEnd, &u_arc_end);
     pmCartUnitEq(&u_arc_end);
 
+    //TODO fail if theta is too large
     double dot;
     pmCartCartDot(&u_circ1_end, &u_arc_start, &dot);
     double theta1 = acos(dot);
@@ -2717,19 +2759,20 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
 
     EmcPose displacement;
 
-    //Calculate displacement
+    // Calculate displacement
     tcGetPos(tc, &displacement);
     emcPoseSelfSub(&displacement, &before);
 
-    emcPoseSelfAdd(&tp->currentPos, &displacement);
+    //Store displacement (checking for valid pose)
+    int res_set = tpAddCurrentPos(tp, &displacement);
 
 #ifdef TC_DEBUG
     double mag;
     emcPoseMagnitude(&displacement, &mag);
-    tc_debug_print("cycle movement = %f\n",mag);
+    tc_debug_print("cycle movement = %f\n", mag);
 #endif
 
-    return TP_ERR_OK;
+    return res_set;
 }
 
 
@@ -2895,8 +2938,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     tcGetPos(tc, &displacement);
     emcPoseSelfSub(&displacement, &before);
 
-    //Update tp's position
-    emcPoseSelfAdd(&tp->currentPos, &displacement);
+    // Update tp's position (checking for valid pose)
+    tpAddCurrentPos(tp, &displacement);
 
 #ifdef TC_DEBUG
     double mag;
@@ -3073,7 +3116,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 #ifdef TC_DEBUG
     double mag;
     EmcPose disp;
-    emcPoseSub(&tp->currentPos,&pos_before, &disp);
+    emcPoseSub(&tp->currentPos, &pos_before, &disp);
     emcPoseMagnitude(&disp, &mag);
     tc_debug_print("time: %.12e total movement = %.12e vel = %.12e\n",
             time_elapsed,
