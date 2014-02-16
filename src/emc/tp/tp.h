@@ -142,7 +142,9 @@ int tpSetAmax(TP_STRUCT * tp, double amax);
 int tpSetId(TP_STRUCT * tp, int id);
 int tpGetExecId(TP_STRUCT * tp);
 int tpSetTermCond(TP_STRUCT * tp, int cond, double tolerance);
-int tpSetPos(TP_STRUCT * tp, EmcPose pos);
+int tpSetPos(TP_STRUCT * tp, EmcPose const * const pos);
+int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp);
+int tpSetCurrentPos(TP_STRUCT * const tp, EmcPose const * const pos);
 int tpAddRigidTap(TP_STRUCT * tp, EmcPose end, double vel, double
         ini_maxvel, double acc, unsigned char enables);
 int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double

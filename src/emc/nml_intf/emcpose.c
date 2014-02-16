@@ -278,3 +278,26 @@ int emcPoseMagnitude(EmcPose const * const pose, double * const out) {
     *out = mag;
     return EMCPOSE_ERR_OK;
 }
+
+
+/**
+ * Return true for a numerically valid pose, or false for an invalid pose (or null pointer).
+ */
+bool emcPoseValid(EmcPose const * const pose)
+{
+
+    if (!pose || 
+            isnan(pose->tran.x) ||
+            isnan(pose->tran.y) ||
+            isnan(pose->tran.z) ||
+            isnan(pose->a) ||
+            isnan(pose->b) ||
+            isnan(pose->c) ||
+            isnan(pose->u) ||
+            isnan(pose->v) ||
+            isnan(pose->w)) {
+        return false;
+    } else {
+        return true;
+    }
+}

@@ -1037,7 +1037,7 @@ static int init_comm_buffers(void)
     }
 //    tpInit(&emcmotDebug->tp); // tpInit called from tpCreate
     tpSetCycleTime(&emcmotDebug->tp, emcmotConfig->trajCycleTime);
-    tpSetPos(&emcmotDebug->tp, emcmotStatus->carte_pos_cmd);
+    tpSetPos(&emcmotDebug->tp, &emcmotStatus->carte_pos_cmd);
     tpSetVmax(&emcmotDebug->tp, emcmotStatus->vel, emcmotStatus->vel);
     tpSetAmax(&emcmotDebug->tp, emcmotStatus->acc);
 
