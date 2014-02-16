@@ -21,6 +21,42 @@
 
 /** @section utilityfuncs Utility functions */
 
+/**
+ * Find the maximum angle allowed between "tangent" segments.
+ * @param v speed of motion in worst case (i.e. at max feed).
+ * @param acc magnitude of acceleration allowed during "kink".
+ *
+ * Since we are discretized by a timestep, the maximum allowable
+ * "kink" in a trajectory is bounded by normal acceleration. A small
+ * kink will effectively be one step along the tightest radius arc
+ * possible at a given speed.
+ */
+double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
+{
+    //Find acc hiccup we're allowed to get
+    double acc_margin = TP_ACC_RATIO_NORMAL * TP_KINK_FACTOR * acc_limit;
+    double dx = v_plan / cycle_time;
+    if (dx > 0.0) {
+        return (acc_margin / dx);
+    } else {
+        tp_debug_print(" Velocity or period is negative!\n");
+        //Should not happen...
+        return TP_ANGLE_EPSILON;
+    }
+}
+
+double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
+{
+    double dx = v_plan / cycle_time;
+    if (dx > 0.0) {
+        return (dx * kink_angle);
+    } else {
+        tp_debug_print(" Velocity or period is negative!\n");
+        return TP_BIG_NUM;
+    }
+}
+
+
 double fsign(double f)
 {
     if (f>0) {
@@ -86,6 +122,41 @@ int sat_inplace(double * const x, double max) {
     }
     return 0;
 }
+
+
+/**
+ * @section geomfuncs Geometry check functions
+ */
+
+int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end)
+{
+    // Debug Information to diagnose tangent issues
+    PmCartesian u_circ, u_arc;
+
+    if (at_end) {
+        pmCircleTangentVector(circ, 0, &u_circ);
+        pmCartCartCross(&geom->binormal, &arc->rEnd, &u_arc);
+    } else {
+        pmCircleTangentVector(circ, circ->angle, &u_circ);
+        pmCartCartCross(&geom->binormal, &arc->rStart, &u_arc);
+    }
+
+    pmCartUnitEq(&u_arc);
+
+    //TODO fail if theta is too large
+    double dot;
+    pmCartCartDot(&u_circ, &u_arc, &dot);
+    double theta = acos(dot);
+
+    tp_debug_print("tangent angle = %f\n",theta);
+
+    if (theta > TP_MAX_ARC_TANGENT) {
+        tp_debug_print("angle too large\n");
+        return TP_ERR_FAIL;
+    }
+    return TP_ERR_OK;
+}
+
 
 
 /**

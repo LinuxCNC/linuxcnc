@@ -179,4 +179,7 @@ int tcIsBlending(TC_STRUCT * const tc);
 int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance);
 
+int pmCircleTangentVector(PmCircle const * const circle,
+        double angle_in, PmCartesian * const out);
+
 #endif				/* TC_H */
