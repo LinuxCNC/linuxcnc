@@ -44,6 +44,7 @@ fi
         echo 'set mdi m100 P3 Q#5400'             # toolno
         echo 'set mdi m100 P4 Q#5403'             # TLO z
         echo 'set mdi m100 P5'                    # blank line
+        echo "set wait done"
     }
 
     echo hello EMC mt 1.0
@@ -149,10 +150,6 @@ fi
 
     echo set mdi g43
     introspect 30
-
-
-    # give linuxcnc a second to finish
-    sleep 1.0
 
     echo shutdown
 ) | nc localhost 5007

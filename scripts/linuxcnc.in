@@ -600,8 +600,6 @@ if ! program_available $EMCSERVER; then
 fi
 export INI_FILE_NAME="$INIFILE"
 $EMCSERVER -ini "$INIFILE" &
-# give linuxcnc *five* seconds to finish:  race condition alert!
-sleep 5
 
 # 4.3.2. Start REALTIME
 echo "Loading Real Time OS, RTAPI, and HAL_LIB modules" >>$PRINT_FILE
