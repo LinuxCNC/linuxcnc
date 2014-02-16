@@ -677,28 +677,6 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
 
 
 /**
- * Find the maximum angle allowed between "tangent" segments.
- * @param v speed of motion in worst case (i.e. at max feed).
- * @param acc magnitude of acceleration allowed during "kink".
- *
- * Since we are discretized by a timestep, the maximum allowable
- * "kink" in a trajectory is bounded by normal acceleration. A small
- * kink will effectively be one step along the tightest radius arc
- * possible at a given speed.
- */
-STATIC inline double tpMaxTangentAngle(TP_STRUCT const * const tp, double v, double acc) {
-    double dx = v / tp->cycleTime;
-    if (dx > 0.0) {
-        return (acc / dx);
-    } else {
-        tp_debug_print(" Velocity or period is negative!\n");
-        //Should not happen...
-        return TP_ANGLE_EPSILON;
-    }
-}
-
-
-/**
  * Calculate the angle between two unit cartesian vectors.
  */
 STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
@@ -713,7 +691,6 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
     *theta = acos(dot);
     return TP_ERR_OK;
 }
-
 
 /**
  * Initialize a blend arc from its parent lines.
@@ -793,30 +770,48 @@ STATIC int tpFinalizeSegmentLength(TP_STRUCT const * const tp, TC_STRUCT * const
     return TP_ERR_OK;
 }
 
-STATIC int tpDebugTangentInfo(TC_STRUCT const * const prev_tc, TC_STRUCT const * const tc, TC_STRUCT const * const blend_tc, BlendGeom3 const * const geom)
+
+/**
+ * Given a PmCircle and a circular segment, copy the circle in as the XYZ portion of the segment, then update the motion parameters.
+ * NOTE: does not yet support ABC or UVW motion!
+ */
+STATIC int tcSetCircleXYZ(TC_STRUCT * const tc, PmCircle const * const circ)
 {
-    // Debug Information to diagnose tangent issues
-    PmCartesian u_circ1_end,u_arc_start,u_arc_end,u_circ2_start;
 
-    tcGetEndTangentUnitVector(prev_tc, &u_circ1_end);
-    tcGetStartTangentUnitVector(tc, &u_circ2_start);
+    //Update targets with new arc length
+    if (!circ || tc->motion_type != TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+    if (!tc->coords.circle.abc.tmag_zero || !tc->coords.circle.uvw.tmag_zero) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetCircleXYZ does not supportABC or UVW motion\n");
+        return TP_ERR_FAIL;
+    }
 
-    pmCartCartCross(&geom->binormal, &blend_tc->coords.arc.xyz.rStart, &u_arc_start);
-    pmCartUnitEq(&u_arc_start);
-
-    pmCartCartCross(&geom->binormal, &blend_tc->coords.arc.xyz.rEnd, &u_arc_end);
-    pmCartUnitEq(&u_arc_end);
-
-    //TODO fail if theta is too large
-    double dot;
-    pmCartCartDot(&u_circ1_end, &u_arc_start, &dot);
-    double theta1 = acos(dot);
-    pmCartCartDot(&u_circ2_start, &u_arc_end, &dot);
-    double theta2 = acos(dot);
-
-    tp_debug_print("theta1 = %f, theta2 = %f\n",theta1,theta2);
+    tc->coords.circle.xyz = *circ;
+    tc->target = circ->angle * circ->radius;
     return TP_ERR_OK;
 }
+
+
+STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
+{
+
+    //Update targets with new arc length
+    if (!line || tc->motion_type != TC_LINEAR) {
+        return TP_ERR_FAIL;
+    }
+    if (!tc->coords.line.abc.tmag_zero || !tc->coords.line.uvw.tmag_zero) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "SetLineXYZ does not supportABC or UVW motion\n");
+        return TP_ERR_FAIL;
+    }
+
+    tc->coords.line.xyz = *line;
+    tc->target = line->tmag;
+    return TP_ERR_OK;
+}
+
+
+
 
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
@@ -869,10 +864,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
      * blend arc.
      */
 
-    double phi2_new = tc->coords.circle.xyz.angle - points_exact.trim2;
-
-    // TODO pare down this debug output
-    tp_debug_print("phi2_new = %f\n",phi2_new);
     tp_debug_print("circ2 angle = %f\n",
             tc->coords.circle.xyz.angle);
     tp_debug_print("next spiral = %f\n",
@@ -893,48 +884,46 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
+    //Store working copies of geometry
+    PmCartLine line1_temp = prev_tc->coords.line.xyz;
+    PmCircle circ2_temp = tc->coords.circle.xyz;
+
     // Change lengths of circles
     // FIXME partial failure after this point leaves us in an unrecoverable
     // state. We might need to do a copy and swap to
     // ensure that we can quit at any time without borking the existing
     // geometry.
-    double new_len1 = prev_tc->target - points_exact.trim1;
-    int res_stretch1 = pmCartLineStretch(&prev_tc->coords.line.xyz,
+    double new_len1 = line1_temp.tmag - points_exact.trim1;
+    int res_stretch1 = pmCartLineStretch(&line1_temp,
             new_len1,
             false);
-    //TODO create blends
-    if (res_stretch1 != TP_ERR_OK) {
-        return TP_ERR_FAIL;
-    }
 
-    int res_stretch2 = pmCircleStretch(&tc->coords.circle.xyz,
+    double phi2_new = tc->coords.circle.xyz.angle - points_exact.trim2;
+
+    tp_debug_print("phi2_new = %f\n",phi2_new);
+    int res_stretch2 = pmCircleStretch(&circ2_temp,
             phi2_new,
             true);
     //TODO create blends
-    if (res_stretch2 != TP_ERR_OK) {
+    if (res_stretch1 || res_stretch2) {
         rtapi_print_msg(RTAPI_MSG_ERR,"aborting after length change!\n");
         return TP_ERR_FAIL;
     }
 
-    //Update targets with new arc length
-    prev_tc->target = prev_tc->coords.line.xyz.tmag;
-    tc->target = tc->coords.circle.xyz.angle *
-        tc->coords.circle.xyz.radius;
-
-    //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     blendPoints3Print(&points_exact);
     //Get exact start and end points to account for spiral in arcs
-    pmCirclePoint(&tc->coords.circle.xyz,
+    pmCirclePoint(&circ2_temp,
             0.0,
             &points_exact.arc_end);
     //TODO deal with large spiral values, or else detect and fall back?
 
     tp_debug_print("Modified arc points\n");
     blendPoints3Print(&points_exact);
-    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    if (res_arc < 0) {
+        return TP_ERR_FAIL;
+    }
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
@@ -945,7 +934,21 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
 
-    tpDebugTangentInfo(prev_tc, tc,blend_tc,&geom);
+    int res_tangent = checkTangentAngle(&circ2_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, true);
+    if (res_tangent) {
+        tp_debug_print("failed tangent check, aborting arc...\n");
+        return TP_ERR_FAIL;
+    }
+
+    tp_debug_print("Passed all tests, updating segments\n");
+
+    //Cleanup any mess from parabolic
+    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+
+    tcSetLineXYZ(prev_tc, &line1_temp);
+    tcSetCircleXYZ(tc, &circ2_temp);
+
     return TP_ERR_OK;
 }
 
@@ -1003,7 +1006,21 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
      * blend arc.
      */
 
-    double phi1_new = prev_tc->coords.circle.xyz.angle - points_exact.trim1;
+    //Store working copies of geometry
+    PmCircle circ1_temp = prev_tc->coords.circle.xyz;
+    PmCartLine line2_temp = tc->coords.line.xyz;
+
+    //Update start and end points of segment copies
+    double new_len2 = tc->target - points_exact.trim2;
+    int res_stretch2 = pmCartLineStretch(&line2_temp,
+            new_len2,
+            true);
+    //TODO create blends
+    if (res_stretch2 != TP_ERR_OK) {
+        return TP_ERR_FAIL;
+    }
+
+    double phi1_new = circ1_temp.angle - points_exact.trim1;
 
     if (points_exact.trim1 > param.phi1_max) {
         tp_debug_print("trim1 %f > phi1_max %f, aborting arc...\n",
@@ -1012,43 +1029,27 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
-    // Change lengths of circles
-    // FIXME partial failure after this point leaves us in an unrecoverable
-    // state. We might need to do a copy and swap to
-    // ensure that we can quit at any time without borking the existing
-    // geometry.
-    double new_len2 = tc->target - points_exact.trim2;
-    int res_stretch2 = pmCartLineStretch(&tc->coords.line.xyz,
-            new_len2,
-            true);
-    //TODO create blends
-    if (res_stretch2 != TP_ERR_OK) {
-        return TP_ERR_FAIL;
-    }
-
-    int res_stretch1 = pmCircleStretch(&prev_tc->coords.circle.xyz,
+    int res_stretch1 = pmCircleStretch(&circ1_temp,
             phi1_new,
             false);
     //TODO create blends
     if (res_stretch1 != TP_ERR_OK) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"aborting after length change!\n");
         return TP_ERR_FAIL;
     }
 
-    //Update targets with new arc length
-    tc->target = tc->coords.line.xyz.tmag;
-    prev_tc->target = prev_tc->coords.circle.xyz.angle *
-        prev_tc->coords.circle.xyz.radius;
-
-    //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
+    blendPoints3Print(&points_exact);
+    tp_debug_print("modified arc points\n");
+    // Copy actual arc end point to blend arc start
+    pmCirclePoint(&circ1_temp,
+            circ1_temp.angle,
+            &points_exact.arc_start);
 
     blendPoints3Print(&points_exact);
 
-    tp_debug_print("Modified arc points\n");
-    blendPoints3Print(&points_exact);
-    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    if (res_arc < 0) {
+        return TP_ERR_FAIL;
+    }
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
@@ -1061,7 +1062,21 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
-    tpDebugTangentInfo(prev_tc, tc,blend_tc,&geom);
+
+    int res_tangent = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, false);
+    if (res_tangent) {
+        tp_debug_print("failed tangent check, aborting arc...\n");
+        return TP_ERR_FAIL;
+    }
+
+    tp_debug_print("Passed all tests, updating segments\n");
+
+    tcSetCircleXYZ(prev_tc, &circ1_temp);
+    tcSetLineXYZ(tc, &line2_temp);
+
+    //Cleanup any mess from parabolic
+    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
     return TP_ERR_OK;
 }
 
@@ -1114,7 +1129,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     }
     
     /* If blend calculations were successful, then we're ready to create the
-     * blend arc.
+     * blend arc. Begin work on temp copies of each circle here:
      */
 
     double phi1_new = prev_tc->coords.circle.xyz.angle - points_exact.trim1;
@@ -1138,12 +1153,11 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         return TP_ERR_FAIL;
     }
 
-    // Change lengths of circles
-    // FIXME partial failure after this point leaves us in an unrecoverable
-    // state. We might need to do a copy and swap to
-    // ensure that we can quit at any time without borking the existing
-    // geometry.
-    int res_stretch1 = pmCircleStretch(&prev_tc->coords.circle.xyz,
+    //Store working copies of geometry
+    PmCircle circ1_temp = prev_tc->coords.circle.xyz;
+    PmCircle circ2_temp = tc->coords.circle.xyz;
+
+    int res_stretch1 = pmCircleStretch(&circ1_temp,
             phi1_new,
             false);
     //TODO create blends
@@ -1151,7 +1165,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         return TP_ERR_FAIL;
     }
 
-    int res_stretch2 = pmCircleStretch(&tc->coords.circle.xyz,
+    int res_stretch2 = pmCircleStretch(&circ2_temp,
             phi2_new,
             true);
     //TODO create blends
@@ -1159,29 +1173,21 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
         return TP_ERR_FAIL;
     }
 
-    //Update targets with new arc length
-    prev_tc->target = prev_tc->coords.circle.xyz.angle *
-        prev_tc->coords.circle.xyz.radius;
-    tc->target = tc->coords.circle.xyz.angle *
-        tc->coords.circle.xyz.radius;
-
-    //Cleanup any mess from parabolic
-    tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
-
-    blendPoints3Print(&points_exact);
     //Get exact start and end points to account for spiral in arcs
-    pmCirclePoint(&prev_tc->coords.circle.xyz,
-            prev_tc->coords.circle.xyz.angle,
+    pmCirclePoint(&circ1_temp,
+            circ1_temp.angle,
             &points_exact.arc_start);
-    pmCirclePoint(&tc->coords.circle.xyz,
+    pmCirclePoint(&circ2_temp,
             0.0,
             &points_exact.arc_end);
     //TODO deal with large spiral values, or else detect and fall back?
 
     tp_debug_print("Modified arc points\n");
     blendPoints3Print(&points_exact);
-    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    if (res_arc < 0) {
+        return TP_ERR_FAIL;
+    }
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
@@ -1195,7 +1201,21 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
 
-    tpDebugTangentInfo(prev_tc, tc,blend_tc,&geom);
+    int res_tangent1 = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, false);
+    int res_tangent2 = checkTangentAngle(&circ2_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, true);
+    if (res_tangent1 || res_tangent2) {
+        tp_debug_print("failed tangent check, aborting arc...\n");
+        return TP_ERR_FAIL;
+    }
+
+    tp_debug_print("Passed all tests, updating segments\n");
+
+    tcSetCircleXYZ(prev_tc, &circ1_temp);
+    tcSetCircleXYZ(tc, &circ2_temp);
+
+    //Cleanup any mess from parabolic
+    tc->blend_prev = 0;
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     return TP_ERR_OK;
 }
@@ -1235,14 +1255,17 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     if (res_blend != TP_ERR_OK) {
         return res_blend;
     }
+
     // Set up actual blend arc here
-    arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points, &geom, &param);
+    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points, &geom, &param);
+    if (res_arc < 0) {
+        return TP_ERR_FAIL;
+    }
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
     blend_tc->coords.arc.abc = prev_tc->coords.line.abc.end;
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
-
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
@@ -1594,19 +1617,14 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
     //TODO move this to setup
     tpGetMachineAccelLimit(&acc_limit);
 
-    // FIXME hard-coded max "normal" acceleration for a tangent intersection
-    const double TP_ACC_RATIO_TANGENT_NORMAL = TP_ACC_RATIO_NORMAL * 0.2;
-    double acc_margin = TP_ACC_RATIO_TANGENT_NORMAL * acc_limit;
-    tp_debug_print("acc_margin = %f\n", acc_margin);
-    double max_angle = tpMaxTangentAngle(tp, v_reachable, acc_margin);
-    double a_n_actual = 2.0 * sin(phi/2.0) * v_reachable / tp->cycleTime;
-    double a_t_ratio = 1.0 - a_n_actual / acc_limit;
-    tp_debug_print("a_t_ratio = %f\n", a_t_ratio);
+    double max_angle = findMaxTangentAngle(v_reachable, acc_limit, tp->cycleTime);
 
     if (phi <= max_angle) {
         tp_debug_print(" New segment tangent with angle %g\n", phi);
         tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
         //Calculate actual normal acceleration during tangent transition
+        double a_t_ratio = 1.0 - findKinkAccel(phi, v_reachable, tp->cycleTime) / acc_limit;
+        tp_debug_print("a_t_ratio = %f\n", a_t_ratio);
 
         prev_tc->maxaccel *= a_t_ratio;
         tc->maxaccel *= a_t_ratio;

@@ -30,9 +30,12 @@ net vel-ok-y <= wcomp_yvel.out
 net acc-ok-z <= wcomp_zacc.out
 net vel-ok-z <= wcomp_zvel.out
 
-#FIXME hard coded acceleration bounds
-set acc_limit 1.0001
-set vel_limit 1.001
+#Conservative limits
+#set acc_limit 1.0001
+#set vel_limit 1.001
+#Gross error limits
+set acc_limit 1.1
+set vel_limit 1.1
 setp wcomp_xacc.max $::AXIS_0(MAX_ACCELERATION)*$acc_limit
 setp wcomp_xacc.min $::AXIS_0(MAX_ACCELERATION)*-1.0*$acc_limit
 setp wcomp_xvel.max $::AXIS_0(MAX_VELOCITY)*$vel_limit
