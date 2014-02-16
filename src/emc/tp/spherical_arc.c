@@ -50,15 +50,14 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
 
     //Correct center by 1/2 error method
     double err = mag1-mag0;
-    tp_debug_print("radius difference is %f\n", err);
-    PmCartesian diff;
-    pmCartCartSub(end,start,&diff);
+    /*PmCartesian diff;*/
+    /*pmCartCartSub(end,start,&diff);*/
 
-    tp_debug_print("New radii are %f and %f, difference is %g\n",mag0,mag1,mag1-mag0);
-    tp_debug_print("new center is = %f %f %f\n",
-            arc->center.x,
-            arc->center.y,
-            arc->center.z);
+    tp_debug_print("radii are %f and %f, difference is %g\n",mag0,mag1,mag1-mag0);
+    /*tp_debug_print("new center is = %f %f %f\n",*/
+            /*arc->center.x,*/
+            /*arc->center.y,*/
+            /*arc->center.z);*/
 
     // estimate radius of spiral shape by average of two lengths
     arc->radius = (mag0 + mag1) / 2.0;
@@ -116,7 +115,7 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
 int arcLength(SphericalArc const * const arc, double * const length)
 {
     *length = arc->radius * arc->angle + arc->line_length;
-    tp_debug_print("arc length = %f\n", *length);
+    tp_debug_print("arc length = %g\n", *length);
     return ARC_ERR_OK;
 }
 

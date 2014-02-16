@@ -117,8 +117,9 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
  * Unlike the acceleration vector, the result of this calculation is a vector
  * tangent to the helical arc. This is called by wrapper functions for the case of a circular or helical arc.
  */
-static int tcGetHelicalTangentVector(PmCircle const * const circle, double angle_in,
-        PmCartesian * const out) {
+int pmCircleTangentVector(PmCircle const * const circle,
+        double angle_in, PmCartesian * const out)
+{
 
     PmCartesian startpoint;
     PmCartesian radius;
@@ -166,7 +167,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
             *out=tc->coords.rigidtap.xyz.uVec;
             break;
         case TC_CIRCULAR:
-            tcGetHelicalTangentVector(&tc->coords.circle.xyz, 0.0, out);
+            pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
@@ -188,7 +189,7 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
             pmCartScalMult(&tc->coords.rigidtap.xyz.uVec, -1.0, out);
             break;
         case TC_CIRCULAR:
-            tcGetHelicalTangentVector(&tc->coords.circle.xyz,
+            pmCircleTangentVector(&tc->coords.circle.xyz,
                     tc->coords.circle.xyz.angle, out);
             break;
         default:

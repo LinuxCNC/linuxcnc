@@ -99,6 +99,10 @@ typedef struct {
 } BlendPoints9;
 #endif
 
+double findMaxTangentAngle(double v, double acc, double cycle_time);
+
+double findKinkAccel(double kink_angle, double v_plan, double cycle_time);
+
 double fsign(double f);
 
 int clip_min(double * const x, double min);
@@ -108,6 +112,8 @@ int clip_max(double * const x, double max);
 double saturate(double x, double max);
 
 int sat_inplace(double * const x, double max);
+
+int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end);
 
 int findIntersectionAngle(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta);
