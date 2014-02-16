@@ -3706,7 +3706,8 @@ proc ::ngcgui::set_path {} {
   # set ::ngc(any,paths) on first use:
   if ![info exists ::ngc(any,paths)] {
     # expect single item, so take end item in list:
-    set ::ngc(any,paths) [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]
+    set ::ngc(any,paths) [file normalize \
+                         [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]]
     set tmp [lindex [inifindall RS274NGC SUBROUTINE_PATH] end]
     foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
   }
@@ -4085,6 +4086,7 @@ proc ::ngcgui::standalone_ngcgui {args} {
                        set dir [file normalize [file dirname $filename]]
                        set pdir [::ngcgui::inifind $filename \
                                            DISPLAY PROGRAM_PREFIX]
+                       set pdir [file normalize $pdir]
                        if {"$pdir" == ""} {
                          puts "\[DISPLAY\]PROGRAM_PREFIX [_ "not found"] <$filename>"
                          exit 1
