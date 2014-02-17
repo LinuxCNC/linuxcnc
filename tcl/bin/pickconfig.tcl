@@ -576,11 +576,15 @@ proc prompt_copy configname {
         foreach lib $liblist {
            set refname  [file join $linuxcnc::NCFILES_DIR $lib]
            set linkname [file join $ncfiles [file tail $lib]]
+           # note for link, file exists test target of link
            if {[file exists $linkname]} {
              # tcl wont overwrite any existing link, so remove
              file delete $linkname
            }
-           file link -symbolic $linkname $refname
+           # avoid error if no target 
+           if [file exists refname] {
+             file link -symbolic $linkname $refname
+           }
         }
         set  dir [file tail $ncfiles] 
         set date [clock format [clock seconds] -format "%d%b%Y %T"]
