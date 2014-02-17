@@ -34,12 +34,9 @@ Additional hal pins are created by the xhc-hb04 driver and connected as required
 
 A working and connected xhc-hb04 device is required for the demonstration configurations.  If not connected, the sim configs will start without pendant functionality.
 
-A udev rules file:
-  /etc/udev/rules.d/90-xhc.rules
-must be added to the system to give correct user permissions for USB access:
-SYSFS{idProduct}=="eb70", SYSFS{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
+A udev rules file is added to the system (with a deb install) to give correct user permissions for USB access.
 
-Or for later operating systems (like ubuntu12.x):
+If using a Run-In-Place (RIP) build, create the file /etc/udev/rules.d/90-xhc.rules with the following single line:
 ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
 
 The sim configurations use a single halfile: xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
