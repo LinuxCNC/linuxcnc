@@ -445,21 +445,22 @@ static int message_thread()
     sigset_t sigset;
 
     // sigset of all the signals that we're interested in
-    assert(sigemptyset(&sigset) == 0);
-    assert(sigaddset(&sigset, SIGINT) == 0);
-    assert(sigaddset(&sigset, SIGKILL) == 0);
-    assert(sigaddset(&sigset, SIGTERM) == 0);
-    assert(sigaddset(&sigset, SIGSEGV) == 0);
-    assert(sigaddset(&sigset, SIGFPE) == 0);
+    retval = sigemptyset(&sigset);        assert(retval == 0);
+    retval = sigaddset(&sigset, SIGINT);  assert(retval == 0);
+    retval = sigaddset(&sigset, SIGKILL); assert(retval == 0);
+    retval = sigaddset(&sigset, SIGTERM); assert(retval == 0);
+    retval = sigaddset(&sigset, SIGSEGV); assert(retval == 0);
+    retval = sigaddset(&sigset, SIGFPE);  assert(retval == 0);
 
     // block the signals in order for signalfd to receive them
-    assert(sigprocmask(SIG_BLOCK, &sigset, NULL) == 0);
+    retval = sigprocmask(SIG_BLOCK, &sigset, NULL); assert(retval == 0);
 
-    assert((sigfd = signalfd(-1, &sigset, 0)) != -1);
+    sigfd = signalfd(-1, &sigset, 0);
+    assert(sigfd != -1);
 
     struct pollfd pfd[1];
     int ret;
-    
+
     pfd[0].fd = sigfd;
     pfd[0].events = POLLIN | POLLERR | POLLHUP;
 
