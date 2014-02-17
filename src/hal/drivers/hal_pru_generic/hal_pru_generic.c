@@ -119,6 +119,9 @@ RTAPI_MP_INT(num_pwmgens, "Number of PWM outputs (default: 0)");
 //int num_pwmgens[MAX_CHAN] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 //RTAPI_MP_ARRAY_INT(num_pwmgens, "Number of PWM outputs for up to 8 banks (default: 0)");
 
+static int num_encoders = 0;
+RTAPI_MP_INT(num_encoders, "Number of encoder channels (default: 0)");
+
 static char *prucode = "";
 RTAPI_MP_STRING(prucode, "filename of PRU code (.bin, default: stepgen.bin)");
 
@@ -186,9 +189,9 @@ int rtapi_app_main(void)
     // Allocate HAL shared memory for state data
     hpg = hal_malloc(sizeof(hal_pru_generic_t));
     if (hpg == 0) {
-    	HPG_ERR("ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        HPG_ERR("ERROR: hal_malloc() failed\n");
+    hal_exit(comp_id);
+    return -1;
     }
 
     // Clear memory
@@ -204,13 +207,17 @@ int rtapi_app_main(void)
     // Setup global state
     hpg->config.num_pwmgens  = num_pwmgens;
     hpg->config.num_stepgens = num_stepgens;
+    hpg->config.num_encoders = num_encoders;
     hpg->config.comp_id      = comp_id;
     hpg->config.pru_period   = pru_period;
-    hpg->config.name         = modname;
+//    hpg->config.name         = modname;
+    hpg->config.name         = "hpg";
 
-	rtapi_print("num_pwmgens : %d\n",num_pwmgens);
-	rtapi_print("num_stepgens: %d\n",num_stepgens);
+    rtapi_print("num_pwmgens : %d\n",num_pwmgens);
+    rtapi_print("num_stepgens: %d\n",num_stepgens);
+    rtapi_print("num_encoders: %d\n",num_encoders);
 
+    rtapi_print("Init pwm\n");
     // Initialize various functions and generate PRU data ram contents
     if ((retval = hpg_pwmgen_init(hpg))) {
         HPG_ERR("ERROR: pwmgen init failed: %d\n", retval);
@@ -218,8 +225,16 @@ int rtapi_app_main(void)
         return -1;
     }
 
+    rtapi_print("Init stepgen\n");
     if ((retval = hpg_stepgen_init(hpg))) {
         HPG_ERR("ERROR: stepgen init failed: %d\n", retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+
+    rtapi_print("Init encoder\n");
+    if ((retval = hpg_encoder_init(hpg))) {
+        HPG_ERR("ERROR: encoder init failed: %d\n", retval);
         hal_exit(comp_id);
         return -1;
     }
@@ -238,6 +253,7 @@ int rtapi_app_main(void)
 
     hpg_stepgen_force_write(hpg);
     hpg_pwmgen_force_write(hpg);
+    hpg_encoder_force_write(hpg);
     hpg_wait_force_write(hpg);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
@@ -262,82 +278,8 @@ static void hpg_read(void *void_hpg, long period) {
     hal_pru_generic_t *hpg = void_hpg;
 
     hpg_stepgen_read(hpg, period);
+    hpg_encoder_read(hpg);
 
-    //     // Read data from the PRU here...
-    //     hal_pru_generic_t *hpg = void_hpg;
-    //     PRU_chan_state_raw_t pru = (PRU_chan_state_raw_t) pru_data_ram;
-    //     int i;
-    // 
-    //     for (i = 0; i < MAX_CHAN; i++) {
-    //         s64 x, y;
-    //         u32 acc;
-    //         s64 acc_delta;
-    // 
-    //         switch (chan_state[i].gen.PRU.ctrl.mode) {
-    // 
-    //         case eMODE_STEP_DIR :
-    // 
-    //             // "atomic" read of accumulator and position register from PRU
-    // 	        do {
-    //              x = * (s64 *) hpg->pru_data + hpg->stepgen.instance[i].task_addr + offsetof(PRU_task_stepdir_t, accum);
-    // 	            x = pru[i].raw.qword[2];
-    // 	            y = pru[i].raw.qword[2];
-    // 	        } while ( x != y );
-    // 
-    //             // Update internal state and HAL outputs
-    //             chan_state[i].raw.PRU.qword[2] = x;
-    // 
-    //     *(chan_state[i].step.hal.pin.test1) = chan_state[i].step.PRU.accum;
-    //     *(chan_state[i].step.hal.pin.test2) = chan_state[i].step.PRU.pos;
-    //     
-    //             // Mangle 32-bit step count and 27 bit accumulator (with 5 bits of status)
-    //             // into a 16.16 value as expected by the hostmot2 stepgen logic
-    //             acc = (chan_state[i].step.PRU.accum >> 11) & 0x0000FFFF;
-    //             acc |= (chan_state[i].step.PRU.pos << 16);
-    // 
-    //     *(chan_state[i].step.hal.pin.test3) = acc;
-    // 
-    //             // those tricky users are always trying to get us to divide by zero
-    //             if (fabs(chan_state[i].step.hal.param.position_scale) < 1e-6) {
-    //                 if (chan_state[i].step.hal.param.position_scale >= 0.0) {
-    //                     chan_state[i].step.hal.param.position_scale = 1.0;
-    //                     HPG_ERR("stepgen %d position_scale is too close to 0, resetting to 1.0\n", i);
-    //                 } else {
-    //                     chan_state[i].step.hal.param.position_scale = -1.0;
-    //                     HPG_ERR("stepgen %d position_scale is too close to 0, resetting to -1.0\n", i);
-    //                 }
-    //             }
-    // 
-    //             // The HM2 Accumulator Register is a 16.16 bit fixed-point
-    //             // representation of the current stepper position.
-    //             // The fractional part gives accurate velocity at low speeds, and
-    //             // sub-step position feedback (like sw stepgen).
-    //             acc_delta = (s64)acc - (s64)chan_state[i].step.prev_accumulator;
-    //             if (acc_delta > INT32_MAX) {
-    //                 acc_delta -= UINT32_MAX;
-    //             } else if (acc_delta < INT32_MIN) {
-    //                 acc_delta += UINT32_MAX;
-    //             }
-    // 
-    //             chan_state[i].step.subcounts += acc_delta;
-    // 
-    //             *(chan_state[i].step.hal.pin.counts) = chan_state[i].step.subcounts >> 16;
-    // 
-    //             // note that it's important to use "subcounts/65536.0" instead of just
-    //             // "counts" when computing position_fb, because position_fb needs sub-count
-    //             // precision
-    //             *(chan_state[i].step.hal.pin.position_fb) = ((double)chan_state[i].step.subcounts / 65536.0) / chan_state[i].step.hal.param.position_scale;
-    // 
-    //             chan_state[i].step.prev_accumulator = acc;
-    // 
-    //             break;
-    // 
-    //         default :
-    //             // Nothing to export for other types
-    //             break;
-    //         }
-    //     }
-    // 
 }
 
 u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns) {
@@ -350,117 +292,9 @@ static void hpg_write(void *void_hpg, long period) {
 
     hpg_stepgen_update(hpg, period);
     hpg_pwmgen_update(hpg);
+    hpg_encoder_update(hpg);
     hpg_wait_update(hpg);
 
-//     PRU_chan_state_ptr pru      = (PRU_chan_state_ptr) pru_data_ram;
-//     int i, j;
-// 
-//     for (i = 0; i < MAX_CHAN; i++) {
-//         switch (chan_state[i].gen.PRU.ctrl.mode) {
-// 
-//         case eMODE_STEP_DIR :
-// 
-//             // Update shadow of PRU control registers
-//             chan_state[i].step.PRU.ctrl.enable  = *(chan_state[i].step.hal.pin.enable);
-//             chan_state[i].step.PRU.ctrl.pin1    = chan_state[i].step.hal.param.steppin;
-//             chan_state[i].step.PRU.ctrl.pin2    = chan_state[i].step.hal.param.dirpin;
-// 
-//             if (*(chan_state[i].step.hal.pin.enable) == 0) {
-//                 chan_state[i].step.PRU.rate = 0;
-//                 chan_state[i].step.old_position_cmd = *(chan_state[i].step.hal.pin.position_cmd);
-//                 *(chan_state[i].step.hal.pin.velocity_fb) = 0;
-//             } else {
-//                 // call update function
-//                 update_stepgen(hpg, period, i);
-//             }
-// 
-//             // Update timing parameters if changed
-//             if ((chan_state[i].step.hal.param.dirsetup  != chan_state[i].step.written_dirsetup ) ||
-//                 (chan_state[i].step.hal.param.dirhold   != chan_state[i].step.written_dirhold  ) ||
-//                 (chan_state[i].step.hal.param.steplen   != chan_state[i].step.written_steplen  ) ||
-//                 (chan_state[i].step.hal.param.stepspace != chan_state[i].step.written_stepspace))
-//             {
-//                 chan_state[i].step.PRU.dirsetup     = ns2periods(chan_state[i].step.hal.param.dirsetup);
-//                 chan_state[i].step.PRU.dirhold      = ns2periods(chan_state[i].step.hal.param.dirhold);
-//                 chan_state[i].step.PRU.steplen      = ns2periods(chan_state[i].step.hal.param.steplen);
-//                 chan_state[i].step.PRU.stepspace    = ns2periods(chan_state[i].step.hal.param.stepspace);
-// 
-//                 // Send new value(s) to the PRU
-//                 pru[i].raw.dword[2] = chan_state[i].raw.PRU.dword[2];
-//                 pru[i].raw.dword[3] = chan_state[i].raw.PRU.dword[3];
-// 
-//                 // Stash values written
-//                 chan_state[i].step.written_dirsetup  = chan_state[i].step.hal.param.dirsetup;
-//                 chan_state[i].step.written_dirhold   = chan_state[i].step.hal.param.dirhold;
-//                 chan_state[i].step.written_steplen   = chan_state[i].step.hal.param.steplen;
-//                 chan_state[i].step.written_stepspace = chan_state[i].step.hal.param.stepspace;
-//             }
-// 
-//             // Update control word if changed
-//             if (chan_state[i].raw.PRU.dword[0] != chan_state[i].step.written_ctrl) {
-//                 pru[i].raw.dword[0] = chan_state[i].raw.PRU.dword[0];
-//                 chan_state[i].step.written_ctrl = chan_state[i].raw.PRU.dword[0];
-//             }
-// 
-//             // Send rate update to the PRU
-//             pru[i].step.rate = chan_state[i].step.PRU.rate;
-// 
-//             break;
-// 
-//         case eMODE_DELTA_SIG :
-// 
-//             // Update shadow of PRU control registers
-//             chan_state[i].delta.PRU.ctrl.enable  = *(chan_state[i].delta.hal_enable);
-// 
-//             if (*(chan_state[i].delta.hal_out1) >= 1.0) {
-//                 chan_state[i].delta.PRU.value1 = 0x4000;
-//             } else if (*(chan_state[i].delta.hal_out1) <= 0.0) {
-//                 chan_state[i].delta.PRU.value1 = 0x0000;
-//             } else {
-//                 chan_state[i].delta.PRU.value1 = 
-//                     (u32) (*(chan_state[i].delta.hal_out1) * (1 << 14)) & 0x3FFF;
-//             }
-// 
-//             if (*(chan_state[i].delta.hal_out2) == 1.0) {
-//                 chan_state[i].delta.PRU.value2 = 0x4000;
-//             } else if (*(chan_state[i].delta.hal_out2) <= 0.0) {
-//                 chan_state[i].delta.PRU.value2 = 0x0000;
-//             } else {
-//                 chan_state[i].delta.PRU.value2 =
-//                     (u32) (*(chan_state[i].delta.hal_out2) * (1 << 14)) & 0x3FFF;
-//             }
-// 
-//             chan_state[i].delta.PRU.ctrl.pin1   = chan_state[i].delta.hal_pin1;
-//             chan_state[i].delta.PRU.ctrl.pin2   = chan_state[i].delta.hal_pin2;
-// 
-//             // Send updates to PRU
-//             for (j = 0; j < 2; j++) {
-//                 pru[i].raw.dword[j] = chan_state[i].raw.PRU.dword[j];
-//             }
-//             break;
-// 
-//         case eMODE_PWM :
-// 
-//             // Update shadow of PRU control registers
-//             chan_state[i].pwm.PRU.ctrl.enable   = *(chan_state[i].pwm.hal_enable);
-//             chan_state[i].pwm.PRU.period        = *(chan_state[i].pwm.hal_period);
-//             chan_state[i].pwm.PRU.high1         = *(chan_state[i].pwm.hal_out1);
-//             chan_state[i].pwm.PRU.high2         = *(chan_state[i].pwm.hal_out2);
-// 
-//             chan_state[i].pwm.PRU.ctrl.pin1     = chan_state[i].pwm.hal_pin1;
-//             chan_state[i].pwm.PRU.ctrl.pin2     = chan_state[i].pwm.hal_pin2;
-// 
-//             // Send updates to PRU
-//             for (j = 0; j < 4; j++) {
-//                 pru[i].raw.dword[j] = chan_state[i].raw.PRU.dword[j];
-//             }
-//             break;
-// 
-//         default :
-//             // Nothing to export for other types
-//             break;
-//         }
-//     }
 }
 
 /***********************************************************************
@@ -493,95 +327,6 @@ int export_pru(hal_pru_generic_t *hpg)
 {
     int r;
     char name[HAL_NAME_LEN + 1];
-
-//         switch (chan_state[i].gen.PRU.ctrl.mode) {
-// 
-//         case eMODE_STEP_DIR :
-// 
-//             r= export_stepgenx(chan_state, i);
-//             if (r != 0) { return r; }
-// 
-//             break;
-// 
-//         case eMODE_DELTA_SIG :
-// 
-//             // Export HAL Pins
-//             rtapi_snprintf(name, sizeof(name), "%s.delta.%02d.enable", modname, i);
-//             r = hal_pin_bit_new(name, HAL_IN, &(chan_state[i].delta.hal_enable), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.delta.%02d.out1", modname, i);
-//             r = hal_pin_float_new(name, HAL_IN, &(chan_state[i].delta.hal_out1), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.delta.%02d.out2", modname, i);
-//             r = hal_pin_float_new(name, HAL_IN, &(chan_state[i].delta.hal_out2), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             // Export HAL Parameters
-//             rtapi_snprintf(name, sizeof(name), "%s.delta.%02d.pin1", modname, i);
-//             r = hal_param_u32_new(name, HAL_RW, &(chan_state[i].delta.hal_pin1), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.delta.%02d.pin2", modname, i);
-//             r = hal_param_u32_new(name, HAL_RW, &(chan_state[i].delta.hal_pin2), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             // Initialize HAL Pins
-//             *(chan_state[i].delta.hal_enable)   = 0;
-//             *(chan_state[i].delta.hal_out1)     = 0.0;
-//             *(chan_state[i].delta.hal_out2)     = 0.0;
-// 
-//             // Initialize HAL Parameters
-//             chan_state[i].delta.hal_pin1        = PRU_DEFAULT_PIN;
-//             chan_state[i].delta.hal_pin2        = PRU_DEFAULT_PIN;
-// 
-//             break;
-// 
-//         case eMODE_PWM :
-// 
-//             // Export HAL Pins
-//             rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.enable", modname, i);
-//             r = hal_pin_bit_new(name, HAL_IN, &(chan_state[i].pwm.hal_enable), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.period", modname, i);
-//             r = hal_pin_u32_new(name, HAL_IN, &(chan_state[i].pwm.hal_period), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.out1", modname, i);
-//             r = hal_pin_u32_new(name, HAL_IN, &(chan_state[i].pwm.hal_out1), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.out2", modname, i);
-//             r = hal_pin_u32_new(name, HAL_IN, &(chan_state[i].pwm.hal_out2), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             // Export HAL Parameters
-//             rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.pin1", modname, i);
-//             r = hal_param_u32_new(name, HAL_RW, &(chan_state[i].pwm.hal_pin1), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             rtapi_snprintf(name, sizeof(name), "%s.pwm.%02d.pin2", modname, i);
-//             r = hal_param_u32_new(name, HAL_RW, &(chan_state[i].pwm.hal_pin2), comp_id);
-//             if (r != 0) { return r; }
-// 
-//             // Initialize HAL Pins
-//             *(chan_state[i].pwm.hal_enable)     = 0;
-//             *(chan_state[i].pwm.hal_period)     = 0;
-//             *(chan_state[i].pwm.hal_out1)       = 0;
-//             *(chan_state[i].pwm.hal_out2)       = 0;
-// 
-//             // Initialize HAL Parameters
-//             chan_state[i].pwm.hal_pin1          = PRU_DEFAULT_PIN;
-//             chan_state[i].pwm.hal_pin2          = PRU_DEFAULT_PIN;
-// 
-//             break;
-// 
-//         default :
-//             // Nothing to export for other types
-//             break;
-//         }
 
     // Export functions
     rtapi_snprintf(name, sizeof(name), "%s.update", modname);
@@ -715,37 +460,34 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
 
     // default the .bin filename if not given
     if (!strlen(filename))
-	filename = DEFAULT_CODE;
+    filename = DEFAULT_CODE;
     
     strcpy(pru_binpath, filename);
 
     struct stat statb;
 
     if (!((stat(pru_binpath, &statb) == 0) &&
-	 S_ISREG(statb.st_mode))) {
+     S_ISREG(statb.st_mode))) {
 
-	// filename not found, prefix fw_path & try that:
-	strcpy(pru_binpath, fw_path);
-	strcat(pru_binpath, filename);
+    // filename not found, prefix fw_path & try that:
+    strcpy(pru_binpath, fw_path);
+    strcat(pru_binpath, filename);
 
-	if (!((stat(pru_binpath, &statb) == 0) &&
-	      S_ISREG(statb.st_mode))) {
-	    // nyet, complain
-	    getcwd(pru_binpath, sizeof(pru_binpath));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "%s: cant find %s in %s or %s\n",
-			    modname, filename, pru_binpath, fw_path);
-	    return -ENOENT;
-	}
+    if (!((stat(pru_binpath, &statb) == 0) &&
+          S_ISREG(statb.st_mode))) {
+        // nyet, complain
+        getcwd(pru_binpath, sizeof(pru_binpath));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "%s: cant find %s in %s or %s\n",
+                modname, filename, pru_binpath, fw_path);
+        return -ENOENT;
+    }
     }
     retval =  prussdrv_exec_program (pru, pru_binpath, disabled);
     return retval;
 }
 
 void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
-    // Be *VERY* careful with pointer math!  C likes to multiple integers by sizeof() the referenced object!
-    //    PRU_statics_t     *stat = (PRU_statics_t *)     ((u32) hpg->pru_data + (u32) hpg->pru_stat);
-    //    PRU_task_header_t *task = (PRU_task_header_t *) ((u32) hpg->pru_data + (u32) addr);
 
     if (hpg->last_task == 0) {
         // This is the first task

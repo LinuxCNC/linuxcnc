@@ -98,9 +98,8 @@
 // read accumulator to figure out where the stepper has gotten to
 // 
 
-void hpg_stepgen_read(void *void_hpg, long l_period_ns) {
+void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns) {
     // Read data from the PRU here...
-    hal_pru_generic_t *hpg = void_hpg;
     int i;
 
     for (i = 0; i < hpg->stepgen.num_instances; i ++) {
@@ -605,6 +604,8 @@ int hpg_stepgen_init(hal_pru_generic_t *hpg){
 
     if (hpg->config.num_stepgens <= 0)
         return 0;
+
+rtapi_print("hpg_stepgen_init\n");
 
     hpg->stepgen.num_instances = hpg->config.num_stepgens;
 

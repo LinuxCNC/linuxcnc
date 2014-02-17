@@ -218,6 +218,88 @@ typedef struct {
     hpg_pwmgen_instance_t  *instance;
 } hpg_pwmgen_t;
 
+//
+// encoder
+//
+
+typedef struct {
+
+    PRU_encoder_chan_t  pru;
+    
+    struct {
+
+        struct {
+            hal_s32_t   *rawcounts;     // raw encoder counts
+            hal_s32_t   *rawlatch;      // raw encoder of latch
+            hal_s32_t   *count;         // (rawcounts - zero_offset)
+            hal_s32_t   *count_latch;   // (rawlatch - zero_offset)
+            hal_float_t *position;
+            hal_float_t *position_latch;
+            hal_float_t *velocity;
+            hal_bit_t   *reset;
+            hal_bit_t   *index_enable;
+            hal_bit_t   *latch_enable;
+            hal_bit_t   *latch_polarity;
+            hal_bit_t   *quadrature_error;
+        } pin;
+
+        struct {
+            hal_float_t scale;
+            hal_u32_t   A_pin;
+            hal_bit_t   A_invert;
+            hal_u32_t   B_pin;
+            hal_bit_t   B_invert;
+            hal_u32_t   index_pin;
+            hal_bit_t   index_invert;
+            hal_bit_t   index_mask;
+            hal_bit_t   index_mask_invert;
+            hal_u32_t   counter_mode;
+            hal_bit_t   filter;
+            hal_float_t vel_timeout;
+        } param;
+
+    } hal;
+
+    s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+
+    u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
+
+    s32 prev_dS_counts;  // last time the function ran, it saw this many counts from the time before *that*
+
+    u32 written_state;
+
+    // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
+    s32 prev_event_rawcounts;
+    u16 prev_event_reg_timestamp;
+
+    s32 tsc_num_rollovers;
+    u16 prev_time_of_interest;
+
+    enum { HM2_ENCODER_STOPPED, HM2_ENCODER_MOVING } state;
+
+} hpg_encoder_channel_instance_t;
+
+typedef struct {
+    // PRU control and state data
+    PRU_task_encoder_t  pru;
+    pru_task_t          task;
+
+    int num_channels;
+    hpg_encoder_channel_instance_t  *chan;
+
+    // Instance-wide HAL variables
+    // ...nothing to see here...
+
+    pru_addr_t LUT;
+    u32 written_pin_invert;
+} hpg_encoder_instance_t;
+
+typedef struct {
+    int num_instances;
+    hpg_encoder_instance_t  *instance;
+} hpg_encoder_t;
+
+
 typedef struct {
     PRU_task_wait_t     pru;
     pru_task_t          task;
@@ -229,6 +311,7 @@ typedef struct {
         int pru_period;
         int num_pwmgens;
         int num_stepgens;
+        int num_encoders;
         int comp_id;
         const char *name;
     } config;
@@ -259,6 +342,7 @@ typedef struct {
     hpg_pwmgen_t    pwmgen;
     hpg_stepgen_t   stepgen;
     hpg_deltasig_t  deltasig;
+    hpg_encoder_t   encoder;
 
     hpg_wait_t      wait;
 
@@ -290,6 +374,16 @@ int hpg_stepgen_init(hal_pru_generic_t *hpg);
 void hpg_stepgen_force_write(hal_pru_generic_t *hpg);
 void hpg_stepgen_update(hal_pru_generic_t *hpg, long l_period_ns);
 u16 ns2periods(hal_pru_generic_t *hpg, hal_u32_t ns);
-void hpg_stepgen_read(void *void_hpg, long l_period_ns);
+void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns);
+
+
+//
+// encoder functions
+//
+
+int hpg_encoder_init(hal_pru_generic_t *hpg);
+void hpg_encoder_force_write(hal_pru_generic_t *hpg);
+void hpg_encoder_update(hal_pru_generic_t *hpg);
+void hpg_encoder_read(hal_pru_generic_t *hpg);
 
 #endif

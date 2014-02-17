@@ -1139,6 +1139,7 @@ hal_pru_generic-objs :=                           \
     hal/drivers/hal_pru_generic/hal_pru_generic.o \
     hal/drivers/hal_pru_generic/pwmgen.o          \
     hal/drivers/hal_pru_generic/stepgen.o         \
+    hal/drivers/hal_pru_generic/encoder.o         \
     hal/support/pru/prussdrv.o                    \
     $(LIBPTHREAD)
 endif
