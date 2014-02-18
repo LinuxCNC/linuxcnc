@@ -815,7 +815,7 @@ STATIC int tcSetLineXYZ(TC_STRUCT * const tc, PmCartLine const * const line)
 
 STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
-    tp_debug_print("Starting LineArc blend arc\n");
+    tp_debug_print("-- Starting LineArc blend arc --\n");
     //TODO type checks
     int coplanar = pmCircLineCoplanar(&tc->coords.circle.xyz,
             &prev_tc->coords.line.xyz, TP_ANGLE_EPSILON);
@@ -857,6 +857,11 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     //Catch errors in blend setup
     if (res_init || res_param || res_points || res_post) {
+        tp_debug_print("Got %d, %d, %d, %d for init, param, points, post\n",
+                res_init,
+                res_param,
+                res_points,
+                res_post);
         return TP_ERR_FAIL;
     }
     
@@ -956,7 +961,7 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
 
-    tp_debug_print("Starting ArcLine blend arc\n");
+    tp_debug_print("-- Starting ArcLine blend arc --\n");
     //TODO type checks
     int coplanar = pmCircLineCoplanar(&prev_tc->coords.circle.xyz,
             &tc->coords.line.xyz, TP_ANGLE_EPSILON);
@@ -999,6 +1004,11 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     //Catch errors in blend setup
     if (res_init || res_param || res_points || res_post) {
+        tp_debug_print("Got %d, %d, %d, %d for init, param, points, post\n",
+                res_init,
+                res_param,
+                res_points,
+                res_post);
         return TP_ERR_FAIL;
     }
     
@@ -1083,7 +1093,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
 
-    tp_debug_print("Starting ArcArc blend arc\n");
+    tp_debug_print("-- Starting ArcArc blend arc --\n");
     //TODO type checks
     int colinear = pmCartCartParallel(&prev_tc->coords.circle.xyz.normal,
             &tc->coords.circle.xyz.normal, TP_ANGLE_EPSILON);
@@ -1105,7 +1115,7 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     BlendPoints3 points_approx;
     BlendPoints3 points_exact;
 
-    int res_init = blendInit3FromArcs(&geom, &param,
+    int res_init = blendInit3FromArcArc(&geom, &param,
             prev_tc,
             tc,
             &acc_bound,
@@ -1125,6 +1135,12 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
 
     //Catch errors in blend setup
     if (res_init || res_param || res_points || res_post) {
+        tp_debug_print("Got %d, %d, %d, %d for init, param, points, post\n",
+                res_init,
+                res_param,
+                res_points,
+                res_post);
+
         return TP_ERR_FAIL;
     }
     
@@ -1225,7 +1241,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         TC_STRUCT * const tc, TC_STRUCT * const blend_tc)
 {
 
-    tp_debug_print("Starting LineLine blend arc\n");
+    tp_debug_print("-- Starting LineLine blend arc --\n");
     PmCartesian acc_bound, vel_bound;
     
     //Get machine limits
@@ -1237,7 +1253,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     BlendParameters param;
     BlendPoints3 points;
 
-    blendInit3FromLines(&geom, &param, 
+    blendInit3FromLineLine(&geom, &param,
             prev_tc,
             tc,
             &acc_bound,
@@ -1634,7 +1650,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
         return TP_ERR_OK;
     } else {
-        tp_debug_print(" New segment not tangent, angle %g\n", phi);
+        tp_debug_print(" New segment angle %g > max %g \n", phi, max_angle);
         return TP_ERR_NO_ACTION;
     }
 
