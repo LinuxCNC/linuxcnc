@@ -157,6 +157,18 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
         tp_debug_print("angle too large\n");
         return TP_ERR_FAIL;
     }
+
+    tp_debug_print("circ tan = %f %f %f\n",
+            u_circ.x,
+            u_circ.y,
+            u_circ.z);
+    tp_debug_print("arc ideal tan = %f %f %f\n",
+            u_circ.x,
+            u_circ.y,
+            u_circ.z);
+
+
+
     return TP_ERR_OK;
 }
 
