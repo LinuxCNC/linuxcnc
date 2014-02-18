@@ -47,18 +47,23 @@ This HALFILE entry should follow other HALFILE entries.
 Optional configuration ini file items and the defaults values are:
 
 [XHC_HB04_CONFIG]
-layout     = 2       (1|2)
+layout     = 2       (1: 16 buttons | 2: 18 buttons)
 coords     = x y z a (4 max)
 coefs      = 1 1 1 1 (filter coefs 0 < coef < 1)
 scales     = 1 1 1 1 (plus/minus factors)
 threadname = servo-thread
-require_pendant = yes 
-jogmode    = normal  (normal | vnormal | plus-minus)
-sequence   = 1       (1|2)
+require_pendant = yes (yes | no)
+jogmode    = normal   (normal | vnormal | plus-minus)
+sequence   = 1        (1|2)
                       1: 0.001,0.010,0.100,1.000 (typ for mm machine)
                       2: 0.001,0.005,0.010,0.020 (typ for inch machine)
 
-The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.  The movement per wheel increment is set by connecting the STEP button to the hal pin xhc-hb04.stepsize-up (values: 1 10 100 1000).  The scale factor for each axis can be set with the scales item.
+The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.
+
+The movement per wheel increment is normally controlled by connecting the STEP button to the hal pin xhc-hb04.stepsize-up. Each press of the STEP button will cause the wheel increment to increase according to the sequence specified.  The sequence 
+starts over after the maximum value is reached.
+
+The scale factor for each axis can be set with the scales item.
 
 When require_pendant = no, the xhc-hb04 hal pins will be created even if the pendant is not connected at startup.  A new connection, a disconnect, and a reconnect are supported.
 ----------------------------------
@@ -67,7 +72,7 @@ jogmodes:
 
   vnormal: velocity mode, the axis will stop when the wheel stops.  Beware: the amount moved per wheel detent may be less than specified if the machine velocity and acceleration cannot accomplish the move in time.
 
-  plus-minus: halui plus-minus jogging.
+  plus-minus: halui plus-minus jogging (may be useful for world-mode jogging in non-trivkins machines).
 ----------------------------------
 sequence: Typically use 1 for mm-based machine, 2 for inch-based machine
 

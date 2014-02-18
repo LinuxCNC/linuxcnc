@@ -198,10 +198,10 @@ proc wheel_setup {jogmode} {
       }
       plus-minus {
         # connect halui plus,minus pins
-        net jog-plus-$coord     xhc-hb04.jog.plus-$acoord  \
-                             => halui.jog.$axno.plus
-        net jog-minus-$coord    xhc-hb04.jog.minus-$acoord \
-                             => halui.jog.$axno.minus
+        net pendant:jog-plus-$coord     xhc-hb04.jog.plus-$acoord  \
+                                     => halui.jog.$axno.plus
+        net pendant:jog-minus-$coord    xhc-hb04.jog.minus-$acoord \
+                                     => halui.jog.$axno.minus
       }
     }
     switch $jogmode {
@@ -220,7 +220,7 @@ proc wheel_setup {jogmode} {
       # not used: xhc-hb04.jog.max-velocity
     }
     plus-minus {
-      # the driver manages jog.velocity
+      # Note: the xhc-hb04 driver manages xhc-hb04.jog.velocity
       net pendant:jog-max-velocity <= halui.max-velocity.value
       net pendant:jog-max-velocity => xhc-hb04.jog.max-velocity
       net pendant:jog-speed        <= xhc-hb04.jog.velocity
