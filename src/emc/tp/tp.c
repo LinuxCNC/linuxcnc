@@ -1616,13 +1616,12 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
 
     PmCartesian prev_tan, this_tan;
 
-    int err1 = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
-    int err2 = tcGetStartTangentUnitVector(tc, &this_tan);
-#ifdef TP_PEDANTIC
-    if (err1 || err2) {
-        tp_debug_print("Got %d and %d from tangent vector calc\n",err1,err2);
+    int res_endtan = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
+    int res_starttan = tcGetStartTangentUnitVector(tc, &this_tan);
+    if (res_endtan || res_starttan) {
+        tp_debug_print("Got %d and %d from tangent vector calc, aborting tangent check\n",
+                res_endtan, res_starttan);
     }
-#endif
 
     tp_debug_print("prev tangent vector: %f %f %f\n", prev_tan.x, prev_tan.y, prev_tan.z);
     tp_debug_print("this tangent vector: %f %f %f\n", this_tan.x, this_tan.y, this_tan.z);
@@ -1674,7 +1673,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
  */
 STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
-    tp_debug_print("********************\nHandle Blend Arc\n");
+    tp_debug_print("** Handle Blend Arc **\n");
 
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
@@ -1700,30 +1699,31 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     TC_STRUCT blend_tc;
 
     blend_type_t type = tpCheckBlendArcType(tp, prev_tc, tc);
-    int res=TP_ERR_FAIL;
+    int res_create;
     switch (type) { 
         case BLEND_LINE_LINE:
-            res = tpCreateLineLineBlend(tp, prev_tc, tc, &blend_tc);
+            res_create = tpCreateLineLineBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_LINE_ARC:
-            res = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);
+            res_create = tpCreateLineArcBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_ARC_LINE:
-            res = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);
+            res_create = tpCreateArcLineBlend(tp, prev_tc, tc, &blend_tc);
             break;
         case BLEND_ARC_ARC:
-            res = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);
+            res_create = tpCreateArcArcBlend(tp, prev_tc, tc, &blend_tc);
             break;
         default:
-            tp_debug_print("blend arc NOT created\n");
+            tp_debug_print("intersection type not recognized, aborting arc\n");
+            res_create = TP_ERR_FAIL;
             break;
     }
 
-    if (res == TP_ERR_OK) {
+    if (res_create == TP_ERR_OK) {
         //Need to do this here since the length changed
         tpAddSegmentToQueue(tp, &blend_tc, false);
     } else {
-        return res;
+        return res_create;
     }
 
     return TP_ERR_OK;
@@ -1745,7 +1745,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
     if (tpErrorCheck(tp)<0) {
         return TP_ERR_FAIL;
     }
-    tp_info_print("===============\n");
+    tp_info_print("== AddLine ==\n");
 
     emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
     emcPoseToPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
@@ -1836,7 +1836,7 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         PmCartesian center, PmCartesian normal, int turn, int type,
         double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
 {
-    tp_debug_print("[in tpAddCircle]\n");
+    tp_info_print("== AddCircle ==\n");
     TC_STRUCT tc;
     PmCircle circle;
     //TODO replace these placeholder variables with pointers to TC fields
@@ -1924,8 +1924,6 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
         int planning, double * const v_parabolic) {
     /* Pre-checks for valid pointers */
     if (!nexttc || !tc) {
-
-        tp_debug_print("missing nexttc in compute vel?\n");
         return TP_ERR_FAIL;
     }
 
@@ -2902,7 +2900,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         dt = fmax(dt, dx / v_avg);
     } else {
         if ( dx > (v_avg * tp->cycleTime) && dx > TP_POS_EPSILON) {
-            tp_debug_print(" below velocity threshold, assuming far from end\n");
+            tc_debug_print(" below velocity threshold, assuming far from end\n");
             return TP_ERR_NO_ACTION;
         }
     }
@@ -2922,22 +2920,22 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     //Need to recalculate vf and above
     if (recalc) {
-        tp_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
+        tc_debug_print(" recalculating with a_f = %f, a = %f\n", a_f, a);
         double disc = pmSq(tc->currentvel / a) + 2.0 / a * dx;
         if (disc < 0) {
             //Should mean that dx is too big, i.e. we're not close enough
-            tp_debug_print(" dx = %f, too large, not at end yet\n",dx);
+            tc_debug_print(" dx = %f, too large, not at end yet\n",dx);
             return TP_ERR_NO_ACTION;
         }
 
         if (disc < TP_TIME_EPSILON * TP_TIME_EPSILON) {
-            tp_debug_print("disc too small, skipping sqrt\n");
+            tc_debug_print("disc too small, skipping sqrt\n");
             dt =  -tc->currentvel / a;
         } else if (a > 0) {
-            tp_debug_print("using positive sqrt\n");
+            tc_debug_print("using positive sqrt\n");
             dt = -tc->currentvel / a + pmSqrt(disc);
         } else {
-            tp_debug_print("using negative sqrt\n");
+            tc_debug_print("using negative sqrt\n");
             dt = -tc->currentvel / a - pmSqrt(disc);
         }
 
@@ -2948,14 +2946,14 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
 
     if (dt < TP_TIME_EPSILON) {
         //Close enough, call it done
-        tp_debug_print("revised dt small, finishing tc\n");
+        tc_debug_print("revised dt small, finishing tc\n");
         tc->progress = tc->target;
         tcSetSplitCycle(tc, 0.0, v_f);
     } else if (dt < tp->cycleTime ) {
-        tp_debug_print(" corrected v_f = %f, a = %f\n", v_f, a);
+        tc_debug_print(" corrected v_f = %f, a = %f\n", v_f, a);
         tcSetSplitCycle(tc, dt, v_f);
     } else {
-        tp_debug_print(" dt = %f, not at end yet\n",dt);
+        tc_debug_print(" dt = %f, not at end yet\n",dt);
     }
     return TP_ERR_OK;
 }
