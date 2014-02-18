@@ -139,7 +139,7 @@ int blendCheckConsume(BlendParameters * const param,
 int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
         BlendParameters const * const param);
 
-int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
+int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
@@ -160,7 +160,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
         PmCartesian const * const vel_bound,
         double maxFeedScale);
 
-int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
+int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
