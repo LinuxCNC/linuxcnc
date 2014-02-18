@@ -1362,7 +1362,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     }
 
     //Find components of center position wrt circle 1 center.
-    PmCartesian c_x, c_y, r_C1C;
+    PmCartesian c_x, c_y;
     pmCartScalMult(&uc, Cx, &c_x);
     pmCartScalMult(&nc, Cy, &c_y);
 
@@ -1390,6 +1390,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     }
 
     //Continue with correct solution, get actual center
+    PmCartesian r_C1C;
     pmCartCartAdd(&c_x, &c_y, &r_C1C);
     pmCartCartAdd(&center1, &r_C1C, &points->arc_center);
     tp_debug_print("arc center = %f %f %f\n",
