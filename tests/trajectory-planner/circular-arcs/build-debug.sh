@@ -4,4 +4,5 @@ cd ../../../src
 #used anywhere else...
 touch emc/tp/t[cp]*.[ch]
 #make EXTRA_DEBUG='-DTC_DEBUG -DTP_DEBUG'
-make EXTRA_DEBUG='-DTC_DEBUG -DTP_DEBUG -DTP_INFO_LOGGING'
+#make EXTRA_DEBUG='-DTC_DEBUG -DTP_DEBUG -DTP_INFO_LOGGING'
+make EXTRA_DEBUG='-DTP_DEBUG'
