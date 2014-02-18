@@ -972,6 +972,8 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
             circ2->center.y,
             circ2->center.z);
     tp_debug_print("circ2 radius = %f\n", circ2->radius);
+    tp_debug_print("circ2 angle = %f\n", circ2->angle);
+    tp_debug_print("circ2 spiral = %f\n", circ2->spiral);
 
     //TODO need convex1 / convex2 here to flip signs on radius
     //Find the distance from the approximate center to each circle center
@@ -984,6 +986,13 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     double dr2 = circ2->spiral / circ2->angle;
     pmCartScalMult(&geom->u2, dr2, &center2);
     pmCartCartAddEq(&center2, &circ2->center);
+
+    tp_debug_print("center2 = %f %f %f\n",
+            center2.x,
+            center2.y,
+            center2.z);
+    tp_debug_print("radius2 = %f\n", radius2);
+
 #if 0
     if (param->convex2) {
         R_final = fmin(R_final, radius2 / 2.0);
@@ -1114,6 +1123,8 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
             circ1->center.y,
             circ1->center.z);
     tp_debug_print("circ1 radius = %f\n", circ1->radius);
+    tp_debug_print("circ1 angle = %f\n", circ1->angle);
+    tp_debug_print("circ1 spiral = %f\n", circ1->spiral);
 
     //TODO need convex1 / convex2 here to flip signs on radius
     //Find the distance from the approximate center to each circle center
@@ -1129,6 +1140,13 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     pmCartCartAddEq(&center1, &circ1->center);
 
     double radius1 = circ1->radius + circ1->spiral;
+
+    tp_debug_print("center1 = %f %f %f\n",
+            center1.x,
+            center1.y,
+            center1.z);
+
+    tp_debug_print("radius1 = %f\n", radius1);
 
     double R_final = param->R_plan;
 #if 0
@@ -1299,18 +1317,6 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 
     double R_final = param->R_plan;
 
-#if 0
-    //TODO make this larger?
-    const double convex_shrink = 0.999;
-    if (param->convex1){ 
-        // Convex blends have weird side-effects, so don't increase radius
-        R_final = fmin(R_final, radius1 * convex_shrink);
-    }
-    if (param->convex2) {
-        R_final = fmin(R_final, radius2 * convex_shrink);
-    }
-#endif
-
     tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
 
     // Define distances from actual center to adjusted circle centers
@@ -1334,7 +1340,10 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     // Find the basis vector uc from center1 to center2
     PmCartesian uc;
     //TODO catch failures here
-    pmCartUnit(&r_C1C2, &uc);
+    int norm_err = pmCartUnit(&r_C1C2, &uc);
+    if (norm_err) {
+        return TP_ERR_FAIL;
+    }
 
     // Find the basis vector perpendicular to the binormal and uc
     PmCartesian nc;
@@ -1347,7 +1356,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     if (dot1 < 0) {
         pmCartNegEq(&nc);
     }
-    int norm_err = pmCartUnitEq(&nc);
+    norm_err = pmCartUnitEq(&nc);
     if (norm_err) {
         return TP_ERR_FAIL;
     }
