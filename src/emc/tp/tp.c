@@ -845,7 +845,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     param.a_max *= TP_ARC_ACCEL_REDUCTION;
     param.a_n_max *= TP_ARC_ACCEL_REDUCTION;
     int res_param = blendComputeParameters(&param);
-    blendCheckConsume(&param, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
     
@@ -889,6 +888,7 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
+    blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
     //Store working copies of geometry
     PmCartLine line1_temp = prev_tc->coords.line.xyz;
     PmCircle circ2_temp = tc->coords.circle.xyz;
@@ -915,7 +915,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
-
     blendPoints3Print(&points_exact);
     //Get exact start and end points to account for spiral in arcs
     pmCirclePoint(&circ2_temp,
@@ -925,7 +924,10 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     tp_debug_print("Modified arc points\n");
     blendPoints3Print(&points_exact);
-    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points_exact, &geom, &param);
+    int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz,
+            &points_exact,
+            &geom,
+            &param);
     if (res_arc < 0) {
         return TP_ERR_FAIL;
     }
@@ -939,8 +941,14 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
 
-    int res_tangent = checkTangentAngle(&circ2_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, true);
-    if (res_tangent) {
+    int res_tangent = checkTangentAngle(&circ2_temp,
+            &blend_tc->coords.arc.xyz,
+            &geom,
+            &param,
+            tp->cycleTime,
+            true);
+
+    if (res_tangent < 0) {
         tp_debug_print("failed tangent check, aborting arc...\n");
         return TP_ERR_FAIL;
     }
@@ -951,7 +959,17 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     tc->blend_prev = 0;
     tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
-    tcSetLineXYZ(prev_tc, &line1_temp);
+    //TODO refactor to pass consume to connect function
+    if (param.consume) {
+        //Since we're consuming the previous segment, pop the last line off of the queue
+        int res_pop = tcqPopBack(&tp->queue);
+        if (res_pop) {
+            tp_debug_print("failed to pop segment, aborting arc\n");
+            return TP_ERR_FAIL;
+        }
+    } else {
+        tcSetLineXYZ(prev_tc, &line1_temp);
+    }
     tcSetCircleXYZ(tc, &circ2_temp);
 
     return TP_ERR_OK;
@@ -992,7 +1010,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     param.a_max *= TP_ARC_ACCEL_REDUCTION;
     param.a_n_max *= TP_ARC_ACCEL_REDUCTION;
     int res_param = blendComputeParameters(&param);
-    blendCheckConsume(&param, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
     
@@ -1012,6 +1029,7 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
     
+    blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
     /* If blend calculations were successful, then we're ready to create the
      * blend arc.
      */
@@ -1065,9 +1083,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     // end and start points should be identical
     blend_tc->coords.arc.abc = tc->coords.line.abc.start;
     blend_tc->coords.arc.uvw = tc->coords.line.uvw.start;
-
-    //No consuming
-    blend_tc->coords.arc.xyz.line_length = 0;
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
@@ -1143,6 +1158,8 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
 
         return TP_ERR_FAIL;
     }
+
+    blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
     
     /* If blend calculations were successful, then we're ready to create the
      * blend arc. Begin work on temp copies of each circle here:
@@ -1210,9 +1227,6 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     blend_tc->coords.arc.abc = prev_tc->coords.circle.abc.end;
     blend_tc->coords.arc.uvw = prev_tc->coords.circle.uvw.end;
 
-    //No consuming
-    blend_tc->coords.arc.xyz.line_length = 0;
-
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
     tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
             param.v_plan, param.a_max);
@@ -1260,13 +1274,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
             &vel_bound,
             emcmotConfig->maxFeedScale);
     int res_blend = blendComputeParameters(&param);
-    blendCheckConsume(&param, prev_tc, emcmotConfig->arcBlendGapCycles);
     blendFindPoints3(&points, &geom, &param);
-    if (param.consume) {
-        blend_tc->coords.arc.xyz.line_length = param.L1 - points.trim1;
-    } else {
-        blend_tc->coords.arc.xyz.line_length = 0;
-    }
 
     if (res_blend != TP_ERR_OK) {
         return res_blend;
@@ -1277,6 +1285,8 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     if (res_arc < 0) {
         return TP_ERR_FAIL;
     }
+
+    blendCheckConsume(&param, &points, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
@@ -1293,7 +1303,6 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     if (param.consume) {
         //Since we're consuming the previous segment, pop the last line off of the queue
         retval = tcqPopBack(&tp->queue);
-        tp_debug_print("consume previous line\n");
         if (retval) {
             tp_debug_print("PopBack failed\n");
             return TP_ERR_FAIL;
