@@ -129,24 +129,29 @@ int pmCircleTangentVector(PmCircle const * const circle,
     pmCirclePoint(circle, angle_in, &startpoint);
     pmCartCartSub(&startpoint, &circle->center, &radius);
 
-    // Find local tangent vector using planar normal
+    /* Find local tangent vector using planar normal. Assuming a differential
+     * angle dtheta, the tangential component of the tangent vector is r *
+     * dtheta. Since we're normalizing the vector anyway, assume dtheta = 1.
+     */
     pmCartCartCross(&circle->normal, &radius, &uTan);
-    pmCartUnitEq(&uTan);
 
     // find dz/dtheta and get differential movement along helical axis
     double h;
     pmCartMag(&circle->rHelix, &h);
 
+    /* the binormal component of the tangent vector is (dz / dtheta) * dtheta.
+     */
     double dz = 1.0 / circle->angle;
     pmCartScalMult(&circle->rHelix, dz, &dHelix);
 
     pmCartCartAddEq(&uTan, &dHelix);
 
-    // Find dr/dtheta and get differential movement radially due to spiral
+    /* The normal component is (dr / dtheta) * dtheta.
+     */
     double dr = circle->spiral / circle->angle;
     pmCartUnit(&radius, &dRadial);
     pmCartScalMultEq(&dRadial, dr);
-    pmCartCartAddEq(&uTan,&dRadial);
+    pmCartCartAddEq(&uTan, &dRadial);
 
     //Normalize final output vector
     pmCartUnit(&uTan, out);
