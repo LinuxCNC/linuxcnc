@@ -1280,13 +1280,13 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         return res_blend;
     }
 
+    blendCheckConsume(&param, &points, prev_tc, emcmotConfig->arcBlendGapCycles);
+
     // Set up actual blend arc here
     int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz, &points, &geom, &param);
     if (res_arc < 0) {
         return TP_ERR_FAIL;
     }
-
-    blendCheckConsume(&param, &points, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     // Note that previous restrictions don't allow ABC or UVW movement, so the
     // end and start points should be identical
