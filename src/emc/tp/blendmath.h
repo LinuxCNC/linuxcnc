@@ -134,6 +134,7 @@ int blendCalculateNormals3(BlendGeom3 * const geom);
 int blendComputeParameters(BlendParameters * const param);
 
 int blendCheckConsume(BlendParameters * const param,
+        BlendPoints3 const * const points,
         TC_STRUCT const * const prev_tc, int gap_cycles);
 
 int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,

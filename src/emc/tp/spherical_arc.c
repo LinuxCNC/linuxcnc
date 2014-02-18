@@ -80,6 +80,8 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
                 ARC_MIN_ANGLE);
         return ARC_ERR_GEOM;
     }
+
+    // Store sin of arc angle since it is reused many times for SLERP
     arc->Sangle = sin(arc->angle);
 
     return ARC_ERR_OK;

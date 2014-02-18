@@ -886,20 +886,29 @@ int blendComputeParameters(BlendParameters * const param)
 
 /** Check if the previous line segment will be consumed based on the blend arc parameters. */
 int blendCheckConsume(BlendParameters * const param,
+        BlendPoints3 const * const points,
         TC_STRUCT const * const prev_tc, int gap_cycles)
 {
+    //Initialize values
+    param->consume = 0;
+    param->line_length = 0;
     if (!prev_tc) {
         return -1;
     }
+
+    if (prev_tc->motion_type != TC_LINEAR) {
+        return 0;
+    }
+
     //Check for segment length limits
-    double L_prev = prev_tc->target - param->d_plan;
+    double L_prev = prev_tc->target - points->trim1;
     double prev_seg_time = L_prev / param->v_plan;
 
     param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time);
     if (param->consume) {
+        tp_debug_print("consuming prev line, L_prev = %g\n",
+                L_prev);
         param->line_length = L_prev;
-    } else {
-        param->line_length = 0;
     }
     return 0;
 }
@@ -1457,11 +1466,9 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
         BlendGeom3 const * const geom, BlendParameters const * const param)
 {
     // If we consume the previous line, the remaining line length gets added here
-    arc->uTan = geom->u1;
+    arc->uTan = geom->u_tan1;
     arc->line_length = param->line_length;
-    if (param->consume) {
-        tp_debug_print("consumed prev line with length %f\n", param->line_length);
-    }
+    arc->binormal = geom->binormal;
 
     // Create the arc from the processed points
     return arcInitFromPoints(arc, &points->arc_start,
