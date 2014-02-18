@@ -29,6 +29,8 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         return ARC_ERR_MISSING_OUTPUT;
     }
 #endif
+
+    // Store the start, end, and center
     arc->start = *start;
     arc->end = *end;
     arc->center = *center;

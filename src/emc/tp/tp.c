@@ -1351,7 +1351,7 @@ STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
     }
     if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE) ||
             (prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
-        tp_debug_print("Can't blend between rapid and feed move\n");
+        tp_debug_print("Can't blend between rapid and feed move, aborting arc\n");
         tcSetTermCond(prev_tc,TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
@@ -1368,6 +1368,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
     PmCartesian abc, uvw;
 
     if (tpErrorCheck(tp)) return TP_ERR_FAIL;
+    tp_info_print("== AddRigidTap ==\n");
 
     //Slightly more allocation this way, but much easier to read
     emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &abc, &uvw);
