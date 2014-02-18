@@ -38,43 +38,37 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     pmCartCartSub(start, center, &arc->rStart);
     pmCartCartSub(end, center, &arc->rEnd);
 
-    //Check that center is equidistant from both start and end. If not, the arc is not circular, and won't be tangent at the ends.
-    //TODO more formal tolerance here? current limit is very strict
-    double mag0,mag1;
-    pmCartMag(&arc->rStart, &mag0);
-    pmCartMag(&arc->rEnd, &mag1);
+    // Find the radii at start and end. These are identical for a perfect spherical arc
+    double radius0, radius1;
+    pmCartMag(&arc->rStart, &radius0);
+    pmCartMag(&arc->rEnd, &radius1);
 
-    //TODO take angle as input? might save computations
-    // Find angle between vectors to get arc angle
-    PmCartesian u0,u1;
-    pmCartUnit(&arc->rStart, &u0);
-    pmCartUnit(&arc->rEnd, &u1);
+    tp_debug_print("radii are %g and %g\n",
+            radius0,
+            radius1);
 
-    //Correct center by 1/2 error method
-    double err = mag1-mag0;
-    /*PmCartesian diff;*/
-    /*pmCartCartSub(end,start,&diff);*/
-
-    tp_debug_print("radii are %f and %f, difference is %g\n",mag0,mag1,mag1-mag0);
-    /*tp_debug_print("new center is = %f %f %f\n",*/
-            /*arc->center.x,*/
-            /*arc->center.y,*/
-            /*arc->center.z);*/
-
-    // estimate radius of spiral shape by average of two lengths
-    arc->radius = (mag0 + mag1) / 2.0;
-
-    if (mag0 < ARC_MIN_RADIUS) {
-        tp_debug_print("radius %f below min radius %f, aborting arc\n",
-                arc->radius,
+    if (radius0 < ARC_MIN_RADIUS || radius1 < ARC_MIN_RADIUS) {
+        tp_debug_print("radius below min radius %f, aborting arc\n",
                 ARC_MIN_RADIUS);
         return ARC_ERR_RADIUS;
     }
 
+    // Choose initial radius as nominal radius
+    arc->radius = radius0;
+
+    // Get unit vectors from center to start and center to end
+    PmCartesian u0, u1;
+    pmCartScalMult(&arc->rStart, 1.0 / radius0, &u0);
+    pmCartScalMult(&arc->rEnd, 1.0 / radius1, &u1);
+
+    // Find arc angle
     double dot;
-    pmCartCartDot(&u0,&u1,&dot);
+    pmCartCartDot(&u0, &u1, &dot);
     arc->angle = acos(dot);
-    tp_debug_print("angle = %f\n", arc->angle);
+    tp_debug_print("spherical arc angle = %f\n", arc->angle);
+
+    // Store spiral factor as radial difference. Archimedean spiral coef. a = spiral / angle
+    arc->spiral = (radius1 - radius0 );
 
     if (arc->angle < ARC_MIN_ANGLE) {
         tp_debug_print("angle %f below min angle %f, aborting arc\n",
