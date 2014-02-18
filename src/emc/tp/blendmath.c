@@ -969,7 +969,7 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     double R_final = param->R_plan;
 
     PmCartesian center2;
-    double dr2 = circ2->spiral / circ2->angle * PM_PI / 2.0;
+    double dr2 = circ2->spiral / circ2->angle;
     pmCartScalMult(&geom->u2, dr2, &center2);
     pmCartCartAddEq(&center2, &circ2->center);
 #if 0
@@ -1112,7 +1112,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
 
     //Create "shifted center" approximation of spiral circles
     PmCartesian center1;
-    double dr1 = circ1->spiral / circ1->angle * PM_PI / 2.0;
+    double dr1 = circ1->spiral / circ1->angle;
     pmCartScalMult(&geom->u1, dr1, &center1);
     pmCartCartAddEq(&center1, &circ1->center);
 
@@ -1261,13 +1261,13 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 
     //Create "shifted center" approximation of spiral circles
     PmCartesian center1;
-    double dr1 = circ1->spiral / circ1->angle * PM_PI / 2.0;
+    double dr1 = circ1->spiral / circ1->angle;
     pmCartScalMult(&geom->u1, dr1, &center1);
     pmCartCartAddEq(&center1, &circ1->center);
     double radius1 = circ1->radius + circ1->spiral;
 
     PmCartesian center2;
-    double dr2 = circ2->spiral / circ2->angle * PM_PI / 2.0;
+    double dr2 = circ2->spiral / circ2->angle;
     pmCartScalMult(&geom->u2, dr2, &center2);
     pmCartCartAddEq(&center2, &circ2->center);
 
