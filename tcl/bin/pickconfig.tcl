@@ -582,7 +582,7 @@ proc prompt_copy configname {
              file delete $linkname
            }
            # avoid error if no target 
-           if [file exists refname] {
+           if [file exists $refname] {
              file link -symbolic $linkname $refname
            }
         }
