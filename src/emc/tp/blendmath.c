@@ -146,11 +146,14 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
     //TODO fail if theta is too large
     double dot;
     pmCartCartDot(&u_circ, &u_arc, &dot);
-    double theta = acos(dot);
+    double blend_angle = acos(dot);
+    double angle_max = findMaxTangentAngle(param->v_plan, param->a_max, cycle_time);
 
-    tp_debug_print("tangent angle = %f\n",theta);
+    tp_debug_print("tangent angle = %f, max = %f\n",
+            blend_angle,
+            angle_max);
 
-    if (theta > TP_MAX_ARC_TANGENT) {
+    if (blend_angle > angle_max) {
         tp_debug_print("angle too large\n");
         return TP_ERR_FAIL;
     }
@@ -557,7 +560,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
  * @param vel_bound maximum X, Y, Z machine velocity
  * @param maxFeedScale maximum allowed feed override (set in INI)
  */
-int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
+int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
@@ -709,7 +712,7 @@ int blendInit3FromArcs(BlendGeom3 * const geom, BlendParameters * const param,
  * @param vel_bound maximum X, Y, Z machine velocity
  * @param maxFeedScale maximum allowed feed override (set in INI)
  */
-int blendInit3FromLines(BlendGeom3 * const geom, BlendParameters * const param,
+int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
         TC_STRUCT const * const tc,
         PmCartesian const * const acc_bound,
