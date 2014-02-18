@@ -1304,7 +1304,8 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //Since we're consuming the previous segment, pop the last line off of the queue
         retval = tcqPopBack(&tp->queue);
         if (retval) {
-            tp_debug_print("PopBack failed\n");
+            //This is unrecoverable since we've already changed the line. Something is wrong if we get here...
+            rtapi_print_msg(RTAPI_MSG_ERR, "PopBack failed\n");
             return TP_ERR_FAIL;
         }
         //Since the blend arc meets the end of the previous line, we only need
