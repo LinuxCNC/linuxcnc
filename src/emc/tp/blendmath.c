@@ -132,13 +132,12 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
 {
     // Debug Information to diagnose tangent issues
     PmCartesian u_circ, u_arc;
+    arcTangent(arc, &u_arc, at_end);
 
     if (at_end) {
         pmCircleTangentVector(circ, 0, &u_circ);
-        pmCartCartCross(&geom->binormal, &arc->rEnd, &u_arc);
     } else {
         pmCircleTangentVector(circ, circ->angle, &u_circ);
-        pmCartCartCross(&geom->binormal, &arc->rStart, &u_arc);
     }
 
     pmCartUnitEq(&u_arc);
@@ -153,21 +152,19 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
             blend_angle,
             angle_max);
 
+    tp_debug_print("circ_tan = [%f %f %f]\n",
+            u_circ.x,
+            u_circ.y,
+            u_circ.z);
+    tp_debug_print("arc_ideal_tan = [%f %f %f]\n",
+            u_arc.x,
+            u_arc.y,
+            u_arc.z);
+
     if (blend_angle > angle_max) {
         tp_debug_print("angle too large\n");
         return TP_ERR_FAIL;
     }
-
-    tp_debug_print("circ tan = %f %f %f\n",
-            u_circ.x,
-            u_circ.y,
-            u_circ.z);
-    tp_debug_print("arc ideal tan = %f %f %f\n",
-            u_circ.x,
-            u_circ.y,
-            u_circ.z);
-
-
 
     return TP_ERR_OK;
 }
@@ -355,9 +352,22 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
         return TP_ERR_FAIL;
     }
 
-
     // Get intersection point from line
-    geom->P = prev_tc->coords.line.xyz.end;
+    PmCartesian end1 = prev_tc->coords.line.xyz.end;
+    PmCartesian start2;
+    pmCirclePoint(&tc->coords.circle.xyz, 0.0, &start2);
+
+    tp_debug_print("Line End = %f %f %f\n",
+            end1.x,
+            end1.y,
+            end1.z);
+
+    tp_debug_print("Circ Start = %f %f %f\n",
+            start2.x,
+            start2.y,
+            start2.z);
+
+    geom->P = end1;
 
     tp_debug_print("Intersection point P = %f %f %f\n",
             geom->P.x,
@@ -595,6 +605,24 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     if (res_angle) {
         return TP_ERR_FAIL;
     }
+
+    // Get intersection point from line
+    PmCartesian end1;
+    pmCirclePoint(&prev_tc->coords.circle.xyz, prev_tc->coords.circle.xyz.angle, &end1);
+    PmCartesian start2;
+    pmCirclePoint(&tc->coords.circle.xyz, 0.0, &start2);
+
+    tp_debug_print("Circ1 End = %f %f %f\n",
+            end1.x,
+            end1.y,
+            end1.z);
+
+    tp_debug_print("Circ2 Start = %f %f %f\n",
+            start2.x,
+            start2.y,
+            start2.z);
+
+    geom->P = end1;
 
     // Get intersection point
     pmCirclePoint(&tc->coords.circle.xyz, 0.0, &geom->P);

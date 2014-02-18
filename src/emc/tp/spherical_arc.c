@@ -173,3 +173,29 @@ int arcConvexTest(PmCartesian const * const center,
     int convex = (reverse_dir != 0) ^ (dot < 0);
     return convex;
 }
+
+int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_end)
+{
+    PmCartesian r_perp;
+    PmCartesian r_tan;
+
+    if (at_end) {
+        r_perp = arc->rEnd;
+    } else {
+        r_perp = arc->rStart;
+    }
+
+    pmCartCartCross(&arc->binormal, &r_perp, &r_tan);
+    //Get spiral component
+    double dr = arc->spiral / arc->angle;
+
+    //Get perpendicular component due to spiral
+    PmCartesian d_perp;
+    pmCartUnit(&r_perp, &d_perp);
+    pmCartScalMultEq(&d_perp, dr);
+    //TODO error checks
+    pmCartCartAdd(&d_perp, &r_tan, tan);
+    pmCartUnitEq(tan);
+
+    return ARC_ERR_OK;
+}
