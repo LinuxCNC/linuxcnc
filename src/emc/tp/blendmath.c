@@ -145,7 +145,7 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
     //TODO fail if theta is too large
     double dot;
     pmCartCartDot(&u_circ, &u_arc, &dot);
-    double blend_angle = acos(dot);
+    double blend_angle = acos(saturate(dot,1.0));
     double angle_max = findMaxTangentAngle(param->v_plan, param->a_max, cycle_time);
 
     tp_debug_print("tangent angle = %f, max = %f\n",
