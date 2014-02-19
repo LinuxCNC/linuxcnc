@@ -15,8 +15,6 @@
 
 #include "emcpos.h"
 #include <stdbool.h>
-#include "rtapi_math.h"
-
 
 typedef enum {
     EMCPOSE_ERR_OK = 0,

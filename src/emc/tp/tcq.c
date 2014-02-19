@@ -18,7 +18,7 @@
  ********************************************************************/
 
 #include "tcq.h"
-#include "rtapi_string.h"
+#include <stddef.h>
 
 /** Return 0 if queue is valid, -1 if not */
 static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)

@@ -37,12 +37,6 @@
 
 #include "tp_debug.h"
 
-#ifndef SIM
-//Need manual definitions for these functions since they're missing from rtapi_math.h
-STATIC inline double fmax(double a, double b) { return (a) > (b) ? (a) : (b); }
-STATIC inline double fmin(double a, double b) { return (a) < (b) ? (a) : (b); }
-#endif
-
 #define TP_SHOW_BLENDS
 #define TP_OPTIMIZATION_LAZY
 #define TP_PEDANTIC

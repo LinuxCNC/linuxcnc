@@ -14,6 +14,7 @@
 
 #include "posemath.h"		/* PmCartesian */
 #include "emcpose.h"
+#include "rtapi_math.h"
 
 //#define EMCPOSE_PEDANTIC
 
