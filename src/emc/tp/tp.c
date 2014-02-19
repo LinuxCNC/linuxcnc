@@ -842,7 +842,7 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     //Catch errors in blend setup
     if (res_init || res_param || res_points || res_post) {
-        tp_debug_print("Got %d, %d, %d, %d for init, param, points, post\n",
+        tp_debug_print("Got %d, %d, %d, %d for init, param, points, post, aborting arc\n",
                 res_init,
                 res_param,
                 res_points,
@@ -884,7 +884,7 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             true);
     //TODO create blends
     if (res_stretch1 || res_stretch2) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"aborting after length change!\n");
+        tp_debug_print("segment resize failed, aborting arc\n");
         return TP_ERR_FAIL;
     }
 
@@ -903,6 +903,7 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &geom,
             &param);
     if (res_arc < 0) {
+        tp_debug_print("arc creation failed, aborting arc\n");
         return TP_ERR_FAIL;
     }
 
@@ -1033,7 +1034,8 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             new_len2,
             true);
 
-    if (res_stretch2 != TP_ERR_OK) {
+    if (res_stretch1 || res_stretch2) {
+        tp_debug_print("segment resize failed, aborting arc\n");
         return TP_ERR_FAIL;
     }
 
@@ -1173,7 +1175,8 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
             phi2_new,
             true);
     //TODO create blends
-    if (res_stretch2 != TP_ERR_OK) {
+    if (res_stretch1 || res_stretch2) {
+        tp_debug_print("segment resize failed, aborting arc\n");
         return TP_ERR_FAIL;
     }
 
@@ -1283,6 +1286,7 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
         //to "connect" to the next line
         retval = tcConnectBlendArc(NULL, tc, &points.arc_start, &points.arc_end);
     } else {
+        //TODO refactor connect function to stretch lines and check for bad stretching
         tp_debug_print("keeping previous line\n");
         retval = tcConnectBlendArc(prev_tc, tc, &points.arc_start, &points.arc_end);
     }
