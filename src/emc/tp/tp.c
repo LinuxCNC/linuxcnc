@@ -840,8 +840,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &vel_bound,
             emcmotConfig->maxFeedScale);
 
-    param.a_max *= TP_ARC_ACCEL_REDUCTION;
-    param.a_n_max *= TP_ARC_ACCEL_REDUCTION;
     int res_param = blendComputeParameters(&param);
 
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
@@ -993,8 +991,6 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
             &vel_bound,
             emcmotConfig->maxFeedScale);
 
-    param.a_max *= TP_ARC_ACCEL_REDUCTION;
-    param.a_n_max *= TP_ARC_ACCEL_REDUCTION;
     int res_param = blendComputeParameters(&param);
 
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
@@ -1123,8 +1119,6 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
             &acc_bound,
             &vel_bound,
             emcmotConfig->maxFeedScale);
-    param.a_max *= TP_ARC_ACCEL_REDUCTION;
-    param.a_n_max *= TP_ARC_ACCEL_REDUCTION;
 
     int res_param = blendComputeParameters(&param);
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
