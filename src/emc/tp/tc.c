@@ -14,17 +14,14 @@
 * Last change:
 ********************************************************************/
 
-/*
-  FIXME-- should include <stdlib.h> for sizeof(), but conflicts with
-  a bunch of <linux> headers
-  */
 #include "rtapi.h"		/* rtapi_print_msg */
+#include "rtapi_math.h"
 #include "posemath.h"
 #include "emcpose.h"
 #include "tc.h"
+#include "tp_types.h"
 #include "spherical_arc.h"
 #include "motion_types.h"
-#include "rtapi_math.h"
 
 //Debug output
 #include "tp_debug.h"

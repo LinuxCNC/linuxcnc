@@ -16,6 +16,7 @@
 #ifndef RTAPI_MATH_H
 #define RTAPI_MATH_H
 
+#include "rtapi.h"  /* Because of all the rtapi refs */
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
 #if defined(RTAPI) && !defined(SIM)

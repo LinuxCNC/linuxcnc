@@ -12,11 +12,11 @@
 ********************************************************************/
 
 #include "posemath.h"
-#include "blendmath.h"
-#include "spherical_arc.h"
+#include "tc_types.h"
+#include "tp_types.h"
 #include "rtapi_math.h"
-#include "tc.h"
-#include "tp.h"
+#include "spherical_arc.h"
+#include "blendmath.h"
 #include "tp_debug.h"
 
 /** @section utilityfuncs Utility functions */
@@ -34,7 +34,7 @@
 double findMaxTangentAngle(double v_plan, double acc_limit, double cycle_time)
 {
     //Find acc hiccup we're allowed to get
-    double acc_margin = TP_ACC_RATIO_NORMAL * TP_KINK_FACTOR * acc_limit;
+    double acc_margin = BLEND_ACC_RATIO_NORMAL * BLEND_KINK_FACTOR * acc_limit;
     double dx = v_plan / cycle_time;
     if (dx > 0.0) {
         return (acc_margin / dx);
@@ -51,8 +51,8 @@ double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
     if (dx > 0.0) {
         return (dx * kink_angle);
     } else {
-        tp_debug_print(" Velocity or period is negative!\n");
-        return TP_BIG_NUM;
+        rtapi_print_msg(RTAPI_MSG_ERR, "dx < 0 in KinkAccel\n");
+        return 0;
     }
 }
 
@@ -70,7 +70,7 @@ double fsign(double f)
 }
 
 /** negate a value (or not) based on a bool parameter */
-inline double negate(double f, bool neg) 
+inline double negate(double f, int neg)
 {
     return (neg) ? -f : f;
 }
@@ -269,7 +269,7 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
  * @param v2 input vector 2
  * @param tol angle tolerance for parallelism
  */
-bool pmCartCartParallel(PmCartesian const * const v1,
+int pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol)
 {
     PmCartesian u1,u2;
@@ -279,9 +279,9 @@ bool pmCartCartParallel(PmCartesian const * const v1,
     pmCartCartDot(&u1, &u2, &dot);
     double theta = acos(fabs(dot));
     if (theta < tol) {
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -293,15 +293,15 @@ bool pmCartCartParallel(PmCartesian const * const v1,
  * @param line PmCartLine input
  * @param tol deviation tolerance (magnitude of error component)
  */
-bool pmCircLineCoplanar(PmCircle const * const circ,
+int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol)
 {
     double dot;
     pmCartCartDot(&circ->normal, &line->uVec, &dot);
     if (fabs(dot) < tol) {
-        return true;
+        return 1;
     } else {
-        return false;
+        return 0;
     }
 }
 
@@ -515,7 +515,7 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
     calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
 
     // Store max normal acceleration
-    param->a_n_max = param->a_max * TP_ACC_RATIO_NORMAL;
+    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
     tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
             param->a_n_max);
 
@@ -624,7 +624,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
     calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
 
     // Store max normal acceleration
-    param->a_n_max = param->a_max * TP_ACC_RATIO_NORMAL;
+    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
     tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
             param->a_n_max);
 
@@ -774,7 +774,7 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
 
     // Store max normal acceleration
-    param->a_n_max = param->a_max * TP_ACC_RATIO_NORMAL;
+    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
     tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
             param->a_n_max);
 
@@ -857,7 +857,7 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
     calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
 
     // Store max normal acceleration
-    param->a_n_max = param->a_max * TP_ACC_RATIO_NORMAL;
+    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
     tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
             param->a_n_max);
 

@@ -14,7 +14,19 @@
 #define BLENDMATH_H
 
 #include "posemath.h"
-#include "tc.h"
+#include "tc_types.h"
+
+#define BLEND_ACC_RATIO_TANGENTIAL 0.5
+#define BLEND_ACC_RATIO_NORMAL (pmSqrt(1.0 - pmSq(BLEND_ACC_RATIO_TANGENTIAL)))
+#define BLEND_KINK_FACTOR 0.25
+
+typedef enum {
+    BLEND_NONE,
+    BLEND_LINE_LINE,
+    BLEND_LINE_ARC,
+    BLEND_ARC_LINE,
+    BLEND_ARC_ARC,
+} blend_type_t;
 
 /**
  * 3D Input geometry for a spherical blend arc. 
@@ -122,10 +134,10 @@ double pmCartMin(PmCartesian const * const in);
 int calculateInscribedDiameter(PmCartesian const * const normal,
         PmCartesian const * const bounds, double * const diameter);
 
-bool pmCartCartParallel(PmCartesian const * const v1,
+int pmCartCartParallel(PmCartesian const * const v1,
         PmCartesian const * const v2, double tol);
 
-bool pmCircLineCoplanar(PmCircle const * const circ,
+int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol);
 
 int blendCalculateNormals3(BlendGeom3 * const geom);

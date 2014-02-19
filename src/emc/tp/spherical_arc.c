@@ -14,7 +14,7 @@
 #include "posemath.h"
 #include "spherical_arc.h"
 #include "rtapi_math.h"
-#include "rtapi.h"
+
 #include "tp_debug.h"
 
 int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,

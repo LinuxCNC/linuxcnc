@@ -10,17 +10,13 @@
 *
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
-
-#include "rtapi.h"		/* rtapi_print_msg */
-#include "rtapi_string.h"       /* NULL */
-#include "posemath.h"
+#include "rtapi.h"              /* rtapi_print_msg */
+#include "posemath.h"           /* Geometry types & functions */
 #include "tc.h"
 #include "tp.h"
 #include "emcpose.h"
 #include "rtapi_math.h"
-#include "../motion/motion.h"
-#include "hal.h"
-#include "../motion/mot_priv.h"
+#include "mot_priv.h"
 #include "motion_debug.h"
 #include "motion_types.h"
 #include "spherical_arc.h"
@@ -45,7 +41,7 @@ extern emcmot_status_t *emcmotStatus;
 extern emcmot_debug_t *emcmotDebug;
 extern emcmot_config_t *emcmotConfig;
 
-/** static function primitives */
+/** static function primitives (ugly but less of a pain than moving code around)*/
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc, int planning, double * const blend_vel);
 
@@ -261,7 +257,7 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
     }
     if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
         //Limit acceleration for cirular arcs to allow for normal acceleration
-        a_scale *= TP_ACC_RATIO_TANGENTIAL;
+        a_scale *= BLEND_ACC_RATIO_TANGENTIAL;
     }
     return a_scale;
 }
@@ -1788,7 +1784,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
 
 STATIC double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max)
 {
-    double a_n_max = TP_ACC_RATIO_NORMAL * a_max;
+    double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
     double v_max_acc = pmSqrt(a_n_max * circle->radius);
     if (v_max_acc < v_max) {
         tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
