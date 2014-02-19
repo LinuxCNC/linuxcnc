@@ -281,8 +281,10 @@ HEADERS := \
     emc/kinematics/genserkins.h \
     emc/kinematics/pumakins.h \
     emc/tp/tc.h \
+    emc/tp/tc_types.h \
     emc/tp/tcq.h \
     emc/tp/tp.h \
+    emc/tp/tp_types.h \
     emc/tp/spherical_arc.h \
     emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
