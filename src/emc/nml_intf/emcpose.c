@@ -12,9 +12,13 @@
 *
 ********************************************************************/
 
-#include "posemath.h"		/* PmCartesian */
 #include "emcpose.h"
+#include "posemath.h"
 #include "rtapi_math.h"
+#include "spherical_arc.h"
+#include "blendmath.h"
+
+#include "tp_debug.h"
 
 //#define EMCPOSE_PEDANTIC
 
@@ -284,7 +288,7 @@ int emcPoseMagnitude(EmcPose const * const pose, double * const out) {
 /**
  * Return true for a numerically valid pose, or false for an invalid pose (or null pointer).
  */
-bool emcPoseValid(EmcPose const * const pose)
+int emcPoseValid(EmcPose const * const pose)
 {
 
     if (!pose || 
@@ -297,8 +301,8 @@ bool emcPoseValid(EmcPose const * const pose)
             isnan(pose->u) ||
             isnan(pose->v) ||
             isnan(pose->w)) {
-        return false;
+        return 0;
     } else {
-        return true;
+        return 1;
     }
 }
