@@ -75,8 +75,6 @@ class Pages:
             dbg( "FWD search %s,%s,%s,%s,%s,of %d pages"%(u,name,text,init_state,state,len(self._p.available_page)-1))
             if state and not init_state:
                 self.set_buttons_sensitive(0,0)
-                while gtk.events_pending():
-                    gtk.main_iteration()
                 dbg( 'Loading page %s'%name)
                 self.a.builder.add_from_file(os.path.join(self._p.DATADIR, '%s.glade'%name))
                 page = self.a.builder.get_object(name)
@@ -146,6 +144,8 @@ class Pages:
     def set_buttons_sensitive(self,bstate,fstate):
         self.w.button_fwd.set_sensitive(fstate)
         self.w.button_back.set_sensitive(bstate)
+        while gtk.events_pending():
+            gtk.main_iteration()
 
     # Sets the visual state of a list of page(s)
     # The page names must be the one used in self._p.available_page
@@ -748,8 +748,10 @@ class Pages:
 #************
     def mesa0_init(self):
         print 'mesa0 init'
+        self._p.prepare_block = True
         self.w.mesa0_boardtitle.set_model(self.w.mesa_boardname_store)
         self.a.init_mesa_signals(0)
+        self._p.prepare_block = False
 
     def mesa0_prepare(self):
         self.d.help = "help-mesa.txt"
@@ -790,8 +792,10 @@ class Pages:
 # MESA1 PAGE
 #************
     def mesa1_init(self):
+        self._p.prepare_block = True
         self.w.mesa1_boardtitle.set_model(self.w.mesa_boardname_store)
         self.a.init_mesa_signals(1)
+        self._p.prepare_block = False
 
     def mesa1_prepare(self):
         self.d.help = "help-mesa.txt"
@@ -825,6 +829,7 @@ class Pages:
 # pport1 PAGE
 #************
     def pport1_init(self):
+        self._p.prepare_block = True
         # set Parport tree stores
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pp1_Opin%d' % pin
@@ -851,6 +856,7 @@ class Pages:
         self.w.pp1_direction.connect('changed', self.on_pp1_direction_changed)
         self.w.pp1_address_search.connect('clicked', self.on_address_search_clicked)
         self.w.pp1_testbutton.connect('clicked', self.on_pport_panel_clicked)
+        self._p.prepare_block = False
 
     def pport1_prepare(self):
         self.d.help = 5

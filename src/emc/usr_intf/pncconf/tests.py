@@ -479,17 +479,19 @@ But there is not one in the machine-named folder.."""),True)
         pump = self.d.findsignal("charge-pump")
 
         if self.stepgen:
+            state = True
             w.xtuningnotebook.set_current_page(1)
-            w.xpid.set_sensitive(0)
-            w.xtuneinvertencoder.set_sensitive(0)
-            w.xpidtable.set_sensitive(0)
         else:
+            state = False
             w.xtuningnotebook.set_current_page(0)
-            w.xstep.set_sensitive(0)
-            w.xsteptable.set_sensitive(0)
             text = _("Servo tuning is not avaiable in PNCconf yet\n")
             self.a.warning_dialog(text,True)
             return
+        w.xpid.set_sensitive(not state)
+        w.xtuneinvertencoder.set_sensitive(not state)
+        w.xpidtable.set_sensitive(not state)
+        w.xstep.set_sensitive(state)
+        w.xsteptable.set_sensitive(state)
 
         if axis == "a":
             w,xtunedistunits.set_text(_("degrees"))
@@ -663,7 +665,12 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("net output     pid.0.output\n")
             halrun.write("net pos-cmd    steptest.0.position-cmd => pid.0.command\n")
             halrun.write("net feedback steptest.0.position-fb <= %s.position \n"% (self.enc_signalname))
-   
+        self.w.xtuneenable.set_active(False)
+        self.w.xtuneinvertmotor.set_sensitive(False)
+        self.w.xtuneamplitude.set_sensitive(False)
+        self.w.xtunedir.set_sensitive(False)
+        self.w.xtunejogminus.set_sensitive(False)
+        self.w.xtunejogplus.set_sensitive(False)
         self.updaterunning = True
         halrun.write("start\n")
         halrun.flush()
@@ -853,7 +860,7 @@ But there is not one in the machine-named folder.."""),True)
         pwmmaxoutput = get_value(widgets[axis+"outputscale"])
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.d.findsignal("charge-pump")
-
+        print 'fast %d,max %d, ss max %d, dac_scale %d'%(fastdac,max_dac,pwmmaxoutput,dac_scale)
         halrun.write("loadrt threads period1=%d name1=base-thread fp1=0 period2=%d name2=servo-thread \n" % (100000, self.d.servoperiod  ))
         load,read,write = self.a.hostmot2_command_string()
         for i in load:
