@@ -152,14 +152,21 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
             blend_angle,
             angle_max);
 
-    tp_debug_print("circ_tan = [%f %f %f]\n",
+    tp_debug_print("circ_tan = [%g %g %g]\n",
             u_circ.x,
             u_circ.y,
             u_circ.z);
-    tp_debug_print("arc_ideal_tan = [%f %f %f]\n",
+    tp_debug_print("arc_tan = [%g %g %g]\n",
             u_arc.x,
             u_arc.y,
             u_arc.z);
+
+    PmCartesian diff;
+    pmCartCartSub(&u_arc,&u_circ,&diff);
+    tp_debug_print("diff = [%g %g %g]\n",
+            diff.x,
+            diff.y,
+            diff.z);
 
     if (blend_angle > angle_max) {
         tp_debug_print("angle too large\n");
@@ -606,25 +613,12 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         return TP_ERR_FAIL;
     }
 
-    // Get intersection point from line
-    PmCartesian end1;
-    pmCirclePoint(&prev_tc->coords.circle.xyz, prev_tc->coords.circle.xyz.angle, &end1);
-    PmCartesian start2;
-    pmCirclePoint(&tc->coords.circle.xyz, 0.0, &start2);
+    //Do normal calculation here since we need this information for accel / vel limits
+    blendCalculateNormals3(geom);
 
-    tp_debug_print("Circ1 End = %f %f %f\n",
-            end1.x,
-            end1.y,
-            end1.z);
 
-    tp_debug_print("Circ2 Start = %f %f %f\n",
-            start2.x,
-            start2.y,
-            start2.z);
 
-    geom->P = end1;
-
-    // Get intersection point
+    // Get intersection point from circle start
     pmCirclePoint(&tc->coords.circle.xyz, 0.0, &geom->P);
     tp_debug_print("Intersection point P = %f %f %f\n",
             geom->P.x,
@@ -696,9 +690,6 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     tp_debug_print("theta = %f\n", param->theta);
 
     param->phi = (PM_PI - param->theta * 2.0);
-
-    //Do normal calculation here since we need this information for accel / vel limits
-    blendCalculateNormals3(geom);
 
     // Calculate max acceleration based on plane containing lines
     calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
@@ -1019,13 +1010,22 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     //Find the distance from the approximate center to each circle center
 
     // Find local circular approximation of spiral
-    double radius2 = circ2->radius;
     double R_final = param->R_plan;
 
     PmCartesian center2;
     double dr2 = circ2->spiral / circ2->angle;
     pmCartScalMult(&geom->u2, dr2, &center2);
     pmCartCartAddEq(&center2, &circ2->center);
+
+    PmCartesian P_test2;
+    pmCartCartSub(&geom->P,&center2,&P_test2);
+    tp_debug_print("P_test2 = %f %f %f\n",
+            P_test2.x,
+            P_test2.y,
+            P_test2.z);
+    double mag;
+    pmCartMag(&P_test2, &mag);
+    double radius2 = mag;
 
     tp_debug_print("center2 = %f %f %f\n",
             center2.x,
@@ -1179,7 +1179,15 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     pmCartScalMult(&geom->u1, dr1, &center1);
     pmCartCartAddEq(&center1, &circ1->center);
 
-    double radius1 = circ1->radius + circ1->spiral;
+    PmCartesian P_test1;
+    pmCartCartSub(&geom->P, &center1, &P_test1);
+    tp_debug_print("P_test1 = %f %f %f\n",
+            P_test1.x,
+            P_test1.y,
+            P_test1.z);
+    double mag;
+    pmCartMag(&P_test1, &mag);
+    double radius1 = mag;
 
     tp_debug_print("center1 = %f %f %f\n",
             center1.x,
@@ -1334,14 +1342,31 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     double dr1 = circ1->spiral / circ1->angle;
     pmCartScalMult(&geom->u1, dr1, &center1);
     pmCartCartAddEq(&center1, &circ1->center);
-    double radius1 = circ1->radius + circ1->spiral;
+
+    PmCartesian P_test1;
+    pmCartCartSub(&geom->P,&center1,&P_test1);
+    tp_debug_print("P_test1 = %f %f %f\n",
+            P_test1.x,
+            P_test1.y,
+            P_test1.z);
+    double mag;
+    pmCartMag(&P_test1, &mag);
+    double radius1 = mag;
 
     PmCartesian center2;
     double dr2 = circ2->spiral / circ2->angle;
     pmCartScalMult(&geom->u2, dr2, &center2);
     pmCartCartAddEq(&center2, &circ2->center);
 
-    double radius2 = circ2->radius;
+
+    PmCartesian P_test2;
+    pmCartCartSub(&geom->P,&center2,&P_test2);
+    tp_debug_print("P_test2 = %f %f %f\n",
+            P_test2.x,
+            P_test2.y,
+            P_test2.z);
+    pmCartMag(&P_test2, &mag);
+    double radius2 = mag;
 
     tp_debug_print("center1 = %f %f %f\n",
             center1.x,
