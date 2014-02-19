@@ -33,7 +33,7 @@ typedef struct {
 /**
  * 9D Input geometry for a spherical blend arc.
  */
-#if BLEND_9D
+#ifdef BLEND_9D
 typedef struct {
 //Not implemented yet
 } BlendGeom9;
@@ -92,7 +92,7 @@ typedef struct {
     double trim2;               /* length (line) or angle (arc) to cut from tc */
 } BlendPoints3;
 
-#if BLEND_9D
+#ifdef BLEND_9D
 typedef struct {
 //Not implemented yet
 } BlendPoints9;
