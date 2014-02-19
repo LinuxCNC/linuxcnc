@@ -43,6 +43,21 @@
 #       Typically:
 #         (-s1) sequence 1 (1,10,100,1000) is ok for mm-based machines
 #         (-s2) sequence 2 (1,5,10,20)     is ok for inch-based machines
+#    4) jogmode==plus-minus implements halui plus-minus jogging which
+#       seems to work in both joint and world modes
+#       (tested on git master branch before integration of joints_axesN branch)
+#
+#    5) 19feb2014 notes for future work
+#       jogging non-trivkins machines in world mode
+#
+#       jogmode==plus-minus-increment reserved for halui plus-minus-increment jogging
+#       incremental, world-mode jogging is not working in current git master
+#       (at this date, current git master has not merged a joint_axesN branch)
+#
+#       see:
+#       http://www.linuxcnc.org/docs/html/man/man9/gantrykins.9.html
+#       Joint-mode (aka Free mode) supports continuous and incremental jogging.
+#       World-mode (aka Teleop mode) only supports continuous jogging.
 
 #-----------------------------------------------------------------------
 # Copyright: 2014
