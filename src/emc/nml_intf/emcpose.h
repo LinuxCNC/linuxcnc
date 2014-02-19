@@ -14,7 +14,7 @@
 #define EMCPOSE_H
 
 #include "emcpos.h"
-#include <stdbool.h>
+#include "posemath.h"
 
 typedef enum {
     EMCPOSE_ERR_OK = 0,
@@ -47,6 +47,6 @@ int emcPoseGetUVW(EmcPose const * const pose, PmCartesian * const uvw);
 
 int emcPoseMagnitude(EmcPose const * const pose, double * const out);
 
-bool emcPoseValid(EmcPose const * const pose);
+int emcPoseValid(EmcPose const * const pose);
 
 #endif

@@ -13,7 +13,7 @@
 #ifndef TP_DEBUG_H
 #define TP_DEBUG_H
 
-#include "rtapi.h"
+#include "rtapi.h"  /* printing functions */
 
 /** TP debug stuff */
 #ifdef TP_DEBUG

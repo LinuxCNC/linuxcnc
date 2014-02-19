@@ -14,8 +14,10 @@
 #ifndef MOTION_DEBUG_H
 #define MOTION_DEBUG_H
 
+/*! \todo needs mot_priv.h, but including here causes conflicts */
 #include "tp.h"			/* TP_STRUCT */
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
+
 /*********************************
         DEBUG STRUCTURE
 *********************************/
