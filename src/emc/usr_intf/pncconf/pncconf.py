@@ -2758,6 +2758,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     # 'self.d.mesaX_currentfirmwaredata' hold the current selected firmware data (X is 0 or 1)
 
     def set_mesa_options(self,boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels):
+        _PD.prepare_block = True
         self.p.set_buttons_sensitive(0,0)
         self.pbar.set_text("Setting up Mesa tabs")
         self.pbar.set_fraction(0)
@@ -2872,13 +2873,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.mesa_mainboard_data_to_widgets(boardnum)
         self.window.hide()
         self.p.set_buttons_sensitive(1,1)
+        _PD.prepare_block = False
 
     def set_sserial_options(self,boardnum,port,channel):
         numofsserialports = self.d["mesa%d_numof_sserialports"% boardnum]
         numofsserialchannels = self.d["mesa%d_numof_sserialchannels"% boardnum]
         subboardname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
         if subboardname == "none":return
-        self.p.set_buttons_sensitive(0,0)
         self.pbar.set_text("Setting up Mesa Smart Serial tabs")
         self.pbar.set_fraction(0)
         self.window.show()
@@ -2938,7 +2939,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%d_numof_sserialports"% boardnum].set_value(numofsserialports)
         self.widgets["mesa%d_numof_sserialchannels"% boardnum].set_value(numofsserialchannels)
         self.window.hide()
-        self.p.set_buttons_sensitive(1,1)
 
     def firmware_to_widgets(self,boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,pin,numofencoders,numofpwmgens,numoftppwmgens,
                             numofstepgens,subboardname,numofsserialports,numofsserialchannels,sserialflag):
@@ -3706,6 +3706,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     # it also handles adding and updating custom signal names
     # it is used for mesa boards and parport boards according to boardtype
     def on_general_pin_changed(self, widget, boardtype, boardnum, connector, channel, pin, custom):
+                self.p.set_buttons_sensitive(0,0)
                 if boardtype == "sserial":
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum,connector,channel,pin)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum,connector,channel,pin)
@@ -3919,10 +3920,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                                 #print p,temp," set at",self.d["mesa%dsserial%d_%dsubboard"% (boardnum, portnum, channelnum)]
                                 self.set_sserial_options(boardnum,portnum,channelnum)
+                                self.p.set_buttons_sensitive(1,1)
                                 return
+                    self.p.set_buttons_sensitive(1,1)
                     return
                 else:
                     print"**** INFO: pncconf on_general_pin_changed:  pintype not found:%s\n"% widgetptype
+                    self.p.set_buttons_sensitive(1,1)
                     return   
                 # *** change the related pin's signal names ***
                      
@@ -4007,6 +4011,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     self.widgets[data[0]].handler_unblock(self.d[blocksignal1])
                 #self.debug_iter(0,p,"pin changed")
                 #if boardtype == "mesa": self.debug_iter(0,ptype,"pin changed")
+                self.p.set_buttons_sensitive(1,1)
 
 
     def pport_push_data(self,port,direction,pin,pinv,signaltree,signaltocheck):
