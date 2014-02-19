@@ -116,14 +116,26 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
 
 static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
     int i;
+    static int last_error_enable = 0;
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
-        int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
-        if ((*e->hal.pin.quadrature_error == 0) && state) {
-            HM2_ERR("Encoder %d: quadrature count error", i);
+
+        if (*e->hal.pin.quadrature_error_enable) {
+            if (!last_error_enable) {
+                hm2_encoder_force_write(hm2);
+                last_error_enable = 1;
+            } else {
+                int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
+                if ((*e->hal.pin.quadrature_error == 0) && state) {
+                    HM2_ERR("Encoder %d: quadrature count error", i);
+                }
+                *e->hal.pin.quadrature_error = (hal_bit_t) state;
+            }
+        } else {
+            *e->hal.pin.quadrature_error = 0;
+            last_error_enable = 0;
         }
-        *e->hal.pin.quadrature_error = (hal_bit_t) state;
     }
 }
 
@@ -382,8 +394,15 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 goto fail1;
             }
 
-            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quadrature-error", hm2->llio->name, i);
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error", hm2->llio->name, i);
             r = hal_pin_bit_new(name, HAL_OUT, &(hm2->encoder.instance[i].hal.pin.quadrature_error), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
+
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.quad-error-enable", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.quadrature_error_enable), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
