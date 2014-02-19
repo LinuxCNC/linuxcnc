@@ -123,10 +123,91 @@ int sat_inplace(double * const x, double max) {
     return 0;
 }
 
+#if 0
+static int pmCirclePrint(PmCircle const * const circ) {
+    tp_debug_print(" center = %f %f %f\n",
+            circ->center.x,
+            circ->center.y,
+            circ->center.z);
+    tp_debug_print(" radius = %f\n", circ->radius);
+    tp_debug_print(" spiral = %f\n", circ->spiral);
+    tp_debug_print(" angle = %f\n", circ->angle);
+    //TODO add other debug data here as needed
+    return TP_ERR_OK;
+}
+#endif
 
 /**
  * @section geomfuncs Geometry check functions
  */
+
+
+/**
+ * Calculate the best-fit circle to the spiral segment.
+ * @param circ spiral to be approximated
+ * @param base_pt the point about which the circle is fit
+ * @param u_tan tangent unit vector at the base point of the approximation
+ * @param[out] center_out displaced center for circular approximation
+ * @param[out] radius_out adjusted radius
+ *
+ * The adjusted center for the circle fit is found by displacing the center
+ * along the spiral tangent by the spiral coefficient. The adjusted radius is
+ * the distance between the base point and this new center.
+ *
+ */
+static inline int findSpiralApproximation(PmCircle const * const circ,
+        PmCartesian const * const base_pt,
+        PmCartesian const * const u_tan,
+        PmCartesian * const center_out,
+        double * const radius_out)
+{
+    double dr = circ->spiral / circ->angle;
+    pmCartScalMult(u_tan, dr, center_out);
+    pmCartCartAddEq(center_out, &circ->center);
+
+    PmCartesian r_adjust;
+    pmCartCartSub(base_pt, center_out, &r_adjust);
+    pmCartMag(&r_adjust, radius_out);
+
+    tp_debug_print(" adjusted center = %f %f %f\n",
+            center_out->x,
+            center_out->y,
+            center_out->z);
+
+    tp_debug_print(" adjusted radius = %f\n", *radius_out);
+
+    return TP_ERR_OK;
+}
+
+
+/**
+ * Calculate the angle to trim from a circle based on the blend geometry.
+ *
+ * @param P intersection point
+ * @param arc_center calculated center of blend arc
+ * @param center actual center of circle (not spiral approximated center)
+ * @return trim angle
+ */
+static inline double findTrimAngle(PmCartesian const * const P,
+        PmCartesian const * const arc_center,
+        PmCartesian const * const center)
+{
+    //Define vectors relative to circle center
+    PmCartesian u_P;
+    pmCartCartSub(P, center, &u_P);
+    pmCartUnitEq(&u_P);
+
+    PmCartesian u_arccenter;
+    pmCartCartSub(arc_center, center, &u_arccenter);
+    pmCartUnitEq(&u_arccenter);
+
+    double dot;
+    pmCartCartDot(&u_arccenter, &u_P, &dot);
+    double dphi = acos(saturate(dot,1.0));
+    tp_debug_print(" dphi = %g\n",dphi);
+    return dphi;
+}
+
 
 int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end)
 {
@@ -616,8 +697,6 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     //Do normal calculation here since we need this information for accel / vel limits
     blendCalculateNormals3(geom);
 
-
-
     // Get intersection point from circle start
     pmCirclePoint(&tc->coords.circle.xyz, 0.0, &geom->P);
     tp_debug_print("Intersection point P = %f %f %f\n",
@@ -998,55 +1077,18 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         PmCartLine const * const line1, PmCircle const * const circ2)
 {
 
-    tp_debug_print("circ2 center = %f %f %f\n",
-            circ2->center.x,
-            circ2->center.y,
-            circ2->center.z);
-    tp_debug_print("circ2 radius = %f\n", circ2->radius);
-    tp_debug_print("circ2 angle = %f\n", circ2->angle);
-    tp_debug_print("circ2 spiral = %f\n", circ2->spiral);
-
-    //TODO need convex1 / convex2 here to flip signs on radius
-    //Find the distance from the approximate center to each circle center
-
-    // Find local circular approximation of spiral
-    double R_final = param->R_plan;
-
     PmCartesian center2;
-    double dr2 = circ2->spiral / circ2->angle;
-    pmCartScalMult(&geom->u2, dr2, &center2);
-    pmCartCartAddEq(&center2, &circ2->center);
+    double radius2;
 
-    PmCartesian P_test2;
-    pmCartCartSub(&geom->P,&center2,&P_test2);
-    tp_debug_print("P_test2 = %f %f %f\n",
-            P_test2.x,
-            P_test2.y,
-            P_test2.z);
-    double mag;
-    pmCartMag(&P_test2, &mag);
-    double radius2 = mag;
-
-    tp_debug_print("center2 = %f %f %f\n",
-            center2.x,
-            center2.y,
-            center2.z);
-    tp_debug_print("radius2 = %f\n", radius2);
-
-#if 0
-    if (param->convex2) {
-        R_final = fmin(R_final, radius2 / 2.0);
-    }
-#endif
-
-    tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
+    findSpiralApproximation(circ2,
+            &geom->P,
+            &geom->u_tan2,
+            &center2,
+            &radius2);
 
     // Define distances from actual center to circle centers
-    double d2 = negate(R_final, param->convex2) + radius2;
+    double d2 = negate(param->R_plan, param->convex2) + radius2;
     tp_debug_print("d2 = %f\n", d2);
-
-    PmCartesian r_PC2;
-    pmCartCartSub(&center2, &geom->P, &r_PC2);
 
     //Get unit vector normal to line in plane, towards arc center
     PmCartesian n1;
@@ -1057,6 +1099,9 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
             n1.x,
             n1.y,
             n1.z);
+
+    PmCartesian r_PC2;
+    pmCartCartSub(&center2, &geom->P, &r_PC2);
 
     double c2_u,c2_n; //Components of C2-P on u1 and n1
     pmCartCartDot(&r_PC2, &geom->u1, &c2_u);
@@ -1069,7 +1114,7 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     double d_L; // badly named distance along line to intersection
     double A = 1;
     double B = 2.0 * c2_u;
-    double C = pmSq(c2_u) - pmSq(d2) + pmSq(R_final - c2_n);
+    double C = pmSq(c2_u) - pmSq(d2) + pmSq(param->R_plan - c2_n);
     double root0,root1;
     int res_dist = quadraticFormula(A, B, C, &root0, &root1);
     if (res_dist) {
@@ -1087,7 +1132,7 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     PmCartesian C_u, C_n;
 
     pmCartScalMult(&geom->u1, -d_L, &C_u);
-    pmCartScalMult(&n1, R_final, &C_n);
+    pmCartScalMult(&n1, param->R_plan, &C_n);
 
     PmCartesian r_PC;
     //Continue with correct solution, get actual center
@@ -1098,54 +1143,25 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
             points->arc_center.y,
             points->arc_center.z);
 
-
     //Verify tolerances
     double h;
     pmCartMag(&r_PC, &h);
     tp_debug_print("center_dist = %f\n", h);
 
-    double T_final = h - R_final;
+    double T_final = h - param->R_plan;
+    tp_debug_print("T_final = %f\n",T_final);
     if (T_final > param->tolerance) {
         tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
                 T_final,
                 param->tolerance);
         return TP_ERR_FAIL;
     }
-    tp_debug_print("T_final = %f\n",T_final);
-
-    //Find intersection point on the line
-    pmCartCartAdd(&C_u, &geom->P, &points->arc_start);
-
-    //Find components of center position wrt circle 2 center to calculate intersection on circle
-    PmCartesian r_C2C;
-    pmCartCartSub(&points->arc_center, &center2, &r_C2C);
-    double scale2 = radius2 / d2;
-    pmCartScalMult(&r_C2C, scale2, &points->arc_end);
-    pmCartCartAddEq(&points->arc_end, &center2);
-
-    tp_debug_print("arc start = %f %f %f\n",
-            points->arc_start.x,
-            points->arc_start.y,
-            points->arc_start.z);
-    tp_debug_print("arc end = %f %f %f\n",
-            points->arc_end.x,
-            points->arc_end.y,
-            points->arc_end.z);
-
-    double dot;
-
-    PmCartesian r_C2P;
-    pmCartCartSub(&geom->P, &center2, &r_C2P);
-    PmCartesian u_C2P, u_C2C;
-    pmCartUnit(&r_C2P, &u_C2P);
-    pmCartUnit(&r_C2C, &u_C2C);
-    pmCartCartDot(&u_C2P, &u_C2C, &dot);
-    double dphi2=acos(saturate(dot,1.0));
-
-    tp_debug_print("dphi2 = %f\n", dphi2);
 
     points->trim1 = d_L;
-    points->trim2 = dphi2;
+
+    points->trim2 = findTrimAngle(&geom->P,
+            &points->arc_center,
+            &center2);
 
     return TP_ERR_OK;
 }
@@ -1158,60 +1174,20 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         BlendParameters * const param, BlendGeom3 const * const geom,
         PmCircle const * const circ1, PmCartLine const * const line2)
 {
-    tp_debug_print("circ1 center = %f %f %f\n",
-            circ1->center.x,
-            circ1->center.y,
-            circ1->center.z);
-    tp_debug_print("circ1 radius = %f\n", circ1->radius);
-    tp_debug_print("circ1 angle = %f\n", circ1->angle);
-    tp_debug_print("circ1 spiral = %f\n", circ1->spiral);
-
-    //TODO need convex1 / convex2 here to flip signs on radius
-    //Find the distance from the approximate center to each circle center
-    double d_guess1;
-    PmCartesian diff;
-    pmCartCartSub(&points_in->arc_center, &circ1->center, &diff);
-    pmCartMag(&diff, &d_guess1);
 
     //Create "shifted center" approximation of spiral circles
     PmCartesian center1;
-    double dr1 = circ1->spiral / circ1->angle;
-    pmCartScalMult(&geom->u1, dr1, &center1);
-    pmCartCartAddEq(&center1, &circ1->center);
+    double radius1;
 
-    PmCartesian P_test1;
-    pmCartCartSub(&geom->P, &center1, &P_test1);
-    tp_debug_print("P_test1 = %f %f %f\n",
-            P_test1.x,
-            P_test1.y,
-            P_test1.z);
-    double mag;
-    pmCartMag(&P_test1, &mag);
-    double radius1 = mag;
+    findSpiralApproximation(circ1,
+            &geom->P,
+            &geom->u_tan1,
+            &center1,
+            &radius1);
 
-    tp_debug_print("center1 = %f %f %f\n",
-            center1.x,
-            center1.y,
-            center1.z);
-
-    tp_debug_print("radius1 = %f\n", radius1);
-
-    double R_final = param->R_plan;
-#if 0
-    if (param->convex1) {
-        R_final = fmin(R_final, radius1 / 2.0);
-    }
-#endif
-
-    tp_debug_print("d_guess1 = %f\n", d_guess1);
-    tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
-
-    // Define distances from actual center to circle centers
-    double d1 = negate(R_final, param->convex1) + radius1;
+    // Define distance from actual arc center to circle center
+    double d1 = negate(param->R_plan, param->convex1) + radius1;
     tp_debug_print("d1 = %f\n", d1);
-
-    PmCartesian r_PC1;
-    pmCartCartSub(&center1, &geom->P, &r_PC1);
 
     //Get unit vector normal to line in plane, towards arc center
     PmCartesian n2;
@@ -1223,6 +1199,8 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
             n2.y,
             n2.z);
 
+    PmCartesian r_PC1;
+    pmCartCartSub(&center1, &geom->P, &r_PC1);
     double c1_u, c1_n; //Components of C1-P on u2 and n2
     pmCartCartDot(&r_PC1, &geom->u2, &c1_u);
     pmCartCartDot(&r_PC1, &n2, &c1_n);
@@ -1230,7 +1208,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     double d_L; // badly named distance along line to intersection
     double A = 1;
     double B = 2.0 * c1_u;
-    double C = pmSq(c1_u) - pmSq(d1) + pmSq(R_final - c1_n);
+    double C = pmSq(c1_u) - pmSq(d1) + pmSq(param->R_plan - c1_n);
     double root0,root1;
     int res_dist = quadraticFormula(A, B, C, &root0, &root1);
     if (res_dist) {
@@ -1248,7 +1226,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     PmCartesian C_u, C_n;
 
     pmCartScalMult(&geom->u2, d_L, &C_u);
-    pmCartScalMult(&n2, R_final, &C_n);
+    pmCartScalMult(&n2, param->R_plan, &C_n);
 
     PmCartesian r_PC;
     //Continue with correct solution, get actual center
@@ -1264,7 +1242,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     pmCartMag(&r_PC, &h);
     tp_debug_print("center_dist = %f\n", h);
 
-    double T_final = h - R_final;
+    double T_final = h - param->R_plan;
     if (T_final > param->tolerance) {
         tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
                 T_final,
@@ -1273,40 +1251,10 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     }
     tp_debug_print("T_final = %f\n",T_final);
 
-    //Find intersection point on the line
-    pmCartCartAdd(&C_u, &geom->P, &points->arc_end);
+    points->trim1 = findTrimAngle(&geom->P,
+            &points->arc_center,
+            &center1);
 
-    //Find components of center position wrt circle 2 center to calculate intersection on circle
-    PmCartesian r_C1C;
-    pmCartCartSub(&points->arc_center, &center1, &r_C1C);
-    double scale1 = radius1 / d1;
-    pmCartScalMult(&r_C1C, scale1, &points->arc_start);
-    pmCartCartAddEq(&points->arc_start, &center1);
-
-    tp_debug_print("arc start = %f %f %f\n",
-            points->arc_start.x,
-            points->arc_start.y,
-            points->arc_start.z);
-    tp_debug_print("arc end = %f %f %f\n",
-            points->arc_end.x,
-            points->arc_end.y,
-            points->arc_end.z);
-
-    double dot;
-
-    PmCartesian r_C1P;
-    pmCartCartSub(&geom->P, &center1, &r_C1P);
-    PmCartesian u_C1P, u_C1C;
-    pmCartUnit(&r_C1P, &u_C1P);
-    pmCartUnit(&r_C1C, &u_C1C);
-
-    pmCartCartDot(&u_C1P, &u_C1C, &dot);
-    tp_debug_print("dot = %f\n",dot);
-    double dphi1=acos(saturate(dot,1.0));
-
-    tp_debug_print("dphi1 = %f\n", dphi1);
-
-    points->trim1 = dphi1;
     points->trim2 = d_L;
 
     return TP_ERR_OK;
@@ -1314,79 +1262,36 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
 
 
 /**
- * Take results of line blend calculation and project onto circular arcs.
+ * "Post-process" results from linear approximation to fit the circular segments.
+ * This step handles the projection from the linear approximation of each
+ * circle. Given the solved radius and tolerance, this function updates the
+ * points structure with the exact trim angles for each segment.
  */
 int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
         BlendParameters * const param, BlendGeom3 const * const geom,
         PmCircle const * const circ1, PmCircle const * const circ2)
 {
 
-    tp_debug_print("circ1 center = %f %f %f\n",
-            circ1->center.x,
-            circ1->center.y,
-            circ1->center.z);
+    // Create "shifted center" approximation of spiral circles
+    // TODO refers to u1 instead of utan?
+    PmCartesian center1, center2;
+    double radius1, radius2;
 
-    tp_debug_print("circ2 center = %f %f %f\n",
-            circ2->center.x,
-            circ2->center.y,
-            circ2->center.z);
-    tp_debug_print("circ1 radius = %f\n", circ1->radius);
-    tp_debug_print("circ2 radius = %f\n", circ2->radius);
-    tp_debug_print("circ1 spiral = %f\n", circ1->spiral);
-    tp_debug_print("circ2 spiral = %f\n", circ2->spiral);
-    tp_debug_print("circ1 angle = %f\n", circ1->angle);
-    tp_debug_print("circ2 angle = %f\n", circ2->angle);
+    findSpiralApproximation(circ1,
+            &geom->P,
+            &geom->u_tan1,
+            &center1,
+            &radius1);
 
-    //Create "shifted center" approximation of spiral circles
-    PmCartesian center1;
-    double dr1 = circ1->spiral / circ1->angle;
-    pmCartScalMult(&geom->u1, dr1, &center1);
-    pmCartCartAddEq(&center1, &circ1->center);
-
-    PmCartesian P_test1;
-    pmCartCartSub(&geom->P,&center1,&P_test1);
-    tp_debug_print("P_test1 = %f %f %f\n",
-            P_test1.x,
-            P_test1.y,
-            P_test1.z);
-    double mag;
-    pmCartMag(&P_test1, &mag);
-    double radius1 = mag;
-
-    PmCartesian center2;
-    double dr2 = circ2->spiral / circ2->angle;
-    pmCartScalMult(&geom->u2, dr2, &center2);
-    pmCartCartAddEq(&center2, &circ2->center);
-
-
-    PmCartesian P_test2;
-    pmCartCartSub(&geom->P,&center2,&P_test2);
-    tp_debug_print("P_test2 = %f %f %f\n",
-            P_test2.x,
-            P_test2.y,
-            P_test2.z);
-    pmCartMag(&P_test2, &mag);
-    double radius2 = mag;
-
-    tp_debug_print("center1 = %f %f %f\n",
-            center1.x,
-            center1.y,
-            center1.z);
-
-    tp_debug_print("center2 = %f %f %f\n",
-            center2.x,
-            center2.y,
-            center2.z);
-    tp_debug_print("radius1 = %f\n", radius1);
-    tp_debug_print("radius2 = %f\n", radius2);
-
-    double R_final = param->R_plan;
-
-    tp_debug_print("R_final = %f, R_guess = %f\n", R_final, param->R_plan);
+    findSpiralApproximation(circ2,
+            &geom->P,
+            &geom->u_tan2,
+            &center2,
+            &radius2);
 
     // Define distances from actual center to adjusted circle centers
-    double d1 = negate(R_final, param->convex1) + radius1;
-    double d2 = negate(R_final, param->convex2) + radius2;
+    double d1 = negate(param->R_plan, param->convex1) + radius1;
+    double d2 = negate(param->R_plan, param->convex2) + radius2;
     tp_debug_print("d1 = %f, d2 = %f\n", d1, d2);
 
     //Find "x" distance between C1 and C2
@@ -1475,7 +1380,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     pmCartMag(&r_PC, &h);
     tp_debug_print("center_dist = %f\n", h);
 
-    double T_final = h - R_final;
+    double T_final = h - param->R_plan;
     if (T_final > param->tolerance) {
         tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
                 T_final,
@@ -1484,53 +1389,18 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     }
     tp_debug_print("T_final = %f\n",T_final);
 
-    //Find intersection points from
-    double scale1 = radius1 / d1;
-    pmCartScalMult(&r_C1C, scale1, &points->arc_start);
-    double scale2 = radius2 / d2;
-    pmCartScalMult(&r_C2C, scale2, &points->arc_end);
-    pmCartCartAddEq(&points->arc_start, &center1);
-    pmCartCartAddEq(&points->arc_end, &center2);
+    points->trim1 = findTrimAngle(&geom->P,
+            &points->arc_center,
+            &center1);
+    points->trim2 = findTrimAngle(&geom->P,
+            &points->arc_center,
+            &center2);
 
-    tp_debug_print("arc start = %f %f %f\n",
-            points->arc_start.x,
-            points->arc_start.y,
-            points->arc_start.z);
-    tp_debug_print("arc end = %f %f %f\n",
-            points->arc_end.x,
-            points->arc_end.y,
-            points->arc_end.z);
-
-    PmCartesian r_C1P;
-    pmCartCartSub(&geom->P, &center1, &r_C1P);
-
-    double dot;
-    PmCartesian u_C1P, u_C1C;
-    pmCartUnit(&r_C1P, &u_C1P);
-    pmCartUnit(&r_C1C, &u_C1C);
-    pmCartCartDot(&u_C1P, &u_C1C, &dot);
-    double dphi1=acos(saturate(dot,1.0));
-
-    PmCartesian r_C2P;
-    pmCartCartSub(&geom->P, &center2, &r_C2P);
-    PmCartesian u_C2P, u_C2C;
-    pmCartUnit(&r_C2P, &u_C2P);
-    pmCartUnit(&r_C2C, &u_C2C);
-    pmCartCartDot(&u_C2P, &u_C2C, &dot);
-    double dphi2=acos(saturate(dot,1.0));
-
-    tp_debug_print("dphi1 = %f, dphi2 = %f\n", dphi1, dphi2);
-
-    points->trim1 = dphi1;
-    points->trim2 = dphi2;
-
-    //Update param structure with new values
-    param->R_plan = R_final;
-    param->v_plan = fmin(pmSqrt(param->R_plan * param->a_n_max), param->v_plan);
-    param->v_actual = fmin(param->v_plan, param->v_actual);
+    tp_debug_print("trim1 = %f, trim2 = %f\n",
+            points->trim1,
+            points->trim2);
 
     return TP_ERR_OK;
-
 }
 
 

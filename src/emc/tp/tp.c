@@ -866,19 +866,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
      * blend arc.
      */
 
-    tp_debug_print("circ2 angle = %f\n",
-            tc->coords.circle.xyz.angle);
-    tp_debug_print("next spiral = %f\n",
-            tc->coords.circle.xyz.spiral);
-    tp_debug_print("normal = %f %f %f\n",
-            tc->coords.circle.xyz.normal.x,
-            tc->coords.circle.xyz.normal.y,
-            tc->coords.circle.xyz.normal.z);
-    tp_debug_print("rHelix = %f %f %f\n",
-            tc->coords.circle.xyz.rHelix.x,
-            tc->coords.circle.xyz.rHelix.y,
-            tc->coords.circle.xyz.rHelix.z);
-
     if (points_exact.trim2 > param.phi2_max) {
         tp_debug_print("trim2 %f > phi2_max %f, aborting arc...\n",
                 points_exact.trim2,
@@ -913,14 +900,15 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         return TP_ERR_FAIL;
     }
 
-    blendPoints3Print(&points_exact);
     //Get exact start and end points to account for spiral in arcs
+    pmCartLinePoint(&line1_temp,
+            line1_temp.tmag,
+            &points_exact.arc_start);
     pmCirclePoint(&circ2_temp,
             0.0,
             &points_exact.arc_end);
     //TODO deal with large spiral values, or else detect and fall back?
 
-    tp_debug_print("Modified arc points\n");
     blendPoints3Print(&points_exact);
     int res_arc = arcFromBlendPoints3(&blend_tc->coords.arc.xyz,
             &points_exact,
@@ -1028,24 +1016,16 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     }
     
     blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
+
     /* If blend calculations were successful, then we're ready to create the
      * blend arc.
      */
 
-    //Store working copies of geometry
+    // Store working copies of geometry
     PmCircle circ1_temp = prev_tc->coords.circle.xyz;
     PmCartLine line2_temp = tc->coords.line.xyz;
 
-    //Update start and end points of segment copies
-    double new_len2 = tc->target - points_exact.trim2;
-    int res_stretch2 = pmCartLineStretch(&line2_temp,
-            new_len2,
-            true);
-    //TODO create blends
-    if (res_stretch2 != TP_ERR_OK) {
-        return TP_ERR_FAIL;
-    }
-
+    // Update start and end points of segment copies
     double phi1_new = circ1_temp.angle - points_exact.trim1;
 
     if (points_exact.trim1 > param.phi1_max) {
@@ -1058,17 +1038,26 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     int res_stretch1 = pmCircleStretch(&circ1_temp,
             phi1_new,
             false);
-    //TODO create blends
     if (res_stretch1 != TP_ERR_OK) {
         return TP_ERR_FAIL;
     }
 
-    blendPoints3Print(&points_exact);
-    tp_debug_print("modified arc points\n");
-    // Copy actual arc end point to blend arc start
+    double new_len2 = tc->target - points_exact.trim2;
+    int res_stretch2 = pmCartLineStretch(&line2_temp,
+            new_len2,
+            true);
+
+    if (res_stretch2 != TP_ERR_OK) {
+        return TP_ERR_FAIL;
+    }
+
     pmCirclePoint(&circ1_temp,
             circ1_temp.angle,
             &points_exact.arc_start);
+
+    pmCartLinePoint(&line2_temp,
+            0.0,
+            &points_exact.arc_end);
 
     blendPoints3Print(&points_exact);
 
