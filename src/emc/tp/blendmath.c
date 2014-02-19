@@ -923,9 +923,6 @@ int blendCalculateNormals3(BlendGeom3 * const geom)
 int blendComputeParameters(BlendParameters * const param)
 {
 
-    if (param->theta < TP_MIN_ARC_ANGLE || param->phi < TP_MIN_ARC_ANGLE) {
-        return TP_ERR_FAIL;
-    }
     // Find maximum distance h from arc center to intersection point
     double h_tol = param->tolerance / (1.0 - sin(param->theta));
 
