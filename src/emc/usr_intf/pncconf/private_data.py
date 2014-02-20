@@ -178,9 +178,10 @@ class Private_Data:
             _("X Both Limit"), _("Y Both Limit"), _("Z Both Limit"), _("A Both Limit"),
             _("All Limits") ]
         home = [_("X Home"), _("Y Home"), _("Z Home"), _("A Home"),_("All Home") ]
-        home_limits_shared = [ _("X Minimum Limit + Home"), _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"), _("A Minimum Limit + Home"),
-            _("X Maximum Limit + Home"), _("Y Maximum Limit + Home"), _("Z Maximum Limit + Home"), _("A Maximum Limit + Home"),
-            _("X Both Limit + Home"), _("Y Both Limit + Home"), _("Z Both Limit + Home"), _("A Both Limit + Home") ]
+        home_limits_shared = [ _("All Limits + Home"),_("X Minimum Limit + Home"), _("Y Minimum Limit + Home"), _("Z Minimum Limit + Home"),
+                             _("A Minimum Limit + Home"),_("X Maximum Limit + Home"), _("Y Maximum Limit + Home"), _("Z Maximum Limit + Home"),
+                             _("A Maximum Limit + Home"),_("X Both Limit + Home"), _("Y Both Limit + Home"), _("Z Both Limit + Home"),
+                             _("A Both Limit + Home") ]
         digital = [ _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3") ]
         axis_select = [_("Joint select A"),_("Joint select B"),_("Joint select C"), _("Joint select D") ]
         override = [_("Jog incr A"),_("Jog incr B"),_("Jog incr C"),_("Jog incr D"),_("Feed Override incr A"),_("Feed Override incr B"),
@@ -207,11 +208,11 @@ class Private_Data:
         (   S.UNUSED_INPUT,
             S.MIN_X,S.MIN_Y,S.MIN_Z,S.MIN_A,
             S.MAX_X,S.MAX_Y,S.MAX_Z,S.MAX_A,
-            S.BOTH_X,S.BOTH_Y,S.BOTH_Z,S.BOTH_A,S.ALL_LIMIT,S.ALL_LIMIT_HOME,
+            S.BOTH_X,S.BOTH_Y,S.BOTH_Z,S.BOTH_A,S.ALL_LIMIT,
             S.HOME_X,S.HOME_Y,S.HOME_Z,S.HOME_A,S.ALL_HOME,
             S.MIN_HOME_X,S.MIN_HOME_Y,S.MIN_HOME_Z,S.MIN_HOME_A,
             S.MAX_HOME_X,S.MAX_HOME_Y,S.MAX_HOME_Z,S.MAX_HOME_A,
-            S.BOTH_HOME_X,S.BOTH_HOME_Y,S.BOTH_HOME_Z,S.BOTH_HOME_A,
+            S.BOTH_HOME_X,S.BOTH_HOME_Y,S.BOTH_HOME_Z,S.BOTH_HOME_A,S.ALL_LIMIT_HOME,
             S.DIN0,S.DIN1,S.DIN2,S.DIN3,
             S.SELECT_A,S.SELECT_B,S.SELECT_C,S.SELECT_D,
             S.JOGA,S.JOGB,S.JOGC,S.JOGD,S.FOA,S.FOB,S.FOC,S.FOD,
@@ -231,10 +232,10 @@ class Private_Data:
             "min-x", "min-y", "min-z", "min-a",
             "max-x", "max-y", "max-z", "max-a",
             "both-x", "both-y", "both-z", "both-a","all-limit",
-            "home-x", "home-y", "home-z", "home-a","all-home","all-limit-home",
+            "home-x", "home-y", "home-z", "home-a","all-home",
             "min-home-x", "min-home-y", "min-home-z", "min-home-a",
             "max-home-x", "max-home-y", "max-home-z", "max-home-a",
-            "both-home-x", "both-home-y", "both-home-z", "both-home-a",
+            "both-home-x", "both-home-y", "both-home-z", "both-home-a", "all-limit-home",
             "din-00", "din-01", "din-02", "din-03",
             "joint-select-a","joint-select-b","joint-select-c","joint-select-d",
             "jog-incr-a","jog-incr-b","jog-incr-c","jog-incr-d","fo-incr-a","fo-incr-b","fo-incr-c","fo-incr-d",

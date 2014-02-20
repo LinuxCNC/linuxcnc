@@ -113,7 +113,7 @@ def iceil(x):
 
 prefs = preferences.preferences()
 _DEBUGSTRING = ["NONE"]
-debug = False
+debugstate = False
 
 def md5sum(filename):
     try:
@@ -1300,42 +1300,17 @@ Choosing no will mean AXIS options such as size/position and force maximum might
             return None
 
 class App:
-    fname = 'pncconf.glade'  # XXX search path
-
-    def splash_screen(self):
-        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-        self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
-        self.window.set_title("Pncconf setup")
-        self.window.set_border_width(10)
-
-        vbox = gtk.VBox(False, 5)
-        vbox.set_border_width(10)
-        self.window.add(vbox)
-        vbox.show()
-        align = gtk.Alignment(0.5, 0.5, 0, 0)
-        vbox.pack_start(align, False, False, 5)
-        align.show()
-
-        self.pbar = gtk.ProgressBar()
-        self.pbar.set_text("Pncconf is setting up")
-        self.pbar.set_fraction(.1)
-
-        align.add(self.pbar)
-        self.pbar.show()
-        self.window.show()
-        while gtk.events_pending():
-            gtk.main_iteration()
-
     def __init__(self, dbgstate=0):
+        print dbgstate
         global debug
         global dbg
         global _PD
-        debug = self.debug = dbgstate
+        self.debugstate = dbgstate
         dbg = self.dbg
-        if debug:
+        if self.debugstate:
            print 'PNCconf debug -ALL'
            global _DEBUGSTRING
-           _DEBUGSTRING = ['all']
+           _DEBUGSTRING = [dbgstate]
         self.recursive_block = False
         self.firmware_block = False
         # Private data holds the array of pages to load, signals, and messages
@@ -1370,7 +1345,8 @@ class App:
             while gtk.events_pending():
                 gtk.main_iteration()
             bar_size += .0555
-        notebook1.set_show_tabs(False)
+        if not 'dev' in dbgstate:
+            notebook1.set_show_tabs(False)
 
         self.widgets = Widgets(self.builder)
         self.TESTS = tests.TESTS(self)
@@ -1486,9 +1462,34 @@ class App:
             gtk.main_quit()
 
 # helper functions
+
+    def splash_screen(self):
+        self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        self.window.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_SPLASHSCREEN)     
+        self.window.set_title("Pncconf setup")
+        self.window.set_border_width(10)
+
+        vbox = gtk.VBox(False, 5)
+        vbox.set_border_width(10)
+        self.window.add(vbox)
+        vbox.show()
+        align = gtk.Alignment(0.5, 0.5, 0, 0)
+        vbox.pack_start(align, False, False, 5)
+        align.show()
+
+        self.pbar = gtk.ProgressBar()
+        self.pbar.set_text("Pncconf is setting up")
+        self.pbar.set_fraction(.1)
+
+        align.add(self.pbar)
+        self.pbar.show()
+        self.window.show()
+        while gtk.events_pending():
+            gtk.main_iteration()
+
     def dbg(self,message,mtype='all'):
         for hint in _DEBUGSTRING:
-            if hint == "all" or hint in mtype:
+            if hint == "all" or mtype in hint:
                 print(message)
                 if "step" in _DEBUGSTRING:
                     c = raw_input("\n**** Debug Pause! ****")
@@ -1653,38 +1654,49 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%self._
             self.d._sserialliststore.append([text,number])
 
     def fill_combobox_models(self):
-        templist = [ ["_gpioosignaltree",_PD.human_output_names,1],["_gpioisignaltree",_PD.human_input_names,1],
-                     ["_encodersignaltree",_PD.human_encoder_input_names,4],["_resolversignaltree",_PD.human_resolver_input_names,1],
-                     ["_pwmsignaltree",_PD.human_pwm_output_names,3],["_tppwmsignaltree",_PD.human_tppwm_output_names,8],
-                     ["_steppersignaltree",_PD.human_stepper_names,6],
-                     ["_muxencodersignaltree",_PD.human_encoder_input_names,4],
-                     ["_8i20signaltree",_PD.human_8i20_input_names,1], ["_potsignaltree",_PD.human_pot_output_names,2],
-                     ["_analoginsignaltree",_PD.human_analog_input_names,1],["_sserialsignaltree",_PD.human_sserial_names,3]]
+        templist = [ ["_gpioosignaltree",_PD.human_output_names,1,'hal_output_names'],
+                     ["_gpioisignaltree",_PD.human_input_names,1,'hal_input_names'],
+                     ["_encodersignaltree",_PD.human_encoder_input_names,4,'hal_encoder_input_names'],
+                     ["_resolversignaltree",_PD.human_resolver_input_names,1,'hal_resolver_input_names'],
+                     ["_pwmsignaltree",_PD.human_pwm_output_names,3,'hal_pwm_output_names'],
+                     ["_tppwmsignaltree",_PD.human_tppwm_output_names,8,'hal_tppwm_output_names'],
+                     ["_steppersignaltree",_PD.human_stepper_names,6,'hal_stepper_names'],
+                     ["_muxencodersignaltree",_PD.human_encoder_input_names,4,'hal_encoder_input_names'],
+                     ["_8i20signaltree",_PD.human_8i20_input_names,1,'hal_8i20_input_names'],
+                     ["_potsignaltree",_PD.human_pot_output_names,2,'hal_pot_output_names'],
+                     ["_analoginsignaltree",_PD.human_analog_input_names,1,'hal_analog_input_names'],
+                     ["_sserialsignaltree",_PD.human_sserial_names,3,'hal_sserial_names']
+                   ]
         for item in templist:
             #print "\ntype",item[0]
             count = 0
             end = len(item[1])-1
-            self.d[item[0]]= gtk.TreeStore(str,int)
+            self.d[item[0]]= gtk.TreeStore(str,int,str,str)
             for i,parent in enumerate(item[1]):
                 if len(parent[1]) == 0:
                     # if combobox has a 'custom' signal choice then the index must be 0
                     if i == end and not item[0] =="_sserialsignaltree":temp = 0 
                     else:temp = count
-                    #print parent,temp,count
                     #print "length of human names:",len(parent[1])
                     # this adds the index number (temp) of the signal
-                    piter = self.d[item[0]].append(None, [parent[0], temp])
+                    try:
+                        signame=_PD[item[3]][count]
+                    except:
+                        signame = 'none'
+                    piter = self.d[item[0]].append(None, [parent[0], temp,signame,item[3]])
+                    #print parent,temp,count,signame,item[3]
                     if count == 0: count = 1
                     else: count +=item[2]
                 else:
                     #print "parsing child"
-                    piter = self.d[item[0]].append(None, [parent[0],0])
+                    piter = self.d[item[0]].append(None, [parent[0],0,signame,item[3]])
                     for j,child in enumerate(parent[1]):
-                        #print i,count,parent[0],child
-                        self.d[item[0]].append(piter, [child, count])
+                        signame=_PD[item[3]][count]
+                        #print i,count,parent[0],child,signame,item[3]
+                        self.d[item[0]].append(piter, [child, count,signame,item[3]])
                         count +=item[2]
-        self.d._notusedsignaltree = gtk.TreeStore(str,int)
-        self.d._notusedsignaltree.append(None, [_PD.human_notused_names[0][0],0])
+        self.d._notusedsignaltree = gtk.TreeStore(str,int,str,str)
+        self.d._notusedsignaltree.append(None, [_PD.human_notused_names[0][0],0,'unused-unused','_notusedsignaltree',])
 
 
     def load_config(self):
@@ -2115,10 +2127,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     return True
 
     # disallow some signal combinations
-    def do_exclusive_inputs(self, pin,portnum,pinname):
+    def do_exclusive_inputs(self, widget,portnum,pinname):
         # If initializing the Pport pages we don't want the signal calls to register here.
         # if we are working in here we don't want signal calls because of changes made in here
-        # GTK supports signal blocking but then you can't assign signal names in GLADE -slaps head
+        # GTK supports signal blocking but then you can't assign signal block name references in GLADE -slaps head
         if 'mesa' in pinname:
             ptype = '%stype'%pinname
             if not self.widgets[ptype].get_active_text() == _PD.pintype_gpio[0]: return
@@ -2184,12 +2196,17 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 SIG.MIN_A, SIG.MAX_A, SIG.BOTH_A, SIG.MIN_HOME_A, SIG.MAX_HOME_A, SIG.BOTH_HOME_A,
                 SIG.ALL_LIMIT, SIG.ALL_HOME),
         }
-        v = pin.get_active()
-        name = self._p.hal_input_names[v]
-        ex = exclusive.get(name, ())
-        print v,name
+        model = self.widgets[pinname].get_model()
+        piter = self.widgets[pinname].get_active_iter()
+        try:
+            dummy, index,signame,sig_group = model.get(piter, 0,1,2,3)
+        except:
+            self.recursive_block = False
+            return
+        dbg('exclusive: current:%s %d %s %s'%(pinname,index,signame,sig_group))
+        ex = exclusive.get(signame, ())
         if self.d.number_mesa > 0:
-            dbg( 'looking for %s in mesa'%name)
+            dbg( 'looking for %s in mesa'%signame)
             # check mesa main board - only if the tab is shown and the ptype is GOIOI
             for boardnum in range(0,int(self.d.number_mesa)):
                 for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
@@ -2201,24 +2218,24 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     for s in range(0,24):
                         p = "mesa%dc%dpin%d"% (boardnum,connector,s)
                         ptype = "mesa%dc%dpin%dtype"% (boardnum,connector,s)
-                        print p,self.widgets[ptype].get_active_text(),_PD.pintype_gpio[0]
+                        #print p,self.widgets[ptype].get_active_text(),_PD.pintype_gpio[0]
                         try:
                             if not self.widgets[ptype].get_active_text() == _PD.pintype_gpio[0]: continue
-                            if self.widgets[p] == pin:continue
+                            if self.widgets[p] == widget:continue
                         except:
                             break
                             break
                             break
-                        v1 = self._p.hal_input_names[self.widgets[p].get_active()]
-                        print 'check mesa signals',v1
-                        if v1 in ex or v1 == name:
-                            dbg( 'found %s, at %s'%(name,p))
+                        model = self.widgets[p].get_model()
+                        piter = self.widgets[p].get_active_iter()
+                        dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
+                        #print 'check mesa signals',v1
+                        if v1 in ex or v1 == signame:
+                            dbg( 'found %s, at %s'%(signame,p))
                             self.widgets[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
-                            #if not portnum ==1: # if on the other page must change the data model too
-                            #    dbg( 'found on other pport page')
-                            #    self.d[p] = SIG.UNUSED_INPUT
+                            self.d[p] = SIG.UNUSED_INPUT
             port = 0
-            dbg( 'looking for %s in mesa sserial'%name)
+            dbg( 'looking for %s in mesa sserial'%signame)
             for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
                 if channel == _PD._NUM_CHANNELS: break # TODO may not have all channels worth of glade widgets
                 if not self.widgets['mesa%dsserial%d_%d'%(boardnum,port,channel)].get_visible():continue
@@ -2228,52 +2245,57 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, s)
                     try:
                         if not self.widgets[ptype].get_active_text() == _PD.pintype_gpio[0]: continue
-                        if self.widgets[p] == pin:continue
+                        if self.widgets[p] == widget:continue
                     except:
                         break
                         break
-                    v1 = self._p.hal_input_names[self.widgets[p].get_active()]
+                    model = self.widgets[p].get_model()
+                    piter = self.widgets[p].get_active_iter()
+                    dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
                     #print 'check mesa signals',v1
-                    if v1 in ex or v1 == name:
-                        dbg( 'found %s, at %s'%(name,p))
+                    if v1 in ex or v1 == signame:
+                        dbg( 'found %s, at %s'%(signame,p))
                         self.widgets[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
+                        self.d[p] = SIG.UNUSED_INPUT
 
         if self.d.number_pports >0:
             # search pport1 for the illegal signals and change them to unused.
-            dbg( 'looking for %s in pport1'%name)
+            dbg( 'looking for %s in pport1'%signame)
             for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
                 p = 'pp1_Ipin%d' % pin1
                 # pport2 may not be loaded yet
                 try:
-                    if self.widgets[p] == pin:continue
+                    if self.widgets[p] == widget:continue
                 except:
                     self.recursive_block = False
                     return
-                v1 = self._p.hal_input_names[self.widgets[p].get_active()]
-                if v1 in ex or v1 == name:
-                    dbg( 'found %s, at %s'%(name,p))
+                model = self.widgets[p].get_model()
+                piter = self.widgets[p].get_active_iter()
+                dummy, index,v1,sig_group = model.get(piter, 0,1,2,3)
+                #print 'check pport1 signals',v1
+                if v1 in ex or v1 == signame:
+                    dbg( 'found %s, at %s'%(signame,p))
                     self.widgets[p].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
-                    if not port ==1: # if on the other page must change the data model too
-                        dbg( 'found on other pport page')
-                        self.d[p] = SIG.UNUSED_INPUT
+                    self.d[p] = SIG.UNUSED_INPUT
         if self.d.number_pports >1:
             # search pport2 for the illegal signals and change them to unused.
-            dbg( 'looking for %s in pport2'%name)
+            dbg( 'looking for %s in pport2'%signame)
             for pin1 in (2,3,4,5,6,7,8,9,10,11,12,13,15):
                 p2 = 'pp2_Ipin%d' % pin1
                 # pport2 may not be loaded yet
                 try:
-                    if self.widgets[p2] == pin: continue
+                    if self.widgets[p2] == widget: continue
                 except:
                     self.recursive_block = False
                     return
-                v2 = self._p.hal_input_names[self.widgets[p2].get_active()]
-                if v2 in ex or v2 == name:
-                    dbg( 'found %s, at %s'%(name,p2))
+                model = self.widgets[p].get_model()
+                piter = self.widgets[p].get_active_iter()
+                dummy, index,v2,sig_group = model.get(piter, 0,1,2,3)
+                #print 'check pport2 signals',v1
+                if v2 in ex or v2 == signame:
+                    dbg( 'found %s, at %s'%(signame,p2))
                     self.widgets[p2].set_active(self._p.hal_input_names.index(SIG.UNUSED_INPUT))
-                    if not portnum ==2:# if on the other page must change the data model too
-                        dbg( 'found on other pport page')
-                        self.d[p2] = SIG.UNUSED_INPUT
+                    self.d[p2] = SIG.UNUSED_INPUT
         self.recursive_block = False
 
         # MESA SIGNALS
@@ -2612,9 +2634,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     ptypetree = self.d._stepperliststore
                     signaltocheck = _PD.hal_stepper_names
                 # type sserial
-                elif pintype in (_PD.RXDATA0,_PD.TXDATA0,_PD.TXEN0,_PD.RXDATA1,_PD.TXDATA1,_PD.TXEN1,_PD.RXDATA2,_PD.TXDATA2,_PD.TXEN2,_PD.RXDATA3,_PD.TXDATA3,_PD.TXEN3,
-                                 _PD.RXDATA4,_PD.TXDATA4,_PD.TXEN4,_PD.RXDATA5,_PD.TXDATA5,_PD.TXEN5,_PD.RXDATA6,_PD.TXDATA6,_PD.TXEN6,_PD.RXDATA7,_PD.TXDATA7,_PD.TXEN7,
-                                 _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
+                elif pintype in (_PD.RXDATA0,_PD.TXDATA0,_PD.TXEN0,_PD.RXDATA1,_PD.TXDATA1,_PD.TXEN1,_PD.RXDATA2,
+                                    _PD.TXDATA2,_PD.TXEN2,_PD.RXDATA3,_PD.TXDATA3,_PD.TXEN3,
+                                    _PD.RXDATA4,_PD.TXDATA4,_PD.TXEN4,_PD.RXDATA5,_PD.TXDATA5,_PD.TXEN5,_PD.RXDATA6,_PD.TXDATA6,
+                                    _PD.TXEN6,_PD.RXDATA7,_PD.TXDATA7,_PD.TXEN7,
+                                    _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                     signaltree = self.d._sserialsignaltree
                     ptypetree = self.d._sserialliststore
                     signaltocheck = _PD.hal_sserial_names
@@ -3339,8 +3363,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # be changed from what the firmware designates it as.
                 if widgetptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
                         #print "data ptype index:",_PD.pintype_gpio.index(dataptype)
-                        #self.debug_iter(0,p,"data to widget")
-                        #self.debug_iter(0,ptype,"data to widget")
+                        self.debug_iter(0,p,"data to widget")
+                        self.debug_iter(0,ptype,"data to widget")
                         # signal names for GPIO INPUT
                         #print "compnum = ",compnum
                         if compnum == 100: dataptype = widgetptype 
@@ -3742,7 +3766,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 if widgetptype in (_PD.GPIOO,_PD.GPIOD):
                     #print"ptype GPIOO\n"
                     signaltree = self.d._gpioosignaltree
-                    halsignallist = _PD.hal_output_names
+                    halsignallist = 'hal_output_names'
                     humansignallist = _PD.human_output_names
                     addsignalto = self.d.haloutputsignames
                     relatedsearch = ["dummy"]
@@ -3752,7 +3776,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif widgetptype == _PD.GPIOI:
                     #print"ptype GPIOI\n"
                     signaltree = self.d._gpioisignaltree
-                    halsignallist = _PD.hal_input_names
+                    halsignallist =  'hal_input_names'
                     humansignallist = _PD.human_input_names
                     addsignalto = self.d.halinputsignames
                     relatedsearch = ["dummy"]
@@ -3762,7 +3786,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif widgetptype == _PD.STEPA:
                     #print"ptype step\n"
                     signaltree = self.d._steppersignaltree
-                    halsignallist = _PD.hal_stepper_names
+                    halsignallist = 'hal_stepper_names'
                     humansignallist = _PD.human_stepper_names
                     addsignalto = self.d.halsteppersignames
                     relatedsearch = [_PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF]
@@ -3772,7 +3796,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif widgetptype == _PD.ENCA: 
                     #print"\nptype encoder"
                     signaltree = self.d._encodersignaltree
-                    halsignallist = _PD.hal_encoder_input_names
+                    halsignallist = 'hal_encoder_input_names'
                     humansignallist = _PD.human_encoder_input_names
                     addsignalto = self.d.halencoderinputsignames
                     relatedsearch = [_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM]
@@ -3782,7 +3806,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif widgetptype in(_PD.MXE0,_PD.MXE1): 
                     #print"\nptype encoder"
                     signaltree = self.d._muxencodersignaltree
-                    halsignallist = _PD.hal_encoder_input_names
+                    halsignallist = 'hal_encoder_input_names'
                     humansignallist = _PD.human_encoder_input_names
                     addsignalto = self.d.halencoderinputsignames
                     relatedsearch = ["dummy","dummy","dummy","dummy",]
@@ -3791,7 +3815,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # resolvers 
                 elif widgetptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
                     signaltree = self.d._resolversignaltree
-                    halsignallist = _PD.hal_resolver_input_names
+                    halsignallist = 'hal_resolver_input_names'
                     humansignallist = _PD.human_resolver_input_names
                     addsignalto = self.d.halresolversignames
                     relatedsearch = ["dummy"]
@@ -3800,7 +3824,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # 8i20 amplifier 
                 elif widgetptype == _PD.AMP8I20:
                     signaltree = self.d._8i20signaltree
-                    halsignallist = _PD.hal_8i20_input_names
+                    halsignallist = 'hal_8i20_input_names'
                     humansignallist = _PD.human_8i20_input_names
                     addsignalto = self.d.hal8i20signames
                     relatedsearch = ["dummy"]
@@ -3809,7 +3833,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # potentiometer output
                 elif widgetptype == _PD.POTO:
                     signaltree = self.d._potsignaltree
-                    halsignallist = _PD.hal_pot_output_names
+                    halsignallist = 'hal_pot_output_names'
                     humansignallist = _PD.human_pot_output_names
                     addsignalto = self.d.halpotsignames
                     relatedsearch = [_PD.POTO,_PD.POTE]
@@ -3818,7 +3842,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # analog input
                 elif widgetptype == _PD.ANALOGIN:
                     signaltree = self.d._analoginsignaltree
-                    halsignallist = _PD.hal_analog_input_names
+                    halsignallist = 'hal_analog_input_names'
                     humansignallist = _PD.human_analog_input_names
                     addsignalto = self.d.halanaloginsignames
                     relatedsearch = ["dummy"]
@@ -3828,7 +3852,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif widgetptype in(_PD.PWMP,_PD.PDMP,_PD.UDMU): 
                     #print"ptype pwmp\n"
                     signaltree = self.d._pwmsignaltree
-                    halsignallist = _PD.hal_pwm_output_names
+                    halsignallist = 'hal_pwm_output_names'
                     humansignallist = _PD.human_pwm_output_names
                     addsignalto = self.d.halpwmoutputsignames
                     relatedsearch = [_PD.PWMP,_PD.PWMD,_PD.PWME]
@@ -3837,7 +3861,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 elif widgetptype == _PD.TPPWMA: 
                     #print"ptype pdmp\n"
                     signaltree = self.d._tppwmsignaltree
-                    halsignallist = _PD.hal_tppwm_output_names
+                    halsignallist = 'hal_tppwm_output_names'
                     humansignallist = _PD.human_tppwm_output_names
                     addsignalto = self.d.haltppwmoutputsignames
                     relatedsearch = [_PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF]
@@ -3945,7 +3969,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         if pinchanged == i[0]:return
                         if pinchanged in i[1]:return
                     length = len(signaltree)
-                    index = len(halsignallist) - len(relatedsearch)
+                    index = len(_PD[halsignallist]) - len(relatedsearch)
                     customiter = signaltree.get_iter((length-1,))
                     childiter = signaltree.iter_nth_child(customiter, 0)
                     n = 0
@@ -3963,7 +3987,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
                 # this components have no related pins - fake the list
-                if widgetptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.MXE0,_PD.MXE1,_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.AMP8I20,_PD.ANALOGIN):
+                if widgetptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.MXE0,_PD.MXE1,_PD.RES0,_PD.RES1,
+                                    _PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.AMP8I20,_PD.ANALOGIN):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
                     pinlist = self.d.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
@@ -3985,11 +4010,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     humansignallist[customindex][1].append ((legal_name))
                     endoftree = len(signaltree)-1
                     customiter = signaltree.get_iter((endoftree,))
-                    newiter = signaltree.append(customiter, [legal_name,index])
+                    newiter = signaltree.append(customiter, [legal_name,index,legal_name,halsignallist])
                     for offset,i in enumerate(relatedsearch):
                         with_endings = legal_name + relatedending[offset]
                         #print "new signal:",with_endings
-                        halsignallist.append ((with_endings))
+                        _PD[halsignallist].append ((with_endings))
                 for data in(pinlist):
                     if boardtype == "mesa":
                         blocksignal1 = "_mesa%dsignalhandlerc%ipin%i" % (data[1], data[2], data[4])
@@ -5188,12 +5213,13 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
 # starting with 'pncconf -d' gives debug messages
 if __name__ == "__main__":
-    usage = "usage: pncconf -[options]"
+    usage = "usage: pncconf -h for options"
     parser = OptionParser(usage=usage)
-    parser.add_option("-d", action="store_true", dest="debug",help="Print debug info and ignore realtime/kernel tests")
+    parser.add_option("-d", action="store", metavar='all', dest="debug",
+                        help="Print debug info and ignore realtime/kernel tests\nuse alldev to show the page tabs")
     (options, args) = parser.parse_args()
     if options.debug:
-        app = App(dbgstate=True)
+        app = App(dbgstate=options.debug)
     else:
         app = App(False)
     gtk.main()
