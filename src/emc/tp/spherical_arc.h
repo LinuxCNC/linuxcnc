@@ -18,6 +18,9 @@
 #define ARC_POS_EPSILON 1e-12
 #define ARC_MIN_RADIUS 1e-12
 #define ARC_MIN_ANGLE 1e-6
+//FIXME relate this to cornering acceleration?
+#define ARC_ABS_ERR 5e-4
+#define ARC_REL_ERR 5e-4
 
 typedef enum {
     ARC_ERR_OK = 0,
@@ -40,18 +43,15 @@ typedef struct {
     PmCartesian rEnd;
     PmCartesian uTan;   /* Tangent vector at start of arc (copied from
                            prev. tangent line)*/
+    PmCartesian binormal;
     double radius;
+    double spiral;
     // Angle that the arc encloses
     double angle;
     double Sangle;
     double line_length;
 } SphericalArc;
 
-typedef struct {
-    SphericalArc xyz;
-    PmCartesian abc;
-    PmCartesian uvw;
-} Arc9;
 
 int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         PmCartesian const * const end, PmCartesian const * const center);
@@ -69,4 +69,9 @@ int arcLength(SphericalArc const * const arc, double * const length);
 int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
         PmCartLine const * const line2, double radius,
         double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume);
+
+int arcConvexTest(PmCartesian const * const center,
+        PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir);
+
+int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_end);
 #endif

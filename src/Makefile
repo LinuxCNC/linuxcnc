@@ -281,8 +281,12 @@ HEADERS := \
     emc/kinematics/genserkins.h \
     emc/kinematics/pumakins.h \
     emc/tp/tc.h \
+    emc/tp/tc_types.h \
+    emc/tp/tcq.h \
     emc/tp/tp.h \
+    emc/tp/tp_types.h \
     emc/tp/spherical_arc.h \
+    emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
     emc/motion/emcmotglb.h \
     emc/motion/motion.h \
@@ -954,8 +958,10 @@ scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
 motmod-objs += emc/tp/tc.o
+motmod-objs += emc/tp/tcq.o
 motmod-objs += emc/tp/tp.o
 motmod-objs += emc/tp/spherical_arc.o
+motmod-objs += emc/tp/blendmath.o
 motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o

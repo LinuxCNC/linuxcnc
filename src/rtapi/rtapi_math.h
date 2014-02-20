@@ -16,6 +16,7 @@
 #ifndef RTAPI_MATH_H
 #define RTAPI_MATH_H
 
+#include "rtapi.h"  /* Because of all the rtapi refs */
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
 #if defined(RTAPI) && !defined(SIM)
@@ -29,6 +30,8 @@ extern double atan2(double, double);
 extern double asin(double);
 extern double acos(double);
 extern double pow(double, double);
+extern double fmin(double, double);
+extern double fmax(double, double);
 
 extern double round(double);
 extern double ceil(double);

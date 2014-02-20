@@ -14,17 +14,14 @@
 * Last change:
 ********************************************************************/
 
-/*
-  FIXME-- should include <stdlib.h> for sizeof(), but conflicts with
-  a bunch of <linux> headers
-  */
 #include "rtapi.h"		/* rtapi_print_msg */
+#include "rtapi_math.h"
 #include "posemath.h"
 #include "emcpose.h"
 #include "tc.h"
+#include "tp_types.h"
 #include "spherical_arc.h"
 #include "motion_types.h"
-#include "rtapi_math.h"
 
 //Debug output
 #include "tp_debug.h"
@@ -117,32 +114,44 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
  * Unlike the acceleration vector, the result of this calculation is a vector
  * tangent to the helical arc. This is called by wrapper functions for the case of a circular or helical arc.
  */
-static int tcGetHelicalTangentVector(PmCircle const * const circle, double progress,
-        PmCartesian * const out) {
+int pmCircleTangentVector(PmCircle const * const circle,
+        double angle_in, PmCartesian * const out)
+{
 
     PmCartesian startpoint;
     PmCartesian radius;
-    PmCartesian tan, helix;
+    PmCartesian uTan, dHelix, dRadial;
 
-    pmCirclePoint(circle, progress, &startpoint);
+    // Get vector in radial direction
+    pmCirclePoint(circle, angle_in, &startpoint);
     pmCartCartSub(&startpoint, &circle->center, &radius);
-    pmCartCartCross(&circle->normal, &radius, &tan);
 
-    //Helix component
+    /* Find local tangent vector using planar normal. Assuming a differential
+     * angle dtheta, the tangential component of the tangent vector is r *
+     * dtheta. Since we're normalizing the vector anyway, assume dtheta = 1.
+     */
+    pmCartCartCross(&circle->normal, &radius, &uTan);
+
+    // find dz/dtheta and get differential movement along helical axis
     double h;
     pmCartMag(&circle->rHelix, &h);
-    if (h>0.0){
-        //Pre-scale tangent vector to unit length
-        pmCartUnitEq(&tan);
-        //No degeneracy because we have nonzero angle and radius
-        double ratio = 1.0 / (circle->radius * circle->angle);
-        //Scale the helix vector to be proportional to the unit tangent vector
-        pmCartScalMult(&circle->rHelix, ratio, &helix);
-        //Add scaled helix vector to "plane tangent" to get curve tangent vector
-        pmCartCartAdd(&helix, &tan, &tan);
-    }
+
+    /* the binormal component of the tangent vector is (dz / dtheta) * dtheta.
+     */
+    double dz = 1.0 / circle->angle;
+    pmCartScalMult(&circle->rHelix, dz, &dHelix);
+
+    pmCartCartAddEq(&uTan, &dHelix);
+
+    /* The normal component is (dr / dtheta) * dtheta.
+     */
+    double dr = circle->spiral / circle->angle;
+    pmCartUnit(&radius, &dRadial);
+    pmCartScalMultEq(&dRadial, dr);
+    pmCartCartAddEq(&uTan, &dRadial);
+
     //Normalize final output vector
-    pmCartUnit(&tan, out);
+    pmCartUnit(&uTan, out);
     return 0;
 }
 
@@ -160,7 +169,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
             *out=tc->coords.rigidtap.xyz.uVec;
             break;
         case TC_CIRCULAR:
-            tcGetHelicalTangentVector(&tc->coords.circle.xyz, 0.0, out);
+            pmCircleTangentVector(&tc->coords.circle.xyz, 0.0, out);
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Invalid motion type %d!\n",tc->motion_type);
@@ -182,7 +191,7 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
             pmCartScalMult(&tc->coords.rigidtap.xyz.uVec, -1.0, out);
             break;
         case TC_CIRCULAR:
-            tcGetHelicalTangentVector(&tc->coords.circle.xyz,
+            pmCircleTangentVector(&tc->coords.circle.xyz,
                     tc->coords.circle.xyz.angle, out);
             break;
         default:
@@ -369,295 +378,28 @@ int tcIsBlending(TC_STRUCT * const tc) {
     return tc->blending_next;
 }
 
-
-/*!
- * \subsection TC queue functions
- * These following functions implement the motion queue that
- * is fed by tpAddLine/tpAddCircle and consumed by tpRunCycle.
- * They have been fully working for a long time and a wise programmer
- * won't mess with them.
- */
-
-/** Return 0 if queue is valid, -1 if not */
-static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
+int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc, double * const T_blend, double * const nominal_tolerance)
 {
-    if ((0 == tcq) || (0 == tcq->queue))
-    {
-        return -1;
+    const double tolerance_ratio = 0.25;
+    double T1 = prev_tc->tolerance;
+    double T2 = tc->tolerance;
+    //Detect zero tolerance = no tolerance and force to reasonable maximum
+    if (T1 == 0) {
+        T1 = prev_tc->nominal_length * tolerance_ratio;
     }
-    return 0;
-}
-
-/*! tcqCreate() function
- *
- * \brief Creates a new queue for TC elements.
- *
- * This function creates a new queue for TC elements.
- * It gets called by tpCreate()
- *
- * @param    tcq       pointer to the new TC_QUEUE_STRUCT
- * @param	 _size	   size of the new queue
- * @param	 tcSpace   holds the space allocated for the new queue, allocated in motion.c
- *
- * @return	 int	   returns success or failure
- */
-int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
-{
-    if (_size <= 0 || 0 == tcq) {
-	return -1;
-    } else {
-	tcq->queue = tcSpace;
-	tcq->size = _size;
-	tcq->_len = 0;
-	tcq->start = tcq->end = 0;
-	tcq->allFull = 0;
-
-	if (0 == tcq->queue) {
-	    return -1;
-	}
-	return 0;
+    if (T2 == 0) {
+        T2 = tc->nominal_length * tolerance_ratio;
     }
-}
-
-/*! tcqDelete() function
- *
- * \brief Deletes a queue holding TC elements.
- *
- * This function creates deletes a queue. It doesn't free the space
- * only throws the pointer away.
- * It gets called by tpDelete()
- * \todo FIXME, it seems tpDelete() is gone, and this function isn't used.
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 int	   returns success
- */
-int tcqDelete(TC_QUEUE_STRUCT * const tcq)
-{
-    if (!tcqCheck(tcq)) {
-        /* free(tcq->queue); */
-        tcq->queue = 0;
-    }
-
-    return 0;
-}
-
-/*! tcqInit() function
- *
- * \brief Initializes a queue with TC elements.
- *
- * This function initializes a queue with TC elements.
- * It gets called by tpClear() and
- * 	  	   		  by tpRunCycle() when we are aborting
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 int	   returns success or failure (if no tcq found)
- */
-int tcqInit(TC_QUEUE_STRUCT * const tcq)
-{
-    if (tcqCheck(tcq)) return -1;
-
-    tcq->_len = 0;
-    tcq->start = tcq->end = 0;
-    tcq->allFull = 0;
-
-    return 0;
-}
-
-/*! tcqPut() function
- *
- * \brief puts a TC element at the end of the queue
- *
- * This function adds a tc element at the end of the queue.
- * It gets called by tpAddLine() and tpAddCircle()
- *
- * @param    tcq       pointer to the new TC_QUEUE_STRUCT
- * @param	 tc        the new TC element to be added
- *
- * @return	 int	   returns success or failure
- */
-int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
-{
-    /* check for initialized */
-    if (tcqCheck(tcq)) return -1;
-
-    /* check for allFull, so we don't overflow the queue */
-    if (tcq->allFull) {
-	    return -1;
-    }
-
-    /* add it */
-    tcq->queue[tcq->end] = *tc;
-    tcq->_len++;
-
-    /* update end ptr, modulo size of queue */
-    tcq->end = (tcq->end + 1) % tcq->size;
-
-    /* set allFull flag if we're really full */
-    if (tcq->end == tcq->start) {
-	tcq->allFull = 1;
-    }
-
+    *nominal_tolerance = fmin(T1,T2);
+    //Blend tolerance is the limit of what we can reach by blending alone,
+    //consuming half a segment or less (parabolic equivalent)
+    double blend_tolerance = fmin(fmin(*nominal_tolerance, 
+                prev_tc->nominal_length * tolerance_ratio),
+            tc->nominal_length * tolerance_ratio);
+    *T_blend = blend_tolerance;
     return 0;
 }
 
 
-/*! tcqPopBack() function
- *
- * \brief removes the newest TC element (converse of tcqRemove)
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 int	   returns success or failure
- */
-int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
-{
-    /* check for initialized */
-    if (tcqCheck(tcq)) return -1;
-
-    /* Too short to pop! */
-    if (tcq->_len < 1) {
-        return -1;
-    }
-
-    int n = tcq->end - 1 + tcq->size;
-    tcq->end = n % tcq->size;
-    tcq->_len--;
-
-    return 0;
-}
-
-/*! tcqRemove() function
- *
- * \brief removes n items from the queue
- *
- * This function removes the first n items from the queue,
- * after checking that they can be removed
- * (queue initialized, queue not empty, enough elements in it)
- * Function gets called by tpRunCycle() with n=1
- * \todo FIXME: Optimize the code to remove only 1 element, might speed it up
- *
- * @param    tcq       pointer to the new TC_QUEUE_STRUCT
- * @param	 n         the number of TC elements to be removed
- *
- * @return	 int	   returns success or failure
- */
-int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
-{
-
-    if (n <= 0) {
-	    return 0;		/* okay to remove 0 or fewer */
-    }
-
-    if (tcqCheck(tcq) || ((tcq->start == tcq->end) && !tcq->allFull) ||
-            (n > tcq->_len)) {	/* too many requested */
-	    return -1;
-    }
-
-    /* update start ptr and reset allFull flag and len */
-    tcq->start = (tcq->start + n) % tcq->size;
-    tcq->allFull = 0;
-    tcq->_len -= n;
-
-    return 0;
-}
-
-/*! tcqLen() function
- *
- * \brief returns the number of elements in the queue
- *
- * Function gets called by tpSetVScale(), tpAddLine(), tpAddCircle()
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 int	   returns number of elements
- */
-int tcqLen(TC_QUEUE_STRUCT const * const tcq)
-{
-    if (tcqCheck(tcq)) return -1;
-
-    return tcq->_len;
-}
-
-/*! tcqItem() function
- *
- * \brief gets the n-th TC element in the queue, without removing it
- *
- * Function gets called by tpSetVScale(), tpRunCycle(), tpIsPaused()
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 TC_STRUCT returns the TC elements
- */
-TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
-{
-    if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len)) return NULL;
-
-    return &(tcq->queue[(tcq->start + n) % tcq->size]);
-}
-
-/*!
- * \def TC_QUEUE_MARGIN
- * sets up a margin at the end of the queue, to reduce effects of race conditions
- */
-#define TC_QUEUE_MARGIN 20
-
-/*! tcqFull() function
- *
- * \brief get the full status of the queue
- * Function returns full if the count is closer to the end of the queue than TC_QUEUE_MARGIN
- *
- * Function called by update_status() in control.c
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 int       returns status (0==not full, 1==full)
- */
-int tcqFull(TC_QUEUE_STRUCT const * const tcq)
-{
-    if (tcqCheck(tcq)) {
-	   return 1;		/* null queue is full, for safety */
-    }
-
-    /* call the queue full if the length is into the margin, so reduce the
-       effect of a race condition where the appending process may not see the
-       full status immediately and send another motion */
-
-    if (tcq->size <= TC_QUEUE_MARGIN) {
-	/* no margin available, so full means really all full */
-	    return tcq->allFull;
-    }
-
-    if (tcq->_len >= tcq->size - TC_QUEUE_MARGIN) {
-	/* we're into the margin, so call it full */
-	    return 1;
-    }
-
-    /* we're not into the margin */
-    return 0;
-}
-
-/*! tcqLast() function
- *
- * \brief gets the last TC element in the queue, without removing it
- *
- *
- * @param    tcq       pointer to the TC_QUEUE_STRUCT
- *
- * @return	 TC_STRUCT returns the TC element
- */
-TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
-{
-    if (tcqCheck(tcq)) {
-        return NULL;
-    }
-    if (tcq->_len == 0) {
-        return NULL;
-    }
-    //Fix for negative modulus error
-    int n = tcq->end-1 + tcq->size;
-    return &(tcq->queue[n % tcq->size]);
-
-}
 

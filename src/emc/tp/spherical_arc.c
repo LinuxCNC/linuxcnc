@@ -14,7 +14,7 @@
 #include "posemath.h"
 #include "spherical_arc.h"
 #include "rtapi_math.h"
-#include "rtapi.h"
+
 #include "tp_debug.h"
 
 int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
@@ -29,6 +29,8 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         return ARC_ERR_MISSING_OUTPUT;
     }
 #endif
+
+    // Store the start, end, and center
     arc->start = *start;
     arc->end = *end;
     arc->center = *center;
@@ -36,37 +38,46 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     pmCartCartSub(start, center, &arc->rStart);
     pmCartCartSub(end, center, &arc->rEnd);
 
-    //Check that center is equidistant from both start and end. If not, the arc is not circular, and won't be tangent at the ends.
-    //TODO more formal tolerance here? current limit is very strict
-    double mag0,mag1;
-    pmCartMag(&arc->rStart, &mag0);
-    pmCartMag(&arc->rEnd, &mag1);
+    // Find the radii at start and end. These are identical for a perfect spherical arc
+    double radius0, radius1;
+    pmCartMag(&arc->rStart, &radius0);
+    pmCartMag(&arc->rEnd, &radius1);
 
-    if (fabs(mag0-mag1) > ARC_POS_EPSILON) {
-        tp_debug_print("radii %f and %f are different, aborting...\n", mag0, mag1);
-        return ARC_ERR_GEOM;
-    }
+    tp_debug_print("radii are %g and %g\n",
+            radius0,
+            radius1);
 
-    //Assign radius and check for validity
-    arc->radius = mag0;
-
-    if (mag0 < ARC_MIN_RADIUS) {
+    if (radius0 < ARC_MIN_RADIUS || radius1 < ARC_MIN_RADIUS) {
+        tp_debug_print("radius below min radius %f, aborting arc\n",
+                ARC_MIN_RADIUS);
         return ARC_ERR_RADIUS;
     }
 
-    //TODO take angle as input? might save computations
-    // Find angle between vectors to get arc angle
-    PmCartesian u0,u1;
-    pmCartUnit(&arc->rStart, &u0);
-    pmCartUnit(&arc->rEnd, &u1);
+    // Choose initial radius as nominal radius
+    arc->radius = radius0;
 
+    // Get unit vectors from center to start and center to end
+    PmCartesian u0, u1;
+    pmCartScalMult(&arc->rStart, 1.0 / radius0, &u0);
+    pmCartScalMult(&arc->rEnd, 1.0 / radius1, &u1);
+
+    // Find arc angle
     double dot;
-    pmCartCartDot(&u0,&u1,&dot);
+    pmCartCartDot(&u0, &u1, &dot);
     arc->angle = acos(dot);
+    tp_debug_print("spherical arc angle = %f\n", arc->angle);
+
+    // Store spiral factor as radial difference. Archimedean spiral coef. a = spiral / angle
+    arc->spiral = (radius1 - radius0 );
 
     if (arc->angle < ARC_MIN_ANGLE) {
+        tp_debug_print("angle %f below min angle %f, aborting arc\n",
+                arc->angle,
+                ARC_MIN_ANGLE);
         return ARC_ERR_GEOM;
     }
+
+    // Store sin of arc angle since it is reused many times for SLERP
     arc->Sangle = sin(arc->angle);
 
     return ARC_ERR_OK;
@@ -79,13 +90,13 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
     //Convert progress to actual progress around the arc
     double net_progress = progress - arc->line_length;
     if (net_progress <= 0.0 && arc->line_length > 0) {
-        tp_debug_print("net_progress = %f, line_length = %f\n", net_progress, arc->line_length);
+        tc_debug_print("net_progress = %f, line_length = %f\n", net_progress, arc->line_length);
         //Get position on line (not actually an angle in this case)
         pmCartScalMult(&arc->uTan, net_progress, out);
         pmCartCartAdd(out, &arc->start, out);
     } else {
         double angle_in = net_progress / arc->radius;
-        tp_debug_print("angle_in = %f, angle_total = %f\n", angle_in, arc->angle);
+        tc_debug_print("angle_in = %f, angle_total = %f\n", angle_in, arc->angle);
         double scale0 = sin(arc->angle - angle_in) / arc->Sangle;
         double scale1 = sin(angle_in) / arc->Sangle;
 
@@ -102,6 +113,7 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
 int arcLength(SphericalArc const * const arc, double * const length)
 {
     *length = arc->radius * arc->angle + arc->line_length;
+    tp_debug_print("arc length = %g\n", *length);
     return ARC_ERR_OK;
 }
 
@@ -148,3 +160,42 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     return arcInitFromPoints(arc, start, end, &center);
 }
 
+int arcConvexTest(PmCartesian const * const center,
+        PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir)
+{
+    //Check if an arc-line intersection is concave or convex
+    double dot;
+    PmCartesian diff;
+    pmCartCartSub(P, center, &diff);
+    pmCartCartDot(&diff, uVec, &dot);
+
+    tp_debug_print("convex test: dot = %f, reverse_dir = %d\n", dot, reverse_dir);
+    int convex = (reverse_dir != 0) ^ (dot < 0);
+    return convex;
+}
+
+int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_end)
+{
+    PmCartesian r_perp;
+    PmCartesian r_tan;
+
+    if (at_end) {
+        r_perp = arc->rEnd;
+    } else {
+        r_perp = arc->rStart;
+    }
+
+    pmCartCartCross(&arc->binormal, &r_perp, &r_tan);
+    //Get spiral component
+    double dr = arc->spiral / arc->angle;
+
+    //Get perpendicular component due to spiral
+    PmCartesian d_perp;
+    pmCartUnit(&r_perp, &d_perp);
+    pmCartScalMultEq(&d_perp, dr);
+    //TODO error checks
+    pmCartCartAdd(&d_perp, &r_tan, tan);
+    pmCartUnitEq(tan);
+
+    return ARC_ERR_OK;
+}
