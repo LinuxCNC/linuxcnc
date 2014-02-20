@@ -3368,7 +3368,7 @@ Notes:
       Multiple sets of files can be specified from an inifile.
       If --ini is NOT specified:
          search for a running linuxcnc and use it's inifile
-    """ % sys.argv[0])
+    """ % g_progname)
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
 
