@@ -3383,8 +3383,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 # be changed from what the firmware designates it as.
                 if widgetptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
                         #print "data ptype index:",_PD.pintype_gpio.index(dataptype)
-                        #self.debug_iter(0,p,"data to widget")
-                        #self.debug_iter(0,ptype,"data to widget")
+                        self.debug_iter(0,p,"data to widget")
+                        self.debug_iter(0,ptype,"data to widget")
                         # signal names for GPIO INPUT
                         #print "compnum = ",compnum
                         if compnum == 100: dataptype = widgetptype 

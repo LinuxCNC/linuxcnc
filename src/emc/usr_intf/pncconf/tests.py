@@ -33,7 +33,7 @@ class TESTS:
         self.a = app    # The parent, pncconf
         self.w = app.widgets
         global debug
-        debug = self.a.debug
+        debug = self.a.debugstate
         global dbg
         dbg = self.a.dbg
 

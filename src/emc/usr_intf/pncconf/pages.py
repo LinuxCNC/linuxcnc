@@ -41,7 +41,7 @@ class Pages:
         self._p = app._p    # private data
         self.t = app.TESTS
         global debug
-        debug = self.a.debug
+        debug = self.a.debugstate
         global dbg
         dbg = self.a.dbg
 
@@ -184,7 +184,7 @@ class Pages:
                 self.w[axis + i].connect("clicked", self.a.bldc_update,axis)
 
         self.a.fill_pintype_model()
-        self.a.fill_combobox_models()
+
         self.a.add_external_folder_boardnames()
         self.intro_prepare()
 
@@ -218,6 +218,8 @@ class Pages:
         #TODO is this right place?
         self.d._mesa0_configured = False
         self.d._mesa1_configured = False
+        #must be filled after loading config for custom signals are added
+        self.a.fill_combobox_models()
 
 #************
 # BASE PAGE
