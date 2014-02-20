@@ -24,6 +24,7 @@
 #
 
 import os
+import linuxcnc
 
 class Private_Data:
     def __init__(self,app,bin_dir,base_dir):
@@ -55,7 +56,7 @@ class Private_Data:
         self._IMPERIAL = 0
         self._METRIC = 1
 
-        self.DATADIR = os.path.join(os.path.abspath(BIN), "..", "share", "linuxcnc","pncconf")
+        self.DATADIR = linuxcnc.SHARE + "/linuxcnc/pncconf"
         self.WIZARD = os.path.join(self.DATADIR, "linuxcnc-wizard.gif")
         if not os.path.isfile(self.WIZARD):
             self.WIZARD = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
