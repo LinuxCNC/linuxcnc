@@ -1,316 +1,142 @@
-#!/usr/bin/python
+#!/bin/bash
+#                                                         -*-shell-script-*-
+# Placed into the public domain by John Morris, 2014
 #
-# Copyright 2014 Sebastian Kuzminsky
-#
-# Debian source package configuration script for LinuxCNC.
-#
-
-
-import sys
-import os
-import glob
-import re
-import subprocess
-
-
-#
-# Important state variables.  These get built up as the program runs.
-#
-
-config = {}
-
-# enabled flavor names
-config['flavors'] = set()
-
-# packages we build-depend on
-config['build-depends'] = set()
-
-# Depends, Recommends, and Suggests for the main package (linuxcnc.deb)
-config['depends'] = set()
-config['recommends'] = set()
-config['suggests'] = set()
-
-# Depends and Recommends for the flavor packages (linuxcnc-$FLAVOR.deb)
-config['posix-depends'] = set()
-config['posix-recommends'] = set()
-
-config['rtai-depends'] = set()
-config['rtai-recommends'] = set()
-
-config['rtpreempt-depends'] = set()
-config['rtpreempt-recommends'] = set()
-
-config['xenomai-depends'] = set()
-config['xenomai-recommends'] = set()
-
-config['xenomai-kernel-depends'] = set()
-config['xenomai-kernel-recommends'] = set()
-
-# arguments passed to src/configure to select build flavors
-config['src/configure'] = set()
-
-# arguments passed to debian/configure (us, now!) so we can rerun it via
-# debian/rules if any of the .in files change
-config['debian/configure'] = []
-
-
-def usage():
-    print """\
-usage: debian/configure [OPTIONS]
-configure debian source package
-OPTIONS:
-    --help, -h    This help.
-    --posix, sim  Configure for the Posix flavor only.
-    -r            Configure for the running realtime flavor (and Posix).
-    --all         Detect all available realtime flavors (installed and
-                  not), configure for all of them (and Posix).
-"""
-
-
-#
-# This function inspects the config file of the specified installed kernel
-# version.
-# If it finds a realtime flavor, it appends the detected flavor to flavors,
-# appends the flavor-appropriate packages to Build-depends, Depends, and
-# Recommends
-# If the specified kernel does not provide a realtime flavor, it prints an
-# error message and exits.
-#
-def configure_for_installed_realtime_kernel(kernel_version, config):
-    try:
-        f = open("/boot/config-%s" % kernel_version)
-    except IOError:
-        print "no kernel configuration found for %s" % kernel_version
-        sys.exit(1)
-    l = f.read(-1)
-    f.close()
-
-    config_ipipe = re.search('^CONFIG_IPIPE', l, re.MULTILINE)
-    config_xeno = re.search('^CONFIG_XENO_', l, re.MULTILINE)
-    config_rtpreempt = re.search('^CONFIG_PREEMPT_RT', l, re.MULTILINE)
-
-    if config_ipipe and not config_xeno and not config_rtpreempt:
-        config['flavors'].add('rtai')
-        config['build-depends'].add("linux-headers-%s" % kernel_version)
-        config['build-depends'].add("rtai-modules-%s" % kernel_version)  # the rtai-modules package also includes rtai headers and the rtai-config program
-        config['rtai-depends'].add("rtai-modules-%s" % kernel_version)
-        config['rtai-depends'].add("linux-image-%s" % kernel_version)
-
-    elif config_ipipe and config_xeno and not config_rtpreempt:
-        config['flavors'].add('xenomai')
-        config['flavors'].add('xenomai-kernel')
-        config['build-depends'].add('libpth-dev')
-        config['build-depends'].add("linux-headers-%s" % kernel_version)
-        config['build-depends'].add('libxenomai-dev')
-        config['build-depends'].add('libudev-dev')
-        config['xenomai-depends'].add('libxenomai1')
-        config['xenomai-depends'].add('xenomai-runtime')
-        config['xenomai-kernel-depends'].add('linux-image-%s' % kernel_version)
-
-    elif not config_ipipe and not config_xeno and config_rtpreempt:
-        config['flavors'].add('rtpreempt')
-        config['build-depends'].add('libpth-dev')
-        config['build-depends'].add('libudev-dev')
-        config['rtpreempt-depends'].add('linux-image-%s' % kernel_version)
-
-    else:
-        print "kernel %s has no realtime extensions" % kernel_version
-        sys.exit(1)
-
-
-def configure_for_distro(config):
-    # 'Ubuntu' or 'Debian'
-    distributor_id = subprocess.Popen(["lsb_release", "--id", "--short"], stdout=subprocess.PIPE).communicate()[0]
-    distributor_id = distributor_id[:-1]  # strip trailing newline
-
-    # for example '12.04' or '7.3.0'
-    release = subprocess.Popen(["lsb_release", "--short", "--release"], stdout=subprocess.PIPE).communicate()[0]
-    release = release[:-1]  # strip trailing newline
-
-    print "configuring for %s %s" % (distributor_id, release)
-
-    # configure the tcl/tk version
-    # Lucid's default tcl/tk version is 8.4, we need to override it to 8.5
-    # all other distros can use the default version
-    if distributor_id == 'Ubuntu' and release == '10.04':
-        config['build-depends'].add('tcl8.5-dev')
-        config['build-depends'].add('tk8.5-dev')
-        config['depends'].add('tcl8.5')
-        config['depends'].add('tk8.5')
-    else:
-        config['build-depends'].add('tcl-dev')
-        config['build-depends'].add('tk-dev')
-        config['depends'].add('tcl')
-        config['depends'].add('tk')
-
-    # 'extra-dir' selects a directory (in debian/) to include in the main
-    # deb.  This one is not actually distro-dependent currently (all
-    # distros use the same extra-files dir), but it seems like we might
-    # want it to be at some point.
-    config['extra-dir'] = 'extras'
-
-
-def append_file(additional_filename, base_filename):
-    base_file = open(base_filename, 'a')
-    additional_file = open(additional_filename, 'r')
-    base_file.write(additional_file.read())
-    additional_file.close()
-    base_file.close()
-
-
-def add_flavor_to_control(flavor, config):
-    subst('control.%s.in' % flavor, 'control.%s' % flavor, config)
-    append_file('control.%s' % flavor, 'control')
-
-
-def subst(infile, outfile, config):
-    try:
-        retcode = subprocess.call(
-            "sed -e 's`@BUILD_DEPENDS@`%s`g'" % ', '.join(config['build-depends'])
-            + " -e 's`@DEPENDS@`%s`g'" % ', '.join(config['depends'])
-            + " -e 's`@RECOMMENDS@`%s`g'" % ', '.join(config['recommends'])
-            + " -e 's`@SUGGESTS@`%s`g'" % ', '.join(config['suggests'])
-            + " -e 's`@SRC_CONFIGURE@`%s`g'" % ' '.join(config['src/configure'])
-            + " -e 's`@DEBIAN_CONFIGURE@`%s`g'" % ' '.join(config['debian/configure'])
-            + " -e 's`@PYTHON_VERSION@`%d.%d`g'" % (sys.version_info[0], sys.version_info[1])
-            + " -e 's`@PYTHON_VERSION_NEXT@`%d.%d`g'" % (sys.version_info[0], 1 + sys.version_info[1])
-            + " -e 's`@EXTRA_DIR@`%s`g'" % config['extra-dir']
-            + " -e 's`@POSIX_DEPENDS@`%s`g'" % ', '.join(config['posix-depends'])
-            + " -e 's`@POSIX_RECOMMENDS@`%s`g'" % ', '.join(config['posix-recommends'])
-            + " -e 's`@RTAI_DEPENDS@`%s`g'" % ', '.join(config['rtai-depends'])
-            + " -e 's`@RTAI_RECOMMENDS@`%s`g'" % ', '.join(config['rtai-recommends'])
-            + " -e 's`@RTPREEMPT_DEPENDS@`%s`g'" % ', '.join(config['rtpreempt-depends'])
-            + " -e 's`@RTPREEMPT_RECOMMENDS@`%s`g'" % ', '.join(config['rtpreempt-recommends'])
-            + " -e 's`@XENOMAI_DEPENDS@`%s`g'" % ', '.join(config['xenomai-depends'])
-            + " -e 's`@XENOMAI_RECOMMENDS@`%s`g'" % ', '.join(config['xenomai-recommends'])
-            + " -e 's`@XENOMAI_KERNEL_DEPENDS@`%s`g'" % ', '.join(config['xenomai-kernel-depends'])
-            + " -e 's`@XENOMAI_KERNEL_RECOMMENDS@`%s`g'" % ', '.join(config['xenomai-kernel-recommends'])
-            + " %s > %s" % (infile, outfile),
-            shell=True
-        )
-        if retcode < 0:
-            print >>sys.stderr, "Child was terminated by signal", -retcode
-    except OSError:
-        print >>sys.stderr, "Failed to run sed!"
-
-
-# posix is always enabled
-config['flavors'].add('posix')
-
-# save off the arguments the user just gave us
-config['debian/configure'] = sys.argv[1:]
-
-
-if len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
-    usage()
-    sys.exit(0)
-
-elif sys.argv[1] == '--posix' or sys.argv[1] == 'sim':
-    # the user just wants posix, and it's always enabled (above)
-    pass
-
-elif sys.argv[1] == '-r' or sys.argv[1] == '-a':
-    running_kernel_version = os.uname()[2]
-    print "configuring for running realtime kernel %s" % running_kernel_version
-    configure_for_installed_realtime_kernel(running_kernel_version, config)
-
-elif sys.argv[1] == '--all':
-    # detect_available_realtime_kernels
-    print "Not implemented yet!"
-    sys.exit(1)
-
-else:
-    print "invalid command line"
-    usage
-    sys.exit(1)
-
-
-configure_for_distro(config)
-
-
-for flavor in (config['flavors']):
-    if flavor == 'posix':
-        config['build-depends'].add('libpth-dev')
-        config['src/configure'].add('--with-posix')
-
-    elif flavor == 'rtai':
-        config['rtai-recommends'].add('hostmot2-firmware')
-        config['src/configure'].add('--with-rtai-kernel')
-
-    elif flavor == 'xenomai':
-        config['xenomai-recommends'].add('hostmot2-firmware')
-        config['src/configure'].add('--with-xenomai')
-
-    elif flavor == 'xenomai-kernel':
-        config['xenomai-kernel-recommends'].add('hostmot2-firmware')
-        config['src/configure'].add('--with-xenomai-kernel')
-
-    elif flavor == 'rtpreempt':
-        config['rtpreempt-recommends'].add('hostmot2-firmware')
-        config['src/configure'].add('--with-rt-preempt')
-
-    else:
-        print "Warning: ignoring unknown flavor %s" % flavor
-        config['flavors'].remove(flavor)
-
-# report the final set of enabled flavors
-print "enabled flavors: " + ', '.join(config['flavors'])
-
-
-#
-# All done configuring!  Time to start creating debian files!
-#
-
-# the main package Depends on any of the flavor packages and Suggests all of them
-flavor_packages = set()
-for f in config['flavors']:
-    flavor_packages.add('linuxcnc-' + f)
-
-config['depends'].add(' | '.join(flavor_packages))
-config['suggests'].add(', '.join(flavor_packages))
-
-
-subst('control.in', 'control', config)
-for flavor in (config['flavors']):
-    add_flavor_to_control(flavor, config)
-
-subst('rules.in', 'rules', config)
-mode = os.stat('rules').st_mode
-mode |= 0111
-os.chmod('rules', mode)
-
-for infile in glob.glob('*.files.in'):
-    cooked_file = infile[:-3]
-    subst(infile, cooked_file, config)
-
-    extra_file = config['extra-dir'] + '/' + cooked_file
-    if os.access(extra_file, os.R_OK):
-        append_file(extra_file, cooked_file)
-
-
-ignore = """
-
-
-function detect_available_realtime_kernels() {
-    RTAI_HEADERS=$(apt-cache search 'linux-headers.*-rtai')
-    XENOMAI_HEADERS=$(apt-cache search 'linux-headers.*-xenomai')
-    RTPREEMPT_HEADERS=$(apt-cache search 'linux-headers.*-rt([^a]|$)')
-
-    if [ ! -z "$RTAI_HEADERS" ]; then
-        echo found rtai headers:
-        echo $RTAI_HEADERS
+# Configure source package dependencies
+
+cd "$(dirname $0)"
+
+# Get installed RT kernel headers package version
+check_kthreads_headers() {
+    local FLAVOR=$1
+
+    # Extract versions from installed linux-headers-*-FLAVOR pkg names
+    local KSRCS="$(dpkg-query -W -f '${binary:Package}\n' \
+        linux-headers-\*-$FLAVOR\*)"
+    KSRCS="${KSRCS//linux-headers-/}"
+
+    # In case there are multiple kernel headers of a flavor installed,
+    # choose one that's running
+    test "$KSRCS" = "${KSRCS/$(uname -r)/}" || \
+	KSRCS=$(uname -r)
+
+    # If there is more than one version installed, it's an error
+    if test "$KSRCS" != "${KSRCS/ /}"; then
+	echo "Error:  Multiple headers pkgs installed for $FLAVOR kernel" >&2
+	exit 1
     fi
 
-    if [ ! -z "$XENOMAI_HEADERS" ]; then
-        echo found xenomai headers:
-        echo $XENOMAI_HEADERS
+    # If RTAI, check for rtai-modules package
+    if test -n "$KSRCS" -a $FLAVOR = rtai; then
+        dpkg-query -W rtai-modules-$KSRCS >&/dev/null || KSRCS=
     fi
 
-    if [ ! -z "$RTPREEMPT_HEADERS" ]; then
-        echo found rtpreempt headers:
-        echo $RTPREEMPT_HEADERS
-    fi
+    # Print result to stdout
+    echo $KSRCS
 }
 
 
-"""
+# Check if xenomai libs are installed; result is return code
+check_xeno_libs() {
+    dpkg-query -W libxenomai-dev >& /dev/null
+}
+
+
+# Calculate the tcl/tk package names
+tcltk_ext() {
+    # tcl/tk packages: {tcl,tk}8.5 on Ubuntu-10.04, {tcl,tk}
+    # everywhere else
+    test "$(lsb_release -si)-$(lsb_release -sr)" != "Ubuntu-10.04" ||
+	echo 8.5
+}    
+
+
+# Calculate the distro-specific list of Build-Depends:
+BUILD_DEPS=
+get_build_deps() {
+    # tcl/tk packages: {tcl,tk}8.5 on Ubuntu-10.04, {tcl,tk}
+    # everywhere else
+    BUILD_DEPS="$BUILD_DEPS tcl$(tcltk_ext)-dev, tk$(tcltk_ext)-dev,"
+
+    # no libgnomeprintui2.2-dev in jessie
+    test $(lsb_release -sc) = jessie || \
+	BUILD_DEPS="$BUILD_DEPS libgnomeprintui2.2-dev,"
+
+    # add Xenomai deps, if found
+    if check_xeno_libs; then
+	BUILD_DEPS="$BUILD_DEPS libxenomai-dev,"
+
+	# check for kthreads
+	XENO_KVER=$(check_kthreads_headers xenomai)
+	test -z "$XENO_KVER" || \
+	    BUILD_DEPS="$BUILD_DEPS linux-headers-$XENO_KVER,"
+    fi
+
+    # add RTAI deps, if found
+    RTAI_KVER=$(check_kthreads_headers rtai)
+    if test -n "$RTAI_KVER"; then
+        BUILD_DEPS="$BUILD_DEPS linux-headers-$RTAI_KVER,"
+        BUILD_DEPS="$BUILD_DEPS rtai-modules-$RTAI_KVER,"
+    fi
+
+    # remove trailing comma to be pretty
+    BUILD_DEPS="${BUILD_DEPS%,}"
+}
+
+
+# Create the base control file from the control.default template, then
+# add xenomai-kernel or rtai-kernel flavor pkgs as appropriate
+build_control() {
+    # calculate build deps for template
+    get_build_deps
+    echo "Adding build deps to control file:  $BUILD_DEPS"
+
+    # copy base template into place, filling in build deps
+    cat control.in | sed "s/@BUILD_DEPS@/$BUILD_DEPS/" > "control"
+
+    # add xenomai threads, if appropriate
+    if check_xeno_libs; then
+	echo "Configuring to build xenomai (userland) threads"
+	cat control.xenomai.in >> control
+    fi
+
+    # add kernel threads flavors, if appropriate
+    for FLAVOR in xenomai rtai; do
+	KVER="$(check_kthreads_headers $FLAVOR)"
+	if test -n "$KVER"; then
+	    echo "Configuring to build ${FLAVOR}-kernel threads"
+	    echo "   kernel version $KVER"
+	    cat control.${FLAVOR}-kernel.in >> control
+	fi
+    done
+
+}
+
+
+# Add to file of substitution variables used in binary control files.
+# The ones not needed for the Source: package are best added to
+# debian/rules.
+build_substvars() {
+    # init empty substvars file
+    >substvars
+
+    # tcl/tk packages: {tcl,tk}8.5 on Ubuntu-10.04, {tcl,tk}
+    # everywhere else
+    echo "tcl-tk=tcl$(tcltk_ext),\${Space}tk$(tcltk_ext)" >> substvars
+    echo "tcl-tk-dev=tcl$(tcltk_ext)-dev,\${Space}tk$(tcltk_ext)-dev" \
+	>> substvars
+
+    # kthreads kernel versions
+    echo "xenomai-kver=$(check_kthreads_headers xenomai)" >> substvars
+    echo "rtai-kver=$(check_kthreads_headers rtai)" >> substvars
+}
+
+
+if test "$1" = "substvars"; then
+    # Build the debian/substvars file
+    build_substvars
+else
+    # Build the debian/control file
+    build_control
+fi
+
