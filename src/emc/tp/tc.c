@@ -453,6 +453,9 @@ double pmLine9Target(PmLine9 * const line9)
 
 /**
  * Initialize a new trajectory segment with common parameters.
+ *
+ * NOTE: this function only sets default values that are non-zero. Make sure
+ * the struct is properly initialized BEFORE calling this function.
  */
 int tcInit(TC_STRUCT * const tc,
         int motion_type,
@@ -461,7 +464,6 @@ int tcInit(TC_STRUCT * const tc,
         unsigned char enables,
         char atspeed)
 {
-
 
     /** Motion type setup */
     tc->motion_type = motion_type;
@@ -475,33 +477,9 @@ int tcInit(TC_STRUCT * const tc,
     tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
 
     /** Segment settings (given values later during setup / optimization) */
-    tc->nominal_length = 0;
-    tc->blend_prev = 0;
-    tc->optimization_state = 0;
-    tc->finalvel = 0.0;
-    tc->accel_mode = TC_ACCEL_TRAPZ;
     tc->indexrotary = -1;
 
-    /** Segment status flags that are used during trajectory execution. */
-    tc->active = 0;
-    tc->progress = 0.0;
-    //TODO move this somewhere else, the init should happen first before the target is defined
-    /*tc->nominal_length = tc->target;*/
-
-    tc->sync_accel = 0;
-    tc->currentvel = 0.0;
-
-    tc->vel_at_blend_start = 0.0;
-    tc->term_vel = 0.0;
-    tc->blend_vel = 0.0;
-    tc->blending_next = 0;
-    tc->on_final_decel = 0;
-
-    tc->splitting = 0;
-    tc->remove = 0;
     tc->active_depth = 1;
-
-    tc->finalized = 0;
 
     return TP_ERR_OK;
 }
