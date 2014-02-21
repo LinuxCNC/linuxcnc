@@ -55,6 +55,9 @@
  * the future.
  */
 typedef enum {
+    TP_ERR_RADIUS = -6,
+    TP_ERR_GEOM = -5,
+    TP_ERR_RANGE = -4,
     TP_ERR_MISSING_OUTPUT = -3,
     TP_ERR_MISSING_INPUT = -2,
     TP_ERR_FAIL = -1,
@@ -64,7 +67,7 @@ typedef enum {
     TP_ERR_STOPPED,
     TP_ERR_WAITING,
     TP_ERR_LAST
-} tp_err_code_t;
+} tp_err_t;
 
 /**
  * Persistant data for spindle status within tpRunCycle.
@@ -76,7 +79,7 @@ typedef struct {
      double revs;
      int waiting_for_index;
      int waiting_for_atspeed;
-} tp_spindle_status_t;
+} tp_spindle_t;
 
 /**
  * Trajectory planner state structure.
@@ -85,7 +88,7 @@ typedef struct {
  */
 typedef struct {
     TC_QUEUE_STRUCT queue;
-    tp_spindle_status_t spindle; //Spindle data
+    tp_spindle_t spindle; //Spindle data
 
     EmcPose currentPos;
     EmcPose goalPos;
