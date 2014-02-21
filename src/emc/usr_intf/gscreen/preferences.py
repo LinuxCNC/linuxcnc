@@ -15,6 +15,7 @@
 import os, ConfigParser
 
 cp = ConfigParser.RawConfigParser
+cp.optionxform=str
 class preferences(cp):
     types = {
         bool: cp.getboolean,
