@@ -302,7 +302,7 @@ int tcGetPosReal(TC_STRUCT const * const tc, int of_point, EmcPose * const pos)
  * This function will eventually handle state changes associated with altering a terminal condition.
  */
 int tcSetTermCond(TC_STRUCT * const tc, int term_cond) {
-    tc_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
+    tp_debug_print("setting term condition %d on tc id %d, type %d\n", term_cond, tc->id, tc->motion_type);
     tc->term_cond = term_cond;
     return 0;
 }
@@ -420,7 +420,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
     if(tc->synchronized != TC_SYNC_POSITION && nexttc->synchronized == TC_SYNC_POSITION) {
         // we'll have to wait for spindle sync; might as well
         // stop at the right place (don't blend)
-        tc_debug_print("waiting on spindle sync for tc %d\n", tc->id);
+        tp_debug_print("waiting on spindle sync for tc %d\n", tc->id);
         tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
@@ -428,7 +428,7 @@ int tcFlagEarlyStop(TC_STRUCT * const tc,
         // we'll have to wait for the spindle to be at-speed; might as well
         // stop at the right place (don't blend), like above
         // FIXME change the values so that 0 is exact stop mode
-        tc_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
+        tp_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
         tcSetTermCond(tc, TC_TERM_COND_STOP);
     }
 
@@ -459,13 +459,14 @@ int tcInit(TC_STRUCT * const tc,
         int canon_motion_type,
         double cycle_time,
         unsigned char enables,
-        int atspeed)
+        char atspeed)
 {
 
 
     /** Motion type setup */
     tc->motion_type = motion_type;
     tc->canon_motion_type = canon_motion_type;
+    tc->atspeed = atspeed;
 
     /** Segment settings passed down from interpreter*/
     tc->enables = enables;

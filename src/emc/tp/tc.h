@@ -81,7 +81,7 @@ int tcInit(TC_STRUCT * const tc,
         int canon_motion_type,
         double cycle_time,
         unsigned char enables,
-        int atspeed);
+        char atspeed);
 
 int tcSetupFromTP(TC_STRUCT * const tc, TP_STRUCT const * const tp);
 
