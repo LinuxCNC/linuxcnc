@@ -2561,12 +2561,10 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
 
     // Test if we need ramping or trapezoidal acceleration for this move
     // FIXME: move this to INI setting
-    const double cutoff_freq = 10.0; //Hz
-    double cutoff_time = 1.0 / (cutoff_freq);
+    double cutoff_time = 1.0 / (emcmotConfig->arcBlendRampFreq);
 
-    double length = (tc->target-tc->progress);
+    double length = tc->target - tc->progress;
     double segment_time = 2.0 * length / (tc->currentvel + tc->finalvel);
-    /*double segment_cycles = segment_time / tp->cycle_time;*/
 
     if (segment_time < cutoff_time &&
             tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE &&
