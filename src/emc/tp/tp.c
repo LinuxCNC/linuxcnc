@@ -666,6 +666,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp, TC_STRUCT const * 
     double length;
     arcLength(&blend_tc->coords.arc.xyz, &length);
     blend_tc->target = length;
+    blend_tc->nominal_length = length;
 
     // Set the blend arc to be tangent to the next segment
     tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
@@ -849,7 +850,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     //Cleanup any mess from parabolic
     tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     //TODO refactor to pass consume to connect function
     if (param.consume) {
@@ -863,6 +863,8 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         tcSetLineXYZ(prev_tc, &line1_temp);
     }
     tcSetCircleXYZ(tc, &circ2_temp);
+
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     return TP_ERR_OK;
 }
@@ -1242,10 +1244,10 @@ STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
     }
-    if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE) ||
-            (prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
+    if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
+            (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
         tp_debug_print("Can't blend between rapid and feed move, aborting arc\n");
-        tcSetTermCond(prev_tc,TC_TERM_COND_STOP);
+        tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
 }
