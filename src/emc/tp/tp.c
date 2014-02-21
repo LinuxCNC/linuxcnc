@@ -1280,7 +1280,7 @@ int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxv
         return TP_ERR_FAIL;
     }
 
-    TC_STRUCT tc;
+    TC_STRUCT tc = {0};
 
     /* Initialize rigid tap move.
      * NOTE: rigid tapping does not have a canonical type.
@@ -1600,7 +1600,7 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_OK;
     }
 
-    TC_STRUCT blend_tc;
+    TC_STRUCT blend_tc = {0};
 
     blend_type_t type = tpCheckBlendArcType(tp, prev_tc, tc);
     int res_create;
@@ -1649,7 +1649,7 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
     tp_info_print("== AddLine ==\n");
 
     // Initialize new tc struct for the line segment
-    TC_STRUCT tc;
+    TC_STRUCT tc = {0};
     tcInit(&tc,
             TC_LINEAR,
             canon_motion_type,
@@ -1739,7 +1739,7 @@ int tpAddCircle(TP_STRUCT * const tp,
 
     tp_info_print("== AddCircle ==\n");
 
-    TC_STRUCT tc;
+    TC_STRUCT tc = {0};
 
     tcInit(&tc,
             TC_CIRCULAR,
