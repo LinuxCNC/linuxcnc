@@ -761,6 +761,11 @@ class Gscreen:
         self.keylookup.add_binding('Page_Down', self.prefs.getpref('Key_Page_Down', 'ZNEG', str,"KEYCODES"))
         self.keylookup.add_binding('bracketleft', self.prefs.getpref('Key_bracketleft', 'APOS', str,"KEYCODES"))
         self.keylookup.add_binding('bracketright', self.prefs.getpref('Key_bracketright', 'ANEG', str,"KEYCODES"))
+        self.keylookup.add_binding('i', self.prefs.getpref('Key_i', 'INCREMENTS', str,"KEYCODES"))
+        self.keylookup.add_binding('I', self.prefs.getpref('Key_I', 'INCREMENTS', str,"KEYCODES"))
+        self.keylookup.add_binding('F1', self.prefs.getpref('Key_F1', 'ESTOP', str,"KEYCODES"))
+        self.keylookup.add_binding('F2', self.prefs.getpref('Key_F2', 'POWER', str,"KEYCODES"))
+        self.keylookup.add_binding('Escape', self.prefs.getpref('Key_Escape', 'ABORT', str,"KEYCODES"))
 
     def init_general_pref(self):
         self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
