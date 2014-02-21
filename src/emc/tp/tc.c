@@ -402,4 +402,267 @@ int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
 }
 
 
+/**
+ * Check for early stop conditions.
+ * If a variety of conditions are true, then we can't do blending as we expect.
+ * This function checks for any conditions that force us to stop on the current
+ * segment. This is different from pausing or aborting, which can happen any
+ * time.
+ */
+int tcFlagEarlyStop(TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc)
+{
 
+    if (!tc || !nexttc) {
+        return TP_ERR_NO_ACTION;
+    }
+
+    if(tc->synchronized != TC_SYNC_POSITION && nexttc->synchronized == TC_SYNC_POSITION) {
+        // we'll have to wait for spindle sync; might as well
+        // stop at the right place (don't blend)
+        tc_debug_print("waiting on spindle sync for tc %d\n", tc->id);
+        tcSetTermCond(tc, TC_TERM_COND_STOP);
+    }
+
+    if(nexttc->atspeed) {
+        // we'll have to wait for the spindle to be at-speed; might as well
+        // stop at the right place (don't blend), like above
+        // FIXME change the values so that 0 is exact stop mode
+        tc_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
+        tcSetTermCond(tc, TC_TERM_COND_STOP);
+    }
+
+    return TP_ERR_OK;
+}
+
+double pmLine9Target(PmLine9 * const line9)
+{
+    if (!line9->xyz.tmag_zero) {
+        return line9->xyz.tmag;
+    } else if (!line9->uvw.tmag_zero) {
+        return line9->uvw.tmag;
+    } else if (!line9->abc.tmag_zero) {
+        return line9->abc.tmag;
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR,"line can't have zero length!\n");
+        //FIXME yet it does return zero...
+        return 0;
+    }
+}
+
+
+/**
+ * Initialize a new trajectory segment with common parameters.
+ */
+int tcInit(TC_STRUCT * const tc,
+        int motion_type,
+        int canon_motion_type,
+        double cycle_time,
+        unsigned char enables,
+        int atspeed)
+{
+
+
+    /** Motion type setup */
+    tc->motion_type = motion_type;
+    tc->canon_motion_type = canon_motion_type;
+
+    /** Segment settings passed down from interpreter*/
+    tc->enables = enables;
+    tc->cycle_time = cycle_time;
+
+    tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
+
+    /** Segment settings (given values later during setup / optimization) */
+    tc->nominal_length = 0;
+    tc->blend_prev = 0;
+    tc->optimization_state = 0;
+    tc->finalvel = 0.0;
+    tc->accel_mode = TC_ACCEL_TRAPZ;
+    tc->indexrotary = -1;
+
+    /** Segment status flags that are used during trajectory execution. */
+    tc->active = 0;
+    tc->progress = 0.0;
+    //TODO move this somewhere else, the init should happen first before the target is defined
+    /*tc->nominal_length = tc->target;*/
+
+    tc->sync_accel = 0;
+    tc->currentvel = 0.0;
+
+    tc->vel_at_blend_start = 0.0;
+    tc->term_vel = 0.0;
+    tc->blend_vel = 0.0;
+    tc->blending_next = 0;
+    tc->on_final_decel = 0;
+
+    tc->splitting = 0;
+    tc->remove = 0;
+    tc->active_depth = 1;
+
+    tc->finalized = 0;
+
+    return TP_ERR_OK;
+}
+
+
+/**
+ * Set kinematic properties for a trajectory segment.
+ */
+int tcSetupMotion(TC_STRUCT * const tc,
+        double vel,
+        double ini_maxvel,
+        double acc)
+{
+
+    tc->maxaccel = acc;
+
+    tc->maxvel = ini_maxvel;
+
+    tc->reqvel = vel;
+    // Initial guess at target velocity is just the requested velocity
+    tc->target_vel = vel;
+
+    return TP_ERR_OK;
+}
+
+
+int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp)
+{
+    tcSetTermCond(tc, tp->termCond);
+    tc->tolerance = tp->tolerance;
+    tc->synchronized = tp->synchronized;
+    tc->uu_per_rev = tp->uu_per_rev;
+    return TP_ERR_OK;
+}
+
+int pmLine9Init(PmLine9 * const line9,
+        EmcPose const * const start,
+        EmcPose const * const end)
+{
+    // Scratch variables
+    PmCartesian start_xyz, end_xyz;
+    PmCartesian start_uvw, end_uvw;
+    PmCartesian start_abc, end_abc;
+
+    // Convert endpoint to cartesian representation
+    emcPoseToPmCartesian(start, &start_xyz, &start_abc, &start_uvw);
+    emcPoseToPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
+
+    // Initialize cartesian line members
+    int xyz_fail = pmCartLineInit(&line9->xyz, &start_xyz, &end_xyz);
+    int abc_fail = pmCartLineInit(&line9->abc, &start_abc, &end_abc);
+    int uvw_fail = pmCartLineInit(&line9->uvw, &start_uvw, &end_uvw);
+
+    if (xyz_fail || abc_fail || uvw_fail) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Line9, err codes %d, %d, %d\n",
+                xyz_fail,abc_fail,uvw_fail);
+        return TP_ERR_FAIL;
+    }
+    return TP_ERR_OK;
+}
+
+int pmCircle9Init(PmCircle9 * const circ9,
+        EmcPose const * const start,
+        EmcPose const * const end,
+        PmCartesian const * const center,
+        PmCartesian const * const normal,
+        int turn)
+{
+    PmCartesian start_xyz, end_xyz;
+    PmCartesian start_uvw, end_uvw;
+    PmCartesian start_abc, end_abc;
+
+    emcPoseToPmCartesian(start, &start_xyz, &start_abc, &start_uvw);
+    emcPoseToPmCartesian(end, &end_xyz, &end_abc, &end_uvw);
+
+    int xyz_fail = pmCircleInit(&circ9->xyz, &start_xyz, &end_xyz, center, normal, turn);
+    //Initialize line parts of Circle9
+    int abc_fail = pmCartLineInit(&circ9->abc, &start_abc, &end_abc);
+    int uvw_fail = pmCartLineInit(&circ9->uvw, &start_uvw, &end_uvw);
+
+    if (xyz_fail || abc_fail || uvw_fail) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
+                xyz_fail, abc_fail, uvw_fail);
+        return TP_ERR_FAIL;
+    }
+    return TP_ERR_OK;
+}
+
+double pmCircle9Target(PmCircle9 const * const circ9)
+{
+
+    double helix_z_component;   // z of the helix's cylindrical coord system
+    double helix_length;
+
+    pmCartMag(&circ9->xyz.rHelix, &helix_z_component);
+    double planar_arc_length = circ9->xyz.angle * circ9->xyz.radius;
+    helix_length = pmSqrt(pmSq(planar_arc_length) +
+            pmSq(helix_z_component));
+    return helix_length;
+}
+
+/**
+ * "Finalizes" a segment so that its length can't change.
+ * By setting the finalized flag, we tell the optimizer that this segment's
+ * length won't change anymore. Since any blends are already set up, we can
+ * trust that the length will be the same, and so can use the length in the
+ * velocity optimization.
+ */
+int tcFinalizeLength(TC_STRUCT * const tc)
+{
+    //Apply velocity corrections
+    if (!tc) {
+        tp_debug_print("Missing prev_tc in finalize!\n");
+        return TP_ERR_FAIL;
+    }
+
+    if (tc->finalized) {
+        tp_debug_print("tc %d already finalized\n", tc->id);
+        return TP_ERR_NO_ACTION;
+    }
+
+    tp_debug_print("Finalizing tc id %d, type %d\n", tc->id, tc->motion_type);
+    //TODO function to check for parabolic?
+    int parabolic = (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC);
+    tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
+
+    if (tc->motion_type == TC_CIRCULAR && parabolic) {
+        tp_debug_print("Setting parabolic maxvel\n");
+        //TODO make this 0.5 a constant
+        tc->maxvel *= pmSqrt(0.5);
+    }
+    tc->finalized = 1;
+    return TP_ERR_OK;
+}
+
+int pmRigidTapInit(PmRigidTap * const tap,
+        EmcPose const * const start,
+        EmcPose const * const end)
+{
+    PmCartesian start_xyz, end_xyz;
+    PmCartesian abc, uvw;
+
+    //Slightly more allocation this way, but much easier to read
+    emcPoseToPmCartesian(start, &start_xyz, &abc, &uvw);
+    emcPoseGetXYZ(end, &end_xyz);
+
+    // Setup XYZ motion
+    pmCartLineInit(&tap->xyz, &start_xyz, &end_xyz);
+
+    // Copy over fixed ABC and UVW points
+    tap->abc = abc;
+    tap->uvw = uvw;
+
+    // Setup initial tap state
+    tap->reversal_target = tap->xyz.tmag;
+    tap->state = TAPPING;
+    return TP_ERR_OK;
+
+}
+
+int pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
+{
+    // allow 10 turns of the spindle to stop - we don't want to just go on forever
+    return tap->xyz.tmag + 10. * uu_per_rev;
+}
