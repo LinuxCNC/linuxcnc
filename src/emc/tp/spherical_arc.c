@@ -13,6 +13,7 @@
 
 #include "posemath.h"
 #include "spherical_arc.h"
+#include "tp_types.h"
 #include "rtapi_math.h"
 
 #include "tp_debug.h"
@@ -23,10 +24,10 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
 {
 #ifdef ARC_PEDANTIC
     if (!P0 || !P1 || !center) {
-        return ARC_ERR_MISSING_INPUT;
+        return TP_ERR_MISSING_INPUT;
     
     if (!arc) {
-        return ARC_ERR_MISSING_OUTPUT;
+        return TP_ERR_MISSING_OUTPUT;
     }
 #endif
 
@@ -50,7 +51,7 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     if (radius0 < ARC_MIN_RADIUS || radius1 < ARC_MIN_RADIUS) {
         tp_debug_print("radius below min radius %f, aborting arc\n",
                 ARC_MIN_RADIUS);
-        return ARC_ERR_RADIUS;
+        return TP_ERR_RADIUS;
     }
 
     // Choose initial radius as nominal radius
@@ -74,13 +75,13 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
         tp_debug_print("angle %f below min angle %f, aborting arc\n",
                 arc->angle,
                 ARC_MIN_ANGLE);
-        return ARC_ERR_GEOM;
+        return TP_ERR_GEOM;
     }
 
     // Store sin of arc angle since it is reused many times for SLERP
     arc->Sangle = sin(arc->angle);
 
-    return ARC_ERR_OK;
+    return TP_ERR_OK;
 }
 
 int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * const out)
@@ -107,14 +108,14 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
         pmCartCartAdd(&interp0, &interp1, out);
         pmCartCartAdd(&arc->center, out, out);
     }
-    return ARC_ERR_OK;
+    return TP_ERR_OK;
 }
 
 int arcLength(SphericalArc const * const arc, double * const length)
 {
     *length = arc->radius * arc->angle + arc->line_length;
     tp_debug_print("arc length = %g\n", *length);
-    return ARC_ERR_OK;
+    return TP_ERR_OK;
 }
 
 int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
@@ -197,5 +198,5 @@ int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_e
     pmCartCartAdd(&d_perp, &r_tan, tan);
     pmCartUnitEq(tan);
 
-    return ARC_ERR_OK;
+    return TP_ERR_OK;
 }

@@ -21,20 +21,24 @@
 #include "emcmotcfg.h"
 
 /* values for endFlag */
-#define TC_TERM_COND_STOP 1
-#define TC_TERM_COND_PARABOLIC 2
-#define TC_TERM_COND_TANGENT 3
+typedef enum {
+    TC_TERM_COND_STOP = 1,
+    TC_TERM_COND_PARABOLIC = 2,
+    TC_TERM_COND_TANGENT = 3
+} tc_term_cond_t;
 
-#define TC_LINEAR 1
-#define TC_CIRCULAR 2
-#define TC_RIGIDTAP 3
-#define TC_SPHERICAL 4
+typedef enum {
+    TC_LINEAR = 1,
+    TC_CIRCULAR = 2,
+    TC_RIGIDTAP = 3,
+    TC_SPHERICAL = 4
+} tc_motion_type_t;
 
 typedef enum {
     TC_SYNC_NONE = 0,
     TC_SYNC_VELOCITY,
     TC_SYNC_POSITION
-} SPINDLE_SYNC_STATE;
+} tc_spindle_sync_t;
 
 #define TC_GET_PROGRESS 0
 #define TC_GET_STARTPOINT 1
