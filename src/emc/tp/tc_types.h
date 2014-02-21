@@ -30,9 +30,11 @@
 #define TC_RIGIDTAP 3
 #define TC_SPHERICAL 4
 
-#define TC_SYNC_NONE 0
-#define TC_SYNC_VELOCITY 1
-#define TC_SYNC_POSITION 2
+typedef enum {
+    TC_SYNC_NONE = 0,
+    TC_SYNC_VELOCITY,
+    TC_SYNC_POSITION
+} SPINDLE_SYNC_STATE;
 
 #define TC_GET_PROGRESS 0
 #define TC_GET_STARTPOINT 1

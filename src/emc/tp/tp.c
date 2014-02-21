@@ -597,61 +597,6 @@ int tpErrorCheck(TP_STRUCT const * const tp) {
 
 
 /**
- * Initialize a new queue segment with common parameters.
- * This function is mostly to save space in the tpAddXXX functions, since they
- * get pretty long. If you need a custom setting, overwrite your particular
- * field after calling this function.
- */
-STATIC inline int tpInitializeNewSegment(TP_STRUCT const * const tp,
-        TC_STRUCT * const tc, double vel, double ini_maxvel, double acc,
-        unsigned char enables) {
-
-    /** Segment settings passed down from interpreter*/
-    tc->enables = enables;
-    tc->cycle_time = tp->cycleTime;
-
-    tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
-
-    tc->maxaccel = acc;
-
-    //Always clamp max velocity by sample rate, since we require TP to hit every segment at least once.
-    tc->maxvel = ini_maxvel;
-
-    tc->reqvel = vel;
-    tc->target_vel = vel;
-
-    /** Segment settings (given values during setup optimization) */
-    tc->blend_prev = 0;
-    tc->optimization_state = 0;
-    tc->finalvel = 0.0;
-    tc->accel_mode = TC_ACCEL_TRAPZ;
-
-    /** Segment status flags that are used during trajectory execution. */
-    tc->active = 0;
-
-    tc->progress = 0.0;
-    tc->nominal_length = tc->target;
-
-    tc->sync_accel = 0;
-    tc->currentvel = 0.0;
-
-    tc->vel_at_blend_start = 0.0;
-    tc->term_vel = 0.0;
-    tc->blend_vel = 0.0;
-    tc->blending_next = 0;
-    tc->on_final_decel = 0;
-
-    tc->splitting = 0;
-    tc->remove = 0;
-    tc->active_depth = 1;
-
-    tc->finalized = 0;
-
-    return TP_ERR_OK;
-}
-
-
-/**
  * Find the "peak" velocity a segment can acheive if its velocity profile is triangular.
  * This is used to estimate blend velocity, though by itself is not enough
  * (since requested velocity and max velocity could be lower).
@@ -691,72 +636,45 @@ STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCarte
 STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp, TC_STRUCT const * const prev_line_tc,
         TC_STRUCT* const blend_tc, double vel, double ini_maxvel, double acc) {
 
-    if (tpErrorCheck(tp)<0) return TP_ERR_FAIL;
-
-    // Treating arc as extension of prev_line_tc
-    blend_tc->atspeed = prev_line_tc->atspeed;
-
-    blend_tc->motion_type = TC_SPHERICAL;
 
 #ifdef TP_SHOW_BLENDS
-    blend_tc->canon_motion_type = EMC_MOTION_TYPE_ARC;
+    int canon_motion_type = EMC_MOTION_TYPE_ARC;
 #else
-    blend_tc->canon_motion_type = prev_line_tc->canon_motion_type;
+    int canon_motion_type = prev_line_tc->canon_motion_type;
 #endif
 
-    blend_tc->synchronized = prev_line_tc->synchronized;
-    blend_tc->uu_per_rev = prev_line_tc->uu_per_rev;
-    blend_tc->indexrotary = -1;
-    blend_tc->enables = prev_line_tc->enables;
+    tcInit(blend_tc,
+            TC_SPHERICAL,
+            canon_motion_type,
+            tp->cycleTime,
+            prev_line_tc->enables,
+            prev_line_tc->atspeed);
 
+    // Copy over state data from TP
+    tcSetupState(blend_tc, tp);
+    
+    // Set kinematics parameters from blend calculations
+    tcSetupMotion(blend_tc,
+            vel,
+            ini_maxvel,
+            acc);
+
+    // Skip syncdio setup since this blend extends the previous line
     blend_tc->syncdio = prev_line_tc->syncdio; //enqueue the list of DIOs that need toggling
 
-    if (tpErrorCheck(tp)<0){
-        return TP_ERR_FAIL;
-    }
-
-    // find "helix" length
+    // find "helix" length for target
     double length;
     arcLength(&blend_tc->coords.arc.xyz, &length);
     blend_tc->target = length;
-    //Blend arc specific settings:
-    tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
-    blend_tc->tolerance = 0.0;
+    blend_tc->nominal_length = length;
 
-    //KLUDGE this init function is a bit overkill now...
-    tpInitializeNewSegment(tp, blend_tc, vel, ini_maxvel, acc, prev_line_tc->enables);
+    // Set the blend arc to be tangent to the next segment
+    tcSetTermCond(blend_tc, TC_TERM_COND_TANGENT);
+
     //NOTE: blend arc radius and everything else is finalized, so set this to 1.
     //In the future, radius may be adjustable.
-    blend_tc->finalized = 1;
+    tcFinalizeLength(blend_tc);
 
-    return TP_ERR_OK;
-}
-
-
-/**
- * "Finalizes" a segment so that its length can't change.
- * By setting the finalized flag, we tell the optimizer that this segment's
- * length won't change anymore. Since any blends are already set up, we can
- * trust that the length will be the same, and so can use the length in the
- * velocity optimization.
- */
-STATIC int tpFinalizeSegmentLength(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
-    //Apply velocity corrections
-    if (!tc) {
-        tp_debug_print("Missing prev_tc in finalize!\n");
-        return TP_ERR_FAIL;
-    }
-    tp_debug_print("Finalizing tc id %d, type %d\n", tc->id, tc->motion_type);
-    //TODO function to check for parabolic?
-    int parabolic = (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC);
-    tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
-
-    if (tc->motion_type == TC_CIRCULAR && parabolic) {
-        tp_debug_print("Setting parabolic maxvel\n");
-        //TODO make this 0.5 a constant
-        tc->maxvel *= pmSqrt(0.5);
-    }
-    tc->finalized = 1;
     return TP_ERR_OK;
 }
 
@@ -932,7 +850,6 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
 
     //Cleanup any mess from parabolic
     tc->blend_prev = 0;
-    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     //TODO refactor to pass consume to connect function
     if (param.consume) {
@@ -946,6 +863,8 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
         tcSetLineXYZ(prev_tc, &line1_temp);
     }
     tcSetCircleXYZ(tc, &circ2_temp);
+
+    tcSetTermCond(prev_tc, TC_TERM_COND_TANGENT);
 
     return TP_ERR_OK;
 }
@@ -1325,70 +1244,78 @@ STATIC int tpCheckCanonType(TC_STRUCT * const prev_tc, TC_STRUCT const * const t
     if (!tc || !prev_tc) {
         return TP_ERR_FAIL;
     }
-    if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE) ||
-            (prev_tc->canon_motion_type != EMC_MOTION_TYPE_TRAVERSE && tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
+    if ((prev_tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE) ^
+            (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE)) {
         tp_debug_print("Can't blend between rapid and feed move, aborting arc\n");
-        tcSetTermCond(prev_tc,TC_TERM_COND_STOP);
+        tcSetTermCond(prev_tc, TC_TERM_COND_STOP);
     }
     return TP_ERR_OK;
 }
+
+STATIC int tpSetupSyncedIO(TP_STRUCT * const tp, TC_STRUCT * const tc) {
+    if (tp->syncdio.anychanged != 0) {
+        tc->syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
+        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
+        return TP_ERR_OK;
+    } else {
+        tc->syncdio.anychanged = 0;
+        return TP_ERR_NO_ACTION;
+    }
+}
+
 
 /**
  * Adds a rigid tap cycle to the motion queue.
  */
 int tpAddRigidTap(TP_STRUCT * const tp, EmcPose end, double vel, double ini_maxvel,
         double acc, unsigned char enables) {
-    TC_STRUCT tc, *prev_tc;
-    PmCartLine line_xyz;
-    PmCartesian start_xyz, end_xyz;
-    PmCartesian abc, uvw;
+    if (tpErrorCheck(tp)) {
+        return TP_ERR_FAIL;
+    }
 
-    if (tpErrorCheck(tp)) return TP_ERR_FAIL;
     tp_info_print("== AddRigidTap ==\n");
-
-    //Slightly more allocation this way, but much easier to read
-    emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &abc, &uvw);
-    emcPoseGetXYZ(&end, &end_xyz);
-
-    pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
-
-    tc.coords.rigidtap.reversal_target = line_xyz.tmag;
-
-    // allow 10 turns of the spindle to stop - we don't want to just go on forever
-    tc.target = line_xyz.tmag + 10. * tp->uu_per_rev;
-
-    tc.atspeed = 1;
-
-    tc.coords.rigidtap.xyz = line_xyz;
-    tc.coords.rigidtap.abc = abc;
-    tc.coords.rigidtap.uvw = uvw;
-    tc.coords.rigidtap.state = TAPPING;
-    tc.motion_type = TC_RIGIDTAP;
-    tc.canon_motion_type = 0;
-    tc.term_cond = 0;
-    tc.tolerance = tp->tolerance;
 
     if(!tp->synchronized) {
         rtapi_print_msg(RTAPI_MSG_ERR, "Cannot add unsynchronized rigid tap move.\n");
         return TP_ERR_FAIL;
     }
-    tc.synchronized = tp->synchronized;
 
-    tc.uu_per_rev = tp->uu_per_rev;
-    tc.indexrotary = -1;
+    TC_STRUCT tc;
 
-    if (tp->syncdio.anychanged != 0) {
-        tc.syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
-    } else {
-        tc.syncdio.anychanged = 0;
-    }
+    /* Initialize rigid tap move.
+     * NOTE: rigid tapping does not have a canonical type.
+     * NOTE: always need atspeed since this is a synchronized movement.
+     * */
+    tcInit(&tc,
+            TC_RIGIDTAP,
+            0,
+            tp->cycleTime,
+            enables,
+            1);
 
-    tpInitializeNewSegment(tp,&tc,vel,ini_maxvel,acc,enables);
+    // Setup any synced IO for this move
+    tpSetupSyncedIO(tp, &tc);
 
+    // Copy over state data from the trajectory planner
+    tcSetupState(&tc, tp);
+
+    // Copy in motion parameters
+    tcSetupMotion(&tc,
+            vel,
+            ini_maxvel,
+            acc);
+
+    // Setup rigid tap geometry
+    pmRigidTapInit(&tc.coords.rigidtap,
+            &tp->goalPos,
+            &end);
+    tc.target = pmRigidTapTarget(&tc.coords.rigidtap, tp->uu_per_rev);
+
+    TC_STRUCT *prev_tc;
     //Assume non-zero error code is failure
     prev_tc = tcqLast(&tp->queue);
-    tpFinalizeSegmentLength(tp, prev_tc);
+    tcFinalizeLength(prev_tc);
+    tcFlagEarlyStop(prev_tc, &tc);
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     tpRunOptimization(tp);
     return retval;
@@ -1706,77 +1633,62 @@ STATIC int tpHandleBlendArc(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     return TP_ERR_OK;
 }
 
+//TODO final setup steps as separate functions
+//
 /**
  * Add a straight line to the tc queue.
  * end of the previous move to the new end specified here at the
  * currently-active accel and vel settings from the tp struct.
  */
-int tpAddLine(TP_STRUCT * const tp, EmcPose end, int type, double vel, double
+int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double vel, double
         ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary) {
-    TC_STRUCT tc, *prev_tc;
-    PmCartLine line_xyz, line_uvw, line_abc;
-    PmCartesian start_xyz, end_xyz;
-    PmCartesian start_uvw, end_uvw;
-    PmCartesian start_abc, end_abc;
 
-    if (tpErrorCheck(tp)<0) {
+    if (tpErrorCheck(tp) < 0) {
         return TP_ERR_FAIL;
     }
     tp_info_print("== AddLine ==\n");
 
-    emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    emcPoseToPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
+    // Initialize new tc struct for the line segment
+    TC_STRUCT tc;
+    tcInit(&tc,
+            TC_LINEAR,
+            canon_motion_type,
+            tp->cycleTime,
+            enables,
+            atspeed);
 
-    int xyz_fail = pmCartLineInit(&line_xyz, &start_xyz, &end_xyz);
-    int abc_fail = pmCartLineInit(&line_abc, &start_abc, &end_abc);
-    int uvw_fail = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    // Copy in motion parameters
+    tcSetupMotion(&tc,
+            vel,
+            ini_maxvel,
+            acc);
 
-    if (xyz_fail || abc_fail || uvw_fail) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Line9, err codes %d, %d, %d\n",
-                xyz_fail,abc_fail,uvw_fail);
-        return TP_ERR_FAIL;
-    }
+    // Setup any synced IO for this move
+    tpSetupSyncedIO(tp, &tc);
 
-    if (!line_xyz.tmag_zero) {
-        tc.target = line_xyz.tmag;
-    } else if (!line_uvw.tmag_zero) {
-        tc.target = line_uvw.tmag;
-    } else {
-        tc.target = line_abc.tmag;
-    }
+    // Copy over state data from the trajectory planner
+    tcSetupState(&tc, tp);
 
-    tc.atspeed = atspeed;
+    // Setup line geometry
+    pmLine9Init(&tc.coords.line,
+            &tp->goalPos,
+            &end);
+    tc.target = pmLine9Target(&tc.coords.line);
+    tc.nominal_length = tc.target;
 
-    tc.coords.line.xyz = line_xyz;
-    tc.coords.line.uvw = line_uvw;
-    tc.coords.line.abc = line_abc;
-    tc.motion_type = TC_LINEAR;
-    tc.canon_motion_type = type;
-
-    tc.term_cond = tp->termCond;
-
-    tc.tolerance = tp->tolerance;
-    tc.synchronized = tp->synchronized;
-    tc.uu_per_rev = tp->uu_per_rev;
+    // For linear move, set rotary axis settings 
     tc.indexrotary = indexrotary;
 
-    if (tp->syncdio.anychanged != 0) {
-        tc.syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
-    } else {
-        tc.syncdio.anychanged = 0;
-    }
-
-    tpInitializeNewSegment(tp, &tc, vel, ini_maxvel, acc, enables);
-
+    //TODO refactor this into its own function
+    TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
     tpCheckCanonType(prev_tc, &tc);
     if (emcmotConfig->arcBlendEnable){
-        //TODO add check for two spaces in queue?
         tpHandleBlendArc(tp, &tc);
     }
     tcCheckLastParabolic(&tc, prev_tc);
-    tpFinalizeSegmentLength(tp, prev_tc);
+    tcFinalizeLength(prev_tc);
+    tcFlagEarlyStop(prev_tc, &tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
     //Run speed optimization (will abort safely if there are no tangent segments)
@@ -1809,69 +1721,56 @@ STATIC double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double
  * degenerate arcs/circles are not allowed. We are guaranteed to have a move in
  * xyz so the target is always the circle/arc/helical length.
  */
-int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
-        PmCartesian center, PmCartesian normal, int turn, int type,
-        double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
+int tpAddCircle(TP_STRUCT * const tp,
+        EmcPose end,
+        PmCartesian center,
+        PmCartesian normal,
+        int turn,
+        int canon_motion_type,
+        double vel,
+        double ini_maxvel,
+        double acc,
+        unsigned char enables,
+        char atspeed)
 {
-    tp_info_print("== AddCircle ==\n");
-    TC_STRUCT tc;
-    PmCircle circle;
-    //TODO replace these placeholder variables with pointers to TC fields
-    PmCartLine line_uvw, line_abc;
-    PmCartesian start_xyz, end_xyz;
-    PmCartesian start_uvw, end_uvw;
-    PmCartesian start_abc, end_abc;
-    double helix_z_component;   // z of the helix's cylindrical coord system
-    double helix_length;
-
     if (tpErrorCheck(tp)<0) {
         return TP_ERR_FAIL;
     }
 
-    emcPoseToPmCartesian(&(tp->goalPos), &start_xyz, &start_abc, &start_uvw);
-    emcPoseToPmCartesian(&end, &end_xyz, &end_abc, &end_uvw);
+    tp_info_print("== AddCircle ==\n");
 
-    int xyz_fail = pmCircleInit(&circle, &start_xyz, &end_xyz, &center, &normal, turn);
-    int abc_fail = pmCartLineInit(&line_abc, &start_abc, &end_abc);
-    int uvw_fail = pmCartLineInit(&line_uvw, &start_uvw, &end_uvw);
+    TC_STRUCT tc;
 
-    if (xyz_fail || abc_fail || uvw_fail) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Failed to initialize Circle9, err codes %d, %d, %d\n",
-                xyz_fail, abc_fail, uvw_fail);
-        return TP_ERR_FAIL;
-    }
+    tcInit(&tc,
+            TC_CIRCULAR,
+            canon_motion_type,
+            tp->cycleTime,
+            enables,
+            atspeed);
+    // Setup any synced IO for this move
+    tpSetupSyncedIO(tp, &tc);
 
-    // find helix length
-    pmCartMag(&circle.rHelix, &helix_z_component);
-    helix_length = pmSqrt(pmSq(circle.angle * circle.radius) +
-            pmSq(helix_z_component));
+    // Copy over state data from the trajectory planner
+    tcSetupState(&tc, tp);
 
-    tc.target = helix_length;
-    tc.atspeed = atspeed;
+    // Setup circle geometry
+    pmCircle9Init(&tc.coords.circle,
+            &tp->goalPos,
+            &end,
+            &center,
+            &normal,
+            turn);
 
-    tc.coords.circle.xyz = circle;
-    tc.coords.circle.uvw = line_uvw;
-    tc.coords.circle.abc = line_abc;
-    tc.canon_motion_type = type;
-    tc.tolerance = tp->tolerance;
-
-    tc.synchronized = tp->synchronized;
-    tc.uu_per_rev = tp->uu_per_rev;
-    tc.indexrotary = -1;
-
-    if (tp->syncdio.anychanged != 0) {
-        tc.syncdio = tp->syncdio; //enqueue the list of DIOs that need toggling
-        tpClearDIOs(tp); // clear out the list, in order to prepare for the next time we need to use it
-    } else {
-        tc.syncdio.anychanged = 0;
-    }
-
-    // Motion parameters
-    tc.motion_type = TC_CIRCULAR;
-    tc.term_cond = tp->termCond;
+    tc.target = pmCircle9Target(&tc.coords.circle);
+    tc.nominal_length = tc.target;
 
     double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc);
-    tpInitializeNewSegment(tp, &tc, vel, v_max_actual, acc, enables);
+
+    // Copy in motion parameters
+    tcSetupMotion(&tc,
+            vel,
+            v_max_actual,
+            acc);
 
     TC_STRUCT *prev_tc;
     prev_tc = tcqLast(&tp->queue);
@@ -1881,7 +1780,8 @@ int tpAddCircle(TP_STRUCT * const tp, EmcPose end,
         tpHandleBlendArc(tp, &tc);
     }
     tcCheckLastParabolic(&tc, prev_tc);
-    tpFinalizeSegmentLength(tp, prev_tc);
+    tcFinalizeLength(prev_tc);
+    tcFlagEarlyStop(prev_tc, &tc);
 
     int retval = tpAddSegmentToQueue(tp, &tc, true);
 
@@ -2496,16 +2396,16 @@ STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  * functions will detect that the prev. line is finalized and skip that blend
  * arc.
  */
-STATIC int tpForceFinalizeSegment(TP_STRUCT * const tp,
-        TC_STRUCT * const tc) {
+STATIC int tpHandleLowQueue(TP_STRUCT * const tp) {
 
-    if (!tc) {
+    if (tcqLen(&tp->queue) > TP_QUEUE_THRESHOLD) {
         return TP_ERR_NO_ACTION;
     }
 
-    if(tc->finalized == 0) {
-        //The next segment is not finalized, but if we've reached it, it means it won't change.
-        tc->finalized = 1;
+    TC_STRUCT *tc_last;
+    tc_last = tcqLast(&tp->queue);
+
+    if(TP_ERR_OK == tcFinalizeLength(tc_last)) {
         tpRunOptimization(tp);
         return TP_ERR_OK;
     } else {
@@ -2513,39 +2413,6 @@ STATIC int tpForceFinalizeSegment(TP_STRUCT * const tp,
     }
 
 }
-
-/**
- * Check for early stop conditions.
- * If a variety of conditions are true, then we can't do blending as we expect.
- * This function checks for any conditions that force us to stop on the current
- * segment. This is different from pausing or aborting, which can happen any
- * time.
- */
-STATIC int tpFlagEarlyStop(TP_STRUCT * const tp,
-        TC_STRUCT * const tc, TC_STRUCT * const nexttc) {
-
-    if (!tc || !nexttc) {
-        return TP_ERR_NO_ACTION;
-    }
-
-    if(tc->synchronized != TC_SYNC_POSITION && nexttc->synchronized == TC_SYNC_POSITION) {
-        // we'll have to wait for spindle sync; might as well
-        // stop at the right place (don't blend)
-        tc_debug_print("waiting on spindle sync for tc %d\n", tc->id);
-        tcSetTermCond(tc, TC_TERM_COND_STOP);
-    }
-
-    if(nexttc->atspeed) {
-        // we'll have to wait for the spindle to be at-speed; might as well
-        // stop at the right place (don't blend), like above
-        // FIXME change the values so that 0 is exact stop mode
-        tc_debug_print("waiting on spindle atspeed for tc %d\n", tc->id);
-        tcSetTermCond(tc, TC_TERM_COND_STOP);
-    }
-
-    return TP_ERR_OK;
-}
-
 
 /**
  * "Activate" a segment being read for the first time.
@@ -3040,14 +2907,12 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     //Pointers to current and next trajectory component
     TC_STRUCT *tc;
     TC_STRUCT *nexttc;
-    TC_STRUCT * next2_tc;
 
     /* Get pointers to current and relevant future segments. It's ok here if
      * future segments don't exist (NULL pointers) as we check for this later).
      */
     tc = tcqItem(&tp->queue, 0);
     nexttc = tcqItem(&tp->queue, 1);
-    next2_tc = tcqItem(&tp->queue, 2);
 
     //Set GUI status to "zero" state
     tpUpdateInitialStatus(tp);
@@ -3066,15 +2931,13 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     time_elapsed+=tp->cycleTime;
 #endif
 
-    //Check if we need to stop after this segment due to synchronization with
-    //spindle or other conditions
-    tpFlagEarlyStop(tp, tc, nexttc);
-    tpFlagEarlyStop(tp, nexttc, next2_tc);
+    /* If the queue empties enough, assume that the program is near the end.
+     * This forces the last segment to be "finalized" to let the optimizer run.*/
+    tpHandleLowQueue(tp);
 
-    //If the segment after next is the last in the queue, then assume we're at the end of the program and run the optimizer over it
-    tpForceFinalizeSegment(tp, next2_tc);
-
-    if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
+    /* If we're aborting or pausing and the velocity has reached zero, then we
+     * don't need additional planning and can abort here. */
+        if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
         return TP_ERR_STOPPED;
     }
 
@@ -3083,7 +2946,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         return TP_ERR_WAITING;
     }
 
-    if(tc->active == 0) {
+    if(!tc->active) {
         int res = tpActivateSegment(tp, tc);
         // Need to wait to continue motion, end planning here
         if (res == TP_ERR_WAITING) {
@@ -3091,22 +2954,19 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
         }
     }
 
+    // Preprocess rigid tap move (handles threading direction reversals)
     if (tc->motion_type == TC_RIGIDTAP) {
         tpUpdateRigidTapState(tp, tc);
-    }
-
-    //TODO revisit this logic and pack this into the status update function
-    if(!tc->synchronized) {
-        emcmotStatus->spindleSync = 0;
     }
 
     /** If synchronized with spindle, calculate requested velocity to track
      * spindle motion.*/
     switch (tc->synchronized) {
         case TC_SYNC_NONE:
+            emcmotStatus->spindleSync = 0;
             break;
         case TC_SYNC_VELOCITY:
-            tp_debug_print("sync velocityyn");
+            tp_debug_print("sync velocity\n");
             tpSyncVelocityMode(tp, tc, nexttc);
             break;
         case TC_SYNC_POSITION:
@@ -3148,7 +3008,6 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 }
 
 int tpSetSpindleSync(TP_STRUCT * const tp, double sync, int mode) {
-    //TODO update these fields to match new TC fields
     if(sync) {
         if (mode) {
             tp->synchronized = TC_SYNC_VELOCITY;

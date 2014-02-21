@@ -20,6 +20,7 @@
 #include "emcpos.h"
 #include "emcmotcfg.h"
 #include "tc_types.h"
+#include "tp_types.h"
 
 int tcGetEndpoint(TC_STRUCT const * const tc, EmcPose * const out);
 int tcGetStartpoint(TC_STRUCT const * const tc, EmcPose * const out);
@@ -51,4 +52,45 @@ int tcFindBlendTolerance(TC_STRUCT const * const prev_tc,
 int pmCircleTangentVector(PmCircle const * const circle,
         double angle_in, PmCartesian * const out);
 
+int tcFlagEarlyStop(TC_STRUCT * const tc,
+        TC_STRUCT * const nexttc);
+
+double pmLine9Target(PmLine9 * const line9);
+
+int pmLine9Init(PmLine9 * const line9,
+        EmcPose const * const start,
+        EmcPose const * const end);
+
+double pmCircle9Target(PmCircle9 const * const circ9);
+
+int pmCircle9Init(PmCircle9 * const circ9,
+        EmcPose const * const start,
+        EmcPose const * const end,
+        PmCartesian const * const center,
+        PmCartesian const * const normal,
+        int turn);
+
+int pmRigidTapInit(PmRigidTap * const tap,
+        EmcPose const * const start,
+        EmcPose const * const end);
+
+int pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev);
+
+int tcInit(TC_STRUCT * const tc,
+        int motion_type,
+        int canon_motion_type,
+        double cycle_time,
+        unsigned char enables,
+        char atspeed);
+
+int tcSetupFromTP(TC_STRUCT * const tc, TP_STRUCT const * const tp);
+
+int tcSetupMotion(TC_STRUCT * const tc,
+        double vel,
+        double ini_maxvel,
+        double acc);
+
+int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
+
+int tcFinalizeLength(TC_STRUCT * const tc);
 #endif				/* TC_H */

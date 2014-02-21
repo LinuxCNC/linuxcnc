@@ -21,7 +21,7 @@
 #ifndef TCQ_H
 #define TCQ_H
 
-#include "tc.h"
+#include "tc_types.h"
 
 typedef struct {
     TC_STRUCT *queue;	/* ptr to the tcs */

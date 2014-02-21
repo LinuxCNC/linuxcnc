@@ -24,11 +24,15 @@
 #endif
 
 #define TP_DEFAULT_QUEUE_SIZE 32
-//Minimum length of a segment in cycles (must be greater than 1 to ensure each segment is hit at least once.)
+/* Minimum length of a segment in cycles (must be greater than 1 to ensure each
+ * segment is hit at least once.) */
 #define TP_MIN_SEGMENT_CYCLES 1.02
-//Values chosen for accel ratio to match parabolic blend acceleration
-//limits.
+/* Values chosen for accel ratio to match parabolic blend acceleration
+ * limits. */
 #define TP_OPTIMIZATION_CUTOFF 4
+/* If the queue is shorter than the threshold, assume that we're approaching
+ * the end of the program */
+#define TP_QUEUE_THRESHOLD 3
 
 /* closeness to zero, for determining if a move is pure rotation */
 #define TP_PURE_ROTATION_EPSILON 1e-6
