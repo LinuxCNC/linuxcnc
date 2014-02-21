@@ -401,12 +401,16 @@ void cb_response_in(struct libusb_transfer *transfer)
 		for (i=0; i<NB_MAX_BUTTONS; i++) {
 			if (!xhc.hal->button_pin[i]) continue;
 			*(xhc.hal->button_pin[i]) = (xhc.button_code == xhc.buttons[i].code);
-			if (simu_mode && *(xhc.hal->button_pin[i]))  printf("%s pressed", xhc.buttons[i].pin_name);
+			if (simu_mode && *(xhc.hal->button_pin[i])) {
+				printf("%s pressed", xhc.buttons[i].pin_name);
+			}
+		}
+		if (simu_mode) {
+			if ((char)in_buf[4] != 0) printf(" delta %+3d",(char)in_buf[4]);
+			printf("\n");
 		}
 
-		if (simu_mode) printf("\n");
-
-		//detect pendant going to sleep
+		//detect pendant going to sleep (occurs for 18 button pendant)
 		if (   in_buf[0]==0x04
 			&& in_buf[1]==0
 			&& in_buf[2]==0
@@ -611,12 +615,17 @@ static void Usage(char *name)
 	fprintf(stderr, "%s version %s by Frederic RIBLE (frible@teaser.fr)\n", name, PACKAGE_VERSION);
     fprintf(stderr, "Usage: %s [-I ini-file] [-h] [-H] [-s 1|2]\n", name);
     fprintf(stderr, " -I ini-file: configuration file defining the MPG keyboard layout\n");
-    fprintf(stderr, " -h: usage\n");
+    fprintf(stderr, " -h: usage (this)\n");
     fprintf(stderr, " -H: run in real-time HAL mode (run in simulation mode by default)\n");
     fprintf(stderr, " -x: wait for pendant detection before creating HAL pins\n");
     fprintf(stderr, " -s: step sequence (*.001 unit):\n");
     fprintf(stderr, "     1: 1,10,100,1000 (default)\n");
-    fprintf(stderr, "     2: 1,5,10,20\n");
+    fprintf(stderr, "     2: 1,5,10,20\n\n");
+    fprintf(stderr, "Configuration file section format:\n");
+    fprintf(stderr, "[XHC-HB04]\n");
+    fprintf(stderr, "BUTTON=XX:button-thename\n");
+    fprintf(stderr, "...\n");
+    fprintf(stderr, "    where XX=hexcode, thename=nameforbutton\n");
 }
 
 int main (int argc,char **argv)
