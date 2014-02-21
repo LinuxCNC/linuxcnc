@@ -22,16 +22,6 @@
 #define ARC_ABS_ERR 5e-4
 #define ARC_REL_ERR 5e-4
 
-typedef enum {
-    ARC_ERR_OK = 0,
-    ARC_ERR_FAIL = -1,
-    ARC_ERR_MISSING_INPUT = -2,
-    ARC_ERR_MISSING_OUTPUT = -3,
-    ARC_ERR_RANGE = -4,
-    ARC_ERR_GEOM = -5,
-    ARC_ERR_RADIUS = -6
-} SphericalArcErr;
-
 typedef struct {
     // Three defining points for the arc
     PmCartesian start;
