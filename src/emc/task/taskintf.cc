@@ -1545,14 +1545,14 @@ int emcSetupArcBlends(int arcBlendEnable,
         int arcBlendFallbackEnable,
         int arcBlendOptDepth,
         double arcBlendGapCycles,
-        double arcBlendGreediness) {
+        double arcBlendRampFreq) {
 
     emcmotCommand.command = EMCMOT_SETUP_ARC_BLENDS;
     emcmotCommand.arcBlendEnable = arcBlendEnable;
     emcmotCommand.arcBlendFallbackEnable = arcBlendFallbackEnable;
     emcmotCommand.arcBlendOptDepth = arcBlendOptDepth;
     emcmotCommand.arcBlendGapCycles = arcBlendGapCycles;
-    emcmotCommand.arcBlendGreediness = arcBlendGreediness;
+    emcmotCommand.arcBlendRampFreq = arcBlendRampFreq;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
