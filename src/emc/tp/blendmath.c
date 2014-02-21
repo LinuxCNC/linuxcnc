@@ -13,6 +13,7 @@
 
 #include "posemath.h"
 #include "tc_types.h"
+#include "tc.h"
 #include "tp_types.h"
 #include "rtapi_math.h"
 #include "spherical_arc.h"
