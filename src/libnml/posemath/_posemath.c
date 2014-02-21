@@ -1692,7 +1692,7 @@ int pmCartLineStretch(PmCartLine * const line, double new_len, int from_end)
 {
     int r1 = 0, r2 = 0;
 
-    if (line->tmag_zero) {
+    if (!line || line->tmag_zero || new_len <= DOUBLE_FUZZ) {
         return PM_ERR;
     }
 
@@ -1909,6 +1909,10 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
 
 int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
 {
+    if (!circ || new_angle <= DOUBLE_FUZZ) {
+        return PM_ERR;
+    }
+
     double mag = 0;
     pmCartMagSq(&circ->rHelix, &mag);
     if ( mag > 1e-6 ) {
