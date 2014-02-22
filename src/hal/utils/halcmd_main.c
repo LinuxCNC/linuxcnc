@@ -441,9 +441,9 @@ void halcmd_error(const char *format, ...) {
 void halcmd_info(const char *format, ...) {
     va_list ap;
     if(rtapi_get_msg_level() < RTAPI_MSG_INFO) return;
-    fprintf(stdout, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
+    fprintf(stderr, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
     va_start(ap, format);
-    vfprintf(stdout, format, ap);
+    vfprintf(stderr, format, ap);
     va_end(ap);
 }
 
