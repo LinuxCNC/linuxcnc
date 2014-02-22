@@ -16,7 +16,7 @@ variables with defaults:
 //ngcgui: yspacing=1.0
 //ngcgui: retract=0.1
 //ngcgui: increment=0.5
-//ngcgui: repeat=1
+//ngcgui: repeatct=1
 //ngcgui: fr=10,feedrate
 
 variable with comment text:
@@ -31,7 +31,7 @@ sign = 1;
 
 for (i = 0; i < nx ; i++) {
   for (j = 0; j < ny; j++) {
-    drill([x, y, zdepth], retract, increment, repeat);
+    drill([x, y, zdepth], retract, increment, repeatct);
     y = y + sign * yspacing;
   }
   y = y - sign * yspacing;
