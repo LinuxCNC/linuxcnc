@@ -1,3 +1,11 @@
+ver. 0.9.9.9.15
+- new hal pin gscreen.error as bit out, to show an error to the
+  hardware, so a light can lit or even stop the machine. It will
+  reseted with the pin gscreen.delete-message. This command will
+  delete the first error and reset the gscreen.error pin to False 
+  after the last error has been cleared. Messages or user infos
+  will not affect this pin!  
+
 ver. 0.9.9.9.14
 - The usage of  "EMBED_TAB_LOCATION = box_coolant_and_spindle"
   will not hide the velocity widgets any more, plasma handles

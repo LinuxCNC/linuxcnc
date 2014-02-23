@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.14"
+_RELEASE = "0.9.9.9.15"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -2977,6 +2977,7 @@ class HandlerClass:
             if kind in ( linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR ):
                 icon = ALERT_ICON
                 type = _( "Error Message" )
+                self.halcomp["error"] = True
             elif kind in ( linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT ):
                 icon = INFO_ICON
                 type = _( "Message" )
@@ -3138,6 +3139,9 @@ class HandlerClass:
         self.pin_res_spindle = hal_glib.GPin( self.halcomp.newpin( "reset-spindle-override", hal.HAL_BIT, hal.HAL_IN ) )
         self.pin_res_spindle.connect( "value_changed", self._reset_overide, "spindle" )
 
+        # make an error pin to indiocate a error to hardware
+        self.halcomp.newpin( "error", hal.HAL_BIT, hal.HAL_OUT )
+
     def _reset_overide( self, pin, type ):
         if pin.get():
             self.widgets["btn_%s_100" % type].emit( "clicked" )
@@ -3152,7 +3156,18 @@ class HandlerClass:
 
     def _del_message_changed( self, pin ):
         if pin.get():
-            self.notification.del_last()
+            if self.halcomp["error"] == True:
+                number = []
+                messages = self.notification.messages
+                for message in messages:
+                    if message[2] == ALERT_ICON:
+                        number.append( message[0] )
+                    print message
+                self.notification.del_message( number[0] )
+                if len( number ) == 1:
+                    self.halcomp["error"] = False
+            else:
+                self.notification.del_last()
 
     def _axis_limit_changed( self, pin ):
         if not pin.get() or self.stat.task_state == ( linuxcnc.STATE_ESTOP or linuxcnc.STATE_OFF ):
