@@ -84,10 +84,10 @@ trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 
 run_tests () {
-    find $* -name test.hal -or -name test.sh -or -name test \
-	| sort > $TMPDIR/alltests
+    alltests="$(find $* -name test.hal -or -name test.sh -or -name test \
+        | sort)"
 
-    while read testname; do
+    for testname in $alltests; do
 	testdir=$(dirname $testname)
 	if [ -e $testdir/skip ]; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
@@ -153,7 +153,7 @@ run_tests () {
 		fi
 	    fi
 	fi
-    done < $TMPDIR/alltests
+    done
 
     SUCC=$((NUM-FAIL-XFAIL))
     echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
