@@ -1,3 +1,9 @@
+ver. 0.9.9.9.16
+- a manual entry in the preference file logo = True in
+  combination with logofile = "absolute path to logofile"
+  will hide the jog button, jog increments and ignore limits
+  and display the logo instead.
+
 ver. 0.9.9.9.15
 - new hal pin gscreen.error as bit out, to show an error to the
   hardware, so a light can lit or even stop the machine. It will

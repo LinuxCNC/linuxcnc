@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.15"
+_RELEASE = "0.9.9.9.16"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -276,6 +276,14 @@ class HandlerClass:
 
         # set the title of the window, to show the release
         self.widgets.window1.set_title( "gmoccapy for linuxcnc %s" % _RELEASE )
+
+        # check if the user want a Logo
+        if self.prefs.getpref( "logo", False, bool ):
+            logofile = self.prefs.getpref( "logofile", None, str )
+            if logofile:
+                self.widgets.img_logo.set_from_file( logofile )
+                self.widgets.img_logo.show()
+                self.widgets.vbox_jog.hide()
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref( "spindle_bar_min", 0.0, float )
