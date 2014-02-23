@@ -1,3 +1,7 @@
+ver. 0.9.9.9.13
+- solved a bug switching on/off the spindle if also log_actions
+  was active, solved that one
+
 ver. 0.9.9.9.12
 - added two hal pin to reset feed and spindle override
   gscreen.reset-feed-override

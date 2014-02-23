@@ -1543,7 +1543,7 @@ class HandlerClass:
         else:
              self.gscreen.add_alarm_entry( _( "Something went wrong, we have an unknown widget" ) )
 
-        if self.log: self.gscreen.add_alarm_entry( "Spindle set to %i rpm, mode is %s" % ( rpm, self.emc.get_mode() ) )
+        if self.log: self.gscreen.add_alarm_entry( "Spindle set to %i rpm, mode is %s" % ( rpm, self.stat.task_mode ) )
         self.widgets.lbl_spindle_act.set_label( "S %s" % rpm )
         self.on_scl_spindle_value_changed( self.widgets.scl_spindle )
 
@@ -2964,7 +2964,6 @@ class HandlerClass:
     # In this case we wish to call Gscreen's default function for units button update
     # check linuxcnc for status, error and then update the readout
     def timer_interrupt( self ):
-        # self.emc.mask()
         self.stat.poll()
         self.gscreen.status.periodic()
         e = self.error_channel.poll()
@@ -2992,8 +2991,6 @@ class HandlerClass:
                 else:
                     self.gscreen.audio.set_sound( self.data.alert_sound )
                 self.gscreen.audio.run()
-
-        # self.emc.unmask()
 
         self.gscreen.update_active_gcodes()
         self.gscreen.update_active_mcodes()
