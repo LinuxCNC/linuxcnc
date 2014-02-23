@@ -2604,6 +2604,7 @@ class HandlerClass:
         self.widgets.ntb_preview.set_current_page( 3 )
         self.widgets.tbtn_fullsize_preview.set_active( True )
         self._show_iconview_tab( True )
+        self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
 
     def on_btn_sel_next_clicked( self, widget, data = None ):

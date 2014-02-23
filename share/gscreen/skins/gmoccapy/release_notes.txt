@@ -1,3 +1,8 @@
+ver. 0.9.9.9.10
+- added a refresh command to iconview, otherwise adding a file
+  and reopeninmg the view, would not refresh the view, so the 
+  added file could not be selected
+
 ver. 0.9.9.9.9
 - I added three new hal pin. This pin do allow to reduce or 
   enlarge the soft limits, so a pin is able to protect your 
