@@ -1,3 +1,7 @@
+ver. 0.9.9.9.11
+- solved startup bug, window not starting in position and 
+  dimensions as set in settings page
+
 ver. 0.9.9.9.10
 - added a refresh command to iconview, otherwise adding a file
   and reopeninmg the view, would not refresh the view, so the 

@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.10"
+_RELEASE = "0.9.9.9.11"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -1229,10 +1229,12 @@ class HandlerClass:
         elif start_as == "rbtn_maximized":
             self.widgets.window1.maximize()
         else:
-            self.widgets.window1.move( int( self.widgets.adj_x_pos.get_value() ),
-                                      int( self.widgets.adj_y_pos.get_value() ) )
-            self.widgets.window1.resize( int( self.widgets.adj_width.get_value() ),
-                                        int( self.widgets.adj_height.get_value() ) )
+            xpos = int( self.prefs.getpref( "x_pos", 10, float ) )
+            ypos = int( self.prefs.getpref( "y_pos", 10, float ) )
+            width = int( self.prefs.getpref( "width", 979, float ) )
+            height = int( self.prefs.getpref( "height", 750, float ) )
+            self.widgets.window1.move( xpos, ypos )
+            self.widgets.window1.resize( width, height )
 
         # does the user want to show screen2
         self.widgets.tbtn_use_screen2.set_active( self.prefs.getpref( "use_screen2", False, bool ) )
@@ -2169,6 +2171,7 @@ class HandlerClass:
             self.widgets.window1.unmaximize()
 
     def on_rbtn_window_toggled( self, widget ):
+        print( "rbtn_window_toggled" )
         if self.log: self.gscreen.add_alarm_entry( "rbtn_window_toggled to %s" % widget.get_active() )
         self.widgets.spbtn_x_pos.set_sensitive( widget.get_active() )
         self.widgets.spbtn_y_pos.set_sensitive( widget.get_active() )
@@ -2176,7 +2179,7 @@ class HandlerClass:
         self.widgets.spbtn_height.set_sensitive( widget.get_active() )
         # we have to check also if the window is active, because the button is toggled the first time
         # before the window is shown
-        if widget.get_active() and self.widgets.window1.is_active():
+        if widget.get_active() and self.widgets.window1.is_active() :
             self.widgets.window1.move( int( self.widgets.adj_x_pos.get_value() ),
                                       int( self.widgets.adj_y_pos.get_value() ) )
             self.widgets.window1.resize( int( self.widgets.adj_width.get_value() ),
@@ -2185,23 +2188,23 @@ class HandlerClass:
 
     def on_adj_x_pos_value_changed( self, widget, data = None ):
         self.prefs.putpref( "x_pos", widget.get_value(), float )
-        position = self.widgets.window1.get_position()
-        self.widgets.window1.move( int( widget.get_value() ), position[1] )
+        ypos = int( self.prefs.getpref( "y_pos", 10, float ) )
+        self.widgets.window1.move( int( widget.get_value() ), ypos )
 
     def on_adj_y_pos_value_changed( self, widget, data = None ):
         self.prefs.putpref( "y_pos", widget.get_value(), float )
-        position = self.widgets.window1.get_position()
-        self.widgets.window1.move( position[0], int( widget.get_value() ) )
+        xpos = int( self.prefs.getpref( "x_pos", 10, float ) )
+        self.widgets.window1.move( xpos, int( widget.get_value() ) )
 
     def on_adj_width_value_changed( self, widget, data = None ):
         self.prefs.putpref( "width", widget.get_value(), float )
-        size = self.widgets.window1.get_size()
-        self.widgets.window1.resize( int( widget.get_value() ), size[1] )
+        height = int( self.prefs.getpref( "height", 750, float ) )
+        self.widgets.window1.resize( int( widget.get_value() ), height )
 
     def on_adj_height_value_changed( self, widget, data = None ):
         self.prefs.putpref( "height", widget.get_value(), float )
-        size = self.widgets.window1.get_size()
-        self.widgets.window1.resize( size[0], int( widget.get_value() ) )
+        width = int( self.prefs.getpref( "width", 979, float ) )
+        self.widgets.window1.resize( width, int( widget.get_value() ) )
 
     def on_chk_hide_cursor_toggled( self, widget, data = None ):
         if self.log: self.gscreen.add_alarm_entry( "hide_cursor_toggled to %s" % widget.get_active() )
