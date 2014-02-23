@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.12"
+_RELEASE = "0.9.9.9.14"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -485,14 +485,14 @@ class HandlerClass:
 
         # This is normaly only used for the plasma screen layout
         if "box_coolant_and_spindle" in self.ini.findall( "DISPLAY", "EMBED_TAB_LOCATION" ):
-            widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings", "active_speed_label",
-                          "lbl_speed", "vbox_vel_info"]
+            widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings"]
             for widget in widgetlist:
                 self.widgets[widget].hide()
             self.widgets.tbtn_user_tabs.set_sensitive( False )
 
         if "box_tool_and_code_info" in self.ini.findall( "DISPLAY", "EMBED_TAB_LOCATION" ):
-            widgetlist = ["frm_tool_info"]
+            widgetlist = ["frm_tool_info","active_speed_label",
+                          "lbl_speed", "vbox_vel_info"]
             for widget in widgetlist:
                 self.widgets[widget].hide()
             self.widgets.btn_tool.set_sensitive( False )

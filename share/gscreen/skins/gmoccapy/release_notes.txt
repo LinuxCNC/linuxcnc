@@ -1,6 +1,11 @@
+ver. 0.9.9.9.14
+- The usage of  "EMBED_TAB_LOCATION = box_coolant_and_spindle"
+  will not hide the velocity widgets any more, plasma handles
+  that one now over tool_info_panel 
+
 ver. 0.9.9.9.13
 - solved a bug switching on/off the spindle if also log_actions
-  was active, solved that one
+  was active, 
 
 ver. 0.9.9.9.12
 - added two hal pin to reset feed and spindle override
