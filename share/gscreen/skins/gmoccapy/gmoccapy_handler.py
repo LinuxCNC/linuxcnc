@@ -65,7 +65,7 @@ color = gtk.gdk.Color()
 INVISABLE = gtk.gdk.Cursor( pixmap, pixmap, color, color, 0, 0 )
 
 # constants
-_RELEASE = "0.9.9.9.11"
+_RELEASE = "0.9.9.9.12"
 _INCH = 0 # imperial units are active
 _MM = 1 # metric units are active
 _MANUAL = 1 # Check for the mode Manual
@@ -3132,6 +3132,18 @@ class HandlerClass:
         self.pin_set_max_limit = hal_glib.GPin( self.halcomp.newpin( "set-max-limit", hal.HAL_BIT, hal.HAL_IN ) )
         self.pin_limit_value = hal_glib.GPin( self.halcomp.newpin( "limit-value", hal.HAL_FLOAT, hal.HAL_IN ) )
         self.pin_limit_value.connect( "value_changed", self._axis_limit_changed )
+
+        # make a pin to reset feed override to 100 %
+        self.pin_res_feed = hal_glib.GPin( self.halcomp.newpin( "reset-feed-override", hal.HAL_BIT, hal.HAL_IN ) )
+        self.pin_res_feed.connect( "value_changed", self._reset_overide, "feed" )
+
+        # make a pin to reset spindle override to 100 %
+        self.pin_res_spindle = hal_glib.GPin( self.halcomp.newpin( "reset-spindle-override", hal.HAL_BIT, hal.HAL_IN ) )
+        self.pin_res_spindle.connect( "value_changed", self._reset_overide, "spindle" )
+
+    def _reset_overide( self, pin, type ):
+        if pin.get():
+            self.widgets["btn_%s_100" % type].emit( "clicked" )
 
     def _offset_changed( self, pin, tooloffset ):
         if self.widgets.Combi_DRO_x.machine_units == _MM:

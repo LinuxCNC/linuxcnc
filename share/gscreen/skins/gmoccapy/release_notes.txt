@@ -1,6 +1,12 @@
+ver. 0.9.9.9.12
+- added two hal pin to reset feed and spindle override
+  gscreen.reset-feed-override
+  gscreen.reset-spindle-override 
+
 ver. 0.9.9.9.11
 - solved startup bug, window not starting in position and 
   dimensions as set in settings page
+- set new limits to size adjustments
 
 ver. 0.9.9.9.10
 - added a refresh command to iconview, otherwise adding a file
