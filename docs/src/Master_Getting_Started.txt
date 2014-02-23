@@ -1,5 +1,6 @@
-Getting Started V2.5, {localdate}
-=================================
+:lversion: {sys: cat ../VERSION}
+Getting Started V{lversion}, {localdate}
+========================================
 
 :lang: en
 

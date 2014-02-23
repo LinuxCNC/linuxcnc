@@ -64,6 +64,12 @@
 #define TOLERANCE_EQUAL 0.0001 /* two numbers compare EQ if the
 				  difference is less than this */
 
+static inline bool equal(double a, double b)
+{
+    return (fabs(a - b) < TOLERANCE_EQUAL);
+}
+
+
 #define TINY 1e-12              /* for arc_data_r */
 
 // max number of m codes on one line

@@ -1291,7 +1291,9 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
             // we have the value
             if(found)
             {
-                int n = snprintf(valbuf, VAL_LEN, "%lf", value);
+		// avoid -0.0/0.0 issues
+		double pvalue = equal(value, 0.0) ? 0.0 : value;
+                int n = snprintf(valbuf, VAL_LEN, "%lf", pvalue);
                 bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
                     strcpy(valbuf, "######");

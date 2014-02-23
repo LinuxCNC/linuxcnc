@@ -15,6 +15,7 @@
 import os, ConfigParser
 
 cp = ConfigParser.RawConfigParser
+cp.optionxform=str
 class preferences(cp):
     types = {
         bool: cp.getboolean,
@@ -31,13 +32,19 @@ class preferences(cp):
         self.fn = os.path.expanduser(path)
         self.read(self.fn)
 
-    def getpref(self, option, default=False, type=bool):
+    def getpref(self, option, default=False, type=bool, section="DEFAULT"):
         m = self.types.get(type)
         try:
-            o = m(self, "DEFAULT", option)
+            o = m(self, section, option)
         except Exception, detail:
             print detail
-            self.set("DEFAULT", option, default)
+            try:
+                self.set(section, option, default)
+            except ConfigParser.NoSectionError:
+                print 'Adding section %s'%section
+                # Create non-existent section
+                self.add_section(section)
+                self.set(section, option, default)
             self.write(open(self.fn, "w"))
             if type in(bool,float,int):
                 o = type(default)
@@ -45,6 +52,12 @@ class preferences(cp):
                 o = default
         return o
 
-    def putpref(self, option, value, type=bool):
-        self.set("DEFAULT", option, type(value))
+    def putpref(self, option, value, type=bool, section="DEFAULT"):
+        try:
+            self.set(section, option, type(value))
+        except ConfigParser.NoSectionError:
+            print 'Adding section %s'%section
+            # Create non-existent section
+            self.add_section(section)
+            self.set(section, option, type(value))
         self.write(open(self.fn, "w"))

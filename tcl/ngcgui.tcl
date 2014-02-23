@@ -415,7 +415,7 @@ namespace eval ::ngcgui {
 if [catch {package require Linuxcnc} msg] {
   # if user is trying to use as standalone in an unconfigured (non-Emc)
   # environment, just continue without internationalization
-  puts stderr "Internationalization not available: <$msg>"
+  puts stdout "Internationalization not available: <$msg>"
 }
 # use a command or proc named "_" for ::msgcat::mc
 # when embedded in axis, a command named "_" is predefined,
@@ -500,7 +500,7 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
 
     # disallow embedded numbered subroutines within a single-file subroutine
     if {[regexp -nocase "^o\[0-9\]*sub" $line]} {
-      puts stderr "[_ "bogus"]:$lno<$theline>"
+      puts stdout "[_ "bogus"]:$lno<$theline>"
       lappend emsg \
          "[_ "can not include subroutines within ngcgui subfile"]:$theline"
       set ay($hdl,parse,msg) $emsg
@@ -519,7 +519,7 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
       set i2    [string first > $theline]
       set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
       if {"$label" != "$ay($hdl,subroutine,name)"} {
-        puts stderr "[_ "bogus"]:$lno<$theline>"
+        puts stdout "[_ "bogus"]:$lno<$theline>"
         lappend emsg \
           "[_ "sub label"]: o<$label> [_ "does not match subroutine file name"]"
       }
@@ -537,11 +537,11 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
         if {[string first m2 [string trim [string tolower $theline]]] == 0} {
           set ::ngc_sub($hdl,$lct) \
               "($::ngc(any,app): [_ "ignoring M2 after endsub"]: <$theline>)"
-          puts stderr "[_ "ignoring M2 after endsub"] <$theline>"
+          puts stdout "[_ "ignoring M2 after endsub"] <$theline>"
           incr lct
           continue
         } else {
-          puts stderr "[_ "bogus"]:$lno<$theline>"
+          puts stdout "[_ "bogus"]:$lno<$theline>"
           lappend emsg "[_ "file contains lines after subend"]"
         }
       }
@@ -554,7 +554,7 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
         incr lct
         continue
        } else {
-         puts stderr "[_ "bogus"]:$lno<$theline>"
+         puts stdout "[_ "bogus"]:$lno<$theline>"
          lappend emsg "[_ "file contains lines before sub"]"
        }
     }
@@ -574,7 +574,7 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
       set i2    [string first > $theline]
       set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
       if {"$label" != "$ay($hdl,subroutine,name)"} {
-        puts stderr "[_ "bogus"]:$lno<$theline>"
+        puts stdout "[_ "bogus"]:$lno<$theline>"
         lappend emsg \
           "[_ "endsub label"]: o<$label> [_ "does not match subroutine file name"]"
       }
@@ -679,7 +679,7 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
         set expect_num [expr $last_num +1]
         # enforce these to appear in order to help prevent user errors
         if {$num != $expect_num && $num <= 30} {
-          puts stderr "[_ "bogus"]:$lno<$theline>"
+          puts stdout "[_ "bogus"]:$lno<$theline>"
           lappend emsg \
             "[_ "out of sequence positional parameter"] $num [_ "expected"]: $expect_num "
         } else {
@@ -781,10 +781,10 @@ proc retain_or_unset {hdl ay_name} {
 #-----------------------------------------------------------------------
 proc ::ngcgui::find_gcmc {} {
   if [catch {set found [exec which gcmc]} msg] {
-    puts stderr "find_gcmc:NOTfound:<$msg>"
+    puts stdout "find_gcmc:NOTfound:<$msg>"
     return ""
   } else {
-    #puts stderr "find_gcmc:found:$found"
+    #puts stdout "find_gcmc:found:$found"
   }
   return $found
 } ;# find_gcmc
@@ -827,14 +827,14 @@ proc ::ngcgui::parse_gcmc {hdl ay_name filename args} {
     # catch: early versions of gcmc returns $?=1
     if [catch {set ans [exec $::ngc(any,gcmc,executable) --version]
               }  msg ] {
-      puts stderr "parse_gcmc: unexpected version:<$msg>"
+      puts stdout "parse_gcmc: unexpected version:<$msg>"
     } else {
       foreach line [split $ans \n] {
         set ::ngc(any,gcmc,version,line$ct) $line
         incr ct
       }
-      puts stderr "gcmc    path: $::ngc(any,gcmc,executable)"
-      puts stderr "gcmc version: $::ngc(any,gcmc,version,line1)"
+      puts stdout "gcmc    path: $::ngc(any,gcmc,executable)"
+      puts stdout "gcmc version: $::ngc(any,gcmc,version,line1)"
     }
   }
 
@@ -1079,7 +1079,7 @@ proc ::ngcgui::gui {hdl mode args} {
           # ok
         } else {
           if [catch {file mkdir $::ngc(any,dir,just)} msg] {
-            puts stderr $msg ;# no such dir for example
+            puts stdout $msg ;# no such dir for example
             return "" ;# something bad happened
           }
         }
@@ -1342,7 +1342,7 @@ if {0} {
         ::ngcgui::gui $hdl readpostamble
       }
       if [info exists ::ngc($hdl,fail)] {
-        puts stderr "\n$::ngc(any,app):[_ "Unrecoverable problem"]:\n<$hdl>$::ngc($hdl,fail)"
+        puts stdout "\n$::ngc(any,app):[_ "Unrecoverable problem"]:\n<$hdl>$::ngc($hdl,fail)"
         ::ngcgui::deletepage $::ngc($hdl,axis,page)
         return
       }
@@ -1962,7 +1962,7 @@ if {0} {
     }
     default {return -code error "::ngcgui::gui: unknown mode <$mode>"}
   }
-  puts stderr "[_ "NOTREACHED mode"]=<$mode>"
+  puts stdout "[_ "NOTREACHED mode"]=<$mode>"
 } ;# gui
 
 proc ::ngcgui::savesection_ngc {hdl} {
@@ -2074,12 +2074,12 @@ proc ::ngcgui::savesection_gcmc {hdl} {
       }
     }
 
-#   puts stderr "     cmd=$cmd"
-#   puts stderr "    opts=$opts"
-#   puts stderr "   ifile=$ifile"
-#   puts stderr "funcname=$funcname"
-#   puts stderr "     pwd=[pwd]"
-#   puts stderr "  exists=[file exists $ifile]"
+#   puts stdout "     cmd=$cmd"
+#   puts stdout "    opts=$opts"
+#   puts stdout "   ifile=$ifile"
+#   puts stdout "funcname=$funcname"
+#   puts stdout "     pwd=[pwd]"
+#   puts stdout "  exists=[file exists $ifile]"
 
     set eline "$cmd $opts $ifile"
     if $::ngc($hdl,verbose) {
@@ -2705,8 +2705,8 @@ proc ::ngcgui::sendaxis {hdl cmd} {
       if ![catch {send axis pwd} msg] {return 1 ;#ok}
       # tk8.5 send misfeature
       if {[string first "X server insecure" $msg] >= 0} {
-         puts stderr "[_ "Declining support for tk send bug in ngcgui"]"
-         puts stderr "[_ "You should upgrade linuxcnc to >= linuxcnc2.5"]"
+         puts stdout "[_ "Declining support for tk send bug in ngcgui"]"
+         puts stdout "[_ "You should upgrade linuxcnc to >= linuxcnc2.5"]"
          eval exec xhost - SI:localuser:gdm
          eval exec xhost - SI:localuser:root
          # test if that worked:
@@ -2789,7 +2789,7 @@ proc ::ngcgui::entrykeybinding {ax w v} {
     after 0 [list $w configure -fg $::ngc(any,color,override)]
   } msg] {
     # silently ignore, emc_rel_act_pos will fail in standalone
-    # puts stderr "entrykeybinding:<$msg>"
+    # puts stdout "entrykeybinding:<$msg>"
   }
 } ;# entrykeybinding
 
@@ -3054,11 +3054,12 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     update
     after 5000 {destroy .problem}
   }
+  # note: normalize filename to honor tilde (~)
   switch $mode {
     last {
       if {   [info exists ::ngc($hdl,last,outfile)] \
           && "$::ngc($hdl,last,outfile)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,last,outfile) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,last,outfile)] &
       } else {
         simple_text .problem "[_ "No file available for editing yet"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3067,7 +3068,7 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     }
     source {
       if {"$::ngc($hdl,fname,subfile)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,fname,subfile) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,fname,subfile)] &
       } else {
         simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3076,7 +3077,7 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     }
     preamble {
       if {"$::ngc($hdl,fname,preamble)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,fname,preamble) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,fname,preamble)] &
       } else {
         simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3222,11 +3223,11 @@ proc ::ngcgui::top {hdl ay_name} {
       # ok
     } else {
       if [file exists $fname] {
-        puts stderr "$fname [_ "not writable"]"
+        puts stdout "$fname [_ "not writable"]"
         exit 1
       } else {
         if [catch {set fd [open $fname w]} msg] {
-          puts stderr $msg
+          puts stdout $msg
           exit 1
         } else {
           close $fd
@@ -3256,7 +3257,7 @@ proc ::ngcgui::usage {hdl ay_name} {
   set prog [file tail $::argv0]
   set dfont "\"$ay(any,font)\"" ;# avoid messing up vim colors
   set aname $ay($hdl,fname,autosend)
-  puts stderr "Usage:
+  puts stdout "Usage:
   $prog --help | -?
   $prog \[Options\] -D nc_files_directory_name
   $prog \[Options\] -i LinuxCNC_inifile_name
@@ -3686,7 +3687,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   set  w [::ngcgui::gui $hdl create $f.ngc_gui]
 
   if {"$w" == ""} {
-    puts stderr "[_ "Problem creating page"] <$hdl> <$f>"
+    puts stdout "[_ "Problem creating page"] <$hdl> <$f>"
   } else  {
     pack $w -side top -fill none -expand 1 -anchor nw
   }
@@ -3705,7 +3706,8 @@ proc ::ngcgui::set_path {} {
   # set ::ngc(any,paths) on first use:
   if ![info exists ::ngc(any,paths)] {
     # expect single item, so take end item in list:
-    set ::ngc(any,paths) [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]
+    set ::ngc(any,paths) [file normalize \
+                         [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]]
     set tmp [lindex [inifindall RS274NGC SUBROUTINE_PATH] end]
     foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
   }
@@ -3736,8 +3738,8 @@ proc ::ngcgui::pathto {fname  {mode info}} {
   foreach path $::ngc(any,paths) {
     set f [file join $path $fname]
     if {[info exists foundinpath] && [file exists $f]} {
-      puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
-      puts stderr "[_ "using path"]: $::ngc(any,paths)"
+      puts stdout "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
+      puts stdout "[_ "using path"]: $::ngc(any,paths)"
     }
     if {![info exists foundinpath] && [file exists $f]} {set foundinpath $f}
   }
@@ -3982,7 +3984,7 @@ proc ::ngcgui::wmrestore {hdl} {
           wm geometry $w $::ngc($hdl,img,position)
         }
    } msg] {
-      puts stderr "wmrestore: unexpected<$msg>"
+      puts stdout "wmrestore: unexpected<$msg>"
    }
 } ;# wmrestore
 
@@ -4084,6 +4086,7 @@ proc ::ngcgui::standalone_ngcgui {args} {
                        set dir [file normalize [file dirname $filename]]
                        set pdir [::ngcgui::inifind $filename \
                                            DISPLAY PROGRAM_PREFIX]
+                       set pdir [file normalize $pdir]
                        if {"$pdir" == ""} {
                          puts "\[DISPLAY\]PROGRAM_PREFIX [_ "not found"] <$filename>"
                          exit 1

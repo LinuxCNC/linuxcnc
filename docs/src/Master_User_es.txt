@@ -1,5 +1,6 @@
-Manual del Usuario V2.5, {localdate}
-====================================
+:lversion: {sys: cat ../VERSION}
+Manual del Usuario V{lversion}, {localdate}
+===========================================
 
 :lang: es
 

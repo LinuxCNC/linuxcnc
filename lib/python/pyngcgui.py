@@ -531,6 +531,7 @@ def spath_from_inifile(fname):
         l.extend(p.split(':'))
     lfull = []
     for d in l:
+        d = os.path.expanduser(d)
         if os.path.isabs(d):
             lfull.append(d)
         else:
@@ -1146,6 +1147,7 @@ class LinuxcncInterface():
     def get_program_prefix(self):
         if self.ini_data:
             dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
+            dir = os.path.expanduser(dir)
             if not os.path.isabs(dir):
                 # relative, base on inidir
                 dir = os.path.join(os.path.dirname(self.ini_file),dir)
@@ -3366,7 +3368,7 @@ Notes:
       Multiple sets of files can be specified from an inifile.
       If --ini is NOT specified:
          search for a running linuxcnc and use it's inifile
-    """ % sys.argv[0])
+    """ % g_progname)
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
 

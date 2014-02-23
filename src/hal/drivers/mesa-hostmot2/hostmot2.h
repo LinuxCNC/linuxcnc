@@ -280,6 +280,7 @@ typedef struct {
             hal_bit_t *latch_enable;
             hal_bit_t *latch_polarity;
             hal_bit_t *quadrature_error;
+            hal_bit_t *quadrature_error_enable;
         } pin;
 
         struct {
