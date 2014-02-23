@@ -39,7 +39,7 @@ A number of demonstration configurations are located in the sim directory
 of the Sample Configurations offered by the LinuxCNC configuration picker. The
 configuration picker is on the system's main menu:
 
-  Applications > CNC > LinuxCNC.
+  Applications > CNC > LinuxCNC
 
 Examples are included for the axis, touchy, gscreen, and gmoccapy guis.
 These examples demonstrate both 3-axis (XYZ) cartesian configurations
@@ -47,9 +47,20 @@ These examples demonstrate both 3-axis (XYZ) cartesian configurations
 popupkeyboard for touch screen systems and other examples demonstrate
 the use of files created for the gcmc (Gcode Meta Compiler) application.
 The touchy examples also demonstrate incorporation of a gladevcp backplot
-viewer (gremlin_view).  The simplest application is found as:
+viewer (gremlin_view).
+
+The simplest application is found as:
  
   Sample Configurations / sim / axis / ngcgui /ngcgui_simple
+
+A comprehensive example showing gcmc compatibility is at:
+
+  Sample Configurations / sim / axis / ngcgui / ngcgui_gcmc
+
+A comprehensive example embedded as a gladevcp app and using gcmc is at:
+
+  Sample Configurations / sim / gscreen / ngcgui / pyngcgui_gcmc
+
 
 The example sim configurations make use of library files that provide
 example gcode subroutine (.ngc) files and Gcode-meta-compiler (.gcmc) files:
@@ -89,7 +100,9 @@ example gcode subroutine (.ngc) files and Gcode-meta-compiler (.gcmc) files:
 ** 'wheels.gcmc' - gcmc demo of complex patterns
 
 To try a demonstration, select a sim configuration and start
-the linuxCNC program.  If using the axis gui, press the 'E-Stop'
+the linuxCNC program.
+
+If using the axis gui, press the 'E-Stop'
 image:images/tool_estop.gif[] then 'Machine Power'
 image:images/tool_power.gif[] then 'Home All'. Pick a ngcgui tab, fill in
 any empty blanks with sensible values and press
@@ -97,21 +110,25 @@ any empty blanks with sensible values and press
 image:images/tool_run.gif[] button to watch it run.  Experiment
 by creating multiple features and features from different tab pages.
 
+Other guis will have similar functionality but the buttons and names
+may be different.
+
+.Notes
 [NOTE]
+===============================
 The demonstration configs create tab pages for just a few of the provided
 examples.  Any gui with a Custom tab page can open any of the library
 example subroutines or any user file if it is in the linuxCNC subroutine
 path.
 
-[NOTE]
 To see special key bindings, click inside an ngcgui tab page to get
 focus and then presss Control-k.
 
-[NOTE]
-The demonstration subroutines should run on the simualated
+The demonstration subroutines should run on the simulated
 machine configurations included in the distribution.  A user
 should always understand the behavior and purpose of a program
 before running on a real machine.
+===============================
 
 == Library Locations
 
@@ -151,7 +168,9 @@ mkdir /home/myusername/mymfiles
 And then create or copy system-provided files to these user-writable directories.
 For instance, a user might create a ngcgui-compatible subfile named:
 
+----
 /home/myusername/mysubs/example.ngc
+----
 
 To use files in new directories, the ini file must be edited to include the new
 subfiles and to augment the search path(s).  For this example:
@@ -307,6 +326,7 @@ that embeds either ngcgui or pyngcgui.
 ** 'noiframe' - no internal image, display images on separate top level widget
 ** 'nom2' - do not terminate with m2, use % terminator.  This option eliminates all
     the side effects of m2 termination
+* 'GCMC_INCLUDE_PATH = dirname1:dirname2' - search directories for gcmc include files
 
 This is an example of embedding NGCGUI into Axis. The subroutines need to be
 in a directory specified by the [RS274NGC]SUBROUTINE_PATH.  Some example
@@ -314,6 +334,12 @@ subroutines use other subroutines so check to be sure you have the
 dependences, if any, in a SUBROUTINE_PATH directory.  Some subroutines may
 use custom Mfiles which must be in a directory specified by the
 [RS274NGC]USER_M_PATH.
+
+The Gcode-meta-compiler (gcmc) can include statements like:
+  include("filename.inc.gcmc");
+By default, gcmc includes the current directory which, for linuxCNC,  will be
+the directory containing the linuxCNC ini file.  Additional directories can be
+prepended to the gcmc search order with the GCMC_INCLUDE_PATH item.
 
 .Sample axis-gui-based INI
 ----
@@ -348,6 +374,7 @@ NGCGUI_OPTIONS    =
 #   noremove   -- disallow removing any tab page
 #   noauto     -- no auto send (makeFile, then manually send)
 #   noiframe   -- no internal image, image on separate top level
+GCMC_INCLUDE_PATH = /home/myname/gcmc_includes
 
 TTT               = truetype-tracer
 TTT_PREAMBLE      = in_std.ngc
@@ -392,13 +419,11 @@ Ngcgui uses the linuxCNC search path to find files.
 
 The search path begins with the standard directory specified by:
 
-  [DISPLAY]PROGRAM_PREFIX
+  [DISPLAY]PROGRAM_PREFIX = directory_name
 
 followed by multiple directories specfied by:
 
-  [RS274NGC]SUBROUTINE_PATH
-
-.Directories
+  [RS274NGC]SUBROUTINE_PATH = directory1_name:directory1_name:directory3_name ...
 
 Directories may be specifed as absolute paths or relative paths.
 ....
@@ -567,6 +592,12 @@ Note:    Multiple options are separated by blanks.
          for "Custom" tabs.  Do not use "Custom" tabs if you want
          to limit the user's ability to select subfiles or create
          additional tab pages. 
+
+Item:    [DISPLAY]GCMC_INCLUDE_PATH = dirname1:dirname2:...
+Example: [DISPLAY]GCMC_INCLUDE_PATH = /home/myname/gcmc_includes:/home/myname/gcmc_includes2
+Note:    Optional, each directory will be included when gcmc is invoked
+         using the option: --include dirname
+
 ....
 
 == File Requirements for NGCGUI Compatibility

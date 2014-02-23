@@ -1144,6 +1144,10 @@ class LinuxcncInterface():
     def get_ngcgui_options(self):
         return(self.ngcgui_options or [])
 
+    def get_gcmc_include_path(self):
+        dirs = (self.ini_data.find('DISPLAY','GCMC_INCLUDE_PATH'))
+        return(dirs)
+
     def get_program_prefix(self):
         if self.ini_data:
             dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
@@ -2151,6 +2155,16 @@ class ControlPanel():
 
         p.sub_data.pdict['subname'] = funcname
 
+        include_path = intfc.get_gcmc_include_path()
+        if include_path is not None:
+            for dir in include_path.split(":"):
+                xcmd.append("--include")
+                xcmd.append(os.path.expanduser(dir))
+        # maybe: xcmd.append("--include")
+        # maybe: xcmd.append(os.path.dirname(m.sub_file))
+        # note: gcmc also adds the current directory
+        #       to the search path as last entry.
+
         outdir = g_searchpath[0] # first in path
         ofile = os.path.join(outdir,funcname) + ".ngc"
 
@@ -2336,7 +2350,6 @@ class ControlPanel():
             self.lfct.set_label(str(pg.feature_ct))
             pg.savesec = []
 
-        nopts = mypg.nset.intfc.get_ngcgui_options()
         if (('nom2' in nopts) or g_nom2):
             f.write("%\n")
         else:

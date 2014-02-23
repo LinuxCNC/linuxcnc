@@ -41,6 +41,7 @@ from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
   set ngcgui_options   [lindex [inifindall DISPLAY  NGCGUI_OPTIONS]   end]
   set program_prefix   [lindex [inifindall DISPLAY  PROGRAM_PREFIX]   end]
   set subroutine_path  [lindex [inifindall RS274NGC SUBROUTINE_PATH]  end]
+  set gcmc_include_path [lindex [inifindall DISPLAY GCMC_INCLUDE_PATH]  end]
 
 
   # allow specification of DISPLAY:NGCGUI for:
@@ -95,7 +96,8 @@ from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
               postamble=$ngcgui_postamble \
               font=$ngcgui_font \
               startdir=$startdir \
-              options=$ngcgui_options
+              options=$ngcgui_options \
+              gcmc_include_path=$gcmc_include_path
     incr ::ngcguict
   }
   return

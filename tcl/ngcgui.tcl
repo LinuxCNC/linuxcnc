@@ -2060,6 +2060,16 @@ proc ::ngcgui::savesection_gcmc {hdl} {
 
     set cmd $::ngc(any,gcmc,executable)
     set opts ""
+
+    if [info exists ::ngc(input,gcmc_include_path)] {
+      foreach dir [split $::ngc(input,gcmc_include_path) ":"] {
+        set opts "$opts --include $dir"
+      }
+    }
+    # note: gcmc adds the current directory
+    #       to the search path as last entry.
+    # maybe also ?: set opts "$opts --include [file dirname $ifile]"
+
     set opts "$opts --output $ofile"
     set opts "$opts --gcode-function $funcname"
     if [info exists ::ngc($hdl,gcmc,opts)] {
@@ -3608,7 +3618,12 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
 
   ::ngcgui::preset $hdl ::ngc   ;# setup defaults
 
-  set equalitems {subfile preamble postamble font startdir options}
+  set equalitems {subfile preamble postamble \
+                  font \
+                  startdir \
+                  gcmc_include_path \
+                  options \
+                 }
   foreach item $equalitems {set ::ngc(input,$item) ""}
   foreach input  $args {
     set  pair [split $input =]
