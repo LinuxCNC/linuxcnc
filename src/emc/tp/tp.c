@@ -2320,12 +2320,13 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
 
 
 /**
- * Check if the segment waiting for an index has changed.
- * If the current segment waiting for an index is not the current segment, then
- * something has gone wrong. The fix for now is to just update status so we're
- * waiting in the current segment instead. (Rob's understanding)
+ * Check if the spindle has reached the required speed for a move.
+ * Returns a "wait" code if the spindle needs to spin up before a move and it
+ * has not reached the requested speed, or the spindle index has not been
+ * detected.
  */
-STATIC int tpHandleWaiting(TP_STRUCT * const tp, TC_STRUCT * const tc) {
+STATIC int tpCheckAtSpeed(TP_STRUCT * const tp, TC_STRUCT * const tc)
+{
 
     // this is no longer the segment we were waiting_for_index for
     if (MOTION_ID_VALID(tp->spindle.waiting_for_index) && tp->spindle.waiting_for_index != tc->id)
@@ -2417,8 +2418,11 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         return TP_ERR_OK;
     }
 
-    // Test if we need ramping or trapezoidal acceleration for this move
-    // FIXME: move this to INI setting
+    /* Based on the INI setting for "cutoff frequency", this calculation finds
+     * short segments that can have their acceleration be simple ramps, instead
+     * of a trapezoidal motion. This leads to fewer jerk spikes, at a slight
+     * performance cost.
+     * */
     double cutoff_time = 1.0 / (emcmotConfig->arcBlendRampFreq);
 
     double length = tc->target - tc->progress;
@@ -2433,7 +2437,7 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
         tc->accel_mode = TC_ACCEL_RAMP;
     }
 
-    // Do at speed checks
+    // Do at speed checks that only happen once
     int needs_atspeed = tc->atspeed ||
         (tc->synchronized == TC_SYNC_POSITION && !(emcmotStatus->spindleSync));
 
@@ -2481,11 +2485,12 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
  * Update requested velocity to follow the spindle's velocity (scaled by feed rate).
  */
 STATIC void tpSyncVelocityMode(TP_STRUCT * const tp, TC_STRUCT * const tc, TC_STRUCT const * nexttc) {
-    //NOTE: check for aborting outside of here
     double speed = emcmotStatus->spindleSpeedIn;
     double pos_error = fabs(speed) * tc->uu_per_rev;
-    //Take into account blending_next?
-    if(nexttc) pos_error -= nexttc->progress; /* ?? */
+    // Account for movement due to parabolic blending with next segment
+    if(nexttc) {
+        pos_error -= nexttc->progress;
+    }
     tc->target_vel = pos_error;
 }
 
@@ -2611,17 +2616,17 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     }
 
     // Run cycle update with stored cycle time
-    int res = 1;
+    int res_accel = 1;
     double acc, vel_desired;
 
     // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
     // Also, don't ramp up for parabolic blends
     if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
-        res = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
+        res_accel = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
     }
 
     // Check the return in case the ramp calculation failed, fall back to trapezoidal
-    if (res != TP_ERR_OK) {
+    if (res_accel != TP_ERR_OK) {
         tpCalculateTrapezoidalAccel(tp, tc, &acc, &vel_desired);
     }
 
@@ -2840,7 +2845,9 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         case TC_TERM_COND_STOP:
             break;
         default:
-            rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",tc->term_cond, tc->id);
+            rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",
+                    tc->term_cond,
+                    tc->id);
     }
 
     // Run split cycle update with remaining time in nexttc
@@ -2928,12 +2935,12 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
 
     /* If we're aborting or pausing and the velocity has reached zero, then we
      * don't need additional planning and can abort here. */
-        if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
+    if (tpHandleAbort(tp, tc, nexttc) == TP_ERR_STOPPED) {
         return TP_ERR_STOPPED;
     }
 
     //Return early if we have a reason to wait (i.e. not ready for motion)
-    if (tpHandleWaiting(tp, tc) != TP_ERR_OK){
+    if (tpCheckAtSpeed(tp, tc) != TP_ERR_OK){
         return TP_ERR_WAITING;
     }
 
@@ -3111,5 +3118,6 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
         tp->syncdio.dios[index] = -1;
     return TP_ERR_OK;
 }
+
 
 // vim:sw=4:sts=4:et:
