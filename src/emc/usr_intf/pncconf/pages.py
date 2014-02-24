@@ -270,7 +270,6 @@ class Pages:
         self.d.units = self.w.units.get_active()
         self.d.servoperiod = self.w.servoperiod.get_value()
         self.page_set_state('mesa1',self.w.mesa1_checkbutton.get_active())
-        print self.d.available_axes
         for let in ['x','y','z','a']:
             if not let in self.d.available_axes:
                 state = False
@@ -749,7 +748,6 @@ class Pages:
 # MESA0 PAGE
 #************
     def mesa0_init(self):
-        print 'mesa0 init'
         self._p.prepare_block = True
         self.w.mesa0_boardtitle.set_model(self.w.mesa_boardname_store)
         self.a.init_mesa_signals(0)
@@ -761,7 +759,6 @@ class Pages:
         for search,item in enumerate(self._p.MESA_BOARDNAMES):
             if self._p.MESA_BOARDNAMES[search]  == self.d.mesa0_boardtitle:
                 temp = search
-        print 'temp',temp
         self.w.mesa0_boardtitle.set_active(temp)
         self._p.prepare_block = True
         self.a.init_mesa_options(0)

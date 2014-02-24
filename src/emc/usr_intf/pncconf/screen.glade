@@ -2133,7 +2133,6 @@ panel</property>
                                                 <child>
                                                   <object class="GtkCheckButton" id="autotouchz">
                                                     <property name="label" translatable="yes">Auto Z Touch Off Button</property>
-                                                    <property name="visible">True</property>
                                                     <property name="can_focus">True</property>
                                                     <property name="receives_default">False</property>
                                                     <property name="has_tooltip">True</property>
