@@ -1,0 +1,21 @@
+# #########################################
+
+net 1pressed pyvcp.multilabel.0.legend0 <= pyvcp.radio0.one
+net 2pressed pyvcp.multilabel.0.legend1 <= pyvcp.radio0.two
+net 3pressed pyvcp.multilabel.0.legend2 <= pyvcp.radio0.three
+net 4pressed pyvcp.multilabel.1.legend0 <= pyvcp.radio1.four
+net 5pressed pyvcp.multilabel.1.legend1 <= pyvcp.radio1.five
+net 6pressed pyvcp.multilabel.1.legend2 <= pyvcp.radio1.six
+
+net bar1 pyvcp.my-bar <= pyvcp.my-hscale-f
+
+net scale2dial0 pyvcp.scale0-f => pyvcp.dial.0.param_pin
+net scale2dial2 pyvcp.scale2-f => pyvcp.dial.1.param_pin
+net scale2dial4 pyvcp.scale4-f => pyvcp.dial.2.param_pin
+
+net toggle0 pyvcp.checkbutton0.changepin <= pyvcp.toggle-button
+
+net scale2spin1 pyvcp.scale1-f => pyvcp.spinbox.0.param_pin
+net scale2spin3 pyvcp.scale3-f => pyvcp.spinbox.1.param_pin
+net scale2spin5 pyvcp.scale5-f => pyvcp.spinbox.2.param_pin
+
