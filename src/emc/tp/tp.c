@@ -104,15 +104,6 @@ STATIC int tpRotaryMotionCheck(TP_STRUCT const * const tp, TC_STRUCT const * con
 }
 
 
-/** Returns true if segment has ONLY rotary motion, false otherwise. */
-STATIC int tpPureRotaryCheck(TP_STRUCT const * const tp, TC_STRUCT const * const tc)
-{
-    return (tc->motion_type == TC_LINEAR) &&
-        (tc->coords.line.xyz.tmag_zero) &&
-        (tc->coords.line.uvw.tmag_zero);
-}
-
-
 /**
  * @section tpgetset Internal Get/Set functions
  * @brief Calculation / status functions for commonly used values.
@@ -2017,7 +2008,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 
     // If we have cartesian motion that's not synched with spindle position,
     // then clamp the tool tip velocity at the limit specified in the INI file.
-    if (!tpPureRotaryCheck(tp, tc) && (tc->synchronized != TC_SYNC_POSITION)){
+    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
         sat_inplace(&newvel, tp->vLimit);
     }
 

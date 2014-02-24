@@ -645,3 +645,11 @@ int pmRigidTapTarget(PmRigidTap * const tap, double uu_per_rev)
     // allow 10 turns of the spindle to stop - we don't want to just go on forever
     return tap->xyz.tmag + 10. * uu_per_rev;
 }
+
+/** Returns true if segment has ONLY rotary motion, false otherwise. */
+int tcPureRotaryCheck(TC_STRUCT const * const tc)
+{
+    return (tc->motion_type == TC_LINEAR) &&
+        (tc->coords.line.xyz.tmag_zero) &&
+        (tc->coords.line.uvw.tmag_zero);
+}
