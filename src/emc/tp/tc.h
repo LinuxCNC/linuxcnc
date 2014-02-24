@@ -93,4 +93,6 @@ int tcSetupMotion(TC_STRUCT * const tc,
 int tcSetupState(TC_STRUCT * const tc, TP_STRUCT const * const tp);
 
 int tcFinalizeLength(TC_STRUCT * const tc);
+
+int tcPureRotaryCheck(TC_STRUCT const * const tc);
 #endif				/* TC_H */
