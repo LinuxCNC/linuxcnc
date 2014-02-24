@@ -2986,7 +2986,6 @@ class NgcGui():
         if w is None:
             # standalone operation
             self.nb = gtk.Notebook()
-            self.nb.set_scrollable(True)
             w = gtk.Window(gtk.WINDOW_TOPLEVEL)
             if g_alive: w.connect("destroy", gtk.main_quit)
             w.set_title(sys.argv[0])
@@ -2996,7 +2995,6 @@ class NgcGui():
         elif type(w) == gtk.Frame:
             # demo -- embed as a notebook in a provider's frame
             self.nb = gtk.Notebook()
-            self.nb.set_scrollable(True)
             w.add(self.nb)
             self.nb.show()
             w.show()
@@ -3007,6 +3005,7 @@ class NgcGui():
         else:
             raise ValueError,'NgcGui:bogus w= %s' % type(w)
 
+        self.nb.set_scrollable(True)
         self.set_theme(w,tname=gtk_theme_name)
 
         self.intfc = LinuxcncInterface(ini_file)
