@@ -43,10 +43,10 @@ proc add_item_to_gui {id itemname} {
 
   set vf $::SP(vframe)
   set f [frame ${vf}.f$id -borderwidth 3 -relief ridge]
-  pack [label $f.hdr -width 20 -bg lightgray -fg blue \
+  pack [label $f.hdr -bg lightgray -fg blue \
        -borderwidth 0 -relief raised \
        -text "$::SP($id,itemname)"] \
-       -fill both -expand 1
+       -fill x -expand 1
 
   switch $::SP($id,itemtype) {
     bit   {add_bit_item_to_gui $f $id}
@@ -68,14 +68,14 @@ proc add_bit_item_to_gui {f id} {
   pack [label $f.b \
        -text "$::SP($id,mode)" \
        -borderwidth 4 -relief raised ] \
-       -fill both -expand 1
+       -fill x -expand 1
   set ::SP($id,button) $f.b
   bind $::SP($id,button) <ButtonRelease-1> [list b_release $id]
   bind $::SP($id,button) <ButtonPress-1>   [list b_press   $id]
 
-  pack [label $f.l -width 20 -bg $color -fg black \
+  pack [label $f.l -bg $color -fg black \
        -text "$::SP(prefix)$value"] \
-       -fill both -expand 1
+       -fill x -expand 1
   set ::SP($id,label) $f.l
 
   pack [radiobutton $f.p -text OnePulse \
@@ -96,7 +96,7 @@ proc add_bit_item_to_gui {f id} {
        -command [list bit_mode $id] \
        -variable ::SP($id,mode)] \
        -fill x -expand 0
-   pack $f -side top
+   pack $f -side top -fill x -expand 0
 } ;# add_bit_item_to_gui
 
 proc add_number_item_to_gui {f id} {
@@ -106,18 +106,18 @@ proc add_number_item_to_gui {f id} {
        -text "Set" \
        -relief raised -bd 4 \
        -command [list b_press $id] ]\
-       -fill both -expand 1
+       -fill x -expand 1
   set e [entry $f.e \
        -justify right \
        -textvariable ::SP($id,entry)]
   pack $e -fill x -expand 0
   bind $e <Return> [list b_press $id]
-  pack [label $f.l -width 20 -bg $color -fg black \
+  pack [label $f.l -bg $color -fg black \
        -anchor w \
        -text "$::SP(prefix)$value"] \
-       -fill both -expand 1
+       -fill x -expand 1
   set ::SP($id,label) $f.l
-  pack $f -side top
+  pack $f -side top -fill x -expand 0
 } ;# add_number_item_to_gui
 
 proc exact_name {name line} {
