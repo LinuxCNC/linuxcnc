@@ -405,7 +405,67 @@ class Private_Data:
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
-        self.MESA_FIRMWAREDATA = [
+        self.MESA_INTERNAL_FIRMWAREDATA = [
+    ['5i25-Internal Data', '5i25', '7i76x2 -With One 7i76', '5i25', 'hm2_pci', 1,3, 0,0, 0,3, 0,0, 5,2, 1,2, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+        # TAB 3
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ["5i25-Internal Data", "5i25", "7i76x2", "5i24", "hm2_pci", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [3,2],
+        # TAB 3
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPA,5],[S.STEPB,5],[S.STEPA,6],[S.STEPB,6],[S.STEPA,7],[S.STEPB,7],[S.STEPA,8],[S.STEPB,8],[S.STEPA,9],[S.STEPB,9],
+        [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', '7i77_7i76', '5i25', 'hm2_pci', 5,3, 0,0, 0,3, 0,0, 10,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+        # Tab 3
+        [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
+        [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],
+        [S.SS7I76M3,0],[S.RXDATA3,0],[S.TXDATA4,0],[S.RXDATA4,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', '7i77x2 With One 7i77', '5i25', 'hm2_pci', 6,3, 0,0, 0,3, 0,0, 0,2, 1,3, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+        # TAB 3
+        [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
+        [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', '7i77x2', '5i25', 'hm2_pci', 12,3, 0,0, 0,3, 0,0, 0,2, 1,6, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2], 
+        # TAB 3
+        [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
+        [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.TXEN5, 0],[S.TXDATA5, 0],[S.RXDATA5, 0],[S.SS7I77M4, 0],[S.RXDATA4, 0],[S.SS7I77M3, 0],[S.RXDATA3, 0],[S.MXES, 3],[S.MXE0, 3],[S.MXE1, 3],
+        [S.MXEI, 3],[S.MXE0, 4],[S.MXE1, 4],[S.MXEI, 4],[S.MXE0, 5],[S.MXE1, 5],[S.MXEI, 5],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', 'prob_rfx2', '5i25', 'hm2_pci', 2,3, 0,0, 2,3, 0,0, 8,2, 0,0, 0,0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
+        # TAB 3
+        [S.GPIOI, 0],[S.PWMP, 0],[S.STEPA, 0],[S.GPIOI, 0],[S.STEPB, 0],[S.PWMD, 0],[S.STEPA, 1],[S.GPIOI, 0],[S.STEPB, 1],[S.STEPA, 2],
+        [S.STEPB, 2],[S.STEPA, 3],[S.STEPB, 3],[S.GPIOI, 0],[S.ENCA, 0],[S.ENCB, 0],[S.ENCI, 0],
+        [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],
+        # TAB 2
+        [S.GPIOI, 0],[S.PWMP, 1],[S.STEPA, 4],[S.GPIOI, 0],[S.STEPB, 4],[S.PWMD, 1],[S.STEPA, 5],[S.GPIOI, 0],[S.STEPB, 5],
+        [S.STEPA, 6],[S.STEPB, 6],[S.STEPA, 7],[S.STEPB, 7],[S.GPIOI, 0],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],
+        [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
+
     ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
         [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
@@ -526,7 +586,7 @@ class Private_Data:
     [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0] ],
 ["error"]
  ]
-
+        self.MESA_FIRMWAREDATA = []
         # internalname / displayed name / steptime/ step space / direction hold / direction setup
         self.alldrivertypes = [
                             ["gecko201", _("Gecko 201"), 500, 4000, 20000, 1000],
@@ -546,7 +606,7 @@ class Private_Data:
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
                             ]
 
-        self.MESA_BOARDNAMES = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
+        self.MESA_BOARDNAMES = []
 
         self.MESS_START = _('Start')
         self.MESS_FWD = _('Forward')

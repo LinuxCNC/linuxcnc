@@ -489,45 +489,40 @@ class Data:
 
         self.number_mesa = 1 # number of cards
         # for first mesa card
-        self.mesa0_currentfirmwaredata = _PD.MESA_FIRMWAREDATA[1]       
-        self.mesa0_boardtitle = "5i20"        
-        self.mesa0_firmware = "SVST8_4"
+        self.mesa0_currentfirmwaredata = None
+        self.mesa0_boardtitle = "5i25-Internal Data"        
+        self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]  
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 20000
         self.mesa0_pdm_frequency = 6000000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
-        self.mesa0_numof_encodergens = 4
+        self.mesa0_numof_encodergens = 1
         self.mesa0_numof_resolvers = 0
-        self.mesa0_numof_pwmgens = 4
+        self.mesa0_numof_pwmgens = 0
         self.mesa0_numof_tppwmgens = 0
-        self.mesa0_numof_stepgens = 4
-        self.mesa0_numof_sserialports = 0
-        self.mesa0_numof_sserialchannels = 8
+        self.mesa0_numof_stepgens = 5
+        self.mesa0_numof_sserialports = 1
+        self.mesa0_numof_sserialchannels = 2
 
         # second mesa card
-        self.mesa1_currentfirmwaredata = _PD.MESA_FIRMWAREDATA[1]
-        self.mesa1_boardtitle = "5i20"
-        self.mesa1_firmware = "SVST8_4"
+        self.mesa1_currentfirmwaredata = _PD.MESA_INTERNAL_FIRMWAREDATA[1]
+        self.mesa1_boardtitle = "5i25-Internal Data"
+        self.mesa1_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 20000
         self.mesa1_pdm_frequency = 6000000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
-        self.mesa1_numof_encodergens = 4
+        self.mesa1_numof_encodergens = 1
         self.mesa1_numof_resolvers = 0
-        self.mesa1_numof_pwmgens = 4
+        self.mesa1_numof_pwmgens = 0
         self.mesa1_numof_tppwmgens = 0
-        self.mesa1_numof_stepgens = 4
-        self.mesa1_numof_sserialports = 0
-        self.mesa1_numof_sserialchannels = 8
-        self.mesa1_sanity_7i29 = False
-        self.mesa1_sanity_7i30 = False
-        self.mesa1_sanity_7i33 = False
-        self.mesa1_sanity_7i40 = False
-        self.mesa1_sanity_7i48 = False
+        self.mesa1_numof_stepgens = 5
+        self.mesa1_numof_sserialports = 1
+        self.mesa1_numof_sserialchannels = 2
 
         for boardnum in(0,1):
             connector = 2
@@ -1573,7 +1568,7 @@ class App:
                 if folder == "":continue
                 dbg("****folder added :%s"%folder)
                 self._p.MESA_BOARDNAMES.append(folder)
-
+            self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
         else:
             #TODO what if there are no external firmware is this enough?
             self.warning_dialog(_("You are have no hostmot2 firmware downloaded in folder:\n%s\n\
@@ -2421,10 +2416,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.firmware_block = True
         title = self.widgets["mesa%d_boardtitle"% boardnum].get_active_text()
         #print title
+        self._p.MESA_FIRMWAREDATA = []
         if os.path.exists(os.path.join(self._p.FIRMDIR,title)):
-            self._p.MESA_FIRMWAREDATA = []
             self.mesa_firmware_search(title)
             self.d['_mesa%d_arrayloaded'%boardnum] = True
+        for i in self._p.MESA_INTERNAL_FIRMWAREDATA:
+            self._p.MESA_FIRMWAREDATA.append(i)
         model = self.widgets["mesa%d_firmware"% boardnum].get_model()
         model.clear()
         temp=[]
@@ -3432,6 +3429,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     #print "ENC ->dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
                     count = -3
+                    temp = (0) # set unused encoder if no match
                     if signalindex > 0:
                         for row,parent in enumerate(_PD.human_encoder_input_names):
                             if len(parent[1]) == 0:continue
@@ -3443,8 +3441,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     break
                             if count >= signalindex:break
                         temp = (row,column)
-                    else:
-                        temp = (0) # set unused encoder if no match
                     #print temp
                     if widgetptype == _PD.ENCA:
                         treeiter = self.d._encodersignaltree.get_iter(temp)
@@ -3461,6 +3457,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     #print "dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
                     count = 0
+                    temp = (0) # set unused resolver
                     if signalindex > 0:
                         for row,parent in enumerate(_PD.human_resolver_input_names):
                             if row == 0: continue
@@ -3480,8 +3477,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused resolver
                     #print "temp",temp
                     treeiter = self.d._resolversignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -3495,6 +3490,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     #print "dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
                     count = 0
+                    temp = (0) # set unused 8i20 amp
                     if signalindex > 0:
                         for row,parent in enumerate(_PD.human_8i20_input_names):
                             if row == 0: continue
@@ -3514,8 +3510,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused 8i20 amp
                     #print "temp",temp
                     treeiter = self.d._8i20signaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -3530,6 +3524,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     #print "dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
                     count = -1
+                    temp = (0) # set unused potentiometer
                     if signalindex > 0:
                         for row,parent in enumerate(_PD.human_pot_output_names):
                             if row == 0: continue
@@ -3549,8 +3544,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused potentiometer
                     #print "temp",temp
                     treeiter = self.d._potsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -3564,6 +3557,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     #print "dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
                     count = 0
+                    temp = (0) # set unused 8i20 amp
                     if signalindex > 0:
                         for row,parent in enumerate(_PD.human_analog_input_names):
                             if row == 0: continue
@@ -3583,8 +3577,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused 8i20 amp
                     #print "temp",temp
                     treeiter = self.d._analoginsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -3612,6 +3604,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     #print "dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
                     count = -2
+                    temp = (0) # set unused pwm
                     if signalindex > 0:
                         #print "\n parsing PWM names"
                         for row,parent in enumerate(_PD.human_pwm_output_names):
@@ -3633,8 +3626,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused pwm
                     #print "temp",temp
                     treeiter = self.d._pwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -3649,6 +3640,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         if debug: print "**** INFO: PNCCONF warning no THREE PWM signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     #print "3 PWw ,dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
+                    temp = (0) # set unused stepper
                     if signalindex > 0:
                        for row,parent in enumerate(_PD.human_tppwm_output_names):
                           if row == 0:continue
@@ -3668,8 +3660,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                temp = (row,column)
                                break
                            if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused stepper
                     treeiter = self.d._tppwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
@@ -3686,6 +3676,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         signalindex = 0
                     count = -5
                     #print "stepper,dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
+                    temp = (0)# set default to unused stepper
                     if signalindex > 0:
                        for row,parent in enumerate(_PD.human_stepper_names):
                           if row == 0:continue
@@ -3705,8 +3696,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                temp = (row,column)
                                break
                            if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused stepper
                     treeiter = self.d._steppersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
@@ -3721,8 +3710,9 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     except:
                         if debug: print "**** INFO: PNCCONF warning no SMART SERIAL signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
-                    count = -2
                     #print "sserial,dataptype:",self.d[ptype]," dataptype:",self.d[p],signalindex
+                    count = -2
+                    temp = (0) # set unused sserial
                     if signalindex > 0:
                        for row,parent in enumerate(_PD.human_sserial_names):
                           if row == 0:continue
@@ -3734,8 +3724,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                 temp = (row)
                                 break
                              continue
-                    else:
-                        temp = (0) # set unused sserial
                     treeiter = self.d._sserialsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
