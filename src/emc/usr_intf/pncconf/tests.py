@@ -38,7 +38,7 @@ class TESTS:
         dbg = self.a.dbg
 
     def parporttest(self,w):
-        if not self.a.check_for_rt(self):
+        if not self.a.check_for_rt():
             return
         panelname = os.path.join(_PD.DISTDIR, "configurable_options/pyvcp")
         halrun = os.popen("cd %(panelname)s\nhalrun -Is > /dev/null "% {'panelname':panelname,}, "w" )
@@ -461,7 +461,7 @@ But there is not one in the machine-named folder.."""),True)
         def get_value(d):
             return self.a.get_value(d)
 
-        if not self.a.check_for_rt(self):
+        if not self.a.check_for_rt():
             return
         d = self.d
         w = self.w
@@ -579,8 +579,8 @@ But there is not one in the machine-named folder.."""),True)
         # for encoder signals
         if self.encoder: 
             #print self.encoder,"--",self.encoder[4:5],self.encoder[10:],self.encoder[6:7] 
-            self.enc_signalname = self.d.make_pinname(self.encoder)                 
-            halrun.write("setp %s.counter-mode 0\n"% (self.enc_signalname))
+            self.enc_signalname = self.d.make_pinname(self.encoder)
+            halrun.write("setp %s.counter-mode %s\n"% (self.enc_signalname, w.ssingleinputencoder))
             halrun.write("setp %s.filter 1\n"% (self.enc_signalname))
             halrun.write("setp %s.index-invert 0\n"% (self.enc_signalname))
             halrun.write("setp %s.index-mask 0\n"% (self.enc_signalname))
@@ -822,7 +822,7 @@ But there is not one in the machine-named folder.."""),True)
         def get_value(d):
             return self.a.get_value(d)
         # can't test with a simulator
-        if not self.a.check_for_rt(self):
+        if not self.a.check_for_rt():
             return
         # one needs real time, pwm gen and an encoder for open loop testing.
         temp = self.d.findsignal( (axis + "-encoder-a"))
@@ -891,7 +891,7 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("setp   "+self.pot+"spinout-minlim   %.1f\n"% pwmminlimit)
             halrun.write("setp   "+self.pot+"spinout-maxlim   %.1f\n"% pwmmaxlimit)
             halrun.write("setp   "+self.pot+"spinout-scalemax %.1f\n"% pwmmaxoutput)
-            potinvertlist = self.d.spindle_invert_pins(pot_sig)
+            potinvertlist = self.a.spindle_invert_pins(pot_sig)
             for i in potinvertlist:
                     if i == _PD.POTO:
                         halrun.write("setp   "+self.pot+"spindir-invert   true\n")
@@ -937,6 +937,7 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("net enc-reset %s \n"%  (self.enc +".reset"))
             halrun.write("setp %s.scale %f \n"%  (self.enc, enc_scale))
             halrun.write("setp %s \n"%  (self.enc +".filter true"))
+            halrun.write("setp %s.counter-mode %s\n"% (self.enc, self.w.ssingleinputencoder.get_active()))
             halrun.write("loadusr halmeter -s pin %s -g 550 550 330\n"%  (self.enc +".position"))
             halrun.write("loadusr halmeter -s pin %s -g 550 600 330\n"%  (self.enc +".velocity"))
         # set up resolver
