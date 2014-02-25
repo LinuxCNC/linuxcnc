@@ -129,6 +129,20 @@ proc exact_name {name line} {
   return 0
 } ;# exact_name
 
+proc connected_to {name line} {
+  # check if an input pin is already connected to a signal
+  # since it does not necessarily have a writer
+  set idx [string first $name $line]
+  if {$idx < 0} {return ""}
+  # check if pin is an input
+  if {-1 != [string first "$name <==" [string range $line $idx end]]} {
+    set idx [string first "<==" $line]
+    set signame [string range $line [expr 4 + $idx] end]
+    return  "$signame"
+  }
+  return ""
+} ;# connected_to
+
 proc item_info {itemname id} {
   set fmt "sim_pin: %-30s %5s %3s %s"
   set theitem "-----"
@@ -146,6 +160,12 @@ proc item_info {itemname id} {
       set found 1
       set theitem "PIN"
       break
+    }
+    set signame [connected_to $itemname $line]
+    if {"" !=  "$signame"} {
+      puts "pin <$itemname> is already connected, trying signal:<$signame>"
+      set itemname $signame
+      set ::SP($id,itemname) $itemname
     }
   }
   if !$found {
