@@ -728,6 +728,8 @@ class Data:
         self.aminferror= .05
         self.amaxferror= .5
         # spindle at speed near settings
+        self.smaxvel = 2000
+        self.smaxacc = 300
         self.srpmrange = 200.0
         self.snearscale = 1.00
         self.sfiltergain = 1.0
@@ -1545,17 +1547,21 @@ class App:
         self.widgets.help_window.show_all()
         self.widgets.help_window.present()
 
-    def check_for_rt(self,fussy=True):
+    # check for realtime kernel
+    def check_for_rt(self):
         actual_kernel = os.uname()[2]
-        if hal.is_sim == 1 :
-            if fussy:
-                self.warning_dialog(_("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of external hardware is unavailable."),True)
-                return False
-            else:
+        if hal.is_sim :
+            self.warning_dialog(self._p.MESS_NO_REALTIME,True)
+            if self.debugstate:
                 return True
+            else:
+                return False
         elif hal.is_rt and not hal.kernel_version == actual_kernel:
-            self.warning_dialog(_("""You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
-            return False
+            self.warning_dialog(self._p.MESS_KERNAL_WRONG + '%s'%hal.kernel_version,True)
+            if self.debugstate:
+                return True
+            else:
+                return False
         else:
             return True
 
