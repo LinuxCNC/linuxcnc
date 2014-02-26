@@ -1152,13 +1152,15 @@ class pyvcp_bar(Canvas):
         # value text
         self.val_text=self.create_text(self.pad+self.bw/2,
                                    self.bh/2,text=str(self.value) )
-	if range1!=None: 
-	    self.range1 = range1
-        if range2!=None: 
-	    self.range2 = range2
-        if range3!=None: 
-	    self.range3 = range3
 
+        if range1!=None and range2!=None and range3!=None:
+            self.range1 = range1
+            self.range2 = range2
+            self.range3 = range3
+            self.ranges = True
+        else:
+            self.ranges = False
+        
     def set_fill(self, (start1, end1, color1),(start2, end2, color2), (start3, end3, color3)):
         if self.value:
     	    if (self.value > start1) and (self.value <= end1):
@@ -1198,8 +1200,8 @@ class pyvcp_bar(Canvas):
             valtext = str( "%(b)3.1f" % {'b':self.value} )
             self.itemconfig(self.val_text,text=valtext)
             # set bar colour
-            if self.range1 and self.range2 and self.range3:
-        	self.set_fill(self.range1, self.range2, self.range3)
+            if self.ranges:
+                self.set_fill(self.range1, self.range2, self.range3)
             # set bar size
             tmp=self.bar_coords()
             start=tmp[0]
