@@ -156,7 +156,8 @@ Interp::Interp()
 Interp::~Interp() {
 
     if(log_file) {
-	fclose(log_file);
+        if(log_file != stderr)
+            fclose(log_file);
 	log_file = 0;
     }
 }
