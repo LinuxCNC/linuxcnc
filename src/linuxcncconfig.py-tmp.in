@@ -1,4 +1,4 @@
-# access configure (and eventually runtime) variables
+# access configure (and eventually runtime) variables           -*-python-*-
 # from Python
 #
 # use like so:
@@ -89,18 +89,17 @@ class Config(object):
 	self.infodir = "@infodir@"
 	self.mandir = "@mandir@"
 	self.includedir = "@includedir@"
+	self.docdir = "@docdir@"
+	self.sampleconfsdir = self.datadir + \
+                              "/linuxcnc/examples/sample-configs"
+	self.ncfilesdir = self.prefix + "/share/linuxcnc/ncfiles"
+	self.tcldir = self.prefix + "/lib/tcltk/linuxcnc"
+
 
         # i18n variables:
 	self.package = "@PACKAGE@"
 	self.localedir = "@LOCALEDIR@"
 	self.LANGUAGES = "@LANGUAGES@"
-
-        #still needs discussion
-        # do we really need these?
-	self.docsdir = self.prefix + "/share/doc/linuxcnc"
-	self.sampleconfsdir = self.prefix + "/share/doc/linuxcnc/examples/sample-configs"
-	self.ncfilesdir = self.prefix + "/share/linuxcnc/ncfiles"
-	self.tcldir = self.prefix + "/lib/tcltk/linuxcnc"
 
 
         # /Standard configure directories

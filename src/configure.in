@@ -1538,11 +1538,11 @@ AC_ARG_WITH(
                                           the drivers that use libmodbus
                                           (defaults to "yes")],
     [WITH_LIBMODBUS=$withval],
-    [WITH_LIBMODBUS=yes]
+    [WITH_LIBMODBUS=check]
 )
 
 AS_IF(
-    [test "x$WITH_LIBMODBUS" = "xyes"],
+    [test $WITH_LIBMODBUS = yes -o $WITH_LIBMODBUS = check ],
     [
         AC_MSG_CHECKING([for libmodbus3])
         if pkg-config libmodbus --atleast-version 3 >/dev/null 2>&1; then
@@ -1559,10 +1559,13 @@ AS_IF(
             )
             AC_SUBST(HAVE_LIBMODBUS3, yes)
         else
-          AC_MSG_RESULT(no)
-          AC_MSG_ERROR([libmodbus3 not found!
-install with "sudo apt-get install libmodbus-dev" or disable with
-"configure --without-libmodbus"])
+	    if test $WITH_LIBMODBUS = yes; then
+	        # if --with-libmodbus specified and we got here, error
+		AC_MSG_RESULT(no)
+	        AC_MSG_ERROR([libmodbus3 requested but not found])
+	    else	    
+	        AC_MSG_RESULT([not found; disabling])
+	    fi
         fi
     ]
 )
@@ -1633,8 +1636,8 @@ else
     EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
-    EMC2_RTLIB_DIR=${libdir}/linuxcnc
-    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
+    EMC2_RTLIB_DIR=${prefix}/lib/linuxcnc
+    LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -1644,6 +1647,7 @@ fi
 # This should contain the .ini file that points to everything else.
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
 AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
+AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory for ulapi shared objects])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
@@ -2170,7 +2174,7 @@ AC_ARG_WITH(tkConfig,
     ])
 
 # if not specified, search for tclConfig.sh
-if test -z "$TKCONFIG"; then
+if test -z "$TKCONFIG" -a -n "$TCLCONFIG"; then
     TKCONFIG=$(dirname $TCLCONFIG)/tkConfig.sh
     if ! test -f $TKCONFIG; then unset TKCONFIG; fi
 fi

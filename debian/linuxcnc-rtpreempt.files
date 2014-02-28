@@ -1,0 +1,3 @@
+usr/lib/linuxcnc/rt-preempt/*.so
+usr/lib/linuxcnc/ulapi-rt-preempt.so
+usr/libexec/linuxcnc/rtapi_app_rt-preempt

@@ -26,7 +26,7 @@ LOG=realtime.log
 retval=0
 
 # clean up after previous runs
-test -f ${LOG}.* && rm -f ${LOG}.*
+ls ${LOG}.* >&/dev/null && rm -f ${LOG}.*
 
 TEST_PATTERN=0
 while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
@@ -42,7 +42,7 @@ while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
 
     realtime stop
 
-    if [ `egrep -e "${Error[$TEST_PATTERN]}" realtime.log | wc -l` != 1 ]; then 
+    if ! egrep -qe "${Error[$TEST_PATTERN]}" ${LOG}; then
 	echo failed test $TEST_PATTERN: pattern not found:
 	echo     "${Error[$TEST_PATTERN]}"
 	cp $LOG ${LOG}.$TEST_PATTERN # save logs from errored tests

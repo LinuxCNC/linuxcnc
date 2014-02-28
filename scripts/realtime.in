@@ -225,6 +225,30 @@ CheckShm(){
 
 
 
+RemoveModules(){
+    # Remove a list of modules recursively
+    # 
+    # When RTAPI shuts down uncleanly, not only hal_lib and rtapi may
+    # still be loaded, but also comp, motmod, or other modules that
+    # depend on those.
+    #
+    # Check for loaded modules dependent on hal_lib and unload them
+    # first.
+
+    for MODULE in $*; do
+        # recurse on any dependent modules in /proc/modules
+        DEP_MODULES=$(cat /proc/modules | \
+            awk '/^'$MODULE' / { mods=$4; gsub(","," ",mods); print mods }')
+        test "$DEP_MODULES" = - || RemoveModules $DEP_MODULES
+
+        # remove module if still loaded
+        grep -q "^$MODULE " /proc/modules && \
+            $linuxcnc_module_helper remove $MODULE
+
+    done
+}
+
+
 Unload(){
     if test $BUILD_SYS = user-dso; then
 
@@ -275,9 +299,7 @@ Unload(){
 	fi
     fi
 
-    for module in $MODULES_UNLOAD ; do
-        $linuxcnc_module_helper remove $module
-    done
+    RemoveModules $MODULES_UNLOAD
 
     # unload shmdrv, if applicable
     if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then

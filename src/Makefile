@@ -143,16 +143,8 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
 	    $(VECHO) "in order to run in place." || true
 endif
-# see if logging is set up properly
-	@-../scripts/check-logging.sh
 
 endif # BUILD_ALL_FLAVORS
-
-log:
-	$(Q)echo installing log configuration to /etc/rsyslog.d/linuxcnc.conf
-	$(Q)cp rtapi/rsyslogd-linuxcnc.conf /etc/rsyslog.d/linuxcnc.conf
-	$(Q)echo restarting rsyslogd
-	$(Q)service rsyslog restart
 
 
 OBJDIR := objects/$(RTDIR_EXT)
@@ -658,26 +650,18 @@ endif
 fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
-setuid: /etc/udev/rules.d/50-LINUXCNC-shmdrv.rules \
-		/etc/security/limits.d/linuxcnc.conf
+setuid:
 	$(call fix_perms,../libexec/linuxcnc_module_helper)
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)),\
 	    $(call fix_perms,../libexec/rtapi_app_$(f));)
+# check system configuration:  logging, ulimits, udev
+	@-../scripts/check-system-configuration.sh
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
 endif
-
-/etc/security/limits.d/linuxcnc.conf: rtapi/shmdrv/limits.d-linuxcnc.conf
-	$(Q)echo installing $@
-	$(Q)cp  $^ $@
-
-/etc/udev/rules.d/50-LINUXCNC-shmdrv.rules: rtapi/shmdrv/shmdrv.rules
-	$(Q)echo installing $@
-	$(Q)cp  $^ $@
-
 
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
@@ -743,7 +727,7 @@ install-dirs:
 	$(DIR)  $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(includedir)/linuxcnc \
-		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
+		$(DESTDIR)$(docdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
 		$(DESTDIR)$(tcldir)/scripts \
@@ -760,7 +744,11 @@ install-dirs:
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
 		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
-		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help
+		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
+		$(DESTDIR)$(sysconfdir)/rsyslog.d \
+		$(DESTDIR)$(sysconfdir)/security/limits.d \
+		$(DESTDIR)$(sysconfdir)/udev/rules.d \
+		$(DESTDIR)$(sampleconfsdir)
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -773,7 +761,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/simulate_probe $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
-	$(FILE) ../docs/UPDATING $(DESTDIR)$(docsdir)/UPDATING
+	$(FILE) ../docs/UPDATING $(DESTDIR)$(docdir)/UPDATING
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
 	# install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
@@ -788,14 +776,12 @@ ifeq ($(HAVE_WORKING_BLT),yes)
 endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
-	cp --no-dereference \
-	    $(filter-out ../lib/ulapi-%.so,$(filter ../lib/%.so, $(TARGETS))) \
-	    $(DESTDIR)$(libdir)
-	$(FILE) ../lib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
+	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
+	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
-	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
-	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
+	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docdir)
+	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
@@ -824,6 +810,11 @@ endif
 	$(FILE) ../lib/python/gladevcp/widget*.png  $(DESTDIR)$(datadir)/glade3/pixmaps/
 
 	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
+	$(FILE) rtapi/rsyslogd-linuxcnc.conf $(DESTDIR)$(sysconfdir)/rsyslog.d/linuxcnc.conf
+	$(FILE) rtapi/shmdrv/limits.d-linuxcnc.conf \
+		$(DESTDIR)$(sysconfdir)/security/limits.d/linuxcnc.conf
+	$(FILE) rtapi/shmdrv/shmdrv.rules \
+		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-LINUXCNC-shmdrv.rules
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -843,8 +834,8 @@ install-python: install-dirs
 	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
-	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
-	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
+	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docdir)
+	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docdir)/README.axis
 	$(FILE) ../share/axis/images/*.png ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images

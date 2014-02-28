@@ -610,7 +610,7 @@ file is `/home/user/xxx/xxx.ini`, execute the following commands.
 $ cd /home/user/xxx
 $ mkdir python
 $ cd python
-$ cp /usr/share/doc/linuxcnc/examples/sample-configs/sim/remap/python-stdglue/stdglue.py .
+$ cp /usr/share/linuxcnc/examples/sample-configs/sim/remap/python-stdglue/stdglue.py .
 $ echo 'from stdglue import *' >remap.py
 $ echo 'import remap' >toplevel.py
 ---------------------------------------------------------------------
