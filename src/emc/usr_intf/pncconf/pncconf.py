@@ -5116,7 +5116,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     else:
                         temp = temp + "x"
                 ssconfig0 = " sserial_port_0=%s"% temp
-            if self.d.mesa1_numof_sserialports:
+            if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
                 for i in range(1,9):
                     if i <= self.d.mesa1_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
