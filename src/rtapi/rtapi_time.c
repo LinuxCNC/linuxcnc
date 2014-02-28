@@ -45,8 +45,62 @@
 #define rdtscll(val) \
          __asm__ __volatile__("rdtsc" : "=A" (val))
 #else
-#warning No implementation of rtapi_get_clocks available
-#define rdtscll(val) (val)=0
+
+// LinuxCNC doesn't know of an instruction on this architecture to read the
+// CPU cycle counter directly, so use the Linux Perf monitor.  This has
+// higher overhead, but is more portable.
+
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <sys/ioctl.h>
+#include <sys/types.h>
+
+#include <linux/perf_event.h>
+
+#include <asm/unistd.h>
+
+#ifndef perf_event_open
+static int perf_event_open(
+    struct perf_event_attr *hw_event,
+    pid_t pid,
+    int cpu,
+    int group_fd,
+    unsigned long flags
+) {
+        return syscall(__NR_perf_event_open, hw_event, pid, cpu, group_fd, flags);
+}
+#endif
+
+static void _perf_get_clocks(int64_t *val) {
+    static int perf_fd = -1;
+
+    if (perf_fd == -1) {
+        struct perf_event_attr pe;
+
+        memset(&pe, 0, sizeof(struct perf_event_attr));
+        pe.type = PERF_TYPE_HARDWARE;
+        pe.size = sizeof(struct perf_event_attr);
+        pe.config = PERF_COUNT_HW_CPU_CYCLES;
+
+        perf_fd = perf_event_open(&pe, 0, -1, -1, 0);
+        if (perf_fd == -1) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "error opening perf config %llx: %s\n", pe.config, strerror(errno));
+            return;
+        }
+
+        ioctl(perf_fd, PERF_EVENT_IOC_RESET, 0);
+        ioctl(perf_fd, PERF_EVENT_IOC_ENABLE, 0);
+    }
+
+    read(perf_fd, val, sizeof(int64_t));
+}
+
+#define rdtscll(val) _perf_get_clocks(&val)
+
 #endif
 #endif
 #endif /* HAVE_RTAPI_GET_CLOCKS_HOOK */
