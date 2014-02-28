@@ -2,23 +2,19 @@
 #        gmoccapy_tool_length_probe_postgui.hal file              #
 ###################################################################
 
-net spindle-speed-limited gscreen.spindle_feedback_bar
-net spindle-at-speed gscreen.spindle_at_speed_led
+net spindle-speed-limited gmoccapy.spindle_feedback_bar
+net spindle-at-speed gmoccapy.spindle_at_speed_led
 
 # need to unlink, because they are linked allready in core:sim.hal
 unlinkp iocontrol.0.tool-change
 unlinkp iocontrol.0.tool-changed
-#unlinkp hal_manualtoolchange.change
-#unlinkp hal_manualtoolchange.changed
-#unlinkp hal_manualtoolchange.number
 
-net tool-change gscreen.change-tool iocontrol.0.tool-change 
-net tool-changed gscreen.tool-changed iocontrol.0.tool-changed
-net tool-prep-number gscreen.tool-number iocontrol.0.tool-prep-number
+net tool-change gmoccapy.toolchange-change iocontrol.0.tool-change 
+net tool-changed gmoccapy.toolchange-changed iocontrol.0.tool-changed
+net tool-prep-number gmoccapy.toolchange-number iocontrol.0.tool-prep-number
 
-
-net tooloffset-x gscreen.tooloffset_x <= motion.tooloffset.x
-net tooloffset-z gscreen.tooloffset_z <= motion.tooloffset.z
+net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
+net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
 
 
 
