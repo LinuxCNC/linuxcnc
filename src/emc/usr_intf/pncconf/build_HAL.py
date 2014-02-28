@@ -264,7 +264,7 @@ class HAL:
         if not pidlist == "":
             temp = pidlist.split(",")
             for i in temp:
-                print >>file, "addf %s.do-pid-calcs                 servo-thread"% i
+                print >>file, "addf %s.do-pid-calcs       servo-thread"% i
         
         if bldc or self.d.userneededbldc:
             temp=self.d._bldcconfigstring.split(",")
