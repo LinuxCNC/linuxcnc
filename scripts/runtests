@@ -118,10 +118,10 @@ run_tests () {
 		reason="checkresult exited with $exitcode"
 	    elif [ -f $testdir/expected ]; then
 		exitcode=0
-		cmp -s $testdir/expected $testdir/result || exitcode=$?
-		reason="result differed from expected"
-		if [ $exitcode -ne 0 ]; then
-		    diff -u $testdir/expected $testdir/result > $TMPDIR/diff
+		if ! diff -u $testdir/expected $testdir/result > \
+		    $TMPDIR/diff; then
+		    exitcode=1
+		    reason="result differed from expected"
 		    SIZE=$(wc -l < $TMPDIR/diff)
 		    if [ $SIZE -lt 40 ]; then
 			cat $TMPDIR/diff
