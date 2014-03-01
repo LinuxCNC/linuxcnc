@@ -291,10 +291,10 @@ BOOST_PYTHON_LIBS := -lboost_python
 $(call TOOBJSDEPS, $(RTAPIMODULESRCS)): \
 	EXTRAFLAGS += -fPIC $(shell python-config --cflags)
 
-$(RTAPIMODULE): $(call TOOBJS, $(RTAPIMODULESRCS)) $(HALLIB)
+$(RTAPIMODULE): $(call TOOBJS, $(RTAPIMODULESRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
 	$(BOOST_PYTHON_LIBS) \
-	$(shell python-config --libs)  $(HALLIB)
+	$(shell python-config --libs)   ../lib/liblinuxcnchal.so.0
 
 PYTARGETS +=  $(RTAPIMODULE)
