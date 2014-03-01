@@ -22,6 +22,7 @@ rtlib/Module.symvers
 share/*/*.desktop
 share/menus/CNC.menu
 share/desktop-directories/cnc.directory
+src/modules.order
 docs/html/drivers
 /configs/*/emc.nml
 !/configs/common/emc.nml
@@ -43,3 +44,5 @@ tests/bitops.0/bitops
 \#*\#
 .\#*
 core.*
+configs/sim/gmoccapy/*.pref
+configs/sim/gmoccapy/gmoccapy_plasma/*.pref

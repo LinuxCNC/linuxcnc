@@ -1,3 +1,7 @@
+ver 1.0.1
+- solved a bug, because I forgot to include some signals 
+  in glade file, so no jogging with button was possible
+
 ver 1.0
 - we reached the stable state! 
   gmoccapy get completely separated from gsvreen, resultng 
