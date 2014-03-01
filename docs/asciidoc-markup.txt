@@ -4,7 +4,8 @@ This document is a guide for using asciidoc markup
 Master Document file Headers, first line replace en with two letter language code
 ---------------------------------------------------------------------------------
 
-Getting Started V2.5, {localdate}
+:lversion: {sys: cat ../VERSION}
+Getting Started V{lversion}, {localdate}
 =================================
 :lang: en
 :masterdir: {indir}

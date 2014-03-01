@@ -202,13 +202,15 @@ class HandlerClass:
         widget.destroy()
         self.data.entry_dialog = None
 
+    def on_gremlin_line_clicked(self,widget,line):
+        self.widgets.gcode_view.set_line_number(line)
+
     # every 100 milli seconds this gets called
     # add pass so gscreen doesn't try to update it's regular widgets or
     # add the individual function names that you would like to call.
     # In this case we wish to call Gscreen's default function for units button update
     def periodic(self):
         self.gscreen.update_units_button_label()
-
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):

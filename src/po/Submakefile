@@ -3,6 +3,11 @@
 	@mkdir -p $(dir $@)
 	$(Q)msgfmt -o $@ $<
 
+../share/locale/%/LC_MESSAGES/gmoccapy.mo: po/gmoccapy/%.po
+	$(ECHO) Compiling localized gmoccapy message catalog $@
+	@mkdir -p $(dir $@)
+	$(Q)msgfmt -o $@ $<
+
 # the touch is because for po/zh_CN.po, msgfmt --tcl creates
 # objects/zh_cn.po and on the next invocation make would try again to
 # create zh_CN.po
@@ -11,6 +16,7 @@ objects/%.msg: po/%.po
 	$(Q)msgfmt --tcl -d objects -l $* $< && touch $@
 
 MO_FILES := $(patsubst po/%.po, %/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
+MO_FILES :+= $(patsubst po/gmoccapy/%.po, %/LC_MESSAGES/gmoccapy.mo, $(wildcard po/gmoccapy/*.po))
 
 $(DESTDIR)$(localedir)/%/LC_MESSAGES/linuxcnc.mo: ../share/locale/%/LC_MESSAGES/linuxcnc.mo
 	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
@@ -19,6 +25,10 @@ $(DESTDIR)$(localedir)/%/LC_MESSAGES/linuxcnc.mo: ../share/locale/%/LC_MESSAGES/
 TARGETS += $(patsubst po/%.po, \
 	../share/locale/%/LC_MESSAGES/linuxcnc.mo, \
 	$(wildcard po/*.po))
+
+TARGETS += $(patsubst po/gmoccapy/%.po, \
+	../share/locale/%/LC_MESSAGES/gmoccapy.mo, \
+	$(wildcard po/gmoccapy/*.po))
 
 TCLSRCS := \
 	../tcl/bin/emccalib.tcl \

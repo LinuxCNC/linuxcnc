@@ -11,7 +11,19 @@ gscreen_custom
 gscreen_gaxis
   -A similar-to-AXIS demo
 
-Industrial
+industrial
   -Design influenced by Industrial CNC controls.
+    (System page unlock code is '123')
 
-System page unlock code is '123'
+tester
+    -Tester is used to load a GLADE file without
+initializing anything beyond the window.
+The glade file must be called tester.glade
+The toplevel window must be called window1
+tester_handler.py is also a template of a 
+handler file for adding python code for more
+sophisticated customizations.
+If you run this without adding a GLADE file to
+the folder, it will load a default gscreen file.
+
+

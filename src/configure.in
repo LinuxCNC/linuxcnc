@@ -1571,6 +1571,45 @@ AS_IF(
 )
 
 
+#
+# check for libusb-1.0
+#
+
+AC_ARG_WITH(
+    [libusb-1.0],
+    [  --with-libusb-1.0                       Specify whether or not to build
+                                          the drivers that use libusb-1.0
+                                          (defaults to "yes")],
+    [WITH_LIBUSB10=$withval],
+    [WITH_LIBUSB10=yes]
+)
+
+AS_IF(
+    [test "x$WITH_LIBUSB10" = "xyes"],
+    [
+        AC_MSG_CHECKING([for libusb-1.0])
+        if pkg-config libusb-1.0 >/dev/null 2>&1; then
+            AC_MSG_RESULT(yes)
+            LIBUSB10_CFLAGS=`pkg-config libusb-1.0 --cflags`
+            AC_SUBST([LIBUSB10_CFLAGS])
+            LIBUSB10_LIBS=`pkg-config libusb-1.0 --libs`
+            AC_SUBST([LIBUSB10_LIBS])
+            AC_DEFINE(
+                [HAVE_LIBUSB10],
+                [yes],
+                [define if the libusb-1.0 headers and library are available]
+            )
+            AC_SUBST(HAVE_LIBUSB10, yes)
+        else
+          AC_MSG_RESULT(no)
+          AC_MSG_ERROR([libusb-1.0 not found!
+install with "sudo apt-get install libusb-1.0-0-dev" or disable with
+"configure --without-libusb-1.0"])
+        fi
+    ]
+)
+
+
 ##############################################################################
 # Subsection 3.2 - define default dirs, these get used in a lot of places    #
 # we decide based on RIP or install where stuff goes                         #

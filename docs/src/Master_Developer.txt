@@ -1,5 +1,6 @@
-Developer Manual V2.5, {localdate}
-==================================
+:lversion: {sys: cat ../VERSION}
+Developer Manual V{lversion}, {localdate}
+=========================================
 
 :lang: en
 :masterdir: {indir}

@@ -531,6 +531,7 @@ def spath_from_inifile(fname):
         l.extend(p.split(':'))
     lfull = []
     for d in l:
+        d = os.path.expanduser(d)
         if os.path.isabs(d):
             lfull.append(d)
         else:
@@ -1143,9 +1144,14 @@ class LinuxcncInterface():
     def get_ngcgui_options(self):
         return(self.ngcgui_options or [])
 
+    def get_gcmc_include_path(self):
+        dirs = (self.ini_data.find('DISPLAY','GCMC_INCLUDE_PATH'))
+        return(dirs)
+
     def get_program_prefix(self):
         if self.ini_data:
             dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
+            dir = os.path.expanduser(dir)
             if not os.path.isabs(dir):
                 # relative, base on inidir
                 dir = os.path.join(os.path.dirname(self.ini_file),dir)
@@ -2149,6 +2155,16 @@ class ControlPanel():
 
         p.sub_data.pdict['subname'] = funcname
 
+        include_path = intfc.get_gcmc_include_path()
+        if include_path is not None:
+            for dir in include_path.split(":"):
+                xcmd.append("--include")
+                xcmd.append(os.path.expanduser(dir))
+        # maybe: xcmd.append("--include")
+        # maybe: xcmd.append(os.path.dirname(m.sub_file))
+        # note: gcmc also adds the current directory
+        #       to the search path as last entry.
+
         outdir = g_searchpath[0] # first in path
         ofile = os.path.join(outdir,funcname) + ".ngc"
 
@@ -2334,7 +2350,6 @@ class ControlPanel():
             self.lfct.set_label(str(pg.feature_ct))
             pg.savesec = []
 
-        nopts = mypg.nset.intfc.get_ngcgui_options()
         if (('nom2' in nopts) or g_nom2):
             f.write("%\n")
         else:
@@ -2971,7 +2986,6 @@ class NgcGui():
         if w is None:
             # standalone operation
             self.nb = gtk.Notebook()
-            self.nb.set_scrollable(True)
             w = gtk.Window(gtk.WINDOW_TOPLEVEL)
             if g_alive: w.connect("destroy", gtk.main_quit)
             w.set_title(sys.argv[0])
@@ -2981,7 +2995,6 @@ class NgcGui():
         elif type(w) == gtk.Frame:
             # demo -- embed as a notebook in a provider's frame
             self.nb = gtk.Notebook()
-            self.nb.set_scrollable(True)
             w.add(self.nb)
             self.nb.show()
             w.show()
@@ -2992,6 +3005,7 @@ class NgcGui():
         else:
             raise ValueError,'NgcGui:bogus w= %s' % type(w)
 
+        self.nb.set_scrollable(True)
         self.set_theme(w,tname=gtk_theme_name)
 
         self.intfc = LinuxcncInterface(ini_file)
@@ -3366,7 +3380,7 @@ Notes:
       Multiple sets of files can be specified from an inifile.
       If --ini is NOT specified:
          search for a running linuxcnc and use it's inifile
-    """ % sys.argv[0])
+    """ % g_progname)
 #-----------------------------------------------------------------------------
 # Standalone (and demo) usage:
 

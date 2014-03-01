@@ -27,6 +27,9 @@ from hal_glib import GStat
 
 class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
+    __gsignals__ = {
+        'line-clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,))
+    }
     __gproperties__ = {
         'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: p, x, y, y2, z, z2',
                     'p', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
@@ -65,6 +68,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     }
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):
+        gobject.GObject.__init__(self)
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
         inifile = linuxcnc.ini(inifile)
         gremlin.Gremlin.__init__(self, inifile)
@@ -214,6 +218,12 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))
             return limit, homed, posstrs, droposstrs
+
+    # Override gremlin's / glcannon.py function so we can emit a GObject signal
+    def update_highlight_variable(self,line):
+        self.highlight_line = line
+        if line == None: return
+        self.emit('line-clicked', line)
 
     def realize(self, widget):
         gremlin.Gremlin.realize(self, widget)

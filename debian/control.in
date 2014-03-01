@@ -13,6 +13,7 @@ Build-Depends: debhelper (>= 6),
     imagemagick, texlive-lang-cyrillic, texlive-lang-french,
     texlive-lang-spanish, texlive-lang-german, netcat,
     libmodbus-dev (>= 3.0),
+ 	libusb-1.0-0-dev,
     dvipng, texlive-extra-utils, texlive-latex-recommended,
     texlive-fonts-recommended, ghostscript, texlive-font-utils,
     @BUILD_DEPENDS@

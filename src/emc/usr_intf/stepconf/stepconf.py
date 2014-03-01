@@ -74,14 +74,13 @@ locale.bindtextdomain(domain, LOCALEDIR)
 gettext.bindtextdomain(domain, LOCALEDIR)
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc","stepconf")
+main_datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..", "share", "linuxcnc")
 wizard = os.path.join(datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    wizard = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
+    wizard = os.path.join(main_datadir, "linuxcnc-wizard.gif")
 if not os.path.isfile(wizard):
-    linuxcncicon = os.path.join("/usr/share/linuxcnc/linuxcnc-wizard.gif")
-if not os.path.isfile(wizard):
-    wizdir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
-    wizard = os.path.join(wizdir, "linuxcnc-wizard.gif")
+    print "cannot find linuxcnc-wizard.gif, looked in %s and %s" % (datadir, main_datadir)
+    sys.exit(1)
 
 icondir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 linuxcncicon = os.path.join(icondir, "linuxcncicon.png")

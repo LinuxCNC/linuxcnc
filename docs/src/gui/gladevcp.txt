@@ -1355,6 +1355,9 @@ There are python methods to control the widget:
     [widget name].get_selected()
         Returns the path of the selected file, or None if an directory has been selected
 
+    [widget name].refresh_filelist()
+        Refreshes the filelist, needed if you add a file without changing the directory
+
 If the button box has been hidden, you can reach the functions of this button
 through it's clicked signals like so:
 

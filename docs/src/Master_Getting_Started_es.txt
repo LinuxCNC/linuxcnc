@@ -1,5 +1,6 @@
-Primeros pasos V2.5, {localdate}
-=================================
+:lversion: {sys: cat ../VERSION}
+Primeros pasos V{lversion}, {localdate}
+=======================================
 
 :lang: es
 

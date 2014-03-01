@@ -1,5 +1,6 @@
-Manual Integrador V2.5, {localdate}
-===================================
+:lversion: {sys: cat ../VERSION}
+Manual Integrador V{lversion}, {localdate}
+==========================================
 
 :lang: es
 
