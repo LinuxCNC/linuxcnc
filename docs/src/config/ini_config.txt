@@ -127,6 +127,37 @@ setp stepgen.0.position-scale [AXIS_0]SCALE
 The value stored in the variable must match the type specified by the
 component pin.
 
+=== Include Files
+
+An INI file may include the contents of another file by using a #INCLUDE
+directive.
+
+.#INCLUDE Format
+----
+#INCLUDE filename
+----
+
+The filename can be specified as:
+ * a file in the same directory as the INI file
+ * a file located relative to the working directory
+ * an absolute file name (starts with a /)
+ * a user-home-relative file name (starts with a ~)
+Multiple #INCLUDE directives are supported.
+
+.#INCLUDE Examples
+----
+#INCLUDE axis_0.inc
+#INCLUDE ../parallel/axis_1.inc
+#INCLUDE below/axis_2.inc
+#INCLUDE /home/myusername/myincludes/display.inc
+#INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc
+----
+
+The #INCLUDE directives are supported for one level of expansion only -- an
+included file may not include additional files.  The recommended file extension
+is .inc.  Do not use a file extension of .ini for included files.
+
+
 == INI File Sections[[sec:INI-Detail]]
 
 === [EMC] Section[[sub:[EMC]-section]]
