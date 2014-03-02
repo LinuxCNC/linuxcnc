@@ -151,6 +151,8 @@ class gmoccapy(object):
 
         self.widgets = widgets.Widgets(self.builder)
 
+        self.stepping = False
+
         self.active_gcodes = []   # this are the formated G code values
         self.active_mcodes = []   # this are the formated M code values
         self.gcodes = []          # this are the unformated G code values to check if an update is requiered
@@ -1287,6 +1289,11 @@ class gmoccapy(object):
 
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
+        # the user want to run step by step
+        if self.stepping == True:
+            self.widgets.btn_step.set_sensitive(True)
+            self.widgets.tbtn_pause.set_sensitive(False)
+
         self.interpreter = _RUN
 
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
@@ -3300,6 +3307,17 @@ class gmoccapy(object):
         # FIXME
         # self.command.auto( linuxcnc.AUTO_RUN, 0 )
         pass
+
+    def on_btn_step_clicked(self, widget, data = None):
+        self.command.auto(linuxcnc.AUTO_STEP)
+        self.stepping = True
+
+    # this is needed only for stepping through a program, to
+    # sensitize the widgets according to that mode
+    def on_btn_load_state_changed(self, widget, state):
+        if state == gtk.STATE_INSENSITIVE:
+            self.stepping = False
+            self.widgets.tbtn_pause.set_sensitive(True)
 
     def on_btn_stop_clicked(self, widget, data = None):
         # self.command.abort()

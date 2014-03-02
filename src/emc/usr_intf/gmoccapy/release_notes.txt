@@ -1,3 +1,6 @@
+ver. 1.0.4
+- corrected the way of excecuting a program step by step 
+
 ver. 1.0.3
 - pressing the OFF button will bring you back to manual
   mode, because there is the "EXIT" button
