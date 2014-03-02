@@ -57,8 +57,8 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
-                                            <property name="enable_dro">False</property>
                                             <property name="use_commanded">False</property>
+                                            <property name="enable_dro">False</property>
                                             <property name="show_dtg">False</property>
                                             <signal name="button_press_event" handler="on_gremlin_button_press_event"/>
                                             <signal name="line_clicked" handler="on_gremlin_line_clicked"/>
@@ -336,8 +336,8 @@
                                 <child>
                                   <object class="OffsetPage" id="offsetpage1">
                                     <property name="visible">True</property>
-                                    <property name="highlight_color">#adadd8d8e6e6</property>
                                     <property name="foreground_color">#ffff00000000</property>
+                                    <property name="highlight_color">#adadd8d8e6e6</property>
                                   </object>
                                   <packing>
                                     <property name="position">1</property>
@@ -483,9 +483,9 @@
                                       <object class="Combi_DRO" id="Combi_DRO_x">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
@@ -501,13 +501,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_y">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">1</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="joint_number">1</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -518,13 +518,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_z">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">2</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="joint_number">2</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -535,13 +535,13 @@
                                       <object class="Combi_DRO" id="Combi_DRO_4">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="abs_color">#00000000ffff</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
+                                        <property name="joint_number">3</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
+                                        <property name="abs_color">#00000000ffff</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
-                                        <property name="joint_number">3</property>
                                         <signal name="clicked" handler="on_Combi_DRO_clicked"/>
                                       </object>
                                       <packing>
@@ -1781,16 +1781,16 @@
                                                           <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
                                                             <property name="tooltip_text" translatable="yes">The feedback spindle speed</property>
-                                                            <property name="bg_color">#bebebebebebe</property>
-                                                            <property name="z0_color">#0000ffff0000</property>
-                                                            <property name="z0_border">0.40000000596046448</property>
                                                             <property name="z1_color">#0000ffff0000</property>
-                                                            <property name="z1_border">0.80000001192092896</property>
                                                             <property name="target_color">#0000ffff0000</property>
                                                             <property name="z2_color">#0000ffff0000</property>
                                                             <property name="target_value">-0.039999999105930328</property>
-                                                            <property name="max">6000</property>
+                                                            <property name="z1_border">0.80000001192092896</property>
+                                                            <property name="z0_color">#0000ffff0000</property>
                                                             <property name="text_template">%i</property>
+                                                            <property name="z0_border">0.40000000596046448</property>
+                                                            <property name="bg_color">#bebebebebebe</property>
+                                                            <property name="max">6000</property>
                                                             <signal name="hal_pin_changed" handler="on_spindle_feedback_bar_hal_pin_changed"/>
                                                           </object>
                                                           <packing>
@@ -6284,7 +6284,7 @@ selected</property>
   </object>
   <object class="GtkAdjustment" id="adj_spindle">
     <property name="value">100</property>
-    <property name="upper">6000</property>
+    <property name="upper">150</property>
     <property name="step_increment">1</property>
     <signal name="value_changed" handler="on_adj_spindle_value_changed"/>
   </object>

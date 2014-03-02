@@ -38,34 +38,34 @@ class Notification(gtk.Window):
     '''Notification(gtk.Window)
        will show popup windows with messages and icon
     '''
-    
+
     __gtype_name__ = 'Notification'
     __gproperties__ = {
-           'icon_size' : ( gobject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed button icon',
-                        1,96,16, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'message_width' : ( gobject.TYPE_INT, 'Message Width', 'Sets the message width in pixel',
-                        0,800,300, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'x_pos' : ( gobject.TYPE_INT, 'Frame X Position', 'Sets the frame X position in pixel',
-                        0,1280,0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'y_pos' : ( gobject.TYPE_INT, 'Frame Y Position', 'Sets the frame Y position in pixel',
-                        0,1024,0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
-                      "sans 10", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-           'max_messages' : ( gobject.TYPE_INT, 'Max Messages', 'Sets the maximum number of messages to show',
-                        2,100,10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'top_to_bottom' : ( gobject.TYPE_BOOLEAN, 'Show from top to bottom', 'Show the second notification under the first one or on top?',
+           'icon_size' : (gobject.TYPE_INT, 'Icon Size', 'Sets the size of the displayed button icon',
+                        1, 96, 16, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'message_width' : (gobject.TYPE_INT, 'Message Width', 'Sets the message width in pixel',
+                        0, 800, 300, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'x_pos' : (gobject.TYPE_INT, 'Frame X Position', 'Sets the frame X position in pixel',
+                        0, 1280, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'y_pos' : (gobject.TYPE_INT, 'Frame Y Position', 'Sets the frame Y position in pixel',
+                        0, 1024, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'font' : (gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
+                      "sans 10", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'max_messages' : (gobject.TYPE_INT, 'Max Messages', 'Sets the maximum number of messages to show',
+                        2, 100, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+           'top_to_bottom' : (gobject.TYPE_BOOLEAN, 'Show from top to bottom', 'Show the second notification under the first one or on top?',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-           'use_frames' : ( gobject.TYPE_BOOLEAN, 'Use Frames for messages', 'You can separate the messages using frames, but you will need more space',
+           'use_frames' : (gobject.TYPE_BOOLEAN, 'Use Frames for messages', 'You can separate the messages using frames, but you will need more space',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
                       }
     __gproperties = __gproperties__
- 
+
     # build the main gui
     def __init__(self):
         gtk.Window.__init__(self)
-        self.connect('destroy',lambda*w:gtk.main_quit())
-        self.messages=[]
-        self.popup=gtk.Window(gtk.WINDOW_POPUP)
+        self.connect('destroy', lambda*w:gtk.main_quit())
+        self.messages = []
+        self.popup = gtk.Window(gtk.WINDOW_POPUP)
         self.vbox = gtk.VBox()
         self.popup.add(self.vbox)
         self.icon_size = 16
@@ -79,7 +79,7 @@ class Notification(gtk.Window):
         self.height = 0
 
     # this will fill the main gui with the frames, containing the messages or errors
-    def _show_message(self,message):
+    def _show_message(self, message):
         number = message[0]
         text = message[1]
         if message[2]:
@@ -97,22 +97,22 @@ class Notification(gtk.Window):
         if message[2]:
             icon.set_from_file(icon_file_name)
         else:
-            icon.set_from_stock(gtk.STOCK_DIALOG_ERROR,self.icon_size)
+            icon.set_from_stock(gtk.STOCK_DIALOG_ERROR, self.icon_size)
         hbox.pack_start(icon)
-        label=gtk.Label()
+        label = gtk.Label()
         label.set_line_wrap(True)
         label.set_line_wrap_mode(pango.WRAP_CHAR)
         label.set_text(text)
-        label.set_size_request(self.message_width,-1)
+        label.set_size_request(self.message_width, -1)
         font_desc = pango.FontDescription(self.font)
         label.modify_font(font_desc)
         hbox.pack_start(label)
         btn_close = gtk.Button()
         image = gtk.Image()
-        image.set_from_stock(gtk.STOCK_CANCEL,self.icon_size)
+        image.set_from_stock(gtk.STOCK_CANCEL, self.icon_size)
         btn_close.set_image(image)
         btn_close.set_border_width(2)
-        btn_close.connect('clicked', self._on_btn_close_clicked,labelnumber.get_text())
+        btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
         hbox.pack_start(btn_close)
         if self.use_frames:
             widget = frame
@@ -132,7 +132,7 @@ class Notification(gtk.Window):
         self.vbox.show()
 #        self.popup.show()
 
-    # add a message, the message is a string, it will be line wraped 
+    # add a message, the message is a string, it will be line wraped
     # if to long for the frame
     def add_message(self, message, icon_file_name):
         '''Notification.add_message(messagetext, icon_file_name)
@@ -141,19 +141,19 @@ class Notification(gtk.Window):
            icon_file_name = a valid absolut path to an icon or None
         '''
         self.popup.hide()
-        self.popup.resize(1,1)
+        self.popup.resize(1, 1)
         number_of_messages = len(self.messages)
         if number_of_messages == self.max_messages:
             self.del_first()
             number_of_messages = len(self.messages)
-        self.messages.append([number_of_messages,message,icon_file_name])
+        self.messages.append([number_of_messages, message, icon_file_name])
         self._show_message(self.messages[number_of_messages])
         if not self.top_to_bottom:
             self.height = self.popup.get_size()[1]
-        #print(self.y_pos, self.popup.get_size(),self.height)
+        # print(self.y_pos, self.popup.get_size(),self.height)
         self.popup.move(self.x_pos, self.y_pos - self.height)
         self.popup.show()
-        #print(self.popup.get_position())
+        # print(self.popup.get_position())
 
     def del_first(self):
         '''del_first()
@@ -168,13 +168,13 @@ class Notification(gtk.Window):
            delete the last message
         '''
         if len(self.messages) != 0:
-            del self.messages[len(self.messages)-1]
+            del self.messages[len(self.messages) - 1]
             self._refill_messages()
- 
+
     # this will delete a message, if the user gives a valid number it will be deleted,
     # but the user must take care to use the correct number
     # if you give a value of "-1" all messages will be deletet
-    def del_message(self,messagenumber):
+    def del_message(self, messagenumber):
         '''del_message(messagenumber)
            delete the message with the given number
            
@@ -186,7 +186,7 @@ class Notification(gtk.Window):
             self._refill_messages()
             return True
         elif messagenumber > len(self.messages) or messagenumber < 0:
-            self.add_message(_('Error trying to delet the message with number %s'%messagenumber), None)
+            self.add_message(_('Error trying to delet the message with number %s' % messagenumber), None)
             return False
         try:
             del self.messages[int(messagenumber)]
@@ -194,20 +194,20 @@ class Notification(gtk.Window):
             return False
         self._refill_messages()
         return True
- 
+
     # this is the recomendet way to delete a message, by clicking the
     # close button of the coresponding frame
-    def _on_btn_close_clicked(self,widget,labelnumber):
+    def _on_btn_close_clicked(self, widget, labelnumber):
         del self.messages[int(labelnumber)]
         self._refill_messages()
- 
+
     def _refill_messages(self):
         # first we have to hide all messages, otherwise the popup window will mantain
         # all the old messages
         self.popup.hide_all()
         # then we rezise the popup window to a very small size, otherwise the dimensions
-        # of the window will be mantained 
-        self.popup.resize(1,1)
+        # of the window will be mantained
+        self.popup.resize(1, 1)
         # if it was the last message, than we can hide the popup window
         if len(self.messages) == 0:
             self.popup.hide()
@@ -229,7 +229,7 @@ class Notification(gtk.Window):
             return getattr(self, name)
         else:
             raise AttributeError('unknown iconview get_property %s' % property.name)
- 
+
     def do_set_property(self, property, value):
 #        print(property,"=",value)
         try:
@@ -254,9 +254,9 @@ class Notification(gtk.Window):
                 if name == 'use_frames':
                     self.use_frames = value
             else:
-                raise AttributeError('unknown iconview set_property %s' % property.name) 
+                raise AttributeError('unknown iconview set_property %s' % property.name)
         except:
-            print('Attribute error',property,"and",type(value) , value)
+            print('Attribute error', property, "and", type(value) , value)
             pass
 
 # for testing without glade editor:
@@ -267,5 +267,5 @@ def main():
     notification.show()
     gtk.main()
 
-if __name__ == "__main__":    
+if __name__ == "__main__":
     main()
