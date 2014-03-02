@@ -1,11 +1,5 @@
 files
-rules
 control
-control.posix
-control.rtai
-control.rtpreempt
-control.xenomai
-control.xenomai-kernel
 tmp
 linuxcnc
 linuxcnc-dev
@@ -16,10 +10,5 @@ linuxcnc-rtpreempt/
 linuxcnc-xenomai/
 linuxcnc-xenomai-kernel/
 *.substvars
-/linuxcnc.files
-/linuxcnc-dev.files
-/linuxcnc-sim.files
-/linuxcnc-sim-dev.files
-/linuxcnc-doc-*.files
 *.debhelper
 shlibs.local

@@ -8,22 +8,22 @@ Build-Depends: debhelper (>= 6),
     asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
     python, python-dev, python-support, python-tk, python-lxml,
     libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
-    libgtk2.0-dev, libgnomeprintui2.2-dev,
+    libgtk2.0-dev,
     gettext, autoconf (>= 2.63), libboost-python-dev,
     imagemagick, texlive-lang-cyrillic, texlive-lang-french,
     texlive-lang-spanish, texlive-lang-german, netcat,
     libmodbus-dev (>= 3.0),
     dvipng, texlive-extra-utils, texlive-latex-recommended,
     texlive-fonts-recommended, ghostscript, texlive-font-utils,
-    @BUILD_DEPENDS@
+    @BUILD_DEPS@
 Standards-Version: 2.1.0
 
 Package: linuxcnc-dev
 Architecture: any
 Conflicts: emc2-dev, emc2-sim-dev
 Replaces: emc2-dev
-Depends: g++, @BUILD_DEPENDS@,
-    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+Depends: g++, ${tcl-tk-dev},
+    python (>= 2.6), python (<< 2.8),
     ${python:Depends}, ${misc:Depends},
     linuxcnc (= ${binary:Version}),
     yapps2-runtime
@@ -40,18 +40,17 @@ Package: linuxcnc
 Replaces: emc2
 Conflicts: emc2, emc2-sim
 Architecture: any
-Suggests: @SUGGESTS@
-Recommends: linuxcnc-doc-en | linuxcnc-doc, @RECOMMENDS@
-Depends: ${shlibs:Depends}, @DEPENDS@,
+Recommends: linuxcnc-doc-en | linuxcnc-doc, 
+Depends: ${shlibs:Depends}, linuxcnc-posix, ${tcl-tk},
     bwidget (>= 1.7), libtk-img (>=1.13),
-    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    python (>= 2.6), python (<< 2.8),
     ${python:Depends}, ${misc:Depends},
-    python@PYTHON_VERSION@-tk,
-    python@PYTHON_VERSION@-gnome2 | python-gnome2,
-    python@PYTHON_VERSION@-glade2 | python-glade2,
-    python@PYTHON_VERSION@-numpy | python-numpy,
-    python@PYTHON_VERSION@-imaging,
-    python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
+    python${python-version}-tk,
+    python${python-version}-gnome2 | python-gnome2,
+    python${python-version}-glade2 | python-glade2,
+    python${python-version}-numpy | python-numpy,
+    python${python-version}-imaging,
+    python${python-version}-imaging-tk | python-imaging-tk,
     python-gtksourceview2,
     python-vte,
     python-xlib, python-gtkglext1, python-configobj,
@@ -102,3 +101,30 @@ Description: PC based motion controller for real-time Linux
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in Spanish.
+
+Package: linuxcnc-posix
+Conflicts: emc2, emc2-sim, linuxcnc-sim
+Architecture: any
+Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, 
+Recommends: hostmot2-firmware
+Enhances: linuxcnc
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package provides components and drivers that run on a non-realtime
+ (Posix) system.
+
+Package: linuxcnc-rtpreempt
+Conflicts: emc2, emc2-sim, linuxcnc-sim
+Architecture: any
+Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends},
+	linux-image-rt-${preempt-rt-ext}
+Enhances: linuxcnc
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package provides components and drivers that run on an RT-Preempt system.
