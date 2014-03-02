@@ -270,6 +270,7 @@ fi
 function handle_includes () {
   hdr="# handle_includes():"
   inifile=$1 
+  cd $(dirname $inifile) ;# for the function() subprocess only
   grep "^#INCLUDE" $inifile >/dev/null
   status=$?
   if [ $status -ne 0 ] ; then

@@ -138,10 +138,12 @@ directive.
 ----
 
 The filename can be specified as:
+
  * a file in the same directory as the INI file
  * a file located relative to the working directory
  * an absolute file name (starts with a /)
  * a user-home-relative file name (starts with a ~)
+
 Multiple #INCLUDE directives are supported.
 
 .#INCLUDE Examples
