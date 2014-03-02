@@ -2411,14 +2411,12 @@ class gmoccapy(object):
         self.min_spindle_rev = widget.get_value()
         if self.log: self._add_alarm_entry("Spindle bar min has been set to %s" % self.min_spindle_rev)
         self.prefs.putpref("spindle_bar_min", self.min_spindle_rev, float)
-        self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
         self.widgets.spindle_feedback_bar.set_property("min", self.min_spindle_rev)
 
     def on_adj_spindle_bar_max_value_changed(self, widget, data = None):
         self.max_spindle_rev = widget.get_value()
         if self.log: self._add_alarm_entry("Spindle bar max has been set to %s" % self.max_spindle_rev)
         self.prefs.putpref("spindle_bar_max", self.max_spindle_rev, float)
-        self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
         self.widgets.spindle_feedback_bar.set_property("max", self.max_spindle_rev)
 
     def on_spindle_feedback_bar_hal_pin_changed(self, widget, data = None):
