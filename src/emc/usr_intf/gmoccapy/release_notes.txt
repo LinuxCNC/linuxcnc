@@ -1,3 +1,7 @@
+ver. 1.0.3
+- pressing the OFF button will bring you back to manual
+  mode, because there is the "EXIT" button
+
 ver. 1.0.2
 - solved a spindle button issue and included a check so it
   is no possible to exceed the limits of the spindle with 

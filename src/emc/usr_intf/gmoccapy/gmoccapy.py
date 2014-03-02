@@ -84,7 +84,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.2"
+_RELEASE = "1.0.3"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -1190,6 +1190,7 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(linuxcnc.STATE_OFF)
             self._update_widgets(False)
+            self.on_hal_status_mode_manual(None)
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data = None):
