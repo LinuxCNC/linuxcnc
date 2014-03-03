@@ -1389,7 +1389,11 @@ class SubFile():
 
             ropt = re.search(r'^ *\/\/ *ngcgui *: *(-.*)$' ,l)
             if ropt:
-                self.gcmc_opts.append(ropt.group(1))
+                gopt = ropt.group(1)
+                gopt = gopt.split("/")[0]  ;# trailing comment
+                gopt = gopt.split(";")[0]  ;# convenience
+                gopt = gopt.split()[0]     ;# leading/trailing spaces
+                self.gcmc_opts.append(gopt)
                 continue
 
             name = None
@@ -2185,7 +2189,14 @@ class ControlPanel():
             #print 'k=',k,p.sub_data.ndict[k]
             name,dvalue,comment = p.sub_data.ndict[k]
             # make all entry box values explicitly floating point
-            fvalue = str(float(m.efields.pentries[k].getentry()))
+            try:
+                fvalue = str(float(m.efields.pentries[k].getentry()))
+            except ValueError:
+                user_message(mtype=gtk.MESSAGE_ERROR
+                    ,title='gcmc input ERROR'
+                    ,msg=_('<%s> must be a number' % m.efields.pentries[k].getentry())
+                    )
+                return False ;# fail
             xcmd.append('--define=' + name + '=' + fvalue)
 
         xcmd.append(m.sub_file)

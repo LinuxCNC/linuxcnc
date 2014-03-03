@@ -1,3 +1,4 @@
+include("ensure_mode.gcmc"); //avoid preamble conflict
 /*******************************************************
 The following //comment lines identify ngcgui inputs:
 

@@ -1,3 +1,4 @@
+include("ensure_mode.gcmc"); //avoid preamble conflict
 /* demo for using gcmc file with [py]ngcgui
 
 //ngcgui: info: WHEELS (gcmc G-Code Meta Compiler)
