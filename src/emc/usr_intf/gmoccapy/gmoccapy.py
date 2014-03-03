@@ -84,7 +84,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.1"
+_RELEASE = "1.0.4"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -150,6 +150,8 @@ class gmoccapy(object):
         self.builder.connect_signals(self)
 
         self.widgets = widgets.Widgets(self.builder)
+
+        self.stepping = False
 
         self.active_gcodes = []   # this are the formated G code values
         self.active_mcodes = []   # this are the formated M code values
@@ -254,8 +256,8 @@ class gmoccapy(object):
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
         self.max_spindle_rev = self.prefs.getpref("spindle_bar_max", 6000.0, float)
-        self.widgets.adj_spindle_bar_min.set_value((self.min_spindle_rev))
-        self.widgets.adj_spindle_bar_max.set_value((self.max_spindle_rev))
+        self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
+        self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
         self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
         self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
 
@@ -1190,6 +1192,7 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(linuxcnc.STATE_OFF)
             self._update_widgets(False)
+            self.on_hal_status_mode_manual(None)
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data = None):
@@ -1286,6 +1289,11 @@ class gmoccapy(object):
 
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
+        # the user want to run step by step
+        if self.stepping == True:
+            self.widgets.btn_step.set_sensitive(True)
+            self.widgets.tbtn_pause.set_sensitive(False)
+
         self.interpreter = _RUN
 
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
@@ -1841,19 +1849,6 @@ class gmoccapy(object):
                 self.widgets.tbtn_mist.set_active(False)
                 self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
 
-    def _update_spindle_btn(self):
-        if self.stat.task_mode == _AUTO and self.interpreter == _RUN:
-            return
-        if not abs(self.stat.spindle_speed):
-            self.widgets.rbt_stop.set_active(True)
-            return
-        if self.stat.spindle_direction > 0:
-            self.widgets.rbt_forward.set_active(True)
-        elif self.stat.spindle_direction < 0:
-            self.widgets.rbt_reverse.set_active(True)
-        elif not self.widgets.rbt_stop.get_active():
-            self.widgets.rbt_stop.set_active(True)
-
     def _update_slider(self, widgetlist, faktor):
         # update scales and sliders
         for widget in widgetlist:
@@ -1863,36 +1858,6 @@ class gmoccapy(object):
             self.widgets[widget].lower = min * self.faktor
             self.widgets[widget].upper = max * self.faktor
             self.widgets[widget].set_value(value * self.faktor)
-
-    def _set_spindle(self, widget, data = None):
-        rpm = abs(self.stat.settings[2])
-        if rpm == 0:
-            rpm = self.spindle_start_rpm
-
-        self._check_spindle_max(rpm)
-
-        if widget == self.widgets.rbt_forward:
-            self.command.spindle(1, rpm)
-        elif widget == self.widgets.rbt_reverse:
-            self.command.spindle(-1, rpm)
-        elif widget == self.widgets.rbt_stop:
-            self.command.spindle(0)
-        else:
-             self._add_alarm_entry(_("Something went wrong, we have an unknown widget"))
-
-        if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
-        self.widgets.lbl_spindle_act.set_label("S %s" % rpm)
-        self.on_scl_spindle_value_changed(self.widgets.scl_spindle)
-
-    def _check_spindle_max(self, rpm):
-        spindle_override = self.widgets.scl_spindle.get_value() / 100
-        real_spindle_speed = rpm * spindle_override
-        if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
-            try:
-                value_to_set = self.widgets.scl_spindle.get_value() / (real_spindle_speed / self.widgets.adj_spindle_bar_max.get_value())
-                self.widgets.scl_spindle.set_value(value_to_set)
-            except:
-                pass
 
     def _change_dro_color(self, property, color):
         for axis in self.axis_list:
@@ -1908,7 +1873,6 @@ class gmoccapy(object):
                 self.diameter_mode = False
             else:
                 self.diameter_mode = True
-
 
     def _update_toolinfo(self, tool):
         toolinfo = self.widgets.tooledit1.get_toolinfo(tool)
@@ -2328,72 +2292,136 @@ class gmoccapy(object):
                                   _("Classicladder real-time component not detected"))
             self._add_alarm_entry(_("ladder not available - is the real-time component loaded?"))
 
-    # spindle stuff
+#-----------------------------------------------------------
+# spindle stuff
+#-----------------------------------------------------------
+    def _update_spindle_btn(self):
+        if self.stat.task_mode == _AUTO and self.interpreter == _RUN:
+            return
+        if not abs(self.stat.spindle_speed):
+            self.widgets.rbt_stop.set_active(True)
+            return
+        if self.stat.spindle_direction > 0:
+            self.widgets.rbt_forward.set_active(True)
+        elif self.stat.spindle_direction < 0:
+            self.widgets.rbt_reverse.set_active(True)
+        elif not self.widgets.rbt_stop.get_active():
+            self.widgets.rbt_stop.set_active(True)
+
+    def _set_spindle(self, command):
+        if command == "stop":
+            self.command.spindle(0)
+            self.widgets.lbl_spindle_act.set_label("S 0")
+            return
+        rpm = self._check_spindle_range()
+        # as the commanded value will be multiplied with speed override,
+        # we take care of that
+        rpm_out = rpm / self.stat.spindlerate
+        if command == "forward":
+            self.command.spindle(1, rpm_out)
+        elif command == "reverse":
+            self.command.spindle(-1, rpm_out)
+        else:
+            self._add_alarm_entry(_("Something went wrong, we have an unknown widget"))
+
+        if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
+        self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
+
+    def _check_spindle_range(self):
+        rpm = self.stat.settings[2]
+        if rpm == 0:
+            rpm = abs(self.spindle_start_rpm)
+
+        spindle_override = self.widgets.adj_spindle.get_value() / 100
+        real_spindle_speed = rpm * spindle_override
+
+        if real_spindle_speed > self.max_spindle_rev:
+            real_spindle_speed = self.max_spindle_rev
+        elif real_spindle_speed < self.min_spindle_rev:
+            real_spindle_speed = self.min_spindle_rev
+        return real_spindle_speed
+
     def on_rbt_forward_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("rbt_forward_clicked")
-        if self.widgets.rbt_forward.get_active():
-            self.widgets.rbt_forward.set_image(self.widgets.img_forward_on)
-            self._set_spindle(widget)
+        if widget.get_active():
+            widget.set_image(self.widgets.img_forward_on)
+            self._set_spindle("forward")
         else:
             self.widgets.rbt_forward.set_image(self.widgets.img_forward)
 
     def on_rbt_reverse_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("rbt_reverse_clicked")
-        if self.widgets.rbt_reverse.get_active():
-            self.widgets.rbt_reverse.set_image(self.widgets.img_reverse_on)
+        if widget.get_active():
+            widget.set_image(self.widgets.img_reverse_on)
             self.widgets.spindle_feedback_bar.set_property("max", float(self.min_spindle_rev) * -1)
             self.widgets.spindle_feedback_bar.set_property("min", float(self.max_spindle_rev) * -1)
-            self._set_spindle(widget)
+            self._set_spindle("reverse")
         else:
-            self.widgets.rbt_reverse.set_image(self.widgets.img_reverse)
+            widget.set_image(self.widgets.img_reverse)
             self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
             self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
 
     def on_rbt_stop_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("rbt_stop_clicked")
-        if self.widgets.rbt_stop.get_active():
-            self.widgets.rbt_stop.set_image(self.widgets.img_stop_on)
-            self._set_spindle(widget)
+        if widget.get_active():
+            widget.set_image(self.widgets.img_stop_on)
+            self._set_spindle("stop")
         else:
             self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
+
+    def on_btn_spindle_100_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("spindle override has been reseted to 100 %")
+        self.widgets.adj_spindle.set_value(100)
+
+    def on_adj_spindle_value_changed(self, widget, data = None):
+        # this is in a try except, because on initializing the window the values are still zero
+        # so we would get an division / zero error
+        real_spindle_speed = 0
+        try:
+            if not self.stat.settings[2]:
+                if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
+                    speed = self.stat.spindle_speed
+                else:
+                    speed = 0
+            else:
+                speed = self.stat.settings[2]
+            spindle_override = widget.get_value() / 100
+            real_spindle_speed = speed * spindle_override
+            if real_spindle_speed > self.max_spindle_rev:
+                value_to_set = widget.get_value() / (real_spindle_speed / self.max_spindle_rev)
+                widget.set_value(value_to_set)
+                real_spindle_speed = self.max_spindle_rev
+            elif real_spindle_speed < self.min_spindle_rev:
+                value_to_set = widget.get_value() / (real_spindle_speed / self.min_spindle_rev)
+                widget.set_value(value_to_set)
+                real_spindle_speed = self.min_spindle_rev
+            else:
+                value_to_set = spindle_override * 100
+            self.command.spindleoverride(value_to_set / 100)
+        except:
+            pass
+        self.widgets.lbl_spindle_act.set_text("S %d" % real_spindle_speed)
+
+    def on_adj_start_spindle_RPM_value_changed(self, widget, data = None):
+        self.spindle_start_rpm = widget.get_value()
+        if self.log: self._add_alarm_entry("sbtn_spindle_start_rpm changed to %s" % self.spindle_start_rpm)
+        self.prefs.putpref("spindle_start_rpm", self.spindle_start_rpm, float)
+
+    def on_adj_spindle_bar_min_value_changed(self, widget, data = None):
+        self.min_spindle_rev = widget.get_value()
+        if self.log: self._add_alarm_entry("Spindle bar min has been set to %s" % self.min_spindle_rev)
+        self.prefs.putpref("spindle_bar_min", self.min_spindle_rev, float)
+        self.widgets.spindle_feedback_bar.set_property("min", self.min_spindle_rev)
+
+    def on_adj_spindle_bar_max_value_changed(self, widget, data = None):
+        self.max_spindle_rev = widget.get_value()
+        if self.log: self._add_alarm_entry("Spindle bar max has been set to %s" % self.max_spindle_rev)
+        self.prefs.putpref("spindle_bar_max", self.max_spindle_rev, float)
+        self.widgets.spindle_feedback_bar.set_property("max", self.max_spindle_rev)
 
     def on_spindle_feedback_bar_hal_pin_changed(self, widget, data = None):
         self.widgets.lbl_spindle_act.set_text("S %s" % int(self.widgets.spindle_feedback_bar.value))
 
-    def on_btn_spindle_100_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("btn_spindle_100_clicked")
-        self.widgets.adj_spindle.set_value(100)
-
-    def on_adj_spindle_value_changed(self, widget, data = None):
-        if not self.stat.settings[2]:
-            return
-        spindle_override = self.widgets.scl_spindle.get_value() / 100
-        real_spindle_speed = self.stat.settings[2] * spindle_override
-        if real_spindle_speed > self.widgets.adj_spindle_bar_max.get_value():
-            try:
-                value_to_set = widget.get_value() / (real_spindle_speed / self.widgets.adj_spindle_bar_max.get_value())
-                widget.set_value(value_to_set)
-            except:
-                pass
-        self.widgets.lbl_spindle_act.set_text("S %d" % real_spindle_speed)
-        self.command.spindleoverride(spindle_override)
-
-    def on_adj_start_spindle_RPM_value_changed(self, widget, data = None):
-        if self.log: self._add_alarm_entry("sbtn_spindle_start_rpm_clicked")
-        self.spindle_start_rpm = widget.get_value()
-        self.prefs.putpref("spindle_start_rpm", widget.get_value(), float)
-
-    def on_adj_spindle_bar_min_value_changed(self, widget, data = None):
-        if self.log: self._add_alarm_entry("Spindle bar min has been set to %s" % widget.get_value())
-        self.prefs.putpref("spindle_bar_min", widget.get_value(), float)
-        self.widgets.adj_spindle_bar_min.set_value(widget.get_value())
-        self.widgets.spindle_feedback_bar.set_property("min", widget.get_value())
-
-    def on_adj_spindle_bar_max_value_changed(self, widget, data = None):
-        if self.log: self._add_alarm_entry("Spindle bar max has been set to %s" % widget.get_value())
-        self.prefs.putpref("spindle_bar_max", widget.get_value(), float)
-        self.widgets.adj_spindle_bar_max.set_value(widget.get_value())
-        self.widgets.spindle_feedback_bar.set_property("max", widget.get_value())
 
     # Coolant an mist coolant button
     def on_tbtn_flood_toggled(self, widget, data = None):
@@ -3277,6 +3305,17 @@ class gmoccapy(object):
         # FIXME
         # self.command.auto( linuxcnc.AUTO_RUN, 0 )
         pass
+
+    def on_btn_step_clicked(self, widget, data = None):
+        self.command.auto(linuxcnc.AUTO_STEP)
+        self.stepping = True
+
+    # this is needed only for stepping through a program, to
+    # sensitize the widgets according to that mode
+    def on_btn_load_state_changed(self, widget, state):
+        if state == gtk.STATE_INSENSITIVE:
+            self.stepping = False
+            self.widgets.tbtn_pause.set_sensitive(True)
 
     def on_btn_stop_clicked(self, widget, data = None):
         # self.command.abort()

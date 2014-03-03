@@ -1,8 +1,23 @@
-ver 1.0.1
+ver. 1.0.4
+- corrected the way of excecuting a program step by step 
+
+ver. 1.0.3
+- pressing the OFF button will bring you back to manual
+  mode, because there is the "EXIT" button
+
+ver. 1.0.2
+- solved a spindle button issue and included a check so it
+  is no possible to exceed the limits of the spindle with 
+  override values. i.e. a spindle has a max of 6000 rpm and
+  the user enters S 5500 M3 now he can increase the spindle 
+  override, but it will be limited by 109 %, because otherwise
+  he would ask the spindle to run faster than allowed.
+
+ver. 1.0.1
 - solved a bug, because I forgot to include some signals 
   in glade file, so no jogging with button was possible
 
-ver 1.0
+ver. 1.0
 - we reached the stable state! 
   gmoccapy get completely separated from gsvreen, resultng 
   in a faster reaction and easieer support and maintanance,

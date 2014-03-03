@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkTextBuffer" id="textbuffer1">
+    <property name="text" translatable="yes">All the necessary information has now been gathered. 
+Click "Done" to write your configuration files to disk.
+
+If you experience lockups while running LinuxCNC:
+-you will need to decrease the maximum velocity which will have the effect of increasing BASE_PERIOD.
+
+If you experience lost steps while running LinuxCNC:
+-first verify that you entered the proper timings for your stepper drivers. 
+-then run a more thorough latency test as described on the linuxcnc.org wiki.
+ http;//wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting
+
+If you experience the "Unexpected Realtime Delay" message:
+-run a more thorough latency test as described on the linuxcnc.org wiki: 
+ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting</property>
+  </object>
+  <object class="GtkTable" id="finished">
+    <property name="visible">True</property>
+    <property name="n_columns">2</property>
+    <child>
+      <object class="GtkTextView" id="textview1">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="wrap_mode">word</property>
+        <property name="buffer">textbuffer1</property>
+      </object>
+      <packing>
+        <property name="left_attach">1</property>
+        <property name="right_attach">2</property>
+      </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+</interface>

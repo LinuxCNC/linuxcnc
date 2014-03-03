@@ -30,33 +30,33 @@ import gst
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 class Player:
 
-    def __init__( self ):
+    def __init__(self):
         import gst
         # Element playbin automatic plays any file
-        self.player = gst.element_factory_make( "playbin", "player" )
+        self.player = gst.element_factory_make("playbin", "player")
         # Enable message bus to check for errors in the pipeline
         bus = self.player.get_bus()
         bus.add_signal_watch()
-        bus.connect( "message", self.on_message )
+        bus.connect("message", self.on_message)
         self.loop = gobject.MainLoop()
 
-    def run( self ):
-        self.player.set_state( gst.STATE_PLAYING )
+    def run(self):
+        self.player.set_state(gst.STATE_PLAYING)
         self.loop.run()
 
-    def set_sound( self, file ):
+    def set_sound(self, file):
         # Set the uri to the file
-        self.player.set_property( "uri", "file://" + file )
+        self.player.set_property("uri", "file://" + file)
 
-    def on_message( self, bus, message ):
+    def on_message(self, bus, message):
         t = message.type
         if t == gst.MESSAGE_EOS:
             # file ended, stop
-            self.player.set_state( gst.STATE_NULL )
+            self.player.set_state(gst.STATE_NULL)
             self.loop.quit()
         elif t == gst.MESSAGE_ERROR:
             # Error ocurred, print and stop
-            self.player.set_state( gst.STATE_NULL )
+            self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
-            print ( "Error: %s" % err, debug )
+            print ("Error: %s" % err, debug)
             self.loop.quit()
