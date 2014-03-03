@@ -2080,7 +2080,9 @@ proc ::ngcgui::savesection_gcmc {hdl} {
     if {$::ngc($hdl,argct) > 0} {
       for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
         set idx [format %02d $i]
-        set opts "$opts --define=$::ngc($hdl,arg,name,$idx)=$::ngc($hdl,arg,value,$idx)"
+        # make all entry box values explicitly floating point
+        set floatvalue [expr 1.0 * $::ngc($hdl,arg,value,$idx)]
+        set opts "$opts --define=$::ngc($hdl,arg,name,$idx)=$floatvalue"
       }
     }
 
