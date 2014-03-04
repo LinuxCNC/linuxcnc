@@ -1,0 +1,73 @@
+#!/usr/bin/python
+#
+# This script returns 0 when run on a platform supported by the current
+# branch of LinuxCNC, and 1 when run on an unsupported platform.  It is
+# intended to guide build automation on whether or not to try to build.
+#
+
+import sys
+import subprocess
+import re
+
+
+def detect_kernel_flavor(uname):
+    try:
+        f = open("/boot/config-%s" % uname)
+    except IOError:
+        print "no kernel configuration found for %s" % uname
+        sys.exit(1)
+    l = f.read(-1)
+    f.close()
+
+    config_ipipe = re.search('^CONFIG_IPIPE', l, re.MULTILINE)
+    config_xeno = re.search('^CONFIG_XENO_', l, re.MULTILINE)
+    config_rtpreempt = re.search('^CONFIG_PREEMPT_RT', l, re.MULTILINE)
+
+    if config_ipipe and not config_xeno and not config_rtpreempt:
+        return 'rtai'
+    elif config_ipipe and config_xeno and not config_rtpreempt:
+        return 'xenomai'
+    elif not config_ipipe and not config_xeno and config_rtpreempt:
+        return 'rtpreempt'
+    else:
+        return 'vanilla'
+
+
+# use subprocess.Popen() in this funny way, instead of
+# subprocess.check_output(), because check_output() is not in Hardy's
+# Python 2.5
+
+arch = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH'], stdout=subprocess.PIPE).communicate()[0][:-1]
+distributor = subprocess.Popen(['lsb_release', '--id', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
+
+release = subprocess.Popen(['lsb_release', '--release', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
+major, minor = re.split('\.', release)
+release_major = int(major)
+release_minor = int(minor)
+
+uname = subprocess.Popen(['uname', '-r'], stdout=subprocess.PIPE).communicate()[0][:-1]
+kernel_flavor = detect_kernel_flavor(uname)
+
+print "arch =", arch
+print "distributor =", distributor
+print "release =", release
+print "    major =", release_major
+print "    minor =", release_minor
+print "uname = %s (%s)" % (uname, kernel_flavor)
+
+if arch != "amd64" and arch != "i386":
+    print "unsupported architecture!"
+    sys.exit(1)
+
+if distributor == 'Ubuntu':
+    if release_major < 10:
+        print "release is too old!"
+        sys.exit(1)
+
+if kernel_flavor != 'rtai' and kernel_flavor != 'vanilla':
+    print "unsupported kernel flavor"
+    sys.exit(1)
+
+print "this platform is supported!"
+sys.exit(0)
+

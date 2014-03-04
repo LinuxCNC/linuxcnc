@@ -832,6 +832,30 @@ Options for gcmc are available with the terminal command:
 gcmc --help
 ----
 
+A gcmc program by default uses metric mode.  The mode can be
+set to inches with the option setting:
+
+----
+//ngcgui: --imperial
+----
+
+A preamble file, if used, can set a mode (g20 or g21) that
+conflicts with the mode used by a gcmc file.  To ensure that
+the gcmc program mode is in effect, include the following 
+statement in the .gcmc file:
+
+----
+include("ensure_mode.gcmc")
+----
+
+and provide a proper path for gcmc include_files in the ini file,
+for example:
+
+----
+[DISPLAY]
+GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib
+----
+
 == DB25 Example
 
 The following shows the DB25 subroutine. In the first photo you see where you

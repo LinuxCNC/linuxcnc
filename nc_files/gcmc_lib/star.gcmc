@@ -1,3 +1,5 @@
+include("ensure_mode.gcmc"); //avoid preamble conflict
+
 /* demo for using gcmc file with [py]ngcgui
 
 ngcgui tags follow: 

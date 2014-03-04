@@ -1389,7 +1389,11 @@ class SubFile():
 
             ropt = re.search(r'^ *\/\/ *ngcgui *: *(-.*)$' ,l)
             if ropt:
-                self.gcmc_opts.append(ropt.group(1))
+                gopt = ropt.group(1)
+                gopt = gopt.split("/")[0]  ;# trailing comment
+                gopt = gopt.split(";")[0]  ;# convenience
+                gopt = gopt.split()[0]     ;# leading/trailing spaces
+                self.gcmc_opts.append(gopt)
                 continue
 
             name = None
@@ -2184,7 +2188,16 @@ class ControlPanel():
         for k in p.sub_data.ndict.keys():
             #print 'k=',k,p.sub_data.ndict[k]
             name,dvalue,comment = p.sub_data.ndict[k]
-            xcmd.append('--define=' + name + '=' + m.efields.pentries[k].getentry())
+            # make all entry box values explicitly floating point
+            try:
+                fvalue = str(float(m.efields.pentries[k].getentry()))
+            except ValueError:
+                user_message(mtype=gtk.MESSAGE_ERROR
+                    ,title='gcmc input ERROR'
+                    ,msg=_('<%s> must be a number' % m.efields.pentries[k].getentry())
+                    )
+                return False ;# fail
+            xcmd.append('--define=' + name + '=' + fvalue)
 
         xcmd.append(m.sub_file)
         print "xcmd=",xcmd
@@ -2322,8 +2335,8 @@ class ControlPanel():
         # make a unique filename
         # (avoids problems with gremlin ignoring new file with same name)
         global g_auto_file_ct
-        autoname = os.path.abspath(nset.auto_file)
-        dirname  = os.path.dirname(autoname)
+        autoname = nset.auto_file
+        dirname = os.path.realpath(os.path.dirname(autoname))
         basename = str(g_auto_file_ct) + "." + os.path.basename(autoname)
         tmpname  = os.path.join(dirname,basename)
         if os.path.exists(tmpname):

@@ -884,6 +884,13 @@ proc ::ngcgui::parse_gcmc {hdl ay_name filename args} {
 
     set eopt "^ *\\/\\/ *ngcgui *: *\(-.*\)$"
     if {[regexp $eopt $theline match opt]} {
+      # remove a trailing comment:
+      set idx [string first / $opt]
+      if {$idx >= 0} { set opt [string replace $opt $idx end] }
+      set idx [string first \; $opt]
+      if {$idx >= 0} { set opt [string replace $opt $idx end] }
+      set opt [string trim $opt]
+
       lappend ::ngc($hdl,gcmc,opts) $opt
       continue
     }
@@ -2061,8 +2068,8 @@ proc ::ngcgui::savesection_gcmc {hdl} {
     set cmd $::ngc(any,gcmc,executable)
     set opts ""
 
-    if [info exists ::ngc(input,gcmc_include_path)] {
-      foreach dir [split $::ngc(input,gcmc_include_path) ":"] {
+    if [info exists ::ngc(any,gcmc_include_path)] {
+      foreach dir [split $::ngc(any,gcmc_include_path) ":"] {
         set opts "$opts --include $dir"
       }
     }
@@ -2080,7 +2087,16 @@ proc ::ngcgui::savesection_gcmc {hdl} {
     if {$::ngc($hdl,argct) > 0} {
       for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
         set idx [format %02d $i]
-        set opts "$opts --define=$::ngc($hdl,arg,name,$idx)=$::ngc($hdl,arg,value,$idx)"
+        # make all entry box values explicitly floating point
+        if [catch {set floatvalue [expr 1.0 * $::ngc($hdl,arg,value,$idx)]} msg] {
+          set answer [tk_dialog .gcmcerror \
+              "gcmc input ERROR" \
+              "<$::ngc($hdl,arg,value,$idx)> must be a number" \
+              error -1 \
+              "OK"]
+          return 0 ;# fail
+        }
+        set opts "$opts --define=$::ngc($hdl,arg,name,$idx)=$floatvalue"
       }
     }
 
@@ -3385,6 +3401,7 @@ proc ::ngcgui::newpage {creatinghdl} {
               postamble=$postfile \
               font=$::ngc(any,font) \
               options=$::ngc(input,options) \
+              gcmc_include_path=$::ngc(input,gcmc_include_path) \
              ]
   $::ngc(any,axis,parent) itemconfigure $pageid \
         -createcmd "::ngcgui::pagecreate $newhdl"\
@@ -3631,6 +3648,9 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
     # ex: input,subfile
   }
   foreach item $equalitems {set $item $::ngc(input,$item)}
+  if [info exists ::ngc(input,gcmc_include_path)] {
+    set ::ngc(any,gcmc_include_path) $::ngc(input,gcmc_include_path)
+  }
 
   set ::ngc($hdl,dir) $::ngc(input,startdir)
 
