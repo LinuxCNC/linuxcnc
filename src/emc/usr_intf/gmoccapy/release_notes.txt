@@ -1,3 +1,7 @@
+ver. 1.0.4 - only plasma
+- make the gmoccapy_plasma glade pannels react to theme changes
+  after the theme change, a restart of the GUI is necessary
+
 ver. 1.0.4
 - corrected the way of excecuting a program step by step 
 

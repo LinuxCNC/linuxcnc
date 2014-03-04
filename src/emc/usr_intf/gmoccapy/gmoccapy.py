@@ -3160,7 +3160,6 @@ class gmoccapy(object):
         self.widgets.IconFileSelection1.btn_select.emit("clicked")
 
     def on_IconFileSelection1_selected(self, widget, path = None):
-        print("**** Path = ", path)
         if path:
 # FIXME : START
 #            try:
