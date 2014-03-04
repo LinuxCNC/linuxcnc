@@ -2065,7 +2065,7 @@ class gmoccapy(object):
         self.init_notification()
 
     def on_chk_use_frames_toggled(self, widget, data = None):
-        self.prefs.putpref("use_frames", widget.get_active())
+        self.prefs.putpref("use_frames", widget.get_active(), bool)
         self.init_notification()
 
     def on_fontbutton_popup_font_set(self, font):
@@ -2677,7 +2677,7 @@ class gmoccapy(object):
             self.widgets.frm_probe_pos.set_sensitive(False)
             self.widgets.frm_probe_vel.set_sensitive(False)
             self.halcomp["toolmeasurement"] = False
-        self.prefs.putpref("use_toolmeasurement", widget.get_active())
+        self.prefs.putpref("use_toolmeasurement", widget.get_active(), bool)
 
     def on_btn_block_height_clicked(self, widget, data = None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
@@ -2828,7 +2828,7 @@ class gmoccapy(object):
 
     def on_chk_hide_cursor_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("hide_cursor_toggled to %s" % widget.get_active())
-        self.prefs.putpref("hide_cursor", widget.get_active())
+        self.prefs.putpref("hide_cursor", widget.get_active(), bool)
         self.hide_cursor = widget.get_active()
         if widget.get_active():
             self.widgets.window1.window.set_cursor(INVISABLE)
@@ -3280,14 +3280,14 @@ class gmoccapy(object):
     def on_tbtn_optional_blocks_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("on_tbtn_optional_blocks_toggled to %s" % widget.get_active())
         self.command.set_block_delete(widget.get_active())
-        self.prefs.putpref("blockdel", widget.get_active())
+        self.prefs.putpref("blockdel", widget.get_active(), bool)
         self.widgets.hal_action_reload.emit("activate")
 
 
     def on_tbtn_optional_stops_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("on_tbtn_optional_stops_toggled to %s" % widget.get_active())
         self.command.set_optional_stop(widget.get_active())
-        self.prefs.putpref("opstop", widget.get_active())
+        self.prefs.putpref("opstop", widget.get_active(), bool)
 
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal
