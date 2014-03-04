@@ -31,6 +31,8 @@
 import gtk
 import gobject
 import os
+import mimetypes
+import gio
 
 # constants
 _ASCENDING = 0
@@ -55,12 +57,7 @@ class IconFileSelection(gtk.HBox):
 
 # ToDo:
 # - make the button up and down work to move faster from top to bottom
-# - make the button size a property
-# - make the button box layout a property
-# - make the icons of the shown files a property
-# - make the sort property a enum, not any more a int
-# - make the button ICON selectable from user files
-# - add a function to hide selected button
+#   unfortuantely the selection of column is not availible in pygtk before 2.22
 
     __gtype_name__ = 'IconFileSelection'
     __gproperties__ = {
@@ -92,7 +89,6 @@ class IconFileSelection(gtk.HBox):
         self.user_dir = os.path.expanduser('~')
         self.filetypes = ("ngc,py")
         self.sortorder = _FOLDERFIRST
-
         # This will hold the path we will return
         self.path = ""
 
@@ -105,6 +101,7 @@ class IconFileSelection(gtk.HBox):
         vbox.pack_end(self.buttonbox, False, False, 0)
 
         self.btn_home = gtk.Button()
+        self.btn_home.set_size_request(56, 56)
         image = gtk.Image()
         image.set_from_stock(gtk.STOCK_HOME, 48)
         self.btn_home.set_image(image)
@@ -175,8 +172,7 @@ class IconFileSelection(gtk.HBox):
         self.btn_exit.set_tooltip_text(_("Close without returning a file path"))
         self.buttonbox.add(self.btn_exit)
 
-        self.fileIcon = self._get_icon(gtk.STOCK_FILE)
-        self.dirIcon = self._get_icon(gtk.STOCK_DIRECTORY)
+        self.dirIcon = self._get_icon("folder")
 
         sw = gtk.ScrolledWindow()
         sw.set_shadow_type(gtk.SHADOW_ETCHED_IN)
@@ -221,8 +217,7 @@ class IconFileSelection(gtk.HBox):
         self.iconView.add_events(gtk.gdk.BUTTON_PRESS_MASK)
         self.iconView.connect("button_press_event", self._button_press)
 
-    # If the mouse button has been pressed, we will allow "drag and drop"
-    # we allow that only for the left mouse button
+    # With the left mouse button and a dobble click, the file can be selected
     def _button_press(self, widget, event):
         # left button used?
         if event.button == 1:
@@ -235,6 +230,19 @@ class IconFileSelection(gtk.HBox):
 
     def _get_icon(self, name):
         theme = gtk.icon_theme_get_default()
+        if name == "folder":
+            name = gtk.STOCK_DIRECTORY
+        else:
+            mime = gio.content_type_guess(name)
+            if mime:
+                iconname = gio.content_type_get_icon(mime)
+                icon = theme.choose_icon(iconname.get_names(), self.icon_size, 0)
+                if icon:
+                    return gtk.IconInfo.load_icon(icon)
+                else:
+                    name = gtk.STOCK_FILE
+            else:
+                name = gtk.STOCK_FILE
         return theme.load_icon(name, self.icon_size, 0)
 
     def _create_store(self):
@@ -281,7 +289,8 @@ class IconFileSelection(gtk.HBox):
                     if os.path.isdir(os.path.join(self.cur_dir, obj)):
                         self.store.append([obj, self.dirIcon, True])
                     else:
-                        self.store.append([obj, self.fileIcon, False])
+                        icon = self._get_icon(obj)
+                        self.store.append([obj, icon, False])
 
             dirs.sort(cmp = None, key = None, reverse = False)
             files.sort(cmp = None, key = None, reverse = False)
@@ -289,10 +298,12 @@ class IconFileSelection(gtk.HBox):
                 for dir in dirs:
                     self.store.append([dir, self.dirIcon, True])
                 for file in files:
-                    self.store.append([file, self.fileIcon, False])
+                    icon = self._get_icon(file)
+                    self.store.append([file, icon, False])
             elif self.sortorder == _FILEFIRST:
                 for file in files:
-                    self.store.append([file, self.fileIcon, False])
+                    icon = self._get_icon(file)
+                    self.store.append([file, icon, False])
                 for dir in dirs:
                     self.store.append([dir, self.dirIcon, True])
 
@@ -394,8 +405,7 @@ class IconFileSelection(gtk.HBox):
 
     def set_icon_size(self, iconsize):
         self.icon_size = iconsize
-        self.fileIcon = self._get_icon(gtk.STOCK_FILE)
-        self.dirIcon = self._get_icon(gtk.STOCK_DIRECTORY)
+        self.dirIcon = self._get_icon("folder")
         self._fill_store()
 
     def set_directory(self, directory):
@@ -492,6 +502,7 @@ def main():
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 
     IFS = IconFileSelection()
+    IFS.set_property("filetypes", "*")
 
     window.add(IFS)
     window.connect("destroy", gtk.main_quit)
