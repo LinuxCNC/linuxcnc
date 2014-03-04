@@ -60,7 +60,7 @@ if arch != "amd64" and arch != "i386":
     sys.exit(1)
 
 if distributor == 'Ubuntu':
-    if release_major < 8:
+    if release_major < 10:
         print "release is too old!"
         sys.exit(1)
 
