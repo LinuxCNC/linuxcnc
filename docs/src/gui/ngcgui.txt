@@ -612,7 +612,7 @@ subroutines are compatible with NGCGUI. For more information see the
 The first non-comment line should be a sub statement.
 The last non-comment line should be a endsub statement.
 
-.example.ngc:
+.examp.ngc:
 ----
 (info: info_text_to_appear_at_top_of_tab_page)
 ; comment line beginning with semicolon
@@ -820,16 +820,43 @@ When required, options can be passed to the gcmc compiler with a line tagged:
 
 .Option line tag format
 ----
-//ngcgui: -option_name option_value
+//ngcgui: -option_name [ [=] option_value]
 ----
-.Example:
+.Examples:
 ----
+//ngcgui: -I
+//ngcgui: --imperial
 //ngcgui: --precision 5
+//ngcgui: --precision=6
 ----
 
 Options for gcmc are available with the terminal command:
 ----
 gcmc --help
+----
+
+A gcmc program by default uses metric mode.  The mode can be
+set to inches with the option setting:
+
+----
+//ngcgui: --imperial
+----
+
+A preamble file, if used, can set a mode (g20 or g21) that
+conflicts with the mode used by a gcmc file.  To ensure that
+the gcmc program mode is in effect, include the following 
+statement in the .gcmc file:
+
+----
+include("ensure_mode.gcmc")
+----
+
+and provide a proper path for gcmc include_files in the ini file,
+for example:
+
+----
+[DISPLAY]
+GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib
 ----
 
 == DB25 Example

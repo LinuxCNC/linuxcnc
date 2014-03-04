@@ -1,3 +1,4 @@
+include("ensure_mode.gcmc"); //avoid preamble conflict
 //ngcgui: info: SQUARE -- simple gcmc example
 
 /*COPY this file to a directory in your subroutine search path that

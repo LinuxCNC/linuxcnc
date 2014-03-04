@@ -129,6 +129,7 @@ g_auto_file_ct      = 1
 INTERP_SUB_PARAMS = 30 # (1-based) conform to:
 # src/emc/rs274ngc/interp_internal.hh:#define INTERP_SUB_PARAMS 30
 g_max_parm       = INTERP_SUB_PARAMS
+g_max_msg_len    = 500 # limit popup msg len for errant gcmc input
 
 g_gcmc_exe = None
 g_gcmc_funcname = 'tmpgcmc'
@@ -1389,7 +1390,11 @@ class SubFile():
 
             ropt = re.search(r'^ *\/\/ *ngcgui *: *(-.*)$' ,l)
             if ropt:
-                self.gcmc_opts.append(ropt.group(1))
+                gopt = ropt.group(1)
+                gopt = gopt.split("//")[0] ;# trailing comment
+                gopt = gopt.split(";")[0]  ;# convenience
+                gopt = gopt.strip()        ;# leading/trailing spaces
+                self.gcmc_opts.append(gopt)
                 continue
 
             name = None
@@ -2184,7 +2189,16 @@ class ControlPanel():
         for k in p.sub_data.ndict.keys():
             #print 'k=',k,p.sub_data.ndict[k]
             name,dvalue,comment = p.sub_data.ndict[k]
-            xcmd.append('--define=' + name + '=' + m.efields.pentries[k].getentry())
+            # make all entry box values explicitly floating point
+            try:
+                fvalue = str(float(m.efields.pentries[k].getentry()))
+            except ValueError:
+                user_message(mtype=gtk.MESSAGE_ERROR
+                    ,title='gcmc input ERROR'
+                    ,msg=_('<%s> must be a number' % m.efields.pentries[k].getentry())
+                    )
+                return False ;# fail
+            xcmd.append('--define=' + name + '=' + fvalue)
 
         xcmd.append(m.sub_file)
         print "xcmd=",xcmd
@@ -2203,6 +2217,9 @@ class ControlPanel():
         compile_txt = ""
 
         if eout:
+            if (len(eout) > g_max_msg_len):
+                # limit overlong, errant msgs
+                eout = eout[0:g_max_msg_len] + "..."
             for line in eout.split("\n"):
                 r_message = re.search(e_message,line)
                 r_warning = re.search(e_warning,line)
@@ -2322,8 +2339,8 @@ class ControlPanel():
         # make a unique filename
         # (avoids problems with gremlin ignoring new file with same name)
         global g_auto_file_ct
-        autoname = os.path.abspath(nset.auto_file)
-        dirname  = os.path.dirname(autoname)
+        autoname = nset.auto_file
+        dirname = os.path.realpath(os.path.dirname(autoname))
         basename = str(g_auto_file_ct) + "." + os.path.basename(autoname)
         tmpname  = os.path.join(dirname,basename)
         if os.path.exists(tmpname):

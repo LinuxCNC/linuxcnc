@@ -27,28 +27,32 @@
 .SH NAME
 axis-remote \- AXIS Remote Interface
 .SH SYNOPSIS
-.B axis-remote
-[\fI--ping\fR] [\fI--reload\fR] [\fI--clear\fR] [\fI--quit\fR] [\fI--help\fR]
+.B axis-remote \fIOPTIONS\fR|\fIFILENAME\fR
 .SH DESCRIPTION
-\fBaxis-remote\fR is a small script to control a running AXIS GUI.
+\fBaxis-remote\fR is a small script that triggers commands in a running AXIS GUI.
 Use \fBaxis-remote --help\fR for further information.
 .SH OPTIONS
 .TP
-\fB--ping\fR
+\fB--ping\fR, \fB-p\fR
 Check whether AXIS is running.
 .TP
-\fB--reload\fR
+\fB--reload\fR, \fB-r\fR
 Make AXIS reload the currently loaded file.
 .TP
-\fB--clear\fR
+\fB--clear\fR, \fB-c\fR
 Make AXIS clear the backplot.
 .TP
-\fB--quit\fR
+\fB--quit\fR, \fB-q\fR
 Make AXIS quit.
 .TP
-\fB--help\fR
+\fB--help\fR, \fB-h\fR, \fB-?\fR
 Display a list of valid parameters for \fBaxis-remote\fR.
-
+.TP
+\fB--mdi COMMAND\fR, \fB-m COMMAND\fR
+Run the MDI command \fBCOMMAND\fR.
+.TP
+\fBFILENAME\fR
+Load the G-code file \fBFILENAME\fR.
 .SH "SEE ALSO"
 \fBaxis(1)\fR
 

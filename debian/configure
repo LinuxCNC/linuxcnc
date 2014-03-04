@@ -305,7 +305,6 @@ function detect_available_realtime_kernels() {
         echo found xenomai headers:
         echo $XENOMAI_HEADERS
     fi
-
     if [ ! -z "$RTPREEMPT_HEADERS" ]; then
         echo found rtpreempt headers:
         echo $RTPREEMPT_HEADERS
