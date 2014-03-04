@@ -885,7 +885,7 @@ proc ::ngcgui::parse_gcmc {hdl ay_name filename args} {
     set eopt "^ *\\/\\/ *ngcgui *: *\(-.*\)$"
     if {[regexp $eopt $theline match opt]} {
       # remove a trailing comment:
-      set idx [string first / $opt]
+      set idx [string first '//' $opt]
       if {$idx >= 0} { set opt [string replace $opt $idx end] }
       set idx [string first \; $opt]
       if {$idx >= 0} { set opt [string replace $opt $idx end] }
@@ -1011,6 +1011,7 @@ proc ::ngcgui::initgui {hdl} {
   set ::ngc(any,color,custom)   ivory2
   set ::ngc(any,color,default)  blue4
 
+  set ::ngc(any,max_msg_len)     500 ;# limit popup msg len (gcmc)
   set ::ngc($hdl,afterid)        ""
   statemap $hdl ;# set up state transitions
 } ;# initgui
@@ -2128,6 +2129,10 @@ proc ::ngcgui::savesection_gcmc {hdl} {
 
     set m_txt ""; set w_txt ""; set e_txt ""; set compile_txt ""
     if [catch {set result [eval exec $eline]} msg] {
+      if {[string length $msg] > $::ngc(any,max_msg_len)} {
+         set msg [string range $msg 0 $::ngc(any,max_msg_len)]
+         set msg "$m_txt ..."
+      }
       set lmsg [split $msg \n]
       foreach line $lmsg {
         #puts l=$line
