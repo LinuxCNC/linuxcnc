@@ -129,6 +129,7 @@ g_auto_file_ct      = 1
 INTERP_SUB_PARAMS = 30 # (1-based) conform to:
 # src/emc/rs274ngc/interp_internal.hh:#define INTERP_SUB_PARAMS 30
 g_max_parm       = INTERP_SUB_PARAMS
+g_max_msg_len    = 500 # limit popup msg len for errant gcmc input
 
 g_gcmc_exe = None
 g_gcmc_funcname = 'tmpgcmc'
@@ -1390,9 +1391,9 @@ class SubFile():
             ropt = re.search(r'^ *\/\/ *ngcgui *: *(-.*)$' ,l)
             if ropt:
                 gopt = ropt.group(1)
-                gopt = gopt.split("/")[0]  ;# trailing comment
+                gopt = gopt.split("//")[0] ;# trailing comment
                 gopt = gopt.split(";")[0]  ;# convenience
-                gopt = gopt.split()[0]     ;# leading/trailing spaces
+                gopt = gopt.strip()        ;# leading/trailing spaces
                 self.gcmc_opts.append(gopt)
                 continue
 
@@ -2216,6 +2217,9 @@ class ControlPanel():
         compile_txt = ""
 
         if eout:
+            if (len(eout) > g_max_msg_len):
+                # limit overlong, errant msgs
+                eout = eout[0:g_max_msg_len] + "..."
             for line in eout.split("\n"):
                 r_message = re.search(e_message,line)
                 r_warning = re.search(e_warning,line)

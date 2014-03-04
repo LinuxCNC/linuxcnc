@@ -612,7 +612,7 @@ subroutines are compatible with NGCGUI. For more information see the
 The first non-comment line should be a sub statement.
 The last non-comment line should be a endsub statement.
 
-.example.ngc:
+.examp.ngc:
 ----
 (info: info_text_to_appear_at_top_of_tab_page)
 ; comment line beginning with semicolon
@@ -820,11 +820,14 @@ When required, options can be passed to the gcmc compiler with a line tagged:
 
 .Option line tag format
 ----
-//ngcgui: -option_name option_value
+//ngcgui: -option_name [ [=] option_value]
 ----
-.Example:
+.Examples:
 ----
+//ngcgui: -I
+//ngcgui: --imperial
 //ngcgui: --precision 5
+//ngcgui: --precision=6
 ----
 
 Options for gcmc are available with the terminal command:
