@@ -5,7 +5,7 @@
     Based on the design of moccagui from Tom
     and with a lot of code from gscreen from Chris Morley
     and with the help from Michael Haberler
-    and Chris Morley
+    and Chris Morley and some more
 
     Copyright 2012 Norbert Schechner
     nieson@web.de
@@ -84,7 +84,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.4"
+_RELEASE = "1.0.5"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -107,6 +107,7 @@ from gmoccapy import preferences    # this handles the preferences
 from gmoccapy import getiniinfo     # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs        # this takes the code of all our dialogs
 
+# set up paths to files, part two
 CONFIGPATH = os.environ['CONFIG_DIR']
 DATADIR = os.path.join(BASE, "share", "gmoccapy")
 IMAGEDIR = os.path.join(DATADIR, "images")
@@ -117,7 +118,7 @@ LOCALEDIR = os.path.join(BASE, "share", "locale")
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 
-# the ICONS should be in gmoccapy / icon, or we should rename the folder to images
+# the ICONS should must be in share/gmoccapy/images
 ALERT_ICON = os.path.join(IMAGEDIR, "applet-critical.png")
 INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
 
@@ -136,6 +137,7 @@ class gmoccapy(object):
         gettext.install("gmoccapy", localedir = LOCALEDIR, unicode = True)
         gettext.bindtextdomain("gmoccapy", LOCALEDIR)
 
+        # needed components to comunicate with hal and linuxcnc
         self.halcomp = hal.component("gmoccapy")
         self.command = linuxcnc.command()
         self.stat = linuxcnc.stat()
@@ -145,13 +147,14 @@ class gmoccapy(object):
         self.error_channel.poll()
 
         self.builder = gtk.Builder()
-        self.builder.set_translation_domain("gmoccapy") # translation
+        # translation of the glade file will be done with
+        self.builder.set_translation_domain("gmoccapy")
         self.builder.add_from_file(XMLNAME)
         self.builder.connect_signals(self)
 
         self.widgets = widgets.Widgets(self.builder)
 
-        self.stepping = False
+        self.stepping = False     # used to sensitize widgets when using step by step
 
         self.active_gcodes = []   # this are the formated G code values
         self.active_mcodes = []   # this are the formated M code values
@@ -178,15 +181,21 @@ class gmoccapy(object):
         self.last_key_event = None, 0   # needed to avoid the auto repeat function of the keyboard
         self.all_homed = False          # will hold True if all axis are homed
         self.faktor = 1.0               # needed to calculate velocitys
-        self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name") # Needed to come back to system Theme
+        # the default theme = System Theme we store here to be able to go back to that one later
+        self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
 
+
+        # the sounds to play if an error or message rises
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"
         self.error_sound = "/usr/share/sounds/ubuntu/stereo/dialog-question.ogg"
 
+        # Our own clas to get information from ini the file we use this way, to be sure
+        # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
 
         self._get_axis_list()
         self._init_axis_four()
+        self._init_jog_increments()
 
         self._init_hal_pins()
 
@@ -316,43 +325,6 @@ class gmoccapy(object):
         self.widgets.tbtn_view_dimension.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_view_tool_path.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
         self.widgets.tbtn_edit_offsets.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
-
-        # Now we will build the option buttons to select the Jog-rates
-        # We do this dynamicly, because users are able to set them in INI File
-        # because of space on the screen only 10 items are allowed
-        # jogging increments
-
-        # We get the increments from INI File
-        self.jog_increments = self.get_ini_info.get_increments()
-        if len(self.jog_increments) > 10:
-            print(_("**** GMOCCAPY INFO ****"))
-            print(_("**** To many increments given in INI File for this screen ****"))
-            print(_("**** Only the first 10 will be reachable through this screen ****"))
-            # we shorten the incrementlist to 10 (first is default = 0)
-            self.jog_increments = self.jog_increments[0:11]
-
-        # The first radio button is created to get a radio button group
-        # The group is called according the name off  the first button
-        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
-        # One from the released button and one from the pressed button
-        # we make a list of the buttons to later add the hardware pins to them
-        label = _("Continuous")
-        rbt0 = gtk.RadioButton(None, label)
-        rbt0.connect("pressed", self.on_increment_changed, 0)
-        self.widgets.vbuttonbox2.pack_start(rbt0, True, True, 0)
-        rbt0.set_property("draw_indicator", False)
-        rbt0.show()
-        self.incr_rbt_list.append(rbt0)
-        # the rest of the buttons are now added to the group
-        # self.no_increments is set while setting the hal pins with self._check_len_increments
-        for item in range(1, len(self.jog_increments)):
-            rbt = "rbt%d" % (item)
-            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
-            rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
-            self.widgets.vbuttonbox2.pack_start(rbt, True, True, 0)
-            rbt.set_property("draw_indicator", False)
-            rbt.show()
-            self.incr_rbt_list.append(rbt)
 
         # This is needed only because we connect all the horizontal button
         # to hal pins, so the user can conect them to hardware buttons
@@ -758,6 +730,44 @@ class gmoccapy(object):
             if axis == self.axisletter_four:
                 axis = 4
             self.widgets["Combi_DRO_%s" % axis].set_property("font_size", 20)
+
+    def _init_jog_increments(self):
+        # Now we will build the option buttons to select the Jog-rates
+        # We do this dynamicly, because users are able to set them in INI File
+        # because of space on the screen only 10 items are allowed
+        # jogging increments
+
+        # We get the increments from INI File
+        self.jog_increments = self.get_ini_info.get_increments()
+        if len(self.jog_increments) > 10:
+            print(_("**** GMOCCAPY INFO ****"))
+            print(_("**** To many increments given in INI File for this screen ****"))
+            print(_("**** Only the first 10 will be reachable through this screen ****"))
+            # we shorten the incrementlist to 10 (first is default = 0)
+            self.jog_increments = self.jog_increments[0:11]
+
+        # The first radio button is created to get a radio button group
+        # The group is called according the name off  the first button
+        # We use the pressed signal, not the toggled, otherwise two signals will be emitted
+        # One from the released button and one from the pressed button
+        # we make a list of the buttons to later add the hardware pins to them
+        label = _("Continuous")
+        rbt0 = gtk.RadioButton(None, label)
+        rbt0.connect("pressed", self.on_increment_changed, 0)
+        self.widgets.vbuttonbox2.pack_start(rbt0, True, True, 0)
+        rbt0.set_property("draw_indicator", False)
+        rbt0.show()
+        self.incr_rbt_list.append(rbt0)
+        # the rest of the buttons are now added to the group
+        # self.no_increments is set while setting the hal pins with self._check_len_increments
+        for item in range(1, len(self.jog_increments)):
+            rbt = "rbt%d" % (item)
+            rbt = gtk.RadioButton(rbt0, self.jog_increments[item])
+            rbt.connect("pressed", self.on_increment_changed, self.jog_increments[item])
+            self.widgets.vbuttonbox2.pack_start(rbt, True, True, 0)
+            rbt.set_property("draw_indicator", False)
+            rbt.show()
+            self.incr_rbt_list.append(rbt)
 
     def _check_screen2(self):
         # second screen
@@ -2065,7 +2075,7 @@ class gmoccapy(object):
         self.init_notification()
 
     def on_chk_use_frames_toggled(self, widget, data = None):
-        self.prefs.putpref("use_frames", widget.get_active())
+        self.prefs.putpref("use_frames", widget.get_active(), bool)
         self.init_notification()
 
     def on_fontbutton_popup_font_set(self, font):
@@ -2677,7 +2687,7 @@ class gmoccapy(object):
             self.widgets.frm_probe_pos.set_sensitive(False)
             self.widgets.frm_probe_vel.set_sensitive(False)
             self.halcomp["toolmeasurement"] = False
-        self.prefs.putpref("use_toolmeasurement", widget.get_active())
+        self.prefs.putpref("use_toolmeasurement", widget.get_active(), bool)
 
     def on_btn_block_height_clicked(self, widget, data = None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
@@ -2828,7 +2838,7 @@ class gmoccapy(object):
 
     def on_chk_hide_cursor_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("hide_cursor_toggled to %s" % widget.get_active())
-        self.prefs.putpref("hide_cursor", widget.get_active())
+        self.prefs.putpref("hide_cursor", widget.get_active(), bool)
         self.hide_cursor = widget.get_active()
         if widget.get_active():
             self.widgets.window1.window.set_cursor(INVISABLE)
@@ -3160,7 +3170,6 @@ class gmoccapy(object):
         self.widgets.IconFileSelection1.btn_select.emit("clicked")
 
     def on_IconFileSelection1_selected(self, widget, path = None):
-        print("**** Path = ", path)
         if path:
 # FIXME : START
 #            try:
@@ -3281,14 +3290,14 @@ class gmoccapy(object):
     def on_tbtn_optional_blocks_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("on_tbtn_optional_blocks_toggled to %s" % widget.get_active())
         self.command.set_block_delete(widget.get_active())
-        self.prefs.putpref("blockdel", widget.get_active())
+        self.prefs.putpref("blockdel", widget.get_active(), bool)
         self.widgets.hal_action_reload.emit("activate")
 
 
     def on_tbtn_optional_stops_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("on_tbtn_optional_stops_toggled to %s" % widget.get_active())
         self.command.set_optional_stop(widget.get_active())
-        self.prefs.putpref("opstop", widget.get_active())
+        self.prefs.putpref("opstop", widget.get_active(), bool)
 
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal

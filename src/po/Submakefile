@@ -22,6 +22,10 @@ $(DESTDIR)$(localedir)/%/LC_MESSAGES/linuxcnc.mo: ../share/locale/%/LC_MESSAGES/
 	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
 	$(FILE) $< $@
 
+$(DESTDIR)$(localedir)/%/LC_MESSAGES/gmoccapy.mo: ../share/locale/%/LC_MESSAGES/gmoccapy.mo
+	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
+	$(FILE) $< $@
+
 TARGETS += $(patsubst po/%.po, \
 	../share/locale/%/LC_MESSAGES/linuxcnc.mo, \
 	$(wildcard po/*.po))

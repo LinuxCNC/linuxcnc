@@ -1,3 +1,12 @@
+ver. 1.0.5 
+- because of wrong steps in initializing the increment pins
+  has not been made, I changed the init order and now they 
+  are there again ;-)
+
+ver. 1.0.4 - only plasma
+- make the gmoccapy_plasma glade pannels react to theme changes
+  after the theme change, a restart of the GUI is necessary
+
 ver. 1.0.4
 - corrected the way of excecuting a program step by step 
 
