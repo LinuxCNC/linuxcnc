@@ -1,22 +1,22 @@
-include("ensure_mode.gcmc"); //avoid preamble conflict
 /* demo for using gcmc file with [py]ngcgui
 
 //ngcgui: info: WHEELS (gcmc G-Code Meta Compiler)
 
-//ngcgui: r1=10     ,Radius 1
-//ngcgui: r2= 5     ,Radius 2
-//ngcgui: r3= 3.333 ,Radius 3
+//ngcgui: umode = 1; //, units: 1:mm, 0:inch
+//ngcgui: r1=10;     //,Radius 1 (10mm = .39370 in)
+//ngcgui: r2= 5;     //,Radius 2 ( 5mm = .19685 in)
+//ngcgui: r3= 3.333; //,Radius 3 ( 3.333mm = .13122 in)
 
-//ngcgui: s1= 1     ,Speed 1
-//ngcgui: s2= 7     ,Speed 2
-//ngcgui: s3= -17   ,Speed 3
+//ngcgui: s1= 1     ,Speed 1 (ratio, nounits)
+//ngcgui: s2= 7     ,Speed 2 (ratio, nounits)
+//ngcgui: s3= -17   ,Speed 3 (ratio, nounits)
 
-//ngcgui: p1=  0    ,Phase 1
-//ngcgui: p2=  0    ,Phase 2
-//ngcgui: p3= 90    ,Phase 3
+//ngcgui: p1=  0    ,Phase 1 (angle, degrees)
+//ngcgui: p2=  0    ,Phase 2 (angle, degrees)
+//ngcgui: p3= 90    ,Phase 3 (angle, degrees)
 
-//ngcgui: zsafe =  1; //, zsafe (mm)
-//ngcgui: zcut  = -1; //, zcut (mm,neg)
+//ngcgui: zsafe =  1; //, zsafe
+//ngcgui: zcut  = -1; //, zcut (neg)
 
 //ngcgui: xoffset = 0;
 //ngcgui: yoffset = 0;
@@ -24,7 +24,10 @@ include("ensure_mode.gcmc"); //avoid preamble conflict
 //ngcgui: scalex = 5;
 //ngcgui: scaley = 5;
 //ngcgui: scalez = 1;
+//ngcgui: frate = 60; //, feedrate
+//ngcgui: verbose = 0; // precede ensure_units
 */
+include("ensure_units.gcmc"); //avoid preamble conflict
 
 /*
   Copyright: 2013
@@ -109,13 +112,13 @@ function CutPath(wheels, start, inc, end, cdepth, scale)
 		  /* we should be at safe height */
 		  /* so move to cutting depth    */
 			point = scale(CalcPoint(wheels, angle), scale);
-			goto(point + global_offset);
+			goto(point + theoffset);
 			goto([-,-,cdepth * scale[2]]);
 		}
 		else
 		{
 			point = scale(CalcPoint(wheels, angle), scale);
-			move(point + global_offset);
+			move(point + theoffset);
 		}
 	}
 }
@@ -127,16 +130,37 @@ function GoAtSafeHeight(x,y)
 }
 
 /******************* main program ***********************/
-global_offset = [xoffset * 1mm, yoffset * 1mm];
-safeheight = 1mm * zsafe;
-cuttingdepth = 1mm * zcut;
-svec = [scalex * 1mm,scaley*1mm,scalez*1mm];
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+
+xoffset = zero + xoffset;
+yoffset = zero + yoffset;
+  zsafe = zero + zsafe;
+   zcut = zero + zcut;
+     r1 = zero + r1;
+     r2 = zero + r2;
+     r3 = zero + r3;
+
+     s1 = 0.0 + s1;  //angular speed ratio (unitless)
+     s2 = 0.0 + s2;  //angular speed ratio (unitless)
+     s3 = 0.0 + s3;  //angular speed ratio (unitless)
+
+    theoffset = [xoffset, yoffset];
+   safeheight = zsafe;
+ cuttingdepth = zcut;
+
+svec = [scalex, scaley ,scalez ];
 wheels = {
 	CreateWheel(r1, s1, p1 * 1deg),
 	CreateWheel(r2, s2, p2 * 1deg),
 	CreateWheel(r3, s3, p3 * 1deg)
 };
-feedrate(60);
+feedrate(frate);
 GoAtSafeHeight(0, 0);
 CutPath(wheels, 0deg, 0.01deg, 360deg, cuttingdepth, svec);
 GoAtSafeHeight(0, 0);
