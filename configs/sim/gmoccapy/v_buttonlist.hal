@@ -1,0 +1,13 @@
+###################################################################
+#           gmoccapy hal file from Norbert Schechner              #
+###################################################################
+
+net v_button_0 v_buttonlist.v_button_0 => gmoccapy.v-button-0
+net v_button_1 v_buttonlist.v_button_1 => gmoccapy.v-button-1
+net v_button_2 v_buttonlist.v_button_2 => gmoccapy.v-button-2
+net v_button_3 v_buttonlist.v_button_3 => gmoccapy.v-button-3
+net v_button_4 v_buttonlist.v_button_4 => gmoccapy.v-button-4
+net v_button_5 v_buttonlist.v_button_5 => gmoccapy.v-button-5
+net v_button_6 v_buttonlist.v_button_6 => gmoccapy.v-button-6
+
+

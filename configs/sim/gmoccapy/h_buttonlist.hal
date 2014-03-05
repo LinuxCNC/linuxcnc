@@ -1,3 +1,6 @@
+###################################################################
+#           gmoccapy hal file from Norbert Schechner              #
+###################################################################
 
 net h_hardware_button_0 h_buttonlist.h_button_0 => gmoccapy.h-button-0
 net h_hardware_button_1 h_buttonlist.h_button_1 => gmoccapy.h-button-1
