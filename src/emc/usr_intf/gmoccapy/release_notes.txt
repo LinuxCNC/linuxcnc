@@ -1,3 +1,17 @@
+ver. 1.0.6
+- introduced new locations for EMBEDDED_TABS, it is possible to use 
+  in addition to the previous ones now also:
+
+  * box_cooling (will hide the cooling frame and introduce your glade file)
+  * box_spindle (will hide the spindle frame and introduce your glade file)
+  * box_vel_info  (will hide the velocity frames and introduce your glade file)
+  * box_custom_1 (will introduce your glade file left of vel_frame)
+  * box_custom_2 (will introduce your glade file left of cooling_frame)
+  * box_custom_3 (will introduce your glade file left of spindle_frame)
+  * box_custom_4 (will introduce your glade file right of spindle_frame)
+
+  requested from verser
+
 ver. 1.0.5 
 - because of wrong steps in initializing the increment pins
   has not been made, I changed the init order and now they 

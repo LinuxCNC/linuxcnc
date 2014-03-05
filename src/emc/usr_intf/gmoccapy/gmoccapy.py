@@ -84,7 +84,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.5"
+_RELEASE = "1.0.6"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -440,13 +440,40 @@ class gmoccapy(object):
 
             # This is normaly only used for the plasma screen layout
             if "box_coolant_and_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings"]
+                widgetlist = ["box_spindle", "box_cooling"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.tbtn_user_tabs.set_sensitive(False)
 
+            if "box_cooling" in self.get_ini_info.get_embedded_tabs()[1]:
+                widgetlist = ["frm_cooling"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
+                widgetlist = ["frm_spindle"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_vel_info" in self.get_ini_info.get_embedded_tabs()[1]:
+                widgetlist = ["frm_max_vel", "frm_feed_override"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_custom_1" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_1.show()
+
+            if "box_custom_2" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_2.show()
+
+            if "box_custom_3" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_3.show()
+
+            if "box_custom_4" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_4.show()
+
             if "box_tool_and_code_info" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "vbox_vel_info"]
+                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.btn_tool.set_sensitive(False)
