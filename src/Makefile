@@ -633,7 +633,20 @@ install-python: install-dirs
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/gladevcp/*.glade $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/stepconf/*.py $(DESTDIR)$(SITEPY)/stepconf
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy ../bin/gscreen $(DESTDIR)$(bindir)
+	$(EXE) ../bin/stepconf $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pncconf $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
+	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
+	$(EXE) ../bin/axis-remote $(DESTDIR)$(bindir)
+	$(EXE) ../bin/debuglevel $(DESTDIR)$(bindir)
+	$(EXE) ../bin/linuxcnctop $(DESTDIR)$(bindir)
+	$(EXE) ../bin/mdi $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_manualtoolchange $(DESTDIR)$(bindir)
+	$(EXE) ../bin/image-to-gcode $(DESTDIR)$(bindir)
+	$(EXE) ../bin/touchy $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
