@@ -59,6 +59,7 @@
 #include <libintl.h>
 #include <locale.h>
 
+
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
 #include <fpu_control.h>
@@ -80,6 +81,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "task.hh"		// emcTaskCommand etc
 #include "taskclass.hh"
 #include "motion.h"             // EMCMOT_ORIENT_*
+#include "inihal.hh"
 
 /* time after which the user interface is declared dead
  * because it would'nt read any more messages
@@ -3274,6 +3276,7 @@ int main(int argc, char *argv[])
     maxTime = 0.0;		// set to value that can never be underset
 
     while (!done) {
+        check_ini_hal_items();
 	// read command
 	if (0 != emcCommandBuffer->peek()) {
 	    // got a new command, so clear out errors

@@ -333,7 +333,16 @@ PDM signals. The other function can be called at a much lower rate.
 This component provides software based counting of signals from
 quadrature encoders. It is a realtime component only, and depending on
 CPU speed, latency, etc, is capable of maximum count rates of 10kHz to
-perhaps up to 50kHz. Figure <<fig:Encoder-Block-Diag>> is a block
+perhaps up to 50kHz.
+
+The base thread should be 1/2 count speed to allow for noise and timing
+variation. For example if you have a 100 pulse per revolution encoder on the
+spindle and your maximnum RPM is 3000 the maximum base thread should be 25 us.
+A 100 pulse per revolution encoder will have 400 counts. The spindle speed
+of 3000 RPM = 50 RPS (revolutions per second). 400 * 50 = 20,000 counts per
+second or 50 us between counts.
+
+ Figure <<fig:Encoder-Block-Diag>> is a block
 diagram of one channel of encoder counter. 
 
 .Encoder Counter Block Diagram[[fig:Encoder-Block-Diag]]

@@ -38,7 +38,7 @@
 # named "O" words available since: LinuxCNC 2.3.0, April 19, 2009
 
 #-----------------------------------------------------------------------
-# Copyright: 2010-2012
+# Copyright: 2010-2013
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -60,11 +60,7 @@
 # a single subroutine as described in
 #      3.7 Calling Files of the LinuxCNC ________ manual
 # and then use or test them with a gui frontend that simplifies
-# user entry of both calling arguments (positional parameters #1,#2,...)
-# and _global named parameters identified with a leading underscore like
-# (#<_global_named_parameter>)
-
-# Note: use of global named parameters as inputs to ngcgui is deprecated
+# user entry of calling arguments (positional parameters #1,#2,...)
 
 # If the subroutine includes lines to equate positional parameters
 # (#n) to named parameters (#<parmname>) on special association lines like:
@@ -90,26 +86,6 @@
 # entered -- an error occurs if an item  entry is missing when a feature
 # is made with "Create Feature"
 
-
-# Note: use of global named parameters as inputs to ngcgui is deprecated
-# Similarly, for _globals, additional information can be included on a special
-# association comment line:
-#               ( #<_globalname> optional_comment_text )
-# to include a default value:
-#               ( #<_globalname> =dvalue optional_comment_text )
-# (note a default dvalue may be superseded by settings in a preamble file)
-
-# As in many languages, use of _globals is not recommended for user inputs
-# to ngcgui.
-
-# Entries for _globals may be omitted since they could be set through other
-# mechanisms.  An error _will_ occur at runtime if a used _global is
-# undefined.
-
-# (i think there are some bugs in interpreter passing named globals to subs
-# (when they are set using mdi -- using an "immediate" preamble entry
-# (like :#_someglobal=1234) can be helpful)
-
 # The linuxcnc gcode language does not provide a mechanism for returning
 # results so subroutines must set global parameters for results.
 # Within ngcgui, _globals with names that contain a colon (:) character
@@ -134,22 +110,13 @@
 #     No substitutions are performed on this file
 
 #  4) User specifies a subroutine file (Subfile).
-#     Entry boxes are created for each positional parameter and
-#     each _global variable used within the Subfile.
+#     Entry boxes are created for each positional parameter
 
 #  5) Optionally, user supplies a Postamble file of gcode
 #     No substitutions are performed on this file
 
 #  6) "Create Feature" Button adds feature to queue for output file.
 #     The gui will verify that all positional parameters are not
-#     null but makes no checks on values.
-
-#     A conflict would occur if a _global variable is set in both
-#     the preamble file and a Subfile _global  entry box.  When
-#     this situation is detected, the preamble file value is entered
-#     in the entry box and the entry box is disabled from entry
-
-#     The gui will verify that all _globals are not
 #     null but makes no checks on values.
 
 #  7) "Finalize" button prompts for filename, and writes output file
@@ -164,7 +131,7 @@
 #  9) To create a file with multiple sections from one or more
 #     subroutine files:
 #       a) enter values for Preamble, Subfile, Postamble
-#       b) fill in _global and positional parameters
+#       b) fill in positional parameters
 #       d) "Create Feature" number_1
 
 #       e) If this this the only feature, select "Finalize" to write
@@ -190,7 +157,7 @@
 #   "Retain values on Subfile read"
 #        After opening a Subfile (and creating an output file) a second
 #        Subfile (third,fourth, ...) may be opened while retaining values
-#        for _globals and positional parameters where the names are
+#        for positional parameters where the names are
 #        _matched_ in the subsequent file.  This is useful when
 #        testing new subroutines and may be useful when combining multiple
 #        feature routines if they share parameters with common names like
@@ -247,30 +214,22 @@
 #      body of the routine since they will increase the number of
 #      entry-box items in the ngcgui front-end and cause great confusion.
 #
-#      Note: use of global named parameters as inputs to ngcgui is deprecated
 #      In the manual:
 #         "O- call takes up to 30 optional arguments, which are passed
 #         to the subroutine as #1, #2, ..., #N.  Parameters from #N+1 to
 #          #30 have the same value as in the calling context."
-#      If used, these _globals will cause the confusion mentioned above
-#      so it would be better to use the "Named" format for _globals.
-#      For example: #<_feedrate>
 
 #   3. LinuxCNC gcode supports labels for conditional blocks and subroutines
 #      in both "Numbered" (ex: o100) and "Named" (ex: o<l101>) forms.
 #      Support for the "Numbered" label format is included, but
 #      it would be clearer to limit ngcgui support to:
 #          Positional Parametrs --> #1, ..., #n   1<=n<=30
-#          Named Globals        --> #<_global_name>
 #          Named Labels         --> o<label_name>
 #      This seems consistent with the trajectory of LinuxCNC gcode and
-#      accomodation of earlier styles (numbered labels and _globals like
+#      accomodation of earlier styles (numbered labels like
 #      #n+1 to #30) is a small matter of editing:).
 
-#   4. If one inadvertently codes a _global name in the special association
-#      to positional parameters like this:
-#           #<_aglobal> = #4
-#      and uses the same _global elsewhere, unexpected results may occur.
+#   4. removed
 
 #   5. If a file (subfile,preamble,postamble) is removed or modified by
 #      another application (like an editor), the color for its name will
@@ -293,7 +252,7 @@
 #      with a value of 0 and is incremented for each added feature.  This
 #      _global can be tested in subroutines; no entry box is created for it.
 
-#   8. entry boxes for _global and positional parameters include key bindings
+#   8. entry boxes for positional parameters include key bindings
 #      for keys x,y,z,a,b,c,u,v,w, and d.  When embedded in axis, typing these keys
 #      cause the current value (emc_rel_act_pos) to be entered into the
 #      entry box.  This function makes it simple to enter current coordinate
@@ -301,7 +260,7 @@
 #
 #      (If there is a tcl global ::entrykeybinding proc, it will
 #      be used instead for these key bindings so that other embedding
-#      applications can handle thse keys -- see the source for the parameters
+#      applications can handle these keys -- see the source for the parameters
 #      passed to the proc.)
 
 #   9. lines before the o<>sub line and after the o<>endsub line must
@@ -336,13 +295,10 @@
 
 #  13. Emc gcode (2.3 19apr09) allows a single semicolon use for comments.
 #      This gui supports semicolon comments but the syntax for special
-#      association lines requires the () forms:
+#      association lines requires the () form:
 #
 #      for positional parameters 1<=n<=30:
 #         #<parmname>     = #n (=defaultvalue comment_text)
-#
-#      for globals:
-#         (#<_globalname> = value comment_text)
 
 #  14. Features requiring linuxcnc-2.4pre (that I can remember):
 #      a) error detection when sending file to axis
@@ -432,13 +388,20 @@
 #     otherwise
 #        "."
 
-# 26. Ngcgui support for global variables as input parameters has been
-#     deprecated from its initial incorporation because of common
-#     concerns for maintenance of (user) global variables.
-#     LinuxCNC 2.6 and future releases will include numerous built-in
-#     global named readonly variables.
-#     Ngcgui support for input global variables is a declining feature
-#     to be removed for 2.6
+# 26. removed
+
+# 27. Ngcgui supports .gcmc files (for gcmc the G-Code Meta Compiler)
+#         http://www.vagrearg.org/content/gcmc
+#     Special tags in the .gcmc file are used to:
+#         1) specify the info text for the tab page (optional)
+#         1) specify variable names requiring an ngcgui entry box
+#         2) specify gcmc options (optional)
+#
+#     When creating a feature from a gcmc file, the gcmc program
+#     is run with the variable values from the entry boxes and the gcmc
+#     options specified.
+#
+
 #-----------------------------------------------------------------------
 
 namespace eval ::ngcgui {
@@ -452,7 +415,7 @@ namespace eval ::ngcgui {
 if [catch {package require Linuxcnc} msg] {
   # if user is trying to use as standalone in an unconfigured (non-Emc)
   # environment, just continue without internationalization
-  puts stderr "Internationalization not available: <$msg>"
+  puts stdout "Internationalization not available: <$msg>"
 }
 # use a command or proc named "_" for ::msgcat::mc
 # when embedded in axis, a command named "_" is predefined,
@@ -463,7 +426,7 @@ if {"" == [info command "_"]} {
 }
 
 #-----------------------------------------------------------------------
-proc ::ngcgui::parse {hdl ay_name filename args} {
+proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
   # return 1 for ok
   # return 0 for error and lappend to (parse,msg)
   upvar $ay_name ay
@@ -483,41 +446,9 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   set basename [file tail $filename]
   set idx [string last . $basename]
   set ay($hdl,subroutine,name) [string replace $basename $idx end]
-#puts "parse $hdl $filename"
   new_image $hdl $filename
 
-  if {$ay($hdl,retainvalues)} {
-    # _globals:             retain all
-    # positional parameters: retain some
-    foreach n [array names ay $hdl,arg,name,*] {
-      # example:
-      # exists    arg,name,03      == xloc
-      #           arg,value,03     == 999
-      # set       arg,byname,xloc  == 999
-      set num [string range $n [expr 1+[string last , $n]] end]
-      set name $ay($n)
-      if ![info exists ay($hdl,arg,value,$num)] continue
-      if {[string first # $name] != 0} {
-        set ay($hdl,arg,byname,$name) $ay($hdl,arg,value,$num)
-      }
-    }
-  } else {
-    # retaining none
-    foreach n [array names ay $hdl,global,name,*]    {unset ay($n)}
-    foreach n [array names ay $hdl,global,value,*]   {unset ay($n)}
-    foreach n [array names ay $hdl,arg,value*]       {unset ay($n)}
-    foreach n [array names ay $hdl,arg,byname,*]     {unset ay($n)}
-  }
-  # always unset these
-  foreach n [array names ay $hdl,arg,name,*]           {unset ay($n)}
-  foreach n [array names ay $hdl,arg,comment,*]        {unset ay($n)}
-  foreach n [array names ay $hdl,arg,value,*]          {unset ay($n)}
-  foreach n [array names ay $hdl,arg,dvalue,*]         {unset ay($n)}
-  foreach n [array names ay $hdl,global,name,*]        {unset ay($n)}
-  foreach n [array names ay $hdl,global,comment,*]     {unset ay($n)}
-  foreach n [array names ay $hdl,global,dvalue,*]      {unset ay($n)}
-  foreach n [array names ay $hdl,global,entrywidget,*] {unset ay($n)}
-  foreach n [array names ay $hdl,arg,entrywidget,*]    {unset ay($n)}
+  retain_or_unset $hdl $ay_name
 
   set min_num 999999; set max_num -1
   set last_num 0
@@ -569,7 +500,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
 
     # disallow embedded numbered subroutines within a single-file subroutine
     if {[regexp -nocase "^o\[0-9\]*sub" $line]} {
-      puts stderr "[_ "bogus"]:$lno<$theline>"
+      puts stdout "[_ "bogus"]:$lno<$theline>"
       lappend emsg \
          "[_ "can not include subroutines within ngcgui subfile"]:$theline"
       set ay($hdl,parse,msg) $emsg
@@ -588,7 +519,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       set i2    [string first > $theline]
       set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
       if {"$label" != "$ay($hdl,subroutine,name)"} {
-        puts stderr "[_ "bogus"]:$lno<$theline>"
+        puts stdout "[_ "bogus"]:$lno<$theline>"
         lappend emsg \
           "[_ "sub label"]: o<$label> [_ "does not match subroutine file name"]"
       }
@@ -606,11 +537,11 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         if {[string first m2 [string trim [string tolower $theline]]] == 0} {
           set ::ngc_sub($hdl,$lct) \
               "($::ngc(any,app): [_ "ignoring M2 after endsub"]: <$theline>)"
-          puts stderr "[_ "ignoring M2 after endsub"] <$theline>"
+          puts stdout "[_ "ignoring M2 after endsub"] <$theline>"
           incr lct
           continue
         } else {
-          puts stderr "[_ "bogus"]:$lno<$theline>"
+          puts stdout "[_ "bogus"]:$lno<$theline>"
           lappend emsg "[_ "file contains lines after subend"]"
         }
       }
@@ -623,31 +554,9 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         incr lct
         continue
        } else {
-         puts stderr "[_ "bogus"]:$lno<$theline>"
+         puts stdout "[_ "bogus"]:$lno<$theline>"
          lappend emsg "[_ "file contains lines before sub"]"
        }
-    }
-
-    # find special comment line that associates
-    # a default value and/or comment with a _global
-    # like:     (#<_gloname> comment_text)
-    #   or:     (#<_gloname> =value comment_text)
-    #   or:     (#<_gloname> =value)
-    #
-    if {   $iscomment \
-        && [regexp -nocase "#<(_.*)>.*" $line match gname more]} {
-      set i1  [string first > $theline]
-      set i2  [string last  ) $theline]
-      set txt [string range   $theline [expr 1 + $i1] [expr -1 + $i2]]
-
-      set cmt [string trim $txt]
-      if [regexp -nocase "= *(\\+*-*\[0-9.\]*)(.*)" \
-             $cmt V(match) V(dvalue) V(comment)] {
-        set ay($hdl,global,dvalue,$gname)  $V(dvalue)
-        set ay($hdl,global,comment,$gname) [string trim $V(comment)]
-      } else {
-        set ay($hdl,global,comment,$gname) $cmt
-      }
     }
 
     if {$iscomment} {
@@ -665,7 +574,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       set i2    [string first > $theline]
       set label [string range   $theline [expr $i1 + 1] [expr $i2 -1]]
       if {"$label" != "$ay($hdl,subroutine,name)"} {
-        puts stderr "[_ "bogus"]:$lno<$theline>"
+        puts stdout "[_ "bogus"]:$lno<$theline>"
         lappend emsg \
           "[_ "endsub label"]: o<$label> [_ "does not match subroutine file name"]"
       }
@@ -770,7 +679,7 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
         set expect_num [expr $last_num +1]
         # enforce these to appear in order to help prevent user errors
         if {$num != $expect_num && $num <= 30} {
-          puts stderr "[_ "bogus"]:$lno<$theline>"
+          puts stdout "[_ "bogus"]:$lno<$theline>"
           lappend emsg \
             "[_ "out of sequence positional parameter"] $num [_ "expected"]: $expect_num "
         } else {
@@ -800,53 +709,6 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
       }
     }
 
-    # find _globals anywhere on line
-    # but ignore _globals which contain a ":" character
-    # so these can be used as return variables from sub calls
-    # or for other purposes
-    # don't use a line like #<_a> =[2*#<_b:answer>] to define #<_a>
-    # because the whole line is ignored (use another line to find #<_a>
-    if [string match *#<_* $line] {
-      set gline $line
-      set ct 0
-
-      while 1 {
-        set i1 [string first #<_ $gline]
-        if {$i1 < 0} break
-        set gline [string replace $gline 0 $i1]
-
-        set i2 [string first > $gline]
-        if {$i2 < 0} {
-          puts stderr problem1:$gline
-          break
-        }
-        set gname [string range $gline 1 [expr -1+$i2]]
-        # ignore name that includes a colon (:)
-        if {[string first : $gname] > 0} break
-        # ignore _global named _feature:
-        if {"$gname" == "_feature:"} break
-
-        # ignore system named read-only variables:
-        # this will not be needed when support for globals ceases (2.6)
-        switch -exact $gname {
-           _lathe_diameter_mode -
-           _lathe_radius_mode   -
-           _vmajor              -
-           _vminor {break}
-        }
-
-        if {![info exists ay($hdl,global,value,$gname)]} {
-          set ay($hdl,global,value,$gname) ""
-        }
-        set ay($hdl,global,name,$gname)  $gname
-        set gline [string replace $gline 0 $i2]
-        incr ct
-        if {$ct > 20} {
-          puts stderr "[_ "toomany"]"
-          break
-        }
-      } ;# while
-    }
   } ;# while !eof
   set ay($hdl,sublines) $lct
   close $fd
@@ -867,31 +729,8 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
     catch {unset ay($hdl,arg,name,$num02)}
     catch {unset ay($hdl,arg,comment,$num02)}
   }
-  foreach v [array names ay $hdl,global,value,*] {
-    set item [string replace $v 0 [string last , $v]]
-    if ![info exists ay($hdl,global,name,$item)] {
-      unset ay($hdl,global,value,$item)
-    }
-  }
-
-  # for --vwidth 0, make sure something exists for comment
-  if {$ay(any,width,varname) == 0 } {
-    foreach v [array names ay $hdl,global,name,*] {
-      set gname [string replace $v 0 [string last , $v]]
-       if {(   ![info exists ay($hdl,global,comment,$gname)] \
-            || "$ay($hdl,global,comment,$gname)" == "")
-       } {
-       set ay($hdl,global,comment,$gname) $gname
-      }
-    }
-  }
 
   # error checks
-  if {$max_num < 0 && "" == [array names ay $hdl,global,name,*]} {
-    # not exactly an error but flag anyway
-    #lappend emsg "No _globals or subroutine parms found in $filename"
-    #puts stderr "No _globals or subroutine parms found in $filename"
-  }
   if {![info exists found_sub_start]} {
     lappend emsg "[_ "no sub found in file"]"
   }
@@ -904,6 +743,215 @@ proc ::ngcgui::parse {hdl ay_name filename args} {
   }
   return 1 ;# ok
 } ;# parse
+
+proc retain_or_unset {hdl ay_name} {
+  upvar $ay_name ay
+  if {$ay($hdl,retainvalues)} {
+    # positional parameters: retain some
+    foreach n [array names ay $hdl,arg,name,*] {
+      # example:
+      # exists    arg,name,03      == xloc
+      #           arg,value,03     == 999
+      # set       arg,byname,xloc  == 999
+      set num [string range $n [expr 1+[string last , $n]] end]
+      set name $ay($n)
+      if ![info exists ay($hdl,arg,value,$num)] continue
+      if {[string first # $name] != 0} {
+        set ay($hdl,arg,byname,$name) $ay($hdl,arg,value,$num)
+      }
+    }
+  } else {
+    # retaining none
+    foreach n [array names ay $hdl,arg,value*]       {unset ay($n)}
+    foreach n [array names ay $hdl,arg,byname,*]     {unset ay($n)}
+  }
+  # always unset these
+  foreach n [array names ay $hdl,arg,name,*]           {unset ay($n)}
+  foreach n [array names ay $hdl,arg,comment,*]        {unset ay($n)}
+  foreach n [array names ay $hdl,arg,value,*]          {unset ay($n)}
+  foreach n [array names ay $hdl,arg,dvalue,*]         {unset ay($n)}
+  foreach n [array names ay $hdl,arg,entrywidget,*]    {unset ay($n)}
+
+  catch {
+    foreach n [array names ::ngc_sub $hdl,*] {
+      unset ::ngc_sub($n)
+    }
+  }
+} ;# retain_or_unset
+#-----------------------------------------------------------------------
+proc ::ngcgui::find_gcmc {} {
+  if [catch {set found [exec which gcmc]} msg] {
+    puts stdout "find_gcmc:NOTfound:<$msg>"
+    return ""
+  } else {
+    #puts stdout "find_gcmc:found:$found"
+  }
+  return $found
+} ;# find_gcmc
+
+proc ::ngcgui::parse_gcmc {hdl ay_name filename args} {
+  # return 1 for ok
+  # return 0 for error and lappend to (parse,msg)
+  upvar $ay_name ay
+  set ay($hdl,parse,msg) ""
+
+  if ![info exists ::ngc(any,gcmc,executable)] {
+    set result [find_gcmc]
+    if {"$result" == ""} {
+      lappend ay($hdl,parse,msg) "[_ "Cannot find gcmc executable"]"
+      lappend ay($hdl,parse,msg) "[_ "Please Install in path"]"
+      return 0
+    } else {
+      set ::ngc(any,gcmc,executable) [find_gcmc]
+      # outdir has to be in path
+      # use first dir in path as dir for temporary ofile
+      if ![info exists ::ngc(any,paths)] {
+        set ::ngc(any,paths) [file normalize [file dirname $filename]]
+        puts "\nngcgui: [_ "not embedded, deriving outdir from:"] $filename\n"
+      }
+
+      set ::ngc(any,gcmc,outdir) [file normalize [lindex $::ngc(any,paths) 0]]
+      set ::ngc(any,gcmc,funcname) tmpgcmc ;# append session id and suffix
+      # clean up prior runs by moving to tmp
+      if ![catch  {set flist [glob [file join $::ngc(any,gcmc,outdir) \
+                             $::ngc(any,gcmc,funcname)]*] } msg] {
+        file mkdir /tmp/oldgcmc
+        foreach f $flist {
+           #puts " file rename $f /tmp/[file tail $f]"
+           file rename -force $f [file join /tmp/oldgcmc [file tail $f]]
+        }
+      }
+    }
+
+    set ct 1
+    # catch: early versions of gcmc returns $?=1
+    if [catch {set ans [exec $::ngc(any,gcmc,executable) --version]
+              }  msg ] {
+      puts stdout "parse_gcmc: unexpected version:<$msg>"
+    } else {
+      foreach line [split $ans \n] {
+        set ::ngc(any,gcmc,version,line$ct) $line
+        incr ct
+      }
+      puts stdout "gcmc    path: $::ngc(any,gcmc,executable)"
+      puts stdout "gcmc version: $::ngc(any,gcmc,version,line1)"
+    }
+  }
+
+  # default info, supersede expected:
+  set ay($hdl,info) "[_ "Current subfile: $filename"]"
+  catch {unset ::ngc($hdl,gcmc,opts)} ;# no retain on reread
+
+  if {"$filename" == ""} {
+    lappend ay($hdl,parse,msg) "[_ "Need non-null file name"]"
+    return 0
+  }
+  if [catch {set fd [open $filename r]} msg] {
+    lappend ay($hdl,parse,msg) $msg
+    return 0
+  }
+  set basename [file tail $filename]
+  set idx [string last . $basename]
+  set ay($hdl,subroutine,name) [string replace $basename $idx end]
+  new_image $hdl $filename
+
+  retain_or_unset $hdl $ay_name
+
+  set min_num 999999; set max_num -1
+  set ay($hdl,label_maxwidth) 0
+
+  set lno 1
+  set num 1
+  set num02 [format %02d $num]
+  set names {}
+  while {![eof $fd]} {
+    gets $fd theline
+    incr lno
+    #remove blanks and tabs
+    set theline [string trim $theline]
+    # consider // comments only
+    if {[string first "//" $theline] != 0} continue
+    # The '*', '+', and '?' qualifiers are all greedy.
+    #    Greedy <.*>  matches all of <H1>title</H1>
+    # NonGreedy <.*?> matches the only first <H1>
+
+    # // ngcgui : info: describing text
+    set einfo "^ *\\/\\/ *ngcgui *: *info: *\(.*?\)"
+    if {[regexp $einfo $theline match info]} {
+      set ay($hdl,info) $info
+      continue
+    }
+
+    set eopt "^ *\\/\\/ *ngcgui *: *\(-.*\)$"
+    if {[regexp $eopt $theline match opt]} {
+      # remove a trailing comment:
+      set idx [string first '//' $opt]
+      if {$idx >= 0} { set opt [string replace $opt $idx end] }
+      set idx [string first \; $opt]
+      if {$idx >= 0} { set opt [string replace $opt $idx end] }
+      set opt [string trim $opt]
+
+      lappend ::ngc($hdl,gcmc,opts) $opt
+      continue
+    }
+
+    catch {unset name dvalue comment}
+    # // ngcgui : name [= value [,comment]]
+    set e1 "^ *\\/\\/ *ngcgui *: *\(.*?\) *= *\(.*?\) *\, *\(.*?\) *$"
+    set e2 "^ *\\/\\/ *ngcgui *: *\(.*?\) *= *\(.*?\) *$"
+    set e3 "^ *\\/\\/ *ngcgui *: *\(.*?\) *$"
+    if {[regexp $e1 $theline match name dvalue comment]} {
+      #puts "1_____<$name>,<$dvalue>,<$comment>"
+    } elseif {[regexp $e2 $theline match name dvalue]} {
+      #puts "2_____<$name>,<$dvalue>"
+    } elseif {[regexp $e3 $theline match name]} {
+      #puts "3_____<$name>"
+    } else {
+      continue
+    }
+    if {[lsearch $names $name] >= 0} {
+      puts "duplicate name, first one wins <$name>"
+      # could be an error:
+      # lappend emsg "[_ "duplicate name <$name>"]"
+      continue
+    }
+    lappend names $name
+    set ay($hdl,arg,name,$num02) $name
+    if [info exists dvalue] {
+      # this is a convenience to make it simple to edit to
+      # add a var without removing the semicolon
+      #    xstart = 10;
+      #    //ngcgui: xstart = 10;
+      set dvalue [lindex [split $dvalue ";"] 0] ;# strip after a ";"
+      set ay($hdl,arg,dvalue,$num02) $dvalue
+    }
+    if [info exists comment] {
+      set ay($hdl,arg,comment,$num02) $comment
+    } else {
+      set ay($hdl,arg,comment,$num02) $name
+    }
+    incr num
+    set num02 [format %02d $num]
+  } ;# while !eof
+
+  close $fd
+  set ay($hdl,argct) [llength $names]
+
+   # gcmc files with no args are allowed
+   #  if {$ay($hdl,argct) <= 0} {
+   #     lappend emsg "[_ "gcmc file with no args"]"
+   #  }
+  if {$ay($hdl,argct) > 30} {
+     lappend emsg "[_ "gcmc file with too many args <$::ay($hdl,argct)"]"
+  }
+
+  # error checks
+  if [info exists emsg] {
+    set ay($hdl,parse,msg) $emsg
+    return 0
+  }
+  return 1 ;# ok
+} ;# parse_gcmc
 
 proc ::ngcgui::dt {} {
   return [clock format [clock seconds] -format %y%m%d:%H.%M.%S]
@@ -963,6 +1011,7 @@ proc ::ngcgui::initgui {hdl} {
   set ::ngc(any,color,custom)   ivory2
   set ::ngc(any,color,default)  blue4
 
+  set ::ngc(any,max_msg_len)     500 ;# limit popup msg len (gcmc)
   set ::ngc($hdl,afterid)        ""
   statemap $hdl ;# set up state transitions
 } ;# initgui
@@ -1038,7 +1087,7 @@ proc ::ngcgui::gui {hdl mode args} {
           # ok
         } else {
           if [catch {file mkdir $::ngc(any,dir,just)} msg] {
-            puts stderr $msg ;# no such dir for example
+            puts stdout $msg ;# no such dir for example
             return "" ;# something bad happened
           }
         }
@@ -1057,8 +1106,8 @@ proc ::ngcgui::gui {hdl mode args} {
       set ::ngc($hdl,id)      0
       set ::ngc($hdl,savect)  0
       conf $hdl restart,widget state disabled
-      set ::ngc($hdl,ftypes)  { {{NGC} {.ngc}} }
-
+      set ::ngc($hdl,ftypes,subfile) { {{GCODE,GCMC}   {.ngc .gcmc}} }
+      set ::ngc($hdl,ftypes,other)   { {{NGC}   {.ngc}} }
       # initializations:
       set ::ngc($hdl,data,preamble)    ""
       set ::ngc($hdl,data,postamble)   ""
@@ -1097,7 +1146,6 @@ proc ::ngcgui::gui {hdl mode args} {
           pack $wC -side bottom -fill x -expand 1 -anchor n
           pack $wV -side top    -fill x -expand 1 -anchor n
           set ::ngc($hdl,pack,positional) top
-          set ::ngc($hdl,pack,global)     top
         }
         horiz {
           set wL [frame $wframe.left -bd 2 -relief ridge] ;# left frame
@@ -1114,7 +1162,6 @@ proc ::ngcgui::gui {hdl mode args} {
           pack $wC -side bottom  -fill x -expand 1 -anchor s
           pack $wV -side left -fill x -expand 1 -anchor n
           set ::ngc($hdl,pack,positional) left
-          set ::ngc($hdl,pack,global)     left
           $wframe config -relief ridge -bd 2
         }
         default {return -code error ngc::gui:aspect <$aspect>}
@@ -1191,6 +1238,7 @@ proc ::ngcgui::gui {hdl mode args} {
             -command [list ::ngcgui::aftertoggle $hdl expandsubroutine] \
             -variable ::ngc($hdl,expandsubroutine)]
       pack $b -side left -fill x -expand 1
+      set ::ngc($hdl,expandsubroutine,widget) $b
 
 if {1} {
       set w [frame $wI.[qid]]
@@ -1302,7 +1350,7 @@ if {0} {
         ::ngcgui::gui $hdl readpostamble
       }
       if [info exists ::ngc($hdl,fail)] {
-        puts stderr "\n$::ngc(any,app):[_ "Unrecoverable problem"]:\n<$hdl>$::ngc($hdl,fail)"
+        puts stdout "\n$::ngc(any,app):[_ "Unrecoverable problem"]:\n<$hdl>$::ngc($hdl,fail)"
         ::ngcgui::deletepage $::ngc($hdl,axis,page)
         return
       }
@@ -1325,7 +1373,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,preamble)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,other) \
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
@@ -1340,11 +1388,6 @@ if {0} {
         set ::ngc($hdl,fname,preamble) "$::ngc($hdl,fname,preamble).ngc"
       }
       set ::ngc($hdl,data,preamble) ""
-      foreach n [array names ::ngc $hdl,global,prevalue,*] {unset ::ngc($n)}
-
-      foreach n [array names ::ngc $hdl,global,entrywidget,*] {
-        $::ngc($n) conf -state normal -takefocus 1
-      }
       if {"$::ngc($hdl,fname,preamble)" == ""} {
         # message $hdl nullpreamble
         return
@@ -1362,28 +1405,11 @@ if {0} {
         lappend ::ngc($hdl,data,preamble) \
                 "($::ngc(any,app): preamble file: $::ngc($hdl,fname,preamble))"
 
-        # find _globals that are set (=) in the preamble file
+        # dont copy some items to preamble
         while {![eof $fpre]} {
           gets $fpre line
           set l [string map {" " "" "	" ""} $line] ;#sp,tab to ""
           if {"$l" == ""} continue
-          if [string match *#<_*>*=* $l] {
-            if [string match (*) $l] {
-              # ignore comment
-            } else {
-              set i1 [string first _ $l]
-              set i2 [string last  > $l]
-              set gname [string range $l $i1 [expr -1 + $i2]]
-              set i3 [string first = $l]
-              set l [string range $l [expr 1 + $i3] end]
-              set i4 [string first ( $l]
-              set i4 [expr -1 + $i4]
-              if {$i4 < 0} {set i4 end}
-              set value [string range $l 0 $i4]
-              set ::ngc($hdl,global,prevalue,$gname) $value
-              globalcheck $hdl
-            }
-          }
           if ![string match "(not_a_subfile)"  $line] {
             lappend ::ngc($hdl,data,preamble) $line
           }
@@ -1406,7 +1432,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,postamble)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,other) \
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
@@ -1456,7 +1482,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,subfile)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,subfile) \
            ]
       set filename [string trim $filename]
       if {"$filename" == ""} return
@@ -1466,20 +1492,28 @@ if {0} {
       return
     }
     readsubfile {
-      if {   ![string match *.ngc $::ngc($hdl,fname,subfile)] } {
+      set parsecmd ::ngcgui::parse_ngc
+      if {[string match *.gcmc $::ngc($hdl,fname,subfile)] } {
+        set parsecmd ::ngcgui::parse_gcmc
+        set ::ngc($hdl,gcmc,file) $::ngc($hdl,fname,subfile)
+        $::ngc($hdl,expandsubroutine,widget) configure -state disable
+      } else {
+        # in case earlier an earlier find for gcmc failed;
+        catch {unset ::ngc($hdl,gcmc,file)}
+        $::ngc($hdl,expandsubroutine,widget) configure -state normal
+      }
+      if {   ![string match *.ngc $::ngc($hdl,fname,subfile)] \
+          && ![string match *.gcmc $::ngc($hdl,fname,subfile)] \
+         } {
         set ::ngc($hdl,fname,subfile) "$::ngc($hdl,fname,subfile).ngc"
       }
-      # uses two pack/unpack frames wG,wP
+      # uses two pack/unpack frames wP
       set ew 6; set bw 9
 
 # wP positional parameters
       set wP $::ngc($hdl,varframe).positional ;# variable frame positional parms
       if  [winfo exists $wP] {destroy $wP}
       set wP [frame $wP -bd 2 -relief ridge]
-
-      set wG $::ngc($hdl,varframe).globals    ;# variable frame _globals
-      if  [winfo exists $wG] {destroy $wG}
-      set wG [frame $wG -bd 2 -relief ridge]
 
       pack $wP -side $::ngc($hdl,pack,positional) -fill x -expand 1 -anchor n
 
@@ -1488,9 +1522,8 @@ if {0} {
        set ::ngc($hdl,fname,subfile) "$::ngc($hdl,fname,subfile).ngc"
       }
       # read and parse the file
-
       set ::ngc($hdl,dname,subfile) [file tail $::ngc($hdl,fname,subfile)]
-      if ![parse $hdl ::ngc $::ngc($hdl,fname,subfile)] {
+      if ![$parsecmd $hdl ::ngc $::ngc($hdl,fname,subfile)] {
         # case where user can't recover
         if {$::ngc(opt,noinput) && !$::ngc($hdl,chooser)} {
           set ::ngc($hdl,fail) "subfile:$::ngc($hdl,parse,msg)";# unrecoverable
@@ -1502,7 +1535,6 @@ if {0} {
         # set ::ngc($hdl,fname,subfile) "" ;# prevents color change
         # set ::ngc($hdl,dname,subfile) "" ;# in periodic_checks
         catch {pack forget $wP}
-        catch {pack forget $wG}
         return
       }
       set ::ngc($hdl,fname,subfile,time) \
@@ -1612,68 +1644,6 @@ if {0} {
         pack $l -side left -fill x -expand 1
       }
 
-# wG _global parameters
-      pack $wG -fill x -expand 1 -side $::ngc($hdl,pack,global) -anchor n
-      if {[array names ::ngc $hdl,global,name,*] != ""} {
-        pack [label $wG.[qid] -text "[_ "_Globals"]" \
-             -bg $::ngc(any,color,title) \
-             -anchor w  -relief groove] -fill x -expand 1
-      }
-
-      # _globals entries
-      foreach v [lsort [array names ::ngc $hdl,global,name,*]] {
-        set fdata [frame $wG.[qid]]
-        pack $fdata -side top -fill x -expand 1
-        set i1 [string last , $v]
-        set gname [string replace $v 0 $i1]
-        set extra 3 ;# compensate for positional parameters numbers
-        if {"$::ngc(any,aspect)" == "horiz"} { set extra 0 }
-
-        if {   $::ngc(any,width,varname) != 0 } {
-          set lw [expr $extra + $::ngc(any,width,varname)]
-          set l [entry $fdata.[qid] -state readonly  -font $::ngc(any,font) \
-                -textvariable ::ngc($hdl,global,name,$gname) \
-                -takefocus 0 -justify right -relief groove \
-                -width $lw]
-          pack $l -side left -fill x -expand 0
-        }
-        set tvar ::ngc($hdl,global,value,$gname)
-        set e [entry $fdata.[qid] \
-              -width $ew  \
-              -font $::ngc(any,font) \
-              -readonlybackground $::ngc(any,color,readonly)\
-              -textvariable $tvar\
-              -takefocus 1 \
-              -validate  all\
-              -validatecommand \
-                [list ::ngcgui::validateNumber $hdl $tvar %W %s %P]]
-        foreach k $::ngc(any,entrykeys,special) {
-          bind $e <Key-$k> \
-          [list ::ngcgui::entrykeybinding %K %W ::ngc($hdl,global,value,$gname)]
-        }
-        if [info exists ::ngc(embed,axis)] [list updownkeys $e]
-        set ::ngc($hdl,global,entrywidget,$gname) $e
-        # use preamble prevalue if it exists
-        if [info exists ::ngc($hdl,global,prevalue,$gname)] {
-          set ::ngc($hdl,global,value,$gname) \
-              $::ngc($hdl,global,prevalue,$gname)
-          $e conf -state readonly -takefocus 0
-        } else {
-          # use default value if it exists
-          if {    [info exists ::ngc($hdl,global,dvalue,$gname)] \
-              && $::ngc($hdl,global,value,$gname) == "" \
-            } {
-            set ::ngc($hdl,global,value,$gname) \
-                $::ngc($hdl,global,dvalue,$gname)
-          }
-        }
-        pack $e -side left
-        set l [entry $fdata.[qid] -state readonly  -font $::ngc(any,font) \
-              -textvariable ::ngc($hdl,global,comment,$gname) \
-              -takefocus 0 -relief groove \
-              -width $::ngc(any,width,comment)]
-        pack $l -side left -fill x -expand 1
-      }
       dcheck $hdl
       set ::ngc($hdl,dir) [file dirname $::ngc($hdl,fname,subfile)]
       message $hdl readsubfile
@@ -1682,6 +1652,9 @@ if {0} {
         set tabname $::ngc($hdl,dname,subfile)
         if {[string match *.ngc $tabname] } {
           set     idx [string last .ngc $tabname]
+          set tabname [string replace $tabname $idx end ""]
+        } elseif {[string match *.gcmc $tabname] } {
+          set     idx [string last .gcmc $tabname]
           set tabname [string replace $tabname $idx end ""]
         }
         # show last subfile used as page name
@@ -1733,19 +1706,6 @@ if {0} {
           }
         }
       }
-      foreach g [lsort [array names ::ngc $hdl,global,name,* ]] {
-        set idx [string last , $g]
-        set gname "[string replace $g 0 $idx]"
-        set token "#<[string replace $g 0 $idx]>"
-        # nuisance spaces cause problems:
-        set ::ngc($hdl,global,value,$gname) \
-            [string trim $::ngc($hdl,global,value,$gname)]
-        # not an error for globals since it could be defined earlier
-        # in runtime
-        #if {"" == "$::ngc($hdl,global,value,$gname)"} {
-        #  lappend err "Missing value for _global $gname"
-        #}
-      }
       if [info exists err] {
         showerr $err
         message $hdl parmerr
@@ -1767,7 +1727,7 @@ if {0} {
            -defaultextension .ngc \
            -initialfile [file tail $::ngc($hdl,fname,outfile)] \
            -initialdir  $idir \
-           -filetypes $::ngc($hdl,ftypes) \
+           -filetypes $::ngc($hdl,ftypes,subfile) \
            ]
       set filename [string trim $filename]
       # sometimes leading blanks get in
@@ -1789,10 +1749,6 @@ if {0} {
         return
       }
 
-      # could check for number here using %f
-      set gfmt "% 12s = %s"  ;# _global
-      set pfmt "%12s = %s"   ;# positional
-      set cfmt "(%11s = %12s = %12s)" ;# positional comment form
 
       if $::ngc($hdl,verbose) {
         lappend ::ngc($hdl,data,section) \
@@ -1823,76 +1779,11 @@ if {0} {
         }
       }
 
-      set gnames [array names ::ngc $hdl,global,name,*]
-      if {"$gnames" != ""} {
-        if $::ngc($hdl,verbose) {
-          lappend ::ngc($hdl,data,section) \
-            "($::ngc(any,app): _globals for $::ngc($hdl,fname,subfile):)"
-        }
 
-        foreach g [lsort $gnames] {
-          set idx [string last , $g]
-          set gname "[string replace $g 0 $idx]"
-          set token "#<[string replace $g 0 $idx]>"
-          if {[info exists ::ngc($hdl,global,prevalue,$gname)]} {
-            continue
-          }
-          if {"$::ngc($hdl,global,value,$gname)" == ""} {
-            # _global with "" default -- do not set here,
-            # user must set in runtime, prior routine, etc.
-            continue
-          }
-          lappend ::ngc($hdl,data,section) \
-                   [format $gfmt $token $::ngc($hdl,global,value,$gname)]
-        }
-      }
-
-      if {$::ngc($hdl,expandsubroutine)} {
-        # id for unique label when expanding multiple sub files
-        set id $::ngc($hdl,id)
-        set uwidth 3 ;# extra width for unique label 000-999
-        # $uwdith characters in unique ids
-        set id [format %0${uwidth}d $::ngc($hdl,id)]
-        incr ::ngc($hdl,id)
-        lappend ::ngc($hdl,data,section) \
-                 "([_ "Positional parameters for"] $::ngc($hdl,fname,subfile):)"
-        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
-          set num02 [format %02d $i]
-          set name  $::ngc($hdl,arg,value,$num02)
-          lappend ::ngc($hdl,data,section) [format $pfmt #$i $name ]
-        }
-        # expand the subroutine in place
-        lappend ::ngc($hdl,data,section) \
-                "([_ "expanded file"]: $::ngc($hdl,fname,subfile))"
-        for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
-          if [info exists ::ngc_sub($hdl,$i,label)] {
-            lappend ::ngc($hdl,data,section) \
-                    "o<$id$::ngc_sub($hdl,$i,label)> $::ngc_sub($hdl,$i)"
-          } else {
-            lappend ::ngc($hdl,data,section)  \
-                    [format %${uwidth}s%s "" " $::ngc_sub($hdl,$i)"]
-          }
-        }
+      if [info exists ::ngc($hdl,gcmc,file)] {
+        if ![savesection_gcmc $hdl] {return} ;# .gcmc file
       } else {
-        # insert the subroutine call
-        if $::ngc($hdl,verbose) {
-          lappend ::ngc($hdl,data,section) \
-               "($::ngc(any,app): [_ "call subroutine file"]: $::ngc($hdl,fname,subfile))"
-          lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
-        }
-        set cline "o<$::ngc($hdl,subroutine,name)> call "
-        for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
-          set num02 [format %02d $i]
-          set name  $::ngc($hdl,arg,name,$num02)
-          if {[string first # $name] == 0} {set name "?"}
-          # documenting comment
-          if $::ngc($hdl,verbose) {
-            lappend ::ngc($hdl,data,section) \
-                  [format $cfmt #$i $name $::ngc($hdl,arg,value,$num02)]
-          }
-          set cline "$cline\[$::ngc($hdl,arg,value,$num02)\]"
-        }
-          lappend ::ngc($hdl,data,section) "$cline"
+        if ![savesection_ngc $hdl] {return} ;# conventional .ngc file
       }
 
      if {"$::ngc($hdl,fname,postamble)" == "IMMEDIATE"} {
@@ -2044,6 +1935,7 @@ if {0} {
         }
       }
       close $fout
+      set ::ngc(any,gcmc,id) 0 ;# restart after finalize
 
       set ::ngc($hdl,last,outfile) $::ngc($hdl,fname,outfile)
       # just in case you need it later, save a dated copy in /tmp
@@ -2078,8 +1970,247 @@ if {0} {
     }
     default {return -code error "::ngcgui::gui: unknown mode <$mode>"}
   }
-  puts stderr "[_ "NOTREACHED mode"]=<$mode>"
+  puts stdout "[_ "NOTREACHED mode"]=<$mode>"
 } ;# gui
+
+proc ::ngcgui::savesection_ngc {hdl} {
+  # could check for number here using %f
+  set pfmt "%12s = %s"   ;# positional
+  set cfmt "(%11s = %12s = %12s)" ;# positional comment form
+
+  if {$::ngc($hdl,expandsubroutine)} {
+    # id for unique label when expanding multiple sub files
+    set id $::ngc($hdl,id)
+    set uwidth 3 ;# extra width for unique label 000-999
+    # $uwdith characters in unique ids
+    set id [format %0${uwidth}d $::ngc($hdl,id)]
+    incr ::ngc($hdl,id)
+    lappend ::ngc($hdl,data,section) \
+             "([_ "Positional parameters for"] $::ngc($hdl,fname,subfile):)"
+    for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+      set num02 [format %02d $i]
+      set name  $::ngc($hdl,arg,value,$num02)
+      lappend ::ngc($hdl,data,section) [format $pfmt #$i $name ]
+    }
+    # expand the subroutine in place
+    lappend ::ngc($hdl,data,section) \
+            "([_ "expanded file"]: $::ngc($hdl,fname,subfile))"
+    for {set i 0} {$i < $::ngc($hdl,sublines)} {incr i} {
+      if [info exists ::ngc_sub($hdl,$i,label)] {
+        lappend ::ngc($hdl,data,section) \
+                "o<$id$::ngc_sub($hdl,$i,label)> $::ngc_sub($hdl,$i)"
+      } else {
+        lappend ::ngc($hdl,data,section)  \
+                [format %${uwidth}s%s "" " $::ngc_sub($hdl,$i)"]
+      }
+    }
+  } else {
+    # insert the subroutine call
+    if $::ngc($hdl,verbose) {
+      lappend ::ngc($hdl,data,section) \
+           "($::ngc(any,app): [_ "call subroutine file"]: $::ngc($hdl,fname,subfile))"
+      lappend ::ngc($hdl,data,section) "($::ngc(any,app): positional parameters:)"
+    }
+    set cline "o<$::ngc($hdl,subroutine,name)> call "
+    for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+      set num02 [format %02d $i]
+      set name  $::ngc($hdl,arg,name,$num02)
+      if {[string first # $name] == 0} {set name "?"}
+      # documenting comment
+      if $::ngc($hdl,verbose) {
+        lappend ::ngc($hdl,data,section) \
+              [format $cfmt #$i $name $::ngc($hdl,arg,value,$num02)]
+      }
+      set cline "$cline\[$::ngc($hdl,arg,value,$num02)\]"
+    }
+    lappend ::ngc($hdl,data,section) "$cline"
+  }
+  return 1 ;# ok
+} ;# savesection_ngc
+
+proc ::ngcgui::savesection_gcmc {hdl} {
+#puts =====================================
+#parray ::ngc $hdl,arg,*
+#parray ::ngc $hdl,gcmc,*
+#parray ::ngc any,gcmc,*
+#parray ::ngc $hdl,argct
+#puts =====================================
+  # could check for number here using %f
+  set cfmt "(%12s = %12s)" ;# positional comment form
+
+  # maybe implement later, expand after calling gcmc below
+  if {$::ngc($hdl,expandsubroutine)} {
+    set answer [tk_dialog .notdoneyet \
+      "Not done yet"\
+      "Expand subroutine not supported for gcmc files - continuing"\
+      warning -1 \
+      "OK"]
+  }
+
+    if ![info exists ::ngc(any,gcmc,id)] {
+      set ::ngc(any,gcmc,id) 0
+    }
+    incr ::ngc(any,gcmc,id) ;# id for any hdl
+
+    set funcname $::ngc(any,gcmc,funcname)
+    # gcmc chars: (allowed: [a-z0-9_-])
+    set funcname ${funcname}-[format %02d $::ngc(any,gcmc,id)]
+
+    # use first one found in searchpath:
+    set ifile [file normalize \
+                    [pathto [file tail $::ngc($hdl,gcmc,file)]]]
+    if {"$ifile" == ""} {
+      return 0 ;# fail
+    }
+    set ::ngc($hdl,gcmc,realfile) $ifile
+
+    set ofile [file join $::ngc(any,gcmc,outdir) $funcname.ngc]
+
+    set cmd $::ngc(any,gcmc,executable)
+    set opts ""
+
+    if [info exists ::ngc(any,gcmc_include_path)] {
+      foreach dir [split $::ngc(any,gcmc_include_path) ":"] {
+        set opts "$opts --include $dir"
+      }
+    }
+    # note: gcmc adds the current directory
+    #       to the search path as last entry.
+    # maybe also ?: set opts "$opts --include [file dirname $ifile]"
+
+    set opts "$opts --output $ofile"
+    set opts "$opts --gcode-function $funcname"
+    if [info exists ::ngc($hdl,gcmc,opts)] {
+      foreach opt $::ngc($hdl,gcmc,opts) {
+        set opts "$opts $opt"
+      }
+    }
+    if {$::ngc($hdl,argct) > 0} {
+      for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+        set idx [format %02d $i]
+        # make all entry box values explicitly floating point
+        if [catch {set floatvalue [expr 1.0 * $::ngc($hdl,arg,value,$idx)]} msg] {
+          set answer [tk_dialog .gcmcerror \
+              "gcmc input ERROR" \
+              "<$::ngc($hdl,arg,value,$idx)> must be a number" \
+              error -1 \
+              "OK"]
+          return 0 ;# fail
+        }
+        set opts "$opts --define=$::ngc($hdl,arg,name,$idx)=$floatvalue"
+      }
+    }
+
+#   puts stdout "     cmd=$cmd"
+#   puts stdout "    opts=$opts"
+#   puts stdout "   ifile=$ifile"
+#   puts stdout "funcname=$funcname"
+#   puts stdout "     pwd=[pwd]"
+#   puts stdout "  exists=[file exists $ifile]"
+
+    set eline "$cmd $opts $ifile"
+    if $::ngc($hdl,verbose) {
+      puts stdout "eline=$eline"
+    }
+
+    #tclsh considers any output on stderr as an error
+    # -ignorestderr lets it pass so that --precision 2
+    # would not cause an error but then there are no
+    # error messages even for hard ($? !=0) errors, just
+    #    "child process exited abnormally"
+    # so warnings ($?=0) cause abort even though file created
+    # partial file may be left on error so you cant tell by existence
+    # so, parse each warning message
+
+    # parse messages on stderr from gcmc
+    set e_message ".*Runtime message\\(\\): *\(.*\)"
+    set e_warning ".*Runtime warning\\(\\): *\(.*\)"
+    set e_error   ".*Runtime error\\(\\): *\(.*\)"
+
+    set m_txt ""; set w_txt ""; set e_txt ""; set compile_txt ""
+    if [catch {set result [eval exec $eline]} msg] {
+      if {[string length $msg] > $::ngc(any,max_msg_len)} {
+         set msg [string range $msg 0 $::ngc(any,max_msg_len)]
+         set msg "$m_txt ..."
+      }
+      set lmsg [split $msg \n]
+      foreach line $lmsg {
+        #puts l=$line
+        if {[regexp $e_message $line match txt]} {
+          set  m_txt "$m_txt\n$txt"
+        } elseif { [regexp $e_warning $line match txt]} {
+          set  w_txt "$w_txt\n$txt"
+        } elseif { [regexp $e_error $line match txt]} {
+          set  e_txt "$e_txt\n$txt"
+        } else {
+          if {"$line" != ""} {
+            set  compile_txt "$compile_txt\n$line"
+          }
+        }
+      }
+      if {"$m_txt" != ""} {
+        set answer [tk_dialog .gcmcinfor \
+            "gcmc INFO"\
+            "gcmc file:\n$ifile\n\n$m_txt"\
+            info -1 \
+            "OK"]
+      }
+      if {"$w_txt" != ""} {
+        set answer [tk_dialog .gcmcwarning \
+            "gcmc WARNING"\
+            "gcmc file:\n$ifile\n\n$w_txt"\
+            warning -1 \
+            "OK"]
+      }
+      if {"$e_txt" != ""} {
+        set answer [tk_dialog .gcmcerror \
+            "gcmc ERROR"\
+            "gcmc file:\n$ifile\n\n$e_txt"\
+            error -1 \
+            "OK"]
+      }
+      if {"$compile_txt" != ""} {
+        set answer [tk_dialog .gcmcerror \
+            "gcmc compile ERROR"\
+            "gcmc file:$compile_txt"\
+            error -1 \
+            "OK"]
+      }
+      if {"$e_txt" != ""} {
+        return 0 ;# fail
+      }
+    } else {
+      #puts "savesection_gcmc OK<$result>"
+    }
+
+
+    # insert the subroutine call
+    lappend ::ngc($hdl,data,section) \
+          "\n(NOTE: $funcname is provided by a one-time, gcmc-created file:)"
+    lappend ::ngc($hdl,data,section) \
+            "(      $ofile)"
+    lappend ::ngc($hdl,data,section) \
+          "(gcmc: File: $::ngc($hdl,gcmc,realfile))"
+    lappend ::ngc($hdl,data,section) \
+          "(gcmc: Options:                        )"
+    if [info exists ::ngc($hdl,gcmc,opts)] {
+      foreach opt $::ngc($hdl,gcmc,opts) {
+         lappend ::ngc($hdl,data,section) \
+            "(              $opt)"
+      }
+    }
+    lappend ::ngc($hdl,data,section) \
+          "(gcmc: Variable substitions:)"
+    for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
+       set num02 [format %02d $i]
+       set name  $::ngc($hdl,arg,name,$num02)
+       lappend ::ngc($hdl,data,section) \
+              [format $cfmt $name $::ngc($hdl,arg,value,$num02)]
+    }
+    lappend ::ngc($hdl,data,section) "o<$funcname> call "
+
+    return 1 ;# ok
+} ;# savesection_gcmc
 
 proc ::ngcgui::conf {hdl wsuffix item value} {
   set w $hdl,$wsuffix
@@ -2146,18 +2277,6 @@ proc ::ngcgui::readfile {hdl item} {
     postamble {::ngcgui::gui $hdl readpostamble }
   }
 } ;# readfile
-
-proc ::ngcgui::globalcheck {hdl} {
-  # make entry boxes readonly for prevalues
-  foreach n [array names ::ngc $hdl,global,entrywidget,*] {
-    set i1 [string last , $n]
-    set gname [string range $n [expr 1 + $i1] end]
-    if [info exists ::ngc($hdl,global,prevalue,$gname)] {
-      set ::ngc($hdl,global,value,$gname) $::ngc($hdl,global,prevalue,$gname)
-      $::ngc($hdl,global,entrywidget,$gname) conf -state readonly -takefocus 0
-    }
-  }
-} ;# globalcheck
 
 proc ::ngcgui::debug {hdl} {
   set t .debug-$hdl
@@ -2268,7 +2387,6 @@ proc ::ngcgui::message {hdl event} {
       walktree $::ngc($hdl,iframe) normal
       # 101024:19.49 this is better:
       focus $::ngc($hdl,topf)
-      globalcheck $hdl
 
       # note: dont disable sendfile,widget (wanted if noauto)
       $::ngc($hdl,finalize,widget) conf -state disabled
@@ -2294,7 +2412,6 @@ proc ::ngcgui::message {hdl event} {
      walktree $::ngc($hdl,varframe) normal
      walktree $::ngc($hdl,iframe) normal
      focus $::ngc($hdl,begin,widget)
-     globalcheck $hdl
 
      $::ngc($hdl,save,widget)     conf -text "[_ "Create Feature"]"
      $::ngc($hdl,sendfile,widget) conf -state disabled
@@ -2516,24 +2633,6 @@ proc ::ngcgui::periodic_checks {hdl} {
 } ;# periodic_checks
 
 proc ::ngcgui::dcheck {hdl} {
-  # check display of default values for _global parameters
-  foreach n [array names ::ngc $hdl,global,entrywidget,*] {
-    set i1 [string last , $n]
-    set gname [string range $n [expr 1 + $i1] end]
-
-    # under some conditions, this entrywidget may be done:
-    if ![winfo exists $::ngc($hdl,global,entrywidget,$gname)] continue
-      if {   [info exists ::ngc($hdl,global,value,$gname)] \
-           && "$::ngc($hdl,global,value,$gname)" == ""} {
-        $::ngc($hdl,global,entrywidget,$gname) conf -bg $::ngc(any,color,notice)
-      } elseif {   [info exists ::ngc($hdl,global,dvalue,$gname)] \
-        && "$::ngc($hdl,global,dvalue,$gname)" \
-                 == "$::ngc($hdl,global,value,$gname)"} {
-       $::ngc($hdl,global,entrywidget,$gname) conf -bg $::ngc(any,color,vdefault)
-    } else {
-       $::ngc($hdl,global,entrywidget,$gname) conf -bg #dcdad5 ;#restore default
-    }
-  }
 
   # check display of default values for positional parameters
   foreach n [array names ::ngc $hdl,arg,entrywidget,*] {
@@ -2637,8 +2736,8 @@ proc ::ngcgui::sendaxis {hdl cmd} {
       if ![catch {send axis pwd} msg] {return 1 ;#ok}
       # tk8.5 send misfeature
       if {[string first "X server insecure" $msg] >= 0} {
-         puts stderr "[_ "Declining support for tk send bug in ngcgui"]"
-         puts stderr "[_ "You should upgrade linuxcnc to >= linuxcnc2.5"]"
+         puts stdout "[_ "Declining support for tk send bug in ngcgui"]"
+         puts stdout "[_ "You should upgrade linuxcnc to >= linuxcnc2.5"]"
          eval exec xhost - SI:localuser:gdm
          eval exec xhost - SI:localuser:root
          # test if that worked:
@@ -2721,7 +2820,7 @@ proc ::ngcgui::entrykeybinding {ax w v} {
     after 0 [list $w configure -fg $::ngc(any,color,override)]
   } msg] {
     # silently ignore, emc_rel_act_pos will fail in standalone
-    # puts stderr "entrykeybinding:<$msg>"
+    # puts stdout "entrykeybinding:<$msg>"
   }
 } ;# entrykeybinding
 
@@ -2986,11 +3085,12 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     update
     after 5000 {destroy .problem}
   }
+  # note: normalize filename to honor tilde (~)
   switch $mode {
     last {
       if {   [info exists ::ngc($hdl,last,outfile)] \
           && "$::ngc($hdl,last,outfile)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,last,outfile) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,last,outfile)] &
       } else {
         simple_text .problem "[_ "No file available for editing yet"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -2999,7 +3099,7 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     }
     source {
       if {"$::ngc($hdl,fname,subfile)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,fname,subfile) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,fname,subfile)] &
       } else {
         simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3008,7 +3108,7 @@ proc ::ngcgui::editfile {hdl {mode last} } {
     }
     preamble {
       if {"$::ngc($hdl,fname,preamble)" != ""} {
-        eval exec $::env(VISUAL) $::ngc($hdl,fname,preamble) &
+        eval exec $::env(VISUAL) [file normalize $::ngc($hdl,fname,preamble)] &
       } else {
         simple_text .problem "[_ "No file available for editing"]\n"\
           "$::ngc(any,app)-$hdl-problem"
@@ -3079,20 +3179,12 @@ proc ::ngcgui::setentries {hdl opt} {
         set num02 [string range $n [expr 1+[string last , $n]] end]
         set ::ngc($hdl,arg,value,$num02) $::ngc($n)
       }
-      foreach n [array names ::ngc $hdl,global,dvalue,*] {
-        set gname [string range $n [expr 1+[string last , $n]] end]
-        set ::ngc($hdl,global,value,$gname) $::ngc($n)
-      }
       ::ngcgui::showmessage $hdl "[_ "Set defaults"]"
     }
     clear {
       foreach n [array names ::ngc $hdl,arg,value,*] {
         set num02 [string range $n [expr 1+[string last , $n]] end]
         set ::ngc($hdl,arg,value,$num02) ""
-      }
-      foreach n [array names ::ngc $hdl,global,value,*] {
-        set gname [string range $n [expr 1+[string last , $n]] end]
-        set ::ngc($hdl,global,value,$gname) ""
       }
       ::ngcgui::showmessage $hdl "[_ "Clear entries"]"
     }
@@ -3162,11 +3254,11 @@ proc ::ngcgui::top {hdl ay_name} {
       # ok
     } else {
       if [file exists $fname] {
-        puts stderr "$fname [_ "not writable"]"
+        puts stdout "$fname [_ "not writable"]"
         exit 1
       } else {
         if [catch {set fd [open $fname w]} msg] {
-          puts stderr $msg
+          puts stdout $msg
           exit 1
         } else {
           close $fd
@@ -3196,7 +3288,7 @@ proc ::ngcgui::usage {hdl ay_name} {
   set prog [file tail $::argv0]
   set dfont "\"$ay(any,font)\"" ;# avoid messing up vim colors
   set aname $ay($hdl,fname,autosend)
-  puts stderr "Usage:
+  puts stdout "Usage:
   $prog --help | -?
   $prog \[Options\] -D nc_files_directory_name
   $prog \[Options\] -i LinuxCNC_inifile_name
@@ -3314,6 +3406,7 @@ proc ::ngcgui::newpage {creatinghdl} {
               postamble=$postfile \
               font=$::ngc(any,font) \
               options=$::ngc(input,options) \
+              gcmc_include_path=$::ngc(input,gcmc_include_path) \
              ]
   $::ngc(any,axis,parent) itemconfigure $pageid \
         -createcmd "::ngcgui::pagecreate $newhdl"\
@@ -3547,7 +3640,12 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
 
   ::ngcgui::preset $hdl ::ngc   ;# setup defaults
 
-  set equalitems {subfile preamble postamble font startdir options}
+  set equalitems {subfile preamble postamble \
+                  font \
+                  startdir \
+                  gcmc_include_path \
+                  options \
+                 }
   foreach item $equalitems {set ::ngc(input,$item) ""}
   foreach input  $args {
     set  pair [split $input =]
@@ -3555,6 +3653,9 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
     # ex: input,subfile
   }
   foreach item $equalitems {set $item $::ngc(input,$item)}
+  if [info exists ::ngc(input,gcmc_include_path)] {
+    set ::ngc(any,gcmc_include_path) $::ngc(input,gcmc_include_path)
+  }
 
   set ::ngc($hdl,dir) $::ngc(input,startdir)
 
@@ -3567,7 +3668,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
 
   if {[lsearch $options expandsub ] >=0} {set ::ngc($hdl,expandsubroutine)   1}
 
-  # special options 
+  # special options
   if {[lsearch $options nopathcheck ] >=0} {set ::ngc($hdl,nopathcheck)   1}
 
   if $::ngc(opt,noauto) {
@@ -3626,7 +3727,7 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   set  w [::ngcgui::gui $hdl create $f.ngc_gui]
 
   if {"$w" == ""} {
-    puts stderr "[_ "Problem creating page"] <$hdl> <$f>"
+    puts stdout "[_ "Problem creating page"] <$hdl> <$f>"
   } else  {
     pack $w -side top -fill none -expand 1 -anchor nw
   }
@@ -3641,18 +3742,23 @@ proc ::ngcgui::embed_in_axis_tab {f args} {
   return $hdl
 } ;# embed_in_axis_tab
 
+proc ::ngcgui::set_path {} {
+  # set ::ngc(any,paths) on first use:
+  if ![info exists ::ngc(any,paths)] {
+    # expect single item, so take end item in list:
+    set ::ngc(any,paths) [file normalize \
+                         [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]]
+    set tmp [lindex [inifindall RS274NGC SUBROUTINE_PATH] end]
+    foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
+  }
+} ;# get_path
+
 proc ::ngcgui::pathto {fname  {mode info}} {
   # for embedded usage, find configuration file using a search path
   set fname [string trim $fname]
   if {"$fname" == ""} {return ""}
 
-  # set ::ngc(any,paths) on first use:
-  if ![info exists ::ngc(any,paths)] {
-    # expect single item, so take end item in list:
-    set ::ngc(any,paths) [lindex [inifindall DISPLAY PROGRAM_PREFIX] end]
-    set tmp [lindex [inifindall RS274NGC SUBROUTINE_PATH] end]
-    foreach p [split $tmp ":"] {lappend ::ngc(any,paths) "$p"}
-  }
+  set_path ;# if not set, will set
 
   if {   [string first "/" $fname] == 0
       || [string first "~" $fname] == 0
@@ -3672,8 +3778,8 @@ proc ::ngcgui::pathto {fname  {mode info}} {
   foreach path $::ngc(any,paths) {
     set f [file join $path $fname]
     if {[info exists foundinpath] && [file exists $f]} {
-      puts stderr "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
-      puts stderr "[_ "using path"]: $::ngc(any,paths)"
+      puts stdout "::ngcgui::pathto: [_ "Found multiple matches for"] <$fname>"
+      puts stdout "[_ "using path"]: $::ngc(any,paths)"
     }
     if {![info exists foundinpath] && [file exists $f]} {set foundinpath $f}
   }
@@ -3827,7 +3933,9 @@ proc ::ngcgui::image_widget {hdl f} {
 
 proc ::ngcgui::new_image {hdl ngcfilename} {
   set idx [string first .ngc $ngcfilename]
-  if {$idx < 0} {return -code error "new_image <$ngcfilename>"}
+  if {$idx < 0} { set idx [string first .gcmc $ngcfilename]}
+  if {$idx < 0}  { return -code error \
+                   "new_image: unexpected filename: <$ngcfilename>"}
 
   set filestart [string range $ngcfilename 0 $idx]
   foreach suffix {png gif jpg pgm} {
@@ -3916,7 +4024,7 @@ proc ::ngcgui::wmrestore {hdl} {
           wm geometry $w $::ngc($hdl,img,position)
         }
    } msg] {
-      puts stderr "wmrestore: unexpected<$msg>"
+      puts stdout "wmrestore: unexpected<$msg>"
    }
 } ;# wmrestore
 
@@ -4018,6 +4126,7 @@ proc ::ngcgui::standalone_ngcgui {args} {
                        set dir [file normalize [file dirname $filename]]
                        set pdir [::ngcgui::inifind $filename \
                                            DISPLAY PROGRAM_PREFIX]
+                       set pdir [file normalize $pdir]
                        if {"$pdir" == ""} {
                          puts "\[DISPLAY\]PROGRAM_PREFIX [_ "not found"] <$filename>"
                          exit 1
@@ -4050,3 +4159,4 @@ proc ::ngcgui::standalone_ngcgui {args} {
 } ;# standalone_ngcgui
 
 if {[info exists ::argv0] && [info script] == $::argv0} ::ngcgui::standalone_ngcgui
+

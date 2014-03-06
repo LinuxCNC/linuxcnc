@@ -12,7 +12,7 @@ Build-Depends: debhelper (>= 6),
     gettext, autoconf (>= 2.63), libboost-python-dev,
     imagemagick, texlive-lang-cyrillic, texlive-lang-french,
     texlive-lang-spanish, texlive-lang-german, netcat,
-    libmodbus-dev (>= 3.0),
+    libmodbus-dev (>= 3.0), libusb-1.0-0-dev,
     dvipng, texlive-extra-utils, texlive-latex-recommended,
     texlive-fonts-recommended, ghostscript, texlive-font-utils,
     @BUILD_DEPENDS@

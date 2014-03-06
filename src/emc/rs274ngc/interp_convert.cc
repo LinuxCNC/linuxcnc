@@ -1291,7 +1291,9 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
             // we have the value
             if(found)
             {
-                int n = snprintf(valbuf, VAL_LEN, "%lf", value);
+		// avoid -0.0/0.0 issues
+		double pvalue = equal(value, 0.0) ? 0.0 : value;
+                int n = snprintf(valbuf, VAL_LEN, "%lf", pvalue);
                 bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
                     strcpy(valbuf, "######");
@@ -3240,7 +3242,7 @@ if (IS_USER_MCODE(block,settings,10) && ONCE_M(10)) {
      /* user-defined M codes */
     int index = block->m_modes[10];
     if (USER_DEFINED_FUNCTION[index - 100] == 0) {
-      CHKS(1, NCE_UNKNOWN_M_CODE_USED);
+      CHKS(1, NCE_UNKNOWN_M_CODE_USED,index);
     }
     enqueue_M_USER_COMMAND(index,block->p_number,block->q_number);
   }

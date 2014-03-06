@@ -1,5 +1,6 @@
-HAL Manual V2.5, {localdate}
-============================
+:lversion: {sys: cat ../VERSION}
+HAL Manual V{lversion}, {localdate}
+===================================
 
 :lang: en
 

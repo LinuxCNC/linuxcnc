@@ -782,7 +782,7 @@ if { $windows == 0 } {
 
 # add halconfig, to help for HAL setup, it's under Scripts, but it's in the TCL_BIN_DIR
 $scriptsmenu add separator
-$scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl -- -ini $EMC_INIFILE &"
+$scriptsmenu add command -label [msgcat::mc "HAL Show"] -command "exec $linuxcnc::TCL_BIN_DIR/halshow.tcl &"
 $scriptsmenu add command -label [msgcat::mc "HAL Config"] -command "exec $linuxcnc::TCL_BIN_DIR/halconfig.tcl -- -ini $EMC_INIFILE &"
 
 # add the help menu

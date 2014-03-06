@@ -9,6 +9,7 @@ LIBEMCSRCS := \
     emc/ini/iniaxis.cc \
     emc/ini/initool.cc \
     emc/ini/initraj.cc \
+    emc/ini/inihal.cc \
     emc/nml_intf/interpl.cc
 USERSRCS += $(LIBEMCSRCS)
 

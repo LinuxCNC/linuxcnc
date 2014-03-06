@@ -2,8 +2,9 @@
 :toc:
 :localdate: {sys: date +%d/%m/%Y}
 :ascii-ids:
-Manuel de l'intégrateur V2.5  {localdate}
-=========================================
+:lversion: {sys: cat ../VERSION}
+Manuel de l'intégrateur V{lversion}, {localdate}
+================================================
 :masterdir: {indir}
 :leveloffset: 1
 

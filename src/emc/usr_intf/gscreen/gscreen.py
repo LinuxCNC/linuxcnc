@@ -457,21 +457,16 @@ class Gscreen:
         # second screen
         localglade = os.path.join(CONFIGPATH,"%s2.glade"%self.skinname)
         if os.path.exists(localglade):
-            print _("\n**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"% localglade)
+            print _("\n**** GSCREEN INFO:  Screen 2 -Using CUSTOM glade file from %s ****"% localglade)
             xmlname2 = localglade
+            try:
+                self.xml.add_from_file(xmlname2)
+                self.screen2 = True
+            except:
+                print _("**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname)
         else:
-            localglade = os.path.join(SKINPATH,"%s/%s2.glade"%(self.skinname,self.skinname))
-            if os.path.exists(localglade):
-                print _("\n**** GSCREEN INFO:  Using SKIN glade file from %s ****"% localglade)
-                xmlname2 = localglade
-            else:
-                print _("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2)
-        try:
-            self.xml.add_from_file(xmlname2)
-            self.screen2 = True
-        except:
-            print _("**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"% xmlname)
-            self.screen2 = False
+            print _("\n**** GSCREEN INFO:  No Screen 2 glade file present") 
+        self.screen2 = False
         self.widgets = Widgets(self.xml)
         self.data = Data()
         self.keylookup = keybindings.Keylookup()
@@ -688,7 +683,12 @@ class Gscreen:
             self.handler_instance.initialize_pins()
         else:
             self.initialize_pins()
-        self.initialize_manual_toolchange()
+
+        if "initialize_manual_toolchange" in dir(self.handler_instance):
+            self.handler_instance.initialize_manual_toolchange()
+        else:
+            self.initialize_manual_toolchange()
+
         if "connect_signals" in dir(self.handler_instance):
             self.handler_instance.connect_signals(handlers)
         else:
@@ -732,6 +732,7 @@ class Gscreen:
         self.init_dro_pref()
         self.init_theme_pref()
         self.init_window_geometry_pref()
+        self.init_keybinding_pref()
         self.init_general_pref()
 
     def init_dro_pref(self):
@@ -750,6 +751,21 @@ class Gscreen:
         self.data.window_max = self.prefs.getpref('window_force_max', False, bool)
         self.data.window2_geometry = self.prefs.getpref('window2_geometry', 'default', str)
         self.data.window2_max = self.prefs.getpref('window2_force_max', False, bool)
+
+    def init_keybinding_pref(self):
+        self.keylookup.add_binding('Right', self.prefs.getpref('Key_Right', 'XPOS', str,"KEYCODES"))
+        self.keylookup.add_binding('Left', self.prefs.getpref('Key_Left', 'XNEG', str,"KEYCODES"))
+        self.keylookup.add_binding('Up', self.prefs.getpref('Key_Up', 'YPOS', str,"KEYCODES"))
+        self.keylookup.add_binding('Down', self.prefs.getpref('Key_Down', 'YNEG', str,"KEYCODES"))
+        self.keylookup.add_binding('Page_Up', self.prefs.getpref('Key_Page_Up', 'ZPOS', str,"KEYCODES"))
+        self.keylookup.add_binding('Page_Down', self.prefs.getpref('Key_Page_Down', 'ZNEG', str,"KEYCODES"))
+        self.keylookup.add_binding('bracketleft', self.prefs.getpref('Key_bracketleft', 'APOS', str,"KEYCODES"))
+        self.keylookup.add_binding('bracketright', self.prefs.getpref('Key_bracketright', 'ANEG', str,"KEYCODES"))
+        self.keylookup.add_binding('i', self.prefs.getpref('Key_i', 'INCREMENTS', str,"KEYCODES"))
+        self.keylookup.add_binding('I', self.prefs.getpref('Key_I', 'INCREMENTS', str,"KEYCODES"))
+        self.keylookup.add_binding('F1', self.prefs.getpref('Key_F1', 'ESTOP', str,"KEYCODES"))
+        self.keylookup.add_binding('F2', self.prefs.getpref('Key_F2', 'POWER', str,"KEYCODES"))
+        self.keylookup.add_binding('Escape', self.prefs.getpref('Key_Escape', 'ABORT', str,"KEYCODES"))
 
     def init_general_pref(self):
         self.data.alert_sound = self.prefs.getpref('audio_alert', self.data.alert_sound, str)
@@ -1035,7 +1051,7 @@ class Gscreen:
                 "button_zero_origin","button_offset_origin","button_jog_mode","button_flood_coolant","button_mist_coolant","button_tool_editor","button_tool_set"]
         for axis in self.data.axis_list:
             self.data.sensitive_origin_mode.append("axis_%s"% axis)
-    
+
     # this needs to be last as it causes methods to be called (eg to sensitize buttons)
     def init_state(self):
         for num,i in enumerate(self.data.jog_increments):
@@ -1562,7 +1578,7 @@ class Gscreen:
     # opens halshow
     def on_halshow(self,*args):
         print "halshow",TCLPATH
-        p = os.popen("tclsh %s/bin/halshow.tcl -- -ini %s &" % (TCLPATH,self.inipath))
+        p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
 
     # opens the calibration program
     def on_calibration(self,*args):

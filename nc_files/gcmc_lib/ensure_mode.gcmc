@@ -1,0 +1,21 @@
+// gcmc include file
+// ensure mode agrees with g20,g21 at runtime
+// in case a preamble conflicts with gcmc program
+
+if (ismodemm()) {
+  literal("\
+          o1 if [#<_metric> ne 1]\n\
+             (debug, !!!ensure_mode.gcmc:)\n\
+             (debug, !!!Changed to g21)\n\
+             g21\n\
+          o1 endif\n\
+          ");
+} else {
+  literal("\
+          o1 if [#<_imperial> ne 1]\n\
+             (debug, !!!ensure_mode.gcmc:)\n\
+             (debug, !!!Changed to g20)\n\
+             g20\n\
+          o1 endif\n\
+          ");
+}

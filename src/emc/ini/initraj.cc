@@ -25,6 +25,9 @@
 #include "emcIniFile.hh"
 #include "initraj.hh"		// these decls
 #include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
+#include "inihal.hh"
+
+extern value_inihal_data old_inihal_data;
 
 /*
   loadTraj()
@@ -113,6 +116,7 @@ static int loadTraj(EmcIniFile *trajInifile)
 
         // set the corresponding global
         traj_default_velocity = vel;
+        old_inihal_data.traj_default_velocity = vel;
 
         // and set dynamic value
         if (0 != emcTrajSetVelocity(0, vel)) { //default velocity on startup 0
@@ -127,6 +131,7 @@ static int loadTraj(EmcIniFile *trajInifile)
 
         // set the corresponding global
         traj_max_velocity = vel;
+        old_inihal_data.traj_max_velocity = vel;
 
         // and set dynamic value
         if (0 != emcTrajSetMaxVelocity(vel)) {
@@ -145,6 +150,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             }
             return -1;
         }
+        old_inihal_data.traj_default_acceleration = acc;
 
         acc = 1e99; // let the axis values apply
         trajInifile->Find(&acc, "MAX_ACCELERATION", "TRAJ");
@@ -155,6 +161,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             }
             return -1;
         }
+        old_inihal_data.traj_max_acceleration = acc;
     }
 
     catch(EmcIniFile::Exception &e){

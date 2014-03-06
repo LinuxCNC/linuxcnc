@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<interface>
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gladevcp 0.0 -->
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <child>
+      <object class="GtkFrame" id="frm_tool_sensor">
+        <property name="visible">True</property>
+        <property name="label_xalign">0.5</property>
+        <child>
+          <object class="GtkAlignment" id="ali_tool_sensor">
+            <property name="visible">True</property>
+            <property name="top_padding">5</property>
+            <property name="bottom_padding">5</property>
+            <property name="left_padding">5</property>
+            <property name="right_padding">5</property>
+            <child>
+              <object class="GtkVBox" id="vbox_tool_sensor">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkHBox" id="hbox_tool_sensor">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="lbl_tool_sensor">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Probe:</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="HAL_LED" id="led_tool_sensor">
+                        <property name="visible">True</property>
+                        <property name="pick_color_on">#0000ffff0000</property>
+                        <property name="pick_color_off">#ffff00000000</property>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="HAL_Button" id="btn_tool_sensor_sim">
+                    <property name="label" translatable="yes">Sim Signal</property>
+                    <property name="width_request">112</property>
+                    <property name="height_request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="lbl_frm_tool_sensor">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">&lt;b&gt;Tool Probe&lt;/b&gt;</property>
+            <property name="use_markup">True</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

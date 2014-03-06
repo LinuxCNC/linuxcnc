@@ -64,7 +64,7 @@ image::images/touchy.png[align="center"]
    programming of G code. It also supports concatenation of subroutine files
    to enable you to build a complete G code file without programming.
 
-.NGCGUI GUI imbedded into Axis[[fig:ngcgui-gui]]
+.NGCGUI GUI embedded into Axis[[fig:ngcgui-gui]]
 
 image::images/ngcgui.png[align="center"]
 

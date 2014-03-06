@@ -1,5 +1,5 @@
-ngcgui configs for touchy
+pyngcgui configs for touchy
 
-demonstrate pyngcgui as gladevcp tab page
-
-demonstrate gremlin_view as gladevcp tab page
+Demonstrate gladevcp apps:
+   pyngcgui     -- subroutine app
+   gremlin_view -- gremlin with some buttons

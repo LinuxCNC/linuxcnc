@@ -203,8 +203,6 @@ know where your code fits into this scheme. For this
 reason, you need to choose an appropriate modal group for your code to
 execute in.
 
-// FIXME default modal group?
-
 === An minimal example remapped code
 
 To give you an idea how the pieces fit together, let's explore a
@@ -345,7 +343,6 @@ G-code, there is the somewhat easier way of
 
 === The 'argspec' parameter [[remap:argspec-parameter]]
 
-FIXME linkto word definition in gcode/overview - no tag there
 
 The argument specification (keyword `argspec`) describes required and
 optional words to be passed to an ngc procedure, as well as optional
@@ -1027,7 +1024,8 @@ def prepare_epilog(self, **words):
 ---------------------------------------------------------------------
 
 prepare_prolog and prepare_epilog are part of the 'standard glue'
-provided by 'FIXME pathname'. This module is intended to cover most
+provided by 'nc_files/remap_lib/python-stdglue/stdglue.py'.
+This module is intended to cover most
 standard remapping situations in a common way.
 
 
@@ -1477,7 +1475,7 @@ This demonstrates call continuation with a single point-of-restart:
 
 [source,python]
 ---------------------------------------------------------------------
-def read_pin(self,**words):
+def read_pin(self,*args):
     # wait 5secs for digital-input 00 to go high
     emccanon.WAIT(0,1,2,5.0)
     # cede control after executing the queue buster:
@@ -1485,8 +1483,18 @@ def read_pin(self,**words):
     # post-sync() execution resumes here:
     pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
     print "pin status=",pin_status
-    return INTERP_OK # done
 ---------------------------------------------------------------------
+
+WARNING: The 'yield' feature is fragile. The following restrictions
+apply to the usage of 'yield INTERP_EXECUTE_FINISH': 
+
+- Python code executing a 'yield INTERP_EXECUTE_FINISH' must be part
+  of a remap procedure. Yield does not work in a Python oword procedure.
+- A Python remap subroutine containing 'yield INTERP_EXECUTE_FINISH' statement may
+not return a value, as with normal Python yield statements.
+- Code following a yield may not recursively call the interpreter, like with
+  self.execute("<mdi command>"). This is an architectural restriction
+  of the interpreter and is not fixable without a major redesign.
 
 === Calling conventions: Python to NGC
 
@@ -1577,7 +1585,8 @@ probably easier to trap InterpreterException as per below.
 CAUTION: The parameter insertion/retrieval method described in the previous section does not
 work in this case. It is good enough for just executing simple NGC
 commands or a procedure call and advanced introspection into the
-procedure, and passing of local named parameters is not needed.
+procedure, and passing of local named parameters is not needed. The
+recursive call feature is fragile.
 
 ==== Interpreter Exception during execute()
 
@@ -2556,9 +2565,6 @@ interpreter. These parameters are read-only - assigning a value will
 cause a runtime error. The names are not case sensitive - they are
 converted to uppercase before consulting the ini file.
 
-
-FIXME footnote this:
-
 Permanent setup information is usually stored in the ini file. While
 ini variables can be easily accessed from the shell, Python and C code,
 so far there was no way to refer to ini file variables from G-code.
@@ -2602,7 +2608,6 @@ o100 else
   (debug, [motion-controller.time] does not exist)
 o100 endif
 ---------------------------------------------------------------------
-FIXME footnote this:
 
 This feature was motivated by the desire for stronger coupling between
 user interface components like `GladeVCP` and `PyVCP` to act as

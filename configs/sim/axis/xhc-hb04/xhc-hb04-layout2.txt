@@ -1,0 +1,39 @@
+xhc-hb04-layout2
+
+18 buttons:
+
+---------------------------------------
+|RESET   |Stop       |                |
+---------------------------------------
+|GotoZero|Start/Pause|Rewind |Probe-Z |
+---------------------------------------
+|Spindle |  =1/2     |  =0   |Safe-Z  |
+---------------------------------------
+|GotoHome|Macro-1    |Macro-2|Macro-3 |
+---------------------------------------
+|STEP    |Mode       |Macro-6|Macro-7 |
+---------------------------------------
+|                                Off  |
+|                                  X  |
+|                                  Y  |
+|                 Rotary ------->  Z  |
+|                 Switch           A  |
+|                             Spindle |
+|                                Feed |
+---------------------------------------
+
+Button codes defined in xhc-hb04-layout2.cfg
+
+The Start/Pause button can be connected for standard behavior with:
+  [XHC_HB04_BUTTON]start-pause = std_start_pause
+
+The STEP button is normally connected with:
+  [XHC_HB04_BUTTON]step = xhc-hb04.stepsize-up
+
+The other buttons can be connected to hal pins -- typically halui provided pins.
+
+MDI commands can be executed using halui.mdi-command-nn pins defined in the ini file with entries like: [HALUI]MDI_COMMAND = mdi_command 
+
+The rotary switch selects the axis, spindle, or feedoverride for control by the jogwheel.
+
+The switch positions (xyza) can be defined to any available axis (xyzc for instance).

@@ -221,7 +221,7 @@ long long int _rtapi_get_time(void) {
 
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000 * 1000 * 1000 + ts.tv_nsec;
+    return (ts.tv_sec * 1000LL * 1000 * 1000) + ts.tv_nsec;
 }
 
 #else /* ULAPI */
@@ -231,7 +231,7 @@ long long _rtapi_get_time(void)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"ulapi get_time\n");
 	gettimeofday(&tv, 0);
-	return tv.tv_sec * 1000 * 1000 * 1000 + tv.tv_usec * 1000;
+	return (tv.tv_sec * 1000LL * 1000 * 1000) + tv.tv_usec * 1000;
 }
 #endif /* HAVE_RTAPI_GET_TIME_HOOK */
 

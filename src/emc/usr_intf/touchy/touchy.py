@@ -83,8 +83,17 @@ invisible = gtk.gdk.Cursor(pix, pix, color, color, 0, 0)
 
 class touchy:
         def __init__(self, inifile):
-		#Set the Glade file
-		self.gladefile = os.path.join(datadir, "touchy.glade")
+		# System default Glade file:
+                self.gladefile = os.path.join(datadir, "touchy.glade")
+                if inifile:
+                        self.ini = linuxcnc.ini(inifile)
+                        alternate_gladefile = self.ini.find("DISPLAY", "GLADEFILE")
+                        if alternate_gladefile:
+                                self.gladefile = alternate_gladefile
+                else:
+                        self.ini = None
+
+
 	        self.wTree = gtk.glade.XML(self.gladefile) 
 
 		for w in ['wheelinc1', 'wheelinc2', 'wheelinc3',
@@ -179,13 +188,9 @@ class touchy:
                         mdi_eventboxes.append(self.wTree.get_widget("eventbox_mdi%d" % i))
                 self.mdi_control = mdi.mdi_control(gtk, linuxcnc, mdi_labels, mdi_eventboxes)
 
-                if inifile:
-                    ini = linuxcnc.ini(inifile)
+                if self.ini:
                     self.mdi_control.mdi.add_macros(
-                        ini.findall("TOUCHY", "MACRO"))
-                    self.ini = ini
-                else:
-                    self.ini = None
+                        self.ini.findall("TOUCHY", "MACRO"))
 
                 listing_labels = []
                 listing_eventboxes = []
@@ -246,12 +251,11 @@ class touchy:
 
                 self.current_file = self.status.emcstat.file
                 # check the ini file if UNITS are set to mm"
-                inifile=self.linuxcnc.emc.ini(sys.argv[2])
                 # first check the global settings
-                units=inifile.find("TRAJ","LINEAR_UNITS")
+                units=self.ini.find("TRAJ","LINEAR_UNITS")
 
                 if units==None:
-                        units=inifile.find("AXIS_0","UNITS")
+                        units=self.ini.find("AXIS_0","UNITS")
 
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1
@@ -814,8 +818,7 @@ class touchy:
                 self.prefs.putpref('maxvel', self.mv_val, int)
 
 	def postgui(self):
-		inifile=self.linuxcnc.emc.ini(sys.argv[2])
-		postgui_halfile = inifile.find("HAL", "POSTGUI_HALFILE")
+		postgui_halfile = self.ini.find("HAL", "POSTGUI_HALFILE")
 		return postgui_halfile,sys.argv[2]
 
 if __name__ == "__main__":
