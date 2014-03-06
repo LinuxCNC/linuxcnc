@@ -39,6 +39,7 @@
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
 #include "canon.hh"		// these decls
+#include "canon_position.hh"		// these decls
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 
