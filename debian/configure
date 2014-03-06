@@ -51,7 +51,7 @@ tcltk_ext() {
 }    
 
 
-# Calculate the distro-specific list of Build-Depends:
+# Calculate the distrao-specific list of Build-Depends:
 BUILD_DEPS=
 get_build_deps() {
     # tcl/tk packages: {tcl,tk}8.5 on Ubuntu-10.04, {tcl,tk}

@@ -1,0 +1,53 @@
+# HAL config file for using classic ladder
+
+# The core_sim.hal file sets up motion, stepgen and other common items
+# Remove core_sim.hal connections for the following pins and implement 
+# using classic latter functionality instead:
+unlinkp iocontrol.0.user-enable-out
+unlinkp iocontrol.0.emc-enable-in
+
+# This file adds:
+# the possibility of an external momentary or sustained NC estop button 
+# and includes intermittent lube pump and pressure or level sensing.
+
+# (load the realtime portion)
+# these classicladder parameters need to be optimized after ladder completion
+loadrt classicladder_rt numRungs=12 numBits=20 numWords=4 numTimers=5 numMonostables=2 numPhysInputs=10 numPhysOutputs=10 numArithmExpr=4 numSections=4
+# We kick ladder into a thread at the slower servo rate rather than base rate
+addf classicladder.0.refresh        servo-thread 1
+
+# invoke the user part of CL to silently load the program
+# later we will need to add the clp file mentioned below
+# to the ini file so that we do not need to hardcode it here.
+loadusr -w classicladder --nogui demo_sim_cl.clp
+
+# three axis motion allows 6 other outputs on pins 8,9,1,14,16,17
+# five additional input pins are available 10,11,12,13,15
+# these are setup by the work they perform below
+
+# estop signals
+# signal is the internal or gui estop command from EMC
+net gui-estop iocontrol.0.user-enable-out classicladder.0.in-00
+# one-shot on  timer when signal above goes high.
+net estop-strobe iocontrol.0.user-request-enable  classicladder.0.in-02
+# this bit is an external estop button connected to parport pin 11 and ground
+net ext-estop classicladder.0.in-01
+# This bit signal is comand to estop from CL to EMC
+net estop-all-ok iocontrol.0.emc-enable-in classicladder.0.out-00 
+
+# lube signals
+# lube run command from emc to CL 
+net lube iocontrol.0.lube classicladder.0.in-03
+# for ease of reading we will make a new signal lube-run
+net lube-run classicladder.0.out-01
+
+# The lube sense stuff runs from an external pin, through CL to iocontrol in 
+# lube-up is the signal between the parport and cl
+net lube-up classicladder.0.in-04
+net lube-level iocontrol.0.lube_level classicladder.0.out-02
+
+# we will let loopbacks handle tool prepare and change commands 
+# though we could  index an external changer
+# create connections for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed

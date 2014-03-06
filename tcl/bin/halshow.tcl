@@ -583,3 +583,35 @@ set firststr [msgcat::mc "Commands may be tested here but they will NOT be saved
 $::showtext delete 1.0 end
 $::showtext insert end $firststr
 $::showtext config -state disabled
+
+proc usage {} {
+  set prog [file tail $::argv0]
+  puts "Usage:"
+  puts "  $prog \[Options\] \[watchfile\]"
+  puts "  Options:"
+  puts "           --help  (this help)"
+  puts ""
+  puts "Notes:"
+  puts "       Create watchfile in halshow using: 'File/Save Watch List'"
+  puts "       linuxcnc must be running for standalone usage"
+  #puts "     -ini inifilename (not currently used)"
+  exit 0
+}
+
+if {[llength $::argv] > 0} {
+  set idx 0
+  while {$idx < [llength $::argv]} {
+     switch [lindex $::argv $idx] {
+       "--help" {incr idx; usage}
+       default { set watchfile [lindex $::argv $idx]
+                 if [file readable $watchfile] {
+                    loadwatchlist $watchfile
+                 } else {
+                    puts "\nCannot read file <$watchfile>\n"
+                    usage
+                 }
+                 incr idx
+               }
+     }
+   }
+}

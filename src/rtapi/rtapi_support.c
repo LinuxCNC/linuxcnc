@@ -252,6 +252,10 @@ int rtapi_set_logtag(const char *fmt, ...) {
     return result;
 }
 
+const char *rtapi_get_logtag(void) {
+    return logtag;
+}
+
 #ifdef RTAPI
 EXPORT_SYMBOL(rtapi_get_msg_handler);
 EXPORT_SYMBOL(rtapi_set_msg_handler);
@@ -262,4 +266,5 @@ EXPORT_SYMBOL(rtapi_vsnprintf);
 EXPORT_SYMBOL(rtapi_set_msg_level);
 EXPORT_SYMBOL(rtapi_get_msg_level);
 EXPORT_SYMBOL(rtapi_set_logtag);
+EXPORT_SYMBOL(rtapi_get_logtag);
 #endif

@@ -28,11 +28,15 @@
 import hal_glib                           # needed to make our own hal pins
 import hal                                # needed to make our own hal pins
 from gladevcp.persistence import IniFile  # we use this one to save the states of the widgets on shut down and restart
-
+from gladevcp.persistence import widget_defaults
+from gladevcp.persistence import select_widgets
+import gtk
+from gmoccapy import preferences
+from gmoccapy import getiniinfo
 
 class PlasmaClass:
 
-    def __init__(self,halcomp,builder,useropts):
+    def __init__(self, halcomp, builder, useropts):
         self.builder = builder
         self.halcomp = halcomp
         self.defaults = { IniFile.vars : { "thcspeedval"       : 15.0 ,
@@ -73,11 +77,20 @@ class PlasmaClass:
                                            "thctargetvoltmax"  : 255.0,
                                            "thctargetvoltmin"  : 55.0 ,
                                            "thctargetvoltincr" : 5.0  ,
-                                         }
+                                         },
+                          IniFile.widgets: widget_defaults(select_widgets([self.builder.get_object("hal-btn-THC"),
+                                                                          ], hal_only = True, output_only = True)),
                         }
 
+        get_ini_info = getiniinfo.GetIniInfo()
+        prefs = preferences.preferences(get_ini_info.get_preference_file_path())
+        theme_name = prefs.getpref("gtk_theme", "Follow System Theme", str)
+        if theme_name == "Follow System Theme":
+            theme_name = gtk.settings_get_default().get_property("gtk-theme-name")
+        gtk.settings_get_default().set_string_property("gtk-theme-name", theme_name, "")
+
         self.ini_filename = __name__ + ".var"
-        self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
+        self.ini = IniFile(self.ini_filename, self.defaults, self.builder)
         self.ini.restore_state(self)
 
         # lets make our pins
@@ -193,7 +206,7 @@ class PlasmaClass:
     def on_btn_THC_speed_pressed(self, widget, dir):
         increment = self.thcspeedincr * dir
         self.thcspeedval = self.adj_THC_speed.get_value() + increment
-        self.adj_THC_speed.set_value(self.thcspeedval) 
+        self.adj_THC_speed.set_value(self.thcspeedval)
 
     def on_btn_cut_gap_pressed(self, widget, dir):
         increment = self.cutgapincr * dir
@@ -221,8 +234,7 @@ class PlasmaClass:
         self.adj_THC_Voltage.set_value(self.thctargetvoltval)
 
     # and the behavior of the adjustments to control max and min values
-    def on_adj_THC_speed_value_changed(self, widget, data=None):
-        #print("THC Speed value = ",widget.get_value())
+    def on_adj_THC_speed_value_changed(self, widget, data = None):
         if widget.get_value() >= widget.upper:
             self.btn_THC_speed_plus.set_sensitive(False)
         elif widget.get_value() <= widget.lower:
@@ -231,10 +243,9 @@ class PlasmaClass:
             self.btn_THC_speed_plus.set_sensitive(True)
             self.btn_THC_speed_minus.set_sensitive(True)
         self.halcomp["THC-Speed"] = widget.get_value()
-        self.lbl_cut_speed.set_label("%.1f"%(widget.get_value()))
+        self.lbl_cut_speed.set_label("%.1f" % (widget.get_value()))
 
-    def on_adj_cut_gap_value_changed(self, widget, data=None):
-        #print("cut gap value = ",widget.get_value())
+    def on_adj_cut_gap_value_changed(self, widget, data = None):
         if widget.get_value() >= widget.upper:
             self.btn_cut_gap_plus.set_sensitive(False)
         elif widget.get_value() <= widget.lower:
@@ -243,10 +254,9 @@ class PlasmaClass:
             self.btn_cut_gap_plus.set_sensitive(True)
             self.btn_cut_gap_minus.set_sensitive(True)
         self.halcomp["Cut-Gap"] = widget.get_value()
-        self.lbl_cut_gap.set_label("%.3f"%(widget.get_value()))
+        self.lbl_cut_gap.set_label("%.3f" % (widget.get_value()))
 
-    def on_adj_G0_gap_value_changed(self, widget, data=None):
-        #print("G0 Gap value = ",widget.get_value())
+    def on_adj_G0_gap_value_changed(self, widget, data = None):
         if widget.get_value() >= widget.upper:
             self.btn_g0_plus.set_sensitive(False)
         elif widget.get_value() <= widget.lower:
@@ -255,10 +265,9 @@ class PlasmaClass:
             self.btn_g0_plus.set_sensitive(True)
             self.btn_g0_minus.set_sensitive(True)
         self.halcomp["G0-Gap"] = widget.get_value()
-        self.lbl_g0_gap.set_label("%.3f"%(widget.get_value()))
+        self.lbl_g0_gap.set_label("%.3f" % (widget.get_value()))
 
-    def on_adj_pierce_gap_value_changed(self, widget, data=None):
-        #print("Pierce Gap value = ",widget.get_value())
+    def on_adj_pierce_gap_value_changed(self, widget, data = None):
         if widget.get_value() >= widget.upper:
             self.btn_pierce_gap_plus.set_sensitive(False)
         elif widget.get_value() <= widget.lower:
@@ -267,10 +276,9 @@ class PlasmaClass:
             self.btn_pierce_gap_plus.set_sensitive(True)
             self.btn_pierce_gap_minus.set_sensitive(True)
         self.halcomp["Pierce-Gap"] = widget.get_value()
-        self.lbl_pierce_gap.set_label("%.3f"%(widget.get_value()))
+        self.lbl_pierce_gap.set_label("%.3f" % (widget.get_value()))
 
-    def on_adj_pierce_delay_value_changed(self, widget, data=None):
-        #print("Pierce_delay value = ",widget.get_value())
+    def on_adj_pierce_delay_value_changed(self, widget, data = None):
         if widget.get_value() >= widget.upper:
             self.btn_pierce_delay_plus.set_sensitive(False)
         elif widget.get_value() <= widget.lower:
@@ -279,14 +287,12 @@ class PlasmaClass:
             self.btn_pierce_delay_plus.set_sensitive(True)
             self.btn_pierce_delay_minus.set_sensitive(True)
         self.halcomp["Pierce-Delay"] = widget.get_value()
-        self.lbl_pierce_delay.set_label("%.2f"%(widget.get_value()))
+        self.lbl_pierce_delay.set_label("%.2f" % (widget.get_value()))
 
-    def on_adj_CHL_threshold_value_changed(self, widget, data=None):
-        #print("CHL Threshold value = ",widget.get_value())
+    def on_adj_CHL_threshold_value_changed(self, widget, data = None):
         self.chlthresholdval = widget.get_value()
 
-    def on_adj_THC_Voltage_value_changed(self, widget, data=None):
-        #print("THC Voltage value = ",widget.get_value())
+    def on_adj_THC_Voltage_value_changed(self, widget, data = None):
         if widget.get_value() >= widget.upper:
             self.btn_THC_target_plus.set_sensitive(False)
         elif widget.get_value() <= widget.lower:
@@ -295,13 +301,13 @@ class PlasmaClass:
             self.btn_THC_target_plus.set_sensitive(True)
             self.btn_THC_target_minus.set_sensitive(True)
         self.halcomp["Target-Voltage"] = widget.get_value()
-        self.lbl_prog_volt.set_label("%d"%(widget.get_value()))
+        self.lbl_prog_volt.set_label("%d" % (widget.get_value()))
 
-    def on_Piercing_autostart_toggled(self, widget, data=None):
+    def on_Piercing_autostart_toggled(self, widget, data = None):
         self.pierceutostart = widget.get_active()
 
-    def on_enable_HeightLock_toggled(self, widget, data=None):
+    def on_enable_HeightLock_toggled(self, widget, data = None):
         self.enableheightlock = widget.get_active()
 
-def get_handlers(halcomp,builder,useropts):
-    return(PlasmaClass(halcomp,builder,useropts))
+def get_handlers(halcomp, builder, useropts):
+    return(PlasmaClass(halcomp, builder, useropts))

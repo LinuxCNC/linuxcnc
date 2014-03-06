@@ -87,6 +87,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.foam_w = 1.5
         self.notify = 0
         self.notify_message = ""
+        self.highlight_line = None
 
     def comment(self, arg):
         if arg.startswith("AXIS,"):
@@ -457,9 +458,13 @@ class GlCanonDraw:
         for base, count in self._dlists.values():
             glDeleteLists(base, count)
 
+    def update_highlight_variable(self,line):
+        self.highlight_line = line
+
     def set_current_line(self, line): pass
     def set_highlight_line(self, line):
         if line == self.get_highlight_line(): return
+        self.update_highlight_variable(line)
         highlight = self.dlist('highlight')
         glNewList(highlight, GL_COMPILE)
         if line is not None and self.canon is not None:

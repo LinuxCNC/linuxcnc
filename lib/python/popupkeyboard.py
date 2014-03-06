@@ -58,15 +58,7 @@ import sys
 import os
 import pango
 
-# rip or package, expect __file__ at: lib/python/
-mdir = os.path.abspath(os.path.join(
-                       os.path.dirname(
-                       os.path.realpath(__file__))))
-BASE = os.path.abspath(os.path.join(mdir,"../.."))
-if (BASE.split('/')[-1] == 'lib'):
-    BASE = os.path.abspath(os.path.join(mdir,"../../.."))
-
-g_ui_dir = os.path.join(BASE, "share", "linuxcnc")
+g_ui_dir = linuxcnc.SHARE + "/linuxcnc"
 
 try:
     import pygtk

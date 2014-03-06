@@ -1,0 +1,2 @@
+# xhc-hb04 mpg pendant
+ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"

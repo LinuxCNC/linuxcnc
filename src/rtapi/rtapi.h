@@ -275,6 +275,7 @@ typedef rtapi_msg_handler_t (*rtapi_get_msg_handler_t)(void);
 extern rtapi_msg_handler_t rtapi_get_msg_handler(void);
 
 extern int rtapi_set_logtag(const char *fmt, ...);
+extern const char *rtapi_get_logtag(void);
 
 typedef enum {
 	MSG_KERNEL = 0,
@@ -911,6 +912,7 @@ extern void ulapi_cleanup(void);
 // from rtapi_compat.c
 extern void ulapi_kernel_compat_check(rtapi_switch_t *rtapi_switch,
 				      char *ulapi_lib);
+extern int ulapi_loaded(void);
 #endif
 
 /***********************************************************************

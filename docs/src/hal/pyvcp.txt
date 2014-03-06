@@ -147,7 +147,7 @@ loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml
 You would use this if you wanted a floating panel or a panel with a
 GUI other than AXIS.
 
-* '-Wn panelname' - 
+* '-Wn panelname' - 
      makes HAL wait for the component 'panelname' to finish loading
     ('become ready' in HAL speak) before processing more HAL commands. This
     is important because PyVCP panels export HAL pins, and other HAL
@@ -155,21 +155,21 @@ GUI other than AXIS.
     W and lowercase n. If you use the -Wn option you must use the -c option
     to name the panel.
 
-* 'pyvcp < -g> < -c> panel.xml' - 
+* 'pyvcp < -g> < -c> panel.xml' - 
      builds the panel with the optional geometry and/or panelname from the
     xml panel file. The panel.xml can be any name that ends in .xml. The
     .xml file is the file that describes how to build the panel. You must
     add the path name if the panel is not in the directory that the HAL
     script is in. 
 
-* '-g <WxH><+X+Y>' - 
+* '-g <WxH><+X+Y>' - 
      specifies the geometry to be used when constructing the panel. The
     syntax is 'Width x Height + X Anchor + Y Anchor'. You can set the size
     or position or both. The anchor point is the upper left corner of the
     panel. An example is -g 250x500+800+0 This sets the panel at 250 pixels
     wide, 500 pixels tall, and anchors it at X800 Y0.
 
-* '-c panelname' - 
+* '-c panelname' - 
      tells PyVCP what to call the component and also the title of the
     window. The panelname can be any name without spaces. 
 
@@ -191,7 +191,7 @@ controller such as for testing or a standalone DRO.
 The loadusr command is used when you also load a component that will
 stop HAL from closing until it's done. If you loaded a panel and then
 loaded Classic Ladder using 'loadusr -w classicladder', 
-CL would hold HAL open (and the panel)  until you closed CL. 
+CL would hold HAL open (and the panel)  until you closed CL. 
 The '-Wn' above means wait for the component '-Wn "name"' to become ready. 
 ('name' can be any name. Note the capital W and lowercase n.) 
 The -c tells PyVCP to build a panel with the
@@ -317,12 +317,32 @@ The label has an optional disable pin that is created when you add
 <label>
     <text>"This is a Label:"</text>
     <font>("Helvetica",20)</font>
+    <disable>False</disable>
 </label>
 -------------------------------------------------
 
 The above code produced this example. 
 
 image::images/pyvcp_label.png[]
+
+=== Multi_Label
+
+An extention of the text label.
+
+Selectable text label, can display up to 6 label legends when associated bit pin is activated
+
+Attach each legend pin to a signal and get a descriptive label when the signal is TRUE.
+
+If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be displayed.
+
+[source,xml]
+-------------------------------------------------
+<multilabel>
+    <legends>["Label1" "Label2" "Label3" "Label4" "Label5" "Label6"]</legends>
+    <font>("Helvetica",20)</font>
+    <disable>False</disable>
+</multilabel>
+-------------------------------------------------
 
 === LEDs
 
@@ -431,19 +451,21 @@ image::images/pyvcp_button.png[]
 
 ==== Checkbutton
 
-A checkbutton controls a 'bit' halpin. The halpin will be set True
-when the button is checked, and false when the button is unchecked. The
-checkbutton is a toggle type button.
+A checkbutton controls a bit halpin. The halpin will be set True when the button is checked, and false when the button is unchecked. The checkbutton is a toggle type button.
+The Checkbuttons may be set initially as TRUE or FALSE the initval field
+A pin called changepin is also created automatically, which can toggle the Checkbutton via HAL, if the value linked is changed, to update the display remotely
 
 [source,xml]
 ---------------------------------------
 <checkbutton>
     <halpin>"coolant-chkbtn"</halpin>
     <text>"Coolant"</text>
+    <initval>"1"</initval>
 </checkbutton>
 <checkbutton>
     <halpin>"chip-chkbtn"</halpin>
     <text>"Chips    "</text>
+    <initval>"0"</initval>
 </checkbutton>
 ---------------------------------------
 
@@ -458,12 +480,15 @@ image::images/pyvcp_checkbutton.png[]
 
 A radiobutton will set one of the halpins true. The other pins are set
 false.
+The initval field may be set to choose the default selection when the panel displays.
+Only one radio button may be set to TRUE (1) or only the highest number pin set TRUE will have that value.
 
 [source,xml]
 -------------------------------------------------
 <radiobutton>
     <choices>["one","two","three"]</choices>
     <halpin>"my-radio"</halpin>
+    <initval>"0"</initval>
 </radiobutton>
 -------------------------------------------------
 
@@ -543,15 +568,21 @@ is the same as 'number' except the name which is <u32>.
 
 A bar widget displays the value of a FLOAT signal both graphically
 using a bar display and numerically.
+The colour of the bar can be set as one colour throughout its range (default using fillcolor)
+or set to change colour dependent upon the value of the halpin (range1, range2 range3 must all be set,
+if you only want 2 ranges, set 2 of them to the same colour)
 
 [source,xml]
 ---------------------------------------
 <bar>
     <halpin>"my-bar"</halpin>
     <min_>0</min_>
-    <max_>123</max_>
+    <max_>150</max_>
     <bgcolor>"grey"</bgcolor>
     <fillcolor>"red"</fillcolor>
+    <range1>0,100,"green"</range1>
+    <range2>101,135,"orange"</range1>
+    <range3>136, 150,"red"</range1>
 </bar>
 ---------------------------------------
 
@@ -592,6 +623,8 @@ image::images/pyvcp_meter.png[]
 Spinbox controls a FLOAT pin. You increase or decrease the value of
 the pin by either pressing on the arrows, or pointing at the spinbox
 and rolling your mouse-wheel.
+If the param_pin field is set TRUE(1), a pin will be created that can be used to set the spinbox to
+an initial value and to remotely alter its value without HID input
 
 [source,xml]
 ---------------------------------------
@@ -603,6 +636,7 @@ and rolling your mouse-wheel.
     <resolution>0.1</resolution>
     <format>"2.3f"</format>
     <font>("Arial",30)</font>
+    <param_pin>1</param_pin>
 </spinbox>
 ---------------------------------------
 
@@ -618,6 +652,9 @@ scale and rolling your mouse-wheel. The 'halpin' will have both '-f'
 and '-i' added to it to form the float and s32 pins. Width is the width
 of the slider in vertical and the height of the slider in horizontal
 orientation.
+If the param_pin field is set TRUE(1), a pin will be created that can be used to set the spinbox to
+an initial value and to remotely alter its value without HID input
+
 
 [source,xml]
 ---------------------------------------
@@ -630,6 +667,7 @@ orientation.
     <initval>-15</initval>
     <min_>-33</min_>
     <max_>26</max_>
+    <param_pin>1</param_pin>
 </scale>
 <scale>
     <font>("Helvetica",16)</font>
@@ -639,6 +677,7 @@ orientation.
     <orient>VERTICAL</orient>
     <min_>100</min_>
     <max_>0</max_>
+    <param_pin>1</param_pin>
 </scale>
 ---------------------------------------
 
@@ -653,7 +692,8 @@ dragging. Double left click to increase the resolution and double right
 click to reduce the resolution by one digit. The output is capped by
 the min and max values. The <cpr> is how many tick marks are on the
 outside of the ring (beware of high numbers).
-
+If the param_pin field is set TRUE(1), a pin will be created that can be used to set the spinbox to
+an initial value and to remotely alter its value without HID input
 [source,xml]
 ---------------------------------------
 <dial>
@@ -668,6 +708,7 @@ outside of the ring (beware of high numbers).
     <dialcolor>"yellow"</dialcolor>
     <edgecolor>"green"</edgecolor>
     <dotcolor>"black"</dotcolor>
+    <param_pin>1</param_pin>
 </dial>
 ---------------------------------------
 
@@ -920,12 +961,13 @@ image::images/pyvcp_table.png[]
 
 ==== Tabs
 
-A tabbed interface can save quite a bit of space. Create one container for
-each tab name. Only one 'tabs' section can exist and 'tabs' can not be nested
-or stacked. The width of the widest item controls the width of the tabs.
+A tabbed interface can save quite a bit of space.
 
 [source,xml]
 -----------------------------------------------------------
+<tabs>
+    <names> ["spindle","green eggs"]</names>
+</tabs>
 <tabs>
     <names>["Spindle", "Green Eggs", "Ham"]</names>
     <vbox>

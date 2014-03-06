@@ -2,8 +2,9 @@
 :toc:
 :localdate: {sys: date +%d/%m/%Y}
 :ascii-ids:
-Manuel de HAL V2.5  {localdate}
-===============================
+:lversion: {sys: cat ../VERSION}
+Manuel de HAL V{lversion}; {localdate}
+======================================
 :masterdir: {indir}
 :leveloffset: 1
 

@@ -2,8 +2,9 @@
 :ascii-ids:
 :toc:
 :localdate: {sys: date +%d/%m/%Y}
-Guide de démarrage V2.5  {localdate}
-====================================
+:lversion: {sys: cat ../VERSION}
+Guide de démarrage V{lversion}, {localdate}
+===========================================
 :masterdir: {indir}
 :leveloffset: 1
 

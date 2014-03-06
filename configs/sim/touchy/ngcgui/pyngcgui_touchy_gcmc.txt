@@ -1,0 +1,8 @@
+pyngcgui config for touchy
+
+Demonstrate gladevcp apps:
+   pyngcgui     -- subroutine app
+   gremlin_view -- gremlin with some buttons
+
+With support for .gcmc files
+  gcmc --> G-Code Meta Compiler

@@ -43,10 +43,10 @@ proc add_item_to_gui {id itemname} {
 
   set vf $::SP(vframe)
   set f [frame ${vf}.f$id -borderwidth 3 -relief ridge]
-  pack [label $f.hdr -width 20 -bg lightgray -fg blue \
+  pack [label $f.hdr -bg lightgray -fg blue \
        -borderwidth 0 -relief raised \
        -text "$::SP($id,itemname)"] \
-       -fill both -expand 1
+       -fill x -expand 1
 
   switch $::SP($id,itemtype) {
     bit   {add_bit_item_to_gui $f $id}
@@ -64,18 +64,18 @@ proc add_bit_item_to_gui {f id} {
   set ::SP($id,mode) "Pulse"
   set value [get_item $id]
   set color lightgray
-  if $value {set color red}
+  if $value {set color magenta}
   pack [label $f.b \
        -text "$::SP($id,mode)" \
        -borderwidth 4 -relief raised ] \
-       -fill both -expand 1
+       -fill x -expand 1
   set ::SP($id,button) $f.b
   bind $::SP($id,button) <ButtonRelease-1> [list b_release $id]
   bind $::SP($id,button) <ButtonPress-1>   [list b_press   $id]
 
-  pack [label $f.l -width 20 -bg $color -fg black \
+  pack [label $f.l -bg $color -fg black \
        -text "$::SP(prefix)$value"] \
-       -fill both -expand 1
+       -fill x -expand 1
   set ::SP($id,label) $f.l
 
   pack [radiobutton $f.p -text OnePulse \
@@ -96,7 +96,7 @@ proc add_bit_item_to_gui {f id} {
        -command [list bit_mode $id] \
        -variable ::SP($id,mode)] \
        -fill x -expand 0
-   pack $f -side top
+   pack $f -side top -fill x -expand 0
 } ;# add_bit_item_to_gui
 
 proc add_number_item_to_gui {f id} {
@@ -106,69 +106,112 @@ proc add_number_item_to_gui {f id} {
        -text "Set" \
        -relief raised -bd 4 \
        -command [list b_press $id] ]\
-       -fill both -expand 1
+       -fill x -expand 1
   set e [entry $f.e \
        -justify right \
        -textvariable ::SP($id,entry)]
   pack $e -fill x -expand 0
   bind $e <Return> [list b_press $id]
-  pack [label $f.l -width 20 -bg $color -fg black \
+  pack [label $f.l -bg $color -fg black \
        -anchor w \
        -text "$::SP(prefix)$value"] \
-       -fill both -expand 1
+       -fill x -expand 1
   set ::SP($id,label) $f.l
-  pack $f -side top
+  pack $f -side top -fill x -expand 0
 } ;# add_number_item_to_gui
 
+proc exact_name {name line} {
+  set idx [string first $name $line]
+  if {$idx < 0} {return 0}
+  if {0 == [string compare $name [string range $line $idx end]]} {
+    return 1
+  }
+  return 0
+} ;# exact_name
+
+proc connected_to {name line} {
+  # check if an input pin is already connected to a signal
+  # since it does not necessarily have a writer
+  set idx [string first $name $line]
+  if {$idx < 0} {return ""}
+  # check if pin is an input
+  if {-1 != [string first "$name <==" [string range $line $idx end]]} {
+    set idx [string first "<==" $line]
+    set signame [string range $line [expr 4 + $idx] end]
+    return  "$signame"
+  }
+  return ""
+} ;# connected_to
+
 proc item_info {itemname id} {
-  set fmt "item: %-30s %5s %3s %s"
+  set fmt "sim_pin: %-30s %5s %3s %s"
   set theitem "-----"
   set dir "---"
+  set found 0
+
   # try pin:
   set answer [hal show pin "$itemname"]
   set lines [split $answer \n]
-  if {[llength $lines] > 4} {
-    # wild cards not supported:
-    set ::SP(message) "Unknown item: $::SP($id,itemname)"
-    return 0
+  set lines [lreplace $lines 0 1] ;# discard header lines
+  # look for exact match (hal show will present all matching leading part)
+  foreach line $lines {
+    if {"$line" == ""} continue
+    if [exact_name $itemname $line] {
+      set found 1
+      set theitem "PIN"
+      break
+    }
+    set signame [connected_to $itemname $line]
+    if {"" !=  "$signame"} {
+      puts "pin <$itemname> is already connected, trying signal:<$signame>"
+      set itemname $signame
+      set ::SP($id,itemname) $itemname
+    }
   }
-  set line [string trim [lindex $lines 2]]
-  if {"$line" != ""} {
-    set theitem "PIN"
-  } else {
+  if !$found {
     # try param:
     set answer [hal show param "$itemname"]
     set lines [split $answer \n]
-    if {[llength $lines] > 4} {
-      # wild cards not supported:
-      set ::SP(message) "Unknown item: $::SP($id,itemname)"
-      return 0
-    }
-    set line [string trim [lindex $lines 2]]
-    if {"$line" != ""} {
-      set theitem "PARAM"
-    } else {
-      # try signal:
-      set answer [hal show signal "$itemname"]
-      set lines [split $answer \n]
-      set line [string trim [lindex $lines 2]]
-      if {"$line" == ""} {
-        set ::SP(message) "Unknown item: $::SP($id,itemname)"
-        return 0
+    set lines [lreplace $lines 0 1] ;# discard header lines
+    # look for exact match (hal show will present all matching leading part)
+    foreach line $lines {
+      if {"$line" == ""} continue
+      if [exact_name $itemname $line] {
+        set found 1
+        set theitem "PARAM"
+        break
       }
-      scan $line "%s %s" sigtype other
-      switch $sigtype {
-        bit -
-        u32 -
-        s32 -
-        float {set theitem SIG}
-        default {
-          set ::SP(message) \
-              "Unknown type for signal item <$id $::SP($id,itemname) $sigtype>"
-          return 0
+    }
+  }
+  if !$found {
+    # try signal:
+    set answer [hal show signal "$itemname"]
+    set lines [split $answer \n]
+    set lines [lreplace $lines 0 1] ;# discard header lines
+    # look for exact match (hal show will present all matching leading part)
+    foreach line $lines {
+      if {"$line" == ""} continue
+      if [exact_name $itemname $line] {
+        set found 1
+        scan $line "%s %s" sigtype other
+        switch $sigtype {
+          bit -
+          u32 -
+          s32 -
+          float {set theitem SIG}
+          default {
+            set ::SP(message) \
+                "Unknown type for signal item <$id $::SP($id,itemname) $sigtype>"
+            return 0
+          }
         }
+        break
       }
     }
+  }
+  if !$found {
+    set ::SP(message) "Unknown item: $::SP($id,itemname)"
+    return 0
   }
   switch $theitem {
     PIN -
@@ -258,7 +301,7 @@ proc item_unset {id} {
   }
   set value [get_item $id]
   set color lightgray
-  if $value {set color red}
+  if $value {set color magenta}
   $::SP($id,label) configure -bg $color -fg black \
               -text "$::SP(prefix) $value"
 } ;# item_unset
@@ -267,7 +310,7 @@ proc item_show {id} {
   set value [get_item $id]
   set color lightgray
   switch $::SP($id,itemtype) {
-    bit { if $value {set color red}
+    bit { if $value {set color magenta}
           $::SP($id,label) configure -bg $color \
                            -text "$::SP(prefix) $value"
     }

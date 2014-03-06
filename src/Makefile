@@ -5,7 +5,6 @@ ifeq ("$(origin VV)", "command line")
     OLD_SHELL := $(SHELL)
     SHELL = $(warning Building $@$(if $<, (from $<))$(if $?, ($? newer)))$(OLD_SHELL)
 endif
-
 # Delete the default suffix rules
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install python pythonclean
@@ -207,6 +206,7 @@ SUBDIRS := \
 	emc/usr_intf/pncconf \
 	emc/usr_intf/gremlin \
 	emc/usr_intf/gscreen \
+	emc/usr_intf/gmoccapy \
 	emc/usr_intf \
 	emc/nml_intf \
 	emc/task \
@@ -398,6 +398,7 @@ HEADERS := \
     emc/ini/iniaxis.hh \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \
+    emc/ini/inihal.hh \
     emc/kinematics/cubic.h \
     emc/kinematics/kinematics.h \
     emc/kinematics/genhexkins.h \
@@ -516,6 +517,7 @@ TARGETS += $(USERPCI_HEADERS)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
+TARGETS += $(patsubst po/gmoccapy/%.po, ../share/locale/%/LC_MESSAGES/gmoccapy.mo, $(wildcard po/gmoccapy/*.po))
 TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
 # tooledit as standalone app:
@@ -552,6 +554,14 @@ TARGETS += ../bin/gremlin_view
 	$(Q)(echo "#!$(PYTHON)")>|$@
 	$(Q)(echo "import gremlin_view")>>$@
 	$(Q)(echo "gremlin_view.standalone_gremlin_view()")>>$@
+	$(Q)chmod +x $@
+
+# halshow as standalone app:
+TARGETS += ../bin/halshow
+../bin/halshow: Makefile
+	$(Q)rm -f $@
+	$(Q)(echo "#!$(TCLSH)")>|$@
+	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/bin/halshow.tcl")>>$@
 	$(Q)chmod +x $@
 
 # And make userspace depend on $(TARGETS)
@@ -731,9 +741,11 @@ install-dirs:
 		$(DESTDIR)$(datadir)/axis/tcl \
 		$(DESTDIR)$(datadir)/gscreen/images \
 		$(DESTDIR)$(datadir)/gscreen/skins \
+		$(DESTDIR)$(datadir)/gmoccapy/images \
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
+		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
 		$(DESTDIR)$(sysconfdir)/rsyslog.d \
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
@@ -784,10 +796,12 @@ endif
 	$(EXE) $(TCL_BIN) $(DESTDIR)$(tcldir)/bin
 	$(FILE) ../tcl/scripts/balloon.tcl ../tcl/scripts/emchelp.tcl $(DESTDIR)$(tcldir)/scripts
 	$(EXE) ../tcl/scripts/Set_Coordinates.tcl $(DESTDIR)$(tcldir)/scripts
-	$(FILE) ../share/linuxcnc/stepconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/*.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/linuxcnc/stepconf/*.glade $(DESTDIR)$(prefix)/share/linuxcnc/stepconf
 	$(FILE) ../share/linuxcnc/touchy.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gscreen.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gscreen2.glade $(DESTDIR)$(prefix)/share/linuxcnc
+	$(FILE) ../share/gmoccapy/gmoccapy.glade $(DESTDIR)$(prefix)/share/gmoccapy
 	$(FILE) ../share/linuxcnc/pncconf.glade $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/gremlin_view.ui $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/linuxcnc/popupkeyboard.ui $(DESTDIR)$(prefix)/share/linuxcnc
@@ -811,14 +825,32 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(DIR) $(DESTDIR)$(SITEPY)/gscreen
+	$(DIR) $(DESTDIR)$(SITEPY)/gmoccapy
 	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
+	$(DIR) $(DESTDIR)$(SITEPY)/stepconf
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
+	$(FILE) ../lib/python/gmoccapy/*.py $(DESTDIR)$(SITEPY)/gmoccapy
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/gladevcp/*.glade $(DESTDIR)$(SITEPY)/gladevcp
-	$(EXE) ../bin/stepconf ../bin/pncconf ../bin/hal_input ../bin/pyvcp ../bin/gladevcp ../bin/axis ../bin/axis-remote ../bin/debuglevel ../bin/linuxcnctop ../bin/mdi ../bin/hal_manualtoolchange ../bin/image-to-gcode ../bin/touchy ../bin/gscreen $(DESTDIR)$(bindir)
+	$(FILE) ../lib/python/stepconf/*.py $(DESTDIR)$(SITEPY)/stepconf
+	$(EXE) ../bin/stepconf $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pncconf $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
+	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
+	$(EXE) ../bin/axis-remote $(DESTDIR)$(bindir)
+	$(EXE) ../bin/debuglevel $(DESTDIR)$(bindir)
+	$(EXE) ../bin/linuxcnctop $(DESTDIR)$(bindir)
+	$(EXE) ../bin/mdi $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_manualtoolchange $(DESTDIR)$(bindir)
+	$(EXE) ../bin/image-to-gcode $(DESTDIR)$(bindir)
+	$(EXE) ../bin/touchy $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docdir)
@@ -827,6 +859,7 @@ install-python: install-dirs
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
+	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
 endif
 
 install-kernel-dep: install-dirs
@@ -882,8 +915,7 @@ COPY_CONFIGS = $(patsubst %,../configs/%/core_stepper.hal, \
                 by_machine/sherline/Sherline3Axis \
                 by_machine/sherline/SherlineLathe \
                 by_machine/cooltool \
-                by_interface/parport/classicladder/demo_step_cl \
-                by_interface/parport/classicladder/demo_sim_cl)
+                by_interface/parport/classicladder/demo_step_cl)
 
 COPY_CONFIGS += $(patsubst %,../configs/%/core_servo.hal, \
                 sim \

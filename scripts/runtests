@@ -1,9 +1,5 @@
 #!/bin/bash -e
 
-# When running with "-v", the test itself runs in a pipeline with tee, and
-# without pipefail we get the exit value from tee instead of from the test.
-set -o pipefail
-
 # The linuxcnc starter script sometimes tries to display X windows if
 # DISPLAY is set.  We never want that while running tests, so unset it.
 unset DISPLAY
@@ -38,8 +34,7 @@ run_shell_script () {
     pushd $testdir > /dev/null
     exitcode=0
     if [ $VERBOSE -eq 1 ]; then
-        (bash -x $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr || \
-	    exitcode=$?
+	bash -x $testname > >(tee result) 2> >(tee stderr >&2) || exitcode=$?
     else
         bash -x $testname > result 2> stderr || exitcode=$?
     fi
@@ -54,7 +49,7 @@ run_executable () {
     pushd $testdir > /dev/null
     exitcode=0
     if [ $VERBOSE -eq 1 ]; then
-        (./$testname | tee result) 3>&1 1>&2 2>&3 | tee stderr || exitcode=$?
+	./$testname > >(tee result) 2> >(tee stderr >&2) || exitcode=$?
     else
         ./$testname > result 2> stderr || exitcode=$?
     fi
@@ -71,8 +66,8 @@ run_without_overruns () {
         pushd $testdir > /dev/null
 	exitcode=0
         if [ $VERBOSE -eq 1 ]; then
-            (halrun -f $testname | tee result) 3>&1 1>&2 2>&3 | tee stderr \
-		|| exitcode=$?
+	    halrun -f $testname > >(tee result) 2> >(tee stderr >&2) || \
+		exitcode=$?
         else
             halrun -f $testname > result 2> stderr || exitcode=$?
         fi
@@ -89,10 +84,10 @@ trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 
 run_tests () {
-    find $* -name test.hal -or -name test.sh -or -name test \
-	| sort > $TMPDIR/alltests
+    alltests="$(find $* -name test.hal -or -name test.sh -or -name test \
+        | sort)"
 
-    while read testname; do
+    for testname in $alltests; do
 	testdir=$(dirname $testname)
 	if [ -e $testdir/skip ]; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
@@ -158,7 +153,7 @@ run_tests () {
 		fi
 	    fi
 	fi
-    done < $TMPDIR/alltests
+    done
 
     SUCC=$((NUM-FAIL-XFAIL))
     echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"

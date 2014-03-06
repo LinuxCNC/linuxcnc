@@ -368,6 +368,13 @@ static void signal_handler(int sig)
 	global_data->rtapi_msgd_pid = 0;
     }
 
+    // no point in keeping rtapi_app running if msgd exits
+    if (global_data->rtapi_app_pid > 0) {
+	kill(global_data->rtapi_app_pid, SIGTERM);
+	syslog(LOG_INFO,"sent SIGTERM to rtapi (pid %d)\n",
+	       global_data->rtapi_app_pid);
+    }
+
     switch (sig) {
     case SIGTERM:
     case SIGINT:
@@ -405,6 +412,11 @@ cleanup_actions(void)
     int retval;
 
     if (global_data) {
+	if (global_data->rtapi_app_pid > 0) {
+	    kill(global_data->rtapi_app_pid, SIGTERM);
+	    syslog(LOG_INFO,"sent SIGTERM to rtapi (pid %d)\n",
+		   global_data->rtapi_app_pid);
+	}
 	// in case some process catches a leftover shm segment
 	global_data->magic = GLOBAL_EXITED;
 	global_data->rtapi_msgd_pid = 0;

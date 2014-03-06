@@ -31,6 +31,16 @@ USERSRCS += $(SHUTTLEXPRESS_SRC)
 TARGETS += ../bin/shuttlexpress
 endif
 
+ifdef HAVE_LIBUSB10
+XHC_HB04_SRC = hal/user_comps/xhc-hb04.cc
+USERSRCS += $(XHC_HB04_SRC)
+$(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
+../bin/xhc-hb04: $(call TOOBJS, $(XHC_HB04_SRC)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm -lstdc++ $(LIBUSB10_LIBS)
+TARGETS += ../bin/xhc-hb04
+endif # HAVE_LIBUSB10
+
 ../include/%.h: ./hal/user_comps/%.h
 	cp $^ $@
 ../include/%.hh: ./hal/user_comps/%.hh
