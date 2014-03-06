@@ -33,7 +33,6 @@ import sys                  # handle system calls
 import os                   # needed to get the paths and directorys
 import pango                # needed for font settings and changing
 import gladevcp.makepins    # needed for the dialog"s calulator widget
-import locale               # for translations
 import atexit               # needed to register childs to be closed on closing the GUI
 import subprocess           # to launch onboard and other proceses
 import vte                  # To get the embedded terminal
