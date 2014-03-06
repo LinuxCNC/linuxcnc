@@ -564,8 +564,8 @@ class gmoccapy(object):
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
-                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle", "rbt_manual",
+                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
+                      "btn_select_tool_by_no", "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self._sensitize_widgets(widgetlist, False)
