@@ -142,6 +142,18 @@ struct CANON_POSITION {
         v = _v;
         w = _w;
     }
+    CANON_POSITION(const EmcPose &_pos) {
+        x = _pos.tran.x;
+        y = _pos.tran.y;
+        z = _pos.tran.z;
+        a = _pos.a;
+        b = _pos.b;
+        c = _pos.c;
+        u = _pos.u;
+        v = _pos.v;
+        w = _pos.w;
+    }
+
     bool operator==(const CANON_POSITION &o) const {
         return(x == o.x && y == o.y && z == o.z &&
                a == o.a && b == o.b && c == o.c &&
