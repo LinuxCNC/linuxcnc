@@ -2,8 +2,10 @@
 Package: linuxcnc-xenomai-kernel
 Conflicts: emc2, emc2-sim, linuxcnc-sim
 Architecture: any
-Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, @XENOMAI_KERNEL_DEPENDS@
-Recommends: @XENOMAI_KERNEL_RECOMMENDS@
+Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends},
+	linux-image-${xenomai-kver}
+Recommends: hostmot2-firmware
+Enhances: linuxcnc
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic

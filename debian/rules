@@ -1,7 +1,8 @@
 #!/usr/bin/make -f
 # Simple set of debian/rules that uses debhelper.
 # Based on an example by Joey Hess. 
-# extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler (in cronological order)
+# extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler, John
+# Morris (in cronological order)
 
 # Copyright (C) 2006 Jeff Epler
 #
@@ -16,16 +17,37 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+#
+# debian/substvars contains variable definitions used to fill in
+# debian/control file variables.
+#
+# The file is initialized and half filled-in by the debian/configure
+# program; the rest of the file is from the variables here.
+DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+PYTHON_VERSION := $(shell python -c \
+	'import sys; print "%d.%d" % sys.version_info[:2]')
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
 
+debian/substvars: debian/control debian/configure
+	bash debian/configure substvars
+	echo "python-version=$(PYTHON_VERSION)" >> debian/substvars
+# PREEMPT_RT kernels don't have easily derivable names
+ifeq ($(DEB_HOST_ARCH),amd64)
+	echo "preempt-rt-ext=amd64" >> debian/substvars
+else
+	echo "preempt-rt-ext=686-pae" >> debian/substvars
+endif
 
-debian/control debian/rules: debian/configure debian/*.in
-	@echo rebuilding debian/control and debian/rules
-	(cd debian; ./configure @DEBIAN_CONFIGURE@)
+
+debian/control: debian/configure
+	@echo rebuilding debian/control
+	bash debian/configure
+
 
 build: build-arch build-indep
 build-arch: build-stamp
@@ -35,17 +57,20 @@ build-stamp:
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-build-documentation=pdf @SRC_CONFIGURE@
-	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc \
+	    --mandir=/usr/share/man --enable-build-documentation=pdf
+	cd src && $(MAKE) $(MAKEFLAGS)
+	cd src && $(MAKE) $(MAKEFLAGS) docs
 	touch build-stamp
 
-clean: debian/control
+clean: debian/control debian/substvars
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-build-documentation=pdf @SRC_CONFIGURE@
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc \
+	    --mandir=/usr/share/man --enable-build-documentation=pdf
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
@@ -59,7 +84,7 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
-	-(cd debian/@EXTRA_DIR@ && cp -a * ../tmp)
+	-(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
@@ -83,7 +108,7 @@ binary-indep: build install
 # We have nothing to do by default.
 
 # Build architecture-dependent files here.
-binary-arch: build install
+binary-arch: build install debian/substvars
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs
@@ -93,12 +118,15 @@ binary-arch: build install
 	dh_installmime
 	dh_link
 	dh_strip
-	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
-	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_posix -X/rtapi_app_xenomai -X/rtapi_app_rt-preempt
+	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml \
+	    -X.tbl -X.xml -Xsample-configs
+	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_posix \
+	    -X/rtapi_app_xenomai -X/rtapi_app_rt-preempt
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
-	cat debian/linuxcnc/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
+	cat debian/linuxcnc/DEBIAN/shlibs debian/shlibs.pre > \
+	    debian/shlibs.local
 	dh_shlibdeps -l debian/linuxcnc/usr/lib
 	dh_gencontrol
 	dh_md5sums
