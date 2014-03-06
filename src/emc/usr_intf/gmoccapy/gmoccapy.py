@@ -1694,7 +1694,7 @@ class gmoccapy(object):
 # TODO:
         # this ones are not finished yet in notifications, we do add them at
         # a later development state, just to show they are there
-        self.notification.set_property('icon_size' , 1)
+        self.notification.set_property('icon_size' , 48)
         self.notification.set_property('top_to_bottom', True)
 # TODO: End
 
