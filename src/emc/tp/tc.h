@@ -31,6 +31,9 @@ int tcGetStartAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out);
 
+int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc, PmCartesian * const point);
+
 int pmCircleFromPoints(PmCircle * const arc, PmCartesian const * const start,
         PmCartesian const * const middle, PmCartesian const * const end,
         double radius, PmCartesian * const circ_start, PmCartesian * const circ_end);
