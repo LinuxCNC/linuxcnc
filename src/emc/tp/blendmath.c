@@ -405,7 +405,7 @@ int quadraticFormula(double A, double B, double C, double * const root0,
 }
 
 /**
- * @section blending blend math functions 
+ * @section blending blend math functions
  */
 
 /**
@@ -558,7 +558,6 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
 
     tp_debug_print("phi2_max = %f\n", param->phi2_max);
     blendGeom3Print(geom);
-
 
     // Check that we're not below the minimum intersection angle (making too tight an arc)
     // FIXME make this an INI setting?
@@ -1006,7 +1005,7 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
 
     pmCartScalMult(&geom->normal, center_dist, &points->arc_center);
     pmCartCartAddEq(&points->arc_center, &geom->P);
-    tp_debug_print("arc_center = %f %f %f\n", 
+    tp_debug_print("arc_center = %f %f %f\n",
             points->arc_center.x,
             points->arc_center.y,
             points->arc_center.z);
@@ -1015,7 +1014,7 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
     // negative direction of u1
     pmCartScalMult(&geom->u1, -param->d_plan, &points->arc_start);
     pmCartCartAddEq(&points->arc_start, &geom->P);
-    tp_debug_print("arc_start = %f %f %f\n", 
+    tp_debug_print("arc_start = %f %f %f\n",
             points->arc_start.x,
             points->arc_start.y,
             points->arc_start.z);
@@ -1024,7 +1023,7 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
     // positive direction of u1
     pmCartScalMult(&geom->u2, param->d_plan, &points->arc_end);
     pmCartCartAddEq(&points->arc_end, &geom->P);
-    tp_debug_print("arc_end = %f %f %f\n", 
+    tp_debug_print("arc_end = %f %f %f\n",
             points->arc_end.x,
             points->arc_end.y,
             points->arc_end.z);
@@ -1089,7 +1088,7 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         return TP_ERR_FAIL;
     }
 
-    tp_debug_print("root0 = %f, root1 = %f\n",root0, 
+    tp_debug_print("root0 = %f, root1 = %f\n", root0,
             root1);
     d_L = fmin(fabs(root0),fabs(root1));
     if (d_L < 0) {
@@ -1183,7 +1182,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         return TP_ERR_FAIL;
     }
 
-    tp_debug_print("root0 = %f, root1 = %f\n",root0, 
+    tp_debug_print("root0 = %f, root1 = %f\n", root0,
             root1);
     d_L = fmin(fabs(root0),fabs(root1));
     if (d_L < 0) {
@@ -1307,7 +1306,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     //Get vector from P to first center
     PmCartesian r_PC1;
     pmCartCartSub(&center1, &geom->P, &r_PC1);
-    
+
     // Get "test vectors, relative distance from solution center to P
     PmCartesian test1, test2;
     pmCartCartAdd(&r_PC1, &c_x, &test1);
@@ -1320,7 +1319,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     double mag1,mag2;
     pmCartMag(&test1, &mag1);
     pmCartMag(&test2, &mag2);
-    
+
     if (mag2 < mag1)
     {
         //negative solution is closer
