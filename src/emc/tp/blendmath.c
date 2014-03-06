@@ -405,11 +405,129 @@ int quadraticFormula(double A, double B, double C, double * const root0,
 }
 
 /**
- * @section blending blend math functions 
+ * @section blending blend math functions
  */
 
 /**
- * Setup blend paramaters based on a line and an arc.
+ * Setup common geom parameters based on trajectory segments.
+ * This function populates the geom structure and "input" fields of
+ * the blend parameter structure. It returns an error if the segments
+ * are not coplanar, or if one or both segments is not a circular arc.
+ *
+ * @param geom Stores simplified geometry used to calculate blend params.
+ * @param prev_tc first linear move to blend
+ * @param tc second linear move to blend
+ */
+int blendGeom3Init(BlendGeom3 * const geom,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc)
+{
+    geom->v_max1 = prev_tc->maxvel;
+    geom->v_max2 = tc->maxvel;
+
+    // Get tangent unit vectors to each arc at the intersection point
+    int res_u1 = tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
+    int res_u2 = tcGetStartTangentUnitVector(tc, &geom->u_tan2);
+
+    // Initialize u1 and u2 by assuming they match the tangent direction
+    geom->u1 = geom->u_tan1;
+    geom->u2 = geom->u_tan2;
+
+    int res_intersect = tcGetIntersectionPoint(prev_tc, tc, &geom->P);
+
+    tp_debug_print("Intersection point P = %f %f %f\n",
+            geom->P.x,
+            geom->P.y,
+            geom->P.z);
+
+    // Find angle between tangent vectors
+    int res_angle = findIntersectionAngle(&geom->u_tan1,
+            &geom->u_tan2,
+            &geom->theta_tan);
+
+    blendCalculateNormals3(geom);
+
+    return res_u1 |
+        res_u2 |
+        res_intersect |
+        res_angle;
+}
+
+
+/**
+ * Initialize common fields in parameters structure.
+ *
+ * @param geom Stores simplified geometry used to calculate blend params.
+ * @param param Abstracted parameters for blending calculations
+ * @param acc_bound maximum X, Y, Z machine acceleration
+ * @param vel_bound maximum X, Y, Z machine velocity
+ * @param maxFeedScale maximum allowed feed override (set in INI)
+ */
+int blendParamKinematics(BlendGeom3 * const geom,
+        BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc,
+        PmCartesian const * const acc_bound,
+        PmCartesian const * const vel_bound,
+        double maxFeedScale)
+{
+
+    // KLUDGE: common operations, but not exactly kinematics
+    param->phi = (PM_PI - param->theta * 2.0);
+
+    double nominal_tolerance;
+    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
+
+    // Calculate max acceleration based on plane containing lines
+    int res_dia = calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
+
+    // Store max normal acceleration
+    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
+    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
+            param->a_n_max);
+
+    // Find common velocity and acceleration
+    param->v_req = fmax(prev_tc->reqvel, tc->reqvel);
+    param->v_goal = param->v_req * maxFeedScale;
+
+    // Calculate the maximum planar velocity
+    double v_planar_max;
+    calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
+
+    // Copy over maximum velocities, clipping velocity to place altitude within base
+    double v_max1 = fmin(prev_tc->maxvel, tc->maxvel/cos(param->phi));
+    double v_max2 = fmin(tc->maxvel, prev_tc->maxvel/cos(param->phi));
+    tp_debug_print("v_max1 = %f, v_max2 = %f\n", v_max1, v_max2);
+
+    // Get "altitude"
+    double v_area = v_max1 * v_max2 / 2.0 * sin(param->phi);
+    tp_debug_print("phi = %f\n", param->phi);
+    tp_debug_print("v_area = %f\n", v_area);
+
+    // Get "base" of triangle
+    PmCartesian tmp1,tmp2,diff;
+    pmCartScalMult(&geom->u1, v_max1, &tmp1);
+    pmCartScalMult(&geom->u2, v_max2, &tmp2);
+    pmCartCartSub(&tmp2, &tmp1, &diff);
+    double base;
+    pmCartMag(&diff, &base);
+    tp_debug_print("v_base = %f\n", base);
+
+    double v_max_alt = 2.0 * v_area / base;
+    tp_debug_print("v_max_alt = %f\n", v_max_alt);
+
+    double v_max = fmax(v_max_alt, v_planar_max);
+
+    param->v_goal = fmin(param->v_goal, v_max);
+
+    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
+    tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
+
+    return res_dia;
+}
+
+/**
+ * Setup blend parameters based on a line and an arc.
  * This function populates the geom structure and "input" fields of
  * the blend parameter structure. It returns an error if the segments
  * are not coplanar, or if one or both segments is not a circular arc.
@@ -430,52 +548,26 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
         double maxFeedScale)
 {
 
-    // Get tangent unit vectors to each arc at the intersection point
-    tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
-    tcGetStartTangentUnitVector(tc, &geom->u_tan2);
-
-    // Find angle between tangent lines
-    double theta_tan;
-    int res_angle = findIntersectionAngle(&geom->u_tan1, &geom->u_tan2, &theta_tan);
-    if (res_angle) {
+    if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_LINEAR) {
         return TP_ERR_FAIL;
     }
 
-    // Get intersection point from line
-    PmCartesian end1 = prev_tc->coords.line.xyz.end;
-    PmCartesian start2;
-    pmCirclePoint(&tc->coords.circle.xyz, 0.0, &start2);
+    int res_init = blendGeom3Init(geom, prev_tc, tc);
+    if (res_init != TP_ERR_OK) {
+        return res_init;
+    }
 
-    tp_debug_print("Line End = %f %f %f\n",
-            end1.x,
-            end1.y,
-            end1.z);
-
-    tp_debug_print("Circ Start = %f %f %f\n",
-            start2.x,
-            start2.y,
-            start2.z);
-
-    geom->P = end1;
-
-    tp_debug_print("Intersection point P = %f %f %f\n",
-            geom->P.x,
-            geom->P.y,
-            geom->P.z);
-
+    // Handle convexity
     param->convex2 = arcConvexTest(&tc->coords.circle.xyz.center, &geom->P, &geom->u_tan1, true);
     tp_debug_print("circ2 convex: %d\n",
             param->convex2);
 
-    // Build the correct unit vector for the linear approximation
-    geom->u1 = geom->u_tan1;
-
     //Identify max angle for first arc by blend limits
     // TODO better name?
-    double blend_angle_2 = param->convex2 ? theta_tan : PM_PI / 2.0;
+    double blend_angle_2 = param->convex2 ? geom->theta_tan : PM_PI / 2.0;
 
     param->phi2_max = fmin(tc->coords.circle.xyz.angle / 3.0, blend_angle_2);
-    param->theta = theta_tan;
+    param->theta = geom->theta_tan;
 
     if (param->convex2) {
         PmCartesian blend_point;
@@ -487,14 +579,11 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
         pmCartCartSub(&blend_point, &geom->P,  &geom->u2);
         pmCartUnitEq(&geom->u2);
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, theta_tan - param->phi2_max / 4.0);
-    } else {
-        geom->u2 = geom->u_tan2;
+        param->theta = fmin(param->theta, geom->theta_tan - param->phi2_max / 4.0);
     }
 
     tp_debug_print("phi2_max = %f\n", param->phi2_max);
     blendGeom3Print(geom);
-
 
     // Check that we're not below the minimum intersection angle (making too tight an arc)
     // FIXME make this an INI setting?
@@ -509,41 +598,26 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
 
     param->phi = (PM_PI - param->theta * 2.0);
 
-    //Do normal calculation here since we need this information for accel / vel limits
-    blendCalculateNormals3(geom);
-
-    // Calculate max acceleration based on plane containing lines
-    calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
-
-    // Store max normal acceleration
-    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
-    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
-            param->a_n_max);
-
-    //Find common velocity and acceleration
-    param->v_req = fmin(prev_tc->reqvel, tc->reqvel);
-    param->v_goal = param->v_req * maxFeedScale;
-
-    //Calculate the maximum planar velocity
-    double v_max;
-    calculateInscribedDiameter(&geom->binormal, vel_bound, &v_max);
-    param->v_goal = fmin(param->v_goal, v_max);
-
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
-
-    //FIXME greediness here
     param->L1 = fmin(prev_tc->target, prev_tc->nominal_length / 2.0);
-    param->L2 = param->phi2_max * tc->coords.circle.xyz.radius;
 
     if (param->convex2) {
         //use half of the length of the chord
         param->L2 = sin(param->phi2_max/4.0) * tc->coords.circle.xyz.radius;
+    } else {
+        param->L2 = param->phi2_max * tc->coords.circle.xyz.radius;
     }
+
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
-    double nominal_tolerance;
-    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
+    // Setup common parameters
+    blendParamKinematics(geom,
+            param,
+            prev_tc,
+            tc,
+            acc_bound,
+            vel_bound,
+            maxFeedScale);
+
     return TP_ERR_OK;
 }
 
@@ -554,24 +628,15 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
         PmCartesian const * const vel_bound,
         double maxFeedScale)
 {
-    // Get tangent unit vectors to each arc at the intersection point
-    tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
-    tcGetStartTangentUnitVector(tc, &geom->u_tan2);
 
-    // Find angle between tangent lines
-    double theta_tan;
-    int res_angle = findIntersectionAngle(&geom->u_tan1, &geom->u_tan2, &theta_tan);
-    if (res_angle) {
+    if (tc->motion_type != TC_LINEAR || prev_tc->motion_type != TC_CIRCULAR) {
         return TP_ERR_FAIL;
     }
 
-    // Get intersection point from line
-    geom->P = tc->coords.line.xyz.start;
-
-    tp_debug_print("Intersection point P = %f %f %f\n",
-            geom->P.x,
-            geom->P.y,
-            geom->P.z);
+    int res_init = blendGeom3Init(geom, prev_tc, tc);
+    if (res_init != TP_ERR_OK) {
+        return res_init;
+    }
 
     param->convex1 = arcConvexTest(&prev_tc->coords.circle.xyz.center, &geom->P, &geom->u_tan2, false);
     tp_debug_print("circ1 convex: %d\n",
@@ -579,10 +644,10 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 
     //Identify max angle for first arc by blend limits
     // TODO better name?
-    double blend_angle_1 = param->convex1 ? theta_tan : PM_PI / 2.0;
+    double blend_angle_1 = param->convex1 ? geom->theta_tan : PM_PI / 2.0;
 
     param->phi1_max = fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
-    param->theta = theta_tan;
+    param->theta = geom->theta_tan;
 
     // Build the correct unit vector for the linear approximation
     if (param->convex1) {
@@ -596,11 +661,8 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
         pmCartUnitEq(&geom->u1);
 
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, theta_tan - param->phi1_max / 4.0);
-    } else {
-        geom->u1 = geom->u_tan1;
+        param->theta = fmin(param->theta, geom->theta_tan - param->phi1_max / 4.0);
     }
-    geom->u2 = geom->u_tan2;
 
     blendGeom3Print(geom);
     tp_debug_print("phi1_max = %f\n", param->phi1_max);
@@ -616,32 +678,7 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 
     tp_debug_print("theta = %f\n", param->theta);
 
-    param->phi = (PM_PI - param->theta * 2.0);
 
-    //Do normal calculation here since we need this information for accel / vel limits
-    blendCalculateNormals3(geom);
-
-    // Calculate max acceleration based on plane containing lines
-    calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
-
-    // Store max normal acceleration
-    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
-    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
-            param->a_n_max);
-
-    //Find common velocity and acceleration
-    param->v_req = fmin(prev_tc->reqvel, tc->reqvel);
-    param->v_goal = param->v_req * maxFeedScale;
-
-    //Calculate the maximum planar velocity
-    double v_max;
-    calculateInscribedDiameter(&geom->binormal, vel_bound, &v_max);
-    param->v_goal = fmin(param->v_goal, v_max);
-
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
-
-    //FIXME greediness here
     param->L1 = param->phi1_max * prev_tc->coords.circle.xyz.radius;
     param->L2 = tc->nominal_length / 2.0;
 
@@ -651,8 +688,15 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
     }
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
-    double nominal_tolerance;
-    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
+    // Setup common parameters
+    blendParamKinematics(geom,
+            param,
+            prev_tc,
+            tc,
+            acc_bound,
+            vel_bound,
+            maxFeedScale);
+
     return TP_ERR_OK;
 }
 
@@ -678,21 +722,13 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         PmCartesian const * const vel_bound,
         double maxFeedScale)
 {
-   
     if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_CIRCULAR) {
         return TP_ERR_FAIL;
     }
 
-    // Get tangent unit vectors to each arc at the intersection point
-
-    tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
-    tcGetStartTangentUnitVector(tc, &geom->u_tan2);
-
-    // Find angle between tangent lines
-    double theta_tan;
-    int res_angle = findIntersectionAngle(&geom->u_tan1, &geom->u_tan2, &theta_tan);
-    if (res_angle) {
-        return TP_ERR_FAIL;
+    int res_init = blendGeom3Init(geom, prev_tc, tc);
+    if (res_init != TP_ERR_OK) {
+        return res_init;
     }
 
     //Do normal calculation here since we need this information for accel / vel limits
@@ -713,13 +749,13 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
 
     //Identify max angle for first arc by blend limits
     // TODO better name?
-    double blend_angle_1 = param->convex1 ? theta_tan : PM_PI / 2.0;
-    double blend_angle_2 = param->convex2 ? theta_tan : PM_PI / 2.0;
+    double blend_angle_1 = param->convex1 ? geom->theta_tan : PM_PI / 2.0;
+    double blend_angle_2 = param->convex2 ? geom->theta_tan : PM_PI / 2.0;
 
     param->phi1_max = fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
     param->phi2_max = fmin(tc->coords.circle.xyz.angle / 3.0, blend_angle_2);
 
-    param->theta = theta_tan;
+    param->theta = geom->theta_tan;
 
     // Build the correct unit vector for the linear approximation
     if (param->convex1) {
@@ -733,10 +769,8 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         pmCartUnitEq(&geom->u1);
 
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, theta_tan - param->phi1_max / 4.0);
+        param->theta = fmin(param->theta, geom->theta_tan - param->phi1_max / 4.0);
 
-    } else {
-        geom->u1 = geom->u_tan1;
     }
 
     if (param->convex2) {
@@ -750,9 +784,7 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
         pmCartUnitEq(&geom->u2);
 
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, theta_tan - param->phi2_max / 4.0);
-    } else {
-        geom->u2 = geom->u_tan2;
+        param->theta = fmin(param->theta, geom->theta_tan - param->phi2_max / 4.0);
     }
     blendGeom3Print(geom);
 
@@ -771,26 +803,6 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
 
     param->phi = (PM_PI - param->theta * 2.0);
 
-    // Calculate max acceleration based on plane containing lines
-    calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
-
-    // Store max normal acceleration
-    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
-    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
-            param->a_n_max);
-
-    //Find common velocity and acceleration
-    param->v_req = fmin(prev_tc->reqvel, tc->reqvel);
-    param->v_goal = param->v_req * maxFeedScale;
-
-    //Calculate the maximum planar velocity
-    double v_max;
-    calculateInscribedDiameter(&geom->binormal, vel_bound, &v_max);
-    param->v_goal = fmin(param->v_goal, v_max);
-
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
-
     param->L1 = param->phi1_max * prev_tc->coords.circle.xyz.radius;
     param->L2 = param->phi2_max * tc->coords.circle.xyz.radius;
 
@@ -806,8 +818,14 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     tp_debug_print("phi1_max = %f\n",param->phi1_max);
     tp_debug_print("phi2_max = %f\n",param->phi2_max);
 
-    double nominal_tolerance;
-    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
+    // Setup common parameters
+    blendParamKinematics(geom,
+            param,
+            prev_tc,
+            tc,
+            acc_bound,
+            vel_bound,
+            maxFeedScale);
 
     return TP_ERR_OK;
 }
@@ -834,47 +852,20 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
     if (tc->motion_type != TC_LINEAR || prev_tc->motion_type != TC_LINEAR) {
         return TP_ERR_FAIL;
     }
-    //Copy over unit vectors and intersection point
-    geom->u1 = prev_tc->coords.line.xyz.uVec;
-    geom->u2 = tc->coords.line.xyz.uVec;
-    geom->u_tan1 = prev_tc->coords.line.xyz.uVec;
-    geom->u_tan2 = tc->coords.line.xyz.uVec;
-    geom->P = prev_tc->coords.line.xyz.end;
 
-    //Calculate angles between lines
-    int res_angle = findIntersectionAngle(&geom->u1,
-            &geom->u2, &param->theta);
-    if (res_angle) {
-        return TP_ERR_FAIL;
+    int res_init = blendGeom3Init(geom, prev_tc, tc);
+    if (res_init != TP_ERR_OK) {
+        return res_init;
     }
+
+    param->theta = geom->theta_tan;
+
     tp_debug_print("theta = %f\n", param->theta);
 
     param->phi = (PM_PI - param->theta * 2.0);
 
-    //Do normal calculation here since we need this information for accel / vel limits
-    blendCalculateNormals3(geom);
+    blendGeom3Print(geom);
 
-    // Calculate max acceleration based on plane containing lines
-    calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
-
-    // Store max normal acceleration
-    param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
-    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
-            param->a_n_max);
-
-    //Find common velocity and acceleration
-    param->v_req = fmin(prev_tc->reqvel, tc->reqvel);
-    param->v_goal = param->v_req * maxFeedScale;
-
-    //Calculate the maximum planar velocity
-    double v_max;
-    calculateInscribedDiameter(&geom->binormal, vel_bound, &v_max);
-    param->v_goal = fmin(param->v_goal, v_max);
-
-    tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
-    tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
-
-    //FIXME greediness really should be 0.5 anyway
     const double greediness = 0.5;
     //Nominal length restriction prevents gobbling too much of parabolic blends
     param->L1 = fmin(prev_tc->target, prev_tc->nominal_length * greediness);
@@ -883,12 +874,17 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
             prev_tc->nominal_length, tc->nominal_length);
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
-    double nominal_tolerance;
-    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
+    // Setup common parameters
+    blendParamKinematics(geom,
+            param,
+            prev_tc,
+            tc,
+            acc_bound,
+            vel_bound,
+            maxFeedScale);
 
     return TP_ERR_OK;
 }
-
 
 
 /**
@@ -1036,7 +1032,7 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
 
     pmCartScalMult(&geom->normal, center_dist, &points->arc_center);
     pmCartCartAddEq(&points->arc_center, &geom->P);
-    tp_debug_print("arc_center = %f %f %f\n", 
+    tp_debug_print("arc_center = %f %f %f\n",
             points->arc_center.x,
             points->arc_center.y,
             points->arc_center.z);
@@ -1045,7 +1041,7 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
     // negative direction of u1
     pmCartScalMult(&geom->u1, -param->d_plan, &points->arc_start);
     pmCartCartAddEq(&points->arc_start, &geom->P);
-    tp_debug_print("arc_start = %f %f %f\n", 
+    tp_debug_print("arc_start = %f %f %f\n",
             points->arc_start.x,
             points->arc_start.y,
             points->arc_start.z);
@@ -1054,7 +1050,7 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
     // positive direction of u1
     pmCartScalMult(&geom->u2, param->d_plan, &points->arc_end);
     pmCartCartAddEq(&points->arc_end, &geom->P);
-    tp_debug_print("arc_end = %f %f %f\n", 
+    tp_debug_print("arc_end = %f %f %f\n",
             points->arc_end.x,
             points->arc_end.y,
             points->arc_end.z);
@@ -1119,7 +1115,7 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         return TP_ERR_FAIL;
     }
 
-    tp_debug_print("root0 = %f, root1 = %f\n",root0, 
+    tp_debug_print("root0 = %f, root1 = %f\n", root0,
             root1);
     d_L = fmin(fabs(root0),fabs(root1));
     if (d_L < 0) {
@@ -1213,7 +1209,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points, BlendPoints3 const * co
         return TP_ERR_FAIL;
     }
 
-    tp_debug_print("root0 = %f, root1 = %f\n",root0, 
+    tp_debug_print("root0 = %f, root1 = %f\n", root0,
             root1);
     d_L = fmin(fabs(root0),fabs(root1));
     if (d_L < 0) {
@@ -1337,7 +1333,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     //Get vector from P to first center
     PmCartesian r_PC1;
     pmCartCartSub(&center1, &geom->P, &r_PC1);
-    
+
     // Get "test vectors, relative distance from solution center to P
     PmCartesian test1, test2;
     pmCartCartAdd(&r_PC1, &c_x, &test1);
@@ -1350,7 +1346,7 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     double mag1,mag2;
     pmCartMag(&test1, &mag1);
     pmCartMag(&test2, &mag2);
-    
+
     if (mag2 < mag1)
     {
         //negative solution is closer
