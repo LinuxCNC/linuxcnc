@@ -22,6 +22,7 @@
 
 // Include command and status message definitions
 #include "canon.hh"
+#include "canon_position.hh"
 #include "emc.hh"
 #include "emc_nml.hh"
 #include "emcglb.h"
