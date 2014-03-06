@@ -228,17 +228,7 @@ static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
 
 
 static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
-    CANON_POSITION res;
-    res.x = pos.tran.x;
-    res.y = pos.tran.y;
-    res.z = pos.tran.z;
-    res.a = pos.a;
-    res.b = pos.b;
-    res.c = pos.c;
-    res.u = pos.u;
-    res.v = pos.v;
-    res.w = pos.w;
-
+    CANON_POSITION res(pos);
     return unoffset_and_unrotate_pos(res);
 }
 
@@ -802,15 +792,12 @@ double getStraightVelocity(double x, double y, double z,
 #include <vector>
 struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
 
-static std::vector<struct pt>& chained_points(void) {
-    static std::vector<struct pt> points;
-    return points;
-}
+static std::vector<struct pt> chained_points;
 
 static void flush_segments(void) {
-    if(chained_points().empty()) return;
+    if(chained_points.empty()) return;
 
-    struct pt &pos = chained_points().back();
+    struct pt &pos = chained_points.back();
 
     double x = pos.x, y = pos.y, z = pos.z;
     double a = pos.a, b = pos.b, c = pos.c;
@@ -819,7 +806,7 @@ static void flush_segments(void) {
     int line_no = pos.line_no;
 
 #ifdef SHOW_JOINED_SEGMENTS
-    for(unsigned int i=0; i != chained_points().size(); i++) { printf("."); }
+    for(unsigned int i=0; i != chained_points.size(); i++) { printf("."); }
     printf("\n");
 #endif
 
@@ -827,17 +814,17 @@ static void flush_segments(void) {
            vel = ini_maxvel;
 
     if (cartesian_move && !angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
+        if (vel > currentLinearFeedRate) {
+            vel = currentLinearFeedRate;
+        }
     } else if (!cartesian_move && angular_move) {
-	if (vel > currentAngularFeedRate) {
-	    vel = currentAngularFeedRate;
-	}
+        if (vel > currentAngularFeedRate) {
+            vel = currentAngularFeedRate;
+        }
     } else if (cartesian_move && angular_move) {
-	if (vel > currentLinearFeedRate) {
-	    vel = currentLinearFeedRate;
-	}
+        if (vel > currentLinearFeedRate) {
+            vel = currentLinearFeedRate;
+        }
     }
 
 
@@ -871,16 +858,16 @@ static void flush_segments(void) {
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
-    chained_points().clear();
+    chained_points.clear();
 }
 
 static void get_last_pos(double &lx, double &ly, double &lz) {
-    if(chained_points().empty()) {
+    if(chained_points.empty()) {
         lx = canonEndPoint.x;
         ly = canonEndPoint.y;
         lz = canonEndPoint.z;
     } else {
-        struct pt &pos = chained_points().back();
+        struct pt &pos = chained_points.back();
         lx = pos.x;
         ly = pos.y;
         lz = pos.z;
@@ -891,12 +878,14 @@ static bool
 linkable(double x, double y, double z, 
          double a, double b, double c, 
          double u, double v, double w) {
-    struct pt &pos = chained_points().back();
+    struct pt &pos = chained_points.back();
     if(canonMotionMode != CANON_CONTINUOUS || canonNaivecamTolerance == 0)
         return false;
+    //FIXME make this length controlled elsewhere?
+    if(chained_points.size() > 100) return false;
 
-    if(chained_points().size() > 100) return false;
-
+    //If ABCUVW motion, then the tangent calculation fails?
+    // TODO is there a fundamental reason that we can't handle 9D motion here?
     if(a != pos.a) return false;
     if(b != pos.b) return false;
     if(c != pos.c) return false;
@@ -906,8 +895,8 @@ linkable(double x, double y, double z,
 
     if(x==canonEndPoint.x && y==canonEndPoint.y && z==canonEndPoint.z) return false;
     
-    for(std::vector<struct pt>::iterator it = chained_points().begin();
-            it != chained_points().end(); it++) {
+    for(std::vector<struct pt>::iterator it = chained_points.begin();
+            it != chained_points.end(); it++) {
         PM_CARTESIAN M(x-canonEndPoint.x, y-canonEndPoint.y, z-canonEndPoint.z),
                      B(canonEndPoint.x, canonEndPoint.y, canonEndPoint.z),
                      P(it->x, it->y, it->z);
@@ -934,11 +923,11 @@ see_segment(int line_number,
         || (v != canonEndPoint.v)
         || (w != canonEndPoint.w);
 
-    if(!chained_points().empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
+    if(!chained_points.empty() && !linkable(x, y, z, a, b, c, u, v, w)) {
         flush_segments();
     }
     pt pos = {x, y, z, a, b, c, u, v, w, line_number};
-    chained_points().push_back(pos);
+    chained_points.push_back(pos);
     if(changed_abc || changed_uvw) {
         flush_segments();
     }
@@ -2362,7 +2351,7 @@ void INIT_CANON()
 {
     double units;
 
-    chained_points().clear();
+    chained_points.clear();
 
     // initialize locals to original values
     g5xOffset.x = 0.0;
@@ -2464,7 +2453,7 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     CANON_POSITION position;
     EmcPose pos;
 
-    chained_points().clear();
+    chained_points.clear();
 
     pos = emcStatus->motion.traj.position;
 
