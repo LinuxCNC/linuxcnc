@@ -472,6 +472,12 @@ int blendParamKinematics(BlendGeom3 * const geom,
         double maxFeedScale)
 {
 
+    // KLUDGE: common operations, but not exactly kinematics
+    param->phi = (PM_PI - param->theta * 2.0);
+
+    double nominal_tolerance;
+    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
+
     // Calculate max acceleration based on plane containing lines
     int res_dia = calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
 
@@ -488,15 +494,35 @@ int blendParamKinematics(BlendGeom3 * const geom,
     double v_planar_max;
     calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
 
-    // TODO find max vel by triangle altitude method
+    // Copy over maximum velocities, clipping velocity to place altitude within base
+    double v_max1 = fmin(prev_tc->maxvel, tc->maxvel/cos(param->phi));
+    double v_max2 = fmin(tc->maxvel, prev_tc->maxvel/cos(param->phi));
+    tp_debug_print("v_max1 = %f, v_max2 = %f\n", v_max1, v_max2);
 
-    param->v_goal = fmin(param->v_goal, v_planar_max);
+    // Get "altitude"
+    double v_area = v_max1 * v_max2 / 2.0 * sin(param->phi);
+    tp_debug_print("phi = %f\n", param->phi);
+    tp_debug_print("v_area = %f\n", v_area);
+
+    // Get "base" of triangle
+    PmCartesian tmp1,tmp2,diff;
+    pmCartScalMult(&geom->u1, v_max1, &tmp1);
+    pmCartScalMult(&geom->u2, v_max2, &tmp2);
+    pmCartCartSub(&tmp2, &tmp1, &diff);
+    double base;
+    pmCartMag(&diff, &base);
+    tp_debug_print("v_base = %f\n", base);
+
+    double v_max_alt = 2.0 * v_area / base;
+    tp_debug_print("v_max_alt = %f\n", v_max_alt);
+
+    double v_max = fmax(v_max_alt, v_planar_max);
+
+    param->v_goal = fmin(param->v_goal, v_max);
 
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
     tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
 
-    double nominal_tolerance;
-    tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
     return res_dia;
 }
 
@@ -652,7 +678,6 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 
     tp_debug_print("theta = %f\n", param->theta);
 
-    param->phi = (PM_PI - param->theta * 2.0);
 
     param->L1 = param->phi1_max * prev_tc->coords.circle.xyz.radius;
     param->L2 = tc->nominal_length / 2.0;
@@ -838,6 +863,8 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
     tp_debug_print("theta = %f\n", param->theta);
 
     param->phi = (PM_PI - param->theta * 2.0);
+
+    blendGeom3Print(geom);
 
     const double greediness = 0.5;
     //Nominal length restriction prevents gobbling too much of parabolic blends
