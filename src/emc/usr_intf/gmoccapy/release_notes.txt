@@ -1,4 +1,8 @@
 ver. 1.0.6
+- Stefan found an error in getiniinfo, getting the PROGRAM_PREFIX from 
+  INI file, if the entry does not exist. Solved!
+
+ver. 1.0.6
 - introduced new locations for EMBEDDED_TABS, it is possible to use 
   in addition to the previous ones now also:
 
