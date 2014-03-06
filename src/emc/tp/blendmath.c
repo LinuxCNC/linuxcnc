@@ -430,6 +430,10 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
         double maxFeedScale)
 {
 
+    if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_LINEAR) {
+        return TP_ERR_FAIL;
+    }
+
     // Get tangent unit vectors to each arc at the intersection point
     tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
     tcGetStartTangentUnitVector(tc, &geom->u_tan2);
@@ -554,6 +558,11 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
         PmCartesian const * const vel_bound,
         double maxFeedScale)
 {
+
+    if (tc->motion_type != TC_LINEAR || prev_tc->motion_type != TC_CIRCULAR) {
+        return TP_ERR_FAIL;
+    }
+
     // Get tangent unit vectors to each arc at the intersection point
     tcGetEndTangentUnitVector(prev_tc, &geom->u_tan1);
     tcGetStartTangentUnitVector(tc, &geom->u_tan2);
