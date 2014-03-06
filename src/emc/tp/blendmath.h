@@ -40,6 +40,10 @@ typedef struct {
     PmCartesian binormal;   /* binormal unit vector to plane containing lines */
     PmCartesian u_tan1;     /* Actual tangent vector to 1 (used for arcs only) */
     PmCartesian u_tan2;
+    double theta_tan;
+    double v_max1;          /* maximum velocity in direction u_tan1 */
+    double v_max2;          /* maximum velocity in direction u_tan2 */
+
 } BlendGeom3;
 
 /**
@@ -150,6 +154,18 @@ int blendCheckConsume(BlendParameters * const param,
 
 int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
         BlendParameters const * const param);
+
+int blendGeom3Init(BlendGeom3 * const geom,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc);
+
+int blendParamKinematics(BlendGeom3 * const geom,
+        BlendParameters * const param,
+        TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc,
+        PmCartesian const * const acc_bound,
+        PmCartesian const * const vel_bound,
+        double maxFeedScale);
 
 int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const param,
         TC_STRUCT const * const prev_tc,
