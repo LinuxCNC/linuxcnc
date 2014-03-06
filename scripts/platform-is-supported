@@ -55,18 +55,20 @@ print "    major =", release_major
 print "    minor =", release_minor
 print "uname = %s (%s)" % (uname, kernel_flavor)
 
-if arch != "amd64" and arch != "i386":
-    print "unsupported architecture!"
-    sys.exit(1)
+# all architectures are supported
+#if arch != "amd64" and arch != "i386":
+#    print "unsupported architecture!"
+#    sys.exit(1)
 
 if distributor == 'Ubuntu':
     if release_major < 10:
         print "release is too old!"
         sys.exit(1)
 
-if kernel_flavor != 'rtai' and kernel_flavor != 'vanilla':
-    print "unsupported kernel flavor"
-    sys.exit(1)
+# all kernel flavor are supported
+#if kernel_flavor != 'rtai' and kernel_flavor != 'vanilla':
+#    print "unsupported kernel flavor"
+#    sys.exit(1)
 
 print "this platform is supported!"
 sys.exit(0)
