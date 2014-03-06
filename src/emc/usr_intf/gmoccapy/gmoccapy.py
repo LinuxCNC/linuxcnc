@@ -1433,7 +1433,7 @@ class gmoccapy(object):
             self.widgets.ntb_jog.set_current_page(2)
             self.widgets.rbt_auto.set_active(True)
 
-# hal status Start
+# hal status End
 # =========================================================
     # There are some settings we can only do if the window is on the screen allready
     def on_window1_show(self, widget, data = None):
