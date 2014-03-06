@@ -108,6 +108,22 @@ int tcGetEndAccelUnitVector(TC_STRUCT const * const tc, PmCartesian * const out)
     return 0;
 }
 
+int tcGetIntersectionPoint(TC_STRUCT const * const prev_tc,
+        TC_STRUCT const * const tc, PmCartesian * const point)
+{
+    // TODO NULL pointer check?
+    // Get intersection point from geometry
+    if (tc->motion_type == TC_LINEAR) {
+        *point = tc->coords.line.xyz.start;
+    } else if (prev_tc->motion_type == TC_LINEAR) {
+        *point = prev_tc->coords.line.xyz.end;
+    } else if (tc->motion_type == TC_CIRCULAR){
+        pmCirclePoint(&tc->coords.circle.xyz, 0.0, point);
+    } else {
+        return TP_ERR_FAIL;
+    }
+    return TP_ERR_OK;
+}
 
 /**
  * Find the geometric tangent vector to a helical arc.
