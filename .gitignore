@@ -29,9 +29,6 @@ docs/html/drivers
 /docs/src/man/man1/linuxcnc.1
 lib/python/gremlin.py
 lib/python/touchy
-tests/*/skip
-tests/*/*/skip
-tests/*/*/*/skip
 /rtlib/
 /libexec/
 /etc/
