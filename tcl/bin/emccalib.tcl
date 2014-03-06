@@ -165,7 +165,7 @@ proc makeIniTune {} {
         grid rowconfigure $af($j) 9999 -weight 1
     }
 
-    puts "af: [array get af]"
+    #puts "af: [array get af]"
 
     foreach fname $halfilelist {
         $haltext config -state normal
@@ -189,7 +189,7 @@ proc makeIniTune {} {
                         }
                 for {set j 0} {$j < $numaxes} {incr j} {
                     if {[string match *AXIS_${j}* $tmpstring]} {
-			puts [list $j $tmpstring]
+                        # puts "j=axisno,match:[list $j $tmpstring]"
                         # this is a hal file search ordered loop
                         set thisininame [string trimright [lindex [split $tmpstring "\]" ] end ]]
                         set lowername "[string tolower $thisininame]"
@@ -216,6 +216,10 @@ proc makeIniTune {} {
             }
         }
     }
+    if { ![info exists ininamearray] } {
+        incompatible_ini_file
+        return
+    }
 
     # build the buttons to control axis variables.
     for {set j 0} {$j<$numaxes } {incr j} {
@@ -231,7 +235,24 @@ proc makeIniTune {} {
             -command {iniTuneButtonpress refresh}]
         pack $tmpok $tmptest $tmpcancel $tmprefresh -side left -fill both -expand yes -pady 5
     }
-}
+} ;# makeIniTune
+
+proc incompatible_ini_file {} {
+   set progname [file tail $::argv0]
+   set fname [file tail $EMC_INIFILE]
+   set answer [tk_messageBox \
+      -title "Incompatible" \
+      -message [msgcat::mc "<$fname>\n\n\
+               Not incompatible with $progname\n\n\
+               Ini file must:\n\
+                  1) include AXIS_n section(s)\n\
+                  2) use setp for AXIS_n items\n\
+               \n\
+               " ] \
+      -type ok \
+      -icon info]
+      exit 1
+} ;# incompatible_ini_file
 
 proc selectAxis {which} {
     global axisentry
@@ -401,7 +422,7 @@ proc saveIni {which} {
                         "#" {}
                         default {
                             set tmpstr [$initext get $ind.0 $ind.end]
-                            set tmpvar [lindex $tmpstr 0]
+                            set tmpvar [lindex [split $tmpstr "="] 0]
                             set tmpindx [lsearch $upvarnames $tmpvar]
                             if {$tmpindx != -1} {
                                 set cmd [lindex $varcommands $tmpindx]
