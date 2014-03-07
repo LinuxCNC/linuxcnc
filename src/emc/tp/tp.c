@@ -1545,6 +1545,7 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         prev_tc->maxaccel *= a_t_ratio;
         tc->maxaccel *= a_t_ratio;
 
+        //TODO remove this, possibly redundant with optimziation
         //Clip maximum velocity by sample rate
         prev_tc->maxvel = fmin(prev_tc->maxvel, prev_tc->target /
                 tp->cycleTime / TP_MIN_SEGMENT_CYCLES);
@@ -1931,11 +1932,11 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
     double tc_finalvel = tpGetRealFinalVel(tp, tc, tc_target_vel);
 
     /* Debug Output */
-    rtapi_print("tc state: vr = %f, vf = %f, maxvel = %f\n",
+    tc_debug_print("tc state: vr = %f, vf = %f, maxvel = %f\n",
             tc_target_vel, tc_finalvel, tc->maxvel);
-    rtapi_print("          currentvel = %f, fs = %f, tc = %f, term = %d\n",
+    tc_debug_print("          currentvel = %f, fs = %f, tc = %f, term = %d\n",
             tc->currentvel, tpGetFeedScale(tp,tc), tc->cycle_time, tc->term_cond);
-    rtapi_print("          acc = %f,T = %f, P = %f\n", acc,
+    tc_debug_print("          acc = %f,T = %f, P = %f\n", acc,
             tc->target, tc->progress);
 
     if (tc->on_final_decel) {
@@ -2774,7 +2775,7 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
             dt = -tc->currentvel / a - pmSqrt(disc);
         }
 
-        tp_debug_print(" revised dt = %f\n", dt);
+        tc_debug_print(" revised dt = %f\n", dt);
         //Update final velocity with actual result
         v_f = tc->currentvel + dt * a;
     }
