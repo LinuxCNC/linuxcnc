@@ -298,7 +298,7 @@ function handle_includes () {
           if  [ -r "$breal" ] ; then
             echo "" >>$outfile
             echo "#*** Begin #INCLUDE file: $breal" >>$outfile
-            cat $breal >>$outfile
+            cat "$breal" >>$outfile
             echo "#*** End   #INCLUDE file: $breal" >>$outfile
           else
             msg="$hdr <$line> CANNOT READ $breal"
