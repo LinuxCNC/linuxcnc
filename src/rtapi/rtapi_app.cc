@@ -43,7 +43,7 @@
 #include <errno.h>
 #include <malloc.h>
 #include <assert.h>
-#include <syslog.h>
+#include <syslog_async.h>
 #include <limits.h>
 
 #include <sys/mman.h>
@@ -461,7 +461,7 @@ static int attach_global_segment()
 	if (retval < 0) {
 	    tries--;
 	    if (tries == 0) {
-		syslog(LOG_ERR,
+		syslog_async(LOG_ERR,
 		       "rt:%d ERROR: cannot attach global segment key=0x%x %s\n",
 		       instance_id, globalkey, strerror(-retval));
 		return retval;
@@ -472,7 +472,7 @@ static int attach_global_segment()
     } while (retval < 0);
 
     if (size != sizeof(global_data_t)) {
-	syslog(LOG_ERR,
+	syslog_async(LOG_ERR,
 	       "rt:%d global segment size mismatch: expect %zu got %d\n", 
 	       instance_id, sizeof(global_data_t), size);
 	return -EINVAL;
@@ -482,7 +482,7 @@ static int attach_global_segment()
     while  (global_data->magic !=  GLOBAL_READY) {
 	tries--;
 	if (tries == 0) {
-	    syslog(LOG_ERR,
+	    syslog_async(LOG_ERR,
 		   "rt:%d ERROR: global segment magic not changing to ready: magic=0x%x\n",
 		   instance_id, global_data->magic);
 	    return -EINVAL;
@@ -506,7 +506,7 @@ static void write_exitcode(int fd, int value)
 	return;
 
     if (write(fd, &value, sizeof(value)) != sizeof(value)) {
-	syslog(LOG_ERR, "rtapi_app:%d write to status pipe failed: %s\n",
+	syslog_async(LOG_ERR, "rtapi_app:%d write to status pipe failed: %s\n",
 		instance_id, strerror(errno));
     }
     close(fd);
@@ -570,13 +570,13 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>
     if (prctl(PR_SET_NAME, argv[0]) < 0) {
-	syslog(LOG_ERR,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
+	syslog_async(LOG_ERR,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
 		argv[0], strerror(errno));
     }
 
     // attach global segment which rtapi_msgd already prepared
     if ((retval = attach_global_segment()) != 0) {
-	syslog(LOG_ERR, "%s: FATAL - failed to attach to global segment\n",
+	syslog_async(LOG_ERR, "%s: FATAL - failed to attach to global segment\n",
 		argv[0]);
 	write_exitcode(statuspipe[1], 1);
 	exit(retval);
@@ -588,7 +588,7 @@ static int master(size_t  argc, char **argv, int fd, vector<string> args) {
 
     if ((global_data->rtapi_msgd_pid == 0) ||
 	kill(global_data->rtapi_msgd_pid, 0) != 0) {
-	syslog(LOG_ERR,"%s: rtapi_msgd pid invalid: %d, exiting\n",
+	syslog_async(LOG_ERR,"%s: rtapi_msgd pid invalid: %d, exiting\n",
 		argv[0], global_data->rtapi_msgd_pid);
 	write_exitcode(statuspipe[1], 2);
 	exit(EXIT_FAILURE);
@@ -784,7 +784,7 @@ signal_handler(int sig, siginfo_t *si, void *uctx)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_app:%d: caught signal %d - dumping core\n",
 			instance_id, sig);
-	sleep(1); // let syslog drain
+	sleep(1); // let syslog_async drain
 	signal(SIGABRT, SIG_DFL);
 	abort();
 	break;
@@ -906,7 +906,7 @@ static int harden_rt()
 
 // normally rtapi_app will log through the message ringbuffer in the
 // global data segment. This isnt available initially, and during shutdown,
-// so switch to direct syslog during these time windows so we dont
+// so switch to direct syslog_async during these time windows so we dont
 // loose log messages, even if they cant go through the ringbuffer
 void rtapi_app_msg_handler(msg_level_t level, const char *fmt,
 				va_list ap) {
@@ -915,7 +915,7 @@ void rtapi_app_msg_handler(msg_level_t level, const char *fmt,
     if (global_data) {
 	vs_ring_write(level, fmt, ap);
     } else {
-	vsyslog(rtapi2syslog(level), fmt, ap);
+	vsyslog_async(rtapi2syslog(level), fmt, ap);
     }
 }
 
@@ -946,8 +946,8 @@ int main(int argc, char **argv)
     progname = argv[0];
 
     rtapi_set_msg_handler(rtapi_app_msg_handler);
-    openlog(argv[0], LOG_NDELAY, LOG_LOCAL1);
-    setlogmask(LOG_UPTO(LOG_DEBUG));
+    openlog_async(argv[0], LOG_NDELAY, LOG_LOCAL1);
+    setlogmask_async(LOG_UPTO(LOG_DEBUG));
 
     while (1) {
 	int option_index = 0;
@@ -1035,6 +1035,7 @@ become_master:
         unlink(SOCKET_PATH);
 	rtapi_print_msg(RTAPI_MSG_INFO, "master:%d exit %d\n", 
 		  instance_id, result);
+	closelog_async();
         return result;
     } else if(errno == EADDRINUSE) {
 	// the master is already running, so become slave
