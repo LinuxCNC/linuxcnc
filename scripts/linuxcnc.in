@@ -292,15 +292,8 @@ function handle_includes () {
           echo "$msg" >&2
           echo "$msg" >>$outfile
        else
-          # bash tilde expansion
-          case "$b" in
-           ~\/*) # example: ~/a/b/c.d
-                 breal=${HOME}/${b#"~/"} ;;
-             ~*) # example: ~username/a/b/c.d
-                 breal=/home/${b#"~"} ;;
-              *) # everything else
-                 breal=${b}     ;;
-          esac
+          # expand file name
+          breal=$(eval echo "$b")
           # -r: readable
           if  [ -r "$breal" ] ; then
             echo "" >>$outfile
