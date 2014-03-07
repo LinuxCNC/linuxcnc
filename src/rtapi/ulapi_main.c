@@ -40,7 +40,6 @@
 #include <sys/types.h>          //shm_open
 #include <stdio.h>
 #include <stdlib.h>
-#include <syslog.h>
 #include <unistd.h>
 
 int ulapi_main(int instance, int flavor, global_data_t *global)
