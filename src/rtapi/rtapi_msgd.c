@@ -44,7 +44,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <assert.h>
-#include <syslog.h>
+#include <syslog_async.h>
 #include <poll.h>
 #include <sys/signalfd.h>
 #include <assert.h>
@@ -266,7 +266,7 @@ void init_global_data(global_data_t * data, int flavor,
     // lock the global data segment
     if (flavor != RTAPI_POSIX_ID) {
 	if (mlock(data, sizeof(global_data_t))) {
-	    syslog(LOG_ERR, "MSGD:%d mlock(global) failed: %d '%s'\n",
+	    syslog_async(LOG_ERR, "MSGD:%d mlock(global) failed: %d '%s'\n",
 		   instance_id, errno,strerror(errno)); 
 	}
     }
@@ -371,14 +371,14 @@ static void signal_handler(int sig)
     // no point in keeping rtapi_app running if msgd exits
     if (global_data->rtapi_app_pid > 0) {
 	kill(global_data->rtapi_app_pid, SIGTERM);
-	syslog(LOG_INFO,"sent SIGTERM to rtapi (pid %d)\n",
+	syslog_async(LOG_INFO,"sent SIGTERM to rtapi (pid %d)\n",
 	       global_data->rtapi_app_pid);
     }
 
     switch (sig) {
     case SIGTERM:
     case SIGINT:
-	syslog(LOG_INFO, "msgd:%d: %s - shutting down\n",
+	syslog_async(LOG_INFO, "msgd:%d: %s - shutting down\n",
 	       rtapi_instance, strsignal(sig));
 
 	// hint if error ring couldnt be served fast enough,
@@ -387,7 +387,7 @@ static void signal_handler(int sig)
 	// this might be interesting to hear about
 	if (global_data && (global_data->error_ring_full ||
 			    global_data->error_ring_locked))
-	    syslog(LOG_INFO, "msgd:%d: message ring stats: full=%d locked=%d ",
+	    syslog_async(LOG_INFO, "msgd:%d: message ring stats: full=%d locked=%d ",
 		   rtapi_instance,
 		   global_data->error_ring_full,
 		   global_data->error_ring_locked);
@@ -395,10 +395,10 @@ static void signal_handler(int sig)
 	break;
 
     default: // pretty bad
-	syslog(LOG_ERR,
+	syslog_async(LOG_ERR,
 	       "msgd:%d: caught signal %d '%s' - dumping core (current dir=%s)\n",
 	       rtapi_instance, sig, strsignal(sig), get_current_dir_name());
-	closelog();
+	closelog_async();
 	sleep(1); // let syslog drain
 	signal(SIGABRT, SIG_DFL);
 	abort();
@@ -414,7 +414,7 @@ cleanup_actions(void)
     if (global_data) {
 	if (global_data->rtapi_app_pid > 0) {
 	    kill(global_data->rtapi_app_pid, SIGTERM);
-	    syslog(LOG_INFO,"sent SIGTERM to rtapi (pid %d)\n",
+	    syslog_async(LOG_INFO,"sent SIGTERM to rtapi (pid %d)\n",
 		   global_data->rtapi_app_pid);
 	}
 	// in case some process catches a leftover shm segment
@@ -424,11 +424,11 @@ cleanup_actions(void)
 	    rtapi_msg_buffer.header->refcount--;
 	retval = shm_common_detach(sizeof(global_data_t), global_data);
 	if (retval < 0) {
-	    syslog(LOG_ERR,"shm_common_detach(global) failed: %s\n",
+	    syslog_async(LOG_ERR,"shm_common_detach(global) failed: %s\n",
 		   strerror(-retval));
 	} else {
 	    shm_common_unlink(OS_KEY(GLOBAL_KEY, rtapi_instance));
-	    syslog(LOG_DEBUG,"normal shutdown - global segment detached");
+	    syslog_async(LOG_DEBUG,"normal shutdown - global segment detached");
 	}
 	global_data = NULL;
     }
@@ -468,7 +468,7 @@ static int message_thread()
 
     do {
 	if (global_data->rtapi_app_pid == 0) {
-	    syslog(LOG_ERR,
+	    syslog_async(LOG_ERR,
 		   "msgd:%d: rtapi_app exit detected - shutting down",
 		   rtapi_instance);
 	    msgd_exit++;
@@ -482,7 +482,7 @@ static int message_thread()
 		// strip trailing newlines
 		while ((cp = strrchr(msg->buf,'\n')))
 		    *cp = '\0';
-		syslog(rtapi2syslog(msg->level), "%s:%d:%s %.*s",
+		syslog_async(rtapi2syslog(msg->level), "%s:%d:%s %.*s",
 		       msg->tag, msg->pid, origins[msg->origin],
 		       (int) payload_length, msg->buf);
 		break;
@@ -499,7 +499,7 @@ static int message_thread()
 
 	ret = poll(pfd, 1, msg_poll);
 	if (ret < 0) {
-	    syslog(LOG_ERR, "msgd:%d: poll(): %s - shutting down\n",
+	    syslog_async(LOG_ERR, "msgd:%d: poll(): %s - shutting down\n",
 		   rtapi_instance, strerror(errno));
 	    msgd_exit++;
 	} else if (pfd[0].revents & POLLIN) { // signal received
@@ -684,7 +684,7 @@ int main(int argc, char **argv)
 
     snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
 
-    openlog(proctitle, option , SYSLOG_FACILITY);
+    openlog_async(proctitle, option , SYSLOG_FACILITY);
 
     // set new process name
     argv0_len = strlen(argv[0]);
@@ -704,17 +704,17 @@ int main(int argc, char **argv)
     		     halsize, rt_msglevel, usr_msglevel,
 		     instance_name,hal_thread_stack_size);
 
-    syslog(LOG_INFO,
-	   "startup instance=%s pid=%d flavor=%s "
-	   "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s git=%s",
-	   global_data->instance_name, getpid(),
-	   flavor->name,
-	   global_data->rt_msg_level,
-	   global_data->user_msg_level,
-	   global_data->hal_size,
-	   shmdrv_loaded ? "shmdrv" : "Posix",
-	   __VERSION__,
-	   GIT_VERSION);
+    syslog_async(LOG_INFO,
+		 "startup instance=%s pid=%d flavor=%s "
+		 "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s git=%s",
+		 global_data->instance_name, getpid(),
+		 flavor->name,
+		 global_data->rt_msg_level,
+		 global_data->user_msg_level,
+		 global_data->hal_size,
+		 shmdrv_loaded ? "shmdrv" : "Posix",
+		 __VERSION__,
+		 GIT_VERSION);
 
     if ((global_data->rtapi_msgd_pid != 0) &&
 	kill(global_data->rtapi_msgd_pid, 0) == 0) {
@@ -734,6 +734,6 @@ int main(int argc, char **argv)
 
     // signal received - check if rtapi_app running, and shut it down
     cleanup_actions();
-    closelog();
+    closelog_async();
     exit(exit_code);
 }
