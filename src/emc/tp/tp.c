@@ -1687,19 +1687,6 @@ int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type, double v
 }
 
 
-STATIC double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max)
-{
-    double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
-    double v_max_acc = pmSqrt(a_n_max * circle->radius);
-    if (v_max_acc < v_max) {
-        tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
-        return v_max_acc;
-    } else {
-        tp_debug_print("v_max %f is within limit of v_max_acc %f\n",v_max, v_max_acc);
-        return v_max;
-    }
-}
-
 /**
  * Adds a circular (circle, arc, helix) move from the end of the
  * last move to this new position.
@@ -1753,7 +1740,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     tc.target = pmCircle9Target(&tc.coords.circle);
     tc.nominal_length = tc.target;
 
-    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc);
+    double v_max_actual = pmCircleActualMaxVel(&tc.coords.circle.xyz, ini_maxvel, acc, false);
 
     // Copy in motion parameters
     tcSetupMotion(&tc,
