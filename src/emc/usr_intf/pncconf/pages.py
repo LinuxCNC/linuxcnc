@@ -783,6 +783,7 @@ class Pages:
         if self.d.number_mesa <2:
             error = self.a.signal_sanity_check()
             if error: return True # don't advance page
+        self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     def on_mesapanel_clicked(self, *args):
         self.t.launch_mesa_panel()
@@ -823,6 +824,7 @@ class Pages:
         self.a.mesa_data_transfer(1)
         error = self.a.signal_sanity_check()
         if error: return True
+        self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
 #************
 # pport1 PAGE
@@ -907,6 +909,7 @@ class Pages:
             self.d[pinv] = invert
         self.d.pp1_direction = self.w.pp1_direction.get_active()
         self.d.ioaddr1 = self.w.ioaddr1.get_text()
+        self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # pport1 callbacks:
     def on_pp1_direction_changed(self,widget):
@@ -992,6 +995,7 @@ class Pages:
             self.d[pinv] = invert
         self.d.pp2_direction = self.w.pp2_direction.get_active()
         self.d.ioaddr2 = self.w.ioaddr2.get_text()
+        self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # pport2 callbacks:
     def on_pp2_direction_changed(self,widget):
@@ -1085,8 +1089,6 @@ class Pages:
 # Spindle PAGE
 #************
     def s_motor_prepare(self):
-        if not self.a.has_spindle_speed_control():
-            return True
         self.a.axis_prepare('s')
     def s_motor_finish(self):
         self.a.axis_done('s')
