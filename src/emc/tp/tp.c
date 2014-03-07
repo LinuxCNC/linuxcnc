@@ -1076,7 +1076,6 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     int res_stretch1 = pmCircleStretch(&circ1_temp,
             phi1_new,
             false);
-    //TODO create blends
     if (res_stretch1 != TP_ERR_OK) {
         return TP_ERR_FAIL;
     }
@@ -1084,7 +1083,6 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     int res_stretch2 = pmCircleStretch(&circ2_temp,
             phi2_new,
             true);
-    //TODO create blends
     if (res_stretch1 || res_stretch2) {
         tp_debug_print("segment resize failed, aborting arc\n");
         return TP_ERR_FAIL;
@@ -1097,7 +1095,6 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     pmCirclePoint(&circ2_temp,
             0.0,
             &points_exact.arc_end);
-    //TODO deal with large spiral values, or else detect and fall back?
 
     tp_debug_print("Modified arc points\n");
     blendPoints3Print(&points_exact);
