@@ -83,6 +83,7 @@ check-ulimits() {
     export LC_COLLATE=C
     memlock=0
     for f in /etc/security/limits.conf /etc/security/limits.d/*.conf; do
+	test -f $f || continue
 	mtmp=$(awk '/^[^#]/ && $3=="memlock" {m=$4} END {print m}' $f)
 	test -n "$mtmp" && memlock=$mtmp
     done
