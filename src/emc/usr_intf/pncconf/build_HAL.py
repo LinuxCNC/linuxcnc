@@ -136,8 +136,8 @@ class HAL:
         temp = ""
         for i in self.d.available_axes:
             #print "looking at available axis : ",i
-            if not self.d.findsignal(i+"-encoder-a") and not self.d.findsignal(i+"-resolver"):
-                continue
+            #if not self.d.findsignal(i+"-encoder-a") and not self.d.findsignal(i+"-resolver"):
+            #    continue
             temp = temp + "pid.%s,"%i
         # if user requested PID components add them to the list as well, starting at 0 and working up
         for i in range(0,self.d.userneededpid):
@@ -1073,7 +1073,7 @@ class HAL:
             print >>file, "net %s-is-init           bldc.%s.init-done"% (let,axnum)
             print >>file
 
-        if closedloop:
+        if 1==1: # FIXME
                 print >>file, "setp   pid.%s.Pgain     [%s_%d]P" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Igain     [%s_%d]I" % (let, title, axnum)
                 print >>file, "setp   pid.%s.Dgain     [%s_%d]D" % (let, title, axnum)
@@ -1083,21 +1083,25 @@ class HAL:
                 print >>file, "setp   pid.%s.FF2       [%s_%d]FF2" % (let, title, axnum)
                 print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
                 print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
+                # steppers
+                print >>file, "setp   pid.0.error-previous-target true"
+                print >>file, "setp   pid.0.maxerror .0005"
                 print >>file
                 if let == 's':
                     name = "spindle"
                 else:
                     name = let
-                print >>file, "net %s-index-enable  <=>  pid.%s.index-enable" % (name, let)
-                print >>file, "net %s-enable       => pid.%s.enable" % (name, let)
-                print >>file, "net %s-output       => pid.%s.output"% (name, let)
+                print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (name, let)
+                print >>file, "net %s-enable        =>  pid.%s.enable" % (name, let)
+                print >>file, "net %s-output        =>  pid.%s.output"% (name, let)
                 if let == 's':
                     print >>file, "net %s-vel-cmd     => pid.%s.command" % (name, let)
                     print >>file, "net %s-vel-fb      => pid.%s.feedback"% (name, let)
                 else:
-                    print >>file, "net %s-pos-cmd      => pid.%s.command" % (name, let)
-                    print >>file, "net %s-vel-fb       => pid.%s.feedback-deriv"% (name, let)
-                    print >>file, "net %s-pos-fb       => pid.%s.feedback"% (name,let)
+                    print >>file, "net %s-pos-cmd       =>  pid.%s.command" % (name, let)
+                    print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
+                    print >>file, "net %s-pos-fb        =>  pid.%s.feedback"% (name,let)
+                    #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
                 print >>file
 
         if tppwmpinname:
@@ -1211,10 +1215,7 @@ class HAL:
             print >>file, "setp   " + steppinname + ".stepspace       [%s_%d]STEPSPACE"% (title, axnum)
             print >>file, "setp   " + steppinname + ".position-scale  [%s_%d]STEP_SCALE"% (title, axnum)
             print >>file, "setp   " + steppinname + ".step_type        0"
-            if closedloop or let == "s":
-                print >>file, "setp   " + steppinname + ".control-type     1"
-            else:
-                print >>file, "setp   " + steppinname + ".control-type     0"
+            print >>file, "setp   " + steppinname + ".control-type     1"
             if let =="s":
                 print >>file, "setp   " + steppinname + ".maxaccel         [%s_%d]MAX_ACCELERATION"% (title, axnum)
                 print >>file, "setp   " + steppinname + ".maxvel           [%s_%d]MAX_VELOCITY"% (title, axnum)
@@ -1229,18 +1230,16 @@ class HAL:
                 print >>file, "net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd"
                 if not encoderpinname and not resolverpinname:
                     print >>file, "net spindle-vel-fb         <=  "+ steppinname + ".velocity-fb"
-            elif closedloop:
-                print >>file
-                print >>file, "# ---closedloop stepper signals---"
-                print >>file
-                print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd" % (let, axnum )
-                print >>file, "net %s-output                             => "% (let) + steppinname + ".velocity-cmd"
-                print >>file, "net %s-enable     axis.%d.amp-enable-out  => "% (let,axnum) + steppinname +".enable"
-            else:
-                print >>file
-                print >>file, "net %s-pos-fb     axis.%d.motor-pos-fb   <=  "% (let, axnum) + steppinname + ".position-fb"
-                print >>file, "net %s-pos-cmd    axis.%d.motor-pos-cmd  =>  "% (let, axnum) + steppinname + ".position-cmd"
-                print >>file, "net %s-enable     axis.%d.amp-enable-out =>  "% (let, axnum) + steppinname + ".enable"
+            print >>file
+            print >>file, "# ---closedloop stepper signals---"
+            print >>file
+            print >>file, "net %s-pos-cmd    <= axis.%d.motor-pos-cmd" % (let, axnum )
+            print >>file, "net %s-vel-cmd    <= axis.%d.joint-vel-cmd" % (let, axnum )
+            print >>file, "net %s-output     => "% (let) + steppinname + ".velocity-cmd"
+            print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
+            print >>file, "net %s-pos-fb     => axis.%d.motor-pos-fb" % (let, axnum )
+            print >>file, "net %s-enable     <= axis.%d.amp-enable-out"% (let,axnum)
+            print >>file, "net %s-enable     => %s.enable"% (let, steppinname)
             print >>file
 
         if steppinname2:

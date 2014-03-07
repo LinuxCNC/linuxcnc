@@ -241,17 +241,17 @@ class INI:
                 print >>file, "STEPGEN_MAXACCEL = %.1f" % (float(get("maxacc")) * 2.0)
             else:
                 print >>file, "STEPGEN_MAXACCEL = %.1f" % (float(get("maxacc")) * 1.25)
+
+        print >>file, "P = %s" % get("P")
+        print >>file, "I = %s" % get("I") 
+        print >>file, "D = %s" % get("D")
+        print >>file, "FF0 = %s" % get("FF0")
+        print >>file, "FF1 = %s" % get("FF1")
+        print >>file, "FF2 = %s" % get("FF2")
+        print >>file, "BIAS = %s"% get("bias") 
+        print >>file, "DEADBAND = %s"% get("deadband")
+        print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
         if encoder or resolver:
-            if closedloop:
-                print >>file, "P = %s" % get("P")
-                print >>file, "I = %s" % get("I") 
-                print >>file, "D = %s" % get("D")
-                print >>file, "FF0 = %s" % get("FF0")
-                print >>file, "FF1 = %s" % get("FF1")
-                print >>file, "FF2 = %s" % get("FF2")
-                print >>file, "BIAS = %s"% get("bias") 
-                print >>file, "DEADBAND = %s"% get("deadband")
-                print >>file, "MAX_OUTPUT = %s" % get("maxoutput")
             if get("invertencoder"):
                 temp = -1
             else: temp = 1

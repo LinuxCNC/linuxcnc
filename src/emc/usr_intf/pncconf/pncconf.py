@@ -667,12 +667,12 @@ class Data:
             self[temp+"outputscale"]= 10
             self[temp+"outputminlimit"]= -10
             self[temp+"outputmaxlimit"]= 10
-            self[temp+"maxoutput"]= 10
-            self[temp+"P"]= 1.0
+            self[temp+"maxoutput"]= 0
+            self[temp+"P"]= 50
             self[temp+"I"]= 0
             self[temp+"D"]= 0
             self[temp+"FF0"]= 0
-            self[temp+"FF1"]= 0
+            self[temp+"FF1"]= 1
             self[temp+"FF2"]= 0
             self[temp+"bias"]= 0
             self[temp+"deadband"]= 0
@@ -4279,7 +4279,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("encoderscale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
-        if encoder and not axis == "s":
+        if not axis == "s":
             w[axis + "servo_info"].show()
         else:
             w[axis + "servo_info"].hide()
@@ -4868,6 +4868,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         for test in ("s-stepgen-step", "s-pwm-pulse", "s-encoder-a", "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
                     "s-pot-output"):
             has_spindle = self.d.findsignal(test)
+            print test,has_spindle
             if has_spindle:
                 return True
         return False
