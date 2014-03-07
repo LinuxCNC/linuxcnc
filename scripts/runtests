@@ -27,61 +27,82 @@ clean () {
     find $* \( -name "stderr" -or -name "result" \) -print0 | xargs -0 rm -f
 }
 
-run_shell_script () {
-    testname=$(basename $1)
-    testdir=$(dirname $1)
+run_and_log() {
+    # Execute command line args with stderr teed to ./stderr and stdout
+    # teed to ./result, ensuring that 'tee' subprocesses are finished
+    # writing before exiting
+    #
+    # http://mywiki.wooledge.org/BashFAQ/106
 
-    pushd $testdir > /dev/null
+    errpipe=pipe-stderr-$$
+    outpipe=pipe-stdout-$$
+
+    # create two named pipes (and ensure they're cleaned up)
+    trap "rm -f $errpipe $outpipe; exit" EXIT
+    mkfifo $errpipe $outpipe
+
+    # start a 'tee' reading from each named pipe and echoing to stdout and
+    # stderr; note PIDs
+    tee stderr < $errpipe >&2 & errpid=$!
+    tee result < $outpipe & outpid=$!
+
+    # redirect this process's stdout and stderr to the named pipes
+    exec 1>$outpipe 2>$errpipe
+
+    # run the command given on the command line, capturing exit status
     exitcode=0
-    if [ $VERBOSE -eq 1 ]; then
-	bash -x $testname > >(tee result) 2> >(tee stderr >&2) || exitcode=$?
-    else
-        bash -x $testname > result 2> stderr || exitcode=$?
-    fi
-    popd > /dev/null
+    $@ || exitcode=$?
+
+    # close this process's stdout and stderr FDs so the 'tee' processes
+    # get EOF on the named pipes
+    exec >&- 2>&-
+
+    # wait for the 'tee' processes to finish writing
+    wait $errpid $outpid
+
+    # return captured status
     return $exitcode
 }
 
-run_executable () {
+run_test () {
+    case $1 in
+	-s) INTERP="bash -x"; shift ;;
+	-h) INTERP="halrun -f"; shift ;;
+	*) INTERP="" ;;
+    esac
+
     testname=$(basename $1)
     testdir=$(dirname $1)
 
     pushd $testdir > /dev/null
     exitcode=0
     if [ $VERBOSE -eq 1 ]; then
-	./$testname > >(tee result) 2> >(tee stderr >&2) || exitcode=$?
+	$0 -l $INTERP $testname || exitcode=$?
     else
-        ./$testname > result 2> stderr || exitcode=$?
+	$0 -l $INTERP $testname >&/dev/null || exitcode=$?
     fi
     popd > /dev/null
     return $exitcode
 }
 
 run_without_overruns () {
-    testname=$(basename $1)
-    testdir=$(dirname $1)
+    test=$1
+    testname=$(basename $test)
+    testdir=$(dirname $test)
+    exitcode=0
     for i in $(seq 10); do
-        if [ $i != 1 ]; then echo "--- $testdir: overrun detected in sampler, re-running test" 1>&2 ; fi
+        if [ $i != 1 ]; then
+	    echo "--- $testdir: overrun detected in sampler, " \
+		"re-running test" >&2
+	fi
 
-        pushd $testdir > /dev/null
-	exitcode=0
-        if [ $VERBOSE -eq 1 ]; then
-	    halrun -f $testname > >(tee result) 2> >(tee stderr >&2) || \
-		exitcode=$?
-        else
-            halrun -f $testname > result 2> stderr || exitcode=$?
-        fi
-        popd > /dev/null
+	run_test -h $test || exitcode=$?
 
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
     echo "--- $testdir: $i overruns detected, giving up" 1>&2
     return 1
 }
-
-TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
-trap "rm -rf $TMPDIR" 0 1 2 3 9 15
-
 
 run_tests () {
     alltests="$(find $* -name test.hal -or -name test.sh -or -name test \
@@ -101,8 +122,8 @@ run_tests () {
 	exitcode=0
         case $testname in
         *.hal) run_without_overruns $testname || exitcode=$? ;;
-        *.sh) run_shell_script $testname || exitcode=$? ;;
-        *) run_executable $testname || exitcode=$? ;;
+        *.sh) run_test -s $testname || exitcode=$? ;;
+        *) run_test $testname || exitcode=$? ;;
         esac
 	if [ $exitcode -ne 0 ]; then
 	    reason="test run exited with $exitcode"
@@ -182,6 +203,16 @@ Usage:
         Show stdout and stderr (normally it's hidden).
 EOF
 }
+
+# Special case:  we called ourself to log a run
+if test "$1" = "-l"; then
+    shift
+    run_and_log "$@"
+    exit $?
+fi
+
+TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
+trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 CLEAN_ONLY=0
 NOCLEAN=0

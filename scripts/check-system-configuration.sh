@@ -83,7 +83,7 @@ check-ulimits() {
     export LC_COLLATE=C
     memlock=0
     for f in /etc/security/limits.conf /etc/security/limits.d/*.conf; do
-	mtmp=$(awk '$3=="memlock" {m=$4} END {print m}' $f)
+	mtmp=$(awk '/^[^#]/ && $3=="memlock" {m=$4} END {print m}' $f)
 	test -n "$mtmp" && memlock=$mtmp
     done
     
@@ -132,10 +132,20 @@ check-shmdrv() {
     return 1
 }
 
+HAVE_KERNEL_THREADS=false
+while getopts k opt; do
+    case "$opt" in
+	k) HAVE_KERNEL_THREADS=true ;;
+	*) echo "Usage: $0 [ -k ]" >&2; exit 1 ;;
+    esac
+done
+
 
 res=0
 check-rsyslog || res=1
 check-ulimits || res=1
-check-shmdrv || res=1
+if $HAVE_KERNEL_THREADS; then
+    check-shmdrv || res=1
+fi
 
 exit $res
