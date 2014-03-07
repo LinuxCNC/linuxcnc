@@ -651,6 +651,9 @@ endif
 fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(HAVE_KERNEL_THREADS),yes)
+CHECK_KFLAV_SWITCH=-k
+endif
 setuid:
 	$(call fix_perms,../libexec/linuxcnc_module_helper)
 	$(call fix_perms,../libexec/pci_read)
@@ -658,7 +661,7 @@ setuid:
 	$(foreach f,$(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)),\
 	    $(call fix_perms,../libexec/rtapi_app_$(f));)
 # check system configuration:  logging, ulimits, udev
-	@-../scripts/check-system-configuration.sh
+	@-../scripts/check-system-configuration.sh $(CHECK_KFLAV_SWITCH)
 else	
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
