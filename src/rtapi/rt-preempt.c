@@ -71,6 +71,15 @@ typedef struct {
 
 extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
 
+#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
+long long int _rtapi_get_clocks_hook(void)
+{
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+}
+
+#endif
 
 #ifdef ULAPI
 
