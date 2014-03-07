@@ -1449,4 +1449,19 @@ int blendPoints3Print(BlendPoints3 const * const points)
 
 }
 
+double pmCircleActualMaxVel(PmCircle * const circle, double v_max, double a_max, int parabolic)
+{
+    if (parabolic) {
+        a_max /= 2.0;
+    }
+    double a_n_max = BLEND_ACC_RATIO_NORMAL * a_max;
+    double v_max_acc = pmSqrt(a_n_max * circle->radius);
+    if (v_max_acc < v_max) {
+        tp_debug_print("Maxvel limited from %f to %f for tangential acceleration\n", v_max, v_max_acc);
+        return v_max_acc;
+    } else {
+        tp_debug_print("v_max %f is within limit of v_max_acc %f\n",v_max, v_max_acc);
+        return v_max;
+    }
+}
 

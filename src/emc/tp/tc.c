@@ -17,6 +17,7 @@
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "rtapi_math.h"
 #include "posemath.h"
+#include "blendmath.h"
 #include "emcpose.h"
 #include "tc.h"
 #include "tp_types.h"
@@ -622,10 +623,8 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     int parabolic = (tc->blend_prev || tc->term_cond == TC_TERM_COND_PARABOLIC);
     tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
 
-    if (tc->motion_type == TC_CIRCULAR && parabolic) {
-        tp_debug_print("Setting parabolic maxvel\n");
-        //TODO make this 0.5 a constant
-        tc->maxvel *= pmSqrt(0.5);
+    if (tc->motion_type == TC_CIRCULAR) {
+        pmCircleActualMaxVel(&tc->coords.circle.xyz, tc->maxvel, tc->maxaccel, parabolic);
     }
     tc->finalized = 1;
     return TP_ERR_OK;
