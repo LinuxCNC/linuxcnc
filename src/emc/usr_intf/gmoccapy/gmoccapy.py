@@ -1142,6 +1142,7 @@ class gmoccapy(object):
                     text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
             if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
                 icon = ALERT_ICON
+                self.halcomp["error"] == True
                 type = _("Error Message")
             elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
                 icon = INFO_ICON

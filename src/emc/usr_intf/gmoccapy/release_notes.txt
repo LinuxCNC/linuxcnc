@@ -1,3 +1,6 @@
+ver. 1.0.6.1
+- forgot to set error pin height if an error ocures ;-)
+
 ver. 1.0.6
 - Stefan found an error in getiniinfo, getting the PROGRAM_PREFIX from 
   INI file, if the entry does not exist. Solved!
