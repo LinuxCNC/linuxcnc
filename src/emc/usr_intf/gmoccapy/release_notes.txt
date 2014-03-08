@@ -1,3 +1,8 @@
+ver. 1.0.6.2
+- changed the standard setting of box_custom_? from
+  expand = True to expand=False, so the panel will fit better
+  found from verser building Z_compensation
+
 ver. 1.0.6.1
 - forgot to set error pin height if an error ocures ;-)
 
