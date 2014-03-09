@@ -1364,122 +1364,116 @@ void ARC_FEED(int line_number,
     second_end = FROM_PROG_LEN(second_end);
     axis_end_point = FROM_PROG_LEN(axis_end_point);
 
+    double first_start, second_start, axis_start_point;
+    int normal_axis;
     /* associate x with x, etc., offset by program origin, and set normals */
+
     switch (activePlane) {
-    default: // to eliminate "uninitalized" warnings
-    case CANON_PLANE_XY:
+        default: // to eliminate "uninitalized" warnings
+        case CANON_PLANE_XY:
 
-	// offset and align args properly
-	end.tran.x = first_end;
-	end.tran.y = second_end;
-	end.tran.z = axis_end_point;
-        rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
-	center.x = first_axis;
-	center.y = second_axis;
-	center.z = end.tran.z;
-        rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
-	normal.x = 0.0;
-	normal.y = 0.0;
-	normal.z = 1.0;
+            end.tran.x = first_end;
+            end.tran.y = second_end;
+            end.tran.z = axis_end_point;
 
-        theta1 = atan2(canonEndPoint.y - center.y, canonEndPoint.x - center.x);
-        theta2 = atan2(end.tran.y - center.y, end.tran.x - center.x);
-        radius = hypot(canonEndPoint.x - center.x, canonEndPoint.y - center.y);
-        axis_len = fabs(end.tran.z - canonEndPoint.z);
+            center.x = first_axis;
+            center.y = second_axis;
+            center.z = end.tran.z;
 
-	v1 = FROM_EXT_LEN(axis_max_velocity[0]);
-	v2 = FROM_EXT_LEN(axis_max_velocity[1]);
-	a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
-	a2 = FROM_EXT_LEN(axis_max_acceleration[1]);
-        circ_maxvel = ini_maxvel = MIN(v1, v2);
-        circ_acc = acc = MIN(a1, a2);
-        if(axis_valid(2) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[2]);
-            a1 = FROM_EXT_LEN(axis_max_acceleration[2]);
-            ini_maxvel = MIN(ini_maxvel, v1);
-            acc = MIN(acc, a1);
-        }
-	break;
+            normal.x = 0.0;
+            normal.y = 0.0;
+            normal.z = 1.0;
+            normal_axis = CANON_AXIS_Z;
 
-    case CANON_PLANE_YZ:
+            first_start = canonEndPoint.x;
+            second_start = canonEndPoint.y;
+            axis_start_point = canonEndPoint.z;
 
-	// offset and align args properly
-	end.tran.y = first_end;
-	end.tran.z = second_end;
-	end.tran.x = axis_end_point;
-        rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
+            break;
 
-        center.y = first_axis;
-        center.z = second_axis;
-	center.x = end.tran.x;
-        rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
-	normal.y = 0.0;
-	normal.z = 0.0;
-	normal.x = 1.0;
-        rotate(normal.x, normal.y, xy_rotation);
+        case CANON_PLANE_YZ:
 
-        theta1 = atan2(canonEndPoint.z - center.z, canonEndPoint.y - center.y);
-        theta2 = atan2(end.tran.z - center.z, end.tran.y - center.y);
-        radius = hypot(canonEndPoint.y - center.y, canonEndPoint.z - center.z);
-        axis_len = fabs(end.tran.x - canonEndPoint.x);
+            // offset and align args properly
+            end.tran.y = first_end;
+            end.tran.z = second_end;
+            end.tran.x = axis_end_point;
 
-	v1 = FROM_EXT_LEN(axis_max_velocity[1]);
-	v2 = FROM_EXT_LEN(axis_max_velocity[2]);
-	a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
-	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
-        circ_maxvel = ini_maxvel = MIN(v1, v2);
-        circ_acc = acc = MIN(a1, a2);
-        if(axis_valid(0) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[0]);
-            a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
-            ini_maxvel = MIN(ini_maxvel, v1);
-            acc = MIN(acc, a1);
-        }
+            center.y = first_axis;
+            center.z = second_axis;
+            center.x = end.tran.x;
 
-	break;
+            normal.y = 0.0;
+            normal.z = 0.0;
+            normal.x = 1.0;
+            normal_axis = CANON_AXIS_X;
 
-    case CANON_PLANE_XZ:
+            first_start = canonEndPoint.y;
+            second_start = canonEndPoint.z;
+            axis_start_point = canonEndPoint.x;
 
-	// offset and align args properly
-	end.tran.z = first_end;
-	end.tran.x = second_end;
-	end.tran.y = axis_end_point;
-        rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
+            rotate(normal.x, normal.y, xy_rotation);
+            break;
 
-	center.z = first_axis;
-	center.x = second_axis;
-	center.y = end.tran.y;
-        rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
-	normal.z = 0.0;
-	normal.x = 0.0;
-	normal.y = 1.0;
-        rotate(normal.x, normal.y, xy_rotation);
+        case CANON_PLANE_XZ:
 
-        theta1 = atan2(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
-        theta2 = atan2(end.tran.x - center.x, end.tran.z - center.z);
-        radius = hypot(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
-        axis_len = fabs(end.tran.y - canonEndPoint.y);
+            // offset and align args properly
+            end.tran.z = first_end;
+            end.tran.x = second_end;
+            end.tran.y = axis_end_point;
 
-	v1 = FROM_EXT_LEN(axis_max_velocity[0]);
-	v2 = FROM_EXT_LEN(axis_max_velocity[2]);
-	a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
-	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
-	circ_maxvel = ini_maxvel = MIN(v1, v2);
-        circ_acc = acc = MIN(a1, a2);
-        if(axis_valid(1) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[1]);
-            a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
-            ini_maxvel = MIN(ini_maxvel, v1);
-            acc = MIN(acc, a1);
-        }
-	break;
+            center.z = first_axis;
+            center.x = second_axis;
+            center.y = end.tran.y;
+
+            normal.z = 0.0;
+            normal.x = 0.0;
+            normal.y = 1.0;
+            normal_axis = CANON_AXIS_Y;
+
+            first_start = canonEndPoint.z;
+            second_start = canonEndPoint.x;
+            axis_start_point = canonEndPoint.y;
+
+            rotate(normal.x, normal.y, xy_rotation);
+            break;
     }
 
+    rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
+    rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
+
+    theta1 = atan2(first_start - first_axis, second_start - second_axis);
+    theta2 = atan2(first_end - first_axis, second_end - second_axis);
+    radius = hypot(first_start - first_axis, second_start - second_axis);
+    axis_len = fabs(axis_end_point - axis_start_point);
+
+    // KLUDGE Get axis indices of plane
+    int axis1 = (normal_axis + 1) % 3;
+    int axis2 = (normal_axis + 2) % 3;
+
+    // Get planar velocity bounds
+    v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
+    v2 = FROM_EXT_LEN(axis_max_velocity[axis2]);
+
+    // Get planar acceleration bounds
+    a1 = FROM_EXT_LEN(axis_max_acceleration[axis1]);
+    a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
+    circ_maxvel = ini_maxvel = MIN(v1, v2);
+    circ_acc = acc = MIN(a1, a2);
+
+    if(axis_valid(normal_axis) && axis_len > 0.001) {
+        axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[normal_axis]);
+        a1 = FROM_EXT_LEN(axis_max_acceleration[normal_axis]);
+        ini_maxvel = MIN(ini_maxvel, v1);
+        acc = MIN(acc, a1);
+    }
+
+    // Correct for angle wrap
     if(rotation < 0) {
         if(theta2 >= theta1) theta2 -= M_PI * 2.0;
     } else {
         if(theta2 <= theta1) theta2 += M_PI * 2.0;
     }
+
     angle = theta2 - theta1;
     helical_length = hypot(angle * radius, axis_len);
 
