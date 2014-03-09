@@ -1,0 +1,70 @@
+//ngcgui: info: Rectangle -- simple gcmc example
+
+/*COPY this file to a directory in your subroutine search path that
+*      precedes the directory of this library file and edit as
+*      required
+*
+*      ngcgui uses the editor specified by $VISUAL
+*/
+
+//--------------------------------------------------------------------
+// Variables
+// Precede any of the following lines with
+//    //ngcgui:
+// to make an entry box
+// Omit the "//ngcgui:" to use the hard-coded value
+
+//ngcgui:    umode =   1;     //, units: 1:mm, 0:inch
+//ngcgui:   frate =  100;     //, Feed Rate
+//ngcgui:      x1 =    0;     //, xoffset
+//ngcgui:      y1 =    0;     //, yoffset
+//ngcgui:   width =    1;
+//ngcgui:  height =    1;
+//ngcgui:   zsafe =  0.1;
+//ngcgui:    zcut = -0.1;     //, zcut (neg)
+//ngcgui: verbose = 0;        // precede ensure_units
+include("ensure_units.gcmc"); // avoid preamble conflict
+//--------------------------------------------------------------------
+if (verbose) {comment("debug, rectangle.gcmc:start");}
+
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
+// ngcgui entries are unitless so these additions are used
+// to ensure 1) floatingpoint and 2) units per umode setting
+
+ frate = zero + frate;
+    x1 = zero + x1;
+    y1 = zero + y1;
+ width = zero + width;
+height = zero + height;
+ zsafe = zero + zsafe;
+  zcut = zero + zcut;
+
+feedrate(frate);
+goto([x1, y1, zsafe]);
+
+move([x1, y1, zcut]);
+move([x1 + width, y1, zcut]);
+move([x1 + width, y1 + height, zcut]);
+move([x1, y1 + height, zcut]);
+move([x1, y1, zcut]);
+
+goto([-, -, zsafe]);
+if (verbose) {comment("debug, rectangle.gcmc:end");}
+
+// uncomment to see how message()s are handled:
+if (verbose) {
+  message("1test message in gcmc file");
+  message("2test message in gcmc file");
+}
+
+// uncomment to see how warning()s are handled:
+//warning("1test warning in gcmc file");
+//warning("2test warning in gcmc file");
+
+// uncomment to see how error()s are handled:
+//error("1test error in gcmc file");
+//error("2test error in gcmc file");

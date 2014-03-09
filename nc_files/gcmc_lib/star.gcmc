@@ -1,5 +1,3 @@
-include("ensure_mode.gcmc"); //avoid preamble conflict
-
 /* demo for using gcmc file with [py]ngcgui
 
 ngcgui tags follow: 
@@ -14,18 +12,20 @@ format is: ^//ngcgui: -optioname [optionvalue]
 
 Variables to present in ngcgui with optional default value and comment
 format is ^//ngcgui: vname [= value , [comment text]]
-
+//ngcgui: umode = 1; //, units: 1:mm, 0:inch
 //ngcgui: feedr=100,Feed Rate
-//ngcgui: zsafe = 1 ; //,zsafe (mm)
-//ngcgui: zcut = -1 ; //,zcut (mm,neg typ)
-//ngcgui: x1=0,Xoffset(mm)
-//ngcgui: y1=0,Yoffset(mm)
+//ngcgui: zsafe = 1 ; //,zsafe
+//ngcgui: zcut = -1 ; //,zcut (neg typ)
+//ngcgui: x1=0,Xoffset
+//ngcgui: y1=0,Yoffset
 
 //ngcgui: myscale=1,scale
 //ngcgui: n_erodes = 4; //, Erodes
 //ngcgui: erode_width = 2; //,width (+/-)
-
+//ngcgui: verbose = 0; //preced ensure_units
 */
+include("ensure_units.gcmc"); //avoid preamble conflict
+
 
 //example below derived from: http://www.vagrearg.org/content/gcmc#running
 
@@ -94,20 +94,30 @@ starpath = {
     [ 1, -1], [ 3,  0]
 };
 
-theoffset = [x1*1mm,y1*1mm];
+if (umode == 1) {
+  fix = 0.0mm;
+} else {
+  fix = 0.0in;
+}
+         x1 = fix + x1;
+         y1 = fix + y1;
+      frate = fix + feedr;
+      zsafe = fix + zsafe;
+       zcut = fix + zcut;
+erode_width = fix + erode_width;
+
+theoffset = [x1,y1];
 /******************** Program start ********************/
 feedrate(feedr);
-ZSAFE = zsafe * 1mm;
-ZCUT = zcut * 1mm;
 
-goto([-,-,ZSAFE]);            /* Safe Z */
-starpath *= myscale*10mm;           /* Scale the star */
+goto([-,-,zsafe]);                  /* Safe Z */
+starpath *= myscale*10.0;           /* Scale the star */
 goto(starpath[count(starpath)-1]);  /* First coordinate */
-move([-,-,ZCUT]);           /* Goto cutting depth */
+move([-,-,zcut]);                   /* Goto cutting depth */
 
 /* Cut the stars smaller and smaller */
 for(i = 0; i < n_erodes; i++) {
-    tracepath(erode(starpath, erode_width * -1mm * i), theoffset);
+    tracepath(erode(starpath, erode_width * -i), theoffset);
 }
 
-move([-,-,ZSAFE]);            /* Back to safe Z */
+move([-,-,zsafe]);            /* Back to safe Z */
