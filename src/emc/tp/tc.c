@@ -624,7 +624,7 @@ int tcFinalizeLength(TC_STRUCT * const tc)
     tp_debug_print("blend_prev = %d, term_cond = %d\n",tc->blend_prev, tc->term_cond);
 
     if (tc->motion_type == TC_CIRCULAR) {
-        pmCircleActualMaxVel(&tc->coords.circle.xyz, tc->maxvel, tc->maxaccel, parabolic);
+        tc->maxvel = pmCircleActualMaxVel(&tc->coords.circle.xyz, tc->maxvel, tc->maxaccel, parabolic);
     }
     tc->finalized = 1;
     return TP_ERR_OK;
