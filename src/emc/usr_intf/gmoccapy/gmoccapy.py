@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.6.2"
+_RELEASE = "1.0.6.3"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -2462,7 +2462,7 @@ class gmoccapy(object):
 
     # Coolant an mist coolant button
     def on_tbtn_flood_toggled(self, widget, data = None):
-        if self.log: self._add_alarm_entry("tbtn_flood_clicked, flood is now ", self.stat.flood)
+        if self.log: self._add_alarm_entry("tbtn_flood_clicked, flood is now %s" % self.stat.flood)
         if self.stat.flood and self.widgets.tbtn_flood.get_active():
             return
         elif not self.stat.flood and not self.widgets.tbtn_flood.get_active():

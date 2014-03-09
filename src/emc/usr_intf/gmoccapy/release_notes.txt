@@ -1,3 +1,7 @@
+ver. 1.0.6.3
+- Bug turning on Fllod with M8 and logging actions on,
+  found by Stephen, solved that one
+
 ver. 1.0.6.2
 - changed the standard setting of box_custom_? from
   expand = True to expand=False, so the panel will fit better
