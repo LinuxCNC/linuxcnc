@@ -1,3 +1,15 @@
+ver. 1.0.7
+- Reworked the emergency button behavior as well as the 
+  on/off button, as it was possible to set the GUI in an ESTOP_RESET
+  state, even if an external SWITCH was in ESTOP State. The important
+  bug has been found by Steffen, he also suplied the initial patch,
+  witch has been adapted to my coding style ;-)
+- Next changed the error handling, separated the error reporting from
+  periodic to an own function, so we are able to lauch also our own 
+  errors over the same chanel, and get error pin height and also 
+  the sound will be played.
+- Deleted some unneeded or doble code.
+
 ver. 1.0.6.3
 - Bug turning on Fllod with M8 and logging actions on,
   found by Stephen, solved that one
