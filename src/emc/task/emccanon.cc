@@ -1550,20 +1550,22 @@ void ARC_FEED(int line_number,
              -2 -2 */
 
     if (rotation == 0) {
-	// linear move
+        // linear move
+        // FIXME (Rob) Am I missing something? the P word should never be zero,
+        // or we wouldn't be calling ARC_FEED
 
-	linearMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
-	linearMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
-	linearMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
+        linearMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
+        linearMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
+        linearMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
 
-	// fill in the orientation
-	linearMoveMsg.end.a = TO_EXT_ANG(a);
-	linearMoveMsg.end.b = TO_EXT_ANG(b);
-	linearMoveMsg.end.c = TO_EXT_ANG(c);
-                                                                     
+        // fill in the orientation
+        linearMoveMsg.end.a = TO_EXT_ANG(a);
+        linearMoveMsg.end.b = TO_EXT_ANG(b);
+        linearMoveMsg.end.c = TO_EXT_ANG(c);
+
         linearMoveMsg.end.u = TO_EXT_LEN(u);
-	linearMoveMsg.end.v = TO_EXT_LEN(v);
-	linearMoveMsg.end.w = TO_EXT_LEN(w);
+        linearMoveMsg.end.v = TO_EXT_LEN(v);
+        linearMoveMsg.end.w = TO_EXT_LEN(w);
 
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
         linearMoveMsg.vel = toExtVel(vel);
@@ -1573,17 +1575,17 @@ void ARC_FEED(int line_number,
         if(vel && acc){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
-	}
+        }
     } else {
-	circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
-	circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
-	circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
+        circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
+        circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
+        circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
 
-	circularMoveMsg.center.x = TO_EXT_LEN(center.x);
-	circularMoveMsg.center.y = TO_EXT_LEN(center.y);
-	circularMoveMsg.center.z = TO_EXT_LEN(center.z);
+        circularMoveMsg.center.x = TO_EXT_LEN(center.x);
+        circularMoveMsg.center.y = TO_EXT_LEN(center.y);
+        circularMoveMsg.center.z = TO_EXT_LEN(center.z);
 
-	circularMoveMsg.normal = normal;
+        circularMoveMsg.normal = normal;
 
         if (rotation > 0)
             circularMoveMsg.turn = rotation - 1;
@@ -1591,14 +1593,14 @@ void ARC_FEED(int line_number,
             // reverse turn
             circularMoveMsg.turn = rotation;
 
-	// fill in the orientation
-	circularMoveMsg.end.a = TO_EXT_ANG(a);
+        // fill in the orientation
+        circularMoveMsg.end.a = TO_EXT_ANG(a);
         circularMoveMsg.end.b = TO_EXT_ANG(b);
         circularMoveMsg.end.c = TO_EXT_ANG(c);
-                                                                       
-	circularMoveMsg.end.u = TO_EXT_LEN(u);
-	circularMoveMsg.end.v = TO_EXT_LEN(v);
-	circularMoveMsg.end.w = TO_EXT_LEN(w);
+
+        circularMoveMsg.end.u = TO_EXT_LEN(u);
+        circularMoveMsg.end.v = TO_EXT_LEN(v);
+        circularMoveMsg.end.w = TO_EXT_LEN(w);
 
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 
@@ -1611,10 +1613,13 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
+
+        //FIXME what happens if accel or vel is zero?
+        // The end point is still updated, but nothing is added to the interp list
         if(vel && acc) {
             interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
-	}
+        }
     }
     // update the end point
     canonUpdateEndPoint(end.tran.x, end.tran.y, end.tran.z, a, b, c, u, v, w);
