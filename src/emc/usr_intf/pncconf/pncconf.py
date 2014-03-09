@@ -5121,7 +5121,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 for i in range(1,9):
                     if i <= self.d.mesa1_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
-                        if "m1" in self.d["mesa1sserial1_%dsubboard"% (i-1)]:
+                        if "m1" in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
                             temp = temp + "1"
                         else:
                             temp = temp + "0"

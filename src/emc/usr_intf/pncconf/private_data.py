@@ -426,7 +426,7 @@ class Private_Data:
         [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    ['5i25-Internal Data', '5i25', '7i77_7i76', '5i25', 'hm2_pci', 5,3, 0,0, 0,3, 0,0, 10,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+    ['5i25-Internal Data', '5i25', '7i77_7i76', '5i25', 'hm2_pci', 6,3, 0,0, 0,3, 0,0, 5,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # Tab 3
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],

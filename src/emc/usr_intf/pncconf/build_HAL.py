@@ -1084,8 +1084,8 @@ class HAL:
                 print >>file, "setp   pid.%s.deadband  [%s_%d]DEADBAND" % (let, title, axnum)
                 print >>file, "setp   pid.%s.maxoutput [%s_%d]MAX_OUTPUT" % (let, title, axnum)
                 # steppers
-                print >>file, "setp   pid.0.error-previous-target true"
-                print >>file, "setp   pid.0.maxerror .0005"
+                print >>file, "setp   pid.%s.error-previous-target true" % let
+                print >>file, "setp   pid.%s.maxerror .0005" % let
                 print >>file
                 if let == 's':
                     name = "spindle"
