@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.6.3"
+_RELEASE = "1.0.7"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -232,26 +232,6 @@ class gmoccapy(object):
         self._show_offset_tab(False)
         self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
-
-        # and according to machine units the digits to display
-        if self.stat.linear_units == _MM:
-            self.widgets.scl_max_vel.set_digits(0)
-            self.widgets.scl_jog_vel.set_digits(0)
-        else:
-            self.widgets.scl_max_vel.set_digits(3)
-            self.widgets.scl_jog_vel.set_digits(3)
-
-        # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
-        default = (self.stat.max_velocity * 60 - self.stat.max_velocity * 0.1) / 100
-        self.scale_max_vel = self.prefs.getpref("scale_max_vel", default, float)
-        self.widgets.adj_scale_max_vel.set_value(self.scale_max_vel)
-        default = (self.jog_rate_max / 100)
-        self.scale_jog_vel = self.prefs.getpref("scale_jog_vel", default, float)
-        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
-        self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
-        self.widgets.adj_scale_spindle_override.set_value(self.scale_spindle_override)
-        self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
-        self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
 
         # check if the user want a Logo
         if self.prefs.getpref("logo", False, bool):
@@ -1132,32 +1112,9 @@ class gmoccapy(object):
     # check linuxcnc for status, error and then update the readout
     def _periodic(self):
         self.stat.poll()
-        e = self.error_channel.poll()
-        if e:
-            kind, text = e
-            # print kind,text
-            if "joint" in text:
-                for letter in self.axis_list:
-                    axnum = "xyzabcuvws".index(letter)
-                    text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                icon = ALERT_ICON
-                self.halcomp["error"] == True
-                type = _("Error Message")
-            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
-                icon = INFO_ICON
-                type = _("Message")
-            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
-                icon = INFO_ICON
-                type = _("Message")
-            self.notification.add_message(text, icon)
-
-            if self._AUDIO_AVAILABLE:
-                if kind != 13:
-                    self.audio.set_sound(self.error_sound)
-                else:
-                    self.audio.set_sound(self.alert_sound)
-                self.audio.run()
+        error = self.error_channel.poll()
+        if error:
+            self._show_error(error)
 
         if self.gcodes != self.stat.gcodes:
             self._update_active_gcodes()
@@ -1188,25 +1145,49 @@ class gmoccapy(object):
         # keep the timer running
         return True
 
+    def _show_error(self, error):
+        kind, text = error
+        # print kind,text
+        if "joint" in text:
+            for letter in self.axis_list:
+                axnum = "xyzabcuvws".index(letter)
+                text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
+        if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            icon = ALERT_ICON
+            type = _("Error Message")
+            self.halcomp["error"] = True
+        elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+            icon = INFO_ICON
+            type = _("Message")
+        elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+            icon = INFO_ICON
+            type = _("Message")
+        self.notification.add_message(text, icon)
+
+        if self._AUDIO_AVAILABLE:
+            if kind == 1 or kind == 11:
+                self.audio.set_sound(self.error_sound)
+            else:
+                self.audio.set_sound(self.alert_sound)
+            self.audio.run()
+
+
 # =========================================================
 # button handlers Start
 
     # toggle emergency button
     def on_tbtn_estop_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("tbtn_estop_clicked")
-        if self.widgets.tbtn_estop.get_active(): # estop is active, open circuit
-            self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        if widget.get_active(): # estop is active, open circuit
             self.command.state(linuxcnc.STATE_ESTOP)
             self.command.wait_complete()
-            self.widgets.tbtn_on.set_sensitive(False)
-            self.widgets.tbtn_on.set_active(False)
         else: # estop circuit is fine
-            self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(linuxcnc.STATE_ESTOP_RESET)
             self.command.wait_complete()
-            self.widgets.tbtn_on.set_sensitive(True)
+            self.stat.poll()
+            if self.stat.task_state == linuxcnc.STATE_ESTOP:
+                print "Not Aus Kette ist immer noch offen"
+                widget.set_active(True)
 
 # TODO: find out why the values are modified by 1 on startup
 #       and correct this to avoid the need of this clicks
@@ -1218,18 +1199,12 @@ class gmoccapy(object):
     # toggle machine on / off button
     def on_tbtn_on_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("hal_tgbt_on_clicked")
-        if self.widgets.tbtn_on.get_active():
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        if widget.get_active():
             self.command.state(linuxcnc.STATE_ON)
             self._update_widgets(True)
-            if self.widgets.ntb_main.get_current_page() != 0:
-                self.command.mode(linuxcnc.MODE_MANUAL)
-                self.command.wait_complete()
         else:
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(linuxcnc.STATE_OFF)
             self._update_widgets(False)
-            self.on_hal_status_mode_manual(None)
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data = None):
@@ -1343,15 +1318,20 @@ class gmoccapy(object):
     def on_hal_status_state_estop(self, widget = None):
         self._add_alarm_entry("estop")
         self.widgets.tbtn_estop.set_active(True)
-#        self.widgets.tbtn_on.set_active(False)
-#        self.widgets.tbtn_on.set_sensitive(False)
+        self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        self.widgets.tbtn_on.set_sensitive(False)
+        self.widgets.tbtn_on.set_active(False)
 
     def on_hal_status_state_estop_reset(self, widget = None):
         self._add_alarm_entry("estop_reset")
         self.widgets.tbtn_estop.set_active(False)
-#        self.widgets.tbtn_on.set_sensitive(True)
+        self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
+        self.widgets.tbtn_on.set_sensitive(True)
 
     def on_hal_status_state_off(self, widget):
+        print ("State Off")
         self._add_alarm_entry("state_off")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
@@ -1360,9 +1340,14 @@ class gmoccapy(object):
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self._sensitize_widgets(widgetlist, False)
-        # self.widgets.rbt_manual.set_active(True)
         if self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(False)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
+        self.widgets.btn_exit.set_sensitive(True)
+        self.widgets.ntb_main.set_current_page(0)
+        self.widgets.ntb_button.set_current_page(0)
+        self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_jog.set_current_page(0)
 
     def on_hal_status_state_on(self, widget):
         self._add_alarm_entry("state_on")
@@ -1372,9 +1357,13 @@ class gmoccapy(object):
                       "btn_spindle_100", "scl_max_vel", "scl_spindle"
                      ]
         self._sensitize_widgets(widgetlist, True)
-        self.widgets.rbt_manual.set_active(True)
         if not self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(True)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        self.widgets.btn_exit.set_sensitive(False)
+        if self.widgets.ntb_main.get_current_page() != 0:
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
 
     def on_hal_status_mode_manual(self, widget):
         print"Manual"
@@ -1405,6 +1394,7 @@ class gmoccapy(object):
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+            self._show_error((13, _("It is not possible to change to MDI Mode at the moment")))
             return
         else:
             if self.widgets.chk_use_kb_on_mdi.get_active():
@@ -1426,6 +1416,7 @@ class gmoccapy(object):
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+            self._show_error((13, _("It is not possible to change to Auto Mode at the moment")))
             return
         else:
             self.widgets.ntb_main.set_current_page(0)
@@ -1476,7 +1467,6 @@ class gmoccapy(object):
         self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
-
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data = None):
@@ -2112,7 +2102,7 @@ class gmoccapy(object):
     def on_btn_launch_test_message_pressed(self, widget = None, data = None):
         index = len(self.notification.messages)
         text = _("Halo, welcome to the test message %d") % index
-        self.notification.add_message(text , INFO_ICON)
+        self._show_error((13, text))
 
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
