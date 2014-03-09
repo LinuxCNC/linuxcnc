@@ -1343,13 +1343,13 @@ class gmoccapy(object):
     def on_hal_status_state_estop(self, widget = None):
         self._add_alarm_entry("estop")
         self.widgets.tbtn_estop.set_active(True)
-        self.widgets.tbtn_on.set_active(False)
-        self.widgets.tbtn_on.set_sensitive(False)
+#        self.widgets.tbtn_on.set_active(False)
+#        self.widgets.tbtn_on.set_sensitive(False)
 
     def on_hal_status_state_estop_reset(self, widget = None):
         self._add_alarm_entry("estop_reset")
         self.widgets.tbtn_estop.set_active(False)
-        self.widgets.tbtn_on.set_sensitive(True)
+#        self.widgets.tbtn_on.set_sensitive(True)
 
     def on_hal_status_state_off(self, widget):
         self._add_alarm_entry("state_off")
