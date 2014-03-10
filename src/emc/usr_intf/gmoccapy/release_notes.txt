@@ -1,3 +1,20 @@
+ver.1.0.7.1
+- when a external ESTOP was active and the tbtn_estop has been clicked 
+  it changed its color, but should not do so, solved
+- when external estop was active, it was possible to click the on button
+  and the GUI changed state making several widgets sensitive, that behavior
+  was wrong, solved that.
+- If you feed override has been changed and the machine went into estop, 
+  a estop reset also reseted feed override to 100 % , now it will remain with 
+  the value it had bevore estop.
+- If a user activate logging actions, the logging was lost after shutting
+  down the GUI, now the conmtent of alarm_history will be written to a 
+  file called gmoccapy.log in your config dir. The file will be overwritten 
+  on each shutdown of gmoccapy with the new content.
+- EXIT Button is now only sensitive, when machine is switched off, so it is
+  not longer possible to accidently shut down the machine.
+- pressing estop from MDI mode with spindle on, resulted in an error, solved.
+
 ver. 1.0.7
 - Reworked the emergency button behavior as well as the 
   on/off button, as it was possible to set the GUI in an ESTOP_RESET
@@ -11,7 +28,7 @@ ver. 1.0.7
 - Deleted some unneeded or doble code.
 
 ver. 1.0.6.3
-- Bug turning on Fllod with M8 and logging actions on,
+- Bug turning on flood with M8 and logging actions on,
   found by Stephen, solved that one
 
 ver. 1.0.6.2
