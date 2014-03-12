@@ -1,4 +1,8 @@
-ver.1.0.7.1
+ver. 1.0.8
+- Thanks to Steffen Noack we got new gremlin function for the mouse button 
+  behavior. Gmoccapy allows selecting the button mode from the settings page
+
+ver. 1.0.7.1
 - when a external ESTOP was active and the tbtn_estop has been clicked 
   it changed its color, but should not do so, solved
 - when external estop was active, it was possible to click the on button

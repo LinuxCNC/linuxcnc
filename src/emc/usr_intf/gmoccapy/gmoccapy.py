@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.7.1"
+_RELEASE = "1.0.8"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -407,6 +407,8 @@ class gmoccapy(object):
         self.widgets.chk_show_dtg.set_active(self.prefs.getpref("show_dtg", False))
         self.widgets.chk_show_offsets.set_sensitive(self.widgets.chk_show_dro.get_active())
         self.widgets.chk_show_dtg.set_sensitive(self.widgets.chk_show_dro.get_active())
+        self.widgets.cmb_mouse_button_mode.set_active(self.prefs.getpref("mouse_btn_mode", 4, int))
+
         self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True))
         self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True))
         view = self.prefs.getpref("gremlin_view", "rbt_view_p", str)
@@ -2958,6 +2960,11 @@ class gmoccapy(object):
         if self.log: self._add_alarm_entry("show_offset_button_toggled to %s" % widget.get_active())
         self.widgets.gremlin.show_offsets = widget.get_active()
         self.prefs.putpref("show_offsets", widget.get_active(), bool)
+
+    def on_cmb_mouse_button_mode_changed(self, widget):
+        index = widget.get_active()
+        self.widgets.gremlin.set_property("mouse_btn_mode", index)
+        self.prefs.putpref("mouse_btn_mode", index, int)
 
     # tool stuff
     def on_btn_tool_clicked(self, widget, data = None):
