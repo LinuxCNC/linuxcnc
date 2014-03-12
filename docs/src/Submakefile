@@ -518,7 +518,10 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 pdfdocs: $(PDF_TARGETS)
-htmldocs: copy_asciidoc_files $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
+htmldocs: .htmldoc-stamp checkref
+
+.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp $(MAN_HTML_TARGETS)
+	touch $@
 
 .PHONY: copy_asciidoc_files
 copy_asciidoc_files:
@@ -527,11 +530,11 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr
 
-checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/copy_and_run.html $(DOC_DIR)/html/config/emc2hal.html $(DOC_DIR)/html/config/ini_config.html $(DOC_DIR)/html/config/ini_homing.html $(DOC_DIR)/html/config/lathe_config.html $(DOC_DIR)/html/config/pncconf.html $(DOC_DIR)/html/config/stepconf.html $(DOC_DIR)/html/config/stepper.html $(DOC_DIR)/html/code/Contributing-to-LinuxCNC.html
+checkref_en: $(DOC_DIR)/html/gcode.html $(DOC_DIR)/html/gcode/gcode.html $(DOC_DIR)/html/gcode/m-code.html $(DOC_DIR)/html/gcode/o-code.html $(DOC_DIR)/html/gcode/other-code.html $(DOC_DIR)/html/gcode/overview.html $(DOC_DIR)/html/config/copy_and_run.html $(DOC_DIR)/html/config/emc2hal.html $(DOC_DIR)/html/config/ini_config.html $(DOC_DIR)/html/config/ini_homing.html $(DOC_DIR)/html/config/lathe_config.html $(DOC_DIR)/html/config/pncconf.html $(DOC_DIR)/html/config/stepconf.html $(DOC_DIR)/html/config/stepper.html $(DOC_DIR)/html/code/Contributing-to-LinuxCNC.html .htmldoc-stamp
 	python $(DOC_SRCDIR)/checklinks.py $^
 	$(DOC_SRCDIR)/checkref English $^
 
-checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html
+checkref_fr: $(DOC_DIR)/html/gcode_fr.html $(DOC_DIR)/html/gcode/gcode_fr.html $(DOC_DIR)/html/gcode/overview_fr.html $(DOC_DIR)/html/gcode/m-code_fr.html $(DOC_DIR)/html/gcode/o-code_fr.html $(DOC_DIR)/html/gcode/other-code_fr.html .htmldoc-stamp
 	python $(DOC_SRCDIR)/checklinks.py $^
 	$(DOC_SRCDIR)/checkref French $^
 
@@ -703,15 +706,21 @@ objects/xref_pl.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_PL_SMALL))
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
-	for f in $(shell xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $<); do\
-		mkdir -p $(DOC_DIR)/html/$$d/`dirname $$f`; \
-		cp -f $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
-	done
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
-	mkdir -p objects/image-cache
-	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
-				(X=$$?; rm $@; exit $$X)
+
+.html-images-stamp: $(DOC_TARGETS_HTML)
+	for HTML_FILE in $^; do \
+		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
+		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
+			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
+			mkdir -p $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_DIR; \
+			cp -f $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_FILE; \
+		done; \
+		mkdir -p objects/image-cache; \
+		HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $$HTML_FILE || (X=$$?; rm $$HTML_FILE; exit $$X); \
+	done
+	touch $@
 
 # Define a target-specific variable called STYLES_SCRIPTS_DIR, which has
 # the relative path from this html target to the root of the generated
@@ -852,6 +861,8 @@ docclean:
 	-rm -f $(DOC_DIR)/html/man/man3/*.*
 	-rm -f $(DOC_DIR)/html/man/man9/*.*
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
+	-rm -f .htmldoc-stamp
+	-rm -f .html-images-stamp
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
 $(MAN_DEPS): depends/%.d: $(DOC_DIR)/man/%
