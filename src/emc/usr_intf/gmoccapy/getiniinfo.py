@@ -167,7 +167,7 @@ class GetIniInfo:
     def get_program_prefix(self):
         # and we want to set the default path
         default_path = self.inifile.find("DISPLAY", "PROGRAM_PREFIX")
-        if not os.path.exists(os.path.expanduser(default_path)):
+        if not default_path:
             print("**** GMOCCAPY GETINIINFO **** \n Path %s from DISPLAY , PROGRAM_PREFIX does not exist" % default_path)
             print("**** GMOCCAPY GETINIINFO **** \n Trying default path...")
             default_path = "~/linuxcnc/nc_files/"

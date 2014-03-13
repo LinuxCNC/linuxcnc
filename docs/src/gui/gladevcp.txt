@@ -1007,6 +1007,14 @@ view ::
 enable_dro ::
    boolean; whether to draw a DRO on the plot or not.
    Defaults to `True`
+mouse_btn_mode ::
+   integer; mouse button handling, leads to different functions of the button
+   0 = default: left rotate, middle move,   right zoom
+   1 =          left zoom,   middle move,   right rotate
+   2 =          left move,   middle rotate, right zoom
+   3 =          left zoom,   middle rotate, right move
+   4 =          left move,   middle zoom,   right rotate
+   5 =          left rotate, middle zoom,   right move
 
 Direct program control::
 
@@ -1025,6 +1033,7 @@ Direct program control::
         [widget name].set_property('show_lathe_radius',True)
         [widget name].set_property('show_dtg',True)
         [widget name].set_property('show_velocity',False)
+        [widget name].set_property('mouse_btn_mode', 4)
 
     There are python methods:
         [widget name].show_offsets = True
@@ -1047,6 +1056,9 @@ Hints::
 
     - If you get the zoom distance before changing the view then reset the zoom
     distance, it's much more user friendly.
+
+    - if you select an element in the preview, the selected element will be used 
+    as rotation center point
     
 Example:
 image:images/gremlin.png[]

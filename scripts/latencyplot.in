@@ -56,7 +56,7 @@ if [catch {package require BLT} msg] {
 
 proc setdefaults {} {
   set ::sc(linuxcnc_tcl_lib_dir) @EMC2_TCL_LIB_DIR@
-  set           ::sc(halrun) @EMC2_HOME@/scripts/halrun
+  set           ::sc(halrun) [exec which halrun]
   set         ::sc(realtime) @REALTIME@
 
   # note: program updates at 1 second intervals
