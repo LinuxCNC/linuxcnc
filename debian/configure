@@ -231,6 +231,7 @@ configure_for_distro(config)
 for flavor in (config['flavors']):
     if flavor == 'posix':
         config['build-depends'].add('libpth-dev')
+        config['build-depends'].add('libudev-dev')
         config['src/configure'].add('--with-posix')
 
     elif flavor == 'rtai':
