@@ -720,9 +720,12 @@ text_template::
 	3 fractional digits padded with zeros for a FLOAT pin.
 
 [[gladevcp:HAL_Table]]
-=== Containers: HAL_Table State_Sensitive_Table and HAL_HBox *
-These containers are meant to be used to sensitize (grey out) their children. +
+=== Containers: HAL_HideTable HAL_Table State_Sensitive_Table and HAL_HBox
+
+These containers are meant to be used to sensitize (grey out) or hide their children. +
 Insensitived children will not respond to input. +
+HAL_HideTable has one HAL BIT input pin which controls if it's child widgets are hidden or not. +
+If the pin is low then child widgets are visible which is the default state. +
 HAL_Table and HAL_Hbox have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
 If the pin is low then child widgets are inactive which is the default state. +
 State_Sensitive_table responds to the state to linuxcnc's interpreter. +
