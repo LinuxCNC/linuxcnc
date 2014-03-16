@@ -1205,6 +1205,13 @@ class gmoccapy(object):
                 widget.set_active(False)
                 return
             self.command.state(linuxcnc.STATE_ON)
+            self.command.wait_complete()
+            self.stat.poll()
+            if self.stat.task_state == linuxcnc.STATE_OFF:
+                widget.set_active(False)
+                self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch aktivated?")))
+                self._update_widgets(False)
+                return
             self._update_widgets(True)
         else:
             self.command.state(linuxcnc.STATE_OFF)
