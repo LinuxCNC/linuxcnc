@@ -3,6 +3,7 @@ domain="glade-3" depends="gtk+">
  <init-function>glade_python_init</init-function>
 
  <glade-widget-classes>
+   <glade-widget-class name="HAL_HideTable" generic-name="hal_hidetable" title="HAL Hideable Table"/>
    <glade-widget-class name="HAL_HBox" generic-name="hal_hbox" title="HAL Sensitive HBox"/>
    <glade-widget-class name="HAL_Table" generic-name="hal_table" title="HAL Sensitive table"/>
    <glade-widget-class name="State_Sensitive_Table" generic-name="state_sensitive_table" title="State_Sensitive_table"/>
@@ -113,6 +114,7 @@ domain="glade-3" depends="gtk+">
  </glade-widget-classes>
    
  <glade-widget-group name="python" title="HAL Python">
+   <glade-widget-class-ref name="HAL_HideTable"/>
    <glade-widget-class-ref name="HAL_Table"/>
    <glade-widget-class-ref name="State_Sensitive_Table"/>
    <glade-widget-class-ref name="HAL_LED"/>

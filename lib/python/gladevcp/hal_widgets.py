@@ -78,6 +78,21 @@ class HAL_Table(gtk.Table, _HalSensitiveBase):
     __gtype_name__ = "HAL_Table"
     __gsignals__ = dict([hal_pin_changed_signal])
 
+class HAL_HideTable(gtk.Table, _HalWidgetBase):
+    __gtype_name__ = "HAL_HideTable"
+    __gsignals__ = dict([hal_pin_changed_signal])
+
+    def _hal_init(self):
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin.connect('value-changed',self.update)
+
+    def update(self,*a):
+        value = self.hal_pin.get()
+        if value:
+            self.hide()
+        else:
+            self.show()
+
 class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
     __gtype_name__ = "HAL_ComboBox"
     __gproperties__ = {

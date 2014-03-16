@@ -1,3 +1,4 @@
+from hal_widgets import HAL_HideTable
 from hal_widgets import HAL_HBox
 from hal_widgets import HAL_Table
 from hal_widgets import HAL_ComboBox
