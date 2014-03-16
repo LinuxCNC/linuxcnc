@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.8"
+_RELEASE = "1.0.9"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _MANUAL = 1                         # Check for the mode Manual
@@ -239,7 +239,8 @@ class gmoccapy(object):
             if logofile:
                 self.widgets.img_logo.set_from_file(logofile)
                 self.widgets.img_logo.show()
-                self.widgets.vbox_jog.hide()
+                self.widgets.hbox_jog.hide()
+                self.widgets.hbox_jog_vel.hide()
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
@@ -1207,7 +1208,7 @@ class gmoccapy(object):
             self.command.state(linuxcnc.STATE_ON)
             self.command.wait_complete()
             self.stat.poll()
-            if self.stat.task_state == linuxcnc.STATE_OFF:
+            if self.stat.task_state != linuxcnc.STATE_ON:
                 widget.set_active(False)
                 self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch aktivated?")))
                 self._update_widgets(False)
@@ -1331,6 +1332,7 @@ class gmoccapy(object):
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.tbtn_on.set_sensitive(False)
+        self.widgets.chk_ignore_limits.set_sensitive(False)
         self.widgets.tbtn_on.set_active(False)
         self.command.mode(linuxcnc.MODE_MANUAL)
 
@@ -1340,12 +1342,17 @@ class gmoccapy(object):
         self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.tbtn_on.set_sensitive(True)
+        self.widgets.ntb_jog.set_sensitive(True)
+        self.widgets.hbox_jog.set_sensitive(False)
+        self.widgets.hbox_jog_vel.set_sensitive(False)
+        self.widgets.chk_ignore_limits.set_sensitive(True)
+        self._check_limits()
 
     def on_hal_status_state_off(self, widget):
         if self.log: self._add_alarm_entry ("State Off")
         self._add_alarm_entry("state_off")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "hbox_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -1355,6 +1362,7 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_active(False)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.btn_exit.set_sensitive(True)
+        self.widgets.chk_ignore_limits.set_sensitive(True)
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(0)
         self.widgets.ntb_info.set_current_page(0)
@@ -1372,6 +1380,7 @@ class gmoccapy(object):
             self.widgets.tbtn_on.set_active(True)
         self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.btn_exit.set_sensitive(False)
+        self.widgets.chk_ignore_limits.set_sensitive(False)
         if self.widgets.ntb_main.get_current_page() != 0:
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
@@ -1386,6 +1395,7 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(0)
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
+        self._check_limits()
 
     def on_hal_status_mode_mdi(self, widget):
         if self.log: self._add_alarm_entry("MDI")
@@ -1555,7 +1565,7 @@ class gmoccapy(object):
 
     def _update_widgets(self, state):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "hbox_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -1563,8 +1573,6 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, state)
 
     def on_key_event(self, widget, event, signal):
-
-        # print type(self.stat.linear_units)
 
         # get the keyname
         keyname = gtk.gdk.keyval_name(event.keyval)
@@ -2297,9 +2305,21 @@ class gmoccapy(object):
             axis = "xyzabcuvw".index(self.axisletter_four)
         self.command.home(axis)
 
+    def _check_limits(self):
+        for axis in self.axis_list:
+            axisnumber = "xyzabcuvw".index(axis)
+            if self.stat.limit[axisnumber] != 0:
+                return True
+        if self.widgets.chk_ignore_limits.get_active():
+            self.widgets.chk_ignore_limits.set_active(False)
+        return False
+
     def on_chk_ignore_limits_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("chk_ignore_limits_toggled %s" % widget.get_active())
         if self.widgets.chk_ignore_limits.get_active():
+            if not self._check_limits():
+                self._show_error((11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
+                return
             self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data = None):

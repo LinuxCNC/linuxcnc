@@ -1,3 +1,8 @@
+ver. 1.0.9
+- the ignore limits has not been called, due to a missing signal from the
+  glade file, also the checkbox was hidden if machine off, so it could
+  not be activated after hitting a limit switch.
+
 ver. 1.0.8
 - Thanks to Steffen Noack we got new gremlin function for the mouse button 
   behavior. Gmoccapy allows selecting the button mode from the settings page
