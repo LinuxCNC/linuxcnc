@@ -12,8 +12,6 @@ o<l0>      if [#<toolno> EQ 0]
              m2 (quit)
 o<l0>      endif
 
-o<l1>      if [#5400 NE #<toolno>]
-             T#<toolno> M6 G43
-o<l1>      endif
+           T#<toolno> M6 G43
 
 o<loadtool> endsub
