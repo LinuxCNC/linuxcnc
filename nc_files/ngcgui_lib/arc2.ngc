@@ -30,6 +30,9 @@ o<arc2> sub
 #<yctr>        = #15 (=0)
 #<scale>       = #16 (=1)
 #<spin_notify> = #17 (=0)
+#<use_g43>     = #18 (=1)
+#<h_for_g43>   = #19 (=0)
+#<verbose>     = #20 (=0)
 
 #<min_separation> = .1
 
@@ -46,6 +49,6 @@ o<if0> if [#<arc_r> LT #<min_separation>]
 o<if0> endif
 
 
-o<arc1>call[#<toolno>][#<dir>][#<inside>][#<rpm>][#<feedrate>][#<zincr>][#<cutdepth>][#<zsafe>][#<zstart>][#<width>][#<angle>][#<arc_r>][#<rotate>][#<xoff>][#<yoff>][#<scale>][#<spin_notify>]
+o<arc1>call[#<toolno>][#<dir>][#<inside>][#<rpm>][#<feedrate>][#<zincr>][#<cutdepth>][#<zsafe>][#<zstart>][#<width>][#<angle>][#<arc_r>][#<rotate>][#<xoff>][#<yoff>][#<scale>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<verbose>]
 
 o<arc2> endsub

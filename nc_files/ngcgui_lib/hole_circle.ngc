@@ -16,9 +16,12 @@ o<hole_circle> sub
 #<zstart>     = #13 (=0)
 #<xctr>       = #14 (= 0)
 #<yctr>       = #15 (= 0)
-#<spin_notify> = #16 (= 0)
+#<spin_notify>= #16 (= 0)
+#<use_g43>    = #17 (=1)
+#<h_for_g43>  = #18 (=0)
+#<verbose>    = #19 (=0)
 
-o<loadtool> call  [#<toolno>]
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
 #<tooldiam> = [#5410 + .001]
 
 #<i>          = 0
@@ -31,7 +34,7 @@ o<l20> while [#<i> LT #<n>]
    #<x> = [#<xctr> + #<r> * COS[#<theta>]]
    #<y> = [#<yctr> + #<r> * SIN[#<theta>]]
 
-   o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>]
+   o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<verbose>]
    #<i>         = [#<i> + 1]
    #<theta>     = [#<theta> + #<deltheta>]
    #<_feature:> = #<i> (using _feature: here disables stop)
