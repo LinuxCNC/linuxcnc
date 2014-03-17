@@ -86,11 +86,6 @@ if debug:
 _RELEASE = "1.0.9"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
-_MANUAL = 1                         # Check for the mode Manual
-_AUTO = 2                           # Check for the mode Auto
-_MDI = 3                            # Check for the mode MDI
-_RUN = 1                            # needed to check if the interpreter is running
-_IDLE = 0                           # needed to check if the interpreter is idle
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
 
 # set up paths to files
@@ -161,7 +156,6 @@ class gmoccapy(object):
         self.mcodes = []          # this are the unformated M code values to check if an update is requiered
 
         self.distance = 0               # This global will hold the jog distance
-        self.interpreter = _IDLE        # This hold the interpreter state, so we could check if actions are allowed
         self.tool_change = False        # this is needed to get back to manual mode after a tool change
         self.macrobuttons = []          # The list of all macrios defined in the INI file
         self.log = False                # decide if the actions should be loged
@@ -1273,7 +1267,9 @@ class gmoccapy(object):
         if len(filename) > 50:
             filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
         self.widgets.lbl_program.set_text(filename)
-        self.widgets.btn_use_current.set_sensitive(True)
+        widgetlist = ["btn_use_current"
+                     ]
+        self._sensitize_widgets(widgetlist, True)
 
     def on_hal_status_interp_idle(self, widget):
         self._add_alarm_entry("idle")
@@ -1297,17 +1293,16 @@ class gmoccapy(object):
             btn.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
-        self.interpreter = _IDLE
 
     def on_hal_status_interp_run(self, widget):
         self._add_alarm_entry("run")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_step", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_load", "btn_edit", "tbtn_optional_blocks",
+                      "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
-        if self.stat.task_mode <> _MDI:
+        if self.stat.task_mode != linuxcnc.MODE_MDI:
             widgetlist.append("ntb_jog")
 
         self._sensitize_widgets(widgetlist, False)
@@ -1316,8 +1311,6 @@ class gmoccapy(object):
         if self.stepping == True:
             self.widgets.btn_step.set_sensitive(True)
             self.widgets.tbtn_pause.set_sensitive(False)
-
-        self.interpreter = _RUN
 
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
         self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
@@ -1623,7 +1616,7 @@ class gmoccapy(object):
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
         # we also check if we are in settings or terminal or alarm page
-        if self.stat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+        if self.stat.task_mode != linuxcnc.MODE_MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
         # offset page is active, so keys must go through
@@ -1891,6 +1884,7 @@ class gmoccapy(object):
         self.widgets.lbl_active_feed.set_label(feed_str)
         self.widgets.lbl_feed_act.set_text(real_feed_str)
 
+        # set the speed label in active code frame
         self.widgets.active_speed_label.set_label("%.0f" % self.stat.settings[2])
 
     def _update_coolant(self):
@@ -2141,7 +2135,7 @@ class gmoccapy(object):
 
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.task_mode == _MANUAL:
+        if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
             return
 
         axisletter = widget.get_label()[0]
@@ -2370,40 +2364,65 @@ class gmoccapy(object):
 # spindle stuff
 #-----------------------------------------------------------
     def _update_spindle_btn(self):
-        if self.stat.task_mode == _AUTO and self.interpreter == _RUN:
-            return
-        if not abs(self.stat.spindle_speed):
-            self.widgets.rbt_stop.set_active(True)
-            return
         if self.stat.spindle_direction > 0:
             self.widgets.rbt_forward.set_active(True)
         elif self.stat.spindle_direction < 0:
             self.widgets.rbt_reverse.set_active(True)
         elif not self.widgets.rbt_stop.get_active():
             self.widgets.rbt_stop.set_active(True)
+        # this is needed, because otherwise a command S0 would not set active btn_stop
+        if not abs(self.stat.spindle_speed):
+            self.widgets.rbt_stop.set_active(True)
+            return
+
+    def on_rbt_forward_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("rbt_forward_clicked")
+        if widget.get_active():
+            widget.set_image(self.widgets.img_forward_on)
+            self._set_spindle("forward")
+        else:
+            self.widgets.rbt_forward.set_image(self.widgets.img_forward)
+
+    def on_rbt_reverse_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("rbt_reverse_clicked")
+        if widget.get_active():
+            widget.set_image(self.widgets.img_reverse_on)
+            self._set_spindle("reverse")
+        else:
+            widget.set_image(self.widgets.img_reverse)
+
+    def on_rbt_stop_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("rbt_stop_clicked")
+        if widget.get_active():
+            widget.set_image(self.widgets.img_stop_on)
+            self._set_spindle("stop")
+        else:
+            self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
 
     def _set_spindle(self, command):
         # if we are in estop state, we will have to leave here, otherwise
         # we get an error, that switching spindle off is not allowed with estop
         if self.stat.task_state == linuxcnc.STATE_ESTOP:
             return
-        if command == "stop":
-            self.command.spindle(0)
-            self.widgets.lbl_spindle_act.set_label("S 0")
-            return
         rpm = self._check_spindle_range()
         # as the commanded value will be multiplied with speed override,
         # we take care of that
         rpm_out = rpm / self.stat.spindlerate
+        self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
+        if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
+
+        # if we do not check this, we will get an error in auto mode
+        if self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state == linuxcnc.INTERP_READING:
+            return
+        if command == "stop":
+            self.command.spindle(0)
+            self.widgets.lbl_spindle_act.set_label("S 0")
         if command == "forward":
             self.command.spindle(1, rpm_out)
         elif command == "reverse":
             self.command.spindle(-1, rpm_out)
         else:
             self._add_alarm_entry(_("Something went wrong, we have an unknown widget"))
-
-        if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
-        self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
 
     def _check_spindle_range(self):
         rpm = self.stat.settings[2]
@@ -2419,34 +2438,6 @@ class gmoccapy(object):
             real_spindle_speed = self.min_spindle_rev
         return real_spindle_speed
 
-    def on_rbt_forward_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("rbt_forward_clicked")
-        if widget.get_active():
-            widget.set_image(self.widgets.img_forward_on)
-            self._set_spindle("forward")
-        else:
-            self.widgets.rbt_forward.set_image(self.widgets.img_forward)
-
-    def on_rbt_reverse_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("rbt_reverse_clicked")
-        if widget.get_active():
-            widget.set_image(self.widgets.img_reverse_on)
-            self.widgets.spindle_feedback_bar.set_property("max", float(self.min_spindle_rev) * -1)
-            self.widgets.spindle_feedback_bar.set_property("min", float(self.max_spindle_rev) * -1)
-            self._set_spindle("reverse")
-        else:
-            widget.set_image(self.widgets.img_reverse)
-            self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
-            self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
-
-    def on_rbt_stop_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("rbt_stop_clicked")
-        if widget.get_active():
-            widget.set_image(self.widgets.img_stop_on)
-            self._set_spindle("stop")
-        else:
-            self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
-
     def on_btn_spindle_100_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("spindle override has been reseted to 100 %")
         self.widgets.adj_spindle.set_value(100)
@@ -2456,13 +2447,13 @@ class gmoccapy(object):
         # so we would get an division / zero error
         real_spindle_speed = 0
         try:
-            if not self.stat.settings[2]:
+            if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
                     speed = self.stat.spindle_speed
                 else:
                     speed = 0
             else:
-                speed = self.stat.settings[2]
+                speed = abs(self.stat.settings[2])
             spindle_override = widget.get_value() / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:
@@ -2498,8 +2489,7 @@ class gmoccapy(object):
         self.widgets.spindle_feedback_bar.set_property("max", self.max_spindle_rev)
 
     def on_spindle_feedback_bar_hal_pin_changed(self, widget, data = None):
-        self.widgets.lbl_spindle_act.set_text("S %s" % int(self.widgets.spindle_feedback_bar.value))
-
+        self.widgets.lbl_spindle_act.set_text("S %s" % abs(int(self.widgets.spindle_feedback_bar.value)))
 
     # Coolant an mist coolant button
     def on_tbtn_flood_toggled(self, widget, data = None):
@@ -2593,9 +2583,9 @@ class gmoccapy(object):
                 self.widgets.ntb_info.show()
 
     def on_ntb_info_switch_page(self, widget, page, page_num, data = None):
-        if self.stat.task_mode == _MDI:
+        if self.stat.task_mode == linuxcnc.MODE_MDI:
             self.widgets.hal_mdihistory.entry.grab_focus()
-        elif self.stat.task_mode == _AUTO:
+        elif self.stat.task_mode == linuxcnc.MODE_AUTO:
             self.widgets.gcode_view.grab_focus()
 
     # Three back buttons to be able to leave notebook pages
@@ -3403,6 +3393,7 @@ class gmoccapy(object):
         # self.command.abort()
         # self.command.wait_complete()
         self.widgets.hal_toggleaction_run.set_restart_line(0)
+        self.widgets.tbtn_pause.set_active(False)
 
     def on_btn_from_line_clicked(self, widget, data = None):
         self._add_alarm_entry("Restart the program from line clicked")

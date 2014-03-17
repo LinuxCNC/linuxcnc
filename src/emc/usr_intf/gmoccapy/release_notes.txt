@@ -1,3 +1,10 @@
+ver. 1.0.10
+- changed the behavior of the spindle feedback bar and the speed labels
+  we do not change the bar limits from negative to positive, we use
+  from now on only abs values! That is the reason I did include a additional 
+  abs in the postgui hal file
+- corrected an error, not allowing to switch spindle on / off while program paused
+
 ver. 1.0.9
 - the ignore limits has not been called, due to a missing signal from the
   glade file, also the checkbox was hidden if machine off, so it could
