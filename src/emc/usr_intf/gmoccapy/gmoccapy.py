@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.9"
+_RELEASE = "1.0.10.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -913,6 +913,7 @@ class gmoccapy(object):
         view = self.prefs.getpref('view', "p", str)
         self.widgets.gremlin.set_property("view", view)
         self.widgets.gremlin.set_property("metric_units", int(self.stat.linear_units))
+        self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref("mouse_btn_mode", 4, int))
 
     # init the function to hide the cursor
     def _init_hide_cursor(self):

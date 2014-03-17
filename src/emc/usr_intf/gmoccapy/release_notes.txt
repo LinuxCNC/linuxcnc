@@ -1,3 +1,6 @@
+ver. 1.0.10.1
+- gremlin mouse button mode has not been initialized at start up
+
 ver. 1.0.10
 - changed the behavior of the spindle feedback bar and the speed labels
   we do not change the bar limits from negative to positive, we use
