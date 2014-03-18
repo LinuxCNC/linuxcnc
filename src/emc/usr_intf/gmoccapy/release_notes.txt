@@ -1,3 +1,6 @@
+ver. 1.0.10.2
+- solved a smal bug with _set_spindle in auto mode
+
 ver. 1.0.10.1
 - gremlin mouse button mode has not been initialized at start up
 

@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.10.1"
+_RELEASE = "1.0.10.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -2413,8 +2413,9 @@ class gmoccapy(object):
         if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
 
         # if we do not check this, we will get an error in auto mode
-        if self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state == linuxcnc.INTERP_READING:
-            return
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
+                return
         if command == "stop":
             self.command.spindle(0)
             self.widgets.lbl_spindle_act.set_label("S 0")
