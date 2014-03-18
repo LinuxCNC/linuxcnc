@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.10.2"
+_RELEASE = "1.0.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1827,17 +1827,17 @@ class gmoccapy(object):
         # active G codes
         active_codes = []
         temp = []
-        for i in sorted(self.stat.gcodes):
-            if i == -1:
+        for code in sorted(self.stat.gcodes[1:]):
+            if code == -1:
                 continue
-            if i % 10 == 0:
-                temp.append("%d" % (i / 10))
+            if code % 10 == 0:
+                temp.append("%d" % (code / 10))
             else:
-                temp.append("%d.%d" % (i / 10, i % 10))
-        for num, i in enumerate(temp):
+                temp.append("%d.%d" % (code / 10, code % 10))
+        for num, code in enumerate(temp):
             if num == 8:
                 active_codes.append("\n")
-            active_codes.append("G" + i)
+            active_codes.append("G" + code)
         self.active_gcodes = active_codes
         self.gcodes = self.stat.gcodes
         self.widgets.active_gcodes_label.set_label(" ".join(self.active_gcodes))
@@ -1846,12 +1846,12 @@ class gmoccapy(object):
         # M codes
         active_codes = []
         temp = []
-        for i in sorted(self.stat.mcodes):
-            if i == -1:
+        for code in sorted(self.stat.mcodes[1:]):
+            if code == -1:
                 continue
-            temp.append("%d" % i)
-        for i in (temp):
-            active_codes.append("M" + i)
+            temp.append("%d" % code)
+        for code in (temp):
+            active_codes.append("M" + code)
         self.active_mcodes = active_codes
         self.mcodes = self.stat.mcodes
         self.widgets.active_mcodes_label.set_label(" ".join(self.active_mcodes))

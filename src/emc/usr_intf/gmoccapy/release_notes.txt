@@ -1,3 +1,11 @@
+ver. 1.0.2
+- solved a bug in getting active gcodes, because I took also the first 
+  element of linuxcnc.stat.gcodes, but that seems not to be a gcode, but 
+  some kind of control number or something like that, so it causes wrong 
+  code and changed gmoccapy behavior in an erroneous way
+- In this bug finding I also needed to change the gladevcp widget combiDRO
+  to get the correct results
+
 ver. 1.0.10.2
 - solved a smal bug with _set_spindle in auto mode
 

@@ -28,7 +28,7 @@ import linuxcnc
 # constants
 _INCH = 0
 _MM = 1
-_AXISLETTERS = ["X","Y","Z","A","B","C","U","V","W"]
+_AXISLETTERS = ["X", "Y", "Z", "A", "B", "C", "U", "V", "W"]
 
 
 # we put this in a try so there is no error in the glade editor
@@ -51,33 +51,33 @@ class Combi_DRO(gtk.VBox):
 
     __gtype_name__ = 'Combi_DRO'
     __gproperties__ = {
-        'joint_number' : ( gobject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
+        'joint_number' : (gobject.TYPE_INT, 'Joint Number', '0:X  1:Y  2:Z  etc',
                     0, 8, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'actual' : ( gobject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
+        'actual' : (gobject.TYPE_BOOLEAN, 'Actual Position', 'Display Actual or Commanded Position',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'metric_units' : ( gobject.TYPE_BOOLEAN, 'Display in metric units', 'Display in metric or not',
+        'metric_units' : (gobject.TYPE_BOOLEAN, 'Display in metric units', 'Display in metric or not',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'auto_units' : ( gobject.TYPE_BOOLEAN, 'Change units according gcode', 'Units will toggle between metric and imperial according to gcode.',
+        'auto_units' : (gobject.TYPE_BOOLEAN, 'Change units according gcode', 'Units will toggle between metric and imperial according to gcode.',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'diameter' : ( gobject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
+        'diameter' : (gobject.TYPE_BOOLEAN, 'Diameter Adjustment', 'Display Position As Diameter',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'mm_text_template' : ( gobject.TYPE_STRING, 'Text template for Metric Units',
+        'mm_text_template' : (gobject.TYPE_STRING, 'Text template for Metric Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%10.3f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'imperial_text_template' : ( gobject.TYPE_STRING, 'Text template for Imperial Units',
+                "%10.3f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'imperial_text_template' : (gobject.TYPE_STRING, 'Text template for Imperial Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%9.4f", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'homed_color' : ( gtk.gdk.Color.__gtype__, 'homed color', 'Sets the color of the display when the axis is homed',
+                "%9.4f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'homed_color' : (gtk.gdk.Color.__gtype__, 'homed color', 'Sets the color of the display when the axis is homed',
                         gobject.PARAM_READWRITE),
-        'unhomed_color' : ( gtk.gdk.Color.__gtype__, 'unhomed color', 'Sets the color of the display when the axis is not homed',
+        'unhomed_color' : (gtk.gdk.Color.__gtype__, 'unhomed color', 'Sets the color of the display when the axis is not homed',
                         gobject.PARAM_READWRITE),
-        'abs_color' : ( gtk.gdk.Color.__gtype__, 'Absolute color', 'Sets the color of the display when absolute coordinates are used',
+        'abs_color' : (gtk.gdk.Color.__gtype__, 'Absolute color', 'Sets the color of the display when absolute coordinates are used',
                         gobject.PARAM_READWRITE),
-        'rel_color' : ( gtk.gdk.Color.__gtype__, 'Relative color', 'Sets the color of the display when relative coordinates are used',
+        'rel_color' : (gtk.gdk.Color.__gtype__, 'Relative color', 'Sets the color of the display when relative coordinates are used',
                         gobject.PARAM_READWRITE),
-        'dtg_color' : ( gtk.gdk.Color.__gtype__, 'DTG color', 'Sets the color of the display when dtg coordinates are used',
+        'dtg_color' : (gtk.gdk.Color.__gtype__, 'DTG color', 'Sets the color of the display when dtg coordinates are used',
                         gobject.PARAM_READWRITE),
-        'font_size' : ( gobject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaler',
+        'font_size' : (gobject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaler',
                     8, 96, 25, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
     }
     __gproperties = __gproperties__
@@ -86,7 +86,7 @@ class Combi_DRO(gtk.VBox):
                     'clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_PYOBJECT)),
                     'units_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
                     'system_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE,()),
+                    'exit': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
                    }
 
     # Init the class
@@ -119,7 +119,7 @@ class Combi_DRO(gtk.VBox):
         self.eventbox = gtk.EventBox()
         self.eventbox.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("black"))
         self.add(self.eventbox)
-        vbox_main = gtk.VBox(False,0)
+        vbox_main = gtk.VBox(False, 0)
         self.eventbox.add(vbox_main)
         hbox_up = gtk.HBox(False, 0)
         vbox_main.pack_start(hbox_up)
@@ -127,7 +127,7 @@ class Combi_DRO(gtk.VBox):
         self.lbl_axisletter = gtk.Label(_AXISLETTERS[self.joint_number])
         self.lbl_axisletter.set_attributes(attr)
         hbox_up.pack_start(self.lbl_axisletter, False, False)
-        vbox_ref_type = gtk.VBox(False,0)
+        vbox_ref_type = gtk.VBox(False, 0)
         hbox_up.pack_start(vbox_ref_type, False, False)
         lbl_space = gtk.Label("")
         vbox_ref_type.pack_start(lbl_space)
@@ -171,28 +171,28 @@ class Combi_DRO(gtk.VBox):
             self.inifile = self.linuxcnc.ini(INIPATH)
             # check the ini file if UNITS are set to mm"
             # first check the global settings
-            units=self.inifile.find("TRAJ","LINEAR_UNITS")
-            if units==None:
+            units = self.inifile.find("TRAJ", "LINEAR_UNITS")
+            if units == None:
                 # else then the X axis units
-                units=self.inifile.find("AXIS_0","UNITS")
+                units = self.inifile.find("AXIS_0", "UNITS")
         except:
             units = "inch"
 
-        if units=="mm" or units=="metric" or units == "1.0":
+        if units == "mm" or units == "metric" or units == "1.0":
             self.machine_units = _MM
         else:
             self.machine_units = _INCH
 
     # make an pango attribute to be used with several labels
-    def _set_attributes(self,bgcolor,fgcolor,size,weight):
+    def _set_attributes(self, bgcolor, fgcolor, size, weight):
         attr = pango.AttrList()
-        bg_color = pango.AttrBackground(bgcolor[0],bgcolor[1],bgcolor[2], 0, -1)
+        bg_color = pango.AttrBackground(bgcolor[0], bgcolor[1], bgcolor[2], 0, -1)
         attr.insert(bg_color)
         size_attr = pango.AttrSize(size[0], size[1], size[2])
         attr.insert(size_attr)
         weight_attr = pango.AttrWeight(weight[0], weight[1], weight[2])
         attr.insert(weight_attr)
-        fg_color = pango.AttrForeground(fgcolor[0],fgcolor[1],fgcolor[2], 0, 11)
+        fg_color = pango.AttrForeground(fgcolor[0], fgcolor[1], fgcolor[2], 0, 11)
         attr.insert(fg_color)
         return attr
 
@@ -215,7 +215,7 @@ class Combi_DRO(gtk.VBox):
             if name in self.__gproperties.keys():
                 setattr(self, name, value)
                 self.queue_draw()
-                if name in ('mm_text_template','imperial_text_template'):
+                if name in ('mm_text_template', 'imperial_text_template'):
                     try:
                         v = value % 0.0
                     except Exception, e:
@@ -245,7 +245,7 @@ class Combi_DRO(gtk.VBox):
                 if name == "font_size":
                     self.font_size = value
                     self._set_labels()
-                if name in ('metric_units','actual','diameter'):
+                if name in ('metric_units', 'actual', 'diameter'):
                     setattr(self, name, value)
                     self.queue_draw()
             else:
@@ -255,20 +255,20 @@ class Combi_DRO(gtk.VBox):
 
     # get the actual coordinate system to display it on the DRO
     def _get_current_system(self):
-            g = self.status.gcodes
-            for i in g:
-                if i >= 540 and i <= 590:
-                    return "G%s"%(i/10)
-                elif i > 590 and i <= 593:
-                    return "G%s"%(i/10.0)
+            gcode = self.status.gcodes[1:]
+            for code in gcode:
+                if code >= 540 and code <= 590:
+                    return "G%s" % (code / 10)
+                elif code > 590 and code <= 593:
+                    return "G%s" % (code / 10.0)
             return "Rel"
 
     # Get the units used according to gcode
     def _get_current_units(self):
-            g = self.status.gcodes
-            for i in g:
-                if i >= 200 and i <= 210:
-                    return (i/10)
+            gcode = self.status.gcodes[1:]
+            for code in gcode:
+                if code >= 200 and code <= 210:
+                    return (code / 10)
             return False
 
     # update the labels
@@ -312,19 +312,19 @@ class Combi_DRO(gtk.VBox):
         self.system = self._get_current_system()
 
     # returns the separate RGB color numbers from the color widget
-    def _convert_to_rgb(self,spec):
-        color =  spec.to_string()
+    def _convert_to_rgb(self, spec):
+        color = spec.to_string()
         temp = color.strip("#")
         r = temp[0:4]
         g = temp[4:8]
         b = temp[8:]
-        return (int(r,16),int(g,16),int(b,16))
+        return (int(r, 16), int(g, 16), int(b, 16))
 
     # periodic call to update the positions, every 100 ms
     def _periodic(self):
         try:
             self.status.poll()
-            main,left,right = self._position()
+            main, left, right = self._position()
             if self.system != self._get_current_system():
                 self._set_labels()
                 self.emit("system_changed", self._get_current_system())
@@ -350,9 +350,9 @@ class Combi_DRO(gtk.VBox):
             scale = 2.0
         else:
             scale = 1.0
-        main_dro = tmpl(main*scale)
-        left_dro = tmpl(left*scale)
-        right_dro = tmpl(right*scale)
+        main_dro = tmpl(main * scale)
+        left_dro = tmpl(left * scale)
+        right_dro = tmpl(right * scale)
         self.main_dro.set_text(main_dro)
         self.dro_left.set_text(left_dro)
         self.dro_right.set_text(right_dro)
@@ -528,7 +528,7 @@ class Combi_DRO(gtk.VBox):
 def main():
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 
-    vbox = gtk.VBox(False,5)
+    vbox = gtk.VBox(False, 5)
     MDRO_X = Combi_DRO(0)
     MDRO_Y = Combi_DRO(1)
     MDRO_Z = Combi_DRO(2)
@@ -550,8 +550,8 @@ def main():
 #    MDRO_Y.change_axisletter("D")
     MDRO_Z.connect("clicked", clicked)
     MDRO_C.connect("clicked", clicked)
-    MDRO_C.set_property('mm_text_template','%10.2f')
-    MDRO_C.set_property('imperial_text_template','%10.2f')
+    MDRO_C.set_property('mm_text_template', '%10.2f')
+    MDRO_C.set_property('imperial_text_template', '%10.2f')
     window.show_all()
     gtk.main()
 
