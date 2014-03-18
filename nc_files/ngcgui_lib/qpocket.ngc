@@ -82,7 +82,9 @@ o<qpocket>  sub
    #<stepover> = #21 (=0.5)   ; tooldiameter fraction
      #<g64tol> = #22 (=0.002)
 #<spin_notify> = #23 (=1)     ; 1 == prompt user
-    #<verbose> = #24 (=0)
+    #<use_g43> = #24 (=1)
+  #<h_for_g43> = #25 (=0)
+    #<verbose> = #26 (=0)
 
   #<depthpasslimit> = 100    ; outer loop
 #<outlinepasslimit> = 100    ; inner loop
@@ -194,7 +196,7 @@ o<if50> else
 o<if50> endif
 
 ; load tool and establish scaling for first outline pass
-o<loadtool> call  [#<toolno>]
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
      #<thetooldiam> = #5410
         #<tooldiam> = [#5410 + #<tdelta>]
                #<r> = [#<tooldiam> / 2]

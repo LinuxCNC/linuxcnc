@@ -16,8 +16,11 @@ o<helix> sub
 #<d_angle>    = #13 (=0 d angle)
 #<zstart>     = #14 (=0)
 #<spin_notify>= #15 (=0)
+#<use_g43>    = #16 (=1)
+#<h_for_g43>  = #17 (=0)
+#<verbose>    = #18 (=0)
 
-o<loadtool> call  [#<toolno>]
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
 #<tooldiam>   =  [#5410 + .001]
 
          #<hr>       = [#<hdiam>/2]
