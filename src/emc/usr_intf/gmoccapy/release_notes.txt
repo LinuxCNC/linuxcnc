@@ -1,3 +1,10 @@
+ver. 1.0.2.1
+- spindle feedback bar changes will not effect any more the
+  speed label value. It was doble information and at the same
+  time confusing for users. The spindle feedback bar will 
+  indicate the real spindle speed and the feed label will show 
+  the programmed value.
+
 ver. 1.0.2
 - solved a bug in getting active gcodes, because I took also the first 
   element of linuxcnc.stat.gcodes, but that seems not to be a gcode, but 

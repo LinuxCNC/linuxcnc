@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.2"
+_RELEASE = "1.0.2.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -2489,9 +2489,6 @@ class gmoccapy(object):
         if self.log: self._add_alarm_entry("Spindle bar max has been set to %s" % self.max_spindle_rev)
         self.prefs.putpref("spindle_bar_max", self.max_spindle_rev, float)
         self.widgets.spindle_feedback_bar.set_property("max", self.max_spindle_rev)
-
-    def on_spindle_feedback_bar_hal_pin_changed(self, widget, data = None):
-        self.widgets.lbl_spindle_act.set_text("S %s" % abs(int(self.widgets.spindle_feedback_bar.value)))
 
     # Coolant an mist coolant button
     def on_tbtn_flood_toggled(self, widget, data = None):
