@@ -455,7 +455,7 @@ But there is not one in the machine-named folder.."""),True)
             self.w.ladderexist.set_active(True)
         else:
             self.d.tempexists = 0
-      
+
     # servo and stepper test  
     def tune_axis(self, axis):
         def get_value(d):
@@ -552,7 +552,11 @@ But there is not one in the machine-named folder.."""),True)
         loadrt threads period1=%(period)d name1=base-thread fp1=0 period2=%(period2)d name2=servo-thread
         loadusr halscope
         loadrt scale names=scale_to_rpm
-        loadrt steptest     
+        loadrt ddt count=1
+        loadrt axistest
+        loadrt simple_tp  
+        net target-cmd axistest.0.position-cmd => simple-tp.0.target-pos
+
         """ % {'period':100000, 'period2':self.d.servoperiod })   
         if not self.stepgen: 
             halrun.write("loadrt pid num_chan=1\n")
@@ -566,7 +570,8 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write( "net enable charge-pump.enable\n")
             halrun.write( "net charge-pump <= charge-pump.out\n")
             halrun.write( "addf charge-pump servo-thread\n")
-        halrun.write("addf steptest.0 servo-thread \n")
+        halrun.write("addf axistest.0.update servo-thread \n")
+        halrun.write("addf simple-tp.0.update servo-thread \n")
         if not self.stepgen: 
             halrun.write("addf pid.0.do-pid-calcs servo-thread \n")
         halrun.write("addf scale_to_rpm servo-thread \n")
@@ -638,12 +643,12 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("setp %s.stepspace %d \n"% (self.step_signalname,w[axis+"stepspace"].get_value()))
             halrun.write("setp %s.dirhold %d \n"% (self.step_signalname,w[axis+"dirhold"].get_value()))
             halrun.write("setp %s.dirsetup %d \n"% (self.step_signalname,w[axis+"dirsetup"].get_value()))
-            halrun.write("setp steptest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "stepscale"]))  )
-            halrun.write("setp %s.maxaccel 0 \n"% (self.step_signalname))
-            halrun.write("setp %s.maxvel 0 \n"% (self.step_signalname))
-            halrun.write("net enable => %s.enable \n"% (self.step_signalname))
-            halrun.write("net cmd steptest.0.position-cmd => %s.position-cmd \n"% (self.step_signalname))
-            halrun.write("net feedback steptest.0.position-fb <= %s.position-fb \n"% (self.step_signalname))
+            halrun.write("setp axistest.0.epsilon %f\n"% abs(1. / get_value(w[axis + "stepscale"]))  )
+            halrun.write("setp %s.maxaccel 10 \n"% (self.step_signalname))
+            halrun.write("setp %s.maxvel 4 \n"% (self.step_signalname))
+            halrun.write("net enable => %s.enable simple-tp.0.enable\n"% (self.step_signalname))
+            halrun.write("net cmd simple-tp.0.current-pos => %s.position-cmd \n"% (self.step_signalname))
+            halrun.write("net feedback axistest.0.position-fb <= %s.position-fb \n"% (self.step_signalname))
             halrun.write("net speed_rps scale_to_rpm.in <= %s.velocity-fb \n"% (self.step_signalname))
             halrun.write("net speed_rpm scale_to_rpm.out\n")
             halrun.write("setp scale_to_rpm.gain 60\n")
@@ -663,8 +668,8 @@ But there is not one in the machine-named folder.."""),True)
             halrun.write("setp pid.0.maxoutput  %d\n"% ( w[axis+"maxoutput"].get_value() ))
             halrun.write("net enable     => pid.0.enable\n")
             halrun.write("net output     pid.0.output\n")
-            halrun.write("net pos-cmd    steptest.0.position-cmd => pid.0.command\n")
-            halrun.write("net feedback steptest.0.position-fb <= %s.position \n"% (self.enc_signalname))
+            halrun.write("net pos-cmd    axistest.0.position-cmd => pid.0.command\n")
+            halrun.write("net feedback axistest.0.position-fb <= %s.position \n"% (self.enc_signalname))
         self.w.xtuneenable.set_active(False)
         self.w.xtuneinvertmotor.set_sensitive(False)
         self.w.xtuneamplitude.set_sensitive(False)
@@ -727,14 +732,15 @@ But there is not one in the machine-named folder.."""),True)
                 setp %(stepgen)s.maxaccel %(accel)f
                 setp %(stepgen)s.maxvel %(velps)f
                 setp %(stepgen)s.position-scale %(scale)f  
-                setp steptest.0.jog-minus %(jogminus)s
-                setp steptest.0.jog-plus %(jogplus)s
-                setp steptest.0.run %(run)s
-                setp steptest.0.amplitude %(amplitude)f
-                setp steptest.0.maxvel %(velps)f
-                setp steptest.0.maxaccel %(accel)f
-                setp steptest.0.dir %(dir)s
-                setp steptest.0.pause %(pause)d
+                setp axistest.0.jog-minus %(jogminus)s
+                setp axistest.0.jog-plus %(jogplus)s
+                setp axistest.0.run %(run)s
+                setp axistest.0.amplitude %(amplitude)f
+                setp simple-tp.0.maxvel %(velps)f
+                setp simple-tp.0.maxvel %(velps2)f
+                setp simple-tp.0.maxaccel %(accel)f
+                setp axistest.0.dir %(dir)s
+                setp axistest.0.pause %(pause)d
                 sets enable %(enable)s
                 sets estop-out %(estop)s
             """ % {
@@ -751,6 +757,7 @@ But there is not one in the machine-named folder.."""),True)
                 'accel': self.w.xtuneacc.get_value(),
                 'vel': self.w.xtunevel.get_value(),
                 'velps': (self.w.xtunevel.get_value()/60),
+                'velps2': (self.w.xtunevel.get_value()/60),
                 'dir': self.w.xtunedir.get_active(),
                 'pause':int(self.w.xtunepause.get_value()),
                 'enable':self.w.xtuneenable.get_active(),
@@ -767,14 +774,14 @@ But there is not one in the machine-named folder.."""),True)
                 setp pid.0.FF2    %(ff2)f
                 setp pid.0.bias   %(bias)f
                 setp pid.0.deadband  %(deadband)f
-                setp steptest.0.jog-minus %(jogminus)s
-                setp steptest.0.jog-plus %(jogplus)s
-                setp steptest.0.run %(run)s
-                setp steptest.0.amplitude %(amplitude)f
-                setp steptest.0.maxvel %(velps)f
-                setp steptest.0.maxaccel %(accel)f
-                setp steptest.0.dir %(dir)s
-                setp steptest.0.pause %(pause)d
+                setp axistest.0.jog-minus %(jogminus)s
+                setp axistest.0.jog-plus %(jogplus)s
+                setp axistest.0.run %(run)s
+                setp axistest.0.amplitude %(amplitude)f
+                setp axistest.0.maxvel %(velps)f
+                setp axistest.0.maxaccel %(accel)f
+                setp axistest.0.dir %(dir)s
+                setp axistest.0.pause %(pause)d
                 sets enable %(enable)s
             """ % {
                 'p':self.w.xtunecurrentP.get_value(),
