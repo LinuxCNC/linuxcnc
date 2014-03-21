@@ -1,0 +1,74 @@
+component axistest """\
+Used to allow testing of an axis. Used IN PNCconf""";
+pin in bit jog-minus "Drive TRUE to jog the axis in its minus direction";
+pin in bit jog-plus "Drive TRUE to jog the axis in its positive direction";
+pin in bit run "Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile";
+pin in float maxvel "Maximum velocity";
+pin in float amplitude "Approximate amplitude of positions to command during 'run'";
+pin in s32 dir "Direction from central point to test: 0 = both, 1 = positive, 2 = negative";
+pin out float position-cmd;
+pin in float position-fb;
+pin out bit running;
+pin out float run-target;
+pin out float run-start;
+pin out float run-low;
+pin out float run-high;
+pin in s32 pause = 0 "pause time for each end of run in seconds";
+param rw float epsilon = .001;
+variable double timer;
+param r float elapsed "Current value of the internal timer";
+variable int timer_on;
+function update;
+license "GPL";
+;;
+extern double fabs(double);
+
+if (timer_on) {
+    timer += fperiod;
+}
+elapsed = timer;
+if(run) {
+    if(!running) {
+        running = 1;
+        run_start = position_fb;
+
+        if(dir == 2) run_high = run_start;
+        else run_high = run_start + amplitude;
+
+        if(dir == 1) run_low = run_start;
+        else run_low = run_start - amplitude;
+
+        position_cmd = run_low;
+    }
+
+    if(fabs(position_fb - position_cmd) < epsilon) {
+        if ((position_cmd == run_low) || (position_cmd ==run_high)) {
+            if (!timer_on) {
+                timer = 0;
+                timer_on = true;
+            } else if (timer >= pause) {
+                timer_on = false; 
+                if(position_cmd == run_low) {
+                    position_cmd = run_high;
+                } else {
+                    position_cmd = run_low;
+                }
+            }
+        }
+    }
+} else if(running) {
+    position_cmd = run_start;
+    if(fabs(position_fb - run_start) < epsilon) {
+        running = 0;
+        timer_on = false;
+    }
+} else {
+    if(jog_minus) {
+        position_cmd = position_fb - 10;
+    } else if(jog_plus) {
+        position_cmd = position_fb + 10;
+    } else {
+        position_cmd = position_fb;
+    }
+}
+
