@@ -1,4 +1,5 @@
 #!/bin/bash
+#set -x
 
 WARN_ON_FAILURE=0
 if [ "$1" = "--warn-on-failure" ]; then
@@ -18,13 +19,19 @@ if [ -z $(which checklink) ]; then
 fi
 
 
-rm -f .checklink.$LANGUAGE.tmp
-checklink --quiet --exclude "http(s?)://" $FILES | tee .checklink.$LANGUAGE.tmp 2>&1
-egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' .checklink.$LANGUAGE.tmp
-BAD_LINKS=$?
-rm -f .checklink.$LANGUAGE.tmp
+BAD_LINKS=0
+for F in $FILES; do
+    OUT=.checklink.$LANGUAGE.$(basename $F).tmp
+    rm -f $OUT
+    checklink --quiet --exclude "http(s?)://" $F | tee $OUT 2>&1
+    egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' $OUT
+    if [ $? -ne 1 ]; then
+        BAD_LINKS=1
+    fi
+    rm -f $OUT
+done
 
-if [ $BAD_LINKS -eq 0 ]; then
+if [ $BAD_LINKS -eq 1 ]; then
     RET_VAL=1
     echo "***" 1>&2
     echo "*** warning: bad links found in $LANGUAGE docs!" 1>&2

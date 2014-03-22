@@ -385,10 +385,10 @@ copy_asciidoc_files:
 checkref: checkref_en checkref_fr checkref_es
 
 checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref English $^
+	@$(DOC_SRCDIR)/checkref --warn-on-failure English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref French $^
+	@$(DOC_SRCDIR)/checkref --warn-on-failure French $^
 
 # the spanish docs are full of broken links, only warn on failure
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
