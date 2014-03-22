@@ -1,4 +1,5 @@
 #!/bin/sh
+# file types supported: .ini, .demo
 
 EMC_BIN_DIR=@EMC2_BIN_DIR@
 EMC_SCRIPT_DIR=@EMC2_HOME@/scripts
@@ -8,11 +9,27 @@ else
     EMC=$EMC_SCRIPT_DIR/linuxcnc
 fi
 
-cat <<EOF
+filename="$1"
+name="$2"
+comment="$3"
+
+case ${filename##*.} in
+  ini) cat <<EOF
 [Desktop Entry]
-Name=$2
-Exec=$EMC '$1'
+Name=$name
+Exec=$EMC '$filename'
 Type=Application
-Comment=$3
+Comment=$comment
 Icon=linuxcncicon
 EOF
+;;
+  demo) cat <<EOF
+[Desktop Entry]
+Name=$name
+Exec=$filename
+Type=Application
+Comment=$comment
+Icon=linuxcncicon
+EOF
+;;
+esac

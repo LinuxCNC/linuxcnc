@@ -1,0 +1,245 @@
+<!-- Test panel for the parallel port cfg for out -->
+<pyvcp>
+<hbox>
+    <labelframe text="Outputs">
+    <font>("Helvetica",16)</font>
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <button>
+                <halpin>"btn01"</halpin>
+                <text>"Pin 01"</text>
+            </button>
+            <led>
+                <halpin>"led-01"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+
+            <button>
+                <halpin>"btn02"</halpin>
+                <text>"Pin 02"</text>
+            </button>
+            <led>
+                <halpin>"led-02"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <button>
+                <halpin>"btn03"</halpin>
+                <text>"Pin 03"</text>
+            </button>
+            <led>
+                <halpin>"led-03"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+
+            <button>
+                <halpin>"btn04"</halpin>
+                <text>"Pin 04"</text>
+            </button>
+            <led>
+                <halpin>"led-04"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <button>
+                <halpin>"btn05"</halpin>
+                <text>"Pin 05"</text>
+            </button>
+            <led>
+                <halpin>"led-05"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+
+            <button>
+                <halpin>"btn06"</halpin>
+                <text>"Pin 06"</text>
+            </button>
+            <led>
+                <halpin>"led-06"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <button>
+                <halpin>"btn07"</halpin>
+                <text>"Pin 07"</text>
+            </button>
+            <led>
+                <halpin>"led-07"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+
+            <button>
+                <halpin>"btn08"</halpin>
+                <text>"Pin 08"</text>
+            </button>
+            <led>
+                <halpin>"led-08"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <button>
+                <halpin>"btn09"</halpin>
+                <text>"Pin 09"</text>
+            </button>
+            <led>
+                <halpin>"led-09"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+
+           <button>
+                <halpin>"btn14"</halpin>
+                <text>"Pin 14"</text>
+            </button>
+            <led>
+                <halpin>"led-14"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <button>
+                <halpin>"btn16"</halpin>
+                <text>"Pin 16"</text>
+            </button>
+            <led>
+                <halpin>"led-16"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+
+            <button>
+                <halpin>"btn17"</halpin>
+                <text>"Pin 17"</text>
+            </button>
+            <led>
+                <halpin>"led-17"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+           </led>
+        </hbox>
+
+    </labelframe>
+
+    <labelframe text="Inputs">
+    <font>("Helvetica",16)</font>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Pin 10"</text>
+                <font>("Helvetica",14)</font>
+            </label>
+            <led>
+                <halpin>"led-10"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Pin 11"</text>
+                <font>("Helvetica",14)</font>
+            </label>
+            <led>
+                <halpin>"led-11"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Pin 12"</text>
+                <font>("Helvetica",14)</font>
+            </label>
+            <led>
+                <halpin>"led-12"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Pin 13"</text>
+                <font>("Helvetica",14)</font>
+            </label>
+            <led>
+                <halpin>"led-13"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </led>
+        </hbox>
+
+        <hbox>
+            <relief>RIDGE</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Pin 15"</text>
+                <font>("Helvetica",14)</font>
+            </label>
+            <led>
+                <halpin>"led-15"</halpin>
+                <size>25</size>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </led>
+        </hbox>
+
+
+    </labelframe>
+</hbox>
+</pyvcp>

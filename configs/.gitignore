@@ -10,3 +10,4 @@
 */axis_manualtoolchange.hal
 position*.txt
 !common/*.hal
+*.ini.expanded

@@ -258,8 +258,14 @@ fi
 
 if [ ! -n "$INIFILE" ] ; then
     # nothing specified, get from the user
-    INIFILE=$($PICKCONFIG)
     # it returns either a path, or nothing at all
+    INIFILE=$($PICKCONFIG)
+    # if name is xxxx.demo, then:
+    #    execute xxxx.demo in background and exit
+    if [ "${INIFILE%%.demo}".demo = "${INIFILE}" ] ; then
+      "${INIFILE}" &
+      exit 0
+    fi
 fi
 
 if [ ! -n "$INIFILE" ] ; then

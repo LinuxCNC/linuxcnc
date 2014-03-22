@@ -658,7 +658,6 @@ fe () {
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
-    EMC2_LATENCYPLOT_SCRIPT=$EMC2_HOME/scripts/latencyplot
     EMC2_SCRIPT=$EMC2_HOME/scripts/emc
     EMC2_SUFFIX=" (run-in-place)"
     EMC2_ICON=$EMC2_HOME/linuxcncicon.png
@@ -677,7 +676,6 @@ else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
-    EMC2_LATENCYPLOT_SCRIPT=$EMC2_BIN_DIR/latencyplot
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
@@ -1665,15 +1663,13 @@ AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
-AC_CONFIG_FILES([../scripts/latencyplot], [chmod +x ../scripts/latencyplot])
-AC_CONFIG_FILES([../scripts/latencyhistogram], [chmod +x ../scripts/latencyhistogram])
+AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
 AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
-AC_CONFIG_FILES(../share/applications/linuxcnc-latencyplot.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)

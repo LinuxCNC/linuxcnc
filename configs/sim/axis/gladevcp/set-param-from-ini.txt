@@ -1,0 +1,18 @@
+set-param-from-ini: setting HAL widgets programmatically
+
+Files:
+set-param-from-ini.ini
+set-param-from-ini.cfg specifies meter min,max
+set-param-from-ini.txt (this)
+set-param-from-ini.tcl starts gladevcp and sim_pin
+meter_scale.py         gladevcp file
+meter_scale.ui         gladevcp file
+
+------------------------------------
+Old instructions for running independently:
+
+This example reads values from an ini file, and sets the HAL Meter 
+widget min and max properties from them
+
+$ export INI_FILE_NAME=demo.ini
+$ gladevcp -u meter_scale.py meter_scale.ui 

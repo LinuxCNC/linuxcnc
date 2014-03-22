@@ -5,5 +5,4 @@ haltcl
 realtime
 rtapi.conf
 linuxcncmkdesktop
-latencyplot
-latencyhistogram
+linuxcnc_var

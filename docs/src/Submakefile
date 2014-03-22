@@ -78,6 +78,7 @@ DOC_SRCS_EN := \
 	gcode/overview.txt \
 	gcode/rs274ngc.txt \
 	gcode/tool_compensation.txt \
+	gui/selector.txt \
 	gui/axis.txt \
 	gui/gladevcp.txt \
 	gui/halui.txt \

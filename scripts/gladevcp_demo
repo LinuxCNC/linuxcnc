@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# This file is used for scripts that demonstrate gladevcp
+# The scripts typically use an extension of .demo
+# 1) start realtime
+# 2) run glacevcp with supplied parameters
+# 3) stop realtime
+
+prog=$(basename $0)
+
+function usage () {
+  cat <<EOF
+Usage:
+      $prog [gladevcp options]
+
+
+gladevcp_demo: start realtime and invoke gladevcp
+
+The help for gladvcp shows its options:
+gladevcp --help
+$(gladevcp -h)
+EOF
+  exit 1
+} ;# usage
+
+function popup () {
+  msg="$*"
+  wish <<EOF &
+  wm withdraw .
+  tk_messageBox \
+    -title "$prog" \
+    -message "$msg" \
+    -icon error \
+    -type ok
+  destroy .
+EOF
+} ;# popup
+
+# begin----------------------------------------------------
+REALTIME=$(linuxcnc_var REALTIME)
+$REALTIME status >/dev/null
+status=$?
+if [ $status = 0 ] ; then
+  msg="$prog: Realtime is already active"
+  echo "$msg"
+  popup "$msg"
+  exit 1
+else
+  $REALTIME start
+fi
+
+case $# in
+  0) usage;;
+  *) ARGS="$@";;
+esac
+
+if [ ! -z "$debug" ] ; then
+  echo debug=$debug
+  echo REALTIME=$REALTIME
+  echo ARGS="$ARGS"
+pwd
+fi
+
+eval gladevcp "$ARGS"
+halrun -U
