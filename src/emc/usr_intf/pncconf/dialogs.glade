@@ -377,37 +377,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkCheckButton" id="xtuneinvertencoder">
-                    <property name="label" translatable="yes">Invert Encoder</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">3</property>
-                    <property name="bottom_attach">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkCheckButton" id="xtuneinvertmotor">
-                    <property name="label" translatable="yes">Invert Motor</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">False</property>
-                    <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_tuneinvertmotor_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">2</property>
-                    <property name="bottom_attach">3</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkHBox" id="hbox18">
                     <property name="visible">True</property>
                     <child>
@@ -808,6 +777,12 @@
                 <child>
                   <placeholder/>
                 </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
               <packing>
                 <property name="fill">False</property>
@@ -1005,6 +980,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_p_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1020,6 +996,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_i_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1035,6 +1012,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_d_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1050,6 +1028,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_ff0_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1065,6 +1044,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_ff1_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1080,6 +1060,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_ff2_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1139,6 +1120,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_bias_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -1154,6 +1136,7 @@
                         <property name="invisible_char">&#x25CF;</property>
                         <property name="adjustment">tune_deadband_adjust</property>
                         <property name="digits">4</property>
+                        <signal name="value_changed" handler="on_update_tune_params"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
