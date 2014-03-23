@@ -640,7 +640,7 @@ But there is not one in the machine-named folder.."""),True)
                 halrun.write("net enable %s \n"%  (self.pwm +".enable"))
                 halrun.write("setp %s \n"%  (self.pwm +".scale %f"% dac_scale))
                 ending = ".value"
-                pwminvertlist = self.d.pwmgen_invert_pins(pwm_sig)
+                pwminvertlist = self.a.pwmgen_invert_pins(pwm_sig)
                 for i in pwminvertlist:
                     halrun.write("setp    "+i+".invert_output true")
             else: # sserial PWM
