@@ -22,12 +22,18 @@
 == What is GladeVCP?
 
 GladeVCP is an LinuxCNC component which adds the ability to add a new user
-interface panel to LinuxCNC user interfaces like Axis or Touchy. Unlike
-PyVCP, GladeVCP is not limited to displaying and setting HAL pins, as
-arbitrary actions can be executed in Python code - in fact, a
+interface panel to LinuxCNC user interfaces like:
+
+    -Axis
+    -Touchy
+    -Gscreen
+    -Gmoccapy
+
+Unlike PyVCP, GladeVCP is not limited to displaying and setting HAL pins,
+as arbitrary actions can be executed in Python code - in fact, a
 complete LinuxCNC user interface could be built with GladeVCP and Python.
 
-GladeVCP users the http://glade.gnome.org/[Glade] WYSIWYG user
+GladeVCP uses the http://glade.gnome.org/[Glade] WYSIWYG user
 interface editor, which makes it easy to create visually pleasing
 panels. It relies on the http://www.pygtk.org/[PyGTK] bindings to the
 rich http://www.gtk.org/[GTK+] widget set, and in fact all of these
@@ -64,13 +70,14 @@ commands to call a G-code subroutine, plus support for status change operations 
 GladeVCP panel windows may be run in three different setups:
 
  - always visible integrated into Axis at the right side, exactly like PyVCP panels
- - as a tab in Axis and Touchy; in Axis this would create a third tab besides the Preview and DRO tabs which must be raised explicitly
+ - as a tab in Axis,Touchy, Gscreen, or Gmoccapy; in Axis this would create a third
+tab besides the Preview and DRO tabs which must be raised explicitly
  - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
 .Installed LinuxCNC
 If you're using an installed version of LinuxCNC the examples shown below are in
 the <<cha:starting-linuxcnc,configuration picker>> in the 'Sample
-Configurations > sim > gladevcp' branch.
+Configurations > apps > gladevcp' branch.
 
 .Git Checkout
 The following instructions only apply if you're using a git checkout. Open a
@@ -85,7 +92,7 @@ More information about a git checkout is on the linuxcnc wiki page.
 Run the sample GladeVCP panel integrated into Axis like PyVCP as follows:
 
 ----
-$ cd configs/sim/gladevcp
+$ cd configs/sim/axis/gladevcp
 $ linuxcnc gladevcp_panel.ini
 ----
 
@@ -94,32 +101,40 @@ image::images/example-panel-small.png[]
 Run the same panel, but as a tab inside Axis:
 
 ----
-$ cd configs/sim/gladevcp
+$ cd configs/sim/axis/gladevcp
 $ linuxcnc gladevcp_tab.ini
 ----
 
 image::images/example-tabbed-small.png[]
 
+////
 To run this panel as a standalone toplevel window besides Axis, just
 start Axis in the background and start gladevcp as follows:
 
-////
 FIXME: I'm not sure how this is supposed to work with axis in one
 directory and gladevcp in a different directory.
-////
 
+FIXME: there is a conflict for motion.spindle-speed-out since it is used by both
+   axis.ini: sim_spindle_encoder.hal
+   and
+   manual-example.ui: manual-example.hal
+
+commit cd36e2 Jan 5 2012 added sim_spindle_encoder.hal to axis.ini
+probably after creation of manual-example.ui
 ----
 $ cd configs/sim/axis
 $ linuxcnc axis.ini &
-$ gladevcp -c gladevcp -u ../gladevcp/hitcounter.py -H ../gladevcp/manual-example.hal ../gladevcp/manual-example.ui
+$ cd gladevcp
+$ gladevcp -c gladevcp -u ./hitcounter.py -H ./manual-example.hal ./manual-example.ui
 ----
 
 image::images/example-float-small.png[]
+////
 
 To run this panel inside 'Touchy':
 
 ----
-$ cd configs/sim/gladevcp
+$ cd configs/sim/touchy/gladevcp
 $ linuxcnc gladevcp_touchy.ini
 ----
 
@@ -135,10 +150,10 @@ parts of the interface.
 
 === Exploring the example panel
 
-While running Axis, explore 'Show HAL Configuration' - you will find
-the 'gladevcp' HAL component and may observe their pin values while
-interacting with the widgets in the panel. The HAL setup can be
-found in 'configs/gladevcp/manual-example.hal'.
+While running configs/sim/axis/gladevcp_panel.ini or configs/sim/axis/gladevcp_tab.ini,
+explore 'Show HAL Configuration' - you will find the 'gladevcp' HAL component and may
+observe their pin values while interacting with the widgets in the panel. The HAL setup can be
+found in 'configs/axis/gladevcp/manual-example.hal'.
 
 The example panel has two frames at the bottom. The panel is
 configured so that resetting ESTOP activates the Settings frame and
@@ -155,12 +170,13 @@ third button 'Execute Oword subroutine' is an advanced example - it
 takes several HAL pin values from the 'Settings' frame, and passes
 them as parameters to the Oword subroutine. The actual parameters
 received by the routine are displayed by '(DEBUG, )' commands - see
-'configs/gladevcp/nc_files/oword.ngc' for the subroutine body.
+'../../nc_files/oword.ngc' for the subroutine body.
 
 To see how the panel is integrated into Axis, see the
-'[DISPLAY]GLADEVCP' statements in gladevcp_panel.ui, and the
-'[DISPLAY]EMBED*' and '[HAL]POSTGUI_HALFILE' statements in
-gladevcp_tab.ini respectively.
+'[DISPLAY]GLADEVCP' statement in configs/sim/axis/gladevcp/gladevcp_panel.ini, the
+'[DISPLAY]EMBED*' statement in configs/sim/axis/gladevcp/gladevcp_tab.ini 
+and '[HAL]POSTGUI_HALFILE' statements in both configs/sim/axis/gladevcp/gladevcp_tab.ini
+and configs/sim/axis/gladevcp/gladevcp_panel.ini
 
 === Exploring the User Interface description
 
@@ -168,7 +184,9 @@ The user interface is created with the glade UI editor - to explore
 it, you need to have <<gladevcp:Prerequisites, glade installed>>. To
 edit the user interface, run the command
 
- $ glade configs/gladevcp/manual-example.ui
+ $ glade configs/axis/gladevcp/manual-example.ui
+
+(The required glade program may be named glade-gtk2 on more recent systems.)
 
 The center window shows the appearance of the UI. All user
 interface objects and support objects are found in the right top
@@ -186,7 +204,7 @@ See how a Python callback is integrated into the example:
 
  - in glade, see the +hits+ label widget (a plain GTK+ widget)
  - in the +button1+ widget, look at the 'Signals' tab, and find the signal 'pressed' associated with the handler 'on_button_press'
- - in ../gladevcp/hitcounter.py, see the method 'on_button_press' and see how it sets the label property in the 'hits' object
+ - in hitcounter.py, see the method 'on_button_press' and see how it sets the label property in the 'hits' object
 
 The is just touching upon the concept - the callback mechanism will be
 handled in more detail in the <<gladevcp:GladeVCP_Programming,
@@ -206,6 +224,8 @@ Verify the version number to be greater than 3.6.7:
 
  $ glade --version
  glade3 3.6.7
+
+(On recent systems, the required glade package is glade-gtk2)
 
 === Running Glade to create a new user interface
 This section just outlines the initial LinuxCNC-specific steps. For more
@@ -273,18 +293,17 @@ following in the ini file:
 -------------------------------------------------------
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
-GLADEVCP= -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
+GLADEVCP= -u ./hitcounter.py ./manual-example.ui
 
 [HAL]
 # HAL commands for GladeVCP components in a tab must be executed via POSTGUI_HALFILE
-POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
+POSTGUI_HALFILE =  ./manual-example.hal
 
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
-SUBROUTINE_PATH = ../gladevcp/nc_files/
+SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 -------------------------------------------------------
-
-The HAL component name of a GladeVCP application started with the  the GLADEVCP option is fixed:  +gladevcp+.
+The HAL component name of a GladeVCP application started with the GLADEVCP option is fixed:  +gladevcp+.
 The command line actually run by Axis in the above configuration is as follows:
 
  halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments to GLADEVCP>
@@ -293,9 +312,16 @@ This means you may add arbitrary gladevcp options here, as long as
 they dont collide with the above command line options.
 
 [NOTE]
+The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files
+are located in the same directory as the ini file.  You might have to copy them to you
+directory (alternatively, specify a correct absolute or relative path to the file(s))
+
+[NOTE]
 The +[RS274NGC]SUBROUTINE_PATH=+ option is only set so the example
-panel will find the Oword subroutine for the MDI Command widget. It
-might not be needed in your setup.
+panel will find the Oword subroutine (oword.ngc) for the MDI Command widget. It
+might not be needed in your setup.  The relative path specifier ../../nc_files/gladevcp_lib
+is constructed to work with directories copied by the configuration picker and when
+using a run-in-place setup.
 
 === Integrating into Axis as a tab next to DRO and Preview
 
@@ -306,15 +332,15 @@ file as follows:
 [DISPLAY]
 # add GladeVCP panel as a tab next to Preview/DRO:
 EMBED_TAB_NAME=GladeVCP demo
-EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
+EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui
 
 [HAL]
 # HAL commands for GladeVCP components in a tab must be executed via POSTGUI_HALFILE
-POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
+POSTGUI_HALFILE =  ./gladevcp/manual-example.hal
 
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
-SUBROUTINE_PATH = ../gladevcp/nc_files/
+SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 -------------------------------------------------------
 
 Note the 'halcmd loadusr' way of starting the tab command - this
@@ -344,12 +370,18 @@ To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
 [DISPLAY]
 # add GladeVCP panel as a tab
 EMBED_TAB_NAME=GladeVCP demo
-EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py -H ../gladevcp/gladevcp-touchy.hal  ../gladevcp/manual-example.ui
+EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ./hitcounter.py -H ./gladevcp-touchy.hal  ./manual-example.ui
 
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
-SUBROUTINE_PATH = ../gladevcp/nc_files/
+SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 -------------------------------------------------------
+
+[NOTE]
+The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files
+are located in the same directory as the ini file.  You might have to copy them to you
+directory (alternatively, specify a correct absolute or relative path to the file(s))
+
 
 Note the following differences to the Axis tab setup:
 
@@ -422,7 +454,7 @@ The normal LinuxCNC startup process does the following:
 
 The introduction of gladeVCP brought the following issue:
 
-- gladeVCP panels need to be embedded in a master GUI window setup, e.g. Axis, or Touchy (embedded window or as an embedded tab)
+- gladeVCP panels need to be embedded in a master GUI window setup, e.g. Axis, or Touchy, Gscreen, or Gmoccapy (embedded window or as an embedded tab)
 - this requires the master GUI to run before the gladeVCP window can be hooked into the master GUI
 - however gladeVCP is also a HAL component, and creates HAL pins of its own.
 - as a consequence, all HAL plumbing involving gladeVCP HAL pins as source or destination must be run *after* the GUI has been set up
@@ -569,7 +601,7 @@ Here is an example how to set a +hal-pin-changed+ signal for a HAL_LED
 in the Glade UI editor:
 
 image::images/hal-pin-change-66.png[]
-The example in +configs/gladevcp/examples/complex+ shows how
+The example in +configs/apps/gladevcp/complex+ shows how
 this is handled in Python.
 
 [[gladevcp:HAL_Buttons]]
@@ -609,7 +641,7 @@ Defining radio button groups in Glade:
 - in the other button's 'General→Group' select the default active
 button's name in the 'Choose a Radio Button in this project' dialog.
 
-See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
+See +configs/apps/gladevcp/by-widget/+ for a GladeVCP applications
 and UI file for working with radio buttons.
 ======================================
 
@@ -852,7 +884,7 @@ displayed in the dropdown, and an int or float value to use for that
 choice.
 
 There's an example in
-+configs/gladevcp/by-widget/combobox/combobox.{py,ui}+ which uses column
++configs/apps/by-widget/combobox.{py,ui}+ which uses column
 mode to pick a float value from the ListStore.
 
 If you're confused like me about how to edit ComboBox ListStores and
@@ -1501,7 +1533,7 @@ Direct program control::
     [widget name].set_property("font","sans 25")
 
     There are python methods to control the widget:
-    [widget name].set_filename("../../../configs/sim/gscreen_custom/sim.var")
+    [widget name].set_filename("../../../configs/sim/gscreen/gscreen_custom/sim.var")
     [widget name].set_col_visible("Yabuvw",False)
     [widget name].set_row_visible("456789abc",False)
     [widget name].set_to_mm()
@@ -1577,7 +1609,7 @@ in that diagram. A good combination is setting a bitmap background
 image, like from a .png file, making the gladevcp window fixed-size,
 and use the glade Fixed widget to position widgets on this image.
 
-The code for the below example can be found in +configs/gladevcp/animated-backdrop+:
+The code for the below example can be found in +configs/apps/gladevcp/animated-backdrop+:
 
 image:images/small-screenshot.png[]
 
@@ -1648,7 +1680,7 @@ Action_MDI Toggle does, which remains disabled until command complete.
 
 === A simple example: Execute MDI command on button press
 
-+configs/gladevcp/mdi-command-example/whoareyou.ui+ is a Glade UI file which conveys the basics:
++configs/apps/gladevcp/mdi-command-example/whoareyou.ui+ is a Glade UI file which conveys the basics:
 
 Open it in Glade and study how it's done. Start Axis, and then start
 this from a terminal window with `gladevcp whoareyou.ui`. See the
@@ -1678,7 +1710,7 @@ names of HAL pins in the GladeVCP component. This is how it works:
  - for the above HAL SpinBox, we could use `(MSG, "The speed is:
    ${speed-f}")` just to show what's happening.
 
-The example UI file is +configs/gladevcp/mdi-command-example/speed.ui+. Here's what you get when running it:
+The example UI file is +configs/apps/gladevcp/mdi-command-example/speed.ui+. Here's what you get when running it:
 
 
 image::images/speed.png[]
@@ -1687,9 +1719,9 @@ image::images/speed.png[]
 
 It's perfectly OK to call an O-word subroutine in an MDI command, and
 pass HAL pin values as actual parameters. An example UI file
-is in +configs/gladevcp/mdi-command-example/owordsub.ui+.
+is in +configs/apps/gladevcp/mdi-command-example/owordsub.ui+.
 
-Place +configs/gladevcp/nc_files/oword.ngc+ so Axis can find it, and run `gladevcp owordsub.ui` from
+Place +nc_files/gladevcp_lib/oword.ngc+ so Axis can find it, and run `gladevcp owordsub.ui` from
 a terminal window. This looks like so:
 
 image::images/oword.png[]
@@ -2283,7 +2315,8 @@ def get_handlers(halcomp,builder,useropts):
 
 === Examples, and rolling your own GladeVCP application
 
-Visit +linuxcnc/configs/gladevcp+ for running examples and starters for your own projects.
+Visit +linuxcnc_root_directory/configs/apps/gladevcp+ for running
+examples and starters for your own projects.
 
 
 == FAQ
@@ -2337,7 +2370,7 @@ My gladevcp panel in Axis doesnt save state when I close Axis, although I define
 I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
 
 
-    See the example in configs/gladevcp/colored-label.  Setting the
+    See the example in configs/apps/gladevcp/colored-label.  Setting the
     background color of a GtkLabel widget (and HAL_Label is derived
     from GtkLabel) is a bit tricky. The GtkLabel widget has no window
     object of its own for performance reasons, and only window objects
@@ -2355,7 +2388,7 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
   http://osdir.com/ml/gtk-app-devel-list/2010-04/msg00129.html does
   not reliably set the HAL pin value, it is better to set it
   explicitly in an `on_realize` signal handler during widget creation.
-  See the example in `configs/gladevcp/by-widget/spinbutton`.
+  See the example in `configs/apps/gladevcp/by-widget/spinbutton.{ui,py}`.
 
 
 == Troubleshooting

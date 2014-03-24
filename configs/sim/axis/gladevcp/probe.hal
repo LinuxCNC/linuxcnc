@@ -1,0 +1,10 @@
+# permanently enable buttons
+#setp probe.probebox 1
+#setp probe.modebox 1
+
+#better: onyl enable buttons when program is idle
+net enable-buttons halui.program.is-idle => probe.modebox probe.probebox
+
+# connect this for a simulated environment - a real machine has probably a
+# a probe connected
+# net probe-contact probe.probe_contact => motion.probe-input

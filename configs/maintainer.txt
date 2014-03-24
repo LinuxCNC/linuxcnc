@@ -5,12 +5,30 @@ General notes for the configs directory, root/configs.
 
 -------------------------------------------------------
 
-The configs dir contains a hierarchy of configurations that
-are intended to:
+The configs dir contains a hierarchy of configurations,
+each with one or more ini files, that are intended to:
 
   1) run as-is on a RIP (run-in-place) build
   2) run when copied to a user ~/linuxcnc directory
      by the configuration picker (pickconfig.tcl)
+
+Additionally, demonstration scripts identified by a file
+extension .demo, can run standalone to show linuxcnc-related
+functionality without requiring start-up of linuxcnc.
+A configs directory should not contain both .ini and .demo
+files.
+
+Directories for .demo applications by default are offered
+for copying to a user directory.  Some apps are not usefully
+copied so a directory containing .demo files (and
+no .ini files) will not be copied if the directory includes a
+file named 'nodemocopy'.
+
+When a desktop shortcut is made for a copied .demo application,
+the shortcut will execute the .demo file.  The environment
+for files executed by .desktop files  is limited so extra care
+is required to ensure that a desktop shortcut created for
+a .demo file is usable.
 
 -------------------------------------------------------
 
@@ -35,17 +53,25 @@ picker:
   3) edits all ini files being copied so that
      [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files.
 
+A similar process occurs for demonstration (.demo) files when
+directories for .demo files are copied (only when no file
+named 'nodemocopy' exists).
+
+Most general purpose demonstration scripts can be located
+in the directory named: root/configs/apps and its
+subdirectories.
+
 -------------------------------------------------------
 
 A configuration directory may contain subdirectories.
 
-If a subdirectory contains a file with a .ini suffix,
-it is considered to be a selectable configuration
+If a subdirectory contains a file with a .ini or .demo
+suffix, it is considered to be a selectable configuration
 directory and will be included in the selection tree
 provided by the configuraton picker.
 
 Subdirectories required for other purposes must not
-contain a file with a .ini suffix.
+contain a file with a .ini or .demo suffix.
 
 When a subdirectory requires file or directory resources
 that are shared by other configurations, it should use a

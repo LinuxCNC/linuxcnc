@@ -78,6 +78,7 @@ DOC_SRCS_EN := \
 	gcode/overview.txt \
 	gcode/rs274ngc.txt \
 	gcode/tool_compensation.txt \
+	gui/selector.txt \
 	gui/axis.txt \
 	gui/gladevcp.txt \
 	gui/halui.txt \
@@ -384,7 +385,7 @@ copy_asciidoc_files:
 checkref: checkref_en checkref_fr checkref_es
 
 checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref English $^
+	@$(DOC_SRCDIR)/checkref --warn-on-failure English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^

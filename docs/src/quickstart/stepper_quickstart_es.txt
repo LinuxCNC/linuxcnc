@@ -29,7 +29,7 @@ de su computadora responder a una solicitud de procesamiento. Algunos
 Hardware pueden interrumpir el procesamiento lo que puede traducirse 
 a la perdida de algunos pasos cuando se opera una maquina CNC. Esto 
 es la primer cosa que se requiere hacer posterior a la instalación.
-Siga las instrucciones de la sección <<latency-test,here>> Para correr
+Siga las instrucciones de la sección <<cha:latency-test,here>> Para correr
 La prueba de latencia.
 
 [[sec:Sherline]]
@@ -47,7 +47,7 @@ maquina que posea y hacer clic, para copiarla y salvarla.
 
 Si usted tiene una maquina marca Xylotex, usted puede escapar las siguientes secciones 
 para pasar directamente a la sección de Asistente de Configuración de Motores a Pasos 
-ubicada en <<stepconf-wizard,Wizard>>. EMC provee una configuración rápida para maquinas 
+ubicada en <<cha:stepconf-wizard,Wizard>>. EMC provee una configuración rápida para maquinas 
 Xylotex.
 
 == Información sobre la Maquina

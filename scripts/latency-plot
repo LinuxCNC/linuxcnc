@@ -1,0 +1,524 @@
+#!/usr/bin/wish8.5
+
+# Notes:
+# notusing y axis title because it coredumps with X BadMatch with wish8.5
+# (it works with wish8.4, tcl8.5 introduced a problem for rotated text)
+# see also:
+# http://lists.fedoraproject.org/pipermail/package-announce/2010-January/034295.html
+
+#-----------------------------------------------------------------------
+# Copyright: 2011
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#-----------------------------------------------------------------------
+package require Tk 8.5 ;# needed for clock milliseconds
+
+proc popup {msg} { \
+  set answer [tk_messageBox \
+     -parent . \
+     -icon error \
+     -type ok \
+     -title "Message" \
+     -message  "$msg" \
+     ]
+   puts $msg
+} ;# popup
+
+if [catch {package require BLT} msg] {
+  if {[string first "version conflict" $msg] == 0} {
+    set msg "BLT version conflict!\n\n$msg"
+  } elseif {[string first "can't find package" $msg] == 0} {
+    set msg "package BLT not found!\nrun: sudo apt-get install blt"
+  } else {
+    set msg "unhandled error:\n$msg"
+  }
+  popup $msg
+  exit 1
+}
+
+proc setdefaults {} {
+  set           ::sc(halrun) [exec which halrun]
+  set         ::sc(realtime) [exec linuxcnc_var REALTIME]
+
+  # note: program updates at 1 second intervals
+  set          ::sc(xpoints)    60  ;# x axis points
+  set      ::sc(xpoints,min)    15  ;#
+  set      ::sc(xpoints,max) 15360  ;#
+  set          ::sc(shiftby)     1  ;# x axis shiftby points
+  set     ::sc(::yv1,smooth) linear ;# linear,step,...
+  set     ::sc(::yv2,smooth) linear
+  set     ::sc(::yv3,smooth) step
+  set     ::sc(::yv4,smooth) step
+  set     ::sc(::yv1,symbol) ""     ;# square,circle,...
+  set     ::sc(::yv2,symbol) ""
+  set     ::sc(::yv3,symbol) circle
+  set     ::sc(::yv4,symbol) square
+  set     ::sc(::yv1,pixels) 0      ;# symbol size
+  set     ::sc(::yv2,pixels) 0
+  set     ::sc(::yv3,pixels) 2
+  set     ::sc(::yv4,pixels) 2
+  set  ::sc(::yv1,linewidth) 2
+  set  ::sc(::yv2,linewidth) 2
+  set  ::sc(::yv3,linewidth) 1
+  set  ::sc(::yv4,linewidth) 1
+  set      ::sc(::yv1,color) red
+  set      ::sc(::yv2,color) blue
+  set      ::sc(::yv3,color) green
+  set      ::sc(::yv4,color) yellow
+  set       ::sc(grid,color) white
+  set        ::sc(grid,hide) no
+  set ::sc(color,background) black
+  set       ::sc(clock,mode) relative ;# actual | relative
+  set  ::sc(mem,max,percent) 1.0
+  set              ::sc(pid) [pid]
+
+  set      ::sc(data,source) hal_timedelta
+
+  # hal_timedelta defaults:
+  set   ::sc(base,period,ns)   25000
+  set  ::sc(servo,period,ns) 1000000
+  set        ::sc(report,ms)    1000
+  set    ::sc(report,ms,min)     100
+  set    ::sc(report,ms,max)   10000
+
+  set        ::sc(sample,ms) 10 ;# min value is 1 mS using tcl after cmd
+                                ;# not sure all cpus could do 1mS so use 10mS
+  set  ::sc(show,sample,max)  1 ;# 1: show max  .out value in report,ms interval
+                                ;# 0: show last .out value of report,ms interval
+} ;# setdefaults
+
+proc init {} {
+  set ::sc(label) "Latency (uSeconds) vs Time (seconds)   Wall:"
+  switch $::sc(clock,mode) {
+    actual   {set ::sc(button,timescale) 1}
+    relative {set ::sc(button,timescale) 0}
+  }
+  set sp [format %.0f [expr $::sc(servo,period,ns)/1000]]
+  set bp [format %.0f [expr $::sc(base,period,ns)/1000]]
+  wm title .  "[file tail $::argv0] (servo: $sp uS, base: $bp uS)"
+  update_timescale
+
+  blt::vector create ::xv
+  blt::vector create ::yv1; set ::yv1(++end) 0.0
+  blt::vector create ::yv2; set ::yv2(++end) 0.0
+  blt::vector create ::yv3; set ::yv3(++end) 0.0
+  blt::vector create ::yv4; set ::yv4(++end) 0.0
+
+  switch $::sc(data,source) {
+    hal_timedelta  {init_hal_timedelta
+      set ::xv(++end) [expr [clock milliseconds]/1000.]
+    }
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+  wm protocol . WM_DELETE_WINDOW finish
+
+} ;# init
+
+proc init_hal_timedelta {} {
+  if [catch {set ans [eval exec $::sc(realtime) start]} msg] {
+    # see note on abomination it scripts/realtime.in
+    if {[string length "$msg"] > 1} {
+      puts stderr "$::argv0:msg<$msg>"
+    }
+  } else {
+    if {[string length "$ans"] > 1} {
+      puts stderr "$::argv0:ans<$ans>"
+    }
+  }
+
+  package require Hal
+
+  set ::sc(v,name,pairs) { ::yv1 b:max \
+                           ::yv2 s:max \
+                           ::yv3 b:latency \
+                           ::yv4 s:latency }
+  set ::sc(servo,max,last) 0
+  set ::sc(base,max,last)  0
+  set ::sc(servo,out,sample,max) 0
+  set ::sc(base,out,sample,max)  0
+} ;# init_hal_timedelta
+
+proc check {} {
+  if {[string first rtai [exec lsmod]] < 0} {
+    #puts "ok -- no rtai modules currently loaded"
+  } else {
+    set msg "Cannot start with rtai modules loaded.\
+Stop all programs (linuxcnc) using realtime first and then run:\n\n\
+halrun -U\n"
+    popup $msg
+    exit 1
+  }
+  switch $::sc(data,source) {
+    hal_timedelta  {}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# check
+
+proc mcheck {} {
+  # cautionary check on memory usage
+  # %mem "ratio of process's resident set size to the physical mem in percent"
+  set mempercent [eval exec ps --no-headers --pid $::sc(pid) -o %mem]
+  if {$mempercent > $::sc(mem,max,percent)} {
+    set msg "Memory used is ${mempercent}%, Exiting"
+    popup $msg
+    exit 1
+  }
+  after 10000 mcheck
+} ;# mcheck
+
+proc start {} {
+  switch $::sc(data,source) {
+    hal_timedelta  {start_hal_timedelta}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# start
+
+proc start_hal_timedelta {} {
+  hal loadrt threads name1=base period1=$::sc(base,period,ns) \
+                     name2=servo period2=$::sc(servo,period,ns)
+  hal loadrt timedelta names=base:time,servo:time
+  hal addf  base:time base
+  hal addf servo:time servo
+
+  hal net  servo_max    servo:time.max
+  hal net  servo_jitter servo:time.jitter
+  hal net  servo_out    servo:time.out
+  hal net  base_max     base:time.max
+  hal net  base_jitter  base:time.jitter
+  hal net  base_out     base:time.out
+
+  hal start
+
+  set ::sc(start,time)  [expr [clock milliseconds]/1000.]
+  set ::sc(after,hal,sample) [after $::sc(sample,ms) hal_sample]
+  set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
+  after 2000 [list $::sc(stripchart) axis configure x -hide no]
+} ;# start_hal_timedelta
+
+proc hal_sample {} {
+  set  ::sc(base,out,sample) [hal getp  base:time.out]
+  set  ::sc(servo,out,sample) [hal getp  servo:time.out]
+
+  # save the largest sampled .out value:
+  if {$::sc(base,out,sample) > $::sc(base,out,sample,max)} {
+    set ::sc(base,out,sample,max) $::sc(base,out,sample)
+  }
+  if {$::sc(servo,out,sample) > $::sc(servo,out,sample,max)} {
+    set ::sc(servo,out,sample,max) $::sc(servo,out,sample)
+  }
+  # reschedule:
+  set ::sc(after,hal,sample) [after $::sc(sample,ms) hal_sample]
+} ;# hal_sample
+
+proc hal_report {} {
+  set  ::sc(base,max)  [hal getp  base:time.max]
+  set  ::sc(servo,max) [hal getp servo:time.max]
+  set  ::sc(base,out)  [hal getp  base:time.out]
+  set  ::sc(servo,out) [hal getp servo:time.out]
+
+  if $::sc(show,sample,max) {
+    set ::sc(base,lat)  $::sc(base,out,sample,max)
+    set ::sc(servo,lat) $::sc(servo,out,sample,max)
+  } else {
+    set ::sc(base,lat)  $::sc(base,out)
+    set ::sc(servo,lat) $::sc(servo,out)
+  }
+
+  # This script undersamples the hal threads so it can miss a latency
+  # spike that bumps (*,max). Detect explicitly whenever an increase
+  # in (*,max) occurs during the (report,ms) interval:
+  if { $::sc(base,max) > $::sc(base,max,last) } {
+    set ::sc(base,lat) $::sc(base,max)
+  }
+  if { $::sc(servo,max) > $::sc(servo,max,last) } {
+    set ::sc(servo,lat) $::sc(servo,max)
+  }
+  set ::xv(++end)  [expr [clock milliseconds]/1000.]
+  set ::yv1(++end) [expr ($::sc(base,max)  -  $::sc(base,period,ns) )/1000]
+  set ::yv2(++end) [expr ($::sc(servo,max) - $::sc(servo,period,ns) )/1000]
+  set ::yv3(++end) [expr ($::sc(base,lat)  -  $::sc(base,period,ns) )/1000]
+  set ::yv4(++end) [expr ($::sc(servo,lat) - $::sc(servo,period,ns) )/1000]
+
+  if {[info exists ::env(verbose_latency_plot)]} {
+    set ::sc(base,jitter)  [hal getp  base:time.jitter]
+    set ::sc(servo,jitter) [hal getp servo:time.jitter]
+    puts [format "%7.0f %7.0f %7.0f %8.0f      %8.0f %8.0f %8.0f %9.0f"\
+         $::sc(base,max) \
+         $::sc(base,out) \
+         $::sc(base,jitter) \
+         $::sc(base,lat) \
+         $::sc(servo,max) \
+         $::sc(servo,out) \
+         $::sc(servo,jitter) \
+         $::sc(servo,lat) \
+         ]
+  } ;# if verbose
+
+  set ::sc(base,max,last)  $::sc(base,max)
+  set ::sc(servo,max,last) $::sc(servo,max)
+
+  set  ::sc(base,out,sample,max)  0
+  set  ::sc(servo,out,sample,max) 0
+
+  # reschedule:
+  set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
+} ;# hal_report
+
+proc restart {} {
+  switch $::sc(data,source) {
+    hal_timedelta  {restart_hal_timedelta}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# restart
+
+proc restart_hal_timedelta {} {
+  $::sc(stripchart) axis configure x -hide yes
+  after cancel $::sc(after,hal,sample)
+  after cancel $::sc(after,hal,report)
+
+  hal setp servo:time.reset 1
+  hal setp  base:time.reset 1
+
+  ::xv set {}
+  ::yv1 set {}; ::yv2 set {}; ::yv3 set {}; ::yv4 set {}
+  set ::sc(start,time) [expr [clock milliseconds]/1000.]
+  set ::xv(++end)  $::sc(start,time)
+
+  update ;# !!
+  hal setp servo:time.reset 0
+  hal setp  base:time.reset 0
+
+  set ::sc(after,hal,sample) [after $::sc(sample,ms) hal_sample]
+  set ::sc(after,hal,report) [after $::sc(report,ms) hal_report]
+  after 2000 [list $::sc(stripchart) axis configure x -hide no]
+} ;# restart_hal_timedelta
+
+proc setup_stripchart {} {
+  wm minsize . 400 300
+  pack [frame .f1] -fill both -expand 1
+  set ::sc(stripchart) [blt::stripchart .f1.s \
+                        -plotbackground $::sc(color,background) \
+                        -height 2i \
+                       ]
+
+  pack $::sc(stripchart) -expand yes -fill both
+
+  $::sc(stripchart) grid configure \
+      -hide $::sc(grid,hide) \
+     -color $::sc(grid,color)
+
+  $::sc(stripchart) legend configure \
+       -anchor n \
+     -position leftmargin
+
+  # note: hide x axis label until autoranging completed
+  $::sc(stripchart) axis configure x \
+     -autorange $::sc(xpoints) \
+       -shiftby $::sc(shiftby) \
+       -command xfmt \
+          -hide 1
+
+  $::sc(stripchart) axis configure y \
+     -autorange 0
+
+  foreach {v name} $::sc(v,name,pairs) {
+    $::sc(stripchart) element create $name \
+           -xdata ::xv \
+           -ydata $v \
+           -color $::sc($v,color) \
+       -linewidth $::sc($v,linewidth) \
+          -smooth $::sc($v,smooth) \
+          -symbol $::sc($v,symbol) \
+          -pixels $::sc($v,pixels)
+  }
+
+  pack [frame .f2] -side top -anchor w -fill x -expand 0
+
+  pack [frame .f3] -side left -anchor e -fill none -expand 0
+  pack [button .f3.b1 -text "R"\
+         -padx 2 -pady 0 \
+         -command restart \
+       ] -side left -expand 0
+  pack [label .f3.l2 -text "Pts:"] -side left -expand 0
+  pack [entry .f3.e -textvariable ::sc(xpoints) \
+       -width 5 -justify right -state readonly] \
+       -side left -fill none -expand 0
+  pack [button .f3.decrement \
+       -padx 3 -pady 0  -text "-" -command "xpoints decrease"] \
+       -side left -fill none -expand 1
+  pack [button .f3.increment \
+       -padx 0 -pady 0 -text "+" -command "xpoints increase"] \
+       -side left -fill none -expand 1
+  set ::sc(button,decrease) .f3.decrement
+  set ::sc(button,increase) .f3.increment
+
+  pack [frame .f4] -side right -anchor w -fill x -expand 0
+  pack [checkbutton .f4.b -command update_timescale\
+       -variable ::sc(button,timescale)
+       ] -side right -anchor w -fill x -expand 0
+  pack [label .f4.l1 -text "$::sc(label)"]\
+       -side left -anchor w -fill none -expand 1
+
+} ;# setup_stripchart
+
+proc update_timescale {} {
+  switch $::sc(button,timescale) {
+     0 {set ::sc(clock,mode) relative}
+     1 {set ::sc(clock,mode) actual}
+  }
+} ;# update_timescale
+
+proc finish {} {
+  switch $::sc(data,source) {
+    hal_timedelta  {finish_hal_timedelta}
+    default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
+  }
+} ;# finish
+
+proc finish_hal_timedelta {} {
+  after cancel $::sc(after,hal,sample)
+  after cancel $::sc(after,hal,report)
+  hal stop
+
+  hal   delsig servo_max
+  hal   delsig servo_jitter
+  hal   delsig servo_out
+  hal   delsig base_max
+  hal   delsig base_jitter
+  hal   delsig base_out
+
+  hal     delf base:time base
+  hal     delf servo:time servo
+  hal unloadrt timedelta
+  hal unloadrt threads ;# doesnt seem to work
+
+  #puts [hal show funct]  ;# gone
+  #puts [hal show thread] ;# not gone
+  eval exec $::sc(halrun) -U
+
+} ;# finish_hal_timedelta
+
+proc xfmt {widget x} {
+  switch $::sc(clock,mode) {
+    relative { return [format %.0f [expr int($x - $::sc(start,time) + 0.5)]] }
+    actual   { return [clock format $x -format "%H:%M:%S"] }
+    default  { return -code error \
+               "xfmt: unknown clock,mode <$::sc(clock,mode)>"}
+  }
+} ;# xfmt
+
+proc xpoints {input} {
+  switch $input {
+    increase { set ::sc(xpoints) [expr $::sc(xpoints) * 2] }
+    decrease { set ::sc(xpoints) [expr $::sc(xpoints)/2] }
+  }
+  if {$::sc(xpoints) <= $::sc(xpoints,min)} {
+    set ::sc(xpoints) $::sc(xpoints,min)
+    $::sc(button,decrease) configure -state disabled
+  } else {
+    $::sc(button,decrease) configure -state normal
+  }
+  if {$::sc(xpoints) >= $::sc(xpoints,max)} {
+    set ::sc(xpoints) $::sc(xpoints,max)
+    $::sc(button,increase) configure -state disabled
+  } else {
+    $::sc(button,increase) configure -state normal
+  }
+
+  $::sc(stripchart) axis configure x  -autorange $::sc(xpoints)
+} ;# xpoints
+
+proc usage {} {
+  set prog [file tail $::argv0]
+  puts ""
+  puts "Usage:"
+  puts "      $prog --help | -?      (this)"
+  puts "      $prog --hal \[Options\]"
+  puts ""
+  puts "Options:"
+  puts "      --base nS  (base  thread interval, default:   $::sc(base,period,ns))"
+  puts "      --servo nS (servo thread interval, default: $::sc(servo,period,ns))"
+  puts "      --time mS  (report interval, default: $::sc(report,ms))"
+  puts "      --relative (relative clock time (default))"
+  puts "      --actual   (actual clock time)"
+} ;# usage
+
+proc config {} {
+  while {[llength $::argv] >0} {
+    # beware wish handling of reserved cmdline arguments
+    # to use -h: use -- -h,
+    # lreplace shifts argv for no. of items for each iteration
+    set currentarg [lindex $::argv 0]
+    switch -- $currentarg {
+      -? - --help {usage;exit 0}
+      -H - --hal  {set ::sc(data,source) hal_timedelta}
+      --actual    {set ::sc(clock,mode) actual}
+      --relative  {set ::sc(clock,mode) relative}
+      -b - --base {set t [lindex $::argv 1]
+                   set ::sc(base,period,ns) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      -s - --servo {set t [lindex $::argv 1]
+                    set ::sc(servo,period,ns) $t
+                    set ::argv [lreplace $::argv 0 0]
+                   }
+      -t - --time {set t [lindex $::argv 1]
+                   if {$t > $::sc(report,ms,max)} {
+                     set t $::sc(report,ms,max)
+                     puts "--time value too big, setting to $t"
+                   }
+                   if {$t < $::sc(report,ms,min)} {
+                     set t $::sc(report,ms,min)
+                     puts "--time value too small, setting to $t"
+                   }
+                   set ::sc(report,ms) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      default {lappend unknownargs $currentarg}
+    }
+    set ::argv [lreplace $::argv 0 0]
+  } ;# while
+  if [info exists unknownargs] {
+    puts "\nIgnoring unknown args: <$unknownargs>"
+  }
+  if {$::sc(base,period,ns) > $::sc(servo,period,ns)} {
+    set msg "Require base thread period <= servo thread period"
+    puts $msg
+    wm withdraw .
+    popup $msg
+    exit 1
+  }
+  if {$::sc(servo,period,ns) >= [expr $::sc(sample,ms) * 1000000]} {
+    set msg "Require servo thread period < sample interval $::sc(sample,ms) mS"
+    puts $msg
+    wm withdraw .
+    popup $msg
+    exit 1
+  }
+} ;# config
+
+# allow re-sourcing for testing
+if ![info exists ::sc(xpoints)] {
+  setdefaults
+  config
+  check
+  init
+  mcheck
+  setup_stripchart
+  start
+} else {
+  puts "already running"
+}

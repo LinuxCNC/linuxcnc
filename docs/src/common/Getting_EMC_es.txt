@@ -54,7 +54,7 @@ La forma mas común de compartir archivos en IRC es subir el archivo a uno de lo
 
 * 'Para Imagenes' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
 
-* 'Para archivos' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'Para archivos' - https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
 === Lista de Correo
 

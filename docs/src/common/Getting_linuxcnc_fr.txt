@@ -101,7 +101,7 @@ Pour les photos::
      http://imagebin.org/, http://imgur.com/, http://bayimg.com/
 
 Pour les fichiers::
-     http://filedropper.com/, http://filefactory.com/, http://1fichier.com/
+     https://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
 === Les listes de diffusion
 
