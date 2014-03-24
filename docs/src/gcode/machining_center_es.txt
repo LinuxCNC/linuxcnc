@@ -317,7 +317,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 ----
 
 For more information on the specifics of the tool table format, 
-see the <<sec:Tool-Table-Format,Tool Table Format>> Section. 
+see the <<sec:tool-table,Tool Table Format>> Section. 
 
 == Parameters[[sec:Parameters]]
 

@@ -178,7 +178,7 @@ types of parameter of different purpose and appearance, each described
 in the following sections. The only value type supported by parameters
 is floating-point; there are no string, boolean or integer types in
 G-code like in other programming languages. However, logic expressions
-can be formulated with <<sub:Binary-Operators,boolean operators>>
+can be formulated with <<sec:Binary-Operators,boolean operators>>
 ( 'AND', 'OR', 'XOR', and the comparison operators
 'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
 'FIX' <<cap:Functions,operators>> support integer arithmetic.

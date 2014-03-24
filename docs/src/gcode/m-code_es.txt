@@ -21,19 +21,18 @@ Make sure the documents build after translating.
 |Code                                    | Description
 |<<sec:M0-M1,M0 M1>>                     | Program Pause
 |<<sec:M2-M30,M2 M30>>                   | Program End
-|<<sec:M30-M60,M30 M60>>                 | Program Pause
+|<<sec:M60,M60>>                         | Program Pause
 |<<sec:M60, M60>>                        | Program End
 |<<sec:M3-M4-M5,M3 M4 M5>>               | Spindle Control
 |<<sec:M6-Tool-Change,M6>>               | Tool Change
 |<<sec:M7-M8-M9,M7 M8 M9>>               | Coolant Control
-|<<sec:M48-Both-Override,M48>>           | Feed & Spindle Overrides Enabled
-|<<sec:M49-Neither-Override,M49>>        | Feed & Spindle Overrides Disabled
+|<<sec:M48-M49-Override,M48-M49>>        | Feed & Spindle Overrides
 |<<sec:M50-Feed-Override,M50>>           | Feed Override Control
 |<<sec:M51-Spindle-Override,M51>>        | Spindle Override Control
 |<<sec:M52-Adaptive-Feed-Control,M52>>   | Adaptive Feed Control
 |<<sec:M53-Feed-Stop-Control,M53>>       | Feed Stop Control
 |<<sec:M61-Set-Current-Tool-Number,M61>> | Set Current Tool Number
-|<<sec:M62-to-M65,M62-65>>               | Output Control
+|<<sec:M62-M65,M62-to-65>>               | Output Control
 |<<sec:M66-Input-Control,M66>>           | Input Control
 |<<sec:M67-Analog-Output,M67>>           | Analog Output Control
 |<<sec:M68-Analog-Output,M68>>           | Analog Output Control

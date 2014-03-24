@@ -101,7 +101,9 @@ changes as needed.
 
 This document is aimed at people who already know how to do this kind
 of hardware system integration, but who do not know how to connect the
-hardware to LinuxCNC. See Remote Start Example<<fig:Remote-Start-Example>>
+hardware to LinuxCNC.
+
+Remote Start Example:
 
 image::images/remote-start.png[]
 
