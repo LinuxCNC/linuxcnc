@@ -87,7 +87,7 @@ to one of the following or a similar service and paste the link:
 
 * 'For pictures' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
 
-* 'For files' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'For files' - https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
 === Mailing List
 
