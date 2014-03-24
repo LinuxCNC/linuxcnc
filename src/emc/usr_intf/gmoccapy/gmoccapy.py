@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.2.1"
+_RELEASE = "1.0.3"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -2251,7 +2251,7 @@ class gmoccapy(object):
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(False)
                 self.widgets.rbt_auto.set_sensitive(False)
-            if (self.stat.task_state == linuxcnc.STATE_ON) and self.all_homed:
+            if (self.stat.task_state == linuxcnc.STATE_ON) and (self.all_homed or self.no_force_homing):
                 # all OK, make all modes availible
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(True)
@@ -3373,9 +3373,8 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, widget.get_active())
 
     def on_btn_run_clicked(self, widget, data = None):
-        # FIXME
-        # self.command.auto( linuxcnc.AUTO_RUN, 0 )
-        pass
+        line = self.widgets.gcode_view.get_line_number()
+        self.command.auto(linuxcnc.AUTO_RUN, line)
 
     def on_btn_step_clicked(self, widget, data = None):
         self.command.auto(linuxcnc.AUTO_STEP)
@@ -3389,9 +3388,8 @@ class gmoccapy(object):
             self.widgets.tbtn_pause.set_sensitive(True)
 
     def on_btn_stop_clicked(self, widget, data = None):
-        # self.command.abort()
-        # self.command.wait_complete()
-        self.widgets.hal_toggleaction_run.set_restart_line(0)
+        self.command.abort()
+        self.widgets.gcode_view.set_line_number(0)
         self.widgets.tbtn_pause.set_active(False)
 
     def on_btn_from_line_clicked(self, widget, data = None):

@@ -1,3 +1,9 @@
+ver. 1.0.3
+- solved some bugs in NO_FORCE_HOMING not handled the correct way
+  with start button and mode changes after setup page
+- get rid of hal_toggleaction_run and hal_action_stop, as the run widget
+  caused one of the problems
+
 ver. 1.0.2.1
 - spindle feedback bar changes will not effect any more the
   speed label value. It was doble information and at the same
