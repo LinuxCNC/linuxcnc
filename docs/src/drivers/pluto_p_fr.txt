@@ -218,7 +218,7 @@ voltage up to 46V. However, the L298 does not have built-in current limiting, a
 problem for motors with high stall currents. For higher currents and
 voltages, some users have reported success with International
 Rectifier's integrated high-side/low-side drivers.
-(http://www.cnczone.com/forums/showthread.php?t=25929[http://www.cnczone.com/forums/showthread.php?t=25929])
+
 
 == Pluto-step: 300kHz Hardware Step Generator[[sec:Pluto-step:-Hardware-step]](((pluto-step)))
 

@@ -98,10 +98,10 @@ machine (Absolues)
 |<<sec:G88-Alesage-Retrait-Manuel-Out,G88>> | Cycle alésage, Stop, Retrait manuel
 _(pas encore implémenté)_
 |<<sec:G89-Alesage-Tempo,G89>> | Cycle d'alésage avec tempo, recul vitesse travail
-|<<sec:G90-G91-Set,G90>>       | Types de déplacement
+|<<sec:G90-G91,G90>>       | Types de déplacement
 |<<sec:G90_1-G91_1,G90.1 G91.1>>     | Arc I,J,K, centre absolu ou relatif
 |<<sec:G92,G92>> | Décalages d'origines avec mise à jour des paramètres
-|<<sec:G92_1-G92-2,G92.1 G92.2>> | Révocation des décalages d'origine
+|<<sec:G92_1-G92_2,G92.1 G92.2>> | Révocation des décalages d'origine
 |<<sec:G92_3,G92.3>> | Applique contenu des paramètres aux déc. d'origine
 |<<sec:G93-G94-G95-Modes,G93>>   | Modes de vitesse
 |<<sec:G96-G97-Broche,G96>>    | Vitesse de coupe constante (IPM ou m/mn)
@@ -132,7 +132,7 @@ G0 X1 Y-2.3 (mouvement linéaire en vitesse rapide du point courant à X1 Y-2.3)
 M2 (fin de programme)
 ----
 
-* Voir les sections <<sec:G90-G91-Set,G90>> et <<sec:M2-M30,M2>> pour plus
+* Voir les sections <<sec:G90-G91,G90>> et <<sec:M2-M30,M2>> pour plus
 d'informations.
 
 Si la compensation d'outil est active, le mouvement sera
@@ -180,7 +180,7 @@ Z1 F25 (mouvement linéaire de l'axe Z à 25 unités/mn vers Z1)
 M2 (Fin de programme)
 ----
 
-* Voir les sections <<sec:G90-G91-Set,G90>> et <<sec:M2-M30,M2>> pour plus
+* Voir les sections <<sec:G90-G91,G90>> et <<sec:M2-M30,M2>> pour plus
 d'informations.
 
 Si la compensation d'outil est active, le mouvement sera
@@ -954,7 +954,7 @@ Z0.1 (mouvement en vitesse rapide à Z0.1)
 M2 (fin de programme)
 ----
 
-* Voir les sections <<sec:G90-G91-Set,G90>>, <<sec:G0,G0>>
+* Voir les sections <<sec:G90-G91,G90>>, <<sec:G0,G0>>
 et <<sec:M2-M30,M2>> pour plus d'informations.
 
 C'est une erreur si:
@@ -1017,7 +1017,7 @@ G33.1 Z-0.750 K0.05 (et une profondeur de filet de 0.750)
 M2 (fin de programme)
 ----
 
-* Voir les sections <<sec:G90-G91-Set,G90>>, <<sec:G0,G0>>
+* Voir les sections <<sec:G90-G91,G90>>, <<sec:G0,G0>>
 et <<sec:M2-M30,M2>> pour plus d'informations.
 
 C'est une erreur si:
