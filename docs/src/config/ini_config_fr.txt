@@ -9,9 +9,9 @@
 
 LinuxCNC est lancé par le fichier de script _linuxcnc_.
 
-....
+----
 linuxcnc [options] [<ini-file>]
-....
+----
 
 Avec les options suivantes:
 * _-v_ = verbose - informations de fonctionnement
@@ -101,17 +101,17 @@ pourra gérer de multiples instances d'un même composant. Par exemple: si vous
 utilisez une portes AND à deux entrées, composant (and2), à trois endroits
 différents de votre configuration, vous ne devez avoir que cette seule ligne
 quelque part pour le spécifier:
-....
+----
 loadrt and2 count=3
-....
+----
 
 Ce qui fournira finalement les composants and2.0, and2.1, and2.2.
 
 Les configurations seront plus lisibles si vous spécifiez les composants sous
 la forme names=option quand c'est supporté, par exemple:
-....
+----
 loadrt and2 names=aa,ab,ac
-....
+----
 
 Ce qui nommera les composants aa, ab, ac.
 
@@ -121,18 +121,18 @@ vous devrez trouver et mettre à jour, la ligne de directives de loadrt,
 applicable à ce composant.
 
 Le processus TWOPASS est activé par inclusion d'un paramètre dans le fichier ini:
-....
+----
 [HAL]TWOPASS=anything
-....
+----
 
 Avec ce réglage, vous pouvez avoir de multiples spécifications comme:
-....
+----
 loadrt and2 names=aa
 ...
 loadrt and2 names=ab,ac
-....
+...
 loadrt and2 names=ad
-....
+----
 
 Ces commandes peuvent être placées dans différents fichiers HALFILES. Les
 HALFILES sont traités dans leur ordre d'apparition dans le fichier ini.
@@ -163,11 +163,11 @@ la méthode count= donnera un composant au nom ésotérique comme ddt.0, ddt.1,
 ddt.2, etc.
 
 Alternativement, l'utilisation de names=option comme:
-....
+----
 loadrt ddt names=xvit,yvit,zvit
 ...
 loadrt ddt names=xaccel,yaccel,zaccel
-....
+----
 
 donnera des composants plus parlants, nommés xvit,yvit,zvit, xaccel,yaccel,
 zaccel.
@@ -177,9 +177,9 @@ _comp utility_ et supportent la méthode names=option. Il s'agit notamment de
 composants logiques qui sont les briques de beaucoup de configurations HAL.
 
 Exemples d'inclusions:
-....
+----
 and2,ddt,deadzone,flipflop,or2,or4,mux2,mux4,scale,sum2,timedelay,lowpass
-....
+----
 
 et beaucoup d'autres.
 
@@ -206,15 +206,16 @@ Une ligne de commentaires débute avec un *;* ou un *#*. Si le logiciel qui
 analyse le fichier ini rencontre l'un ou l'autre de ces caractères, le
 reste de la ligne est ignoré. Les commentaires peuvent être utilisés
 pour décrire ce que font les éléments du fichier ini.
-....
+----
 ; Ceci est le fichier de configuration de ma petite fraiseuse.
-...
+----
+
 Des commentaires peuvent également être utilisés pour choisir entre
 plusieurs valeurs d'une seule variable.
-....
+----
 DISPLAY = axis
 # DISPLAY = touchy
-....
+----
 
 Dans cette liste, la variable DISPLAY est positionnée sur
 axis puisque l'autre est commentée. Si quelqu'un édite une
@@ -223,12 +224,12 @@ première rencontrée qui sera utilisée.
 
 Noter que dans une ligne de variables, les caractères *#* et *;*
 n'indiquent pas un commentaire.
-....
+----
 INCORRECT = valeur     # et un commentaire
 
 # Commentaire correct
 CORRECT = valeur
-....
+----
 
 === Les sections (((Sections)))
 Les différentes parties d'un fichier .ini sont regroupées en sections.
@@ -273,9 +274,9 @@ utilisés dans les exemples de fichiers de configuration.
 Les variables personnalisées peuvent être utilisées dans vos fichiers
 HAL avec la syntaxe suivante:
 
-....
+----
 MACHINE = MaVariable
-....
+----
 
 === Sections et variables utilisateur[[sub:variables-utilisateur]]
 
@@ -287,21 +288,21 @@ Pour utiliser une section de variable utilisateur dans un fichier HAL, ajouter
 la section et la variable dans le fichier INI.
 
 .Exemple de section utilisateur
-....
+----
 [OFFSETS]
 OFFSET_1 = 0.1234
-....
+----
 
 Pour ajouter une variable utilisateur à une section LinuxCNC, inclure simplement
 cette variable dans la section souhaitée.
 
 .Exemple de variable utilisateur
-....
+----
 [AXIS_0]
 TYPE = LINEAR
 ...
 SCALE = 16000
-....
+----
 
 Pour utiliser une variable utilisateur dans un fichier HAL, utiliser les noms
 de section et de variable en lieu et place de leurs valeurs.
@@ -487,30 +488,30 @@ programme reçoit le nom du fichier d'entrée dans son premier argument, il
 doit écrire le code RS274/NGC sur la sortie standard. C'est cette sortie qui
 sera affichée dans la zone de texte, pré-visualisée dans la zone du parcours
 d'outil et enfin, exécutée par LinuxCNC quand il sera mis en marche.
-....
+----
 PROGRAM_EXTENSION = .extension Description
-....
+----
 
 Si votre fichier de sortie est tout en majuscules, vous devez ajouter
 la ligne suivante:
-....
+----
 PROGRAM_EXTENSION = .NGC XYZ Post Processor
-....
+----
 
 Les lignes suivantes ajoutent le support pour le convertisseur _image-to-gcode_
 fourni avec LinuxCNC:
-....
+----
 PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
     png = image-to-gcode
     gif = image-to-gcode
     jpg = image-to-gcode
-....
+----
 
 Il est également possible de spécifier un interpréteur:
-....
+----
 PROGRAM_EXTENSION = .py Python Script
     py = python
-....
+----
 
 De cette façon, n'importe quel script Python pourra être ouvert et ses sorties
 seront traitées comme du g-code. Un exemple de script de ce genre est disponible:
@@ -523,9 +524,9 @@ page des générateurs de G-code].
 
 Si la variable d'environnement AXIS_PROGRESS_BAR est activée, alors les lignes
 écrites sur stderr de la forme
-....
+----
 FILTER_PROGRESS=%d
-....
+----
 
 activeront la barre de progression d'AXIS qui donnera le pourcentage. Cette
 fonctionnalité devrait être utilisée par tous les filtres susceptibles de
@@ -537,7 +538,7 @@ dans Axis.
 Cet exemple de programme filtre un fichier et ajoute un axe W correspondant à 
 l'axe Z. Il marchera selon la présence d'un espace entre chaque mot d'axe.
 
-....
+----
 #! /usr/bin/env python
 
 import sys
@@ -569,7 +570,7 @@ def main(argv):
 
 if __name__ == "__main__":
    main(sys.argv[1:])
-....
+----
 
 
 [[sub:Section-RS274NGC]]

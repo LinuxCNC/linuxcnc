@@ -20,18 +20,18 @@ sees either of these marks at the start a line, the rest of the line is
 ignored by the software. Comments can be used to describe what an INI
 element will do.
 
-....
+----
 ; This is my mill configuration file.
 # I set it up on January 12, 2012
-....
+----
 
 Comments can also be used to 'turn off' a variable. This makes it easier
 to pick between different variables.
 
-....
+----
 DISPLAY = axis
 # DISPLAY = touchy
-....
+----
 
 In this list, the DISPLAY variable will be set to axis because the
 other one is commented out. If someone carelessly edits a list like
@@ -41,12 +41,12 @@ will be used.
 Note that inside a variable, the "#" and ";" characters do not denote
 comments:
 
-....
+----
 INCORRECT = value     # and a comment
 
 # Correct Comment
 CORRECT = value
-....
+----
 
 === Sections
 
@@ -85,9 +85,9 @@ names and variable names as shown. In the following example the variable
 'MACHINE' is assigned the value 'My Machine'.
 
 .Variable Example
-....
+----
 MACHINE = My Machine
-....
+----
 
 === Custom Sections and Variables [[sub:custom-variables]]
 
@@ -98,30 +98,30 @@ To use a custom section variable in your HAL file add the section and
 variable to the INI file.
 
 .Custom Section Example
-....
+----
 [OFFSETS]
 OFFSET_1 = 0.1234
-....
+----
 
 To add a custom variable to a LinuxCNC section simply include the variable
 in that section.
 
 .Custom Variable Example
-....
+----
 [AXIS_0]
 TYPE = LINEAR
 ...
 SCALE = 16000
-....
+----
 
 To use the custom variables in your HAL file put the section and variable
 name in place of the value. 
 
 .HAL Example
-....
+----
 setp offset.1.offset [OFFSETS]OFFSET_1
 setp stepgen.0.position-scale [AXIS_0]SCALE
-....
+----
 
 [NOTE]
 The value stored in the variable must match the type specified by the
@@ -325,7 +325,7 @@ Python filters should use the print function to output the result to Axis.
 This example program filters a file and adds a W axis to match the Z axis.
 It depends on there being a space between each axis word to work.
 
-....
+----
 #! /usr/bin/env python
 
 import sys
@@ -357,7 +357,7 @@ def main(argv):
 
 if __name__ == "__main__":
    main(sys.argv[1:])
-....
+----
 
 [[sub:RS274NGC-section]]
 === [RS274NGC] Section(((RS274NGC (inifile section))))
