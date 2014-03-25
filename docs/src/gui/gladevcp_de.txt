@@ -242,7 +242,7 @@ Place the GladeVCP panel in the righthand side panel by specifying the
 following in the ini file:
 
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
 GLADEVCP= -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
@@ -254,7 +254,7 @@ POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 The HAL component name of a GladeVCP application started with the  the GLADEVCP option is fixed:  +gladevcp+.
 The command line actually run by Axis in the above configuration is as follows:
@@ -273,8 +273,9 @@ might not be needed in your setup.
 
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:
+
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # add GladeVCP panel as a tab next to Preview/DRO:
 EMBED_TAB_NAME=GladeVCP demo
@@ -287,7 +288,7 @@ POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 Note the 'halcmd loadusr' way of starting the tab command - this
 assures that 'POSTGUI_HALFILE' will only be run after the HAL
@@ -311,8 +312,9 @@ both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
 
 === Integrating into Touchy
 To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
+
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # add GladeVCP panel as a tab
 EMBED_TAB_NAME=GladeVCP demo
@@ -321,7 +323,7 @@ EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py -H 
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 Note the following differences to the Axis tab setup:
 
