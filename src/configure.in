@@ -799,17 +799,74 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(INSTALL, install)
-AC_PATH_PROG(SED, sed)
-AC_PATH_PROG(PS, ps)
-AC_PATH_PROG(KILL, kill)
-AC_PATH_PROG(WHOAMI, whoami)
-AC_PATH_PROG(AWK, awk)
-AC_PATH_PROG(INSMOD, insmod, $SPATH)
-AC_PATH_PROG(RMMOD, rmmod, "", $SPATH)
-AC_PATH_PROG(LSMOD, lsmod, "", $SPATH)
-AC_PATH_PROG(PIDOF, pidof, "", $SPATH)
-AC_PATH_PROG(IPCS, ipcs, "")
-AC_PATH_PROG(FUSER, fuser, "", $SPATH)
+
+AC_PATH_PROG(SED, sed, "none")
+if test $SED = "none"
+then
+    AC_MSG_ERROR([sed not found])
+fi
+
+AC_PATH_PROG(PS, ps, "none")
+if test $PS = "none"
+then
+    AC_MSG_ERROR([ps not found])
+fi
+
+AC_PATH_PROG(KILL, kill, "none")
+if test $KILL = "none"
+then
+    AC_MSG_ERROR([kill not found])
+fi
+
+AC_PATH_PROG(WHOAMI, whoami, "none")
+if test $WHOAMI = "none"
+then
+    AC_MSG_ERROR([whoami not found])
+fi
+
+AC_PATH_PROG(AWK, awk, "none")
+if test $AWK = "none"
+then
+    AC_MSG_ERROR([awk not found])
+fi
+
+AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
+if test $INSMOD = "none"
+then
+    AC_MSG_ERROR([insmod not found])
+fi
+
+AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
+if test $RMMOD = "none"
+then
+    AC_MSG_ERROR([rmmod not found])
+fi
+
+AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
+if test $LSMOD = "none"
+then
+    AC_MSG_ERROR([lsmod not found])
+fi
+
+AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
+if test $PIDOF = "none"
+then
+    AC_MSG_ERROR([pidof not found])
+fi
+
+AC_PATH_PROG(IPCS, ipcs, "none")
+if test $IPCS = "none"
+then
+    AC_MSG_ERROR([ipcs not found])
+fi
+
+AC_PATH_PROG(FUSER, fuser, "none", $SPATH)
+if test $FUSER = "none"
+then
+    AC_MSG_ERROR([fuser not found])
+fi
+
+# MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
 
 AC_ARG_WITH(rmmod,
