@@ -1,3 +1,6 @@
+ver. 1.0.3.2
+- includes version number also in settings page as label in the botton button bar
+
 ver. 1.0.3.1
 - previous changes to NO_FORCE_HOMING resulted in automatic starting from
   line if a line has been selected in preview, I changed that so the line

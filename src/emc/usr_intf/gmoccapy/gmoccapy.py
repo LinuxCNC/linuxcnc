@@ -83,7 +83,8 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.3.1"
+#          # gmoccapy  #"
+_RELEASE = "  1.0.3.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -195,6 +196,7 @@ class gmoccapy(object):
 
         # set the title of the window, to show the release
         self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
+        self.widgets.lbl_version.set_label("<b>gmoccapy\n%s</b>" % _RELEASE)
 
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
 
