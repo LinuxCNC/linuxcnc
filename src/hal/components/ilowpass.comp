@@ -35,4 +35,4 @@ license "GPL";
 author "Jeff Epler <jepler@unpythonic.net>";
 ;;
 value += (in - value) * gain;
-out = value * scale;
+out = (int)(__s64)(value * scale);
