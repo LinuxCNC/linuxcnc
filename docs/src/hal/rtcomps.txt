@@ -18,9 +18,10 @@ for step type '0', (step and direction). The second is for step type
 mode control, and the third one shows velocity mode. Control mode and
 step type are set independently, and any combination can be selected.
 
+[[fig:Stepgen-Block-Diag]]
+.Step Pulse Generator Block Diagram position mode
 (((Stepgen Block Diagram)))
 
-.Step Pulse Generator Block Diagram position mode[[fig:Stepgen-Block-Diag]]
 image::images/stepgen-block-diag.png[align="center"]
 
 .Installing
