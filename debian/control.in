@@ -13,7 +13,7 @@ Build-Depends: debhelper (>= 6),
     gettext, autoconf, libboost-python-dev,
     texlive-lang-cyrillic, texlive-lang-french,
     texlive-lang-spanish, texlive-lang-german, netcat,
-    libmodbus-dev (>= 3.0), libusb-1.0-0-dev
+    libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc, kmod
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
@@ -54,7 +54,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python-gtksourceview2,
     python-vte,
     python-xlib, python-gtkglext1, python-configobj,
-    tclreadline, bc, procps
+    tclreadline, bc, procps, psmisc, kmod
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
