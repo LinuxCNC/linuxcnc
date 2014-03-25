@@ -218,7 +218,7 @@ builds as well.
 
 There's an automatic way to check a branch for each commit being buildable
 - see http://dustin.github.com/2010/03/28/git-test-sequence.html , and the
-code at https://github.com/dustin/bindir/blob/master/git-test-sequence.
+code at https://github.com/dustin/bindir/blob/master/git-test-sequence .
 Use as follows (in this case testing every commit from origin/master to
 HEAD, including running regression tests):
 

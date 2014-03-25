@@ -1,4 +1,7 @@
-= Canonical Device Interfaces[[cha:Canonical-Device-Interfaces]]
+
+= Canonical Device Interfaces
+
+[[cha:Canonical-Device-Interfaces]]
 
 ////
 ATTENTION TRANSLATORS before translating this document copy the base document
