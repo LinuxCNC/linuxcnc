@@ -102,7 +102,7 @@ names and variable names as shown. In the following example the variable
 MACHINE = My Machine
 ----
 
-[[sub:custom-variables]]
+[[sec:custom-variables]]
 === Custom Sections and Variables
 
 Most sample configurations use custom sections and variables to put all of the
@@ -144,8 +144,9 @@ component pin.
 [[sec:INI-Detail]]
 == INI File Sections
 
-[[sub:[EMC]-section]]
-=== [EMC] Section
+
+=== [EMC] Section[[sub:[EMC]-section]]
+
 (((EMC (inifile section))))
 
 * 'VERSION = $Revision: 1.3 $' - The version number for the INI file. The value shown here looks odd
@@ -162,8 +163,9 @@ component pin.
     terminal. Debug flags are usually only useful to developers. See
     src/emc/nml_intf/emcglb.h for other settings.
 
-[[sub:[DISPLAY]-section]]
-=== [DISPLAY] Section
+
+=== [DISPLAY] Section[[sub:[DISPLAY]-section]]
+
 (((DISPLAY (inifile section))))
 
 Different user interface programs use different options, and not every
@@ -286,8 +288,9 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
 * 'HELP_FILE = tklinucnc.txt' - Path to help file.
 
-[[sub:[FILTER]-Section]]
-=== [FILTER] Section
+
+=== [FILTER] Section[[sub:[FILTER]-Section]]
+
 (((ini [FILTER] Section)))
 
 AXIS has the ability to send loaded files through a filter program.
@@ -337,8 +340,9 @@ written to stderr of the form
 sets the AXIS progress bar to the given percentage. This feature
 should be used by any filter that runs for a long time.
 
-[[sub:[RS274NGC]-section]]
-=== [RS274NGC] Section
+
+=== [RS274NGC] Section[[sub:[RS274NGC]-section]]
+
 (((RS274NGC (inifile section))))
 
 * 'PARAMETER_FILE = myfile.var' -
@@ -386,8 +390,9 @@ The first executable M1xx found in the search is used for each M1xx.
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
 
-[[sub:[EMCMOT]-section]]
-=== [EMCMOT] Section
+
+=== [EMCMOT] Section[[sub:[EMCMOT]-section]]
+
 (((EMCMOT (inifile section))))
 
 This section is a custom section and is not used by LinuxCNC directly. Most
@@ -404,8 +409,9 @@ Section.
 * 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
   nanoseconds.
 
-[[sub:[TASK]-section]]
-=== [TASK] Section
+
+=== [TASK] Section[[sub:[TASK]-section]]
+
 (((TASK (inifile section))))
 
 * 'TASK = milltask' - 
@@ -421,8 +427,9 @@ Section.
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
 
-[[sub:[HAL]-section]]
-=== [HAL] section
+
+=== [HAL] section[[sub:[HAL]-section]]
+
 (((HAL (inifile section))))
 
 * 'TWOPASS=ON' - Use two pass processing for loading HAL comps. With TWOPASS processing,
@@ -457,16 +464,18 @@ Section.
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
-[[sub:[HALUI]-section]]
-=== [HALUI] section
+
+=== [HALUI] section[[sub:[HALUI]-section]]
+
 (((HALUI (inifile section))))
 
 * 'MDI_COMMAND = G53 G0 X0 Y0 Z0' - 
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
-[[sub:[TRAJ]-section]]
-=== [TRAJ] Section
+
+=== [TRAJ] Section[[sub:[TRAJ]-section]]
+
 (((TRAJ (inifile section))))
 
 The [TRAJ] section contains general parameters for the trajectory
@@ -542,8 +551,9 @@ planning module in 'motion'.
 Using this will allow the machine to go beyond the soft limits
 while in operation. It is not generally desirable to allow this.
 
-[[sub:[AXIS]-section]]
-=== [AXIS_<num>] Section
+
+=== [AXIS_<num>] Section[[sub:[AXIS]-section]]
+
 (((AXIS (inifile section))))
 
 The [AXIS_0], [AXIS_1], etc. sections contains general parameters for
@@ -657,7 +667,7 @@ Typically (but not always):
     interactively and verify their results so that the proper values can be
     put in the INI file with a minimum of trouble.
 
-[[sub:Homing-related-items]]
+[[sec:Homing-related-items]]
 ==== Homing
 
 These parameters are Homing related, for a better explanation read the
@@ -726,7 +736,7 @@ The following are custom INI file entries that you may find in a sample INI file
 or a wizard generated file. These are not used by the LinuxCNC software. They
 are only there to put all the settings in one place. For more information on
 custom INI file entries see the
-<<sub:custom-variables,Custom Sections and Variables>> subsection.
+<<sec:custom-variables,Custom Sections and Variables>> subsection.
 
 The following items might be used by a PID component and the assumption is
 that the output is volts.
@@ -916,7 +926,7 @@ The following are custom INI file entries that you may find in a sample INI file
 or a wizard generated file. These are not used by the LinuxCNC software. They
 are only there to put all the settings in one place. For more information on
 custom INI file entries see the
-<<sub:custom-variables,Custom Sections and Variables>> subsection.
+<<sec:custom-variables,Custom Sections and Variables>> subsection.
 
 The following items might be used by a stepgen component.
 
@@ -972,8 +982,9 @@ image::images/encoder-scale.png[align="center"]
     than the axis MAX_VELOCITY. Subsequent testing has shown that use of
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
-[[sub:[EMCIO]-Section]]
-=== [EMCIO] Section
+
+=== [EMCIO] Section[[sub:[EMCIO]-Section]]
+
 (((EMCIO (inifile section))))
 
 * 'CYCLE_TIME = 0.100' -

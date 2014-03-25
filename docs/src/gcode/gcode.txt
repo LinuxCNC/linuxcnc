@@ -1352,9 +1352,8 @@ the naive cam algorithm for lines. Thus, line-arc, arc-arc, and
 arc-line cases as well as line-line benefit from the 'naive cam
 detector'. This improves contouring performance by simplifying the
 path. It is OK to program for the mode that is already active. See also
-the <<sec:Path-Control-Mode,Path Control Mode>> Section and 
-<<sec:trajectory-control,Trajectory Control>> Section for more
-information on these modes. 
+the <<sec:trajectory-control,Trajectory Control>> Section for more
+information on these modes.
 If Q is not specified then it will have the same behavior as before and
 use the value of P-.
 
