@@ -83,7 +83,7 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.3"
+_RELEASE = "1.0.3.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -148,6 +148,7 @@ class gmoccapy(object):
 
         self.widgets = widgets.Widgets(self.builder)
 
+        self.start_line = 0       # needed for start from line
         self.stepping = False     # used to sensitize widgets when using step by step
 
         self.active_gcodes = []   # this are the formated G code values
@@ -3373,8 +3374,7 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, widget.get_active())
 
     def on_btn_run_clicked(self, widget, data = None):
-        line = self.widgets.gcode_view.get_line_number()
-        self.command.auto(linuxcnc.AUTO_RUN, line)
+        self.command.auto(linuxcnc.AUTO_RUN, self.start_line)
 
     def on_btn_step_clicked(self, widget, data = None):
         self.command.auto(linuxcnc.AUTO_STEP)
@@ -3389,6 +3389,7 @@ class gmoccapy(object):
 
     def on_btn_stop_clicked(self, widget, data = None):
         self.command.abort()
+        self.start_line = 0
         self.widgets.gcode_view.set_line_number(0)
         self.widgets.tbtn_pause.set_active(False)
 

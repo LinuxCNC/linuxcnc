@@ -1,3 +1,9 @@
+ver. 1.0.3.1
+- previous changes to NO_FORCE_HOMING resulted in automatic starting from
+  line if a line has been selected in preview, I changed that so the line
+  is just presetted, but not taken in care if run is pressed. The other way
+  was to dangerous.
+
 ver. 1.0.3
 - solved some bugs in NO_FORCE_HOMING not handled the correct way
   with start button and mode changes after setup page
