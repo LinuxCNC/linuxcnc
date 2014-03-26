@@ -107,11 +107,11 @@ Ubuntu-8.04)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
 	TCLTK_VERSION=8.4
 	;;
-Debian-7.*)
+Debian-testing|Debian-7.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
 	TCLTK_VERSION=8.5
 	;;
-Debian-testing|Debian-6.0*)
+Debian-6.0*)
 	EXTRA_BUILD=dvipng,module-init-tools
 	TCLTK_VERSION=8.5
 	;;
