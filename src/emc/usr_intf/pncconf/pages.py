@@ -23,11 +23,11 @@
 # This presents and collects the data from the GUI pages
 #
 # To add pages:
-# add the glade file to directory. the first container name will be the reference name (delete the window)
-# add the reference name, Text name and active state to private data variable: self.available_page of stepconnf.py
-# add function call here: <reference name>_prepare() and <reference name>_finish()
+# add the glade file to directory. the first GTK container name will be the reference name (delete the top window)
+# add the reference name, Text name and active state to private data variable: self.available_page of private_data.py
+# add function call here: <reference name>_prepare(), <reference name>_finish(), and optionally, _init()
 # add GLADE callbacks for the page here.
-# add large or common function calls to stepconf.py
+# add large or common function calls to pncconf.py
 
 import gtk
 import os
@@ -208,12 +208,13 @@ class Pages:
             state = True
         else:
             state = False
+        self.d.advanced_option = state
         self.page_set_state(['options','external','realtime'],state)
         if not self.w.createconfig.get_active():
             error = self.a.load_config()
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
-        self.w.window1.set_title(_("Point and click configuration - %s.ancconf ") % self.d.machinename)
+        self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
         # here we initalise the mesa configure page data
         #TODO is this right place?
         self.d._mesa0_configured = False
@@ -1011,6 +1012,10 @@ class Pages:
     def x_motor_prepare(self):
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('x')
+        state = True
+        if not self.a.pwmgen_sig('x'): # if not servo control we can de-sensitze PID data
+            state = self.d.advanced_option
+        self.w.xservo_info.set_sensitive(state)
     def x_motor_finish(self):
         self.a.axis_done('x')
     # callbacks
@@ -1031,6 +1036,10 @@ class Pages:
     def y_motor_prepare(self):
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('y')
+        state = True
+        if not self.a.pwmgen_sig('y'):
+            state = self.d.advanced_option
+        self.w.yservo_info.set_sensitive(state)
     def y_motor_finish(self):
         pass
     # callbacks
@@ -1051,6 +1060,10 @@ class Pages:
     def z_motor_prepare(self):
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('z')
+        state = True
+        if not self.a.pwmgen_sig('z'):
+            state = self.d.advanced_option
+        self.w.zservo_info.set_sensitive(state)
     def z_motor_finish(self):
         self.a.axis_done('z')
     # callbacks
@@ -1071,6 +1084,10 @@ class Pages:
     def a_motor_prepare(self):
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('a')
+        state = True
+        if not self.a.pwmgen_sig('a'):
+            state = self.d.advanced_option
+        self.w.aservo_info.set_sensitive(state)
     def a_motor_finish(self):
         self.a.axis_done('a')
     # callbacks

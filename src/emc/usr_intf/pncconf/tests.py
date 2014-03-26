@@ -488,6 +488,8 @@ But there is not one in the machine-named folder.."""),True)
             text = _("Servo tuning is not tested in PNCconf yet\n")
             self.a.warning_dialog(text,True)
         #w.xtuneinvertencoder.set_sensitive(not state)
+        if self.stepgen:
+            w.xpidtable.set_sensitive(self.d.advanced_option)
         w.xstep.set_sensitive(state)
         w.xsteptable.set_sensitive(state)
         distance = 2
