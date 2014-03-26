@@ -1,0 +1,2 @@
+Test that ilowpass's output wraps around.  The magic -2147467296 is
+2147500000 - (2^32).
