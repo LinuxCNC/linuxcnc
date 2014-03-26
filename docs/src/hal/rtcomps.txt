@@ -2,7 +2,8 @@
 
 [[cha:realtime-components]] (((Realtime Components)))
 
-== Stepgen[[sec:Stepgen]](((stepgen)))
+[[sec:Stepgen]]
+== Stepgen(((stepgen)))
 
 This component provides software based generation of step pulses in
 response to position or velocity commands. In position mode, it has a
@@ -10,17 +11,18 @@ built in pre-tuned position loop, so PID tuning is not required. In
 velocity mode, it drives a motor at the commanded speed, while obeying
 velocity and acceleration limits. It is a realtime component only, and
 depending on CPU speed, etc, is capable of maximum step rates of 10kHz
-to perhaps 50kHz. Figure <<fig:Stepgen-Block-Diag>> shows three block
-diagrams, each is a single step pulse generator. The first diagram is
-for step type '0', (step and direction). The second is for step type
-'1' (up/down, or pseudo-PWM), and the third is for step types 2 through
-14 (various stepping patterns). The first two diagrams show position
+to perhaps 50kHz. Figure <<fig:Stepgen-Block-Diag,Step Pulse Generator Block Diagram>>
+shows three block diagrams, each is a single step pulse generator.
+The first diagram is for step type '0', (step and direction). The second is
+for step type '1' (up/down, or pseudo-PWM), and the third is for step types 2
+through 14 (various stepping patterns). The first two diagrams show position
 mode control, and the third one shows velocity mode. Control mode and
 step type are set independently, and any combination can be selected.
 
+[[fig:Stepgen-Block-Diag]]
+.Step Pulse Generator Block Diagram position mode
 (((Stepgen Block Diagram)))
 
-.Step Pulse Generator Block Diagram position mode[[fig:Stepgen-Block-Diag]]
 image::images/stepgen-block-diag.png[align="center"]
 
 .Installing
@@ -52,7 +54,7 @@ number of step generators is 8 (as defined by MAX_CHAN in stepgen.c).
 Each generator is independent, but all are updated by the same
  function(s) at the same time. In the following descriptions, '<chan>'
 is the number of a specific generator. The first generator is number 0.
-
+(((Stepgen Block Diagram)))
 .Removing
 
 ----
@@ -84,7 +86,8 @@ on the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
-.Parameters [[stepgen-parameters]]
+[[stepgen-parameters]]
+.Parameters
 
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.
    This parameter is used for both output and feedback.
@@ -130,7 +133,8 @@ if the commanded velocity changes abruptly. As in position mode, proper
 values for these parameters ensure that the motor can follow the
 generated pulse train.
 
-.Step Types[[sub:Stepgen-Step-Types]]
+[[sub:Stepgen-Step-Types]]
+.Step Types
 
 .Step Type 0
 Step type 0 is the standard step and direction type. When configured for
@@ -154,7 +158,8 @@ When using the parallel port driver the step frequency can be doubled using
 the <<parport-functions,parport reset>> function together with stepgen's
 'doublefreq' setting.
 
-.Step and Direction Timing[[fig:StepDir-timing]]
+[[fig:StepDir-timing]]
+.Step and Direction Timing
 
 image::images/stepgen-type0.png[align="center"]
 
@@ -174,21 +179,27 @@ results can happen.
 .Step Type 2 - 14
 Step types 2 through 14 are state based, and have from two to five
 outputs. On each step, a state counter is incremented or decremented.
-Figures <<fig:Two-and-Three-Phase>>, <<fig:Four-Phase>>, and 
-<<fig:Five-Phase>> show the output patterns as a function of the state
+Figures <<fig:Two-and-Three-Phase,Two-and-Three-Phase>>, <<fig:Four-Phase,Four-Phase>>, and 
+<<fig:Five-Phase,Five-Phase>> show the output patterns as a function of the state
 counter. The maximum frequency is 1,000,000,000 divided by 'steplen',
 and as in the other modes, 'maxfreq' will be lowered if it is above the
 limit.
 
-.Two-and-Three-Phase Step Types[[fig:Two-and-Three-Phase]]
+[[fig:Two-and-Three-Phase]]
+.Two-and-Three-Phase Step Types
+(((Two and Three Phase)))
 
 image::images/stepgen-type2-4.png[align="center"]
 
-.Four-Phase Step Types[[fig:Four-Phase]]
+[[fig:Four-Phase]]
+.Four-Phase Step Types
+(((Four Phase)))
 
 image::images/stepgen-type5-10.png[align="center", width=800]
 
-.Five-Phase Step Types[[fig:Five-Phase]]
+[[fig:Five-Phase]]
+.Five-Phase Step Types
+(((Five Phase)))
 
 image::images/stepgen-type11-14.png[align="center"]
 
@@ -214,7 +225,8 @@ the thread periond in
 nanoseconds. The other two functions can be called at a much lower
 rate.
 
-== PWMgen[[sec:PWMgen]](((pwmgen)))
+[[sec:PWMgen]]
+== PWMgen(((pwmgen)))
 
 This component provides software based generation of PWM (Pulse Width
 Modulation) and PDM (Pulse Density Modulation) waveforms. It is a
@@ -328,7 +340,8 @@ capabilities of the computer. That thread's period determines the
 maximum PWM carrier frequency, as well as the resolution of the PWM or
 PDM signals. The other function can be called at a much lower rate.
 
-== Encoder[[sec:Encoder]](((encoder)))
+[[sec:Encoder]]
+== Encoder(((encoder)))
 
 This component provides software based counting of signals from
 quadrature encoders. It is a realtime component only, and depending on
@@ -342,10 +355,12 @@ A 100 pulse per revolution encoder will have 400 counts. The spindle speed
 of 3000 RPM = 50 RPS (revolutions per second). 400 * 50 = 20,000 counts per
 second or 50 us between counts.
 
- Figure <<fig:Encoder-Block-Diag>> is a block
-diagram of one channel of encoder counter. 
+Figure <<fig:Encoder-Block-Diag,Encoder Counter Block Diagram>> is a block
+diagram of one channel of encoder counter.
 
-.Encoder Counter Block Diagram[[fig:Encoder-Block-Diag]]
+[[fig:Encoder-Block-Diag]]
+.Encoder Counter Block Diagram
+(((Encoder Block Diagram)))
 
 image::images/encoder-block-diag.png[align="center"]
 
@@ -456,16 +471,19 @@ not supported.
 * '(funct) encoder.capture-position' - Low speed function to update
    latches and scale position.
 
-== PID[[sec:PID]](((pid)))
+[[sec:PID]]
+== PID(((pid)))
 
 This component provides Proportional/Integral/Derivative control
 loops. It is a realtime component only. For simplicity, this discussion
 assumes that we are talking about position loops, however this
 component can be used to implement other feedback loops such as speed,
-torch height, temperature, etc. Figure <<fig:PID-block-diag>> is a
+torch height, temperature, etc. Figure <<fig:PID-block-diag,PID Loop Block Diagram>> is a
 block diagram of a single PID loop.
 
-.PID Loop Block Diagram[[fig:PID-block-diag]]
+[[fig:PID-block-diag]]
+.PID Loop Block Diagram
+(((PID Block Diagram)))
 
 image::images/pid-block-diag.png[align="center"]
 
@@ -577,7 +595,7 @@ and execute at different rates.
    for a single PID loop.
 
 If you want to understand the exact algorithm used to compute the
-output of the PID loop, refer to figure <<fig:PID-block-diag>>, the
+output of the PID loop, refer to figure <<fig:PID-block-diag,PID Loop Block Diagram>>, the
 comments at the beginning of 'emc2/src/hal/components/pid.c' , and of
 course to the code itself. The loop calculations are in the C
 function 'calc_pid()'.
@@ -636,7 +654,8 @@ simulated encoders.
 * '(funct) sim-encoder.update-speed' - Low speed function to read
    'speed', do scaling, and set up 'make-pulses'.
 
-== Debounce[[sec:Debounce]](((debounce)))
+[[sec:Debounce]]
+== Debounce(((debounce)))
 
 Debounce is a realtime component that can filter the glitches created
 by mechanical switch contacts. It may also be useful in other
@@ -770,7 +789,8 @@ components.]
 
 * '(funct) siggen.<chan>.update' - Calculates new values for all five outputs. 
 
-== lut5 [[sec:lut5]](((lut5)))
+[[sec:lut5]]
+== lut5(((lut5)))
 
 The lut5 component is a 5 input logic component based on a look up table.
 
