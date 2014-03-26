@@ -281,7 +281,8 @@ The interpreter maintains a number of read-only parameters:
 * '5420-5428' - Current Position including offsets in current program
     units (X Y Z A B C U V W)
 
-=== Subroutine Parameters [[sub:subroutine-parameters]]
+[[sub:subroutine-parameters]]
+=== Subroutine Parameters
 
 1-30::
      Subroutine local parameters of call arguments. These parameters are

@@ -371,7 +371,7 @@ For each axis, the following dictionary keys are available:
 
 *axisType*:: '(returns integer)' -
 type of axis configuration parameter, reflects
-[AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sub:[AXIS]-section, Axis
+[AXIS_x]TYPE. LINEAR=1, ANGULAR=2. See <<sub:AXIS-section, Axis
 ini configuration>> for details.
 
 *backlash*:: '(returns float)' -

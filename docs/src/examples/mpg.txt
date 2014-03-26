@@ -11,7 +11,7 @@ sure you don't have mux4 or an encoder already in use. If you do just
 increase the counts and change the reference numbers. More information
 about mux4 and encoder can be found in the HAL manual or the man page.
 
-See the <<sub:[HAL]-section,HAL Ini Section>> of the manual for more
+See the <<sub:HAL-section,HAL Ini Section>> of the manual for more
 information on adding a hal file.
 
 .jog.hal
