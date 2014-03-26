@@ -142,7 +142,7 @@ The step generator supports 15 different 'step types'. Step type 0 is
 the most familiar, standard step and direction. When configured for
 step type 0, there are four extra parameters that determine the exact
 timing of the step and direction signals. See figure 
-<<fig:StepDir-timing>> for the meaning of these parameters. The
+<<fig:StepDir-timing,StepDir Timing>> for the meaning of these parameters. The
 parameters are in nanoseconds, but will be rounded up to an integer
 multiple of the thread period for the threaed that calls
 'make_pulses()'. For example, if 'make_pulses()'  is called every 16 us,
@@ -156,7 +156,8 @@ will be lowered automatically. If
 maxfreq is zero, it will remain zero, but the output frequency will
 still be limited.
 
-.Step and Direction Timing[[fig:StepDir-timing]]
+[[fig:StepDir-timing]]
+.Step and Direction Timing
 
 image::images/stepgen-type0.png[]
 

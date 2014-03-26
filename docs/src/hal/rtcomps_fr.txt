@@ -167,7 +167,6 @@ automatiquement. Si _maxfreq_ est à zéro, il restera à zéro, mais la
 fréquence de sortie sera toujours limitée.
 
 [[fig:StepDir-timing]]
-
 .Timing pas et direction
 
 (((Timing pas et direction)))

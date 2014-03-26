@@ -159,7 +159,6 @@ the <<parport-functions,parport reset>> function together with stepgen's
 'doublefreq' setting.
 
 [[fig:StepDir-timing]]
-
 .Step and Direction Timing
 
 image::images/stepgen-type0.png[align="center"]
