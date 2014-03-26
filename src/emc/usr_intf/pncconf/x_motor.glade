@@ -312,7 +312,7 @@
             <child type="label">
               <object class="GtkLabel" id="label311">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Servo Info</property>
+                <property name="label" translatable="yes">PID Info</property>
                 <property name="use_markup">True</property>
               </object>
             </child>
@@ -2008,7 +2008,7 @@ Scale</property>
     <property name="step_increment">0.001</property>
   </object>
   <object class="GtkAdjustment" id="xfeed_adjust">
-    <property name="value">0.100</property>
+    <property name="value">0.1</property>
     <property name="upper">10</property>
     <property name="step_increment">0.001</property>
   </object>

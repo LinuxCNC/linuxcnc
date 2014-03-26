@@ -199,7 +199,7 @@ class Data:
         self.pncconf_loaded_version = 3.0 # This will version number for new configs or be overwritten by a loaded file to the files version.
         self._re_editmode = False
         self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
-
+        self.advanced_options = False
         self._substitution_list=[]
 
         # basic machine data
