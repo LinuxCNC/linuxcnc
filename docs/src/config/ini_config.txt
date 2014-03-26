@@ -89,7 +89,8 @@ names and variable names as shown. In the following example the variable
 MACHINE = My Machine
 ----
 
-=== Custom Sections and Variables [[sub:custom-variables]]
+[[sub:custom-variables]]
+=== Custom Sections and Variables
 
 Most sample configurations use custom sections and variables to put all of the
 settings into one location for convenience.

@@ -78,7 +78,7 @@ on the step type and control type selected.
    no steps are generated.
 * '(bit) stepgen.<chan>.step' - Step pulse output (step type 0 only).
 * '(bit) stepgen.<chan>.dir' - Direction output (step type 0 only).
-* '(bit) stepgen.<chan>.up' - UP pseudo-PWM output (step ty[[sec:Stepgen]]pe 1 only).
+* '(bit) stepgen.<chan>.up' - UP pseudo-PWM output (step type 1 only).
 * '(bit) stepgen.<chan>.down' - DOWN pseudo-PWM output (step type 1 only).
 * '(bit) stepgen.<chan>.phase-A' - Phase A output (step types 2-14 only).
 * '(bit) stepgen.<chan>.phase-B' - Phase B output (step types 2-14 only).
@@ -782,7 +782,7 @@ is 2.5 and 'siggen.0.offset' is 10.0, then the outputs will swing from
 
 .Parameters
 
-None. footnote:[Prior to vmauvais délimiteurs de code précédemment introduits par erreurersion 2.1, frequency, amplitude, and offset
+None. footnote:[Prior to version 2.1, frequency, amplitude, and offset
 were parameters. They were changed to pins to allow control by other
 components.] 
 

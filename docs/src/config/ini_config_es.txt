@@ -102,7 +102,7 @@ names and variable names as shown. In the following example the variable
 MACHINE = My Machine
 ----
 
-[[sec:custom-variables]]
+[[sub:custom-variables]]
 === Custom Sections and Variables
 
 Most sample configurations use custom sections and variables to put all of the
@@ -121,15 +121,10 @@ To add a custom variable to a LinuxCNC section simply include the variable
 in that section.
 
 .Custom Variable Example
-----asciidoc code:
-
-[[sub:TRAJ-section]]
-=== [TRAJ] Section
-
-[AXIS_0]
-
-TYPE = LINEAR
 ----
+[AXIS_0]
+TYPE = LINEAR
+...
 SCALE = 16000
 ----
 
@@ -143,7 +138,7 @@ setp stepgen.0.position-scale [AXIS_0]SCALE
 ----
 
 [NOTE]
-The value stored in the variable must match the type specificied by the
+The value stored in the variable must match the type specified by the
 component pin.
 
 [[sec:INI-Detail]]
@@ -731,7 +726,7 @@ The following are custom INI file entries that you may find in a sample INI file
 or a wizard generated file. These are not used by the LinuxCNC software. They
 are only there to put all the settings in one place. For more information on
 custom INI file entries see the
-<<sec:custom-variables,Custom Sections and Variables>> subsection.
+<<sub:custom-variables,Custom Sections and Variables>> subsection.
 
 The following items might be used by a PID component and the assumption is
 that the output is volts.
@@ -921,7 +916,7 @@ The following are custom INI file entries that you may find in a sample INI file
 or a wizard generated file. These are not used by the LinuxCNC software. They
 are only there to put all the settings in one place. For more information on
 custom INI file entries see the
-<<sec:custom-variables,Custom Sections and Variables>> subsection.
+<<sub:custom-variables,Custom Sections and Variables>> subsection.
 
 The following items might be used by a stepgen component.
 

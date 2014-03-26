@@ -404,7 +404,7 @@ linéaires, en unités machine par seconde. Seulement utilisé dans l'interface 
 * _MIN_LINEAR_VELOCITY = .01_ - Approximativement la valeur minimale du curseur
 de vitesse de jog.
 
-* _DEFAULT_ANGULAR_VELOCITYI agree to the Spanish translation. But patience. = .25_ - Vitesse minimum par défaut pour les jogs
+* _DEFAULT_ANGULAR_VELOCITY = .25_ - Vitesse minimum par défaut pour les jogs
 angulaires, en unités machine par seconde. Seulement utilisé dans l'interface AXIS.
 
 * _MIN_ANGULAR_VELOCITY = .01_ - Valeur approximative minimale du curseur de

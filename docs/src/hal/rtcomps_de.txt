@@ -2,7 +2,8 @@
 
 [[cha:realtime-components]] (((Realtime Components)))
 
-== Stepgen[[sec:Stepgen]](((stepgen)))
+[[sec:Stepgen]]
+== Stepgen(((stepgen)))
 
 This component provides software based generation of step pulses in
 response to position or velocity commands. In position mode, it has a
