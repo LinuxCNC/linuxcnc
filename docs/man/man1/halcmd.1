@@ -216,11 +216,15 @@ this just as if it were:
 \fBnet\fR \fIsigname\fR \fIpinname\fR \fI...\fR
 Create \fIsignname\fR to match the type of \fIpinname\fR if it does not yet
 exist.  Then, link \fIsigname\fR to each \fIpinname\fR in turn.  Arrows may
-be used as in \fBlinkps\fR.
+be used as in \fBlinkps\fR. When linking a pin to a signal for the first
+time, the signal value will inherit the pin's default value.
+
 .TP
 \fBunlinkp\fR \fIpinname\fR
 (\fIunlink\fR \fIp\fRin)  Breaks any previous link to \fIpinname\fR.
-Fails if \fIpinname\fR does not exist.
+Fails if \fIpinname\fR does not exist. An unlinked pin will retain the last
+value of the signal it was linked to.
+
 .TP
 \fBsetp\fR \fIname\fR \fIvalue\fR
 (\fIset\fR \fIp\fRarameter or \fIp\fRin)  Sets the value of parameter or pin
