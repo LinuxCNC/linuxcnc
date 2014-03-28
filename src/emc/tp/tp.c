@@ -200,8 +200,8 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
-    double v_max_target = tpGetMaxTargetVel(tp,tc);
-    return fmin(tc->reqvel * tpGetFeedScale(tp,tc),v_max_target);
+    double v_max = tpGetMaxTargetVel(tp, tc);
+    return fmin(tc->reqvel * tpGetFeedScale(tp,tc), v_max);
 }
 
 
@@ -209,7 +209,16 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
  * Get the worst-case target velocity for a segment based on the trajectory planner state.
  */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc->maxvel);
+    // Get maximum reachable velocity from max feed override
+    double v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
+    // Clip maximum velocity by tc maxvel
+    double v_max = fmin(v_max_target, tc->maxvel);
+
+    // Check if vLimit applies
+    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
+        sat_inplace(&v_max, tp->vLimit);
+    }
+    return v_max;
 }
 
 
@@ -1968,11 +1977,6 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
     double dx = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
 
-    // Crude fix for velocity ripples from Sam's test
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        sat_inplace(&tc_finalvel, tp->vLimit);
-    }
-
     double discr_term1 = pmSq(tc_finalvel);
     double discr_term2 = maxaccel * (2.0 * dx - tc->currentvel * tc->cycle_time);
     double tmp_adt = maxaccel * tc->cycle_time * 0.5;
@@ -2002,12 +2006,6 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
     // Note that we use a separate variable later to check if we're on final decel
     double newvel = saturate(maxnewvel, tc_target_vel);
 
-    // If we have cartesian motion that's not synched with spindle position,
-    // then clamp the tool tip velocity at the limit specified in the INI file.
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        sat_inplace(&newvel, tp->vLimit);
-    }
-
     // Calculate acceleration needed to reach newvel, bounded by machine maximum
     double maxnewaccel = (newvel - tc->currentvel) / tc->cycle_time;
     *acc = saturate(maxnewaccel, maxaccel);
@@ -2030,12 +2028,6 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 
     double target_vel = tpGetRealTargetVel(tp, tc);
     double vel_final = tpGetRealFinalVel(tp, tc, target_vel);
-
-    // If we have cartesian motion that's not synched with spindle position,
-    // then clamp the tool tip velocity at the limit specified in the INI file.
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        sat_inplace(&vel_final, tp->vLimit);
-    }
 
     /* Check if the final velocity is too low to properly ramp up.*/
     if (vel_final < TP_VEL_EPSILON) {
