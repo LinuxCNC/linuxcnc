@@ -2010,7 +2010,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
         TC_STRUCT * const tc, double * const acc, double * const vel_desired)
 {
     tc_debug_print("using ramped acceleration\n");
-    //Initial guess at dt for next round
+    // displacement remaining in this segment
     double dx = tc->target - tc->progress;
 
     if (!tc->blending_next) {
@@ -2020,8 +2020,13 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
     double target_vel = tpGetRealTargetVel(tp, tc);
     double vel_final = tpGetRealFinalVel(tp, tc, target_vel);
 
-    /* Check if the final velocity is too low to properly ramp up.
-     */
+    // If we have cartesian motion that's not synched with spindle position,
+    // then clamp the tool tip velocity at the limit specified in the INI file.
+    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
+        sat_inplace(&vel_final, tp->vLimit);
+    }
+
+    /* Check if the final velocity is too low to properly ramp up.*/
     if (vel_final < TP_VEL_EPSILON) {
         tp_debug_print(" vel_final %f too low for velocity ramping\n", vel_final);
         return TP_ERR_FAIL;
