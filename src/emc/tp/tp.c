@@ -1962,6 +1962,11 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
     double dx = tc->target - tc->progress;
     double maxaccel = tpGetScaledAccel(tp, tc);
 
+    // Crude fix for velocity ripples from Sam's test
+    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
+        sat_inplace(&tc_finalvel, tp->vLimit);
+    }
+
     double discr_term1 = pmSq(tc_finalvel);
     double discr_term2 = maxaccel * (2.0 * dx - tc->currentvel * tc->cycle_time);
     double tmp_adt = maxaccel * tc->cycle_time * 0.5;
