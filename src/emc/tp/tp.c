@@ -54,6 +54,8 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
 STATIC inline int tpAddSegmentToQueue(TP_STRUCT * const tp, TC_STRUCT * const tc, int inc_id);
 
+STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc);
+
 /**
  * @section tpcheck Internal state check functions.
  * These functions compartmentalize some of the messy state checks.
@@ -198,7 +200,8 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
-    return fmin(tc->target_vel * tpGetFeedScale(tp,tc),tc->maxvel);
+    double v_max_target = tpGetMaxTargetVel(tp,tc);
+    return fmin(tc->reqvel * tpGetFeedScale(tp,tc),v_max_target);
 }
 
 
@@ -206,8 +209,7 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
  * Get the worst-case target velocity for a segment based on the trajectory planner state.
  */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
-    double tc_maxvel = tc->maxvel;
-    return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc_maxvel);
+    return fmin(tc->target_vel * emcmotConfig->maxFeedScale, tc->maxvel);
 }
 
 
@@ -225,7 +227,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
         return 0.0;
     } else {
         //Clamp final velocity to the max velocity we can achieve
-        double finalvel = tc->finalvel * fmin(tpGetFeedScale(tp,tc),1.0);
+        double finalvel = tc->finalvel;
         if (finalvel > target_vel) {
             finalvel = target_vel;
         }
@@ -822,8 +824,9 @@ STATIC int tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
-    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_req,
             param.v_plan, param.a_max);
+    blend_tc->target_vel = param.v_actual;
 
     int res_tangent = checkTangentAngle(&circ2_temp,
             &blend_tc->coords.arc.xyz,
@@ -970,8 +973,9 @@ STATIC int tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc,
     blend_tc->coords.arc.uvw = tc->coords.line.uvw.start;
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
-    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_req,
             param.v_plan, param.a_max);
+    blend_tc->target_vel = param.v_actual;
 
     int res_tangent = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, false);
     if (res_tangent) {
@@ -1109,8 +1113,9 @@ STATIC int tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc, 
     blend_tc->coords.arc.uvw = prev_tc->coords.circle.uvw.end;
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
-    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_req,
             param.v_plan, param.a_max);
+    blend_tc->target_vel = param.v_actual;
 
     int res_tangent1 = checkTangentAngle(&circ1_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, false);
     int res_tangent2 = checkTangentAngle(&circ2_temp, &blend_tc->coords.arc.xyz, &geom, &param, tp->cycleTime, true);
@@ -1175,8 +1180,9 @@ STATIC int tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const prev_tc
     blend_tc->coords.arc.uvw = prev_tc->coords.line.uvw.end;
 
     //set the max velocity to v_plan, since we'll violate constraints otherwise.
-    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_actual,
+    tpInitBlendArcFromPrev(tp, prev_tc, blend_tc, param.v_req,
             param.v_plan, param.a_max);
+    blend_tc->target_vel = param.v_actual;
 
     int retval = TP_ERR_FAIL;
 
@@ -2451,8 +2457,12 @@ STATIC int tpActivateSegment(TP_STRUCT * const tp, TC_STRUCT * const tc) {
     }
 
     // Temporary debug message
-    tp_debug_print("Activate tc id = %d target_vel = %f final_vel = %f length = %f\n",
-            tc->id, tc->target_vel,tc->finalvel,tc->target);
+    tp_debug_print("Activate tc id = %d target_vel = %f req_vel = %f final_vel = %f length = %f\n",
+            tc->id,
+            tc->target_vel,
+            tc->reqvel,
+            tc->finalvel,
+            tc->target);
 
     tc->active = 1;
     //Do not change initial velocity here, since tangent blending already sets this up
