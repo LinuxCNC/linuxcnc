@@ -183,7 +183,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         } 
 
-        double maxFeedScale;
+        double maxFeedScale = 1.0;
         trajInifile->Find(&maxFeedScale, "MAX_FEED_OVERRIDE", "DISPLAY");
 
         if (0 != emcSetMaxFeedOverride(maxFeedScale)) {
