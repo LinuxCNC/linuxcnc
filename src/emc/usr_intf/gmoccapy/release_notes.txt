@@ -1,3 +1,8 @@
+ver. 1.1
+- this is the "final" version, ready to be included in a release candidate
+  I did not change anything related to the last push, but after 1.10.2, I 
+  made a mistake with the release number, this push correct the error.
+
 ver. 1.0.3.2
 - includes version number also in settings page as label in the botton button bar
 
