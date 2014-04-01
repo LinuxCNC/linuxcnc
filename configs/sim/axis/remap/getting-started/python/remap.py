@@ -3,7 +3,8 @@ import traceback
 from math import sin,cos
 
 from interpreter import *
-from emccanon import MESSAGE
+from emccanon import MESSAGE, SET_MOTION_OUTPUT_BIT, CLEAR_MOTION_OUTPUT_BIT,SET_AUX_OUTPUT_BIT,CLEAR_AUX_OUTPUT_BIT
+
 from util import lineno, call_pydevd
 
 throw_exceptions = 1 # raises InterpreterException if execute() or read() fail
@@ -70,3 +71,26 @@ def involute(self, **words):
     return INTERP_OK
 
 
+def m462(self, **words):
+    """ remap function which does the equivalent of M62, but via Python """
+
+    p = int(words['p'])
+    q = int(words['q'])
+
+    if q:
+        SET_MOTION_OUTPUT_BIT(p)
+    else:
+        CLEAR_MOTION_OUTPUT_BIT(p)
+    return INTERP_OK
+
+def m465(self, **words):
+    """ remap function which does the equivalent of M65, but via Python """
+
+    p = int(words['p'])
+    q = int(words['q'])
+
+    if q:
+        SET_AUX_OUTPUT_BIT(p)
+    else:
+        CLEAR_AUX_OUTPUT_BIT(p)
+    return INTERP_OK
