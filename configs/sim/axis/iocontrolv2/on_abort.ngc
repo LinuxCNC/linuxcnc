@@ -29,6 +29,30 @@
 ;
 O<on_abort> sub
  (DEBUG, on_abort called, reason = [#1])
+o<if1> if [#1 EQ 1] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_EXEC_ERROR)
+o<if1> endif
+o<if2> if [#1 EQ 2] 
+          (DEBUG, on_abort called: EMC_ABORT_AUX_ESTOP)
+o<if2> endif
+o<if3> if [#1 EQ 3] 
+          (DEBUG, on_abort called: EMC_ABORT_MOTION_OR_IO_RCS_ERROR)
+o<if3> endif
+o<if4> if [#1 EQ 4] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_OFF)
+o<if4> endif
+o<if5> if [#1 EQ 5] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_ESTOP_RESET)
+o<if5> endif
+o<if6> if [#1 EQ 6] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_ESTOP)
+o<if6> endif
+o<if7> if [#1 EQ 7] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_STATE_NOT_ON)
+o<if7> endif
+o<if8> if [#1 EQ 8] 
+          (DEBUG, on_abort called: EMC_ABORT_TASK_ABORT)
+o<if8> endif
 ; (DEBUG, deasserting motion.digital-out-00 as iocontrol.tool-prepare)
 ;
 M65 P0

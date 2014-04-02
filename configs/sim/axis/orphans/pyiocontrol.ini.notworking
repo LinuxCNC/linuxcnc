@@ -82,7 +82,7 @@ DISPLAY =             axis
 #OPEN_FILE=../../nc_files/m66test.ngc
 #OPEN_FILE=/home/mah/emc2-tc/nc_files/arcspiral.ngc
 #OPEN_FILE=/home/mah/emc2-tc/nc_files/taskcall.ngc
-OPEN_FILE=./nc_files/taskcall.ngc
+OPEN_FILE=./taskcall.ngc
 
 # Cycle time, in seconds, that display will sleep between polls
 CYCLE_TIME =            0.100
@@ -133,7 +133,8 @@ CYCLE_TIME =            0.001
 
 [PYTHON]
 
-PLUGIN_DIR=/home/mah/emc2-tc/configs/sim/pysubs
+#PLUGIN_DIR=/home/mah/emc2-tc/configs/sim/pysubs
+PLUGIN_DIR=./pysubs
 
 # import the following Python modules
 MODULE_BASENAME=plugins
