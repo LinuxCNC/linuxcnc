@@ -790,6 +790,14 @@ class pyvcp_spinbox(Spinbox):
         pycomp.newpin(halpin, HAL_FLOAT, HAL_OUT)
         self.bind('<Button-4>',self.wheel_up)
         self.bind('<Button-5>',self.wheel_down)
+        self.bind('<Return>',self.return_pressed)
+
+    def return_pressed(self, event):
+        self.value = self.v.get()
+        if self.value < self.min_:
+            self.value = self.min_
+        if self.value > self.max_:
+            self.value = self.max_
 
     def command(self):
         self.value = self.v.get()
