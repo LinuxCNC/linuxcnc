@@ -1,4 +1,3 @@
-
 = Canonical Device Interfaces
 
 [[cha:Canonical-Device-Interfaces]]

@@ -212,7 +212,7 @@ User Manual.
 The following [DISPLAY] items are for the AXIS interface only.
 
 * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
-   <<sub:[TRAJ]-section,machine units>> per second.
+   <<sub:TRA]-section,machine units>> per second.
 
 * 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
 
@@ -584,7 +584,7 @@ Typically (but not always):
     [TRAJ]ANGULAR_UNITS if the TYPE of this axis is ANGULAR)
 
 * 'MAX_VELOCITY = 1.2' -
-    Maximum velocity for this axis in <<sub:[TRAJ]-section,machine units>> per second.
+    Maximum velocity for this axis in <<sub:TRAJ-section,machine units>> per second.
 
 * 'MAX_ACCELERATION = 20.0' -
      Maximum acceleration for this axis in machine units per
@@ -669,7 +669,7 @@ These parameters are Homing related, for a better explanation read the
 
 * 'HOME_OFFSET = 0.0' -
      The axis position of the home switch or index pulse, in
-    <<sub:[TRAJ]-section,machine units>>. In other words, when the home point is found during
+    <<sub:TRAJ-section,machine units>>. In other words, when the home point is found during
     the homing process, this is the value or position that should be
     assigned to the home point, or initialized at the home point.
 
@@ -732,7 +732,7 @@ The following items might be used by a PID component and the assumption is
 that the output is volts.
 
 * 'DEADBAND = 0.000015' - How close is close enough to consider the motor in position,
-in <<sub:[TRAJ]-section,machine units>>. This is often set to a distance equivalent to 1, 1.5, 2,
+in <<sub:TRAJ-section,machine units>>. This is often set to a distance equivalent to 1, 1.5, 2,
 or 3 encoder counts, but there are no strict rules.
 Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy.
 Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'.
@@ -932,7 +932,7 @@ servo systems, this is the number of feedback pulses per machine unit.
 A second number, if specified, is ignored.
 
 For example, on a 1.8 degree stepper motor with half-stepping, and 10
-revs/inch gearing, and desired <<sub:[TRAJ]-section,machine units>> of inch, we
+revs/inch gearing, and desired <<sub:TRAJ-section,machine units>> of inch, we
 have:
 
 image::images/stepper-scale.png[align="center"]
