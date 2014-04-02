@@ -1,3 +1,7 @@
+ver. 1.1.1
+- small bug in macro button handling, if a macro was not found, gmoccapy
+  raised an exception, because wrong variable name.
+
 ver. 1.1
 - this is the "final" version, ready to be included in a release candidate
   I did not change anything related to the last push, but after 1.10.2, I 
