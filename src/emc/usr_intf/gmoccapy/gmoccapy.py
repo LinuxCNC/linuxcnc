@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.1"
+_RELEASE = "  1.1.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1525,7 +1525,7 @@ class gmoccapy(object):
         if not os.path.isfile(file):
             message = _("**** GMOCCAPY ERROR ****")
             message += _("\n**** File %s of the macro could not be found ****\n" % [o_codes[0] + ".ngc"])
-            message += _("**** we searched in subdirectory %s ****" % [subroutines_folder])
+            message += _("**** we searched in subdirectory %s ****" % subroutines_path)
             dialogs.warning_dialog(self, _("Important Warning"), message)
             self._add_alarm_entry(message)
             return
