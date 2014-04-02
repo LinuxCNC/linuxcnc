@@ -1051,32 +1051,38 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
 
 void SET_MOTION_OUTPUT_BIT(int index)
 {
-  return;
+    PRINT1("SET_MOTION_OUTPUT_BIT(%d)\n", index);
+    return;
 }
 
 void CLEAR_MOTION_OUTPUT_BIT(int index)
 {
-  return;
+    PRINT1("CLEAR_MOTION_OUTPUT_BIT(%d)\n", index);
+    return;
 }
 
 void SET_MOTION_OUTPUT_VALUE(int index, double value)
 {
-  return;
+    PRINT2("SET_MOTION_OUTPUT_VALUE(%d,%f)\n", index, value);
+    return;
 }
 
 void SET_AUX_OUTPUT_BIT(int index)
 {
-  return;
+    PRINT1("SET_AUX_OUTPUT_BIT(%d)\n", index);
+    return;
 }
 
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
-  return;
+    PRINT1("CLEAR_AUX_OUTPUT_BIT(%d)\n", index);
+    return;
 }
 
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
-  return;
+    PRINT2("SET_AUX_OUTPUT_VALUE(%d,%f)\n", index, value);
+    return;
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()

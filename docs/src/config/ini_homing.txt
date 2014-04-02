@@ -13,8 +13,9 @@ complicated.
 
 There are four possible homing sequences defined by the sign of SEARCH_VEL
 and LATCH_VEL, along with the associated configuration parameters as shown
-in the following table. For a more detailed description of what each
-configuration parameter does, see the following section.
+in the following table. Two basic conditions exist, SEARCH_VEL and LATCH_VEL
+are the same sign or they are opposite signs. For a more detailed description
+of what each configuration parameter does, see the following section.
 
 .Homing Sequences[[fig:motion-homing-sequence-diagram]]
 

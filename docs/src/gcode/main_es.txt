@@ -2249,8 +2249,8 @@ El O-número puede ser dada por un parámetro o el cálculo.
 
 En O-es decir, los parámetros (sección <<sub:Numbered-Parameters>>),
 Expresiones (sección <<sub:Expressions>>), 
-Los operadores binarios (sección <<sub:Binary-Operators>>), 
-y funciones (tabla <<cap:Functions>>) son particularmente útiles.
+Los operadores binarios (sección <<sub:Binary-Operators,Binary Operators>>), 
+y funciones (tabla <<cap:Functions,operators>>) son particularmente útiles.
 
 == Archivos de Llamadas
 (((llamadas archivos)))
