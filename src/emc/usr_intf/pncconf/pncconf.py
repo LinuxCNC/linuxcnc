@@ -21,7 +21,7 @@
 _DEBUGSTRING = ["NONE"]
 import sys
 import os
-import trace
+
 # this is for importing modules from lib/python/pncconf
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python","pncconf")
@@ -4200,19 +4200,24 @@ class App:
             self.warning_dialog(text,True)
 
     def check_for_rt(self,fussy=True):
-        actual_kernel = os.uname()[2]
-        if hal.is_sim == 1 :
-            if fussy:
-                self.warning_dialog(_("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of external hardware is unavailable."),True)
+        if not _DEBUGSTRING is None:
+            return True
+        try:
+            actual_kernel = os.uname()[2]
+            if hal.is_sim == 1 :
+                if fussy:
+                    self.warning_dialog(_("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of external hardware is unavailable."),True)
+                    return False
+                else:
+                    return True
+            elif hal.is_rt and not hal.kernel_version == actual_kernel:
+                self.warning_dialog(_("""You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
                 return False
             else:
                 return True
-        elif hal.is_rt and not hal.kernel_version == actual_kernel:
-            self.warning_dialog(_("""You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of external  hardware is unavailable.\n This is probably because you updated the OS and it doesn't load the RTAI kernel anymore\n You are using the %(actual)s kernel instead of %(needed)s""")% {'actual':actual_kernel, 'needed':hal.kernel_version},True)
-            return False
-        else:
+        except:
             return True
-       
+
     def on_page_newormodify_prepare(self, *args):
         global mesaboardnames
         global mesafirmwaredata
@@ -8893,6 +8898,7 @@ But there is not one in the machine-named folder.."""),True)
         pwmmaxoutput = get_value(w[axis+"outputscale"])
              
         self.halrun = halrun = os.popen("halrun -I > /dev/null", "w")
+
         halrun.write("""
         loadrt threads period1=%(period)d name1=fast fp1=0 period2=%(period2)d name2=slow
         loadusr halscope
@@ -9196,7 +9202,9 @@ But there is not one in the machine-named folder.."""),True)
         enc_scale = get_value(widgets[axis+"encoderscale"])
         pump = self.data.findsignal("charge-pump")
 
-        halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))       
+        halrun.write("loadrt threads period1=%d name1=fast fp1=0 period2=%d name2=slow \n" % (100000, self.data.servoperiod  ))
+        if not _DEBUGSTRING is None:
+            halrun.write("echo\n")
         self.hal_cmnds("LOAD")
         #halrun.write("loadrt steptest\n")
         halrun.write("loadusr halscope\n")
@@ -9521,7 +9529,7 @@ But there is not one in the machine-named folder.."""),True)
                 for i in range(1,9):
                     if i <= self.data.mesa1_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
-                        if "m1" in self.data["mesa1sserial1_%dsubboard"% (i-1)]:
+                        if "m1" in self.data["mesa1sserial0_%dsubboard"% (i-1)]:
                             temp = temp + "1"
                         else:
                             temp = temp + "0"
@@ -9972,10 +9980,7 @@ def makedirs(d):
     except os.error, detail:
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
-tracer = trace.Trace(
-    ignoredirs=[sys.prefix, sys.exec_prefix],
-    trace=1,
-    count=0)
+
 opts, args = getopt.getopt(sys.argv[1:], "dfr")
 mode = 0
 force = 0
@@ -9993,12 +9998,8 @@ if debugswitch:
     app = App(1)
     app.run()
 elif args:
-    tracer.run('App(arg[0]')
-    #app = App()
-    #app.run(args[0])
+    app = App()
+    app.run(args[0])
 else:
     app = App()
-    tracer.run('app.run()')
-    #app.run()
-r = tracer.results()
-r.write_results(show_missing=True, coverdir=".")
+    app.run()
