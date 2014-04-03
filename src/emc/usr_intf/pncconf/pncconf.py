@@ -21,6 +21,7 @@
 _DEBUGSTRING = ["NONE"]
 import sys
 import os
+import trace
 # this is for importing modules from lib/python/pncconf
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 libdir = os.path.join(BASE, "lib", "python","pncconf")
@@ -193,178 +194,83 @@ _IMPERIAL = 0;_METRIC = 1
 # has watchdog, max GPIOI, 
 # low frequency rate , hi frequency rate, 
 # available connector numbers,  then list of component type and logical number
-mesafirmwaredata = [
+mesafirmwaredata_internal = [
+    ['5i25-Internal Data', '5i25', '7i76x2 -With One 7i76', '5i25', 'hm2_pci', 1,3, 0,0, 0,3, 0,0, 5,2, 1,2, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+        # TAB 3
+        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],
+        [SS7I76M0,0],[RXDATA0,0],[TXDATA1,0],[RXDATA1,0],[ENCI,0],[ENCB,0],[ENCA,0],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+        # TAB 2
+        [GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],
+        [GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],],
+
+    ["5i25-Internal Data", "5i25", "7i76x2", "5i24", "hm2_pci", 2,3, 0,0, 0,3, 0,0, 10,2, 1,4, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [3,2],
+        # TAB 3
+        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],
+        [SS7I76M0,0],[RXDATA0,0],[TXDATA1,0],[RXDATA1,0],[ENCI,0],[ENCB,0],[ENCA,0],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+        # TAB 2
+        [STEPA,5],[STEPB,5],[STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],
+        [SS7I76M2,0],[RXDATA2,0],[TXDATA3,0],[RXDATA3,0],[ENCI,1],[ENCB,1],[ENCA,1],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', '7i77_7i76', '5i25', 'hm2_pci', 6,3, 0,0, 0,3, 0,0, 5,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+        # Tab 3
+        [TXEN2, 0],[TXDATA2, 0],[RXDATA2, 0],[SS7I77M1, 0],[RXDATA1, 0],[SS7I77M0, 0],[RXDATA0, 0],[MXES, 0],[MXE0, 0],[MXE1, 0],
+        [MXEI, 0],[MXE0, 1],[MXE1, 1],[MXEI, 1],[MXE0, 2],[MXE1, 2],[MXEI, 2],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+        # TAB 2
+        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],
+        [SS7I76M3,0],[RXDATA3,0],[TXDATA4,0],[RXDATA4,0],[ENCI,0],[ENCB,0],[ENCA,0],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', '7i77x2 With One 7i77', '5i25', 'hm2_pci', 6,3, 0,0, 0,3, 0,0, 0,2, 1,3, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
+        # TAB 3
+        [TXEN2, 0],[TXDATA2, 0],[RXDATA2, 0],[SS7I77M1, 0],[RXDATA1, 0],[SS7I77M0, 0],[RXDATA0, 0],[MXES, 0],[MXE0, 0],[MXE1, 0],
+        [MXEI, 0],[MXE0, 1],[MXE1, 1],[MXEI, 1],[MXE0, 2],[MXE1, 2],[MXEI, 2],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+        # TAB 2
+        [GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],
+        [GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],[GPIOI, 0],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', '7i77x2', '5i25', 'hm2_pci', 12,3, 0,0, 0,3, 0,0, 0,2, 1,6, 0,0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2], 
+        # TAB 3
+        [TXEN2, 0],[TXDATA2, 0],[RXDATA2, 0],[SS7I77M1, 0],[RXDATA1, 0],[SS7I77M0, 0],[RXDATA0, 0],[MXES, 0],[MXE0, 0],[MXE1, 0],
+        [MXEI, 0],[MXE0, 1],[MXE1, 1],[MXEI, 1],[MXE0, 2],[MXE1, 2],[MXEI, 2],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],
+        # TAB 2
+        [TXEN5, 0],[TXDATA5, 0],[RXDATA5, 0],[SS7I77M4, 0],[RXDATA4, 0],[SS7I77M3, 0],[RXDATA3, 0],[MXES, 3],[MXE0, 3],[MXE1, 3],
+        [MXEI, 3],[MXE0, 4],[MXE1, 4],[MXEI, 4],[MXE0, 5],[MXE1, 5],[MXEI, 5],
+        [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],],
+
+    ['5i25-Internal Data', '5i25', 'prob_rfx2', '5i25', 'hm2_pci', 2,3, 0,0, 2,3, 0,0, 8,2, 0,0, 0,0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
+        # TAB 3
+        [GPIOI, 0],[PWMP, 0],[STEPA, 0],[GPIOI, 0],[STEPB, 0],[PWMD, 0],[STEPA, 1],[GPIOI, 0],[STEPB, 1],[STEPA, 2],
+        [STEPB, 2],[STEPA, 3],[STEPB, 3],[GPIOI, 0],[ENCA, 0],[ENCB, 0],[ENCI, 0],
+        [NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],
+        # TAB 2
+        [GPIOI, 0],[PWMP, 1],[STEPA, 4],[GPIOI, 0],[STEPB, 4],[PWMD, 1],[STEPA, 5],[GPIOI, 0],[STEPB, 5],
+        [STEPA, 6],[STEPB, 6],[STEPA, 7],[STEPB, 7],[GPIOI, 0],[ENCA, 1],[ENCB, 1],[ENCI, 1],
+        [NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],[NUSED, 0],],
+
     ["5i20", "5i20", "SV12", "5i20", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
         [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
+        [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
         [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
+        [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
         [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
-                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
+        [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10]
+    ],
     ["5i20", "5i20", "SVST8_4", "5i20", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 4,2, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST2_4_7I47", "5i20", "hm2_pci", 4,3, 0,0, 2,2, 0,0, 4,2, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
-        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[ENCA,0],[ENCA,2],[ENCB,0],[ENCB,2],[ENCI,0],[ENCI,2],[ENCA,1],[ENCA,3],
-                [ENCB,1],[ENCB,3],[ENCI,1],[ENCI,3],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[PWMP,0],[PWMD,0],[PWMP,1],[PWMD,1],
-        [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-        [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0], ],
-    ["5i20", "5i20", "SVST2_8", "5i20", "hm2_pci", 2,3, 0,0, 2,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-        [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                  [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i20", "5i20", "SVST8_4IM2", "5i20", "hm2_pci", 8,4, 0,0, 8,4, 0,0, 4,2, 0,0, 1, 72, 33, 100, [2,3,4],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [ENCM,0],[ENCM,1],[ENCM,2],[ENCM,3],[ENCM,4],[ENCM,5],[ENCM,6],[ENCM,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                 [GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3] ],
-    ["5i22-1", "5i22", "SV16", "5i22-1", "hm2_pci", 16,3, 0,0, 16,3, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
-                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
-        [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
-                  [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1", "5i22", "SVST8_8", "5i22-1", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
-       [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-       [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-       [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-       [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1", "5i22", "SVST8_24", "5i22-1", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 24,2, 0,0, 1, 96, 48, 96, [2,3,4,5],
-       [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-       [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-       [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
-                [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
-       [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
-                [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i22-1.5", "5i22", "SV16", "5i22-1.5", "hm2_pci", 16,3, 0,0, 16,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
-                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
-        [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
-                  [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14] ],
-    ["5i22-1.5", "5i22", "SVST8_8", "5i22-1.5", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
-       [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-       [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-       [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-       [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i22-1.5", "5i22", "SVS8_24", "5i22-1.5", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 24,2, 0,0, 0,0,0,0,0,0,0,0, 1, 96, 48, 96, [2,3,4,5],
-       [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-       [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-       [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
-                [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
-       [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
-                [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
-    ["5i23", "5i23", "SV12", "5i23", "hm2_pci", 12,3, 0,0, 12,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 72 , 48, 96, [2,3,4],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
-                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10] ],
-    ["5i23", "5i23", "SVST8_4", "5i23", "hm2_pci", 8,3, 0,0, 8,3, 0,0, 4,6, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 48, 96, [2,3,4],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["5i23", "5i23", "SVST4_8", "5i23", "hm2_pci", 4,3, 0,0, 4,3, 0,0, 8,6, 0,0, 0,0,0,0,0,0,0,0, 1, 72, 48, 96, [2,3,4],
-       [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-       [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                 [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-       [STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                 [STEPA,6],[STEPB,6],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,7],[STEPB,7],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-2", "7i43", "SV8", "7i43-2", "hm2_7i43", 8,3, 0,0, 8,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43-2", "7i43", "SVST4_4", "7i43-2", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 4,6, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-2", "7i43", "SVST4_6", "7i43-2", "hm2_7i43", 4,4, 0,0, 6,6, 0,0, 3,4, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
-                  [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SV8", "7i43-4", "hm2_7i43", 8,3, 0,0, 8,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6] ],
-    ["7i43-4", "7i43", "SVST4_4", "7i43-4", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 4,6, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
-                  [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SVST4_6", "7i43-4", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 6,4, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],
-                  [STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[STEPA,4],[STEPB,4],[GPIOI,0],[GPIOI,0],[STEPA,5],[STEPB,5],[GPIOI,0],[GPIOI,0] ],
-    ["7i43-4", "7i43", "SVST4_12", "7i43-4", "hm2_7i43", 4,3, 0,0, 4,3, 0,0, 12,2, 0,0, 0,0,0,0,0,0,0,0, 1, 48, 50, 100, [4,3],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
-                  [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11] ],
-    ["3x20-1", "3x20", "SV24", "3x20-1", "hm2_pci", 24,3, 0,0, 24,3, 0,0, 0,0, 0,0, 0,0,0,0,0,0,0,0, 1, 144, 50, 100, [4,5,6,9,8,7],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
-                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
-        [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
-                 [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14],
-        [ENCB,17],[ENCA,17],[ENCB,16],[ENCA,16],[ENCI,17],[ENCI,16],[PWMP,17],[PWMP,16],[PWMD,17],[PWMD,16],[PWME,17],[PWME,16],
-                 [ENCB,19],[ENCA,19],[ENCB,18],[ENCA,18],[ENCI,19],[ENCI,18],[PWMP,19],[PWMP,18],[PWMD,19],[PWMD,18],[PWME,19],[PWME,18],
-        [ENCB,21],[ENCA,21],[ENCB,20],[ENCA,20],[ENCI,21],[ENCI,20],[PWMP,21],[PWMP,20],[PWMD,21],[PWMD,20],[PWME,21],[PWME,20],
-                 [ENCB,23],[ENCA,23],[ENCB,22],[ENCA,22],[ENCI,23],[ENCI,22],[PWMP,23],[PWMP,22],[PWMD,23],[PWMD,22],[PWME,23],[PWME,22] ],
-    ["3x20-1", "3x20", "SVST16_24", "3x20-1", "hm2_pci", 16,3, 0,0, 16,3, 0,0, 24,2, 0,0, 0,0,0,0,0,0,0,0, 1, 144, 50, 100, [4,5,6,9,8,7],
-        [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
-                 [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
-        [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
-                 [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
-        [ENCB,9],[ENCA,9],[ENCB,8],[ENCA,8],[ENCI,9],[ENCI,8],[PWMP,9],[PWMP,8],[PWMD,9],[PWMD,8],[PWME,9],[PWME,8],
-                 [ENCB,11],[ENCA,11],[ENCB,10],[ENCA,10],[ENCI,11],[ENCI,10],[PWMP,11],[PWMP,10],[PWMD,11],[PWMD,10],[PWME,11],[PWME,10],
-        [ENCB,13],[ENCA,13],[ENCB,12],[ENCA,12],[ENCI,13],[ENCI,12],[PWMP,13],[PWMP,12],[PWMD,13],[PWMD,12],[PWME,13],[PWME,12],
-                 [ENCB,15],[ENCA,15],[ENCB,14],[ENCA,14],[ENCI,15],[ENCI,14],[PWMP,15],[PWMP,14],[PWMD,15],[PWMD,14],[PWME,15],[PWME,14],
-        [STEPA,0],[STEPB,0],[STEPA,1],[STEPB,1],[STEPA,2],[STEPB,2],[STEPA,3],[STEPB,3],[STEPA,4],[STEPB,4],[STEPA,5],[STEPB,5],
-                [STEPA,6],[STEPB,6],[STEPA,7],[STEPB,7],[STEPA,8],[STEPB,8],[STEPA,9],[STEPB,9],[STEPA,10],[STEPB,10],[STEPA,11],[STEPB,11],
-        [STEPA,12],[STEPB,12],[STEPA,13],[STEPB,13],[STEPA,14],[STEPB,14],[STEPA,15],[STEPB,15],[STEPA,16],[STEPB,16],[STEPA,17],[STEPB,17],
-                [STEPA,18],[STEPB,18],[STEPA,19],[STEPB,19],[STEPA,20],[STEPB,20],[STEPA,21],[STEPB,21],[STEPA,22],[STEPB,22],[STEPA,23],[STEPB,23] ],
+      [ENCB,1],[ENCA,1],[ENCB,0],[ENCA,0],[ENCI,1],[ENCI,0],[PWMP,1],[PWMP,0],[PWMD,1],[PWMD,0],[PWME,1],[PWME,0],
+      [ENCB,3],[ENCA,3],[ENCB,2],[ENCA,2],[ENCI,3],[ENCI,2],[PWMP,3],[PWMP,2],[PWMD,3],[PWMD,2],[PWME,3],[PWME,2],
+      [ENCB,5],[ENCA,5],[ENCB,4],[ENCA,4],[ENCI,5],[ENCI,4],[PWMP,5],[PWMP,4],[PWMD,5],[PWMD,4],[PWME,5],[PWME,4],
+      [ENCB,7],[ENCA,7],[ENCB,6],[ENCA,6],[ENCI,7],[ENCI,6],[PWMP,7],[PWMP,6],[PWMD,7],[PWMD,6],[PWME,7],[PWME,6],
+      [STEPA,0],[STEPB,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,1],[STEPB,1],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],
+      [STEPA,2],[STEPB,2],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0],[STEPA,3],[STEPB,3],[GPIOI,0],[GPIOI,0],[GPIOI,0],[GPIOI,0]
+     ],
 
 ]
 _SUBBOARDNAME = 0; _SUBFIRMNAME = 1; _SUBMODE = 2;_SUBCONLIST = 3;_SUBSTARTOFDATA = 12 # 4-10 spare for now.
@@ -434,9 +340,9 @@ mesadaughterdata = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Use
     [NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0],[NUSED,0] ],
 ["error"]
  ]
-
+mesafirmwaredata = []
 custommesafirmwaredata = []
-mesaboardnames = [ "5i20", "5i22-1", "5i22-1.5", "5i23", "7i43-2", "7i43-4","3x20-1" ]
+mesaboardnames = []
 
 (UNUSED_UNUSED,UNUSED_DUMMY) = hal_notused_names = ["unused-unused","unused_dummy"]
 human_notused_names = [ [_("Unused Unused"),[] ] ]
@@ -1052,22 +958,22 @@ class Data:
 
         self.number_mesa = 1 # number of cards
         # for first mesa card
-        self.mesa0_currentfirmwaredata = mesafirmwaredata[1]       
-        self.mesa0_boardtitle = "5i20"        
-        self.mesa0_firmware = "SVST8_4"
+        self.mesa0_currentfirmwaredata = None
+        self.mesa0_boardtitle = "5i20-Internal Data"        
+        self.mesa0_firmware = mesafirmwaredata_internal[0][2]
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
         self.mesa0_pwm_frequency = 20000
         self.mesa0_pdm_frequency = 6000000
         self.mesa0_3pwm_frequency = 20000
         self.mesa0_watchdog_timeout = 10000000
-        self.mesa0_numof_encodergens = 4
+        self.mesa0_numof_encodergens = 1
         self.mesa0_numof_resolvers = 0
-        self.mesa0_numof_pwmgens = 4
+        self.mesa0_numof_pwmgens = 0
         self.mesa0_numof_tppwmgens = 0
-        self.mesa0_numof_stepgens = 0
-        self.mesa0_numof_sserialports = 0
-        self.mesa0_numof_sserialchannels = 8
+        self.mesa0_numof_stepgens = 5
+        self.mesa0_numof_sserialports = 1
+        self.mesa0_numof_sserialchannels = 2
         self.mesa0_sanity_7i29 = False
         self.mesa0_sanity_7i30 = False
         self.mesa0_sanity_7i33 = True
@@ -1075,22 +981,22 @@ class Data:
         self.mesa0_sanity_7i48 = False
 
         # second mesa card
-        self.mesa1_currentfirmwaredata = mesafirmwaredata[1]
-        self.mesa1_boardtitle = "5i20"
-        self.mesa1_firmware = "SVST8_4"
+        self.mesa1_currentfirmwaredata = None
+        self.mesa1_boardtitle = "5i20-Internal Data"        
+        self.mesa1_firmware = mesafirmwaredata_internal[0][2]
         self.mesa1_parportaddrs = "0x378"
         self.mesa1_isawatchdog = 1
         self.mesa1_pwm_frequency = 20000
         self.mesa1_pdm_frequency = 6000000
         self.mesa1_3pwm_frequency = 20000
         self.mesa1_watchdog_timeout = 10000000
-        self.mesa1_numof_encodergens = 4
+        self.mesa1_numof_encodergens = 1
         self.mesa1_numof_resolvers = 0
-        self.mesa1_numof_pwmgens = 4
+        self.mesa1_numof_pwmgens = 0
         self.mesa1_numof_tppwmgens = 0
-        self.mesa1_numof_stepgens = 0
-        self.mesa1_numof_sserialports = 0
-        self.mesa1_numof_sserialchannels = 8
+        self.mesa1_numof_stepgens = 5
+        self.mesa1_numof_sserialports = 1
+        self.mesa1_numof_sserialchannels = 2
         self.mesa1_sanity_7i29 = False
         self.mesa1_sanity_7i30 = False
         self.mesa1_sanity_7i33 = False
@@ -4139,9 +4045,9 @@ class App:
                 cb = "mesa%d_comp_update"% (boardnum)
                 i = "_mesa%dsignalhandler_comp_update"% (boardnum)
                 self.data[i] = int(self.widgets[cb].connect("clicked", self.on_mesa_component_value_changed,boardnum))
-                cb = "mesa%d_boardtitle"% (boardnum)
-                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
-                self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
+#                cb = "mesa%d_boardtitle"% (boardnum)
+#                i = "_mesa%dsignalhandler_boardname_change"% (boardnum)
+#                self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_boardname_changed,boardnum))
                 cb = "mesa%d_firmware"% (boardnum)
                 i = "_mesa%dsignalhandler_firmware_change"% (boardnum)
                 self.data[i] = int(self.widgets[cb].connect("changed", self.on_mesa_firmware_changed,boardnum))
@@ -4312,18 +4218,15 @@ class App:
         global mesafirmwaredata
         self.data.help = "help-load.txt"
         # search for firmware packages
+        mesaboardnames = []
+        mesaboardnames.append('5i25-Internal Data')
         if os.path.exists(firmdir):
-            mesaboardnames = []
             for root, dirs, files in os.walk(firmdir):
                 folder = root.lstrip(firmdir)
                 if folder in mesablacklist:continue
                 if folder == "":continue
                 mesaboardnames.append(folder)
                 #print "\n**** ",folder,":\n"
-        else:
-            #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("You are have no hostmot2 firmware downloaded in folder:\n%s\n\
-PNCconf will use sample firmware data\nlive testing will not be possible"%firmdir),True)
 
         # add any extra firmware boardnames from .pncconf-preference file 
         if not custommesafirmwaredata == []:
@@ -4521,6 +4424,11 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%firmdi
             if not custommesafirmwaredata == []:
                 for i,j in enumerate(custommesafirmwaredata):
                     mesafirmwaredata.append(custommesafirmwaredata[i])
+            # add internal sample firmware
+            global mesafirmwaredata_internal
+            for i in mesafirmwaredata_internal:
+                mesafirmwaredata.append(i)
+            print 'internal added'
             # ok set up mesa info
             for boardnum in (0,1):
                 model = self.widgets["mesa%d_firmware"% boardnum].get_model()
@@ -5277,6 +5185,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.do_exclusive_inputs(15)
 
     def on_mesa_boardname_changed(self, widget,boardnum):
+        return
         #print "**** INFO boardname changed"
         model = self.widgets["mesa%d_boardtitle"% boardnum].get_model()
         active = self.widgets["mesa%d_boardtitle"% boardnum].get_active()
@@ -6401,6 +6310,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         signalindex = 0
                     #print "ENC ->dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -3
+                    temp = (0) # set unused encoder if no match
                     if signalindex > 0:
                         for row,parent in enumerate(human_encoder_input_names):
                             if len(parent[1]) == 0:continue
@@ -6412,8 +6322,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     break
                             if count >= signalindex:break
                         temp = (row,column)
-                    else:
-                        temp = (0) # set unused encoder if no match
                     #print temp
                     if widgetptype == ENCA:
                         treeiter = self.data._encodersignaltree.get_iter(temp)
@@ -6430,6 +6338,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = 0
+                    temp = (0) # set unused resolver
                     if signalindex > 0:
                         for row,parent in enumerate(human_resolver_input_names):
                             if row == 0: continue
@@ -6449,8 +6358,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused resolver
                     #print "temp",temp
                     treeiter = self.data._resolversignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -6464,6 +6371,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = 0
+                    temp = (0) # set unused 8i20 amp
                     if signalindex > 0:
                         for row,parent in enumerate(human_8i20_input_names):
                             if row == 0: continue
@@ -6483,8 +6391,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused 8i20 amp
                     #print "temp",temp
                     treeiter = self.data._8i20signaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -6499,6 +6405,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -1
+                    temp = (0) # set unused potentiometer
                     if signalindex > 0:
                         for row,parent in enumerate(human_pot_output_names):
                             if row == 0: continue
@@ -6518,8 +6425,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused potentiometer
                     #print "temp",temp
                     treeiter = self.data._potsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -6533,6 +6438,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = 0
+                    temp = (0) # set unused
                     if signalindex > 0:
                         for row,parent in enumerate(human_analog_input_names):
                             if row == 0: continue
@@ -6552,8 +6458,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused 8i20 amp
                     #print "temp",temp
                     treeiter = self.data._analoginsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -6581,6 +6485,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         signalindex = 0
                     #print "dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     count = -2
+                    temp = (0) # set unused pwm
                     if signalindex > 0:
                         #print "\n parsing PWM names"
                         for row,parent in enumerate(human_pwm_output_names):
@@ -6602,8 +6507,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                     temp = (row,column)
                                     break
                             if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused pwm
                     #print "temp",temp
                     treeiter = self.data._pwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
@@ -6612,6 +6515,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                 elif widgetptype == TPPWMA:
                     #print "3 pwm"
                     count = -7
+                    temp = (0) # set unused stepper
                     try:
                         signalindex = hal_tppwm_output_names.index(datap)
                     except:
@@ -6637,8 +6541,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                temp = (row,column)
                                break
                            if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused stepper
                     treeiter = self.data._tppwmsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
@@ -6654,6 +6556,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if debug: print "**** INFO: PNCCONF warning no STEPPER signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     count = -5
+                    temp = (0) # set unused stepper
                     #print "stepper,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     if signalindex > 0:
                        for row,parent in enumerate(human_stepper_names):
@@ -6674,8 +6577,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                temp = (row,column)
                                break
                            if count >= signalindex:break
-                    else:
-                        temp = (0) # set unused stepper
                     treeiter = self.data._steppersignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
@@ -6690,6 +6591,7 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                         if debug: print "**** INFO: PNCCONF warning no SMART SERIAL signal named: %s\n     found for pin %s"% (datap ,p)
                         signalindex = 0
                     count = -2
+                    temp = (0) # set unused sserial
                     #print "sserial,dataptype:",self.data[ptype]," dataptype:",self.data[p],signalindex
                     if signalindex > 0:
                        for row,parent in enumerate(human_sserial_names):
@@ -6702,8 +6604,6 @@ I hesitate to even allow it's use but at times it's very useful.\nDo you wish to
                                 temp = (row)
                                 break
                              continue
-                    else:
-                        temp = (0) # set unused sserial
                     treeiter = self.data._sserialsignaltree.get_iter(temp)
                     self.widgets[p].set_active_iter(treeiter)
 
@@ -10072,7 +9972,10 @@ def makedirs(d):
     except os.error, detail:
         if detail.errno != errno.EEXIST: raise
 makedirs(os.path.expanduser("~/linuxcnc/configs"))
-
+tracer = trace.Trace(
+    ignoredirs=[sys.prefix, sys.exec_prefix],
+    trace=1,
+    count=0)
 opts, args = getopt.getopt(sys.argv[1:], "dfr")
 mode = 0
 force = 0
@@ -10090,8 +9993,12 @@ if debugswitch:
     app = App(1)
     app.run()
 elif args:
-    app = App()
-    app.run(args[0])
+    tracer.run('App(arg[0]')
+    #app = App()
+    #app.run(args[0])
 else:
     app = App()
-    app.run()
+    tracer.run('app.run()')
+    #app.run()
+r = tracer.results()
+r.write_results(show_missing=True, coverdir=".")
