@@ -30,6 +30,8 @@ include::common/User_Concepts.txt[]
 
 :leveloffset: 1
 
+include::gui/selector.txt[]
+
 include::gui/axis.txt[]
 
 include::gui/ngcgui.txt[]

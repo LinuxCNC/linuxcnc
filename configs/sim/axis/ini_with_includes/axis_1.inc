@@ -1,0 +1,18 @@
+[AXIS_1]
+TYPE               = LINEAR
+HOME               = 0.000
+MAX_VELOCITY       = 5
+MAX_ACCELERATION   = 50.0
+BACKLASH           = 0.000
+INPUT_SCALE        = 4000
+OUTPUT_SCALE       = 1.000
+MIN_LIMIT          = -100.0
+MAX_LIMIT          = 100.0
+FERROR             = 0.050
+MIN_FERROR         = 0.010
+HOME_OFFSET        = 0.0
+HOME_SEARCH_VEL    = 20.0
+HOME_LATCH_VEL     = 20.0
+HOME_USE_INDEX     = NO
+HOME_IGNORE_LIMITS = NO
+HOME_SEQUENCE      = 1

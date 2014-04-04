@@ -1,6 +1,6 @@
 = Touchy GUI
 
-[cha:touchy-gui]] (((Touchy GUI)))
+[[cha:touchy-gui]] (((Touchy GUI)))
 
 
 ////

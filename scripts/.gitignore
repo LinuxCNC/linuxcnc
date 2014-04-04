@@ -8,3 +8,5 @@ latencyplot
 latencyhistogram
 gen-rtapi.ini.sh
 gen-rtapi.ini.sh.in
+linuxcnc_var
+rtapi.conf

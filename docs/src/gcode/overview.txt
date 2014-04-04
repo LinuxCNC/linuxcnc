@@ -682,7 +682,7 @@ on the left of the operation to the power on
 strictly less than ('LT'), and less than or equal to ('LE').
 
 The binary operations are divided into several groups according to
-their precedence. (see table  <<cap:Operator-Precedence>>) If
+their precedence. (see table  <<cap:Operator-Precedence,Operator-Precedence>>) If
 operations in different precedence groups are strung together (for
 example in the expression '[2.0 / 3 * 1.5 - 5.5 / 11.0]'), operations
 in a higher group are to be performed before operations
@@ -724,7 +724,7 @@ A function is either 'ATAN' followed by one expression divided by
 another expression (for
  example 'ATAN[2]/[1+3]') or any other function name followed by an
 expression (for example 'SIN[90]'). The available functions are
-shown in table  <<cap:Functions>>.
+shown in table  <<cap:Functions,Functions>>.
  Arguments to unary operations which take angle measures ('COS', 'SIN',
 and 'TAN' ) are in degrees. Values returned by unary operations which
 return

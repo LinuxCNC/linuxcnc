@@ -1,0 +1,9 @@
+Example for using the sourceview widget
+---------------------------------------
+
+Loading a file, and highlighting a line
+
+------------------------------------------
+To run independently:
+
+$ gladevcp -u sourceview.py sourceview.ui

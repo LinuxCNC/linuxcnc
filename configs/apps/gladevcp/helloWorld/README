@@ -1,0 +1,20 @@
+a minimal gladevcp example - three HAL widgets
+
+------------------------------------------
+To run independently:
+$ gladevcp hw.ui
+
+To connect the button HAL pin to the LED, run as:
+
+$ gladevcp -H hw.hal hw.ui
+
+To embed this application as a tab into Axis or Touchy, copy hw.ui and hw.hal to your config directoy,
+and edit your Axis/Touchy ini file as follows:
+
+[DISPLAY]
+EMBED_TAB_NAME = HelloWorld
+EMBED_TAB_COMMAND = gladevcp -H hw.hal -w {XID} hw.ui
+
+to edit the user interface:
+
+$ glade hw.ui

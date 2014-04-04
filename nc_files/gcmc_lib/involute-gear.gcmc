@@ -195,24 +195,30 @@ function hole(point, radius)
 
 /* -------------------- Main Program -------------------- */
 
-//ngcgui: info: Involute-gear example (inputs in mm)
+//ngcgui: info: Involute-gear example
 
-include("ensure_mode.gcmc"); //avoid preamble conflict
-
-//ngcgui: D = 100.0;   //, Pitch Dia (mm)
-//ngcgui: HD = 6.0;    //, Hole Dia (mm)
+//ngcgui: umode = 1;   //, units: 1:mm, 0:inch
+//ngcgui: D = 100.0;   //, Pitch Dia
+//ngcgui: HD = 6.0;    //, Hole Dia
 //ngcgui: N = 9;	   //, Number of teeth
 //ngcgui: PA = 20.0;   //, Pressure Angle (deg)
-//ngcgui: frate = 600; //, Feedrate (mm/sec)
+//ngcgui: frate = 600; //, Feedrate
 //ngcgui: xoffset = 0;
 //ngcgui: yoffset = 0;
 //ngcgui: howmany = 1; //, howmany (1 | 2)
+//ngcgui: verbose = 0;
+include("ensure_units.gcmc"); //avoid preamble conflict
 
+if (umode == 1) {
+  zero = 0.0mm;
+} else {
+  zero = 0.0in;
+}
 // ngcgui entries are unitless so these additions are used
-// to ensure 1) floatingpoint and 2) mm units for this program
-frate = frate + 0.0mm;
-   HD = HD    + 0.0mm;
-    D = D     + 0.0mm;
+// to ensure 1) floatingpoint and 2) units per umode setting
+frate = frate + zero;
+   HD = HD    + zero;
+    D = D     + zero;
    PA = PA    + 0.0deg;
 
 P = N/D;	// Diametral pitch

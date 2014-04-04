@@ -57,17 +57,17 @@ name and end at the next section name.
 
 The following sections are used by LinuxCNC:
 
-* '[<<sub:[EMC]-section,EMC>>]' general information
-* '[<<sub:[DISPLAY]-section,DISPLAY>>]' settings related to the graphical user interface
-* '[<<sub:[FILTER]-Section,FILTER>>]' settings input filter programs
-* '[<<sub:[RS274NGC]-section,RS274NGC>>]' settings used by the g-code interpreter
-* '[<<sub:[EMCMOT]-section,EMCMOT>>]' settings used by the real time motion controller
-* '[<<sub:[TASK]-section,TASK>>]' settings used by the task controller
-* '[<<sub:[HAL]-section,HAL>>]' specifies .hal files
-* '[<<sub:[HALUI]-section,HALUI>>]' MDI commands used by HALUI
+* '[<<sub:EMC-section,EMC>>]' general information
+* '[<<sub:DISPLAY-section,DISPLAY>>]' settings related to the graphical user interface
+* '[<<sub:FILTER-Section,FILTER>>]' settings input filter programs
+* '[<<sub:RS274NGC-section,RS274NGC>>]' settings used by the g-code interpreter
+* '[<<sub:EMCMOT-section,EMCMOT>>]' settings used by the real time motion controller
+* '[<<sub:TASK-section,TASK>>]' settings used by the task controller
+* '[<<sub:HAL-section,HAL>>]' specifies .hal files
+* '[<<sub:HALUI-section,HALUI>>]' MDI commands used by HALUI
 * '[<<sub:TRAJ-section,TRAJ>>]' additional settings used by the real time motion controller
-* '[<<sub:[AXIS]-section,AXIS_n>>]' individual axis variables
-* '[<<sub:[EMCIO]-Section,EMCIO>>]' settings used by the I/O Controller
+* '[<<sub:AXIS-section,AXIS_n>>]' individual axis variables
+* '[<<sub:EMCIO-Section,EMCIO>>]' settings used by the I/O Controller
 
 === Variables
 
@@ -89,7 +89,8 @@ names and variable names as shown. In the following example the variable
 MACHINE = My Machine
 ----
 
-=== Custom Sections and Variables [[sub:custom-variables]]
+[[sub:custom-variables]]
+=== Custom Sections and Variables
 
 Most sample configurations use custom sections and variables to put all of the
 settings into one location for convenience.
@@ -127,11 +128,44 @@ setp stepgen.0.position-scale [AXIS_0]SCALE
 The value stored in the variable must match the type specified by the
 component pin.
 
-== INI File Sections[[sec:INI-Detail]]
+=== Include Files
 
-=== [EMC] Section[[sub:[EMC]-section]]
+An INI file may include the contents of another file by using a #INCLUDE
+directive.
 
-(((EMC (inifile section))))
+.#INCLUDE Format
+----
+#INCLUDE filename
+----
+
+The filename can be specified as:
+
+ * a file in the same directory as the INI file
+ * a file located relative to the working directory
+ * an absolute file name (starts with a /)
+ * a user-home-relative file name (starts with a ~)
+
+Multiple #INCLUDE directives are supported.
+
+.#INCLUDE Examples
+----
+#INCLUDE axis_0.inc
+#INCLUDE ../parallel/axis_1.inc
+#INCLUDE below/axis_2.inc
+#INCLUDE /home/myusername/myincludes/display.inc
+#INCLUDE ~/linuxcnc/myincludes/rs274ngc.inc
+----
+
+The #INCLUDE directives are supported for one level of expansion only -- an
+included file may not include additional files.  The recommended file extension
+is .inc.  Do not use a file extension of .ini for included files.
+
+
+[[sec:INI-Detail]]
+== INI File Sections
+
+[[sub:EMC-section]]
+=== [EMC] Section(((EMC (inifile section))))
 
 * 'VERSION = $Revision: 1.3 $' - The version number for the INI file. The value shown here looks odd
     because it is automatically updated when using the Revision Control
@@ -147,9 +181,8 @@ component pin.
     terminal. Debug flags are usually only useful to developers. See
     src/emc/nml_intf/debugflags.h for other settings.
 
-=== [DISPLAY] Section[[sub:[DISPLAY]-section]]
-
-(((DISPLAY (inifile section))))
+[[sub:DISPLAY-section]]
+=== [DISPLAY] Section(((DISPLAY (inifile section))))
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. The main two interfaces
@@ -274,9 +307,8 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 
 * 'HELP_FILE = tklinucnc.txt' - Path to help file.
 
-=== [FILTER] Section[[sub:[FILTER]-Section]]
-
-(((ini [FILTER] Section)))
+[[sub:FILTER-Section]]
+=== [FILTER] Section(((ini [FILTER] Section)))
 
 AXIS has the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure
@@ -364,9 +396,8 @@ if __name__ == "__main__":
    main(sys.argv[1:])
 ----
 
-=== [RS274NGC] Section[[sub:[RS274NGC]-section]]
-
-(((RS274NGC (inifile section))))
+[[sub:RS274NGC-section]]
+=== [RS274NGC] Section(((RS274NGC (inifile section))))
 
 * 'PARAMETER_FILE = myfile.var' -
     (((PARAMETER FILE))) The file located in the same directory as the ini
@@ -418,10 +449,8 @@ The first executable M1xx found in the search is used for each M1xx.
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
 
-
-=== [EMCMOT] Section[[sub:[EMCMOT]-section]]
-
-(((EMCMOT (inifile section))))
+[[sub:EMCMOT-section]]
+=== [EMCMOT] Section(((EMCMOT (inifile section))))
 
 This section is a custom section and is not used by LinuxCNC directly. Most
 configurations use values from this section to load the motion controller. For
@@ -436,10 +465,9 @@ Section.
 
 * 'TRAJ_PERIOD = 100000' - This is the 'Trajectory Planner' task period in
   nanoseconds.
-  
-=== [TASK] Section[[sub:[TASK]-section]]
 
-(((TASK (inifile section))))
+[[sub:TASK-section]]
+=== [TASK] Section(((TASK (inifile section))))
 
 * 'TASK = milltask' - 
     Specifies the name of the 'task' executable. The 'task' executable does various
@@ -454,9 +482,8 @@ Section.
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
 
-=== [HAL] section[[sub:[HAL]-section]]
-
-(((HAL (inifile section))))
+[[sub:HAL-section]]
+=== [HAL] section(((HAL (inifile section))))
 
 * 'TWOPASS=ON' - Use two pass processing for loading HAL comps. With TWOPASS processing,
     all [HAL]HALFILES are first read and multiple appearances of loadrt
@@ -490,18 +517,15 @@ Section.
 * 'HALUI = halui' - adds the HAL user interface pins. For more information see
    the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
-=== [HALUI] section[[sub:[HALUI]-section]]
-
-(((HALUI (inifile section))))
+[[sub:HALUI-section]]
+=== [HALUI] section(((HALUI (inifile section))))
 
 * 'MDI_COMMAND = G53 G0 X0 Y0 Z0' - 
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
 [[sub:TRAJ-section]]
-=== [TRAJ] Section
-
-(((TRAJ (inifile section))))
+=== [TRAJ] Section(((TRAJ (inifile section))))
 
 The [TRAJ] section contains general parameters for the trajectory
 planning module in 'motion'.
@@ -576,9 +600,8 @@ planning module in 'motion'.
 Using this will allow the machine to go beyond the soft limits
 while in operation. It is not generally desirable to allow this.
 
-=== [AXIS_<num>] Section[[sub:[AXIS]-section]]
-
-(((AXIS (inifile section))))
+[[sub:AXIS-section]]
+=== [AXIS_<num>] Section(((AXIS (inifile section))))
 
 The [AXIS_0], [AXIS_1], etc. sections contains general parameters for
 the individual components in the axis control module. The axis section
@@ -1019,9 +1042,8 @@ image::images/encoder-scale.png[align="center"]
     than the axis MAX_VELOCITY. Subsequent testing has shown that use of
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
-=== [EMCIO] Section[[sub:[EMCIO]-Section]]
-
-(((EMCIO (inifile section))))
+[[sub:EMCIO-Section]]
+=== [EMCIO] Section(((EMCIO (inifile section))))
 
 * 'EMCIO = io' - Name of IO controller program
 

@@ -64,7 +64,7 @@ set ::default_start_node sim/axis/axis.ini
 set ::exclude_list [list common]
 
 # support filenames that are never copied to user:
-set ::never_copy_list [list maintainer.txt]
+set ::never_copy_list [list maintainer.txt nodemocopy]
 
 # emphasize sim ini configs that have the most support by reordering
 # reorder: priority low to high:
@@ -154,7 +154,55 @@ proc title {node} {
   wm title . "[msgcat::mc "LinuxCNC Configuration Selector"] $txt"
 }
 
-# if node is an ini file named xxx.ini, then:
+proc find_usable_nodes {startdir} {
+  return [exec find $startdir -type f \
+         -name "*.ini" -o -name "*.demo" ]
+} ;# find_usable_nodes
+
+proc name_is_usable_nodename {node} {
+    if {   [ regexp {.*\.ini$}  $node ] == 1 \
+        || [ regexp {.*\.demo$} $node ] == 1 \
+       } {
+       return 1 ;# ok
+    }
+    return 0 ;# fail
+} ;# name_is_usable_nodename {node}
+
+proc ok_to_copy_config {filename} {
+    # The following test determines when to copy files to a user directory:
+    # If the directory for the selected file is not writable,
+    # then it is presumed to be a system dir running from an install (by
+    # a deb install typically) so copy the configuration to user directory.
+    #
+    # Otherwise, it is presumed to be a Run-In-Place directory and
+    # copying to another directory is not wanted.
+    #
+    # For convenience in testing pickconfig by itself in rip builds:
+    #    export debug_pickconfig=1
+    # This forces copying to the user directory so that the copied
+    # configs can be tested.
+
+    if {    [info exists ::env(debug_pickconfig)] \
+         && [string first $::myconfigs_node $filename]} {
+      set ::writeanyway 1
+    } else {
+      set ::writeanyway 0
+    }
+    if {   ![file writable [file dirname $filename]]
+        || $::writeanyway
+       } {
+        set filetype [file extension $filename]
+        if {$filetype == ".ini"} { return 1 ;# ok }
+        if {$filetype == ".demo"} {
+           set nocopyfile [file join [file dirname $filename] nodemocopy]
+           if {![file exists $nocopyfile]} { return 1 ;# ok }
+        }
+     }
+     return 0 ;# not ok
+} ;# ok_to_copy
+
+# Notes on text displayed in detail_box widget:
+# if node is usable (an ini file named xxx.ini or xxx.demo), then:
 #    show xxx.txt      if it exists
 # else
 #    show README       if it exists in the directory for node
@@ -177,8 +225,8 @@ proc node_clicked {} {
     $::tree see $node
 
     set readme ""
-    if { [ regexp {.*\.ini$} $node ] == 1 } {
-	# an ini node, acceptable
+    if [name_is_usable_nodename $node] {
+	# acceptable name
 	# enable changes to the details widget
 	set node [format %s $node]
 	set dir [ file dirname $node]
@@ -202,6 +250,15 @@ proc node_clicked {} {
 	}
 	# save selection
 	set ::inifile $node
+
+        if [info exists ::make_shortcut_widget] {
+          if [ok_to_copy_config $::inifile] {
+            $::make_shortcut_widget config -state normal
+          } else {
+            $::make_shortcut_widget config -state disabled
+          }
+        }
+
 	# enable the OK button
 	$::button_ok configure -state normal
 	bind . <Return> {button_pushed OK}
@@ -402,9 +459,9 @@ proc walktree {dir} {
   foreach f $sortedlist {
      if [file isdirectory $f] {
        if {[lsearch $::exclude_list [file tail $f]] == 0} continue
-       set foundini [exec find $f -type f -name "*.ini"]
+       set foundini [find_usable_nodes $f]
        if {"$foundini" == ""} {
-         verbose "no ini files, skipping $f"
+         verbose "no usable files, skipping directory: $f"
          continue
        }
 
@@ -415,13 +472,13 @@ proc walktree {dir} {
        walktree $f ;# recursion
        set ::lvl $restore
      } else {
-       if { [ regexp {.*\.ini$} $f] == 1 } {
+       if [name_is_usable_nodename $f] {
          set text [file rootname [file tail $f]]
          $::tree insert end $::lvl $f -text $text -open $::openmode
          incr ::config_count
          continue
        } else {
-         verbose "skipping non-ini file: $f"
+         verbose "skipping non-start_node file: $f"
        }
      }
   }
@@ -646,8 +703,8 @@ proc prompt_copy configname {
           if {[lsearch $::never_copy_list [file tail $f]] >= 0} continue
           # is_special: subdir is to be copied
           set is_special 0
-          if { "" == [exec find $f -type f -name "*.ini"]} {
-             # ok: no ini file so the directory can be copied
+          if { "" == [find_usable_nodes $f] } {
+             # ok: no usable child files so the directory can be copied
              set is_special 1
           }
 
@@ -719,11 +776,17 @@ $::tree configure \
         -closecmd treeclose \
         -opencmd  treeopen
 
+
 proc make_shortcut {inifile} {
     if {[catch {open $inifile} inifd]} { return }
     set inistring [read $inifd]
     close $inifd
-    set name [getVal $inistring EMC MACHINE]
+    switch [file extension $inifile] {
+      ".ini"  {set name [getVal $inistring EMC MACHINE]}
+      ".demo" {set name [lindex [split [file tail $inifile] "."] 0]
+              }
+      default {set name linuxcnc-other}
+    }
     set filename0 [file join $::desktopdir [file rootname [file tail $inifile]]]
     set filename ${filename0}.desktop
     set i 0
@@ -738,8 +801,11 @@ proc make_shortcut {inifile} {
 
 set make_shortcut 0
 if {[file isdir $::desktopdir]} {
-    checkbutton $f5.c -variable make_shortcut -text [msgcat::mc "Create Desktop Shortcut"]
+    checkbutton $f5.c -variable make_shortcut \
+                      -text [msgcat::mc "Create Desktop Shortcut"] \
+                      -state disabled
     pack $f5.c -side left -expand 1 -anchor w
+    set ::make_shortcut_widget $f5.c
 }
 
 while {1} {
@@ -747,30 +813,16 @@ while {1} {
     vwait ::choice
 
     if { $::choice == "OK" } {
-        # the following test determines when to copy files to user.
-        # if selected file is not writable, then it must be a
-        # system dir running from an install (by deb typically)
-        # so install the configuration
-        #
-        # for convenience in testing pickconfig by itself in rip builds:
-        # export debug_pickconfig=1
-        if {    [info exists ::env(debug_pickconfig)] \
-             && [string first $::myconfigs_node $::inifile]} {
-          set writeanyway 1
-          puts stderr "debug_pickconfig: writeanyway"
-        } else {
-          set writeanyway 0
-        }
-
-        if {   ![file writable [file dirname $::inifile]]
-            || $writeanyway
-           } {
+        if [ok_to_copy_config $::inifile] {
             set copied_inifile [prompt_copy $::inifile]
-            if {$copied_inifile == ""} { continue }
-            set ::inifile $copied_inifile
+            if {$copied_inifile == ""} {
+                continue
+            } else {
+               set ::inifile $copied_inifile
+            }
+	    if {$make_shortcut} { make_shortcut $::inifile }
         }
-	if {$make_shortcut} { make_shortcut $::inifile }
-        puts $::inifile
+        puts $::inifile ;# this is the result for this script (to stdout)
 
         # test for ~/.linuxcncrc file and modify if needed.
         # or make this file and add the var.

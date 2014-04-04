@@ -1,0 +1,49 @@
+orphans
+
+Obsolete or broken configs
+
+
+axis_noio.ini no io specified:
+  [EMCIO]EMCIO =
+
+py.ini.notworking  -- needs work
+pyiocontrol.ini.notworking  -- needs work
+
+
+
+directory: configs/sim/axis/orphans/pysubs
+
+originally was: configs/sim/axis/pysubs
+
+The examples here seem to similar to or redundant to
+files in configs/sim/axis/remap/
+
+-------------------------------------------------------
+
+configs/sim/axis/orphans/pysubs/customtask.py
+configs/sim/axis/remap/iocontrol-removed/python/customtask.py
+
+configs/sim/axis/orphans/pysubs/nulluserfuncs.py
+configs/sim/axis/remap/iocontrol-removed/python/nulluserfuncs.py
+
+configs/sim/axis/orphans/pysubs/oword.py
+configs/sim/axis/remap/getting-started/python/oword.py
+configs/sim/axis/remap/iocontrol-removed/python/oword.py
+
+configs/sim/axis/orphans/pysubs/plugins.py
+
+
+configs/sim/axis/orphans/pysubs/sqltoolaccess.py
+configs/sim/axis/remap/iocontrol-removed/python/sqltoolaccess.py
+
+configs/sim/axis/orphans/pysubs/task.py
+configs/sim/axis/remap/iocontrol-removed/python/task.py
+
+configs/sim/axis/orphans/pysubs/tooltable.py
+configs/sim/axis/remap/iocontrol-removed/python/tooltable.py
+
+configs/sim/axis/orphans/pysubs/userfuncs.py
+configs/sim/axis/remap/iocontrol-removed/python/userfuncs.py
+
+configs/sim/axis/orphans/pysubs/remap.py
+many

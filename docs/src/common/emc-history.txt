@@ -106,4 +106,4 @@ channels, and versions of the software and documentation starting with
 
 A paper written from NIST's perspective on the history of EMC and its
 transition to open source is available
-http://www.isd.mel.nist.gov/documents/shackleford/4191_05.pdf[here].
+http://www.nist.gov/manuscript-publication-search.cfm?pub_id=821651[here].

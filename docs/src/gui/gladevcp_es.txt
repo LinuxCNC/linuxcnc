@@ -255,7 +255,7 @@ Place the GladeVCP panel in the righthand side panel by specifying the
 following in the ini file:
 
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
 GLADEVCP= -u ../gladevcp/hitcounter.py ../gladevcp/manual-example.ui
@@ -267,7 +267,7 @@ POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 The HAL component name of a GladeVCP application started with the  the GLADEVCP option is fixed:  +gladevcp+.
 The command line actually run by Axis in the above configuration is as follows:
@@ -286,8 +286,9 @@ might not be needed in your setup.
 
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:
+
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # add GladeVCP panel as a tab next to Preview/DRO:
 EMBED_TAB_NAME=GladeVCP demo
@@ -300,7 +301,7 @@ POSTGUI_HALFILE =  ../gladevcp/manual-example.hal
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 Note the 'halcmd loadusr' way of starting the tab command - this
 assures that 'POSTGUI_HALFILE' will only be run after the HAL
@@ -324,8 +325,9 @@ both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
 
 === Integrating into Touchy
 To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
+
 [source,{ini}]
--------------------------------------------------------
+----
 [DISPLAY]
 # add GladeVCP panel as a tab
 EMBED_TAB_NAME=GladeVCP demo
@@ -334,7 +336,7 @@ EMBED_TAB_COMMAND=gladevcp -c gladevcp -x {XID} -u ../gladevcp/hitcounter.py -H 
 [RS274NGC]
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../gladevcp/nc_files/
--------------------------------------------------------
+----
 
 Note the following differences to the Axis tab setup:
 
@@ -479,10 +481,15 @@ image::images/hal-pin-change-66.png[]
 The example in +configs/gladevcp/examples/complex+ shows how
 this is handled in Python.
 
+
 [[gladevcp:HAL_Button]]
+=== Button
+
 [[gladevcp:HAL_RadioButton]]
+=== RadioButton
+
 [[gladevcp:HAL_CheckButton]]
-=== Buttons
+=== CheckButton
 
 This group of widgets are derived from various Gtk buttons and consists
 of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
@@ -522,9 +529,12 @@ See +configs/gladevcp/by-widget/radiobutton+ for a GladeVCP application
 and UI file for working with radio buttons.
 ======================================
 
+
 [[gladevcp:HAL_HScale]]
+=== HScale
+
 [[gladevcp:HAL_VScale]]
-=== Scales
+=== VScale
 
 HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
 respectively. They have one output FLOAT pin with name equal to widget
@@ -576,9 +586,12 @@ text_template::
 	Example: +Distance: %.03f+ will display the text and the pin value with
 	3 fractional digits padded with zeros for a FLOAT pin.
 
+
 [[gladevcp:HAL_HBox]]
+=== Container: HAL_Box
+
 [[gladevcp:HAL_Table]]
-=== Containers: HAL_HBox and HAL_Table
+=== Container: HAL_Table
 
 Compared to their Gtk counterparts they have one input BIT pin which
 controls if their child widgets are sensitive or not. If the pin is low
@@ -704,9 +717,13 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
+
 [[gladevcp:HAL_HBar]]
+=== HBar
+
+
 [[gladevcp:HAL_VBar]]
-=== Bars
+=== VBar
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing
 float values. They have one input FLOAT hal pin. Both bars have the

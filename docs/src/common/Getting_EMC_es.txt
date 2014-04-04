@@ -54,7 +54,7 @@ La forma mas común de compartir archivos en IRC es subir el archivo a uno de lo
 
 * 'Para Imagenes' - http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
 
-* 'Para archivos' - http://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'Para archivos' - https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
 
 === Lista de Correo
 
@@ -100,10 +100,10 @@ Para obtener la versión Ubuntu 10.04 Lucid Lynx,
 copie una de las siguientes direcciones en la ventana de terminal y presione la tecla enter:
 
 Para el espejo en USA:
-wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
+wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc3-i386.iso
 
 Para el espejo en Europa:
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc1-i386.iso
+wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc3-i386.iso
 
 La md5sum del archivo anterior es: '5283b33b7e23e79da1ee561ad476b05f' 
 *********************************************************************

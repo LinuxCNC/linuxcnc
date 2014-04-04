@@ -1,0 +1,807 @@
+#!/usr/bin/wish
+#
+
+# Usage:
+#    latency-histogram --help | -?
+# or
+#    latency-histogram [Options]
+#
+# Options:
+#   --version        (show version and exit)
+#   --base      nS   (base  thread interval, default:   25000, min:  5000)
+#   --servo     nS   (servo thread interval, default: 1000000, min: 25000)
+#   --bbinsize  nS   (base  bin size,  default: 100
+#   --sbinsize  nS   (servo bin size, default:  100
+#   --bbins     n    (base  bins, default: 200
+#   --sbins     n    (servo bins, default: 200
+#   --logscale  0|1  (y axis log scale, default: 1)
+#   --text      note (additional note, default: "" )
+#   --show           (show count of undisplayed bins)
+#   --nobase         (servo thread only)
+#   --verbose        (progress and debug)
+#
+# Notes:
+#   Linuxcnc and Hal should not be running, stop with halrun -U.
+#   Large number of bins and/or small binsizes will slow updates.
+#   For single thread, specify --nobase (and options for servo thread).
+#   Measured latencies outside of the +/- bin range are reported
+#   with special end bars.  Use --show to show count for
+#   the off-chart [pos|neg] bin
+
+#-----------------------------------------------------------------------
+# Copyright: 2012-2013
+# Author:    Dewey Garrett <dgarrett@panix.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#-----------------------------------------------------------------------
+
+proc set_defaults {} {
+  set ::LH(start) [clock seconds]
+  # don't include glxgears, error suffices
+  program_check {halrun halcmd lsmod pgrep pkill hostname}
+  if {[string first rtai [string tolower $::tcl_platform(osVersion)]] >=0} {
+    set ::LH(rtai) rtai
+    set ::LH(realtime) [exec linuxcnc_var REALTIME]
+    program_check $::LH(realtime)
+  }
+
+  set ::LH(version) 2.7
+  set ::LH(verbose) 0
+  set ::LH(opt,show) 0
+
+  set name [file tail [file rootname $::argv0]]
+  set ::LH(compname) latencybins
+  set ::LH(dir,screenshot) /tmp/$name
+  if [catch {file mkdir $::LH(dir,screenshot)} msg] {
+    set ::LH(dir,screenshot) ~
+  }
+
+  set ::LH(note,txt) ""
+  set ::LH(date) [clock format [clock seconds] -format "%d%b%Y"]
+
+  wm protocol . WM_DELETE_WINDOW finish
+  wm withdraw .
+
+  set ::LH(y,logscale) 1
+
+  set ::LH(threads)  {base servo}
+
+  set ::LH(base,name)  base
+  set ::LH(servo,name) servo
+
+  set ::LH(base,color)    seagreen
+  set ::LH(servo,color)   blue
+
+  set ::LH(base,period,ns)    25000
+  set ::LH(servo,period,ns) 1000000
+
+  set ::LH(base,period,ns,min)    5000
+  set ::LH(servo,period,ns,min)  25000
+
+  set ::LH(base,binsize,ns)   100
+  set ::LH(servo,binsize,ns)  100
+
+  # must be integer for window naming and .comp file usage:
+  set ::LH(base,maxbins)  200
+  set ::LH(servo,maxbins) 200
+
+  set ::LH(base,p,more) 0
+  set ::LH(base,n,more) 0
+  set ::LH(servo,p,more) 0
+  set ::LH(serve,n,more) 0
+
+  set ::LH(after,repeat) ''
+} ;# set_defaults
+
+proc program_check {plist} {
+  foreach prog $plist {
+    if [catch {
+      set ::LH(prog,$prog) [exec which $prog]
+     } msg] {
+       set msg  "Cannot find required program named:   <$prog>"
+       set msg  "$msg\n\nIf Run-in-Place, source rip-environment first"
+       popup  $msg
+       exit 1
+     }
+  }
+} ;# program_check
+
+proc config {} {
+  while {[llength $::argv] >0} {
+    # beware wish handling of reserved cmdline arguments
+    # lreplace shifts argv for no. of items for each iteration
+    set currentarg [lindex $::argv 0]
+    switch -- $currentarg {
+      -? - --help {usage;exit 0}
+      --version   {puts "$::argv0 Version $::LH(version)";exit 0}
+      --logscale  {set t [lindex $::argv 1]
+                   set ::LH(y,logscale) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      --base      {set t [lindex $::argv 1]
+                   set ::LH(base,period,ns) $t
+                   set ::argv [lreplace $::argv 0 0]
+                   if {$::LH(base,period,ns)
+                           < $::LH(base,period,ns,min)} {
+                      puts "base period too small\
+                            min=$::LH(base,period,ns,min)"
+                      exit 1
+                   }
+                  }
+      --servo     {set t [lindex $::argv 1]
+                   set ::LH(servo,period,ns) $t
+                   set ::argv [lreplace $::argv 0 0]
+                      if {$::LH(servo,period,ns)
+                              < $::LH(servo,period,ns,min)} {
+                         puts "servo period too small\
+                               min=$::LH(servo,period,ns,min)"
+                         exit 1
+                     }
+                  }
+      --bbinsize  {set t [lindex $::argv 1]
+                   set ::LH(base,binsize,ns) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      --sbinsize  {set t [lindex $::argv 1]
+                   set ::LH(servo,binsize,ns) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      --sbins    {set t [lindex $::argv 1]
+                   set ::LH(servo,maxbins) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      --bbins     {set t [lindex $::argv 1]
+                   set ::LH(base,maxbins) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      --text      {set t [lindex $::argv 1]
+                   set ::LH(note,txt) $t
+                   set ::argv [lreplace $::argv 0 0]
+                  }
+      --nobase    {set ::LH(threads) {servo}
+                  }
+      --show      {set ::LH(opt,show) 1
+                  }
+      --verbose   {set ::LH(verbose) 1
+                  }
+      default {lappend unknownargs $currentarg}
+    }
+    set ::argv [lreplace $::argv 0 0]
+  } ;# while
+  if [info exists unknownargs] {
+    puts "\nIgnoring unknown args: <$unknownargs>"
+  }
+  if {$::LH(base,period,ns) > $::LH(servo,period,ns)} {
+    popup "base period must be less than servo period"
+    exit 1
+  }
+
+  set ::LH(title) "$::argv0 V:$::LH(version) $::LH(note,txt)"
+  wm title . $::LH(title)
+
+  foreach thd $::LH(threads) {
+    # initial delay for reading by index
+    set ms [expr $::LH($thd,period,ns)/1000000]
+    if {$ms > 1} {
+      set ::LH($thd,dly,ms) $ms
+    } else {
+      set ::LH($thd,dly,ms) 1 ;# minimum interval (mS) for after cmd
+    }
+
+    if {[expr $::LH($thd,binsize,ns) % 10] != 0} {
+      puts "$::argv0: \[sb\]binsize must be multiple of 10 nS"
+      exit 1
+    }
+
+    # guard for lat32 limit of 2.147 sec
+    if {[expr $::LH($thd,binsize,ns) * $::LH($thd,maxbins)] > 2000000000} {
+      puts "Measurement interval too big for $thd thread"
+      puts "Reduce bins or increase binsize"
+      exit 1
+    }
+
+    # uS display only
+    set ::LH($thd,binsize,us)  [expr ($::LH($thd,binsize,ns)/1000.)]
+  }
+  set ::LH(info) [other_info]
+  set ::LH(processor) [processor_info]
+} ;# config
+
+proc other_info {} {
+  if [info exists ::env(DISPLAY)] {
+    set display "DISPLAY=$::env(DISPLAY)"
+  } else {
+    set display "DISPLAY=?"
+  }
+  return "\
+$::LH(date) V$::LH(version) \
+[exec hostname] \
+$::tcl_platform(machine) \
+$::tcl_platform(osVersion) \
+$display \
+$::tcl_platform(user) \
+$::LH(note,txt) \
+"
+} ;# other_info
+
+proc processor_info {} {
+  set cmdline [exec cat /proc/cmdline]
+  set idx [string first isolcpus $cmdline]
+  if {$idx < 0} {
+    set isolcpus no_isolcpus
+  } else {
+    set tmp [string range $cmdline $idx end]
+    set tmp "$tmp " ;# add trailing blank
+    set isolcpus [string range $tmp 0 [expr -1 + [string first " " $tmp]]]
+  }
+  set fd [open /proc/cpuinfo]
+  while {![eof $fd]} {
+    gets $fd newline
+    set s [split $newline :]
+    set key [string trim [lindex $s 0]]
+    set key [string map "\" \" _" $key]
+    set v [lindex $s 1]
+    set procinfo($key) $v
+  }
+  close $fd
+
+  set cores "1_core"
+  catch {set cores "$procinfo(cpu_cores) cores"};# item may not exist
+
+  set model ""
+  catch {set model $procinfo(model_name)}       ;# item may not exist
+  set model [string trim $model]
+
+  set vendor_id ""
+  catch {set vendor_id $procinfo(vendor_id)}    ;# item may not exist
+
+  # collapse multiple blanks:
+  while 1 {if ![regsub "  " $model " " model] break}
+
+  return "\
+$cores \
+$isolcpus \
+$vendor_id \
+$model \
+"
+} ;# processor_info
+
+proc load_packages {} {
+  if [catch {package require BLT} msg] {
+    puts $msg
+    puts "To install: sudo apt-get install blt"
+    exit 1
+  }
+  if [catch {package require Img} msg] {
+    puts $msg
+    puts "To install: sudo apt-get install libtk-img"
+    exit 1
+  }
+
+  if {   [catch {exec pgrep linuxcnc} msg] \
+      && [catch {exec pgrep halcmd} msg]} {
+    # puts "ok--not already running hal"
+  } else {
+    wm withdraw .
+    popup "Stop linuxcnc and hal first (try: \$ halrun -U)"
+    exit 1
+  }
+
+  if [info exists ::LH(rtai)] {
+    if [catch {exec lsmod | grep rtai} msg] {
+      # puts ok_to_start_rtai
+    } else {
+      popup "RTAI is already running, (try: \$ halrun -U)"
+      exit 1
+    }
+    exec $::LH(realtime) start &
+    progress "Delay for realtime startup"
+    after 1000 ;# wait to load Hal package
+  }
+  if [catch {package require Hal} msg] {
+    puts $msg
+    puts "For a RIP linuxcnc build, source rip-environment in this shell"
+    exit 1
+  }
+  blt::bitmap define nbmap {
+   {8 8}
+   {0xc7,0x8f,0x1f,0x3e,0x7c, 0xf8,0xf1,0xe3}
+  }
+  blt::bitmap define pbmap {
+   {8 8}
+   {0xe3,0xf1,0xf8,0x7c, 0x3e,0x1f,0x8f,0xc7}
+  }
+} ;# load_packages
+
+proc make_gui { {w .} } {
+  set f [frame ${w}fa]
+  pack $f -side top -fill x -expand 1
+  pack [label $f.l -anchor w -text $::LH(info)] -fill x -expand 1
+
+  set f [frame ${w}fb]
+  pack $f -side top -fill x -expand 1
+  pack [label $f.l -anchor w -text $::LH(processor)] -fill x -expand 1
+
+  set fmain [frame ${w}fmain]
+  pack $fmain -side top
+
+  foreach thd $::LH(threads) {
+    set f1 [frame $fmain.$thd -relief groove -bd 2]
+    pack $f1 -side left
+
+    set f [frame $f1.t]
+    pack $f -side top
+
+    set ::LH(w,$thd) $f.graph
+    catch {destroy $::LH(w,$thd)}
+    set per [expr $::LH($thd,period,ns)/1000.0]
+    blt::barchart $::LH(w,$thd) \
+        -plotbackground honeydew1 \
+        -cursor arrow \
+        -title "Latency (uS) $thd thread ($per uSec period\
+, binsize=$::LH($thd,binsize,us) uS)"
+    pack $::LH(w,$thd) -side left
+
+    xaxis $thd
+    $::LH(w,$thd) axis configure y -logscale $::LH(y,logscale)
+
+    if $::LH(opt,show) {
+      set f [frame $f1.extra]
+      pack $f -side top -anchor w -fill x -expand 1
+      set e [entry $f.emin -textvariable ::LH($thd,n,more) \
+           -state readonly -justify right -width 9]
+      pack $e -side left -anchor e
+      pack [label $f.min -text "<--off-chart neg bin ct"] \
+           -side left -anchor e
+      set ::LH(w,$thd,negbins) $e
+
+      set e [entry $f.emax  -textvariable ::LH($thd,p,more) \
+           -state readonly -justify right -width 9]
+      pack $e -side right -anchor e
+      pack [label $f.max -text "off-chart pos bin ct-->"] \
+           -side right -anchor e
+      set ::LH(w,$thd,posbins) $e
+    } else {
+      set ::LH(w,$thd,negbins) placeholder
+      set ::LH(w,$thd,posbins) placeholder
+      proc placeholder {args} return
+    }
+
+    set f [frame $f1.bins]
+    pack $f -side top -anchor w -fill x -expand 1
+    pack [label $f.l -text "Display +/- bins:"] -side left
+
+    set values ""
+    foreach d {100 50 20 10 5 2 1} {
+      # avoid dividebyzero for small number of bins
+      if [catch {set v [expr $::LH($thd,maxbins)/$d]} msg] continue
+      if {$v == 0} continue
+      lappend values $v
+    }
+
+    foreach v $values {
+      pack [radiobutton $f.b$v \
+           -text $v -value $v -variable ::LH($thd,maxbins) \
+           -command "xaxis $thd"] -side left
+    }
+
+  }
+
+  set f [frame ${w}bot]
+  pack $f -side bottom -anchor w -fill x -expand 1
+  pack [button $f.b -padx 0 -pady 0  -text Reset -command reset_data ] \
+       -side left -anchor w
+  pack [checkbutton $f.c -text ylogscale -variable ::LH(y,logscale)] \
+       -side left
+
+  pack [button $f.exit  -padx 0 -pady 0 -text Exit -command finish ] \
+       -side right
+
+  pack [entry $f.e -textvariable ::LH(elapsed) \
+       -state readonly -justify right -width 6] \
+       -side right -anchor e
+  pack [label $f.el -text "Elapsed Time:"] -side right -anchor e
+
+  set fg [frame $f.fg]
+  pack $fg  -side right -anchor center -fill none -expand 1
+  pack [label $fg.gct -textvariable ::LH(glxgears,ct)] \
+       -side right -anchor center
+  pack [button $fg.gears -padx 0 -pady 0 -text Glxgears \
+       -command [list exec glxgears &]] \
+       -side right -anchor center -fill none -expand 1
+
+  pack [button $f.sshot -padx 0 -pady 0 -text Screenshot \
+       -command [list windowToFile .]] \
+       -side right -anchor center -fill none -expand 1
+
+  wm deiconify .
+  wm resizable . 0 0
+
+  after 0 count_glxgears
+} ;# make_gui
+
+proc count_glxgears {} {
+  set l  {}
+  if [catch {set l [exec pgrep glxgears 2>/dev/null]} msg] {
+    # puts "l=$l,msg=$msg"
+  }
+  set ::LH(glxgears,ct) [llength $l]
+  after 1000 count_glxgears ;# reschedule
+} ;# count_glxgears
+
+proc xaxis {thd} {
+  set bins $::LH($thd,maxbins)
+  set binsize $::LH($thd,binsize,us)
+  foreach v {-1 -2 -5 -10 0 10 5 2 1} {
+    if {$v == 0} {
+      lappend ticklist 0
+    } else {
+      lappend ticklist [expr int(1.0*$bins/$v*$binsize)]
+    }
+  }
+  set fullscale [expr $bins * $binsize]
+  $::LH(w,$thd) axis configure x \
+                -hide 0 \
+                -logscale  0 \
+                -showticks 1 \
+                -min -$fullscale -max $fullscale \
+                -majorticks $ticklist
+} ;# xaxis
+
+proc finish {} {
+  after cancel [after info]
+  foreach thd $::LH(threads) {
+    if {$::LH(elapsed) == 0} break
+    progress "$thd reread,ct/sec=[format %.3f \
+             [expr 1.0*$::LH($thd,reread,ct)/$::LH(elapsed)]]"
+    progress "$thd   bump,ct/sec=[format %.3f \
+             [expr 1.0*$::LH($thd,bump,ct)/$::LH(elapsed)]]"
+  }
+  progress $::LH(title)\n
+  catch {exec pkill glxgears}
+  progress "Fini"
+  exec halrun -U
+  exit 0
+} ;# finish
+
+
+proc repeat {} {
+  after cancel $::LH(after,repeat)
+  set ::LH(elapsed) [expr [clock seconds] - $::LH(start)]
+  scan [time {  foreach thd $::LH(threads) {
+                  update_chart $thd
+                }
+             }] "%d %s" tus notused
+
+  set tms [expr $tus/1000]
+  set ::LH(after,repeat) [after [expr 2*$tms] repeat] ;# nohogging
+} ;# repeat
+
+proc reset_data {} {
+  progress "Reset data"
+  foreach thd $::LH(threads) {
+    hal setp $::LH($thd,name).reset 1
+    $::LH(w,$thd,posbins) conf -fg black
+    $::LH(w,$thd,negbins) conf -fg black
+    set ::LH($thd,pextra) 0
+    set ::LH($thd,nextra) 0
+    set ::LH($thd,p,more) 0
+    set ::LH($thd,n,more) 0
+  }
+  after 100
+  foreach thd $::LH(threads) {
+    hal setp $::LH($thd,name).reset 0
+  }
+  set ::LH(start) [clock seconds]
+  set ::LH(elapsed) 0
+  make_chart
+  return
+} ;# reset_data
+
+proc start_collection {} {
+  set i 1; set args ""
+  foreach thd $::LH(threads) {
+    set args "$args name$i=t_$thd period$i=$::LH($thd,period,ns)"
+    incr i
+  }
+  eval hal loadrt threads "$args"
+
+  set names ""; set ct 0
+  foreach thd $::LH(threads) {
+    if $ct {
+      set names "$names,$::LH($thd,name)"
+    } else {
+      set names "$::LH($thd,name)"
+    }
+    incr ct
+  }
+  hal loadrt  $::LH(compname) names=$names
+  foreach thd $::LH(threads) {
+    set availablebins [hal getp $::LH($thd,name).availablebins]
+    if {$availablebins < $::LH($thd,maxbins)} {
+       wm iconify .
+       puts ""
+       puts "The compiled-in number of available bins for $::LH(compname).comp:"
+       puts "   <$availablebins>"
+       puts "is less than the requested maxbins:"
+       puts "   <$::LH($thd,maxbins) for the $thd thread>"
+       puts ""
+       puts "To fix:"
+       puts "   1) Increase binsize"
+       puts "or"
+       puts "   2) Decrease thread interval"
+       puts "or"
+       puts "   3) Set bins explicitly (< $availablebins)"
+       puts ""
+       exec halrun -U
+       exit 1
+    }
+    hal addf $::LH($thd,name) t_$thd
+    hal setp $::LH($thd,name).maxbinnumber $::LH($thd,maxbins)
+    hal setp $::LH($thd,name).nsbinsize    $::LH($thd,binsize,ns)
+  }
+  hal start
+  after 100
+  make_chart
+  set ::LH(elapsed) 0
+} ;# start_collection
+
+proc make_chart {} {
+  foreach thd $::LH(threads) {
+    set w $::LH(w,$thd)
+    $w legend configure -hide 1 ;# too many bins for legend
+    for {set bin 0} {$bin <= $::LH($thd,maxbins)} {incr bin} {
+      lappend pxd [expr $bin*$::LH($thd,binsize,us)]
+      lappend pyd 0
+      if {$bin == 0} continue
+      lappend nxd [expr -$bin*$::LH($thd,binsize,us)]
+      lappend nyd 0
+    }
+    if [$w element exists ndata] {
+      set op configure
+    } else {
+      set op create
+    }
+    $w element $op pdata -xdata $pxd \
+                         -ydata $pyd \
+                         -fg $::LH($thd,color) \
+                         -relief solid \
+                         -bd 0 -barwidth $::LH($thd,binsize,us) \
+                         -bg lightblue
+    $w element $op pmaxdata \
+       -xdata [expr $::LH($thd,maxbins) * $::LH($thd,binsize,us)] \
+       -ydata 0 \
+       -fg $::LH($thd,color) \
+       -relief solid \
+       -bd 0 -barwidth $::LH($thd,binsize,us) \
+       -bg lightblue
+    if {$bin == 0} continue
+    $w element $op ndata -xdata $nxd \
+                         -ydata $nyd \
+                         -fg $::LH($thd,color) \
+                         -relief solid \
+                         -bd 0 -barwidth $::LH($thd,binsize,us) \
+                         -bg lightblue
+    $w element $op nmaxdata \
+       -xdata [expr -$::LH($thd,maxbins) * $::LH($thd,binsize,us)] \
+       -ydata 0 \
+       -fg $::LH($thd,color) \
+       -relief solid \
+       -bd 0 -barwidth $::LH($thd,binsize,us) \
+       -bg lightblue
+    if {$bin == 0} continue
+
+    set ::LH($thd,reread,ct) 0
+    set ::LH($thd,bump,ct) 0
+  }
+} ;# make_chart
+
+proc update_chart {thd} {
+  set w $::LH(w,$thd)
+
+  set dly $::LH($thd,dly,ms)
+  set pmore 0
+  set nmore 0
+  for {set bin 0} {$bin <= $::LH($thd,maxbins)} {incr bin} {
+    hal setp $::LH($thd,name).index $bin
+    set ct 0
+    while 1 {
+      after $dly
+      set chk [hal getp $::LH($thd,name).check]
+      if {$bin == $chk} {
+        break
+      } else {
+        # retry (probably only needed for (irrelevant) non-realtime threads)
+        incr ct
+        incr ::LH($thd,reread,ct)
+        if {$ct > 1} {
+          incr dly
+          incr ::LH($thd,bump,ct)
+        }
+      }
+    }
+    set pbin [hal getp $::LH($thd,name).pbinvalue]
+    set nbin [hal getp $::LH($thd,name).nbinvalue]
+
+    #verify index in range
+    #if { ($pbin < 0) ||  ($nbin < 0) } {
+    #  puts stderr "Unexpected: thd=$thd index=$bin pbin=$pbin, nbin=$nbin"
+    #}
+
+    lappend pxd [expr $bin * $::LH($thd,binsize,us)]
+    lappend pyd $pbin
+    if {($bin != 0)} {
+      lappend nxd -[expr $bin * $::LH($thd,binsize,us)]
+      lappend nyd  $nbin
+    }
+    if {$bin > $::LH($thd,maxbins)} {
+      set pmore [expr $pmore + $pbin]
+      set nmore [expr $nmore + $nbin]
+    }
+  } ;# for bin
+
+  set ::LH($thd,pextra) [hal getp $::LH($thd,name).pextra]
+  set ::LH($thd,p,more) [expr $pmore + $::LH($thd,pextra)]
+
+  set ::LH($thd,nextra) [hal getp $::LH($thd,name).nextra]
+  set ::LH($thd,n,more) [expr $nmore + $::LH($thd,nextra)]
+
+  set pcolor $::LH($thd,color)
+  set pmaxcolor white
+  if {$::LH($thd,pextra) > 0} {
+    set pcolor red
+    set pmaxcolor $pcolor
+    $::LH(w,$thd,posbins) conf -fg $pcolor
+  } elseif {$::LH($thd,p,more) > 0} {
+    $::LH(w,$thd,posbins) conf -fg $::LH($thd,color)
+  } else {
+    $::LH(w,$thd,posbins) conf -fg black
+  }
+
+  set ncolor $::LH($thd,color)
+  set nmaxcolor white
+  if {$::LH($thd,nextra) > 0} {
+    set ncolor red
+    set nmaxcolor $ncolor
+    $::LH(w,$thd,negbins) conf -fg $ncolor
+  } elseif {$::LH($thd,n,more) > 0} {
+    $::LH(w,$thd,negbins) conf -fg $::LH($thd,color)
+  } else {
+    $::LH(w,$thd,negbins) conf -fg black
+  }
+
+  set pyd_max_pos [expr [lindex $pyd end] + $::LH($thd,p,more)]
+  set nyd_max_neg [expr [lindex $nyd end] + $::LH($thd,n,more)]
+
+  # display fmt
+  set ::LH($thd,p,more) [format %.3g $::LH($thd,p,more)]
+  set ::LH($thd,n,more) [format %.3g $::LH($thd,n,more)]
+
+  # remove end bin
+  set pyd [lrange $pyd 0 [expr -1 + $::LH($thd,maxbins)]]
+  set pxd [lrange $pxd 0 [expr -1 + $::LH($thd,maxbins)]]
+
+  set nyd [lrange $nyd 0 [expr -2 + $::LH($thd,maxbins)]]
+  set nxd [lrange $nxd 0 [expr -2 + $::LH($thd,maxbins)]]
+
+  $w element configure pdata -xdata $pxd -ydata $pyd
+  $w element configure ndata -xdata $nxd -ydata $nyd
+
+  $w element configure pmaxdata \
+     -xdata [expr $::LH($thd,maxbins) * $::LH($thd,binsize,us)] \
+     -ydata $pyd_max_pos \
+     -stipple pbmap \
+     -fg $::LH($thd,color) -bg $pmaxcolor
+  $w element configure nmaxdata \
+     -xdata [expr -1*$::LH($thd,maxbins) * $::LH($thd,binsize,us)] \
+     -ydata $nyd_max_neg \
+     -stipple nbmap \
+     -fg $::LH($thd,color) -bg $nmaxcolor
+
+  # a y axis configure is needed, updates may fail without it
+  $::LH(w,$thd) axis configure y -logscale $::LH(y,logscale)
+  update
+} ;# update_chart
+
+proc popup {msg} { \
+  set answer [tk_messageBox \
+     -parent . \
+     -icon error \
+     -type ok \
+     -title "Message" \
+     -message  "$msg" \
+     ]
+   puts $msg
+} ;# popup
+
+proc progress {txt} {
+  if !$::LH(verbose) return
+  puts stderr "$::argv0: [expr [clock seconds] - $::LH(start)]s $txt"
+} ;# progress
+
+proc usage {} {
+  set prog [file tail $::argv0]
+  puts ""
+  puts "Usage:"
+  puts "   $prog --help | -?"
+  puts "or"
+  puts "   $prog \[Options\]"
+  puts ""
+  puts "Options:"
+  puts "  --version        (show version and exit)"
+  puts "  --base      nS   (base  thread interval, default:   $::LH(base,period,ns), min:  $::LH(base,period,ns,min))"
+  puts "  --servo     nS   (servo thread interval, default: $::LH(servo,period,ns), min: $::LH(servo,period,ns,min))"
+
+  puts "  --bbinsize  nS   (base  bin size,  default: $::LH(base,binsize,ns)"
+  puts "  --sbinsize  nS   (servo bin size, default: $::LH(servo,binsize,ns)"
+
+  puts "  --bbins     n    (base  bins, default: $::LH(base,maxbins)"
+  puts "  --sbins     n    (servo bins, default: $::LH(servo,maxbins)"
+
+  puts "  --logscale  0|1  (y axis log scale, default: $::LH(y,logscale))"
+  puts "  --text      note (additional note, default: \"$::LH(note,txt)\" )"
+  puts "  --show           (show count of undisplayed bins)"
+  puts "  --nobase         (servo thread only)"
+  puts "  --verbose        (progress and debug)"
+
+  puts ""
+  puts "Notes:"
+  puts "  Linuxcnc and Hal should not be running, stop with halrun -U."
+  puts "  Large number of bins and/or small binsizes will slow updates."
+  puts "  For single thread, specify --nobase (and options for servo thread)."
+  puts "  Measured latencies outside of the +/- bin range are reported"
+  puts "  with special end bars.  Use --show to show count for"
+  puts "  the off-chart \[pos|neg\] bin"
+  exit 0
+} ;# usage
+
+#------------------------------------------------------------------
+proc bltCaptureWindow { win } {
+  set image [image create photo]
+  blt::winop snap $win $image
+  return $image
+} ;# bltCaptureWindow
+
+proc windowToFile { win } {
+  set image [bltCaptureWindow $win]
+  set types {{"Image Files" {.png}}}
+  set ifile $::tcl_platform(user)-$::LH(date)-$::LH(elapsed).png
+  set filename [tk_getSaveFile -filetypes $types \
+      -initialfile  $ifile \
+      -initialdir $::LH(dir,screenshot) \
+      -defaultextension .png]
+  if {[llength $filename]} {
+    set ::LH(dir,screenshot) [file dirname $filename]
+    $image write -format png $filename
+  }
+  image delete $image
+} ;# windowToFile
+#------------------------------------------------------------------
+
+# allow re-sourcing for testing with tkcon
+if ![info exists ::LH(version)] {
+  set_defaults
+  config
+  progress "Loading packages"
+  load_packages
+  progress "Making gui"
+  make_gui
+  progress "Start_collection"
+  start_collection
+  progress "Begin repeats"
+  repeat
+} else {
+  puts "$::argv0 already running"
+}

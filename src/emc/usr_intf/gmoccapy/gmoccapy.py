@@ -33,7 +33,6 @@ import sys                  # handle system calls
 import os                   # needed to get the paths and directorys
 import pango                # needed for font settings and changing
 import gladevcp.makepins    # needed for the dialog"s calulator widget
-import locale               # for translations
 import atexit               # needed to register childs to be closed on closing the GUI
 import subprocess           # to launch onboard and other proceses
 import vte                  # To get the embedded terminal
@@ -84,14 +83,10 @@ if debug:
             pass
 
 # constants
-_RELEASE = "1.0.5"
+#          # gmoccapy  #"
+_RELEASE = "  1.1.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
-_MANUAL = 1                         # Check for the mode Manual
-_AUTO = 2                           # Check for the mode Auto
-_MDI = 3                            # Check for the mode MDI
-_RUN = 1                            # needed to check if the interpreter is running
-_IDLE = 0                           # needed to check if the interpreter is idle
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
 
 # set up paths to files
@@ -154,6 +149,7 @@ class gmoccapy(object):
 
         self.widgets = widgets.Widgets(self.builder)
 
+        self.start_line = 0       # needed for start from line
         self.stepping = False     # used to sensitize widgets when using step by step
 
         self.active_gcodes = []   # this are the formated G code values
@@ -162,7 +158,6 @@ class gmoccapy(object):
         self.mcodes = []          # this are the unformated M code values to check if an update is requiered
 
         self.distance = 0               # This global will hold the jog distance
-        self.interpreter = _IDLE        # This hold the interpreter state, so we could check if actions are allowed
         self.tool_change = False        # this is needed to get back to manual mode after a tool change
         self.macrobuttons = []          # The list of all macrios defined in the INI file
         self.log = False                # decide if the actions should be loged
@@ -201,6 +196,7 @@ class gmoccapy(object):
 
         # set the title of the window, to show the release
         self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
+        self.widgets.lbl_version.set_label("<b>gmoccapy\n%s</b>" % _RELEASE)
 
         self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
 
@@ -234,33 +230,14 @@ class gmoccapy(object):
         self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
 
-        # and according to machine units the digits to display
-        if self.stat.linear_units == _MM:
-            self.widgets.scl_max_vel.set_digits(0)
-            self.widgets.scl_jog_vel.set_digits(0)
-        else:
-            self.widgets.scl_max_vel.set_digits(3)
-            self.widgets.scl_jog_vel.set_digits(3)
-
-        # the scale to apply to the count of the hardware mpg wheel, to avoid to much turning
-        default = (self.stat.max_velocity * 60 - self.stat.max_velocity * 0.1) / 100
-        self.scale_max_vel = self.prefs.getpref("scale_max_vel", default, float)
-        self.widgets.adj_scale_max_vel.set_value(self.scale_max_vel)
-        default = (self.jog_rate_max / 100)
-        self.scale_jog_vel = self.prefs.getpref("scale_jog_vel", default, float)
-        self.widgets.adj_scale_jog_vel.set_value(self.scale_jog_vel)
-        self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
-        self.widgets.adj_scale_spindle_override.set_value(self.scale_spindle_override)
-        self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
-        self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
-
         # check if the user want a Logo
         if self.prefs.getpref("logo", False, bool):
             logofile = self.prefs.getpref("logofile", None, str)
             if logofile:
                 self.widgets.img_logo.set_from_file(logofile)
                 self.widgets.img_logo.show()
-                self.widgets.vbox_jog.hide()
+                self.widgets.hbox_jog.hide()
+                self.widgets.hbox_jog_vel.hide()
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
@@ -428,6 +405,8 @@ class gmoccapy(object):
         self.widgets.chk_show_dtg.set_active(self.prefs.getpref("show_dtg", False))
         self.widgets.chk_show_offsets.set_sensitive(self.widgets.chk_show_dro.get_active())
         self.widgets.chk_show_dtg.set_sensitive(self.widgets.chk_show_dro.get_active())
+        self.widgets.cmb_mouse_button_mode.set_active(self.prefs.getpref("mouse_btn_mode", 4, int))
+
         self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True))
         self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True))
         view = self.prefs.getpref("gremlin_view", "rbt_view_p", str)
@@ -440,13 +419,40 @@ class gmoccapy(object):
 
             # This is normaly only used for the plasma screen layout
             if "box_coolant_and_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_spindle", "frm_cooling", "frm_spindle_settings"]
+                widgetlist = ["box_spindle", "box_cooling"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.tbtn_user_tabs.set_sensitive(False)
 
+            if "box_cooling" in self.get_ini_info.get_embedded_tabs()[1]:
+                widgetlist = ["frm_cooling"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_spindle" in self.get_ini_info.get_embedded_tabs()[1]:
+                widgetlist = ["frm_spindle"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_vel_info" in self.get_ini_info.get_embedded_tabs()[1]:
+                widgetlist = ["frm_max_vel", "frm_feed_override"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_custom_1" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_1.show()
+
+            if "box_custom_2" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_2.show()
+
+            if "box_custom_3" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_3.show()
+
+            if "box_custom_4" in self.get_ini_info.get_embedded_tabs()[1]:
+                self.widgets.box_custom_4.show()
+
             if "box_tool_and_code_info" in self.get_ini_info.get_embedded_tabs()[1]:
-                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "vbox_vel_info"]
+                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed", "box_vel_info"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.btn_tool.set_sensitive(False)
@@ -538,8 +544,8 @@ class gmoccapy(object):
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
-                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_spindle_100", "scl_max_vel", "scl_spindle", "rbt_manual",
+                      "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
+                      "btn_select_tool_by_no", "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self._sensitize_widgets(widgetlist, False)
@@ -910,6 +916,7 @@ class gmoccapy(object):
         view = self.prefs.getpref('view', "p", str)
         self.widgets.gremlin.set_property("view", view)
         self.widgets.gremlin.set_property("metric_units", int(self.stat.linear_units))
+        self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref("mouse_btn_mode", 4, int))
 
     # init the function to hide the cursor
     def _init_hide_cursor(self):
@@ -1106,60 +1113,68 @@ class gmoccapy(object):
     # check linuxcnc for status, error and then update the readout
     def _periodic(self):
         self.stat.poll()
-        e = self.error_channel.poll()
-        if e:
-            kind, text = e
-            # print kind,text
-            if "joint" in text:
-                for letter in self.axis_list:
-                    axnum = "xyzabcuvws".index(letter)
-                    text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
-            if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
-                icon = ALERT_ICON
-                type = _("Error Message")
-            elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
-                icon = INFO_ICON
-                type = _("Message")
-            elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
-                icon = INFO_ICON
-                type = _("Message")
-            self.notification.add_message(text, icon)
-
-            if self._AUDIO_AVAILABLE:
-                if kind != 13:
-                    self.audio.set_sound(self.error_sound)
-                else:
-                    self.audio.set_sound(self.alert_sound)
-                self.audio.run()
+        error = self.error_channel.poll()
+        if error:
+            self._show_error(error)
 
         if self.gcodes != self.stat.gcodes:
             self._update_active_gcodes()
         if self.mcodes != self.stat.mcodes:
             self._update_active_mcodes()
 
-        if "G8" in self.active_gcodes and self.lathe_mode and self.diameter_mode:
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.diameter_mode = False
-        elif "G7" in self.active_gcodes and self.lathe_mode and not self.diameter_mode:
-            self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
-            self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
-            self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
-            self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
-            self.diameter_mode = True
+        if self.lathe_mode:
+            if "G8" in self.active_gcodes and self.diameter_mode:
+                self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+                self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+                self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+                self.diameter_mode = False
+            elif "G7" in self.active_gcodes and not self.diameter_mode:
+                self.widgets.Combi_DRO_x.set_property("abs_color", gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.Combi_DRO_x.set_property("rel_color", gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.Combi_DRO_x.set_property("dtg_color", gtk.gdk.color_parse("#F2F1F0"))
+                self.widgets.Combi_DRO_y.set_property("abs_color", gtk.gdk.color_parse(self.abs_color))
+                self.widgets.Combi_DRO_y.set_property("rel_color", gtk.gdk.color_parse(self.rel_color))
+                self.widgets.Combi_DRO_y.set_property("dtg_color", gtk.gdk.color_parse(self.dtg_color))
+                self.diameter_mode = True
+
         self._update_vel()
         self._update_coolant()
         self._update_spindle_btn()
-        self.widgets.active_speed_label.set_label("%.0f" % self.stat.settings[2])
 
         # keep the timer running
         return True
+
+    def _show_error(self, error):
+        kind, text = error
+        # print kind,text
+        if "joint" in text:
+            for letter in self.axis_list:
+                axnum = "xyzabcuvws".index(letter)
+                text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
+        if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
+            icon = ALERT_ICON
+            type = _("Error Message")
+            self.halcomp["error"] = True
+        elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
+            icon = INFO_ICON
+            type = _("Message")
+        elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
+            icon = INFO_ICON
+            type = _("Message")
+        self.notification.add_message(text, icon)
+        if self.log:
+            self._add_alarm_entry(text)
+
+        if self._AUDIO_AVAILABLE:
+            if kind == 1 or kind == 11:
+                self.audio.set_sound(self.error_sound)
+            else:
+                self.audio.set_sound(self.alert_sound)
+            self.audio.run()
+
 
 # =========================================================
 # button handlers Start
@@ -1167,42 +1182,39 @@ class gmoccapy(object):
     # toggle emergency button
     def on_tbtn_estop_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("tbtn_estop_clicked")
-        if self.widgets.tbtn_estop.get_active(): # estop is active, open circuit
-            self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        if widget.get_active(): # estop is active, open circuit
             self.command.state(linuxcnc.STATE_ESTOP)
             self.command.wait_complete()
-            self.widgets.tbtn_on.set_sensitive(False)
-            self.widgets.tbtn_on.set_active(False)
+            self.stat.poll()
+            if self.stat.task_state == linuxcnc.STATE_ESTOP_RESET:
+                widget.set_active(False)
         else: # estop circuit is fine
-            self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(linuxcnc.STATE_ESTOP_RESET)
             self.command.wait_complete()
-            self.widgets.tbtn_on.set_sensitive(True)
-
-# TODO: find out why the values are modified by 1 on startup
-#       and correct this to avoid the need of this clicks
-        # will need to click, otherwise we get 101 % after startup
-        self.widgets.btn_feed_100.emit("clicked")
-        self.widgets.btn_spindle_100.emit("clicked")
-# TODO: End
+            self.stat.poll()
+            if self.stat.task_state == linuxcnc.STATE_ESTOP:
+                widget.set_active(True)
+                self._show_error((11, _("ERROR : External ESTOP is set, could not change state!")))
 
     # toggle machine on / off button
     def on_tbtn_on_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("hal_tgbt_on_clicked")
-        if self.widgets.tbtn_on.get_active():
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        if widget.get_active():
+            if self.stat.task_state == linuxcnc.STATE_ESTOP:
+                widget.set_active(False)
+                return
             self.command.state(linuxcnc.STATE_ON)
+            self.command.wait_complete()
+            self.stat.poll()
+            if self.stat.task_state != linuxcnc.STATE_ON:
+                widget.set_active(False)
+                self._show_error((11, _("ERROR : Could not switch the machine on, is limit switch aktivated?")))
+                self._update_widgets(False)
+                return
             self._update_widgets(True)
-            if self.widgets.ntb_main.get_current_page() != 0:
-                self.command.mode(linuxcnc.MODE_MANUAL)
-                self.command.wait_complete()
         else:
-            self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
             self.command.state(linuxcnc.STATE_OFF)
             self._update_widgets(False)
-            self.on_hal_status_mode_manual(None)
 
     # The mode buttons
     def on_rbt_manual_pressed(self, widget, data = None):
@@ -1220,11 +1232,10 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_AUTO)
         self.command.wait_complete()
 
-    # If button exit is klickt, press emergency button bevor closing the application
+    # If button exit is clicked, press emergency button bevor closing the application
     def on_btn_exit_clicked(self, widget, data = None):
         print "quit from <btn_exit>"
         if self.log: self._add_alarm_entry("btn_exit_clicked")
-        self.widgets.tbtn_estop.set_active(1)
         self.widgets.window1.destroy()
 
 # button handlers End
@@ -1260,7 +1271,9 @@ class gmoccapy(object):
         if len(filename) > 50:
             filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
         self.widgets.lbl_program.set_text(filename)
-        self.widgets.btn_use_current.set_sensitive(True)
+        widgetlist = ["btn_use_current"
+                     ]
+        self._sensitize_widgets(widgetlist, True)
 
     def on_hal_status_interp_idle(self, widget):
         self._add_alarm_entry("idle")
@@ -1284,17 +1297,16 @@ class gmoccapy(object):
             btn.set_sensitive(True)
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
-        self.interpreter = _IDLE
 
     def on_hal_status_interp_run(self, widget):
         self._add_alarm_entry("run")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_step", "btn_index_tool",
                       "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
-                      "btn_load", "btn_edit", "tbtn_optional_blocks",
+                      "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
                      ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
-        if self.stat.task_mode <> _MDI:
+        if self.stat.task_mode != linuxcnc.MODE_MDI:
             widgetlist.append("ntb_jog")
 
         self._sensitize_widgets(widgetlist, False)
@@ -1304,53 +1316,74 @@ class gmoccapy(object):
             self.widgets.btn_step.set_sensitive(True)
             self.widgets.tbtn_pause.set_sensitive(False)
 
-        self.interpreter = _RUN
-
         self.widgets.btn_show_kbd.set_image(self.widgets.img_brake_macro)
         self.widgets.btn_show_kbd.set_property("tooltip-text", _("interrupt running macro"))
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
-        self._add_alarm_entry(_("tool_in_spindle has changed to %s" % new_tool_no))
+        if self.log:self._add_alarm_entry(_("tool_in_spindle has changed to %s" % new_tool_no))
         self._update_toolinfo(new_tool_no)
 
     def on_hal_status_state_estop(self, widget = None):
-        self._add_alarm_entry("estop")
+        if self.log:self._add_alarm_entry("estop")
         self.widgets.tbtn_estop.set_active(True)
-        self.widgets.tbtn_on.set_active(False)
+        self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
         self.widgets.tbtn_on.set_sensitive(False)
+        self.widgets.chk_ignore_limits.set_sensitive(False)
+        self.widgets.tbtn_on.set_active(False)
+        self.command.mode(linuxcnc.MODE_MANUAL)
 
     def on_hal_status_state_estop_reset(self, widget = None):
-        self._add_alarm_entry("estop_reset")
+        if self.log:self._add_alarm_entry("estop_reset")
         self.widgets.tbtn_estop.set_active(False)
+        self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
         self.widgets.tbtn_on.set_sensitive(True)
+        self.widgets.ntb_jog.set_sensitive(True)
+        self.widgets.hbox_jog.set_sensitive(False)
+        self.widgets.hbox_jog_vel.set_sensitive(False)
+        self.widgets.chk_ignore_limits.set_sensitive(True)
+        self._check_limits()
 
     def on_hal_status_state_off(self, widget):
+        if self.log: self._add_alarm_entry ("State Off")
         self._add_alarm_entry("state_off")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "hbox_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
                      ]
         self._sensitize_widgets(widgetlist, False)
-        # self.widgets.rbt_manual.set_active(True)
         if self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(False)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
+        self.widgets.btn_exit.set_sensitive(True)
+        self.widgets.chk_ignore_limits.set_sensitive(True)
+        self.widgets.ntb_main.set_current_page(0)
+        self.widgets.ntb_button.set_current_page(0)
+        self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_jog.set_current_page(0)
 
     def on_hal_status_state_on(self, widget):
-        self._add_alarm_entry("state_on")
+        if self.log:self._add_alarm_entry("state_on")
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
                       "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle"
                      ]
         self._sensitize_widgets(widgetlist, True)
-        self.widgets.rbt_manual.set_active(True)
         if not self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(True)
+        self.widgets.tbtn_on.set_image(self.widgets.img_machine_on)
+        self.widgets.btn_exit.set_sensitive(False)
+        self.widgets.chk_ignore_limits.set_sensitive(False)
+        if self.widgets.ntb_main.get_current_page() != 0:
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
 
     def on_hal_status_mode_manual(self, widget):
-        print"Manual"
+        if self.log: self._add_alarm_entry("Manual")
         self.widgets.rbt_manual.set_active(True)
         # setup page will be activated, if we don't leave, the pages will be reset with this call
         if self.widgets.tbtn_setup.get_active() == True:
@@ -1359,9 +1392,10 @@ class gmoccapy(object):
         self.widgets.ntb_button.set_current_page(0)
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
+        self._check_limits()
 
     def on_hal_status_mode_mdi(self, widget):
-        print "MDI"
+        if self.log: self._add_alarm_entry("MDI")
         # self.tool_change is set only if the tool change was commanded
         # from tooledit widget/page, so we do not want to switch the
         # screen layout to MDI, but set the manual widgets
@@ -1378,6 +1412,7 @@ class gmoccapy(object):
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+            self._show_error((13, _("It is not possible to change to MDI Mode at the moment")))
             return
         else:
             if self.widgets.chk_use_kb_on_mdi.get_active():
@@ -1391,7 +1426,7 @@ class gmoccapy(object):
             self.widgets.rbt_mdi.set_active(True)
 
     def on_hal_status_mode_auto(self, widget):
-        print "Auto"
+        if self.log: self._add_alarm_entry("Auto")
         # if Auto button is not sensitive, we are not ready for AUTO commands
         # so we have to aboart external commands and get back to manual mode
         # This will hapen mostly, if we are in settings mode, as we do disable the mode button
@@ -1399,6 +1434,7 @@ class gmoccapy(object):
             self.command.abort()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+            self._show_error((13, _("It is not possible to change to Auto Mode at the moment")))
             return
         else:
             self.widgets.ntb_main.set_current_page(0)
@@ -1407,7 +1443,7 @@ class gmoccapy(object):
             self.widgets.ntb_jog.set_current_page(2)
             self.widgets.rbt_auto.set_active(True)
 
-# hal status Start
+# hal status End
 # =========================================================
     # There are some settings we can only do if the window is on the screen allready
     def on_window1_show(self, widget, data = None):
@@ -1418,6 +1454,7 @@ class gmoccapy(object):
             self.widgets.tbtn_estop.set_active(True)
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency)
             self.widgets.tbtn_on.set_image(self.widgets.img_machine_off)
+            self.widgets.tbtn_on.set_sensitive(False)
         else:
             self.widgets.tbtn_estop.set_active(False)
             self.widgets.tbtn_estop.set_image(self.widgets.img_emergency_off)
@@ -1450,14 +1487,27 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
+# TODO: find out why the values are modified by 1 on startup
+#       and correct this to avoid the need of this clicks
+        # will need to click, otherwise we get 101 % after startup
+        self.widgets.btn_feed_100.emit("clicked")
+        self.widgets.btn_spindle_100.emit("clicked")
+# TODO: End
+
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data = None):
-        self._kill_keyboard()
         print "estopping / killing gmoccapy"
+        self._kill_keyboard()
         self.command.state(linuxcnc.STATE_OFF)
         self.command.state(linuxcnc.STATE_ESTOP)
-        time.sleep(2)
+        if self.log:
+            logfilename = os.path.join(CONFIGPATH, "gmoccapy.log")
+            textbuffer = self.widgets.alarm_history.get_buffer()
+            content = textbuffer.get_text(*textbuffer.get_bounds())
+            logfile = open(logfilename, "w")
+            logfile.write(content)
+            logfile.close()
         gtk.main_quit()
 
     # What to do if a macro button has been pushed
@@ -1475,7 +1525,7 @@ class gmoccapy(object):
         if not os.path.isfile(file):
             message = _("**** GMOCCAPY ERROR ****")
             message += _("\n**** File %s of the macro could not be found ****\n" % [o_codes[0] + ".ngc"])
-            message += _("**** we searched in subdirectory %s ****" % [subroutines_folder])
+            message += _("**** we searched in subdirectory %s ****" % subroutines_path)
             dialogs.warning_dialog(self, _("Important Warning"), message)
             self._add_alarm_entry(message)
             return
@@ -1512,7 +1562,7 @@ class gmoccapy(object):
 
     def _update_widgets(self, state):
         widgetlist = ["rbt_manual", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "hbox_jog_vel", "hbox_jog", "scl_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_spindle_100", "scl_max_vel", "scl_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -1520,9 +1570,6 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, state)
 
     def on_key_event(self, widget, event, signal):
-
-        # print self.stat.linear_units
-        # print type(self.stat.linear_units)
 
         # get the keyname
         keyname = gtk.gdk.keyval_name(event.keyval)
@@ -1573,7 +1620,7 @@ class gmoccapy(object):
         # in this case we do not return true, otherwise entering code in MDI history
         # and the integrated editor will not work
         # we also check if we are in settings or terminal or alarm page
-        if self.stat.task_mode <> _MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
+        if self.stat.task_mode != linuxcnc.MODE_MANUAL or not self.widgets.ntb_main.get_current_page() == 0:
             return
 
         # offset page is active, so keys must go through
@@ -1668,7 +1715,7 @@ class gmoccapy(object):
 # TODO:
         # this ones are not finished yet in notifications, we do add them at
         # a later development state, just to show they are there
-        self.notification.set_property('icon_size' , 1)
+        self.notification.set_property('icon_size' , 48)
         self.notification.set_property('top_to_bottom', True)
 # TODO: End
 
@@ -1783,17 +1830,17 @@ class gmoccapy(object):
         # active G codes
         active_codes = []
         temp = []
-        for i in sorted(self.stat.gcodes):
-            if i == -1:
+        for code in sorted(self.stat.gcodes[1:]):
+            if code == -1:
                 continue
-            if i % 10 == 0:
-                temp.append("%d" % (i / 10))
+            if code % 10 == 0:
+                temp.append("%d" % (code / 10))
             else:
-                temp.append("%d.%d" % (i / 10, i % 10))
-        for num, i in enumerate(temp):
+                temp.append("%d.%d" % (code / 10, code % 10))
+        for num, code in enumerate(temp):
             if num == 8:
                 active_codes.append("\n")
-            active_codes.append("G" + i)
+            active_codes.append("G" + code)
         self.active_gcodes = active_codes
         self.gcodes = self.stat.gcodes
         self.widgets.active_gcodes_label.set_label(" ".join(self.active_gcodes))
@@ -1802,12 +1849,12 @@ class gmoccapy(object):
         # M codes
         active_codes = []
         temp = []
-        for i in sorted(self.stat.mcodes):
-            if i == -1:
+        for code in sorted(self.stat.mcodes[1:]):
+            if code == -1:
                 continue
-            temp.append("%d" % i)
-        for i in (temp):
-            active_codes.append("M" + i)
+            temp.append("%d" % code)
+        for code in (temp):
+            active_codes.append("M" + code)
         self.active_mcodes = active_codes
         self.mcodes = self.stat.mcodes
         self.widgets.active_mcodes_label.set_label(" ".join(self.active_mcodes))
@@ -1840,6 +1887,9 @@ class gmoccapy(object):
 
         self.widgets.lbl_active_feed.set_label(feed_str)
         self.widgets.lbl_feed_act.set_text(real_feed_str)
+
+        # set the speed label in active code frame
+        self.widgets.active_speed_label.set_label("%.0f" % self.stat.settings[2])
 
     def _update_coolant(self):
         if self.stat.flood:
@@ -2085,11 +2135,11 @@ class gmoccapy(object):
     def on_btn_launch_test_message_pressed(self, widget = None, data = None):
         index = len(self.notification.messages)
         text = _("Halo, welcome to the test message %d") % index
-        self.notification.add_message(text , INFO_ICON)
+        self._show_error((13, text))
 
     def on_btn_jog_pressed(self, widget, data = None):
         # only in manual mode we will allow jogging the axis at this development state
-        if not self.stat.task_mode == _MANUAL:
+        if not self.stat.task_mode == linuxcnc.MODE_MANUAL:
             return
 
         axisletter = widget.get_label()[0]
@@ -2204,7 +2254,7 @@ class gmoccapy(object):
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(False)
                 self.widgets.rbt_auto.set_sensitive(False)
-            if (self.stat.task_state == linuxcnc.STATE_ON) and self.all_homed:
+            if (self.stat.task_state == linuxcnc.STATE_ON) and (self.all_homed or self.no_force_homing):
                 # all OK, make all modes availible
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(True)
@@ -2253,9 +2303,21 @@ class gmoccapy(object):
             axis = "xyzabcuvw".index(self.axisletter_four)
         self.command.home(axis)
 
+    def _check_limits(self):
+        for axis in self.axis_list:
+            axisnumber = "xyzabcuvw".index(axis)
+            if self.stat.limit[axisnumber] != 0:
+                return True
+        if self.widgets.chk_ignore_limits.get_active():
+            self.widgets.chk_ignore_limits.set_active(False)
+        return False
+
     def on_chk_ignore_limits_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("chk_ignore_limits_toggled %s" % widget.get_active())
         if self.widgets.chk_ignore_limits.get_active():
+            if not self._check_limits():
+                self._show_error((11, _("ERROR : No limit switch is active, ignore limits will not be set.")))
+                return
             self.command.override_limits()
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data = None):
@@ -2306,36 +2368,66 @@ class gmoccapy(object):
 # spindle stuff
 #-----------------------------------------------------------
     def _update_spindle_btn(self):
-        if self.stat.task_mode == _AUTO and self.interpreter == _RUN:
-            return
-        if not abs(self.stat.spindle_speed):
-            self.widgets.rbt_stop.set_active(True)
-            return
         if self.stat.spindle_direction > 0:
             self.widgets.rbt_forward.set_active(True)
         elif self.stat.spindle_direction < 0:
             self.widgets.rbt_reverse.set_active(True)
         elif not self.widgets.rbt_stop.get_active():
             self.widgets.rbt_stop.set_active(True)
+        # this is needed, because otherwise a command S0 would not set active btn_stop
+        if not abs(self.stat.spindle_speed):
+            self.widgets.rbt_stop.set_active(True)
+            return
+
+    def on_rbt_forward_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("rbt_forward_clicked")
+        if widget.get_active():
+            widget.set_image(self.widgets.img_forward_on)
+            self._set_spindle("forward")
+        else:
+            self.widgets.rbt_forward.set_image(self.widgets.img_forward)
+
+    def on_rbt_reverse_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("rbt_reverse_clicked")
+        if widget.get_active():
+            widget.set_image(self.widgets.img_reverse_on)
+            self._set_spindle("reverse")
+        else:
+            widget.set_image(self.widgets.img_reverse)
+
+    def on_rbt_stop_clicked(self, widget, data = None):
+        if self.log: self._add_alarm_entry("rbt_stop_clicked")
+        if widget.get_active():
+            widget.set_image(self.widgets.img_stop_on)
+            self._set_spindle("stop")
+        else:
+            self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
 
     def _set_spindle(self, command):
-        if command == "stop":
-            self.command.spindle(0)
-            self.widgets.lbl_spindle_act.set_label("S 0")
+        # if we are in estop state, we will have to leave here, otherwise
+        # we get an error, that switching spindle off is not allowed with estop
+        if self.stat.task_state == linuxcnc.STATE_ESTOP:
             return
         rpm = self._check_spindle_range()
         # as the commanded value will be multiplied with speed override,
         # we take care of that
         rpm_out = rpm / self.stat.spindlerate
+        self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
+        if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
+
+        # if we do not check this, we will get an error in auto mode
+        if self.stat.task_mode == linuxcnc.MODE_AUTO:
+            if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
+                return
+        if command == "stop":
+            self.command.spindle(0)
+            self.widgets.lbl_spindle_act.set_label("S 0")
         if command == "forward":
             self.command.spindle(1, rpm_out)
         elif command == "reverse":
             self.command.spindle(-1, rpm_out)
         else:
             self._add_alarm_entry(_("Something went wrong, we have an unknown widget"))
-
-        if self.log: self._add_alarm_entry("Spindle set to %i rpm, mode is %s" % (rpm, self.stat.task_mode))
-        self.widgets.lbl_spindle_act.set_label("S %s" % int(rpm))
 
     def _check_spindle_range(self):
         rpm = self.stat.settings[2]
@@ -2351,34 +2443,6 @@ class gmoccapy(object):
             real_spindle_speed = self.min_spindle_rev
         return real_spindle_speed
 
-    def on_rbt_forward_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("rbt_forward_clicked")
-        if widget.get_active():
-            widget.set_image(self.widgets.img_forward_on)
-            self._set_spindle("forward")
-        else:
-            self.widgets.rbt_forward.set_image(self.widgets.img_forward)
-
-    def on_rbt_reverse_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("rbt_reverse_clicked")
-        if widget.get_active():
-            widget.set_image(self.widgets.img_reverse_on)
-            self.widgets.spindle_feedback_bar.set_property("max", float(self.min_spindle_rev) * -1)
-            self.widgets.spindle_feedback_bar.set_property("min", float(self.max_spindle_rev) * -1)
-            self._set_spindle("reverse")
-        else:
-            widget.set_image(self.widgets.img_reverse)
-            self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
-            self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
-
-    def on_rbt_stop_clicked(self, widget, data = None):
-        if self.log: self._add_alarm_entry("rbt_stop_clicked")
-        if widget.get_active():
-            widget.set_image(self.widgets.img_stop_on)
-            self._set_spindle("stop")
-        else:
-            self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
-
     def on_btn_spindle_100_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("spindle override has been reseted to 100 %")
         self.widgets.adj_spindle.set_value(100)
@@ -2388,13 +2452,13 @@ class gmoccapy(object):
         # so we would get an division / zero error
         real_spindle_speed = 0
         try:
-            if not self.stat.settings[2]:
+            if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
                     speed = self.stat.spindle_speed
                 else:
                     speed = 0
             else:
-                speed = self.stat.settings[2]
+                speed = abs(self.stat.settings[2])
             spindle_override = widget.get_value() / 100
             real_spindle_speed = speed * spindle_override
             if real_spindle_speed > self.max_spindle_rev:
@@ -2429,13 +2493,9 @@ class gmoccapy(object):
         self.prefs.putpref("spindle_bar_max", self.max_spindle_rev, float)
         self.widgets.spindle_feedback_bar.set_property("max", self.max_spindle_rev)
 
-    def on_spindle_feedback_bar_hal_pin_changed(self, widget, data = None):
-        self.widgets.lbl_spindle_act.set_text("S %s" % int(self.widgets.spindle_feedback_bar.value))
-
-
     # Coolant an mist coolant button
     def on_tbtn_flood_toggled(self, widget, data = None):
-        if self.log: self._add_alarm_entry("tbtn_flood_clicked, flood is now ", self.stat.flood)
+        if self.log: self._add_alarm_entry("tbtn_flood_clicked, flood is now %s" % self.stat.flood)
         if self.stat.flood and self.widgets.tbtn_flood.get_active():
             return
         elif not self.stat.flood and not self.widgets.tbtn_flood.get_active():
@@ -2525,9 +2585,9 @@ class gmoccapy(object):
                 self.widgets.ntb_info.show()
 
     def on_ntb_info_switch_page(self, widget, page, page_num, data = None):
-        if self.stat.task_mode == _MDI:
+        if self.stat.task_mode == linuxcnc.MODE_MDI:
             self.widgets.hal_mdihistory.entry.grab_focus()
-        elif self.stat.task_mode == _AUTO:
+        elif self.stat.task_mode == linuxcnc.MODE_AUTO:
             self.widgets.gcode_view.grab_focus()
 
     # Three back buttons to be able to leave notebook pages
@@ -2920,6 +2980,11 @@ class gmoccapy(object):
         self.widgets.gremlin.show_offsets = widget.get_active()
         self.prefs.putpref("show_offsets", widget.get_active(), bool)
 
+    def on_cmb_mouse_button_mode_changed(self, widget):
+        index = widget.get_active()
+        self.widgets.gremlin.set_property("mouse_btn_mode", index)
+        self.prefs.putpref("mouse_btn_mode", index, int)
+
     # tool stuff
     def on_btn_tool_clicked(self, widget, data = None):
         if self.log: self._add_alarm_entry("btn_tool_clicked")
@@ -3311,9 +3376,7 @@ class gmoccapy(object):
         self._sensitize_widgets(widgetlist, widget.get_active())
 
     def on_btn_run_clicked(self, widget, data = None):
-        # FIXME
-        # self.command.auto( linuxcnc.AUTO_RUN, 0 )
-        pass
+        self.command.auto(linuxcnc.AUTO_RUN, self.start_line)
 
     def on_btn_step_clicked(self, widget, data = None):
         self.command.auto(linuxcnc.AUTO_STEP)
@@ -3327,9 +3390,10 @@ class gmoccapy(object):
             self.widgets.tbtn_pause.set_sensitive(True)
 
     def on_btn_stop_clicked(self, widget, data = None):
-        # self.command.abort()
-        # self.command.wait_complete()
-        self.widgets.hal_toggleaction_run.set_restart_line(0)
+        self.command.abort()
+        self.start_line = 0
+        self.widgets.gcode_view.set_line_number(0)
+        self.widgets.tbtn_pause.set_active(False)
 
     def on_btn_from_line_clicked(self, widget, data = None):
         self._add_alarm_entry("Restart the program from line clicked")

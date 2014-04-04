@@ -131,7 +131,6 @@ def restart_dialog(self):
         obj.widgets.gcode_view.line_down()
         line = int(obj.widgets.gcode_view.get_line_number())
         calc.set_value(line)
-        obj.widgets.hal_toggleaction_run.set_restart_line(line)
 
     # highlight the gcode down one line higher
     # used for run-at-line restart
@@ -139,15 +138,13 @@ def restart_dialog(self):
         obj.widgets.gcode_view.line_up()
         line = int(obj.widgets.gcode_view.get_line_number())
         calc.set_value(line)
-        obj.widgets.hal_toggleaction_run.set_restart_line(line)
 
     # highlight the gcode of the entered line
     # used for run-at-line restart
     def enter_button(widget, obj, calc):
         line = int(calc.get_value())
+        obj.start_line = line
         obj.widgets.gcode_view.set_line_number(line)
-        obj.widgets.hal_toggleaction_run.set_restart_line(line)
-
 
     restart_dialog = gtk.Dialog(_("Restart Entry"),
                self.widgets.window1, gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -158,7 +155,7 @@ def restart_dialog(self):
     restart_dialog.vbox.pack_start(label)
     calc = gladevcp.Calculator()
     restart_dialog.vbox.add(calc)
-    calc.set_value("%d" % self.stat.motion_line)
+    calc.set_value("%d" % self.widgets.gcode_view.get_line_number())
     calc.set_property("font", "sans 20")
     calc.set_editable(True)
     calc.num_pad_only(True)
@@ -180,11 +177,11 @@ def restart_dialog(self):
     result = restart_dialog.run()
     restart_dialog.destroy()
     if result == gtk.RESPONSE_REJECT:
-        value = 0
+        line = 0
     else:
-        value = int(calc.get_value())
-        if value == None:
-            value = 0
-    self.widgets.gcode_view.set_line_number(value)
-    self._add_alarm_entry(_("Ready to Restart program from line %d" % value))
-    self.widgets.hal_toggleaction_run.set_restart_line(value)
+        line = int(calc.get_value())
+        if line == None:
+            line = 0
+    self.widgets.gcode_view.set_line_number(line)
+    self.start_line = line
+    self._add_alarm_entry(_("Ready to Restart program from line %d" % line))

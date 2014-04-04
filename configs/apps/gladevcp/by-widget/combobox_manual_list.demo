@@ -1,0 +1,7 @@
+#!/bin/bash
+
+thisfile=$(readlink -f "$0")
+thisdir=$(dirname "$thisfile")
+cd "$thisdir"
+
+gladevcp_demo -u ./combobox_manual_list.py ./combobox_manual_list.ui

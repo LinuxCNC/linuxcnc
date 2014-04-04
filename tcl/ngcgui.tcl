@@ -2131,7 +2131,7 @@ proc ::ngcgui::savesection_gcmc {hdl} {
     if [catch {set result [eval exec $eline]} msg] {
       if {[string length $msg] > $::ngc(any,max_msg_len)} {
          set msg [string range $msg 0 $::ngc(any,max_msg_len)]
-         set msg "$m_txt ..."
+         set msg "$msg ..."
       }
       set lmsg [split $msg \n]
       foreach line $lmsg {

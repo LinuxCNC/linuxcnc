@@ -160,7 +160,7 @@ le parcours prévu.
 
 La vitesse à laquelle le point contrôlé se déplace est ajustable par
 l'opérateur. Sauf cas particulier, vitesse inverse du temps, vitesse
-par tour, voir la section <<sec:G93-G94-G95-Set, sur les modes de vitesse>>, dans
+par tour, voir la section <<sec:G93-G94-G95-Modes, sur les modes de vitesse>>, dans
 l'interpréteur, l'interprétation des vitesses est la suivante:
 
  . Si le déplacement concerne un des axes XYZ, F est en unités machine

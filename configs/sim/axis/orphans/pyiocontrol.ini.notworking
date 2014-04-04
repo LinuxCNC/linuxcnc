@@ -1,0 +1,546 @@
+
+# EMC controller parameters for a simulated machine.
+
+# General note: Comments can either be preceded with a # or ; - either is
+# acceptable, although # is in keeping with most linux config files.
+
+# General section -------------------------------------------------------------
+[EMC]
+
+# make emcsrv not create tool rcs channels if not using iocontrol
+TOOL_CHANNELS = 0
+
+# Name of NML file to use, default is emc.nml
+NML_FILE =              no-iotask.nml
+
+# Version of this INI file
+VERSION =               $Revision$
+
+# Name of machine, for use with display, etc.
+MACHINE =               pyiocontrol.ini
+
+# Debug level, 0 means no messages. See src/emc/nml_int/emcglb.h for others
+#DEBUG =               0x7FFFFFFF
+#DEBUG =               0x7FFFDEFF  #no interp,oword
+#DEBUG  =   	       0x00008000 # py only
+#DEBUG  =   	       0x0000E000 # py + remap + Oword
+#DEBUG  =   	       0x0000C000 # py + remap
+#DEBUG  =   	       0x0000C100 # py + remap + Interpreter
+#DEBUG  =   	       0x0000C140 # py + remap + Interpreter + NML msgs
+DEBUG  =   	       0x0004C140 # py + remap + Interpreter + NML msgs + PythonTask
+#DEBUG  =   	       0x0000C040 # py + remap + NML
+#DEBUG  =   	       0x0004C040 # py + remap + NML + PythonTask
+#DEBUG  =   	       0x0003E100 # py + remap + Interpreter + oword + signals + namedparams
+#DEBUG =                0x00008000
+#DEBUG = 0 # 0x00000100
+#    0x00000001 Ausgabe ungültige Meldungen
+#    0x00000002 Ausgabe Konfigurations-Settings
+#    0x00000004 Ausgabe Defaults
+#    0x00000008 Ausgabe Version
+#    0x00000010 Ausgabe Task Meldungen
+#    0x00000020 Ausgabe IO-Points
+#    0x00000040 Ausgabe NML-Messages
+#    0x00000080 Ausgabe Zeit zur Beendigung einer Motorbewegung
+#    0x00000100 Ausgabe Intepreter Debugging
+#    0x00000200 Ausgabe RCS-Debugging
+#    0x00000400 Ausgabe Roh-Bahn-Daten
+#    0x00000800 Ausgabe Interpreter List
+#define EMC_DEBUG_IOCONTROL         0x00001000
+#define EMC_DEBUG_OWORD             0x00002000
+#define EMC_DEBUG_REMAP             0x00004000
+#define EMC_DEBUG_PYTHON            0x00008000
+#define EMC_DEBUG_NAMEDPARAM        0x00010000
+#define EMC_DEBUG_GDBONSIGNAL 	    0x00020000
+#define EMC_DEBUG_PYTHON_TASK       0x00040000
+
+
+#    0x7FFFFFFF Ausgabe alle Debugging Messages
+
+# Sections for display options ------------------------------------------------
+[DISPLAY]
+# how to use the Firefox SQlite manager plugin as tooltable editor:
+#
+# 0: read http://code.google.com/p/sqlite-manager/wiki/XulrunnerApplication#More_details
+#
+# 1. download the zip file  'SQLiteManager 0.7.6 as XULRunner App '
+#    or whatever is the latest from http://code.google.com/p/sqlite-manager/downloads/list
+#
+# 2. Install like so:
+#    sudo xulrunner --install-app /path/to/zipfile
+#    This will install an app in /usr/local/lib/lazierthanthou/sqlite-manager/sqlite-manager .
+#    (note this path recently change - please verify)
+#
+# 3. try the following command line with an appropriate path to the tooltable database:
+#
+TOOL_EDITOR= firefox -app  /usr/lib/lazierthanthou/sqlite-manager/application.ini -f /home/mah/emc2-tc/configs/sim/tooltable.sqlite
+
+#GLADEVCP=osubdemo-ns.ui
+
+# Name of display program, e.g., xemc
+DISPLAY =             axis
+
+#OPEN_FILE=../../nc_files/m66test.ngc
+#OPEN_FILE=/home/mah/emc2-tc/nc_files/arcspiral.ngc
+#OPEN_FILE=/home/mah/emc2-tc/nc_files/taskcall.ngc
+OPEN_FILE=./taskcall.ngc
+
+# Cycle time, in seconds, that display will sleep between polls
+CYCLE_TIME =            0.100
+
+# Path to help file
+HELP_FILE =             doc/help.txt
+
+# Initial display setting for position, RELATIVE or MACHINE
+POSITION_OFFSET =       RELATIVE
+
+# Initial display setting for position, COMMANDED or ACTUAL
+POSITION_FEEDBACK =     ACTUAL
+
+# Highest value that will be allowed for feed override, 1.0 = 100%
+MAX_FEED_OVERRIDE =     1.2
+MAX_SPINDLE_OVERRIDE =  1.0
+# Prefix to be used
+#PROGRAM_PREFIX = /home/mah/emc2-tc/nc_files/
+PROGRAM_PREFIX = ../../nc_files/
+
+# Introductory graphic
+#INTRO_GRAPHIC = emc2.gif
+INTRO_TIME = 0
+
+EDITOR = gedit
+
+INCREMENTS = 1 mm, .01 in, .1mm, 1 mil, .1 mil, 1/8000 in
+[FILTER]
+PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
+PROGRAM_EXTENSION = .py Python Script
+
+png = image-to-gcode
+gif = image-to-gcode
+jpg = image-to-gcode
+py = python
+
+# Task controller section -----------------------------------------------------
+[TASK]
+
+# Name of task controller program, e.g., milltask
+TASK =                  milltask
+
+# Cycle time, in seconds, that task controller will sleep between polls
+CYCLE_TIME =            0.001
+
+
+# the Python plugins serves the interpreter as well as task
+
+[PYTHON]
+
+#PLUGIN_DIR=/home/mah/emc2-tc/configs/sim/pysubs
+PLUGIN_DIR=./pysubs
+
+# import the following Python modules
+MODULE_BASENAME=plugins
+
+
+
+# if this is set:
+RELOAD_ON_CHANGE=1
+# and the file specified in MODULE_BASENAME was changed, it will be reloaded before
+# executing any Python calls
+# This is handy for debugging because you dont need to restart EMC
+# BUT it incurs a bit of overhead per call so you might want to turn
+# it off in production mode
+# the Python reload_on_change variable may be used to toggle this
+# at runtime
+#LOG_FILE= py.log
+LOG_LEVEL = 2
+
+# start a Python (really IO) Task class
+# see end of $PLUGIN_DIR/$MODULE_BASENAME/task.py to see how it's instantiated
+PYTHON_TASK=1
+
+# section for everything tool related
+# relevant only if NOT using iocontrol - see EMCIO in that case
+
+[TOOL]
+
+
+
+
+# how to connect to a toolstore in an SQL database
+ODBC_CONNECT= Driver=SQLite3;Database=tooltable.sqlite
+
+# legacy tool table filename
+TOOL_TABLE = foo.tbl
+
+# if nonzero, save tool-in-spindle and pocket-prepped on exit, and restore on startup
+SAVE_TOOLSTATE=1
+
+# manual, random, any other
+CHANGER_TYPE= manual
+
+
+# if TASK_TOOLCHANGE_PINS=1, the task Python plugin will emulate the
+# following iocontrol.0 pins:
+#   tool-change
+#   tool-changed
+#   tool-number
+#   tool-prep-number
+#   tool-prep-pocket
+#   tool-prepare
+#   tool-prepared
+#
+TASK_TOOLCHANGE_PINS=1
+
+# if TASK_START_CHANGE_PINS=1,  the task Python plugin will emulate the
+# start-change/start-change-ack pins and their protocol as per iocontrolv2:
+TASK_START_CHANGE_PINS=1
+
+# if TASK_TOOLCHANGE_FAULT_PINS=1 the task Python plugin will emulate the iocontrolv2 pins:
+# emc-abort
+# emc-abort-ack
+# emc-reason
+# toolchanger-fault
+# toolchanger-fault-ack
+# toolchanger-reason
+# toolchanger-faulted
+# toolchanger-clear-fault
+TASK_TOOLCHANGE_FAULT_PINS=1
+
+
+# Part program interpreter section --------------------------------------------
+[RS274NGC]
+#PRINT_CODES = 1
+
+SUBROUTINE_PATH = ../../nc_files/remap_lib/common_nc_subs
+
+
+#RS274NGC_STARTUP_CODE = G21
+# this bombs - machine not on yet so no 'I/O' possible
+#RS274NGC_STARTUP_CODE = M61Q3
+
+
+# handler procedure called on aborts - to cleanup HAL pins etc
+#ON_ABORT_COMMAND=o<on_abort>call
+
+#LOG_FILE= py.log
+LOG_LEVEL = 9
+# File containing interpreter variables
+PARAMETER_FILE =        sim_mm.var
+
+# generalized  remapping
+#------------------------
+
+# currently only unused M- and G-codes may be activated as per below, except for the
+# T,M6,M61,S and F codes.
+
+# G: currently supported modal group: 1
+# M:currently supported modal groups: 5,6,7,8,9,10
+# for T,S,F remaps the modal group is fixed and any modalgroup= option is ignored
+
+
+# An argument specification (keyword 'argspec') describes required and  permitted words,
+# and precondtions for that code to execute.
+#
+# It consists of 0-n characters of the class [@A-KMNP-Za-kmnp-z^>] .
+#
+# parameter words:
+#   an uppercase letter for each required parameter 'word'
+#   a lowercase letter for each optional parameter 'word'
+#
+# Preconditions:
+#   an '^' means: speed must be > 0
+#   an '>' means: feed must be > 0
+#
+# if calling an NGC oword function (ngc=<funcname>), the parameters are passed
+# as local named parameters which are already set when the function starts
+# optional words are passed if set in the block, and may be tested for existence
+# by # EXISTS(#<..>) .
+#
+# example:
+# REMAP=M400  modalgroup=10 argspec=Px ngc=demosub
+#
+# executing 'M400 P2 X3' will result in the call
+# o<demosub> call
+#
+# the demosub.ngc body might look as follows:
+#-------------------------
+# o<demosub> sub
+#
+# (debug, P=#<x>)   (note: P is required since it's uppercase in the argspec)
+#
+# (the x argspec is optional since its lowercase in the argspec. Use as follows:)
+#
+# o100 if [EXISTS[#<x>]]
+#     (debug, X param set: #<x>)
+# o100 endif
+#
+# o<demosub> endsub
+# M2
+#-------------------------
+#
+# Calling with traditional positioal parameter lists:
+#
+# To do so, add the '@' character to the argspec.
+# In this case, the arguments (required or optional) will be passed tradional-style
+# ini example:
+# REMAP=M400  modalgroup=10 argspec=@XYp ngc=demosub
+#
+# executing 'M400 X2 Y3' will result in the call
+# o<demosub> call [2] [3]
+#
+# executing 'M400 X2 Y3 P4' will result in the call
+# o<demosub> call [2] [3] [4]
+#
+# NB: you lose the capability to distinguish more than one optional parameter word!
+#
+# if calling a Python function, the actual words present in the block as
+# required or optional are passed in the words dictionary; no positional
+# parameters are passed in this case.
+
+
+#REMAP=F  python=blah deppert -aanix
+
+REMAP=G88.1 modalgroup=1  argspec=xyzpqr  ngc=g881min
+
+
+REMAP=G88.2 modalgroup=1  argspec=xyzpqr  ngc=g882min prolog=addlocals
+#prolog=fooprolog epilog=fooepilog
+#REMAP=G88.6 modalgroup=1  argspec=@XYZ   ngc=g886
+#REMAP=G88.8 modalgroup=1  argspec=XYZ    python=m315
+
+# cone cycle
+# abcdefhijklpqrstuvwxyz
+REMAP=G88.9 modalgroup=1  argspec=@XZIJKLPQRABC  ngc=rcone
+
+
+# ( o<cone> call [X1][Z1][X2][Z2][step][feed][EngageZ][ClearAxial][ClearRadial][feedF][outflag])
+# O<cone> sub
+# (Startpoint)
+# #<X1>		= [#1] X
+# #<Z1>		= [#2] Z
+# (Endpoint)
+# #<X2>		= [#3] I
+# #<Z2>		= [#4] J
+# #<step>		= [#5] 	(Radial stepdown) K
+# #<feed>		= [#6] 	(Roughing feed rate) L
+# #<EngageZ>	= [#7] 	(Clearance to stock) P
+# #<ClearAxial>	= [#8]	(Axial rest material for finishing) Q
+# #<ClearRadial>	= [#9]	(Radial rest material for finishing) R
+# #<feedF>	= [#10]	(Finishing feed rate) A
+# #<outflag>	= [#11]	(Lead out move) B
+# #<actX>		= [#3]	(Start position in X) C
+
+
+
+
+#REMAP=M75   modalgroup=10 python=m250
+#REMAP=M250  modalgroup=10 argspec=xyzpqr python=whoami prolog=fooprolog epilog=fooepilog
+#REMAP=M251  modalgroup=6  argspec=xyzpqr python=whoami
+
+#REMAP=M315  modalgroup=10 python=m315
+REMAP=M400  modalgroup=10 prolog=introspect ngc=nestremap
+REMAP=M401  modalgroup=10 prolog=introspect ngc=null_sub
+REMAP=M402  modalgroup=10 argspec=p python=test_reschedule
+REMAP=M403  modalgroup=10 argspec=p python=print_tool
+REMAP=M404  modalgroup=10 argspec=PQ python=set_tool_zoffset
+
+#REMAP=S  ngc=sdemo prolog=sprolog
+#REMAP=F   ngc=null_sub # python=null_remap
+#REMAP=S   python=null_remap
+
+# see pythonsubs.py and nc_files/remap-subroutines
+#REMAP=T argspec=T  prolog=prepare_prolog epilog=prepare_epilog ngc=prepare
+#REMAP=M61  modalgroup=6  argspec=Q    python=set_tool_number
+#REMAP=M6   modalgroup=6       prolog=change_prolog ngc=change epilog=change_epilog
+
+# for a
+#REMAP=T   argspec=T      prolog=prepare_prolog ngc=rtdemo  epilog=prepare_epilog
+#REMAP=M6  modalgroup=6   prolog=change_prolog  ngc=rm6demo epilog=change_epilog
+#REMAP=M61 modalgroup=6  prolog=change_prolog  ngc=rm6demo.ngc epilog=change_epilog
+#REMAP=M61  modalgroup=6  argspec=Q    python=set_tool_number
+
+# this needs work..
+#RETAIN_G43=1
+
+REMAP=M900 python=gen_backtrace  modalgroup=10
+REMAP=M901 python=gdb_window 	 modalgroup=10
+
+REMAP=M950 argspec=p python=symbols  modalgroup=10
+# a plain .ngc sub call by M42:
+#
+#REMAP=M42 modalgroup=9  prolog=setup_m42 ngc=m42.ngc epilog=finish_m42
+#
+# semantics:
+# if M42 is encountered, execute it in modal group 9.
+# Fail if other group 9 codes are present in the current block.
+# the setup_m42 prolog Python function will be called before executing 'o<m42> call'
+# Then the O-word sub m42.ngc is executed.
+# The finish_m42 epilog Python function will be executed after m42.ngc finishes.
+#
+
+[VARS]
+# accessible in interp as #<_[section]name>
+FOO = 47.11
+X=3
+Y=4
+Z=5
+TOOL_CHANGE_POSITION_X = 1
+TOOL_CHANGE_POSITION_Y = 2
+TOOL_CHANGE_POSITION_Z = 3
+
+
+# Motion control section ------------------------------------------------------
+[EMCMOT]
+
+EMCMOT =              motmod
+
+# Timeout for comm to emcmot, in seconds
+COMM_TIMEOUT =          1.0
+
+# Interval between tries to emcmot, in seconds
+COMM_WAIT =             0.010
+
+# BASE_PERIOD is unused in this configuration but specified in core_sim.hal
+BASE_PERIOD  =               0
+# Servo task period, in nano-seconds
+SERVO_PERIOD =               1000000
+
+# Hardware Abstraction Layer section --------------------------------------------------
+[HAL]
+
+# The run script first uses halcmd to execute any HALFILE
+# files, and then to execute any individual HALCMD commands.
+#
+
+# list of hal config files to run through halcmd
+# files are executed in the order in which they appear
+#HALFILE =                    core_sim_noio.hal
+#HALFILE =                    core_sim.hal
+
+POSTTASK_HALFILE =     core_sim_test.hal
+POSTTASK_HALFILE =     axis_manualtoolchange.hal
+POSTTASK_HALFILE = iov2.hal
+#HALFILE = axis_owordsub_manualtoolchange.hal
+#HALFILE = simulated_home.hal
+POSTTASK_HALFILE = simulated_home.hal
+#HALFILE = gamepad.hal
+
+# list of halcmd commands to execute
+# commands are executed in the order in which they appear
+#HALCMD =                    save neta
+
+# Single file that is executed after the GUI has started.  Only supported by
+# AXIS at this time (only AXIS creates a HAL component of its own)
+#POSTGUI_HALFILE = test_postgui.hal
+#POSTGUI_HALFILE = v2_oword_gladevcp_postgui_noio.hal
+
+HALUI = halui
+
+# Trajectory planner section --------------------------------------------------
+[TRAJ]
+
+AXES =                  3
+COORDINATES =           X Y Z
+HOME =                  0 0 0
+LINEAR_UNITS =          mm
+ANGULAR_UNITS =         degree
+CYCLE_TIME =            0.010
+DEFAULT_VELOCITY =      30.48
+MAX_VELOCITY =          53.34
+DEFAULT_ACCELERATION =  508
+MAX_ACCELERATION =      508
+POSITION_FILE = position_mm.txt
+NO_FORCE_HOMING =       1
+
+# Axes sections ---------------------------------------------------------------
+
+# First axis
+[AXIS_0]
+
+TYPE =                          LINEAR
+HOME =                          0.000
+MAX_VELOCITY =                  30.48
+MAX_ACCELERATION =              508
+BACKLASH = 0.000
+INPUT_SCALE =                   157.48
+OUTPUT_SCALE = 1.000
+MIN_LIMIT =                     -254
+MAX_LIMIT =                     254
+FERROR = 1.27
+MIN_FERROR = .254
+HOME_OFFSET =                    0.0
+HOME_SEARCH_VEL =                127
+HOME_LATCH_VEL =                 25.4
+HOME_USE_INDEX =                 NO
+HOME_IGNORE_LIMITS =             NO
+HOME_SEQUENCE = 1
+HOME_IS_SHARED = 1
+
+# Second axis
+[AXIS_1]
+
+TYPE =                          LINEAR
+HOME =                          0.000
+MAX_VELOCITY =                  30.48
+MAX_ACCELERATION =              508
+BACKLASH = 0.000
+INPUT_SCALE =                   157.48
+OUTPUT_SCALE = 1.000
+MIN_LIMIT =                     -254
+MAX_LIMIT =                     254
+FERROR = 1.27
+MIN_FERROR = .254
+HOME_OFFSET =                    0.0
+HOME_SEARCH_VEL =                127
+HOME_LATCH_VEL =                 25.4
+HOME_USE_INDEX =                 NO
+HOME_IGNORE_LIMITS =             NO
+HOME_SEQUENCE = 1
+
+# Third axis
+[AXIS_2]
+
+TYPE =                          LINEAR
+HOME =                          0.0
+MAX_VELOCITY =                  30.48
+MAX_ACCELERATION =              508
+BACKLASH = 0.000
+INPUT_SCALE =                   157.48
+OUTPUT_SCALE = 1.000
+MIN_LIMIT =                     -50.8
+MAX_LIMIT =                     101.6
+FERROR = 1.27
+MIN_FERROR = .254
+HOME_OFFSET =                    25.4
+HOME_SEARCH_VEL =                127
+HOME_LATCH_VEL =                 25.4
+HOME_USE_INDEX =                 NO
+HOME_IGNORE_LIMITS =             NO
+HOME_SEQUENCE = 0
+HOME_IS_SHARED = 1
+
+# section for main IO controller parameters -----------------------------------
+[EMCIO]
+
+# Name of IO controller program, e.g., io
+
+#  explicitly support the start-change protocol.
+#  needs to be explicitly enabled for backwards compatibility.
+#  NB: if the start-change pin isnt used it needs to be looped like below to
+#  start-change-ack or an M6 will hang waiting for start-change-ack:
+#  net start-change iocontrol.0.start-change  iocontrol.0.start-change-ack
+#EMCIO = 		iov2 -support-start-change
+
+# starting iov2 like so will create the start-change and start-change-ack pins
+# but the start-change protocol remains disabled - start-change remains low and
+# start-change-ack is ignored:
+#EMCIO = 		iov2
+
+# cycle time, in seconds
+CYCLE_TIME =    0.100
+
+# tool table file
+#TOOL_TABLE =    sim_mm_test.tbl
+TOOL_TABLE =    nstools.tbl
+TOOL_CHANGE_POSITION = 0 0 50.8
+
+RANDOM_TOOLCHANGER = 0

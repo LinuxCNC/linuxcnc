@@ -1029,7 +1029,7 @@ table file.
 
 LinuxCNC supports two kinds of toolchanger hardware,
 called _nonrandom_ and _random_.  The ini setting
-<<sub:[EMCIO]-Section,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
+<<sub:EMCIO-Section,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
 these kinds of hardware LinuxCNC thinks it's connected to.
 
 
