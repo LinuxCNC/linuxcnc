@@ -1,0 +1,12 @@
+loadrt threads
+loadrt ilowpass
+addf ilowpass.0 thread1
+setp ilowpass.0.scale 100000
+setp ilowpass.0.in 21474
+setp ilowpass.0.gain 1
+start
+loadusr -w sleep .1
+getp ilowpass.0.out
+setp ilowpass.0.in 21475
+loadusr -w sleep .1
+getp ilowpass.0.out

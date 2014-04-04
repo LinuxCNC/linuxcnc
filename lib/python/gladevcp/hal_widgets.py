@@ -52,7 +52,27 @@ class _HalScaleBase(_HalWidgetBase):
         self.connect("value-changed", self.hal_update)
 
     def hal_update(self, *a):
+        
         self.hal_pin.set(self.get_value())
+
+
+class _HalIOScaleBase(_HalWidgetBase):
+    def _hal_init(self):
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IO)
+        self.connect("value-changed", self.hal_update)
+        self.hal_pin.connect('value-changed', lambda s: self.emit('hal-pin-changed', s))
+        self.hal_current = self.hal_pin.get()
+
+    def hal_update(self, *a):
+        hval = self.hal_pin.get()
+        if self.hal_current != hval:
+            self.hal_current = hval
+            self.set_value(hval)
+            return
+        wval = self.get_value()
+        if wval != hval:
+            self.hal_pin.set(wval)
+
 
 class _HalSensitiveBase(_HalWidgetBase):
     def _hal_init(self):
@@ -77,6 +97,21 @@ class HAL_HBox(gtk.HBox, _HalSensitiveBase):
 class HAL_Table(gtk.Table, _HalSensitiveBase):
     __gtype_name__ = "HAL_Table"
     __gsignals__ = dict([hal_pin_changed_signal])
+
+class HAL_HideTable(gtk.Table, _HalWidgetBase):
+    __gtype_name__ = "HAL_HideTable"
+    __gsignals__ = dict([hal_pin_changed_signal])
+
+    def _hal_init(self):
+        self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_BIT, hal.HAL_IN)
+        self.hal_pin.connect('value-changed',self.update)
+
+    def update(self,*a):
+        value = self.hal_pin.get()
+        if value:
+            self.hide()
+        else:
+            self.show()
 
 class HAL_ComboBox(gtk.ComboBox, _HalWidgetBase):
     __gtype_name__ = "HAL_ComboBox"
@@ -150,6 +185,11 @@ class HAL_ToggleButton(gtk.ToggleButton, _HalToggleBase):
 
 class HAL_HScale(gtk.HScale, _HalScaleBase):
     __gtype_name__ = "HAL_HScale"
+
+
+class HALIO_HScale(gtk.HScale, _HalIOScaleBase):
+    __gtype_name__ = "HALIO_HScale"
+    __gsignals__ = dict([hal_pin_changed_signal])
 
 class HAL_VScale(gtk.VScale, _HalScaleBase):
     __gtype_name__ = "HAL_VScale"

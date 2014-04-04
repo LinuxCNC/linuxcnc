@@ -51,6 +51,9 @@ o<arc1> sub
 #<yoff>        = #15 (=0)
 #<scale>       = #16 (=1)
 #<spin_notify> = #17 (=0)
+#<use_g43>     = #18 (=1)
+#<h_for_g43>   = #19 (=0)
+#<verbose>     = #20 (=0)
 
 #<min_angle> = 1 ;minimum angle
 g40; cutter comp off to begin
@@ -83,7 +86,7 @@ o<i3> if [#<angle> LT #<min_angle>]
         m2
 o<i3> endif
 
-o<loadtool> call [#<toolno>]
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
 #<tooldiam>  = [#5410 + .001]
 
 o<iftool> if [[#<tooldiam> GT #<width>] AND [#<inside> EQ 1]]

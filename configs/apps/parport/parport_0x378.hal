@@ -1,0 +1,2 @@
+loadrt hal_parport cfg="0x378"
+source parport_base.hal

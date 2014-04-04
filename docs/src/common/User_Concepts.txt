@@ -5,7 +5,9 @@
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 
-== Trajectory Control[[sec:trajectory-control]](((Trajectory Control)))
+[[sec:trajectory-control]]
+== Trajectory Control
+(((Trajectory Control)))
 
 === Trajectory Planning
 
@@ -32,6 +34,7 @@ The basic acceleration and deceleration described above is not complex
 and there is no compromise to be made. In the INI file the specified
 machine constraints such as maximum axis velocity and axis acceleration
 must be obeyed by the trajectory planner.
+
 
 === Path Following
 

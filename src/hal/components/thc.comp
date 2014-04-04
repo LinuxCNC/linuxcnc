@@ -60,7 +60,7 @@ option singleton yes;
 pin in float encoder_vel "Connect to hm2_5i20.0.encoder.00.velocity";
 pin in float current_vel "Connect to motion.current-vel";
 pin in float requested_vel "Connect to motion.requested-vel";
-pin in float volts_requested "Tip Volts current_vel >= min_velocityequested (SP)";
+pin in float volts_requested "Tip Volts current_vel >= min_velocity requested";
 pin in float vel_tol "Velocity Tolerance (Corner Lock)";
 pin in bit torch_on "Connect to motion.spindle-on";
 pin in bit arc_ok "Arc OK from Plasma Torch";

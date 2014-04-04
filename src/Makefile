@@ -182,6 +182,7 @@ SUBDIRS := \
 	rtapi/examples/timer \
 	rtapi/examples/shmem \
 	rtapi/examples \
+	rtapi/syslog-async \
 	rtapi \
 	rtapi/shmdrv \
 	\
@@ -303,7 +304,8 @@ INCLUDE += -I$(INCLUDEPY)
 endif
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
-OPT := -Os
+INTEGER_OVERFLOW_FLAGS := $(call cc-option,-fwrapv) $(call cc-option, -fno-strict-overflow)
+OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := -g -Wall
 
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
@@ -376,12 +378,7 @@ INFILES = \
 	../share/desktop-directories/cnc.directory \
 	../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
-	../share/applications/linuxcnc-latency.desktop \
-
-ifeq ($(HAVE_WORKING_BLT),yes)
-INFILES += ../scripts/latencyplot ../share/applications/linuxcnc-latencyplot.desktop
-INFILES += ../scripts/latencyhistogram
-endif
+	../scripts/linuxcnc_var \
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -696,11 +693,6 @@ install:
 MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory \
     ../share/applications/linuxcnc.desktop \
-    ../share/applications/linuxcnc-latency.desktop
-
-ifeq ($(HAVE_WORKING_BLT),yes)
-MENUS += ../share/applications/linuxcnc-latencyplot.desktop
-endif
 
 install-menus install-menu: $(MENUS)
 	mkdir -p $(HOME)/.config/menus/applications-merged
@@ -774,11 +766,15 @@ install-kernel-indep: install-dirs
 
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcnc_info $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/linuxcnc_var $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
-	$(EXE) ../scripts/latencyplot $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/latencyhistogram $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/latency-plot $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/latency-histogram $(DESTDIR)$(bindir)
 endif
+	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)

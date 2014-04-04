@@ -1,0 +1,7 @@
+spinbutton example
+
+------------------------------------------
+To run independently:
+$ gladevcp -u spinbutton.py spinbutton.ui
+
+Michael Haberler 06/2012

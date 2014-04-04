@@ -62,7 +62,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 [width="75%", options="header", cols="2^,5<"]
 |====================================================================
 |Code                               |Description
-|<<sec:G0-Rapid,G0>>                |Coordinated Straight Motion Rapid
+|<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid
 |<<sec:G1-Linear-Motion,G1>>        |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2, G3>>           |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
@@ -85,7 +85,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G40,G40>>                    |Cancel Cutter Compensation
 |<<sec:G41-G42,G41, G42>>           |Cutter Compensation
 |<<sec:G41.1-G42.1,G41.1, G42.1>>   |Cutter Compensation Transient
-|<<sec:G43-G43.1-Tool,G43, G43.1>>  |Use Tool Length Offset from Tool Table
+|<<sec:G43-G43.1,G43, G43.1>>  |Use Tool Length Offset from Tool Table
 |<<sec:G49-Tool,G49>>               |Cancel Tool Length Offset
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
 |<<sec:G54-G59.3,G54-G59>>          |Select Coordinate System (1 - 6)
@@ -104,7 +104,7 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 |<<sec:G87-Back-Boring,G87>>        |Back-Boring Cycle *(unimplemented)*
 |<<sec:G88-Boring-Manual-Out,G88>>  |Boring Cycle, Stop, Manual Out *(unimplemented)*
 |<<sec:G89-Boring-Dwell,G89>>       |Boring Cycle, Dwell, Feed Out
-|<<sec:G90-G91-Set,G90, G91>>       |Distance Mode
+|<<sec:G90-G91,G90, G91>>           |Distance Mode
 |<<sec:G90.1-G91.1,G90.1, G91.1>>   |Arc Distance Mode
 |<<sec:G92-G92.1-G92.2-G92.3,G92>>  |Offset Coordinate Systems & Set Parameters
 |<<sec:G92-G92.1-G92.2-G92.3,G92.1 G92.2>>|Cancel Offsets

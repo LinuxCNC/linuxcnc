@@ -1,0 +1,15 @@
+complex example with widget and variable persistence
+----------------------------------------------------
+
+This demonstrates the use of the gladevcp.util support for persistence,
+and shows how to get a callback when hal pins, or hal input widgets change.
+
+The hal_togglebutton1 is linked to hal_led1 through complex.hal
+
+------------------------------------------
+To run independently:
+$ gladevcp -u complex.py -H complex.hal complex.ui
+
+or to get a lot of debug output what gladevcp and complex.py are doing:
+
+$ gladevcp -d -d -u complex.py -U debug=3 -H complex.hal complex.ui

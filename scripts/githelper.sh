@@ -30,6 +30,10 @@ function githelper() {
             GIT_TAG_GLOB="v2.6*"
             DEB_COMPONENT="master"
             ;;
+        2.6)
+            GIT_TAG_GLOB="v2.6*"
+            DEB_COMPONENT="2.6"
+            ;;
         v2.5_branch)
             GIT_TAG_GLOB="v2.5*"
             DEB_COMPONENT="v2.5_branch"

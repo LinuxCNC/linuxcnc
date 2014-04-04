@@ -45,7 +45,7 @@
 #define rdtscll(val) \
          __asm__ __volatile__("rdtsc" : "=A" (val))
 #else
-#warning No implementation of rtapi_get_clocks available
+#error No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
 #endif
 #endif

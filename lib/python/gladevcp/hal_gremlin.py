@@ -13,6 +13,15 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+#
+# 2014 Steffen Noack
+# add property 'mouse_btn_mode'
+# 0 = default: left rotate, middle move,   right zoom
+# 1 =          left zoom,   middle move,   right rotate
+# 2 =          left move,   middle rotate, right zoom
+# 3 =          left zoom,   middle rotate, right move
+# 4 =          left move,   middle zoom,   right rotate
+# 5 =          left rotate, middle zoom,   right move
 
 import os
 import gtk, gobject
@@ -65,6 +74,8 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'use_default_controls' : ( gobject.TYPE_BOOLEAN, 'Use Default Mouse Controls', 'Use Default Mouse Controls',
                     True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'mouse_btn_mode' : ( gobject.TYPE_INT, 'Mouse Button Mode','Mousebutton assignment, l means left, m middle, r right\n\ 0 = default: l-rotate, m-move, r-zoom \n\ 1 = l-zoom, m-move, r-rotate\n\ 2 = l-move, m-rotate, r-zoom\n\ 3 = l-zoom, m-rotate, r-move\n\ 4 = l-move, m-zoom, r-rotate\n\ 5 = l-rotate, m-zoom, r-move', 0, 5, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+
     }
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):

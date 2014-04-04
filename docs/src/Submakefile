@@ -79,6 +79,7 @@ DOC_SRCS_EN := \
 	gcode/overview.txt \
 	gcode/rs274ngc.txt \
 	gcode/tool_compensation.txt \
+	gui/selector.txt \
 	gui/axis.txt \
 	gui/gladevcp.txt \
 	gui/halui.txt \
@@ -372,7 +373,10 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 pdfdocs: $(PDF_TARGETS)
-htmldocs: copy_asciidoc_files $(HTML_TARGETS) $(MAN_HTML_TARGETS) checkref
+htmldocs: .htmldoc-stamp checkref
+
+.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp $(MAN_HTML_TARGETS)
+	touch $@
 
 .PHONY: copy_asciidoc_files
 copy_asciidoc_files:
@@ -381,14 +385,14 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_fr checkref_es
 
-checkref_en: $(DOC_TARGETS_HTML_EN)
-	@$(DOC_SRCDIR)/checkref English $^
+checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
+	@$(DOC_SRCDIR)/checkref --warn-on-failure English $^
 
-checkref_fr: $(DOC_TARGETS_HTML_FR)
+checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
 # the spanish docs are full of broken links, only warn on failure
-checkref_es: $(DOC_TARGETS_HTML_ES)
+checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref --warn-on-failure Spanish $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
@@ -511,15 +515,21 @@ objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	@d=`dirname $*`; \
-	for f in $(shell xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $<); do\
-		mkdir -p $(DOC_DIR)/html/$$d/`dirname $$f`; \
-		cp -f $(DOC_SRCDIR)/$$d/$$f $(DOC_DIR)/html/$$d/$$f; \
-	done
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
-	mkdir -p objects/image-cache
-	HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $@ || \
-				(X=$$?; rm $@; exit $$X)
+
+.html-images-stamp: $(DOC_TARGETS_HTML)
+	for HTML_FILE in $^; do \
+		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
+		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
+			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
+			mkdir -p $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_DIR; \
+			cp -f $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_FILE; \
+		done; \
+		mkdir -p objects/image-cache; \
+		HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $$HTML_FILE || (X=$$?; rm $$HTML_FILE; exit $$X); \
+	done
+	touch $@
 
 # rebuild source-highlight/local/lang.map if needed - note this will cause a major rebuild
 # unsure how to do this as Submakefile -mah
@@ -632,6 +642,8 @@ docclean:
 	-rm -f $(DOC_DIR)/html/man/man3/*.*
 	-rm -f $(DOC_DIR)/html/man/man9/*.*
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
+	-rm -f .htmldoc-stamp
+	-rm -f .html-images-stamp
 # unsure how to do this as Submakefile: -mah
 	-(cd $(LOC_HL_DIR); make clean)
 

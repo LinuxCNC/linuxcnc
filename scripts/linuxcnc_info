@@ -1,0 +1,104 @@
+#!/bin/bash
+# This script creates a file in /tmp and
+# opens it with $EDITOR
+
+ofile=/tmp/linuxcnc.info
+
+# all output
+exec 1>$ofile
+exec 2>&1
+
+[ -x $(which $VISUAL) ] && EDITOR=$VISUAL
+[ -z $EDITOR ] && EDITOR=gedit
+
+function show () {
+  if [ -z "$1" ] ; then
+    echo
+    return
+  fi
+  name=$1
+  shift
+  value=$*
+  printf "%20s: %s\n" "$name" "$value"
+}
+
+function parse_cpuinfo () {
+  cat /proc/cpuinfo|grep "$1"|head -1|cut -d: -f2-
+}
+
+function parse_after_colon () {
+  echo "$*"|cut -d: -f2-
+}
+
+function tryversion () {
+  prog="$1"
+  if [ $(which "$prog") ] ; then
+     ans=$($prog --version 2>/dev/null)
+     if [ -z "$ans" ] ; then
+       echo "?"
+     else
+       echo "$ans"
+     fi
+  else
+     echo "not_in_PATH"
+  fi
+}
+
+cat <<EOF
+This file can be posted to a web site like:
+     http://pastebin.com
+in order to provide information about the linuxcnc
+system and configuration.
+
+EOF
+show "            Date" $(date)
+show "        UTC Date" $(date -u)
+show "    this program" $0
+show "          uptime" $(uptime)
+show " lsb_release -sa" $(lsb_release -sa 2>/dev/null)
+show "  which linuxcnc" $(which linuxcnc)
+show "             pwd" $(pwd -P)
+show "            USER" $USER
+show "         LOGNAME" $LOGNAME
+show "            HOME" $HOME
+show "          EDITOR" $EDITOR
+show "          VISUAL" $VISUAL
+show "        LANGUAGE" $LANGUAGE
+show "            TERM" $TERM
+show "       COLORTERM" $COLORTERM
+show "         DISPLAY" $DISPLAY
+show "    display size" $(parse_after_colon $(xdpyinfo|grep dimensions))
+echo
+echo "uname items:"
+show "     nodename -n" $(uname -n)
+show "  kernel-name -s" $(uname -s)
+show "  kernel-vers -v" $(uname -v)
+show "      machine -k" $(uname -n)
+show "    processor -p" $(uname -p)
+show "     platform -i" $(uname -i)
+show "  oper system -o" $(uname -o)
+show ""
+echo "/proc items:"
+show "         cmdline" $(< /proc/cmdline)
+show "      model name" $(parse_cpuinfo "model name")
+show "           cores" $(parse_cpuinfo "cpu cores")
+show "         cpu MHz" $(parse_cpuinfo "cpu MHz")
+show "         parport" $(cat /proc/ioports|grep parport)
+show "          serial" $(cat /proc/ioports|grep serial)
+echo
+echo "Varsions:"
+show "             gcc" $(gcc --version|head -1)
+show "          python" $(python --version 2>&1)
+show "             git" $(git --version)
+show "             tcl" $(echo "puts $::tcl_version"|tclsh)
+show "              tk" $(echo "puts $::tk_version;destroy ."|wish)
+show "           glade" $(tryversion glade)
+show "      glade-gtk2" $(tryversion glade-gtk2)
+echo
+echo "linuxcnc_var all:"
+echo
+for n in $(linuxcnc_var all) ; do
+   show "${n%%=*}" ${n##*=}
+done
+
+$EDITOR $ofile

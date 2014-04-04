@@ -269,8 +269,8 @@ Aceleracion Maxima (Maximum Acceleration)::
     (((Maximum Acceleration)))
     El valor correcto de esta casilla solo puede ser determinado
     por experimentacion. Vea 
-    <<finding-maximum-velocity>> para ajustar la velocidad
-    <<finding-maximum-acceleration>> para ajustar la aceleracion.
+    <<sec:finding-maximum-velocity>> para ajustar la velocidad
+    <<sec:finding-maximum-acceleration>> para ajustar la aceleracion.
 
 Posicion de Inicio (Home Location)::
     (((Home Location)))
@@ -355,7 +355,9 @@ image::images/stepconf-test.png[align="center"]
 
 Con Stepconf es sencillo probar diferentes valores de aceleracion y velocidad.
  
-==== Busqueda de Velocidad Maxima[[sub:Finding-Maximum-Velocity]](((Finding Maximum Velocity)))
+[[sec:finding-maximum-velocity]]
+==== Busqueda de Velocidad Maxima
+(((Finding Maximum Velocity)))
 
 Comiense con una aceleracion baja 
 // comment out latexmath until a fix is found for the html docs
@@ -400,7 +402,9 @@ Una ves que se encuentre una velocidad a la cual el eje
 no se detenga o pierda pasos durante la prueba,
 redusca la velocidad un 10% y utilize esta nueva velocidad como velocidad Maxima.
 
-==== Encontrando la maxima aceleracion[[sub:Finding-Maximum-Acceleration]](((Finding Maximum Acceleration)))
+[[sec:finding-maximum-acceleration]]
+==== Encontrando la maxima aceleracion
+(((Finding Maximum Acceleration)))
 
 Con la velocidad maxima que se encontro en el paso anterior,
 introduca un valor de aceleracion a probar.

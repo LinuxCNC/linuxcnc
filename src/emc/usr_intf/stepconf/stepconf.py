@@ -714,20 +714,24 @@ class StepconfApp:
 
     # check for realtime kernel
     def check_for_rt(self):
-        actual_kernel = os.uname()[2]
-        if hal.is_sim :
-            self.warning_dialog(self._p.MESS_NO_REALTIME,True)
-            if debug:
-                return True
+        try:
+            actual_kernel = os.uname()[2]
+            if hal.is_sim :
+                self.warning_dialog(self._p.MESS_NO_REALTIME,True)
+                if debug:
+                    return True
+                else:
+                    return False
+            elif hal.is_rt and not hal.kernel_version == actual_kernel:
+                self.warning_dialog(self._p.MESS_KERNAL_WRONG + '%s'%hal.kernel_version,True)
+                if debug:
+                    return True
+                else:
+                    return False
             else:
-                return False
-        elif hal.is_rt and not hal.kernel_version == actual_kernel:
-            self.warning_dialog(self._p.MESS_KERNAL_WRONG + '%s'%hal.kernel_version,True)
-            if debug:
                 return True
-            else:
-                return False
-        else:
+        except:
+            print 'STEPCONF WARNING: check-for-realtime function failed - continuing anyways.'
             return True
 
     # pop up dialog

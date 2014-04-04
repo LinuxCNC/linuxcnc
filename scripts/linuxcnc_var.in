@@ -1,0 +1,76 @@
+#!/bin/bash
+# maintainer: when adding items update three places:
+#             usage(), show_all(), and show_item()
+#
+# note: report LINUXCNVERSION=$EMC2VERSION (as does linuxcnc.in)
+
+function usage () {
+  cat <<EOF
+
+Retrieve Linuxcnc Variables
+Usage:
+      $(basename $0) [ varname | all ]
+
+Varnames supported:
+         LINUXCNCVERSION
+         REALTIME
+         SIMULATOR
+
+Option 'all' returns varname=value for all supported varnames
+EOF
+exit 1
+}
+
+function show_all () {
+  echo "LINUXCNCVERSION=@EMC2VERSION@
+REALTIME=@REALTIME@
+SIMULATOR=@SIMULATOR@"
+}
+
+function show_item () {
+  case $1 in
+    LINUXCNCVERSION) echo @EMC2VERSION@;;
+    REALTIME) echo @REALTIME@;;
+    SIMULATOR) echo @SIMULATOR@;;
+    all) show_all;;
+    *) echo UNKNOWN; exit 1;;
+  esac
+}
+
+case $# in
+   0) usage;;
+   1) show_item $1;;
+   *) usage;;
+esac
+exit 0
+
+# Example shell usage to populate environment in a sourced script:
+# for line in $(linuxcnc_var all) ; do
+#   name=${line%%=*}
+#   value=${line##*=}
+#   echo "name=$name value=$value"
+#   export "$name"="$value"
+# done
+
+# Example tcl usage:
+# foreach line [exec linuxcnc_var all] {
+#   set l [split $line =]
+#   set name  [lindex $l 0]
+#   set value [lindex $l 1]
+#   set V($name) $value
+# }
+# parray V
+
+# Example python usage:
+# import subprocess
+# s   = subprocess.Popen(['linuxcnc_var','all']
+#                       ,stdout=subprocess.PIPE
+#                       ,stderr=subprocess.PIPE
+# p,e = s.communicate()
+# v={}
+# for line in p.split('\n'):
+#     if line == '': continue
+#     name = line.split('=')[0]
+#     value = line.split('=')[1]
+#     v[name] = value
+# print(v)

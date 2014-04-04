@@ -16,11 +16,14 @@ o<helix_rtheta> sub
 #<theta>      = #13 (theta center)
 #<zstart>     = #14 (=0)
 #<spin_notify>= #15 (=0)
+#<use_g43>    = #16 (=1)
+#<h_for_g43>  = #17 (=0)
+#<verbose>    = #18 (=0)
 
-o<loadtool> call  [#<toolno>]
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
 #<tooldiam> = [#5410 + 0.001]
 
 #<x> = [#<r> * COS[#<theta>]]
 #<y> = [#<r> * SIN[#<theta>]]
-o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>]
+o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<verbose>]
 o<helix_rtheta> endsub

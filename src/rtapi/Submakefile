@@ -178,7 +178,8 @@ $(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
 RTAPI_APP_SRCS := \
 	rtapi/$(threads)/rtapi_app.cc \
 	rtapi/$(threads)/rtapi_compat.c \
-	rtapi/$(threads)/rtapi_support.c
+	rtapi/$(threads)/rtapi_support.c \
+	rtapi/syslog-async/syslog_async.c
 
 USERSRCS += $(RTAPI_APP_SRCS)
 
@@ -241,7 +242,11 @@ TARGETS += ../libexec/kdetect
 #                     the rtapi message demon
 ##################################################################
 
-RTAPI_MSGD_SRCS =  rtapi/rtapi_msgd.c rtapi/rtapi_compat.c
+RTAPI_MSGD_SRCS = \
+	rtapi/rtapi_msgd.c \
+	rtapi/rtapi_compat.c \
+	rtapi/syslog-async/syslog_async.c
+
 RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
 
 $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \

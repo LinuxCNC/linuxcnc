@@ -1,0 +1,9 @@
+Demo of some of the pyvcp_widgets
+
+Notes:
+
+The bar widget changes color at certain value ranges.
+
+The value of spinboxs and dials can be changed using HAL signals.
+
+The multilabel will change text depending on the HAL signal.

@@ -128,9 +128,9 @@ Le processus TWOPASS est activé par inclusion d'un paramètre dans le fichier i
 Avec ce réglage, vous pouvez avoir de multiples spécifications comme:
 ----
 loadrt and2 names=aa
- ...
+...
 loadrt and2 names=ab,ac
- ...
+...
 loadrt and2 names=ad
 ----
 
@@ -165,7 +165,7 @@ ddt.2, etc.
 Alternativement, l'utilisation de names=option comme:
 ----
 loadrt ddt names=xvit,yvit,zvit
- ...
+...
 loadrt ddt names=xaccel,yaccel,zaccel
 ----
 
@@ -209,6 +209,7 @@ pour décrire ce que font les éléments du fichier ini.
 ----
 ; Ceci est le fichier de configuration de ma petite fraiseuse.
 ----
+
 Des commentaires peuvent également être utilisés pour choisir entre
 plusieurs valeurs d'une seule variable.
 ----
@@ -340,9 +341,7 @@ dans le terminal pendant le fonctionnement de LinuxCNC. Les drapeaux de débogag
 ne sont généralement utiles que pour les développeurs.
 
 [[sub:Section-DISPLAY]]
-=== Section [DISPLAY]
-
-(((Section [DISPLAY] du fichier ini)))
+=== Section [DISPLAY](((Section [DISPLAY] du fichier ini)))
 
 Les différentes interfaces graphiques utilisent différentes options
 qui ne sont pas supportées par toutes les interfaces utilisateur.
@@ -475,9 +474,7 @@ pratique dans le cas de multiples configurations sur la même machine.
 * _HELP_FILE = tklinucnc.txt_ - Chemin du fichier d'aide (non utilisé avec AXIS).
 
 [[sub:Section-FILTER]]
-=== Section [FILTER]
-
-(((Section [FILTER] du fichier ini))) 
+=== Section [FILTER](((Section [FILTER] du fichier ini))) 
 
 AXIS a la possibilité d'envoyer les fichiers chargés au travers d'un programme de
 filtrage. Ce filtrage peut réaliser toutes sortes de tâches. Parfois aussi simple
@@ -578,7 +575,6 @@ if __name__ == "__main__":
 
 [[sub:Section-RS274NGC]]
 === Section [RS274NGC]
-
 (((Section [RS274NGC] du fichier ini)))
 
 * _PARAMETER_FILE = monfichier.var_ - (((PARAMETER FILE))) Le fichier situé
@@ -627,7 +623,6 @@ utilisation, sont imprévisibles.
 
 [[sub:Section-EMCMOT]]
 === Section [EMCMOT]
-
 (((Section [EMCMOT] du fichier ini)))
 
 D'autres entrées peuvent être rencontrées dans cette section, elles ne doivent
@@ -669,7 +664,6 @@ _SERVO_PERIOD_.
 
 [[sub:Section-TASK]]
 === Section [TASK]
-
 (((Section [TASK] du fichier ini)))
 
 * _TASK = milltask_ - Indique le nom de la _tâche_ exécutable. La tâche réalise
@@ -687,7 +681,6 @@ n'est généralement pas nécessaire de modifier cette valeur.
 
 [[sub:Section-HAL]]
 === Section [HAL]
-
 (((Section [HAL] du fichier ini )))
 
 * _TWOPASS=ON_ - Utilise le processus _twopass_ (double passe) pour charger
@@ -724,7 +717,6 @@ pins.
 
 [[sub:Section-HALUI]]
 === Section [HALUI]
-
 (((Section [HALUI] du fichier ini )))
 
 * _MDI_COMMAND = G53 G0 X0 Y0 Z0_ - Une commande MDI peut être exécuté en
@@ -733,7 +725,6 @@ utilisant _halui.mdi-command-00_. Incrémente le nombre pour chaque commande
 
 [[sub:Section-TRAJ]]
 === Section [TRAJ]
-
 (((Section [TRAJ] du fichier ini )))
 
 La section [TRAJ] contient les paramètres généraux du module
@@ -820,7 +811,6 @@ pour un fonctionnement normal!
 
 [[sub:Sections-AXIS]]
 === Sections [AXIS_n]
-
 (((Sections [AXIS_n] du fichier ini)))
 
 Les sections [AXIS_0], [AXIS_1], etc. contiennent les paramètres
@@ -1176,7 +1166,6 @@ réglage de la boucle de position de stepgen.
 
 [[sub:Section-EMCIO]]
 === Section [EMCIO]
-
 (((Section [EMCIO] du fichier ini)))
 
 * _CYCLE_TIME = 0.100_ - La période en secondes, à laquelle EMCIO va tourner.
