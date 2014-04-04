@@ -182,6 +182,7 @@ SUBDIRS := \
 	rtapi/examples/timer \
 	rtapi/examples/shmem \
 	rtapi/examples \
+	rtapi/syslog-async \
 	rtapi \
 	rtapi/shmdrv \
 	\

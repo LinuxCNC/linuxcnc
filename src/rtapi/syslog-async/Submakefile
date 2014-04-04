@@ -1,0 +1,4 @@
+INCLUDES += rtapi/syslog-async
+
+../include/%.h: ./rtapi/syslog-async/%.h
+	cp  $^ $@
