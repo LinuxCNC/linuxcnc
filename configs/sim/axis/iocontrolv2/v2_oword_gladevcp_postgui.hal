@@ -29,6 +29,8 @@ net halui-abort gladevcp.halui-abort halui.abort
 
 # fail change
 
-net fail-change gladevcp.fail-next-op gladevcp.fail-change-led motion.digital-in-02
+# ???  no pin named gladevcp.fail-change-led
+# net fail-change gladevcp.fail-next-op gladevcp.fail-change-led motion.digital-in-02
+net fail-change gladevcp.fail-next-op motion.digital-in-02
 
 net fvalue gladevcp.spinbutton-f motion.analog-in-00

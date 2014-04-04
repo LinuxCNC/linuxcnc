@@ -1,0 +1,20 @@
+Configs to demonstrate iocontrolv2
+
+Main demo:
+axis-iocontrolv2-demo.ini
+
+
+Other demos:
+g8812.ini
+m66track.ini -- M6 and M61 loops
+owordm6-ui.ini
+owordm6-ui-ns.ini
+
+
+Notes:
+  Some ini files use:
+     EMCIO = iov2
+  See ini file for starting with -support-start-change
+
+  There may be abort messages on startup when reading the OPEN_FILE, clear in the axis gui with Ctrl-space
+
