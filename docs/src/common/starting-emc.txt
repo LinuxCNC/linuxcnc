@@ -116,13 +116,16 @@ and their names since when you add (or remove) a component, you
 must find and update the single loadrt directive applicable to
 the component.
 
-TWOPASS processing is enabled by including an ini file parameter:
+TWOPASS processing is enabled by including an ini file parameter in
+the [HAL] section:
 
 ----
-[HAL]TWOPASS=anything
+[HAL]
+
+TWOPASS = anystring
 ----
 
-Where "anything" can be any non-null string.
+Where "anystring" can be any non-null string.
 With this setting, you can have multiple specifications like:
 
 ----
@@ -135,6 +138,19 @@ loadrt and2 names=ad
 
 These commands can appear in different HALFILES.  The HALFILES
 are processed in the order of their appearance in the ini file.
+
+The TWOPASS option can be specified with options to add output for
+debugging (verbose) and to prevent deletion of temporary files (nodelete).
+The options are separated with commas.
+
+Example:
+
+----
+[HAL]
+
+TWOPASS = on,verbose,nodelete
+----
+
 
 With TWOPASS processing, all [HAL]HALFILES are first read and
 multiple appearances of loadrt directives for each module are
@@ -183,5 +199,28 @@ with the comp utility, numerous other comps support the names=option.
 Comps that support names= option include: at_pid, encoder,
 encoder_ratio, pid, siggen, and sim_encoder.
 
-Examples of TWOPASS usage for a simulator are included in the
-configs/simtcl directory.
+Twopass processing occurs before the loading of a gui.  When using a 
+[HAL]POSTGUI_HALFILE, it is convenient to place all the loadrt
+statements for components needed in a halfile that is loaded earlier.
+
+Example of a HAL section when using a POSTGUI_HALFILE :
+----
+[HAL]
+
+TWOPASS = on
+HALFILE = core_sim.hal
+HALFILE = sim_spindle_encoder.hal
+HALFILE = axis_manualtoolchange.hal
+HALFILE = simulated_home.hal
+HALFILE = load_for_postgui.hal  <-- loadrt lines for components in postgui.hal
+
+POSTGUI_HALFILE = postgui.hal
+HALUI = halui
+
+----
+
+Examples of TWOPASS usage for a simulator are included in the directories:
+
+   configs/sim/axis/twopass/
+
+   configs/sim/axis/simtcl/

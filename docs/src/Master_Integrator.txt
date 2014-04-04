@@ -28,6 +28,8 @@ include::common/Integrator_Concepts.txt[]
 
 include::install/Latency_Test.txt[]
 
+include::common/starting-emc.txt[]
+
 include::config/ini_config.txt[]
 
 include::config/ini_homing.txt[]
