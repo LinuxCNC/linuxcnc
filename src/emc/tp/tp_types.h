@@ -14,6 +14,7 @@
 #ifndef TP_TYPES_H
 #define TP_TYPES_H
 
+#include "config.h"
 #include "posemath.h"
 #include "tc_types.h"
 #include "tcq.h"
