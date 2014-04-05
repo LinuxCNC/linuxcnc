@@ -18,8 +18,7 @@
 #include "tc_types.h"
 #include "tcq.h"
 
-//KLUDGE hack to get bool working in sim
-#ifdef SIM
+#if defined(BUILD_SYS_USER_DSO)
 #include <stdbool.h>
 #endif
 
