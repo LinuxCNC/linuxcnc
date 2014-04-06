@@ -3032,11 +3032,6 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	  }
 	  break;
 
-      // deleted because it's covered by the recursion test for M6 above
-      // case 69: // alias original M6 to M69
-      // 	  CHP(convert_tool_change(settings));
-      // 	  break;
-
       default:
 	  if (IS_USER_MCODE(block,settings,6)) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',

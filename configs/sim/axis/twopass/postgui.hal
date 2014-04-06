@@ -1,0 +1,18 @@
+# Example of postgui commands with twopass processing
+
+# Note: the loadrt for the components are done
+# in the load_for_postgui.hal before the gui is loaded.
+
+addf vel_xz servo-thread
+addf vel_yz servo-thread
+
+net  Xvel => vel_xz.in0
+net  Yvel => vel_yz.in0
+net  Zvel => vel_xz.in1 vel_yz.in1
+
+net XZvel <= vel_xz.out
+net YZvel <= vel_yz.out
+
+show funct ddt*
+show funct vel*
+show signal *vel

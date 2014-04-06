@@ -1,0 +1,16 @@
+TWOPASS demo
+
+Twopass processing of hal files allows multiple specifications for component loadrt lines.
+
+To enable twopass processing:
+
+[HAL]
+TWOPASS = on,verbose
+
+
+For debugging, use:
+TWOPASS = on,verbose,nodelete
+
+
+The verbose option increases output to stdout.
+The nodelete option prevents removal of temporary files.
