@@ -315,6 +315,14 @@ typedef struct {
 } hm2_encoder_instance_t;
 
 
+// these hal params affect all encoder instances
+typedef struct {
+    struct {
+        hal_u32_t *sample_frequency;
+        hal_u32_t *skew;
+    } pin;
+} hm2_encoder_module_global_t;
+
 typedef struct {
     int num_instances;
 
@@ -323,6 +331,12 @@ typedef struct {
     u32 stride;
     u32 clock_frequency;
     u8 version;
+
+    // module-global HAL objects...
+    hm2_encoder_module_global_t *hal;
+    u32 written_sample_frequency;
+    int has_skew;
+    u32 written_skew;
 
     // hw registers
     u32 counter_addr;
