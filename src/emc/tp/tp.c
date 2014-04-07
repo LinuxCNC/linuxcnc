@@ -3134,7 +3134,12 @@ int tpIsPaused(TP_STRUCT * tp)
     //rtapi_print_msg(RTAPI_MSG_DBG, " tpIsPaused(): pausing=%d synced=%d velmode=%d\n",
     //                tp->pausing, tc->synchronized, tc->velocity_mode);
 
-    return (tp->pausing && (!tc->synchronized || tp->velocity_mode));
+    //If the machine is still moving, then it's not actually paused yet
+    if ( emcmotStatus->current_vel > TP_VEL_EPSILON) {
+        tp_debug_print("IsPaused: still slowing");
+        return 0;
+    }
+    return (tp->pausing && (!tc->synchronized || tp->velocity_mode) );
     // alternate way of expressing - not sure:
     // return (tp->pausing && (tp->feed_override == 0.0));
 }
