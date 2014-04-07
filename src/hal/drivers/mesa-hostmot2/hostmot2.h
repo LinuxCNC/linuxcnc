@@ -976,6 +976,7 @@ typedef struct {
         int num_pwmgens;
         int num_tp_pwmgens;
         int num_stepgens;
+        int stepgen_width;
         int num_leds;
         int num_sserials;
         int num_bspis;
