@@ -214,9 +214,9 @@ SUBDIRS := \
 	emc/task \
 	emc/iotask \
 	emc/kinematics \
-	emc/tp \
 	emc/canterp \
 	emc/motion \
+	emc/tp \
 	emc/ini \
 	emc/rs274ngc \
 	emc/sai \
@@ -996,6 +996,7 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-I$(BASEPWD)/emc/nml_intf \
 	-I$(BASEPWD)/emc/kinematics \
 	-I$(BASEPWD)/emc/motion \
+	-I$(BASEPWD)/emc/tp \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	$(call cc-option,-mieee-fp) \
