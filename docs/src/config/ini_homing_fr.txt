@@ -61,9 +61,9 @@ de signe opposé à celui de _HOME_SEARCH_VEL_. Puis, il va revenir vers
 le contact en se déplaçant dans la direction spécifiée par le signe de
 _HOME_SEARCH_VEL_ et à la vitesse déterminée par sa valeur absolue.
 Quand le contact d'origine machine est détecté, le mobile s'arrête
-aussi vite que possible, il y aura cependant toujours un certain
-dépassement dû à l'inertie et dépendant de la vitesse. Si celle-ci est trop
-élevée, le mobile peut dépasser suffisamment le contact pour aller attaquer un
+aussi vite que possible, il y aura cependant toujours un certain dépassement
+dû à l'inertie et dépendant de la vitesse. Si celle-ci est trop élevée, le
+mobile peut dépasser suffisamment le contact pour aller attaquer un
 fin de course de limite d'axe, voir même aller se crasher dans une butée
 mécanique. À l'opposé, si _HOME_SEARCH_VEL_ est trop basse, la prise
 d'origine peut durer très longtemps.
