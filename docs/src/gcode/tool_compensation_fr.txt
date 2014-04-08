@@ -10,27 +10,27 @@
 === Toucher
 (((Toucher)))
 
-Dans la boîte de dialogue du bouton _Toucher_ de l'interface AXIS, il
+Dans la boîte de dialogue du bouton 'Toucher' de l'interface AXIS, il
 est possible de mettre à jour automatiquement la table d'outils.
 
 Séquence typique pour mise à jour de la table d'outils:
 
-* Après la prise d'origine, charger un outil _Tn M6_ dans lequel _n_ est le
+* Après la prise d'origine, charger un outil 'Tn M6' dans lequel 'n' est le
    numéro de l'outil.
 * Déplacer l'outil pour établir le zéro pièce, en utilisant une cale
 d'épaisseur ou en faisant une petite passe puis une mesure.
-* Cliquer sur le bouton _Toucher_ de l'onglet _Controle manuel_ (ou presser la
-touche _Fin_ du clavier).
-* Sélectionner _Table d'outils_ dans la liste déroulante des systèmes de
+* Cliquer sur le bouton 'Toucher' de l'onglet 'Controle manuel' (ou presser la
+touche 'Fin' du clavier).
+* Sélectionner 'Table d'outils' dans la liste déroulante des systèmes de
 coordonnées.
 * Entrer l'épaisseur de la cale ou la cote mesurée.
 * Presser OK.
 
 La table d'outil sera alors modifiée avec la longueur correcte en Z de l'outil.
 La visu affichera la position en Z correcte et une commande G43 sera passée pour
-que la nouvelle longueur Z de l'outil soit effective. Le choix _Table d'outils_
-n'apparaitra dans la liste déroulante du _Toucher_, que si l'outil à été chargé
-avec _Tn M6_.
+que la nouvelle longueur Z de l'outil soit effective. Le choix 'Table d'outils'
+n'apparaitra dans la liste déroulante du 'Toucher', que si l'outil à été chargé
+avec 'Tn M6'.
 
 .Toucher et table d'outils[[cap:Touch-Off-Tool]]
 
@@ -55,10 +55,10 @@ les valeurs dans le système 9. <<sec:G10-L11, Tous les détails ici>>. (((G10 L
 [[sec:Table-Outils]]
 == Table d'outils
 
-La _table d'outils_ est un fichier texte qui contient les informations de chaque
+La 'table d'outils' est un fichier texte qui contient les informations de chaque
 outil. Ce fichier est placé dans le même répertoire que le fichier de
 configuration.
-Il est nommé _tool.tbl_. Les outils peuvent être dans un changeur d'outils ou
+Il est nommé 'tool.tbl'. Les outils peuvent être dans un changeur d'outils ou
 changés manuellement. Le fichier peut être édité avec un éditeur de texte ou
 être mis à jour avec la commande G10 L1. Voir la section spécifique au tour
 pour ce qui concerne les outils de tour, avec un exemple de table. Le nombre
@@ -127,12 +127,12 @@ La signification des valeurs et le type de données qu'elles contiennent sont le
 suivantes:
 
 .Numéro d'outil (requis)
-La colonne _T_ contient un nombre entier non signé, qui représente
+La colonne 'T' contient un nombre entier non signé, qui représente
 le code de l'outil. L'opérateur peut utiliser n'importe quel code pour
 n'importe quel outil, tant que les codes sont des entiers non signés.
 
 .Numéro de poche (requis)
-La colonne _P_ contient un nombre entier non signé, qui représente
+La colonne 'P' contient un nombre entier non signé, qui représente
 le numéro de poche (numéro de slot) du changeur d'outils, poche dans laquelle
 l'outil se trouve. Les entrées de cette colonne doivent être toutes différentes.
 Le numéro de poche commence typiquement à 1 et va au maximum de poches
@@ -167,7 +167,7 @@ l'outil, qui sont de la compétence du tourneur, on trouvera une valeur en I
 
 Une description complète des outils de tour <<cha:Tour-Specifiques, ce trouve ici>>.
 
-La colonne _Diamètre_ contient un nombre réel. Ce nombre est utilisé seulement
+La colonne 'Diamètre' contient un nombre réel. Ce nombre est utilisé seulement
 si la compensation est activée lors de l'usage de cet outil. Si la trajectoire
 programmée avec la compensation active, est un des bords de la matière à usiner,
 cette valeur doit être un nombre réel positif, représentant le diamètre mesuré
@@ -263,7 +263,7 @@ mot G43.
 
 La compensation de rayon d'outil permet de suivre un parcours sans se
 préoccuper du diamètre de l'outil. La seule restriction, c'est que les
-_mouvements d'entrée_ doivent être au moins aussi long que le rayon de
+'mouvements d'entrée' doivent être au moins aussi long que le rayon de
 l'outil utilisé.
 
 Il y a deux parcours que l'outil peut prendre pour usiner un profil
@@ -352,7 +352,7 @@ La compensation de rayon d'outil (également appelée compensation de
 diamètre d'outil) à été ajoutée aux spécifications RS-274D à la demande
 d'utilisateurs, car elle est extrêmement utile, mais son implémentation
 a été assez mal pensée. L'objectif de cette fonctionnalité est de
-permettre aux programmeurs de _virtualiser_ la trajectoire de l'outil,
+permettre aux programmeurs de 'virtualiser' la trajectoire de l'outil,
 de sorte que la machine puisse pendant toute l'exécution, déterminer le
 bon décalage a apporter à la position de l'outil pour respecter les
 cotes, en s'appuyant sur les diamètres d'outils existants. Si un outil
@@ -365,7 +365,7 @@ sur le côté extérieur. Comme ces trajectoires ne sont pas
 nécessairement fermées (même si elles peuvent l'être), il est quasiment
 impossible à la machine de connaître de quel côté du profil elle doit
 compenser l'outil. Il a été décidé qu'il n'y aurait que deux choix
-possibles, outil à _gauche_ du profil à usiner et outil à _droite_ du
+possibles, outil à 'gauche' du profil à usiner et outil à 'droite' du
 profil à usiner. Ce qui doit être interprété à gauche ou à droite du
 profil à usiner en suivant l'outil le long du profil.
 
@@ -437,8 +437,8 @@ table d'outils de la machine. Pour chaque poche d'outil dans le
 carrousel, la table d'outils contient le diamètre de l'outil rangé à
 cet emplacement (ou la différence entre le diamètre nominal de l'outil
 placé dans cette poche et son diamètre actuel). La table d'outils est
-indexée par les numéros de poche. Reportez vous à la page des _Fichiers
-d'outils_ pour savoir comment remplir ces fichiers.
+indexée par les numéros de poche. Reportez vous à la page des 'Fichiers
+d'outils' pour savoir comment remplir ces fichiers.
 
 ==== Deux types de contour
 
@@ -446,10 +446,10 @@ L'interpréteur contrôle la compensation pour deux types de contour:
 
  - 1) Le contour donné dans le code NC correspond au bord extérieur du
    matériau après usinage. Nous l'appellerons
-   _contour sur le profil du matériau_.
+   'contour sur le profil du matériau'.
  - 2) Le contour donné dans le code NC correspond à la trajectoire suivie
    par le centre d'un outil de rayon nominal. Nous l'appellerons
-   _contour sur le parcours d'outil_.
+   'contour sur le parcours d'outil'.
 
 L'interpréteur ne dispose d'aucun paramètre pour déterminer quel type
 de contour est utilisé, mais la description des contours est différente
@@ -556,7 +556,7 @@ délivrés par l'interpréteur sont les suivants:
 - Impossible d'utiliser le plan YZ avec la compensation de rayon d'outil
 - Coin concave avec la compensation de rayon d'outil
 - Interférence de l'outil avec une partie finie de la pièce avec la
-   compensation de rayon d'outil footnote:[Le terme anglais _gouging_
+   compensation de rayon d'outil footnote:[Le terme anglais 'gouging'
    indique une interférence entre l'outil et une partie finie de la pièce ou
    la paroi d'une cavité. Par extension, le terme est parfois repris pour une
    interférence entre le porte-outil ou la broche et la pièce.]
@@ -612,7 +612,7 @@ d'emplacements disponibles dans le carrousel, un message d'erreur sera
 affiché. Dans l'implémentation actuelle, le nombre d'emplacements
 maximum est de 68.
 
-Le message d'erreur _Deux G-codes du même groupe modal sont utilisés_
+Le message d'erreur 'Deux G-codes du même groupe modal sont utilisés'
 est un message générique utilisé pour plusieurs jeux de G-codes. Il
 s'applique à la compensation de rayon d'outil, il signifie que plus
 d'un code G40, G41 ou G42 apparaît sur la même ligne de programme NC,
@@ -770,7 +770,7 @@ d'outil: Le réglage lui même (gauche, droite ou arrêt), program_x et
 program_y. Les deux dernières représentent les positions en X et en Y
 données dans le code NC quand la compensation est active. Quand elle
 est désactivée, les deux entrées sont fixées à de très petites valeurs
-(10 e-20 ) dont la valeur symbolique (dans un #define) est _unknown_.
+(10 e-20 ) dont la valeur symbolique (dans un #define) est 'unknown'.
 L'interpréteur utilise, les items current_x et current_y qui 
 représentent, le centre de la pointe de l'outil (dans le système de 
 coordonnées courant), à tout moment. 

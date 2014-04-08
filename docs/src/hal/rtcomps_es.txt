@@ -26,15 +26,14 @@ built in pre-tuned position loop, so PID tuning is not required. In
 velocity mode, it drives a motor at the commanded speed, while obeying
 velocity and acceleration limits. It is a realtime component only, and
 depending on CPU speed, etc, is capable of maximum step rates of 10kHz
-to perhaps 50kHz. Figure <<fig:Stepgen-Block-Diag,Step Pulse Generator Block Diagram>>
-shows three block diagrams, each is a single step pulse generator.
+to perhaps 50kHz. The following figure shows three block diagrams, each is a
+single step pulse generator.
 The first diagram is for step type '0', (step and direction). The second is
 for step type '1' (up/down, or pseudo-PWM), and the third is for step types 2
 through 14 (various stepping patterns). The first two diagrams show position
 mode control, and the third one shows velocity mode. Control mode and
 step type are set independently, and any combination can be selected.
 
-[[fig:Stepgen-Block-Diag]]
 .Step Pulse Generator Block Diagram position mode
 (((Stepgen Block Diagram)))
 
