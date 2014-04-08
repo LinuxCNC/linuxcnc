@@ -59,4 +59,8 @@ int tpSetDout(TP_STRUCT * tp, int index, unsigned char start, unsigned char end)
 int tpFindIntersectionAngle(PmCartesian const * const u1,
         PmCartesian const * const u2, double * const theta);
 
+// for jog-while-paused:
+extern int tpIsPaused(TP_STRUCT * tp);
+extern int tpSnapshot(TP_STRUCT * from, TP_STRUCT * to);
+
 #endif				/* TP_H */

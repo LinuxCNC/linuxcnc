@@ -3116,5 +3116,47 @@ int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned cha
     return TP_ERR_OK;
 }
 
+// test whether a tpPause() has actually resulted in motion stopped
+// needed since a synchronized motion in progress will not be paused
+int tpIsPaused(TP_STRUCT * tp)
+{
+    TC_STRUCT *tc;
+
+    if (0 == tp) { // I assume this would be a fatal error?
+	//rtapi_print_msg(RTAPI_MSG_DBG, " tpIsPaused(): tp == NULL\n");
+	return 0;
+    }
+    tc = tcqItem(&tp->queue, 0);
+    if (!tc) {  // motion queue empty.
+	//rtapi_print_msg(RTAPI_MSG_DBG, " tpIsPaused(): motion queue empty\n");
+	return tp->pausing;
+    }
+    //rtapi_print_msg(RTAPI_MSG_DBG, " tpIsPaused(): pausing=%d synced=%d velmode=%d\n",
+    //                tp->pausing, tc->synchronized, tc->velocity_mode);
+
+    return (tp->pausing && (!tc->synchronized || tp->velocity_mode));
+    // alternate way of expressing - not sure:
+    // return (tp->pausing && (tp->feed_override == 0.0));
+}
+
+// prime an alternate motion queue with current parameters
+// this avoids tracking calls in parallel
+// to tpSetCycleTime(), tpSetVmax(),tpSetAmax(),tpSetVlimit()
+// it does not tpSetPos(), tpSetExeciId(),or completely tpClear() the altq
+
+int tpSnapshot(TP_STRUCT * from, TP_STRUCT * to)
+{
+    if (from == 0 || to == 0) {
+	return -1;
+    }
+
+    to->vMax = from->vMax;
+    to->ini_maxvel = from->ini_maxvel;
+    to->vLimit = from->vLimit;
+    to->aMax = from->aMax;
+    to->cycleTime = from->cycleTime;
+
+    return 0;
+}
 
 // vim:sw=4:sts=4:et:

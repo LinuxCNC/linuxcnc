@@ -14,6 +14,8 @@
 #ifndef MOT_PRIV_H
 #define MOT_PRIV_H
 
+#include "tp.h"  // since we're referencing TP_STRUCT here
+
 /***********************************************************************
 *                       TYPEDEFS, ENUMS, ETC.                          *
 ************************************************************************/
@@ -180,7 +182,58 @@ typedef struct {
 
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
 
+
+    hal_s32_t *pause_state;  // mirror pause state in HAL
+
+
+    // in: when fh_offset_enable becomes active:
+    // record position (fh_carte_pos, motion type), and switch to the alternate
+    // motion queue.
+    hal_bit_t *pause_offset_enable;
+
+    hal_bit_t *pause_offset_in_range;    // current offset ok with joint limits
+
+    hal_s32_t *paused_at_motion_type;  // see motion_types.h; the move active when FH was pressed
+    //hal_s32_t *fh_stoppable_motions;  // mask of stoppable move types
+
+    // out: when the above happened, assert the following pin
+    // signalling to the coord jogger it's ok to apply offsets
+    //hal_bit_t *fh_offset_enabled;
+
+    // if fh_offset_enabled and fho_resume is asserted
+    // 1. if the fh_offests_* are NOT zero, insert a move to fh_carte_pos
+    //    using fh_vel
+    // 2. deassert fh_offest_enable
+    // 3. when the move completes, switch back to the primary motion queue, and continue.
+
+    //hal_bit_t *fh_offset_resume;
+    // hal_bit_t *pause_offset_latch;
+
+    hal_float_t *pause_jog_vel;  // this better be within limits
+
+    //hal_s32_t *fh_offset_state;  // trace state
+
+    hal_float_t *pause_offset_x;
+    hal_float_t *pause_offset_y;
+    hal_float_t *pause_offset_z;
+    hal_float_t *pause_offset_a;
+    hal_float_t *pause_offset_b;
+    hal_float_t *pause_offset_c;
+    hal_float_t *pause_offset_u;
+    hal_float_t *pause_offset_v;
+    hal_float_t *pause_offset_w;
+
 } emcmot_hal_data_t;
+
+enum pause_state { PS_RUNNING=0,  // aka 'not paused'
+		   PS_PAUSING=1,  // looking for the first pausable motion (e.g. not spindle-synced)
+		   PS_PAUSED=2,   // motion stopped, and ok to unpause
+		   PS_PAUSED_IN_OFFSET=3, // motion stopped, but not where we can return to primary queue
+		   PS_JOGGING=4,  // coord mode motion in progress
+		   PS_RETURNING=5, // executing a return move to return to running
+		   PS_PAUSING_FOR_STEP=6,
+};
+
 
 /***********************************************************************
 *                   GLOBAL VARIABLE DECLARATIONS                       *
@@ -236,6 +289,10 @@ extern struct emcmot_config_t *emcmotConfig;
 extern struct emcmot_debug_t *emcmotDebug;
 extern struct emcmot_internal_t *emcmotInternal;
 extern struct emcmot_error_t *emcmotError;
+
+extern TP_STRUCT *emcmotPrimQueue;
+extern TP_STRUCT *emcmotAltQueue;
+extern TP_STRUCT *emcmotQueue;
 
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *

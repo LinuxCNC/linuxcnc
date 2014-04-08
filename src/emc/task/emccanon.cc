@@ -1117,6 +1117,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
         break;
     }
 
+    //interp_list.set_line_number(line_number);
     interp_list.append(setTermCondMsg);
 }
 

@@ -55,6 +55,7 @@
  * a TC_STRUCT is about 512 bytes so this queue is
  * about a megabyte.  */
 #define DEFAULT_TC_QUEUE_SIZE 2000
+#define DEFAULT_ALT_TC_QUEUE_SIZE 100   // size of secondary motion queue
 
 /* max following error */
 #define DEFAULT_MAX_FERROR 100
