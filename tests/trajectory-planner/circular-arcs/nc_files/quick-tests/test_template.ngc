@@ -1,0 +1,22 @@
+(...Explanation...)
+(Setup code)
+G20 G90 G64 G17
+(Move to standard initial position)
+G0 x0 y0 z0
+(Test code begins here)
+G0 X1.0 
+G0 X0 y1
+G0 X-1 Y0
+G0 X0 Y-1
+G0 X1 Y0
+G0 X0 y1
+G0 X-1 Y0
+G0 X0 Y-1
+G0 X1 Y0
+G0 X1 Y1
+G0 X0 Y0 Z1
+G0 X-1 Y1 Z0
+G0 X0 Y0 Z-1
+G0 X1 Y1 Z0
+M2
+

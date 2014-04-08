@@ -1,0 +1,13 @@
+G20 G90 G64
+
+(Rapid traverse sharp corners)
+G0 X1 F999
+G0 X0
+G0 Y1
+G0 Y0
+G0 Z1
+G0 Z0
+G0 X0.02 Y0.05 Z0.03
+G0 X0 Y0 Z0
+
+M2

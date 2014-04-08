@@ -162,6 +162,36 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_acceleration = acc;
+
+        int arcBlendEnable = 0;
+        int arcBlendFallbackEnable = 0;
+        int arcBlendOptDepth = 0;
+        double arcBlendGapCycles = 2;
+        double arcBlendRampFreq = 100.0;
+
+        trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
+        trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK_ENABLE", "TRAJ");
+        trajInifile->Find(&arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
+        trajInifile->Find(&arcBlendGapCycles, "ARC_BLEND_GAP_CYCLES", "TRAJ");
+        trajInifile->Find(&arcBlendRampFreq, "ARC_BLEND_RAMP_FREQ", "TRAJ");
+
+        if (0 != emcSetupArcBlends(arcBlendEnable, arcBlendFallbackEnable,
+                    arcBlendOptDepth, arcBlendGapCycles, arcBlendRampFreq)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcSetupArcBlends\n");
+            }
+            return -1;
+        } 
+
+        double maxFeedScale = 1.0;
+        trajInifile->Find(&maxFeedScale, "MAX_FEED_OVERRIDE", "DISPLAY");
+
+        if (0 != emcSetMaxFeedOverride(maxFeedScale)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcSetMaxFeedOverride\n");
+            }
+            return -1;
+        } 
     }
 
     catch(EmcIniFile::Exception &e){

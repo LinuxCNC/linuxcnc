@@ -1540,3 +1540,25 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
     return (r1 == 0 && r2 == 0) ? 0 : -1;
 }
+
+int emcSetupArcBlends(int arcBlendEnable,
+        int arcBlendFallbackEnable,
+        int arcBlendOptDepth,
+        double arcBlendGapCycles,
+        double arcBlendRampFreq) {
+
+    emcmotCommand.command = EMCMOT_SETUP_ARC_BLENDS;
+    emcmotCommand.arcBlendEnable = arcBlendEnable;
+    emcmotCommand.arcBlendFallbackEnable = arcBlendFallbackEnable;
+    emcmotCommand.arcBlendOptDepth = arcBlendOptDepth;
+    emcmotCommand.arcBlendGapCycles = arcBlendGapCycles;
+    emcmotCommand.arcBlendRampFreq = arcBlendRampFreq;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+
+int emcSetMaxFeedOverride(double maxFeedScale) {
+    emcmotCommand.command = EMCMOT_SET_MAX_FEED_OVERRIDE;
+    emcmotCommand.maxFeedScale = maxFeedScale;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+}
+

@@ -30,6 +30,8 @@
 */
 
 /* joint data */
+#include "hal.h"
+#include "../motion/motion.h"
 
 typedef struct {
     hal_float_t *coarse_pos_cmd;/* RPI: commanded position, w/o comp */

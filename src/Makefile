@@ -7,7 +7,7 @@ ifeq ("$(origin VV)", "command line")
 endif
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install python pythonclean
+.PHONY: default userspace modules clean modclean depclean install python pythonclean cscope cscopeclean
 
 # A "trivial build" is one which should not include dependency information
 # either because it should be usable before dependency information can be
@@ -23,6 +23,7 @@ else
 TRIVIAL_BUILD=no
 endif
 endif
+
 
 # Beautify output
 # ---------------------------------------------------------------------------
@@ -213,6 +214,7 @@ SUBDIRS := \
 	emc/task \
 	emc/iotask \
 	emc/kinematics \
+	emc/tp \
 	emc/canterp \
 	emc/motion \
 	emc/ini \
@@ -401,8 +403,13 @@ HEADERS := \
     emc/kinematics/genhexkins.h \
     emc/kinematics/genserkins.h \
     emc/kinematics/pumakins.h \
-    emc/kinematics/tc.h \
-    emc/kinematics/tp.h \
+    emc/tp/tc.h \
+    emc/tp/tc_types.h \
+    emc/tp/tcq.h \
+    emc/tp/tp.h \
+    emc/tp/tp_types.h \
+    emc/tp/spherical_arc.h \
+    emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
     emc/motion/emcmotglb.h \
     emc/motion/motion.h \
@@ -570,7 +577,7 @@ pythonclean:
 	find ../lib/python -name '*.so' -exec rm {} +
 python: $(PYTARGETS)
 userspace: python
-clean: docclean pythonclean
+clean: docclean pythonclean cscopeclean
 endif
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
@@ -1302,8 +1309,11 @@ scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
-motmod-objs += emc/kinematics/tc.o
-motmod-objs += emc/kinematics/tp.o
+motmod-objs += emc/tp/tc.o
+motmod-objs += emc/tp/tcq.o
+motmod-objs += emc/tp/tp.o
+motmod-objs += emc/tp/spherical_arc.o
+motmod-objs += emc/tp/blendmath.o
 motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o
@@ -1312,6 +1322,7 @@ motmod-objs += emc/motion/emcmotglb.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
+motmod-objs += emc/nml_intf/emcpose.o
 motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
@@ -1522,4 +1533,9 @@ objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 ../lib/%.so: ../lib/%.so.0
 	ln -sf $(notdir $<) $@
 
+cscope:
+	cscope -Rb
+
+cscopeclean:
+	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
 # vim:ts=8:sts=8:sw=8:noet:
