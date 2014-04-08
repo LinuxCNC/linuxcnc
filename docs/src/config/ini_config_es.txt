@@ -212,7 +212,7 @@ User Manual.
 The following [DISPLAY] items are for the AXIS interface only.
 
 * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
-   <<sub:TRA]-section,machine units>> per second.
+   <<sub:TRAJ-section,machine units>> per second.
 
 * 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
 

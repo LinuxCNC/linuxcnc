@@ -5,6 +5,10 @@
 
 [[cha:M-codes]] (((Les M-codes)))
 
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Table des M-codes
 
 [width="60%", options="header", cols="2^,5<"]
@@ -16,6 +20,7 @@
 |<<sec:M3-M4-M5,M3 M4 M5>>                             | Contrôle de la broche
 |<<sec:M6-Appel-Outil,M6 Tn>>                          | Appel d'outil n=numéro d'outil
 |<<sec:M7-M8-M9,M7 M8 M9>>                             | Contrôle des arrosages
+|<<sec:M19,M19>>                                       | Orientation de la broche
 |<<sec:M48-M49,M48 M49>>                               | Contrôle des correcteurs de vitesse 
 |<<sec:M50-Controle-Correcteur-Vitesse-Travail,M50>>   | Contrôle du correcteur de vitesse travail
 |<<sec:M51-Controle-Correcteur-Vitesse-Broche,M51>>    | Contrôle du correcteur de vitesse de broche
@@ -26,6 +31,10 @@
 |<<sec:M66-Ctrl-Entree-Numerique-Et-Analogique,M66>>   | Contrôle d'entrée numérique et analogique
 |<<sec:M67-Ctrl-Sortie-Analogique-Synchro,M67>>        | Contrôle sortie analogique synchronisée
 |<<sec:M68-Ctrl-Sortie-Analogique-Directe,M68>>        | Contrôle sortie analogique directe
+|<<sec:M70-Save-Modal-State,M70>>                      | Enregistre l'état modal
+|<<sec:M71-Invalidate-Stored-Modal-State,M71>>         | Invalide l'état modal enregistré
+|<<sec:M72-Restore-Modal-State,M72>>                   | Restaure l'état modal
+|<<sec:M73-Save-Autorestore-Modal-State,M73>>          | Enregistrement/auto-restauration de l'état modal
 |<<sec:M100-a-M199, M100 à M199 >>                     | M-codes définis par l'utilisateur
 |========================================================
 
@@ -168,6 +177,63 @@ il n'y aura pas d'outil dans la broche après le changement.
 Il est toujours permis d'utiliser une de ces commandes,
 que les arrosages soient arrêtés ou non.
 
+[[sec:M19]]
+== M19 Orientation de la broche
+(((M19 Orientation de la broche)))
+
+* _M19 R- Q- [P-]_
+
+* _R_ - Position à atteindre à partir de 0, cette valeur doit être comprise entre
+0 et 360 degrés.
+
+* _Q_ - Durée d'attente en secondes pour compléter l'orientation. Si
+_motion.spindle.is_oriented_ n'est pas devenue vraie dans le temps imparti par Q,
+une erreur de timeout se produira.
+
+* _P_ - Direction de rotation vers la position cible.
+** _0_ - rotation pour petit mouvement angulaire (défaut)
+** _1_ - rotation toujours en sens horaire (même direction qu'avec M3)
+** _2_ - rotation toujours en sens anti-horaire (même direction qu'avec M4)
+
+
+M19 est révoqué par M3,M4 ou M5.
+
+L'orientation de la broche nécessite un codeur de position avec index,
+indiquant la position de la broche ainsi que sa direction de rotation.
+
+Paramètres de réglage de la section [RS274NGC].
+
+ORIENT_OFFSET = 0 à 360 (offset fixe en degrés, ajouté au mot R de M19)
+
+Broches de HAL
+
+* _motion.spindle-orient-angle_ (sortie float)
+Orientation souhaitée pour M19. Valeur du paramètre R de M19 plus la valeur du
+paramètre d'ini [RS274NGC]ORIENT_OFFSET.
+
+* _motion.spindle-orient-mode_ (sortie s32)
+Mode de rotation de la broche souhaité. Reflète le mot P de M19, Défaut = 0
+
+* _motion.spindle-orient_ (sortie bit)
+Indique le début du cycle d'orientation de la broche. Positionné par M19.
+Remis à zéro par M3,M4 ou M5.
+Si _spindle-orient-fault_ n'est pas à zéro alors que _spindle-orient_ est vraie
+la commande M19 échoue avec un message d'erreur.
+
+* _motion.spindle-is-oriented_ (entrée bit)
+Pin de confirmation de l'orientation de la broche. Termine le cycle
+d'orientation. Si _spindle-orient_ est vraie quand _spindle-is-oriented_ est
+activée, la pin _spindle-orient_ est mise à zéro et la pin _spindle-locked_
+est activée. La pin _spindle-brake_ est également activée.
+
+* _motion.spindle-orient-fault_ (entrée s32)
+Entrée de code d'erreur pour le cycle d'orientation. Toute valeur, autre que
+zéro, provoquera l'abandon du cycle d'orientation.
+
+* _motion.spindle-locked_ (sortie bit)
+Pin indiquant que le cycle de rotation est terminé. Désactivée par M3,M4 ou M5.
+
+
 [[sec:M48-M49]]
 == M48, M49 Contrôle des correcteurs de vitesse
 (((M48, M49 Autoriser/Inhiber les correcteurs de vitesse)))
@@ -236,27 +302,27 @@ _motion.feed-hold_ est sans effet sur la vitesse quand _M53_ est inhibé.
 == M61 Correction du numéro de l'outil courant
 (((M61 Correction du numéro de l'outil courant)))
 
-* _M61 Q-_ - Corrige le numéro de l'outil courant, en mode MDI ou après un
+* _M61 Q _ - Corrige le numéro de l'outil courant, en mode MDI ou après un
 changement manuel d'outil dans la fenêtre de données manuelles. Au démarrage
 de LinuxCNC avec un outil dans la broche, il est possible ainsi d'ajuster le
 numéro de l'outil courant sans faire de changement d'outil.
 
 C'est une erreur si:
 
-* Q- n'est pas égal où supérieur à 0
+* Q n'est pas égal où supérieur à 0
 
 [[sec:M62-a-M65-Ctrl-Sortie-Numerique]]
 == M62 à M65 Contrôle de bits de sortie numérique
 (((M62 Contrôle un bit de sortie numérique)))
 
-* _M62 P-_ - Active un bit de sortie numérique en synchronisme avec
+* _M62 P_ - Active un bit de sortie numérique en synchronisme avec
 un mouvement.
-* _M63 P-_ - Désactive un bit de sortie numérique en synchronisme avec
+* _M63 P_ - Désactive un bit de sortie numérique en synchronisme avec
 un mouvement.
-* _M64 P-_ - Active immédiatement un bit de sortie numérique.
-* _M65 P-_ - Désactive immédiatement un bit de sortie numérique.
+* _M64 P_ - Active immédiatement un bit de sortie numérique.
+* _M65 P_ - Désactive immédiatement un bit de sortie numérique.
 
-Le mot _P-_ spécifie le numéro du bit de sortie numérique. Le mot P doit
+Le mot _P_ spécifie le numéro du bit de sortie numérique. Le mot P doit
 être compris entre 0 et une valeur par défaut de 3. Si nécessaire, le
 nombre des entrées/sorties peut être augmenté en utilisant
 le paramètre _num_dio_ lors du chargement du contrôleur de mouvement.
@@ -288,16 +354,16 @@ appropriées sont connectées aux sorties dans le fichier HAL.
 ----
 M66 P- | E- <L-> <Q->
 ----
-* _P-_ - Spécifie le numéro d'un bit d'entrée numérique entre 0 et 3.
-* _E-_ - Spécifie le numéro d'un bit d'entrée analogique entre 0 et 3.
-* _L-_ - Spécifie le mode d'attente.
+* _P_ - Spécifie le numéro d'un bit d'entrée numérique entre 0 et 3.
+* _E_ - Spécifie le numéro d'un bit d'entrée analogique entre 0 et 3.
+* _L_ - Spécifie le mode d'attente.
 ** Mode 0: _IMMEDIATE_ - pas d'attente, retour immédiat, la valeur courante de
 l'entrée est stockée dans le paramètre #5399
 ** Mode 1: _RISE_  attente d'un front montant sur l'entrée.
 ** Mode 2: _FALL_  attente d'un front descendant sur l'entrée.
 ** Mode 3: _HIGH_  attente d'un état logique HAUT sur l'entrée.
 ** Mode 4: _LOW_   attente d'un état logique BAS sur l'entrée.
-* _Q-_ - Spécifie le timeout pour l'attente, en secondes. Si le timeout est
+* _Q_ - Spécifie le timeout pour l'attente, en secondes. Si le timeout est
 dépassé, l'attente est interrompue et la variable #5399 positionnée à -1.
 * Le mode _0_ est le seul autorisé pour une entrée analogique.
 
@@ -330,8 +396,8 @@ motion.analog-in-nn appropriées sont connectées aux entrées dans le fichier H
 M67 E- Q-
 ----
 * _M67_ - Contrôle une sortie analogique synchronisée avec un mouvement.
-* _E-_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
-* _Q-_ - Spécifie la valeur à appliquer sur la sortie.
+* _E_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
+* _Q_ - Spécifie la valeur à appliquer sur la sortie.
 
 Les changements de valeur spécifiés, seront effectifs au début du
 prochain mouvement commandé. S'il n'y a pas de commande de mouvement ultérieur,
@@ -356,8 +422,8 @@ connectées aux sorties dans le fichier HAL.
 M68 E- Q-
 ----
 * _M68_ - Contrôle directement une sortie analogique.
-* _E-_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
-* _Q-_ - Spécifie la valeur à appliquer sur la sortie. 
+* _E_ - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
+* _Q_ - Spécifie la valeur à appliquer sur la sortie. 
 
 M68 produit son effet immédiatement après être reçu par le
 contrôleur de mouvement. Il n'est pas synchronisé avec un mouvement.
@@ -369,8 +435,218 @@ chapitre "LinuxCNC et HAL" dans le Manuel de l'intégrateur pour plus
 d'informations sur le contrôleur de mouvement.
 
 [NOTE]
-M68 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont
+M68 ne sera opérationnel que si les pins _motion.analog-out-nn_ appropriées sont
 connectées aux sorties dans le fichier HAL.
+
+[[sec:M70-Save-Modal-State]]
+== M70 Enregistrement de l'état modal
+(((M70 Save Modal State)))
+
+Pour enregistrer explicitement l'état modal au niveau de l'appel courant,
+programmer _M70_. Une fois l'état modal enregistré avec _M70_, il peut être
+restauré exactement dans le même état en exécutant un _M72_.
+
+Une paire d'instructions _M70_ et _M72_ est typiquement utilisée pour protéger
+un programme contre d'éventuels changements modaux pouvant se produire dans les
+sous-programmes.
+
+[[saved_state_by_M70]]
+Les états enregistrés sont les suivants:
+
+* unités machine courantes G20/G21 (po/mm)
+* plan de travail courant (G17/G18/G19 G17.1,G18.1,G19.1)
+* statut de la compensation de rayon d'outil (G40,G41,G42,G41.1,G42,1)
+* mode de déplacement - relatif/absolu (G90/G91)
+* mode de vitesse (G93/G94,G95)
+* coordonnées système courantes (G54-G59.3)
+* statut de la compensation de longueur d'outil (G43,G43.1,G49)
+* options du plan de retrait (G98,G99)
+* mode de contrôle de broche (G96-css ou G97-RPM)
+* mode de déplacement en arc (G90.1, G91.1)
+* mode diamètre/rayon des tours (G7,G8)
+* mode de contrôle de trajectoire (G61, G61.1, G64)
+* avance et vitesse broche courantes (valeurs _F_ et _S_)
+* statut de la broche (M3,M4,M5) - on/off et direction
+* statut de l'arrosage (M7) et (M8)
+* réglages des correcteurs de vitesse broche (M51) et du correcteur de vitesse
+travail (M50)
+* réglage du contrôle de vitesse adaptative (M52)
+* réglage du contrôle de la coupure de vitesse (M53)
+
+Noter qu'en particulier, les modes de mouvement (G1 etc) ne sont _PAS_ restaurés.
+
+_Le niveau de l'appel courant_ signifie:
+
+ * Exécution dans le programme principal. Il n'y a qu'un seul emplacement de
+stockage pour l'état modal au niveau du programme principal; si plusieurs
+instructions _M70_ sont exécutées tour à tour, seul l'état enregistré le plus
+récent est restauré quand un _M72_ est exécuté.
+
+ * Exécution dans un sous-programme G-code. L'état enregistré par _M70_
+dans un sous-programme se comporte exactement comme un paramètre nommé local -
+on ne peut s'y référer qu'à l'intérieur du sous-programme en invoquant un _M72_,
+à la sortie du sous-programme, le paramètre disparaît.
+
+Une invocation récursive d'un sous-programme introduit un nouveau niveau d'appel.
+
+[[sec:M71-Invalidate-Stored-Modal-State]]
+== M71 Invalidation de l'état modal enregistré
+(((M71 Invalidate Stored Modal State)))
+
+<<saved_state_by_M70,L'état modal enregistré par _M70_>> ou par
+<<sec:M73-Save-Autorestore-Modal-State, _M73_>> au niveau de l'appel courant est
+invalidé (ne peut plus être restauré nulle part).
+
+Un appel ultérieur à _M72_ sur le même niveau d'appel, échouera.
+
+Si il est exécuté dans un sous-programme qui protège l'état modal par un _M73_,
+un _return_ ou _endsub_ ultérieur ne restaurera _PAS_ l'état modal.
+
+L'utilité de ce dispositif est douteuse. Il ne devrait pas être invoqué quand
+il peut disparaître.
+
+[[sec:M72-Restore-Modal-State]]
+== M72 Restauration de l'état modal
+(((M72 Restore Modal State)))
+
+<<saved_state_by_M70,L'état modal enregistré par un _M70_>> peut être
+restauré en exécutant un _M72_.
+
+La gestion de G20/G21 reçoit un traitement particulier car les avances sont
+interprétées différemment selon G20/G21: si les unités de longueur (mm/po)
+doivent être modifiées par une opération de restauration, _M72_ va restaurer le
+mode distance en premier, puis ensuite tous les autres états, y compris les
+avances pour être sure que les valeurs d'avance soient interprétées selon un
+réglage d'unités correct.
+
+C'est une erreur d'exécuter _M72_ sans enregistrement précédent avec _M70_ à
+ce niveau.
+
+L'exemple suivant montre l'enregistrement puis la restauration de l'état modal
+autour de l'appel d'un sous-programme utilisant _M70_ et _M72_. Noter que
+le sous-programme 'imperialsub' n'est pas "au courant" des caractéristiques de
+M7x et peut être utilisé non modifié:
+
+
+[source,{ngc}]
+----
+O<showstate> sub
+(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
+O<showstate> endsub
+
+O<imperialsub> sub
+g20 (imperial)
+g91 (relative mode)
+F5 (low feed)
+S300 (low rpm)
+(debug, in subroutine, state now:)
+o<showstate> call
+O<imperialsub> endsub
+
+; programme principal
+g21 (metric)
+g90 (absolute)
+f200 (fast speed)
+S2500 (high rpm)
+
+(debug, in main, state now:)
+o<showstate> call
+
+M70 (save caller state in at global level)
+O<imperialsub> call
+M72 (explicitely restore state)
+
+(debug, back in main, state now:)
+o<showstate> call
+m2
+----
+
+[[sec:M73-Save-Autorestore-Modal-State]]
+== M73 Enregistrement et auto-restauration de l'état modal
+(((M73 Save and Autorestore Modal State)))
+
+
+Pour enregistrer l'état modal à l'intérieur d'un sous-programme et restaurer cet
+état lors d'un 'endsub' ou autre 'return', programmer _M73_.
+
+En cas d'abandon d'un programme en cours d'exécution dans un sous-programme
+traitant un _M73_, l'état ne sera *PAS* restauré.
+
+En outre, la fin normale (_M2_) d'un programme principal contenant un _M73_ ne 
+restaurera *pas* l'état.
+
+L'utilisation suggérée consiste à placer au début d'un sous-programme, un O-code
+de sous-programme comme dans l'exemple ci-dessous. En utilisant _M73_, cette
+manière valide le design des sous-programmes qui doivent modifier l'état modal
+mais qui protège le programme appelant contre tout changement inopiné de
+l'état modal. Noter l'usage de <<sec:Parametres-Nommes, paramètres nommés>> dans
+le sous-programme 'showstate'.
+
+[source,{ngc}]
+----
+O<showstate> sub
+(DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
+O<showstate> endsub
+
+O<imperialsub> sub
+M73 (save caller state in current call context, restore on return or endsub)
+g20 (imperial)
+g91 (relative mode)
+F5 (low feed)
+S300 (low rpm)
+(debug, in subroutine, state now:)
+o<showstate> call
+
+; note - M72 n'est pas utilisé ici - le endsub suivant ou un
+; 'return' explicite restaurera l'état de l'appelant
+O<imperialsub> endsub
+
+; programme principal
+g21 (metric)
+g90 (absolute)
+f200 (fast speed)
+S2500 (high rpm)
+(debug, in main, state now:)
+o<showstate> call
+o<imperialsub> call
+(debug, back in main, state now:)
+o<showstate> call
+m2
+----
+
+
+== Restauration sélective de l'état modal par le test de paramètres prédéfinis[[sec:Selectively-restoring-modal-state]]
+
+Exécuter un 'M72' ou au retour d'un sous-programme contenant un _M73_ pour
+restaurer <<saved_state_by_M70,*tout* l'état modal enregistré>>.
+
+Si seulement certains aspects de l'état modal doivent être préservés, une
+alternative consiste a utiliser les <<sec:Predefined-Named-Parameters,paramètres nommés prédéfinis>>, paramètres locaux et états conditionnels. L'idée est de rappeler
+les modes à restaurer au début du sous-programme et de restaurer ceux-ci avant
+de quitter. Voici un exemple, basé sur le programme
+'nc_files/tool-length-probe.ngc':
+
+
+[source,{ngc}]
+----
+O<measure> sub   (measure reference tool)
+;
+#<absolute> = #<_absolute>  (remember in local variable if G90 was set)
+;
+g30 (above switch)
+g38.2 z0 f15 (measure)
+g91 g0z.2 (off the switch)
+#1000=#5063 (save reference tool length)
+(print,reference length is #1000)
+;
+O<restore_abs> if [#<absolute>]
+    g90 (restore G90 only if it was set on entry:)
+O<restore_abs> endif
+;
+O<measure> endsub
+
+----
+
 
 [[sec:M100-a-M199]]
 == M100 à M199 Commandes définies par l'utilisateur
@@ -381,9 +657,9 @@ connectées aux sorties dans le fichier HAL.
 M1-- <P- Q->
 ----
 
-* _M1--_ - Un entier compris entre 100 et 199.
-* _P-_ - Un nombre passé comme premier argument au programme externe.
-* _Q-_ - Un nombre passé comme second argument au programme externe.
+* _M1 --_ - Un entier compris entre 100 et 199.
+* _P_ - Un nombre passé comme premier argument au programme externe.
+* _Q_ - Un nombre passé comme second argument au programme externe.
 
 Le programme externe, nommé _M100_ à _M199_, (avec un _M_ majuscule et aucune
 extension) qui doit se trouver dans le répertoire pointé par la variable

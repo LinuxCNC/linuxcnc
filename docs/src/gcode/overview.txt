@@ -179,7 +179,7 @@ types of parameter of different purpose and appearance, each described
 in the following sections. The only value type supported by parameters
 is floating-point; there are no string, boolean or integer types in
 G-code like in other programming languages. However, logic expressions
-can be formulated with <<sub:Binary-Operators,boolean operators>>
+can be formulated with <<sec:Binary-Operators,boolean operators>>
 ( 'AND', 'OR', 'XOR', and the comparison operators
 'EQ','NE','GT','GE','LT','LE'), and the 'MOD', 'ROUND', 'FUP' and
 'FIX' <<cap:Functions,operators>> support integer arithmetic.
@@ -635,8 +635,7 @@ parameters>> can be added easily without changes to the source code.
 * `#<_value>` -  [[param:_value]]
     Return value from the last O-word `return` or `endsub`.  Default
     value 0 if no expression after `return` or `endsub`.  Initialized
-    to 0 on program start.  See also
-    <<sec:Subroutine-return-values,Subroutine return values>>.
+    to 0 on program start.
 
 * `#<_value_returned>` -
     1.0 if the last O-word `return` or `endsub` returned a value, 0
@@ -1242,7 +1241,7 @@ Interpreter. The Interpreter reads the file when it starts up, and
 writes the file when it exits.
 
 The format of a parameter file is shown in Table
-<<cap:format-parameter-file,Parameter File Format>>. 
+<<sec:format-parameter-file,Parameter File Format>>. 
 
 The Interpreter expects the file to have two columns. It skips any
 lines which do not contain exactly two numeric values. The first
@@ -1266,7 +1265,7 @@ ascending order.
 The original file is saved as a backup file when the new file
 is written. 
 
-.Parameter File Format[[format-parameter-file]]
+.Parameter File Format[[sec:format-parameter-file]]
 
 [width="90%", options="header"]
 |========================================

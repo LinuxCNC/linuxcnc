@@ -86,8 +86,7 @@ on the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
-[[sub:stepgen-parameters]]
-.Parameters
+.Parameters[[sub:stepgen-parameters]]
 
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.
    This parameter is used for both output and feedback.
@@ -104,7 +103,7 @@ on the step type and control type selected.
 * '(float) stepgen.<chan>.stepspace' - Minimum spacing between two
    step pulses (step types 0 and 1 only), in nano-seconds. Set to 0 to
    enable the stepgen 'doublefreq' function. To use 'doublefreq' the
-   <<parport-functions,parport reset function>> must be enabled.
+   <<sub:parport-functions,parport reset function>> must be enabled.
 * '(float) stepgen.<chan>.dirsetup' - Minimum time from a direction
    change to the beginning of the next
    step pulse (step type 0 only), in nanoseconds.
@@ -155,7 +154,7 @@ maxfreq is zero, it will remain zero, but the output frequency will
 still be limited.
 
 When using the parallel port driver the step frequency can be doubled using
-the <<parport-functions,parport reset>> function together with stepgen's
+the <<sub:parport-functions,parport reset>> function together with stepgen's
 'doublefreq' setting.
 
 [[fig:StepDir-timing]]

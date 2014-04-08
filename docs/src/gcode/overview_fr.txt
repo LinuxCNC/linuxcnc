@@ -5,6 +5,10 @@
 
 [[cha:Vue-generale-G-code]] (((Vue générale du G-code de LinuxCNC)))
 
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Brève description du G-code de LinuxCNC
 
 Le G-code est le langage de programmation des machines numériques. Le G-code
@@ -255,8 +259,8 @@ paramètres sont utilisés pour accéder aux offsets des systèmes de coordonné
 déterminer l'état de l'interpréteur et de la machine, par exemple _#<_relative>_
 retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
 
-[[sec:Parametres-Numerotes]]
-== Paramètres numérotés
+[[sub:Parametres-Numerotes]]
+=== Paramètres numérotés
 (((Paramètres numérotés)))
 
 Un paramètre numéroté commence par le caractère _#_ suivi par un
@@ -306,13 +310,14 @@ le fichier G-code.
 du programme (X Y Z A B C U V W)
 
 [[sub:Parametres-sous-programme]]
-== Paramètres de sous-programme
+=== Paramètres de sous-programme
+(((Paramètres de sous-programme)))
 
 * _1-30_ - Paramètres d'appel d'arguments, locaux au sous-programme. Voir la 
 section des <<cha:O-codes, O-codes>>.
 
-[[sec:Parametres-Nommes]]
-== Paramètres nommés
+=== Paramètres nommés[[sec:Parametres-Nommes]]
+(((Paramètres nommés)))
 
 Les paramètres nommés fonctionnent comme les paramètres numérotés mais
 sont plus faciles à lire. Les paramètres nommés sont convertis en
@@ -356,8 +361,124 @@ Les paramètres globaux _a, _b, _c, ... _z sont réservés pour une
 utilisation spéciale. Dans le futur, ils pourront fournir l'accès aux
 derniers Aword, Bword, Cword, ... Zword etc.
 
-[[sec:Parametres-Systeme]]
-== Paramètres système
+=== Paramètres nommés prédéfinis[[sec:Predefined-Named-Parameters]]
+(((Paramètres nommées prédéfinis)))
+
+The following global read only named parameters are available to
+access internal state of the interpreter and machine state. They can
+be used in arbitrary expressions, for instance to control flow of the
+program with if-then-else statements. 
+
+
+* `#<_vmajor>` - Major package version. If current version was 2.5.2 would return 2.5.
+
+* `#<_vminor>` - Minor package version. If current version was 2.6.2 it would return 0.2.
+
+* `#<_line>` -
+    Sequence number. If running a G-Code file, this returns the current line number.
+
+* `#<_motion_mode>` -
+    Return the interpreter's current motion mode:
+[width="20%",options="header"]
+|========================================
+|Motion mode | return value
+|G1| 10
+|G2| 20
+|G3| 30
+|G33| 330
+|G38.2| 382
+|G38.3| 383
+|G38.4| 384
+|G38.5| 385
+|G5.2| 52
+|G73| 730
+|G76| 760
+|G80| 800
+|G81| 810
+|G82| 820
+|G83| 830
+|G84| 840
+|G85| 850
+|G86| 860
+|G87| 870
+|G88| 880
+|G89| 890
+|========================================
+* `#<_plane>` -
+    returns the value designating the current plane:
+[width="20%",options="header"]
+|========================================
+|Plane | return value
+|G17| 170
+|G18| 180
+|G19| 190
+|G17.1| 171
+|G18.1| 181
+|G19.1| 191
+|========================================
+
+
+* `#<_ccomp>` -
+    Status of cutter compensation. Return values:
+[width="20%",options="header"]
+|========================================
+|Mode | return value
+|G40 | 400
+|G41 | 410
+|G41.1| 411
+|G41 | 410
+|G42 | 420
+|G42.1 | 421
+|========================================
+
+* `#<_metric>` -
+    Return 1 if G21 is on, else 0.
+
+* `#<_imperial>` -
+    Return 1 if G20 is on, else 0.
+
+* `#<_absolute>` -
+    Return 1 if G90 is on, else 0.
+
+* `#<_incremental>` -
+    Return 1 if G91 is on, else 0.
+
+* `#<_inverse_time>` -
+    Return 1 if inverse feed mode (G93) is on, else 0.
+
+* `#<_units_per_minute>` -
+    Return 1 if Units/minute feed mode (G94) is on, else 0.
+
+* `#<_units_per_rev>` -
+    Return 1 if Units/revolution mode (G95) is on, else 0.
+
+* `#<_coord_system>` -
+    Return index of the current coordinate system (G54..G59.3)
+[width="20%",options="header"]
+|========================================
+|Mode | return value
+|G54| 0
+|G55| 1
+|G56| 2
+|G57| 3
+|G58| 4
+|G59| 5
+|G59.1|6
+|G59.2|7
+|G59.3|8
+|========================================
+
+* `#<_tool_offset>` -
+    Return 1 if tool offset (G43) is on, else 0.
+
+* `#<_retract_r_plane>` -
+    Return 1 if G98 is set, else 0.
+
+* `#<_retract_old_z>` -
+    Return 1 if G99 is on, else 0.
+
+[[sub:Parametres-Systeme]]
+=== Paramètres système
 (((Paramètres système)))
 
 Deux paramètres nommés globaux, permettant de lire, à partir du G-code, 
