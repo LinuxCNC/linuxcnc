@@ -66,8 +66,12 @@ to another.
    emcmotStruct shared memory area, for debugging purposes.
 */
 
+// enable this for now just so we have a single copy of the joints struct
+// not within emcmotdebug, since we'll have two of emcmotdebug
+// eventually this should be separated out into emcmotinternal or so
 // #define STRUCTS_IN_SHMEM
 
+#define STRUCTS_IN_SHMEM
 
 
 #ifndef MOTION_H
@@ -89,15 +93,19 @@ to another.
 #define MOTION_INVALID_ID INT_MIN
 #define MOTION_ID_VALID(x) ((x) != MOTION_INVALID_ID)
 
+#define MOTION_PAUSED_RETURN_MOVE (MOTION_INVALID_ID+10)
+#define MOTION_PAUSED_JOG_MOVE (MOTION_INVALID_ID+11)
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
     typedef struct _EMC_TELEOP_DATA {
 	EmcPose currentVel;
-	EmcPose currentAccell;
+	EmcPose currentAccel;
 	EmcPose desiredVel;
-	EmcPose desiredAccell;
+	EmcPose desiredAccel;
     } EMC_TELEOP_DATA;
 
 /* This enum lists all the possible commands */
@@ -174,6 +182,8 @@ extern "C" {
 	EMCMOT_SET_MOTOR_OFFSET,	/* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,	/* set a compensation triplet for a joint (nominal, forw., rev.) */
         EMCMOT_SET_OFFSET, /* set tool offsets */
+        EMCMOT_SET_MAX_FEED_OVERRIDE,
+        EMCMOT_SETUP_ARC_BLENDS,
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -189,6 +199,7 @@ extern "C" {
 /* termination conditions for queued motions */
 #define EMCMOT_TERM_COND_STOP 1
 #define EMCMOT_TERM_COND_BLEND 2
+#define EMCMOT_TERM_COND_TANGENT 3
 
 /*********************************
        COMMAND STRUCTURE
@@ -245,6 +256,12 @@ extern "C" {
 	char    direction;      /* CANON_DIRECTION flag for spindle orient */
 	double  timeout;        /* of wait for spindle orient to complete */
 	unsigned char tail;	/* flag count for mutex detect */
+        int arcBlendOptDepth;
+        int arcBlendEnable;
+        int arcBlendFallbackEnable;
+        double arcBlendGapCycles;
+        double arcBlendRampFreq;
+        double maxFeedScale;
     } emcmot_command_t;
 
 /*! \todo FIXME - these packed bits might be replaced with chars
@@ -658,7 +675,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int depth;		/* motion queue depth */
 	int activeDepth;	/* depth of active blend elements */
 	int queueFull;		/* Flag to indicate the tc queue is full */
-	int paused;		/* Flag to signal motion paused */
+	int pause_state;	/* state of the motion pause FSM */
+	int resuming;	        /* resume operation in progress */
 	int overrideLimitMask;	/* non-zero means one or more limits ignored */
 				/* 1 << (joint-num*2) = ignore neg limit */
 				/* 2 << (joint-num*2) = ignore pos limit */
@@ -679,9 +697,21 @@ Suggestion: Split this in to an Error and a Status flag register..
         EmcPose tool_offset;
         int atspeed_next_feed;  /* at next feed move, wait for spindle to be at speed  */
         int spindle_is_atspeed; /* hal input */
+
+	EmcPose pause_carte_pos;	// initial pause point (ipp) - where we switched to the altQueue
+	EmcPose pause_offset_carte_pos;	// ipp + current offset values, set by update_offset_pose()
+	int current_request;    // one of enum pause_request
+
 	unsigned char tail;	/* flag count for mutex detect */
-        
+
     } emcmot_status_t;
+
+    enum pause_request { REQ_NONE,
+			 REQ_STEP,
+			 REQ_RESUME,
+			 REQ_PAUSE
+    };
+
 
 /*********************************
         CONFIG STRUCTURE
@@ -731,6 +761,12 @@ Suggestion: Split this in to an Error and a Status flag register..
 	KINEMATICS_TYPE kinematics_type;
 	int debug;		/* copy of DEBUG, from .ini file */
 	unsigned char tail;	/* flag count for mutex detect */
+        int arcBlendOptDepth;
+        int arcBlendEnable;
+        int arcBlendFallbackEnable;
+        double arcBlendGapCycles;
+        double arcBlendRampFreq;
+        double maxFeedScale;
     } emcmot_config_t;
 
 /*********************************

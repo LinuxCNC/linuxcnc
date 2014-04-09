@@ -1,0 +1,574 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <signal name="destroy_event" handler="on_destroy" after="yes"/>
+    <child>
+      <object class="HAL_Table" id="hal_table1">
+        <property name="visible">True</property>
+        <property name="n_rows">19</property>
+        <property name="n_columns">3</property>
+        <property name="column_spacing">2</property>
+        <property name="row_spacing">4</property>
+        <child>
+          <object class="HAL_SpinButton" id="jogfeed">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">feed</property>
+            <property name="digits">2</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label2">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">jog
+feed</property>
+          </object>
+          <packing>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">x offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label4">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">y offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label5">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">z offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_x">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">coord-x</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">4</property>
+            <property name="bottom_attach">5</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_y">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">coord-y</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">5</property>
+            <property name="bottom_attach">6</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_z">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">coord-z</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">6</property>
+            <property name="bottom_attach">7</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_LED" id="pause_offset_in_range">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">14</property>
+            <property name="bottom_attach">15</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">pause-offset-
+within-range</property>
+          </object>
+          <packing>
+            <property name="top_attach">14</property>
+            <property name="bottom_attach">15</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_a">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment6</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_b">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment5</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">8</property>
+            <property name="bottom_attach">9</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_c">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment4</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">9</property>
+            <property name="bottom_attach">10</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_u">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment3</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_v">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment2</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">11</property>
+            <property name="bottom_attach">12</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_SpinButton" id="offset_w">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="invisible_char">&#x25CF;</property>
+            <property name="adjustment">adjustment1</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">12</property>
+            <property name="bottom_attach">13</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label6">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">a offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">7</property>
+            <property name="bottom_attach">8</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label7">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">b offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">8</property>
+            <property name="bottom_attach">9</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label8">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">c offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">9</property>
+            <property name="bottom_attach">10</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label9">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">u offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">10</property>
+            <property name="bottom_attach">11</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label10">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">v offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">11</property>
+            <property name="bottom_attach">12</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label11">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">w offset</property>
+          </object>
+          <packing>
+            <property name="top_attach">12</property>
+            <property name="bottom_attach">13</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label12">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">motion.
+in-position</property>
+          </object>
+          <packing>
+            <property name="top_attach">16</property>
+            <property name="bottom_attach">17</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_LED" id="in_position_led">
+            <property name="visible">True</property>
+            <signal name="hal_pin_changed" handler="on_in_position_changed"/>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">16</property>
+            <property name="bottom_attach">17</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="state">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">label</property>
+          </object>
+          <packing>
+            <property name="right_attach">2</property>
+            <property name="top_attach">1</property>
+            <property name="bottom_attach">2</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="motion_type_label">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">label</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label14">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">stopped at
+motion type:</property>
+          </object>
+          <packing>
+            <property name="top_attach">2</property>
+            <property name="bottom_attach">3</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_ToggleButton" id="feed_hold">
+            <property name="label" translatable="yes">motion.
+feed-hold</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">17</property>
+            <property name="bottom_attach">18</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_LED" id="feed_hold_led">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="right_attach">2</property>
+            <property name="top_attach">17</property>
+            <property name="bottom_attach">18</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_ToggleButton" id="offset_valid">
+            <property name="label" translatable="yes">pause-
+offset-
+enable</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="top_attach">13</property>
+            <property name="bottom_attach">14</property>
+            <property name="y_options"></property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAdjustment" id="byte">
+    <property name="upper">255</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="feed">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="coord-x">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="coord-y">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="coord-z">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment3">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment4">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment5">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment6">
+    <property name="lower">-100</property>
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment7">
+    <property name="upper">256</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
+  </object>
+  <object class="GtkTextBuffer" id="tracklog_buffer"/>
+  <object class="GtkAdjustment" id="feed-scale-adj">
+    <property name="value">1</property>
+    <property name="upper">2</property>
+    <property name="step_increment">0.10000000000000001</property>
+    <property name="page_increment">0.10000000000000001</property>
+    <property name="page_size">0.10000000000000001</property>
+  </object>
+</interface>

@@ -12,34 +12,63 @@
 *
 * Last change:
 ********************************************************************/
-#ifndef TC_H
-#define TC_H
+#ifndef TC_TYPES_H
+#define TC_TYPES_H
 
+#include "spherical_arc.h"
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
 
 /* values for endFlag */
-#define TC_TERM_COND_STOP 1
-#define TC_TERM_COND_BLEND 2
+typedef enum {
+    TC_TERM_COND_STOP = 1,
+    TC_TERM_COND_PARABOLIC = 2,
+    TC_TERM_COND_TANGENT = 3
+} tc_term_cond_t;
 
-#define TC_LINEAR 1
-#define TC_CIRCULAR 2
-#define TC_RIGIDTAP 3
+typedef enum {
+    TC_LINEAR = 1,
+    TC_CIRCULAR = 2,
+    TC_RIGIDTAP = 3,
+    TC_SPHERICAL = 4
+} tc_motion_type_t;
+
+typedef enum {
+    TC_SYNC_NONE = 0,
+    TC_SYNC_VELOCITY,
+    TC_SYNC_POSITION
+} tc_spindle_sync_t;
+
+#define TC_GET_PROGRESS 0
+#define TC_GET_STARTPOINT 1
+#define TC_GET_ENDPOINT 2
+
+#define TC_OPTIM_UNTOUCHED 0
+#define TC_OPTIM_AT_MAX 1
+
+#define TC_ACCEL_TRAPZ 0
+#define TC_ACCEL_RAMP 1
 
 /* structure for individual trajectory elements */
 
 typedef struct {
-    PmLine xyz;
-    PmLine abc;
-    PmLine uvw;
+    PmCartLine xyz;
+    PmCartLine abc;
+    PmCartLine uvw;
 } PmLine9;
 
 typedef struct {
     PmCircle xyz;
-    PmLine abc;
-    PmLine uvw;
+    PmCartLine abc;
+    PmCartLine uvw;
 } PmCircle9;
+
+typedef struct {
+    SphericalArc xyz;
+    PmCartesian abc;
+    PmCartesian uvw;
+} Arc9;
 
 typedef enum {
     TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
@@ -56,8 +85,8 @@ typedef struct {
 } syncdio_t;
 
 typedef struct {
-    PmLine xyz;             // original, but elongated, move down
-    PmLine aux_xyz;         // this will be generated on the fly, for the other
+    PmCartLine xyz;             // original, but elongated, move down
+    PmCartLine aux_xyz;         // this will be generated on the fly, for the other
                             // two moves: retraction, final placement
     PmCartesian abc;
     PmCartesian uvw;
@@ -68,13 +97,21 @@ typedef struct {
 
 typedef struct {
     double cycle_time;
+    //Position stuff
+    double target;          // actual segment length
     double progress;        // where are we in the segment?  0..target
-    double target;          // segment length
+    double nominal_length;
+
+    //Velocity
     double reqvel;          // vel requested by F word, calc'd by task
-    double maxaccel;        // accel calc'd by task
-    double feed_override;   // feed override requested by user
+    double target_vel;      // velocity to actually track, limited by other factors
     double maxvel;          // max possible vel (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
+    double finalvel;        // velocity to aim for at end of segment
+    double term_vel;        // actual velocity at termination of segment
+
+    //Acceleration
+    double maxaccel;        // accel calc'd by task
     
     int id;                 // segment's serial number
 
@@ -82,73 +119,40 @@ typedef struct {
         PmLine9 line;
         PmCircle9 circle;
         PmRigidTap rigidtap;
+        Arc9 arc;
     } coords;
 
-    char motion_type;       // TC_LINEAR (coords.line) or 
+    int motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
-    char active;            // this motion is being executed
+    int active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
-    int blend_with_next;    // gcode requests continuous feed at the end of 
+    int term_cond;          // gcode requests continuous feed at the end of
                             // this segment (g64 mode)
-    int blending;           // segment is being blended into following segment
+
+    int blending_next;      // segment is being blended into following segment
     double blend_vel;       // velocity below which we should start blending
-    double tolerance;       // during the blend at the end of this move, 
+    double tolerance;       // during the blend at the end of this move,
                             // stay within this distance from the path.
-    int synchronized;       // spindle sync required for this move
-    int velocity_mode;	    // TRUE if spindle sync is in velocity mode, FALSE if in position mode
+    int synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
     int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
-    char atspeed;           // wait for the spindle to be at-speed before starting this move
+    int atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
     int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
+    int optimization_state;             // At peak velocity during blends)
+    int on_final_decel;
+    int blend_prev;
+    int accel_mode;
+    int splitting;          // the segment is less than 1 cycle time
+                            // away from the end.
+    int remove;             // Flag to remove the segment from the queue
+    int active_depth;       /* Active depth (i.e. how many segments
+                            * after this will it take to slow to zero
+                            * speed) */
+    int finalized;
 } TC_STRUCT;
 
-/* TC_STRUCT functions */
-
-extern EmcPose tcGetEndpoint(TC_STRUCT * tc);
-extern EmcPose tcGetPos(TC_STRUCT * tc);
-EmcPose tcGetPosReal(TC_STRUCT * tc, int of_endpoint);
-PmCartesian tcGetEndingUnitVector(TC_STRUCT *tc);
-PmCartesian tcGetStartingUnitVector(TC_STRUCT *tc);
-
-/* queue of TC_STRUCT elements*/
-
-typedef struct {
-    TC_STRUCT *queue;		/* ptr to the tcs */
-    int size;			/* size of queue */
-    int _len;			/* number of tcs now in queue */
-    int start, end;		/* indices to next to get, next to put */
-    int allFull;		/* flag meaning it's actually full */
-} TC_QUEUE_STRUCT;
-
-/* TC_QUEUE_STRUCT functions */
-
-/* create queue of _size */
-extern int tcqCreate(TC_QUEUE_STRUCT * tcq, int _size,
-		     TC_STRUCT * tcSpace);
-
-/* free up queue */
-extern int tcqDelete(TC_QUEUE_STRUCT * tcq);
-
-/* reset queue to empty */
-extern int tcqInit(TC_QUEUE_STRUCT * tcq);
-
-/* put tc on end */
-extern int tcqPut(TC_QUEUE_STRUCT * tcq, TC_STRUCT tc);
-
-/* remove n tcs from front */
-extern int tcqRemove(TC_QUEUE_STRUCT * tcq, int n);
-
-/* how many tcs on queue */
-extern int tcqLen(TC_QUEUE_STRUCT * tcq);
-
-/* look at nth item, first is 0 */
-extern TC_STRUCT *tcqItem(TC_QUEUE_STRUCT * tcq, int n, long period);
-
-/* get full status */
-extern int tcqFull(TC_QUEUE_STRUCT * tcq);
-
-#endif				/* TC_H */
+#endif				/* TC_TYPES_H */

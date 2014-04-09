@@ -1,0 +1,22 @@
+setp gladevcp.hal_table1 1
+
+net motion-inpos motion.in-position gladevcp.in_position_led
+net feed-hold    gladevcp.feed_hold gladevcp.feed_hold_led motion.feed-hold
+
+net motion-type  motion.paused-at-motion gladevcp.motion_type
+net pause-state  motion.pause-state gladevcp.state
+
+net xo gladevcp.offset_x-f motion.pause-offset-x
+net yo gladevcp.offset_y-f motion.pause-offset-y
+net zo gladevcp.offset_z-f motion.pause-offset-z
+net ao gladevcp.offset_a-f motion.pause-offset-a
+net bo gladevcp.offset_b-f motion.pause-offset-b
+net co gladevcp.offset_c-f motion.pause-offset-c
+net uo gladevcp.offset_u-f motion.pause-offset-u
+net vo gladevcp.offset_v-f motion.pause-offset-v
+net wo gladevcp.offset_w-f motion.pause-offset-w
+
+net feed gladevcp.jogfeed-f motion.pause-jog-feed
+
+net offset-valid gladevcp.offset_valid motion.pause-offset-enable
+net in-range  motion.pause-offset-in-range gladevcp.pause_offset_in_range

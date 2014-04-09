@@ -5,18 +5,20 @@ future maybe it will do other emc2-specific dmesg decoding.
 
 Usage:
 	dmesg | decode_dmesg
+    cat /var/log/kern.log | decode_dmesg > output.txt
 """
 
-import commands
 import re
 import sys
 
 def repl(m):
-    g = m.group(0)
     s, w, f, e = m.group("s", "w", "f", "e")
     f = f or "0"
-    v = int(w, 16) + int(f, 16) * (16 ** -len(f))
-    v *= 2**int(e)
+    v = long(w, 16) + long(f, 16) * (16 ** -len(f))
+    try:
+        v *= 2.0**long(e)
+    except OverflowError:
+        v = float("inf")
     if s: v = -v
     return "%g" % v
 

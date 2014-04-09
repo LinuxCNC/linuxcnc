@@ -14,8 +14,10 @@
 #ifndef MOTION_DEBUG_H
 #define MOTION_DEBUG_H
 
+/*! \todo needs mot_priv.h, but including here causes conflicts */
 #include "tp.h"			/* TP_STRUCT */
 #include "tc.h"			/* TC_STRUCT, TC_QUEUE_STRUCT */
+
 /*********************************
         DEBUG STRUCTURE
 *********************************/
@@ -40,7 +42,7 @@
 
 /*! \todo FIXME - this has become a dumping ground for all kinds of stuff */
 
-    typedef struct emcmot_debug_t {
+typedef struct emcmot_debug_t {
 	unsigned char head;	/* flag count for mutex detect */
 
 /*! \todo FIXME - all structure members beyond this point are in limbo */
@@ -67,11 +69,15 @@
 	/* flag that all active axes are homed */
 	unsigned char allHomed;
 
-	TP_STRUCT queue;	/* coordinated mode planner */
+	TP_STRUCT tp;	/* coordinated mode planner */
 
 /* space for trajectory planner queues, plus 10 more for safety */
 /*! \todo FIXME-- default is used; dynamic is not honored */
 	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
+
+	TP_STRUCT altqueue;	/* coordinated mode planner */
+	TC_STRUCT altqueueTcSpace[DEFAULT_ALT_TC_QUEUE_SIZE + 10];
+
 
 	EmcPose oldPos;		/* last position, used for vel differencing */
 	EmcPose oldVel, newVel;	/* velocities, used for acc differencing */

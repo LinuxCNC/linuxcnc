@@ -1,0 +1,8 @@
+G20 G64
+(Run with parabolic blends)
+G0 X0 Y0 Z0
+G1 X1 F999
+G3 X1 Y0 J.01
+G1 X2
+M2
+
