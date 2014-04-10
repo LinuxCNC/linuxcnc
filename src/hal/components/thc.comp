@@ -96,7 +96,7 @@ FUNCTION(_) {
     if(volts < 0){volts = 0;} // make sure volts is not negative
     
     if(enable){
-        float min_velocity = requested_vel -(requested_vel*(1/velocity_tol));
+        float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
         if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
         else {vel_status =0;}
         
