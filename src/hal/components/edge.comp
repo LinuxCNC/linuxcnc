@@ -25,6 +25,7 @@ param rw signed out_width_ns=0 "Time in nanoseconds of the output pulse";
 
 param r signed time_left_ns "Time left in this output pulse";
 param r bit last_in "Previous input value";
+variable int first = 1;
 
 function _ nofp "Produce output pulses from input edges";
 license "GPL";
@@ -33,15 +34,19 @@ license "GPL";
 FUNCTION(_){ 
     int new_in = in;
     if(in_edge) new_in = ! new_in;
-    if(new_in && new_in != last_in) {
-        time_left_ns = out_width_ns;
-        out = 1; out_invert = 0;
-    } else if(time_left_ns > 0) {
-        time_left_ns -= period;
-        out = 1; out_invert = 0;
+    if ( !first ) {
+        if(new_in && new_in != last_in) {
+            time_left_ns = out_width_ns;
+            out = 1; out_invert = 0;
+        } else if(time_left_ns > 0) {
+            time_left_ns -= period;
+            out = 1; out_invert = 0;
+        } else {
+            time_left_ns = 0;
+            out = 0; out_invert = 1;
+        }
     } else {
-        time_left_ns = 0;
-        out = 0; out_invert = 1;
+        first = 0;
     }
     last_in = new_in;
 }
