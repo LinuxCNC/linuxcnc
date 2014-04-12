@@ -133,6 +133,8 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
     if (hpg->config.num_pwmgens <= 0)
         return 0;
 
+rtapi_print("hpg_pwm_init\n");
+
     // FIXME: Support multiple PWMs like so:  num_pwmgens=3,4,2,5
     // hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
     hpg->pwmgen.num_instances = 1;
@@ -140,8 +142,8 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
     // Allocate HAL shared memory for instance state data
     hpg->pwmgen.instance = (hpg_pwmgen_instance_t *) hal_malloc(sizeof(hpg_pwmgen_instance_t) * hpg->pwmgen.num_instances);
     if (hpg->pwmgen.instance == 0) {
-	HPG_ERR("ERROR: hal_malloc() failed\n");
-	return -1;
+    HPG_ERR("ERROR: hal_malloc() failed\n");
+    return -1;
     }
 
     // Clear memory
@@ -155,8 +157,8 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
         // Allocate HAL shared memory for output state data
         hpg->pwmgen.instance[i].out = (hpg_pwmgen_output_instance_t *) hal_malloc(sizeof(hpg_pwmgen_output_instance_t) * hpg->pwmgen.instance[i].num_outputs);
         if (hpg->pwmgen.instance[i].out == 0) {
-	        HPG_ERR("ERROR: hal_malloc() failed\n");
-	        return -1;
+            HPG_ERR("ERROR: hal_malloc() failed\n");
+            return -1;
         }
 
         int len = sizeof(hpg->pwmgen.instance[i].pru) + (sizeof(PRU_pwm_output_t) * hpg->pwmgen.instance[i].num_outputs);

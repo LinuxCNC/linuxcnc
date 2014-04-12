@@ -290,7 +290,10 @@ TASKTABLE:
     JMP     NEXT_TASK           //     JMP     MODE_UP_DOWN
     JMP     MODE_DELTA_SIG
     JMP     MODE_PWM
+    JMP     MODE_ENCODER
 TASKTABLEEND:
+
+    JMP     START
 
 #include "pru_wait.p"
 // #include "pru_write.p"
@@ -299,6 +302,7 @@ TASKTABLEEND:
 // #include "pru_updown.p"
 #include "pru_deltasigma.p"
 #include "pru_pwm.p"
+#include "pru_encoder.p"
 
 // BeagleBone PRU I/O Assignments
 //
@@ -307,21 +311,21 @@ TASKTABLEEND:
 //  AM3359ZCZ           Mux                         BeagleBone
 //  Pin Name            Value   PRU I/O Pin         Pin     Name        BeBoPr Use
 //  ------------------------------------------------------------------------------
-//  A13 mcasp0_aclkx    5       pru0.r30.0          P9.31	SPI1_SCLK
+//  A13 mcasp0_aclkx    5       pru0.r30.0          P9.31   SPI1_SCLK
 //                      6       pru0.r31.0
-//  B13 mcasp0_fsx      5       pru0.r30.1          P9.29	SPI1_D0
+//  B13 mcasp0_fsx      5       pru0.r30.1          P9.29   SPI1_D0
 //                      6       pru0.r31.1
-//  D12 mcasp0_axr0     5       pru0.r30.2          P9.30	SPI1_D1
+//  D12 mcasp0_axr0     5       pru0.r30.2          P9.30   SPI1_D1
 //                      6       pru1.r31.2
-//  C12 mcasp0_ahclkr   5       pru0.r30.3          P9.28	SPI1_CS0
+//  C12 mcasp0_ahclkr   5       pru0.r30.3          P9.28   SPI1_CS0
 //                      6       pru0.r31.3
 //  B12 mcasp0_aclkr    5       pru0.r30.4          -
 //                      6       pru0.r31.4
-//  C13 mcasp0_fsr      5       pru0.r30.5          P9.27	GPIO3_19
+//  C13 mcasp0_fsr      5       pru0.r30.5          P9.27   GPIO3_19
 //                      6       pru0.r31.5
 //  D13 mcasp0_axr1     5       pru0.r30.6          -
 //                      6       pru0.r31.6
-//  A14 mcasp0_ahclkx   5       pru0.r30.7          P9.25	GPIO3_21
+//  A14 mcasp0_ahclkx   5       pru0.r30.7          P9.25   GPIO3_21
 //                      6       pru0.r31.7
 //  F17 mmc0_dat3       5       pru0.r30.8          -
 //                      6       pru0.r31.8
@@ -336,11 +340,11 @@ TASKTABLEEND:
 //  G18 mmc0_cmd        5       pru0.r30.13         -
 //                      6       pru0.r31.13
 //  T12 gpmc_ad12       6       pru0.r30.14         P8.12   GPIO1_12    
-//  V13 gpmc_ad14       6       pru0.r31.14         P8.16	GPIO1_14
+//  V13 gpmc_ad14       6       pru0.r31.14         P8.16   GPIO1_14
 //  R12 gpmc_ad13       6       pru0.r30.15         P8.11   GPIO1_13    
-//  U13 gpmc_ad15       6       pru0.r31.15         P8.15	GPIO1_15
-//  D14 xdma_event_intr1 5      pru0.r31.16	P9.41	CLKOUT2
-//  D15 uart1_txd       6       pru0.r31.16	P9.24	UART1_TXD
+//  U13 gpmc_ad15       6       pru0.r31.15         P8.15   GPIO1_15
+//  D14 xdma_event_intr1 5      pru0.r31.16 P9.41   CLKOUT2
+//  D15 uart1_txd       6       pru0.r31.16 P9.24   UART1_TXD
 //  
 //  R1  lcd_data0       5       pru1.r30.0          P8.45   GPIO2_6     J3
 //                      6       pru1.r31.0
@@ -375,7 +379,7 @@ TASKTABLEEND:
 //  E16 uart0_txd       5       pru1.r30.15         -
 //                      6       pru1.r31.15
 //  A15 xdma_event_intr0 5      pru1.r31.16         -
-//  D16 uart1_rxd       6       pru1.r31.16	P9.26	UART1_RXD
+//  D16 uart1_rxd       6       pru1.r31.16 P9.26   UART1_RXD
 //
 //  U3  lcd_data10      -       -                   P8.36   UART3_CTSN  J4
 //
@@ -403,8 +407,8 @@ TASKTABLEEND:
 //  X_Step                  P8.12   GPIO1_12    T12 gpmc_ad12       6       pru0.r30.14
 //  E1_Heat                 P8.13   EHRPWM2B    T10 gpmc_ad9
 //  Y_Stop_1                P8.14   GPIO0_26    T11 gpmc_ad10
-//  Y_Fault                 P8.15	GPIO1_15    U13 gpmc_ad15       6       pru0.r31.15         
-//  E2_Step                 P8.16	GPIO1_14    V13 gpmc_ad14       6       pru0.r31.14         
+//  Y_Fault                 P8.15   GPIO1_15    U13 gpmc_ad15       6       pru0.r31.15         
+//  E2_Step                 P8.16   GPIO1_14    V13 gpmc_ad14       6       pru0.r31.14         
 //  Z_Fault                 P8.17   GPIO0_27    U12 gpmc_ad11
 //  E1_Fault                P8.18   GPIO2_1     V12 gpmc_clk_mux0
 //  E2_Heat                 P8.19   EHRPWM2A    U10 gpmc_ad8

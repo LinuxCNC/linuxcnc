@@ -99,10 +99,11 @@ SD_DIR_CHG_DONE:
     QBEQ    SD_PULSE_DELAY_OVER, State.StepQ, 0
 
     // Step pulse output is active, clear it and setup pulse low delay
-    LSL     r3.w0, GTask.dataX, 8       // r3.b0 = 0, r3.b1 = dataX
+    MOV     r3.b1, GTask.dataX
+    MOV     r3.b0, State.StepInvert
     CALL    SET_CLR_BIT
     LDI     State.StepQ, 0
-    MOV     State.T_Pulse, State.Dly_step_low
+    MOV     State.T_Pulse, State.Dly_step_space
     JMP     SD_PULSE_DONE
 
 SD_PULSE_DELAY_OVER:
@@ -167,16 +168,17 @@ SD_DIR_UP:
 
     // Update state
     MOV     r3.b1, GTask.dataX
-    LDI     r3.b0, 1
+    XOR     r3.b0, State.StepInvert, 1
     CALL    SET_CLR_BIT
     SET     State.StepQ, 0
-    // Fixme: The following should be one 32-bit MOV
-    MOV     State.T_Pulse, State.Dly_step_high
-    MOV     State.T_Dir, State.Dly_dir_hold
+    MVID    State.T_Pulse, *&State.Dly_step_len
+// The above MVID instruction performs the two 16-bit MOVs below as a single 32-bit move
+//  MOV     State.T_Pulse, State.Dly_step_len
+//  MOV     State.T_Dir, State.Dly_dir_hold
 
 STEP_DONE:
     // Save channel state data
-    SBBO    State.Accum, GTask.addr, SIZE(task_header) + OFFSET(State.Accum), SIZE(State) - OFFSET(State.Accum)
+    SBBO    State.Accum, GTask.addr, SIZE(task_header) + OFFSET(State.Accum), SIZE(State) - SIZE(State.StepInvert) - SIZE(State.Reserved1) - OFFSET(State.Accum)
 
     // We're done here...carry on with the next task
     JMP     NEXT_TASK

@@ -80,7 +80,8 @@
         eMODE_STEP_DIR  = 4,
         eMODE_UP_DOWN   = 5,    // Not implemented yet!
         eMODE_DELTA_SIG = 6,
-        eMODE_PWM       = 7
+        eMODE_PWM       = 7,
+        eMODE_ENCODER   = 8
     } pru_task_mode_t;
 #endif
 
@@ -150,17 +151,18 @@
 #ifndef _hal_pru_generic_H_
     .struct stepgen_state
         .u32    Rate
-        .u16    Dly_step_high
+        .u16    Dly_step_len
         .u16    Dly_dir_hold
-        .u16    Dly_step_low
+        .u16    Dly_step_space
         .u16    Dly_dir_setup
         .u32    Accum
         .u32    Pos
         .u16    T_Pulse
         .u16    T_Dir
-        .u16    Reserved1
         .u8     StepQ
         .u8     RateQ
+        .u8     Reserved1
+        .u8     StepInvert
     .ends
 #else
     typedef struct  {
@@ -173,7 +175,8 @@
         u16     dirsetup;
         u32     accum;
         u32     pos;
-        u32     reserved[2];
+        u8      reserved[7];
+        u8      stepinv;
     } PRU_task_stepdir_t;
 #endif
 
@@ -251,6 +254,77 @@
         u32     reserved;
     //  PRU_pwm_output_t out[task.len];
     } PRU_task_pwm_t;
+#endif
+
+//
+// encoder task
+//
+
+#ifndef _hal_pru_generic_H_
+    .struct encoder_index
+        .u32    wraddr          // Task address + sizeof(read-only objects in encoder_chan)
+        .u16    Offset
+        .u16    Reserved
+    .ends
+
+    .struct encoder_chan
+        .u8     A_pin
+        .u8     B_pin
+        .u8     Z_pin           // Index
+        .u8     mode
+
+        .u8     AB_State
+        .u8     AB_scratch
+        .u16    count
+
+        .u16    Z_capture
+        .u8     Z_count         // Used by driver to compute "index seen"
+        .u8     Z_State
+
+    .ends
+
+    .struct encoder_state
+        .u32    pins            // XOR mask to invert all input pins in one instruction
+        .u32    LUT             // Base address of LUT for counter modes
+    .ends
+#else
+    typedef struct {
+        u8      A_pin;
+        u8      B_pin;
+        u8      Z_pin;          // Index
+        u8      mode;
+
+        u8      AB_State;
+        u8      AB_scratch;
+        u16     count;
+
+        u16     Z_capture;
+        u8      Z_count;        // Used by driver to compute "index seen"
+        u8      Z_State;
+    } PRU_encoder_hdr_t;
+
+    typedef union {
+        u32     dword[3];
+        u16     word[6];
+        u8      byte[12];
+    } PRU_encoder_raw_t;
+
+    typedef union {
+        PRU_encoder_raw_t raw;
+        PRU_encoder_hdr_t hdr;
+    } PRU_encoder_chan_t;
+
+    typedef struct {
+        u8      byte[64];
+    } PRU_encoder_LUT_t;
+
+    typedef struct {
+        PRU_task_header_t task;
+
+        u32     pin_invert;     // XOR mask to invert all input pins in one instruction
+        u32     LUT;            // Base address of LUT for counter modes
+    //  PRU_encoder_chan_t enc[task.len];
+    } PRU_task_encoder_t;
 #endif
 
 //

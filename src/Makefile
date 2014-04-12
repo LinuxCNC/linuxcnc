@@ -280,10 +280,16 @@ CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
 
 ifeq ($(TRIVIAL_BUILD),no)
-ifeq ($(USE_PROTOBUF),yes)
-Makefile:	depends/protodeps.d $(GENERATED)
--include depends/protodeps.d
+
+ifeq ($(TARGET_PLATFORM),beaglebone)
+ifneq ($(PRU_DEPS),)
+Makefile: $(PRU_DEPS)
+READ_PRU_DEPS = $(wildcard $(PRU_DEPS))
+$(shell echo 1>&2 Reading $(words $(READ_PRU_DEPS))/$(words $(PRU_DEPS)) PRU dependency files)
+-include $(wildcard $(READ_PRU_DEPS))
 endif
+endif
+
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 READ_DEPS = $(wildcard $(DEPS))
@@ -1101,10 +1107,12 @@ sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/support
 ifeq ($(TARGET_PLATFORM),beaglebone)
+ifeq ($(BUILD_SYS),user-dso)
 obj-m += hal_pru.o
 hal_pru-objs := hal/components/hal_pru.o hal/support/pru/prussdrv.o $(LIBPTHREAD)
 obj-m += hal_prudebug.o
 hal_prudebug-objs := hal/components/hal_prudebug.o hal/support/pru/prussdrv.o $(LIBPTHREAD)
+endif
 endif
 
 # Subdirectory: hal/drivers
@@ -1139,8 +1147,10 @@ hal_spi-objs := hal/drivers/hal_spi.o
 endif
 
 ifeq ($(TARGET_PLATFORM), beaglebone)
+ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
 hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
+endif
 endif
 
 ifeq ($(BUILD_SYS),user-dso)
@@ -1152,13 +1162,16 @@ endif
 
 # hal_pru_generic driver
 ifeq ($(TARGET_PLATFORM),beaglebone)
+ifeq ($(BUILD_SYS),user-dso)
 obj-m += hal_pru_generic.o
 hal_pru_generic-objs :=                           \
     hal/drivers/hal_pru_generic/hal_pru_generic.o \
     hal/drivers/hal_pru_generic/pwmgen.o          \
     hal/drivers/hal_pru_generic/stepgen.o         \
+    hal/drivers/hal_pru_generic/encoder.o         \
     hal/support/pru/prussdrv.o                    \
     $(LIBPTHREAD)
+endif
 endif
 
 # these won't compile as-is with userland threading
@@ -1435,11 +1448,13 @@ $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 
 ifeq ($(TARGET_PLATFORM),beaglebone)
+ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hal_pru$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru-objs))
 $(RTLIBDIR)/hal_pru_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru_generic-objs))
 $(RTLIBDIR)/hal_prudebug$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_prudebug-objs))
 $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
 $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs))
+endif
 endif
 
 
