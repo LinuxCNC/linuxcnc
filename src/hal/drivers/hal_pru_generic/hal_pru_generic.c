@@ -210,8 +210,8 @@ int rtapi_app_main(void)
     hpg->config.num_encoders = num_encoders;
     hpg->config.comp_id      = comp_id;
     hpg->config.pru_period   = pru_period;
-//    hpg->config.name         = modname;
-    hpg->config.name         = "hpg";
+    hpg->config.name         = modname;
+//    hpg->config.name         = "hpg";
 
     rtapi_print("num_pwmgens : %d\n",num_pwmgens);
     rtapi_print("num_stepgens: %d\n",num_stepgens);
