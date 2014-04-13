@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.1"
+_RELEASE = "  1.1.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1909,7 +1909,7 @@ class gmoccapy(object):
                 self.widgets.tbtn_mist.set_active(False)
                 self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
 
-    def _update_slider(self, widgetlist, faktor):
+    def _update_slider(self, widgetlist):
         # update scales and sliders
         for widget in widgetlist:
             value = self.widgets[widget].get_value()
@@ -1918,6 +1918,9 @@ class gmoccapy(object):
             self.widgets[widget].lower = min * self.faktor
             self.widgets[widget].upper = max * self.faktor
             self.widgets[widget].set_value(value * self.faktor)
+        self.scale_jog_vel = self.scale_jog_vel * self.faktor
+        self.scale_max_vel = self.scale_max_vel * self.faktor
+        self.on_adj_max_vel_value_changed(self.widgets.adj_max_vel)
 
     def _change_dro_color(self, property, color):
         for axis in self.axis_list:
@@ -2029,17 +2032,23 @@ class gmoccapy(object):
         widgetlist = ["adj_jog_vel", "adj_max_vel"]
 
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
+        # display units not equal machine units
         if metric_units != int(self.stat.linear_units):
+            # machine units = metric
             if self.stat.linear_units == _MM:
                 self.faktor = (1.0 / 25.4)
+            # machine units = imperial
             else:
                 self.faktor = 25.4
-            self._update_slider(widgetlist, self.faktor)
+            self._update_slider(widgetlist)
         else:
+            # display units equal machine units would be factor = 1,
+            # but if factor not equal 1.0 than we have to reconvert from previous first
             if self.faktor != 1.0:
                 self.faktor = 1 / self.faktor
-                self._update_slider(widgetlist, self.faktor)
+                self._update_slider(widgetlist)
                 self.faktor = 1.0
+                self._update_slider(widgetlist)
 
         if metric_units:
             self.widgets.scl_max_vel.set_digits(0)
@@ -2153,9 +2162,12 @@ class gmoccapy(object):
         # if data = True, then the user pressed SHIFT for Jogging and
         # want's to jog at full speed
         if data:
-            velocity = self.widgets.adj_max_vel.get_value() / 60
+            value = self.widgets.adj_max_vel.get_value() / 60
         else:
-            velocity = self.widgets.adj_jog_vel.get_value() / 60
+            value = self.widgets.adj_jog_vel.get_value() / 60
+
+        velocity = value * (1 / self.faktor)
+
 
         dir = widget.get_label()[1]
         if dir == "+":
@@ -2533,7 +2545,8 @@ class gmoccapy(object):
         pass
 
     def on_adj_max_vel_value_changed(self, widget, data = None):
-        self.command.maxvel(widget.get_value() / 60)
+        value = widget.get_value() / 60
+        self.command.maxvel(value * (1 / self.faktor))
 
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data = None):

@@ -1,3 +1,12 @@
+ver. 1.1.2
+- after changing units according to G20 / G21 the scales to be applied to
+  the jog wheel pin (jog_vel and max_vel has not been changed, resulting in
+  very large jumps after changing from metric to imperial, i.e. one count
+  should move the slider 100 increments in metric, but did that amount also 
+  in imperial, insteadt only advancing 4 steps.
+- all sliders and vel infos are now changing according to G20/G21 beeing active.
+- There is still work to do on the offsetpage widget, IMHO it is buggy
+
 ver. 1.1.1
 - small bug in macro button handling, if a macro was not found, gmoccapy
   raised an exception, because wrong variable name.
