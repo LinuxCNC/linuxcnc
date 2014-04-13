@@ -7,7 +7,7 @@
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
-loadusr -w /home/linuxcnc/machinekit/configs/ARM/BeagleBone/BeBoPr-Bridge/setup.bridge.sh
+loadusr -w ./setup.bridge.sh
 
 
 # ###################################
@@ -28,7 +28,7 @@ loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AX
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
-loadrt [PRUCONF](DRIVER) [PRUCONF](CONFIG)
+loadrt [PRUCONF](DRIVER) prucode=$(LINUXCNC_HOME)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
 loadrt pid num_chan=2
 loadrt limit1 count=2
 
@@ -36,7 +36,7 @@ loadrt limit1 count=2
 # Python user-mode HAL module to read ADC value and generate a thermostat output for PWM
 # t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
 # a = analog input channel
-loadusr -Wn Therm /home/linuxcnc/machinekit/configs/ARM/BeagleBone/BeBoPr-Bridge/ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
+loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 # ################################################
 # THREADS
