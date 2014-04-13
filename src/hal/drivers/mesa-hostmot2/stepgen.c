@@ -535,6 +535,7 @@ void hm2_stepgen_allocate_pins(hostmot2_t *hm2) {
         if (
             (hm2->pin[i].sec_tag != HM2_GTAG_STEPGEN)
             || (hm2->pin[i].sec_unit >= hm2->stepgen.num_instances)
+            || ((hm2->pin[i].sec_pin & 0x7F) > hm2->config.stepgen_width)
         ) {
             continue;
         }

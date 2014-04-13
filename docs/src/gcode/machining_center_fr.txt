@@ -134,12 +134,12 @@ points de tangence à la pièce, de face et sur le côté de l'outil.
 
 Pour mener un outil sur une trajectoire spécifiée, une machine à commande
 numérique doit coordonner les mouvements de plusieurs axes. Nous utilisons le
-terme _mouvement linéaire coordonné_ pour décrire une situation dans
+terme 'mouvement linéaire coordonné' pour décrire une situation dans
 laquelle, nominalement, chacun des axes se déplace à vitesse constante
 et tous les axes se déplacent de leur point de départ à leur point
 d'arrivée en même temps. Si deux des axes X, Y, Z (ou les trois) se
 déplacent, ceci produit un mouvement en ligne droite, d'où le mot
-_linéaire_ dans le terme. Dans les véritables mouvements, ce n'est
+'linéaire' dans le terme. Dans les véritables mouvements, ce n'est
 souvent pas possible de maintenir la vitesse constante à cause des
 accélérations et décélérations nécessaires en début et fin de
 mouvement. C'est faisable, cependant, de contrôler les axes ainsi,
@@ -198,8 +198,8 @@ tour de broche, comme décrit dans la section
 
 === Position courante
 
-Le point contrôlé est toujours à un emplacement appelé la _position
-courante_, et le contrôleur sait toujours où est cette position. Les
+Le point contrôlé est toujours à un emplacement appelé la 'position
+courante', et le contrôleur sait toujours où est cette position. Les
 valeurs représentant la position courante doivent être ajustées en
 l'absence de tout mouvement des axes si un de ces événements a lieu:
 
@@ -284,7 +284,7 @@ autorisés.
 
 === Bouton d'effacement de bloc
 
-Si le bouton _Effacement de bloc_ est actif, les lignes de code
+Si le bouton 'Effacement de bloc' est actif, les lignes de code
 RS274/NGC commençant par le caractère barre de fraction (caractère
 d'effacement de bloc) ne sont pas interprétées. Si le bouton est
 désactivé, ces mêmes lignes sont interprétées. Normalement le bouton

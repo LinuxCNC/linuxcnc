@@ -139,9 +139,34 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
     }
 }
 
+
+static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
+    u32 filter_rate = hm2->encoder.clock_frequency/(*hm2->encoder.hal->pin.sample_frequency);
+    
+    if (filter_rate == 1) {
+        filter_rate = 0xFFF;
+    } else {
+        filter_rate -= 2;
+    }
+    *hm2->encoder.hal->pin.sample_frequency = hm2->encoder.clock_frequency/(filter_rate + 2);
+    HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
+    if (hm2->encoder.has_skew) {
+        u32 skew = (*hm2->encoder.hal->pin.skew)/(1e9/hm2->encoder.clock_frequency);
+        
+        if (skew > 15) {
+            skew = 15;
+        }
+        HM2_DBG("Setting mux encoder skew to %d\n", skew);
+        filter_rate |= (skew & 0xF) << 28;
+        *hm2->encoder.hal->pin.skew = skew*(1e9/hm2->encoder.clock_frequency);
+        hm2->encoder.written_skew = *hm2->encoder.hal->pin.skew;
+    }
+    hm2->llio->write(hm2->llio, hm2->encoder.filter_rate_addr, &filter_rate, sizeof(u32));
+    hm2->encoder.written_sample_frequency = *hm2->encoder.hal->pin.sample_frequency;
+}
+
 void hm2_encoder_write(hostmot2_t *hm2) {
     int i;
-    int need_update = 0;
 
     if (hm2->encoder.num_instances == 0) return;
 
@@ -149,23 +174,23 @@ void hm2_encoder_write(hostmot2_t *hm2) {
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         if ((hm2->encoder.instance[i].prev_control & HM2_ENCODER_CONTROL_MASK) != (hm2->encoder.control_reg[i] & HM2_ENCODER_CONTROL_MASK)) {
-            need_update = 1;
-            break;
+            goto force_write;
         }
     }
 
-    if (need_update) {
-        hm2->llio->write(
-            hm2->llio,
-            hm2->encoder.latch_control_addr,
-            hm2->encoder.control_reg,
-            (hm2->encoder.num_instances * sizeof(u32))
-        );
-
-        for (i = 0; i < hm2->encoder.num_instances; i ++) {
-            hm2->encoder.instance[i].prev_control = hm2->encoder.control_reg[i];
+    if (*hm2->encoder.hal->pin.sample_frequency != hm2->encoder.written_sample_frequency) {
+        goto force_write;
+    }
+    if (hm2->encoder.has_skew) {
+        if (*hm2->encoder.hal->pin.skew != hm2->encoder.written_skew) {
+            goto force_write;
         }
     }
+
+    return;
+
+force_write:
+    hm2_encoder_force_write(hm2);
 }
 
 
@@ -193,6 +218,8 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
         &hm2->encoder.timestamp_div_reg,
         sizeof(u32)
     );
+
+    hm2_encoder_set_filter_rate_and_skew(hm2);
 }
 
 
@@ -221,7 +248,9 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
             HM2_PRINT("WARNING: this firmware has Muxed Encoder v2!\n");
             HM2_PRINT("WARNING: velocity computation will be incorrect!\n");
             HM2_PRINT("WARNING: upgrade your firmware!\n");
-        } else if (hm2_md_is_consistent_or_complain(hm2, md_index, 3, 5, 4, 0x0003)) {
+        } else if (hm2_md_is_consistent(hm2, md_index, 3, 5, 4, 0x0003)) {
+            // ok
+        } else if (hm2_md_is_consistent_or_complain(hm2, md_index, 4, 5, 4, 0x0003)) {
             // ok
         } else {
             HM2_ERR("inconsistent Muxed Encoder Module Descriptor!\n");
@@ -262,6 +291,14 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->encoder.num_instances = hm2->config.num_encoders;
     }
 
+
+    // allocate the module-global HAL shared memory
+    hm2->encoder.hal = (hm2_encoder_module_global_t *)hal_malloc(sizeof(hm2_encoder_module_global_t));
+    if (hm2->encoder.hal == NULL) {
+        HM2_ERR("out of memory!\n");
+        r = -ENOMEM;
+        goto fail0;
+    }
 
     hm2->encoder.instance = (hm2_encoder_instance_t *)hal_malloc(hm2->encoder.num_instances * sizeof(hm2_encoder_instance_t));
     if (hm2->encoder.instance == NULL) {
@@ -314,6 +351,27 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
         int i;
         int r;
         char name[HAL_NAME_LEN + 1];
+
+        // these hal parameters affect all encoder instances
+        if (md->gtag == HM2_GTAG_MUXED_ENCODER) {
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.muxed-sample-frequency", hm2->llio->name);
+        } else {
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.sample-frequency", hm2->llio->name);
+        }
+        r = hal_pin_u32_new(name, HAL_IN, &(hm2->encoder.hal->pin.sample_frequency), hm2->llio->comp_id);
+        if (r < 0) {
+            HM2_ERR("error adding pin %s, aborting\n", name);
+            goto fail1;
+        }
+        if ((md->gtag == HM2_GTAG_MUXED_ENCODER) && (md->version == 4)) {
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.muxed-skew", hm2->llio->name);
+            r = hal_pin_u32_new(name, HAL_IN, &(hm2->encoder.hal->pin.skew), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin %s, aborting\n", name);
+                goto fail1;
+            }
+            hm2->encoder.has_skew = 1;
+        }
 
         for (i = 0; i < hm2->encoder.num_instances; i ++) {
             // pins
@@ -523,9 +581,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->encoder.timestamp_div_reg = (hm2->encoder.clock_frequency / 1e6) - 2;
     hm2->encoder.seconds_per_tsdiv_clock = (double)(hm2->encoder.timestamp_div_reg + 2) / (double)hm2->encoder.clock_frequency;
 
+    if (md->gtag == HM2_GTAG_ENCODER) {
+        *hm2->encoder.hal->pin.sample_frequency = 25000000;
+    } else {
+        *hm2->encoder.hal->pin.sample_frequency = 8000000;
+    }
 
     return hm2->encoder.num_instances;
-
 
 fail1:
     kfree(hm2->encoder.control_reg);

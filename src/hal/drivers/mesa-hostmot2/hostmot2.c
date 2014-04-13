@@ -343,6 +343,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     for(i=0;i<4;i++) for(j=0;j<8;j++) hm2->config.sserial_modes[i][j]='0';
     hm2->sserial.instance = NULL;
     hm2->config.num_stepgens = -1;
+    hm2->config.stepgen_width = 2; // To avoid nasty surprises with table mode
     hm2->config.num_bspis = -1;
     hm2->config.num_uarts = -1;
     hm2->config.num_dplls = -1;
@@ -426,6 +427,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_stepgens=", 13) == 0) {
             token += 13;
             hm2->config.num_stepgens = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "stepgen_width=", 14) == 0) {
+            token += 14;
+            hm2->config.stepgen_width = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_bspis=", 10) == 0) {
             token += 10;

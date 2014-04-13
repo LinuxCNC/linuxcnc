@@ -482,8 +482,8 @@ Section.
     executing a pause instruction, and when accepting a command from a user
     interface. There is usually no need to change this number.
 
-[[sub:HAL-section]]
-=== [HAL] section(((HAL (inifile section))))
+=== [HAL] section[[sub:HAL-section]]
+(((HAL (inifile section))))
 
 * 'TWOPASS=ON' - Use two pass processing for loading HAL comps. With TWOPASS processing,
     all [HAL]HALFILES are first read and multiple appearances of loadrt
@@ -600,8 +600,8 @@ planning module in 'motion'.
 Using this will allow the machine to go beyond the soft limits
 while in operation. It is not generally desirable to allow this.
 
-[[sub:AXIS-section]]
-=== [AXIS_<num>] Section(((AXIS (inifile section))))
+=== [AXIS_<num>] Section[[sub:AXIS-section]]
+(((AXIS (inifile section))))
 
 The [AXIS_0], [AXIS_1], etc. sections contains general parameters for
 the individual components in the axis control module. The axis section
@@ -1042,8 +1042,9 @@ image::images/encoder-scale.png[align="center"]
     than the axis MAX_VELOCITY. Subsequent testing has shown that use of
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
-[[sub:EMCIO-Section]]
-=== [EMCIO] Section(((EMCIO (inifile section))))
+
+==== [EMCIO] Section[[sub:EMCIO-Section]]
+(((EMCIO (inifile section))))
 
 * 'EMCIO = io' - Name of IO controller program
 
