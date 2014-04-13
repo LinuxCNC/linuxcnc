@@ -15,7 +15,12 @@ loadusr -w /home/linuxcnc/machinekit/configs/ARM/BeagleBone/BeBoPr-Bridge/setup.
 # ###################################
 
 # kinematics
-loadrt trivkins
+#loadrt trivkins
+loadrt lineardeltakins 
+
+# settings for delta printer
+setp lineardeltakins.L [MACHINE]CF_ROD
+setp lineardeltakins.R [MACHINE]DELTA_R
 
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
@@ -55,7 +60,7 @@ addf bb_gpio.write                        servo-thread
 
 
 # ################
-# X [0] Axis
+# X [0] Axis = column C
 # ################
 
 # axis enable chain
@@ -92,9 +97,13 @@ setp [PRUCONF](DRIVER).stepgen.00.steppin         0x4C
 # P8.44 PRU1.out4
 setp [PRUCONF](DRIVER).stepgen.00.dirpin          0x4D
 
+# because column C is connected to the X-axis output
+# the bebopr-bridge signal needs to be X-max means P8.9
+net home-x bb_gpio.p8.in-09 => axis.0.home-sw-in
+setp bb_gpio.p8.in-09.invert 1 
 
 # ################
-# Y [1] Axis
+# Y [1] Axis = column A
 # ################
 
 # axis enable chain
@@ -132,8 +141,13 @@ setp [PRUCONF](DRIVER).stepgen.01.steppin         0x4E
 setp [PRUCONF](DRIVER).stepgen.01.dirpin          0x4F
 
 
+# because column A is connected to the Y-axis output
+# the bebopr-bridge signal needs to be Y-max means P8.14
+net home-y bb_gpio.p8.in-14 => axis.1.home-sw-in
+setp bb_gpio.p8.in-14.invert 1
+
 # ################
-# Z [2] Axis
+# Z [2] Axis = column B
 # ################
 
 # axis enable chain
@@ -170,6 +184,10 @@ setp [PRUCONF](DRIVER).stepgen.02.steppin         0x50
 # P8.29 PRU1.out9
 setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x51
 
+# because column B is connected to the Z-axis output
+# the bebopr-bridge signal needs to be Z-max means P8.18
+net home-z bb_gpio.p8.in-18 => axis.2.home-sw-in
+setp bb_gpio.p8.in-18.invert 1
 
 # ################
 # A [3] Axis (Extruder)
@@ -247,7 +265,7 @@ newsig e0.temp.set   float
 newsig e0.temp.meas  float
 newsig bed.temp.set  float
 newsig bed.temp.meas float
-
+newsig fan.speed.set float
 
 setp hal_pru_generic.pwmgen.00.pwm_period       10000000
 
@@ -256,10 +274,13 @@ setp hal_pru_generic.pwmgen.00.out.00.pin       0x37
 setp hal_pru_generic.pwmgen.00.out.00.enable    1
 setp hal_pru_generic.pwmgen.00.out.00.value     0.0
 
-# J3 E1 Heater PRU1.out0
+# no longer J3 E1 Heater PRU1.out0
+# instead used for FAN control
+# we use scals 255 for campatibility with slicing software
 setp hal_pru_generic.pwmgen.00.out.01.pin       0x36
 setp hal_pru_generic.pwmgen.00.out.01.enable    1
 setp hal_pru_generic.pwmgen.00.out.01.value     0.0
+setp hal_pru_generic.pwmgen.00.out.01.scale     255
 
 # J4 Bed Heater GPIO2.16
 setp hal_pru_generic.pwmgen.00.out.02.pin       0x52
@@ -281,6 +302,9 @@ net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
 # Limit heater PWM to positive values
 # PWM mimics hm2 implementation, which generates output for negative values
 setp limit1.0.min 0
+
+# fan control
+net fan.speed.set => hal_pru_generic.pwmgen.00.out.01.value
 
 # PID for Bed temperature control
 net bed.temp.meas    <= Therm.temp1
