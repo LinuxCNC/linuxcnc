@@ -494,13 +494,16 @@ int blendParamKinematics(BlendGeom3 * const geom,
     double v_planar_max;
     calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
 
+    // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
+    double phi_effective = fmin(param->phi, PM_PI / 3.0);
+
     // Copy over maximum velocities, clipping velocity to place altitude within base
-    double v_max1 = fmin(prev_tc->maxvel, tc->maxvel/cos(param->phi));
-    double v_max2 = fmin(tc->maxvel, prev_tc->maxvel/cos(param->phi));
+    double v_max1 = fmin(prev_tc->maxvel, tc->maxvel / cos(phi_effective));
+    double v_max2 = fmin(tc->maxvel, prev_tc->maxvel / cos(phi_effective));
     tp_debug_print("v_max1 = %f, v_max2 = %f\n", v_max1, v_max2);
 
     // Get "altitude"
-    double v_area = v_max1 * v_max2 / 2.0 * sin(param->phi);
+    double v_area = v_max1 * v_max2 / 2.0 * sin(phi_effective);
     tp_debug_print("phi = %f\n", param->phi);
     tp_debug_print("v_area = %f\n", v_area);
 
