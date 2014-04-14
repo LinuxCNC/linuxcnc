@@ -958,8 +958,8 @@ class Data:
 
         self.number_mesa = 1 # number of cards
         # for first mesa card
-        self.mesa0_currentfirmwaredata = None
-        self.mesa0_boardtitle = "5i20-Internal Data"        
+        self.mesa0_currentfirmwaredata = mesafirmwaredata_internal[0]
+        self.mesa0_boardtitle = "5i20-Internal Data"    
         self.mesa0_firmware = mesafirmwaredata_internal[0][2]
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_isawatchdog = 1
@@ -981,7 +981,7 @@ class Data:
         self.mesa0_sanity_7i48 = False
 
         # second mesa card
-        self.mesa1_currentfirmwaredata = None
+        self.mesa1_currentfirmwaredata = mesafirmwaredata_internal[0]
         self.mesa1_boardtitle = "5i20-Internal Data"        
         self.mesa1_firmware = mesafirmwaredata_internal[0][2]
         self.mesa1_parportaddrs = "0x378"
