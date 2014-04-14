@@ -53,6 +53,7 @@ tcltk_ext() {
 
 # Calculate the distrao-specific list of Build-Depends:
 BUILD_DEPS=
+FLAVORS=
 get_build_deps() {
     # tcl/tk packages: {tcl,tk}8.5 on Ubuntu-10.04, {tcl,tk}
     # everywhere else
@@ -66,10 +67,12 @@ get_build_deps() {
     if check_xeno_libs; then
 	BUILD_DEPS="$BUILD_DEPS libxenomai-dev,"
 
-	# check for kthreads
-	XENO_KVER=$(check_kthreads_headers xenomai)
+	XENO_KVER="$(dpkg-query -W  -f '${binary:Package}\n' linux\*image\*xenomai\*| head -n1)"
+	XENO_KVER="${XENO_KVER//linux-image-/}"
 	test -z "$XENO_KVER" || \
-	    BUILD_DEPS="$BUILD_DEPS linux-headers-$XENO_KVER,"
+	    BUILD_DEPS="$BUILD_DEPS linux-image-$XENO_KVER,"
+
+	FLAVORS+=" xenomai"
     fi
 
     # add RTAI deps, if found
@@ -77,6 +80,8 @@ get_build_deps() {
     if test -n "$RTAI_KVER"; then
         BUILD_DEPS="$BUILD_DEPS linux-headers-$RTAI_KVER,"
         BUILD_DEPS="$BUILD_DEPS rtai-modules-$RTAI_KVER,"
+
+    FLAVORS+=" rtai-kernel"
     fi
 
     # remove trailing comma to be pretty
@@ -85,14 +90,14 @@ get_build_deps() {
 
 
 # Create the base control file from the control.default template, then
-# add xenomai-kernel or rtai-kernel flavor pkgs as appropriate
+# add rtpreempt-kernel or rtai-kernel flavor pkgs as appropriate
 build_control() {
     # calculate build deps for template
     get_build_deps
     echo "Adding build deps to control file:  $BUILD_DEPS"
 
     # copy base template into place, filling in build deps
-    cat control.in | sed "s/@BUILD_DEPS@/$BUILD_DEPS/" > "control"
+    sed "s/@BUILD_DEPS@/$BUILD_DEPS/" < control.in > control
 
     # add xenomai threads, if appropriate
     if check_xeno_libs; then
@@ -101,7 +106,7 @@ build_control() {
     fi
 
     # add kernel threads flavors, if appropriate
-    for FLAVOR in xenomai rtai; do
+    for FLAVOR in rtai; do
 	KVER="$(check_kthreads_headers $FLAVOR)"
 	if test -n "$KVER"; then
 	    echo "Configuring to build ${FLAVOR}-kernel threads"
@@ -109,9 +114,17 @@ build_control() {
 	    cat control.${FLAVOR}-kernel.in >> control
 	fi
     done
-
 }
 
+build_rules() {
+    local TMP=
+
+    for FLAVOR in $FLAVORS; do
+        TMP+="s/--without-$FLAVOR /--with-$FLAVOR /g; "
+    done
+    sed -e "$TMP" < rules.in > rules
+    chmod +x rules
+}
 
 # Add to file of substitution variables used in binary control files.
 # The ones not needed for the Source: package are best added to
@@ -126,8 +139,15 @@ build_substvars() {
     echo "tcl-tk-dev=tcl$(tcltk_ext)-dev,\${Space}tk$(tcltk_ext)-dev" \
 	>> substvars
 
+    # add Xenomai deps, if found
+    if check_xeno_libs; then
+    XENO_KVER="$(dpkg-query -W  -f '${binary:Package}\n' linux\*image\*xenomai\*| head -n1)"
+    XENO_KVER="${XENO_KVER//linux-image-/}"
+    test -z "$XENO_KVER" || \
+        echo "xenomai-kver=$XENO_KVER" >> substvars
+    fi
+    
     # kthreads kernel versions
-    echo "xenomai-kver=$(check_kthreads_headers xenomai)" >> substvars
     echo "rtai-kver=$(check_kthreads_headers rtai)" >> substvars
 }
 
@@ -138,5 +158,13 @@ if test "$1" = "substvars"; then
 else
     # Build the debian/control file
     build_control
+    build_rules
+    
+    # rename rt-preempt
+    FLAVORS=${FLAVORS/rt-preempt/rtpreempt}
+
+    for FLAVOR in $FLAVORS; do
+        cp linuxcnc-$FLAVOR.files.in linuxcnc-$FLAVOR.files
+    done
 fi
 

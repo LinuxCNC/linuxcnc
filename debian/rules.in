@@ -57,8 +57,15 @@ build-stamp:
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc \
-	    --mandir=/usr/share/man --enable-build-documentation=pdf
+	cd src && ./configure --prefix=/usr \
+	    --with-posix \
+	    --without-rtai-kernel \
+	    --without-rt-preempt \
+	    --without-xenomai \
+	    --without-xenomai-kernel \
+	    --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    --enable-build-documentation=pdf
 	cd src && $(MAKE) $(MAKEFLAGS)
 	cd src && $(MAKE) $(MAKEFLAGS) docs
 	touch build-stamp
@@ -69,8 +76,15 @@ clean: debian/control debian/substvars
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc \
-	    --mandir=/usr/share/man --enable-build-documentation=pdf
+	cd src && ./configure --prefix=/usr \
+	    --with-posix \
+	    --without-rtai-kernel \
+	    --without-rt-preempt \
+	    --without-xenomai \
+	    --without-xenomai-kernel \
+	    --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    --enable-build-documentation=pdf
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
@@ -80,7 +94,7 @@ clean: debian/control debian/substvars
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
@@ -128,7 +142,7 @@ binary-arch: build install debian/substvars
 	cat debian/linuxcnc/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
 	dh_shlibdeps -l debian/linuxcnc/usr/lib
-	dh_gencontrol
+	dh_gencontrol -- -Tdebian/substvars
 	dh_md5sums
 	dh_builddeb
 
