@@ -487,19 +487,21 @@ int blendParamKinematics(BlendGeom3 * const geom,
             param->a_n_max);
 
     // Find common velocity and acceleration
-    param->v_req = fmax(prev_tc->reqvel, tc->reqvel);
+    param->v_req = fmin(prev_tc->reqvel, tc->reqvel);
     param->v_goal = param->v_req * maxFeedScale;
 
     // Calculate the maximum planar velocity
     double v_planar_max;
     calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
+    tp_debug_print("v_planar_max = %f\n", v_planar_max);
 
     // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
-    double phi_effective = fmin(param->phi, PM_PI / 3.0);
+    double phi_effective = fmin(param->phi, PM_PI * 0.49);
 
     // Copy over maximum velocities, clipping velocity to place altitude within base
     double v_max1 = fmin(prev_tc->maxvel, tc->maxvel / cos(phi_effective));
     double v_max2 = fmin(tc->maxvel, prev_tc->maxvel / cos(phi_effective));
+
     tp_debug_print("v_max1 = %f, v_max2 = %f\n", v_max1, v_max2);
 
     // Get "altitude"
@@ -508,7 +510,7 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tp_debug_print("v_area = %f\n", v_area);
 
     // Get "base" of triangle
-    PmCartesian tmp1,tmp2,diff;
+    PmCartesian tmp1, tmp2, diff;
     pmCartScalMult(&geom->u1, v_max1, &tmp1);
     pmCartScalMult(&geom->u2, v_max2, &tmp2);
     pmCartCartSub(&tmp2, &tmp1, &diff);
@@ -517,10 +519,16 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tp_debug_print("v_base = %f\n", base);
 
     double v_max_alt = 2.0 * v_area / base;
-    tp_debug_print("v_max_alt = %f\n", v_max_alt);
 
+    // Can't do altitude-based velocity calculation if we have arcs
+    if (prev_tc->motion_type != TC_LINEAR || tc->motion_type != TC_LINEAR) {
+        v_max_alt = 0.0;
+    }
+
+    tp_debug_print("v_max_alt = %f\n", v_max_alt);
     double v_max = fmax(v_max_alt, v_planar_max);
 
+    tp_debug_print("v_max = %f\n", v_max);
     param->v_goal = fmin(param->v_goal, v_max);
 
     tp_debug_print("vr1 = %f, vr2 = %f\n", prev_tc->reqvel, tc->reqvel);
