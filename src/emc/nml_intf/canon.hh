@@ -91,15 +91,15 @@ typedef int CANON_SIDE;
 #define CANON_SIDE_OFF 3
 
 typedef int CANON_AXIS;
-#define CANON_AXIS_X 0
-#define CANON_AXIS_Y 1
-#define CANON_AXIS_Z 2
-#define CANON_AXIS_A 3
-#define CANON_AXIS_B 4
-#define CANON_AXIS_C 5
-#define CANON_AXIS_U 6
-#define CANON_AXIS_V 7
-#define CANON_AXIS_W 8
+#define CANON_AXIS_X 1
+#define CANON_AXIS_Y 2
+#define CANON_AXIS_Z 3
+#define CANON_AXIS_A 4
+#define CANON_AXIS_B 5
+#define CANON_AXIS_C 6
+#define CANON_AXIS_U 7
+#define CANON_AXIS_V 8
+#define CANON_AXIS_W 9
 
 /* Currently using the typedefs above rather than the enums below
 typedef enum {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ} CANON_PLANE;

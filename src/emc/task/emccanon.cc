@@ -1387,12 +1387,12 @@ void ARC_FEED(int line_number,
 
             first_start = canonEndPoint.x;
             second_start = canonEndPoint.y;
-            axis_start_point = canonEndPoint.z;
 
             break;
 
         case CANON_PLANE_YZ:
 
+            printf("case YZ\n");
             // offset and align args properly
             end.tran.y = first_end;
             end.tran.z = second_end;
@@ -1409,12 +1409,12 @@ void ARC_FEED(int line_number,
 
             first_start = canonEndPoint.y;
             second_start = canonEndPoint.z;
-            axis_start_point = canonEndPoint.x;
 
             rotate(normal.x, normal.y, xy_rotation);
             break;
 
         case CANON_PLANE_XZ:
+            printf("case XZ\n");
 
             // offset and align args properly
             end.tran.z = first_end;
@@ -1432,7 +1432,6 @@ void ARC_FEED(int line_number,
 
             first_start = canonEndPoint.z;
             second_start = canonEndPoint.x;
-            axis_start_point = canonEndPoint.y;
 
             rotate(normal.x, normal.y, xy_rotation);
             break;
@@ -1447,25 +1446,32 @@ void ARC_FEED(int line_number,
     
     double axis_end_point_rotated;
 
+    // Get the appropriate axis end points to calculate length along normal axis
     switch (activePlane) {
         default: // to eliminate "uninitalized" warnings
         case CANON_PLANE_XY:
             axis_end_point_rotated = end.tran.z;
+            axis_start_point = canonEndPoint.z;
             break;
         case CANON_PLANE_YZ:
-            axis_end_point_rotated = end.tran.x;
+            //KLUDGE: geometrically this should be X, but xy_rotation makes it Y
+            axis_end_point_rotated = end.tran.y;
+            axis_start_point = canonEndPoint.y;
             break;
         case CANON_PLANE_XZ:
-            axis_end_point_rotated = end.tran.y;
+            //KLUDGE: geometrically this should be Y, but xy_rotation makes it X
+            axis_end_point_rotated = end.tran.x;
+            axis_start_point = canonEndPoint.x;
             break;
     }
 
     axis_len = fabs(axis_end_point_rotated - axis_start_point);
     printf("\naxis end point = %f, axis start point = %f\n", axis_end_point_rotated, axis_start_point);
+    printf("xy_rotation = %f\n",xy_rotation);
 
-    // KLUDGE Get axis indices of plane
-    int axis1 = (normal_axis + 1) % 3;
-    int axis2 = (normal_axis + 2) % 3;
+    // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
+    int axis1 = (normal_axis ) % 3;
+    int axis2 = (normal_axis + 1) % 3;
 
     // Get planar velocity bounds
     v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
@@ -1528,6 +1534,8 @@ void ARC_FEED(int line_number,
     }
 
     printf("ARC_FEED: vel = %f, tmax = %f\n",vel,tmax);
+    printf("start point %f %f %f\n",canonEndPoint.x,canonEndPoint.y,canonEndPoint.z);
+    printf("end point %f %f %f\n",end.tran.x,end.tran.y,end.tran.z);
 
     // for arcs we always user linear move since there is no
     // arc possible with only ABC motion
