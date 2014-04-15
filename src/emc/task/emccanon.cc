@@ -1444,7 +1444,24 @@ void ARC_FEED(int line_number,
     theta1 = atan2(first_start - first_axis, second_start - second_axis);
     theta2 = atan2(first_end - first_axis, second_end - second_axis);
     radius = hypot(first_start - first_axis, second_start - second_axis);
-    axis_len = fabs(axis_end_point - axis_start_point);
+    
+    double axis_end_point_rotated;
+
+    switch (activePlane) {
+        default: // to eliminate "uninitalized" warnings
+        case CANON_PLANE_XY:
+            axis_end_point_rotated = end.tran.z;
+            break;
+        case CANON_PLANE_YZ:
+            axis_end_point_rotated = end.tran.x;
+            break;
+        case CANON_PLANE_XZ:
+            axis_end_point_rotated = end.tran.y;
+            break;
+    }
+
+    axis_len = fabs(axis_end_point_rotated - axis_start_point);
+    printf("\naxis end point = %f, axis start point = %f\n", axis_end_point_rotated, axis_start_point);
 
     // KLUDGE Get axis indices of plane
     int axis1 = (normal_axis + 1) % 3;
@@ -1476,6 +1493,7 @@ void ARC_FEED(int line_number,
 
     angle = theta2 - theta1;
     helical_length = hypot(angle * radius, axis_len);
+    printf("ARC_FEED: axis_len = %f\n",axis_len);
 
 // COMPUTE VELOCITIES
     ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
@@ -1508,6 +1526,8 @@ void ARC_FEED(int line_number,
         ini_maxvel = helical_length / tmax; //compute the new maxvel based on all previous constraints
         vel = MIN(vel, ini_maxvel); //the programmed vel is either feedrate or machine_maxvel if lower
     }
+
+    printf("ARC_FEED: vel = %f, tmax = %f\n",vel,tmax);
 
     // for arcs we always user linear move since there is no
     // arc possible with only ABC motion
