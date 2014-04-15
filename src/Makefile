@@ -736,6 +736,7 @@ install-dirs:
 	$(DIR)  $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(includedir)/linuxcnc \
+		$(DESTDIR)$(includedir)/linuxcnc/userpci \
 		$(DESTDIR)$(docdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
 		$(DESTDIR)/etc/X11/app-defaults $(DESTDIR)$(tcldir)/bin \
@@ -793,7 +794,8 @@ endif
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 	-ldconfig $(DESTDIR)$(libdir)
-	$(FILE) $(filter %.h %.hh,$(TARGETS)) $(DESTDIR)$(includedir)/linuxcnc/
+	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
+	$(FILE) $(USERPCI_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/userpci
 	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docdir)
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
@@ -801,6 +803,7 @@ endif
 	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) ../app-defaults/XEmc $(DESTDIR)/etc/X11/app-defaults
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/linuxcnc
+	$(FILE) Makefile.inc $(DESTDIR)$(datadir)/linuxcnc
 	$(EXE) $(TCL) $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
 	$(FILE) ../tcl/linuxcnc.so $(DESTDIR)$(tcldir)
