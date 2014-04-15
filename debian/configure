@@ -114,6 +114,11 @@ build_control() {
 	    cat control.${FLAVOR}-kernel.in >> control
 	fi
     done
+
+    # Build documentation
+    if test "$1" != "--disable-docs"; then
+        cat control.docs.in >> control
+    fi
 }
 
 build_rules() {
@@ -122,6 +127,12 @@ build_rules() {
     for FLAVOR in $FLAVORS; do
         TMP+="s/--without-$FLAVOR /--with-$FLAVOR /g; "
     done
+
+    if test "$1" = "--disable-docs"; then
+        TMP+="s/--enable-build-documentation=pdf/--disable-build-documentation/g; "
+        TMP+="s/BUILDDOCS=1/BUILDDOCS=/g; "
+    fi
+
     sed -e "$TMP" < rules.in > rules
     chmod +x rules
 }
@@ -158,13 +169,23 @@ if test "$1" = "substvars"; then
 else
     # Build the debian/control file
     build_control
-    build_rules
-    
+    build_rules $1
+
+    # delete old files
+    rm -f linuxcnc-{doc*,rtai,rtpreempt,xenomai-kernel,xenomai}.files
+
     # rename rt-preempt
     FLAVORS=${FLAVORS/rt-preempt/rtpreempt}
 
     for FLAVOR in $FLAVORS; do
         cp linuxcnc-$FLAVOR.files.in linuxcnc-$FLAVOR.files
     done
+    
+    # Build documentation
+    if test "$1" != "--disable-docs"; then
+        cp linuxcnc-doc-en.files.in linuxcnc-doc-en.files
+        cp linuxcnc-doc-es.files.in linuxcnc-doc-es.files
+        cp linuxcnc-doc-fr.files.in linuxcnc-doc-fr.files
+    fi
 fi
 
