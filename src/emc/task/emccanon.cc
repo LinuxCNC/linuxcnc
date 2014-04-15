@@ -1392,7 +1392,6 @@ void ARC_FEED(int line_number,
 
         case CANON_PLANE_YZ:
 
-            printf("case YZ\n");
             // offset and align args properly
             end.tran.y = first_end;
             end.tran.z = second_end;
@@ -1414,7 +1413,6 @@ void ARC_FEED(int line_number,
             break;
 
         case CANON_PLANE_XZ:
-            printf("case XZ\n");
 
             // offset and align args properly
             end.tran.z = first_end;
@@ -1466,8 +1464,6 @@ void ARC_FEED(int line_number,
     }
 
     axis_len = fabs(axis_end_point_rotated - axis_start_point);
-    printf("\naxis end point = %f, axis start point = %f\n", axis_end_point_rotated, axis_start_point);
-    printf("xy_rotation = %f\n",xy_rotation);
 
     // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
     int axis1 = (normal_axis ) % 3;
@@ -1499,7 +1495,6 @@ void ARC_FEED(int line_number,
 
     angle = theta2 - theta1;
     helical_length = hypot(angle * radius, axis_len);
-    printf("ARC_FEED: axis_len = %f\n",axis_len);
 
 // COMPUTE VELOCITIES
     ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
@@ -1532,10 +1527,6 @@ void ARC_FEED(int line_number,
         ini_maxvel = helical_length / tmax; //compute the new maxvel based on all previous constraints
         vel = MIN(vel, ini_maxvel); //the programmed vel is either feedrate or machine_maxvel if lower
     }
-
-    printf("ARC_FEED: vel = %f, tmax = %f\n",vel,tmax);
-    printf("start point %f %f %f\n",canonEndPoint.x,canonEndPoint.y,canonEndPoint.z);
-    printf("end point %f %f %f\n",end.tran.x,end.tran.y,end.tran.z);
 
     // for arcs we always user linear move since there is no
     // arc possible with only ABC motion
