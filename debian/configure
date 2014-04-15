@@ -67,7 +67,7 @@ get_build_deps() {
     if check_xeno_libs; then
 	BUILD_DEPS="$BUILD_DEPS libxenomai-dev,"
 
-	XENO_KVER="$(dpkg-query -W  -f '${binary:Package}\n' linux\*image\*xenomai\*| head -n1)"
+	XENO_KVER="$(dpkg-query -W  -f '${binary:Package}\n' linux-image\*xenomai\*| head -n1)"
 	XENO_KVER="${XENO_KVER//linux-image-/}"
 	test -z "$XENO_KVER" || \
 	    BUILD_DEPS="$BUILD_DEPS linux-image-$XENO_KVER,"
@@ -152,7 +152,7 @@ build_substvars() {
 
     # add Xenomai deps, if found
     if check_xeno_libs; then
-    XENO_KVER="$(dpkg-query -W  -f '${binary:Package}\n' linux\*image\*xenomai\*| head -n1)"
+    XENO_KVER="$(dpkg-query -W  -f '${binary:Package}\n' linux-image\*xenomai\*| head -n1)"
     XENO_KVER="${XENO_KVER//linux-image-/}"
     test -z "$XENO_KVER" || \
         echo "xenomai-kver=$XENO_KVER" >> substvars
