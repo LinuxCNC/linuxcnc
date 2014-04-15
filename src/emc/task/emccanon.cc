@@ -1387,7 +1387,6 @@ void ARC_FEED(int line_number,
 
             first_start = canonEndPoint.x;
             second_start = canonEndPoint.y;
-            axis_start_point = canonEndPoint.z;
 
             break;
 
@@ -1409,7 +1408,6 @@ void ARC_FEED(int line_number,
 
             first_start = canonEndPoint.y;
             second_start = canonEndPoint.z;
-            axis_start_point = canonEndPoint.x;
 
             rotate(normal.x, normal.y, xy_rotation);
             break;
@@ -1432,7 +1430,6 @@ void ARC_FEED(int line_number,
 
             first_start = canonEndPoint.z;
             second_start = canonEndPoint.x;
-            axis_start_point = canonEndPoint.y;
 
             rotate(normal.x, normal.y, xy_rotation);
             break;
@@ -1444,11 +1441,34 @@ void ARC_FEED(int line_number,
     theta1 = atan2(first_start - first_axis, second_start - second_axis);
     theta2 = atan2(first_end - first_axis, second_end - second_axis);
     radius = hypot(first_start - first_axis, second_start - second_axis);
-    axis_len = fabs(axis_end_point - axis_start_point);
+    
+    // Calculate displacement vector between start and end point
+    // FIXME this should really be done with built-in PM_CARTESIAN or similar
+    double disp_x = end.tran.x - canonEndPoint.x;
+    double disp_y = end.tran.y - canonEndPoint.y;
+    double disp_z = end.tran.z - canonEndPoint.z;
 
-    // KLUDGE Get axis indices of plane
-    int axis1 = (normal_axis + 1) % 3;
-    int axis2 = (normal_axis + 2) % 3;
+    // unrotate displacement to calculate length of arc segment parallel to normal axis
+    rotate(disp_x,disp_y, -xy_rotation);
+
+    // Get the appropriate displacement component depending on current plane
+    switch (activePlane) {
+        default: // to eliminate "uninitalized" warnings
+        case CANON_PLANE_XY:
+            axis_len = fabs(disp_z);
+            break;
+        case CANON_PLANE_YZ:
+            axis_len = fabs(disp_x);
+            break;
+        case CANON_PLANE_XZ:
+            axis_len = fabs(disp_y);
+            break;
+    }
+
+
+    // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
+    int axis1 = (normal_axis ) % 3;
+    int axis2 = (normal_axis + 1) % 3;
 
     // Get planar velocity bounds
     v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
