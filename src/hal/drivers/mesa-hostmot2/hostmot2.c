@@ -277,7 +277,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_BSPI:            return "Buffered SPI Interface";
         case HM2_GTAG_UART_RX:         return "UART Receive Channel";
         case HM2_GTAG_UART_TX:         return "UART Transmit Channel";
-        case HM2_GTAG_DPLL:            return "DPLL";      
+        case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
         default: {
             static char unknown[100];
             rtapi_snprintf(unknown, 100, "(unknown-gtag-%d)", gtag);
