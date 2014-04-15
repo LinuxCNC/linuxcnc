@@ -487,7 +487,7 @@ int blendParamKinematics(BlendGeom3 * const geom,
             param->a_n_max);
 
     // Find common velocity and acceleration
-    param->v_req = fmin(prev_tc->reqvel, tc->reqvel);
+    param->v_req = fmax(prev_tc->reqvel, tc->reqvel);
     param->v_goal = param->v_req * maxFeedScale;
 
     // Calculate the maximum planar velocity

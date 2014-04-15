@@ -1442,28 +1442,29 @@ void ARC_FEED(int line_number,
     theta2 = atan2(first_end - first_axis, second_end - second_axis);
     radius = hypot(first_start - first_axis, second_start - second_axis);
     
-    double axis_end_point_rotated;
+    // Calculate displacement vector between start and end point
+    // FIXME this should really be done with built-in PM_CARTESIAN or similar
+    double disp_x = end.tran.x - canonEndPoint.x;
+    double disp_y = end.tran.y - canonEndPoint.y;
+    double disp_z = end.tran.z - canonEndPoint.z;
 
-    // Get the appropriate axis end points to calculate length along normal axis
+    // unrotate displacement to calculate length of arc segment parallel to normal axis
+    rotate(disp_x,disp_y, -xy_rotation);
+
+    // Get the appropriate displacement component depending on current plane
     switch (activePlane) {
         default: // to eliminate "uninitalized" warnings
         case CANON_PLANE_XY:
-            axis_end_point_rotated = end.tran.z;
-            axis_start_point = canonEndPoint.z;
+            axis_len = fabs(disp_z);
             break;
         case CANON_PLANE_YZ:
-            //KLUDGE: geometrically this should be X, but xy_rotation makes it Y
-            axis_end_point_rotated = end.tran.y;
-            axis_start_point = canonEndPoint.y;
+            axis_len = fabs(disp_x);
             break;
         case CANON_PLANE_XZ:
-            //KLUDGE: geometrically this should be Y, but xy_rotation makes it X
-            axis_end_point_rotated = end.tran.x;
-            axis_start_point = canonEndPoint.x;
+            axis_len = fabs(disp_y);
             break;
     }
 
-    axis_len = fabs(axis_end_point_rotated - axis_start_point);
 
     // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
     int axis1 = (normal_axis ) % 3;
