@@ -76,4 +76,3 @@ setp match_all.b7 0
 setp match_all.in 1
 
 net constraints-ok <= match_all.out => motion.enable
-
