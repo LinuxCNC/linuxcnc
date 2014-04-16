@@ -17,6 +17,9 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# This flag enables packaging of the PDF docs
+BUILDDOCS=1
+
 #
 # debian/substvars contains variable definitions used to fill in
 # debian/control file variables.
@@ -57,8 +60,15 @@ build-stamp:
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc \
-	    --mandir=/usr/share/man --enable-build-documentation=pdf
+	cd src && ./configure --prefix=/usr \
+	    --with-posix \
+	    --without-rtai-kernel \
+	    --without-rt-preempt \
+	    --without-xenomai \
+	    --without-xenomai-kernel \
+	    --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    --enable-build-documentation=pdf
 	cd src && $(MAKE) $(MAKEFLAGS)
 	cd src && $(MAKE) $(MAKEFLAGS) docs
 	touch build-stamp
@@ -69,8 +79,15 @@ clean: debian/control debian/substvars
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc \
-	    --mandir=/usr/share/man --enable-build-documentation=pdf
+	cd src && ./configure --prefix=/usr \
+	    --with-posix \
+	    --without-rtai-kernel \
+	    --without-rt-preempt \
+	    --without-xenomai \
+	    --without-xenomai-kernel \
+	    --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    --enable-build-documentation=pdf
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
@@ -80,7 +97,7 @@ clean: debian/control debian/substvars
 install: build
 	dh_testdir
 	dh_testroot
-	dh_clean -k
+	dh_prep
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
@@ -88,11 +105,19 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
+ifdef BUILDDOCS
 	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
 	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
 		debian/tmp/usr/share/doc/linuxcnc-dev/
+	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
+else
+	rm debian/tmp/usr/share/applications/linuxcnc-user*
+	rm debian/tmp/usr/share/applications/linuxcnc-hal*
+	rm debian/tmp/usr/share/applications/linuxcnc-inte*
+	rm debian/tmp/usr/share/applications/linuxcnc-get*
+endif
+
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
-	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf 
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
 	-rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
@@ -128,7 +153,7 @@ binary-arch: build install debian/substvars
 	cat debian/linuxcnc/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
 	dh_shlibdeps -l debian/linuxcnc/usr/lib
-	dh_gencontrol
+	dh_gencontrol -- -Tdebian/substvars
 	dh_md5sums
 	dh_builddeb
 
