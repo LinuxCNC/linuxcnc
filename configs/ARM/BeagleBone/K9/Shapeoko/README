@@ -1,7 +1,7 @@
 Configurations for the K9 board running a Shapeoko Router
 Initial Versions: 4 Aug 2013
 
-This is an example configuration for the BeagleBone platform, running with the Calypso Ventures & PMDX K9 Smorgasboard.
+This is an example configuration for the BeagleBone platform, running with the PMDX-432 K9 CNC I/O Cape.
 Configuration assumes the BeagleBone Black was booted with HDMIN (HDMI w/o audio) for the base device tree (K9 uses the Audio pins on the BBB).
 
 Ther are two configs for this machine:

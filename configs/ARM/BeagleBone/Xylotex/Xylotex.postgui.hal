@@ -1,0 +1,4 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+
+# The Xylotex BBB_DB25 does not need a postgui configuration setup

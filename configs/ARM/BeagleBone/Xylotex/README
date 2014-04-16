@@ -1,0 +1,18 @@
+This configuration drives a standard 4-axis system using the PRU for
+high speed step/dir pulse generation and a Xylotex BBB interface board.  The
+interface board sets up the STEP/DIR/Limit as:XS-2, XD-3, XL-11, YS-4,
+YD-5, YL-12, ZS-6, ZD-7, ZL-13, AS-8, AD-9, AL-15
+
+The STOP Input is Pin 10 and the Enable Input is Pin 1
+
+There are 3 additional Outputs, Pin 14 Spindle On, Pin 16 Flood Coolant,
+Pin 17 Mist Coolant
+
+Current axis settings:
+
+max vel   =   1.0 in/s
+max accel =  15.0 in/s/s
+scale     = 32000 steps/in
+
+Adjust as required for your machine.  Make scale negative to invert any
+axis that is moving 'backwards'.
