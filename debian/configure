@@ -168,7 +168,7 @@ if test "$1" = "substvars"; then
     build_substvars
 else
     # Build the debian/control file
-    build_control
+    build_control $1
     build_rules $1
 
     # delete old files
