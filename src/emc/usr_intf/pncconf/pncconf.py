@@ -2555,7 +2555,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         firm0 = self.mesa0_currentfirmwaredata[_FIRMWARE]
         firm1 = self.mesa1_currentfirmwaredata[_FIRMWARE]
         # TODO fix this hardcoded hack: only one serial port
-        ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
+        ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = mesa0_ioaddr = mesa1_ioaddr = ""
         if self.mesa0_numof_resolvers:
             resolver0 = "num_resolvers=%d"% self.mesa0_numof_resolvers
         if self.mesa1_numof_resolvers:
@@ -2582,22 +2582,31 @@ If you have a REALLY large config that you wish to convert to this newer version
                 else:
                     temp = temp + "x"
             ssconfig1 = "sserial_port_0=%s"% temp
+        if '7i43' in board0:
+             mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.mesa0_parportaddrs
+        if '7i43' in board1:
+             mesa1_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.mesa1_parportaddrs
         firmstring0 = firmstring1 = ""
         if not "5i25" in board0:
             firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
         if not "5i25" in board1:
             firmstring1 = "firmware=hm2/%s/%s.BIT" % (directory1, firm1)
         if self.number_mesa == 1:            
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens ,ssconfig0, resolver0)
+            print >>file, """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver0, mesa0_ioaddr, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,
+                    self.mesa0_numof_stepgens ,ssconfig0, resolver0)
         elif self.number_mesa == 2 and (driver0 == driver1):
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"
-                    """ % ( driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens, self.mesa0_numof_stepgens, ssconfig0, resolver0,firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1, resolver1 )
+            print >>file, """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,%s%s num_encoders=%d       num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"
+                    """ % ( driver0, mesa0_ioaddr, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,
+                    self.mesa0_numof_stepgens, ssconfig0, resolver0, mesa1_ioaddr,firmstring1, self.mesa1_numof_encodergens,
+                    self.mesa1_numof_pwmgens, self.mesa1_numof_tppwmgens, self.mesa1_numof_stepgens, ssconfig1, resolver1 )
         elif self.number_mesa == 2:
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    driver0, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0, resolver0 )
-            print >>file, """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
-                    driver1, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens, self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1, resolver1 )
+            print >>file, """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver0, mesa0_ioaddr, firmstring0, self.mesa0_numof_encodergens, self.mesa0_numof_pwmgens,
+                    self.mesa0_numof_tppwmgens,self.mesa0_numof_stepgens, ssconfig0, resolver0 )
+            print >>file, """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s" """ % (
+                    driver1, mesa1_ioaddr, firmstring1, self.mesa1_numof_encodergens, self.mesa1_numof_pwmgens,
+                    self.mesa0_numof_tppwmgens,self.mesa1_numof_stepgens, ssconfig1, resolver1 )
         for boardnum in range(0,int(self.number_mesa)):
             if boardnum == 1 and (board0 == board1):
                 halnum = 1
@@ -9607,7 +9616,11 @@ But there is not one in the machine-named folder.."""),True)
             directory1 = self.data.mesa1_currentfirmwaredata[_DIRECTORY]
             firm0 = self.data.mesa0_currentfirmwaredata[_FIRMWARE]
             firm1 = self.data.mesa1_currentfirmwaredata[_FIRMWARE]
-            firmstring0 = firmstring1 = ""
+            firmstring0 = firmstring1 = mesa0_ioaddr = mesa1_ioaddr = ""
+            if '7i43' in board0:
+                mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.data.mesa0_parportaddrs
+            if '7i43' in board1:
+                mesa1_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.data.mesa1_parportaddrs
             if not "5i25" in board0:
                 firmstring0 = "firmware=hm2/%s/%s.BIT" % (directory0, firm0)
             if not "5i25" in board1:
@@ -9642,19 +9655,23 @@ But there is not one in the machine-named folder.."""),True)
                 resolver1 = "num_resolvers=%d"% self.data.mesa1_numof_resolvers
 
             if self.data.number_mesa == 1:            
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
-                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0, resolver0))
+                halrun.write( """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
+                    driver0, mesa0_ioaddr, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens,
+                    self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0, resolver0))
             elif self.data.number_mesa == 2 and (driver0 == driver1):
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,\
-                                %s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n""" % (
-                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens,
-                        self.data.mesa0_numof_stepgens, ssconfig0, resolver0, firmstring1, self.data.mesa1_numof_encodergens,
- self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,self.data.mesa1_numof_stepgens, ssconfig1, resolver1))
+                halrun.write( """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s,\
+                                %s%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n""" % (
+                    driver0, mesa0_ioaddr, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens,
+                    self.data.mesa0_numof_tppwmgens,self.data.mesa0_numof_stepgens, ssconfig0, resolver0, mesa1_ioaddr, firmstring1,
+                    self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa1_numof_tppwmgens,
+                    self.data.mesa1_numof_stepgens, ssconfig1, resolver1))
             elif self.data.number_mesa == 2:
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" %s %s\n """ % (
-                    driver0, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0, resolver0 ))
-                halrun.write( """loadrt %s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
-                    driver1, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens, self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1, resolver1 ))
+                halrun.write( """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d" %s %s\n """ % (
+                    driver0, mesa0_ioaddr, firmstring0, self.data.mesa0_numof_encodergens, self.data.mesa0_numof_pwmgens,
+                    self.data.mesa0_numof_tppwmgens, self.data.mesa0_numof_stepgens, ssconfig0, resolver0 ))
+                halrun.write( """loadrt %s%s config="%s num_encoders=%d num_pwmgens=%d num_3pwmgens=%d num_stepgens=%d %s %s"\n """ % (
+                    driver1, mesa1_ioaddr, firmstring1, self.data.mesa1_numof_encodergens, self.data.mesa1_numof_pwmgens,
+                    self.data.mesa0_numof_tppwmgens, self.data.mesa1_numof_stepgens, ssconfig1, resolver1 ))
             for boardnum in range(0,int(self.data.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1
