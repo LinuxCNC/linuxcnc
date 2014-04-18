@@ -398,6 +398,7 @@ rtapi_app_main(void)
 	struct pci_dev		*pDev = NULL;
 	card			*pCard = NULL;
 	gm_device_t		*pDevice;
+	u16			temp;
 
 	msgLevel = rtapi_get_msg_level();
 	rtapi_set_msg_level(RTAPI_MSG_ALL);
@@ -417,6 +418,11 @@ rtapi_app_main(void)
 	// Find General Mechatronics cards
 	device_ctr = 0;
 	while((device_ctr < MAX_GM_DEVICES) && ((pDev = pci_get_device(PLX_VENDOR_ID, GM_DEVICE_ID, pDev)) != NULL)){
+
+		//Enable PCI Memory access
+		pci_read_config_word(pDev,PCI_COMMAND,&temp);
+		temp |= PCI_COMMAND_MEMORY;
+		pci_write_config_word(pDev,PCI_COMMAND,temp);
 
 		// Allocate memory for device object.
 		pDevice = hal_malloc(sizeof(gm_device_t));
