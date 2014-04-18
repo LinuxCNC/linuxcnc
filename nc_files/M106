@@ -6,7 +6,9 @@
 # Mandatory parameter 'S' declares the PWM value (0-255).
 # M106 S0 turns the fan off. 
 
-echo "FIXME: $0 $@"
+#halcmd setp hal_pru_generic.pwmgen.00.out.01.value $1
+#halcmd setp hal_pru_generic.pwmgen.00.out.01.value $1
+halcmd sets fan.speed.set $1
 
 exit 0
 
