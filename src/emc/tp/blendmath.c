@@ -505,7 +505,7 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tp_debug_print("v_max1 = %f, v_max2 = %f\n", v_max1, v_max2);
 
     // Get "altitude"
-    double v_area = v_max1 * v_max2 / 2.0 * sin(phi_effective);
+    double v_area = v_max1 * v_max2 / 2.0 * sin(param->phi);
     tp_debug_print("phi = %f\n", param->phi);
     tp_debug_print("v_area = %f\n", v_area);
 
