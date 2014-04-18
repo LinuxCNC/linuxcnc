@@ -54,6 +54,8 @@ struct CANON_POSITION {
     const CANON_POSITION operator-(const CANON_POSITION &o) const;
     const CANON_POSITION operator-(const EmcPose &o) const;
 
+    const double operator[](const int ind) const;
+
     const CANON_POSITION abs() const;
     const CANON_POSITION absdiff(const CANON_POSITION &o) const;
 
