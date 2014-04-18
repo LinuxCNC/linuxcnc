@@ -1496,8 +1496,11 @@ void ARC_FEED(int line_number,
     printf("axis_len = %f\n",axis_len);
 
     // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
-    int axis1 = (normal_axis ) % 3;
-    int axis2 = (normal_axis + 1) % 3;
+    int norm_axis_ind = normal_axis - 1;
+    int axis1 = (norm_axis_ind + 1) % 3;
+    int axis2 = (norm_axis_ind + 2) % 3;
+
+    printf("axis1 = %d, axis2 = %d\n",axis1,axis2);
 
     // Get planar velocity bounds
     v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
@@ -1510,9 +1513,9 @@ void ARC_FEED(int line_number,
     circ_acc = acc = MIN(a1, a2);
 
     // If we have helical motion, then additionally setup properties for motion along the normal axis
-    if(axis_valid(normal_axis) && axis_len > 0.001) {
-        axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[normal_axis]);
-        a1 = FROM_EXT_LEN(axis_max_acceleration[normal_axis]);
+    if(axis_valid(norm_axis_ind) && axis_len > 0.001) {
+        axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[norm_axis_ind]);
+        a1 = FROM_EXT_LEN(axis_max_acceleration[norm_axis_ind]);
         ini_maxvel = MIN(ini_maxvel, v1);
         acc = MIN(acc, a1);
     }
