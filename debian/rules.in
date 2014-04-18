@@ -42,7 +42,7 @@ debian/substvars: debian/control debian/configure
 # PREEMPT_RT kernels don't have easily derivable names
 ifeq ($(DEB_HOST_ARCH),amd64)
 	echo "preempt-rt-ext=amd64" >> debian/substvars
-else
+else ifeq ($(DEB_HOST_ARCH),i386)
 	echo "preempt-rt-ext=686-pae" >> debian/substvars
 endif
 

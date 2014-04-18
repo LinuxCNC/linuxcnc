@@ -3,19 +3,11 @@ Section: misc
 Priority: extra
 Maintainer: Chris Radek <chris@timeguy.com>
 Build-Depends: debhelper (>= 6),
-    bwidget, blt,
-    libxaw7-dev, libncurses-dev, libreadline-dev,
-    asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
-    python, python-dev, python-support, python-tk, python-lxml,
-    libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
-    libgtk2.0-dev, gettext, autoconf (>= 2.63), libboost-python-dev,
-    imagemagick, texlive-lang-cyrillic, texlive-lang-french,
-    texlive-lang-spanish, texlive-lang-german, netcat,
-    libmodbus-dev (>= 3.0),
- 	libusb-1.0-0-dev,procps, psmisc,
-    dvipng, texlive-extra-utils, texlive-latex-recommended,
-    texlive-fonts-recommended, ghostscript, texlive-font-utils,
-    @BUILD_DEPS@
+    autoconf (>= 2.63), bwidget, libboost-python-dev, libgl1-mesa-dev,
+    libglib2.0-dev, libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0),
+    libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
+    libxmu-headers, python, python-dev, python-support, pkg-config, psmisc,
+    @BUILD_DEPS@python-tk, tcl-dev, tk-dev
 Standards-Version: 2.1.0
 
 Package: linuxcnc-dev
