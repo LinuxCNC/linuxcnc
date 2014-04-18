@@ -1364,7 +1364,7 @@ void ARC_FEED(int line_number,
     second_end = FROM_PROG_LEN(second_end);
     axis_end_point = FROM_PROG_LEN(axis_end_point);
 
-    double first_start, second_start, axis_start_point;
+    double first_start, second_start;
     int normal_axis;
     /* associate x with x, etc., offset by program origin, and set normals */
 
@@ -1385,9 +1385,6 @@ void ARC_FEED(int line_number,
             normal.z = 1.0;
             normal_axis = CANON_AXIS_Z;
 
-            first_start = canonEndPoint.x;
-            second_start = canonEndPoint.y;
-
             break;
 
         case CANON_PLANE_YZ:
@@ -1405,9 +1402,6 @@ void ARC_FEED(int line_number,
             normal.z = 0.0;
             normal.x = 1.0;
             normal_axis = CANON_AXIS_X;
-
-            first_start = canonEndPoint.y;
-            second_start = canonEndPoint.z;
 
             rotate(normal.x, normal.y, xy_rotation);
             break;
@@ -1428,20 +1422,14 @@ void ARC_FEED(int line_number,
             normal.y = 1.0;
             normal_axis = CANON_AXIS_Y;
 
-            first_start = canonEndPoint.z;
-            second_start = canonEndPoint.x;
-
             rotate(normal.x, normal.y, xy_rotation);
             break;
     }
 
+    // Rotate and offset end and center points to match current coordinate system
     rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
     rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
 
-    theta1 = atan2(first_start - first_axis, second_start - second_axis);
-    theta2 = atan2(first_end - first_axis, second_end - second_axis);
-    radius = hypot(first_start - first_axis, second_start - second_axis);
-    
     // Calculate displacement vector between start and end point
     // FIXME this should really be done with built-in PM_CARTESIAN or similar
     double disp_x = end.tran.x - canonEndPoint.x;
@@ -1451,20 +1439,62 @@ void ARC_FEED(int line_number,
     // unrotate displacement to calculate length of arc segment parallel to normal axis
     rotate(disp_x,disp_y, -xy_rotation);
 
-    // Get the appropriate displacement component depending on current plane
+    double first_end_rot, second_end_rot;
+    double first_axis_rot, second_axis_rot;
+
+    // Get the appropriate displacement component depending on current plane, and update the start / end points
     switch (activePlane) {
         default: // to eliminate "uninitalized" warnings
         case CANON_PLANE_XY:
             axis_len = fabs(disp_z);
+
+            first_start = canonEndPoint.x;
+            second_start = canonEndPoint.y;
+
+            first_end_rot = end.tran.x;
+            second_end_rot = end.tran.y;
+
+            first_axis_rot = center.x;
+            second_axis_rot = center.y;
+
             break;
         case CANON_PLANE_YZ:
             axis_len = fabs(disp_x);
+
+            first_start = canonEndPoint.y;
+            second_start = canonEndPoint.z;
+
+            first_end_rot = end.tran.y;
+            second_end_rot = end.tran.z;
+
+            first_axis_rot = center.y;
+            second_axis_rot = center.z;
+
             break;
         case CANON_PLANE_XZ:
             axis_len = fabs(disp_y);
+
+            first_start = canonEndPoint.z;
+            second_start = canonEndPoint.x;
+
+            first_end_rot = end.tran.z;
+            second_end_rot = end.tran.x;
+
+            first_axis_rot = center.z;
+            second_axis_rot = center.x;
+
             break;
     }
 
+    theta1 = atan2(second_start - second_axis_rot, first_start - first_axis_rot);
+    theta2 = atan2(second_end_rot - second_axis_rot, first_end_rot - first_axis_rot);
+    radius = hypot(second_start - second_axis_rot, first_start - first_axis_rot);
+
+    printf("-------------------------\n");
+    printf("line number = %d\n", line_number);
+    printf("plane = %d\n",activePlane);
+    printf("arc disp = %f %f %f\n",disp_x, disp_y, disp_z);
+    printf("axis_len = %f\n",axis_len);
 
     // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
     int axis1 = (normal_axis ) % 3;
@@ -1479,7 +1509,8 @@ void ARC_FEED(int line_number,
     a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
     circ_maxvel = ini_maxvel = MIN(v1, v2);
     circ_acc = acc = MIN(a1, a2);
-
+    
+    // If we have helical motion, then additionally setup properties for motion along the normal axis
     if(axis_valid(normal_axis) && axis_len > 0.001) {
         axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[normal_axis]);
         a1 = FROM_EXT_LEN(axis_max_acceleration[normal_axis]);
@@ -1495,6 +1526,7 @@ void ARC_FEED(int line_number,
     }
 
     angle = theta2 - theta1;
+    printf("theta1 = %f, theta2 = %f, angle = %f, radius = %f\n",theta1,theta2,angle,radius);
     helical_length = hypot(angle * radius, axis_len);
 
 // COMPUTE VELOCITIES
@@ -1522,6 +1554,7 @@ void ARC_FEED(int line_number,
     tmax = MAX4(tmax, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
 
+    printf("tmax = %f\n helical_length = %f\n",tmax,helical_length);
     if (tmax <= 0.0) {
         vel = currentLinearFeedRate;
     } else {
