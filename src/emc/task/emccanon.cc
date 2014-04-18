@@ -1491,7 +1491,9 @@ void ARC_FEED(int line_number,
 
     printf("-------------------------\n");
     printf("line number = %d\n", line_number);
-    printf("plane = %d\n",activePlane);
+    printf("plane = %d\n", activePlane);
+    printf("start = %f %f %f\n", canonEndPoint.x, canonEndPoint.y, canonEndPoint.z);
+    printf("end = %f %f %f\n", end.tran.x, end.tran.y, end.tran.z);
     printf("arc disp = %f %f %f\n",disp_x, disp_y, disp_z);
     printf("axis_len = %f\n",axis_len);
 
