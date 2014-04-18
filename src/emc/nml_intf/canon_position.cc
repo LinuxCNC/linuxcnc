@@ -200,8 +200,8 @@ const EmcPose CANON_POSITION::toEmcPose() const {
 
 const PM_CARTESIAN CANON_POSITION::xyz() const {
     return PM_CARTESIAN(this->x,
-            this->x,
-            this->x);
+            this->y,
+            this->z);
 }
 
 const PM_CARTESIAN CANON_POSITION::abc() const {
