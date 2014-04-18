@@ -1320,7 +1320,6 @@ void ARC_FEED(int line_number,
         double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
         rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
         rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
-            
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canonNaivecamTolerance) {
             rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
             see_segment(line_number, mx, my,
@@ -1509,7 +1508,7 @@ void ARC_FEED(int line_number,
     a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
     circ_maxvel = ini_maxvel = MIN(v1, v2);
     circ_acc = acc = MIN(a1, a2);
-    
+
     // If we have helical motion, then additionally setup properties for motion along the normal axis
     if(axis_valid(normal_axis) && axis_len > 0.001) {
         axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[normal_axis]);
@@ -1533,7 +1532,6 @@ void ARC_FEED(int line_number,
     ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
     tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
     tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
-                           
     tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
     tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
     tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
@@ -1591,15 +1589,15 @@ void ARC_FEED(int line_number,
         acc = helical_length / tmax;
     }
 
-    /* 
+    /*
        mapping of rotation to turns:
 
-       rotation turns 
-       -------- ----- 
-              0 none (linear move) 
-              1 0 
-              2 1 
-             -1 -1 
+       rotation turns
+       -------- -----
+              0 none (linear move)
+              1 0
+              2 1
+             -1 -1
              -2 -2 */
 
     if (rotation == 0) {
