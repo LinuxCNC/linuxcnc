@@ -228,3 +228,38 @@ void CANON_POSITION::print() const {
             this->v,
             this->w);
 }
+
+const double CANON_POSITION::operator[](const int ind) const {
+    switch (ind) {
+        case 0:
+            return x;
+            break;
+        case 1:
+            return y;
+            break;
+        case 2:
+            return z;
+            break;
+        case 3:
+            return a;
+            break;
+        case 4:
+            return b;
+            break;
+        case 5:
+            return c;
+            break;
+        case 6:
+            return u;
+            break;
+        case 7:
+            return v;
+            break;
+        case 8:
+            return w;
+            break;
+        default:
+            //TODO exception here?
+            return 0.0;
+    }
+}
