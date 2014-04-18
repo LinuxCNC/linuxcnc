@@ -402,7 +402,7 @@ rtapi_app_main(void)
 
 	msgLevel = rtapi_get_msg_level();
 	rtapi_set_msg_level(RTAPI_MSG_ALL);
-	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.1 loading...\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.2 loading...\n");
 
 	// Connect to the HAL.
 	driver.comp_id = hal_init("hal_gm");
