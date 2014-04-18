@@ -15,7 +15,7 @@ T_extruder_smaller_than_T_required=`echo "scale=3; ($temp_actual < $temp_require
 #echo "Ta<Tr? $T_extruder_smaller_than_T_required"
 while [ "$T_extruder_smaller_than_T_required" != "0" ]
 do
-  echo enter while loop
+#  echo enter while loop
   temp_actual=$(halcmd getp Therm.temp0)
 #  echo temp_actual= $temp_actual
   sleep 1
