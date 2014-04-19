@@ -79,6 +79,46 @@ linuxcnc (1:2.6.0~pre1) precise; urgency=low
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 16 Apr 2014 21:12:39 -0600
 
+linuxcnc (1:2.5.4) lucid; urgency=low
+
+  * Build: update dependencies for Debian 7
+  * Docs: many fixes and updates
+  * HAL: blend: fix docs to match the real behavior
+  * HAL: edge: fix incorrect edge trigger at startup: Bug #346
+  * HAL: ilowpass: handle encoder counter overflows properly
+  * HAL: lcd: fix formatting when no format length is specified
+  * HAL: new components bin2gray, gray2bin for Gray code conversion
+  * HAL: new components bitwise and bitslice, for bitwise math operations
+  * HAL: pcl720: fix in-not pins
+  * HAL: thc: fix incorrect calculation of velocity tolerance: Bug #348
+  * Hostmot2: document ability to have multiple 7i43 cards
+  * Hostmot2: fix for PCI transfers on Linux 3.x kernels
+  * Hostmot2: fix resolver index emulation/detection
+  * Hostmot2: fix resolver total brokenness on 64-bit builds
+  * Interpreter: fix crash when returning from a subroutine, to a file
+    that has been deleted: Bug #357
+  * Interpreter: fix VW-plane (G19.1) canned cycles
+  * NGCGUI: Always apply tool offset when loading a tool
+  * NGCGUI: Fix qpocket stepover, ramping for mm users
+  * NML: fix remote clients talking to linuxcncserver
+  * Pncconf: allow setting the number of classicladder bits and words
+  * Pncconf: fix configurations requesting gladevcp panels without
+    spindle speed displays
+  * Pncconf: fix 7i43 address designation: Bug #358
+  * Pncconf: fix 5i25+prob_rfx2 pin numbering problem: Bug #331
+  * Pncconf: fix testing of smart-serial based spindles
+  * Pncconf: place STEPGEN_MAXVEL/STEPGEN_MAXACCEL values in the ini
+  * PPMC: Add new sample config showing encoder velocity estimation
+  * PyVCP: in a spinbox, allow entering a value with Return: Bug #364
+  * Stepconf: better defaults for axis-test distances
+  * Stepconf: fix spindle-at-speed connection
+  * Task: fix several problems with M61 (set currently-loaded tool)
+  * Touchy: MDI support for M61 Q
+  * Touchy: MDI support for multi-turn arcs
+  * TP: fix a minor acceleration constraint violation in some arcs
+
+ -- Chris Radek <chris@timeguy.com>  Thu, 17 Apr 2014 11:49:12 -0500
+
 linuxcnc (1:2.5.3) lucid; urgency=low
 
   * AXIS: fix disable/enable of the toolbar's reload button
