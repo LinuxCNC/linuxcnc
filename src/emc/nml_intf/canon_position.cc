@@ -16,6 +16,8 @@
 #include "math.h"
 #include "posemath.h"
 
+static double noElement = 0.0;
+
 CANON_POSITION::CANON_POSITION(double _x, double _y, double _z,
         double _a, double _b, double _c,
         double _u, double _v, double _w) {
@@ -229,37 +231,28 @@ void CANON_POSITION::print() const {
             this->w);
 }
 
-const double CANON_POSITION::operator[](const int ind) const {
+double &CANON_POSITION::operator[](int ind){
     switch (ind) {
         case 0:
             return x;
-            break;
         case 1:
             return y;
-            break;
         case 2:
             return z;
-            break;
         case 3:
             return a;
-            break;
         case 4:
             return b;
-            break;
         case 5:
             return c;
-            break;
         case 6:
             return u;
-            break;
         case 7:
             return v;
-            break;
         case 8:
             return w;
-            break;
         default:
-            //TODO exception here?
-            return 0.0;
+            printf("noelement!\n");
+            return noElement;
     }
 }
