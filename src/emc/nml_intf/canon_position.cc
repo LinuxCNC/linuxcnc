@@ -219,6 +219,14 @@ const PM_CARTESIAN CANON_POSITION::xyz() const {
             this->z);
 }
 
+void CANON_POSITION::set_xyz(const PM_CARTESIAN & xyz)
+{
+    this->x = xyz.x;
+    this->y = xyz.y;
+    this->z = xyz.z;
+}
+
+
 const PM_CARTESIAN CANON_POSITION::abc() const {
     return PM_CARTESIAN(this->a,
             this->b,

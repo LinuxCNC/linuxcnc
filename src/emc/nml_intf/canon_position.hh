@@ -66,6 +66,8 @@ struct CANON_POSITION {
     const PM_CARTESIAN abc() const;
     const PM_CARTESIAN uvw() const;
 
+    void set_xyz(const PM_CARTESIAN & xyz);
+
     void print() const;
 #endif
 
