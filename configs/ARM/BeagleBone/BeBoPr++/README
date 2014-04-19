@@ -1,0 +1,14 @@
+
+Configurations for BeBoPr++ with BeagleBone Black.
+
+The BeBoPr++ board supports 4 on-board axes, or 5 with external drivers.
+The configurations in this tree are based on the signal assignments
+from the BeBoPr++ user manual.
+
+The Pololu configuration drives a standard 4-axis 3D printer, the Pepper
+configuration is for the BeBoPr++ with Pepper 5-axis driver board.
+Both configurations use the PRU for high speed step/dir pulse generation.
+
+Both configurations do not use any of the eMMC and HDMI signals on the
+BeagleBone Black, so these interfaces can remain enabled.
+
