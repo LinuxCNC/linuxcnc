@@ -166,6 +166,19 @@ const CANON_POSITION CANON_POSITION::operator-(const EmcPose &o) const {
     return result;
 }
 
+const double CANON_POSITION::max() const{
+    double res = x;
+    res = fmax(res, this->y);
+    res = fmax(res, this->z);
+    res = fmax(res, this->a);
+    res = fmax(res, this->b);
+    res = fmax(res, this->c);
+    res = fmax(res, this->u);
+    res = fmax(res, this->v);
+    res = fmax(res, this->w);
+    return res;
+}
+
 const CANON_POSITION CANON_POSITION::abs() const{
     CANON_POSITION result;
     result.x = fabs(this->x);
