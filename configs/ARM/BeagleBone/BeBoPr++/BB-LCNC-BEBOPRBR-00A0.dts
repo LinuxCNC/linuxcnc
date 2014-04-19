@@ -1,0 +1,129 @@
+// Copyright 2013
+// Charles Steinkuehler <charles@steinkuehler.net>
+//
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+	/* identification */
+	part-number = "BB-LCNC-BEBOPRBR";
+	version = "00A0";
+
+	/* state the resources this cape uses */
+	exclusive-use =
+		/* the pin header uses */
+		"P8.7",		/* gpio2.2	Enablen	*/
+		"P8.8",		/* gpio2.3	X_Min	*/
+		"P8.9",		/* gpio2.5	X_Max	*/
+		"P8.10",	/* gpio2.4	Y_Min	*/
+		"P8.11",	/* gpio1.13	X_Dir	*/
+		"P8.12",	/* gpio1.12	X_Step	*/
+		"P8.13",	/* gpio0.23	PWM0	*/
+		"P8.14",	/* gpio0.26	Y_Max	*/
+		"P8.15",	/* gpio1.15	Y_Dir	*/
+		"P8.16",	/* gpio1.14	Y_Step	*/
+		"P8.17",	/* gpio0.27	Z_Min	*/
+		"P8.18",	/* gpio2.1	Z_Max	*/
+		"P8.19",	/* gpio0.22	PWM1	*/
+		"P8.26",	/* gpio1.29	Status	*/
+		"P9.14",	/* gpio1.18	PWM2	*/
+		"P9.15",	/* gpio1.16	Z_Step	*/
+		"P9.17",	/* gpio0.5	B_Dir	*/
+		"P9.18",	/* gpio0.4	B_Step	*/
+		"P9.21",	/* gpio0.3	A_Dir	*/
+		"P9.22",	/* gpio0.2	A_Step	*/
+		"P9.23",	/* gpio1.17	Z_Dir	*/
+		"P9.24",	/* gpio0.15	Spindle	*/
+		"P9.26",	/* gpio0.14	Mtr_Ena	*/
+//		"P9.33",	/* AIN4		Therm0	*/
+//		"P9.35",	/* AIN6		Therm2	*/
+//		"P9.36",	/* AIN5		Therm1	*/
+	
+		/* the hardware IP uses */
+/* The following 4 pins conflict with the on-board mmc flash */
+		"gpio2_2",
+		"gpio2_3",
+		"gpio2_5",
+		"gpio2_4",
+		"gpio1_13",
+		"gpio1_12",
+		"gpio0_23",
+		"gpio0_26",
+		"gpio1_15",
+		"gpio1_14",
+		"gpio0_27",
+		"gpio2_1",
+		"gpio0_22",
+		"gpio1_29",
+		"gpio1_18",
+		"gpio1_16",
+		"gpio0_5",
+		"gpio0_4",
+		"gpio0_3",
+		"gpio0_2",
+		"gpio1_17",
+		"gpio0_15",
+		"pru0";
+
+	fragment@0 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+			foo_pins: foo_pins {
+				pinctrl-single,pins = <
+					0x090 0x3f	/* P8.7		gpio2.2		Enablen	*/
+					0x094 0x3f	/* P8.8		gpio2.3		X_Min	*/
+					0x09c 0x3f	/* P8.9		gpio2.5		X_Max	*/
+					0x098 0x3f	/* P8.10	gpio2.4		Y_Min	*/
+					0x034 0x3f	/* P8.11	gpio1.13	X_Dir	*/
+					0x030 0x3f	/* P8.12	gpio1.12	X_Step	*/
+					0x024 0x3f	/* P8.13	gpio0.23	PWM0	*/
+					0x028 0x3f	/* P8.14	gpio0.26	Y_Max	*/
+					0x03c 0x3f	/* P8.15	gpio1.15	Y_Dir	*/
+					0x038 0x3f	/* P8.16	gpio1.14	Y_Step	*/
+					0x02c 0x3f	/* P8.17	gpio0.27	Z_Min	*/
+					0x08c 0x3f	/* P8.18	gpio2.1		Z_Max	*/
+					0x020 0x3f	/* P8.19	gpio0.22	PWM1	*/
+					0x07c 0x3f	/* p8.26	gpio1.29	Status	*/
+					0x048 0x3f	/* p9.14	gpio1.18	PWM2	*/
+					0x040 0x3f	/* p9.15	gpio1.16	Z_Step	*/
+					0x15c 0x3f	/* p9.17	gpio0.5		B_Dir	*/
+					0x158 0x3f	/* p9.18	gpio0.4		B_Step	*/
+					0x154 0x3f	/* p9.21	gpio0.3		A_Dir	*/
+					0x150 0x3f	/* p9.22	gpio0.2		A_Step	*/
+					0x044 0x3f	/* P9.23	gpio1.17	Z_Dir	*/
+					0x184 0x3f	/* P9.24	gpio0.15	Spindle	*/
+					0x180 0x3f	/* P9.26	gpio0.14	Mtr_Ena	*/
+				>;
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <&pruss>;
+		__overlay__ {
+			status = "okay";
+
+			pinctrl-names = "default";
+			pinctrl-0 = <&foo_pins>;
+
+		};
+	};
+};
+

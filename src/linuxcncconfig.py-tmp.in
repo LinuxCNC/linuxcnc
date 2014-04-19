@@ -200,6 +200,7 @@ class Config(object):
 # 	self.CONFIG_SIGGEN=m
 # 	self.CONFIG_AT_PID=m
 # 	self.CONFIG_PID=m
+# 	self.CONFIG_PEPPER=m
 # 	self.CONFIG_SUPPLY=m
 # 	self.CONFIG_CLASSICLADDER_RT=m
 # 	self.CONFIG_TIMEDELAY=m
