@@ -152,6 +152,61 @@ static void rotate(double &x, double &y, double theta) {
     y = xx * sin(t) + yy * cos(t);
 }
 
+
+/**
+ * Implementation of planar rotation for a 3D vector.
+ * This is basically a shortcut for "rotate" when the values are stored in a
+ * cartesian vector.
+ * The use of static "xy_rotation" is ugly here, but is at least consistent.
+ */
+static void to_rotated(PM_CARTESIAN &vec) {
+    rotate(vec.x,vec.y,xy_rotation);
+}
+#if 0
+static void from_rotated(PM_CARTESIAN &vec) {
+    rotate(vec.x,vec.y,-xy_rotation);
+}
+#endif
+static void rotate_and_offset(CANON_POSITION & pos) {
+
+    pos += g92Offset;
+
+    rotate(pos.x, pos.y, xy_rotation);
+
+    pos += g5xOffset;
+
+    pos += currentToolOffset;
+}
+
+static void rotate_and_offset_xyz(PM_CARTESIAN & xyz) {
+
+    xyz += g92Offset.xyz();
+
+    rotate(xyz.x, xyz.y, xy_rotation);
+
+    xyz += g5xOffset.xyz();
+
+    xyz += PM_CARTESIAN(currentToolOffset.tran.x,
+            currentToolOffset.tran.y,
+            currentToolOffset.tran.z);
+}
+
+static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
+    CANON_POSITION res;
+
+    res = pos;
+
+    res -= currentToolOffset;
+    
+    res -= g5xOffset;
+
+    rotate(res.x, res.y, -xy_rotation);
+
+    res -= g92Offset;
+
+    return res;
+}
+
 static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
 
     x += g92Offset.x;
@@ -187,46 +242,6 @@ static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, do
     w += currentToolOffset.w;
 }
 
-static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
-    CANON_POSITION res;
-
-    res = pos;
-
-    res.x -= currentToolOffset.tran.x;
-    res.y -= currentToolOffset.tran.y;
-    res.z -= currentToolOffset.tran.z;
-    res.a -= currentToolOffset.a;
-    res.b -= currentToolOffset.b;
-    res.c -= currentToolOffset.c;
-    res.u -= currentToolOffset.u;
-    res.v -= currentToolOffset.v;
-    res.w -= currentToolOffset.w;
-    
-    res.x -= g5xOffset.x;
-    res.y -= g5xOffset.y;
-    res.z -= g5xOffset.z;
-    res.a -= g5xOffset.a;
-    res.b -= g5xOffset.b;
-    res.c -= g5xOffset.c;
-    res.u -= g5xOffset.u;
-    res.v -= g5xOffset.v;
-    res.w -= g5xOffset.w;
-
-    rotate(res.x, res.y, -xy_rotation);
-
-    res.x -= g92Offset.x;
-    res.y -= g92Offset.y;
-    res.z -= g92Offset.z;
-    res.a -= g92Offset.a;
-    res.b -= g92Offset.b;
-    res.c -= g92Offset.c;
-    res.u -= g92Offset.u;
-    res.v -= g92Offset.v;
-    res.w -= g92Offset.w;
-
-    return res;
-}
-
 
 static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
     CANON_POSITION res(pos);
@@ -247,7 +262,24 @@ static void from_prog(double &x, double &y, double &z, double &a, double &b, dou
     w = FROM_PROG_LEN(w);
 }
 
-#if 0 // not yet used; uncomment if you want it
+static void from_prog(CANON_POSITION &pos) {
+    pos.x = FROM_PROG_LEN(pos.x);
+    pos.y = FROM_PROG_LEN(pos.y);
+    pos.z = FROM_PROG_LEN(pos.z);
+    pos.a = FROM_PROG_ANG(pos.a);
+    pos.b = FROM_PROG_ANG(pos.b);
+    pos.c = FROM_PROG_ANG(pos.c);
+    pos.u = FROM_PROG_LEN(pos.u);
+    pos.v = FROM_PROG_LEN(pos.v);
+    pos.w = FROM_PROG_LEN(pos.w);
+}
+
+static void from_prog_len(PM_CARTESIAN &vec) {
+    vec.x = FROM_PROG_LEN(vec.x);
+    vec.y = FROM_PROG_LEN(vec.y);
+    vec.z = FROM_PROG_LEN(vec.z);
+}
+#if 0
 static void to_ext(double &x, double &y, double &z, double &a, double &b, double &c, double &u, double &v, double &w) {
     x = TO_EXT_LEN(x);
     y = TO_EXT_LEN(y);
@@ -261,6 +293,14 @@ static void to_ext(double &x, double &y, double &z, double &a, double &b, double
 }
 #endif
 
+static PM_CARTESIAN to_ext_len(const PM_CARTESIAN & pos) {
+    PM_CARTESIAN ret;
+    ret.x = TO_EXT_LEN(pos.x);
+    ret.y = TO_EXT_LEN(pos.y);
+    ret.z = TO_EXT_LEN(pos.z);
+    return ret;
+}
+
 static EmcPose to_ext_pose(double x, double y, double z, double a, double b, double c, double u, double v, double w) {
     EmcPose result;
     result.tran.x = TO_EXT_LEN(x);
@@ -272,6 +312,20 @@ static EmcPose to_ext_pose(double x, double y, double z, double a, double b, dou
     result.u = TO_EXT_LEN(u);
     result.v = TO_EXT_LEN(v);
     result.w = TO_EXT_LEN(w);
+    return result;
+}
+
+static EmcPose to_ext_pose(const CANON_POSITION & pos) {
+    EmcPose result;
+    result.tran.x = TO_EXT_LEN(pos.x);
+    result.tran.y = TO_EXT_LEN(pos.y);
+    result.tran.z = TO_EXT_LEN(pos.z);
+    result.a = TO_EXT_ANG(pos.a);
+    result.b = TO_EXT_ANG(pos.b);
+    result.c = TO_EXT_ANG(pos.c);
+    result.u = TO_EXT_LEN(pos.u);
+    result.v = TO_EXT_LEN(pos.v);
+    result.w = TO_EXT_LEN(pos.w);
     return result;
 }
 
@@ -316,6 +370,11 @@ static void canonUpdateEndPoint(double x, double y, double z,
     canonEndPoint.u = u;
     canonEndPoint.v = v;
     canonEndPoint.w = w;
+}
+
+static void canonUpdateEndPoint(const CANON_POSITION & pos)
+{
+    canonEndPoint = pos;
 }
 
 /* External call to update the canon end point.
@@ -862,6 +921,7 @@ static void flush_segments(void) {
     chained_points.clear();
 }
 
+#if 0
 static void get_last_pos(double &lx, double &ly, double &lz) {
     if(chained_points.empty()) {
         lx = canonEndPoint.x;
@@ -874,6 +934,7 @@ static void get_last_pos(double &lx, double &ly, double &lz) {
         lz = pos.z;
     }
 }
+#endif
 
 static bool
 linkable(double x, double y, double z, 
@@ -1158,7 +1219,7 @@ void STOP_SPEED_FEED_SYNCH()
 }
 
 /* Machining Functions */
-
+#if 0
 static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
     double th1 = atan2(sy-cy, sx-cx),
            th2 = atan2(ey-cy, ex-cx),
@@ -1184,6 +1245,7 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
     double dev = r * (1 - cos(included/2));
     return dev;
 }
+#endif
 
 /* Spline and NURBS additional functions; */
 
@@ -1276,6 +1338,100 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
 }
 
 
+/**
+ * Simple circular shift function for PM_CARTESIAN type.
+ * Cycle around axes without changing the individual values. A circshift of 1
+ * makes the X value become the new Y, Y become the Z, and Z become the new X.
+ */
+static PM_CARTESIAN circshift(PM_CARTESIAN & vec, int steps)
+{
+    int X=0,Y=1,Z=2;
+
+    int s = 3;
+    // Use mod to cycle indices around by steps
+    X = (X + steps + s) % s;
+    Y = (Y + steps + s) % s;
+    Z = (Z + steps + s) % s;
+    return PM_CARTESIAN(vec[X],vec[Y],vec[Z]);
+}
+
+static CANON_POSITION get_axis_max_velocity()
+{
+    CANON_POSITION maxvel;
+    maxvel.x = axis_valid(0) ? FROM_EXT_LEN(axis_max_velocity[0]) : 0.0;
+    maxvel.y = axis_valid(1) ? FROM_EXT_LEN(axis_max_velocity[1]) : 0.0;
+    maxvel.z = axis_valid(2) ? FROM_EXT_LEN(axis_max_velocity[2]) : 0.0;
+
+    maxvel.a = axis_valid(3) ? FROM_EXT_ANG(axis_max_velocity[3]) : 0.0;
+    maxvel.b = axis_valid(4) ? FROM_EXT_ANG(axis_max_velocity[4]) : 0.0;
+    maxvel.c = axis_valid(5) ? FROM_EXT_ANG(axis_max_velocity[5]) : 0.0;
+
+    maxvel.u = axis_valid(6) ? FROM_EXT_LEN(axis_max_velocity[6]) : 0.0;
+    maxvel.v = axis_valid(7) ? FROM_EXT_LEN(axis_max_velocity[7]) : 0.0;
+    maxvel.w = axis_valid(8) ? FROM_EXT_LEN(axis_max_velocity[8]) : 0.0;
+    return maxvel;
+}
+
+static CANON_POSITION get_axis_max_acceleration()
+{
+    CANON_POSITION maxacc;
+    maxacc.x = axis_valid(0) ? FROM_EXT_LEN(axis_max_acceleration[0]) : 0.0;
+    maxacc.y = axis_valid(1) ? FROM_EXT_LEN(axis_max_acceleration[1]) : 0.0;
+    maxacc.z = axis_valid(2) ? FROM_EXT_LEN(axis_max_acceleration[2]) : 0.0;
+
+    maxacc.a = axis_valid(3) ? FROM_EXT_ANG(axis_max_acceleration[3]) : 0.0;
+    maxacc.b = axis_valid(4) ? FROM_EXT_ANG(axis_max_acceleration[4]) : 0.0;
+    maxacc.c = axis_valid(5) ? FROM_EXT_ANG(axis_max_acceleration[5]) : 0.0;
+
+    maxacc.u = axis_valid(6) ? FROM_EXT_LEN(axis_max_acceleration[6]) : 0.0;
+    maxacc.v = axis_valid(7) ? FROM_EXT_LEN(axis_max_acceleration[7]) : 0.0;
+    maxacc.w = axis_valid(8) ? FROM_EXT_LEN(axis_max_acceleration[8]) : 0.0;
+    return maxacc;
+}
+
+static double axis_motion_time(const CANON_POSITION & start, const CANON_POSITION & end)
+{
+
+    CANON_POSITION disp = end - start;
+    CANON_POSITION times; 
+    CANON_POSITION maxvel = get_axis_max_velocity();
+
+    printf(" in axis_motion_time\n");
+    // For active axes, find the time required to reach the displacement in each axis
+    int ind = 0;
+    for (ind = 0; ind < 9; ++ind) {
+        double v = maxvel[ind];
+        if (v > 0.0) {
+            times[ind] = fabs(disp[ind]) / v;
+        } else {
+            times[ind]=0;
+        }
+        printf("  ind = %d, maxvel = %f, disp = %f, time = %f\n", ind, v, disp[ind], times[ind]);
+    }
+
+    return times.max();
+}
+
+// NOTE: not exactly times, comment TODO
+static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION & end)
+{
+
+    CANON_POSITION disp = end - start;
+    CANON_POSITION times; 
+    CANON_POSITION maxacc = get_axis_max_acceleration();
+
+    for (int i = 0; i < 9; ++i) {
+        double a = maxacc[i];
+        if (a > 0.0) {
+            times[i] = fabs(disp[i]) / a;
+        } else {
+            times[i]=0;
+        }
+    }
+
+    return times.max();
+}
+
 void ARC_FEED(int line_number,
               double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
@@ -1283,18 +1439,15 @@ void ARC_FEED(int line_number,
               double a, double b, double c,
               double u, double v, double w)
 {
-    EmcPose end;
-    PM_CARTESIAN center, normal;
+
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    double v1, v2,  a1, a2, vel, ini_maxvel, circ_maxvel, axial_maxvel=0.0, circ_acc, acc=0.0;
-    double radius, angle, theta1, theta2, helical_length, axis_len;
-    double tcircle, taxial, tmax, thelix, ta, tb, tc, da, db, dc;
-    double tu, tv, tw, du, dv, dw;
-    double mx, my;
 
+    printf(" line = %d\n", line_number);
+    printf("first_end = %f, second_end = %f\n", first_end,second_end);
+    /*
+    double mx, my;
     double lx, ly, lz;
-    double unused=0;
 
     get_last_pos(lx, ly, lz);
 
@@ -1324,6 +1477,7 @@ void ARC_FEED(int line_number,
             return;
         }
     }
+    */
     //ini_maxvel = max vel defined by various ini constraints
     //circ_maxvel = max vel defined by ini constraints in the circle plane (XY, YZ or XZ)
     //axial_maxvel = max vel defined by ini constraints in the axial direction (Z, X or Y)
@@ -1332,306 +1486,267 @@ void ARC_FEED(int line_number,
     circularMoveMsg.feed_mode = feed_mode;
     flush_segments();
 
-    rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
+    // Start by defining 3D points for the motion end and center.
+    PM_CARTESIAN end_cart(first_end, second_end, axis_end_point);
+    PM_CARTESIAN center_cart(first_axis, second_axis, axis_end_point);
+    PM_CARTESIAN normal_cart(0.0,0.0,1.0);
+    PM_CARTESIAN plane_x(1.0,0.0,0.0);
+    PM_CARTESIAN plane_y(0.0,1.0,0.0);
 
-    da = fabs(canonEndPoint.a - a);
-    db = fabs(canonEndPoint.b - b);
-    dc = fabs(canonEndPoint.c - c);
+    printf("end = %f %f %f\n",
+            end_cart.x,
+            end_cart.y,
+            end_cart.z);
+    printf("center = %f %f %f\n",
+            center_cart.x,
+            center_cart.y,
+            center_cart.z);
 
-    du = fabs(canonEndPoint.u - u);
-    dv = fabs(canonEndPoint.v - v);
-    dw = fabs(canonEndPoint.w - w);
-
-    /* Since there's no default case here,
-       we need to initialise vel to something safe! */
-    vel = ini_maxvel = currentLinearFeedRate;
-
-    // convert to absolute mm units
-    first_axis = FROM_PROG_LEN(first_axis);
-    second_axis = FROM_PROG_LEN(second_axis);
-    first_end = FROM_PROG_LEN(first_end);
-    second_end = FROM_PROG_LEN(second_end);
-    axis_end_point = FROM_PROG_LEN(axis_end_point);
-
-    double first_start, second_start;
-    int normal_axis;
-    /* associate x with x, etc., offset by program origin, and set normals */
-
-    switch (activePlane) {
-        default: // to eliminate "uninitalized" warnings
+    // Rearrange the X Y Z coordinates in the correct order based on the active plane (XY, YZ, or XZ)
+    // KLUDGE CANON_PLANE is 1-indexed, hence the subtraction here to make a 0-index value
+    int shift_ind = 0;
+    switch(activePlane) {
         case CANON_PLANE_XY:
-
-            end.tran.x = first_end;
-            end.tran.y = second_end;
-            end.tran.z = axis_end_point;
-
-            center.x = first_axis;
-            center.y = second_axis;
-            center.z = end.tran.z;
-
-            normal.x = 0.0;
-            normal.y = 0.0;
-            normal.z = 1.0;
-            normal_axis = CANON_AXIS_Z;
-
-            break;
-
-        case CANON_PLANE_YZ:
-
-            // offset and align args properly
-            end.tran.y = first_end;
-            end.tran.z = second_end;
-            end.tran.x = axis_end_point;
-
-            center.y = first_axis;
-            center.z = second_axis;
-            center.x = end.tran.x;
-
-            normal.y = 0.0;
-            normal.z = 0.0;
-            normal.x = 1.0;
-            normal_axis = CANON_AXIS_X;
-
-            rotate(normal.x, normal.y, xy_rotation);
-            break;
-
-        case CANON_PLANE_XZ:
-
-            // offset and align args properly
-            end.tran.z = first_end;
-            end.tran.x = second_end;
-            end.tran.y = axis_end_point;
-
-            center.z = first_axis;
-            center.x = second_axis;
-            center.y = end.tran.y;
-
-            normal.z = 0.0;
-            normal.x = 0.0;
-            normal.y = 1.0;
-            normal_axis = CANON_AXIS_Y;
-
-            rotate(normal.x, normal.y, xy_rotation);
-            break;
-    }
-
-    // Rotate and offset end and center points to match current coordinate system
-    rotate_and_offset_pos(end.tran.x, end.tran.y, end.tran.z, unused, unused, unused, unused, unused, unused);
-    rotate_and_offset_pos(center.x, center.y, center.z, unused, unused, unused, unused, unused, unused);
-
-    // Calculate displacement vector between start and end point
-    // FIXME this should really be done with built-in PM_CARTESIAN or similar
-    double disp_x = end.tran.x - canonEndPoint.x;
-    double disp_y = end.tran.y - canonEndPoint.y;
-    double disp_z = end.tran.z - canonEndPoint.z;
-
-    // unrotate displacement to calculate length of arc segment parallel to normal axis
-    rotate(disp_x,disp_y, -xy_rotation);
-
-    double first_end_rot, second_end_rot;
-    double first_axis_rot, second_axis_rot;
-
-    // Get the appropriate displacement component depending on current plane, and update the start / end points
-    switch (activePlane) {
-        default: // to eliminate "uninitalized" warnings
-        case CANON_PLANE_XY:
-            axis_len = fabs(disp_z);
-
-            first_start = canonEndPoint.x;
-            second_start = canonEndPoint.y;
-
-            first_end_rot = end.tran.x;
-            second_end_rot = end.tran.y;
-
-            first_axis_rot = center.x;
-            second_axis_rot = center.y;
-
-            break;
-        case CANON_PLANE_YZ:
-            axis_len = fabs(disp_x);
-
-            first_start = canonEndPoint.y;
-            second_start = canonEndPoint.z;
-
-            first_end_rot = end.tran.y;
-            second_end_rot = end.tran.z;
-
-            first_axis_rot = center.y;
-            second_axis_rot = center.z;
-
+            shift_ind = 0;
             break;
         case CANON_PLANE_XZ:
-            axis_len = fabs(disp_y);
-
-            first_start = canonEndPoint.z;
-            second_start = canonEndPoint.x;
-
-            first_end_rot = end.tran.z;
-            second_end_rot = end.tran.x;
-
-            first_axis_rot = center.z;
-            second_axis_rot = center.x;
-
+            shift_ind = -2;
+            break;
+        case CANON_PLANE_YZ:
+            shift_ind = -1;
             break;
     }
 
-    theta1 = atan2(second_start - second_axis_rot, first_start - first_axis_rot);
-    theta2 = atan2(second_end_rot - second_axis_rot, first_end_rot - first_axis_rot);
-    radius = hypot(second_start - second_axis_rot, first_start - first_axis_rot);
+    printf("active plane is %d, shift_ind is %d\n",activePlane,shift_ind);
+    end_cart = circshift(end_cart, shift_ind);
+    center_cart = circshift(center_cart, shift_ind);
+    normal_cart = circshift(normal_cart, shift_ind);
+    plane_x = circshift(plane_x, shift_ind);
+    plane_y = circshift(plane_y, shift_ind);
 
-    printf("-------------------------\n");
-    printf("line number = %d\n", line_number);
-    printf("plane = %d\n", activePlane);
-    printf("start = %f %f %f\n", canonEndPoint.x, canonEndPoint.y, canonEndPoint.z);
-    printf("end = %f %f %f\n", end.tran.x, end.tran.y, end.tran.z);
-    printf("arc disp = %f %f %f\n",disp_x, disp_y, disp_z);
-    printf("axis_len = %f\n",axis_len);
+    printf("end = %f %f %f\n",
+            end_cart.x,
+            end_cart.y,
+            end_cart.z);
+    printf("center = %f %f %f\n",
+            center_cart.x,
+            center_cart.y,
+            center_cart.z);
 
-    // KLUDGE Get axis indices (0-indexed) corresponding to normal axis (1-indexed)...
-    int norm_axis_ind = normal_axis - 1;
-    int axis1 = (norm_axis_ind + 1) % 3;
-    int axis2 = (norm_axis_ind + 2) % 3;
+    printf("normal = %f %f %f\n",
+            normal_cart.x,
+            normal_cart.y,
+            normal_cart.z);
 
-    printf("axis1 = %d, axis2 = %d\n",axis1,axis2);
+    printf("plane_x = %f %f %f\n",
+            plane_x.x,
+            plane_x.y,
+            plane_x.z);
 
-    // Get planar velocity bounds
-    v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
-    v2 = FROM_EXT_LEN(axis_max_velocity[axis2]);
+    printf("plane_y = %f %f %f\n",
+            plane_y.x,
+            plane_y.y,
+            plane_y.z);
+    // Define end point in PROGRAM units and convert to CANON
+    CANON_POSITION endpt(0,0,0,a,b,c,u,v,w);
+    from_prog(endpt);
 
-    // Get planar acceleration bounds
-    a1 = FROM_EXT_LEN(axis_max_acceleration[axis1]);
-    a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
-    circ_maxvel = ini_maxvel = MIN(v1, v2);
-    circ_acc = acc = MIN(a1, a2);
+    // Store permuted XYZ end position
+    from_prog_len(end_cart);
+    endpt.set_xyz(end_cart);
 
-    // If we have helical motion, then additionally setup properties for motion along the normal axis
-    if(axis_valid(norm_axis_ind) && axis_len > 0.001) {
-        axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[norm_axis_ind]);
-        a1 = FROM_EXT_LEN(axis_max_acceleration[norm_axis_ind]);
-        ini_maxvel = MIN(ini_maxvel, v1);
-        acc = MIN(acc, a1);
-    }
+    printf("endpt = %f %f %f\n",
+            endpt.x,
+            endpt.y,
+            endpt.z);
 
-    // Correct for angle wrap
-    if(rotation < 0) {
-        if(theta2 >= theta1) theta2 -= M_PI * 2.0;
+    // Convert to CANON units
+    from_prog_len(center_cart);
+
+    // Rotate and offset the new end point to be in the same coordinate system as the current end point
+    rotate_and_offset(endpt);
+    rotate_and_offset_xyz(center_cart);
+    // Also rotate the basis vectors
+    to_rotated(plane_x);
+    to_rotated(plane_y);
+    to_rotated(normal_cart);
+
+    printf("end = %f %f %f\n",
+            end_cart.x,
+            end_cart.y,
+            end_cart.z);
+    printf("center = %f %f %f\n",
+            center_cart.x,
+            center_cart.y,
+            center_cart.z);
+
+    printf("normal = %f %f %f\n",
+            normal_cart.x,
+            normal_cart.y,
+            normal_cart.z);
+    // Note that the "start" point is already rotated and offset
+
+    // Define displacement vectors from center to end and center to start (3D)
+    PM_CARTESIAN end_rel = end_cart - center_cart;
+    PM_CARTESIAN start_rel = canonEndPoint.xyz() - center_cart;
+
+    // Project each displacement onto the active plane
+    double p_end_1 = dot(end_rel,plane_x);
+    double p_end_2 = dot(end_rel,plane_y);
+    double p_start_1 = dot(start_rel,plane_x);
+    double p_start_2 = dot(start_rel,plane_y);
+
+    printf("planar end = %f %f\n", p_end_1, p_end_2);
+    printf("planar start = %f %f\n", p_start_1, p_start_2);
+
+    printf("rotation = %d\n",rotation);
+
+    // Use the "X" (1) and Y" (2) components of the planar projections to get
+    // the starting and ending angle. Note that atan2 arguments are atan2(Y,X).
+    double theta_start = atan2(p_start_2, p_start_1);
+    double theta_end= atan2(p_end_2,p_end_1);
+    double radius = hypot(p_start_1, p_start_2);
+    printf("radius = %f\n",radius);
+
+    // Correct for angle wrap so that theta_end - theta_start > 0
+    int is_clockwise = rotation < 0;
+    if (is_clockwise) {
+        if(theta_end >= theta_start) theta_end -= M_PI * 2.0;
     } else {
-        if(theta2 <= theta1) theta2 += M_PI * 2.0;
+        if(theta_end <= theta_start) theta_end += M_PI * 2.0;
     }
 
-    angle = theta2 - theta1;
-    printf("theta1 = %f, theta2 = %f, angle = %f, radius = %f\n",theta1,theta2,angle,radius);
-    helical_length = hypot(angle * radius, axis_len);
-
-// COMPUTE VELOCITIES
-    ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
-    tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
-    tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
-
-    //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
-    v1 = sqrt(circ_acc * radius);
-    circ_maxvel = MIN(v1, circ_maxvel);
-
-    // find out how long the arc takes at ini_maxvel
-    tcircle = fabs(angle * radius / circ_maxvel);
-
-    if(axial_maxvel) {
-        taxial = fabs(axis_len / axial_maxvel);
-        tmax = MAX(taxial, tcircle);
-    } else
-        tmax = tcircle;
-
-    tmax = MAX4(tmax, ta, tb, tc);
-    tmax = MAX4(tmax, tu, tv, tw);
-
-    printf("tmax = %f\n helical_length = %f\n",tmax,helical_length);
-    if (tmax <= 0.0) {
-        vel = currentLinearFeedRate;
-    } else {
-        ini_maxvel = helical_length / tmax; //compute the new maxvel based on all previous constraints
-        vel = MIN(vel, ini_maxvel); //the programmed vel is either feedrate or machine_maxvel if lower
-    }
-
-    // for arcs we always user linear move since there is no
-    // arc possible with only ABC motion
-
-    cartesian_move = 1;
-
-// COMPUTE ACCELS
-
-    // the next calcs are not really times.  the units are time^2, but
-    // the division at the end gives the right units for accel.  if you
-    // try to think of these in terms of any real-world value (time to
-    // do what?), you're probably doomed.  think of them as a parametric
-    // expression of the acceleration in the various directions.
-
-    thelix = (helical_length / acc);
-    ta = (axis_valid(3) && da)? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
-    tb = (axis_valid(4) && db)? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
-    tc = (axis_valid(5) && dc)? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
-
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
-
-    tmax = MAX4(thelix, ta, tb, tc);
-    tmax = MAX4(tmax, tu, tv, tw);
-
-    if (tmax > 0.0) {
-        acc = helical_length / tmax;
-    }
+    printf("raw_theta_end = %f, raw_theta_start = %f\n", theta_end, theta_start);
 
     /*
-       mapping of rotation to turns:
+       mapping of rotation to full turns:
 
-       rotation turns
+       rotation full COUNTERCLOCKWISE turns (- implies clockwise)
        -------- -----
               0 none (linear move)
               1 0
               2 1
-             -1 -1
-             -2 -2 */
+             -1 0
+             -2 -1 */
+
+    // Compute the number of FULL turns in addition to the principal angle
+    int full_turns = 0;
+    if (rotation > 1) {
+        full_turns = rotation - 1;
+    }
+    if (rotation < -1) {
+        full_turns = rotation + 1;
+    }
+
+    double angle = theta_end - theta_start;
+    double full_angle = angle + M_PI * (double)full_turns;
+    printf("angle = %f\n", angle);
+
+    // Compute length along normal axis
+    double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
+
+    // KLUDGE: assumes 0,1,2 for X Y Z
+    // Find normal axis
+    int norm_axis_ind = 2 + shift_ind % 3;
+    // Find maximum velocities and accelerations for planar axes
+    int axis1 = (norm_axis_ind + 1) % 3;
+    int axis2 = (norm_axis_ind + 2) % 3;
+
+    printf("axis1 = %d, axis2 = %d\n",axis1, axis2);
+
+    // Get planar velocity bounds
+    double v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
+    double v2 = FROM_EXT_LEN(axis_max_velocity[axis2]);
+
+    // Get planar acceleration bounds
+    double a1 = FROM_EXT_LEN(axis_max_acceleration[axis1]);
+    double a2 = FROM_EXT_LEN(axis_max_acceleration[axis2]);
+    double v_max_planar = MIN(v1, v2);
+    double a_max_planar = MIN(a1, a2);
+
+    //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
+    double v_max_radial = sqrt(a_max_planar * radius);
+    double v_max = MIN(v_max_radial, v_max_planar);
+
+    // find out how long the arc takes at ini_maxvel
+    double t_circle = fabs(angle * radius / v_max);
+
+    double t_motion = axis_motion_time(canonEndPoint,endpt);
+    printf("t_motion = %f\n", t_motion);
+
+    double t_max = MAX(t_motion, t_circle);
+
+    // If there is helical motion, check normal axis velocity limit as well
+    if (axis_valid(norm_axis_ind)) {
+        double v_max_axial = FROM_EXT_LEN(axis_max_velocity[norm_axis_ind]);
+        double t_axial = fabs(axis_len / v_max_axial);
+        t_max = MAX(t_max, t_axial);
+    }
+
+    printf("t_max = %f\n",t_max);
+
+    // Total path length including helical motion
+    double helical_length = hypot(full_angle * radius, axis_len);
+
+    // From the total path time and length, calculate new max velocity
+    if (t_max > 0.0) {
+        double v_max_helical = helical_length / t_max;
+        v_max = MIN(v_max, v_max_helical);
+    }
+
+    // ACCELERATIONS
+    
+    // Compute max acceleration from axis motion (parameterized by axis, units t^2)
+    double tt_motion = axis_acc_time(canonEndPoint, endpt);
+    double a_max = a_max_planar;
+
+    // Account for axial acceleration if we have helical motion
+    if (axis_valid(norm_axis_ind)) {
+        double a_max_axial = FROM_EXT_LEN(axis_max_acceleration[norm_axis_ind]);
+        a_max = MIN(a_max, a_max_axial);
+    }
+
+    double tt_helix = helical_length / a_max;
+    double tt_max = MAX(tt_motion, tt_helix);
+
+    printf("tt_max = %f\n", tt_max);
+
+    // From the total path time and length, calculate new max acceleration
+    if (tt_max > 0.0) {
+        double a_max_helical = helical_length / tt_max;
+        a_max = MIN(a_max, a_max_helical);
+    }
+
+    // Limit velocity by maximum
+    double vel = MIN(currentLinearFeedRate, v_max);
+
+    printf("vel = %f\n",vel);
+    printf("v_max = %f\n",v_max);
+    printf("a_max = %f\n",v_max);
+    printf("v_max_planar = %f\n",v_max_planar);
+
+    cartesian_move = 1;
 
     if (rotation == 0) {
         // linear move
         // FIXME (Rob) Am I missing something? the P word should never be zero,
         // or we wouldn't be calling ARC_FEED
-
-        linearMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
-        linearMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
-        linearMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
-
-        // fill in the orientation
-        linearMoveMsg.end.a = TO_EXT_ANG(a);
-        linearMoveMsg.end.b = TO_EXT_ANG(b);
-        linearMoveMsg.end.c = TO_EXT_ANG(c);
-
-        linearMoveMsg.end.u = TO_EXT_LEN(u);
-        linearMoveMsg.end.v = TO_EXT_LEN(v);
-        linearMoveMsg.end.w = TO_EXT_LEN(w);
-
+        linearMoveMsg.end = to_ext_pose(endpt);
         linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
         linearMoveMsg.vel = toExtVel(vel);
-        linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
-        linearMoveMsg.acc = toExtAcc(acc);
+        linearMoveMsg.ini_maxvel = toExtVel(v_max);
+        linearMoveMsg.acc = toExtAcc(a_max);
         linearMoveMsg.indexrotary = -1;
-        if(vel && acc){
+        if(vel && a_max){
             interp_list.set_line_number(line_number);
             interp_list.append(linearMoveMsg);
         }
     } else {
-        circularMoveMsg.end.tran.x = TO_EXT_LEN(end.tran.x);
-        circularMoveMsg.end.tran.y = TO_EXT_LEN(end.tran.y);
-        circularMoveMsg.end.tran.z = TO_EXT_LEN(end.tran.z);
+        circularMoveMsg.end = to_ext_pose(endpt);
 
-        circularMoveMsg.center.x = TO_EXT_LEN(center.x);
-        circularMoveMsg.center.y = TO_EXT_LEN(center.y);
-        circularMoveMsg.center.z = TO_EXT_LEN(center.z);
-
-        circularMoveMsg.normal = normal;
+        // Convert internal center and normal to external units
+        circularMoveMsg.center = to_ext_len(center_cart);
+        circularMoveMsg.normal = to_ext_len(normal_cart);
 
         if (rotation > 0)
             circularMoveMsg.turn = rotation - 1;
@@ -1639,36 +1754,21 @@ void ARC_FEED(int line_number,
             // reverse turn
             circularMoveMsg.turn = rotation;
 
-        // fill in the orientation
-        circularMoveMsg.end.a = TO_EXT_ANG(a);
-        circularMoveMsg.end.b = TO_EXT_ANG(b);
-        circularMoveMsg.end.c = TO_EXT_ANG(c);
-
-        circularMoveMsg.end.u = TO_EXT_LEN(u);
-        circularMoveMsg.end.v = TO_EXT_LEN(v);
-        circularMoveMsg.end.w = TO_EXT_LEN(w);
-
         circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
 
-        // These are suboptimal but safe values.  The actual maximums
-        // are hard to calculate but may be somewhat larger than
-        // these.  Imagine an arc with very large radius going from
-        // 0,0,0 to 1,1,1 on a machine with maxvel=1 and maxaccel=1 on
-        // all axes.  The actual maximums will be near sqrt(3) but
-        // we'll be using 1 instead.
         circularMoveMsg.vel = toExtVel(vel);
-        circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
-        circularMoveMsg.acc = toExtAcc(acc);
+        circularMoveMsg.ini_maxvel = toExtVel(v_max);
+        circularMoveMsg.acc = toExtAcc(a_max);
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
-        if(vel && acc) {
+        if(vel && a_max) {
             interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
         }
     }
     // update the end point
-    canonUpdateEndPoint(end.tran.x, end.tran.y, end.tran.z, a, b, c, u, v, w);
+    canonUpdateEndPoint(endpt);
 }
 
 
