@@ -138,6 +138,10 @@ struct PM_CARTESIAN {
     PM_CARTESIAN & operator += (const PM_CARTESIAN &o);
     PM_CARTESIAN & operator -= (const PM_CARTESIAN &o);
 
+    // Scalar operations
+    PM_CARTESIAN & operator *= (double o);
+    PM_CARTESIAN & operator /= (double o);
+
     /* data */
     double x, y, z;		/* this.x, etc. */
 };
@@ -478,13 +482,13 @@ extern int operator != (const PM_POSE &p1, const PM_POSE &p2);
 /* translation +, -, scalar *, - */
 
 /* v + v */
-extern PM_CARTESIAN operator + (const PM_CARTESIAN &v1, const PM_CARTESIAN &v2);
+extern PM_CARTESIAN operator + (PM_CARTESIAN v1, const PM_CARTESIAN &v2);
 /* v - v */
-extern PM_CARTESIAN operator - (const PM_CARTESIAN &v1, const PM_CARTESIAN &v2);
+extern PM_CARTESIAN operator - (PM_CARTESIAN v1, const PM_CARTESIAN &v2);
 /* v * s */
-extern PM_CARTESIAN operator *(const PM_CARTESIAN &v, double s);
+extern PM_CARTESIAN operator *(PM_CARTESIAN v, double s);
 /* s * v */
-extern PM_CARTESIAN operator *(double s, const PM_CARTESIAN &v);
+extern PM_CARTESIAN operator *(double s, PM_CARTESIAN v);
 /* v / s */
 extern PM_CARTESIAN operator / (const PM_CARTESIAN &v, double s);
 
