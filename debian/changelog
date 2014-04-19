@@ -1,3 +1,124 @@
+linuxcnc (1:2.6.0~pre1) precise; urgency=low
+
+  * reorganized sample configs to improve clarity
+  * .ini files now support a '#INCLUDE' directive
+
+  * pncconf: bug fixes and improvements
+
+  * docs: lots of updates & improvements
+  * docs: removed untranslated placeholders, german & polish
+  * docs: updated italian translations (of the programs)
+
+  * GUI: Axis: allow feed rate override display to go up to 9999%
+  * GUI: Axis: XYUV foam cutter support
+  * GUI: touchy: wheel scrolling of program start point
+
+  * GUI: add new gmoccapy gui
+  * GUI: add new gscreen gui
+
+  * gladevcp: add new widgets: calculator, tool editor, source view,
+        dro, offset display, jogwheel, pyngcgui, etc
+
+  * HAL: haltcl now accepts -i or -ini
+  * HAL: halcmd now supports tilde expansion
+  * HAL: halscope now shows the first derivative of probe channels
+  * HAL: hal_glib got a number of new signals
+
+  * HAL: stepgen now supports 16 channels (up from 8 in 2.5)
+  * HAL: gs2 VFD driver now supports configurable acceleration and
+        deceleration, and has support for a braking resistor
+  * HAL: halui now switches to manual mode automatically when the user
+        requests jogging
+
+  * HAL: new drivers:
+      * VFS11 VFD
+      * Delta VFD-B
+      * General Mechatronics 6 axis motion control card
+      * xhc-hb04 USB jog pendant
+
+  * HAL: new components:
+      * mux_generic: generic multiplexer, any number of pins, any data type
+      * lincurve: linearization curve lookup table
+      * matrix_kb: matrix keyboard driver
+      * mb2hal: generic Modbus-to-HAL interface
+      * orient: works with M19 to control spindle position
+      * sim-encoder: simulate an encoder, for useful for testing
+      * thcud: torch height control for plasma
+
+  * Hostmot2: add support for 5i24 AnyIO board
+  * Hostmot2: add support for buffered SPI
+  * Hostmot2: add support for the Mesa 7i65 (bspi 8xServo)
+  * Hostmot2: add support for uarts
+  * Hostmot2: add support for serial encoders (ssi, biss, and fanuc)
+  * Hostmot2: add support for table-mode stepgens
+  * Hostmot2: add support for DPLL
+  * Hostmot2: detect & report encoder quadrature error
+  * Hostmot2: improved support for encoders (configurable filter rate)
+  * Hostmot2: improved support for muxed encoders (configurable skew rate)
+  * Hostmot2: changed handling of 8i20 and 7i64 (.hal file changes needed!)
+
+  * interp: G-codes can now be remapped
+  * interp: added read-only named parameters (#<_x> etc)
+  * interp: added M19 (orient spindle) and an orient component
+  * interp: added saving and restoring of modal G-code state with M70-M73
+  * interp: bug fixes in O-word handling
+  * interp: add python subroutines
+
+  * motion: coolant and lube are now user-controllable at all times
+  * motion: add spindle speed inihibit and feed inhibit input pins
+  * motion: add spindle absolute speed output pins
+  * motion: rapid velocity now ignores feed override setting
+
+  * rtapi: misc bug fixes
+
+  * removed usrmot (buggy & unused)
+  * removed freqgen component, it's been replaced by stepgen's
+        velocity mode
+
+  * build: simplified our usage of libmodbus
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 16 Apr 2014 21:12:39 -0600
+
+linuxcnc (1:2.5.4) lucid; urgency=low
+
+  * Build: update dependencies for Debian 7
+  * Docs: many fixes and updates
+  * HAL: blend: fix docs to match the real behavior
+  * HAL: edge: fix incorrect edge trigger at startup: Bug #346
+  * HAL: ilowpass: handle encoder counter overflows properly
+  * HAL: lcd: fix formatting when no format length is specified
+  * HAL: new components bin2gray, gray2bin for Gray code conversion
+  * HAL: new components bitwise and bitslice, for bitwise math operations
+  * HAL: pcl720: fix in-not pins
+  * HAL: thc: fix incorrect calculation of velocity tolerance: Bug #348
+  * Hostmot2: document ability to have multiple 7i43 cards
+  * Hostmot2: fix for PCI transfers on Linux 3.x kernels
+  * Hostmot2: fix resolver index emulation/detection
+  * Hostmot2: fix resolver total brokenness on 64-bit builds
+  * Interpreter: fix crash when returning from a subroutine, to a file
+    that has been deleted: Bug #357
+  * Interpreter: fix VW-plane (G19.1) canned cycles
+  * NGCGUI: Always apply tool offset when loading a tool
+  * NGCGUI: Fix qpocket stepover, ramping for mm users
+  * NML: fix remote clients talking to linuxcncserver
+  * Pncconf: allow setting the number of classicladder bits and words
+  * Pncconf: fix configurations requesting gladevcp panels without
+    spindle speed displays
+  * Pncconf: fix 7i43 address designation: Bug #358
+  * Pncconf: fix 5i25+prob_rfx2 pin numbering problem: Bug #331
+  * Pncconf: fix testing of smart-serial based spindles
+  * Pncconf: place STEPGEN_MAXVEL/STEPGEN_MAXACCEL values in the ini
+  * PPMC: Add new sample config showing encoder velocity estimation
+  * PyVCP: in a spinbox, allow entering a value with Return: Bug #364
+  * Stepconf: better defaults for axis-test distances
+  * Stepconf: fix spindle-at-speed connection
+  * Task: fix several problems with M61 (set currently-loaded tool)
+  * Touchy: MDI support for M61 Q
+  * Touchy: MDI support for multi-turn arcs
+  * TP: fix a minor acceleration constraint violation in some arcs
+
+ -- Chris Radek <chris@timeguy.com>  Thu, 17 Apr 2014 11:49:12 -0500
+
 linuxcnc (1:2.5.3) lucid; urgency=low
 
   * AXIS: fix disable/enable of the toolbar's reload button

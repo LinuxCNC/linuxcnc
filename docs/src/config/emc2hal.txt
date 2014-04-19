@@ -200,9 +200,17 @@ These pins, parameters, and functions are created by the realtime
      (float, out) Commanded spindle speed in rotations per minute. Positive
     for spindle forward ('M3'), negative for spindle reverse ('M4').
 
+* 'motion.spindle-speed-out-abs' - 
+     (float, out) Commanded spindle speed in rotations per minute. This will
+    always be a positive number.
+
 * 'motion.spindle-speed-out-rps' - 
      (float, out) Commanded spindle speed in rotations per second. Positive
     for spindle forward ('M3'), negative for spindle reverse ('M4').
+
+* 'motion.spindle-speed-out-rps-abs' - 
+     (float, out) Commanded spindle speed in rotations per second. This will
+    always be a positive number.
 
 * 'motion.teleop-mode' - 
      (bit, out) TRUE when motion is in 'teleop mode', as opposed to
