@@ -79,6 +79,37 @@ PM_CARTESIAN & PM_CARTESIAN::operator += (const PM_CARTESIAN &o) {
     z+=o.z;
     return *this;
 }
+/*
+const PM_CARTESIAN PM_CARTESIAN::operator+(const PM_CARTESIAN &o) const {
+    PM_CARTESIAN result = *this;
+    result += o;
+    return result;
+}
+
+const PM_CARTESIAN PM_CARTESIAN::operator-(const PM_CARTESIAN &o) const {
+    PM_CARTESIAN result = *this;
+    result -= o;
+    return result;
+}
+*/
+
+PM_CARTESIAN & PM_CARTESIAN::operator *= (double o)
+{
+    x*=o;
+    y*=o;
+    z*=o;
+    return *this;
+
+}
+
+PM_CARTESIAN & PM_CARTESIAN::operator /= (double o)
+{
+    x/=o;
+    y/=o;
+    z/=o;
+    return *this;
+}
+
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
 PM_CARTESIAN::PM_CARTESIAN(PM_CCONST PM_CARTESIAN & v)
@@ -1195,48 +1226,28 @@ int operator !=(const PM_POSE &p1, const PM_POSE &p2)
     return !pmPosePoseCompare(&_p1, &_p2);
 }
 
-PM_CARTESIAN operator +(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
+PM_CARTESIAN operator +(PM_CARTESIAN v1, const PM_CARTESIAN &v2)
 {
-    PM_CARTESIAN ret;
-
-    ret.x = v1.x + v2.x;
-    ret.y = v1.y + v2.y;
-    ret.z = v1.z + v2.z;
-
-    return ret;
+    v1 += v2;
+    return v1;
 }
 
-PM_CARTESIAN operator -(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
+PM_CARTESIAN operator -(PM_CARTESIAN v1, const PM_CARTESIAN &v2)
 {
-    PM_CARTESIAN ret;
-
-    ret.x = v1.x - v2.x;
-    ret.y = v1.y - v2.y;
-    ret.z = v1.z - v2.z;
-
-    return ret;
+    v1 -= v2;
+    return v1;
 }
 
-PM_CARTESIAN operator *(const PM_CARTESIAN &v, double s)
+PM_CARTESIAN operator *(PM_CARTESIAN v, double s)
 {
-    PM_CARTESIAN ret;
-
-    ret.x = v.x * s;
-    ret.y = v.y * s;
-    ret.z = v.z * s;
-
-    return ret;
+    v *= s;
+    return v;
 }
 
-PM_CARTESIAN operator *(double s, const PM_CARTESIAN &v)
+PM_CARTESIAN operator *(double s, PM_CARTESIAN v)
 {
-    PM_CARTESIAN ret;
-
-    ret.x = v.x * s;
-    ret.y = v.y * s;
-    ret.z = v.z * s;
-
-    return ret;
+    v *= s;
+    return v;
 }
 
 PM_CARTESIAN operator /(const PM_CARTESIAN &v, double s)
