@@ -25,7 +25,6 @@ setp lineardeltakins.R [MACHINE]DELTA_R
 # motion controller, get name and thread periods from ini file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 
-
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
 loadrt [PRUCONF](DRIVER) prucode=$(LINUXCNC_HOME)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
@@ -37,6 +36,11 @@ loadrt limit1 count=2
 # t = Thermistor table (only epcos_B57560G1104 or 1 supported for now)
 # a = analog input channel
 loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
+
+#used for comparing temperature set value with actual for waiting on temperature
+loadrt wcomp count=1
+# Initialize the sum2
+loadrt sum2 count=2
 
 # ################################################
 # THREADS
@@ -52,6 +56,10 @@ addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
 addf [PRUCONF](DRIVER).update             servo-thread
 addf bb_gpio.write                        servo-thread
+
+addf wcomp.0                              servo-thread
+addf sum2.0                               servo-thread
+addf sum2.1                               servo-thread
        
 
 # ######################################################
@@ -274,13 +282,47 @@ setp hal_pru_generic.pwmgen.00.out.00.pin       0x37
 setp hal_pru_generic.pwmgen.00.out.00.enable    1
 setp hal_pru_generic.pwmgen.00.out.00.value     0.0
 
+#signals for comparing set value and actual value of temperature
+#newsig M209_set_temp             float
+newsig sub_temp_min               float
+newsig add_temp_max               float
+newsig e0_temp_within_range       bit
+
+#set boundaries with sum2 +1 and -1 of the wanted temperature
+sets add_temp_max 1
+sets sub_temp_min -1
+
+net e0.temp.set  => sum2.0.in0
+setp sum2.0.in1 2
+#net add_temp_max.out => sum2.0.in1
+
+net e0.temp.set  => sum2.1.in0
+setp sum2.1.in1 -2
+#net sub_temp_min.out => sum2.1.in1
+
+#the values will be given to the wcomp.0 function
+net minboundary sum2.1.out => wcomp.0.min
+net maxboundary sum2.0.out => wcomp.0.max
+net e0.temp.meas => wcomp.0.in
+
+#the output of wcomp.0 will say if measured temperature is in range of set value
+#this needs to be coupled to a digital input for M66 readout
+#net e0_temp_within_range.in <= wcomp.0.out
+#net e0_temp_within_range.out => motion.digital-in-00
+net e0_temp_within_range wcomp.0.out => motion.digital-in-00
+
 # no longer J3 E1 Heater PRU1.out0
 # instead used for FAN control
-# we use scals 255 for campatibility with slicing software
+# we use scalse 255 for campatibility with slicing software
 setp hal_pru_generic.pwmgen.00.out.01.pin       0x36
 setp hal_pru_generic.pwmgen.00.out.01.enable    1
 setp hal_pru_generic.pwmgen.00.out.01.value     0.0
 setp hal_pru_generic.pwmgen.00.out.01.scale     255
+
+#linking motion.analog-out-00 to fan speed.set.signal
+net fan.speed.set <= motion.analog-out-00
+net fan.speed.set => hal_pru_generic.pwmgen.00.out.01.value
+
 
 # J4 Bed Heater GPIO2.16
 setp hal_pru_generic.pwmgen.00.out.02.pin       0x52
@@ -302,9 +344,6 @@ net e0.heaterl => hal_pru_generic.pwmgen.00.out.00.value
 # Limit heater PWM to positive values
 # PWM mimics hm2 implementation, which generates output for negative values
 setp limit1.0.min 0
-
-# fan control
-net fan.speed.set => hal_pru_generic.pwmgen.00.out.01.value
 
 # PID for Bed temperature control
 net bed.temp.meas    <= Therm.temp1
