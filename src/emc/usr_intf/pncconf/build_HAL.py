@@ -1235,7 +1235,7 @@ class HAL:
             print >>file
             print >>file, "net %s-pos-cmd    <= axis.%d.motor-pos-cmd" % (let, axnum )
             print >>file, "net %s-vel-cmd    <= axis.%d.joint-vel-cmd" % (let, axnum )
-            print >>file, "net %s-output     => "% (let) + steppinname + ".velocity-cmd"
+            print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
             print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
             print >>file, "net %s-pos-fb     => axis.%d.motor-pos-fb" % (let, axnum )
             print >>file, "net %s-enable     <= axis.%d.amp-enable-out"% (let,axnum)
