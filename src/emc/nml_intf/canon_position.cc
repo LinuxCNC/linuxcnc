@@ -128,18 +128,17 @@ const CANON_POSITION CANON_POSITION::operator+(const EmcPose &o) const {
     result += o;
     return result;
 }
-const CANON_POSITION CANON_POSITION::operator-=(const CANON_POSITION &o) {
-    CANON_POSITION result = *this;
-    result.x -= o.x;
-    result.y -= o.y;
-    result.z -= o.z;
-    result.a -= o.a;
-    result.b -= o.b;
-    result.c -= o.c;
-    result.u -= o.u;
-    result.v -= o.v;
-    result.w -= o.w;
-    return result;
+CANON_POSITION & CANON_POSITION::operator-=(const CANON_POSITION &o) {
+    this->x -= o.x;
+    this->y -= o.y;
+    this->z -= o.z;
+    this->a -= o.a;
+    this->b -= o.b;
+    this->c -= o.c;
+    this->u -= o.u;
+    this->v -= o.v;
+    this->w -= o.w;
+    return *this;
 }
 
 CANON_POSITION & CANON_POSITION::operator-=(const EmcPose &o) {
