@@ -124,39 +124,6 @@ struct CANON_VECTOR {
     }
     double x, y, z;
 };
-
-struct CANON_POSITION {
-#ifndef JAVA_DIAG_APPLET
-    CANON_POSITION() {
-    } 
-    CANON_POSITION(double _x, double _y, double _z,
-                   double _a, double _b, double _c,
-                   double _u, double _v, double _w) {
-	x = _x;
-	y = _y;
-	z = _z;
-	a = _a;
-	b = _b;
-	c = _c;
-        u = _u;
-        v = _v;
-        w = _w;
-    }
-    bool operator==(const CANON_POSITION &o) const {
-        return(x == o.x && y == o.y && z == o.z &&
-               a == o.a && b == o.b && c == o.c &&
-               u == o.u && v == o.v && w == o.v);
-    }
-    bool operator!=(const CANON_POSITION &o) const {
-        return(x != o.x || y != o.y || z != o.z ||
-               a != o.a || b != o.b || c != o.c ||
-               u != o.u || v != o.v || w != o.v);
-    }
-#endif
-
-    double x, y, z, a, b, c, u, v, w;
-};
-
 /* Initialization */
 
 /* reads world model data into the canonical interface */
