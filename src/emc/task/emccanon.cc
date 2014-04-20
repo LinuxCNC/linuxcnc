@@ -291,6 +291,18 @@ static void to_ext(double &x, double &y, double &z, double &a, double &b, double
     v = TO_EXT_LEN(v);
     w = TO_EXT_LEN(w);
 }
+
+static void to_ext(CANON_POSITION & pos) {
+    pos.x=TO_EXT_LEN(pos.x);
+    pos.y=TO_EXT_LEN(pos.y);
+    pos.z=TO_EXT_LEN(pos.z);
+    pos.a=TO_EXT_ANG(pos.a);
+    pos.b=TO_EXT_ANG(pos.b);
+    pos.c=TO_EXT_ANG(pos.c);
+    pos.u=TO_EXT_LEN(pos.u);
+    pos.v=TO_EXT_LEN(pos.v);
+    pos.w=TO_EXT_LEN(pos.w);
+}
 #endif
 
 static PM_CARTESIAN to_ext_len(const PM_CARTESIAN & pos) {
@@ -450,17 +462,7 @@ static void send_g5x_msg(int index) {
 
     set_g5x_msg.g5x_index = index;
 
-    set_g5x_msg.origin.tran.x = TO_EXT_LEN(g5xOffset.x);
-    set_g5x_msg.origin.tran.y = TO_EXT_LEN(g5xOffset.y);
-    set_g5x_msg.origin.tran.z = TO_EXT_LEN(g5xOffset.z);
-
-    set_g5x_msg.origin.a = TO_EXT_ANG(g5xOffset.a);
-    set_g5x_msg.origin.b = TO_EXT_ANG(g5xOffset.b);
-    set_g5x_msg.origin.c = TO_EXT_ANG(g5xOffset.c);
-
-    set_g5x_msg.origin.u = TO_EXT_LEN(g5xOffset.u);
-    set_g5x_msg.origin.v = TO_EXT_LEN(g5xOffset.v);
-    set_g5x_msg.origin.w = TO_EXT_LEN(g5xOffset.w);
+    set_g5x_msg.origin = to_ext_pose(g5xOffset);
 
     if(css_maximum) {
         SET_SPINDLE_SPEED(spindleSpeed);
@@ -475,17 +477,7 @@ static void send_g92_msg(void) {
        read-ahead time */
     EMC_TRAJ_SET_G92 set_g92_msg;
 
-    set_g92_msg.origin.tran.x = TO_EXT_LEN(g92Offset.x);
-    set_g92_msg.origin.tran.y = TO_EXT_LEN(g92Offset.y);
-    set_g92_msg.origin.tran.z = TO_EXT_LEN(g92Offset.z);
-
-    set_g92_msg.origin.a = TO_EXT_ANG(g92Offset.a);
-    set_g92_msg.origin.b = TO_EXT_ANG(g92Offset.b);
-    set_g92_msg.origin.c = TO_EXT_ANG(g92Offset.c);
-
-    set_g92_msg.origin.u = TO_EXT_LEN(g92Offset.u);
-    set_g92_msg.origin.v = TO_EXT_LEN(g92Offset.v);
-    set_g92_msg.origin.w = TO_EXT_LEN(g92Offset.w);
+    set_g92_msg.origin = to_ext_pose(g92Offset);
 
     if(css_maximum) {
         SET_SPINDLE_SPEED(spindleSpeed);
@@ -506,28 +498,11 @@ void SET_G5X_OFFSET(int index,
                     double a, double b, double c,
                     double u, double v, double w)
 {
+    CANON_POSITION pos(x,y,z,a,b,c,u,v,w);
+    from_prog(pos);
+
     /* convert to mm units */
-    x = FROM_PROG_LEN(x);
-    y = FROM_PROG_LEN(y);
-    z = FROM_PROG_LEN(z);
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
-
-    g5xOffset.x = x;
-    g5xOffset.y = y;
-    g5xOffset.z = z;
-    
-    g5xOffset.a = a;
-    g5xOffset.b = b;
-    g5xOffset.c = c;
-
-    g5xOffset.u = u;
-    g5xOffset.v = v;
-    g5xOffset.w = w;
+    g5xOffset = pos;
 
     send_g5x_msg(index);
 }
@@ -536,27 +511,10 @@ void SET_G92_OFFSET(double x, double y, double z,
                     double a, double b, double c,
                     double u, double v, double w) {
     /* convert to mm units */
-    x = FROM_PROG_LEN(x);
-    y = FROM_PROG_LEN(y);
-    z = FROM_PROG_LEN(z);
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
+    CANON_POSITION pos(x,y,z,a,b,c,u,v,w);
+    from_prog(pos);
 
-    g92Offset.x = x;
-    g92Offset.y = y;
-    g92Offset.z = z;
-    
-    g92Offset.a = a;
-    g92Offset.b = b;
-    g92Offset.c = c;
-
-    g92Offset.u = u;
-    g92Offset.v = v;
-    g92Offset.w = w;
+    g92Offset = pos;
 
     send_g92_msg();
 }
