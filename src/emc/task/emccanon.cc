@@ -921,7 +921,6 @@ static void flush_segments(void) {
     chained_points.clear();
 }
 
-#if 0
 static void get_last_pos(double &lx, double &ly, double &lz) {
     if(chained_points.empty()) {
         lx = canonEndPoint.x;
@@ -934,7 +933,6 @@ static void get_last_pos(double &lx, double &ly, double &lz) {
         lz = pos.z;
     }
 }
-#endif
 
 static bool
 linkable(double x, double y, double z, 
@@ -1219,7 +1217,6 @@ void STOP_SPEED_FEED_SYNCH()
 }
 
 /* Machining Functions */
-#if 0
 static double chord_deviation(double sx, double sy, double ex, double ey, double cx, double cy, int rotation, double &mx, double &my) {
     double th1 = atan2(sy-cy, sx-cx),
            th2 = atan2(ey-cy, ex-cx),
@@ -1245,7 +1242,6 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
     double dev = r * (1 - cos(included/2));
     return dev;
 }
-#endif
 
 /* Spline and NURBS additional functions; */
 
@@ -1445,20 +1441,21 @@ void ARC_FEED(int line_number,
 
     printf(" line = %d\n", line_number);
     printf("first_end = %f, second_end = %f\n", first_end,second_end);
-    /*
-    double mx, my;
-    double lx, ly, lz;
-
-    get_last_pos(lx, ly, lz);
-
-    a = FROM_PROG_ANG(a);
-    b = FROM_PROG_ANG(b);
-    c = FROM_PROG_ANG(c);
-    u = FROM_PROG_LEN(u);
-    v = FROM_PROG_LEN(v);
-    w = FROM_PROG_LEN(w);
 
     if( activePlane == CANON_PLANE_XY && canonMotionMode == CANON_CONTINUOUS) {
+        double mx, my;
+        double lx, ly, lz;
+        double unused;
+
+        get_last_pos(lx, ly, lz);
+
+        a = FROM_PROG_ANG(a);
+        b = FROM_PROG_ANG(b);
+        c = FROM_PROG_ANG(c);
+        u = FROM_PROG_LEN(u);
+        v = FROM_PROG_LEN(v);
+        w = FROM_PROG_LEN(w);
+
         double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
         double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
         rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
@@ -1477,10 +1474,6 @@ void ARC_FEED(int line_number,
             return;
         }
     }
-    */
-    //ini_maxvel = max vel defined by various ini constraints
-    //circ_maxvel = max vel defined by ini constraints in the circle plane (XY, YZ or XZ)
-    //axial_maxvel = max vel defined by ini constraints in the axial direction (Z, X or Y)
 
     linearMoveMsg.feed_mode = feed_mode;
     circularMoveMsg.feed_mode = feed_mode;
@@ -1493,6 +1486,11 @@ void ARC_FEED(int line_number,
     PM_CARTESIAN plane_x(1.0,0.0,0.0);
     PM_CARTESIAN plane_y(0.0,1.0,0.0);
 
+
+    printf("start = %f %f %f\n",
+            canonEndPoint.x,
+            canonEndPoint.y,
+            canonEndPoint.z);
     printf("end = %f %f %f\n",
             end_cart.x,
             end_cart.y,
@@ -1524,15 +1522,6 @@ void ARC_FEED(int line_number,
     plane_x = circshift(plane_x, shift_ind);
     plane_y = circshift(plane_y, shift_ind);
 
-    printf("end = %f %f %f\n",
-            end_cart.x,
-            end_cart.y,
-            end_cart.z);
-    printf("center = %f %f %f\n",
-            center_cart.x,
-            center_cart.y,
-            center_cart.z);
-
     printf("normal = %f %f %f\n",
             normal_cart.x,
             normal_cart.y,
@@ -1555,17 +1544,13 @@ void ARC_FEED(int line_number,
     from_prog_len(end_cart);
     endpt.set_xyz(end_cart);
 
-    printf("endpt = %f %f %f\n",
-            endpt.x,
-            endpt.y,
-            endpt.z);
-
     // Convert to CANON units
     from_prog_len(center_cart);
 
     // Rotate and offset the new end point to be in the same coordinate system as the current end point
     rotate_and_offset(endpt);
     rotate_and_offset_xyz(center_cart);
+    rotate_and_offset_xyz(end_cart);
     // Also rotate the basis vectors
     to_rotated(plane_x);
     to_rotated(plane_y);
@@ -1575,6 +1560,11 @@ void ARC_FEED(int line_number,
             end_cart.x,
             end_cart.y,
             end_cart.z);
+
+    printf("endpt = %f %f %f\n",
+            endpt.x,
+            endpt.y,
+            endpt.z);
     printf("center = %f %f %f\n",
             center_cart.x,
             center_cart.y,
@@ -1616,7 +1606,7 @@ void ARC_FEED(int line_number,
         if(theta_end <= theta_start) theta_end += M_PI * 2.0;
     }
 
-    printf("raw_theta_end = %f, raw_theta_start = %f\n", theta_end, theta_start);
+    printf("theta_end = %f, theta_start = %f\n", theta_end, theta_start);
 
     /*
        mapping of rotation to full turns:
@@ -1667,9 +1657,13 @@ void ARC_FEED(int line_number,
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     double v_max_radial = sqrt(a_max_planar * radius);
     double v_max = MIN(v_max_radial, v_max_planar);
+    printf("v_max_planar = %f\n", v_max_planar);
+    printf("v_max_radial = %f\n", v_max_radial);
+    printf("v_max = %f\n", v_max);
 
     // find out how long the arc takes at ini_maxvel
-    double t_circle = fabs(angle * radius / v_max);
+    double t_circle = fabs(full_angle * radius / v_max);
+    printf("t_circle = %f\n", t_circle);
 
     double t_motion = axis_motion_time(canonEndPoint,endpt);
     printf("t_motion = %f\n", t_motion);
@@ -1691,10 +1685,11 @@ void ARC_FEED(int line_number,
     // From the total path time and length, calculate new max velocity
     if (t_max > 0.0) {
         double v_max_helical = helical_length / t_max;
-        v_max = MIN(v_max, v_max_helical);
+        printf("v_max_helical = %f\n",v_max_helical);
+        v_max = v_max_helical;
     }
 
-    // ACCELERATIONS
+//COMPUTE ACCEL
     
     // Compute max acceleration from axis motion (parameterized by axis, units t^2)
     double tt_motion = axis_acc_time(canonEndPoint, endpt);
@@ -1709,20 +1704,24 @@ void ARC_FEED(int line_number,
     double tt_helix = helical_length / a_max;
     double tt_max = MAX(tt_motion, tt_helix);
 
+    printf("tt_motion = %f\n", tt_motion);
+    printf("tt_helix = %f\n", tt_helix);
     printf("tt_max = %f\n", tt_max);
 
     // From the total path time and length, calculate new max acceleration
     if (tt_max > 0.0) {
         double a_max_helical = helical_length / tt_max;
-        a_max = MIN(a_max, a_max_helical);
+        printf("a_max_helical = %f\n",a_max_helical);
+        a_max = a_max_helical;
     }
 
     // Limit velocity by maximum
     double vel = MIN(currentLinearFeedRate, v_max);
 
+    printf("current F = %f\n",currentLinearFeedRate);
     printf("vel = %f\n",vel);
     printf("v_max = %f\n",v_max);
-    printf("a_max = %f\n",v_max);
+    printf("a_max = %f\n",a_max);
     printf("v_max_planar = %f\n",v_max_planar);
 
     cartesian_move = 1;
