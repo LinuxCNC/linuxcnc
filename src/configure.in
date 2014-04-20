@@ -93,6 +93,20 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
+# Cython Python Bindings
+AC_MSG_CHECKING(if cython is usable)
+AC_PATH_PROG(CYTHON,cython)
+AC_SUBST([CYTHON])
+if test "x$CYTHON" != "x"; then
+    AC_DEFINE([HAVE_CYTHON],[],[Build Cython-based Python extensions])
+    AC_SUBST([HAVE_CYTHON], [yes])
+else
+    AC_SUBST([HAVE_CYTHON], [no])
+fi
+AC_SUBST([CYTHON], [$CYTHON])
+AC_MSG_RESULT($CYTHON)
+
+
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)

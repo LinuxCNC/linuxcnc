@@ -1,0 +1,30 @@
+ifeq ($(HAVE_CYTHON),yes)
+
+HALNGDIR := hal/cython
+
+PYTARGETS += ../lib/python/machinekit/__init__.py
+
+../lib/python/machinekit/__init__.py:
+	@mkdir -p ../lib/python/machinekit
+	@touch $@
+
+INCLUDES += $(HALNGDIR)
+
+LIBSRCS := $(addprefix $(HALNGDIR)/, \
+	machinekit/hal.c)
+
+USERSRCS += $(LIBSRCS)
+
+$(call TOOBJSDEPS, $(LIBSRCS)) : EXTRAFLAGS=-fPIC
+
+TARGETS += ../lib/python/machinekit/hal.so
+
+../lib/python/machinekit/hal.so:  $(patsubst %.c,objects/%.o,$(LIBSRCS))
+	$(ECHO) Linking $($@)
+	@mkdir -p $(dir $@)
+	$(CC) -g $(LDFLAGS) -shared -o $@ $^ -llinuxcnchal
+
+$(HALNGDIR)/machinekit/hal.c: $(addprefix $(HALNGDIR)/machinekit/, hal.pyx hal.pxd)
+	cython -o $@ $<
+
+endif
