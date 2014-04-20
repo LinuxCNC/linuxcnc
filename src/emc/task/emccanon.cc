@@ -43,6 +43,15 @@
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 
+#define EMCCANON_DEBUG 0
+
+//Simple compile-time debug macro
+#if EMCCANON_DEBUG
+#define canon_debug(...) printf(__VA_ARGS__)
+#else
+#define canon_debug(...)
+#endif
+
 static int debug_velacc = 0;
 static double css_maximum, css_numerator; // both always positive
 static int spindle_dir = 0;
@@ -1397,8 +1406,8 @@ void ARC_FEED(int line_number,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
-    printf(" line = %d\n", line_number);
-    printf("first_end = %f, second_end = %f\n", first_end,second_end);
+    canon_debug("line = %d\n", line_number);
+    canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
 
     if( activePlane == CANON_PLANE_XY && canonMotionMode == CANON_CONTINUOUS) {
         double mx, my;
@@ -1445,15 +1454,15 @@ void ARC_FEED(int line_number,
     PM_CARTESIAN plane_y(0.0,1.0,0.0);
 
 
-    printf("start = %f %f %f\n",
+    canon_debug("start = %f %f %f\n",
             canonEndPoint.x,
             canonEndPoint.y,
             canonEndPoint.z);
-    printf("end = %f %f %f\n",
+    canon_debug("end = %f %f %f\n",
             end_cart.x,
             end_cart.y,
             end_cart.z);
-    printf("center = %f %f %f\n",
+    canon_debug("center = %f %f %f\n",
             center_cart.x,
             center_cart.y,
             center_cart.z);
@@ -1473,24 +1482,24 @@ void ARC_FEED(int line_number,
             break;
     }
 
-    printf("active plane is %d, shift_ind is %d\n",activePlane,shift_ind);
+    canon_debug("active plane is %d, shift_ind is %d\n",activePlane,shift_ind);
     end_cart = circshift(end_cart, shift_ind);
     center_cart = circshift(center_cart, shift_ind);
     normal_cart = circshift(normal_cart, shift_ind);
     plane_x = circshift(plane_x, shift_ind);
     plane_y = circshift(plane_y, shift_ind);
 
-    printf("normal = %f %f %f\n",
+    canon_debug("normal = %f %f %f\n",
             normal_cart.x,
             normal_cart.y,
             normal_cart.z);
 
-    printf("plane_x = %f %f %f\n",
+    canon_debug("plane_x = %f %f %f\n",
             plane_x.x,
             plane_x.y,
             plane_x.z);
 
-    printf("plane_y = %f %f %f\n",
+    canon_debug("plane_y = %f %f %f\n",
             plane_y.x,
             plane_y.y,
             plane_y.z);
@@ -1514,21 +1523,21 @@ void ARC_FEED(int line_number,
     to_rotated(plane_y);
     to_rotated(normal_cart);
 
-    printf("end = %f %f %f\n",
+    canon_debug("end = %f %f %f\n",
             end_cart.x,
             end_cart.y,
             end_cart.z);
 
-    printf("endpt = %f %f %f\n",
+    canon_debug("endpt = %f %f %f\n",
             endpt.x,
             endpt.y,
             endpt.z);
-    printf("center = %f %f %f\n",
+    canon_debug("center = %f %f %f\n",
             center_cart.x,
             center_cart.y,
             center_cart.z);
 
-    printf("normal = %f %f %f\n",
+    canon_debug("normal = %f %f %f\n",
             normal_cart.x,
             normal_cart.y,
             normal_cart.z);
@@ -1544,17 +1553,17 @@ void ARC_FEED(int line_number,
     double p_start_1 = dot(start_rel,plane_x);
     double p_start_2 = dot(start_rel,plane_y);
 
-    printf("planar end = %f %f\n", p_end_1, p_end_2);
-    printf("planar start = %f %f\n", p_start_1, p_start_2);
+    canon_debug("planar end = %f %f\n", p_end_1, p_end_2);
+    canon_debug("planar start = %f %f\n", p_start_1, p_start_2);
 
-    printf("rotation = %d\n",rotation);
+    canon_debug("rotation = %d\n",rotation);
 
     // Use the "X" (1) and Y" (2) components of the planar projections to get
     // the starting and ending angle. Note that atan2 arguments are atan2(Y,X).
     double theta_start = atan2(p_start_2, p_start_1);
     double theta_end= atan2(p_end_2,p_end_1);
     double radius = hypot(p_start_1, p_start_2);
-    printf("radius = %f\n",radius);
+    canon_debug("radius = %f\n",radius);
     printf("raw values: theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
 
     // Correct for angle wrap so that theta_end - theta_start > 0
@@ -1569,7 +1578,7 @@ void ARC_FEED(int line_number,
         if((theta_end - min_arc_angle) <= theta_start) theta_end += M_PI * 2.0;
     }
 
-    printf("theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
+    canon_debug("theta_end = %f, theta_start = %f\n", theta_end, theta_start);
 
     /*
        mapping of rotation to full turns:
@@ -1593,10 +1602,10 @@ void ARC_FEED(int line_number,
 
     double angle = theta_end - theta_start;
     double full_angle = angle + 2.0 * M_PI * (double)full_turns;
-    printf("angle = %.17e\n", angle);
-    printf("full turns = %d\n", full_turns);
-    printf("full_angle = %.17e\n", full_angle);
+    canon_debug("angle = %f\n", angle);
+    canon_debug("full turns = %d\n", full_turns);
 
+	canon_debug("full_angle = %.17e\n", full_angle);
     // Compute length along normal axis
     double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
 
@@ -1607,7 +1616,7 @@ void ARC_FEED(int line_number,
     int axis1 = (norm_axis_ind + 1) % 3;
     int axis2 = (norm_axis_ind + 2) % 3;
 
-    printf("axis1 = %d, axis2 = %d\n",axis1, axis2);
+    canon_debug("axis1 = %d, axis2 = %d\n",axis1, axis2);
 
     // Get planar velocity bounds
     double v1 = FROM_EXT_LEN(axis_max_velocity[axis1]);
@@ -1622,16 +1631,16 @@ void ARC_FEED(int line_number,
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     double v_max_radial = sqrt(a_max_planar * radius);
     double v_max = MIN(v_max_radial, v_max_planar);
-    printf("v_max_planar = %f\n", v_max_planar);
-    printf("v_max_radial = %f\n", v_max_radial);
-    printf("v_max = %f\n", v_max);
+    canon_debug("v_max_planar = %f\n", v_max_planar);
+    canon_debug("v_max_radial = %f\n", v_max_radial);
+    canon_debug("v_max = %f\n", v_max);
 
     // find out how long the arc takes at ini_maxvel
     double t_circle = fabs(full_angle * radius / v_max);
-    printf("t_circle = %f\n", t_circle);
+    canon_debug("t_circle = %f\n", t_circle);
 
     double t_motion = axis_motion_time(canonEndPoint,endpt);
-    printf("t_motion = %f\n", t_motion);
+    canon_debug("t_motion = %f\n", t_motion);
 
     double t_max = MAX(t_motion, t_circle);
 
@@ -1642,17 +1651,17 @@ void ARC_FEED(int line_number,
         t_max = MAX(t_max, t_axial);
     }
 
-    printf("t_max = %f\n",t_max);
+    canon_debug("t_max = %f\n",t_max);
 
     // Total path length including helical motion
     double helical_length = hypot(full_angle * radius, axis_len);
-    printf("full_angle = %f\n", full_angle);
-    printf("helical_length = %f\n",helical_length);
+    canon_debug("full_angle = %f\n", full_angle);
+    canon_debug("helical_length = %f\n",helical_length);
 
     // From the total path time and length, calculate new max velocity
     if (t_max > 0.0) {
         double v_max_helical = helical_length / t_max;
-        printf("v_max_helical = %f\n",v_max_helical);
+        canon_debug("v_max_helical = %f\n",v_max_helical);
         v_max = v_max_helical;
     }
 
@@ -1671,25 +1680,25 @@ void ARC_FEED(int line_number,
     double tt_helix = helical_length / a_max;
     double tt_max = MAX(tt_motion, tt_helix);
 
-    printf("tt_motion = %f\n", tt_motion);
-    printf("tt_helix = %f\n", tt_helix);
-    printf("tt_max = %f\n", tt_max);
+    canon_debug("tt_motion = %f\n", tt_motion);
+    canon_debug("tt_helix = %f\n", tt_helix);
+    canon_debug("tt_max = %f\n", tt_max);
 
     // From the total path time and length, calculate new max acceleration
     if (tt_max > 0.0) {
         double a_max_helical = helical_length / tt_max;
-        printf("a_max_helical = %f\n",a_max_helical);
+        canon_debug("a_max_helical = %f\n",a_max_helical);
         a_max = a_max_helical;
     }
 
     // Limit velocity by maximum
     double vel = MIN(currentLinearFeedRate, v_max);
 
-    printf("current F = %f\n",currentLinearFeedRate);
-    printf("vel = %f\n",vel);
-    printf("v_max = %f\n",v_max);
-    printf("a_max = %f\n",a_max);
-    printf("v_max_planar = %f\n",v_max_planar);
+    canon_debug("current F = %f\n",currentLinearFeedRate);
+    canon_debug("vel = %f\n",vel);
+    canon_debug("v_max = %f\n",v_max);
+    canon_debug("a_max = %f\n",a_max);
+    canon_debug("v_max_planar = %f\n",v_max_planar);
 
     cartesian_move = 1;
 
