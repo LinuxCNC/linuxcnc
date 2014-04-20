@@ -311,12 +311,23 @@ ifeq ($(BUILD_PYTHON),yes)
 INCLUDE += -I$(INCLUDEPY)
 endif
 
+# trap build errors by making it possible to compare configure SHA vs build SHA
+# see configure.ac GIT_CONFIG_SHA for the configure-time string
+GIT_BUILD_SHA := $(shell ../scripts/get-git-sha)
+
+# complain if SHA's dont match
+$(info $(shell  ../scripts/check-build-vs-configure-sha))
+
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := $(call cc-option,-fwrapv) $(call cc-option, -fno-strict-overflow)
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := -g -Wall
 
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
+
+# enable runtime comparison of GIT_CONFIG_SHA (config.h) and GIT_BUILD_SHA
+CFLAGS += -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
+
 CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   -DULAPI $(DEBUG) $(OPT)
 
 ifeq ($(RUN_IN_PLACE),yes)
