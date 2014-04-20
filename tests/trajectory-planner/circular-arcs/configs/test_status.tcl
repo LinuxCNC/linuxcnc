@@ -32,7 +32,7 @@ net vel-ok-z <= wcomp_zvel.out
 
 #Conservative limits
 set acc_limit 1.0001
-set vel_limit 1.001
+set vel_limit 1.01
 #Gross error limits
 #set acc_limit 1.1
 #set vel_limit 1.1
