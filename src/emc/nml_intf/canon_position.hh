@@ -48,7 +48,7 @@ struct CANON_POSITION {
 
     const CANON_POSITION operator+(const CANON_POSITION &o) const;
     const CANON_POSITION operator+(const EmcPose &o) const;
-    const CANON_POSITION operator-=(const CANON_POSITION &o);
+    CANON_POSITION & operator-=(const CANON_POSITION &o);
     CANON_POSITION & operator-=(const EmcPose &o);
 
     const CANON_POSITION operator-(const CANON_POSITION &o) const;
