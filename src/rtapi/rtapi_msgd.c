@@ -706,7 +706,7 @@ int main(int argc, char **argv)
 
     syslog_async(LOG_INFO,
 		 "startup instance=%s pid=%d flavor=%s "
-		 "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s git=%s",
+		 "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s version=%s",
 		 global_data->instance_name, getpid(),
 		 flavor->name,
 		 global_data->rt_msg_level,
@@ -715,6 +715,12 @@ int main(int argc, char **argv)
 		 shmdrv_loaded ? "shmdrv" : "Posix",
 		 __VERSION__,
 		 GIT_VERSION);
+
+    syslog_async(LOG_INFO,"configured: %s sha=%s", CONFIG_DATE, GIT_CONFIG_SHA);
+    syslog_async(LOG_INFO,"built:      %s %s sha=%s",  __DATE__, __TIME__, GIT_BUILD_SHA);
+    if (strcmp(GIT_CONFIG_SHA,GIT_BUILD_SHA))
+	syslog_async(LOG_WARNING, "WARNING: git SHA's for configure and build do not match!");
+
 
     if ((global_data->rtapi_msgd_pid != 0) &&
 	kill(global_data->rtapi_msgd_pid, 0) == 0) {
