@@ -1,3 +1,7 @@
+ver. 1.1.3
+- it was possible to push btn_set_selected on offset page to set a coordinate
+  system with G92 selected, or being in edit offset mode, this is now avoided.
+
 ver. 1.1.2
 - after changing units according to G20 / G21 the scales to be applied to
   the jog wheel pin (jog_vel and max_vel has not been changed, resulting in
