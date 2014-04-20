@@ -1629,8 +1629,9 @@ void ARC_FEED(int line_number,
     }
 
     double angle = theta_end - theta_start;
-    double full_angle = angle + M_PI * (double)full_turns;
+    double full_angle = angle + 2.0 * M_PI * (double)full_turns;
     printf("angle = %f\n", angle);
+    printf("full turns = %d\n", full_turns);
 
     // Compute length along normal axis
     double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
@@ -1681,6 +1682,8 @@ void ARC_FEED(int line_number,
 
     // Total path length including helical motion
     double helical_length = hypot(full_angle * radius, axis_len);
+    printf("full_angle = %f\n", full_angle);
+    printf("helical_length = %f\n",helical_length);
 
     // From the total path time and length, calculate new max velocity
     if (t_max > 0.0) {
