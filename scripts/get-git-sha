@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# return a short SHA for the current HEAD, or text describing the situation
+
+gitcmd=`which git`
+if test -n "$gitcmd"; then
+   short_sha=`git rev-parse --short HEAD  2>/dev/null`
+   if test -n "$short_sha"; then
+       echo $short_sha
+   else
+       echo 'not in a git repo'
+   fi
+else
+   echo 'git not installed or executable'
+fi
+exit 0
