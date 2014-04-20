@@ -983,6 +983,7 @@ class gmoccapy(object):
             print(_("**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"))
             sys.exit()
         path = os.path.join(CONFIGPATH, parameterfile)
+        self.widgets.offsetpage1.set_display_follows_program_units()
         if self.stat.program_units != 1:
             self.widgets.offsetpage1.set_to_mm()
             self.widgets.offsetpage1.machine_units_mm = _MM
@@ -2014,6 +2015,13 @@ class gmoccapy(object):
             self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tooloffset-z"])
             self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tooloffset-x"])
 
+    def on_offsetpage1_selection_changed(self, widget, system, name):
+        if self.log: self._add_alarm_entry("Selection Changed to %s %s" % (system, name))
+        if system not in self.system_list[1: ] or self.widgets.tbtn_edit_offsets.get_active():
+            self.widgets.btn_set_selected.set_sensitive(False)
+        else:
+            self.widgets.btn_set_selected.set_sensitive(True)
+
 # from here only needed, if the DRO button will remain in gmoccapy
     def on_Combi_DRO_system_changed(self, widget, system):
         if self.widgets.tbtn_rel.get_active():
@@ -2628,7 +2636,7 @@ class gmoccapy(object):
         state = widget.get_active()
         self.widgets.offsetpage1.edit_button.set_active(state)
         widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
-                      "btn_set_value_z", "btn_set_selected", "ntb_jog"
+                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92"
                      ]
         self._sensitize_widgets(widgetlist, not state)
 
