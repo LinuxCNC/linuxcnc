@@ -22,7 +22,7 @@ rtstyles =  ['xenomai-kernel', 'xenomai',
 
 class Config(object):
 
-    
+
     def does_io(self):
         if self.BUILD_DRIVERS: return True
 
@@ -39,10 +39,12 @@ class Config(object):
         return self.BUILD_SYS == "kbuild"
 
     # automatic substitution by configure starts here
-    
+
     def __init__(self):
         self.config_date = "@DATE@"
         self.GIT_VERSION = "@GIT_VERSION@"
+        self.GIT_CONFIG_SHA="@GIT_CONFIG_SHA@"
+        self.CONFIG_DATE="@CONFIG_DATE@"
         self.EMC2_HOME = "@EMC2_HOME@"
         self.BUILD_DRIVERS="@BUILD_DRIVERS@"
         self.SUBST="@BUILD_DRIVERS@"

@@ -1,0 +1,29 @@
+#!/bin/bash
+#
+# helper for src/Makefile: compare build and configure SHA's
+#
+# trap the common error of checking out a different branch and forgetting to make clean/configure
+#
+# @configure_input@
+# on @DATE@
+#
+
+GIT_CONFIG_SHA=@GIT_CONFIG_SHA@
+GIT_BUILD_SHA=`../scripts/get-git-sha`
+
+if test "$GIT_CONFIG_SHA" != "$GIT_BUILD_SHA"; then
+
+    echo  1>&2
+    echo "***********************************************************" 1>&2
+
+    echo WARNING: configure was last run at @DATE@ at git version  "$GIT_CONFIG_SHA" 1>&2
+    echo WARNING: now the git version is: "$GIT_BUILD_SHA" 1>&2
+    echo WARNING: consider executing "'make clean; sh autogen.sh; ./configure <args>'" before running make 1>&2
+
+    echo "***********************************************************" 1>&2
+    echo  1>&2
+    exit 1
+fi
+
+exit 0
+
