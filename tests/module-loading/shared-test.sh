@@ -14,7 +14,7 @@ fi
 if [ "$NUM_PINS" -ne $(cat NUM_PINS) ]; then
     echo "Error:  number of pins found != number expected"
     echo "Pins found: '$NUM_PINS'"
-    echo "Pins expected:  $(cat RESULT)"
+    echo "Pins expected:  $(cat NUM_PINS)"
     exit 1
 fi
 
