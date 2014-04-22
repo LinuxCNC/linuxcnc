@@ -1089,8 +1089,6 @@ obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += pid.o
 pid-objs := hal/components/pid.o $(MATHSTUB)
-obj-$(CONFIG_PEPPER) += pepper.o
-pepper-objs := hal/components/pepper.o $(MATHSTUB)
 obj-$(CONFIG_AT_PID) += at_pid.o
 at_pid-objs := hal/components/at_pid.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
@@ -1155,6 +1153,8 @@ ifeq ($(TARGET_PLATFORM), beaglebone)
 ifeq ($(BUILD_SYS),user-dso)
 obj-$(CONFIG_HAL_GPIO) += hal_bb_gpio.o
 hal_bb_gpio-objs := hal/drivers/hal_bb_gpio.o 
+obj-$(CONFIG_PEPPER) += pepper.o
+pepper-objs := hal/components/pepper.o $(MATHSTUB)
 endif
 endif
 
@@ -1428,7 +1428,6 @@ $(RTLIBDIR)/pwmgen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pwmgen-objs))
 $(RTLIBDIR)/siggen$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(siggen-objs))
 $(RTLIBDIR)/at_pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(at_pid-objs))
 $(RTLIBDIR)/pid$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pid-objs))
-$(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
 $(RTLIBDIR)/threads$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(threads-objs))
 $(RTLIBDIR)/supply$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(supply-objs))
 $(RTLIBDIR)/sim_encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(sim_encoder-objs))
@@ -1460,6 +1459,7 @@ $(RTLIBDIR)/hal_pru_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru_gener
 $(RTLIBDIR)/hal_prudebug$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_prudebug-objs))
 $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
 $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs))
+$(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
 endif
 endif
 

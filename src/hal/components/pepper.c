@@ -92,6 +92,11 @@ MODULE_AUTHOR("Bas Laarhoven");
 MODULE_DESCRIPTION("Pepper Board Configuration Component for EMC HAL");
 MODULE_LICENSE("GPL");
 
+
+#if !defined( BUILD_SYS_USER_DSO)
+#error "This driver is for usermode threads only"
+#endif
+
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
 ************************************************************************/
@@ -144,8 +149,6 @@ static int comp_id;             /* component ID */
 static int  pepper_export( hal_pepper_t* addr, const char* prefix);
 static void pepper_update( void *arg, long period);
 static int  pepper_spi_prepare( hal_pepper_t* data);
-static int  pepper_spi_start( void);
-static int  pepper_spi_end( void);
 static int  pepper_spi_next_bit( int* spi_data);
 
 /***********************************************************************
