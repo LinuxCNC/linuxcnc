@@ -174,6 +174,9 @@ int rtapi_app_main(void){
         }
 
         retval = rtapi_snprintf(hal_name, HAL_NAME_LEN, "mux-gen.%02i", i);
+        if (retval >= HAL_NAME_LEN) {
+            goto fail0;
+        }
         if (inst->in_type == HAL_FLOAT || inst->out_type == HAL_FLOAT) {
             retval = hal_export_funct(hal_name, write_fp, inst, 1, 0, comp_id);
             if (retval < 0) {
@@ -218,6 +221,9 @@ int rtapi_app_main(void){
         for (p = 0; p < inst->size; p++) {
             retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
                     "mux-gen.%02i.in-%s-%02i", i, types[inst->in_type], p);
+            if (retval >= HAL_NAME_LEN) {
+                goto fail0;
+            }
             retval = hal_pin_new(hal_name, inst->in_type, HAL_IN,
                     (void**)&(inst->inputs[p]), comp_id);
             if (retval != 0) {
@@ -250,6 +256,9 @@ int rtapi_app_main(void){
         //output pins
         retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
                 "mux-gen.%02i.out-%s", i, types[inst->out_type]);
+        if (retval >= HAL_NAME_LEN) {
+            goto fail0;
+        }
         retval = hal_pin_new(hal_name, inst->out_type, HAL_OUT,
                 (void**)&(inst->output), comp_id);
         if (retval != 0) {
