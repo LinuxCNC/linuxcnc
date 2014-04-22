@@ -243,12 +243,20 @@ proc incompatible_ini_file {} {
    set progname [file tail $::argv0]
    set fname [file tail $::EMC_INIFILE]
    set answer [tk_messageBox \
-      -title "Incompatible" \
-      -message [msgcat::mc "<$fname>\n\n\
-               Not incompatible with $progname\n\n\
-               Ini file must:\n\
-                  1) include AXIS_n section(s)\n\
-                  2) use setp for AXIS_n items\n\
+      -title "Ini file not compatible with $progname" \
+      -message [msgcat::mc "\
+               No Tuneable items in ini file: <$fname>\n\n\
+               To specify tuneable item(s):\n\n\
+                  1) Include all \[AXIS_n\] sections\n\
+                     and specify itemnames(s)\n\n\
+                     Inifile example:\n\
+                        \[AXIS_0\]\n\
+                        P = 1\n\n\
+                  2) Use setp for \[AXIS_n\]itemname\n\n\
+                     Halfile example:\n\
+                     loadrt pid names=example\n\
+                     ...\n\
+                     setp example.Pgain \[AXIS_0\]P\n\
                \n\
                " ] \
       -type ok \
