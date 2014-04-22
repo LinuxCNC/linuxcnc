@@ -79,7 +79,7 @@ sudo $(which config-pin) -f - <<- EOF
 	P8.10	in	# gpio2.4	XLIM
 	P8.11	out	# gpio1.13	X_Dir
 	P8.12	out	# gpio1.12	X_Step
-	P8.13	out	# gpio0.23	PWM0
+	P8.13	out	# gpio0.23	PWM0/SPINDLE
 	P8.14	in	# gpio0.26	YLIM
 	P8.15	out	# gpio1.15	Y_Dir
 	P8.16	out	# gpio1.14	Y_Step
@@ -92,8 +92,8 @@ sudo $(which config-pin) -f - <<- EOF
 #	P9.18	in	# gpio0.4	SDI
 #	P9.21	out	# gpio0.3	SDO
 #	P9.22	out	# gpio0.2	SCK
-	P9.31	out	# gpio0.3	A_Dir
-	P9.11	out	# gpio0.2	A_Step
+	P9.13	out	# gpio0.30	A_Dir
+	P9.11	out	# gpio0.31	A_Step
 	P8.09	in	# gpio2.5	STOPin
 EOF
 

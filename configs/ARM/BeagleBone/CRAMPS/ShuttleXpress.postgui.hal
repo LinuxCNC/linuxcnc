@@ -1,0 +1,10 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel) starts
+net sxp.x-button => gladevcp.x_led1
+net sxp.y-button => gladevcp.y_led2
+net sxp.z-button => gladevcp.z_led3
+net sxp.a-button => gladevcp.a_led4
+net sxp.select-jog-increment-0 => gladevcp.Increment_led1
+net sxp.select-jog-increment-1 => gladevcp.Increment_led2
+net sxp.select-jog-increment-2 => gladevcp.Increment_led3
+net sxp.select-jog-increment-3 => gladevcp.Increment_led4
