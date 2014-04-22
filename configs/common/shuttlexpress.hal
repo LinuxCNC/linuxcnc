@@ -11,9 +11,9 @@ loadusr -W shuttlexpress
 
 loadrt abs_s32 names=abs_s32.sxp
 loadrt select8 names=select8.sxp-jog-speed,select8.sxp-jog-increment
-loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog
+loadrt mux2 names=mux2.sxp-x-analog,mux2.sxp-y-analog,mux2.sxp-z-analog,mux2.sxp-a-analog
 loadrt updown names=updown.sxp
-loadrt and2 names=and2.sxp-x-pos,and2.sxp-x-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-z-pos,and2.sxp-z-neg
+loadrt and2 names=and2.sxp-x-pos,and2.sxp-x-neg,and2.sxp-y-pos,and2.sxp-y-neg,and2.sxp-z-pos,and2.sxp-z-neg,and2.sxp-a-pos,and2.sxp-a-neg
 loadrt tristate_float names=tristate-float.sxp0,tristate-float.sxp1,tristate-float.sxp2,tristate-float.sxp3,tristate-float.sxp4,tristate-float.sxp5,tristate-float.sxp6,tristate-float.sxp7,tristate-float.sxp-jog-increment-0,tristate-float.sxp-jog-increment-1,tristate-float.sxp-jog-increment-2,tristate-float.sxp-jog-increment-3
 loadrt ilowpass names=ilowpass.sxp
 
@@ -114,6 +114,8 @@ addf and2.sxp-y-pos servo-thread
 addf and2.sxp-y-neg servo-thread
 addf and2.sxp-z-pos servo-thread
 addf and2.sxp-z-neg servo-thread
+addf and2.sxp-a-pos servo-thread
+addf and2.sxp-a-neg servo-thread
 
 net sxp.x-button                     => and2.sxp-x-pos.in0
 net sxp.spring-wheel-is-positive     => and2.sxp-x-pos.in1
@@ -139,7 +141,13 @@ net sxp.z-button                     => and2.sxp-z-neg.in0
 net sxp.spring-wheel-is-negative     => and2.sxp-z-neg.in1
 net sxp.jog-z-neg and2.sxp-z-neg.out => halui.jog.2.minus
 
+net sxp.a-button                     => and2.sxp-a-pos.in0
+net sxp.spring-wheel-is-positive     => and2.sxp-a-pos.in1
+net sxp.jog-a-pos and2.sxp-a-pos.out => halui.jog.3.plus
 
+net sxp.a-button                     => and2.sxp-a-neg.in0
+net sxp.spring-wheel-is-negative     => and2.sxp-a-neg.in1
+net sxp.jog-a-neg and2.sxp-a-neg.out => halui.jog.3.minus
 
 
 #
@@ -155,10 +163,10 @@ addf tristate-float.sxp-jog-increment-3 servo-thread
 # for each click of the jog-wheel there's 1000 simulated counts coming out
 # of the ilowpass below, so these numbers are 1000x smaller than the jog
 # increment size they encode
-setp tristate-float.sxp-jog-increment-0.in    0.0000001
-setp tristate-float.sxp-jog-increment-1.in    0.0000005
-setp tristate-float.sxp-jog-increment-2.in    0.000001
-setp tristate-float.sxp-jog-increment-3.in    0.000010
+setp tristate-float.sxp-jog-increment-0.in    0.000001
+setp tristate-float.sxp-jog-increment-1.in    0.000005
+setp tristate-float.sxp-jog-increment-2.in    0.00001
+setp tristate-float.sxp-jog-increment-3.in    0.0001
 
 setp updown.sxp.wrap 1
 setp updown.sxp.min  0
@@ -194,6 +202,7 @@ net sxp.jog-increment <= tristate-float.sxp-jog-increment-3.out
 net sxp.jog-increment => axis.0.jog-scale
 net sxp.jog-increment => axis.1.jog-scale
 net sxp.jog-increment => axis.2.jog-scale
+net sxp.jog-increment => axis.3.jog-scale
 
 
 
@@ -207,6 +216,7 @@ net sxp.jog-increment => axis.2.jog-scale
 net sxp.x-button axis.0.jog-enable
 net sxp.y-button axis.1.jog-enable
 net sxp.z-button axis.2.jog-enable
+net sxp.a-button axis.3.jog-enable
 
 # The ShuttleXpress jog wheel has 10 clicks per revolution
 # 
@@ -226,4 +236,5 @@ net sxp.counts-smoothed <= ilowpass.sxp.out
 net sxp.counts-smoothed => axis.0.jog-counts
 net sxp.counts-smoothed => axis.1.jog-counts
 net sxp.counts-smoothed => axis.2.jog-counts
+net sxp.counts-smoothed => axis.3.jog-counts
 
