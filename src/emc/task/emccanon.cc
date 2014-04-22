@@ -1555,16 +1555,21 @@ void ARC_FEED(int line_number,
     double theta_end= atan2(p_end_2,p_end_1);
     double radius = hypot(p_start_1, p_start_2);
     printf("radius = %f\n",radius);
+    printf("raw values: theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
 
     // Correct for angle wrap so that theta_end - theta_start > 0
     int is_clockwise = rotation < 0;
+
+    // FIXME should be a constant in canon.hh or elsewhere
+    const double min_arc_angle = 1e-12;
+
     if (is_clockwise) {
-        if(theta_end >= theta_start) theta_end -= M_PI * 2.0;
+        if((theta_end + min_arc_angle) >= theta_start) theta_end -= M_PI * 2.0;
     } else {
-        if(theta_end <= theta_start) theta_end += M_PI * 2.0;
+        if((theta_end - min_arc_angle) <= theta_start) theta_end += M_PI * 2.0;
     }
 
-    printf("theta_end = %f, theta_start = %f\n", theta_end, theta_start);
+    printf("theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
 
     /*
        mapping of rotation to full turns:
@@ -1588,8 +1593,9 @@ void ARC_FEED(int line_number,
 
     double angle = theta_end - theta_start;
     double full_angle = angle + 2.0 * M_PI * (double)full_turns;
-    printf("angle = %f\n", angle);
+    printf("angle = %.17e\n", angle);
     printf("full turns = %d\n", full_turns);
+    printf("full_angle = %.17e\n", full_angle);
 
     // Compute length along normal axis
     double axis_len = dot(end_cart - canonEndPoint.xyz(), normal_cart);
