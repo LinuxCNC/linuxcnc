@@ -92,6 +92,11 @@ int Hal_Init(Tcl_Interp *interp) {
 	return TCL_ERROR;
     }
 
+    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
+    {
+        return TCL_ERROR;
+    }
+
     Tcl_CreateCommand(interp, "hal", halCmd, 0, halExit);
 
     Tcl_PkgProvide(interp, "Hal", "1.0");
