@@ -1,3 +1,9 @@
+ver. 1.1.4
+- added again the gcode.lang file, it got lost, after changing gmoccapy to be
+  stand alone
+- the show screen2 button is now only sensitive if a file gmoccapy2.glade does
+  exist in the config dir. 
+
 ver. 1.1.3
 - it was possible to push btn_set_selected on offset page to set a coordinate
   system with G92 selected, or being in edit offset mode, this is now avoided.
