@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.2"
+_RELEASE = "  1.1.4"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -504,7 +504,10 @@ class gmoccapy(object):
         # the following would load the python language
         # self.widgets.gcode_view.set_language("python")
         LANGDIR = os.path.join(BASE, "share", "gtksourceview-2.0", "language-specs")
-        self.widgets.gcode_view.set_language("gcode", LANGDIR)
+        file_path = os.path.join(LANGDIR, "gcode.lang")
+        if os.path.isfile(file_path):
+            print "******************************* Gcode.lang found"
+            self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors of the DRO
         self.abs_color = self.prefs.getpref("abs_color", "blue", str)
@@ -788,10 +791,12 @@ class gmoccapy(object):
             except Exception, e:
                 print (_("**** GMOCCAPY ERROR ****"))
                 print _("**** screen 2 GLADE ERROR: ****")
+                self.widgets.tbtn_use_screen2.set_sensitive(False)
                 traceback.print_exc()
         else:
             print (_("**** GMOCCAPY INFO ****"))
-            print _("**** No screen 2 glade file present ****")
+            print _("**** No gmoccapy2.glade file present ****")
+            self.widgets.tbtn_use_screen2.set_sensitive(False)
 
 # =============================================================
 # Dynamic tabs handling Start
