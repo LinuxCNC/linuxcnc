@@ -1729,6 +1729,7 @@ int tpAddCircle(TP_STRUCT * const tp,
     }
 
     tp_info_print("== AddCircle ==\n");
+    tp_debug_print("ini_maxvel = %f\n",ini_maxvel);
 
     TC_STRUCT tc = {0};
 
