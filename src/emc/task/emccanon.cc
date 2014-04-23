@@ -38,15 +38,15 @@
 #include <ctype.h>		// isspace()
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
-#include "canon.hh"		// these decls
-#include "canon_position.hh"		// these decls
+#include "canon.hh"
+#include "canon_position.hh"		// data type for a machine position
 #include "interpl.hh"		// interp_list
 #include "emcglb.h"		// TRAJ_MAX_VELOCITY
 
-#define EMCCANON_DEBUG 0
+//#define EMCCANON_DEBUG
 
 //Simple compile-time debug macro
-#if EMCCANON_DEBUG
+#ifdef EMCCANON_DEBUG
 #define canon_debug(...) printf(__VA_ARGS__)
 #else
 #define canon_debug(...)
@@ -1359,7 +1359,7 @@ static double axis_motion_time(const CANON_POSITION & start, const CANON_POSITIO
     CANON_POSITION times; 
     CANON_POSITION maxvel = get_axis_max_velocity();
 
-    printf(" in axis_motion_time\n");
+    canon_debug(" in axis_motion_time\n");
     // For active axes, find the time required to reach the displacement in each axis
     int ind = 0;
     for (ind = 0; ind < 9; ++ind) {
@@ -1369,7 +1369,7 @@ static double axis_motion_time(const CANON_POSITION & start, const CANON_POSITIO
         } else {
             times[ind]=0;
         }
-        printf("  ind = %d, maxvel = %f, disp = %f, time = %f\n", ind, v, disp[ind], times[ind]);
+        canon_debug("  ind = %d, maxvel = %f, disp = %f, time = %f\n", ind, v, disp[ind], times[ind]);
     }
 
     return times.max();
@@ -1564,7 +1564,7 @@ void ARC_FEED(int line_number,
     double theta_end= atan2(p_end_2,p_end_1);
     double radius = hypot(p_start_1, p_start_2);
     canon_debug("radius = %f\n",radius);
-    printf("raw values: theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
+    canon_debug("raw values: theta_end = %.17e, theta_start = %.17e\n", theta_end, theta_start);
 
     // Correct for angle wrap so that theta_end - theta_start > 0
     int is_clockwise = rotation < 0;
