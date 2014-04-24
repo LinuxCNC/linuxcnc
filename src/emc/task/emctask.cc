@@ -418,7 +418,6 @@ int emcTaskPlanInit()
         inifile.Close();
     }
     if(!pinterp) {
-	rcs_print("emcTaskInit: using builtin interpreter\n");
         pinterp = new Interp;
     }
 
