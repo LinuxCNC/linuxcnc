@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+ Author: Nick Drobchenko<nick@cnc-club.ru>
+ Copyright (C) 2009 Nick Drobchenko<nick@cnc-club.ru>
+
+ This library is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA	02111-1307	USA
+
+-->
+<language id="gcode" _name="Gcode" version="2.0" _section="Others">
+	<metadata>
+		<property name="mimetypes"></property>
+		<property name="globs">*.nc;*.ngc</property>
+		<property name="block-comment-start">(</property>
+		<property name="block-comment-end">)</property>
+	</metadata>
+
+	<styles>
+		<style id="comment" _name="Comment" map-to="def:comment"/>
+		<style id="inline-comment" _name="Inline-Comment" map-to="def:comment"/>
+		<style id="variable" _name="Variable" map-to="def:identifier"/>
+		<style id="flow-control-codes" _name="Flow-control Codes" map-to="def:preprocessor"/>
+		<style id="math" _name="math" map-to="def:identifier"/>
+		<style id="motion" _name="Motion" map-to="def:keyword"/>
+		<style id="parameter" _name="Parameter" map-to="def:keyword"/>
+		<style id="distance-mode" _name="Distance Mode" map-to="def:string"/>
+		<style id="feed-rate-mode" _name="Feed Rate Mode" map-to="def:string"/>
+		<style id="spindle-control" _name="Spindle-Control" map-to="def:error"/>
+		<style id="coolant" _name="Coolant" map-to="def:identifier"/>
+		<style id="tool-length-offset" _name="Tool Length Offset" map-to="def:string"/>
+		<style id="stopping" _name="Stopping" map-to="def:error"/>
+		<style id="units" _name="Units" map-to="def:string"/>
+		<style id="plane-selection" _name="Plane Selection (affects G2, G3, G81...G89, G40...G42)" map-to="def:type"/>
+		<style id="cutter-radius-compensation" _name="Cutter Radius Compensation" map-to="def:string"/>
+		<style id="path-control-mode" _name="Path Control Mode" map-to="def:string"/>
+		<style id="return-mode-in-canned-cycles" _name="Return Mode in Canned Cycles" map-to="def:string"/>
+		<style id="other-modal-codes" _name="Other Modal Codes" map-to="def:type"/>
+		<style id="input-output-codes" _name="Input/Output Codes" map-to="def:string"/>
+		<style id="non-modal-nodes" _name="Non-modal Codes" map-to="def:floating-point"/>
+		<style id="parameter-value" _name="Parameter's value" map-to="def:floating-point"/>
+		<style id="messages" _name="Messages" map-to="def:floating-point"/>
+
+	</styles>
+	<default-regex-options case-sensitive="false"/>
+
+	<definitions>
+
+		<context id="block-comment" style-ref="comment">
+			<start>\(</start>
+			<end>\)</end>
+		</context>
+		
+		<context id="inline-comment" end-at-line-end="true" style-ref="comment">
+			<start>;</start>
+		</context>
+
+
+		<context id="variable" style-ref="variable">
+			<match>#([0-9]+|&lt;[a-zA-Z_0-9\-]+>)</match>
+		</context>
+		
+		<context id="math" style-ref="math">
+			<keyword>ATAN|ABS|ACOS|ASIN|COS|EXP|FIX|FUP|ROUND|LN|SIN|SQRT|TAN|MOD|EQ|NE|GT|GE|LT|LE|AND|OR|XOR</keyword>
+		</context>
+		
+		<context id="motion" style-ref="motion">
+			<keyword>G0?[01234]{1}</keyword>
+			<keyword>G8[0-3]</keyword>
+			<keyword>G(73|85|89|33(.1)?|76)</keyword>
+		</context>		
+
+		<context id="motion-r" style-ref="motion">
+			<match>G38\.[2..5]</match>
+		</context>		
+
+		<context id="distance-mode" style-ref="distance-mode">	
+			<keyword>G9[01](.1)?</keyword>
+			<keyword>G0?[78]</keyword>
+		</context>			
+
+		<context id="feed-rate-mode" style-ref="feed-rate-mode">	
+			<keyword>G9[345]</keyword>
+		</context>			
+
+		<context id="spindle-control" style-ref="spindle-control">	
+			<match>M0?[345]|G9[67]</match>
+			
+		</context>			
+
+		<context id="coolant" style-ref="coolant">	
+			<keyword>M0?[789]</keyword>
+		</context>			
+
+		<context id="tool-length-offset" style-ref="tool-length-offset">	
+			<keyword>G43(.1)?</keyword>
+			<keyword>G49</keyword>
+		</context>			
+
+		<context id="stopping" style-ref="stopping">	
+			<keyword>M0?[012]</keyword>
+			<keyword>M30</keyword>
+			<keyword>M60</keyword>
+		</context>			
+
+		<context id="units" style-ref="units">	
+			<keyword>G2[01]</keyword>
+		</context>			
+
+		<context id="plane-selection" style-ref="plane-selection">	
+			<keyword>G1[789]</keyword>
+		</context>			
+
+		<context id="cutter-radius-compensation" style-ref="cutter-radius-compensation">	
+			<keyword>G40</keyword>
+			<keyword>G4[12](.1)?</keyword>
+		</context>			
+
+		<context id="path-control-mode" style-ref="path-control-mode">	
+			<keyword>G61(.1)?</keyword>
+			<keyword>G64</keyword>
+		</context>			
+
+		<context id="return-mode-in-canned-cycles" style-ref="return-mode-in-canned-cycles">	
+			<keyword>G9[89]</keyword>
+		</context>			
+
+		<context id="other-modal-codes-r" style-ref="other-modal-codes">	
+			<match>[FST]</match>
+		</context>			
+
+		<context id="other-modal-codes" style-ref="other-modal-codes">	
+			<keyword>M5[0-8]</keyword>
+			<keyword>G5[4-9]</keyword>
+			<keyword>G59(.[123])?</keyword>
+		</context>			
+
+		<context id="input-output-codes" style-ref="input-output-codes">	
+			<keyword>M6[2345678]</keyword>
+		</context>			
+
+		<context id="non-modal-nodes" style-ref="non-modal-nodes">	
+			<keyword>M6</keyword>
+			<keyword>M06</keyword>
+			<keyword>G10</keyword>
+			<keyword>G28(.1)?</keyword>
+			<keyword>G30(.1)?</keyword>
+			<keyword>G53</keyword>
+			<keyword>G92(.[123])?</keyword>
+		</context>		
+			
+		<context id="non-modal-nodes-m" style-ref="non-modal-nodes">	
+			<match>M1[1..9]{2}</match>
+		</context>			
+
+		<context id="non-modal-nodes-g10" style-ref="non-modal-nodes">	
+			<match>G10\s*L[12]0?</match>
+		</context>			
+
+		<context id="messages" style-ref="messages">
+			<match>^MSG|DEBUG|PRINT</match>
+		</context>			
+ 
+ 
+ 		<context id="flow-control-codes" style-ref="flow-control-codes">	
+			<keyword>o[ \t]*\d+</keyword>
+			<keyword>sub|endsub|while|endwhile|if|else|endif|do|call|break|continue|return</keyword>
+		</context>	
+ 
+		<context id="parameter" style-ref="parameter">
+			<match>(?&lt;![a-zA-Z])[XYZABCUVWPQRIJKHLED]{1}</match>
+		</context>			
+
+		<context id="gcode">
+			<include>
+				<context ref="block-comment" />
+				<context ref="inline-comment" />
+				<context ref="variable" />
+				<context ref="math" />
+				<context ref="motion" />
+				<context ref="motion-r" />
+				<context ref="distance-mode" />
+				<context ref="feed-rate-mode" />
+				<context ref="spindle-control" />
+				<context ref="coolant" />
+				<context ref="tool-length-offset" />
+				<context ref="stopping" />
+				<context ref="units" />
+				<context ref="plane-selection" />
+				<context ref="cutter-radius-compensation" />
+				<context ref="path-control-mode" />
+				<context ref="return-mode-in-canned-cycles" />
+				<context ref="other-modal-codes" />
+				<context ref="flow-control-codes" />
+				<context ref="input-output-codes" />
+				<context ref="non-modal-nodes" />
+				<context ref="non-modal-nodes-m" />
+				<context ref="non-modal-nodes-g10" />
+				<context ref="messages" /> 
+				<context ref="parameter" />
+				<context ref="other-modal-codes-r" />				
+			</include>
+		</context>
+	</definitions>
+</language>
