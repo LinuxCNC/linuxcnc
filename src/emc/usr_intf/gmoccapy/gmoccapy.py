@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.1"
+_RELEASE = "  1.1.4"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -504,7 +504,10 @@ class gmoccapy(object):
         # the following would load the python language
         # self.widgets.gcode_view.set_language("python")
         LANGDIR = os.path.join(BASE, "share", "gtksourceview-2.0", "language-specs")
-        self.widgets.gcode_view.set_language("gcode", LANGDIR)
+        file_path = os.path.join(LANGDIR, "gcode.lang")
+        if os.path.isfile(file_path):
+            print "******************************* Gcode.lang found"
+            self.widgets.gcode_view.set_language("gcode", LANGDIR)
 
         # set the user colors of the DRO
         self.abs_color = self.prefs.getpref("abs_color", "blue", str)
@@ -788,10 +791,12 @@ class gmoccapy(object):
             except Exception, e:
                 print (_("**** GMOCCAPY ERROR ****"))
                 print _("**** screen 2 GLADE ERROR: ****")
+                self.widgets.tbtn_use_screen2.set_sensitive(False)
                 traceback.print_exc()
         else:
             print (_("**** GMOCCAPY INFO ****"))
-            print _("**** No screen 2 glade file present ****")
+            print _("**** No gmoccapy2.glade file present ****")
+            self.widgets.tbtn_use_screen2.set_sensitive(False)
 
 # =============================================================
 # Dynamic tabs handling Start
@@ -983,6 +988,7 @@ class gmoccapy(object):
             print(_("**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"))
             sys.exit()
         path = os.path.join(CONFIGPATH, parameterfile)
+        self.widgets.offsetpage1.set_display_follows_program_units()
         if self.stat.program_units != 1:
             self.widgets.offsetpage1.set_to_mm()
             self.widgets.offsetpage1.machine_units_mm = _MM
@@ -1909,7 +1915,7 @@ class gmoccapy(object):
                 self.widgets.tbtn_mist.set_active(False)
                 self.widgets.tbtn_mist.set_image(self.widgets.img_mist_off)
 
-    def _update_slider(self, widgetlist, faktor):
+    def _update_slider(self, widgetlist):
         # update scales and sliders
         for widget in widgetlist:
             value = self.widgets[widget].get_value()
@@ -1918,6 +1924,9 @@ class gmoccapy(object):
             self.widgets[widget].lower = min * self.faktor
             self.widgets[widget].upper = max * self.faktor
             self.widgets[widget].set_value(value * self.faktor)
+        self.scale_jog_vel = self.scale_jog_vel * self.faktor
+        self.scale_max_vel = self.scale_max_vel * self.faktor
+        self.on_adj_max_vel_value_changed(self.widgets.adj_max_vel)
 
     def _change_dro_color(self, property, color):
         for axis in self.axis_list:
@@ -2011,6 +2020,13 @@ class gmoccapy(object):
             self.widgets.lbl_tool_offset_z.set_text("%.4f" % self.halcomp["tooloffset-z"])
             self.widgets.lbl_tool_offset_x.set_text("%.4f" % self.halcomp["tooloffset-x"])
 
+    def on_offsetpage1_selection_changed(self, widget, system, name):
+        if self.log: self._add_alarm_entry("Selection Changed to %s %s" % (system, name))
+        if system not in self.system_list[1: ] or self.widgets.tbtn_edit_offsets.get_active():
+            self.widgets.btn_set_selected.set_sensitive(False)
+        else:
+            self.widgets.btn_set_selected.set_sensitive(True)
+
 # from here only needed, if the DRO button will remain in gmoccapy
     def on_Combi_DRO_system_changed(self, widget, system):
         if self.widgets.tbtn_rel.get_active():
@@ -2029,17 +2045,23 @@ class gmoccapy(object):
         widgetlist = ["adj_jog_vel", "adj_max_vel"]
 
         # self.stat.linear_units will return 1.0 for metric and 1/25,4 for imperial
+        # display units not equal machine units
         if metric_units != int(self.stat.linear_units):
+            # machine units = metric
             if self.stat.linear_units == _MM:
                 self.faktor = (1.0 / 25.4)
+            # machine units = imperial
             else:
                 self.faktor = 25.4
-            self._update_slider(widgetlist, self.faktor)
+            self._update_slider(widgetlist)
         else:
+            # display units equal machine units would be factor = 1,
+            # but if factor not equal 1.0 than we have to reconvert from previous first
             if self.faktor != 1.0:
                 self.faktor = 1 / self.faktor
-                self._update_slider(widgetlist, self.faktor)
+                self._update_slider(widgetlist)
                 self.faktor = 1.0
+                self._update_slider(widgetlist)
 
         if metric_units:
             self.widgets.scl_max_vel.set_digits(0)
@@ -2153,9 +2175,12 @@ class gmoccapy(object):
         # if data = True, then the user pressed SHIFT for Jogging and
         # want's to jog at full speed
         if data:
-            velocity = self.widgets.adj_max_vel.get_value() / 60
+            value = self.widgets.adj_max_vel.get_value() / 60
         else:
-            velocity = self.widgets.adj_jog_vel.get_value() / 60
+            value = self.widgets.adj_jog_vel.get_value() / 60
+
+        velocity = value * (1 / self.faktor)
+
 
         dir = widget.get_label()[1]
         if dir == "+":
@@ -2533,7 +2558,8 @@ class gmoccapy(object):
         pass
 
     def on_adj_max_vel_value_changed(self, widget, data = None):
-        self.command.maxvel(widget.get_value() / 60)
+        value = widget.get_value() / 60
+        self.command.maxvel(value * (1 / self.faktor))
 
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data = None):
@@ -2615,7 +2641,7 @@ class gmoccapy(object):
         state = widget.get_active()
         self.widgets.offsetpage1.edit_button.set_active(state)
         widgetlist = ["btn_zero_x", "btn_zero_y", "btn_zero_z", "btn_set_value_x", "btn_set_value_y",
-                      "btn_set_value_z", "btn_set_selected", "ntb_jog"
+                      "btn_set_value_z", "btn_set_selected", "ntb_jog", "btn_set_selected", "btn_zero_g92"
                      ]
         self._sensitize_widgets(widgetlist, not state)
 
