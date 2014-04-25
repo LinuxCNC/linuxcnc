@@ -652,6 +652,10 @@ int Interp::init_remap_sets()
 
     // the exception list of allocated G-codes which are manually overriden in the code
     // (mostly interp_convert.cc):
+    _setup.g_remappable[280] = 1;   // G28   Go to Predefined Position
+    _setup.g_remappable[281] = 1;   // G28.1 Go to Predefined Position
+    _setup.g_remappable[300] = 1;   // G30   Go to Predefined Position
+    _setup.g_remappable[301] = 1;   // G30.1 Go to Predefined Position
 
     return INTERP_OK;
 }
