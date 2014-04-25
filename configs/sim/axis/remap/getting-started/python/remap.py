@@ -94,3 +94,29 @@ def m465(self, **words):
     else:
         CLEAR_AUX_OUTPUT_BIT(p)
     return INTERP_OK
+
+
+
+def g280(self, **words):
+    MESSAGE("g280:")
+    for key in words:
+        MESSAGE("word '%s' = %f" % (key, words[key]))
+    return INTERP_OK
+
+def g281(self, **words):
+    MESSAGE("g281:")
+    for key in words:
+        MESSAGE("word '%s' = %f" % (key, words[key]))
+    return INTERP_OK
+
+def g300(self, **words):
+    MESSAGE("g300:")
+    for key in words:
+        MESSAGE("word '%s' = %f" % (key, words[key]))
+    return INTERP_OK
+
+def g301(self, **words):
+    MESSAGE("g301:")
+    for key in words:
+        MESSAGE("word '%s' = %f" % (key, words[key]))
+    return INTERP_OK
