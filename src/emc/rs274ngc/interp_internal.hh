@@ -767,7 +767,13 @@ typedef struct setup_struct
 
     // task calls upon interp.init() repeatedly
     // protect init() operations which are not idempotent
-    int init_once;  
+    int init_once;
+
+    // replace the baroque M_REMAPPABLE and G_REMAPPABLE macros by bitsets
+    // these are initialized in the constructor
+    std::bitset<1000>  m_remappable;
+    std::bitset<1000>  g_remappable;
+
 } setup;
 
 typedef setup *setup_pointer;

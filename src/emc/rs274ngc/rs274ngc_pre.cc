@@ -112,9 +112,10 @@ Interp::Interp()
     : log_file(stderr),
       _setup(setup_struct())
 {
-    _setup.init_once = 1;  
+
+    init_remap_sets();
     init_named_parameters();  // need this before Python init.
- 
+
     if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
 	Error("Interp ctor: cant instantiate Python plugin");
 	return;
