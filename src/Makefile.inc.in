@@ -14,7 +14,7 @@ BUILD_THREAD_FLAVORS=@BUILD_THREAD_FLAVORS@
 # result is empty or not in $(BUILD_THREAD_FLAVORS), pick the first
 # item from $(BUILD_THREAD_FLAVORS).
 threads ?= $(shell echo $(BUILD_THREAD_FLAVORS) | \
-	awk -v f="`flavor 2>/dev/null`" '\
+	awk -v f="`${EMC2_LIBEXEC_DIR}/flavor 2>/dev/null`" '\
 	{ \
 	    found=$$1; \
 	    split($$0,flavs); \
