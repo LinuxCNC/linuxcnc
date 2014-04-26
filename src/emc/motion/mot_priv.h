@@ -194,6 +194,9 @@ typedef struct {
     hal_bit_t *pause_offset_in_range;    // current offset ok with joint limits
 
     hal_s32_t *paused_at_motion_type;  // see motion_types.h; the move active when FH was pressed
+    hal_s32_t *current_motion_type;    // see motion_types.h; zero if no motion in progress
+
+
     //hal_s32_t *fh_stoppable_motions;  // mask of stoppable move types
 
     // out: when the above happened, assert the following pin

@@ -576,6 +576,9 @@ static int init_hal_io(void)
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->paused_at_motion_type),
 				   mot_comp_id, "motion.paused-at-motion")) < 0) return retval;
 
+    if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->current_motion_type),
+				   mot_comp_id, "motion.current-motion")) < 0) return retval;
+
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->pause_offset_in_range),
 				   mot_comp_id, "motion.pause-offset-in-range")) < 0) return retval;
 
