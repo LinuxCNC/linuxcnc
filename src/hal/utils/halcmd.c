@@ -312,8 +312,8 @@ static int parse_cmd1(char **argv) {
         return 0;
 
     if(!command) {
-	// special case: sig = newvalue
-	if(argc == 3 && strcmp(argv[1], "=")) {
+	// special case: pin/param = newvalue
+	if(argc == 3 && !strcmp(argv[1], "=")) {
 	    return do_setp_cmd(argv[0], argv[2]);
 	} else {
             halcmd_error("Unknown command '%s'\n", argv[0]);
@@ -329,7 +329,9 @@ static int parse_cmd1(char **argv) {
 	if(command->type & A_REMOVE_ARROWS) {
 	    int s, d;
 	    for(s=d=0; argv[s] && argv[s][0]; s++) {
-		if(argv[s][0] == '<' || argv[s][0] == '=') {
+		if(!strcmp(argv[s], "<=") ||
+		   !strcmp(argv[s], "=>") ||
+		   !strcmp(argv[s], "<=>")) {
 		    continue;
 		} else {
 		    argv[d++] = argv[s];

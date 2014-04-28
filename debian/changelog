@@ -1,3 +1,24 @@
+linuxcnc (1:2.6.0~pre2) precise; urgency=low
+
+  * pncconf: fix bug with 7i43 address handling
+  * pncconf: fix off-by-one error on pin numbering of 5i25 boards
+  * General mechatronics driver: fix initialization for certain BIOSes
+  * General Mechatronics driver: Improve DAC from 8 bit to 14 bit resolution
+  * Axis: Fix mist and flood buttons (sf bug #371)
+  * Axis: Fix spindle control buttons
+  * gmoccapy: fix G92 as system bug
+  * GUIs: better error message when tryint to tune un-tuneable ini file
+  * gladevcp: fix a bug in the offsetpage widget
+  * gladevcp: screen 2 "bug" solved and gcode.lang is back
+  * halsh: initialize stubs library (this fixes builds on Ubuntu 14.04 Trusty)
+  * edge component: Fix a couple of minor bugs
+  * Add sample configs for Pico Systems PPMC with velocity estimation
+  * docs: add descriptions of the new spindle speed pins in motion
+  * docs: add descriptions of the new feed- and spindle-inhibit pins
+  * daisy.ngc: Moves are way too short to make tones, if in mm mode
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 27 Apr 2014 16:25:56 -0600
+
 linuxcnc (1:2.6.0~pre1) precise; urgency=low
 
   * reorganized sample configs to improve clarity

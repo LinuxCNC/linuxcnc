@@ -565,8 +565,6 @@ function Cleanup() {
     if [ -f $LOCKFILE ] ; then
 	rm $LOCKFILE
     fi
-
-    echo "Cleanup done"
 }
 
 
@@ -676,9 +674,7 @@ if [ "$EMCIO" != "" ] ; then
                 Cleanup
         exit 1
         fi
-        echo $EMCIO started
         $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
-        echo halcmd loadusr $EMCIO started
 else
         echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
 fi
@@ -763,7 +759,6 @@ if [ -n "$PRELOAD_WORKAROUND" ] ; then
 fi
 
 $EMCTASK -ini "$INIFILE" &
-echo task pid=$!
 
 # 4.3.10. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
