@@ -312,8 +312,8 @@ static int parse_cmd1(char **argv) {
         return 0;
 
     if(!command) {
-	// special case: sig = newvalue
-	if(argc == 3 && strcmp(argv[1], "=")) {
+	// special case: pin/param = newvalue
+	if(argc == 3 && !strcmp(argv[1], "=")) {
 	    return do_setp_cmd(argv[0], argv[2]);
 	} else {
             halcmd_error("Unknown command '%s'\n", argv[0]);
