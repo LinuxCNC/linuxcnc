@@ -329,7 +329,9 @@ static int parse_cmd1(char **argv) {
 	if(command->type & A_REMOVE_ARROWS) {
 	    int s, d;
 	    for(s=d=0; argv[s] && argv[s][0]; s++) {
-		if(argv[s][0] == '<' || argv[s][0] == '=') {
+		if(!strcmp(argv[s], "<=") ||
+		   !strcmp(argv[s], "=>") ||
+		   !strcmp(argv[s], "<=>")) {
 		    continue;
 		} else {
 		    argv[d++] = argv[s];
