@@ -141,6 +141,10 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 TRUE if the machine is in position.
 
 .TP
+\fBmotion.current-motion\fR OUT S32
+Indicates the currently executing motion type. Zero if no motion in progress, or paused. Otherwise, the meanings are: 1 for traverse move, 2 for linear feed move, 3 for arc move, 4 for toolchange, 5 for probing, 6 for indexrotary action.
+
+.TP
 \fBmotion.probe-input\fR IN BIT 
 G38.x uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
 
