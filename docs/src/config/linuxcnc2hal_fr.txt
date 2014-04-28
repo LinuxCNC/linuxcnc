@@ -278,8 +278,8 @@ Les commandes M3, M4 ou M5 annulent les modes 'recherche d'orientation' ou
 'orientation atteinte'. Cet état est indiqué par la désactivation des broches
 'spindle-orient' et 'spindle-locked'.
 
-La pin 'spindle-orient-mode' reflète le paramètre P du M19 ce qui sera interprété
-comme ci-dessous:
+La pin 'spindle-orient-mode' reflète le paramètre P du M19, ce qui sera
+interprété comme ci-dessous:
 
  - 0: rotation, quel que soit le sens, pour petit mouvement angulaire (défaut)
  - 1: rotation toujours en sens horaire (même direction qu’avec M3)
