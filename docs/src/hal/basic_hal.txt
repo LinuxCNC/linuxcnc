@@ -96,7 +96,7 @@ or more pins. If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig. The optional direction
 arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading
 a 'net' command line and are not used by the net command. The direction arrows
-must be seperated by a space from the pin names.
+must be separated by a space from the pin names.
 
 .Syntax and Example:
 ----
