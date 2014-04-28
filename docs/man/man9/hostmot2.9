@@ -99,25 +99,41 @@ which PCI boards will be detected by the driver, but the detection
 order will be consistent as long as PCI boards are not moved around.
 Best to try loading it and see what the detection order is.
 
-The format of each board's config string is:
+The valid entries in the format string are:
 
-.B [firmware=\fIF\fB] [num_encoders=\fIN\fB] [ssi_chan_\fIN\fB=\fIabc%nq\fB] [biss_chan_\fIN\fB=\fIabc%nq\fB] [fanuc_chan_\fIN\fB=\fIabc%nq\fB] [num_resolvers=\fIN\fB] [num_pwmgens=\fIN\fB] [num_3pwmgens=\fIN\fB] [num_stepgens=\fIN\fB] [sserial_port_\fI0\fB=\fI00000000\fB] [num_leds=\fIN\fB] [enable_raw]
+.B
+ [firmware=\fIF\fB]
+ [num_encoders=\fIN\fB]
+ [ssi_chan_\fIN\fB=\fIabc%nq\fB]
+ [biss_chan_\fIN\fB=\fIabc%nq\fB]
+ [fanuc_chan_\fIN\fB=\fIabc%nq\fB]
+ [num_resolvers=\fIN\fB]
+ [num_pwmgens=\fIN\fB]
+ [num_3pwmgens=\fIN\fB]
+ [num_stepgens=\fIN\fB]
+ [stepgen_width=\fIN\fB]
+ [sserial_port_\fI0\fB=\fI00000000\fB]
+ [num_leds=\fIN\fB]
+ [enable_raw]
 .RS
 .TP
 \fBfirmware\fR [optional]
 Load the firmware specified by F into the FPGA on this board.  If no
 "\fBfirmware=\fIF\fR" string is specified, the FPGA will not be
-programmed, and had better have a valid configuration already.
- The 5i25 comes pre-programmed with firmware and no "firmware=" string should be
-used. It can be loaded, if desired with no config string at all. 
-.P
-.RS
+re-programmed but may continue to run a previously downloaded firmware.
+
 The requested firmware F is fetched by udev.  udev searches for the
 firmware in the system's firmware search path, usually /lib/firmware.
 F typically has the form "hm2/<BoardType>/file.bit"; a typical value
 for F might be "hm2/5i20/SVST8_4.BIT".  The hostmot2 firmware files are
-supplied by the hostmot2-firmware packages, available from linuxcnc.org.
-.RE
+supplied by the hostmot2-firmware packages, available from linuxcnc.org and can
+normally be installed by entering the command "sudo apt-get install
+hostmot2-firmware-5i23" to install the support files for the 5i23 for example.
+
+The 5i25 / 6i25 come pre-programmed with firmware and no "firmware=" string
+should be used with these cards. To change the firmware on a 5i25 or 6i25 the
+"mesaflash" utility should be used (available from Mesa). It is perfectly
+valid and reasonable to load these cards with no config string at all.
 .TP
 \fBnum_dplls\fR [optional, default: -1]
 The hm2dpll is a phase-locked loop timer module which may be used to trigger
@@ -166,6 +182,13 @@ number of pwmgens available in the firmware, the board will fail to register.
 Only enable the first N stepgens.  If N is -1, all stepgens are enabled.
 If N is 0, no stepgens are enabled.  If N is greater than the number of
 stepgens available in the firmware, the board will fail to register.
+.TP
+.TP
+\fBstepgen_width\fR [optional, default: 2]
+Used to mask extra, unwanted, stepgen pins. Stepper drives typically require
+only two pins (step and dir) but the Hostmot2 stepgen can drive up to 8 output
+pins for specialised applications (depending on firmware). This parameter
+applies to all stepgen instances. Unused, masked pins will be available as GPIO.
 .TP
 \fBsserial_port_N (N = 0 .. 3)\fR [optional, default: 00000000 for all ports]
 Up to 32 Smart Serial devices can be connected to a Mesa Anything IO board
@@ -888,8 +911,14 @@ step ends, in nanoseconds.
 Output format, like the step_type modparam to the
 software stegen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature, 3+ =
 table-lookup mode. In this mode the step_type parameter determines how long the
-step sequence is. The maximum length is 16. Table mode is not enabled in most of
-the distributed firmwares. 
+step sequence is. Additionally the stepgen_width parameter in the loadrt
+config string must be set to suit the number of pins per stepgen required. Any
+stepgen pins above this number will be available for GPIO. This mask defaults
+to 2.
+The maximum length is 16.
+Note that Table mode is not enabled in all firmwares but if you see GPIO
+pins between the stepgen instances in the dmesg/log hardware pin list then
+the option may be available.
 
 In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
 cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes. In table mode

@@ -398,10 +398,11 @@ rtapi_app_main(void)
 	struct pci_dev		*pDev = NULL;
 	card			*pCard = NULL;
 	gm_device_t		*pDevice;
+	u16			temp;
 
 	msgLevel = rtapi_get_msg_level();
 	rtapi_set_msg_level(RTAPI_MSG_ALL);
-	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.1 loading...\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.2 loading...\n");
 
 	// Connect to the HAL.
 	driver.comp_id = hal_init("hal_gm");
@@ -417,6 +418,11 @@ rtapi_app_main(void)
 	// Find General Mechatronics cards
 	device_ctr = 0;
 	while((device_ctr < MAX_GM_DEVICES) && ((pDev = pci_get_device(PLX_VENDOR_ID, GM_DEVICE_ID, pDev)) != NULL)){
+
+		//Enable PCI Memory access
+		pci_read_config_word(pDev,PCI_COMMAND,&temp);
+		temp |= PCI_COMMAND_MEMORY;
+		pci_write_config_word(pDev,PCI_COMMAND,temp);
 
 		// Allocate memory for device object.
 		pDevice = hal_malloc(sizeof(gm_device_t));
@@ -650,6 +656,9 @@ ExportDAC(void *arg, int comp_id, int version)
 	      rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: No DAC module available in this version of the Card.\n");
 	    break;
 	  case dacVersion1:
+              rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: This card supports DAC ver.1 only, which is no longer produced. No DAC pins will be exported to HAL. If you need DAC, contact to bence.kovacs@generalmechatronics.com for firmware upgrade.\n");
+	    break;
+	  case dacVersion2:
 	      for(i=0;i<6;i++)
 	      {
 		//Export Pins
@@ -669,8 +678,9 @@ ExportDAC(void *arg, int comp_id, int version)
 		device->axisdac[i].invert_serial = 0;
 		
 		//Init FPGA regs
-		pCard->DAC_0 = 0x7F7F7F7F;
-		pCard->DAC_1 = 0x7F7F;
+		pCard->DAC_0 = 0x1FFF1FFF;
+		pCard->DAC_1 = 0x1FFF1FFF;
+		pCard->DAC_2 = 0x1FFF1FFF;
 	      }
 	    break;
 	  default:
@@ -1060,6 +1070,7 @@ write(void *arg, long period)
 
 	int		i, temp1=0, temp2=0;
 	hal_float_t	DAC[6];
+	hal_u32_t	DAC_INTEGER[6];
 
 	//Refresh DAC values
 	  for(i=0;i<6;i++)
@@ -1084,14 +1095,17 @@ write(void *arg, long period)
 			DAC[i] = 0;
 		}
 		
-		DAC[i] = (DAC[i] * 12.8) + 127.5;
+		DAC[i] = (DAC[i] * 819.15) + 8191.5;
 		if(DAC[i] < 0) DAC[i] = 0;
-		else if (DAC[i] > 255) DAC[i] = 255;
+		else if (DAC[i] > 16383) DAC[i] = 16383;
+
+		DAC_INTEGER[i] = (hal_u32_t)(DAC[i]);
 		
-		if(device->axisdac[i].invert_serial) temp1 |= (0x1 << i);
+		if(device->axisdac[i].invert_serial) DAC_INTEGER[i] |= 0x8000;
 	  }
-	  pCard->DAC_0 = ((((hal_u32_t)(DAC[3])) & 0xFF) << 24) | ((((hal_u32_t)(DAC[2])) & 0xFF) << 16) | ((((hal_u32_t)(DAC[1])) & 0xFF) << 8) | (((hal_u32_t)(DAC[0])) & 0xFF);
-	  pCard->DAC_1 = (temp1 << 16) | ((((hal_u32_t)(DAC[5])) & 0xFF) << 8) | (((hal_u32_t)(DAC[4])) & 0xFF);
+	  pCard->DAC_0 = ((DAC_INTEGER[1] & 0xFFFF) << 16) | (DAC_INTEGER[0] & 0xFFFF);
+	  pCard->DAC_1 = ((DAC_INTEGER[3] & 0xFFFF) << 16) | (DAC_INTEGER[2] & 0xFFFF);
+	  pCard->DAC_2 = ((DAC_INTEGER[5] & 0xFFFF) << 16) | (DAC_INTEGER[4] & 0xFFFF);
  
 	//Run step generators
 	  stepgen(arg, period);

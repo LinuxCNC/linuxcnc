@@ -13,6 +13,8 @@ man9/abs_s32.9
 man9/and2.9
 man9/bin2gray.9
 man9/biquad.9
+man9/bitslice.9
+man9/bitwise.9
 man9/bldc.9
 man9/bldc_hall3.9
 man9/bldc_sine.9

@@ -579,7 +579,7 @@ def involute(self, **words):
 ---------------------------------------------------------------------
 
 The examples described so far can be found in
-'configs/sim/remap/getting-started' with complete working
+'configs/sim/axis/remap/getting-started' with complete working
 configurations.
 
 == Upgrading an existing configuration for remapping
@@ -881,8 +881,8 @@ iocontrol pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
 
-The standard prologs epilogs found in
-`configs/sim/remap/python-stdglue/remap.py` pass a few 'exposed
+The standard prologs and epilogs found in
+`ncfiles/remap_lib/python-stdglue/stdglue.py` pass a few 'exposed
 parameters' to the remap procedure.
 
 An 'exposed parameter' is a named local variable visible in a remap
@@ -939,7 +939,7 @@ CAUTION: when redefining a builtin code, *do not specify any leading
 zeroes in G- or M-codes* - for example, say `REMAP=M1 ..`, not
 `REMAP=M01 ...`.
 
-See the `configs/sim/remap/extend-builtins` directory for a complete
+See the `configs/sim/axis/remap/extend-builtins` directory for a complete
 configuration which is the recommded starting point for own work
 when extending builtin codes.
 
@@ -1085,7 +1085,7 @@ which might be used for conditional cleanup.
 
 Statements in that procedure typically would assure that post-abort
 any state has been cleaned up, like HAL pins properly reset. For an
-example, see `configs/sim/remap/rack-toolchange`. 
+example, see `configs/sim/axis/remap/rack-toolchange`.
 
 Note that terminating a remapped code by returning INTERP_ERROR from
 the epilog (see previous section) will also cause the `on_abort` procedure
@@ -1145,7 +1145,7 @@ spindle, mist and flood during an M0 or M1 program pause, and turn
 these settings back on when the program is resumed.
 
 For a complete example doing just that, see
-'configs/sim/remap/extend-builtins/', which adapts M1 as laid out above.
+'configs/sim/axis/remap/extend-builtins/', which adapts M1 as laid out above.
 
 == Creating new G-code cycles [[remap:G-code-cycles]]
 
@@ -1189,7 +1189,7 @@ instance, the `G33.1` Rigid Tapping code does not behave as a
 cycle. With such a wrapper, a new code can be easily created which
 uses `G33.1` but behaves as a cycle.
 
-See 'configs/sim/remap/cycle' for a complete example of this
+See 'configs/sim/axis/remap/cycle' for a complete example of this
 feature. It contains two cycles, one with an NGC procedure like above,
 and a cycle example using just Python.
 
@@ -1330,8 +1330,9 @@ display purposes but nothing else), this can be tested for by
 'self.task'>>.
 
 An example use of `__init__` and `__delete__` can be found in
-'configs/sim/remap/cycle/python/toplevel.py' initialising attributes
-needed to handle cycles in 'configs/sim/remap/python-stdglue/stdglue.py'.
+'configs/sim/axis/remap/cycle/python/toplevel.py' initialising attributes
+needed to handle cycles in 'ncfiles/remap_lib/python-stdglue/stdglue.py'
+(and imported into 'configs/sim/axis/remap/cycle/python/remap.py').
 
 
 === Calling conventions: NGC to Python
@@ -1700,7 +1701,7 @@ advanced example, see `tests/remap/predefined-named-params`.
 Since many remapping tasks are very similar, I've started collecting
 working prolog and epilog routines in a single Python module. These
 can currently be found in
-'configs/sim/remap/python-stdglue/stdglue.py' and provide the
+'ncfiles/remap_lib/python-stdglue/stdglue.py' and provide the
 following routines:
 
 === T: +prepare_prolog+ and +prepare_epilog+ 
@@ -1933,7 +1934,7 @@ procedure from above:
 
 image::images/debug_embedded_python.png[Debugging with Eclipse]
 
-See the Python code in `configs/sim/remap/getting-started/python` for details.
+See the Python code in `configs/sim/axis/remap/getting-started/python` for details.
 
 == Axis Preview and Remapped code execution
 [[cha:Axis-Preview-and-Remapped-code-execution]]
@@ -1969,7 +1970,7 @@ executes in preview or execution mode. This can be checked for by
 testing the `#<_task>` <<sec:Predefined-Named-Parameters, predefined
 named parameter>> - it will be 1 during actual execution and 0 during
 preview. See
-'configs/sim/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
+'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
 for a complete usage example.
 
 Within Embedded Python, the task instance can be checked for by
@@ -2404,7 +2405,7 @@ continue. (again, this 'wait' istn strictly necessary IMO)
 ==== Building the prolog and epilog for Tx
 
 See the Python functions `prepare_prolog` and `prepare_epilog` in 
-`configs/sim/remap/toolchange/python/toolchange.py`. 
+`configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 
 === How M6 (Change tool) works
@@ -2474,7 +2475,7 @@ model and continues with readahead.
 
 ==== Building the prolog and epilog for M6
 See the Python functions `change_prolog` and `change_epilog` in 
-`configs/sim/remap/toolchange/python/toolchange.py`. 
+`configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 === How M61 (Change tool number) works
 M61 requires a non-negative `Q`parameter (tool number). If zero, this
@@ -2483,7 +2484,7 @@ means 'unload tool', else 'set current tool number to Q'.
 ==== Building the replacement for M61
 An example Python redefinition for M61 can be found in the
 `set_tool_number` function in 
-`configs/sim/remap/toolchange/python/toolchange.py`. 
+`configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 
 == Optional Interpreter features: ini file configuration[[sub:ini-features]]
@@ -2643,7 +2644,7 @@ When compiling you might notice that interpmodule.cc takes very long
 to compile, which is normal - the extensive use of C++ templates makes the
 compiler breathe heavily. 
 
-If you want to play with the configs/sim/remap/iocontrol-removed
+If you want to play with the configs/sim/axis/remap/iocontrol-removed
 example, you need to install as follows:
 
  apt-get unixODBC-dev libsqliteodbc sqlite3
@@ -2698,7 +2699,7 @@ platform trying to run gladevcp.
 The workaround mentioned below was necessary up to commit
 d21a488a9e82dd85aa17207b80e3d930afeff202 . References to
 DISPLAY_LD_PRELOAD and TASK_LD_PRELOAD have been removed from the ini
-files under configs/sim/remap because they are not needed anymore.
+files under configs/sim/axis/remap because they are not needed anymore.
 
 Configure now tests whether a workaround is required, and
 automatically does 'the right thing' if needed.

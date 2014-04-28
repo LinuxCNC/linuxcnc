@@ -3342,18 +3342,25 @@ def forget(widget, *pins):
         widget.tk.call(m, "forget", widget._w)
 
 forget(widgets.brake, "motion.spindle-brake")
-forget(widgets.spindle_cw, "motion.spindle-forward", "motion.spindle-on")
-forget(widgets.spindle_ccw, "motion.spindle-reverse")
-forget(widgets.spindle_stop, "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on")
-forget(widgets.spindle_plus, "motion.spindle-speed-out")
-forget(widgets.spindle_minus, "motion.spindle-speed-out")
-forget(widgets.spindlef,  "motion.spindle-forward", "motion.spindle-reverse",
-    "motion.spindle-on", "motion.spindle-speed-out",
-    "motion.spindle-brake")
-forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse",
-    "motion.spindle-on", "motion.spindle-speed-out",
-    "motion.spindle-brake")
-forget(widgets.spinoverridef, "motion.spindle-speed-out")
+forget(widgets.spindle_cw, "motion.spindle-forward", "motion.spindle-on",
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+forget(widgets.spindle_ccw, "motion.spindle-reverse",
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+forget(widgets.spindle_stop, "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on",
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+
+forget(widgets.spindle_plus,
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+forget(widgets.spindle_minus,
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+
+forget(widgets.spindlef,  "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on", "motion.spindle-brake",
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+forget(widgets.spindlel,  "motion.spindle-forward", "motion.spindle-reverse", "motion.spindle-on", "motion.spindle-brake",
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
+
+forget(widgets.spinoverridef,
+       "motion.spindle-speed-out", "motion.spindle-speed-out-abs", "motion.spindle-speed-out-rps", "motion.spindle-speed-out-rps-abs")
 
 has_limit_switch = 0
 for j in range(9):
@@ -3370,9 +3377,9 @@ if not has_limit_switch:
     widgets.override.grid_forget()
 
 
-#forget(widgets.mist, "iocontrol.0.coolant-mist")
-#forget(widgets.flood, "iocontrol.0.coolant-flood")
-#forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
+forget(widgets.mist, "iocontrol.0.coolant-mist")
+forget(widgets.flood, "iocontrol.0.coolant-flood")
+forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""

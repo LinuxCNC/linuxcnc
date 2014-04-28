@@ -1,0 +1,4 @@
+# Example for twopass processing when using a postgui halfile
+# loadrt components needed in postgui halfile here
+
+loadrt hypot names=vel_xz,vel_yz

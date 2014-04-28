@@ -137,6 +137,10 @@ If this bit is driven FALSE, motion stops, the machine is placed in the "machine
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
 .TP
+\fBmotion.feed-inhibit\fR IN BIT 
+When this bit is TRUE, the feed rate is set and held to 0. This will be delayed during spindle synch moves till the end of the move. 
+
+.TP
 \fBmotion.motion-inpos\fR OUT BIT 
 TRUE if the machine is in position.
 
@@ -174,6 +178,10 @@ TRUE when the spindle should rotate forward
 For correct operation of spindle synchronized moves, this signal must be hooked to the index-enable pin of the spindle encoder.
 
 .TP
+\fBmotion.spindle-inhibit\fR IN BIT 
+When TRUE, the spindle speed is set and held to 0.
+
+.TP
 \fBmotion.spindle-on\fR OUT BIT 
 TRUE when spindle should rotate
 
@@ -194,8 +202,16 @@ Actual spindle speed feedback in revolutions per second; used for G96 (constant 
 Desired spindle speed in rotations per minute
 
 .TP
+\fBmotion.spindle-speed-out-abs\fR OUT FLOAT 
+Desired spindle speed in rotations per minute, always positive regardless of spindle direction.
+
+.TP
 \fBmotion.spindle-speed-out-rps\fR OUT float
 Desired spindle speed in rotations per second
+
+.TP
+\fBmotion.spindle-speed-out-rps-abs\fR OUT float
+Desired spindle speed in rotations per second, always positive regardless of spindle direction.
 
 .TP
 \fBmotion.spindle-orient-angle\fR OUT FLOAT

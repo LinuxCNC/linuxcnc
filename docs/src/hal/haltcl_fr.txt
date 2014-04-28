@@ -209,7 +209,7 @@ $ halrun -T fichierhaltcl.tcl
 
 == Exemples pour haltcl fournis avec la distribution (sim)
 
-Le répertoire _configs/sim/simtcl_ contient un fichier ini qui utilise un
+Le répertoire _configs/sim/axis/simtcl_ contient un fichier ini qui utilise un
 fichier .tcl pour démontrer une configuration haltcl en conjonction avec
 l'utilisation du processus "twopass". L'exemple montre l'utilisation des
 procédures Tcl, les boucles, l'utilisation des commentaires avec sortie

@@ -62,6 +62,7 @@ static int num_5i20 = 0;
 static int num_5i21 = 0;
 static int num_5i22 = 0;
 static int num_5i23 = 0;
+static int num_5i24 = 0;
 static int num_5i25 = 0;
 static int num_6i25 = 0;
 static int num_4i65 = 0;
@@ -119,6 +120,14 @@ static struct pci_device_id hm2_pci_tbl[] = {
         .device = HM2_PCI_DEV_PLX9054,
         .subvendor = HM2_PCI_VENDORID_PLX,
         .subdevice = HM2_PCI_SSDEV_5I23,
+    },
+
+    // 5i24
+    {
+        .vendor =  HM2_PCI_VENDORID_MESA,
+        .device = HM2_PCI_DEV_MESA5I24,
+        .subvendor = HM2_PCI_VENDORID_MESA,
+        .subdevice = HM2_PCI_SSDEV_5I24,
     },
 
     // 5i25
@@ -572,6 +581,20 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P4";
             board->llio.fpga_part_number = "3s400pq208";
+            board->llio.num_leds = 2;
+            break;
+        }
+
+        case HM2_PCI_SSDEV_5I24: {
+            LL_PRINT("discovered 5i24 at %s\n", pci_name(dev));
+            rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_5i24.%d", num_5i24);
+            num_5i24 ++;
+            board->llio.num_ioport_connectors = 3;
+            board->llio.pins_per_connector = 24;
+            board->llio.ioport_connector_name[0] = "P2";
+            board->llio.ioport_connector_name[1] = "P3";
+            board->llio.ioport_connector_name[2] = "P4";
+            board->llio.fpga_part_number = "xc6slx16ftg256";
             board->llio.num_leds = 2;
             break;
         }
