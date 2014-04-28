@@ -8,9 +8,9 @@ cd "$(dirname $0)"
 
 FLAVORS=
 
-# Check if xenomai is installed, headers is not needed
+# Check if xenomai dev is installed
 check_xeno() {
-    XENO_KVER="$(dpkg-query -W -f '${binary:Package}\n' linux-image-\*xenom\* 2> /dev/null)"
+    dpkg-query -W libxenomai-dev >&/dev/null
 }
 
 #FIXME: testing needed
@@ -118,14 +118,6 @@ build_rules() {
 build_substvars() {
     # init empty substvars file
     >substvars
-
-    # add Xenomai deps, if found
-    if check_xeno; then
-	set -- $XENO_KVER
-	XENO_KVER="${1//linux-image-/}"
-	test -z "$XENO_KVER" || \
-	    echo "xenomai-kver=$XENO_KVER" >> substvars
-    fi
 
     if check_rtai; then
 	set -- $RTAI_KVER
