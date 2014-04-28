@@ -91,7 +91,7 @@ In English it means 'loadusr wait for name spindle component gs2_vfd name spindl
 
 === net [[sub:net]] (((net)))
 
-The command 'net' creates a 'connection' between a signal and and one
+The command 'net' creates a 'connection' between a signal and one
 or more pins. If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig. The optional direction
 arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading
