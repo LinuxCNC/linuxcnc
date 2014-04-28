@@ -307,13 +307,11 @@ net e0.temp.meas => wcomp.0.in
 
 #the output of wcomp.0 will say if measured temperature is in range of set value
 #this needs to be coupled to a digital input for M66 readout
-#net e0_temp_within_range.in <= wcomp.0.out
-#net e0_temp_within_range.out => motion.digital-in-00
 net e0_temp_within_range wcomp.0.out => motion.digital-in-00
 
 # no longer J3 E1 Heater PRU1.out0
 # instead used for FAN control
-# we use scalse 255 for campatibility with slicing software
+# we use scale 255 for compatibility with slicing software
 setp hal_pru_generic.pwmgen.00.out.01.pin       0x36
 setp hal_pru_generic.pwmgen.00.out.01.enable    1
 setp hal_pru_generic.pwmgen.00.out.01.value     0.0
