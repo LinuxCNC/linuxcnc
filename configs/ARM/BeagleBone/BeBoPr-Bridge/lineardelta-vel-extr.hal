@@ -297,8 +297,8 @@ setp oneshot.0.falling 1
 setp oneshot.0.retriggerable 1
 setp oneshot.0.width 0.2
 
-#net trigger-finished oneshot.0.out-not motion.digital-in-01
-#net feed-hold oneshot.0.out => motion.feed-hold
+#get readout from the current motion pin
+net current-motion-type motion.current-motion
 
 #########
 ###todo
