@@ -7,47 +7,47 @@
 
 * LinuxCNC est un logiciel de contrôle de machines-outils telles que fraiseuses,
     tours, robots etc.
-* LinuxCNC est un logiciel libre avec code source ouvert. Les versions actuelles 
-    de LinuxCNC sont entièrement sous licence GNU Lesser General Public et de GNU 
+* LinuxCNC est un logiciel libre avec code source ouvert. Les versions actuelles
+    de LinuxCNC sont entièrement sous licence GNU Lesser General Public et de GNU
     General Public License (GPL et LGPL)
 * LinuxCNC propose:
 ** Une installation facile à partir d'un CD live.
-** Un assistant de configuration simple à utiliser pour créer rapidement une 
+** Un assistant de configuration simple à utiliser pour créer rapidement une
     configuration spécifique à la machine.
 ** Une interface graphique (plusieurs interfaces au choix).
 ** Un outil de création d'interface graphique (GladeVCP).
-** Un interpréteur de G-code (RS-274NGC, langage de programmation des 
+** Un interpréteur de G-code (RS-274NGC, langage de programmation des
     machines-outils).
-** Un système prédictif de planification de trajectoire. 
-** La gestion du fonctionnement de l'électronique machine de bas niveau, tels 
+** Un système prédictif de planification de trajectoire.
+** La gestion du fonctionnement de l'électronique machine de bas niveau, tels
     que les capteurs et les moteurs.
 ** Un logiciel d'automate programmable pour schémas à contacts (Ladder).
-* Il ne fournit pas directement de logiciel de dessin ni de générateur de G-code, 
+* Il ne fournit pas directement de logiciel de dessin ni de générateur de G-code,
     mais il en existe de nombreux, faciles à mettre en œuvre.
-* Il peut piloter simultanément jusqu'à 9 axes et supporte une très grande 
+* Il peut piloter simultanément jusqu'à 9 axes et supporte une très grande
     variété d'interfaces.
-* Le contrôleur peut fonctionner avec de vrais servomoteurs (analogiques ou PWM) 
-    en boucle fermée, ou avec des _step-servos_ ou encore, des moteurs pas à pas 
+* Le contrôleur peut fonctionner avec de vrais servomoteurs (analogiques ou PWM)
+    en boucle fermée, ou avec des _step-servos_ ou encore, des moteurs pas à pas
     en boucle ouverte.
-* Le contrôleur de mouvement assure: les compensations de rayon et/ou de 
-    longueur d'outil, le suivi de trajectoire d'usinage avec tolérance spécifiée, 
-    le filetage sur tour, le taraudage rigide, les mouvements avec axes 
-    synchronisés, la vitesse d'avance adaptative, la correction de vitesse par 
+* Le contrôleur de mouvement assure: les compensations de rayon et/ou de
+    longueur d'outil, le suivi de trajectoire d'usinage avec tolérance spécifiée,
+    le filetage sur tour, le taraudage rigide, les mouvements avec axes
+    synchronisés, la vitesse d'avance adaptative, la correction de vitesse par
     l'opérateur, le contrôle de vitesse constante etc.
-* Il supporte les systèmes à mouvements non cartésiens grâce aux modules de 
+* Il supporte les systèmes à mouvements non cartésiens grâce aux modules de
     cinématique personnalisée.
-    Les architectures disponibles incluent les hexapodes (plate-forme de Stewart 
-    et concepts similaires) et les systèmes à articulations rotatives pour 
+    Les architectures disponibles incluent les hexapodes (plate-forme de Stewart
+    et concepts similaires) et les systèmes à articulations rotatives pour
     assurer les mouvements de robots tels que PUMA ou SCARA.
 * LinuxCNC fonctionne sous Linux en utilisant ses extensions temps réel RTAI.
 
 == Le système d'exploitation
 
-La distribution Ubuntu a été choisie car elle s'intègre parfaitement dans les 
+La distribution Ubuntu a été choisie car elle s'intègre parfaitement dans les
 vues Open Source de LinuxCNC:
 
- - Ubuntu sera toujours gratuit, et il n'y a aucun frais supplémentaire pour la 
-    version  _"Enterprise Edition"_, 
+ - Ubuntu sera toujours gratuit, et il n'y a aucun frais supplémentaire pour la
+    version  _"Enterprise Edition"_,
     nous rendons nos travaux disponibles pour  tout le monde dans les mêmes 
     conditions de gratuité.
  - LinuxCNC est jumelé avec les versions LTS d'Ubuntu qui apportent le soutien et 
@@ -171,7 +171,7 @@ wget -c http://www.linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
 +
 Pour arrêter un téléchargement, utilisez Ctrl-C ou fermer la fenêtre du terminal.
 +
-.Ubuntu 8.04 Hardy Heron et LinuxCNC (plus)
+.Ubuntu 8.04 Hardy Heron et LinuxCNC (ancien)
 ****
 Si vous avez besoin d'une ancienne version d'Ubuntu, vous pouvez télécharger 
 Ubuntu 8.04. L'image du CD ci-dessous est l'ancienne version EMC 2.3.x, mais 
@@ -207,11 +207,10 @@ _Commande_
 Naviguez jusqu'au répertoire dans lequel s'est installé wget.
 Habituellement il est dans _C:\Program Files\GnuWin32\bin_ si 
 c'est le cas, tapez la commande:
-+
 ----
 cd C:\Program Files\GnuWin32\bin
 ----
-+
+
 et le prompt devrait changer pour: _C:\Program Files\GnuWin32_
 +
 Tapez les commandes _wget_ dans la fenêtre et pressez Entrée comme précédemment. 
@@ -235,13 +234,11 @@ Ouvrez un terminal.
 Dans Ubuntu il est dans _Applications_ → _Accessoires_ → _Terminal_.
 
 Allez dans le répertoire contenant l'image ISO précédemment téléchargée avec:
-
 ----
 cd répertoire_de_l'image
 ----
 
 Puis lancez la commande _md5sum_ suivie du nom du fichier, exemple:
-
 ----
 md5sum -b ubuntu-10.04-linuxcnc3-i386.iso
 ----
@@ -249,7 +246,6 @@ md5sum -b ubuntu-10.04-linuxcnc3-i386.iso
 La commande md5sum doit retourner une simple ligne après le calcul de la somme 
     de contrôle. 
 Sur une machine lente le calcul peut prendre plusieurs minutes: 
-
 ----
 76dc2416b917679b71255e464ede84ec ubuntu-10.04-linuxcnc3-i386.iso
 ----

@@ -31,8 +31,7 @@ Syntaxe et exemple:
 ----
 loadrt <component> <options>
 
-
-loadrt mux4 count=1 
+loadrt mux4 count=1
 ----
 
 === addf
@@ -52,19 +51,18 @@ Syntaxe et exemple:
 ----
 addf <component> <thread>
 
-
-addf mux4 servo-thread 
+addf mux4 servo-thread
 ----
 
 === loadusr[[sec:loadusr]]
 
 La commande 'loadusr' charge un composant de HAL de l'espace
 utilisateur. Les programmes de l'espace utilisateur ont leur propre
-process séparé qui optionellement communique avec les autres composants
+processus séparé qui optionnellement communique avec les autres composants
 de HAL via leurs pins et paramètres. Il n'est pas possible de charger
 un composant temps réel dans l'espace utilisateur.
 
-Les drapeaux peuvent être un ou plusieurs parmis les suivants:
+Les drapeaux peuvent être un ou plusieurs parmi les suivants:
 
 -W::
      pour attendre que le composant soit prêt. Le composant est supposé
@@ -77,19 +75,18 @@ Les drapeaux peuvent être un ou plusieurs parmis les suivants:
     pour attendre la fin du programme
 
 -i::
-    pour ignorer la valeur retournée par le programme (avec -w) 
+    pour ignorer la valeur retournée par le programme (avec -w)
 
 Syntaxe et exemple:
 ----
 loadusr <component> <options>
 
-
 loadusr halui
-loadusr -Wn spindle gs2_vfd -n spindle 
+loadusr -Wn spindle gs2_vfd -n spindle
 ----
 
-En anglais ça donne 'loadusr wait for name spindle component gs2_vfd name spindle'. 
-Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr. 
+En anglais ça donne 'loadusr wait for name spindle component gs2_vfd name spindle'.
+Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr.
 
 === net[[sub:net]]
 
@@ -151,7 +148,7 @@ net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
 
 
 .Pins I/O
-Les pins appelées I/O pins comme 'index-enable', ne suivent pas cette règle. 
+Les pins appelées I/O pins comme 'index-enable', ne suivent pas cette règle.
 
 === setp[[sub:setp]]
 (((setp)))
@@ -169,7 +166,6 @@ Syntaxe et exemple:
 ----
 setp <pin/parameter-name> <value>
 
-
 setp parport.0.pin-08-out TRUE
 ----
 
@@ -183,7 +179,6 @@ Syntaxe et exemple:
 sets <signal-name> <value>
 
 net mysignal and2.0.in0 pyvcp.my-led
-
 sets mysignal 1
 ----
 
@@ -195,15 +190,15 @@ C'est une erreur si:
 
 === unlinkp
 
-La commande 'unlinkp' déconnecte la pin du signal auquel elle est connectée. 
-Si aucun signal n'a été connecté à la pin avant de lancer cette commande, 
+La commande 'unlinkp' déconnecte la pin du signal auquel elle est connectée.
+Si aucun signal n'a été connecté à la pin avant de lancer cette commande,
 rien ne se passe.
 
 Syntaxe et exemple:
 ----
 unlinkp <pin-name>
 
-unlinkp parport.0.pin-02-out 
+unlinkp parport.0.pin-02-out
 ----
 
 === Commandes obsolètes
@@ -255,7 +250,7 @@ D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de 'halrun'.
 
 == HAL Data[[sec:HAL-Data]] 
-footnote:[NDT la description des données de HAL reste en Anglais, elle sont 
+footnote:[NDT la description des données de HAL reste en Anglais, elle sont
 suffisamment simples pour être comprises.]
 
 === Bit (((Bit)))
@@ -301,26 +296,26 @@ configuration.
  - custom.hal Ce fichier est le deuxième à être chargé et il l'est avant
    l'interface utilisateur graphique (GUI). C'est dans ce fichier que ce
    trouvent les commandes personnalisées de l'utilisateur devant être
-   chargées avant la GUI. 
+   chargées avant la GUI.
  - custom_postgui.hal Ce fichier est chargé après la GUI. C'est dans ce
    fichier que se trouvent les commandes personnalisées de l'utilisateur
    devant être chargées après la GUI. Toutes les commandes relatives aux
-   widgets de pyVCP doivent être placées ici. 
+   widgets de pyVCP doivent être placées ici.
 
 == Composants de HAL
 
-Deux paramètres sont automatiquement ajoutés à chaque composants HAL quand il 
+Deux paramètres sont automatiquement ajoutés à chaque composants HAL quand il
 est créé. Ces paramètres permettent d'encadrer le temps d'exécution d'un composant.
 
-+.time+(((time))) 
++.time+(((time)))
 
-+.tmax+(((tmax))) 
++.tmax+(((tmax)))
 
 
 'time' est le nombre de cycles du CPU qu'il a fallu pour exécuter la fonction.
 
-'tmax' est le nombre maximum de cycles du CPU qu'il a fallu pour exécuter la fonction. 
-'tmax' est un paramètre en lecture/écriture, de sorte que l'utilisateur peut le 
+'tmax' est le nombre maximum de cycles du CPU qu'il a fallu pour exécuter la fonction.
+'tmax' est un paramètre en lecture/écriture, de sorte que l'utilisateur peut le
 mettre à 0 pour se débarrasser du premier temps d'initialisation de la fonction.
 
 == Composants de logiques combinatoire
@@ -343,13 +338,13 @@ and2 [count=N] or [names=name1[,name2...]]
 
 Fonctions
 
-+and2.n+ 
++and2.n+
 
 Pins
 
-    and2.N.in0 (bit, in) 
-    and2.N.in1 (bit, in) 
-    and2.N.out (bit, out) 
+    and2.N.in0 (bit, in)
+    and2.N.in1 (bit, in)
+    and2.N.out (bit, out)
 
 Table de vérité
 
@@ -373,13 +368,13 @@ not [count=n] or [names=name1[,name2...]]
 
 Fonctions
 
-    not.all 
-    not.n 
+    not.all
+    not.n
 
 Pins
 
-    not.n.in (bit, in) 
-    not.n.out (bit, out) 
+    not.n.in (bit, in)
+    not.n.out (bit, out)
 
 Table de vérité
 
@@ -401,13 +396,13 @@ or2[count=n] or [names=name1[,name2...]]
 
 Functions
 
-+or2.n+ 
++or2.n+
 
 Pins
 
-    or2.n.in0 (bit, in) 
-    or2.n.in1 (bit, in) 
-    or2.n.out (bit, out) 
+    or2.n.in0 (bit, in)
+    or2.n.in1 (bit, in)
+    or2.n.out (bit, out)
 
 Table de vérité
 
@@ -431,13 +426,13 @@ xor2[count=n] or [names=name1[,name2...]]
 
 Fonctions
 
-+xor2.n+ 
++xor2.n+
 
 Pins
 
-    xor2.n.in0 (bit, in) 
-    xor2.n.in1 (bit, in) 
-    xor2.n.out (bit, out) 
+    xor2.n.in0 (bit, in)
+    xor2.n.in1 (bit, in)
+    xor2.n.out (bit, out)
 
 Table de vérité
 
@@ -454,11 +449,11 @@ Table de vérité
 
 Un exemple de connexion avec un "and2", deux entrées vers une sortie.
 ----
-loadrt and2 count=1 
-addf and2.0 servo-thread 
-net my-sigin1 and2.0.in0 <= parport.0.pin-11-in 
-net my-sigin2 and2.0.in1 <= parport.0.pin-12-in 
-net both-on parport.0.pin-14-out <= and2.0.out 
+loadrt and2 count=1
+addf and2.0 servo-thread
+net my-sigin1 and2.0.in0 <= parport.0.pin-11-in
+net my-sigin2 and2.0.in1 <= parport.0.pin-12-in
+net both-on parport.0.pin-14-out <= and2.0.out
 ----
 
 Dans cet exemple un and2 est chargé dans l'espace temps réel, puis
@@ -473,8 +468,8 @@ parallèle. Ainsi en suivant la table de vérité du and2, si les broches
 
 === Somme pondérée  (weighted_sum)
 
-La somme pondérée converti un groupe de bits en un entier. La conversion est la 
-somme des 'poids' des bits présents plus n'importe quel offset. C'est similaire 
+La somme pondérée converti un groupe de bits en un entier. La conversion est la
+somme des 'poids' des bits présents plus n'importe quel offset. C'est similaire
 au 'binaire codé décimal' mais avec plus d'options. Le bit 'hold' interrompt le
 traitement des entrées, de sorte que la valeur 'sum' ne change plus.
 
@@ -493,25 +488,25 @@ addf process_wsums servo-thread
 
 Ce qui met à jour le composant weighted_sum.
 
-Dans l'exemple suivant, une copie de la fenêtre de configuration de HAL d'Axis, 
+Dans l'exemple suivant, une copie de la fenêtre de configuration de HAL d'Axis,
 les bits '0' et '2' sont TRUE, ils n'ont pas d'offset. Le poids ('weight') du bit 0
 est 1, celui du bit 2 est 4, la somme est donc 5.
 
 .weighted_sum (somme pondérée)
 ----
-Component Pins: 
-Owner   Type  Dir         Value  Name 
-    10  bit   In           TRUE  wsum.0.bit.0.in 
-    10  s32   I/O             1  wsum.0.bit.0.weight 
-    10  bit   In          FALSE  wsum.0.bit.1.in 
-    10  s32   I/O             2  wsum.0.bit.1.weight 
-    10  bit   In           TRUE  wsum.0.bit.2.in 
-    10  s32   I/O             4  wsum.0.bit.2.weight 
-    10  bit   In          FALSE  wsum.0.bit.3.in 
-    10  s32   I/O             8  wsum.0.bit.3.weight 
-    10  bit   In          FALSE  wsum.0.hold 
-    10  s32   I/O             0  wsum.0.offset 
-    10  s32   Out             5  wsum.0.sum 
+Component Pins:
+Owner   Type  Dir         Value  Name
+    10  bit   In           TRUE  wsum.0.bit.0.in
+    10  s32   I/O             1  wsum.0.bit.0.weight
+    10  bit   In          FALSE  wsum.0.bit.1.in
+    10  s32   I/O             2  wsum.0.bit.1.weight
+    10  bit   In           TRUE  wsum.0.bit.2.in
+    10  s32   I/O             4  wsum.0.bit.2.weight
+    10  bit   In          FALSE  wsum.0.bit.3.in
+    10  s32   I/O             8  wsum.0.bit.3.weight
+    10  bit   In          FALSE  wsum.0.hold
+    10  s32   I/O             0  wsum.0.offset
+    10  s32   Out             5  wsum.0.sum
 ----
 
 
