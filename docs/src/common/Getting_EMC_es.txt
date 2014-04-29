@@ -100,7 +100,7 @@ Para obtener la versión Ubuntu 10.04 Lucid Lynx,
 copie una de las siguientes direcciones en la ventana de terminal y presione la tecla enter:
 
 Para el espejo en USA:
-wget http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc3-i386.iso
+wget http://www.linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
 
 Para el espejo en Europa:
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc3-i386.iso
@@ -111,7 +111,7 @@ La md5sum del archivo anterior es: '5283b33b7e23e79da1ee561ad476b05f'
 Para continuar una descarga parcial que fue interrumpida
 agregue la opción -c al comando wget:
 +
-wget -c http://www.linuxcnc.org/lucid/ubuntu-10.04-linuxcnc1-i386.iso
+wget -c http://www.linuxcnc.org/iso/ubuntu-10.04-linuxcnc1-i386.iso
 +
 Para detener una descarga en progreso utilice Ctrl-C o cierre la pantalla de la terminal.
 +
@@ -123,7 +123,7 @@ la versión 2.4.x siguiendo las instrucciones en el wiki de LinuxCNC.org que se 
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?UpdatingTo2.4
 
 Para el espejo en USA:
-wget http://www.linuxcnc.org/hardy/ubuntu-8.04-desktop-emc2-aj13-i386.iso
+wget http://www.linuxcnc.org/iso/ubuntu-8.04-desktop-emc2-aj13-i386.iso
 
 Para el espejo en Europa:
 wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-8.04-desktop-emc2-aj13-i386.iso

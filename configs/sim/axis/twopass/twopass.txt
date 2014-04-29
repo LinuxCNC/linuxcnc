@@ -1,0 +1,25 @@
+twopass.ini
+
+This sim configuration demonstrates the use of TWOPASS processing for halfiles.
+
+Twopass processing supports multiple loadrt specifications for any component.
+So, for example:
+
+file1.hal: loadrt or2 names=or2_a,or2_b
+file2.hal: loadrt or2 names=or2_c,or2_d
+
+Halfiles are read in two passes.  In the first pass, loadrt lines are accumulated but not executed.  In the second pass, all loadrt lines are executed in order.
+
+Twopass processing occurs before gui loading.  When using a [HAL]POSTGUI_HALFILE, it is convenient to loadrt all components prior to loading the gui.  In this example, this is done with the file:
+
+   load_for_postgui.hal
+
+--------------------------------------
+Notes:
+
+Twopass processing for a component can use either names= or count= specifications.
+
+Combinations of names=  and count= are not supported.
+
+Using names= is recommended for both readability and portability.
+

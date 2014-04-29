@@ -39,11 +39,11 @@ chiffre *0* qui peut être tapé par erreur. Par exemple: +
 == Sous-programmes: *sub*, *endsub*, *return*, *call*
 (((Sous-programmes)))(((sub)))(((endsub)))(((return)))(((call)))
 
-Les sous-programmes s'étendent d'un _O- sub_ à un _O- endsub_. 
+Les sous-programmes s'étendent d'un 'O- sub' à un 'O- endsub'. 
 Les lignes, à l'intérieur du sous-programme (le corps du
 sous-programme), ne sont pas exécutées dans l'ordre, mais 
 elles sont exécutées à chaque fois que le sous-programme 
-est appelé avec un _O-call_.
+est appelé avec un 'O-call'.
 
 .Exemple de sous-programme
 ----
@@ -62,11 +62,11 @@ Pour plus de détails sur ces instructions voir:
 * <<sec:M2-M30, fin de programme M2>>.
 
 .O- return
-À l'intérieur d'un sous-programme, _O- return_ peut être exécuté,
+À l'intérieur d'un sous-programme, 'O- return' peut être exécuté,
 pour retourner immédiatement au code appelant,
-comme si _O- endsub_ avait été rencontré.
+comme si 'O- endsub' avait été rencontré.
 
-.Exemple avec _O- return_
+.Exemple avec 'O- return'
 ----
 o100 sub
   o110 if [#2 GT 5] (teste si le paramètre #2 est supérieur à 5)
@@ -82,18 +82,18 @@ Voir également les sections:
 * <<sec:parametres, les paramètres>>.
 
 .O- call
-_O- call_ peut prendre jusqu'à 30 arguments optionnels, qui sont
-passés au sous-programme comme _#1_, _#2_ , ..., _#N_. Les paramètres de _#N+1_ à
-_#30_ ont la même valeur dans le contexte de l'appel. 
+'O- call' peut prendre jusqu'à 30 arguments optionnels, qui sont
+passés au sous-programme comme '#1', '#2' , ..., '#N'. Les paramètres de '#N+1' à
+'#30' ont la même valeur dans le contexte de l'appel. 
 Au retour du sous-programme, les valeurs des
 paramètres #1 jusqu'à #30 (quel que soit le nombre d'arguments) sont
 restaurés aux valeurs qu'ils avaient avant l'appel.
 
-Parce que _1 2 3_ est analysé comme le nombre 123, les paramètres
+Parce que '1 2 3' est analysé comme le nombre 123, les paramètres
 doivent être placés entre crochets. L'appel de sous-programme suivant,
 s'effectue avec 3 arguments:
 
-.Exemple d'appel _O-_
+.Exemple d'appel 'O-'
 ----
 O200 call [1] [2] [3]
 ----
@@ -104,7 +104,7 @@ appelés depuis d'autres fonctions et peuvent s'appeler eux même
 récursivement, s'il est judicieux de le faire. Le niveau maximum
 d'imbrication des sous-programmes est de 10.
 
-Les sous-programmes n'ont pas de _valeur de retour_, mais ils peuvent
+Les sous-programmes n'ont pas de 'valeur de retour', mais ils peuvent
 changer la valeur des paramètres au dessus de #30 et ces changements
 sont visibles depuis le code appelant. Les sous-programmes peuvent
 aussi changer la valeur des paramètres nommés globaux.
@@ -113,13 +113,13 @@ aussi changer la valeur des paramètres nommés globaux.
 == Boucles: *do*, *while*, *endwhile*, *break*, *continue*
 (((Boucles)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
-La boucle _while_ a deux structures possibles: _while - endwhile_ et _do - while_.
-Dans chaque cas, la boucle est quittée quand la condition du _while_ devient
+La boucle 'while' a deux structures possibles: 'while - endwhile' et 'do - while'.
+Dans chaque cas, la boucle est quittée quand la condition du 'while' devient
 fausse. La différence se trouve en fin de test de la condition. La boucle
-_do - while_ exécute le code dans la boucle puis test la condition.
-La boucle _while - endwhile_ effectue le test d'abord.
+'do - while' exécute le code dans la boucle puis test la condition.
+La boucle 'while - endwhile' effectue le test d'abord.
 
-.Exemple avec _while - endwhile_
+.Exemple avec 'while - endwhile'
 ----
 (dessine la forme d'une dent de scie)
 G0 X1 Y0 (déplacement en position de départ)
@@ -133,7 +133,7 @@ o101 endwhile
 M2 (fin de programme)
 ----
 
-.Exemple avec _do - while_
+.Exemple avec 'do - while'
 ----
 #1 = 0 (assigne la valeur 0 au paramètre #1)
 o100 do
@@ -150,38 +150,38 @@ o100 while [#1 LT 3]
 M2
 ----
 
-À l'intérieur d'une boucle while, _O- break_, quitte immédiatement
-la boucle et _O- continue_, saute immédiatement à la prochaine
-évaluation de la condition du _while_. Si elle est vraie, la boucle
+À l'intérieur d'une boucle while, 'O- break', quitte immédiatement
+la boucle et 'O- continue', saute immédiatement à la prochaine
+évaluation de la condition du 'while'. Si elle est vraie, la boucle
 recommence au début. Si elle est fausse, la boucle est quittée.
 
 [[sec:Conditionnels]]
 == Conditionnel: *if*, *elseif*, *else*, *endif*
 (((Conditionnel: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
 
-Le _if_ conditionnel exécute un groupe d'instructions avec le même nombre _O_
-qui commence avec _if_ et se termine avec _endif_. Les conditions optionnelles
-_elseif_ et _else_ peuvent se trouver entre le _if_ et le _endif_.
+Le 'if' conditionnel exécute un groupe d'instructions avec le même nombre 'O'
+qui commence avec 'if' et se termine avec 'endif'. Les conditions optionnelles
+'elseif' et 'else' peuvent se trouver entre le 'if' et le 'endif'.
 
-Si la condition du _if_ est vraie, les instructions qui suivent le _if_ seront
+Si la condition du 'if' est vraie, les instructions qui suivent le 'if' seront
 exécutées jusqu'à, au maximum, l'instruction conditionnelle suivante.
 
-Si la condition du _if_ est fausse, alors les instructions conditionnelles
-_elseif_ suivantes seront évaluées l'une après l'autre. Si la condition du
-_elseif_ est vraie alors les instructions suivant ce _elseif_ seront exécutées
-jusqu'à l'instruction conditionnelle suivante. Si aucune des conditions du _if_
-ou du _elseif_ n'est vraie, alors les instructions suivant le _else_ seront
+Si la condition du 'if' est fausse, alors les instructions conditionnelles
+'elseif' suivantes seront évaluées l'une après l'autre. Si la condition du
+'elseif' est vraie alors les instructions suivant ce 'elseif' seront exécutées
+jusqu'à l'instruction conditionnelle suivante. Si aucune des conditions du 'if'
+ou du 'elseif' n'est vraie, alors les instructions suivant le 'else' seront
 exécutées. Quand une condition est vraie, les autres instructions
 conditionnelles du groupe ne sont plus évaluées.
 
-.Exemple avec _if - endif_
+.Exemple avec 'if - endif'
 ----
 O102 if [#31 EQ 3] (si le paramètre #31 est égal à 3 alors S2000)
     S2000
 O102 endif
 ----
 
-.Exemple avec _if - elseif - else - endif_
+.Exemple avec 'if - elseif - else - endif'
 ----
 o102 if [#2 GT 5] (si le paramètre #2 est supérieur à 5 alors F100)
   F100
@@ -196,12 +196,12 @@ o102 endif
 == Répétition: *Repeat*
 (((Repeat)))
 
-La répétition _repeat_, exécutera les blocs contenus entre _repeat_ et
-_endrepeat_ le nombre de fois spécifié entre crochets. L'exemple
+La répétition 'repeat', exécutera les blocs contenus entre 'repeat' et
+'endrepeat' le nombre de fois spécifié entre crochets. L'exemple
 suivant montre comment usiner une séries de 5 formes diagonales
 commençant à la position courante.
 
-.Exemple avec _repeat_
+.Exemple avec 'repeat'
 ----
 (Usine 5 formes diagonales)
 G91 (Mode incrémental)
@@ -234,8 +234,8 @@ Voici un condensé des sections utiles aux calculs des O-codes:
 (((Appel de fichier)))
 
 Pour appeler un sous-programme par son nom, ce sous-programme doit contenir
-un _sub_ et un _endsub_. Le fichier appelé doit se trouver dans le répertoire
-pointé par la variable _PROGRAM_PREFIX_ ou _SUBROUTINE_PATH_ du fichier ini.
+un 'sub' et un 'endsub'. Le fichier appelé doit se trouver dans le répertoire
+pointé par la variable 'PROGRAM_PREFIX' ou 'SUBROUTINE_PATH' du fichier ini.
 Les noms de fichiers ne peuvent inclure que des lettres *minuscules*, des
 chiffres, des points et des tirets bas. Un fichier de sous-programme nommé ne
 peut contenir qu'une seule définition de sous-programme.
@@ -250,10 +250,10 @@ o<monfichier> call (appel un fichier nommé)
 o123 call (appel un fichier numéroté)
 ----
 
-Dans le fichier appelé doit se touver le _sub_ et le _endsub_
+Dans le fichier appelé doit se touver le 'sub' et le 'endsub'
 correspondant à l'appel. Le fichier doit être un fichier valide.
 
-.Exemple: le fichier _monfichier.ngc_ appelé 
+.Exemple: le fichier 'monfichier.ngc' appelé 
 ----
 o<monfichier> sub
   (du code ici)
@@ -262,7 +262,7 @@ M2
 ----
 
 [NOTE]
-Les noms de fichiers doivent être en lettres minuscules, ainsi _o<MonFichier>_
-sera transformé en _o<monfichier>_ par l'interpréteur.
+Les noms de fichiers doivent être en lettres minuscules, ainsi 'o<MonFichier>'
+sera transformé en 'o<monfichier>' par l'interpréteur.
 
 // vim: set syntax=asciidoc:

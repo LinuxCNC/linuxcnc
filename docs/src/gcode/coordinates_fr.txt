@@ -124,7 +124,7 @@ G54 X0 Y0 Z0
 M2
 ----
 
-_Mais,_ dites vous, _pourquoi y a-t-il un G54 vers la fin ?_ C'est une
+'Mais,' dites vous, 'pourquoi y a-t-il un G54 vers la fin ?' C'est une
 pratique courante de quitter le système de coordonnées G54 avec
 l'ensemble des valeurs d'axes à zéro afin de laisser un code modal basé
 sur les positions machine absolues. Nous le faisons avec cette commande
@@ -164,11 +164,11 @@ décalages d'un système de coordonnées pièce:
   (Nous donnons seulement ici un bref aperçu, se reporter aux sections du G-code
 pour une description complète).
 
-* _G10 L2  P(pièce 1-9)_ - Ajuste les valeurs d'offset. La position courante
+* 'G10 L2  P(pièce 1-9)' - Ajuste les valeurs d'offset. La position courante
 reste inchangée.
     (voir la section<<sec:G10-L2, G10 L2>> pour les détails)
 
-* _G10 L20 P(pièce 1-9)_ - Ajuste les valeurs d'offset de sorte que la position
+* 'G10 L20 P(pièce 1-9)' - Ajuste les valeurs d'offset de sorte que la position
 courante devienne la position donnée en paramètre.
     (Voir la section <<sec:G10-L20,G10 L20>> pour les détails)
 
@@ -198,7 +198,7 @@ variables de décalage.
 
 L'utilisateur doit bien comprendre le fonctionnement des valeurs de
 G92. Pour faire en sorte que le point actuel ait les coordonnées X0, Y0 et Z0
-nous utiliserons _G92 X0 Y0 Z0_. G92 *ne fonctionne pas* depuis le système de
+nous utiliserons 'G92 X0 Y0 Z0'. G92 *ne fonctionne pas* depuis le système de
 coordonnées machine absolues. Il fonctionne à partir de *l'emplacement
 actuel*.
 
@@ -228,7 +228,7 @@ Il y a au moins deux façons d'établir les valeurs de G92.
 Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe
 auquel le déplacement doit être appliqué.
 
-Programmer _G92 X Y Z A B C U V W_ fixe les valeurs des variables de G92
+Programmer 'G92 X Y Z A B C U V W' fixe les valeurs des variables de G92
 de sorte que chaque axe prenne la valeur associée à son nom. Ces
 valeurs sont assignées à la position courante des axes. Ces résultats
 satisfont les paragraphes un et deux du document du NIST.
@@ -238,9 +238,9 @@ l'axe, à laquelle elles ajoutent ou soustraient des valeurs pour donner
 à la position courante la valeur assignée par la commande G92. Elles
 prennent effet même si d'autres décalages sont déjà actifs.
 
-Ainsi, si l'axe X est actuellement en position X=2.000, un _G92 X0_
+Ainsi, si l'axe X est actuellement en position X=2.000, un 'G92 X0'
 fixera un décalage de -2.0000, de sorte que l'emplacement actuel de X
-devienne X=0.000. Un nouveau _G92 X5.000_ fixera un décalage de 3.000
+devienne X=0.000. Un nouveau 'G92 X5.000' fixera un décalage de 3.000
 et l'affichage indiquera une position courante X=5.000.
 
 === Précautions avec G92 
@@ -274,7 +274,7 @@ sera correct. Une fois que l'origine machine a été établie en utilisant les
 contacts d'origine machine, ou en déplaçant chaque axe à une position connue, puis
 en envoyant la commande de prise d'origine de l'axe, tous les décalages G92 seront
 appliqués. Si un X1 G92 est actif lors de la prise d'origine machine de l'axe X,
-la visu affichera _X: 1.000_ au lieu du _X: 0.000_ attendu, c'est parce-que le 
+la visu affichera 'X: 1.000' au lieu du 'X: 0.000' attendu, c'est parce-que le 
 G92 a été appliqué à l'origine machine. Si vous passez un G92.1 et que la visu
 affiche tous à zéro, alors c'est que vous avez encore l'effet de l'offset G92 
 de la dernière session de LinuxCNC.

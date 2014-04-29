@@ -153,7 +153,7 @@ low. If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the
 physical pin high, and FALSE drives it low. If '-invert' is TRUE, then
 setting the HAL '-out' pin TRUE will drive the physical pin low.
 
-=== Functions [[parport-functions]] (((parport functions)))
+=== Functions[[sub:parport-functions]]
 
 * 'parport.<p>.read' (funct) Reads physical input pins of port
    '<portnum>' and updates HAL '-in' and '-in-not' pins.

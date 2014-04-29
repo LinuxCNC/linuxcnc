@@ -10,7 +10,7 @@ $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 ../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^
+	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
 TARGETS += ../tcl/hal.so
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0 

@@ -14,3 +14,6 @@ random_tc.ini     random tool changer
 
 Select one of these if you have no functional machine but want to edit some basic configuration stuff or play with one of the LinuxCNC displays.
 
+Additional configurations are provided in subdirectories.
+
+These configurations demonstrate LinuxCNC functionality using the axis gui as the interface.  (The functionality demonstrated may be available in other guis also)
