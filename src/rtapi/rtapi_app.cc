@@ -948,6 +948,8 @@ int main(int argc, char **argv)
     rtapi_set_msg_handler(rtapi_app_msg_handler);
     openlog_async(argv[0], LOG_NDELAY, LOG_LOCAL1);
     setlogmask_async(LOG_UPTO(LOG_DEBUG));
+    // max out async syslog buffers for slow system in debug mode
+    tunelog_async(99,1000);
 
     while (1) {
 	int option_index = 0;

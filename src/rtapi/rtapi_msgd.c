@@ -685,6 +685,8 @@ int main(int argc, char **argv)
     snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
 
     openlog_async(proctitle, option , SYSLOG_FACILITY);
+    // max out async syslog buffers for slow system in debug mode
+    tunelog_async(99,1000);
 
     // set new process name
     argv0_len = strlen(argv[0]);
