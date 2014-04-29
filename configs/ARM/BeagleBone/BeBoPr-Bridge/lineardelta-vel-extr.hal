@@ -1,6 +1,7 @@
 # #######################################
 #
-# HAL file for BeagleBone + BeBoPr cape with 4 steppers
+# HAL file for BeagleBone + BeBoPr-Bridge cape with 4 steppers
+# extruding is done via velocity control of the extruder motor
 #
 # Derived from example hm2-stepper config
 #
@@ -39,8 +40,15 @@ loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 #used for comparing temperature set value with actual for waiting on temperature
 loadrt wcomp count=1
-# Initialize the sum2
 loadrt sum2 count=2
+loadrt mult2 count=5
+loadrt abs count=3
+loadrt hypot count=1
+loadrt invert count=1
+loadrt mux4 count=1
+loadrt oneshot count=1
+
+
 
 # ################################################
 # THREADS
@@ -52,6 +60,7 @@ addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
 addf pid.0.do-pid-calcs                   servo-thread
 addf pid.1.do-pid-calcs                   servo-thread
+#addf pid.2.do-pid-calcs                   servo-thread
 addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
 addf [PRUCONF](DRIVER).update             servo-thread
@@ -60,7 +69,18 @@ addf bb_gpio.write                        servo-thread
 addf wcomp.0                              servo-thread
 addf sum2.0                               servo-thread
 addf sum2.1                               servo-thread
-       
+addf mult2.0				  servo-thread
+addf mult2.1				  servo-thread
+addf mult2.2				  servo-thread
+addf mult2.3				  servo-thread
+addf mult2.4				  servo-thread
+addf abs.0				  servo-thread
+addf abs.1			  	  servo-thread
+addf abs.2			          servo-thread
+addf hypot.0				  servo-thread
+addf invert.0				  servo-thread
+addf mux4.0				  servo-thread
+addf oneshot.0				  servo-thread
 
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
@@ -197,25 +217,97 @@ setp [PRUCONF](DRIVER).stepgen.02.dirpin          0x51
 net home-z bb_gpio.p8.in-18 => axis.2.home-sw-in
 setp bb_gpio.p8.in-18.invert 1
 
-# ################
-# A [3] Axis (Extruder)
-# ################
 
+# ################
+# A [3] Axis (Extruder velocity controlled)
+# ################
 # axis enable chain
 newsig emcmot.03.enable bit
 sets emcmot.03.enable FALSE
 
-net emcmot.03.enable <= axis.3.amp-enable-out 
+net emcmot.03.enable <= axis.3.amp-enable-out
 net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable
 
+#newsig pi-divided-by-four float
+#newsig dia-filament float
 
-# position command and feedback
-net emcmot.03.pos-cmd <= axis.3.motor-pos-cmd
-net emcmot.03.pos-cmd => [PRUCONF](DRIVER).stepgen.03.position-cmd
+#sets pi-divided-by-four 0.7854
+## PI = 3.14159265, but 1/4*PI is 0.7854
+#sets dia-filament 2.85
 
-net motor.03.pos-fb <= [PRUCONF](DRIVER).stepgen.03.position-fb
-net motor.03.pos-fb => axis.3.motor-pos-fb
 
+
+#here i pass the value of the analog output from M67 E1 Q.. or M68 E1 Q.. to the multiplicator
+net line-width  motion.analog-out-02 => mult2.0.in0
+net line-height motion.analog-out-03 => mult2.0.in1
+
+net line-cross-section mult2.0.out => mult2.1.in1
+
+#take all the actual speeds from the axes and calculate resulting speed.
+net xvel axis.0.joint-vel-cmd => abs.0.in
+net xvel-abs abs.0.out => hypot.0.in0
+net yvel axis.1.joint-vel-cmd => abs.1.in
+net yvel-abs abs.1.out => hypot.0.in1
+net zvel axis.2.joint-vel-cmd => abs.2.in
+net zvel-abs abs.2.out => hypot.0.in2
+
+#multiply area with speed and we get discharge (mm^3 per second)
+net nozzle-vel hypot.0.out => mult2.1.in0
+net nozzle-discharge mult2.1.out => mult2.2.in0
+
+#calaulate filament area quarter-times-PI filament-diameter 
+#net pi-divided-by-four => mult2.3.in0
+setp mult2.3.in0 0.7854
+#[EXTRUDER]PI_DIVIDED_BY_FOUR
+#net dia-filament => mult2.4.in0
+setp mult2.4.in0 2.85
+#[EXTRUDER]DIA_FILAMENT
+#net dia-filament => mult2.4.in1
+#setp mult2.4.in1 2.85
+setp mult2.4.in1 [EXTRUDER]DIA_FILAMENT
+
+net diameter-squared mult2.4.out => mult2.3.in1
+net filament-area mult2.3.out => invert.0.in
+net divide-by-filament-area invert.0.out => mult2.2.in1
+
+net extruder-speed mux4.0.out => [PRUCONF](DRIVER).stepgen.03.velocity-cmd
+
+# now the solution of Andy Pugh for automatically retracting/priming
+#loadrt mux4 count=1
+#00 = motion without extrusion
+#01 = retract
+#10 = motion with extrusion
+#11 = pre-charge
+
+setp mux4.0.in0 0
+setp mux4.0.in1 -10
+net extrude-rate mult2.2.out => mux4.0.in2
+setp mux4.0.in3 10
+
+# We want the retract-charge to run for a fixed time:
+# when sel0 set to "1" meaning motion with extrusion" the on the rising edge
+# there will temporarily be also sel1 which is high, meaning a pre-charge because the
+# sel combination is 11
+# when sel1 set to "0" meaning decoupling motion with extrusion" then the falling edge
+# will trigger a 01 combination, meaning a retract
+net trigger motion.digital-out-02 oneshot.0.in mux4.0.sel1
+net pulse oneshot.0.out mux4.0.sel0 motion.feed-hold
+setp oneshot.0.rising 1
+setp oneshot.0.falling 1
+setp oneshot.0.retriggerable 1
+setp oneshot.0.width 0.2
+
+
+#get readout from the current motion pin
+net current-motion-type motion.current-motion
+
+#net trigger-finished oneshot.0.out-not motion.digital-in-01
+#net feed-hold oneshot.0.out => motion.feed-hold
+
+#########
+###todo
+###manual extrusion with analog out 01 (velocity in mm/s) and mux2 selectable by digital input 01
+#########
 
 # timing parameters
 setp [PRUCONF](DRIVER).stepgen.03.dirsetup        [AXIS_3]DIRSETUP
@@ -229,12 +321,24 @@ setp [PRUCONF](DRIVER).stepgen.03.position-scale  [AXIS_3]SCALE
 setp [PRUCONF](DRIVER).stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
 setp [PRUCONF](DRIVER).stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
+setp [PRUCONF](DRIVER).stepgen.03.control-type    1
+
 #setp [PRUCONF](DRIVER).stepgen.03.step_type       0
 # P8.30 GPIO2.25
 setp [PRUCONF](DRIVER).stepgen.03.steppin         0x22
 # P8.21 GPIO1.30
 setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x23
 
+# set PID loop gains from inifile
+#setp pid.2.Pgain [AXIS_3]P
+#setp pid.2.Igain [AXIS_3]I
+#setp pid.2.Dgain [AXIS_3]D
+#setp pid.2.bias [AXIS_3]BIAS
+#setp pid.2.FF0 [AXIS_3]FF0
+#setp pid.2.FF1 [AXIS_3]FF1
+#setp pid.2.FF2 [AXIS_3]FF2
+#setp pid.2.deadband [AXIS_3]DEADBAND
+#setp pid.2.maxoutput [AXIS_3]MAX_OUTPUT
 
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc
@@ -307,11 +411,13 @@ net e0.temp.meas => wcomp.0.in
 
 #the output of wcomp.0 will say if measured temperature is in range of set value
 #this needs to be coupled to a digital input for M66 readout
+#net e0_temp_within_range.in <= wcomp.0.out
+#net e0_temp_within_range.out => motion.digital-in-00
 net e0_temp_within_range wcomp.0.out => motion.digital-in-00
 
 # no longer J3 E1 Heater PRU1.out0
 # instead used for FAN control
-# we use scale 255 for compatibility with slicing software
+# we use scalse 255 for campatibility with slicing software
 setp hal_pru_generic.pwmgen.00.out.01.pin       0x36
 setp hal_pru_generic.pwmgen.00.out.01.enable    1
 setp hal_pru_generic.pwmgen.00.out.01.value     0.0
