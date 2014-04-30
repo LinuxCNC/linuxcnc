@@ -3,6 +3,9 @@
 # on @DATE@
 #
 
+# Define libexec dir first, since it contains tools needed to compute
+# following definitions
+EMC2_LIBEXEC_DIR=@EMC2_LIBEXEC_DIR@
 
 # Threads systems
 #################
@@ -73,7 +76,6 @@ endif
 #but have them here as reference
 #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
 EMC2_BIN_DIR=@EMC2_BIN_DIR@
-EMC2_LIBEXEC_DIR=@EMC2_LIBEXEC_DIR@
 EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
 EMC2_RTLIB_BASE_DIR=@EMC2_RTLIB_DIR@
