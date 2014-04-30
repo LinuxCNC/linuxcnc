@@ -211,6 +211,8 @@ Broches de HAL
 Orientation souhaitée pour M19. Valeur du paramètre R de M19 plus la valeur du
 paramètre d'ini [RS274NGC]ORIENT_OFFSET.
 
+M19 est une commande du groupe modal 7, comme M3, M4 et M5.
+
 * 'motion.spindle-orient-mode' (sortie s32)
 Mode de rotation de la broche souhaité. Reflète le mot P de M19, Défaut = 0
 
