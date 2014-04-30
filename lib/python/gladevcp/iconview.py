@@ -267,7 +267,7 @@ class IconFileSelection(gtk.HBox):
                         number += 1
                     else:
                         try:
-                            name, ext = fl.split(".")
+                            name, ext = fl.rsplit(".", 1)
                             if "*" in self.filetypes:
                                 files.append(fl)
                                 number += 1
