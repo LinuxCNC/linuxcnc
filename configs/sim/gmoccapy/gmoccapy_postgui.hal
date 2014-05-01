@@ -6,7 +6,7 @@ loadrt abs names=abs_spindle_feedback
 addf abs_spindle_feedback servo-thread
 
 net spindle-speed-limited  =>  abs_spindle_feedback.in
-net spindle-abs = abs_spindle_feedback.out  =>  gmoccapy.spindle_feedback_bar
+net spindle-abs  abs_spindle_feedback.out  =>  gmoccapy.spindle_feedback_bar
 net spindle-at-speed      gmoccapy.spindle_at_speed_led
 
 # the unlink pin commands are only used, because they are connected 
