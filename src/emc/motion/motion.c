@@ -361,6 +361,12 @@ static int init_hal_io(void)
 	return retval;
     }
     retval =
+	hal_pin_s32_new("motion.motion-type", HAL_OUT, &(emcmot_hal_data->motion_type),
+	mot_comp_id);
+    if (retval != 0) {
+	return retval;
+    }
+     retval =
 	hal_pin_bit_new("motion.coord-mode", HAL_OUT, &(emcmot_hal_data->coord_mode),
 	mot_comp_id);
     if (retval != 0) {
@@ -578,6 +584,7 @@ static int init_hal_io(void)
        with data from the emcmotStatus struct */
     *(emcmot_hal_data->motion_enabled) = 0;
     *(emcmot_hal_data->in_position) = 0;
+    *(emcmot_hal_data->motion_type) = 0;
     *(emcmot_hal_data->coord_mode) = 0;
     *(emcmot_hal_data->teleop_mode) = 0;
     *(emcmot_hal_data->coord_error) = 0;
