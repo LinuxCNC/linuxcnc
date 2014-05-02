@@ -91,21 +91,22 @@ In English it means 'loadusr wait for name spindle component gs2_vfd name spindl
 
 === net [[sub:net]] (((net)))
 
-The command 'net' creates a 'connection' between a signal and and one
+The command 'net' creates a 'connection' between a signal and one
 or more pins. If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig. The optional direction
-indicators '<=', '=>' and '<=>' are only to make it easier for humans to follow
-the logic and are not used by the net command.
+arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading
+a 'net' command line and are not used by the net command. The direction arrows
+must be separated by a space from the pin names.
 
 .Syntax and Example:
 ----
-net signal-name <pin-name> <optional direction> (<pin-name>|<direction>)
+net signal-name pin-name <optional arrow> <optional second pin-name>
 
 net home-x axis.0.home-sw-in <= parport.0.pin-11-in
 ----
 
 In the above example 'home-x' is the signal name, 'axis.0.home-sw-in' is a
-'Direction IN' pin, '<=' is the optional direction indicator, and 
+'Direction IN' pin, '<=' is the optional direction arrow, and 
 'parport.0.pin-11-in' is a 'Direction OUT' pin. This may seem confusing but
 the in and out labels for a parallel port pin indicates the physical way the
 pin works not how it is handled in HAL.
@@ -118,7 +119,7 @@ A pin can be connected to a signal if it obeys the following rules:
 * An OUT pin can be connected only if there are no other OUT or IO pins
   on the signal
 
-The same <signal-name> can be used in multiple net commands to connect
+The same 'signal-name' can be used in multiple net commands to connect
 additional pins, as long as the rules above are obeyed.
 
 .Signal Direction[[cap:Signal-Direction]]
