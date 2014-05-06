@@ -940,11 +940,15 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject *kw) {
     shmobject *self = (shmobject *)_self;
     self->comp = 0;
     self->shm_id = -1;
+    self->size = 0;
 
-    if(!PyArg_ParseTuple(args, "O!ik",
+    // NB: size is now optional
+    // this means the size is retrieved from the existing shared memory segment
+    if(!PyArg_ParseTuple(args, "O!i|k",
 		&halobject_type, &self->comp, &self->key, &self->size))
 	return -1;
 
+    // size == 0 implies 'attach existing segment'
     self->shm_id = rtapi_shmem_new(self->key, self->comp->hal_id, self->size);
     if(self->shm_id < 0) {
 	self->comp = 0;
@@ -952,8 +956,12 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject *kw) {
 	pyrtapi_error(self->shm_id);
 	return -1;
     }
-
-    rtapi_shmem_getptr(self->shm_id, &self->buf, 0);
+    // retrieve the size - relevant in the 'attach' case:
+    int retval = rtapi_shmem_getptr(self->shm_id, &self->buf, &self->size);
+    if (retval < 0) {
+	pyrtapi_error(self->shm_id);
+	return -1;
+    }
     Py_INCREF(self->comp);
 
     return 0;
