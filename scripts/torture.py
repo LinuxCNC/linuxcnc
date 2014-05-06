@@ -39,7 +39,7 @@ def feed():
     if random() < .5: return
     print "F%d" % randrange(100, 1000, 10),
 
-def torture_arc(x, y, z, a):
+def torture_arc(x, y, z, a, b, c, u, v, w):
     "Generate a random arc (helix)"
     plane = randrange(3)
     print "G%d" % (plane+17),
@@ -86,11 +86,31 @@ def torture_arc(x, y, z, a):
         a = a + choice(aangles)
         print "A%f" % a,
 
+    if random() < chance_angular_helix:
+        b = b + choice(aangles)
+        print "B%f" % b,
+
+    if random() < chance_angular_helix:
+        c = c + choice(aangles)
+        print "C%f" % c,
+
+    if random() < chance_angular_helix:
+        u = u + randrange(-500, 500)/100.
+        print "U%f" % u,
+
+    if random() < chance_angular_helix:
+        v = v + randrange(-500, 500)/100.
+        print "V%f" % v,
+
+    if random() < chance_angular_helix:
+        w = w + randrange(-500, 500)/100.
+        print "W%f" % w,
+
     print "X%f Y%f Z%f" % (x, y, z)
 
-    return x, y, z, a
+    return x, y, z, a, b, c, u, v, w
 
-def torture_line(x, y, z, a):
+def torture_line(x, y, z, a, b, c, u, v, w):
     "Generate a random traverse or straight feed"
     kind = randrange(2)
     print "G%d" % kind,
@@ -104,9 +124,30 @@ def torture_line(x, y, z, a):
     if random() < chance_angular:
         a = a + randrange(-180, 80)/2.
         print "A%f" % a,
+
+    if random() < chance_angular:
+        b = b + randrange(-180, 80)/2.
+        print "B%f" % b,
+
+    if random() < chance_angular:
+        c = c + randrange(-180, 80)/2.
+        print "C%f" % c,
+
+    if random() < chance_angular:
+        u = u + randrange(-500, 500)/100.
+        print "U%f" % u,
+
+    if random() < chance_angular:
+        v = v + randrange(-500, 500)/100.
+        print "V%f" % v,
+
+    if random() < chance_angular:
+        w = w + randrange(-500, 500)/100.
+        print "W%f" % w,
+
     print "X%f Y%f Z%f" % (x, y, z)
 
-    return x, y, z, a
+    return x, y, z, a, b, c, u, v, w
 
 def torture_main(runs):
     """Generate random chains of movement several times, restarting near the
@@ -117,17 +158,21 @@ def torture_main(runs):
 
     print "g21"
     for i in range(runs):
-        a = x = y = 0
+        x = y = 0
         z = 20
+        a = b = c = u = v = w = 0
         if chance_angular or chance_angular_helix:
-            print "G0 X0 Y0 A0 Z20"
+            print "G0 X0 Y0 A0 B0 C0 U0 V0 W0 Z20"
         else:
             print "G0 X0 Y0 Z20"
         print "F100"
 
         while 1:
-            x, y, z, a = choice(funcs)(x, y, z, a)
-            if R(x) or R(y) or R(z,-10,30) or R(a,-30000,30000): break
+            x, y, z, a, b, c, u, v, w = choice(funcs)(x, y, z, a, b, c, u, v, w)
+            if (R(x) or R(y) or R(z,-10,30) or
+                R(a,-30000,30000) or R(b, -30000,30000) or R(c, -30000,30000) or
+                R(u) or R(v) or R(w)):
+               break
 
 # Do ten runs then print m2
 torture_main(20)
