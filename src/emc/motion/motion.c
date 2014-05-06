@@ -893,7 +893,7 @@ static int init_comm_buffers(void)
 	    "MOTION: rtapi_shmem_new failed, returned %d\n", emc_shmem_id);
 	return -1;
     }
-    retval = rtapi_shmem_getptr(emc_shmem_id, (void **) &emcmotStruct);
+    retval = rtapi_shmem_getptr(emc_shmem_id, (void **) &emcmotStruct, 0);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: rtapi_shmem_getptr failed, returned %d\n", retval);

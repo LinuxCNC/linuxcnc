@@ -397,7 +397,7 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
 	    "STREAMER: ERROR: couldn't allocate user/RT shared memory\n");
 	return -ENOMEM;
     }
-    retval = rtapi_shmem_getptr(shmem_id[num], &shmem_ptr);
+    retval = rtapi_shmem_getptr(shmem_id[num], &shmem_ptr, 0);
     if ( retval < 0 ) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STREAMER: ERROR: couldn't map user/RT shared memory\n");

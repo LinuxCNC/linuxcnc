@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "ERROR: couldn't allocate user/RT shared memory\n");
 	goto out;
     }
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
+    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr, 0);
     if ( retval < 0 ) {
 	fprintf(stderr, "ERROR: couldn't map user/RT shared memory\n");
 	goto out;
@@ -217,7 +217,7 @@ int main(int argc, char **argv)
 	fprintf(stderr, "ERROR: couldn't re-allocate user/RT shared memory\n");
 	goto out;
     }
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
+    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr, 0);
     if ( retval < 0 ) {
 	fprintf(stderr, "ERROR: couldn't re-map user/RT shared memory\n");
 	goto out;

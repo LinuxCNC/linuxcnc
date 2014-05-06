@@ -152,7 +152,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     return i;
 }
 
-int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
+int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr, unsigned long *size) {
     shmem_data *shmem;
     if (handle < 1 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -165,6 +165,8 @@ int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr) {
 
     /* pass memory address back to caller */
     *ptr = shmem->mem;
+    if (size)
+	*size = shmem->size;
     return 0;
 }
 
@@ -508,7 +510,8 @@ int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id) {
     return 0;
 }
 
-int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr) {
+int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr,
+			     unsigned long int *size) {
     /* validate shmem ID */
     if ((shmem_id < 1) || (shmem_id > RTAPI_MAX_SHMEMS)) {
 	return -EINVAL;
@@ -538,8 +541,8 @@ int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
     return _rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
 }
 
-int _rtapi_shmem_getptr(int handle, void **ptr) {
-    return _rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr);
+int _rtapi_shmem_getptr(int handle, void **ptr, unsigned long int *size) {
+    return _rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr, size);
 }
 
 int _rtapi_shmem_delete(int handle, int module_id) {

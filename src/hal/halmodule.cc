@@ -953,7 +953,7 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject *kw) {
 	return -1;
     }
 
-    rtapi_shmem_getptr(self->shm_id, &self->buf);
+    rtapi_shmem_getptr(self->shm_id, &self->buf, 0);
     Py_INCREF(self->comp);
 
     return 0;

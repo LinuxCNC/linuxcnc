@@ -705,17 +705,19 @@ extern int _rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id);
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
+
+    If non-NULL, *size is set to the size of the shared memory block.
 */
 
-typedef int (*rtapi_shmem_getptr_t)(int, void **);
-#define rtapi_shmem_getptr(shmem_id, ptr)		\
-    rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr)
-extern int _rtapi_shmem_getptr(int shmem_id, void **ptr);
+typedef int (*rtapi_shmem_getptr_t)(int, void **, unsigned long int *);
+#define rtapi_shmem_getptr(shmem_id, ptr, size)		\
+    rtapi_switch->rtapi_shmem_getptr(shmem_id, ptr, size)
+extern int _rtapi_shmem_getptr(int shmem_id, void **ptr, unsigned long int *size);
 
-typedef int (*rtapi_shmem_getptr_inst_t)(int, int, void **);
-#define rtapi_shmem_getptr_inst(shmem_id, instance, ptr)	\
-    rtapi_switch->rtapi_shmem_getptr_inst(shmem_id, instance, ptr)
-extern int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr);
+typedef int (*rtapi_shmem_getptr_inst_t)(int, int, void **, unsigned long int *);
+#define rtapi_shmem_getptr_inst(shmem_id, instance, ptr, size)	\
+    rtapi_switch->rtapi_shmem_getptr_inst(shmem_id, instance, ptr, size)
+extern int _rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr, unsigned long int *size);
 
 
 /* rtapi_shmem_exists() tests whether a shared memory segment exists
