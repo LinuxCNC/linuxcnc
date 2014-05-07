@@ -24,7 +24,7 @@ setp lineardeltakins.L [MACHINE]CF_ROD
 setp lineardeltakins.R [MACHINE]DELTA_R
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES num_aio=5
 
 # load low-level drivers
 loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
@@ -255,15 +255,10 @@ net zvel-abs abs.2.out => hypot.0.in2
 net nozzle-vel hypot.0.out => mult2.1.in0
 net nozzle-discharge mult2.1.out => mult2.2.in0
 
-#calaulate filament area quarter-times-PI filament-diameter 
-#net pi-divided-by-four => mult2.3.in0
+#calaulate filament cross section area
+#PI divided by 4
 setp mult2.3.in0 0.7854
-#[EXTRUDER]PI_DIVIDED_BY_FOUR
-#net dia-filament => mult2.4.in0
-setp mult2.4.in0 2.85
-#[EXTRUDER]DIA_FILAMENT
-#net dia-filament => mult2.4.in1
-#setp mult2.4.in1 2.85
+setp mult2.4.in0 [EXTRUDER]DIA_FILAMENT
 setp mult2.4.in1 [EXTRUDER]DIA_FILAMENT
 
 net diameter-squared mult2.4.out => mult2.3.in1
@@ -280,9 +275,9 @@ net extruder-speed mux4.0.out => [PRUCONF](DRIVER).stepgen.03.velocity-cmd
 #11 = pre-charge
 
 setp mux4.0.in0 0
-setp mux4.0.in1 -10
+setp mux4.0.in1 -4
 net extrude-rate mult2.2.out => mux4.0.in2
-setp mux4.0.in3 10
+setp mux4.0.in3 4
 
 # We want the retract-charge to run for a fixed time:
 # when sel0 set to "1" meaning motion with extrusion" the on the rising edge
@@ -295,7 +290,9 @@ net pulse oneshot.0.out mux4.0.sel0 motion.feed-hold
 setp oneshot.0.rising 1
 setp oneshot.0.falling 1
 setp oneshot.0.retriggerable 1
-setp oneshot.0.width 0.2
+#setp oneshot.0.width 0.0
+#by setting the width, the automatic retract/precharge can be disabled
+net trigger-time motion.analog-out-04 => oneshot.0.width
 
 
 #get readout from the current motion pin
