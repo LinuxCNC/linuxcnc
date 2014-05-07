@@ -33,6 +33,7 @@ arcangles = range(0, 360, 45)
 aangles = [-361,-89,-1,1,91,359]
 chance_angular = .5
 chance_angular_helix = .5
+chance_lineaxis = .2
 
 def feed():
     "Half the time, change the feed rate"
@@ -113,39 +114,48 @@ def torture_arc(x, y, z, a, b, c, u, v, w):
 def torture_line(x, y, z, a, b, c, u, v, w):
     "Generate a random traverse or straight feed"
     kind = randrange(2)
-    print "G%d" % kind,
+    p = ""
+    p += "G%d " % kind
 
-    if kind == 1: feed()
-    
-    x = x + randrange(-10, 11)/2.
-    y = y + randrange(-10, 11)/2.
-    z = z + randrange(-10, 11)/2.
+    if random() < chance_lineaxis:
+        x = x + randrange(-10, 11)/2.
+        p += "X%f " % x
 
-    if random() < chance_angular:
+    if random() < chance_lineaxis:
+        y = y + randrange(-10, 11)/2.
+        p += "Y%f " % y
+
+    if random() < chance_lineaxis:
+        z = z + randrange(-10, 11)/2.
+        p += "Z%f " % z
+
+    if random() < chance_lineaxis:
         a = a + randrange(-180, 80)/2.
-        print "A%f" % a,
+        p += "A%f " % a
 
-    if random() < chance_angular:
+    if random() < chance_lineaxis:
         b = b + randrange(-180, 80)/2.
-        print "B%f" % b,
+        p += "B%f " % b
 
-    if random() < chance_angular:
+    if random() < chance_lineaxis:
         c = c + randrange(-180, 80)/2.
-        print "C%f" % c,
+        p += "C%f " % c
 
-    if random() < chance_angular:
+    if random() < chance_lineaxis:
         u = u + randrange(-500, 500)/100.
-        print "U%f" % u,
+        p += "U%f " % u
 
-    if random() < chance_angular:
+    if random() < chance_lineaxis:
         v = v + randrange(-500, 500)/100.
-        print "V%f" % v,
+        p += "V%f " % v
 
-    if random() < chance_angular:
+    if random() < chance_lineaxis:
         w = w + randrange(-500, 500)/100.
-        print "W%f" % w,
+        p += "W%f " % w
 
-    print "X%f Y%f Z%f" % (x, y, z)
+    if len(p) > 4:
+        if kind == 1: feed()
+        print p
 
     return x, y, z, a, b, c, u, v, w
 
