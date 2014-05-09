@@ -355,10 +355,10 @@ problems include:
 == Convenience Macros
 
 Based on the items in the declaration section, 'comp' creates a C
-structure called 'struct state'. However, instead of referring to the
-members of this structure (e.g., '*(inst->name)' ), they will generally
+structure called `struct __comp_state`. However, instead of referring to the
+members of this structure (e.g., `*(inst->name)`), they will generally
 be referred to using the macros below. The 
-details of 'struct state' and these macros may change from one version
+details of `struct __comp_state` and these macros may change from one version
 of 'comp' to the next.
 
 * 'FUNCTION(name)' - Use this macro to begin the definition of a realtime function which
@@ -399,8 +399,8 @@ When the item is a conditional item, it is only legal to refer to it
 * 'fperiod' - The floating-point number of seconds between calls to this realtime
     function.
 
-* 'FOR_ALL_INSTS() {...}' - For userspace components. This macro uses the variable 'struct
-    state 'inst' to iterate over all the defined instances. Inside the
+* 'FOR_ALL_INSTS() {...}' - For userspace components. This macro
+    iterates over all the defined instances. Inside the
     body of the 
      loop, the 'pin_name', 'parameter_name', and 'data' macros work as they
     do in realtime functions.
