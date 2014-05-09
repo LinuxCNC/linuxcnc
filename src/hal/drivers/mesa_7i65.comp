@@ -50,7 +50,7 @@ include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
 char *bspi_chans[16] = {0,};
 RTAPI_MP_ARRAY_STRING(bspi_chans, 16, "BSPI Channel names");
 
-static void read(struct __comp_state *inst){
+static void read(struct __comp_state *__comp_inst){
     int i;
     double aout[8];
 
