@@ -99,7 +99,7 @@ int rtapi_app_main(void)
 	hal_exit(comp_id);
 	return -1;
     }
-    retval = rtapi_shmem_getptr(shm_id, &shm_base);
+    retval = rtapi_shmem_getptr(shm_id, &shm_base, 0);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SCOPE: ERROR: failed to map shared memory\n");

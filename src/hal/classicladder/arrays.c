@@ -209,7 +209,7 @@ int ClassicLadder_AllocAll()
               }
     rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",CL_SHMEM_KEY, compId, bytes);
     // Map SHMEM (shared memory).
-    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
+    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase, 0) < 0) 
               {
   	       rtapi_print("Failed to map shared memory !\n");
   	       return FALSE;
@@ -244,7 +244,7 @@ int ClassicLadder_AllocAll()
      rtapi_print_msg(RTAPI_MSG_INFO,"Shared memory:key- %x component id-%d # of bytes-%lu\n",
      CL_SHMEM_KEY, compId, bytes);
     // Map SHMEM.
-    if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase) < 0) 
+     if (rtapi_shmem_getptr(ShmemId, (void **) &shmBase, 0) < 0) 
           {
            rtapi_print("Failed to map shared memory !\n");
            return FALSE;
