@@ -5,7 +5,7 @@ Usage:
 setting of the layer height: M68 E3 Qn.nn
 ( where n.nn is the height in mm )
 
-setting of the line height : M68 E2 Qn.nn
+setting of the line width : M68 E2 Qn.nn
 ( where n.nn is the width in mm )
 
 The extrusion should be (un)linked from the nozzle motion.

@@ -40,13 +40,15 @@ loadusr -Wn Therm ../ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 #used for comparing temperature set value with actual for waiting on temperature
 loadrt wcomp count=1
-loadrt sum2 count=2
+loadrt sum2 count=3
 loadrt mult2 count=5
 loadrt abs count=3
 loadrt hypot count=1
 loadrt invert count=1
 loadrt mux4 count=1
 loadrt oneshot count=1
+loadrt ddt count=1
+loadrt lincurve count=1 personality=2
 
 
 
@@ -69,7 +71,8 @@ addf bb_gpio.write                        servo-thread
 addf wcomp.0                              servo-thread
 addf sum2.0                               servo-thread
 addf sum2.1                               servo-thread
-addf mult2.0				  servo-thread
+addf sum2.2				  servo-thread			  
+addf mult2.0                              servo-thread
 addf mult2.1				  servo-thread
 addf mult2.2				  servo-thread
 addf mult2.3				  servo-thread
@@ -81,7 +84,8 @@ addf hypot.0				  servo-thread
 addf invert.0				  servo-thread
 addf mux4.0				  servo-thread
 addf oneshot.0				  servo-thread
-
+addf ddt.0				  servo-thread
+addf lincurve.0				  servo-thread
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
 # ######################################################
@@ -265,7 +269,7 @@ net diameter-squared mult2.4.out => mult2.3.in1
 net filament-area mult2.3.out => invert.0.in
 net divide-by-filament-area invert.0.out => mult2.2.in1
 
-net extruder-speed mux4.0.out => [PRUCONF](DRIVER).stepgen.03.velocity-cmd
+#net extruder-speed mux4.0.out => [PRUCONF](DRIVER).stepgen.03.velocity-cmd
 
 # now the solution of Andy Pugh for automatically retracting/priming
 #loadrt mux4 count=1
@@ -300,6 +304,21 @@ net current-motion-type motion.current-motion
 
 #net trigger-finished oneshot.0.out-not motion.digital-in-01
 #net feed-hold oneshot.0.out => motion.feed-hold
+
+# these are used for a small offset in velocity during acceleration (buildup pressure inside
+# the nozzle because of the current speed. Take the maximum accel you've specified in .ini
+setp lincurve.0.x-val-00 -2000
+setp lincurve.0.x-val-01 2000
+setp lincurve.0.y-val-00 -360
+setp lincurve.0.y-val-01 360
+
+# get the extruder speed into sum2.2 and ddt
+net extruder-speed mux4.0.out sum2.2.in0 ddt.0.in
+# get acceleration into lincurve
+net extruder-accel ddt.0.out lincurve.0.in
+# get adjusted speed for adding to current speed during accelleration
+net speed-adjustment lincurve.0.out sum2.2.in1
+net extruder-speed-adjusted sum2.2.out [PRUCONF](DRIVER).stepgen.03.velocity-cmd
 
 #########
 ###todo
