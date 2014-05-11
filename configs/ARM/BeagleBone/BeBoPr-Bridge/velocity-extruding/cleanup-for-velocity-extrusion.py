@@ -34,19 +34,25 @@ print "layer height = " + h_layer
 print "first layer  = " + h_first
 
 #define regular expressions to test for
-re_extr_a_position = re.compile(r' A[0-9]+\-*\.[0-9]+ ')       # test of there is an Ax.xxxx or A-x.xxxx in the string
 
-re_cmd_G1 = re.compile(r'^G1')                                 # test for G1 at the beginning of a line
-re_hgt_first_layer = re.compile(r'; move to next layer \(0\)') # first layer start
-re_hgt_other_layer = re.compile(r'; move to next layer \(1\)') # other layer start
-
-re_perimeter = re.compile(r'; perimeter')                      # first layer start
-re_fill = re.compile(r'; fill')                                # first layer start
+# test of there is an Ax.xxxx or A-x.xxxx in the string
+re_extr_a_position = re.compile(r' A[0-9]+\-*\.[0-9]+ ')
+# test for G1 at the beginning of a line
+re_cmd_G1 = re.compile(r'^G1')
+# first layer start
+re_hgt_first_layer = re.compile(r'; move to next layer \(0\)')
+# other layer start
+re_hgt_other_layer = re.compile(r'; move to next layer \(1\)')
+# perimeter
+re_perimeter = re.compile(r'; perimeter')
+# infill (furrently all infill is the same
+re_fill = re.compile(r'; fill')
 #re_w_inf_solid =
 #re_w_inf_top =
-re_skirt = re.compile(r'; skirt')                              # first layer start
-re_retract_precharge = re.compile(r'^M68 E4 Q.*')              #find M68 retrach/precharge in line
-
+# first layer start
+re_skirt = re.compile(r'; skirt')
+#find M68 retrach/precharge in line
+re_retract_precharge = re.compile(r'^M68 E4 Q.*')
 
 #fileDir = os.path.abspath(sys.argv[0])
 #fileDir = os.path.dirname(fileDir)
@@ -87,8 +93,7 @@ while (i < len(GcodeLines)):
         result_infill = re_fill.search(GcodeLines[i+1])
         result_skirt = re_skirt.search(GcodeLines[i+1])
         result_retract_precharge_next = re_retract_precharge.search(GcodeLines[i+1])
-            #    if i < len(GcodeLines)-2:
-            #result_retract_precharge_next = re_retract_precharge.search(GcodeLines[i+2])
+
     if i > 1:
         result_A_prev = re_extr_a_position.search(GcodeLines[i-1])
     # decide upon results above
@@ -97,15 +102,16 @@ while (i < len(GcodeLines)):
         #str_split = re_extr_a_position.split(GcodeLines[i])
         #new_line = str_split[1]+str_split[2]
         if result_A_next == None:
-        #   disconnect (and retract) the extruder velocity with the nozzle velocity
-        #   because extruder position not on next line
+        #   disconnect (and retract) the extruder velocity with the nozzle
+        #   velocity because extruder position not on next line
         #   line += "add disconnect code\n"
             b_extr_disconnect = True
-        #   connect (and precharge) the extruder velocity with the nozzle velocity
-        #   after this line because extruder position not on previous line
+        #   connect (and precharge) the extruder velocity with the nozzle
+        #   velocity after this line because extruder position isnt previous line
         #   line += "add connect code\n"
     else:
-        #   there is no A position, now we need to look for the next line to have an A position
+        #   there is no A position, now we need to look for
+        #   the next line to have an A position
             if result_A_next != None:
         #   line += "add precharge code\n"
                 b_extr_connect = True
@@ -150,11 +156,16 @@ while (i < len(GcodeLines)):
     else:
         b_retract_precharge_next = False
 
-    #wait and make sure that the connecting/disconnecting of the velocity with the nozzle movement is done after setting the time of the retract. So skip one line before adding the said g-code
+# wait and make sure that the connecting/disconnecting of the
+# velocity with the nozzle movement is done after setting
+# the time of the retract. So skip one line before adding
+# the said g-code
 
-    # specific order for setting line width and/or height in combination with connecting extruder velocity with the motion (and thus) precharge
-    # first do the precharge
-    # then change line widths and heiht
+# specific order for setting line width and/or height in
+# combination with connecting extruder velocity with the
+# motion (and thus) precharge
+# first do the precharge
+# then change line widths and heiht
 
     if b_linetypechange_up == True:
         prevous_linetype = current_linetype
@@ -192,7 +203,10 @@ while (i < len(GcodeLines)):
             #line += cmd_extr_connect + "\n"
             b_extr_connect = False
 
-    if (((b_extr_disconnect == True) & (b_retract_precharge_curr == True)) | ((b_extr_connect == True) & (b_retract_precharge_curr == True))):
+    if (((b_extr_disconnect == True) & \
+         (b_retract_precharge_curr == True)) | \
+        ((b_extr_connect == True) & \
+         (b_retract_precharge_curr == True))):
         GcodeProgram.append(line + GcodeLines[i])
         b_extr_disconnect = False
         b_extr_connect = False

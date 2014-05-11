@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# first get the variables needed for setting width and height for extruding from the slic3r file
+# first get the variables needed for setting width and height for
+# extruding from the slic3r file
 #; layer_height = 0.10
 #; nozzle_diameter = 0.35
 #; filament_diameter = 2.85
@@ -11,21 +12,32 @@
 #; top infill extrusion width = 0.40mm
 #; first_layer_height = 0.10
 
-# fill all the variables needed to change the velocity control extrudion settings
+# fill all variables needed to change the velocity control extrudion settings
 # settings at beginning, filament diameter
 # nozzle diameter not yet used for anything
-# meaning height of layer and width of typical job (infill, solid, perimeter etc) width of current line
-layer_height=$(grep -m 1 '; layer_height = ' "$1" | rev | cut -d ' ' -f1 | rev)
-# above is line, reversed, then cut wit space delimeter, first part is kept, and then reversed
-nozzle_diameter=$(grep -m 1 '; nozzle_diameter = ' "$1" | rev | cut -d ' ' -f1 | rev)
-filament_diameter=$(grep -m 1 '; filament_diameter = ' "$1" | rev | cut -d ' ' -f1 | rev)
-extrusion_multiplier=$(grep -m 1 '; extrusion_multiplier = ' "$1" | rev | cut -d ' ' -f1 | rev)
-perimeters_extrusion_width=$(grep -m 1 '; perimeters extrusion width = ' "$1" | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
+# meaning height of layer and width of typical job (infill, solid,
+# perimeter etc) width of current line
+layer_height=$(grep -m 1 '; layer_height = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev)
+# above is line, reversed, then cut wit space delimeter, first part
+# is kept, and then reversed
+nozzle_diameter=$(grep -m 1 '; nozzle_diameter = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev)
+filament_diameter=$(grep -m 1 '; filament_diameter = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev)
+extrusion_multiplier=$(grep -m 1 '; extrusion_multiplier = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev)
+perimeters_extrusion_width=$(grep -m 1 '; perimeters extrusion width = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
 # above line is also trimmed of the 2 tratling 'mm' characters
-infill_extrusion_width=$(grep -m 1 '; infill extrusion width = ' "$1" | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
-solid_infill_extrusion_width=$(grep -m 1 '; solid infill extrusion width = ' "$1" | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
-top_infill_extrusion_width=$(grep -m 1 '; top infill extrusion width = ' "$1" | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
-first_layer_height=$(grep -m 1 '; first_layer_height = ' "$1" | rev | cut -d ' ' -f1 | rev)
+infill_extrusion_width=$(grep -m 1 '; infill extrusion width = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
+solid_infill_extrusion_width=$(grep -m 1 '; solid infill extrusion width = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
+top_infill_extrusion_width=$(grep -m 1 '; top infill extrusion width = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev | sed 's|mm||')
+first_layer_height=$(grep -m 1 '; first_layer_height = ' "$1" \
+    | rev | cut -d ' ' -f1 | rev)
 
 # above would be nicer in a loop, although with the different commands (sed for the 'mm') maybe not
 
@@ -52,7 +64,10 @@ echo "width top infill         = $top_infill_extrusion_width"
 
 
 # remove all comment lines, convert all E to A axis, convert M106 to M206
-sed -e 's|^;.*$||' -e 's| E| A|' -e 's|^M106 |M206 |' "$1" > "e_axes_converted_$1"
+sed -e 's|^;.*$||' \
+    -e 's| E| A|' \
+    -e 's|^M106 |M206 |' \
+    "$1" > "e_axes_converted_$1"
 
 sed '
 /^M109 / a\
@@ -60,14 +75,21 @@ M66 P0 L3 Q100
 ' "e_axes_converted_$1" > "M66-added_$1"
 rm "e_axes_converted_$1"
 
-sed -e 's|^M109 |M104 |' -e 's|^G92 A.*$||' -e 's|^G1.*; retract$|M68 E4 Q0.2|' -e 's|^G11 ; unretract|M68 E4 Q0.0|' -e 's|^.*; compensate retraction|M68 E4 Q0.0|' -e '/^$/ d' "M66-added_$1" > "cleaned_$1"
+sed -e 's|^M109 |M104 |' \
+    -e 's|^G92 A.*$||' \
+    -e 's|^G1.*; retract$|M68 E4 Q0.2|' \
+    -e 's|^G11 ; unretract|M68 E4 Q0.0|' \
+    -e 's|^.*; compensate retraction|M68 E4 Q0.0|' \
+    -e '/^$/ d' \
+    "M66-added_$1" > "cleaned_$1"
 rm "M66-added_$1"
 
-python ./cleanup-for-velocity-extrusion.py "cleaned_$1" "$perimeters_extrusion_width" "$infill_extrusion_width" "$layer_height" "$first_layer_height"
-#rm "cleaned_$1"
-
-#remove all retract and compensation stuff
-#sed -e 's|^.* ; retract&|; here was gcode for retracting|' -e 's|^.* ; compensate retraction&|; here was gcode for precharge|' "result_retract_$1" > "result2_retract_$1"
+python ./cleanup-for-velocity-extrusion.py \
+    "cleaned_$1" "$perimeters_extrusion_width" \
+    "$infill_extrusion_width" \
+    "$layer_height" \
+    "$first_layer_height"
+rm "cleaned_$1"
 
 # convert all M106 to B axis
 #sed '/^M106/s/M106 P/G0 B/' "$1post" > "$1"
@@ -78,18 +100,20 @@ python ./cleanup-for-velocity-extrusion.py "cleaned_$1" "$perimeters_extrusion_w
 # first part should be A0.7777 or A-0.7777 (or more or less numbers)
 
 # make a regular expression with space followed with an A as anchor
-# the expression should then have a . with 1 or more [0-9] before and 1 or more [0-9] after that
-# AND the [0-9] before the . has to have zero or more - signs befor that.
+# the expression should then have a . with 1 or more [0-9] before and 1 or
+# more [0-9] after that AND the [0-9] before the . has to have zero or
+# more - signs befor that.
 # -few-
 # then replace it with nothing (note ||)
 
-# remove all A's and all empty lines
-#sed 's| A[0-9\-\.]*||' "result_retract_$1" > "processed_$1"
-#sed -e 's| A[0-9\-\.]*||' -e '/^$/ d' "result_retract_$1" > "processed_$1"
-sed -e 's| A[0-9\-\.]* | |' -e 's|^G1.*; retract$|M67 E4 Q0.2|' -e 's|^G11 ; unretract|M67 E4 Q0.0|' -e 's|^.*; compensate retraction|M67 E4 Q0.0|' -e '/^$/ d' "result-cleaned_$1" > "processed_$1"
+# remove all A's, change retract comments, and all empty lines
+sed -e 's| A[0-9\-\.]* | |' \
+    -e 's|^G1.*; retract$|M67 E4 Q0.2|' \
+    -e 's|^G11 ; unretract|M67 E4 Q0.0|' \
+    -e 's|^.*; compensate retraction|M67 E4 Q0.0|' \
+    -e '/^$/ d' \
+    "result-cleaned_$1" > "processed_$1"
 
-
-#cp conn-18.ngc test.ngc
 
 #convert g1 line segments to g2 or g3 if possible
 #./g1tog23.py $1
