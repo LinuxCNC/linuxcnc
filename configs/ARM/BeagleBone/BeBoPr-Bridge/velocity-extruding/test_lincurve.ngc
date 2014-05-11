@@ -1,0 +1,67 @@
+( linking   : M64 P2 )
+( unlinking : M65 P2 )
+( setting of the line width : M68 E2 Qn.nn )
+( setting of the layer height: M68 E3 Qn.nn )
+
+( set fan on)
+M206 P255
+( set temperature at 205 degree)
+M104 P205
+( wait for temperature to be reached)
+M66 P0 L3 Q100
+
+( with halcmd setp lincurve.0.x-val-00 you can experiment with settings )
+( same goes for x-val-01, y-val-00 and y-val-01 )
+
+M68 E2 Q0.6 ( width )
+M68 E3 Q0.2 ( height )
+
+( set retract/precharge time to 0.0 sec )
+M68 E4 Q0.0
+
+( go to point and prime nozzle )
+G1 X-95 Y-50 Z50 F8000
+( link the extruder )
+M64 P2
+G1 Z100 F5000
+G1 Z1
+( unlink )
+M65 P2
+
+G1 X-75 Y0 Z0.2 F8000
+( 0.3 because of test paper on bed )
+
+( link the extruder without retract / precharge )
+M64 P2
+G1 X75 F4800
+M65 P2
+G1 Y10
+M64 P2
+G1 X-75
+M65 P2
+G1 Y20
+M64 P2
+G1 X75
+M65 P2
+
+G0 X-75 Y30 Z0.2 F18000
+( link the extruder with retract / precharge )
+M64 P2
+( set retract/precharge time to 0.2 sec )
+M68 E4 Q0.2 
+G1 X75 F4800
+M65 P2
+G1 Y40
+M64 P2
+G1 X-75
+M65 P2
+G1 Y50
+M64 P2
+G1 X75
+M65 P2
+
+( up )
+G0 Z200 F18000
+
+( end )
+M2
