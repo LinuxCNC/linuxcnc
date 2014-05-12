@@ -278,6 +278,7 @@ proc std_start_pause_button {} {
   net    pendant:program-resume pendant_util.resume => halui.program.resume
   net    pendant:program-pause  pendant_util.pause => halui.program.pause
   net    pendant:program-run    pendant_util.run => halui.program.run
+  net    pendant:program-run                     => halui.mode.auto
 } ;# std_start_pause_button
 
 proc popup_msg {msg} {

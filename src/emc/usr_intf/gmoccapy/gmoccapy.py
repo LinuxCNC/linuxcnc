@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.4"
+_RELEASE = "  1.1.5"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -149,6 +149,11 @@ class gmoccapy(object):
 
         self.widgets = widgets.Widgets(self.builder)
 
+        self.initialized = False  # will be set True after the window has been shown and all
+                                  # basic settings has been finished, so we avoid some actions
+                                  # because we cause click or toggle events when initializing
+                                  # widget states.
+
         self.start_line = 0       # needed for start from line
         self.stepping = False     # used to sensitize widgets when using step by step
 
@@ -170,8 +175,11 @@ class gmoccapy(object):
         self.unlock = False             # this value will be set using the hal pin unlock settings
                                         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
+        self.dro_size = 28              # The size of the DRO, user may want them bigger on bigger screen
         self.axisnumber_four = ""       # we use this to get the number of the 4-th axis
         self.axisletter_four = None     # we use this to get the letter of the 4-th axis
+        self.hide_axis_4 = False        # will hold if the 4'th axis should be hidden
+
         self.notification = notification.Notification() # Our own message system
         self.last_key_event = None, 0   # needed to avoid the auto repeat function of the keyboard
         self.all_homed = False          # will hold True if all axis are homed
@@ -188,6 +196,8 @@ class gmoccapy(object):
         # to get a valid result, as the checks are done in that module
         self.get_ini_info = getiniinfo.GetIniInfo()
 
+        self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
+
         self._get_axis_list()
         self._init_axis_four()
         self._init_jog_increments()
@@ -197,8 +207,6 @@ class gmoccapy(object):
         # set the title of the window, to show the release
         self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
         self.widgets.lbl_version.set_label("<b>gmoccapy\n%s</b>" % _RELEASE)
-
-        self.prefs = preferences.preferences(self.get_ini_info.get_preference_file_path())
 
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME , self.builder, None)
 
@@ -626,31 +634,6 @@ class gmoccapy(object):
             self.widgets.lbl_offset_x.hide()
             self.widgets.btn_tool_touchoff_x.hide()
             self.widgets.lbl_hide_tto_x.show()
-            # is there a 4_th axis?
-            # We need to show the corresponding widgets
-            # and change some sizes
-            if len(self.axis_list) > 3:
-                # let us find out wich axis is the 4-th one
-                # and set things accordingly
-
-                self.widgets.btn_4_plus.set_label("%s+" % self.axisletter_four.upper())
-                self.widgets.btn_4_minus.set_label("%s-" % self.axisletter_four.upper())
-                self.widgets.btn_4_plus.show()
-                self.widgets.btn_4_minus.show()
-                self.widgets.lbl_replace_4.hide()
-                self.widgets.btn_home_4.show()
-
-                # we have to re-arrange the jog buttons, so first remove all button
-                self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
-                self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
-                self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
-                self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
-
-                # now we place them in a different order
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
-                self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
 
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
@@ -714,8 +697,18 @@ class gmoccapy(object):
         self.widgets.adj_scale_feed_override.set_value(self.scale_feed_override)
 
     def _init_axis_four(self):
+        self.dro_size = int(self.prefs.getpref("dro_size", 28, int))
+        self.widgets.adj_dro_size.set_value(self.dro_size)
+
         if len(self.axis_list) < 4:
             self.widgets.Combi_DRO_4.hide()
+            self.widgets.chk_hide_axis_4.set_active(False)
+            self.widgets.frm_tool_changer.set_sensitive(False)
+            self.prefs.putpref("hide_axis_4", False, bool)
+
+            for axis in self.axis_list:
+                self.widgets["Combi_DRO_%s" % axis].set_property("font_size", self.dro_size)
+
             return
         axis_four = list(set(self.axis_list) - set(("x", "y", "z")))
         if len(axis_four) > 1:
@@ -734,11 +727,93 @@ class gmoccapy(object):
         image = self.widgets["img_home_%s" % self.axisletter_four]
         self.widgets.btn_home_4.set_image(image)
         self.widgets.btn_home_4.set_property("tooltip-text", _("Home axis %s") % self.axisletter_four.upper())
+
         # We have to change the size of the DRO, to make 4 DRO fit the space we got
         for axis in self.axis_list:
             if axis == self.axisletter_four:
                 axis = 4
-            self.widgets["Combi_DRO_%s" % axis].set_property("font_size", 20)
+            self.widgets["Combi_DRO_%s" % axis].set_property("font_size", self.dro_size * 3 / 4)
+
+        self.widgets.btn_4_plus.set_label("%s+" % self.axisletter_four.upper())
+        self.widgets.btn_4_minus.set_label("%s-" % self.axisletter_four.upper())
+        self.widgets.btn_4_plus.show()
+        self.widgets.btn_4_minus.show()
+        self.widgets.lbl_replace_4.hide()
+        self.widgets.btn_home_4.show()
+
+        # we have to re-arrange the jog buttons, so first remove all button
+        self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
+        self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
+        self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
+        self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
+
+        # now we place them in a different order
+        self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK)
+        self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK)
+        self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
+        self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
+
+        if self.prefs.getpref("hide_axis_4", False, bool):
+            self._hide_axis_4(True)
+
+    def _hide_axis_4(self, state = False):
+        print("axis 4 should be hidden", state)
+
+        # we save the state, because it will be needed also
+        # in _init_offsetpage and _init_tooleditor
+        self.hide_axis_4 = state
+
+        self.widgets.chk_hide_axis_4.set_active(self.hide_axis_4)
+
+        if self.hide_axis_4:
+            self.widgets.frm_tool_changer.set_sensitive(True)
+            self.widgets.Combi_DRO_4.hide()
+            self.widgets.btn_4_plus.hide()
+            self.widgets.btn_4_minus.hide()
+            font_size = self.dro_size
+
+            # we have to re-arrange the jog buttons, so first remove all button
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
+
+            # now we place them in a different order
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
+
+            self.widgets.btn_4_plus.hide()
+            self.widgets.btn_4_minus.hide()
+            self.widgets.lbl_replace_4.show()
+            self.widgets.btn_home_4.hide()
+
+        else:
+            font_size = self.dro_size * 3 / 4
+
+            # we have to re-arrange the jog buttons, so first remove all button
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_z_plus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_minus)
+            self.widgets.tbl_jog_btn.remove(self.widgets.btn_4_plus)
+
+            # now we place them in a different order
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_plus, 2, 3, 0, 1, gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_z_minus, 2, 3, 2, 3, gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_plus, 3, 4, 0, 1, gtk.SHRINK, gtk.SHRINK)
+            self.widgets.tbl_jog_btn.attach(self.widgets.btn_4_minus, 3, 4, 2, 3, gtk.SHRINK, gtk.SHRINK)
+
+            self.widgets.btn_4_plus.show()
+            self.widgets.btn_4_minus.show()
+            self.widgets.lbl_replace_4.hide()
+            self.widgets.btn_home_4.show()
+            self.widgets.Combi_DRO_4.show()
+
+        for axis in self.axis_list:
+            if axis == self.axisletter_four:
+                axis = 4
+            self.widgets["Combi_DRO_%s" % axis].set_property("font_size", font_size)
 
     def _init_jog_increments(self):
         # Now we will build the option buttons to select the Jog-rates
@@ -848,7 +923,11 @@ class gmoccapy(object):
     def _init_tooleditor(self):
         self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
         for axis in self.axis_list:
-                self.widgets.tooledit1.set_visible("%s" % axis, True)
+            if axis == self.axisletter_four:
+                if self.hide_axis_4:
+                    continue
+            self.widgets.tooledit1.set_visible("%s" % axis, True)
+
         if self.lathe_mode:
             self.widgets.tooledit1.set_visible("ijq", True)
         # get the path to the tool table
@@ -980,6 +1059,9 @@ class gmoccapy(object):
         self.widgets.offsetpage1.set_col_visible(temp, False)
         temp = ""
         for axis in self.axis_list:
+            if axis == self.axisletter_four:
+                if self.hide_axis_4:
+                    continue
             temp = temp + axis
         self.widgets.offsetpage1.set_col_visible(temp, True)
         parameterfile = self.get_ini_info.get_parameter_file()
@@ -1493,13 +1575,7 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
-# TODO: find out why the values are modified by 1 on startup
-#       and correct this to avoid the need of this clicks
-        # will need to click, otherwise we get 101 % after startup
-        self.widgets.btn_feed_100.emit("clicked")
-        self.widgets.btn_spindle_100.emit("clicked")
-# TODO: End
-
+        self.initialized = True
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data = None):
@@ -2131,22 +2207,32 @@ class gmoccapy(object):
 # to here only needed, if the DRO button will remain in gmoccapy
 
     def on_adj_x_pos_popup_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         self.prefs.putpref("x_pos_popup", widget.get_value(), float)
         self.init_notification()
 
     def on_adj_y_pos_popup_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         self.prefs.putpref("y_pos_popup", widget.get_value(), float)
         self.init_notification()
 
     def on_adj_width_popup_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         self.prefs.putpref("width_popup", widget.get_value(), float)
         self.init_notification()
 
     def on_adj_max_messages_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         self.prefs.putpref("max_messages", widget.get_value(), float)
         self.init_notification()
 
     def on_chk_use_frames_toggled(self, widget, data = None):
+        if not self.initialized:
+            return
         self.prefs.putpref("use_frames", widget.get_active(), bool)
         self.init_notification()
 
@@ -2473,6 +2559,8 @@ class gmoccapy(object):
         self.widgets.adj_spindle.set_value(100)
 
     def on_adj_spindle_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         # this is in a try except, because on initializing the window the values are still zero
         # so we would get an division / zero error
         real_spindle_speed = 0
@@ -2547,6 +2635,8 @@ class gmoccapy(object):
 
     # feed stuff
     def on_adj_feed_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         self.command.feedrate(widget.get_value() / 100)
         self.widgets.adj_max_vel.set_value(float(self.widgets.adj_max_vel.upper * widget.get_value() / 100))
 
@@ -2558,6 +2648,8 @@ class gmoccapy(object):
         pass
 
     def on_adj_max_vel_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
         value = widget.get_value() / 60
         self.command.maxvel(value * (1 / self.faktor))
 
@@ -2775,6 +2867,16 @@ class gmoccapy(object):
             self.halcomp["toolmeasurement"] = False
         self.prefs.putpref("use_toolmeasurement", widget.get_active(), bool)
 
+    def on_chk_hide_axis_4_toggled(self, widget, data = None):
+        if not self.initialized:
+            return
+        state = widget.get_active()
+        if self.log: self._add_alarm_entry("Hide axis 4 has been toggled to ", state)
+        self.prefs.putpref("hide_axis_4", state, bool)
+        self._hide_axis_4(state)
+        self._init_offsetpage()
+        self._init_tooleditor()
+
     def on_btn_block_height_clicked(self, widget, data = None):
         probeheight = self.widgets.spbtn_probe_height.get_value()
         blockheight = dialogs.entry_dialog(self, data = None, header = _("Enter the block height"),
@@ -2921,6 +3023,14 @@ class gmoccapy(object):
         self.prefs.putpref("height", widget.get_value(), float)
         width = int(self.prefs.getpref("width", 979, float))
         self.widgets.window1.resize(width, int(widget.get_value()))
+
+    def on_adj_dro_size_value_changed(self, widget, data = None):
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.prefs.putpref("dro_size", value, int)
+        self.dro_size = value
+        self._init_axis_four()
 
     def on_chk_hide_cursor_toggled(self, widget, data = None):
         if self.log: self._add_alarm_entry("hide_cursor_toggled to %s" % widget.get_active())
@@ -3438,6 +3548,8 @@ class gmoccapy(object):
 # =========================================================
 # Hal Pin Handling Start
     def _on_fo_counts_changed(self, pin, widget):
+        if not self.initialized:
+            return
         counts = pin.get()
         difference = (counts - self.fo_counts) * self.scale_feed_override
         self.fo_counts = counts
@@ -3448,6 +3560,8 @@ class gmoccapy(object):
             self.widgets[widget].set_value(val)
 
     def _on_so_counts_changed(self, pin, widget):
+        if not self.initialized:
+            return
         counts = pin.get()
         difference = (counts - self.so_counts) * self.scale_spindle_override
         self.so_counts = counts
@@ -3458,6 +3572,8 @@ class gmoccapy(object):
             self.widgets[widget].set_value(val)
 
     def _on_jv_counts_changed(self, pin, widget):
+        if not self.initialized:
+            return
         counts = pin.get()
         difference = (counts - self.jv_counts) * self.scale_jog_vel
         self.jv_counts = counts
@@ -3468,6 +3584,8 @@ class gmoccapy(object):
             self.widgets[widget].set_value(val)
 
     def _on_mv_counts_changed(self, pin, widget):
+        if not self.initialized:
+            return
         counts = pin.get()
         difference = (counts - self.mv_counts) * self.scale_max_vel
         self.mv_counts = counts

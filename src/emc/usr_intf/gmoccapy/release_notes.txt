@@ -1,3 +1,13 @@
+ver. 1.1.5
+- added a option to hide the 4'th axis, this is useful if that axis is used
+  to control a tool changer, as than the axis DRO and jog button are not needed.
+  This has to be activated on the settings page, axis 4 is shown by default.
+  This needed some code rework (moving code around)
+- solved the problem of pin_value changes on start up / initializing, because I
+  introduced a new intern variable self.initialized, leaving defs if not True
+- introduced a adjustment widget on the settings page to allow the user to set
+  the font size of the DRO, it will be reduced by 3/4 if 4 axis are used
+
 ver. 1.1.4
 - added again the gcode.lang file, it got lost, after changing gmoccapy to be
   stand alone
