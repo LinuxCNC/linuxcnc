@@ -54,7 +54,7 @@ while (i < len(GcodeLines)):
         | (result_move_other != None))
         & (result_retract_time != None)):
         # now write first the 3rd line, then the first, and lastly the second
-        GcodeProgram.append(GcodeLines[i+2] + ";bla")
+        GcodeProgram.append(GcodeLines[i+2])
         GcodeProgram.append(GcodeLines[i])
         GcodeProgram.append(GcodeLines[i+1])
         i += 2
