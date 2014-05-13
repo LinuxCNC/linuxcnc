@@ -24,7 +24,7 @@ GcodeFileOutput = "swapped-" + GcodeFileInput
 # move to next layer
 re_move_layer = re.compile(r'; move to next layer \(')
 # move like infill
-re_move_other = re.compile(r'^G.*')
+re_move_other = re.compile(r'^G[01]')
 # disconnect with motion
 re_disconnect = re.compile(r'^M65 P2')
 # set retract time
@@ -46,13 +46,15 @@ while (i < len(GcodeLines)):
     result_disconnect = re_disconnect.search(GcodeLines[i])
     if i < len(GcodeLines)-1:
         result_move_next_layer = re_move_layer.search(GcodeLines[i+1])
+        result_move_other = re_move_other.search(GcodeLines[i+1])
     if i < len(GcodeLines)-2:
         result_retract_time = re_retract_time.search(GcodeLines[i+2])
     if ((result_disconnect != None) \
-        & (result_move_next_layer != None) \
+        & ((result_move_next_layer != None) \
+        | (result_move_other != None))
         & (result_retract_time != None)):
         # now write first the 3rd line, then the first, and lastly the second
-        GcodeProgram.append(GcodeLines[i+2])
+        GcodeProgram.append(GcodeLines[i+2] + ";bla")
         GcodeProgram.append(GcodeLines[i])
         GcodeProgram.append(GcodeLines[i+1])
         i += 2
