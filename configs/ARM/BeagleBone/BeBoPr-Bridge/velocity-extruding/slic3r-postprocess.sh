@@ -91,6 +91,29 @@ python ./cleanup-for-velocity-extrusion.py \
     "$first_layer_height"
 rm "cleaned_$1"
 
+# remove empty lines for next script
+sed -e '/^$/ d' "result-cleaned_$1" > "cleaned_$1"
+rm "result-cleaned_$1"
+
+# now the following occurs:
+# the time of the retract period is not set before the disconnect of the
+# extruder with the nozzle motion. It's something in the slic3r output
+# before the .py script the file is like this:
+#
+#G1 X-15.574 Y-18.156 A541.86412 ; fill
+#G0 Z9.000 F18000.000 ; move to next layer (44)
+#G1 F1800.000 A540.56412 ; retract
+#
+#and afterwards it's like this:
+#
+#G1 X-15.574 Y-18.156 A541.86412 ; fill
+#M65 P2
+#G0 Z9.000 F18000.000 ; move to next layer (44)
+#M68 E4 Q0.2
+#
+python ./correct-retract-on-next-layer.py "cleaned_$1"
+
+
 # convert all M106 to B axis
 #sed '/^M106/s/M106 P/G0 B/' "$1post" > "$1"
 #rm "$1post"
@@ -108,11 +131,9 @@ rm "cleaned_$1"
 
 # remove all A's, change retract comments, and all empty lines
 sed -e 's| A[0-9\-\.]* | |' \
-    -e 's|^G1.*; retract$|M67 E4 Q0.2|' \
-    -e 's|^G11 ; unretract|M67 E4 Q0.0|' \
-    -e 's|^.*; compensate retraction|M67 E4 Q0.0|' \
     -e '/^$/ d' \
-    "result-cleaned_$1" > "processed_$1"
+    "swapped-cleaned_$1" > "processed_$1"
+#rm "swapped-result-cleaned_$1"
 
 
 #convert g1 line segments to g2 or g3 if possible
