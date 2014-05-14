@@ -33,7 +33,7 @@
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Sebastian Kuzminsky");
-MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[01235], 6i25, 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
+MODULE_DESCRIPTION("Driver for HostMot2 on the 5i2[012345], 6i25, 4i6[589], and 3x20 Anything I/O boards from Mesa Electronics");
 MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-5i20");  // FIXME
 
 
