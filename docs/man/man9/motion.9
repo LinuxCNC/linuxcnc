@@ -141,8 +141,9 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 When this bit is TRUE, the feed rate is set and held to 0. This will be delayed during spindle synch moves till the end of the move. 
 
 .TP
-\fBmotion.motion-inpos\fR OUT BIT 
-TRUE if the machine is in position.
+\fBmotion.in-position\fR OUT BIT
+TRUE if the machine is in position (ie, not currently moving towards
+the commanded position).
 
 .TP
 \fBmotion.probe-input\fR IN BIT 
@@ -349,11 +350,21 @@ The positive hard limit for the joint
 \fBaxis.\fIN\fB.wheel-jog-active\fR OUT BIT
 
 .TP
-\fBmotion.in-position\fR OUT BIT
-Same as the pin motion.motion-inpos
+\fBmotion.motion-enabled\fR OUT BIT
 
 .TP
-\fBmotion.motion-enabled\fR OUT BIT
+\fBmotion.motion-type\fR OUT S32
+These values are from src/emc/kinematics/tc.h
+.RS
+.RS
+.TP
+1: Linear move
+.P
+2: Arc move
+.P
+3: Rigid tap move
+.RE
+.RE
 
 .TP
 \fBmotion.on-soft-limit\fR OUT BIT

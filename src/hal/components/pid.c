@@ -644,7 +644,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     *(addr->cmd_dd) = 0.0;
     /* init all structure members */
     *(addr->enable) = 0;
-    *(addr->error_previous_target) = 0;
+    *(addr->error_previous_target) = 1;
     *(addr->command) = 0;
     *(addr->feedback) = 0;
     *(addr->error) = 0;
