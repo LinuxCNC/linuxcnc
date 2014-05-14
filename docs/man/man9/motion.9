@@ -141,8 +141,9 @@ When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed ra
 When this bit is TRUE, the feed rate is set and held to 0. This will be delayed during spindle synch moves till the end of the move. 
 
 .TP
-\fBmotion.motion-inpos\fR OUT BIT 
-TRUE if the machine is in position.
+\fBmotion.in-position\fR OUT BIT
+TRUE if the machine is in position (ie, not currently moving towards
+the commanded position).
 
 .TP
 \fBmotion.probe-input\fR IN BIT 
