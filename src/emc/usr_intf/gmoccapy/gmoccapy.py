@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5"
+_RELEASE = "  1.1.5.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -181,6 +181,7 @@ class gmoccapy(object):
         self.hide_axis_4 = False        # will hold if the 4'th axis should be hidden
 
         self.notification = notification.Notification() # Our own message system
+        self.notification.connect("message_deleted", self._on_message_deleted)
         self.last_key_event = None, 0   # needed to avoid the auto repeat function of the keyboard
         self.all_homed = False          # will hold True if all axis are homed
         self.faktor = 1.0               # needed to calculate velocitys
@@ -1244,14 +1245,15 @@ class gmoccapy(object):
                 text = text.replace("joint %d" % axnum, "Axis %s" % letter.upper())
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
-            type = _("Error Message")
             self.halcomp["error"] = True
         elif kind in (linuxcnc.NML_TEXT, linuxcnc.OPERATOR_TEXT):
             icon = INFO_ICON
-            type = _("Message")
         elif kind in (linuxcnc.NML_DISPLAY, linuxcnc.OPERATOR_DISPLAY):
             icon = INFO_ICON
-            type = _("Message")
+        else:
+            icon = ALERT_ICON
+        if text == "" or text == None:
+            text = _("Unknown error type and no error text given")
         self.notification.add_message(text, icon)
         if self.log:
             self._add_alarm_entry(text)
@@ -1262,6 +1264,8 @@ class gmoccapy(object):
             else:
                 self.audio.set_sound(self.alert_sound)
             self.audio.run()
+#        self.halcomp["error"] = True
+
 
 
 # =========================================================
@@ -3600,6 +3604,14 @@ class gmoccapy(object):
             return
         self.widgets.tbtn_setup.set_sensitive(pin.get())
 
+    def _on_message_deleted(self, widget, messages):
+        number = []
+        for message in messages:
+            if message[2] == ALERT_ICON:
+                number.append(message[0])
+        if len(number) == 0:
+            self.halcomp["error"] = False
+
     def _del_message_changed(self, pin):
         if pin.get():
             if self.halcomp["error"] == True:
@@ -3608,7 +3620,6 @@ class gmoccapy(object):
                 for message in messages:
                     if message[2] == ALERT_ICON:
                         number.append(message[0])
-                    print message
                 self.notification.del_message(number[0])
                 if len(number) == 1:
                     self.halcomp["error"] = False

@@ -1,3 +1,12 @@
+ver 1.1.5.1
+- solved a bug related to the gmoccapy error pin. This pin has not been reseted
+  if the user used the mouse or touch screen and errased the message by clicking
+  the message button. It was only done right if the delete-message pin was used.
+  I modified notification.py to emit a signal if a message has been deleted and 
+  conected this signal to gmoccapy. 
+- corrected also a small mistake in _show_errors, it was posible to get messages
+  without text, added a default text. 
+
 ver. 1.1.5
 - added a option to hide the 4'th axis, this is useful if that axis is used
   to control a tool changer, as than the axis DRO and jog button are not needed.

@@ -60,6 +60,11 @@ class Notification(gtk.Window):
                       }
     __gproperties = __gproperties__
 
+    __gsignals__ = {
+                'message_deleted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+               }
+
+
     # build the main gui
     def __init__(self):
         gtk.Window.__init__(self)
@@ -162,6 +167,7 @@ class Notification(gtk.Window):
         if len(self.messages) != 0:
             del self.messages[0]
             self._refill_messages()
+            self.emit("message_deleted", self.messages)
 
     def del_last(self):
         '''del_last()
@@ -170,6 +176,7 @@ class Notification(gtk.Window):
         if len(self.messages) != 0:
             del self.messages[len(self.messages) - 1]
             self._refill_messages()
+            self.emit("message_deleted", self.messages)
 
     # this will delete a message, if the user gives a valid number it will be deleted,
     # but the user must take care to use the correct number
@@ -181,6 +188,7 @@ class Notification(gtk.Window):
            messagenumber = integer
                            -1 will erase all messages
         '''
+        self.emit("message_deleted", self.messages)
         if messagenumber == -1:
             self.messages = []
             self._refill_messages()
@@ -199,6 +207,7 @@ class Notification(gtk.Window):
     # close button of the coresponding frame
     def _on_btn_close_clicked(self, widget, labelnumber):
         del self.messages[int(labelnumber)]
+        self.emit("message_deleted", self.messages)
         self._refill_messages()
 
     def _refill_messages(self):
@@ -264,8 +273,13 @@ def main():
 
     notification = Notification()
     notification.add_message('Halo World out there', '/home/emcmesa/linuxcnc-dev/share/gscreen/images/std_info.gif')
+    notification.add_message('Hallo World ', '/home/emcmesa/linuxcnc-dev/share/gscreen/images/std_info.gif')
     notification.show()
+    def debug(self, text):
+        print "debug", text
+    notification.connect("message_deleted", debug)
     gtk.main()
+
 
 if __name__ == "__main__":
     main()
