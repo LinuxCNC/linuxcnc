@@ -736,15 +736,17 @@ check_rtai_kernel_source() {
     fi
 
 
-    # look for rt_daemonize function definition
+    # look for rt_daemonize (older RTAI) or rtai_irq_handler (at least
+    # RTAI 4.0.0+) function definition
     AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
     if test -f "$ksrc_dir/Module.symvers" && \
-	    grep -q 'rt_daemonize' "$ksrc_dir/Module.symvers"; then
-	AC_MSG_RESULT([yes])
-	return 0
+            grep -q '\(rt_daemonize\|rtai_irq_handler\)' \
+            "$ksrc_dir/Module.symvers"; then
+        AC_MSG_RESULT([yes])
+        return 0
     else
-	AC_MSG_RESULT([no])
-	return 1
+        AC_MSG_RESULT([no])
+        return 1
     fi
 
 }
