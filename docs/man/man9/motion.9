@@ -353,6 +353,20 @@ The positive hard limit for the joint
 \fBmotion.motion-enabled\fR OUT BIT
 
 .TP
+\fBmotion.motion-type\fR OUT S32
+These values are from src/emc/kinematics/tc.h
+.RS
+.RS
+.TP
+1: Linear move
+.P
+2: Arc move
+.P
+3: Rigid tap move
+.RE
+.RE
+
+.TP
 \fBmotion.on-soft-limit\fR OUT BIT
 
 .TP
