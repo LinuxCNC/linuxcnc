@@ -672,6 +672,7 @@ static int hm2_pci_probe(struct pci_dev *dev, const struct pci_device_id *id) {
             break;
         }
 
+        case HM2_PCI_DEV_MESA5I24:
         case HM2_PCI_DEV_MESA5I25:
         case HM2_PCI_DEV_MESA6I25: {
               // BAR 0 is 64K mem (32 bit)
