@@ -68,6 +68,7 @@ build-stamp:
 	    --without-xenomai-kernel \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
+	    --enable-emcweb \
 	    --enable-build-documentation=pdf
 	cd src && $(MAKE) $(MAKEFLAGS)
 	cd src && $(MAKE) $(MAKEFLAGS) docs
@@ -87,6 +88,7 @@ clean: debian/control debian/substvars
 	    --without-xenomai-kernel \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
+	    --enable-emcweb \
 	    --enable-build-documentation=pdf
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
