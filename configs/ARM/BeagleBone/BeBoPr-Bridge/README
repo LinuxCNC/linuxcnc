@@ -1,23 +1,34 @@
+These configurations drive a standard 4-axis 3D printer using the PRU
+for high speed step/dir pulse generation and work with the following
+hardware:
 
-This configuration drives a standard 4-axis 3D printer using the PRU for
-high speed step/dir pulse generation and a BeBoPr driver board.  The
-BeBoPr configuration is for the original version of the BeBoPr board and a BeagleBoneWhite and
-requires you disable HDMI.
+  BeBoPr++
+  BeBoPr+
+  BeBoPr with Bridge
+  Other boards using the somewhat standard BeBoPr-Bridge pinout
 
-The BeBoPr-Bridge configuration is for use with the new bridge board
-that shuffles pins around so you can leave HDMI enabled.
+If using a BeagleBone Black, you may leave the eMMC and HDMI interfaces
+enabled.
 
-There are currently no limit switches configured, so adjust the MIN_LIMIT
-and MAX_LIMIT axis settings in the ini file if your printer has less than
-200 mm of X/Y travel.
-
-Current X and Y settings are appropriate for a typical "MendelMax" style
-printer, with the following settings:
-
-max vel   = 200 mm/s
-max accel = 3000 mm/s/s
-scale     = 80 steps/mm
-
+Configuration Details
+=====================
 Adjust as required for your machine.  Make scale negative to invert any
 axis that is moving 'backwards'.
+
+BeBoPr-Bridge: 
+--------------
+A typical "MendelMax" style printer
+
+lineardelta:
+------------
+A linear delta or "Rostock" style printer
+
+
+lineardelta-vel-extr:
+---------------------
+A linear delta printer using dynamicaly calculated velocity control of
+the extruder, rather than operating as a coordinated 4-axis machine.
+
+For detalis, see:
+http://basdebruijn.com/2014/05/machinekit-and-additive-manufacturing/
 
