@@ -35,7 +35,7 @@
 #include <string.h>
 
 void InitMain();
-int nmlUpdate();
+int nmlUpdate(const char *inifile);
 
 namespace miniemc
 {
@@ -43,7 +43,7 @@ const int cNumLinesPerContext = 16;
 const char *cAxesNames = "XYZABC";
 
 EmcController::EmcController()
-	: m_emcPath(__DIR__"/")
+	: m_iniFile("/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini")
 	, m_loadState(lsUnloaded)
 	, m_positionAbsolute(true)
 	, m_overrideLimits(false)
@@ -53,9 +53,9 @@ EmcController::EmcController()
 
 }
 
-void EmcController::SetEmcPath(const std::string &path)
+void EmcController::SetIniFile(const std::string &filename)
 {
-	m_emcPath = path;
+	m_iniFile = filename;
 }
 
 int  EmcController::GetAxisNumber()
@@ -83,7 +83,7 @@ int  EmcController::AxisToIndex(char c)
 
 bool EmcController::IsAxisUsed(int i)
 {
-	if (m_used_map.size() > i) {
+	if ((int) m_used_map.size() > i) {
 		return m_used_map[GetAxisName(i)];
 	} else {
 		return false;
@@ -146,38 +146,20 @@ EmcController::~EmcController()
 	Exit_internal();
 }
 
-EmcController::loadState EmcController::Init()
+EmcController::loadState EmcController::Init(const char *config)
 {
 	loadState state = GetInitState();
 	if (state == lsUnloaded || state == lsFault) {
 		// Prepare axis configuration
-		static const char *key =  "axes_conf=";
-		char buff[256];
-		std::ifstream hal(std::string(m_emcPath + std::string("configs/sim/emcweb.hal")).c_str());
 		m_used_map.clear();
-		while (hal.good()) {
-			char *beg = NULL, *end = NULL;
-			hal.getline(buff, 256);
-			if ((beg = ::strstr(buff, key)) != NULL) {
-				// Clarify config string position
-				beg = ::strchr(beg, '\"');
-				if (beg == NULL)
-					break;
-				beg++;
-				end = ::strchr(beg, '\"');
-				if (end == NULL)
-					break;
-				*end = 0;
-				std::cout << "Found config string " << beg << std::endl;
-				// Iterate over all possible axes
-				for (int i = 0; i < GetAxisNumber(); i++) {
-					char name = GetAxisName(i);
-					bool used = ::strchr(beg, name) != NULL;
-					m_used_map.insert(std::pair<char,bool>(name, used));
-				}
-			}
+		std::cout << "Config string " << config << std::endl;
+		// Iterate over all possible axes
+		for (int i = 0; i < GetAxisNumber(); i++) {
+			char name = GetAxisName(i);
+			bool used = ::strchr(config, name) != NULL;
+			m_used_map.insert(std::pair<char,bool>(name, used));
 		}
-		hal.close();
+
 		SetInitState(lsStartProgress);
 		while ((state = GetInitState()) == lsStartProgress)
 			usleep(100000);
@@ -244,11 +226,9 @@ void EmcController::Init_thread()
 
 bool EmcController::Init_internal()
 {
-	std::string arg = m_emcPath + "configs/sim/emcweb.ini";
-
 	::InitMain();
-	::iniLoad(arg.c_str());
-	return nmlUpdate() == 0;
+	::iniLoad(m_iniFile.c_str());
+	return nmlUpdate(m_iniFile.c_str()) == 0;
 }
 
 
@@ -292,7 +272,7 @@ bool EmcController::Update()
 	if (GetInitState() != lsLoaded)
 		return false;
 	int rc;
-	if ((rc = nmlUpdate()) == 0) {
+	if ((rc = nmlUpdate(m_iniFile.c_str())) == 0) {
 		if (error_string[0] != 0) {
 			AddErrorString(elError, error_string);
 			error_string[0] = 0;
@@ -575,7 +555,6 @@ void EmcController::DoHome(char axis)
 		return;
 
 	if (GetControllerState() == ecOn) {
-		eCtlMode oldMode = GetControllerMode();
 		SetControllerMode(emManual);
 		int idx = AxisToIndex(axis);
 		::sendHome(idx);
@@ -692,7 +671,6 @@ void EmcController::OverrideLimits(bool val)
 		return;
 
 	if (val != IsLimitsOverrided()) {
-		eCtlMode oldMode = GetControllerMode();
 		SetControllerMode(emManual);
 		int ov = val == true ? 1 : -1;
 		::sendOverrideLimits(ov);
@@ -768,13 +746,13 @@ ListPrt EmcController::GetActualProgramContext()
 	static boost::mutex l_lock;
 	boost::mutex::scoped_lock lock(l_lock);
 
-	if (GetLastFileName() != "") {
+	if (GetLastFileName()[0] != '\0') {	/* if not empty */
 		if (m_bForceUpdate) {
 			InitProgramContext();
 			m_bForceUpdate = false;
 		}
 
-		if (m_last_context_index < 0 || GetLineNumber() / GetNumLinesPerContext() != m_last_context_index) {
+		if (m_last_context_index < 0 || (int) (GetLineNumber() / GetNumLinesPerContext()) != m_last_context_index) {
 			/*
 			 * Have out of context, load next one
 			 */
@@ -804,7 +782,7 @@ ListPrt EmcController::GetActualProgramContext()
 				char tmp[256], tmp2[256];
 				try {
 					// Dummy read of data block
-					for (int i=0; i < GetNumLinesPerContext(); i++) {
+					for (uint i=0; i < GetNumLinesPerContext(); i++) {
 						if (!m_pgm_file.eof()) {
 							m_pgm_file.getline(tmp, 256);
 							if (m_last_context_index == last_nearest_block) {
@@ -960,7 +938,7 @@ void InitMain()
 	programStartLine = 0;
 }
 
-int nmlUpdate()
+int nmlUpdate(const char *inifile)
 {
 	static enum { IDLE, TRY, CONNECTED } status = IDLE;
 	int rc = -1;
@@ -969,7 +947,7 @@ int nmlUpdate()
 		status = TRY;
 		fprintf(stderr, "Init NML connection\n");
 		::InitMain();
-		::iniLoad("./configs/sim/emcweb.ini");
+		::iniLoad(inifile);
 
 	case TRY:
 		// We have no connection at this moment

@@ -1,5 +1,3 @@
-# the next line difines what axes are available
-#  axes_conf="X Y Z"
 loadrt trivkins
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
 loadrt ddt count=6

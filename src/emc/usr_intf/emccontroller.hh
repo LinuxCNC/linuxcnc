@@ -202,9 +202,7 @@ public:
 	EmcController();
 
 public:
-	// Set path where EMC controller file is placed
-	// Default path is /home/emc
-	void SetEmcPath(const std::string &path);
+	void SetIniFile(const std::string &filename);
 
 	const std::string &GetEmcPath();
 
@@ -213,7 +211,7 @@ public:
 	const std::string &GetEmcIni();
 
 public:
-	loadState Init();
+	loadState Init(const char *config);
 	bool InitAsync();
 	// Unload EMC from the memory
 	void Exit();
@@ -281,7 +279,7 @@ private:
 	bool IsMachineFree();
 
 protected:
-	std::string m_emcPath;
+	std::string m_iniFile;
 	loadState m_loadState;
 	std::queue<std::string> m_Log[3];
 	bool m_positionAbsolute;
