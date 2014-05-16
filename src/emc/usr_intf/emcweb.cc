@@ -43,9 +43,9 @@
 #include <string>
 #include "emccontroller.hh"
 
-#define NC_FILES_DIR		__DIR__"/nc_files/"
-#define DYNAMIC_JSON		__DIR__"/www/data/emc_dynamic.json"
-#define CONFIG_JSON		__DIR__"/www/data/emc_config.json"
+#define NC_FILES_DIR		__DIR__"/nc_files"
+#define DYNAMIC_JSON		"/data/emc_dynamic.json"
+#define CONFIG_JSON		"/data/emc_config.json"
 #define WWWROOT			__DIR__"/www"
 #define WWWPORT			"8080"
 
@@ -85,7 +85,7 @@ void DetachLastCmd()
 std::string GetDirectoryListHtml(const char *dir)
 {
 	std::stringstream rc;
-	std::string root=ncFilesDir;
+	std::string root=ncFilesDir + "/";
 	//Try to open specified folder
 	DIR *dp;
 	struct dirent *ep;
@@ -433,7 +433,7 @@ void DoCmd()
 		} else if (cmd.first == "program_step") {
 			pCtrl->StepProgram();
 		} else if (cmd.first == "program_load") {
-			std::string file = ncFilesDir + cmd.second;
+			std::string file = ncFilesDir + "/" + cmd.second;
 			std::cout << "load program " << file << std::endl;
 			pCtrl->OpenProgram(file.c_str());
 		} else if (cmd.first == "exec_mdi") {
@@ -465,8 +465,6 @@ int main(int argc, char* argv[])
 	const char *inistring;
 	std::string wwwroot(WWWROOT);
 	std::string wwwport(WWWPORT);
-	std::string emcCFGJson(CONFIG_JSON);
-	std::string emcDYNJson(DYNAMIC_JSON);
 
 	// process command line args
 	if (0 != emcGetArgs(argc, argv)) {
@@ -494,14 +492,6 @@ int main(int argc, char* argv[])
 		wwwport = inistring;
 	}
 
-	if (NULL != (inistring = inifile.Find("CONFIG_JSON", "EMCWEB"))) {
-		emcCFGJson = inistring;
-	}
-
-	if (NULL != (inistring = inifile.Find("DYNAMIC_JSON", "EMCWEB"))) {
-		emcDYNJson = inistring;
-	}
-
 	if (NULL != (inistring = inifile.Find("NC_FILES_DIR", "EMCWEB"))) {
 		ncFilesDir = inistring;
 	}
@@ -510,6 +500,9 @@ int main(int argc, char* argv[])
 	std::cout << "Listening on port: " << wwwport <<std::endl;
 	std::cout << "Using NC_FILES_DIR: " << ncFilesDir <<std::endl;
 	
+	std::string emcCFGJson = wwwroot + CONFIG_JSON;
+	std::string emcDYNJson = wwwroot + DYNAMIC_JSON;
+
 	ReqHandler handle;
 	signal(SIGINT, term_handler);
 	signal(SIGSEGV, term_handler);

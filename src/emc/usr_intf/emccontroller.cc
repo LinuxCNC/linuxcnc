@@ -43,7 +43,7 @@ const int cNumLinesPerContext = 16;
 const char *cAxesNames = "XYZABC";
 
 EmcController::EmcController()
-	: m_iniFile("/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini")
+	: m_iniFile()
 	, m_loadState(lsUnloaded)
 	, m_positionAbsolute(true)
 	, m_overrideLimits(false)
