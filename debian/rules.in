@@ -68,6 +68,7 @@ build-stamp:
 	    --without-xenomai-kernel \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
+	    --enable-emcweb \
 	    --enable-build-documentation=pdf
 	cd src && $(MAKE) $(MAKEFLAGS)
 	cd src && $(MAKE) $(MAKEFLAGS) docs
@@ -87,6 +88,7 @@ clean: debian/control debian/substvars
 	    --without-xenomai-kernel \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
+	    --enable-emcweb \
 	    --enable-build-documentation=pdf
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
@@ -121,6 +123,8 @@ endif
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	-rm debian/tmp/linuxcnc*.files
 	-rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
+	# update emcweb.hal
+	sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
 	dh_movefiles
 	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
 		echo "Files exist in debian/tmp, but should not:"; \

@@ -773,6 +773,11 @@ install-dirs:
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d \
 		$(DESTDIR)$(sampleconfsdir)
+ifeq ($(BUILD_EMCWEB),yes)
+	$(DIR)	$(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images \
+		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \
+		$(DESTDIR)$(datadir)/linuxcnc/doc-root/res 
+endif
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
@@ -846,6 +851,13 @@ endif
 		$(DESTDIR)$(sysconfdir)/security/limits.d/linuxcnc.conf
 	$(FILE) rtapi/shmdrv/shmdrv.rules \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-LINUXCNC-shmdrv.rules
+ifeq ($(BUILD_EMCWEB),yes)
+	$(FILE) ../www/css/images/* $(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images
+	$(FILE) ../www/css/*css $(DESTDIR)$(datadir)/linuxcnc/doc-root/css
+	$(FILE) ../www/js/*js $(DESTDIR)$(datadir)/linuxcnc/doc-root/js
+	$(FILE) ../www/res/* $(DESTDIR)$(datadir)/linuxcnc/doc-root/res
+	$(FILE) ../www/*html $(DESTDIR)$(datadir)/linuxcnc/doc-root/
+endif
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python

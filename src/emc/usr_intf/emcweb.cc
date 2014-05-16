@@ -43,19 +43,19 @@
 #include <string>
 #include "emccontroller.hh"
 
-#define NC_FILES_DIR		__DIR__"/nc_files/"
-#define DYNAMIC_JSON		__DIR__"/www/data/emc_dynamic.json"
-#define CONFIG_JSON		__DIR__"/www/data/emc_config.json"
+#define NC_FILES_DIR		__DIR__"/nc_files"
+#define DYNAMIC_JSON		"/data/emc_dynamic.json"
+#define CONFIG_JSON		"/data/emc_config.json"
 #define WWWROOT			__DIR__"/www"
 #define WWWPORT			"8080"
-
-static const char *emcCFGJson = CONFIG_JSON;
 
 typedef std::pair<std::string,std::string>Cmd;
 typedef std::queue<Cmd> CmdQueue;
 static CmdQueue cmds;
 static bool bFinish = false;
 static int JogCounter = -1;
+static std::string emcCoord;
+static std::string ncFilesDir(NC_FILES_DIR);
 
 void ChargeJogCounter()
 {
@@ -85,7 +85,7 @@ void DetachLastCmd()
 std::string GetDirectoryListHtml(const char *dir)
 {
 	std::stringstream rc;
-	std::string root=NC_FILES_DIR;
+	std::string root=ncFilesDir + "/";
 	//Try to open specified folder
 	DIR *dp;
 	struct dirent *ep;
@@ -130,7 +130,7 @@ bool WebPage::HandleReq(mongoose::web_response &response, mongoose::web_request 
 	//Check does EMC2 run and start it if neccecery
 	if (pCtrl->GetInitState() == miniemc::EmcController::lsUnloaded
 	    || pCtrl->GetInitState() == miniemc::EmcController::lsFault)
-		pCtrl->Init();
+		pCtrl->Init(emcCoord.c_str());
 	//Check again to be sure is it started
 	if (pCtrl->GetInitState() != miniemc::EmcController::lsLoaded) {
 		std::cout << "Unable to start EMC2 or starting is in progress" << std::endl;
@@ -252,7 +252,7 @@ bool ReqHandler::operator()(mongoose::event_type type, mongoose::tcp_connection 
 	return false;
 }
 
-void GenerateJson()
+void GenerateJson(const char *filename)
 {
 	char tmp[256];
 	static char *buff = NULL;
@@ -353,7 +353,7 @@ void GenerateJson()
 		/*
 		 * Write to disk
 		 */
-		int fd = open(DYNAMIC_JSON, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 0666);
+		int fd = open(filename, O_WRONLY | O_TRUNC | O_SYNC | O_CREAT, 0666);
 		if (fd >= 0) {
 			write(fd, buff, strlen(buff));
 			fsync(fd);
@@ -433,7 +433,7 @@ void DoCmd()
 		} else if (cmd.first == "program_step") {
 			pCtrl->StepProgram();
 		} else if (cmd.first == "program_load") {
-			std::string file = NC_FILES_DIR + cmd.second;
+			std::string file = ncFilesDir + "/" + cmd.second;
 			std::cout << "load program " << file << std::endl;
 			pCtrl->OpenProgram(file.c_str());
 		} else if (cmd.first == "exec_mdi") {
@@ -459,8 +459,50 @@ void term_handler(int i)
 	bFinish = true;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	IniFile inifile;
+	const char *inistring;
+	std::string wwwroot(WWWROOT);
+	std::string wwwport(WWWPORT);
+
+	// process command line args
+	if (0 != emcGetArgs(argc, argv)) {
+		rcs_print_error("error in argument list\n");
+		exit(1);
+	}
+
+	if (!inifile.Open(emc_inifile)) {
+		rcs_print_error("cannot open %s\n", emc_inifile);
+		exit(1);
+	}
+	
+	if (NULL != (inistring = inifile.Find("COORDINATES", "TRAJ"))) {
+		emcCoord = inistring;
+	} else {
+		rcs_print_error("cannot find COORDINATES value in TRAJ section\n");
+		exit(1);
+	}
+
+	if (NULL != (inistring = inifile.Find("ROOT", "EMCWEB"))) {
+		wwwroot = inistring;
+	}
+
+	if (NULL != (inistring = inifile.Find("PORT", "EMCWEB"))) {
+		wwwport = inistring;
+	}
+
+	if (NULL != (inistring = inifile.Find("NC_FILES_DIR", "EMCWEB"))) {
+		ncFilesDir = inistring;
+	}
+
+	std::cout << "Web root: " << wwwroot <<std::endl;
+	std::cout << "Listening on port: " << wwwport <<std::endl;
+	std::cout << "Using NC_FILES_DIR: " << ncFilesDir <<std::endl;
+	
+	std::string emcCFGJson = wwwroot + CONFIG_JSON;
+	std::string emcDYNJson = wwwroot + DYNAMIC_JSON;
+
 	ReqHandler handle;
 	signal(SIGINT, term_handler);
 	signal(SIGSEGV, term_handler);
@@ -472,17 +514,17 @@ int main()
 
 	handle.Init();
 	miniemc::EmcController *pCtrl = miniemc::EmcController::Instance();
-	pCtrl->SetEmcPath(__DIR__"/");
-	pCtrl->Init();
-	pCtrl->CreateConfigJSON(emcCFGJson);
+	pCtrl->SetIniFile(emc_inifile);
+	pCtrl->Init(emcCoord.c_str());
+	pCtrl->CreateConfigJSON(emcCFGJson.c_str());
 	try {
 		mongoose::options options;
-		options.add("document_root", WWWROOT);
-		options.add("listening_ports", WWWPORT);
+		options.add("document_root", wwwroot);
+		options.add("listening_ports", wwwport);
 		mongoose::web_server server(options, handle);
 		while (!bFinish) {
 			if (pCtrl->Update()) {
-				GenerateJson();
+				GenerateJson(emcDYNJson.c_str());
 				DoCmd();
 			}
 			usleep(250000);

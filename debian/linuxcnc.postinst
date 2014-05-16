@@ -9,3 +9,13 @@ if [ -f /etc/security/limits.conf ]; then
 	echo '* - memlock 20480 #EMC2' >> /etc/security/limits.conf
     fi
 fi
+
+# setup emcweb var files
+rm -rf /var/cache/linuxcnc/www
+mkdir -p /var/cache/linuxcnc/www/data
+chmod a+rw /var/cache/linuxcnc/www/data
+
+# add symbolic links to static files
+cd /usr/share/linuxcnc/doc-root
+find -type d -exec mkdir --parents -- /var/cache/linuxcnc/www/{} \;
+find -type f -exec ln -s -- /usr/share/linuxcnc/doc-root/{} /var/cache/linuxcnc/www/{} \;
