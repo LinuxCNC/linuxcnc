@@ -43,6 +43,9 @@ PROTOC := $(shell which protoc)
 GPBINCLUDE :=  $(shell pkg-config --variable=includedir protobuf)
 DESCDIR    :=  $(GPBINCLUDE)/google/protobuf
 
+# object files generated during dependency resolving
+OBJDIR := objects
+
 # search path for .proto files
 # see note on PBDEP_OPT below
 vpath %.proto  $(PROTODIR):$(GPBINCLUDE):$(DESCDIR)/compiler
@@ -66,7 +69,7 @@ PROTO_CXX_SRCS  :=  $(subst $(PROTODIR)/, \
 # ---- generate dependcy files for .proto files
 #
 # the list of .d dep files for .proto files:
-PROTO_DEPS :=  $(patsubst %,objects/%,$(patsubst %.proto,%.d,$(PROTO_SPECS)))
+PROTO_DEPS :=  $(patsubst %,$(OBJDIR)/%,$(patsubst %.proto,%.d,$(PROTO_SPECS)))
 #
 # options to the dependency generator protoc plugin
 PBDEP_OPT :=
@@ -80,14 +83,14 @@ PBDEP_OPT += --vpath=$(PROTODIR)
 PBDEP_OPT += --vpath=$(GPBINCLUDE)
 PBDEP_OPT += --vpath=$(DESCDIR)/compiler
 
-objects/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
+$(OBJDIR)/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
 	$(ECHO) "protoc create dependencies for $<"
-	@mkdir -p objects/$(PROTODIR)
+	@mkdir -p $(OBJDIR)/$(PROTODIR)
 	$(Q)$(PROTOC) \
 	--plugin=protoc-gen-depends=scripts/protoc-gen-depends \
 	--proto_path=$(PROTODIR)/ \
-	--proto_path=$(GPBINCLUDE) \
-	--depends_out="$(PBDEP_OPT)":objects/$(PROTODIR) \
+	--proto_path=$(GPBINCLUDE)/ \
+	--depends_out="$(PBDEP_OPT)":$(OBJDIR)/$(PROTODIR)/ \
 	 $<
 
 #---------- C++ rules -----------
@@ -100,7 +103,8 @@ $(CXXGEN)/%.pb.cc $(CXXGEN)/%.pb.h: %.proto
 	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
 	--proto_path=$(PROTODIR)/ \
 	--proto_path=$(GPBINCLUDE)/ \
-	--cpp_out=./$(CXXGEN)/ $<
+	--cpp_out=$(CXXGEN)/ \
+	$<
 
 # ------------- Python rules ------------
 #
@@ -114,7 +118,8 @@ $(PYGEN)/%_pb2.py: %.proto
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 	--proto_path=$(PROTODIR)/ \
 	--proto_path=$(GPBINCLUDE)/ \
-	--python_out=$(PYGEN)/ $<
+	--python_out=$(PYGEN)/ \
+	$<
 
 GENERATED += $(PROTO_PY_TARGETS) \
 	$(PROTO_CXX_SRCS)\
@@ -128,4 +133,4 @@ Makefile: $(GENERATED) $(PROTO_DEPS)
 all:  $(PROTO_DEPS) $(GENERATED)
 
 clean:
-	rm -rf objects python/* generated/*
+	rm -rf $(OBJDIR) $(CXXGEN) $(PYGEN)
