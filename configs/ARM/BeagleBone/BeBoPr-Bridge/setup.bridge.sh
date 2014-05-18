@@ -49,17 +49,43 @@ export_gpio () {
 	done
 }
 
-# Make sure required device tree overlay(s) are loaded
-for DTBO in cape-bebopr-brdg ; do
+# Identify if a particular cape or overlay is actually loaded
+# $1 = cape to look for
+cape_loaded() {
+	grep ,$1\$ $SLOTS | { 
+		# Default to cape not loaded
+		RET=1 
 
-	if grep -q $DTBO $SLOTS ; then
-		echo $DTBO overlay found
-	else
-		echo Loading $DTBO overlay
-		sudo -A su -c "echo $DTBO > $SLOTS" || dtbo_err
-		sleep 1
-	fi
-done;
+		# Check for cape
+		while read SLOT STATUS CAPE JUNK ; do
+			case $STATUS in
+			*L )	RET=0 ; break ;;	# Cape is loaded
+			*- )	RET=2 ;;		# Cape is present, but not loaded
+			* )	RET=3 ;;		# Unknown status
+			esac
+		done
+
+		return $RET
+	}
+}
+
+# Load a cape
+# $1 = cape to load
+# $2 = revision (optional)
+load_cape () {
+	echo Loading $1 overlay
+	sudo -A su -c "echo $1${2:+:$2} > $SLOTS" || dtbo_err
+	sleep 1
+}
+
+# Make sure required device tree overlay(s) are loaded
+DTBO=cape-bebopr-brdg
+REV=R2
+if cape_loaded $DTBO ; then
+	echo $DTBO overlay found
+else
+	load_cape $DTBO $REV
+fi
 
 if [ ! -r /sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/in_voltage5_raw ] ; then
 	echo "Analog input files not found in /sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/" >&2
@@ -93,3 +119,4 @@ export_gpio <<- EOF
 	22	low	# P8.19		gpio0.22	PWM1
 	50	low	# p9.14		gpio1.18	PWM2
 EOF
+
