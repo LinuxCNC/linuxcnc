@@ -129,6 +129,8 @@ GENERATED += $(PROTO_PY_TARGETS) \
 Makefile: $(GENERATED) $(PROTO_DEPS)
 -include $(PROTO_DEPS)
 
+ios_replace: 
+	sh scripts/ios-replace.sh $(CXXGEN)
 
 all:  $(PROTO_DEPS) $(GENERATED)
 
