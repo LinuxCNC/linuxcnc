@@ -73,3 +73,6 @@ EXPORT_SYMBOL(pow);
 EXPORT_SYMBOL(ceil);
 EXPORT_SYMBOL(floor);
 EXPORT_SYMBOL(cbrt);
+
+
+EXPORT_SYMBOL(__powidf2);

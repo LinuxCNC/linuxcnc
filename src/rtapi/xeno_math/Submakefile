@@ -35,6 +35,7 @@ xeno_math-objs += rtapi/xeno_math/s_cbrt.o
 xeno_math-objs += rtapi/xeno_math/s_copysign.o
 xeno_math-objs += rtapi/xeno_math/s_finite.o
 xeno_math-objs += rtapi/xeno_math/s_rint.o
+xeno_math-objs += rtapi/xeno_math/powidf.o
 
 $(RTLIBDIR)/xeno_math$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(xeno_math-objs))
 
