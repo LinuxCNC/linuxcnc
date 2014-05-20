@@ -263,6 +263,11 @@ flavor_ptr default_flavor(void)
 	    return f;
     }
     if (kernel_is_xenomai()) {
+	/* check for xenomai_kernel first */
+	f = flavor_byid(RTAPI_XENOMAI_KERNEL_ID); 
+	if (check_rtapi_app((char *)f->name))
+	    return f;
+	/* else look for userspace */
 	f = flavor_byid(RTAPI_XENOMAI_ID); 
 	if (check_rtapi_app((char *)f->name))
 	    return f;
