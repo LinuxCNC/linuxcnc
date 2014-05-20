@@ -56,6 +56,8 @@ static char kmodule_dir[PATH_MAX];
 
 static FILE *rtapi_inifile = NULL;
 
+static int check_rtapi_app(char *name);
+
 int kernel_is_xenomai()
 {
     struct stat sb;
@@ -248,21 +250,28 @@ flavor_ptr default_flavor(void)
 	    }
 	    exit(1);
 	}
-	return flavor;
+	/* make sure corresponding rtapi_app is also present */
+	if (check_rtapi_app(fname))
+	    return flavor;
+	else
+	    exit(1);
     }
 
-    /* FIXME
-
-       Need to check whether the flavor is available; e.g.  xenomai
-       kthreads has been built but xenomai userland has not.
-    */
-
-    if (kernel_is_rtai())
-	return flavor_byid(RTAPI_RTAI_KERNEL_ID);
-    if (kernel_is_xenomai())
-	return flavor_byid(RTAPI_XENOMAI_ID);
-    if (kernel_is_rtpreempt())
-	return flavor_byid(RTAPI_RT_PREEMPT_ID);
+    if (kernel_is_rtai()) {
+	f = flavor_byid(RTAPI_RTAI_KERNEL_ID); 
+	if (check_rtapi_app((char *)f->name))
+	    return f;
+    }
+    if (kernel_is_xenomai()) {
+	f = flavor_byid(RTAPI_XENOMAI_ID); 
+	if (check_rtapi_app((char *)f->name))
+	    return f;
+    }
+    if (kernel_is_rtpreempt()) {
+	f = flavor_byid(RTAPI_RT_PREEMPT_ID); 
+	if (check_rtapi_app((char *)f->name))
+	    return f;
+    }
     return flavor_byid(RTAPI_POSIX_ID);
 }
 
@@ -290,22 +299,31 @@ void check_rtapi_config_open()
     }
 }
 
-int get_rtapi_config(char *result, const char *param, int n)
+char *get_rtapi_param(const char *flavor, const char *param)
 {
-    /* Read a parameter value from rtapi.ini.  First try the flavor
-       section, then the global section.  Copy max n-1 bytes into
-       result buffer.  */
     char *val;
     char buf[RTAPI_NAME_LEN+8];    // strlen("flavor_") + RTAPI_NAME_LEN + 1
 
     // Open rtapi_inifile if it hasn't been already
     check_rtapi_config_open();
 
-    sprintf(buf, "flavor_%s", default_flavor()->name);
+    sprintf(buf, "flavor_%s", flavor);
     val = (char *) iniFind(rtapi_inifile, param, buf);
 
     if (val==NULL)
-	val = (char *) iniFind(rtapi_inifile, param,"global");
+	val = (char *) iniFind(rtapi_inifile, param, "global");
+
+    return val;
+}
+
+int get_rtapi_config(char *result, const char *param, int n)
+{
+    /* Read a parameter value from rtapi.ini.  First try the flavor
+       section, then the global section.  Copy max n-1 bytes into
+       result buffer.  */
+    char *val;
+
+    val = get_rtapi_param(default_flavor()->name, param);
 
     // Return if nothing found
     if (val==NULL) {
@@ -318,6 +336,22 @@ int get_rtapi_config(char *result, const char *param, int n)
     return 0;
 }
 
+int check_rtapi_app(char *name)
+{
+    /* Check if the corresponding rtapi_app is present 
+       as defined in rtapi.ini */
+    char *val;
+    struct stat sb;
+
+    val = get_rtapi_param(name, "rtapi_app");
+
+    if (val==NULL) {
+	return 0;
+    }
+
+    /* check if rtapi_app exists */
+    return (stat(val, &sb) == 0);
+}
 
 int module_path(char *result, const char *basename)
 {
