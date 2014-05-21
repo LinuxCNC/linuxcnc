@@ -254,6 +254,9 @@ typedef struct {
 #define HM2_ENCODER_CLEAR_ON_INDEX      (1<<5)
 #define HM2_ENCODER_LATCH_ON_INDEX      (1<<4)
 #define HM2_ENCODER_INDEX_POLARITY      (1<<3)
+#define HM2_ENCODER_INPUT_INDEX         (1<<2)
+#define HM2_ENCODER_INPUT_B             (1<<1)
+#define HM2_ENCODER_INPUT_A             (1<<0)
 
 #define HM2_ENCODER_CONTROL_MASK  (0x0000ffff)
 
@@ -281,6 +284,9 @@ typedef struct {
             hal_bit_t *latch_polarity;
             hal_bit_t *quadrature_error;
             hal_bit_t *quadrature_error_enable;
+            hal_bit_t *input_a;
+            hal_bit_t *input_b;
+            hal_bit_t *input_idx;
         } pin;
 
         struct {
