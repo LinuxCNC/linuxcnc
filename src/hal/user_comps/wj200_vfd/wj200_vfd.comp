@@ -42,6 +42,7 @@ license "GPLv2 or greater";
 #include<math.h>
 #include<modbus.h>
 #include<unistd.h>
+#include<ctype.h>
 
 typedef struct
 {
