@@ -119,7 +119,7 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
         return true;
 }
 
-void print_modbus_error(const char* msg)
+void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 {
 	fprintf(stderr, 
 		"Error: wj200_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
@@ -260,7 +260,7 @@ void user_mainloop(void) {
 		  the loop.
                 */
 		if(!wj200_getStatus(ctx, &status)) {	
-			print_modbus_error("failed to get status");
+			print_modbus_error(__comp_inst, "failed to get status");
 			continue;
 		}
 
@@ -270,11 +270,11 @@ void user_mainloop(void) {
 		is_alarm = status.alarm;
 
 		if(!status.alarm && !enable && !wj200_trip(ctx)) {
-			print_modbus_error("failed to trip");
+			print_modbus_error(__comp_inst, "failed to trip");
 			continue;
 		}
 		else if(status.alarm && enable && !wj200_reset(ctx)) {
-			print_modbus_error("failed to reset");
+			print_modbus_error(__comp_inst, "failed to reset");
 			continue;
 		}
 		else {
@@ -282,17 +282,17 @@ void user_mainloop(void) {
 
 			if(calculated_frequency != status.frequency 
 			   && !wj200_setFrequency(ctx, calculated_frequency)) {
-				print_modbus_error("failed to set frequency");
+				print_modbus_error(__comp_inst, "failed to set frequency");
 				continue;
 			}
 
 			if(reverse != status.direction && !wj200_setDirection(ctx, reverse)) {
-				print_modbus_error("failed to set direction");
+				print_modbus_error(__comp_inst, "failed to set direction");
 				continue;
 			}
 
 			if(status.running ^ run && !wj200_run(ctx, run)) {
-				print_modbus_error("failed to run");
+				print_modbus_error(__comp_inst, "failed to run");
 				continue;
 			}
 
