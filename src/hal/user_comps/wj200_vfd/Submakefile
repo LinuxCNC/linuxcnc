@@ -1,5 +1,4 @@
-
-ifeq ($(LIBMODBUS3_USABLE),yes)
+ifdef HAVE_LIBMODBUS3
 
 WJ200_SRCS = hal/user_comps/wj200_vfd/wj200_vfd.c
 WJ200_CFLAGS = -DDEBUG $(LIBMODBUS_CFLAGS)
