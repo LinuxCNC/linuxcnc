@@ -105,7 +105,7 @@ static inline rtapi_atomic_type rtapi_test_bit(int nr, rtapi_atomic_type * const
 {
     return  (__atomic_fetch_or(bitmap + RTAPI_BIT_WORD(nr),
 			       0,
-			      RTAPI_MEMORY_MODEL);
+			      RTAPI_MEMORY_MODEL)
 	     & RTAPI_BIT_MASK(nr)) != 0;
 }
 
