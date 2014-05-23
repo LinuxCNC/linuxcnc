@@ -184,12 +184,12 @@ proc ok_to_copy_config {filename} {
 
     if {    [info exists ::env(debug_pickconfig)] \
          && [string first $::myconfigs_node $filename]} {
-      set ::writeanyway 1
+      set forcecopy 1
     } else {
-      set ::writeanyway 0
+      set forcecopy 0
     }
     if {   ![file writable [file dirname $filename]]
-        || $::writeanyway
+        || $forcecopy
        } {
         set filetype [file extension $filename]
         if {$filetype == ".ini"} { return 1 ;# ok }
@@ -250,14 +250,6 @@ proc node_clicked {} {
 	}
 	# save selection
 	set ::inifile $node
-
-        if [info exists ::make_shortcut_widget] {
-          if [ok_to_copy_config $::inifile] {
-            $::make_shortcut_widget config -state normal
-          } else {
-            $::make_shortcut_widget config -state disabled
-          }
-        }
 
 	# enable the OK button
 	$::button_ok configure -state normal
@@ -803,9 +795,8 @@ set make_shortcut 0
 if {[file isdir $::desktopdir]} {
     checkbutton $f5.c -variable make_shortcut \
                       -text [msgcat::mc "Create Desktop Shortcut"] \
-                      -state disabled
+                      -state normal
     pack $f5.c -side left -expand 1 -anchor w
-    set ::make_shortcut_widget $f5.c
 }
 
 while {1} {
@@ -816,12 +807,12 @@ while {1} {
         if [ok_to_copy_config $::inifile] {
             set copied_inifile [prompt_copy $::inifile]
             if {$copied_inifile == ""} {
-                continue
+                continue ;# user canceled
             } else {
                set ::inifile $copied_inifile
             }
-	    if {$make_shortcut} { make_shortcut $::inifile }
         }
+        if {$make_shortcut} { make_shortcut $::inifile }
         puts $::inifile ;# this is the result for this script (to stdout)
 
         # test for ~/.linuxcncrc file and modify if needed.
