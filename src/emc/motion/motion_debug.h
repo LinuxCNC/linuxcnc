@@ -78,7 +78,7 @@ typedef struct emcmot_debug_t {
 
 #ifdef STRUCTS_IN_SHMEM
 	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
-	emcmot_axis_t axes[EMCMOT_MAX_AXES];	        /* axis data */
+	emcmot_axis_t axes[EMCMOT_MAX_AXIS];	        /* axis data */
 #endif
 
 	double start_time;
