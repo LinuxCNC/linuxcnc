@@ -232,7 +232,7 @@ int check_ini_hal_items()
         if (CHANGED_IDX(ferror,idx) ) {
             if (debug) SHOW_CHANGE_IDX(ferror,idx);
             UPDATE_IDX(ferror,idx);
-            if (0 != emcAxisSetFerror(idx,NEW(ferror[idx]))) {
+            if (0 != emcJointSetFerror(idx,NEW(ferror[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetFerror\n");
                 }
@@ -241,7 +241,7 @@ int check_ini_hal_items()
         if (CHANGED_IDX(min_ferror,idx) ) {
             if (debug) SHOW_CHANGE_IDX(min_ferror,idx);
             UPDATE_IDX(min_ferror,idx);
-            if (0 != emcAxisSetMinFerror(idx,NEW(min_ferror[idx]))) {
+            if (0 != emcJointSetMinFerror(idx,NEW(min_ferror[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMinFerror\n");
                 }
