@@ -163,10 +163,10 @@ static int loadTraj(EmcIniFile *trajInifile)
         }
         old_inihal_data.traj_max_acceleration = acc;
 
-        int arcBlendEnable = 0;
+        int arcBlendEnable = 1;
         int arcBlendFallbackEnable = 0;
-        int arcBlendOptDepth = 0;
-        double arcBlendGapCycles = 2;
+        int arcBlendOptDepth = 50;
+        double arcBlendGapCycles = 4;
         double arcBlendRampFreq = 100.0;
 
         trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
