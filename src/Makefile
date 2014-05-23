@@ -285,6 +285,7 @@ HEADERS := \
     emc/tp/blendmath.h \
     emc/motion/emcmotcfg.h \
     emc/motion/motion.h \
+    emc/motion/simple_tp.h \
     emc/motion/usrmotintf.h \
     emc/nml_intf/canon.hh \
     emc/nml_intf/canon_position.hh \
