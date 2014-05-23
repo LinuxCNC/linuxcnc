@@ -18,6 +18,7 @@
 
 #include "emcpos.h"
 #include "emctool.h"
+#include "canon_position.hh"
 
 /*
   This is the header file that all applications that use the
