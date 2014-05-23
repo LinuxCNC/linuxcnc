@@ -33,7 +33,7 @@
 #ifndef __ATOMIC_SEQ_CST
 #define __ATOMIC_SEQ_CST 5
 #endif
-#elif defined(__GNUC__) && (__GNUC__ > 4) && (__GNUC_MINOR__ >= 7)
+#elif defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 7)
 #define RTAPI_USE_ATOMIC 1
 #else
 #define RTAPI_USE_ATOMIC 0
