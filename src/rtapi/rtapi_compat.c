@@ -56,7 +56,7 @@ static char kmodule_dir[PATH_MAX];
 
 static FILE *rtapi_inifile = NULL;
 
-static int check_rtapi_app(char *name);
+static int check_rtapi_lib(char *name);
 
 int kernel_is_xenomai()
 {
@@ -250,8 +250,8 @@ flavor_ptr default_flavor(void)
 	    }
 	    exit(1);
 	}
-	/* make sure corresponding rtapi_app is also present */
-	if (check_rtapi_app(fname))
+	/* make sure corresponding rtapi lib is also present */
+	if (check_rtapi_lib(fname))
 	    return flavor;
 	else
 	    exit(1);
@@ -259,22 +259,22 @@ flavor_ptr default_flavor(void)
 
     if (kernel_is_rtai()) {
 	f = flavor_byid(RTAPI_RTAI_KERNEL_ID); 
-	if (check_rtapi_app((char *)f->name))
+	if (check_rtapi_lib((char *)f->name))
 	    return f;
     }
     if (kernel_is_xenomai()) {
 	/* check for xenomai_kernel first */
 	f = flavor_byid(RTAPI_XENOMAI_KERNEL_ID); 
-	if (check_rtapi_app((char *)f->name))
+	if (check_rtapi_lib((char *)f->name))
 	    return f;
 	/* else look for userspace */
 	f = flavor_byid(RTAPI_XENOMAI_ID); 
-	if (check_rtapi_app((char *)f->name))
+	if (check_rtapi_lib((char *)f->name))
 	    return f;
     }
     if (kernel_is_rtpreempt()) {
 	f = flavor_byid(RTAPI_RT_PREEMPT_ID); 
-	if (check_rtapi_app((char *)f->name))
+	if (check_rtapi_lib((char *)f->name))
 	    return f;
     }
     return flavor_byid(RTAPI_POSIX_ID);
@@ -341,21 +341,24 @@ int get_rtapi_config(char *result, const char *param, int n)
     return 0;
 }
 
-int check_rtapi_app(char *name)
+int check_rtapi_lib(char *name)
 {
-    /* Check if the corresponding rtapi_app is present 
-       as defined in rtapi.ini */
+    /* Check if the corresponding rtapi lib for a particular 
+	flavor is present */
     char *val;
+    char fname[PATH_MAX];
     struct stat sb;
 
-    val = get_rtapi_param(name, "rtapi_app");
+    val = get_rtapi_param(name, "RTLIB_DIR");
 
     if (val==NULL) {
 	return 0;
     }
 
-    /* check if rtapi_app exists */
-    return (stat(val, &sb) == 0);
+    snprintf(fname, PATH_MAX,"%s/ulapi-%s.so", val, name);
+
+    /* check if rtapi lib exists */
+    return (stat(fname, &sb) == 0);
 }
 
 int module_path(char *result, const char *basename)
