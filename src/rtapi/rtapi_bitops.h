@@ -33,7 +33,7 @@
 #ifndef __ATOMIC_SEQ_CST
 #define __ATOMIC_SEQ_CST 5
 #endif
-#elif defined(__GNUC__) && (__GNUC__ > 4) && (__GNUC_MINOR__ >= 7)
+#elif defined(__GNUC__) && (__GNUC__ >= 4) && (__GNUC_MINOR__ >= 7)
 #define RTAPI_USE_ATOMIC 1
 #else
 #define RTAPI_USE_ATOMIC 0
@@ -105,7 +105,7 @@ static inline rtapi_atomic_type rtapi_test_bit(int nr, rtapi_atomic_type * const
 {
     return  (__atomic_fetch_or(bitmap + RTAPI_BIT_WORD(nr),
 			       0,
-			      RTAPI_MEMORY_MODEL);
+			      RTAPI_MEMORY_MODEL)
 	     & RTAPI_BIT_MASK(nr)) != 0;
 }
 
