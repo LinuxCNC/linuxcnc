@@ -1,0 +1,45 @@
+# based on: http://www.linuxcnc.org/docs/devel/html/hal/hal-examples.html
+
+loadrt threads period1=1000000 name1=thread
+
+# declare a couple of signals
+newsig volt float
+newsig amps float
+newsig mains bit
+newsig fuse-ok bit
+
+# a group; change detect every 250mS
+newg power-supply timer=250
+newm power-supply volt    epsilon=0.1   # consider changed if by more than 0.1
+newm power-supply amps    epsilon=0.3   # consider changed if by more than 0.3
+newm power-supply mains
+newm power-supply fuse-ok
+
+
+
+
+# declare a new remote component
+
+newcomp gladevcp timer=100
+newpin  gladevcp gladevcp.hal_button1 bit in
+newpin  gladevcp gladevcp.counter u32 in flags=1  # do not track
+newpin  gladevcp gladevcp.hal_label1  float out
+ready   gladevcp
+
+# at this stage, the component and its pins exist
+# and can be linked to
+
+net toggle gladevcp.hal_button1
+net range  gladevcp.hal_label1
+
+
+# start haltalk
+
+loadusr haltalk --ini haltalk.ini
+
+
+# wait until remote is connected, for instance 'reown gladevcp'
+# is run from a separate window
+#waitbound gladevcp
+
+waitusr haltalk
