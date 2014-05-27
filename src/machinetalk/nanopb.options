@@ -1,0 +1,17 @@
+# for RT component use (which might be in-kernel) use
+# fixed-size arrays to avoid dynamic memory allocation
+# issues:
+
+#RTAPI_Message.format       max_size:100
+#RTAPI_Message.arg          max_count:10
+
+#ScalarValue.v_bytes        max_size:100
+#ScalarValue.v_string       max_size:100
+
+# nanopb.options usage example:
+#
+# * max_size:16
+# * max_count:5
+# *                           max_size:16 max_count:5
+# FunnyMessage.*              max_size:32
+# FunnyMessage.funnyfield     field_type:FT_CALLBACK
