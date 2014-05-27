@@ -60,6 +60,7 @@
 ********************************************************************/
 
 #include "rtapi_shmkeys.h"
+#include "rtapi_bitops.h"     // rtapi_atomic_type
 #include "rtapi_exception.h"  // thread status descriptors
 #include "ring.h"             // ring buffer ops & structures
 
