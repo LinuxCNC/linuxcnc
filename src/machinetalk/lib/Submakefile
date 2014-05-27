@@ -1,0 +1,102 @@
+LIBMTALK_DIR := $(MACHINETALK)/lib
+
+# install them in include/
+TARGETS += $(addprefix ../include/, \
+	bin2ascii.hh  \
+	container.h  \
+	czmq-watch.h \
+	halpb.hh    \
+	inihelp.hh \
+	json2pb.hh \
+	ll-zeroconf.hh   \
+	mk-zeroconf-types.h \
+	mk-zeroconf.hh    \
+	pb-linuxcnc.h   \
+	pbutil.hh       \
+	select_interface.h \
+	setup_signals.h \
+	syslog_async.h )
+
+# protobuf support functions - usable without HAL (eg remotely)
+LIBMTALK_SRCS := $(addprefix $(LIBMTALK_DIR)/, \
+	pbutil.cc \
+	inihelp.cc \
+	select_interface.c \
+	czmq-watch.c \
+	setup_signals.c \
+	syslog_async.c \
+	ll_zeroconf_register.cc \
+	zeroconf_resolve.cc \
+	mk_zeroconf.cc \
+	json2pb.cc)
+
+USERSRCS += $(LIBMTALK_SRCS) # $(HALLIBMTALK_SRCS)
+
+SYSLOGASYNC_CFLAGS :=
+SYSLOGASYNC_LDFLAGS :=
+
+PB2JSONLIB_CCXFLAGS :=  -g -O3 -shared -Wall -fPIC  $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)
+PB2JSONLIB_LDFLAGS := $(PROTOCXXLIB) $(JANSSON_LIBS)
+
+LIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
+LIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS)
+
+$(call TOOBJSDEPS, $(LIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC -g -O3 \
+	$(LIBMTALK_CXXFLAGS) \
+	$(AVAHI_CFLAGS) \
+	$(CZMQ_CFLAGS) \
+	$(SYSLOGASYNC_CFLAGS) \
+	$(PB2JSONLIB_CXXFLAGS)
+
+TARGETS += ../lib/libmtalk.so ../lib/libmtalk.so.0
+
+../lib/libmtalk.so.0: $(call TOOBJS, $(LIBMTALK_SRCS)) \
+	../lib/liblinuxcnc-pb2++.so \
+	../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) -g  -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
+	$(AVAHI_LIBS) $(CZMQ_LIBS) $(LIBMTALK_LDFLAGS) $(PB2JSONLIB_LDFLAGS)
+
+../include/%.h: ./$(MACHINETALK)/include/%.h
+	cp $^ $@
+
+../include/%.hh: ./$(MACHINETALK)/include/%.hh
+	cp $^ $@
+
+ifeq ($(BUILD_DEV),yes)
+
+ZRES_SRCS :=  $(addprefix $(LIBMTALK_DIR)/, \
+	zeroconf_resolve_test.cc	)
+
+$(call TOOBJSDEPS, $(ZRES_SRCS)) : EXTRAFLAGS += -g -std=c++0x $(AVAHI_CFLAGS)
+
+../bin/zres: $(call TOOBJS, $(ZRES_SRCS)) \
+	../lib/libmtalk.so.0 \
+	../lib/liblinuxcnc-pb2++.so \
+	../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^  $(AVAHI_LIBS) -lstdc++
+
+USERSRCS += $(ZRES_SRCS)
+TARGETS += ../bin/zres
+
+
+# ZANNOUNCE_SRCS :=  $(addprefix $(LIBMTALK_DIR)/, \
+# 	zeroconf_announce_test.cc	)
+
+# $(call TOOBJSDEPS, $(ZANNOUNCE_SRCS)) : EXTRAFLAGS += -g -std=c++0x $(AVAHI_CFLAGS) $(UUID_CFLAGS)
+
+# ../bin/zannounce: $(call TOOBJS, $(ZANNOUNCE_SRCS)) \
+# 	../lib/libmtalk.so.0 \
+#	../lib/liblinuxcnc-pb2++.so \
+#	../lib/liblinuxcncini.so.0
+# 	$(ECHO) Linking $(notdir $@)
+# 	$(Q)$(CC) -o $@ $^  $(AVAHI_LIBS) $(UUID_LIBS) -lstdc++
+
+# USERSRCS += $(ZANNOUNCE_SRCS)
+# TARGETS += ../bin/zannounce
+
+
+endif

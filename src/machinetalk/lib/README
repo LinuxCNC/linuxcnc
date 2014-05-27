@@ -1,0 +1,9 @@
+useful functions for C/C++ applications using the Container message format
+
+other than liblinuxcnchal.so, these can be used outside the RT environment
+
+
+The json2pb code is (c) Pavel Shramov 2013, MIT license.
+
+imported from http://www.thekelleys.org.uk/syslog-async/:
+syslog-async-0.2.tar.gz	22-Oct-2007 18:52	 24k

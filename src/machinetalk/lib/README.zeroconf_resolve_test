@@ -1,0 +1,36 @@
+This shows the usage of the zeroconf resolver API from C++.
+
+The purpose of the resolver is to enable clients to find a service URI given a service key and the
+UUID of a machinekit instance.
+
+A real use case is for instance in webtalk (src/machinetalk/webtalk/webtalk_defaultpolicy.cc:zeroconf_dsn(),
+which shows how the URI (aka 'dsn' key) is extraced from the reply.
+
+
+Zeroconf announce examples can be found in haltalk_zeroconf.cc, rtapi_msgd.cc and webtalk_zeroconf.cc.
+Grep for zeroconf_service_announce().
+
+For Python zeroconf resolution, see src/machinetalk/tutorial/zeroconf .
+For Python zeroconf announcements, see src/machinetalk/config-service .
+
+
+
+To build, configure with --enable-dev.
+
+To run, start an instance which uses zeroconf announcements, for instance
+machinetalk/tutorial/motorctrl/rundemo .
+
+then run zres like so (for instance, to resolve the halrcmd service uri):
+
+ $ zres halrcmd uuid=72c3f16f-59c3-4116-ba4f-709959abb157
+
+result = 0
+name='HAL Rcommand service on 193.228.47.216 pid 12226'
+address='192.168.56.4'
+ntxt=4
+txt="service=halrcmd" "instance=2ce9c310-25e2-11e4-b748-080027c1b9c0" "uuid=72c3f16f-59c3-4116-ba4f-709959abb157" "dsn=tcp://193.228.47.216:49155"
+domain=local
+interface=5
+proto=0
+port=49155
+flags=0xd
