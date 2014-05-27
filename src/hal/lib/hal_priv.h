@@ -7,19 +7,19 @@
 */
 /********************************************************************
 * Description:  hal_priv.h
-*               This file, 'hal_priv.h', contains declarations of 
-*               most of the internal data structures used by the HAL.  
-*               It is NOT needed by most HAL components.  However, 
-*               some components that interact more closely with the 
-*               HAL internals, such as "halcmd", need to include this 
+*               This file, 'hal_priv.h', contains declarations of
+*               most of the internal data structures used by the HAL.
+*               It is NOT needed by most HAL components.  However,
+*               some components that interact more closely with the
+*               HAL internals, such as "halcmd", need to include this
 *               file.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 
@@ -175,7 +175,7 @@ typedef struct {
 } hal_oldname_t;
 
 
-// visible in the per-namespace HAL data segment: 
+// visible in the per-namespace HAL data segment:
 // the namespaces this HAL instance 'sees', indexed by instance
 typedef struct {
     unsigned long flags; // TBD
@@ -191,7 +191,7 @@ typedef struct {
 
 // per-process/kernel mappings
 // indexed by rtapi_instance of mapped namespace
-extern hal_namespace_map_t hal_mappings[]; 
+extern hal_namespace_map_t hal_mappings[];
 
 static inline char *my_shm_base(void)
 {
@@ -383,7 +383,7 @@ typedef struct {
 } hal_thread_t;
 
 /* IMPORTANT:  If any of the structures in this file are changed, the
-   version code (HAL_VER) must be incremented, to ensure that 
+   version code (HAL_VER) must be incremented, to ensure that
    incompatible utilities, etc, aren't used to manipulate data in
    shared memory.
 */
@@ -392,7 +392,7 @@ typedef struct {
    0x48414C21, and instead of the structure starting with a version
    number, it started with a fixed magic number.  Mixing binaries or
    kernel modules from those releases with newer versions will result
-   in two shmem regions being open, and really strange results (but 
+   in two shmem regions being open, and really strange results (but
    should _not_ result in segfaults or other crash type problems).
    This is unfortunate, but I can't retroactively make the old code
    detect version mismatches.  The alternative is worse: if the new

@@ -187,6 +187,7 @@ SUBDIRS := \
 	rtapi \
 	rtapi/shmdrv \
 	\
+	hal/lib \
 	hal/components \
 	hal/drivers \
 	hal/user_comps/devices \

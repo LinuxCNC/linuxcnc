@@ -40,7 +40,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "hal.h"
-#include "../hal_priv.h"
+#include "hal_priv.h"
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"

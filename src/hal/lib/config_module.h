@@ -1,13 +1,13 @@
 /********************************************************************
  *  Description: config_module.h
- *  Provides functions for selecting between actual kernel mode build  
- *  of loadable module code, or hooks to user space code that allows   
+ *  Provides functions for selecting between actual kernel mode build
+ *  of loadable module code, or hooks to user space code that allows
  *  for compiling kernel module code to run in user space
  *
  *  Author(s): Charles Steinkuehler
  *  License: GNU LGPL Version 2.1 or (at your option) any later version.
  *
- *  Last change: 
+ *  Last change:
  *  2012-Dec-17 Charles Steinkuehler
  *              Initial version
  ********************************************************************/
@@ -41,7 +41,7 @@
  *  codes, and the authors of this software can not, and do not, take
  *  any responsibility for such compliance.
  *
- *  This code was written as part of the LinuxCNC RTAPI project.  For 
+ *  This code was written as part of the LinuxCNC RTAPI project.  For
  *  more information, go to www.linuxcnc.org.
  *******************************************************************/
 

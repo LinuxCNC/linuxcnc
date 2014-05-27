@@ -4,17 +4,17 @@
 */
 /********************************************************************
 * Description:  hal_libc.c
-*               This file, 'hal_lib.c', implements the HAL API, for 
-*               both user space and realtime modules.  It uses the 
-*               RTAPI and ULAPI #define symbols to determine which 
+*               This file, 'hal_lib.c', implements the HAL API, for
+*               both user space and realtime modules.  It uses the
+*               RTAPI and ULAPI #define symbols to determine which
 *               version to compile.
 *
 * Author: John Kasunich
 * License: LGPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** Copyright (C) 2003 John Kasunich
@@ -628,7 +628,7 @@ int hal_exit(int comp_id)
 /*! \todo Another #if 0 */
 #if 0
     /*! \todo FIXME - this is the beginning of a two pronged approach to managing
-       shared memory.  Prong 1 - re-init the shared memory allocator whenever 
+       shared memory.  Prong 1 - re-init the shared memory allocator whenever
        it is known to be safe.  Prong 2 - make a better allocator that can
        reclaim memory allocated by components when those components are
        removed. To be finished later. */
@@ -707,7 +707,7 @@ int hal_set_constructor(int comp_id, constructor make) {
 	}
 	comp = SHMPTR(next);
     }
-    
+
     comp->make = make;
 
     rtapi_mutex_give(&(hal_data->mutex));
@@ -770,7 +770,7 @@ char *hal_comp_name(int comp_id)
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
-/** The 'hal_set_lock()' function sets locking based on one of the 
+/** The 'hal_set_lock()' function sets locking based on one of the
     locking types defined in hal.h
 */
 int hal_set_lock(unsigned char lock_type) {
@@ -783,7 +783,7 @@ int hal_set_lock(unsigned char lock_type) {
     return 0;
 }
 
-/** The 'hal_get_lock()' function returns the current locking level 
+/** The 'hal_get_lock()' function returns the current locking level
     locking types defined in hal.h
 */
 
@@ -903,7 +903,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	return -EINVAL;
     }
 
-    if(*data_ptr_addr) 
+    if(*data_ptr_addr)
     {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
@@ -914,7 +914,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
 	return -EINVAL;
     }
-    
+
     if(dir != HAL_IN && dir != HAL_OUT && dir != HAL_IO) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
@@ -1261,13 +1261,13 @@ int hal_signal_delete(const char *name)
 	    "HAL: ERROR: signal_delete called before init\n");
 	return -EINVAL;
     }
-    
+
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_delete called while HAL locked\n");
 	return -EPERM;
     }
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1688,13 +1688,13 @@ int hal_param_set(const char *name, hal_type_t type, void *value_addr)
 	    "HAL: ERROR: param_set called before init\n");
 	return -EINVAL;
     }
-    
+
     if (hal_data->lock & HAL_LOCK_PARAMS)  {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: param_set called while HAL locked\n");
 	return -EPERM;
     }
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: setting parameter '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1905,7 +1905,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: export_funct called while HAL locked\n");
 	return -EPERM;
     }
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: exporting function '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -2102,7 +2102,7 @@ int hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp, 
 	prev_period = tptr->period;
 	prev_priority = tptr->priority;
     }
-    if ( period_nsec < hal_data->base_period) { 
+    if ( period_nsec < hal_data->base_period) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL_LIB: ERROR: new thread period %ld is less than clock period %ld\n",
@@ -2186,7 +2186,7 @@ extern int hal_thread_delete(const char *name)
 	    "HAL: ERROR: thread_delete called while HAL is locked\n");
 	return -EPERM;
     }
-    
+
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: deleting thread '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -3100,7 +3100,7 @@ static int init_hal_data(void)
     inst = global_data->instance_id; // shorthand
     hal_data->refcount = 0;
     hal_data->hal_instance = inst;
- 
+
     memset(hal_data->namespaces, 0, sizeof(hal_data->namespaces));
 
     // prime the mappings aray with our own enty:
@@ -3924,5 +3924,3 @@ EXPORT_SYMBOL(halpr_find_funct_by_owner);
 EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
 #endif /* rtapi */
-
-
