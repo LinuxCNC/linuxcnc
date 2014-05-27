@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>Log subscriber test</title>
+<link rel=icon href=/favicon.png>
+<script src="/ws.js"></script>
+<script language="javascript" type="text/javascript">
+var output;
+var input;
+
+var levelcolors = [
+    "green",
+    "amber",
+    "red",
+    "blue",
+    "magenta",
+];
+
+function init() {
+  output = document.getElementById("output");
+  testWebSocket();
+}
+
+// establish a websocket connection to the same server/port as the http connection
+// pass args which determine:
+// which service to resolve into a URI
+// which socket type to create
+// any options, like the subscribe topic
+// any conversion policy (like json)
+// websockets write style (text - default is binary)
+
+function testWebSocket() {
+  websocket = new Connection("",
+                             location.hostname + ":" + location.port +
+                             "/?connect=machinekit://log&type=sub&subscribe=log&policy=json&text",
+                             "http");
+  websocket.onopen = function(evt)    { onOpen(evt) };
+  websocket.onclose = function(evt)   { onClose(evt) };
+  websocket.onmessage = function(evt) { onMessage(evt) };
+  websocket.onerror = function(evt)   { onError(evt) };
+}
+
+function onOpen(evt) {
+  writeToScreen("CONNECTED");
+}
+
+function onClose(evt) {
+  writeToScreen("DISCONNECTED");
+}
+
+function onMessage(evt) {
+
+  // example log message:
+  // {"tv_sec": 1401689519, "type": 10, "tv_nsec": 667189965, "log_message": {"origin": 2, "pid": 29897, "level": 1, "tag": "rtapi_app", "text": "or2: already loaded"}}
+
+  try {
+    var container = JSON.parse(evt.data);
+    var text = container.log_message.text
+    var level = container.log_message.level
+    c = levelcolors[level]
+    writeToScreen("<span style=\"color: " + c + ";\">text:" + text  +'</span>')
+  }
+  catch(err) {
+    txt="There was an error on this page.\n\n";
+    txt+="Error description: " + err.message + "\n\n";
+    txt+="Click OK to continue.\n\n";
+    alert(txt);
+  }
+}
+
+function onError(evt) {
+  writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+}
+
+function writeToScreen(message) {
+  var pre = document.createElement("p");
+  pre.style.wordWrap = "break-word";
+  pre.innerHTML = message;
+  output.appendChild(pre);
+}
+
+window.addEventListener("load", init, false);
+
+</script>
+<h2>Log subscriber test</h2>
+<div id="output"></div>
+</html>
