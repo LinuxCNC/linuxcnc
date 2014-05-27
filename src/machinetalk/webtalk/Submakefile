@@ -1,0 +1,72 @@
+WEBTALK_DIR := machinetalk/webtalk
+
+# install this so out of tree policy plugins can compile against this
+INCLUDES +=  $(WEBTALK_DIR)
+
+MT_INSTALL_INCS +=  machinetalk/webtalk/webtalk.hh
+
+WEBTALK_SRCS :=  $(addprefix $(WEBTALK_DIR)/, \
+	webtalk_zeroconf.cc 	\
+	webtalk_wsproxy.cc	\
+	webtalk_defaultpolicy.cc	\
+	webtalk_jsonpolicy.cc	\
+	webtalk_plugin.cc	\
+	webtalk_echo.cc 	\
+	webtalk_main.cc)
+
+WEBTALK_CXXFLAGS := 		\
+	$(PROTOBUF_CFLAGS) 	\
+	$(CZMQ_CFLAGS) 		\
+	$(JANSSON_CFLAGS)	\
+	$(LWS_CFLAGS)		\
+	$(SSL_CFLAGS)		\
+	$(UUID_CFLAGS) 		\
+	$(AVAHI_CFLAGS) 	\
+	$(URIPARSER_CFLAGS)
+
+WEBTALK_LDFLAGS := 		\
+	$(PROTOBUF_LIBS)	\
+	$(CZMQ_LIBS) 		\
+	$(JANSSON_LIBS) 	\
+	$(LWS_LIBS) 		\
+	$(SSL_LIBS) 		\
+	$(UUID_LIBS) 		\
+	$(AVAHI_LIBS) 		\
+	$(URIPARSER_LIBS)	\
+	-lstdc++ 		\
+	-rdynamic -ldl -lz
+
+$(call TOOBJSDEPS, $(WEBTALK_SRCS)) : EXTRAFLAGS += $(WEBTALK_CXXFLAGS)
+
+../bin/webtalk: $(call TOOBJS, $(WEBTALK_SRCS)) \
+	../lib/libmtalk.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/libmtalk.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(WEBTALK_LDFLAGS)
+
+USERSRCS += $(WEBTALK_SRCS)
+TARGETS += ../bin/webtalk
+
+
+../include/%.h: ./$(WEBTALK_DIR)/%.h
+	cp $^ $@
+
+../include/%.hh: ./$(WEBTALK_DIR)/%.hh
+	cp $^ $@
+
+# DEMOPLUGIN_SRCS := $(addprefix $(WEBTALK_DIR)/, \
+# 	webtalk_demopolicy.cc) \
+# 	machinetalk/tutorial/protobuf/demo.pb.cc
+
+# USERSRCS += $(DEMOPLUGIN_SRCS)
+
+# $(call TOOBJSDEPS, $(DEMOPLUGIN_SRCS)) : EXTRAFLAGS += $(WEBTALK_CXXFLAGS) -fpic -Wall
+
+# ../lib/webtalk/demolugin.o: $(call TOOBJS, $(DEMOPLUGIN_SRCS))
+# 	@mkdir -p $(dir $@)
+# 	$(ECHO) Linking $(notdir $@)
+# 	$(Q)$(CC) -o $@ $^ -shared
+
+# TARGETS += ../lib/webtalk/demoplugin.o
