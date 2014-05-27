@@ -45,6 +45,13 @@ These are truncated to S32 values internally. eg 7.5 will be 7
 \fBclassicladder.0.floatout-\fINN\fB\fR OUT float
 Float output from classicladder
 These float signal pins map to \fB%QF\fINN\fR variables in classicladder
+
+.TP
+\fBclassicladder.0.hide_gui IN bit
+This bit pin hides the classicladder window, while still having the userspace code
+run. This is usually desirable when modbus is used, as modbus requires the userspace
+code to run.
+
 .SH PARAMETERS
 
 .TP
