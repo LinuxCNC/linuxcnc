@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.1"
+_RELEASE = "  1.1.5.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1065,12 +1065,15 @@ class gmoccapy(object):
                     continue
             temp = temp + axis
         self.widgets.offsetpage1.set_col_visible(temp, True)
+
         parameterfile = self.get_ini_info.get_parameter_file()
         if not parameterfile:
             print(_("**** GMOCCAPY ERROR ****"))
             print(_("**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"))
             sys.exit()
         path = os.path.join(CONFIGPATH, parameterfile)
+        self.widgets.offsetpage1.set_filename(path)
+
         self.widgets.offsetpage1.set_display_follows_program_units()
         if self.stat.program_units != 1:
             self.widgets.offsetpage1.set_to_mm()
@@ -1078,7 +1081,6 @@ class gmoccapy(object):
         else:
             self.widgets.offsetpage1.set_to_inch()
             self.widgets.offsetpage1.machine_units_mm = _INCH
-        self.widgets.offsetpage1.set_filename(path)
         self.widgets.offsetpage1.hide_buttonbox(True)
         self.widgets.offsetpage1.set_row_visible("1", False)
         self.widgets.offsetpage1.set_font("sans 12")
@@ -2767,7 +2769,13 @@ class gmoccapy(object):
             self.widgets.ntb_preview.set_current_page(1)
 
     def on_btn_zero_g92_clicked(self, widget, data = None):
-        self.widgets.offsetpage1.zero_g92(self)
+        # self.widgets.offsetpage1.zero_g92(self)
+        self.command.mode(linuxcnc.MODE_MDI)
+        self.command.wait_complete()
+        self.command.mdi("G92.1")
+        self.command.mode(linuxcnc.MODE_MANUAL)
+        self.command.wait_complete()
+        self.widgets.btn_touch.emit("clicked")
 
 # TODO: what to do when there are more axis?
 # all over one handler with "G10 L20 P0 %s%f"%(axis,value)
