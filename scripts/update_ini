@@ -300,6 +300,8 @@ if version == "$Revision$" or version < "1.0":
     'axis.(.).pos-hard-limit':    'joint.\\1.pos-hard-limit',
     'axis.(.).pos-lim-sw-in':     'joint.\\1.pos-lim-sw-in',
     'axis.(.).wheel-jog-active':  'joint.\\1.wheel-jog-active',
+    'axis.(.).unlock':            'joint.\\1.unlock',
+    'axis.(.).is-unlocked':       'joint.\\1.is-unlocked',
     'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
     'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
     '\[AXIS_(.)\]':               '[JOINT_\\1]'}
