@@ -60,3 +60,24 @@ $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 
 
 PYTARGETS += $(GCODEMODULE)
+
+ifeq ($(BUILD_DEV),yes)
+
+PREVIEWMODULESRCS := \
+	emc/rs274ngc/previewmodule.cc
+PYSRCS += $(PREVIEWMODULESRCS)
+
+$(call TOOBJSDEPS, $(PREVIEWMODULESRCS)) : Makefile.inc
+$(call TOOBJSDEPS, $(PREVIEWMODULESRCS)) : EXTRAFLAGS += -Ihal/haltalk $(CZMQ_CFLAGS) $(PROTOBUF_CFLAGS)
+
+PREVIEWMODULE := ../lib/python/preview.so
+$(PREVIEWMODULE): $(call TOOBJS, $(PREVIEWMODULESRCS)) \
+	../lib/librs274.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmtalk.so
+	$(ECHO) Linking python module $(notdir $@)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++  $(CZMQ_LIBS)  $(PROTOBUF_LIBS)
+
+
+PYTARGETS += $(PREVIEWMODULE)
+endif

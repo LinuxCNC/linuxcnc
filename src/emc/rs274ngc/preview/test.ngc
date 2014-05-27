@@ -1,0 +1,17 @@
+(MSG,starting program)
+F100
+S300
+; multi-line block
+g0 x10 y10 z30
+  z10
+  x20 y40
+  z30
+g1 x10 y10 z50
+g0 x10 y10 z40
+g1 x20 y30 z40
+;t2m6
+g0 x15 y15 z35
+; cause error
+;g47m32
+(MSG, program done)
+m2

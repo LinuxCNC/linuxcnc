@@ -1,0 +1,9 @@
+rs274demo.py - show using the stock gcodemodule with Python callbacks
+
+
+rs274preview.py - generated protobuf preview commands, and interp status
+		publish on two zeromq sockets
+
+previewclient.py - subscribes to those sockets, logs status changes and preview commands
+
+verrrry rough, this.
