@@ -25,7 +25,7 @@ import getopt
 
 from hal_widgets import _HalWidgetBase
 from led import HAL_LED
-from hal_glib import GComponent
+from hal_glib import GComponent,GRemoteComponent
 
 from gladevcp.gladebuilder import widget_name
 
@@ -36,9 +36,12 @@ class GladePanel():
         gtk.main_quit()
 
     def __init__(self,halcomp,xmlname,builder,buildertype):
-        
+        if isinstance(halcomp, GRemoteComponent):
+            self.hal = halcomp
+        else:
+            self.hal = GComponent(halcomp)
+
         self.builder = builder
-        self.hal = GComponent(halcomp)
         self.widgets = {}
 
         for widget in builder.get_objects():
@@ -51,7 +54,8 @@ class GladePanel():
                 widget.hal_init(self.hal, idname)
                 self.widgets[idname] = widget
 
-        self.timer = gobject.timeout_add(100, self.update)                  
+        if not isinstance(halcomp, GRemoteComponent):
+            self.timer = gobject.timeout_add(100, self.update)
         
 
     def update(self):
