@@ -1,0 +1,60 @@
+
+Source Hightlight Filter Test
+=============================
+
+// for now, PDF's cant have highlighted ini,hal or ngc files
+// for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
+// and make it a local copy in the current directory
+// HTML works fine
+
+// these attributes must come after the document title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+:proto: {basebackend@docbook:'':proto}
+
+// begin a listing of ini/hal/ngc/proto files like so:
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
+//[source,{proto}]
+
+
+Details of the filter can be found in
+`./doc/source-highlight-filter.txt`.
+
+[source,{proto}]
+---------------------------------------------------------------------
+import "nanopb.proto";
+import "types.proto";
+import "value.proto";
+
+package pb;
+
+// describes a RTAPI/HAL/LinuxCNC instance
+message Instance {
+    optional string        name     = 30; //  [(nanopb).max_size = 41];
+    optional sfixed32        id       = 40;
+}
+
+message Pin {
+    optional ValueType   type       = 10;
+    optional string      name       = 20; //    [(nanopb).max_size = 41];
+    optional fixed32     handle     = 25;
+    optional HalPinDirection dir    = 30;
+
+    // One of the following must be filled in,
+    // depending on type.
+    optional bool          halbit   = 100;
+    optional double        halfloat = 101;
+    optional sfixed32      hals32   = 102;
+    optional fixed32       halu32   = 103;
+
+    optional sfixed32      owner    = 40;
+    optional bool         linked    = 50;
+    optional string      oldname    = 60; //   [(nanopb).max_size = 41];
+
+    optional double      epsilon    = 80;
+    optional fixed32      flags     = 90;
+}
+---------------------------------------------------------------------
