@@ -48,6 +48,7 @@ getvar() {
 getvar flavor
 getvar linuxcnc_module_helper
 getvar rtapi_msgd
+#getvar halcmd
 
 # Flavor configuration
 FLAVOR=$($flavor)
@@ -72,6 +73,9 @@ DEBUG=$((10#0$DEBUG))  # be sure $DEBUG is some base-10 number
 # SHMDRV_OPTS:
 # suggested use: SHMDRV_OPTS='debug=3'
 # which will log shmdrv operations to the kernel log
+if [ "$SHMDRV_OPTS" != "" ]  ; then
+    MSGD_OPTS="$MSGD_OPTS --shmdrv_opts=$SHMDRV_OPTS"
+fi
 
 # set the default instance, if not already set
 INSTANCE=`printf '%d' $INSTANCE`
@@ -148,17 +152,12 @@ CheckStatus(){
     return $res
 }
 
+
 Load(){
 
     # kernel threads must have shmdrv.ko loaded
-    # userland threads optionally may use the shmdrv module
-    if test $BUILD_SYS = kbuild -o $USE_SHMDRV = yes; then
-	if ! test -c /dev/shmdrv ; then
-	    $linuxcnc_module_helper insert shmdrv $SHMDRV_OPTS || return $?
-	    # give some time to let shmdrv initialize
-	    CheckShm -w || return 1
-	fi
-    fi
+    # userland threads optionally may use the shmdrv module.
+    # The shmdrv module is loaded by rtapi_msgd if needed.
 
     # rtapi_msgd creates the global segment containing the error ring buffer
     # so start this first:
@@ -169,26 +168,17 @@ Load(){
 	--halsize=$HAL_SIZE $MSGD_OPTS || \
 	(echo "rtapi_msgd startup failed - aborting"; exit $?)
 
-    # load kernel modules
-    for MOD in $MODULES; do
-	# if loading rtapi.ko, tack on parameters
-	if test $MOD = rtapi; then
-	    $linuxcnc_module_helper insert $MOD \
-		rtapi_instance=$INSTANCE $NAME_CMD || return $?
-	else
-	    $linuxcnc_module_helper insert $MOD || return $?
-	fi
-	sleep 0.2  # give some time to settle
-    done
-
-    if test $BUILD_SYS = user-dso; then
-        # run rtapi_app for userland
-	if [ $DEBUG -gt 0 ] ; then
-	    ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS 2>&1 >/dev/null  || \
+    # rtapi_app_<flavor> now handles the kernel module loading
+    # for kthreads as needed
+    if [ $DEBUG -gt 0 ] ; then
+	    ${rtapi_app} --instance=$INSTANCE $RTAPI_APP_OPTS  || \
 		(echo "rtapi_app startup failed - aborting"; exit $?)
-        fi
+    fi
+    # wait until rtapi_app responds, meaning setup is complete
+    # this avoids startup races
+    halcmd ping
 
-    else  # BUILD_SYS = 'kbuild'
+    if test BUILD_SYS = 'kbuild'; then
 	# help debugging startup issues for kthreads
         if [ $DEBUG -gt 0 ] && [ -w /proc/rtapi/debug ] ; then
             echo "$DEBUG" > /proc/rtapi/debug
@@ -257,9 +247,11 @@ Unload(){
 	RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
 	if [ "$RTAPI_PID" != "" ] ; then
 	    if [ $DEBUG -gt 0 ] ; then
-		${rtapi_app} --instance=$INSTANCE exit
+		halcmd unload all
+		halcmd shutdown
 	    else
-		${rtapi_app} --instance=$INSTANCE exit            >/dev/null 2>&1
+		halcmd unload all          >/dev/null 2>&1
+		halcmd shutdown            >/dev/null 2>&1
             fi
 	fi
 
