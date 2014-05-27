@@ -1,4 +1,9 @@
-ver 1.1.5.1
+ver. 1.1.5.2
+- solved a bug, on clear G92 offsets handling, switching the GUI to MDI Mode,
+  due to a strange behavior of the offsetpage widget, not going back to the 
+  previous mode.
+
+ver. 1.1.5.1
 - solved a bug related to the gmoccapy error pin. This pin has not been reseted
   if the user used the mouse or touch screen and errased the message by clicking
   the message button. It was only done right if the delete-message pin was used.
