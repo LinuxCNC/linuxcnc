@@ -328,8 +328,6 @@ int ulapi_loaded(void) {
 //  ULAPI cleanup. Call the exit handler and unload ulapi-<flavor>.so.
 void ulapi_cleanup(void)
 {
-    rtapi_print_msg(RTAPI_MSG_DBG, "_ulapi_cleanup():\n");
-
     // call the ulapi exit handler
     // detach the rtapi shm segment as needed
     // (some flavors do not employ an rtapi shm segment)
