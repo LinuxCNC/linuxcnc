@@ -144,13 +144,13 @@ typedef int (*rtapi_exit_t)(int);
     rtapi_switch->rtapi_exit(module_id)
 extern int _rtapi_exit(int module_id);
 
-/** 'rtapi_next_module_id()' returns a globally unique int ID
+/** 'rtapi_next_handle()' returns a globally unique int ID
     
  */
-typedef int (*rtapi_next_module_id_t)(void);
-#define rtapi_next_module_id()			\
-    rtapi_switch->rtapi_next_module_id()
-extern int _rtapi_next_module_id(void);
+typedef int (*rtapi_next_handle_t)(void);
+#define rtapi_next_handle()			\
+    rtapi_switch->rtapi_next_handle()
+extern int _rtapi_next_handle(void);
 
 
 /***********************************************************************
@@ -789,7 +789,7 @@ typedef struct {
     // init & exit functions
     rtapi_init_t rtapi_init;
     rtapi_exit_t rtapi_exit;
-    rtapi_next_module_id_t rtapi_next_module_id;
+    rtapi_next_handle_t rtapi_next_handle;
     // time functions
 #ifdef RTAPI
     rtapi_clock_set_period_t rtapi_clock_set_period;

@@ -56,7 +56,7 @@ RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
 
 int _rtapi_init(const char *modname) {
 
-    return _rtapi_next_module_id();
+    return _rtapi_next_handle();
 }
 
 int _rtapi_exit(int module_id) {

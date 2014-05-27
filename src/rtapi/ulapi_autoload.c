@@ -108,7 +108,7 @@ static rtapi_switch_t dummy_ulapi_switch_struct = {
     // since it violates the API contract: rtapi_init()
     // must be first
     .rtapi_exit = (rtapi_exit_t) &_ulapi_dummy,
-    .rtapi_next_module_id = &_ulapi_dummy,
+    .rtapi_next_handle = &_ulapi_dummy,
 
     .rtapi_clock_set_period = &_ulapi_dummy,
     .rtapi_delay = &_ulapi_dummy,

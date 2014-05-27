@@ -31,9 +31,11 @@
 
     Support data:
 
-    a global counter for the next module ID (next_module_id) which is 
+    a global counter for the next module ID (next_handle) which is
     needed by userland threadstyles since they do not arrays for modules.
-    (this was formerly Jeff Epler's 'uuid' mechanism).
+    (this was formerly Jeff Epler's 'uuid' mechanism). next_handle can
+    also be used to generated integer ID's unique throughout an RTAPI
+    instance.
 
     Other possible uses of global_data include, but are not limited to,
     for instance instance management if one were to support multiple 
@@ -83,7 +85,7 @@ typedef struct {
     // runtime parameters
     int rt_msg_level;              // message level for RT 
     int user_msg_level;            // message level for non-RT 
-    int next_module_id;            // for userland threads module id's
+    rtapi_atomic_type next_handle;               // next unique ID
     int hal_size;                  // make HAL data segment size configurable
     int hal_thread_stack_size;     // stack size passed to rtapi_task_new()
                                    // in hal_create_thread()
