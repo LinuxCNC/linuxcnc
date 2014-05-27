@@ -81,6 +81,24 @@ SUPPORT_BEGIN_DECLS
 
 extern int is_module_loaded(const char *module);
 extern int load_module(const char *module, const char *modargs);
+extern int run_module_helper(const char *format, ...);
+extern long int simple_strtol(const char *nptr, char **endptr, int base);
+
+
+// simple interface to hal_create_thread()/hal_thread_delete()
+// through /proc/rtapi/hal/threadcmd (kernel threadstyles only)
+//
+// to start a thread, write 'newthread' <threadname> <period> <fp> <cpu>'
+// example:
+//    echo newthread servo-thread 1000000 1 -1 >/proc/rtapi/hal/threadcmd
+//
+// to delete a thread, write 'delthread <threadname>'
+//    echo delthread servo-thread >/proc/rtapi/hal/threadcmd
+//
+// HAL return values are reflected in the return value to write()
+//
+#define PROCFS_THREADCMD "/proc/rtapi/hal/threadcmd"
+extern int procfs_threadcmd(const char *format, ...);
 
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();
