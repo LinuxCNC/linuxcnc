@@ -1,0 +1,16 @@
+#ifdef HAVE_MACHINETALK
+
+CSDIR := machinetalk/config-service
+
+CONFIG_COMP_PY = configserver
+
+$(patsubst %, ../bin/%, $(CONFIG_COMP_PY)) : ../bin/%: $(CSDIR)/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+PYTARGETS += $(patsubst %, ../bin/%, $(CONFIG_COMP_PY))
+
+
+#endif # HAVE_MACHINETALK
