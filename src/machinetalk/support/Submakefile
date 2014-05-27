@@ -1,0 +1,168 @@
+
+
+ifeq ($(USE_PROTOBUF),yes)
+
+#ifeq ($(BUILD_EXAMPLES),yes)
+PBEX := $(MACHINETALK)/support
+
+ENCDEC_SRCS :=  $(addprefix $(PBEX)/, \
+	encdec.cc)
+ENCDEC_CXX_CFLAGS = -g  $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
+ENCDEC_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS) $(JANSSON_LIBS) -lstdc++
+
+PB2CXX_PROTOLIB = ../lib/liblinuxcnc-pb2++.so
+
+$(call TOOBJSDEPS, $(ENCDEC_SRCS)) : EXTRAFLAGS += $(ENCDEC_CXX_CFLAGS)
+
+../bin/encdec: $(call TOOBJS, $(ENCDEC_SRCS)) \
+	$(PB2CXX_PROTOLIB)  ../lib/libmtalk.so ../lib/liblinuxcnc-pb2++.so ../lib/liblinuxcncini.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^  \
+	 $(ENCDEC_CXX_LDFLAGS)
+
+#----
+POSITION_SRCS :=  $(addprefix $(PBEX)/, \
+	position.cc)
+POSITION_CXX_CFLAGS = -g  $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
+POSITION_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS) $(JANSSON_LIBS) -lstdc++
+
+PB2CXX_PROTOLIB = ../lib/liblinuxcnc-pb2++.so
+
+$(call TOOBJSDEPS, $(POSITION_SRCS)) : EXTRAFLAGS += $(POSITION_CXX_CFLAGS)
+
+../bin/position: $(call TOOBJS, $(POSITION_SRCS)) \
+	 ../lib/libmtalk.so $(PB2CXX_PROTOLIB)  ../lib/liblinuxcncini.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^  \
+	 $(POSITION_CXX_LDFLAGS)
+
+#---
+
+NPDECODE_SRCS :=  $(addprefix $(PBEX)/, \
+	npbdecode.c)
+NPBC_PROTOLIB = ../lib/liblinuxcnc-npb.so
+NPDECODE_CFLAGS = -g  -I../../ -DPB_FIELD_32BIT
+NPDECODE_LDFLAGS = $(NPBC_PROTOLIB)
+
+$(call TOOBJSDEPS, $(NPDECODE_SRCS)) : EXTRAFLAGS += $(NPDECODE_CFLAGS)
+
+../bin/npbdecode: $(call TOOBJS, $(NPDECODE_SRCS)) \
+	$(NPBC_PROTOLIB)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^  \
+	 $(NPDECODE_LDFLAGS) $(NPDECODE_LDFLAGS)
+
+
+RTPRINTF_SRCS :=  $(addprefix $(PBEX)/, \
+	rtprintf.c)
+RTPRINTF_CCFLAGS := -g -DPB_FIELD_32BIT
+RTPRINTF_LDFLAGS := -g
+
+$(call TOOBJSDEPS, $(RTPRINTF_SRCS)) : EXTRAFLAGS += $(RTPRINTF_CCFLAGS)
+
+../bin/rtprintf: $(call TOOBJS, $(RTPRINTF_SRCS)) \
+	../lib/liblinuxcnc-npb.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RTPRINTF_LDFLAGS)
+
+
+RAWREAD_SRCS :=  $(PBEX)/rawread.c \
+		 $(MACHINETALK)/nanopb/pb_decode.c
+RAWREAD_CCFLAGS := -g -O0 -DPB_FIELD_32BIT
+RAWREAD_LDFLAGS := -g
+
+$(call TOOBJSDEPS, $(RAWREAD_SRCS)) : EXTRAFLAGS += $(RAWREAD_CCFLAGS)
+
+../bin/rawread: $(call TOOBJS, $(RAWREAD_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RAWREAD_LDFLAGS)
+
+../include/%.h: ./$(PBEX)/%.h
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+../include/%.hh: ./$(PBEX)/%.hh
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+
+
+UNIONREAD_SRCS :=  $(PBEX)/unionread.c \
+		 $(MACHINETALK)/nanopb/pb_decode.c
+UNIONREAD_CCFLAGS := -g -O0 -DPB_FIELD_32BIT
+UNIONREAD_LDFLAGS := -g
+
+$(call TOOBJSDEPS, $(UNIONREAD_SRCS)) : EXTRAFLAGS += $(UNIONREAD_CCFLAGS)
+
+../bin/unionread: $(call TOOBJS, $(UNIONREAD_SRCS))
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(UNIONREAD_LDFLAGS)
+
+../include/%.h: ./$(PBEX)/%.h
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+../include/%.hh: ./$(PBEX)/%.hh
+	@mkdir -p $(dir $@)
+	cp $^ $@
+
+$(call TOOBJSDEPS, $(PBEX)/sizes.c) : EXTRAFLAGS +=
+
+../bin/sizes: $(call TOOBJS, $(PBEX)/sizes.c)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS)
+
+USERSRCS += \
+	 $(RTPRINTF_SRCS) \
+	$(ENCDEC_SRCS) \
+	$(POSITION_SRCS) \
+	$(RAWREAD_SRCS) \
+	 $(UNIONREAD_SRCS) \
+	$(NPDECODE_SRCS) \
+	$(PBEX)/sizes.c
+
+TARGETS += \
+	../bin/sizes \
+	../bin/rtprintf \
+	../bin/encdec \
+	../bin/position \
+	../bin/unionread \
+	../bin/npbdecode \
+	../include/container.h
+
+#	../bin/rawread
+
+../lib/python/%.py: $(MACHINETALK)/support/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)cp $< $@
+
+PYTARGETS += ../lib/python/pb2json.py
+
+
+# jepler demo
+
+LINMOVE_SRCS :=  $(addprefix $(PBEX)/, \
+	linmove.cc)
+LINMOVE_CXX_CFLAGS = -g $(PROTOBUF_CFLAGS)  $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
+LINMOVE_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS)  $(JANSSON_LIBS) \
+	../lib/libmtalk.so  \
+	 ../lib/liblinuxcnc-pb2++.so \
+	../lib/liblinuxcncini.so \
+	-lstdc++
+
+$(call TOOBJSDEPS, $(LINMOVE_SRCS)) : EXTRAFLAGS += $(LINMOVE_CXX_CFLAGS)
+
+../bin/linmove: $(call TOOBJS, $(LINMOVE_SRCS)) \
+	../lib/libmtalk.so ../lib/liblinuxcnc-pb2++.so
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^  \
+	 $(LINMOVE_CXX_LDFLAGS) $(PBJSONLIB)
+
+USERSRCS += $(LINMOVE_SRCS)
+
+TARGETS += ../bin/linmove
+
+endif
+#endif
