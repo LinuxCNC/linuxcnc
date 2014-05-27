@@ -1,0 +1,11 @@
+log rt 5
+log user 5
+
+loadrt  mptx
+loadrt threads
+
+addf mptx.0.update thread1
+
+loadusr messagebus -d -d -d -c tcp://127.0.0.1:5571 -r tcp://127.0.0.1:5573
+
+start

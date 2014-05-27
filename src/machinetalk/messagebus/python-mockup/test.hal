@@ -1,0 +1,12 @@
+log rt 5
+log user 5
+
+loadrt pbmsgs
+loadrt pbring count=2
+loadrt threads
+
+addf pbring.0.update thread1
+
+loadusr messagebus -d -d -d -c tcp://127.0.0.1:5571 -r tcp://127.0.0.1:5573
+
+start
