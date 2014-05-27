@@ -234,8 +234,8 @@ class HAL_ProgressBar(gtk.ProgressBar, _HalWidgetBase):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale = self.hal.newpin(self.hal_name+".scale", hal.HAL_FLOAT, hal.HAL_IN)
         if self.yellow_limit or self.red_limit:
-            bar.set_fraction(0)
-            bar.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
+            self.set_fraction(0)
+            self.modify_bg(gtk.STATE_PRELIGHT, gtk.gdk.Color('#0f0'))
         if self.text_template:
             self.set_text(self.text_template % {'value':0})
 
