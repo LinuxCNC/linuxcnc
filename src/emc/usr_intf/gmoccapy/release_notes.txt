@@ -1,3 +1,12 @@
+ver. 1.1.5.3
+- solved a bug if the user have NO_FORCE_HOMING in his INI and did a homing
+  of an axis, resulting in some widgets being unsensitive.
+  Thanks to Marius for reportinmg that one
+- after a tool touch off no G43 was commited even if that code was active 
+  so I added that command to be executed
+  Thanks to Rene to report that one
+- some minor changes to lathe.ini, having HOME two times in the AXIS config
+
 ver. 1.1.5.2
 - solved a bug, on clear G92 offsets handling, switching the GUI to MDI Mode,
   due to a strange behavior of the offsetpage widget, not going back to the 
