@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.2"
+_RELEASE = "  1.1.5.3"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1351,6 +1351,8 @@ class gmoccapy(object):
 
     def on_hal_status_not_all_homed(self, *args):
         self.all_homed = False
+        if self.no_force_homing:
+            return
         self._add_alarm_entry("not_all_homed")
         widgetlist = ["rbt_mdi", "rbt_auto", "btn_index_tool", "btn_touch", "btn_change_tool", "btn_select_tool_by_no",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch"
@@ -3242,6 +3244,9 @@ class gmoccapy(object):
             self.command.wait_complete()
             self.command.mdi(command)
             self.command.wait_complete()
+            if "G43" in self.active_gcodes:
+                self.command.mdi("G43")
+                self.command.wait_complete()
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
