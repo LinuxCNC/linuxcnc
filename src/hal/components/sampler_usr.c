@@ -114,7 +114,8 @@ int main(int argc, char **argv)
     int n, channel, retval, size, tag;
     long int samples;
     unsigned long this_sample;
-    char *cp, *cp2;
+    char  *cp2;
+    char *name = NULL;
     void *shmem_ptr;
     fifo_t *fifo;
     shmem_data_t *data, *dptr, buf[MAX_PINS];
@@ -126,64 +127,67 @@ int main(int argc, char **argv)
     channel = 0;
     tag = 0;
     samples = -1;  /* -1 means run forever */
-    /* FIXME - if I wasn't so lazy I'd learn how to use getopt() here */
-    for ( n = 1 ; n < argc ; n++ ) {
-	cp = argv[n];
-	if ( *cp != '-' ) {
-	    break;
-	}
-	switch ( *(++cp) ) {
+    int  opt;
+
+    while ((opt = getopt(argc, argv, "tn:c:N:")) != -1) {
+	switch (opt) {
 	case 'c':
-	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-		cp = argv[n];
-	    }
-	    channel = strtol(cp, &cp2, 10);
+	    channel = strtol(optarg, &cp2, 10);
 	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_SAMPLERS )) {
-		fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
+		fprintf(stderr,"ERROR: invalid channel number '%s'\n", optarg );
 		exit(1);
 	    }
 	    break;
 	case 'n':
-	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-		cp = argv[n];
-	    }
-	    samples = strtol(cp, &cp2, 10);
+	    samples = strtol(optarg, &cp2, 10);
 	    if (( *cp2 ) || ( samples < 0 )) {
-		fprintf(stderr, "ERROR: invalid sample count '%s'\n", cp );
+		fprintf(stderr, "ERROR: invalid sample count '%s'\n", optarg );
 		exit(1);
 	    }
+	    break;
+	case 'N':
+	    name = optarg;
 	    break;
 	case 't':
 	    tag = 1;
 	    break;
-	default:
-	    fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
+	default: /* '?' */
+	    fprintf(stderr,"ERROR: unknown option '%c'\n", opt);
+	    fprintf(stderr,"valid options are:\n" );
+	    fprintf(stderr,"\t-t\t\ttag values with sample number\n" );
+	    fprintf(stderr,"\t-c <int>\t channel number\n" );
+	    fprintf(stderr,"\t-n <int>\t sample count\n" );
+	    fprintf(stderr,"\t-N <name>\t set HAL component name\n" );
 	    exit(1);
-	    break;
+	    exit(EXIT_FAILURE);
 	}
     }
-    if(n < argc) {
+    if (optind < argc) {
 	int fd;
-	if(argc > n+1) {
+	if(argc > optind+1) {
 	    fprintf(stderr, "ERROR: At most one filename may be specified\n");
 	    exit(1);
 	}
 	// make stdout be the named file
-	fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
+	fd = open(argv[optind], O_WRONLY | O_CREAT, 0666);
 	close(1);
 	dup2(fd, 1);
     }
+
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
     signal(SIGPIPE, quit);
     /* connect to HAL */
-    /* create a unique module name, to allow for multiple samplers */
-    snprintf(comp_name, sizeof(comp_name), "halsampler%d", getpid());
+    if (name == NULL) {
+	/* create a unique module name, to allow for multiple samplers */
+	snprintf(comp_name, sizeof(comp_name), "halsampler%d", getpid());
+	name = comp_name;
+    }
     /* connect to the HAL */
     ignore_sig = 1;
-    comp_id = hal_init(comp_name);
+    comp_id = hal_init(name);
     ignore_sig = 0;
     /* check result */
     if (comp_id < 0) {
