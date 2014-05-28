@@ -46,8 +46,9 @@ to install linuxcnc-dev.
 
 == Definitions
 
-* 'component' - A component is a single real-time module, which is loaded with 'halcmd
-    loadrt'. One '.comp' file specifies one component.
+* 'component' - A component is a single real-time module, which is loaded with
+    'halcmd loadrt'. One '.comp' file specifies one component. The component
+    name and file name must match.
 
 * 'instance' - A component can have zero or more instances. Each instance of a
     component is created equal (they all have the same pins, parameters,
@@ -497,8 +498,8 @@ This only works for '.comp' files, not for '.c' files.
 
 === constant
 
-Note that the declaration "function _" creates functions
-named "constant.0", etc.
+Note that the declaration "function _" creates functions named "constant.0"
+, etc. The file name must match the component name.
 
 [source,c]
 ----

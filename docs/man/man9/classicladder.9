@@ -9,7 +9,7 @@
 .SH NAME
 classicladder \- realtime software plc based on ladder logic
 .SH SYNOPSIS
-\fBloadrt classicladder_rt  [numRungs=\fIN\fB] [numBits=\fIN\fB] [numWords=\fIN\fB] [numTimers=\fIN\fB] [numMonostables=\fIN\fB] [numCounters=\fIN\fB] [numPhysInputs=\fIN\fB] [numPhysOutputs=\fIN\fB] [numArithmExpr=\fIN\fB] [numSections=\fIN\fB] [numSymbols=\fIN\fB] [numS32in=\fIN\fB] [numS32out=\fIN\fB]
+\fBloadrt classicladder_rt  [numRungs=\fIN\fB] [numBits=\fIN\fB] [numWords=\fIN\fB] [numTimers=\fIN\fB] [numMonostables=\fIN\fB] [numCounters=\fIN\fB] [numPhysInputs=\fIN\fB] [numPhysOutputs=\fIN\fB] [numArithmExpr=\fIN\fB] [numSections=\fIN\fB] [numSymbols=\fIN\fB] [numS32in=\fIN\fB] [numS32out=\fIN\fB] [numFloatIn=\fIN\fB] [numFloatOut=\fIN\fB]
 
 .SH DESCRIPTION
 These pins and parameters are created by the realtime \fBclassicladder_rt\fR module. Each period (minimum 1000000 ns), classicladder reads the inputs, evaluates the ladder logic defined in the GUI, and then writes the outputs.
@@ -17,23 +17,40 @@ These pins and parameters are created by the realtime \fBclassicladder_rt\fR mod
 .SH PINS
 
 .TP
-\fBclassicladder.0.in-\fIN\fB\fR IN bit 
-These bit signal pins map to \fB%I\fINNN\fR variables in classicladder
+\fBclassicladder.0.in-\fINN\fB\fR IN bit
+These bit signal pins map to \fB%I\fINN\fR variables in classicladder
 
 .TP
-\fBclassicladder.0.out-\fIN\fB\fR OUT bit 
-These bit signal pins map to \fB%Q\fInNN\fR variables in classicladder
+\fBclassicladder.0.out-\fINN\fB\fR OUT bit
+These bit signal pins map to \fB%Q\fINN\fR variables in classicladder
 Output from classicladder
 
 .TP
-\fBclassicladder.0.in-\fIN\fB\fR IN s32
+\fBclassicladder.0.s32in-\fINN\fB\fR IN s32
 Integer input from classicladder
-These s32 signal pins map to \fB%IW\fINNN\fR variables in classicladder
+These s32 signal pins map to \fB%IW\fINN\fR variables in classicladder
 
 .TP
-\fBclassicladder.0.out-\fIN\fB\fR OUT s32 
+\fBclassicladder.0.s32out-\fINN\fB\fR OUT s32
 Integer output from classicladder
-These s32 signal pins map to \fB%QW\fINNN\fR variables in classicladder
+These s32 signal pins map to \fB%QW\fINN\fR variables in classicladder
+
+.TP
+\fBclassicladder.0.floatin-\fINN\fB\fR IN float
+Integer input from classicladder
+These float signal pins map to \fB%IF\fINN\fR variables in classicladder
+These are truncated to S32 values internally. eg 7.5 will be 7
+
+.TP
+\fBclassicladder.0.floatout-\fINN\fB\fR OUT float
+Float output from classicladder
+These float signal pins map to \fB%QF\fINN\fR variables in classicladder
+
+.TP
+\fBclassicladder.0.hide_gui IN bit
+This bit pin hides the classicladder window, while still having the userspace code
+run. This is usually desirable when modbus is used, as modbus requires the userspace
+code to run.
 
 .SH PARAMETERS
 

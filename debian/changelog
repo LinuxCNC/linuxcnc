@@ -1,3 +1,49 @@
+linuxcnc (1:2.6.0~pre3) precise; urgency=low
+
+  * HAL: make halcmd arrow syntax ('=>', '<=', '<=>') more strict
+      (matches manpage now)
+  * HAL: fix halcmd 'pin = value' and 'param = value' (matches manpage
+      now)
+  * HAL: don't clobber pin value when connecting to a net
+  * HAL: fix a cosmetic bug in signal memory allocation
+
+  * motion: add a pin giving the motion type (motion.motion_type)
+
+  * pid: default to using previous target to compute error.  This will
+      disturb existing tunings, so those with old configs who do not want
+      to re-tune may want to set pid.N.error-previous-target to false.
+
+  * hm2: fix a bug in 5i24 support on some motherboards
+  * hm2: fix 5i24 connector names
+  * hm2: expose encoder inputs (A, B, Index) as HAL pins
+
+  * fix a bug in the comp(1) tool that would let invalid .comp files
+      compile, but crash when the invalid code executed
+  * fix a crash in the biquad component (and add a test)
+  * fix a crash in the mesa 7i65 driver
+
+  * pickconfig: always allow creation of shortcuts (fixes bug #372)
+
+  * gmoccapy: add option to hide 4th axis
+  * gmoccapy: fix problem of pin_value changing on startup
+  * gmoccapy: let user change the DRO font size
+  * gmoccapy: reset error pin when user clears the message in GUI
+
+  * gladevcp: fix a bug in iconview
+
+  * sample configs: fix a bug in the gmoccapy config
+  * sample configs: make xhc-hb04 program-run button automatically
+      switch to auto mode
+
+  * docs: update French translation
+  * docs: update motion(9) manpage to match reality
+  * docs: fix a markup error in hostmot2(9) manpage
+  * docs: fix hostmot2(9) manpage encoder .rawcounts pin name
+  * docs: update hm2_pci(9) manpage list of supported boards
+  * docs: fix some bugs in the comp(1) documentation
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 25 May 2014 08:52:14 -0600
+
 linuxcnc (1:2.6.0~pre2) precise; urgency=low
 
   * pncconf: fix bug with 7i43 address handling
