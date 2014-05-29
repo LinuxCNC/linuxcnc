@@ -2,6 +2,7 @@ loadrt threads name1=fast period1=100000
 loadrt flipflop
 
 loadrt sampler depth=1000 cfg=b
+loadusr -Wn halsampler halsampler -N halsampler -n 10
 loadrt streamer depth=32 cfg=bbbb
 
 
@@ -23,4 +24,4 @@ addf sampler.0 fast
 
 loadusr -w sh runstreamer
 start
-loadusr -w halsampler -n 10
+waitusr halsampler

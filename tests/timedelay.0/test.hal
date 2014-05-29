@@ -1,4 +1,6 @@
 loadrt sampler cfg=bb depth=100
+loadusr -Wn halsampler halsampler -N halsampler -t -n 64
+
 loadrt timedelay
 loadrt not
 loadrt threads name1=thread period1=1953125
@@ -17,4 +19,4 @@ addf timedelay.0 thread
 addf sampler.0 thread
 
 start
-loadusr -w halsampler -t -n 64
+waitusr halsampler

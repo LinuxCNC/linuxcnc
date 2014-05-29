@@ -3,6 +3,8 @@ loadrt threads name1=millisecond period1=1000000
 
 loadrt multiclick count=2
 loadrt sampler depth=100 cfg=bbbbbbbbbsbbbbbbbbbs
+loadusr -Wn halsampler halsampler -N halsampler -n 105
+
 loadrt streamer depth=100 cfg=bb
 
 
@@ -55,5 +57,5 @@ loadusr halstreamer input-signals
 loadusr -w sleep 0.5
 
 start
-loadusr -w halsampler -n 105
+waitusr halsampler
 

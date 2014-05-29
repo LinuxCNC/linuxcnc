@@ -9,6 +9,8 @@ loadrt mux2
 loadrt mux4
 
 loadrt sampler depth=1000 cfg=bbbff
+loadusr -Wn halsampler halsampler -N halsampler -n 16
+
 loadrt streamer depth=32 cfg=bbbb
 
 
@@ -51,4 +53,4 @@ addf sampler.0 fast
 
 loadusr -w sh runstreamer
 start
-loadusr -w halsampler -n 16
+waitusr halsampler
