@@ -715,10 +715,15 @@ def to_hal_man(s):
     return s
 
 def document(filename, outfilename):
-    if outfilename is None:
-        outfilename = os.path.splitext(filename)[0] + ".9"
-
     a, b = parse(filename)
+
+    if outfilename is None:
+        if options.get("userspace"):
+            manpage_suffix = ".1"
+        else:
+            manpage_suffix = ".9"
+        outfilename = os.path.splitext(filename)[0] + manpage_suffix
+
     f = open(outfilename, "w")
 
     has_personality = False
