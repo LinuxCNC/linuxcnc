@@ -1,4 +1,4 @@
-THREAD thread
+THREAD servo-thread
 MAXCHAN 4
 HMULT 1
 HZOOM 1

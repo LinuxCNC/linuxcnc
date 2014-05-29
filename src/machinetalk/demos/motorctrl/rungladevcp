@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# override default $MACHINEKIT_INI with a version which was REMOTE=1
+
+export MACHINEKIT_INI=machinekit.ini
+
+# fetch the MKUUID for gladevcp
+MKUUID=`inivar -var MKUUID -sec MACHINEKIT -ini $MACHINEKIT_INI`
+
+TRACE=
+# uncomment to log gladevcp network activity to stdout:
+#TRACE='-D 1  -P100'
+
+
+gladevcp -N -S $MKUUID $TRACE -u motorctrl.py motorctrl.ui
