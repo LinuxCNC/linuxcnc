@@ -402,7 +402,7 @@ rtapi_app_main(void)
 
 	msgLevel = rtapi_get_msg_level();
 	rtapi_set_msg_level(RTAPI_MSG_ALL);
-	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.2 loading...\n");
+	rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: Driver version 1.1.3 loading...\n");
 
 	// Connect to the HAL.
 	driver.comp_id = hal_init("hal_gm");
@@ -536,7 +536,7 @@ ExportEncoder(void *arg, int comp_id, int version)
 	      {
 		device->encoder[i].module_exist = 0;
 	      }	  
-	    rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: No encoder module available in this version of the Card.\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No encoder module available in this version of the Card.\n");
 	    break;
 	  case encoderVersion1:
 	      for(i=0;i<6;i++)
@@ -588,7 +588,7 @@ ExportStepgen(void *arg, int comp_id, int version)
 		device->stepgen[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
 		device->stepgen[i].position_cmd = &(device->stepgen[i].old_pos_cmd);
 	      }
-	      rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: No stepgen module available in this version of the Card.\n");
+	      rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No stepgen module available in this version of the Card.\n");
 	  break;
 	  case stepgenVersion1:
 	   device->stepgen_status=0;
@@ -653,10 +653,14 @@ ExportDAC(void *arg, int comp_id, int version)
 	      {
 		device->axisdac[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
 	      }
-	      rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: No DAC module available in this version of the Card.\n");
+	      rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No DAC module available in this version of the Card.\n");
 	    break;
 	  case dacVersion1:
-              rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: This card supports DAC ver.1 only, which is no longer produced. No DAC pins will be exported to HAL. If you need DAC, contact to bence.kovacs@generalmechatronics.com for firmware upgrade.\n");
+	    for(i=0;i<6;i++)
+	      {
+		device->axisdac[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
+	      }
+              rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: This card supports DAC ver.1 only, which is no longer produced. No DAC pins will be exported to HAL. If you need DAC, contact to bence.kovacs@generalmechatronics.com for firmware upgrade.\n");
 	    break;
 	  case dacVersion2:
 	      for(i=0;i<6;i++)
@@ -703,7 +707,7 @@ ExportRS485(void *arg, int comp_id, int version)
 	switch (version)
 	{
 	  case notPresented:
-	    rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: No RS485 module available in this version of the Card.\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No RS485 module available in this version of the Card.\n");
 	    break;
 	  case rs485Version1:
 	    //READ IDs of connected modules
@@ -931,7 +935,7 @@ ExportCAN(void *arg, int comp_id, int version)
 	      {
 		device->CAN_GM[i].enable = &(device->cardMgr.disable); //Set enable pointers to a 0 value variable
 	      }	 
-	    rtapi_print_msg(RTAPI_MSG_INFO, "General Mechatronics: No CAN module available in this version of the Card.\n");
+	    rtapi_print_msg(RTAPI_MSG_WARN, "General Mechatronics: No CAN module available in this version of the Card.\n");
 	    break;
 	  case canVersion1:
 	    
