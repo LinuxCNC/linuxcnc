@@ -5172,8 +5172,20 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->u_flag) tool_offset.u = block->u_number;
     if(block->v_flag) tool_offset.v = block->v_number;
     if(block->w_flag) tool_offset.w = block->w_number;
+  } else if (g_code == G_43_2) {
+    CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+    tool_offset = settings->tool_offset;
+    tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
+    tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
+    tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
+    tool_offset.a += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
+    tool_offset.b += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
+    tool_offset.c += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
+    tool_offset.u += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
+    tool_offset.v += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
+    tool_offset.w += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
   } else {
-    ERS("BUG: Code not G43, G43.1, or G49");
+    ERS("BUG: Code not G43, G43.1, G43.2, or G49");
   }
   USE_TOOL_LENGTH_OFFSET(tool_offset);
 
