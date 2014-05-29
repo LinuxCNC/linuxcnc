@@ -132,7 +132,9 @@ setup_struct::setup_struct() :
     mdi_interrupt(0),
     feature_set(0),
     on_abort_command(NULL),
-    init_once(0)
+    init_once(1),
+    m_remappable(),
+    g_remappable()
 {
     memset(active_g_codes, 0, sizeof(active_g_codes));
     memset(active_m_codes, 0, sizeof(active_m_codes));
@@ -151,12 +153,4 @@ setup_struct::setup_struct() :
     memset(tool_table, 0, sizeof(tool_table));
     ZERO_EMC_POSE(tool_offset);
 
-    // not sure about sub_context:
-    // a plain array of a struct with non-POD data?
-
-    // these are non-POD, I assume these are default-constructed:
-    // offset_map
-    // pythis
-    // g_remapped,m_remapped
-    // remaps
 }

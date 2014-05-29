@@ -579,3 +579,83 @@ int Interp::parse_remap(const char *inistring, int lineno)
  fail:
     return INTERP_ERROR;
 }
+
+// initialize the m_remappable and g_remappable sets
+// which define which M and G codes could be subject to a remap
+// this is more sane and comprehensible than the M_REMAPPABLE()
+// and G_REMAPPABLE() macros (and faster too)
+
+// this is a replacement data structure for the previous macros:
+// (trailing backlsashes remove):
+//
+// range for user-remapped M-codes
+// and M6,M61
+// this is overdue for a bitset
+// exception list: builtin but remapabble: m6, m61, m0, m1, m60
+// #define M_REMAPPABLE(m)
+//     (((m > 199) && (m < 1000)) ||
+//      ((m > 0) && (m < 100) &&
+//       !M_BUILTIN(m)) ||
+//      (m == 6) ||
+//      (m == 61) ||
+//      (m == 0) ||
+//      (m == 1) ||
+//      (m == 60))
+//
+// range for user-remapped G-codes
+// exception list: builtin but remapabble: g28,g28.1,g30,g30.11
+// #define G_REMAPPABLE(g)
+//     (((g > 0) &&
+//       (g < 1000) &&
+//       !G_BUILTIN(g)) ||
+// (g == 300) ||
+// (g == 301) ||
+// (g == 280) ||
+// (g == 281))
+//
+int Interp::init_remap_sets()
+{
+    int i;
+
+    for (i = 0; i < 1000; i++) {
+	// paranoid & unelegant, but intent is clear ;)
+	_setup.m_remappable[i] = 0;
+	_setup.g_remappable[i] = 0;
+    }
+
+    // all unallocated M-codes > 199 are freely remappable
+    for (i = 200; i < 1000; i++) _setup.m_remappable[i] = 1;
+
+    // in the range 1..99 unused M-codes are remappable
+    for (i = 1; i < 100; i++) {
+	if (!M_BUILTIN(i))
+	    _setup.m_remappable[i] = 1;
+    }
+
+    // the exception list of allocated M-codes which are manually overriden in the code
+    // (mostly interp_convert.cc):
+    _setup.m_remappable[6] = 1;   // toolchange
+    _setup.m_remappable[61] = 1;  // set tool number
+
+    _setup.m_remappable[0] = 1;   // program pause
+    _setup.m_remappable[1] = 1;   // program pause if the optional stop switch is on
+
+    _setup.m_remappable[60] = 1;  //Pallet Change Pause
+
+
+    // the G codes:
+    // in the range 1..999 unused G-codes are remappable
+    // NB: G codes are scaled by 10, eg. G88.1 becomes index 881
+    for (i = 1; i < 1000; i++)
+	if (!G_BUILTIN(i))
+	    _setup.g_remappable[i] = 1;
+
+    // the exception list of allocated G-codes which are manually overriden in the code
+    // (mostly interp_convert.cc):
+    _setup.g_remappable[280] = 1;   // G28   Go to Predefined Position
+    _setup.g_remappable[281] = 1;   // G28.1 Go to Predefined Position
+    _setup.g_remappable[300] = 1;   // G30   Go to Predefined Position
+    _setup.g_remappable[301] = 1;   // G30.1 Go to Predefined Position
+
+    return INTERP_OK;
+}

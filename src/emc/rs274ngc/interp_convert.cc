@@ -3270,28 +3270,36 @@ G53) are executed elsewhere.
 */
 
 int Interp::convert_modal_0(int code,    //!< G code, must be from group 0                
-                           block_pointer block, //!< pointer to a block of RS274/NGC instructions
-                           setup_pointer settings)      //!< pointer to machine settings                 
+			    block_pointer block, //!< pointer to a block of RS274/NGC instructions
+			    setup_pointer settings)      //!< pointer to machine settings                 
 {
 
-  if (code == G_10) {
-      if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
-          CHP(convert_setup_tool(block, settings));
-      else
-          CHP(convert_setup(block, settings));
-  } else if ((code == G_28) || (code == G_30)) {
-    CHP(convert_home(code, block, settings));
-  } else if ((code == G_28_1) || (code == G_30_1)) {
-    CHP(convert_savehome(code, block, settings));
-  } else if ((code == G_92) || (code == G_92_1) ||
-             (code == G_92_2) || (code == G_92_3)) {
-    CHP(convert_axis_offsets(code, block, settings));
-  } else if (code == G_5_3) {
-    CHP(convert_nurbs(code, block, settings));
-  } else if ((code == G_4) || (code == G_53));  /* handled elsewhere */
-  else
-    ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES);
-  return INTERP_OK;
+    if (code == G_10) {
+	if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
+	    CHP(convert_setup_tool(block, settings));
+	else
+	    CHP(convert_setup(block, settings));
+    } else if ((code == G_28) || (code == G_30)) {
+	if(IS_USER_GCODE(code)) {
+	    CHP(convert_remapped_code(block, settings, STEP_MODAL_0, 'g', code));
+	} else {
+	    CHP(convert_home(code, block, settings));
+	}
+    } else if ((code == G_28_1) || (code == G_30_1)) {
+	if(IS_USER_GCODE(code)) {
+	    CHP(convert_remapped_code(block, settings, STEP_MODAL_0, 'g', code));
+	} else {
+	    CHP(convert_savehome(code, block, settings));
+	}
+    } else if ((code == G_92) || (code == G_92_1) ||
+	       (code == G_92_2) || (code == G_92_3)) {
+	CHP(convert_axis_offsets(code, block, settings));
+    } else if (code == G_5_3) {
+	CHP(convert_nurbs(code, block, settings));
+    } else if ((code == G_4) || (code == G_53));  /* handled elsewhere */
+    else
+	ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G53_OR_G92_SERIES);
+    return INTERP_OK;
 }
 
 /****************************************************************************/
