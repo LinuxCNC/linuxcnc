@@ -1,0 +1,6 @@
+component realtime;
+license "GPL";
+pin out bit out "blah blah";
+function _ nofp;
+;;
+FUNCTION(_) {}

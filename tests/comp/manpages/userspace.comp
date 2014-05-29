@@ -1,0 +1,7 @@
+component userspace;
+license "GPL";
+pin out bit out "blabber";
+function _ nofp;
+option userspace;
+;;
+FUNCTION(_) {}
