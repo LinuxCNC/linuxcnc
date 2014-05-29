@@ -531,29 +531,19 @@ int read_inputs(setup_pointer settings);
 
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
+    // initialize the m_remappable and g_remappable sets
+    // which define which M and G codes could be subject to a remap
+    // this is more sane and comprehensible than the M_REMAPPABLE()
+    // and G_REMAPPABLE() macros (and faster too)
+ int init_remap_sets();
+
 #define M_BUILTIN(m) (_ems[m] != -1)
 #define G_BUILTIN(g) (_gees[g] != -1)
 
-    // range for user-remapped M-codes
-    // and M6,M61
-    // this is overdue for a bitset
-#define M_REMAPPABLE(m)					\
-    (((m > 199) && (m < 1000)) ||			\
-     ((m > 0) && (m < 100) &&				\
-      !M_BUILTIN(m)) ||					\
-     (m == 6) ||					\
-     (m == 61) ||					\
-     (m == 0) ||					\
-     (m == 1) ||					\
-     (m == 60))
-
-
-
+    // see interp_remap_sets():
+#define M_REMAPPABLE(m)	((m >= 0) && (m < 1000) && _setup.m_remappable[m])
     // range for user-remapped G-codes
-#define G_REMAPPABLE(g)	 \
-    ((g > 0) && \
-     (g < 1000) && \
-     !G_BUILTIN(g))
+#define G_REMAPPABLE(g)	((g >= 0) && (g < 1000) &&_setup.g_remappable[g])
 
 #define IS_USER_GCODE(x) (G_REMAPPABLE(x) && _setup.g_remapped[x])
 
