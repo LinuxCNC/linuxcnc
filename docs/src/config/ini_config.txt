@@ -1044,7 +1044,7 @@ image::images/encoder-scale.png[align="center"]
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
 
-==== [EMCIO] Section[[sub:EMCIO-Section]]
+=== [EMCIO] Section[[sub:EMCIO-Section]]
 (((EMCIO (inifile section))))
 
 * 'EMCIO = io' - Name of IO controller program
