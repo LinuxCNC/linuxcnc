@@ -56,6 +56,7 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <limits.h>			/* PATH_MAX */
+#include <math.h>
 
 
 static int unloadrt_comp(char *mod_name);
@@ -2798,6 +2799,28 @@ int do_waitunbound_cmd(char *comp_name, char *tokens[])
     return do_wait_remote(comp_name,  COMP_UNBOUND);
 }
 // --- end remote comp support
+
+
+int do_sleep_cmd(char *naptime)
+{
+    char *cp = naptime;
+    double duration = strtod ( naptime, &cp );
+    if ((*cp != '\0') && (!isspace(*cp))) {
+	/* invalid character(s) in string */
+	halcmd_error("value '%s' invalid for sleep time\n", naptime);
+	return -EINVAL;
+    }
+    if (duration < 0) {
+	halcmd_error("sleep time must be > 0: '%s' \n", naptime);
+	return -EINVAL;
+    }
+    halcmd_info("sleeping for %f seconds\n", duration);
+    struct timespec ts;
+    ts.tv_sec = floorl(duration);
+    ts.tv_nsec = (duration - ts.tv_sec) *  1000 * 1000;
+    nanosleep(&ts, NULL);
+    return 0;
+}
 
 static void save_comps(FILE *dst)
 {

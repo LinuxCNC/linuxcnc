@@ -53,7 +53,8 @@ static const char *command_table[] = {
     "start", "stop", "quit", "exit", "help", "alias", "unalias", 
     "newg"," delg", "newm", "delm",
     "newcomp","newpin","ready","waitbound", "waitunbound",
-	"log",
+    "log",
+    "sleep",
     NULL,
 };
 
