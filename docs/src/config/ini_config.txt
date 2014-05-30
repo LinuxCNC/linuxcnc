@@ -69,6 +69,7 @@ The following sections are used by LinuxCNC:
 * '[<<sub:AXIS-section,AXIS_n>>]' individual axis variables
 * '[<<sub:EMCIO-Section,EMCIO>>]' settings used by the I/O Controller
 
+[[sub:ini-variables]]
 === Variables
 
 A variable line is made up of a variable name, an equals sign (=), and
