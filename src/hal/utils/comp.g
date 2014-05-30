@@ -886,6 +886,10 @@ def process(filename, mode, outfilename):
                     os.path.splitext(os.path.basename(filename))[0] + ".c")
 
         a, b = parse(filename)
+        base_name = os.path.splitext(os.path.basename(outfilename))[0]
+        if comp_name != base_name:
+            raise SystemExit, "Component name (%s) does not match filename (%s)" % (comp_name, base_name)
+
         f = open(outfilename, "w")
 
         if options.get("userinit") and not options.get("userspace"):

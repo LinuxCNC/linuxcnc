@@ -73,7 +73,7 @@ class mdi:
             'G41.1' : [_('Radius compensation left, immediate'), 'D', 'L'],
             'G42.1' : [_('Radius compensation right, immediate'), 'D', 'L'],
             'G43' : [_('Tool length offset'), 'H'],
-            'G43.1' : [_('Tool length offset immediate'), 'I', 'K'],
+            'G43.1' : [_('Tool length offset immediate'), 'A'],
             'G53' : [_('Motion in unoffset coordinates'), 'G', 'A', 'F'],
             'G64' : [_('Continuous mode'), 'P'],
             'G76' : [_('Thread'), 'Z', 'P', 'I', 'J', 'K', 'R', 'Q', 'H', 'E', 'L'],
