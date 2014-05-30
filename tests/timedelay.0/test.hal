@@ -19,4 +19,4 @@ addf timedelay.0 thread
 addf sampler.0 thread
 
 start
-waitusr halsampler
+waitusr -i  halsampler

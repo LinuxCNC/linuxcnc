@@ -14,4 +14,4 @@ addf sampler.0 fast
 addf threadtest.0.reset slow
 
 start
-waitusr halsampler
+waitusr  -i halsampler

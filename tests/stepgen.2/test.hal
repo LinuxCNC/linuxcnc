@@ -21,5 +21,5 @@ setp stepgen.0.enable 1
 setp stepgen.0.position-scale 32000
 
 start
-waitusr halsampler
+waitusr  -i halsampler
 

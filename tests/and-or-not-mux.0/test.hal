@@ -53,4 +53,4 @@ addf sampler.0 fast
 
 loadusr -w sh runstreamer
 start
-waitusr halsampler
+waitusr  -i halsampler
