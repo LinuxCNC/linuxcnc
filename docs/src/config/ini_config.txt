@@ -601,7 +601,8 @@ planning module in 'motion'.
 Using this will allow the machine to go beyond the soft limits
 while in operation. It is not generally desirable to allow this.
 
-=== [AXIS_<num>] Section[[sub:AXIS-section]]
+[[sub:AXIS-section]]
+=== [AXIS_<num>] Section
 (((AXIS (inifile section))))
 
 The [AXIS_0], [AXIS_1], etc. sections contains general parameters for
@@ -1044,7 +1045,8 @@ image::images/encoder-scale.png[align="center"]
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
 
-=== [EMCIO] Section[[sub:EMCIO-Section]]
+[[sub:EMCIO-Section]]
+=== [EMCIO] Section
 (((EMCIO (inifile section))))
 
 * 'EMCIO = io' - Name of IO controller program
