@@ -172,7 +172,7 @@ struct halcmd_command halcmd_commands[] = {
     {"unloadrt", FUNCT(do_unloadrt_cmd), A_ONE },
     {"unloadusr", FUNCT(do_unloadusr_cmd), A_ONE },
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
-    {"waitusr", FUNCT(do_waitusr_cmd), A_ONE },
+    {"waitusr", FUNCT(do_waitusr_cmd), A_TWO | A_OPTIONAL },
  
     {"newcomp", FUNCT(do_newcomp_cmd), A_ONE |  A_PLUS},
     {"newpin",  FUNCT(do_newpin_cmd), A_THREE |  A_PLUS},

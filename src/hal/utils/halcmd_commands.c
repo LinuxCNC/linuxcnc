@@ -1604,12 +1604,28 @@ int do_loadusr_cmd(char *args[])
 }
 
 
-int do_waitusr_cmd(char *comp_name)
+int do_waitusr_cmd(char *arg1, char *arg2)
 {
     hal_comp_t *comp;
     int exited;
+    char *comp_name, *flag = NULL;
+    int ignore = 0;
 
-    if (*comp_name == '\0') {
+    if (arg2 == NULL) {
+	comp_name = arg1;
+    } else {
+	comp_name = arg2;
+	flag = arg1;
+    }
+    if (flag) {
+	if (!strcmp(flag, "-i")) 
+	    ignore = 1;
+	else {
+	    halcmd_error("invalid flag for waitusr: '%s'\n", flag);
+	return -EINVAL;
+	}
+    }
+    if ((comp_name == NULL) || (*comp_name == '\0')) {
 	halcmd_error("component name missing\n");
 	return -EINVAL;
     }
@@ -1617,6 +1633,8 @@ int do_waitusr_cmd(char *comp_name)
     comp = halpr_find_comp_by_name(comp_name);
     if (comp == NULL) {
 	rtapi_mutex_give(&(hal_data->mutex));
+	if (ignore)
+	    return 0;
 	halcmd_error("component '%s' not found\n", comp_name);
 	return -EINVAL;
     }

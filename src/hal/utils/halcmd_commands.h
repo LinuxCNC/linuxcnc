@@ -79,7 +79,7 @@ extern int do_unload_cmd(char *mod_name);
 extern int do_unloadrt_cmd(char *mod_name);
 extern int do_unloadusr_cmd(char *mod_name);
 extern int do_loadusr_cmd(char *args[]);
-extern int do_waitusr_cmd(char *comp_name);
+extern int do_waitusr_cmd(char *arg1, char *arg2);
 extern int do_save_cmd(char *type, char *filename);
 extern int do_setexact_cmd(void);
 extern int do_sleep_cmd(char *naptime);
