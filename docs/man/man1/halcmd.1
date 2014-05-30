@@ -143,10 +143,12 @@ name.
 \fB-i\fR to ignore the program return value (with -w)
 .RE
 .TP
-\fBwaitusr\fR \fIname\fR
+\fBwaitusr\fR \fI[-i]\fR  \fIname\fR
 (\fIwait\fR for \fIUs\fRe\fIr\fRspace component) Waits for user
 space component \fIname\fR to disconnect from HAL (usually on exit).
-The component must already be loaded.  Usefull near the end of a
+If the component is not loaded, or exited already, waitusr will fail the halcmd script with
+a nonzero exit status. This can be suppressed using the \fI[-i]\fR flag.
+Usefull near the end of a
 HAL file to wait until the user closes some user interface component
 before cleaning up and exiting.
 .TP
@@ -274,6 +276,9 @@ in the order in which they were added.
 \fBstop\fR
 Stops execution of realtime threads.  The threads will no longer call
 their functions.
+.TP
+\fBsleep\fR [\fIseconds\fR]
+Pause the halcmd script for the specified time.
 .TP
 \fBshow\fR [\fIitem\fR]
 Prints HAL items to \fIstdout\fR in human readable format.
