@@ -69,6 +69,7 @@ enum halcmd_argtype {
 
     A_PLUS = 0x100,          /* adds to prototype: char *args[] */
     A_REMOVE_ARROWS = 0x200, /* removes any arrows from command */
+
     A_OPTIONAL = 0x400,      /* arguments may be NULL */
     A_TILDE = 0x800,         /* tilde-expand all arguments */
 };

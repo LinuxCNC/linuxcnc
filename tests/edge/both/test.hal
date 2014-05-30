@@ -24,5 +24,7 @@ setp edge.0.out-width-ns 25000
 
 loadusr -w sh runstreamer
 start
-waitusr halsampler
+waitusr -i halsampler
+
+
 

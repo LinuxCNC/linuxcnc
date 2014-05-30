@@ -159,6 +159,7 @@ struct halcmd_command halcmd_commands[] = {
     {"setexact_for_test_suite_only", FUNCT(do_setexact_cmd), A_ZERO },
     {"setp",    FUNCT(do_setp_cmd),    A_TWO },
     {"sets",    FUNCT(do_sets_cmd),    A_TWO },
+    {"sleep",   FUNCT(do_sleep_cmd),  A_ONE },
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
     {"source",  FUNCT(do_source_cmd),  A_ONE | A_TILDE },
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
@@ -171,7 +172,7 @@ struct halcmd_command halcmd_commands[] = {
     {"unloadrt", FUNCT(do_unloadrt_cmd), A_ONE },
     {"unloadusr", FUNCT(do_unloadusr_cmd), A_ONE },
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
-    {"waitusr", FUNCT(do_waitusr_cmd), A_ONE },
+    {"waitusr", FUNCT(do_waitusr_cmd), A_TWO | A_OPTIONAL },
  
     {"newcomp", FUNCT(do_newcomp_cmd), A_ONE |  A_PLUS},
     {"newpin",  FUNCT(do_newpin_cmd), A_THREE |  A_PLUS},

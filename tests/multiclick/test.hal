@@ -57,5 +57,5 @@ loadusr halstreamer input-signals
 loadusr -w sleep 0.5
 
 start
-waitusr halsampler
+waitusr -i  halsampler
 

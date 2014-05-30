@@ -28,4 +28,4 @@ setp encoder.1.x4-mode 0
 setp encoder.2.counter-mode 1
 
 start
-waitusr halsampler
+waitusr -i  halsampler

@@ -18,5 +18,5 @@ addf sampler.0 t
 setp limit3.0.in 500
 
 start
-waitusr halsampler
+waitusr -i  halsampler
 
