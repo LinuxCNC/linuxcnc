@@ -27,3 +27,4 @@ loadusr -w sh runstreamer
 start
 waitusr halsampler
 
+sleep 1
