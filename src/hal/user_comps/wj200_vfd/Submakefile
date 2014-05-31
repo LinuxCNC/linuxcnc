@@ -14,7 +14,7 @@ USERSRCS += $(WJ200_SRCS)
 
 hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp
 	$(ECHO) "Preprocessing wj200_vfd.comp"
-	$(Q)../bin/comp hal/user_comps/wj200_vfd/wj200_vfd.comp
+	$(Q)../bin/comp --preprocess $<
 
 ../docs/man/man9/wj200_vfd.9: hal/user_comps/wj200_vfd/wj200_vfd.comp
 	$(Q)../bin/comp --document $^
