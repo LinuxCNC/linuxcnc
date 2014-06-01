@@ -12,15 +12,15 @@ USERSRCS += $(WJ200_SRCS)
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(WJ200_LIBS) 
 
-hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp
+hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/comp
 	$(ECHO) "Preprocessing wj200_vfd.comp"
-	$(Q)../bin/comp hal/user_comps/wj200_vfd/wj200_vfd.comp
+	$(Q)../bin/comp --preprocess $<
 
-../docs/man/man1/wj200_vfd.9: hal/user_comps/wj200_vfd/wj200_vfd.comp
-	$(Q)../bin/comp --document $^
+../docs/man/man9/wj200_vfd.9: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/comp
+	$(Q)../bin/comp --document $<
 	$(Q)install --mode=0644 hal/user_comps/wj200_vfd/wj200_vfd.9 $@
 
 TARGETS += ../bin/wj200_vfd
-TARGETS += ../docs/man/man1/wj200_vfd.9
+TARGETS += ../docs/man/man9/wj200_vfd.9
 endif
 

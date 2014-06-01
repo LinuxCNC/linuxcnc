@@ -146,6 +146,8 @@ int Interp::convert_nurbs(int mode,
             CHKS((settings->feed_rate == 0.0), (
                  _("Cannot make a NURBS with 0 feedrate")));
         }
+        if (settings->motion_mode != mode) nurbs_control_points.clear();
+
         if (nurbs_control_points.empty()) {
             CP.X = settings->current_x;
             CP.Y = settings->current_y;
