@@ -1216,7 +1216,7 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy
     if (fabs(den) > small) {
         double r = -(x*x+y*y)/den;
         double i = dy*r, j = -dx*r;
-        double cx = x1+i, cy=y1+j;
+        double cx = x0+i, cy=y0+j;
         ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
                  p.z, p.a, p.b, p.c, p.u, p.v, p.w);
     } else { 
