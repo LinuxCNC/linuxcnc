@@ -2,16 +2,16 @@
 # from Python
 #
 # use like so:
-# import linuxcncconfig
-# c = linuxcncconfig.Config()
+# import machinekit.config
+# c = machinekit.config.Config()
 # if c.is_rt():
 #    ....
 # define useful aggregate methods in Config() - this is preferrable to
 # tests of raw config variables in usercode
 #
-# edit src/linuxcncconfig.py-tmp.in
+# edit src/machinekitcfg.py-tmp.in
 # run src/configure
-# this will build lib/python/linuxcncconfig.py
+# this will build lib/python/machinekit/config.py
 #
 # Author: Michael Haberler <license AT mah DOT priv DOT at>
 # License: GPL Version 2 or later
@@ -48,12 +48,13 @@ class Config(object):
         self.EMC2_HOME = "@EMC2_HOME@"
         self.BUILD_DRIVERS="@BUILD_DRIVERS@"
         self.SUBST="@BUILD_DRIVERS@"
-
+        self.MACHINEKIT_INI="@MACHINEKIT_INI@"
+        self.BUILD_THREAD_FLAVORS="@BUILD_THREAD_FLAVORS@"
 
         # Directories
 	self.prefix="@prefix@"
 	self.exec_prefix="@exec_prefix@"
-
+        self.rundir= "@RUNDIR@"
 	self.EMC2_HOME="@EMC2_HOME@"
 	self.LIB_DIR="@EMC2_HOME@/lib"
 
@@ -71,11 +72,6 @@ class Config(object):
 	self.REALTIME="@REALTIME@"
 	self.EMC2_IMAGEDIR="@EMC2_IMAGE_DIR@"
 
-
-	self.MODULE_EXT="@MODEXT@" # module extension, used when insmod'ing
-
-        # used for building
-	self.RTDIR     = "@RTDIR@"
 
         # Standard configure directories
         # do we really need these?
@@ -106,19 +102,11 @@ class Config(object):
 
         # /Standard configure directories
 	self.RUN_IN_PLACE = "@RUN_IN_PLACE@"
-	self.RTFLAGS = "@RTFLAGS@"
-	self.KERNELDIR = "@KERNELDIR@"
-	#self.RTFLAGS = "-Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0"
-	self.KERNEL_MATH_CFLAGS = "@KERNEL_MATH_CFLAGS@"
-	#self.ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -Os -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
-	self.MODULE_EXT = "@MODEXT@"
-	self.BUILD_SYS = "@BUILD_SYS@"
 	self.CC = "@CC@"
 	self.MANDB = "@MANDB@"
 	self.HIDRAW_H_USABLE = "@HIDRAW_H_USABLE@"
 
-	self.THREADS = "@THREADS@"
-	self.THREADS_SOURCE = "@THREADS_SOURCE@"
+
 	self.BUILD_DRIVERS = "@BUILD_DRIVERS@"
 	self.USE_PORTABLE_PARPORT_IO = "@USE_PORTABLE_PARPORT_IO@"
 	self.TARGET_PLATFORM_PC = "@TARGET_PLATFORM_PC@"
@@ -242,4 +230,3 @@ class Config(object):
 # if __name__ == "__main__":
 #     c = Config()
 #     print dir(c)
-    
