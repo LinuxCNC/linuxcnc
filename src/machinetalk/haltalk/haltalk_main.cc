@@ -34,7 +34,7 @@
 #include <setup_signals.h>
 #include <select_interface.h>
 
-
+int print_container; // see pbutil.cc
 
 // configuration defaults
 static htconf_t conf = {
@@ -58,6 +58,7 @@ static htconf_t conf = {
     100,
     0,
     NULL,
+    0
 };
 
 
@@ -89,12 +90,11 @@ mainloop( htself_t *self)
     int retval;
 
     zmq_pollitem_t signal_poller = { 0, self->signal_fd, ZMQ_POLLIN };
-    zmq_pollitem_t group_poller =  { self->z_group_status, 0, ZMQ_POLLIN };
-    zmq_pollitem_t rcomp_poller =  { self->z_rcomp_status, 0, ZMQ_POLLIN };
-    zmq_pollitem_t cmd_poller   =  { self->z_command,      0, ZMQ_POLLIN };
+    zmq_pollitem_t group_poller =  { self->z_halgroup, 0, ZMQ_POLLIN };
+    zmq_pollitem_t rcomp_poller =  { self->z_halrcomp, 0, ZMQ_POLLIN };
+    zmq_pollitem_t cmd_poller   =  { self->z_halrcmd,      0, ZMQ_POLLIN };
 
-
-    zloop_set_verbose (self->z_loop, self->cfg->debug > 1);
+    zloop_set_verbose (self->z_loop, self->cfg->debug > 8);
 
     zloop_poller(self->z_loop, &signal_poller, handle_signal, self);
     zloop_poller(self->z_loop, &group_poller,  handle_group_input, self);
@@ -109,7 +109,6 @@ mainloop( htself_t *self)
 		    "%s: exiting mainloop (%s)\n",
 		    self->cfg->progname,
 		    self->interrupted ? "interrupted": "reactor exited");
-
     return 0;
 }
 
@@ -119,9 +118,11 @@ static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
 		    sig, strsignal(sig), get_current_dir_name());
     closelog_async(); // let syslog_async drain
     sleep(1);
-    signal(SIGABRT, SIG_DFL);
-    abort();
-    // not reached
+    // reset handler for current signal to default
+    signal(sig, SIG_DFL);
+    // and re-raise so we get a proper core dump and stacktrace
+    kill(getpid(), sig);
+    sleep(1);
 }
 
 static int
@@ -129,7 +130,7 @@ zmq_init(htself_t *self)
 {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    self->signal_fd = setup_signals(sigaction_handler);
+    self->signal_fd = setup_signals(sigaction_handler, SIGINT, SIGQUIT, SIGKILL, SIGTERM, -1);
     assert(self->signal_fd > -1);
 
     // suppress default handling of signals in zctx_new()
@@ -143,43 +144,43 @@ zmq_init(htself_t *self)
     self->z_loop = zloop_new();
     assert (self->z_loop);
 
-    self->z_group_status = zsocket_new (self->z_context, ZMQ_XPUB);
-    assert(self->z_group_status);
-    zsocket_set_linger (self->z_group_status, 0);
-    zsocket_set_xpub_verbose (self->z_group_status, 1);
-    self->z_group_port = zsocket_bind(self->z_group_status, self->cfg->group_status);
-    assert (self->z_group_port != 0);
-    self->z_group_status_dsn = zsocket_last_endpoint (self->z_group_status);
+    self->z_halgroup = zsocket_new (self->z_context, ZMQ_XPUB);
+    assert(self->z_halgroup);
+    zsocket_set_linger (self->z_halgroup, 0);
+    zsocket_set_xpub_verbose (self->z_halgroup, 1);
+    self->z_group_port = zsocket_bind(self->z_halgroup, self->cfg->halgroup);
+    assert (self->z_group_port > -1);
+    self->z_halgroup_dsn = zsocket_last_endpoint (self->z_halgroup);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: talking HALGroup on '%s'",
-		    conf.progname, self->z_group_status_dsn);
+		    conf.progname, conf.remote ? self->z_halgroup_dsn : self->cfg->halgroup);
 
-    self->z_rcomp_status = zsocket_new (self->z_context, ZMQ_XPUB);
-    assert(self->z_rcomp_status);
-    zsocket_set_linger (self->z_rcomp_status, 0);
-    zsocket_set_xpub_verbose (self->z_rcomp_status, 1);
-    self->z_rcomp_port = zsocket_bind(self->z_rcomp_status, self->cfg->rcomp_status);
-    assert (self->z_rcomp_port != 0);
-    self->z_rcomp_status_dsn = zsocket_last_endpoint (self->z_rcomp_status);
+    self->z_halrcomp = zsocket_new (self->z_context, ZMQ_XPUB);
+    assert(self->z_halrcomp);
+    zsocket_set_linger (self->z_halrcomp, 0);
+    zsocket_set_xpub_verbose (self->z_halrcomp, 1);
+    self->z_rcomp_port = zsocket_bind(self->z_halrcomp, self->cfg->halrcomp);
+    assert (self->z_rcomp_port > -1);
+    self->z_halrcomp_dsn = zsocket_last_endpoint (self->z_halrcomp);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: talking HALRcomp on '%s'",
-		    conf.progname, self->z_rcomp_status_dsn);
+		    conf.progname, conf.remote ? self->z_halrcomp_dsn:self->cfg->halrcomp);
 
 
-    self->z_command = zsocket_new (self->z_context, ZMQ_ROUTER);
-    assert(self->z_command);
-    zsocket_set_linger (self->z_command, 0);
-    zsocket_set_identity (self->z_command, self->cfg->modname);
+    self->z_halrcmd = zsocket_new (self->z_context, ZMQ_ROUTER);
+    assert(self->z_halrcmd);
+    zsocket_set_linger (self->z_halrcmd, 0);
+    zsocket_set_identity (self->z_halrcmd, self->cfg->modname);
 
-    self->z_command_port = zsocket_bind(self->z_command, self->cfg->command);
-    assert (self->z_command_port != 0);
-    self->z_command_dsn = zsocket_last_endpoint (self->z_command);
+    self->z_halrcomp_port = zsocket_bind(self->z_halrcmd, self->cfg->command);
+    assert (self->z_halrcomp_port > -1);
+    self->z_halrcmd_dsn = zsocket_last_endpoint (self->z_halrcmd);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: talking HALComannd on '%s'",
-		    conf.progname, self->z_command_dsn);
+		    conf.progname, conf.remote ? self->z_halrcmd_dsn : self->cfg->command);
 
     // register Avahi poll adapter
-    if (!(self->av_loop = avahi_czmq_poll_new(self->z_loop))) {
+    if (conf.remote && !(self->av_loop = avahi_czmq_poll_new(self->z_loop))) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: zeroconf: Failed to create avahi event loop object.",
 			conf.progname);
 	return -1;
@@ -204,9 +205,6 @@ hal_setup(htself_t *self)
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);
 
-    char buf[40];
-    uuid_unparse(self->process_uuid, buf);
-
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "%s: startup ØMQ=%d.%d.%d czmq=%d.%d.%d protobuf=%d.%d.%d uuid=%s\n",
 		    self->cfg->progname, major, minor, patch,
@@ -214,7 +212,7 @@ hal_setup(htself_t *self)
 		    GOOGLE_PROTOBUF_VERSION / 1000000,
 		    (GOOGLE_PROTOBUF_VERSION / 1000) % 1000,
 		    GOOGLE_PROTOBUF_VERSION % 1000,
-		    buf);
+		    conf.service_uuid);
 
     retval = scan_groups(self);
     if (retval < 0) return retval;
@@ -235,112 +233,133 @@ hal_cleanup(htself_t *self)
     return retval;
 }
 
+// pull global values from MACHINEKIT_INI
+static int
+read_global_config(htconf_t *conf)
+{
+    const char *s, *inifile;
+    const char *mkini = "MACHINEKIT_INI";
+    FILE *inifp;
+    uuid_t uutmp;
+
+    if ((inifile = getenv(mkini)) == NULL) {
+	syslog_async(LOG_ERR, "%s: FATAL - '%s' missing in environment\n",
+		     conf->progname, mkini);
+	return -1;
+    }
+    if ((inifp = fopen(inifile,"r")) == NULL) {
+	syslog_async(LOG_ERR, "%s: cant open inifile '%s'\n",
+		     conf->progname,inifile);
+    }
+    if (conf->service_uuid == NULL) {
+	if ((s = iniFind(inifp, "MKUUID", "MACHINEKIT"))) {
+	    conf->service_uuid = strdup(s);
+	} else {
+	    syslog_async(LOG_ERR,
+			 "%s: no service UUID (-R <uuid> or MACHINEKIT_INI [MACHINEKIT]MKUUID) present\n",
+			 conf->progname);
+	    return -1;
+	}
+    }
+    if (uuid_parse(conf->service_uuid, uutmp)) {
+	syslog_async(LOG_ERR,
+		     "%s: service UUID: syntax error: '%s'",
+		     conf->progname,conf->service_uuid);
+	return -1;
+    }
+    iniFindInt(inifp, "REMOTE", "MACHINEKIT", &conf->remote);
+    if (conf->remote && (conf->interfaces == NULL)) {
+	if ((s = iniFind(inifp, "INTERFACES", "MACHINEKIT"))) {
+
+	    char ifname[LINELEN], ip[LINELEN];
+
+	    // pick a preferred interface
+	    if (parse_interface_prefs(s,  ifname, ip, &conf->ifIndex) == 0) {
+		conf->interface = strdup(ifname);
+		conf->ipaddr = strdup(ip);
+		syslog_async(LOG_INFO, "%s %s: using preferred interface %s/%s\n",
+			     conf->progname, inifile,
+			     conf->interface, conf->ipaddr);
+	    } else {
+		syslog_async(LOG_ERR, "%s %s: INTERFACES='%s'"
+			     " - cant determine preferred interface, using %s/%s\n",
+			     conf->progname, inifile, s,
+			     conf->interface, conf->ipaddr);
+	    }
+	}
+    }
+    fclose(inifp);
+    return 0;
+}
+
+// getenv("INI_FILE_NAME") or commandline - per config
 static int
 read_config(htconf_t *conf)
 {
     const char *s;
-    FILE *inifp;
-    uuid_t uutmp;
+    FILE *inifp = NULL;
 
-    if (!conf->inifile) {
-	// if no ini, must have a service UUID as arg or in environment
-	if (conf->service_uuid == NULL) {
-		syslog_async(LOG_ERR, "%s: no service UUID given (-R <uuid> or env MKUUID)\n",
-				conf->progname);
-		return -1;
-	}
-	if (uuid_parse(conf->service_uuid, uutmp)) {
-	    syslog_async(LOG_ERR,
-			    "%s: service UUID: syntax error: '%s'",
-			    conf->progname,conf->service_uuid);
-	    return -1;
-	}
-	return 0; // use compiled-in defaults
-    }
-
-    if ((inifp = fopen(conf->inifile,"r")) == NULL) {
+    if (conf->inifile && ((inifp = fopen(conf->inifile,"r")) == NULL)) {
 	syslog_async(LOG_ERR, "%s: cant open inifile '%s'\n",
-			conf->progname, conf->inifile);
-	return -1;
+		     conf->progname, conf->inifile);
     }
 
-    // insist on service UUID
-    if (conf->service_uuid == NULL) {
-	if ((s = iniFind(inifp, "MKUUID", "GLOBAL"))) {
-	    conf->service_uuid = strdup(s);
+    char uri[LINELEN];
+    if (!conf->remote) {
+	// use IPC sockets
+	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
+		 RUNDIR, rtapi_instance,"halgroup", conf->service_uuid);
+	conf->halgroup = strdup(uri);
+
+	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
+		 RUNDIR, rtapi_instance,"halrcomp", conf->service_uuid);
+	conf->halrcomp = strdup(uri);
+
+	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
+		 RUNDIR, rtapi_instance,"halrcmd", conf->service_uuid);
+	conf->command = strdup(uri);
+
+    } else {
+	// finalize the URI's; config values have precedence, else use
+	// ephemeral URI's on preferred interface
+
+	if (inifp && (s = iniFind(inifp, "HALGROUP_STATUS_URI", conf->section)))
+	    conf->halgroup = strdup(s);
+	else {
+	    snprintf(uri, sizeof(uri), conf->halgroup, conf->ipaddr);
+	    conf->halgroup = strdup(uri);
+	}
+
+	if (inifp && (s = iniFind(inifp, "HALRCOMP_STATUS_URI", conf->section)))
+	    conf->halrcomp = strdup(s);
+	else {
+	    snprintf(uri, sizeof(uri), conf->halrcomp, conf->ipaddr);
+	    conf->halrcomp = strdup(uri);
+	}
+	if (inifp && (s = iniFind(inifp, "COMMAND_URI", conf->section)))
+	    conf->command = strdup(s);
+	else {
+	    snprintf(uri, sizeof(uri), conf->command, conf->ipaddr);
+	    conf->command = strdup(uri);
 	}
     }
-    if (conf->service_uuid == NULL)
-	conf->service_uuid = getenv("MKUUID");
-
-    if (conf->service_uuid == NULL) {
-	syslog_async(LOG_ERR,
-			"%s: no service UUID on command line, environment "
-			"or inifile (-R <uuid> or env MKUUID or [GLOBAL]MKUUID=)\n",
-			conf->progname);
-	return -1;
-    }
-
-    // validate uuid
-    if (uuid_parse(conf->service_uuid, uutmp)) {
-	syslog_async(LOG_ERR,
-			"%s: service UUID syntax error: '%s'",
-			conf->progname, conf->service_uuid);
-	return -1;
-    }
-
-    if ((s = iniFind(inifp, "INTERFACES","GLOBAL"))) {
-
-	char ifname[100], ip[100];
-
-	// pick a preferred interface
-	if (parse_interface_prefs(s,  ifname, ip, &conf->ifIndex) == 0) {
-	    conf->interface = strdup(ifname);
-	    conf->ipaddr = strdup(ip);
-	    syslog_async(LOG_INFO, "%s %s: using preferred interface %s/%s\n",
-			    conf->progname, conf->inifile,
-			    conf->interface, conf->ipaddr);
-	} else {
-	    syslog_async(LOG_ERR, "%s %s: INTERFACES='%s'"
-			    " - cant determine preferred interface, using %s/%s\n",
-			    conf->progname, conf->inifile, s,
-			    conf->interface, conf->ipaddr);
-	}
-    }
-
-    // finalize the URI's
-    char uri[100];
-    snprintf(uri, sizeof(uri), conf->group_status, conf->ipaddr);
-    conf->group_status = strdup(uri);
-
-    snprintf(uri, sizeof(uri), conf->rcomp_status, conf->ipaddr);
-    conf->rcomp_status = strdup(uri);
-
-    snprintf(uri, sizeof(uri), conf->command, conf->ipaddr);
-    conf->command = strdup(uri);
 
     // bridge: TBD
-
-    if ((s = iniFind(inifp, "GROUP_STATUS_URI", conf->section)))
-	conf->group_status = strdup(s);
-    if ((s = iniFind(inifp, "RCOMP_STATUS_URI", conf->section)))
-	conf->rcomp_status = strdup(s);
-    if ((s = iniFind(inifp, "COMMAND_URI", conf->section)))
-	conf->command = strdup(s);
-
-    if ((s = iniFind(inifp, "BRIDGE_COMP", conf->section)))
-	conf->bridgecomp = strdup(s);
-    if ((s = iniFind(inifp, "BRIDGE_COMMAND_URI", conf->section)))
-	conf->bridgecomp_cmduri = strdup(s);
-    if ((s = iniFind(inifp, "BRIDGE_STATUS_URI", conf->section)))
-	conf->bridgecomp_updateuri = strdup(s);
-    iniFindInt(inifp, "BRIDGE_TARGET_INSTANCE", conf->section, &conf->bridge_target_instance);
-
-    iniFindInt(inifp, "GROUPTIMER", conf->section, &conf->default_group_timer);
-    iniFindInt(inifp, "RCOMPTIMER", conf->section, &conf->default_rcomp_timer);
-    iniFindInt(inifp, "DEBUG", conf->section, &conf->debug);
-    iniFindInt(inifp, "PARANOID", conf->section, &conf->paranoid);
-    fclose(inifp);
+    if (inifp) {
+	if ((s = iniFind(inifp, "BRIDGE_COMP", conf->section)))
+	    conf->bridgecomp = strdup(s);
+	if ((s = iniFind(inifp, "BRIDGE_COMMAND_URI", conf->section)))
+	    conf->bridgecomp_cmduri = strdup(s);
+	if ((s = iniFind(inifp, "BRIDGE_STATUS_URI", conf->section)))
+	    conf->bridgecomp_updateuri = strdup(s);
+	iniFindInt(inifp, "BRIDGE_TARGET_INSTANCE", conf->section, &conf->bridge_target_instance);
+	iniFindInt(inifp, "GROUPTIMER", conf->section, &conf->default_group_timer);
+	iniFindInt(inifp, "RCOMPTIMER", conf->section, &conf->default_rcomp_timer);
+	if (!conf->debug)
+	    iniFindInt(inifp, "DEBUG", conf->section, &conf->debug);
+	iniFindInt(inifp, "PARANOID", conf->section, &conf->paranoid);
+	fclose(inifp);
+    }
     return 0;
 }
 
@@ -403,7 +422,7 @@ int main (int argc, char *argv[])
 			      long_options, NULL)) != -1) {
 	switch(opt) {
 	case 'd':
-	    conf.debug++;
+	    conf.debug = atoi(optarg);
 	    break;
 	case 'S':
 	    conf.section = optarg;
@@ -412,10 +431,10 @@ int main (int argc, char *argv[])
 	    conf.inifile = optarg;
 	    break;
 	case 'u':
-	    conf.group_status = optarg;
+	    conf.halgroup = optarg;
 	    break;
 	case 'r':
-	    conf.rcomp_status = optarg;
+	    conf.halrcomp = optarg;
 	    break;
 	case 'c':
 	    conf.command = optarg;
@@ -458,6 +477,9 @@ int main (int argc, char *argv[])
     }
     openlog_async(conf.progname, logopt , SYSLOG_FACILITY);
 
+    if (read_global_config(&conf))
+	exit(1);
+
     if (read_config(&conf))
 	exit(1);
 
@@ -466,22 +488,29 @@ int main (int argc, char *argv[])
     self.pid = getpid();
     uuid_generate_time(self.process_uuid);
 
+    print_container = self.cfg->debug & 1; // log sent protobuf messages to stderr if debug & 1
+
     retval = hal_setup(&self);
     if (retval) exit(retval);
 
     retval = zmq_init(&self);
     if (retval) exit(retval);
 
+#ifdef NOTYET
     retval = bridge_init(&self);
     if (retval) exit(retval);
+#endif
 
-    retval = ht_zeroconf_announce(&self);
-    if (retval) exit(retval);
+    if (conf.remote) {
+	retval = ht_zeroconf_announce(&self);
+	if (retval) exit(retval);
+    }
 
     mainloop(&self);
 
-    ht_zeroconf_withdraw(&self);
-    // probably should run zloop here until deregister complete
+    if (conf.remote)
+	ht_zeroconf_withdraw(&self);
+       // probably should run zloop here until deregister complete
 
     // shutdown zmq context
     zctx_destroy(&self.z_context);

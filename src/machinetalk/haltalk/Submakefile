@@ -1,24 +1,27 @@
+HALTALK_DIR := machinetalk/haltalk
 
-PROFILE = #-pg
-HALTALK_SRCS :=  $(addprefix hal/haltalk/, \
-	haltalk_group.cc \
-	haltalk_rcomp.cc \
-	haltalk_command.cc \
-	haltalk_introspect.cc \
-	haltalk_zeroconf.cc \
-	haltalk_bridge.cc \
+HALTALK_SRCS :=  $(addprefix $(HALTALK_DIR)/, \
+	haltalk_group.cc 	\
+	haltalk_rcomp.cc 	\
+	haltalk_command.cc 	\
+	haltalk_introspect.cc 	\
+	haltalk_zeroconf.cc 	\
+	haltalk_bridge.cc 	\
 	haltalk_main.cc)
 
-HALTALK_CXXFLAGS := -DULAPI \
-	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) \
+HALTALK_CXXFLAGS := -DULAPI 	\
+	$(PROTOBUF_CFLAGS) 	\
+	$(UUID_CFLAGS) 		\
+	$(CZMQ_CFLAGS) 		\
 	$(JANSSON_CFLAGS)
 
 HALTALK_LDFLAGS := \
-	$(PROTOBUF_LIBS) $(CZMQ_LIBS) \
-	$(JANSSON_LIBS)  $(AVAHI_LIBS) \
-	-lstdc++ \
-	-luuid \
-	$(PROFILE)
+	$(PROTOBUF_LIBS) 	\
+	$(UUID_LIBS) 		\
+	$(CZMQ_LIBS) 		\
+	$(JANSSON_LIBS) 	\
+	$(AVAHI_LIBS) 	\
+	-lstdc++
 
 $(call TOOBJSDEPS, $(HALTALK_SRCS)) : EXTRAFLAGS += $(HALTALK_CXXFLAGS)
 

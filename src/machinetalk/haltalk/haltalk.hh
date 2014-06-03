@@ -55,8 +55,8 @@
 namespace gpb = google::protobuf;
 
 // announced protocol versions
-#define HAL_GROUP_STATUS_VERSION 2
-#define HAL_RCOMP_STATUS_VERSION 2
+#define HAL_HALGROUP_STATUS_VERSION 2
+#define HAL_HALRCOMP_STATUS_VERSION 2
 #define HAL_RCOMMAND_VERSION     2
 
 #if JSON_TIMING
@@ -110,8 +110,8 @@ typedef struct htconf {
     const char *modname;
     const char *interface;
     const char *ipaddr;
-    const char *group_status;
-    const char *rcomp_status;
+    const char *halgroup;
+    const char *halrcomp;
     const char *command;
     const char *interfaces;
     const char *bridgecomp;
@@ -125,44 +125,43 @@ typedef struct htconf {
     int default_rcomp_timer; // msec
     unsigned ifIndex;
     char *service_uuid;
+    int remote;
 } htconf_t;
 
 typedef struct htself {
     htconf_t *cfg;
-    uuid_t process_uuid;      // server instance (this process)
-    uuid_t svc_uuid;  // service instance (set of running server processes)
-    int comp_id;
-    int signal_fd;
-    bool interrupted;
-    pid_t pid;
+    uuid_t    process_uuid;      // server instance (this process)
+    uuid_t    svc_uuid;  // service instance (set of running server processes)
+    int       comp_id;
+    int       signal_fd;
+    bool      interrupted;
+    pid_t     pid;
 
     pb::Container rx; // any ParseFrom.. function does a Clear() first
     pb::Container tx; // tx must be Clear()'d after or before use
 
-    zctx_t *z_context;
-    zloop_t *z_loop;
-
-    groupmap_t groups;
-    void *z_group_status;
-    int z_group_port;
-    const char *z_group_status_dsn;
-
     AvahiCzmqPoll *av_loop;
-    register_context_t *group_publisher;
-    register_context_t *rcomp_publisher;
-    register_context_t *command_publisher;
-    zservice_t zsgroup, zsrcomp, zscommand;
+    register_context_t *halgroup_publisher;
+    register_context_t *halrcomp_publisher;
+    register_context_t *halrcmd_publisher;
 
-    void *z_rcomp_status;
-    const char *z_rcomp_status_dsn;
-    int z_rcomp_port;
-    compmap_t rcomps;
+    zctx_t   *z_context;
+    zloop_t  *z_loop;
 
-    void *z_command;
-    const char *z_command_dsn;
-    int z_command_port;
+    void       *z_halgroup;
+    int        z_group_port;
+    const char *z_halgroup_dsn;
+    groupmap_t groups;
 
-    itemmap_t items;
+    void       *z_halrcomp;
+    const char *z_halrcomp_dsn;
+    int        z_rcomp_port;
+    compmap_t  rcomps;
+
+    void       *z_halrcmd;
+    const char *z_halrcmd_dsn;
+    int        z_halrcomp_port;
+    itemmap_t  items;
 
     htbridge_t *bridge;
 } htself_t;

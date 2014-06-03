@@ -73,7 +73,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		// not found, publish an error message on this topic
 		self->tx.set_type(pb::MT_HALRCOMP_ERROR);
 		note_printf(self->tx, "component '%s' does not exist", topic);
-		retval = send_pbcontainer(topic, self->tx, self->z_rcomp_status);
+		retval = send_pbcontainer(topic, self->tx, self->z_halrcomp);
 		assert(retval == 0);
 
 	    } else {
@@ -302,7 +302,7 @@ int comp_report_cb(int phase,  hal_compiled_comp_t *cc,
 	break;
 
     case REPORT_END: // finalize & send
-	retval = send_pbcontainer(cc->comp->name, self->tx, self->z_rcomp_status);
+	retval = send_pbcontainer(cc->comp->name, self->tx, self->z_halrcomp);
 	assert(retval == 0);
 	break;
     }

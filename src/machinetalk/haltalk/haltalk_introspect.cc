@@ -81,6 +81,16 @@ describe_comp(htself_t *self, const char *comp, const char *from,  void *socket)
     return send_pbcontainer(from, self->tx, socket);
 }
 
+// add protocol parameters the subscriber might want to know about
+int describe_parameters(htself_t *self)
+{
+    pb::ProtocolParameters *pp = self->tx.mutable_pparams();
+    pp->set_keepalive_timer(self->cfg->keepalive_timer);
+    pp->set_group_timer(self->cfg->default_group_timer);
+    pp->set_rcomp_timer(self->cfg->default_rcomp_timer);
+    return 0;
+}
+
 // ----- end of public functions ---
 
 static int describe_comp_cb(hal_comp_t *comp,  void *arg)

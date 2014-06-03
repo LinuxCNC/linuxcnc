@@ -22,53 +22,53 @@
 int
 ht_zeroconf_announce(htself_t *self)
 {
-    char name[100];
+    char name[LINELEN];
     char puuid[40];
     uuid_unparse(self->process_uuid, puuid);
 
     snprintf(name,sizeof(name), "HAL Group service on %s pid %d", self->cfg->ipaddr, getpid());
-    self->group_publisher = zeroconf_service_announce(name,
+    self->halgroup_publisher = zeroconf_service_announce(name,
 						      MACHINEKIT_DNSSD_SERVICE_TYPE,
 						      HALGROUP_DNSSD_SUBTYPE,
 						      self->z_group_port,
-						      (char *)self->z_group_status_dsn,
+						      (char *)self->z_halgroup_dsn,
 						      self->cfg->service_uuid,
 						      puuid,
 						      "halgroup", NULL,
 						      self->av_loop);
-    if (self->group_publisher == NULL) {
+    if (self->halgroup_publisher == NULL) {
 	syslog_async(LOG_ERR, "%s: failed to start zeroconf HAL Group publisher\n",
 		     self->cfg->progname);
 	return -1;
     }
 
     snprintf(name,sizeof(name), "HAL Rcomp service on %s pid %d", self->cfg->ipaddr, getpid());
-    self->rcomp_publisher = zeroconf_service_announce(name,
+    self->halrcomp_publisher = zeroconf_service_announce(name,
 						      MACHINEKIT_DNSSD_SERVICE_TYPE,
 						      HALRCOMP_DNSSD_SUBTYPE,
 						      self->z_rcomp_port,
-						      (char *)self->z_rcomp_status_dsn,
+						      (char *)self->z_halrcomp_dsn,
 						      self->cfg->service_uuid,
 						      puuid,
 						      "halrcomp", NULL,
 						      self->av_loop);
-    if (self->rcomp_publisher == NULL) {
+    if (self->halrcomp_publisher == NULL) {
 	syslog_async(LOG_ERR, "%s: failed to start zeroconf HAL Rcomp publisher\n",
 		     self->cfg->progname);
 	return -1;
     }
 
     snprintf(name,sizeof(name),  "HAL Rcommand service on %s pid %d", self->cfg->ipaddr, getpid());
-    self->command_publisher = zeroconf_service_announce(name,
+    self->halrcmd_publisher = zeroconf_service_announce(name,
 							MACHINEKIT_DNSSD_SERVICE_TYPE,
 							HALRCMD_DNSSD_SUBTYPE,
-							self->z_command_port,
-							(char *)self->z_command_dsn,
+							self->z_halrcomp_port,
+							(char *)self->z_halrcmd_dsn,
 							self->cfg->service_uuid,
 							puuid,
 							"halrcmd", NULL,
 							self->av_loop);
-    if (self->command_publisher == NULL) {
+    if (self->halrcmd_publisher == NULL) {
 	syslog_async(LOG_ERR, "%s: failed to start zeroconf HAL Rcomp publisher\n",
 		     self->cfg->progname);
 	return -1;
@@ -80,12 +80,12 @@ ht_zeroconf_announce(htself_t *self)
 int
 ht_zeroconf_withdraw(htself_t *self)
 {
-    if (self->group_publisher)
-	zeroconf_service_withdraw(self->group_publisher);
-    if (self->rcomp_publisher)
-	zeroconf_service_withdraw(self->rcomp_publisher);
-    if (self->command_publisher)
-	zeroconf_service_withdraw(self->command_publisher);
+    if (self->halgroup_publisher)
+	zeroconf_service_withdraw(self->halgroup_publisher);
+    if (self->halrcomp_publisher)
+	zeroconf_service_withdraw(self->halrcomp_publisher);
+    if (self->halrcmd_publisher)
+	zeroconf_service_withdraw(self->halrcmd_publisher);
 
     // deregister poll adapter
     if (self->av_loop)

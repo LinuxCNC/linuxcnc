@@ -1,3 +1,5 @@
+#ifdef NOTYET
+
 /*
  * Copyright (C) 2013-2014 Michael Haberler <license@mah.priv.at>
  *
@@ -78,6 +80,7 @@ int bridge_init(htself_t *self)
 }
 
 // -- end public functions ---
+
 static int
 handle_sd_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 {
@@ -139,8 +142,8 @@ static int bridge_fsm(htself_t *self, bridgeevent_t event)
     case BSTATE_RETRY_PROBE:
 
     case BSTATE_CONNECT:
-	bridge->z_bridge_status = zsocket_new (self->z_context, ZMQ_XSUB);
-	retval = zsocket_connect(bridge->z_bridge_status, self->cfg->bridgecomp_updateuri);
+	bridge->z_bridge = zsocket_new (self->z_context, ZMQ_XSUB);
+	retval = zsocket_connect(bridge->z_bridge, self->cfg->bridgecomp_updateuri);
 	assert (retval == 0);
 	bridge->z_bridge_cmd = zsocket_new (self->z_context, ZMQ_DEALER);
 	retval = zsocket_connect(bridge->z_bridge_cmd, self->cfg->bridgecomp_cmduri);
@@ -156,3 +159,4 @@ static int bridge_fsm(htself_t *self, bridgeevent_t event)
     }
     return 0;
 }
+#endif
