@@ -1,0 +1,12 @@
+# load the protobuf message definitions support component
+loadrt pbmsgs
+
+# this will create the 'command' and 'response' rings if they dont exist
+loadrt pbring count=2
+#msgsize=200
+
+loadrt threads  period1=100000000
+addf pbring.0.update thread1
+addf pbring.1.update thread1
+
+start

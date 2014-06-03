@@ -1,0 +1,99 @@
+component ringwrite;
+pin in bit write   "send a message on pin transition";
+pin out u32 sent   "number of messages written";
+pin out u32 overrun   "number of failed write attempts";
+pin out u32 dropped   "number of records deleted when writing to full buffer";
+pin in  bit circular   "circular flag - set to nonzero to enable circular record buffer";
+
+function _;
+
+option singleton yes;
+option rtapi_app no;
+
+license "GPLv2 or later";
+variable hal_bit_t write_prev;
+;;
+
+#include "hal_priv.h"
+#include "hal_ring.h"	        /* ringbuffer declarations */
+
+#define BUFFERSIZE 100
+
+static char *ring = "ring_0";
+RTAPI_MP_STRING(ring,  "name of ring to attach");
+
+static ringbuffer_t rb;
+static char buffer[BUFFERSIZE];
+static size_t length;
+static char *name = "ringwrite";
+
+FUNCTION(_) {
+    if (write_prev ^  write) {
+	rtapi_snprintf(buffer, sizeof(buffer), "message %u to %s, sender=comp %d",
+		       sent, ring, comp_id);
+	length = strlen(buffer);
+	sent++;
+
+	if (rb.header->type == RINGTYPE_STREAM) {
+	    if (stream_write(&rb, buffer, length) != length)
+		overrun++;
+	} else {
+	    if (circular) {
+		// circular buffer behavior: drop oldest records if full
+		while (record_write(&rb, buffer, length) ==  EAGAIN) {
+		    dropped++;
+		    record_shift(&rb);
+		}
+	    } else {
+		// queue behavior: fail if insufficient space
+		if (record_write(&rb, buffer, length))
+		    overrun++;
+	    }
+	}
+	write_prev = write;
+    }
+}
+
+int rtapi_app_main(void)
+{
+    int retval;
+
+    comp_id = hal_init(name);
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_init() failed: %d\n",
+			name, comp_id);
+	return -1;
+    }
+    if ((retval = hal_ring_attach(ring, &rb, NULL))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
+			name, ring, retval);
+	return -1;
+    }
+    rb.header->writer = comp_id;
+    rb.header->writer_instance = rtapi_instance;
+    if ((retval = export(name, 0))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: export(%s) failed: %d\n",
+			name, name, retval);
+	return -1;
+    }
+    hal_ready(comp_id);
+    rtapi_print_msg(RTAPI_MSG_ERR,
+		    "%s: attached to %s reader=%d writer=%d\n",
+		    name, ring, rb.header->reader, rb.header->writer);
+
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    int retval;
+    rb.header->writer = 0;
+    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
+			name, ring, retval);
+    hal_exit(comp_id);
+}

@@ -1,0 +1,23 @@
+
+# this creates the named ring ring_0
+loadrt ringload num_rings=1 size=16386
+
+# attach to ring_0
+loadrt ringwrite ring=ring_0
+
+# slow square signal on ringwrite.write
+# every edge on ringwrite.write causes a message to be queued
+loadrt charge_pump
+net square-wave charge-pump.out ringwrite.write
+
+# 1ms/200ms
+loadrt threads name1=fast period1=1000000 name2=slow period2=200000000
+
+# the 'enqueue a message' function
+addf ringwrite fast
+
+addf charge-pump slow
+start
+
+# get going
+setp charge-pump.enable 1
