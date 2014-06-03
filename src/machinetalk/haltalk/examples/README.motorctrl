@@ -1,0 +1,38 @@
+This is the demo app I described in my mail this morning
+
+see motorctrl.hal for what it does
+
+run like so:
+
+ $ . machinekit/scripts/rip-environment
+ # display the uuid
+ $ echo $MKUUID
+ $ cd machinekit/src/hal/haltalk/examples
+ $ halrun -I motorctrl.hal
+
+to exit, type 'exit' to the halcmd: prompt.
+
+in a separate window, or remote, run this, replacing <uuid> with
+the value from echo $MKUUID above:
+
+ $ gladevcp -S <uuid> motorctrl.ui
+
+one could also directly connect to fixed URI's like so, without zeroconf:
+
+   gladevcp -C <cmd_uri> -M <rcomp_uri>  <UI file>
+for example:
+   gladevcp -C tcp://193.228.47.204:49154 -M tcp://193.228.47.204:49153  motorctrl.ui
+
+to debug gladevcp, add '-D 1' to the arguments.
+
+halscope, and the UI should come up
+
+it is in fact possible to trigger the scope by the 'trigger scope' UI
+button, but the scope scaling is still off
+
+to complete the demo, you need to:
+
+- connect a motor and link commanded position to signal 'cmd-pos'
+- hardware led/button:
+  comment out 'net led motorctrl.led1 <== motorctrl.togglebutton1'
+  link in real led, reak button as appropriate
