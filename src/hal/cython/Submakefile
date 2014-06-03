@@ -1,6 +1,7 @@
-ifeq ($(HAVE_CYTHON),yes)
+
 
 HALNGDIR := hal/cython
+HALNGMKDIR :=  $(HALNGDIR)/machinekit
 
 PYTARGETS += ../lib/python/machinekit/__init__.py
 
@@ -10,22 +11,84 @@ PYTARGETS += ../lib/python/machinekit/__init__.py
 
 INCLUDES += $(HALNGDIR)
 
-LIBSRCS := $(addprefix $(HALNGDIR)/, \
-	machinekit/hal.c)
+HALSO_SRCS := $(addprefix $(HALNGMKDIR)/, \
+	hal.c)
+HALSO_CXXSRCS := \
+	hal/utils/halcmd_rtapiapp.cc
 
-USERSRCS += $(LIBSRCS)
+USERSRCS += $(HALSO_SRCS)
+$(call TOOBJSDEPS, $(HALSO_SRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
+$(call TOOBJSDEPS, $(HALSO_CXXSRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
 
-$(call TOOBJSDEPS, $(LIBSRCS)) : EXTRAFLAGS=-fPIC
+# shotgun approach to dependencies: will alwas hit the target (and more).
+$(HALNGMKDIR)/hal.c: $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
+
 
 TARGETS += ../lib/python/machinekit/hal.so
-
 ../lib/python/machinekit/hal.so:	../lib/liblinuxcnchal.so.0 \
-	 $(patsubst %.c,objects/%.o,$(LIBSRCS))
+	 $(patsubst %.c,objects/%.o,$(HALSO_SRCS)) \
+	 $(patsubst %.cc,objects/%.o,$(HALSO_CXXSRCS))
 	$(ECHO) Linking $($@)
 	@mkdir -p $(dir $@)
 	$(CC) -g $(LDFLAGS) -shared -o $@ $^
 
-$(HALNGDIR)/machinekit/hal.c: $(addprefix $(HALNGDIR)/machinekit/, hal.pyx hal.pxd)
-	cython -o $@ $<
 
+RTAPISO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
+	rtapi.c)
+
+RTAPISO_CXXSRCS := \
+	hal/utils/halcmd_rtapiapp.cc
+
+USERSRCS += $(RTAPISO_CSRCS) $(RTAPISO_CXXSRCS)
+$(call TOOBJSDEPS, $(RTAPISO_CSRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
+$(call TOOBJSDEPS, $(RTAPISO_CXXSRCS)) : EXTRAFLAGS=-fPIC -Ihal/utils -I.
+
+
+TARGETS += ../lib/python/machinekit/rtapi.so
+
+../lib/python/machinekit/rtapi.so: \
+	 $(patsubst %.c,objects/%.o,$(RTAPISO_CSRCS)) \
+	 $(patsubst %.cc,objects/%.o,$(RTAPISO_CXXSRCS)) \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmtalk.so.0
+	$(ECHO) Linking $($@)
+	@mkdir -p $(dir $@)
+	$(CC) -g $(LDFLAGS) -shared -o $@ $^
+
+
+#$(HALNGMKDIR)/compat.c: $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
+
+COMPATSO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
+	compat.c)
+
+USERSRCS += $(COMPATSO_CSRCS)
+$(call TOOBJSDEPS, $(COMPATSO_CSRCS)) : EXTRAFLAGS=-fPIC
+TARGETS += ../lib/python/machinekit/compat.so
+../lib/python/machinekit/compat.so: \
+	 $(patsubst %.c,objects/%.o,$(COMPATSO_CSRCS)) \
+	../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $($@)
+	@mkdir -p $(dir $@)
+	$(CC) -g $(LDFLAGS) -shared -o $@ $^
+
+
+SHMCOMMONSO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
+	shmcommon.c ) \
+	rtapi/shmdrv/shmdrvapi.c
+
+USERSRCS += $(SHMCOMMONSO_CSRCS)
+$(call TOOBJSDEPS, $(SHMCOMMONSO_CSRCS)) : EXTRAFLAGS=-fPIC -Irtapi/shmdrv
+TARGETS += ../lib/python/machinekit/shmcommon.so
+../lib/python/machinekit/shmcommon.so: \
+	 $(patsubst %.c,objects/%.o,$(SHMCOMMONSO_CSRCS))
+	$(ECHO) Linking $($@)
+	@mkdir -p $(dir $@)
+	$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
+$(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
+ifeq ($(HAVE_CYTHON),yes)
+	$(CYTHON) -o $@ $<
+else
+	$(ECHO) cannot re-cython - you need to install cython minimum version 0.19
+	@exit 1
 endif
