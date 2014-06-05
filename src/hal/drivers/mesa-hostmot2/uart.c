@@ -40,6 +40,11 @@ int hm2_uart_parse_md(hostmot2_t *hm2, int md_index)
     
     //The UART declares a TX and RX module separately
     
+    // FIXME A limitation of the IDROM is that smart serial and UART clash on
+    // Instance stride.
+    // So we quietly change the instance stride while nobody is looking.
+    md->instance_stride = 0x10;
+
     if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 4, 0x10, 0x000F)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
