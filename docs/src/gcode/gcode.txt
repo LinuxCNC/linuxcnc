@@ -60,8 +60,10 @@ as the 'L number', and so on for any other letter.
 |<<sec:G1,G1>>        |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2 G3>>            |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
-|<<sec:G5_1-B-spline,G5.1>>         |Quadratic B-Spline
-|<<sec:G5_2-G5_3-NURBs,G5.2 G5.3>>  |NURBs Block
+|<<sec:G5-Cubic-Spline,G5>>         |Cubic Spline
+|<<sec:G5_1-Quadratic-Spline,G5.1>> |Quadratic B-Spline
+|<<sec:G5_2-G5_3-NURBS,G5.2>>       |NURBS, add control point
+|<<sec:G5_2-G5_3-NURBS,G5.3>>       |NURBS, execute
 |<<sec:G7-Diameter-Mode,G7>>        |Diameter Mode (lathe)
 |<<sec:G8-Radius-Mode,G8>>          |Radius Mode (lathe)
 |<<sec:G10-L1_,G10 L1>>             |Set Tool Table Entry
@@ -475,63 +477,119 @@ It is an error if:
 
 * the P number is negative or not specified.
 
-[[sec:G5_1-B-spline]]
-== G5.1 Quadratic B-spline
-(((G5.1 Quadratic B-spline)))
+[[sec:G5-Cubic-Spline]]
+== G5 Cubic spline
+(((G5 Cubic spline)))
+
+----
+G5 X- Y- <I- J-> P- Q-
+----
+* 'I' - X incremental offset from start point to first control point
+* 'J' - Y incremental offset from start point to first control point
+* 'P' - X incremental offset from end point to second control point
+* 'Q' - Y incremental offset from end point to second control point
+
+G5 creates a cubic B-spline in the XY plane with the X and Y axes only.
+P and Q must both be specified for every G5 command.
+
+For the first G5 command in a series of G5 commands, I and J must both
+be specified.  For subsequent G5 commands, either both I and J must be
+specified, or neither.  If I and J are unspecified, the starting
+direction of this cubic will automatically match the ending direction of
+the previous cubic (as if I and J are the negation of the previous P and
+Q).
+
+For example, to program a curvy N shape:
+
+.G5 Sample initial cubic spline
+----
+G90 G17
+G0 X0 Y0
+G5 I0 J3 P0 Q-3 X1 Y1
+----
+
+A second curvy N that attaches smoothly to this one can now be made
+without specifying I and J:
+
+.G5 Sample subsequent cubic spline
+----
+G5 P0 Q-3 X2 Y2
+----
+
+It is an error if:
+
+* P and Q are not both specified
+* Just one of I or J are specified
+* I or J are unspecified in the first of a series of G5 commands
+* An axis other than X or Y is specified
+* The active plane is not G17
+
+[[sec:G5_1-Quadratic-Spline]]
+== G5.1 Quadratic spline
+(((G5.1 Quadratic spline)))
 
 ----
 G5.1 X- Y- I- J-
 ----
-* 'I' - X axis offset
-* 'J' - Y axis offset
+* 'I' - X incremental offset from start point to control point
+* 'J' - Y incremental offset from start point to control point
 
-G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis only.
-The offsets are I for X axis and J for Y axis.
+G5.1 creates a quadratic B-spline in the XY plane with the X and Y axis
+only.  Not specifying I or J gives zero offset for the unspecified axis,
+so one or both must be given.
 
-// FIX ME add example code
+For example, to program a parabola, through the origin, from X-2 Y4 to X2 Y4:
+
+.G5.1 Sample quadratic spline
+----
+G90 G17
+G0 X-2 Y4
+G5.1 X2 I2 J-8
+----
 
 It is an error if:
 
-* I and J offset is not specified
+* both I and J offset are unspecified or zero
 * An axis other than X or Y is specified
 * The active plane is not G17
 
-[[sec:G5_2-G5_3-NURBs]]
-== G5.2 G5.3 NURBs Block
-(((G5.2 G5.3 NURBs Block)))
+[[sec:G5_2-G5_3-NURBS]]
+== G5.2 G5.3 NURBS Block
+(((G5.2 G5.3 NURBS Block)))
 
 ----
-G5.2 X- Y- P- <L->
-X- Y- P- <L->
+G5.2 <P-> <X- Y-> <L->
+X- Y- <P->
 ...
 G5.3
 ----
 
 Warning: G5.2, G5.3 is experimental and not fully tested.
 
-G5.2 is for opening the data block defining a NURBs and G5.3 for
+G5.2 is for opening the data block defining a NURBS and G5.3 for
 closing the data block. In the lines between these two codes the curve
 control points are defined with both their related 'weights' (P) and
-their parameter (L) which determines the order of the curve (k) and
-subsequently its degree (k-1).
+the parameter (L) which determines the order of the curve.
 
-Using this curve definition the knots of the NURBs curve are not
-defined by the user they are calculated by the inside algorithm, in the
-same way as it happens in a great number of graphic applications, where
-the curve shape can be modified only acting on either control points or
-weights.
+The current coordinate, before the first G5.2 command, is always taken
+as the first NURBS control point.  To set the weight for this first
+control point, first program G5.2 P- without giving any X Y.
+
+The default weight if P is unspecified is 1.  The default order if L is
+unspecified is 3.
 
 .G5.2 Example
 [source,{ngc}]
 ---------------
 G0 X0 Y0 (rapid move)
 F10 (set feed rate)
-G5.2 X0 Y1 P1 L3
+G5.2 P1 L3
+     X0 Y1 P1
      X2 Y2 P1
      X2 Y0 P1
      X0 Y0 P2
 G5.3
-; The rapid moves show the same path without the NURBs Block
+; The rapid moves show the same path without the NURBS Block
 G0 X0 Y1
    X2 Y2
    X2 Y0
@@ -539,11 +597,11 @@ G0 X0 Y1
 M2
 ---------------
 
-.Sample NURBs Output
+.Sample NURBS Output
 
 image:images/nurbs01.png[align="center"]
 
-More information on NURBs can be found here:
+More information on NURBS can be found here:
 
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
 
