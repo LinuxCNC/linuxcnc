@@ -845,7 +845,7 @@ opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 obj-$(CONFIG_HAL_GM) += hal_gm.o
 hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o setsserial.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o setsserial.o
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
@@ -865,6 +865,10 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/led.o	  \
     hal/drivers/mesa-hostmot2/tram.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_7i90-objs :=			  \
+    hal/drivers/mesa-hostmot2/hm2_7i90.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
 hm2_7i43-objs :=			  \
