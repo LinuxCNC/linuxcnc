@@ -1013,13 +1013,6 @@ int tpRunCycle(TP_STRUCT * tp, long period)
 	    nexttc->feed_override = emcmotStatus->net_feed_scale;
 	}
     }
-    // if this is rapid move, don't use feed override settings (max velocity override is still honoured)
-    if(tc->canon_motion_type==EMC_MOTION_TYPE_TRAVERSE) {
-        tc->feed_override = 1.0;
-        if(nexttc) {
-        nexttc->feed_override = 1.0;
-        }
-    }
     /* handle pausing */
     if(tp->pausing && (!tc->synchronized || tc->velocity_mode)) {
         tc->feed_override = 0.0;
