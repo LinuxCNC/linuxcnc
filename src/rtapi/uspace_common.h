@@ -243,8 +243,7 @@ long long rtapi_get_time(void) {
          __asm__ __volatile__("rdtsc" : "=a" (eax), "=d" (edx));  \
         val = ((unsigned long)eax) | (((unsigned long)edx) << 32); })
 #else
-#warning No implementation of rtapi_get_clocks available
-#define rdtscll(val) (val)=0
+#define rdtscll(val) ((val) = rtapi_get_time())
 #endif
 
 long long rtapi_get_clocks(void)
