@@ -580,7 +580,7 @@ unspecified is 3.
 
 .G5.2 Example
 [source,{ngc}]
----------------
+----
 G0 X0 Y0 (rapid move)
 F10 (set feed rate)
 G5.2 P1 L3
@@ -595,7 +595,7 @@ G0 X0 Y1
    X2 Y0
    X0 Y0
 M2
----------------
+----
 
 .Sample NURBS Output
 
