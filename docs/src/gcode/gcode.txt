@@ -57,7 +57,7 @@ as the 'L number', and so on for any other letter.
 |====================================================================
 |Code                               |Description
 |<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid Rate
-|<<sec:G1,G1>>        |Coordinated Straight Motion Feed Rate
+|<<sec:G1,G1>>                      |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2 G3>>            |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
 |<<sec:G5-Cubic-Spline,G5>>         |Cubic Spline
