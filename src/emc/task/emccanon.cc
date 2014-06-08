@@ -1857,16 +1857,31 @@ void CHANGE_TOOL(int slot)
     if (have_tool_change_position) {
         double vel, acc, x, y, z, a, b, c, u, v, w;
 
+        x = canonEndPoint.x;
+        y = canonEndPoint.y;
+        z = canonEndPoint.z;
+        a = canonEndPoint.a;
+        b = canonEndPoint.b;
+        c = canonEndPoint.c;
+        u = canonEndPoint.u;
+        v = canonEndPoint.v;
+        w = canonEndPoint.w;
+
         x = FROM_EXT_LEN(tool_change_position.tran.x);
         y = FROM_EXT_LEN(tool_change_position.tran.y);
         z = FROM_EXT_LEN(tool_change_position.tran.z);
-        a = FROM_EXT_ANG(tool_change_position.a);
-        b = FROM_EXT_ANG(tool_change_position.b);
-        c = FROM_EXT_ANG(tool_change_position.c);
-        u = FROM_EXT_LEN(tool_change_position.u);
-        v = FROM_EXT_LEN(tool_change_position.v);
-        w = FROM_EXT_LEN(tool_change_position.w);
 
+        if (have_tool_change_position > 3) {
+            a = FROM_EXT_ANG(tool_change_position.a);
+            b = FROM_EXT_ANG(tool_change_position.b);
+            c = FROM_EXT_ANG(tool_change_position.c);
+        }
+
+        if (have_tool_change_position > 6) {
+            u = FROM_EXT_LEN(tool_change_position.u);
+            v = FROM_EXT_LEN(tool_change_position.v);
+            w = FROM_EXT_LEN(tool_change_position.w);
+        }
 
         vel = getStraightVelocity(x, y, z, a, b, c, u, v, w);
         acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
