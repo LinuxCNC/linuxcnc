@@ -145,19 +145,20 @@ Thermistor["2"] = [
 [   0.0,	float('inf'),	7.6 ] ]
 
 # The CRAMPS board thermistor input has one side grounded and the other side
-# pulled high through a 1.00K resistor to 1.8V.  Following this is a 4.7K
-# resistor, some protection diodes, and filtering capacitors.  The ADC voltage
-# read is the filtered voltage across the thermistor.
+# connected through a pull-up resistor to 1.8V.  Following this is a 4.7K
+# resistor and filtering capacitors.  The ADC voltage read is the filtered
+# voltage across the thermistor.
 def adc2r(V_adc):
-    V_T  = 0.0  # Voltage across the thermistor
-    I_PU = 0.0  # Current flowing through the 1.00K pull-up resistor
-    R_T  = 0.0  # Resistance of the thermistor
+    V_T  = 0.0    # Voltage across the thermistor
+    R_PU = 2000.0 # Pull-up resistance
+    I_PU = 0.0    # Current flowing through the pull-up resistor
+    R_T  = 0.0    # Resistance of the thermistor
 
     V_T = V_adc
 
     # No dividing by zero or negative voltages despite what the ADC says!
     # Clip to a small positive value
-    I_PU = max((1.8 - V_T ) / 1000, 0.000001)   
+    I_PU = max((1.8 - V_T ) / R_PU, 0.000001)   
 
     R_T = V_T / I_PU
 
