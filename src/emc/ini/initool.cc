@@ -74,7 +74,7 @@ static int readToolChange(IniFile *toolInifile)
                         &tool_change_position.u,
                         &tool_change_position.v,
                         &tool_change_position.w)) {
-            have_tool_change_position=1;
+            have_tool_change_position=9;
             retval=0;
         } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
@@ -86,7 +86,7 @@ static int readToolChange(IniFile *toolInifile)
 	    tool_change_position.u = 0.0;
 	    tool_change_position.v = 0.0;
 	    tool_change_position.w = 0.0;
-            have_tool_change_position = 1;
+            have_tool_change_position = 6;
             retval = 0;
         } else if (3 == sscanf(inistring, "%lf %lf %lf",
                                &tool_change_position.tran.x,
@@ -99,7 +99,7 @@ static int readToolChange(IniFile *toolInifile)
 	    tool_change_position.u = 0.0;
 	    tool_change_position.v = 0.0;
 	    tool_change_position.w = 0.0;
-	    have_tool_change_position = 1;
+	    have_tool_change_position = 3;
 	    retval = 0;
 	} else {
 	    /* bad format */
