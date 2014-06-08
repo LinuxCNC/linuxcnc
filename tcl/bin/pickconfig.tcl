@@ -765,8 +765,8 @@ update
 set ::selected_node [$::tree selection get]
 title $::selected_node
 $::tree configure \
-        -closecmd treeclose \
-        -opencmd  treeopen
+        -closecmd {after cancel treeclose; after idle treeclose} \
+        -opencmd  {after cancel treeopen; after idle treeopen}
 
 
 proc make_shortcut {inifile} {
