@@ -111,31 +111,6 @@ static int readToolChange(IniFile *toolInifile)
 	/* didn't find an entry */
 	have_tool_change_position = 0;
     }
-
-    if (NULL !=
-	(inistring = toolInifile->Find("TOOL_HOLDER_CLEAR", "EMCIO"))) {
-	/* found an entry */
-	if (3 == sscanf(inistring, "%lf %lf %lf",
-			&tool_holder_clear.tran.x,
-			&tool_holder_clear.tran.y,
-			&tool_holder_clear.tran.z)) {
-	    /* read them OK */
-	    tool_holder_clear.a = 0.0;	// not supporting ABC for now
-	    tool_holder_clear.b = 0.0;
-	    tool_holder_clear.c = 0.0;
-	    have_tool_holder_clear = 1;
-	    retval = 0;
-	} else {
-	    /* bad format */
-	    rcs_print("bad format for TOOL_HOLDER_CLEAR\n");
-	    have_tool_holder_clear = 0;
-	    retval = -1;
-	}
-    } else {
-	/* didn't find an entry */
-	have_tool_holder_clear = 0;
-    }
-
     return retval;
 }
 

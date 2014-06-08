@@ -45,8 +45,6 @@ double axis_max_acceleration[EMC_AXIS_MAX] = { 1.0 };
 
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */
-EmcPose tool_holder_clear;	/* no defaults */
-unsigned char have_tool_holder_clear;	/* default is 'not there' */
 
 int taskplanopen = 0;
 
