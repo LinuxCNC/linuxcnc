@@ -6,7 +6,7 @@ w_infill = sys.argv[3]
 h_layer = sys.argv[4]
 h_first = sys.argv[5]
 
-#GcodeFileOutput = "result-" + GcodeFileInput
+GcodeFileOutput = "result-" + GcodeFileInput
 
 # in the .hal file are netted:
 #

@@ -1,7 +1,7 @@
 import os, sys, re
 
 GcodeFileInput = sys.argv[1]
-print GcodeFileInput
+#print GcodeFileInput
 GcodeFileOutput = "swapped-" + GcodeFileInput
 
 # now the following occurs:
