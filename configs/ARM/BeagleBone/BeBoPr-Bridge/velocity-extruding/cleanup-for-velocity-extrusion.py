@@ -6,7 +6,7 @@ w_infill = sys.argv[3]
 h_layer = sys.argv[4]
 h_first = sys.argv[5]
 
-GcodeFileOutput = "result-" + GcodeFileInput
+#GcodeFileOutput = "result-" + GcodeFileInput
 
 # in the .hal file are netted:
 #
@@ -27,7 +27,7 @@ cmd_extr_disconnect = "M65 P2"
 
 #should there be error checking on all input arguments?
 
-print "Gcodefile    = " + GcodeFileInput
+#print "Gcodefile    = " + GcodeFileInput
 print "perimeter w  = " + w_perim
 print "infill    w  = " + w_infill
 print "layer height = " + h_layer
