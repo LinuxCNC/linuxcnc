@@ -1,5 +1,5 @@
 
-Package: linuxcnc-rtpreempt
+Package: linuxcnc-rt-preempt
 Conflicts: emc2, emc2-sim, linuxcnc-sim
 Architecture: any
 Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends},

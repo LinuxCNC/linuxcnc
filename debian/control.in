@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 6),
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
     libxmu-headers, python, python-dev, python-support, pkg-config, psmisc,
     python-tk, tcl8.5-dev, tk8.5-dev, libxaw7-dev, libboost-serialization-dev,
-    @BUILD_DEPS@libboost-thread-dev
+    libboost-thread-dev, @BUILD_DEPS@
 Standards-Version: 2.1.0
 
 Package: linuxcnc-dev
@@ -52,17 +52,3 @@ Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
-
-Package: linuxcnc-posix
-Conflicts: emc2, emc2-sim, linuxcnc-sim
-Architecture: any
-Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, 
-Recommends: hostmot2-firmware
-Enhances: linuxcnc
-Description: PC based motion controller for real-time Linux
- LinuxCNC is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
- .
- This package provides components and drivers that run on a non-realtime
- (Posix) system.

@@ -1,9 +1,8 @@
 
-Package: linuxcnc-rtai-kernel-@KVER@
+Package: linuxcnc-posix
 Conflicts: emc2, emc2-sim, linuxcnc-sim
-Architecture: @ARCH@
-Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends},
-	linux-image-@KVER@, rtai-modules-@KVER@
+Architecture: any
+Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, 
 Recommends: hostmot2-firmware
 Enhances: linuxcnc
 Description: PC based motion controller for real-time Linux
@@ -11,4 +10,5 @@ Description: PC based motion controller for real-time Linux
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
- This package provides components and drivers that run on an RTAI system.
+ This package provides components and drivers that run on a non-realtime
+ (Posix) system.
