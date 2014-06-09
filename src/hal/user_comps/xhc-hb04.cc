@@ -121,6 +121,18 @@ typedef struct {
 	hal_bit_t *sleeping;
 	hal_bit_t *connected;
 	hal_bit_t *require_pendant;
+	hal_bit_t *zero_x;
+	hal_bit_t *zero_y;
+	hal_bit_t *zero_z;
+	hal_bit_t *zero_a;
+	hal_bit_t *gotozero_x;
+	hal_bit_t *gotozero_y;
+	hal_bit_t *gotozero_z;
+	hal_bit_t *gotozero_a;
+	hal_bit_t *half_x;
+	hal_bit_t *half_y;
+	hal_bit_t *half_z;
+	hal_bit_t *half_a;
 } xhc_hal_t;
 
 typedef struct {
@@ -401,6 +413,24 @@ void cb_response_in(struct libusb_transfer *transfer)
 		for (i=0; i<NB_MAX_BUTTONS; i++) {
 			if (!xhc.hal->button_pin[i]) continue;
 			*(xhc.hal->button_pin[i]) = (xhc.button_code == xhc.buttons[i].code);
+            if (strcmp("button-zero", xhc.buttons[i].pin_name) == 0) {
+               *(xhc.hal->zero_x) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x);
+               *(xhc.hal->zero_y) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y);
+               *(xhc.hal->zero_z) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z);
+               *(xhc.hal->zero_a) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a);
+            }
+            if (strcmp("button-goto-zero", xhc.buttons[i].pin_name) == 0) {
+               *(xhc.hal->gotozero_x) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x);
+               *(xhc.hal->gotozero_y) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y);
+               *(xhc.hal->gotozero_z) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z);
+               *(xhc.hal->gotozero_a) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a);
+            }
+            if (strcmp("button-half", xhc.buttons[i].pin_name) == 0) {
+               *(xhc.hal->half_x) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_x);
+               *(xhc.hal->half_y) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_y);
+               *(xhc.hal->half_z) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_z);
+               *(xhc.hal->half_a) = (xhc.button_code == xhc.buttons[i].code) && (xhc.axis == axis_a);
+            }
 			if (simu_mode && *(xhc.hal->button_pin[i])) {
 				printf("%s pressed", xhc.buttons[i].pin_name);
 			}
@@ -545,11 +575,29 @@ static void hal_setup()
     r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->spindle_rps), hal_comp_id, "%s.spindle-rps", modname);
     r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->spindle_override), hal_comp_id, "%s.spindle-override", modname);
 
-	for (i=0; i<NB_MAX_BUTTONS; i++) {
-		if (!xhc.buttons[i].pin_name[0]) continue;
-		r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
-		if (strcmp("button-step", xhc.buttons[i].pin_name) == 0) xhc.button_step = xhc.buttons[i].code;
-	}
+    for (i=0; i<NB_MAX_BUTTONS; i++) {
+        if (!xhc.buttons[i].pin_name[0]) continue;
+        r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->button_pin[i]), hal_comp_id, "%s.%s", modname, xhc.buttons[i].pin_name);
+        if (strcmp("button-zero", xhc.buttons[i].pin_name) == 0) {
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->zero_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
+        }
+        if (strcmp("button-goto-zero", xhc.buttons[i].pin_name) == 0) {
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->gotozero_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
+        }
+        if (strcmp("button-half", xhc.buttons[i].pin_name) == 0) {
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_x), hal_comp_id, "%s.%s-x", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_y), hal_comp_id, "%s.%s-y", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_z), hal_comp_id, "%s.%s-z", modname, xhc.buttons[i].pin_name);
+            r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->half_a), hal_comp_id, "%s.%s-a", modname, xhc.buttons[i].pin_name);
+        }
+        if (strcmp("button-step", xhc.buttons[i].pin_name) == 0) xhc.button_step = xhc.buttons[i].code;
+    }
 
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->sleeping), hal_comp_id, "%s.sleeping", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
