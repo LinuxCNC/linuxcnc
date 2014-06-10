@@ -1756,6 +1756,44 @@ pack ${pane_top}.feedoverride.m \
 pack ${pane_top}.feedoverride.foentry \
 	-side right
 
+frame ${pane_top}.rapidoverride
+
+label ${pane_top}.rapidoverride.foentry \
+	-textvariable rapidrate \
+	-width 4 \
+        -anchor e
+setup_widget_accel ${pane_top}.rapidoverride.foentry 0
+
+scale ${pane_top}.rapidoverride.foscale \
+	-command set_rapidrate \
+	-orient horizontal \
+	-resolution 1.0 \
+	-showvalue 0 \
+	-takefocus 0 \
+	-to 120.0 \
+	-variable rapidrate
+
+label ${pane_top}.rapidoverride.l
+setup_widget_accel ${pane_top}.rapidoverride.l [_ "Rapid Override:"]
+label ${pane_top}.rapidoverride.m -width 1
+setup_widget_accel ${pane_top}.rapidoverride.m [_ "%"]
+
+# Pack widget ${pane_top}.rapidoverride.l
+pack ${pane_top}.rapidoverride.l \
+	-side left
+
+# Pack widget ${pane_top}.rapidoverride.foscale
+pack ${pane_top}.rapidoverride.foscale \
+	-side right
+
+# Pack widget ${pane_top}.rapidoverride.foentry
+pack ${pane_top}.rapidoverride.m \
+	-side right
+
+# Pack widget ${pane_top}.rapidoverride.foentry
+pack ${pane_top}.rapidoverride.foentry \
+	-side right
+
 toplevel .about
 bind .about <Key-Return> { wm wi .about }
 bind .about <Key-Escape> { wm wi .about }
@@ -1847,25 +1885,31 @@ grid ${pane_top}.feedoverride \
 	-row 2 \
 	-sticky new
 
-# Grid widget ${pane_top}.spinoverride
-grid ${pane_top}.spinoverride \
+# Grid widget ${pane_top}.rapidoverride
+grid ${pane_top}.rapidoverride \
 	-column 0 \
 	-row 3 \
 	-sticky new
 
-grid ${pane_top}.jogspeed \
+# Grid widget ${pane_top}.spinoverride
+grid ${pane_top}.spinoverride \
 	-column 0 \
 	-row 4 \
 	-sticky new
 
-grid ${pane_top}.ajogspeed \
+grid ${pane_top}.jogspeed \
 	-column 0 \
 	-row 5 \
 	-sticky new
 
-grid ${pane_top}.maxvel \
+grid ${pane_top}.ajogspeed \
 	-column 0 \
 	-row 6 \
+	-sticky new
+
+grid ${pane_top}.maxvel \
+	-column 0 \
+	-row 7 \
 	-sticky new
 
 # Grid widget .info

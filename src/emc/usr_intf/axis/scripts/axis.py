@@ -173,6 +173,7 @@ else:
     load_lastfile = False
 
 feedrate_blackout = 0
+rapidrate_blackout = 0
 spindlerate_blackout = 0
 maxvel_blackout = 0
 jogincr_index_last = 1
@@ -708,8 +709,8 @@ class LivePlotter:
         )
         o.after_idle(lambda: thread.start_new_thread(self.logger.start, (.01,)))
 
-        global feedrate_blackout, spindlerate_blackout, maxvel_blackout
-        feedrate_blackout=spindlerate_blackout=maxvel_blackout=time.time()+1
+        global feedrate_blackout, rapidrate_blackout, spindlerate_blackout, maxvel_blackout
+        feedrate_blackout=rapidrate_blackout=spindlerate_blackout=maxvel_blackout=time.time()+1
 
         self.running.set(True)
 
@@ -828,6 +829,8 @@ class LivePlotter:
             vupdate(vars.spindlerate, int(100 * self.stat.spindlerate + .5))
         if time.time() > feedrate_blackout:
             vupdate(vars.feedrate, int(100 * self.stat.feedrate + .5))
+        if time.time() > rapidrate_blackout:
+            vupdate(vars.rapidrate, int(100 * self.stat.rapidrate + .5))
         if time.time() > maxvel_blackout:
             m = to_internal_linear_unit(self.stat.max_velocity)
             if vars.metric.get(): m = m * 25.4
@@ -1265,6 +1268,7 @@ widgets = nf.Widgets(root_window,
     ("rotate", Button, ".toolbar.rotate"),
 
     ("feedoverride", Scale, pane_top + ".feedoverride.foscale"),
+    ("rapidoverride", Scale, pane_top + ".rapidoverride.foscale"),
     ("spinoverride", Scale, pane_top + ".spinoverride.foscale"),
     ("spinoverridef", Scale, pane_top + ".spinoverride"),
 
@@ -1904,6 +1908,15 @@ class TclCommands(nf.TclCommands):
         value = value / 100.
         c.feedrate(value)
         feedrate_blackout = time.time() + 1
+
+    def set_rapidrate(newval):
+        global rapidrate_blackout
+        try:
+            value = int(newval)
+        except ValueError: return
+        value = value / 100.
+        c.rapidrate(value)
+        rapidrate_blackout = time.time() + 1
 
     def set_maxvel(newval):
         newval = float(newval)
@@ -2710,6 +2723,7 @@ vars = nf.Variables(root_window,
     ("dro_large_font", IntVar),
     ("show_rapids", IntVar),
     ("feedrate", IntVar),
+    ("rapidrate", IntVar),
     ("spindlerate", IntVar),
     ("tool", StringVar),
     ("active_codes", StringVar),
@@ -2765,6 +2779,9 @@ update_recent_menu()
 
 def set_feedrate(n):
     widgets.feedoverride.set(n)
+
+def set_rapidrate(n):
+    widgets.rapidoverride.set(n)
 
 def activate_axis_or_set_feedrate(n):
     # XXX: axis_mask does not apply if in joint mode
@@ -3023,6 +3040,7 @@ root_window.tk.eval("${pane_top}.jogspeed.s set [setval $jog_speed $max_speed]")
 root_window.tk.eval("${pane_top}.ajogspeed.s set [setval $jog_aspeed $max_aspeed]")
 root_window.tk.eval("${pane_top}.maxvel.s set [setval $maxvel_speed $max_maxvel]")
 widgets.feedoverride.configure(to=max_feed_override)
+widgets.rapidoverride.configure(to=100)
 widgets.spinoverride.configure(to=max_spindle_override)
 nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
@@ -3512,6 +3530,8 @@ if lathe:
 
 widgets.feedoverride.set(100)
 commands.set_feedrate(100)
+widgets.rapidoverride.set(100)
+commands.set_rapidrate(100)
 widgets.spinoverride.set(100)
 commands.set_spindlerate(100)
 
