@@ -259,7 +259,7 @@ int tpSetPos(TP_STRUCT * tp, EmcPose pos)
 }
 
 int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel, 
-                  double acc, unsigned char enables) {
+                  double acc, double jerk, unsigned char enables) {
     TC_STRUCT tc;
     PmLine line_xyz;
     PmPose start_xyz, end_xyz;
@@ -302,6 +302,7 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
     tc.progress = 0.0;
     tc.reqvel = vel;
     tc.maxaccel = acc;
+    tc.jerk = jerk;
     tc.feed_override = 0.0;
     tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
@@ -360,7 +361,8 @@ int tpAddRigidTap(TP_STRUCT *tp, EmcPose end, double vel, double ini_maxvel,
 // of the previous move to the new end specified here at the
 // currently-active accel and vel settings from the tp struct.
 
-int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed, int indexrotary)
+int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxvel, double acc, double jerk,
+              unsigned char enables, char atspeed, int indexrotary)
 {
     TC_STRUCT tc;
     PmLine line_xyz, line_uvw, line_abc;
@@ -419,6 +421,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
     tc.progress = 0.0;
     tc.reqvel = vel;
     tc.maxaccel = acc;
+    tc.jerk = jerk;
     tc.feed_override = 0.0;
     tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;
@@ -476,7 +479,7 @@ int tpAddLine(TP_STRUCT * tp, EmcPose end, int type, double vel, double ini_maxv
 
 int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 		PmCartesian center, PmCartesian normal, int turn, int type,
-                double vel, double ini_maxvel, double acc, unsigned char enables, char atspeed)
+                double vel, double ini_maxvel, double acc, double jerk, unsigned char enables, char atspeed)
 {
     TC_STRUCT tc;
     PmCircle circle;
@@ -530,6 +533,7 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
     tc.progress = 0.0;
     tc.reqvel = vel;
     tc.maxaccel = acc;
+    tc.jerk = jerk;
     tc.feed_override = 0.0;
     tc.maxvel = ini_maxvel;
     tc.id = tp->nextId;

@@ -60,6 +60,7 @@ extern "C" {
 
     extern double axis_max_velocity[EMC_AXIS_MAX];
     extern double axis_max_acceleration[EMC_AXIS_MAX];
+    extern double axis_max_jerk[EMC_AXIS_MAX];
 
     extern struct EmcPose tool_change_position;
     extern unsigned char have_tool_change_position;
