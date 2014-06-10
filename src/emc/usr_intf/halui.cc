@@ -216,6 +216,7 @@ DONE: - rapid-override
    halui.rapid-override.scale           float // pin for setting the scale on changing the RO
    halui.rapid-override.counts          s32   //counts from an encoder for example to change RO
    halui.rapid-override.count-enable    bit   // TRUE to modify RO based on counts
+   halui.rapid-override.direct-value    bit   // TRUE to make override based as a direct (scaled) value rather then counts of increments
    halui.rapid-override.increase        bit   // pin for increasing the RO (+=scale)
    halui.rapid-override.decrease        bit   // pin for decreasing the RO (-=scale)
 
@@ -931,27 +932,31 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_s32(&(halui_data->fo_counts), "halui.feed-override.counts");
     if (retval < 0) return retval;
     *halui_data->fo_counts = 0;
-    retval = halui_export_pin_IN_s32(&(halui_data->ro_counts), "halui.rapid-override.counts");
-    if (retval < 0) return retval;
-    *halui_data->ro_counts = 0;
     retval = halui_export_pin_IN_bit(&(halui_data->fo_count_enable), "halui.feed-override.count-enable");
     if (retval < 0) return retval;
     *halui_data->fo_count_enable = 1;
     retval = halui_export_pin_IN_bit(&(halui_data->fo_direct_value), "halui.feed-override.direct-value");
     if (retval < 0) return retval;
     *halui_data->fo_direct_value = 0;
-    retval = halui_export_pin_IN_bit(&(halui_data->ro_count_enable), "halui.rapid-override.count-enable");
-    if (retval < 0) return retval;
-    *halui_data->ro_count_enable = 1;
     retval = halui_export_pin_IN_float(&(halui_data->fo_scale), "halui.feed-override.scale");
-    if (retval < 0) return retval;
-    retval = halui_export_pin_IN_float(&(halui_data->ro_scale), "halui.rapid-override.scale");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->fo_increase), "halui.feed-override.increase");
     if (retval < 0) return retval;
-    retval = halui_export_pin_IN_bit(&(halui_data->ro_increase), "halui.rapid-override.increase");
-    if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->fo_decrease), "halui.feed-override.decrease");
+    if (retval < 0) return retval;
+
+    retval = halui_export_pin_IN_s32(&(halui_data->ro_counts), "halui.rapid-override.counts");
+    if (retval < 0) return retval;
+    *halui_data->ro_counts = 0;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_count_enable), "halui.rapid-override.count-enable");
+    if (retval < 0) return retval;
+    *halui_data->ro_count_enable = 1;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_direct_value), "halui.rapid-override.direct-value");
+    if (retval < 0) return retval;
+    *halui_data->ro_direct_value = 0;
+    retval = halui_export_pin_IN_float(&(halui_data->ro_scale), "halui.rapid-override.scale");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_increase), "halui.rapid-override.increase");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->ro_decrease), "halui.rapid-override.decrease");
     if (retval < 0) return retval;
@@ -1844,11 +1849,16 @@ static void check_hal_changes()
     }
 
     //rapid-override stuff
-    counts = *halui_data->ro_counts;
-    if(counts != old_halui_data.ro_counts) {
-        if(*halui_data->ro_count_enable)
-            sendRapidOverride( *halui_data->ro_value + (counts - old_halui_data.ro_counts) *
-                *halui_data->ro_scale);
+    counts = new_halui_data.ro_counts;
+    if (counts != old_halui_data.ro_counts) {
+        if (new_halui_data.ro_count_enable) {
+            if (new_halui_data.ro_direct_value) {
+                sendRapidOverride(counts * new_halui_data.ro_scale);
+            } else {
+                sendRapidOverride( new_halui_data.ro_value + (counts - old_halui_data.ro_counts) *
+                    new_halui_data.ro_scale);
+            }
+        }
         old_halui_data.ro_counts = counts;
     }
 
