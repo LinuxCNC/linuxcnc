@@ -1122,10 +1122,17 @@ button $_tabs_manual.jogf.zerohome.home \
 setup_widget_accel $_tabs_manual.jogf.zerohome.home [_ "Home Axis"]
 
 button $_tabs_manual.jogf.zerohome.zero \
-	-command touch_off \
+	-command touch_off_system \
 	-padx 2m \
 	-pady 0
 setup_widget_accel $_tabs_manual.jogf.zerohome.zero [_ "Touch Off"]
+
+button $_tabs_manual.jogf.zerohome.tooltouch \
+	-command touch_off_tool \
+	-padx 2m \
+	-pady 0
+setup_widget_accel $_tabs_manual.jogf.zerohome.tooltouch [_ "Tool Touch Off"]
+
 
 checkbutton $_tabs_manual.jogf.override \
 	-command toggle_override_limits \
@@ -1156,6 +1163,14 @@ grid $_tabs_manual.jogf.zerohome.home \
 grid $_tabs_manual.jogf.zerohome.zero \
 	-column 1 \
 	-row 0 \
+	-ipadx 2 \
+	-pady 2 \
+	-sticky w
+
+# Grid widget $_tabs_manual.jogf.zerohome.tooltouch
+grid $_tabs_manual.jogf.zerohome.tooltouch \
+	-column 1 \
+	-row 2 \
 	-ipadx 2 \
 	-pady 2 \
 	-sticky w
@@ -2069,13 +2084,25 @@ proc update_state {args} {
         $::_tabs_manual.jogf.jog.jogincr configure -state disabled
     }
 
-    if {$::task_state == $::STATE_ON && $::interp_state == $::INTERP_IDLE &&
-        ($::motion_mode != $::TRAJ_MODE_FREE
-            || $::kinematics_type == $::KINEMATICS_IDENTITY)} {
+    if {   $::task_state == $::STATE_ON
+        && $::interp_state == $::INTERP_IDLE
+        && ($::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY)
+       } {
         $::_tabs_manual.jogf.zerohome.zero configure -state normal
     } else {
         $::_tabs_manual.jogf.zerohome.zero configure -state disabled
     }
+
+    if {    $::task_state == $::STATE_ON
+         && $::interp_state == $::INTERP_IDLE
+         && ($::motion_mode != $::TRAJ_MODE_FREE || $::kinematics_type == $::KINEMATICS_IDENTITY)
+         && ("$::tool" != "" && "$::tool" != [_ "No tool"])
+       } {
+        $::_tabs_manual.jogf.zerohome.tooltouch configure -state normal
+    } else {
+        $::_tabs_manual.jogf.zerohome.tooltouch configure -state disabled
+    }
+
 
     set ::last_interp_state $::interp_state
     set ::last_task_state $::task_state

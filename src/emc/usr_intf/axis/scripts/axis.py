@@ -1542,7 +1542,7 @@ all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
             _('T    Tool Table')]
 
 class _prompt_touchoff(_prompt_float):
-    def __init__(self, title, text_pattern, default, defaultsystem):
+    def __init__(self, title, text_pattern, default, tool_only, defaultsystem):
         systems = all_systems[:]
         if s.tool_in_spindle == 0:
             del systems[-1]
@@ -1565,19 +1565,22 @@ class _prompt_touchoff(_prompt_float):
         self.c = c = StringVar(t)
         c.set(defaultsystem)
         c.trace_variable("w", self.change_system)
-        l = Label(f, text=_("Coordinate System:"))
-        mb = OptionMenu(f, c, *systems)
-        mb.tk.call("size_menubutton_to_entries", mb)
-        mb.configure(takefocus=1)
-        l.pack(side="left") 
-        mb.pack(side="left")
+        if not tool_only:
+            l = Label(f, text=_("Coordinate System:"))
+            mb = OptionMenu(f, c, *systems)
+            mb.tk.call("size_menubutton_to_entries", mb)
+            mb.configure(takefocus=1)
+            l.pack(side="left")
+            mb.pack(side="left")
         f.pack(side="top") 
         self.buttons.tkraise()
-        for i in [1,2,3,4,5,6,7,8,9]:
-            t.bind("<Alt-KeyPress-%s>" % i, lambda event, system=systems[i-1]: c.set(system))
-        if current_tool.id > 0:
-            t.bind("<Alt-t>", lambda event: c.set(systems[9]))
-            t.bind("<Alt-0>", lambda event: c.set(systems[9]))
+        if not tool_only:
+            for i in [1,2,3,4,5,6,7,8,9]:
+                t.bind("<Alt-KeyPress-%s>" % i, lambda event, system=systems[i-1]: c.set(system))
+        if tool_only:
+            if current_tool.id > 0:
+                t.bind("<Alt-t>", lambda event: c.set(systems[9]))
+                t.bind("<Alt-0>", lambda event: c.set(systems[9]))
 
     def workpiece_or_fixture(self, s):
         if s.startswith('T') and vars.tto_g11.get():
@@ -1593,8 +1596,13 @@ class _prompt_touchoff(_prompt_float):
         if self.u.get(): return self.v.get(), self.c.get()
         return None, None
         
-def prompt_touchoff(title, text, default, system=None):
-    t = _prompt_touchoff(title, text, default, system)
+def prompt_touchoff(title, text, default, tool_only, system=None):
+    t = _prompt_touchoff(title=title,
+                         text_pattern=text,
+                         default=default,
+                         tool_only=tool_only,
+                         defaultsystem=system
+                        )
     return t.run()
 
 property_names = [
@@ -2342,15 +2350,19 @@ class TclCommands(nf.TclCommands):
         o.tkRedraw()
         reload_file(False)
         
-    def touch_off(event=None, new_axis_value = None):
+    def touch_off_system(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
         if joints_mode(): return
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
-            new_axis_value, system = prompt_touchoff(_("Touch Off"),
-                _("Enter %s coordinate relative to %%s:")
-                        % vars.current_axis.get().upper(), 0.0, vars.touch_off_system.get())
+            new_axis_value, system = prompt_touchoff(
+                title=_("Touch Off(system)"),
+                text=_("Enter %s coordinate relative to %%s:") % vars.current_axis.get().upper(),
+                default=0.0,
+                tool_only=False,
+                system=vars.touch_off_system.get()
+                )
         else:
             system = vars.touch_off_system.get()
         if new_axis_value is None: return
@@ -2365,17 +2377,48 @@ class TclCommands(nf.TclCommands):
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
 
-        if system.split()[0] == "T":
-            lnum = 10 + vars.tto_g11.get()
-            offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
-            c.mdi(offset_command)
-            c.wait_complete()
-            c.mdi("G43")
-            c.wait_complete()
+        offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.current_axis.get(), new_axis_value, scale)
+        c.mdi(offset_command)
+        c.wait_complete()
+
+        ensure_mode(linuxcnc.MODE_MANUAL)
+        s.poll()
+        o.tkRedraw()
+        reload_file(False)
+
+    def touch_off_tool(event=None, new_axis_value = None):
+        global system
+        if not manual_ok(): return
+        if joints_mode(): return
+#       offset_axis = "xyzabcuvw".index(vars.current_axis.get())
+        if new_axis_value is None:
+            new_axis_value, system = prompt_touchoff(
+                title=_("Tool Touch Off (Tool No:%s)"%s.tool_in_spindle),
+                text=_("Enter %s coordinate relative to %%s:") % vars.current_axis.get().upper(),
+                default=0.0,
+                tool_only=True,
+                system=vars.touch_off_system.get()
+                )
         else:
-            offset_command = "G10 L20 %s %c[%s*%.12f]" % (system.split()[0], vars.current_axis.get(), new_axis_value, scale)
-            c.mdi(offset_command)
-            c.wait_complete()
+            system = vars.touch_off_system.get()
+        if new_axis_value is None: return
+        vars.touch_off_system.set(system)
+        ensure_mode(linuxcnc.MODE_MDI)
+        s.poll()
+
+        linear_axis = vars.current_axis.get() in "xyzuvw"
+        if linear_axis and vars.metric.get(): scale = 1/25.4
+        else: scale = 1
+
+        if linear_axis and 210 in s.gcodes:
+            scale *= 25.4
+
+        lnum = 10 + vars.tto_g11.get()
+        offset_command = "G10 L%d P%d %c[%s*%.12f]" % (lnum, s.tool_in_spindle, vars.current_axis.get(), new_axis_value, scale)
+        c.mdi(offset_command)
+        c.wait_complete()
+        c.mdi("G43")
+        c.wait_complete()
 
         ensure_mode(linuxcnc.MODE_MANUAL)
         s.poll()
@@ -2383,7 +2426,7 @@ class TclCommands(nf.TclCommands):
         reload_file(False)
 
     def set_axis_offset(event=None):
-        commands.touch_off(new_axis_value=0.)
+        commands.touch_off_system(new_axis_value=0.)
 
     def brake(event=None):
         if not manual_ok(): return
@@ -2692,10 +2735,10 @@ root_window.bind("<Home>", commands.home_axis)
 root_window.bind("<KP_Home>", kp_wrap(commands.home_axis, "KeyPress"))
 root_window.bind("<Control-Home>", commands.home_all_axes)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
-root_window.bind("<End>", commands.touch_off)
+root_window.bind("<End>", commands.touch_off_system)
 root_window.bind("<Control-KP_Home>", kp_wrap(commands.home_all_axes, "KeyPress"))
 root_window.bind("<Shift-KP_Home>", kp_wrap(commands.set_axis_offset, "KeyPress"))
-root_window.bind("<KP_End>", kp_wrap(commands.touch_off, "KeyPress"))
+root_window.bind("<KP_End>", kp_wrap(commands.touch_off_system, "KeyPress"))
 widgets.mdi_history.bind("<Configure>", "%W see end" )
 widgets.mdi_history.bind("<ButtonRelease-1>", commands.mdi_history_butt_1)
 widgets.mdi_history.bind("<Double-Button-1>", commands.mdi_history_double_butt_1)
