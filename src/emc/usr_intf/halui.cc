@@ -1884,9 +1884,9 @@ static void check_hal_changes()
         sendFeedOverride(new_halui_data.fo_value - new_halui_data.fo_scale);
 
     if (check_bit_changed(new_halui_data.ro_increase, old_halui_data.ro_increase) != 0)
-        sendFeedOverride(new_halui_data.ro_value + new_halui_data.ro_scale);
+        sendRapidOverride(new_halui_data.ro_value + new_halui_data.ro_scale);
     if (check_bit_changed(new_halui_data.ro_decrease, old_halui_data.ro_decrease) != 0)
-        sendFeedOverride(new_halui_data.ro_value - new_halui_data.ro_scale);
+        sendRapidOverride(new_halui_data.ro_value - new_halui_data.ro_scale);
 
     if (check_bit_changed(new_halui_data.so_increase, old_halui_data.so_increase) != 0)
         sendSpindleOverride(new_halui_data.so_value + new_halui_data.so_scale);
