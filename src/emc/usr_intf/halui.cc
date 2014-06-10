@@ -401,7 +401,6 @@ static int comp_id, done;				/* component ID, main while loop */
 static int num_axes = 3; //number of axes, taken from the ini [TRAJ] section
 
 static double maxFeedOverride=1;
-static double maxRapidOverride=1;
 static double maxMaxVelocity=1;
 static double minSpindleOverride=0.0;
 static double maxSpindleOverride=1.0;
@@ -1527,8 +1526,8 @@ static int sendRapidOverride(double override)
 	override = 0.0;
     }
 
-    if (override > maxRapidOverride) {
-	override = maxRapidOverride;
+    if (override > 1.0) {
+	override = 1.0;
     }
     
     emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
@@ -1605,12 +1604,6 @@ static int iniLoad(const char *filename)
     if (NULL != (inistring = inifile.Find("MAX_FEED_OVERRIDE", "DISPLAY"))) {
 	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
 	    maxFeedOverride =  d;
-	}
-    }
-
-    if (NULL != (inistring = inifile.Find("MAX_RAPID_OVERRIDE", "DISPLAY"))) {
-	if (1 == sscanf(inistring, "%lf", &d) && d > 0.0) {
-	    maxRapidOverride =  d;
 	}
     }
 
