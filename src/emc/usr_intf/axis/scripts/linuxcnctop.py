@@ -129,7 +129,6 @@ def gui():
             s.poll()
         except linuxcnc.error:
             root.destroy()
-        pos = t.yview()[0]
         selection = t.tag_ranges("sel")
         insert_point = t.index("insert")
         insert_gravity = t.mark_gravity("insert")
@@ -138,7 +137,6 @@ def gui():
             anchor_gravity = t.mark_gravity("anchor")
         except TclError:
             anchor_point = None
-        t.delete("0.0", "end")
         first = True
         for k in dir(s):
             if k.startswith("_"): continue
@@ -150,19 +148,25 @@ def gui():
                     v = m(v)
                 else:
                     v = m.get(v, v)
+            if isinstance(v, basestring):
+                v = v.strip()
+                v = v or "-"
             if oldvalues.has_key(k):
                 changed = oldvalues[k] != v
                 if changed: changetime[k] = time.time() + 2
             oldvalues[k] = v
+            vranges = t.tag_ranges(k)
             if changetime.has_key(k) and changetime[k] >= time.time():
                 vtag = "changedvalue"
             else:
                 vtag = "value"
-            if first: first = False
-            else: t.insert("end", "\n")
-            t.insert("end", k, "key", "\t")
-            t.insert("end", v, vtag)
-        t.yview_moveto(pos)
+            if vranges:
+                t.tk.call(t, "replace", "%s.first" % k, "%s.last" % k, v, (k, vtag))
+            else:
+                if first: first = False
+                else: t.insert("end", "\n")
+                t.insert("end", k, "key", "\t")
+                t.insert("end", v, (k, vtag))
         if selection:
             t.tag_add("sel", *selection)
         t.mark_set("insert", insert_point)
