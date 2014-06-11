@@ -104,7 +104,7 @@ def gui():
     t = Tkinter.Text()
     sb = Tkinter.Scrollbar(command=t.yview)
     t.configure(yscrollcommand=sb.set)
-    t.configure(tabs="150")
+    t.configure(tabs=150)
 
     base_font = t.tk.call("set", "BASE_FONT")
     fixed_font = t.tk.call("set", "FIXED_FONT")
