@@ -3,7 +3,7 @@ Package: linuxcnc-posix
 Conflicts: emc2, emc2-sim, linuxcnc-sim
 Architecture: any
 Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends}, 
-Recommends: hostmot2-firmware
+Provides:  linuxcnc-rt-threads
 Enhances: linuxcnc
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which

@@ -33,8 +33,8 @@ Package: linuxcnc
 Replaces: emc2
 Conflicts: emc2, emc2-sim
 Architecture: any
-Recommends: linuxcnc-doc-en | linuxcnc-doc, 
-Depends: ${shlibs:Depends}, linuxcnc-posix, ${tcl-tk},
+Suggests: linuxcnc-doc-en | linuxcnc-doc, 
+Depends: ${shlibs:Depends}, linuxcnc-rt-threads, ${tcl-tk},
     bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= 2.6), python (<< 2.8),
     ${python:Depends}, ${misc:Depends},

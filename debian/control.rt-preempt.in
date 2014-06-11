@@ -4,6 +4,8 @@ Conflicts: emc2, emc2-sim, linuxcnc-sim
 Architecture: any
 Depends: linuxcnc (= ${binary:Version}), ${shlibs:Depends},
 	linux-image-rt-${preempt-rt-ext}
+Provides:  linuxcnc-rt-threads
+Suggests: hostmot2-firmware [!armhf]
 Enhances: linuxcnc
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which
