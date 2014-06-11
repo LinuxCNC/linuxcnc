@@ -33,7 +33,10 @@
 
 #include "tp_debug.h"
 
-#define TP_SHOW_BLENDS
+// FIXME: turn off this feature, which causes blends between rapids to
+// use the feed override instead of the rapid override
+#undef TP_SHOW_BLENDS
+
 #define TP_OPTIMIZATION_LAZY
 #define TP_PEDANTIC
 
@@ -186,7 +189,7 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
     if (tp->pausing || tp->aborting) {
         tc_debug_print("pausing or aborting\n");
         return 0.0;
-    } else if (tc->canon_motion_type == EMC_MOTION_TYPE_TRAVERSE || tc->synchronized == TC_SYNC_POSITION ) {
+    } else if ( tc->synchronized == TC_SYNC_POSITION ) {
         return 1.0;
     } else {
         return emcmotStatus->net_feed_scale;
