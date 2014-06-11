@@ -1,41 +1,41 @@
 
-Package: linuxcnc-doc-en
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-en
-Replaces: emc2-doc-en
-Provides: linuxcnc-doc
+Package: machinekit-doc-en
+Breaks: linuxcnc-doc-en
+Replaces: linuxcnc-doc-en
+Provides: machinekit-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- LinuxCNC is the next-generation Enhanced Machine Controller which
+ Machinekit is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in English.
 
-Package: linuxcnc-doc-fr
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-fr
-Replaces: emc2-doc-fr
-Provides: linuxcnc-doc
+Package: machinekit-doc-fr
+Breaks: linuxcnc-doc-fr
+Replaces: linuxcnc-doc-fr
+Provides: machinekit-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- LinuxCNC is the next-generation Enhanced Machine Controller which
+ Machinekit is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
  This package contains the documentation in French.
 
-Package: linuxcnc-doc-es
-Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-es
-Replaces: emc2-doc-es
-Provides: linuxcnc-doc
+Package: machinekit-doc-es
+Breaks: linuxcnc-doc-es
+Replaces: linuxcnc-doc-es
+Provides: machinekit-doc
 Architecture: all
 Depends: ${misc:Depends}
 Suggests: pdf-viewer
 Description: PC based motion controller for real-time Linux
- LinuxCNC is the next-generation Enhanced Machine Controller which
+ Machinekit is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .

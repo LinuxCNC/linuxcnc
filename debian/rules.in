@@ -115,7 +115,7 @@ clean: debian/control debian/substvars
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
-	rm -f debian/linuxcnc-{rtai,xenomai}-kernel-*.files
+	rm -f debian/machinekit-{rtai,xenomai}-kernel-*.files
 	rm -f debian/{control,rules}
 
 	dh_clean
@@ -145,7 +145,7 @@ endif
 
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
-	-rm debian/linuxcnc-{rtai,xenomai}-kernel*.files
+	-rm debian/machinekit-{rtai,xenomai}-kernel*.files
 	-rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	# update emcweb.hal
 	sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
@@ -178,9 +178,9 @@ binary-arch: build install debian/substvars
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
-	cat debian/linuxcnc/DEBIAN/shlibs debian/shlibs.pre > \
+	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
-	dh_shlibdeps -l debian/linuxcnc/usr/lib
+	dh_shlibdeps -l debian/machinekit/usr/lib
 	dh_gencontrol -- -Tdebian/substvars
 	dh_md5sums
 	dh_builddeb

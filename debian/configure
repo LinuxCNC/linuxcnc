@@ -23,7 +23,7 @@ rules_enable_threads() {
 guess_arch_from_kver() {
     # utility to make a guess at the kernel header arch from the
     # kernel version; this works for Debian kernels, and 'any' is
-    # correct for the RTAI kernel packages in the LinuxCNC Debian
+    # correct for the RTAI kernel packages in the Machinekit Debian
     # archive
     KVER=$1
     case $KVER in
@@ -109,11 +109,11 @@ do_xenomai_kernel() {
     # Headers package is conveniently named after the kver
     BUILD_DEPS+="$(kernel_build_dep ${KVER}), "
     # Add '...files' and 'control' file with substitutions
-    sed linuxcnc-kernel.files.in \
+    sed machinekit-kernel.files.in \
 	-e "s/@KVER@/${KVER}/" \
 	-e "s/@FLAVOR@/xenomai-kernel/" \
-	> linuxcnc-xenomai-kernel-${KVER}.files
-    echo "debian/linuxcnc-xenomai-kernel-${KVER}.files:  added" >&2
+	> machinekit-xenomai-kernel-${KVER}.files
+    echo "debian/machinekit-xenomai-kernel-${KVER}.files:  added" >&2
     sed control.xenomai-kernel.in \
 	-e "s/@KVER@/$KVER/g" \
 	-e "s/@ARCH@/$(guess_arch_from_kver ${KVER})/g" \
@@ -133,11 +133,11 @@ do_rtai_kernel() {
     # Headers package is conveniently named after the kver
     BUILD_DEPS+="$(kernel_build_dep ${KVER}), "
     # Add '...files' and 'control' file with substitutions
-    sed linuxcnc-kernel.files.in \
+    sed machinekit-kernel.files.in \
 	-e "s/@KVER@/${KVER}/" \
 	-e "s/@FLAVOR@/rtai-kernel/" \
-	> linuxcnc-rtai-kernel-${KVER}.files
-    echo "debian/linuxcnc-xenomai-kernel-${KVER}.files:  added" >&2
+	> machinekit-rtai-kernel-${KVER}.files
+    echo "debian/machinekit-xenomai-kernel-${KVER}.files:  added" >&2
     sed control.rtai-kernel.in \
 	-e "s/@KVER@/$KVER/g" \
 	-e "s/@ARCH@/$(guess_arch_from_kver ${KVER})/g" \
@@ -193,7 +193,7 @@ BUILD_DEPS=  # List of Build-Depends
 HAVE_FLAVOR=false
 
 # delete old files
-rm -f linuxcnc-{rtai,xenomai}-kernel-*.files
+rm -f machinekit-{rtai,xenomai}-kernel-*.files
 
 # copy base templates into place
 cp control.in control

@@ -1,12 +1,12 @@
 # files generated from debian/configure
 /control
 /rules
-/linuxcnc-rtai-kernel-*.files
-/linuxcnc-xenomai-kernel-*.files
+/machinekit-rtai-kernel-*.files
+/machinekit-xenomai-kernel-*.files
 
 # directory artifacts
 /tmp
-/linuxcnc*/
+/machinekit*/
 
 # file artifacts
 /*substvars
