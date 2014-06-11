@@ -323,6 +323,9 @@ counterclockwise.
 *spindlerate*:: '(returns float)' -
 spindle speed override scale.
 
+*rapidrate*:: '(returns float)' -
+rapid override scale.
+
 *state*:: '(returns integer)' -
 current command execution status. One of RCS_DONE,
 RCS_EXEC, RCS_ERROR.

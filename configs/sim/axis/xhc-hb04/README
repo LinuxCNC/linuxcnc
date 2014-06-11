@@ -30,6 +30,29 @@ A hal pin (Type=bit, Dir=OUT) is created for each button, for example:
    xhc-hb04.button-rewind
    ...
 
+If the configuration file includes buttons named:
+  button-zero
+  button-goto-zero
+  button-half
+then the driver creates additional buttons for these that are active only if the axis is selected by the rotary switch.  These synthesized buttons are:
+  button-zero-x
+  button-zero-y
+  button-zero-z
+  button-zero-a
+  button-goto-zero-x
+  button-goto-zero-y
+  button-goto-zero-z
+  button-goto-zero-a
+  button-half-x
+  button-half-y
+  button-half-z
+  button-half-a
+As with real buttons, the synthesized buttons have hal pins named:
+  xhc-hb04button-zero-x
+  xhc-hb04button-zero-y
+  etc.
+
+
 Additional hal pins are created by the xhc-hb04 driver and connected as required by the halfile included for the demo configurations. 
 
 A working and connected xhc-hb04 device is required for the demonstration configurations.  If not connected, the sim configs will start without pendant functionality.
@@ -60,8 +83,7 @@ sequence   = 1        (1|2)
 
 The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.
 
-The movement per wheel increment is normally controlled by connecting the STEP button to the hal pin xhc-hb04.stepsize-up. Each press of the STEP button will cause the wheel increment to increase according to the sequence specified.  The sequence 
-starts over after the maximum value is reached.
+The movement per wheel increment is normally controlled by connecting the STEP button to the hal pin xhc-hb04.stepsize-up. Each press of the STEP button will cause the wheel increment to increase according to the sequence specified.  The sequence starts over after the maximum value is reached.
 
 The scale factor for each axis can be set with the scales item.
 

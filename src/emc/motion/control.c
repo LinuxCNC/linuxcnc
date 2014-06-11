@@ -24,6 +24,7 @@
 #include "tc.h"
 #include "motion_debug.h"
 #include "config.h"
+#include "motion_types.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -461,7 +462,11 @@ static void process_inputs(void)
     /* feed scaling first:  feed_scale, adaptive_feed, and feed_hold */
     scale = 1.0;
     if ( enables & FS_ENABLED ) {
-	scale *= emcmotStatus->feed_scale;
+        if (emcmotStatus->motionType == EMC_MOTION_TYPE_TRAVERSE) {
+            scale *= emcmotStatus->rapid_scale;
+        } else {
+            scale *= emcmotStatus->feed_scale;
+        }
     }
     if ( enables & AF_ENABLED ) {
 	/* read and clamp (0.0 to 1.0) adaptive feed HAL pin */

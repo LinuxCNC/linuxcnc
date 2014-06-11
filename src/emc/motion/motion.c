@@ -904,6 +904,7 @@ static int init_comm_buffers(void)
     emcmotConfig->limitVel = VELOCITY;
     emcmotStatus->acc = ACCELERATION;
     emcmotStatus->feed_scale = 1.0;
+    emcmotStatus->rapid_scale = 1.0;
     emcmotStatus->spindle_scale = 1.0;
     emcmotStatus->net_feed_scale = 1.0;
     /* adaptive feed is off by default, feed override, spindle 

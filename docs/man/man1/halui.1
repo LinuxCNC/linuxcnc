@@ -422,6 +422,29 @@ pin for setting the scale on changing the FO
 .B halui.feed-override.value\fR float out \fR
 current Feed Override value
 
+.SS rapid override
+.TP
+.B halui.rapid-override.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+When TRUE, modify Rapid Override when counts changes.
+.TP
+.B halui.rapid-override.counts\fR s32 in \fR
+counts X scale = Rapid Override percentage
+.TP
+.B halui.rapid-override.decrease\fR bit in \fR
+pin for decreasing the Rapid Override (-=scale)
+.TP
+.B halui.rapid-override.direct-value\fR bit in \fR
+pin to enable direct value Rapid Override input
+.TP
+.B halui.rapid-override.increase\fR bit in \fR
+pin for increasing the Rapid Override (+=scale)
+.TP
+.B halui.rapid-override.scale\fR float in \fR
+pin for setting the scale on changing the Rapid Override
+.TP
+.B halui.rapid-override.value\fR float out \fR
+current Rapid Override value
+
 .SS estop
 .TP
 .B halui.estop.activate\fR bit in \fR
