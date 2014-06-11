@@ -166,6 +166,7 @@ help1 = [
     (_("Ctrl-Home"), _("Home all axes")),
     (_("Shift-Home"), _("Zero G54 offset for active axis")),
     (_("End"), _("Set G54 offset for active axis")),
+    (_("Ctrl-End"), _("Set tool offset for loaded tool")),
     ("-, =", _("Jog active axis")),
 
     ("", ""),
@@ -2356,7 +2357,7 @@ class TclCommands(nf.TclCommands):
         offset_axis = "xyzabcuvw".index(vars.current_axis.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Touch Off(system)"),
+                title=_("Touch Off (system)"),
                 text=_("Enter %s coordinate relative to %%s:") % vars.current_axis.get().upper(),
                 default=0.0,
                 tool_only=False,
@@ -2389,7 +2390,9 @@ class TclCommands(nf.TclCommands):
         global system
         if not manual_ok(): return
         if joints_mode(): return
-#       offset_axis = "xyzabcuvw".index(vars.current_axis.get())
+        s.poll()
+        # in case we get here via the keyboard shortcut, when the widget is disabled:
+        if s.tool_in_spindle == 0: return
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
                 title=_("Tool Touch Off (Tool No:%s)"%s.tool_in_spindle),
@@ -2735,6 +2738,7 @@ root_window.bind("<KP_Home>", kp_wrap(commands.home_axis, "KeyPress"))
 root_window.bind("<Control-Home>", commands.home_all_axes)
 root_window.bind("<Shift-Home>", commands.set_axis_offset)
 root_window.bind("<End>", commands.touch_off_system)
+root_window.bind("<Control-End>", commands.touch_off_tool)
 root_window.bind("<Control-KP_Home>", kp_wrap(commands.home_all_axes, "KeyPress"))
 root_window.bind("<Shift-KP_Home>", kp_wrap(commands.set_axis_offset, "KeyPress"))
 root_window.bind("<KP_End>", kp_wrap(commands.touch_off_system, "KeyPress"))
