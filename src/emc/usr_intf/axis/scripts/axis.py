@@ -1544,9 +1544,8 @@ all_systems = ['P1  G54', 'P2  G55', 'P3  G56', 'P4  G57', 'P5  G58',
 class _prompt_touchoff(_prompt_float):
     def __init__(self, title, text_pattern, default, tool_only, defaultsystem):
         systems = all_systems[:]
-        if s.tool_in_spindle == 0:
+        if not tool_only:
             del systems[-1]
-            if defaultsystem.startswith("T"): defaultsystem = systems[0]
         linear_axis = vars.current_axis.get() in "xyzuvw"
         if linear_axis:
             if vars.metric.get(): unit_str = " " + _("mm")
