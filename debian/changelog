@@ -1,3 +1,31 @@
+linuxcnc (1:2.6.0~pre4) precise; urgency=low
+
+  * fix several bugs with NURBS handling (G5, G5.1, G5.2)
+  * add a Rapid Override control (analogous to Feed Override)
+  * support moving 3, 6, or all 9 axes for a tool change
+
+  * add a driver for the WJ200 VFD
+  * add a driver for the Mesa 7i90 AnyIO board
+
+  * general mechatronics: fix a NULL pointer bug
+
+  * touchy: accept all axes for G43.1 TLOs
+  * gmoccapy: fix a couple of bugs
+
+  * comp: reject invalid .comp files that don't match the component name
+
+  * docs: add docs for G5, G5.1, G5.2 NURBS G-codes
+  * docs: clarify naming requirements of .comp files
+  * docs: update classic ladder manpage
+  * docs: add info on the servo axis calibration assistant in Axis GUI
+  * docs: misc minor fixes
+
+  * fix a "crawling scrollbar" cosmetic bug in linuxcnctop
+  * fix handling of shell metacharacters in .ini filenames
+  * fix auto-closing of directories in config picker
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 11 Jun 2014 21:39:31 -0600
+
 linuxcnc (1:2.6.0~pre3) precise; urgency=low
 
   * HAL: make halcmd arrow syntax ('=>', '<=', '<=>') more strict
