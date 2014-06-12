@@ -1,0 +1,11 @@
+This Debian packaging must first be configured before building.
+
+By default, all threads are disabled; package builders MUST enable
+thread package builds by adding flags to the debin/configure command
+line.  See `debian/configure -h` for details.
+
+Xenomai and RTAI kernel threads packages may be enabled with the '-X
+<Xenomai-kernel-version>' and '-R <RTAI-kernel-version>' options,
+respectively, e.g. '-X 3.8-1mk-xenomai.x86-686-pae'.  Multiple
+'-X'/'-R' options may be specified to build multiple kernel threads
+packages against multiple kernels.

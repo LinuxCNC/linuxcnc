@@ -1,9 +1,9 @@
 
-Package: machinekit-rtai-kernel-@KVER@
+Package: machinekit-xenomai-kernel-@KVER@
 Architecture: @ARCH@
 Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	linux-image-@KVER@, rtai-modules-@KVER@
-Provides:  machinekit-rt-threads, machinekit-rtai-kernel
+	linux-image-@KVER@
+Provides:  machinekit-rt-threads, machinekit-xenomai-kernel
 Suggests: hostmot2-firmware [!armhf]
 Enhances: machinekit
 Description: PC based motion controller for real-time Linux
@@ -11,4 +11,4 @@ Description: PC based motion controller for real-time Linux
  provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
- This package provides components and drivers that run on an RTAI system.
+ This package provides components and drivers for Xenomai kernel threads.

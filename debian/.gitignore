@@ -1,22 +1,14 @@
-files
-control
-rules
-tmp
-linuxcnc-rtai.files
-linuxcnc-xenomai.files
-linuxcnc-rtpreempt.files
-linuxcnc-xenomai-kernel.files
-linuxcnc-doc-en.files
-linuxcnc-doc-es.files
-linuxcnc-doc-fr.files
-linuxcnc
-linuxcnc-dev
-linuxcnc-doc-*/
-linuxcnc-posix/
-linuxcnc-rtai/
-linuxcnc-rtpreempt/
-linuxcnc-xenomai/
-linuxcnc-xenomai-kernel/
-*substvars
-*.debhelper
-shlibs.local
+# files generated from debian/configure
+/control
+/rules
+/machinekit-rtai-kernel-*.files
+/machinekit-xenomai-kernel-*.files
+
+# directory artifacts
+/tmp
+/machinekit*/
+
+# file artifacts
+/*substvars
+/*.debhelper
+/shlibs.local
