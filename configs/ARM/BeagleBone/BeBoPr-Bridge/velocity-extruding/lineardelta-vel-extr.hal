@@ -40,16 +40,16 @@ loadusr -Wn Therm ../ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 
 #used for comparing temperature set value with actual for waiting on temperature
 loadrt wcomp count=1
-loadrt sum2 count=3
+loadrt sum2 count=4
 loadrt mult2 count=5
-loadrt abs count=3
-loadrt hypot count=1
+loadrt abs count=6
+loadrt hypot count=2
 loadrt invert count=1
 loadrt mux4 count=1
 loadrt oneshot count=1
-loadrt ddt count=1
-loadrt lincurve count=1 personality=2
-
+loadrt ddt count=4
+loadrt lincurve count=1 personality=3
+loadrt lineardeltajointscartesian count=1
 
 
 # ################################################
@@ -71,21 +71,30 @@ addf bb_gpio.write                        servo-thread
 addf wcomp.0                              servo-thread
 addf sum2.0                               servo-thread
 addf sum2.1                               servo-thread
-addf sum2.2				  servo-thread			  
+addf sum2.2				  servo-thread
+addf sum2.3				  servo-thread					  
 addf mult2.0                              servo-thread
 addf mult2.1				  servo-thread
 addf mult2.2				  servo-thread
 addf mult2.3				  servo-thread
 addf mult2.4				  servo-thread
-addf abs.0				  servo-thread
-addf abs.1			  	  servo-thread
-addf abs.2			          servo-thread
-addf hypot.0				  servo-thread
+#addf abs.0				  servo-thread
+#addf abs.1			  	  servo-thread
+#addf abs.2			          servo-thread
+addf abs.3				  servo-thread
+addf abs.4			  	  servo-thread
+addf abs.5			          servo-thread
+#addf hypot.0				  servo-thread
+addf hypot.1				  servo-thread
 addf invert.0				  servo-thread
 addf mux4.0				  servo-thread
 addf oneshot.0				  servo-thread
 addf ddt.0				  servo-thread
+addf ddt.1				  servo-thread
+addf ddt.2				  servo-thread
+addf ddt.3				  servo-thread
 addf lincurve.0				  servo-thread
+addf lineardeltajointscartesian.0	  servo-thread
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
 # ######################################################
@@ -232,34 +241,47 @@ sets emcmot.03.enable FALSE
 net emcmot.03.enable <= axis.3.amp-enable-out
 net emcmot.03.enable => [PRUCONF](DRIVER).stepgen.03.enable
 
-#newsig pi-divided-by-four float
-#newsig dia-filament float
-
-#sets pi-divided-by-four 0.7854
-## PI = 3.14159265, but 1/4*PI is 0.7854
-#sets dia-filament 2.85
-
-
-
 #here i pass the value of the analog output from M67 E1 Q.. or M68 E1 Q.. to the multiplicator
 net line-width  motion.analog-out-02 => mult2.0.in0
 net line-height motion.analog-out-03 => mult2.0.in1
-
 net line-cross-section mult2.0.out => mult2.1.in1
 
 #take all the actual speeds from the axes and calculate resulting speed.
-net xvel axis.0.joint-vel-cmd => abs.0.in
-net xvel-abs abs.0.out => hypot.0.in0
-net yvel axis.1.joint-vel-cmd => abs.1.in
-net yvel-abs abs.1.out => hypot.0.in1
-net zvel axis.2.joint-vel-cmd => abs.2.in
-net zvel-abs abs.2.out => hypot.0.in2
+#if you don't have a linear delta then use hypot.0.out as input for the calculations
+#net xvel axis.0.joint-vel-cmd => abs.0.in
+#net xvel-abs abs.0.out => hypot.0.in0
+#net yvel axis.1.joint-vel-cmd => abs.1.in
+#net yvel-abs abs.1.out => hypot.0.in1
+#net zvel axis.2.joint-vel-cmd => abs.2.in
+#net zvel-abs abs.2.out => hypot.0.in2
+
+net joint-0-pos axis.0.joint-pos-cmd lineardeltajointscartesian.0.C-pos
+net joint-1-pos axis.1.joint-pos-cmd lineardeltajointscartesian.0.A-pos
+net joint-2-pos axis.2.joint-pos-cmd lineardeltajointscartesian.0.B-pos
+setp lineardeltajointscartesian.0.ROD [MACHINE]CF_ROD
+setp lineardeltajointscartesian.0.RAD [MACHINE]DELTA_R
+
+net xpos lineardeltajointscartesian.0.x-pos => ddt.1.in
+net xvel ddt.1.out abs.3.in
+net xvel-abs abs.3.out => hypot.1.in0
+
+net ypos lineardeltajointscartesian.0.y-pos => ddt.2.in
+net yvel ddt.2.out abs.4.in
+net yvel-abs abs.4.out => hypot.1.in1
+
+net zpos lineardeltajointscartesian.0.z-pos => ddt.3.in
+net zvel ddt.3.out abs.5.in
+net zvel-abs abs.5.out => hypot.1.in2
 
 #multiply area with speed and we get discharge (mm^3 per second)
-net nozzle-vel hypot.0.out => mult2.1.in0
+#use this one (below when you have a lineardelta type machine
+net nozzle-vel-cartesian hypot.1.out => mult2.1.in0
+#uncomment line below if you have a cartesian type machine
+#net nozzle-vel-cartesian hypot.0.out => mult2.1.in0
+
 net nozzle-discharge mult2.1.out => mult2.2.in0
 
-#calaulate filament cross section area
+#calculate filament cross section area
 #PI divided by 4
 setp mult2.3.in0 0.7854
 setp mult2.4.in0 [EXTRUDER]DIA_FILAMENT
@@ -268,8 +290,6 @@ setp mult2.4.in1 [EXTRUDER]DIA_FILAMENT
 net diameter-squared mult2.4.out => mult2.3.in1
 net filament-area mult2.3.out => invert.0.in
 net divide-by-filament-area invert.0.out => mult2.2.in1
-
-#net extruder-speed mux4.0.out => [PRUCONF](DRIVER).stepgen.03.velocity-cmd
 
 # now the solution of Andy Pugh for automatically retracting/priming
 #loadrt mux4 count=1
@@ -298,19 +318,18 @@ setp oneshot.0.retriggerable 1
 #by setting the width, the automatic retract/precharge can be disabled
 net trigger-time motion.analog-out-04 => oneshot.0.width
 
-
 #get readout from the current motion pin
 net current-motion-type motion.current-motion
 
-#net trigger-finished oneshot.0.out-not motion.digital-in-01
-#net feed-hold oneshot.0.out => motion.feed-hold
-
 # these are used for a small offset in velocity during acceleration (buildup pressure inside
 # the nozzle because of the current speed. Take the maximum accel you've specified in .ini
-setp lincurve.0.x-val-00 -2000
-setp lincurve.0.x-val-01 2000
-setp lincurve.0.y-val-00 -360
-setp lincurve.0.y-val-01 360
+
+setp lincurve.0.y-val-00 -5.0
+setp lincurve.0.y-val-01 0
+setp lincurve.0.y-val-02 5.0
+setp lincurve.0.x-val-00 -35
+setp lincurve.0.x-val-01 0
+setp lincurve.0.x-val-02 35
 
 # get the extruder speed into sum2.2 and ddt
 net extruder-speed mux4.0.out sum2.2.in0 ddt.0.in
@@ -345,16 +364,6 @@ setp [PRUCONF](DRIVER).stepgen.03.steppin         0x22
 # P8.21 GPIO1.30
 setp [PRUCONF](DRIVER).stepgen.03.dirpin          0x23
 
-# set PID loop gains from inifile
-#setp pid.2.Pgain [AXIS_3]P
-#setp pid.2.Igain [AXIS_3]I
-#setp pid.2.Dgain [AXIS_3]D
-#setp pid.2.bias [AXIS_3]BIAS
-#setp pid.2.FF0 [AXIS_3]FF0
-#setp pid.2.FF1 [AXIS_3]FF1
-#setp pid.2.FF2 [AXIS_3]FF2
-#setp pid.2.deadband [AXIS_3]DEADBAND
-#setp pid.2.maxoutput [AXIS_3]MAX_OUTPUT
 
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc

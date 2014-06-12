@@ -112,7 +112,11 @@ rm "result-cleaned_$1"
 #M68 E4 Q0.2
 #
 python ./correct-retract-on-next-layer.py "cleaned_$1"
+rm "cleaned_$1"
 
+#convert g1 line segments to g2 or g3 if possible
+python g1tog23.py "swapped-cleaned_$1"
+rm "swapped-cleaned_$1.bak"
 
 # convert all M106 to B axis
 #sed '/^M106/s/M106 P/G0 B/' "$1post" > "$1"
@@ -130,12 +134,8 @@ python ./correct-retract-on-next-layer.py "cleaned_$1"
 # then replace it with nothing (note ||)
 
 # remove all A's, change retract comments, and all empty lines
-sed -e 's| A[0-9\-\.]* | |' \
+#sed -e 's| A[0-9\-\.]* | |'
+sed -e 's| A\-*[0-9\.]* | |' \
     -e '/^$/ d' \
     "swapped-cleaned_$1" > "processed_$1"
-#rm "swapped-result-cleaned_$1"
-
-
-#convert g1 line segments to g2 or g3 if possible
-#./g1tog23.py $1
-#rm $1.bak
+rm "swapped-cleaned_$1"

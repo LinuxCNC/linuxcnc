@@ -27,7 +27,7 @@ cmd_extr_disconnect = "M65 P2"
 
 #should there be error checking on all input arguments?
 
-print "Gcodefile    = " + GcodeFileInput
+#print "Gcodefile    = " + GcodeFileInput
 print "perimeter w  = " + w_perim
 print "infill    w  = " + w_infill
 print "layer height = " + h_layer

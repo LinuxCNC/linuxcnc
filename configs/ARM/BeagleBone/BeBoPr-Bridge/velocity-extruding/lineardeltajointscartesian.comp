@@ -1,0 +1,72 @@
+component lineardeltajointscartesian "Calculation of cartesian position from lineardelta joints position";
+pin in float C_pos "position of joint of joint0";
+pin in float A_pos "position of joint of joint1";
+pin in float B_pos "position of joint of joint2";
+pin in float ROD "Rod Length";
+pin in float RAD "Delta Radius";
+pin out float x_pos "x-position";
+pin out float y_pos "y-position";
+pin out float z_pos "z-position";
+
+function _ fp "Update the position";
+license "GPL";
+author "Bas de Bruijn";
+;;
+#include <rtapi_math.h>
+//#define pi (3.14159265) 
+// below is a mash-up from the lineardeltakins for calculating the x, y and z-position
+#define SQ3    (sqrt(3))
+#define SIN_60 (SQ3/2)
+#define COS_60 (.5)
+
+FUNCTION(_) {
+    static double L, R;
+    static double Ax, Ay, Bx, By, Cx, Cy, L2;
+    L = ROD;
+    R = RAD;
+
+    L2 = L*L;
+
+    Ax = 0.0;
+    Ay = R;
+
+    Bx = -SIN_60 * R;
+    By = -COS_60 * R;
+
+    Cx = SIN_60 * R;
+    Cy = -COS_60 * R;
+
+// from ini file
+// column A is wired to axis[1] = y-axis output
+// column B is wired to axis[2] = z-axis output
+// column C is wired to axis[0] = x-axis output
+
+    double q1 = C_pos; // joints[0]; 
+    double q2 = A_pos; // joints[1];
+    double q3 = B_pos; // joints[2];
+
+    double den = (By-Ay)*Cx-(Cy-Ay)*Bx;
+
+    double w1 = Ay*Ay + q1*q1; // n.b. assumption that Ax is 0 all through here
+    double w2 = Bx*Bx + By*By + q2*q2;
+    double w3 = Cx*Cx + Cy*Cy + q3*q3;
+
+    double a1 = (q2-q1)*(Cy-Ay)-(q3-q1)*(By-Ay);
+    double b1 = -((w2-w1)*(Cy-Ay)-(w3-w1)*(By-Ay))/2.0;
+
+    double a2 = -(q2-q1)*Cx+(q3-q1)*Bx;
+    double b2 = ((w2-w1)*Cx - (w3-w1)*Bx)/2.0;
+
+    // a*z^2 + b*z + c = 0
+    double a = a1*a1 + a2*a2 + den*den;
+    double b = 2*(a1*b1 + a2*(b2-Ay*den) - q1*den*den);
+    double c = (b2-Ay*den)*(b2-Ay*den) + b1*b1 + den*den*(q1*q1 - L*L);
+
+    double discr = b*b - 4.0*a*c;
+//    if (discr < 0) return -1; // non-existing point
+
+    double z = -0.5*(b+sqrt(discr))/a;
+    z_pos = z;
+    x_pos = (a1*z + b1)/den;
+    y_pos = (a2*z + b2)/den;
+}
