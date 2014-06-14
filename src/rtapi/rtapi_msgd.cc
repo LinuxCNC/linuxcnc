@@ -197,7 +197,7 @@ static int create_global_segment()
 
 	if ((msgd_pid > -1) || (app_pid > -1)) {
 
-	    fprintf(stderr, "ERROR: found existing user RT "
+	    fprintf(stderr, "ERROR: found existing RT "
 		   "instance with the same instance id (%d)\n",
 		   rtapi_instance);
 	    if (msgd_pid > 0)
