@@ -114,9 +114,8 @@ anywait(){
 CheckStatus(){
     local res=0
 
-    # check if rtapi_msgd is running, and rtapi_app if applicable
-    progs=msgd:${INSTANCE}
-    test $BUILD_SYS = user-dso && progs="rtapi:${INSTANCE} $progs"
+    # check if rtapi_msgd and rtapi_app are running
+    progs="msgd:${INSTANCE} rtapi:${INSTANCE}"
 
     for prog in $progs; do
 	if test -n "$($PIDOF $prog)"; then
@@ -240,30 +239,29 @@ RemoveModules(){
 
 
 Unload(){
-    if test $BUILD_SYS = user-dso; then
 
-	# shutdown rtapi if it exists
+    # shutdown rtapi if it exists
 
-	RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
-	if [ "$RTAPI_PID" != "" ] ; then
-	    if [ $DEBUG -gt 0 ] ; then
-		halcmd unload all
-		halcmd shutdown
-	    else
-		halcmd unload all          >/dev/null 2>&1
-		halcmd shutdown            >/dev/null 2>&1
-            fi
-	fi
+    RTAPI_PID=`$PIDOF rtapi:$INSTANCE`
+    if [ "$RTAPI_PID" != "" ] ; then
+	if [ $DEBUG -gt 0 ] ; then
+	    halcmd unload all
+	    halcmd shutdown
+	else
+	    halcmd unload all          >/dev/null 2>&1
+	    halcmd shutdown            >/dev/null 2>&1
+        fi
+    fi
 
-	if test $USE_SHMDRV = no; then
+    if test $USE_SHMDRV = no; then
 
 	    # remove any linuxcnc-specific POSIX shm segments if they exist
 	    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 
-	    INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE`
-	    rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
-	fi
+	INSTKEY=`printf 'linuxcnc-%d-' $INSTANCE`
+	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
     fi
+
 
     # wait until rtapi_msgd has vanished. This assures
     # that the last user of the global data segment has vanished,
@@ -272,10 +270,13 @@ Unload(){
     # which could trigger this is runtests.
 
     # msgd should detect an rtapi_app shutdown, so give some time to
-    # let that happen
-    if test $BUILD_SYS = user-dso; then
-	sleep 0.5
-    fi
+    # let that happen. However, after detecting rtapi_app exit, msgd
+    # enters a grace period of 2seconds to collect any remaining messages
+    # written to the RT log in the global segment ringbuffer.
+    # This helps to debug issues during the critical shutdown phase;
+    # if msgd exited right away those messages would be lost.
+
+    sleep 2.5
 
     # and get nasty only if it didnt
     MSGD_PID=`$PIDOF msgd:$INSTANCE`
