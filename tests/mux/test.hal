@@ -82,7 +82,9 @@ net o16 mux-gen.16.out-bit sampler.0.pin.16
 net o17 mux-gen.17.out-float sampler.0.pin.17
 
 loadusr halstreamer input-signals
-loadusr -w sleep 0.5
+waitusr  -i halstreamer
+
+#loadusr -w sleep 0.5
 
 start
 waitusr  -i halsampler
