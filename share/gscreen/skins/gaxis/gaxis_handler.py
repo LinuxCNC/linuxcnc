@@ -157,16 +157,15 @@ class HandlerClass:
         self.widgets.adjustment_so.set_upper(self.data.spindle_override_max*100)
         self.widgets.adjustment_so.set_value(self.data.spindle_override*100)
         self.widgets.notebook_debug.set_show_tabs(False)
-        self.gscreen.keylookup.add_conversion('F4','TEST2','on_keycall_POWER')
-        #self.gscreen.keylookup.add_binding('F4','TEST2')
-        #self.gscreen.keylookup.add_call('TEST2','on_keycall_POWER')
+        #self.gscreen.keylookup.add_conversion('F4','TEST2','on_keycall_POWER')
         self.widgets.show_dro.set_active(True)
+
     # If we need extra HAL pins here is where we do it.
-    # Note you must import hal at the top of this script to do it.
-    # For gaxis there is no extra pins but since we don't want gscreen to
-    # add it's default pins we added this function
+    # Note you must import hal at the top of this script to build the pins here. or:
+    # For gaxis there is only jog pins so we call gscreen to
+    # add it's default jog pins
     def initialize_pins(self):
-        pass
+        self.gscreen.init_jog_pins()
 
     # checks the current operating mode according to the UI
     def check_mode(self):
@@ -178,11 +177,23 @@ class HandlerClass:
 
     # keybinding calls 
     def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
-        if state:
+        if state: # only activate when pushed not when released
             self.widgets.emc_toggle_estop.emit('activate')
+            return True
     def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
         if state:
             self.widgets.emc_toggle_power.emit('activate')
+            return True
+    def on_keycall_INCREMENTS(self,state,SHIFT,CNTRL,ALT):
+        if state and self.data._MAN in self.check_mode(): # manual mode required
+            print 'hi'
+            if SHIFT:
+                self.gscreen.set_jog_increments(index_dir = -1)
+            else:
+                self.gscreen.set_jog_increments(index_dir = 1)
+            # update the combo box
+            self.widgets.jog_speed.set_active(self.data.current_jogincr_index)
+            return True
 
     def on_touch_off_clicked(self,widget,axis):
         self.gscreen.launch_numerical_input("on_offset_origin_entry_return",axis,None,"Touch off %s"% axis.upper())
