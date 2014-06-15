@@ -954,7 +954,7 @@ static void flush_segments(void) {
     linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
     double acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.jerk = TO_EXT_LEN(getStraightJerk(x, y, z, a, b, c, u, v, w));
+    linearMoveMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg.indexrotary = -1;
@@ -1067,7 +1067,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.jerk = TO_EXT_LEN(getStraightJerk(x, y, z, a, b, c, u, v, w));
+    linearMoveMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
     linearMoveMsg.indexrotary = rotary_unlock_for_traverse;
 
     int old_feed_mode = feed_mode;
@@ -1177,7 +1177,7 @@ void STRAIGHT_PROBE(int line_number,
     probeMsg.vel = toExtVel(vel);
     probeMsg.ini_maxvel = toExtVel(ini_maxvel);
     probeMsg.acc = toExtAcc(acc);
-    probeMsg.jerk = TO_EXT_LEN(getStraightJerk(x, y, z, a, b, c, u, v, w));
+    probeMsg.jerk = toExtAcc(getStraightJerk(x, y, z, a, b, c, u, v, w));
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     probeMsg.probe_type = probe_type;
@@ -1507,12 +1507,13 @@ void ARC_FEED(int line_number,
 	a2 = axis_max_acc[1];
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        j1 = axis_max_jerk[0];
-        j2 = axis_max_jerk[1];
+        j1 = emcAxisGetMaxJerk(0);
+        j2 = emcAxisGetMaxJerk(1);
         jerk = MIN(j1, j2);
         if(axis_valid(2) && axis_len > 0.001) {
             axial_maxvel = v1 = axis_max_vel[2];
             a1 = axis_max_acc[2];
+            j1 = emcAxisGetMaxJerk(2);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
             jerk = MIN(jerk, j1);
@@ -1547,12 +1548,13 @@ void ARC_FEED(int line_number,
 	a2 = axis_max_acc[2];
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        j1 = axis_max_jerk[1];
-        j2 = axis_max_jerk[2];
+        j1 = emcAxisGetMaxJerk(1);
+        j2 = emcAxisGetMaxJerk(2);
         jerk = MIN(j1, j2);
         if(axis_valid(0) && axis_len > 0.001) {
             axial_maxvel = v1 = axis_max_vel[0];
             a1 = axis_max_acc[0];
+            j1 = emcAxisGetMaxJerk(0);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
             jerk = MIN(jerk, j1);
@@ -1588,12 +1590,13 @@ void ARC_FEED(int line_number,
 	a2 = axis_max_acc[2];
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
-        j1 = axis_max_jerk[0];
-        j2 = axis_max_jerk[2];
+        j1 = emcAxisGetMaxJerk(0);
+        j2 = emcAxisGetMaxJerk(2);
         jerk = MIN(j1, j2);
         if(axis_valid(1) && axis_len > 0.001) {
             axial_maxvel = v1 = axis_max_vel[1];
             a1 = axis_max_acc[1];
+            j1 = emcAxisGetMaxJerk(1);
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
             jerk = MIN(jerk, j1);
