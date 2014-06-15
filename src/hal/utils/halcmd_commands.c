@@ -3692,7 +3692,7 @@ int do_newthread_cmd(char *name, char *period, char *args[])
 	if (strcmp(s, "nofp") == 0)
 	    use_fp = false;
     }
-    retval = rtapi_newthread(rtapi_instance, name, per, cpu, use_fp);
+    retval = rtapi_newthread(rtapi_instance, name, per, cpu, (int)use_fp);
     if (retval)
 	halcmd_error("%s\n",rtapi_rpcerror());
 

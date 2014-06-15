@@ -103,7 +103,7 @@ int rtapi_ping(int instance)
     return reply.retcode();
 }
 
-int rtapi_newthread(int instance, const char *name, int period, int cpu, bool use_fp)
+int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp)
 {
     pb::RTAPICommand *cmd;
     command.Clear();
