@@ -1154,45 +1154,59 @@ class Gscreen:
     def on_keycall_ABORT(self,state,SHIFT,CNTRL,ALT):
         if state: # only activate when pushed not when released
             self.widgets.hal_action_stop.emit("activate")
+            return True
     def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
         if state:
             self.widgets.button_estop.emit('clicked')
+            return True
     def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
         if state:
             self.widgets.button_machine_on.emit('clicked')
+            return True
     def on_keycall_XPOS(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_X,1,state)
+            return True
     def on_keycall_XNEG(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_X,0,state)
+            return True
     def on_keycall_YPOS(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Y,1,state)
+            return True
     def on_keycall_YNEG(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Y,0,state)
+            return True
     def on_keycall_ZPOS(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Z,1,state)
+            return True
     def on_keycall_ZNEG(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Z,0,state)
+            return True
     def on_keycall_APOS(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_A,1,state)
+            return True
     def on_keycall_ANEG(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_A,0,state)
+            return True
     def on_keycall_INCREMENTS(self,state,SHIFT,CNTRL,ALT):
-        if state: 
+        if state and self.data._MAN in self.check_mode(): # manual mode required
             if SHIFT:
                 self.set_jog_increments(index_dir = -1)
             else:
                 self.set_jog_increments(index_dir = 1)
+            return True
+
     def on_keycall_(self,state,SHIFT,CNTRL,ALT):
         if self.data._MAN in self.check_mode(): # manual mode required
             pass
+            return True
 
     def on_button_spindle_controls_clicked(self,widget):
         self.spindle_dialog()
@@ -1237,11 +1251,10 @@ class Gscreen:
             method = self.keylookup.convert(keyname)
             if method:
                 try:
-                    self.handler_instance[method](state,SHIFT,CNTRL,ALT)
-                    return True
+                    return self.handler_instance[method](state,SHIFT,CNTRL,ALT)
                 except:
-                    self[method](state,SHIFT,CNTRL,ALT) 
-                    return True                             
+                    self.show_try_errors()
+                    return self[method](state,SHIFT,CNTRL,ALT) 
         except:
             self.show_try_errors()
 
