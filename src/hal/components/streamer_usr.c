@@ -109,7 +109,8 @@ static void quit(int sig)
 int main(int argc, char **argv)
 {
     int n, channel, retval, size, line;
-    char *cp, *cp2;
+    char *cp,*cp2;
+    char *name = NULL;
     void *shmem_ptr;
     fifo_t *fifo;
     shmem_data_t *data, *dptr;
@@ -121,50 +122,60 @@ int main(int argc, char **argv)
     /* set return code to "fail", clear it later if all goes well */
     exitval = 1;
     channel = 0;
-    for ( n = 1 ; n < argc ; n++ ) {
-	cp = argv[n];
-	if ( *cp != '-' ) {
+    int  opt;
+    while ((opt = getopt(argc, argv, "c:N:")) != -1) {
+	switch (opt) {
+        case 'c':
+	    channel = strtol(optarg, &cp2, 10);
+            if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_STREAMERS )) {
+		fprintf(stderr,"ERROR: invalid channel number '%s'\n", optarg );
+                exit(1);
+            }
+            break;
+	case 'N':
+	    name = optarg;
 	    break;
-	}
-	switch ( *(++cp) ) {
-	case 'c':
-	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-		cp = argv[n];
-	    }
-	    channel = strtol(cp, &cp2, 10);
-	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_STREAMERS )) {
-		fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
-		exit(1);
-	    }
-	    break;
-	default:
-	    fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
-	    exit(1);
-	    break;
-	}
+	default: /* '?' */
+	    fprintf(stderr,"ERROR: unknown option '%c'\n", opt);
+	    fprintf(stderr,"valid options are:\n" );
+	    fprintf(stderr,"\t-c <int>\t channel number\n" );
+	    fprintf(stderr,"\t-N <name>\t set HAL component name\n" );
+	    exit(EXIT_FAILURE);
+        }
     }
-    if(n < argc) {
-	int fd;
-	if(argc > n+1) {
-	    fprintf(stderr, "ERROR: At most one filename may be specified\n");
-	    exit(1);
-	}
+    if (optind < argc) {
+        int fd;
+	if(argc > optind+1) {
+            fprintf(stderr, "ERROR: At most one filename may be specified\n");
+            exit(1);
+        }
 	// make stdin be the named file
-	fd = open(argv[n], O_RDONLY);
+	fd = open(argv[optind], O_RDONLY);
+	if (fd < 0) {
+            fprintf(stderr, "ERROR: cannot open '%s' for reading: %s\n",
+		    argv[optind], strerror(errno));
+            exit(1);
+	}
 	close(0);
 	dup2(fd, 0);
     }
+
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
     signal(SIGPIPE, SIG_IGN);
     /* connect to HAL */
-    /* create a unique module name, to allow for multiple streamers */
-    snprintf(comp_name, sizeof(comp_name), "halstreamer%d", getpid());
+
+    if (name == NULL) {
+       /* create a unique module name, to allow for multiple samplers */
+       snprintf(comp_name, sizeof(comp_name), "halstreamer%d", getpid());
+       name = comp_name;
+    }
+
     /* connect to the HAL */
     ignore_sig = 1;
-    comp_id = hal_init(comp_name);
+    comp_id = hal_init(name);
     ignore_sig = 0;
     /* check result */
     if (comp_id < 0) {
