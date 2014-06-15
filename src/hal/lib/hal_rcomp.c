@@ -21,7 +21,7 @@
 int hal_bind(const char *comp_name)
 {
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: hal_bind called before hal_init\n");
 	return -EINVAL;
     }
@@ -32,18 +32,18 @@ int hal_bind(const char *comp_name)
 	comp = halpr_find_comp_by_name(comp_name);
 
 	if (comp == NULL) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_bind(): no such component '%s'\n", comp_name);
 	    return -EINVAL;
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_bind(%s): not a remote componet (%d)\n",
 			    comp_name, comp->type);
 	    return -EINVAL;
 	}
 	if (comp->state != COMP_UNBOUND) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_bind(%s): state not unbound (%d)\n",
 			    comp_name, comp->state);
 	    return -EINVAL;
@@ -58,7 +58,7 @@ int hal_unbind(const char *comp_name)
 {
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: hal_bind called before hal_init\n");
 	return -EINVAL;
     }
@@ -69,19 +69,19 @@ int hal_unbind(const char *comp_name)
 
 	comp = halpr_find_comp_by_name(comp_name);
 	if (comp == NULL) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_unbind(): no such component '%s'\n",
 			    comp_name);
 	    return -EINVAL;
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_unbind(%s): not a remote componet (%d)\n",
 			    comp_name, comp->type);
 	    return -EINVAL;
 	}
 	if (comp->state != COMP_BOUND) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_unbind(%s): state not bound (%d)\n",
 			    comp_name, comp->state);
 	    return -EINVAL;
@@ -95,7 +95,7 @@ int hal_unbind(const char *comp_name)
 int hal_acquire(const char *comp_name, int pid)
 {
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: hal_acquire called before hal_init\n");
 	return -EINVAL;
     }
@@ -106,19 +106,19 @@ int hal_acquire(const char *comp_name, int pid)
 	comp = halpr_find_comp_by_name(comp_name);
 
 	if (comp == NULL) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_acquire(): no such component '%s'\n",
 			    comp_name);
 	    return -EINVAL;
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_acquire(%s): not a remote component (%d)\n",
 			    comp_name, comp->type);
 	    return -EINVAL;
 	}
 	if (comp->state == COMP_BOUND) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_acquire(%s): cant reown a bound component (%d)\n",
 			    comp_name, comp->state);
 	    return -EINVAL;
@@ -129,7 +129,7 @@ int hal_acquire(const char *comp_name, int pid)
 	    (comp->pid != global_data->rtapi_app_pid))
 
 	    {
-		rtapi_print_msg(RTAPI_MSG_ERR,
+		hal_print_msg(RTAPI_MSG_ERR,
 				"HAL: hal_acquire(%s): component already owned by pid %d\n",
 				comp_name, comp->pid);
 		return -EINVAL;
@@ -142,7 +142,7 @@ int hal_acquire(const char *comp_name, int pid)
 int hal_release(const char *comp_name)
 {
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: hal_release called before hal_init\n");
 	return -EINVAL;
     }
@@ -153,26 +153,26 @@ int hal_release(const char *comp_name)
 	comp = halpr_find_comp_by_name(comp_name);
 
 	if (comp == NULL) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_release(): no such component '%s'\n",
 			    comp_name);
 	    return -EINVAL;
 	}
 	if (comp->type != TYPE_REMOTE) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_release(%s): not a remote componet (%d)\n",
 			    comp_name, comp->type);
 	    return -EINVAL;
 	}
 	if (comp->pid == 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL: hal_release(%s): component already disowned\n",
 			    comp_name);
 	    return -EINVAL;
 	}
 
 	if (comp->pid != getpid()) {
-	    rtapi_print_msg(RTAPI_MSG_WARN,
+	    hal_print_msg(RTAPI_MSG_WARN,
 			    "HAL: hal_release(%s): component owned by pid %d\n",
 			    comp_name, comp->pid);
 	    // return -EINVAL;
@@ -194,7 +194,7 @@ int hal_retrieve_compstate(const char *comp_name,
     hal_compstate_t state;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: hal_retrieve_compstate called before ULAPI init\n");
 	return -EINVAL;
     }
@@ -243,7 +243,7 @@ int hal_retrieve_compstate(const char *comp_name,
 	    /* no match, try the next one */
 	    next = comp->next_ptr;
 	}
-	// rtapi_print_msg(RTAPI_MSG_DBG,
+	// hal_print_msg(RTAPI_MSG_DBG,
 	//		"HAL: hal_retrieve_compstate: visited %d comps\n", nvisited);
 	/* if we get here, we ran through all the comps, so return count */
 	return nvisited;
@@ -262,7 +262,7 @@ int hal_retrieve_pinstate(const char *comp_name,
     hal_pinstate_t pinstate;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL: ERROR: hal_retrieve_pinstate called before ULAPI init\n");
 	return -EINVAL;
     }
@@ -275,7 +275,7 @@ int hal_retrieve_pinstate(const char *comp_name,
 	if (comp_name != NULL) {
 	    comp = halpr_find_comp_by_name(comp_name);
 	    if (comp == NULL) {
-		rtapi_print_msg(RTAPI_MSG_ERR,
+		hal_print_msg(RTAPI_MSG_ERR,
 				"HAL: ERROR: hal_retrieve_pinstate: component '%s' not found\n", comp_name);
 		return -EINVAL;
 	    }
@@ -324,7 +324,7 @@ int hal_retrieve_pinstate(const char *comp_name,
 	    /* no match, try the next one */
 	    next = pin->next_ptr;
 	}
-	rtapi_print_msg(RTAPI_MSG_DBG,
+	hal_print_msg(RTAPI_MSG_DBG,
 			"HAL: hal_retrieve_pinstate: visited %d pins\n", nvisited);
 	/* if we get here, we ran through all the pins, so return count */
 	return nvisited;
@@ -339,7 +339,7 @@ int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
    int pincount = 0;
 
    if (!name) {
-       rtapi_print_msg(RTAPI_MSG_ERR,
+       hal_print_msg(RTAPI_MSG_ERR,
 		       "HAL:%d ERROR: hal_compile_comp() called with NULL name\n",
 		       rtapi_instance);
 	return -EINVAL;
@@ -353,7 +353,7 @@ int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
        rtapi_mutex_get(&(hal_data->mutex));
 
        if ((comp = halpr_find_comp_by_name(name)) == NULL) {
-	   rtapi_print_msg(RTAPI_MSG_ERR,
+	   hal_print_msg(RTAPI_MSG_ERR,
 		       "HAL:%d ERROR: hal_comp_compile(%s): no such comp\n",
 			   rtapi_instance, name);
 	   return -EINVAL;
@@ -373,7 +373,7 @@ int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
 	    next = pin->next_ptr;
        }
        if (n == 0) {
-	   rtapi_print_msg(RTAPI_MSG_ERR,
+	   hal_print_msg(RTAPI_MSG_ERR,
 			   "ERROR: component %s has no pins to watch for changes\n",
 			   name);
 	   return -EINVAL;
@@ -395,7 +395,7 @@ int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
 	   return -ENOMEM;
        // alloc change bitmap
        if ((tc->changed =
-	    malloc(RTAPI_BITMAP_SIZE(tc->n_pins))) == NULL)
+	    malloc(RTAPI_BITMAP_BYTES(tc->n_pins))) == NULL)
 	    return -ENOMEM;
 
        memset(tc->pin, 0, sizeof(hal_pin_t *) * tc->n_pins);
@@ -417,7 +417,7 @@ int hal_compile_comp(const char *name, hal_compiled_comp_t **ccomp)
        tc->magic = CCOMP_MAGIC;
        *ccomp = tc;
    }
-   rtapi_print_msg(RTAPI_MSG_DBG, "hal_compile_comp(%s): %d pins, %d tracked",
+   hal_print_msg(RTAPI_MSG_DBG, "hal_compile_comp(%s): %d pins, %d tracked",
 		   name, pincount, tc->n_pins);
    return 0;
 }
@@ -480,7 +480,7 @@ int hal_ccomp_match(hal_compiled_comp_t *cc)
 	    }
 	    break;
 	default:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
+	    hal_print_msg(RTAPI_MSG_ERR,
 			    "HAL:%d BUG: hal_ccomp_match(%s): invalid type for pin %s: %d\n",
 			    rtapi_instance, cc->comp->name, pin->name, pin->type);
 	    return -EINVAL;

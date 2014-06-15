@@ -9,13 +9,13 @@ int halpr_foreach_comp(const char *name,
     int result;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_comp called before init\n",
 			rtapi_instance);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_comp called while HAL locked\n",
 			rtapi_instance);
 	return -EPERM;
@@ -63,13 +63,13 @@ int halpr_foreach_sig(const char *name,
     int result;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_sig called before init\n",
 			rtapi_instance);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_sig called while HAL locked\n",
 			rtapi_instance);
 	return -EPERM;
@@ -116,13 +116,13 @@ int halpr_foreach_thread(const char *name,
     int result;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_thread called before init\n",
 			rtapi_instance);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_thread called while HAL locked\n",
 			rtapi_instance);
 	return -EPERM;
@@ -169,13 +169,13 @@ int halpr_foreach_funct(const char *name,
     int result;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_funct called before init\n",
 			rtapi_instance);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_funct called while HAL locked\n",
 			rtapi_instance);
 	return -EPERM;
@@ -222,13 +222,13 @@ int halpr_foreach_ring(const char *name,
     int result;
 
     if (hal_data == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_ring called before init\n",
 			rtapi_instance);
 	return -EINVAL;
     }
     if (hal_data->lock & HAL_LOCK_CONFIG)  {
-	rtapi_print_msg(RTAPI_MSG_ERR,
+	hal_print_msg(RTAPI_MSG_ERR,
 			"HAL:%d ERROR: halpr_foreach_ring called while HAL locked\n",
 			rtapi_instance);
 	return -EPERM;
@@ -263,5 +263,60 @@ int halpr_foreach_ring(const char *name,
 	next = ring->next_ptr;
     }
     /* if we get here, we ran through all the rings, so return count */
+    return nvisited;
+}
+
+// forgotten
+
+int halpr_foreach_pin(const char *name,
+		      hal_pin_callback_t callback, void *cb_data)
+{
+    hal_pin_t *pin;
+    int next;
+    int nvisited = 0;
+    int result;
+
+    if (hal_data == 0) {
+	hal_print_msg(RTAPI_MSG_ERR,
+			"HAL:%d ERROR: halpr_foreach_pin called before init\n",
+			rtapi_instance);
+	return -EINVAL;
+    }
+    if (hal_data->lock & HAL_LOCK_CONFIG)  {
+	hal_print_msg(RTAPI_MSG_ERR,
+			"HAL:%d ERROR: halpr_foreach_pin called while HAL locked\n",
+			rtapi_instance);
+	return -EPERM;
+    }
+    /* search for the pin */
+    next = hal_data->pin_list_ptr;
+    while (next != 0) {
+	pin = SHMPTR(next);
+	if (!name || (strcmp(pin->name, name)) == 0) {
+	    nvisited++;
+	    /* this is the right pin */
+	    if (callback) {
+		result = callback(pin, cb_data);
+		if (result < 0) {
+		    // callback signalled an error, pass that back up.
+		    return result;
+		} else if (result > 0) {
+		    // callback signalled 'stop iterating'.
+		    // pass back the number of visited pins.
+		    return nvisited;
+		} else {
+		    // callback signalled 'OK to continue'
+		    // fall through
+		}
+	    } else {
+		// null callback passed in,
+		// just count pins
+		// nvisited already bumped above.
+	    }
+	}
+	/* no match, try the next one */
+	next = pin->next_ptr;
+    }
+    /* if we get here, we ran through all the pins, so return count */
     return nvisited;
 }

@@ -204,7 +204,7 @@ enum comp_type  {
     TYPE_RT,
     TYPE_USER,
     TYPE_INSTANCE,
-    TYPE_REMOTE
+    TYPE_REMOTE,
 };
 
 enum comp_state {
@@ -379,6 +379,16 @@ int hal_comp_state_by_name(const char *name);
 extern int hal_rtapi_attach();
 extern int hal_rtapi_detach();
 #endif
+
+
+// return the last HAL error message. Used for API binding error messages during setup
+// not guaranteed to be related to last HAL API call if threads are running.
+const char *hal_lasterror(void);
+
+// same signature as rtapi_print_msg, but records last error message for hal_lasterror():
+void hal_print_msg(int level, const char *fmt, ...)
+    __attribute__((format(printf,2,3)));
+
 
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
