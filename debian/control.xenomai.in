@@ -2,7 +2,7 @@
 Package: machinekit-xenomai
 Architecture: any
 Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	libxenomai1, xenomai-runtime, linux-image-xenomai
+	libxenomai1, xenomai-runtime
 Provides:  machinekit-rt-threads
 Recommends: hostmot2-firmware [!armhf]
 Enhances: machinekit
