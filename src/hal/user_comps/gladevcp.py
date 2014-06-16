@@ -37,6 +37,7 @@ import traceback
 
 import hal
 from optparse import Option, OptionParser
+import ConfigParser
 import gtk
 import gtk.glade
 import gobject
@@ -87,8 +88,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-S', dest='svc_uuid', default=None, metavar='UUID of remote HAL instance'
                     , help='connect to haltalk server by giving its UUID')
 
-          , Option( '-E', action='store_true', dest='use_env'
-                    , metavar='use MKUUID from environment as instance'
+          , Option( '-E', action='store_true', dest='use_mki'
+                    , metavar='use MKUUID from MACHINEKIT_INI'
                     , help='local case - use the current MKUUID')
 
           , Option( '-N', action='store_true', dest='remote',default=False
@@ -253,7 +254,7 @@ def main():
         print >> sys.stderr, "*** GLADE VCP ERROR: use either -s<uuid> or -C/-M, but not both"
         sys.exit(0)
 
-    if not (opts.svc_uuid or opts.use_env or opts.halrcmd_uri or opts.halrcomp_uri): # local
+    if not (opts.svc_uuid or opts.use_mki or opts.halrcmd_uri or opts.halrcomp_uri): # local
         try:
             import hal
             halcomp = hal.component(opts.component)
@@ -265,8 +266,10 @@ def main():
         panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
     else:
         if opts.rcdebug: print "remote uuid=%s halrcmd=%s halrcomp=%s" % (opts.svc_uuid,opts.halrcmd_uri,opts.halrcomp_uri)
-        if opts.use_env:
-            uuid = os.getenv("MKUUID")
+        if opts.use_mki:
+            mki = ConfigParser.ConfigParser()
+            mki.read(os.getenv("MACHINEKIT_INI"))
+            uuid = mki.get("MACHINEKIT", "MKUUID")
         else:
             uuid = opts.svc_uuid
         halcomp = GRemoteComponent(opts.component,
@@ -282,7 +285,7 @@ def main():
         panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
         # no discovery, so bind right away
-        if not (opts.use_env or opts.svc_uuid):
+        if not (opts.use_mki or opts.svc_uuid):
             halcomp.bind()
         # else bind() is called once all URI's discovered and connected
         # this should really be done with a signal, and bind() done in reaction to
