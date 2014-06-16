@@ -528,73 +528,73 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->pgain), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->pgain), comp_id,
 				"%s.Pgain", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->igain), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->igain), comp_id,
 				"%s.Igain", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->dgain), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->dgain), comp_id,
 				"%s.Dgain", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->ff0gain), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->ff0gain), comp_id,
 				"%s.FF0", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->ff1gain), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->ff1gain), comp_id,
 				"%s.FF1", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->ff2gain), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->ff2gain), comp_id,
 				"%s.FF2", prefix);
     if (retval != 0) {
 	return retval;
     }
     /* export pins (previously parameters) */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->deadband), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->deadband), comp_id,
 				"%s.deadband", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxerror), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror), comp_id,
 				"%s.maxerror", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxerror_i), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror_i), comp_id,
 				"%s.maxerrorI", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxerror_d), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxerror_d), comp_id,
 				"%s.maxerrorD", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxcmd_d), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_d), comp_id,
 				"%s.maxcmdD", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxcmd_dd), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxcmd_dd), comp_id,
 				"%s.maxcmdDD", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->bias), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->bias), comp_id,
 				"%s.bias", prefix);
     if (retval != 0) {
 	return retval;
     }
-    retval = hal_pin_float_newf(HAL_IO, &(addr->maxoutput), comp_id,
+    retval = hal_pin_float_newf(HAL_IN, &(addr->maxoutput), comp_id,
 				"%s.maxoutput", prefix);
     if (retval != 0) {
 	return retval;
