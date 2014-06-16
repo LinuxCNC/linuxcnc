@@ -229,11 +229,21 @@ def choose_ip(pref):
 def main():
     debug = False
     trace = False
-    uuid = os.getenv("MKUUID")
-    if uuid is None:
-        print >> sys.stderr, "no MKUUID environemnt variable set"
-        print >> sys.stderr, "run export MKUUID=`uuidgen` first"
+
+    mkini = os.getenv("MACHINEKIT_INI")
+    if mkini is None:
+        print >> sys.stderr, "no MACHINEKIT_INI environemnt variable set"
         sys.exit(1)
+
+    mki = ConfigParser.ConfigParser()
+    mki.read(mkini)
+    uuid = mki.get("MACHINEKIT", "MKUUID")
+    remote = mki.getint("MACHINEKIT", "REMOTE")
+
+    if remote == 0:
+        print("Remote communication is deactivated, configserver will not start")
+        print("set REMOTE in " + mkini + " to 1 to enable remote communication")
+        sys.exit(0)
 
     prefs = ['wlan','eth','usb']
 
