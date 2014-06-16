@@ -61,21 +61,32 @@ class ZeroconfService:
 
 class ConfigServer:
 
-    def __init__(self, context, uri, inifile,  topdir=".",
+    def __init__(self, context, uri, appDirs=[],  topdir=".",
                  interface="", ipv4="", svc_uuid=None,debug=False):
-        self.inifile = inifile
+        self.appDirs = appDirs
         self.interface = interface
         self.ipv4 = ipv4
         self.debug = debug
         self.cfg = ConfigParser.ConfigParser()
 
-        if (inifile != ''):
-            self.cfg.read(self.inifile)
-            if debug:
-                print "apps:", self.cfg.sections()
-                for n in self.cfg.sections():
-                    print "comment:", self.cfg.get(n, 'comment')
-                    print "type:", self.cfg.getint(n, 'type')
+	for rootdir in self.appDirs:
+            for root, subFolders, files in os.walk(rootdir):
+                if 'description.ini' in files:
+                    inifile = os.path.join(root, 'description.ini')
+                    cfg = ConfigParser.ConfigParser()
+                    cfg.read(inifile)
+                    name = cfg.get('Default', 'name')
+                    description = cfg.get('Default', 'description')
+                    type = cfg.get('Default', 'type')
+                    self.cfg.add_section(name)
+                    self.cfg.set(name, 'description', description)
+                    self.cfg.set(name, 'type', type)
+                    self.cfg.set(name, 'files', root)
+                    if debug:
+                        print "name:", cfg.get('Default', 'name')
+                        print "description:", cfg.get('Default', 'description')
+                        print "type:", cfg.get('Default', 'type')
+                        print "files:", root
 
         self.topdir = topdir
         self.context = context
@@ -116,6 +127,14 @@ class ConfigServer:
         except KeyboardInterrupt:
             self.service.unpublish()
 
+    def typeToPb(self, type):
+        if type == 'QT5_QML':
+            return QT5_QML
+        elif type == 'GLADEVCP':
+            return GLADEVCP
+        else:
+            return JAVASCRIPT
+
     def send_msg(self,dest, type):
         self.tx.type = type
         buffer = self.tx.SerializeToString()
@@ -128,7 +147,7 @@ class ConfigServer:
             app = self.tx.app.add()
             app.name = name
             app.description = self.cfg.get(name, 'description')
-            app.type = self.cfg.getint(name, 'type')
+            app.type = self.typeToPb(self.cfg.get(name, 'type'))
         self.send_msg(origin, MT_DESCRIBE_APPLICATION)
 
     def add_files(self, dir, app):
@@ -149,7 +168,7 @@ class ConfigServer:
         app = self.tx.app.add()
         app.name = name
         app.description = self.cfg.get(name, 'description')
-        app.type = self.cfg.getint(name, 'type')
+        app.type = self.typeToPb(self.cfg.get(name, 'type'))
         self.add_files(self.cfg.get(name, 'files'), app)
 
         self.send_msg(origin, MT_APPLICATION_DETAIL)
@@ -208,7 +227,7 @@ def choose_ip(pref):
 
 
 def main():
-    debug = True
+    debug = False
     trace = False
     uuid = os.getenv("MKUUID")
     if uuid is None:
@@ -232,16 +251,13 @@ def main():
 
     uri = "tcp://" + iface[0]
 
-    inifile = ''
-    if (len(sys.argv) > 1):
-        inifile = sys.argv[1]
-        print(('using inifile ' + inifile))
-
-    cfg = ConfigServer(context, uri, inifile,
+    cfg = ConfigServer(context, uri,
                        svc_uuid=uuid,
                        topdir=".",
                        interface = iface[0],
-                       ipv4 = iface[1])
+                       ipv4 = iface[1],
+                       appDirs = sys.argv[1:],
+                       debug = debug)
 
 if __name__ == "__main__":
     main()
