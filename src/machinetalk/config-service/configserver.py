@@ -239,13 +239,12 @@ def main():
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
+    prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
         print("Remote communication is deactivated, configserver will not start")
         print("set REMOTE in " + mkini + " to 1 to enable remote communication")
         sys.exit(0)
-
-    prefs = ['wlan','eth','usb']
 
     iface = choose_ip(prefs)
     if not iface:
