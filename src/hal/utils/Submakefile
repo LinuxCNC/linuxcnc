@@ -15,7 +15,7 @@ TARGETS += ../tcl/hal.so
 
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0 
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -lm  -o $@ $^ $(READLINE_LIBS)
+	$(Q)$(CC) $(LDFLAGS)  -o $@ $^ $(READLINE_LIBS) -lm 
 TARGETS += ../bin/halcmd
 
 HALRMTSRCS := hal/utils/halrmt.c

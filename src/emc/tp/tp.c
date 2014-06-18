@@ -201,7 +201,13 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
 STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
     double v_max = tpGetMaxTargetVel(tp, tc);
-    return fmin(tc->reqvel * tpGetFeedScale(tp,tc), v_max);
+    double v_target;
+    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
+        v_target = fmin(tc->reqvel * tpGetFeedScale(tp,tc), v_max);
+    } else {
+        v_target = v_max;
+    }
+    return v_target;
 }
 
 
@@ -210,14 +216,17 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     // Get maximum reachable velocity from max feed override
-    double v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
+    double v_max_target;
+    // Check if vLimit applies
+    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
+        v_max_target = tp->vLimit;
+    } else {
+        v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
+    }
+
     // Clip maximum velocity by tc maxvel
     double v_max = fmin(v_max_target, tc->maxvel);
 
-    // Check if vLimit applies
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        sat_inplace(&v_max, tp->vLimit);
-    }
     return v_max;
 }
 
@@ -1889,6 +1898,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     if (!planning) {
         tc->blend_vel = v_blend_this;
         nexttc->blend_vel = v_blend_next;
+        tp_debug_print("v_blend_this = %f, v_blend_next = %f\n",
+		       v_blend_this,v_blend_next);
     }
     return TP_ERR_OK;
 }
