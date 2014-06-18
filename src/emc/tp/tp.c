@@ -1898,7 +1898,8 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
     if (!planning) {
         tc->blend_vel = v_blend_this;
         nexttc->blend_vel = v_blend_next;
-        tp_debug_print("v_blend_this = %f, v_blend_next = %f\n",v_blend_this,v_blend_next);
+        tp_debug_print("v_blend_this = %f, v_blend_next = %f\n",
+		       v_blend_this,v_blend_next);
     }
     return TP_ERR_OK;
 }
