@@ -133,3 +133,4 @@ cdef extern from "hal_priv.h":
     hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
     hal_param_t *halpr_find_param_by_owner(hal_comp_t * owner,  hal_param_t * start)
     hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner, hal_funct_t * start)
+    hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)

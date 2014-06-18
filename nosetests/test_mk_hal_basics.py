@@ -84,6 +84,9 @@ def test_linking():
     assert s1.readers == 0
     assert s1.bidirs == 0
 
+    # the list of Pin objects linked to this signal
+    assert len(s1.pins()) == 1
+
     # the name of modifying pins linked to this signal
     assert s1.writername == fqpname
     assert s1.bidirname == None

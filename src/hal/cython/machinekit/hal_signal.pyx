@@ -61,6 +61,29 @@ cdef class Signal:
         self._alive_check()
         return hal2py(self._sig.type, self._storage)
 
+
+    def pins(self):
+        ''' return a list of Pin objects linked to this signal '''
+        cdef hal_pin_t *p = NULL
+
+        self._alive_check()
+        # need to do this two-step due to HALmutex
+        # pins.__get_item__ will aquire the lock, and if we do so again
+        # by calling  pins.__get_item_ we'll produce a deadlock
+        # solution: collect the names under mutex, then collect wrappers from names
+        pinnames = []
+        with HALMutex():
+            p = halpr_find_pin_by_sig(self._sig,p)
+            while p != NULL:
+                pinnames.append(p.name)
+                p = halpr_find_pin_by_sig(self._sig, p)
+
+        pinlist = []
+        for n in pinnames:
+            pinlist.append(pins[n])
+        return pinlist
+
+
     property name:
         def __get__(self):
             self._alive_check()
