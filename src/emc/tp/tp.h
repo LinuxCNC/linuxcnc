@@ -55,8 +55,4 @@ void tpToggleDIOs(TC_STRUCT * const tc); //gets called when a new tc is taken fr
 int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end);
 int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end); //gets called to place DIO toggles on the TC queue
 
-//Misc utlity functions for motion
-int tpFindIntersectionAngle(PmCartesian const * const u1,
-        PmCartesian const * const u2, double * const theta);
-
 #endif				/* TP_H */
