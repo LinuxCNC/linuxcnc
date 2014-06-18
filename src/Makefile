@@ -1017,7 +1017,7 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 
 ../rtlib/%.o:
 	$(ECHO) Linking $@
-	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
+	$(Q)ld -r -static -S $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
 ifneq "$(filter normal sim,$(BUILD_SYS))" ""
