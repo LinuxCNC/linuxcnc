@@ -1,0 +1,46 @@
+package pb;
+
+import "nanopb.proto"; // for options
+
+enum DemoType {
+    DT_POLYLINE       = 1;
+    DT_ABORT          = 2;
+    DT_GETPOSITION    = 3;
+    DT_STATUS         = 4;
+    DT_ERROR          = 5;
+}
+
+message Target {
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+};
+
+enum SegmentType {
+    ST_LINE = 1;
+    ST_ARC  = 2;
+}
+
+message Segment {
+    required  SegmentType type = 1;
+    optional  Target      end = 2;
+    optional  Target      center = 3;   // DT_ARC
+    optional  Target      normal = 4;   // DT_ARC
+
+    // optional vel/acc overrides per segment:
+    optional  double      velocity = 5;
+    optional  double      acceleration = 6;
+}
+
+message DemoContainer {
+    required  DemoType type = 1;
+    repeated Segment segment = 2  [(nanopb).max_count = 20];
+
+    // default vel/acc for whole polyline
+    optional double velocity = 5;
+    optional double acceleration = 6;
+
+    // if used as reply from RT:
+    optional Target current = 7;
+    optional string note = 8 [(nanopb).max_size = 30];
+}
