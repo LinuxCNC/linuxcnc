@@ -97,7 +97,8 @@ struct PM_CARTESIAN;
 
 // defs for termination conditions
 
-#define EMC_TRAJ_TERM_COND_STOP  1
+#define EMC_TRAJ_TERM_COND_STOP  0
+#define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
 
 #define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)

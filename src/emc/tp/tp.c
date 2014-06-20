@@ -21,6 +21,12 @@
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
+//KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
+//definitions until we can break the emc constants out into a separate file.
+//#include "emc.hh"
+#define EMC_TRAJ_TERM_COND_STOP  0
+#define EMC_TRAJ_TERM_COND_EXACT 1
+#define EMC_TRAJ_TERM_COND_BLEND 2
 
 /**
  * @section tpdebugflags TP debugging flags
@@ -520,6 +526,7 @@ int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
         //Purposeful waterfall for now
         case TC_TERM_COND_PARABOLIC:
         case TC_TERM_COND_TANGENT:
+        case TC_TERM_COND_EXACT:
         case TC_TERM_COND_STOP:
             tp->termCond = cond;
             tp->tolerance = tolerance;
@@ -2724,11 +2731,11 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tc->target;
         tcSetSplitCycle(tc, 0.0, tc->currentvel);
-        if (tc->term_cond == TC_TERM_COND_STOP) {
+        if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
             tc->remove = 1;
         }
         return TP_ERR_OK;
-    } else if (tc->term_cond == TC_TERM_COND_STOP) {
+    } else if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
         return TP_ERR_NO_ACTION;
     }
 
@@ -2857,6 +2864,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
         case TC_TERM_COND_PARABOLIC:
             break;
         case TC_TERM_COND_STOP:
+            break;
+        case TC_TERM_COND_EXACT:
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",
