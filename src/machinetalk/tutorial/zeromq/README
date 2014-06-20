@@ -1,0 +1,32 @@
+The examples in this directory show the zeroMQ usage patterns as used
+in machinetalk. See http://zeromq.org and http://zeromq.github.io/pyzmq/ for details.
+
+
+- DEALER/ROUTER for a request/reply type interaction
+- PUB/SUB for publishing information to any number of subscribers, based on "topic"
+- XPUB/XSUB: the same, but demonstrating notification of the publisher by a new subscriber,
+  and the last subscriber going away (NOT for every unsubscribe!)
+
+to run the demos, use 2 windows:
+
+DEALER/ROUTER request/reply:
+============================
+
+  window1: python client-request.py
+  window2: python server-reply.py
+
+  Note that client-request.py does NOT fail if server-reply is not running -
+  automatic reconnect is a core feature of zeromq.
+
+
+PUB/SUB publishing:
+==================
+
+  window1: python publish-basic.py
+  window2: python subscribe-basic.py
+
+XPUB/XSUB publishing:
+=====================
+
+  window1: python publish-xpub.py
+  window2: python subscribe-xsub.py
