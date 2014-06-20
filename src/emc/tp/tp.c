@@ -1530,6 +1530,11 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         return TP_ERR_NO_ACTION;
     }
 
+    if (prev_tc->term_cond == TC_TERM_COND_STOP) {
+        tp_debug_print("Found exact stop condition, skipping tangent check\n");
+        return TP_ERR_NO_ACTION;
+    }
+
     PmCartesian prev_tan, this_tan;
 
     int res_endtan = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
