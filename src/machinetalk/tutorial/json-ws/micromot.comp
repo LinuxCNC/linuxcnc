@@ -1,0 +1,240 @@
+component micromot  "example  RT command processing component";
+
+pin out u32 msgs           "count of multipart messages received";
+pin out u32 frames         "number of frames";
+pin out u32 decodefailed   "number of protobuf messages which didnt parse";
+function _;
+
+option singleton yes;
+option rtapi_app no;
+
+license "GPLv2 or later";
+;;
+
+#include "hal_priv.h"
+#include "hal_ring.h"
+#define PB_FIELD_32BIT
+#include "../protobuf/demo.npb.h"
+#include "../protobuf/demo.npb.c"
+#include <pb_decode.h>
+#include <pb_encode.h>
+
+static char *name = "micromot";
+
+static char *command = "command";
+RTAPI_MP_STRING(command,  "name of command ring to attach");
+static char *response = "response";
+RTAPI_MP_STRING(response,  "name of response ring to attach");
+
+static ringbuffer_t  command_rb;  // incoming ringbuffer
+static msgbuffer_t  command_mrb;  // multiframe layer on incoming ringbuffer
+static ringbuffer_t response_rb;  // outgoing ringbuffer
+static msgbuffer_t response_mrb;  // multiframe layer on outgoing ringbuffer
+
+static pb_Target pos;  // "where we are"
+static pb_DemoContainer rx, tx;
+static int updates;
+
+static void report_position(pb_DemoContainer *d)
+{
+    d->type =  pb_DemoType_DT_STATUS;
+    d->has_current = 1;
+    d->current.has_x = 1;
+    d->current.has_y = 1;
+    d->current.has_z = 1;
+    d->current.x = pos.x;
+    d->current.y = pos.y;
+    d->current.z = pos.z;
+    d->has_note = 1;
+    rtapi_snprintf(d->note, sizeof(d->note),
+		   "status update %d from %s",
+		   ++updates, name);
+}
+
+static void report_error(pb_DemoContainer *d, const char *note)
+{
+    d->type =  pb_DemoType_DT_ERROR;
+    d->has_note = 1;
+    rtapi_snprintf(d->note, sizeof(d->note), "ERROR: %s", note);
+}
+
+static void ptarget(const char *tag, const pb_Target *t)
+{
+    if (t->has_x) { rtapi_print_msg(RTAPI_MSG_ERR,"%sx=%f\n", tag, t->x); }
+    if (t->has_y) { rtapi_print_msg(RTAPI_MSG_ERR,"%sy=%f\n", tag, t->y); }
+    if (t->has_z) { rtapi_print_msg(RTAPI_MSG_ERR,"%sz=%f\n", tag, t->z); }
+}
+
+void process(const pb_DemoContainer *d)
+{
+    int i;
+
+    rtapi_print_msg(RTAPI_MSG_ERR,"Container type=%d\n", d->type);
+    if (d->has_velocity) rtapi_print_msg(RTAPI_MSG_ERR,"default velocity %f\n", d->velocity);
+    if (d->has_acceleration) rtapi_print_msg(RTAPI_MSG_ERR,"default acceleration %f\n", d->acceleration);
+
+    for (i = 0; i < d->segment_count; i++) {
+	const pb_Segment *s = &d->segment[i];
+
+	rtapi_print_msg(RTAPI_MSG_ERR,"\tSegment type=%d\n", s->type);
+	if (s->has_end) {
+	    ptarget("\t\tend.", &s->end);
+	    // update endpoint
+	    if (s->end.has_x) pos.x = s->end.x;
+	    if (s->end.has_y) pos.y = s->end.y;
+	    if (s->end.has_z) pos.z = s->end.z;
+	}
+	if (s->has_normal) ptarget("\t\tnormal.", &s->normal);
+	if (s->has_center) ptarget("\t\tcenter.", &s->center);
+    }
+}
+
+int decode_pb(pb_istream_t *stream, pb_DemoContainer *d)
+{
+    if (!pb_decode(stream, pb_DemoContainer_fields, d)) {
+	rtapi_print_msg(RTAPI_MSG_ERR, "%s: pb_decode(Container) failed: '%s'\n",
+			name, PB_GET_ERROR(stream));
+	return -1;
+    }
+    return 0;
+}
+
+int send_pb(pb_DemoContainer *d,  __u32 flags,  msgbuffer_t *r)
+{
+    void *buffer;
+    size_t size;
+    int rc;
+
+    // determine size
+    pb_ostream_t sstream = PB_OSTREAM_SIZING;
+    if (!pb_encode(&sstream, pb_DemoContainer_fields,  d)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: sizing pb_encode(): %s written=%zu\n",
+			name, PB_GET_ERROR(&sstream), sstream.bytes_written);
+	return -1;
+    }
+    // allocate in ringbuffer
+    size = sstream.bytes_written;
+    rc = frame_write_begin(r, &buffer, size, flags);
+    if (rc) return rc;
+
+    // zero-copy encode directly into ringbuffer
+    pb_ostream_t rstream = pb_ostream_from_buffer(buffer, size);
+    if (!pb_encode(&rstream, pb_DemoContainer_fields,  d)) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: pb_encode failed: %s, msgsize=%d written=%zu\n",
+			name, PB_GET_ERROR(&rstream), size, rstream.bytes_written);
+	return -1;
+    }
+    // commit the write
+    return frame_write_end(r, rstream.bytes_written);
+}
+
+
+FUNCTION(_) {
+    int n,i;
+    ringvec_t rv[10] = { 0 };
+    // read the whole multiframe message
+    for (n = 0;
+	 (n < 10) && (frame_readv(&command_mrb, &rv[n]) == 0);
+	 n++, frame_shift(&command_mrb)) {
+	ringvec_t *v = &rv[n];
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"Data[%d]: %zd '%.*s' flag=%d\n",
+			n, v->rv_len, (int) v->rv_len,
+			(const char *) v->rv_base,
+			v->rv_flags);
+    }
+    if (n) {
+	msgs++;
+	frames += n;
+
+	// first frame is originator name
+	frame_writev(&response_mrb, &rv[0]);
+
+	for (i = 1; i < n; i++) {
+	    ringvec_t *v = &rv[i];
+	    rtapi_print_msg(RTAPI_MSG_ERR,"process len=%d flags=%d\n", v->rv_len,v->rv_flags);
+
+	    if (v->rv_flags) { // tagged as protobuf
+		pb_istream_t stream = pb_istream_from_buffer((void *) v->rv_base, v->rv_len);
+
+		if (!decode_pb(&stream, &rx)) {
+		    process(&rx);
+		    report_position(&tx);
+		} else {
+		    report_error(&tx, "couldnt decode protobuf message");
+		    decodefailed++;
+		}
+		send_pb(&tx, 0,  &response_mrb);
+
+	    } else {
+		// just echo the frame
+	        frame_writev(&response_mrb, &rv[i]);
+	    }
+	}
+	msg_write_flush(&response_mrb);
+    }
+    msg_read_flush(&command_mrb);
+}
+
+int rtapi_app_main(void)
+{
+    int retval;
+
+    if ((comp_id = hal_init("micromot")) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_init() failed: %d\n",
+			name, comp_id);
+	return -1;
+    }
+    if ((retval = hal_ring_attach(command, &command_rb, NULL))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
+			name, command, retval);
+	goto error;
+    }
+    if ((retval = hal_ring_attach(response, &response_rb, NULL))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
+			name, response, retval);
+	goto error;
+    }
+
+    command_rb.header->reader = comp_id;
+    response_rb.header->writer = comp_id;
+
+    msgbuffer_init(&command_mrb, &command_rb);
+    msgbuffer_init(&response_mrb, &response_rb);
+
+    if ((retval = export(name, 0))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: export(ringread) failed: %d\n",
+			name, retval);
+
+	return -1;
+    }
+    hal_ready(comp_id);
+    return 0;
+ error:
+    hal_exit(comp_id);
+    return retval;
+}
+
+void rtapi_app_exit(void)
+{
+    int retval;
+
+    command_rb.header->reader = 0;
+    response_rb.header->writer = 0;
+
+    if ((retval = hal_ring_detach(command, &command_rb)) < 0)
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
+			name, command, retval);
+    if ((retval = hal_ring_detach(response, &response_rb)) < 0)
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
+			name, response, retval);
+    hal_exit(comp_id);
+}
