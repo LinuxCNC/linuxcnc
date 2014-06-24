@@ -176,7 +176,7 @@ RTAPI_BEGIN_DECLS
 	RTAPI_MSG_ALL
     } msg_level_t;
 
-    extern void rtapi_print_msg(int level, const char *fmt, ...)
+    extern void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
 	    __attribute__((format(printf,2,3)));
 
 

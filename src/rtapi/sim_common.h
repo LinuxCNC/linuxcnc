@@ -169,7 +169,7 @@ void rtapi_print(const char *fmt, ...)
 }
 
 
-void rtapi_print_msg(int level, const char *fmt, ...)
+void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
 {
     va_list args;
 
