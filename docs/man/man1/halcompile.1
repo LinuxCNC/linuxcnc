@@ -22,28 +22,28 @@
 .\"
 .\"
 .\"
-.TH comp "1" "2007-10-17" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.TH halcompile "1" "2007-10-17" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
-comp \- Build, compile and install LinuxCNC HAL components
+halcompile \- Build, compile and install LinuxCNC HAL components
 .SH SYNOPSIS
 .PD 0
 .RS 5
 .PP
-\fBcomp\fR [\fB--compile\fR|\fB--preprocess\fR|\fB--document\fR|\fB--view-doc\fR] compfile...
+\fBhalcompile\fR [\fB--compile\fR|\fB--preprocess\fR|\fB--document\fR|\fB--view-doc\fR] compfile...
 .RE
 .PP
-\fIsudo\fR \fBcomp\fR [\fB--install\fR|\fB--install-doc\fR] compfile...
+\fIsudo\fR \fBhalcompile\fR [\fB--install\fR|\fB--install-doc\fR] compfile...
 .RS 5
 .PP
-\fBcomp\fR \fB--compile\fR \fB--userspace\fR cfile...
+\fBhalcompile\fR \fB--compile\fR \fB--userspace\fR cfile...
 .RE
 .PP
-\fIsudo\fR \fBcomp\fR \fB--install\fR \fB--userspace\fR cfile...
+\fIsudo\fR \fBhalcompile\fR \fB--install\fR \fB--userspace\fR cfile...
 .PP
-\fIsudo\fR \fBcomp\fR \fB--install\fR \fB--userspace\fR pyfile...
+\fIsudo\fR \fBhalcompile\fR \fB--install\fR \fB--userspace\fR pyfile...
 .PD
 .SH DESCRIPTION
-\fBcomp\fR performs many different functions:
+\fBhalcompile\fR performs many different functions:
 .IP \(bu 4
 Compile \fB.comp\fR and \fB.c\fR files into \fB.so\fR or \fB.ko\fR HAL realtime components (the \fB--compile\fR flag)
 .IP \(bu 4
@@ -63,8 +63,6 @@ Extract documentation from \fB.comp\fR files into \fB.9\fR manpage files in the 
 .IP \(bu 4
 Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB--preprocess\fR flag)
 .SH "SEE ALSO"
-\fIComp HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
+\fIHalcompile HAL Component Generator\fR in the LinuxCNC documentation for a full description of the \fB.comp\fR syntax, along with examples
 
 \fBpydoc hal\fR and \fICreating Userspace Python Components\fR in the LinuxCNC documentation for documentation on the Python interface to HAL components
-
-\fBcomp(9)\fR for documentation on the "two input comparator with hysteresis", a HAL realtime component with the same name as this program

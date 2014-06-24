@@ -1,21 +1,21 @@
-= Comp HAL Component Generator
+= halcompile: The HAL Component Generator
 
-[[cha:comp-hal-component-generator]] (((Comp HAL Component Generator)))
+[[cha:halcompile-hal-component-generator]] (((halcompile HAL Component Generator)))
 
 == Introduction
 
 Writing a HAL component can be a tedious process, most of it in setup
 calls to 'rtapi_' and 'hal_' functions and associated error checking.
-'comp' will write all this code for you, automatically.
+'halcompile' will write all this code for you, automatically.
 
-Compiling a HAL component is also much easier when using 'comp',
+Compiling a HAL component is also much easier when using 'halcompile',
 whether the component is part of the LinuxCNC source tree, or outside it.
 
 For instance, when coded in C, a simple component such as "ddt" is around 80
 lines of code. The equivalent component is very short when written using the
-'comp' preprocessor:
+'halcompile' preprocessor:
 
-.Simple Comp Example [[code:simple-comp-example]]
+.Simple Component Example [[code:simple-comp-example]]
 ----
 component ddt "Compute the derivative of the input function";
 pin in float in;
@@ -76,9 +76,9 @@ instance is created.
 == Implicit Parameters
 
 Functions are implicitly passed the 'period' parameter which is the time in
-nanoseconds of the last period to execute the comp.  Functions which use
+nanoseconds of the last period to execute the component.  Functions which use
 floating-point can also refer to 'fperiod' which is the floating-point time in
-seconds, or (period*1e-9).  This can be useful in comps that need the timing
+seconds, or (period*1e-9).  This can be useful in components that need the timing
 information.
 
 == Syntax
@@ -177,7 +177,7 @@ better."""
 +
 The documentation string is in "groff -man" format. For more
 information on this markup format, see 'groff_man(7)'. Remember that
-comp interprets backslash escapes in strings, so for instance 
+'halcompile' interprets backslash escapes in strings, so for instance
 to set the italic font for the word 'example', write: 
 +
 ----
@@ -204,7 +204,7 @@ to set the italic font for the word 'example', write:
 * 'fp' - Indicates that the function performs floating-point calculations.
 
 * 'nofp' - Indicates that it only performs integer calculations. If neither is
-    specified, 'fp' is assumed. Neither comp nor gcc can detect the use of
+    specified, 'fp' is assumed. Neither 'halcompile' nor gcc can detect the use of
     floating-point calculations in functions that are tagged 'nofp', but use of
     such operations results in undefined behavior.
 
@@ -333,7 +333,7 @@ C-style multi-line comments (/* ... */) are both supported in the declaration se
 == Restrictions
 
 Though HAL permits a pin, a parameter, and a function to have the same
-name, comp does not.
+name, 'halcompile' does not.
 
 Variable and function names that can not be used or are likely to cause
 problems include:
@@ -355,12 +355,12 @@ problems include:
 
 == Convenience Macros
 
-Based on the items in the declaration section, 'comp' creates a C
+Based on the items in the declaration section, 'halcompile' creates a C
 structure called `struct __comp_state`. However, instead of referring to the
 members of this structure (e.g., `*(inst->name)`), they will generally
 be referred to using the macros below. The 
 details of `struct __comp_state` and these macros may change from one version
-of 'comp' to the next.
+of 'halcompile' to the next.
 
 * 'FUNCTION(name)' - Use this macro to begin the definition of a realtime function which
     was previously declared with 'function NAME'. The function includes a
@@ -438,39 +438,39 @@ configured as a userspace simulator.
 == Compiling realtime components outside the source tree
 (((Compiling realtime components outside the source tree)))
 
-'comp' can process, compile, and install a realtime component
+'halcompile' can process, compile, and install a realtime component
 in a single step, placing 'rtexample.ko' in the LinuxCNC realtime
 module directory:
 
 ----
-comp --install rtexample.comp
+halcompile --install rtexample.comp
 ----
 
 Or, it can process and compile in one step, leaving 'example.ko' (or
 'example.so' for the simulator) in the current directory:
 
 ----
-comp --compile rtexample.comp
+halcompile --compile rtexample.comp
 ----
 
 Or it can simply process, leaving 'example.c' in the current directory:
 
 ----
-comp rtexample.comp
+halcompile rtexample.comp
 ----
 
-'comp' can also compile and install a component written in C, using
+'halcompile' can also compile and install a component written in C, using
 the '--install' and '--compile' options shown above:
 
 ----
-comp --install rtexample2.c
+halcompile --install rtexample2.c
 ----
 
 man-format documentation can also be created from the information in
 the declaration section:
 
 ----
-comp --document rtexample.comp
+halcompile --document rtexample.comp
 ----
 
 The resulting manpage, 'example.9' can be viewed with
@@ -483,13 +483,13 @@ or copied to a standard location for manual pages.
 
 == Compiling userspace components outside the source tree
 
-'comp' can process, compile, install, and document userspace components:
+'halcompile' can process, compile, install, and document userspace components:
 
 ----
-comp usrexample.comp
-comp --compile usrexample.comp
-comp --install usrexample.comp
-comp --document usrexample.comp
+halcompile usrexample.comp
+halcompile --compile usrexample.comp
+halcompile --install usrexample.comp
+halcompile --document usrexample.comp
 ----
 
 This only works for '.comp' files, not for '.c' files.

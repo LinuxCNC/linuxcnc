@@ -22,15 +22,15 @@ endif
 
 obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
 
-$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
-	$(ECHO) Making comp manpage $(notdir $@)
+$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/halcompile
+	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document -o $@ $<
+	$(Q)../bin/halcompile --document -o $@ $<
 
-$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
-	$(ECHO) Making comp manpage $(notdir $@)
+$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/halcompile
+	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --document -o $@ $<
+	$(Q)../bin/halcompile --document -o $@ $<
 
 objects/%.mak: %.comp hal/components/Submakefile
 	$(ECHO) "Creating $(notdir $@)"
@@ -39,10 +39,10 @@ objects/%.mak: %.comp hal/components/Submakefile
 	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
-objects/%.c: %.comp ../bin/comp
+objects/%.c: %.comp ../bin/halcompile
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
-	$(Q)../bin/comp --require-license -o $@ $<
+	$(Q)../bin/halcompile --require-license -o $@ $<
 
 modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
 
