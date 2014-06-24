@@ -107,6 +107,8 @@ binary-arch: build install
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
 ifneq "$(kernel_version)" "sim"
 	dh_fixperms -X/linuxcnc_module_helper
+else
+	dh_fixperms -X/rtapi_app
 endif
 	dh_pysupport
 	dh_makeshlibs
