@@ -8,8 +8,8 @@ INCLUDES += rtapi
 ifeq ($(BUILD_SYS),sim)
 
 RTAPI_APP_SRCS := \
-	rtapi/sim_rtapi_app.cc \
-	rtapi/sim_rtapi.c
+	rtapi/uspace_rtapi_app.cc \
+	rtapi/uspace_rtapi.c
 USERSRCS += $(RTAPI_APP_SRCS)
 PTH_CONFIG ?= pth-config
 PTH_CFLAGS := $(shell $(PTH_CONFIG) --cflags 2>/dev/null)

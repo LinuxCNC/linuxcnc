@@ -199,7 +199,7 @@ int rtapi_set_msg_level(int level) {
     return 0;
 }
 
-int rtapi_get_msg_level() { 
+int rtapi_get_msg_level() {
     return msg_level;
 }
 
@@ -229,7 +229,7 @@ long long rtapi_get_clocks(void)
     long long int retval;
 
     rdtscll(retval);
-    return retval;    
+    return retval;
 }
 
 typedef struct {

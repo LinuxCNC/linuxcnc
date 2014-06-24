@@ -1,14 +1,14 @@
 /********************************************************************
-* Description:  sim_rtapi.c
-*               This file, 'sim_rtapi.c', implements the RT API 
+* Description:  uspace_rtapi.c
+*               This file, 'uspace_rtapi.c', implements the RT API
 *               functions for machines without RT (simultated procs)
 *
 * Author: John Kasunich, Paul Corner
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #include <stdio.h>		/* vprintf() */
@@ -158,7 +158,7 @@ int rtapi_task_delete(int id) {
     return -EINVAL;
 
   pth_uctx_destroy(task->ctx);
-  
+
   task->magic = 0;
   return 0;
 }
@@ -188,7 +188,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   int retval;
 
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-    
+
   task = &task_array[task_id];
 
   /* validate task handle */
@@ -217,7 +217,7 @@ int rtapi_task_stop(int task_id)
 {
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-    
+
   task = &task_array[task_id];
 
   /* validate task handle */
@@ -233,9 +233,9 @@ int rtapi_task_pause(int task_id)
 {
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-    
+
   task = &task_array[task_id];
-  
+
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
     return -EINVAL;
@@ -247,9 +247,9 @@ int rtapi_task_resume(int task_id)
 {
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-    
+
   task = &task_array[task_id];
-  
+
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
     return -EINVAL;
@@ -263,9 +263,9 @@ int rtapi_task_set_period(int task_id,
 {
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-    
+
   task = &task_array[task_id];
-  
+
   /* validate task handle */
   if (task->magic != TASK_MAGIC)
     return -EINVAL;
@@ -354,7 +354,7 @@ int sim_rtapi_run_threads(int fd) {
     if(first_time) {
 	int result = pth_uctx_create(&main_ctx);
 	if(result == FALSE) _exit(1);
-	first_time = 0;	
+	first_time = 0;
     }
     while(1) {
 	int result = maybe_sleep(fd);
@@ -367,7 +367,7 @@ int sim_rtapi_run_threads(int fd) {
 	    base_periods++;
 	    for(t=0; t<MAX_TASKS; t++) {
 		struct rtapi_task *task = &task_array[t];
-		if(task->magic == TASK_MAGIC && task->ctx && 
+		if(task->magic == TASK_MAGIC && task->ctx &&
 			(base_periods % task->ratio == 0)) {
 		    this_ctx = task->ctx;
 		    if(pth_uctx_switch(main_ctx, task->ctx) == FALSE) _exit(1);
@@ -378,4 +378,4 @@ int sim_rtapi_run_threads(int fd) {
 }
 
 
-#include "rtapi/sim_common.h"
+#include "rtapi/uspace_common.h"

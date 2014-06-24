@@ -16,8 +16,8 @@ rtai_rtapi.c    : implementation of real-time API, for RTAI
 rtai_ulapi.c    : implementation of user-level API, for RTAI
 rtl_rtapi.c     : implementation of real-time API, for RTL
 rtl_ulapi.c     : implementation of user-level API, for RTL
-sim_rtapi.c     : implementation of real-time API, for Linux simulation
-sim_ulapi.c     : implementation of user-level API, for Linux simulation
+uspace_rtapi.c  : implementation of real-time API, for POSIX RTOS
+uspace_ulapi.c  : implementation of user-level API, for POSIX RTOS
 
 
 ../../Makefile.inc    : contains compile-time flags, etc.

@@ -1,15 +1,15 @@
 /********************************************************************
-* Description:  sim_ulapi.c
-*               This file, 'sim_ulapi.c', implements the user-level  
-*               API functions for machines without RT (simultated 
+* Description:  uspace_ulapi.c
+*               This file, 'uspace_ulapi.c', implements the user-level
+*               API functions for machines without RT (simultated
 *               processes)
 *
 * Author: John Kasunich, Paul Corner
 * License: LGPL Version 2
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #include <stddef.h>		/* NULL */
@@ -45,4 +45,4 @@ int rtapi_fifo_write(int fifo_id, char *buf, unsigned long int size)
   return -ENOSYS;
 }
 
-#include "rtapi/sim_common.h"
+#include "rtapi/uspace_common.h"
