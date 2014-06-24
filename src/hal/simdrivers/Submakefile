@@ -1,5 +1,5 @@
 
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),uspace)
 UPARPORT_SRCS := $(addprefix hal/simdrivers/, \
 	uparport.c)
 
