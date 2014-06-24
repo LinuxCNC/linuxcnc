@@ -18,7 +18,7 @@
 
 #include <float.h>  /* DBL_MAX and other FP goodies */
 
-#if defined(RTAPI) && !defined(SIM)
+#if defined(__KERNEL__)
 extern double sin(double);
 extern double cos(double);
 extern double tan(double);

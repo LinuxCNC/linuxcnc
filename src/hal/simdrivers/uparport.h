@@ -17,7 +17,7 @@
 #ifndef HAL_PARPORT_COMMON_H
 #define HAL_PARPORT_COMMON_H
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 
 // drop root privilegs after init
 // this is a stopgap measure until rtapi_app knows how to handle this
@@ -37,7 +37,7 @@ typedef struct hal_parport_t
 {
     unsigned short base;
     unsigned short base_hi;
-#ifndef SIM
+#if defined(__KERNEL__)
     struct pardevice *linux_dev;
 #else
     struct ppres pp_res; // retrieved from sysfs
@@ -47,7 +47,7 @@ typedef struct hal_parport_t
     void *region_hi;
 } hal_parport_t;
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 float cpu_MHz(void) 
 {
     char *path = "/proc/cpuinfo",  *s, line[1024];
@@ -145,7 +145,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
     int i, direction;
     struct ppres pp_res;
     char path[PATH_MAX];
-#ifndef SIM
+#if defined(__KERNEL__)
     int retval = 0;
     struct parport *linux_port = 0;
 #endif
@@ -208,7 +208,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
     setuid(getuid()); 
 #endif
 
-#ifndef SIM
+#if defined(__KERNEL__)
     // I/O addresses 1..16 are assumed to be linux parport numbers
     if(base < 16) {
         linux_port = parport_find_number(base);
@@ -316,7 +316,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
 
 void hal_parport_release(hal_parport_t *port)
 {
-#ifndef SIM
+#if defined(__KERNEL__)
     if(port->linux_dev)
 	{
 	    rtapi_print_msg(RTAPI_MSG_INFO,

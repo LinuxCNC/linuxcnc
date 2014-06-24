@@ -236,7 +236,7 @@ void emcmotController(void *arg, long period)
 
 
     static long long int last = 0;
-#ifndef RTAPI_SIM
+#ifdef __KERNEL__
     static int index = 0;
     static long int cycles[CYCLE_HISTORY];
     static int priming = 1;
@@ -249,7 +249,7 @@ void emcmotController(void *arg, long period)
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
 
-#ifndef RTAPI_SIM
+#ifdef __KERNEL__
     if(!priming) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late

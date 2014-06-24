@@ -23,7 +23,7 @@
   get full of ifdefs.
 */
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 EXPORT_SYMBOL(rtapi_app_main);
 EXPORT_SYMBOL(rtapi_app_exit);
 #else

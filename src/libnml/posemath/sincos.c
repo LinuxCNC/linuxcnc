@@ -19,7 +19,7 @@
 
 #include "config.h"
 
-#if defined(RTAPI) && !defined(SIM)
+#if defined(__KERNEL__)
 #undef HAVE_SINCOS
 #endif
 

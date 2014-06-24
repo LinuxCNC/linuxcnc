@@ -103,7 +103,7 @@
 #include "hal.h"		/* HAL public API decls */
 
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -120,7 +120,7 @@
 #include <linux/limits.h>
 // the following two lines are crucial - normally
 // rtapi defines rtapi_inb/rtapi_outb as null macros
-// when compiling for SIM
+// when compiling for USPACE
 #define rtapi_inb inb
 #define rtapi_outb outb
 #include "uparport.h"
@@ -190,7 +190,7 @@ static int num_ports;		/* number of ports configured */
 
 static unsigned long ns2tsc_factor;
 #define ns2tsc(x) (((x) * (unsigned long long)ns2tsc_factor) >> 12)
-#ifdef SIM
+#if !defined(__KERNEL__)
 unsigned int cpu_khz; 
 #endif
 /***********************************************************************
@@ -237,7 +237,7 @@ int rtapi_app_main(void)
     char name[HAL_NAME_LEN + 1];
     int n, retval;
 
-#ifdef SIM
+#if !defined(__KERNEL__)
     float MHz = cpu_MHz();
     if (MHz < 0.0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, "PARPORT: cant retrieve CPU frequency from /proc/cpuinfo\n");
@@ -579,7 +579,7 @@ static int pins_and_params(char *argv[])
 	}
 	num_ports++;
     }
-#ifdef SIM
+#if !defined(__KERNEL__)
     if (num_ports > 1) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: only 1 parport for now at 0x378\n");
@@ -607,7 +607,7 @@ static int pins_and_params(char *argv[])
 	hal_exit(comp_id);
 	return -1;
     }
-#ifdef SIM
+#if !defined(__KERNEL__)
     if (geteuid()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PARPORT: must be running as root to initialize parport\n");
