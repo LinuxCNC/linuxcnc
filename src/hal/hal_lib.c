@@ -2533,7 +2533,7 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
    or rmmod'ed.
 */
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 #undef CONFIG_PROC_FS
 #endif
 

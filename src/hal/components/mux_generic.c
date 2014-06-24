@@ -22,7 +22,7 @@
 #include "hal.h"
 #include "hal_priv.h"
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 #include <stdio.h>
 #include <stdlib.h>
 #endif

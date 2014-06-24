@@ -15,7 +15,7 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #ifndef RTAPI_BITOPS_H
 #define RTAPI_BITOPS_H
-#if (defined(__MODULE__) && !defined(SIM))
+#if defined(__KERNEL__)
 #include <asm/bitops.h>
 #elif defined(__i386__)
 /* From <asm/bitops.h>

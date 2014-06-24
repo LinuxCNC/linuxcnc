@@ -26,7 +26,7 @@
 #include "rtapi_math.h"
 #include <linux/types.h>
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 #include <stdio.h>
 #include <stdlib.h>
 #endif
