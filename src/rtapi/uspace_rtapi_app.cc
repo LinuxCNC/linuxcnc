@@ -500,40 +500,39 @@ RtapiApp &App()
 /* data for all tasks */
 static struct rtapi_task task_array[MAX_TASKS] = {{0},};
 
-/* Priority functions.  USPACE uses 0 as the highest priority, as the
-number increases, the actual priority of the task decreases. */
+/* Priority functions.  Uspace uses POSIX task priorities. */
 
 int RtapiApp::prio_highest()
 {
-    return 0;
+    return sched_get_priority_max(SCHED_FIFO);
 }
 
 int RtapiApp::prio_lowest()
 {
-  return 31;
+  return sched_get_priority_min(SCHED_FIFO);
 }
 
 int RtapiApp::prio_next_higher(int prio)
 {
   /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_highest())
+  if (prio >= rtapi_prio_highest())
     return rtapi_prio_highest();
-  if (prio > rtapi_prio_lowest())
+  if (prio < rtapi_prio_lowest())
     return rtapi_prio_lowest();
 
   /* return next higher priority for in-range arg */
-  return prio - 1;
+  return prio + 1;
 }
 
 int RtapiApp::prio_next_lower(int prio)
 {
   /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_lowest())
+  if (prio <= rtapi_prio_lowest())
     return rtapi_prio_lowest();
-  if (prio < rtapi_prio_highest())
+  if (prio > rtapi_prio_highest())
     return rtapi_prio_highest();
   /* return next lower priority for in-range arg */
-  return prio + 1;
+  return prio - 1;
 }
 
 int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
@@ -555,7 +554,7 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   task = &(task_array[n]);
 
   /* check requested priority */
-  if ((prio < rtapi_prio_highest()) || (prio > rtapi_prio_lowest()))
+  if ((prio > rtapi_prio_highest()) || (prio < rtapi_prio_lowest()))
     return -EINVAL;
 
   /* label as a valid task structure */
