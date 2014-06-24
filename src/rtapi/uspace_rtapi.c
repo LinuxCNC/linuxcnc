@@ -349,7 +349,7 @@ static int maybe_sleep(int fd) {
 }
 
 
-int sim_rtapi_run_threads(int fd) {
+int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
     static int first_time = 1;
     if(first_time) {
 	int result = pth_uctx_create(&main_ctx);
@@ -359,7 +359,7 @@ int sim_rtapi_run_threads(int fd) {
     while(1) {
 	int result = maybe_sleep(fd);
 	if(result) {
-	    return result;
+	    if(!callback(fd)) break;
 	}
 
 	if(period) {

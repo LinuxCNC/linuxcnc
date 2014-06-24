@@ -41,7 +41,7 @@
 #include "hal.h"
 #include "hal/hal_priv.h"
 
-extern "C" int sim_rtapi_run_threads(int fd);
+extern "C" int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
 
 using namespace std;
 
@@ -331,6 +331,37 @@ static int slave(int fd, vector<string> args) {
     return result;
 }
 
+static int callback(int fd)
+{
+    struct sockaddr_un client_addr;
+    memset(&client_addr, 0, sizeof(client_addr));
+    socklen_t len = sizeof(client_addr);
+    int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
+    if(fd1 < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "rtapi_app: failed to accept connection from slave: %s\n", strerror(errno));
+        return -1;
+    } else {
+        int result;
+        try {
+            result = handle_command(read_strings(fd1));
+        } catch (ReadError &e) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "rtapi_app: failed to read from slave: %s\n", strerror(errno));
+            close(fd1);
+            return -1;
+        }
+        string buf;
+        write_number(buf, result);
+        if(write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                "rtapi_app: failed to write to slave: %s\n", strerror(errno));
+        };
+        close(fd1);
+    }
+    return !force_exit && instance_count > 0;
+}
+
 static int master(int fd, vector<string> args) {
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
     if(args.size()) {
@@ -338,36 +369,7 @@ static int master(int fd, vector<string> args) {
         if(result != 0) return result;
         if(force_exit || instance_count == 0) return 0;
     }
-    do {
-        struct sockaddr_un client_addr;
-        memset(&client_addr, 0, sizeof(client_addr));
-        socklen_t len = sizeof(client_addr);
-
-	sim_rtapi_run_threads(fd);
-
-        int fd1 = accept(fd, (sockaddr*)&client_addr, &len);
-        if(fd1 < 0) {
-            perror("accept");
-            return -1;
-        } else {
-            int result;
-            try {
-                result = handle_command(read_strings(fd1));
-            } catch (ReadError &e) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "rtapi_app: failed to read from slave: %s\n", strerror(errno));
-                close(fd1);
-                continue;
-            }
-            string buf;
-            write_number(buf, result);
-            if(write(fd1, buf.data(), buf.size()) != (ssize_t)buf.size()) {
-                rtapi_print_msg(RTAPI_MSG_ERR,
-                    "rtapi_app: failed to write to slave: %s\n", strerror(errno));
-            };
-            close(fd1);
-        }
-    } while(!force_exit && instance_count > 0);
+    sim_rtapi_run_threads(fd, callback);
 
     return 0;
 }
