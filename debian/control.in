@@ -18,9 +18,9 @@ Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
-Conflicts: emc2-dev, emc2-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
-Replaces: @OLD_PACKAGE_NAME@-dev
-Provides: @OLD_PACKAGE_NAME@-dev
+Conflicts: emc2-dev, emc2-sim-dev, linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
+Replaces: @OLD_PACKAGE_NAME_DEV@
+Provides: @OLD_PACKAGE_NAME_DEV@
 Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
@@ -38,7 +38,7 @@ Description: PC based motion controller for real-time Linux
 Package: @MAIN_PACKAGE_NAME@
 Replaces: @OLD_PACKAGE_NAME@
 Provides: @OLD_PACKAGE_NAME@
-Conflicts: emc2, emc2-sim, @OTHER_MAIN_PACKAGE_NAME@
+Conflicts: emc2, emc2-sim, linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
 Architecture: any
 Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,

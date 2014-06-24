@@ -38,8 +38,8 @@ build-stamp:
 
 # Add here commands to compile the package.
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "sim"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation=pdf
+ifeq "$(kernel_version)" "uspace"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf
 else
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf
 endif
@@ -52,8 +52,8 @@ clean: debian/control
 	rm -f build-stamp
 
 	cd src && ./autogen.sh
-ifeq "$(kernel_version)" "sim"
-	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
+ifeq "$(kernel_version)" "uspace"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=uspace --enable-build-documentation=pdf
 else
 	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version)
 endif
@@ -105,7 +105,7 @@ binary-arch: build install
 	dh_link
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
-ifneq "$(kernel_version)" "sim"
+ifneq "$(kernel_version)" "uspace"
 	dh_fixperms -X/linuxcnc_module_helper
 else
 	dh_fixperms -X/rtapi_app
