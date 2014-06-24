@@ -58,7 +58,7 @@ static pth_uctx_t main_ctx, this_ctx;
 /* data for all tasks */
 static struct rtapi_task task_array[MAX_TASKS] = {{0},};
 
-/* Priority functions.  SIM uses 0 as the highest priority, as the
+/* Priority functions.  USPACE uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
 
 int rtapi_prio_highest(void)

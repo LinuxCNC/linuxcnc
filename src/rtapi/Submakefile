@@ -5,7 +5,7 @@ INCLUDES += rtapi
 ../include/%.hh: ./rtapi/%.hh
 	cp $^ $@
 
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),uspace)
 
 RTAPI_APP_SRCS := \
 	rtapi/uspace_rtapi_app.cc \
