@@ -436,7 +436,7 @@ struct rtapi_task {
   pth_uctx_t ctx;		/* thread's context */
   size_t stacksize;
   int prio;
-  unsigned long period;
+  long period;
   unsigned ratio;
   void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
@@ -454,23 +454,66 @@ static pth_uctx_t main_ctx, this_ctx;
 #define MAX_MODULES  64
 #define MODULE_OFFSET 32768
 
+namespace
+{
+struct RtapiApp
+{
+
+    RtapiApp() : period(0) {}
+
+    int prio_highest();
+    int prio_lowest();
+    int prio_next_higher(int prio);
+    int prio_next_lower(int prio);
+    long clock_set_period(long int period_nsec);
+    int task_new(void (*taskcode)(void*), void *arg,
+            int prio, int owner, unsigned long int stacksize, int uses_fp);
+    virtual int task_delete(int id) = 0;
+    virtual int task_start(int task_id, unsigned long period_nsec) = 0;
+    virtual int task_pause(int task_id) = 0;
+    virtual int task_resume(int task_id) = 0;
+    virtual void wait() = 0;
+    virtual unsigned char do_inb(unsigned int port) = 0;
+    virtual void do_outb(unsigned char value, unsigned int port) = 0;
+    long period;
+};
+
+struct Pth : RtapiApp
+{
+    int task_delete(int id);
+    int task_start(int task_id, unsigned long period_nsec);
+    int task_pause(int task_id);
+    int task_resume(int task_id);
+    void wait();
+    unsigned char do_inb(unsigned int port);
+    void do_outb(unsigned char value, unsigned int port);
+    static void wrapper(void *arg);
+};
+
+RtapiApp &App()
+{
+    static RtapiApp *app = new Pth;
+    return *app;
+}
+
+}
 /* data for all tasks */
 static struct rtapi_task task_array[MAX_TASKS] = {{0},};
 
 /* Priority functions.  USPACE uses 0 as the highest priority, as the
 number increases, the actual priority of the task decreases. */
 
-int rtapi_prio_highest(void)
+int RtapiApp::prio_highest()
 {
-  return 0;
+    return 0;
 }
 
-int rtapi_prio_lowest(void)
+int RtapiApp::prio_lowest()
 {
   return 31;
 }
 
-int rtapi_prio_next_higher(int prio)
+int RtapiApp::prio_next_higher(int prio)
 {
   /* return a valid priority for out of range arg */
   if (prio <= rtapi_prio_highest())
@@ -482,7 +525,7 @@ int rtapi_prio_next_higher(int prio)
   return prio - 1;
 }
 
-int rtapi_prio_next_lower(int prio)
+int RtapiApp::prio_next_lower(int prio)
 {
   /* return a valid priority for out of range arg */
   if (prio >= rtapi_prio_lowest())
@@ -493,22 +536,8 @@ int rtapi_prio_next_lower(int prio)
   return prio + 1;
 }
 
-static unsigned long period = 0;
-int rtapi_clock_set_period(unsigned long int nsecs)
-{
-  if(nsecs == 0) return period;
-  if(period != 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "attempt to set period twice\n");
-      return -EINVAL;
-  }
-  period = nsecs;
-  gettimeofday(&scheduled, NULL);
-  return period;
-}
-
-
-int rtapi_task_new(void (*taskcode) (void*), void *arg,
-    int prio, int owner, unsigned long int stacksize, int uses_fp) {
+int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
+        int prio, int owner, unsigned long int stacksize, int uses_fp) {
   int n;
   struct rtapi_task *task;
 
@@ -532,9 +561,9 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   /* label as a valid task structure */
   /*! \todo FIXME - end of non-threadsafe window */
   if(stacksize < 16384) stacksize = 16384;
+  memset(task, 0, sizeof(task));
   task->magic = TASK_MAGIC;
   task->owner = owner;
-  task->ctx = NULL;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
@@ -545,8 +574,8 @@ int rtapi_task_new(void (*taskcode) (void*), void *arg,
   return n;
 }
 
-
-int rtapi_task_delete(int id) {
+int Pth::task_delete(int id)
+{
   struct rtapi_task *task;
 
   if(id < 0 || id >= MAX_TASKS) return -EINVAL;
@@ -562,13 +591,13 @@ int rtapi_task_delete(int id) {
   return 0;
 }
 
-
-static void wrapper(void *arg)
+void Pth::wrapper(void *arg)
 {
   struct rtapi_task *task;
 
   /* use the argument to point to the task data */
   task = (struct rtapi_task*)arg;
+  long int period = App().period;
   if(task->period < period) task->period = period;
   task->ratio = task->period / period;
   rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
@@ -580,8 +609,7 @@ static void wrapper(void *arg)
   rtapi_print("ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
 }
 
-
-int rtapi_task_start(int task_id, unsigned long int period_nsec)
+int Pth::task_start(int task_id, unsigned long int period_nsec)
 {
   struct rtapi_task *task;
   int retval;
@@ -594,7 +622,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   if (task->magic != TASK_MAGIC)
     return -EINVAL;
 
-  if(period_nsec < period) period_nsec = period;
+  if(period_nsec < (unsigned long int)period) period_nsec = (unsigned long int)period;
   task->period = period_nsec;
   task->ratio = period_nsec / period;
 
@@ -611,7 +639,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   return 0;
 }
 
-int rtapi_task_pause(int task_id)
+int Pth::task_pause(int task_id)
 {
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
@@ -625,7 +653,7 @@ int rtapi_task_pause(int task_id)
   return -ENOSYS;
 }
 
-int rtapi_task_resume(int task_id)
+int Pth::task_resume(int task_id)
 {
   struct rtapi_task *task;
   if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
@@ -639,20 +667,96 @@ int rtapi_task_resume(int task_id)
   return -ENOSYS;
 }
 
-void rtapi_wait(void)
+void Pth::wait(void)
 {
   pth_uctx_switch(this_ctx, main_ctx);
 }
 
+void Pth::do_outb(unsigned char byte, unsigned int port)
+{
+    return;
+}
+
+unsigned char Pth::do_inb(unsigned int port)
+{
+  return 0;
+}
+
+int rtapi_prio_highest(void)
+{
+    return App().prio_highest();
+}
+
+int rtapi_prio_lowest(void)
+{
+    return App().prio_lowest();
+}
+
+int rtapi_prio_next_higher(int prio)
+{
+    return App().prio_next_higher(prio);
+}
+
+int rtapi_prio_next_lower(int prio)
+{
+    return App().prio_next_lower(prio);
+}
+
+long rtapi_clock_set_period(long nsecs)
+{
+    return App().clock_set_period(nsecs);
+}
+
+long RtapiApp::clock_set_period(long nsecs)
+{
+  if(nsecs == 0) return period;
+  if(period != 0) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "attempt to set period twice\n");
+      return -EINVAL;
+  }
+  period = nsecs;
+  gettimeofday(&scheduled, NULL);
+  return period;
+}
+
+
+int rtapi_task_new(void (*taskcode) (void*), void *arg,
+        int prio, int owner, unsigned long int stacksize, int uses_fp) {
+    return App().task_new(taskcode, arg, prio, owner, stacksize, uses_fp);
+}
+
+int rtapi_task_delete(int id) {
+    return App().task_delete(id);
+}
+
+int rtapi_task_start(int task_id, unsigned long period_nsec)
+{
+    return App().task_start(task_id, period_nsec);
+}
+
+int rtapi_task_pause(int task_id)
+{
+    return App().task_pause(task_id);
+}
+
+int rtapi_task_resume(int task_id)
+{
+    return App().task_resume(task_id);
+}
+
+void rtapi_wait(void)
+{
+    App().wait();
+}
 
 void rtapi_outb(unsigned char byte, unsigned int port)
 {
-  return;
+    App().do_outb(byte, port);
 }
 
 unsigned char rtapi_inb(unsigned int port)
 {
-  return 0;
+    return App().do_inb(port);
 }
 
 long int simple_strtol(const char *nptr, char **endptr, int base) {
@@ -665,20 +769,20 @@ static int maybe_sleep(int fd) {
     struct timeval now;
     struct timeval interval;
 
-    if(period == 0) {
+    if(App().period == 0) {
 	fd_set fds;
 	FD_ZERO(&fds);
 	FD_SET(fd, &fds);
 
 	return select(fd+1, &fds, NULL, NULL, NULL);
     } else {
-	scheduled.tv_usec += period / 1000;
+	scheduled.tv_usec += App().period / 1000;
 	if(scheduled.tv_usec > 1000000) {
 	    scheduled.tv_usec -= 1000000;
 	    scheduled.tv_sec ++;
 	}
 
-	if(period < 100000) {
+	if(App().period < 100000) {
 	    // if base_period is fast (<.1ms) then run 10 times (e.g., enough
 	    // for .5ms if base_period is 50uS) without any syscalls
 	    if(base_periods % MIN_RUNS) return 0;
@@ -725,7 +829,7 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
 	    if(!callback(fd)) break;
 	}
 
-	if(period) {
+	if(App().period) {
 	    int t;
 	    base_periods++;
 	    for(t=0; t<MAX_TASKS; t++) {
