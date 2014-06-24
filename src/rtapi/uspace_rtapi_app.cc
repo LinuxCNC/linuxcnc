@@ -611,23 +611,6 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec)
   return 0;
 }
 
-
-int rtapi_task_stop(int task_id)
-{
-  struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-
-  task = &task_array[task_id];
-
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  pth_uctx_destroy(task->ctx);
-
-  return 0;
-}
-
 int rtapi_task_pause(int task_id)
 {
   struct rtapi_task *task;
@@ -654,24 +637,6 @@ int rtapi_task_resume(int task_id)
     return -EINVAL;
 
   return -ENOSYS;
-}
-
-
-int rtapi_task_set_period(int task_id,
-			  unsigned long int period_nsec)
-{
-  struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-
-  task = &task_array[task_id];
-
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  task->period = period_nsec;
-
-  return 0;
 }
 
 void rtapi_wait(void)
