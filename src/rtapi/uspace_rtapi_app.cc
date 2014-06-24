@@ -65,7 +65,7 @@ static int force_exit = 0;
 static int do_newinst_cmd(string type, string name, string arg) {
     void *module = modules["hal_lib"];
     if(!module) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
+        rtapi_print_msg(RTAPI_MSG_ERR,
                 "newinst: hal_lib is required, but not loaded\n");
         return -1;
     }
@@ -73,14 +73,14 @@ static int do_newinst_cmd(string type, string name, string arg) {
     hal_comp_t *(*find_comp_by_name)(char*) =
         DLSYM<hal_comp_t*(*)(char *)>(module, "halpr_find_comp_by_name");
     if(!find_comp_by_name) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
+        rtapi_print_msg(RTAPI_MSG_ERR,
                 "newinst: halpr_find_comp_by_name not found\n");
         return -1;
     }
 
     hal_comp_t *comp = find_comp_by_name((char*)type.c_str());
     if(!comp) {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
+        rtapi_print_msg(RTAPI_MSG_ERR,
                 "newinst: component %s not found\n", type.c_str());
         return -1;
     }
@@ -333,7 +333,7 @@ static int slave(int fd, vector<string> args) {
 
 static int master(int fd, vector<string> args) {
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
-    if(args.size()) { 
+    if(args.size()) {
         int result = handle_command(args);
         if(result != 0) return result;
         if(force_exit || instance_count == 0) return 0;
@@ -402,7 +402,7 @@ become_master:
             usleep(lrand48() % 100000);
             gettimeofday(&t1, NULL);
         }
-        if(result < 0 && errno == ECONNREFUSED) { 
+        if(result < 0 && errno == ECONNREFUSED) {
             unlink(SOCKET_PATH);
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
             close(fd);

@@ -304,7 +304,7 @@ case $RTS in
     KERNELDIR=`$RTS --linux`
 ;;
 sim)
-    RTPREFIX=sim
+    RTPREFIX=uspace
     RTDIR=$(pwd -P)
     RTFLAGS=-DSIMULATOR
 esac
