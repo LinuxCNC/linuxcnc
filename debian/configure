@@ -146,7 +146,7 @@ case $TARGET in
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
 	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
+	KERNEL_HEADERS=
 	KERNEL_VERSION=uspace
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
