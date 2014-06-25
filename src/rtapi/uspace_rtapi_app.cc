@@ -48,7 +48,6 @@
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <pth.h>		/* pth_uctx_* */
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
@@ -70,8 +69,6 @@ template<class T> T DLSYM(void *handle, const char *name) {
 }
 
 static std::map<string, void*> modules;
-
-extern "C" int schedule(void) { return sched_yield(); }
 
 static int instance_count = 0;
 static int force_exit = 0;
@@ -443,11 +440,7 @@ struct rtapi_module {
 struct rtapi_task {
   int magic;			/* to check for valid handle */
   int owner;
-  union
-  {
-      pth_uctx_t ctx;		/* thread's context */
-      pthread_t thr;
-  };
+  pthread_t thr;                /* thread's context */
   size_t stacksize;
   int prio;
   long period;
@@ -456,10 +449,6 @@ struct rtapi_task {
   void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
 };
-
-static struct timeval scheduled;
-static int base_periods;
-static pth_uctx_t main_ctx, this_ctx;
 
 #define MODULE_MAGIC  30812
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
@@ -493,19 +482,6 @@ struct RtapiApp
     virtual int run_threads(int fd, int (*callback)(int fd)) = 0;
     int policy;
     long period;
-};
-
-struct Pth : RtapiApp
-{
-    int task_delete(int id);
-    int task_start(int task_id, unsigned long period_nsec);
-    int task_pause(int task_id);
-    int task_resume(int task_id);
-    void wait();
-    unsigned char do_inb(unsigned int port);
-    void do_outb(unsigned char value, unsigned int port);
-    int run_threads(int fd, int (*callback)(int fd));
-    static void wrapper(void *arg);
 };
 
 struct Posix : RtapiApp
@@ -738,114 +714,6 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   return n;
 }
 
-int Pth::task_delete(int id)
-{
-  struct rtapi_task *task;
-
-  if(id < 0 || id >= MAX_TASKS) return -EINVAL;
-
-  task = &(task_array[id]);
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  pth_uctx_destroy(task->ctx);
-
-  task->magic = 0;
-  return 0;
-}
-
-void Pth::wrapper(void *arg)
-{
-  struct rtapi_task *task;
-
-  /* use the argument to point to the task data */
-  task = (struct rtapi_task*)arg;
-  long int period = App().period;
-  if(task->period < period) task->period = period;
-  task->ratio = task->period / period;
-  rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
-	  task, task->period, task->ratio);
-
-  /* call the task function with the task argument */
-  (task->taskcode) (task->arg);
-
-  rtapi_print("ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
-}
-
-int Pth::task_start(int task_id, unsigned long int period_nsec)
-{
-  struct rtapi_task *task;
-  int retval;
-
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-
-  task = &task_array[task_id];
-
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  if(period_nsec < (unsigned long int)period) period_nsec = (unsigned long int)period;
-  task->period = period_nsec;
-  task->ratio = period_nsec / period;
-
-  /* create the thread - use the wrapper function, pass it a pointer
-     to the task structure so it can call the actual task function */
-  retval = pth_uctx_create(&task->ctx);
-  if (retval == FALSE)
-    return -ENOMEM;
-  retval = pth_uctx_make(task->ctx, NULL, task->stacksize, NULL,
-	  wrapper, (void*)task, 0);
-  if (retval == FALSE)
-    return -ENOMEM;
-
-  return 0;
-}
-
-int Pth::task_pause(int task_id)
-{
-  struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-
-  task = &task_array[task_id];
-
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  return -ENOSYS;
-}
-
-int Pth::task_resume(int task_id)
-{
-  struct rtapi_task *task;
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-
-  task = &task_array[task_id];
-
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
-
-  return -ENOSYS;
-}
-
-void Pth::wait(void)
-{
-  pth_uctx_switch(this_ctx, main_ctx);
-}
-
-void Pth::do_outb(unsigned char byte, unsigned int port)
-{
-    return;
-}
-
-unsigned char Pth::do_inb(unsigned int port)
-{
-  return 0;
-}
-
 int Posix::task_delete(int id)
 {
   struct rtapi_task *task;
@@ -1052,7 +920,6 @@ long RtapiApp::clock_set_period(long nsecs)
       return -EINVAL;
   }
   period = nsecs;
-  gettimeofday(&scheduled, NULL);
   return period;
 }
 
@@ -1098,88 +965,6 @@ unsigned char rtapi_inb(unsigned int port)
 
 long int simple_strtol(const char *nptr, char **endptr, int base) {
   return strtol(nptr, endptr, base);
-}
-
-#define MIN_RUNS 13
-
-static int maybe_sleep(int fd) {
-    struct timeval now;
-    struct timeval interval;
-
-    if(App().period == 0) {
-	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(fd, &fds);
-
-	return select(fd+1, &fds, NULL, NULL, NULL);
-    } else {
-	scheduled.tv_usec += App().period / 1000;
-	if(scheduled.tv_usec > 1000000) {
-	    scheduled.tv_usec -= 1000000;
-	    scheduled.tv_sec ++;
-	}
-
-	if(App().period < 100000) {
-	    // if base_period is fast (<.1ms) then run 10 times (e.g., enough
-	    // for .5ms if base_period is 50uS) without any syscalls
-	    if(base_periods % MIN_RUNS) return 0;
-	}
-	gettimeofday(&now, NULL);
-	interval.tv_sec = scheduled.tv_sec - now.tv_sec;
-	interval.tv_usec = scheduled.tv_usec - now.tv_usec;
-
-	if(interval.tv_usec < 0) {
-	    interval.tv_sec --;
-	    interval.tv_usec += 1000000;
-	}
-
-	if(interval.tv_sec < -10) {
-	    // Something happened, like getting stopped in the debugger
-	    // for a long time.  Instead of playing catch-up, just forget
-	    // about it
-	    rtapi_print_msg(RTAPI_MSG_DBG, "Long pause, resetting schedule\n");
-	    memcpy(&scheduled, &now, sizeof(struct timeval));
-	}
-	if(interval.tv_sec > 0
-		|| (interval.tv_sec == 0 &&  interval.tv_usec >= 0)) {
-	    fd_set fds;
-	    FD_ZERO(&fds);
-	    FD_SET(fd, &fds);
-
-	    return select(fd+1, &fds, NULL, NULL, &interval);
-	}
-    }
-    return 0;
-}
-
-int Pth::run_threads(int fd, int(*callback)(int fd))
-{
-    static int first_time = 1;
-    if(first_time) {
-	int result = pth_uctx_create(&main_ctx);
-	if(result == FALSE) _exit(1);
-	first_time = 0;
-    }
-    while(1) {
-	int result = maybe_sleep(fd);
-	if(result) {
-	    if(!callback(fd)) break;
-	}
-
-	if(App().period) {
-	    int t;
-	    base_periods++;
-	    for(t=0; t<MAX_TASKS; t++) {
-		struct rtapi_task *task = &task_array[t];
-		if(task->magic == TASK_MAGIC && task->ctx &&
-			(base_periods % task->ratio == 0)) {
-		    this_ctx = task->ctx;
-		    if(pth_uctx_switch(main_ctx, task->ctx) == FALSE) _exit(1);
-		}
-	    }
-	}
-    }
-    return 0;
 }
 
 int Posix::run_threads(int fd, int(*callback)(int fd)) {

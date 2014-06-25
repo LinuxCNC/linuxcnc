@@ -199,10 +199,6 @@ AC_ARG_WITH(realtime,
 #at this point if RTS is empty, we need to find RT ourselves
 if test "$RTS" = uspace ; then
   AC_MSG_RESULT([Using userspace realtime]);
-  AC_PATH_PROG(PTH_CONFIG,pth-config,"")
-  if test "$PTH_CONFIG" = ""; then
-    AC_MSG_ERROR([GNU PTH library is required: get it with apt-get install libpth-dev])
-  fi
 elif test -x "$RTS" -a ! -d "$RTS"; then
   AC_MSG_RESULT([Using $RTS as configure script for realtime])
 else
