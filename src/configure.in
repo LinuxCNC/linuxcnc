@@ -1385,6 +1385,14 @@ else
     AC_MSG_RESULT([not found])
 fi
 
+AC_MSG_CHECKING([for img::png using $TCLSH])
+if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearch [package names] img::png] == -1]"] | $TCLSH); then
+    AC_MSG_RESULT([found])
+    HAVE_WORKING_BLT=yes
+else
+    AC_MSG_ERROR([not found])
+fi
+
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
 AC_SUBST([TCL_CFLAGS])
