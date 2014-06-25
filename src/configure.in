@@ -1234,8 +1234,8 @@ if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
     RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags) \
         -llxrt -Wl,-rpath,$($RTAI_KERNEL_THREADS_RTS --library-dir)"
 
-    if test "$($RTAI_KERNEL_THREADS_RTS --arch)" = x86_64; then
-	flags="-msse -funsafe-math-optimizations"
+    if test "$host_cpu" = x86_64; then
+	flags="-msse -mpreferred-stack-boundary=4 -funsafe-math-optimizations"
     else
         flags="-fno-unsafe-math-optimizations"
     fi
