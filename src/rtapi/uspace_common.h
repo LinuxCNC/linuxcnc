@@ -64,19 +64,32 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget()\n");
     return -errno;
   }
+
+  struct shmid_ds stat;
+  int res = shmctl(shmem->id, IPC_STAT, &stat);
+  if(res < 0) perror("shmctl IPC_STAT");
+
   if(geteuid() == 0 && getuid() != 0) {
-    struct shmid_ds stat;
-    int res = shmctl(shmem->id, IPC_STAT, &stat);
-    if(res < 0) perror("shmctl IPC_STAT");
     stat.shm_perm.uid = getuid();
-    res = shmctl(shmem->id, IPC_SET, &stat);
-    if(res < 0) perror("shmctl IPC_SET");
   }
+
+  stat.shm_perm.mode |= SHM_LOCKED;
+  res = shmctl(shmem->id, IPC_SET, &stat);
+  if(res < 0) perror("shmctl IPC_SET");
+
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
   if ((ssize_t) (shmem->mem) == -1) {
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
     return -errno;
+  }
+
+  long pagesize = sysconf(_SC_PAGESIZE);
+  /* touch every page */
+  for(size_t off = 0; off < size; off += pagesize)
+  {
+      volatile char i = ((char*)shmem->mem)[off];
+      (void)i;
   }
 
   /* label as a valid shmem structure */
