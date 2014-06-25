@@ -15,6 +15,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <sys/fsuid.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -34,17 +35,25 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <sys/io.h>
+#include <sys/resource.h>
+#include <sys/mman.h>
+#include <malloc.h>
+#include <sys/prctl.h>
 
 #include "config.h"
 
 #include "rtapi.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
+#include "rtapi_uspace.hh"
 
 #include <pth.h>		/* pth_uctx_* */
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
 #include <string.h>
+
+int WithRoot::level;
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
 
@@ -380,6 +389,7 @@ static int master(int fd, vector<string> args) {
 }
 
 int main(int argc, char **argv) {
+    setfsuid(getuid());
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
@@ -433,10 +443,15 @@ struct rtapi_module {
 struct rtapi_task {
   int magic;			/* to check for valid handle */
   int owner;
-  pth_uctx_t ctx;		/* thread's context */
+  union
+  {
+      pth_uctx_t ctx;		/* thread's context */
+      pthread_t thr;
+  };
   size_t stacksize;
   int prio;
   long period;
+  struct timespec nextstart;
   unsigned ratio;
   void *arg;
   void (*taskcode) (void*);	/* pointer to task function */
@@ -459,7 +474,7 @@ namespace
 struct RtapiApp
 {
 
-    RtapiApp() : period(0) {}
+    RtapiApp(int policy = SCHED_OTHER) : policy(policy), period(0) {}
 
     int prio_highest();
     int prio_lowest();
@@ -475,6 +490,8 @@ struct RtapiApp
     virtual void wait() = 0;
     virtual unsigned char do_inb(unsigned int port) = 0;
     virtual void do_outb(unsigned char value, unsigned int port) = 0;
+    virtual int run_threads(int fd, int (*callback)(int fd)) = 0;
+    int policy;
     long period;
 };
 
@@ -487,12 +504,160 @@ struct Pth : RtapiApp
     void wait();
     unsigned char do_inb(unsigned int port);
     void do_outb(unsigned char value, unsigned int port);
+    int run_threads(int fd, int (*callback)(int fd));
     static void wrapper(void *arg);
 };
 
+struct Posix : RtapiApp
+{
+    Posix(int policy = SCHED_FIFO) : RtapiApp(policy), do_thread_lock(policy != SCHED_FIFO) {
+        if(do_thread_lock)
+            pthread_mutex_init(&thread_lock, 0);
+    }
+    int task_delete(int id);
+    int task_start(int task_id, unsigned long period_nsec);
+    int task_pause(int task_id);
+    int task_resume(int task_id);
+    void wait();
+    unsigned char do_inb(unsigned int port);
+    void do_outb(unsigned char value, unsigned int port);
+    int run_threads(int fd, int (*callback)(int fd));
+    static void *wrapper(void *arg);
+    bool do_thread_lock;
+    pthread_mutex_t thread_lock;
+};
+
+static void signal_handler(int sig, siginfo_t *si, void *uctx)
+{
+    switch (sig) {
+    case SIGXCPU:
+        // should not happen - must be handled in RTAPI if enabled
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "rtapi_app: BUG: SIGXCPU received - exiting\n");
+        exit(0);
+        break;
+
+    case SIGTERM:
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "rtapi_app: SIGTERM - shutting down\n");
+        exit(0);
+        break;
+
+    default: // pretty bad
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "rtapi_app: caught signal %d - dumping core\n", sig);
+        sleep(1); // let syslog drain
+        signal(sig, SIG_DFL);
+        raise(sig);
+        break;
+    }
+    exit(1);
+}
+
+const size_t PRE_ALLOC_SIZE = 1024*1024*32;
+const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
+static void configure_memory()
+{
+    int res = setrlimit(RLIMIT_MEMLOCK, &unlimited);
+    if(res < 0) perror("setrlimit");
+
+    res = mlockall(MCL_CURRENT | MCL_FUTURE);
+    if(res < 0) perror("mlockall");
+
+    /* Turn off malloc trimming.*/
+    if (!mallopt(M_TRIM_THRESHOLD, -1)) {
+        rtapi_print_msg(RTAPI_MSG_WARN,
+                  "mallopt(M_TRIM_THRESHOLD, -1) failed\n");
+    }
+    /* Turn off mmap usage. */
+    if (!mallopt(M_MMAP_MAX, 0)) {
+        rtapi_print_msg(RTAPI_MSG_WARN,
+                  "mallopt(M_MMAP_MAX, -1) failed\n");
+    }
+    char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+    if (buf == NULL) {
+        rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
+        return;
+    }
+    long pagesize = sysconf(_SC_PAGESIZE);
+    /* Touch each page in this piece of memory to get it mapped into RAM */
+    for (size_t i = 0; i < PRE_ALLOC_SIZE; i += pagesize) {
+            /* Each write to this buffer will generate a pagefault.
+             * Once the pagefault is handled a page will be locked in
+             * memory and never given back to the system. */
+            buf[i] = 0;
+    }
+    free(buf);
+}
+
+static int harden_rt()
+{
+    WITH_ROOT;
+#if defined(__x86_64__) || defined(__i386__)
+    if (iopl(3) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "cannot gain I/O privileges - "
+                        "forgot 'sudo make setuid'?\n");
+        return -EPERM;
+    }
+#endif
+
+    struct sigaction sig_act;
+
+    // enable core dumps
+    if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
+	rtapi_print_msg(RTAPI_MSG_WARN,
+		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
+		  strerror(errno));
+
+    // even when setuid root
+    if (prctl(PR_SET_DUMPABLE, 1) < 0)
+	rtapi_print_msg(RTAPI_MSG_WARN,
+		  "prctl(PR_SET_DUMPABLE) failed: no core dumps will be created - %d - %s\n",
+		  errno, strerror(errno));
+
+    configure_memory();
+
+    sigemptyset( &sig_act.sa_mask );
+    sig_act.sa_handler = SIG_IGN;
+    sig_act.sa_sigaction = NULL;
+
+    // prevent stopping of RT threads by ^Z
+    sigaction(SIGTSTP, &sig_act, (struct sigaction *) NULL);
+
+    sig_act.sa_sigaction = signal_handler;
+    sig_act.sa_flags   = SA_SIGINFO;
+
+    sigaction(SIGSEGV, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGILL,  &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGFPE,  &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGTERM, &sig_act, (struct sigaction *) NULL);
+    sigaction(SIGINT, &sig_act, (struct sigaction *) NULL);
+
+    int fd = open("/dev/cpu_dma_latency", O_WRONLY | O_CLOEXEC);
+    setfsuid(getuid());
+    if(fd >= 0) {
+        write(fd, "\0\0\0\0", 4);
+        // deliberately leak fd until program exit
+    }
+    return 0;
+}
+
+
+static RtapiApp *makeApp()
+{
+    if(harden_rt() < 0)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX non-realtime\n");
+        return new Posix(SCHED_OTHER);
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Note: Using POSIX realtime\n");
+        return new Posix(SCHED_FIFO);
+    }
+}
 RtapiApp &App()
 {
-    static RtapiApp *app = new Pth;
+    static RtapiApp *app = makeApp();
     return *app;
 }
 
@@ -504,12 +669,12 @@ static struct rtapi_task task_array[MAX_TASKS] = {{0},};
 
 int RtapiApp::prio_highest()
 {
-    return sched_get_priority_max(SCHED_FIFO);
+    return sched_get_priority_max(policy);
 }
 
 int RtapiApp::prio_lowest()
 {
-  return sched_get_priority_min(SCHED_FIFO);
+  return sched_get_priority_min(policy);
 }
 
 int RtapiApp::prio_next_higher(int prio)
@@ -559,8 +724,8 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
 
   /* label as a valid task structure */
   /*! \todo FIXME - end of non-threadsafe window */
-  if(stacksize < 16384) stacksize = 16384;
-  memset(task, 0, sizeof(task));
+  if(stacksize < (1024*1024)) stacksize = (1024*1024);
+  memset(task, 0, sizeof(*task));
   task->magic = TASK_MAGIC;
   task->owner = owner;
   task->arg = arg;
@@ -679,6 +844,156 @@ void Pth::do_outb(unsigned char byte, unsigned int port)
 unsigned char Pth::do_inb(unsigned int port)
 {
   return 0;
+}
+
+int Posix::task_delete(int id)
+{
+  struct rtapi_task *task;
+
+  if(id < 0 || id >= MAX_TASKS) return -EINVAL;
+
+  task = &(task_array[id]);
+  /* validate task handle */
+  if (task->magic != TASK_MAGIC)
+    return -EINVAL;
+
+  pthread_cancel(task->thr);
+  pthread_join(task->thr, 0);
+  task->magic = 0;
+  return 0;
+}
+
+int Posix::task_start(int task_id, unsigned long int period_nsec)
+{
+  struct rtapi_task *task;
+
+  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
+
+  task = &task_array[task_id];
+
+  /* validate task handle */
+  if (task->magic != TASK_MAGIC)
+    return -EINVAL;
+
+  if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
+  task->period = period_nsec;
+  task->ratio = period_nsec / period;
+
+  struct sched_param param;
+  memset(&param, 0, sizeof(param));
+  param.sched_priority = task->prio;
+
+  cpu_set_t cpuset;
+  CPU_ZERO(&cpuset);
+  int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
+  CPU_SET(nprocs-1, &cpuset); // assumes processor numbers are contiguous
+
+  pthread_attr_t attr;
+  if(pthread_attr_init(&attr) < 0)
+      return -errno;
+  if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
+      return -errno;
+  if(pthread_attr_setschedpolicy(&attr, policy) < 0)
+      return -errno;
+  if(pthread_attr_setschedparam(&attr, &param) < 0)
+      return -errno;
+  if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
+      return -errno;
+  if(nprocs > 1)
+      if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
+          return -errno;
+  if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
+      return -errno;
+
+  return 0;
+}
+
+const unsigned long ONE_SEC_IN_NS = 1000000000;
+static void advance_clock(struct timespec &result, const struct timespec &src, unsigned long nsec)
+{
+    time_t sec = src.tv_sec;
+    while(nsec >= ONE_SEC_IN_NS)
+    {
+        ++sec;
+        nsec -= ONE_SEC_IN_NS;
+    }
+    nsec += src.tv_nsec;
+    if(nsec >= ONE_SEC_IN_NS)
+    {
+        ++sec;
+        nsec -= ONE_SEC_IN_NS;
+    }
+    result.tv_sec = sec;
+    result.tv_nsec = nsec;
+}
+
+#define RTAPI_CLOCK (CLOCK_MONOTONIC)
+
+static pthread_once_t key_once = PTHREAD_ONCE_INIT;
+static pthread_key_t key;
+static void init_key(void) {
+    pthread_key_create(&key, NULL);
+}
+
+void *Posix::wrapper(void *arg)
+{
+  struct rtapi_task *task;
+
+  /* use the argument to point to the task data */
+  task = (struct rtapi_task*)arg;
+  long int period = App().period;
+  if(task->period < period) task->period = period;
+  task->ratio = task->period / period;
+  task->period = task->ratio * period;
+  rtapi_print_msg(RTAPI_MSG_INFO, "task %p period = %lu ratio=%u\n",
+	  task, task->period, task->ratio);
+
+  pthread_once(&key_once, init_key);
+  pthread_setspecific(key, arg);
+
+  Posix &papp = reinterpret_cast<Posix&>(App());
+  if(papp.do_thread_lock)
+      pthread_mutex_lock(&papp.thread_lock);
+
+  struct timespec now;
+  clock_gettime(RTAPI_CLOCK, &now);
+  advance_clock(task->nextstart, now, task->period);
+
+  /* call the task function with the task argument */
+  (task->taskcode) (task->arg);
+
+  rtapi_print("ERROR: reached end of wrapper for task %d\n", (int)(task - task_array));
+  return NULL;
+}
+
+int Posix::task_pause(int) {
+    return -ENOSYS;
+}
+
+int Posix::task_resume(int) {
+    return -ENOSYS;
+}
+
+void Posix::wait() {
+    if(do_thread_lock)
+        pthread_mutex_unlock(&thread_lock);
+    pthread_testcancel();
+    struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+    advance_clock(task->nextstart, task->nextstart, task->period);
+    int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
+    if(res < 0) perror("clock_nanosleep");
+    if(do_thread_lock)
+        pthread_mutex_lock(&thread_lock);
+}
+
+unsigned char Posix::do_inb(unsigned int port)
+{
+    return inb(port);
+}
+
+void Posix::do_outb(unsigned char val, unsigned int port)
+{
+    return outb(val, port);
 }
 
 int rtapi_prio_highest(void)
@@ -814,8 +1129,8 @@ static int maybe_sleep(int fd) {
     return 0;
 }
 
-
-int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
+int Pth::run_threads(int fd, int(*callback)(int fd))
+{
     static int first_time = 1;
     if(first_time) {
 	int result = pth_uctx_create(&main_ctx);
@@ -843,6 +1158,16 @@ int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
     }
     return 0;
 }
+
+int Posix::run_threads(int fd, int(*callback)(int fd)) {
+    while(callback(fd)) { /* nothing */ }
+    return 0;
+}
+
+int sim_rtapi_run_threads(int fd, int (*callback)(int fd)) {
+    return App().run_threads(fd, callback);
+}
+
 
 
 #include "rtapi/uspace_common.h"
