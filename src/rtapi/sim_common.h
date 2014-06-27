@@ -139,8 +139,6 @@ int rtapi_shmem_delete(int handle, int module_id)
 
 
 
-#define BUFFERLEN 1024
-
 void default_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap) {
     if(level == RTAPI_MSG_ALL)
 	vfprintf(stdout, fmt, ap);
@@ -169,7 +167,7 @@ void rtapi_print(const char *fmt, ...)
 }
 
 
-void rtapi_print_msg(int level, const char *fmt, ...)
+void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
 {
     va_list args;
 

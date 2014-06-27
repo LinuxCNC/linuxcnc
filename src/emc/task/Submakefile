@@ -23,7 +23,6 @@ MILLTASKSRCS := \
 	emc/task/taskmodule.cc \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
-	$(ULAPISRCS)
 
 USERSRCS += $(MILLTASKSRCS)
 

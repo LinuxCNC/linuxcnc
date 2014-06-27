@@ -57,7 +57,7 @@ as the 'L number', and so on for any other letter.
 |====================================================================
 |Code                               |Description
 |<<sec:G0,G0>>                      |Coordinated Straight Motion Rapid Rate
-|<<sec:G1,G1>>        |Coordinated Straight Motion Feed Rate
+|<<sec:G1,G1>>                      |Coordinated Straight Motion Feed Rate
 |<<sec:G2-G3-Arc,G2 G3>>            |Coordinated Helical Motion Feed Rate
 |<<sec:G4-Dwell,G4>>                |Dwell
 |<<sec:G5-Cubic-Spline,G5>>         |Cubic Spline
@@ -580,7 +580,7 @@ unspecified is 3.
 
 .G5.2 Example
 [source,{ngc}]
----------------
+----
 G0 X0 Y0 (rapid move)
 F10 (set feed rate)
 G5.2 P1 L3
@@ -595,7 +595,7 @@ G0 X0 Y1
    X2 Y0
    X0 Y0
 M2
----------------
+----
 
 .Sample NURBS Output
 

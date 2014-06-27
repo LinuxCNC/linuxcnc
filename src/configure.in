@@ -1290,9 +1290,9 @@ AC_ARG_WITH(tclConfig,
 
 # if not specified, search for tclConfig.sh
 if (test "x$TCLCONFIG" = "x"); then
-    TCLCONFIG=$(find /usr/lib* -maxdepth 2 -name tclConfig.sh | head -n1)
+    TCLCONFIG=$(find /usr/lib* -maxdepth 2 -name tclConfig.sh | sort -r | head -n1)
     if (test "x$TCLCONFIG" = "x"); then
-	TCLCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tclConfig.sh | head -n1)
+	TCLCONFIG=$(find /usr/local/lib* -maxdepth 2 -name tclConfig.sh | sort -r | head -n1)
     fi
 fi
 
@@ -1327,7 +1327,7 @@ if test -z "$TKCONFIG"; then
 fi
 if (test "x$TKCONFIG" = "x"); then
     # search for tkConfig.sh
-    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | head -n1)
+    TKCONFIG=$(find /usr/lib -maxdepth 2 -name tkConfig.sh | sort -r | head -n1)
     if (test "x$TKCONFIG" = "x"); then
 	TKCONFIG=$(find /usr/local/lib -maxdepth 2 -name tkConfig.sh | head -n1)
     fi
@@ -1383,6 +1383,14 @@ if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require
     HAVE_WORKING_BLT=yes
 else
     AC_MSG_RESULT([not found])
+fi
+
+AC_MSG_CHECKING([for img::png using $TCLSH])
+if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearch [package names] img::png] == -1]"] | $TCLSH); then
+    AC_MSG_RESULT([found])
+    HAVE_WORKING_BLT=yes
+else
+    AC_MSG_ERROR([not found])
 fi
 
 AC_SUBST([TCL_DBGX])

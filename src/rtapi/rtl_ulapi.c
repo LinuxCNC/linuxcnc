@@ -251,7 +251,7 @@ void rtapi_print(const char *fmt, ...)
     va_end(args);
 }
 
-void rtapi_print_msg(int level, const char *fmt, ...)
+void rtapi_print_msg(msg_level_t level, const char *fmt, ...)
 {
     char buffer[BUFFERLEN + 1];
     va_list args;
