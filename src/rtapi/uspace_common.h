@@ -326,3 +326,8 @@ int rtapi_is_realtime() {
     if(_rtapi_is_realtime == -1) _rtapi_is_realtime = detect_realtime();
     return _rtapi_is_realtime;
 }
+
+void rtapi_delay(long ns) {
+    struct timespec ts = {0, ns};
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+}
