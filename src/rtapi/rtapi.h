@@ -755,6 +755,9 @@ RTAPI_BEGIN_DECLS
         release_region(base, size);
 #endif
     }
+#else
+    #define rtapi_request_region(base, size, name) ((void*)-1)
+    #define rtapi_release_region(base, size) ((void)0)
 #endif
 
 /***********************************************************************
