@@ -9,7 +9,11 @@ CONVERTERS :=  \
     conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
 COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
+ifeq ($(BUILD_SYS),uspace)
+COMP_DRIVERS += hal/drivers/serport.comp
+else
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
+endif
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
 manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
@@ -20,7 +24,7 @@ Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
 endif
 endif
 
-obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
+obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS) $(COMP_DRIVERS)))
 
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
