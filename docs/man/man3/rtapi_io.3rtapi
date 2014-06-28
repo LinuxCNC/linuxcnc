@@ -1,0 +1,36 @@
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_io.h \- RTAPI wrappers for linux kernel functionality
+
+.SH SYNTAX
+.HP
+#include <rtapi_io.h>
+.HP
+unsigned char rtapi_inb(unsigned short int port);
+.HP
+unsigned short rtapi_inw(unsigned short int port);
+.HP
+unsigned int rtapi_inl(unsigned short int port);
+.HP
+unsigned void rtapi_inb(unsigned char value, unsigned short int port);
+.HP
+unsigned void rtapi_inw(unsigned short value, unsigned short int port);
+.HP
+unsigned void rtapi_inl(unsigned int value, unsigned short int port);
+
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_device_register always succeeds)
+.SH REALTIME CONSIDERATIONS
+Call from init/cleanup code and from realtime tasks.  These functions will
+cause illegal instruction exceptions in userspace components, as well as in
+uspace rtapi_app when it is not setuid root.
+.SH RETURN VALUE
+As in Linux.
+.SH SEE ALSO

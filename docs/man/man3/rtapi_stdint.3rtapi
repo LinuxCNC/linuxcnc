@@ -1,0 +1,37 @@
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_stdint.h \- RTAPI wrappers for linux kernel functionality
+
+.SH SYNTAX
+.HP
+#include <rtapi_stdint.h>
+.HP
+typedef ... rtapi_s8;
+.HP
+typedef ... rtapi_s16;
+.HP
+typedef ... rtapi_s32;
+.HP
+typedef ... rtapi_s64;
+.HP
+typedef ... rtapi_u8;
+.HP
+typedef ... rtapi_u16;
+.HP
+typedef ... rtapi_u32;
+.HP
+typedef ... rtapi_u64;
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_device_register always succeeds)
+.SH REALTIME CONSIDERATIONS
+None.
+.SH RETURN VALUE
+As in Linux.
+.SH SEE ALSO

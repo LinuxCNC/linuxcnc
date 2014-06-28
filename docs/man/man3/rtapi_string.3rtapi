@@ -1,0 +1,28 @@
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_string.h \- RTAPI wrappers for linux kernel functionality
+
+.SH SYNTAX
+.HP
+#include <rtapi_string.h>
+.HP
+char **rtapi_argv_split(rtapi_gfp_t g, const char *argstr, int *argc);
+.HP
+void rtapi_argv_free(char **argv);
+.HP
+char *rtapi_kstrdup(const char *s, rtapi_gfp_t t);
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_device_register always succeeds)
+.SH REALTIME CONSIDERATIONS
+Call only from within init/cleanup code, not from realtime tasks.  This
+function is not available from user (non-realtime) code.
+.SH RETURN VALUE
+As in Linux.
+.SH SEE ALSO
