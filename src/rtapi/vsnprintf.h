@@ -159,7 +159,7 @@ static char *number(char *buf, char *end, long long numll, int base,
     return buf;
 }
 
-#if defined(__i386__) || defined(__amd64__)
+#if defined(__i386__) || defined(__amd64__) || defined(__arm__)
 #define IS_IEEE754 /// XXX this should ultimately be replaced by a configure test
 #endif
 
