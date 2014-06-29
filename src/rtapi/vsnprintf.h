@@ -234,9 +234,10 @@ static char *fnumber(char *buf, char *end, double num)
 
     buf = st(buf, end, "0x");
 
-    /* want one digit to the left of the radix point.  ldexp should return in
-     * the range [0.5,1) but guard with an 'if' just in case */
-    if(mantissa != 0 && mantissa < 1) { mantissa *= 16; exp -= 4; }
+    /* want one digit to the left of the radix point-- in the range [1,2).
+     * frexp should return in the range [0.5,1), so this loop is expected
+     * to execute once */
+    while(mantissa != 0 && mantissa < 1) { mantissa *= 2; exp -= 1; }
 
     /* first digit */
     i = (int)floor(mantissa);
