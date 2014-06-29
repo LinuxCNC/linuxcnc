@@ -1,0 +1,63 @@
+.TH funct "3rtapi" "2014-06-28" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_pci.h \- RTAPI wrappers for linux kernel functionality
+
+.SH SYNTAX
+.HP
+#include <rtapi_pci.h>
+.HP
+struct rtapi_pci_device_id { ... };
+.HP
+struct rtapi_pci_resource { ... };
+.HP
+struct rtapi_pci_dev { ... };
+.HP
+struct rtapi_pci_driver { ... };
+.HP
+const char *rtapi_pci_name(const struct rtapi_pci_dev *pdev);
+.HP
+int rtapi_pci_enable_device(struct rtapi_pci_dev *dev);
+.HP
+void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *pdev, int bar);
+.HP
+int rtapi_pci_register_driver(struct rtapi_pci_driver *driver);
+.HP
+void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver);
+.HP
+int rtapi_pci_enable_device(struct rtapi_pci_dev *dev);
+.HP
+int rtapi_pci_disable_device(struct rtapi_pci_dev *dev);
+.HP
+#define rtapi_pci_resource_start(dev, bar) ...
+.HP
+#define rtapi_pci_resource_end(dev, bar) ...
+.HP
+#define rtapi_pci_resource_flags(dev, bar) ...
+.HP
+#define rtapi_pci_resource_len(dev,bar) ....
+.HP
+void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)
+.HP
+void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)
+.HP
+void rtapi_iounmap(volatile void *addr);
+.HP
+struct rtapi_pci;
+
+.HP
+.HP
+
+.SH DESCRIPTION
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not provided
+by a kernel, generally another implementation--possibly with reduced
+functionality--is provided.  (For example, the userspace implementation for
+rtapi_pci_register always succeeds)
+.SH REALTIME CONSIDERATIONS
+Typically, these functions may be called from realtime init/cleanup code.
+.SH RETURN VALUE
+As in Linux.
+.SH SEE ALSO
