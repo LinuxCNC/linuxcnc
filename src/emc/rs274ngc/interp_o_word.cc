@@ -411,7 +411,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		    settings->file_pointer = fopen(previous_frame->filename, "r");
 		    if (settings->file_pointer == NULL)  {
 			ERS(NCE_CANNOT_REOPEN_FILE, 
-			    settings->sub_context[settings->call_level].filename,
+			    previous_frame->filename,
 			    strerror(errno));
 		    }
 		    strcpy(settings->filename, previous_frame->filename);
