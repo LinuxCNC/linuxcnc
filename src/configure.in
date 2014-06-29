@@ -199,8 +199,17 @@ AC_ARG_WITH(realtime,
 #at this point if RTS is empty, we need to find RT ourselves
 if test "$RTS" = uspace ; then
   AC_MSG_RESULT([Using userspace realtime]);
-elif test -x "$RTS" -a ! -d "$RTS"; then
-  AC_MSG_RESULT([Using $RTS as configure script for realtime])
+  AC_MSG_CHECKING([for libudev])
+  if pkg-config libudev >/dev/null 2>&1; then
+      LIBUDEV_VER=`pkg-config udev --modversion`
+      AC_MSG_RESULT(yes - version [$LIBUDEV_VER])
+      LIBUDEV_CFLAGS=`pkg-config libudev --cflags`
+      AC_SUBST([LIBUDEV_CFLAGS])
+      LIBUDEV_LIBS=`pkg-config libudev --libs`
+      AC_SUBST([LIBUDEV_LIBS])
+  else
+    AC_MSG_ERROR([libudev-dev not found])
+  fi
 else
   if test -z "$RTDIR"; then
     DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
