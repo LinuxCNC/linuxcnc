@@ -56,8 +56,10 @@ chose.
 |<<sec:G1,G1>> | Interpolation linéaire en vitesse travail
 |<<sec:G2-G3,G2/G3>>  | Interpolation circulaire sens horaire/anti-horaire
 |<<sec:G4-Tempo,G4>>           | Temporisation
-|<<sec:G5_1-B-spline,G5.1>>    | B-Spline quadratique
-|<<sec:G5_2-G5_3-NURBs,G5.2 G5.3>>    | NURBs Block '(expérimental)'
+|<<sec:G5-Cubic-Spline,G5>>         |Spline cubique
+|<<sec:G5_1-Quadratic-Spline,G5.1>> |B-Spline quadratique
+|<<sec:G5_2-G5_3-NURBS,G5.2>>       |NURBS, ajout point de contrôle
+|<<sec:G5_2-G5_3-NURBS,G5.3>>       |NURBS, exécute
 |<<sec:G7-Mode-diametre,G7>>   | Mode diamètre (sur les tours)
 |<<sec:G8-Mode-rayon,G8>>| Mode rayon (sur les tours)
 |<<sec:G10-L1,G10 L1>>   | Ajuste les valeurs de l'outil en table d'outils
@@ -500,68 +502,132 @@ C'est une erreur si:
 
 * Le nombre P est négatif ou n'est pas spécifié.
 
-[[sec:G5_1-B-spline]]
-== G5.1 B-spline quadratique
-(((G5.1 B-spline quadratique)))
+[[sec:G5-Cubic-Spline]]
+== G5 Spline cubique
+(((G5 Cubic spline)))
 
 ----
-G5.1 Xn Yn I[X offset] J[Y offset]
+G5 X- Y- <I- J-> P- Q-
+----
+* 'I' - offset incrémental en X, du point de départ au premier point de contrôle
+* 'J' - offset incrémental en Y, du point de départ au premier point de contrôle
+* 'P' - offset incrémental en X, du point de départ au second point de contrôle
+* 'Q' - offset incrémental en Y, du point de départ au second point de contrôle
+
+G5 crée une B-spline cubique dans le plan XY avec les axes X et Y seuls.
+P et Q doivent être tous les deux spécifiés pour chaque commande G5.
+
+Pour la première d'une série de commandes G5, I et J doivent être tous les deux
+spécifiés. Pour les commandes G5 suivantes de la série, soit I et J sont
+spécifiés tous les deux, soit aucun ne l'est. Si aucun n'est spécifié, la
+direction de départ de ce cube rejoindra automatiquement la direction de fin du
+cube précédent (comme si I et J étaient les négatifs des P et Q précédents).
+
+Par exemple, pour programmer une courbe en forme de N:
+
+.G5 Simple spline cubique initiale
+----
+G90 G17
+G0 X0 Y0
+G5 I0 J3 P0 Q-3 X1 Y1
 ----
 
-* 'I' - offset en X
-* 'J' - offset en Y
+Une seconde courbe en N qui s'attache doucement à celle-ci peux maintenant être
+faite sans spécifier I et J:
 
-G5.1 crée une B-spline quadratique dans le plan XY avec seulement les axes X
-et Y.
+.G5 Simple spline cubique subséquente
+----
+G5 P0 Q-3 X2 Y2
+----
 
 C'est une erreur si:
 
-* Les offsets I et J ne sont pas spécifiés
+* P et Q ne sont pas spécifiés tous les deux
+* Un seul, de I ou J est spécifié
+* Aucun de I ou J n'est spécifié à la première série de commandes G5
 * Un axe autre que X ou Y est spécifié
+* Le plan courant n'est pas G17
+
+[[sec:G5_1-Quadratic-Spline]]
+== G5.1 Spline quadratique
+(((G5.1 Quadratic spline)))
+
+----
+G5.1 X- Y- I- J-
+----
+* 'I' - Offset incrémental en X, du point de départ au point de contrôle
+* 'J' - Offset incrémental en Y, du point de départ au point de contrôle
+
+G5.1 crée une B-spline quadratique dans le plan XY avec les seuls axes X et Y.
+Ne pas spécifier I ou J donne un offset nul pour l'axe non spécifié,
+un ou les deux doivent donc être donnés.
+
+Par exemple, pour programmer une parabole, entre l'origine X-2 Y4 et X2 Y4:
+
+.G5.1 Simple spline quadratique
+----
+G90 G17
+G0 X-2 Y4
+G5.1 X2 I2 J-8
+----
+
+C'est une erreur si:
+
+* Les offsets I et J ne sont pas spécifiés ou sont à zéro
+* Un autre axe que X ou Y est spécifié
 * Le plan actif n'est pas G17
 
-[[sec:G5_2-G5_3-NURBs]]
-== G5.2 G5.3 NURBs Block
-(((G5.2 G5.3 NURBs Block)))
+[[sec:G5_2-G5_3-NURBS]]
+== G5.2 G5.3 Block NURBS
+(((G5.2 G5.3 NURBS Block)))
+
+----
+G5.2 <P-> <X- Y-> <L->
+X- Y- <P->
+...
+G5.3
+----
 
 WARNING: G5.2, G5.3 sont expérimentaux, il n'ont pas encore été testés
 totalement.
 
-G5.2 is for opening the data block defining a NURBs and G5.3 for
-closing the data block. In the lines between these two codes the curve
-control points are defined with both their related "weights" (P) and
-their parameter (L) which determines the order of the curve (k) and
-subsequently its degree (k-1).
+G5.2 est pour ouvrir un bloc de données définissant un NURBS et G5.3 pour
+fermer le bloc de données. Dans les lignes entre ces deux codes, les points de
+contrôle de la courbe sont définis avec deux éléments, leur 'poids' relatif (P)
+et le paramètre (L) qui détermine l'ordre de la courbe.
 
-Using this curve definition the knots of the NURBs curve are not
-defined by the user they are calculated by the inside algorithm, in the
-same way as it happens in a great number of graphic applications, where
-the curve shape can be modified only acting on either control points or
-weights.
+Les coordonnées courantes, avant la premiére commande G5.2, est toujours prise
+comme premier point de contrôle du NURBS. Pour définir le poids pour le
+premier point de contrôle, premièrement programmer G5.2 P- sans donner X ni Y.
 
-Sample NURBs Code
+Le poids par défaut si P n'est pas spécifié est 1. L'ordre par défaut si L n'est
+pas spécifié est 3.
+
+.G5.2 Exemple
 ----
-    G0 X0 Y0
-    F10 
-    G5.2 X0 Y1 P1 L3
-         X2 Y2 P1
-         X2 Y0 P1
-         X0 Y0 P2
-    G5.3
-    / The rapid moves show the same path without the NURBs Block
-    G0 X0 Y1
-       X2 Y2
-       X2 Y0
-       X0 Y0
-    M2
+G0 X0 Y0 (mouvement en vitesse rapide)
+F10 (set feed rate)
+G5.2 P1 L3
+     X0 Y1 P1
+     X2 Y2 P1
+     X2 Y0 P1
+     X0 Y0 P2
+G5.3
+; Les mouvements en vitesse rapide montrent le même parcours sans le bloc NURBS
+G0 X0 Y1
+   X2 Y2
+   X2 Y0
+   X0 Y0
+M2
 ----
 
-.Sample NURBs Output
+.Simple sortie NURBS
 
-image::images/nurbs01.png[]
+image:images/nurbs01.png[align="center"]
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[D'autres informations sont
-disponible ici, sur le wiki].
+D'autres informations sur NURBS sont disponibles ici:
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
 
 [[sec:G7-Mode-diametre]]
 == G7 Mode diamètre sur les tours
