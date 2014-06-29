@@ -541,6 +541,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define G_MODE_OK(m) (m == 1)
 
 typedef struct context_struct {
+    context_struct();
     long position;       // location (ftell) in file
     int sequence_number; // location (line number) in file
     const char *filename;      // name of file for this context
