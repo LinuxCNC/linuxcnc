@@ -2515,7 +2515,11 @@ STATIC int tpCompleteSegment(TP_STRUCT * const tp,
     }
 
     // done with this move
-    tcqRemove(&tp->queue, 1);
+    if (tp->reverse_run) {
+        tcqBackStep(&tp->queue);
+    } else {
+        tcqPop(&tp->queue);
+    }
     tp_debug_print("Finished tc id %d\n", tc->id);
 
     return TP_ERR_OK;
@@ -3115,6 +3119,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
     return TP_ERR_OK;
 }
 
+
 /**
  * Calculate an updated goal position for the next timestep.
  * This is the brains of the operation. It's called every TRAJ period and is
@@ -3133,7 +3138,7 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
      * future segments don't exist (NULL pointers) as we check for this later).
      */
 
-    queue_dir_step = tp->reverse_run ? -1 : 1;
+    int queue_dir_step = tp->reverse_run ? -1 : 1;
     tc = tcqItem(&tp->queue, 0);
     nexttc = tcqItem(&tp->queue, queue_dir_step * 1);
 
