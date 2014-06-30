@@ -27,7 +27,9 @@ typedef struct {
     TC_STRUCT *queue;	/* ptr to the tcs */
     int size;			/* size of queue */
     int _len;			/* number of tcs now in queue */
+    int _rlen;			/* number of tcs now in reverse history  */
     int start, end;		/* indices to next to get, next to put */
+    int rend;
     int allFull;		/* flag meaning it's actually full */
 } TC_QUEUE_STRUCT;
 
@@ -49,8 +51,12 @@ extern int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc);
 /* remove a single tc from the back of the queue */
 extern int tcqPopBack(TC_QUEUE_STRUCT * const tcq);
 
+extern int tcqPop(TC_QUEUE_STRUCT * const tcq);
+
 /* remove n tcs from front */
 extern int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n);
+
+extern int tcqBackStep(TC_QUEUE_STRUCT * const tcq);
 
 /* how many tcs on queue */
 extern int tcqLen(TC_QUEUE_STRUCT const * const tcq);
