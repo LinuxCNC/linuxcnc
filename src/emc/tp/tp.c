@@ -472,6 +472,8 @@ int tpInit(TP_STRUCT * const tp)
     tp->spindle.waiting_for_index = MOTION_INVALID_ID;
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
 
+    tp->reverse_run = TC_DIR_FORWARD;
+
     ZERO_EMC_POSE(tp->currentPos);
 
     PmCartesian vel_bound;
@@ -2704,7 +2706,6 @@ STATIC tp_err_t tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
-        tp->reverse_run=0;
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
         tp->aborting = 0;
@@ -3321,8 +3322,10 @@ int tpRunCycle(TP_STRUCT * const tp, long period)
     /* Get pointers to current and relevant future segments. It's ok here if
      * future segments don't exist (NULL pointers) as we check for this later).
      */
+
+    queue_dir_step = tp->reverse_run ? -1 : 1;
     tc = tcqItem(&tp->queue, 0);
-    nexttc = tcqItem(&tp->queue, 1);
+    nexttc = tcqItem(&tp->queue, queue_dir_step * 1);
 
     //Set GUI status to "zero" state
     tpUpdateInitialStatus(tp);
