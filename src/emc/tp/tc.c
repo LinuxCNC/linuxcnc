@@ -259,7 +259,7 @@ double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction)
 
 double tcGetTarget(TC_STRUCT const * const tc, int direction)
 {
-    return direction ? tc->target : 0.0;
+    return (direction == TC_DIR_REVERSE) ? 0.0 : tc->target;
 }
 
 
