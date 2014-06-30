@@ -404,7 +404,7 @@ static void hm2_eth_probe() {
 
     LL_PRINT("discovered %.*s\n", 16, board_name);
 
-    rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", strlen(llio_name), llio_name, boards_count);
+    rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", (int)strlen(llio_name), llio_name, boards_count);
 
     board->llio.comp_id = comp_id;
     board->llio.private = board;
