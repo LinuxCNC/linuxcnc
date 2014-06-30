@@ -64,7 +64,8 @@ static hm2_test_t board[1];
 
 static int hm2_test_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_test_t *me = this->private;
-    memcpy(buffer, (me->test_pattern + addr), size);
+    if(buffer)
+        memcpy(buffer, (me->test_pattern + addr), size);
     return 1;  // success
 }
 
@@ -643,6 +644,8 @@ int rtapi_app_main(void) {
 
     me->llio.read = hm2_test_read;
     me->llio.write = hm2_test_write;
+    me->llio.queue_read = hm2_test_read;
+    me->llio.queue_write = hm2_test_write;
 
     r = hm2_register(&board->llio, config[0]);
     if (r != 0) {
