@@ -118,6 +118,7 @@ typedef struct {
     int activeDepth;		/* number of motions blending */
     int aborting;
     int pausing;
+    int reverse_run;      /* Indicates that TP is running in reverse */
     int motionType;
     double tolerance;           /* for subsequent motions, stay within this
                                    distance of the programmed path during

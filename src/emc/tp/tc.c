@@ -237,6 +237,32 @@ int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const ou
     return 0;
 }
 
+
+
+/**
+ * Calculate the distance left in the trajectory segment in the indicated
+ * direction.
+ */
+double tcGetDistanceToGo(TC_STRUCT const * const tc, int direction)
+{
+    double distance;
+    if (direction == TC_DIR_FORWARD) {
+        // Return standard distance to go
+        distance = tc->target - tc->progress;
+    } else {
+        // Reverse direction, distance from zero instead of target
+        distance = tc->progress;
+    }
+
+    return distance;
+}
+
+double tcGetTarget(TC_STRUCT const * const tc, int direction)
+{
+    return direction ? tc->target : 0.0;
+}
+
+
 /*! tcGetPos() function
  *
  * \brief This function calculates the machine position along the motion's path.
