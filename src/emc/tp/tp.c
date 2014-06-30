@@ -2107,7 +2107,7 @@ STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp,
 /**
  * Calculate distance update from velocity and acceleration.
  */
-STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_desired)
+STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_desired, int reverse_run)
 {
     // If the resulting velocity is less than zero, than we're done. This
     // causes a small overshoot, but in practice it is very small.
@@ -2121,13 +2121,16 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
         //also occurs during pausing and stopping, which can happen far from
         //the end. If we could "cruise" to the endpoint within a cycle at our
         //current speed, then assume that we want to be at the end.
-        if ((tc->target - tc->progress) < (tc->currentvel *  tc->cycle_time)) {
-            tc->progress = tc->target;
+        if (tcGetDistanceToGo(tc,reverse_run) < (tc->currentvel *  tc->cycle_time)) {
+            tc->progress = tcGetTarget(tc,reverse_run);
         }
     } else {
         double displacement = (v_next + tc->currentvel) * 0.5 * tc->cycle_time;
-        tc->progress += displacement;
-        clip_max(&tc->progress,tc->target);
+        double disp_sign = reverse_run ? -1 : 1;
+        tc->progress += (disp_sign * displacement);
+
+        //Progress has to be within the allowable range
+        tc->progress = bisaturate(tc->progress, tc->target, 0.0);
     }
     tc->currentvel = v_next;
 
@@ -2534,6 +2537,7 @@ STATIC int tpHandleAbort(TP_STRUCT * const tp, TC_STRUCT * const tc,
             (tc->currentvel == 0.0 && (!nexttc || nexttc->currentvel == 0.0))) {
         tcqInit(&tp->queue);
         tp->goalPos = tp->currentPos;
+        tp->reverse_run=0;
         tp->done = 1;
         tp->depth = tp->activeDepth = 0;
         tp->aborting = 0;
@@ -2840,7 +2844,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         tpCalculateTrapezoidalAccel(tp, tc, nexttc, &acc, &vel_desired);
     }
 
-    tcUpdateDistFromAccel(tc, acc, vel_desired);
+    tcUpdateDistFromAccel(tc, acc, vel_desired, tp->reverse_run);
     tpDebugCycleInfo(tp, tc, nexttc, acc);
 
     //Check if we're near the end of the cycle and set appropriate changes
