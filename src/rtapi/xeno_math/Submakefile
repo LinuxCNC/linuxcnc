@@ -1,4 +1,4 @@
-ifeq ($(BUILD_SYS)-$(threads),kbuild-xenomai-kernel)
+ifeq ($(BUILD_SYS),kbuild)
 
 ccflags-y := 	$(KERNEL_MATH_CFLAGS) \
 	-D_IEEE_LIBM \
