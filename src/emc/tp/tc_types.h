@@ -22,7 +22,8 @@
 
 /* values for endFlag */
 typedef enum {
-    TC_TERM_COND_STOP = 1,
+    TC_TERM_COND_STOP = 0,
+    TC_TERM_COND_EXACT = 1,
     TC_TERM_COND_PARABOLIC = 2,
     TC_TERM_COND_TANGENT = 3
 } tc_term_cond_t;

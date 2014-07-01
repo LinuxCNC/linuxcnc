@@ -979,10 +979,8 @@ int emcTrajSetSpindleSync(double fpr, bool wait_for_index)
 int emcTrajSetTermCond(int cond, double tolerance)
 {
     emcmotCommand.command = EMCMOT_SET_TERM_COND;
-    emcmotCommand.termCond =
-	(cond ==
-	 EMC_TRAJ_TERM_COND_STOP ? EMCMOT_TERM_COND_STOP :
-	 EMCMOT_TERM_COND_BLEND);
+    // Direct passthrough since TP can handle the distinction now
+    emcmotCommand.termCond = cond;
     emcmotCommand.tolerance = tolerance;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);

@@ -1120,6 +1120,7 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
     flush_segments();
 
     canonMotionMode = mode;
+    canon_debug("canonMotionMode = %d\n", mode);
     canonMotionTolerance =  FROM_PROG_LEN(tolerance);
 
     switch (mode) {
@@ -1127,7 +1128,11 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
         setTermCondMsg.cond = EMC_TRAJ_TERM_COND_BLEND;
         setTermCondMsg.tolerance = TO_EXT_LEN(canonMotionTolerance);
         break;
+    case CANON_EXACT_PATH:
+        setTermCondMsg.cond = EMC_TRAJ_TERM_COND_EXACT;
+        break;
 
+    case CANON_EXACT_STOP:
     default:
         setTermCondMsg.cond = EMC_TRAJ_TERM_COND_STOP;
         break;

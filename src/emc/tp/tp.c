@@ -21,6 +21,12 @@
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
+//KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
+//definitions until we can break the emc constants out into a separate file.
+//#include "emc.hh"
+#define EMC_TRAJ_TERM_COND_STOP  0
+#define EMC_TRAJ_TERM_COND_EXACT 1
+#define EMC_TRAJ_TERM_COND_BLEND 2
 
 /**
  * @section tpdebugflags TP debugging flags
@@ -48,10 +54,10 @@ extern emcmot_config_t *emcmotConfig;
 STATIC int tpComputeBlendVelocity(TP_STRUCT const * const tp, TC_STRUCT * const tc,
         TC_STRUCT * const nexttc, int planning, double * const blend_vel);
 
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc);
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc);
 
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc);
+        TC_STRUCT * const tc, TC_STRUCT const * const nexttc);
 
 STATIC int tpRunOptimization(TP_STRUCT * const tp);
 
@@ -203,14 +209,13 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
-    double v_max = tpGetMaxTargetVel(tp, tc);
     double v_target;
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        v_target = fmin(tc->reqvel * tpGetFeedScale(tp,tc), v_max);
+        v_target = tc->reqvel * tpGetFeedScale(tp,tc);
     } else {
-        v_target = v_max;
+        v_target = tp->vLimit;
     }
-    return v_target;
+    return fmin(v_target, tc->maxvel);
 }
 
 
@@ -222,9 +227,9 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
     double v_max_target;
     // Check if vLimit applies
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        v_max_target = tp->vLimit;
-    } else {
         v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
+    } else {
+        v_max_target = tp->vLimit;
     }
 
     // Clip maximum velocity by tc maxvel
@@ -237,23 +242,28 @@ STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT con
 /**
  * Get final velocity for a tc based on the trajectory planner state.
  * This function factors in the feed override and TC limits. It clamps the
- * final velocity to the maximum velocity and the current target velocity.
+ * final velocity to the maximum velocity and the next segment's target velocity
  */
 STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
-        TC_STRUCT const * const tc, double target_vel) {
+        TC_STRUCT const * const tc, TC_STRUCT const * const nexttc) {
     /* If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop.
      * If the term_cond gets changed out from under us, detect this and force final velocity to zero
      */
     if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT) {
         return 0.0;
-    } else {
-        //Clamp final velocity to the max velocity we can achieve
-        double finalvel = tc->finalvel;
-        if (finalvel > target_vel) {
-            finalvel = target_vel;
-        }
-        return finalvel;
+    } 
+    
+    // Get target velocities for this segment and next segment
+    double v_target_this = tpGetRealTargetVel(tp, tc);
+    double v_target_next = 0.0;
+    if (nexttc) {
+        v_target_next = tpGetRealTargetVel(tp, nexttc);
     }
+
+    // Limit final velocity to minimum of this and next target velocities
+    double v_target = fmin(v_target_this, v_target_next);
+    double finalvel = fmin(tc->finalvel, v_target);
+    return finalvel;
 }
 
 /**
@@ -523,6 +533,7 @@ int tpSetTermCond(TP_STRUCT * const tp, int cond, double tolerance)
         //Purposeful waterfall for now
         case TC_TERM_COND_PARABOLIC:
         case TC_TERM_COND_TANGENT:
+        case TC_TERM_COND_EXACT:
         case TC_TERM_COND_STOP:
             tp->termCond = cond;
             tp->tolerance = tolerance;
@@ -1533,6 +1544,11 @@ STATIC int tpSetupTangent(TP_STRUCT const * const tp,
         return TP_ERR_NO_ACTION;
     }
 
+    if (prev_tc->term_cond == TC_TERM_COND_STOP) {
+        tp_debug_print("Found exact stop condition, skipping tangent check\n");
+        return TP_ERR_NO_ACTION;
+    }
+
     PmCartesian prev_tan, this_tan;
 
     int res_endtan = tcGetEndTangentUnitVector(prev_tc, &prev_tan);
@@ -1940,12 +1956,12 @@ STATIC int tcUpdateDistFromAccel(TC_STRUCT * const tc, double acc, double vel_de
     return TP_ERR_OK;
 }
 
-STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const tc, double acc) {
+STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const tc, TC_STRUCT const * const nexttc, double acc) {
 #ifdef TC_DEBUG
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp, tc);
     // Store a copy of final velocity
-    double tc_finalvel = tpGetRealFinalVel(tp, tc, tc_target_vel);
+    double tc_finalvel = tpGetRealFinalVel(tp, tc, nexttc);
 
     /* Debug Output */
     tc_debug_print("tc state: vr = %f, vf = %f, maxvel = %f\n",
@@ -1970,7 +1986,7 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
  * acceleration limits. The formula has been tweaked slightly to allow a
  * non-zero velocity at the instant the target is reached.
  */
-void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc,
+void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc,
         double * const acc, double * const vel_desired)
 {
     tc_debug_print("using trapezoidal acceleration\n");
@@ -1978,7 +1994,7 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
     // Find maximum allowed velocity from feed and machine limits
     double tc_target_vel = tpGetRealTargetVel(tp, tc);
     // Store a copy of final velocity
-    double tc_finalvel = tpGetRealFinalVel(tp, tc, tc_target_vel);
+    double tc_finalvel = tpGetRealFinalVel(tp, tc, nexttc);
 
 #ifdef TP_PEDANTIC
     if (tc_finalvel > 0.0 && tc->term_cond != TC_TERM_COND_TANGENT) {
@@ -2030,7 +2046,10 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
  * Calculate "ramp" acceleration for a cycle.
  */
 STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
-        TC_STRUCT * const tc, double * const acc, double * const vel_desired)
+        TC_STRUCT * const tc,
+        TC_STRUCT const * const nexttc,
+        double * const acc,
+        double * const vel_desired)
 {
     tc_debug_print("using ramped acceleration\n");
     // displacement remaining in this segment
@@ -2040,8 +2059,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
         tc->vel_at_blend_start = tc->currentvel;
     }
 
-    double target_vel = tpGetRealTargetVel(tp, tc);
-    double vel_final = tpGetRealFinalVel(tp, tc, target_vel);
+    double vel_final = tpGetRealFinalVel(tp, tc, nexttc);
 
     /* Check if the final velocity is too low to properly ramp up.*/
     if (vel_final < TP_VEL_EPSILON) {
@@ -2214,7 +2232,7 @@ STATIC void tpUpdateBlend(TP_STRUCT * const tp, TC_STRUCT * const tc,
         nexttc->target_vel = 0.0;
     }
 
-    tpUpdateCycle(tp, nexttc);
+    tpUpdateCycle(tp, nexttc, NULL);
     //Restore the blend velocity
     nexttc->target_vel = save_vel;
 
@@ -2613,7 +2631,7 @@ STATIC int tpDoParabolicBlending(TP_STRUCT * const tp, TC_STRUCT * const tc,
  * Handles the majority of updates on a single segment for the current cycle.
  */
 STATIC int tpUpdateCycle(TP_STRUCT * const tp,
-        TC_STRUCT * const tc) {
+        TC_STRUCT * const tc, TC_STRUCT const * const nexttc) {
 
     //placeholders for position for this update
     EmcPose before;
@@ -2629,23 +2647,23 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     // Run cycle update with stored cycle time
     int res_accel = 1;
     double acc, vel_desired;
-
+    
     // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
     // Also, don't ramp up for parabolic blends
     if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
-        res_accel = tpCalculateRampAccel(tp, tc, &acc, &vel_desired);
+        res_accel = tpCalculateRampAccel(tp, tc, nexttc, &acc, &vel_desired);
     }
 
     // Check the return in case the ramp calculation failed, fall back to trapezoidal
     if (res_accel != TP_ERR_OK) {
-        tpCalculateTrapezoidalAccel(tp, tc, &acc, &vel_desired);
+        tpCalculateTrapezoidalAccel(tp, tc, nexttc, &acc, &vel_desired);
     }
 
     tcUpdateDistFromAccel(tc, acc, vel_desired);
-    tpDebugCycleInfo(tp, tc, acc);
+    tpDebugCycleInfo(tp, tc, nexttc, acc);
 
     //Check if we're near the end of the cycle and set appropriate changes
-    tpCheckEndCondition(tp, tc);
+    tpCheckEndCondition(tp, tc, nexttc);
 
     EmcPose displacement;
 
@@ -2706,7 +2724,7 @@ STATIC inline int tcSetSplitCycle(TC_STRUCT * const tc, double split_time,
  * then we flag the segment as "splitting", so that during the next cycle,
  * it handles the transition to the next segment.
  */
-STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc) {
+STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_STRUCT const * const nexttc) {
 
     //Assume no split time unless we find otherwise
     tc->cycle_time = tp->cycleTime;
@@ -2721,17 +2739,16 @@ STATIC int tpCheckEndCondition(TP_STRUCT const * const tp, TC_STRUCT * const tc)
         //Force progress to land exactly on the target to prevent numerical errors.
         tc->progress = tc->target;
         tcSetSplitCycle(tc, 0.0, tc->currentvel);
-        if (tc->term_cond == TC_TERM_COND_STOP) {
+        if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
             tc->remove = 1;
         }
         return TP_ERR_OK;
-    } else if (tc->term_cond == TC_TERM_COND_STOP) {
+    } else if (tc->term_cond == TC_TERM_COND_STOP || tc->term_cond == TC_TERM_COND_EXACT) {
         return TP_ERR_NO_ACTION;
     }
 
 
-    double target_vel = tpGetRealTargetVel(tp, tc);
-    double v_f = tpGetRealFinalVel(tp, tc, target_vel);
+    double v_f = tpGetRealFinalVel(tp, tc, nexttc);
     double v_avg = (tc->currentvel + v_f) / 2.0;
 
     //Check that we have a non-zero "average" velocity between now and the
@@ -2855,6 +2872,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
             break;
         case TC_TERM_COND_STOP:
             break;
+        case TC_TERM_COND_EXACT:
+            break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR,"unknown term cond %d in segment %d\n",
                     tc->term_cond,
@@ -2862,7 +2881,10 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     }
 
     // Run split cycle update with remaining time in nexttc
-    tpUpdateCycle(tp, nexttc);
+    // KLUDGE: use next cycle after nextc to prevent velocity dip (functions fail gracefully w/ NULL)
+    TC_STRUCT *next2tc = tcqItem(&tp->queue, 2);
+
+    tpUpdateCycle(tp, nexttc, next2tc);
 
     // Update status for the split portion
     // FIXME redundant tangent check, refactor to switch
@@ -2878,7 +2900,8 @@ STATIC int tpHandleSplitCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     return TP_ERR_OK;
 }
 
-STATIC int tpHandleRegularCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
+STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
+        TC_STRUCT * const tc,
         TC_STRUCT * const nexttc)
 {
     if (tc->remove) {
@@ -2888,7 +2911,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp, TC_STRUCT * const tc,
     //Run with full cycle time
     tc_debug_print("Normal cycle\n");
     tc->cycle_time = tp->cycleTime;
-    tpUpdateCycle(tp, tc);
+    tpUpdateCycle(tp, tc, nexttc);
 
     /* Parabolic blending */
 
