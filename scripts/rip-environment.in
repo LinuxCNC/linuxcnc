@@ -83,7 +83,9 @@ fi
 
 # TODO: if these completion directives give trouble for any versions
 # of bash actively in use, protect them with checks of BASH_VERSINFO
-if [ $BASH_VERSINFO -eq 2 ]; then
+if [ -z "$BASH_VERSINFO" ]; then
+    : # not using bash -> complete not available
+elif [ $BASH_VERSINFO -eq 2 ]; then
     complete -o dirnames -f -X '!*.ini' emc axis mdi
     complete -o dirnames -f -X '!*.hal' halrun halcmd
     complete -W 'start stop restart status' realtime
@@ -91,8 +93,12 @@ if [ $BASH_VERSINFO -eq 2 ]; then
 else
     _iningc () {
         case "$3" in 
-        *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
-        *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
+        *.ini)
+        COMPREPLY=$(compgen -o plusdirs -f -X '!*.ngc' -- "$2")
+        ;;
+        *)
+        COMPREPLY=$(compgen -o plusdirs -f -X '!*.ini' -- "$2")
+        ;;
         esac
     }
     complete -o plusdirs -F _iningc emc axis
