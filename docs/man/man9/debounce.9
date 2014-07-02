@@ -11,8 +11,8 @@ debounce \- filter noisy digital inputs
 .SH SYNOPSIS
 .B loadrt debounce cfg=\fIsize[,size,...]\fB
 .P
-Creates filter groups each with the given number of filters (\fIsize\fR).  Each
-filter group has the same sample rate and delay.
+Creates debounce groups with the number of filters specified by (\fIsize\fR).
+Every filter in the same group has the same sample rate and delay.
 
 .SH DESCRIPTION
 The debounce filter works by incrementing a counter whenever the input is true,
