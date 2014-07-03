@@ -113,7 +113,8 @@ def load_bbio_file(filename):
 def install_comp(filename):
     install = True
     base = os.path.splitext(os.path.basename(filename))[0]
-    modulePath = compat.get_rtapi_config("RTLIB_DIR") + '/' + compat.default_flavor().name + '/' + base + '.so'
+    flavor = compat.default_flavor()
+    modulePath = compat.get_rtapi_config("RTLIB_DIR") + '/' + flavor.name + '/' + base + flavor.mod_ext
     if os.path.exists(modulePath):
         compTime = os.path.getmtime(filename)
         moduleTime = os.path.getmtime(modulePath)
