@@ -974,14 +974,37 @@ int Posix::task_resume(int) {
     return -ENOSYS;
 }
 
+static bool ts_less(const struct timespec &ta, const struct timespec &tb) {
+    if(ta.tv_sec < tb.tv_sec) return 1;
+    if(ta.tv_sec > tb.tv_sec) return 0;
+    return ta.tv_nsec < tb.tv_nsec;
+}
+
 void Posix::wait() {
     if(do_thread_lock)
         pthread_mutex_unlock(&thread_lock);
     pthread_testcancel();
     struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
     advance_clock(task->nextstart, task->nextstart, task->period);
-    int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
-    if(res < 0) perror("clock_nanosleep");
+    struct timespec now;
+    clock_gettime(RTAPI_CLOCK, &now);
+    if(ts_less(task->nextstart, now))
+    {
+        static int printed = 0;
+        if(policy == SCHED_FIFO && !printed)
+        {
+            rtapi_print_msg(RTAPI_MSG_ERR, "Unexpected realtime delay on task %zd\n"
+		    "This Message will only display once per session.\n"
+		    "Run the Latency Test and resolve before continuing.\n", 
+                    task - task_array);
+            printed = 1;
+        }
+    }
+    else
+    {
+        int res = clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, NULL);
+        if(res < 0) perror("clock_nanosleep");
+    }
     if(do_thread_lock)
         pthread_mutex_lock(&thread_lock);
 }
