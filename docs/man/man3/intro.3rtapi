@@ -5,8 +5,7 @@ rtapi \- Introduction to the RTAPI API
 
 .SH DESCRIPTION
 RTAPI is a library providing a uniform API for several real time operating
-systems.  As of ver 2.1, RTLinux, RTAI, and a pure userspace simulator are
-supported.
+systems.  As of LinuxCNC 2.7, POSIX threads and RTAI are supported.
 
 .SH HEADER FILES
 .SS rtapi.h
