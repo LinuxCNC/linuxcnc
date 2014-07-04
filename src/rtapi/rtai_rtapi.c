@@ -1693,6 +1693,8 @@ unsigned char rtapi_inb(unsigned int port)
     return inb(port);
 }
 
+int rtapi_is_realtime() { return 1; }
+int rtapi_is_kernelspace() { return 1; }
 
 /* starting with kernel 2.6, symbols that are used by other modules
    _must_ be explicitly exported.  2.4 and earlier kernels exported
@@ -1748,3 +1750,5 @@ EXPORT_SYMBOL(rtapi_enable_interrupt);
 EXPORT_SYMBOL(rtapi_disable_interrupt);
 EXPORT_SYMBOL(rtapi_outb);
 EXPORT_SYMBOL(rtapi_inb);
+EXPORT_SYMBOL(rtapi_is_realtime);
+EXPORT_SYMBOL(rtapi_is_kernelspace);

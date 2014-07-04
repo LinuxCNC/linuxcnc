@@ -881,6 +881,9 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #endif
 
+extern int rtapi_is_kernelspace(void);
+extern int rtapi_is_realtime(void);
+
 RTAPI_END_DECLS
 
 #endif /* RTAPI_H */

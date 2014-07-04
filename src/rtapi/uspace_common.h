@@ -16,6 +16,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <sys/utsname.h>
+#include <string.h>
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
@@ -300,4 +302,27 @@ int rtapi_exit(int module_id)
 {
   /* does nothing, for now */
   return 0;
+}
+
+int rtapi_is_kernelspace() { return 0; }
+static int _rtapi_is_realtime = -1;
+static int detect_realtime() {
+    struct utsname u;
+    int crit1, crit2 = 0;
+    FILE *fd;
+
+    uname(&u);
+    crit1 = strcasestr (u.version, "PREEMPT RT") != 0;
+
+    if ((fd = fopen("/sys/kernel/realtime","r")) != NULL) {
+        int flag;
+        crit2 = ((fscanf(fd, "%d", &flag) == 1) && (flag == 1));
+        fclose(fd);
+    }
+    return crit1 && crit2;
+}
+
+int rtapi_is_realtime() {
+    if(_rtapi_is_realtime == -1) _rtapi_is_realtime = detect_realtime();
+    return _rtapi_is_realtime;
 }
