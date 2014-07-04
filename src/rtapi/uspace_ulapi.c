@@ -12,6 +12,8 @@
 * Last change:
 ********************************************************************/
 
+#define _GNU_SOURCE
+
 #include <stddef.h>		/* NULL */
 #include <stdio.h>		/* printf */
 #include <malloc.h>		/* malloc(), free() */
