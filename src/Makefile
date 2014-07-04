@@ -349,11 +349,17 @@ HEADERS := \
     rtapi/rtapi_app.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_byteorder.h \
+    rtapi/rtapi_device.h \
+    rtapi/rtapi_firmware.h \
+    rtapi/rtapi_gfp.h \
     rtapi/rtapi_io.h \
     rtapi/rtapi_limits.h \
+    rtapi/rtapi_list.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
     rtapi/rtapi_math64.h \
+    rtapi/rtapi_slab.h \
+    rtapi/rtapi_stdint.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
