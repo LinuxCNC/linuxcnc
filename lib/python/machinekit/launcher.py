@@ -145,22 +145,31 @@ def stop_realtime():
 
 
 # rip the Machinekit environment
-def rip_environment():
-    if os.getenv('EMC2_PATH') is not None:    # check if already ripped
+def rip_environment(path=None, force=False):
+    if force == False and os.getenv('EMC2_PATH') is not None: # check if already ripped
         return
 
-    command = None
-    with open(os.environ['HOME'] + '/.bashrc') as f:    # use the bashrc
-        content = f.readlines()
-        for line in content:
-            if 'rip-environment' in line:
-                line = line.strip()
-                if (line[0] == '.'):
-                    command = line
+    if path is None:
+        command = None
+        scriptFilePath = os.environ['HOME'] + '/.bashrc'
+        if os.path.exists(scriptFilePath):
+            with open(scriptFilePath) as f:    # use the bashrc
+                content = f.readlines()
+                for line in content:
+                    if 'rip-environment' in line:
+                        line = line.strip()
+                        if (line[0] == '.'):
+                            command = line
 
-    if (command is None):
-        sys.stderr.write('Unable to rip environment')
-        sys.exit(1)
+        scriptFilePath = os.environ['HOME'] + '/machinekit/scripts/rip-environment'
+        if os.path.exists(scriptFilePath):
+            command = '. ' + scriptFilePath
+
+        if (command is None):
+            sys.stderr.write('Unable to rip environment')
+            sys.exit(1)
+    else:
+        command = '. ' + path + '/scripts/rip-environment'
 
     process = subprocess.Popen(command + ' && env',
                         stdout=subprocess.PIPE,
