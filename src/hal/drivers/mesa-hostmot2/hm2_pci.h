@@ -18,6 +18,8 @@
 //
 
 
+#include <rtapi_pci.h>
+
 #define HM2_PCI_VERSION "0.7"
 
 #define HM2_LLIO_NAME "hm2_pci"
@@ -131,8 +133,8 @@
 
 
 typedef struct {
-    struct pci_dev *dev;
-    void __iomem *base;
+    struct rtapi_pci_dev *dev;
+    void rtapi__iomem *base;
     int len;
     unsigned long ctrl_base_addr;
     unsigned long data_base_addr;

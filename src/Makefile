@@ -866,9 +866,9 @@ obj-$(CONFIG_HAL_GM) += hal_gm.o
 hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 endif
 
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o
 ifneq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_HOSTMOT2) += hm2_7i43.o hm2_7i90.o hm2_pci.o setsserial.o
+obj-$(CONFIG_HOSTMOT2) += hm2_7i43.o hm2_7i90.o setsserial.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
@@ -1096,6 +1096,7 @@ endif
 ../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
 ../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
 ../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs))
+../rtlib/hm2_pci$(MODULE_EXT): $(addprefix objects/rt,$(hm2_pci-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
