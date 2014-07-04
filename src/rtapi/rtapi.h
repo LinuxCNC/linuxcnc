@@ -796,7 +796,7 @@ RTAPI_BEGIN_DECLS
 #define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
 #define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
 #define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
-#define MODULE_DEVICE_TABLE(x,y) MODULE_INFO2(struct pci_device_id*, device_table, x, y)
+#define MODULE_DEVICE_TABLE(x,y) MODULE_INFO2(struct rtapi_pci_device_id*, device_table, x, y)
 #define MODULE_INFO(x,y) MODULE_INFO2x(char*, x, __LINE__, y)
 #define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
