@@ -7,7 +7,7 @@ cd src
 In the source directory, build LinuxCNC:
 
 ./autogen.sh  (this builds the configure script)
-./configure
+./configure [--with-realtime=uspace|/usr/rtai...]
 make clean
 make
 sudo make setuid
@@ -68,24 +68,17 @@ The simplest way to compile this package is:
 Optional Features
 =================
    LinuxCNC can operate hardware only if a real time system has been
-installed. Either RTLinux or RTAI. If you don't have any installed,
+installed. Either RT-PREEMPT or RTAI. If you don't have any installed,
 you cannot run LinuxCNC to control any machines. Please install one
 of the RT patches (refer to the documentation of the project on how to
 achieve that).
 
     However, it is possible to test LinuxCNC without a realtime system. This is 
-possible using a simulator mode, which doesn't allow hardware control. To
-enable this mode there is a special option '--enable-simulator' you can use.
+possible using a simulator mode, which doesn't allow hardware control. This is
+an alternate mode of `uspace` realtime.
 
-If you have multiple RTAI or RTLinux source directories in /usr/src,
-the correct one can be declared as a command line argument:
-
-./configure --with-rtai=/usr/src/rtai-24.1.12
-
-If you want only to try LinuxCNC in a local directory (without installing it),
-there is an option to configure to run-in-place
-  --enable-run-in-place                  Enables running in the local dir 
-                                         (without installing)
+    To specify RT-PREEMPT or non-realtime, use --with-realtime=uspace.
+Otherwise, use --with-realtime=[location where rtai is installed].
 
 If you don't want to generate the documentation from source:
   --disable-build-documentation          Do not build documentation automatically
