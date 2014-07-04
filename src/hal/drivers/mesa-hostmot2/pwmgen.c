@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -31,7 +31,7 @@
 
 
 void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
-    u32 dds;
+    rtapi_u32 dds;
 
 
     if (hm2->pwmgen.hal->param.pwm_frequency < 1) {
@@ -107,7 +107,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
 
 
 void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
-    u32 dds;
+    rtapi_u32 dds;
 
 
     if (hm2->pwmgen.hal->param.pdm_frequency < 1) {
@@ -180,7 +180,7 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
 
 void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     int i;
-    u32 pwm_width;
+    rtapi_u32 pwm_width;
 
     if (hm2->pwmgen.num_instances == 0) return;
 
@@ -215,7 +215,7 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
 
 
     for (i = 0; i < hm2->pwmgen.num_instances; i ++) {
-        u32 double_buffered;
+        rtapi_u32 double_buffered;
 
         hm2->pwmgen.pwm_mode_reg[i] = pwm_width;
 
@@ -277,10 +277,10 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
     }
 
 
-    hm2->llio->write(hm2->llio, hm2->pwmgen.pwm_mode_addr, hm2->pwmgen.pwm_mode_reg, (hm2->pwmgen.num_instances * sizeof(u32)));
-    hm2->llio->write(hm2->llio, hm2->pwmgen.enable_addr, &hm2->pwmgen.enable_reg, sizeof(u32));
-    hm2->llio->write(hm2->llio, hm2->pwmgen.pwmgen_master_rate_dds_addr, &hm2->pwmgen.pwmgen_master_rate_dds_reg, sizeof(u32));
-    hm2->llio->write(hm2->llio, hm2->pwmgen.pdmgen_master_rate_dds_addr, &hm2->pwmgen.pdmgen_master_rate_dds_reg, sizeof(u32));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pwm_mode_addr, hm2->pwmgen.pwm_mode_reg, (hm2->pwmgen.num_instances * sizeof(rtapi_u32)));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.enable_addr, &hm2->pwmgen.enable_reg, sizeof(rtapi_u32));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pwmgen_master_rate_dds_addr, &hm2->pwmgen.pwmgen_master_rate_dds_reg, sizeof(rtapi_u32));
+    hm2->llio->write(hm2->llio, hm2->pwmgen.pdmgen_master_rate_dds_addr, &hm2->pwmgen.pdmgen_master_rate_dds_reg, sizeof(rtapi_u32));
 
     if ((*hm2->llio->io_error) != 0) return;
 
@@ -405,13 +405,13 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->pwmgen.pdmgen_master_rate_dds_addr = md->base_address + (3 * md->register_stride);
     hm2->pwmgen.enable_addr = md->base_address + (4 * md->register_stride);
 
-    r = hm2_register_tram_write_region(hm2, hm2->pwmgen.pwm_value_addr, (hm2->pwmgen.num_instances * sizeof(u32)), &hm2->pwmgen.pwm_value_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->pwmgen.pwm_value_addr, (hm2->pwmgen.num_instances * sizeof(rtapi_u32)), &hm2->pwmgen.pwm_value_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for PWM Value register (%d)\n", r);
         goto fail0;
     }
 
-    hm2->pwmgen.pwm_mode_reg = (u32 *)kmalloc(hm2->pwmgen.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->pwmgen.pwm_mode_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->pwmgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->pwmgen.pwm_mode_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -510,7 +510,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail1:
-    kfree(hm2->pwmgen.pwm_mode_reg);
+    rtapi_kfree(hm2->pwmgen.pwm_mode_reg);
 
 fail0:
     hm2->pwmgen.num_instances = 0;
@@ -523,7 +523,7 @@ fail0:
 void hm2_pwmgen_cleanup(hostmot2_t *hm2) {
     if (hm2->pwmgen.num_instances <= 0) return;
     if (hm2->pwmgen.pwm_mode_reg != NULL) {
-        kfree(hm2->pwmgen.pwm_mode_reg);
+        rtapi_kfree(hm2->pwmgen.pwm_mode_reg);
         hm2->pwmgen.pwm_mode_reg = NULL;
     }
     hm2->pwmgen.num_instances = 0;

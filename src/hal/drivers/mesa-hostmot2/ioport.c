@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -78,19 +78,19 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->ioport.open_drain_addr = md->base_address + (3 * md->register_stride);
     hm2->ioport.output_invert_addr = md->base_address + (4 * md->register_stride);
 
-    r = hm2_register_tram_read_region(hm2, hm2->ioport.data_addr, (hm2->ioport.num_instances * sizeof(u32)), &hm2->ioport.data_read_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->ioport.data_addr, (hm2->ioport.num_instances * sizeof(rtapi_u32)), &hm2->ioport.data_read_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for IOPort Data register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_write_region(hm2, hm2->ioport.data_addr, (hm2->ioport.num_instances * sizeof(u32)), &hm2->ioport.data_write_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->ioport.data_addr, (hm2->ioport.num_instances * sizeof(rtapi_u32)), &hm2->ioport.data_write_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for IOPort Data register (%d)\n", r);
         goto fail0;
     }
 
-    hm2->ioport.ddr_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.ddr_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.ddr_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -98,21 +98,21 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // this one's not a real register
-    hm2->ioport.written_ddr = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.written_ddr = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.written_ddr == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail1;
     }
 
-    hm2->ioport.alt_source_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.alt_source_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.alt_source_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail2;
     }
 
-    hm2->ioport.open_drain_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.open_drain_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.open_drain_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -120,14 +120,14 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // this one's not a real register
-    hm2->ioport.written_open_drain = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.written_open_drain = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.written_open_drain == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail4;
     }
 
-    hm2->ioport.output_invert_reg = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.output_invert_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.output_invert_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -135,7 +135,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // this one's not a real register
-    hm2->ioport.written_output_invert = (u32 *)kmalloc(hm2->ioport.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->ioport.written_output_invert = (rtapi_u32 *)rtapi_kmalloc(hm2->ioport.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->ioport.written_output_invert == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -163,22 +163,22 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
 
 
 fail6:
-    kfree(hm2->ioport.output_invert_reg);
+    rtapi_kfree(hm2->ioport.output_invert_reg);
 
 fail5:
-    kfree(hm2->ioport.written_open_drain);
+    rtapi_kfree(hm2->ioport.written_open_drain);
 
 fail4:
-    kfree(hm2->ioport.open_drain_reg);
+    rtapi_kfree(hm2->ioport.open_drain_reg);
 
 fail3:
-    kfree(hm2->ioport.alt_source_reg);
+    rtapi_kfree(hm2->ioport.alt_source_reg);
 
 fail2:
-    kfree(hm2->ioport.written_ddr);
+    rtapi_kfree(hm2->ioport.written_ddr);
 
 fail1:
-    kfree(hm2->ioport.ddr_reg);
+    rtapi_kfree(hm2->ioport.ddr_reg);
 
 fail0:
     hm2->ioport.num_instances = 0;
@@ -190,13 +190,13 @@ fail0:
 
 void hm2_ioport_cleanup(hostmot2_t *hm2) {
     if (hm2->ioport.num_instances <= 0) return;
-    if (hm2->ioport.ddr_reg != NULL) kfree(hm2->ioport.ddr_reg);
-    if (hm2->ioport.written_ddr != NULL) kfree(hm2->ioport.written_ddr);
-    if (hm2->ioport.alt_source_reg != NULL) kfree(hm2->ioport.alt_source_reg);
-    if (hm2->ioport.open_drain_reg != NULL) kfree(hm2->ioport.open_drain_reg);
-    if (hm2->ioport.written_open_drain!= NULL) kfree(hm2->ioport.written_open_drain);
-    if (hm2->ioport.output_invert_reg != NULL) kfree(hm2->ioport.output_invert_reg);
-    if (hm2->ioport.written_output_invert != NULL) kfree(hm2->ioport.written_output_invert);
+    if (hm2->ioport.ddr_reg != NULL) rtapi_kfree(hm2->ioport.ddr_reg);
+    if (hm2->ioport.written_ddr != NULL) rtapi_kfree(hm2->ioport.written_ddr);
+    if (hm2->ioport.alt_source_reg != NULL) rtapi_kfree(hm2->ioport.alt_source_reg);
+    if (hm2->ioport.open_drain_reg != NULL) rtapi_kfree(hm2->ioport.open_drain_reg);
+    if (hm2->ioport.written_open_drain!= NULL) rtapi_kfree(hm2->ioport.written_open_drain);
+    if (hm2->ioport.output_invert_reg != NULL) rtapi_kfree(hm2->ioport.output_invert_reg);
+    if (hm2->ioport.written_output_invert != NULL) rtapi_kfree(hm2->ioport.written_output_invert);
 }
 
 
@@ -359,21 +359,21 @@ void hm2_ioport_print_module(hostmot2_t *hm2) {
 
 
 static void hm2_ioport_force_write_ddr(hostmot2_t *hm2) {
-    int size = hm2->ioport.num_instances * sizeof(u32);
+    int size = hm2->ioport.num_instances * sizeof(rtapi_u32);
     hm2->llio->write(hm2->llio, hm2->ioport.ddr_addr, hm2->ioport.ddr_reg, size);
     memcpy(hm2->ioport.written_ddr, hm2->ioport.ddr_reg, size);
 }
 
 
 static void hm2_ioport_force_write_output_invert(hostmot2_t *hm2) {
-    int size = hm2->ioport.num_instances * sizeof(u32);
+    int size = hm2->ioport.num_instances * sizeof(rtapi_u32);
     hm2->llio->write(hm2->llio, hm2->ioport.output_invert_addr, hm2->ioport.output_invert_reg, size);
     memcpy(hm2->ioport.written_output_invert, hm2->ioport.output_invert_reg, size);
 }
 
 
 static void hm2_ioport_force_write_open_drain(hostmot2_t *hm2) {
-    int size = hm2->ioport.num_instances * sizeof(u32);
+    int size = hm2->ioport.num_instances * sizeof(rtapi_u32);
     hm2->llio->write(hm2->llio, hm2->ioport.open_drain_addr, hm2->ioport.open_drain_reg, size);
     memcpy(hm2->ioport.written_open_drain, hm2->ioport.open_drain_reg, size);
 }
@@ -422,7 +422,7 @@ void hm2_ioport_update(hostmot2_t *hm2) {
 
 
 void hm2_ioport_force_write(hostmot2_t *hm2) {
-    int size = hm2->ioport.num_instances * sizeof(u32);
+    int size = hm2->ioport.num_instances * sizeof(rtapi_u32);
 
     hm2_ioport_update(hm2);
 
@@ -544,7 +544,7 @@ void hm2_ioport_gpio_read(hostmot2_t *hm2) {
         hm2->llio,
         hm2->ioport.data_addr,
         hm2->ioport.data_read_reg,
-        hm2->ioport.num_instances * sizeof(u32)
+        hm2->ioport.num_instances * sizeof(rtapi_u32)
     );
 
     // FIXME: this block duplicates code in hm2_ioport_gpio_process_tram_read()
@@ -588,7 +588,7 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2) {
         hm2->llio,
         hm2->ioport.data_addr,
         hm2->ioport.data_write_reg,
-        hm2->ioport.num_instances * sizeof(u32)
+        hm2->ioport.num_instances * sizeof(rtapi_u32)
     );
 }
 

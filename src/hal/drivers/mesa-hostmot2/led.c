@@ -20,7 +20,7 @@
 // Onboard LED driver for the Mesa FPGA cards
 
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -70,7 +70,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
         r = -ENOMEM;
         goto fail0;
     }
-    hm2->led.led_reg = (u32 *)kmalloc( sizeof(u32), GFP_KERNEL);
+    hm2->led.led_reg = (rtapi_u32 *)rtapi_kmalloc( sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->led.led_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -95,7 +95,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     fail1:
 
-        kfree(hm2->led.led_reg);
+        rtapi_kfree(hm2->led.led_reg);
 
     fail0:
         return r;
@@ -104,7 +104,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 }
 
 void hm2_led_write(hostmot2_t *hm2) {
-    u32 regval = 0;
+    rtapi_u32 regval = 0;
     int i;
 
     for (i = 0 ; i < hm2->config.num_leds; i++ ) {
@@ -116,13 +116,13 @@ void hm2_led_write(hostmot2_t *hm2) {
     if (regval != hm2->led.written_buff) {
         *hm2->led.led_reg = regval;
         hm2->led.written_buff = regval;
-        hm2->llio->write(hm2->llio, hm2->led.led_addr, hm2->led.led_reg, sizeof(u32));
+        hm2->llio->write(hm2->llio, hm2->led.led_addr, hm2->led.led_reg, sizeof(rtapi_u32));
     }
 }
 
 void hm2_led_cleanup(hostmot2_t *hm2) {
     if (hm2->led.led_reg != NULL) {
-	kfree(hm2->led.led_reg);
+	rtapi_kfree(hm2->led.led_reg);
 	hm2->led.led_reg = NULL;
     }
 }

@@ -23,10 +23,9 @@
 //
 
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
-#include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 
@@ -123,14 +122,14 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
         // If there were multiple resolver function instances, this would need
         // to be the number of resolvers for that particular instance
         r = hm2_register_tram_read_region(hm2, hm2->resolver.status_addr,
-                                          sizeof(u32),
+                                          sizeof(rtapi_u32),
                                           &hm2->resolver.status_reg);
         r += hm2_register_tram_read_region(hm2, hm2->resolver.position_addr,
-                                          (hm2->resolver.num_resolvers * sizeof(u32)),
+                                          (hm2->resolver.num_resolvers * sizeof(rtapi_u32)),
                                           &hm2->resolver.position_reg);
         r += hm2_register_tram_read_region(hm2, hm2->resolver.velocity_addr,
-                                          (hm2->resolver.num_resolvers * sizeof(u32)),
-                                          (u32**)&hm2->resolver.velocity_reg);
+                                          (hm2->resolver.num_resolvers * sizeof(rtapi_u32)),
+                                          (rtapi_u32**)&hm2->resolver.velocity_reg);
         if (r < 0) {
             HM2_ERR("error registering tram read region for Resolver "
                     "register (%d)\n", i);
@@ -289,7 +288,7 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->resolver.num_instances;
     
 fail1:
-    // This is where we would kfree anything kmalloced. 
+    // This is where we would rtapi_kfree anything rtapi_kmalloced.
     
     
 fail0:
@@ -361,9 +360,9 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
 void hm2_resolver_write(hostmot2_t *hm2, long period){
     //This function needs to handle comms handshaking, so is written as a state machine
     static int state = 0;
-    static u32 cmd_val, data_val;
-    static u32 timer;
-    u32 buff;
+    static rtapi_u32 cmd_val, data_val;
+    static rtapi_u32 timer;
+    rtapi_u32 buff;
     
     if (hm2->resolver.num_instances <= 0) return;
     
@@ -396,7 +395,7 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
             break;
         case 10: // wait for comand register clear before setting params
             hm2->llio->read(hm2->llio,hm2->resolver.command_addr, 
-                            &buff, sizeof(u32));
+                            &buff, sizeof(rtapi_u32));
             if (buff){
                 timer += period;
                 if (timer > 1e9){
@@ -406,15 +405,15 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
                 return;
             }
             hm2->llio->write(hm2->llio, hm2->resolver.data_addr,
-                             &data_val,sizeof(u32));
+                             &data_val,sizeof(rtapi_u32));
             hm2->llio->write(hm2->llio, hm2->resolver.command_addr,
-                             &cmd_val,sizeof(u32));            
+                             &cmd_val,sizeof(rtapi_u32));
             state = 20;
             timer = 0;
             return;
         case 20: // wait for command to clear before processing any more params
             hm2->llio->read(hm2->llio,hm2->resolver.command_addr, 
-                            &buff, sizeof(u32));
+                            &buff, sizeof(rtapi_u32));
             if (buff){
                 timer += period;
                 if (timer > 1e9){
@@ -434,7 +433,7 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
     
 void hm2_resolver_cleanup(hostmot2_t *hm2) {
     if (hm2->resolver.num_instances <= 0) return;
-    // nothing kmallocced, so nothing to kfree
+    // nothing rtapi_kmallocced, so nothing to rtapi_kfree
 }
 
 

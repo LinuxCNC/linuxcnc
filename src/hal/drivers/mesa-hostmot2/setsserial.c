@@ -19,6 +19,7 @@
 //    The code in this file is based on UFLBP.PAS by Peter C. Wallace.  
 
 #include <linux/firmware.h>
+#include <rtapi_string.h>
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
@@ -425,7 +426,7 @@ int rtapi_app_main(void)
     comp_id = hal_init("setsserial");
     hal_ready(comp_id);
     
-    cmd_list = argv_split(GFP_KERNEL, cmd, &cnt);
+    cmd_list = rtapi_argv_split(GFP_KERNEL, cmd, &cnt);
     
     remote = hm2_get_sserial(&hm2, cmd_list[1]);
     if (! remote) {   
