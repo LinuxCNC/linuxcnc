@@ -174,6 +174,9 @@ static int do_comp_args(void *module, vector<string> args) {
             char item_type_char;
             int r = sscanf(item_type_string.c_str(), "%d-%d%c",
                     &a, &b, &item_type_char);
+            if(r != 3)
+                r = sscanf(item_type_string.c_str(), "%d-(%d)%c",
+                    &a, &b, &item_type_char);
             if(r != 3) {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                     "Unknown parameter `%s' (corrupt array type information)\n",
