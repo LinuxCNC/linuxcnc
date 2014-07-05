@@ -331,3 +331,5 @@ void rtapi_delay(long ns) {
     struct timespec ts = {0, ns};
     clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
 }
+
+long int rtapi_delay_max() { return 10000; }
