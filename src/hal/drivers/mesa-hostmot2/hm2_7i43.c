@@ -30,6 +30,7 @@
 #include "hal/drivers/mesa-hostmot2/bitfile.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
 #include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
+#include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
 static int comp_id;
@@ -308,6 +309,23 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
         }
     }
 
+    if(board->epp_wide)
+    {
+        hm2_7i43_epp_clear_timeout(board);
+        uint32_t cookie;
+        hm2_7i43_read(this, HM2_ADDR_IOCOOKIE, &cookie, sizeof(cookie));
+        if(cookie != HM2_IOCOOKIE) {
+            THIS_ERR("Reading cookie with epp_wide failed. (read 0x%08x) Falling back to byte transfers\n", cookie);
+            board->epp_wide = 0;
+            hm2_7i43_epp_clear_timeout(board);
+            hm2_7i43_read(this, HM2_ADDR_IOCOOKIE, &cookie, sizeof(cookie));
+            if(cookie == HM2_IOCOOKIE) {
+                THIS_ERR("Successfully read cookie after selecting byte transfers\n");
+            } else {
+                THIS_ERR("Reading cookie still failed without epp_wide. (read 0x%08x)\n", cookie);
+            }
+        }
+    }
 
     return 0;
 }
