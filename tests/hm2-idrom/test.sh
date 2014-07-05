@@ -16,11 +16,14 @@ Error[12]="hm2/hm2_test\.0: hm2_set_pin_direction: invalid pin number 0"
 Error[13]="hm2/hm2_test\.0: invalid IDROM PortWidth 24, this board has 5 pins per connector, aborting load"
 Error[14]="hm2/hm2_test\.0: IDROM IOPorts is 0 but llio num_ioport_connectors is \d+"
 
+result=0
+
 TEST_PATTERN=0
 while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
     export TEST_PATTERN
-    halrun -f broken-load-test.hal
-    ./check-dmesg "${Error[$TEST_PATTERN]}"
+    halrun -f broken-load-test.hal >halrun-stdout 2>halrun-stderr
+    ./check-dmesg "${Error[$TEST_PATTERN]}" || result=$?
     TEST_PATTERN=$(($TEST_PATTERN+1))
 done
 
+exit $result
