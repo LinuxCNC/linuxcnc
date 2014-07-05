@@ -31,9 +31,13 @@ typedef struct rtapi_parport_t
 {
     unsigned short base;
     unsigned short base_hi;
+#ifdef __KERNEL__
     struct pardevice *linux_dev;
     void *region;
     void *region_hi;
+#else
+    int fd;
+#endif
 } rtapi_parport_t;
 
 RTAPI_BEGIN_DECLS
@@ -90,8 +94,6 @@ inline void rtapi_parport_epp_data_writel(rtapi_parport_t *t, unsigned long v) {
 inline void rtapi_parport_ecr_write(rtapi_parport_t *t, unsigned char v) {
     rtapi_outb(v, RTAPI_PARPORT_EPP_ADDR_PORT(t));
 }
-
-RTAPI_END_DECLS
 
 #ifdef __KERNEL__
 static int
@@ -233,5 +235,7 @@ static void rtapi_parport_release(rtapi_parport_t *port)
 int rtapi_parport_get(const char *mod_name, rtapi_parport_t *port, unsigned short base, unsigned short base_hi, unsigned int modes);
 void rtapi_parport_release(rtapi_parport_t *port);
 #endif
+
+RTAPI_END_DECLS
 
 #endif
