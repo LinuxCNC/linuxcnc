@@ -366,6 +366,7 @@ HEADERS := \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
     rtapi/rtapi_math64.h \
+    rtapi/rtapi_parport.h \
     rtapi/rtapi_pci.h \
     rtapi/rtapi_slab.h \
     rtapi/rtapi_stdint.h \
