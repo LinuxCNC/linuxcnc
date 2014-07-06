@@ -1,0 +1,550 @@
+/*
+ * Copyright (C) 2013,2014 Bas Laarhoven
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * version 1.1 - 2013-08-08 initial version from 2191-R2.dts
+ * version 1.2 - 2013-08-11 version for BeBoPr with Bridge using alternate
+ *               signals freeing signals used for HDMI and eMMC on BBB.
+ * version 1.3 - 2014-07-05 created BeBoPr++ version from cape-bebopr-brdg-R2.dts.
+ *               Added signal naming for 5 axes (external stepper drivers).
+ *               Added J5.16 signal for DECAMUX and enabled ADS1015.
+ */
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "aes,bebopr", "ti,beaglebone", "ti,beaglebone-black";
+
+	/* identification */
+	part-number = "cape-bebopr-pp";
+	version = "R3";
+
+ 	exclusive-use =
+	/* state the resources this cape uses */
+
+	/* ------ IO POWER ------ */
+
+		"P8.7",		/* gpio2.2 timer4      gpio66    Enablen */
+
+	/* ------ PWM ------ */
+
+		"P8.13",	/* gpio0.23  EHRPWM2B   J2_PWM0  */
+		"P8.19",	/* gpio0.22  EHRPWM2A   J3_PWM1  */
+		"P9.14",	/* gpio1.18  EHRPWM1A   J4_PWM2  */
+		"ehrpwm1A",
+		"ehrpwm2A",
+		"ehrpwm2B",
+
+	/* ------ STEPPERS ------ */
+
+		"P8.12",	/* gpio1.12  X_STP */
+		"P8.11",	/* gpio1.13  X_DIR */
+		"P9.18",	/* gpio0.4   B_STP or #X_ENA */
+		"P8.16",	/* gpio1.14  Y_STP */
+		"P8.15",	/* gpio1.15  Y_DIR */
+		"P9.17",	/* gpio0.5   B_DIR or #Y_ENA */
+		"P9.15",	/* gpio1.16  Z_STP */
+		"P9.23",	/* gpio1.17  Z_DIR */	
+		"P9.26",	/* gpio0.14  #ENA1 or #X_ENA */
+		"P9.22",	/* gpio0.2   A_STP or E_STP */
+		"P9.21",	/* gpio0.3   A_DIR or E_DIR */
+		"P9.24",	/* gpio0.15  #ENA2 or #E_ENA */
+                "P9.12",        /* gpio1.28  DECA_CLK */
+		"pru1",
+		"pruss",
+
+	/* ------ SENSORS ------ */
+
+		"P8.8",		/* gpio2.3    #X_MIN */
+		"P8.9",		/* gpio2.5    #X_MAX */
+		"P8.10",	/* gpio2.4    #Y_MIN */
+		"P8.14",	/* gpio0.26   #Y_MAX */
+		"P8.17",	/* gpio0.27   #Z_MIN */
+		"P8.18",	/* gpio2.1    #Z_MAX */
+
+	/* ------ ADC ------ */
+
+		"P9.33",	/* AIN4 */
+		"P9.36",	/* AIN5 */
+		"P9.35",	/* AIN6 */
+		"tscadc",
+
+	/* ------ LED ------ */
+
+                "P8.26";        /* gpio1.29       LED     */
+
+
+	/* ----------- IO ENABLE ------------ */
+
+	fragment@0 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+			bebopr_io_enable_pins: pinmux_bebopr_io_enable_pins {
+				pinctrl-single,pins = <
+					0x090 0x07  /*  P8-7 TIMER4     gpmc_advn_ale.gpio2[2] */
+				>;
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <&ocp>;
+		__overlay__ {
+
+			bebopr_io_enables {
+				compatible = "gpio-of-helper";
+				status = "okay";
+				pinctrl-names = "default";
+				pinctrl-0 = <&bebopr_io_enable_pins>;
+
+				io_enable_n {
+					gpio-name = "bebopr:io_enable_n";
+					gpio = <&gpio3 2 0>;
+					output;
+					init-high;
+				};
+			};
+		};
+	};
+
+	/* ----------- PWM ------------ */
+
+	fragment@11 {
+		target = <&epwmss1>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@12 {
+		target = <&ehrpwm1>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@13 {
+		target = <&epwmss2>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@14 {
+		target = <&ehrpwm2>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@15 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+		// J2_PWM0
+			P8_13_ehrpwm_pin: pinmux_P8_13_ehrpwm_pin {
+				pinctrl-single,pins = <0x024  0x4>; /* P8_13 (ZCZ ball T10) | MODE 4 */
+			};
+
+			P8_13_gpio_pin: pinmux_P8_13_gpio_pin {
+				pinctrl-single,pins = <0x024  0x7>; /* P8_13 (ZCZ ball T10) | MODE 7 */
+			};
+
+		// J3_PWM1
+			P8_19_ehrpwm_pin: pinmux_P8_19_ehrpwm_pin {
+				pinctrl-single,pins = <0x020  0x4>; /* P8_19 (ZCZ ball U10) | MODE 4 */
+			};
+
+			P8_19_gpio_pin: pinmux_P8_19_gpio_pin {
+				pinctrl-single,pins = <0x020  0x7>; /* P8_19 (ZCZ ball U10) | MODE 7 */
+			};
+
+		// J4_PWM2
+			P9_14_ehrpwm_pin: pinmux_P9_14_ehrpwm_pin {
+				pinctrl-single,pins = <0x048  0x6>; /* P9_14 (ZCZ ball U14) | MODE 6 */
+			};
+
+			P9_14_gpio_pin: pinmux_P9_14_gpio_pin {
+				pinctrl-single,pins = <0x048  0x7>; /* P9_14 (ZCZ ball U14) | MODE 7 */
+			};
+		};
+	};
+
+	fragment@16 {
+		target = <&ocp>;
+		__overlay__ {
+
+			bebopr_pwm_J2_pinmux {
+				compatible = "bone-pinmux-helper";
+				status = "okay";
+
+				pinctrl-names = "default", "gpio";
+				pinctrl-0 = <&P8_13_ehrpwm_pin>;
+				pinctrl-1 = <&P8_13_gpio_pin>;
+			};
+
+			bebopr_pwm_J3_pinmux {
+				compatible = "bone-pinmux-helper";
+				status = "okay";
+
+				pinctrl-names = "default", "gpio";
+				pinctrl-0 = <&P8_19_ehrpwm_pin>;
+				pinctrl-1 = <&P8_19_gpio_pin>;
+			};
+
+			bebopr_pwm_J4_pinmux {
+				compatible = "bone-pinmux-helper";
+				status = "okay";
+
+				pinctrl-names = "default", "gpio";
+				pinctrl-0 = <&P9_14_ehrpwm_pin>;
+				pinctrl-1 = <&P9_14_gpio_pin>;
+			};
+
+			bebopr_pwm_J2 {
+				compatible	= "pwm_test";
+				pwms		= <&ehrpwm2 1 10000000 0>;
+				pwm-names	= "PWM0_J2_FAN";
+				enabled		= <0>;
+				duty		= <0>;
+				status		= "okay";
+			};
+
+			bebopr_pwm_J3 {
+				compatible	= "pwm_test";
+				pwms		= <&ehrpwm2 0 10000000 0>;
+				pwm-names	= "PWM1_J3_EXTR";
+				enabled		= <0>;
+				duty		= <0>;
+				status		= "okay";
+			};
+
+			bebopr_pwm_J4 {
+				compatible	= "pwm_test";
+				pwms		= <&ehrpwm1 0 100000000 0>;
+				pwm-names	= "PWM2_J4_BED";
+				enabled		= <0>;
+				duty		= <0>;
+				status		= "okay";
+			};
+		};
+	};
+
+	/* ----------- STEPPERS ------------ */
+
+	fragment@21 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+			bebopr_stepper_pins: pinmux_bebopr_stepper_pins {
+				status = "okay";
+				pinctrl-single,pins = <
+					/* stepper outputs */
+					0x030 0x07	/* #X_STP, P8_12, gpio1.12, mode7 out */
+					0x034 0x07	/* #X_DIR, P8_11, gpio1.13, mode7 out */
+					0x038 0x07	/* #Y_STP, P8_16, gpio1.14, mode7 out */
+					0x03c 0x07	/* #Y_DIR, P8_15, gpio1.15, mode7 out */
+					0x040 0x07	/* #Z_STP, P9_15, gpio1.16, mode7 out */
+					0x044 0x07	/* #Z_DIR, P9_23, gpio1.17, mode7 out */
+
+					0x150 0x07	/* #A_STP, P9_22, gpio0.2,  mode7 out */
+					0x154 0x07	/* #A_DIR, P9_21, gpio0.3,  mode7 out */
+					0x158 0x07	/* #B_STP, P9_18, gpio0.4,  mode7 out */
+					0x15c 0x07	/* #B_DIR, P9_17, gpio0.5,  mode7 out */
+
+					0x180 0x07	/* #Z_ENA, P9_26, gpio0.14, mode7 out */
+					0x184 0x07	/* #E_ENA, P9_24, gpio0.15, mode7 out */
+
+					0x078 0x07	/* DECA_CLK P9_12, gpio1.28, mode7 out */
+				>;
+			};
+		};	
+	};
+
+	fragment@22 {
+		target = <&ocp>;
+		__overlay__ {
+
+			bebopr_steppers {
+				compatible = "gpio-of-helper";
+				status = "okay";
+				pinctrl-names = "default";
+				pinctrl-0 = <&bebopr_stepper_pins>;
+
+				x_stp {
+					gpio-name = "bebopr:x_stp";
+					gpio = <&gpio2 12 0>;
+					output;
+					init-low;
+				};
+				x_dir {
+					gpio-name = "bebopr:x_dir";
+					gpio = <&gpio2 13 0>;
+					output;
+					init-low;
+				};
+				x_ena {
+					gpio-name = "bebopr:x_ena";
+					gpio = <&gpio1 4 0>;
+					output;
+					init-high;
+				};
+
+				y_stp {
+					gpio-name = "bebopr:y_stp";
+					gpio = <&gpio2 14 0>;
+					output;
+					init-low;
+				};
+				y_dir {
+					gpio-name = "bebopr:y_dir";
+					gpio = <&gpio2 15 0>;
+					output;
+					init-low;
+				};
+				y_ena {
+					gpio-name = "bebopr:y_ena";
+					gpio = <&gpio1 5 0>;
+					output;
+					init-high;
+				};
+
+				z_stp {
+					gpio-name = "bebopr:z_stp";
+					gpio = <&gpio2 16 0>;
+					output;
+					init-low;
+				};
+				z_dir {
+					gpio-name = "bebopr:z_dir";
+					gpio = <&gpio2 17 0>;
+					output;
+					init-low;
+				};
+				z_ena {
+					gpio-name = "bebopr:z_ena";
+					gpio = <&gpio1 14 0>;
+					output;
+					init-high;
+				};
+
+				e_stp {
+					gpio-name = "bebopr:e_stp";
+					gpio = <&gpio1 2 0>;
+					output;
+					init-low;
+				};
+				e_dir {
+					gpio-name = "bebopr:e_dir";
+					gpio = <&gpio1 3 0>;
+					output;
+					init-low;
+				};
+				e_ena {
+					gpio-name = "bebopr:e_ena";
+					gpio = <&gpio1 15 0>;
+					output;
+					init-high;
+				};
+				deca_clk {
+					gpio-name = "bebopr:deca_clk";
+					gpio = <&gpio2 28 0>;
+					output;
+					init-high;
+				};
+			};
+		};
+	};
+
+	fragment@23 {
+		target = <&pruss>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	/* ----------- SENSORS ------------ */
+
+	fragment@31 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+			bebopr_sensor_pins: pinmux_bebopr_sensor_pins {
+				status = "okay";
+				pinctrl-single,pins = <
+					/* sensor inputs with pull-downs */
+					0x94 0x2f	/* #X_MIN, P8_8,  gpio2.3, mode7 in */
+					0x9c 0x2f	/* #X_MAX, P8_9,  gpio2.5, mode7 in */
+					0x98 0x2f	/* #Y_MIN, P8_10, gpio2.4, mode7 in */
+					0x28 0x2f	/* #Y_MAX, P8_14, gpio0.26, mode7 in */
+					0x2c 0x2f	/* #Z_MIN, P8_17, gpio0.27, mode7 in */
+					0x8c 0x2f	/* #Z_MAX, P8_18, gpio2.1,  mode7 in */
+				>;
+			};
+		};	
+	};
+
+	fragment@33 {
+		target = <&ocp>;
+		__overlay__ {
+
+			bebopr_sensors {
+				compatible = "gpio-of-helper";
+				status = "okay";
+				pinctrl-names = "default";
+				pinctrl-0 = <&bebopr_sensor_pins>;
+
+				x_min {
+					gpio-name = "bebopr:x_min";
+					gpio = <&gpio3 3 0>;
+					input;
+				};
+				x_max {
+					gpio-name = "bebopr:x_max";
+					gpio = <&gpio3 5 0>;
+					input;
+				};
+				y_min {
+					gpio-name = "bebopr:y_min";
+					gpio = <&gpio3 4 0>;
+					input;
+				};
+				y_max {
+					gpio-name = "bebopr:y_max";
+					gpio = <&gpio1 26 0>;
+					input;
+				};
+				z_min {
+					gpio-name = "bebopr:z_min";
+					gpio = <&gpio1 27 0>;
+					input;
+				};
+				z_max {
+					gpio-name = "bebopr:z_max";
+					gpio = <&gpio3 1 0>;
+					input;
+				};
+			};
+		};
+	};
+
+	/* ----------- ADC ------------ */
+
+        /* no pinmux needed */
+
+	fragment@41 {
+		target = <&ocp>;
+		__overlay__ {
+
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			tscadc {
+				compatible = "ti,ti-tscadc";
+				status = "okay";
+
+				reg = <0x44e0d000 0x1000>;
+				interrupt-parent = <&intc>;
+				interrupts = <16>;
+				ti,hwmods = "adc_tsc";
+				adc {
+					ti,adc-channels = <0 1 2 3 4 5 6 7>;
+				};
+			};
+
+			bebopr_adc {
+				compatible = "bone-iio-helper";
+				status = "okay";
+				/* scale to raw bit value */
+				vsense-name  = "AIN0", "AIN1", "AIN2", "AIN3", "AIN4", "AIN5", "AIN7";
+				vsense-scale = < 228     228     228     228     228     228     228>;
+			};
+
+		};
+	};
+
+
+	/* ----------- LED ------------ */
+
+	fragment@51 {
+		target = <&am33xx_pinmux>;
+		__overlay__ {
+
+ 			bebopr_led_pins: pinmux_bebopr_led_pins {
+				pinctrl-single,pins = <
+					0x07c 0x07    /* P8-26 GPIO1_29   gpmc_csn0.gpio1[29]    */
+				>;
+			};
+		};
+	};
+
+	fragment@52 {
+		target = <&ocp>;
+		__overlay__ {
+
+			bebopr_leds {
+				compatible = "gpio-leds";
+				pinctrl-names = "default";
+				pinctrl-0 = <&bebopr_led_pins>;
+
+				status_led {
+					label = "bebopr:status_led";
+					gpios = <&gpio2 29 0>;
+					linux,default-trigger = "heartbeat";
+					default-state = "off";
+				};
+			};
+		};
+	};
+
+	/* ----------- ADS1015 ------------ */
+
+	fragment@61 {
+		target = <&i2c2>;
+		__overlay__ {
+			// needed to avoid gripping by DTC
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";	// probably already set
+
+			ads1015: ads1015@48 {
+
+				compatible = "ti,ads1015";
+				status = "okay";
+
+		           	#address-cells = <1>;
+				#size-cells = <0>;
+				reg = <0x48>;
+
+				hi_res = <1>;
+
+				channel@1 {
+			   	     	  reg = <4>;
+				     	  ti,gain = <2>;
+				     	  ti,datarate = <2>;
+			   	};
+				channel@2 {
+			   	     	  reg = <5>;
+				     	  ti,gain = <2>;
+				     	  ti,datarate = <2>;
+			   	};
+				channel@3 {
+			   	     	  reg = <6>;
+				     	  ti,gain = <2>;
+				     	  ti,datarate = <2>;
+			   	};
+				channel@4 {
+			   	     	  reg = <0>;
+				     	  ti,gain = <3>;
+				     	  ti,datarate = <2>;
+			   	};
+	        	};
+		};
+
+	};
+
+};
