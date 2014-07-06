@@ -11,3 +11,4 @@
 position*.txt
 !common/*.hal
 *.ini.expanded
+*.dtbo
