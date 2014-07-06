@@ -16,6 +16,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
-dtc -O dtb -o BB-LCNC-BEBOPRBR-00A0.dtbo -b 0 -@ BB-LCNC-BEBOPRBR-00A0.dts && \
-cp BB-LCNC-BEBOPRBR-00A0.dtbo /lib/firmware/
-
+for dto in BB-LCNC-BEBOPRBR-00A0 cape-bebopr-brdg-R3 cape-bebopr-pp-R3 ; do
+   dtc -O dtb -o ${dto}.dtbo -b 0 -@ ${dto}.dts && sudo cp ${dto}.dtbo /lib/firmware/
+done

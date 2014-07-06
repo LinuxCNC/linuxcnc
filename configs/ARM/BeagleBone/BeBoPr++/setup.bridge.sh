@@ -50,16 +50,50 @@ export_gpio () {
 }
 
 # Make sure required device tree overlay(s) are loaded
-for DTBO in cape-bebopr-brdg ; do
+ACTIVE=""
+for DTBO in cape-bebopr-pp cape-bebopr-brdg BB-LCNC-BEBOPRBR ; do
 
-	if grep -q $DTBO $SLOTS ; then
-		echo $DTBO overlay found
-	else
-		echo Loading $DTBO overlay
-		sudo -A su -c "echo $DTBO > $SLOTS" || dtbo_err
-		sleep 1
+	BEBOPR=`grep ${DTBO} ${SLOTS} | egrep "[0-9]+: 5[4567]:P-"`
+	if [ -n "${BEBOPR}" ] ; then
+		SLOT=`echo ${BEBOPR} | cut -d':' -f1`
+		echo -n "Cape \"${DTBO}\" with EEPROM in slot ${SLOT} is "
+		echo ${BEBOPR} | grep -q "0: 54:P---F"
+		if [ $? -eq 0 ] ; then
+			echo "active"
+			ACTIVE=${SLOT}
+			break
+		else
+			echo "not active"
+		fi
 	fi
-done;
+
+	BEBOPR=`grep ${DTBO} ${SLOTS} | egrep "[0-9]+: ff:P-O-L"`
+	if [ -n "${BEBOPR}" ] ; then
+		SLOT=`echo ${BEBOPR} | cut -d':' -f1`
+		echo "Overlay \"${DTBO}\" in slot ${SLOT} is active"
+		ACTIVE=${SLOT}
+		break
+	fi
+done
+
+if [ -z "${ACTIVE}" ] ; then
+	echo "Need to load overlay"
+
+# Try loading an overlay. Start with the ones using most resources
+# and most likely to fail on older capes.
+
+	for DTBO in cape-bebopr-pp:R3 cape-bebopr-brdg:R2 BB-LCNC-BEBOPRBR ; do
+		echo -n "Loading overlay \"${DTBO}\" ... "
+		if sudo -A su -c "echo $DTBO > $SLOTS" ; then
+			echo "Success"
+			break
+		else
+			echo "Failed"
+		fi
+	done
+	sleep 1
+
+fi
 
 if [ ! -r /sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/in_voltage5_raw ] ; then
 	echo "Analog input files not found in /sys/devices/ocp.*/44e0d000.tscadc/tiadc/iio:device0/" >&2
