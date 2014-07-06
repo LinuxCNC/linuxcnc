@@ -211,9 +211,14 @@ long long rtapi_get_time(void) {
 
 #ifdef MSR_H_USABLE
 #include <asm/msr.h>
-#elif defined(__i386__) || defined(__x86_64__)
+#elif defined(__i386__)
 #define rdtscll(val) \
          __asm__ __volatile__("rdtsc" : "=A" (val))
+#elif defined(__amd64__)
+#define rdtscll(val) \
+    ({ unsigned int eax, edx; \
+         __asm__ __volatile__("rdtsc" : "=a" (eax), "=d" (edx));  \
+        val = ((unsigned long)eax) | (((unsigned long)edx) << 32); })
 #else
 #warning No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
