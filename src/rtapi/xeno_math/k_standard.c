@@ -17,7 +17,7 @@ static char rcsid[] = "$NetBSD: k_standard.c,v 1.6 1995/05/10 20:46:35 jtc Exp $
 #include "rtapi_math.h"
 #include "mathP.h"
 #include <linux/errno.h>		/* FIXME */
-#include <linux/printk.h>		/* FIXME */
+#include <linux/kernel.h>		/* FIXME */
 
 extern int libm_errno;
 
