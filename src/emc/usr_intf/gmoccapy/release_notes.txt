@@ -1,3 +1,7 @@
+ver. 1.1.5.4
+- solved a bug showing screen2 at start up. Screen2 was initialized to early
+  resulting in a runtime error
+
 ver. 1.1.5.3
 - solved a bug if the user have NO_FORCE_HOMING in his INI and did a homing
   of an axis, resulting in some widgets being unsensitive.
