@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.3"
+_RELEASE = "  1.1.5.4"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -219,7 +219,6 @@ class gmoccapy(object):
         # finaly show the window
         self.widgets.window1.show()
 
-        self._check_screen2()
         self._init_dynamic_tabs()
         self._init_tooleditor()
         self._init_embeded_terminal()
@@ -1578,12 +1577,15 @@ class gmoccapy(object):
             self.widgets.window1.move(xpos, ypos)
             self.widgets.window1.resize(width, height)
 
-        # does the user want to show screen2
-        self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
         self.initialized = True
+
+        # does the user want to show screen2
+        self._check_screen2()
+        if self.screen2:
+            self.widgets.tbtn_use_screen2.set_active(self.prefs.getpref("use_screen2", False, bool))
 
     # kill keyboard and estop machine before closing
     def on_window1_destroy(self, widget, data = None):
