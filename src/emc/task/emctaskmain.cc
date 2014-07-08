@@ -143,6 +143,8 @@ static const char *io_error = "toolchanger error %d";
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
+static sighandler_t chain_sigterm_handler;
+
 static int all_homed(void) {
     for(int i=0; i<9; i++) {
         unsigned int mask = 1<<i;
@@ -156,8 +158,10 @@ void emctask_quit(int sig)
 {
     // set main's done flag
     done = 1;
-    // restore signal handler
-    signal(sig, emctask_quit);
+    if (sig == SIGTERM && chain_sigterm_handler != NULL) {
+        rcs_print("calling previous SIGTERM handler\n");
+        chain_sigterm_handler(sig);
+    }
 }
 
 /* make sure at least space bytes are available on
@@ -3202,9 +3206,12 @@ int main(int argc, char *argv[])
     // loop until done
     done = 0;
     // trap ^C
-    signal(SIGINT, emctask_quit);
+    struct sigaction newsig;
+    newsig.sa_handler = emctask_quit;
+    sigemptyset(&newsig.sa_mask);
+    sigaction(SIGINT, &newsig, NULL);
     // and SIGTERM (used by runscript to shut down)
-    signal(SIGTERM, emctask_quit);
+    sigaction(SIGTERM, &newsig, NULL);
 
     // create a backtrace on stderr
     signal(SIGSEGV, backtrace);
@@ -3269,6 +3276,19 @@ int main(int argc, char *argv[])
     emcTaskPlanInit();
     // reflect the initial value of EMC_DEBUG in emcStatus->debug
     emcStatus->debug = emc_debug;
+
+    // check to see if something during init grabbed SIGTERM away from us
+    struct sigaction old_action;
+    chain_sigterm_handler = NULL;
+    sigaction(SIGTERM, NULL, &old_action);
+    if (old_action.sa_handler != emctask_quit) {
+        // someone (halmodule.cc via python remap) grabbed SIGTERM, remember it
+        chain_sigterm_handler = old_action.sa_handler;
+        newsig.sa_handler = emctask_quit;
+        sigemptyset(&newsig.sa_mask);
+        newsig.sa_flags = 0;
+        sigaction(SIGTERM, &newsig, NULL);
+    }
 
     startTime = etime();	// set start time before entering loop;
     // it will be set at end of loop from now on
