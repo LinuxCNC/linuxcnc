@@ -156,6 +156,7 @@ static int all_homed(void) {
 
 void emctask_quit(int sig)
 {
+    //rcs_print("emctask_quit(signal %d) called\n", sig);
     // set main's done flag
     done = 1;
     if (sig == SIGTERM && chain_sigterm_handler != NULL) {
@@ -3207,16 +3208,19 @@ int main(int argc, char *argv[])
     done = 0;
     // trap ^C
     struct sigaction newsig;
-    newsig.sa_handler = emctask_quit;
+    memset(&newsig, '\0', sizeof(newsig));
     sigemptyset(&newsig.sa_mask);
+    newsig.sa_flags = 0;
+    newsig.sa_handler = emctask_quit;
     sigaction(SIGINT, &newsig, NULL);
     // and SIGTERM (used by runscript to shut down)
     sigaction(SIGTERM, &newsig, NULL);
 
     // create a backtrace on stderr
-    signal(SIGSEGV, backtrace);
-    signal(SIGFPE, backtrace);
-    signal(SIGUSR1, backtrace);
+    newsig.sa_handler = backtrace;
+    sigaction(SIGSEGV, &newsig, NULL);
+    sigaction(SIGFPE, &newsig, NULL);
+    sigaction(SIGUSR1, &newsig, NULL);
 
     // set print destination to stdout, for console apps
     set_rcs_print_destination(RCS_PRINT_TO_STDOUT);
@@ -3279,6 +3283,7 @@ int main(int argc, char *argv[])
 
     // check to see if something during init grabbed SIGTERM away from us
     struct sigaction old_action;
+    memset(&old_action, '\0', sizeof(old_action));
     chain_sigterm_handler = NULL;
     sigaction(SIGTERM, NULL, &old_action);
     if (old_action.sa_handler != emctask_quit) {
