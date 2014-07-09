@@ -316,10 +316,10 @@ static int hm2_eth_enqueue_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *
         lbp16_cmd_addr *packet = (lbp16_cmd_addr *) write_packet_ptr;
 
         LBP16_INIT_PACKET4_PTR(packet, CMD_WRITE_HOSTMOT2_ADDR32_INCR(size/4), addr);
-        write_packet_ptr += sizeof(packet);
+        write_packet_ptr += sizeof(*packet);
         memcpy(write_packet_ptr, buffer, size);
         write_packet_ptr += size;
-        write_packet_size += (sizeof(packet) + size);
+        write_packet_size += (sizeof(*packet) + size);
     }
     return 1;
 }
