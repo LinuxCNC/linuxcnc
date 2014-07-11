@@ -1,3 +1,20 @@
+machinekit (0.1.1) wheezy; urgency=low
+
+  * Reworked debian/configure, #215
+  * Velocity-controlled extrusion, #213
+  * Temp. hack xenomai-kernel pkg depends, #224, #225
+  * Pid pins:  IO to IN, #225
+  * New TP on by default, #228
+  * RTAI fixes, #231
+  * TP fixes, #234
+  * Use xeno_math by default for RTAI, #235
+  * BeBoPr++ config updates, #238
+  * Python milltask sig handler fixes, #247, #248
+  * check-system-configuration.sh script fixes, #112 and #113
+  * Ulimit configuration fixes, #241 and #246
+
+ -- John Morris <john@dovetail-automata.com>  Fri, 11 Jul 2014 18:24:30 -0500
+
 machinekit (0.1.0) wheezy; urgency=low
 
   * Rename package to machinekit
