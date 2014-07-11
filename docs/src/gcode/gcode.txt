@@ -83,6 +83,7 @@ as the 'L number', and so on for any other letter.
 |<<sec:G41_1-G42_1,G41.1 G42.1>>    |Dynamic Cutter Compensation
 |<<sec:G43,G43>>                    |Use Tool Length Offset from Tool Table
 |<<sec:G43_1,G43.1>>                |Dynamic Tool Length Offset
+|<<sec:G43_2,G43.2>>                |Apply additional Tool Length Offset
 |<<sec:G49-Tool,G49>>               |Cancel Tool Length Offset
 |<<sec:G53-Move-in,G53>>            |Motion in Machine Coordinate System
 |<<sec:G54-G59_3,G54-G59>>          |Select Coordinate System (1 - 6)
@@ -1290,6 +1291,38 @@ M2 (end program)
 It is an error if:
 
 * motion is commanded on the same line as 'G43.1'
+
+[[sec:G43_2]]
+== G43.2: Apply additional Tool Length Offset
+(((G43.2 Apply additional Tool Length Offset)))
+
+----
+G43.2 H-
+----
+* 'H' - tool number
+
+G43.2 applies an additional simultaneous tool offset.
+
+.G43.2 Example
+----
+G90 (set absolute mode)
+T1 M6 (load tool 1)
+G43 (or G43 H1 - replace all tool offsets with T1's offset)
+G43.2 H10 (also add in T10's tool offset)
+M2 (end program)
+----
+
+You can sum together an arbitrary number of offsets by calling G43.2
+more times.  There are no built-in assumptions about which numbers are geometry
+offsets and which are wear offsets, or that you should have only one of each.
+
+Like the other G43 commands, G43.2 does not cause any motion.  The next time a
+compensated axis is moved, that axis's endpoint is the compensated location.
+
+It is an error if:
+
+* 'H' is unspecified, or
+* the given tool number does not exist in the tool table
 
 [[sec:G49-Tool]]
 == G49: Cancel Tool Length Compensation
