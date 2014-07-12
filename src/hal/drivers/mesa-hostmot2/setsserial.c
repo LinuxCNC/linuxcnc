@@ -18,8 +18,9 @@
 //
 //    The code in this file is based on UFLBP.PAS by Peter C. Wallace.  
 
-#include <linux/firmware.h>
+#include <rtapi_firmware.h>
 #include <rtapi_string.h>
+#include <rtapi_gfp.h>
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
@@ -42,7 +43,7 @@ hostmot2_t *hm2;
 hm2_sserial_remote_t *remote;
 
 int waitfor(void){
-    u32 buff;
+    rtapi_u32 buff;
     long long int starttime = rtapi_get_time();
     do {
         rtapi_delay(50000);
@@ -57,7 +58,7 @@ int waitfor(void){
 }
 
 int doit(void){
-    u32 buff = 0x1000 | (1 << remote->index);
+    rtapi_u32 buff = 0x1000 | (1 << remote->index);
     HM2WRITE(remote->command_reg_addr, buff);
     if (waitfor() < 0) return -1;
     HM2READ(remote->data_reg_addr, buff);
@@ -70,13 +71,13 @@ int doit(void){
 }
 
 int stop_all(void){
-    u32 buff=0x8FF;
+    rtapi_u32 buff=0x8FF;
     HM2WRITE(remote->command_reg_addr, buff);
     return waitfor();
 }
 
 int setup_start(void){
-    u32 buff=0xF00 | 1 << remote->index;
+    rtapi_u32 buff=0xF00 | 1 << remote->index;
     HM2WRITE(remote->command_reg_addr, buff);
     if (waitfor() < 0) return -1;
     HM2READ(remote->data_reg_addr, buff); 
@@ -88,16 +89,16 @@ int setup_start(void){
     return 0;
 }
 
-int nv_access(u32 type){
-    u32 buff = LBPNONVOL_flag + LBPWRITE;
+int nv_access(rtapi_u32 type){
+    rtapi_u32 buff = LBPNONVOL_flag + LBPWRITE;
     rtapi_print("buff = %x\n", buff);
     HM2WRITE(remote->reg_cs_addr, buff);
     HM2WRITE(remote->reg_0_addr, type);
     return doit();
 }
 
-int set_nvram_param(u32 addr, u32 value){
-    u32 buff;
+int set_nvram_param(rtapi_u32 addr, rtapi_u32 value){
+    rtapi_u32 buff;
     
     if (stop_all() < 0) goto fail0;
     if (setup_start() < 0) goto fail0;
@@ -120,13 +121,13 @@ fail0: // It's all gone wrong
     return -1;
 }
 
-static void setsserial_release(struct device *dev) {
+static void setsserial_release(struct rtapi_device *dev) {
     // nothing to do here
 }
 
 int getlocal(int addr, int bytes){
-    u32 val = 0;
-    u32 buff;
+    rtapi_u32 val = 0;
+    rtapi_u32 buff;
     for (;bytes--;){
         buff = READ_LOCAL_CMD | (addr + bytes);
         HM2WRITE(remote->command_reg_addr, buff);
@@ -137,8 +138,8 @@ int getlocal(int addr, int bytes){
 }
 
 int setlocal(int addr, int val, int bytes){
-    u32 b = 0;
-    u32 buff;
+    rtapi_u32 b = 0;
+    rtapi_u32 buff;
     int i;
     for (i = 0; i < bytes; i++){
         b = val & 0xFF;
@@ -151,8 +152,8 @@ int setlocal(int addr, int val, int bytes){
     return 0;
 }
 
-void sslbp_write_lbp(u32 cmd, u32 data){
-    u32 buff = LBPWRITE + cmd;
+void sslbp_write_lbp(rtapi_u32 cmd, rtapi_u32 data){
+    rtapi_u32 buff = LBPWRITE + cmd;
     HM2WRITE(remote->reg_cs_addr, buff);
     HM2WRITE(remote->reg_0_addr, data);
     doit();
@@ -161,8 +162,8 @@ void sslbp_write_lbp(u32 cmd, u32 data){
 }
 
 int sslbp_read_cookie(void){
-    u32 buff = READ_COOKIE_CMD;
-    u32 res;
+    rtapi_u32 buff = READ_COOKIE_CMD;
+    rtapi_u32 res;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_cookie, trying to abort\n");
@@ -174,9 +175,9 @@ int sslbp_read_cookie(void){
     return res;
 }
 
-u8 sslbp_read_byte(u32 addr){
-    u32 buff = READ_REM_BYTE_CMD + addr;
-    u32 res;
+rtapi_u8 sslbp_read_byte(rtapi_u32 addr){
+    rtapi_u32 buff = READ_REM_BYTE_CMD + addr;
+    rtapi_u32 res;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_byte, trying to abort\n");
@@ -185,12 +186,12 @@ u8 sslbp_read_byte(u32 addr){
     HM2READ(remote->reg_0_addr, res);
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
-    return (u8)res;
+    return (rtapi_u8)res;
 }
 
-u16 sslbp_read_word(u32 addr){
-    u32 buff = READ_REM_WORD_CMD + addr;
-    u32 res;
+rtapi_u16 sslbp_read_word(rtapi_u32 addr){
+    rtapi_u32 buff = READ_REM_WORD_CMD + addr;
+    rtapi_u32 res;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_word, trying to abort\n");
@@ -199,12 +200,12 @@ u16 sslbp_read_word(u32 addr){
     HM2READ(remote->reg_0_addr, res);
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
-    return (u16)res;
+    return (rtapi_u16)res;
 }
 
-u32 sslbp_read_long(u32 addr){
-    u32 buff = READ_REM_LONG_CMD + addr;
-    u32 res=0;
+rtapi_u32 sslbp_read_long(rtapi_u32 addr){
+    rtapi_u32 buff = READ_REM_LONG_CMD + addr;
+    rtapi_u32 res=0;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_long, trying to abort\n");
@@ -216,9 +217,9 @@ u32 sslbp_read_long(u32 addr){
     return res;
 }
 
-u64 sslbp_read_double(u32 addr){
-    u64 res;
-    u32 buff = READ_REM_DOUBLE_CMD + addr;
+rtapi_u64 sslbp_read_double(rtapi_u32 addr){
+    rtapi_u64 res;
+    rtapi_u32 buff = READ_REM_DOUBLE_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_read_double, trying to abort\n");
@@ -234,8 +235,8 @@ u64 sslbp_read_double(u32 addr){
     return res;
 }
 
-int sslbp_write_byte(u32 addr, u32 data){
-    u32 buff = WRITE_REM_BYTE_CMD + addr;
+int sslbp_write_byte(rtapi_u32 addr, rtapi_u32 data){
+    rtapi_u32 buff = WRITE_REM_BYTE_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
     HM2WRITE(remote->reg_0_addr, data);
     if (doit() < 0){
@@ -247,8 +248,8 @@ int sslbp_write_byte(u32 addr, u32 data){
     return 0;
 }
 
-int sslbp_write_word(u32 addr, u32 data){
-    u32 buff = WRITE_REM_WORD_CMD + addr;
+int sslbp_write_word(rtapi_u32 addr, rtapi_u32 data){
+    rtapi_u32 buff = WRITE_REM_WORD_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
     HM2WRITE(remote->reg_0_addr, data);
     if (doit() < 0){
@@ -260,8 +261,8 @@ int sslbp_write_word(u32 addr, u32 data){
     return 0;
 }
 
-int sslbp_write_long(u32 addr, u32 data){
-    u32 buff = WRITE_REM_LONG_CMD + addr;
+int sslbp_write_long(rtapi_u32 addr, rtapi_u32 data){
+    rtapi_u32 buff = WRITE_REM_LONG_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
     HM2WRITE(remote->reg_0_addr, data);
     if (doit() < 0){
@@ -273,8 +274,8 @@ int sslbp_write_long(u32 addr, u32 data){
     return 0;
 }
 
-int sslbp_write_double(u32 addr, u32 data0, u32 data1){
-    u32 buff = WRITE_REM_DOUBLE_CMD + addr;
+int sslbp_write_double(rtapi_u32 addr, rtapi_u32 data0, rtapi_u32 data1){
+    rtapi_u32 buff = WRITE_REM_DOUBLE_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
     HM2WRITE(remote->reg_0_addr, data0);
     HM2WRITE(remote->reg_1_addr, data1);
@@ -297,8 +298,8 @@ void flash_stop(void){
 }
     
 int sslbp_flash(char *fname){
-    const struct firmware *fw;
-    struct device dev;
+    const struct rtapi_firmware *fw;
+    struct rtapi_device dev;
     int r;
     int write_sz, erase_sz;
     
@@ -325,20 +326,15 @@ int sslbp_flash(char *fname){
      
     //Copied direct from hostmot2.c. A bit of a faff, but seems to be necessary. 
     memset(&dev, '\0', sizeof(dev));
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-    strncpy(dev.bus_id, hm2->llio->name, BUS_ID_SIZE);
-    dev.bus_id[BUS_ID_SIZE - 1] = '\0';
-#else
-    dev_set_name(&dev, hm2->llio->name);
-#endif
+    rtapi_dev_set_name(&dev, hm2->llio->name);
     dev.release = setsserial_release;
-    r = device_register(&dev);
+    r = rtapi_device_register(&dev);
     if (r != 0) {
         HM2_ERR("error with device_register\n");
         return -1;
     }
-    r = request_firmware(&fw, fname, &dev);
-    device_unregister(&dev);
+    r = rtapi_request_firmware(&fw, fname, &dev);
+    rtapi_device_unregister(&dev);
     if (r == -ENOENT) {
         HM2_ERR("firmware %s not found\n",fname);
         return -1;
@@ -381,7 +377,7 @@ int sslbp_flash(char *fname){
                 for (i = 0; i < erase_sz ; i += write_sz){
                     sslbp_write_long(LBPFLASHOFFSETLOC, block_start + i);
                     for (j = 0 ; j < write_sz ; j += 8){
-                        u32 data0, data1, m;
+                        rtapi_u32 data0, data1, m;
                         m = block_start + i + j;
                         data0 = (fw->data[m] 
                               + (fw->data[m + 1] << 8)
@@ -410,7 +406,7 @@ int sslbp_flash(char *fname){
         }
     }
     
-    release_firmware(fw);
+    rtapi_release_firmware(fw);
     
     return 0;
     
@@ -426,7 +422,7 @@ int rtapi_app_main(void)
     comp_id = hal_init("setsserial");
     hal_ready(comp_id);
     
-    cmd_list = rtapi_argv_split(GFP_KERNEL, cmd, &cnt);
+    cmd_list = rtapi_argv_split(RTAPI_GFP_KERNEL, cmd, &cnt);
     
     remote = hm2_get_sserial(&hm2, cmd_list[1]);
     if (! remote) {   
@@ -437,8 +433,8 @@ int rtapi_app_main(void)
     }    
     
     if (! strncmp("set", cmd_list[0], 3) && cnt == 3){
-        u32 value;
-        u32 addr;
+        rtapi_u32 value;
+        rtapi_u32 addr;
         int i;
         rtapi_print("set command %s\n", cmd_list[1]);
         addr = 0;
