@@ -209,9 +209,14 @@ static void operator_display(const char *message, int id = 0) {
 #pragma GCC diagnostic warning "-Wformat-security"
 
 
+#pragma GCC diagnostic push
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
+#endif
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_error_overloads, operator_error, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_text_overloads, operator_text, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_display_overloads, operator_display, 1,2)
+#pragma GCC diagnostic pop
 
 
 static const char *ini_filename() { return emc_inifile; }
