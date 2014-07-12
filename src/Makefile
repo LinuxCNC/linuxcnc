@@ -847,10 +847,10 @@ endif
 
 	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
 	$(FILE) rtapi/rsyslogd-linuxcnc.conf $(DESTDIR)$(sysconfdir)/rsyslog.d/linuxcnc.conf
-	$(FILE) rtapi/shmdrv/limits.d-linuxcnc.conf \
-		$(DESTDIR)$(sysconfdir)/security/limits.d/linuxcnc.conf
+	$(FILE) rtapi/shmdrv/limits.d-machinekit.conf \
+		$(DESTDIR)$(sysconfdir)/security/limits.d/machinekit.conf
 	$(FILE) rtapi/shmdrv/shmdrv.rules \
-		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-LINUXCNC-shmdrv.rules
+		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-shmdrv.rules
 ifeq ($(BUILD_EMCWEB),yes)
 	$(FILE) ../www/css/images/* $(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images
 	$(FILE) ../www/css/*css $(DESTDIR)$(datadir)/linuxcnc/doc-root/css
