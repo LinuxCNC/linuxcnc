@@ -115,7 +115,7 @@ clean: debian/control debian/substvars
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
-	rm -f debian/machinekit-{rtai,xenomai}-kernel-*.files
+	rm -f debian/machinekit-{rtai,xenomai}-kernel-*.install
 	rm -f debian/{control,rules}
 
 	dh_clean
@@ -145,16 +145,12 @@ endif
 
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
-	-rm debian/machinekit-{rtai,xenomai}-kernel*.files
+	-rm debian/machinekit-{rtai,xenomai}-kernel*.install
 	-rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	# update emcweb.hal
 	sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
-	dh_movefiles
-	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
-		echo "Files exist in debian/tmp, but should not:"; \
-		find debian/tmp -type f; \
-		exit 1; \
-	fi
+
+	dh_install --sourcedir=debian/tmp --fail-missing
 
 # Build architecture-independent files here.
 binary-indep: build install

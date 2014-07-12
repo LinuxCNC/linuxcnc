@@ -1,8 +1,8 @@
 # files generated from debian/configure
 /control
 /rules
-/machinekit-rtai-kernel-*.files
-/machinekit-xenomai-kernel-*.files
+/files
+/machinekit-*-kernel-*.install
 
 # directory artifacts
 /tmp

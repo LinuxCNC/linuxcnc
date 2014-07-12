@@ -108,12 +108,12 @@ do_xenomai_kernel() {
     BUILD_DEPS="${BUILD_DEPS/libxenomai-dev, /}libxenomai-dev, "
     # Headers package is conveniently named after the kver
     BUILD_DEPS+="$(kernel_build_dep ${KVER}), "
-    # Add '...files' and 'control' file with substitutions
-    sed machinekit-kernel.files.in \
+    # Add '...install' and 'control' file with substitutions
+    sed machinekit-kernel.install.in \
 	-e "s/@KVER@/${KVER}/" \
 	-e "s/@FLAVOR@/xenomai-kernel/" \
-	> machinekit-xenomai-kernel-${KVER}.files
-    echo "debian/machinekit-xenomai-kernel-${KVER}.files:  added" >&2
+	> machinekit-xenomai-kernel-${KVER}.install
+    echo "debian/machinekit-xenomai-kernel-${KVER}.install:  added" >&2
     sed control.xenomai-kernel.in \
 	-e "s/@KVER@/$KVER/g" \
 	-e "s/@ARCH@/$(guess_arch_from_kver ${KVER})/g" \
@@ -132,12 +132,12 @@ do_rtai_kernel() {
     BUILD_DEPS="${BUILD_DEPS/librtai-dev, /}librtai-dev, "
     # Headers package is conveniently named after the kver
     BUILD_DEPS+="$(kernel_build_dep ${KVER}), "
-    # Add '...files' and 'control' file with substitutions
-    sed machinekit-kernel.files.in \
+    # Add '...install' and 'control' file with substitutions
+    sed machinekit-kernel.install.in \
 	-e "s/@KVER@/${KVER}/" \
 	-e "s/@FLAVOR@/rtai-kernel/" \
-	> machinekit-rtai-kernel-${KVER}.files
-    echo "debian/machinekit-xenomai-kernel-${KVER}.files:  added" >&2
+	> machinekit-rtai-kernel-${KVER}.install
+    echo "debian/machinekit-xenomai-kernel-${KVER}.install:  added" >&2
     sed control.rtai-kernel.in \
 	-e "s/@KVER@/$KVER/g" \
 	-e "s/@ARCH@/$(guess_arch_from_kver ${KVER})/g" \
@@ -193,7 +193,7 @@ BUILD_DEPS=  # List of Build-Depends
 HAVE_FLAVOR=false
 
 # delete old files
-rm -f machinekit-{rtai,xenomai}-kernel-*.files
+rm -f machinekit-{rtai,xenomai}-kernel-*.install
 
 # copy base templates into place
 cp control.in control
