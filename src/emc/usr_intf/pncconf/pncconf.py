@@ -4680,7 +4680,7 @@ Ok to reset data and start a new configuration?"),False):
                                 "TXE4":TXEN3,"TXEN4":TXEN3,"RXDATA5":RXDATA4,"TXDATA5":TXDATA4,"TXE5":TXEN4,"TXEN4":TXEN4,"RXDATA6":RXDATA5,
                                 "TXDATA6":TXDATA5,"TXE6":TXEN5,"TXEN6":TXEN5,"RXDATA7":RXDATA6,"TXDATA7":TXDATA6,"TXE7":TXEN6,"TXEN7":TXEN6,
                                 "RXDATA8":RXDATA7,"TXDATA8":TXDATA7,"TXE8":TXEN7,"TXEN8":TXEN7}
-            pinconvertnone = {"NOT USED":NUSED}
+            pinconvertnone = {"NOT USED":GPIOI}
             count = 0
             for i,j in enumerate(pins):
                 instance_num = 9999
