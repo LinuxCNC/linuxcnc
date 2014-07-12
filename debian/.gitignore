@@ -2,6 +2,7 @@
 /control
 /rules
 /files
+/configure.cmdline
 /machinekit-*-kernel-*.install
 
 # directory artifacts

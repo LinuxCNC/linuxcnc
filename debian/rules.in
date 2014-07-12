@@ -65,7 +65,14 @@ endif
 
 debian/control: debian/configure
 	@echo rebuilding debian/control
-	bash debian/configure
+#	# if debian/configure has already been run, re-run; else error out
+	if test -f debian/configure.cmdline; then \
+	    bash debian/configure.cmdline; \
+	else \
+	    @echo "Please run debian/configure" \
+	        "to generate the debian/control file."; \
+	    false; \
+	fi
 
 
 build: build-arch build-indep

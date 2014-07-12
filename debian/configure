@@ -10,6 +10,10 @@ KTHREAD_ARCHES="i386 amd64"
 # Work out of the debian/ directory
 cd "$(dirname $0)"
 
+# Put command into a file so that later automatic invocations can
+# re-run
+echo $0 $* > configure.cmdline
+
 rules_enable_threads() {
     # enable thread flavors in debian/rules; e.g.
     #    THREADS_POSIX = --with-posix
