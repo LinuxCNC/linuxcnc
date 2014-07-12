@@ -1844,7 +1844,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%self._
                                 "TXE4":_PD.TXEN3,"TXEN4":_PD.TXEN3,"RXDATA5":_PD.RXDATA4,"TXDATA5":_PD.TXDATA4,"TXE5":_PD.TXEN4,"TXEN4":_PD.TXEN4,"RXDATA6":_PD.RXDATA5,
                                 "TXDATA6":_PD.TXDATA5,"TXE6":_PD.TXEN5,"TXEN6":_PD.TXEN5,"RXDATA7":_PD.RXDATA6,"TXDATA7":_PD.TXDATA6,"TXE7":_PD.TXEN6,"TXEN7":_PD.TXEN6,
                                 "RXDATA8":_PD.RXDATA7,"TXDATA8":_PD.TXDATA7,"TXE8":_PD.TXEN7,"TXEN8":_PD.TXEN7}
-            pinconvertnone = {"NOT USED":_PD.NUSED}
+            pinconvertnone = {"NOT USED":_PD.GPIOI}
             count = 0
             for i,j in enumerate(pins):
                 instance_num = 9999
