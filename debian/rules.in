@@ -157,6 +157,15 @@ endif
 	# update emcweb.hal
 	sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
 
+ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))
+	mkdir -p debian/tmp/etc/udev/rules.d
+	cp src/rtapi/shmdrv/shmdrv.rules \
+	    debian/tmp/etc/udev/rules.d/50-shmdrv.rules
+endif
+	mkdir -p debian/tmp/etc/security/limits.d
+	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
+	    debian/tmp/etc/security/limits.d/machinekit.conf
+
 	dh_install --sourcedir=debian/tmp --fail-missing
 
 # Build architecture-independent files here.
