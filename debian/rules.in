@@ -122,10 +122,8 @@ clean: debian/control debian/substvars
 	cd src && $(MAKE) clean -s
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
-	rm -f debian/machinekit-{rtai,xenomai}-kernel-*.install
-	rm -f debian/{control,rules}
 
-	dh_clean
+	dh_clean debian/machinekit-*-kernel-*.install
 
 install: build
 	dh_testdir
