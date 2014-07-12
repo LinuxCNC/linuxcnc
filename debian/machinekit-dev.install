@@ -1,12 +1,10 @@
 usr/include/linuxcnc/*.hh
 usr/include/linuxcnc/*.h
-usr/include/linuxcnc/userpci/*.hh
 usr/include/linuxcnc/userpci/*.h
 usr/lib/*.a
 usr/lib/*.so
 usr/share/man/man1/comp.1
 usr/share/man/man3/*
 usr/bin/comp
-usr/share/doc/linuxcnc-dev/*
 usr/share/linuxcnc/Makefile.modinc
 usr/share/linuxcnc/Makefile.inc
