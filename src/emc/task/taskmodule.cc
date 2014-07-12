@@ -196,17 +196,15 @@ static  active_settings_array activeSettings_wrapper ( EMC_TASK_STAT & m) {
 static const char *get_file( EMC_TASK_STAT &t) { return t.file; }
 static const char *get_command( EMC_TASK_STAT &t) { return t.command; }
 
-#pragma GCC diagnostic ignored "-Wformat-security"
 static void operator_error(const char *message, int id = 0) {
-    emcOperatorError(id,message);
+    emcOperatorError(id,"%s",message);
 }
 static void operator_text(const char *message, int id = 0) {
-    emcOperatorText(id,message);
+    emcOperatorText(id,"%s",message);
 }
 static void operator_display(const char *message, int id = 0) {
-    emcOperatorDisplay(id,message);
+    emcOperatorDisplay(id,"%s",message);
 }
-#pragma GCC diagnostic warning "-Wformat-security"
 
 
 #pragma GCC diagnostic push
