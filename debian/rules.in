@@ -78,7 +78,7 @@ debian/control: debian/configure
 build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
-build-stamp:
+build-stamp: debian/control
 	dh_testdir
 
 # Add here commands to compile the package.
@@ -123,7 +123,7 @@ clean: debian/control debian/substvars
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
 
-	dh_clean debian/machinekit-*-kernel-*.install
+	dh_clean debian/control debian/machinekit-*-kernel-*.install
 
 install: build
 	dh_testdir
