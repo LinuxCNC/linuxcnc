@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.4"
+_RELEASE = "  1.1.5.5"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1393,6 +1393,11 @@ class gmoccapy(object):
         self.widgets.btn_show_kbd.set_image(self.widgets.img_keyboard)
         self.widgets.btn_run.set_sensitive(True)
 
+        if self.tool_change:
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
+            self.tool_change = False
+
     def on_hal_status_interp_run(self, widget):
         self._add_alarm_entry("run")
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_step", "btn_index_tool",
@@ -2070,11 +2075,6 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MDI)
             self.command.wait_complete()
             self.command.mdi("G43")
-            self.command.wait_complete()
-
-        if self.tool_change:
-            self.tool_change = False
-            self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
 # helpers functions end
