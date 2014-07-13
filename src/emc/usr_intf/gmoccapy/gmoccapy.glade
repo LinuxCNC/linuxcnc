@@ -58,9 +58,9 @@
                                           <object class="HAL_Gremlin" id="gremlin">
                                             <property name="visible">True</property>
                                             <property name="double_buffered">False</property>
+                                            <property name="show_dtg">False</property>
                                             <property name="enable_dro">False</property>
                                             <property name="use_commanded">False</property>
-                                            <property name="show_dtg">False</property>
                                             <signal name="button_press_event" handler="on_gremlin_button_press_event"/>
                                             <signal name="line_clicked" handler="on_gremlin_line_clicked"/>
                                           </object>
@@ -485,8 +485,8 @@
                                       <object class="Combi_DRO" id="Combi_DRO_x">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="abs_color">#00000000ffff</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
@@ -503,10 +503,10 @@
                                       <object class="Combi_DRO" id="Combi_DRO_y">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
-                                        <property name="joint_number">1</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="abs_color">#00000000ffff</property>
+                                        <property name="joint_number">1</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
@@ -520,10 +520,10 @@
                                       <object class="Combi_DRO" id="Combi_DRO_z">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
-                                        <property name="joint_number">2</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="abs_color">#00000000ffff</property>
+                                        <property name="joint_number">2</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
@@ -537,10 +537,10 @@
                                       <object class="Combi_DRO" id="Combi_DRO_4">
                                         <property name="visible">True</property>
                                         <property name="tooltip_text" translatable="yes">Klick to toggle through the DRO modes</property>
-                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="font_size">28</property>
-                                        <property name="joint_number">3</property>
+                                        <property name="unhomed_color">#ffff00000000</property>
                                         <property name="abs_color">#00000000ffff</property>
+                                        <property name="joint_number">3</property>
                                         <property name="homed_color">#0000ffff0000</property>
                                         <property name="dtg_color">#ffffffff0000</property>
                                         <property name="rel_color">#000000000000</property>
@@ -1803,16 +1803,16 @@
                                                             <child>
                                                             <object class="HAL_HBar" id="spindle_feedback_bar">
                                                             <property name="visible">True</property>
+                                                            <property name="z0_border">0.40000000596046448</property>
+                                                            <property name="target_color">#0000ffff0000</property>
+                                                            <property name="z2_color">#0000ffff0000</property>
+                                                            <property name="target_value">-0.039999999105930328</property>
                                                             <property name="z0_color">#0000ffff0000</property>
                                                             <property name="text_template">%i</property>
                                                             <property name="max">6000</property>
-                                                            <property name="z1_color">#0000ffff0000</property>
-                                                            <property name="z0_border">0.40000000596046448</property>
                                                             <property name="bg_color">#bebebebebebe</property>
                                                             <property name="z1_border">0.80000001192092896</property>
-                                                            <property name="z2_color">#0000ffff0000</property>
-                                                            <property name="target_color">#0000ffff0000</property>
-                                                            <property name="target_value">-0.039999999105930328</property>
+                                                            <property name="z1_color">#0000ffff0000</property>
                                                             </object>
                                                             <packing>
                                                             <property name="position">0</property>
@@ -2558,7 +2558,7 @@ Aux Screen</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkVBox" id="vbox_dr">
+                              <object class="GtkVBox" id="vbox_dro_settings">
                                 <property name="visible">True</property>
                                 <child>
                                   <object class="GtkFrame" id="frm_dro">
@@ -2574,7 +2574,7 @@ Aux Screen</property>
                                         <child>
                                           <object class="GtkTable" id="tbl_frm_dro">
                                             <property name="visible">True</property>
-                                            <property name="n_rows">8</property>
+                                            <property name="n_rows">9</property>
                                             <property name="n_columns">2</property>
                                             <property name="row_spacing">3</property>
                                             <child>
@@ -2775,6 +2775,44 @@ Aux Screen</property>
                                                 <property name="bottom_attach">5</property>
                                                 <property name="y_options">GTK_SHRINK</property>
                                                 <property name="y_padding">2</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkHBox" id="hbox_dro_size">
+                                                <property name="visible">True</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="lbl_dro_size">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="xpad">5</property>
+                                                    <property name="ypad">5</property>
+                                                    <property name="label" translatable="yes">Size</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="padding">3</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkSpinButton" id="spbtn_dro_size">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="invisible_char">&#x25CF;</property>
+                                                    <property name="xalign">1</property>
+                                                    <property name="adjustment">adj_dro_size</property>
+                                                    <property name="climb_rate">1</property>
+                                                    <property name="numeric">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="right_attach">2</property>
+                                                <property name="top_attach">8</property>
+                                                <property name="bottom_attach">9</property>
                                               </packing>
                                             </child>
                                           </object>
@@ -3676,90 +3714,93 @@ Aux Screen</property>
                               <object class="GtkHBox" id="hbox_advanced">
                                 <property name="visible">True</property>
                                 <child>
-                                  <object class="GtkFrame" id="frm_tool_change">
+                                  <object class="GtkVBox" id="vbox4">
                                     <property name="visible">True</property>
-                                    <property name="label_xalign">0.5</property>
                                     <child>
-                                      <object class="GtkAlignment" id="ali_tool_change">
+                                      <object class="GtkFrame" id="frm_tool_change">
                                         <property name="visible">True</property>
-                                        <property name="top_padding">5</property>
-                                        <property name="bottom_padding">5</property>
-                                        <property name="left_padding">3</property>
-                                        <property name="right_padding">3</property>
+                                        <property name="label_xalign">0.5</property>
                                         <child>
-                                          <object class="GtkVBox" id="vbox_tool_measurement">
+                                          <object class="GtkAlignment" id="ali_tool_change">
                                             <property name="visible">True</property>
+                                            <property name="top_padding">5</property>
+                                            <property name="bottom_padding">5</property>
+                                            <property name="left_padding">3</property>
+                                            <property name="right_padding">3</property>
                                             <child>
-                                              <object class="GtkCheckButton" id="chk_use_tool_measurement">
-                                                <property name="label" translatable="yes">Use auto tool measurement</property>
+                                              <object class="GtkVBox" id="vbox_tool_measurement">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">True</property>
-                                                <property name="receives_default">False</property>
-                                                <property name="draw_indicator">True</property>
-                                                <signal name="toggled" handler="on_chk_use_tool_measurement_toggled"/>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">0</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkFrame" id="frm_probe_pos">
-                                                <property name="visible">True</property>
-                                                <property name="sensitive">False</property>
-                                                <property name="label_xalign">0.5</property>
                                                 <child>
-                                                  <object class="GtkAlignment" id="ali_probe_pos">
+                                                  <object class="GtkCheckButton" id="chk_use_tool_measurement">
+                                                    <property name="label" translatable="yes">Use auto tool measurement</property>
                                                     <property name="visible">True</property>
-                                                    <property name="top_padding">5</property>
-                                                    <property name="bottom_padding">5</property>
-                                                    <property name="left_padding">3</property>
-                                                    <property name="right_padding">3</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">False</property>
+                                                    <property name="draw_indicator">True</property>
+                                                    <signal name="toggled" handler="on_chk_use_tool_measurement_toggled"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame" id="frm_probe_pos">
+                                                    <property name="visible">True</property>
+                                                    <property name="sensitive">False</property>
+                                                    <property name="label_xalign">0.5</property>
                                                     <child>
-                                                      <object class="GtkTable" id="tbl_probe_pos">
+                                                      <object class="GtkAlignment" id="ali_probe_pos">
                                                         <property name="visible">True</property>
-                                                        <property name="n_rows">5</property>
-                                                        <property name="n_columns">2</property>
+                                                        <property name="top_padding">5</property>
+                                                        <property name="bottom_padding">5</property>
+                                                        <property name="left_padding">3</property>
+                                                        <property name="right_padding">3</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="lbl_pos_x">
+                                                          <object class="GtkTable" id="tbl_probe_pos">
+                                                            <property name="visible">True</property>
+                                                            <property name="n_rows">5</property>
+                                                            <property name="n_columns">2</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_pos_x">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">X Pos.</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_pos_y">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_pos_y">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Y Pos.</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">1</property>
                                                             <property name="bottom_attach">2</property>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_probe_height">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_probe_height">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Probe Height</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">4</property>
                                                             <property name="bottom_attach">5</property>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkSpinButton" id="spbtn_probe_height">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkSpinButton" id="spbtn_probe_height">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="invisible_char">&#x25CF;</property>
@@ -3767,8 +3808,8 @@ Aux Screen</property>
                                                             <property name="adjustment">adj_probe_height</property>
                                                             <property name="digits">3</property>
                                                             <signal name="value_changed" handler="on_spbtn_probe_height_value_changed"/>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="top_attach">4</property>
@@ -3776,28 +3817,28 @@ Aux Screen</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_x_probe">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_x_probe">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_y_probe">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_y_probe">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="top_attach">1</property>
@@ -3805,28 +3846,28 @@ Aux Screen</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_pos_z">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_pos_z">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Z Pos.</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">2</property>
                                                             <property name="bottom_attach">3</property>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_z_probe">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_z_probe">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="top_attach">2</property>
@@ -3834,28 +3875,28 @@ Aux Screen</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_max_probe">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_max_probe">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Max. Probe</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">3</property>
                                                             <property name="bottom_attach">4</property>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_maxprobe">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_maxprobe">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="top_attach">3</property>
@@ -3863,94 +3904,94 @@ Aux Screen</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
+                                                            </packing>
+                                                            </child>
+                                                          </object>
                                                         </child>
                                                       </object>
                                                     </child>
-                                                  </object>
-                                                </child>
-                                                <child type="label">
-                                                  <object class="GtkLabel" id="lbl_frm_probe">
-                                                    <property name="visible">True</property>
-                                                    <property name="label" translatable="yes">&lt;b&gt;Probe Informations&lt;/b&gt;</property>
-                                                    <property name="use_markup">True</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">1</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkFrame" id="frm_probe_vel">
-                                                <property name="visible">True</property>
-                                                <property name="sensitive">False</property>
-                                                <property name="label_xalign">0.5</property>
-                                                <child>
-                                                  <object class="GtkAlignment" id="ali_probe_vel">
-                                                    <property name="visible">True</property>
-                                                    <property name="top_padding">5</property>
-                                                    <property name="bottom_padding">5</property>
-                                                    <property name="left_padding">3</property>
-                                                    <property name="right_padding">3</property>
-                                                    <child>
-                                                      <object class="GtkTable" id="tbl_probe_vel">
+                                                    <child type="label">
+                                                      <object class="GtkLabel" id="lbl_frm_probe">
                                                         <property name="visible">True</property>
-                                                        <property name="n_rows">2</property>
-                                                        <property name="n_columns">2</property>
+                                                        <property name="label" translatable="yes">&lt;b&gt;Probe Informations&lt;/b&gt;</property>
+                                                        <property name="use_markup">True</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkFrame" id="frm_probe_vel">
+                                                    <property name="visible">True</property>
+                                                    <property name="sensitive">False</property>
+                                                    <property name="label_xalign">0.5</property>
+                                                    <child>
+                                                      <object class="GtkAlignment" id="ali_probe_vel">
+                                                        <property name="visible">True</property>
+                                                        <property name="top_padding">5</property>
+                                                        <property name="bottom_padding">5</property>
+                                                        <property name="left_padding">3</property>
+                                                        <property name="right_padding">3</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="lbl_search_vel">
+                                                          <object class="GtkTable" id="tbl_probe_vel">
+                                                            <property name="visible">True</property>
+                                                            <property name="n_rows">2</property>
+                                                            <property name="n_columns">2</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_search_vel">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Search Vel.</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="lbl_latch_vel">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="lbl_latch_vel">
                                                             <property name="visible">True</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Probe Vel.</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">1</property>
                                                             <property name="bottom_attach">2</property>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkSpinButton" id="spbtn_search_vel">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkSpinButton" id="spbtn_search_vel">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="invisible_char">&#x25CF;</property>
                                                             <property name="xalign">1</property>
                                                             <property name="adjustment">adj_search_vel</property>
                                                             <signal name="value_changed" handler="on_spbtn_search_vel_value_changed"/>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkSpinButton" id="spbtn_probe_vel">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkSpinButton" id="spbtn_probe_vel">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="invisible_char">&#x25CF;</property>
                                                             <property name="xalign">1</property>
                                                             <property name="adjustment">adf_probe_vel</property>
                                                             <signal name="value_changed" handler="on_spbtn_probe_vel_value_changed"/>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="top_attach">1</property>
@@ -3958,57 +3999,125 @@ Aux Screen</property>
                                                             <property name="y_options">GTK_SHRINK</property>
                                                             <property name="x_padding">5</property>
                                                             <property name="y_padding">2</property>
-                                                          </packing>
+                                                            </packing>
+                                                            </child>
+                                                          </object>
                                                         </child>
                                                       </object>
                                                     </child>
+                                                    <child type="label">
+                                                      <object class="GtkLabel" id="lbl_frm_probe_vel">
+                                                        <property name="visible">True</property>
+                                                        <property name="label" translatable="yes">&lt;b&gt;Probe velocitys&lt;/b&gt;</property>
+                                                        <property name="use_markup">True</property>
+                                                      </object>
+                                                    </child>
                                                   </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">2</property>
+                                                  </packing>
                                                 </child>
-                                                <child type="label">
-                                                  <object class="GtkLabel" id="lbl_frm_probe_vel">
+                                                <child>
+                                                  <object class="GtkLabel" id="lbl_tool_measurement">
                                                     <property name="visible">True</property>
-                                                    <property name="label" translatable="yes">&lt;b&gt;Probe velocitys&lt;/b&gt;</property>
-                                                    <property name="use_markup">True</property>
-                                                  </object>
-                                                </child>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">2</property>
-                                              </packing>
-                                            </child>
-                                            <child>
-                                              <object class="GtkLabel" id="lbl_tool_measurement">
-                                                <property name="visible">True</property>
-                                                <property name="label" translatable="yes">No valid configuration 
+                                                    <property name="label" translatable="yes">No valid configuration
 found in your INI file,
 please take a look at 
 the WIKI to check how
 to configure the settings.</property>
-                                                <property name="wrap">True</property>
+                                                    <property name="wrap">True</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">3</property>
+                                                  </packing>
+                                                </child>
                                               </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">3</property>
-                                              </packing>
                                             </child>
                                           </object>
                                         </child>
+                                        <child type="label">
+                                          <object class="GtkLabel" id="lbl_frm_tool_measur">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Tool Measurement&lt;/b&gt;</property>
+                                            <property name="use_markup">True</property>
+                                          </object>
+                                        </child>
                                       </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
                                     </child>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="lbl_frm_tool_measur">
+                                    <child>
+                                      <object class="GtkFrame" id="frm_tool_changer">
                                         <property name="visible">True</property>
-                                        <property name="label" translatable="yes">&lt;b&gt;Tool Measurement&lt;/b&gt;</property>
-                                        <property name="use_markup">True</property>
+                                        <property name="label_xalign">0.5</property>
+                                        <child>
+                                          <object class="GtkAlignment" id="ali_tool_changer">
+                                            <property name="visible">True</property>
+                                            <property name="top_padding">5</property>
+                                            <property name="bottom_padding">5</property>
+                                            <property name="left_padding">3</property>
+                                            <property name="right_padding">3</property>
+                                            <child>
+                                              <object class="GtkVBox" id="vbox_hide_axis_4">
+                                                <property name="visible">True</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="lbl_hide_axis_4">
+                                                    <property name="visible">True</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="label" translatable="yes">If the 4'th axis is used
+for a tool changer, you
+may hide the DRO and
+jog buttons.</property>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkCheckButton" id="chk_hide_axis_4">
+                                                    <property name="label" translatable="yes">Hide 4'th axis</property>
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">False</property>
+                                                    <property name="draw_indicator">True</property>
+                                                    <signal name="toggled" handler="on_chk_hide_axis_4_toggled"/>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="fill">False</property>
+                                                    <property name="padding">10</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                            </child>
+                                          </object>
+                                        </child>
+                                        <child type="label">
+                                          <object class="GtkLabel" id="lbl:frm_tool_changer">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Tool Changer&lt;/b&gt;</property>
+                                            <property name="use_markup">True</property>
+                                          </object>
+                                        </child>
                                       </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="padding">5</property>
+                                        <property name="position">1</property>
+                                      </packing>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">False</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -6808,5 +6917,12 @@ selected</property>
         <col id="1" translatable="yes">left rotate,  middle zoom,  right move</col>
       </row>
     </data>
+  </object>
+  <object class="GtkAdjustment" id="adj_dro_size">
+    <property name="value">28</property>
+    <property name="lower">20</property>
+    <property name="upper">56</property>
+    <property name="step_increment">1</property>
+    <signal name="value_changed" handler="on_adj_dro_size_value_changed"/>
   </object>
 </interface>
