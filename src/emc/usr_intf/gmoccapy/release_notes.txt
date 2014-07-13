@@ -1,3 +1,9 @@
+ver. 1.1.5.5
+- if using remap, an error has been launched, if the user used the buttons of 
+  the tool edit widget to change the tools (not posible to change to auto mode)
+  I moved the resting procedure of self.tool_change to hal_status_intp_idle
+  to solve the wrong behavior
+
 ver. 1.1.5.4
 - solved a bug showing screen2 at start up. Screen2 was initialized to early
   resulting in a runtime error
