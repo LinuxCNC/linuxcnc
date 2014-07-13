@@ -1,3 +1,46 @@
+ver. 1.1.5.5
+- if using remap, an error has been launched, if the user used the buttons of 
+  the tool edit widget to change the tools (not posible to change to auto mode)
+  I moved the resting procedure of self.tool_change to hal_status_intp_idle
+  to solve the wrong behavior
+
+ver. 1.1.5.4
+- solved a bug showing screen2 at start up. Screen2 was initialized to early
+  resulting in a runtime error
+
+ver. 1.1.5.3
+- solved a bug if the user have NO_FORCE_HOMING in his INI and did a homing
+  of an axis, resulting in some widgets being unsensitive.
+  Thanks to Marius for reportinmg that one
+- after a tool touch off no G43 was commited even if that code was active 
+  so I added that command to be executed
+  Thanks to Rene to report that one
+- some minor changes to lathe.ini, having HOME two times in the AXIS config
+
+ver. 1.1.5.2
+- solved a bug, on clear G92 offsets handling, switching the GUI to MDI Mode,
+  due to a strange behavior of the offsetpage widget, not going back to the 
+  previous mode.
+
+ver. 1.1.5.1
+- solved a bug related to the gmoccapy error pin. This pin has not been reseted
+  if the user used the mouse or touch screen and errased the message by clicking
+  the message button. It was only done right if the delete-message pin was used.
+  I modified notification.py to emit a signal if a message has been deleted and 
+  conected this signal to gmoccapy. 
+- corrected also a small mistake in _show_errors, it was posible to get messages
+  without text, added a default text. 
+
+ver. 1.1.5
+- added a option to hide the 4'th axis, this is useful if that axis is used
+  to control a tool changer, as than the axis DRO and jog button are not needed.
+  This has to be activated on the settings page, axis 4 is shown by default.
+  This needed some code rework (moving code around)
+- solved the problem of pin_value changes on start up / initializing, because I
+  introduced a new intern variable self.initialized, leaving defs if not True
+- introduced a adjustment widget on the settings page to allow the user to set
+  the font size of the DRO, it will be reduced by 3/4 if 4 axis are used
+
 ver. 1.1.4
 - added again the gcode.lang file, it got lost, after changing gmoccapy to be
   stand alone
