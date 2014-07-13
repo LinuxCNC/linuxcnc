@@ -1,3 +1,11 @@
+ver. 1.1.5.6
+- introduced three new hal-pin to signal program progress informations
+  gmoccapy.program.length = S32, OUT (total number of program lines)
+  gmoccapy.program.current-line =S32, OUT (current executed line)
+  gmoccapy.program.progress = FLOAT, OUT (progress in %)
+
+  This pin do not work very perfect when using subroutines or remap procedures
+
 ver. 1.1.5.5
 - if using remap, an error has been launched, if the user used the buttons of 
   the tool edit widget to change the tools (not posible to change to auto mode)

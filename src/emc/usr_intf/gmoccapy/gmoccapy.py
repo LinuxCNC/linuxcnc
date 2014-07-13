@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.5"
+_RELEASE = "  1.1.5.6"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -1363,12 +1363,22 @@ class gmoccapy(object):
 
     def on_hal_status_file_loaded(self, widget, filename):
         self._add_alarm_entry("file_loaded_%s" % filename)
+        fileobject = file(filename, 'r')
+        lines = fileobject.readlines()
+        fileobject.close()
+        self.halcomp["program.length"] = len(lines)
+
         if len(filename) > 50:
             filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
         self.widgets.lbl_program.set_text(filename)
         widgetlist = ["btn_use_current"
                      ]
         self._sensitize_widgets(widgetlist, True)
+
+    def on_hal_status_line_changed(self, widget, line):
+        self.halcomp["program.current-line"] = line
+        self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
+        # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
         self._add_alarm_entry("idle")
@@ -1397,6 +1407,9 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.tool_change = False
+
+        self.halcomp["program.current-line"] = 0
+        self.halcomp["program.progress"] = 0.0
 
     def on_hal_status_interp_run(self, widget):
         self._add_alarm_entry("run")
@@ -3848,8 +3861,13 @@ class gmoccapy(object):
         self.pin_res_spindle = hal_glib.GPin(self.halcomp.newpin("reset-spindle-override", hal.HAL_BIT, hal.HAL_IN))
         self.pin_res_spindle.connect("value_changed", self._reset_overide, "spindle")
 
-        # make an error pin to indiocate a error to hardware
+        # make an error pin to indicate a error to hardware
         self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+
+        # make pins to indicate program progress information
+        self.halcomp.newpin("program.length", hal.HAL_S32, hal.HAL_OUT)
+        self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.HAL_OUT)
+        self.halcomp.newpin("program.progress", hal.HAL_FLOAT, hal.HAL_OUT)
 
 # Hal Pin Handling End
 # =========================================================
