@@ -5173,6 +5173,7 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->v_flag) tool_offset.v = block->v_number;
     if(block->w_flag) tool_offset.w = block->w_number;
   } else if (g_code == G_43_2) {
+    CHKS((!block->h_flag), (_("G43.2: H-word missing")));
     CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
     tool_offset = settings->tool_offset;
     tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
