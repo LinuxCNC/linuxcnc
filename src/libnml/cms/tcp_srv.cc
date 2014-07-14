@@ -17,6 +17,10 @@
 *  which provides TCP specific overrides of the CMS_SERVER_REMOTE_PORT class.
 ****************************************************************************/
 
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 4)))
+#pragma GCC optimize "-fno-strict-aliasing"
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
