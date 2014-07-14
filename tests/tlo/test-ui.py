@@ -6,6 +6,7 @@ import hal
 import time
 import sys
 import os
+import math
 
 
 # this is how long we wait for linuxcnc to do our bidding
@@ -210,7 +211,7 @@ def get_interp_param(param_number):
 def verify_interp_param(param_number, expected_value):
     param_value = get_interp_param(param_number)
     print "interp param #%d = %f (expecting %f)" % (param_number, param_value, expected_value)
-    if param_value != expected_value:
+    if math.fabs(param_value - expected_value) > 0.000001:
         print "ERROR: interp param #%d = %f, expected %f" % (param_number, param_value, expected_value)
         sys.exit(1)
 
