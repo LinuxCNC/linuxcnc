@@ -137,15 +137,13 @@ install: build
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
 ifdef BUILDDOCS
-	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
-	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
-		debian/tmp/usr/share/doc/linuxcnc-dev/
 	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
 else
-	rm debian/tmp/usr/share/applications/linuxcnc-user*
-	rm debian/tmp/usr/share/applications/linuxcnc-hal*
-	rm debian/tmp/usr/share/applications/linuxcnc-inte*
-	rm debian/tmp/usr/share/applications/linuxcnc-get*
+	rm debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
+	rm debian/tmp/usr/share/applications/linuxcnc-halmanual*.desktop
+	rm debian/tmp/usr/share/applications/linuxcnc-integratormanual*.desktop
+	rm debian/tmp/usr/share/applications/linuxcnc-gettingstarted*.desktop
+	rm debian/tmp/usr/share/applications/linuxcnc-developer*.desktop
 endif
 
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
