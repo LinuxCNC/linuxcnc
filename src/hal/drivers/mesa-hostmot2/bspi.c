@@ -34,7 +34,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     // some standard sanity checks
     //
     
-    int i, j, r;
+    int i, j, r = -EINVAL;
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     
     if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 3, 0x40, 0x0007)) {
@@ -100,7 +100,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     }
     return hm2->bspi.num_instances;
 fail0:
-    return 0;
+    return r;
 }
 
 void hm2_bspi_force_write(hostmot2_t *hm2)
