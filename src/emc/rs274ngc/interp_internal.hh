@@ -189,6 +189,7 @@ enum SPINDLE_MODE { CONSTANT_RPM, CONSTANT_SURFACE };
 #define G_42_1 421
 #define G_43   430
 #define G_43_1 431
+#define G_43_2 432
 #define G_49   490
 #define G_50   500
 #define G_51   510
@@ -541,6 +542,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define G_MODE_OK(m) (m == 1)
 
 typedef struct context_struct {
+    context_struct();
     long position;       // location (ftell) in file
     int sequence_number; // location (line number) in file
     const char *filename;      // name of file for this context

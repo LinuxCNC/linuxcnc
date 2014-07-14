@@ -2479,4 +2479,13 @@ const char *strstore(const char *s)
     return string(*pair.first).c_str();
 }
 
-
+context_struct::context_struct()
+: position(0), sequence_number(0), filename(""), subName(""),
+context_status(0), call_type(0), py_return_type(0), py_returned_double(0),
+py_returned_int(0)
+{
+    memset(saved_params, 0, sizeof(saved_params));
+    memset(saved_g_codes, 0, sizeof(saved_g_codes));
+    memset(saved_m_codes, 0, sizeof(saved_m_codes));
+    memset(saved_settings, 0, sizeof(saved_settings));
+}

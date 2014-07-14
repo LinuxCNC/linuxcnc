@@ -196,22 +196,25 @@ static  active_settings_array activeSettings_wrapper ( EMC_TASK_STAT & m) {
 static const char *get_file( EMC_TASK_STAT &t) { return t.file; }
 static const char *get_command( EMC_TASK_STAT &t) { return t.command; }
 
-#pragma GCC diagnostic ignored "-Wformat-security"
 static void operator_error(const char *message, int id = 0) {
-    emcOperatorError(id,message);
+    emcOperatorError(id,"%s",message);
 }
 static void operator_text(const char *message, int id = 0) {
-    emcOperatorText(id,message);
+    emcOperatorText(id,"%s",message);
 }
 static void operator_display(const char *message, int id = 0) {
-    emcOperatorDisplay(id,message);
+    emcOperatorDisplay(id,"%s",message);
 }
-#pragma GCC diagnostic warning "-Wformat-security"
 
 
+#pragma GCC diagnostic push
+#if defined(__GNUC__) && ((__GNUC__ > 4) || ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)))
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
+#endif
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_error_overloads, operator_error, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_text_overloads, operator_text, 1,2)
 BOOST_PYTHON_FUNCTION_OVERLOADS(operator_display_overloads, operator_display, 1,2)
+#pragma GCC diagnostic pop
 
 
 static const char *ini_filename() { return emc_inifile; }

@@ -93,11 +93,12 @@ Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr.
 La commande 'net' crée une 'connexion' entre un signal et une ou plusieurs pins.
 Si le signal n'existe pas, net le crée. Les flèches de direction '<=', '=>' et
 '<=>' sont seulement là pour aider à la lecture de la logique, ils ne sont pas
-utilisés par la commande net.
+utilisés par la commande net. Un espace doit séparer les flèches de direction 
+des noms de pin.
 
 .Syntaxe et exemple:
 ----
-net signal-name pin-name <direction optionnelle> <second pin-name optionnel>
+net signal-name pin-name <direction optionnelle> (<second pin-name optionnel>)
 
 net home-x axis.0.home-sw-in <= parport.0.pin-11-in
 ----
@@ -105,8 +106,8 @@ net home-x axis.0.home-sw-in <= parport.0.pin-11-in
 Dans l'exemple ci-dessus, 'home-x' est le nom du signal, 'axis.0.home-sw-in' est
 une pin de direction IN, '<=' est une flèche de direction optionnelle et
 'parport.0.pin-11-in' est une pin de direction OUT. Cela peut paraître déroutant
-mais les labels in et out pour une broche de port parallèle indiquent la
-direction physique dans laquelle travaille la broche mais non comment elle est
+mais les labels in et out, pour une broche de port parallèle, indiquent la
+direction physique dans laquelle travaille la broche et non comment elle est
 traitée dans HAL.
 
 Une pin peut être connectée à un signal si elle obéit aux règles suivantes:
