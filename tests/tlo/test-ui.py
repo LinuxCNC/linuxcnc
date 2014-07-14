@@ -408,7 +408,61 @@ verify_tool(
     back_angle=0
 )
 
+print "*** now let's try it rotated.  first, just rotate but don't change the tlo"
 
+e.g('g10 l2 p1 r33')
+
+verify_tool(
+    tool=100,
+    x=-2.224 * math.cos(math.radians(33)), y=2.224 * math.sin(math.radians(33)), z=-1.112,
+    a=0, b=0, c=0,
+    u=0, v=0, w=0,
+    diameter=0.125,
+    front_angle=0,
+    back_angle=0
+)
+
+print "*** clear tlo"
+
+e.g('g49')
+
+verify_tool(
+    tool=100,
+    x=-0, y=0, z=0,
+    a=0, b=0, c=0,
+    u=0, v=0, w=0,
+    diameter=0.125,
+    front_angle=0,
+    back_angle=0
+)
+
+print "*** apply t100"
+
+e.g('g43 h100')
+
+verify_tool(
+    tool=100,
+    x=-2*math.cos(math.radians(33)), y=2*math.sin(math.radians(33)), z=-1,
+    a=0, b=0, c=0,
+    u=0, v=0, w=0,
+    diameter=0.125,
+    front_angle=0,
+    back_angle=0
+)
+
+print "*** add in t200"
+
+e.g('g43.2 h200')
+
+verify_tool(
+    tool=100,
+    x=-2.2*math.cos(math.radians(33)), y=2.2*math.sin(math.radians(33)), z=-1.1,
+    a=0, b=0, c=0,
+    u=0, v=0, w=0,
+    diameter=0.125,
+    front_angle=0,
+    back_angle=0
+)
 
 
 
