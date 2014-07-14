@@ -773,8 +773,8 @@ typedef struct {
     u32 register_stride;
     u32 instance_stride;
     char name[HAL_NAME_LEN+1];
-    void *read_function;
-    void *write_function;
+    int (*read_function)(void*);
+    int (*write_function)(void*);
     void *subdata;
 } hm2_bspi_instance_t;
 
@@ -1234,8 +1234,8 @@ int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz, 
                         int delay, int cpol, int cpha, int clear, int echo);
-int hm2_bspi_set_read_function(char *name, void *func, void *subdata);
-int hm2_bspi_set_write_function(char *name, void *func, void *subdata);
+int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
+int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
 //
 // UART functions

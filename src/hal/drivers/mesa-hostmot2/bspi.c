@@ -274,7 +274,7 @@ void hm2_bspi_print_module(hostmot2_t *hm2){
 }
 
 EXPORT_SYMBOL_GPL(hm2_bspi_set_read_function);
-int hm2_bspi_set_read_function(char *name, void *func, void *subdata){
+int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata){
     hostmot2_t *hm2;
     int i;
     i = hm2_get_bspi(&hm2, name);
@@ -298,7 +298,7 @@ int hm2_bspi_set_read_function(char *name, void *func, void *subdata){
 }
 
 EXPORT_SYMBOL_GPL(hm2_bspi_set_write_function);
-int hm2_bspi_set_write_function(char *name, void *func, void *subdata){
+int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata){
     hostmot2_t *hm2;
     int i;
     i = hm2_get_bspi(&hm2, name);
