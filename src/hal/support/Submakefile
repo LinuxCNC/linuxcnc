@@ -1,4 +1,4 @@
-ifeq ($(TARGET_PLATFORM),beaglebone)
+ifdef TARGET_PLATFORM_BEAGLEBONE
 
 # support for ARM335x PRU (Programmable Realtime Unit) components and
 SUPPORT_DIR := hal/support
