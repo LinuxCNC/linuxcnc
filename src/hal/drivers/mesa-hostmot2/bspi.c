@@ -330,6 +330,9 @@ void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period)
         func = hm2->bspi.instance[i].read_function;
         if (func != NULL){
             r = func(hm2->bspi.instance[i].subdata);
+            if(r < 0)
+                HM2_ERR("BSPI read function @%p failed (returned %d)\n",
+                        func, r);
         }
     }
 }
@@ -342,6 +345,9 @@ void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period)
         func = hm2->bspi.instance[i].write_function;
         if (func != NULL){
             r = func(hm2->bspi.instance[i].subdata);
+            if(r < 0)
+                HM2_ERR("BSPI read function @%p failed (returned %d)\n",
+                        func, r);
         }
     }
 }
