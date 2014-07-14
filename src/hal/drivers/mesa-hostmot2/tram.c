@@ -139,9 +139,7 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
 int hm2_tram_read(hostmot2_t *hm2) {
     static u32 tram_read_iteration = 0;
     struct list_head *ptr;
-    u16 offset;
 
-    offset = 0;
     list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
 
