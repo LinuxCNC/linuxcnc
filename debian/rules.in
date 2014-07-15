@@ -132,7 +132,7 @@ install: build
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
-	-(cd debian/extras && cp -a * ../tmp)
+	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
 	cp lib/*.a debian/tmp/usr/lib
@@ -148,8 +148,7 @@ endif
 
 	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
-	-rm debian/machinekit-{rtai,xenomai}-kernel*.install
-	-rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
+	rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	# update emcweb.hal
 	sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
 
