@@ -1,0 +1,9 @@
+#!/bin/bash
+#                                                       -*-shell-script-*-
+
+# Skip the hm2-idrom test if not running kernel threads and the
+# hostmot2.so module doesn't exist for this flavor
+
+echo $EMC2_HOME/rtlib/$(flavor)/hostmot2.so
+ls -l $EMC2_HOME/rtlib/$(flavor)/hostmot2.so
+test "$(flavor -b)" = kbuild -o -f $EMC2_HOME/rtlib/$(flavor)/hostmot2.so
