@@ -5110,7 +5110,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
             if self.d.mesa0_numof_sserialports:
-                for i in range(1,9):
+                for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa0_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
                         if "m1" in self.d["mesa0sserial0_%dsubboard"% (i-1)]:
@@ -5121,7 +5121,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                         temp = temp + "x"
                 ssconfig0 = " sserial_port_0=%s"% temp
             if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
-                for i in range(1,9):
+                for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa1_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
                         if "m1" in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
