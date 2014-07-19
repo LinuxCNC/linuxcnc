@@ -1,3 +1,9 @@
+ver. 1.1.5.7
+- init dynamic tab now in try except to avoid python exception
+  on user typos in ini file
+- loading a tool using remap, leaded to an error if no file has been 
+  loaded before the change, we do check for that now to avoid the error
+
 ver. 1.1.5.6
 - introduced three new hal-pin to signal program progress informations
   gmoccapy.program.length = S32, OUT (total number of program lines)

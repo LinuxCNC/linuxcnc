@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.6"
+_RELEASE = "  1.1.5.7"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -888,14 +888,17 @@ class gmoccapy(object):
             print (_("**** No tabs will be added! ****"))
             return
 
-        for t, c , name in zip(tab_names, tab_cmd, tab_location):
-            nb = self.widgets[name]
-            xid = self._dynamic_tab(nb, t)
-            if not xid: continue
-            cmd = c.replace('{XID}', str(xid))
-            child = subprocess.Popen(cmd.split())
-            self._dynamic_childs[xid] = child
-            nb.show_all()
+        try:
+            for t, c , name in zip(tab_names, tab_cmd, tab_location):
+                nb = self.widgets[name]
+                xid = self._dynamic_tab(nb, t)
+                if not xid: continue
+                cmd = c.replace('{XID}', str(xid))
+                child = subprocess.Popen(cmd.split())
+                self._dynamic_childs[xid] = child
+                nb.show_all()
+        except:
+            print(_("ERROR, trying to initialize the user tabs or panaels, check for typos"))
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
@@ -1362,22 +1365,32 @@ class gmoccapy(object):
         if self.log:self._add_alarm_entry(_("Axis %s are homed") % "XYZABCUVW"[int(data[0])])
 
     def on_hal_status_file_loaded(self, widget, filename):
-        self._add_alarm_entry("file_loaded_%s" % filename)
-        fileobject = file(filename, 'r')
-        lines = fileobject.readlines()
-        fileobject.close()
-        self.halcomp["program.length"] = len(lines)
-
-        if len(filename) > 50:
-            filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
-        self.widgets.lbl_program.set_text(filename)
+        if self.log:self._add_alarm_entry("loaded file %s" % filename)
         widgetlist = ["btn_use_current"
                      ]
-        self._sensitize_widgets(widgetlist, True)
+        # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
+        if filename:
+            fileobject = file(filename, 'r')
+            lines = fileobject.readlines()
+            fileobject.close()
+            self.halcomp["program.length"] = len(lines)
+
+            if len(filename) > 50:
+                filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
+            self.widgets.lbl_program.set_text(filename)
+            self._sensitize_widgets(widgetlist, True)
+        else:
+            self.halcomp["program.length"] = 0
+            self._sensitize_widgets(widgetlist, False)
+            self.widgets.lbl_program.set_text(_("No file loaded"))
 
     def on_hal_status_line_changed(self, widget, line):
         self.halcomp["program.current-line"] = line
-        self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
+        # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
+        if self.halcomp["program.length"] > 0:
+            self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
+        else:
+            self.halcomp["program.progress"] = 0.0
         # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
