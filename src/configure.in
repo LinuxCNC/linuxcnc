@@ -1143,7 +1143,6 @@ test -z "$xenomai_kernels" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
 if test $with_xenomai_kernel = yes; then
      BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai-kernel"
-     XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS=`pwd`/rtapi/xeno_math/Module.symvers
 fi
 AC_MSG_RESULT($with_xenomai_kernel)
 
@@ -1244,19 +1243,27 @@ if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
     RTAI_KERNEL_THREADS_RTDIR=$(readlink -f \
 	$($RTAI_KERNEL_THREADS_RTS --module-dir))
 fi
-
-AC_MSG_CHECKING(whether to build RTAI threads)    
+AC_MSG_CHECKING(whether to build RTAI threads)
 test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
 test -z "$rtai_kernels" && with_rtai_kernel=no
+
+# Check the RTAI Module.symvers file
+if test $with_rtai_kernel != no; then
+    RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=`$RTAI_KERNEL_THREADS_RTS \
+	--module-dir`/Module.symvers
+    if ! test -f "${RTAI_KERNEL_THREADS_EXTRA_SYMBOLS}"; then
+	if test "$with_rtai_kernel" = check; then
+	    with_rtai_kernel=no
+	else
+	    AC_MSG_ERROR([RTAI build requested but no Module.symvers found])
+	fi
+    fi
+fi
 test "$with_rtai_kernel" = check && with_rtai_kernel=yes
 if test $with_rtai_kernel = yes; then
-     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
-     RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=`$RTAI_KERNEL_THREADS_RTS \
-	--module-dir`/Module.symvers
+    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
 fi
 AC_MSG_RESULT($with_rtai_kernel)
-
-
 ##############################################################################
 # Subsection 2.6                                                             #
 # Hardware driver detection                                                  #
