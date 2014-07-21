@@ -85,8 +85,10 @@ ifeq ($(KERNELRELEASE),)
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
-ifneq ($(BUILD_SYS),sim)
+ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `stat -c %u ../bin/linuxcnc_module_helper` -eq 0 -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
+else
+	@if [ -f ../bin/rtapi_app ]; then if ! [ `stat -c %u ../bin/rtapi_app` -eq 0 -a -u ../bin/rtapi_app ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place with access to hardware."; fi; fi
 endif
 endif
 
@@ -122,7 +124,6 @@ SUBDIRS := \
     po \
     \
     ../docs/src \
-    hal/simdrivers
 
 
 
@@ -353,11 +354,21 @@ HEADERS := \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_bitops.h \
+    rtapi/rtapi_bool.h \
     rtapi/rtapi_byteorder.h \
+    rtapi/rtapi_device.h \
+    rtapi/rtapi_firmware.h \
+    rtapi/rtapi_gfp.h \
+    rtapi/rtapi_io.h \
     rtapi/rtapi_limits.h \
+    rtapi/rtapi_list.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
     rtapi/rtapi_math64.h \
+    rtapi/rtapi_parport.h \
+    rtapi/rtapi_pci.h \
+    rtapi/rtapi_slab.h \
+    rtapi/rtapi_stdint.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
@@ -462,11 +473,11 @@ clean: depclean modclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
-ifeq ($(BUILD_SYS),sim)
 setuid:
-	@echo "'make setuid' is not needed for the simulator"
+ifeq ($(BUILD_SYS),uspace)
+	chown root ../bin/rtapi_app
+	chmod 4750 ../bin/rtapi_app
 else
-setuid:
 	chown root ../bin/linuxcnc_module_helper
 	chmod 4750 ../bin/linuxcnc_module_helper
 	chown root ../bin/pci_write
@@ -570,7 +581,7 @@ install-kernel-indep: install-dirs
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
-	$(EXE) $(filter-out ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
+	$(EXE) $(filter-out ../bin/rtapi_app ../bin/linuxcnc_module_helper ../bin/pci_write ../bin/pci_read ../bin/test_rtapi_vsnprintf, $(filter ../bin/%,$(TARGETS))) $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc_info $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc_var $(DESTDIR)$(bindir)
@@ -666,11 +677,13 @@ install-kernel-dep:
 		$(DESTDIR)$(bindir) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc
 	$(FILE) ../rtlib/*$(MODULE_EXT) $(DESTDIR)$(EMC2_RTLIB_DIR)
-ifneq "$(BUILD_SYS)" "sim"
+ifneq "$(BUILD_SYS)" "uspace"
 	$(FILE) Module.symvers $(DESTDIR)$(EMC2_RTLIB_DIR)
 	$(SETUID) ../bin/linuxcnc_module_helper $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_write $(DESTDIR)$(bindir)
 	$(SETUID) ../bin/pci_read $(DESTDIR)$(bindir)
+else
+	$(SETUID) ../bin/rtapi_app $(DESTDIR)$(bindir)
 endif
 	$(FILE) ../scripts/rtapi.conf $(DESTDIR)$(sysconfdir)/linuxcnc
 endif # RUN_IN_PLACE
@@ -772,7 +785,7 @@ endif
 # find a way around it.
 
 # Subdirectory:  rtapi
-ifneq ($(BUILD_SYS),sim)
+ifneq ($(BUILD_SYS),uspace)
 obj-$(CONFIG_RTAPI) += rtapi.o
 rtapi-objs := rtapi/$(RTPREFIX)_rtapi.o
 endif
@@ -824,9 +837,9 @@ obj-$(CONFIG_SAMPLER) += sampler.o
 sampler-objs := hal/components/sampler.o $(MATHSTUB)
 
 # Subdirectory: hal/drivers
-ifneq ($(BUILD_SYS),sim)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
+ifneq ($(BUILD_SYS),uspace)
 obj-$(CONFIG_PCI_8255) += pci_8255.o
 pci_8255-objs := hal/drivers/pci_8255.o
 obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
@@ -851,8 +864,9 @@ obj-$(CONFIG_OPTO_AC5) += opto_ac5.o
 opto_ac5-objs := hal/drivers/opto_ac5.o $(MATHSTUB)
 obj-$(CONFIG_HAL_GM) += hal_gm.o
 hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
+endif
 
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o setsserial.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
@@ -894,6 +908,7 @@ setsserial-objs :=			  \
     hal/drivers/mesa-hostmot2/setsserial.o  \
     $(MATHSTUB)
 
+ifneq ($(BUILD_SYS),uspace)
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 endif
@@ -976,7 +991,7 @@ motmod-objs += libnml/posemath/_posemath.o
 motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
-ifeq ($(BUILD_SYS),sim)
+ifeq ($(BUILD_SYS),uspace)
 EXTRA_CFLAGS += -fPIC -Os
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
@@ -991,12 +1006,15 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 	@if ! $(IS_POWERPC); then objcopy -G __x86.get_pc_thunk.bx -G __i686.get_pc_thunk.bx `xargs -r0n1 echo -G < objects/$*.exp | grep -ve '^-G $$' | sort -u` objects/$*.tmp; fi
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -o $@ objects/$*.tmp -lm
 
+RTFLAGS += $(call cc-option, -fno-strict-aliasing)
+RTFLAGS += $(call cc-option, -fwrapv, $(call cc-option, -fno-strict-overflow))
+
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
-	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DSIM -DSIMULATOR -DRTAPI $(EXTRA_CFLAGS) \
+	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DRTAPI $(EXTRA_CFLAGS) \
 		-MP -MD -MF "${@:.o=.d}" -MT "$@" \
 		$< -o $@
 endif
@@ -1020,8 +1038,8 @@ $(sort $(RTOBJS)) : objects/rt%.o : %.c
 	$(Q)ld -r -static -S $(LDFLAGS) -o $@ $^ $(EXTRALINK) $(MATHLIB)
 endif
 
-ifneq "$(filter normal sim,$(BUILD_SYS))" ""
-ifneq "$(BUILD_SYS)" "sim"
+ifneq "$(filter normal uspace,$(BUILD_SYS))" ""
+ifneq "$(BUILD_SYS)" "uspace"
 ../rtlib/rtapi$(MODULE_EXT): $(addprefix objects/rt,$(rtapi-objs))
 endif
 ../rtlib/classicladder_rt$(MODULE_EXT): $(addprefix objects/rt,$(classicladder_rt-objs))
@@ -1073,6 +1091,13 @@ endif
 ../rtlib/pumakins$(MODULE_EXT): $(addprefix objects/rt,$(pumakins-objs))
 ../rtlib/scarakins$(MODULE_EXT): $(addprefix objects/rt,$(scarakins-objs))
 ../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
+../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
+../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs))
+../rtlib/hm2_pci$(MODULE_EXT): $(addprefix objects/rt,$(hm2_pci-objs))
+../rtlib/hm2_7i43$(MODULE_EXT): $(addprefix objects/rt,$(hm2_7i43-objs))
+../rtlib/hm2_7i90$(MODULE_EXT): $(addprefix objects/rt,$(hm2_7i90-objs))
+../rtlib/setsserial$(MODULE_EXT): $(addprefix objects/rt,$(setsserial-objs))
+../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))

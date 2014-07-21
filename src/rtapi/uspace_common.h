@@ -16,6 +16,8 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
+#include <sys/utsname.h>
+#include <string.h>
 
 static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
@@ -64,11 +66,32 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget()\n");
     return -errno;
   }
+
+  struct shmid_ds stat;
+  int res = shmctl(shmem->id, IPC_STAT, &stat);
+  if(res < 0) perror("shmctl IPC_STAT");
+
+  if(geteuid() == 0 && getuid() != 0) {
+    stat.shm_perm.uid = getuid();
+  }
+
+  stat.shm_perm.mode |= SHM_LOCKED;
+  res = shmctl(shmem->id, IPC_SET, &stat);
+  if(res < 0) perror("shmctl IPC_SET");
+
   /* and map it into process space */
   shmem->mem = shmat(shmem->id, 0, 0);
   if ((ssize_t) (shmem->mem) == -1) {
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmat()\n");
     return -errno;
+  }
+
+  long pagesize = sysconf(_SC_PAGESIZE);
+  /* touch every page */
+  for(size_t off = 0; off < size; off += pagesize)
+  {
+      volatile char i = ((char*)shmem->mem)[off];
+      (void)i;
   }
 
   /* label as a valid shmem structure */
@@ -199,14 +222,14 @@ int rtapi_set_msg_level(int level) {
     return 0;
 }
 
-int rtapi_get_msg_level() { 
+int rtapi_get_msg_level() {
     return msg_level;
 }
 
 long long rtapi_get_time(void) {
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return tv.tv_sec * 1000000000LL + tv.tv_usec * 1000;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
 #ifdef MSR_H_USABLE
@@ -229,7 +252,7 @@ long long rtapi_get_clocks(void)
     long long int retval;
 
     rdtscll(retval);
-    return retval;    
+    return retval;
 }
 
 typedef struct {
@@ -280,3 +303,33 @@ int rtapi_exit(int module_id)
   /* does nothing, for now */
   return 0;
 }
+
+int rtapi_is_kernelspace() { return 0; }
+static int _rtapi_is_realtime = -1;
+static int detect_realtime() {
+    struct utsname u;
+    int crit1, crit2 = 0;
+    FILE *fd;
+
+    uname(&u);
+    crit1 = strcasestr (u.version, "PREEMPT RT") != 0;
+
+    if ((fd = fopen("/sys/kernel/realtime","r")) != NULL) {
+        int flag;
+        crit2 = ((fscanf(fd, "%d", &flag) == 1) && (flag == 1));
+        fclose(fd);
+    }
+    return crit1 && crit2;
+}
+
+int rtapi_is_realtime() {
+    if(_rtapi_is_realtime == -1) _rtapi_is_realtime = detect_realtime();
+    return _rtapi_is_realtime;
+}
+
+void rtapi_delay(long ns) {
+    struct timespec ts = {0, ns};
+    clock_nanosleep(CLOCK_MONOTONIC, 0, &ts, 0);
+}
+
+long int rtapi_delay_max() { return 10000; }

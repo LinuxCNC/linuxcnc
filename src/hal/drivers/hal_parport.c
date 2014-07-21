@@ -105,13 +105,7 @@
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
    are inlined, and save a microsecond or two (on my 233MHz box)
 */
-#define FASTIO
-
-#ifdef FASTIO
-#define rtapi_inb inb
-#define rtapi_outb outb
-#include <asm/io.h>
-#endif
+#include <rtapi_io.h>
 
 #include "hal_parport.h"
 

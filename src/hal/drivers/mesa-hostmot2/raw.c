@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -112,7 +112,7 @@ void hm2_raw_read(hostmot2_t *hm2) {
         hm2->llio,
         *hm2->raw->hal.pin.read_address & 0xffff,
         (void *)hm2->raw->hal.pin.read_data,
-        sizeof(u32)
+        sizeof(rtapi_u32)
     );
 
     if (*hm2->raw->hal.pin.dump_state != 0) {
@@ -132,7 +132,7 @@ void hm2_raw_write(hostmot2_t *hm2) {
         hm2->llio,
         *hm2->raw->hal.pin.write_address & 0xffff,
         (void *)hm2->raw->hal.pin.write_data,
-        sizeof(u32)
+        sizeof(rtapi_u32)
     );
 
     *hm2->raw->hal.pin.write_strobe = 0;

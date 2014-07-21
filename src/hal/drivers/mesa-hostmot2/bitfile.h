@@ -27,7 +27,8 @@
 #define __BITFILE_H
 
 
-#include <linux/firmware.h>
+#include <rtapi_firmware.h>
+#include <rtapi_stdint.h>
 
 
 
@@ -45,8 +46,8 @@ typedef struct {
 
 
 
-int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile);
-u8 bitfile_reverse_bits(u8 data);
+int bitfile_parse_and_verify(const struct rtapi_firmware *fw, bitfile_t *bitfile);
+rtapi_u8 bitfile_reverse_bits(rtapi_u8 data);
 
 
 

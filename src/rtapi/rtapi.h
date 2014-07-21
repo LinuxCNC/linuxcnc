@@ -206,7 +206,7 @@ RTAPI_BEGIN_DECLS
 /***********************************************************************
 *                  LIGHTWEIGHT MUTEX FUNCTIONS                         *
 ************************************************************************/
-#if defined(RTAPI) && !defined(SIM)
+#if defined(__KERNEL__)
 #include <linux/sched.h>	/* for blocking when needed */
 #else
 #include <sched.h>		/* for blocking when needed */
@@ -250,7 +250,7 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
 	while (test_and_set_bit(0, mutex)) {
-#if defined(RTAPI) && !defined(SIM)
+#if defined(__KERNEL__)
 	    schedule();
 #else
 	    sched_yield();
@@ -723,7 +723,7 @@ RTAPI_BEGIN_DECLS
 */
     extern unsigned char rtapi_inb(unsigned int port);
 
-#if defined(RTAPI) && !defined(SIM)
+#if defined(__KERNEL__)
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
     going for 'size' bytes, for component 'name'.
 
@@ -755,6 +755,9 @@ RTAPI_BEGIN_DECLS
         release_region(base, size);
 #endif
     }
+#else
+    #define rtapi_request_region(base, size, name) ((void*)-1)
+    #define rtapi_release_region(base, size) ((void)0)
 #endif
 
 /***********************************************************************
@@ -781,9 +784,10 @@ RTAPI_BEGIN_DECLS
     'num' is the number of elements in an array.
 */
 
-#ifdef SIM
+#if !defined(__KERNEL__)
 #define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
     t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
+#define MODULE_INFO2x(t, a, b, c) MODULE_INFO2(t,a,b,c)
 #define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
     t rtapi_info_##a##_##b = c; EXPORT_SYMBOL(rtapi_info_##a##_##b);
 #define MODULE_PARM(v,t) MODULE_INFO2(const char*, type, v, t) MODULE_INFO2(void*, address, v, &v)
@@ -791,11 +795,14 @@ RTAPI_BEGIN_DECLS
 #define MODULE_LICENSE(s) MODULE_INFO1(const char*, license, s)
 #define MODULE_AUTHOR(s) MODULE_INFO1(const char*, author, s)
 #define MODULE_DESCRIPTION(s) MODULE_INFO1(const char*, description, s)
+#define MODULE_SUPPORTED_DEVICE(s) MODULE_INFO1(const char*, supported_device, s)
+#define MODULE_DEVICE_TABLE(x,y) MODULE_INFO2(struct rtapi_pci_device_id*, device_table, x, y)
+#define MODULE_INFO(x,y) MODULE_INFO2x(char*, x, __LINE__, y)
 #define EXPORT_SYMBOL(x) __attribute__((section(".rtapi_export"))) \
     char rtapi_exported_##x[] = #x;
-#endif
-
-#if !defined(RTAPI_SIM)
+#define EXPORT_SYMBOL_GPL(x) __attribute__((section(".rtapi_export"))) \
+    char rtapi_exported_##x[] = #x;
+#else
 #ifndef LINUX_VERSION_CODE
 #include <linux/version.h>
 #endif
@@ -808,7 +815,7 @@ RTAPI_BEGIN_DECLS
 #define LINUX_VERSION_CODE 0
 #endif
 
-#if defined(SIM) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+#if !defined(__KERNEL__) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 #define RTAPI_STRINGIFY(x)    #x
 
    
@@ -869,7 +876,7 @@ RTAPI_BEGIN_DECLS
 
 #endif /* version < 2.6 */
 
-#if !defined(SIM)
+#if defined(__KERNEL__)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
 #define MODULE_LICENSE(license)         \
 static const char __module_license[] __attribute__((section(".modinfo"))) =   \
@@ -879,9 +886,12 @@ static const char __module_license[] __attribute__((section(".modinfo"))) =   \
 
 #endif /* RTAPI */
 
-#if defined(SIM)
+#if !defined(__KERNEL__)
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 #endif
+
+extern int rtapi_is_kernelspace(void);
+extern int rtapi_is_realtime(void);
 
 RTAPI_END_DECLS
 

@@ -14,7 +14,7 @@
 import os
 import sys
 import re
-
+import hal
 
 hm2_test_load = 'loading HostMot2 test driver'
 hm2_test_unload = 'hm2_test.0: hm2_test fails HM2 registration'
@@ -28,7 +28,10 @@ if sought_error == None:
 # is this how you do enum in python?
 LOOKING_FOR_LOAD, LOOKING_FOR_ERROR = range(2)
 
-dmesg = os.popen('dmesg')
+if hal.is_kernelspace:
+    dmesg = os.popen('dmesg')
+else:
+    dmesg = open("halrun-stderr")
 
 state = LOOKING_FOR_LOAD
 result = 1

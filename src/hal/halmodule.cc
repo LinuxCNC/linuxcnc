@@ -1148,13 +1148,11 @@ void init_hal(void) {
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
-#ifdef RTAPI_SIM
-    PyModule_AddIntConstant(m, "is_sim", 1);
-    PyModule_AddIntConstant(m, "is_rt", 0);
-#else
-    PyModule_AddIntConstant(m, "is_sim", 0);
-    PyModule_AddIntConstant(m, "is_rt", 1);
-#endif
+    PyModule_AddIntConstant(m, "is_sim", !rtapi_is_realtime());
+    PyModule_AddIntConstant(m, "is_rt", rtapi_is_realtime());
+
+    PyModule_AddIntConstant(m, "is_kernelspace", rtapi_is_kernelspace());
+    PyModule_AddIntConstant(m, "is_userspace", !rtapi_is_kernelspace());
 
 #ifdef RTAPI_KERNEL_VERSION
     PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);

@@ -518,7 +518,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         return -EINVAL;
     }	
 
-#if defined(RTAPI_SIM)
+#if defined(RTAPI_USPACE)
     {
         char *argv[MAX_TOK];
         int m = 0, result;
@@ -1062,7 +1062,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     hal_comp_t *comp;
     char *argv[MAX_TOK+3];
     char *cp1;
-#if defined(RTAPI_SIM)
+#if defined(RTAPI_USPACE)
     argv[m++] = "-Wn";
     argv[m++] = mod_name;
     argv[m++] = EMC2_BIN_DIR "/rtapi_app";
@@ -1126,7 +1126,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 
     if ( retval != 0 ) {
 	halcmd_error("insmod failed, returned %d\n"
-#if !defined(RTAPI_SIM)
+#if !defined(RTAPI_USPACE)
             "See the output of 'dmesg' for more information.\n"
 #endif
         , retval );
@@ -1321,7 +1321,7 @@ static int unloadrt_comp(char *mod_name)
     int retval;
     char *argv[4];
 
-#if defined(RTAPI_SIM)
+#if defined(RTAPI_USPACE)
     argv[0] = EMC2_BIN_DIR "/rtapi_app";
     argv[1] = "unload";
 #else

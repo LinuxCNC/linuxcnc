@@ -26,25 +26,28 @@
 
 #include <linux/kernel.h>
 #include <linux/version.h>
-#include <linux/ctype.h>
-#include <linux/slab.h>
+#include <rtapi_ctype.h>
+#include <rtapi_slab.h>
+#include <rtapi_string.h>
+#ifdef __KERNEL__
 #include <linux/module.h>
+#endif
 
 
 
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
+#if ! defined(__KERNEL__) || LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
 typedef unsigned long gfp_t;
-char *kstrdup(const char *s, gfp_t gfp)
+char *rtapi_kstrdup(const char *s, gfp_t gfp)
 {
     size_t len = strlen(s)+1;
-    char *r = kmalloc(len, gfp);
+    char *r = rtapi_kmalloc(len, gfp);
     if(r) memcpy(r, s, len);
     return r;
 }
-void *kzalloc(size_t sz, gfp_t gfp) {
-    void *r = kmalloc(sz, gfp);
+void *rtapi_kzalloc(size_t sz, gfp_t gfp) {
+    void *r = rtapi_kmalloc(sz, gfp);
     if(r) memset(r, 0, sz);
     return r;
 }
@@ -54,9 +57,9 @@ void *kzalloc(size_t sz, gfp_t gfp) {
  * kstrndup - allocate space for and copy an existing string
  * @s: the string to duplicate
  * @max: read at most @max chars from @s
- * @gfp: the GFP mask used in the kmalloc() call when allocating memory
+ * @gfp: the GFP mask used in the rtapi_kmalloc() call when allocating memory
  */
-char *kstrndup(const char *s, size_t max, gfp_t gfp)
+char *rtapi_kstrndup(const char *s, size_t max, rtapi_gfp_t gfp)
 {
 	size_t len;
 	char *buf;
@@ -65,7 +68,7 @@ char *kstrndup(const char *s, size_t max, gfp_t gfp)
 		return NULL;
 
 	len = strnlen(s, max);
-	buf = kmalloc(len+1, gfp);
+	buf = rtapi_kmalloc(len+1, gfp);
 	if (buf) {
 		memcpy(buf, s, len);
 		buf[len] = '\0';
@@ -115,13 +118,13 @@ static int count_argc(const char *str)
  *
  * Frees an argv and the strings it points to.
  */
-void argv_free(char **argv)
+void rtapi_argv_free(char **argv)
 {
 	char **p;
 	for (p = argv; *p; p++)
-		kfree(*p);
+		rtapi_kfree(*p);
 
-	kfree(argv);
+	rtapi_kfree(argv);
 }
 
 /**
@@ -137,10 +140,10 @@ void argv_free(char **argv)
  * is always NULL-terminated.  Returns NULL on memory allocation
  * failure.
  */
-char **argv_split(gfp_t gfp, const char *str, int *argcp)
+char **rtapi_argv_split(rtapi_gfp_t gfp, const char *str, int *argcp)
 {
 	int argc = count_argc(str);
-	char **argv = kzalloc(sizeof(*argv) * (argc+1), gfp);
+	char **argv = rtapi_kzalloc(sizeof(*argv) * (argc+1), gfp);
 	char **argvp;
 
 	if (argv == NULL)
@@ -160,7 +163,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp)
 
 			str = skip_arg(str);
 
-			t = kstrndup(p, str-p, gfp);
+			t = rtapi_kstrndup(p, str-p, gfp);
 			if (t == NULL)
 				goto fail;
 			*argvp++ = t;
@@ -172,7 +175,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp)
 	return argv;
 
   fail:
-	argv_free(argv);
+	rtapi_argv_free(argv);
 	return NULL;
 }
 

@@ -18,7 +18,7 @@
 //
 
 
-#include <asm/io.h>
+#include <rtapi_io.h>
 
 #include "rtapi.h"
 #include "rtapi_app.h"
@@ -30,6 +30,7 @@
 #include "hal/drivers/mesa-hostmot2/bitfile.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
 #include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
+#include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
 static int comp_id;
@@ -42,27 +43,19 @@ MODULE_INFO(linuxcnc, "license:GPL");
 MODULE_LICENSE("GPL");
 
 static int ioaddr[HM2_7I43_MAX_BOARDS] = { 0x378, 0x3f8, [2 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
-static int num_ioaddrs = HM2_7I43_MAX_BOARDS;
-module_param_array(ioaddr, int, &num_ioaddrs, S_IRUGO);
-MODULE_PARM_DESC(ioaddr, "base address of the parallel port(s) (see hm2_7i43(9) manpage)");
+RTAPI_MP_ARRAY_INT(ioaddr, HM2_7I43_MAX_BOARDS, "base address of the parallel port(s) (see hm2_7i43(9) manpage)");
 
 static int ioaddr_hi[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 0 };
-static int num_ioaddr_his = HM2_7I43_MAX_BOARDS;
-module_param_array(ioaddr_hi, int, &num_ioaddr_his, S_IRUGO);
-MODULE_PARM_DESC(ioaddr_hi, "secondary address of the parallel port(s) (see hm2_7i43(9) manpage)");
+RTAPI_MP_ARRAY_INT(ioaddr_hi, HM2_7I43_MAX_BOARDS, "secondary address of the parallel port(s) (see hm2_7i43(9) manpage)");
 
 static int epp_wide[HM2_7I43_MAX_BOARDS] = { [0 ... (HM2_7I43_MAX_BOARDS-1)] = 1 };
-static int num_epp_wides = HM2_7I43_MAX_BOARDS;
-module_param_array(epp_wide, int, &num_epp_wides, S_IRUGO);
-MODULE_PARM_DESC(epp_wide, "set to 0 to disable wide EPP mode (see (hm2_7i43(9) manpage)");
+RTAPI_MP_ARRAY_INT(epp_wide, HM2_7I43_MAX_BOARDS, "set to 0 to disable wide EPP mode (see (hm2_7i43(9) manpage)");
 
 int debug_epp = 0;
 RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
 
 static char *config[HM2_7I43_MAX_BOARDS];
-static int num_config_strings = HM2_7I43_MAX_BOARDS;
-module_param_array(config, charp, &num_config_strings, S_IRUGO);
-MODULE_PARM_DESC(config, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
+RTAPI_MP_ARRAY_STRING(config, HM2_7I43_MAX_BOARDS, "config string(s) for the 7i43 board(s) (see hostmot2(9) manpage)");
 
 
 
@@ -81,12 +74,12 @@ static int num_boards;
 // EPP I/O code
 // 
 
-static inline void hm2_7i43_epp_addr8(u8 addr, hm2_7i43_t *board) {
+static inline void hm2_7i43_epp_addr8(rtapi_u8 addr, hm2_7i43_t *board) {
     outb(addr, board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
-static inline void hm2_7i43_epp_addr16(u16 addr, hm2_7i43_t *board) {
+static inline void hm2_7i43_epp_addr16(rtapi_u16 addr, hm2_7i43_t *board) {
     outb((addr & 0x00FF), board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     outb((addr >> 8),     board->port.base + HM2_7I43_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
@@ -104,7 +97,7 @@ static inline int hm2_7i43_epp_read(hm2_7i43_t *board) {
     return val;
 }
 
-static inline u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
+static inline rtapi_u32 hm2_7i43_epp_read32(hm2_7i43_t *board) {
     uint32_t data;
 
     if (board->epp_wide) {
@@ -205,19 +198,19 @@ static void hm2_7i43_nanosleep(unsigned long int nanoseconds) {
 // these are the low-level i/o functions exported to the hostmot2 driver
 //
 
-int hm2_7i43_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+int hm2_7i43_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 
     hm2_7i43_epp_addr16(addr | HM2_7I43_ADDR_AUTOINCREMENT, board);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        *((u32*)buffer) = hm2_7i43_epp_read32(board);
+        *((rtapi_u32*)buffer) = hm2_7i43_epp_read32(board);
         buffer += 4;
     }
 
     for ( ; bytes_remaining > 0; bytes_remaining --) {
-        *((u8*)buffer) = hm2_7i43_epp_read(board);
+        *((rtapi_u8*)buffer) = hm2_7i43_epp_read(board);
         buffer ++;
     }
 
@@ -235,19 +228,19 @@ int hm2_7i43_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
 
 
 
-int hm2_7i43_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+int hm2_7i43_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i43_t *board = this->private;
 
     hm2_7i43_epp_addr16(addr | HM2_7I43_ADDR_AUTOINCREMENT, board);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        hm2_7i43_epp_write32(*((u32*)buffer), board);
+        hm2_7i43_epp_write32(*((rtapi_u32*)buffer), board);
         buffer += 4;
     }
 
     for ( ; bytes_remaining > 0; bytes_remaining --) {
-        hm2_7i43_epp_write(*((u8*)buffer), board);
+        hm2_7i43_epp_write(*((rtapi_u8*)buffer), board);
         buffer ++;
     }
 
@@ -270,7 +263,7 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_7i43_t *board = this->private;
     int64_t start_time, end_time;
     int i;
-    const u8 *firmware = bitfile->e.data;
+    const rtapi_u8 *firmware = bitfile->e.data;
 
 
     //
@@ -316,6 +309,23 @@ int hm2_7i43_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
         }
     }
 
+    if(board->epp_wide)
+    {
+        hm2_7i43_epp_clear_timeout(board);
+        uint32_t cookie;
+        hm2_7i43_read(this, HM2_ADDR_IOCOOKIE, &cookie, sizeof(cookie));
+        if(cookie != HM2_IOCOOKIE) {
+            THIS_ERR("Reading cookie with epp_wide failed. (read 0x%08x) Falling back to byte transfers\n", cookie);
+            board->epp_wide = 0;
+            hm2_7i43_epp_clear_timeout(board);
+            hm2_7i43_read(this, HM2_ADDR_IOCOOKIE, &cookie, sizeof(cookie));
+            if(cookie == HM2_IOCOOKIE) {
+                THIS_ERR("Successfully read cookie after selecting byte transfers\n");
+            } else {
+                THIS_ERR("Reading cookie still failed without epp_wide. (read 0x%08x)\n", cookie);
+            }
+        }
+    }
 
     return 0;
 }
@@ -397,7 +407,9 @@ static int hm2_7i43_setup(void) {
     memset(board, 0, HM2_7I43_MAX_BOARDS * sizeof(hm2_7i43_t));
     num_boards = 0;
 
-    for (i = 0; i < num_config_strings; i ++) {
+    for (i = 0; i < HM2_7I43_MAX_BOARDS; i ++) {
+        if(!config[i] || !*config[i]) break;
+
         hm2_lowlevel_io_t *this;
         int r;
 

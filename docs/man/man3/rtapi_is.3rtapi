@@ -1,0 +1,29 @@
+.TH rtapi_is "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_is \- details of rtapi configuration
+
+.SH SYNTAX
+.HP
+int rtapi_is_kernelspace()
+.HP
+int rtapi_is_realtime()
+
+.SH DESCRIPTION
+\fBrtapi_is_kernelspace()\fR returns nonzero when rtapi modules run in kernel space (e.g., under rtai) and zero when they
+run in userpace (e.g., under uspace).
+
+\fBrtapi_is_realtime()\fR returns nonzero when capable of running with realtime
+guarantees.  For rtai, this always returns nonzero (but actually loading
+realtime modules will fail if not running under the appropriate kernel).  For
+uspace, this returns nonzero when the running kernel indicates it is capable of
+realtime performance.  If \fBrtapi_app\fR is not setuid root, this returns nonzero
+even though \fBrtapi_app\fR will not be able to obtain realtime scheduling or
+hardware access, so e.g., attempting to \fBloadrt\fR a hardware driver will fail.
+
+.SH REALTIME CONSIDERATIONS
+May be called from userspace or from realtime setup code.
+\fBrtapi_is_realtime()\fR may perform filesystem I/O.
+
+.SH RETURN VALUE
+Zero for false, nonzero for true.

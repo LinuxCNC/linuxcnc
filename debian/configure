@@ -16,8 +16,11 @@ usage () {
 $P: Set up debian/ files to build for a particular kernel
 
 Usage:
+    $P uspace
+        Build for a userspace realtime systems or simulator
+
     $P sim
-        Build for a system without a realtime kernel
+        Deprecated synonym for '$P uspace'
 
     $P [kernel-version]
         Build for the realtime kernel [kernel-version], such as 2.6.12-magma
@@ -133,24 +136,27 @@ esac
 
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
-OTHER_MAIN_PACKAGE_NAME=linuxcnc-sim
+OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
 OLD_PACKAGE_NAME=emc2
+OLD_PACKAGE_NAME_DEV=emc2-dev
 EXTRA_RECOMMENDS=hostmot2-firmware
 case $TARGET in
-    sim)
+    uspace|sim)
+	TARGET=uspace
         MODULE_PATH=usr/lib/linuxcnc/modules
 	MODULE_EXT=.so
-	KERNEL_DEPENDS=
-	KERNEL_HEADERS=libpth-dev
+	KERNEL_DEPENDS=libudev-dev
+	KERNEL_HEADERS=
+	KERNEL_VERSION=uspace
 	DRIVERS=
         EXTRA_FILES="usr/bin/rtapi_app"
-	DISTRIB_NAME=sim-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-sim
+	DISTRIB_NAME=uspace-$DISTRIB_NAME
+	MAIN_PACKAGE_NAME=linuxcnc-uspace
         OTHER_MAIN_PACKAGE_NAME=linuxcnc
-	OLD_PACKAGE_NAME=emc2-sim
+	OLD_PACKAGE_NAME_DEV=emc2-sim-dev,linuxcnc-sim-dev
+	OLD_PACKAGE_NAME=emc2-sim,linuxcnc-sim
 
-        # don't bother recommending hostmot2 firmware on sim
-        EXTRA_RECOMMENDS=
+        EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
     ;;
     2.6.12-magma)
         KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
@@ -180,6 +186,7 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
     -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
     -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
+    -e "s|@OLD_PACKAGE_NAME_DEV@|$OLD_PACKAGE_NAME_DEV|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
@@ -192,8 +199,8 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
 
 subst control.in > control
 
-if [ "$TARGET" == "sim" ]; then
-    cp linuxcnc-dev.files.in linuxcnc-sim-dev.files
+if [ "$TARGET" == "uspace" ]; then
+    cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
 else
     cp linuxcnc-dev.files.in linuxcnc-dev.files
     echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files

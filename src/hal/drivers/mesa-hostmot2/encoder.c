@@ -26,7 +26,7 @@
 //
 
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -39,7 +39,7 @@
 
 
 
-static void do_flag(u32 *reg, int condition, u32 bits) {
+static void do_flag(rtapi_u32 *reg, int condition, rtapi_u32 bits) {
     if (condition) {
         *reg |= bits;
     } else {
@@ -145,7 +145,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
 
 
 static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
-    u32 filter_rate = hm2->encoder.clock_frequency/(*hm2->encoder.hal->pin.sample_frequency);
+    rtapi_u32 filter_rate = hm2->encoder.clock_frequency/(*hm2->encoder.hal->pin.sample_frequency);
     
     if (filter_rate == 1) {
         filter_rate = 0xFFF;
@@ -155,7 +155,7 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
     *hm2->encoder.hal->pin.sample_frequency = hm2->encoder.clock_frequency/(filter_rate + 2);
     HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
     if (hm2->encoder.has_skew) {
-        u32 skew = (*hm2->encoder.hal->pin.skew)/(1e9/hm2->encoder.clock_frequency);
+        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew)/(1e9/hm2->encoder.clock_frequency);
         
         if (skew > 15) {
             skew = 15;
@@ -165,7 +165,7 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
         *hm2->encoder.hal->pin.skew = skew*(1e9/hm2->encoder.clock_frequency);
         hm2->encoder.written_skew = *hm2->encoder.hal->pin.skew;
     }
-    hm2->llio->write(hm2->llio, hm2->encoder.filter_rate_addr, &filter_rate, sizeof(u32));
+    hm2->llio->write(hm2->llio, hm2->encoder.filter_rate_addr, &filter_rate, sizeof(rtapi_u32));
     hm2->encoder.written_sample_frequency = *hm2->encoder.hal->pin.sample_frequency;
 }
 
@@ -209,7 +209,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
         hm2->llio,
         hm2->encoder.latch_control_addr,
         hm2->encoder.control_reg,
-        (hm2->encoder.num_instances * sizeof(u32))
+        (hm2->encoder.num_instances * sizeof(rtapi_u32))
     );
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
@@ -220,7 +220,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2) {
         hm2->llio,
         hm2->encoder.timestamp_div_addr,
         &hm2->encoder.timestamp_div_reg,
-        sizeof(u32)
+        sizeof(rtapi_u32)
     );
 
     hm2_encoder_set_filter_rate_and_skew(hm2);
@@ -322,26 +322,26 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->encoder.filter_rate_addr = md->base_address + (4 * md->register_stride);
 
     // it's important that the TSC gets read *before* the C&T registers below
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.timestamp_count_addr, sizeof(u32), &hm2->encoder.timestamp_count_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.timestamp_count_addr, sizeof(rtapi_u32), &hm2->encoder.timestamp_count_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Encoder Timestamp Count Register (%d)\n", r);
         goto fail0;
     }
 
     // it's important that the C&T registers get read *after* the TSC register above
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.counter_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.counter_addr, (hm2->encoder.num_instances * sizeof(rtapi_u32)), &hm2->encoder.counter_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Encoder Counter register (%d)\n", r);
         goto fail0;
     }
 
-    r = hm2_register_tram_read_region(hm2, hm2->encoder.latch_control_addr, (hm2->encoder.num_instances * sizeof(u32)), &hm2->encoder.read_control_reg);
+    r = hm2_register_tram_read_region(hm2, hm2->encoder.latch_control_addr, (hm2->encoder.num_instances * sizeof(rtapi_u32)), &hm2->encoder.read_control_reg);
     if (r < 0) {
         HM2_ERR("error registering tram read region for Encoder Latch/Control register (%d)\n", r);
         goto fail0;
     }
 
-    hm2->encoder.control_reg = (u32 *)kmalloc(hm2->encoder.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->encoder.control_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->encoder.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->encoder.control_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -615,7 +615,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->encoder.num_instances;
 
 fail1:
-    kfree(hm2->encoder.control_reg);
+    rtapi_kfree(hm2->encoder.control_reg);
 
 fail0:
     hm2->encoder.num_instances = 0;
@@ -633,7 +633,7 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
 
     // all the encoders start "stopped where they are"
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
-        u16 count;
+        rtapi_u16 count;
 
         count = hm2_encoder_get_reg_count(hm2, i);
 
@@ -682,9 +682,9 @@ void hm2_encoder_tram_init(hostmot2_t *hm2) {
  */
 
 static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *hm2, int instance) {
-    u16 reg_count;
-    s32 reg_count_diff;
-    s32 prev_rawcounts;
+    rtapi_u16 reg_count;
+    rtapi_s32 reg_count_diff;
+    rtapi_s32 prev_rawcounts;
 
     hm2_encoder_instance_t *e;
 
@@ -698,7 +698,7 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
 
     reg_count = hm2_encoder_get_reg_count(hm2, instance);
 
-    reg_count_diff = (s32)reg_count - (s32)e->prev_reg_count;
+    reg_count_diff = (rtapi_s32)reg_count - (rtapi_s32)e->prev_reg_count;
     if (reg_count_diff > 32768) reg_count_diff -= 65536;
     if (reg_count_diff < -32768) reg_count_diff += 65536;
 
@@ -712,23 +712,23 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
     //
 
     if (e->prev_control & HM2_ENCODER_LATCH_ON_INDEX) {
-        u32 latch_ctrl;
+        rtapi_u32 latch_ctrl;
 
         hm2->llio->read(
             hm2->llio,
-            hm2->encoder.latch_control_addr + (instance * sizeof(u32)),
+            hm2->encoder.latch_control_addr + (instance * sizeof(rtapi_u32)),
             &latch_ctrl,
-            sizeof(u32)
+            sizeof(rtapi_u32)
         );
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_INDEX)) {
             // hm2 reports index event occurred
 
-            u16 latched_count;
+            rtapi_u16 latched_count;
 
             latched_count = (latch_ctrl >> 16) & 0xffff;
 
-            reg_count_diff = (s32)latched_count - (s32)e->prev_reg_count;
+            reg_count_diff = (rtapi_s32)latched_count - (rtapi_s32)e->prev_reg_count;
             if (reg_count_diff > 32768) reg_count_diff -= 65536;
             if (reg_count_diff < -32768) reg_count_diff += 65536;
 
@@ -736,23 +736,23 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
             *e->hal.pin.index_enable = 0;
         }
     } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
-        u32 latch_ctrl;
+        rtapi_u32 latch_ctrl;
 
         hm2->llio->read(
             hm2->llio,
-            hm2->encoder.latch_control_addr + (instance * sizeof(u32)),
+            hm2->encoder.latch_control_addr + (instance * sizeof(rtapi_u32)),
             &latch_ctrl,
-            sizeof(u32)
+            sizeof(rtapi_u32)
         );
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_PROBE)) {
             // hm2 reports probe event occurred
 
-            u16 latched_count;
+            rtapi_u16 latched_count;
 
             latched_count = (latch_ctrl >> 16) & 0xffff;
 
-            reg_count_diff = (s32)latched_count - (s32)e->prev_reg_count;
+            reg_count_diff = (rtapi_s32)latched_count - (rtapi_s32)e->prev_reg_count;
             if (reg_count_diff > 32768) reg_count_diff -= 65536;
             if (reg_count_diff < -32768) reg_count_diff += 65536;
 
@@ -850,7 +850,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
     switch (e->state) {
 
         case HM2_ENCODER_STOPPED: {
-            u16 reg_count;  // the count currently in the register
+            rtapi_u16 reg_count;  // the count currently in the register
 
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
@@ -881,19 +881,19 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
 
         case HM2_ENCODER_MOVING: {
-            u16 reg_count;  // the count currently in the register
-            u16 time_of_interest;  // terrible variable name, sorry
+            rtapi_u16 reg_count;  // the count currently in the register
+            rtapi_u16 time_of_interest;  // terrible variable name, sorry
 
-            s32 dT_clocks;
+            rtapi_s32 dT_clocks;
             double dT_s;
 
-            s32 dS_counts;
+            rtapi_s32 dS_counts;
             double dS_pos_units;
 
             // these are just for debugging the encoder.vel NaN problem
             // reported by micges, remove when the bug is fixed
-            static s32 prev_update_dS_counts;
-            static s32 prev_update_dT_clocks;
+            static rtapi_s32 prev_update_dS_counts;
+            static rtapi_s32 prev_update_dT_clocks;
 
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
@@ -1049,7 +1049,7 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
 
 void hm2_encoder_cleanup(hostmot2_t *hm2) {
     if (hm2->encoder.num_instances <= 0) return;
-    kfree(hm2->encoder.control_reg);
+    rtapi_kfree(hm2->encoder.control_reg);
 }
 
 
@@ -1064,7 +1064,7 @@ void hm2_encoder_print_module(hostmot2_t *hm2) {
     HM2_PRINT("    timestamp_div_addr: 0x%04X\n", hm2->encoder.timestamp_div_addr);
     HM2_PRINT("    timestamp_count_addr: 0x%04X\n", hm2->encoder.timestamp_count_addr);
     HM2_PRINT("    filter_rate_addr: 0x%04X\n", hm2->encoder.filter_rate_addr);
-    HM2_PRINT("    timestamp_div: 0x%04X\n", (u16)hm2->encoder.timestamp_div_reg);
+    HM2_PRINT("    timestamp_div: 0x%04X\n", (rtapi_u16)hm2->encoder.timestamp_div_reg);
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         HM2_PRINT("    instance %d:\n", i);
         HM2_PRINT("        hw:\n");

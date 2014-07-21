@@ -54,3 +54,5 @@ of \fIport\fR are undefined except that it is safe (but not required) to pass
 this port to \fBhal_parport_release\fR.
 
 \fBhal_parport_release\fR does not return a value.  It always succeeds.
+.SH NOTES
+In new code, prefer use of rtapi_parport to hal_parport.

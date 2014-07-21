@@ -23,8 +23,8 @@
 # complex-objs := complex1.o complex2.o complex_main.o
 # include .../Makefile.modinc
 
-# Currently this Makefile is only suitable for 'kbuild' and 'sim' systems, but
-# there is no technical reason it cannot be extended to pre-kbuild systems.
+# Currently this Makefile is only suitable for 'kbuild' and 'uspace' systems,
+# but there is no technical reason it cannot be extended to pre-kbuild systems.
 
 # When there is a single module and it consists of a single source file, an
 # easier way to build modules is to invoke 'comp':
@@ -95,7 +95,7 @@ install:
 	cp $(patsubst %.o,%.ko,$(obj-m)) $(DESTDIR)$(RTLIBDIR)/
 endif
 
-ifeq ($(BUILDSYS),sim)
+ifeq ($(BUILDSYS),uspace)
 EXTRA_CFLAGS += -DSIM -fPIC
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
@@ -125,6 +125,6 @@ IS_POWERPC = test `uname -m` = ppc -o `uname -m` = ppc64
 endif
 
 ifeq ($(BUILDSYS),normal)
-$(error Makefile.modinc is only suitable for 'kbuild' kernels and 'sim' systems)
+$(error Makefile.modinc is only suitable for 'kbuild' kernels and 'uspace' systems)
 endif
 

@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -333,10 +333,10 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     int i;
     int addr;
 
-    const u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
+    const rtapi_u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
     
     hm2->num_pins = hm2->idrom.io_width;
-    hm2->pin = kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, GFP_KERNEL);
+    hm2->pin = rtapi_kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, RTAPI_GFP_KERNEL);
     if (hm2->pin == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -345,9 +345,9 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     addr = hm2->idrom_offset + hm2->idrom.offset_to_pin_desc;
     for (i = 0; i < hm2->num_pins; i ++) {
         hm2_pin_t *pin = &(hm2->pin[i]);
-        u32 d;
+        rtapi_u32 d;
 
-        if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(u32))) {
+        if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(rtapi_u32))) {
             HM2_ERR("error reading Pin Descriptor %d (at 0x%04x)\n", i, addr); 
             return -EIO;
         }
