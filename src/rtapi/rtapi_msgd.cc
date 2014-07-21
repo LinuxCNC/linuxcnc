@@ -280,7 +280,7 @@ static int create_global_segment()
     }
     if (size != sizeof(global_data_t)) {
 	fprintf(stderr,
-		"MSGD:%d ERROR: global segment size mismatch: expect %d got %d\n",
+		"MSGD:%d ERROR: global segment size mismatch: expect %zu got %d\n",
 	       rtapi_instance, sizeof(global_data_t), size);
 	return -EINVAL;
     }
@@ -362,6 +362,10 @@ static int init_global_data(global_data_t * data, int flavor,
     // demon pids
     data->rtapi_app_pid = -1; // not yet started
     data->rtapi_msgd_pid = 0;
+
+    // for now, use a fixed-size memory arena
+    rtapi_heap_init(&data->heap);
+    rtapi_heap_addmem(&data->heap, data->arena, GLOBAL_HEAP_SIZE);
 
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));

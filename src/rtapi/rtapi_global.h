@@ -65,6 +65,8 @@
 #include "rtapi_bitops.h"     // rtapi_atomic_type
 #include "rtapi_exception.h"  // thread status descriptors
 #include "ring.h"             // ring buffer ops & structures
+#include "rtapi_heap.h"       // shared memory allocator
+#include "rtapi_heap_private.h"
 
 
 #define MESSAGE_RING_SIZE (4096 * 64)
@@ -108,6 +110,12 @@ typedef struct {
     ringheader_t rtapi_messages;   // ringbuffer for RTAPI messages
     char buf[SIZE_ALIGN(MESSAGE_RING_SIZE)];
     ringtrailer_t rtapi_messages_trailer;
+
+    struct rtapi_heap heap;
+    //size_t heap_size;
+#define GLOBAL_HEAP_SIZE (512*512)
+    unsigned char arena[GLOBAL_HEAP_SIZE] __attribute__((aligned(16)));
+
 } global_data_t;
 
 #define GLOBAL_LAYOUT_VERSION 42   // bump on layout changes of global_data_t
