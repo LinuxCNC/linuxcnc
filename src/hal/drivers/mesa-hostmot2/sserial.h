@@ -19,6 +19,8 @@
 #ifndef __SSERIAL_H
 #define __SSERIAL_H
 
+#include <rtapi_stdint.h>
+
 #define HM2_SSERIAL_TYPE_8I20               0x30324938  // '8i20' as 4 ascii
 #define HM2_SSERIAL_TYPE_7I64               0x34364937  // More to be added later.
 #define HM2_SSERIAL_MAX_STRING_LENGTH       48
@@ -56,8 +58,8 @@
 
 #define LBPCOOKIE               0x5A
 
-#define HM2WRITE(a,b)  hm2->llio->write(hm2->llio, a, &b, sizeof(u32))
-#define HM2READ(a,b)  hm2->llio->read(hm2->llio, a, &b, sizeof(u32)) 
+#define HM2WRITE(a,b)  hm2->llio->write(hm2->llio, a, &b, sizeof(rtapi_u32))
+#define HM2READ(a,b)  hm2->llio->read(hm2->llio, a, &b, sizeof(rtapi_u32))
 
 #define LBP_IN                  0x00
 #define LBP_IO                  0x40
@@ -175,9 +177,9 @@ typedef struct {
     hal_float_t fullscale;
     hal_u32_t u32_param;
     hal_bit_t graycode;
-    s64 oldval; // not pins, but this way every pin can have one
-    s64 accum; // these two are only currently used by encoders
-    s64 offset;
+    rtapi_s64 oldval; // not pins, but this way every pin can have one
+    rtapi_s64 accum; // these two are only currently used by encoders
+    rtapi_s64 offset;
 }hm2_sserial_pins_t;
 
 typedef struct {
@@ -203,24 +205,24 @@ typedef struct {
     hal_u32_t serialnumber;
     hal_u32_t status;
 
-    u32 *reg_cs_read;
-    u32 *reg_cs_write;
-    u32 *reg_0_read;
-    u32 *reg_0_write;
-    u32 *reg_1_read;
-    u32 *reg_1_write;
-    u32 *reg_2_read;
-    u32 *reg_2_write;
-    u32 reg_cs_addr;
-    u32 reg_0_addr;
-    u32 reg_1_addr;
-    u32 reg_2_addr;
+    rtapi_u32 *reg_cs_read;
+    rtapi_u32 *reg_cs_write;
+    rtapi_u32 *reg_0_read;
+    rtapi_u32 *reg_0_write;
+    rtapi_u32 *reg_1_read;
+    rtapi_u32 *reg_1_write;
+    rtapi_u32 *reg_2_read;
+    rtapi_u32 *reg_2_write;
+    rtapi_u32 reg_cs_addr;
+    rtapi_u32 reg_0_addr;
+    rtapi_u32 reg_1_addr;
+    rtapi_u32 reg_2_addr;
     int index;
-    u32 command_reg_addr; // a duplicate so that a single channel can be passed
-    u32 data_reg_addr;
-    u32 data_written;
-    u32 data2_written;
-    u32 data3_written;
+    rtapi_u32 command_reg_addr; // a duplicate so that a single channel can be passed
+    rtapi_u32 data_reg_addr;
+    rtapi_u32 data_written;
+    rtapi_u32 data2_written;
+    rtapi_u32 data3_written;
     int myinst;
     char name[21];
     
@@ -234,12 +236,12 @@ typedef struct {
     int tag;
     hm2_sserial_remote_t *remotes;
     int index;
-    u32 command_reg_addr;
-    u32 *command_reg_read;
-    u32 *command_reg_write;
-    u32 data_reg_addr;
-    u32 *data_reg_read;
-    u32 *data_reg_write;
+    rtapi_u32 command_reg_addr;
+    rtapi_u32 *command_reg_read;
+    rtapi_u32 *command_reg_write;
+    rtapi_u32 data_reg_addr;
+    rtapi_u32 *data_reg_read;
+    rtapi_u32 *data_reg_write;
     hal_u32_t *fault_count;
     hal_u32_t fault_inc;
     hal_u32_t fault_dec;
@@ -247,11 +249,11 @@ typedef struct {
     
     hal_bit_t *run;
     hal_u32_t *state;
-    u32 timer;
+    rtapi_u32 timer;
 } hm2_sserial_instance_t;
 
 typedef struct {
-    u8 version;
+    rtapi_u8 version;
     int baudrate;
     int num_instances; // number of active instances
     hm2_sserial_instance_t *instance ;

@@ -17,7 +17,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
+#include <rtapi_list.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -42,10 +43,10 @@
 // in the future this function will inform the Translation RAM
 //
 
-int hm2_register_tram_read_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **buffer) {
+int hm2_register_tram_read_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer) {
     hm2_tram_entry_t *tram_entry;
 
-    tram_entry = kmalloc(sizeof(hm2_tram_entry_t), GFP_KERNEL);
+    tram_entry = rtapi_kmalloc(sizeof(hm2_tram_entry_t), RTAPI_GFP_KERNEL);
     if (tram_entry == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -55,16 +56,16 @@ int hm2_register_tram_read_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **buf
     tram_entry->size = size;
     tram_entry->buffer = buffer;
 
-    list_add_tail(&tram_entry->list, &hm2->tram_read_entries);
+    rtapi_list_add_tail(&tram_entry->list, &hm2->tram_read_entries);
 
     return 0;
 }
 
 
-int hm2_register_tram_write_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **buffer) {
+int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 size, rtapi_u32 **buffer) {
     hm2_tram_entry_t *tram_entry;
 
-    tram_entry = kmalloc(sizeof(hm2_tram_entry_t), GFP_KERNEL);
+    tram_entry = rtapi_kmalloc(sizeof(hm2_tram_entry_t), RTAPI_GFP_KERNEL);
     if (tram_entry == NULL) {
         HM2_ERR("out of memory!\n");
         return -ENOMEM;
@@ -74,25 +75,23 @@ int hm2_register_tram_write_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **bu
     tram_entry->size = size;
     tram_entry->buffer = buffer;
 
-    list_add_tail(&tram_entry->list, &hm2->tram_write_entries);
+    rtapi_list_add_tail(&tram_entry->list, &hm2->tram_write_entries);
 
     return 0;
 }
 
 
 int hm2_allocate_tram_regions(hostmot2_t *hm2) {
-    struct list_head *ptr;
-    u16 offset;
+    struct rtapi_list_head *ptr;
     
-    hm2->tram_read_size = 0;
-    list_for_each(ptr, &hm2->tram_read_entries) {
-        hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
+    rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
+        hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
         hm2->tram_read_size += tram_entry->size;
     }
 
     hm2->tram_write_size = 0;
-    list_for_each(ptr, &hm2->tram_write_entries) {
-        hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
+    rtapi_list_for_each(ptr, &hm2->tram_write_entries) {
+        hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
         hm2->tram_write_size += tram_entry->size;
     }
 
@@ -102,13 +101,13 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         hm2->tram_write_size
     );
 
-    hm2->tram_read_buffer = (u32 *)krealloc(hm2->tram_read_buffer, hm2->tram_read_size, GFP_KERNEL);
+    hm2->tram_read_buffer = (rtapi_u32 *)rtapi_krealloc(hm2->tram_read_buffer, hm2->tram_read_size, RTAPI_GFP_KERNEL);
     if (hm2->tram_read_buffer == NULL) {
         HM2_ERR("Error while (re)allocating Translation RAM read buffer (%d bytes)\n", hm2->tram_read_size);
         return -ENOMEM;
     }
     
-    hm2->tram_write_buffer = (u32 *)krealloc(hm2->tram_write_buffer, hm2->tram_write_size, GFP_KERNEL);
+    hm2->tram_write_buffer = (rtapi_u32 *)rtapi_krealloc(hm2->tram_write_buffer, hm2->tram_write_size, RTAPI_GFP_KERNEL);
     if (hm2->tram_write_buffer == NULL) {
         HM2_ERR("Error while (re)allocating Translation RAM write buffer (%d bytes)\n", hm2->tram_write_size);
         return -ENOMEM;
@@ -116,18 +115,18 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     HM2_DBG("buffer address %p\n", &hm2->tram_write_buffer);
     HM2_DBG("Translation RAM read buffer:\n");
     offset = 0;
-    list_for_each(ptr, &hm2->tram_read_entries) {
-        hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
-        *tram_entry->buffer = (u32*)((u8*)hm2->tram_read_buffer + offset);
+    rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
+        hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
+        *tram_entry->buffer = (rtapi_u32*)((rtapi_u8*)hm2->tram_read_buffer + offset);
         offset += tram_entry->size;
         HM2_DBG("    addr=0x%04x, size=%d, buffer=%p\n", tram_entry->addr, tram_entry->size, *tram_entry->buffer);
     }
 
     HM2_DBG("Translation RAM write buffer:\n");
     offset = 0;
-    list_for_each(ptr, &hm2->tram_write_entries) {
-        hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
-        *tram_entry->buffer = (u32*)((u8*)hm2->tram_write_buffer + offset);
+    rtapi_list_for_each(ptr, &hm2->tram_write_entries) {
+        hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
+        *tram_entry->buffer = (rtapi_u32*)((rtapi_u8*)hm2->tram_write_buffer + offset);
         offset += tram_entry->size;
         HM2_DBG("    addr=0x%04x, size=%d, buffer=%p\n", tram_entry->addr, tram_entry->size, *tram_entry->buffer);
     }
@@ -137,11 +136,13 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
 
 
 int hm2_tram_read(hostmot2_t *hm2) {
-    static u32 tram_read_iteration = 0;
-    struct list_head *ptr;
+    static rtapi_u32 tram_read_iteration = 0;
+    struct rtapi_list_head *ptr;
+    rtapi_u16 offset;
 
-    list_for_each(ptr, &hm2->tram_read_entries) {
-        hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
+    offset = 0;
+    rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
+        hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
 
         if (!hm2->llio->read(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
             HM2_ERR("TRAM read error! (addr=0x%04x, size=%d, iter=%u)\n", tram_entry->addr, tram_entry->size, tram_read_iteration);
@@ -156,11 +157,11 @@ int hm2_tram_read(hostmot2_t *hm2) {
 
 
 int hm2_tram_write(hostmot2_t *hm2) {
-    static u32 tram_write_iteration = 0;
-    struct list_head *ptr;
+    static rtapi_u32 tram_write_iteration = 0;
+    struct rtapi_list_head *ptr;
 
-    list_for_each(ptr, &hm2->tram_write_entries) {
-        hm2_tram_entry_t *tram_entry = list_entry(ptr, hm2_tram_entry_t, list);
+    rtapi_list_for_each(ptr, &hm2->tram_write_entries) {
+        hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
 
         if (!hm2->llio->write(hm2->llio, tram_entry->addr, *tram_entry->buffer, tram_entry->size)) {
             HM2_ERR("TRAM write error! (addr=0x%04x, size=%d, iter=%u)\n", tram_entry->addr, tram_entry->size, tram_write_iteration);
@@ -176,20 +177,20 @@ int hm2_tram_write(hostmot2_t *hm2) {
 
 void hm2_tram_cleanup(hostmot2_t *hm2) {
     while (hm2->tram_read_entries.next != &hm2->tram_read_entries) {
-        struct list_head *te_ptr = hm2->tram_read_entries.next;
-        hm2_tram_entry_t *te = list_entry(te_ptr, hm2_tram_entry_t, list);
-        list_del(te_ptr);
-        kfree(te);
+        struct rtapi_list_head *te_ptr = hm2->tram_read_entries.next;
+        hm2_tram_entry_t *te = rtapi_list_entry(te_ptr, hm2_tram_entry_t, list);
+        rtapi_list_del(te_ptr);
+        rtapi_kfree(te);
     }
     while (hm2->tram_write_entries.next != &hm2->tram_write_entries) {
-        struct list_head *te_ptr = hm2->tram_write_entries.next;
-        hm2_tram_entry_t *te = list_entry(te_ptr, hm2_tram_entry_t, list);
-        list_del(te_ptr);
-        kfree(te);
+        struct rtapi_list_head *te_ptr = hm2->tram_write_entries.next;
+        hm2_tram_entry_t *te = rtapi_list_entry(te_ptr, hm2_tram_entry_t, list);
+        rtapi_list_del(te_ptr);
+        rtapi_kfree(te);
     }
 
     // free the tram buffers
-    if (hm2->tram_read_buffer != NULL) kfree(hm2->tram_read_buffer);
-    if (hm2->tram_write_buffer != NULL) kfree(hm2->tram_write_buffer);
+    if (hm2->tram_read_buffer != NULL) rtapi_kfree(hm2->tram_read_buffer);
+    if (hm2->tram_write_buffer != NULL) rtapi_kfree(hm2->tram_write_buffer);
 }
 

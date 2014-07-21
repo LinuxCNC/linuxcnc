@@ -17,7 +17,8 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
+#include <rtapi_stdint.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -28,7 +29,7 @@
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
-    u32 dds;
+    rtapi_u32 dds;
 	int deadtime;
 	int i;
 
@@ -131,9 +132,9 @@ void hm2_tp_pwmgen_force_write(hostmot2_t *hm2) {
     }
 
     //write out the values to their registers
-    hm2->llio->write(hm2->llio, hm2->tp_pwmgen.setup_addr, hm2->tp_pwmgen.setup_reg, (hm2->tp_pwmgen.num_instances * sizeof(u32)));
-    hm2->llio->write(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(u32)));
-    hm2->llio->write(hm2->llio, hm2->tp_pwmgen.pwmgen_master_rate_dds_addr, &hm2->tp_pwmgen.pwmgen_master_rate_dds_reg, sizeof(u32));
+    hm2->llio->write(hm2->llio, hm2->tp_pwmgen.setup_addr, hm2->tp_pwmgen.setup_reg, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)));
+    hm2->llio->write(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)));
+    hm2->llio->write(hm2->llio, hm2->tp_pwmgen.pwmgen_master_rate_dds_addr, &hm2->tp_pwmgen.pwmgen_master_rate_dds_reg, sizeof(rtapi_u32));
 
     if ((*hm2->llio->io_error) != 0) return;
 
@@ -188,7 +189,7 @@ force_write:
 //
 void hm2_tp_pwmgen_read(hostmot2_t *hm2) {
     int i;
-    hm2->llio->read(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(u32)));
+    hm2->llio->read(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)));
     for (i = 0 ; i < hm2->tp_pwmgen.num_instances ; i++) {
         *hm2->tp_pwmgen.instance[i].hal.pin.fault
             = (hm2->tp_pwmgen.enable_reg[i] & 2);
@@ -269,13 +270,13 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->tp_pwmgen.setup_addr = md->base_address + (2 * md->register_stride);
 
     //Allocate some memory for the parameter registers. The value equivalent is handled in the tram section
-    hm2->tp_pwmgen.setup_reg = (u32 *)kmalloc(hm2->tp_pwmgen.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->tp_pwmgen.setup_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->tp_pwmgen.setup_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail1;
     }
-    hm2->tp_pwmgen.enable_reg = (u32 *)kmalloc(hm2->tp_pwmgen.num_instances * sizeof(u32), GFP_KERNEL);
+    hm2->tp_pwmgen.enable_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->tp_pwmgen.enable_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -283,7 +284,7 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     // Register the PWM values with the TRAM
-    r = hm2_register_tram_write_region(hm2, hm2->tp_pwmgen.pwm_value_addr, (hm2->tp_pwmgen.num_instances * sizeof(u32)), &hm2->tp_pwmgen.pwm_value_reg);
+    r = hm2_register_tram_write_region(hm2, hm2->tp_pwmgen.pwm_value_addr, (hm2->tp_pwmgen.num_instances * sizeof(rtapi_u32)), &hm2->tp_pwmgen.pwm_value_reg);
     if (r < 0) {
         HM2_ERR("error registering tram write region for 3PWM Value register (%d)\n", r);
         goto fail2;
@@ -399,10 +400,10 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     return hm2->tp_pwmgen.num_instances;
 
 fail2:
-    kfree(hm2->tp_pwmgen.enable_reg);
+    rtapi_kfree(hm2->tp_pwmgen.enable_reg);
 
 fail1:
-    kfree(hm2->tp_pwmgen.setup_reg);
+    rtapi_kfree(hm2->tp_pwmgen.setup_reg);
 
 fail0:
     hm2->tp_pwmgen.num_instances = 0;
@@ -474,11 +475,11 @@ void hm2_tp_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
 void hm2_tp_pwmgen_cleanup(hostmot2_t *hm2) {
     if (hm2->tp_pwmgen.num_instances <= 0) return;
     if (hm2->tp_pwmgen.setup_reg != NULL) {
-        kfree(hm2->tp_pwmgen.setup_reg);
+        rtapi_kfree(hm2->tp_pwmgen.setup_reg);
         hm2->tp_pwmgen.enable_reg = NULL;
     }
     if (hm2->tp_pwmgen.enable_reg != NULL) {
-        kfree(hm2->tp_pwmgen.enable_reg);
+        rtapi_kfree(hm2->tp_pwmgen.enable_reg);
         hm2->tp_pwmgen.enable_reg = NULL;
     }
     hm2->tp_pwmgen.num_instances = 0;

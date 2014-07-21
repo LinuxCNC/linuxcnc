@@ -21,7 +21,7 @@
 // other modules. 
 
 
-#include <linux/slab.h>
+#include <rtapi_slab.h>
 
 #include "rtapi.h"
 #include "rtapi_string.h"
@@ -106,13 +106,13 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
     *hm2->dpll.pins->plimit = 0x400000;
 
     r = hm2_register_tram_read_region(hm2, hm2->dpll.hm2_dpll_sync_addr,
-            sizeof(u32), &hm2->dpll.hm2_dpll_sync_reg);
+            sizeof(rtapi_u32), &hm2->dpll.hm2_dpll_sync_reg);
     if (r < 0) {
         HM2_ERR("Error registering tram synch write. Aborting\n");
         goto fail0;
     }
     r = hm2_register_tram_read_region(hm2, hm2->dpll.control_reg1_addr,
-            sizeof(u32), &hm2->dpll.control_reg1_read);
+            sizeof(rtapi_u32), &hm2->dpll.control_reg1_read);
     if (r < 0) {
         HM2_ERR("Error registering dpll control reg 1. Aborting\n");
         goto fail0;
@@ -132,7 +132,7 @@ void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
     
      pins = hm2->dpll.pins;
     
-    *pins->phase_error = (s32)*hm2->dpll.hm2_dpll_sync_reg 
+    *pins->phase_error = (rtapi_s32)*hm2->dpll.hm2_dpll_sync_reg
             * (period / 4294967296000.00) ;
     *pins->ddssize = *hm2->dpll.control_reg1_read & 0xFF;
 }
@@ -140,7 +140,7 @@ void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
 void hm2_dpll_write(hostmot2_t *hm2, long period) {
     hm2_dpll_pins_t *pins;
     double period_ms = period / 1000;
-    u32 buff;
+    rtapi_u32 buff;
     static int init_counter = 0;
     
     if (hm2->dpll.num_instances == 0) return;
@@ -151,7 +151,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->llio->write(hm2->llio,
                 hm2->dpll.phase_err_addr,
                 &buff,
-                sizeof(u32));
+                sizeof(rtapi_u32));
         hm2->dpll.control_reg0_written= buff;
     }
     
@@ -166,7 +166,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
 
     if (*pins->prescale < 1) *pins->prescale = 1;
     
-    buff = (u32)((*pins->base_freq * 1000.0 
+    buff = (rtapi_u32)((*pins->base_freq * 1000.0
             * (1LL << *pins->ddssize) 
             * *pins->prescale)
             / hm2->dpll.clock_frequency);
@@ -175,42 +175,42 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
         hm2->llio->write(hm2->llio,
                 hm2->dpll.base_rate_addr,
                 &buff,
-                sizeof(u32));
+                sizeof(rtapi_u32));
         hm2->dpll.base_rate_written= buff;
     }
-    buff = (u32)(*pins->prescale << 24 
+    buff = (rtapi_u32)(*pins->prescale << 24
                 | *pins->plimit);
     if (buff != hm2->dpll.control_reg0_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.control_reg0_addr,
                 &buff,
-                sizeof(u32));
+                sizeof(rtapi_u32));
         hm2->dpll.control_reg0_written= buff;
     }
-    buff = (u32)(*pins->time_const << 16);
+    buff = (rtapi_u32)(*pins->time_const << 16);
     if (buff != hm2->dpll.control_reg1_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.control_reg1_addr,
                 &buff,
-                sizeof(u32));
+                sizeof(rtapi_u32));
         hm2->dpll.control_reg1_written= buff;
     }
-    buff = (u32)((-*hm2->dpll.pins->time2_us / period_ms) * 0x10000) << 16
-         | (u32)((-*hm2->dpll.pins->time1_us / period_ms) * 0x10000);
+    buff = (rtapi_u32)((-*hm2->dpll.pins->time2_us / period_ms) * 0x10000) << 16
+         | (rtapi_u32)((-*hm2->dpll.pins->time1_us / period_ms) * 0x10000);
     if (buff != hm2->dpll.timer_12_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_12_addr,
                 &buff,
-                sizeof(u32));
+                sizeof(rtapi_u32));
         hm2->dpll.timer_12_written = buff;
     }
-    buff = (u32)((-*hm2->dpll.pins->time4_us / period_ms) * 0x10000) << 16
-         | (u32)((-*hm2->dpll.pins->time3_us / period_ms) * 0x10000);
+    buff = (rtapi_u32)((-*hm2->dpll.pins->time4_us / period_ms) * 0x10000) << 16
+         | (rtapi_u32)((-*hm2->dpll.pins->time3_us / period_ms) * 0x10000);
     if (buff != hm2->dpll.timer_34_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_34_addr,
                 &buff,
-                sizeof(u32));
+                sizeof(rtapi_u32));
         hm2->dpll.timer_34_written = buff;
     }
 }

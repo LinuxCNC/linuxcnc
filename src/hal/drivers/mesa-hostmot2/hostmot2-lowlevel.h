@@ -20,8 +20,8 @@
 #ifndef HOSTMOT2_LOWLEVEL_H
 #define HOSTMOT2_LOWLEVEL_H
 
-#include <linux/device.h>
-#include <linux/firmware.h>
+#include <rtapi_device.h>
+#include <rtapi_firmware.h>
 
 #include "rtapi.h"
 #include "hal.h"
@@ -69,8 +69,8 @@ struct hm2_lowlevel_io_struct {
     // these two are required
     // on success these two return TRUE (not zero)
     // on failure they return FALSE (0) and set *self->io_error (below) to TRUE
-    int (*read)(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size);
-    int (*write)(hm2_lowlevel_io_t *self, u32 addr, void *buffer, int size);
+    int (*read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
+    int (*write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
 
     // these two are optional
     int (*program_fpga)(hm2_lowlevel_io_t *self, const bitfile_t *bitfile);
