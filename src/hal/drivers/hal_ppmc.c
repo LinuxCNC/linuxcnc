@@ -66,7 +66,8 @@
     information, go to www.linuxcnc.org.
 */
 
-#include <linux/slab.h>		/* kmalloc() */
+#include <rtapi_slab.h>		/* kmalloc() */
+#include <rtapi_io.h>		/* kmalloc() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -420,6 +421,8 @@ static int export_timestamp(slot_data_t *slot, bus_data_t *bus);
 *                       INIT AND EXIT CODE                             *
 ************************************************************************/
 
+void rtapi_app_exit(void);
+
 int rtapi_app_main(void)
 {
     int msg, rv, rv1, busnum, slotnum, n, boards;
@@ -493,7 +496,7 @@ int rtapi_app_main(void)
 	    busnum, port_addr[busnum]);
 	boards = 0;
 	/* allocate memory for bus data - this is not shared memory */
-	bus = kmalloc(sizeof(bus_data_t), GFP_KERNEL);
+	bus = rtapi_kmalloc(sizeof(bus_data_t), RTAPI_GFP_KERNEL);
 	if (bus == 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PPMC: ERROR: kmalloc() failed\n");
@@ -791,7 +794,7 @@ void rtapi_app_exit(void)
 		}
 	    }
 	    /* and free the memory block */
-	    kfree(bus);
+	    rtapi_kfree(bus);
 	}
     }
 
