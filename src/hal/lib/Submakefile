@@ -14,14 +14,15 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_rcomp.c \
 	$(MACHINETALK)/support/nanopb.c \
 	$(MACHINETALK)/nanopb/pb_decode.c \
-	$(MACHINETALK)/nanopb/pb_encode.c
+	$(MACHINETALK)/nanopb/pb_encode.c \
+	rtapi/rtapi_heap.c
 
 # protobuf support functions which depend on HAL - on RT host only
 HALLIBMTALK_SRCS := $(addprefix $(HALLIBDIR)/, \
 	halpb.cc)
 
 HALLIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
-HALLIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(PROFILE)
+HALLIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS)
 
 $(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAGS)
 
@@ -63,23 +64,5 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
 
-# extended HAL bindings
-HALEXTMODULESRCS := $(HALLIBDIR)/halextmodule.cc
-PYSRCS += $(HALEXTMODULESRCS)
-
-HALEXTMODULE := ../lib/python/halext.so
-
-# TODO: unifiy with boost.python configure support in master
-BOOST_PYTHON_LIBS := -lboost_python
-
-$(call TOOBJSDEPS, $(HALEXTMODULESRCS)): \
-	EXTRAFLAGS += -fPIC $(shell python-config --cflags)
-
-$(HALEXTMODULE): $(call TOOBJS, $(HALEXTMODULESRCS)) $(HALLIB)
-	$(ECHO) Linking python module $(notdir $@)
-	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
-	$(BOOST_PYTHON_LIBS) \
-	$(shell python-config --libs)  $(HALLIB)
-
 TARGETS += $(HALLIB) $(HALLIB).0
-PYTARGETS += $(HALMODULE)  $(HALEXTMODULE)
+PYTARGETS += $(HALMODULE)
