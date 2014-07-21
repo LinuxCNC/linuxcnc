@@ -83,7 +83,9 @@ int hm2_register_tram_write_region(hostmot2_t *hm2, rtapi_u16 addr, rtapi_u16 si
 
 int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     struct rtapi_list_head *ptr;
+    rtapi_u16 offset;
     
+    hm2->tram_read_size = 0;
     rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
         hm2->tram_read_size += tram_entry->size;
@@ -138,9 +140,7 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
 int hm2_tram_read(hostmot2_t *hm2) {
     static rtapi_u32 tram_read_iteration = 0;
     struct rtapi_list_head *ptr;
-    rtapi_u16 offset;
 
-    offset = 0;
     rtapi_list_for_each(ptr, &hm2->tram_read_entries) {
         hm2_tram_entry_t *tram_entry = rtapi_list_entry(ptr, hm2_tram_entry_t, list);
 
