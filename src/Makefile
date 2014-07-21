@@ -353,6 +353,7 @@ HEADERS := \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_bitops.h \
+    rtapi/rtapi_bool.h \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
