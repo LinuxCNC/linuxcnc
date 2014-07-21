@@ -60,6 +60,7 @@ XXAPI_COMMON_SRCS := \
 	rtapi_shmem.c \
 	rtapi_time.c \
 	rtapi_exception.c \
+	rtapi_heap.c \
 	$(THREADS_SOURCE).c
 
 # rtapi_compat needs to know where rtapi.ini lives
@@ -254,6 +255,7 @@ TARGETS += ../libexec/kdetect
 
 RTAPI_MSGD_SRCS =  \
 	rtapi/rtapi_msgd.cc \
+	rtapi/rtapi_heap.c \
 	rtapi/rtapi_compat.c
 
 RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
