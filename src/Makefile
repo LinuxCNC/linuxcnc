@@ -541,6 +541,8 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
+    rtapi/rtapi_heap.h \
+    rtapi/rtapi_heap_private.h \
     rtapi/ring.h \
     rtapi/multiframe.h \
     rtapi/rtapi_mbarrier.h \
