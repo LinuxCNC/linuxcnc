@@ -1,0 +1,91 @@
+// exercise the shared memory allocator
+
+component testalloc;
+
+pin in  float to_remote "dummy";
+
+function _;
+
+option singleton yes;
+option rtapi_app no;
+
+license "GPLv2 or later";
+;;
+
+#include "hal.h"
+#include "rtapi_heap.h"
+
+static char *name = "testalloc";
+static char *p1,*p2,*p3;
+static struct rtapi_heap *heap;
+
+FUNCTION(_) {
+    // this is not needed, but comp currently insists on
+    // a thread function
+}
+
+static void heapstat(struct rtapi_heap *h)
+{
+    struct rtapi_heap_stat hs;
+    rtapi_heap_status(h, &hs);
+    rtapi_print_msg(RTAPI_MSG_ERR, "heap at %p: largest=%zu nfrags=%zu total=%zu",
+		    h, hs.largest, hs.fragments, hs.total_avail);
+}
+
+size_t rtapi_print_freelist(struct rtapi_heap *h)
+{
+    size_t free = 0;
+    rtapi_malloc_hdr_t *p, *prevp, *freep = heap_ptr(h,h->free_p);
+    prevp = freep;
+    for (p = heap_ptr(h,prevp->s.next); ; prevp = p, p = heap_ptr(h,p->s.next)) {
+	if (p->s.size) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "%d at %p", p->s.size * sizeof(rtapi_malloc_hdr_t),(void *)(p + 1));
+	    free += p->s.size;
+	}
+	if (p == freep) {
+	    rtapi_print_msg(RTAPI_MSG_DBG, "end of free list %p",p);
+	    return free;
+	}
+    }
+}
+
+int rtapi_app_main(void)
+{
+    int retval;
+    comp_id = hal_init(name);
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_init() failed: %d\n",
+			name, comp_id);
+	return -1;
+    }
+    heap = &global_data->heap;
+    heapstat(heap);
+    p1 = rtapi_malloc(heap, 128);
+    p2 = rtapi_malloc(heap, 256);
+    p3 = rtapi_malloc(heap, 512);
+
+    if (!p1 || !p2 || !p3) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_malloc() failed: p1=%p p2=%p p3=%p\n",
+			name, p1,p2,p3);
+	return -1;
+    }
+    rtapi_free(heap, p1);
+    rtapi_free(heap, p3);
+    heapstat(heap);
+    rtapi_print_freelist(heap);
+    rtapi_free(heap, p2);
+    heapstat(heap);
+
+    hal_ready(comp_id);
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "%s:  component initialized\n", name);
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    rtapi_print_freelist(heap);
+    hal_exit(comp_id);
+}
