@@ -54,6 +54,11 @@
 
 int WithRoot::level;
 
+namespace
+{
+class RtapiApp &App();
+}
+
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
 
 using namespace std;
@@ -378,6 +383,7 @@ static int callback(int fd)
 
 static int master(int fd, vector<string> args) {
     do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
+    App(); // force rtapi_app to be created
     if(args.size()) {
         int result = handle_command(args);
         if(result != 0) return result;
