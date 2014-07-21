@@ -209,13 +209,13 @@ STATIC double tpGetFeedScale(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
         TC_STRUCT const * const tc) {
-    double v_target;
-    if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        v_target = tc->reqvel * tpGetFeedScale(tp,tc);
-    } else {
-        v_target = tp->vLimit;
-    }
-    return fmin(v_target, tc->maxvel);
+
+    // Start with the scaled target velocity based on the current feed scale
+    double v_target = tc->synchronized ? tc->target_vel : tc->reqvel * tpGetFeedScale(tp,tc);
+    tc_debug_print("Initial v_target = %f\n",v_target);
+
+    // Get the maximum allowed target velocity, and make sure we're below it
+    return fmin(v_target, tpGetMaxTargetVel(tp, tc));
 }
 
 
@@ -224,18 +224,16 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
  */
 STATIC inline double tpGetMaxTargetVel(TP_STRUCT const * const tp, TC_STRUCT const * const tc) {
     // Get maximum reachable velocity from max feed override
-    double v_max_target;
-    // Check if vLimit applies
+    double v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
+
+    // Check if the cartesian velocity limit applies and clip the maximum velocity if need be
     if (!tcPureRotaryCheck(tc) && (tc->synchronized != TC_SYNC_POSITION)){
-        v_max_target = tc->target_vel * emcmotConfig->maxFeedScale;
-    } else {
-        v_max_target = tp->vLimit;
+        tc_debug_print("Cartesian velocity limit active\n");
+        v_max_target = fmin(v_max_target,tp->vLimit);
     }
 
-    // Clip maximum velocity by tc maxvel
-    double v_max = fmin(v_max_target, tc->maxvel);
-
-    return v_max;
+    // Clip maximum velocity by the segment's own maximum velocity
+    return fmin(v_max_target, tc->maxvel);
 }
 
 
