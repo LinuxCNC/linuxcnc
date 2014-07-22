@@ -233,6 +233,14 @@ extern char* hal_comp_name(int comp_id);
 *                     DATA RELATED TYPEDEFS                            *
 ************************************************************************/
 
+/* The hal enums are arranged as distinct powers-of-two, so
+   that accidental confusion of one type with another (which ought
+   to be diagnosed by the type system) can be diagnosed as unexpected
+   values.  Note how HAL_RW is an exception to the powers-of-two rule,
+   as it is the bitwise OR of HAL_RO and the (nonexistent and nonsensical)
+   HAL_WO param direction.
+ */
+
 /** HAL pins and signals are typed, and the HAL only allows pins
     to be attached to signals of the same type.
     All HAL types can be read or written atomically.  (Read-modify-
@@ -274,7 +282,7 @@ typedef enum {
 
 typedef enum {
     HAL_RO = 64,
-    HAL_RW = 192,
+    HAL_RW = HAL_RO | 128 /* HAL_WO */,
 } hal_param_dir_t;
 
 /* Use these for x86 machines, and anything else that can write to
