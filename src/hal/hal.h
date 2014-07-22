@@ -288,11 +288,12 @@ typedef enum {
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
 #include <rtapi_bool.h>
-typedef volatile __u32 hal_u32_t;
-typedef volatile __s32 hal_s32_t;
+#include <rtapi_stdint.h>
 typedef volatile bool hal_bit_t;
+typedef volatile rtapi_u32 hal_u32_t;
+typedef volatile rtapi_s32 hal_s32_t;
 typedef double real_t __attribute__((aligned(8)));
-typedef __u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
+typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
 #define hal_float_t volatile real_t
 
 /***********************************************************************
