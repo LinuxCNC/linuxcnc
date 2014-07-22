@@ -85,7 +85,7 @@ static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
 }
 
 
-void hm2_watchdog_read(hostmot2_t *hm2) {
+void hm2_watchdog_process_tram_read(hostmot2_t *hm2) {
     // if there is no watchdog, then there's nothing to do
     if (hm2->watchdog.num_instances == 0) return;
 
@@ -101,8 +101,6 @@ void hm2_watchdog_read(hostmot2_t *hm2) {
 
     // last time we were here, everything was fine
     // see if the watchdog has bit since then
-    hm2->llio->read(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, (hm2->watchdog.num_instances * sizeof(rtapi_u32)));
-    if ((*hm2->llio->io_error) != 0) return;
     if (hm2->watchdog.status_reg[0] & 0x1) {
         HM2_PRINT("Watchdog has bit! (set the .has-bit pin to False to resume)\n");
         *hm2->watchdog.instance[0].hal.pin.has_bit = 1;
@@ -165,16 +163,15 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->watchdog.reset_addr = md->base_address + (2 * md->register_stride);
 
 
+    r = hm2_register_tram_read_region(hm2, hm2->watchdog.status_addr, (hm2->watchdog.num_instances * sizeof(rtapi_u32)), &hm2->watchdog.status_reg);
+    if (r < 0) {
+        HM2_ERR("error registering tram read region for watchdog (%d)\n", r);
+        goto fail0;
+    }
+
     // 
     // allocate memory for register buffers
     //
-
-    hm2->watchdog.status_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->watchdog.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
-    if (hm2->watchdog.status_reg == NULL) {
-        HM2_ERR("out of memory!\n");
-        r = -ENOMEM;
-        goto fail0;
-    }
 
     hm2->watchdog.reset_reg = (rtapi_u32 *)rtapi_kmalloc(hm2->watchdog.num_instances * sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->watchdog.reset_reg == NULL) {
@@ -249,7 +246,6 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->watchdog.instance[0].warned_about_short_timeout = 0;
 
     hm2->watchdog.reset_reg[0] = 0x5a000000;
-    hm2->watchdog.status_reg[0] = 0;
 
 
     return hm2->watchdog.num_instances;
@@ -262,7 +258,6 @@ fail2:
     rtapi_kfree(hm2->watchdog.reset_reg);
 
 fail1:
-    rtapi_kfree(hm2->watchdog.status_reg);
 
 fail0:
     hm2->watchdog.num_instances = 0;
@@ -290,7 +285,6 @@ void hm2_watchdog_print_module(hostmot2_t *hm2) {
 
 void hm2_watchdog_cleanup(hostmot2_t *hm2) {
     if (hm2->watchdog.num_instances <= 0) return;
-    if (hm2->watchdog.status_reg != NULL) rtapi_kfree(hm2->watchdog.status_reg);
     if (hm2->watchdog.reset_reg != NULL) rtapi_kfree(hm2->watchdog.reset_reg);
     if (hm2->watchdog.timer_reg != NULL) rtapi_kfree(hm2->watchdog.timer_reg);
 }
