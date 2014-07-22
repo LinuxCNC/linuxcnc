@@ -1369,6 +1369,14 @@ else
     TCLSH=tclsh
 fi
 
+AC_ARG_ENABLE(check-runtime-deps,
+    [--disable-check-runtime-deps   Skip checks for runtime requirements not needed during the build process],
+    [RUNTIME_CHECK=no],
+    [RUNTIME_CHECK=yes])
+AC_MSG_CHECKING([whether to check for runtime dependencies])
+AC_MSG_RESULT($RUNTIME_CHECK)
+
+if test "$RUNTIME_CHECK" = "yes"; then
 AC_MSG_CHECKING([for BWidget using $TCLSH])
 if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
     AC_MSG_RESULT([found])
@@ -1376,11 +1384,9 @@ else
     AC_MSG_ERROR([not found])
 fi
 
-HAVE_WORKING_BLT=no
 AC_MSG_CHECKING([for BLT using tclsh8.5])
 if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
     AC_MSG_RESULT([found])
-    HAVE_WORKING_BLT=yes
 else
     AC_MSG_RESULT([not found])
 fi
@@ -1392,6 +1398,7 @@ if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearc
 else
     AC_MSG_ERROR([not found])
 fi
+fi
 
 AC_SUBST([TCL_DBGX])
 AC_SUBST([TK_DBGX])
@@ -1401,7 +1408,6 @@ AC_SUBST([TCL_LIBS])
 AC_SUBST([TK_LIBS])
 AC_SUBST([WISH])
 AC_SUBST([TCLSH])
-AC_SUBST([HAVE_WORKING_BLT])
 
 ##############################################################################
 # Section 6 - Miscelaneous support                                           #

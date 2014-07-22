@@ -586,10 +586,8 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/linuxcnc_info $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc_var $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
-ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latency-plot $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-histogram $(DESTDIR)$(bindir)
-endif
 	$(EXE) ../scripts/pyvcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/gladevcp_demo $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
