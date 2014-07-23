@@ -8,8 +8,8 @@ T=`mktemp -d`
 trap 'cd /; [ -d $T ] && rm -rf $T' SIGINT SIGTERM EXIT
 cd $T
 
-calc() { echo "scale=1; $1" | bc; }
-icalc() { echo "scale=0; ($1)*1" | bc | sed 's/\..*//'; }
+calc() { awk "BEGIN { print ($1); }" < /dev/null; }
+icalc() { awk "BEGIN { printf \"%.0f\n\", ($1); }" < /dev/null; }
 
 parse_time () {
     case $1 in
