@@ -604,6 +604,14 @@ static int harden_rt()
 #endif
 
     struct sigaction sig_act;
+    // enable realtime
+    if (setrlimit(RLIMIT_RTPRIO, &unlimited) < 0)
+    {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+		  "setrlimit(RTLIMIT_RTPRIO): %s\n",
+		  strerror(errno));
+        return -errno;
+    }
 
     // enable core dumps
     if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
