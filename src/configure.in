@@ -175,9 +175,6 @@ AC_ARG_WITH(realtime,
 	"" | y | ye | yes | n | no)
 	    AC_MSG_ERROR([You must supply a path or "uspace" for --with-realtime.]) ;;
 	*)
-            if test ! -z "$RTS"; then
-                AC_MSG_ERROR([--with-realtime and --enable-simulator are mutually exclusive])
-            fi
             RTS="$withval" ;;
         esac
         ])
@@ -231,8 +228,8 @@ else
     AC_MSG_ERROR([RT not found.  Specify:
 	--with-realtime=<path>
 or use
-	--enable-simulator
-to build without a realtime system.])
+	--with-realtime=uspace
+to build for userspace (with or without realtime support)])
   fi
   AC_MSG_RESULT([Using $RTS as the RT signature])
 fi
