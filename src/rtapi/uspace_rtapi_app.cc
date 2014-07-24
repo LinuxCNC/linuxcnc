@@ -465,7 +465,6 @@ struct rtapi_module {
 #define MODULE_MAGIC  30812
 #define SHMEM_MAGIC   25453
 
-#define MAX_TASKS  64
 #define MAX_MODULES  64
 #define MODULE_OFFSET 32768
 
@@ -707,6 +706,16 @@ int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
   /* and return handle to the caller */
 
   return n;
+}
+
+rtapi_task *RtapiApp::get_task(int task_id) {
+    if(task_id < 0 || task_id >= MAX_TASKS) return NULL;
+    /* validate task handle */
+    rtapi_task *task = &task_array[task_id];
+    if(!task || task->magic != TASK_MAGIC)
+        return NULL;
+
+    return task;
 }
 
 int Posix::task_delete(int id)
