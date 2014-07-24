@@ -1,0 +1,44 @@
+.TH HM2_PCI "9" "2008-05-13" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+
+hm2_eth \- LinuxCNC HAL driver for the Mesa Electronics Ethernet Anything IO boards, with HostMot2 firmware.
+.SH SYNOPSIS
+
+.HP
+.B loadrt hm2_eth [config=\fI"str[,str...]"\fB] [board_ip=\fIip[,ip...]\fB] [board_mac=\fImac[,mac...]\]fB]
+.RS 4
+.TP
+\fBconfig\fR [default: ""]
+HostMot2 config strings, described in the hostmot2(9) manpage.
+.TP
+\fBboard_ip\fR [default: ""]
+The IP address of the board(s), separated by commas.  As shipped, the board address is 192.168.1.121.
+.TP
+\fBboard_mac\fR [default: ""]
+The ethernet hardware address of the board(s), in typical hex format (aa:bb:cc:00:11:22), separated by commas.  The ethernet address can be determined by first "ping"ing the board, then "arp"ing it:
+.RS 12
+ping -c 1 -n 192.168.1.121; /usr/sbin/arp -n 192.168.1.121
+.RE
+.RE
+.SH DESCRIPTION
+
+hm2_eth is a device driver that interfaces Mesa's ethernet
+based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
+HAL.
+
+The supported boards are: 7I80DB, 7I80HD.
+
+The board must have its hardware loaded on the board by the mesaflash(1) program.
+
+.SH SEE ALSO
+
+hostmot2(9)
+.SH LICENSE
+
+GPL
