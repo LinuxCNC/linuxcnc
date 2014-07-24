@@ -462,21 +462,7 @@ struct rtapi_module {
   int magic;
 };
 
-struct rtapi_task {
-  int magic;			/* to check for valid handle */
-  int owner;
-  pthread_t thr;                /* thread's context */
-  size_t stacksize;
-  int prio;
-  long period;
-  struct timespec nextstart;
-  unsigned ratio;
-  void *arg;
-  void (*taskcode) (void*);	/* pointer to task function */
-};
-
 #define MODULE_MAGIC  30812
-#define TASK_MAGIC    21979	/* random numbers used as signatures */
 #define SHMEM_MAGIC   25453
 
 #define MAX_TASKS  64
@@ -648,7 +634,7 @@ RtapiApp &App()
 
 }
 /* data for all tasks */
-static struct rtapi_task task_array[MAX_TASKS] = {{0},};
+struct rtapi_task task_array[MAX_TASKS] = {{0},};
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 

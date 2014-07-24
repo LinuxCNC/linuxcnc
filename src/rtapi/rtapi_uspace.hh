@@ -34,6 +34,23 @@ struct RtapiApp
     long period;
 };
 
+#define MAX_TASKS  64
+#define TASK_MAGIC    21979	/* random numbers used as signatures */
+
+struct rtapi_task {
+  int magic;			/* to check for valid handle */
+  int owner;
+  pthread_t thr;                /* thread's context */
+  size_t stacksize;
+  int prio;
+  long period;
+  struct timespec nextstart;
+  unsigned ratio;
+  void *arg;
+  void (*taskcode) (void*);	/* pointer to task function */
+};
+
+extern struct rtapi_task task_array[MAX_TASKS];
 
 #define WITH_ROOT WithRoot root
 #endif
