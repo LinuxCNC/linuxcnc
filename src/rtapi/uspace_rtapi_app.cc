@@ -720,14 +720,8 @@ rtapi_task *RtapiApp::get_task(int task_id) {
 
 int Posix::task_delete(int id)
 {
-  struct rtapi_task *task;
-
-  if(id < 0 || id >= MAX_TASKS) return -EINVAL;
-
-  task = &(task_array[id]);
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
+  struct rtapi_task *task = get_task(id);
+  if(!task) return -EINVAL;
 
   pthread_cancel(task->thr);
   pthread_join(task->thr, 0);
@@ -737,15 +731,8 @@ int Posix::task_delete(int id)
 
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
-  struct rtapi_task *task;
-
-  if(task_id < 0 || task_id >= MAX_TASKS) return -EINVAL;
-
-  task = &task_array[task_id];
-
-  /* validate task handle */
-  if (task->magic != TASK_MAGIC)
-    return -EINVAL;
+  struct rtapi_task *task = get_task(task_id);
+  if(!task) return -EINVAL;
 
   if(period_nsec < (unsigned long)period) period_nsec = (unsigned long)period;
   task->period = period_nsec;
