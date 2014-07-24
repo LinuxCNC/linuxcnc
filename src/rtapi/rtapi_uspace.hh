@@ -22,6 +22,7 @@ struct RtapiApp
     long clock_set_period(long int period_nsec);
     int task_new(void (*taskcode)(void*), void *arg,
             int prio, int owner, unsigned long int stacksize, int uses_fp);
+    static int allocate_task();
     static struct rtapi_task *get_task(int task_id);
     virtual int task_delete(int id) = 0;
     virtual int task_start(int task_id, unsigned long period_nsec) = 0;
@@ -37,6 +38,7 @@ struct RtapiApp
 
 #define MAX_TASKS  64
 #define TASK_MAGIC    21979	/* random numbers used as signatures */
+#define TASK_MAGIC_INIT   ~21979
 
 struct rtapi_task {
   int magic;			/* to check for valid handle */

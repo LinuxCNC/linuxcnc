@@ -670,38 +670,40 @@ int RtapiApp::prio_next_lower(int prio)
   return prio - 1;
 }
 
+int RtapiApp::allocate_task()
+{
+    for(int n=0; n<MAX_TASKS; n++)
+    {
+        rtapi_task *task = &(task_array[n]);
+        if(__sync_bool_compare_and_swap(&task->magic, 0, TASK_MAGIC_INIT))
+            return n;
+    }
+    return -ENOSPC;
+}
+
 int RtapiApp::task_new(void (*taskcode) (void*), void *arg,
         int prio, int owner, unsigned long int stacksize, int uses_fp) {
-  int n;
-  struct rtapi_task *task;
-
-  /* find an empty entry in the task array */
-  /*! \todo  FIXME - this is not 100% thread safe.  If another thread
-     calls this function after the first thread breaks out of
-     the loop but before it sets the magic number, two tasks
-     might wind up assigned to the same structure.  Need an
-     atomic test and set for the magic number.  Not tonight! */
-  n = 0;
-  while ((n < MAX_TASKS) && (task_array[n].magic == TASK_MAGIC))
-    n++;
-  if (n == MAX_TASKS)
-    return -ENOMEM;
-  task = &(task_array[n]);
-
   /* check requested priority */
   if ((prio > rtapi_prio_highest()) || (prio < rtapi_prio_lowest()))
+  {
     return -EINVAL;
+  }
 
   /* label as a valid task structure */
-  /*! \todo FIXME - end of non-threadsafe window */
+  int n = allocate_task();
+  if(n < 0) return n;
+
+  // cannot use get_task, since task->magic is TASK_MAGIC_INIT
+  struct rtapi_task *task = &(task_array[n]);
+
   if(stacksize < (1024*1024)) stacksize = (1024*1024);
   memset(task, 0, sizeof(*task));
-  task->magic = TASK_MAGIC;
   task->owner = owner;
   task->arg = arg;
   task->stacksize = stacksize;
   task->taskcode = taskcode;
   task->prio = prio;
+  task->magic = TASK_MAGIC;
 
   /* and return handle to the caller */
 
