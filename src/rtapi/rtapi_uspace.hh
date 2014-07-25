@@ -43,7 +43,10 @@ struct RtapiApp
 struct rtapi_task {
   int magic;			/* to check for valid handle */
   int owner;
-  pthread_t thr;                /* thread's context */
+  union {
+      pthread_t thr;                /* thread's context */
+      void *appspecific;          /* app-specific storage */
+  };
   size_t stacksize;
   int prio;
   long period;
