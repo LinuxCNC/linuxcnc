@@ -37,23 +37,23 @@ message Container {
     // this is an optimization which allows messagbus to deserialize/serialize
     // on behalf of RT components
 
-    repeated Preview       preview        = 8;
+    repeated Preview       preview        = 8   [(nanopb).type = FT_IGNORE];
 
     optional MotionCommand motcmd         = 9;
     optional MotionStatus  motstat        = 10;
-    optional bytes         legacy_motcmd  = 11;  // emcmot_command_t wrapped in PB
-    optional bytes         legacy_motstat = 12;  // emcmot_status_t wrapped in PB
+    optional bytes         legacy_motcmd  = 11  [(nanopb).type = FT_IGNORE];  // emcmot_command_t wrapped in PB
+    optional bytes         legacy_motstat = 12  [(nanopb).type = FT_IGNORE];  // emcmot_status_t wrapped in PB
 
     optional RTAPI_Message rtapi_message  = 13;
-    optional TaskReply     task_reply     = 14;
+    optional TaskReply     task_reply     = 14  [(nanopb).type = FT_IGNORE];
     optional TicketUpdate  ticket_update  = 15;
 
     // tags in the range 16 through 2047 take two bytes.
     // various blobs and less frequently used messages
 
-    optional bytes         syslog         = 18;  // RFC5424 syslog(3) encoding
-    optional bytes         legacy_nml     = 19;  // legacy NML container
-    optional bytes       legacy_motconfig = 20;  // emcmot_config_t wrapped in PB
+    optional bytes         syslog         = 18  [(nanopb).type = FT_IGNORE];  // RFC5424 syslog(3) encoding
+    optional bytes         legacy_nml     = 19  [(nanopb).type = FT_IGNORE];  // legacy NML container
+    optional bytes       legacy_motconfig = 20  [(nanopb).type = FT_IGNORE];  // emcmot_config_t wrapped in PB
 
     // timestamps: as per struct timespec
     // obtain with clock_gettime(CLOCK_REALTIME, &spec);
@@ -69,7 +69,7 @@ message Container {
     optional bool          reply_required = 24; // force a response even if OK
 
     // interpreter status updates, MT_INTERP_STAT
-    optional InterpreterStateType interp_state = 25;
+    optional InterpreterStateType interp_state = 25  [(nanopb).type = FT_IGNORE];
 
     // this is an or of bits in ReplyType:
     optional int32                   rsvp = 30;  // if/how to answer
@@ -93,50 +93,50 @@ message Container {
     optional int32            line_number = 66;
 
     // used with MT_MESSAGEBUS_NO_DESTINATION
-    optional string                  name = 67;  // faulty messagebus destination
+    optional string                  name = 67  [(nanopb).type = FT_IGNORE];  // faulty messagebus destination
     repeated string                  note = 68;  // easy tack-on for debugging
     optional int32                retcode = 69;  // all purpose integer return code
 
     // generalized error descriptor
-    optional AnError                error = 70;
+    //    optional AnError                error = 70  [(nanopb).type = FT_IGNORE];
 
     // uuid helps distinguish server instances
-    optional bytes                  uuid  = 72;
+    optional bytes                  uuid  = 72  [(nanopb).type = FT_IGNORE];
 
     optional bool                   trace = 75;  // log from intermediaries
 
     optional int32               instance = 77;  // RTAPI instance if nonzero
 
     // where is this coming from:
-    optional Originator            origin = 80;
+    //    optional Originator            origin = 80;
 
     // generalized polymorphic argument list
-    repeated Value                value   = 85;  //  [(nanopb).max_count = 20];
+    repeated Value                value   = 85  [(nanopb).type = FT_IGNORE];  //  [(nanopb).max_count = 20];
 
-    optional RTAPICommand           rtapicmd = 86;
+    optional RTAPICommand           rtapicmd = 86 [(nanopb).type = FT_IGNORE];
 
 
     // a reply may carry several service announcements:
-    repeated ServiceAnnouncement  service_announcement = 88;
+    repeated ServiceAnnouncement  service_announcement = 88  [(nanopb).type = FT_IGNORE];
 
    //  // string argv-type vector; used in MT_RTAPI_APP_* and possibly others
    //  repeated string                 argv =  86;  //  [(nanopb).max_count = 20];
 
     // remote comp description for MT_HALCOMP_CREATE: [comp, pins*]
-    repeated Component   comp      = 100;
-    repeated Pin         pin       = 2;  // high frequency - use single byte tag
-    repeated Signal      signal    = 3;  // high frequency - use single byte tag
-    repeated Param       param     = 103;
-    repeated Thread      thread    = 104;
-    repeated Ring        ring      = 105;
-    repeated Group       group     = 106;
-    repeated Member      member    = 107;
-    repeated Function    function  = 108;
+    repeated Component   comp      = 100  [(nanopb).type = FT_IGNORE];
+    repeated Pin         pin       = 2    [(nanopb).type = FT_IGNORE];  // high frequency - use single byte tag
+    repeated Signal      signal    = 3    [(nanopb).type = FT_IGNORE];  // high frequency - use single byte tag
+    repeated Param       param     = 103  [(nanopb).type = FT_IGNORE];
+    repeated Thread      thread    = 104  [(nanopb).type = FT_IGNORE];
+    repeated Ring        ring      = 105  [(nanopb).type = FT_IGNORE];
+    repeated Group       group     = 106  [(nanopb).type = FT_IGNORE];
+    repeated Member      member    = 107  [(nanopb).type = FT_IGNORE];
+    repeated Function    function  = 108  [(nanopb).type = FT_IGNORE];
 
     // the app field is  included as a reply to
     // a MT_LIST_APPLICATIONS and
     // MT_RETRIEVE_APPLICATION message
-    repeated Application app       = 120;
+    repeated Application app       = 120  [(nanopb).type = FT_IGNORE];
 
     // // miscellanous typed objects
     // optional string        ascii          = 140;
@@ -154,17 +154,17 @@ message Container {
     // optional bytes         svg            = 152;
 
     // infrequent compound messages
-    optional bytes         wou            = 160;  // Arais Wishbone-over-USB
-    optional LogMessage    log_message    = 87;
+    //optional bytes         wou            = 160;  // Arais Wishbone-over-USB
+    optional LogMessage    log_message    = 87   [(nanopb).type = FT_IGNORE];
 
     // taskplan (interpreter command) messages
-    optional TaskPlanExecute     tpexecute     = 200;
-    optional TaskPlanBlockDelete tpblockdelete  = 201;
-    optional TaskPlanOptionalStop tpoptionalstop  = 202;
-    optional TaskPlanOpen         tpopen     = 203;
+    optional TaskPlanExecute     tpexecute     = 200  [(nanopb).type = FT_IGNORE];
+    optional TaskPlanBlockDelete tpblockdelete  = 201  [(nanopb).type = FT_IGNORE];
+    optional TaskPlanOptionalStop tpoptionalstop  = 202  [(nanopb).type = FT_IGNORE];
+    optional TaskPlanOpen         tpopen     = 203  [(nanopb).type = FT_IGNORE];
 
     // interpreter reply
-    optional TaskPlanReply taskplan_reply       = 210;
+    optional TaskPlanReply taskplan_reply       = 210  [(nanopb).type = FT_IGNORE];
 
     // canon messages
     optional Emc_Traj_Set_G5x                 traj_set_g5x = 300;
