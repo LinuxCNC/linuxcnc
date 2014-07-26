@@ -867,6 +867,9 @@ obj-$(CONFIG_HAL_PPMC) += hal_ppmc.o
 hal_ppmc-objs := hal/drivers/hal_ppmc.o $(MATHSTUB)
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
+ifeq ($(BUILD_SYS),uspace)
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
+endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
@@ -899,6 +902,9 @@ hm2_7i43-objs :=			  \
 hm2_pci-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_pci.o   \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_eth-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_eth.o   \
     $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
@@ -1099,6 +1105,7 @@ endif
 ../rtlib/setsserial$(MODULE_EXT): $(addprefix objects/rt,$(setsserial-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 ../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
+../rtlib/hm2_eth$(MODULE_EXT): $(addprefix objects/rt,$(hm2_eth-objs))
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
