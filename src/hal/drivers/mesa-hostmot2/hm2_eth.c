@@ -35,9 +35,6 @@ MODULE_SUPPORTED_DEVICE("Mesa-AnythingIO-7i80");
 static char *board_ip;
 RTAPI_MP_STRING(board_ip, "ip address of ethernet board(s)");
 
-static char *board_mac;
-RTAPI_MP_STRING(board_mac, "mac address of ethernet board(s)");
-
 static char *config[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
 
@@ -76,10 +73,36 @@ int write_cnt = 0;
 
 /// ethernet io functions
 
+struct arpreq req;
+static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
+static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
+
+static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
+    lbp16_cmd_addr packet;
+    unsigned char response[6];
+    LBP16_INIT_PACKET4(packet, 0x4983, 0x0002);
+    int res = eth_socket_send(sockfd, &packet, sizeof(packet), 0);
+    if(res < 0) return -errno;
+
+    int i=0;
+    do {
+        res = eth_socket_recv(sockfd, &response, sizeof(response), 0);
+    } while(++i < 10 && res < 0 && errno == EAGAIN);
+    if(res < 0) return -errno;
+
+    // eeprom order is backwards from arp AF_LOCAL order
+    for(i=0; i<6; i++) buf[i] = response[5-i];
+
+    LL_PRINT("Hardware address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+        buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+
+    return 0;
+}
+
 static int init_net(void) {
     int ret;
 
-    sockfd = socket(PF_INET, SOCK_DGRAM, 0);
+    sockfd = socket(PF_INET, SOCK_DGRAM, IPPROTO_IP);
     if (sockfd < 0) {
         LL_PRINT("ERROR: can't open socket: %s\n", strerror(errno));
         return -errno;
@@ -112,22 +135,27 @@ static int init_net(void) {
         return -errno;
     }
 
-    struct arpreq req;
     memset(&req, 0, sizeof(req));
     struct sockaddr_in *sin;
-    rtapi_u32 v[6];
-    int i;
-    rtapi_u8 *ptr = (rtapi_u8 *) &req.arp_ha.sa_data;
 
     sin = (struct sockaddr_in *) &req.arp_pa;
     sin->sin_family = AF_INET;
     sin->sin_addr.s_addr = inet_addr(board_ip);
-    sscanf(board_mac, "%x:%x:%x:%x:%x:%x", &v[0], &v[1], &v[2], &v[3], &v[4], &v[5]);
-    for (i = 0; i < 6; i++)
-        *ptr++ = v[i];
+
+    req.arp_ha.sa_family = AF_LOCAL;
     req.arp_flags = ATF_PERM | ATF_COM;
+    ret = fetch_hwaddr( sockfd, (void*)&req.arp_ha.sa_data );
+    if(ret < 0) {
+        LL_PRINT("ERROR: Could not retrieve mac address\n");
+        return ret;
+    }
 
     ret = ioctl(sockfd, SIOCSARP, &req);
+    if(ret < 0) {
+        perror("ioctl SIOCSARP");
+        req.arp_flags &= ~ATF_PERM;
+        return -errno;
+    }
 
     //setsockopt (sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&size, sizeof(size));
     //setsockopt (sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size));
@@ -136,6 +164,10 @@ static int init_net(void) {
 }
 
 static int close_net(void) {
+    if(req.arp_flags & ATF_PERM) {
+        int ret = ioctl(sockfd, SIOCDARP, &req);
+        if(ret < 0) perror("ioctl SIOCDARP");
+    }
     int ret = shutdown(sockfd, SHUT_RDWR);
     if (ret < 0)
         LL_PRINT("ERROR: can't close socket: %s\n", strerror(errno));
