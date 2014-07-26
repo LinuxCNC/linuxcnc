@@ -29,6 +29,31 @@ The supported boards are: 7I80DB, 7I80HD.
 
 The board must have its hardware loaded on the board by the mesaflash(1) program.
 
+.SH EXCLUSIVE ACCESS
+
+Use of the ethernet interface that the hostmot2 board is connected to by other
+software besides hm2_eth can cause violation of realtime guarantees.
+
+To guard against this, configure your system to use iptables with an empty
+chain named "hm2-eth-rules-output" (you must use this name; it is hardcoded in
+hm2_eth), and with a call to this rule at the beginning of the OUTPUT chain.
+
+If iptables are not otherwise in use, the following /etc/iptables file may be
+used:
+
+.EX
+*filter
+:OUTPUT ACCEPT [0:0]
+:hm2-eth-rules-output - [0:0]
+-A OUTPUT -j hm2-eth-rules-output
+COMMIT
+.EE
+
+If this configuration is present, then when hm2_eth loads it will
+add rules restricting use of the interface to only its own UDP socket;
+at (normal) exit, it will remove the rules.  You can manually clear the rules
+with \fBsudo iptables -F hm2-eth-rules-output\fR.
+
 .SH BUGS
 At this time, only a single board is supported.
 

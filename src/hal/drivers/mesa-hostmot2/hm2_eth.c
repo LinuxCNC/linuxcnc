@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <ifaddrs.h>
 
 #include <rtapi_slab.h>
 #include <rtapi_ctype.h>
@@ -77,6 +78,127 @@ struct arpreq req;
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
+#define IPTABLES "/sbin/iptables"
+#define CHAIN "hm2-eth-rules-output"
+
+// Assume we can use iptables if this chain exists
+static bool _use_iptables() {
+    if(geteuid() != 0) return 0;
+    int result =
+        system(IPTABLES" -n -L "CHAIN" > /dev/null 2>&1");
+    return result == EXIT_SUCCESS;
+}
+
+static int iptables_state = -1;
+static bool use_iptables() {
+    if(iptables_state == -1) iptables_state = _use_iptables();
+    return iptables_state;
+}
+
+static void clear_iptables() {
+    system(IPTABLES" -F "CHAIN" > /dev/null 2>&1");
+}
+
+static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
+    const char *addr = inet_ntoa(in);
+    snprintf(buf, n, "%s", addr);
+    return buf;
+}
+
+static char* fetch_ifname(struct sockaddr_in srcaddr, char *buf, size_t n) {
+    struct ifaddrs *ifa, *it;
+
+    if(getifaddrs(&ifa) < 0) return NULL;
+
+    for(it=ifa; it; it=it->ifa_next) {
+        struct sockaddr_in *ifaddr = (struct sockaddr_in*)it->ifa_addr;
+        if(ifaddr->sin_family != srcaddr.sin_family) continue;
+        if(ifaddr->sin_addr.s_addr != srcaddr.sin_addr.s_addr) continue;
+        snprintf(buf, n, "%s", it->ifa_name);
+        freeifaddrs(ifa);
+        return buf;
+    }
+
+    freeifaddrs(ifa);
+    return NULL;
+}
+
+static char *vseprintf(char *buf, char *ebuf, const char *fmt, va_list ap) {
+    int result = vsnprintf(buf, ebuf-buf, fmt, ap);
+    if(result < 0) return ebuf;
+    else if(buf + result > ebuf) return ebuf;
+    else return buf + result;
+}
+
+static char *seprintf(char *buf, char *ebuf, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    char *result = vseprintf(buf, ebuf, fmt, ap);
+    va_end(ap);
+    return result;
+}
+
+static int install_iptables_rule(const char *fmt, ...) {
+    char commandbuf[1024], *ptr = commandbuf,
+        *ebuf = commandbuf + sizeof(commandbuf);
+    ptr = seprintf(ptr, ebuf, IPTABLES" -A "CHAIN" ");
+    va_list ap;
+    va_start(ap, fmt);
+    ptr = vseprintf(ptr, ebuf, fmt, ap);
+    va_end(ap);
+
+    if(ptr == ebuf)
+    {
+        LL_PRINT("ERROR: commandbuf too small\n");
+        return -ENOSPC;
+    }
+
+    int res = system(commandbuf);
+    if(res == EXIT_SUCCESS) return 0;
+
+    LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
+    return -EINVAL;
+}
+
+static int install_iptables(int sockfd) {
+    struct sockaddr_in srcaddr, dstaddr;
+    char srchost[16], dsthost[16]; // enough for 255.255.255.255\0
+    char ifbuf[64]; // more than enough for eth0
+
+    socklen_t addrlen = sizeof(srcaddr);
+    int res = getsockname(sockfd, &srcaddr, &addrlen);
+    if(res < 0) return -errno;
+
+    addrlen = sizeof(dstaddr);
+    res = getpeername(sockfd, &dstaddr, &addrlen);
+    if(res < 0) return -errno;
+
+    res = install_iptables_rule(
+        "-p udp -m udp -d %s --dport %d -s %s --sport %d -j ACCEPT",
+        inet_ntoa_buf(dstaddr.sin_addr, dsthost, sizeof(dsthost)),
+        ntohs(dstaddr.sin_port),
+        inet_ntoa_buf(srcaddr.sin_addr, srchost, sizeof(srchost)),
+        ntohs(srcaddr.sin_port));
+    if(res < 0) return res;
+
+    // without this rule, 'ping' spews a lot of messages like
+    //    From 192.168.1.1 icmp_seq=5 Packet filtered
+    // many times for each ping packet sent.  With this rule,
+    // ping prints 'ping: sendmsg: Operation not permitted' once
+    // per second.
+    res = install_iptables_rule(
+        "-o %s -p icmp -j DROP",
+        fetch_ifname(srcaddr, ifbuf, sizeof(ifbuf)));
+    if(res < 0) return res;
+
+    res = install_iptables_rule(
+        "-o %s -j REJECT --reject-with icmp-admin-prohibited",
+        ifbuf);
+    if(res < 0) return res;
+
+    return 0;
+}
+
 static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
     lbp16_cmd_addr packet;
     unsigned char response[6];
@@ -120,6 +242,17 @@ static int init_net(void) {
         return -errno;
     }
 
+    if(use_iptables()) {
+        LL_PRINT("Using iptables for exclusive access to network interface\n")
+        // firewall has to be open in order to successfully arp the board
+        clear_iptables();
+    } else {
+        LL_PRINT(\
+"WARNING: Unable to restrict other access to the hm2-eth device.\n"
+"This means that other software using the same network interface can violate\n"
+"realtime guarantees.  See hm2_eth(9) for more information.\n");
+    }
+
     struct timeval timeout;
     timeout.tv_sec = 0;
     timeout.tv_usec = 10;
@@ -157,6 +290,12 @@ static int init_net(void) {
         return -errno;
     }
 
+    if(use_iptables())
+    {
+        ret = install_iptables(sockfd);
+        if(ret < 0) return ret;
+    }
+
     //setsockopt (sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&size, sizeof(size));
     //setsockopt (sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size));
 
@@ -164,6 +303,8 @@ static int init_net(void) {
 }
 
 static int close_net(void) {
+    if(use_iptables()) clear_iptables();
+
     if(req.arp_flags & ATF_PERM) {
         int ret = ioctl(sockfd, SIOCDARP, &req);
         if(ret < 0) perror("ioctl SIOCDARP");
