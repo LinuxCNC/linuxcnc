@@ -1,3 +1,48 @@
+linuxcnc (1:2.6.0~pre5) precise; urgency=low
+
+  * Add G43.2 - this lets G-code sum an arbitrary number of tool length
+      offsets by calling G43.2 multiple times.
+
+  * add a demo config showing remapped G43.2
+
+  * touchy: add support for G43.2
+
+  * gmoccapy: screen2 bug fix
+  * gmoccapy: new hal pins for program progress
+  * gmoccapy: solved bug using change remap and tool edit widget
+  * gmoccapy: fix a bug with remapped tool change
+
+  * pncconf: fix an incompatibility between Mesa and LinuxCNC XMLs
+
+  * pid: change pins from IO to IN
+  * thcud: fix velocity tolerance calculation
+  * debounce: improve manpage
+  * parport: fix API manpage cut & paste errors
+
+  * docs: G43.1 works with all axes, not just XZ
+  * docs: French translation updates
+  * docs: misc minor cleanups
+  * docs: HAL floats are 64 bits wide now, not 32
+
+  * sim: fix 32-bit truncation of rdtsc on x86_64
+
+  * interp: print correct filename in message
+  * interp: need to initialize context_struct
+
+  * task: silence a warning with gcc 4.8 + boost 1.55.0
+  * task: don't link with ULAPISRCS
+  * task: safer message formatting
+
+  * rtapi: use proper type for rtapi_print_msg level
+  * rtapi: Remove unused define
+
+  * build-depend on libtk-img and make missing img::png a build-time failure
+
+  * build: Fix a crash on gcc4.7.2 (Debian Wheezy)
+  * build: fix inconsistency when multiple versions of tcl/tk are available
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 21 Jul 2014 09:52:26 -0600
+
 linuxcnc (1:2.6.0~pre4) precise; urgency=low
 
   * fix several bugs with NURBS handling (G5, G5.1, G5.2)
