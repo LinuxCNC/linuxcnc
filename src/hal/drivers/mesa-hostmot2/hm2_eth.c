@@ -8,6 +8,10 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <ifaddrs.h>
+#include <unistd.h>
+#include <spawn.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include <rtapi_slab.h>
 #include <rtapi_ctype.h>
@@ -81,11 +85,23 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 #define IPTABLES "/sbin/iptables"
 #define CHAIN "hm2-eth-rules-output"
 
+static int shell(char *command) {
+    char *const argv[] = {"sh", "-c", command, NULL};
+    pid_t pid;
+    int res = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if(res < 0) perror("posix_spawn");
+    int status;
+    waitpid(pid, &status, 0);
+    if(WIFEXITED(status)) return WEXITSTATUS(status);
+    else if(WIFSTOPPED(status)) return WTERMSIG(status)+128;
+    else return status;
+}
+
 // Assume we can use iptables if this chain exists
 static bool _use_iptables() {
     if(geteuid() != 0) return 0;
     int result =
-        system(IPTABLES" -n -L "CHAIN" > /dev/null 2>&1");
+        shell(IPTABLES" -n -L "CHAIN" > /dev/null 2>&1");
     return result == EXIT_SUCCESS;
 }
 
@@ -96,7 +112,7 @@ static bool use_iptables() {
 }
 
 static void clear_iptables() {
-    system(IPTABLES" -F "CHAIN" > /dev/null 2>&1");
+    shell(IPTABLES" -F "CHAIN" > /dev/null 2>&1");
 }
 
 static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
@@ -153,7 +169,7 @@ static int install_iptables_rule(const char *fmt, ...) {
         return -ENOSPC;
     }
 
-    int res = system(commandbuf);
+    int res = shell(commandbuf);
     if(res == EXIT_SUCCESS) return 0;
 
     LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
