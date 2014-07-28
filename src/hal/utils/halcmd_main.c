@@ -203,7 +203,7 @@ int main(int argc, char **argv)
         if (argc > optind) {
             /* there is a following arg, and it's not an option */
             filename = argv[optind++];
-            srcfile = fopen(filename, "r");
+            srcfile = fopen_on_halpath(filename, "r");
             halcmd_set_filename(filename);
             if (srcfile == NULL) {
                 fprintf(stderr,

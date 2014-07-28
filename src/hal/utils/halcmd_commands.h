@@ -65,6 +65,7 @@ extern int do_setp_cmd(char *name, char *value);
 extern int do_getp_cmd(char *name);
 extern int do_sets_cmd(char *name, char *value);
 extern int do_gets_cmd(char *name);
+extern int do_path_cmd(char *newpath);
 extern int do_ptype_cmd(char *name);
 extern int do_stype_cmd(char *name);
 extern int do_show_cmd(char *type, char **patterns);
@@ -86,4 +87,6 @@ pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
 
 extern int scriptmode, comp_id;
+
+extern FILE *fopen_on_halpath(const char *name, const char *mode);
 #endif

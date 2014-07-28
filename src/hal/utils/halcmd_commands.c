@@ -241,10 +241,67 @@ int do_unlinkp_cmd(char *pin)
     return retval;
 }
 
+static char **halpaths;
+static void compute_halpaths() {
+    char *halpath = getenv("HALPATH"), *elem, *state;
+    int i=0;
+    if(!halpath) halpath = EMC2_DEFAULT_HALPATH;
+    halpath = strdup(halpath);
+
+    for(elem = strtok_r(halpath, ":", &state); elem;
+            elem = strtok_r(NULL, ":", &state)) {
+        i++;
+        halpaths = realloc(halpaths, sizeof(char*) * i);
+        halpaths[i-1] = strdup(*elem ? elem : ".");
+    }
+    i++;
+    halpaths = realloc(halpaths, sizeof(char*) * i);
+    halpaths[i-1] = 0;
+    free(halpath);
+}
+
+FILE *fopen_on_halpath(const char *name, const char *mode) {
+    if(!halpaths) compute_halpaths();
+
+    char **pathel;
+    for(pathel = halpaths; *pathel; pathel++) {
+        char *fullname;
+        asprintf(&fullname, "%s/%s", *pathel, name);
+        if(!fullname) return 0;
+
+        FILE *result = fopen(fullname, mode);
+        free(fullname);
+        if(!result) {
+            if(errno != ENOENT) return 0;
+            continue;
+        }
+        fcntl(fileno(result), F_SETFD, FD_CLOEXEC);
+        return result;
+    }
+
+    return 0;
+}
+
+int do_path_cmd(char *newpath) {
+    if(newpath && *newpath) {
+        char **pathel;
+        for(pathel = halpaths; pathel && *pathel; pathel++)
+            free(pathel);
+        free(halpaths);
+        halpaths = NULL;
+        setenv("HALPATH", newpath, 1);
+    } else {
+        if(!halpaths) compute_halpaths();
+        char **pathel;
+        for(pathel = halpaths; pathel && *pathel; pathel++)
+            halcmd_output("%s\n", *pathel);
+    }
+    return 0;
+}
+
 int do_source_cmd(char *hal_filename) {
-    FILE *f = fopen(hal_filename, "r");
+    FILE *f = fopen_on_halpath(hal_filename, "r");
     char buf[MAX_CMD_LEN+1];
-    int fd;
     int result = 0;
     int lineno_save = halcmd_get_linenumber();
     int linenumber = 1;
@@ -256,8 +313,6 @@ int do_source_cmd(char *hal_filename) {
 	free(filename_save);
         return -EINVAL;
     }
-    fd = fileno(f);
-    fcntl(fd, F_SETFD, FD_CLOEXEC);
 
     halcmd_set_filename(hal_filename);
 
@@ -2905,5 +2960,6 @@ static void print_help_commands(void)
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");
     printf("  echo, unecho        Echo commands from stdin to stderr\n");
+    printf("  path [newpath]      Print or set search path for hal files\n");
     printf("  quit, exit          Exit from halcmd\n");
 }

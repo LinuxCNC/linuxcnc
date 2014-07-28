@@ -591,12 +591,14 @@ if test "$RUN_IN_PLACE" = "yes"; then
     RIP_MODULE_DIR="${BUILD_TOPLEVEL}/rtlib"
     AC_MSG_RESULT([configuring for run-in-place])
     prefix=${BUILD_TOPLEVEL}
+    DEFAULT_HALPATH=.:${prefix}/configs/common
     DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
     AC_MSG_RESULT([$RIP_MODULE_DIR])
 else
     RUN_IN_PLACE=no
     EMC2_HOME=$prefix
+    DEFAULT_HALPATH=.:${prefix}/share/linuxcnc/
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
     AC_MSG_RESULT([$MODULE_DIR])
 fi
@@ -605,7 +607,9 @@ AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
 AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
+AC_SUBST([DEFAULT_HALPATH])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
+AC_DEFINE_UNQUOTED([EMC2_DEFAULT_HALPATH], "$DEFAULT_HALPATH", [Default hal PATH])
 AC_DEFINE_UNQUOTED([EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default nml file])
 
 ##############################################################################
