@@ -1,4 +1,4 @@
-/* Copyright (C) 2006-2008 Jeff Epler <jepler@unpythonic.net>
+/* Copyright (C) 2006-2014 Jeff Epler <jepler@unpythonic.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
