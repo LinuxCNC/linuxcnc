@@ -50,17 +50,64 @@ The supported boards are: 7I80DB, 7I80HD.
 
 The board must have its hardware loaded on the board by the mesaflash(1) program.
 
-.SH EXCLUSIVE ACCESS
+hm2_eth is only available when linuxcnc is configured with "uspace" realtime.
 
-Use of the ethernet interface that the hostmot2 board is connected to by other
-software besides hm2_eth can cause violation of realtime guarantees.
+.SH INTERFACE CONFIGURATION
 
-To guard against this, configure your system to use iptables with an empty
-chain named "hm2-eth-rules-output" (you must use this name; it is hardcoded in
-hm2_eth), and with a call to this rule at the beginning of the OUTPUT chain.
+hm2_eth should be used on a dedicated network interface, with only a cable
+between the PC and the board.  Wireless and USB network interfaces are not
+suitable.
 
-If iptables are not otherwise in use, the following /etc/iptables file may be
-used:
+These instructions assume your dedicated network interface is "eth1",
+192.168.1/24 is an unused private network, that the hostmot2 board is using the
+default address of 192.168.1.121, that you are using Debian 7 or similar, and
+that you do not otherwise use iptables.  If any of these are false, you will
+need to modify the instructions accordingly.  After following all the
+instructions, reboot so that the changes take effect.
+
+It is particularly important to check that the network 192.168.1/24 is not
+already the private network used by your internet router, because this is a
+commonly-used value.  If you use another network, you will also need to
+reconfigure the hostmot2 card to use an IP address on that network by using the
+mesaflash(1) utility and change jumper settings.  Typically, you will choose
+one of the networks in the
+.UR http://en.wikipedia.org/wiki/IPv4#Private_networks
+Private IPv4 address space.
+.UE
+One common alternative is PC address 10.10.10.1, hostmot2 address 10.10.10.10.
+
+Use of the dedicated ethernet interface while linuxcnc is running can cause
+violation of realtime guarantees.  The steps below mitigate most accidental
+causes of interference.
+
+.SS Configure network with static address
+Add these lines to the file /etc/network/interfaces to configure eth1 with a
+static address:
+
+.EX
+auto eth1
+iface eth1 inet static
+    address 192.168.1.1
+.EE
+
+.SS Disable IPv6 on the dedicated interface
+By default, Linux may transmit IPv6 packets on all interfaces, even if they are
+not explicitly configured with global IPv6 addresses.  In /etc/sysctl.conf,
+disable ipv6 on eth1 by adding this line:
+
+.EX
+net.ipv6.conf.eth1.disable_ipv6=1
+.EE
+
+.B Note:
+Simply setting 'ipv6' to 'ignore' in the GUI network tools does not eliminate
+the link-local ipv6 address.  Use the sysctl.conf method even if you otherwise
+use the GUI to configure the dedicated interface.
+
+.SS Configure iptables for exclusive access
+
+Install the package "iptables-persistent" and put this in the file
+/etc/iptables/rules.v4 (remove leading whitespace from every line):
 
 .EX
 *filter
@@ -74,6 +121,11 @@ If this configuration is present, then when hm2_eth loads it will
 add rules restricting use of the interface to only its own UDP socket;
 at (normal) exit, it will remove the rules.  You can manually clear the rules
 with \fBsudo iptables -F hm2-eth-rules-output\fR.
+
+If you already use iptables, create an empty chain named "hm2-eth-rules-output"
+(you must use this name; it is hardcoded in hm2_eth), and place a call to this
+rule early in the OUTPUT chain, before any rules that could potentially pass
+packets out eth1.
 
 .SH BUGS
 At this time, only a single board is supported.
