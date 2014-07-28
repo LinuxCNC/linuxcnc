@@ -178,6 +178,7 @@ AC_ARG_WITH(realtime,
             RTS="$withval" ;;
         esac
         ])
+AC_SUBST([RTS])
 
 ##############################################################################
 # Subsection 2.2                                                             #

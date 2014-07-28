@@ -14,7 +14,7 @@ Usage:
 Varnames supported:
          LINUXCNCVERSION
          REALTIME
-         SIMULATOR
+         RTS
 
 Option 'all' returns varname=value for all supported varnames
 EOF
@@ -24,14 +24,14 @@ exit 1
 function show_all () {
   echo "LINUXCNCVERSION=@EMC2VERSION@
 REALTIME=@REALTIME@
-SIMULATOR=@SIMULATOR@"
+RTS=@RTS@"
 }
 
 function show_item () {
   case $1 in
     LINUXCNCVERSION) echo @EMC2VERSION@;;
     REALTIME) echo @REALTIME@;;
-    SIMULATOR) echo @SIMULATOR@;;
+    RTS) echo @RTS@;;
     all) show_all;;
     *) echo UNKNOWN; exit 1;;
   esac
