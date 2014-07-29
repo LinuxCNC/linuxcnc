@@ -130,7 +130,7 @@ check-ulimits() {
 	echo "Warning:  no configuration for 'memlock' found"
 	echo
 	echo "          Hint:"
-	echo "            $ sudo cp rtapi/shmdrv/limits.d-machinekit.conf ${ulimit_conf}"
+	echo "            $ sudo cp rtapi/shmdrv/limits.d-machinekit.conf /etc/security/limits.d/machinekit.conf"
 	return 1
     fi
     
