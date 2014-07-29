@@ -3,7 +3,8 @@ log rt 5
 log user 5
 
 # start haltalk server
-# add -d or -d -d to log message transactions
+# add --debug 5 to log message transactions on halcmd stderr
+#loadusr -W haltalk -debug 5
 loadusr -W haltalk
 
 # the control setup
@@ -17,55 +18,11 @@ loadrt lowpass
 
 # differentiate pos to get vel, vel to get acc
 loadrt ddt names=actvel,actacc
-
-# load low-level drivers
-loadrt hal_bb_gpio output_pins=103,105,107,120,128,140,141 input_pins=131,132,133,135,137,138
-loadrt [PRUCONF](DRIVER) prucode=$(LINUXCNC_HOME)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
-
-addf [PRUCONF](DRIVER).capture-position   servo-thread
-addf bb_gpio.read                         servo-thread
 addf limit3.0 servo-thread
 addf lowpass.0 servo-thread
 addf actvel servo-thread
 addf actacc servo-thread
-addf [PRUCONF](DRIVER).update             servo-thread
-addf bb_gpio.write                        servo-thread
-
-
-net stepper.enable => [PRUCONF](DRIVER).stepgen.00.enable bb_gpio.p8.out-41
-setp bb_gpio.p8.out-41.invert 1
-
-# BeBoPr Enable
-net stepper.enable =>  bb_gpio.p8.out-03
-net stepper.enable =>  bb_gpio.p8.out-05
-setp bb_gpio.p8.out-05.invert 1
-
-# BeBoPr ECO locations for enable signalsto avoid eMMC noise on startup:
-# Enable (P8.3) tied to system Reset_n line (P9.10)
-net estop-loop => bb_gpio.p8.out-07
-setp bb_gpio.p8.out-07.invert 1
-
-#net stepper.pos-cmd => [PRUCONF](DRIVER).stepgen.00.position-cmd
-
-# timing parameters
-setp [PRUCONF](DRIVER).stepgen.00.dirsetup        [AXIS_0]DIRSETUP
-setp [PRUCONF](DRIVER).stepgen.00.dirhold         [AXIS_0]DIRHOLD
-
-setp [PRUCONF](DRIVER).stepgen.00.steplen         [AXIS_0]STEPLEN
-setp [PRUCONF](DRIVER).stepgen.00.stepspace       [AXIS_0]STEPSPACE
-
-setp [PRUCONF](DRIVER).stepgen.00.position-scale  [AXIS_0]SCALE
-
-setp [PRUCONF](DRIVER).stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
-setp [PRUCONF](DRIVER).stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
-
-#setp [PRUCONF](DRIVER).stepgen.00.step_type       0
-# P8.43 PRU1.out2
-setp [PRUCONF](DRIVER).stepgen.00.steppin         0xA2
-# P8.44 PRU1.out4
-setp [PRUCONF](DRIVER).stepgen.00.dirpin          0xA3
-
-
+start
 
 # wait the halcmd script until the UI has created the remote component 'motorctrl':
 # waitexists motorctrl
@@ -110,32 +67,31 @@ net cmd-maxacc motorctrl.cmd_maxacc => limit3.0.maxa
 net raw-pos  limit3.0.out => lowpass.0.in
 net gain     motorctrl.lowpass_gain => lowpass.0.gain
 
-net curr-pos lowpass.0.out => motorctrl.fb_pos actvel.in [PRUCONF](DRIVER).stepgen.00.position-cmd
+net curr-pos lowpass.0.out => motorctrl.fb_pos actvel.in
 net curr-vel actvel.out =>   actacc.in motorctrl.fb_vel
 net curr-acc actacc.out =>   motorctrl.fb_acc
 
 # make led follow togglebutton for now:
-#net led motorctrl.led1 <== motorctrl.togglebutton1
-
-#use togglebutton as motor enable
-net stepper.enable <== motorctrl.togglebutton1
+net led motorctrl.led1 <== motorctrl.togglebutton1
 
 # make trigger pin a signal - halscope wants signals to trigger on:
 net scope-trigger motorctrl.scope_trigger
 
-
+# HAL group example:
+# monitor some signals via a group
+newg dro 100
+newm dro led
+newm dro curr-pos
+newm dro curr-vel
+newm dro curr-acc
 
 # start the gladevcp version
 
-# use the environment UUID to determine the target instance
 # no -N flag - local case, use IPC sockets, no zeroconf resolution
-loadusr -Wn motorctrl gladevcp -E -u motorctrl.py motorctrl.ui
+#loadusr -Wn motorctrl gladevcp -E -u motorctrl.py motorctrl.ui
 
 # -N - remote case, use zeroconf resolution
-#loadusr -Wn motorctrl gladevcp -N -E -u motorctrl.py motorctrl.ui
+loadusr -Wn motorctrl gladevcp -N -E -u motorctrl.py motorctrl.ui
 
 # load scope only now - because all sigs are now defined:
-#loadusr halscope
-
-
-start
+loadusr halscope

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>HAL Remote component demo</title>
+<link rel=icon href=/favicon.png>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+
+<script src="/js/jquery.timer.js"></script>
+<script src="/js/geturlvars.js"></script>
+<script src="/js/haldefs.js"></script>
+<script src="/js/haltalk.js"></script>
+
+</script>
+<h3>HAL Remote component demo</h3>
+<div id="info"></div>
+<p><p>
+<div id="status"></div>
+<p><p>
+<div id="rcmdstatus"></div>
+<div id="rcompstatus"></div>
+
+
+<script type="text/javascript">
+
+var rcmd, rcomp;
+
+// for each pin in the comp, add a table row with 2 columns
+// pin name, and a object to represent the state
+function addPin(p) {
+    // skip silly gladevcp '-not' pins:
+    if ((p.type == HAL_BIT) && p.name.match(/-not$/g))
+      return;
+    var id = "h" + p.handle;
+    // see if this pin was already defined (haltalk restart may cause this on reload):
+    if ($("#" + id).length)
+      return;
+    var w;
+    var tr = $('<tr>');
+    var name = $("<td>");
+    name.text(p.name);
+    tr.append(name);
+    var pin = $("<td>");
+
+    var out = (p.dir == HAL_OUT);
+    switch (p.type) {
+        case HAL_BIT:
+            w = $('<input type="checkbox" class="halvalue">');
+            w.attr("disabled", !out);
+            w.attr("id", id);
+            w.prop('checked', p.halbit);
+            break;
+        default:
+            if (out) {
+                w = $('<input class="halvalue">');
+                w.attr("id", id);
+                w.val(halvalue(p));
+
+            } else {
+                w = $("<label>");
+                w.attr("id", id);
+                w.text(halvalue(p));
+            }
+            break;
+    }
+    pin.append(w);
+    tr.append(pin);
+    $("#pins").append(tr);
+    $("#" + id).data("pin", p);
+
+    // severely braindead, but I dont know any better
+    $(".halvalue").change(function() {
+        var p = jQuery.data(this, "pin");
+        var msg;
+        switch (p.type) {
+            case HAL_FLOAT:
+                msg = {
+                    type: MT_HALRCOMP_SET,
+                    pin: [{handle: p.handle,type: p.type,halfloat: parseFloat(this.value)}]
+                }
+                break;
+
+            case HAL_S32:
+                msg = {
+                    type: MT_HALRCOMP_SET,
+                    pin: [{handle: p.handle,type: p.type,hals32: parseInt(this.value)}]
+                }
+                break;
+
+            case HAL_U32:
+                msg = {
+                    type: MT_HALRCOMP_SET,
+                    pin: [{handle: p.handle,type: p.type,halu32: parseInt(this.value)}]
+                }
+                break;
+            case HAL_BIT:
+                msg = {
+                    type: MT_HALRCOMP_SET,
+                    pin: [{handle: p.handle,type: p.type,halbit: this.checked}]
+                }
+                break;
+        }
+        rcmd.socket.send(JSON.stringify(msg));
+    });
+}
+;
+
+function bind(name) {
+    $("#rcompstatus").text("bind to " + name + " confirmed, subscribing");
+
+    rcomp = new Halrcomp();
+    rcomp.opened = function(evt) {
+        $("#rcompstatus").text("rcomp connected");
+    };
+    rcomp.closed = function(evt) {
+        $("#rcompstatus").text("rcomp closed");
+    };
+    rcomp.error = function(evt) {
+        $("#rcompstatus").text("rcomp error, code: " + evt.code + ",reason: " + evt.reason + ", wasClean:" + evt.wasClean);
+    }
+
+    // called for each pin in the comp during a full update.
+    // used to define the UI, and set initial values,
+    rcomp.define_pin = addPin;
+
+    // called for each pin change in an incremental update.
+    // lookup the UI objects by HAL handle
+    rcomp.update_pin = function(p) {
+        switch (p.type) {
+            case HAL_BIT:
+                $("#h" + p.handle).prop('checked', p.halbit);
+                break;
+
+            default:
+                if (p.dir = HAL_IN) {
+                    $("#h" + p.handle).val(halvalue(p));
+                } else {
+                    $("#h" + p.handle).text(halvalue(p));
+                }
+        }
+    };
+    rcomp.run(name);
+}
+
+
+function cmd_receive(msg) {
+    switch (msg.type) {
+        case MT_HALRCOMMAND_DESCRIPTION:
+            for (var i = 0; i < msg.comp.length; ++i) {
+                var c = msg.comp[i];
+                if (c.type == TYPE_REMOTE) {
+                    console.log("binding to first remote component:" + c.name);
+                    // bind to what the comp has to offer:
+                    this.socket.send(JSON.stringify({type: MT_HALRCOMP_BIND,comp: [c]}));
+                    break;
+                }
+            }
+            break;
+        case MT_HALRCOMP_BIND_CONFIRM:
+            var name = msg.comp[0].name;
+            bind(name);
+            break;
+        case MT_HALRCOMP_BIND_REJECT:
+            $("#rcompstatus").text("rcomp bind rejected: " + msg.note);
+            break;
+    }
+}
+
+$(document).ready(function() {
+    var table = $("<table>");
+    table.attr("id", "pins")
+    $("#status").append(table);
+
+    rcmd = new Halrcmd();
+    rcmd.receive = cmd_receive;
+    rcmd.opened = function(evt) {
+        this.socket.send(JSON.stringify({type: MT_HALRCOMMAND_DESCRIBE}));
+        $("#rcmdstatus").text("rcmd connected");
+    };
+    rcmd.closed = function(evt) {
+        $("#rcmdstatus").text("rcmd closed");
+    };
+    rcmd.error = function(evt) {
+        $("#rcmdstatus").text("rcmd error, code: " + evt.code + ",reason: " + evt.reason + ", wasClean:" + evt.wasClean);
+    }
+});
+
+</script>
+</html>
