@@ -1,11 +1,7 @@
 # rtapi_compat.c  python bindings
 
-#
 from .compat cimport *
-
-from os import strerror, getpid
-from libc.stdlib cimport malloc, free
-from cpython.string cimport PyString_AsString
+from os import strerror
 
 
 cdef Flavor_Init(flavor_t *f):
