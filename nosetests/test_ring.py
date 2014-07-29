@@ -2,7 +2,7 @@
 import os,time,sys
 
 from nose import with_setup
-from machinekit.nosetests.realtime import setup_module #,teardown_module
+from machinekit.nosetests.realtime import setup_module ,teardown_module
 from machinekit import rtapi,hal
 
 import ConfigParser
@@ -14,7 +14,7 @@ def test_attach_nonexistent_ring():
     try:
         r1 = hal.Ring("ring1")
         raise "should not happen"
-    except RuntimeError:
+    except NameError:
         pass
 
 def test_create_ring():

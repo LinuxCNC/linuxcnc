@@ -6,7 +6,7 @@
 import os,time,sys
 
 from nose import with_setup
-from machinekit.nosetests.realtime import setup_module# ,teardown_module
+from machinekit.nosetests.realtime import setup_module ,teardown_module
 from machinekit import hal
 
 

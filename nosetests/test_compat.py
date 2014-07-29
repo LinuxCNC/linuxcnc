@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from nose import with_setup
-#from machinekit.nosetests.realtime import setup_module,teardown_module
+from machinekit.nosetests.realtime import setup_module,teardown_module
 from unittest import TestCase
 import time,os
 
@@ -13,7 +13,7 @@ class TestCompat(TestCase):
 
     def test_compat(self):
         # nonexistant kernel module
-        assert compat.module_loaded("foobarbaz") == False
+        assert compat.is_module_loaded("foobarbaz") == False
 
 
 
