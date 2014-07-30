@@ -273,8 +273,10 @@ enum ContainerType {
     MT_HALRCOMMAND_ACK = 273;
     MT_HALRCOMMAND_ERROR = 274;
 
-    // introspection
+    // introspection request
     MT_HALRCOMMAND_DESCRIBE  = 276;
+    // full HAL description 
+    MT_HALRCOMMAND_DESCRIPTION  = 277;
 
     // rcomp tracking
     MT_HALRCOMP_FULL_UPDATE = 288;
