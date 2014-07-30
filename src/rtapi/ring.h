@@ -84,17 +84,20 @@ typedef struct {
 // here since ringbuffers do not rely on HAL and may be used without HAL
 // an example thereof is the error ring buffer in the global data segment
 
-#define RINGTYPE_RECORD    0
-#define RINGTYPE_MULTIPART RTAPI_BIT(0)
-#define RINGTYPE_STREAM    RTAPI_BIT(1)
-#define RINGTYPE_MASK      (RTAPI_BIT(0)|RTAPI_BIT(1))
+typedef enum {
+    RINGTYPE_RECORD = 0,
+    RINGTYPE_MULTIPART = RTAPI_BIT(0),
+    RINGTYPE_STREAM = RTAPI_BIT(1),
+    RINGTYPE_MASK = (RTAPI_BIT(0)|RTAPI_BIT(1))
+} ring_type_t;
 
 // mode flags passed in by ring_new
 // exposed in ringheader_t.mode
-#define USE_RMUTEX       RTAPI_BIT(2)
-#define USE_WMUTEX       RTAPI_BIT(3)
-#define ALLOC_HALMEM     RTAPI_BIT(4)
-
+typedef enum {
+    USE_RMUTEX = RTAPI_BIT(2),
+    USE_WMUTEX = RTAPI_BIT(3),
+    ALLOC_HALMEM = RTAPI_BIT(4)
+} ring_mode_flags_t;
 
 typedef struct {
     __u8    type       : 2;  // RINGTYPE_*
