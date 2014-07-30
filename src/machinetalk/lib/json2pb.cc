@@ -266,6 +266,8 @@ std::string pb2json(const Message &msg)
 	std::string r;
 
 	json_t *root = _pb2json(msg);
+
+	json_autoptr _auto(root);
 	json_dump_callback(root, json_dump_std_string, &r, 0);
 	return r;
 }
