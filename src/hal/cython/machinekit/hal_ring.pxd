@@ -1,7 +1,7 @@
 # hal_ring.h definitions
 
 from .hal cimport *
-from .ring cimport *
+from .ring cimport ringbuffer_t
 
 cdef extern from "hal_ring.h":
     ctypedef struct hal_ring_t:
