@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>HAL Remote Component test</title>
+<link rel=icon href=/favicon.png>
+<script src="/ws.js"></script>
+<script language="javascript" type="text/javascript">
+
+"use strict";
+
+var output;
+var wsrcmd;
+var wsrcomp;
+
+var compname = "";
+var pinsbyid = [];
+
+var levelcolors = [
+  "green",
+  "amber",
+  "red",
+  "blue",
+  "magenta",
+];
+
+var hal_type = [ "undef", "bit", "float", "s32", "u32"];
+
+var TYPE_REMOTE = 4;
+
+// rcomp creation and binding
+var MT_HALRCOMP_BIND  = 256;
+var MT_HALRCOMP_BIND_CONFIRM  = 257;
+var MT_HALRCOMP_BIND_REJECT  = 258;
+
+// the following to a similar to var MT_HALRCOMMAND_SET and  var MT_HALRCOMMAND_GET, except
+// in the context of HALRcomp, only pins and params are evaluated
+// also, to set a pin or param, it must have direction HAL_OUT or HAL_IO
+var MT_HALRCOMP_SET  = 259;
+var MT_HALRCOMP_SET_REJECT  = 260;
+var MT_HALRCOMP_ACK  = 263;
+
+// HAL object general setter/getter operations
+// these work as viewed from halcmd and include signals
+var MT_HALRCOMMAND_SET = 265;
+var MT_HALRCOMMAND_SET_REJECT = 266;
+
+var MT_HALRCOMMAND_GET = 267;
+var MT_HALRCOMMAND_GET_REJECT = 268;
+
+var MT_HALRCOMMAND_CREATE = 269;
+var MT_HALRCOMMAND_CREATE_REJECT = 270;
+
+var MT_HALRCOMMAND_DELETE = 271;
+var MT_HALRCOMMAND_DELETE_REJECT = 272;
+
+var MT_HALRCOMMAND_ACK = 273;
+var MT_HALRCOMMAND_ERROR = 274;
+
+// introspection
+var MT_HALRCOMMAND_DESCRIBE  = 276;
+var MT_HALRCOMMAND_DESCRIPTION  = 277;
+
+// rcomp tracking
+var MT_HALRCOMP_FULL_UPDATE = 288;
+var MT_HALRCOMP_INCREMENTAL_UPDATE = 289;
+var MT_HALRCOMP_ERROR = 290;
+
+// group creation and binding
+var MT_HALGROUP_BIND  = 294;
+var MT_HALGROUP_BIND_CONFIRM  = 295;
+var MT_HALGROUP_BIND_REJECT  = 296;
+
+// group tracking
+var MT_HALGROUP_FULL_UPDATE = 297;
+var MT_HALGROUP_INCREMENTAL_UPDATE = 298;
+var MT_HALGROUP_ERROR = 299;
+
+function init() {
+  output = document.getElementById("output");
+  HalRcmdWebSocket("");
+}
+
+// establish a websocket connection to the same server/port as the http connection
+// pass args which determine:
+// which service to resolve into a URI
+// which socket type to create
+// any options, like the subscribe topic
+// any conversion policy (like json)
+// websockets write style (text - default is binary)
+
+function HalRcompWebSocket(arg) {
+  wsrcomp = new Connection("",
+                           location.hostname + ":" + location.port +
+                           "/?connect=machinekit://halrcomp&type=sub&policy=json&text" + arg,
+                           "http");
+  wsrcomp.onopen = function(evt)    { onRcompOpen(evt) };
+  wsrcomp.onclose = function(evt)   { onRcompClose(evt) };
+  wsrcomp.onmessage = function(evt) { onRcompMessage(evt) };
+  wsrcomp.onerror = function(evt)   { onRcompError(evt) };
+}
+
+function HalRcmdWebSocket(arg) {
+  wsrcmd = new Connection("",
+                          location.hostname + ":" + location.port + // &identity=web
+                          "/?connect=machinekit://halrcmd&type=dealer&policy=json&text" + arg,
+                          "http");
+  wsrcmd.onopen =    function(evt) { onRcmdOpen(evt) };
+  wsrcmd.onclose =   function(evt) { onRcmdClose(evt) };
+  wsrcmd.onmessage = function(evt) { onRcmdMessage(evt) };
+  wsrcmd.onerror =   function(evt) { onRcmdError(evt) };
+}
+
+function onRcmdOpen(evt) {
+  // on connect, send a DESCRIBE so we can inspect comps
+  var msg = { type: MT_HALRCOMMAND_DESCRIBE };
+  wsrcmd.send(JSON.stringify(msg));
+}
+
+function onRcmdClose(evt) {
+  log(0,"rcmd CLOSE");
+}
+
+function bind(c) {
+  // for (var i = 0; i < c.pin.length; ++i) {
+  //   var p = c.pin[i];
+  //   log(0, "pin: " + p.name);
+  // }
+  var msg = {
+    type:  MT_HALRCOMP_BIND,
+    comp: [c], // lots of garbage here, but ignored by haltalk
+  };
+  wsrcmd.send(JSON.stringify(msg));
+}
+
+function onRcmdMessage(evt) {
+  // log(0,"rcmd MESSAGE");
+
+//  try {
+    var msg = JSON.parse(evt.data);
+    switch (msg.type) {
+
+      case MT_HALRCOMMAND_DESCRIPTION:
+
+      for (var i = 0; i < msg.comp.length; ++i) {
+        var c = msg.comp[i];
+        if (c.type == TYPE_REMOTE) {
+          log(0,"binding to first remote component:" + c.name);
+
+          compname = c.name;
+          bind(c);
+          break;
+        }
+      }
+      break;
+
+      case MT_HALRCOMP_BIND_CONFIRM: {
+        log(0,"bind to " + compname + " confirmed, subscribing");
+        HalRcompWebSocket("&subscribe=" + compname);
+      }
+      break;
+
+      case MT_HALRCOMP_BIND_REJECT: {
+        throw "bind rejected: " + msg.note;
+      }
+      break;
+
+      case MT_HALRCOMP_SET_REJECT: {
+        throw "rcomp set rejected: " + msg.note;
+      }
+      break;
+
+      default: {
+        log(2,"unknown type:" + msg.type);
+      }
+    }
+  // }
+  // catch(err) {
+  //   var txt="onRcmdMessage: There was an error on this page.\n\n";
+  //   txt+="Error description: " + err.message + "\n\n";
+  //   txt+="Click OK to continue.\n\n";
+  //   alert(txt);
+  // }
+}
+
+function onRcmdError(evt) {
+    log(2,"rcmd ERROR:" + evt.data);
+  }
+
+//-------------------
+
+function pinvalue(p) {
+  if ( p.hasOwnProperty('halbit') ) {
+    return p.halbit;
+  }
+  if ( p.hasOwnProperty('halfloat') ) {
+    return p.halfloat;
+  }
+  if ( p.hasOwnProperty('hals32') ) {
+    return p.hals32;
+  }
+  if ( p.hasOwnProperty('halu32') ) {
+    return p.halu32;
+  }
+  throw "pinvalue: no value attribute";
+}
+
+
+function define_pins(msg) {
+  for (var i = 0; i < msg.comp.length; ++i) {
+    var c = msg.comp[i];
+    for (var j = 0; j < c.pin.length; ++j) {
+      var p = c.pin[j];
+      log(0, "  define pinname: " + p.name  + " type: " +  p.type + " value: " + pinvalue(p));
+      pinsbyid[p.handle] = p;
+    }
+  }
+}
+
+function update_pins(msg) {
+  for (var j = 0; j < msg.pin.length; ++j) {
+    var u = msg.pin[j];
+    var p = pinsbyid[u.handle];
+    if (p == undefined) {
+      throw "no pin for handle " + u.handle;
+    }
+    for (var attrname in u) { p[attrname] = u[attrname]; }
+    //log(2, Object.keys(p) +  " u=" +  Object.keys(u))
+    log(0, "  update pinname: " + p.name  + " type: " +  p.type + " value: " + pinvalue(p));
+  }
+}
+
+function onRcompOpen(evt) {
+  log(0,"rcomp CONNECTED");
+}
+
+function onRcompClose(evt) {
+  log(0,"rcomp DISCONNECTED");
+}
+
+function onRcompMessage(evt) {
+ // try {
+    var msg = JSON.parse(evt.data);
+
+    switch (msg.type) {
+      case MT_HALRCOMP_FULL_UPDATE: {
+        // log(0, "rcomp FULL_UPDATE: " + evt.data );
+        define_pins(msg);
+      }
+      break;
+
+      case MT_HALRCOMP_INCREMENTAL_UPDATE: {
+        // log(0, "rcomp INCREMENTAL_UPDATE: " + evt.data );
+        update_pins(msg);
+      }
+      break;
+
+      case MT_HALRCOMP_ERROR: {
+        throw "HALRCOMP_ERROR: " + msg.note;
+      }
+      break;
+    }
+  // }
+  // catch(err) {
+  //   var txt="onRcompMessage error\n\n";
+  //   txt+="Error description: " + err.message + "\n\n";
+  //   txt+="Click OK to continue.\n\n";
+  //   alert(txt);
+  // }
+}
+
+function onRcompError(evt) {
+  log(0 , "rcomp ERROR " + evt.data);
+}
+
+function log(cid, message) {
+  var text = "<span style=\"color: " + levelcolors[cid] + ";\">evt:" + message  +'</span>';
+  var pre = document.createElement("p");
+  pre.style.wordWrap = "break-word";
+  pre.innerHTML = text;
+  output.appendChild(pre);
+}
+
+  window.addEventListener("load", init, false);
+
+
+</script>
+<h2>HALR remote component test</h2>
+<div id="output"></div>
+</html>

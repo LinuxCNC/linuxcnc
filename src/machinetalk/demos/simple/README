@@ -1,7 +1,0 @@
-example for working with remote components
-
-either the pins are predefined, or one must wait until the comp has been created remotely
-
-to start the gladevcp UI:
-
-gladevcp -E gladevcp.ui
