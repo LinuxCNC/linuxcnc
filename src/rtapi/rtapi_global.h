@@ -89,6 +89,12 @@ typedef struct {
     int hal_size;                  // make HAL data segment size configurable
     int hal_thread_stack_size;     // stack size passed to rtapi_task_new()
                                    // in hal_create_thread()
+
+    // service uuid - the unique machinekit instance identifier
+    // set once by rtapi_msgd, visible to all of HAL and RTAPI since
+    // the global segment is attached right at startup
+    unsigned char service_uuid[16];
+
     int rtapi_app_pid;
     int rtapi_msgd_pid;
 
