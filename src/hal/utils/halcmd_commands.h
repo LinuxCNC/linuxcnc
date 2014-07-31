@@ -64,6 +64,7 @@ extern int do_newinst_cmd(char *comp_name, char *inst_name);
 extern int do_net_cmd(char *signame, char *pins[]);
 extern int do_setp_cmd(char *name, char *value);
 extern int do_getp_cmd(char *name);
+extern int do_sete_cmd(char *pos, char *value);
 extern int do_sets_cmd(char *name, char *value);
 extern int do_gets_cmd(char *name);
 extern int do_ptype_cmd(char *name);
@@ -84,13 +85,33 @@ extern int do_save_cmd(char *type, char *filename);
 extern int do_setexact_cmd(void);
 extern int do_sleep_cmd(char *naptime);
 
+extern int do_newg_cmd(char *group, char *tokens[]);
+extern int do_delg_cmd(char *group);
+extern int do_newm_cmd(char *group, char *member, char *tokens[]);
+extern int do_delm_cmd(char *group, char *member);
+
+extern int do_newring_cmd(char *ring, char *ring_size, char *tokens[]);
+extern int do_delring_cmd(char *ring);
+extern int do_ringdump_cmd(char *ring);
+extern int do_ringwrite_cmd(char *ring,char *content);
+extern int do_ringread_cmd(char *ring, char *tokens[]);
+
 extern int do_newcomp_cmd(char *comp, char *args[]);
 extern int do_newpin_cmd(char *comp, char *pin, char *type, char *args[]);
 extern int do_ready_cmd(char *comp, char *tokens[]);
 extern int do_waitbound_cmd(char *comp, char *tokens[]);
+extern int do_waitexists_cmd(char *comp);
 extern int do_waitunbound_cmd(char *comp, char *tokens[]);
 //extern int do_unloadrem_cmd(char *comp, char *tokens[]);
 
+// shutdown the RTAPI stack
+extern int do_shutdown_cmd(void);
+// ping the RTAPI stack
+extern int do_ping_cmd(void);
+// create a new named RT thread
+extern int do_newthread_cmd(char *name, char *period, char *tokens[]);
+// delete an RT thread
+extern int do_delthread_cmd(char *name);
 
 pid_t hal_systemv_nowait(char *const argv[]);
 int hal_systemv(char *const argv[]);
