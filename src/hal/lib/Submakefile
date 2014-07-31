@@ -1,11 +1,29 @@
-INCLUDES += hal/lib
+HALLIBDIR := hal/lib
 
-../include/%.h: ./hal/lib/%.h
+INCLUDES += $(HALLIBDIR)
+
+
+../include/%.h: ./$(HALLIBDIR)/%.h
 	cp $^ $@
 
-# observed on wheezy
-HALLIBSRCS := \
-	hal/lib/hal_lib.c
+# link in basic nanonpb support routines
+HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
+	$(HALLIBDIR)/hal_group.c \
+	$(HALLIBDIR)/hal_ring.c \
+	$(HALLIBDIR)/hal_iter.c \
+	$(HALLIBDIR)/hal_rcomp.c \
+	$(MACHINETALK)/support/nanopb.c \
+	$(MACHINETALK)/nanopb/pb_decode.c \
+	$(MACHINETALK)/nanopb/pb_encode.c
+
+# protobuf support functions which depend on HAL - on RT host only
+HALLIBMTALK_SRCS := $(addprefix $(HALLIBDIR)/, \
+	halpb.cc)
+
+HALLIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
+HALLIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(PROFILE)
+
+$(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAGS)
 
 # ULAPI: all thread-specific code now comes in through the ulapi library
 # (liblinuxcnculapi.so) which autoloads the proper ulapi on demand
@@ -13,8 +31,9 @@ HALLIBSRCS := \
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
 
 # Add to list of sources to compile -DULAPI ->
-# objects/{hal/lib/hal_lib.o}
+# objects/{$(HALLIBDIR)/hal_lib.o}
 USERSRCS += $(HALLIBSRCS)
+USERSRCS += $(HALLIBMTALK_SRCS)
 
 HALLIB := ../lib/liblinuxcnchal.so
 
@@ -26,15 +45,17 @@ $(HALLIB).0: \
 	$(call TOOBJS, $(HALLIBSRCS)) \
 	$(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
 	$(call TOOBJS, $(SHMDRVAPISRCS)) \
-	$(call TOOBJS,$(LIBINISRCS))
+	$(call TOOBJS, $(HALLIBMTALK_SRCS)) \
+	$(call TOOBJS, $(LIBINISRCS)) \
+	../lib/liblinuxcnc-pb2++.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ -lstdc++ -ldl -lrt $(RT_LDFLAGS)
+	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS) $(RT_LDFLAGS)
 
-HALMODULESRCS := hal/lib/halmodule.cc
+HALMODULESRCS := $(HALLIBDIR)/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
 
 HALMODULE := ../lib/python/_hal.so
@@ -42,8 +63,23 @@ $(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
 	$(ECHO) Linking python module $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
 
+# extended HAL bindings
+HALEXTMODULESRCS := $(HALLIBDIR)/halextmodule.cc
+PYSRCS += $(HALEXTMODULESRCS)
 
+HALEXTMODULE := ../lib/python/halext.so
 
-modules: $(HALLIB) $(HALLIB).0
+# TODO: unifiy with boost.python configure support in master
+BOOST_PYTHON_LIBS := -lboost_python
+
+$(call TOOBJSDEPS, $(HALEXTMODULESRCS)): \
+	EXTRAFLAGS += -fPIC $(shell python-config --cflags)
+
+$(HALEXTMODULE): $(call TOOBJS, $(HALEXTMODULESRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ \
+	$(BOOST_PYTHON_LIBS) \
+	$(shell python-config --libs)  $(HALLIB)
+
 TARGETS += $(HALLIB) $(HALLIB).0
-PYTARGETS += $(HALMODULE)
+PYTARGETS += $(HALMODULE)  $(HALEXTMODULE)

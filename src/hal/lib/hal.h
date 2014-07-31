@@ -133,7 +133,6 @@ RTAPI_BEGIN_DECLS
 #include <rtapi_errno.h>
 
 #define HAL_NAME_LEN     41	/* length for pin, signal, etc, names */
-#define MAX_NAMESPACES   16
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a -EPERM error message **/
@@ -145,11 +144,6 @@ RTAPI_BEGIN_DECLS
 #define HAL_LOCK_RUN      8     /* locking of start/stop of HAL threads */
 
 #define HAL_LOCK_ALL      255   /* locks every action */
-
-
-// FIXME: move these paramters to a warm place
-#define USE_PIN_USER_ATTRIBUTES
-#define CHANGE_DETECT_EPSILON 0.0001
 
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
@@ -170,7 +164,6 @@ RTAPI_BEGIN_DECLS
     Call only from within user space or init/cleanup code, not from
     realtime code.
 */
-//extern int hal_init(const char *name);
 
 /* traditional components have the following lifecycle:
  * their type is set to TYPE_RT or TYPE_USER
@@ -178,8 +171,8 @@ RTAPI_BEGIN_DECLS
  * hal_ready() will transition the state to COMP_READY
  *
  * hal_init(comp) is a way of specifying:
- *   hal_init_mode(comp, TYPE_RT) (RTAPI)
- *   hal_init_mode(comp, TYPE_USER) (ULAPI)
+ *   hal_init_mode(comp, TYPE_RT, 0, 0) (RTAPI)
+ *   hal_init_mode(comp, TYPE_USER, 0, 0) (ULAPI)
  * to assure backwards compatibility.
  *
  * hal_bind() and hal_unbind() are undefined for MODE_LOCAL
@@ -187,7 +180,7 @@ RTAPI_BEGIN_DECLS
  *
  * a remote component differs as follows:
  *
- * hal_init_mode(comp, TYPE_REMOTE) sets state to COMP_INITIALIZING
+ * hal_init_mode(comp, TYPE_REMOTE,..) sets state to COMP_INITIALIZING
  * hal_ready() will transition the state to COMP_UNBOUND
  * hal_bind(comp)   will transition state to  COMP_BOUND
  * hal_unbind(comp) will transition state back to COMP_UNBOUND
@@ -198,7 +191,7 @@ RTAPI_BEGIN_DECLS
  * by the process creating the component, for instance halcmd.
  * It can be repossessed to a different process by
  *
- * hal_reown(name, process id)
+ * hal_acquire(name, process id)
  *
  * the only consequence is that on 'halcmd unloadusr <remote component>
  * this process will receive a signal to shut down.
@@ -222,22 +215,22 @@ enum comp_state {
     COMP_READY
 };
 
-extern int hal_init_mode(const char *name, int mode);
+extern int hal_init_mode(const char *name, int mode, int userarg1, int userarg2);
 
 // backwards compatibility:
 static inline int hal_init(const char *name) {
 #ifdef RTAPI
-    return hal_init_mode(name, TYPE_RT);
+    return hal_init_mode(name, TYPE_RT, 0, 0);
 #else
-    return hal_init_mode(name, TYPE_USER);
+    return hal_init_mode(name, TYPE_USER, 0, 0);
 #endif
 }
 
 #if defined(ULAPI)
 extern int hal_bind(const char *comp);
 extern int hal_unbind(const char *comp);
-extern int hal_reown(const char *comp, int pid);
-extern int hal_disown(const char *comp_name, int pid);
+extern int hal_acquire(const char *comp, int pid);
+extern int hal_release(const char *comp_name);
 
 // introspection support: component and pin iterators
 // These functions are read-only with respect to HAL state.
@@ -266,10 +259,8 @@ typedef struct {
     int dir;		/* pin direction */
     char name[HAL_NAME_LEN + 1];	/* pin name */
     char owner_name[HAL_NAME_LEN + 1];	/* owning comp name */
-#ifdef USE_PIN_USER_ATTRIBUTES
     double epsilon;
     int flags;
-#endif
 } hal_pinstate_t;
 
 
@@ -370,6 +361,9 @@ extern int hal_ready(int comp_id);
 */
 extern char* hal_comp_name(int comp_id);
 
+// return the state of a component, or -ENOENT on failure (e.g not existent)
+int hal_comp_state_by_name(const char *name);
+
 /** attach or detach the HAL shared memory segment
  *  this might be needed in using code as there have been issues
  *  in halcmd/RTAI builds.
@@ -464,6 +458,27 @@ typedef double real_t __attribute__((aligned(8)));
 typedef __u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
 #define hal_float_t volatile real_t
 
+// type tags of HAL objects. See also protobuf/proto/types.proto/enum ObjectType
+// which must match:
+typedef enum {
+    HAL_PIN           = 1,
+    HAL_SIGNAL        = 2,
+    HAL_PARAM         = 3,
+    HAL_THREAD        = 4,
+    HAL_FUNCT         = 5,
+    HAL_ALIAS         = 6,
+    HAL_COMP_RT       = 7,
+    HAL_COMP_USER     = 8,
+    HAL_COMP_REMOTE   = 9,
+    HAL_RING          = 10,
+    HAL_GROUP         = 11,
+    HAL_MEMBER_SIGNAL = 12,
+    HAL_MEMBER_GROUP  = 13,
+    HAL_MEMBER_PIN    = 14,
+
+    RING_RECORD       = 15,
+    RING_STREAM       = 16,
+} hal_object_type;
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
