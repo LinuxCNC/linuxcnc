@@ -40,6 +40,7 @@ import hal
 import gobject
 import shutil
 import time
+from multifilebuilder import MultiFileBuilder
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -651,7 +652,7 @@ class StepconfApp:
         self.d = Data(self._p)
 
         # build the glade files
-        self.builder = gtk.Builder()
+        self.builder = MultiFileBuilder()
         self.builder.add_from_file(os.path.join(datadir,'main_page.glade'))
         window = self.builder.get_object("window1")
         notebook1 = self.builder.get_object("notebook1")
