@@ -161,7 +161,7 @@ endif
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
-	dh_install --sourcedir=debian/tmp --fail-missing
+	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
 # Build architecture-independent files here.
 binary-indep: build install
