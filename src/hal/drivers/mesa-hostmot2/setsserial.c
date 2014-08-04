@@ -326,7 +326,7 @@ int sslbp_flash(char *fname){
      
     //Copied direct from hostmot2.c. A bit of a faff, but seems to be necessary. 
     memset(&dev, '\0', sizeof(dev));
-    rtapi_dev_set_name(&dev, hm2->llio->name);
+    rtapi_dev_set_name(&dev, "%s", hm2->llio->name);
     dev.release = setsserial_release;
     r = rtapi_device_register(&dev);
     if (r != 0) {

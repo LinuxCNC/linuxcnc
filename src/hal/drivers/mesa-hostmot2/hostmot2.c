@@ -1204,7 +1204,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         strncpy(dev.bus_id, hm2->llio->name, BUS_ID_SIZE);
         dev.bus_id[BUS_ID_SIZE - 1] = '\0';
 #else
-        rtapi_dev_set_name(&dev, hm2->llio->name);
+        rtapi_dev_set_name(&dev, "%s", hm2->llio->name);
 #endif
         dev.release = hm2_release_device;
         r = rtapi_device_register(&dev);
