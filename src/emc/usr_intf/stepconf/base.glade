@@ -1,8 +1,14 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
-  <object class="GtkListStore" id="liststore1">
+  <object class="GtkAdjustment" id="adjustment_jitter">
+    <property name="lower">500</property>
+    <property name="upper">50000</property>
+    <property name="value">20000</property>
+    <property name="step_increment">1000</property>
+  </object>
+  <object class="GtkListStore" id="axis_liststore">
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
@@ -19,28 +25,16 @@
       </row>
     </data>
   </object>
-  <object class="GtkListStore" id="liststore2">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Inch</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">MM</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkTable" id="base">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="n_rows">13</property>
     <property name="n_columns">5</property>
     <child>
       <object class="GtkHSeparator" id="hseparator2">
         <property name="height_request">17</property>
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="right_attach">5</property>
@@ -52,6 +46,7 @@
       <object class="GtkHSeparator" id="hseparator21">
         <property name="height_request">17</property>
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="right_attach">5</property>
@@ -67,16 +62,19 @@
         <child>
           <object class="GtkAlignment" id="alignment8">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="xscale">0.5</property>
             <child>
               <object class="GtkTable" id="table5">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="n_rows">4</property>
                 <property name="n_columns">7</property>
                 <child>
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Step _Time:</property>
                     <property name="use_underline">True</property>
@@ -91,8 +89,12 @@
                   <object class="GtkSpinButton" id="steptime">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                    <property name="adjustment">adjustment1</property>
+                    <property name="invisible_char">●</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">step_t_adjustment</property>
                     <property name="climb_rate">100</property>
                     <property name="numeric">True</property>
                   </object>
@@ -106,6 +108,7 @@
                 <child>
                   <object class="GtkLabel" id="label85">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
                   </object>
@@ -119,6 +122,7 @@
                 <child>
                   <object class="GtkLabel" id="label6">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Step _Space:</property>
                     <property name="use_underline">True</property>
@@ -135,8 +139,12 @@
                   <object class="GtkSpinButton" id="stepspace">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                    <property name="adjustment">adjustment2</property>
+                    <property name="invisible_char">●</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">step_s_adjustment</property>
                     <property name="climb_rate">100</property>
                     <property name="numeric">True</property>
                   </object>
@@ -152,6 +160,7 @@
                 <child>
                   <object class="GtkLabel" id="label86">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
                   </object>
@@ -167,6 +176,7 @@
                 <child>
                   <object class="GtkLabel" id="label7">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">Direction _Hold:</property>
                     <property name="use_underline">True</property>
@@ -183,8 +193,12 @@
                   <object class="GtkSpinButton" id="dirhold">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                    <property name="adjustment">adjustment3</property>
+                    <property name="invisible_char">●</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">dir_h_adjustment</property>
                     <property name="climb_rate">100</property>
                     <property name="numeric">True</property>
                   </object>
@@ -200,6 +214,7 @@
                 <child>
                   <object class="GtkLabel" id="label87">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
                   </object>
@@ -215,6 +230,7 @@
                 <child>
                   <object class="GtkLabel" id="label8">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">_Direction Setup:</property>
                     <property name="use_underline">True</property>
@@ -230,8 +246,12 @@
                   <object class="GtkSpinButton" id="dirsetup">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                    <property name="adjustment">adjustment4</property>
+                    <property name="invisible_char">●</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <property name="adjustment">dir_s_adjustment</property>
                     <property name="climb_rate">100</property>
                     <property name="numeric">True</property>
                   </object>
@@ -246,6 +266,7 @@
                 <child>
                   <object class="GtkLabel" id="label88">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">ns</property>
                   </object>
@@ -313,6 +334,7 @@
         <child type="label">
           <object class="GtkLabel" id="label25">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="label" translatable="yes">Driver Timing Settings</property>
           </object>
         </child>
@@ -331,8 +353,9 @@ Period Jitter </property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
+        <property name="use_action_appearance">False</property>
         <property name="use_underline">True</property>
-        <signal name="clicked" handler="on_latency_test_clicked"/>
+        <signal name="clicked" handler="on_latency_test_clicked" swapped="no"/>
       </object>
       <packing>
         <property name="top_attach">12</property>
@@ -344,6 +367,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Machine _Name:</property>
         <property name="use_underline">True</property>
@@ -357,6 +381,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label2">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">_Axis configuration:</property>
         <property name="use_underline">True</property>
@@ -371,6 +396,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label3">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Reset Default machine _units:</property>
         <property name="use_underline">True</property>
@@ -385,6 +411,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label169">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Configuration directory:</property>
       </object>
@@ -398,6 +425,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label177">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">D_river type:</property>
         <property name="use_underline">True</property>
@@ -412,8 +440,9 @@ Period Jitter </property>
     <child>
       <object class="GtkComboBox" id="drivertype">
         <property name="visible">True</property>
-        <property name="model">liststore3</property>
-        <signal name="changed" handler="on_drivertype_changed"/>
+        <property name="can_focus">False</property>
+        <property name="model">driver_liststore</property>
+        <signal name="changed" handler="on_drivertype_changed" swapped="no"/>
         <child>
           <object class="GtkCellRendererText" id="cellrenderertext3"/>
           <attributes>
@@ -433,8 +462,9 @@ Period Jitter </property>
     <child>
       <object class="GtkComboBox" id="units">
         <property name="visible">True</property>
-        <property name="model">liststore2</property>
-        <signal name="changed" handler="on_units_changed"/>
+        <property name="can_focus">False</property>
+        <property name="model">units_liststore</property>
+        <signal name="changed" handler="on_units_changed" swapped="no"/>
         <child>
           <object class="GtkCellRendererText" id="cellrenderertext2"/>
           <attributes>
@@ -454,7 +484,8 @@ Period Jitter </property>
     <child>
       <object class="GtkComboBox" id="axes">
         <property name="visible">True</property>
-        <property name="model">liststore1</property>
+        <property name="can_focus">False</property>
+        <property name="model">axis_liststore</property>
         <child>
           <object class="GtkCellRendererText" id="cellrenderertext1"/>
           <attributes>
@@ -492,8 +523,12 @@ Period Jitter </property>
       <object class="GtkEntry" id="machinename">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">&#x25CF;</property>
-        <signal name="changed" handler="on_machinename_changed"/>
+        <property name="invisible_char">●</property>
+        <property name="primary_icon_activatable">False</property>
+        <property name="secondary_icon_activatable">False</property>
+        <property name="primary_icon_sensitive">True</property>
+        <property name="secondary_icon_sensitive">True</property>
+        <signal name="changed" handler="on_machinename_changed" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -505,8 +540,9 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label5">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
-        <property name="label" translatable="yes">Driver characteristics: (Multiply by 1000 for times specified in &#xB5;s or microseconds)</property>
+        <property name="label" translatable="yes">Driver characteristics: (Multiply by 1000 for times specified in µs or microseconds)</property>
       </object>
       <packing>
         <property name="right_attach">5</property>
@@ -520,6 +556,7 @@ Period Jitter </property>
       <object class="GtkHSeparator" id="hseparator1">
         <property name="height_request">17</property>
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
       <packing>
         <property name="right_attach">5</property>
@@ -531,6 +568,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label204">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">Base Period Maximum _Jitter:</property>
         <property name="use_markup">True</property>
@@ -548,11 +586,15 @@ Period Jitter </property>
       <object class="GtkSpinButton" id="latency">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="invisible_char">&#x25CF;</property>
+        <property name="invisible_char">●</property>
+        <property name="primary_icon_activatable">False</property>
+        <property name="secondary_icon_activatable">False</property>
+        <property name="primary_icon_sensitive">True</property>
+        <property name="secondary_icon_sensitive">True</property>
         <property name="adjustment">adjustment_jitter</property>
         <property name="climb_rate">100</property>
         <property name="numeric">True</property>
-        <signal name="value_changed" handler="on_calculate_ideal_period"/>
+        <signal name="value-changed" handler="on_calculate_ideal_period" swapped="no"/>
       </object>
       <packing>
         <property name="left_attach">1</property>
@@ -566,6 +608,7 @@ Period Jitter </property>
     <child>
       <object class="GtkLabel" id="label205">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="xalign">0</property>
         <property name="label" translatable="yes">ns</property>
       </object>
@@ -581,12 +624,14 @@ Period Jitter </property>
     <child>
       <object class="GtkHBox" id="hbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkRadioButton" id="radio_pp1">
             <property name="label" translatable="yes">One Parport</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -602,6 +647,7 @@ Period Jitter </property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
             <property name="group">radio_pp1</property>
@@ -617,6 +663,7 @@ Period Jitter </property>
             <property name="label" translatable="yes">Three Parports</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="active">True</property>
             <property name="draw_indicator">True</property>
             <property name="group">radio_pp1</property>
@@ -638,16 +685,21 @@ Period Jitter </property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkHBox" id="hbox3">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkLabel" id="label208">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">0</property>
                 <property name="label" translatable="yes">Min Base Period:</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -659,24 +711,32 @@ Period Jitter </property>
                 <property name="selectable">True</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkHBox" id="hbox2">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkLabel" id="label209">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="xalign">0</property>
                 <property name="label" translatable="yes">Max step rate:</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -688,11 +748,15 @@ Period Jitter </property>
                 <property name="selectable">True</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -765,38 +829,46 @@ Period Jitter </property>
       <placeholder/>
     </child>
   </object>
-  <object class="GtkTextBuffer" id="textbuffer1"/>
-  <object class="GtkListStore" id="liststore3">
+  <object class="GtkAdjustment" id="dir_h_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="dir_s_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkListStore" id="driver_liststore">
     <columns>
       <!-- column-name gchararray1 -->
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkAdjustment" id="adjustment1">
+  <object class="GtkTextBuffer" id="name_textbuffer"/>
+  <object class="GtkAdjustment" id="step_s_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="step_t_adjustment">
+    <property name="lower">50</property>
+    <property name="upper">100000</property>
     <property name="value">2000</property>
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
     <property name="step_increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment3">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment4">
-    <property name="lower">50</property>
-    <property name="upper">100000</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment_jitter">
-    <property name="value">20000</property>
-    <property name="lower">500</property>
-    <property name="upper">50000</property>
-    <property name="step_increment">1000</property>
+  <object class="GtkListStore" id="units_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Inch</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">MM</col>
+      </row>
+    </data>
   </object>
 </interface>
