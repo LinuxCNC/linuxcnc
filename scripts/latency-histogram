@@ -259,6 +259,7 @@ proc processor_info {} {
 
   set cores "1_core"
   catch {set cores "$procinfo(cpu_cores) cores"};# item may not exist
+  catch {set cores "[exec getconf _NPROCESSORS_ONLN] cores"};# could fail?
 
   set model ""
   catch {set model $procinfo(model_name)}       ;# item may not exist
