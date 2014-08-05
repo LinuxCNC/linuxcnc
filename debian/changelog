@@ -1,3 +1,14 @@
+linuxcnc (1:2.6.1) precise; urgency=low
+
+  * Fix stepconf - generating new configs now works on Debian Wheezy
+        and Ubuntu Precise.
+  * Touchy: Disable macro button if there aren't any macros defined
+  * Fix sim/axis/axis.ini sample config so the splash screen runs
+        without re-zeroing G54.
+  * minor docs improvements
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 04 Aug 2014 21:41:55 -0600
+
 linuxcnc (1:2.6.0) precise; urgency=low
 
   * add missing copyright and GPL license on all files
