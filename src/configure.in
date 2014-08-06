@@ -1462,9 +1462,6 @@ if test "$usermode_pci_disabled_cmdline" = yes; then
 elif test "$with_usermode_pci" = check -a $with_userland_rt_threads = no; then
     with_usermode_pci=no
     AC_MSG_RESULT([default disabled for no userland RT threads])
-elif ! $TARGET_PLATFORM_PC; then
-    with_usermode_pci=no
-    AC_MSG_RESULT([not available on non-PC platforms])
 elif test $with_libudev = no; then
     with_usermode_pci=no
     AC_MSG_RESULT([no; depends on libudev])
