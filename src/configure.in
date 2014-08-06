@@ -1262,7 +1262,13 @@ fi
 AC_MSG_RESULT($with_xenomai)
 
 AC_MSG_CHECKING(whether to build Xenomai kernel threads)
-test "$with_xenomai_kernel" = check && with_xenomai_kernel=yes
+if test "$with_xenomai_kernel" = check; then
+   # xenomai-kernel threads are broken in many ways on ARM arch; see
+   # #63
+   $TARGET_PLATFORM_PC && \
+       with_xenomai_kernel=yes || \
+       with_xenomai_kernel=no
+fi
 test -z "$xenomai_kernels" && with_xenomai_kernel=no
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai_kernel=no
 if test $with_xenomai_kernel = yes; then
