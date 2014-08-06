@@ -56,7 +56,7 @@ int WithRoot::level;
 
 namespace
 {
-class RtapiApp &App();
+RtapiApp &App();
 }
 
 static int sim_rtapi_run_threads(int fd, int (*callback)(int fd));
