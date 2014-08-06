@@ -411,9 +411,9 @@ public:
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
- int gen_settings(double *current, double *saved, char *cmd);
- int gen_g_codes(int *current, int *saved, char *cmd);
- int gen_m_codes(int *current, int *saved, char *cmd);
+ int gen_settings(double *current, double *saved, std::string &cmd);
+ int gen_g_codes(int *current, int *saved, std::string &cmd);
+ int gen_m_codes(int *current, int *saved, std::string &cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);

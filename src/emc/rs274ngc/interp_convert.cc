@@ -21,6 +21,7 @@
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
@@ -2629,7 +2630,7 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
  * given two double arrays representing interpreter settings as stored in
  * _setup.active_settings, construct a G-code sequence to synchronize their state.
  */
-int Interp::gen_settings(double *current, double *saved, char *cmd)
+int Interp::gen_settings(double *current, double *saved, std::string &cmd)
 {
     int i;
     char buf[LINELEN];
@@ -2639,11 +2640,11 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
 	    case 0: break; // sequence_number - no point in restoring
 	    case 1:
 		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
-		strncat(cmd,buf,sizeof(buf));
+                cmd += buf;
 		break;
 	    case 2:
 		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
-		strncat(cmd,buf,sizeof(buf));
+                cmd += buf;
 		break;
 	    }
 	}
@@ -2656,7 +2657,7 @@ int Interp::gen_settings(double *current, double *saved, char *cmd)
  * given two int arrays representing interpreter settings as stored in
  * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
  */
-int Interp::gen_g_codes(int *current, int *saved, char *cmd)
+int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
 {
     int i, val;
     char buf[LINELEN];
@@ -2699,7 +2700,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
 		    } else {
 			snprintf(buf,sizeof(buf)," G%d", val / 10);
 		    }
-		    strncat(cmd,buf,sizeof(buf));
+                    cmd += buf;
 		} else {
 		    // so complain rather loudly
 		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
@@ -2718,7 +2719,7 @@ int Interp::gen_g_codes(int *current, int *saved, char *cmd)
  * use multiple lines here because M7 and M8 may not be on the same line since
  * they are in the same modal group.
  */
-int Interp::gen_m_codes(int *current, int *saved, char *cmd)
+int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 {
     int i,val;
     char buf[LINELEN];
@@ -2745,7 +2746,7 @@ int Interp::gen_m_codes(int *current, int *saved, char *cmd)
 	    case 8: // feed hold
 		if (val != -1) {  // unsure..
 		    snprintf(buf,sizeof(buf),"M%d\n", val);
-		    strncat(cmd,buf,sizeof(buf));
+		    cmd += buf;
 		} else {
 		    MSG("------ gen_m_codes: index %d = -1!!\n",i);
 		}
@@ -2798,8 +2799,7 @@ int Interp::restore_settings(setup_pointer settings,
     write_m_codes((block_pointer) NULL, settings);
     write_settings(settings);
 
-    char cmd[LINELEN];
-    memset(cmd, 0, LINELEN);
+    std::string cmd;
 
     // construct gcode from the state difference and execute
     // this assures appropriate canon commands are generated if needed -
@@ -2809,18 +2809,20 @@ int Interp::restore_settings(setup_pointer settings,
     // so restoring feed lateron is interpreted in the correct context
 
     if (settings->active_g_codes[5] != settings->sub_context[from_level].saved_g_codes[5]) {
-	snprintf(cmd,sizeof(cmd), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
-	CHKS(execute(cmd) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd);
-	memset(cmd, 0, LINELEN);
+        char buf[LINELEN];
+	snprintf(buf,sizeof(buf), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
+	CHKS(execute(buf) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd.c_str());
     }
     gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
     gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
     gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
 
-    if (strlen(cmd) > 0) {
+    if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
 	// so split and execute each line
-	char *last = cmd;
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+	char *last = buf;
 	char *s;
 	while ((s = strtok_r(last, "\n", &last)) != NULL) {
 	    int status = execute(s);
