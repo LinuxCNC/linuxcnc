@@ -278,9 +278,6 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     status(0),
     module_mtime(0),
     reload_on_change(0),
-    ini_filename(0),
-    section(0),
-    inittab_pointer(0),
     toplevel(0),
     abs_path(0),
     log_level(0)

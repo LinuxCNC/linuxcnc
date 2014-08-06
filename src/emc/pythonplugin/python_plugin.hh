@@ -83,9 +83,6 @@ private:
     int status;
     time_t module_mtime;                  // toplevel module - last modification time
     bool reload_on_change;                // auto-reload if toplevel module was changed
-    const char *ini_filename;
-    const char *section;
-    struct _inittab *inittab_pointer;
     const char *toplevel;          // toplevel script
     //    const char *plugin_dir;               // directory prefix
     const char *abs_path;                 // normalized path to toplevel module
