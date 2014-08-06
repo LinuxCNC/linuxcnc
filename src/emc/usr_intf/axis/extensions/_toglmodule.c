@@ -22,7 +22,7 @@ static Tcl_Interp *get_interpreter(PyObject *tkapp) {
     if(interpaddrobj == NULL) { return NULL; }
     void *interpaddr = PyLong_AsVoidPtr(interpaddrobj);
     Py_DECREF(interpaddrobj);
-    if(interpaddr == -1) { return NULL; }
+    if(interpaddr == (void*)-1) { return NULL; }
     return (Tcl_Interp*)interpaddr;
 }
 
