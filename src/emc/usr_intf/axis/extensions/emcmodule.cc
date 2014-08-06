@@ -71,8 +71,7 @@
 /* This definition of offsetof avoids the g++ warning
  * 'invalid offsetof from non-POD type'.
  */
-#undef offsetof
-#define offsetof(T,x) (size_t)(-1+(char*)&(((T*)1)->x))
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
 
 struct pyIniFile {
     PyObject_HEAD
