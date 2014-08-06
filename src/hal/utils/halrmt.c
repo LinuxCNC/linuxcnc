@@ -2835,7 +2835,7 @@ static cmdResponseType setLoadRt(char *s, connectionRecType *context)
     pch = strtok(NULL, delims);
     i++;
     } 
-  args[i] = '\0';
+  args[i] = NULL;
   if (doLoadRt(s, args, context) == 0)
     return rtNoError;
   else
