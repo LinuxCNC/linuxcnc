@@ -10,6 +10,7 @@ import subprocess
 import re
 
 
+supported_architectures = [ 'amd64', 'i386', 'armhf' ]
 supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
 
 
@@ -58,7 +59,7 @@ print "    major =", release_major
 print "    minor =", release_minor
 print "uname = %s (%s)" % (uname, kernel_flavor)
 
-if arch != "amd64" and arch != "i386":
+if arch not in supported_architectures:
     print "unsupported architecture!"
     sys.exit(1)
 
