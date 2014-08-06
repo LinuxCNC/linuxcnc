@@ -40,12 +40,6 @@
 #include "files_sequential.h"
 #include "files_project.h"
 
-#ifdef debug
-#define dbg_printf printf
-#else
-static inline int dbg_printf(char *f, ...) {return 0;}
-#endif
-
 
 //#ifdef GTK_INTERFACE
 //char CurrentProjectFileName[400] = "../src/hal/classicladder/projects_examples/example.clp";
