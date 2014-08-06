@@ -227,6 +227,10 @@ enum ContainerType {
     MT_POSTSCRIPT     = 111;
     MT_SVG            = 112;
 
+    // in-band zeroMQ commands, evaluated in webtalk_jsonpolicy.cc
+
+    MT_ZMQ_SUBSCRIBE      = 150;
+    MT_ZMQ_UNSUBSCRIBE   = 151;
 
     MT_PING            = 210;  // keepalive test
     MT_PING_ACKNOWLEDGE = 215;
