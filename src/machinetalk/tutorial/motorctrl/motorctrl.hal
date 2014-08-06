@@ -4,7 +4,7 @@ log user 5
 
 # start haltalk server
 # add --debug 5 to log message transactions on halcmd stderr
-#loadusr -W haltalk -debug 5
+#loadusr -W haltalk --debug 5
 loadusr -W haltalk
 
 # the control setup
