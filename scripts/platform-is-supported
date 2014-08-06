@@ -10,6 +10,9 @@ import subprocess
 import re
 
 
+supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
+
+
 def detect_kernel_flavor(uname):
     try:
         f = open("/boot/config-%s" % uname)
@@ -64,7 +67,7 @@ if distributor == 'Ubuntu':
         print "release is too old!"
         sys.exit(1)
 
-if kernel_flavor != 'rtai' and kernel_flavor != 'vanilla':
+if kernel_flavor not in supported_kernel_flavors:
     print "unsupported kernel flavor"
     sys.exit(1)
 
