@@ -1,3 +1,25 @@
+linuxcnc (1:2.6.1) precise; urgency=low
+
+  * Fix stepconf - generating new configs now works on Debian Wheezy
+        and Ubuntu Precise.
+  * Touchy: Disable macro button if there aren't any macros defined
+  * Fix sim/axis/axis.ini sample config so the splash screen runs
+        without re-zeroing G54.
+  * minor docs improvements
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 04 Aug 2014 21:41:55 -0600
+
+linuxcnc (1:2.6.0) precise; urgency=low
+
+  * add missing copyright and GPL license on all files
+  * fix many file & directory permissions
+  * fix firmware paths in hm2 5i22 sample configs
+  * fix incorrect values on iocontrol.0.tool-prep-pocket (io and iov2)
+  * note gmoccapy runtime dependency on python-gst0
+  * axis: get interpreter address the right way
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 28 Jul 2014 19:21:10 -0600
+
 linuxcnc (1:2.6.0~pre5) precise; urgency=low
 
   * Add G43.2 - this lets G-code sum an arbitrary number of tool length
