@@ -218,6 +218,7 @@ read_config(wtconf_t *conf)
 
     iniFindInt(inifp, "DEBUG", conf->section, &conf->debug);
     iniFindInt(inifp, "PORT", conf->section, &conf->info.port);
+    iniFindInt(inifp, "OPTIONS", conf->section, (int *) &conf->info.options);
     iniFindInt(inifp, "EXTENSIONS",  conf->section, &flag);
     if (flag) conf->info.extensions = libwebsocket_get_internal_extensions();
 
@@ -248,7 +249,7 @@ static void
 config_overrides(wtconf_t *conf)
 {
     if (conf->index_html == NULL)
-	conf->index_html = "/";
+	conf->index_html = (char *) "/";
 
     // debug defaults -  emit those always regardless of flags
     conf->debug |= (LLL_ERR | LLL_WARN | LLL_NOTICE | LLL_CONFIG);
