@@ -170,7 +170,6 @@ it is within 0.0001 of an integer.
 
 [[sec:parameters]]
 == Parameters
-(Variables)
 (((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other

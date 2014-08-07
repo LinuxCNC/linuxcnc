@@ -2464,7 +2464,7 @@ If you have a REALLY large config that you wish to convert to this newer version
         if self.mesa1_numof_resolvers:
             resolver1 = "num_resolvers=%d"% self.mesa1_numof_resolvers
         if self.mesa0_numof_sserialports:
-            for i in range(1,9):
+            for i in range(1,6):
                 if i <= self.mesa0_numof_sserialchannels:
                     # if m1 in the name then it needs mode 1
                     if "m1" in self["mesa0sserial0_%dsubboard"% (i-1)]:
@@ -2475,7 +2475,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     temp = temp + "x"
             ssconfig0 = "sserial_port_0=%s"% temp
         if self.mesa1_numof_sserialports:
-            for i in range(1,9):
+            for i in range(1,6):
                 if i <= self.mesa1_numof_sserialchannels:
                     # if m1 in the name then it needs mode 1
                     if "m1" in self["mesa1sserial0_%dsubboard"% (i-1)]:
@@ -9528,7 +9528,7 @@ But there is not one in the machine-named folder.."""),True)
             # TODO fix this hardcoded hack: only one serialport
             ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
             if self.data.mesa0_numof_sserialports:
-                for i in range(1,9):
+                for i in range(1,6):
                     if i <= self.data.mesa0_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
                         if "m1" in self.data["mesa0sserial0_%dsubboard"% (i-1)]:
@@ -9539,7 +9539,7 @@ But there is not one in the machine-named folder.."""),True)
                         temp = temp + "x"
                 ssconfig0 = "sserial_port_0=%s"% temp
             if self.data.mesa1_numof_sserialports:
-                for i in range(1,9):
+                for i in range(1,6):
                     if i <= self.data.mesa1_numof_sserialchannels:
                         # if m1 in the name then it needs mode 1
                         if "m1" in self.data["mesa1sserial0_%dsubboard"% (i-1)]:
