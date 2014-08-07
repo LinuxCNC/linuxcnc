@@ -132,6 +132,7 @@ message Container {
     repeated Group       group     = 106  [(nanopb).type = FT_IGNORE];
     repeated Member      member    = 107  [(nanopb).type = FT_IGNORE];
     repeated Function    function  = 108  [(nanopb).type = FT_IGNORE];
+    optional ProtocolParameters pparams = 109 [(nanopb).type = FT_IGNORE];
 
     // the app field is  included as a reply to
     // a MT_LIST_APPLICATIONS and

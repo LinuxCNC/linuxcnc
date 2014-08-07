@@ -180,3 +180,13 @@ message Group {
     optional sfixed32     refcount      = 6;
     repeated Member       member        = 7;  // list of signals or group names
 }
+
+// ProtocolParameters tells a peer entity about key
+// constants pertaining to the protocol, for instance
+// scan timer, keepalive timer etc
+
+message ProtocolParameters  {
+    optional sfixed32     keepalive_timer  = 1; // group and rcomp ping interval sent by haltalk
+    optional sfixed32     group_timer  = 2;     // group default scan timer
+    optional sfixed32     rcomp_timer  = 3;     // rcomp default scan timer
+}
