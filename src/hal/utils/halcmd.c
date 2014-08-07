@@ -95,6 +95,26 @@ flavor_ptr current_flavor;
 
 static void quit(int);
 
+static pid_t pid_of(const char *fmt, ...)
+{
+    char line[LINELEN];
+    FILE *cmd;
+    pid_t pid;
+    va_list ap;
+
+    strcpy(line, "pidof ");
+    va_start(ap, fmt);
+    vsnprintf(line + strlen(line), sizeof(line) - strlen(line), fmt, ap);
+    va_end(ap);
+    cmd = popen(line, "r");
+    if (!fgets(line, sizeof(line), cmd))
+	pid = -1;
+    else
+	pid = strtoul(line, NULL, 10);
+    pclose(cmd);
+    return pid;
+}
+
 int halcmd_startup(int quiet, char *uri, const char *svc_uuid) {
     int msg_lvl_save=rtapi_get_msg_level();
     /* register signal handlers - if the process is killed
@@ -115,8 +135,18 @@ int halcmd_startup(int quiet, char *uri, const char *svc_uuid) {
     int retval;
     if ((retval = rtapi_connect(rtapi_instance, uri, svc_uuid))) {
         if (!quiet) {
-            fprintf(stderr, "halcmd: cant connect to rtapi_app: %d (uri=%s uuid=%s): %s\n",
+            fprintf(stderr, "halcmd: cant connect to rtapi_app: %d (uri=%s uuid=%s): %s\n\n",
 		    retval, uri ? uri:"", svc_uuid, rtapi_rpcerror());
+
+	    char *logfile = "/var/log/linuxcnc.log";
+
+	    if (pid_of("rtapi:%d", rtapi_instance) < 0)
+		fprintf(stderr, "halcmd: the rtapi:%d RT demon is not running - please investigate %s\n",
+			rtapi_instance, logfile);
+
+	    if (pid_of("msgd:%d", rtapi_instance) < 0)
+		fprintf(stderr, "halcmd: the msgd:%d logger demon is not running - please investigate %s\n",
+			rtapi_instance, logfile);
         }
 	return -EINVAL;
     }
