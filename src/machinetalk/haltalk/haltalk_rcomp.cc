@@ -82,6 +82,7 @@ handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		self->tx.set_type(pb::MT_HALRCOMP_FULL_UPDATE);
 		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
 		self->tx.set_serial(g->serial++);
+		describe_parameters(self);
 		describe_comp(self, topic, topic, poller->socket);
 
 		// first subscriber - activate scanning
@@ -326,6 +327,18 @@ add_pins_to_items(int phase,  hal_compiled_comp_t *cc,
 	hi->o.pin = pin;
 	hi->ptr = SHMPTR(pin->data_ptr_addr);
 	self->items[pin->handle] = hi;
+    }
+    return 0;
+}
+
+// send a keepalive to all comp subscribers
+int ping_comps(htself_t *self)
+{
+    for (compmap_iterator c = self->rcomps.begin();
+	 c != self->rcomps.end(); c++) {
+	self->tx.set_type(pb::MT_PING);
+	int retval = send_pbcontainer(c->first.c_str(), self->tx, self->z_halrcomp);
+	assert(retval == 0);
     }
     return 0;
 }

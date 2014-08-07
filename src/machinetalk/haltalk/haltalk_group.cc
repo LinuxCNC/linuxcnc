@@ -63,6 +63,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
 		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
 		self->tx.set_serial(g->serial++);
+		describe_parameters(self);
 		describe_group(self, gi->first.c_str(), gi->first.c_str(), poller->socket);
 
 		// if first subscriber: activate scanning
@@ -88,6 +89,7 @@ handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 		self->tx.set_type(pb::MT_HALGROUP_FULL_UPDATE);
 		self->tx.set_uuid(self->process_uuid, sizeof(self->process_uuid));
 		self->tx.set_serial(g->serial++);
+		describe_parameters(self);
 		describe_group(self, gi->first.c_str(), gi->first.c_str(), poller->socket);
 		rtapi_print_msg(RTAPI_MSG_DBG,
 				"%s: subscribe group='%s' serial=%d",
@@ -298,6 +300,17 @@ group_report_cb(int phase, hal_compiled_group_t *cgroup,
 #endif // JSON_TIMING
 
 	break;
+    }
+    return 0;
+}
+
+// send a keepalive to all group subscribers
+int ping_groups(htself_t *self)
+{
+    for (groupmap_iterator g = self->groups.begin(); g != self->groups.end(); g++) {
+	self->tx.set_type(pb::MT_PING);
+	int retval = send_pbcontainer(g->first.c_str(), self->tx, self->z_halgroup);
+	assert(retval == 0);
     }
     return 0;
 }

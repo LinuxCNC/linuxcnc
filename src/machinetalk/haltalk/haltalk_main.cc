@@ -56,6 +56,7 @@ static htconf_t conf = {
     0,
     100,
     100,
+    2000, // keepalive
     0,
     NULL,
     0
@@ -85,6 +86,15 @@ handle_signal(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 }
 
 static int
+handle_keepalive_timer(zloop_t *loop, int timer_id, void *arg)
+{
+    htself_t *self = (htself_t *) arg;
+    ping_comps(self);
+    ping_groups(self);
+    return 0;
+}
+
+static int
 mainloop( htself_t *self)
 {
     int retval;
@@ -100,7 +110,9 @@ mainloop( htself_t *self)
     zloop_poller(self->z_loop, &group_poller,  handle_group_input, self);
     zloop_poller(self->z_loop, &rcomp_poller,  handle_rcomp_input, self);
     zloop_poller(self->z_loop, &cmd_poller,    handle_command_input, self);
-
+    if (self->cfg->keepalive_timer)
+	zloop_timer(self->z_loop, self->cfg->keepalive_timer, 0,
+		    handle_keepalive_timer, (void *) self);
     do {
 	retval = zloop_start(self->z_loop);
     } while  (!(retval || self->interrupted));
@@ -355,6 +367,7 @@ read_config(htconf_t *conf)
 	iniFindInt(inifp, "BRIDGE_TARGET_INSTANCE", conf->section, &conf->bridge_target_instance);
 	iniFindInt(inifp, "GROUPTIMER", conf->section, &conf->default_group_timer);
 	iniFindInt(inifp, "RCOMPTIMER", conf->section, &conf->default_rcomp_timer);
+	iniFindInt(inifp, "KEEPALIVETIMER", conf->section, &conf->keepalive_timer);
 	if (!conf->debug)
 	    iniFindInt(inifp, "DEBUG", conf->section, &conf->debug);
 	iniFindInt(inifp, "PARANOID", conf->section, &conf->paranoid);
@@ -388,7 +401,7 @@ usage(void)
 	   "    Turn on event debugging messages.\n");
 }
 
-static const char *option_string = "hI:S:dt:u:r:T:c:pb:C:U:i:N:R:s";
+static const char *option_string = "hI:S:d:t:u:r:T:c:pb:C:U:i:N:R:sK:";
 static struct option long_options[] = {
     {"help", no_argument, 0, 'h'},
     {"paranoid", no_argument, 0, 'p'},
@@ -397,6 +410,7 @@ static struct option long_options[] = {
     {"debug", required_argument, 0, 'd'},
     {"gtimer", required_argument, 0, 't'},
     {"ctimer", required_argument, 0, 'T'},
+    {"keepalive", required_argument, 0, 'K'},
     {"stpuri", required_argument, 0, 'u'},
     {"rcompuri", required_argument, 0, 'r'},
     {"cmduri", required_argument, 0, 'c'},
@@ -444,6 +458,9 @@ int main (int argc, char *argv[])
 	    break;
 	case 'T':
 	    conf.default_rcomp_timer = atoi(optarg);
+	    break;
+	case 'K':
+	    conf.keepalive_timer = atoi(optarg);
 	    break;
 	case 'p':
 	    conf.paranoid = 1;

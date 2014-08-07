@@ -123,6 +123,7 @@ typedef struct htconf {
     int debug;
     int default_group_timer; // msec
     int default_rcomp_timer; // msec
+    int keepalive_timer; // msec; disabled if zero
     unsigned ifIndex;
     char *service_uuid;
     int remote;
@@ -172,12 +173,14 @@ int scan_groups(htself_t *self);
 int release_groups(htself_t *self);
 int handle_group_timer(zloop_t *loop, int timer_id, void *arg);
 int handle_group_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg);
+int ping_groups(htself_t *self);
 
 // haltalk_rcomp.cc:
 int scan_comps(htself_t *self);
 int release_comps(htself_t *self);
 int handle_rcomp_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg);
 int handle_rcomp_timer(zloop_t *loop, int timer_id, void *arg);
+int ping_comps(htself_t *self);
 
 // haltalk_zeroconf.cc:
 int ht_zeroconf_announce(htself_t *self);
@@ -190,6 +193,7 @@ int handle_command_input(zloop_t *loop, zmq_pollitem_t *poller, void *arg);
 int process_describe(htself_t *self, const char *from,  void *socket);
 int describe_group(htself_t *self, const char *group, const char *from,  void *socket);
 int describe_comp(htself_t *self, const char *comp, const char *from,  void *socket);
+int describe_parameters(htself_t *self);
 
 // haltalk_bridge.cc:
 int bridge_init(htself_t *self);
