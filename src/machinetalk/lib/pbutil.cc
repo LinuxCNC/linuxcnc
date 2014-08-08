@@ -25,7 +25,7 @@
 int __attribute__((weak)) print_container;
 
 int
-send_pbcontainer(const char *dest, pb::Container &c, void *socket)
+send_pbcontainer(const std::string &dest, pb::Container &c, void *socket)
 {
     int retval = 0;
     zframe_t *f;
@@ -49,11 +49,12 @@ send_pbcontainer(const char *dest, pb::Container &c, void *socket)
 			__func__);
 	goto DONE;
     }
-    if (dest) {
-	retval = zstr_sendm (socket, dest);
+    if (dest.size()) {
+	zframe_t *d =  zframe_new (dest.c_str(), dest.size());
+	retval = zframe_send (&d, socket, ZMQ_MORE);
 	if (retval) {
-	    syslog_async(LOG_ERR,"%s: FATAL - failed to zstr_sendm(%s)",
-			    __func__, dest);
+	    syslog_async(LOG_ERR,"%s: FATAL - failed to send destination frame: '%.*s'",
+			 __func__, dest.size(), dest.c_str());
 	    goto DONE;
 	}
     }
