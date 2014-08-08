@@ -217,7 +217,7 @@ os.rename('test.ngc', 'moved-test.ngc')
 #os.rename('subs/sub.ngc', 'subs/moved-sub.ngc')
 
 start_time = time.time()
-while (time.time() - start_time) < 2.0:
+while (time.time() - start_time) < 5.0:
     e.s.poll()
     if e.s.interp_state == linuxcnc.INTERP_IDLE:
         break
