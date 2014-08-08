@@ -108,3 +108,13 @@ connect to a publish socket, subscribe to two different topics:
 (you need to run publish.py in another shell window):
 
      python zwstest.py "ws://127.0.0.1:7681/?connect=tcp://127.0.0.1:6650&type=sub&scubscribe=topic1&subscribe=topic2"
+
+
+User-defined translation policy plugins:
+-----------------------------------------
+
+see webtalk_example_policy.cc and Submakefile
+
+run example as:
+
+    webtalk --foreground --debug 65535 --plugin ../lib/webtalk/plugins/example.o

@@ -47,17 +47,31 @@ int wt_proxy_new(wtself_t *self)
     self->policies = zlist_new();
     self->cfg->info.user = self; // pass instance pointer
 
+#ifdef ZWS_SUPPORT // experimentally enable "ZWS1.0" as legit ws protocol
+#define NUMPROTO 3
+#else
+#define NUMPROTO 2
+#endif
+    // protocols is a zero delimited array of struct libwebsocket_protocols
     self->cfg->info.protocols =  (struct libwebsocket_protocols *)
-	zmalloc (sizeof (struct libwebsocket_protocols) * 2); // zero delimited
+	zmalloc (sizeof (struct libwebsocket_protocols) * NUMPROTO);
     if (self->cfg->info.protocols == NULL) {
 	perror("malloc");
 	return -1;
     }
-    self->cfg->info.protocols->name = "http";
-    self->cfg->info.protocols->callback = callback_http;
-    self->cfg->info.protocols->per_session_data_size = sizeof(zws_session_t);
+    self->cfg->info.protocols[0].name = "http";
+    self->cfg->info.protocols[0].callback = callback_http;
+    self->cfg->info.protocols[0].per_session_data_size = sizeof(zws_session_t);
     // let library handle partial writes:
-    self->cfg->info.protocols->no_buffer_all_partial_tx = 0;
+    self->cfg->info.protocols[0].no_buffer_all_partial_tx = 0;
+
+#ifdef ZWS_SUPPORT
+    // somewhat clunky way to enable recognition of "ZWS1.0"
+    self->cfg->info.protocols[1].name = "ZWS1.0";
+    self->cfg->info.protocols[1].callback = callback_http;
+    self->cfg->info.protocols[1].per_session_data_size = sizeof(zws_session_t);
+    self->cfg->info.protocols[1].no_buffer_all_partial_tx = 0;
+#endif
     return 0;
 }
 

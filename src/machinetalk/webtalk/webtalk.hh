@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+
 #define PROXY_PORT 7681  // serves both http and ws
 
 #ifndef SYSLOG_FACILITY
@@ -51,12 +52,16 @@ enum wt_log_levels {
     LLL_FROMWS = 1 << 12,
     LLL_LOOP   = 1 << 13,
     LLL_CONFIG = 1 << 14,
+    LLL_ZWS    = 1 << 15,
     LLL_LAST = 15
 };
+
 #define lwsl_uri(...)    _lws_log(LLL_URI, __VA_ARGS__)
 #define lwsl_tows(...)   _lws_log(LLL_TOWS, __VA_ARGS__)
 #define lwsl_fromws(...) _lws_log(LLL_FROMWS, __VA_ARGS__)
+#define lwsl_loop(...)   _lws_log(LLL_LOOP, __VA_ARGS__)
 #define lwsl_cfg(...)    _lws_log(LLL_CONFIG, __VA_ARGS__)
+#define lwsl_zws(...)    _lws_log(LLL_ZWS, __VA_ARGS__)
 
 
 #include <inifile.h>

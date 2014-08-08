@@ -5,10 +5,6 @@
 #include <string.h>
 #include <libwebsockets.h>
 
-#include <google/protobuf/text_format.h>
-#include <machinetalk/generated/message.pb.h>
-using namespace google::protobuf;
-
 #include "webtalk.hh"
 #include <dlfcn.h>
 
@@ -16,13 +12,13 @@ int wt_add_plugin(wtself_t *self, const char *sopath)
 {
     dlerror(); // clear any existing error
 
-    // Attempt to open the plugin DSO
+    // try to open the plugin shared object
     void *libhandle = dlopen(sopath, RTLD_NOW);
     if (!libhandle) {
 	const char *errmsg = dlerror();
 	if (!errmsg)
 	    errmsg = strerror(errno);
-	syslog_async(LOG_ERR, "%s: error loading plugin DSU %s: %s\n",
+	syslog_async(LOG_ERR, "%s: error loading plugin DSO %s: %s\n",
 		     __func__, sopath, errmsg);
 	return -EINVAL;
     }
@@ -35,8 +31,8 @@ int wt_add_plugin(wtself_t *self, const char *sopath)
 		     __func__,sopath, dlerror());
 	return -ENOENT;
     }
-    syslog_async(LOG_INFO, "%s: found policy descriptor in %s: '%s' callback=%p\n",
-		 __func__,  sopath, p->name, p->callback);
+    syslog_async(LOG_INFO, "%s: adding policy '%s' from plugin '%s'\n",
+		 __func__, p->name, sopath);
     int retval = wt_proxy_add_policy(self, p->name, p->callback);
     assert(retval == 0);
     return 0;
