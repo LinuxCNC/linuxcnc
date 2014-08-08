@@ -33,7 +33,7 @@ static int describe_group_cb(hal_group_t *group,  void *arg);
 
 // describe the current HAL universe as a protobuf message.
 int
-process_describe(htself_t *self, const char *from,  void *socket)
+process_describe(htself_t *self, const std::string &from,  void *socket)
 {
     int retval __attribute__((cleanup(halpr_autorelease_mutex)));
     rtapi_mutex_get(&(hal_data->mutex));
@@ -49,7 +49,7 @@ process_describe(htself_t *self, const char *from,  void *socket)
 
 // describe a HAL group as a protobuf message.
 int
-describe_group(htself_t *self, const char *group, const char *from,  void *socket)
+describe_group(htself_t *self, const char *group, const std::string &from,  void *socket)
 {
     int retval __attribute__((cleanup(halpr_autorelease_mutex)));
     rtapi_mutex_get(&(hal_data->mutex));
@@ -66,7 +66,7 @@ describe_group(htself_t *self, const char *group, const char *from,  void *socke
 
 // describe a HAL component as a protobuf message.
 int
-describe_comp(htself_t *self, const char *comp, const char *from,  void *socket)
+describe_comp(htself_t *self, const char *comp, const std::string &from,  void *socket)
 {
     int retval __attribute__((cleanup(halpr_autorelease_mutex)));
     rtapi_mutex_get(&(hal_data->mutex));
