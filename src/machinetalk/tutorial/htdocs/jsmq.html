@@ -1,0 +1,45 @@
+<html>
+  <script src="/js/JSMQ.js"></script>
+
+    <script>
+        var dealer = new Dealer();
+        dealer.connect("ws://127.0.0.1:7681/?type=dealer&policy=zws&connect=tcp://127.0.0.1:5700&identity=client&text");
+
+    // we must wait for the dealer to be connected before we can send messages, any messages we are trying to send
+        // while the dealer is not connected will be dropped
+        dealer.sendReady = function() {
+            document.getElementById("sendButton").disabled = "";
+        };
+
+        var subscriber = new Subscriber();
+
+        subscriber.connect("ws://127.0.0.1:7681/?type=xsub&policy=zws&connect=tcp://127.0.0.1:5500&text");
+        subscriber.subscribe("chat");
+
+        subscriber.onMessage = function (message) {
+            // message is an array of all the message parts
+            // we ignore the first frame because it's topic
+
+            document.getElementById("chatTextArea").value =
+                document.getElementById("chatTextArea").value +
+                message[1]  + "\n";
+        };
+
+        dealer.onMessage = function (message) {
+            // the response from the server
+            alert(message[0]);
+        };
+
+        function send() {
+            dealer.send(document.getElementById("messageTextBox").value);
+        }
+    </script>
+    <body>
+        <textarea id="chatTextArea" readonly="readonly"></textarea>
+        <br/>
+        <label>Message:</label><input id="messageTextBox" value="" />
+        <button id="sendButton" disabled="disabled" onclick="javascript:send();">
+            Send
+        </button>
+    </body>
+</html>
