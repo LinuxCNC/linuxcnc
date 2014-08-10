@@ -226,12 +226,11 @@ STATIC inline double tpGetRealTargetVel(TP_STRUCT const * const tp,
 {
 
     // Start with the scaled target velocity based on the current feed scale
-    double v_target = tc->synchronized ? tc->target_vel :
-        tc->reqvel * tpGetFeedScale(tp,tc);
+    double v_target = tc->synchronized ? tc->target_vel : tc->reqvel;
     tc_debug_print("Initial v_target = %f\n",v_target);
 
     // Get the maximum allowed target velocity, and make sure we're below it
-    return fmin(v_target, tpGetMaxTargetVel(tp, tc));
+    return fmin(v_target * tpGetFeedScale(tp,tc), tpGetMaxTargetVel(tp, tc));
 }
 
 
