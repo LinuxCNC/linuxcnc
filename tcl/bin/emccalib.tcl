@@ -433,6 +433,7 @@ proc saveIni {which} {
                         default {
                             set tmpstr [$initext get $ind.0 $ind.end]
                             set tmpvar [lindex [split $tmpstr "="] 0]
+                            set tmpvar [string trim $tmpvar]
                             set tmpindx [lsearch $upvarnames $tmpvar]
                             if {$tmpindx != -1} {
                                 set cmd [lindex $varcommands $tmpindx]
