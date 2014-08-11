@@ -34,6 +34,9 @@ optparser.add_option("-c", "--cgen", dest="cgen",
 optparser.add_option("-p", "--pygen", dest="pygen",
     metavar="DIR", default='.',
     help="directory for generated Python files.")
+optparser.add_option("-j", "--jsgen", dest="jsgen",
+    metavar="DIR", default='.',
+    help="directory for generated Javascript files.")
 
 args = shlex.split(req.parameter)
 options, dummy = optparser.parse_args(args)
@@ -42,6 +45,7 @@ if options.debug:
     print >> sys.stderr, "vpath=", options.vpath
     print >> sys.stderr, "cgen=", options.cgen
     print >> sys.stderr, "pygen=", options.pygen
+    print >> sys.stderr, "jsgen=", options.jsgen
 
 def dir_of(filename, vpath, pathsep=os.pathsep):
     for path in vpath:
@@ -71,6 +75,7 @@ def add_depends(fd):
     depend_file.content += '{0}/{1}.pb-c.c {0}/{1}.pb-c.h: {2}\n'.format(options.cgen,prefix,deplist)
     depend_file.content += '{0}/{1}.npb.c  {0}/{1}.npb.h:  {2}\n'.format(options.cgen,prefix,deplist)
     depend_file.content += '{0}/{1}_pb2.py: {2}\n'.format(options.pygen,prefix,deplist)
+    depend_file.content += '{0}/{1}.js: {2}\n'.format(options.jsgen,prefix,deplist)
 
     return depend_file
 
