@@ -187,6 +187,10 @@ class Pages:
 
         self.a.add_external_folder_boardnames()
         self.intro_prepare()
+        # get the original background color, must realize the widget first to get the true color.
+        # we use this later to high light missing axis info
+        self.w.xencoderscale.realize()
+        self.a.origbg = self.w.xencoderscale.style.bg[gtk.STATE_NORMAL]
 
 #************
 # INTRO PAGE
@@ -1010,6 +1014,7 @@ class Pages:
 # X_MOTOR PAGE
 #************
     def x_motor_prepare(self):
+        #self.w.xencoderscale.modify_bg(gtk.STATE_NORMAL, self.w.xencoderscale.get_colormap().alloc_color("red"))
         self.d.help = "help-axismotor.txt"
         self.a.axis_prepare('x')
         state = True

@@ -4810,10 +4810,12 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if self.d.findsignal(axis+"-pot-outpot"): pot = True
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
+                self.widgets[axis+"encoderscale"].modify_bg(gtk.STATE_NORMAL, self.widgets[axis+"encoderscale"].get_colormap().alloc_color("red"))
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
+                self.widgets[axis+"stepscale"].modify_bg(gtk.STATE_NORMAL, self.widgets[axis+"stepscale"].get_colormap().alloc_color("red"))
                 dbg('step scale bad')
                 bad = True
         if not (encoder or resolver) and not stepdrive and not axis == "s":
@@ -4832,6 +4834,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
+            self.widgets[axis+"encoderscale"].modify_bg(gtk.STATE_NORMAL, self.origbg)
+            self.widgets[axis+"stepscale"].modify_bg(gtk.STATE_NORMAL, self.origbg)
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)
