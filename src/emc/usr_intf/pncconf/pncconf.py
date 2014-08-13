@@ -4526,7 +4526,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_pagevalue("FF2")
         get_pagevalue("bias")
         get_pagevalue("deadband")
-        get_pagevalue("maxoutput")
+        if stepdrive:
+            d[axis + "maxoutput"] = (get_value(w[axis + "maxvel"])/60)
+        else:
+            get_pagevalue("maxoutput")
         get_pagevalue("steptime")
         get_pagevalue("stepspace")
         get_pagevalue("dirhold")
