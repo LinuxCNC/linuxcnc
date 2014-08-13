@@ -36,6 +36,13 @@ class MultiFileBuilder:
         self.builders.append(builder)
         builder.add_from_file(fn)
 
+    def add_from_string(self, strg):
+        builder = gtk.Builder()
+        if self.domain is not None: builder.set_translation_domain(self.domain)
+
+        self.builders.append(builder)
+        builder.add_from_string(strg)
+
     def get_object(self, obj):
         objects = [builder.get_object(obj) for builder in self.builders]
         objects = [o for o in objects if o]
