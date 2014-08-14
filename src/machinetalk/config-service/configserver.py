@@ -1,10 +1,10 @@
 #!/usr/bin/python
-import os,sys,time,uuid
+import os
+import sys
+import uuid
 from stat import *
 import zmq
-import socket
 import netifaces
-import uuid
 import avahi
 import dbus
 
@@ -14,12 +14,13 @@ from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
 
+
 class ZeroconfService:
     """A simple class to publish a network service with zeroconf using
     avahi.
     """
 
-    def __init__(self, name, port, stype="_http._tcp",subtype=None,
+    def __init__(self, name, port, stype="_http._tcp", subtype=None,
                  domain="", host="", text=""):
         self.name = name
         self.stype = stype
@@ -42,7 +43,7 @@ class ZeroconfService:
                                    server.EntryGroupNew()),
                     avahi.DBUS_INTERFACE_ENTRY_GROUP)
 
-        g.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC,dbus.UInt32(0),
+        g.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, dbus.UInt32(0),
                      self.name, self.stype, self.domain, self.host,
                      dbus.UInt16(self.port), self.text)
 
@@ -59,17 +60,17 @@ class ZeroconfService:
     def unpublish(self):
         self.group.Reset()
 
-class ConfigServer:
 
-    def __init__(self, context, uri, appDirs=[],  topdir=".",
-                 interface="", ipv4="", svc_uuid=None,debug=False):
+class ConfigServer:
+    def __init__(self, context, uri, appDirs=[], topdir=".",
+                 interface="", ipv4="", svc_uuid=None, debug=False):
         self.appDirs = appDirs
         self.interface = interface
         self.ipv4 = ipv4
         self.debug = debug
         self.cfg = ConfigParser.ConfigParser()
 
-	for rootdir in self.appDirs:
+        for rootdir in self.appDirs:
             for root, subFolders, files in os.walk(rootdir):
                 if 'description.ini' in files:
                     inifile = os.path.join(root, 'description.ini')
@@ -77,10 +78,10 @@ class ConfigServer:
                     cfg.read(inifile)
                     name = cfg.get('Default', 'name')
                     description = cfg.get('Default', 'description')
-                    type = cfg.get('Default', 'type')
+                    appType = cfg.get('Default', 'type')
                     self.cfg.add_section(name)
                     self.cfg.set(name, 'description', description)
-                    self.cfg.set(name, 'type', type)
+                    self.cfg.set(name, 'type', appType)
                     self.cfg.set(name, 'files', root)
                     if debug:
                         print "name:", cfg.get('Default', 'name')
@@ -100,7 +101,7 @@ class ConfigServer:
         self.txtrec = [str('dsn=' + self.dsname),
                        str('uuid=' + svc_uuid),
                        str('service=' + 'config'),
-                       str('instance=' + str(me)) ]
+                       str('instance=' + str(me))]
 
         if self.debug: print "txtrec:",self.txtrec
 
@@ -135,12 +136,12 @@ class ConfigServer:
         else:
             return JAVASCRIPT
 
-    def send_msg(self,dest, type):
+    def send_msg(self, dest, type):
         self.tx.type = type
-        buffer = self.tx.SerializeToString()
+        txBuffer = self.tx.SerializeToString()
         print "send_msg", str(self.tx)
         self.tx.Clear()
-        self.socket.send_multipart([dest, buffer])
+        self.socket.send_multipart([dest, txBuffer])
 
     def list_apps(self, origin):
         for name in self.cfg.sections():
@@ -173,7 +174,7 @@ class ConfigServer:
 
         self.send_msg(origin, MT_APPLICATION_DETAIL)
 
-    def process(self,s):
+    def process(self, s):
         print "process called"
         try:
             (origin, msg) = s.recv_multipart()
@@ -194,7 +195,6 @@ class ConfigServer:
         note = self.tx.note.add()
         note = "unsupported request type %d" % (self.rx.type)
         self.send_msg(origin,MT_ERROR)
-
 
 
 def choose_ip(pref):
@@ -228,7 +228,6 @@ def choose_ip(pref):
 
 def main():
     debug = False
-    trace = False
 
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
@@ -243,17 +242,16 @@ def main():
 
     if remote == 0:
         print("Remote communication is deactivated, configserver will not start")
-        print("set REMOTE in " + mkini + " to 1 to enable remote communication")
+        print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
         sys.exit(0)
 
     iface = choose_ip(prefs)
     if not iface:
-       print >> sys.stderr, "failed to determine preferred interface (preference = %s)" % prefs
-       sys.exit(1)
+        print >> sys.stderr, "failed to determine preferred interface (preference = %s)" % prefs
+        sys.exit(1)
 
     if debug:
-        print "announcing configserver on ",iface
-
+        print(("announcing configserver on ", iface))
 
     context = zmq.Context()
     context.linger = 0
@@ -263,10 +261,10 @@ def main():
     cfg = ConfigServer(context, uri,
                        svc_uuid=uuid,
                        topdir=".",
-                       interface = iface[0],
-                       ipv4 = iface[1],
-                       appDirs = sys.argv[1:],
-                       debug = debug)
+                       interface=iface[0],
+                       ipv4=iface[1],
+                       appDirs=sys.argv[1:],
+                       debug=debug)
 
 if __name__ == "__main__":
     main()
