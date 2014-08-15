@@ -1170,13 +1170,16 @@ Choosing no will mean AXIS options such as size/position and force maximum might
         halboardnum = 0
         if test == "None": return None
         elif 'mesa' in test:
-            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio", _PD.ENCA:"encoder", _PD.ENCB:"encoder",_PD.ENCI:"encoder",_PD.ENCM:"encoder",
+            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio",
+                _PD.ENCA:"encoder", _PD.ENCB:"encoder",_PD.ENCI:"encoder",_PD.ENCM:"encoder",
                 _PD.RES0:"resolver",_PD.RES1:"resolver",_PD.RES2:"resolver",_PD.RES3:"resolver",_PD.RES4:"resolver",_PD.RES5:"resolver",
                 _PD.MXE0:"encoder", _PD.MXE1:"encoder",
                 _PD.PWMP:"pwmgen",_PD.PWMD:"pwmgen", _PD.PWME:"pwmgen", _PD.PDMP:"pwmgen", _PD.PDMD:"pwmgen", _PD.PDME:"pwmgen",
                 _PD.UDMU:"pwmgen",_PD.UDMD:"pwmgen", _PD.UDME:"pwmgen",_PD.STEPA:"stepgen", _PD.STEPB:"stepgen",
-                _PD.TPPWMA:"tppwmgen",_PD.TPPWMB:"tppwmgen",_PD.TPPWMC:"tppwmgen",_PD.TPPWMAN:"tppwmgen",_PD.TPPWMBN:"tppwmgen",_PD.TPPWMCN:"tppwmgen",
-                _PD.TPPWME:"tppwmgen",_PD.TPPWMF:"tppwmgen",_PD.AMP8I20:"8i20",_PD.POTO:"spinout",_PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
+                _PD.TPPWMA:"tppwmgen",_PD.TPPWMB:"tppwmgen",_PD.TPPWMC:"tppwmgen",
+                _PD.TPPWMAN:"tppwmgen",_PD.TPPWMBN:"tppwmgen",_PD.TPPWMCN:"tppwmgen",
+                _PD.TPPWME:"tppwmgen",_PD.TPPWMF:"tppwmgen",_PD.AMP8I20:"8i20",_PD.POTO:"spinout",
+                _PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
             boardnum = int(test[4:5])
             boardname = self["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
             ptype = self[pin+"type"]
@@ -1275,7 +1278,8 @@ Choosing no will mean AXIS options such as size/position and force maximum might
                         compnum = int(pinnum)+(concount*24)
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%03d"% (compnum)          
                 elif ptype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM,_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMU,_PD.UDMD,_PD.UDME,
-                    _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,_PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF):
+                    _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,
+                    _PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF):
                     return "hm2_%s.%d."% (boardname,halboardnum) + comptype+".%02d"% (compnum)
                 elif ptype in (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5):
                     temp = (_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5)
@@ -1313,7 +1317,7 @@ class App:
         self.debugstate = dbgstate
         dbg = self.dbg
         if self.debugstate:
-           print 'PNCconf debug -ALL'
+           print 'PNCconf debug',dbgstate
            global _DEBUGSTRING
            _DEBUGSTRING = [dbgstate]
         self.recursive_block = False
@@ -1337,7 +1341,7 @@ class App:
         notebook1 = self.builder.get_object("notebook1")
         for name,y,z,a in (self._p.available_page):
             if name == 'intro': continue
-            dbg("loading glade page REFERENCE:%s TITLE:%s INIT STATE: %s STATE:%s"% (name,y,z,a),"GLADE")
+            dbg("loading glade page REFERENCE:%s TITLE:%s INIT STATE: %s STATE:%s"% (name,y,z,a),mtype="glade")
             if not z:
                 self.add_placeholder_page(name)
                 page = self.builder.get_object('label_%s'%name)
@@ -1494,7 +1498,7 @@ class App:
 
     def dbg(self,message,mtype='all'):
         for hint in _DEBUGSTRING:
-            if hint == "all" or mtype in hint:
+            if "all" in hint or mtype in hint:
                 print(message)
                 if "step" in _DEBUGSTRING:
                     c = raw_input("\n**** Debug Pause! ****")
@@ -1512,7 +1516,7 @@ class App:
     
     def warning_dialog(self,message,is_ok_type):
         if is_ok_type:
-           dialog = gtk.MessageDialog(app.widgets.window1,
+           dialog = gtk.MessageDialog(self.widgets.window1,
                 gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                 gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,message)
            dialog.show_all()
@@ -1573,7 +1577,7 @@ class App:
                 folder = root.lstrip(self._p.FIRMDIR)
                 if folder in self._p.MESABLACKLIST:continue
                 if folder == "":continue
-                dbg("****folder added :%s"%folder)
+                dbg("****folder added :%s"%folder,mtype='firmware')
                 self._p.MESA_BOARDNAMES.append(folder)
             self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
         else:
@@ -1767,7 +1771,7 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%self._
                     dbg('%s'% name)
                     temp = name.strip(".xml")
                     firmlist.append(temp)
-        dbg("\nXML list:%s"%firmlist,"firmname")
+        dbg("\nXML list:%s"%firmlist,mtype="firmname")
         for n,currentfirm in enumerate(firmlist):
             self.pbar.set_fraction(n*1.0/len(firmlist))
             while gtk.events_pending():
@@ -1952,8 +1956,8 @@ PNCconf will use sample firmware data\nlive testing will not be possible"%self._
                     lowfreq,hifreq,tempconlist]
             for i in temppinlist:
                 temp.append(i)
-            #if boardname == "5i25":
-                #dbg("5i25 firmware:\n%s\n"%( temp), "5i25")
+            if "5i25" in boardname :
+                dbg("5i25 firmware:\n%s\n"%( temp), mtype="5i25")
             self._p.MESA_FIRMWAREDATA.append(temp)
         self.window.hide()
 
@@ -4528,7 +4532,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         get_pagevalue("bias")
         get_pagevalue("deadband")
         if stepdrive:
-            d[axis + "maxoutput"] = (get_value(w[axis + "maxvel"])/60)
+            d[axis + "maxoutput"] = (get_value(w[axis + "maxvel"])/60) *1.25 # TODO should be X2 if using backlash comp ?
         else:
             get_pagevalue("maxoutput")
         get_pagevalue("steptime")
@@ -5250,7 +5254,7 @@ if __name__ == "__main__":
     usage = "usage: pncconf -h for options"
     parser = OptionParser(usage=usage)
     parser.add_option("-d", action="store", metavar='all', dest="debug",
-                        help="Print debug info and ignore realtime/kernel tests\nuse alldev to show the page tabs")
+                        help="Print debug info and ignore realtime/kernel tests.\nUse 'alldev' to show all the page tabs. 'step'")
     (options, args) = parser.parse_args()
     if options.debug:
         app = App(dbgstate=options.debug)
