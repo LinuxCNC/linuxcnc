@@ -1,0 +1,60 @@
+# Include your customized HAL commands here
+# The commands in this file are run after the AXIS GUI (including PyVCP panel)
+# starts
+# This file will not be overwritten when you run stepconf again
+
+# load the Gamepad Pro module
+loadusr -W hal_input -KRAL X-Box
+
+# load the modules for the pendant
+loadrt or2 count=2
+loadrt mux4 count=1
+
+setp halui.jog-speed 10
+
+addf or2.0 servo-thread
+addf or2.1 servo-thread
+addf mux4.0 servo-thread
+#addf not.1 servo-thread
+
+#net reverse_button not.1.in <= input.button.4
+#net estop-ext2 <= not.1.out  
+#net estop-ext2 => iocontrol.0.emc-enable-in
+
+setp mux4.0.in0 0
+setp mux4.0.in1 [PENDANT]SPEED_1
+setp mux4.0.in2 [PENDANT]SPEED_2
+setp mux4.0.in3 [PENDANT]SPEED_3
+
+net remote-speed-slow or2.0.in0 input.0.btn-x
+net remote-speed-medium or2.1.in0 input.0.btn-a
+net remote-speed-fast or2.0.in1 or2.1.in1 input.0.btn-b
+
+net joy-speed-1 mux4.0.sel0 <= or2.0.out
+net joy-speed-2 mux4.0.sel1 <= or2.1.out
+net joy-speed-final halui.jog-speed <= mux4.0.out
+
+net joy-x-jog halui.jog.0.analog <= input.0.abs-x-position
+#net joy-y-jog halui.jog.1.analog <= input.0.abs-y-position
+#net joy-z-jog halui.jog.2.analog <= input.0.abs-ry-position
+
+loadrt sum2 count=2
+addf sum2.0 servo-thread
+addf sum2.1 servo-thread
+
+setp sum2.0.gain0 -1
+net reverse-y sum2.0.in0 <= input.0.abs-y-position
+net joy-y-jog halui.jog.1.analog <= sum2.0.out
+
+setp sum2.1.gain0 -1
+net reverse-z sum2.1.in0 <= input.0.abs-ry-position
+net joy-z-jog halui.jog.2.analog <= sum2.1.out
+
+#net button-home-all <= input.button.8
+#net button-home-all => halui.joint.2.home
+
+#net button-abort <= input.button.4
+#net button-abort => halui.abort
+
+
+

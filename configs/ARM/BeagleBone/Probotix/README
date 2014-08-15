@@ -1,0 +1,13 @@
+Configurations for a Probotix Comet router
+
+Comet 
+    Imperial (inch) configuration with Logitech gamepad MPG
+
+Comet_Metric
+    Metric configuration with Logitech gamepad MPG
+
+CometNP
+    Imperial (inch) configuration with no MPG
+
+CometNP_Metric
+    Metric configuration with no MPG
