@@ -52,11 +52,14 @@ enum ObjectType {
     HAL_COMP_REMOTE   = 9;
     HAL_RING          = 10;
     HAL_GROUP         = 11;
+
     HAL_MEMBER_SIGNAL = 12;
     HAL_MEMBER_GROUP  = 13;
     HAL_MEMBER_PIN    = 14;
-    RING_RECORD       = 15;
-    RING_STREAM       = 16;
+    HAL_MEMBER_PARAM  = 15;
+
+    RING_RECORD       = 16;
+    RING_STREAM       = 17;
 
     VALUE             = 20;
     INSTANCE          = 21;

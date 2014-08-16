@@ -170,6 +170,11 @@ message Member {
     optional string       groupname     = 5; //  [(nanopb).max_size = 41];
     optional fixed32      handle        = 6;
 
+    // if mtype == HAL_MEMBER_PIN
+    optional Pin              pin       = 7;
+
+    // if mtype == HAL_MEMBER_PARAM
+    optional Param          param       = 8;
 }
 
 message Group {
