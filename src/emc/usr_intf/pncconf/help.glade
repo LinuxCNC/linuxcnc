@@ -61,6 +61,7 @@
                       <object class="GtkTextView" id="textview1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="buffer">mill_textbuffer</property>
                       </object>
                     </child>
                   </object>
@@ -196,4 +197,34 @@ possible.</property>
     </child>
   </object>
   <object class="GtkTextBuffer" id="textoutput_buffer"/>
+  <object class="GtkTextBuffer" id="mill_textbuffer">
+    <property name="text" translatable="yes">X axis:
+Total Travel = 10
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = 0
+Pos Travel Distance = Total Travel - neg travel distance = 10
+Home Position = Origin to Home Position distance = 6
+
+Y axis:
+Total Travel = 8
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = -8
+Pos Travel Distance = Total Travel - neg travel distance = 0
+Home Position = Origin to Home Position distance = 0
+
+Z axis:
+Total Travel = 12
+Home Offset = Origin to Home Switch distance = 0
+Neg Travel Distance = Origin to neg limit distance = -12
+Pos Travel Distance = Total Travel - neg travel distance = 0
+Home Position = Origin to Home Position distance = 0
+
+Note that the direction indicators on the top right show 
+movement of the TOOL and on the actual machine,
+often it is the table that actually moves. In that case the 
+directions are opposite of shown.
+
+Note this is an example, Many other combinations are 
+possible</property>
+  </object>
 </interface>
