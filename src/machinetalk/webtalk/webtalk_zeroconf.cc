@@ -43,7 +43,9 @@ wt_zeroconf_announce(wtself_t *self)
 						    dsn,
 						    self->cfg->service_uuid,
 						    puuid,
-						    NULL,
+						    self->cfg->use_ssl ?
+						    "https" :
+						    "http",
 						    self->cfg->index_html,
 						    self->av_loop);
     if (self->www_publisher == NULL) {

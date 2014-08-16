@@ -25,6 +25,7 @@
 static wtconf_t conf;
 
 static void lwsl_emit_wtlog(int filter, const char *line);
+static int lwsl_logopts(char *logopts);
 static struct timeval tv_start;
 
 static int
@@ -222,16 +223,22 @@ read_config(wtconf_t *conf)
     iniFindInt(inifp, "OPTIONS", conf->section, (int *) &conf->info.options);
     iniFindInt(inifp, "EXTENSIONS",  conf->section, &flag);
     if (flag) conf->info.extensions = libwebsocket_get_internal_extensions();
+    iniFindInt(inifp, "TIMER", conf->section, &conf->service_timer);
 
     str_inidefault(&conf->index_html, inifp, "INDEX_HTML", conf->section);
     str_inidefault(&conf->www_dir, inifp, "WWW_DIR", conf->section);
     str_inidefault((char **)&conf->info.ssl_cert_filepath, inifp, "CERT_PATH", conf->section);
     str_inidefault((char **)&conf->info.ssl_private_key_filepath, inifp, "KEY_PATH", conf->section);
 
+    //keyword-parse LOG= line for any of
+    // ERR WARN NOTICE INFO DEBUG PARSER HEADER EXTENSION CLIENT LATENCY URI TOWS FROMWS LOOP CONFIG ZWS
+    char *logopts = NULL;
+    str_inidefault(&logopts, inifp, "LOG", conf->section);
+    if (logopts) {
+	conf->debug |= lwsl_logopts(logopts);
+	free(logopts);
+    }
     fclose(inifp);
-
-
-
     int cnt =  (conf->info.ssl_cert_filepath != NULL) ? 1 : 0;
     if  (conf->info.ssl_private_key_filepath != NULL) cnt++;
     if (cnt == 1) {
@@ -241,8 +248,6 @@ read_config(wtconf_t *conf)
     }
     if (cnt == 2)
 	conf->use_ssl = true;
-
-
     return 0;
 }
 
@@ -472,6 +477,7 @@ static const char * const wt_log_level_names[] = {
     "LOOP",
     "CONFIG",
     "ZWS",
+    NULL
 };
 
 static void lwsl_emit_wtlog(int filter, const char *line)
@@ -498,5 +504,35 @@ static void lwsl_emit_wtlog(int filter, const char *line)
 	    break;
 	}
     syslog_async(syslog_level, "%s%s", buf, line);
-    //fprintf(stderr, "%s%s", buf, line);
+}
+
+static int lwsl_logopts(char *logopts)
+{
+    int mask = 0;
+    char *s = logopts, *token, *save;
+    while ((token = strtok_r(s, "\t ,", &save)) != NULL) {
+	char *t = token;
+	int flip = 0;
+	if (*t == '-') {
+	    t++;
+	    flip = 1;
+	}
+	if (strcasecmp(t,"ALL") == 0) {
+	    mask = -1;
+	    goto next;
+	}
+	for (int n = 0; wt_log_level_names[n] != NULL; n++) {
+	    if (strcasecmp(t, wt_log_level_names[n]) == 0) {
+		if (flip)
+		    mask &= ~(1 << n);
+		else
+		    mask |= (1 << n);
+		goto next;
+	    }
+	}
+	syslog_async(LOG_ERR, "inifile item LOG: no such keyword '%s'", token);
+    next:
+	s = NULL;
+    }
+    return mask;
 }

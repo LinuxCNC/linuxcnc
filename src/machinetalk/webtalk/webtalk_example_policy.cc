@@ -42,12 +42,13 @@ example_policy(wtself_t *self,
 
     case ZWS_CONNECTING:
 	lwsl_notice("%s: ZWS_CONNECTING\n", __func__);
-	// > 1 indicates: run the default policy ZWS_CONNECTING code
+	// > 0 indicates: run the default policy ZWS_CONNECTING code
 	return 1;
 	break;
 
     case ZWS_ESTABLISHED:
 	lwsl_notice("%s: ZWS_ESTABLISHED\n", __func__);
+	return register_zmq_poller(wss);
 	break;
 
     case ZWS_CLOSE:

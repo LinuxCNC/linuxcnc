@@ -18,7 +18,6 @@
 
 #include "config.h"
 
-
 #define PROXY_PORT 7681  // serves both http and ws
 
 #ifndef SYSLOG_FACILITY
@@ -34,6 +33,7 @@
 #include <getopt.h>
 #include <uuid/uuid.h>
 #include <czmq.h>
+
 #include <libwebsockets.h>
 
 #define LWS_INITIAL_TXBUFFER 4096  // transmit buffer grows as needed
@@ -95,6 +95,30 @@ typedef enum zwscvt_type {
 typedef  int (*zwscvt_cb)(wtself_t *self,         // server instance
 			  zws_session_t *s,       // session
 			  zwscb_type type);       // which callback
+
+
+// protocol flags
+typedef enum protocol_flags {
+    PROTO_FRAMING_NONE        =  (1 << 0),
+    PROTO_FRAMING_ZWS         =  (1 << 1),
+    PROTO_FRAMING_MACHINEKIT  =  (1 << 2),
+    PROTO_FRAMING_ZWSPROTO    =  (1 << 3),
+
+    PROTO_ENCODING_NONE       =  (1 << 6),
+    PROTO_ENCODING_PROTOBUF   =  (1 << 7),
+    PROTO_ENCODING_JSON       =  (1 << 8),
+
+    PROTO_WRAP_BASE64         =  (1 << 10),
+
+    // add flags as needed - up to << 23
+} protocol_flags;
+
+
+// http://stackoverflow.com/questions/8936639/bit-shifting-masks-still-elude-me ;)
+#define PROTO_VERSION_BITS    8
+#define PROTO_VERSION_OFFSET  24
+#define PROTO_VERSION_MASK   ~( ~0 << PROTO_VERSION_BITS)
+#define PROTO_VERSION(x)     (( (x)  & PROTO_VERSION_MASK) <<  PROTO_VERSION_OFFSET)
 
 // per-session data
 typedef struct zws_session_data {
@@ -203,6 +227,7 @@ void echo_thread(void *args, zctx_t *ctx, void *pipe);
 int wt_proxy_new(wtself_t *self);
 int wt_proxy_add_policy(wtself_t *self, const char *name, zwscvt_cb cb);
 int service_timer_callback(zloop_t *loop, int  timer_id, void *context);
+int register_zmq_poller(zws_session_t *wss);
 const char *zwsmimetype(const char *ext);
 
 // webtalk_jsonpolicy.cc:

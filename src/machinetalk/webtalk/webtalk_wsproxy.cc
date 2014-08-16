@@ -1,7 +1,7 @@
 // embeddable zeroMQ/websockets proxy server
 // see zwsmain.c and zwsproxy.h for usage information
 //
-// the server runsruns in the context of a czmq poll loop
+// the server runs in the context of a czmq poll loop
 // messages to the websocket are funneled through a zmq PAIR pipe
 // (similar to the ringbuffer in test-server.c but using zeroMQ means).
 
@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <libwebsockets.h>
 
 #include "webtalk.hh"
 
@@ -42,36 +41,81 @@ static inline int zmq2poll(int mask)
     return result;
 }
 
+static struct libwebsocket_protocols protocols[] = {
+    //  first protocol must always be HTTP handler
+    {
+	"http",                 // name
+	callback_http,		// callback
+	sizeof(zws_session_t),	// per_session_data_size
+	0,			// max frame size / rx buffer
+	0, // let library handle partial writes
+	PROTO_FRAMING_NONE|PROTO_ENCODING_NONE 	// id - flag field
+    },
+
+    // machinekit specific framing
+    {
+	"machinekit1.0",
+	callback_http,
+	sizeof(zws_session_t),
+	0,
+	0,
+	PROTO_FRAMING_MACHINEKIT|PROTO_ENCODING_JSON|PROTO_VERSION(0)
+    },
+
+#if TEST_VERSIONING
+    {
+	"machinekit1.1",
+	callback_http,
+	sizeof(zws_session_t),
+	0,
+	0,
+	PROTO_FRAMING_MACHINEKIT|PROTO_ENCODING_JSON|PROTO_VERSION(1)
+    },
+#endif
+
+#ifdef EXPERIMENTAL_ZWS_SUPPORT
+    // experimentally enable "ZWS1.0" as legit ws protocol
+    // https://github.com/somdoron/rfc/blob/master/spec_39.txt
+    {
+	"ZWS1.0",
+	callback_http,
+	sizeof(zws_session_t),
+	0,
+	0,
+	PROTO_FRAMING_ZWS|PROTO_ENCODING_PROTOBUF|PROTO_VERSION(0),
+    },
+
+    // mhaberler's protobuf-based framing method
+    // assumes https://github.com/dcodeIO/ProtoBuf.js or manual decoding
+    // client-side
+    {
+	"ZWS1.0-proto",
+	callback_http,
+	sizeof(zws_session_t),
+	0,
+	0,
+	PROTO_FRAMING_ZWSPROTO|PROTO_ENCODING_PROTOBUF|PROTO_VERSION(0),
+    },
+
+    // wrapped in base64 - binary-safe version of above for text-only ws transports
+    {
+	"ZWS1.0-proto-base64",
+	callback_http,
+	sizeof(zws_session_t),
+	0,
+	0,
+	PROTO_WRAP_BASE64|PROTO_FRAMING_ZWSPROTO|PROTO_ENCODING_PROTOBUF|PROTO_VERSION(0),
+    },
+#endif
+    { NULL, NULL, 0, 0 } // terminator
+};
+
 int wt_proxy_new(wtself_t *self)
 {
     self->policies = zlist_new();
     self->cfg->info.user = self; // pass instance pointer
-
-#ifdef ZWS_SUPPORT // experimentally enable "ZWS1.0" as legit ws protocol
-#define NUMPROTO 3
-#else
-#define NUMPROTO 2
-#endif
     // protocols is a zero delimited array of struct libwebsocket_protocols
-    self->cfg->info.protocols =  (struct libwebsocket_protocols *)
-	zmalloc (sizeof (struct libwebsocket_protocols) * NUMPROTO);
-    if (self->cfg->info.protocols == NULL) {
-	perror("malloc");
-	return -1;
-    }
-    self->cfg->info.protocols[0].name = "http";
-    self->cfg->info.protocols[0].callback = callback_http;
-    self->cfg->info.protocols[0].per_session_data_size = sizeof(zws_session_t);
-    // let library handle partial writes:
-    self->cfg->info.protocols[0].no_buffer_all_partial_tx = 0;
-
-#ifdef ZWS_SUPPORT
-    // somewhat clunky way to enable recognition of "ZWS1.0"
-    self->cfg->info.protocols[1].name = "ZWS1.0";
-    self->cfg->info.protocols[1].callback = callback_http;
-    self->cfg->info.protocols[1].per_session_data_size = sizeof(zws_session_t);
-    self->cfg->info.protocols[1].no_buffer_all_partial_tx = 0;
-#endif
+    self->cfg->info.protocols = protocols;
     return 0;
 }
 
@@ -92,8 +136,29 @@ int wt_proxy_add_policy(wtself_t *self, const char *name, zwscvt_cb cb)
 
 void wt_proxy_exit(wtself_t *self)
 {
-    free(self->cfg->info.protocols);
     zlist_destroy (&self->policies);
+}
+
+int register_zmq_poller(zws_session_t *wss)
+{
+    if (wss->socket == NULL)
+	return -1;
+
+    // start watching the zmq socket
+    wtself_t *self = (wtself_t *) libwebsocket_context_user(wss->ctxref);
+
+    wss->pollitem.socket =  wss->socket;
+    wss->pollitem.fd = 0;
+    wss->pollitem.events =  ZMQ_POLLIN;
+    assert(zloop_poller (self->loop, &wss->pollitem, zmq_socket_readable, wss) == 0);
+    return 0;
+}
+
+int
+service_timer_callback(zloop_t *loop, int  timer_id, void *context)
+{
+    libwebsocket_service ((struct libwebsocket_context *) context, 0);
+    return 0;
 }
 
 //---- internals ----
@@ -134,13 +199,6 @@ static int set_policy(zws_session_t *wss, wtself_t *self)
 	    return -1; // close connection
 	}
     }
-    return 0;
-}
-
-int
-service_timer_callback(zloop_t *loop, int  timer_id, void *context)
-{
-    libwebsocket_service ((struct libwebsocket_context *) context, 0);
     return 0;
 }
 
@@ -196,7 +254,6 @@ static int serve_http(struct libwebsocket_context *context,
     return 0;
 }
 
-
 // HTTP + Websockets server
 static int
 callback_http(struct libwebsocket_context *context,
@@ -221,8 +278,8 @@ callback_http(struct libwebsocket_context *context,
 					     sizeof(client_name),
 					     client_ip,
 					     sizeof(client_ip));
-	    lwsl_info("%s connect from %s (%s) port %d\n",
-		      __func__, client_name, client_ip, self->info.port);
+	    lwsl_info("%s connect from %s (%s)\n",
+		      __func__, client_name, client_ip);
 	    // access control: insert any filter here and return -1 to close connection
 	}
 	break;
@@ -235,6 +292,8 @@ callback_http(struct libwebsocket_context *context,
 	// websockets support
     case LWS_CALLBACK_FILTER_PROTOCOL_CONNECTION:
 	{
+	    int fd = libwebsocket_get_socket_fd(wsi);
+
 	    // parse URI and query
 	    // set policy if contained in query
 	    // call ZWS_CONNECTING callback
@@ -245,7 +304,6 @@ callback_http(struct libwebsocket_context *context,
 	    char geturi[MAX_HEADER_LEN];
 	    char uriargs[MAX_HEADER_LEN];
 	    int retval = 0;
-	    int fd = libwebsocket_get_socket_fd(wsi);
 
 	    wss->txbuffer = (unsigned char *) zmalloc(LWS_INITIAL_TXBUFFER);
 	    assert(wss->txbuffer);
@@ -255,7 +313,10 @@ callback_http(struct libwebsocket_context *context,
 	    lws_hdr_copy(wsi, geturi, sizeof geturi, WSI_TOKEN_GET_URI);
 	    int arglen = lws_hdr_copy(wsi, uriargs, sizeof uriargs, WSI_TOKEN_HTTP_URI_ARGS);
 
-	    lwsl_debug("%s %d: uri='%s' args='%s'\n", __func__, fd, geturi, uriargs);
+	    const struct libwebsocket_protocols *proto = libwebsockets_get_protocol(wsi);
+
+	    lwsl_uri("%s %d: proto='%s' uri='%s' args='%s'\n",
+		     __func__, fd, proto->name, geturi, uriargs);
 
 	    state.uri = &wss->u;
 	    if (uriParseUriA(&state, geturi) != URI_SUCCESS) {
@@ -269,11 +330,11 @@ callback_http(struct libwebsocket_context *context,
 			 fd, geturi, retval);
 		return -1;
 	    }
-	    if (set_policy(wss, self))
-		return -1; // invalid policy - close connection
-
 	    if ((q = find_query(wss, "debug")) != NULL)
 		lws_set_log_level(atoi(q->value), NULL);
+
+	    if (set_policy(wss, self))
+		return -1; // invalid policy - close connection
 
 	    wss->wsiref = wsi;
 	    wss->ctxref = context;
@@ -310,12 +371,8 @@ callback_http(struct libwebsocket_context *context,
 	    retval = wss->policy(self, wss, ZWS_ESTABLISHED);
 	    if (retval > 0) // user policy indicated to use default policy function
 		default_policy(self, wss, ZWS_ESTABLISHED);
-
-	    // start watching the zmq socket
-	    wss->pollitem.socket =  wss->socket;
-	    wss->pollitem.fd = 0;
-	    wss->pollitem.events =  ZMQ_POLLIN;
-	    assert(zloop_poller (self->loop, &wss->pollitem, zmq_socket_readable, wss) == 0);
+	    // register_zmq_poller(wss) now deferred to ZWS_ESTABLISHED handler
+	    // so a socket can be created during negotiation, not on connect only
 	}
 	break;
 
@@ -323,85 +380,7 @@ callback_http(struct libwebsocket_context *context,
 	{
 	    int m,n;
 	    zframe_t *f;
-#if 0
-	    // complete any pending partial writes first
-	    if (wss->current != NULL) {
-		n = zframe_size(wss->current) - wss->already_sent;
-		memcpy(&wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING],
-		       zframe_data(wss->current) + wss->already_sent, n);
 
-		lwsl_debug("write leftover %d/%d\n", n,  zframe_size(wss->current));
-		m = libwebsocket_write(wsi, &wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING],
-				       n,  wss->txmode);
-		wss->wsout_bytes += m;
-		if (m < n) {
-		    lwsl_debug("stuck again writing leftover %d/%d\n", m,n);
-		    wss->already_sent += m;
-		    wss->partial_retry++;
-
-		    // disable wsq_in poller while stuck - write cb will take care of this
-		    // otherwise this is hammered by zmq readable callbacks because
-		    // of pending frames in the wsq_in pipe
-		    zloop_poller_end (self->loop, &wss->wsqin_pollitem);
-
-		    // reschedule once writable
-		    libwebsocket_callback_on_writable(context, wsi);
-		    return 0;
-		} else {
-		    lwsl_debug("leftover completed %d", n);
-		    zframe_destroy (&wss->current);
-		    wss->already_sent = 0;
-		    wss->completed++;
-
-		}
-	    }
-
-	    while ((f = zframe_recv_nowait (wss->wsq_in)) != NULL)	{
-		n = zframe_size(f);
-		wss->wsout_msgs++;
-		size_t needed  = n + LWS_SEND_BUFFER_PRE_PADDING +
-		    LWS_SEND_BUFFER_POST_PADDING;
-		if (needed > wss->txbufsize) {
-		    // enlarge as needed
-		    needed += LWS_TXBUFFER_EXTRA;
-		    lwsl_info("Websocket %d: enlarge txbuf %d to %d\n",
-			     libwebsocket_get_socket_fd(wsi), wss->txbufsize, needed);
-		    free(wss->txbuffer);
-
-		    // ready to take more - reenable wsq_in poller
-		    assert(zloop_poller (self->loop, &wss->wsqin_pollitem,
-					 wsqin_socket_readable, wss) == 0);
-		    wss->txbuffer = (unsigned char *) zmalloc(needed);
-		    assert(wss->txbuffer);
-		    wss->txbufsize = needed;
-		}
-		memcpy(&wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING], zframe_data(f), n);
-		m = libwebsocket_write(wsi, &wss->txbuffer[LWS_SEND_BUFFER_PRE_PADDING],
-				       n, wss->txmode);
-
-		wss->wsout_bytes += m;
-		if (m < n) {
-		    lwsl_err("Websocket %d: partial write %d/%d\n",
-			       libwebsocket_get_socket_fd(wsi), m,n);
-		    wss->already_sent = m;
-		    wss->current = f;
-		    wss->partial++;
-		} else {
-		    zframe_destroy(&f);
-		    wss->already_sent = 0;
-		    wss->completed++;
-		}
-
-		if (lws_send_pipe_choked(wsi)) {
-		    lwsl_err("----- SEND PIPE CHOKED\n");
-		    // disable wsq_in poller while stuck - write cb will take care of this
-		    // otherwise this is hammered by zmq readable callbacks because
-		    // of pending frames in the wsq_in pipe
-		    zloop_poller_end (self->loop, &wss->wsqin_pollitem);
-		    libwebsocket_callback_on_writable(context, wsi);
-		}
-	    }
-#endif
 	    // let library handle partial writes
 	    // deal with ws send flow control only
 
@@ -476,15 +455,19 @@ callback_http(struct libwebsocket_context *context,
 		      wss->partial, wss->partial_retry, wss->completed,
 		      wss->txbufsize);
 	    // stop watching and destroy the zmq sockets
-	    zloop_poller_end (self->loop, &wss->pollitem);
+
+	    if (wss->pollitem.socket != NULL)
+		zloop_poller_end (self->loop, &wss->pollitem);
 	    zloop_poller_end (self->loop, &wss->wsqin_pollitem);
 
-	    zsocket_destroy (self->ctx, wss->socket);
+	    if (wss->socket != NULL)
+		zsocket_destroy (self->ctx, wss->socket);
 	    zsocket_destroy (self->ctx, wss->wsq_in);
 	    zsocket_destroy (self->ctx, wss->wsq_out);
 
 	    uriFreeQueryListA(wss->queryList);
 	    uriFreeUriMembersA(&wss->u);
+	    free(wss->txbuffer);
 	}
 	break;
 

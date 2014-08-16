@@ -51,7 +51,7 @@ $(call TOOBJSDEPS, $(WEBTALK_SRCS)) : EXTRAFLAGS += $(WEBTALK_CXXFLAGS) $(EXPERI
 	../lib/liblinuxcnchal.so.0 \
 	../lib/libmtalk.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(WEBTALK_LDFLAGS)
+	$(Q)$(CC) -g -o $@ $^ $(LDFLAGS) $(WEBTALK_LDFLAGS)
 
 USERSRCS += $(WEBTALK_SRCS)
 TARGETS += ../bin/webtalk
@@ -91,6 +91,7 @@ $(WEBTALK_DIR)/zws.pb.cc $(WEBTALK_DIR)/zws.pb.h:  $(WEBTALK_DIR)/zws.proto
 	--cpp_out=./$(WEBTALK_DIR)/ $<
 
 # generate Python modules from proto files
+# useful for testing client with a Python client
 ../lib/python/zws_pb2.py: $(WEBTALK_DIR)/zws.proto
 	$(ECHO) "protoc create $@ from $<"
 	@mkdir -p ../lib/python

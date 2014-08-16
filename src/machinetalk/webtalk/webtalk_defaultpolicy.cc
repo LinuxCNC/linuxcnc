@@ -206,6 +206,7 @@ int default_policy(wtself_t *self,
 	break;
 
     case ZWS_ESTABLISHED:
+	return register_zmq_poller(wss);
 	break;
 
     case ZWS_FROM_WS:

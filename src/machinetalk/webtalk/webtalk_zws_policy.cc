@@ -2,13 +2,17 @@
 // see https://raw.githubusercontent.com/somdoron/rfc/master/spec_39.txt
 
 // use like so:
-// webtalk --plugin
+// webtalk --plugin <path-to-plugin.so>
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <libwebsockets.h>
+
+// DoS/dummy protection: close connection if a multiframe input message
+// has more than MAX_ZWS_FRAMES frames
+#define MAX_ZWS_FRAMES 1000
 
 #include "webtalk.hh"
 
@@ -52,13 +56,14 @@ zws_policy(wtself_t *self,
 	    wss->user_data = zmalloc(sizeof(struct zwsproto_session));
 	    assert(wss->user_data != NULL);
 
-	    // > 1 indicates: run the default policy ZWS_CONNECTING code
+	    // > 0 indicates: run the default policy ZWS_CONNECTING code
 	    return 1;
 	}
 	break;
 
     case ZWS_ESTABLISHED:
 	lwsl_notice("%s: ZWS_ESTABLISHED\n", __func__);
+	return register_zmq_poller(wss);
 	break;
 
     case ZWS_CLOSE:
@@ -210,11 +215,12 @@ static int handle_websocket_frame(struct zwsproto_session *zwss,
 
     case '0': // last frame
 	if (zwss->partial == NULL) {
-	    // trivial case - single frame message
+	    // trivial case - single frame message, final
 	    f = zframe_new (data + 1, wss->length - 1);
 	    return zframe_send(&f, wss->socket, 0);
 	};
-	// append this frame
+
+	// append this frame to the accumulator msg
 	rc = zmsg_addmem (zwss->partial, data + 1, wss->length - 1);
 	assert (rc == 0);
 	// and send it off - this sets zwss->partial to NULL
@@ -227,6 +233,15 @@ static int handle_websocket_frame(struct zwsproto_session *zwss,
 	    lwsl_zws("%s: start multiframe message\n",  __func__);
 	    zwss->partial = zmsg_new();
 	}
+
+	// protect against input overflow
+	if (zmsg_size(zwss->partial) > MAX_ZWS_FRAMES) {
+	    lwsl_err("%s: message sized exceeded (%d frames), closing\n",
+		     __func__, zmsg_size(zwss->partial));
+	    // the resulting ZWS_CLOSE will free zwss->partial for us
+	    return -1;
+	}
+
 	// append current frame
 	rc = zmsg_addmem (zwss->partial, data + 1, wss->length - 1);
 	lwsl_zws("%s: adding frame, count=%d\n",

@@ -25,11 +25,12 @@ json_policy(wtself_t *self,
     switch (type) {
 
     case ZWS_CONNECTING:
-	// > 1 indicates: run the default policy ZWS_CONNECTING code
+	// > 0 indicates: run the default policy ZWS_CONNECTING code
 	return 1;
 	break;
 
     case ZWS_ESTABLISHED:
+	return register_zmq_poller(wss);
 	break;
 
     case ZWS_CLOSE:
