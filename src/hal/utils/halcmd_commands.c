@@ -374,9 +374,10 @@ int do_delf_cmd(char *func, char *thread) {
     return retval;
 }
 
-static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
+static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[], hal_type_t *type_out) {
     int i, type=-1, writers=0, bidirs=0, pincnt=0;
     char *writer_name=0, *bidir_name=0;
+    if(type_out) *type_out = HAL_TYPE_UNSPECIFIED;
     /* if signal already exists, use its info */
     if (sig) {
 	type = sig->type;
@@ -464,7 +465,8 @@ int do_net_cmd(char *signal, char *pins[]) {
     sig = halpr_find_sig_by_name(signal);
 
     /* verify that everything matches up (pin types, etc) */
-    retval = preflight_net_cmd(signal, sig, pins);
+    hal_type_t type;
+    retval = preflight_net_cmd(signal, sig, pins, &type);
     if(retval < 0) {
         rtapi_mutex_give(&(hal_data->mutex));
         return retval;
@@ -483,20 +485,14 @@ int do_net_cmd(char *signal, char *pins[]) {
     }
     if(!sig) {
         /* Create the signal with the type of the first pin */
-        hal_pin_t *pin = halpr_find_pin_by_name(pins[0]);
-        rtapi_mutex_give(&(hal_data->mutex));
-        if(!pin) {
-            return -ENOENT;
-        }
-        retval = hal_signal_new(signal, pin->type);
-    } else {
-	/* signal already exists */
-        rtapi_mutex_give(&(hal_data->mutex));
+        retval = halpr_signal_new_locked(signal, type, NULL);
     }
     /* add pins to signal */
     for(i=0; retval == 0 && pins[i] && *pins[i]; i++) {
-        retval = do_linkps_cmd(pins[i], signal);
+        retval = halpr_link_locked(pins[i], signal);
     }
+
+    rtapi_mutex_give(&(hal_data->mutex));
 
     return retval;
 }
