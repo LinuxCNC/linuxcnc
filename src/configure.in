@@ -765,6 +765,25 @@ AC_ARG_ENABLE(protoc-c,
       BUILD_PROTOC_C=no
     ])
 
+# protobuf-to-Javascript generator from  https://github.com/dcodeIO/ProtoBuf.js/wiki
+AC_PATH_PROG(PROTO2JS,proto2js, none)
+AC_SUBST([PROTO2JS])
+
+AC_MSG_CHECKING(whether to build protobuf Javascript bindings)
+AC_ARG_ENABLE(proto-js,
+    [  --enable-proto-js    build Javascript bindings based on https://github.com/dcodeIO/ProtoBuf.js/wiki],
+    [
+	if test "$PROTO2JS" = "none"; then
+	   AC_MSG_ERROR([Please install proto2js before building Javascript bindings.])
+	fi
+	BUILD_PROTO_JS=yes
+        AC_MSG_RESULT([configuring to to build protobuf Javascript bindings])
+    ],
+    [
+      AC_MSG_RESULT([not protobuf Javascript bindings])
+      BUILD_PROTO_JS=no
+    ])
+
 
 AC_MSG_CHECKING(whether to use the common shared memory driver)
 AC_ARG_ENABLE(shmdrv,
@@ -1663,6 +1682,7 @@ if test "$BUILD_EMCWEB" = yes; then
 fi
 
 AC_SUBST(BUILD_DEV)
+AC_SUBST(BUILD_PROTO_JS)
 
 
 AC_SUBST(BUILD_NMLDEP)
@@ -1702,7 +1722,6 @@ AC_SUBST([USE_URIPARSER])
 AC_SUBST([USE_AVAHI])
 AC_SUBST([USE_SSL])
 AC_SUBST([USE_UUID])
-
 
 if test "$with_usermode_pci" = yes; then
    AC_DEFINE([USERMODE_PCI], [], [build PCI drivers with usermode PCI support])
