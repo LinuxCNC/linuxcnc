@@ -1,0 +1,5 @@
+loadrt and2 count=2
+net and2.0.out and2.1.in1
+net and2.1.out and2.0.in1
+loadusr -w halcmd net and2.0.in0 and2.1.in0
+show sig

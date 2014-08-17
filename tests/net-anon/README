@@ -1,0 +1,4 @@
+Test the 'anonymous' net command
+
+'loadusr -w halcmd net' tests that a second halcmd process picks up numbering
+in the right place
