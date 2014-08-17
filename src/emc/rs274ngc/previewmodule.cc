@@ -20,17 +20,17 @@
 #include <Python.h>
 #include <structmember.h>
 
-#include "rs274ngc.hh"
-#include "rs274ngc_interp.hh"
-#include "interp_return.hh"
-#include "canon.hh"
-#include "config.h"		// LINELEN
-
 #include <google/protobuf/message_lite.h>
 
 #include <machinetalk/generated/types.pb.h>
 #include <machinetalk/generated/message.pb.h>
 using namespace google::protobuf;
+
+#include "rs274ngc.hh"
+#include "rs274ngc_interp.hh"
+#include "interp_return.hh"
+#include "canon.hh"
+#include "config.h"		// LINELEN
 
 #include "czmq.h"
 #include "pbutil.hh" // hal/haltalk
