@@ -42,6 +42,7 @@
 #include "hal.h"		/* HAL public API decls */
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
+#include <stdbool.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -385,6 +386,8 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[], hal_typ
 	bidirs = sig->bidirs;
     }
 
+    if(!signal) signal = "(anonymous)";
+
     if(writers || bidirs) 
     {
         hal_pin_t *pin;
@@ -450,19 +453,51 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[], hal_typ
         }
         pincnt++;
     }
+    if(type_out) *type_out = type;
     if(pincnt)
         return 0;
     halcmd_error("'net' requires at least one pin, none given\n");
     return -EINVAL;
 }
 
-int do_net_cmd(char *signal, char *pins[]) {
+static hal_sig_t *anonymous_signal(hal_type_t type, char **signame_out) {
+    // rtapi_mutex is held
+    static int n=0;
+    static char buf[16];
+    hal_sig_t *sig;
+    do {
+        snprintf(buf, sizeof(buf), "n$%d", n++);
+        sig = halpr_find_sig_by_name(buf);
+    } while(sig);
+    sig = NULL;
+    halpr_signal_new_locked(buf, type, &sig);
+    if(signame_out) *signame_out = buf;
+    return sig;
+}
+
+int do_net_cmd(char *args[]) {
     hal_sig_t *sig;
     int i, retval;
+    char **pins, *signal;
+
+    if(!args[0] || !args[1]) {
+        halcmd_error("'net' requires at least two arguments\n");
+        return -EINVAL;
+    }
 
     rtapi_mutex_get(&(hal_data->mutex));
     /* see if signal already exists */
-    sig = halpr_find_sig_by_name(signal);
+    bool first_arg_is_sig =
+        !halpr_find_pin_by_name(args[0]);
+    if(first_arg_is_sig) {
+        signal = args[0];
+        sig = halpr_find_sig_by_name(signal);
+        pins = args + 1;
+    } else {
+        signal = NULL;
+        sig = NULL;
+        pins = args;
+    }
 
     /* verify that everything matches up (pin types, etc) */
     hal_type_t type;
@@ -472,17 +507,9 @@ int do_net_cmd(char *signal, char *pins[]) {
         return retval;
     }
 
-    {
-	hal_pin_t *pin = halpr_find_pin_by_name(signal);
-	if(pin) {
-	    halcmd_error(
-                    "Signal name '%s' must not be the same as a pin.  "
-                    "Did you omit the signal name?\n",
-		signal);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return -ENOENT;
-	}
-    }
+    if(!signal)
+        sig = anonymous_signal(type, &signal);
+
     if(!sig) {
         /* Create the signal with the type of the first pin */
         retval = halpr_signal_new_locked(signal, type, NULL);

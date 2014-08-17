@@ -267,6 +267,40 @@ static char *signal_generator(const char *text, int state) {
     return NULL;
 }
 
+static char *pin_or_signal_generator(const char *text, int state) {
+    static int len;
+    static int next;
+    static int what;
+    if(!state) {
+        next = hal_data->sig_list_ptr;
+        len = strlen(text);
+        what = 0;
+    }
+
+    if(what == 0)
+    {
+        while(next) {
+            hal_sig_t *sig = SHMPTR(next);
+            next = sig->next_ptr;
+            if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != sig->type ) continue;
+            if ( !writer_match( match_direction, sig->writers ) ) continue;
+            if ( strncmp(text, sig->name, len) == 0 )
+                return strdup(sig->name);
+        }
+        what = 1;
+        next = hal_data->pin_list_ptr;
+    }
+
+    while(next) {
+        hal_pin_t *pin = SHMPTR(next);
+        next = pin->next_ptr;
+        if ( strncmp(text, pin->name, len) == 0 )
+            return strdup(pin->name);
+    }
+
+    return NULL;
+}
+
 static char *getp_generator(const char *text, int state) {
     static int len;
     static int next;
@@ -596,11 +630,8 @@ char **halcmd_completer(const char *text, int start, int end, hal_completer_func
         check_match_type_pin(buffer + 7);
         result = func(text, signal_generator);
     } else if(startswith(buffer, "net ") && argno == 1) {
-        result = func(text, signal_generator);
-    } else if(startswith(buffer, "net ") && argno == 2) {
-        check_match_type_signal(nextword(buffer));
-        result = func(text, pin_generator);
-    } else if(startswith(buffer, "net ") && argno > 2) {
+        result = func(text, pin_or_signal_generator);
+    } else if(startswith(buffer, "net ") && argno >= 2) {
         check_match_type_signal(nextword(buffer));
         if(match_type == HAL_TYPE_UNSPECIFIED) {
             check_match_type_pin(nextword(nextword(buffer)));

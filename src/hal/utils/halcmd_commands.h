@@ -60,7 +60,7 @@ extern int do_newsig_cmd(char *name, char *type);
 #if 0  /* newinst deferred to version 2.2 */
 extern int do_newinst_cmd(char *comp_name, char *inst_name);
 #endif
-extern int do_net_cmd(char *signame, char *pins[]);
+extern int do_net_cmd(char *args[]);
 extern int do_setp_cmd(char *name, char *value);
 extern int do_getp_cmd(char *name);
 extern int do_sets_cmd(char *name, char *value);
