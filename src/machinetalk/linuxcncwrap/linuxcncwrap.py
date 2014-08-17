@@ -16,8 +16,10 @@ import linuxcnc
 from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
+from status_pb2 import *
+from preview_pb2 import *
 
-import google.protobuf.text_format
+from google.protobuf import text_format
 
 
 class ZeroconfService:
@@ -68,18 +70,31 @@ class ZeroconfService:
 
 class StatusValues():
     def __init__(self):
-        self.estop = None
+        self.io = EmcStatusIo()
+        self.config = EmcStatusConfig()
+        self.motion = EmcStatusMotion()
+        self.task = EmcStatusTask()
+        self.interp = EmcStatusInterp()
+
+    def clear(self):
+        self.io.Clear()
+        self.config.Clear()
+        self.motion.Clear()
+        self.task.Clear()
+        self.interp.Clear()
 
 
 class LinuxCNCWrapper:
 
     def __init__(self, context, statusUri, errorUri, commandUri, iniFile="",
-                ipv4="", svc_uuid=None, poll_interval=0.5, debug=False):
+                ipv4="", svc_uuid=None, poll_interval=0.1, debug=False):
         self.debug = debug
         self.ipv4 = ipv4
         self.poll_interval = poll_interval
+        self.firstrun = True
 
         self.status = StatusValues()
+        self.txStatus = StatusValues()
 
         # Linuxcnc
         try:
@@ -174,30 +189,309 @@ class LinuxCNCWrapper:
             self.errorService.unpublish()
             self.commandService.unpublish()
 
-    def createStatus(self, stat):
-        status = StatusValues()
-        status.estop = stat.estop
-        return status
+    def check_position(self, oldPosition, newPosition):
+        modified = False
+        txPosition = Position()
+
+        if (oldPosition.x != newPosition[0]):
+            txPosition.x = newPosition[0]
+            modified = True
+        if (oldPosition.y != newPosition[1]):
+            txPosition.y = newPosition[1]
+            modified = True
+        if (oldPosition.z != newPosition[2]):
+            txPosition.z = newPosition[2]
+            modified = True
+        if (oldPosition.a != newPosition[3]):
+            txPosition.a = newPosition[3]
+            modified = True
+        if (oldPosition.b != newPosition[4]):
+            txPosition.b = newPosition[4]
+            modified = True
+        if (oldPosition.c != newPosition[5]):
+            txPosition.c = newPosition[5]
+            modified = True
+        if (oldPosition.u != newPosition[6]):
+            txPosition.u = newPosition[6]
+            modified = True
+        if (oldPosition.v != newPosition[7]):
+            txPosition.v = newPosition[7]
+            modified = True
+        if (oldPosition.w != newPosition[8]):
+            txPosition.w = newPosition[8]
+            modified = True
+
+        if modified:
+            return True, txPosition
+        else:
+            del txPosition
+            return False, None
+
+    def update_config(self, stat):
+        configModified = False
+
+        if (self.status.config.acceleration != stat.acceleration):
+            self.status.config.acceleration = stat.acceleration
+            self.txStatus.config.acceleration = stat.acceleration
+            configModified = True
+
+        if (self.status.config.angular_units != stat.angular_units):
+            self.status.config.angular_units = stat.angular_units
+            self.txStatus.config.angular_units = stat.angular_units
+            configModified = True
+
+        if (self.status.config.axes != stat.axes):
+            self.status.config.axes = stat.axes
+            self.txStatus.config.axes = stat.axes
+            configModified = True
+
+        txAxis = EmcStatusConfigAxis()
+        for index, axis in enumerate(stat.axis):
+            txAxis.Clear()
+            axisModified = False
+            if len(self.status.config.axis) == index:
+                self.status.config.axis.add()
+                self.status.config.axis[index].index = index
+
+            if self.status.config.axis[index].axisType != axis['axisType']:
+                self.status.config.axis[index].axisType = axis['axisType']
+                txAxis.axisType = axis['axisType']
+                axisModified = True
+
+            if self.status.config.axis[index].backlash != axis['backlash']:
+                self.status.config.axis[index].backlash = axis['backlash']
+                txAxis.backlash = axis['backlash']
+                axisModified = True
+
+            if self.status.config.axis[index].max_ferror != axis['max_ferror']:
+                self.status.config.axis[index].max_ferror = axis['max_ferror']
+                txAxis.max_ferror = axis['max_ferror']
+                axisModified = True
+
+            if self.status.config.axis[index].max_position_limit != axis['max_position_limit']:
+                self.status.config.axis[index].max_position_limit = axis['max_position_limit']
+                txAxis.max_position_limit = axis['max_position_limit']
+                axisModified = True
+
+            if self.status.config.axis[index].min_ferror != axis['min_ferror']:
+                self.status.config.axis[index].min_ferror = axis['min_ferror']
+                txAxis.min_ferror = axis['min_ferror']
+                axisModified = True
+
+            if self.status.config.axis[index].min_position_limit != axis['min_position_limit']:
+                self.status.config.axis[index].min_position_limit = axis['min_position_limit']
+                txAxis.min_position_limit = axis['min_position_limit']
+                axisModified = True
+
+            if self.status.config.axis[index].units != axis['units']:
+                self.status.config.axis[index].units = axis['units']
+                txAxis.units = axis['units']
+                axisModified = True
+
+            if axisModified:
+                txAxis.index = index
+                self.txStatus.config.axis.add().CopyFrom(txAxis)
+                configModified = True
+
+        del txAxis
+
+        if (self.status.config.axis_mask != stat.axis_mask):
+            self.status.config.axis_mask = stat.axis_mask
+            self.txStatus.config.axis_mask = stat.axis_mask
+            configModified = True
+
+        if (self.status.config.cycle_time != stat.cycle_time):
+            self.status.config.cycle_time = stat.cycle_time
+            self.txStatus.config.cycle_time = stat.cycle_time
+            configModified = True
+
+        if (self.status.config.debug != stat.debug):
+            self.status.config.debug = stat.debug
+            self.txStatus.config.debug = stat.debug
+            configModified = True
+
+        if (self.status.config.kinematics_type != stat.kinematics_type):
+            self.status.config.kinematics_type = stat.kinematics_type
+            self.txStatus.config.kinematics_type = stat.kinematics_type
+            configModified = True
+
+        if (self.status.config.linear_units != stat.linear_units):
+            self.status.config.linear_units = stat.linear_units
+            self.txStatus.config.linear_units = stat.linear_units
+            configModified = True
+
+        if (self.status.config.max_acceleration != stat.max_acceleration):
+            self.status.config.max_acceleration = stat.max_acceleration
+            self.txStatus.config.max_acceleration = stat.max_acceleration
+            configModified = True
+
+        if (self.status.config.program_units != stat.program_units):
+            self.status.config.program_units = stat.program_units
+            self.txStatus.config.program_units = stat.program_units
+            configModified = True
+
+        if (self.status.config.velocity != stat.velocity):
+            self.status.config.velocity = stat.velocity
+            self.txStatus.config.velocity = stat.velocity
+            configModified = True
+
+    def update_io(self, stat):
+        ioModified = False
+
+        if (self.status.io.estop != stat.estop):
+            self.status.io.estop = stat.estop
+            self.txStatus.io.estop = stat.estop
+            ioModified = True
+
+        if (self.status.io.flood != stat.flood):
+            self.status.io.flood = stat.flood
+            self.txStatus.io.flood = stat.flood
+            ioModified = True
+
+        if (self.status.io.lube != stat.lube):
+            self.status.io.lube = stat.lube
+            self.txStatus.io.lube = stat.lube
+            ioModified = True
+
+        if (self.status.io.lube_level != stat.lube_level):
+            self.status.io.lube_level = stat.lube_level
+            self.txStatus.io.lube_level = stat.lube_level
+            ioModified = True
+
+        if (self.status.io.mist != stat.mist):
+            self.status.io.mist = stat.mist
+            self.txStatus.io.mist = stat.mist
+            ioModified = True
+
+        if (self.status.io.pocket_prepped != stat.pocket_prepped):
+            self.status.io.pocket_prepped = stat.pocket_prepped
+            self.txStatus.io.pocket_prepped = stat.pocket_prepped
+            ioModified = True
+
+        if (self.status.io.tool_in_spindle != stat.tool_in_spindle):
+            self.status.io.tool_in_spindle = stat.tool_in_spindle
+            self.txStatus.io.tool_in_spindle = stat.tool_in_spindle
+            ioModified = True
+
+        positionModified = False
+        txPosition = None
+        positionModified, txPosition = self.check_position(self.status.io.tool_offset, stat.tool_offset)
+        if positionModified:
+            self.status.io.tool_offset.CopyFrom(txPosition)
+            self.txStatus.io.tool_offset = txPosition
+            ioModified = True
+
+        txToolResult = EmcToolResult()
+        for index, toolResult in enumerate(stat.tool_table):
+            txToolResult.Clear()
+            toolResultModified = False
+
+            if len(self.status.io.tool_table) == index:
+                self.status.io.tool_table.add()
+                self.status.io.tool_table[index].index = index
+
+            if self.status.io.tool_table[index].id != toolResult.id:
+                self.status.io.tool_table[index].id = toolResult.id
+                txToolResult.id = toolResult.id
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].xOffset != toolResult.xoffset:
+                self.status.io.tool_table[index].xOffset = toolResult.xoffset
+                txToolResult.xOffset = toolResult.xoffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].yOffset != toolResult.yoffset:
+                self.status.io.tool_table[index].yOffset = toolResult.yoffset
+                txToolResult.yOffset = toolResult.yoffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].zOffset != toolResult.zoffset:
+                self.status.io.tool_table[index].zOffset = toolResult.zoffset
+                txToolResult.zOffset = toolResult.zoffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].aOffset != toolResult.aoffset:
+                self.status.io.tool_table[index].aOffset = toolResult.aoffset
+                txToolResult.aOffset = toolResult.aoffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].bOffset != toolResult.boffset:
+                self.status.io.tool_table[index].bOffset = toolResult.boffset
+                txToolResult.bOffset = toolResult.boffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].cOffset != toolResult.coffset:
+                self.status.io.tool_table[index].cOffset = toolResult.coffset
+                txToolResult.cOffset = toolResult.coffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].uOffset != toolResult.uoffset:
+                self.status.io.tool_table[index].uOffset = toolResult.uoffset
+                txToolResult.uOffset = toolResult.uoffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].vOffset != toolResult.voffset:
+                self.status.io.tool_table[index].vOffset = toolResult.voffset
+                txToolResult.vOffset = toolResult.voffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].wOffset != toolResult.woffset:
+                self.status.io.tool_table[index].wOffset = toolResult.woffset
+                txToolResult.wOffset = toolResult.woffset
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].diameter != toolResult.diameter:
+                self.status.io.tool_table[index].diameter = toolResult.diameter
+                txToolResult.diameter = toolResult.diameter
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].frontangle != toolResult.frontangle:
+                self.status.io.tool_table[index].frontangle = toolResult.frontangle
+                txToolResult.frontangle = toolResult.frontangle
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].backangle != toolResult.backangle:
+                self.status.io.tool_table[index].backangle = toolResult.backangle
+                txToolResult.backangle = toolResult.backangle
+                toolResultModified = True
+
+            if self.status.io.tool_table[index].orientation != toolResult.orientation:
+                self.status.io.tool_table[index].orientation = toolResult.orientation
+                txToolResult.orientation = toolResult.orientation
+                toolResultModified = True
+
+            if toolResultModified:
+                txToolResult.index = index
+                self.txStatus.io.tool_table.add().CopyFrom(txToolResult)
+                ioModified = True
+
+        del txToolResult
+
+    def update_status(self, stat):
+        self.txStatus.clear()
+        self.update_config(stat)
+        self.update_io(stat)
+
+    def full_read(self):
+        pass
 
     def poll(self):
         while True:
             try:
                 self.stat.poll()
-                self.error.poll()
+                #self.error.poll()
 
-                new_status = self.createStatus(self.stat)
+                self.update_status(self.stat)
 
-                #print((self.stat.estop))
+                #print text_format.MessageToString(self.status.config)
+                #print text_format.MessageToString(self.txStatus.config)
+                print self.txStatus.io.SerializeToString()
 
-                if self.status.estop != new_status.estop:
-                    print((new_status.estop))
-
-                self.status = new_status
             except linuxcnc.error as detail:
                 print(("error", detail))
             time.sleep(self.poll_interval)
 
-    def full_update():
+    def full_update(self):
         pass
 
     def processStatus(self, socket):
