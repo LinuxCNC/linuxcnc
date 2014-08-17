@@ -273,9 +273,9 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 ifdef TARGET_PLATFORM_BEAGLEBONE
 # the beaglebone port adds .p (PRU assembly) source files, see hal/components
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %.ph %.proto, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %.js  %.ph %.proto, $(USERSRCS)))
 else
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.proto, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.js %.proto, $(USERSRCS)))
 endif
 $(call ASSERT_EMPTY,$(filter-out %.c %.proto, $(RTSRCS)))
 
