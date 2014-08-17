@@ -844,11 +844,6 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 
 int hal_signal_new(const char *name, hal_type_t type)
 {
-
-    int *prev, next, cmp;
-    hal_sig_t *new, *ptr;
-    void *data_addr;
-
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal_new called before init\n");
@@ -869,6 +864,17 @@ int hal_signal_new(const char *name, hal_type_t type)
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: creating signal '%s'\n", name);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
+    int result = halpr_signal_new_locked(name, type, NULL);
+    rtapi_mutex_give(&(hal_data->mutex));
+    return result;
+}
+
+int halpr_signal_new_locked(const char *name, hal_type_t type, hal_sig_t **sig_out)
+{
+    int *prev, next, cmp;
+    hal_sig_t *new, *ptr;
+    void *data_addr;
+
     /* check for an existing signal with the same name */
     if (halpr_find_sig_by_name(name) != 0) {
 	rtapi_mutex_give(&(hal_data->mutex));
@@ -933,6 +939,7 @@ int hal_signal_new(const char *name, hal_type_t type)
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->sig_list_ptr);
     next = *prev;
+    if(sig_out) *sig_out = new;
     while (1) {
 	if (next == 0) {
 	    /* reached end of list, insert here */
@@ -1003,11 +1010,6 @@ int hal_signal_delete(const char *name)
 
 int hal_link(const char *pin_name, const char *sig_name)
 {
-    hal_pin_t *pin;
-    hal_sig_t *sig;
-    hal_comp_t *comp;
-    void **data_ptr_addr, *data_addr;
-
     if (hal_data == 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: link called before init\n");
@@ -1033,11 +1035,22 @@ int hal_link(const char *pin_name, const char *sig_name)
 	"HAL: linking pin '%s' to '%s'\n", pin_name, sig_name);
     /* get mutex before accessing data structures */
     rtapi_mutex_get(&(hal_data->mutex));
+    int retval = halpr_link_locked(pin_name, sig_name);
+    rtapi_mutex_give(&(hal_data->mutex));
+    return retval;
+}
+
+int halpr_link_locked(const char *pin_name, const char *sig_name)
+{
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    hal_comp_t *comp;
+    void **data_ptr_addr, *data_addr;
+
     /* locate the pin */
     pin = halpr_find_pin_by_name(pin_name);
     if (pin == 0) {
 	/* not found */
-	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' not found\n", pin_name);
 	return -EINVAL;
@@ -1046,21 +1059,18 @@ int hal_link(const char *pin_name, const char *sig_name)
     sig = halpr_find_sig_by_name(sig_name);
     if (sig == 0) {
 	/* not found */
-	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' not found\n", sig_name);
 	return -EINVAL;
     }
     /* found both pin and signal, are they already connected? */
     if (SHMPTR(pin->signal) == sig) {
-	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_WARN,
 	    "HAL: Warning: pin '%s' already linked to '%s'\n", pin_name, sig_name);
 	return 0;
     }
     /* is the pin connected to something else? */
     if(pin->signal) {
-	rtapi_mutex_give(&(hal_data->mutex));
 	sig = SHMPTR(pin->signal);
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin '%s' is linked to '%s', cannot link to '%s'\n",
@@ -1069,7 +1079,6 @@ int hal_link(const char *pin_name, const char *sig_name)
     }
     /* check types */
     if (pin->type != sig->type) {
-	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: type mismatch '%s' <- '%s'\n", pin_name, sig_name);
 	return -EINVAL;
@@ -1077,7 +1086,6 @@ int hal_link(const char *pin_name, const char *sig_name)
     /* linking output pin to sig that already has output or I/O pins? */
     if ((pin->dir == HAL_OUT) && ((sig->writers > 0) || (sig->bidirs > 0 ))) {
 	/* yes, can't do that */
-	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' already has output or I/O pin(s)\n", sig_name);
 	return -EINVAL;
@@ -1085,7 +1093,6 @@ int hal_link(const char *pin_name, const char *sig_name)
     /* linking bidir pin to sig that already has output pin? */
     if ((pin->dir == HAL_IO) && (sig->writers > 0)) {
 	/* yes, can't do that */
-	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: signal '%s' already has output pin\n", sig_name);
 	return -EINVAL;
@@ -1113,7 +1120,6 @@ int hal_link(const char *pin_name, const char *sig_name)
     /* and update the pin */
     pin->signal = SHMOFF(sig);
     /* done, release the mutex and return */
-    rtapi_mutex_give(&(hal_data->mutex));
     return 0;
 }
 

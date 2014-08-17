@@ -421,5 +421,8 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
+int halpr_signal_new_locked(const char *name, hal_type_t type, hal_sig_t **sig_out);
+int halpr_link_locked(const char *pin_name, const char *sig_name);
+
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */
