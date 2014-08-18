@@ -75,15 +75,9 @@
 #endif
 
 /* get inb(), outb(), ioperm() */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,17)
 #include <asm/io.h>
-#else
-#include <sys/io.h>
-#endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
 #include <linux/cpumask.h>	/* NR_CPUS, cpu_online() */
-#endif
 
 #include "vsnprintf.h"
 
@@ -181,17 +175,12 @@ int init_module(void)
     rtapi_data->timer_period = 0;
     max_delay = DEFAULT_MAX_DELAY;
     rt_linux_use_fpu(1);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
     /* on SMP machines, we want to put RT code on the last CPU */
     n = NR_CPUS-1;
     while ( ! cpu_online(n) ) {
 	n--;
     }
     rtapi_data->rt_cpu = n;
-#else
-    /* old kernel, the SMP hooks aren't available, so use CPU 0 */
-    rtapi_data->rt_cpu = 0;
-#endif
 
 
 #ifdef CONFIG_PROC_FS

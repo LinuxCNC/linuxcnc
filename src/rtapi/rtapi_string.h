@@ -25,22 +25,6 @@
 #define rtapi_argv_split argv_split
 #define rtapi_argv_free argv_free
 #define rtapi_kstrdup(a,b) kstrdup(a,b)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
-#ifndef __HAVE_ARCH_STRCMP	/* This flag will be defined if we do */
-#define __HAVE_ARCH_STRCMP	/* have strcmp */
-/* some kernels don't have strcmp */
-static int strcmp(const char *cs, const char *ct)
-{
-    signed char __res;
-    while (1) {
-	if ((__res = *cs - *ct++) != 0 || !*cs++) {
-	    break;
-	}
-    }
-    return __res;
-}
-#endif /* __HAVE_ARCH_STRCMP */
-#endif /* linux 2.4 */
 #else
 #include <string.h>
 #include <rtapi.h>

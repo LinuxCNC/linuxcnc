@@ -34,10 +34,6 @@
 #include "hostmot2-lowlevel.h"
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
-#if defined(__KERNEL__) && LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
-typedef unsigned long gfp_t;
-char *rtapi_kstrdup(const char *s, gfp_t gpf);
-#endif
 void argv_free(char **argv);
 char **argv_split(rtapi_gfp_t gfp, const char *str, int *argcp);
 #endif

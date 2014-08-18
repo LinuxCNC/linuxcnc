@@ -729,11 +729,7 @@ RTAPI_BEGIN_DECLS
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
         return (void*)request_region(base, size, name);
-#else
-        return (void*)-1;
-#endif
     }
 
 /** 'rtapi_release_region() releases I/O memory reserved by 
@@ -743,9 +739,6 @@ RTAPI_BEGIN_DECLS
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-        release_region(base, size);
-#endif
     }
 #else
     #define rtapi_request_region(base, size, name) ((void*)-1)
@@ -807,7 +800,7 @@ RTAPI_BEGIN_DECLS
 #define LINUX_VERSION_CODE 0
 #endif
 
-#if !defined(__KERNEL__) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
+#if !defined(__KERNEL__)
 #define RTAPI_STRINGIFY(x)    #x
 
    
@@ -835,7 +828,7 @@ RTAPI_BEGIN_DECLS
   MODULE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   MODULE_PARM_DESC(var,descr);
 
-#else /* version 2.6 or later */
+#else /* kernel */
 
 #include <linux/module.h>
 
@@ -866,14 +859,6 @@ RTAPI_BEGIN_DECLS
   module_param_array(var, charp, &(__dummy_##var), 0);  \
   MODULE_PARM_DESC(var,descr);
 
-#endif /* version < 2.6 */
-
-#if defined(__KERNEL__)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
-#define MODULE_LICENSE(license)         \
-static const char __module_license[] __attribute__((section(".modinfo"))) =   \
-"license=" license
-#endif
 #endif
 
 #endif /* RTAPI */

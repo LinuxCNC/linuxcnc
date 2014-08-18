@@ -24,8 +24,10 @@
 //
 
 
+#ifdef __linux__
 #include <linux/kernel.h>
 #include <linux/version.h>
+#endif
 #include <rtapi_ctype.h>
 #include <rtapi_slab.h>
 #include <rtapi_string.h>
@@ -37,22 +39,6 @@
 
 
 #if ! defined(__KERNEL__) || LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)
-typedef unsigned long gfp_t;
-char *rtapi_kstrdup(const char *s, gfp_t gfp)
-{
-    size_t len = strlen(s)+1;
-    char *r = rtapi_kmalloc(len, gfp);
-    if(r) memcpy(r, s, len);
-    return r;
-}
-void *rtapi_kzalloc(size_t sz, gfp_t gfp) {
-    void *r = rtapi_kmalloc(sz, gfp);
-    if(r) memset(r, 0, sz);
-    return r;
-}
-#endif
-
 /**
  * kstrndup - allocate space for and copy an existing string
  * @s: the string to duplicate

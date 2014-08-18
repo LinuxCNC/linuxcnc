@@ -25,14 +25,7 @@
 #include <unistd.h>		/* select(), sysconf(), _SC_CLK_TCK */
 #include <sys/time.h>		/* struct timeval, gettimeofday(), struct
 				   itimerval, setitimer(), ITIMER_REAL */
-
-#include <linux/version.h>
-
-#if defined(LINUX_VERSION_CODE) && defined(KERNEL_VERSION)
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,2,0)
 #include <sched.h>
-#endif
-#endif
 
 #include "_timer.h"
 
