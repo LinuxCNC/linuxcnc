@@ -43,7 +43,7 @@ pin out s32 nextra;
 pin out s32 availablebins = 1000; // MAXBINNUMBER
 
 function _ nofp;
-variable __s64  last_timer = 0;
+variable rtapi_s64  last_timer = 0;
 variable int    last_binmax = 0;
 variable int    first = 1;
 variable int    pbins[1001]; // MAXBINNUMBER+1
@@ -53,8 +53,8 @@ variable int    binmax = 0;
 license "GPL";
 ;;
 
-__s64     now = rtapi_get_time();
-__s32   lat32 = (__s32)(now - last_timer - period);
+rtapi_s64     now = rtapi_get_time();
+rtapi_s32   lat32 = (rtapi_s32)(now - last_timer - period);
                 //(2^31-1)*1nS = 2.147 seconds max
 
 int i;

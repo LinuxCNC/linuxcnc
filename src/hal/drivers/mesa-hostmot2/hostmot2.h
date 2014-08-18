@@ -428,10 +428,10 @@ typedef struct {
 
     } hal;
     
-    __s64 accum;
-    __s64 offset;
-    __u32 old_reg;
-    __u32 index_cnts;
+    rtapi_s64 accum;
+    rtapi_s64 offset;
+    rtapi_u32 old_reg;
+    rtapi_u32 index_cnts;
 
 } hm2_resolver_instance_t;
 

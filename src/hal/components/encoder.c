@@ -88,10 +88,10 @@ typedef struct {
     char count_detected;
     char index_detected;
     char latch_detected;
-    __s32 raw_count;
-    __u32 timestamp;
-    __s32 index_count;
-    __s32 latch_count;
+    rtapi_s32 raw_count;
+    rtapi_u32 timestamp;
+    rtapi_s32 index_count;
+    rtapi_s32 latch_count;
 } atomic;
 
 /* this structure contains the runtime data for a single counter
@@ -117,10 +117,10 @@ typedef struct {
     hal_bit_t *latch_in;        /* c:r counter latch input */
     hal_bit_t *latch_rising;    /* u:r latch on rising edge? */
     hal_bit_t *latch_falling;   /* u:r latch on falling edge? */
-    __s32 raw_count;		/* c:rw captured raw_count */
-    __u32 timestamp;		/* c:rw captured timestamp */
-    __s32 index_count;		/* c:rw captured index count */
-    __s32 latch_count;		/* c:rw captured index count */
+    rtapi_s32 raw_count;		/* c:rw captured raw_count */
+    rtapi_u32 timestamp;		/* c:rw captured timestamp */
+    rtapi_s32 index_count;		/* c:rw captured index count */
+    rtapi_s32 latch_count;		/* c:rw captured index count */
     hal_s32_t *count;		/* c:w captured binary count value */
     hal_s32_t *count_latch;     /* c:w captured binary count value */
     hal_float_t *min_speed;     /* c:r minimum velocity to estimate nonzero */
@@ -135,7 +135,7 @@ typedef struct {
     int counts_since_timeout;	/* c:rw used for velocity calcs */
 } counter_t;
 
-static __u32 timebase;		/* master timestamp for all counters */
+static rtapi_u32 timebase;		/* master timestamp for all counters */
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
 static counter_t *counter_array;
@@ -396,8 +396,8 @@ static void capture(void *arg, long period)
     counter_t *cntr;
     atomic *buf;
     int n;
-    __s32 delta_counts;
-    __u32 delta_time;
+    rtapi_s32 delta_counts;
+    rtapi_u32 delta_time;
     double vel, interp;
 
     cntr = arg;

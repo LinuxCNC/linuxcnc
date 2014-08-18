@@ -321,11 +321,11 @@ typedef struct slot_data_s {
     unsigned char strobe;	/* does this slot need a latch strobe */
     unsigned char slot_base;	/* base addr of this 16 byte slot */
     unsigned int port_addr;	/* addr of parport */
-    __u32 read_bitmap;		/* map showing which registers to read */
+    rtapi_u32 read_bitmap;		/* map showing which registers to read */
     unsigned char num_rd_functs;/* number of read functions */
     unsigned char rd_buf[32];	/* cached data read from epp bus */
     slot_funct_t *rd_functs[MAX_FUNCT];	/* array of read functions */
-    __u32 write_bitmap;		/* map showing which registers to write */
+    rtapi_u32 write_bitmap;		/* map showing which registers to write */
     unsigned char num_wr_functs;/* number of write functions */
     unsigned char wr_buf[32];	/* cached data to be written to epp bus */
     slot_funct_t *wr_functs[MAX_FUNCT];	/* array of write functions */
@@ -401,9 +401,9 @@ static void WrtMore(unsigned char byte, unsigned int port_addr);
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static __u32 block(int min, int max);
-static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, __u32 cache_bitmap );
-static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, __u32 cache_bitmap );
+static rtapi_u32 block(int min, int max);
+static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot, rtapi_u32 cache_bitmap );
+static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot, rtapi_u32 cache_bitmap );
 
 static int export_UxC_digin(slot_data_t *slot, bus_data_t *bus);
 static int export_UxC_digout(slot_data_t *slot, bus_data_t *bus);
@@ -817,7 +817,7 @@ static void read_all(void *arg, long period)
     slot_data_t *slot;
     int slotnum, functnum, addr_ok;
     unsigned char n, eppaddr;
-    __u32 bitmap;
+    rtapi_u32 bitmap;
 
     read_period = period;          /* make thread period available to called functions */
     /* get pointer to bus data structure */
@@ -883,7 +883,7 @@ static void write_all(void *arg, long period)
     slot_data_t *slot;
     int slotnum, functnum, addr_ok;
     unsigned char n, eppaddr;
-    __u32 bitmap;
+    rtapi_u32 bitmap;
 
     /* get pointer to bus data structure */
     bus = *(bus_data_t **)(arg);
@@ -1627,10 +1627,10 @@ static void write_extra_dout(slot_data_t *slot)
    to be passed to add_rd_funct() or add_wr_funct()
 */
 
-static __u32 block(int min, int max)
+static rtapi_u32 block(int min, int max)
 {
     int n;
-    __u32 mask;
+    rtapi_u32 mask;
 
     mask = 0;
     for ( n = min ; n <= max ; n++ ) {
@@ -1649,7 +1649,7 @@ static __u32 block(int min, int max)
 */
 
 static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
-			__u32 cache_bitmap )
+			rtapi_u32 cache_bitmap )
 {
     if ( slot->num_rd_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 
@@ -1662,7 +1662,7 @@ static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
 }
 
 static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot,
-			__u32 cache_bitmap )
+			rtapi_u32 cache_bitmap )
 {
     if ( slot->num_wr_functs >= MAX_FUNCT ) {
 	rtapi_print_msg(RTAPI_MSG_ERR, 

@@ -80,10 +80,10 @@ RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes")
 
 #ifndef do_div
 # define do_div(n,base) ({					 \
-	    __u32 __base = (base);				 \
-	    __u32 __rem;					 \
-	    __rem = ((__u64)(n)) % __base;			 \
-	    (n) = ((__u64)(n)) / __base;			 \
+	    rtapi_u32 __base = (base);				 \
+	    rtapi_u32 __rem;					 \
+	    __rem = ((rtapi_u64)(n)) % __base;			 \
+	    (n) = ((rtapi_u64)(n)) / __base;			 \
 	    __rem;						 \
 	})
 #endif
@@ -355,9 +355,9 @@ static void write_one(lcd_inst_t *inst){
     }
 }
 
-int num_digits_baseN(__u64 val, int base){
+int num_digits_baseN(rtapi_u64 val, int base){
     int n = 1;
-    __u64 m = 1;
+    rtapi_u64 m = 1;
     while ((m *= base) <= val){
         n += 1;
     }
@@ -513,7 +513,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             {
                 int i;
                 double v = *((hal_float_t*)val);
-                __u64 tmp = 0; //enough bits for 9 decimal digits.
+                rtapi_u64 tmp = 0; //enough bits for 9 decimal digits.
                 int s = 0;
                 
                 if (sgn != ' ') s = 1;

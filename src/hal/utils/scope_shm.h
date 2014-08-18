@@ -58,8 +58,8 @@ typedef enum {
 
 typedef union {
     unsigned char d_u8;		/* variable for bit */
-    __u32 d_u32;		/* variable for u32 */
-    __s32 d_s32;		/* variable for s32 */
+    rtapi_u32 d_u32;		/* variable for u32 */
+    rtapi_s32 d_s32;		/* variable for s32 */
     real_t d_real;		/* variable for float */
     ireal_t d_ireal;		/* intlike variable for float */
 } scope_data_t;

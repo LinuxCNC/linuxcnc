@@ -384,9 +384,9 @@ variable int old_init = 0;
 variable char old_ph = 000;
 variable int old_pattern = -1;
 variable double counter = 0;
-variable __s64 long_rawcounts = 0;
-variable __s64 old_long_rawcounts = 0;
-variable __s32 old_rawcounts = 0;
+variable rtapi_s64 long_rawcounts = 0;
+variable rtapi_s64 old_long_rawcounts = 0;
+variable rtapi_s32 old_rawcounts = 0;
 variable int force_trap = 0;
 
 ;;
