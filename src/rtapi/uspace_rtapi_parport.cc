@@ -15,7 +15,9 @@
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include <errno.h>
 #include <fcntl.h>
+#ifdef __linux__
 #include <linux/ppdev.h>
+#endif
 #include <map>
 #include <rtapi.h>
 #include <rtapi_parport.h>
@@ -26,6 +28,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#ifdef __linux__
 struct portinfo {
     int port_id;
     unsigned short base;
@@ -121,3 +124,13 @@ void rtapi_parport_release(rtapi_parport_t *port) {
     close(port->fd);
     port->fd = -1;
 }
+
+#else
+int rtapi_parport_get(const char *mod_name, rtapi_parport_t *port, unsigned short base, unsigned short base_hi, unsigned int modes) {
+    rtapi_print_msg(RTAPI_MSG_WARN,
+        "PARPORT: not available on this platform\n");
+    return -ENOENT;
+}
+void rtapi_parport_release(rtapi_parport_t *port) {
+}
+#endif
