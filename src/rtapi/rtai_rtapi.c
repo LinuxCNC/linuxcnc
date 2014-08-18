@@ -183,7 +183,7 @@ int init_module(void)
     rtapi_data->rt_cpu = n;
 
 
-#ifdef CONFIG_PROC_FS
+#ifdef RTAPI_USE_PROCFS
     /* set up /proc/rtapi */
     if (proc_init() != 0) {
 	rtapi_print_msg(RTAPI_MSG_WARN,
@@ -267,7 +267,7 @@ void cleanup_module(void)
 	max_delay = DEFAULT_MAX_DELAY;
     }
     rtapi_mutex_give(&(rtapi_data->mutex));
-#ifdef CONFIG_PROC_FS
+#ifdef RTAPI_USE_PROCFS
     proc_clean();
 #endif
     /* release master shared memory block */
