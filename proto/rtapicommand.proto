@@ -1,0 +1,20 @@
+import "nanopb.proto";
+import "types.proto";
+import "value.proto";
+
+package pb;
+
+message RTAPICommand {
+    required int32              instance = 1;
+    optional string              modname = 2;
+    optional int32           rt_msglevel = 3;
+    optional int32         user_msglevel = 4;
+
+    // string argv-type vector; used in MT_RTAPI_APP_* and possibly others
+    repeated string                 argv = 5;
+
+    optional string          threadname  = 6;
+    optional int32          threadperiod = 7;
+    optional bool                use_fp  = 8;
+    optional int32                  cpu  = 9;
+}

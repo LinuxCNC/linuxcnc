@@ -1,0 +1,13 @@
+package pb;
+
+import "nanopb.proto";
+import "types.proto";
+import "value.proto";
+
+message LogMessage {
+    required MsgOrigin origin  = 10;
+    required int32        pid  = 20;
+    required MsgLevel   level  = 30;
+    required string       tag  = 40; //  [(nanopb).max_size = 20];
+    required string      text  = 50; //  [(nanopb).max_size = 100];
+}
