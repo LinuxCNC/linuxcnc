@@ -19,6 +19,7 @@
 #define RTAPI_USPACE_HH
 #include <sys/fsuid.h>
 #include <unistd.h>
+#include <pthread.h>
 
 struct WithRoot
 {
