@@ -17,7 +17,11 @@
  */
 #ifndef RTAPI_USPACE_HH
 #define RTAPI_USPACE_HH
+#ifdef __linux__
 #include <sys/fsuid.h>
+#else
+#define setfsuid(x) ((void)(0))
+#endif
 #include <unistd.h>
 #include <pthread.h>
 

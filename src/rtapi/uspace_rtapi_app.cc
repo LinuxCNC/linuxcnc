@@ -15,7 +15,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#ifdef __linux__
 #include <sys/fsuid.h>
+#endif
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -445,7 +447,9 @@ int main(int argc, char **argv) {
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
+#ifdef __linux__
     setfsuid(getuid());
+#endif
     vector<string> args;
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
