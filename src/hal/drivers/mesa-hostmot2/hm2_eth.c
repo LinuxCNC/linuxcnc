@@ -20,7 +20,9 @@
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#ifdef __linux__
 #include <linux/sockios.h>
+#endif
 #include <net/if_arp.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -96,12 +98,14 @@ int write_cnt = 0;
 
 /// ethernet io functions
 
-struct arpreq req;
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
+#ifdef __linux__
 #define IPTABLES "/sbin/iptables"
 #define CHAIN "hm2-eth-rules-output"
+
+struct arpreq req;
 
 static int shell(char *command) {
     char *const argv[] = {"sh", "-c", command, NULL};
@@ -254,6 +258,10 @@ static int fetch_hwaddr(int sockfd, unsigned char buf[6]) {
 
     return 0;
 }
+#else
+int use_iptables() { return 0; }
+void clear_iptables() {}
+#endif
 
 static int init_net(void) {
     int ret;
@@ -302,6 +310,7 @@ static int init_net(void) {
         return -errno;
     }
 
+#ifdef __linux__
     memset(&req, 0, sizeof(req));
     struct sockaddr_in *sin;
 
@@ -329,6 +338,7 @@ static int init_net(void) {
         ret = install_iptables(sockfd);
         if(ret < 0) return ret;
     }
+#endif
 
     //setsockopt (sockfd, SOL_SOCKET, SO_SNDBUF, (char *)&size, sizeof(size));
     //setsockopt (sockfd, SOL_SOCKET, SO_RCVBUF, (char *)&size, sizeof(size));
@@ -337,12 +347,14 @@ static int init_net(void) {
 }
 
 static int close_net(void) {
+#ifdef __linux__
     if(use_iptables()) clear_iptables();
 
     if(req.arp_flags & ATF_PERM) {
         int ret = ioctl(sockfd, SIOCDARP, &req);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
+#endif
     int ret = shutdown(sockfd, SHUT_RDWR);
     if (ret < 0)
         LL_PRINT("ERROR: can't close socket: %s\n", strerror(errno));
