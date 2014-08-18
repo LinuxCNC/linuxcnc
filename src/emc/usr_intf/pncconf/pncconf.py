@@ -1582,9 +1582,9 @@ class App:
             self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
         else:
             #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("You are have no hostmot2 firmware downloaded in folder:\n%s\n\
-PNCconf will use sample firmware data\nlive testing will not be possible"%self._p.FIRMDIR),True)
-
+            self.warning_dialog(_("You have no hostmot2 firmware downloaded in folder:\n%s\n\
+PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
+            self._p.MESA_BOARDNAMES.append('5i25-Internal Data')
         # add any extra firmware boardnames from .pncconf-preference file 
         if not self._p.EXTRA_MESA_FIRMWAREDATA == []:
             for search, item in enumerate(self._p.EXTRA_MESA_FIRMWAREDATA):
@@ -2379,6 +2379,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             #        self._p.MESA_FIRMWAREDATA.append(customself._p.MESA_FIRMWAREDATA[i])
             # ok set up mesa info
             #print 'firmware data',self.d["mesa%d_firmware"% boardnum]
+            search = 0
             model = self.widgets["mesa%d_firmware"% boardnum].get_model()
             for search,item in enumerate(model):
                 if model[search][0]  == self.d["mesa%d_firmware"% boardnum]:
