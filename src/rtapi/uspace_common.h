@@ -76,7 +76,9 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     stat.shm_perm.uid = getuid();
   }
 
+#ifdef SHM_LOCKED
   stat.shm_perm.mode |= SHM_LOCKED;
+#endif
   res = shmctl(shmem->id, IPC_SET, &stat);
   if(res < 0) perror("shmctl IPC_SET");
 
