@@ -4,6 +4,8 @@
 #  build Python modules, and C++ bindings from .proto files
 #  build nanopb C bindings for kernel & userland RT components (and possibly embedded devices)
 #
+#  optionally build Javscript bindings if  --enable-proto-js is given to configure
+#
 #  optionally build C bindings if  --enable-protoc-c is given to configure
 #
 #  The proto definitions are held in a separate repo: github.com/machinekit/machinetalk-protobuf.
@@ -34,13 +36,27 @@
 #
 # Michael Haberler 2/2013
 
-
 MACHINETALK=machinetalk
 MTINCLUDES=$(MACHINETALK)/include
 PBGEN=$(MACHINETALK)/generated
 PROTODIR=$(MACHINETALK)/proto/proto
 NANOPB := $(MACHINETALK)/nanopb
 NPBPROTODIR :=  $(NANOPB)/generator/proto
+
+
+# Javascript support
+JSGEN=$(MACHINETALK)/tutorial/htdocs/js/machinetalk
+
+# proto2js options - namespace
+PROTOBUFJS_OPT := -class
+# these alternativesI dont understand yet:
+#PROTOBUFJS_OPT := -commonjs=pb
+# http://en.wikipedia.org/wiki/Asynchronous_module_definition
+#PROTOBUFJS_OPT := -amd
+
+# protobuf namespace; all protos except nanopb.proto
+JSNAMESPACE := =pb
+
 
 # this comes in with the machinetalk-protobuf subtree merge:
 GENDEP := $(MACHINETALK)/proto/scripts/protoc-gen-depends
@@ -185,6 +201,7 @@ PBDEP_OPT :=
 #PBDEP_OPT += --debug
 PBDEP_OPT += --cgen=$(MACHINETALK)/generated
 PBDEP_OPT += --pygen=lib/python
+PBDEP_OPT += --jsgen=$(JSGEN)
 # this path must match the vpath arrangement exactly or the deps will be wrong
 # unfortunately there is no way to extract the proto path in the code
 # generator plugin
@@ -258,6 +275,36 @@ $(PBGEN)/%.npb.c $(PBGEN)/%.npb.h: %.proto $(NANOPB_SUPPORT)
 	--proto_path=$(NPBPROTODIR)/ \
 	--proto_path=$(GPBINCLUDE)/ \
 	--python_out=../lib/python/ $<
+
+
+# ------------- ProtoBuf.js rules ------------
+#
+# see https://github.com/dcodeIO/ProtoBuf.js
+#
+# generate Javascript modules from proto files
+$(JSGEN)/%.js: %.proto
+	$(ECHO) $(PROTO2JS)" create $@ from $<"
+	@mkdir -p $(JSGEN)
+	$(Q)$(PROTO2JS) 	$< \
+	$(PROTOBUFJS_OPT)$(JSNAMESPACE) \
+	> $@
+
+# nanopb.proto needs different opts - no namespace argument
+$(JSGEN)/nanopb.js: $(PROTODIR)/nanopb.proto
+	$(ECHO) $(PROTO2JS)" create $@ from $<"
+	@mkdir -p $(JSGEN)
+	$(Q)$(PROTO2JS) 	$< \
+	$(PROTOBUFJS_OPT) \
+	> $@
+
+# generated Javasript sources
+# everything is namespace pb except nanopb.proto
+PROTO_JS_SRCS  :=  $(subst $(PROTODIR)/, \
+	$(JSGEN)/, \
+	$(filter-out $(PROTODIR)/nanopb.js, $(patsubst %.proto, %.js, $(PROTO_SPECS))))
+PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
+
+
 
 # --- misc supporting files ----
 ../lib/python/nanopb_generator.py: $(NANOPB)/generator/nanopb_generator.py
@@ -354,6 +401,13 @@ GENERATED += \
 	$(MACHINETALK)/generated/nanopb.pb-c.h  \
 	$(MACHINETALK)/generated/nanopb.pb-c.c
 endif
+
+
+ifeq ($(BUILD_PROTO_JS),yes)
+USERSRCS += $(PROTO_JS_SRCS) $(JSGEN)/nanopb.js
+TARGETS += $(PROTO_JS_SRCS) $(JSGEN)/nanopb.js
+endif
+
 
 PYTARGETS += $(PROTO_PY_TARGETS)
 
