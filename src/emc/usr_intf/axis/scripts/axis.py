@@ -2396,7 +2396,7 @@ class TclCommands(nf.TclCommands):
     def spindle(event=None):
         if not manual_ok(): return
         ensure_mode(linuxcnc.MODE_MANUAL)
-        c.spindle(vars.spindledir.get())
+        c.spindle(vars.spindledir.get(),default_spindle_speed)
     def spindle_increase(event=None):
         c.spindle(linuxcnc.SPINDLE_INCREASE)
     def spindle_decrease(event=None):
@@ -2420,17 +2420,17 @@ class TclCommands(nf.TclCommands):
         if not manual_ok(): return
         s.poll()
         if s.spindle_direction == 0:
-            c.spindle(1)
+            c.spindle(linuxcnc.SPINDLE_FORWARD,default_spindle_speed)
         else:
-            c.spindle(0)
+            c.spindle(linuxcnc.SPINDLE_OFF)
 
     def spindle_backward_toggle(*args):
         if not manual_ok(): return "break"
         s.poll()
         if s.spindle_direction == 0:
-            c.spindle(-1)
+            c.spindle(linuxcnc.SPINDLE_REVERSE,default_spindle_speed)
         else:
-            c.spindle(0)
+            c.spindle(linuxcnc.SPINDLE_OFF)
         return "break" # bound to F10, don't activate menu
 
     def brake_on(*args):
@@ -2833,7 +2833,7 @@ max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE"))
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
-
+default_spindle_speed = int(inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or 1)
 geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
