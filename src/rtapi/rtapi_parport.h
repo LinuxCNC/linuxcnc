@@ -18,7 +18,16 @@
 
 #include <rtapi.h>
 #include <rtapi_io.h>
+#ifdef __linux__
 #include <linux/parport.h>
+#define RTAPI_PARPORT_MODE_PCSPP      PARPORT_MODE_PCSPP
+#define RTAPI_PARPORT_MODE_TRISTATE   PARPORT_MODE_TRISTATE
+#define RTAPI_PARPORT_MODE_EPP        PARPORT_MODE_EPP
+#else
+#define RTAPI_PARPORT_MODE_PCSPP      (1<<0) /* IBM PC registers available. */
+#define RTAPI_PARPORT_MODE_TRISTATE   (1<<1) /* Can tristate. */
+#define RTAPI_PARPORT_MODE_EPP        (1<<2) /* Hardware EPP. */
+#endif
 
 #define RTAPI_PARPORT_DATA_PORT(t) (t->base + 0)
 #define RTAPI_PARPORT_STATUS_PORT(t) (t->base + 1)

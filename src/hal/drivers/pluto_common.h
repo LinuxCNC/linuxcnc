@@ -149,7 +149,7 @@ static void pluto_cleanup(void) {
 
 static int pluto_setup(unsigned char *firmware) {
     int retval = hal_parport_get(comp_id, &portdata, ioaddr, ioaddr_hi,
-        PARPORT_MODE_EPP);
+        RTAPI_PARPORT_MODE_EPP);
     int status;
 
     if(retval < 0)

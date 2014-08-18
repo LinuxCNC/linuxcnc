@@ -420,7 +420,7 @@ static int hm2_7i43_setup(void) {
         // 
 
         r = hal_parport_get(comp_id, &board[i].port,
-                ioaddr[i], ioaddr_hi[i], PARPORT_MODE_EPP);
+                ioaddr[i], ioaddr_hi[i], RTAPI_PARPORT_MODE_EPP);
         if(r < 0)
             return r;
 

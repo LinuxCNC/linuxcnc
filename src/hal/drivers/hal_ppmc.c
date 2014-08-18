@@ -465,7 +465,7 @@ int rtapi_app_main(void)
 	}
 
         rv = hal_parport_get(comp_id, &port_registration[busnum],
-                port_addr[busnum], 0, PARPORT_MODE_EPP);
+                port_addr[busnum], 0, RTAPI_PARPORT_MODE_EPP);
 
         if(rv < 0)
             return rv;
