@@ -17,6 +17,7 @@
 
 #ifdef __linux__
 #include <sys/fsuid.h>
+#include <sys/prctl.h>
 #endif
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -41,7 +42,6 @@
 #include <sys/resource.h>
 #include <sys/mman.h>
 #include <malloc.h>
-#include <sys/prctl.h>
 
 #include "config.h"
 
@@ -805,9 +805,11 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
       return -errno;
   if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
       return -errno;
+#ifdef __linux__
   if(nprocs > 1)
       if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
           return -errno;
+#endif
   if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
       return -errno;
 
