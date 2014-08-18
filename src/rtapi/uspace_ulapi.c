@@ -22,6 +22,7 @@
 #include <string.h>
 #include "rtapi.h"
 #include <unistd.h>
+#include <rtapi_errno.h>
 
 
 /* FIXME - no support for fifos */

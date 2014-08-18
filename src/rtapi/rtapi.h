@@ -75,7 +75,6 @@
     space, the non-underscore types should NEVER be used.
 */
 #include <asm/types.h>
-#include <rtapi_errno.h>
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
