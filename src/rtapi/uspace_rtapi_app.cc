@@ -530,6 +530,7 @@ struct Posix : RtapiApp
     pthread_mutex_t thread_lock;
 };
 
+#ifdef __linux__
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
 {
     switch (sig) {
@@ -653,6 +654,9 @@ static int harden_rt()
     }
     return 0;
 }
+#else
+int harden_rt() { return -EPERM; }
+#endif
 
 
 static RtapiApp *makeApp()
