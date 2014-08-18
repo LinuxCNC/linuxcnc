@@ -1,0 +1,30 @@
+import "nanopb.proto";
+
+package pb;
+
+enum ApplicationType {
+    QT5_QML    = 1;
+    GLADEVCP   = 2;
+    JAVASCRIPT = 3;
+}
+
+enum FileContent {
+    CLEARTEXT  = 1;
+    ZLIB       = 2;
+};
+
+message File {
+    required string       name          = 1; // flat for now
+    required FileContent  encoding      = 2;
+    optional bytes        blob          = 3;
+}
+
+message Application {
+    required string       name          = 1; // unique key
+    optional string       description   = 2; // comment
+    optional ApplicationType type       = 3;
+    optional string       weburi        = 4; // for type == JAVASCRIPT
+
+    repeated File         file          = 5;
+    // config params go here
+}
