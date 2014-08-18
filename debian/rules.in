@@ -185,6 +185,13 @@ binary-arch: build install debian/substvars
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
+
+	# delete files that should be in machinekit-dev package
+	rm -f debian/machinekit/usr/bin/comp
+	rm -f debian/machinekit/usr/share/man/man1/comp.1.gz
+	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
+	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
+
 	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
 	dh_shlibdeps -l debian/machinekit/usr/lib

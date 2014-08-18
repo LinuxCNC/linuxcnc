@@ -13,7 +13,7 @@ Standards-Version: 2.1.0
 
 Package: machinekit-dev
 Architecture: any
-Depends: g++, ${tcl-tk-dev},
+Depends: make, g++, ${tcl-tk-dev},
     python (>= 2.6), python (<< 2.8),
     ${python:Depends}, ${misc:Depends},
     machinekit (= ${binary:Version}),
