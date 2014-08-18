@@ -2533,11 +2533,7 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
    or rmmod'ed.
 */
 
-#if !defined(__KERNEL__)
-#undef CONFIG_PROC_FS
-#endif
-
-#ifdef CONFIG_PROC_FS
+#if defined(__KERNEL__) && defined( CONFIG_PROC_FS ) && LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 #include <linux/proc_fs.h>
 extern struct proc_dir_entry *rtapi_dir;
 static struct proc_dir_entry *hal_dir = 0;
