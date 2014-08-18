@@ -1372,7 +1372,7 @@ fi
 
 AC_ARG_ENABLE(check-runtime-deps,
     [--disable-check-runtime-deps   Skip checks for runtime requirements not needed during the build process],
-    [RUNTIME_CHECK=no],
+    [RUNTIME_CHECK=$enableval],
     [RUNTIME_CHECK=yes])
 AC_MSG_CHECKING([whether to check for runtime dependencies])
 AC_MSG_RESULT($RUNTIME_CHECK)
