@@ -74,7 +74,9 @@
   It is unlikely that the following implimentaion will work on a 2.0
   series kernel..
 */
-#ifdef CONFIG_PROC_FS
+#if defined( CONFIG_PROC_FS ) && LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
+
+#define RTAPI_USE_PROCFS
 
 #include "procfs_macros.h"	/* macros for read functions */
 
