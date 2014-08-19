@@ -1399,7 +1399,9 @@ if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearc
     AC_MSG_RESULT([found])
     HAVE_WORKING_BLT=yes
 else
-    AC_MSG_ERROR([not found])
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([Tk img::png not found!
+install with "sudo apt-get install libtk-img"])
 fi
 fi
 
