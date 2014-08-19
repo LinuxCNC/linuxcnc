@@ -6,16 +6,24 @@
 <xsl:output method='text'/>
 
 <xsl:template match="/">
+
+  <xsl:for-each select='//section'>
+    <xsl:value-of select='@id'/><xsl:text>
+</xsl:text>
+  </xsl:for-each>
+
   <xsl:for-each select='//anchor'>
     <xsl:value-of select='@id'/><xsl:text>
 </xsl:text>
   </xsl:for-each>
+
   <xsl:for-each select='//chapter'>
     <xsl:if test='substring(@id, 1, 1) != "_"'>
       <xsl:value-of select='@id'/><xsl:text>
 </xsl:text>
     </xsl:if>
   </xsl:for-each>
+
 </xsl:template>
 
 </xsl:stylesheet>
