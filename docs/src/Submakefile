@@ -385,14 +385,14 @@ copy_asciidoc_files:
 checkref: checkref_en checkref_fr checkref_es
 
 checkref_en: $(DOC_TARGETS_HTML_EN) .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref --warn-on-failure English $^
+	@$(DOC_SRCDIR)/checkref English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
 # the spanish docs are full of broken links, only warn on failure
 checkref_es: $(DOC_TARGETS_HTML_ES) .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref --warn-on-failure Spanish $^
+	@$(DOC_SRCDIR)/checkref Spanish $^
 
 MAN_SRCS_NOSO := $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
