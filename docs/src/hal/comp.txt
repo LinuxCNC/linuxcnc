@@ -68,10 +68,11 @@ to install linuxcnc-dev.
 For a singleton, the one instance is created when the component is
 loaded.
 
-For a non-singleton, the 'count' module parameter determines how many numbered
-instances are created.  If not specified, the 'name' module parameter
-determines how many named instances are created.  Otherwise, a single numbered
-instance is created.
+For a non-singleton, the 'count' module parameter determines how
+many numbered instances are created.  If 'count' is not specified, the
+'names' module parameter determines how many named instances are created.
+If neither 'count' nor 'names' is specified, a single numbered instance
+is created.
 
 == Implicit Parameters
 

@@ -31,7 +31,7 @@ class MultiFileBuilder:
 
     def add_from_file(self, fn):
         builder = gtk.Builder()
-        if self.domain is not None: builder.set_translation_domain(domain)
+        if self.domain is not None: builder.set_translation_domain(self.domain)
 
         self.builders.append(builder)
         builder.add_from_file(fn)
