@@ -26,7 +26,7 @@ import subprocess
 import re
 
 
-supported_oses = [ 'linux' ]
+supported_oses = [ 'linux', 'kfreebsd' ]
 supported_cpus = [ 'amd64', 'i386', 'armhf' ]
 supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
 
