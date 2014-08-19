@@ -193,6 +193,19 @@ class LinuxCNCWrapper:
         threshold = 0.0001
         return abs(a - b) > threshold
 
+    def zero_position(self):
+        position = Position()
+        position.x = 0.0
+        position.y = 0.0
+        position.z = 0.0
+        position.a = 0.0
+        position.b = 0.0
+        position.c = 0.0
+        position.u = 0.0
+        position.v = 0.0
+        position.w = 0.0
+        return position
+
     def check_position(self, oldPosition, newPosition):
         modified = False
         txPosition = Position()
@@ -234,6 +247,20 @@ class LinuxCNCWrapper:
     def update_config(self, stat):
         modified = False
 
+        if self.firstrun:
+            self.status.config.acceleration = 0.0
+            self.status.config.angular_units = 0.0
+            self.status.config.axes = 0
+            self.status.config.axis_mask = 0
+            self.status.config.cycle_time = 0.0
+            self.status.config.debug = 0
+            self.status.config.kinematics_type = 0
+            self.status.config.linear_units = 0.0
+            self.status.config.max_acceleration = 0.0
+            self.status.config.max_velocity = 0.0
+            self.status.config.program_units = 0
+            self.status.config.velocity = 0.0
+
         if self.notEqual(self.status.config.acceleration, stat.acceleration):
             self.status.config.acceleration = stat.acceleration
             self.txStatus.config.acceleration = stat.acceleration
@@ -256,6 +283,13 @@ class LinuxCNCWrapper:
             if len(self.status.config.axis) == index:
                 self.status.config.axis.add()
                 self.status.config.axis[index].index = index
+                self.status.config.axis[index].axisType = 0
+                self.status.config.axis[index].backlash = 0.0
+                self.status.config.axis[index].max_ferror = 0.0
+                self.status.config.axis[index].max_position_limit = 0.0
+                self.status.config.axis[index].min_ferror = 0.0
+                self.status.config.axis[index].min_position_limit = 0.0
+                self.status.config.axis[index].units = 0.0
 
             if self.status.config.axis[index].axisType != axis['axisType']:
                 self.status.config.axis[index].axisType = axis['axisType']
@@ -344,11 +378,21 @@ class LinuxCNCWrapper:
             self.txStatus.config.velocity = stat.velocity
             modified = True
 
-        if modified:
+        if modified and not self.firstrun:
             self.send_config(self.txStatus.config)
 
     def update_io(self, stat):
         modified = False
+
+        if self.firstrun:
+            self.status.io.estop = 0
+            self.status.io.flood = 0
+            self.status.io.lube = 0
+            self.status.io.lube_level = 0
+            self.status.io.mist = 0
+            self.status.io.pocket_prepped = 0
+            self.status.io.tool_in_spindle = 0
+            self.status.io.tool_offset.MergeFrom(self.zero_position())
 
         if (self.status.io.estop != stat.estop):
             self.status.io.estop = stat.estop
@@ -401,6 +445,20 @@ class LinuxCNCWrapper:
             if len(self.status.io.tool_table) == index:
                 self.status.io.tool_table.add()
                 self.status.io.tool_table[index].index = index
+                self.status.io.tool_table[index].id = 0
+                self.status.io.tool_table[index].xOffset = 0.0
+                self.status.io.tool_table[index].yOffset = 0.0
+                self.status.io.tool_table[index].zOffset = 0.0
+                self.status.io.tool_table[index].aOffset = 0.0
+                self.status.io.tool_table[index].bOffset = 0.0
+                self.status.io.tool_table[index].cOffset = 0.0
+                self.status.io.tool_table[index].uOffset = 0.0
+                self.status.io.tool_table[index].vOffset = 0.0
+                self.status.io.tool_table[index].wOffset = 0.0
+                self.status.io.tool_table[index].diameter = 0.0
+                self.status.io.tool_table[index].frontangle = 0.0
+                self.status.io.tool_table[index].backangle = 0.0
+                self.status.io.tool_table[index].orientation = 0
 
             if self.status.io.tool_table[index].id != toolResult.id:
                 self.status.io.tool_table[index].id = toolResult.id
@@ -478,11 +536,22 @@ class LinuxCNCWrapper:
                 modified = True
         del txToolResult
 
-        if modified:
+        if modified and not self.firstrun:
             self.send_io(self.txStatus.io)
 
     def update_task(self, stat):
         modified = False
+
+        if self.firstrun:
+            self.status.task.echo_serial_number = 0
+            self.status.task.exec_state = 0
+            self.status.task.file = ""
+            self.status.task.input_timeout = False
+            self.status.task.optional_stop = False
+            self.status.task.read_line = 0
+            self.status.task.task_mode = 0
+            self.status.task.task_paused = 0
+            self.status.task.task_state = 0
 
         if (self.status.task.echo_serial_number != stat.echo_serial_number):
             self.status.task.echo_serial_number = stat.echo_serial_number
@@ -529,11 +598,16 @@ class LinuxCNCWrapper:
             self.txStatus.task.task_state = stat.task_state
             modified = True
 
-        if modified:
+        if modified and not self.firstrun:
             self.send_task(self.txStatus.task)
 
     def update_interp(self, stat):
         modified = False
+
+        if self.firstrun:
+            self.status.interp.command = ""
+            self.status.interp.interp_state = 0
+            self.status.interp.interpreter_errcode = 0
 
         if (self.status.interp.command != stat.command):
             self.status.interp.command = stat.command
@@ -548,6 +622,7 @@ class LinuxCNCWrapper:
             if len(self.status.interp.gcodes) == index:
                 self.status.interp.gcodes.add()
                 self.status.interp.gcodes[index].index = index
+                self.status.interp.gcodes[index].value = 0
 
             if self.status.interp.gcodes[index].value != gcode:
                 self.status.interp.gcodes[index].value = gcode
@@ -579,6 +654,7 @@ class LinuxCNCWrapper:
             if len(self.status.interp.mcodes) == index:
                 self.status.interp.mcodes.add()
                 self.status.interp.mcodes[index].index = index
+                self.status.interp.mcodes[index].value = 0
 
             if self.status.interp.mcodes[index].value != mcode:
                 self.status.interp.mcodes[index].value = mcode
@@ -600,6 +676,7 @@ class LinuxCNCWrapper:
             if len(self.status.interp.settings) == index:
                 self.status.interp.settings.add()
                 self.status.interp.settings[index].index = index
+                self.status.interp.settings[index].value = 0.0
 
             if self.notEqual(self.status.interp.settings[index].value, setting):
                 self.status.interp.settings[index].value = setting
@@ -613,11 +690,53 @@ class LinuxCNCWrapper:
 
         del txStatusSetting
 
-        if modified:
+        if modified and not self.firstrun:
             self.send_interp(self.txStatus.interp)
 
     def update_motion(self, stat):
         modified = False
+
+        if self.firstrun:
+            self.status.motion.active_queue = 0
+            self.status.motion.actual_position.MergeFrom(self.zero_position())
+            self.status.motion.adaptive_feed_enabled = False
+            self.status.motion.block_delete = False
+            self.status.motion.current_line = 0
+            self.status.motion.current_vel = 0.0
+            self.status.motion.delay_left = 0.0
+            self.status.motion.distance_to_go = 0.0
+            self.status.motion.dtg.MergeFrom(self.zero_position())
+            self.status.motion.enabled = False
+            self.status.motion.feed_hold_enabled = False
+            self.status.motion.feed_override_enabled = False
+            self.status.motion.feedrate = 0.0
+            self.status.motion.g5x_index = 0
+            self.status.motion.g5x_offset.MergeFrom(self.zero_position())
+            self.status.motion.g92_offset.MergeFrom(self.zero_position())
+            self.status.motion.id = 0
+            self.status.motion.inpos = False
+            self.status.motion.joint_actual_position.MergeFrom(self.zero_position())
+            self.status.motion.joint_position.MergeFrom(self.zero_position())
+            self.status.motion.motion_line = 0
+            self.status.motion.motion_type = 0
+            self.status.motion.motion_mode = 0
+            self.status.motion.paused = False
+            self.status.motion.position.MergeFrom(self.zero_position())
+            self.status.motion.probe_tripped = False
+            self.status.motion.probe_val = 0
+            self.status.motion.probed_position.MergeFrom(self.zero_position())
+            self.status.motion.probing = False
+            self.status.motion.queue = 0
+            self.status.motion.queue_full = False
+            self.status.motion.rotation_xy = 0.0
+            self.status.motion.spindle_brake = 0
+            self.status.motion.spindle_direction = 0
+            self.status.motion.spindle_enabled = 0
+            self.status.motion.spindle_increasing = 0
+            self.status.motion.spindle_override_enabled = False
+            self.status.motion.spindle_speed = 0.0
+            self.status.motion.spindlerate = 0.0
+            self.status.motion.state = 0
 
         if (self.status.motion.active_queue != stat.active_queue):
             self.status.motion.active_queue = stat.active_queue
@@ -645,6 +764,7 @@ class LinuxCNCWrapper:
             if len(self.status.motion.ain) == index:
                 self.status.motion.ain.add()
                 self.status.motion.ain[index].index = index
+                self.status.motion.ain[index].value = 0.0
 
             if self.notEqual(self.status.motion.ain[index].value, ain):
                 self.status.motion.ain[index].value = ain
@@ -665,6 +785,7 @@ class LinuxCNCWrapper:
             if len(self.status.motion.aout) == index:
                 self.status.motion.aout.add()
                 self.status.motion.aout[index].index = index
+                self.status.motion.aout[index].value = 0.0
 
             if self.notEqual(self.status.motion.aout[index].value, aout):
                 self.status.motion.aout[index].value = aout
@@ -684,6 +805,21 @@ class LinuxCNCWrapper:
             if len(self.status.motion.axis) == index:
                 self.status.motion.axis.add()
                 self.status.motion.axis[index].index = index
+                self.status.motion.axis[index].enabled = False
+                self.status.motion.axis[index].fault = False
+                self.status.motion.axis[index].ferror_current = 0.0
+                self.status.motion.axis[index].ferror_highmark = 0.0
+                self.status.motion.axis[index].homed = False
+                self.status.motion.axis[index].homing = False
+                self.status.motion.axis[index].inpos = False
+                self.status.motion.axis[index].input = 0.0
+                self.status.motion.axis[index].max_hard_limit = False
+                self.status.motion.axis[index].max_soft_limit = False
+                self.status.motion.axis[index].min_hard_limit = False
+                self.status.motion.axis[index].min_soft_limit = False
+                self.status.motion.axis[index].output = 0.0
+                self.status.motion.axis[index].override_limits = False
+                self.status.motion.axis[index].velocity = 0.0
 
             if self.status.motion.axis[index].enabled != axis['enabled']:
                 self.status.motion.axis[index].enabled = axis['enabled']
@@ -794,6 +930,7 @@ class LinuxCNCWrapper:
             if len(self.status.motion.din) == index:
                 self.status.motion.din.add()
                 self.status.motion.din[index].index = index
+                self.status.motion.din[index].value = False
 
             if self.status.motion.din[index].value != din:
                 self.status.motion.din[index].value = din
@@ -819,6 +956,7 @@ class LinuxCNCWrapper:
             if len(self.status.motion.dout) == index:
                 self.status.motion.dout.add()
                 self.status.motion.dout[index].index = index
+                self.status.motion.dout[index].value = False
 
             if self.status.motion.dout[index].value != dout:
                 self.status.motion.dout[index].value = dout
@@ -904,6 +1042,7 @@ class LinuxCNCWrapper:
             if len(self.status.motion.limit) == index:
                 self.status.motion.limit.add()
                 self.status.motion.limit[index].index = index
+                self.status.motion.limit[index].value = False
 
             if self.status.motion.limit[index].value != limit:
                 self.status.motion.limit[index].value = limit
@@ -1018,7 +1157,7 @@ class LinuxCNCWrapper:
             self.txStatus.motion.state = stat.state
             modified = True
 
-        if modified:
+        if modified and not self.firstrun:
             self.send_motion(self.txStatus.motion)
 
     def update_status(self, stat):
@@ -1028,12 +1167,14 @@ class LinuxCNCWrapper:
         self.update_task(stat)
         self.update_interp(stat)
         self.update_motion(stat)
+        self.firstrun = False
 
     def send_config(self, data):
         self.tx.type = MT_EMCSTAT_CONFIG
         self.tx.emc_status_config.MergeFrom(data)
         txBuffer = self.tx.SerializeToString()
-        print("sending config message")
+        if self.debug:
+            print("sending config message")
         self.tx.Clear()
         self.statusSocket.send_multipart(['status', txBuffer])
 
@@ -1041,7 +1182,8 @@ class LinuxCNCWrapper:
         self.tx.type = MT_EMCSTAT_IO
         self.tx.emc_status_io.MergeFrom(data)
         txBuffer = self.tx.SerializeToString()
-        print("sending io message")
+        if self.debug:
+            print("sending io message")
         self.tx.Clear()
         self.statusSocket.send_multipart(['io', txBuffer])
 
@@ -1049,7 +1191,8 @@ class LinuxCNCWrapper:
         self.tx.type = MT_EMCSTAT_TASK
         self.tx.emc_status_task.MergeFrom(data)
         txBuffer = self.tx.SerializeToString()
-        print("sending task message")
+        if self.debug:
+            print("sending task message")
         self.tx.Clear()
         self.statusSocket.send_multipart(['task', txBuffer])
 
@@ -1057,7 +1200,8 @@ class LinuxCNCWrapper:
         self.tx.type = MT_EMCSTAT_MOTION
         self.tx.emc_status_motion.MergeFrom(data)
         txBuffer = self.tx.SerializeToString()
-        print("sending motion message")
+        if self.debug:
+            print("sending motion message")
         self.tx.Clear()
         self.statusSocket.send_multipart(['motion', txBuffer])
 
@@ -1065,7 +1209,8 @@ class LinuxCNCWrapper:
         self.tx.type = MT_EMCSTAT_INTERP
         self.tx.emc_status_interp.MergeFrom(data)
         txBuffer = self.tx.SerializeToString()
-        print("sending interp message")
+        if self.debug:
+            print("sending interp message")
         self.tx.Clear()
         self.statusSocket.send_multipart(['interp', txBuffer])
 
