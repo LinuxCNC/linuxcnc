@@ -53,7 +53,8 @@ def detect_kernel_flavor(uname):
 # subprocess.check_output(), because check_output() is not in Hardy's
 # Python 2.5
 
-arch = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH'], stdout=subprocess.PIPE).communicate()[0][:-1]
+os = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH_OS'], stdout=subprocess.PIPE).communicate()[0][:-1]
+cpu = subprocess.Popen(['dpkg-architecture', '-qDEB_HOST_ARCH_CPU'], stdout=subprocess.PIPE).communicate()[0][:-1]
 distributor = subprocess.Popen(['lsb_release', '--id', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
 
 release = subprocess.Popen(['lsb_release', '--release', '--short'], stdout=subprocess.PIPE).communicate()[0][:-1]
@@ -64,15 +65,20 @@ release_minor = int(minor)
 uname = subprocess.Popen(['uname', '-r'], stdout=subprocess.PIPE).communicate()[0][:-1]
 kernel_flavor = detect_kernel_flavor(uname)
 
-print "arch =", arch
+print "os =", os
+print "cpu =", cpu
 print "distributor =", distributor
 print "release =", release
 print "    major =", release_major
 print "    minor =", release_minor
 print "uname = %s (%s)" % (uname, kernel_flavor)
 
-if arch != "amd64" and arch != "i386":
-    print "unsupported architecture!"
+if os != "linux":
+    print "unsupported OS!"
+    sys.exit(1)
+
+if cpu != "amd64" and cpu != "i386":
+    print "unsupported CPU!"
     sys.exit(1)
 
 if distributor == 'Ubuntu':
