@@ -1382,7 +1382,9 @@ AC_MSG_CHECKING([for BWidget using $TCLSH])
 if (unset DISPLAY; echo ["catch { package require bwidget }; exit [expr [lsearch [package names] BWidget] == -1]"] | $TCLSH); then
     AC_MSG_RESULT([found])
 else
-    AC_MSG_ERROR([not found])
+    AC_MSG_RESULT(no)
+    AC_MSG_ERROR([BWidget not found!
+install with "sudo apt-get install bwidget"])
 fi
 
 AC_MSG_CHECKING([for BLT using tclsh8.5])
