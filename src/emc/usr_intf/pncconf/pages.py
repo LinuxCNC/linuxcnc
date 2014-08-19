@@ -208,14 +208,15 @@ class Pages:
         # search for firmware packages
 
     def start_finish(self):
+
+        if not self.w.createconfig.get_active():
+            error = self.a.load_config()
         if self.w.advancedconfig.get_active():
             state = True
         else:
             state = False
         self.d.advanced_option = state
         self.page_set_state(['options','external','realtime'],state)
-        if not self.w.createconfig.get_active():
-            error = self.a.load_config()
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
         self.w.window1.set_title(_("Point and click configuration - %s.pncconf ") % self.d.machinename)
