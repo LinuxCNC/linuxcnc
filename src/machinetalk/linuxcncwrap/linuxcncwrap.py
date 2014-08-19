@@ -91,10 +91,26 @@ class LinuxCNCWrapper:
         self.debug = debug
         self.ipv4 = ipv4
         self.poll_interval = poll_interval
-        self.firstrun = True
 
+        # status
         self.status = StatusValues()
         self.txStatus = StatusValues()
+        self.motionSubscriptions = 0
+        self.motionFullUpdate = False
+        self.motionFirstrun = True
+        self.ioSubscriptions = 0
+        self.ioFullUpdate = False
+        self.ioFirstrun = True
+        self.taskSubscriptions = 0
+        self.taskFullUpdate = False
+        self.taskFirstrun = True
+        self.configSubscriptions = 0
+        self.configFullUpdate = False
+        self.configFirstrun = True
+        self.interpSubscriptions = 0
+        self.interpFullUpdate = False
+        self.interpFirstrun = True
+        self.totalSubscriptions = 0
 
         # Linuxcnc
         try:
@@ -134,15 +150,15 @@ class LinuxCNCWrapper:
                               str('instance=' + str(me))]
 
         if self.debug:
-            print(('status: ', 'dsname = ', self.statusDsname,
-                               'port = ', self.statusPort,
-                               'txtrec = ', self.statusTxtrec))
-            print(('error: ', 'dsname = ', self.errorDsname,
-                              'port = ', self.errorPort,
-                              'txtrec = ', self.errorTxtrec))
-            print(('command: ', 'dsname = ', self.commandDsname,
-                               'port = ', self.commandPort,
-                               'txtrec = ', self.commandTxtrec))
+            print(('status: ' + 'dsname = ' + self.statusDsname +
+                               ' port = ' + str(self.statusPort) +
+                               ' txtrec = ' + str(self.statusTxtrec)))
+            print(('error: ' + 'dsname = ' + self.errorDsname +
+                              ' port = ' + str(self.errorPort) +
+                              ' txtrec = ' + str(self.errorTxtrec)))
+            print(('command: ' + 'dsname = ' + self.commandDsname +
+                               ' port = ' + str(self.commandPort) +
+                               ' txtrec = ' + str(self.commandTxtrec)))
 
         poll = zmq.Poller()
         poll.register(self.statusSocket, zmq.POLLIN)
@@ -170,7 +186,7 @@ class LinuxCNCWrapper:
                                                 text=self.commandTxtrec)
             self.commandService.publish()
         except Exception as e:
-            print (('cannot register DNS service', e))
+            print (('cannot register DNS service' + str(e)))
             sys.exit(1)
 
         thread.start_new_thread(self.poll, ())
@@ -247,7 +263,7 @@ class LinuxCNCWrapper:
     def update_config(self, stat):
         modified = False
 
-        if self.firstrun:
+        if self.configFirstrun:
             self.status.config.acceleration = 0.0
             self.status.config.angular_units = 0.0
             self.status.config.axes = 0
@@ -260,6 +276,7 @@ class LinuxCNCWrapper:
             self.status.config.max_velocity = 0.0
             self.status.config.program_units = 0
             self.status.config.velocity = 0.0
+            self.configFirstrun = False
 
         if self.notEqual(self.status.config.acceleration, stat.acceleration):
             self.status.config.acceleration = stat.acceleration
@@ -378,13 +395,16 @@ class LinuxCNCWrapper:
             self.txStatus.config.velocity = stat.velocity
             modified = True
 
-        if modified and not self.firstrun:
+        if self.configFullUpdate:
+            self.send_config(self.status.config)
+            self.configFullUpdate = False
+        elif modified:
             self.send_config(self.txStatus.config)
 
     def update_io(self, stat):
         modified = False
 
-        if self.firstrun:
+        if self.ioFirstrun:
             self.status.io.estop = 0
             self.status.io.flood = 0
             self.status.io.lube = 0
@@ -393,6 +413,7 @@ class LinuxCNCWrapper:
             self.status.io.pocket_prepped = 0
             self.status.io.tool_in_spindle = 0
             self.status.io.tool_offset.MergeFrom(self.zero_position())
+            self.ioFirstrun = False
 
         if (self.status.io.estop != stat.estop):
             self.status.io.estop = stat.estop
@@ -536,13 +557,16 @@ class LinuxCNCWrapper:
                 modified = True
         del txToolResult
 
-        if modified and not self.firstrun:
+        if self.ioFullUpdate:
+            self.send_io(self.status.io)
+            self.ioFullUpdate = False
+        elif modified:
             self.send_io(self.txStatus.io)
 
     def update_task(self, stat):
         modified = False
 
-        if self.firstrun:
+        if self.taskFirstrun:
             self.status.task.echo_serial_number = 0
             self.status.task.exec_state = 0
             self.status.task.file = ""
@@ -552,6 +576,7 @@ class LinuxCNCWrapper:
             self.status.task.task_mode = 0
             self.status.task.task_paused = 0
             self.status.task.task_state = 0
+            self.taskFirstrun = False
 
         if (self.status.task.echo_serial_number != stat.echo_serial_number):
             self.status.task.echo_serial_number = stat.echo_serial_number
@@ -598,16 +623,20 @@ class LinuxCNCWrapper:
             self.txStatus.task.task_state = stat.task_state
             modified = True
 
-        if modified and not self.firstrun:
+        if self.taskFullUpdate:
+            self.send_task(self.status.task)
+            self.taskFullUpdate = False
+        elif modified:
             self.send_task(self.txStatus.task)
 
     def update_interp(self, stat):
         modified = False
 
-        if self.firstrun:
+        if self.interpFirstrun:
             self.status.interp.command = ""
             self.status.interp.interp_state = 0
             self.status.interp.interpreter_errcode = 0
+            self.interpFirstrun = False
 
         if (self.status.interp.command != stat.command):
             self.status.interp.command = stat.command
@@ -690,13 +719,16 @@ class LinuxCNCWrapper:
 
         del txStatusSetting
 
-        if modified and not self.firstrun:
+        if self.interpFullUpdate:
+            self.send_interp(self.status.interp)
+            self.interpFullUpdate = False
+        elif modified:
             self.send_interp(self.txStatus.interp)
 
     def update_motion(self, stat):
         modified = False
 
-        if self.firstrun:
+        if self.motionFirstrun:
             self.status.motion.active_queue = 0
             self.status.motion.actual_position.MergeFrom(self.zero_position())
             self.status.motion.adaptive_feed_enabled = False
@@ -737,6 +769,7 @@ class LinuxCNCWrapper:
             self.status.motion.spindle_speed = 0.0
             self.status.motion.spindlerate = 0.0
             self.status.motion.state = 0
+            self.motionFirstrun = False
 
         if (self.status.motion.active_queue != stat.active_queue):
             self.status.motion.active_queue = stat.active_queue
@@ -1157,17 +1190,24 @@ class LinuxCNCWrapper:
             self.txStatus.motion.state = stat.state
             modified = True
 
-        if modified and not self.firstrun:
+        if self.motionFullUpdate:
+            self.send_motion(self.status.motion)
+            self.motionFullUpdate = False
+        elif modified:
             self.send_motion(self.txStatus.motion)
 
     def update_status(self, stat):
         self.txStatus.clear()
-        self.update_config(stat)
-        self.update_io(stat)
-        self.update_task(stat)
-        self.update_interp(stat)
-        self.update_motion(stat)
-        self.firstrun = False
+        if (self.ioSubscriptions > 0):
+            self.update_io(stat)
+        if (self.taskSubscriptions > 0):
+            self.update_task(stat)
+        if (self.interpSubscriptions > 0):
+            self.update_interp(stat)
+        if (self.motionSubscriptions > 0):
+            self.update_motion(stat)
+        if (self.configSubscriptions > 0):
+            self.update_config(stat)
 
     def send_config(self, data):
         self.tx.type = MT_EMCSTAT_CONFIG
@@ -1216,42 +1256,65 @@ class LinuxCNCWrapper:
 
     #def send_io(self, data):
 
-    def full_read(self):
-        pass
-
     def poll(self):
         while True:
             try:
-                self.stat.poll()
                 #self.error.poll()
-
-                self.update_status(self.stat)
-
-                #print text_format.MessageToString(self.status.config)
-                #print text_format.MessageToString(self.txStatus.config)
-                #print self.txStatus.io.SerializeToString()
+                if (self.totalSubscriptions > 0):
+                    self.stat.poll()
+                    self.update_status(self.stat)
 
             except linuxcnc.error as detail:
                 print(("error", detail))
+
             time.sleep(self.poll_interval)
 
-    def full_update(self):
-        self.send_config(self.status.config)
-        self.send_io(self.status.io)
-        #TODO other updates
-
     def processStatus(self, socket):
-        print("process status called")
         try:
-            subscriptions = []
-
-            rc = publisher.recv(zmq.NOBLOCK)
+            rc = self.statusSocket.recv(zmq.NOBLOCK)
             subscription = rc[1:]
             status = (rc[0] == "\x01")
-            method = subscriptions.append if status else subscriptions.remove
-            method(subscription)
 
-            print(subscriptions)
+            if subscription == 'motion':
+                if status:
+                    self.motionSubscriptions += 1
+                    self.motionFullUpdate = True
+                else:
+                    self.motionSubscriptions -= 1
+            elif subscription == 'task':
+                if status:
+                    self.taskSubscriptions += 1
+                    self.taskFullUpdate = True
+                else:
+                    self.taskSubscriptions -= 1
+            elif subscription == 'io':
+                if status:
+                    self.ioSubscriptions += 1
+                    self.ioFullUpdate = True
+                else:
+                    self.ioSubscriptions -= 1
+            elif subscription == 'config':
+                if status:
+                    self.configSubscriptions += 1
+                    self.configFullUpdate = True
+                else:
+                    self.configSubscriptions -= 1
+            elif subscription == 'interp':
+                if status:
+                    self.interpSubscriptions += 1
+                    self.interpFullUpdate = True
+                else:
+                    self.interpSubscriptions -= 1
+
+            self.totalSubscriptions = self.motionSubscriptions \
+            + self.taskSubscriptions \
+            + self.ioSubscriptions \
+            + self.configSubscriptions \
+            + self.interpSubscriptions
+
+            print(("process status called " + subscription + ' ' + str(status)))
+            print(("total subscriptions: " + str(self.totalSubscriptions)))
+
         except zmq.ZMQError:
             print("ZMQ error")
 
@@ -1316,7 +1379,7 @@ def main():
         sys.exit(1)
 
     if debug:
-        print(("announcing linuxcncwrap on ", iface))
+        print(("announcing linuxcncwrap on " + str(iface)))
 
     context = zmq.Context()
     context.linger = 0
