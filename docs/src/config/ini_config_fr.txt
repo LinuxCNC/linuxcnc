@@ -378,6 +378,10 @@ vitesse de broche trop basse).
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - Correction de vitesse maximum de broche que
 l'opérateur pourra utiliser. 1.0 signifie 100% de la vitesse de broche programmée.
 
+* 'DEFAULT_SPINDLE_SPEED = 100' - Vitesse de broche par défaut quand celle-ci
+démarre en mode manuel. Dans AXIS, si cette variable est absente, la vitesse
+de démarrage est alors fixée à 1 tr/mn. Ce n'est pas la vitesse minimum.
+
 * 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - Répertoire par défaut des fichiers
 de g-codes et emplacement des M-codes définis par l'utilisateur.
 Les recherches de fichiers s'effectueront d'abords dans cet emplacement,
