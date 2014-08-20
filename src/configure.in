@@ -40,6 +40,9 @@ py_val=`$PYTHON -c "dnl
 AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
 ])
 
+# Python module import test
+m4_include([m4/ac_python_module.m4])
+
 # adapted from AX_BOOST_PYTHON_MURRAYC
 # http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
 m4_define([AX_BOOST_PYTHON_EMC],
@@ -861,9 +864,6 @@ AC_ARG_ENABLE(dev,
 # NML
 ##############################################################################
 
-# todo: detect protoc, protoc-c
-# fail if no protoc
-
 PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
     [
         AC_DEFINE(HAVE_CZMQ, [], [zeroMQ czmq library available])
@@ -882,6 +882,12 @@ then
     AC_MSG_ERROR([protoc not found - protobuf-compiler package not installed?])
 fi
 
+AC_PYTHON_MODULE(google.protobuf.descriptor, failed to import google.protobuf.descriptor
+ - python-protobuf package missing? )
+AC_PYTHON_MODULE(google.protobuf.descriptor_pb2, failed to import google.protobuf.descriptor_pb2
+ - python-protobuf package missing? )
+AC_PYTHON_MODULE(google.protobuf.compiler.plugin_pb2, failed to import google.protobuf.compiler.plugin_pb2
+ - python-protobuf package missing? )
 
 PKG_CHECK_MODULES([JANSSON], [jansson > 2.4],
     [
