@@ -76,10 +76,10 @@ extern __inline double acos (double __x) {
 }
 
 extern __inline double fmax(double __y, double __x) {
-    return __y > __x ? __y : __x;
+    return __y > __x || __builtin_isnan(__x) ? __y : __x;
 }
 extern __inline double fmin(double __y, double __x) {
-    return __y < __x ? __y : __x;
+    return __y < __x || __builtin_isnan(__x) ? __y : __x;
 }
 
 #ifdef __i386__
