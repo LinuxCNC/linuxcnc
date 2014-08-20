@@ -98,7 +98,6 @@ m4_include([m4/ac_pkg_cython.m4])
 AC_MSG_CHECKING(if cython is usable)
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
-AC_PATH_PROG(CYTHON,cython)
 AC_SUBST([CYTHON])
 if test "x$CYTHON" != "x"; then
     AC_DEFINE([HAVE_CYTHON],[],[Build Cython-based Python extensions])
