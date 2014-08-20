@@ -1,13 +1,10 @@
 #!/usr/bin/python
 import zmq
-import time
 import sys
 
 from message_pb2 import Container
 from config_pb2 import *
 from types_pb2 import *
-
-from google.protobuf import text_format
 
 
 class EmcStatusClient:
@@ -18,7 +15,7 @@ class EmcStatusClient:
 
         self.rx = Container()
 
-        print "connecting to '%s'" % self.statusUri
+        print(("connecting to '%s'" % self.statusUri))
         self.socket = context.socket(zmq.SUB)
         self.socket.connect(self.statusUri)
         self.socket.setsockopt(zmq.SUBSCRIBE, "task")
@@ -26,21 +23,14 @@ class EmcStatusClient:
         self.run()
 
     def run(self):
-        received = 0
-        messages = []
         while True:
             try:
-                messages.append(self.socket.recv())
-                received += 1
-                if (received == 2):
-                    print (("topic: " + messages[0]))
-                    self.rx.ParseFromString(messages[1])
-                    print((str(self.rx)))
-                    received = 0
-                    messages = []
+                (topic, message) = self.socket.recv_multipart()
+                print (("topic: " + topic))
+                self.rx.ParseFromString(message)
+                print((str(self.rx)))
             except zmq.Again:
                 pass
-            #time.sleep(0.01)
 
 
 context = zmq.Context()
