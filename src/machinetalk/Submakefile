@@ -82,8 +82,6 @@ PROTOCXXLIB = ../lib/liblinuxcnc-pb2++.so
 
 # Nanopb C bindings library
 NANOPROTOCLIB := ../lib/liblinuxcnc-npb.so
-PROTOC := $(shell which protoc)
-PROTOC_C := $(shell which protoc-c)
 PROTOC_FLAGS :=
 PROTOC_C_FLAGS := -fPIC
 PROTOC_C_LDFLAGS := -lprotobuf-c
