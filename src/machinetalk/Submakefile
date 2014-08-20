@@ -120,8 +120,6 @@ PROTO_NANOPB_C_SRCS := $(subst $(PROTODIR)/, \
 
 # Nanopb generator support
 NANOPB_SUPPORT := ../lib/python/nanopb_pb2.py
-NANOPB_SUPPORT += ../lib/python/google/protobuf/compiler/plugin_pb2.py
-NANOPB_SUPPORT += ../lib/python/google/protobuf/descriptor_pb2.py
 NANOPB_SUPPORT += ../lib/python/nanopb_generator.py
 NANOPB_SUPPORT += ../lib/python/protoc-gen-nanopb
 
