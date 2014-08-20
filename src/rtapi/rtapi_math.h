@@ -46,22 +46,7 @@ extern double floor(double);
 #define M_PI		3.1415926535897932384626433832795029   /* pi */
 #endif
 
-#ifndef __GNUC_PREREQ
-/* Convenience macro to test the versions of glibc and gcc. */
-/*  taken from include/features.h */
-#if defined __GNUC__ && defined __GNUC_MINOR__
-# define __GNUC_PREREQ(maj, min) \
-	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
-#else
-# define __GNUC_PREREQ(maj, min) 0
-#endif
-#endif /* __GNUC_PREREQ */
-
-#if __GNUC_PREREQ(4,4)
 #define isinf(x) __builtin_isinf((x))
-#else
-#define isinf(x) ({ double v=((x)); !isnan(v) && isnan(v-v); })
-#endif
 
 extern __inline double atan (double __y) {
     return atan2(__y, 1.);
