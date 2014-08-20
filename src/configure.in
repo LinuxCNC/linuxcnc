@@ -753,6 +753,7 @@ AC_ARG_ENABLE(examples,
     ])
 
 AC_MSG_CHECKING(whether to build protoc-c C bindings)
+AC_PATH_PROG(PROTOC_C, protoc-c)
 AC_ARG_ENABLE(protoc-c,
     [  --enable-protoc-c       build protoc-c C bindings],
     [
@@ -874,6 +875,13 @@ PKG_CHECK_MODULES([PROTOBUF], [protobuf > 2.4.0],
         AC_DEFINE(HAVE_PROTOBUF, [], [zeroMQ czmq library available])
 	USE_PROTOBUF=yes
     ],)
+
+AC_PATH_PROG(PROTOC, protoc, "none")
+if test $PROTOC = "none"
+then
+    AC_MSG_ERROR([protoc not found - protobuf-compiler package not installed?])
+fi
+
 
 PKG_CHECK_MODULES([JANSSON], [jansson > 2.4],
     [
@@ -1675,6 +1683,8 @@ if test "$BUILD_PROTOC_C" = yes; then
    AC_DEFINE(BUILD_PROTOC_C, [], [build protoc-c C bindings])
 fi
 
+AC_SUBST(PROTOC)
+
 AC_SUBST(BUILD_EMCWEB)
 if test "$BUILD_EMCWEB" = yes; then
    AC_DEFINE(BUILD_EMCWEB, [], [build emcweb UI])
@@ -2189,6 +2199,8 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(INSTALL, install)
+
+
 
 AC_PATH_PROG(SED, sed, "none")
 if test $SED = "none"
