@@ -70,7 +70,10 @@ Pour un singleton, une seule instance est créée quand le composant est
 chargé.
 
 Pour un non-singleton, le paramètre 'count' du module détermine
-combien d'instances seront créées.
+combien d'instances seront créées. Si 'count' n'est pas spécifié, le paramètre
+'names' du module détermine combien d'instances nommées seront créées.
+Si ni 'count', ni 'names' n'est spécifié, une simple instance numérotée
+sera créée.
 
 == Paramètres implicites
 
