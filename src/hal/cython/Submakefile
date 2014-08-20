@@ -36,6 +36,8 @@ TARGETS += ../lib/python/machinekit/hal.so
 RTAPISO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
 	rtapi.c)
 
+$(RTAPISO_CSRCS): $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
+
 RTAPISO_CXXSRCS := \
 	hal/utils/halcmd_rtapiapp.cc
 
@@ -61,6 +63,7 @@ TARGETS += ../lib/python/machinekit/rtapi.so
 
 COMPATSO_CSRCS := $(addprefix $(HALNGMKDIR)/, \
 	compat.c)
+$(COMPATSO_CSRCS): $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
 
 USERSRCS += $(COMPATSO_CSRCS)
 $(call TOOBJSDEPS, $(COMPATSO_CSRCS)) : EXTRAFLAGS=-fPIC
@@ -85,6 +88,7 @@ TARGETS += ../lib/python/machinekit/shmcommon.so
 	$(ECHO) Linking $($@)
 	@mkdir -p $(dir $@)
 	$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
+
 $(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
 ifeq ($(HAVE_CYTHON),yes)
 	$(CYTHON) -o $@ $<

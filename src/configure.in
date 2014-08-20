@@ -102,7 +102,7 @@ AC_MSG_CHECKING(if cython is usable)
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
 AC_SUBST([CYTHON])
-if test "x$CYTHON" != "x"; then
+if test "x$CYTHON" != "xfalse"; then
     AC_DEFINE([HAVE_CYTHON],[],[Build Cython-based Python extensions])
     AC_SUBST([HAVE_CYTHON], [yes])
 else
