@@ -106,6 +106,7 @@ if test "x$CYTHON" != "xfalse"; then
     AC_DEFINE([HAVE_CYTHON],[],[Build Cython-based Python extensions])
     AC_SUBST([HAVE_CYTHON], [yes])
 else
+    AC_MSG_RESULT([rebuilding Cython bindings will require installing cython - not normally required])
     AC_SUBST([HAVE_CYTHON], [no])
 fi
 AC_SUBST([CYTHON], [$CYTHON])
