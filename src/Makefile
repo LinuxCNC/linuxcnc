@@ -195,6 +195,7 @@ SUBDIRS := \
 	rtapi/examples \
 	rtapi \
 	rtapi/shmdrv \
+	rtapi/userpci \
 	\
 	hal/lib \
 	hal/components \
@@ -552,26 +553,13 @@ HEADERS := \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
-
-HEADERS += $(MT_INSTALL_INCS)
-
-
-# need to do ths separately because the subdirectory is required
-# ../include/string.h would wreak havoc because it's the 
-# userland shim replacement for linux/string.h, not /usr/include/string.h
-USERPCI_HEADERS := \
-    ../include/userpci/device.h \
-    ../include/userpci/firmware.h \
-    ../include/userpci/gfp.h \
-    ../include/userpci/list.h \
-    ../include/userpci/module.h \
-    ../include/userpci/slab.h \
-    ../include/userpci/string.h
-
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
-TARGETS += $(USERPCI_HEADERS)
+# Add headers to this list that need to go into subdirectories; their
+# respective Submakefiles will need to provide rules to copy them into
+# ../install.
+TARGETS += $(SUBDIRECTORY_HEADERS)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -1272,7 +1260,7 @@ endif
 ifeq ($(BUILD_HOSTMOT2),yes)
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
 #obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
-hostmot2-objs :=			  \
+hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o	  \
@@ -1308,13 +1296,6 @@ hm2_test-objs :=			  \
 setsserial-objs :=			  \
     hal/drivers/mesa-hostmot2/setsserial.o  \
     $(MATHSTUB)
-endif
-
-ifeq ($(USERMODE_PCI),yes)
-hostmot2-objs +=			  \
-    rtapi/userpci/device.o		  \
-    rtapi/userpci/firmware.o		  \
-    rtapi/userpci/string.o		  
 endif
 
 ifeq ($(BUILD_HOSTMOT2),yes)

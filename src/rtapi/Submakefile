@@ -2,7 +2,6 @@ INCLUDES += rtapi rtapi_export
 
 # this covers the userpci and shmdrv directories too, in a bit cludgy way
 ../include/%.h: ./rtapi/%.h
-	mkdir -p ../include/userpci
 	cp  $^ $@
 
 ../include/%.hh: ./rtapi/%.hh
