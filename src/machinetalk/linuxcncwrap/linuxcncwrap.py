@@ -296,6 +296,10 @@ class LinuxCNCWrapper:
         for index, axis in enumerate(stat.axis):
             txAxis.Clear()
             axisModified = False
+
+            if index == stat.axes:
+                break
+
             if len(self.status.config.axis) == index:
                 self.status.config.axis.add()
                 self.status.config.axis[index].index = index
@@ -395,10 +399,10 @@ class LinuxCNCWrapper:
             modified = True
 
         if self.configFullUpdate:
-            self.send_config(self.status.config)
+            self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
             self.configFullUpdate = False
         elif modified:
-            self.send_config(self.txStatus.config)
+            self.send_config(self.txStatus.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_io(self, stat):
         modified = False
@@ -480,6 +484,9 @@ class LinuxCNCWrapper:
                 self.status.io.tool_table[index].backangle = 0.0
                 self.status.io.tool_table[index].orientation = 0
 
+            if toolResult.id == -1:
+                continue
+
             if self.status.io.tool_table[index].id != toolResult.id:
                 self.status.io.tool_table[index].id = toolResult.id
                 txToolResult.id = toolResult.id
@@ -557,10 +564,10 @@ class LinuxCNCWrapper:
         del txToolResult
 
         if self.ioFullUpdate:
-            self.send_io(self.status.io)
+            self.send_io(self.status.io, MT_EMCSTAT_FULL_UPDATE)
             self.ioFullUpdate = False
         elif modified:
-            self.send_io(self.txStatus.io)
+            self.send_io(self.txStatus.io, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_task(self, stat):
         modified = False
@@ -623,10 +630,10 @@ class LinuxCNCWrapper:
             modified = True
 
         if self.taskFullUpdate:
-            self.send_task(self.status.task)
+            self.send_task(self.status.task, MT_EMCSTAT_FULL_UPDATE)
             self.taskFullUpdate = False
         elif modified:
-            self.send_task(self.txStatus.task)
+            self.send_task(self.txStatus.task, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_interp(self, stat):
         modified = False
@@ -719,10 +726,10 @@ class LinuxCNCWrapper:
         del txStatusSetting
 
         if self.interpFullUpdate:
-            self.send_interp(self.status.interp)
+            self.send_interp(self.status.interp, MT_EMCSTAT_FULL_UPDATE)
             self.interpFullUpdate = False
         elif modified:
-            self.send_interp(self.txStatus.interp)
+            self.send_interp(self.txStatus.interp, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_motion(self, stat):
         modified = False
@@ -834,6 +841,10 @@ class LinuxCNCWrapper:
         for index, axis in enumerate(stat.axis):
             txAxis.Clear()
             axisModified = False
+
+            if index == stat.axes:
+                break
+
             if len(self.status.motion.axis) == index:
                 self.status.motion.axis.add()
                 self.status.motion.axis[index].index = index
@@ -1190,10 +1201,10 @@ class LinuxCNCWrapper:
             modified = True
 
         if self.motionFullUpdate:
-            self.send_motion(self.status.motion)
+            self.send_motion(self.status.motion, MT_EMCSTAT_FULL_UPDATE)
             self.motionFullUpdate = False
         elif modified:
-            self.send_motion(self.txStatus.motion)
+            self.send_motion(self.txStatus.motion, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
     def update_status(self, stat):
         self.txStatus.clear()
@@ -1208,35 +1219,35 @@ class LinuxCNCWrapper:
         if (self.configSubscriptions > 0):
             self.update_config(stat)
 
-    def send_config(self, data):
+    def send_config(self, data, type):
         self.tx.emc_status_config.MergeFrom(data)
         if self.debug:
             print("sending config message")
-        self.send_status_msg('status', MT_EMCSTAT_CONFIG)
+        self.send_status_msg('config', type)
 
-    def send_io(self, data):
+    def send_io(self, data, type):
         self.tx.emc_status_io.MergeFrom(data)
         if self.debug:
             print("sending io message")
-        self.send_status_msg('io', MT_EMCSTAT_IO)
+        self.send_status_msg('io', type)
 
-    def send_task(self, data):
+    def send_task(self, data, type):
         self.tx.emc_status_task.MergeFrom(data)
         if self.debug:
             print("sending task message")
-        self.send_status_msg('task', MT_EMCSTAT_TASK)
+        self.send_status_msg('task', type)
 
-    def send_motion(self, data):
+    def send_motion(self, data, type):
         self.tx.emc_status_motion.MergeFrom(data)
         if self.debug:
             print("sending motion message")
-        self.send_status_msg('motion', MT_EMCSTAT_MOTION)
+        self.send_status_msg('motion', type)
 
-    def send_interp(self, data):
+    def send_interp(self, data, type):
         self.tx.emc_status_interp.MergeFrom(data)
         if self.debug:
             print("sending interp message")
-        self.send_status_msg('interp', MT_EMCSTAT_INTERP)
+        self.send_status_msg('interp', type)
 
     def send_status_msg(self, topic, type):
         self.tx.type = type
