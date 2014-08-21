@@ -54,10 +54,39 @@ static ptr_inihal_data *the_inihal_data;
 #define SHOW_CHANGE(NAME) \
     fprintf(stderr,"Changed: "#NAME" %f-->%f\n",old_inihal_data.NAME, \
                                                 new_inihal_data.NAME);
+#define SHOW_CHANGE_ARC_BLEND() \
+    fprintf(stderr,"Changed: blend_enable:          %d-->%d\n"\
+                   "         blend_fallback_enable: %d-->%d\n"\
+                   "         optimization_depth:    %d-->%d\n"\
+                   "         gap_cycles:            %f-->%f\n"\
+                   "         ramp_freq:             %f-->%f\n"\
+           ,old_inihal_data.traj_arc_blend_enable \
+           ,new_inihal_data.traj_arc_blend_enable \
+           ,old_inihal_data.traj_arc_blend_fallback_enable \
+           ,new_inihal_data.traj_arc_blend_fallback_enable \
+           ,old_inihal_data.traj_arc_blend_optimization_depth \
+           ,new_inihal_data.traj_arc_blend_optimization_depth \
+           ,old_inihal_data.traj_arc_blend_gap_cycles \
+           ,new_inihal_data.traj_arc_blend_gap_cycles \
+           ,old_inihal_data.traj_arc_blend_ramp_freq \
+           ,new_inihal_data.traj_arc_blend_ramp_freq \
+          );
 
 #define SHOW_CHANGE_IDX(NAME,IDX) \
     fprintf(stderr,"Changed: "#NAME"[%d] %f-->%f\n",IDX,old_inihal_data.NAME[IDX], \
                                                         new_inihal_data.NAME[IDX]);
+#define MAKE_BIT_PIN(NAME,DIR) \
+do { \
+     retval = hal_pin_bit_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
+     if (retval < 0) return retval; \
+   } while (0)
+
+#define MAKE_S32_PIN(NAME,DIR) \
+do { \
+     retval = hal_pin_s32_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
+     if (retval < 0) return retval; \
+   } while (0)
+
 #define MAKE_FLOAT_PIN(NAME,DIR) \
 do { \
      retval = hal_pin_float_newf(DIR,&(the_inihal_data->NAME),comp_id,PREFIX#NAME); \
@@ -108,6 +137,12 @@ int ini_hal_init(void)
     MAKE_FLOAT_PIN(traj_default_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_acceleration,HAL_IN);
 
+    MAKE_BIT_PIN(traj_arc_blend_enable,HAL_IN);
+    MAKE_BIT_PIN(traj_arc_blend_fallback_enable,HAL_IN);
+    MAKE_S32_PIN(traj_arc_blend_optimization_depth,HAL_IN);
+    MAKE_FLOAT_PIN(traj_arc_blend_gap_cycles,HAL_IN);
+    MAKE_FLOAT_PIN(traj_arc_blend_ramp_freq,HAL_IN);
+
     hal_ready(comp_id);
     return 0;
 } // ini_hal_init()
@@ -118,6 +153,12 @@ int ini_hal_init_pins()
     INIT_PIN(traj_max_velocity);
     INIT_PIN(traj_default_acceleration);
     INIT_PIN(traj_max_acceleration);
+
+    INIT_PIN(traj_arc_blend_enable);
+    INIT_PIN(traj_arc_blend_fallback_enable);
+    INIT_PIN(traj_arc_blend_optimization_depth);
+    INIT_PIN(traj_arc_blend_gap_cycles);
+    INIT_PIN(traj_arc_blend_ramp_freq);
 
     for (int idx = 0; idx < EMCMOT_MAX_JOINTS; idx++) {
         INIT_PIN(backlash[idx]);
@@ -180,6 +221,31 @@ int check_ini_hal_items()
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxAcceleration\n");
             }
+        }
+    }
+
+    if (   CHANGED(traj_arc_blend_enable)
+        || CHANGED(traj_arc_blend_fallback_enable)
+        || CHANGED(traj_arc_blend_optimization_depth)
+        || CHANGED(traj_arc_blend_gap_cycles)
+        || CHANGED(traj_arc_blend_ramp_freq)
+       ) {
+        if (debug) SHOW_CHANGE_ARC_BLEND()
+        UPDATE(traj_arc_blend_enable);
+        UPDATE(traj_arc_blend_fallback_enable);
+        UPDATE(traj_arc_blend_optimization_depth);
+        UPDATE(traj_arc_blend_gap_cycles);
+        UPDATE(traj_arc_blend_ramp_freq);
+        if (0 != emcSetupArcBlends(old_inihal_data.traj_arc_blend_enable
+                                  ,old_inihal_data.traj_arc_blend_fallback_enable
+                                  ,old_inihal_data.traj_arc_blend_optimization_depth
+                                  ,old_inihal_data.traj_arc_blend_gap_cycles
+                                  ,old_inihal_data.traj_arc_blend_ramp_freq
+                                  )) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcSetupArcBlends\n");
+            }
+            return -1;
         }
     }
 

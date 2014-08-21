@@ -26,6 +26,7 @@
 
 set delay_ms 3000
 set pins [list \
+             ini.traj_arc_blend_enable \
              ini.traj_default_velocity \
              ini.traj_default_acceleration \
              ini.traj_max_velocity \

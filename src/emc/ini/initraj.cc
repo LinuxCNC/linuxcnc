@@ -183,6 +183,12 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         } 
 
+        old_inihal_data.traj_arc_blend_enable = arcBlendEnable;
+        old_inihal_data.traj_arc_blend_fallback_enable = arcBlendFallbackEnable;
+        old_inihal_data.traj_arc_blend_optimization_depth = arcBlendOptDepth;
+        old_inihal_data.traj_arc_blend_gap_cycles = arcBlendGapCycles;
+        old_inihal_data.traj_arc_blend_ramp_freq = arcBlendRampFreq;
+
         double maxFeedScale = 1.0;
         trajInifile->Find(&maxFeedScale, "MAX_FEED_OVERRIDE", "DISPLAY");
 
