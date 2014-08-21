@@ -6,7 +6,6 @@
 #
 #  optionally build Javscript bindings if  --enable-proto-js is given to configure
 #
-#  optionally build C bindings if  --enable-protoc-c is given to configure
 #
 #  The proto definitions are held in a separate repo: github.com/machinekit/machinetalk-protobuf.
 #
@@ -83,8 +82,6 @@ PROTOCXXLIB = ../lib/liblinuxcnc-pb2++.so
 # Nanopb C bindings library
 NANOPROTOCLIB := ../lib/liblinuxcnc-npb.so
 PROTOC_FLAGS :=
-PROTOC_C_FLAGS := -fPIC
-PROTOC_C_LDFLAGS := -lprotobuf-c
 PROTOCXX_LDFLAGS := $(PROTOBUF_LIBS)
 PROTOCXX_FLAGS :=
 PROTOCXX_CXX_FLAGS := -fPIC $(PROTOBUF_CFLAGS)
@@ -129,26 +126,6 @@ PROTO_PY_TARGETS := $(NANOPB_SUPPORT)
 PROTO_PY_TARGETS += $(subst $(PROTODIR)/, \
 	../lib/python/, \
 	$(patsubst %.proto, %_pb2.py, $(PROTO_SPECS)))
-
-ifeq ($(BUILD_PROTOC_C),yes)
-
-# generated C includes
-PROTO_C_INCS := $(PBGEN)/nanopb.pb-c.h
-PROTO_C_INCS += $(PBGEN)/google/protobuf/descriptor.pb-c.h
-PROTO_C_INCS += $(subst $(PROTODIR)/, \
-	$(PBGEN)/,  \
-	$(patsubst %.proto, %.pb-c.h, $(PROTO_SPECS)))
-
-# generated C sources
-PROTO_C_SRCS := $(PBGEN)/nanopb.pb-c.c
-PROTO_C_SRCS += $(PBGEN)/google/protobuf/descriptor.pb-c.c
-PROTO_C_SRCS +=  $(subst $(PROTODIR)/, \
-	$(PBGEN)/, \
-	$(patsubst %.proto, %.pb-c.c, $(PROTO_SPECS)))
-else
-PROTO_C_INCS :=
-PROTO_C_SRCS :=
-endif
 
 # generated C++ includes
 PROTO_CXX_INCS :=
@@ -216,18 +193,6 @@ objects/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
 	--proto_path=$(GPBINCLUDE) \
 	--depends_out="$(PBDEP_OPT)":objects/$(PROTODIR) \
 	 $<
-
-# ------- protoc-c C rules -------------
-#
-# generate .c/.h from proto files
-$(PBGEN)/%.pb-c.c $(PBGEN)/%.pb-c.h: %.proto
-	$(ECHO) "protoc-c create $@ from $<"
-	@mkdir -p $(PBGEN)
-	$(Q)$(PROTOC_C) $(PROTOC_FLAGS) \
-	--proto_path=$(PROTODIR)/ \
-	--proto_path=$(NPBPROTODIR)/ \
-	--proto_path=$(GPBINCLUDE) \
-	--c_out=./$(PBGEN)/ $<
 
 #---------- C++ rules -----------
 #
@@ -328,15 +293,6 @@ $(NANOPROTOCLIB).0: $(patsubst %.c,objects/%.o,$(NANOPB_LIBSRCS))
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
-# C bindings library
-$(call TOOBJSDEPS, $(PROTO_C_SRCS)) : EXTRAFLAGS += $(PROTOC_C_FLAGS)
-
-$(PROTOCLIB).0: $(patsubst %.c,objects/%.o,$(PROTO_C_SRCS))
-	$(ECHO) Linking $(notdir $@)
-	@mkdir -p ../lib
-	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
-	$(PROTOC_C_LDFLAGS)
 
 # C++ bindings library
 $(call TOOBJSDEPS, $(PROTO_CXX_SRCS)) : EXTRAFLAGS += $(PROTOCXX_CXX_FLAGS)
@@ -347,7 +303,7 @@ $(PROTOCXXLIB).0: $(patsubst %.cc,objects/%.o,$(PROTO_CXX_SRCS))
 	@rm -f $@
 	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
-# protoc/protoc-c generated headers are exported to ../include
+# protoc generated headers are exported to ../include
 ../include/%.h: ./$(PBGEN)/%.h
 	@mkdir -p $(dir $@)
 	cp $^ $@
@@ -377,27 +333,12 @@ USERSRCS +=  $(NANOPB_C_SRCS) \
 	$(PROTO_CXX_SRCS) \
 	$(PROTO_NANOPB_C_SRCS)
 
-ifeq ($(BUILD_PROTOC_C),yes)
-
-USERSRCS += $(PROTO_C_SRCS) \
-	$(MACHINETALK)/generated/descriptor.pb-c.h \
-	$(MACHINETALK)/generated/descriptor.pb-c.c
-endif
 
 GENERATED += $(PROTO_PY_TARGETS) \
 	$(MACHINETALK)/generated/nanopb.pb.h	\
 	$(MACHINETALK)/generated/nanopb.pb.cc \
 	$(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS) \
 	$(PROTO_CXX_INCS) $(PROTO_NANOPB_C_INCS)
-
-ifeq ($(BUILD_PROTOC_C),yes)
-GENERATED += \
-	$(PROTO_C_SRCS) $(PROTO_CXX_SRCS) $(PROTO_NANOPB_C_SRCS) \
-	$(PROTO_C_INCS) $(PROTO_CXX_INCS) $(PROTO_NANOPB_C_INCS) \
-	$(MACHINETALK)/generated/nanopb.pb-c.h  \
-	$(MACHINETALK)/generated/nanopb.pb-c.c
-endif
-
 
 ifeq ($(BUILD_PROTO_JS),yes)
 USERSRCS += $(PROTO_JS_SRCS) $(JSGEN)/nanopb.js
@@ -417,6 +358,3 @@ TARGETS += $(NANOPROTOCLIB) $(NANOPROTOCLIB).0 \
 	$(PROTOCXXLIB) $(PROTOCXXLIB).0
 
 
-ifeq ($(BUILD_PROTOC_C),yes)
-TARGETS += $(PROTOCLIB) $(PROTOCLIB).0
-endif
