@@ -2,6 +2,9 @@
 
 MBDIR := $(MACHINETALK)/messagebus
 
+
+ifeq ($(BUILD_DEV),yes)
+
 MESSAGEBUS_SRCS :=  $(addprefix $(MBDIR)/, \
 	messagebus.cc \
 	rtproxy.cc )
@@ -54,3 +57,7 @@ USERSRCS += $(RFRAME_SRCS)
 TARGETS += ../bin/rframe
 
 endif
+
+
+endif # BUILD_DEV
+
