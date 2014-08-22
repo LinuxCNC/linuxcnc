@@ -164,7 +164,10 @@ RTL_MOD=""
 
 RTDIR=""
 AC_ARG_ENABLE(simulator,
-    AS_HELP_STRING([--enable-simulator], [Run as a pure userspace program.]),
+    AS_HELP_STRING(
+        [--enable-simulator],
+        [Deprecated!  Use --with-realtime=uspace instead.]
+    ),
     [
         case "$enableval" in
         Y*|y*)
