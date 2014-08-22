@@ -626,16 +626,6 @@ else
     AC_MSG_RESULT([$MODULE_DIR])
 fi
 
-AC_ARG_ENABLE(run-in-place,
-    [  --enable-run-in-place   A deprecated flag
-                          (instead, configure without specifying --prefix)],
-    [
-        if ! test -z "$enableval"; then
-            AC_MSG_WARN([--enable-run-in-place will be removed soon.
-Configure without specifying --prefix to get a run-in-place build.])
-        fi
-    ])
-
 AC_SUBST([MODULE_DIR])
 AC_SUBST([RIP_MODULE_DIR])
 AC_SUBST([RUN_IN_PLACE])
