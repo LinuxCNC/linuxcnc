@@ -65,8 +65,13 @@ AS_IF([test "x$ac_cv_boost_python" = xyes],
   BOOST_PYTHON_LIBS=
   ax_python_lib=boost_python
   AC_ARG_WITH([boost-python],
-              [AS_HELP_STRING([--with-boost-python],
-                              [specify the boost python shared library to use. For instance, --with-boost-python=boost_python-py25. Defaults to boost-python. If you use this then you should probably set PYTHON too, to avoid using multiple python versions.])],
+    AS_HELP_STRING(
+        [--with-boost-python],
+        [Specify the boost python shared library to use. For
+        instance, --with-boost-python=boost_python-py25. Defaults to
+        boost-python. If you use this then you should probably set PYTHON
+        too, to avoid using multiple python versions.]
+    ),
   [if test "x$with_boost_python" != xno; then
     ax_python_lib=$with_boost_python
     ax_boost_python_lib=boost_python-$with_boost_python
@@ -159,7 +164,7 @@ RTL_MOD=""
 
 RTDIR=""
 AC_ARG_ENABLE(simulator,
-    [  --enable-simulator      Run as a pure userspace program],
+    AS_HELP_STRING([--enable-simulator], [Run as a pure userspace program.]),
     [
         case "$enableval" in
         Y*|y*)
@@ -170,7 +175,10 @@ AC_ARG_ENABLE(simulator,
     ])
 
 AC_ARG_WITH(realtime,
-    [  --with-realtime=<path to realtime>     Path where RTAI or RTlinux is installed, or "uspace" for POSIX userspace],
+    AS_HELP_STRING(
+        [--with-realtime=PATH],
+        [Path where RTAI is installed, or "uspace" for POSIX userspace.]
+    ),
     [   case "$withval" in
 	"" | y | ye | yes | n | no)
 	    AC_MSG_ERROR([You must supply a path or "uspace" for --with-realtime.]) ;;
@@ -312,7 +320,10 @@ esac
 if test "$RTS" != uspace; then
     AC_MSG_CHECKING([for location of kernel headers])
     AC_ARG_WITH(kernel-headers,
-	[  --with-kernel-headers=<directory>       Location for kernel headers],
+        AS_HELP_STRING(
+            [--with-kernel-headers=PATH],
+            [Location for kernel headers.]
+        ),
 	[
 	    KERNELDIR="$withval"
 	    AC_MSG_RESULT(using specified value: $KERNELDIR)
@@ -427,9 +438,11 @@ AC_SUBST([HIDRAW_H_USABLE])
 
 AC_ARG_WITH(
     [libmodbus],
-    [  --with-libmodbus                        Specify whether or not to build
-                                          the drivers that use libmodbus
-                                          (defaults to "yes")],
+    AS_HELP_STRING(
+        [--with-libmodbus],
+        [Specify whether or not to build the drivers that use libmodbus
+        (defaults to "yes").]
+    ),
     [WITH_LIBMODBUS=$withval],
     [WITH_LIBMODBUS=yes]
 )
@@ -467,9 +480,11 @@ install with "sudo apt-get install libmodbus-dev" or disable with
 
 AC_ARG_WITH(
     [libusb-1.0],
-    [  --with-libusb-1.0                       Specify whether or not to build
-                                          the drivers that use libusb-1.0
-                                          (defaults to "yes")],
+    AS_HELP_STRING(
+        [--with-libusb-1.0],
+        [Specify whether or not to build the drivers that use libusb-1.0
+        (defaults to "yes").]
+    ),
     [WITH_LIBUSB10=$withval],
     [WITH_LIBUSB10=yes]
 )
@@ -561,7 +576,10 @@ else
 fi
 
 AC_ARG_WITH(kbuild,
-    [  --with-kbuild=<y/n>                     Specify if your kernel uses kbuild or not],
+    AS_HELP_STRING(
+        [--with-kbuild],
+        [Specify if your kernel uses kbuild or not.]
+    ),
     [
         case "$withval" in
         "" | y | ye | yes )
@@ -592,7 +610,10 @@ AC_SUBST([EXT_RTFLAGS])
 AC_MSG_CHECKING([for module installation directory])
 
 AC_ARG_WITH(module-dir,
-    [  --with-module-dir=<module-dir>          Installation directory for kernel modules],
+    AS_HELP_STRING(
+        [--with-module-dir=PATH],
+        [Installation directory for kernel modules.]
+    ),
     [
         case "$withval" in
         "" | y | ye | yes | n | no)
@@ -731,7 +752,10 @@ fi
 
 
 AC_ARG_ENABLE(gtk,
-    [  --disable-gtk        Disable the parts of LinuxCNC that depend on GTK],
+    AS_HELP_STRING(
+        [--disable-gtk],
+        [Disable the parts of LinuxCNC that depend on GTK.]
+    ),
     [
 	case "$enableval" in
 	Y*|y*)
@@ -861,7 +885,10 @@ fi
 AC_PATH_PROG(MANDB, mandb, "")
 
 AC_ARG_WITH(rmmod,
-    [  --with-rmmod=</path/rmmod>              rmmod variant],
+    AS_HELP_STRING(
+        [--with-rmmod=PATH],
+        [Location of the rmmod program to use.]
+    ),
     [
 	case "$withval" in
 	"" | y | ye | yes)
@@ -879,7 +906,10 @@ AC_ARG_WITH(rmmod,
     ])
 
 AC_ARG_WITH(insmod,
-    [  --with-insmod=</path/insmod>            insmod variant],
+    AS_HELP_STRING(
+        [--with-insmod=PATH],
+        [Location of the insmod program to use.]
+    ),
     [
 	case "$withval" in
 	"" | y | ye | yes)
@@ -904,7 +934,10 @@ AC_ARG_WITH(insmod,
 ##############################################################################
 
 AC_ARG_WITH(python,
-    [  --with-python=<path>                    Specify the Python interpreter],
+    AS_HELP_STRING(
+        [--with-python=PATH],
+        [Specify the Python interpreter.]
+    ),
     [
         PYTHON=$withval
     ],[
@@ -918,8 +951,10 @@ fi
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
-    [  --enable-build-documentation[=format]   Build documentation.
-                          Format may be "pdf" or "html" if only one format is desired.],
+    AS_HELP_STRING(
+        [--enable-build-documentation[=FORMAT]],
+        [Build documentation.  FORMAT may be "pdf" or "html" if only one format is desired.]
+    ),
     [
         case "$enableval" in
         Y*|y*|html,pdf|pdf,html)
@@ -1272,7 +1307,10 @@ AH_BOTTOM(#endif
 AC_MSG_CHECKING([for tcl])
 
 AC_ARG_WITH(tclConfig,
-    [  --with-tclConfig=<path>                 Specify the path to tclConfig],
+    AS_HELP_STRING(
+        [--with-tclConfig=PATH],
+        [Specify the path to tclConfig.]
+    ),
     [
         TCLCONFIG=$withval
     ],[
@@ -1304,7 +1342,10 @@ fi
 AC_MSG_CHECKING([for tk])
 
 AC_ARG_WITH(tkConfig,
-    [  --with-tkConfig=<path>                  Specify the path to tkConfig],
+    AS_HELP_STRING(
+        [--with-tkConfig=PATH],
+        [Specify the path to tkConfig.]
+    ),
     [
         TKCONFIG=$withval
     ],[
@@ -1361,7 +1402,11 @@ else
 fi
 
 AC_ARG_ENABLE(check-runtime-deps,
-    [--disable-check-runtime-deps   Skip checks for runtime requirements not needed during the build process],
+    AS_HELP_STRING(
+        [--disable-check-runtime-deps],
+        [Skip checks for runtime requirements not needed during the
+        build process.]
+    ),
     [RUNTIME_CHECK=$enableval],
     [RUNTIME_CHECK=yes])
 AC_MSG_CHECKING([whether to check for runtime dependencies])
@@ -1525,7 +1570,7 @@ AC_SUBST([NCURSES_LIBS])
 # if you don't have nls tools, allow a way out!
 
 AC_ARG_ENABLE(nls,
-              [  --disable-nls           don't use NLS],
+    AS_HELP_STRING([--disable-nls], [Don't use NLS.]),
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
 
@@ -1548,8 +1593,10 @@ if test "$USE_NLS" = "yes"; then
   dnl Handle localedir
   LOCALEDIR='/usr/share/locale'
   AC_ARG_WITH(locale-dir,
-  [  --with-locale-dir=DIR   Location of the locale file(s)
-                          [DATADIR/locale]],[
+  AS_HELP_STRING(
+    [--with-locale-dir=DIR],
+    [Location of the locale file(s) [DATADIR/locale].]
+  ),[
     if test x$withval = xyes; then
       AC_MSG_WARN(Usage is: --with-locale-dir=basedir)
     else
@@ -1601,7 +1648,10 @@ AC_SUBST(MSGFMT)
 
 AC_MSG_CHECKING(for Python support)
 AC_ARG_ENABLE(python,
-    [  --disable-python        Disable the parts of LinuxCNC that depend on Python],
+    AS_HELP_STRING(
+        [--disable-python],
+        [Disable the parts of LinuxCNC that depend on Python.]
+    ),
     [
 	case "$enableval" in
 	Y*|y*)
