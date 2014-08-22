@@ -141,8 +141,6 @@ esac
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
-OLD_PACKAGE_NAME=emc2
-OLD_PACKAGE_NAME_DEV=emc2-dev
 EXTRA_RECOMMENDS=hostmot2-firmware
 case $TARGET in
     uspace|sim)
@@ -157,8 +155,6 @@ case $TARGET in
 	DISTRIB_NAME=uspace-$DISTRIB_NAME
 	MAIN_PACKAGE_NAME=linuxcnc-uspace
         OTHER_MAIN_PACKAGE_NAME=linuxcnc
-	OLD_PACKAGE_NAME_DEV=emc2-sim-dev,linuxcnc-sim-dev
-	OLD_PACKAGE_NAME=emc2-sim,linuxcnc-sim
 
         EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
     ;;
@@ -189,8 +185,6 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
     -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
     -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
-    -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
-    -e "s|@OLD_PACKAGE_NAME_DEV@|$OLD_PACKAGE_NAME_DEV|g" \
     -e "s|@EXTRAS@|$EXTRAS|g" \
     -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
     -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
