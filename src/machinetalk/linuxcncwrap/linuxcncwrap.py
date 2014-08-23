@@ -1255,12 +1255,11 @@ class LinuxCNCWrapper:
         self.tx.Clear()
         self.statusSocket.send_multipart([topic, txBuffer])
 
-    def send_command_msg(self, dest, type):
+    def send_command_msg(self, type):
         self.tx.type = type
         txBuffer = self.tx.SerializeToString()
         self.tx.Clear()
         self.commandSocket.send(txBuffer)
-        #self.commandSocket.send_multipart([dest, txBuffer])
 
     def poll(self):
         while True:
@@ -1329,19 +1328,16 @@ class LinuxCNCWrapper:
 
     def send_command_wrong_params(self):
         self.tx.note.append("wrong parameters")
-        self.send_command_msg(origin, MT_ERROR)
+        self.send_command_msg(MT_ERROR)
 
     def processCommand(self, socket):
         print("process command called")
 
-        origin = "bla"
         message = socket.recv()
         self.rx.ParseFromString(message)
 
-        print str(self.rx)
-
         if self.rx.type == MT_PING:
-            self.send_command_msg(origin, MT_PING_ACKNOWLEDGE)
+            self.send_command_msg(MT_PING_ACKNOWLEDGE)
 
         elif self.rx.type == MT_EMC_TASK_ABORT:
             self.command.abort()
@@ -1671,7 +1667,7 @@ class LinuxCNCWrapper:
 
         else:
             self.tx.note.append("unknown command")
-            self.send_command_msg(origin, MT_ERROR)
+            self.send_command_msg(MT_ERROR)
 
 
 def choose_ip(pref):
