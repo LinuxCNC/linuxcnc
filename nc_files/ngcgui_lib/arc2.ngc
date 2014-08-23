@@ -1,0 +1,54 @@
+(info: arc2: specify arc center, offset, angle)
+
+;    dir: 2 for cw, 3 for ccw
+; inside: 1 for inside, else outside
+
+; Specify:
+;         (xoff,yoff) == arc center
+;         (xctr,yctr) == center of rotation
+;         angle       == anglular spread of arc
+;         width       == width of arc
+
+; calls arc1.ngc
+
+o<arc2> sub
+
+#<toolno>      =  #1 (=1)
+#<dir>         =  #2 (=2 2:cw 3:ccw)
+#<inside>      =  #3 (=1 1:inside 0:outside)
+#<rpm>         =  #4 (=2000)
+#<feedrate>    =  #5 (=100)
+#<zincr>       =  #6
+#<cutdepth>    =  #7
+#<zsafe>       =  #8 (=0.25)
+#<zstart>      =  #9 (=0)
+#<width>       = #10 (=.25)
+#<angle>       = #11 (=15)
+#<xoff>        = #12 (=2)
+#<yoff>        = #13 (=1)
+#<xctr>        = #14 (=0)
+#<yctr>        = #15 (=0)
+#<scale>       = #16 (=1)
+#<spin_notify> = #17 (=0)
+#<use_g43>     = #18 (=1)
+#<h_for_g43>   = #19 (=0)
+#<verbose>     = #20 (=0)
+
+#<min_separation> = .1
+
+  #<delx> = [#<xoff> - #<xctr>]
+  #<dely> = [#<yoff> - #<yctr>]
+ #<arc_r> = [SQRT[#<dely>*#<dely> + #<delx>*#<delx>]]
+#<rotate> = [-90 + ATAN[#<dely>]/[#<delx>]]
+
+o<if0> if [#<arc_r> LT #<min_separation>]
+         (print, arc2: separation too small: #<arc_r> - EXITING)
+         (debug, arc2: separation too small: #<arc_r> - EXITING)
+         (AXIS,notify, arc2: separation too small - EXITING)
+         m2
+o<if0> endif
+
+
+o<arc1>call[#<toolno>][#<dir>][#<inside>][#<rpm>][#<feedrate>][#<zincr>][#<cutdepth>][#<zsafe>][#<zstart>][#<width>][#<angle>][#<arc_r>][#<rotate>][#<xoff>][#<yoff>][#<scale>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<verbose>]
+
+o<arc2> endsub

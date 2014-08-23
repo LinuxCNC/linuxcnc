@@ -1,0 +1,28 @@
+INCLUDES += emc/nml_intf
+
+LIBEMCSRCS := \
+    emc/nml_intf/emcglb.c \
+    emc/nml_intf/emc.cc \
+    emc/nml_intf/emcargs.cc \
+    emc/nml_intf/emcops.cc \
+    emc/ini/emcIniFile.cc \
+    emc/ini/iniaxis.cc \
+    emc/ini/initool.cc \
+    emc/ini/initraj.cc \
+    emc/nml_intf/interpl.cc
+USERSRCS += $(LIBEMCSRCS)
+
+$(call TOOBJSDEPS, $(LIBEMCSRCS)) : EXTRAFLAGS=-fPIC
+
+TARGETS += ../lib/liblinuxcnc.a
+
+../lib/liblinuxcnc.a: $(call TOOBJS,$(LIBEMCSRCS))
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(AR) $(ARFLAGS) $@ $^
+
+../include/%.h: ./emc/nml_intf/%.h
+	cp $^ $@
+../include/%.hh: ./emc/nml_intf/%.hh
+	cp $^ $@

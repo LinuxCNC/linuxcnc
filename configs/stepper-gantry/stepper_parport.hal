@@ -1,0 +1,34 @@
+############################# Parallel Ports ##############################################
+
+# Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
+loadrt hal_parport cfg="0xa400 0xac00"
+
+# Connect both Paralell Ports to Threads for Read / Write
+addf parport.0.read base-thread 1
+addf parport.0.write base-thread -1
+addf parport.1.read base-thread 1
+addf parport.1.write base-thread -1
+
+# Invert pins to make motors move in right direction
+setp parport.0.pin-06-out-invert 1
+setp parport.0.pin-07-out-invert 1
+
+# Hook up the step and dir signals to the parport pins
+# Axis A and Y are the same axis but different motors 
+net StepX stepgen.0.step => parport.0.pin-02-out
+net StepY stepgen.1.step => parport.0.pin-03-out
+net StepZ stepgen.2.step => parport.0.pin-04-out
+net StepA stepgen.3.step => parport.0.pin-05-out
+net DirX stepgen.0.dir => parport.0.pin-06-out
+net DirY stepgen.1.dir => parport.0.pin-07-out
+net DirZ stepgen.2.dir => parport.0.pin-08-out
+net DirA stepgen.3.dir => parport.0.pin-09-out
+
+# Hook up limit and home switches, each axis shares a common pin for homing, limit min and limit max
+net LimitX parport.0.pin-11-in-not => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
+net LimitY parport.0.pin-12-in-not => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
+#net LimitZ parport.0.pin-13-in => axis.2.neg-lim-sw-in axis.2.pos-lim-sw-in axis.2.home-sw-in
+net LimitA parport.0.pin-15-in-not => axis.3.neg-lim-sw-in axis.3.pos-lim-sw-in axis.3.home-sw-in
+
+# Hook up the spindle signal
+net SpindleOn motion.spindle-forward => parport.1.pin-01-out

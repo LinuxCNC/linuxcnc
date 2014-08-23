@@ -1,0 +1,30 @@
+Developer Manual V2.5, {localdate}
+==================================
+
+:lang: en
+:masterdir: {indir}
+
+
+== Introduction
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf.txt[]
+
+
+:leveloffset: 1
+
+include::code/Code_Notes.txt[]
+
+include::code/NML_Messages.txt[]
+
+include::code/Style_Guide.txt[]
+
+include::code/Contributing-to-LinuxCNC.txt[]
+
+include::common/Glossary.txt[]
+
+include::common/GPLD_Copyright.txt[]
+
+// vim: set syntax=asciidoc:
+

@@ -1,0 +1,262 @@
+= TkLinuxCNC GUI
+
+[[cha:tklinuxcnc-gui]] (((TkLinuxCNC GUI)))
+
+== Introduction
+
+TkLinuxCNC(((tkLinuxCNC))) is one of the first graphical front-ends
+for LinuxCNC. It is written in Tcl and uses the Tk toolkit
+for the display. Being written in Tcl makes it very portable (it runs on a
+multitude of platforms). A separate backplot window can be displayed as
+shown.
+
+.TkLinuxCNC Window[[cap:TkLinuxCNC-Window]]
+
+image::images/tkemc.png[align="center"]
+
+== Getting Started
+
+To select TkLinuxCNC as the front-end for LinuxCNC, edit the .ini file. In the
+section '[DISPLAY]' change the 'DISPLAY' line to read
+
+----
+DISPLAY = tklinuxcnc
+----
+
+Then, start LinuxCNC and select that ini file. The sample configuration
+'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
+
+=== A typical session with TkLinuxCNC
+
+. Start LinuxCNC and select a configuration file.
+. Clear the 'E-STOP' condition and turn the machine on (by
+ pressing F1 then F2).
+. 'Home' each axis.
+. Load the file to be milled.
+. Put the stock to be milled on the table.
+. Set the proper offsets for each axis by jogging and either homing
+ again or right-clicking an axis name and entering an offset value.
+ footnote:[For some of these actions it might be necessary to change the
+ mode LinuxCNC is currently running in.]
+. Run the program.
+. To mill the same file again, return to step 6. To mill a different
+ file, return to step 4. When you're done, exit LinuxCNC.
+
+== Elements of the TkLinuxCNC window
+
+The TkLinuxCNC window contains the following elements:
+
+* A menubar that allows you to perform various actions
+* A set of buttons that allow you to change the current working mode,
+  start/stop spindle and other relevant I/O
+* Status bar for various offset related displays
+* Coordinate display area
+* A set of sliders which control 'Jogging speed', 'Feed Override' 
+  , and 'Spindle speed Override' which allow you to increase or
+  decrease those settings
+* Manual data input text box 'MDI'
+* Status bar display with active G-codes, M-codes, F- and S-words
+* Interpreter related buttons
+* A text display area that shows the G-code source of the loaded file
+
+=== Main buttons
+
+From left to right, the buttons are:
+
+* Machine enable: 'ESTOP' > 'ESTOP RESET' > 'ON' 
+* Toggle mist coolant
+* Decrease spindle speed
+*  Set spindle direction 'SPINDLE OFF' > 'SPINDLE FORWARD' .
+ 'SPINDLE REVERSE'
+* Increase spindle speed
+* Abort
+
+then on the second line:
+
+* Operation mode: 'MANUAL' > 'MDI' > 'AUTO'
+* Toggle flood coolant
+* Toggle spindle brake control
+
+=== Offset display status bar
+
+The Offset display status bar displays the currently selected tool
+(selected with Txx M6), the tool length offset (if active), and the
+work offsets (set by right-clicking the coordinates).
+
+=== Coordinate Display Area
+
+The main part of the display shows the current position of the tool.
+The color of the position readout depends on the state of the axis. If
+the axis is unhomed the axis will be displayed in yellow letters. Once
+homed it will be displayed in green letters. If there is an error with
+the current axis TkLinuxCNC will use red letter to show that. (for example
+if an hardware limit switch is tripped).
+
+To properly interpret these numbers, refer to the radio boxes on the
+right. If the position is 'Machine', then the displayed number is in
+the machine coordinate system. If it is 'Relative', then the displayed
+number is in the offset coordinate system. Further down the choices can
+be 'actual' or 'commanded'. Actual refers to the feedback coming from
+encoders (if you have a servo machine), and the 'commanded' refers to
+the position command send out to the motors. These values can differ
+for several reasons: Following error, deadband, encoder resolution, or
+step size. For instance, if you command a movement to X 0.0033 on your
+mill, but one step of your stepper motor is 0.00125, then the
+'Commanded' position will be 0.0033 but the 'Actual' position will be
+0.0025 (2 steps) or 0.00375 (3 steps).
+
+Another set of radio buttons allows you to choose between 'joint' and
+'world' view. These make little sense on a normal type of machine (e.g.
+trivial kinematics), but help on machines with non-trivial kinematics
+like robots or stewart platforms. (you can read more about kinematics
+in the Integrator Manual).
+
+==== Backplot
+
+When the machine moves, it leaves a trail called the backplot. You can
+start the backplot window by selecting View→Backplot.
+
+=== Automatic control
+
+==== Buttons for control
+
+The buttons in the lower part of TkLinuxCNC are used to control the execution of a
+program: 'Open' to load a program, 'Verify' to
+check it for errors, 'Run' to start the actual cutting,
+'Pause' to stop it while running, 'Resume' to
+resume an already paused program, 'Step' to advance one line
+in the program and 'Optional Stop' to toggle the
+optional stop switch (if the button is green the program execution will
+be stopped on any M1 encountered).
+
+.TkLinuxCNC Interpreter / program control[[cap:TkLinuxCNC-Interpreter]]
+image::images/tkemc-interp.png[align="center"]
+
+==== Text Program Display Area
+
+When the program is running, the line currently being executed is
+highlighted in white. The text display will automatically scroll to
+show the current line.
+
+=== Manual Control
+
+==== Implicit keys
+
+TkLinuxCNC allows you to manually move the machine. This action is known as
+'jogging'. First, select the axis to be moved by clicking it. Then,
+click and hold the '+' or '-' button depending on the desired direction
+of motion. The first four axes can also be moved by the keyboard arrow keys 
+(X and Y), the PAGE UP and PAGE DOWN keys (Z) and the '[' and ']' keys (A/4th). 
+
+If 'Continuous' is selected, the motion will continue as long as the
+button or key is pressed. If another value is selected, the machine
+will move exactly the displayed distance each time the button is
+clicked or the key is pressed. The available values are:
+'1.0000, 0.1000, 0.0100, 0.0010, 0.0001'
+
+By pressing 'Home' or the HOME key, the selected axis will be homed.
+Depending on your configuration, this may just set the axis value to be
+the absolute position 0.0, or it may make the machine move to a
+specific home location through use of 'home switches'. See the
+Integrator Manual for more information on homing.
+
+By pressing 'Override Limits', the machine will temporarily be
+permitted to jog outside the limits defined in the .ini file. (Note: if
+'Override Limits' is active the button will be displayed using a red
+color).
+
+.TkLinuxCNC Override Limits & Jogging increments example[[cap:Override-Limits]]
+
+image::images/tkemc-override-limits.png[align="center"]
+
+==== The Spindle group
+
+The button on the first row selects the direction for the spindle to
+rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
+allow the user to increase or decrease the rotation speed. The button
+on the second row allows the spindle brake to be engaged or released.
+Depending on your machine configuration, not all the items in this
+group may have an effect.
+
+==== The Coolant group
+
+The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
+and off. Depending on your machine configuration, not all the items in
+this group may appear.
+
+=== Code Entry
+
+Manual Data Input (also called MDI), allows G-code programs to be
+entered manually, one line at a time. When the machine is not turned
+on, and not set to MDI mode, the code entry controls are unavailable.
+
+.The Code Entry tab[[cap:The-Code-Entry]]
+
+image::images/tkemc-mdi.png[align="center"]
+
+==== MDI:
+
+This allows you to enter a g-code command to be executed. Execute the
+command by pressing Enter.
+
+==== Active G-Codes
+
+This shows the 'modal codes' that are active in the interpreter. For
+instance, 'G54' indicates that the 'G54 offset' is applied to all
+coordinates that are entered.
+
+=== Jog Speed 
+
+By moving this slider, the speed of jogs can be modified. The numbers
+above refer to axis units / second. The text box with the number is
+clickable. Once clicked a popup window will appear, allowing for a
+number to be entered.
+
+=== Feed Override
+
+By moving this slider, the programmed feed rate can be modified. For
+instance, if a program requests 'F60'  and the slider is set to 120%,
+then the resulting feed rate will be
+72. The text box with the number is clickable. Once clicked a popup
+window will appear, allowing for a number to be entered.
+
+=== Spindle speed Override
+
+The spindle speed override slider works exactly like the feed override
+slider, but it controls to the spindle speed. If a program requested
+S500 (spindle speed 500 RPM), and the slider is set to 80%, then the
+resulting spindle speed will be 400 RPM. This slider has a minimum and
+maximum value defined in the ini file. If those are missing the slider
+is stuck at 100%. The text box with the number is clickable. Once
+clicked a popup window will appear, allowing for a number to be
+entered.
+
+== Keyboard Controls
+
+Almost all actions in TkLinuxCNC can be accomplished with the keyboard.
+Many of the shortcuts are unavailable when in MDI mode.
+
+The most frequently used keyboard shortcuts are shown in the
+following table.
+
+.Most Common Keyboard Shortcuts[[cap:TkLinuxCNC-Common-Keyboard]]
+
+[width="75%", options="header", cols="1^,3<"]
+|========================================
+|Keystroke | Action Taken
+|F1 | Toggle Emergency Stop
+|F2 | Turn machine on/off
+|`, 1 .. 9, 0 | Set feed override from 0% to 100%
+|X, ` | Activate first axis
+|Y, 1 | Activate second axis
+|Z, 2 | Activate third axis
+|A, 3 | Activate fourth axis
+|Home | Send active axis Home
+|Left, Right | Jog first axis
+|Up, Down | Jog second axis
+|Pg Up, Pg Dn | Jog third axis
+|[, ] | Jog fourth axis
+|ESC | Stop execution
+|========================================
+
+

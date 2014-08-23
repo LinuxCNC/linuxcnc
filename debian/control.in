@@ -1,0 +1,129 @@
+Source: linuxcnc
+Section: misc
+Priority: extra
+Maintainer: Chris Radek <chris@timeguy.com>
+Build-Depends: debhelper (>= 6),
+    @KERNEL_DEPENDS@, @KERNEL_HEADERS@, @EXTRA_BUILD@,
+    tcl@TCLTK_VERSION@-dev, tk@TCLTK_VERSION@-dev, bwidget, blt,
+    libxaw7-dev, libncurses-dev, libreadline-dev,
+    asciidoc (>= 8.5), source-highlight, dblatex (>= 0.2.12), xsltproc, groff,
+    python, python-dev, python-support, python-tk, python-lxml,
+    libglu1-mesa-dev, libgl1-mesa-dev | libgl1-mesa-swx11-dev,
+    libgtk2.0-dev, libgnomeprintui2.2-dev,
+    gettext, autoconf, texlive-lang-cyrillic, texlive-lang-french,
+    texlive-lang-spanish, texlive-lang-german, netcat
+Standards-Version: 2.1.0
+
+Package: @MAIN_PACKAGE_NAME@-dev
+Architecture: any
+Conflicts: emc2-dev, emc2-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
+Replaces: @OLD_PACKAGE_NAME@-dev
+Provides: @OLD_PACKAGE_NAME@-dev
+Depends: g++, @KERNEL_HEADERS@,
+    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${python:Depends}, ${misc:Depends},
+    @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
+    yapps2-runtime
+Section: libs
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package includes files needed to build new realtime components and
+ alternate front-ends for linuxcnc
+
+Package: @MAIN_PACKAGE_NAME@
+Replaces: @OLD_PACKAGE_NAME@
+Provides: @OLD_PACKAGE_NAME@
+Conflicts: emc2, emc2-sim, @OTHER_MAIN_PACKAGE_NAME@
+Architecture: any
+Recommends: linuxcnc-doc-en | linuxcnc-doc-fr | linuxcnc-doc-de | linuxcnc-doc-es | linuxcnc-doc-pl, @EXTRA_RECOMMENDS@
+Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
+    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
+    python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
+    ${python:Depends}, ${misc:Depends},
+    python@PYTHON_VERSION@-tk,
+    python@PYTHON_VERSION@-gnome2 | python-gnome2,
+    python@PYTHON_VERSION@-glade2 | python-glade2,
+    python@PYTHON_VERSION@-numpy | python-numpy,
+    python@PYTHON_VERSION@-imaging,
+    python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
+    python-gtksourceview2,
+    python-xlib, python-gtkglext1, python-configobj,
+    tclreadline, bc, procps
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+
+Package: linuxcnc-doc-en
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-en
+Replaces: emc2-doc-en
+Provides: emc2-doc-en
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in English.
+
+Package: linuxcnc-doc-fr
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-fr
+Replaces: emc2-doc-fr
+Provides: emc2-doc-fr
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in French.
+
+Package: linuxcnc-doc-de
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-de
+Replaces: emc2-doc-de
+Provides: emc2-doc-de
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in German.
+
+Package: linuxcnc-doc-es
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-es
+Replaces: emc2-doc-es
+Provides: emc2-doc-es
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in Spanish.
+
+Package: linuxcnc-doc-pl
+Conflicts: emc2 (<< 1:2.5.0~pre), emc2-sim (<< 1:2.5.0~pre), emc2-doc-pl
+Replaces: emc2-doc-pl
+Provides: emc2-doc-pl
+Architecture: all
+Depends: ${misc:Depends}
+Suggests: pdf-viewer
+Description: PC based motion controller for real-time Linux
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package contains the documentation in Polish.
+

@@ -1,0 +1,50 @@
+
+EMCMODULESRCS := emc/usr_intf/axis/extensions/emcmodule.cc
+MINIGLMODULESRCS := emc/usr_intf/axis/extensions/minigl.c
+SETICONMODULESRCS := emc/usr_intf/axis/extensions/seticon.c
+TOGLMODULESRCS := emc/usr_intf/axis/extensions/_toglmodule.c
+PYSRCS += $(EMCMODULESRCS) $(MINIGLMODULESRCS) $(SETICONMODULESRCS) $(TOGLMODULESRCS)
+
+EMCMODULE := ../lib/python/linuxcnc.so
+MINIGLMODULE := ../lib/python/minigl.so
+SETICONMODULE := ../lib/python/_tk_seticon.so
+TOGLMODULE := ../lib/python/_togl.so
+
+$(call TOOBJSDEPS, $(TOGLMODULESRCS) $(SETICONMODULESRCS)) : EXTRAFLAGS = $(ULFLAGS) $(TCL_CFLAGS)
+
+$(call TOOBJSDEPS, $(EMCMODULESRCS)) : Makefile.inc
+
+$(EMCMODULE): $(call TOOBJS, $(EMCMODULESRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lm -lGL
+
+
+$(MINIGLMODULE): $(call TOOBJS, $(MINIGLMODULESRCS))
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $^ -L/usr/X11R6/lib -lGLU -lGL
+
+$(SETICONMODULE): $(call TOOBJS, $(SETICONMODULESRCS))
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+
+$(TOGLMODULE): $(call TOOBJS, $(TOGLMODULESRCS))
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared -o $@ $(TCL_CFLAGS) $^ -L/usr/X11R6/lib -lX11 -lGL -lGLU -lXmu $(TCL_LIBS)
+
+PYTARGETS += $(EMCMODULE) $(MINIGLMODULE) $(SETICONMODULE) $(TOGLMODULE)
+
+PYSCRIPTS := axis.py axis-remote.py linuxcnctop.py hal_manualtoolchange.py \
+	mdi.py image-to-gcode.py lintini.py debuglevel.py teach-in.py tracking-test.py
+PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
+PYTARGETS += $(PYBIN)
+
+
+$(PYBIN): ../bin/%: emc/usr_intf/axis/scripts/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+PYI18NSRCS += $(addprefix emc/usr_intf/axis/scripts/, $(PYSCRIPTS))  \
+	../lib/python/propertywindow.py \
+	../share/axis/tcl/axis.tcl

@@ -1,0 +1,119 @@
+# this file contains a Virtual Control Panel for testing on Roland's Mazak
+#
+
+loadusr -W halvcp tester.vcp
+
+net external-estop-ok led.ext-estop
+net gui-estop-ok led.gui-estop
+net main-estop-ok led.main-estop
+net AP1 led.charging
+net AP2 led.powered
+net motion-enable led.motion-enable
+
+net spindle-ready led.sp-ready
+net spindle-drive-run led.sp-run
+net spindle-at-speed led.sp-at-speed
+net spindle-use-low-gear led.sp-low-gear
+net spindle-use-low-gear button.sp-low-gear
+net spindle-do-orient led.sp-do-orient
+net spindle-oriented led.sp-oriented
+
+net X-amp-running led.x-amp-on
+net X-amp-fault led.x-amp-flt
+net X-lim-plus led.x-pos-lim
+net X-lim-minus led.x-neg-lim
+net X-lim-plus led.x-home
+
+net Y-amp-running led.y-amp-on
+net Y-amp-fault led.y-amp-flt
+net Y-lim-plus led.y-pos-lim
+net Y-lim-minus led.y-neg-lim
+net Y-lim-plus led.y-home
+
+net Z-amp-running led.z-amp-on
+net Z-amp-fault led.z-amp-flt
+net Z-lim-plus led.z-pos-lim
+net Z-lim-minus led.z-neg-lim
+net Z-lim-plus led.z-home
+
+net tool-prepare led.tool-prep
+net tool-prepared led.tool-prepped
+net tool-change led.tool-change
+net tool-changed led.tool-changed
+
+net magazine-index-pbs led.tool-index-pb
+net tool-load-pbs led.tool-load-pb
+net tool-unload-pbs led.tool-unload-pb
+
+net magazine-in-position led.mag-in-pos
+net magazine-position-0 led.mag-pos-0
+net magazine-position-1 led.mag-pos-1
+net magazine-position-2 led.mag-pos-2
+net magazine-position-3 led.mag-pos-3
+net magazine-position-4 led.mag-pos-4
+
+net tool-loaded led.arm1-loaded
+net tool-unloaded led.arm1-unloaded
+
+net arm-retracted led.arm2-retracted
+net arm-extended led.arm2-extended
+net arm-at-0/180 led.arm2-0/180
+net arm-at-0/60 led.arm2-0/60
+net arm-at-60 led.arm2-60
+net arm-at-180 led.arm2-180
+
+net tool-clamped led.tool-clamped
+net tool-unclamped led.tool-unclamped
+
+
+
+
+#loadusr halmeter -s sig magazine-position
+
+quit
+# the following are signals that we might later want to hook
+# LEDs and/or switches to, included here for reference only
+
+# spindle related signals: "internal" signal
+#newsig sp-index-enable bit
+#newsig sp-orient-pos-ok bit
+#newsig sp-engage-high-gear bit
+#newsig sp-engage-low-gear bit
+#newsig sp-in-high-gear bit
+#newsig sp-in-low-gear bit
+#newsig sp-in-neutral bit
+#newsig sp-shifting bit
+#newsig sp-at-speed bit
+
+# misc control
+# tool change location push button operators
+#newsig worklight-pbs bit
+
+# add front panel buttons here
+
+
+# hydraulic pump
+#newsig hydraulic-pump-run bit
+#newsig hydraulic-pump-running bit
+
+# add a temporary signal to rotate by one.
+#newsig forward-one bit
+
+# hydraulic valves
+#newsig arm-extend bit
+#newsig arm-retract bit
+#newsig arm-60cw bit
+#newsig arm-180ccw bit
+#newsig tool-load bit
+#newsig tool-unload bit
+#newsig magazine-forward bit
+#newsig magazine-reverse bit
+#newsig tool-unclamp bit
+#newsig head-unclamp bit
+
+# other solenoids and such
+#newsig spindle-air-blast bit
+#newsig work-air-blast bit
+#newsig mist-coolant bit
+#newsig flood-coolant bit
+

@@ -1,0 +1,59 @@
+
+loadrt threads name1=millisecond period1=1000000
+
+loadrt multiclick count=2
+loadrt sampler depth=100 cfg=bbbbbbbbbsbbbbbbbbbs
+loadrt streamer depth=100 cfg=bb
+
+
+net in0 streamer.0.pin.0 => multiclick.0.in sampler.0.pin.0
+
+net out0.single         multiclick.0.single-click         => sampler.0.pin.1
+net out0.single-only    multiclick.0.single-click-only    => sampler.0.pin.2
+net out0.double         multiclick.0.double-click         => sampler.0.pin.3
+net out0.double-only    multiclick.0.double-click-only    => sampler.0.pin.4
+net out0.triple         multiclick.0.triple-click         => sampler.0.pin.5
+net out0.triple-only    multiclick.0.triple-click-only    => sampler.0.pin.6
+net out0.quadruple      multiclick.0.quadruple-click      => sampler.0.pin.7
+net out0.quadruple-only multiclick.0.quadruple-click-only => sampler.0.pin.8
+
+net state.0 multiclick.0.state => sampler.0.pin.9
+
+
+net in1 streamer.0.pin.1 => multiclick.1.in sampler.0.pin.10
+
+net out1.single         multiclick.1.single-click         => sampler.0.pin.11
+net out1.single-only    multiclick.1.single-click-only    => sampler.0.pin.12
+net out1.double         multiclick.1.double-click         => sampler.0.pin.13
+net out1.double-only    multiclick.1.double-click-only    => sampler.0.pin.14
+net out1.triple         multiclick.1.triple-click         => sampler.0.pin.15
+net out1.triple-only    multiclick.1.triple-click-only    => sampler.0.pin.16
+net out1.quadruple      multiclick.1.quadruple-click      => sampler.0.pin.17
+net out1.quadruple-only multiclick.1.quadruple-click-only => sampler.0.pin.18
+
+net state.1 multiclick.1.state => sampler.0.pin.19
+
+
+addf streamer.0    millisecond
+addf multiclick.0  millisecond
+addf multiclick.1  millisecond
+addf sampler.0     millisecond
+
+
+setp multiclick.0.max-hold-ns    2500000
+setp multiclick.0.max-space-ns   4500000
+setp multiclick.0.output-hold-ns  500000
+
+setp multiclick.1.max-hold-ns    3500000
+setp multiclick.1.max-space-ns   3500000
+setp multiclick.1.output-hold-ns 1500000
+setp multiclick.1.invert-input   True
+
+
+# run halstreamer and let it pre-load the fifo
+loadusr halstreamer input-signals
+loadusr -w sleep 0.5
+
+start
+loadusr -w halsampler -n 105
+

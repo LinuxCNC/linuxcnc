@@ -1,0 +1,53 @@
+(info: compute ctr, min, max, avg)
+o<pointsdata> sub
+#<howmany> = #1 (=4)
+     #<v1> = #2
+     #<v2> = #3
+     #<v3> = #4
+     #<v4> = #5
+     #<v5> = #6 (=0)
+     #<v6> = #7 (=0)
+     #<v7> = #8 (=0)
+     #<v8> = #9 (=0)
+
+#<maxhowmany> = 8
+o<if10> if [#<howmany> GT #<maxhowmany>]
+          (debug, pointsdata: howmany too big: #<howmany> - EXITING)
+          (debug, pointsdata: howmany too big: #<howmany> - EXITING)
+          (AXIS,notify, pointsdata: howmany too big - EXITING)
+          m2
+o<if10> endif
+o<if15> if [#<howmany> LT 2]
+          (debug, pointsdata: howmany too small: #<howmany> - EXITING)
+          (debug, pointsdata: howmany too small: #<howmany> - EXITING)
+          (AXIS,notify, pointsdata: howmany too small - EXITING)
+          m2
+o<if15> endif
+
+          #<i> = 2
+      #<total> = 0
+#<_pointsdata:min> = +99999999
+#<_pointsdata:max> = -99999999
+
+o<wh10> while [#<i> LE [1 + #<howmany>]]
+          #<val> = ##<i>
+          ;(debug, val=#<val>)
+o<if20>   if [#<val> GT #<_pointsdata:max>]
+             #<_pointsdata:max> = #<val>
+o<if20>   endif
+o<if30>   if [#<val> LT #<_pointsdata:min>]
+             #<_pointsdata:min> = #<val>
+o<if30>   endif
+          #<total> = [#<total> + #<val>]
+          #<i> = [#<i> +1]
+o<wh10> endwhile
+
+#<_pointsdata:ctr> = [[#<_pointsdata:max>+#<_pointsdata:min>]/2]
+#<_pointsdata:avg> = [#<total>/#<howmany>]
+
+;(debug, min=#<_pointsdata:min>)
+;(debug, ctr=#<_pointsdata:ctr>)
+;(debug, max=#<_pointsdata:max>)
+;(debug, avg=#<_pointsdata:avg>)
+
+o<pointsdata> endsub

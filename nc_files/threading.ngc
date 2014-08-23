@@ -1,0 +1,76 @@
+g20
+g64
+
+s1200 m3
+g4p2
+g0x.5
+z.7
+f3
+
+#1=.05
+o101 while [#1 GE .04]
+g0z.7
+g1x.020
+g1z[#1 + .65]
+z[#1 + .54]x.13
+#1=[#1-.008]
+o101 endwhile
+
+s400 m3 (=20ipm cutting at .05tpi)
+g4p2
+f20
+
+#1=0.118 (full radius)
+#2=0.0005 (X increment)
+#3=0.0375 (depth of cut)
+#4=0.05 (thread pitch)
+#5=0.7 (Z length)
+(end of arguments)
+
+#6=0.0
+o100 while [#6 LE #3]
+#7=[[#3 - #6] * TAN [29]]
+g0x[#1 + .2]z[#5 + #7]
+g0x[.1 + #1 - #6]
+g1x[#1 - #6]
+g33z[.1 + #7]k#4
+(stay synchronized and exit at 45 degrees)
+g33x[.1 + #1 - #6]z#7k[sqrt[2]*[#4]]
+g0x[#1 + .2]
+#6=[#6 + #2]
+o100 endwhile
+
+(two spring passes)
+g0x[#1 + .2]z[#5 + #7]
+g0x[.1 + #1 - #6]
+g1x[#1 - #6]
+g33z[.1 + #7]k#4
+g33x[.1 + #1 - #6]z#7k[sqrt[2]*[#4]]
+g0x[#1 + .2]
+
+g0x[#1 + .2]z[#5 + #7]
+g0x[.1 + #1 - #6]
+g1x[#1 - #6]
+g33z[.1 + #7]k#4
+g33x[.1 + #1 - #6]z#7k[sqrt[2]*[#4]]
+g0x[#1 + .2]
+
+s1000 m3
+g4p2
+g0x.5
+z.7
+x.117
+f1.5
+g1z0
+g0x.13
+z.7
+g0x.13
+
+s300m3
+g4p2
+g0x.68
+g0z0
+g1x.82f.15
+g0x.68
+
+m2

@@ -1,0 +1,8 @@
+This "max" configuration is for Chris Radek's tabletop mini mill.
+
+The mill is a simple step/dir stepper system with three axes, Z
+being a different scale.  There is a spindle encoder (currently
+simulated) to allow threading and (maybe someday) rigid tapping.
+
+There is basic spindle control (on/off, one direction only) and
+the machine-on state enables the stepper drive choppers.

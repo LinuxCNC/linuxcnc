@@ -1,0 +1,891 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="640"
+   height="480"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="outside-comp_fr.svg"
+   inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+   inkscape:export-xdpi="90.060196"
+   inkscape:export-ydpi="90.060196">
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 240 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="640 : 240 : 1"
+       inkscape:persp3d-origin="320 : 160 : 1"
+       id="perspective118" />
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mend"
+       style="overflow:visible;">
+      <path
+         id="path3996"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) rotate(180) translate(0,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;">
+      <path
+         id="path3990"
+         style="font-size:12.0;fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-1"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-1"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-5"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-2"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-4"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-0"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-48"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-8"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Lend-1"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3990-7"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker4281"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4283"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="matrix(-1.1,0,0,-1.1,-1.1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-48-1"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-8-7"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-48-0"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-8-9"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-48-19"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3996-8-6"
+         style="font-size:12px;fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.196189"
+     inkscape:cx="561.75519"
+     inkscape:cy="291.66447"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer3"
+     showgrid="true"
+     inkscape:snap-global="false"
+     inkscape:snap-bbox="false"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1003"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       units="mm"
+       empspacing="7"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Grille"
+     style="display:inline">
+    <path
+       transform="translate(0,-572.36218)"
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="use2989"
+       d="m 357.87402,853.93698 269.29133,0"
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use2989"
+       id="use2991"
+       transform="translate(-3.5433071,-671.57478)"
+       width="640"
+       height="480" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use2991"
+       id="use2993"
+       transform="translate(3.5433071,-671.57478)"
+       width="640"
+       height="480" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="use2989-8"
+       d="m 396.68949,44.17323 0,273.42879"
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use2989-8"
+       id="use2991-2"
+       transform="translate(99.373497,-572.36218)"
+       width="640"
+       height="480" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use2991-2"
+       id="use2993-4"
+       transform="translate(99.212599,-572.36218)"
+       width="640"
+       height="480" />
+    <path
+       transform="translate(0,-572.36218)"
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="use2989-5"
+       d="m 265.74803,953.14958 350.78739,0"
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0"
+       d="m 297.6378,345.35433 0,67.32284"
+       id="path3906"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use2989-8"
+       id="use3956"
+       transform="matrix(1,0,0,0.75845467,99.373497,10.552169)"
+       width="640"
+       height="480"
+       style="stroke:#4d4d4d"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3956"
+       id="use3958"
+       transform="translate(99.212599,0)"
+       width="640"
+       height="480"
+       style="stroke:#4d4d4d"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use2989"
+       id="use3960"
+       transform="translate(0,-99.212595)"
+       width="640"
+       height="480"
+       style="stroke:#4d4d4d"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3960"
+       id="use3962"
+       transform="translate(0,-99.212599)"
+       width="640"
+       height="480"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="297.8869"
+       y="427.01447"
+       id="text3065"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3067"
+         x="297.8869"
+         y="427.01447">0</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="397.48007"
+       y="412.67715"
+       id="text3069"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3071"
+         x="397.48007"
+         y="412.67715">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="495.88046"
+       y="412.67715"
+       id="text3073"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3075"
+         x="495.88046"
+         y="412.67715">2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="594.02472"
+       y="412.50723"
+       id="text3077"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3079"
+         x="594.02472"
+         y="412.50723">3</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="350.78741"
+       y="285.08002"
+       id="text3081"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3083"
+         x="350.78741"
+         y="285.08002">1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="351.55582"
+       y="186.97972"
+       id="text3085"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3087"
+         x="351.55582"
+         y="186.97972">2</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="350.71027"
+       y="87.461327"
+       id="text3089"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3091"
+         x="350.71027"
+         y="87.461327">3</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="257.93539"
+       y="385.24329"
+       id="text3065-1"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3067-7"
+         x="257.93539"
+         y="385.24329">0</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="397.10617"
+       y="430.03412"
+       id="text4057"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan4059"
+         x="397.10617"
+         y="430.03412">X</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="333.50601"
+       y="285.1181"
+       id="text4061"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan4063"
+         x="333.50601"
+         y="285.1181">Y</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend);display:inline"
+       d="m 414.30394,426.5164 17.97952,0"
+       id="path4065"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Lend);display:inline"
+       d="M 333.89685,264.12126 333.506,246.14173"
+       id="path4067"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0;display:inline"
+       d="m 396.85039,373.70079 0,24.80315"
+       id="path3906-8"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path4618"
+       d="m 496.0594,330.76181 c 0,22.30282 0.062,44.64449 -0.18287,67.01562"
+       style="fill:none;stroke:#4d4d4d;stroke-width:1.14959764;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.14959754, 1.14959754;stroke-dashoffset:0;display:inline"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0;display:inline"
+       d="m 595.27559,338.26772 0,60.23622"
+       id="path3906-8-8"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:1.05681979999999998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1.05681972999999996, 1.05681972999999996;stroke-dashoffset:0;display:inline"
+       d="m 496.13317,268.18552 0,46.4136"
+       id="path4638"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#4d4d4d;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 1;stroke-dashoffset:0;display:inline"
+       d="m 396.85039,320.55118 0,31.88976"
+       id="path4638-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+  <g
+     inkscape:label="Draw"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-572.36218)"
+     style="display:inline">
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend);display:inline"
+       d="m 446.45669,878.74013 7.08662,0"
+       id="path3964"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend);display:inline"
+       d="m 372.04724,797.24406 0,7.08662"
+       id="path3964-7"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend);display:inline"
+       d="m 362.32683,904.67441 4.39719,-3.20171"
+       id="path3964-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend);display:inline"
+       d="M 349.18416,884.51184 345.449,889.3144"
+       id="path3964-9-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 396.85039,306.37795 297.6378,380.7874"
+       id="path3880"
+       inkscape:connector-curvature="0"
+       transform="translate(0,572.36218)"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 372.04724,281.5748 297.6378,380.7874"
+       id="path3882"
+       inkscape:connector-curvature="0"
+       transform="translate(0,572.36218)"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 396.85039,306.37795 198.4252,0 c 14.17323,0 24.80315,-10.62992 24.80315,-24.80315 l 0,-198.425194 c 0,-14.173228 -10.62992,-24.803149 -24.80315,-24.803149 l -198.4252,0 c -14.17322,0 -24.80315,10.629921 -24.80315,24.803149 l 0,198.425194"
+       id="path3884"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccc"
+       transform="translate(0,572.36218)"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#00ff00;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path3908"
+       sodipodi:cx="297.63779"
+       sodipodi:cy="380.78741"
+       sodipodi:rx="24.80315"
+       sodipodi:ry="24.80315"
+       d="m 322.44094,380.78741 c 0,13.69841 -11.10475,24.80315 -24.80315,24.80315 -13.6984,0 -24.80315,-11.10474 -24.80315,-24.80315 0,-13.6984 11.10475,-24.80315 24.80315,-24.80315 13.62274,0 24.6959,10.98694 24.80239,24.60927"
+       transform="translate(0,572.36218)"
+       sodipodi:start="0"
+       sodipodi:end="6.2753681"
+       sodipodi:open="true"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       transform="translate(98.787888,498.60807)"
+       sodipodi:type="arc"
+       style="fill:none;stroke:#00ff00;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:1, 2;stroke-dashoffset:0"
+       id="path3908-1"
+       sodipodi:cx="297.63779"
+       sodipodi:cy="380.78741"
+       sodipodi:rx="24.80315"
+       sodipodi:ry="24.80315"
+       d="m 322.44094,380.78741 c 0,13.69841 -11.10475,24.80315 -24.80315,24.80315 -13.6984,0 -24.80315,-11.10474 -24.80315,-24.80315 0,-13.6984 11.10475,-24.80315 24.80315,-24.80315 13.62274,0 24.6959,10.98694 24.80239,24.60927"
+       sodipodi:start="0"
+       sodipodi:end="6.2753681"
+       sodipodi:open="true"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <rect
+       style="fill:none;stroke:#ff00ff;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect3928"
+       width="198.4252"
+       height="198.4252"
+       x="396.8504"
+       y="83.149605"
+       transform="translate(0,572.36218)"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Text"
+     style="display:inline">
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="34.543381"
+       y="46.175777"
+       id="text3021"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3023"
+         x="34.543381"
+         y="46.175777" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="24.891554"
+       y="32.460026"
+       id="text3025"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3027"
+         x="24.891554"
+         y="32.460026" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="49.275116"
+       y="33.476006"
+       id="text3029"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3031"
+         x="49.275116"
+         y="33.476006" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:150%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="44.533188"
+       y="53.71677"
+       id="text3033"
+       sodipodi:linespacing="150%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3035"
+         x="44.533188"
+         y="53.71677">G-Code</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="71.716766"
+         id="tspan3037">F25  (Vitesse d'avance travail)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="89.716766"
+         id="tspan3041">G40  (Révocation des compensations)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="107.71677"
+         id="tspan3043">G10 L1 P1 R.25 Z1  (Réglages en table d'outils)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="125.71677"
+         id="tspan3045">T1 M6  (Appel de l'outil 1)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="143.71678"
+         id="tspan3047">G42  (Compensation d'outil à droite du profil)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="161.71678"
+         id="tspan3049">G1 X1 Y1  (Mouvement d'entrée)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="179.71678"
+         id="tspan3051">X3  (Parcours trajectoire de coupe)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="197.71678"
+         id="tspan3053">Y3</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="215.71678"
+         id="tspan3055">X1</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="233.71678"
+         id="tspan3057">Y1</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="251.71678"
+         id="tspan3059">G40  (Révocation de la compensation)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="269.71677"
+         id="tspan3061">G0 Y0 Y0  (Dégagement de l'outil)</tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="287.71677"
+         id="tspan3063">M2  (Fin de programme) </tspan><tspan
+         sodipodi:role="line"
+         x="44.533188"
+         y="305.71677"
+         id="tspan3039" /></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-48);display:inline"
+       d="m 265.74804,331.1811 42.51968,0 14.32233,9.32328"
+       id="path3089"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-48);display:inline"
+       d="m 372.04724,363.73801 -24.80315,0 -9.13881,-9.17417"
+       id="path3091"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-48);display:inline"
+       d="m 515.18453,323.48543 -24.80315,0 -5.70926,-13.34927"
+       id="path3091-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="493.22812"
+       y="263.17389"
+       id="text3067"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3069"
+         x="493.22812"
+         y="263.17389">Profil à usiner</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="431.68182"
+       y="367.28131"
+       id="text3071"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3073"
+         x="431.68182"
+         y="367.28131">Mouvement d'entrée</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="188.10008"
+       y="332.80957"
+       id="text3075"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3077"
+         x="188.10008"
+         y="332.80957">Mouvement de dégagement</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:9.43933487px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="336.7952"
+       y="437.93243"
+       id="text3079"
+       sodipodi:linespacing="125%"
+       transform="scale(1.0593967,0.94393348)"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3081"
+         x="336.7952"
+         y="437.93243">Outil</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:10px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
+       x="571.51617"
+       y="326.70776"
+       id="text3083"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3085"
+         x="571.51617"
+         y="326.70776">Trajectoire compensée</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-48);display:inline"
+       d="m 340.01779,410.27326 -8.10274,0 -11.52458,-10.9635"
+       id="path3091-4-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend-48);display:inline"
+       d="m 529.01368,264.67988 24.80281,0.13009 5.63917,13.37904"
+       id="path3091-4-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/francis/Bureau/images1912/outside-comp_fr.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+  </g>
+</svg>

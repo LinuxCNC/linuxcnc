@@ -1,0 +1,11 @@
+# simulate a locking rotary axis B
+
+loadrt timedelay names=timedelay_unlock
+addf timedelay_unlock servo-thread
+
+net B-unlock axis.4.unlock => timedelay_unlock.in
+net B-is-unlocked timedelay_unlock.out => axis.4.is-unlocked
+
+setp timedelay_unlock.on-delay 0.75
+setp timedelay_unlock.off-delay 0.5
+

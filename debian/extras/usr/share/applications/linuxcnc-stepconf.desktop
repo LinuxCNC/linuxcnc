@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=/usr/bin/stepconf
+Icon=linuxcncicon
+X-GNOME-DocPath=
+Terminal=false
+Name=LinuxCNC Stepconf Wizard
+Comment=Stepconf Configuration Wizard
+StartupNotify=false
+Categories=X-CNC;

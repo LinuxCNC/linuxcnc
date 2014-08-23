@@ -1,0 +1,164 @@
+<pyvcp>
+<hbox>
+<checkbutton>
+    <text>"THC Enable"</text>
+    <halpin>"thc-enable"</halpin>
+</checkbutton>
+</hbox>
+
+<labelframe text="THC Settings">
+    <hbox>
+        <vbox>
+            <label>
+                <text>"Vel Tolerance  "</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <label>
+                <text>"Volts Setting    "</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <label>
+                <text>"Volts Tolerance"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+        </vbox>
+        <vbox>
+            <spinbox>
+                <width>"5"</width>
+                <halpin>"vel-tol"</halpin>
+                <min_>.01</min_>
+                <max_>1</max_>
+                <resolution>0.01</resolution>
+                <initval>0.2</initval>
+                <format>"1.2f"</format>
+                <font>("Arial",10)</font>
+            </spinbox>
+            <spinbox>
+                <width>"5"</width>
+                <halpin>"volts-requested"</halpin>
+                <min_>0</min_>
+                <max_>200</max_>
+                <resolution>1</resolution>
+                <font>("Helvetica",10)</font>
+                <format>"1.0f"</format>
+                <font>("Arial",10)</font>
+                <initval>1</initval>
+            </spinbox>
+            <spinbox>
+                <width>"5"</width>
+                <font>("Helvetica",10)</font>
+                <halpin>"volts-tolerance"</halpin>
+                <resolution>0.1</resolution>
+                <initval>1</initval>
+                <min_>0</min_>
+                <max_>10</max_>
+            </spinbox>
+          </vbox>
+        </hbox>
+    </labelframe>
+<labelframe text="Arc Volts Status">
+    <hbox>
+        <vbox>
+            <label>
+                <text>"Under"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <rectled>
+                <halpin>"volts-under"</halpin>
+                <height>"20"</height>
+                <width>"40"</width>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </rectled>
+        </vbox>
+        <vbox>
+            <label>
+                <text>"OK"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <rectled>
+                <halpin>"volts-ok"</halpin>
+                <height>"20"</height>
+                <width>"40"</width>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </rectled>
+        </vbox>
+        <vbox>
+            <label>
+                <text>"Over"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <rectled>
+                <halpin>"volts-high"</halpin>
+                <height>"20"</height>
+                <width>"40"</width>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </rectled>
+        </vbox>
+    </hbox>
+</labelframe>
+<labelframe text="Status">
+    <hbox>
+        <vbox>
+            <label>
+                <text>"Velocity"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <rectled>
+                <halpin>"vel-status"</halpin>
+                <height>"20"</height>
+                <width>"40"</width>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </rectled>
+        </vbox>
+        <vbox>
+            <label>
+                <text>"Arc"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <rectled>
+                <halpin>"arc-ok"</halpin>
+                <height>"20"</height>
+                <width>"40"</width>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </rectled>
+        </vbox>
+        <vbox>
+            <label>
+                <text>"Offset"</text>
+                <font>("Helvetica",10)</font>
+            </label>
+            <number>
+                <halpin>"offset"</halpin>
+                <font>("Helvetica",10)</font>
+                <format>"+4.4f"</format>
+            </number>
+        </vbox>
+    </hbox>
+</labelframe>
+
+    <label text="Actual Volts"/>
+    <meter>
+        <halpin>"actual-volts"</halpin>
+        <text>"Torch"</text>
+        <subtext>"Volts"</subtext>
+        <size>150</size>
+        <min_>0</min_>
+        <max_>200</max_>
+        <majorscale>25</majorscale>
+        <minorscale>5</minorscale>
+    </meter>
+    
+    <labelframe text="MDI Commands">
+        <button>
+            <halpin>"rapid-to-home"</halpin>
+            <text>"Rapid to Home"</text> 
+            <font>('Helvetica',10)</font>
+        </button>    
+    </labelframe>
+</pyvcp>
+

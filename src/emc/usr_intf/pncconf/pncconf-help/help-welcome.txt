@@ -1,0 +1,19 @@
+Welcome to PNCCONF a graphical configuration program for EMC2.
+
+             BETA 1 Version
+Beta means that there are possible bugs and that some features
+are lacking. Please give feed back to the mailing list
+or EMC forum.
+
+Pncconf is used to configure a servo or hardware stepper system 
+using Mesa I/O cards with the Hostmot2 driver, and optionally
+extra simple I/O with parallel ports.
+
+Pncconf require the mesa firmwares to be installed and a realtime 
+kernal for tests.
+
+
+
+
+
+

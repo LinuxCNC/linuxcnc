@@ -1,0 +1,15 @@
+These are three configs made for gantry style plasma cutting tables using stepper motors. There are seperate
+configuration files for the MP1000A/B/C sold by CandCNC and a combo of Bob Campbells Breakout Combo and the THC300.
+It should be easy to adjust these configurations to any breakout/thc made by SoundLogic, CandCNC and Bob Campbell.
+
+Note that to have a seperate probe sensor for the Z axis (instead of using the home switch) the feedhold on the MP1000
+is used for the probe switch signal. The MP1000 config also differs from standard by using shared home/limit switches
+connected to the home terminals and ignoring the limit terminals.
+
+If you have the MP1000 and want to use the serial interface you will need to install the pyserial module to enable serial
+communications in python.
+
+For testing I recommend the plasmatest.ngc file in the nc_files directory.
+
+Also included in the config directory is a post processor to use with Sheetcam for making gcodes for this config.
+

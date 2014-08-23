@@ -1,0 +1,36 @@
+#!/bin/bash
+#prime the "old" states.  it seems that stepgen likes to start with phase-A=1
+read oa ob c < $1
+count=0
+# if a leads b, then the count goes up.  if b leads a, the count goes down
+# if a and b stay the same, the count stays the same
+# if a and b both change, it's an error
+while read a b c; do
+    case "$oa$a$ob$b" in
+    0000) ;;
+    0001) count=$((count-1));;
+    0010) count=$((count+1));;
+    0011) ;;
+    0100) count=$((count+1));;
+    0101) exit 1;;
+    0110) exit 1;;
+    0111) count=$((count-1));;
+    1000) count=$((count-1));;
+    1001) exit 1;;
+    1010) exit 1;;
+    1011) count=$((count+1));;
+    1100) ;;
+    1101) count=$((count+1));;
+    1110) count=$((count-1));;
+    1111) ;;
+    *) echo "$oa$a$ob$b"; exit 1
+    esac
+    oa=$a; ob=$b
+    # if our count doesn't match the stepgen count, it's an error
+    if [ $c -ne $count ]; then exit 1; fi
+done < $1
+
+# if the end position isn't 1280, it's an error
+if [ $count -ne 1280 ]; then exit 1; fi
+
+exit 0    

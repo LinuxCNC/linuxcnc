@@ -1,0 +1,142 @@
+External Controls
+
+USB Joystick Jogging:
+    This allows basic jogging with USB devices.
+    eg joysticks and keyboards.
+    Its important to note that if the usb device is not
+    connected when EMC is started, It will fail with an error.
+    For a device to be usable there must be a device rule.
+    To search for rules made by pncconf, click
+    'Search for device rule'. It will list found rules and
+    device names in the text output window.
+    To add a rule have the USB device ready, click
+    'add device rule' and follow the prompts.
+    To test a device add its name to 'Device Name' and click
+    'Test device'. This loads the device and halmeter.
+    using halmeter click on a pin name and press buttons till
+    you see the response in halmeter. Take note of the pin name
+    of the buttons you wish to use for jogging / speed selection.
+    When done close the dialog box. All the available pin names
+    will be displayed in the text output window. Copy
+    the wanted pin names into the appropriate boxes. Make sure
+    they are copied exactly or EMC will fail with an error.
+    When using digital control, jog speed selection uses two 
+    buttons to select four speeds.
+ 
+    no buttons                = default speed
+    jog speed select a button = a speed
+    jog speed select b button = b speed
+    both buttons              = ab speed
+
+    If you leave default speed at zero then you must press a
+    speed select button to jog - which is a nice safety feature.
+    If using analog control, jogging speed is proportional to 
+    stick position. There is no scaling or deadzone setting.
+    If needed this must be added in a custom HAL file. 
+    USB jogging cannot be used with external button jogging
+    because they both use the same HALUI pins.
+    USB jogging uses HALUI and hal_input. For more info see
+    the manual and man pages on these components.
+
+External Button Jogging:
+    This allows rapid jogging with simple switches
+    Choose a single set of buttons, with axis selected 
+    by switches, or separate switches for each axis.
+    You can set the jog rate.
+    The jog signal names must be designated on the mesa page.
+    eg 'Jog X+','Jog X-' for separate buttons or
+    'Jog Button Selected +' for selectable axis buttons.
+    These signals are under the heading 'Axis Rapid' of
+    GPIO input on the Mesa page.
+    for selectable axis buttons signal names for the 
+    select axis must be designated as well.
+    eg 'Joint Select A'
+    These signals are under the heading 'Axis Selction' of
+    GPIO input on the Mesa page.
+
+    External button jogging uses HALUI. See the manual for 
+    more info.
+
+External MPG Jogging:
+    Allows jogging with a Manual Pulse Generator.
+    Choose a single MPG - with axis selected by
+    switches or separate MPGs - for each axis
+    (TOUCHY requires a single shared MPG)
+    Choose selectable jog rates or a single jog rate.
+    (TOUCHY selects its own jog rates)
+    If selectable jog increments is selected then
+    there are 4 inputs used to select up to sixteen
+    Jog rates. The bold face labels - Default, a, b, c, and d
+    Allow simple switches (eg center-off or rotary) to be
+    used without multiplexing complexities.
+    The letters represent which signals need to be
+    high for the jog rate.( eg abc) requires signals:
+    jog-inc-a, jog-inc-b, and jog-inc-c all to be high for
+    that jog rate to be selected.)
+    The default jog rate is when no jog-inc signals are high
+    This is also the rate if a single jog rate is used.
+    Selectable jog increments uses the mux16 component which
+    has some options to help filter the inputs.
+    - use debounce: debounce is used on switches to help to
+    ignore false on/off 'bounces' while switching. It asks EMC 
+    to wait till the input is stable for the time choosen 
+    (in seconds). the longer the debounce time the longer the
+    response to input changes.
+    - use gray code: gray code helps to avoid momentary out of
+    sequence input errors do to transitional switch movements.
+    each sequence in gray code only changes one input, unlike 
+    binary coding.
+    -ignore all inputs false: In the transition from one switch
+    position to the next there can be no input connection for 
+    a brief period. This will falsely set the rate to the default
+    jog rate momentarily. This setting makes the mux not change
+    the jog rate when all inputs are false. This also means the
+    default jog rate is unusable. debounce is a better solution.  
+    The 'jog incr X' signals will need to be designated on the Mesa
+    page. These signals are under the heading 'Overrides' of
+    GPIO input on the Mesa page.
+
+External Spindle Override:
+    allows spindle speed override to be set by MPG or switches.
+    If MPG is choosen, one must choose the spindle override
+    encoder signal in the Mesa page.
+    if switches is choosen, one must select the apropriate
+    overrides increment signals in the mesa / parport page.
+    There are 4 inputs used to select up to sixteen override
+    percentages. The bold face labels - Default, a, b, c, and d
+    Allow simple switches (eg center-off or rotary) to be
+    used without multiplexing complexities.
+    The letters represent which signals need to be
+    high for the override rate.( eg abc) requires signals:
+    so-incr-a, so-inc-b, and so-inc-c all to be high for
+    that override rate to be selected.)
+    The default pecentage rate is when no so-inc signals are high.
+    Selectable increments uses the mux16 component which
+    has some options to help filter the inputs.
+    - use debounce: debounce is used on switches to help to
+    ignore false on/off 'bounces' while switching. It asks EMC 
+    to wait till the input is stable for the time choosen 
+    (in seconds). the longer the debounce time the longer the
+    response to input changes.
+    - use gray code: gray code helps to avoid momentary out of
+    sequence input errors do to transitional switch movements.
+    each sequence in gray code only changes one input, unlike 
+    binary coding.
+    -ignore all inputs false: In the transition from one switch
+    position to the next there can be no input connection for 
+    a brief period. This will wrongly set the rate to the default
+    override rate momentarily. This setting makes the mux not change
+    the rate when all inputs are false. This also means the
+    default rate is unusable. debounce is a better solution.  
+    The override increment signals will need to be designated 
+    on the mesa page.
+
+External Feed Override:
+    allows feed speed override to be set by MPG or switches.
+    works the same way as spindle override - see above.
+    
+External Max Velocity Override:
+    allows maximum axis velocity override to be set by MPG or switches.
+    works the same way as spindle override - see above.
+    Max axis velocity includes rapid moves where feed override only modifies
+    feed moves.

@@ -1,0 +1,4 @@
+
+loadrt sim_encoder names=simenc0,simenc1,simenc2,simenc3,simenc4,simenc5,simenc6,simenc7
+show pin
+

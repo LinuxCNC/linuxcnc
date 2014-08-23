@@ -1,0 +1,7 @@
+loadrt and2 count=1
+alias pin and2.0.in0 something
+alias pin and2.0.in1 somethingelse
+alias pin and2.0.out anotherthing
+unalias pin somethingelse
+unalias pin and2.0.out
+list pin

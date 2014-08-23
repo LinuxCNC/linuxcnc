@@ -1,0 +1,35 @@
+.TH rtapi_outb "3rtapi" "2006-10-12" "LinuxCNC Documentation" "RTAPI"
+.SH NAME
+
+rtapi_outb, rtapi_inb \- Perform hardware I/O
+
+.SH SYNTAX
+.HP
+void rtapi_outb(unsigned char \fIbyte\fR, unsigned int \fIport\fR)
+.HP
+unsigned char rtapi_inb(unsigned int \fIport\fR)
+
+.SH  ARGUMENTS
+.IP \fIport\fR
+The address of the I/O port
+.IP \fIbyte\fR
+The byte to be written to the port
+
+.SH DESCRIPTION
+\fBrtapi_outb\fR writes a byte to a hardware I/O port.  \fBrtapi_inb\fR
+reads a byte from a hardware I/O port.
+
+.SH REALTIME CONSIDERATIONS
+May be called from init/cleanup code and from within realtime tasks.
+Not available in userspace components.
+
+.SH RETURN VALUE
+\fBrtapi_inb\fR returns the byte read from the given I/O port
+
+.SH NOTES
+The I/O address should be within a region previously allocated by
+\fBrtapi_request_region\fR.  Otherwise, another real-time module or the Linux
+kernel might attempt to access the I/O region at the same time.
+
+.SH SEE ALSO
+\fBrtapi_region(3rtapi)\fR

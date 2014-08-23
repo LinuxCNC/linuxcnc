@@ -1,0 +1,102 @@
+# HAL config file for using classic ladder
+# Loads the core_stepper.hal file first to set up motion and stepgen
+# This adds limits and home from limit to the motion module
+# adds the possibility of an external momentary or sustained NC estop button 
+# includes intermittent lube pump and pressure or level sensing.
+# includes coolant and spindle forward, reverse
+
+# from standard pinout config file for 3-axis steppers
+# using a parport for I/O
+
+# load the parport driver
+loadrt hal_parport cfg="0x378"
+# next connect the parport functions to threads
+addf parport.0.read base-thread 1
+addf parport.0.write base-thread -1
+
+# This configuration uses classicladder for machine logic
+# (load the realtime portion)
+# these classicladder parameters need to be optimized after ladder completion
+loadrt classicladder_rt numRungs=12 numBits=20 numWords=4 numTimers=5 numMonostables=2 numPhysInputs=10 numPhysOutputs=10 numArithmExpr=4 numSections=4
+# We kick ladder into a thread at the slower servo rate rather than base rate
+addf classicladder.0.refresh        servo-thread 1
+
+# invoke the user part of CL to silently load the program
+# later we will need to add the clp file mentioned below
+# to the ini file so that we do not need to hardcode it here.
+loadusr -w classicladder --nogui demo_step_cl.clp
+# load the GUI aswell
+loadusr classicladder
+
+# begin to connect physical pins to signals
+# this is EMC's standard motion pinouts
+net Xstep parport.0.pin-03-out
+net Xdir parport.0.pin-02-out
+net Ystep parport.0.pin-05-out
+net Ydir parport.0.pin-04-out
+net Zstep parport.0.pin-07-out
+net Zdir parport.0.pin-06-out
+
+# three axis motion allows 6 other outputs on pins 8,9,1,14,16,17
+# five additional input pins are available 10,11,12,13,15
+# these are setup by the work they perform below
+
+# estop signals
+# signal is the internal or gui estop command from EMC
+net user-enable-out iocontrol.0.user-enable-out classicladder.0.in-00
+# one-shot on  timer when signal above goes high.
+net user-request-enable iocontrol.0.user-request-enable  classicladder.0.in-02
+# this bit is an external estop button connected to parport pin 11 and ground
+net ext-estop parport.0.pin-10-in
+net ext-estop classicladder.0.in-01
+# This bit signal is comand to estop from CL to EMC
+net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
+
+# lube signals
+# lube run command from emc to CL 
+net lube iocontrol.0.lube classicladder.0.in-03
+# for ease of reading we will make a new signal lube-run
+net lube-run classicladder.0.out-01
+net lube-run parport.0.pin-01-out
+
+# The lube sense stuff runs from an external pin, through CL to iocontrol in 
+# lube-up is the signal between the parport and cl
+net lube-up parport.0.pin-12-in
+net lube-up classicladder.0.in-04
+net lube-level iocontrol.0.lube_level classicladder.0.out-02
+
+# coolant signals
+# note that these do NOT represent proper IO signals from iocontrol
+# should separate command and status for production versions
+# and run these through CL to test conditions
+net flood iocontrol.0.coolant-flood  parport.0.pin-08-out 
+net mist  iocontrol.0.coolant-mist  parport.0.pin-09-out 
+
+# spindle signals
+# spindle status has not been resolved
+# a simple loop through is set here
+net spindle-forward motion.spindle-forward  parport.0.pin-16-out 
+net spindle-reverse motion.spindle-reverse  parport.0.pin-17-out 
+
+# we will let loopbacks handle tool prepare and change commands 
+# though we could  index an external changer
+# create connections for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# create a limit switch signal
+# read limit conditions from external normally open switches in parallel
+# this configuration allows the control to run but still test limit 
+# for real use a normally closed series loop and reverse parport pin polarity
+# add all limits to a single parport pin
+# connect this signal to pin 10 on the parport
+net limit-reached parport.0.pin-10-in-not
+# connect this signal to all limit signals of relevant axes
+net limit-reached axis.0.neg-lim-sw-in
+net limit-reached axis.0.pos-lim-sw-in
+net limit-reached axis.1.neg-lim-sw-in
+net limit-reached axis.1.pos-lim-sw-in
+net limit-reached axis.2.neg-lim-sw-in
+#linksp limit-reached  axis.2.pos-lim-sw-in  
+
+

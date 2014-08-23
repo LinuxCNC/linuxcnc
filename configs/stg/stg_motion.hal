@@ -1,0 +1,37 @@
+# HAL config file for ServoToGo STG ISA board
+#
+# install driver, this should autodetect the board
+# if that doesn't work, try using base=0xABC, where ABC matches your setup
+# loadrt hal_stg base=0x200
+loadrt hal_stg 
+
+# add functions to servo thread so they will be evaluated
+# every servo period
+# read inputs first
+addf stg.capture-position servo-thread 1
+# write outputs last
+addf stg.write-dacs servo-thread -1
+
+# connect position feedback signals to encoders
+net Xpos-fb <= stg.0.position
+net Ypos-fb <= stg.1.position
+net Zpos-fb <= stg.2.position
+
+# get feedback scaling from ini file
+setp stg.0.position-scale [AXIS_0]INPUT_SCALE 
+setp stg.1.position-scale [AXIS_1]INPUT_SCALE 
+setp stg.2.position-scale [AXIS_2]INPUT_SCALE 
+
+# connect PID output signals to DACs
+net Xoutput => stg.0.dac-value
+net Youtput => stg.1.dac-value
+net Zoutput => stg.2.dac-value
+
+# set output scaling from ini file 
+setp stg.0.dac-gain [AXIS_0]OUTPUT_SCALE
+setp stg.1.dac-gain [AXIS_1]OUTPUT_SCALE
+setp stg.2.dac-gain [AXIS_2]OUTPUT_SCALE
+# set output offset to zero
+setp stg.0.dac-offset [AXIS_0]OUTPUT_OFFSET
+setp stg.1.dac-offset [AXIS_1]OUTPUT_OFFSET
+setp stg.2.dac-offset [AXIS_2]OUTPUT_OFFSET

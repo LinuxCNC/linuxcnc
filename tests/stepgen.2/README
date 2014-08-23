@@ -1,0 +1,2 @@
+This is a functional test of 'stepgen'.  It checks that the the "step"
+output is asserted the correct number of times over a move.

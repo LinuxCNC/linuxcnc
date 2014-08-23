@@ -1,0 +1,4 @@
+
+loadrt encoder names=enc0,enc1,enc2,enc3,enc4,enc5,enc6,enc7
+show pin
+

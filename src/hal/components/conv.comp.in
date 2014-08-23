@@ -1,0 +1,24 @@
+component conv_@IN@_@OUT@ "Convert a value from @IN@ to @OUT@";
+pin in @IN@ in_;
+pin out @OUT@ out;
+@CC@ pin out bit out_of_range "TRUE when 'in' is not in the range of @OUT@";
+@CC@ param rw bit clamp """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
+function _ @FP@ "Update 'out' based on 'in'";
+license "GPL";
+
+;;
+FUNCTION(_) {
+    hal_@IN@_t in = in_;
+@CC@    if(clamp) {
+#if @MAX@ != 0
+@CC@	if(in > @MAX@) { out = @MAX@; out_of_range = 1; return; }
+#endif
+#if @MIN@ != -1
+@CC@	if(in < @MIN@) { out = @MIN@; out_of_range = 1; return; }
+#endif
+@CC@	out = in; out_of_range = 0;
+@CC@    } else {
+	out = in;
+@CC@	if(out != in) out_of_range = 1;
+@CC@    }
+}

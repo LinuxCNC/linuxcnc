@@ -1,0 +1,29 @@
+(info: helix_rtheta: specify center with r,theta, uses helix.ngc)
+o<helix_rtheta> sub
+
+#<toolno>     =  #1 (=1)
+#<rpm>        =  #2 (=2000)
+#<feedrate>   =  #3 (=10)
+#<dir>        =  #4 (=3 2:cw, 3:ccw)
+#<inside>     =  #5 (=1 1:in, 0:out)
+#<cutdepth>   =  #6 (z cutdepth)
+#<zincr>      =  #7 (z increment)
+#<zsafe>      =  #8 (=0.5)
+#<hdiam>      =  #9 (hole diameter)
+#<faceangle>  = #10 (=0 face angle)
+#<d_angle>    = #11 (=0 d angle)
+#<r>          = #12 (r     center)
+#<theta>      = #13 (theta center)
+#<zstart>     = #14 (=0)
+#<spin_notify>= #15 (=0)
+#<use_g43>    = #16 (=1)
+#<h_for_g43>  = #17 (=0)
+#<verbose>    = #18 (=0)
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam> = [#5410 + 0.001]
+
+#<x> = [#<r> * COS[#<theta>]]
+#<y> = [#<r> * SIN[#<theta>]]
+o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<verbose>]
+o<helix_rtheta> endsub

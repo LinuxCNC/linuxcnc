@@ -1,0 +1,5 @@
+loadusr -W gs2_vfd
+net spindle-speed motion.spindle-speed-out gs2_vfd.speed-command
+net spindle-dir motion.spindle-forward gs2_vfd.spindle-fwd
+net spindle-on motion.spindle-on gs2_vfd.spindle-on
+net spindle-speed-fb gs2_vfd.motor-RPM motion.spindle-speed-in

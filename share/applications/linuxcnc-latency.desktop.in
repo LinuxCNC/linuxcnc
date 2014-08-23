@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=@EMC2_LATENCY_SCRIPT@
+Icon=@EMC2_ICON@
+X-GNOME-DocPath=
+Terminal=false
+Name=Latency Test@EMC2_SUFFIX@
+Comment=Determine your machine's latency
+StartupNotify=false
+Categories=X-CNC;

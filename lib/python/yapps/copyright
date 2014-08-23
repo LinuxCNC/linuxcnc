@@ -1,0 +1,41 @@
+This is yapps2, Yet Another Python Parser System,
+written by Amit J. Patel <amitp@theory.stanford.edu>.
+
+It was packaged for Debian by Matthias Urlichs <smurf@debian.org>
+on Fri, 14 May 2004.
+
+The original source can be found at:
+    http://theory.stanford.edu/~amitp/yapps/yapps2.1.1.zip
+
+The original copyright notice states:
+
+# Yapps 2 - yet another python parser system
+# Copyright 1999-2003 by Amit J. Patel <amitp@cs.stanford.edu>
+#
+# This version of Yapps 2 can be distributed under the
+# terms of the MIT open source license, either found in the LICENSE file
+# included with the Yapps distribution
+# <http://theory.stanford.edu/~amitp/yapps/> or at
+# <http://www.opensource.org/licenses/mit-license.php>
+
+The LICENSE file states:
+  <http://www.opensource.org/licenses/mit-license.php>
+
+  Permission is hereby granted, free of charge, to any person obtaining 
+  a copy of this software and associated documentation files (the 
+  "Software"), to deal in the Software without restriction, including 
+  without limitation the rights to use, copy, modify, merge, publish, 
+  distribute, sublicense, and/or sell copies of the Software, and to 
+  permit persons to whom the Software is furnished to do so, subject to 
+  the following conditions: 
+
+  The above copyright notice and this permission notice shall be included 
+  in all copies or substantial portions of the Software. 
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 

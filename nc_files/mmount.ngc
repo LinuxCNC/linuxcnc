@@ -1,0 +1,335 @@
+(mmount.ngc - sample program)
+(this program mills a stepper motor mount)
+(it is intended to be run on the Mazak at the CNC workshop)
+(it requires the custom 3-station workholding fixture that is on that machine)
+(station 1 starts with a flat rectangular blank, and makes holes in it)
+(station 1 uses the G55 coordinate system)
+(touch off: XY = center of 1.876 hole, Z = top of plate)
+(station 2 mounts the part using a couple of the holes, and mills the outline)
+(station 2 uses the G56 coordinate system)
+(touch off: XY = center of 1.876 hole, Z = top of plate)
+(station 3 mounts the part on end to drill, tap, and c'bore holes in one end)
+(station 3 uses the G57 coordinate system)
+(touch off: XZ = center of 1.876 hole, Y = back surface of plate)
+
+(it uses the following tools:)
+(1       1       -1.1901     0.250   3/4 center drill)
+(2       2       -0.2875     0.209   #4 tap drill)
+(3       3        0.0        0.1406  9/64 clearance drill)
+(4       4       -1.6630     0.25    1/4 end mill)
+(5       5       -1.5042     0.5     1/2 end mill)
+(15      15      -1.5042     0.55    same 1/2 end mill oversize roughing)
+(6       6       -0.1833     0.25    1/4-20 pulley tap)
+
+#100=10.0 (outside feed)
+#101=10.0 (inside feed)
+#102=3.0 (drill feed)
+
+G17 G20 G40 G90
+
+o100 sub
+  (helical hole milling, load tool and set feed first, then use like so:)
+  (o100 call [x pos] [y pos] [safety height] [hole depth] [hole dia] [tool dia])
+  (tool dia doesn't have to be specified exactly.)
+#9=#5 (save real dia)
+#5=[#5-.020]
+#4=[0 - #4]
+#7=[#6 / 2]  (#7 is depth per circle = half of tool diameter)
+#8=[#3 - #7] (#8 is current depth step)
+g0 z#3
+(start above and right so we make a convex corner for entry to the ccw arcs)
+g0 x[#1 + #6] y[#2 + [#5]] 
+g41 g0 x#1 y[#2 + [#5 / 2]]
+o101 while [#8 GT #4]
+(down toward the specified depth a bit at a time)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]] z#8
+#8=[#8 - #7]
+o101 endwhile
+(down to the actual depth)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]] z#4
+(full circle at the actual depth)
+g3 x#1 y[#2 + [#5 / 2]] i0 j[0 - [#5 / 2]]
+(now make a finish pass at the actual diameter)
+g3 x#1 y[#2 - [#9 / 2]] i0 j[0 - [[#5 + #9]/4]]
+g3 x#1 y[#2 - [#9 / 2]] i0 j[#9/2]
+g3 x#1 y[#2 + [#5 / 2]] i0 j[[#5+#9]/4]
+g0 z#3
+g40
+o100 endsub
+
+(DRILL 3/4 CENTER)
+T1 M6 G43
+G55
+S764 M3 M8
+G00 X0.0000 Y0.0000
+G00 Z0.2500
+(spot five holes in station 1)
+G81 R0.0250 Z-0.0400 X0.0000 Y-6.0000 F#102
+G81 R0.0250 Z-0.0400 X0.0000 Y-7.0000 F#102
+G81 R0.0250 Z-0.0400 X0.0000 Y-3.5000 F#102
+G81 R0.0250 Z-0.0400 X0.0000 Y-2.5000 F#102
+G81 R0.0250 Z-0.0400 X-1.938 Y-8.9000 F#102
+G00 Z0.2500
+M5 M9
+G00 G53 Z0.0000
+
+(MILL 0.250)
+T4 M6 G43
+(station 1)
+G55
+S3056 M3 M8
+G00 X0.0000 Y0.0000
+G00 Z0.2500
+
+(mill curved slot)
+G00 X-0.1806 Y-11.4324
+G41
+G01 X-0.1806 Y-11.1824 F#101
+G03 X0.3449 Y-10.6567 I-1.7574 J2.2824 Z0.025
+G03 X0.1221 Y-10.4853 I-0.1114 J0.0857 Z0.0
+G02 X-0.3521 Y-10.9596 I-2.0601 J1.5853 Z-0.125
+G03 X-0.1806 Y-11.1824 I0.0858 J-0.1114
+G03 X0.3449 Y-10.6567 I-1.7574 J2.2824 
+G03 X0.1221 Y-10.4853 I-0.1114 J0.0857
+G02 X-0.3521 Y-10.9596 I-2.0601 J1.5853 Z-0.250
+G03 X-0.1806 Y-11.1824 I0.0858 J-0.1114
+G03 X0.3449 Y-10.6567 I-1.7574 J2.2824 
+G03 X0.1221 Y-10.4853 I-0.1114 J0.0857
+G02 X-0.3521 Y-10.9596 I-2.0601 J1.5853 Z-0.375
+G03 X-0.1806 Y-11.1824 I0.0858 J-0.1114
+G03 X0.3449 Y-10.6567 I-1.7574 J2.2824
+G03 X0.1221 Y-10.4853 I-0.1114 J0.0857
+G02 X-0.3521 Y-10.9596 I-2.0601 J1.5853 Z-0.550
+G03 X-0.1806 Y-11.1824 I0.0858 J-0.1114
+G03 X0.3449 Y-10.6567 I-1.7574 J2.2824
+G03 X0.1221 Y-10.4853 I-0.1114 J0.0857
+G02 X-0.3521 Y-10.9596 I-2.0601 J1.5853
+G00 Z0.2500
+G40
+
+(mill second curved slot)
+G00 X1.5152 Y-8.4181
+G41
+G01 X1.7652 Y-8.4181 Z0.025
+G02 X1.7652 Y-9.3819 I-3.7032 J-0.4819 Z-0.125
+G03 X2.0440 Y-9.4181 I0.1394 J-0.0181
+G03 X2.0440 Y-8.3819 I-3.9820 J0.5181
+G03 X1.7652 Y-8.4181 I-0.1394 J-0.0181
+G02 X1.7652 Y-9.3819 I-3.7032 J-0.4819 Z-0.250
+G03 X2.0440 Y-9.4181 I0.1394 J-0.0181
+G03 X2.0440 Y-8.3819 I-3.9820 J0.5181
+G03 X1.7652 Y-8.4181 I-0.1394 J-0.0181
+G02 X1.7652 Y-9.3819 I-3.7032 J-0.4819 Z-0.375
+G03 X2.0440 Y-9.4181 I0.1394 J-0.0181
+G03 X2.0440 Y-8.3819 I-3.9820 J0.5181
+G03 X1.7652 Y-8.4181 I-0.1394 J-0.0181
+G02 X1.7652 Y-9.3819 I-3.7032 J-0.4819 Z-0.550
+G03 X2.0440 Y-9.4181 I0.1394 J-0.0181
+G03 X2.0440 Y-8.3819 I-3.9820 J0.5181
+G03 X1.7652 Y-8.4181 I-0.1394 J-0.0181
+G02 X1.7652 Y-9.3819 I-3.7032 J-0.4819
+G00 Z0.2500
+G40
+
+(mill four holes)
+o100 call [ 1.1880] [-0.9380] [0.25] [0.55] [0.4375] [0.25]
+o100 call [-1.1880] [-0.9380] [0.25] [0.55] [0.4375] [0.25]
+o100 call [ 0.0000] [-7.5000] [0.25] [0.55] [0.5000] [0.25]
+o100 call [ 0.0000] [-1.4000] [0.25] [0.55] [0.5000] [0.25]
+
+G00 G53 Z0.0000
+(station 3)
+G57
+G0 X0.0000 Y0.0000
+(counterbores)
+(o100 call [x pos] [y pos] [safety height] [hole depth] [hole dia] [tool dia])
+F#101
+o100 call [1.188] [-0.250] [1.4] [-0.367] [0.405] [0.25]
+F[#101/3] (mostly plunging)
+o100 call [1.188] [-0.250] [1.4] [-0.267] [0.2813] [0.25]
+F#101
+o100 call [-1.188] [-0.250] [1.4] [-0.367] [0.405] [0.25]
+F[#101/3] (mostly plunging)
+o100 call [-1.188] [-0.250] [1.4] [-0.267] [0.2813] [0.25]
+M5 M9
+
+G00 G53 Z0.0000
+
+(DRILL 9/32)
+T3 M6 G43
+G55
+S679 M3 M8
+G00 X0.0000 Y0.0000
+G00 Z0.2500
+G83 R0.050 Z-0.6000 Q.15 X-1.9380 Y-8.9000 F#102
+G00 G53 Z0.0000
+G57
+G00 X0.0000 Y0.0000
+G00 Z1.5000
+G83 R1.5000 Z-0.100 Q.15 X1.1880 Y-0.2500 F#102
+G83 R1.5000 Z-0.100 Q.15 X-1.1880 Y-0.2500 F#102
+M5 M9
+G00 G53 Z0.0000
+
+(DRILL #4)
+T2 M6 G43
+G55
+S914 M3 M8
+G00 X0.0000 Y0.0000
+G00 Z0.2500
+G83 R0.050 Z-0.7000 Q0.15 X0.0000 Y-7.0000 F#102
+G83 R0.050 Z-0.7000 Q0.15 X0.0000 Y-6.0000 F#102
+G83 R0.050 Z-0.7000 Q0.15 X0.0000 Y-3.5000 F#102
+G83 R0.050 Z-0.7000 Q0.15 X0.0000 Y-2.5000 F#102
+G00 G53 Z0.0000
+(drill at station 3)
+G57
+G00 X0.0000 Y0.0000
+G00 Z1.5000
+G00 X-1.188 Y-0.250 
+G00 Z0.500
+G83 R0.500 Z-0.938 Q0.15 F#102
+G00 Z1.5000
+G00 X1.188 Y-0.250
+G00 Z0.500
+G83 R0.500 Z-0.938 Q0.15 F#102
+M5 M9
+G00 G53 Z0.0000
+
+(MILL 0.500)
+T5 M6 G43
+S1527 M3 M8
+G55
+G00 X0 Y0
+G00 Z0.2500
+F#100
+(two large holes - turn the slugs into chips so they don't get caught)
+(o100 call [x pos] [y pos] [safety height] [hole depth] [hole dia] [tool dia])
+o100 call [0.0000] [0.0000] [0.25] [0.6] [1.000] [0.5]
+o100 call [0.0000] [0.0000] [0.25] [0.6] [1.876] [0.5]
+o100 call [0.0000] [-8.900] [0.25] [0.6] [1.00] [0.5]
+o100 call [0.0000] [-8.900] [0.25] [0.6] [2.00] [0.5]
+
+G00 G53 Z0.0000
+(station 2 - milling the perimeter)
+G56
+(first notch - to allow scrap to drop away)
+G00 X0 Y0
+G00 X-3.75 Y-8.9
+G00 Z0.25
+G01 Z-0.25
+G01 X-2.9 Y-8.9
+G00 Z0.25
+G00 X-3.75 Y-8.9
+G01 Z-0.6
+G01 X-2.9 Y-8.9
+G00 Z0.25
+(2nd drop notch)
+G00 X-3.75 Y0.5
+G01 Z-0.25
+G01 X-2 Y0.5
+G00 Z0.25
+G00 X-3.75 Y0.5
+G01 Z-0.6
+G01 X-2 Y0.5
+G00 Z0.25
+(3rnd drop notch)
+G00 X0 Y2.75
+G01 Z-0.25
+G01 X0 Y1.75
+G00 Z0.25
+G00 X0 Y2.75
+G01 Z-0.6
+G01 X0 Y1.75
+G00 Z0.25
+(beginning of profile)
+G00 G53 Z0.0000
+G00 X0 Y0
+G00 Z0.2500
+G00 X-1.6732 Y1.0677
+G41 D15 (oversize tool diameter)
+G03 X-0.6423 Y1.0677 I0.5154 J0.8569 Z-0.2500 F#100
+G02 X0.6423 Y1.0677 I0.6423 J-1.0677
+G01 X1.4775 Y0.5653
+G02 X1.5976 Y0.3739 I-0.1289 J-0.2142
+G01 X2.4036 Y-8.3886
+G02 X2.4046 Y-8.4115 I-0.2489 J-0.0229
+G01 X2.4046 Y-9.4000
+G02 X2.2096 Y-9.7962 I-0.5000 J0.0000
+G01 X0.0386 Y-11.4672
+G02 X-0.6625 Y-11.3760 I-0.3050 J0.3962
+G01 X-2.3342 Y-9.2050
+G02 X-2.4359 Y-8.8548 I0.3962 J0.3050
+G01 X-1.5975 Y0.3737
+G02 X-1.4774 Y0.5653 I0.2490 J-0.0226
+G01 X-0.6423 Y1.0677
+G02 X0.6423 Y1.0677 I0.6423 J-1.0677 Z-0.6000
+G01 X1.4775 Y0.5653
+G02 X1.5976 Y0.3739 I-0.1289 J-0.2142
+G01 X2.4036 Y-8.3886
+G02 X2.4046 Y-8.4115 I-0.2489 J-0.0229
+G01 X2.4046 Y-9.4000
+G02 X2.2096 Y-9.7962 I-0.5000 J0.0000
+G01 X0.0386 Y-11.4672
+G02 X-0.6625 Y-11.3760 I-0.3050 J0.3962
+G01 X-2.3342 Y-9.2050
+G02 X-2.4359 Y-8.8548 I0.3962 J0.3050
+G01 X-1.5975 Y0.3737
+G02 X-1.4774 Y0.5653 I0.2490 J-0.0226
+G01 X-0.6423 Y1.0677
+G02 X0.6423 Y1.0677 I0.6423 J-1.0677
+G00 Z0.2500
+G40
+
+G00 X-1.6732 Y1.0677
+G41 D5
+G03 X-0.6423 Y1.0677 I0.5154 J0.8569 Z-0.6000 F#100
+G02 X0.6423 Y1.0677 I0.6423 J-1.0677
+G01 X1.4775 Y0.5653
+G02 X1.5976 Y0.3739 I-0.1289 J-0.2142
+G01 X2.4036 Y-8.3886
+G02 X2.4046 Y-8.4115 I-0.2489 J-0.0229
+G01 X2.4046 Y-9.4000
+G02 X2.2096 Y-9.7962 I-0.5000 J0.0000
+G01 X0.0386 Y-11.4672
+G02 X-0.6625 Y-11.3760 I-0.3050 J0.3962
+G01 X-2.3342 Y-9.2050
+G02 X-2.4359 Y-8.8548 I0.3962 J0.3050
+G01 X-1.5975 Y0.3737
+G02 X-1.4774 Y0.5653 I0.2490 J-0.0226
+G01 X-0.6423 Y1.0677
+G01 X-0.2248 Y1.3189 (continue past edge)
+G00 Z0.2500
+G40
+M5 M9
+G00 G53 Z0.0000
+
+(TAP PULLEY 1/4-20)
+T6 M6 G43
+S200 M3 M8
+G55
+G00 X0.0000 Y0.0000
+G00 Z0.2500
+G00 X0.0000 Y-7.0000
+G33.1 Z-0.95 K0.05
+G00 X0.0000 Y-6.0000
+G33.1 Z-0.95 K0.05
+G00 X0.0000 Y-3.5000
+G33.1 Z-0.95 K0.05
+G00 X0.0000 Y-2.5000
+G33.1 Z-0.95 K0.05
+
+G00 G53 Z0.0000
+G57
+
+G00 X0.0000 Y0.0000
+G00 Z1.5000
+G00 X1.1880 Y-0.2500
+G33.1 Z-1.0 K0.05
+G00 X-1.1880 Y-0.2500
+G33.1 Z-1.0 K0.05
+M5 M9
+G00 G53 Z0.0000
+
+T0 M6 G49
+M02

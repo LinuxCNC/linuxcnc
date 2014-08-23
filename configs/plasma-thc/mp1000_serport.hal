@@ -1,0 +1,4 @@
+############################# Serial Ports ##############################################
+
+# Load A Python userspace program to communicate with the serial port
+loadusr ./mp1000_serial.py

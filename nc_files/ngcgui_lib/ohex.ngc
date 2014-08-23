@@ -1,0 +1,175 @@
+(cw  traverse: p1,p2,p3,p4)
+(ccw traverse: p1,p4,p3,p2)
+
+(info: ohex: outside hexagon, cw/ccw dir, radius compensation)
+o<ohex>  sub
+
+#<toolno>   =  #1 (=1)
+#<rpm>      =  #2 (=2000)
+#<feedrate> =  #3 (=10)
+#<dir>      =  #4 (=2 2conv | 3climb)
+#<flatd>    =  #5 (distance across flats)
+#<cutdepth> =  #6
+#<zincr>    =  #7
+#<zsafe>    =  #8 (=0.2)
+#<zstart>   =  #9 (=0)
+#<scale>    = #10 (=1)
+#<rotate>   = #11 (=0)
+#<xoff>     = #12 (=0)
+#<yoff>     = #13 (=0)
+#<spin_notify> = #14 (=0)
+#<use_g43>     = #15 (=1)
+#<h_for_g43>   = #16 (=0)
+#<verbose>     = #17 (=0)
+
+o<i0> if [#<scale> EQ 0]
+        #<scale> = 1.0
+        (debug, scale was 0, setting #<scale>)
+o<i0> endif
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam> = [#5410 +.001]
+
+o<dir> if [[#<dir> NE 2] AND [#<dir> NE 3]]
+         (debug, ohex: direction must be 2 or 3 - EXITING)
+         (print, ohex: direction must be 2 or 3 - EXITING)
+         (AXIS,notify, ohex: direction must be 2 or 3 - EXITING)
+         m2
+o<dir> endif
+
+#<f>      = [#<flatd>/2]
+#<p>      = [#<f>/cos[30]]
+
+#<pcos60> = [#<p> * cos[60]]
+#<psin60> = [#<p> * sin[60]]
+
+(p1 -> p2 -> is cw)
+(apply scale,rotate, then offset to all input points)
+#<x1>      = #<p>
+#<y1>      = 0
+o<move> call [#<x1>][#<y1>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x1>      = #<_move:x>
+#<y1>      = #<_move:y>
+
+#<x2>      = #<pcos60>
+#<y2>      = [0 - #<psin60>]
+o<move> call [#<x2>][#<y2>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x2>      = #<_move:x>
+#<y2>      = #<_move:y>
+
+#<x3>      = [0 - #<pcos60>]
+#<y3>      = [0 - #<psin60>]
+o<move> call [#<x3>][#<y3>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x3>      = #<_move:x>
+#<y3>      = #<_move:y>
+
+#<x4>      = [0 - #<p>]
+#<y4>      = 0
+o<move> call [#<x4>][#<y4>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x4>      = #<_move:x>
+#<y4>      = #<_move:y>
+
+#<x5>      = [0 -# <pcos60>]
+#<y5>      = #<psin60>
+o<move> call [#<x5>][#<y5>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x5>      = #<_move:x>
+#<y5>      = #<_move:y>
+
+#<x6>      = #<pcos60>
+#<y6>      = #<psin60>
+o<move> call [#<x6>][#<y6>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x6>      = #<_move:x>
+#<y6>      = #<_move:y>
+
+#<r>        = [#<tooldiam>/2]
+#<cutdepth> = [0 - #<cutdepth>]
+#<zincr>    = [0 - #<zincr>]
+
+(get lengths and angles for connecting lines)
+o<line> call [#<x1>][#<y1>][#<x2>][#<y2>]
+#<phi12>    = #<_line:phi>
+o<line> call [#<x2>][#<y2>][#<x3>][#<y3>]
+#<len23>    = #<_line:len>
+#<phi23>    = #<_line:phi>
+#<cos23>    = #<_line:cos>
+#<sin23>    = #<_line:sin>
+o<line> call [#<x1>][#<y1>][#<x6>][#<y6>]
+#<phi16>    = #<_line:phi>
+
+o<line> call [#<x6>][#<y6>][#<x5>][#<y5>]
+#<len65>    = #<_line:len>
+#<phi65>    = #<_line:phi>
+#<cos65>    = #<_line:cos>
+#<sin65>    = #<_line:sin>
+
+#<phi_cw>  = #<phi12> (starting line for cw)
+#<phi_ccw> = #<phi16> (starting line for ccw)
+
+         g40 (cutter radius compensation off)
+         f #<feedrate>
+         s #<rpm> m3 (spindle cw)
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
+         g0 z#<zsafe>
+         #<zcurrent> = #<zstart>
+         #<pass>     = 1
+
+o<wh010> while [#<zcurrent> GT #<cutdepth>]
+           #<zcurrent> = [#<zcurrent> + #<zincr>]
+o<wh020>   if [#<zcurrent> LT #<cutdepth>]
+             #<zcurrent> = #<cutdepth>
+o<wh020>   endif
+o<wh030>   if [#<pass> GT 100]
+             (debug, ohex: too many passes  - EXITING)
+             (print, ohex: too many passes  - EXITING)
+             (AXIS,notify, ohex: too many passes  - EXITING)
+             m2
+o<wh030>   endif
+
+o<aaa00>   if [#<dir> EQ 3]
+o<aaa10>     if [#<pass> EQ 1]
+               #<bx>  = [#<x1> +  #<r> * sin[#<phi_ccw>] - #<r> * cos[#<phi_ccw>]]
+               #<by>  = [#<y1> -  #<r> * cos[#<phi_ccw>] - #<r> * sin[#<phi_ccw>]]
+               #<vx>  = [0 + #<r> * cos[#<phi_ccw>]]     (r vector)
+               #<vy>  = [0 + #<r> * sin[#<phi_ccw>]]
+               g0  x #<bx> y #<by> (preentry 1)
+/              g42 (cutter radius comp right of path)
+               g2  x #<x1> y #<y1> i #<vx> j #<vy> (arc entry)
+               #<xfinal_b> = #<x6>
+               #<yfinal_b> = #<y6>
+               g1 z #<zstart> (plunge)
+o<aaa10>     endif
+             x #<x6> y #<y6> z#<zcurrent>
+             x #<x5> y #<y5>
+             x #<x4> y #<y4>
+             x #<x3> y #<y3>
+             x #<x2> y #<y2>
+             x #<x1> y #<y1>
+             #<pass> = [#<pass> + 1]
+o<aaa00>   else (dir EQ 2 CW)
+o<aaa40>     if [#<pass> EQ 1]
+               #<bx>  = [#<x1> -  #<r> * sin[#<phi_cw>] - #<r> * cos[#<phi_cw>]]
+               #<by>  = [#<y1> +  #<r> * cos[#<phi_cw>] - #<r> * sin[#<phi_cw>]]
+               #<vx>  = [0 + #<r> * cos[#<phi_cw>]]     (r vector)
+               #<vy>  = [0 + #<r> * sin[#<phi_cw>]]
+               g0  x #<bx> y #<by>
+/              g41 (cutter radius comp left of path)
+               g3  x #<x1> y #<y1> i #<vx> j #<vy> (arc entry)
+               #<xfinal_b> = #<x2>
+               #<yfinal_b> = #<y2>
+               g1 z #<zstart> (plunge)
+o<aaa40>     endif
+             x #<x2> y #<y2> z#<zcurrent>
+             x #<x3> y #<y3>
+             x #<x4> y #<y4>
+             x #<x5> y #<y5>
+             x #<x6> y #<y6>
+             x #<x1> y #<y1>
+             #<pass> = [#<pass> + 1]
+o<aaa00>   endif
+o<wh010> endwhile
+         g1  x #<xfinal_b> y #<yfinal_b>
+         g0  z #<zsafe>
+         g40
+o<ohex> endsub

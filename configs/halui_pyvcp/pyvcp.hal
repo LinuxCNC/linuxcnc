@@ -1,0 +1,99 @@
+loadusr -W pyvcp -c pyvcp vcp.xml
+
+net estop-activate       pyvcp.estop.activate       halui.estop.activate
+net estop-reset          pyvcp.estop.reset          halui.estop.reset
+net estop-is-activated   pyvcp.estop.is-activated   halui.estop.is-activated
+
+net machine-off          pyvcp.machine.off          halui.machine.off
+net machine-on           pyvcp.machine.on           halui.machine.on
+net machine-is-on        pyvcp.machine.is-on        halui.machine.is-on
+
+net abort                pyvcp.abort                halui.abort
+
+net run                  pyvcp.program.run          halui.program.run
+net pause                pyvcp.program.pause        halui.program.pause
+net resume               pyvcp.program.resume       halui.program.resume
+net step                 pyvcp.program.step         halui.program.step
+
+net mist-on              pyvcp.mist.on              halui.mist.on
+net mist-off             pyvcp.mist.off             halui.mist.off
+net lube-on              pyvcp.lube.on              halui.lube.on
+net lube-off             pyvcp.lube.off             halui.lube.off
+net flood-on             pyvcp.flood.on             halui.flood.on
+net flood-off            pyvcp.flood.off            halui.flood.off
+
+net mist-is-on           pyvcp.mist.is-on           halui.mist.is-on
+net flood-is-on          pyvcp.flood.is-on          halui.flood.is-on
+net lube-is-on           pyvcp.lube.is-on           halui.lube.is-on
+
+net mode-manual          pyvcp.mode.manual          halui.mode.manual
+net mode-auto            pyvcp.mode.auto            halui.mode.auto  
+net mode-mdi             pyvcp.mode.mdi             halui.mode.mdi   
+
+net spindle-start        pyvcp.spindle.on           halui.spindle.start
+net spindle-stop         pyvcp.spindle.off          halui.spindle.stop
+net spindle-forward      pyvcp.spindle.forward      halui.spindle.forward
+net spindle-reverse      pyvcp.spindle.reverse      halui.spindle.reverse
+net spindle-increase     pyvcp.spindle.increase     halui.spindle.increase
+net spindle-decrease     pyvcp.spindle.decrease     halui.spindle.decrease
+
+net mode-is-manual       pyvcp.mode.is-manual       halui.mode.is-manual
+net mode-is-auto         pyvcp.mode.is-auto         halui.mode.is-auto  
+net mode-is-mdi          pyvcp.mode.is-mdi          halui.mode.is-mdi   
+
+net spindle-is-on        pyvcp.spindle.is-on        halui.spindle.is-on
+net spindle-is-forward   pyvcp.spindle.is-forward   halui.spindle.runs-forward
+net spindle-is-backward  pyvcp.spindle.is-reverse   halui.spindle.runs-backward
+
+net j0-home              pyvcp.x.home               halui.joint.0.home
+net j0-is-homed          pyvcp.x.is-homed           halui.joint.0.is-homed
+net j0-min-hard          pyvcp.x.min-hard           halui.joint.0.on-hard-min-limit
+net j0-min-soft          pyvcp.x.min-soft           halui.joint.0.on-soft-min-limit
+net j0-max-soft          pyvcp.x.max-soft           halui.joint.0.on-soft-max-limit
+net j0-max-hard          pyvcp.x.max-hard           halui.joint.0.on-hard-max-limit
+net j0-has-fault         pyvcp.x.has-fault          halui.joint.0.has-fault
+net j0-minus             pyvcp.jog-x-               halui.jog.0.minus
+net j0-plus              pyvcp.jog-x+               halui.jog.0.plus
+
+net j1-home              pyvcp.y.home               halui.joint.1.home
+net j1-is-homed          pyvcp.y.is-homed           halui.joint.1.is-homed
+net j1-min-hard          pyvcp.y.min-hard           halui.joint.1.on-hard-min-limit
+net j1-min-soft          pyvcp.y.min-soft           halui.joint.1.on-soft-min-limit
+net j1-max-soft          pyvcp.y.max-soft           halui.joint.1.on-soft-max-limit
+net j1-max-hard          pyvcp.y.max-hard           halui.joint.1.on-hard-max-limit
+net j1-has-fault         pyvcp.y.has-fault          halui.joint.1.has-fault
+net j1-minus             pyvcp.jog-y-               halui.jog.1.minus
+net j1-plus              pyvcp.jog-y+               halui.jog.1.plus
+
+net j2-home              pyvcp.z.home               halui.joint.2.home
+net j2-is-homed          pyvcp.z.is-homed           halui.joint.2.is-homed
+net j2-min-hard          pyvcp.z.min-hard           halui.joint.2.on-hard-min-limit
+net j2-min-soft          pyvcp.z.min-soft           halui.joint.2.on-soft-min-limit
+net j2-max-soft          pyvcp.z.max-soft           halui.joint.2.on-soft-max-limit
+net j2-max-hard          pyvcp.z.max-hard           halui.joint.2.on-hard-max-limit
+net j2-has-fault         pyvcp.z.has-fault          halui.joint.2.has-fault
+net j2-minus             pyvcp.jog-z-               halui.jog.2.minus
+net j2-plus              pyvcp.jog-z+               halui.jog.2.plus
+
+net fo-increase          pyvcp.feed-override+       halui.feed-override.increase
+net fo-decrease          pyvcp.feed-override-       halui.feed-override.decrease
+net fo-value             pyvcp.feed-override.value  halui.feed-override.value
+
+net so-increase          pyvcp.spindle-override+    halui.spindle-override.increase
+net so-decrease          pyvcp.spindle-override-    halui.spindle-override.decrease
+net so-value             pyvcp.spindle-override.value  halui.spindle-override.value
+
+net os-on                pyvcp.optional-stop.on     halui.program.optional-stop.on
+net os-off               pyvcp.optional-stop.off    halui.program.optional-stop.off
+net os-is-on             pyvcp.optional-stop.is-on  halui.program.optional-stop.is-on
+
+net bd-on                pyvcp.block-delete.on      halui.program.block-delete.on
+net bd-off               pyvcp.block-delete.off     halui.program.block-delete.off
+net bd-is-on             pyvcp.block-delete.is-on   halui.program.block-delete.is-on
+
+#net probe-button         pyvcp.probe                motion.probe-input
+
+net quill-up             pyvcp.quillup              halui.mdi-command-00
+net reference-pos        pyvcp.referencepos         halui.mdi-command-01
+
+net jogspeed             pyvcp.jog-speed            halui.jog-speed

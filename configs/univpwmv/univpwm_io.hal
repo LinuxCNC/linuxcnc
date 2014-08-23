@@ -1,0 +1,112 @@
+# HAL config file for Pico Systems UPC board with threading
+#
+# Connect motion controller I/Os
+#
+
+# connect limit/home switch outputs to motion controller
+newsig Xminlim bit
+newsig Xmaxlim  bit
+newsig Xhome bit
+linksp Xminlim <= ppmc.0.din.01.in
+linksp Xminlim => axis.0.neg-lim-sw-in
+linksp Xmaxlim <= ppmc.0.din.02.in
+linksp Xmaxlim => axis.0.pos-lim-sw-in
+linksp Xhome <= ppmc.0.din.00.in
+linksp Xhome => axis.0.home-sw-in
+
+newsig Yminlim bit
+newsig Ymaxlim  bit
+newsig Yhome bit
+#linksp Yminlim <= ppmc.0.din.05.in
+#linksp Yminlim => axis.1.neg-lim-sw-in
+#linksp Ymaxlim <= ppmc.0.din.06.in
+#linksp Ymaxlim => axis.1.pos-lim-sw-in
+#linksp Yhome <= ppmc.0.din.04.in
+#linksp Yhome => axis.1.home-sw-in
+
+newsig Zminlim bit
+newsig Zmaxlim  bit
+newsig Zhome bit
+#linksp Zminlim <= ppmc.0.din.09.in
+#linksp Zminlim => axis.2.neg-lim-sw-in
+#linksp Zmaxlim <= ppmc.0.din.10.in
+#linksp Zmaxlim => axis.2.pos-lim-sw-in
+#linksp Zhome <= ppmc.0.din.08.in
+#linksp Zhome => axis.2.home-sw-in
+
+newsig Aminlim bit
+newsig Amaxlim  bit
+newsig Ahome bit
+linksp Aminlim <= ppmc.0.din.12.in
+linksp Aminlim => axis.3.neg-lim-sw-in
+linksp Amaxlim <= ppmc.0.din.13.in
+linksp Amaxlim => axis.3.pos-lim-sw-in
+linksp Ahome <= ppmc.0.din.11.in
+linksp Ahome => axis.3.home-sw-in
+
+
+# connect index pulses to motion controller
+# do these when index pulsing is figured out
+newsig Xindex bit
+newsig Yindex  bit
+newsig Zindex bit
+linksp Xindex <= ppmc.0.encoder.00.index-enable
+linksp Xindex => axis.0.index-enable
+linksp Yindex <= ppmc.0.encoder.01.index-enable
+linksp Yindex => axis.1.index-enable
+linksp Zindex <= ppmc.0.encoder.02.index-enable
+linksp Zindex => axis.2.index-enable
+
+#
+# Connect I/O controller I/Os
+#
+
+# connect e-stop write/sense to I/O controller
+# and univpwm's fault with estop's output, so  estop FF is reset, but
+#      prevent continued estop signal from univpwm from holding FF cleared
+newsig ppmcEstop bit
+linksp ppmcEstop ppmc.0.din.15.in-not
+linksp ppmcEstop and2.0.in0
+newsig EstopOkIn bit
+linksp EstopOkIn estop-latch.0.fault-in
+linksp EstopOkIn and2.0.out
+newsig EstopOkOut bit
+linksp EstopOkOut <= ppmc.0.dout.07.out
+linksp EstopOkOut iocontrol.0.emc-enable-in
+linksp EstopOkOut estop-latch.0.ok-out
+linksp EstopOkOut and2.0.in1
+newsig emc-estop-out bit
+linksp emc-estop-out iocontrol.0.user-enable-out
+linksp emc-estop-out estop-latch.0.ok-in
+newsig emc-estop-reset bit
+linksp emc-estop-reset iocontrol.0.user-request-enable
+linksp emc-estop-reset estop-latch.0.reset
+
+# connect spindle fwd/rev to I/O controller
+newsig SpindleFwd bit
+newsig SpindleRev bit
+linksp SpindleFwd <= ppmc.0.dout.00.out
+linksp SpindleFwd => motion.spindle-forward
+linksp SpindleRev <= ppmc.0.dout.01.out
+linksp SpindleRev => motion.spindle-reverse
+
+# connect spindle speed up/down to I/O controller
+newsig SpindleUp bit
+newsig SpindleDown bit
+#linksp SpindleUp <= ppmc.0.dout.06.out
+#linksp SpindleUp => motion.spindle-incr-speed
+#linksp SpindleDown <= ppmc.0.dout.05.out
+#linksp SpindleDown => motion.spindle-decr-speed
+
+# connect spindle brake to I/O controller
+newsig SpindleBrakeOn bit
+linksp SpindleBrakeOn <= ppmc.0.dout.02.out
+linksp SpindleBrakeOn => motion.spindle-brake
+
+# connect mist/flood coolant to I/O controller
+newsig MistOn bit
+newsig FloodOn bit
+linksp MistOn <= ppmc.0.dout.03.out
+linksp MistOn => iocontrol.0.coolant-mist
+linksp FloodOn <= ppmc.0.dout.04.out
+linksp FloodOn => iocontrol.0.coolant-flood

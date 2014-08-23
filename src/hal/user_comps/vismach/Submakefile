@@ -1,0 +1,22 @@
+
+
+VISMACH_PY :=  \
+	pumagui.py \
+	puma560gui.py \
+	scaragui.py \
+	hexagui.py \
+	5axisgui.py \
+	max5gui.py \
+	maho600gui.py \
+	hbmgui.py
+
+VISMACH_PYBIN := $(patsubst %.py,../bin/%,$(VISMACH_PY))
+PYTARGETS += $(VISMACH_PYBIN)
+
+
+$(VISMACH_PYBIN): ../bin/%: hal/user_comps/vismach/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+

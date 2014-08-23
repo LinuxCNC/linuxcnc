@@ -1,0 +1,546 @@
+#!/bin/bash
+#********************************************************************
+# Description: hal_demo
+#
+# This script is used to test/demo the Hardware Abstraction Layer
+#
+# There are actually a number of demos, and right now they may
+# change frequently.  To avoid cluttering up the scripts directory,
+# this file contains all the demos.  Select the one you want by
+# giving an argument.  For example, "hal_demo jogwheel" will run
+# the jogwheel demo.
+#
+# if you don't specify a demo, this prints a usage message
+#
+# Author:
+# License: GPL Version 2
+# System: Linux
+#    
+# Copyright (c) 2004-2009 All rights reserved.
+#*******************************************************************/
+if [ ! $1 ] ; then
+    echo "Usage:  scripts/hal_demo <demo_name>"
+    echo "Run from the emc2 directory only"
+    # print the list of demos
+    scripts/hal_demo list
+    exit 0
+fi
+#
+# the first demo isn't a real demo - it simply lists all the demos
+#
+if [ $1 = list ] ; then
+    echo "Available demos are:"
+    echo "  list - prints this list"
+    echo "  load - loads hal core modules"
+    echo "  unload - unloads hal code modules"
+    echo "  parport1 - an introductory demo - step by step"
+    echo "  siggen - another introductory demo - signal generator"
+    echo "  circle - complex demo - 2 axis circular moves"
+    echo "  scope - simple demo of halscope"
+    exit 0
+fi
+#
+# The next two demos aren't really demos either - they simply
+# load or unload the rtapi enviroment
+#
+# here is the "load" command
+#
+if [ $1 = load ] ; then
+    # load the rtos and rtapi
+    if ! scripts/realtime start ; then
+        exit -1
+    fi
+    # done
+    echo "RTAPI core loaded"
+    exit 0
+fi
+#
+# here is the "unload" command
+#
+if [ $1 = unload ] ; then
+    # unload any left-over modules
+    bin/halcmd unloadrt all
+    # unload the rtos and rtapi
+    if ! scripts/realtime stop ; then
+        exit -1
+    fi
+    # done
+    echo "RTAPI core unloaded"
+    exit 0
+fi
+#
+# We're almost ready for the real demos, first we must
+# make sure the rtapi core is loaded
+#
+HAL_LIB_STR=`/sbin/lsmod | awk '{print $1}' | grep -x hal_lib `
+if [ ! "$HAL_LIB_STR" ] ; then
+    echo "All of the demos require the RTAPI and HAL_LIB modules"
+    echo "to be loaded.  Use 'hal_demo load' to load them."
+    exit -1
+fi
+#
+# The first demo: "parport1" simply tests the parallel port
+# this one is a step by step, tutorial/intro to HAL concepts
+#
+if [ $1 = parport1 ] ; then
+    echo "(Comments that are part of the demo are in parenthesis.)"
+    echo "(This demo echos its commands to the screen so you can"
+    echo " see what each step does.  Echoed commands start with '$')"
+    echo "Hit enter to install the parport module"
+    read
+    # change the 0278 if your port is at a different address
+    echo "$ bin/halcmd loadrt hal_parport cfg=\"0278\""
+    bin/halcmd loadrt hal_parport cfg="0278"
+    echo "Hit enter see the component list"
+    read
+    echo "$ bin/halcmd show comp"
+    bin/halcmd show comp
+    echo "Hit enter to create a 1mS thread"
+    read
+    echo "$ bin/halcmd loadrt threads name1=parport.thread period1=1000000"
+    bin/halcmd loadrt threads name1=parport.thread period1=1000000
+    echo "Hit enter see the threads and functions"
+    read
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(the period is in nano-seconds)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    echo "Hit enter to continue"
+    read
+    echo "(connecting the parport read and write"
+    echo " functions to the 1mS thread)"
+    echo "$ bin/halcmd addf parport.0.read parport.thread"
+    bin/halcmd addf parport.0.read parport.thread
+    echo "$ bin/halcmd addf parport.0.write parport.thread"
+    bin/halcmd addf parport.0.write parport.thread
+    echo "(start the realtime thread)"
+    echo "$ bin/halcmd start"
+    bin/halcmd start
+    echo "Hit enter see the threads and functions again"
+    read
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(thread now has functions attached)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    echo "(functions have a non-zero users count)"
+    echo "Hit enter to see the pins"
+    read
+    echo "$ bin/halcmd show pin"
+    bin/halcmd show pin
+    echo "Hit enter to see the parameters"
+    read
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    echo "Hit enter to create some signals"
+    read
+    echo "$ bin/halcmd newsig jumper1 bit"
+    bin/halcmd newsig jumper1 bit
+    echo "$ bin/halcmd newsig jumper2 bit"
+    bin/halcmd newsig jumper2 bit
+    echo "(signals created - lets look at them)"
+    echo "$ bin/halcmd show sig"
+    bin/halcmd show sig
+    echo "Hit enter to connect signals to pins"
+    read
+    echo "(use signal jumper1 to connect input pin 10 to output pin 2)"
+    echo "$ bin/halcmd linksp jumper1 parport.0.pin-10-in"
+    bin/halcmd linksp jumper1 parport.0.pin-10-in
+    echo "$ bin/halcmd linksp jumper1 parport.0.pin-02-out"
+    bin/halcmd linksp jumper1 parport.0.pin-02-out
+    echo "(connections made - lets take a look)"
+    echo "$ bin/halcmd show sig"
+    bin/halcmd show sig
+    echo "(If you have a breakout board or other access to the port"
+    echo " you can apply a signal to pin 10 and verify that pin 2"
+    echo " follows it - updated every 1mS )"
+    echo "Hit enter to add another output"
+    read
+    echo "$ bin/halcmd linksp jumper1 parport.0.pin-03-out"
+    bin/halcmd linksp jumper1 parport.0.pin-03-out
+    echo "(input pin 10 is now routed to output pins 2 and 3 )"
+    echo "$ bin/halcmd show sig"
+    bin/halcmd show sig
+    echo "Hit enter to invert the pin 3 output"
+    read
+    echo "(invert pin 3 by setting a parameter of the parport module)"
+    echo "$ bin/halcmd setp parport.0.pin-03-out-invert TRUE"
+    bin/halcmd setp parport.0.pin-03-out-invert TRUE
+    echo "(if you have access to the pins, you can verify"
+    echo " that pin 3 is now inverted)"
+    echo "Hit enter to see the parameters"
+    read
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    echo "Hit enter to try halmeter"
+    read
+    echo "(running halmeter, a GUI application - it should"
+    echo " appear in another window.)"
+    echo "(click on the select button, then select a pin, signal,"
+    echo " or parameter to observe.  You can change what you are"
+    echo " observing at any time.)"
+    echo "(the meter updates approx. every 0.1 seconds - if you"
+    echo " have access to the pins, change the input and halmeter"
+    echo " will show the changes.)"
+    echo "(an interesting paremeter to observe is parport.thread.time"
+    echo " which is the most recent execution time of the thread in"
+    echo " nanoseconds.  you should be able to see it change a little"
+    echo " due to jitter and other factors."
+    echo "(Click exit to shut down halmeter.)"
+    echo "$ bin/halmeter"
+    bin/halmeter
+    echo "Hit enter to finish the demo"
+    read
+    echo "(deleting signals)"
+    echo "$ bin/halcmd delsig jumper1"
+    bin/halcmd delsig jumper1
+    echo "$ bin/halcmd delsig jumper2"
+    bin/halcmd delsig jumper2
+    echo "(unloading realtime modules)"
+    echo "$ bin/halcmd unloadrt all"
+    bin/halcmd unloadrt all
+    exit 0
+fi
+#
+# The next demo: "siggen" tests the signal generator component
+# and halmeter.
+# this one is also a step by step tutorial
+#
+if [ $1 = siggen ] ; then
+    echo "(Comments that are part of the demo are in parenthesis.)"
+    echo "(This demo echos its commands to the screen so you can"
+    echo " see what each step does.  Echoed commands start with '$')"
+    echo "Hit enter to install the siggen module"
+    read
+    echo "$ bin/halcmd loadrt siggen"
+    bin/halcmd loadrt siggen
+    echo "Hit enter see the component list"
+    read
+    echo "$ bin/halcmd show comp"
+    bin/halcmd show comp
+    echo "Hit enter to create a 1mS thread"
+    read
+    echo "$ bin/halcmd loadrt threads name1=siggen.thread period1=1000000"
+    bin/halcmd loadrt threads name1=siggen.thread period1=1000000
+    echo "Hit enter see the threads and functions"
+    read
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(the period is in nano-seconds)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    echo "Hit enter to continue"
+    read
+    echo "(connecting the siggen update function to the 1mS thread)"
+    echo "$ bin/halcmd addf siggen.0.update siggen.thread"
+    bin/halcmd addf siggen.0.update siggen.thread
+    echo "(start the realtime thread)"
+    echo "$ bin/halcmd start"
+    bin/halcmd start
+    echo "Hit enter see the threads and functions again"
+    read
+    echo "$ bin/halcmd show thread"
+    bin/halcmd show thread
+    echo "(thread now has function attached)"
+    echo "$ bin/halcmd show funct"
+    bin/halcmd show funct
+    echo "(function has a non-zero users count)"
+    echo "Hit enter to see the pins"
+    read
+    echo "$ bin/halcmd show pin"
+    bin/halcmd show pin
+    echo "Hit enter to see the parameters"
+    read
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    echo "Hit enter to change the frequency to 0.1Hz"
+    read
+    echo "$ bin/halcmd setp siggen.0.frequency 0.1"
+    bin/halcmd setp siggen.0.frequency 0.1
+    echo "Hit enter to see the parameters"
+    read
+    echo "$ bin/halcmd show param"
+    bin/halcmd show param
+    echo "Hit enter to try halmeter"
+    read
+    echo "(running halmeter, a GUI application - it should"
+    echo " appear in another window.)"
+    echo "(it will initially display the sine signal, click"
+    echo " on the select button, then select a pin, signal, or"
+    echo " parameter to observe.  You can change what you are"
+    echo " observing at any time.)"
+    echo "(the meter updates approx. every 0.1 seconds - if you"
+    echo " select one of the output pins, you should see it go"
+    echo " through a complete cycle every 10 seconds, since we"
+    echo " set the frequency to 0.1Hz.)"
+    echo "(Click exit to shut down halmeter.)"
+    echo "$ bin/halmeter pin siggen.0.sine"
+    bin/halmeter pin siggen.0.sine
+    echo "Hit enter to finish the demo"
+    read
+    echo "(unloading realtime modules)"
+    echo "$ bin/halcmd unloadrt all"
+    bin/halcmd unloadrt all
+    exit 0
+fi
+#
+# The next demo: "circle" puts a bunch of components together
+# to move in a circle.
+#
+if [ $1 = circle ] ; then
+    echo "(This demo does not show each command step by step)"
+    echo "(Examine the script to see how it works, it is"
+    echo " extensively commented)"
+    echo "Hit enter to install the hal components"
+    read
+    # install parport module
+    # change the 0278 if your port is at a different address
+    bin/halcmd loadrt hal_parport cfg="0278"
+    # install two frequency type step pulse generators, stepping type 0,
+    # and also create two threads, one 50uS and one 1mS
+    bin/halcmd loadrt freqgen step_type=0,0
+    # install the siggen module
+    bin/halcmd loadrt siggen
+    # install two PID loops
+    bin/halcmd loadrt pid num_chan=2
+    #
+    bin/halcmd show comp
+    echo "Hit enter set up the threads"
+    read
+    # create two threads, one 50uS and one 1mS
+    bin/halcmd loadrt threads name1=freqgen.thread name2=freqgen.threadFP period1=50000 period2=1000000
+    # set up the high speed thread
+    # first read the parport inputs
+    bin/halcmd addf parport.0.read freqgen.thread
+    # then run the step generator
+    bin/halcmd addf freqgen.make-pulses freqgen.thread
+    # then write the parport outputs
+    bin/halcmd addf parport.0.write freqgen.thread
+    # set up the low speed thread
+    # first run the signal generator to generate position references
+    bin/halcmd addf siggen.0.update freqgen.threadFP
+    # next run freqgen position capture function to get position feedback
+    bin/halcmd addf freqgen.capture-position freqgen.threadFP
+    # next run the pid loops
+    bin/halcmd addf pid.0.do-pid-calcs freqgen.threadFP
+    bin/halcmd addf pid.1.do-pid-calcs freqgen.threadFP
+    # and finally run the step generator update function
+    bin/halcmd addf freqgen.update-freq freqgen.threadFP
+    #
+    bin/halcmd show thread
+    bin/halcmd show funct
+    echo "Hit enter to create signals and connect pins"
+    read
+    #
+    # start with the position references - declare the signals
+    bin/halcmd newsig x_pos_cmd float
+    bin/halcmd newsig y_pos_cmd float
+    # connect them to their sources - the signal generator outputs
+    bin/halcmd linksp x_pos_cmd siggen.0.cosine
+    bin/halcmd linksp y_pos_cmd siggen.0.sine
+    # and connect them to their destinations - the PID command inputs
+    bin/halcmd linksp x_pos_cmd pid.0.command
+    bin/halcmd linksp y_pos_cmd pid.1.command
+    # now the position feedback
+    bin/halcmd newsig x_feedback float
+    bin/halcmd newsig y_feedback float
+    # connect them to their sources - the freqgen position output
+    bin/halcmd linksp x_feedback freqgen.0.position-fb
+    bin/halcmd linksp y_feedback freqgen.1.position-fb
+    # and connect them to their destinations - the PID feedback inputs
+    bin/halcmd linksp x_feedback pid.0.feedback
+    bin/halcmd linksp y_feedback pid.1.feedback
+    # the outputs of the PID loops are velocity commands
+    bin/halcmd newsig x_vel_cmd float
+    bin/halcmd newsig y_vel_cmd float
+    # connect them to their sources - the PID outputs
+    bin/halcmd linksp x_vel_cmd pid.0.output
+    bin/halcmd linksp y_vel_cmd pid.1.output
+    # and connect them to their destinations - the freqgen frequency inputs
+    bin/halcmd linksp x_vel_cmd freqgen.0.velocity
+    bin/halcmd linksp y_vel_cmd freqgen.1.velocity
+    # now we need to route the step and direction signals
+    bin/halcmd newsig x_step bit
+    bin/halcmd newsig x_dir bit
+    bin/halcmd newsig y_step bit
+    bin/halcmd newsig y_dir bit
+    # the sources - stepgen outputs
+    bin/halcmd linksp x_step freqgen.0.step
+    bin/halcmd linksp x_dir freqgen.0.dir
+    bin/halcmd linksp y_step freqgen.1.step
+    bin/halcmd linksp y_dir freqgen.1.dir
+    # the destinations - parport pins
+    # this set of lines configures for a Xylotex 3-axis card
+    #bin/halcmd linksp x_step parport.0.pin-02-out
+    #bin/halcmd linksp x_dir  parport.0.pin-03-out
+    #bin/halcmd linksp y_step parport.0.pin-04-out
+    #bin/halcmd linksp y_dir  parport.0.pin-05-out
+    # this set of lines configures for the "standard" EMC pinout
+    bin/halcmd linksp x_dir  parport.0.pin-02-out
+    bin/halcmd linksp x_step parport.0.pin-03-out
+    bin/halcmd linksp y_dir  parport.0.pin-04-out
+    bin/halcmd linksp y_step parport.0.pin-05-out
+    # there is one more signal to connect - the PID loops need
+    # to be enabled
+    bin/halcmd newsig enable bit
+    bin/halcmd linksp enable pid.0.enable
+    bin/halcmd linksp enable pid.1.enable
+    # we'll use a parport input as a source for a TRUE bit
+    bin/halcmd linksp enable parport.0.pin-10-in
+    #
+    bin/halcmd show sig
+    echo "Hit enter to set the parameters"
+    read
+    # set the signal generator frequency to make a circle in 10 seconds
+    bin/halcmd setp siggen.0.frequency 0.1
+    # set the PID tuning
+    bin/halcmd setp pid.0.Pgain 10
+    bin/halcmd setp pid.0.FF1 1.0
+    bin/halcmd setp pid.1.Pgain 10
+    bin/halcmd setp pid.1.FF1 1.0
+    # set the position feedback scaling - 800 steps = 1 machine unit
+    bin/halcmd setp freqgen.0.position-scale 0.00125
+    bin/halcmd setp freqgen.1.position-scale 0.00125
+    # set velocity scaling - 1 unit/sec = 800 steps/sec
+    bin/halcmd setp freqgen.0.velocity-scale 800
+    bin/halcmd setp freqgen.1.velocity-scale 800
+    #
+    bin/halcmd show param
+    echo "Hit enter to start"
+    read
+    #
+    bin/halcmd start
+    #
+    echo
+    echo "if you want to experiment, open another shell window."
+    echo "you can use halmeter to look at things and halcmd to"
+    echo "modify them"
+    echo "for example, to change from 1 circle every 10 seconds"
+    echo "to one circle every five seconds:"
+    echo "bin/halcmd setp siggen.0.frequency 0.2"
+    echo
+    echo "Hit enter to finish the demo"
+    read
+    bin/halcmd unloadrt all
+    exit 0
+fi
+#
+# The next demo: "scope" lets the user play with the scope
+# using siggen as a signal source.
+# this one is also a step by step tutorial
+#
+if [ $1 = scope ] ; then
+    echo "The first part of this demo is identical to the siggen"
+    echo "demo.  Hit enter to get started"
+    read
+    echo "First we load the siggen demo (not echoed)"
+    bin/halcmd loadrt siggen
+    bin/halcmd loadrt threads name1=siggen.thread period1=1000000
+    bin/halcmd addf siggen.0.update siggen.thread
+    bin/halcmd start
+    bin/halcmd setp siggen.0.frequency 10
+    echo "Then we load the realtime component of halscope:"
+    echo "$ bin/halcmd loadrt scope_rt"
+    bin/halcmd loadrt scope_rt
+    echo "Finally we start the user component (in the background"
+    echo "so that the foreground can continue to give instructions):"
+    echo "$ bin/halscope &"
+    bin/halscope &
+    echo "HALSCOPE should appear in a new window.  Select this "
+    echo "window again and hit enter for step by step instructions"
+    read
+    echo "First we need to set the sample rate.  Click on then name"
+    echo "of a realtime thread (this example has only one)."
+    echo "You can optionally change the multiplier if you don't"
+    echo "want to sample every time the thread runs.  You can also"
+    echo "change the record length to allow for more channels.  For"
+    echo "the demo, you want at least 4 channels, so change it."
+    echo "When you are done, click OK, then come back to this"
+    echo "window and hit enter for the next step."
+    read
+    echo "Now we need to select the pins/signals/parameters that"
+    echo "we are going to observe.  The 16 buttons in a vertical"
+    echo "column are the channel select buttons.  Click #1"
+    echo "In the dialog that pops up, select a pin - perhaps the"
+    echo "triangle output of the siggen.  Note that the channel"
+    echo "number and name appear in the lower left of the scope"
+    echo "window.  This is the selected (highlighted) channel."
+    echo "Now click on another channel number like #3, and select"
+    echo "another pin, perhaps the sine output.  Then come back"
+    echo "to this window and hit enter for the next step"
+    read
+    echo "Now you have a couple channels.  To start sampling, click"
+    echo "on NORMAL in the 'Run Mode' window in the upper right."
+    echo "The state display at the top right of the display will"
+    echo "change from IDLE to PRE-TRIG as the scope acquires"
+    echo "pre-trigger data.  The status display will show a bar"
+    echo "that represents the portion of the record that has been"
+    echo "captured.  The state will change to TRIGGER? when the"
+    echo "pre-trigger phase is done, to show that it is waiting "
+    echo "for a trigger.  Currently the only working trigger source"
+    echo "is the manual one, so click the 'Force' button to cause"
+    echo "a trigger. You can also click on 'Auto', which causes"
+    echo "the scope to trigger automaticlly after a delay.  Fully"
+    echo "functional triggering is under construction.  When the"
+    echo "scope triggers, the state will change to TRIGGERED and"
+    echo "the bar will show progress as it acquires post-trigger"
+    echo "data.  When it is done, the waveforms will display, and"
+    echo "the scope will begin acquiring data again.  Hit enter"
+    echo "for the next step."
+    read
+    echo "The signals are likely to be near the top of the screen"
+    echo "if you used a low numbered channel.  Use the position"
+    echo "slider in the vertical menu (lower right) to move the"
+    echo "selected signal (the green one) down.  Use the gain"
+    echo "slider to scale it if you wish.  Note the scale displayed"
+    echo "below the slider - it has a very wide range.  When the"
+    echo "selected channel is adjusted to your liking, click on"
+    echo "the channel number for the other channel to select it."
+    echo "(Note the name and number at the bottom left.)  Adjust"
+    echo "the second channels vertical position and gain, then"
+    echo "hit enter for the next step"
+    read
+    echo "Now that vertical is set, lets look at horizontal.  The"
+    echo "horizontal controls are above the screen.  Below the"
+    echo "sliders and sample rate display is a graphic that shows"
+    echo "the display as a large box, and the data record as a"
+    echo "smaller box (probably half or all black).  Move the zoom"
+    echo "slider one click to the right.  Note that the large box"
+    echo "is now shorter.  Now move the position slider, and see"
+    echo "how the large box moves with respect to the smaller one."
+    echo "This display quickly shows you what portion of the record"
+    echo "you are viewing.  Zoom in some more to clearly see the"
+    echo "sine and triangle waveforms.  Hit enter for the next step."
+    read
+    echo "If you want to change the sample rate, use the 'Change"
+    echo "Rate/Len' button, which brings up the same dialog that"
+    echo "appeared when the program started.  To add more channels,"
+    echo "click on additional channel number buttons.  If you want"
+    echo "to turn a channel off, select it and click the 'Channel"
+    echo "Off' button (the signal source, position, etc, will be"
+    echo "remembered if you turn it back on again.  To change the"
+    echo "signal captured by a channel, select the channel and click"
+    echo "the 'Source' button.  An interesting item to look at is"
+    echo "the paremeter 'siggen.thread.time', which is the time"
+    echo "needed by the thread, in nano-seconds.  It is updated"
+    echo "every time the thread runs, and varies based on cache hits"
+    echo "and other loading.  Its value will be in the thousands"
+    echo "of nanoseconds (a few microseconds), so the trace will"
+    echo "initially be off scale. Set the scale to 5K/div or so to"
+    echo "make it visible. Hit enter for the next step."
+    read
+    echo "To shut down the scope, use the [X] button in the corner"
+    echo "Hit enter to finish the demo"
+    read
+    bin/halcmd unloadrt all
+    exit 0
+fi
+#
+#
+# if we get here, the user asked for a non-existant demo
+#
+echo "Sorry, there is no demo called '$1'"
+scripts/hal_demo
+exit -1
+

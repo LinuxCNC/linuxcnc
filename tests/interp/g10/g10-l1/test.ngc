@@ -1,0 +1,70 @@
+g20
+g10 l2 p1 x0 y0 z0
+g54
+g10 l1 p1 x0 y0 z0
+t1 m6 g43
+(debug, should be 0 0 0: #5401 #5402 #5403)
+g10 l1 p1 x1
+g43
+(debug, should be 1 0 0: #5401 #5402 #5403)
+g10 l1 p1 y2
+(debug, should be 1 2 0: #5401 #5402 #5403)
+g49
+g10 l1 p1 x0 y0
+(debug, should be 0 0 0: #5401 #5402 #5403)
+g10 l1 p1 x1
+(debug, should be 1 0 0: #5401 #5402 #5403)
+g10 l1 p1 y2
+(debug, should be 1 2 0: #5401 #5402 #5403)
+
+g49
+g10 l1 p1 x0 y0 z0
+t1 m6 g43
+g0 x.1 y.2
+(debug, should be 0 0 0: #5401 #5402 #5403)
+g10 l10 p1 x1
+g43
+(debug, should be -.9 0 0: #5401 #5402 #5403)
+g10 l10 p1 y2
+(debug, should be -.9 -1.8 0: #5401 #5402 #5403)
+g49
+g10 l10 p1 x0 y0
+(debug, should be .1 .2 0: #5401 #5402 #5403)
+g10 l10 p1 x1
+(debug, should be -.9 0.2 0: #5401 #5402 #5403)
+g10 l10 p1 y2
+(debug, should be -.9 -1.8 0: #5401 #5402 #5403)
+
+
+g10 l2 p1 r45
+g49
+g0 x0 y0
+g10 l10 p1 x0 y0 z0
+t1 m6 g43
+(debug, should be 0 0 0: #5401 #5402 #5403)
+g10 l10 p1 x1
+(debug, should be -.707 -.707 0: #5401 #5402 #5403)
+g43
+(debug, should be 1 0: #5420 #5421)
+g10 l10 p1 y1
+(debug, should be 0 -1.414 0: #5401 #5402 #5403)
+(debug, should be 1 0: #5420 #5421)
+g43
+(debug, should be 1 1: #5420 #5421)
+g49
+
+
+g10 l2 p1 r45
+g49
+g0 x0 y0
+g10 l10 p1 x0 y0 z0
+t1 m6 g43
+(debug, should be 0 0 0: #5401 #5402 #5403)
+g10 l10 p1 x1
+g10 l10 p1 y1
+(debug, should be 0 -1.414 0: #5401 #5402 #5403)
+(debug, should be 1 0: #5420 #5421)
+g43
+(debug, should be 1 1: #5420 #5421)
+g49
+m2

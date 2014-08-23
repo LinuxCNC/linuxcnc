@@ -1,0 +1,89 @@
+(info: backlash measurement utility, use with dial indicator)
+o<backlash> sub
+#<axis>     = #1 (= 0 0=x 1=y 2=z)
+#<p1>       = #2 (= 1.1)
+#<p2>       = #3 (= 2)
+#<fraction> = #4 (= 0.1)
+#<feedrate> = #5 (= 10)
+#<count>    = #6 (= 10)
+
+o<l10> if [#<p1> GT #<p2>]
+         #<vmin> = #<p2>
+         #<vmax> = #<p1>
+o<l10> else
+         #<vmin> = #<p1>
+         #<vmax> = #<p2>
+o<l10> endif
+
+       #<delv> = [#<vmax> - #<vmin>]
+o<l20> if [ABS[#<delv>] GT 0.9] (protect indicator)
+         (debug, backlash: move too big for indicator #<delv> - EXITING)
+         (print, backlash: move too big for indicator #<delv> - EXITING)
+         (AXIS,notify, backlash: move too big for indicator - EXITING)
+         m2
+o<l20> endif
+o<l30> if [[#<fraction> GT .99] OR [#<fraction> LT .01]]
+         (debug, backlash: bad fraction: #<fraction> - EXITING)
+         (print, backlash: bad fraction: #<fraction> - EXITING)
+         (AXIS,notify, bad fraction - EXITING)
+         m2
+o<l30> endif
+
+       #<vzero> = [#<vmin> + [#<vmax> - #<vmin>] * #<fraction>]
+       #<ok> = 0
+       f #<feedrate> g1
+
+o<whl> while [#<count> GT 0]
+o<xxx>   if [#<axis> EQ 0]
+           #<ok> = 1
+           x #<vmin>
+           x #<vzero>
+           (debug, set indicator ZERO, S to continue)
+           m0 (mandatory stop)
+           M110
+           x #<vmax>
+           x #<vzero>
+o<xxx>   endif
+o<yyy>   if [#<axis> EQ 1]
+           #<ok> = 1
+           y #<vmin>
+           y #<vzero>
+           (debug, set indicator ZERO, S to continue)
+           m0 (mandatory stop)
+           M110
+           y #<vmax>
+           y #<vzero>
+o<yyy>   endif
+o<zzz>   if [#<axis> EQ 2]
+           #<ok> = 1
+           z #<vmin>
+           z #<vzero>
+           (debug, set indicator ZERO, S to continue)
+           m0 (mandatory stop)
+           M110
+           z #<vmax>
+           z #<vzero>
+o<zzz>   endif
+o<ccc>   if [#<axis> EQ 5]
+           #<ok> = 1
+           c #<vmin>
+           c #<vzero>
+           (debug, set indicator ZERO, S to continue)
+           m0 (mandatory stop)
+           M110
+           c #<vmax>
+           c #<vzero>
+o<ccc>   endif
+
+         #<count> = [#<count> - 1]
+         (debug, READ indicator, S to continue)
+         m0 (mandatory stop)
+         M110
+o<whl> endwhile
+
+o<l60> if [#<ok> EQ 0]
+         (debug, bad axis specifier: #<axis>)
+         (print, bad axis specifier: #<axis>)
+o<l60> endif
+
+o<backlash> endsub

@@ -1,0 +1,113 @@
+# HAL config file for Vital Systems MOTENC-100 PCI board
+#
+# Install driver.
+#loadrt hal_motenc
+
+# Classicladder for machine logic (load the realtime portion).
+# Just uncomment the following line if you want a Software PLC
+#loadrt classicladder_rt numRungs=4 numBits=16 numWords=4 numTimers=2 numMonostables=2 numPhysInputs=16 numPhysOutputs=8 numArithmExpr=4 numSections=1
+
+# Invoke the user part of CL to silently load the program.
+# Just uncomment the following line if you want a Software PLC
+#loadusr -w classicladder --nogui ../configs/common/bridgeport.clp
+
+# Add I/O to servo thread so they will be evaluated
+# every servo period.
+# inputs get read at the beginning of the thread
+addf motenc.0.misc-update servo-thread 1
+#addf motenc.0.adc-read servo-thread 1
+addf motenc.0.digital-in-read servo-thread 1
+#addf classicladder.0.refresh servo-thread 1
+
+# outputs get refreshed at the end of the thread
+addf motenc.0.digital-out-write servo-thread -1
+
+#
+# Connect motion controller I/Os
+#
+
+# Connect limit/home switch outputs to motion controller.
+net Xminlim <= motenc.0.in-00
+net Xminlim => axis.0.neg-lim-sw-in
+net Xmaxlim <= motenc.0.in-01
+net Xmaxlim => axis.0.pos-lim-sw-in
+net Xhome <= motenc.0.in-02
+net Xhome => axis.0.home-sw-in
+
+net Yminlim <= motenc.0.in-04
+net Yminlim => axis.1.neg-lim-sw-in
+net Ymaxlim <= motenc.0.in-05
+net Ymaxlim => axis.1.pos-lim-sw-in
+net Yhome <= motenc.0.in-06
+net Yhome => axis.1.home-sw-in
+
+net Zminlim <= motenc.0.in-08
+net Zminlim => axis.2.neg-lim-sw-in
+net Zmaxlim <= motenc.0.in-09
+net Zmaxlim => axis.2.pos-lim-sw-in
+net Zhome <= motenc.0.in-10
+net Zhome => axis.2.home-sw-in
+
+# Connect amp faults to motion controller.
+net Xfault <= motenc.0.in-03
+net Xfault => axis.0.amp-fault-in
+net Yfault <= motenc.0.in-07
+net Yfault => axis.1.amp-fault-in
+net Zfault <= motenc.0.in-11
+net Zfault => axis.2.amp-fault-in
+
+# Connect amp enables to motion controller.
+net Xenable => motenc.0.out-08
+net Yenable => motenc.0.out-09
+net Zenable => motenc.0.out-10
+
+# Connect watchdog reset to mot ion controller.
+#newsig WatchdogRst bit
+#linksp WatchdogRst <= motenc.watchdog-reset
+#linksp WatchdogRst => motion.watchdog-reset-out
+
+
+#
+# Connect I/O controller I/Os
+#
+
+# Connect e-stop write/sense to I/O controller.
+#
+# The estop from the opto module should be jumpered to one of the
+# motenc estop pins. This will notify the moten of the estop condition
+# and it will zero the DACs and turn off all output even if the PC
+# has crashed.
+#
+net EstopSense <= motenc.0.estop-in-not
+#linksp EstopSense <= motenc.0.in-15
+net EstopSense => iocontrol.0.emc-enable-in
+net EstopWrite => motenc.0.out-07
+net EstopWrite <= iocontrol.0.user-enable-out
+
+# ESTOP loopback, only use this for a simple machine without external ESTOP
+# you really SHOULDN'T use a servo machine without proper ESTOP
+#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# Connect spindle fwd/rev to I/O controller.
+net SpindleFwd => motenc.0.out-00
+net SpindleFwd <= motion.spindle-forward
+net SpindleRev => motenc.0.out-01
+net SpindleRev <= motion.spindle-reverse
+
+# Connect spindle brake to I/O controller.
+net SpindleBrakeOn => motenc.0.out-02
+net SpindleBrakeOn <= motion.spindle-brake
+
+# Connect mist/flood coolant to I/O controller.
+net MistOn => motenc.0.out-05
+net MistOn <= iocontrol.0.coolant-mist
+net FloodOn => motenc.0.out-06
+net FloodOn <= iocontrol.0.coolant-flood
+
+# Connect lube motor run to I/O controller.
+net LubeOn => motenc.0.out-12
+net LubeOn <= iocontrol.0.lube
+
+# Connect lube level to I/O controller.
+net LubeLevel <= motenc.0.in-14
+net LubeLevel => iocontrol.0.lube_level

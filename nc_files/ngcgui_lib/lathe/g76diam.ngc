@@ -1,0 +1,69 @@
+(info: G76 Threading, Specify Major, Minor diameters, use NEGATIVE offset I for External Thread)
+
+; convenience routine that allows specifying major and
+; minor diameters for using G76
+
+; Note: To make the number of passes equal for G7 (diam) and G8 (radius) modes,
+;       jeq = j_for_G7 = 2 * j_for_G8
+
+o<g76diam> sub
+       #<toolno> =  #1 (= 10)
+          #<rpm> =  #2 (= 200  Spindle RPM)
+
+            #<i> =  #3 (= -0.03  I: offset NEG:external)
+           #<zi> =  #4 (= -0.5   Z: Zi driveline)
+
+; required items:
+            #<p> =  #5 (= -8     P: Pitch, NEG for tpi)
+            #<z> =  #6 (= -1.0   Z: Zf final)
+#<majordiameter> =  #7 (=  0.94)
+#<minordiameter> =  #8 (=  0.84)
+            #<j> =  #9 (=  0.015 Initial RADIAL cut depth)
+
+; G76 optional items:
+            #<r> = #10 (=  1.0   R: Depth degression)
+            #<q> = #11 (= 29.5   Q: Compound slide angle)
+            #<h> = #12 (=  0     H: No. of spring passes)
+            #<e> = #13 (=  0.05  E: Taper dist =K typ)
+            #<l> = #14 (=  2     L: End Taper 0,1,2,3)
+
+; other:
+      #<spindir> = #15 (=3 Dir: Right=3 Left=4)
+         #<mode> = #16 (=8 G7/G8 Radius=8 Diam=7)
+      #<verbose> = #17 (=0 0:quiet,1:verbose)
+
+o<if1> if [#<majordiameter> LE #<minordiameter>]
+          (print,       g76diam: major <= minor ? - EXITING)
+          (debug,       g76diam: major <= minor ? - EXITING)
+          (AXIS,notify, g76diam: major <= minor ? - EXITING)
+          m2
+o<if1> endif
+
+
+       #<jeq> = #<j> ; as-is for radius mode
+o<if7> if [#<mode> EQ 8] ; RADIUS
+         #<k>   = [ABS[#<majordiameter> - #<minordiameter>]/2]
+o<if8>   if [#<i> LE 0] ; EXTERNAL
+            #<xi> = [#<majordiameter>/2 - #<i>]
+o<if8>   else           ; INTERNAL
+            #<xi> = [#<minordiameter>/2 - #<i>]
+o<if8>   endif
+
+o<if7> else             ; DIAMETER
+         #<k>   = [ABS[#<majordiameter> - #<minordiameter>]]
+         #<jeq> = [2 * #<j>]  ;workaround g76 behavior in diam mode
+o<if9>   if [#<i> LE 0] ; EXTERNAL
+            #<xi> = [#<majordiameter> - #<i>]
+o<if9>   else           ; INTERNAL
+            #<xi> = [#<minordiameter> - #<i>]
+o<if9>   endif
+o<if7> endif
+
+o<i10> if [#<verbose> GT 0]
+          (debug, g76diam: driveline xi=#<xi> i=#<i>)
+          (debug, g76diam: k=#<k> j=#<j>)
+o<i10> endif
+
+o<g76base> call [#<toolno>][#<rpm>][#<xi>][#<zi>][#<p>][#<z>][#<i>][#<k>][#<jeq>][#<r>][#<q>][#<h>][#<e>][#<l>][#<spindir>][#<mode>][#<verbose>]
+
+o<g76diam> endsub

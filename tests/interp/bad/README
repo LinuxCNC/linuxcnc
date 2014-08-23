@@ -1,0 +1,16 @@
+This directory consists of snippets of gcode that should be rejected because
+they are not valid.  All files that match the glob '*.ngc' are tested.
+The first line should consist of a ";" followed by the exact English
+error string that the interpreter should show.  This is followed
+by zero or more lines of test gcode.
+
+An individual file is considered to be a failure if
+ * it is accepted by the interpreter
+ * or the error message does not exactly match the specification
+
+An individual file is considered to be bad if
+ * it does not contain a parseable error specification
+ * the error message cannot be isolated in the interpreter's output
+
+If any file is a failure or is bad, then the test as a whole fails and will
+count as 1 failure in the testsuite.

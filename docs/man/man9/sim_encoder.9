@@ -1,0 +1,86 @@
+.TH SIM_ENCODER "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+sim_encoder \- simulated quadrature encoder
+.SH SYNOPSIS
+\fBloadrt sim_encoder [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]]
+
+
+
+.SH DESCRIPTION
+\fBsim_encoder\fR can generate quadrature signals as if from an encoder.
+It also generates an index pulse once per revolution.  It is mostly used
+for testing and simulation, to replace hardware that may not be available.
+It has a limited maximum frequency, as do all software based pulse
+generators.
+
+.P
+\fBsim_encoder\fR supports a maximum of eight channels.  The number of
+channels actually loaded is set by the \fBnum_chan=\fR argument when
+the module is loaded.  Alternatively, specify \fBnames=\fR and unique names
+separated by commas.
+
+.P
+The \fBnum_chan=\fR and \fBnames=\fR specifiers are mutually exclusive.
+If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
+value is one.
+
+.SH FUNCTIONS
+.TP 
+\fBsim-encoder.make-pulses\fR (no floating-point)
+Generates the actual quadrature and index pulses.  Must be called as
+frequently as possible, to maximize the count rate and minimize jitter.
+Operates on all channels at once.
+.TP 
+\fBsim-encoder.update-speed\fR (uses floating-point)
+Reads the \fBspeed\fR command and other parameters and converts the
+data into a form that can be used by \fBmake-pulses\fR.  Changes take
+effect only when \fBupdate-speed\fR runs.  Can (and should) be called
+less frequently than \fBmake-pulses\fR.  Operates on all channels at
+once.
+
+.SH NAMING
+The names for pins and parameters are prefixed as:
+  \fBsim-encoder.N.\fR for N=0,1,...,num-1 when using \fBnum_chan=num\fR
+  \fBnameN.\fR for nameN=name1,name2,... when using \fBnames=name1,name2,...\fR
+
+The \fBsim-encoder.N.\fR format is shown in the following descriptions.
+
+
+.SH PINS
+
+.TP
+\fBsim-encoder.\fIN\fB.phase-A\fR bit out
+One of the quadrature outputs.
+.TP
+\fBsim-encoder.\fIN\fB.phase-B\fR bit out
+The other quadrature output.
+.TP
+\fBsim-encoder.\fIN\fB.phase-Z\fR bit out
+The index pulse.
+.TP
+\fBsim-encoder.\fIN\fB.speed\fR float in
+The desired speed of the encoder, in user units per per second.  This
+is divided by \fBscale\fR, and the result is used as the encoder speed
+in revolutions per second.
+
+.SH PARAMETERS
+.TP
+\fBsim-encoder.\fIN\fB.ppr\fR u32 rw
+The pulses per revolution of the simulated encoder.  Note that this
+is pulses, not counts, per revolution.  Each pulse or cycle from the
+encoder results in four counts, because every edge is counted.
+Default value is 100 ppr, or 400 counts per revolution.
+.TP
+\fBsim-encoder.\fIN\fB.scale\fR float rw
+Scale factor for the \fBspeed\fR input.  The \fBspeed\fR value is divided
+by \fBscale\fR to get the actual encoder speed in revolutions per second.
+For example, if \fBscale\fR is set to 60, then \fBspeed\fR is in revolutions
+per minute (RPM) instead of revolutions per second.  The default value
+is 1.00.
+

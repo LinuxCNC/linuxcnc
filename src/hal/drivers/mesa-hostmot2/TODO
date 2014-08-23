@@ -1,0 +1,409 @@
+
+
+next steps:
+
+    encoder: 
+
+        <micges> and for some values .velocity from encoder was NAN
+        <micges> version from emc2.3 beta but encoder.c didn't change since then
+        ...
+        <seb_kuzminsky> what was the condition when it reported NaN for velocity?  going fast or slow?  changing speed?  anything funky going on?
+        <micges> slow and changing speed to -slow
+        ...
+        <micges> seb: that was on encoder.2 and scale was set to 1000
+        <micges> velocities from +-20 to +-200 changed by setp
+
+
+    hm2_pci calls pci_register_driver,
+    and should fail if no boards are found:
+    <http://people.nl.linux.org/ftp/pub/anoncvs/kernelnewbies/documents/kdoc/kernel-api/r8314.html>
+
+
+    stepgen:
+
+        timing fixes
+
+
+        Got a rare failure from the stepgen/medium-move-with-maxvel=0 test
+        (nothing else wrong in stepgen.samples):
+
+            0
+            0
+            3
+            2
+            3
+            3
+            4
+            4
+            4
+
+
+        <PCW> Theres also a race condition that I cant easily fix (Ive known about this for awhile but didnt think it was likely to run into)
+        <PCW> So it should probably go in the manual:
+        <PCW> The servo thread period  - jitter cannot be less than the sum of dirsetup and dirhold times 
+        <PCW> for modern step drives this  this would be hard to violate, for old parker drives with 300 usec times
+        <PCW> it may be an issue 
+        <PCW> (with servo rate > ~1.6KHz)
+        <PCW> BBL
+        <seb_kuzminsky> PCW, wait a sec
+        <PCW> dog needs to be fed, nibbling on my ankles...
+        <seb_kuzminsky> do you mean the jitter of the servo period cannot be less than (dirsetup+dirhold)?  or (ServoPeriod-jitter) cannot be less?
+        <PCW> servo-jitter
+        <PCW> (the setpgen doesn't expect its direction (rate MSB) to change when its doing a wait-for dir hold/setup cycle 
+        <PCW> so the minimum time between updates is dirsetup+dirhold
+        <seb_kuzminsky> ok thanks
+
+
+    the config modparam is confusing and poorly documented
+
+        > Note: Double quotes in hm2_7i43 command took me some time to figure out,
+        > as the config modparam single quotes were getting stripped by Bash. This
+        > might be something to add to "man hostmot2".
+
+
+    pins & params use "-" vs "_" inconsistently
+
+    "io-error" should probably be only for 7i43
+
+
+    write a little userspace helper, a "hostmot2 config wizard":
+
+        tell it what anyio board(s) you have, and what daughter boards on what connectors
+
+        it'll pick the firmware, and poop out a little hal file with well-named nets that make the daughter board work
+
+
+    write hm2-pyvcp?  a little script that makes a complete pyvcp
+    dashboard for an existing (loaded?) hm2 board
+
+
+    when reading IO Cookie & Config Name, if it fails read it many times
+    to get some more data
+
+
+    JMK suggested auto-generating man pages from the PIN files...
+
+
+    It's starting to feel like it's ready for some kind of module
+    abstraction...  To standardize the semantics and make it easier
+    to think about.  Pull out the common code.  pins are special.
+    watchdog too, probably
+
+        module drivers are expected to export the following functions:
+
+            parse_md(): deal with the MD & modparam config info, make
+                HAL representation, allocate memory for registers,
+                request TRAM entries
+
+            write(): check if FPGA registers need to be written with
+                new information from HAL (or from within the driver),
+                and if so write them
+
+            force_write(): write the FPGA registers with current values
+
+            process_initial_tram_read(): TRAM registers have first value,
+                any data-dependent driver initialization should happen now
+
+            prepare_initial_tram_write(): set TRAM register values to
+                initialize the FPGA
+
+            prepare_tram_write(): set TRAM registers as appropriate
+
+            process_tram_read(): handle new values in TRAM registers
+
+            debug_print(): show internal state
+
+
+
+
+SPI:
+
+    HM2 support SPI UARTs, which can talk to things like ADC/DAC/GPIO boards.
+
+    Some reprap people have asked for this, for doing temperature sensing
+    of the extruder barrel.
+
+    <pcw> Seb: here are two chips we use in the 7I65 for example:
+    <pcw> AD5754
+    <pcw> AD7329
+    <pcw>  (plus a SPI EEPROM and SPI CPLD for GPIO)
+    <pcw> ( AD5754 quad 16 bit +-10V out DAC)
+    <pcw> ( AD7329 8 channel 1 M/S 12 bit + sign A-D)
+
+    2009-04-27 20:30:58 <seb_kuzminsky> what SPI hardware are you plugging into your 7i43?
+    2009-04-27 20:31:27 <Jon_geo01005> just a Max 6675
+    2009-04-27 20:31:41 <Jon_geo01005> thermocouple to digital converter
+
+
+
+
+translation ram (tram):
+
+    just do it
+
+    then do dma
+
+    need to deal with the "strobe" bit
+
+    currently the driver takes advantage of the fact that the module
+    instances are contiguous in hm2 register space.  Things'll have
+    to change to support non-contiguous access.  Could make a smart
+    "allocate a register buffer" function smart: have it allocate space
+    for each request contiguously in a larger buffer and set the TRAM
+
+
+
+
+encoder:
+
+    rawcounts is s32 - is that ok?  It might overflow on very long,
+    very high-resolution axes, or on things like spindle encoders.
+
+
+    performance:
+
+        my motor shaft tops out at 8K rpm, which is 133.33333 revs
+        per second
+
+        my highest-resolution encoder has 512 lines, so 2048
+        transitions per revolution, so 275K transitions per second,
+        or 1 transition every 3 or 4 us
+
+        sampling at twice that would mean ~600 Ksamples/sec
+
+        with the "quad filter" set to 3 clocks, the low-level input
+        needs about 1 Msample/sec.
+
+        with the "quad filter" set to 15 clocks, the low-level input
+        needs about 5 Msample/sec.
+
+        it's actually running at 50 MHz, so that shouldnt be a
+        problem...
+
+        The firmware is storing the quadrature count in a 16-bit
+        register, which I'm reading about every ms (1 KHz)
+
+        at 275K transitions/second, that should be max 275 counts
+        per reading, which is *fine*
+
+
+
+
+pwmgen:
+
+    no known issues
+
+
+
+
+ioport/gpio:
+
+    no known issues
+
+
+
+
+stepgen:
+
+    stepgen timing reg fixes:
+
+        The user's requested steplen (in nanoseconds) will be quantized
+        to ClockLow periods (rounded up); the result decremented (but not
+        smaller than 1); and the result of *that* sent to the pulsehold
+        FPGA register.
+
+        The user's requested stepspace (in nanoseconds) will be quantized
+        to ClockLow periods (rounded up); the result decremented (zero
+        ok); and the result of *that* sent to the pulsewait FPGA register.
+
+    needs a cleanup() function
+
+    setting .scale to 1600 (1600 steps/rev) and then commanding position
+    to 1600 revs causes chaos, it runs in the wrong direction, some
+    overflow bug not handled there...
+
+    if a stepgen is stepping, and you set its .enable to 0 it stops
+    instantly (which is good).  But if you then set its .enable to 1,
+    it resumes at its previous velocity.  Is that bad?  Does this still
+    happen with the new stepping logic?
+
+    test different steps-per-rev on different stepgen instances
+
+    support table output mode
+
+    The ClockLow reported by the FPGA differs from the actual clock
+    frequency.  This is especially severe on the PCI AnyIO boards, since
+    the PCI frequency varies by as much as 10% between systems (the 7i43
+    has an on-board oscillator with only +/- 50 PPM frequency error).
+    This frequency discrepancy results in the FPGA stepping at a different
+    rate than the commanded rate.  The driver compensates for this and
+    modifies the step rate to keep the following error under control.
+
+
+
+
+watchdog:
+
+    no known issues
+
+
+
+
+7i43:
+
+    pci card parport status:
+
+        NetMos 9805
+
+            doesnt work at all (for me or Peter)
+
+            the manufacturer claims the NM98xx chips don't do EPP right
+
+
+        NetMos 9835
+
+
+        SUNIX 1888
+
+            often i can send the 7i43 the firmware (and it takes it),
+            but then there are random system lockups...  PCW says this
+            one is sensitive to bad EPP cables
+
+
+        LAVA MOKO S1
+        
+            totally failed to read even the CPLD
+
+
+        OXSEMI PCI952
+
+            works if i turn off EPP Wide mode!
+
+            01:05.1 Parallel controller: Oxford Semiconductor Ltd OX16PCI952 Integrated Parallel Port (prog-if 01 [BiDir])
+                    Subsystem: Oxford Semiconductor Ltd Unknown device 0001
+                    Flags: medium devsel, IRQ 3
+                    I/O ports at dcb8 [size=8]
+                    I/O ports at dca4 [size=4]
+                    I/O ports at dce0 [size=32]
+                    Memory at fe9dd000 (32-bit, non-prefetchable) [size=4K]
+                    Capabilities: <access denied>
+
+            linux parport_pc: parport1: PC-style at 0xdcb8 (0xdca4) [PCSPP,TRISTATE,EPP]
+
+            loadrt hm2_7i43 ioaddr=0xdcb8 ioaddr_hi=0xdca4 epp_wide=0 config="firmware=hm2/7i43/SVST4_4B.BIT"
+
+
+        ITE 8875
+
+
+
+
+5i20, 5i22, 5i23, 4i65, 4i68:
+
+    no known bugs
+
+    pci device hotplugging is awkward for linuxcnc
+
+        it'd be nice to know if the pci card(s) failed to initialize by
+        having hm2_pci fail to load.  Does pci_register_device() get the
+        hotplug events for all the existing boards before it returns?
+        Does it help if it does?
+
+        Maybe drop hotplug and use pci_get_device() in rtapi_app_main()
+        to enumerate all the plugged-in devices?
+
+
+
+
+how to configure the firmware?
+
+    Currently the llios take a "config" modparam (one for each board),
+    which they pass to hm2_register().  hm2_register() does a bunch of
+    gross string parsing...
+
+    HAL doesnt let you add or remove HAL objects after hal_ready().
+    So the driver's set of HAL objects is determined at module load time,
+    before anything shows up in HAL...  Bummer.  Chris Radek suggested
+    that this might be possible to fix.
+
+    The config of an hm2 board is a structured object:
+
+        typedef struct {
+
+            struct {
+                bool enabled;
+                bool index_enabled;
+                bool index_mask_enabled;
+            } hm2_encoder_config[];
+
+            struct {
+                bool enabled;
+            } hm2_pwmgen_config[];
+
+            struct {
+                bool enabled;
+                uint width;
+            } hm2_stepgen_config[];
+
+            char *firmware;
+
+            bool enable_raw;
+
+        } hm2_config_t;
+
+
+    <seb_kuzminsky> cradek: what is this "hidden" you speak of?
+    <cradek> seems like a simple hack
+    <alex_joni> hal_show_pin() ?
+    <cradek> add a mask bit to each pin and make the things that traverse the list of pins skip them if they're masked
+    <alex_joni> hal_hide_pin() ?
+    <seb_kuzminsky> i asked jmk about it a while ago and he said he thought it would be hard
+    <alex_joni> I bet he doesn't think about hacks :P
+    <cradek> well he's smarter than me, so I'm sure I'm missing something
+    <seb_kuzminsky> he said the problem was modifying the list of hal objects from the realtime context
+    <seb_kuzminsky> i didnt really understand his whole explanation
+
+
+
+
+support the LED module (gtag 128)
+
+
+
+
+wishlist:
+
+    add DMA support for PLX9054
+
+
+    add an anyio layer in the kernel similar to the parport layer
+
+        1. load anyio_manager
+
+        2. load low-level board drivers: anyio_{7i43,pci,etc}
+
+        3. llios find their boards & registers with the anyio layer
+
+        4. anyio layer fetches firmware & programs the board
+
+        6. load high-level firmware driver
+
+        7. it connects to anyio_manager and allocates the boards it wants
+
+        8. hostmot2 makes HAL objects for each board
+
+        9. hostmot calls hal_ready
+
+        multiple HLs is a non-issue if each HL can recognize "this is my
+        firmware, I'll use this board" vs. "oops, I dunno what this is,
+        skip it"
+
+
+    abstract the EPP code into a proper LinuxCNC (or RTAI) parport driver
+
+
+    abstract the stepgen code into an LinuxCNC library
+
+
+    abstract the encoder code into an LinuxCNC library
+

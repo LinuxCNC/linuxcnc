@@ -1,0 +1,30 @@
+.TH rtapi_app_main "3rtapi" "2008-05-26" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+rtapi_app_main \- User-provided function to initialize a component
+
+.SH SYNTAX
+.HP
+#include "rtapi_app.h"
+int \fBrtapi_app_main\fR(void) { \fI...\fR }
+.SH ARGUMENTS
+None
+
+.SH DESCRIPTION
+The body of \fBrtapi_app_main\fR, which is provided by the component author,
+generally consists of a call to rtapi_init or hal_init, followed by other
+component-specific initialization code.
+
+.SH RETURN VALUE
+Return 0 for success.  Return a negative errno value (e.g., -EINVAL) on
+error.  Existing code also returns RTAPI or HAL error values, but using
+negative errno values gives better diagnostics from insmod.
+
+.SH REALTIME CONSIDERATIONS
+Called automatically by the rtapi infrastructure in an initialization (not
+realtime) context.
+
+.SH SEE ALSO
+\fBrtapi_app_exit(3rtapi)\fR,
+\fBrtapi_init(3rtapi)\fR,
+\fBhal_init(3hal)\fR

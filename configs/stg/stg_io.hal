@@ -1,0 +1,119 @@
+# HAL config file for ServoToGo STG ISA board
+#
+# install driver (only needed if stg_motion.hal doesn't get run)
+#loadrt hal_stg
+
+# add I/O to servo thread so they will be evaluated
+# every servo period
+# read inputs first
+addf stg.di-read servo-thread 1
+# write outputs last
+addf stg.do-write servo-thread 1
+
+#uncomment following line if ADC's are needed (for example spindle-tach feedback)
+#addf stg.0.read-adcs servo-thread 1
+
+#
+# Connect motion controller I/Os
+#
+
+# connect limit/home switch outputs to motion controller
+net Xminlim <= stg.in-02
+net Xminlim => axis.0.neg-lim-sw-in
+net Xmaxlim <= stg.in-01
+net Xmaxlim => axis.0.pos-lim-sw-in
+net Xhome <= stg.in-00
+net Xhome => axis.0.home-sw-in
+
+net Yminlim <= stg.in-06
+net Yminlim => axis.1.neg-lim-sw-in
+net Ymaxlim <= stg.in-05
+net Ymaxlim => axis.1.pos-lim-sw-in
+net Yhome <= stg.in-04
+net Yhome => axis.1.home-sw-in
+
+net Zminlim <= stg.in-10
+net Zminlim => axis.2.neg-lim-sw-in
+net Zmaxlim <= stg.in-09
+net Zmaxlim => axis.2.pos-lim-sw-in
+net Zhome <= stg.in-08
+net Zhome => axis.2.home-sw-in
+
+#continue in the same manner for further axes (A,B,C)
+
+# connect amp faults to motion controller
+net Xfault <= stg.in-03
+net Xfault => axis.0.amp-fault-in
+net Yfault <= stg.in-07
+net Yfault => axis.1.amp-fault-in
+net Zfault <= stg.in-11
+net Zfault => axis.2.amp-fault-in
+
+# connect index pulses to motion controller
+# do these when index pulsing is figured out
+#newsig Xindex bit
+#newsig Yindex  bit
+#newsig Zindex bit
+#linksp Xindex <= stg.0.enc-index
+#linksp Xindex => axis.0.index-enable
+#linksp Yindex <= stg.1.enc-index
+#linksp Yindex => axis.1.index-enable
+#linksp Zindex <= stg.2.enc-index
+#linksp Zindex => axis.2.index-enable
+
+# connect amp enables to motion controller
+net Xenable => stg.out-00
+net Yenable => stg.out-01
+net Zenable => stg.out-02
+
+# connect watchdog reset to motion controller
+# needs watchdo
+#newsig WatchdogRst bit
+#linksp WatchdogRst <= stg.watchdog-reset
+#linksp WatchdogRst => motion.watchdog-reset-out
+
+
+#
+# Connect I/O controller I/Os
+#
+
+# connect e-stop write/sense to I/O controller
+# these connections assume an external ESTOP circuitry will be used
+# if it's not used, comment the next lines and uncomment the loopback
+net EstopSense <= stg.in-12
+net EstopSense => iocontrol.0.emc-enable-in
+net EstopWrite <= stg.out-07
+net EstopWrite => iocontrol.0.user-enable-out
+
+# ESTOP loopback, only use this for a simple machine without external ESTOP
+# you really SHOULDN'T use a servo machine without proper ESTOP
+#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# connect spindle fwd/rev to I/O controller
+net SpindleFwd <= stg.out-06
+net SpindleFwd => motion.spindle-forward
+net SpindleRev <= stg.out-05
+net SpindleRev => motion.spindle-reverse
+
+# connect spindle brake to I/O controller
+net SpindleBrakeOn <= stg.out-10
+net SpindleBrakeOn => motion.spindle-brake
+
+# connect mist/flood coolant to I/O controller
+net MistOn <= stg.out-11
+net MistOn => iocontrol.0.coolant-mist
+net FloodOn <= stg.out-12
+net FloodOn => iocontrol.0.coolant-flood
+
+# connect lube motor run to I/O controller
+net LubeOn <= stg.out-13
+net LubeOn => iocontrol.0.lube
+
+# connect lube level to I/O controller
+net LubeLevel <= stg.in-13
+net LubeLevel => iocontrol.0.lube_level
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+

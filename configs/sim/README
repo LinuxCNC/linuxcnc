@@ -1,0 +1,24 @@
+Sim configurations make it possible to
+run LinuxCNC without special hardware on
+a simulated basis.
+
+LinuxCNC supports multiple guis and there are
+multiple examples for the most popular guis.
+
+  axis    python based gui
+
+  ngcgui  axis with tabs for subroutines
+
+  simtcl  axis gui with tcl halfiles
+
+  tklinuxcnc   tcl/tk based gui
+
+Other gui examples:
+
+  touchy.ini    touchscreen gui
+
+  keystick.ini  curses based non-X interface
+
+  mini.ini      tcl/tk interface
+
+  xlinuxcnc.ini      native X interface

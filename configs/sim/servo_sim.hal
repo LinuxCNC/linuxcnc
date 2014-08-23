@@ -1,0 +1,285 @@
+# HAL config file for simulated servo machine
+
+# first load all the RT modules that will be needed
+# kinematics
+loadrt trivkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+# PID module, for three PID loops
+loadrt pid names=pid_x,pid_y,pid_z
+# 6 differentiators (for velocity and accel sigs),
+loadrt ddt names=ddt_x,ddt_xv,ddt_y,ddt_yv,ddt_z,ddt_zv
+# three scale blocks (to simulate motor and leadscrew scaling),
+loadrt scale names=scale_x,scale_y,scale_z
+# three lowpass filters (to simulate motor inertia), and nine
+loadrt lowpass names=lowpass_x,lowpass_y,lowpass_z
+# window comparators (to simulate limit and home switches)
+loadrt wcomp names=wcomp_xneg,wcomp_xpos,wcomp_xhome,wcomp_yneg,wcomp_ypos,wcomp_yhome,wcomp_zneg,wcomp_zpos,wcomp_zhome
+
+# simulated encoders
+loadrt sim_encoder names=sim_encoder_px,sim_encoder_py,sim_encoder_pz
+# software encoder counters, 3 for feedback, 3 for actual axis pos
+loadrt encoder names=encoder_px,encoder_py,encoder_pz,encoder_x,encoder_y,encoder_z,
+# add encoder counter and simulator functions to high speed thread
+addf sim-encoder.make-pulses base-thread
+addf encoder.update-counters base-thread
+
+# add all required functions to servo thread
+addf encoder.capture-position servo-thread
+addf wcomp_xneg servo-thread
+addf wcomp_xpos servo-thread
+addf wcomp_xhome servo-thread
+addf wcomp_yneg servo-thread
+addf wcomp_ypos servo-thread
+addf wcomp_yhome servo-thread
+addf wcomp_zneg servo-thread
+addf wcomp_zpos servo-thread
+addf wcomp_zhome servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf pid_x.do-pid-calcs servo-thread
+addf pid_y.do-pid-calcs servo-thread
+addf pid_z.do-pid-calcs servo-thread
+addf scale_x servo-thread
+addf scale_y servo-thread
+addf scale_z servo-thread
+addf lowpass_x servo-thread
+addf lowpass_y servo-thread
+addf lowpass_z servo-thread
+addf sim-encoder.update-speed servo-thread
+
+# link the differentiator functions into the code
+addf ddt_x servo-thread
+addf ddt_xv servo-thread
+addf ddt_y servo-thread
+addf ddt_yv servo-thread
+addf ddt_z servo-thread
+addf ddt_zv servo-thread
+
+# get position feedback from encoder module
+# connect position feedback to PID loop and motion module
+net Xpos-fb encoder_px.position => pid_x.feedback axis.0.motor-pos-fb
+net Ypos-fb encoder_py.position => pid_y.feedback axis.1.motor-pos-fb
+net Zpos-fb encoder_pz.position => pid_z.feedback axis.2.motor-pos-fb
+
+# set position feedback scaling
+setp encoder_px.position-scale [AXIS_0]INPUT_SCALE
+setp encoder_py.position-scale [AXIS_1]INPUT_SCALE
+setp encoder_pz.position-scale [AXIS_2]INPUT_SCALE
+
+# connect encoder index-enables for homing on index
+net Xindex-enable encoder_px.index-enable <=> axis.0.index-enable pid_x.index-enable
+net Yindex-enable encoder_py.index-enable <=> axis.1.index-enable
+net Zindex-enable encoder_pz.index-enable <=> axis.2.index-enable
+
+# connect position commands from motion controller to PID input
+net Xpos-cmd <= axis.0.motor-pos-cmd => pid_x.command
+net Ypos-cmd <= axis.1.motor-pos-cmd => pid_y.command
+net Zpos-cmd <= axis.2.motor-pos-cmd => pid_z.command
+
+# connect motion controller enables to PID blocks
+net Xenable axis.0.amp-enable-out => pid_x.enable
+net Yenable axis.1.amp-enable-out => pid_y.enable
+net Zenable axis.2.amp-enable-out => pid_z.enable
+
+# connect PID loops to scale blocks that translate to motor revs per sec
+net Xoutput pid_x.output => scale_x.in
+net Youtput pid_y.output => scale_y.in
+net Zoutput pid_z.output => scale_z.in
+
+# set scaling, number of motor revs needed to
+# travel one inch
+setp scale_x.gain [AXIS_0]DRIVE_RATIO
+setp scale_y.gain [AXIS_1]DRIVE_RATIO
+setp scale_z.gain [AXIS_2]DRIVE_RATIO
+
+# motor speed command sigs come from scale blocks
+# motor speed commands go thru lowpass filters
+# to simulate motor inertia
+net Xmtr-cmd scale_x.out => lowpass_x.in
+net Ymtr-cmd scale_y.out => lowpass_y.in
+net Zmtr-cmd scale_z.out => lowpass_z.in
+
+# set "inertia" here, probalby by trial and error
+setp lowpass_x.gain 0.1
+setp lowpass_y.gain 0.1
+setp lowpass_z.gain 0.1
+
+# "actual" motor speed signals
+# output of lowpass is simulated motor speed
+# speed goes to simulated encoders
+net Xmtr-spd lowpass_x.out => sim_encoder_px.speed
+net Ymtr-spd lowpass_y.out => sim_encoder_py.speed
+net Zmtr-spd lowpass_z.out => sim_encoder_pz.speed
+
+# set simulated encoder scaling
+setp sim_encoder_px.ppr [AXIS_0]MOTOR_PPR
+setp sim_encoder_py.ppr [AXIS_1]MOTOR_PPR
+setp sim_encoder_pz.ppr [AXIS_2]MOTOR_PPR
+
+# simulated encoder output signals
+# connect them up
+net XphA sim_encoder_px.phase-A => encoder_px.phase-A
+net XphB sim_encoder_px.phase-B => encoder_px.phase-B
+net XphZ sim_encoder_px.phase-Z => encoder_px.phase-Z
+net YphA sim_encoder_py.phase-A => encoder_py.phase-A
+net YphB sim_encoder_py.phase-B => encoder_py.phase-B
+net YphZ sim_encoder_py.phase-Z => encoder_py.phase-Z
+net ZphA sim_encoder_pz.phase-A => encoder_pz.phase-A
+net ZphB sim_encoder_pz.phase-B => encoder_pz.phase-B
+net ZphZ sim_encoder_pz.phase-Z => encoder_pz.phase-Z
+
+# set PID loop output limits to max velocity
+setp pid_x.maxoutput [AXIS_0]MAX_VELOCITY
+setp pid_y.maxoutput [AXIS_1]MAX_VELOCITY
+setp pid_z.maxoutput [AXIS_2]MAX_VELOCITY
+
+# set PID loop gains
+# NOTE: eventually these will be non-zero values as
+# needed to tune the performance of each axis.  The
+# initial values shown here are extremely conservative
+# to prevent unexpected behavior.  After this file 
+# has been "executed" by halcmd, the gains can be
+# interactively adjusted using commands like
+# "halcmd setp pid.<channel>.Pgain <value>"
+# Once the axis has been tuned to your satisfaction, 
+# do "halcmd show param | grep pid" to get a listing 
+# of the tuning parameters, and enter those values here.
+
+# the values below come from the ini
+setp pid_x.Pgain [AXIS_0]PGAIN
+setp pid_x.Igain [AXIS_0]IGAIN
+setp pid_x.Dgain [AXIS_0]DGAIN
+setp pid_x.bias [AXIS_0]BIAS
+setp pid_x.FF0 [AXIS_0]FF0
+setp pid_x.FF1 [AXIS_0]FF1
+setp pid_x.FF2 [AXIS_0]FF2
+# deadband should be just over 1 count
+setp pid_x.deadband [AXIS_0]DEADBAND
+
+setp pid_y.Pgain [AXIS_1]PGAIN
+setp pid_y.Igain [AXIS_1]IGAIN
+setp pid_y.Dgain [AXIS_1]DGAIN
+setp pid_y.bias [AXIS_1]BIAS
+setp pid_y.FF0 [AXIS_1]FF0
+setp pid_y.FF1 [AXIS_1]FF1
+setp pid_y.FF2 [AXIS_1]FF2
+# deadband should be just over 1 count
+setp pid_y.deadband [AXIS_1]DEADBAND
+
+setp pid_z.Pgain [AXIS_2]PGAIN
+setp pid_z.Igain [AXIS_2]IGAIN
+setp pid_z.Dgain [AXIS_2]DGAIN
+setp pid_z.bias [AXIS_2]BIAS
+setp pid_z.FF0 [AXIS_2]FF0
+setp pid_z.FF1 [AXIS_2]FF1
+setp pid_z.FF2 [AXIS_2]FF2
+# deadband should be just over 1 count
+setp pid_z.deadband [AXIS_2]DEADBAND
+
+# send the position commands thru differentiators to
+# generate velocity and accel signals
+net Xvel ddt_x.out => ddt_xv.in
+net Xacc <= ddt_xv.out
+net Yvel ddt_y.out => ddt_yv.in
+net Yacc <= ddt_yv.out
+net Zvel ddt_z.out => ddt_zv.in
+net Zacc <= ddt_zv.out
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+net xflt => axis.0.amp-fault-in
+net yflt => axis.1.amp-fault-in
+net zflt => axis.2.amp-fault-in
+
+# a second set of encoder counters keeps track of position
+net XphA => encoder_x.phase-A
+net XphB => encoder_x.phase-B
+net YphA => encoder_y.phase-A
+net YphB => encoder_y.phase-B
+net ZphA => encoder_z.phase-A
+net ZphB => encoder_z.phase-B
+
+setp encoder_x.position-scale [AXIS_0]INPUT_SCALE
+setp encoder_y.position-scale [AXIS_1]INPUT_SCALE
+setp encoder_z.position-scale [AXIS_2]INPUT_SCALE
+
+# connect "actual" position from encoders
+# to window comparators
+net Xaxis-pos encoder_x.position => wcomp_xneg.in wcomp_xpos.in wcomp_xhome.in
+net Yaxis-pos encoder_y.position => wcomp_yneg.in wcomp_ypos.in wcomp_yhome.in
+net Zaxis-pos encoder_z.position => wcomp_zneg.in wcomp_zpos.in wcomp_zhome.in
+
+# connect simulated switch outputs to motion controller
+net Xminlim wcomp_xneg.out => axis.0.neg-lim-sw-in
+net Xmaxlim wcomp_xpos.out => axis.0.pos-lim-sw-in
+net Xhome wcomp_xhome.out => axis.0.home-sw-in
+
+net Yminlim wcomp_yneg.out => axis.1.neg-lim-sw-in
+net Ymaxlim wcomp_ypos.out => axis.1.pos-lim-sw-in
+net Yhome wcomp_yhome.out => axis.1.home-sw-in
+
+net Zminlim wcomp_zneg.out => axis.2.neg-lim-sw-in
+net Zmaxlim wcomp_zpos.out => axis.2.pos-lim-sw-in
+net Zhome wcomp_zhome.out => axis.2.home-sw-in
+
+# configure the points at which the simulated switches trip
+# X axis first
+# min limit switch
+setp wcomp_xneg.max [AXIS_0]MIN_HARD_LIMIT
+setp wcomp_xneg.min [AXIS_0]MIN_HARD_LIMIT_RELEASE
+# max limit switch
+setp wcomp_xpos.min [AXIS_0]MAX_HARD_LIMIT
+setp wcomp_xpos.max [AXIS_0]MAX_HARD_LIMIT_RELEASE
+# home switch
+setp wcomp_xhome.min [AXIS_0]HOME_SW_MIN
+setp wcomp_xhome.max [AXIS_0]HOME_SW_MAX
+
+# Y axis
+# min limit switch
+setp wcomp_yneg.max [AXIS_1]MIN_HARD_LIMIT
+setp wcomp_yneg.min [AXIS_1]MIN_HARD_LIMIT_RELEASE
+# max limit switch
+setp wcomp_ypos.min [AXIS_1]MAX_HARD_LIMIT
+setp wcomp_ypos.max [AXIS_1]MAX_HARD_LIMIT_RELEASE
+# home switch
+setp wcomp_yhome.min [AXIS_1]HOME_SW_MIN
+setp wcomp_yhome.max [AXIS_1]HOME_SW_MAX
+
+# Z axis
+# min limit switch
+setp wcomp_zneg.max [AXIS_2]MIN_HARD_LIMIT
+setp wcomp_zneg.min [AXIS_2]MIN_HARD_LIMIT_RELEASE
+# max limit switch
+setp wcomp_zpos.min [AXIS_2]MAX_HARD_LIMIT
+setp wcomp_zpos.max [AXIS_2]MAX_HARD_LIMIT_RELEASE
+# home switch
+setp wcomp_zhome.min [AXIS_2]HOME_SW_MIN
+setp wcomp_zhome.max [AXIS_2]HOME_SW_MAX
+
+# Configure fake probing
+loadrt sphereprobe names=sphereprobe
+
+addf sphereprobe base-thread 2
+
+setp sphereprobe.cx -2811 # this is where it ends up after homing
+setp sphereprobe.cz -6000 # this is where it ends up after homing
+setp sphereprobe.r 5000   # 5/6 inch
+net px encoder_px.rawcounts => sphereprobe.px
+net py encoder_py.rawcounts => sphereprobe.py
+net pz encoder_pz.rawcounts => sphereprobe.pz
+net probe-out sphereprobe.probe-out => motion.probe-input
+net probe-out => encoder_px.latch-input encoder_py.latch-input
+net probe-out => encoder_pz.latch-input
+
+setp encoder_px.latch-rising 1
+setp encoder_px.latch-falling 1
+setp encoder_py.latch-rising 1
+setp encoder_py.latch-falling 1
+setp encoder_pz.latch-rising 1
+setp encoder_pz.latch-falling 1

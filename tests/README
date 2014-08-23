@@ -1,0 +1,95 @@
+The HAL test suite
+~~~~~~~~~~~~~~~~~~~
+The tests in these directories serve to test the behavior of HAL components.
+
+Each subdirectory of this directory may contain a test item.  The runtests
+script recurses through the directory structure, so multiple tests could
+be structured as
+	tests/
+		xyz.0
+		xyz.1
+		xyz.2
+or
+	tests/
+		xyz/
+			0	
+			1	
+			2	
+
+
+Two types of tests are supported: Regression tests, in which the output is
+tested against a "known good" output, and functional tests, in which the
+output is fed to a program that can determine whether it is correct or not
+
+
+Running the tests
+~~~~~~~~~~~~~~~~~
+Currently, tests only work with the "run in place" configuration.  They
+can be run by executing (from the top emc2 directory)
+	scripts/runtests tests
+A subset of the tests can also be run:
+	scripts/runtests tests/xyz tests/a*
+The directories named on the commandline are searched recursively for
+'test.hal' or 'test.sh' files, and a directory with such a file is
+assumed to contain a regression test or a functional test.
+
+Tests may contain files other than the ones specified below.  For instance,
+when using 'streamer' data as test input, a shell script with
+"halstreamer<<EOF" and a "here document" will generally be present.
+(see and-or-not-mux.0/runstreamer for an example)
+
+Regression Tests
+~~~~~~~~~~~~~~~~
+A regression test should consist of these three files:
+	README
+		A human-readable file describing the test
+	test.hal *or* test.sh *or* test
+		The test script to execute.  test.hal is executed with
+		'halrun -f', test.sh is executed with 'bash -x', and
+		test is executed as ./test
+	expected
+		A file whose contents are compared with the stdout of
+			halrun -f test.hal
+
+A typical regression test will load several components, usually including
+'threads' and 'sampler', and often including 'streamer', then collect samples
+from some number of calls to the realtime thread, then exit.
+
+Regression test "test.hal" files will almost always include the line
+	setexact_for_test_suite_only
+which causes HAL to act as though the requested base_period was available.
+Otherwise, results will differ slightly depending on the actual base_period
+and regression tests will fail.
+
+The test passes if the expected and actual output are identical.
+Otherwise, the test fails.
+
+
+Functional Tests
+~~~~~~~~~~~~~~~~
+A functional test should consist of three files:
+	README
+		A human-readable file describing the test
+	test.hal *or* test.sh *or* test
+		The test script to execute.  test.hal is executed with
+		'halrun -f', test.sh is executed with 'bash -x', and
+		test is executed as ./test
+	checkresult
+		An executable file (such as a shell or python script)
+		which determines if the stdout of
+			halrun -f test.hal
+		indicates success or failure
+
+Regression test "test.hal" files will often include the line
+	setexact_for_test_suite_only
+which causes HAL to act as though the requested base_period was available.
+Otherwise, results will differ slightly depending on the actual base_period,
+which could affect whether 'checkresult' gives an accurate result.
+
+A typical regression test will load several components, usually including
+'threads' and 'sample', then collect samples from some number of calls
+to the realtime thread, then exit.  'checkresult' will look at the output
+and see if it indicates success.
+
+The test passes if the command "checkresult actual" returns a shell
+success value (exit code 0).  Otherwise, the test fails.

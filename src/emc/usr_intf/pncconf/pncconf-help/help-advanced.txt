@@ -1,0 +1,38 @@
+Advanced Options
+
+HALUI:
+    HALUI is used to comunicate between EMC and a gui 
+        or operator panel. 
+    HALUI is always loaded.
+    Click the HALUI checkbox and add your commands to 
+        the text boxes
+    if you choose GladeVCP options the commands will
+        show.
+        If you choose the  auto Z touchoff the commands 
+        may need to be edited (eg for metric machines):
+        G38.2 Z-2 F 16
+            This is the probe command Z-2 is the maximum 
+            search distance but must be inside the axis
+            limits. F16 is the feed rate - it needs to be 
+            slow as the tool needs to de-accelerate quickly.
+        G10 L20 P0 Z.25
+            This sets the Z axis origin Z.25 would be set
+            at the thickness of the touchoff plate. 
+        G0 Z.5
+            This rapids the tool away from the plate after 
+            touch off
+
+Classicladder software PLC
+    Click the Classicladder checkbox.
+    Choose the number of available pins.
+    Choose whether modbus is activated.
+    Choose a sample ladder program or a blank program.
+    sample Z autotouch off requires a probe input and 
+        GladeVCP Z autotouch option
+    Click the edit ladder program button to edit the 
+        ladder program. When saving do not change the 
+        program name. Exit CL to return to pncconf.
+    If you are editing an existing configuration with
+        an exsisting ladder program choose 'existing
+        custom program'.
+

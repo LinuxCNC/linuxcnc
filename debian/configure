@@ -1,0 +1,216 @@
+#!/bin/bash
+# dpkg configuration script for linuxcnc
+# Copyright (C) 2006 Jeff Epler
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# When used to produce a debian package, this file is a script "used to
+# control compilation and installation of the executable"
+
+usage () {
+    P=${0##*/}
+    cat <<EOF
+$P: Set up debian/ files to build for a particular kernel
+
+Usage:
+    $P sim
+        Build for a system without a realtime kernel
+
+    $P [kernel-version]
+        Build for the realtime kernel [kernel-version], such as 2.6.12-magma
+
+    $P -r
+        Build for the currently running kernel
+
+    $P -a
+        If the currently running kernel has realtime extensions, use it.
+        Otherwise use any available realtime kernel it can find.
+EOF
+}
+
+cd "${0%/*}"
+
+if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+    usage
+    if [ $# -ne 1 ]; then
+        exit 1
+    fi
+    exit 0
+fi
+
+if [ $1 = "-r" ]; then
+    set -- `uname -r`
+elif [ $1 = "-a" ]; then
+    KERNEL="$(uname -r)"
+    if [ ! -d "/usr/realtime-$KERNEL" ]; then
+        KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
+        if [ -z "$KERNEL" ]; then
+            echo "no realtime kernels found!"
+            exit 1
+        fi
+    fi
+    set -- $KERNEL
+fi
+
+TARGET=$1
+
+MODULE_PATH=usr/realtime-$1/modules/linuxcnc
+MODULE_EXT=.ko
+KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
+KERNEL_HEADERS=linux-headers-$1
+EXTRA_FILES="usr/bin/linuxcnc_module_helper"
+KERNEL_VERSION=$1
+DRIVERS=drivers.files.in
+PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
+PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
+
+# hope this works on other systems too
+DISTRIB_NAME=
+if [ "$(which lsb_release)" != "" ]; then
+    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
+elif [ -f /etc/lsb-release ]; then
+    source /etc/lsb-release
+    DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
+fi
+
+if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
+	EXTRAS=extras-$DISTRIB_NAME/linuxcnc.files
+else
+	EXTRAS=extras
+fi
+
+case $DISTRIB_NAME in
+Ubuntu-12.10) # Quantal Quetzal
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-12.04) # Precise Pangolin LTS
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-11.04) # natty
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-10.04)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-9.10)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish
+	TCLTK_VERSION=8.5
+	;;
+Ubuntu-8.04)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish
+	TCLTK_VERSION=8.4
+	;;
+Debian-7.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils
+	TCLTK_VERSION=8.5
+	;;
+Debian-testing|Debian-6.0*)
+	EXTRA_BUILD=dvipng
+	TCLTK_VERSION=8.5
+	;;
+Debian-5.0*)
+	EXTRA_BUILD=dvipng
+	TCLTK_VERSION=8.4
+	;;
+*)
+        echo "unknown distribution: $DISTRIB_NAME"
+        echo "configuration may be wrong!"
+	EXTRA_BUILD=dvipng
+	TCLTK_VERSION=8.4
+	;;
+esac
+
+DOC_BUILD=
+MAIN_PACKAGE_NAME=linuxcnc
+OTHER_MAIN_PACKAGE_NAME=linuxcnc-sim
+OLD_PACKAGE_NAME=emc2
+EXTRA_RECOMMENDS=hostmot2-firmware
+case $TARGET in
+    sim)
+        MODULE_PATH=usr/lib/linuxcnc/modules
+	MODULE_EXT=.so
+	KERNEL_DEPENDS=
+	KERNEL_HEADERS=libpth-dev
+	DRIVERS=
+        EXTRA_FILES="usr/bin/rtapi_app"
+	DISTRIB_NAME=sim-$DISTRIB_NAME
+	MAIN_PACKAGE_NAME=linuxcnc-sim
+        OTHER_MAIN_PACKAGE_NAME=linuxcnc
+	OLD_PACKAGE_NAME=emc2-sim
+
+        # don't bother recommending hostmot2 firmware on sim
+        EXTRA_RECOMMENDS=
+    ;;
+    2.6.12-magma)
+        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
+    ;;
+    2.6.15-magma)
+        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
+    ;;
+    2.6.22.6-magma|2.6.24-16-rtai)
+        KERNEL_HEADERS="$KERNEL_HEADERS"
+    ;;
+    2.6.24-16-rtai)
+        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
+    ;;
+    2.6.32-122-rtai) ;;
+    *)
+	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
+esac
+
+subst () {
+sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
+    -e "s|@MODULE_EXT@|$MODULE_EXT|g" \
+    -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
+    -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
+    -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
+    -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
+    -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
+    -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
+    -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
+    -e "s|@OLD_PACKAGE_NAME@|$OLD_PACKAGE_NAME|g" \
+    -e "s|@EXTRAS@|$EXTRAS|g" \
+    -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
+    -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
+    -e "s|@TARGET@|$TARGET|g" \
+    -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
+    -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
+    -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
+    $*
+}
+
+subst control.in > control
+
+if [ "$TARGET" == "sim" ]; then
+    cp linuxcnc-dev.files.in linuxcnc-sim-dev.files
+else
+    cp linuxcnc-dev.files.in linuxcnc-dev.files
+    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
+fi
+
+subst rules.in > rules; chmod +x rules
+
+if [ -f $EXTRAS/linuxcnc.files ]; then
+    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
+else
+    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
+fi
+
+DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,de,es,pl})
+for P in $DOCS_PACKAGES; do
+    if [ -f $EXTRAS/$P.files ]; then
+        cat $P.files.in $EXTRAS/$P.files > $P.files
+    else
+        cat $P.files.in > $P.files
+    fi
+done
+
+rm -f ../build-stamp
+echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."

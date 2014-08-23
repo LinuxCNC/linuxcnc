@@ -1,0 +1,16 @@
+setexact_for_test_suite_only
+
+loadrt threads name1=fast period1=100000 name2=slow period2=1000000
+loadrt threadtest count=1
+loadrt sampler cfg=u depth=4096
+
+net count <= threadtest.0.count
+net count => sampler.0.pin.0
+
+addf threadtest.0.increment fast
+addf sampler.0 fast
+
+addf threadtest.0.reset slow
+
+start
+loadusr -w halsampler -n 3500

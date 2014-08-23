@@ -1,0 +1,32 @@
+; Author: jthornton
+
+(info: outside taper)
+o<taper-od> sub
+#<MaxRPM>          = #1 (= 3000 Max RPM)
+#<SurfaceUnitsMin> = #2 (= 100 Surface Units/Min)
+#<FeedRate>        = #3 (= 2 Feed Rate)
+#<Z-Start>         = #4 (= 0.000 Z Start)
+#<Z-End>           = #5 (= -2 Z End)
+#<StartDiameter>   = #6 (= 1 Start Diameter)
+#<Angle>           = #7 (= 10 Angle)
+#<Tool>            = #8 (= 6 Tool Number)
+#<Coolant>         = #9 (= 8 Flood=8, Off=9)
+
+#<X-End> = [#<StartDiameter> + [[#<Z-Start> - #<Z-End>] * TAN[#<Angle>]]]
+
+G7 G18 G40 G54
+G96 D#<MaxRPM> S#<SurfaceUnitsMin> (Constance Surface Speed)
+T#<Tool> M6
+#<tooldiam>=#5410
+G43 (load tool offset)
+G42 (start cutter comp)
+M3 M#<Coolant>
+G0 X#<StartDiameter> Z[#<Z-Start> + .1000]
+G1 X#<StartDiameter> Z#<Z-Start> F#<FeedRate>
+X#<X-End> Z#<Z-End>
+X[#<X-End> + [#<tooldiam> * 2] + 0.005]
+M5 M9
+G0 Z#<Z-Start>
+G40
+G53 G0 X0.000 Z0.000
+o<taper-od> endsub

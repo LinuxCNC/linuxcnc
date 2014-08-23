@@ -1,0 +1,485 @@
+(info: Quadrilateral pocketing using cutter radius compensation)
+
+; Use with care, test in simulator first.
+
+; Notes:
+;   Defaults herein are inch based
+;   Uses tool diameter from tool table for cutter radius compensation
+;   Supports conventional or climb milling
+;   Ramps to depth for each z increment
+;   Mirror about x axis for negative scale
+
+;   too small diameter tools and/or small stepovers may exceed outlinepasslimit
+;   too large diameter tools may case gouging errors
+
+; Works for most rectangles and parallelograms but may require some care
+; for specifying:
+;      point ordering (see entry move notes below)
+;      tool diameter (in tool table)
+;      stepover
+
+; Entry moves:
+;   Input point ordering  Requested Direction       Entry line
+;   --------------------  ------------------------  ------------------
+;   1234 == CW            2 == CW  == Conventional  point1 --> point2
+;   1234 == CW            3 == CCW == Climb         point1 --> point4
+
+;   1234 == CCW           2 == CW  == Conventional  point1 --> point4
+;   1234 == CCW           3 == CCW == Climb         point1 --> point2
+
+; To accomodate the widest range of tool diameters, order the point sequence
+; (1234) so that the entry move is not directed towards an acute angle.
+
+; Scaling, rotations, and offsets are supported.
+;   Scaling is applied first.
+;   Rotation is then applied (with respect to origin). It is often simplest
+;   to specify the feature so that it is centered at the origin.
+;   Offsets are applied last.
+
+;----------------------------------------------------------------------
+; Copyright: 2012,2014
+; Author:    Dewey Garrett <dgarrett@panix.com>
+;
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 2 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program; if not, write to the Free Software
+; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+;----------------------------------------------------------------------
+
+o<qpocket>  sub
+
+     #<toolno> =  #1 (=1)
+        #<rpm> =  #2 (=1000)
+        #<dir> =  #3 (=2 2conv|3climb) ; conventional=cw, climb=ccw
+   #<feedrate> =  #4 (=10)
+   #<cutdepth> =  #5 (=0.1)
+      #<zincr> =  #6 (=0.02)
+      #<zsafe> =  #7 (=0.2)
+     #<zstart> =  #8 (=0)
+
+         #<x1> =  #9
+         #<y1> = #10
+         #<x2> = #11
+         #<y2> = #12
+         #<x3> = #13
+         #<y3> = #14
+         #<x4> = #15
+         #<y4> = #16
+
+      #<scale> = #17 (=1)     ; use neg value for mirroring
+     #<rotate> = #18 (=0)     ; angle in degrees
+       #<xoff> = #19 (=0)
+       #<yoff> = #20 (=0)
+   #<stepover> = #21 (=0.5)   ; tooldiameter fraction
+     #<g64tol> = #22 (=0.002)
+#<spin_notify> = #23 (=1)     ; 1 == prompt user
+    #<use_g43> = #24 (=1)
+  #<h_for_g43> = #25 (=0)
+    #<verbose> = #26 (=0)
+
+  #<depthpasslimit> = 100    ; outer loop
+#<outlinepasslimit> = 100    ; inner loop
+          #<tdelta> = 0.01  ; small increment to tool diameter
+        #<cutdepth> = [0 - #<cutdepth>]
+           #<zincr> = [0 - #<zincr>]
+
+g40             ; make sure cutter radius compensation off at start
+g64 p #<g64tol> ; path tolerance
+
+o<if10> if [#<scale> EQ 0]
+          (print, qpocket: zero scale #<scale> - EXITING)
+          (debug, qpocket: zero scale #<scale> - EXITING)
+          (AXIS,notify, qpocket: zero scale - EXITING)
+          m2
+o<if10> endif
+
+o<if11> if [#<scale> LT 0]
+          (print, qpocket: MIRROR about x axis for negative scale #<scale>)
+          (debug, qpocket: MIRROR about x axis for negative scale #<scale>)
+          (AXIS,notify, qpocket: MIRROR about x axis for negative scale)
+o<if11> endif
+        #<x1>    = [#<scale> * #<x1>]
+        #<x2>    = [#<scale> * #<x2>]
+        #<x3>    = [#<scale> * #<x3>]
+        #<x4>    = [#<scale> * #<x4>]
+
+        #<scale> = [ABS[#<scale>]]
+        #<y1>    = [#<scale> * #<y1>]
+        #<y2>    = [#<scale> * #<y2>]
+        #<y3>    = [#<scale> * #<y3>]
+        #<y4>    = [#<scale> * #<y4>]
+
+        #<scale> = 1
+
+o<if20> if [[#<stepover> GT 1] OR [#<stepover> LE 0]]
+          (print, qpocket: invalid stepover=#<stepover> - EXITING)
+          (debug, qpocket: invalid stepover=#<stepover> - EXITING)
+          (AXIS,notify, qpocket: invalid stepover - EXITING)
+          m2
+o<if20> endif
+
+o<if30> if [[#<dir> NE 2] AND [#<dir> NE 3]]
+          (print, qpocket:bad dir=#<dir> - EXITING)
+          (debug, qpocket:bad dir=#<dir> - EXITING)
+          (AXIS,notify, qpocket:bad dir - EXITING)
+          m2
+o<if30> endif
+
+          ;compute direction eg 2==cw,3==ccw for points as ordered:
+o<dir>    call [4][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>]
+          #<pointsdir> = #<_dir:> ; direction of input points 2==cw
+          #<xctr> = #<_dir:cx>    ; centroid
+          #<yctr> = #<_dir:cy>    ; centroid
+
+o<ifdir1> if [#<pointsdir> LE 0]
+            ; failed to get direction -- pathological case
+            (print, failed to compute direction - EXITING)
+            (debug, failed to compute direction - EXITING)
+            (AXIS,notify, failed to compute direction - EXITING)
+            m2
+o<ifdir1> endif
+
+; Get data for x,y points
+#<npoints> = 4
+o<pointsdata> call [#<npoints>] [#<x1>][#<x2>][#<x3>][#<x4>]
+  #<xc> = #<_pointsdata:ctr>
+#<xmin> = [#<_pointsdata:min> - #<xctr>]
+#<xmax> = [#<_pointsdata:max> - #<xctr>]
+o<pointsdata> call [#<npoints>] [#<y1>][#<y2>][#<y3>][#<y4>]
+  #<yc> = #<_pointsdata:ctr>
+#<ymin> = [#<_pointsdata:min> - #<yctr>]
+#<ymax> = [#<_pointsdata:max> - #<yctr>]
+
+; Respecify input points about the x,y centroid
+o<ifv0>   if [#<verbose> GT 0]
+            (debug, centroid: #<xctr> #<yctr>)
+o<ifv0>   endif
+
+  #<x1> = [#<x1> - #<xctr>]
+  #<x2> = [#<x2> - #<xctr>]
+  #<x3> = [#<x3> - #<xctr>]
+  #<x4> = [#<x4> - #<xctr>]
+
+  #<y1> = [#<y1> - #<yctr>]
+  #<y2> = [#<y2> - #<yctr>]
+  #<y3> = [#<y3> - #<yctr>]
+  #<y4> = [#<y4> - #<yctr>]
+
+; make order of points agree with input direction request
+o<if40> if [#<pointsdir> NE #<dir>]
+o<ifv1>   if [#<verbose> GT 0]
+            (debug, reversing input point sequence: 1-4-3-2)
+o<ifv1>   endif
+          ; swap points ordering: 1234 --> 1432
+          #<xt> = #<x2>
+          #<yt> = #<y2>
+          #<x2> = #<x4>
+          #<y2> = #<y4>
+          #<x4> = #<xt>
+          #<y4> = #<yt>
+o<if40> endif
+
+; determine min size for first outline pass
+o<if50> if [[#<xmax>-#<xmin>] GT [#<ymax>-#<ymin>]]
+           #<minor> = [ABS[#<ymax>-#<ymin>]/2]
+o<if50> else
+           #<minor> = [ABS[#<xmax>-#<xmin>]/2]
+o<if50> endif
+
+; load tool and establish scaling for first outline pass
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+     #<thetooldiam> = #5410
+        #<tooldiam> = [#5410 + #<tdelta>]
+               #<r> = [#<tooldiam> / 2]
+           #<sizei> = [#<tooldiam> / #<minor>]
+         #<qscalei> = [#<scale> * #<sizei>]
+
+o<ifsc> if [#<qscalei> GE #<scale>]
+          (print, qpocket: tooldiam is too big #<thetooldiam> - EXITING)
+          (debug, qpocket: tooldiam is too big #<thetooldiam> - EXITING)
+          (AXIS,notify, qpocket: tooldiam is too big - EXITING)
+          m2
+o<ifsc> endif
+
+; scale the centered feature and translate to original position
+o<move> call [#<x1>][#<y1>][0][#<qscalei>][#<xctr>][#<yctr>]
+        #<x1i> = #<_move:x>
+        #<y1i> = #<_move:y>
+o<move> call [#<x2>][#<y2>][0][#<qscalei>][#<xctr>][#<yctr>]
+        #<x2i> = #<_move:x>
+        #<y2i> = #<_move:y>
+o<move> call [#<x3>][#<y3>][0][#<qscalei>][#<xctr>][#<yctr>]
+        #<x3i> = #<_move:x>
+        #<y3i> = #<_move:y>
+o<move> call [#<x4>][#<y4>][0][#<qscalei>][#<xctr>][#<yctr>]
+        #<x4i> = #<_move:x>
+        #<y4i> = #<_move:y>
+; xni,yni are the initial points at the smallest scaling
+
+; apply input rotation and offset
+o<move> call [#<x1i>][#<y1i>][#<rotate>][1][#<xoff>][#<yoff>]
+        #<x1i> = #<_move:x>
+        #<y1i> = #<_move:y>
+o<move> call [#<x2i>][#<y2i>][#<rotate>][1][#<xoff>][#<yoff>]
+        #<x2i> = #<_move:x>
+        #<y2i> = #<_move:y>
+o<move> call [#<x3i>][#<y3i>][#<rotate>][1][#<xoff>][#<yoff>]
+        #<x3i> = #<_move:x>
+        #<y3i> = #<_move:y>
+o<move> call [#<x4i>][#<y4i>][#<rotate>][1][#<xoff>][#<yoff>]
+        #<x4i> = #<_move:x>
+        #<y4i> = #<_move:y>
+
+         ;get angles for connecting lines
+o<line>  call [#<x1i>][#<y1i>][#<x2i>][#<y2i>]
+         #<cos12> = #<_line:cos>
+         #<sin12> = #<_line:sin>
+o<line>  call [#<x2i>][#<y2i>][#<x3i>][#<y3i>]
+         #<cos23> = #<_line:cos>
+         #<sin23> = #<_line:sin>
+o<line>  call [#<x3i>][#<y3i>][#<x4i>][#<y4i>]
+         #<cos34> = #<_line:cos>
+         #<sin34> = #<_line:sin>
+o<line>  call [#<x4i>][#<y4i>][#<x1i>][#<y1i>]
+         #<cos41> = #<_line:cos>
+         #<sin41> = #<_line:sin>
+
+         ;compute angles at line interesctions:
+o<dot>   call [#<x1i>][#<y1i>][#<x2i>][#<y2i>][#<x3i>][#<y3i>]
+         #<ang123> = #<_dot:ang>
+o<dot>   call [#<x2i>][#<y2i>][#<x3i>][#<y3i>][#<x4i>][#<y4i>]
+         #<ang234> = #<_dot:ang>
+o<dot>   call [#<x3i>][#<y3i>][#<x4i>][#<y4i>][#<x1i>][#<y1i>]
+         #<ang341> = #<_dot:ang>
+o<dot>   call [#<x4i>][#<y4i>][#<x1i>][#<y1i>][#<x2i>][#<y2i>]
+         #<ang412> = #<_dot:ang>
+
+         f #<feedrate>
+         s #<rpm> m3 ;spindle cw
+o<if60>  if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>] ; optionally prompt user
+o<if60>  endif
+         g0 z#<zsafe>
+
+         ; depth loop (outer)
+         #<zcurrent>  = #<zstart>
+         #<depthpass> = 1
+o<wh10>  while [#<zcurrent> GT #<cutdepth>]
+           #<zlast>    = #<zcurrent>
+           #<zcurrent> = [#<zcurrent> + #<zincr>]
+o<wh11>    if [#<zcurrent> LT #<cutdepth>]
+             #<zcurrent> = #<cutdepth>
+o<wh11>    endif
+o<wh12>    if [#<depthpass> GT #<depthpasslimit>]
+             (print, qpocket: depthpasslimit exceeded #<depthpasslimit> - EXITING)
+             (debug, qpocket: depthpasslimit exceeded #<depthpasslimit> - EXITING)
+             (AXIS,notify, qpocket: depthpasslimit exceeded - EXITING)
+             m2
+o<wh12>    endif
+
+o<pas1>    if [#<depthpass> EQ 1]
+             ;entry point:
+             ;go along the 1-->2 line to enter at a point where tool will fit
+
+             #<elen12>  = [     #<r> / [TAN[#<ang412>/2]]]
+             #<k12>     = [#<elen12> / #<r>]
+             ;(print, entry 12 k=#<k12> elen12=#<elen12> angle=#<angle>)
+             #<xentry>      = [#<x1i> + #<elen12> * #<cos12>]
+             #<yentry>      = [#<y1i> + #<elen12> * #<sin12>]
+             ;compute pre-entry points:
+o<dir00>     if [#<dir> EQ 2] ; dir EQ 2 CW (conventional)
+               #<prex2>  = [#<xentry> + #<r> * #<sin12> - #<r> * #<cos12>]
+               #<prey2>  = [#<yentry> - #<r> * #<cos12> - #<r> * #<sin12>]
+               #<prex1>  = [#<prex2>  + #<r> * #<cos12>]
+               #<prey1>  = [#<prey2>  + #<r> * #<sin12>]
+               #<vx>     = [            #<r> * #<cos12>]
+               #<vy>     = [            #<r> * #<sin12>]
+o<dir00>     else ;dir EQ 3 CCW (climb)
+               #<prex2>  = [#<xentry> - #<r> * #<sin12> - #<r> * #<cos12>]
+               #<prey2>  = [#<yentry> + #<r> * #<cos12> - #<r> * #<sin12>]
+               #<prex1>  = [#<prex2>  + #<r> * #<cos12>]
+               #<prey1>  = [#<prey2>  + #<r> * #<sin12>]
+               #<vx>     = [            #<r> * #<cos12>]
+               #<vy>     = [            #<r> * #<sin12>]
+o<dir00>     endif
+             g0  x #<prex1> y #<prey1> ;preentry 1
+             g0  x #<prex2> y #<prey2> ;preentry 2
+o<dir10>     if [#<dir> EQ 2] ; CW
+/              g42 ;cutter radius comp right of path
+               g2  x #<xentry> y #<yentry> i #<vx> j #<vy> ;arc entry
+o<dir10>     else ;dir EQ 3 CCW
+/              g41 ;cutter radius comp left of path
+               g3  x #<xentry> y #<yentry> i #<vx> j #<vy> ;arc entry
+o<dir10>     endif
+             g1 z #<zstart> ;plunge to start height from zsafe
+o<pas1>    else
+             ; depthpass GT 1: return to interior entry point
+             g1 x #<xentry> y #<yentry> z#<zlast> ; use zlast
+o<pas1>    endif
+
+           ; outline loop (inner)
+           #<outlinepass> = 1
+           #<qscale>      = #<qscalei>
+           #<size>        = #<sizei>
+o<wh20>    do
+o<wh22>      if [#<outlinepass> GT #<outlinepasslimit>]
+               (print, qpocket: outlinepasslimit exceeded #<outlinepasslimit> - EXITING)
+               (debug, qpocket: outlinepasslimit exceeded #<outlinepasslimit> - EXITING)
+               (AXIS,notify,qpocket: outlinepasslimit exceeded - EXITING)
+               m2
+o<wh22>      endif
+
+             #<seq> = [#<outlinepass> mod 4]
+o<wh23>      if [#<outlinepass> EQ 1]
+               ; move through smallest interior outline
+
+o<ramp1>     if [#<seq> EQ 1]
+               g1 x #<x2i> y #<y2i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x3i> y #<y3i>
+               g1 x #<x4i> y #<y4i>
+               g1 x #<x1i> y #<y1i>
+               g1 x #<x2i> y #<y2i>
+o<ramp1>     endif
+o<ramp2>     if [#<seq> EQ 2]
+               g1 x #<x3i> y #<y3i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x4i> y #<y4i>
+               g1 x #<x1i> y #<y1i>
+               g1 x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+o<ramp2>     endif
+o<ramp3>     if [#<seq> EQ 3]
+               g1 x #<x4i> y #<y4i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x1i> y #<y1i>
+               g1 x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+               g1 x #<x4i> y #<y4i>
+o<ramp3>     endif
+o<ramp0>     if [#<seq> EQ 0]
+               g1 x #<x1i> y #<y1i> z#<zcurrent> ;ramp down to zcurrent
+               g1 x #<x2i> y #<y2i>
+               g1 x #<x3i> y #<y3i>
+               g1 x #<x4i> y #<y4i>
+               g1 x #<x1i> y #<y1i>
+o<ramp0>     endif
+
+               #<outlinepass> = [#<outlinepass> + 1]
+o<wh23>      else
+               ; increasingly larger outlines
+               #<size>        = [#<size> + #<stepover> * #<sizei>]
+               #<qscale>      = [#<scale> * #<size>]
+               #<outlinepass> = [#<outlinepass> + 1]
+o<wh24>        if [#<qscale> GE #<scale>]
+                 #<qscale> = #<scale>
+                 #<outlinepass> = 0 ;terminate after this pass
+o<wh24>        endif
+               ; scale the centered feature and translate to original position
+               o<move> call [#<x1>][#<y1>][0][#<qscale>][#<xctr>][#<yctr>]
+               #<x1t>  = #<_move:x>
+               #<y1t>  = #<_move:y>
+               o<move> call [#<x2>][#<y2>][0][#<qscale>][#<xctr>][#<yctr>]
+               #<x2t>  = #<_move:x>
+               #<y2t>  = #<_move:y>
+               o<move> call [#<x3>][#<y3>][0][#<qscale>][#<xctr>][#<yctr>]
+               #<x3t>  = #<_move:x>
+               #<y3t>  = #<_move:y>
+               o<move> call [#<x4>][#<y4>][0][#<qscale>][#<xctr>][#<yctr>]
+               #<x4t>  = #<_move:x>
+               #<y4t>  = #<_move:y>
+
+               ; apply input rotation and offset
+               o<move> call [#<x1t>][#<y1t>][#<rotate>][1][#<xoff>][#<yoff>]
+               #<x1s>  = #<_move:x>
+               #<y1s>  = #<_move:y>
+               o<move> call [#<x2t>][#<y2t>][#<rotate>][1][#<xoff>][#<yoff>]
+               #<x2s>  = #<_move:x>
+               #<y2s>  = #<_move:y>
+               o<move> call [#<x3t>][#<y3t>][#<rotate>][1][#<xoff>][#<yoff>]
+               #<x3s>  = #<_move:x>
+               #<y3s>  = #<_move:y>
+               o<move> call [#<x4t>][#<y4t>][#<rotate>][1][#<xoff>][#<yoff>]
+               #<x4s>  = #<_move:x>
+               #<y4s>  = #<_move:y>
+
+               ; move through scaled interior outline
+o<seq0>        if [#<seq> EQ 0]
+                 g1 x #<x1s> y #<y1s> z #<zcurrent>
+                    x #<x2s> y #<y2s>
+                    x #<x3s> y #<y3s>
+                    x #<x4s> y #<y4s>
+                    x #<x1s> y #<y1s>
+o<seq0>        endif
+o<seq1>        if [#<seq> EQ 1]
+                 g1 x #<x2s> y #<y2s> z #<zcurrent>
+                    x #<x3s> y #<y3s>
+                    x #<x4s> y #<y4s>
+                    x #<x1s> y #<y1s>
+                    x #<x2s> y #<y2s>
+o<seq1>        endif
+o<seq2>        if [#<seq> EQ 2]
+                 g1 x #<x3s> y #<y3s> z #<zcurrent>
+                    x #<x4s> y #<y4s>
+                    x #<x1s> y #<y1s>
+                    x #<x2s> y #<y2s>
+                    x #<x3s> y #<y3s>
+o<seq2>        endif
+o<seq3>        if [#<seq> EQ 3]
+                 g1 x #<x4s> y #<y4s> z #<zcurrent>
+                    x #<x1s> y #<y1s>
+                    x #<x2s> y #<y2s>
+                    x #<x3s> y #<y3s>
+                    x #<x4s> y #<y4s>
+o<seq3>        endif
+
+o<wh23>      endif
+
+o<wh20>    while [#<outlinepass> GT 0]
+           #<depthpass> = [#<depthpass> + 1]
+o<wh10>  endwhile
+
+         ; after finishing at input scale, need to turn corner
+         ; and go along the next line enough to turn off compensation
+o<fin0>  if [#<seq> EQ 0] ;end at pt 1
+           #<xfinal_a> = #<x1s>
+           #<yfinal_a> = #<y1s>
+           #<elen12>   = [#<r> / [TAN[#<ang412>/2]]]
+           #<xfinal_b> = [#<x1s> + #<elen12> * #<cos12>]
+           #<yfinal_b> = [#<y1s> + #<elen12> * #<sin12>]
+o<fin0>  endif
+o<fin1>  if [#<seq> EQ 1] ;end at pt 2
+           #<xfinal_a> = #<x2s>
+           #<yfinal_a> = #<y2s>
+           #<elen23>   = [#<r> / [TAN[#<ang123>/2]]]
+           #<xfinal_b> = [#<x2s> + #<elen23> * #<cos23>]
+           #<yfinal_b> = [#<y2s> + #<elen23> * #<sin23>]
+o<fin1>  endif
+o<fin2>  if [#<seq> EQ 2] ;end at pt 3
+           #<xfinal_a> = #<x3s>
+           #<yfinal_a> = #<y3s>
+           #<elen34>   = [#<r> / [TAN[#<ang234>/2]]]
+           #<xfinal_b> = [#<x3s> + #<elen34> * #<cos34>]
+           #<yfinal_b> = [#<y3s> + #<elen34> * #<sin34>]
+o<fin2>  endif
+o<fin3>  if [#<seq> EQ 3] ;end at pt 4
+           #<xfinal_a> = #<x4s>
+           #<yfinal_a> = #<y4s>
+           #<elen41>   = [#<r> / [TAN[#<ang341>/2]]]
+           #<xfinal_b> = [#<x4s> + #<elen41> * #<cos41>]
+           #<yfinal_b> = [#<y4s> + #<elen41> * #<sin41>]
+o<fin3>  endif
+
+         g1 x #<xfinal_a> y #<yfinal_a>
+         g1 x #<xfinal_b> y #<yfinal_b>
+
+         g0 z #<zsafe>
+         g40 ;cutter radius compensation off
+
+o<qpocket> endsub

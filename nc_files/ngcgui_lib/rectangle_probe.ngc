@@ -1,0 +1,87 @@
+( Rectangular area probe )
+( adapted for ngcgui-compatibility from smartprobe.ngc written by Chris Radek )
+( This program repeatedly probes a regular XY grid and writes the )
+( probed locations to the file 'rectangle_probe_result.txt' in the same directory )
+( as the .ini file )
+
+( Requires a probe connected to motion.probe-input )
+( or use scripts/simulate_probe )
+
+(info: Probe a rectangular area)
+o<rectangle_probe> sub
+      #<xmin> =  #1 (=  -1.0)
+      #<xmax> =  #2 (=   1.0)
+ #<xinterval> =  #3 (=   0.1)
+      #<ymin> =  #4 (=  -1.0)
+      #<ymax> =  #5 (=   1.0)
+ #<yinterval> =  #6 (=   0.1)
+     #<zsafe> =  #7 (=   1.1)
+    #<zprobe> =  #8 (=  -0.1)
+#<probespeed> =  #9 (=  20)
+  #<in_or_mm> = #10 (=  20 in|mm 20|21)
+      #<wait> = #11 (=   1 Wait for Start)
+
+O1 if [ [#<in_or_mm> ne 20] and [#<in_or_mm> ne 21]]
+     (debug, in_or_mm invalid: #<in_or_mm> - EXITING)
+     (print, in_or_mm invalid: #<in_or_mm> - EXITING)
+     (AXIS,notify, rectangle_probe: in_or_mm invalid - EXITING)
+     m2
+O1 endif
+
+#<xsteps> = [fix [abs[#<xmax> - #<xmin>]/#<xinterval> + 1]]
+#<ysteps> = [fix [abs[#<ymax> - #<ymin>]/#<yinterval> + 1]]
+
+G#<in_or_mm>
+#<points> = [#<xsteps> * #<ysteps>]
+
+(debug, Probing #<xsteps> * #<ysteps> = #<points> points)
+(LOGOPEN,rectangle_probe_result.txt)
+(LOG,# xmin = #<xmin> xmax = #<xmax> xinterval = #<xinterval> xsteps = #<xsteps>)
+(LOG,# ymin = #<ymin> ymax = #<ymax> yinterval = #<yinterval> ysteps = #<ysteps>)
+
+#<yct> = 0
+#<xct> = 0
+G0Z#<zsafe>
+F#<probespeed>
+
+O2 while [#<yct> lt #<ysteps>]
+     #<xct> = 0
+     G0 Y[#<ymin>+#<yinterval>*#<yct>]
+O3   while [#<xct> lt #<xsteps>]
+       #<xtarget> = 0
+O4     if [[#<yct>/2] - fix[#<yct>/2] eq 0]
+         #<xtarget> = [#<xmin> + #<xinterval> * #<xct>]
+O4     else
+         #<xtarget> = [#<xmin> + #<xinterval> * [#<xsteps> - #<xct> - 1]]
+O4     endif
+       #<probesuccess> = 1
+O5     while [#<probesuccess> NE 0]
+         G38.5 z#<zsafe>   (probe until no contact away from work, no error)
+         #<probesuccess> = #5070
+         G38.3 x#<xtarget> (probe until contact, toward work, no error)
+         #<probesuccess> = #5070
+O5     endwhile
+O6     if [[#<wait> eq 1] and [[#<yct> eq 0] and [#<xct> eq 0]]]
+         (debug, S to Begin Rectangle Probe)
+         m0 (mandatory stop)
+         M110 (axisui.notifications-clear)
+O6     endif
+       G38.2Z#<zprobe> (probe until contact, toward work, with error)
+       G0z#<zsafe>
+       #<probex> = #5061
+       #<probey> = #5062
+       #<probez> = #5063
+       (LOG,X#<probex> Y#<probey> Z#<probex>)
+       #<xct> = [#<xct> + 1]
+O3    endwhile
+      G0Z#<zsafe>
+      #<yct> = [#<yct> + 1]
+O2 endwhile
+
+(LOG,# Finished: total points = #<points>)
+(LOGCLOSE)
+(debug, Finished: see rectangle_probe_result.txt)
+
+G0Z#<zsafe>
+G0X#<xmin>Y#<ymin>
+o<rectangle_probe> endsub

@@ -1,0 +1,192 @@
+Mesa setup page:
+
+Configuration Tab:
+    Allows you to choose the firmware,
+    number of components / number of gpio, 
+    frequency of pwm / pdm and the watchdog timeout.
+    The base frequency should be set as per the Mesa daughter
+    board you are using. Different boards require PDM vrs PWM
+    which is set on the connector tabs. 
+    pick the firmware you wish to use and 
+    you will see the component numbers change   
+    default is to have all the available components active. 
+    by choosing less of each component frees up gpio
+    press 'accept component changes' to have the connector 
+    tabs reflect the changes
+    Any signalnames you had already pick will be lost unless 
+    the component is the same as before the change.
+    Depending on the board chosen, the connector tabs will disapear
+    if not available.
+    Sanity checks are available for some boards - these just remind you to
+    check some settings that are specific for the choosen board.
+    The help page output tab will show the firmware PIN file,
+    which shows the default components, their channel number
+    and their Component number. The component number is useful for
+    changing some options such as stepper output pins to open drain.
+    For instance: in firmware SVST8_4 to change stepper channel
+    0 to open drain outputs, find out their component numbers.
+    step IO number = 48
+    direction number = 49
+    In your custom HAL file add the commands:
+
+    setp hm2_5i20.0.gpio.048.is_opendrain true
+    setp hm2_5i20.0.gpio.049.is_opendrain true
+
+    note that this says GPIO but the component number corresponds
+    to the stepper ouputs. See the manual for more options.
+
+    If you are using the 5i25 card with 2x7i77 or 2x7i76 firmware
+    but are only using one daughter board, deselecting half the components
+    (including half the sserial channels) will free up the extra
+    5i25 connector for GPIO, if desired.
+
+Connector Tabs:
+    The available tabs are selected based on the 
+    mesa card type.
+    The available component types are based on the 
+    firmware / component number selected on the setup page.
+    The tabs will display the signal names and the component
+    types.
+    There are different pintypes depending on the components 
+    available in the selected firmware:
+
+     GPIO - general purpose input / output
+        This is for general digital control.
+        If selecting mainboard GPIO, you can select the type 
+        in the pintype combobox
+        This includes GPIOI - input, GPIOO - output, and 
+        GPIOD - open drain output
+        The available signals will change if you switch between 
+        GPIOI and GPIOO/GPIOD.
+        Sserial daugher boards GPIO type is not selectable.
+        In general, mainboard GPIO is updated faster then sserial GPIO.
+
+     ENCODER - a hardware base quadrature counter
+
+        You select the A phase signal and the rest of the 
+        phases (B, I, and possibly M) are automatically included.
+        If using a single input or single input and index for the spindle
+        encoder, the encoder must be put in 'counter-mode'. This must be
+        manually added in a custom HAL file. For example (changing the board 
+        name and encoder number to your requirements):
+
+        setp    hm2_7i43.0.encoder.00.counter-mode 1 
+
+        HAL file. See the Hostmot2 section on encoders for more info about 
+        counter mode.
+
+     MUX ENCODER - a hardware base quadrature counter
+
+        You select the A phase signal and the rest of the 
+        phases (B, I, and possibly M) are automatically included
+        Mux encoders allows two encoders per set of pins by using
+        a select pin to choose a second set of encoders. This
+        component is used with firmware that requires a special
+        daughter board from Mesa. Remember when connecting encoders
+        you must use the pinout for the daugher board.
+
+     RESOLVER - a resolver encoder counter
+        used with MESA 7i49 daughter board with special firmware
+        Some servos have resolvers rather then quadrature encoders
+
+     PWMGEN - a hardware base pulse width (or density) 
+        modulation generator
+
+        You can select:
+        PWM -pulse width modulation using pulse and direction output pins
+        PWD -pulse density modulation
+        UDM -pulse width modulation using up and dowm output pins
+        you select the PULSE signal and the direction and enable 
+        signals are automatically setup.
+        Please see the Mesa daughter board documentaion for the most up-to-date
+        recommendations for frequency and type. Here are the common ones: 
+        The 7i33 daughter board requires PDM @ 6 MHz.
+        The 7i78 daughter board (for the 5i25) requires PDM @ 5 Mhz.
+        The 7i29,7i30,7i40 require PWM @ 20 KHz
+        the 7i48 and 7i49 require UDM @ 24 KHz
+
+     3 PWMGEN - special pwm generators used for driving brushless
+        servo motors 3 windings directly.
+        This is not fully supported yet so the HAl file will need
+        commands added to it to finish the config.
+
+     STEPGEN - a hardware based step and direction generator
+
+        only step and direction stepgens are supported
+        You select the STEP signal and the direction and enable
+        signals are automatically setup
+        If you wish to have a slave stepper for a tandem axis
+        select a master axis and a tandem axis.
+        The tandem axis will be connected to the master axis command signal and
+        will be set at all the same settings as the master axis stepper, so the
+        stepper/driver should match. There is no facility to align these steppers
+        while homing, the slave simpily follows the master's command.
+    
+     POTENTIOMETER - A digital potentiometer used primaraly to control
+        a spindle found with sserial card combo 5i25/7i76
+
+     SSERIAL - smartserial daughter boards comunication stream.
+        allows connection to many daughter boards.
+        Currently PNCconf recognizes:
+        7i64 I/O board
+        7i69 I/O board
+        7i70 I/O board
+        7i71 I/O board
+        7i76 I/O board works only with the 5i25 main board
+        7i77 I/O board works only with the 5i25 main board
+        7i78 breakout board works only with the 5i25 main board
+        8i20 amplifier ( untested )
+        Linuxcnc supports 4 ports of 8 channels each of sserial
+        PNCconf only configures 5 channels of port 0 (so max 5 sserial boards -
+        note that some 5i25 daugther boards use some of the sserial channels 
+        internally.)
+        Note that some daughter boards use multiple sserial channels.
+
+    You could change these options in a custom HAL file
+    If you wish to connect a component to something in a 
+    custom HAL file write a unique signal name in the combo 
+    entry box. Certain components will add endings to your 
+    custom signal name.
+
+    Encoder will add < customname > +:
+    -position
+    -count
+    -velocity
+    -index-enable
+    -reset
+
+    Steppers add:
+    -enable
+    -counts
+    -position-cmd
+    -position-fb
+    -velocity-fb
+    
+    PWM add:
+    -enable
+    -value
+
+Signal selection:
+    By selecting signals you are configuring the input and output
+    of the mesa boards and selecting how pncconf displays options
+    in the upcoming pages.
+    PNCconf can configure servo motors, open loop steppers and
+    closed loop steppers.
+    PNCconf does a sanity check when you push the next button.
+    It checks for some obvious problems such as:
+    if you select a PWM signal for an axis PNCconf assumes you
+    are using a servo motor (except for the spindle)- then you 
+    need to select an encoder signal too.
+    If you select an encoder you must select an PWM or a stepper
+    signal as well (except for a spindle)
+    A dialog will pop up letting you know of these detected errors.
+    PNCconf will not catch the error of setting two components 
+    the same (If fact for GPIOO outputs this is fine anyways)
+ 
+    For testing purposes if you require an output true, for instance to force
+    a relay to close to allow the amplifier to be powered, select the 
+    'force-pin-true' output signal. The openloop and tuning tests will then
+    set the output true for the length of the test. 
+
+
+    

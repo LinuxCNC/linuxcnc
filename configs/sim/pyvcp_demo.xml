@@ -1,0 +1,76 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  <vbox>
+
+     
+
+
+   
+     <label><text>"These widgets indicate a HAL_BIT"</text></label>
+     <hbox>
+                    <label><text>"LED:"</text></label>
+                    <led>
+                         <halpin>"led-sample"</halpin>
+                         <size>20</size>
+                    </led>
+     </hbox>
+
+     <label><text>"These widgets control a HAL_BIT"</text></label>
+     <vbox>
+             <hbox>
+             <label><text>"Button"</text></label>
+                      <button>  
+                            <text>"Button:"</text>
+                            <halpin>"button-sample"</halpin>
+                      </button>
+              </hbox>
+                 <hbox>
+                    <label><text>"Checkbutton:"</text></label>
+                      <checkbutton>  
+                            
+                            <halpin>"chbutton-sample"</halpin>
+                      </checkbutton>
+               </hbox>
+    </vbox>
+
+    <label><text>"These widgets indicate a HAL_FLOAT"</text></label>
+    <vbox>
+           
+               <hbox>
+                    <label><text>"Bar:"</text></label>
+                       <bar>
+                              <halpin>"bar-sample"</halpin>
+                         </bar>
+               </hbox>
+               <hbox>
+                    <label><text>"Number:"</text></label>
+                       <number>
+                              <halpin>"number-sample"</halpin>
+                              <format>"+004.4f"</format>
+                              <font>('Helvetica',40)</font>
+                         </number>
+               </hbox>
+      </vbox>
+ 
+     <label><text>"These widgets control a HAL_FLOAT"</text></label>
+     <vbox>
+               <hbox>
+                    <label><text>"Scale:"</text></label>
+                    <scale>
+                         <orient>HORIZONTAL</orient>
+                         <halpin>"scale-sample"</halpin>
+                    </scale>
+               </hbox>
+               <hbox>
+                         <label><text>"Spinbox:"</text></label>
+                          <spinbox>
+                              <font>('Helvetica',40)</font>
+                         </spinbox>
+               </hbox>
+     </vbox>
+
+ 
+<!-- this is a comment-->
+
+</vbox>
+</pyvcp>

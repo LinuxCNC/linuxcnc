@@ -1,0 +1,105 @@
+Generalities
+============
+
+The register layout of the pluto-servo is an implementation detail and
+may vary from release to release of emc.
+
+The "address" is auto-incrementing after transfers.
+
+Multi-byte data is transferred least-significant-byte-first.
+
+
+Read registers
+==============
+
+The "read" registers (data transfer from pluto to PC) are each 4 bytes
+long and start at address 0.  Beginning a read within a register (e.g.,
+at address 2) results in undefined behavior.  Bits without an
+interpretation are undefined.
+
+Address     Bits        Interpretation
+0..3        0..13       Encoder 0 count
+            14..27      Encoder 0 last index pulse count
+	    15		Encoder 0 index seen
+4..7        0..13       Encoder 1 count
+            14..27      Encoder 1 last index pulse count
+	    15		Encoder 0 index seen
+8..11       0..13       Encoder 2 count
+            14..27      Encoder 2 last index pulse count
+	    15		Encoder 0 index seen
+12..15      0..13       Encoder 3 count
+            14..27      Encoder 3 last index pulse count
+	    15		Encoder 0 index seen
+16..19      0..7        Dedicated digital inputs 0..7
+            8..11       Encoder 0..3 "Z" input
+            12..15      Encoder 0..3 "B" input
+            16..20      Encoder 0..3 "A" input
+            21..27      (future) watchdog timer value
+
+
+Write registers
+===============
+
+The "write" registers (data transfer from pluto to PC) are each 2 bytes
+long and start at address 0.  Beginning a read within a register (e.g.,
+at address 1) results in undefined behavior.  Bits without an
+interpretation should be sent as 0.
+
+Address     Bits        Interpretation
+0..1        0..10       PWM 0 duty cycle
+            12          PWM 0 up invert
+            13          PWM 0 down invert
+            14          PDM mode indicator for PWM 0..3
+            15          PWM 0 sign (0=force 'up' low; 1=force 'down' low)
+
+2..3        0..10       PWM 1 duty cycle
+            12          PWM 1 up invert
+            13          PWM 1 down invert
+            15          PWM 1 sign (0=force 'up' low; 1=force 'down' low)
+
+4..5        0..10       PWM 2 duty cycle
+            12          PWM 2 up invert
+            13          PWM 2 down invert
+            15          PWM 2 sign (0=force 'up' low; 1=force 'down' low)
+
+6..7        0..10       PWM 3 duty cycle
+            12          PWM 3 up invert
+            13          PWM 3 down invert
+            15          PWM 3 sign (0=force 'up' low; 1=force 'down' low)
+
+8..9        0..9        Dedicated digital outputs 0..9
+            13          write to 1 to enable encoder test mode
+            14          write to 1 to enable watchdog and reset WDT
+            15          Index signal polarity for encoder 0..3
+
+
+Notes
+=====
+
+Encoder
+=======
+The encoder "count" and "last index pulse count" must be sign extended in the
+driver.  This makes the maximum count rate 8191 counts per polling period.
+
+When an index pulse has occurred, "last index pulse count" is updated with the
+count on the rising edge of the index, and "index seen" will be set on the next
+read cycle.  It is up to the HAL driver to perform index-enable logic.
+
+PWM
+===
+In up/down mode, bit 15 functions like a sign bit.  In pwm/direction
+mode, bit 13 functions like a direction bit.  Bits 12 and 13 function as
+inverts (when PWM function is used) or as digital outputs (when PWM
+function is disabled, bits 10..0 == 0).   It's up to the HAL driver to
+set all the bits properly for the desired PWM/digital output mode.
+
+Watchdog
+========
+The watchdog consists of a 7-bit counter and a 1-bit enable which gives a
+watchdog period of approximately 6.5ms.  At power-up the enable is FALSE.  When
+bit 14 of register 8..9 is written TRUE, the counter is reset to 0 and enable
+is set to TRUE. (there is no provision for resetting the watchdog enable to
+FALSE) Every time the PWM counter overflows (approximately 51.2us) the watchdog
+counter is incremented if it is not already at its maximum.  When the watchdog
+counter is at its maximum, the dedicated digital outputs and PWM outputs are
+tristated.

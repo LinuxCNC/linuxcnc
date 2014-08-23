@@ -1,0 +1,195 @@
+<pyvcp>
+  <hbox>
+    <label>
+        <text>"Commanded Velocity:"</text>
+    </label>
+    <number>
+        <halpin>"command"</halpin>
+        <format>"+4.0f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Feedback Velocity:"</text>
+    </label>
+    <number>
+      <halpin>"vel"</halpin>
+      <format>"+4.0f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <led>
+        <halpin>"enabled"</halpin>
+    </led>
+    <label>
+        <text>"Machine On"</text>
+    </label>
+  </hbox>
+  <hbox>
+    <led>
+        <halpin>"done"</halpin>
+    </led>
+    <label>
+        <text>"Init Done"</text>
+    </label>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"PID Out/BLDC In:"</text>
+    </label>
+    <number>
+      <halpin>"val"</halpin>
+      <format>"+4.2f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Encoder Count:"</text>
+    </label>
+    <s32>
+      <halpin>"count"</halpin>
+      <format>"6d"</format>
+    </s32>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Rotor Angle:"</text>
+    </label>
+    <number>
+      <halpin>"rotor_angle"</halpin>
+      <format>"+4.4f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Phase Angle:"</text>
+    </label>
+    <number>
+      <halpin>"phase_angle"</halpin>
+      <format>"+4.4f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Current:"</text>
+    </label>
+    <number>
+      <halpin>"current"</halpin>
+      <format>"+4.4f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"A"</text>
+    </label>
+    <led>
+        <halpin>"a"</halpin>
+    </led>
+    <label>
+        <text>"B"</text>
+    </label>
+    <led>
+        <halpin>"b"</halpin>
+    </led>
+    <label>
+        <text>"C"</text>
+    </label>
+    <led>
+        <halpin>"c"</halpin>
+    </led>
+    <label>
+        <text>"Index Enable"</text>
+    </label>
+    <led>
+        <halpin>"ie_led"</halpin>
+    </led>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"8i20 Comms:"</text>
+    </label>
+    <u32>
+      <halpin>"comms"</halpin>
+      <format>"8x"</format>
+    </u32>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"8i20 Fault:"</text>
+    </label>
+    <u32>
+      <halpin>"fault"</halpin>
+      <format>"8x"</format>
+    </u32>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"8i20 Status:"</text>
+    </label>
+    <u32>
+      <halpin>"status"</halpin>
+      <format>"8x"</format>
+    </u32>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"8i20 Temp:"</text>
+    </label>
+    <number>
+      <halpin>"temp"</halpin>
+      <format>"+2.0f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"8i20 Volts:"</text>
+    </label>
+    <number>
+      <halpin>"voltage"</halpin>
+      <format>"+3.2f"</format>
+    </number>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"SS Fault Count:"</text>
+    </label>
+    <u32>
+      <halpin>"faults"</halpin>
+      <format>"6d"</format>
+    </u32>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"SS Port0 State:"</text>
+    </label>
+    <u32>
+      <halpin>"port_state"</halpin>
+      <format>"8x"</format>
+    </u32>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Hall Error"</text>
+    </label>
+    <led>
+        <halpin>"hall-error"</halpin>
+    </led>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Spindle At Speed"</text>
+    </label>
+    <led>
+        <halpin>"at-speed"</halpin>
+    </led>
+  </hbox>
+  <hbox>
+    <label>
+        <text>"Spindle Stalled"</text>
+    </label>
+    <led>
+        <halpin>"stall"</halpin>
+    </led>
+  </hbox>
+</pyvcp>
+

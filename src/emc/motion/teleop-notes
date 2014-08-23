@@ -1,0 +1,99 @@
+teleop & joints/axes notes
+
+this document references the drawing at http://jmkasunich.com/pics/emc2-motion-dataflow.pdf
+
+Off mode:
+
+  this mode is active when the machine is estopped, etc
+  motion is not controlled, but the various planners need to be preloaded with the current position
+  SW2 is down, so the single axis planner preload value matches the current feedback
+  If there are no forward kins, this feedback is useless, and SW2 must be in the middle position - preload with "home" coords
+  the single-axis planners are disabled - they copy their preload values to their outputs, and ignore their inputs
+  SW1 is down, so the inverse kins will know the current position
+  SW4 is down, so the single joint planner preload value matches the current feedback
+  the single-joint planners are disabled - they copy their preload values to their outputs, and ignore their inputs
+  SW3 is down, so the backlash and screw comp code will know the current position
+
+
+Coordinated mode:
+
+  this is the mode used when running a program or doing MDI
+  motion is controlled by the coord mode planner, which gets commands from the motion queue
+  SW1 is up, to take the axis position commands from the traj mode planner
+  SW2 is up, so the single axis planner preload value matches the current command
+  the single-axis planners are disabled - they copy their preload values to their outputs, and ignore their inputs
+  SW3 is up, to take the joint position commands from the kinematics
+  SW4 is up, so the single joint planner preload value matches the current command
+  the single joint planners are disabled - they copy their preload values to their outputs, and ignore their inputs
+
+
+Joint mode:
+
+  this is the mode used when jogging joints
+  motion is controlled by the single joint planners,
+  which get commands from GUI joint jogs, wheel joint jogs, and/or the homing state machine
+  SW2 is down, so the single axis planner preload value matches the current feedback (since command is coming from the joint level)
+  If there are no forward kins, this feedback is useless, and SW2 must be in the middle position - preload with "home" coords
+  the single-axis planners are disabled - they copy their preload values to their outputs, and ignore their inputs
+  SW1 is a down, so the inverse kins will know the current position
+  the single joint planners are active, moving their outputs to match their inputs while obeying joint constraints
+  SW3 is down, to take the joint position commands from the single joint planners
+  SW4 is no-care, since the single joint planners are active, we don't need to worry about preloading them
+
+
+Axis mode (aka teleop):
+
+  this mode is used when jogging in world coords
+  motion is controlled by the single axis planners, which get commands from GUI axis jogs and wheel axis jogs
+  the single axis planners are active, moving their outputs to match their inputs while obeying joint constraints <---- don't know how to do this
+  SW1 is down, to take the axis position commands from the single axis planners
+  SW2 is no-care, since the single axis planners are active, we don't need to worry about preloading them
+  SW3 is up, to take the joint position commands from the kinematics
+  SW4 is up, so the single joint planner preload value matches the current command
+  the single joint planners are disabled - they copy their preload values to their outputs, and ignore their inputs
+
+
+Mode transition rules:
+
+  If you have identity kins, you can switch to teleop or coord mode at any time, even if you haven't homed
+  If you have forward kins, you can switch to teleop or coord mode at any time after you have homed all joints
+    (even if you have moved a joint since then)
+  if you don't have forward kins, you can only switch to teleop or coord mode when all joints are _at_ their home position
+
+
+the main problem is how to obey constraints in joint space when the motion is being
+generated in axis space (by either the coord mode planner or the single-axis planners)
+
+random thoughts on constraints
+
+At any servo period, the joint level code will have "most recent joint pos cmd from kins" 
+and "previous joint pos cmd from kins", which can be turned into "joint vel cmd".
+Given the joint vel limit, we can compute "percent of joint vel that is being used.
+Also, given joint accel limit, we can compute "time to stop the joint".
+We could then select the highest "percent of vel being used" from all the joints,
+and the longest "time to stop the joint", and do "something" back at the axis level
+with that info.  But what?
+
+Thinking only about the single axis planners for now...
+
+I don't really see any reason to have axis vel and accel limits in the ini file.  The
+machine's mechanical limits are related to the joints, not the axes.  So the axes should
+simply limiit themselves to whatever will keep the joints happy.
+
+If the limits for the single axis planners aren't in the ini file, we need to derive
+them somehow.  That is the root problem.
+
+Suppose we are already moving at some velocity Vx in the single axis X planner.  That
+results in movements of one or more joints, and thus we have a value for "worst % of
+joint vel being used" and "worst time to stop a joint".  We could set the X axis planner's
+accel limit to ( Vx / worst_stop_time ).  This blows up when worst_stop_time approaches
+zero (which is the case at zero speed).  It also results in a zero accel limit for any
+axis that isn't already moving, which means it could never start moving...
+
+So maybe this is stupid, but let's think the rest of it thru anyway...  the above is
+the accel limit, what about velocity limit.  If X is moving at Vx, and the worst
+joint is using 55% of that joint's vel limit, then the X velocity limit should be 
+( Vx / 0.55 ).  Again, it blows up when "percent of limit being used" is zero, and
+any axis that isn't already being moved will have a limit of zero.
+
+

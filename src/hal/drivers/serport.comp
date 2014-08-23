@@ -1,0 +1,126 @@
+component serport """Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
+
+.B loadrt serport io=\\fIaddr[,addr...]\\fR
+.PP
+The pin numbers refer to the 9-pin serial pinout.  Keep in mind that these ports generally use rs232 voltages, not 0/5V signals.
+
+Specify the I/O address of the serial ports using the module parameter
+\\fBio=\\fIaddr[,addr...]\\fR.  These ports must not be in use by the kernel.
+To free up the I/O ports after bootup, install setserial and execute a command
+like:
+.RS 
+sudo setserial /dev/ttyS0 uart none
+.RE
+but it is best to ensure that the serial port is never used or configured by
+the Linux kernel by setting a kernel commandline parameter or not loading
+the serial kernel module if it is a modularized driver.
+""";
+
+pin out bit pin_1_in "Also called DCD (data carrier detect); pin 8 on the 25-pin serial pinout";
+pin out bit pin_6_in "Also called DSR (data set ready); pin 6 on the 25-pin serial pinout";
+pin out bit pin_8_in "Also called CTS (clear to send); pin 5 on the 25-pin serial pinout";
+pin out bit pin_9_in "Also called RI (ring indicator); pin 22 on the 25-pin serial pinout";
+
+pin out bit pin_1_in_not "Inverted version of pin-1-in";
+pin out bit pin_6_in_not "Inverted version of pin-6-in";
+pin out bit pin_8_in_not "Inverted version of pin-8-in";
+pin out bit pin_9_in_not "Inverted version of pin-9-in";
+
+pin in bit pin_3_out  "Also called TX (transmit data); pin 2 on the 25-pin serial pinout";
+pin in bit pin_4_out "Also called DTR (data terminal ready); pin 20 on the 25-pin serial pinout";
+pin in bit pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin serial pinout";
+
+param rw bit pin_3_out_invert;
+param rw bit pin_4_out_invert;
+param rw bit pin_7_out_invert;
+param r u32 ioaddr;
+
+option count_function;
+option extra_setup;
+option extra_cleanup;
+option constructable no;
+
+function read nofp;
+function write nofp;
+
+license "GPL";
+;;
+
+#include <asm/io.h>
+#include <rtapi_errno.h>
+
+#define MAX 8
+int io[MAX] = {0,};
+RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of serial ports");
+
+int get_count(void) {
+    int i = 0;
+    for(i=0; i<MAX && io[i]; i++) { /* Nothing */ }
+    return i;
+}
+
+EXTRA_SETUP() {
+    rtapi_print_msg(RTAPI_MSG_INFO, "requesting I/O region 0x%x\n",
+			io[extra_arg]);
+    if(!rtapi_request_region(io[extra_arg], 7, "serport")) {
+	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
+	// ports that were never requested.
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "Could not register port at address 0x%x.  See\n"
+	    "'man serport' for information on using 'setserial'\n"
+	    "to make a port available to hal", io[extra_arg]);
+        io[extra_arg] = 0; 
+        return -EBUSY;
+    }
+    ioaddr = io[extra_arg];
+    return 0;
+}
+
+EXTRA_CLEANUP() {
+    int i;
+    for(i=0; i < MAX && io[i]; i++) {
+        rtapi_print_msg(RTAPI_MSG_INFO, "releasing I/O region 0x%x\n",
+			io[i]);
+        rtapi_release_region(io[i], 7);
+    }
+}
+
+#define MSR (ioaddr + 6)
+#define CTS (1<<4)
+#define DSR (1<<5)
+#define RI (1<<6)
+#define DCD (1<<7)
+
+#define MCR (ioaddr + 4)
+#define DTR (1<<0)
+#define RTS (1<<1)
+
+#define LCR (ioaddr + 3)
+#define BREAK (1<<6)
+
+FUNCTION(read) { 
+    int i = inb(MSR);
+
+    pin_9_in = (i & RI) == 0;
+    pin_9_in_not = (i & RI) == RI;
+
+    pin_1_in = (i & DCD) == 0;
+    pin_1_in_not = !(i & DCD) == DCD;
+
+    pin_6_in = (i & DSR) == 0;
+    pin_6_in_not = (i & DSR) == DSR;
+
+    pin_8_in = (i & CTS) == 0;
+    pin_8_in_not = (i & CTS) == CTS;
+}
+
+FUNCTION(write) {
+    int i = 0, j=0;
+
+    if(!pin_4_out ^ !pin_4_out_invert) i |= DTR;
+    if(!pin_7_out ^ !pin_7_out_invert) i |= RTS;
+    if(!pin_3_out ^ !pin_3_out_invert) j |= BREAK;
+
+    outb(i, MCR);
+    outb(j, LCR);
+}

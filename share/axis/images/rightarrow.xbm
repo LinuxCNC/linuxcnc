@@ -1,0 +1,5 @@
+/* Created with The GIMP */
+#define rightarrow_width 5
+#define rightarrow_height 9
+static unsigned char rightarrow_bits[] = {
+   0x01, 0x03, 0x07, 0x0f, 0x1f, 0x0f, 0x07, 0x03, 0x01 };

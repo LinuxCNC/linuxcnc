@@ -1,0 +1,77 @@
+# standard pinout config file for 3-axis steppers
+# using a parport for I/O
+#
+# first load the parport driver
+loadrt hal_parport cfg="0x0378"
+#
+# next connect the parport functions to threads
+# read inputs first
+addf parport.0.read base-thread 1
+# write outputs last
+addf parport.0.write base-thread -1
+#
+# finally connect physical pins to the signals
+net Xstep => parport.0.pin-03-out
+net Xdir  => parport.0.pin-02-out
+net Ystep => parport.0.pin-05-out
+net Ydir  => parport.0.pin-04-out
+net Zstep => parport.0.pin-07-out
+net Zdir  => parport.0.pin-06-out
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# connect "spindle on" motion controller pin to a physical pin
+net spindle-on motion.spindle-on => parport.0.pin-09-out
+
+###
+### You might use something like this to enable chopper drives when machine ON
+### the Xen signal is defined in core_stepper.hal
+###
+
+# net Xen => parport.0.pin-01-out
+
+###
+### If you want active low for this pin, invert it like this:
+###
+
+# setp parport.0.pin-01-out-invert 1
+
+###
+### A sample home switch on the X axis (axis 0).  make a signal,
+### link the incoming parport pin to the signal, then link the signal
+### to EMC's axis 0 home switch input pin
+###
+
+# net Xhome parport.0.pin-10-in => axis.0.home-sw-in
+
+###
+### Shared home switches all on one parallel port pin?
+### that's ok, hook the same signal to all the axes, but be sure to 
+### set HOME_IS_SHARED and HOME_SEQUENCE in the ini file.  See the
+### user manual!
+###
+
+# net homeswitches <= parport.0.pin-10-in
+# net homeswitches => axis.0.home-sw-in
+# net homeswitches => axis.1.home-sw-in
+# net homeswitches => axis.2.home-sw-in
+
+###
+### Sample separate limit switches on the X axis (axis 0)
+###
+
+# net X-neg-limit parport.0.pin-11-in => axis.0.neg-lim-sw-in
+# net X-pos-limit parport.0.pin-12-in => axis.0.pos-lim-sw-in
+
+###
+### Just like the shared home switches example, you can wire together
+### limit switches.  Beware if you hit one, EMC will stop but can't tell
+### you which switch/axis has faulted.  Use caution when recovering from this.
+###
+
+# net Xlimits parport.0.pin-13-in => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in

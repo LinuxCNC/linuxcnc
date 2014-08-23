@@ -1,0 +1,338 @@
+# HAL config file for Rugludallur Plasma Cutting Table using classic ladder
+# Loads the dallur-advanced.hal file first to set up motion and stepgen
+# for a 3 axis stepper system where Axis A is slaved to Axis Y 
+# This adds limits and home from limit to the motion module
+# Adds ESTOP button  (with classicladder)
+# Creates Charge Pump Signals for 2 Parallel ports on pins 17
+# Includes unused intermittent lube pump and pressure or level sensing
+# Includes unused coolant 
+# Spindle forward is used for "Torch ON" signal, reverse is not used
+
+# Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
+loadrt hal_parport cfg="0xa400 0xac00"
+
+# Connect both Paralell Ports to Threads for Read / Write
+addf parport.0.read base-thread 1
+addf parport.0.write base-thread -1
+addf parport.1.read base-thread 1
+addf parport.1.write base-thread -1
+
+# This configuration uses classicladder for machine logic
+# (load the realtime portion)
+# these classicladder parameters need to be optimized after ladder completion
+loadrt classicladder_rt numRungs=10 numBits=20 numWords=4 numTimers=5 numMonostables=2 numPhysInputs=20 numPhysOutputs=10 numArithmExpr=4 numSections=4
+# We kick ladder into a thread at the slower servo rate rather than base rate
+addf classicladder.0.refresh        servo-thread 1
+
+# invoke the user part of CL to silently load the program
+# later we will need to add the clp file mentioned below
+# to the ini file so that we do not need to hardcode it here.
+loadusr -w classicladder --nogui dallur-advanced.clp
+# load the GUI aswell
+loadusr classicladder
+
+#Reverse Direction for A(Auxilary) Axis so both motors drive in same direction
+setp parport.0.pin-09-out-invert 1
+
+# begin to connect physical pins to signals
+# this is EMC's standard motion pinouts
+#Axis for Cart, single stepper motor marked Axis X in breakout
+net Xstep parport.0.pin-02-out
+net Xdir parport.0.pin-06-out
+#Axis for Gantry, primary stepper motor (same side as ctrl box), marked Axis Y in breakout
+net Ystep parport.0.pin-03-out
+net Ydir parport.0.pin-07-out
+#Axis for Gantry, secondary stepper motor (other side of ctrl box), marked Axis A(Auxilary) in breakout
+net Ystep parport.0.pin-05-out
+net Ydir parport.0.pin-09-out
+#Axis for Height Control, single stepper motor marked Axis Z in breakout
+net Zstep parport.0.pin-04-out
+net Zdir parport.0.pin-08-out
+
+#Enable signals not used because of Charge Pump
+#linksp Yen   parport.0.pin-06-out
+#linksp Yen   parport.0.pin-09-out
+#linksp Xen   parport.0.pin-03-out
+
+# Estop signals
+# This signal is the internal or gui estop command from EMC
+net estop-out iocontrol.0.user-enable-out classicladder.0.in-00
+# This is a one-shot on timer when signal above goes high.
+net estop-in iocontrol.0.user-request-enable  classicladder.0.in-02
+# This bit is an external estop button connected to parport pin 10 
+net ext-estop parport.0.pin-10-in
+net ext-estop classicladder.0.in-01
+# This bit signal is comand to estop from CL to EMC
+net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
+
+
+# Spindle Signal, forward drives Torch ON
+# Spindle reverse is not used (might be used for a Running Start later)
+net turn_torch_on parport.1.pin-01-out
+#net spindle-reverse motion.spindle-reverse  parport.0.pin-17-out 
+
+#Create a limit switch signal for each axis
+
+#Read limit switches from normally open circuit on parport 0
+net limit-reached-x parport.0.pin-11-in-not
+net limit-reached-y parport.0.pin-12-in-not
+net limit-reached-z parport.0.pin-13-in-not
+net limit-reached-a parport.0.pin-15-in-not
+
+#Connect all limit signals to relevant axes
+net limit-reached-x axis.0.neg-lim-sw-in
+net limit-reached-x axis.0.pos-lim-sw-in
+net limit-reached-y axis.1.neg-lim-sw-in
+net limit-reached-y axis.1.pos-lim-sw-in
+net limit-reached-a axis.1.neg-lim-sw-in
+net limit-reached-a axis.1.neg-lim-sw-in
+net limit-reached-z axis.2.neg-lim-sw-in
+net limit-reached-z axis.2.neg-lim-sw-in
+
+
+########## Charge Pump #########
+
+# This is for Charge Pump which requires a 15khz signal to activate, maxfreq is the limiter 
+loadrt freqgen step_type=0
+loadrt siggen
+loadrt threads name1=fastcp period1=30000 name2=slowcp period2=1000000
+
+
+net velcp siggen.0.square
+net velcp freqgen.0.velocity
+net stepcp freqgen.0.step
+
+addf siggen.0.update slowcp
+addf freqgen.update-freq slowcp
+addf freqgen.make-pulses fastcp
+setp freqgen.0.velocity-scale 1000000
+setp freqgen.0.maxfreq 15000
+
+net stepcp parport.0.pin-17-out
+net stepcp parport.1.pin-17-out
+
+
+###########Torch Height Control ########
+
+# Load the neccessary functions
+loadrt mux2 count=7
+loadrt or2 count=4
+loadrt not count=4
+loadrt sum2 count=2
+loadrt comp count=2
+loadrt and2 count=2
+
+# Make a sensor for the ARC OK signal with an active low
+net senseArcOKInverted <= parport.1.pin-15-in
+
+# Invert ArcOK Signal to so TRUE = Arc ON (active high)
+net senseArcOKInverted not.0.in
+net senseArcOK not.0.out
+
+# Make a sensor for the Move Down bit from the THC, active low
+net senseZDownInverted <= parport.1.pin-11-in
+
+# Invert SenseDown Signal to so TRUE = Sense Down (active high)
+net senseZDownInverted not.1.in
+net senseZDown not.1.out
+
+# Make a sensor for the Move Up bit from the THC, this signal is active low
+net senseZUpInverted <= parport.1.pin-12-in
+
+# Invert senseZUp Signal to so TRUE = Sense Up (active high)
+net senseZUpInverted not.2.in
+net senseZUp not.2.out
+
+# Make a sensor for the Z Float Switch
+# Invert because THC has active low
+# The Z float switch is a proxmity sensor from torch to work piece
+# PNP or NPN Capacative or Inductive switches are recomended, Capacative for non metals but Inductive for metals
+net senseZFloatSwitchInverted <= parport.1.pin-13-in
+
+# invert the senseZFloatSwitch so TRUE = At distance (active high)
+net senseZFloatSwitchInverted not.3.in
+net senseZFloatSwitch not.3.out
+
+# Create signals to move Axis Y up or down with destinations, Y should never reach destination because as soon
+# as the axis moves the input signal will change and disconnect the signal at the mux
+# In the future it would be good to pull estop if Z axis is ever >= ZMaxCord
+sets ZMinCord 0
+sets ZMaxCord 300
+
+# Create signals to join the moveUP from parport and the one from init
+
+net senseZDown or2.0.in0
+net moveZtoFloat or2.0.in1
+net moveZDown or2.0.out
+
+net senseZUp or2.1.in0
+net moveZtoSafe or2.1.in1
+net moveZUp or2.1.out
+
+net moveZtoFloat or2.2.in0
+net moveZtoSafe or2.2.in1
+net moveZtoOK or2.2.out
+
+net LockPierceHeight or2.3.in0
+net moveZtoOK or2.3.in1
+net moveZEnabled or2.3.out
+
+addf or2.0 servo-thread
+addf or2.1 servo-thread
+addf or2.2 servo-thread
+addf or2.3 servo-thread
+addf not.0 servo-thread
+addf not.1 servo-thread
+addf not.2 servo-thread
+addf not.3 servo-thread
+
+# Mux the zpos-cmd and UpDest based on the state of the senseZUp signal
+
+net Zpos-cmd mux2.0.in0
+net ZMinCord mux2.0.in1
+net moveZUp mux2.0.sel
+net ZMinCord-Zpos-cmd-muxed mux2.0.out
+
+addf mux2.0 servo-thread 
+
+# Mux the zpos-cmd and ZMaxCord based on the state of the senseZDown signal
+
+net Zpos-cmd mux2.1.in0
+net ZMaxCord mux2.1.in1
+net moveZDown mux2.1.sel
+net ZMaxCord-Zpos-cmd-muxed mux2.1.out
+
+addf mux2.1 servo-thread 
+
+# Mux ZMaxCord-Zpos-cmd-muxed and UpDest-Zpos-cmd-muxed
+
+net ZMinCord-Zpos-cmd-muxed mux2.2.in0
+net ZMaxCord-Zpos-cmd-muxed mux2.2.in1
+net moveZDown mux2.2.sel
+net Zpos-cmd-muxed mux2.2.out
+
+addf mux2.2 servo-thread
+
+#Disconnect Machine/Manual Axis Z Control while ArcOK for safety and to eliminate jitter
+net Zpos-instructed-cmd <= axis.2.motor-pos-cmd
+
+net Zpos-instructed-cmd => mux2.3.in0
+net Zpos-fb => mux2.3.in1
+net moveZEnabled => mux2.3.sel
+net Zpos-cmd <= mux2.3.out
+
+addf mux2.3 servo-thread
+
+# Feedhold is used to halt gcode execution while torch is placed at correct initial height
+# feedhold, uses G50 adaptive feed input
+sets zero 0.0
+sets one 1.0
+net adaptive-feed mux2.4.out
+net adaptive-feed motion.adaptive-feed
+net one mux2.4.in0
+net zero mux2.4.in1
+
+# Not only do we want to set temp. to 0 we also want to pause state within GUI App, this way the user has to confirm before cutting starts
+# Pause state will be maintained even after feedrate has been reset to 1
+# This is can now be shut off/turned on from the VCP UI
+net feed-hold mux2.4.sel
+
+# To remove the manual pause comment out the following line
+#linksp feed-hold halui.program.pause
+
+
+net feed-hold and2.0.in0
+net ManualVerifyBeforePierce and2.0.in1
+net program.pause halui.program.pause and2.0.out
+
+addf mux2.4 servo-thread
+
+# Create the signals for classicladder to control parts of THC
+net senseZFloatSwitch => classicladder.0.in-03
+net moveZtoFloat classicladder.0.out-03
+net moveZtoSafe classicladder.0.out-04
+net senseArcOK classicladder.0.in-04
+net spindle-forward classicladder.0.in-05 <= motion.spindle-forward 
+net feed-hold classicladder.0.out-06
+net turn_torch_on classicladder.0.out-05
+net ui_mode_is_auto halui.mode.is-auto
+net ui_mode_is_auto classicladder.0.in-06
+
+############## PierceGap & SwitchTravel ############
+
+
+# These parameters control the SwitchTravel and PierceGap, later we hope to have piercegap automatically set
+# from the tools table as there will be a tool for each amp setting with cutting/gauging consumables
+sets SwitchTravel 10
+sets PierceHeight 50
+sets ArcStartTimeout 5
+sets PierceDelay 0.2
+sets EnablePierceDelay 1
+
+# Add PierceGap to SwitchTravel, add this to the height at the moment LockPierceHeight is received
+# Make a new height signal which is PierceGap+SwitchTravel+LockPierceHeight
+# Tell the stepgen to move to the newly calculated position
+
+net SwitchTravel sum2.0.in0
+net PierceGap sum2.0.in1
+net WorkStandOff sum2.0.out
+
+net Zpos-fb => sum2.1.in0
+net WorkStandOff => sum2.1.in1
+#FIXME add a proper name
+net mux2-sum2 mux2.6.in0 <= sum2.1.out
+
+net PierceHeight mux2.6.in1
+net PierceHeight mux2.6.out
+net LockPierceHeight mux2.6.sel
+
+net Zpos-cmd-muxed mux2.5.in0
+net PierceHeight mux2.5.in1
+net MoveZtoPierceHeight mux2.5.sel
+net Z-pos-cmd mux2.5.out stepgen.2.position-cmd
+
+addf mux2.5 servo-thread
+addf mux2.6 servo-thread
+addf sum2.0 servo-thread
+addf sum2.1 servo-thread
+addf comp.0 servo-thread
+addf comp.1 servo-thread
+addf and2.0 servo-thread
+addf and2.1 servo-thread
+
+# Also make sure we tell classicladder when we are at pierce height so it can turn on the torch
+
+net PierceHeight comp.0.in0
+net Zpos-fb comp.0.in1
+net TorchIsAtPierceHeight comp.0.out
+
+# make a signal so we do not turn Arc ON while the program is paused
+# put it through OR to make sure pause only affects operations while
+# mode is not manual
+net PauseIsOn halui.program.is-paused
+
+net PauseIsOn and2.0.in0
+net ui_mode_is_auto and2.0.in1
+net ProgramIsPaused and2.0.out
+
+# If for some reason the Z location is further down or equal  than the maximum Z coord we estop!
+# if this happens it means that a. there is no work piece, b the torch is stuck, c the Floatswitch is broken
+
+net ZMaxCord comp.1.in0
+net Zpos-fb comp.1.in1
+net limit-estop comp.1.out
+
+# This is an estop signal used when THC has detected a limit error
+net limit-estop classicladder.0.in-11
+
+net TorchIsAtPierceHeight classicladder.0.in-07
+net LockPierceHeight classicladder.0.out-07
+net MoveZtoPierceHeight classicladder.0.out-08
+#linksp PierceDelay classicladder.0.in-08
+#linksp ArcStartTimeout classicladder.0.in-09
+net ProgramIsPaused classicladder.0.in-10
+net EnablePierceDelay classicladder.0.in-12
+sets EnablePierceDelay 1
+
+############ Corner Height Lock ##################
+

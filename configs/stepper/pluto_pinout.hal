@@ -1,0 +1,40 @@
+# first load the core RT modules that will be needed
+# kinematics
+loadrt trivkins
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+
+loadrt pluto_step
+addf pluto-step.read servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf pluto-step.write servo-thread
+
+setp pluto-step.stepgen.0.scale [AXIS_0]SCALE
+setp pluto-step.stepgen.1.scale [AXIS_1]SCALE
+setp pluto-step.stepgen.2.scale [AXIS_2]SCALE
+
+net Xpos-cmd axis.0.motor-pos-cmd => pluto-step.stepgen.0.position-cmd
+net Ypos-cmd axis.1.motor-pos-cmd => pluto-step.stepgen.1.position-cmd
+net Zpos-cmd axis.2.motor-pos-cmd => pluto-step.stepgen.2.position-cmd
+
+net Xpos-fb pluto-step.stepgen.0.position-fb => axis.0.motor-pos-fb
+net Ypos-fb pluto-step.stepgen.1.position-fb => axis.1.motor-pos-fb
+net Zpos-fb pluto-step.stepgen.2.position-fb => axis.2.motor-pos-fb
+
+net Xen axis.0.amp-enable-out => pluto-step.stepgen.0.enable
+net Yen axis.1.amp-enable-out => pluto-step.stepgen.1.enable
+net Zen axis.2.amp-enable-out => pluto-step.stepgen.2.enable
+
+# create a signal for the estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# create signals for tool prepare loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+
+# create a signal for "spindle on"
+net spindle_on motion.spindle-on => pluto-step.dout.00
+
+setp pluto-step.stepgen.steplen 20000
+setp pluto-step.stepgen.stepspace 20000
+setp pluto-step.stepgen.dirtime 20000

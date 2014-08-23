@@ -1,0 +1,44 @@
+# Jog Pendant
+loadrt encoder num_chan=1
+loadrt mux8 count=1
+
+addf encoder.capture-position servo-thread
+addf encoder.update-counters servo-thread
+addf mux8.0 servo-thread
+
+# "times 4 mode" one count per full quadrature cycle, instead of the usual one count per edge.
+# mpg jog wheels often have a full quadrature cycle per "click". 0 for off and 1 for on.
+setp encoder.0.x4-mode 1
+
+# X1
+net scale1 mux8.0.sel0 hm2_5i20.0.gpio.048.in_not
+setp mux8.0.in1 0.0001
+# X10
+net scale2 mux8.0.sel1 hm2_5i20.0.gpio.050.in_not
+setp mux8.0.in2 0.001
+# X100
+net scale3 mux8.0.sel2 hm2_5i20.0.gpio.052.in_not
+setp mux8.0.in4 0.01
+
+net pend-scale axis.0.jog-scale mux8.0.out
+net pend-scale axis.1.jog-scale
+net pend-scale axis.2.jog-scale
+net pend-scale axis.3.jog-scale
+
+net mpg-a encoder.0.phase-A hm2_5i20.0.gpio.051.in_not
+net mpg-b encoder.0.phase-B hm2_5i20.0.gpio.049.in_not
+
+net mpg-x axis.0.jog-enable hm2_5i20.0.gpio.054.in_not
+net mpg-y axis.1.jog-enable hm2_5i20.0.gpio.056.in_not
+net mpg-z axis.2.jog-enable hm2_5i20.0.gpio.058.in_not
+net mpg-4 axis.3.jog-enable hm2_5i20.0.gpio.060.in_not
+#net mpg-off hm2_5i20.0.gpio.062.in_not
+setp hm2_5i20.0.gpio.064.is_output TRUE
+setp hm2_5i20.0.gpio.064.invert_output TRUE
+net mpg-led hm2_5i20.0.gpio.064.out hm2_5i20.0.gpio.062.in
+
+net pend-counts axis.0.jog-counts <= encoder.0.counts
+net pend-counts axis.1.jog-counts
+net pend-counts axis.2.jog-counts
+net pend-counts axis.3.jog-counts
+

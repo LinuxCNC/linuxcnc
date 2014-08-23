@@ -1,0 +1,210 @@
+#
+# @configure_input@ 
+# on @DATE@
+#
+
+
+# Directories
+#############
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+EMC2_HOME=@EMC2_HOME@
+LIB_DIR=@EMC2_HOME@/lib
+
+#used for install stuff
+#but have them here as reference
+#build system only uses EMC2_RTLIB_DIR when creating rtapi.conf
+EMC2_BIN_DIR=@EMC2_BIN_DIR@
+EMC2_TCL_DIR=@EMC2_TCL_DIR@
+EMC2_HELP_DIR=@EMC2_HELP_DIR@
+EMC2_RTLIB_DIR=@EMC2_RTLIB_DIR@
+EMC2_CONFIG_DIR=@EMC2_CONFIG_DIR@
+EMC2_USER_CONFIG_DIR=~/emc2/configs
+EMC2_SYSTEM_CONFIG_DIR=/usr/local/etc/emc2/configs
+EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
+REALTIME=@REALTIME@
+EMC2_IMAGEDIR=@EMC2_IMAGE_DIR@
+
+
+MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
+
+# used for building
+RTDIR     = @RTDIR@
+RTARCH    = @RTARCH@
+
+# Standard configure directories
+# do we really need these?
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+datarootdir = @datarootdir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+moduledir = @MODULE_DIR@
+rip_moduledir = @RIP_MODULE_DIR@
+kernelvers = @KERNEL_VERS@
+
+# i18n variables:
+
+package = @PACKAGE@
+localedir = @LOCALEDIR@
+LANGUAGES = @LANGUAGES@
+
+#still needs discussion
+# do we really need these?
+initd_dir = /etc/init.d
+docsdir = ${prefix}/share/doc/linuxcnc
+sampleconfsdir = ${prefix}/share/doc/linuxcnc/examples/sample-configs
+ncfilesdir = ${prefix}/share/linuxcnc/ncfiles
+tcldir = ${prefix}/lib/tcltk/linuxcnc
+
+
+# /Standard configure directories
+
+RUN_IN_PLACE = @RUN_IN_PLACE@
+RTNAME = @RTNAME@
+RTPREFIX = @RTPREFIX@
+RTAI = @RTAI@
+RTFLAGS = @RTFLAGS@ @EXT_RTFLAGS@
+KERNELDIR = @KERNELDIR@
+RTFLAGS := -Os -I. -I@RTDIR@/include $(RTFLAGS) -DRTAPI -D_GNU_SOURCE -Drealtime -D_FORTIFY_SOURCE=0
+USE_RTLIBM = @USE_RTLIBM@
+USE_LIBM = @USE_LIBM@
+USE_STUBS = @USE_STUBS@
+MATHINC = @MATHINC@
+MATHLIB = @MATHLIB@
+ULFLAGS = -Wall -g -I. -I@RTDIR@/include -DULAPI -D_GNU_SOURCE -Os -DLOCALE_DIR=\"$(localedir)\" -DPACKAGE=\"$(package)\"
+MODULE_EXT = @MODEXT@
+BUILD_SYS = @BUILD_SYS@
+CC = @CC@
+MANDB = @MANDB@
+HIDRAW_H_USABLE = @HIDRAW_H_USABLE@
+
+# deps for xemc
+CFLAGS_X = @X_CFLAGS@
+XLIBS = @XAW_LIBS@
+HAVE_XAW = @HAVE_XAW@
+
+# ncurses support for keystick
+KEYSTICKLIBS =  @NCURSES_LIBS@
+HAVE_NCURSES = @HAVE_NCURSES@
+
+# readline support for halcmd
+READLINE_LIBS =  @READLINE_LIBS@
+
+# flags for glib
+GLIB_CFLAGS = @GLIB_CFLAGS@
+GLIB_LIBS = @GLIB_LIBS@
+
+# local flags for GTK include
+GTK_VERSION = @GTK_VER@
+GTK_CFLAGS = @GTK_CFLAGS@
+GTK_LIBS = @GTK_LIBS@
+HAVE_GNOMEPRINT = @HAVE_GNOMEPRINT@
+
+# tcl tk cflags, includes and libs
+TCL_DBGX=@TCL_DBGX@
+TK_DBGX=@TK_DBGX@
+TCL_CFLAGS=@TCL_CFLAGS@ @TK_CFLAGS@
+TCL_LIBS=@TCL_LIBS@ @TK_LIBS@ @LIBS@
+HAVE_WORKING_BLT=@HAVE_WORKING_BLT@
+
+
+AR = @AR@
+ARFLAGS = cr
+CXX = @CXX@
+CXXFLAGS = $(CFLAGS)
+RANLIB = @RANLIB@
+RANLIBFLAGS = 
+MSGFMT = @MSGFMT@
+XGETTEXT = @XGETTEXT@
+PTH_CONFIG = @PTH_CONFIG@
+
+BUILD_DOCS = @BUILD_DOCS@
+BUILD_DOCS_PDF = @BUILD_DOCS_PDF@
+BUILD_DOCS_HTML = @BUILD_DOCS_HTML@
+LYX = @LYX@
+PYTHON = @PYTHON@
+A2X_LATEX_ENCODING = @A2X_LATEX_ENCODING@
+
+#
+# i18n
+#
+
+
+#### BEGIN CONFIG ####
+
+# To disable compilation of any particular module,
+# edit the following lines replacing "m" with "n".
+#
+# In time, we may have some fancy dohicky to set
+# these options at compile time.
+
+# usually you need rtapi,
+# so you probably don't want to change this
+CONFIG_RTAPI=m
+
+# rtapi examples
+CONFIG_RTAPI_EXAMPLES_EXTINT=m
+CONFIG_RTAPI_EXAMPLES_FIFO=m
+CONFIG_RTAPI_EXAMPLES_SEM=m
+CONFIG_RTAPI_EXAMPLES_SHMEM=m
+CONFIG_RTAPI_EXAMPLES_TIMER=m
+
+# emc motion module
+CONFIG_MOTMOD=m
+
+# HAL components
+CONFIG_BLOCKS=m
+CONFIG_BOSS_PLC=m
+CONFIG_DEBOUNCE=m
+CONFIG_ENCODER=m
+CONFIG_COUNTER=m
+CONFIG_ENCODER_RATIO=m
+CONFIG_STEPGEN=m
+CONFIG_LCD=m
+CONFIG_FREQGEN=m
+CONFIG_PWMGEN=m
+CONFIG_SIGGEN=m
+CONFIG_AT_PID=m
+CONFIG_PID=m
+CONFIG_SUPPLY=m
+CONFIG_CLASSICLADDER_RT=m
+CONFIG_TIMEDELAY=m
+CONFIG_SIM_ENCODER=m
+CONFIG_WEIGHTED_SUM=m
+CONFIG_WATCHDOG=m
+CONFIG_MODMATH=m
+CONFIG_STREAMER=m
+CONFIG_SAMPLER=m
+
+# HAL drivers
+CONFIG_HAL_PARPORT=m
+CONFIG_PROBE_PARPORT=m
+CONFIG_HAL_TIRO=m
+CONFIG_HAL_EVOREG=m
+CONFIG_HAL_MOTENC=m
+CONFIG_HAL_SKELETON=m
+CONFIG_HAL_SPEAKER=m
+CONFIG_HAL_STG=m
+CONFIG_HAL_VTI=m
+CONFIG_HAL_AX521H=m
+CONFIG_HAL_PPMC=m
+CONFIG_PCI_8255=m
+CONFIG_HOSTMOT2=m
+CONFIG_OPTO_AC5=m
+
+
+BUILD_PYTHON=@BUILD_PYTHON@
+INCLUDEPY=@INCLUDEPY@
+SITEPY=@SITEPY@
+#### END CONFIG ####
+

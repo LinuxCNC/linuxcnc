@@ -1,0 +1,90 @@
+# HAL config file for servos -- expanded from core_servo.hal
+# for a full four axis setup
+
+# create four position feedback signals
+newsig Xpos-fb float
+newsig Ypos-fb float
+newsig Zpos-fb float
+
+# connect position feedback to PID loop
+linksp Xpos-fb => pid.0.feedback
+linksp Ypos-fb => pid.1.feedback
+linksp Zpos-fb => pid.2.feedback
+
+# connect position feedback to motion module
+linksp Xpos-fb => axis.0.motor-pos-fb
+linksp Ypos-fb => axis.1.motor-pos-fb
+linksp Zpos-fb => axis.2.motor-pos-fb
+
+# create PID to DAC output signals
+newsig Xoutput float
+newsig Youtput float
+newsig Zoutput float
+
+# connect output signals to output of PID loops
+linksp Xoutput <= pid.0.output
+linksp Youtput <= pid.1.output
+linksp Zoutput <= pid.2.output
+setp pid.0.maxoutput [AXIS_0]PID_MAX_VEL
+
+# set PID loop output limits to +/-1.00
+setp pid.1.maxoutput [AXIS_1]PID_MAX_VEL
+setp pid.2.maxoutput [AXIS_2]PID_MAX_VEL
+
+# set PID loop gains
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+setp pid.0.deadband [AXIS_0]DEADBAND
+
+setp pid.1.Pgain [AXIS_1]P
+setp pid.1.Igain [AXIS_1]I
+setp pid.1.Dgain [AXIS_1]D
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
+setp pid.1.deadband [AXIS_1]DEADBAND
+
+setp pid.2.Pgain [AXIS_2]P
+setp pid.2.Igain [AXIS_2]I
+setp pid.2.Dgain [AXIS_2]D
+setp pid.2.bias [AXIS_2]BIAS
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
+setp pid.2.deadband [AXIS_2]DEADBAND
+
+# create four position command signals
+newsig Xpos-cmd float
+newsig Ypos-cmd float
+newsig Zpos-cmd float
+
+# connect position commands to motion controller
+linksp Xpos-cmd <= axis.0.motor-pos-cmd
+linksp Ypos-cmd <= axis.1.motor-pos-cmd
+linksp Zpos-cmd <= axis.2.motor-pos-cmd
+
+# connect position commands to PID input
+linksp Xpos-cmd => pid.0.command
+linksp Ypos-cmd => pid.1.command
+linksp Zpos-cmd => pid.2.command
+
+# create bit signals to enable/disable the PID loops
+newsig Xenable bit
+newsig Yenable bit
+newsig Zenable bit
+
+# connect the signals to the motion controller
+linksp Xenable <= axis.0.amp-enable-out
+linksp Yenable <= axis.1.amp-enable-out
+linksp Zenable <= axis.2.amp-enable-out
+
+# connect the signals to the PID blocks
+linksp Xenable => pid.0.enable
+linksp Yenable => pid.1.enable
+linksp Zenable => pid.2.enable

@@ -1,0 +1,123 @@
+Basic description
+-----------------
+From the top level directory, switch to the source directory:
+
+cd src
+
+In the source directory, build LinuxCNC:
+
+./autogen.sh  (this builds the configure script)
+./configure
+make clean
+make
+sudo make setuid
+
+to run the software go back to the top level directory, and issue:
+
+source scripts/rip-environment
+linuxcnc
+
+
+Detailed description
+====================
+
+Run-time script
+===============
+
+The runtime script is called linuxcnc, thus allowing you on an installed
+to just type 'linuxcnc' and get it running.  On a run-in-place system
+(e.g. the one you just got out of git), the runscript is scripts/linuxcnc.
+When you just checked out a fresh copy of LinuxCNC, you'll see there is no
+'scripts/linuxcnc', just a 'scripts/linuxcnc.in'.  By running configure
+that one will get changed to 'scripts/linuxcnc'. configure will also
+replace some default values for your system (folders, paths, etc).
+
+
+Configure script
+================
+
+   The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile.inc' file.
+Finally, it creates a shell script `config.status' that you can run 
+in the future to recreate the current configuration, a file
+`config.cache' that saves the results of its tests to speed up
+reconfiguring, and a file `config.log' containing compiler output
+(useful mainly for debugging `configure').
+
+   The file `configure.in' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.in' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The simplest way to compile this package is:
+
+  1. `cd' to the directory containing the package's source code and type
+     `./configure' to configure the package for your system.  If you're
+     using `csh' on an old version of System V, you might need to type
+     `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes awhile.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile the package.
+
+  3. Type `scripts/linuxcnc` to test the software.
+  
+
+Optional Features
+=================
+   LinuxCNC can operate hardware only if a real time system has been
+installed. Either RTLinux or RTAI. If you don't have any installed,
+you cannot run LinuxCNC to control any machines. Please install one
+of the RT patches (refer to the documentation of the project on how to
+achieve that).
+
+    However, it is possible to test LinuxCNC without a realtime system. This is 
+possible using a simulator mode, which doesn't allow hardware control. To
+enable this mode there is a special option '--enable-simulator' you can use.
+
+If you have multiple RTAI or RTLinux source directories in /usr/src,
+the correct one can be declared as a command line argument:
+
+./configure --with-rtai=/usr/src/rtai-24.1.12
+
+If you want only to try LinuxCNC in a local directory (without installing it),
+there is an option to configure to run-in-place
+  --enable-run-in-place                  Enables running in the local dir 
+                                         (without installing)
+
+If you don't want to generate the documentation from source:
+  --disable-build-documentation          Do not build documentation automatically
+
+configure also accepts other arguments. Use --help to view the list.
+
+
+Operation Controls
+==================
+
+   `configure' recognizes the following options to control how it
+operates.
+
+`--cache-file=FILE'
+     Use and save the results of the tests in FILE instead of
+     `./config.cache'.  Set FILE to `/dev/null' to disable caching, for
+     debugging `configure'.
+
+`--help'
+     Print a summary of the options to `configure', and exit.
+
+`--quiet'
+`--silent'
+`-q'
+     Do not print messages saying which checks are being made.  To
+     suppress all normal output, redirect it to `/dev/null' (any error
+     messages will still be shown).
+
+`--srcdir=DIR'
+     Look for the package's source code in directory DIR.  Usually
+     `configure' can determine that directory automatically.
+
+`--version'
+     Print the version of Autoconf used to generate the `configure'
+     script, and exit.

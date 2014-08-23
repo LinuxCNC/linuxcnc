@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <signal name="expose_event" handler="on_expose"/>
+    <child>
+      <object class="GtkFixed" id="fixed1">
+        <property name="visible">True</property>
+        <child>
+          <object class="HAL_LED" id="hal_led1">
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="x">57</property>
+            <property name="y">41</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_Button" id="hal_button1">
+            <property name="label" translatable="yes">button</property>
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="has_tooltip">True</property>
+            <property name="tooltip_text" translatable="yes">a tooltip</property>
+          </object>
+          <packing>
+            <property name="x">250</property>
+            <property name="y">22</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_ToggleButton" id="hal_togglebutton1">
+            <property name="label" translatable="yes">togglebutton</property>
+            <property name="width_request">100</property>
+            <property name="height_request">80</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+          </object>
+          <packing>
+            <property name="x">29</property>
+            <property name="y">107</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

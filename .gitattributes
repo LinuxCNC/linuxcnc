@@ -1,0 +1,2 @@
+*.po merge=pofile
+*.pot merge=pofile

@@ -1,0 +1,92 @@
+GUI Configuration Page
+
+Frontend:
+    Set general GUI defaults.
+    Set AXIS specific defaults.
+        - setting size, position and force maximum allows
+            positioning AXIS on a second monitor and maximize it.
+            force maximum alone allows AXIS to use the whole screen.
+            any of these 3 options writes a hidden file in your home 
+            directory named .axisrc. If this file already exists it
+            will need to overwrite it.
+    set TOUCHY options
+        -TOUCHY can use GTK themes to change its look and feel.
+            these are the same themes can you could choose for the
+            whole system. The available themes will be listed.
+        - size position and forcemax after positioning can be used to
+            move TOUCHY to a second monitor if the system is capable. 
+
+Virtual Control Panels:
+    PyVCP:
+        Use to add stand-alone pyvcp panels or if AXIS is chosen,
+            the panel will be integrated.
+        There are sample panels available.
+        Choose one and click the display button to see an example.
+        Click 'include HAL connections' to have the chosen example 
+        connected to EMC
+        With standalone panels the geometry options allow setting the 
+            initial position and size on the panel. 
+        Set them as you like and click the display button 
+        (after picking a sample) to see the changes.
+        Picking a blank program will tell pncconf to set up 
+            blank pyvcp file for a custom built panel.
+
+    GladeVCP:
+        Use to add stand-alone display panels or if AXIS or TOUCHY is chosen,
+            the panel can be integrated.
+        -There are sample options available:
+            -spindle speed display (you can set the max range)
+            -spindle at speed indicator
+            -zero axis (separate XYZA buttons)
+            -auto Z touch off (for using a touch off plate to set Z zero)
+            each are selectable by checkbox.
+        -zero buttons use HALUI MDI commands - you will see the commands 
+            on the advanced page
+        -auto touch off z uses halui MDI commands, a classicladder program
+            and requires a probe input. You will need to adjust the MDI
+            values (on the advanced page) for your machine.
+        -GladeVCP panels can use GTK themes to change their look and feel.
+            these are the same themes can you could choose for the
+            whole system. The available themes will be listed in the combobox.
+        - size, position and forcemax can be used to move panels
+            to a second monitor if the system is capable or set geometry of
+            standalone panels
+        - standalone panels are not intergrated inside the main frontend GUI.
+            you can choose standalone panels for any frontend.
+        - AXIS can have panels intergrated on the side or in the center tab.
+            side panels are always visible center tab panels are not always.
+        - TOUCHY can only have center tab intergation
+        - pushing the display sample panel button will load a panel with
+            the user choosen options, unless existing custom program radio
+            button is active. It will then load the existing panel in the 
+            machined named config as long as it's still named gvcp-panel.ui.
+            Close the panel to continue editing config.
+        If there is already a panel in the config folder named gvcp-panel.ui,
+        PNCconf will complain asking if you wish to overwrite it. If you say yes
+        the old file will be saved in the backup folder. Selecting the option
+        Use-existing-custom-program will avoid this warning but if you change
+        options related to the display panel such as spindle feedback options 
+        The HAL commands will not be updated so the options might not work. In
+        that case select Sample-display again and allow pncconf to overwrite it.
+        If you are using a glade file you have modified outside of PNCconf then 
+        you will have to take care that the HAL commands are right.
+
+INI Option:
+    -Require homing before MDI / Running
+        If you want to be able to move the machine before homing
+        uncheck this checkbox   
+    -Popup Tool Prompt:
+        Choose between an on screen prompt for tool changes or export
+        standard signal names for a User supplied custom tool changer 
+        Hal file
+    -Leave spindle on during tool change
+        Used for lathes
+    -Force individual manual homing
+
+    -Move spindle up before tool change
+
+    -Restore joint position after shutdown
+        Used for non-trivial kinematics machines
+    -Random position toolchangers
+        Used for toolchangers that do not return the tool to the same
+        pocket.

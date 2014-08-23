@@ -1,0 +1,107 @@
+ifneq ($(KERNELRELEASE),)
+COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
+include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
+else
+CONVERTERS :=  \
+    conv_float_s32.comp conv_float_u32.comp \
+    conv_bit_s32.comp conv_bit_u32.comp \
+    conv_s32_float.comp conv_s32_bit.comp conv_s32_u32.comp \
+    conv_u32_float.comp conv_u32_bit.comp conv_u32_s32.comp
+COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
+COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
+COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
+COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
+manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
+TARGETS += manpages
+.PHONY: manpages
+ifeq ($(TRIVIAL_BUILD),no)
+-include $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
+Makefile: $(patsubst %.comp, objects/%.mak, $(COMPS) $(COMP_DRIVERS))
+endif
+endif
+
+obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %.o, $(COMPS)))
+
+$(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --document -o $@ $<
+
+$(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/comp
+	$(ECHO) Making comp manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --document -o $@ $<
+
+objects/%.mak: %.comp hal/components/Submakefile
+	$(ECHO) "Creating $(notdir $@)"
+	@mkdir -p $(dir $@)
+	$(Q)echo $(notdir $*)-objs := objects/$*.o > $@.tmp
+	$(Q)echo ../rtlib/$(notdir $*)$(MODULE_EXT): objects/rtobjects/$*.o >> $@.tmp
+	$(Q)mv -f $@.tmp $@
+
+objects/%.c: %.comp ../bin/comp
+	$(ECHO) "Preprocessing $(notdir $<)"
+	@mkdir -p $(dir $@)
+	$(Q)../bin/comp --require-license -o $@ $<
+
+modules: $(patsubst %.comp, objects/%.c, $(COMPS) $(COMP_DRIVERS))
+
+clean: clean-comp-manpages
+clean-comp-manpages:
+	-rm -f $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
+
+HALSTREAMERSRCS := hal/components/streamer_usr.c
+USERSRCS += $(HALSTREAMERSRCS)
+
+../bin/halstreamer: $(call TOOBJS, $(HALSTREAMERSRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/halstreamer
+
+HALSAMPLERSRCS := hal/components/sampler_usr.c
+USERSRCS += $(HALSAMPLERSRCS)
+
+../bin/halsampler: $(call TOOBJS, $(HALSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/halsampler
+
+hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh float s32 "" -2147483647-1 2147483647 < $< > $@
+
+hal/components/conv_float_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh float u32 "" 0 2147483647 < $< > $@
+
+hal/components/conv_bit_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh bit s32 // < $< > $@
+
+hal/components/conv_bit_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh bit u32 // < $< > $@
+
+hal/components/conv_s32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s32 float // < $< > $@
+
+hal/components/conv_s32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s32 bit "" 0 1 < $< > $@
+
+hal/components/conv_s32_u32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh s32 u32 "" 0 0 < $< > $@
+
+hal/components/conv_u32_float.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u32 float // < $< > $@
+
+hal/components/conv_u32_bit.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u32 bit "" -1 1 < $< > $@
+
+hal/components/conv_u32_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
+	$(ECHO) converting conv for $(notdir $@)
+	$(Q)sh hal/components/mkconv.sh u32 s32 "" -1 2147483647 < $< > $@

@@ -1,0 +1,472 @@
+:lang: fr
+:toc:
+
+= Les composants de HAL
+
+[[cha:Composants-de-HAL]] (((Les composants de HAL)))
+
+== Composants de commandes et composants de l'espace utilisateur
+
+Certaines de ces descriptions sont plus approfondies dans leurs pages man.
+Certaines y auront une description exhaustive, d'autres, juste une description
+limitée. Chaque composant a sa man page. La liste ci-dessous, montre les
+composants existants, avec le nom et le N° de section de leur page man.
+Par exemple dans une console, tapez _man axis_ pour accéder aux informations de
+la man page d'Axis. Ou peut être _man 1 axis_, si le système exige le N° de
+section des man pages.
+
+* _axis_ - L'interface graphique AXIS pour LinuxCNC (The Enhanced Machine Controller).
+* _axis-remote_ - Interface de télécommande d'AXIS.
+* _comp_ - Crée, compile et installe des composants de HAL.
+* _linuxcnc_ - LINUXCNC (The Enhanced Machine Controller).
+* _gladevcp_ - Panneau de contrôle virtuel pour LinuxCNC, repose sur Glade, Gtk et
+les widgets HAL.
+* _gs2_ - composant de l'espace utilisateur de HAL, pour le variateur de
+fréquence GS2 de la société _Automation Direct_.
+* _halcmd_ - Manipulation de HAL, depuis la ligne de commandes.
+* _hal_input_ - Contrôler des pins d'entrée de HAL avec n'importe quelle
+matériel supporté par Linux, y compris les matériels USB HID.
+* _halmeter_ - Observer les pins de HAL, ses signaux et ses paramètres.
+* _halrun_ - Manipulation de  HAL, depuis la ligne de commandes.
+* _halsampler_ - Échantillonner des données temps réel depuis HAL.
+* _halstreamer_ - Créer un flux de données temps réel dans HAL depuis un fichier.
+* _halui_ - Observer des pins de HAL et commander LinuxCNC au travers d'NML.
+* _io_ - Accepte les commandes NML I/O, interagi avec HAL dans l'espace
+utilisateur.
+* _iocontrol_ - Accepte les commandes NML I/O, interagi avec HAL dans l'espace
+utilisateur.
+* _pyvcp_ - Panneau de Contrôle Virtuel pour LinuxCNC (Python Virtual Control Panel).
+* _shuttlexpress_ - Contrôle des pins de HAL avec la manette ShuttleXpress, de
+la société _Contour Design_.
+
+== Composants temps réel et modules du noyau
+
+Certaines de ces descriptions sont plus approfondies dans leur man page.
+Certaines auront juste une description limitée. Chaque composant
+a sa man page. A partir de cette liste vous connaîtrez quels composants
+existent avec le nom et le N° de leur man page permettant d'avoir plus
+de détails.
+
+[NOTE]
+Si le composant requière un thread avec flottant, c'est normalement le plus
+lent, soit  _servo-thread_.
+
+=== Composants du coeur de LinuxCNC[[sec:Realtime-Components-coeur]] ===
+
+* _motion_ - (((motion)))Accepte les commandes de mouvement NML, interagi en temps
+réel avec HAL.
+
+* _axis_ - (((axis)))Commandes de mouvement NML acceptées, intéragi en temps réel
+avec HAL
+
+* _classicladder_ - (((classicladder)))Automate temps réel programmable en
+logique Ladder.
+
+* _gladevcp_ - (((gladevcp)))Affiche un panneaux de contrôle virtuel construit
+avec GladeVCP.
+
+* _threads_ - (((threads)))Crée des threads de HAL temps réel.
+
+=== Composants binaires et logiques[[sec:Realtime-Components-logic]] ===
+
+* _and2_ - (((and2)))
+Porte AND (ET) à deux entrées.
+
+* _not_ - (((not)))Inverseur.
+
+* _or2_ - (((or2)))Porte OR (OU) à deux entrées.
+
+* _xor2_ - (((xor2)))Porte XOR (OU exclusif) à deux entrées.
+
+* _debounce_ - (((debounce)))Filtre une entrée digitale bruitée (typiquement
+antirebond).
+
+* _edge_ _ (((edge)))Détecteur de front.
+
+* _flipflop_ - (((flipflop)))Bascule D.
+
+* _oneshot_ - (((oneshot)))Générateur d'impulsion monostable. Crée sur sa sortie
+une impulsion de longueur variable quand son entrée change d'état.
+
+* _logic_ - (((logic)))Composant expérimental de logique générale.
+
+* _lut5_ - (((lut5)))Fonction logique arbitraire à cinq entrées, basée sur une
+table de correspondance.
+
+* _match8_ - (((match8)))Détecteur de coïncidence binaire sur 8 bits.
+
+* _select8_ - (((select8)))Détecteur de coïncidence binaire sur 8 bits.
+
+=== Composants arithmétiques et flottants[[sec:Realtime-Components-flottant]] ===
+
+* _abs_ - [[sub:abs]] (((abs)))Calcule la valeur absolue et le signe d'un signal
+d'entrée.
+
+* _blend_ - (((blend)))Provoque une interpolation linéaire entre deux valeurs
+
+* _comp_ - (((comp)))Comparateur à deux entrées avec hystérésis.
+
+* _constant_ - (((constant)))Utilise un paramètre pour positionner une pin.
+
+* _sum2_ - (((sum2)))Somme de deux entrées (chacune avec son gain) et d'un offset.
+
+* _counter_ - (((counter)))Comptage d'impulsions d'entrée (obsolète).
+
+Utiliser le composant _encoder_ avec _... counter-mode = TRUE_.
+Voir la section <<sec:Codeur, codeur>>.
+
+* _updown_ - (((updown)))Compteur/décompteur avec limites optionnelles et bouclage
+en cas de dépassement.
+
+* _ddt_ - (((ddt)))Calcule la dérivée de la fonction d'entrée.
+
+* _deadzone_ - (((deadzone)))Retourne le centre si il est dans le seuil.
+
+* _hypot_ - (((hypot)))Calculateur d'hypoténuse à trois entrées (distance
+Euclidienne).
+
+* _mult2_ - (((mult2)))Le produit de deux entrées.
+
+* _mux16_ - (((mux16)))Sélection d'une valeur d'entrée sur seize.
+
+* _mux2_ - (((mux2)))Sélection d'une valeur d'entrée sur deux.
+
+* _mux4_ - (((mux4)))Sélection d'une valeur d'entrée sur quatre.
+
+* _mux8_ - (((mux8)))Sélection d'une valeur d'entrée sur huit.
+
+* _near_ - (((near)))Détermine si deux valeurs sont à peu près égales.
+
+* _offset_ - (((offset)))Ajoute un décalage à une entrée et la soustrait à la
+valeur de retour.
+
+* _integ_ - (((integ)))Intégrateur.
+
+* _invert_ - (((invert)))Calcule l'inverse du signal d'entrée.
+
+* _wcomp_ - (((wcomp)))Comparateur à fenêtre.
+
+* _weighted_sum_ - (((weighted_sum)))Converti un groupe de bits en un entier.
+
+* _biquad_ - (((biquad)))Filtre biquad IIR
+
+* _lowpass_ - (((lowpass)))Filtre passe-bas.
+
+* _limit1_ - (((limit1)))Limite le signal de sortie pour qu'il soit entre min et max.
+footnote:[Lorsque l'entrée est une position, cela signifie que la _position_ est
+limitée.]
+
+* _limit2_ - (((limit2)))Limite le signal de sortie pour qu'il soit entre min et max.
+Limite sa vitesse de montée à moins de MaxV par seconde. footnote:[Lorsque
+l'entrée est une position, cela signifie que la _position_ et la
+_vitesse_ sont limitées.]
+
+* _limit3_ - (((limit3)))Limite le signal de sortie pour qu'il soit entre min et max.
+Limite sa vitesse de montée à moins de MaxV par seconde.
+Limite sa dérivée seconde à moins de MaxA par seconde carré. footnote:[Lorsque
+l'entrée est une position, cela signifie que la _position_, la _vitesse_ et
+l'_accélération_ sont limitées.]
+
+* _maj3_ - (((maj3)))Calcule l'entrée majoritaire parmi 3.
+
+* _scale_ - (((scale)))Applique une échelle et un décalage à son entrée.
+
+=== Conversions de type[[sec:Realtime-Components-conversiontype]] ===
+
+* _conv_bit_s32_ - (((conv_bit_s32)))Converti une valeur de bit vers s32 (entier
+32 bits signé).
+
+* _conv_bit_u32_ - (((conv_bit_u32)))Converti une valeur de bit vers u32  (entier
+32 bit non signé).
+
+* _conv_float_s32_ - (((conv_float_s32)))Converti la valeur d'un flottant vers s32.
+
+* _conv_float_u32_ - (((conv_float_u32)))Converti la valeur d'un flottant vers u32.
+
+* _conv_s32_bit_ - (((conv_s32_bit)))Converti une valeur de s32 en bit.
+
+* _conv_s32_float_ - (((conv_s32_float)))Converti une valeur de s32 en flottant.
+
+* _conv_s32_u32_ - (((conv_s32_u32)))Converti une valeur de s32 en u32.
+
+* _conv_u32_bit_ - (((conv_u32_bit)))Converti une valeur de u32 en bit.
+
+* _conv_u32_float_ - (((conv_u32_float)))Converti une valeur de u32 en flottant.
+
+* _conv_u32_s32_ - (((conv_u32_s32)))Converti une valeur de u32 en s32.
+
+=== Pilotes de matériel[[sec:Realtime-Components-pilotes]] ===
+
+* _hm2_7i43_ - (((hm2_7i43)))Pilote HAL pour les cartes _Mesa Electronics_
+7i43 EPP, toutes les cartes avec HostMot2.
+
+* _hm2_pci_ - (((hm2_pci)))Pilote HAL pour les cartes _Mesa Electronics_
+5i20, 5i22, 5i23, 4i65 et 4i68, toutes les cartes avec micro logiciel HostMot2.
+
+* _hostmot2_ - (((hostmot2)))Pilote HAL pour micro logiciel _Mesa Electronics_
+HostMot2.
+
+* _mesa_7i65_ - (((7i65)))Support pour la carte huit axes Mesa 7i65 pour servomoteurs.
+
+* _pluto_servo_ - (((pluto_servo)))Pilote matériel et micro programme pour la
+carte _Pluto-P parallel-port FPGA_, utilisation avec servomoteurs.
+
+* _pluto_step_ - (((pluto_step)))Pilote matériel et micro programme pour la
+carte _Pluto-P parallel-port FPGA_, utilisation avec moteurs pas à pas.
+
+* _thc_ - (((thc)))Contrôle de la hauteur de torche, en utilisant une carte Mesa THC.
+
+* _serport_ - (((serport)))Pilote matériel pour les entrées/sorties
+numériques de port série avec circuits 8250 et 16550.
+
+=== Composants cinématiques[[sec:Realtime-Components-cinematiques]] ===
+
+* _kins_ - (((kins)))Définition des cinématiques pour linuxcnc.
+
+* _gantrykins_ - (((gantrykins)))Module de cinématique pour un seul axe à
+articulations multiples.
+
+* _genhexkins_ - (((genhexkins)))Donne six degrés de liberté en position et en
+orientation (XYZABC). L'emplacement des moteurs est défini au moment de la
+compilation.
+
+* _genserkins_ - (((genserkins)))Cinématique capable de modéliser une bras
+manipulateur avec un maximum de 6 articulations angulaires.
+
+* _maxkins_ - (((maxkins)))
+Cinématique d'une fraiseuse 5 axes nommée _max_, avec tête inclinable (axe B)
+​et un axe rotatif horizontal monté sur la table (axe C).
+Fourni les mouvements UVW dans le système de coordonnées système basculé.
+Le fichier source, maxkins.c, peut être un point de départ utile
+pour d'autres systèmes 5 axes.
+
+* _tripodkins_ - (((tripodkins)))Les articulations représentent la distance du point
+contrôlé à partir de trois emplacements prédéfinis (les moteurs), ce qui donne
+trois degrés de liberté en position (XYZ).
+
+* _trivkins_ - (((trivkins)))Il y a une correspondance 1:1 entre les
+articulations et les axes. La plupart des fraiseuses standard et des tours
+utilisent ce module de cinématique triviale.
+
+* _pumakins_ - (((pumakins)))Cinématique pour robot style PUMA.
+
+* _rotatekins_ - (((rotatekins)))Les axes X et Y sont pivotés de 45 degrés par
+rapport aux articulations 0 et 1.
+
+* _scarakins_ - (((scarakins)))Cinématique des robots de type SCARA.
+
+=== Composants de contrôle moteur[[sec:Realtime-Components-moteur]] ===
+
+* _at_pid_ - (((at_pid)))Contrôleur Proportionnelle/Intégrale/dérivée avec réglage
+automatique.
+
+* _pid_ - (((pid)))Contrôleur Proportionnelle/Intégrale/dérivée.
+
+* _pwmgen_ - (((pwmgen)))Générateur logiciel de PWM/PDM, voir la section
+<<sec:PWMgen, PWMgen>>
+
+* _encoder_ - (((encoder)))Comptage logiciel de signaux de codeur en quadrature,
+voir la section <<sec:Codeur, codeur>>
+
+* _stepgen_ - (((stepgen)))Générateur d'impulsions de pas logiciel,
+voir la section <<sec:Stepgen, stepgen>>
+
+* _freqgen_ - (((freqgen)))Générateur logiciel d'impulsions de pas.
+
+=== BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
+
+* _bldc_hall3_ - (((bldc_hall3)))Commutateur bipolaire trapézoïdal à 3 directions
+pour moteur sans balais (BLDC) avec capteurs de Hall.
+
+* _clarke2_ - (((clarke2)))Transformation de Clarke, version à deux entrées.
+
+* _clarke3_ - (((clarke3)))Transformation de Clarke, à 3 entrées vers cartésien.
+
+* _clarkeinv_ - (((clarkeinv)))Transformation de Clarke inverse.
+
+=== Autres composants[[sec:Realtime-Components-autres]] ===
+
+* _charge_pump_ - (((charge_pump)))Crée un signal carré destiné à l'entrée
+_pompe de charge_ de certaines cartes de contrôle. Le composant _charg_pump_ doit
+être ajouté à _base_ _thread_. Quand il est activé, sa sortie est haute pour une
+période puis basse pour une autre période. Pour calculer la fréquence de sortie
+faire 1/(durée de la période en secondes * 2) = fréquence en Hz. Par exemple, si
+vous avez une période de base de 100000ns soit 0.0001 seconde, la formule devient:
+1/(0.0001 * 2) = 5000 Hz ou 5kHz.
+
+* _encoder_ratio_ - (((encoder_ratio)))Un engrenage électronique pour synchroniser
+deux axes.
+
+* _estop_latch_ - (((estop_latch)))Verrou d'Arrêt d'Urgence.
+
+* _feedcomp_ - (((feedcomp)))Multiplie l'entrée par le ratio vitesse courante /
+vitesse d'avance travail.
+
+* _gearchange_ - (((gearchange)))Sélectionne une grandeur de vitesse parmi deux.
+
+* _ilowpass_ - (((ilowpass)))Filtre passe-bas avec entrées et sorties au format
+entier.
++
+Sur une machine ayant une grande accélération, un petit jog peut s'apparenter à
+une avance par pas. En intercalant un filtre _ilowpass_ entre la sortie de
+comptage du codeur de la manivelle et l'entrée _jog-counts_ de l'axe, le
+mouvement se trouve lissé.
++
+Choisir prudemment l'échelle, de sorte que durant une simple session, elle ne
+dépasse pas environ 2e9/scale impulsions visibles sur le MPG. Choisir le gain
+selon le niveau de douceur désiré. Diviser les valeurs de axis.N.jog-scale par
+l'échelle.
+
+* _joyhandle_ - (((joyhandle)))Définit les mouvements d'un joypad non linéaire,
+zones mortes et échelles.
+
+* _knob2float_ - (((knob2float)))Convertisseur de comptage (probablement d'un
+codeur) vers une valeur en virgule flottante.
+
+* _minmax_ - (((minmax)))Suiveur de valeurs minimum et maximum de l'entrée vers les
+sorties.
+
+* _sample_hold_ - (((sample_hold)))Échantillonneur bloqueur.
+
+* _sampler_ - (((sampler)))Échantillonneur de données de HAL en temps réel.
+
+* _siggen_ - (((siggen)))Générateur de signal, voir la section <<sec:Siggen,siggen>>
+
+* _sim_encoder_ - (((sim_encoder)))Codeur en quadrature simulé,
+voir la section <<sec:Codeur-simul, codeur simulé>>
+
+* _sphereprobe_ - (((sphereprobe)))Sonde hémisphérique.
+
+* _steptest_ - (((steptest)))Utilisé par Stepconf pour permettre de tester les
+valeurs d'accélération et de vitesse d'un axe.
+
+* _streamer_ - (((streamer)))Flux temps réel depuis un fichier vers HAL.
+
+* _supply_ - (((supply)))Set output pins with values from parameters (obsolète).
+
+* _threadtest_ - (((threadtest)))Composant de HAL pour tester le comportement
+des threads.
+
+* _time_ - (((time)))Compteur de temps écoulé HH:MM:SS avec entrée _actif_.
+
+* _timedelay_ - (((timedelay)))L'équivalent d'un relais temporisé.
+
+* _timedelta_ - (((timedelta)))Composant pour mesurer le comportement temporel 
+des threads.
+
+* _toggle2nist_ - (((toggle2nist)))Bouton à bascule pour logique NIST.
+
+* _toggle_ - (((toggle)))Bouton à bascule NO/NF à partir d'un bouton poussoir
+momentané.
+
+* _tristate_bit_ - (((tristate_bit)))Place un signal sur une pin d'I/O seulement
+quand elle est validée, similaire à un tampon trois états en électronique.
+
+* _tristate_float_ - (((tristate_float)))Place un signal sur une pin d'I/O seulement
+quand elle est validée, similaire à un tampon trois états en électronique.
+
+* _watchdog_ - (((watchdog)))Moniteur de fréquence (chien de garde) sur 1 à 32
+entrées.
+
+== Appels à l'API de HAL (liste de la section 3 des man pages)
+....
+hal_add_funct_to_thread.3hal
+hal_bit_t.3hal
+hal_create_thread.3hal
+hal_del_funct_from_thread.3hal
+hal_exit.3hal
+hal_export_funct.3hal
+hal_float_t.3hal
+hal_get_lock.3hal
+hal_init.3hal
+hal_link.3hal
+hal_malloc.3hal
+hal_param_bit_new.3hal
+hal_param_bit_newf.3hal
+hal_param_float_new.3hal
+hal_param_float_newf.3hal
+hal_param_new.3hal
+hal_param_s32_new.3hal
+hal_param_s32_newf.3hal
+hal_param_u32_new.3hal
+hal_param_u32_newf.3hal
+hal_parport.3hal
+hal_pin_bit_new.3hal
+hal_pin_bit_newf.3hal
+hal_pin_float_new.3hal
+hal_pin_float_newf.3hal
+hal_pin_new.3hal
+hal_pin_s32_new.3hal
+hal_pin_s32_newf.3hal
+hal_pin_u32_new.3hal
+hal_pin_u32_newf.3hal
+hal_ready.3hal
+hal_s32_t.3hal
+hal_set_constructor.3hal
+hal_set_lock.3hal
+hal_signal_delete.3hal
+hal_signal_new.3hal
+hal_start_threads.3hal
+hal_type_t.3hal
+hal_u32_t.3hal
+hal_unlink.3hal
+intro.3hal
+undocumented.3hal
+....
+
+== Appels à RTAPI
+....
+EXPORT_FUNCTION.3rtapi
+MODULE_AUTHOR.3rtapi
+MODULE_DESCRIPTION.3rtapi
+MODULE_LICENSE.3rtapi
+RTAPI_MP_ARRAY_INT.3rtapi
+RTAPI_MP_ARRAY_LONG.3rtapi
+RTAPI_MP_ARRAY_STRING.3rtapi
+RTAPI_MP_INT.3rtapi
+RTAPI_MP_LONG.3rtapi
+RTAPI_MP_STRING.3rtapi
+intro.3rtapi
+rtapi_app_exit.3rtapi
+rtapi_app_main.3rtapi
+rtapi_clock_set_period.3rtapi
+rtapi_delay.3rtapi
+rtapi_delay_max.3rtapi
+rtapi_exit.3rtapi
+rtapi_get_clocks.3rtapi
+rtapi_get_msg_level.3rtapi
+rtapi_get_time.3rtapi
+rtapi_inb.3rtapi
+rtapi_init.3rtapi
+rtapi_module_param.3rtapi
+RTAPI_MP_ARRAY_INT.3rtapi
+RTAPI_MP_ARRAY_LONG.3rtapi
+RTAPI_MP_ARRAY_STRING.3rtapi
+RTAPI_MP_INT.3rtapi
+RTAPI_MP_LONG.3rtapi
+RTAPI_MP_STRING.3rtapi
+rtapi_mutex.3rtapi
+rtapi_outb.3rtapi
+rtapi_print.3rtap
+rtapi_prio.3rtapi
+rtapi_prio_highest.3rtapi
+rtapi_prio_lowest.3rtapi
+rtapi_prio_next_higher.3rtapi
+rtapi_prio_next_lower.3rtapi
+rtapi_region.3rtapi
+rtapi_release_region.3rtapi
+rtapi_request_region.3rtapi
+rtapi_set_msg_level.3rtapi
+rtapi_shmem.3rtapi
+rtapi_shmem_delete.3rtapi
+rtapi_shmem_getptr.3rtapi
+rtapi_shmem_new.3rtapi
+rtapi_snprintf.3rtapi
+rtapi_task_delete.3rtpi
+rtapi_task_new.3rtapi
+rtapi_task_pause.3rtapi
+rtapi_task_resume.3rtapi
+rtapi_task_start.3rtapi
+rtapi_task_wait.3rtapi
+....
+

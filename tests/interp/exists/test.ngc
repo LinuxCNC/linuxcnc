@@ -1,0 +1,7 @@
+#<a>=999
+G0 X EXISTS[#1] Y EXISTS[#99999] Z EXISTS[#<a>] A EXISTS[#<b>] ; comment
+
+#1=2
+#2=99999
+G0 X EXISTS[##1] Y EXISTS[##2] Z EXISTS[###1]  (comment)
+M2

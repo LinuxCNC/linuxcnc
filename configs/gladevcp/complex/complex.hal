@@ -1,0 +1,9 @@
+
+# a HAL table must be explicitely enabled from 'outside'
+# by setting its hal pin to 1
+# otherwise, all contained widgets are disabled ('greyed out')
+
+setp complex.hal_table1 1
+
+# led reflects togglebutton
+net led complex.hal_togglebutton1 => complex.hal_led1

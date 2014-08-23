@@ -1,0 +1,2 @@
+This test makes sure that the "overrun" detection works.  It is an XFAIL
+because the testing infrastructure will believe it is a failure.

@@ -1,0 +1,50 @@
+############################ Step Generators #########################################
+
+# Stepper module, four step generators, all using step/dir
+loadrt stepgen step_type=0,0,0,0
+
+# Hook functions to base thread (high speed thread for step generation)
+addf stepgen.make-pulses base-thread
+
+# Hook functions to servo thread
+addf stepgen.capture-position servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf stepgen.update-freq servo-thread
+
+# Configure signals for Z axis to be twice the size of the signals for other axis because
+# Z axis has a slo-syn driver which can't handle smaller step sizes
+setp stepgen.2.steplen 35200
+setp stepgen.2.stepspace 35200
+setp stepgen.2.dirsetup 35200
+setp stepgen.2.dirhold 35200
+
+# Set stepgen module scaling - get values from ini file
+setp stepgen.0.position-scale [AXIS_0]SCALE
+setp stepgen.1.position-scale [AXIS_1]SCALE
+setp stepgen.2.position-scale [AXIS_2]SCALE
+setp stepgen.3.position-scale [AXIS_3]SCALE
+
+# Set stepgen module velocity limits - get values from ini file
+
+# Set stepgen module accel limits - get values from ini file
+setp stepgen.0.maxaccel [AXIS_0]STEPGEN_MAXACCEL
+setp stepgen.1.maxaccel [AXIS_1]STEPGEN_MAXACCEL
+setp stepgen.2.maxaccel [AXIS_2]STEPGEN_MAXACCEL
+setp stepgen.3.maxaccel [AXIS_3]STEPGEN_MAXACCEL
+
+# Hook up stepgen to motion modules
+net PosX-cmd axis.0.motor-pos-cmd => stepgen.0.position-cmd
+net PosX-fb stepgen.0.position-fb => axis.0.motor-pos-fb
+net PosY-cmd axis.1.motor-pos-cmd => stepgen.1.position-cmd
+net PosY-fb stepgen.1.position-fb => axis.1.motor-pos-fb
+net PosZ-cmd axis.2.motor-pos-cmd => stepgen.2.position-cmd
+net PosZ-fb stepgen.2.position-fb => axis.2.motor-pos-fb
+net PosA-cmd axis.3.motor-pos-cmd => stepgen.3.position-cmd
+net PosA-fb stepgen.3.position-fb => axis.3.motor-pos-fb
+
+# Hook up enable signals for step generators
+net EnableX axis.0.amp-enable-out => stepgen.0.enable
+net EnableY axis.1.amp-enable-out => stepgen.1.enable
+net EnableZ axis.2.amp-enable-out => stepgen.2.enable
+net EnableA axis.3.amp-enable-out => stepgen.3.enable

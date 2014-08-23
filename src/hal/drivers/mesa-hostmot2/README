@@ -1,0 +1,180 @@
+
+This driver will support the HostMot2 firmware on the following boards:
+
+    EPP:
+    
+        7i43 (Xilinx Spartan 3, 200 K or 400 K gates (can query which from the CPLD))
+
+
+    PCI:
+
+        5i20 (Xilinx Spartan 2, 200 K gates, PLX 9030, Subsystem ID 3131)
+        5i22-1 (Xilinx Spartan 3, 1.0 M gates, PLX 9054, Subsystem ID 3314)
+        5i22-1.5 (Xilinx Spartan 3, 1.5 M gates, PLX 9054, Subsystem ID 3313)
+        5i23 (Xilinx Spartan 3, 400 K gates, PLX 9054, Subsystem ID 3315)
+
+
+    PC/104-Plus:
+
+        4i65 (Xilinx Spartan 2, 200 K gates, PLX 9030, Subsystem ID 3132)
+        4i68 (Xilinx Spartan 3, 400 K gates, PLX 9054, Subsystem ID 3311 (was 3133))
+
+
+
+
+Watchdog:
+
+    Timeout is set by the watchdog.timeout_ns parameter.  It's a u32,
+    which makes a maximum timeout 4,294,967,295 ns, or about 4.3 seconds.
+
+
+
+
+Pins, IOPorts, and GPIOs:
+
+    Pins are the little pieces of metal at the connectors that carry
+    signals.  Pins are described by the Pin Descriptor array in the
+    firmware.  Each pin has a Pin Descriptor (PD).  Each pin is connected
+    to one or two module instances: an IOPort instance and (optionally)
+    some instance of some other module.  The IOPort is considered the
+    "primary" user of the pin, and the other module instance (if any)
+    is considered the secondary user.  The PD specifies which module
+    (if any) is the secondary user of this pin, which instance of that
+    module, which of the module instance's pins it is, and whether the
+    module instance uses the pin as an input or an output.  (See the
+    hostmot2 register map for the specifics.)  The IOPort instance that
+    is the primary user has a register that selects whether the pin is
+    driven by the primary or the secondary user.  This setting is chosen
+    by the user at module load time, by specifying the config string.
+
+    IOPorts are instances of the IOPort Module.  Each IOPort instance
+    governs the pins on one I/O connector (24 pins per connector).
+
+    GPIOs are the HAL representations of pins.  Not all pins will have a
+    corresponding GPIO, and not all GPIOs look the same.  For example,
+    pins that are governed by a module instance may be configured (by
+    that module instance) as either input or output, and that setting
+    is not changeable by the user and not exported to HAL.
+
+
+
+
+Architecture:
+
+
+    load the hostmot2 module, it does nothing but export a couple of kernel
+    functions for the low-level drivers to use
+
+
+    load the low-level driver(s) for the board-type(s) you want to use
+    (hm2_7i43 and/or hm2_pci), giving each a config string array modparam
+
+
+    the board-driver setup does this:
+
+        find the board(s)
+
+        for each board found:
+
+            initialize an hm2_lowlevel_io_t (llio)
+
+            pass the llio and the board's config string to the
+            hm2_register() function (in the hostmot2 driver), which
+            does this:
+
+                allocate a hostmot2_t struct to hold this running instance
+                of the hostmot2 firmare, add the hm2_lowlevel_io_t to it
+
+                parse the config string
+
+                fetch the specified firmware, call the llio to program the fpga
+
+                call llio to read the IDROM header, Pin Descriptors,
+                and Module Descriptors into the hm2_t
+
+                parse & validate the idrom header
+
+                parse the MDs: walk the list of MDs read, calling
+                the module drivers to validate each one (skip unknown
+                MDs, and fail the load if any invalid MDs are found).
+                Each module driver does this:
+
+                    verify MD is consistent (ie, all MD fields match
+                    expected values)
+
+                    verify this is the first MD of this GTAG (type)
+                    we've seen (ie, there can be only one encoder MD,
+                    one pwmgen MD, etc)
+
+                    Do any module-specific sanity checks
+
+                    Initialize the module structure in the hm2
+
+                    register tram read/write regions
+
+                    allocate an initialize all non-tram register buffers
+                    and any extra memory the module driver needs
+
+                    export HAL objects, initialize pin & param values
+                    (FIXME: ioport can't do it here)
+
+                    return number of module instances actually used
+
+                Allocate tram buffers (based on module-drivers'
+                registrations from the previous step)
+
+                Configure the pins owned by the active module instances (source & direction)
+
+                export & initialize gpio HAL objects (hm2->pin)
+
+                set up the raw interface, if enabled (export & initialize Raw HAL objects)
+
+                hm2_force_write (tell all module-drivers to write
+                their internal representation out to the hardware; this
+                completely configures the non-tram parts of the hardware)
+
+                read the tram, tell each module driver to initialize its
+                read-tram structures, then tell each one to process the
+                (same) read-tram buffer
+
+                tell each module driver to initialize its write-tram
+                structures, then tell each one to prepare a tram write,
+                then write the tram
+
+                export the main read/write functions
+
+                if the llio claims to be threadsafe, export the gpio
+                read/write functions
+
+
+    FIXME: ok down to here
+
+
+    the per-board HAL-exported read/write functions are generic hm2
+    functions that use board-specific i/o functions (hm2_lowlevel_io_t).
+    Each generic hm2 function is exported to HAL once for each hm2
+    instance that can use it.  Each HAL function is the same hm2 function
+    with different hostmot2_t's for arguments.
+
+
+    At runtime, it will eventually be desirable to use the TranslationRAM
+    to map all the on-board registers to be consecutive, and do a single
+    bulk transfer to read all the stuff into the driver.
+
+
+Shout outs:
+
+    Thanks to Peter Wallace at Mesa Electronics for supporting the
+    development of this driver.
+
+    Thanks to Jeff Epler for the initial encoder index code.
+
+    Thanks to John M Kasunich, Steven W Padnos, and Paul Corner for help
+    with RTAI and LinuxCNC internals, and everything else.
+
+    Thanks to Eric Johnson for lots of early testing and debugging.
+
+    Thanks to Jeffry Molanus (U. Twente) for the anyio driver, it provided
+    some early inspiration.
+
+

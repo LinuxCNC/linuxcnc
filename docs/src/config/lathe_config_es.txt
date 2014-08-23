@@ -1,0 +1,48 @@
+= Lathe Configuration
+
+[[cha:lathe-configuration]] (((Lathe Configuration)))
+
+////
+ATTENTION TRANSLATORS before translating this document copy the base document
+into this copy to get the latest version. Untranslated documents are not kept
+up to date with the English documents. 
+
+Do not translate anchors or links, translate only the text of a link after the
+comma.
+Anchor [[anchor-name]]
+Link <<anchor-name,text after the comma can be translated>>
+
+Make sure the documents build after translating.
+////
+
+== Default Plane
+
+When LinuxCNC's interpreter was first written, it was designed for mills.
+That is why the default plane is XY (G17). A normal lathe only uses the
+XZ plane (G18). To change the default plane place the following line in
+the .ini file in the RS274NGC section.
+
+----
+RS274NGC_STARTUP_CODE = G18
+----
+
+The above can be overwritten in a g code program so always set important things
+in the preamble of the g code file.
+
+== INI Settings
+
+The following .ini settings are needed for lathe mode in Axis in addition to
+or replacing normal settings in the .ini file.
+
+----
+[DISPLAY]
+DISPLAY = axis
+LATHE = 1
+[TRAJ]
+AXES = 3
+COORDINATES = X Z
+[AXIS_0]
+...
+[AXIS_2]
+...
+----

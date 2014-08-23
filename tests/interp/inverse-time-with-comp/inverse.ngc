@@ -1,0 +1,23 @@
+g20
+o100 sub
+g0x0y0z0
+g42.1d#100
+g93g1x1f30 ;30 ipm
+y1f20      ;20 ipm
+x-1f20     ;40 ipm
+y2f40      ;40 ipm
+g94
+x1f33      ;33ipm
+y3
+x0
+y4
+g93g3y5j.5f[20/3.14159265359] ;10 ipm
+g40g94g1y6f25
+o100 endsub
+#100=0
+o100 call
+#100=.4
+o100 call
+#100=-.4
+o100 call
+m2

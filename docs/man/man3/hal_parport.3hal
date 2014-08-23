@@ -1,0 +1,56 @@
+.TH funct "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
+.SH NAME
+
+funct \- one-line description of funct
+
+.SH SYNTAX
+.HP
+#include "hal_parport.h"
+.HP
+int \fBhal_parport_get\fR(int \fIcomp_id\fR, hal_parport_t *\fIport\fR, unsigned short \fIbase\fR, unsigned short \fIbase_hi\fR, unsigned int \fImodes\fR)
+.HP
+void \fBhal_parport_release\fR(hal_parport_t *\fIport\fR)
+.SH  ARGUMENTS
+.IP \fIcomp_id\fR
+A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+.IP \fIport\fR
+A pointer to a hal_parport_t structure
+.IP \fIbase\fR
+The base address of the port (if port >= 16) or the linux port number of the
+port (if port < 16)
+.IP \fIbase_hi\fR
+The "high" address of the port (location of the ECP registers), 0 to use a
+probed high address, or -1 to disable the high address
+.IP \fImodes\fR
+Advise the driver of the desired port modes, from <linux/parport.h>.  If a
+linux-detected port does not provide the requested modes, a warning is printed
+with rtapi_print_msg.   This does not make the port request fail, because
+unfortunately, many systems that have working EPP parports are not detected as
+such by Linux.
+.SH DESCRIPTION
+\fBhal_parport_get\fR allocates a parallel port for exclusive use of the
+named hal component.  The port must be released with \fBhal_parport_release\fR
+before the component exits with \fBhal_exit\fR.
+.SH HIGH ADDRESS PROBING
+If the port is a parallel port known to Linux, and Linux detected a high
+I/O address, this value is used.  Otherwise, if base+0x400 is not registered
+to any device, it is used.  Otherwise, no address is used.  If no high address
+is detected, port->base_hi is 0.
+.SH PARPORT STRUCTURE
+.in +4n
+.nf
+typedef struct
+{
+    unsigned short base;
+    unsigned short base_hi;
+    .... // and further unspecified fields
+} hal_parport_t;
+.fi
+.in
+.SH RETURN VALUE
+\fBhal_parport_get\fR returns a HAL status code.  On success, \fIport\fR is
+filled out with information about the allocated port.  On failure, the contents
+of \fIport\fR are undefined except that it is safe (but not required) to pass
+this port to \fBhal_parport_release\fR.
+
+\fBhal_parport_release\fR does not return a value.  It always succeeds.

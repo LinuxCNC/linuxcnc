@@ -1,0 +1,34 @@
+(return: _move:x,y,len,phi,cos,sin)
+o<move>  sub
+(not_a_subfile)
+#<x>       = #1
+#<y>       = #2
+#<rotate>  = #3 (=0 degrees)
+#<scale>   = #4 (=1)
+#<xoff>    = #5 (=0 after rotation)
+#<yoff>    = #6 (=0 after rotation)
+
+o<if1>  if [0]
+          (for offsetting before rotation)
+          #<x> = [#<x> + #<xpre>]
+          #<y> = [#<y> + #<ypre>]
+o<if1>  endif
+
+        o<line>  call [0][0][#<x>][#<y>]
+        #<len>   = #<_line:len>
+        #<phi>   = #<_line:phi>
+        #<cos>   = #<_line:cos>
+        #<sin>   = #<_line:sin>
+
+        #<x> = [#<xoff> + #<scale> * #<len> * COS[#<rotate> + #<phi>]]
+        #<y> = [#<yoff> + #<scale> * #<len> * SIN[#<rotate> + #<phi>]]
+
+o<line> call [0][0][#<x>][#<y>]
+        #<_move:len>   = #<_line:len>
+        #<_move:phi>   = #<_line:phi>
+        #<_move:cos>   = #<_line:cos>
+        #<_move:sin>   = #<_line:sin>
+        #<_move:x>     = #<x>
+        #<_move:y>     = #<y>
+
+o<move> endsub

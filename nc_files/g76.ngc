@@ -1,0 +1,115 @@
+(cut a small 1/4-20 thread and part it)
+(t1 is for facing and left turning, t4 is threading tool, t9 parting)
+(proper tool offsets should be set in the tool table!)
+
+g20 g64 g18
+
+(face and turn outside diameter)
+t1 m6
+s1200 m3
+g4p1
+g43
+g0z0x.2
+f4
+g1x-.0625
+g0z.1
+x.120
+f5
+g1z-.55
+g0x.2
+
+
+(round the end)
+o100 sub 
+g0z1x-1
+g41
+g0z1
+g2 x0 z0 r1
+g3 x3.05 z-3.05 i0 k-3.05
+g91 
+g2 z-1.5 x1 r1.5
+g90 
+g40
+g0 x4.5
+o100 endsub
+
+g21
+f50
+
+g0z1.3
+g92z0
+o100 call
+
+f50
+
+g92.1
+g0z.9
+g92z0
+o100 call
+
+g92.1
+g0z.5
+g92z0
+o100 call
+
+g92.1
+g0z.3
+g92z0
+o100 call
+
+g92.1
+g0z.1
+g92z0
+o100 call
+
+g92.1
+g0z0
+g92z0
+o100 call
+g0z0
+o100 call
+
+g92.1
+g0z-.025
+g92z0
+o100 call
+
+g92.1
+m5
+g20
+f5
+
+(thread)
+t4 m6
+g43
+s800 m3
+g4p1
+g0z.2x.2
+
+(p = thread pitch, distance per revolution)
+(z = end of drive line)
+(i = offset from drive line to thread peaks)
+(    negative i means the threads are at a smaller radius than the drive line,)
+(    so i is negative for outside threads, positive for inside threads)
+(j = initial cut depth; subsequent depths follow degression formula)
+(r = depth degression: 1.0 = constant depth, 2.0 = constant area)
+(                      any number >= 1.0 allowed)
+(k = full thread depth)
+(q = "compound slide" angle)
+(h = number of spring passes)
+(e = distance along drive line used for tapered start/end)
+(l = which ends get the taper: 0 = neither, 1 = begin, 2 = end, 3 = both)
+g76 p.05 z-.5 i-.075 j.008 k.045 h3 r2.0 q29.5 e.05 l2
+g0x.5
+g0z0
+m5
+
+(part)
+t9 m6
+g43 
+s400 m3
+g4p1
+g0z-.6x.135
+g1x0f.2
+g0x.2
+m2

@@ -1,0 +1,154 @@
+(info: helix: in/out cutting, cw/ccw dir with radius comp, D-holes)
+o<helix> sub
+
+#<toolno>     =  #1 (=1)
+#<rpm>        =  #2 (=2000)
+#<feedrate>   =  #3 (=10)
+#<dir>        =  #4 (=3 2:cw, 3:ccw)
+#<inside>     =  #5 (=1 1:in, 0:out)
+#<cutdepth>   =  #6 (z cutdepth)
+#<zincr>      =  #7 (z increment)
+#<zsafe>      =  #8 (=0.5)
+#<x>          =  #9 (x center)
+#<y>          = #10 (y center)
+#<hdiam>      = #11 (diameter)
+#<faceangle>  = #12 (=0 face angle)
+#<d_angle>    = #13 (=0 d angle)
+#<zstart>     = #14 (=0)
+#<spin_notify>= #15 (=0)
+#<use_g43>    = #16 (=1)
+#<h_for_g43>  = #17 (=0)
+#<verbose>    = #18 (=0)
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam>   =  [#5410 + .001]
+
+         #<hr>       = [#<hdiam>/2]
+         #<cutdepth> = [-1 * #<cutdepth>]
+o<l00>   if [#<cutdepth> GT 0.0]
+           (debug, helix: bad cutdepth #<cutdepth> - EXITING)
+           (print, helix: bad cutdepth #<cutdepth> - EXITING)
+           (AXIS,notify, helix: bad cutdepth - EXITING)
+           m2
+o<l00>   endif
+
+         #<zincr> = [-1 * #<zincr>]
+o<l01>   if [#<zincr> GT 0.0]
+           (debug, helix: bad zincr #<zincr> - EXITING)
+           (print, helix: bad zincr #<zincr> - EXITING)
+           (AXIS,notify, helix: bad zincr - EXITING)
+           m2
+o<l01>   endif
+o<l02>   if [[#<inside> NE 0] AND [#<inside> NE 1]]
+           (debug, helix: bad inside specifier #<inside> - EXITING)
+           (print, helix: bad inside specifier #<inside> - EXITING)
+           (AXIS,notify, helix: bad inside specifier - EXITING)
+           m2
+o<l02>   endif
+o<l03>   if [[#<dir> NE 2] AND [#<dir> NE 3]]
+           (debug, helix: bad dir specifier #<dir> - EXITING)
+           (print, helix: bad dir specifier #<dir> - EXITING)
+           (AXIS,notify, helix: bad dir specifier - EXITING)
+           m2
+o<l03>   endif
+
+         #<rtool> = [#<tooldiam> / 2.0]
+         G40 (cutter radius compensation off)
+         s#<rpm> m3 (spindle cw)
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
+         f #<feedrate>
+
+         #<delta> = #<d_angle>
+         #<d2>    = [#<d_angle>/2]
+
+         (to avoid gouging, start point is arc opposite flat)
+         (start point x0,y0 and vector to center vx0,vy0)
+         #<x0>  = [#<x> + #<hr> * cos[#<faceangle> + 180]]
+         #<y0>  = [#<y> + #<hr> * sin[#<faceangle> + 180]]
+         #<vx0> =        [#<hr> * cos[#<faceangle>]]
+         #<vy0> =        [#<hr> * sin[#<faceangle>]]
+
+o<entry> call [#<inside>][#<dir>][#<tooldiam>][#<x0>][#<y0>][#<x>][#<y>]
+         #<prex> = #<_entry:prex> (pre entry point)
+         #<prey> = #<_entry:prey>
+         #<vxe>  = #<_entry:vx>   (vector to arc center)
+         #<vye>  = #<_entry:vy>
+
+         (points at the ends of the arc)
+         (x1,y1 start point of flat, vx1,vy1 vector to center)
+         (x2,y2 start point of flat, vx2,vy2 vector to center)
+o<l08>   if [#<dir> eq 2] (cw)
+           #<x1>  = [#<x> + #<hr> * cos[#<faceangle> + #<d2>]]
+           #<y1>  = [#<y> + #<hr> * sin[#<faceangle> + #<d2>]]
+           #<vx1> =        [#<hr> * cos[#<faceangle> + #<d2> + 180]]
+           #<vy1> =        [#<hr> * sin[#<faceangle> + #<d2> + 180]]
+
+           #<x2>  = [#<x> + #<hr> * cos[#<faceangle> - #<d2>]]
+           #<y2>  = [#<y> + #<hr> * sin[#<faceangle> - #<d2>]]
+           #<vx2> =        [#<hr> * cos[#<faceangle> - #<d2> + 180]]
+           #<vy2> =        [#<hr> * sin[#<faceangle> - #<d2> + 180]]
+o<l08>   else
+           #<x2>  = [#<x> + #<hr> * cos[#<faceangle> + #<d2>]]
+           #<y2>  = [#<y> + #<hr> * sin[#<faceangle> + #<d2>]]
+           #<vx2> =        [#<hr> * cos[#<faceangle> + #<d2> + 180]]
+           #<vy2> =        [#<hr> * sin[#<faceangle> + #<d2> + 180]]
+
+           #<x1>  = [#<x> + #<hr> * cos[#<faceangle> - #<d2>]]
+           #<y1>  = [#<y> + #<hr> * sin[#<faceangle> - #<d2>]]
+           #<vx1> =        [#<hr> * cos[#<faceangle> - #<d2> + 180]]
+           #<vy1> =        [#<hr> * sin[#<faceangle> - #<d2> + 180]]
+o<l08>   endif
+
+         g0 z #<zsafe>
+
+o<l10>   if [#<inside> NE 0] (inside)
+o<l20>     if [#<dir> eq 2] (cw)
+             (debug conventional CW,INSIDE)
+             g0  x#<prex> y#<prey> z #<zsafe>
+/            g42 (cutter radius comp right of path)
+             g2  x#<x0> y#<y0> i#<vxe> j#<vye>
+o<l20>     else (ccw)
+             (debug climb CCW,INSIDE)
+             g0  x#<prex> y#<prey> z #<zsafe>
+/            g41 (cutter radius comp left of path)
+             g3  x#<x0> y#<y0> i#<vxe> j#<vye>
+o<l20>     endif
+
+o<l10>   else (outside)
+o<l30>     if [#<dir> eq 2] (2 ==> cw)
+             (debug,climb CW,OUTSIDE)
+             g0  x#<prex> y#<prey> z #<zsafe>
+/            g41 (cutter radius comp left of path)
+             g3  x#<x0> y#<y0> i#<vxe> j#<vye>
+o<l30>     else (3 ==> ccw)
+             (debug conventional CCW,OUTSIDE)
+             g0  x#<prex> y#<prey> z #<zsafe>
+/            g42 (cutter radius comp right of path)
+             g2  x#<x0> y#<y0> i#<vxe> j#<vye>
+o<l30>      endif
+o<l10>   endif
+         (entry complete: #<x0>,#<y0>,#<zsafe>)
+
+         g0 z [#<zstart>  + 0.05] (hardcoded delta)
+         g1 z #<zstart> (plunge)
+         #<zcurrent> = #<zstart>
+         #<_:pass>     = 1 (colon makes hidden global var)
+o<l30>   while [#<zcurrent> GT #<cutdepth>]
+           #<zcurrent> = [#<zcurrent> + #<zincr>]
+o<l32>     if [#<zcurrent> LT #<cutdepth>]
+             #<zcurrent> = #<cutdepth>
+o<l32>     endif
+           g#<dir> x#<x1> y#<y1> i#<vx0> j#<vy0> z#<zcurrent>
+           g1      x#<x2> y#<y2>
+           g#<dir> x#<x0> y#<y0> i#<vx2> j#<vy2> z#<zcurrent>
+           #<_:pass> = [#<_:pass> + 1]
+o<l30>   endwhile
+         (final traverse at full depth)
+         g#<dir> x#<x1> y#<y1> i#<vx0> j#<vy0> z#<zcurrent>
+         g1      x#<x2> y#<y2>
+         g#<dir> x#<x0> y#<y0> i#<vx2> j#<vy2> z#<zcurrent>
+         g0      z#<zsafe>
+         g40
+o<helix> endsub

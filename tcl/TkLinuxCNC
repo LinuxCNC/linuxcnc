@@ -1,0 +1,37 @@
+! Set the colors for the main screen
+*top*background: blue
+*top*foreground: white
+*top*highlightColor: white
+*top*highlightBackground: blue
+
+! Default font is "variable", aka 12-point Helvetica bold.
+! For 640x480 displays, use 10 point font.
+! See /usr/X11/lib/X11/fonts/misc/fonts.alias for others.
+*top*font: -*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*
+
+! Set the font size specifically for the position digits. Do this after
+! setting the global font *top*font, or that will override this.
+! For 640x480 displays, use 24 point font, e.g.,
+! *top*position*font: -*-courier-bold-r-normal-*-24-*-*-*-*-*-*-*
+*top*position*font: -*-courier-bold-r-normal-*-56-*-*-*-*-*-*-*
+
+! set background/foreground for labels that are clickable
+! tool offset
+*top*settings*tooloffsetsetting*background: gray
+*top*settings*tooloffsetsetting*foreground: black
+
+! feed override
+*top*controls*oride*top*value*background: gray
+*top*controls*oride*top*value*foreground: black
+
+! spindle override
+*top*controls*soride*top*value*background: gray
+*top*controls*soride*top*value*foreground: black
+
+! linear jog override
+*top*controls*left*linearjog*top*value*background: gray
+*top*controls*left*linearjog*top*value*foreground: black
+
+! angular jog override
+*top*controls*left*angularjog*top*value*background: gray
+*top*controls*left*angularjog*top*value*foreground: black

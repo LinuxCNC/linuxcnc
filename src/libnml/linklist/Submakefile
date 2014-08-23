@@ -1,0 +1,6 @@
+INCLUDES += libnml/linklist
+
+../include/%.h: ./libnml/linklist/%.h
+	cp $^ $@
+../include/%.hh: ./libnml/linklist/%.hh
+	cp $^ $@

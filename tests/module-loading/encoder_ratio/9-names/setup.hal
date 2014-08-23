@@ -1,0 +1,4 @@
+
+loadrt encoder_ratio names=er0,er1,er2,er3,er4,er5,er6,er7,er8
+show pin
+

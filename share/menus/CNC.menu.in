@@ -1,0 +1,16 @@
+<!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN"
+"http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+<Menu>
+  <Name>Applications</Name>
+  <Menu>
+    <Name>CNC</Name>
+    <Directory>cnc.directory</Directory>
+    <Include>
+	<Filename>emc.desktop</Filename>
+	<Filename>emc-latency.desktop</Filename>
+	<Filename>emc-latencyplot.desktop</Filename>
+    </Include>
+    <AppDir>@EMC2_HOME@/share/applications</AppDir>
+    <DirectoryDir>@EMC2_HOME@/share/desktop-directories</DirectoryDir>
+  </Menu>
+</Menu>

@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<interface>
+  <!-- interface-requires gladevcp 0.0 -->
+  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkWindow" id="window1">
+    <property name="default_width">200</property>
+    <property name="default_height">150</property>
+    <child>
+      <object class="GtkVBox" id="vbox1">
+        <property name="visible">True</property>
+        <child>
+          <object class="HAL_Button" id="button">
+            <property name="label" translatable="yes">Take lap time</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="pressed" handler="on_button_press"/>
+          </object>
+          <packing>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="message">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HAL_HBar" id="hal_hbar1">
+            <property name="visible">True</property>
+            <property name="z1_color">#ffffffff0000</property>
+            <property name="max">60</property>
+            <property name="z2_color">#ffff00000000</property>
+            <property name="z0_border">0.60000002384185791</property>
+            <property name="z1_border">0.80000001192092896</property>
+            <property name="bg_color">#bebebebebebe</property>
+            <property name="z0_color">#0000ffff0000</property>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

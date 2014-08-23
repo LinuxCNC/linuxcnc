@@ -1,0 +1,24 @@
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+net tool-change eztrol.tool-change iocontrol.0.tool-change
+net tool-changed eztrol.tool-changed iocontrol.0.tool-changed
+net tool-prep-number eztrol.tool-prep-number iocontrol.0.tool-prep-number
+net Xmax eztrol.x-positive-limit
+net Xmin eztrol.x-negative-limit
+net Ymax eztrol.y-positive-limit
+net Ymin eztrol.y-negative-limit
+net Zmax eztrol.z-positive-limit
+net Zmin eztrol.z-negative-limit
+loadrt mux2
+unlinkp motion.spindle-speed-out
+unlinkp hm2_5i20.0.pwmgen.00.value
+net spd-mux mux2.0.out hm2_5i20.0.pwmgen.00.value eztrol.spindle-rpm-reading
+net spd-motion motion.spindle-speed-out mux2.0.in0
+net spd-eztrol eztrol.spindle-rpm-control mux2.0.in1
+net speed-select halui.mode.is-manual mux2.0.sel
+addf mux2.0 servo-thread
+#eztrol.estop
+#eztrol.in-manual-mode
+#eztrol.limit-override
+#eztrol.spindle-max-rpm
+

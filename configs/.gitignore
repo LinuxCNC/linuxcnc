@@ -1,0 +1,6 @@
+*.var
+*.var.bak
+*/core_*.hal
+*/axis_manualtoolchange.hal
+position*.txt
+!common/*.hal

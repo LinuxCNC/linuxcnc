@@ -1,0 +1,41 @@
+SUCCEED () {
+	LINES=`"$@" 2>&1 | wc -l`
+	case $LINES in
+	1) echo "Test OK: $@" ;;
+	*) echo "*** TEST FAILED ***"
+	   echo "Test:    $@"
+	   echo "Output:"
+	   "$@" 2>&1 ;;
+	esac
+}
+
+FAIL () {
+	LINES=`"$@" 2>&1 | wc -l`
+	case $LINES in
+	1) echo "*** TEST FAILED ***"
+	   echo "Test:    $@"
+	   echo "Output:"
+	   "$@" 2>&1 ;;
+	*) echo "Test OK: $@" ;;
+	esac
+}
+
+# These should succeed
+SUCCEED ./linuxcnc_module_helper insert /lib/modules/rtapi.ko
+SUCCEED ./linuxcnc_module_helper insert /lib/modules/cheese/rtapi.o
+
+SUCCEED ./linuxcnc_module_helper remove rtapi
+
+# These should fail
+FAIL ./linuxcnc_module_helper insert /lib/modules/../../rtapi.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapi.ok
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapi.oo
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapicheese.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/r.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/rtapi.cheese.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/.cheese.ko
+FAIL ./linuxcnc_module_helper insert /lib/modules/.ko
+
+FAIL ./linuxcnc_module_helper remove rtapicheese
+FAIL ./linuxcnc_module_helper remove r
+FAIL ./linuxcnc_module_helper remove rtapi.cheese

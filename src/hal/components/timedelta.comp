@@ -1,0 +1,38 @@
+component timedelta "LinuxCNC HAL component that measures thread scheduling timing behavior";
+pin out s32 out;
+pin out s32 err=0;
+pin out s32 min_=0;
+pin out s32 max_=0;
+pin out s32 jitter=0;
+pin out float avg_err=0;
+pin in bit reset;
+function _ nofp;
+variable __s64 last=0;
+variable int first=1;
+license "GPL";
+;;
+#undef max
+#define max(a,b) ((a)>(b)?(a):(b))
+
+__s64 now = rtapi_get_time();
+__s64 del = (now - last);
+out = del;
+
+
+if(last != 0) {
+	err = err + del - period;
+	if(first) {
+		first = 0;
+		min_ = max_ = del;
+		jitter = 0;
+	} else {
+		if(del < min_) min_ = del;
+		if(del > max_) max_ = del;
+		jitter = max(max_ - period, period - min_);
+	}
+	count++;
+	avg_err = err / (double)count;
+}
+
+if(reset) { first = 1; last = 0; out = 0; jitter = 0; max_ = 0; }
+else last = now;

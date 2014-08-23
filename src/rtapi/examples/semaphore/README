@@ -1,0 +1,40 @@
+This is an example of RTAPI semaphores between two real-time
+processes. 
+
+NOTE: The basic concepts of this example haven't changes since
+this was originally written, but some details have changed.
+See the notes below.
+
+The master process (master.c) creates a semaphore,
+'master_sem', and runs a period timer task every millisecond that
+gives the semaphore and accumulates a local count of the number of
+times it has been given.
+NOTE: Changed to every 1 second to make prints to the kernel message
+log readable.
+
+The slave process (slave.c) creates a task that blocks on the global
+semaphore 'master_sem' and accumulates a local count of the number of
+times it has been taken.
+NOTE: The semaphore is no longer global, instead the master and
+slave share it by opening it with the same key.
+
+The slave task is not attached to a timer, accomplished by passing
+a 0 for the 'period_nsec' argument of rtapi_task_start() and then
+manually running its first occurrence by calling rtapi_task_resume().
+NOTE: The slave is still not attached to a timer.  I refer to this
+as being "free-running".  However the task_new and task_start api
+has changed, you no longer call task_start for a free-running task,
+instead you call task_resume only.
+
+Since the slave process references a global variable, 'master_sem',
+declared in common.h and defined in master.c, master.o must be loaded
+before slave.o or an undefined symbol will result.
+NOTE: No longer true.  Since both modules open the semaphore using
+a key, they can be loaded in any order.  The semaphore is not global,
+and the only thing in common.h is a #define for the key.
+
+The cumulative counts are printed to the console when the tasks are
+deleted. They should be about the same, differing only by the number
+of times the master task gave the semaphore before the slave task was
+initiated.
+

@@ -1,0 +1,29 @@
+This package was debianized by Alex Joni on
+Sat, 01 Jan 2006,
+also debianized by Paul Corner on
+Thur, 14 Oct 2004
+
+Copyright:
+
+LinuxCNC is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+****************************************************************
+
+Notice:  Most of LinuxCNC is covered by the GNU General Public
+License.  Some portions are covered by the GNU Lesser
+General Public License (mostly interface definitions).
+Both licenses are included in their entirety below.
+
+Much of LinuxCNC is derived from EMC1, a work of Fred Proctor, Tom Kramer,
+Will Shackleford, and others.  That work was originally released into
+the public domain.  It was used as the basis of LinuxCNC, but received
+extensive modifications.  LinuxCNC is NOT public domain.  Anyone wishing
+to use the public domain code in a way that is not compatible with the
+(L)GPL must locate the original EMC1 code - they may NOT use LinuxCNC.
+
+******************************************************************
+
+The complete text of GPL version 2 can be found in the file
+/usr/share/common-licenses/GPL-2 on Debian systems.

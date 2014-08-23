@@ -1,0 +1,22 @@
+setexact_for_test_suite_only
+
+loadrt sampler cfg=bb depth=4096
+loadrt stepgen step_type=0
+loadrt threads name1=fast period1=100000
+
+newsig unlinked bit
+net dir stepgen.0.dir sampler.0.pin.0 
+net step stepgen.0.step sampler.0.pin.1
+
+addf stepgen.update-freq fast
+addf stepgen.make-pulses fast
+addf stepgen.capture-position fast
+addf sampler.0 fast
+
+setp stepgen.0.maxvel .15
+setp stepgen.0.maxaccel 2
+setp stepgen.0.position-cmd .04
+setp stepgen.0.enable 1
+setp stepgen.0.position-scale 32000
+
+save

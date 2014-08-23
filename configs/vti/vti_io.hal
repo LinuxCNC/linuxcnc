@@ -1,0 +1,135 @@
+# HAL config file for Vigilant Technologies Inc. VTI PCA board
+#
+# install driver (only needed if vti_motion.hal doesn't get run)
+#loadrt hal_vti
+
+# add I/O to servo thread so they will be evaluated
+# every servo period
+# read inputs first
+addf vti.di-read servo-thread 1
+# write outputs last
+addf vti.do-write servo-thread -1
+
+#uncomment following line if ADC's are needed (for example spindle-tach feedback)
+#addf vti.0.read-adcs servo-thread 1
+
+#
+# Connect motion controller I/Os
+#
+
+# connect limit/home switch outputs to motion controller
+#newsig Xminlim bit
+#newsig Xmaxlim  bit
+#newsig Xhome bit
+#linksp Xminlim <= vti.in-02
+#linksp Xminlim => axis.0.neg-lim-sw-in
+#linksp Xmaxlim <= vti.in-01
+#linksp Xmaxlim => axis.0.pos-lim-sw-in
+#linksp Xhome <= vti.in-00
+#linksp Xhome => axis.0.home-sw-in
+
+#newsig Yminlim bit
+#newsig Ymaxlim  bit
+#newsig Yhome bit
+#linksp Yminlim <= vti.in-06
+#linksp Yminlim => axis.1.neg-lim-sw-in
+#linksp Ymaxlim <= vti.in-05
+#linksp Ymaxlim => axis.1.pos-lim-sw-in
+#linksp Yhome <= vti.in-04
+#linksp Yhome => axis.1.home-sw-in
+
+#newsig Zminlim bit
+#newsig Zmaxlim  bit
+#newsig Zhome bit
+#linksp Zminlim <= vti.in-10
+#linksp Zminlim => axis.2.neg-lim-sw-in
+#linksp Zmaxlim <= vti.in-09
+#linksp Zmaxlim => axis.2.pos-lim-sw-in
+#linksp Zhome <= vti.in-08
+#linksp Zhome => axis.2.home-sw-in
+
+#continue in the same manner for further axes (A,B,C)
+
+# connect amp faults to motion controller
+#newsig Xfault bit
+#newsig Yfault  bit
+#newsig Zfault bit
+#linksp Xfault <= vti.in-03
+#linksp Xfault => axis.0.amp-fault-in
+#linksp Yfault <= vti.in-07
+#linksp Yfault => axis.1.amp-fault-in
+#linksp Zfault <= vti.in-11
+#linksp Zfault => axis.2.amp-fault-in
+
+# connect index pulses to motion controller
+# do these when index pulsing is figured out
+#newsig Xindex bit
+#newsig Yindex  bit
+#newsig Zindex bit
+#linksp Xindex <= vti.0.enc-index
+#linksp Xindex => axis.0.index-enable
+#linksp Yindex <= vti.1.enc-index
+#linksp Yindex => axis.1.index-enable
+#linksp Zindex <= vti.2.enc-index
+#linksp Zindex => axis.2.index-enable
+
+# connect amp enables to motion controller
+#linksp Xenable => vti.out-00
+#linksp Yenable => vti.out-01
+#linksp Zenable => vti.out-02
+
+# connect watchdog reset to motion controller
+# needs watchdo
+#newsig WatchdogRst bit
+#linksp WatchdogRst <= vti.watchdog-reset
+#linksp WatchdogRst => motion.watchdog-reset-out
+
+
+#
+# Connect I/O controller I/Os
+#
+
+# connect e-stop write/sense to I/O controller
+# these connections assume an external ESTOP circuitry will be used
+# if it's not used, comment the next lines and uncomment the loopback
+#newsig EstopSense bit
+#newsig EstopWrite bit
+#linksp EstopSense <= vti.in-12
+#linksp EstopSense => iocontrol.0.emc-enable-in
+#linksp EstopWrite <= vti.out-07
+#linksp EstopWrite => iocontrol.0.user-enable-out
+
+# ESTOP loopback, only use this for a simple machine without external ESTOP
+# you really SHOULDN'T use a servo machine without proper ESTOP
+#net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# connect spindle fwd/rev to I/O controller
+#newsig SpindleFwd bit
+#newsig SpindleRev bit
+#linksp SpindleFwd <= vti.out-06
+#linksp SpindleFwd => motion.spindle-forward
+#linksp SpindleRev <= vti.out-05
+#linksp SpindleRev => motion.spindle-reverse
+
+# connect spindle brake to I/O controller
+#newsig SpindleBrakeOn bit
+#linksp SpindleBrakeOn <= vti.out-10
+#linksp SpindleBrakeOn => motion.spindle-brake
+
+# connect mist/flood coolant to I/O controller
+#newsig MistOn bit
+#newsig FloodOn bit
+#linksp MistOn <= vti.out-11
+#linksp MistOn => iocontrol.0.coolant-mist
+#linksp FloodOn <= vti.out-12
+#linksp FloodOn => iocontrol.0.coolant-flood
+
+# connect lube motor run to I/O controller
+#newsig LubeOn bit
+#linksp LubeOn <= vti.out-13
+#linksp LubeOn => iocontrol.0.lube
+
+# connect lube level to I/O controller
+#newsig LubeLevel bit
+#linksp LubeLevel <= vti.in-13
+#linksp LubeLevel => iocontrol.0.lube_level

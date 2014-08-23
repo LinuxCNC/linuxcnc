@@ -1,0 +1,858 @@
+
+<html>
+
+<head>
+<title>HostMot2 Encoder</title>
+</head>
+
+
+<body>
+<center>
+
+<table width=1000 cellpadding=10 border=1>
+
+    <tr>
+        <td>
+
+            <p>Velocity estimation is made possible by a cool feature
+            of the HostMot2 firmware:
+
+            <p>The FPGA synthesizes a configurable-frequency "timestamp
+            clock" by dividing ClockLow by the value in the Quadrature
+            Counter Timestamp Divider Register.  ClockLow is 33 MHz on
+            the PCI cards and 50 MHz on the 7i43.
+
+            <p>The current value of the Timestamp Clock can be read from
+            the 16-bit Timestamp Count (TSC) register.
+
+            <p>When a quadrature counter instance in the HostMot2 FPGA
+            detects a transition in its input Gray code, it increments
+            the count and latches both the (16-bit) count and the 16
+            bits of the timestamp clock into the Counter Register.
+
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan=2>
+            <p>Some Random Notes:
+            <ul>
+
+                <li><p>The encoder Count & Time ("C&T") are both 16-bit
+                registers, which are latched and read together.
+
+                <li><p>The encoder Count is initialized to 0 at firmware
+                load time.
+
+                <li><p>The Timestamp clock runs at 1 MHz (can run
+                faster, but 1 meg is pretty fast and makes it easy to
+                think about).
+
+                <li><p>The Timestamp Counter is 16 bits wide.  It rolls
+                over about every 65 milliseconds.
+
+                <li><p>In the timing pics below i'm using a very
+                slow servo loop of about 50 Hz.  The interval between
+                reading the C&T register and the TSC register is also
+                rediculously large.
+
+            </ul>
+        </td>
+    </tr>
+</table>
+
+
+<br>
+<hr>
+<br>
+
+
+<table width=1000 cellpadding=10 border=1>
+
+    <tr>
+        <td>
+
+            <p>The velocity estimator used by the driver is similar
+            to one described by David Auslander in a paper titled "<a
+            href="http://repositories.cdlib.org/its/path/reports/UCB-ITS-PRR-95-3/">
+            Vehicle-based Control Computer Systems</a>" (UCB ITS PRR
+            95 3).
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle>
+            <p>Algorithm notes:
+
+            <ol>
+
+                <li>
+
+                    <p>The algorithm maintains some internal state.
+
+                    <ul>
+
+                        <li>
+
+                            <p>Current-Motion-Mode: Stopped or Moving.
+
+                            <ul>
+
+                                <li><p><b>Stopped</b> means V=0 and there
+                                is no known previous datapoint.  This is
+                                the starting state.  If a new datapoint
+                                comes while we're in the Stopped state,
+                                we record the datapoint as the "old"
+                                datapoint and move to the Moving state.
+
+                                <li><p><b>Moving</b> means there is a
+                                record of a recent previous datapoint
+                                (Counts and Timestamp).  If we're in
+                                the Moving state and no new datapoint
+                                is seen for some runtime-configurable
+                                amount of time (250 ms or so perhaps),
+                                the algorithm forgets the old datapoint
+                                and moves to the Stopped state.
+
+                            </ul>
+
+                        <li>
+
+                            <p>Old datapoint: (Count, Timestamp) datapoint
+                            of most recently seen encoder edge.
+
+                            <p>Only valid when Current Motion Mode
+                            is Moving.
+
+                            <p>The count is the raw 16-bit count from
+                            the firmware, extended to signed 32-bit.
+                            In other words, the count in the datapoint
+                            has been adjusted for rollover (both positive
+                            and negative).
+
+                            <p>The timestamp is the raw timestamp of
+                            that edge.  Time has <b>not</b> been adjusted
+                            for rollovers, that's handled elsewhere.
+
+                        <li>
+
+                            <p>R: The timestamp rollover counter.
+
+                            <p>Only valid when Current Motion Mode
+                            is Moving.
+
+                            <p>This is the number of times the timestamp
+                            clock has rolled over its 16-bit counter
+                            since the "old" datapoint.
+
+                        <li>
+
+                            <p>Previous Time of Interest: This is a
+                            relevant timestamp from the <b>previous</b>
+                            time through the loop.  (Described in the
+                            section on Rollover Detection below).
+
+                            <p>Only valid when Motion Mode
+                            is Moving.
+
+                            <p>Think of this as "the time up through
+                            which we've tracked TSC rollovers so far".
+
+                    </ul>
+
+                <li>
+
+                    <p>On startup, the Current Motion Mode is set
+                    to Stopped, so Old Datapoint, R, and PTI are all
+                    dont-cares.
+
+                <li>
+
+                    <p>If the Motion Mode is Stopped and <b>no</b>
+                    new datapoint comes in: Nothing to do, return.
+
+                <li>
+                
+                    <p>If the Motion Mode is Stopped and a new datapoint comes in:
+
+                    <ul>
+
+                        <li>Set Old Datapoint to the new datapoint.
+
+                        <li>Set R to 0.
+
+                        <li>Set PTI to the new datapoint's timestamp.
+
+                        <li>Set Motion Mode = Moving.
+
+                        <li>Leave V at 0 for now.
+
+                        <li>Finished!
+
+                    </ul>
+
+                <li>
+
+                    <p>Motion Mode is Moving, <b>no</b> new datapoint
+                    available:
+
+                    <ul>
+
+                        <li>TI = TSC, check for rollover.
+
+                        <li>dT is ((TI - ODT) + (R * 2^16))
+
+                        <li>dT > Horizon? If so V = 0 and MM = Stopped.
+
+                        <li>Still waiting: use UBVE
+
+                        <li>PTI = TI
+
+                    </ul>
+
+
+                <li>
+
+                    <p>Motion Mode is Moving, new datapoint comes in:
+
+                    <ul>
+
+                        <li>TI = T, check for rollover
+
+                        <li>dT is ((TI - ODT) + (R * 2^16))
+
+                        <li>R = 0
+
+                        <li>Use RTVE
+
+                        <li>Old Datapoint = new datapoint.
+
+                        <li>PTI = TI
+
+                    </ul>
+
+
+                <li><p>Rollover detection:
+
+                    <ul>
+
+                        <li><p>Rollover detection happens right after
+                        reading the registers, before doing anything else.
+
+                        <li><p>If there was a new datapoint, the <i>Time
+                        of Interest</i> Ti is the datapoint's timestamp.
+
+                        <li><p>If there was <b>no</b> new datapoint,
+                        Ti is the TSC.
+
+                        <li><p>If Ti &gt; 2^15, rollover detection reports
+                        no rollover, records prevTi=Ti, and it's done.
+
+                        <li><p>If Ti &gt; prevTi, rollover detection
+                        reports no rollover, records prevTi=Ti, and
+                        it's done.
+
+                        <li><p>If we get here, it's a rollover!
+                        Increment rollover count R.
+
+                    </ul>
+
+                <li>
+
+                    <p>Relative Time Velocity Estimator (RTVE):
+
+                    <p>Used when the C&T read indicates a new datapoint n
+                    (in addition to having an old datapoint m).
+
+                    <p>V = dS/dT = (Cn-Cm) / ((Tn-Tm) + (R*2^16))
+
+                    <p>Reset R to 0.
+
+                <li>
+
+                    <p>Upper Bound Velocity Estimator (UBVE):
+
+                    <p>Used when the C&T read indicates no new datapoint.
+
+                    <p>So make one up (n), using the previous datapoint
+                    m and the current TSC: (Cn=Cm+1, Tn=TSCn).  The Cm+1
+                    is + or - 1 to be in the same direction as Vm
+
+                    <p>V = dS/dT = (Cn-Cm) / ((Tn-Tm) + (R*2^16))
+
+                    <p>There was no real datapoint, so we didn't use up
+                    our rollovers, so we don't reset R to 0.
+
+                <li>
+
+                    <p>Timestamp clock speed and servo period are
+                    constrained together.  C shows nearly a worst-case
+                    scenario: edge comes just after the C&T read at 2,
+                    gets picked up at 3, then we need to detect rollover
+                    at 4.
+
+                    <p>The servo frequency must be fast enough that Ti
+                    has time to switch from an old datapoint-T to a TSC
+                    before the rollover.  Two servo periods must be less
+                    than half the rollover time.
+
+            </ol>
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+
+    <tr>
+        <td>
+            <p>Legend:
+        </td>
+        <td align=center valign=middle>
+            <img src="legend.png">
+        </td>
+    </tr>
+
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+
+    <tr>
+
+        <td align=center valign=middle>
+            <p>
+        </td>
+
+        <td align=center valign=middle>
+            <p>1. No encoder edge
+        </td>
+
+        <td align=center valign=middle>
+            <p>2. Encoder edge before TSC read
+        </td>
+
+        <td align=center valign=middle>
+            <p>3. Encoder edge between TSC read and C&T read
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <p>A. No rollover
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-a1.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-a2.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-a3.png">
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <p>B. Rollover happens first
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-b1.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-b2.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-b3.png">
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <p>C. Rollover happens second
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-c1.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-c2.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-c3.png">
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <p>D. Rollover happens third
+        </td>
+
+        <td align=center valign=middle>
+            <p>There is no Case D1
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-d2.png">
+        </td>
+
+        <td align=center valign=middle>
+            <img src="case-d3.png">
+        </td>
+
+    </tr>
+
+</table>
+
+
+
+
+<br>
+<hr>
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case A1: No rollover, no encoder edge.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-a1.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td>
+
+            <p>Nothing to do.
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td><p>MM = Moving</td>
+
+        <td>
+
+            <p>TI is TSC.  Do rollover check.  We detect rollover here if
+            PTI was pre-rollover, which means the previous time through
+            the loop was case C1 or C2 or D2 or D3.
+
+            <p>dT is ((TI - OT) + (R * 2^16)).  dT > Horizon? If so V =
+            0 and MM = Stopped.
+
+            <p>We'll wait a little longer, Use UBVE.
+
+            <p>PTI gets the value of TI (TSC).
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case A2: No rollover, encoder edge before TSC read.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-a2.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td>
+
+            <p>Old Datapoint = new datapoint
+
+            <p>R = 0
+
+            <p>MM = Moving
+
+            <p>PTI = T
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td><p>MM = Moving</td>
+
+        <td>
+
+            <p>TI = T, do rollover detection.  We detect rollover here
+            if PTI was pre-rollover.
+
+            <p>Use RTVE.
+
+            <p>OD = new datapoint
+
+            <p>PTI = TI (= T)
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case A3: No rollover, encoder edge between TSC read and C&T read.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-a3.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan=2 align=left valign=middle>
+
+            <p>Identical to A2.
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case B1: Rollover happens first, no encoder edge
+        </td>
+        <td align=center valign=middle>
+            <img src="case-b1.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td align=left valign=middle>
+
+            <p>Nothing happens.
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Moving</td>
+
+        <td align=left valign=middle>
+
+            <p>TI = TSC.  Check for rollover.  Rollover detected, because
+            PTI is either T or TSC from the previous servo loop, which
+            ended just before the rollover.
+
+            <p>Compute dT, check for Stop.
+
+            <p>Use UBVE.
+
+            <p>PTI = TI (= TSC)
+
+        </td>
+    </tr>
+
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case B2: Rollover happens first, encoder edge before TSC read.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-b2.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td align=left valign=middle>
+
+            <p>Identical to A2.
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Moving</td>
+
+        <td align=left valign=middle>
+
+            <p>TI = T, check for rollover, rollover detected, because
+            PTI is either T or TSC from the previous servo loop, which
+            ended just before the rollover.
+
+            <p>RTVE
+
+            <p>PTI = TI (= T)
+
+        </td>
+    </tr>
+
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case B3: Rollover happens first, encoder edge between TSC read and C&T read
+        </td>
+        <td align=center valign=middle>
+            <img src="case-b3.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan=2 align=left valign=middle>
+
+            <p>Identical to B2
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case C1: Rollover happens second, no encoder edge
+        </td>
+        <td align=center valign=middle>
+            <img src="case-c1.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td align=left valign=middle>
+
+            <p>Nothing to do.
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Moving</td>
+
+        <td align=left valign=middle>
+
+            <p>TI = TSC, check for rollover, no rollover detected
+            (because TSC is just before the rollover).
+
+            <p>UBVE
+
+            <p>PTI = TI (= TSC)
+
+        </td>
+    </tr>
+
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case C2: Rollover happens second, encoder edge before TSC read.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-c2.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td align=left valign=middle>
+
+            <p>Like A2.
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Moving</td>
+
+        <td align=left valign=middle>
+
+            <p>TI = T, check for rollover, no rollover detected
+            (because T is just before the rollover).
+
+            <p>RTVE
+
+            <p>PTI = TI (= T)
+
+        </td>
+    </tr>
+
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case C3: Rollover happens second, encoder edge between TSC read and C&T read
+        </td>
+        <td align=center valign=middle>
+            <img src="case-c3.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan=2 align=left valign=middle>
+
+            <p>Identical to B2 and B3.
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case D2: Rollover happens third, encoder edge before TSC read.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-d2.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Stopped</td>
+
+        <td align=left valign=middle>
+
+            <p>Like A2.
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align=left valign=middle><p>MM = Moving</td>
+
+        <td align=left valign=middle>
+
+            <p>TI = T, check for rollover, no rollover detected
+            (because T is just before the rollover).
+
+            <p>RTVE
+
+            <p>PTI = TI (= T)
+
+        </td>
+    </tr>
+
+</table>
+
+
+
+
+<br>
+
+<table width=1000 cellpadding=10 border=1>
+    <tr>
+        <td>
+            <p>Case D3: Rollover happens third, encoder edge between TSC read and C&T read.
+        </td>
+        <td align=center valign=middle>
+            <img src="case-d3.png">
+        </td>
+    </tr>
+
+    <tr>
+        <td colspan=2 align=left valign=middle>
+
+            <p>Identical to D2.
+
+        </td>
+    </tr>
+</table>
+
+
+
+
+<br>
+<hr>
+<br>
+
+
+
+
+</center>
+</body>
+
+
+</html>

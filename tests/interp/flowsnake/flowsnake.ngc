@@ -1,0 +1,41 @@
+%
+(Program to mill a flowsnake)
+(K. Lerman)
+
+o<flowsnake> sub
+#<level> = #1
+#<startX> = #2
+#<startY> = #3
+#<endX> = #4
+#<endY> = #5
+
+  o<test> if [#<level> EQ 0]
+    g1 f10 x#<endX> y#<endY>
+  o<test> else
+    #<p1X> = [[#<startX> * 2 + #<endX>]/3]
+    #<p1Y> = [[#<startY> * 2 + #<endY>]/3]
+
+    #<p2X> = [[#<startX> + #<endX>]/2 + [#<endY> - #<startY>]/[SQRT[12.0]]]
+    #<p2Y> = [[#<startY> + #<endY>]/2 - [#<endX> - #<startX>]/[SQRT[12.0]]]
+
+    #<p3X> = [[#<startX> + 2 * #<endX>]/3]
+    #<p3Y> = [[#<startY> + 2 * #<endY>]/3]
+
+    o<flowsnake> call [#<level>-1] [#<startX>] [#<startY>] [#<p1X>] [#<p1Y>]
+    o<flowsnake> call [#<level>-1] [#<p1X>] [#<p1Y>] [#<p2X>] [#<p2Y>]
+    o<flowsnake> call [#<level>-1] [#<p2X>] [#<p2Y>] [#<p3X>] [#<p3Y>]
+    o<flowsnake> call [#<level>-1] [#<p3X>] [#<p3Y>] [#<endX>] [#<endY>]
+  o<test> endif
+o<flowsnake> endsub
+
+S1M3
+g0 z1
+g0 x.25 y1.0
+g1 f10 z0
+#<level> = 3
+o<flowsnake> call [#<level>] [.25] (will this comment cause problems) [1.0] [3.75] [1.0]
+o<flowsnake> call [#<level>] [3.75] [1.0] [2.0] [3.95]
+o<flowsnake> call [#<level>] [2.0] [3.95] [.25] [1.0]
+g0 z1
+M5
+%

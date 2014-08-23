@@ -1,0 +1,47 @@
+
+loadrt comp names=comp_j0,comp_j1,comp_j2,comp_j3
+loadrt or2 names=or_homesws
+
+# Joint 0 = X axis, home switch is on negative end
+# Joint 1 = Y1 axis, home switch is on negative end
+# Joint 2 = Z axis, home switch is on positive end
+# Joint 3 = Y2 axis, home switch is on negative end
+net J0homeswpos => comp_j0.in1
+net J1homeswpos => comp_j1.in1
+net J2homeswpos => comp_j2.in0
+net J3homeswpos => comp_j3.in1
+
+sets J0homeswpos -0.1
+sets J1homeswpos -0.1
+sets J2homeswpos 0.1
+sets J3homeswpos -0.1
+
+net J0pos => comp_j0.in0
+net J1pos => comp_j1.in0
+net J2pos => comp_j2.in1
+net J3pos => comp_j3.in0
+
+setp comp_j0.hyst .02
+setp comp_j1.hyst .02
+setp comp_j2.hyst .02
+setp comp_j3.hyst .02
+
+# the X and Z joints share a home switch
+# the Y joints each have their own home switches
+net J0homesw <= comp_j0.out
+net J1homesw <= comp_j1.out => axis.1.home-sw-in
+net J2homesw <= comp_j2.out
+net J3homesw <= comp_j3.out => axis.3.home-sw-in
+
+net J0homesw => or_homesws.in0
+net J2homesw => or_homesws.in1
+net J0.J1homesw or_homesws.out => axis.0.home-sw-in axis.2.home-sw-in
+
+
+addf comp_j0 servo-thread
+addf comp_j1 servo-thread
+addf comp_j2 servo-thread
+addf comp_j3 servo-thread
+
+addf or_homesws servo-thread
+

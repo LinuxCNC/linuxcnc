@@ -1,0 +1,16 @@
+*.js
+*.css
+!linuxcnc.css
+*.html
+*.xml
+*.png
+*.gif
+man
+code
+common
+config
+gcode
+gui
+hal
+install
+motion

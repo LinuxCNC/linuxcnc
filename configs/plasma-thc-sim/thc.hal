@@ -1,0 +1,198 @@
+###################### Torch Height Control ########################## 
+
+# Load realtime hal components for THC
+#3 extra ands for simulator
+loadrt and2 count=12
+loadrt comp count=3
+loadrt updown
+loadrt flipflop count=3
+loadrt hypot
+loadrt logic personality=0x203
+loadrt minmax
+loadrt mult2 count=2
+loadrt mux2 count=7
+#1 extra not for simulator
+loadrt not count=4
+loadrt oneshot count=4
+#1 extra or for simulator
+loadrt or2 count=10
+loadrt scale
+loadrt sum2 count=5
+loadrt xor2 count=4
+loadrt conv_s32_float
+loadrt edge count=2
+
+# Attach realtime hal components to a realtime thread
+addf and2.0 servo-thread
+addf and2.1 servo-thread
+addf and2.2 servo-thread
+addf and2.3 servo-thread
+addf and2.4 servo-thread
+addf and2.5 servo-thread
+addf and2.6 servo-thread
+addf and2.7 servo-thread
+addf and2.8 servo-thread
+addf comp.0 servo-thread
+addf comp.1 servo-thread
+addf comp.2 servo-thread
+addf conv-s32-float.0 servo-thread
+addf edge.0 servo-thread
+addf edge.1 servo-thread
+addf flipflop.0 servo-thread
+addf flipflop.1 servo-thread
+addf flipflop.2 servo-thread
+addf hypot.0 servo-thread
+addf logic.0 servo-thread
+addf minmax.0 servo-thread
+addf mult2.0 servo-thread
+addf mult2.1 servo-thread
+addf mux2.0 servo-thread
+addf mux2.1 servo-thread
+addf mux2.2 servo-thread
+addf mux2.3 servo-thread
+addf mux2.4 servo-thread
+addf mux2.5 servo-thread
+addf mux2.6 servo-thread
+addf not.0 servo-thread
+addf not.1 servo-thread
+addf not.2 servo-thread
+addf oneshot.0 servo-thread
+addf oneshot.1 servo-thread
+addf oneshot.2 servo-thread
+addf oneshot.3 servo-thread
+addf or2.0 servo-thread
+addf or2.1 servo-thread
+addf or2.2 servo-thread
+addf or2.3 servo-thread
+addf or2.4 servo-thread
+addf or2.5 servo-thread
+addf or2.6 servo-thread
+addf or2.7 servo-thread
+addf or2.8 servo-thread
+addf updown.0 servo-thread
+addf scale.0 servo-thread
+addf sum2.0 servo-thread
+addf sum2.1 servo-thread
+addf sum2.2 servo-thread
+addf sum2.3 servo-thread
+addf sum2.4 servo-thread
+addf xor2.0 servo-thread
+addf xor2.1 servo-thread
+addf xor2.2 servo-thread
+
+# Set static values and default values
+setp oneshot.1.width [PLASMA]IGNITION_TIMEOUT
+setp oneshot.2.width [PLASMA]ARC_OK_FILTER_TIME
+setp oneshot.3.width [PLASMA]EXTINGUISH_TIMEOUT
+setp oneshot.3.falling 1
+setp oneshot.3.rising 0
+setp comp.2.in0 [PLASMA]MAX_FAILED_IGNITIONS
+setp mux2.1.in0 -1
+setp mux2.1.in1 1
+setp mux2.3.in0 0
+
+# Set the lowest value the THC will try to move the torch
+setp sum2.4.in0 [AXIS_2]MIN_LIMIT
+
+# Set default gains for sum, positive for addition and negative for subtraction
+# Setting positive gains will become implicit and those can be removed safely in a later version
+setp sum2.0.gain0 1
+setp sum2.0.gain1 1
+setp sum2.1.gain0 1
+setp sum2.1.gain1 1
+setp sum2.2.gain0 1
+setp sum2.2.gain1 -1
+setp sum2.3.gain0 1
+setp sum2.3.gain1 -1
+setp sum2.4.gain0 1
+setp sum2.4.gain1 -1
+
+# Set Hysterisis for float comp
+setp comp.1.hyst 0.001
+
+# Set percentage multiplier for scale
+setp scale.0.gain 0.01
+
+# Set edge detectors to work on falling edges to detect Ignition Timeouts
+setp edge.0.in-edge 1
+setp edge.1.in-edge 1
+
+# Hook up parallel port pins
+net MoveDown => or2.0.in0
+net MoveUp => or2.0.in1 mux2.1.sel
+
+# Floatswitch and ArcOK signals handled by simulator, see simulator.hal
+#net FloatSwitch parport.1.pin-13-in => or2.1.in1 and2.4.in0 and2.5.in1 and2.6.in1
+#net ArcOK => or2.4.in1 xor2.1.in1 oneshot.2.in
+
+net FilteredArcOK xor2.1.out => or2.1.in0 or2.6.in0 not.1.in and2.4.in1 flipflop.1.set oneshot.3.in flipflop.2.set and2.2.in0 
+net TimersOrArcOK or2.4.out => or2.5.in0 or2.3.in0 
+
+# Hook up component pins using the net command
+net LockHeight and2.0.out => xor2.2.in0
+net EnabledAdjustHeight and2.1.out => mux2.3.sel
+net ReleaseFeedHold and2.2.out => xor2.0.in1
+net TorchOn => and2.3.out oneshot.1.in not.2.in
+net FloatSwitchEstop and2.4.out => logic.0.in-02
+net FloatAndTorchOn and2.5.out => or2.2.in1
+net TorchAndFloat and2.6.out => flipflop.0.set
+net PosAndFloat and2.7.out => or2.5.in1
+net IgnitionEstop comp.2.out => logic.0.in-01
+net StartTorchOn and2.8.out => and2.3.in0
+net OriginalPosZ-cmd axis.2.motor-pos-cmd => mux2.5.in0 sum2.2.in1
+net JointPoz-cmd axis.2.joint-pos-cmd => sum2.2.in0
+net CHLTriggered comp.0.out => and2.0.in0
+net AtPosition comp.1.equal => and2.7.in0
+net VelX ddt.0.out => hypot.0.in0
+net VelY ddt.1.out => hypot.0.in1
+net FloatSwitchSet flipflop.0.out => or2.3.in1 and2.7.in1
+net ModeIsAuto halui.mode.is-auto => mux2.5.sel
+net VelXY hypot.0.out => minmax.0.in comp.0.in0
+net TriggerEStop logic.0.or => estop-latch.0.fault-in
+net MaximumVelocity minmax.0.max => mult2.1.in0 
+net TurnTorchOn motion.spindle-forward => xor2.0.in0 and2.8.in0 and2.6.in0 mux2.4.sel not.0.in 
+net HeightAdjustment mult2.0.out => mux2.3.in1
+net VelocityThreshold mult2.1.out => comp.0.in1
+net HeightOffset mux2.0.out => sum2.1.in1
+net AdjustmentDirection mux2.1.out => mult2.0.in1
+net PositionSnapshot mux2.2.out => sum2.1.in0 mux2.2.in0
+net SelectedAdjustment mux2.3.out => mux2.0.in1
+net PosZ-cmd mux2.4.out => stepgen.2.position-cmd comp.1.in1
+net PosSelectB mux2.5.out => mux2.4.in0
+net PosSelectC mux2.6.out => mux2.4.in1
+net TurnTorchOff not.0.out => and2.5.in0 or2.7.in0 updown.0.reset
+net ReversedArcOK not.1.out => minmax.0.reset
+net PierceDelayElapsed oneshot.0.out-not => and2.2.in1
+net IgnitionTimer oneshot.1.out => edge.0.in or2.8.in0
+net AdjustHeight or2.0.out => xor2.2.in1 and2.1.in0
+net TakeSnapshot or2.1.out => mux2.2.sel
+net TriggerLimit or2.2.out => axis.2.neg-lim-sw-in axis.2.pos-lim-sw-in axis.2.home-sw-in
+net ProbeOrArcOK or2.3.out => mux2.6.sel 
+net PAFOrArcOK or2.5.out => and2.3.in1
+net EstopOrArcOK or2.6.out => flipflop.0.reset
+# Estop signal handled by simulator, see simulator.hal
+#net ExtEStop parport.0.pin-10-in => logic.0.in-00
+net ExtEStop  => logic.0.in-00
+# Z limit handled by simulator, see simulator.hal
+#net LimitZ parport.0.pin-13-in => or2.2.in0
+net ThresholdPercentage scale.0.out => mult2.1.in1
+net PosZ-fb stepgen.2.position-fb => axis.2.motor-pos-fb mux2.2.in1 comp.1.in0
+net PierceOffset sum2.0.out => mux2.0.in0
+net DestinationHeight sum2.1.out => mux2.6.in1
+net JointAxisDiff sum2.2.out => sum2.3.in1 sum2.4.in1
+net StepCordsTH sum2.3.out => mux2.5.in1
+net StepCordsML sum2.4.out => mux2.6.in0
+net FeedHold xor2.0.out => motion.feed-hold
+net CHLSwitched xor2.2.out => and2.1.in1
+net ArcOKTimer oneshot.2.out => xor2.1.in0
+net PierceLatch flipflop.1.out => mux2.0.sel oneshot.0.in
+net IgnitionCounterS32 updown.0.count => conv-s32-float.0.in
+net IgnitionCounterFloat conv-s32-float.0.out => comp.2.in1
+net IgnitionTimerOff oneshot.1.out-not => updown.0.countup
+net TorchOff not.2.out => flipflop.1.reset
+net TorchTurnedOffOrTimeout or2.7.out => or2.6.in1
+net IgnitionTimeout edge.0.out => or2.7.in1
+net ExtinguishTimer oneshot.3.out edge.1.in
+net ExtinguishLatch flipflop.2.out or2.8.in1
+net ExtinguishTimeout edge.1.out flipflop.2.reset
+net Timers or2.8.out => or2.4.in0 

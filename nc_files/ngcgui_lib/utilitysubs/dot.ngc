@@ -1,0 +1,45 @@
+(dot product for two vectors 1-2 and 3-2 having a common vertex 2)
+(note u=[Ucos[a],Usin[a]], v=[V[cos[b],Vsin[b] then:)
+(     u dot v = U*Vcos[a-b]    phi := a-b        )
+(     u dot v > 0 ==> acute    phi  = [-90, 90]  )
+(     u dot v < 0 ==> obtuse   phi  = [ 90,270]  )
+(     u dot v = 0 ==> right    phi  = 90         )
+
+(return:)
+( _dot:dot scalar product)
+(_dot:ang  [   0,180] angle between vectors -- for cw,ccw determination)
+(_dot:phi  [-180,180] actual angle between vectors)
+(_dot:acu  [   0, 90] acute angle between the extended vectors)
+
+o<dot> sub
+(not_a_subfile)
+#<x1> = #1
+#<y1> = #2
+#<x2> = #3
+#<y2> = #4
+#<x3> = #5
+#<y3> = #6
+
+#<dx1> = [#<x1>-#<x2>]
+#<dy1> = [#<y1>-#<y2>]
+#<dx3> = [#<x3>-#<x2>]
+#<dy3> = [#<y3>-#<y2>]
+
+#<_dot:dot> = [#<dx1>*#<dx3> + #<dy1>*#<dy3>]
+#<magp>     = SQRT[[#<dx1>*#<dx1>+#<dy1>*#<dy1>]*[#<dx3>*#<dx3>+#<dy3>*#<dy3>]]
+#<_dot:ang> = ACOS[#<_dot:dot>/#<magp>]
+
+        #<_dot:phi> = #<_dot:ang>
+o<dot0> if [#<_dot:dot> LT 0]
+          #<_dot:phi> = [ 0 - #<_dot:ang>]
+o<dot0> endif
+
+        #<_dot:acu> = #<_dot:phi>
+o<dot1> if [#<_dot:ang> GT 90]
+          #<_dot:acu> = [180  - #<_dot:ang>]
+o<dot1> endif
+
+(print  dot: #<x1> #<y1> #<x2> #<y2> #<x3> #<y3> magp=#<magp> )
+(print  dot: dot=#<_dot:dot> ang=#<_dot:ang> phi=#<_dot:phi> acu=#<_dot:acu>)
+
+o<dot> endsub

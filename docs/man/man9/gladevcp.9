@@ -1,0 +1,27 @@
+.\"
+.TH gladevcp "9" "2010-08-24" "LinuxCNC Documentation" "HAL Component" 
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+gladevcp \- displays Virtual control Panels built with GTK / GLADE 
+.SH SYNOPSIS
+\fBloadusr gladevcp  [-c componentname0x\fIN\fB] [-g WxH+Xoffset+Yoffset0x\fIN\fB] [-H halcmdfile] [-x windowid] gladefile.glade
+
+.SH DESCRIPTION
+gladevcp parses a glade file and displays the widgets in a window.
+Then calls gladevcp_makepins which again parses the gladefile looking for specific HAL widgets
+then makes HAL pins and sets up updating for them. 
+The HAL component name defaults to the basename of the glade file.
+The -x option directs gladevcp to reparent itself under this X window id instead of creating its own toplevel window.
+The -H option passes an input file for halcmd to be run after the gladevcp component is initialized. This is used in Axis when 
+running gladevcp under a tab with the EMBED_TAB_NAME/EMBED_TAB_COMMAND ini file feature.
+
+gladevcp supports gtkbuilder or libglade files though some widgets are not fully supported in gtkbuilder yet.
+
+.SH ISSUES
+For now system links need to be added in the glade library folders to point to our new widgets and catalog files. look in lib/python/gladevcp/READ_ME for details
+

@@ -1,0 +1,82 @@
+# HAL config file for Pico Systems USC board
+#
+# Connect motion controller I/Os
+#
+
+# connect limit/home switch outputs to motion controller
+net Xminlim <= ppmc.0.din.01.in
+net Xminlim => axis.0.neg-lim-sw-in
+net Xmaxlim <= ppmc.0.din.02.in
+net Xmaxlim => axis.0.pos-lim-sw-in
+net Xhome <= ppmc.0.din.00.in
+net Xhome => axis.0.home-sw-in
+
+net Yminlim <= ppmc.0.din.05.in
+net Yminlim => axis.1.neg-lim-sw-in
+net Ymaxlim <= ppmc.0.din.06.in
+net Ymaxlim => axis.1.pos-lim-sw-in
+net Yhome <= ppmc.0.din.04.in
+net Yhome => axis.1.home-sw-in
+
+net Zminlim <= ppmc.0.din.09.in
+net Zminlim => axis.2.neg-lim-sw-in
+net Zmaxlim <= ppmc.0.din.10.in
+net Zmaxlim => axis.2.pos-lim-sw-in
+net Zhome <= ppmc.0.din.08.in
+net Zhome => axis.2.home-sw-in
+
+net Aminlim <= ppmc.0.din.12.in
+net Aminlim => axis.3.neg-lim-sw-in
+net Amaxlim <= ppmc.0.din.13.in
+net Amaxlim => axis.3.pos-lim-sw-in
+net Ahome <= ppmc.0.din.11.in
+net Ahome => axis.3.home-sw-in
+
+
+# connect index pulses to motion controller
+# uncomment these lines only if you have a Rev 2 USC board
+#newsig Xindex bit
+#newsig Yindex  bit
+#newsig Zindex bit
+#linksp Xindex <= ppmc.0.encoder.00.index-enable
+#linksp Xindex => axis.0.index-enable
+#linksp Yindex <= ppmc.0.encoder.01.index-enable
+#linksp Yindex => axis.1.index-enable
+#linksp Zindex <= ppmc.0.encoder.02.index-enable
+#linksp Zindex => axis.2.index-enable
+
+#
+# Connect I/O controller I/Os
+#
+
+# connect e-stop write/sense to I/O controller
+# and univstep's fault with estop's output, so  estop FF is reset, but
+#      prevent continued estop signal from univstep from holding FF cleared
+net ppmcEstop ppmc.0.din.15.in-not
+net ppmcEstop and2.0.in0
+net EstopOkIn estop-latch.0.fault-in
+net EstopOkIn and2.0.out
+net EstopOkOut <= ppmc.0.dout.07.out
+net EstopOkOut iocontrol.0.emc-enable-in
+net EstopOkOut estop-latch.0.ok-out
+net EstopOkOut and2.0.in1
+net emc-estop-out iocontrol.0.user-enable-out
+net emc-estop-out estop-latch.0.ok-in
+net emc-estop-reset iocontrol.0.user-request-enable
+net emc-estop-reset estop-latch.0.reset
+
+# connect spindle fwd/rev to I/O controller
+net SpindleFwd <= ppmc.0.dout.00.out
+net SpindleFwd => motion.spindle-forward
+net SpindleRev <= ppmc.0.dout.01.out
+net SpindleRev => motion.spindle-reverse
+
+# connect spindle brake to I/O controller
+net SpindleBrakeOn <= ppmc.0.dout.02.out
+net SpindleBrakeOn => motion.spindle-brake
+
+# connect mist/flood coolant to I/O controller
+net MistOn <= ppmc.0.dout.03.out
+net MistOn => iocontrol.0.coolant-mist
+net FloodOn <= ppmc.0.dout.04.out
+net FloodOn => iocontrol.0.coolant-flood

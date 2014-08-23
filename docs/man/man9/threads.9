@@ -1,0 +1,57 @@
+.TH THREADS "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
+.de TQ
+.br
+.ns
+.TP \\$1
+..
+
+.SH NAME
+threads \- creates hard realtime HAL threads
+.SH SYNOPSIS
+\fBloadrt threads name1=\fIname\fB period1=\fIperiod\fR [\fBfp1=\fR<\fB0\fR|\fB1\fR>] [<thread-2-info>] [<thread-3-info>]
+
+.SH DESCRIPTION
+\fBthreads\fR is used to create hard realtime threads which can execute
+HAL functions at specific intervals.  It is not a true HAL component, in
+that it does not export any functions, pins, or parameters of its own.
+Once it has created one or more threads, the threads stand alone, and
+the \fBthreads\fR component can be unloaded without affecting them.  In
+fact, it can be unloaded and then reloaded to create additional threads,
+as many times as needed.
+
+.P
+\fBthreads\fR can create up to three realtime threads.  Threads must be
+created in order, from fastest to slowest.  Each thread is specified by
+three arguments.  \fBname1\fR is used to specify the name of the first
+thread (thread 1).  \fBperiod1\fR is used to specify the period of thread
+1 in nanoseconds.  Both \fIname\fR and \fIperiod\fR are required.  The 
+third argument, \fBfp1\fR is optional, and is used to specify if thread
+1 will be used to execute floating  point code.  If not specified, it
+defaults to \fB1\fR, which means that the thread will support floating
+point.  Specify \fB0\fR to disable floating point support, which saves
+a small amount of execution time by not saving the FPU context.  For
+additional threads, \fBname2\fR, \fBperiod2\fR, \fBfp2\fR, \fBname3\fR,
+\fBperiod3\fR, and \fBfp3\fR work exactly the same.  If more than three
+threads are needed, unload threads, then reload it to create more threads.
+
+.SH FUNCTIONS
+.P
+None
+
+.SH PINS
+.P
+None
+
+.SH PARAMETERS
+.P
+None
+
+.SH BUGS
+.P
+The existence of \fBthreads\fR might be considered a bug.  Ideally, creation
+and deletion of threads would be done directly with \fBhalcmd\fR commands,
+such as "\fBnewthread \fIname period\fR", "\fBdelthread \fIname\fR", or similar.
+However, limitations in the current HAL implementation require thread creation
+to take place in kernel space, and loading a component is the most straightforward
+way to do that.
+

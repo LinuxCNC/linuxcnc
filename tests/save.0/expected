@@ -1,0 +1,28 @@
+# components
+loadrt threads name1=fast period1=100000 
+loadrt stepgen step_type=0 
+loadrt sampler cfg=bb depth=4096 
+# pin aliases
+# param aliases
+# signals
+newsig unlinked bit  
+# nets
+net dir stepgen.0.dir => sampler.0.pin.0
+net step stepgen.0.step => sampler.0.pin.1
+# parameter values
+setp sampler.0.tmax            0
+setp stepgen.0.dirhold   0x00000001
+setp stepgen.0.dirsetup   0x00000001
+setp stepgen.0.maxaccel            2
+setp stepgen.0.maxvel         0.15
+setp stepgen.0.position-scale        32000
+setp stepgen.0.steplen   0x00000001
+setp stepgen.0.stepspace   0x00000001
+setp stepgen.capture-position.tmax            0
+setp stepgen.make-pulses.tmax            0
+setp stepgen.update-freq.tmax            0
+# realtime thread/function links
+addf stepgen.update-freq fast
+addf stepgen.make-pulses fast
+addf stepgen.capture-position fast
+addf sampler.0 fast

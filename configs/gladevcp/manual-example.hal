@@ -1,0 +1,45 @@
+# we want:
+
+# the status table and children: always on
+# the settings table to be active as soon as we are out of estop
+# the commands table to be active when the machine is on
+
+
+setp gladevcp.status 1
+
+# create a 'estop-is-deactivated' signal
+loadrt not names=estop-not
+addf estop-not servo-thread
+net estop halui.estop.is-activated => estop-not.in
+
+# and activate the settings box when estop is off
+net estop-inactive estop-not.out => gladevcp.settings
+
+# activate the commands HAL table and all its children when the machine is on
+net machine-on halui.machine.is-on => gladevcp.commands
+
+
+# show the current spindle speed in the top hoizontal bar
+net spindle-speed motion.spindle-speed-out => gladevcp.spindle-rpm-hbar
+
+# the first and second labels show prepared and current tool
+unlinkp iocontrol.0.tool-prep-number
+unlinkp hal_manualtoolchange.number
+
+net tool-prepared iocontrol.0.tool-prep-number => gladevcp.prepared-tool hal_manualtoolchange.number
+net tool-number iocontrol.0.tool-number => gladevcp.current-tool
+
+net cb1     gladevcp.check  => gladevcp.led1
+net b1      gladevcp.button => gladevcp.led2
+net tb1     gladevcp.toggle => gladevcp.led3
+net rb1     gladevcp.radio1 => gladevcp.led4
+net rb2     gladevcp.radio2 => gladevcp.led5
+net rb3     gladevcp.radio3 => gladevcp.led6
+net hscale1    gladevcp.scale   => gladevcp.scale-value
+net combobox1  gladevcp.combo-s => gladevcp.combo-value
+net spin1      gladevcp.spin-f  => gladevcp.spin-value
+
+# the MDI Toggle action is called with the values of some of the HAL pins
+# as parameters like so:
+
+# O<oword> call [${spin-f}] [${check}] [${toggle}] [${scale}] [${spin-f}]  [${combo-s}]

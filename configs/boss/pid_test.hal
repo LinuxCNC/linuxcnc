@@ -1,0 +1,390 @@
+# HAL config file for Bridgeport BOSS.
+#
+# Load the core RT modules that will be needed.
+
+# Kinematics
+loadrt trivkins
+
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+
+# PID module, for four PID loops
+loadrt at_pid num_chan=4
+
+# Install motenc driver.
+loadrt hal_motenc
+
+# Install PLC.
+loadrt boss_plc
+
+# Install debounce filters for operator console (cycle hold/start,
+# limit override, spindle increase/decrease/status).
+loadrt debounce cfg="6"
+
+# Load muxes for motion feedback and PID command.
+loadrt mux2 count=8
+
+# Load differentiators for debug.
+loadrt ddt count=3
+
+# Load the signal generator module for tuning.
+loadrt siggen
+
+# Add functions to servo thread so they will be evaluated
+# every servo period.
+#
+# Inputs are read at the beginning of the thread
+addf mux2.0 servo-thread 1
+addf debounce.0 servo-thread 1
+addf motenc.0.encoder-read servo-thread 1
+addf motenc.0.misc-update servo-thread 1
+#addf motenc.0.adc-read servo-thread 1
+addf motenc.0.digital-in-read servo-thread 1
+addf siggen.0.update servo-thread 1
+# Do processing.
+addf boss_plc.0.refresh servo-thread -1
+addf motion-command-handler servo-thread -1
+addf motion-controller servo-thread -1
+addf pid.0.do-pid-calcs servo-thread -1
+addf pid.1.do-pid-calcs servo-thread -1
+addf pid.2.do-pid-calcs servo-thread -1
+addf pid.3.do-pid-calcs servo-thread -1
+# Outputs are updated at the end of the thread
+addf motenc.0.dac-write servo-thread -1
+addf motenc.0.digital-out-write servo-thread -1
+addf ddt.0 servo-thread -1
+addf ddt.1 servo-thread -1
+addf ddt.2 servo-thread -1
+
+# PID loops.
+#
+# Get maximum (and minimum) output volts from ini file.
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+setp pid.3.maxoutput [AXIS_3]MAX_OUTPUT
+
+# Set PID loop output limits.
+setp pid.0.maxoutput [AXIS_0]MAX_VELOCITY
+setp pid.1.maxoutput [AXIS_1]MAX_VELOCITY
+setp pid.2.maxoutput [AXIS_2]MAX_VELOCITY
+setp pid.3.maxoutput [AXIS_3]MAX_VELOCITY
+
+# Set PID loop gains.
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.maxerrorI [AXIS_0]MAX_ERROR_I
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+# deadband should be just over 1 count
+setp pid.0.deadband [AXIS_0]DEADBAND
+setp pid.0.tune-effort [AXIS_0]TUNE_EFFORT
+setp pid.0.tune-cycles [AXIS_0]TUNE_CYCLES
+setp pid.0.tune-type [AXIS_0]TUNE_TYPE
+
+setp pid.1.Pgain [AXIS_1]P
+setp pid.1.Igain [AXIS_1]I
+setp pid.1.maxerrorI [AXIS_1]MAX_ERROR_I
+setp pid.1.Dgain [AXIS_1]D
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
+# deadband should be just over 1 count
+setp pid.1.deadband [AXIS_1]DEADBAND
+setp pid.1.tune-effort [AXIS_1]TUNE_EFFORT
+setp pid.1.tune-cycles [AXIS_1]TUNE_CYCLES
+setp pid.1.tune-type [AXIS_1]TUNE_TYPE
+
+setp pid.2.Pgain [AXIS_2]P
+setp pid.2.Igain [AXIS_2]I
+setp pid.2.Dgain [AXIS_2]D
+setp pid.2.maxerrorI [AXIS_2]MAX_ERROR_I
+setp pid.2.bias [AXIS_2]BIAS
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
+# deadband should be just over 1 count
+setp pid.2.deadband [AXIS_2]DEADBAND
+setp pid.2.tune-effort [AXIS_2]TUNE_EFFORT
+setp pid.2.tune-cycles [AXIS_2]TUNE_CYCLES
+setp pid.2.tune-type [AXIS_2]TUNE_TYPE
+
+setp pid.3.Pgain [AXIS_3]P
+setp pid.3.Igain [AXIS_3]I
+setp pid.3.Dgain [AXIS_3]D
+setp pid.3.maxerrorI [AXIS_3]MAX_ERROR_I
+setp pid.3.bias [AXIS_3]BIAS
+setp pid.3.FF0 [AXIS_3]FF0
+setp pid.3.FF1 [AXIS_3]FF1
+setp pid.3.FF2 [AXIS_3]FF2
+# deadband should be just over 1 count
+setp pid.3.deadband [AXIS_3]DEADBAND
+setp pid.3.tune-effort [AXIS_3]TUNE_EFFORT
+setp pid.3.tune-cycles [AXIS_3]TUNE_CYCLES
+setp pid.3.tune-type [AXIS_3]TUNE_TYPE
+
+# Connect the enable signals to the PID blocks.
+net xEnable axis.0.amp-enable-out => pid.0.enable
+net yEnable axis.1.amp-enable-out => pid.1.enable
+net zEnable axis.2.amp-enable-out => pid.2.enable
+net aEnable axis.3.amp-enable-out => pid.3.enable
+
+# Set siggen parameters.
+setp siggen.0.frequency 0.5
+setp siggen.0.offset 0
+setp siggen.0.amplitude 0.01
+
+# Connect position commands to PID inputs.
+net xPosCmd axis.0.motor-pos-cmd =>  mux2.4.in0
+net yPosCmd axis.1.motor-pos-cmd =>  mux2.5.in0
+net zPosCmd axis.2.motor-pos-cmd =>  mux2.6.in0
+net aPosCmd axis.3.motor-pos-cmd =>  mux2.7.in0
+
+net squareWave siggen.0.square => mux2.4.in1
+net squareWave => mux2.5.in1
+net squareWave => mux2.6.in1
+net squareWave => mux2.7.in1
+
+net xPidPosCmd mux2.4.out => pid.0.command
+net yPidPosCmd mux2.5.out => pid.1.command
+net zPidPosCmd mux2.6.out => pid.2.command
+net aPidPosCmd mux2.7.out => pid.3.command
+
+net xTestMode => mux2.4.sel
+net yTestMode => mux2.5.sel
+net zTestMode => mux2.6.sel
+net aTestMode => mux2.7.sel
+
+# Connect signals to auto-tune pins.
+net xStartTune pid.0.tune-start
+net xTuneMode pid.0.tune-mode
+net yStartTune pid.1.tune-start
+net yTuneMode pid.1.tune-mode
+net zStartTune pid.2.tune-start
+net zTuneMode pid.2.tune-mode
+net aStartTune pid.3.tune-start
+net aTuneMode pid.3.tune-mode
+
+# DACs
+#
+# Set DAC output scaling from ini file.
+setp motenc.0.dac-01-gain [AXIS_0]OUTPUT_SCALE
+setp motenc.0.dac-03-gain [AXIS_1]OUTPUT_SCALE
+setp motenc.0.dac-02-gain [AXIS_2]OUTPUT_SCALE
+setp motenc.0.dac-00-gain [AXIS_3]OUTPUT_SCALE
+
+# Set DAC offset from ini file.
+setp motenc.0.dac-01-offset [AXIS_0]OUTPUT_OFFSET
+setp motenc.0.dac-03-offset [AXIS_1]OUTPUT_OFFSET
+setp motenc.0.dac-02-offset [AXIS_2]OUTPUT_OFFSET
+setp motenc.0.dac-00-offset [AXIS_3]OUTPUT_OFFSET
+
+# Connect PID output signals to DACs.
+net xOutput pid.0.output => motenc.0.dac-01-value
+net yOutput pid.1.output => motenc.0.dac-03-value
+net zOutput pid.2.output => motenc.0.dac-02-value
+net aOutput pid.3.output => motenc.0.dac-00-value
+
+net zPosCmd ddt.0.in
+net zVelCmd ddt.0.out => ddt.1.in
+net zAccCmd ddt.1.out
+net zOutput ddt.2.in
+net zPidAccCmd ddt.2.out
+
+# Encoders.
+#
+# Set feedback scaling from ini file.
+setp motenc.0.enc-01-scale [AXIS_0]INPUT_SCALE 
+setp motenc.0.enc-03-scale [AXIS_1]INPUT_SCALE 
+setp motenc.0.enc-02-scale [AXIS_2]INPUT_SCALE 
+setp motenc.0.enc-00-scale [AXIS_3]INPUT_SCALE 
+
+# Connect position feedback to PID loop.
+net xMotorPosFb motenc.0.enc-01-position => pid.0.feedback
+net yMotorPosFb motenc.0.enc-03-position => pid.1.feedback
+net zMotorPosFb motenc.0.enc-02-position => pid.2.feedback
+net aMotorPosFb motenc.0.enc-00-position => pid.3.feedback
+
+# Connect position feedback to motion module.
+net xMotorPosFb => mux2.0.in0
+net yMotorPosFb => mux2.1.in0
+net zMotorPosFb => mux2.2.in0
+net aMotorPosFb => mux2.3.in0
+
+net xPosCmd => mux2.0.in1
+net yPosCmd => mux2.1.in1
+net zPosCmd => mux2.2.in1
+net aPosCmd => mux2.3.in1
+
+net xPosFb mux2.0.out => axis.0.motor-pos-fb
+net yPosFb mux2.1.out => axis.1.motor-pos-fb
+net zPosFb mux2.2.out => axis.2.motor-pos-fb
+net aPosFb mux2.3.out => axis.3.motor-pos-fb
+
+net xTuneMode => mux2.0.sel
+net yTuneMode => mux2.1.sel
+net zTuneMode => mux2.2.sel
+net aTuneMode => mux2.3.sel
+
+# Connect position feedback to PLC.
+net xMotorPosFb => boss_plc.0.x-position-in
+net yMotorPosFb => boss_plc.0.y-position-in
+
+# Connect index pulses to motion controller.
+net xIndex motenc.0.enc-01-index-enable <=> axis.0.index-enable
+net yIndex motenc.0.enc-03-index-enable <=> axis.1.index-enable
+net zIndex motenc.0.enc-02-index-enable <=> axis.2.index-enable
+net aIndex motenc.0.enc-00-index-enable <=> axis.3.index-enable
+
+# Limits.
+#
+# Connect limit/home switch inputs to PLC and motion controller.
+net xLimitSw motenc.0.in-09 => boss_plc.0.x-limit-in
+net xLimitSw => axis.0.home-sw-in
+net yLimitSw motenc.0.in-13 => boss_plc.0.y-limit-in
+net yLimitSw => axis.1.home-sw-in
+net zMinlimSw motenc.0.in-26 => boss_plc.0.z-limit-neg-in
+net zMaxlimSw motenc.0.in-25 => boss_plc.0.z-limit-pos-in
+net zHome motenc.0.in-27 => axis.2.home-sw-in
+
+# Connect PLC limit switch outputs to motion controller.
+net xMinLim boss_plc.0.x-limit-neg-out => axis.0.neg-lim-sw-in
+net xMaxLim boss_plc.0.x-limit-pos-out => axis.0.pos-lim-sw-in
+net yMinLim boss_plc.0.y-limit-neg-out => axis.1.neg-lim-sw-in
+net yMaxLim boss_plc.0.y-limit-pos-out => axis.1.pos-lim-sw-in
+net zMinLim boss_plc.0.z-limit-neg-out => axis.2.neg-lim-sw-in
+net zMaxLim boss_plc.0.z-limit-pos-out => axis.2.pos-lim-sw-in
+
+# Amp enables/faults.
+#
+# Connect amp ready to PLC.
+net xReady motenc.0.in-08 => boss_plc.0.x-amp-ready-in
+net yReady motenc.0.in-12 => boss_plc.0.y-amp-ready-in
+net zReady motenc.0.in-24 => boss_plc.0.z-amp-ready-in
+net aReady motenc.0.in-28 => boss_plc.0.a-amp-ready-in
+
+# Connect amp enables to I/O.
+net xEnable => motenc.0.out-00
+net yEnable => motenc.0.out-01
+net zEnable => motenc.0.out-08
+net aEnable => motenc.0.out-09
+
+# Connect amp enables to PLC.
+net xEnable => boss_plc.0.x-amp-enable-in
+net yEnable => boss_plc.0.y-amp-enable-in
+net zEnable => boss_plc.0.z-amp-enable-in
+net aEnable => boss_plc.0.a-amp-enable-in
+
+# Connect amp faults to motion controller.
+net xFault boss_plc.0.x-amp-fault-out => axis.0.amp-fault-in
+net yFault boss_plc.0.y-amp-fault-out => axis.1.amp-fault-in
+net zFault boss_plc.0.z-amp-fault-out => axis.2.amp-fault-in
+net aFault boss_plc.0.a-amp-fault-out => axis.3.amp-fault-in
+
+# Spindle.
+#
+# Connect spindle speed to PLC and spindle fwd/rev/stat to I/O.
+net spindleSpeed motion.spindle-speed-out => boss_plc.0.spindle-speed-in
+net spindleFwd boss_plc.0.spindle-fwd-out => motenc.0.out-11
+net spindleRev boss_plc.0.spindle-rev-out => motenc.0.out-12
+net spindleIsOnSw motenc.0.in-29-not => debounce.0.5.in
+net spindleIsOn debounce.0.5.out => boss_plc.0.spindle-is-on-in
+
+# Connect spindle brake to PLC and PLC brake to I/O.
+setp boss_plc.0.brake-on-delay 500
+setp boss_plc.0.brake-off-delay 800
+net spindleBrakeOnMot motion.spindle-brake => boss_plc.0.brake-en-in
+net spindleBrakeOn boss_plc.0.brake-en-out => motenc.0.out-02
+
+# Tool change.
+#
+# Loop back tool prepare pins.
+net toolPrepare iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+
+# Connect tool change pins to PLC.
+net toolChange iocontrol.0.tool-change => boss_plc.0.tool-change-in
+net toolChanged boss_plc.0.tool-changed-out => iocontrol.0.tool-changed
+
+# Coolant.
+#
+# Connect mist/flood coolant to I/O.
+net mistOn iocontrol.0.coolant-mist => motenc.0.out-14
+net floodOn iocontrol.0.coolant-flood => motenc.0.out-15
+
+# Lube.
+#
+# Connect lube motor run to I/O.
+net lubeOn iocontrol.0.lube => motenc.0.out-13
+#net lubeOn motion.spindle-on => motenc.0.out-13
+
+# Connect lube level to I/O.
+net lubeLevel motenc.0.in-30-not => iocontrol.0.lube_level
+
+# Operator console.
+#
+# Set debounce time.
+setp debounce.0.delay 20
+
+# Connect e-stop I/O.
+net eStopSense motenc.0.in-32 => iocontrol.0.emc-enable-in
+net eStopWrite iocontrol.0.user-enable-out => motenc.0.out-16
+
+# Connect cycle hold/start.
+net cycleHoldSw motenc.0.in-33-not => debounce.0.0.in
+net cycleHold debounce.0.0.out => boss_plc.0.cycle-hold-in
+net cycleStartSw motenc.0.in-34 => debounce.0.1.in
+net cycleStart debounce.0.1.out => boss_plc.0.cycle-start-in
+net feedHold boss_plc.0.feed-hold-out => motion.feed-hold
+net waitUser boss_plc.0.wait-user-out => motenc.0.out-17
+
+# Connect speed overrides.
+net spindleIncSw motenc.0.enc-04-index => debounce.0.2.in
+net spindleIncDb debounce.0.2.out => boss_plc.0.spindle-inc-in
+net spindleInc boss_plc.0.spindle-inc-out => motenc.0.out-03
+net spindleDecSw motenc.0.enc-06-index => debounce.0.3.in
+net spindleDecDb debounce.0.3.out => boss_plc.0.spindle-dec-in
+net spindleDec boss_plc.0.spindle-dec-out => motenc.0.out-04
+
+# Connect limit override.
+net limitOverrideSw motenc.0.in-35-not => debounce.0.4.in
+net limitOverride debounce.0.4.out => boss_plc.0.limit-override-in
+net limitActive boss_plc.0.limit-active-out => motenc.0.out-18
+
+# Connect rapid/feed overrides.
+net adaptiveFeed boss_plc.0.adaptive-feed-out => motion.adaptive-feed
+setp halui.feed-override.scale 0.01
+net feedOverride motenc.0.enc-04-count => halui.feed-override.counts
+#net rapidOverride motenc.0.enc-06-count => halui.rapid-override.counts
+
+# Set the jog mode so motion stops as soon as the wheel stops.
+setp axis.0.jog-vel-mode TRUE
+setp axis.1.jog-vel-mode TRUE
+setp axis.2.jog-vel-mode TRUE
+setp axis.3.jog-vel-mode TRUE
+
+# Connect jog axis select to motion controller and PLC.
+net xJog motenc.0.in-40 => axis.0.jog-enable
+net yJog motenc.0.in-41 => axis.1.jog-enable
+net zJog motenc.0.in-42 => axis.2.jog-enable
+net aJog motenc.0.in-43 => axis.3.jog-enable
+net xJog => boss_plc.0.x-jog-en-in
+net yJog => boss_plc.0.y-jog-en-in
+net zJog => boss_plc.0.z-jog-en-in
+
+# Connect jog wheel encoder.
+net jogCounts motenc.0.enc-05-count => axis.0.jog-counts axis.1.jog-counts axis.2.jog-counts axis.3.jog-counts
+
+# Connect jog scale selects to PLC.
+setp boss_plc.0.jog-scale-0 0.000001
+setp boss_plc.0.jog-scale-1 0.000010
+setp boss_plc.0.jog-scale-2 0.000100
+net jogScaleSel0 motenc.0.in-36 => boss_plc.0.jog-sel-in-0
+net jogScaleSel1 motenc.0.in-37 => boss_plc.0.jog-sel-in-1
+net jogScaleSel2 motenc.0.in-38 => boss_plc.0.jog-sel-in-2
+
+# Connect PLC jog scale output.
+net jogScale boss_plc.0.jog-scale-out => axis.0.jog-scale axis.1.jog-scale axis.2.jog-scale axis.3.jog-scale

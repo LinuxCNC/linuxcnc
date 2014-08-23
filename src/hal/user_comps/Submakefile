@@ -1,0 +1,36 @@
+USER_COMP_PY = pyvcp hal_input gladevcp
+
+$(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -c 'import sys; compile(open(sys.argv[1]).read(), sys.argv[1], "exec")' $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
+
+MODBUSSRCS := hal/user_comps/gs2_vfd.c\
+	hal/user_comps/modbus.c
+MODBUSLDFLAGS := $(GLIB_LIBS)
+MODBUSCCFLAGS := $(GLIB_CFLAGS)
+USERSRCS += $(MODBUSSRCS)
+
+ $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
+
+../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(MODBUSLDFLAGS)
+TARGETS += ../bin/gs2_vfd
+
+ifeq ($(HIDRAW_H_USABLE),yes)
+SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
+USERSRCS += $(SHUTTLEXPRESS_SRC)
+../bin/shuttlexpress: $(call TOOBJS, $(SHUTTLEXPRESS_SRC)) ../lib/liblinuxcnchal.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+TARGETS += ../bin/shuttlexpress
+endif
+
+../include/%.h: ./hal/user_comps/%.h
+	cp $^ $@
+../include/%.hh: ./hal/user_comps/%.hh
+	cp $^ $@

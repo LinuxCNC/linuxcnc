@@ -1,0 +1,13 @@
+############################# Parallel Ports ##############################################
+
+# Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
+
+# Connect both Paralell Ports to Threads for Read / Write
+
+# Invert pins to make motors move in right direction
+
+# Axis A and Y are the same axis but different motors 
+
+# Hook up limit and home switches, each axis shares a common pin for homing, limit min and limit max
+# Limit switches handled by simulator code, see simulator.hal
+# Z axis Limit switch handled by THC, see thc.hal

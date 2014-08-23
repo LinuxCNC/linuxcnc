@@ -1,0 +1,9 @@
+(debug, pre <fail>)
+o<fail> sub
+(debug, pre divide-by-zero)
+#100 = [1/0]
+(debug, post divide-by-zero)
+o<fail> endsub
+(debug, post <fail>)
+m2
+

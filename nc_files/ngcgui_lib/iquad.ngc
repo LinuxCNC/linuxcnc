@@ -1,0 +1,179 @@
+(inside quadrangle, vertex 1 should be largest)
+(computes direction for polygon cw or ccw and swaps indices if required)
+(ok for non-pathological 4 sided polygons including convex)
+
+(info: iquad: internal quadrilateral, four x,y points, cw/ccw dir, radius comp)
+o<iquad>  sub
+
+#<toolno>   =  #1 (=1)
+#<rpm>      =  #2 (=1)
+#<dir>      =  #3 (=2 2conv|3climb)
+#<feedrate> =  #4 (=10)
+#<cutdepth> =  #5 (=.1)
+#<zincr>    =  #6 (=.02)
+#<zsafe>    =  #7 (=0.2)
+#<zstart>   =  #8 (=0)
+#<x1>       =  #9
+#<y1>       = #10
+#<x2>       = #11
+#<y2>       = #12
+#<x3>       = #13
+#<y3>       = #14
+#<x4>       = #15
+#<y4>       = #16
+#<scale>    = #17 (=1)
+#<rotate>   = #18 (=0)
+#<xoff>     = #19 (=0)
+#<yoff>     = #20 (=0)
+#<spin_notify> = #21 (=0)
+#<use_g43>     = #22 (=1)
+#<h_for_g43>   = #23 (=0)
+#<verbose>     = #24 (=0)
+
+o<i0> if [#<scale> EQ 0]
+        #<scale> = 1.0
+        (debug, scale was 0, setting #<scale>)
+o<i0> endif
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam> =  [#5410 + .001]
+
+o<l00> if [[#<dir> NE 2] AND [#<dir> NE 3]]
+         (debug, iquad: bad direction #<dir> - EXITING)
+         (print, iquad: bad direction #<dir> - EXITING)
+         (AXIS,notify, iquad: bad direction - EXITING)
+         m2
+o<l00> endif
+
+       (compute direction eg cw,ccw for points as specified:)
+o<dir> call [4][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>]
+       #<pointsdir> = #<_dir:>
+
+o<l20> if [#<pointsdir> NE #<dir>]
+         (print  swap for pointsdir=#<pointsdir> user:#<dir>)
+         (swap 1234 --> 1432)
+         #<xt> = #<x2>
+         #<yt> = #<y2>
+         #<x2> = #<x4>
+         #<y2> = #<y4>
+         #<x4> = #<xt>
+         #<y4> = #<yt>
+o<l20> endif
+
+(apply scale, rotate, then offset to all input points)
+o<move> call [#<x1>][#<y1>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x1>      = #<_move:x>
+#<y1>      = #<_move:y>
+o<move> call [#<x2>][#<y2>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x2>      = #<_move:x>
+#<y2>      = #<_move:y>
+o<move> call [#<x3>][#<y3>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x3>      = #<_move:x>
+#<y3>      = #<_move:y>
+o<move> call [#<x4>][#<y4>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x4>      = #<_move:x>
+#<y4>      = #<_move:y>
+
+#<r>        = [#<tooldiam>/2]
+#<cutdepth> = [0 - #<cutdepth>]
+#<zincr>    = [0 - #<zincr>]
+
+         (get lengths and angles for connecting lines)
+o<line>  call [#<x1>][#<y1>][#<x2>][#<y2>]
+         #<cos12>    = #<_line:cos>
+         #<sin12>    = #<_line:sin>
+o<line>  call [#<x2>][#<y2>][#<x3>][#<y3>]
+         #<cos23>    = #<_line:cos>
+         #<sin23>    = #<_line:sin>
+
+         (compute angles at line interesctions:)
+o<dot>   call [#<x4>][#<y4>][#<x1>][#<y1>][#<x2>][#<y2>]
+         #<ang412> = #<_dot:ang>
+o<dot>   call [#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>]
+         #<ang123> = #<_dot:ang>
+
+         g40 (cutter radius compensation off)
+         f #<feedrate>
+         s #<rpm> m3 (spindle cw)
+o<if1>   if [#<spin_notify> GT 0]
+o<spin>    call [#<rpm>]
+o<if1>   endif
+         g0 z#<zsafe>
+         #<zcurrent> = #<zstart>
+         #<pass>     = 1
+
+o<wh010> while [#<zcurrent> GT #<cutdepth>]
+             #<zcurrent> = [#<zcurrent> + #<zincr>]
+o<wh020>   if [#<zcurrent> LT #<cutdepth>]
+             #<zcurrent> = #<cutdepth>
+o<wh020>   endif
+o<wh030>   if [#<pass> GT 100]
+             (debug, iquad: too many passes - EXITING)
+             (print, iquad: too many passes - EXITING)
+             (AXIS,notify, iquad: too many passes - EXITING)
+             m2
+o<wh030>   endif
+
+o<pas00>   if [#<pass> EQ 1]
+             (entry point:)
+             (for acute angle: go along the  1-->2 line to enter)
+             (at a point where tool will fit)
+
+             #<elen12>  = [     #<r> / [TAN[#<ang412>/2]]]
+             #<k12>     = [#<elen12> / #<r>]
+             (print  entry 12 k=#<k12> elen12=#<elen12> angle=#<angle>)
+             #<ax>      = [#<x1> +  #<elen12> * #<cos12>]
+             #<ay>      = [#<y1> +  #<elen12> * #<sin12>]
+             (compute pre-entry points:)
+o<dir00>     if [#<dir> EQ 2]
+               #<bx>  = [#<ax> + #<r> * #<sin12> - #<r> * #<cos12>]
+               #<by>  = [#<ay> - #<r> * #<cos12> - #<r> * #<sin12>]
+               #<cx>  = [#<bx> + #<r> * #<cos12>]
+               #<cy>  = [#<by> + #<r> * #<sin12>]
+               #<vx>  = [        #<r> * #<cos12>]
+               #<vy>  = [        #<r> * #<sin12>]
+o<dir00>     else (dir EQ 3 CCW)
+               #<bx>  = [#<ax> - #<r> * #<sin12> - #<r> * #<cos12>]
+               #<by>  = [#<ay> + #<r> * #<cos12> - #<r> * #<sin12>]
+               #<cx>  = [#<bx> +     #<r> * #<cos12>]
+               #<cy>  = [#<by> +     #<r> * #<sin12>]
+               #<vx>  = [            #<r> * #<cos12>]
+               #<vy>  = [            #<r> * #<sin12>]
+o<dir00>     endif
+             g0  x #<cx> y #<cy> (preentry 1)
+             g0  x #<bx> y #<by> (preentry 2)
+o<dir10>     if [#<dir> EQ 2]
+/              g42 (cutter radius comp right of path)
+               g2  x #<ax> y #<ay> i #<vx> j #<vy> (arc entry)
+o<dir10>     else (dir EQ 3 CCW)
+/              g41 (cutter radius comp left of path)
+               g3  x #<ax> y #<ay> i #<vx> j #<vy> (arc entry)
+o<dir10>     endif
+             #<xfinal_a> = #<x2>
+             #<yfinal_a> = #<y2>
+             (rampdown finishes at point 2, to exit: need to turn corner at 2)
+             (and go along the 2-->3 line enough to exit)
+             #<elen23>  = [     #<r> / [TAN[#<ang123>/2]]]
+             #<k23>     = [#<elen23> / #<r>]
+             (print  exit 23 k=#<k23> elen23=#<elen23> angle=#<ang123>)
+
+             (need a test here: if you go along 23 too far you gouge vertex 3)
+             #<xfinal_b> = [#<x2> + #<elen23> * #<cos23>]
+             #<yfinal_b> = [#<y2> + #<elen23> * #<sin23>]
+             g1 z #<zstart> (plunge to start height todo:g0)
+o<pas00>   endif
+           x #<x2> y #<y2> z#<zcurrent> (ramp down to zcurrent)
+           x #<x3> y #<y3>
+           x #<x4> y #<y4>
+           x #<x1> y #<y1>
+           #<pass> = [#<pass> + 1]
+o<wh010> endwhile
+         (print  a= #<xfinal_a> #<yfinal_a> k=#<k23>)
+         (print  b= #<xfinal_b> #<yfinal_b>)
+
+         g1 x #<xfinal_a> y #<yfinal_a>
+         g1 x #<xfinal_b> y #<yfinal_b>
+
+         g0 z #<zsafe>
+         g40
+o<iquad> endsub

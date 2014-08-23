@@ -1,0 +1,69 @@
+# counting the spindle encoder in software
+loadrt encoder names=encoder_0
+# simulate the encoder
+loadrt sim_encoder names=sim_encoder_0
+loadrt limit2 names=limit_speed
+
+addf limit_speed servo-thread
+
+#######################################################
+# Beginning of threading related stuff
+#######################################################
+
+# spindle speed control
+net spindle-speed-cmd  motion.spindle-speed-out => limit_speed.in
+net spindle-speed-limited limit_speed.out => sim_encoder_0.speed
+
+# simulate spindle mass
+setp limit_speed.maxv 500.0 # rpm/second
+
+# spindle encoder
+# connect encoder signals to encoder counter
+net spindle-phase-A sim_encoder_0.phase-A => encoder_0.phase-A
+net spindle-phase-B sim_encoder_0.phase-B => encoder_0.phase-B
+net spindle-phase-Z sim_encoder_0.phase-Z => encoder_0.phase-Z
+
+# assume 120 ppr = 480 counts/rev for the spindle
+setp sim_encoder_0.ppr 120
+# iocontrol output is in rpm, but sim-encoder speed is rps
+setp sim_encoder_0.scale 60
+# scale encoder output to read in revolutions
+# (that way thread pitches can be straightforward,
+#  a 20 tpi thread would multiply the encoder output
+#  by 1/20, etc)
+setp encoder_0.position-scale 480
+
+# encoder reset control
+# hook up motion controller's sync output
+net spindle-index-enable motion.spindle-index-enable <=> encoder_0.index-enable
+
+# report our revolution count to the motion controller
+net spindle-pos encoder_0.position => motion.spindle-revs
+
+# for spindle velocity estimate
+loadrt lowpass names=lowpass_velocity
+loadrt scale names=scale_to_rpm
+net spindle-rps-raw encoder_0.velocity lowpass_velocity.in
+net spindle-rps-filtered lowpass_velocity.out scale_to_rpm.in motion.spindle-speed-in
+net spindle-rpm-filtered scale_to_rpm.out
+setp scale_to_rpm.gain 60
+setp lowpass_velocity.gain .07
+addf lowpass_velocity servo-thread
+addf scale_to_rpm servo-thread
+
+# for at-speed detection
+loadrt near names=near_speed
+addf near_speed servo-thread
+setp near_speed.scale 1.1
+setp near_speed.difference 10
+net spindle-speed-cmd => near_speed.in1
+net spindle-rpm-filtered => near_speed.in2
+net spindle-at-speed near_speed.out motion.spindle-at-speed
+
+net  spindle-fwd <= motion.spindle-forward
+
+addf encoder.capture-position servo-thread
+addf sim-encoder.update-speed servo-thread
+
+addf sim-encoder.make-pulses    base-thread
+addf encoder.update-counters    base-thread

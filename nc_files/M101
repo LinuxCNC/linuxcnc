@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# M101 in your G code program will run the Linux commands in this
+# shell script "batch" file, passing the P and Q variables as command
+# line arguments.
+
+# give the command line arguments descriptive names
+P=$1
+Q=$2
+
+echo "M101 P$P Q$Q: put your code here"
+
+exit 0

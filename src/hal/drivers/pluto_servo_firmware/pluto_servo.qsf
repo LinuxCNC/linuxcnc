@@ -1,0 +1,103 @@
+#     This is a component of pluto_servo, a PWM servo driver and quadrature
+#     counter for emc2
+#     Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+# 
+#     This program is free software; you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation; either version 2 of the License, or
+#     (at your option) any later version.
+# 
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+# 
+#     You should have received a copy of the GNU General Public License
+#     along with this program; if not, write to the Free Software
+#     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+set_global_assignment -name ALLOW_ANY_ROM_SIZE_FOR_RECOGNITION ON
+set_global_assignment -name ALLOW_ANY_SHIFT_REGISTER_SIZE_FOR_RECOGNITION ON
+set_global_assignment -name ALLOW_POWER_UP_DONT_CARE OFF
+set_global_assignment -name AUTO_IMPLEMENT_IN_ROM ON
+set_global_assignment -name AUTO_PACKED_REGISTERS "MINIMIZE AREA"
+set_global_assignment -name DEVICE "EP1K10TC100-3"
+set_global_assignment -name ENABLE_INIT_DONE_OUTPUT OFF
+set_global_assignment -name FAMILY ACEX1K
+set_global_assignment -name FMAX_REQUIREMENT "40 MHz"
+set_global_assignment -name FMAX_REQUIREMENT "40 MHz" -section_id clk
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name IGNORE_CASCADE_BUFFERS ON
+set_global_assignment -name IGNORE_CLOCK_SETTINGS OFF
+set_global_assignment -name IGNORE_LCELL_BUFFERS ON
+set_global_assignment -name LAST_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name MESSAGE_SUPPRESSION_RULE_FILE pluto_servo.srf
+set_global_assignment -name OPTIMIZE_HOLD_TIMING OFF
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION "6.0 SP1"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "08:32:07  NOVEMBER 25, 2006"
+set_global_assignment -name REMOVE_REDUNDANT_LOGIC_CELLS ON
+set_global_assignment -name SLOW_SLEW_RATE OFF
+set_global_assignment -name SMART_RECOMPILE OFF
+set_global_assignment -name STATE_MACHINE_PROCESSING AUTO
+set_global_assignment -name TOP_LEVEL_ENTITY pluto_servo
+set_instance_assignment -name CLOCK_SETTINGS clk -to clk
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to dout
+set_instance_assignment -name POWER_UP_LEVEL LOW -to *
+set_location_assignment PIN_5 -to din[3]
+set_location_assignment PIN_8 -to din[2]
+set_location_assignment PIN_9 -to din[4]
+set_location_assignment PIN_10 -to din[5]
+set_location_assignment PIN_13 -to din[6]
+set_location_assignment PIN_14 -to down[3]
+set_location_assignment PIN_15 -to down[2]
+set_location_assignment PIN_16 -to din[7]
+set_location_assignment PIN_19 -to din[0]
+set_location_assignment PIN_20 -to down[0]
+set_location_assignment PIN_21 -to up[0]
+set_location_assignment PIN_22 -to up[1]
+set_location_assignment PIN_23 -to down[1]
+set_location_assignment PIN_26 -to up[2]
+set_location_assignment PIN_27 -to up[3]
+set_location_assignment PIN_28 -to quadA[0]
+set_location_assignment PIN_29 -to quadB[0]
+set_location_assignment PIN_38 -to quadZ[0]
+set_location_assignment PIN_39 -to quadA[1]
+set_location_assignment PIN_40 -to quadB[1]
+set_location_assignment PIN_43 -to quadZ[1]
+set_location_assignment PIN_45 -to quadA[2]
+set_location_assignment PIN_46 -to quadB[2]
+set_location_assignment PIN_47 -to quadZ[2]
+set_location_assignment PIN_48 -to dout[0]
+set_location_assignment PIN_49 -to nConfig
+set_location_assignment PIN_50 -to led
+set_location_assignment PIN_55 -to quadA[3]
+set_location_assignment PIN_56 -to quadZ[3]
+set_location_assignment PIN_57 -to quadB[3]
+set_location_assignment PIN_58 -to dout[1]
+set_location_assignment PIN_61 -to dout[2]
+set_location_assignment PIN_62 -to dout[3]
+set_location_assignment PIN_63 -to dout[4]
+set_location_assignment PIN_64 -to dout[5]
+set_location_assignment PIN_65 -to dout[6]
+set_location_assignment PIN_68 -to dout[7]
+set_location_assignment PIN_69 -to dout[8]
+set_location_assignment PIN_70 -to dout[9]
+set_location_assignment PIN_77 -to pport_data[0]
+set_location_assignment PIN_79 -to pport_data[1]
+set_location_assignment PIN_80 -to nDataStr
+set_location_assignment PIN_81 -to epp_nReset
+set_location_assignment PIN_82 -to pport_data[2]
+set_location_assignment PIN_84 -to nAddrStr
+set_location_assignment PIN_85 -to pport_data[3]
+set_location_assignment PIN_86 -to pport_data[4]
+set_location_assignment PIN_87 -to nWait
+set_location_assignment PIN_90 -to nWrite
+set_location_assignment PIN_91 -to clk
+set_location_assignment PIN_93 -to din[1]
+set_location_assignment PIN_94 -to pport_data[5]
+set_location_assignment PIN_96 -to pport_data[6]
+set_location_assignment PIN_97 -to pport_data[7]
+
+set_global_assignment -name VERILOG_FILE wdt.v
+set_global_assignment -name VERILOG_FILE quad.v
+set_global_assignment -name VERILOG_FILE servo.v

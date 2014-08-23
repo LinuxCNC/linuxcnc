@@ -1,0 +1,172 @@
+Axis Configuration:
+
+Also refer to the diagram tab for two examples of
+home and limit switches. These are two examples of
+many different ways to set homing and limits.
+
+It very important to start with the axis moving
+in the right direction or else getting homing
+right is very difficult.
+
+Remember positive and negative directions
+refer to the TOOL not the table as per the 
+Machinists handbook.
+on a typical knee or bed mill:
+    when the TABLE moves out that is the positive Y direction
+    when the TABLE moves left that is the positive X direction
+    when the TABLE moves down that is the positive Z direction
+    when the HEAD moves up that is the positive Z direction
+on a typical lathe:
+    when the TOOL moves right, away from the chuck
+    that is the positive Z direction
+    when the TOOL moves toward the operator
+    that is the positive X direction. Some lathes have X 
+    opposite (eg tool on back side), that will work fine but 
+    AXIS graphical display can not be made to reflect this. 
+
+When using homing and / or limit switches
+EMC2 expects the HAL signals to be true when 
+the switch is being pressed / tripped.
+If the signal is wrong for a limit switch then
+EMC2 will think the machine is on end of limit
+all the time. If the home switch search logic is wrong
+EMC2 will seem to home in the wrong direction.
+What it actually is doing is trying to BACK off 
+the home switch.
+
+-Decide on limit switch location.
+    Limit switches are the back up for software limits in case
+    something electrical goes wrong eg. servo runaway.
+    Limit switches should be placed so that the machine does not
+    hit the physical end of the axis movement. Remember the axis
+    will coast past the contact point if moving fast. Limit switches
+    should be 'active low' on the machine. eg. power runs through
+    the switches all the time - a loss of power (open switch) trips.
+    While one could wire them the other way, this is fail safe.
+    This may need to be inverted so that the HAL signal in EMC
+    in 'active high' - a TRUE means the switch was tripped. When
+    starting EMC if you get an on-limit warning, and axis is NOT
+    tripping the switch, inverting the signal is probably the
+    solution. (use HALMETER to check the corresponding HAL signal  
+    eg. axis.0.pos-lim-sw-in  X axis positive limit switch)
+
+-Decide on the home switch location.
+    If you are using limit switches You may as well use one as a
+    home switch. A separate home switch is useful if you have a long
+    axis that in use is usually a long way from the limit switches or
+    moving the axis to the ends presents problems of interference 
+    with material.
+    eg a long shaft in a lathe makes it hard to home to limits with out 
+    the tool hitting the shaft, so a separate home switch closer to the 
+    middle may be better.
+    If you have an encoder with index then the home switch acts as a 
+    course home and the index will be the actual home location.
+
+-Decide on the MACHINE ORIGIN position.
+    MACHINE ORIGIN is what EMC uses to reference all user coordinate
+    systems from.
+    I can think of little reason it would need to be in any particular
+    spot. There are only a few G codes that can access the 
+    MACHINE COORDINATE system.( G53, G30 and G28 )
+    If using tool-change-at-G30 option having the Origin at the tool
+    change position may be convenient. By convention, it may be easiest
+    to have the ORIGIN at the home switch.
+
+-Decide on the (final) HOME POSITION.
+    this just places the carriage at a consistent and convenient position 
+    after EMC figures out where the ORIGIN is.
+
+-Measure / calculate the positive / negative axis travel distances.
+    Move the axis to the origin. Mark a reference on the movable
+    slide and the non-moveable support (so they are in line) move 
+    the machine to the end of limits. Measure between the marks that is one 
+    of the travel distances. Move the table to the other end of travel.
+    Measure the marks again. That is the other travel distance. If the ORIGIN
+    is at one of the limits then that travel distance will be zero.
+
+(machine) ORIGIN:
+    The Origin is the MACHINE zero point. (not
+    the zero point you set your cutter / material at).
+    EMC2 uses this point to reference everything else
+    from. It should be inside the software limits.
+    EMC uses the home switch location to calculate 
+    the origin position (when using home switches
+    or must be manually set if not using home switches.
+
+Travel distance:
+    This is the maximum distance the axis can
+    travel in each direction. This may
+    or may not be able to be measured directly
+    from origin to limit switch. The positive and
+    negative travel distances should add up to the
+    total travel distance.
+  
+POSITIVE TRAVEL DISTANCE:
+    This is the distance the Axis travels from 
+    the Origin to the positive travel distance or
+    the total travel minus the negative travel 
+    distance. You would set this to zero if the
+    origin is positioned at the positive limit.
+    The will always be zero or a positive number.
+
+NEGATIVE TRAVEL DISTANCE:
+    This is the distance the Axis travels from 
+    the Origin to the negative travel distance.
+    or the total travel minus the positive travel 
+    distance. You would set this to zero if the
+    origin is positioned at the negative limit.
+    This will always be zero or a negative number.
+    If you forget to make this negative PNCconf
+    will do it internally.
+
+(Final) HOME POSITION:
+    This is the position the home sequence will
+    finish at. It is referenced from the Origin
+    so can be negative or positive depending on
+    what side of the Origin it is located.
+    When at the (final) home position if
+    you must move in the Positive direction to
+    get to the Origin, then the number will be 
+    negative.
+
+HOME SWITCH LOCATION:
+    This is the distance from the home switch to 
+    the Origin. It could be negative or positive
+    depending on what side of the Origin it is
+    located. When at the home switch location if
+    you must move in the Positive direction to
+    get to the Origin, then the number will be 
+    negative. If you set this to zero then the
+    Origin will be at the location of the limit
+    switch (plus distance to find index if used) 
+    
+Home Search Velocity:
+    Course home search velocity in units per minute.
+   
+Home Search Direction:
+    Sets the home switch search direction
+    either negative (ie. towards negative limit switch)
+    or positive (ie. towards positive limit switch)
+
+Home Latch Velocity:
+    Fine Home search velocity in units per minute
+
+Home Final Velocity:
+    Velocity used from latch position to (final) home position
+    in units per minute. Set to 0 for max rapid speed 
+
+Home latch Direction:
+    Allows setting of the latch direction to the same
+    or opposite of the search direction.
+
+Use Encoder Index For Home:
+    EMC2 will search for an encoder index pulse while in
+    the latch stage of homing.
+
+Use Compensation File:
+    Allows specifying a Comp filename and type.
+    Allows sophisticated compensation. See Manual.
+
+Use Backlash Compensation:
+    Allows setting of simple backlash compensation. Can 
+    not be used with Compensation File. See Manual. 

@@ -1,0 +1,25 @@
+# a cone moves with your mouse in X and Y. Another cone points at the first.
+# set Z with the mouse wheel. the algorithm gets crusty for values of z between
+# -0.2 and 0.2
+#
+# run with halcmd -fk tracking-test.hal
+
+# this assumes your mouse is on /dev/input/event1 and is world-writable. 
+# if not, chmod a+rw /dev/input/event1 and/or change 1 to the location of 
+# your mouse. see man hal_input for details
+loadusr -W hal_input -RK 1
+net x-mouse input.0.rel-x-position
+net y-mouse input.0.rel-y-position
+net z-mouse input.0.rel-wheel-position
+net click input.0.btn-right
+net click input.0.rel-wheel-reset
+net click input.0.rel-x-reset
+net click input.0.rel-y-reset
+
+loadusr -W tracking-test
+net x-mouse tracking-test.axis0
+net y-mouse tracking-test.axis1
+net z-mouse tracking-test.axis2
+#linksp a tracking-test.axis3
+#linksp b tracking-test.axis4
+#linksp c tracking-test.axis5

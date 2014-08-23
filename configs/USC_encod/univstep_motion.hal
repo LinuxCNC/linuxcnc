@@ -1,0 +1,47 @@
+# HAL config file for Pico Systems USC board with encoders
+
+# set sane pulse timing - these are basically Gecko numbers
+# both pulse width and space are set to 3.5 uS, to prevent
+# problems if the outputs are inverted externally
+setp ppmc.0.stepgen.00-03.pulse-width-ns 3500
+setp ppmc.0.stepgen.00-03.pulse-space-min-ns 3500
+# setup time is set to 1 uS
+setp ppmc.0.stepgen.00-03.setup-time-ns 1000
+
+# connect position feedback signals to encoders
+net Xpos-fb <= ppmc.0.encoder.00.position
+net Ypos-fb <= ppmc.0.encoder.01.position
+net Zpos-fb <= ppmc.0.encoder.02.position
+net Apos-fb <= ppmc.0.encoder.03.position
+
+# get feedback scaling from ini file
+setp ppmc.0.encoder.00.scale [AXIS_0]INPUT_SCALE
+setp ppmc.0.encoder.01.scale [AXIS_1]INPUT_SCALE
+setp ppmc.0.encoder.02.scale [AXIS_2]INPUT_SCALE
+setp ppmc.0.encoder.03.scale [AXIS_3]INPUT_SCALE
+
+# connect PID output signals to step generators
+net Xoutput => ppmc.0.stepgen.00.velocity
+net Youtput => ppmc.0.stepgen.01.velocity
+net Zoutput => ppmc.0.stepgen.02.velocity
+net Aoutput => ppmc.0.stepgen.03.velocity
+
+# connect axis enables to step generators
+net Xenable => ppmc.0.stepgen.00.enable
+net Yenable => ppmc.0.stepgen.01.enable
+net Zenable => ppmc.0.stepgen.02.enable
+net Aenable => ppmc.0.stepgen.03.enable
+
+# set output scaling from ini file
+# input and output scales should (normally) be the same for a USC
+setp ppmc.0.stepgen.00.scale [AXIS_0]OUTPUT_SCALE
+setp ppmc.0.stepgen.01.scale [AXIS_1]OUTPUT_SCALE
+setp ppmc.0.stepgen.02.scale [AXIS_2]OUTPUT_SCALE
+setp ppmc.0.stepgen.03.scale [AXIS_3]OUTPUT_SCALE
+
+# add a couple of tuning test links
+# if these are useful will want to add them to the other axes as well
+# or make these setup with the tuning script
+net Xoutput ddt.0.in
+net Xpos-fb ddt.1.in
+

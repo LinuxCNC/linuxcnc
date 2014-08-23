@@ -1,0 +1,43 @@
+# standard pinout config file for 3-axis steppers
+# using a parport for I/O
+#
+# first load the parport driver
+loadrt hal_parport cfg="0x0378"
+#
+# next connect the parport functions to threads
+# read inputs first
+addf parport.0.read base-thread 1
+# write outputs last
+addf parport.0.write base-thread -1
+#
+# finally connect physical pins to the signals
+#net estop-out => parport.0.pin-01-out
+net Xstep parport.0.pin-03-out
+net Xdir parport.0.pin-02-out
+net Ystep parport.0.pin-05-out
+net Ydir parport.0.pin-04-out
+net Zstep parport.0.pin-07-out
+net Zdir parport.0.pin-06-out
+net Astep parport.0.pin-09-out
+net Adir parport.0.pin-08-out
+
+
+# create a signal for the estop loopback
+
+net estop-ext <= parport.0.pin-10-in
+net estop-out <= iocontrol.0.user-enable-out
+net estop-out => iocontrol.0.emc-enable-in
+# create signals for tool loading loopback
+#linkpp iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+#linkpp iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# create a signal for "spindle on"
+#newsig spindle_on bit
+
+# commented out till we resolve this issue
+# connect it to the iocontroller
+#linksp spindle_on motion.spindle-on
+# connect it to a physical pin
+#linksp spindle_on parport.0.pin-01-out
+
+

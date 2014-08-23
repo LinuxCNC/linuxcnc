@@ -1,0 +1,9 @@
+TARGETS += ../bin/rs274
+SAISRCS := $(addprefix emc/sai/, saicanon.cc driver.cc) \
+	emc/rs274ngc/tool_parse.cc
+USERSRCS += $(SAISRCS)
+
+$(call TOOBJSDEPS,$(SAISRCS)) : 
+../bin/rs274: $(call TOOBJS, $(SAISRCS)) ../lib/librs274.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ $(ULFLAGS)

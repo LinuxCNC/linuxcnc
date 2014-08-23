@@ -1,0 +1,301 @@
+(info: arc1: inside/outside, cw/ccw, cutter radius compensation)
+
+; Arc making subroutine formatted for ngcgui
+
+; Specify:
+;         dir         == 2 for cw, 3 for ccw
+;         inside      == 1 for inside, 0 for outside
+;         xoff,yoff   == arc center
+;         arc radius  == distance to center of rotation
+;         angle       == anglular spread of arc
+;         rotate      == rotation of arc
+;         width       == width of arc
+
+; see also arc2.ngc to specify using center of rotation
+
+;----------------------------------------------------------------------
+; Copyright: 2012
+; Author:    Dewey Garrett <dgarrett@panix.com>
+;
+; This program is free software; you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation; either version 2 of the License, or
+; (at your option) any later version.
+;
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program; if not, write to the Free Software
+; Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+;----------------------------------------------------------------------
+
+o<arc1> sub
+
+#<toolno>      =  #1 (=1)
+#<dir>         =  #2 (=2 2:cw 3:ccw)
+#<inside>      =  #3 (=1 1:inside 0:outside)
+#<rpm>         =  #4 (=2000)
+#<feedrate>    =  #5 (=100)
+#<zincr>       =  #6
+#<cutdepth>    =  #7
+#<zsafe>       =  #8 (=0.25)
+#<zstart>      =  #9 (=0)
+#<width>       = #10 (=.3)
+#<angle>       = #11 (=45 Angle)
+#<arc_r>       = #12 (=2 Arc Radius)
+#<rotate>      = #13 (=-90)
+#<xoff>        = #14 (=2)
+#<yoff>        = #15 (=0)
+#<scale>       = #16 (=1)
+#<spin_notify> = #17 (=0)
+#<use_g43>     = #18 (=1)
+#<h_for_g43>   = #19 (=0)
+#<verbose>     = #20 (=0)
+
+#<min_angle> = 1 ;minimum angle
+g40; cutter comp off to begin
+
+o<i0> if [#<scale> LE 0]
+        (print, arc1: bad scale: #<scale> - EXITING)
+        (debug, arc1: bad scale: #<scale> - EXITING)
+        (AXIS,notify, arc1: bad scale - EXITING)
+        m2
+o<i0> endif
+
+o<i1> if [[#<dir> NE 2] AND [#<dir> NE 3]]
+        (print, arc1: bad dir=#<dir> - EXITING)
+        (debug, arc1: bad dir=#<dir> - EXITING)
+        (AXIS,notify, arc1: bad dir - EXITING)
+        m2
+o<i1> endif
+
+o<i2> if [[#<inside> NE 1] AND [#<inside> NE 0]]
+        (print, arc1: bad inside specifier: #<inside> - EXITING)
+        (debug, arc1: bad inside specifier: #<inside> - EXITING)
+        (AXIS,notify, arc1: bad inside specifier - EXITING)
+        m2
+o<i2> endif
+
+o<i3> if [#<angle> LT #<min_angle>]
+        (print, arc1: angle too small: #<angle> - EXITING)
+        (debug, arc1: angle too small: #<angle> - EXITING)
+        (AXIS,notify, arc1: angle too small - EXITING)
+        m2
+o<i3> endif
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam>  = [#5410 + .001]
+
+o<iftool> if [[#<tooldiam> GT #<width>] AND [#<inside> EQ 1]]
+            (print, arc1: tooldiam too big: #<tooldiam> - EXITING)
+            (debug, arc1: tooldiam too big: #<tooldiam> - EXITING)
+            (AXIS,notify, arc1: tooldiam too big - EXITING)
+            m2
+o<iftool> endif
+
+
+; construct arc parallel to x axis (for transformation later)
+
+     #<slot_r> = [#<width>/2]
+        #<phi> = [90 - #<angle>/2]
+   #<distance> = [2 * #<arc_r> * COS[#<phi>]] ; between endpoints
+
+; (xa,ya),     (xb,yb),     ... are points on arc
+; (vxas,vyas), (vxbs,vybs), ... are vectors to subarc centers (short ones)
+; (vxal,vyal), (vxbl,vybl), ... are vectors to subarc centers (long ones)
+
+; start point is at center of outside arc:
+         #<x0> = 0
+         #<y0> = [#<slot_r> + #<arc_r> * [1 - sin[#<phi>]]]
+        #<vx0> = 0
+        #<vy0> = [0 - #<arc_r> - #<slot_r>]
+
+         #<xa> = [0 + #<distance>/2 + #<slot_r> * cos[#<phi>]]
+         #<ya> = [0                 + #<slot_r> * sin[#<phi>]]
+       #<vxas> = [0                 - #<slot_r> * cos[#<phi>]]
+       #<vyas> = [0                 - #<slot_r> * sin[#<phi>]]
+       #<vxal> = [0                 - [#<arc_r> + #<slot_r>] * cos[#<phi>]]
+       #<vyal> = [0                 - [#<arc_r> + #<slot_r>] * sin[#<phi>]]
+
+         #<xb> = [0 + #<distance>/2 - #<slot_r> * cos[#<phi>]]
+         #<yb> = [0                 - #<slot_r> * sin[#<phi>]]
+       #<vxbs> = [0                 + #<slot_r> * cos[#<phi>]]
+       #<vybs> = [0                 + #<slot_r> * sin[#<phi>]]
+       #<vxbl> = [0                 - [#<arc_r> - #<slot_r>] * cos[#<phi>]]
+       #<vybl> = [0                 - [#<arc_r> - #<slot_r>] * sin[#<phi>]]
+
+         #<xc> = [0 - #<distance>/2 + #<slot_r> * cos[#<phi>]]
+         #<yc> = [0                 - #<slot_r> * sin[#<phi>]]
+       #<vxcs> = [0                 - #<slot_r> * cos[#<phi>]]
+       #<vycs> = [0                 + #<slot_r> * sin[#<phi>]]
+       #<vxcl> = [0                 + [#<arc_r> - #<slot_r>] * cos[#<phi>]]
+       #<vycl> = [0                 - [#<arc_r> - #<slot_r>] * sin[#<phi>]]
+
+         #<xd> = [0 - #<distance>/2 - #<slot_r> * cos[#<phi>]]
+         #<yd> = [0                 + #<slot_r> * sin[#<phi>]]
+       #<vxds> = [0                 + #<slot_r> * cos[#<phi>]]
+       #<vyds> = [0                 - #<slot_r> * sin[#<phi>]]
+       #<vxdl> = [0                 + [#<arc_r> + #<slot_r> ] * cos[#<phi>]]
+       #<vydl> = [0                 - [#<arc_r> + #<slot_r> ] * sin[#<phi>]]
+
+;# this offset makes center at x,y = 0,0 for convenience:
+       #<yf> = [0 - #<arc_r> * [1 - sin[#<phi>]]]
+       #<y0> = [#<yf> + #<y0>]
+       #<ya> = [#<yf> + #<ya>]
+       #<yb> = [#<yf> + #<yb>]
+       #<yc> = [#<yf> + #<yc>]
+       #<yd> = [#<yf> + #<yd>]
+
+; choose points according to dir:
+o<ifdir> if [#<dir> EQ 2] ; cw 0->a->b->c->d->0
+          #<dir0> = 2 ; pre entry
+          #<dir1> = 2 ; most
+          #<dir2> = 3 ; inside of arc
+
+                  ; 1/4 circle arc entry move
+            #<xp> = [#<x0> - #<tooldiam>/2]
+            #<yp> = [#<y0> - #<tooldiam>/2]
+           #<vxp> = [#<tooldiam>/2]
+           #<vyp> = 0
+
+            #<x1> = #<xa>
+            #<y1> = #<ya>
+           #<vx1> = #<vxas>
+           #<vy1> = #<vyas>
+
+            #<x2> = #<xb>
+            #<y2> = #<yb>
+           #<vx2> = #<vxbl>
+           #<vy2> = #<vybl>
+
+            #<x3> = #<xc>
+            #<y3> = #<yc>
+           #<vx3> = #<vxcs>
+           #<vy3> = #<vycs>
+
+            #<x4> = #<xd>
+            #<y4> = #<yd>
+           #<vx4> = #<vxdl>
+           #<vy4> = #<vydl>
+o<ifdir> else ; ccw  0->d->c->b->a->0
+          #<dir0> = 3 ; pre entry
+          #<dir1> = 3 ; most
+          #<dir2> = 2 ; inside of arc
+
+                  ; 1/4 circle arc entry move
+            #<xp> = [#<x0> + #<tooldiam>/2]
+            #<yp> = [#<y0> - #<tooldiam>/2]
+           #<vxp> = [0 - #<tooldiam>/2]
+           #<vyp> = 0
+
+            #<x1> = #<xd>
+            #<y1> = #<yd>
+           #<vx1> = #<vxds>
+           #<vy1> = #<vyds>
+
+            #<x2> = #<xc>
+            #<y2> = #<yc>
+           #<vx2> = #<vxcl>
+           #<vy2> = #<vycl>
+
+            #<x3> = #<xb>
+            #<y3> = #<yb>
+           #<vx3> = #<vxbs>
+           #<vy3> = #<vybs>
+
+            #<x4> = #<xa>
+            #<y4> = #<ya>
+           #<vx4> = #<vxal>
+           #<vy4> = #<vyal>
+o<ifdir> endif
+
+; apply rotation, scaling, offsets
+o<move> call [#<xp>][#<yp>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<xp>      = #<_move:x>
+#<yp>      = #<_move:y>
+o<move> call [#<x0>][#<y0>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x0>      = #<_move:x>
+#<y0>      = #<_move:y>
+o<move> call [#<x1>][#<y1>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x1>      = #<_move:x>
+#<y1>      = #<_move:y>
+o<move> call [#<x2>][#<y2>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x2>      = #<_move:x>
+#<y2>      = #<_move:y>
+o<move> call [#<x3>][#<y3>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x3>      = #<_move:x>
+#<y3>      = #<_move:y>
+o<move> call [#<x4>][#<y4>][#<rotate>][#<scale>][#<xoff>][#<yoff>]
+#<x4>      = #<_move:x>
+#<y4>      = #<_move:y>
+
+; vectors to arc centers: just rotate and scale, no offset
+o<move> call [#<vxp>][#<vyp>][#<rotate>][#<scale>][0][0]
+#<vxp>      = #<_move:x>
+#<vyp>      = #<_move:y>
+o<move> call [#<vx0>][#<vy0>][#<rotate>][#<scale>][0][0]
+#<vx0>      = #<_move:x>
+#<vy0>      = #<_move:y>
+o<move> call [#<vx1>][#<vy1>][#<rotate>][#<scale>][0][0]
+#<vx1>      = #<_move:x>
+#<vy1>      = #<_move:y>
+o<move> call [#<vx2>][#<vy2>][#<rotate>][#<scale>][0][0]
+#<vx2>      = #<_move:x>
+#<vy2>      = #<_move:y>
+o<move> call [#<vx3>][#<vy3>][#<rotate>][#<scale>][0][0]
+#<vx3>      = #<_move:x>
+#<vy3>      = #<_move:y>
+o<move> call [#<vx4>][#<vy4>][#<rotate>][#<scale>][0][0]
+#<vx4>      = #<_move:x>
+#<vy4>      = #<_move:y>
+
+        s #<rpm> m3
+o<if1>  if [#<spin_notify> GT 0]
+          o<spin> call [#<rpm>]
+o<if1>  endif
+        f#<feedrate>
+
+        g0 z#<zsafe>
+        g0 x#<xp> y#<yp> ; pre-entry point
+
+o<ifi0> if [#<inside> EQ 1]
+o<ifi1>   if [#<dir> EQ 2]
+            /g42 ;# cutter compensation right of path
+o<ifi1>   else
+            /g41 ;# cutter compensation left of path
+o<ifi1>   endif
+o<ifi0> else
+o<ifi2>   if [#<dir> EQ 2]
+            /g41 ;# cutter compensation left of path
+o<ifi2>   else
+            /g42 ;# cutter compensation right of path
+o<ifi2>   endif
+o<ifi0> endif
+
+        ; entry with cutter radius compensation
+        g#<dir0> x#<x0> y#<y0> i #<vxp> j #<vyp>
+        g1 z#<zstart>
+
+        #<zcurrent> = [#<zstart> - #<zincr>]
+o<wh1>  while [#<zcurrent> GT [0 - #<cutdepth>]]
+          g#<dir1> x#<x1> y#<y1> i#<vx0> j#<vy0> z #<zcurrent>
+          g#<dir1> x#<x2> y#<y2> i#<vx1> j#<vy1>
+          g#<dir2> x#<x3> y#<y3> i#<vx2> j#<vy2>
+          g#<dir1> x#<x4> y#<y4> i#<vx3> j#<vy3>
+          g#<dir1> x#<x0> y#<y0> i#<vx4> j#<vy4>
+          #<zcurrent>=[#<zcurrent>-#<zincr>]
+o<wh1>  endwhile
+        g#<dir1> x#<x1> y#<y1> i#<vx0> j#<vy0> z [0 - #<cutdepth>]
+        g#<dir1> x#<x2> y#<y2> i#<vx1> j#<vy1>
+        g#<dir2> x#<x3> y#<y3> i#<vx2> j#<vy2>
+        g#<dir1> x#<x4> y#<y4> i#<vx3> j#<vy3>
+        g#<dir1> x#<x0> y#<y0> i#<vx4> j#<vy4>
+        g#<dir1> x#<x1> y#<y1> i#<vx0> j#<vy0>
+
+        g0 z#<zsafe>
+        g40 ;# cancel cutter radius compensation
+
+o<arc1> endsub

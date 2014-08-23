@@ -1,0 +1,37 @@
+//   This is a 'charge-pump' component for EMC2 HAL
+//   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
+//
+//   This program is free software; you can redistribute it and/or modify
+//   it under the terms of the GNU General Public License as published by
+//   the Free Software Foundation; either version 2 of the License, or
+//   (at your option) any later version.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+component charge_pump "Create a square-wave for the 'charge pump' input of some controller boards";
+option singleton yes;
+pin out bit out "Square wave if 'enable' is TRUE or unconnected, low if 'enable' is FALSE";
+pin in bit enable = TRUE "If FALSE, forces 'out' to be low";
+function _ nofp "Toggle the output bit (if enabled)";
+description """
+The 'Charge Pump' should be added to the base thread function.
+When enabled the output is on for one period and off for one period. To calculate the
+frequency of the output 1/(period time in seconds x 2) = hz. For example if you
+have a base period of 100,000ns that is 0.0001 seconds and the formula would be
+1/(0.0001 x 2) = 5,000 hz or 5 Khz """;
+license "GPL";
+;;
+FUNCTION(_) {
+    if ( enable ) {
+	out = !out;
+    } else {
+	out = 0;
+    }
+}

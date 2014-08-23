@@ -1,0 +1,44 @@
+#!/bin/bash
+
+PATH=@EMC2_BIN_DIR@:$PATH
+REALTIME=@REALTIME@
+
+if [ $# -eq 0 ]; then set -- -kf; fi
+
+INTERACTIVE=
+while true; do
+	case $1 in
+		-I) INTERACTIVE="halcmd -kf"; shift;;
+		-T) INTERACTIVE="haltcl"; shift;;
+		-U) halcmd -R; halcmd stop; halcmd unload all; $REALTIME stop; exit;;
+		*) break
+	esac
+done
+
+if $REALTIME status > /dev/null; then
+    echo "Realtime already running.  Use 'halrun -U' to stop existing realtime session." 1>&2
+    exit 1
+fi
+
+IS_HALTCL=false
+case $1 in
+*.tcl) IS_HALTCL=true ;;
+*.hal) set -- -f $1 ;;
+esac
+
+$REALTIME start || exit $?
+
+if $IS_HALTCL; then
+    haltcl $@; result=$?
+else
+    halcmd $@; result=$?
+fi
+
+if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi
+
+halcmd stop || result=$?
+halcmd unload all || result=$?
+
+$REALTIME stop || result=$?
+
+exit $result

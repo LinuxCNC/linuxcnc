@@ -1,0 +1,59 @@
+Basic Machine Page
+
+Machine Basics:
+    Pick the name of the configuration- spaces will be 
+    converted to under-score.
+    Pick the available axis.
+    Pick metric or standard units for pncconf data entry.
+
+Computer Response Time:
+    Test latency of the computer.
+    choose the servo period.
+
+I/O Ports / Boards:
+    pick the number and type of mesa boards to configure.
+    The available type depends on the firmware packages downloaded
+    and if any boards are 'blacklisted'. 
+    At least one Mesa board is required as the parallel port
+    can't be configured for stepper / servo control. 
+    Parallel ports must have the address specified and can
+    be specified as 'OUT' or 'IN' which changes the available
+    8 data pins between output or input.
+    Press the Parport Address Search button to display info on 
+    all PCI cards installed. Look for One that mentions Parallel
+    port, It should have addresses specified. Choose one and try it. 
+
+GUI Frontend list:
+    This specifies the graphical display EMC will use.
+    Each one has different option. 
+        AXIS 
+            -fully supports lathes.
+            -is the most developed and used frontend
+            -is designed to be used with mouse and keyboard
+            -is tkinter based so intergrates PYVCP panels naturally.
+            -has a graphical window.
+            -allows VCP panels intergrated on the side or in center tab
+
+        TOUCHY
+            -Touchy was designed to be used with a touchscreen, some
+                minimal physical switches and a MPG wheel.
+            -requires cycle-start, abort, and single-step signals and buttons
+            -It also requires shared axis MPG jogging to be selected.  
+            -is GTK based so intergrates GLADE VCP panels naturally.
+            -allows VCP panels intergrated in the center Tab
+            -has no graphical window
+            -look can be changed with custom themes
+
+        MINI
+            -standard on OEM Sherline machines
+            -does not use Estop
+            -no vcp intergration
+            
+        TkEMC
+            - hi contrast bright blue screen
+            -
+
+
+
+
+

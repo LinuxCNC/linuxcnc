@@ -1,0 +1,78 @@
+:lang: fr
+:toc:
+
+= Les autres codes
+
+[[cha:Les-autres-codes]] (((Les autres codes)))
+
+[[sec:F-Vitesse]]
+== F: Réglage de la vitesse d'avance travail
+(((F: Réglage de la vitesse d'avance travail)))
+
+Pour régler la vitesse d'avance, programmer _F-_.
+L'application de la vitesse est telle que décrite dans l'aperçu global d'une
+machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à moins
+que le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
+telle que décrite dans la section sur le choix des modes de <<sec:G93-G94-G95-Modes,vitesse>>.
+
+[[sec:S-Broche]]
+== S: Réglage de la vitesse de rotation de la broche
+(((S: Réglage de la vitesse de rotation de la broche)))
+
+Pour régler la vitesse en tours par minute (tr/mn) de la broche, programmer _S-_.
+La broche va tourner à cette vitesse quand elle sera programmée pour tourner.
+Il est permis de programmer un mot _S_ que la broche tourne ou non.
+Si le potentiomètre de correction de vitesse broche est
+autorisé et n'est pas positionné sur 100%,
+la vitesse de broche sera différente de celle programmée.
+Il est permis de programmer _S0_, la broche ne tournera pas.
+
+C'est une erreur si:
+
+* La valeur de S est négative.
+
+Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de
+taraudage à droite>>, si un cycle de perçage _G84_ (taraudage) est actif et que
+les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
+réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons
+synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même
+si le potentiomètre de correction de vitesse travail est sur 100%.
+
+[[sec:T-Choix-Outil]]
+== T: Choix de l'outil
+(((T: Choix de l'outil)))
+
+Pour sélectionner un outil, programmer _T-_, où la valeur de _T_
+correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera
+appelé et changé que quand un _M6_ sera programmé voir la section
+<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot _T_ peut apparaitre sur la
+même ligne que le _M6_ ou sur une ligne précédente. Il est permis, mais
+normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant,
+sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot
+T ne prendra effet qu'au prochain changement d'outil. Il est permis de
+programmer _T0_, aucun outil ne sera sélectionné. C'est utile pour
+avoir la broche vide.
+
+C'est une erreur si:
+
+* Un valeur négative de T est utilisée.
+* Une valeur de T supérieure au nombre de poches d'outils dans le
+   carrousel est utilisée.
+
+Sur certaines machines, le carrousel se déplace lorsque le mot T est
+programmé, avec l'usinage en cours. Sur ces machines, programmer _Tn_,
+plusieurs lignes de texte avant le changement d'outil permet de gagner
+du temps. Une pratique de programmation courante pour ces types de
+machines, consiste à placer le mot T pour le prochain outil sur la
+ligne suivant le changement d'outil. Cela laisse au carrousel tout le
+temps pour se positionner.
+
+Les mouvements rapides qui suivent un T<n> n'apparaissent pas sur l'écran de
+parcours d'outil d'Axis, et ce jusqu'au prochain mouvement en vitesse travail
+Cela se remarque surtout sur les machines ayant de longues distances de
+déplacement lors du changement d'outil, comme les tours.
+Cela peut prêter à confusion au début.
+Pour contourner ce dysfonctionnement pour l'outil courant, ajouter un G1 sans
+mouvement juste après le T<n>.
+
+// vim: set syntax=asciidoc:

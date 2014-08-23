@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+ <vbox>
+    <label><text>"Joint 0:"</text></label>
+    <meter><size>120</size><halpin>"joint0"</halpin><max_>180</max_><min_>-180</min_></meter>
+ </vbox>
+ <vbox>
+    <label><text>"Joint 1:"</text></label>
+    <meter><size>120</size><halpin>"joint1"</halpin><max_>180</max_><min_>-180</min_></meter>
+ </vbox>
+ <vbox>
+    <label><text>"Joint 2:"</text></label>
+    <meter><size>120</size><halpin>"joint2"</halpin><max_>180</max_><min_>-180</min_></meter>
+ </vbox>
+ <vbox>
+    <label><text>"Joint 3:"</text></label>
+    <meter><size>120</size><halpin>"joint3"</halpin><max_>180</max_><min_>-180</min_></meter>
+ </vbox>
+ <vbox>
+    <label><text>"Joint 4:"</text></label>
+    <meter><size>120</size><halpin>"joint4"</halpin><max_>180</max_><min_>-180</min_></meter>
+ </vbox>
+ <vbox>
+    <label><text>"Joint 5:"</text></label>
+    <meter><size>120</size><halpin>"joint5"</halpin><max_>180</max_><min_>-180</min_></meter>
+ </vbox>
+</pyvcp>

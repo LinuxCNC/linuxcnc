@@ -1,0 +1,32 @@
+# HAL config file for Pico Systems UPC board
+#
+
+# connect position feedback signals to encoders
+net Xpos-fb <= ppmc.0.encoder.00.position
+net Ypos-fb <= ppmc.0.encoder.01.position
+net Zpos-fb <= ppmc.0.encoder.02.position
+net Apos-fb <= ppmc.0.encoder.03.position
+
+# get feedback scaling from ini file
+setp ppmc.0.encoder.00.scale [AXIS_0]INPUT_SCALE
+setp ppmc.0.encoder.01.scale [AXIS_1]INPUT_SCALE
+setp ppmc.0.encoder.02.scale [AXIS_2]INPUT_SCALE
+setp ppmc.0.encoder.03.scale [AXIS_3]INPUT_SCALE
+
+# connect PID output signals to step generators
+net Xoutput => ppmc.0.DAC.00.value
+net Youtput => ppmc.0.DAC.01.value
+net Zoutput => ppmc.0.DAC.02.value
+net Aoutput => ppmc.0.DAC.03.value
+
+# set output scaling from ini file
+setp ppmc.0.DAC.00.scale [AXIS_0]OUTPUT_SCALE
+setp ppmc.0.DAC.01.scale [AXIS_1]OUTPUT_SCALE
+setp ppmc.0.DAC.02.scale [AXIS_2]OUTPUT_SCALE
+setp ppmc.0.DAC.03.scale [AXIS_3]OUTPUT_SCALE
+
+# add a couple of tuning test links
+# if these are useful will want to add them to the other axes as well
+# or make these setup with the tuning script
+net Xoutput ddt.0.in
+net Xpos-fb ddt.1.in

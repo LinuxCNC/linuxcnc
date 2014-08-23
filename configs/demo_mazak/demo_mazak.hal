@@ -1,0 +1,758 @@
+# this file contains the HAL configuration for Roland's Mazak
+#
+# kinematics
+loadrt trivkins
+# first load the motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD
+
+# next load I/O drivers.  This retrofit uses three different I/O devices
+#
+# 1) MOTENC-Lite card, for analog outs to drives, encoder feedback, and
+#     some digital I/O.
+#
+loadrt hal_motenc
+
+# 2) AXIOM AX5214H card, for 48 digital I/O
+#     we are using 32 inputs and 16 outputs, with the outputs on port
+#     C, which can be converted to inputs 4 bits at a time.
+#
+loadrt hal_ax5214h cfg="0x220_iiooiioo"
+
+# 3) Parallel Port, driving PMDX-122 card.  This provides a charge pump
+#     type watchdog, and also provides a small number of inputs that
+#     can be sampled at a higher rate.  The jogwheel comes in thru this
+#     card and is counted in software.
+#
+loadrt hal_parport cfg="0x0378_in"
+
+# 4) Weighted summer, driven by toolchanger slot position inputs
+#     This adds together the 5 bits (with bit 4 being equal to 13)
+#     and outputs the sum as an S32
+#
+loadrt weighted_sum wsum_sizes=5
+
+# I/O Mapping - Physical I/O points to driver pins
+# --------------------------------------------------------
+# OPTO-22 board IO-1 input  module  0 is ax5214h.0.in-24
+# OPTO-22 board IO-1 input  module  1 is ax5214h.0.in-25
+#    "                  "                      "
+# OPTO-22 board IO-1 input  module 14 is ax5214h.0.in-38
+# OPTO-22 board IO-1 input  module 15 is ax5214h.0.in-39
+# OPTO-22 board IO-1 output module 16 is ax5214h.0.out-40
+# OPTO-22 board IO-1 output module 17 is ax5214h.0.out-41
+#    "                  "                      "
+# OPTO-22 board IO-1 output module 22 is ax5214h.0.out-46
+# OPTO-22 board IO-1 output module 23 is ax5214h.0.out-47
+# --------------------------------------------------------
+# OPTO-22 board IO-2 input  module  0 is ax5214h.0.in-00
+# OPTO-22 board IO-2 input  module  1 is ax5214h.0.in-01
+#    "                  "                      "
+# OPTO-22 board IO-2 input  module 14 is ax5214h.0.in-14
+# OPTO-22 board IO-2 input  module 15 is ax5214h.0.in-15
+# OPTO-22 board IO-2 output module 16 is ax5214h.0.out-16
+# OPTO-22 board IO-2 output module 17 is ax5214h.0.out-17
+#    "                  "                      "
+# OPTO-22 board IO-2 output module 22 is ax5214h.0.out-22
+# OPTO-22 board IO-2 output module 23 is ax5214h.0.out-23
+# --------------------------------------------------------
+# OPTO-22 board IO-3 output module  0 is motenc.3.out-15
+# OPTO-22 board IO-3 output module  1 is motenc.3.out-14
+#    "                  "                      "
+# OPTO-22 board IO-3 output module  6 is motenc.3.out-01
+# OPTO-22 board IO-3 output module  7 is motenc.3.out-00
+# OPTO-22 board IO-3 input  module  8 is motenc.3.in-16
+# OPTO-22 board IO-3 input  module  9 is motenc.3.in-17
+#    "                  "                      "
+# OPTO-22 board IO-3 input  module 22 is motenc.3.in-30
+# OPTO-22 board IO-3 input  module 23 is motenc.3.in-31
+# --------------------------------------------------------
+# Breakout board IO-4 output chan  0 is motenc.3.out-00
+# Breakout board IO-4 output chan  1 is motenc.3.out-01
+#    "                  "                      "
+# Breakout board IO-4 output chan  6 is motenc.3.out-06
+# Breakout board IO-4 output chan  7 is motenc.3.out-07
+# Breakout board IO-4 input  chan  0 is motenc.3.in-00
+# Breakout board IO-4 input  chan  1 is motenc.3.in-01
+#    "                  "                      "
+# Breakout board IO-4 input  chan 14 is motenc.3.in-14
+# Breakout board IO-4 input  chan 15 is motenc.3.in-15
+# --------------------------------------------------------
+
+# Now we load some more HAL components:
+#
+# the rest of these components implement spindle speed
+# scaling (for high/low shifting) and spindle orient
+
+loadrt mux2 count=2
+loadrt mux4 count=1
+loadrt wcomp count=2
+loadrt scale count=3
+loadrt modmath mod_dir=2
+loadrt charge_pump
+loadrt tristate_bit
+loadrt tristate_float count=3
+loadrt conv_s32_float
+
+# Software encoder counter, for the jogwheel, and possibly a future
+# small manual encoder for a feedrate override knob.
+#
+loadrt encoder num_chan=1
+
+# PID loops: 3 for axis control and one for spindle orient
+#
+loadrt pid num_chan=4
+
+# classicladder for machine logic
+# (load the realtime portion)
+loadrt classicladder_rt numRungs=50 numBits=50 numWords=8 numTimers=20 numMonostables=10 numPhysInputs=50 numPhysOutputs=40 numArithmExpr=4 numSections=4
+
+# invoke the user part of CL to silently load the program
+loadusr -w classicladder --nogui demo_mazak.clp
+
+# load debounce to handle the pushbuttons on the operator panels
+loadrt debounce cfg="8"
+setp debounce.0.delay 3
+
+# -----------------------------------------------
+
+# connect I/O driver functions to thread(s)
+#
+addf motenc.3.encoder-read          servo-thread
+addf motenc.3.digital-in-read       servo-thread
+addf ax5214h.0.read                 servo-thread
+addf encoder.capture-position       servo-thread
+addf motenc.3.adc-read              servo-thread
+
+# convert IO to internally useful representations
+addf scale.2                        servo-thread
+# converter for tool magazine position
+addf process_wsums                  servo-thread
+addf mod-dir.0			    servo-thread
+addf mod-dir.1			    servo-thread
+
+# ladder logic is executed once all the inputs are read
+#addf classicladder.0.refresh        servo-thread
+
+# adaptive feedrate mux
+addf mux2.1			    servo-thread
+# now we run the motion controller
+addf motion-command-handler         servo-thread
+addf motion-controller              servo-thread
+
+# ladder logic is executed once all the inputs are read
+addf classicladder.0.refresh        servo-thread
+# charge pump can run just about any time
+addf charge-pump                    servo-thread
+
+# pid calculations are done after the motion module
+# has determined new position commands.
+addf pid.0.do-pid-calcs             servo-thread
+addf pid.1.do-pid-calcs             servo-thread
+addf pid.2.do-pid-calcs             servo-thread
+
+# spindle signal handling is done next
+addf pid.3.do-pid-calcs             servo-thread
+addf mux2.0                         servo-thread
+addf scale.0                        servo-thread
+addf scale.1                        servo-thread
+addf mux4.0                         servo-thread
+addf wcomp.0                        servo-thread
+addf wcomp.1                        servo-thread
+addf tristate-bit.0                 servo-thread
+
+# misc stuff (jogwheel scale, tool number display)
+addf tristate-float.0               servo-thread
+addf tristate-float.1               servo-thread
+addf tristate-float.2               servo-thread
+addf conv-s32-float.0               servo-thread
+
+# output drivers are loaded last
+addf motenc.3.dac-write             servo-thread
+addf motenc.3.digital-out-write     servo-thread
+addf ax5214h.0.write                servo-thread
+addf parport.0.write                servo-thread
+
+# the base thread (fast thread) isn't needed for step pulse
+# generation since this is a servo machine.  However we use
+# it to sample the jogwheel signals and count them in software
+
+addf parport.0.read                 base-thread
+addf encoder.update-counters        base-thread
+
+# -------------------------------------------------
+
+# Next, create signals with meaningfull names, and attach them to the
+#  physical pins.  There are a lot of these, so they are broken up
+
+# ---------------------------------------------------
+# ESTOP and related signals
+net external-estop-ok ax5214h.0.in-24
+net gui-estop-ok iocontrol.0.user-enable-out
+net main-estop-ok parport.0.pin-01-out
+net main-estop-ok iocontrol.0.emc-enable-in
+net main-estop-ok charge-pump.enable
+net estop-reset iocontrol.0.user-request-enable
+net charge-pump parport.0.pin-17-out
+net charge-pump charge-pump.out
+
+
+# servo power supply control
+net AP1 motenc.3.out-00
+net AP2 motenc.3.out-01
+
+# motion enable - this signal prevents the motion controller
+# from starting unless everything is OK (comes from ladder)
+net motion-enable motion.enable
+
+# servo amp enable (only one, driven by axis 0)
+net servo-enable motenc.3.out-02
+net servo-enable axis.0.amp-enable-out
+
+# servo amp fault signals
+# the signals from the amps are actually "not running"
+# they are asserted when the amp is faulted, OR just
+# disabled.  So we use the inverse and call them "running"
+net X-amp-running motenc.3.in-12-not
+net Y-amp-running motenc.3.in-13-not
+net Z-amp-running motenc.3.in-14-not
+# need to release the Z-axis brake when running
+net Z-amp-running motenc.3.out-15
+
+# these are the real fault signals, and go to the motion
+# controller, they are derived from the ones above by
+# ladder logic
+net X-amp-fault axis.0.amp-fault-in
+net Y-amp-fault axis.1.amp-fault-in
+net Z-amp-fault axis.2.amp-fault-in
+
+# Limit switches
+# (the switches are NC, and open when hit, so
+# we invert the signals by using the -not input
+# pin - the result is limit signals that are
+# TRUE when the machine is on the limit.)
+net X-lim-plus  motenc.3.in-00-not => axis.0.pos-lim-sw-in
+net X-lim-minus motenc.3.in-01-not => axis.0.neg-lim-sw-in
+net Y-lim-plus  motenc.3.in-02-not => axis.1.pos-lim-sw-in
+net Y-lim-minus motenc.3.in-03-not => axis.1.neg-lim-sw-in
+net Z-lim-plus  motenc.3.in-04-not => axis.2.pos-lim-sw-in
+net Z-lim-minus motenc.3.in-05-not => axis.2.neg-lim-sw-in
+
+# Home switches
+# (the switches are NC, see note above)
+net X-home motenc.3.in-08-not => axis.0.home-sw-in
+net Y-home motenc.3.in-09-not => axis.1.home-sw-in
+net Z-home motenc.3.in-10-not => axis.2.home-sw-in
+
+# spindle related signals: "high level" signals
+#   ready (from drive to PC)
+#   run (from motion)
+#   run (to drive)
+#   at speed (from drive to PC)
+#   orient command (to spindle control)
+#   oriented status (from spindle control)
+#   commanded speed (from EMC to control)
+#   spindle current feedback (from drive to PC)
+
+# spindle related signals: "internal" signal
+
+# get spindle position from encoder
+net sp-enc-pos motenc.3.enc-03-position
+# scale spindle position to degrees
+# 1440 cnts/rev = 4 cnts/degree
+setp motenc.3.enc-03-scale -4.0
+
+# get desired orient position from ini file
+sets sp-orient-pos-cmd [SPINDLE]ORIENT_POSITION
+
+# connect commanded and feedback positions to PID loop
+net sp-orient-pos-cmd pid.3.command
+net sp-enc-pos pid.3.feedback
+
+# enable PID loop when in orient mode
+net spindle-do-orient pid.3.enable
+
+# tuning params for PID loop
+setp pid.3.Pgain 1.0
+setp pid.3.Igain 0.6
+setp pid.3.Dgain 0.2
+setp pid.3.deadband 0.4
+
+# prevent integrator windup at the beginning of an orient
+# after running the spindle for a long time.  The error is
+# very high before the first index happens.
+setp pid.3.maxerrorI 200.0
+
+# limit outputs, we don't want to go fast during orient
+setp pid.3.maxoutput 100
+
+# check position error with window comparator
+net sp-orient-pos-err pid.3.error
+net sp-orient-pos-err wcomp.0.in
+net sp-orient-pos-ok wcomp.0.out
+# set a +/- 1 degree window
+setp wcomp.0.min -1.0
+setp wcomp.0.max  1.0
+
+# output of loop is velocity for orientation
+net sp-orient-rpm-cmd pid.3.output
+
+# select between normal speed and orient speed
+# based on do-orient command
+net sp-orient-rpm-cmd mux2.0.in1
+net spindle-rpm-cmd mux2.0.in0
+net spindle-do-orient mux2.0.sel
+# output of mux is desired spindle RPM
+net sp-rpm-cmd mux2.0.out
+
+# use scale blocks to calculate required motor RPM for
+# both gears based on desired spindle RPM
+net sp-rpm-cmd scale.0.in
+net sp-mtr-high-rpm-cmd scale.0.out
+setp scale.0.gain [SPINDLE]HIGH_GEAR_RATIO
+net sp-rpm-cmd scale.1.in
+net sp-mtr-low-rpm-cmd scale.1.out
+setp scale.1.gain [SPINDLE]LOW_GEAR_RATIO
+
+# select either high or low speed based on current gear ratio,
+# unless shifting, then select a low speed for meshing the gears
+net sp-mtr-high-rpm-cmd mux4.0.in0
+net sp-mtr-low-rpm-cmd mux4.0.in1
+net sp-mtr-mesh-rpm-cmd mux4.0.in2
+net sp-mtr-mesh-rpm-cmd mux4.0.in3
+net sp-in-low-gear mux4.0.sel0
+net sp-shifting mux4.0.sel1
+# output of mux is desired motor RPM
+net sp-mtr-rpm-cmd mux4.0.out
+# set meshing speed
+sets sp-mtr-mesh-rpm-cmd 15
+
+# link the final motor command to the DAC
+net sp-mtr-rpm-cmd motenc.3.dac-03-value
+# set scaling - 10V = 4500RPM at the motor
+setp motenc.3.dac-03-gain -0.002222
+# correct for offset, it causes drift and hunting
+setp motenc.3.dac-03-offset -8
+
+# connect other signals to drive
+net spindle-ready motenc.3.in-15
+net spindle-drive-run motenc.3.out-03
+net sp-at-speed motenc.3.in-11
+net spindle-amps motenc.3.adc-03-value
+
+# connect signals to gearbox controls
+# need to add a spindle run command
+# and a rotating speed I think
+net sp-engage-high-gear ax5214h.0.out-21
+net sp-engage-low-gear ax5214h.0.out-20
+net sp-in-high-gear ax5214h.0.in-34
+net sp-in-neutral ax5214h.0.in-35
+net sp-in-low-gear ax5214h.0.in-36
+
+# use scale block to convert spindle position in degrees
+# to revolutions for rigid tapping
+net sp-enc-pos scale.2.in
+net sp-pos-revs scale.2.out
+setp scale.2.gain 0.002777777777777
+net sp-pos-revs motion.spindle-revs
+
+# rayh begins to screw it up with help from his friends
+# connect iocontrol signals for spindle run and speed
+# these work as long as a spindle command is being output.
+net spindle-run-request motion.spindle-on
+net spindle-rpm-cmd motion.spindle-speed-out
+
+# end of spindle control
+
+# ioControl exports some tool pins
+# iocontrol.0.tool-prepare
+# iocontrol.0.tool-prep-number
+# and expects iocontrol.0.tool-prepared (when the tool prep. is done)
+# iocontrol.0.tool-change (output)
+# and expects iocontrol.0.tool-changed (when tool changed)
+# it also exports iocontrol.0.tool-number, which is the current tool
+# in the spindle and is used when its time to return that tool to
+# the tool magazine
+net tool-prepare iocontrol.0.tool-prepare
+net tool-prepared iocontrol.0.tool-prepared
+net tool-change iocontrol.0.tool-change
+net tool-changed iocontrol.0.tool-changed
+net tool-requested-number iocontrol.0.tool-prep-number
+net tool-current-number iocontrol.0.tool-number
+
+# misc control
+# tool change location push button operators
+net magazine-index-pbs ax5214h.0.in-07
+net worklight-pbs ax5214h.0.in-08
+net tool-load-pbs ax5214h.0.in-09
+net tool-unload-pbs ax5214h.0.in-10
+
+# add front panel buttons here
+net tool-unclamp-pbs ax5214h.0.in-39
+net feed-hold-pbs ax5214h.0.in-14
+net cycle-start-pbs ax5214h.0.in-25
+
+# hydraulic pump
+net hydraulic-pump-run motenc.3.out-14
+net hydraulic-pump-running ax5214h.0.in-05
+
+# hydraulic actuator prox switches
+# tool load-unload arm
+net tool-unloaded ax5214h.0.in-38
+net tool-loaded ax5214h.0.in-15
+
+# double or intermediate arm
+net arm-retracted ax5214h.0.in-29
+net arm-extended ax5214h.0.in-30
+# FIXME!!  This sensor is broken, so we are using a delay
+# instead - 2 seconds after the cylinder is actuated, we
+# assume that we have reached the desired position and 
+# set the signal true.  The commented out line below is
+# the proper source for the signal.  But for now, it is
+# driven by classicladder output number 27 (see ladder
+# section near end of file).
+#linksp arm-at-0/180 ax5214h.0.in-26
+net arm-at-0/60 ax5214h.0.in-27
+net arm-at-60 ax5214h.0.in-28
+net arm-at-180 ax5214h.0.in-31
+
+# tool drawbar
+net tool-clamped ax5214h.0.in-33
+net tool-unclamped ax5214h.0.in-32
+
+# tool magazine or carousel with 0-24 positions
+net magazine-in-position ax5214h.0.in-37
+net magazine-not-in-position ax5214h.0.in-37-not
+net magazine-not-in-position wsum.0.hold
+net magazine-position-0 ax5214h.0.in-00
+net magazine-position-0 wsum.0.bit.0.in
+net magazine-position-1 ax5214h.0.in-01
+net magazine-position-1 wsum.0.bit.1.in
+net magazine-position-2 ax5214h.0.in-02
+net magazine-position-2 wsum.0.bit.2.in
+net magazine-position-3 ax5214h.0.in-03
+net magazine-position-3 wsum.0.bit.3.in
+net magazine-position-4 ax5214h.0.in-04
+net magazine-position-4 wsum.0.bit.4.in
+# set the bit weight for bit 4 to 13 instead of the default 16
+setp wsum.0.bit.4.weight 13
+# add a signal for magazine position
+net magazine-position wsum.0.sum
+# add a temporary signal to rotate by one.
+
+# hydraulic valves
+net arm-extend ax5214h.0.out-47
+net arm-retract ax5214h.0.out-46
+net arm-60cw ax5214h.0.out-45
+net arm-180ccw ax5214h.0.out-44
+net tool-load ax5214h.0.out-43
+net tool-unload ax5214h.0.out-42
+net magazine-forward ax5214h.0.out-41
+net magazine-reverse ax5214h.0.out-40
+net tool-unclamp ax5214h.0.out-23
+net head-unclamp ax5214h.0.out-22
+
+# other solenoids and such
+net spindle-air-blast ax5214h.0.out-19
+net work-air-blast ax5214h.0.out-18
+net mist-coolant ax5214h.0.out-17
+
+net coolant-flood iocontrol.0.coolant-flood ax5214h.0.out-16
+
+# magazine indexing
+net magazine-position mod-dir.0.actual
+net tool-requested-number mod-dir.0.desired
+net tool-requested-match mod-dir.0.on-target
+
+net magazine-position mod-dir.1.actual
+net tool-current-number mod-dir.1.desired
+net tool-current-match mod-dir.1.on-target
+
+setp mod-dir.0.max-num [EMCIO]TOOL_TURRET_MAX
+setp mod-dir.0.wrap [EMCIO]TOOL_TURRET_WRAP
+setp mod-dir.1.max-num [EMCIO]TOOL_TURRET_MAX
+setp mod-dir.1.wrap [EMCIO]TOOL_TURRET_WRAP
+# direction to move to fetch new tool
+net magazine-fwd-req-fetch mod-dir.0.up
+net magazine-rev-req-fetch mod-dir.0.down
+# direction to move to store previous tool
+net magazine-fwd-req-store mod-dir.1.up
+net magazine-rev-req-store mod-dir.1.down
+
+# set encoder latch enable TRUE so encoder count "wraps" during toolchanges
+# and resets under motion controller command for rigid tapping
+net sp-index-enable motenc.3.enc-03-index-enable
+net sp-index-enable tristate-bit.0.out
+setp tristate-bit.0.in 1
+net tool-change tristate-bit.0.enable
+net sp-index-enable motion.spindle-index-enable
+
+# jogwheel signals
+setp encoder.0.x4-mode 0
+net jogwheel-phA parport.0.pin-12-in
+net jogwheel-phB parport.0.pin-11-in
+# route signals to software encoder counter
+net jogwheel-phA encoder.0.phase-A
+
+net jogwheel-phB encoder.0.phase-B
+# jogwheel output
+net jogwheel-counts encoder.0.counts
+# need to release the Z-axis brake when running
+net Z-amp-running motenc.3.out-15
+
+# feedhold, uses G50 adaptive feed input
+sets zero 0.0
+sets one 1.0
+net adaptive-feed mux2.1.out
+net adaptive-feed motion.adaptive-feed
+net zero mux2.1.in1
+net one mux2.1.in0
+net feed-hold mux2.1.sel
+
+
+# -----------------------------------------------------
+# encoders - signals and scaling
+#
+# position in counts
+net X-enc-counts motenc.3.enc-00-count
+net Y-enc-counts motenc.3.enc-01-count
+net Z-enc-counts motenc.3.enc-02-count
+
+# scaling to get inches (scale comes from ini file)
+setp motenc.3.enc-00-scale [AXIS_0]INPUT_SCALE
+setp motenc.3.enc-01-scale [AXIS_1]INPUT_SCALE
+setp motenc.3.enc-02-scale [AXIS_2]INPUT_SCALE
+
+# position in inches
+net X-enc-pos motenc.3.enc-00-position
+net Y-enc-pos motenc.3.enc-01-position
+net Z-enc-pos motenc.3.enc-02-position
+
+# index pulses
+net X-index-enable motenc.3.enc-00-index-enable axis.0.index-enable
+net Y-index-enable motenc.3.enc-01-index-enable axis.1.index-enable
+net Z-index-enable motenc.3.enc-02-index-enable axis.2.index-enable
+
+# -----------------------------------------------------
+# DACs - output to servo amps
+#
+net X-volts motenc.3.dac-00-value
+net Y-volts motenc.3.dac-01-value
+net Z-volts motenc.3.dac-02-value
+# get scale and offset from the ini file
+setp motenc.3.dac-00-gain [AXIS_0]OUTPUT_SCALE
+setp motenc.3.dac-01-gain [AXIS_1]OUTPUT_SCALE
+setp motenc.3.dac-02-gain [AXIS_2]OUTPUT_SCALE
+setp motenc.3.dac-00-offset [AXIS_0]OUTPUT_OFFSET
+setp motenc.3.dac-01-offset [AXIS_1]OUTPUT_OFFSET
+setp motenc.3.dac-02-offset [AXIS_2]OUTPUT_OFFSET
+
+# -----------------------------------------------------
+# ADCs - servo amp current feedback
+#
+net X-amps motenc.3.adc-00-value
+net Y-amps motenc.3.adc-01-value
+net Z-amps motenc.3.adc-02-value
+# set scale and offset (need to calibrate this)
+setp motenc.3.adc-00-gain 1.0
+setp motenc.3.adc-01-gain 1.0
+setp motenc.3.adc-02-gain 1.0
+setp motenc.3.adc-00-offset 0.0
+setp motenc.3.adc-01-offset 0.0
+setp motenc.3.adc-02-offset 0.0
+
+# -----------------------------------------------------
+# PIDs - position control
+#
+
+# signals for position command
+# hook the motion controller outputs to the position command
+net X-pos-cmd axis.0.motor-pos-cmd
+net Y-pos-cmd axis.1.motor-pos-cmd
+net Z-pos-cmd axis.2.motor-pos-cmd
+# and to the PID inputs
+net X-pos-cmd pid.0.command
+net Y-pos-cmd pid.1.command
+net Z-pos-cmd pid.2.command
+
+# hook encoders to PID feedback
+net X-enc-pos pid.0.feedback
+net Y-enc-pos pid.1.feedback
+net Z-enc-pos pid.2.feedback
+# and to motion controller
+net X-enc-pos axis.0.motor-pos-fb
+net Y-enc-pos axis.1.motor-pos-fb
+net Z-enc-pos axis.2.motor-pos-fb
+
+# hook PID outputs to DACs
+net X-volts pid.0.output
+net Y-volts pid.1.output
+net Z-volts pid.2.output
+
+# use 'servo-enable' to enable PID blocks
+# need to release the Z-axis brake when running
+net Z-amp-running motenc.3.out-15
+
+net servo-enable pid.0.enable
+net servo-enable pid.1.enable
+net servo-enable pid.2.enable
+
+# get tuning params from ini file
+setp pid.0.deadband [AXIS_0]DEADBAND
+setp pid.0.Pgain [AXIS_0]PGAIN
+setp pid.0.Igain [AXIS_0]IGAIN
+setp pid.0.Dgain [AXIS_0]DGAIN
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.1.deadband [AXIS_1]DEADBAND
+setp pid.1.Pgain [AXIS_1]PGAIN
+setp pid.1.Igain [AXIS_1]IGAIN
+setp pid.1.Dgain [AXIS_1]DGAIN
+setp pid.1.FF0 [AXIS_1]FF0
+setp pid.1.FF1 [AXIS_1]FF1
+setp pid.1.FF2 [AXIS_1]FF2
+setp pid.1.bias [AXIS_1]BIAS
+setp pid.2.deadband [AXIS_2]DEADBAND
+setp pid.2.Pgain [AXIS_2]PGAIN
+setp pid.2.Igain [AXIS_2]IGAIN
+setp pid.2.Dgain [AXIS_2]DGAIN
+setp pid.2.FF0 [AXIS_2]FF0
+setp pid.2.FF1 [AXIS_2]FF1
+setp pid.2.FF2 [AXIS_2]FF2
+setp pid.2.bias [AXIS_2]BIAS
+# get maximum (and minimum) output volts from ini file
+setp pid.0.maxoutput [AXIS_0]MAX_OUTPUT
+setp pid.1.maxoutput [AXIS_1]MAX_OUTPUT
+setp pid.2.maxoutput [AXIS_2]MAX_OUTPUT
+
+# LADDER LOGIC!!!
+#
+# Classic ladder doesn't let you use meaningfull names, so this
+# will be the magic decoder ring
+
+# INPUTS to CL
+# I0 = the GUI estop "button" isn't pressed
+net gui-estop-ok classicladder.0.in-00
+# I1 = servo-enable, used to mask amp faults when not enabled
+net servo-enable classicladder.0.in-01
+# I2 thru I4, amp running signal (FALSE when faulted OR disabled)
+net X-amp-running classicladder.0.in-02
+net Y-amp-running classicladder.0.in-03
+net Z-amp-running classicladder.0.in-04
+net spindle-use-low-gear classicladder.0.in-05
+net sp-in-low-gear classicladder.0.in-06
+net sp-in-high-gear classicladder.0.in-07
+net sp-in-neutral classicladder.0.in-08
+net sp-at-speed classicladder.0.in-09
+net hydraulic-pump-running classicladder.0.in-10
+net magazine-in-position classicladder.0.in-11
+net magazine-index-pbs classicladder.0.in-12
+net tool-load-pbs classicladder.0.in-13
+net tool-loaded classicladder.0.in-14
+net tool-unload-pbs classicladder.0.in-15
+net tool-unloaded classicladder.0.in-16
+net tool-unclamp-pbs classicladder.0.in-17
+# based on difference between current position and
+# the slot for the tool currently in the spindle
+net magazine-fwd-req-store classicladder.0.in-18
+net magazine-rev-req-store classicladder.0.in-19
+# I20 = means the external estop chain is OK
+net external-estop-ok classicladder.0.in-20
+# I21 = estop-reset, pulsed to reset the estop relay
+net estop-reset classicladder.0.in-21
+net feed-hold-pbs classicladder.0.in-22
+net spindle-run-request classicladder.0.in-23
+net sp-orient-pos-ok classicladder.0.in-24
+net tool-requested-match classicladder.0.in-25
+net tool-prepare classicladder.0.in-26
+# based on difference between current position and EMC
+# requested position (from a T block)
+net magazine-fwd-req-fetch classicladder.0.in-27
+net magazine-rev-req-fetch classicladder.0.in-28
+# tool changer proxes
+net arm-at-0/180 classicladder.0.in-29
+net arm-at-0/60 classicladder.0.in-30
+net arm-at-180 classicladder.0.in-31
+net arm-at-60 classicladder.0.in-32
+net arm-extended classicladder.0.in-33
+net arm-retracted classicladder.0.in-34
+net tool-change classicladder.0.in-35
+net tool-clamped classicladder.0.in-36
+net tool-unclamped classicladder.0.in-37
+net tool-current-match classicladder.0.in-38
+
+
+
+# OUTPUTS from CL
+# Q0 = AP1, first stage power up (applies power thru resistors)
+net AP1 classicladder.0.out-00
+# Q1 = AP2, second stage (bypasses resistors)
+net AP2 classicladder.0.out-01
+# Q2 thru Q4, amp faulted signal (ENABLED and NOT RUNNING)
+net X-amp-fault classicladder.0.out-02
+net Y-amp-fault classicladder.0.out-03
+net Z-amp-fault classicladder.0.out-04
+# Q5 is motion enable (after chain)
+net motion-enable classicladder.0.out-05
+# Q6 and 7 are the gear shift outputs
+net sp-engage-low-gear classicladder.0.out-06
+net sp-engage-high-gear classicladder.0.out-07
+# Q8 indicates that a shift is in progress
+net sp-shifting classicladder.0.out-08
+net hydraulic-pump-run classicladder.0.out-09
+net magazine-forward classicladder.0.out-10
+net magazine-reverse classicladder.0.out-11
+net tool-load classicladder.0.out-12
+net tool-unload classicladder.0.out-13
+net arm-extend classicladder.0.out-14
+net arm-retract classicladder.0.out-15
+net arm-60cw classicladder.0.out-16
+net arm-180ccw classicladder.0.out-17
+net tool-unclamp classicladder.0.out-18
+net head-unclamp classicladder.0.out-19
+net tool-prepared classicladder.0.out-20
+net tool-changed classicladder.0.out-21
+# Q22 indicates that the estop ladder rung (latch) is ok
+net main-estop-ok classicladder.0.out-22
+net spindle-drive-run classicladder.0.out-23
+net spindle-at-speed classicladder.0.out-24
+net spindle-oriented classicladder.0.out-25
+net feed-hold classicladder.0.out-26
+# FIXME! this is a temporary replacement for a bad sensor
+net arm-at-0/180 classicladder.0.out-27
+net spindle-do-orient classicladder.0.out-28
+
+# CL internals (not HAL data, just here for documentation
+#
+# T0 = delay from estop OK to AP1
+# T1 = delay from AP1 to AP2
+# T2 = delay to allow servo amps to respond to enable
+# T3 = delay between AP2 close and motion enable
+# T4 = delay before shifting out of gear
+# T5 = delay before shifting into gear
+# T6 = oneshot for tool magazine advance
+# T7 = hydraulic pump delay
+# T8 = at-speed delay
+# T9 = oriented delay
+# T10 = bad prox delay
+
+
+# B0 = delayed servo-enable, for fault masking
+# B1 = five second initialization signal
+# B2 = gear shifting in progress
+# B3 = ok to shift into neutral
+# B4 = ok to shift into gear
+# B5 = magazine-index delay
+# B6 = magazine stop delay
+# B7 = tool load virtual
+# B8 = tool unload virtual
+# B9 = arm extend virtual
+# B10 = arm retract virtual
+# B11 = arm arm-60cw virtual
+# B12 = arm arm 180ccw virtual
+# B13 = arm tool unclamp virtual
+# B14 = tool change preconditions ready
+# B15 = cycle midpoint
+# B16 = tool cycle start
+

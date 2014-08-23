@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ ! -z "$EMC2_HOME" ]; then
+    source $EMC2_HOME/scripts/githelper.sh
+else
+    if [ ! -d debian -o ! -d src ]; then
+        echo "this script must be run from the root of the source tree (the directory with debian and src in it)"
+        exit 1
+    fi
+    source scripts/githelper.sh
+fi
+
+githelper $1
+
+if [ "$DEB_COMPONENT" = "scratch" ]; then
+    # unknown branches get the VERSION file, plus the branch name (with any
+    # characters that are invalid in debian version numbers replaced with
+    # dashes '-'), plus the HEAD commit SHA1
+    echo v$(git show HEAD:VERSION | cut -d ' ' -f 1)~${GIT_BRANCH//[^-.+:~a-z0-9]/-}~$(git show --pretty=format:%h HEAD | head -1)
+else
+    # known branches get the "describe" of the most recent signed git tag,
+    # or of the most recent unsigned tag if no signed tags are found
+    git describe --match "$GIT_TAG"
+fi
+

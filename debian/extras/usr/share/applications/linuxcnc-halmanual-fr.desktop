@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=
+Encoding=UTF-8
+Name=LinuxCNC HAL Manual (French)
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_HAL_User_Manual_fr.pdf
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Comment=The LinuxCNC HAL Manual. Details about the Hardware Abstract Layer. (French)
+StartupNotify=false
+Categories=X-CNC;
+GenericName[en_US]=

@@ -1,0 +1,44 @@
+INCLUDES += emc/rs274ngc
+
+LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
+	interp_arc.cc \
+	interp_array.cc \
+	interp_check.cc \
+	interp_convert.cc \
+	interp_queue.cc \
+	interp_cycles.cc \
+	interp_execute.cc \
+	interp_find.cc \
+	interp_internal.cc \
+	interp_inverse.cc \
+	interp_read.cc \
+	interp_write.cc \
+	interp_o_word.cc \
+	nurbs_additional_functions.cc \
+	rs274ngc_pre.cc)
+USERSRCS += $(LIBRS274SRCS)
+
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC
+
+TARGETS += ../lib/librs274.so ../lib/librs274.so.0
+
+../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) ../lib/liblinuxcncini.so
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+
+../include/%.h: ./emc/rs274ngc/%.h
+	cp $^ $@
+../include/%.hh: ./emc/rs274ngc/%.hh
+	cp $^ $@
+
+GCODEMODULESRCS := emc/rs274ngc/gcodemodule.cc
+PYSRCS += $(GCODEMODULESRCS)
+
+GCODEMODULE := ../lib/python/gcode.so
+$(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
+	$(ECHO) Linking python module $(notdir $@)
+	@$(CXX) $(LDFLAGS) -shared -o $@ $^
+
+PYTARGETS += $(GCODEMODULE)

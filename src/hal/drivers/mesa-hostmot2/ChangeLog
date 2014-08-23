@@ -1,0 +1,216 @@
+
+released 2008-12-12
+    hm 0.15 
+
+    Fixed a system crash bug in pwmgen.
+
+    All stepgen step_types are now supported.  stepgen velocity-fb now
+    reports the commanded step rate, not the estimated.  Fixed some
+    stepgen bugs.
+
+    Better logging - now doesnt need the RTAPI debug level tweaked to
+    show the useful stuff.
+
+    Much better encoder support.  Index, Index mask, velocity estimation.
+
+    Renamed GPIO HAL objects to make more sense.  Better logging of
+    actual pin usage at driver load time.
+
+    New firmware files from Peter Wallace.
+
+    Misc minor cleanups here and there.
+
+
+released 2008-10-28
+    hm2_pci 0.6
+
+    Added support for the 5i23 and 4i68.  All the PCI, PC-104/Plus,
+    and EPP Anything I/O boards are now supported.  :-)
+
+
+released 2008-10-27
+    hm2_pci 0.5
+
+    Added support for the 5i22.  hm2_pci replaces hm2_5i20.
+
+    The 5i22-1.0 board is tested and seems to be working fine.  The 5i22-1.5
+    hasnt been tested yet.
+
+
+released 2008-10-05
+    hm2 0.14
+
+    Added support for PDM mode to the pwmgen driver.  Renamed pwmgen.frequency
+    to pwmgen.pwm_frequency; added pwmgen.pdm_frequency.
+
+    pwmgen now zeroes the output pins (PWM & Dir, or PDM & Dir, or UP & Down
+    depending on output-type) when the .enable HAL pin is low.
+
+    Added support for the final pwmgen mode: PWM & Dir with outputs swapped,
+    for locked antiphase.  .output-type=4
+
+
+released 2008-09-22
+    hm2 0.13
+
+    Fixed a cut-n-paste error that could make pwmgens not work properly.
+
+    Added a pwmgen.frequency parameter, which lets the user control the
+    pwmgen frequency from about 1 Hz up to about 193 KHz (on the 5i20
+    and 7i43).  Also added pwmgen.bits, a read-only parameter showing
+    number of bits of resolution of the pwmgen duty cycle.
+
+
+released 2008-09-20
+    hm2 0.12
+
+    Fixed a bug in stepgen: negative values for .position_scale now work.
+    Thanks to Eric Johnson for discovering, reporting, and helping to
+    debug this.
+
+    Fixed a bug in in pwmgen: negative values for .scale now work.
+
+    Cleaned up encoder driver some.  Added new encoder features to
+    manpage.
+
+    Now accepts stepgen.maxaccel = 0, which means "don't limit
+    acceleration at all".
+
+    Switched to the latest firmware VHDL source code from Peter Wallace
+    at Mesa Electronics.
+
+
+released 2008-09-14
+    hm2_5i20 0.4
+
+    Add support for the 4i65 Anything I/O board (in the now mis-named
+    hm2_5i20 driver).  The 4i65 just like the 5i20, except the PCI
+    Subsystem Device ID is different and the first I/O connector is
+    named P1 instead of P2.
+
+
+released 2008-09-11
+    hostmot2 0.11
+
+    This fixes a bug in pwmgen so that .scale works as expected.
+
+
+released 2008-08-22
+    hostmot2 0.10
+
+    Added stepgen.maxaccel.
+
+    This version of the stepgen position controller and velocity slewing
+    code is the least broken one yet.
+
+    Added stepgen.velocity_cmd (not writable, just for peeking at what
+    the velocity slewing code is doing).
+
+
+released 2008-08-21
+    hostmot2 0.9
+
+    Fixed stepgen.stepspace, it was not getting set correctly on the FPGA.
+
+    Fixed stepgen.position-fb, it was not getting set reported correctly
+    to HAL.
+
+    Added stepgen.maxvel.
+
+    Added raw.dump_state, a way to cause hostmot2 to dump its internal
+    state to the syslog.
+
+
+released 2008-08-19
+    hostmot2 0.8
+
+    Changed the stepgen timing parameters from "float seconds" to
+    "u32 nanoseconds".  This breaks existing configs that use stepgen!
+
+    Added an "enable" pin for stepgen.
+
+    Fixed a harmless buglet in the Master DDS stepgen fix that went
+    into 0.6.
+
+    Segregated the stepgen debug pins to make things clearer.
+
+
+released 2008-08-17
+    hostmot2 0.7
+
+    Give HAL interfaces to all IO pins, not just the full GPIOs.  IO pins
+    used by active module instances have restricted interfaces.
+
+    Improved IO Port handling.  Support open-drain pins.
+
+    Updated README to reflect reality.
+
+    Report firmware timestamp when loading.
+
+    Improved config string parsing.
+
+
+released 2008-08-15
+    hostmot2 0.6
+
+    Fix a bug in the stepgen driver.  Stepgen now works on both the 5i20
+    and the 7i43.
+
+
+released 2008-08-13
+    hostmot2 0.5
+    hm2_5i20 0.3
+
+    The llios now export a "threadsafe" flag.  If it's set, hostmot2
+    exports an additional pair of functions to read & write just the
+    gpios.  The 5i20 supports this, but the 7i43 does not.
+
+    5i20: mark driver as threadsafe.
+
+
+0.4 (released 2008-08-03)
+
+    Moved firmware loading from userspace to the kernel.  The low-level
+    I/O drivers (hm2_5i20 & hm2_7i43) register a "program_fpga()"
+    function with the hostmot2 driver, and request a firmware file in
+    their config string.  The hostmot2 driver fetches the firmware with
+    request_firmware()/udev, validates the bitfile, and feeds it to the
+    llio's program_fpga() function.
+
+    hm2_5i20 and hm2_7i43 now supply a program_fpga() function, used by
+    the high-level firmware driver to program them when they register.
+
+    hm2_5i20:
+
+	Improved board-detection-time error handling.
+
+	Added the LASxBRD #READY fix from bfload.
+
+    hm2_7i43:
+
+	Now detects the board's FPGA (needed for firmware programming).
+
+
+0.3 (released 2008-06-17)
+
+    Added support for Raw mode (lets you peek & poke the hostmot2 firmware
+    from HAL).
+
+
+0.2 (released 2008-05-25)
+
+    Improved load-time sanity checking.
+
+    Improved handling of "zero instances enabled" situations.
+
+
+0.1 (released 2008-05-13)
+
+    Split m7i43_hm2 0.4 into a generic hostmot2 driver and a low-level I/O
+    driver for the 7i43 (called hm2_7i43).  Moved the firmware loading
+    on the 7i43 from the kernel driver to userspace, by extending the
+    bfload program.
+
+    Wrote a new driver that plugs the 5i20 board into the hostmot2 driver.
+    Firmware loading on the 5i20 was already supported by bfload.
+

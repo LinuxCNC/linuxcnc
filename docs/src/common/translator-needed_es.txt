@@ -1,0 +1,31 @@
+[NOTE]
+.AVISO
+=================================================
+Debido a un reciente aumento de interés 
+en otras traducciones,
+el equipo de EMC2 ha comenzado recientemente a este esfuerzo 
+para entregar un Traducción al español de la documentación de EMC2.
+
+Si a usted le gustaría ser 
+un editor voluntario de la
+Traducción al español de EMC2, 
+por favor póngase en contacto con nosotros.
+=================================================
+
+[NOTE]
+.NOTICE
+=================================================
+Because of a recent increase in interest 
+in other translations, 
+the EMC2 team has recently begun this effort 
+to deliver a Spanish Translation of the EMC2 documentation. 
+
+If you would like to be 
+a volunteer editor for the 
+Spanish translation of EMC2, 
+please contact us.
+=================================================
+
+// vim: set syntax=asciidoc:
+
+

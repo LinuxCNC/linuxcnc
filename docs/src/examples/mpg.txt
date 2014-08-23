@@ -1,0 +1,130 @@
+= MPG Pendant
+
+This example is to explain how to hook up the common MPG pendants
+found on the market today. This example uses an MPG3 pendant and a
+C22 pendant interface card from CNC4PC connected to a second parallel
+port plugged into the PCI slot. This example gives you 3 axes with 3
+step increments of 0.1, 0.01, 0.001
+
+In your custom.hal file or jog.hal file add the following, making
+sure you don't have mux4 or an encoder already in use. If you do just
+increase the counts and change the reference numbers. More information
+about mux4 and encoder can be found in the HAL manual or the man page.
+
+See the <<sub:HAL-section,HAL Ini Section>> of the manual for more
+information on adding a hal file.
+
+.jog.hal
+----
+# Jog Pendant 
+loadrt encoder num_chan=1 
+loadrt mux4 count=1 
+addf encoder.capture-position servo-thread 
+addf encoder.update-counters base-thread 
+addf mux4.0 servo-thread
+
+# If your MPG outputs a quadrature signal per click set x4 to 1  
+# If your MPG puts out 1 pulse per click set x4 to 0 
+setp encoder.0.x4-mode 0
+
+# For velocity mode, set to 1
+# In velocity mode the axis stops when the dial is stopped
+# even if that means the commanded motion is not completed,
+# For position mode (the default), set to 0
+# In position mode the axis will move exactly jog-scale
+# units for each count, regardless of how long that might take,
+setp axis.0.jog-vel-mode 0
+setp axis.1.jog-vel-mode 0
+setp axis.2.jog-vel-mode 0
+
+# This sets the scale that will be used based on the input to the mux4
+setp mux4.0.in0 0.1
+setp mux4.0.in1 0.01
+setp mux4.0.in2 0.001
+
+# The inputs to the mux4 component
+net scale1 mux4.0.sel0 <= parport.1.pin-09-in
+net scale2 mux4.0.sel1 <= parport.1.pin-10-in
+
+# The output from the mux4 is sent to each axis jog scale
+net mpg-scale <= mux4.0.out
+net mpg-scale => axis.0.jog-scale
+net mpg-scale => axis.1.jog-scale
+net mpg-scale => axis.2.jog-scale
+
+# The MPG inputs
+net mpg-a encoder.0.phase-A <= parport.1.pin-02-in
+net mpg-b encoder.0.phase-B <= parport.1.pin-03-in
+
+# The Axis select inputs
+net mpg-x axis.0.jog-enable <= parport.1.pin-04-in
+net mpg-y axis.1.jog-enable <= parport.1.pin-05-in
+net mpg-z axis.2.jog-enable <= parport.1.pin-06-in
+
+# The encoder output counts to the axis. Only the selected axis will move.
+net encoder-counts  <= encoder.0.counts
+net encoder-counts => axis.0.jog-counts
+net encoder-counts => axis.1.jog-counts
+net encoder-counts => axis.2.jog-counts
+----
+
+If the machine is capable of high acceleration to smooth out the moves
+for each click of the MPG use the <<ilowpass,ilowpass>> component to
+limit the acceleration.
+
+.jog.hal with ilowpass
+----
+loadrt encoder num_chan=1 
+loadrt mux4 count=1 
+addf encoder.capture-position servo-thread 
+addf encoder.update-counters base-thread 
+addf mux4.0 servo-thread
+
+loadrt ilowpass
+addf ilowpass.0 servo-thread
+
+setp ilowpass.0.scale 1000
+setp ilowpass.0.gain 0.01
+
+
+# If your MPG outputs a quadrature signal per click set x4 to 1  
+# If your MPG puts out 1 pulse per click set x4 to 0 
+setp encoder.0.x4-mode 0
+
+# For velocity mode, set to 1
+# In velocity mode the axis stops when the dial is stopped
+# even if that means the commanded motion is not completed,
+# For position mode (the default), set to 0
+# In position mode the axis will move exactly jog-scale
+# units for each count, regardless of how long that might take,
+setp axis.0.jog-vel-mode 0
+setp axis.1.jog-vel-mode 0
+setp axis.2.jog-vel-mode 0
+
+# The inputs to the mux4 component
+net scale1 mux4.0.sel0 <= parport.1.pin-09-in
+net scale2 mux4.0.sel1 <= parport.1.pin-10-in
+
+# This sets the scale that will be used based on the input to the mux4
+# The scale used here has to be multiplied by the ilowpass scale
+setp mux4.0.in0 0.0001
+setp mux4.0.in1 0.00001
+setp mux4.0.in2 0.000001
+
+# The output from encoder counts is sent to ilowpass
+net mpg-out ilowpass.0.in <= encoder.0.counts
+
+# The output from the mux4 is sent to each axis jog scale
+net mpg-scale <= mux4.0.out
+net mpg-scale => axis.0.jog-scale
+net mpg-scale => axis.1.jog-scale
+net mpg-scale => axis.2.jog-scale
+
+# The output from the ilowpass is sent to each axis jog count
+# Only the selected axis will move.
+net encoder-counts  <= ilowpass.0.out
+net encoder-counts => axis.0.jog-counts
+net encoder-counts => axis.1.jog-counts
+net encoder-counts => axis.2.jog-counts
+----
+

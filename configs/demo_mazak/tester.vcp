@@ -1,0 +1,488 @@
+vcp {
+    main-window {
+	title = "Mazak Test"
+#	width = 300
+#	height = 300
+	# top level box
+	box {
+	    # this box holds generic stuff
+	    layout = horizontal
+	    box {
+		layout = vertical
+		box {
+		    layout = vertical
+		    title = "ESTOP Chain"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.ext-estop
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " External" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.gui-estop
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " GUI" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.main-estop
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Master" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.charging
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Charging" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.powered
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Amp Power" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.motion-enable
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Enabled" }
+		    }
+		}
+		box {
+		    layout = vertical
+		    title = "Spindle"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.sp-ready
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Ready" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.sp-run
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Run" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.sp-low-gear
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Use Low Gear" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.sp-at-speed
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " At Speed" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.sp-do-orient
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Do Orient" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.sp-oriented
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Oriented" }
+		    }
+		    button {
+			halpin = button.sp-low-gear
+			label { text = "LowGear" }
+		    }
+		}
+	    }
+	    # this box holds stuff for the axes
+	    box {
+		layout = vertical
+		#title = "Axis Amps"
+		box {
+		    layout = vertical
+		    title = "X"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.x-amp-on
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Running" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.x-amp-flt }
+			label { text = " Faulted" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.x-pos-lim }
+			label { text = " Max Limit" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.x-neg-lim }
+			label { text = " Min Limit" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.x-home
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Home" }
+		    }
+		}
+		box {
+		    layout = vertical
+		    title = "Y"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.y-amp-on
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Running" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.y-amp-flt }
+			label { text = " Faulted" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.y-pos-lim }
+			label { text = " Max Limit" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.y-neg-lim }
+			label { text = " Min Limit" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.y-home
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " HomeSw" }
+		    }
+		}
+		box {
+		    layout = vertical
+		    title = "Z"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.z-amp-on
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Running" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.z-amp-flt }
+			label { text = " Faulted" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.z-pos-lim }
+			label { text = " Max Limit" }
+		    }
+		    box {
+			layout = horizontal
+			LED { halpin = led.z-neg-lim }
+			label { text = " Min Limit" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.z-home
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Home" }
+		    }
+		}
+	    }
+	    # this box holds stuff for the toolchanger
+	    box {
+		layout = vertical
+		title = "Tools"
+		box {
+		    layout = vertical
+		    title = "Control"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-prep
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Prepare" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-prepped
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Prepared" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-change
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Change" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-changed
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Changed" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-index-pb
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " PB Index" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-load-pb
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " PB Load" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-unload-pb
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " PB Unload" }
+		    }
+		}
+		box {
+		    layout = vertical
+		    title = "Magazine"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.mag-in-pos
+			    on-color = green
+			    off-color = red
+			}
+			label { text = " In Pos" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.mag-pos-0
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Bit0" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.mag-pos-1
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Bit1" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.mag-pos-2
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Bit2" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.mag-pos-3
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Bit3" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.mag-pos-4
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Bit4" }
+		    }
+		}
+	    }
+	    # this box holds the prox switches
+	    box {
+		layout = vertical
+		title = "Proxen"
+		box {
+		    layout = vertical
+		    title = "Mag Arm"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm1-loaded
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Load" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm1-unloaded
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Unload" }
+		    }
+		}
+		box {
+		    layout = vertical
+		    title = "Double Arm"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm2-retracted
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Retracted" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm2-extended
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " Extended" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm2-0/180
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " 0/180" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm2-0/60
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " 0/60" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm2-180
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " 180" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.arm2-60
+			    on-color = yellow
+			    off-color = yellow4
+			}
+			label { text = " 60" }
+		    }
+		}
+		box {
+		    layout = vertical
+		    title = "Drawbar"
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-clamped
+			    on-color = green
+			    off-color = "#060"
+			}
+			label { text = " Clamped" }
+		    }
+		    box {
+			layout = horizontal
+			LED {
+			    halpin = led.tool-unclamped
+			    on-color = red
+			    off-color = red4
+			}
+			label { text = " Unclamped" }
+		    }
+		}
+	    }
+	}
+    } # main-window
+}

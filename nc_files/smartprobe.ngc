@@ -1,0 +1,53 @@
+( Rectangular Probing                                                   )
+(                                                                       )
+( This program repeatedly probes in a regular XY grid and writes the    )
+( probed location to the file 'probe-results.ngc' in the same directory )
+( as the .ini file                                                      )
+
+(Configuration section)
+G20   (Inches)
+F20    (probe speed)
+
+#1=-1  (X start)
+#2=.04 (X increment)
+#3=51 (X count)
+
+#4=-1
+#5=.04
+#6=51 (Y count)
+
+#7=1.1 (Z safety)
+#8=-.1 (Z probe)
+(End configuration section)
+
+(LOGOPEN,probe-results.ngc)
+#9=0 #10=0
+G0Z#7
+O1 while [#9 lt #6]
+    #10=0
+    G0 Y[#4+#5*#9]
+    O2 while [#10 lt #3]
+        O3 if [[#9/2] - fix[#9/2] eq 0]
+            #11=[#1+#2*#10]
+        O3 else      
+            #11=[#1+#2*[#3-#10-1]]
+        O3 endif
+        (#11 is X target)
+        #5070=1
+        O4 while [#5070 NE 0]
+            G38.5 z#7
+            G38.3 x#11
+        O4 endwhile
+
+        G38.2Z#8
+        (LOG,G1 X#5061 Y#5062 Z#5063)
+        #10=[#10+1]
+    O2 endwhile
+    G0Z#7
+    #9=[#9+1]
+O1 endwhile
+
+(LOGCLOSE)
+G0Z#7
+G0X#1Y#4
+M2

@@ -1,0 +1,107 @@
+# load realtime modules
+loadrt trivkins
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES
+loadrt at_pid num_chan=2 debug=1
+loadrt ddt count=4 
+loadrt pluto_servo
+loadrt scale
+loadrt mux2
+loadrt debounce cfg=1
+loadrt limit1 count=1
+
+# define the order of execution for RT code
+addf pluto-servo.read        servo-thread
+addf motion-command-handler  servo-thread
+addf motion-controller       servo-thread
+addf pid.0.do-pid-calcs      servo-thread
+addf pid.1.do-pid-calcs      servo-thread
+addf pluto-servo.write       servo-thread
+
+addf ddt.0                   servo-thread
+addf ddt.1                   servo-thread
+addf ddt.2                   servo-thread
+addf ddt.3                   servo-thread
+addf scale.0                 servo-thread
+addf mux2.0                  servo-thread
+addf debounce.0              servo-thread
+addf limit1.0                servo-thread
+
+setp pluto-servo.encoder.0.scale [AXIS_0]INPUT_SCALE
+setp pluto-servo.encoder.1.scale [AXIS_2]INPUT_SCALE
+setp pluto-servo.encoder.2.scale -4096
+
+setp pluto-servo.pwm.0.scale 26 # volts supply
+setp pluto-servo.pwm.1.scale 26
+
+setp pid.0.maxoutput 26 # volts at motor
+setp pid.1.maxoutput 26
+
+# the values below come from the ini
+setp pid.0.Pgain [AXIS_0]P
+setp pid.0.Igain [AXIS_0]I
+setp pid.0.Dgain [AXIS_0]D
+setp pid.0.bias [AXIS_0]BIAS
+setp pid.0.FF0 [AXIS_0]FF0
+setp pid.0.FF1 [AXIS_0]FF1
+setp pid.0.FF2 [AXIS_0]FF2
+setp pid.0.deadband [AXIS_0]DEADBAND
+
+setp pid.1.Pgain [AXIS_2]P
+setp pid.1.Igain [AXIS_2]I
+setp pid.1.Dgain [AXIS_2]D
+setp pid.1.bias [AXIS_2]BIAS
+setp pid.1.FF0 [AXIS_2]FF0
+setp pid.1.FF1 [AXIS_2]FF1
+setp pid.1.FF2 [AXIS_2]FF2
+setp pid.1.deadband [AXIS_2]DEADBAND
+
+net Xpos-fb pluto-servo.encoder.0.position => pid.0.feedback axis.0.motor-pos-fb
+net Zpos-fb pluto-servo.encoder.1.position => pid.1.feedback axis.2.motor-pos-fb
+
+net Xpos-cmd axis.0.motor-pos-cmd => pid.0.command ddt.0.in
+net Zpos-cmd axis.2.motor-pos-cmd => pid.1.command ddt.2.in
+
+net Xvel-cmd pid.0.output => pluto-servo.pwm.0.value
+net Zvel-cmd pid.1.output => pluto-servo.pwm.1.value
+
+net Xvel ddt.0.out => ddt.1.in
+net Xacc ddt.1.out
+
+net Zvel ddt.2.out => ddt.3.in
+net Zacc ddt.3.out
+
+# machine ON
+net Xenable axis.0.amp-enable-out => pid.0.enable pluto-servo.pwm.0.enable pluto-servo.dout.09
+net Zenable axis.2.amp-enable-out => pid.1.enable pluto-servo.pwm.1.enable
+
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+# spindle SSR
+# net spindle-fwd motion.spindle-forward pluto-servo.dout.00
+
+setp debounce.0.delay 3
+net Xswitch pluto-servo.din.00-not => debounce.0.0.in
+net Xswitch-debounced debounce.0.0.out => axis.0.home-sw-in axis.0.pos-lim-sw-in
+
+# tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
+
+# spindle speed control
+setp pluto-servo.pwm.3.enable 1
+
+# this needs scale/offset to give the right speeds, but 0 should be 0
+net spindle-speed-cmd motion.spindle-speed-out => limit1.0.in
+net spindle-speed-cmd-limited limit1.0.out => scale.0.in
+setp scale.0.gain 0.00026315789 # 1/3800
+setp scale.0.offset 0.105
+setp mux2.0.in0 0
+setp limit1.0.max 1300
+net spindle-speed-scaled scale.0.out => mux2.0.in1
+net spindle-fwd motion.spindle-forward => mux2.0.sel pluto-servo.dout.00
+net spindle-pwm mux2.0.out => pluto-servo.pwm.3.value
+
+# spindle position, for threading
+net spindle-index motion.spindle-index-enable <=> pluto-servo.encoder.2.index-enable
+net spindle-pos pluto-servo.encoder.2.position => motion.spindle-revs
+net spindle-speed-fb pluto-servo.encoder.2.velocity => motion.spindle-speed-in

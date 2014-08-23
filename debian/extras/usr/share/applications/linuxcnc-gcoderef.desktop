@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=
+Type=Application
+Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode.html
+Icon=gnome-help
+X-GNOME-DocPath=
+Terminal=false
+Name=LinuxCNC G-Code Quick Reference
+Comment=Quick reference about existing G & M codes in LinuxCNC
+StartupNotify=false
+Categories=X-CNC;

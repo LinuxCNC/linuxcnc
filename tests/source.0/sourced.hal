@@ -1,0 +1,14 @@
+
+net a streamer.0.pin.0
+net b streamer.0.pin.1
+net c streamer.0.pin.2
+net d streamer.0.pin.3
+
+net a flipflop.0.data
+net b flipflop.0.clk
+net c flipflop.0.reset
+net d flipflop.0.set
+
+net n0 flipflop.0.out sampler.0.pin.0
+
+

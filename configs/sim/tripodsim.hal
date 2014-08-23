@@ -1,0 +1,55 @@
+# core HAL config file for simulation
+
+# first load all the RT modules that will be needed
+# kinematics
+loadrt tripodkins
+setp tripodkins.Bx 10
+setp tripodkins.Cx 5
+setp tripodkins.Cy 7.071
+
+# motion controller, get name and thread periods from ini file
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD
+# 6 differentiators (for velocity and accel sigs)
+loadrt ddt names=ddt_j0,ddt_j1,ddt_j2,ddt_j0v,ddt_j1v,ddt_j2v
+
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+# link the differentiator functions into the code
+addf ddt_j0 servo-thread
+addf ddt_j0v servo-thread
+addf ddt_j1 servo-thread
+addf ddt_j1v servo-thread
+addf ddt_j2 servo-thread
+addf ddt_j2v servo-thread
+
+# create HAL signals for position commands from motion module
+# loop position commands back to motion module feedback
+net J0pos axis.0.motor-pos-cmd => axis.0.motor-pos-fb ddt_j0.in
+net J1pos axis.1.motor-pos-cmd => axis.1.motor-pos-fb ddt_j1.in
+net J2pos axis.2.motor-pos-cmd => axis.2.motor-pos-fb ddt_j2.in
+
+# send the position commands thru differentiators to
+# generate velocity and accel signals
+net J0vel ddt_j0.out => ddt_j0v.in
+net J0acc <= ddt_j0v.out
+net J1vel ddt_j1.out => ddt_j1v.in
+net J1acc <= ddt_j1v.out
+net J2vel ddt_j2.out => ddt_j2v.in
+net J2acc <= ddt_j2v.out
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+
+# create signals for tool loading loopback
+net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
+
+# amp control
+net J0ena <= axis.0.amp-enable-out
+net J1ena <= axis.1.amp-enable-out
+net J2ena <= axis.2.amp-enable-out
+
+net J0flt => axis.0.amp-fault-in
+net J1flt => axis.1.amp-fault-in
+net J2flt => axis.2.amp-fault-in

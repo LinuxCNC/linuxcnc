@@ -1,0 +1,122 @@
+#!/usr/bin/make -f
+# Simple set of debian/rules that uses debhelper.
+# Based on an example by Joey Hess. 
+# extended by Paul Corner, Alex Joni, Chris Radek, Jeff Epler (in cronological order)
+
+# Copyright (C) 2006 Jeff Epler
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# When used to produce a debian package, this file is a script "used to
+# control compilation and installation of the executable"
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+python_version = @PYTHON_VERSION@
+kernel_version = @KERNEL_VERSION@
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+    MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+
+debian/control:
+	echo '# THIS FILE IS AUTO-GENERATED FROM control.in' > debian/control
+	sed -e 's/@@KVERSION@@/$(kernel_version)/g' \
+	    debian/control.in >> debian/control
+
+build: build-stamp
+build-stamp:
+	dh_testdir
+
+# Add here commands to compile the package.
+	cd src && ./autogen.sh
+ifeq "$(kernel_version)" "sim"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator --enable-build-documentation=pdf
+else
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version) --enable-build-documentation=pdf
+endif
+	(cd src; $(MAKE) $(MAKEFLAGS) && $(MAKE) $(MAKEFLAGS) docs)
+	touch build-stamp
+
+clean: debian/control
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp
+
+	cd src && ./autogen.sh
+ifeq "$(kernel_version)" "sim"
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --enable-simulator
+else
+	cd src && ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --with-realtime=/usr/realtime-$(kernel_version)
+endif
+	cd src && $(MAKE) clean -s
+	rm -f Makefile.inc
+	rm -f src/config.log src/config.status
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+# start the install
+	mkdir -p debian/tmp
+	-(cd debian/@EXTRAS@ && cp -a * ../tmp)
+	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) $@)
+	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
+	cp lib/*.a debian/tmp/usr/lib
+	mkdir -p debian/tmp/usr/share/doc/linuxcnc-dev
+	mv debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf \
+		debian/tmp/usr/share/doc/linuxcnc-dev/
+	cp docs/html/gcode*.html debian/tmp/usr/share/doc/linuxcnc/
+	rm debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf 
+	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
+	-rm debian/tmp/linuxcnc*.files
+	-rm -f debian/tmp/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
+	dh_movefiles
+	if [ `find debian/tmp -type f | wc -c` != 0 ]; then \
+		echo "Files exist in debian/tmp, but should not:"; \
+		find debian/tmp -type f; \
+		exit 1; \
+	fi
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs
+	dh_installdocs
+	dh_installexamples
+	dh_installman
+	dh_installmime
+	dh_link
+	dh_strip
+	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
+ifneq "$(kernel_version)" "sim"
+	dh_fixperms -X/linuxcnc_module_helper
+endif
+	dh_pysupport
+	dh_makeshlibs
+	dh_installdeb
+	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
+	dh_shlibdeps -l debian/@MAIN_PACKAGE_NAME@/usr/lib
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install
+
+debian/rules: debian/configure debian/*.in
+	debian/configure @TARGET@

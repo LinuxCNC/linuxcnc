@@ -1,0 +1,91 @@
+vcp {
+    main-window {
+	title = "Testing"
+	width = 300
+	height = 300
+	# this box will hold three side-by-side boxes, one for each axis
+	box {
+	    layout = horizontal
+	    # this box holds stuff for the X axis
+	    box {
+		layout = vertical
+		title = "X"
+		button {
+		    halpin = button.X-pos-limit
+		    label { text = "+lim" }
+		}
+		button {
+		    halpin = button.X-neg-limit
+		    label { text = "-lim" }
+		}
+		button {
+		    halpin = button.X-home
+		    label { text = "home" }
+		}
+		label { text = "X switches" }
+	    }
+	    # this box holds stuff for the Y axis
+	    box {
+		layout = vertical
+		title = "Y"
+		button {
+		    halpin = button.Y-pos-limit
+		    label { text = "+lim" }
+		}
+		button {
+		    halpin = button.Y-neg-limit
+		    label { text = "-lim" }
+		}
+		button {
+		    halpin = button.Y-home
+		    label { text = "home" }
+		}
+		label { text = "Y switches" }
+	    }
+	    # this box holds stuff for the Z axis
+	    box {
+		layout = vertical
+		title = "Z"
+		button {
+		    halpin = button.Z-pos-limit
+		    label { text = "+lim" }
+		}
+		button {
+		    halpin = button.Z-neg-limit
+		    label { text = "-lim" }
+		}
+		button {
+		    halpin = button.Z-home
+		    box {
+			layout = horizontal
+			LED { halpin = led.Z-home }
+			label { padding = 1 text = "home" }
+		    }
+		}
+		label { text = "Z switches" }
+	    }
+	    # this box holds stuff for the spindle
+	    box {
+		layout = vertical
+		title = "spindle"
+		LED {
+		    size = 25
+		    halpin = led.0
+		    on-color = "#F00"
+		    off-color = "#600"
+		}
+		LED {
+		    halpin = led.1
+		    on-color = "#FF0"
+		    off-color = "#660"
+		}
+		LED {
+		    halpin = led.2
+		    on-color = "#0F0"
+		    off-color = "#060"
+		}
+	    }
+	}
+    } # main-window
+}
+   

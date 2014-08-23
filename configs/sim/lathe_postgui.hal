@@ -1,0 +1,2 @@
+net spindle-rpm-filtered => pyvcp.spindle-speed
+net spindle-at-speed => pyvcp.spindle-at-speed

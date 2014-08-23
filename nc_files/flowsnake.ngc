@@ -1,0 +1,45 @@
+%
+(Program to mill a flowsnake)
+(K. Lerman)
+
+o1000 sub
+#<level> = #1
+#<startX> = #2
+#<startY> = #3
+#<endX> = #4
+#<endY> = #5
+
+  o1001 if [#<level> EQ 0]
+    g1 f10 x#<endX> y#<endY>
+  o1001 else
+    #<p1X> = [[#<startX> * 2 + #<endX>]/3]
+    #<p1Y> = [[#<startY> * 2 + #<endY>]/3]
+
+    #<p2X> = [[#<startX> + #<endX>]/2 + [#<endY> - #<startY>]/[SQRT[12.0]]]
+    #<p2Y> = [[#<startY> + #<endY>]/2 - [#<endX> - #<startX>]/[SQRT[12.0]]]
+
+    #<p3X> = [[#<startX> + 2 * #<endX>]/3]
+    #<p3Y> = [[#<startY> + 2 * #<endY>]/3]
+
+    o1000 call [#<level>-1] [#<startX>] [#<startY>] [#<p1X>] [#<p1Y>]
+    o1000 call [#<level>-1] [#<p1X>] [#<p1Y>] [#<p2X>] [#<p2Y>]
+    o1000 call [#<level>-1] [#<p2X>] [#<p2Y>] [#<p3X>] [#<p3Y>]
+    o1000 call [#<level>-1] [#<p3X>] [#<p3Y>] [#<endX>] [#<endY>]
+  o1001 endif
+o1000 endsub
+
+S1M3
+g0 z1
+g0 x.25 y1.0
+g1 f10 z0
+#<level> = 5
+#<_foobar> = 729
+(debug, param 2:#2)
+(debug, level:#<level>)
+(debug, _foobar:#<_foo bar>)
+o1000 call [#<level>] [.25] [1.0] [3.75] [1.0]
+o1000 call [#<level>] [3.75] [1.0] [2.0] [3.95]
+o1000 call [#<level>] [2.0] [3.95] [.25] [1.0]
+g0 z1
+M5
+%

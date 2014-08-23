@@ -1,0 +1,8 @@
+loadrt scale count=1
+net Svel scale.0.in
+setp scale.0.gain 60
+net Scmd pyvcp.commanded-spindle-speed
+net Sact pyvcp.actual-spindle-speed scale.0.out
+addf scale.0 servo-thread
+
+

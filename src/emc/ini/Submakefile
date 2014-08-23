@@ -1,0 +1,6 @@
+INCLUDES += emc/ini
+
+../include/%.h: ./emc/ini/%.h
+	cp $^ $@
+../include/%.hh: ./emc/ini/%.hh
+	cp $^ $@

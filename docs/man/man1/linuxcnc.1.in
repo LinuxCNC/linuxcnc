@@ -1,0 +1,106 @@
+.\" Copyright (c) 2006 Alex Joni
+.\"                (alex_joni AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH LinuxCNC "1"  "2006-02-20" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+linuxcnc \- LinuxCNC (The Enhanced Machine Controller)
+.SH SYNOPSIS
+.B linuxcnc
+[\fI-v\fR] [\fI-d\fR] [\fIINIFILE\fR]
+.SH DESCRIPTION
+\fBlinuxcnc\fR is used to start LinuxCNC (The Enhanced Machine Controller). It
+starts the realtime system and then initializes a number of LinuxCNC
+components (IO, Motion, GUI, HAL, etc).  The most important parameter
+is \fIINIFILE\fR, which specifies the configuration name you would like
+to run. If \fIINIFILE\fR is not specified, the \fBlinuxcnc\fR script presents
+a graphical wizard to let you choose one.
+.SH OPTIONS
+.TP
+\fB\-v\fR 
+Be a little bit verbose. This causes the script to print information
+as it works.
+.TP
+\fB\-d\fR
+Print lots of debug information. All executed commands
+are echoed to the screen. This mode is useful when something is
+not working as it should.
+.TP
+\fBINIFILE\fR
+The ini file is the main piece of an LinuxCNC configuration. It is not the
+entire configuration; there are various other files that go with it
+(NML files, HAL files, TBL files, VAR files). It is, however, the most
+important one, because it is the file that holds the configuration
+together. It can adjust a lot of parameters itself, but it also tells
+\fBlinuxcnc\fR which other files to load and use.
+
+There are several ways to specify which config to use:
+
+Specify the absolute path to an ini, e.g.
+.br
+\fBlinuxcnc\fR \fI/usr/local/linuxcnc/configs/sim/sim.ini\fR
+
+Specify a relative path from the current directory, e.g.
+.br
+\fBlinuxcnc\fR \fIconfigs/sim/sim.ini\fR
+
+Otherwise, in the case where the \fBINIFILE\fR is not specified,
+the behavior will depend on whether you configured linuxcnc with
+\fB--enable-run-in-place\fR.  If so, the linuxcnc config chooser will search
+only the configs directory in your source tree.  If not (or if you are
+using a packaged version of linuxcnc), it may search several directories.
+The config chooser is currently set to search the path:
+
+.nf
+\fB@LINUXCNC_CONFIG_PATH@\fR
+
+.SH EXAMPLES
+    
+\fBlinuxcnc\fR
+
+\fBlinuxcnc\fR \fIconfigs/sim/sim.ini\fR
+
+\fBlinuxcnc\fR \fI/etc/linuxcnc/sample-configs/stepper/stepper_mm.ini\fR
+
+.SH "SEE ALSO"
+\fBhalcmd(1)\fR
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+This man page written by Alex Joni, as part of the LinuxCNC Enhanced Machine
+Controller project.
+.SH REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

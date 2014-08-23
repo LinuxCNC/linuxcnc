@@ -1,0 +1,136 @@
+(info: qpex_mm: qpocket mm examples, use a 5mm tool)
+; for testing qpocket with mm system
+; adapted from qpex.ngc and scaled for mm
+; too small tools and/or small sos may exceed outlinepasslimit
+
+o<qpex_mm>  sub
+
+     #<toolno> =  #1 (use a 5mm diam)
+        #<rpm> =  #2 (=1000)
+        #<dir> =  #3 (=2 2conv|3climb) ; conventional=cw, climb=ccw
+   #<feedrate> =  #4 (=250)
+   #<cutdepth> =  #5 (=10)
+      #<zincr> =  #6 (=5)
+      #<zsafe> =  #7 (=1)
+     #<zstart> =  #8 (=0)
+   #<stepover> =  #9 (=0.9)
+     #<g64tol> = #10 (=0.002)
+#<spin_notify> = #11 (=0)
+   #<use_g43>  = #12 (=1)
+   #<h_for_g43>= #13 (=0)
+   #<verbose>  = #14 (=0)
+
+;shorthand required for call linelength:
+#<fr> = #<feedrate>
+#<cut>= #<cutdepth>
+#<so> = #<stepover>
+#<vb> = #<verbose>
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<vb>]
+#<tooldiam> = #5410
+(debug, duh #<tooldiam>)
+o<chk1> if [#<tooldiam> GT 10]
+          (print, qpex_mm: tooldiam is too big #<tooldiam> - EXITING)
+          (debug, qpex_mm: tooldiam is too big #<tooldiam> - EXITING)
+          (AXIS,notify, qpex:_mm tooldiam is too big - EXITING)
+          m2
+o<chk1> endif
+o<chk2> if [#<tooldiam> LT  .5]
+          (print, qpex_mm: tooldiam is too small #<tooldiam> - EXITING)
+          (debug, qpex_mm: tooldiam is too small #<tooldiam> - EXITING)
+          (AXIS,notify, qpex_mm: tooldiam is too small - EXITING)
+          m2
+o<chk2> endif
+
+         #<x1> = [-0.5 * 25.4]
+         #<y1> = [-0.5 * 25.4]
+         #<x2> = [+0.5 * 25.4]
+         #<y2> = [-0.5 * 25.4]
+         #<x3> = [+0.5 * 25.4]
+         #<y3> = [+0.5 * 25.4]
+         #<x4> = [-0.5 * 25.4]
+         #<y4> = [+0.5 * 25.4]
+       #<xoff> = [2 * 25.4]
+       #<yoff> = 0
+     #<rotate> = 0
+      #<scale> = 1
+M110 ; clear axis notifications
+(debug, square at #<xoff>,#<yoff> rotate=#<rotate> scale=#<scale>)
+o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<fr>][#<cut>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>][#<so>][#<g64tol>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<vb>]
+         #<x1> = [-0.5 * 25.4]
+         #<y1> = [-1.0 * 25.4]
+         #<x2> = [+0.5 * 25.4]
+         #<y2> = [-1.0 * 25.4]
+         #<x3> = [+0.5 * 25.4]
+         #<y3> = [+1.0 * 25.4]
+         #<x4> = [-0.5 * 25.4]
+         #<y4> = [+1.0 * 25.4]
+       #<xoff> = [2 * 25.4]
+       #<yoff> = [2 * 25.4]
+     #<rotate> = 30
+      #<scale> = 1
+M110 ; clear axis notifications
+(debug, rectangle at #<xoff>,#<yoff> rotate=#<rotate> scale=#<scale>)
+o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<fr>][#<cut>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>][#<so>][#<g64tol>][#<spin_notify>][#<vb>]
+         #<x1> = [-1.0 * 25.4]
+         #<y1> = [-0.5 * 25.4]
+         #<x2> = [+0.5 * 25.4]
+         #<y2> = [-0.5 * 25.4]
+         #<x3> = [+1.0 * 25.4]
+         #<y3> = [+0.5 * 25.4]
+         #<x4> = [-0.5 * 25.4]
+         #<y4> = [+0.5 * 25.4]
+       #<xoff> = [0 * 25.4]
+       #<yoff> = [2 * 25.4]
+     #<rotate> = 0
+     #<scale> = 1
+M110 ; clear axis notifications
+(debug, parallelogram at #<xoff>,#<yoff> rotate=#<rotate> scale=#<scale>)
+o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<fr>][#<cut>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>][#<so>][#<g64tol>][#<spin_notify>][#<vb>]
+         #<x1> = [1 * 25.4]
+         #<y1> = [-1 * 25.4]
+         #<x2> = [0 * 25.4]
+         #<y2> = [1 * 25.4]
+         #<x3> = [-1 * 25.4]
+         #<y3> = [-1 * 25.4]
+         #<x4> = [0 * 25.4]
+         #<y4> = [-0.999 * 25.4] ;disallow colinear pts in 3-sided figure
+       #<xoff> = [-2 * 25.4]
+       #<yoff> = 0
+     #<rotate> = 45
+      #<scale> = 1
+M110 ; clear axis notifications
+(debug, triangle at #<xoff>,#<yoff> rotate=#<rotate> scale=#<scale>)
+o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<fr>][#<cut>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>][#<so>][#<g64tol>][#<spin_notify>]
+         #<x1> = [1 * 25.4]
+         #<y1> = [-1 * 25.4]
+         #<x2> = [0 * 25.4]
+         #<y2> = [0 * 25.4]
+         #<x3> = [-1 * 25.4]
+         #<y3> = [-1 * 25.4]
+         #<x4> = [0 * 25.4]
+         #<y4> = [-1.5 * 25.4]
+       #<xoff> = [-2 * 25.4]
+       #<yoff> = [2 * 25.4]
+     #<rotate> = 0
+      #<scale> = 1
+M110 ; clear axis notifications
+(debug, kite at #<xoff>,#<yoff> rotate=#<rotate> scale=#<scale>)
+o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<fr>][#<cut>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>][#<so>][#<g64tol>][#<spin_notify>]
+         #<x1> = [1 * 25.4]
+         #<y1> = [-1 * 25.4]
+         #<x2> = [0 * 25.4]
+         #<y2> = [0 * 25.4]
+         #<x3> = [-1 * 25.4]
+         #<y3> = [-1 * 25.4]
+         #<x4> = [0 * 25.4]
+         #<y4> = [-.75 * 25.4]
+       #<xoff> = [0 * 25.4]
+       #<yoff> = [-1 * 25.4]
+     #<rotate> = 0
+      #<scale> = 1
+M110 ; clear axis notifications
+(debug, dart at #<xoff>,#<yoff> rotate=#<rotate> scale=#<scale>)
+o<qpocket>call[#<toolno>][#<rpm>][#<dir>][#<fr>][#<cut>][#<zincr>][#<zsafe>][#<zstart>][#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>][#<x4>][#<y4>][#<scale>][#<rotate>][#<xoff>][#<yoff>][#<so>][#<g64tol>][#<spin_notify>][#<vb>]
+
+o<qpex_mm> endsub

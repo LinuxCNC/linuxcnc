@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+    <labelframe text="Spindle Speed">
+        <font>("Helvetica",16)</font>
+        <vbox>
+            <meter>
+                <halpin>"spindle-speed-meter"</halpin>
+                <subtext>"RPM"</subtext>
+                <size>150</size>
+                <min_>0</min_>
+                <max_>10200</max_>
+                <majorscale>1000</majorscale>
+                <minorscale>100</minorscale>
+            </meter>
+
+            <number>
+                <halpin>"spindle-speed-number"</halpin>
+                <font>("Helvetica",14)</font>
+                <format>"4.1f"</format>
+            </number>
+        </vbox>
+    </labelframe>
+
+    <labelframe text="Spindle Gear">
+        <font>("Helvetica",16)</font>
+
+        <vbox>
+            <hbox>
+                <label><text>"High"</text></label>
+                <led>
+                    <halpin>"highgear-led"</halpin>
+                    <size>20</size>
+                </led>
+            </hbox>
+
+            <hbox>
+                <label><text>"Low"</text></label>
+                <led>
+                    <halpin>"lowgear-led"</halpin>
+                    <size>20</size>
+                </led>
+            </hbox>
+
+            <button>
+                <text>"Change Gears"</text>
+                <halpin>"gearchange-button"</halpin>
+            </button>
+        </vbox>
+    </labelframe>
+
+</pyvcp>

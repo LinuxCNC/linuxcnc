@@ -1,0 +1,69 @@
+../share/locale/%/LC_MESSAGES/linuxcnc.mo: po/%.po
+	$(ECHO) Compiling localized message catalog $@
+	@mkdir -p $(dir $@)
+	$(Q)msgfmt -o $@ $<
+
+# the touch is because for po/zh_CN.po, msgfmt --tcl creates
+# objects/zh_cn.po and on the next invocation make would try again to
+# create zh_CN.po
+objects/%.msg: po/%.po
+	$(ECHO) Compiling localized message catalog $@
+	$(Q)msgfmt --tcl -d objects -l $* $< && touch $@
+
+MO_FILES := $(patsubst po/%.po, %/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
+
+$(DESTDIR)$(localedir)/%/LC_MESSAGES/linuxcnc.mo: ../share/locale/%/LC_MESSAGES/linuxcnc.mo
+	$(DIR) $(DESTDIR)$(localedir)/$*/LC_MESSAGES
+	$(FILE) $< $@
+
+TARGETS += $(patsubst po/%.po, \
+	../share/locale/%/LC_MESSAGES/linuxcnc.mo, \
+	$(wildcard po/*.po))
+
+TCLSRCS := \
+	../tcl/bin/emccalib.tcl \
+	../tcl/bin/emcdebug.tcl \
+	../tcl/bin/emctesting.tcl \
+	../tcl/bin/emctuning.tcl \
+	../tcl/bin/genedit.tcl \
+	../tcl/bin/halconfig.tcl \
+	../tcl/bin/halshow.tcl \
+	../tcl/bin/pickconfig.tcl \
+	../tcl/bin/tkbackplot.tcl \
+	../tcl/mini.tcl \
+	../tcl/show_errors.tcl \
+	../tcl/tklinuxcnc.tcl \
+	../tcl/scripts/Set_Coordinates.tcl \
+	../tcl/scripts/balloon.tcl \
+	../tcl/scripts/emchelp.tcl \
+	../tcl/ngcgui.tcl \
+	../tcl/ngcgui_ttt.tcl \
+	../tcl/ngcgui_app.tcl \
+	emc/usr_intf/tooledit.tcl
+
+po/linuxcnc.pot:
+	$(ECHO) Localizing linuxcnc.pot
+	(cd ..; $(XGETTEXT) -k_ -o src/$@ `src/po/fixpaths.py -j src $^`)
+	touch $@
+TARGETS += po/linuxcnc.pot
+
+pofiles: po/linuxcnc.pot
+	set -x; for i in po/*.po; do msgmerge -U $$i po/linuxcnc.pot; done
+
+po/linuxcnc.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS) emc/rs274ngc/rs274ngc_return.hh
+po/linuxcnc.pot: hal/utils/meter.c \
+    hal/utils/scope.c \
+    hal/utils/scope_horiz.c \
+    hal/utils/scope_vert.c \
+    hal/utils/scope_trig.c \
+    hal/utils/scope_disp.c \
+    hal/utils/scope_files.c \
+    hal/utils/miscgtk.c
+po/linuxcnc.pot: emc/motion/control.c emc/motion/command.c emc/motion/motion.c emc/motion/homing.c
+
+po/linuxcnc.pot: $(TCLSRCS)
+po/linuxcnc.pot: $(PYI18NSRCS)
+
+.PHONY: install-locale
+install-locale: $(addprefix $(DESTDIR)$(localedir)/, $(MO_FILES))
+install-kernel-indep: install-locale

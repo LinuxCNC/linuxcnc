@@ -1,0 +1,99 @@
+#!/bin/bash
+if ! type -path swish-e > /dev/null 2>&1; then
+	cat<<EOF
+This program requires that the 'swish-e' full-text indexer be installed.
+On Debian and Ubuntu systems, you may install it by running
+	sudo apt-get install swish-e
+On Ubuntu systems, this requires that the "universe" repository be enabled.
+EOF
+	exit 2
+fi
+
+case "$0" in
+	*/*) MYDIR="${0%/*}" ;;
+	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
+esac
+
+SRCDIR=$(cd "$MYDIR/../src"; pwd)
+SWISHINDEX="$SRCDIR/.swishindex"
+
+function makerelative () {
+python -c '
+import os, sys
+here = os.getcwd()
+parents = [here + "/"]
+while 1:
+	next = os.path.dirname(here)
+	if next == here: break
+	parents.append(next + "/")
+	here = next
+for file in sys.stdin.read().split("\0"):
+	for i in range(len(parents)):
+		p = parents[i]
+		if file.startswith(p):
+			file1 = os.path.join("../" * i, file[len(p):])
+			if len(file1) < len(file): file = file1
+	sys.stdout.write(file + "\0")
+'
+}
+
+usage () {
+	b=${0##*/}
+	cat<<EOF
+$b: Search emc2 source code and documentation
+
+Usage:
+	$b [-R] [-F file-re] swish-pattern [grep-pattern]
+
+	-R: Rebuild the index.  This is equivalent to running 'make swish'
+	    in the source directory
+
+	-F: Specify a subset of files to search.  This is an extended regular
+	    expression, not a shell glob.  To search all ".c" files, use
+		$b -F '\.c$' ...
+
+	swish-pattern: Specify the pattern to pass to 'swish -w'.  See
+	    "man SWISH-RUN" for more information
+
+	grep-pattern: Specify the pattern to pass to 'grep'.  Each file listed
+	    by swish is grepped for this pattern, and matching lines are
+	    printed.  By default, $b attempts to turn swish-pattern into
+	    a grep-pattern, but this only works if swish-pattern is a simple
+	    word.  For more information about grep patterns, see 'man egrep'
+EOF
+	exit 1
+}
+
+FORCEREBUILD=""
+while getopts "hRF:" opt
+do
+	case "$opt" in
+	R)	FORCEREBUILD=1 ;;
+	F)	FILEFILTER="egrep -z -e $OPTARG" ;;
+	h|?)	usage ;;
+	esac
+done
+shift $(($OPTIND-1))
+
+if [ "$FORCEREBUILD" -o ! -f "$SWISHINDEX" ]
+then
+	make -C "$SRCDIR" swish || exit $?
+	if [ $# -eq 0 ]; then exit 0; fi
+fi
+
+PAT="$1"; shift
+if [ $# -eq 0 ]; then
+	REGEXP="${PAT%%\*}"
+else
+	REGEXP="$1"
+fi
+
+if ! [ -z "$FILEFILTER" ]; then
+	swish-e -f $SWISHINDEX -H0 -x '<swishdocpath>\0' -w "$PAT" \
+		| $FILEFILTER | makerelative \
+		| xargs -0 egrep -Hnis -e "$REGEXP"
+else
+	swish-e -f $SWISHINDEX -H0 -x '<swishdocpath>\0' -w "$PAT" \
+		| makerelative \
+		| xargs -0 egrep -Hnis -e "$REGEXP"
+fi

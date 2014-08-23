@@ -1,0 +1,468 @@
+.\" Copyright (c) 2006 Alex Joni
+.\"                (alex_joni AT users DOT sourceforge DOT net)
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.\"
+.\"
+.\"
+.TH HALUI "1"  "2006-07-22" "LinuxCNC Documentation" "HAL User Interface"
+.SH NAME
+halui \- observe HAL pins and command LinuxCNC through NML
+.SH SYNOPSIS
+.B halui
+[\fB-ini <path-to-ini>\fR]
+.SH DESCRIPTION
+\fBhalui\fR is used to build a User Interface using hardware knobs
+and switches. It exports a big number of pins, and acts accordingly 
+when these change.
+.SH OPTIONS
+.TP
+\fB-ini name\fR
+use the \fIname\fR as the configuration file. Note: halui must find the 
+nml file specified in the ini, usually that file is in the same 
+folder as the ini, so it makes sense to run halui from that folder.
+.SH USAGE
+When run, \fBhalui\fR will export a large number of pins. A user can connect
+those to his physical knobs & switches & leds, and when a change is noticed
+halui triggers an appropriate event.
+
+\fBhalui\fR expects the signals to be debounced, so if needed (bad knob contact) connect the physical button to a HAL debounce filter first.
+
+.SH PINS
+
+.SS abort
+.TP 
+.B halui.abort\fR bit in \fR
+pin for clearing most errors
+
+.SS tool
+.TP
+.B halui.tool.length-offset.a\fR float out \fR
+current applied tool length offset for the A axis
+.TP
+.B halui.tool.length-offset.b\fR float out \fR
+current applied tool length offset for the B axis
+.TP
+.B halui.tool.length-offset.c\fR float out \fR
+current applied tool length offset for the C axis
+.TP
+.B halui.tool.length-offset.u\fR float out \fR
+current applied tool length offset for the U axis
+.TP
+.B halui.tool.length-offset.v\fR float out \fR
+current applied tool length offset for the V axis
+.TP
+.B halui.tool.length-offset.w\fR float out \fR
+current applied tool length offset for the W axis
+.TP
+.B halui.tool.length-offset.x\fR float out \fR
+current applied tool length offset for the X axis
+.TP
+.B halui.tool.length-offset.y\fR float out \fR
+current applied tool length offset for the Y axis
+.TP
+.B halui.tool.length-offset.z\fR float out \fR
+current applied tool length offset for the Z axis
+.TP
+.B halui.tool.number\fR u32 out \fR
+current selected tool
+
+.SS spindle
+.TP
+.B halui.spindle.brake-is-on\fR bit out \fR
+status pin that tells us if brake is on
+.TP
+.B halui.spindle.brake-off\fR bit in \fR
+pin for deactivating the spindle brake
+.TP
+.B halui.spindle.brake-on\fR bit in \fR
+pin for activating the spindle brake
+.TP
+.B halui.spindle.decrease\fR bit in \fR
+a rising edge on this pin decreases the current spindle speed by 100
+.TP
+.B halui.spindle.forward\fR bit in \fR
+a rising edge on this pin makes the spindle go forward
+.TP
+.B halui.spindle.increase\fR bit in \fR
+a rising edge on this pin increases the current spindle speed by 100
+.TP
+.B halui.spindle.is-on\fR bit out \fR
+status pin telling if the spindle is on
+.TP
+.B halui.spindle.reverse\fR bit in \fR
+a rising edge on this pin makes the spindle go reverse
+.TP
+.B halui.spindle.runs-backward\fR bit out \fR
+status pin telling if the spindle is running backward
+.TP
+.B halui.spindle.runs-forward\fR bit out \fR
+status pin telling if the spindle is running forward
+.TP
+.B halui.spindle.start\fR bit in \fR
+a rising edge on this pin starts the spindle
+.TP
+.B halui.spindle.stop\fR bit in \fR
+a rising edge on this pin stops the spindle
+
+.SS spindle override
+.TP
+.B halui.spindle-override.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+When TRUE, modify spindle override when counts changes.
+.TP
+.B halui.spindle-override.counts\fR s32 in \fR
+counts X scale = spindle override percentage
+.TP
+.B halui.spindle-override.decrease\fR bit in \fR
+pin for decreasing the SO (-=scale)
+.TP
+.B halui.spindle-override.direct-value\fR bit in \fR
+pin to enable direct spindle override value input
+.TP
+.B halui.spindle-override.increase\fR bit in \fR
+pin for increasing the SO (+=scale)
+.TP
+.B halui.spindle-override.scale\fR float in \fR
+pin for setting the scale of counts for SO
+.TP
+.B halui.spindle-override.value\fR float out \fR
+current FO value
+
+.SS program
+.TP
+.B halui.program.block-delete.is-on\fR bit out \fR
+status pin telling that block delete is on
+.TP
+.B halui.program.block-delete.off\fR bit in \fR
+pin for requesting that block delete is off
+.TP
+.B halui.program.block-delete.on\fR bit in \fR
+pin for requesting that block delete is on
+.TP
+.B halui.program.is-idle\fR bit out \fR
+status pin telling that no program is running
+.TP
+.B halui.program.is-paused\fR bit out \fR
+status pin telling that a program is paused
+.TP
+.B halui.program.is-running\fR bit out \fR
+status pin telling that a program is running
+.TP
+.B halui.program.optional-stop.is-on\fR bit out \fR
+status pin telling that the optional stop is on
+.TP
+.B halui.program.optional-stop.off\fR bit in \fR
+pin requesting that the optional stop is off
+.TP
+.B halui.program.optional-stop.on\fR bit in \fR
+pin requesting that the optional stop is on
+.TP
+.B halui.program.pause\fR bit in \fR
+pin for pausing a program
+.TP
+.B halui.program.resume\fR bit in \fR
+pin for resuming a program
+.TP
+.B halui.program.run\fR bit in \fR
+pin for running a program
+.TP
+.B halui.program.step\fR bit in \fR
+pin for stepping in a program
+.TP
+.B halui.program.stop\fR bit in \fR
+pin for stopping a program 
+(note: this pin does the same thing as halui.abort)
+
+.SS mode
+.TP
+.B halui.mode.auto\fR bit in \fR
+pin for requesting auto mode
+.TP
+.B halui.mode.is-auto\fR bit out \fR
+pin for auto mode is on
+.TP
+.B halui.mode.is-joint\fR bit out \fR
+pin showing joint by joint jog mode is on
+.TP
+.B halui.mode.is-manual\fR bit out \fR
+pin for manual mode is on
+.TP
+.B halui.mode.is-mdi\fR bit out \fR
+pin for mdi mode is on
+.TP
+.B halui.mode.is-teleop\fR bit out \fR
+pin showing coordinated jog mode is on
+.TP
+.B halui.mode.joint\fR bit in \fR
+pin for requesting joint by joint jog mode
+.TP
+.B halui.mode.manual\fR bit in \fR
+pin for requesting manual mode
+.TP
+.B halui.mode.mdi\fR bit in \fR
+pin for requesting mdi mode
+.TP
+.B halui.mode.teleop\fR bit in \fR
+pin for requesting coordinated jog mode
+
+.SS mdi \fR(optional)
+.TP
+.B halui.mdi-command-XX\fR bit in
+\fBhalui\fR looks for ini variables named [HALUI]MDI_COMMAND, and
+exports a pin for each command it finds.  When the pin is driven TRUE,
+\fBhalui\fR runs the specified MDI command.  XX is a two digit number
+starting at 00.  If no [HALUI]MDI_COMMAND variables are set in the ini
+file, no halui.mdi-command-XX pins will be exported by halui.
+
+.SS mist
+.TP
+.B halui.mist.is-on\fR bit out \fR
+pin for mist is on
+.TP
+.B halui.mist.off\fR bit in \fR
+pin for stopping mist
+.TP
+.B halui.mist.on\fR bit in \fR
+pin for starting mist
+
+.SS max-velocity
+.TP
+.B halui.max-velocity.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+When TRUE, modify max velocity when counts changes.
+.TP
+.B halui.max-velocity.counts\fR s32 in \fR
+counts from an encoder for example to change maximum velocity
+.TP
+.B halui.max-velocity.decrease\fR bit in \fR
+pin for decreasing the maximum velocity (-=scale)
+.TP
+.B halui.max-velocity.direct-value\fR bit in \fR
+pin for using a direct value for max velocity
+.TP
+.B halui.max-velocity.increase\fR bit in \fR
+pin for increasing the maximum velocity (+=scale)
+.TP
+.B halui.max-velocity.scale\fR float in \fR
+pin for setting the scale on changing the maximum velocity
+.TP
+.B halui.max-velocity.value\fR float out \fR
+Current value for maximum velocity
+
+.SS machine
+.TP 
+.B halui.machine.is-on\fR bit out \fR
+pin for machine is On/Off
+.TP 
+.B halui.machine.off\fR bit in \fR
+pin for setting machine Off
+.TP 
+.B halui.machine.on\fR bit in \fR
+pin for setting machine On
+
+.SS lube
+.TP
+.B halui.lube.is-on\fR bit out \fR
+pin for lube is on
+.TP
+.B halui.lube.off\fR bit in \fR
+pin for stopping lube
+.TP
+.B halui.lube.on\fR bit in \fR
+pin for starting lube
+
+.SS joint
+.TP
+.B halui.joint.N.has-fault\fR bit out \fR
+status pin telling that joint N has a fault
+.TP
+.B halui.joint.N.home\fR bit in \fR
+pin for homing joint N
+.TP
+.B halui.joint.N.is-homed\fR bit out \fR
+status pin telling that joint N is homed
+.TP
+.B halui.joint.N.is-selected\fR bit out \fR
+status pin that joint N is selected
+.TP
+.B halui.joint.N.on-hard-max-limit\fR bit out \fR
+status pin telling that joint N is on the positive hardware limit
+.TP
+.B halui.joint.N.on-hard-min-limit\fR bit out \fR
+status pin telling that joint N is on the negative hardware limit
+.TP
+.B halui.joint.N.on-soft-max-limit\fR bit out \fR
+status pin telling that joint N is on the positive software limit
+.TP
+.B halui.joint.N.on-soft-min-limit\fR bit out \fR
+status pin telling that joint N is on the negative software limit
+.TP
+.B halui.joint.N.select\fR bit in \fR
+pin for selecting joint N
+.TP
+.B halui.joint.N.unhome\fR bit in \fR
+pin for unhoming joint N
+.TP
+.B halui.joint.selected\fR u32 out \fR
+selected joint
+.TP
+.B halui.joint.selected.has-fault\fR bit out \fR
+status pin selected joint is faulted
+.TP
+.B halui.joint.selected.home\fR bit in \fR
+pin for homing the selected joint 
+.TP
+.B halui.joint.selected.is-homed\fR bit out \fR
+status pin telling that the selected joint is homed
+.TP
+.B halui.joint.selected.on-hard-max-limit\fR bit out \fR
+status pin telling that the selected joint is on the positive hardware limit
+.TP
+.B halui.joint.selected.on-hard-min-limit\fR bit out \fR
+status pin telling that the selected joint is on the negative hardware limit
+.TP
+.B halui.joint.selected.on-soft-max-limit\fR bit out \fR
+status pin telling that the selected joint is on the positive software limit
+.TP
+.B halui.joint.selected.on-soft-min-limit\fR bit out \fR
+status pin telling that the selected joint is on the negative software limit
+.TP
+.B halui.joint.selected.unhome\fR bit in \fR
+pin for unhoming the selected joint
+
+.SS jog
+.TP
+.B halui.jog.deadband\fR float in \fR
+pin for setting jog analog deadband (jog analog inputs smaller/slower than this are ignored)
+.TP
+.B halui.jog-speed\fR float in \fR
+pin for setting jog speed for plus/minus jogging.
+.TP
+.B halui.jog.N.analog\fR float in \fR
+pin for jogging the axis N using an float value (e.g. joystick)
+.TP
+.B halui.jog.N.increment\fR float in \fR
+pin for setting the jog increment for axis N when using increment-plus/minus
+.TP
+.B halui.jog.N.increment-minus\fR bit in \fR
+a rising edge will will make axis N jog in the negative direction by the increment amount
+.TP
+.B halui.jog.N.increment-plus\fR bit in \fR
+a rising edge will will make axis N jog in the positive direction by the increment amount
+.TP
+.B halui.jog.N.minus\fR bit in \fR
+pin for jogging axis N in negative direction at the halui.jog-speed velocity
+.TP
+.B halui.jog.N.plus\fR bit in \fR
+pin for jogging axis N in positive direction at the halui.jog-speed velocity
+.TP
+.B halui.jog.selected.increment\fR float in \fR
+pin for setting the jog increment for the selected axis when using increment-plus/minus
+.TP
+.B halui.jog.selected.increment-minus\fR bit in \fR
+a rising edge will will make the selected axis jog in the negative direction by the increment amount
+.TP
+.B halui.jog.selected.increment-plus\fR bit in \fR
+a rising edge will will make the selected axis jog in the positive direction by the increment amount
+.TP
+.B halui.jog.selected.minus\fR bit in \fR
+pin for jogging the selected axis in negative direction at the halui.jog-speed velocity
+.TP
+.B halui.jog.selected.plus\fR
+pin for jogging the selected axis  bit in \fRin positive direction at the halui.jog-speed velocity
+
+.SS flood
+.TP
+.B halui.flood.is-on\fR bit out \fR
+pin for flood is on
+.TP
+.B halui.flood.off\fR bit in \fR
+pin for stopping flood
+.TP
+.B halui.flood.on\fR bit in \fR
+pin for starting flood
+
+.SS feed override
+.TP
+.B halui.feed-override.count-enable\fR bit in \fR (default: \fBTRUE\fR)
+When TRUE, modify feed override when counts changes.
+.TP
+.B halui.feed-override.counts\fR s32 in \fR
+counts X scale = feed override percentage
+.TP
+.B halui.feed-override.decrease\fR bit in \fR
+pin for decreasing the FO (-=scale)
+.TP
+.B halui.feed-override.direct-value\fR bit in \fR
+pin to enable direct value feed override input
+.TP
+.B halui.feed-override.increase\fR bit in \fR
+pin for increasing the FO (+=scale)
+.TP
+.B halui.feed-override.scale\fR float in \fR
+pin for setting the scale on changing the FO
+.TP
+.B halui.feed-override.value\fR float out \fR
+current Feed Override value
+
+.SS estop
+.TP
+.B halui.estop.activate\fR bit in \fR
+pin for setting Estop (LinuxCNC internal) On
+.TP
+.B halui.estop.is-activated\fR bit out \fR
+pin for displaying Estop state (LinuxCNC internal) On/Off
+.TP
+.B halui.estop.reset\fR bit in \fR
+pin for resetting Estop (LinuxCNC internal) Off
+
+.SS axis
+.TP
+.B halui.axis.N.pos-commanded\fR float out \fR float out \fR
+Commanded axis position in machine coordinates
+.TP
+.B halui.axis.N.pos-feedback\fR float out \fR float out \fR
+Feedback axis position in machine coordinates
+.TP
+.B halui.axis.N.pos-relative\fR float out \fR float out \fR
+Commanded axis position in relative coordinates
+
+.SS home
+.TP 
+.B halui.home-all\fR bit in \fR
+pin for requesting home-all 
+(only available when a valid homing sequence is specified)
+
+.SH "SEE ALSO"
+
+.SH HISTORY
+
+.SH BUGS
+none known at this time.
+.SH AUTHOR
+Written by Alex Joni, as part of the LinuxCNC project. Updated by John
+Thornton
+.SH REPORTING BUGS
+Report bugs to alex_joni AT users DOT sourceforge DOT net
+.SH COPYRIGHT
+Copyright \(co 2006 Alex Joni.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

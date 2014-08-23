@@ -1,0 +1,68 @@
+# A simulator to simulate all compnents of a gantry based plasma cutting table with THC
+
+# Load realtime wcomp components
+loadrt wcomp count=6
+
+# Add components to servo-thread
+addf and2.9 servo-thread
+addf and2.10 servo-thread
+addf and2.11 servo-thread
+addf not.3 servo-thread
+addf or2.9 servo-thread
+addf wcomp.0 servo-thread
+addf wcomp.1 servo-thread
+addf wcomp.2 servo-thread
+addf wcomp.3 servo-thread
+addf wcomp.4 servo-thread
+addf wcomp.5 servo-thread
+
+# Use machine position feedback for simulated limit calculations
+net PosX-fb => wcomp.0.in
+net PosY-fb => wcomp.1.in
+net PosZ-fb => wcomp.2.in
+net PosA-fb => wcomp.3.in
+net PosZ-fb => wcomp.4.in
+
+# Use the time left from oneshot1 to determine when to simulate ArcOK along with TorchOn
+net TimeLeft oneshot.1.time-left => wcomp.5.in
+
+# Simulate limits with wcomps
+net LimitX wcomp.0.out => axis.0.neg-lim-sw-in axis.0.pos-lim-sw-in axis.0.home-sw-in
+net LimitY wcomp.1.out => axis.1.neg-lim-sw-in axis.1.pos-lim-sw-in axis.1.home-sw-in
+net LimitZ or2.9.out => or2.2.in0
+net LimitA wcomp.3.out => axis.3.neg-lim-sw-in axis.3.pos-lim-sw-in axis.3.home-sw-in
+
+# Hook up other simulated signals
+net FloatSwitch and2.9.out => or2.1.in1 and2.4.in0 and2.5.in1 and2.6.in1
+net ArcOK and2.10.out => or2.4.in1 xor2.1.in1 oneshot.2.in
+net IgnDebugTimer wcomp.5.out and2.10.in0
+net ArcOKSwitch and2.11.out and2.10.in1
+
+# Fix the problem with the float switch being triggered during homing because machine starts at pos 0
+net MachineIsHoming axis.2.homing = not.3.in
+net InvertedMachineIsHoming not.3.out => and2.9.in0
+net OriginalFloatSignal wcomp.4.out => and2.9.in1
+
+# Set defaults to pass signals through as normal so that ArcOK lights
+net HomeAndLimitZ wcomp.2.out => or2.9.in0
+net TorchOn => and2.11.in0
+
+# To test what happens when ArcOK never arrives we can set and2.11.in1 to 0
+setp and2.11.in1 1
+# To simulate the float switch triggering at other machine coordinates than standard we use or2.9.in0 and set it manually
+setp or2.9.in1 0
+
+# Set windows for comparison
+setp wcomp.0.max -10
+setp wcomp.0.min -15
+setp wcomp.1.max -10
+setp wcomp.1.min -15
+setp wcomp.2.max 50 
+setp wcomp.2.min 40 
+setp wcomp.3.max -10
+setp wcomp.3.min -15
+setp wcomp.4.max 15
+setp wcomp.4.min 10
+# ArcOK comarator, uses ignition timeout
+setp wcomp.5.max 4
+setp wcomp.5.min -1

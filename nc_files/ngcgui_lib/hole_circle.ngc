@@ -1,0 +1,45 @@
+(info: hole_circle: equally spaced, uses helix.ngc)
+o<hole_circle> sub
+
+#<toolno>     =  #1
+#<rpm>        =  #2 (=2000)
+#<feedrate>   =  #3 (=10)
+#<dir>        =  #4 (=3 2:cw, 3:ccw)
+#<inside>     =  #5 (=1 1:in, 0:out)
+#<cutdepth>   =  #6
+#<zincr>      =  #7
+#<zsafe>      =  #8 (=0.5)
+#<diam>       =  #9 (Circle diameter)
+#<theta>      = #10 (=0 start theta)
+#<hdiam>      = #11 (hole diameter)
+#<n>          = #12 (=4  N holes)
+#<zstart>     = #13 (=0)
+#<xctr>       = #14 (= 0)
+#<yctr>       = #15 (= 0)
+#<spin_notify>= #16 (= 0)
+#<use_g43>    = #17 (=1)
+#<h_for_g43>  = #18 (=0)
+#<verbose>    = #19 (=0)
+
+o<loadtool> call [#<toolno>][#<use_g43>][#<h_for_g43>][#<verbose>]
+#<tooldiam> = [#5410 + .001]
+
+#<i>          = 0
+#<deltheta>   = [360/#<n>]
+#<faceangle>  = 0 (notused helix item)
+#<d_angle>    = 0 (notused helix item)
+#<r>          = [#<diam> / 2]
+
+o<l20> while [#<i> LT #<n>]
+   #<x> = [#<xctr> + #<r> * COS[#<theta>]]
+   #<y> = [#<yctr> + #<r> * SIN[#<theta>]]
+
+   o<helix>call [#<toolno>][#<rpm>][#<feedrate>][#<dir>][#<inside>][#<cutdepth>][#<zincr>][#<zsafe>][#<x>][#<y>][#<hdiam>][#<faceangle>][#<d_angle>][#<zstart>][#<spin_notify>][#<use_g43>][#<h_for_g43>][#<verbose>]
+   #<i>         = [#<i> + 1]
+   #<theta>     = [#<theta> + #<deltheta>]
+   #<_feature:> = #<i> (using _feature: here disables stop)
+                       (that would occur in helix at spin sub call)
+o<l20> endwhile
+
+
+o<hole_circle> endsub

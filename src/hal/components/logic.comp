@@ -1,0 +1,36 @@
+component logic "LinuxCNC HAL component providing configurable logic functions";
+pin in bit in-##[16 : personality & 0xff];
+pin out bit and if personality & 0x100;
+pin out bit or if personality & 0x200;
+pin out bit xor if personality & 0x400;
+function _ nofp;
+description """
+General `logic function' component.  Can perform `and', `or'
+and `xor' of up to 16 inputs.
+.LP
+Determine the proper value for `personality'
+by adding the inputs and outputs then convert to hex:
+.IP \\(bu 4
+The number of input pins, usually from 2 to 16
+.IP \\(bu
+256 (0x100)  if the `and' output is desired
+.IP \\(bu
+512 (0x200)  if the `or' output is desired
+.IP \\(bu
+1024 (0x400)  if the `xor' (exclusive or) output is desired
+.LP
+Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
+would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
+""";
+license "GPL";
+;;
+FUNCTION(_) {
+    int i, a=1, o=0, x=0;
+    for(i=0; i < (personality & 0xff); i++) {
+        if(in(i)) { o = 1; x = !x; }
+        else { a = 0; }
+    }
+    if(personality & 0x100) and = a;
+    if(personality & 0x200) or = o;
+    if(personality & 0x400) xor = x;
+}
