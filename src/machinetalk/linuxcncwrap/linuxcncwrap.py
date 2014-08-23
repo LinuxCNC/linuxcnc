@@ -9,6 +9,7 @@ import avahi
 import dbus
 import thread
 import time
+import math
 
 import ConfigParser
 import linuxcnc
@@ -18,6 +19,7 @@ from config_pb2 import *
 from types_pb2 import *
 from status_pb2 import *
 from preview_pb2 import *
+from object_pb2 import ProtocolParameters
 
 
 class ZeroconfService:
@@ -85,10 +87,17 @@ class StatusValues():
 class LinuxCNCWrapper:
 
     def __init__(self, context, statusUri, errorUri, commandUri, iniFile="",
-                ipv4="", svc_uuid=None, poll_interval=0.1, debug=False):
+                ipv4="", svcUuid=None, pollInterval=0.1, pingInterval=2,
+                debug=False):
         self.debug = debug
         self.ipv4 = ipv4
-        self.poll_interval = poll_interval
+        self.pollInterval = pollInterval
+        self.pingInterval = pingInterval
+        if pingInterval > 0:
+            self.pingRatio = math.floor(pingInterval / pollInterval)
+        else:
+            self.pingRatio = -1
+        self.pingCount = 0
 
         # status
         self.status = StatusValues()
@@ -109,6 +118,11 @@ class LinuxCNCWrapper:
         self.interpFullUpdate = False
         self.interpFirstrun = True
         self.totalSubscriptions = 0
+        self.textSubscriptions = 0
+        self.displaySubscriptions = 0
+        self.errorSubscriptions = 0
+        self.totalErrorSubscriptions = 0
+        self.newErrorSubscription = False
 
         # Linuxcnc
         try:
@@ -136,15 +150,15 @@ class LinuxCNCWrapper:
 
         me = uuid.uuid1()
         self.statusTxtrec  = [str('dsn=' + self.statusDsname),
-                              str('uuid=' + svc_uuid),
+                              str('uuid=' + svcUuid),
                               str('service=' + 'status'),
                               str('instance=' + str(me))]
         self.errorTxtrec   = [str('dsn=' + self.errorDsname),
-                              str('uuid=' + svc_uuid),
+                              str('uuid=' + svcUuid),
                               str('service=' + 'error'),
                               str('instance=' + str(me))]
         self.commandTxtrec = [str('dsn=' + self.commandDsname),
-                              str('uuid=' + svc_uuid),
+                              str('uuid=' + svcUuid),
                               str('service=' + 'command'),
                               str('instance=' + str(me))]
 
@@ -399,6 +413,7 @@ class LinuxCNCWrapper:
             modified = True
 
         if self.configFullUpdate:
+            self.add_pparams()
             self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
             self.configFullUpdate = False
         elif modified:
@@ -564,6 +579,7 @@ class LinuxCNCWrapper:
         del txToolResult
 
         if self.ioFullUpdate:
+            self.add_pparams()
             self.send_io(self.status.io, MT_EMCSTAT_FULL_UPDATE)
             self.ioFullUpdate = False
         elif modified:
@@ -630,6 +646,7 @@ class LinuxCNCWrapper:
             modified = True
 
         if self.taskFullUpdate:
+            self.add_pparams()
             self.send_task(self.status.task, MT_EMCSTAT_FULL_UPDATE)
             self.taskFullUpdate = False
         elif modified:
@@ -726,6 +743,7 @@ class LinuxCNCWrapper:
         del txStatusSetting
 
         if self.interpFullUpdate:
+            self.add_pparams()
             self.send_interp(self.status.interp, MT_EMCSTAT_FULL_UPDATE)
             self.interpFullUpdate = False
         elif modified:
@@ -1201,6 +1219,7 @@ class LinuxCNCWrapper:
             modified = True
 
         if self.motionFullUpdate:
+            self.add_pparams()
             self.send_motion(self.status.motion, MT_EMCSTAT_FULL_UPDATE)
             self.motionFullUpdate = False
         elif modified:
@@ -1218,6 +1237,32 @@ class LinuxCNCWrapper:
             self.update_motion(stat)
         if (self.configSubscriptions > 0):
             self.update_config(stat)
+
+    def update_error(self, error):
+        if not error:
+            return
+
+        kind, text = error
+        self.tx.note.add(text)
+
+        if (kind == linuxcnc.NML_ERROR):
+            if (self.errorSubscriptions > 0):
+                self.send_error_msg('error', MT_EMC_NML_ERROR)
+        elif (kind == linuxcnc.OPERATOR_ERROR):
+            if (self.errorSubscriptions > 0):
+                self.send_error_msg('error', MT_EMC_OPERATOR_ERROR)
+        elif (kind == linuxcnc.NML_TEXT):
+            if (self.textSubscriptions > 0):
+                self.send_error_msg('text', MT_EMC_NML_TEXT)
+        elif (kind == linuxcnc.OPERATOR_TEXT):
+            if (self.textSubscriptions > 0):
+                self.send_error_msg('text', MT_EMC_OPERATOR_TEXT)
+        elif (kind == linuxcnc.NML_DISPLAY):
+            if (self.displaySubscriptions > 0):
+                self.send_error_msg('display', MT_EMC_NML_DISPLAY)
+        elif (kind == linuxcnc.OPERATOR_DISPLAY):
+            if (self.displaySubscriptions > 0):
+                self.send_error_msg('display', MT_EMC_OPERATOR_DISPLAY)
 
     def send_config(self, data, type):
         self.tx.emc_status_config.MergeFrom(data)
@@ -1255,24 +1300,70 @@ class LinuxCNCWrapper:
         self.tx.Clear()
         self.statusSocket.send_multipart([topic, txBuffer])
 
+    def send_error_msg(self, topic, type):
+        self.tx.type = type
+        txBuffer = self.tx.SerializeToString()
+        self.tx.Clear()
+        self.errorSocket.send_multipart([topic, txBuffer])
+
     def send_command_msg(self, type):
         self.tx.type = type
         txBuffer = self.tx.SerializeToString()
         self.tx.Clear()
         self.commandSocket.send(txBuffer)
 
+    def add_pparams(self):
+        parameters = ProtocolParameters()
+        parameters.keepalive_timer = self.pingInterval * 1000
+        self.tx.pparams.MergeFrom(parameters)
+
     def poll(self):
         while True:
             try:
-                #self.error.poll()
                 if (self.totalSubscriptions > 0):
                     self.stat.poll()
                     self.update_status(self.stat)
+                    if (self.pingCount == self.pingRatio):
+                        self.ping_status()
+
+                if (self.totalErrorSubscriptions > 0):
+                    error = self.error.poll()
+                    self.update_error(error)
+                    if (self.pingCount == self.pingRatio):
+                        self.ping_error()
 
             except linuxcnc.error as detail:
                 print(("error", detail))
 
-            time.sleep(self.poll_interval)
+            if (self.pingCount == self.pingRatio):
+                self.pingCount = 0
+            else:
+                self.pingCount += 1
+            time.sleep(self.pollInterval)
+
+    def ping_status(self):
+        if (self.ioSubscriptions > 0):
+            self.send_status_msg('io', MT_PING)
+        if (self.taskSubscriptions > 0):
+            self.send_status_msg('task', MT_PING)
+        if (self.interpSubscriptions > 0):
+            self.send_status_msg('interp', MT_PING)
+        if (self.motionSubscriptions > 0):
+            self.send_status_msg('motion', MT_PING)
+        if (self.configSubscriptions > 0):
+            self.send_status_msg('config', MT_PING)
+
+    def ping_error(self):
+        if self.newErrorSubscription:        # not very clear
+            self.add_pparams()
+            self.newErrorSubscription = False
+
+        if (self.errorSubscriptions > 0):
+            self.send_error_msg('error', MT_PING)
+        if (self.textSubscriptions > 0):
+            self.send_error_msg('text', MT_PING)
+        if (self.displaySubscriptions > 0):
+            self.send_error_msg('display', MT_PING)
 
     def processStatus(self, socket):
         try:
@@ -1318,13 +1409,45 @@ class LinuxCNCWrapper:
             + self.interpSubscriptions
 
             print(("process status called " + subscription + ' ' + str(status)))
-            print(("total subscriptions: " + str(self.totalSubscriptions)))
+            print(("total status subscriptions: " + str(self.totalSubscriptions)))
 
         except zmq.ZMQError:
             print("ZMQ error")
 
     def processError(self, socket):
-        print("process error called")
+        try:
+            rc = socket.recv(zmq.NOBLOCK)
+            subscription = rc[1:]
+            status = (rc[0] == "\x01")
+
+            if subscription == 'error':
+                if status:
+                    self.newErrorSubscription = True
+                    self.errorSubscriptions += 1
+                else:
+                    self.errorSubscriptions -= 1
+            elif subscription == 'text':
+                if status:
+                    self.newErrorSubscription = True
+                    self.textSubscriptions += 1
+                else:
+                    self.textSubscriptions -= 1
+            elif subscription == 'display':
+                if status:
+                    self.newErrorSubscription = True
+                    self.displaySubscriptions += 1
+                else:
+                    self.displaySubscriptions -= 1
+
+            self.totalErrorSubscriptions = self.errorSubscriptions \
+            + self.textSubscriptions \
+            + self.displaySubscriptions
+
+            print(("process error called " + subscription + ' ' + str(status)))
+            print(("total error subscriptions: " + str(self.totalErrorSubscriptions)))
+
+        except zmq.ZMQError:
+            print("ZMQ error")
 
     def send_command_wrong_params(self):
         self.tx.note.append("wrong parameters")
@@ -1732,7 +1855,7 @@ def main():
     uri = "tcp://" + iface[0]
 
     wrapper = LinuxCNCWrapper(context, uri, uri, uri,
-                              svc_uuid=uuid,
+                              svcUuid=uuid,
                               ipv4=iface[1],
                               debug=debug)
 
