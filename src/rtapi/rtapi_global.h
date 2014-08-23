@@ -70,7 +70,6 @@
 
 
 #define MESSAGE_RING_SIZE (4096 * 64)
-#define INSTANCE_NAME_LENGTH 32
 
 // the universally shared global structure
 typedef struct {
@@ -81,7 +80,6 @@ typedef struct {
     // this is set once on startup by rtapi_msgd and is to be considered a constant
     // throughout the session:
     int instance_id;
-    char instance_name[INSTANCE_NAME_LENGTH];
     int rtapi_thread_flavor; 
 
     // runtime parameters

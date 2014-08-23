@@ -311,15 +311,7 @@ static int init_global_data(global_data_t * data, int flavor,
     data->magic = GLOBAL_INITIALIZING;
     /* set version code so other modules can check it */
     data->layout_version = GLOBAL_LAYOUT_VERSION;
-
     data->instance_id = instance_id;
-
-    if ((name == NULL) || (strlen(name) == 0)) {
-	snprintf(data->instance_name, sizeof(data->instance_name),
-		 "inst%d",rtapi_instance);
-    } else {
-	strncpy(data->instance_name,name, sizeof(data->instance_name));
-    }
 
     // separate message levels for RT and userland
     data->rt_msg_level = rt_level;
@@ -883,9 +875,9 @@ int main(int argc, char **argv)
     } else {
 
 	syslog_async(LOG_INFO,
-		     "startup instance=%s pid=%d flavor=%s "
+		     "startup pid=%d flavor=%s "
 		     "rtlevel=%d usrlevel=%d halsize=%d shm=%s gcc=%s version=%s",
-		     global_data->instance_name, getpid(),
+		     getpid(),
 		     flavor->name,
 		     global_data->rt_msg_level,
 		     global_data->user_msg_level,
