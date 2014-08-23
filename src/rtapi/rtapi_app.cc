@@ -701,7 +701,7 @@ static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"signal %d - '%s' received, dumping core (current dir=%s)",
 			sig, strsignal(sig), get_current_dir_name());
-	exit_actions(instance_id);
+
 	if (global_data)
 	    global_data->rtapi_app_pid = 0;
 
