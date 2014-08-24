@@ -1273,6 +1273,7 @@ int emcMotionInit()
 
     if (ini_hal_init()) {
 	rcs_print("emcMotionInit: ini_hal_init fail\n");
+	return -1;
     }
 
     if (ini_hal_init_pins()) {
