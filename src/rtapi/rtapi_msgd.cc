@@ -287,6 +287,26 @@ static int create_global_segment()
     return retval;
 }
 
+// salvaged from rtapi_shmem.c - msgd doesnt link against rtapi though
+static void check_memlock_limit(const char *where) {
+    static int checked=0;
+    struct rlimit lim;
+    int result;
+    if(checked) return;
+    checked=1;
+
+    result = getrlimit(RLIMIT_MEMLOCK, &lim);
+    if(result < 0) { perror("getrlimit"); return; }
+    if(lim.rlim_cur == (rlim_t)-1) return; // unlimited
+    if(lim.rlim_cur >= RLIMIT_MEMLOCK_RECOMMENDED) return; // limit is at least recommended
+    syslog_async(LOG_ERR, "Locked memory limit is %luKiB, recommended at least %luKiB.",
+		 (unsigned long)lim.rlim_cur/1024, RLIMIT_MEMLOCK_RECOMMENDED/1024);
+    syslog_async(LOG_ERR, "This can cause the error '%s'.", where);
+    syslog_async(LOG_ERR, "For more information, see "
+		 "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n");
+    return;
+}
+
 static int init_global_data(global_data_t * data, int flavor,
 		      int instance_id, int hal_size,
 		      int rt_level, int user_level,
@@ -303,8 +323,10 @@ static int init_global_data(global_data_t * data, int flavor,
     // lock the global data segment
     if (flavor != RTAPI_POSIX_ID) {
 	if (mlock(data, sizeof(global_data_t))) {
-	    syslog_async(LOG_ERR, "MSGD:%d mlock(global) failed: %d '%s'\n",
-		   instance_id, errno,strerror(errno));
+	    const char *errmsg = strerror(errno);
+	    syslog_async(LOG_ERR, "mlock(global) failed: %d '%s'\n",
+			 errno, errmsg);
+	    check_memlock_limit(errmsg);
 	}
     }
     // report progress
