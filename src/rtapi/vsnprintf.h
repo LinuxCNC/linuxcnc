@@ -281,9 +281,6 @@ int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args
 				   of chars for from string */
     int qualifier;		/* 'h', 'l', or 'L' for integer fields */
 
-    if (size < 0) {
-	size = 0;
-    }
     str = buf;
     end = buf + size - 1;
     if (end <= buf) {

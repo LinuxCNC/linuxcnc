@@ -59,7 +59,6 @@ public:
 private:
 
     char *ttcomments[CANON_POCKETS_MAX];
-    int fms[CANON_POCKETS_MAX];
 };
 
 extern Task *task_methods;

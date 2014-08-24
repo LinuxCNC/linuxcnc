@@ -285,15 +285,6 @@ STATIC inline double tpGetScaledAccel(TP_STRUCT const * const tp,
 }
 
 /**
- * Cap velocity based on trajectory properties
- */
-STATIC inline double tpGetSampleVelocity(double vel, double length, double dt) {
-    //FIXME div by zero check
-    double v_sample = length / dt;
-    return fmin(vel,v_sample);
-}
-
-/**
  * Convert the 2-part spindle position and sign to a signed double.
  */
 STATIC inline double tpGetSignedSpindlePosition(double spindle_pos, int spindle_dir) {
@@ -633,22 +624,6 @@ STATIC double tpCalculateTriangleVel(TP_STRUCT const * const tp, TC_STRUCT * con
     return triangle_vel;
 }
 
-
-/**
- * Calculate the angle between two unit cartesian vectors.
- */
-STATIC inline int tpCalculateUnitCartAngle(PmCartesian const * const u1, PmCartesian const * const u2, double * const theta) {
-    double dot;
-    pmCartCartDot(u1, u2, &dot);
-
-    if (dot > 1.0 || dot < -1.0) {
-        tp_debug_print("dot product %f outside domain of acos!\n",dot);
-        sat_inplace(&dot,1.0);
-    }
-
-    *theta = acos(dot);
-    return TP_ERR_OK;
-}
 
 /**
  * Initialize a blend arc from its parent lines.

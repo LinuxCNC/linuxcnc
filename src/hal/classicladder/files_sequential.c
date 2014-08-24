@@ -29,12 +29,6 @@
 #include "files.h"
 #include "files_sequential.h"
 
-#ifdef debug
-#define dbg_printf printf
-#else
-static inline int dbg_printf(char *f, ...) {return 0;}
-#endif
-
 
 
 char ConvTypeOffsetVar(char * RawLine,int *VarType,int * VarOffset)

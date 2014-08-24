@@ -70,9 +70,9 @@ int mem_get_access(void *data, long connection_number,
 #endif
      int mem_get_access(struct mem_access_object *mo)
 {
-    register char *mylock;
-    register char current_lock;
-    register char *plock;
+    char *mylock;
+    char current_lock;
+    char *plock;
     char *lastlock;
     int semaphores_clear;
     double start_time, time;

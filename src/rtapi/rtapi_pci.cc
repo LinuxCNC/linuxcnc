@@ -40,20 +40,49 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <libudev.h>
 #include <map>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/fsuid.h>
 #include <sys/io.h>
 #include <sys/mman.h>
 #include <sys/utsname.h>
 #include <time.h>
 #include <unistd.h>
 #include <vector>
+#include <sys/types.h>
+#include <sys/stat.h>
 
+#ifdef NO_LIBUDEV
+int rtapi_pci_register_driver(struct rtapi_pci_driver *driver) {
+    return -ENODEV;
+}
+void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver)
+{
+}
+
+void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *dev, int bar)
+{
+    return NULL;
+}
+
+void rtapi_iounmap(volatile void rtapi__iomem *addr)
+{
+}
+
+int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
+{
+    return -ENODEV;
+}
+
+int rtapi_pci_disble_device(struct rtapi_pci_dev *dev)
+{
+    return -ENODEV;
+}
+
+#else
+#include <libudev.h>
 typedef std::vector<rtapi_pci_dev*> DeviceVector;
 
 DeviceVector &DEVICES(rtapi_pci_driver *driver) {
@@ -381,6 +410,7 @@ int rtapi_pci_disable_device(struct rtapi_pci_dev *dev)
 
     return r;
 }
+#endif
 
 int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, struct rtapi_device *device) {
     struct rtapi_firmware *lfw;
