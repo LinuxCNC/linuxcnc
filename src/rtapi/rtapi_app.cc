@@ -1003,6 +1003,9 @@ static int configure_memory(void)
 	    rtapi_print_msg(RTAPI_MSG_WARN, 
 			    "mlockall() failed: %d '%s'\n",
 			    errno,strerror(errno));
+	    rtapi_print_msg(RTAPI_MSG_WARN,
+			    "For more information, see "
+			    "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n");
 	    return 1;
 	}
     }
