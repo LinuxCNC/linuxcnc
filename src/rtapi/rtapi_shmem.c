@@ -55,8 +55,6 @@
 #  else
 #    define MODULE_STATE USERSPACE
 #    define OUR_API "ULAPI"
-
-#    define RECOMMENDED (20480*1024lu)
 #  endif
 #endif
 
@@ -409,13 +407,13 @@ static void check_memlock_limit(const char *where) {
     result = getrlimit(RLIMIT_MEMLOCK, &lim);
     if(result < 0) { perror("getrlimit"); return; }
     if(lim.rlim_cur == (rlim_t)-1) return; // unlimited
-    if(lim.rlim_cur >= RECOMMENDED) return; // limit is at least recommended
+    if(lim.rlim_cur >= RLIMIT_MEMLOCK_RECOMMENDED) return; // limit is at least recommended
     rtapi_print_msg(RTAPI_MSG_ERR,
         "RTAPI: Locked memory limit is %luKiB, recommended at least %luKiB.\n"
         "This can cause the error '%s'.\n"
         "For more information, see\n"
         "\thttp://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n",
-        (unsigned long)lim.rlim_cur/1024, RECOMMENDED/1024, where);
+        (unsigned long)lim.rlim_cur/1024, RLIMIT_MEMLOCK_RECOMMENDED/1024, where);
     return;
 }
 #endif /* ULAPI */
