@@ -141,7 +141,7 @@ esac
 DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
-EXTRA_RECOMMENDS=hostmot2-firmware
+EXTRA_RECOMMENDS=hostmot2-firmware-all
 case $TARGET in
     uspace|sim)
 	TARGET=uspace
