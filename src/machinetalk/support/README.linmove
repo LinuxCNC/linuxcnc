@@ -1,0 +1,54 @@
+# per default encode all axes
+
+mah@wheezy:~/linuxcnc/src$ linmove
+Container:
+type: MT_EMC_TRAJ_LINEAR_MOVE
+line_number: 42
+traj_linear_move {
+  type: EMC__MOTION_TYPE_FEED
+  end {
+    tran {
+      x: 10
+      y: 20
+      z: 30
+    }
+    a: 40
+    b: 50
+    c: 60
+    u: 70
+    v: 80
+    w: 90
+  }
+  vel: 123
+  ini_maxvel: 456
+  acc: 42
+  feed_mode: true
+  indexrotary: 0
+}
+
+Container converted to JSON:{"type": 10220, "line_number": 42, "traj_linear_move": {"type": 2, "acc": 42.0, "end": {"w": 90.0, "tran": {"x": 10.0, "y": 20.0, "z": 30.0}, "u": 70.0, "a": 40.0, "b": 50.0, "c": 60.0, "v": 80.0}, "feed_mode": true, "vel": 123.0, "ini_maxvel": 456.0, "indexrotary": 0}}
+
+-----------------
+
+only x and a axes, others NULL values
+
+mah@wheezy:~/linuxcnc/src$ linmove 9
+Container:
+type: MT_EMC_TRAJ_LINEAR_MOVE
+line_number: 42
+traj_linear_move {
+  type: EMC__MOTION_TYPE_FEED
+  end {
+    tran {
+      x: 10
+    }
+    a: 40
+  }
+  vel: 123
+  ini_maxvel: 456
+  acc: 42
+  feed_mode: true
+  indexrotary: 0
+}
+
+Container converted to JSON:{"type": 10220, "line_number": 42, "traj_linear_move": {"type": 2, "acc": 42.0, "end": {"tran": {"x": 10.0}, "a": 40.0}, "feed_mode": true, "vel": 123.0, "ini_maxvel": 456.0, "indexrotary": 0}}

@@ -1,0 +1,7 @@
+loadrt die inthread=1
+loadrt threads
+addf die thread1
+
+# starting the thread should create a segfault  of rtapi_app:
+start
+

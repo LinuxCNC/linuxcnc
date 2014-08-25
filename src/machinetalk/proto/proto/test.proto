@@ -1,0 +1,31 @@
+// use any of the below for testing and experimentation.
+
+import "types.proto";
+import "emcclass.proto";
+
+package pb;
+
+enum TestOpType {
+    LINE            = 10;
+    CIRCLE          = 20;
+};
+
+
+message Test1 {
+    // minimum params to encode line or circle
+    required TestOpType            op = 10;
+    required EmcPose             end = 20;
+    optional PmCartesian      center = 30;
+    optional PmCartesian      normal = 40;
+    optional int32               turn = 50;
+}
+
+
+message Test2 {
+
+}
+
+
+message Test3 {
+
+}

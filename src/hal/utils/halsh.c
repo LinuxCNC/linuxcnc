@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <tcl.h>
 #include "halcmd.h"
+#include "inifile.h"
 
 Tcl_Interp *target_interp = NULL;
 static int pending_cr = 0;
@@ -40,10 +41,37 @@ static void shutdown(void) {
     }
 }
 
+static char *getuuid(void)
+{
+    FILE *inifp = NULL;
+    const char *mkinifile;
+    const char *mkini = "MACHINEKIT_INI";
+
+    if ((mkinifile = getenv(mkini)) == NULL) {
+	fprintf(stderr, "halsh: FATAL - '%s' missing in environment\n",
+		mkini);
+	return NULL;
+    }
+    if ((inifp = fopen(mkinifile,"r")) == NULL) {
+	fprintf(stderr, "halsh: FATAL cant open inifile '%s'\n",
+		mkinifile);
+	return NULL;
+    }
+    char *s = (char *)iniFind(inifp, "MKUUID","MACHINEKIT");
+    if (s) {
+	s = strdup(s);
+    }
+    fclose(inifp);
+    return s;
+}
+
 static int init() {
     int result = 0;
-    if(refcount == 0) {
-        result = halcmd_startup(0);
+    char *uuid = getuuid();
+    if (uuid == NULL)
+	return TCL_ERROR;
+    if (refcount == 0) {
+        result = halcmd_startup(0, NULL, uuid);
         atexit(shutdown);
     }
     if(result == 0) {

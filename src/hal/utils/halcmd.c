@@ -65,8 +65,11 @@ FILE *halcmd_inifile = NULL;
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include "hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
+#include "halcmd_rtapiapp.h"
+
+
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -88,10 +91,31 @@ int scriptmode = 0;	/* used to make output "script friendly" (suppress headers) 
 int prompt_mode = 0;	/* when getting input from stdin, print a prompt */
 int echo_mode = 0;
 char comp_name[HAL_NAME_LEN+1];	/* name for this instance of halcmd */
+flavor_ptr current_flavor;
 
 static void quit(int);
 
-int halcmd_startup(int quiet) {
+static pid_t pid_of(const char *fmt, ...)
+{
+    char line[LINELEN];
+    FILE *cmd;
+    pid_t pid;
+    va_list ap;
+
+    strcpy(line, "pidof ");
+    va_start(ap, fmt);
+    vsnprintf(line + strlen(line), sizeof(line) - strlen(line), fmt, ap);
+    va_end(ap);
+    cmd = popen(line, "r");
+    if (!fgets(line, sizeof(line), cmd))
+	pid = -1;
+    else
+	pid = strtoul(line, NULL, 10);
+    pclose(cmd);
+    return pid;
+}
+
+int halcmd_startup(int quiet, char *uri, const char *svc_uuid) {
     int msg_lvl_save=rtapi_get_msg_level();
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
@@ -104,6 +128,29 @@ int halcmd_startup(int quiet) {
     /* tell the signal handler that we might have the mutex */
     hal_flag = 1;
     if (quiet) rtapi_set_msg_level(RTAPI_MSG_NONE);
+
+    // make sure the rtapi demon is up and responding
+    // this closes a race condition where hal_init() would be called
+    // before rtapi_app is done
+    int retval;
+    if ((retval = rtapi_connect(rtapi_instance, uri, svc_uuid))) {
+        if (!quiet) {
+            fprintf(stderr, "halcmd: cant connect to rtapi_app: %d (uri=%s uuid=%s): %s\n\n",
+		    retval, uri ? uri:"", svc_uuid, rtapi_rpcerror());
+
+	    char *logfile = "/var/log/linuxcnc.log";
+
+	    if (pid_of("rtapi:%d", rtapi_instance) < 0)
+		fprintf(stderr, "halcmd: the rtapi:%d RT demon is not running - please investigate %s\n",
+			rtapi_instance, logfile);
+
+	    if (pid_of("msgd:%d", rtapi_instance) < 0)
+		fprintf(stderr, "halcmd: the msgd:%d logger demon is not running - please investigate %s\n",
+			rtapi_instance, logfile);
+        }
+	return -EINVAL;
+    }
+
     /* connect to the HAL */
     comp_id = hal_init(comp_name);
     if (quiet) rtapi_set_msg_level(msg_lvl_save);
@@ -118,6 +165,8 @@ int halcmd_startup(int quiet) {
 	return -EINVAL;
     }
     hal_ready(comp_id);
+    current_flavor = flavor_byid(global_data->rtapi_thread_flavor);
+
     return 0;
 }
 
@@ -140,6 +189,7 @@ struct halcmd_command halcmd_commands[] = {
     {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
     {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
     {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
+    {"delthread",  FUNCT(do_delthread_cmd),  A_ONE },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
     {"gets",    FUNCT(do_gets_cmd),    A_ONE },
     {"ptype",   FUNCT(do_ptype_cmd),   A_ONE },
@@ -155,12 +205,15 @@ struct halcmd_command halcmd_commands[] = {
     {"log",     FUNCT(do_log_cmd),     A_TWO | A_OPTIONAL},
     {"net",     FUNCT(do_net_cmd),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
     {"newsig",  FUNCT(do_newsig_cmd),  A_TWO },
+    {"ping",    FUNCT(do_ping_cmd), A_ZERO },
     {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL | A_TILDE },
     {"setexact_for_test_suite_only", FUNCT(do_setexact_cmd), A_ZERO },
     {"setp",    FUNCT(do_setp_cmd),    A_TWO },
     {"sets",    FUNCT(do_sets_cmd),    A_TWO },
-    {"sleep",   FUNCT(do_sleep_cmd),  A_ONE },
+    {"sete",    FUNCT(do_sete_cmd),    A_TWO },
     {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
+    {"shutdown",FUNCT(do_shutdown_cmd), A_ZERO },
+    {"sleep",   FUNCT(do_sleep_cmd),  A_ONE },
     {"source",  FUNCT(do_source_cmd),  A_ONE | A_TILDE },
     {"start",   FUNCT(do_start_cmd),   A_ZERO},
     {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
@@ -172,12 +225,24 @@ struct halcmd_command halcmd_commands[] = {
     {"unloadrt", FUNCT(do_unloadrt_cmd), A_ONE },
     {"unloadusr", FUNCT(do_unloadusr_cmd), A_ONE },
     {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
-    {"waitusr", FUNCT(do_waitusr_cmd), A_TWO | A_OPTIONAL },
- 
+    {"waitusr", FUNCT(do_waitusr_cmd), A_TWO | A_OPTIONAL  },
+
+    {"newthread",FUNCT(do_newthread_cmd), A_TWO |  A_PLUS},
+    {"newg",    FUNCT(do_newg_cmd),    A_ONE |  A_PLUS},
+    {"delg",    FUNCT(do_delg_cmd),    A_ONE },
+    {"newm",    FUNCT(do_newm_cmd),    A_TWO | A_OPTIONAL | A_PLUS},
+    {"delm",    FUNCT(do_delm_cmd),    A_TWO },
+
+    {"newring", FUNCT(do_newring_cmd), A_TWO |  A_PLUS},
+    {"delring", FUNCT(do_delring_cmd), A_ONE },
+    {"ringdump", FUNCT(do_ringdump_cmd), A_ONE },
+    {"ringread", FUNCT(do_ringread_cmd), A_TWO | A_OPTIONAL },
+    {"ringwrite", FUNCT(do_ringwrite_cmd), A_TWO},
     {"newcomp", FUNCT(do_newcomp_cmd), A_ONE |  A_PLUS},
     {"newpin",  FUNCT(do_newpin_cmd), A_THREE |  A_PLUS},
     {"ready",   FUNCT(do_ready_cmd),    A_ONE | A_OPTIONAL },
     {"waitbound", FUNCT(do_waitbound_cmd), A_ONE| A_OPTIONAL  },
+    {"waitexists", FUNCT(do_waitexists_cmd), A_ONE },
     {"waitunbound", FUNCT(do_waitunbound_cmd), A_ONE| A_OPTIONAL  },
 
 };
@@ -200,30 +265,10 @@ pid_t hal_systemv_nowait(char *const argv[]) {
     int n;
 
     /* now we need to fork, and then exec .... */
-#if 0
-    /* disconnect from the HAL shmem area before forking */
-    hal_exit(comp_id);
-    comp_id = 0;
-#else
-    hal_rtapi_detach();
-#endif
-    /* now the fork() */
     pid = fork();
     if ( pid < 0 ) {
 	/* fork failed */
 	halcmd_error("fork() failed\n");
-#if 0
-	/* reconnect to the HAL shmem area */
-	comp_id = hal_init(comp_name);
-	if (comp_id < 0) {
-	    fprintf(stderr, "halcmd: hal_init() failed after fork: %d\n",
-                    comp_id );
-	    exit(-1);
-	}
-        hal_ready(comp_id);
-#else
-	hal_rtapi_attach();
-#endif
 	return -1;
     }
     if ( pid == 0 ) {
@@ -246,8 +291,6 @@ pid_t hal_systemv_nowait(char *const argv[]) {
 	exit(1);
     }
     /* parent process */
-    /* reconnect to the HAL shmem area */
-    hal_rtapi_attach();
     return pid;
 }
 

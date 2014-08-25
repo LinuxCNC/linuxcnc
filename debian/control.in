@@ -8,6 +8,14 @@ Build-Depends: debhelper (>= 6),
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
     libxmu-headers, python, python-dev, python-support, pkg-config, psmisc,
     python-tk, tcl8.5-dev, tk8.5-dev, libxaw7-dev, libboost-serialization-dev,
+    libsodium-dev (>= 0.5.0), libzmq4-dev (>= 4.0.4),
+    libczmq-dev (>= 2.2.0), libjansson-dev (>= 2.5), libwebsockets-dev (>= 2.2),
+    python-zmq (>= 14.3),
+    libtool, liburiparser-dev, libssl-dev, openssl, python-setuptools,
+    libudev-dev, uuid-dev,uuid-runtime, libavahi-client-dev,avahi-daemon,
+    libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
+    python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
+    python-avahi, python-netifaces,python-simplejson,libtk-img,
     libboost-thread-dev, @BUILD_DEPS@
 Standards-Version: 2.1.0
 

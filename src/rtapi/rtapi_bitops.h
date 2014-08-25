@@ -110,6 +110,18 @@ static inline rtapi_atomic_type rtapi_test_bit(int nr, rtapi_atomic_type * const
 	     & RTAPI_BIT_MASK(nr)) != 0;
 }
 
+static inline rtapi_atomic_type rtapi_add_and_fetch(int delta,
+						    rtapi_atomic_type * const value)
+{
+    return __atomic_add_fetch (value, delta, RTAPI_MEMORY_MODEL);
+}
+
+static inline rtapi_atomic_type rtapi_subtract_and_fetch(int delta,
+							 rtapi_atomic_type * const value)
+{
+    return __atomic_sub_fetch (value, delta, RTAPI_MEMORY_MODEL);
+}
+
 #else // ! RTAPI_USE_ATOMIC - use gcc legacy atomic operations
 
 static inline int rtapi_test_and_set_bit(int nr, rtapi_atomic_type *bitmap)
@@ -144,5 +156,16 @@ static inline rtapi_atomic_type rtapi_test_bit(int nr, rtapi_atomic_type * const
 	     & RTAPI_BIT_MASK(nr)) != 0;
 }
 
+static inline rtapi_atomic_type rtapi_add_and_fetch(int delta,
+						    rtapi_atomic_type * const value)
+{
+    return  __sync_add_and_fetch (value, delta);
+}
+
+static inline rtapi_atomic_type rtapi_subtract_and_fetch(int delta,
+							 rtapi_atomic_type * const value)
+{
+    return  __sync_sub_and_fetch (value, delta);
+}
 #endif // ! RTAPI_USE_ATOMIC
 #endif // RTAPI_BITOPS_H

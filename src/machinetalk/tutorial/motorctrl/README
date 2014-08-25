@@ -1,0 +1,75 @@
+Simple demo for a remote component, served by haltalk and webtalk
+-----------------------------------------------------------------
+
+what this does:
+
+- demonstrate the concept of a remote HAL component
+- run a demo with three forms of UI:
+  traditional gladevcp
+  Alex's QtQuickVCP
+  a Websockets/JSON demo
+
+
+to run the demo:
+================
+
+This demo is set up to work via remote connections and therefore uses
+its own machinekit.ini file with REMOTE=1 .
+
+You can run gladevcp, QtQuickVCP and the web UI remotely; for the Android QtQuickVCP version,
+you will need WiFi access to the network machinekit is running on.
+
+- watch the log in a separate window:
+  tail -f /var/log/linuxcnc.log
+
+- execute ./rundemo
+
+This will start halscope, and a gladevcp application.
+
+At this point, connecting remotely via QtQuickVCP or gladevcp should be possible:
+
+For the Android motorctrl demo, please check with Alex.
+
+You can run several such UI's in parallel; values will be synchronized.
+
+To edit .ui files for gladevcp you need the glade editor installed.
+Beware - this is the old glade version (I think version must be < 3.0.8)
+
+
+to see the websockets/JSON proxy in action:
+===========================================
+
+- connect from a web browser to http://<ip address>:8080/index.html
+
+  this should show a choice of group, remote component and logging demo
+
+  try the group demo (/group.html?group=dro) and play with the gladevcp UI - the signal values should be tracked in the group
+
+  try the logging demo (/logger.html): execute a HAL cmd which creates a log message, like 'halcmd loadrt or2'
+  the log messages should show up in the browser window.
+
+  try the logging demo (/rcomp.html): changes in the web UI should be reflected in gladevcp and vice versa
+
+To get an idea how the Javascript side of things look, review
+the files in machinetalk/tutorial/htdocs
+
+In case you have a web browser which understands zeroconf announcements like Safari, your browser should find
+the machinekit http service automatically - in Safari you'll find it under the 'Bonjour' dropdown as 'Machinekit on <ip address>'.
+
+
+- to do a similar websocket log connection from a python script, run
+
+  python websockets-client.py "ws://<ip address>:8080/?connect=machinekit://log&type=sub&subscribe=log&policy=json"
+
+
+You might have to install the websocket-client from pypi for this to work (https://pypi.python.org/pypi/websocket-client/), e.g.
+   sudo easy_install websocket-client
+
+-  again, execute a halcmd statement which creates a log message, like 'halcmd loadrt or2'
+  the JSON format machinetalk message should appear in the script output like so:
+
+### opened ###
+rx: {"tv_sec": 1402170188, "type": 10, "tv_nsec": 679251484, "log_message": {"origin": 2, "tag": "rtapi_app", "pid": 1318, "text": "or2: already loaded", "level": 1}}
+
+This object is the result of automatic translation from/to protobuf messages via src/machinetalk/lib/json2pb.cc, which the webtalk server uses. This works in both directions, and for all
+service types - making it perfectly possible to talk to RT components via JSON.

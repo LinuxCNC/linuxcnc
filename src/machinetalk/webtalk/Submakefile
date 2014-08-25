@@ -1,0 +1,138 @@
+WEBTALK_DIR := machinetalk/webtalk
+
+# see https://github.com/somdoron/rfc/blob/master/spec_39.txt
+ZWS_SUPPORT := -DZWS_SUPPORT
+
+# install this so out of tree policy plugins can compile against this
+INCLUDES +=  $(WEBTALK_DIR)
+
+MT_INSTALL_INCS +=  machinetalk/webtalk/webtalk.hh
+
+EXPERIMENTAL := -DEXPERIMENTAL_ZWS_SUPPORT=1
+WEBTALK_SRCS :=  $(addprefix $(WEBTALK_DIR)/, \
+	webtalk_zeroconf.cc 	\
+	webtalk_wsproxy.cc	\
+	webtalk_defaultpolicy.cc	\
+	webtalk_jsonpolicy.cc	\
+	webtalk_plugin.cc	\
+	webtalk_echo.cc 	\
+	webtalk_main.cc 	\
+	cencode.c 		\
+	cdecode.c )
+
+WEBTALK_CXXFLAGS := 		\
+	$(PROTOBUF_CFLAGS) 	\
+	$(CZMQ_CFLAGS) 		\
+	$(JANSSON_CFLAGS)	\
+	$(LWS_CFLAGS)		\
+	$(SSL_CFLAGS)		\
+	$(UUID_CFLAGS) 		\
+	$(AVAHI_CFLAGS) 	\
+	$(URIPARSER_CFLAGS)	\
+	$(ZWS_SUPPORT)
+
+WEBTALK_LDFLAGS := 		\
+	$(PROTOBUF_LIBS)	\
+	$(CZMQ_LIBS) 		\
+	$(JANSSON_LIBS) 	\
+	$(LWS_LIBS) 		\
+	$(SSL_LIBS) 		\
+	$(UUID_LIBS) 		\
+	$(AVAHI_LIBS) 		\
+	$(URIPARSER_LIBS)	\
+	-lstdc++ 		\
+	-rdynamic -ldl -lz
+
+$(call TOOBJSDEPS, $(WEBTALK_SRCS)) : EXTRAFLAGS += $(WEBTALK_CXXFLAGS) $(EXPERIMENTAL)
+
+../bin/webtalk: $(call TOOBJS, $(WEBTALK_SRCS)) \
+	../lib/libmtalk.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/libmtalk.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -g -o $@ $^ $(LDFLAGS) $(WEBTALK_LDFLAGS)
+
+USERSRCS += $(WEBTALK_SRCS)
+TARGETS += ../bin/webtalk
+
+
+../include/%.h: ./$(WEBTALK_DIR)/%.h
+	cp $^ $@
+
+../include/%.hh: ./$(WEBTALK_DIR)/%.hh
+	cp $^ $@
+
+
+EXAMPLE_PLUGIN_SRCS := $(addprefix $(WEBTALK_DIR)/, \
+	webtalk_example_policy.cc)
+
+$(call TOOBJSDEPS, $(EXAMPLE_PLUGIN_SRCS)) : EXTRAFLAGS += \
+	$(WEBTALK_CXXFLAGS) \
+	-fpic -Wall -std=c++0x -g
+
+../lib/webtalk/plugins/example.o: $(call TOOBJS, $(EXAMPLE_PLUGIN_SRCS))
+	@mkdir -p $(dir $@)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ -shared
+
+USERSRCS += $(EXAMPLE_PLUGIN_SRCS)
+TARGETS += ../lib/webtalk/plugins/example.o
+
+
+ifeq ($(BUILD_DEV),yes)
+
+$(WEBTALK_DIR)/zws.pb.cc $(WEBTALK_DIR)/zws.pb.h:  $(WEBTALK_DIR)/zws.proto
+	$(ECHO) "protoc create $@ from $<"
+	@mkdir -p $(PBGEN)
+	$(Q)$(PROTOC) $(PROTOCXX_FLAGS) \
+	--proto_path=$(WEBTALK_DIR)/ \
+	--proto_path=$(GPBINCLUDE)/ \
+	--cpp_out=./$(WEBTALK_DIR)/ $<
+
+# generate Python modules from proto files
+# useful for testing client with a Python client
+../lib/python/zws_pb2.py: $(WEBTALK_DIR)/zws.proto
+	$(ECHO) "protoc create $@ from $<"
+	@mkdir -p ../lib/python
+	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
+	--proto_path=$(WEBTALK_DIR)/ \
+	--proto_path=$(GPBINCLUDE)/ \
+	--python_out=../lib/python/ $<
+
+PYTARGETS += ../lib/python/zws_pb2.py
+
+
+ZWS_PLUGIN_SRCS := $(addprefix $(WEBTALK_DIR)/, \
+	webtalk_zws_policy.cc)
+
+$(call TOOBJSDEPS, $(ZWS_PLUGIN_SRCS)) : EXTRAFLAGS += \
+	$(WEBTALK_CXXFLAGS) \
+	-fpic -Wall -std=c++0x -g
+
+../lib/webtalk/plugins/zws.o: $(call TOOBJS, $(ZWS_PLUGIN_SRCS))
+	@mkdir -p $(dir $@)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ -shared
+
+USERSRCS += $(ZWS_PLUGIN_SRCS)
+TARGETS += ../lib/webtalk/plugins/zws.o
+$(WEBTALK_DIR)/webtalk_pbzws_policy.cc: $(WEBTALK_DIR)/zws.pb.cc
+
+PBZWS_PLUGIN_SRCS := $(addprefix $(WEBTALK_DIR)/, \
+	webtalk_pbzws_policy.cc \
+	zws.pb.cc)
+
+$(call TOOBJSDEPS, $(PBZWS_PLUGIN_SRCS)) : EXTRAFLAGS += \
+	$(WEBTALK_CXXFLAGS) \
+	-fpic -Wall -std=c++0x -g
+
+../lib/webtalk/plugins/pbzws.o: $(call TOOBJS, $(PBZWS_PLUGIN_SRCS))
+	@mkdir -p $(dir $@)
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ -shared
+
+USERSRCS += $(PBZWS_PLUGIN_SRCS)
+TARGETS += ../lib/webtalk/plugins/pbzws.o
+
+endif

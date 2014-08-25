@@ -1,0 +1,31 @@
+#!/bin/sh
+set -x
+
+export DEBUG=5
+export INI_FILE_NAME=motorctrl.ini
+
+# override default $MACHINEKIT_INI with a version which was REMOTE=1
+export MACHINEKIT_INI=machinekit.ini
+
+# to get the MKUUID to gladevcp and configserver via environment
+# (might be remote after all)
+
+export MKUUID=`inivar -var MKUUID -sec MACHINEKIT -ini $MACHINEKIT_INI`
+echo UUID=$MKUUID
+
+# remove any session leftovers
+killall configserver webtalk haltalk  >/dev/null 2>&1
+
+# let them die
+sleep 1
+
+# the point-of-contact for QtQUickVCP
+configserver &
+
+# the Websockets/JSON bridge into Machinetalk
+webtalk  --ini $INI_FILE_NAME &
+
+halrun -i $INI_FILE_NAME  -I motorctrl.hal
+#halrun -I motorctrl-bbstepper.hal
+
+killall configserver webtalk haltalk  >/dev/null 2>&1

@@ -40,7 +40,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "hal.h"
-#include "../hal_priv.h"
+#include "hal_priv.h"
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"
@@ -58,12 +58,15 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <search.h>
+#include <inifile.h>
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);
 static int release_HAL_mutex(void);
 static int propose_completion(char *all, char *fragment, int start);
 
+static const char *inifile;
+static FILE *inifp;
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
@@ -79,6 +82,10 @@ int main(int argc, char **argv)
     char raw_buf[MAX_CMD_LEN+1];
     int linenumber = 1;
     char *cf=NULL, *cw=NULL, *cl=NULL;
+    char *uri = NULL; // NULL - use service discovery
+    char *service_uuid = NULL; // must have a global uuid
+
+    inifile = getenv("MACHINEKIT_INI");
 
     if (argc < 2) {
 	/* no args specified, print help */
@@ -91,7 +98,7 @@ int main(int argc, char **argv)
     keep_going = 0;
     /* start parsing the command line, options first */
     while(1) {
-        c = getopt(argc, argv, "+RCfi:kqQsvVhe");
+        c = getopt(argc, argv, "+RCfi:kqQsvVhu:U:");
         if(c == -1) break;
         switch(c) {
             case 'R':
@@ -141,6 +148,8 @@ int main(int argc, char **argv)
 	    case 'f':
                 filemode = 1;
 		break;
+
+
 	    case 'C':
                 cl = getenv("COMP_LINE");
                 cw = getenv("COMP_POINT");
@@ -158,7 +167,7 @@ int main(int argc, char **argv)
                             break;
                         }
                     }
-                    halcmd_startup(1);
+                    halcmd_startup(1, uri, service_uuid);
                     propose_completion(cl, cf, n);
                 }
                 if (comp_id >= 0) halcmd_shutdown();
@@ -184,6 +193,12 @@ int main(int argc, char **argv)
 		}
 		break;
 #endif /* NO_INI */
+	    case 'u':
+		uri = optarg;
+		break;
+	    case 'U':
+                service_uuid = optarg;
+		break;
 	    case '?':
 		/* option not in getopt() list
 		   getopt already printed an error message */
@@ -196,6 +211,22 @@ int main(int argc, char **argv)
 		break;
         }
     }
+
+    if (inifile && ((inifp = fopen(inifile,"r")) == NULL)) {
+	fprintf(stderr,"halcmd: cant open inifile '%s'\n", inifile);
+    }
+    // must have a MKUUID - commandline may override
+    if (service_uuid == NULL) {
+	const char *s;
+	if ((s = iniFind(inifp, "MKUUID", "MACHINEKIT"))) {
+	    service_uuid = strdup(s);
+	}
+    }
+    if (service_uuid == NULL) {
+	fprintf(stderr, "halcmd: no service UUID (-R <uuid> or MACHINEKIT_INI [GLOBAL]MKUUID) present\n");
+	exit(-1);
+    }
+
     if(filemode) {
         /* it's the first -f (ignore repeats) */
         if (argc > optind) {
@@ -220,7 +251,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if ( halcmd_startup(0) != 0 ) return 1;
+    if ( halcmd_startup(0, uri, service_uuid) != 0 ) return 1;
 
     errorcount = 0;
     /* HAL init is OK, let's process the command(s) */

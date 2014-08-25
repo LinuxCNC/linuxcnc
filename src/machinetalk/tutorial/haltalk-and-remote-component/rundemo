@@ -1,0 +1,12 @@
+#!/bin/sh
+#set -x
+#export DEBUG=5
+
+# override default $MACHINEKIT_INI with a version which has REMOTE=1
+# this enables zeroconf announcements and TCP sockets
+# see also -N flag for gladevcp
+
+export MACHINEKIT_INI=machinekit.ini
+
+
+halrun -I $@

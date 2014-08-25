@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>Log subscriber test</title>
+<link rel=icon href=/favicon.png>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+
+<script src="/js/geturlvars.js"></script>
+<script src="/js/logger.js"></script>
+
+<script language="javascript" type="text/javascript">
+var output, logger;
+
+var levelcolors = [
+    "green",
+    "amber",
+    "red",
+    "blue",
+    "magenta",
+];
+
+function log_message(msg) {
+  // example log message:
+  // {"tv_sec": 1401689519, "type": 10, "tv_nsec": 667189965, "log_message": {"origin": 2, "pid": 29897, "level": 1, "tag": "rtapi_app", "text": "or2: already loaded"}}
+
+  var text = msg.log_message.text;
+  var level = msg.log_message.level;
+  c = levelcolors[level];
+  writeToScreen("<span style=\"color: " + c + ";\">" + text  +'</span>');
+}
+
+function writeToScreen(message) {
+  var pre = document.createElement("p");
+  pre.style.wordWrap = "break-word";
+  pre.innerHTML = message;
+  output.appendChild(pre);
+}
+
+$(document).ready(function() {
+  output = document.getElementById("output");
+  logger = new Logger();
+  logger.log_message = log_message;
+  logger.run();
+
+});
+
+</script>
+<h4>Log subscriber test</h4>
+<div id="output"></div>
+</html>

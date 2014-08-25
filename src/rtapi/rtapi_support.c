@@ -80,12 +80,17 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 {
     int n;
     rtapi_msgheader_t *msg;
+#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+    static pid_t rtapi_pid;
+    if (rtapi_pid == 0)
+	rtapi_pid = getpid();
+
+#endif
 
     if (global_data) {
 	// one-time initialisation
 	if (!rtapi_message_buffer.header) {
 	    ringbuffer_init(&global_data->rtapi_messages, &rtapi_message_buffer);
-
 	}
 	if (rtapi_mutex_try(&rtapi_message_buffer.header->wmutex)) {
 	    global_data->error_ring_locked++;
@@ -105,7 +110,7 @@ void vs_ring_write(msg_level_t level, const char *format, va_list ap)
 	msg->pid = 0;
 #endif
 #if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
-	msg->pid =  global_data->rtapi_app_pid;
+	msg->pid =  rtapi_pid;
 #endif
 #if defined(ULAPI)
 	msg->pid  = getpid();
@@ -255,6 +260,7 @@ int rtapi_set_logtag(const char *fmt, ...) {
 const char *rtapi_get_logtag(void) {
     return logtag;
 }
+
 
 #ifdef RTAPI
 EXPORT_SYMBOL(rtapi_get_msg_handler);

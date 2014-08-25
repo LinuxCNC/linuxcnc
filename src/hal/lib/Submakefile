@@ -1,0 +1,68 @@
+HALLIBDIR := hal/lib
+
+INCLUDES += $(HALLIBDIR)
+
+
+../include/%.h: ./$(HALLIBDIR)/%.h
+	cp $^ $@
+
+# link in basic nanonpb support routines
+HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
+	$(HALLIBDIR)/hal_group.c \
+	$(HALLIBDIR)/hal_ring.c \
+	$(HALLIBDIR)/hal_iter.c \
+	$(HALLIBDIR)/hal_rcomp.c \
+	$(MACHINETALK)/support/nanopb.c \
+	$(MACHINETALK)/nanopb/pb_decode.c \
+	$(MACHINETALK)/nanopb/pb_encode.c \
+	rtapi/rtapi_heap.c
+
+# protobuf support functions which depend on HAL - on RT host only
+HALLIBMTALK_SRCS := $(addprefix $(HALLIBDIR)/, \
+	halpb.cc)
+
+HALLIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
+HALLIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS)
+
+$(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAGS)
+
+# ULAPI: all thread-specific code now comes in through the ulapi library
+# (liblinuxcnculapi.so) which autoloads the proper ulapi on demand
+
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
+
+# Add to list of sources to compile -DULAPI ->
+# objects/{$(HALLIBDIR)/hal_lib.o}
+USERSRCS += $(HALLIBSRCS)
+USERSRCS += $(HALLIBMTALK_SRCS)
+
+HALLIB := ../lib/liblinuxcnchal.so
+
+
+# for now, link in ulapi  plus any referenced  objs directly
+# cause: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
+
+$(HALLIB).0: \
+	$(call TOOBJS, $(HALLIBSRCS)) \
+	$(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
+	$(call TOOBJS, $(SHMDRVAPISRCS)) \
+	$(call TOOBJS, $(HALLIBMTALK_SRCS)) \
+	$(call TOOBJS, $(LIBINISRCS)) \
+	../lib/liblinuxcnc-pb2++.so
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS) $(RT_LDFLAGS)
+
+HALMODULESRCS := $(HALLIBDIR)/halmodule.cc
+PYSRCS += $(HALMODULESRCS)
+
+HALMODULE := ../lib/python/_hal.so
+$(HALMODULE): $(call TOOBJS, $(HALMODULESRCS)) $(HALLIB)
+	$(ECHO) Linking python module $(notdir $@)
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^
+
+TARGETS += $(HALLIB) $(HALLIB).0
+PYTARGETS += $(HALMODULE)

@@ -1,0 +1,36 @@
+Syslog_async
+------------
+
+A non-blocking syslog() replacement.
+
+It is not widely known that the standard Unix syslog() library routine
+can block waiting for the syslog daemon, but it is generally true. On
+some systems, using a datagram socket for /dev/log avoids endless
+waits, but on Linux, even this does not work. Try typing
+
+killall -STOP syslogd
+
+into a root terminal on a non-critical box: Eventually, everything
+will stop.
+
+This library provides a version of syslog() which never blocks: the
+code was originally written for dnsmasq, to fix a deadlock between
+syslod and dnsmasq where syslogd uses dnsmasq for DNS, and dnsmasq
+uses syslogd for logging.  It should be generally useful for any
+daemon where it's more important that the daemon continue to function
+than that it continue to log.
+
+The code has been tested on Linux 2.6, OpenBSD 4.0 and FreeBSD 6.0. It
+has been run with syslogd and syslog-ng. Note that it is not,
+currently, threadsafe.
+
+The header file, syslog_async.h is extensively commented, and details
+how to use the library. It is, as far as possible, API compatible with
+the POSIX-standard syslog.
+
+Simon Kelley (simon@thekelleys.org.uk)
+Duxford,
+Cambridge,
+UK.
+
+Sat Feb 24 2007

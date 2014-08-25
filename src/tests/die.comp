@@ -1,0 +1,25 @@
+component die;
+pin out u32 dummy   "to keep comp happy";
+
+function _;
+option extra_setup;
+option singleton yes;
+license "GPLv2 or later";
+
+;;
+
+static int inthread = 0;
+RTAPI_MP_INT(inthread, "if 0, segfault in rtapi_app_main(); if nozero, segfault in thread function");
+
+static char *foo;  // deliberate NULL pointer
+
+FUNCTION(_) {
+    if (inthread)
+	*foo = 't';
+}
+
+EXTRA_SETUP() {
+    if (!inthread)
+	*foo = 'm';
+    return 0;
+}

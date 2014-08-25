@@ -4,143 +4,123 @@
 # see http://psha.org.ru/cgit/psha/emc2.git/commit/?h=wip-cython
 # License: MIT
 
+# made usable: Michael Haberler 6/2014
+
+cimport cython
+cimport hal_const
+cimport ring_const
 from .hal cimport *
-from os import strerror
+from .rtapi cimport *
+from .hal_priv cimport *
+from .hal_rcomp cimport *
+from .hal_ring cimport *
+from .hal_iter cimport *
 
-class hal_type(int):
-    Bit = HAL_BIT
-    Float = HAL_FLOAT
-    S32 = HAL_S32
-    U32 = HAL_U32
+from os import strerror,getpid
 
-    names = \
-        { HAL_TYPE_UNSPECIFIED: "HAL_TYPE_UNSPECIFIED"
-        , Bit: "HAL_BIT"
-        , Float: "HAL_FLOAT"
-        , S32: "S32"
-        , U32: "U32"
-        }
+class ComponentExit(Exception):
+    pass
 
-    def __repr__(self):
-        return "<hal_type_t %s>" % self.names[self]
+class InternalError(Exception):
+    pass
 
-class hal_pin_dir(int):
-    In = HAL_IN
-    Out = HAL_OUT
-    IO = HAL_IO
 
-    names = \
-        { HAL_DIR_UNSPECIFIED: "HAL_DIR_UNSPECIFIED"
-        , In: "HAL_IN"
-        , Out: "HAL_OUT"
-        , IO: "HAL_IO"
-        }
+TYPE_USER = hal_const.TYPE_USER
+TYPE_REMOTE = hal_const.TYPE_REMOTE
 
-    def __repr__(self):
-        return "<hal_pin_dir_t %s>" % self.names[self]
+HAL_FLOAT = hal_const.HAL_FLOAT
+HAL_S32   = hal_const.HAL_S32
+HAL_U32   = hal_const.HAL_U32
+HAL_BIT   = hal_const.HAL_BIT
+HAL_TYPE_UNSPECIFIED = hal_const.HAL_TYPE_UNSPECIFIED
 
-cdef union _pin_storage:
-    hal_bit_t * b
-    hal_float_t * f
-    hal_s32_t * s
-    hal_u32_t * u
+HAL_IN  = hal_const.HAL_IN
+HAL_OUT = hal_const.HAL_OUT
+HAL_IO  = hal_const.HAL_IO
+HAL_DIR_UNSPECIFIED = hal_const.HAL_DIR_UNSPECIFIED
 
-cdef class _Pin:
-    cdef object _name
-    cdef _pin_storage *_storage
-    cdef hal_type_t _type
-    cdef hal_pin_dir_t _dir
+REPORT_BEGIN = hal_const.REPORT_BEGIN
+REPORT_SIGNAL = hal_const.REPORT_SIGNAL
+REPORT_PIN = hal_const.REPORT_PIN
+REPORT_END = hal_const.REPORT_END
 
-    def __cinit__(self, comp, name, t, dir):
-        self._storage = NULL
-        self._storage = <_pin_storage *>hal_malloc(sizeof(_pin_storage))
-        if self._storage == NULL:
-            raise RuntimeError("Fail to allocate HAL memory")
-        name = "{}.{}".format(comp.name, name)
-        self._name = name
+TYPE_INVALID = hal_const.TYPE_INVALID
+TYPE_RT = hal_const.TYPE_RT
+TYPE_USER = hal_const.TYPE_USER
+TYPE_INSTANCE = hal_const.TYPE_INSTANCE
+TYPE_REMOTE = hal_const.TYPE_REMOTE
 
-        r = hal_pin_new(name, t, dir, <void **>(self._storage), (<Component>comp)._id)
-        if r:
-            raise RuntimeError("Fail to create pin %s: %s" % (name, strerror(-r)))
+COMP_INVALID = hal_const.COMP_INVALID
+COMP_INITIALIZING = hal_const.COMP_INITIALIZING
+COMP_UNBOUND = hal_const.COMP_UNBOUND
+COMP_BOUND = hal_const.COMP_BOUND
+COMP_READY = hal_const.COMP_READY
 
-    def link(self, sig):
-        if isinstance(sig, Signal):
-            sig = sig._name
-        r = hal_link(self._name, sig)
-        print("link", self._name, sig, r)
-        if r:
-            raise RuntimeError("Fail to link pin %s to %s: %s" % (self._name, sig, strerror(-r)))
-    def unlink(self):
-        r = hal_unlink(self._name)
-        if r:
-            raise RuntimeError("Fail to unlink pin %s: %s" % (self._name, strerror(-r)))
+RINGTYPE_RECORD = ring_const.RINGTYPE_RECORD
+RINGTYPE_MULTIPART = ring_const.RINGTYPE_MULTIPART
+RINGTYPE_STREAM = ring_const.RINGTYPE_STREAM
+RINGTYPE_MASK = ring_const.RINGTYPE_MASK
 
-    def _set_bit(self, v): self._storage.b[0] = bool(v)
-    def _set_float(self, float v): self._storage.f[0] = v
-    def _set_s32(self, int v): self._storage.s[0] = v
-    def _set_u32(self, int v): self._storage.u[0] = v
+USE_RMUTEX = ring_const.USE_RMUTEX
+USE_WMUTEX = ring_const.USE_WMUTEX
+ALLOC_HALMEM = ring_const.ALLOC_HALMEM
 
-    def _get_bit(self): return bool(self._storage.b[0])
-    def _get_float(self): return self._storage.f[0]
-    def _get_s32(self): return self._storage.s[0]
-    def _get_u32(self): return self._storage.u[0]
+# allow out pin reads
+relaxed = True
 
-class Pin(_Pin):
-    def __init__(self, comp, name, t, dir):
-        if dir != hal_pin_dir.In:
-            if t == hal_type.Bit: self.set = self._set_bit
-            elif t == hal_type.Float: self.set = self._set_float
-            elif t == hal_type.S32: self.set = self._set_s32
-            elif t == hal_type.U32: self.set = self._set_u32
-        if dir != hal_pin_dir.Out:
-            if t == hal_type.Bit: self.get = self._get_bit
-            elif t == hal_type.Float: self.get = self._get_float
-            elif t == hal_type.S32: self.get = self._get_s32
-            elif t == hal_type.U32: self.get = self._get_u32
-    def set(self, v): raise NotImplementedError("Pin is read-only")
-    def get(self): raise NotImplementedError("Pin is write-only")
+include "hal_pin.pyx"
+include "hal_pindict.pyx"
+include "hal_signal.pyx"
+include "hal_component.pyx"
+include "hal_compdict.pyx"
+include "hal_threads.pyx"
+include "hal_funct.pyx"
+include "hal_sigdict.pyx"
+include "hal_epsilon.pyx"
+include "hal_net.pyx"
+include "hal_ring.pyx"
+include "hal_group.pyx"
 
-class Signal:
-    def __init__(self, name, type):
-        self._name, self._type = name, type
-        r = hal_signal_new(name, type)
-        if r:
-            raise RuntimeError("Fail to create signal %s: %s" % (name, strerror(-r)))
+# list of component ID's to hal_exit() on unloading the module
+cdef list _comps = []
 
-    def link(self, *pins):
-        for p in pins:
-            if isinstance(p, Pin):
-                p.link(self._name)
-            else:
-                r = hal_link(self._p, self._name)
-                print("link", self._p, self._name, r)
-                if r:
-                    raise RuntimeError("Fail to link pin %s to %s: %s" % (p, self._name, strerror(-r)))
+# pity we cant use decorators on cdefs
+cdef hal_required():
+    global _comps
+    if not _comps:
+        # dummy comp for connecting to HAL
+        p = "machinekit::hal%d" % getpid()
+        id = hal_init_mode(p, TYPE_USER, 0,0)
+        if hal_data == NULL:
+            raise RuntimeError("cant connect to HAL - realtime not running?")
+        hal_ready(id)
+        _comps.append(id)
 
-cdef class Component:
-    cdef int _id
-    cdef object _name
-    def __cinit__(self, name):
-        self._name = name
-        self._id = -1
-        self._id = hal_init(name)
-        if self._id < 0:
-            raise RuntimeError("Fail to create comp: %s" % strerror(-self._id))
+def _atexit():
+    # remove all usercomps created herein, including dummy
+    global _comps
+    for c in _comps:
+        hal_exit(c)
+    _comps = []
 
-    def __dealloc__(self):
-        if self._id > 0:
-            hal_exit(self._id)
 
-    def ready(self):
-        hal_ready(self._id)
+import atexit
 
-    def pin(self, *a):
-        return Pin(self, *a)
+atexit.register(_atexit)
 
-    def pin_bit(self, name, dir): return Pin(self, name, hal_type.Bit, dir)
-    def pin_float(self, name, dir): return Pin(self, name, hal_type.Float, dir)
-    def pin_s32(self, name, dir): return Pin(self, name, hal_type.S32, dir)
-    def pin_u32(self, name, dir): return Pin(self, name, hal_type.U32, dir)
+# halcmd will send a SIGTERM on unloadusr <name>
+# make it look like a KeyboardInterrupt
+(lambda s=__import__('signal'):
+     s.signal(s.SIGTERM, s.default_int_handler))()
 
-    property name:
-        def __get__(self): return self._name
+
+@cython.final
+cdef class HALMutex(object):
+
+    def  __enter__(self):
+        rtapi_mutex_get(&hal_data.mutex)
+        return hal_data.mutex
+
+    def __exit__(self,exc_type, exc_value, exc_tb):
+        rtapi_mutex_give(&hal_data.mutex)
+        return 0

@@ -83,7 +83,7 @@ int ulapi_main(int instance, int flavor, global_data_t *global)
 	if (size != sizeof(rtapi_data_t)) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "ULAPI:%d ERROR: unexpected rtapi shm size:"
-			    " expected: %d actual:%d\n",
+			    " expected: %zu actual: %d\n",
 			    rtapi_instance, sizeof(rtapi_data_t), size);
 	    return -EINVAL;
 	}

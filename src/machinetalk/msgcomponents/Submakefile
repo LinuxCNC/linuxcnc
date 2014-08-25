@@ -1,0 +1,63 @@
+MSGCOMP_DIR=machinetalk/msgcomponents
+
+# NANOPB_CFLAGS is set in  protobuf/Submakefile
+# for msgcomponents when building an RT comp
+
+# or at least should - the reference to NANOPB_CFLAGS isnt resolved here; no idea why
+
+RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
+
+obj-m += pbmsgs.o
+pbmsgs-objs := \
+	$(MSGCOMP_DIR)/pbmsgs.o	\
+	$(PBGEN)/canon.npb.o \
+	$(PBGEN)/emcclass.npb.o \
+	$(PBGEN)/log.npb.o \
+	$(PBGEN)/message.npb.o \
+	$(PBGEN)/motcmds.npb.o \
+	$(PBGEN)/object.npb.o  \
+	$(PBGEN)/rtapi_message.npb.o \
+	$(PBGEN)/rtapicommand.npb.o \
+	$(PBGEN)/task.npb.o \
+	$(PBGEN)/test.npb.o \
+	$(PBGEN)/types.npb.o \
+	$(PBGEN)/config.npb.o \
+	$(PBGEN)/preview.npb.o \
+	$(PBGEN)/value.npb.o
+
+obj-m += ringload.o
+ringload-objs := $(MSGCOMP_DIR)/ringload.o
+
+obj-m += pbring.o
+pbring-objs := $(MSGCOMP_DIR)/pbring.o
+
+
+ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
+$(RTLIBDIR)/pbmsgs$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbmsgs-objs))
+$(RTLIBDIR)/ringload$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(ringload-objs))
+$(RTLIBDIR)/pbring$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbring-objs))
+endif
+
+
+../include/%.h: ./$(MSGCOMP_DIR)/%.h
+	cp $^ $@
+
+
+# ifeq ($(BUILD_EXAMPLES),yes)
+
+# RB_SRCS :=  $(addprefix hal/msgcomponents/, \
+# 	ringbench.c)
+
+# RB_CCFLAGS := -g
+# RB_LDFLAGS := -g -lpthread
+
+# $(call TOOBJSDEPS, $(RB_SRCS)) : EXTRAFLAGS += $(RB_CCFLAGS) -O0
+
+# ../bin/ringbench: $(call TOOBJS, $(RB_SRCS)) \
+# 	../lib/liblinuxcnchal.so
+# 	$(ECHO) Linking $(notdir $@)
+# 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RB_LDFLAGS)
+
+# USERSRCS += $(RB_SRCS) $(RB_SRCS)
+# TARGETS += ../bin/ringbench
+# endif

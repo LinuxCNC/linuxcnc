@@ -108,7 +108,7 @@ static rtapi_switch_t dummy_ulapi_switch_struct = {
     // since it violates the API contract: rtapi_init()
     // must be first
     .rtapi_exit = (rtapi_exit_t) &_ulapi_dummy,
-    .rtapi_next_module_id = &_ulapi_dummy,
+    .rtapi_next_handle = &_ulapi_dummy,
 
     .rtapi_clock_set_period = &_ulapi_dummy,
     .rtapi_delay = &_ulapi_dummy,
@@ -328,8 +328,6 @@ int ulapi_loaded(void) {
 //  ULAPI cleanup. Call the exit handler and unload ulapi-<flavor>.so.
 void ulapi_cleanup(void)
 {
-    rtapi_print_msg(RTAPI_MSG_DBG, "_ulapi_cleanup():\n");
-
     // call the ulapi exit handler
     // detach the rtapi shm segment as needed
     // (some flavors do not employ an rtapi shm segment)

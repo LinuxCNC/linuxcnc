@@ -1,0 +1,39 @@
+This python script shows how zerconf is used to retrieve machinekit URI's for various services.
+
+
+for security reasons, by default remote communication via TCP is turned off, and Unix IPC
+sockets are used. Also, zeroconf announcements are disabled.
+
+To enable remote connections, and zeroconf:
+
+- edit your $MACHINEKIT_INI file
+- set REMOTE=1
+- save
+
+Start a machinekit instance which uses haltalk, and webtalk, for instance
+src/machinetalk/tutorial/motorctrl/rundemo. This demo uses its own $MACHINEKIT_INI file, with
+its own MKUUID value. In this case you need to do this:
+
+  $ export MACHINEKIT_INI=<wherever>/src/machinetalk/tutorial/motorctrl/machinekit.ini
+
+  $ python <this directory>/resolve.py
+
+ example output:
+
+ resolved config tcp://193.228.47.216:57669
+ resolved halrcmd tcp://193.228.47.216:49155
+ resolved halrcomp tcp://193.228.47.216:49154
+ resolved halgroup tcp://193.228.47.216:49153
+ resolved log tcp://193.228.47.216:49152
+ resolved http http://193.228.47.216:4711/index.html
+
+
+the Avahi browser delivers resolved records via callbacks
+usually there's more than one callback per type, one for each interface
+the contents are identical though, so it is safe to use the first match
+and ignore the other callbacks.
+
+See the resolved() function at the bottom of resolve.py how duplicates are filtered out.
+
+To do this from C++, see src/machinetalk/lib/zeroconf_resolve.cc .
+A usage example is in src/machinetalk/webtalk/webtalk/zeroconf.cc .

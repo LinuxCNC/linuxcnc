@@ -4,7 +4,7 @@ HALCOMP_SUBMAKEFILE= hal/components/Submakefile
 #HALCOMP_SUBMAKEFILE=
 
 ifneq ($(KERNELRELEASE),)
-COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
+COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp $(BASEPWD)/machinetalk/msgcomponents/*.comp))
 include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
@@ -15,20 +15,22 @@ CONVERTERS :=  \
 COMPS := $(sort $(wildcard hal/components/*.comp) $(addprefix hal/components/, $(CONVERTERS)))
 COMP_MANPAGES := $(patsubst hal/components/%.comp, ../docs/man/man9/%.9, $(COMPS))
 COMP_DRIVERS := $(wildcard hal/drivers/*.comp)
+COMPS += $(wildcard machinetalk/msgcomponents/*.comp)
 COMP_DRIVER_MANPAGES := $(patsubst hal/drivers/%.comp, ../docs/man/man9/%.9, $(COMP_DRIVERS))
 manpages: $(COMP_MANPAGES) $(COMP_DRIVER_MANPAGES)
 TARGETS += manpages
 .PHONY: manpages
 ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
 -include $(patsubst %.comp, $(BASEPWD)/halcomp-srcs/%.mak,\
-	$(COMPS) $(COMP_DRIVERS))
+	$(COMPS) $(COMP_DRIVERS) $(MSGCOMPS))
 endif # TRIVIAL_BUILD == no
 endif # KERNELRELEASE != ''
 
 ifeq ($(BUILD_THREAD_MODULES),yes)
 obj-m += $(patsubst hal/drivers/%.comp, %.o, \
 	$(patsubst hal/components/%.comp, %.o, \
-	$(COMPS)))
+	$(patsubst machinetalk/msgcomponents/%.comp, %.o, \
+	$(COMPS))))
 endif
 
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/comp
@@ -60,8 +62,8 @@ halcomp-srcs/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
 	$(Q)mv -f $@.tmp $@
 
 # Generate .c and .mak files before the modules target
-modules: $(patsubst %.comp, halcomp-srcs/%.c, $(COMPS) $(COMP_DRIVERS))
-modules: $(patsubst %.comp, halcomp-srcs/%.mak, $(COMPS) $(COMP_DRIVERS))
+modules: $(patsubst %.comp, halcomp-srcs/%.c, $(COMPS) $(COMP_DRIVERS) $(MSGCOMPS))
+modules: $(patsubst %.comp, halcomp-srcs/%.mak, $(COMPS) $(COMP_DRIVERS) $(MSGCOMPS))
 endif # BUILD_ALL_FLAVORS == yes
 
 # ifeq ($(BUILD_THREAD_MODULES),yes)

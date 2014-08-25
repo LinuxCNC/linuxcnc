@@ -1,0 +1,28 @@
+converting from wire format to text format:
+
+Read an arbitrary protocol message from standard input and write the
+raw tag/value pairs in text format to standard output.  No PROTO_FILES
+should be given when using this flag.
+
+rtprintf foo |protoc --decode_raw
+
+# if you have a message as a series of hex bytes, try this:
+
+echo -n 08 84 07 52 02 50 10  | xxd -r -p|protoc --decode_raw
+
+
+# using the .proto definitions:
+
+../bin/rtprintf | \
+protoc \
+--proto_path=/usr/local/include \
+--proto_path=protobuf/proto \
+--proto_path=protobuf/nanopb/generator \
+--decode=RTAPI_Message protobuf/proto/rtapi_message.proto
+
+encdec  | \
+protoc \
+--proto_path=/usr/local/include \
+--proto_path=protobuf/proto \
+--proto_path=protobuf/nanopb/generator \
+--decode=Container protobuf/proto/message.proto

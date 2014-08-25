@@ -1,10 +1,11 @@
 HALCMDSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halcmd_main.c
-HALSHSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halsh.c
+HALCMDCCSRCS := hal/utils/halcmd_rtapiapp.cc
+HALSHSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halsh.c hal/utils/halcmd_rtapiapp.cc
 
 ifneq ($(READLINE_LIBS),)
 HALCMDSRCS += hal/utils/halcmd_completion.c
 endif
-USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS))
+USERSRCS += $(sort $(HALCMDSRCS) $(HALSHSRCS) $(HALCMDCCSRCS))
 
 $(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
 $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
@@ -13,9 +14,17 @@ $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -lm -o $@
 TARGETS += ../tcl/hal.so
 
-../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS)) ../lib/liblinuxcncini.so.0 ../lib/liblinuxcnchal.so.0 
+$(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
+	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) -fPIC
+
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS))  $(call TOOBJS, $(HALCMDCCSRCS)) \
+	../lib/liblinuxcncini.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/libmtalk.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS)  -o $@ $^ $(READLINE_LIBS) -lm 
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS) \
+	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) -lm -lstdc++
 TARGETS += ../bin/halcmd
 
 HALRMTSRCS := hal/utils/halrmt.c

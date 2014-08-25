@@ -7,6 +7,8 @@ loadusr -Wn halsampler halsampler -N halsampler -n 105
 
 loadrt streamer depth=100 cfg=bb
 
+loadusr -Wn halstreamer halstreamer -N halstreamer input-signals
+
 
 net in0 streamer.0.pin.0 => multiclick.0.in sampler.0.pin.0
 
@@ -52,10 +54,9 @@ setp multiclick.1.output-hold-ns 1500000
 setp multiclick.1.invert-input   True
 
 
-# run halstreamer and let it pre-load the fifo
-loadusr halstreamer input-signals
-loadusr -w sleep 0.5
-
 start
+
+waitusr -i halstreamer
+
 waitusr -i  halsampler
 

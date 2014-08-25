@@ -56,7 +56,7 @@ RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
 
 int _rtapi_init(const char *modname) {
 
-    return _rtapi_next_module_id();
+    return _rtapi_next_handle();
 }
 
 int _rtapi_exit(int module_id) {
@@ -85,8 +85,8 @@ int _rtapi_task_update_stats_hook(void)
     int retval = rt_task_inquire(ostask_self[task_id], &rtinfo);
     if (retval) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rt_task_inquire() failed: %d\n",
-			retval);
+			"rt_task_inquire() failed: %d %s\n",
+			retval, strerror(-retval));
 	return -ESRCH;
     }
 
@@ -171,7 +171,7 @@ void _rtapi_module_init_hook(void)
     if (sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL))
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"_rtapi_module_init_hook(sigaction): %d %s\n",
-			errno, strerror(-errno));
+			errno, strerror(errno));
 #endif
 }
 
@@ -186,7 +186,7 @@ void _rtapi_module_exit_hook(void)
     if (sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL))
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"_rtapi_module_exit_hook(sigaction): %d %s\n",
-			errno, strerror(-errno));
+			errno, strerror(errno));
 #endif
 }
 #else
@@ -204,15 +204,14 @@ int _rtapi_task_delete_hook(task_data *task, int task_id) {
     int retval = 0;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_delete() = %d %s\n", 
-			retval, strerror(retval));
+	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_delete(%d) failed: %d %s\n",
+			task_id, retval, strerror(-retval));
 	return retval;
     }
     // actually wait for the thread to exit
     if ((retval = rt_task_join( &ostask_array[task_id] )) < 0)
-	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_join() = %d %s\n",
-			retval, strerror(retval));
-
+	rtapi_print_msg(RTAPI_MSG_ERR,"ERROR: rt_task_join(%d) failed: %d %s\n",
+			task_id, retval, strerror(-retval));
     return retval;
 }
 
@@ -234,8 +233,8 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 
     if ((ret = rt_task_set_periodic(NULL, TM_NOW, task->ratio * period)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"ERROR: rt_task_set_periodic(%d,%s) failed %d\n", 
-			task_id, task->name, ret);
+			"ERROR: rt_task_set_periodic(%d,%s) failed %d %s\n",
+			task_id, task->name, ret, strerror(-ret));
 	// really nothing one can realistically do here,
 	// so just enable forensics
 	abort();
@@ -294,14 +293,16 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
 				  which_cpu | T_JOINABLE)
 	 ) != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"rt_task_create failed, rc = %d\n", retval );
+			"rt_task_create failed: %d %s\n",
+			retval, strerror(-retval));
 	return -ENOMEM;
     }
 
     if ((retval = rt_task_start( &ostask_array[task_id],
 				 _rtapi_task_wrapper, (void *)(long)task_id))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
-			"rt_task_start failed, rc = %d\n", retval );
+			"rt_task_start failed: %d %s\n",
+			retval, strerror(-retval));
 	return -ENOMEM;
     }
     return 0;
@@ -311,7 +312,8 @@ int _rtapi_task_stop_hook(task_data *task, int task_id) {
     int retval;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,"rt_task_delete() = %d\n", retval);
+	rtapi_print_msg(RTAPI_MSG_ERR,"rt_task_delete() failed: %d %s\n",
+			retval, strerror(-retval));
 	return retval;
     }
 

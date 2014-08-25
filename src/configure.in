@@ -40,6 +40,9 @@ py_val=`$PYTHON -c "dnl
 AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
 ])
 
+# Python module import test
+m4_include([m4/ac_python_module.m4])
+
 # adapted from AX_BOOST_PYTHON_MURRAYC
 # http://ftp.gnome.org/pub/GNOME/sources/glom/1.19/
 m4_define([AX_BOOST_PYTHON_EMC],
@@ -93,18 +96,20 @@ AS_IF([test "x$ac_cv_boost_python" = xyes && test "x$BOOST_PYTHON_LIBS" != x],
 AC_SUBST([BOOST_PYTHON_LIBS])
 ])
 
-# Cython Python Bindings
+# Cython Python Bindings generator
+m4_include([m4/ac_pkg_cython.m4])
 AC_MSG_CHECKING(if cython is usable)
-AC_PATH_PROG(CYTHON,cython)
+# 0.19.1 is the version currently in wheezy-backports
+AC_PROG_CYTHON(0.19.0)
 AC_SUBST([CYTHON])
-if test "x$CYTHON" != "x"; then
+if test "x$CYTHON" != "xfalse"; then
     AC_DEFINE([HAVE_CYTHON],[],[Build Cython-based Python extensions])
     AC_SUBST([HAVE_CYTHON], [yes])
 else
+    AC_MSG_RESULT([rebuilding Cython bindings will require installing cython - not normally required])
     AC_SUBST([HAVE_CYTHON], [no])
 fi
 AC_SUBST([CYTHON], [$CYTHON])
-AC_MSG_RESULT($CYTHON)
 
 
 AC_MSG_CHECKING(build toplevel)
@@ -143,7 +148,7 @@ AC_PATH_PROG(EGREP, egrep)
 AC_PATH_PROG(ARCHCMD, arch)
 
 # we'll be using it for compile tests
-AC_PROG_CC([gcc])  
+AC_PROG_CC([gcc])
 AC_PROG_CPP()
 
 # tools for correct cross-building; this sets $host (the target
@@ -541,6 +546,8 @@ XENO_CONFIG=
 ##############################################################################
 # Subsection 2.3                                                             #
 # Configure several basic features:                                          #
+# - some etc/linuxcnc/machinekit.ini  values
+# - the MKUUID instance UUID
 # - Platform (PC, Raspberry Pi, BeagleBone)                                  #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
@@ -695,6 +702,47 @@ AC_MSG_RESULT([$platform_beaglebone_reason])
 AC_MSG_CHECKING(platform-raspberry)
 AC_MSG_RESULT([$platform_raspberry_reason])
 
+# every Machinekit instance needs a unique ID, so generate here.
+# Can be changed later in etc/linuxcnc/machinekit.ini
+AC_PATH_PROG(UUIDGEN, uuidgen)
+if test "x$UUIDGEN" = "x"; then
+  AC_MSG_ERROR([ uuidgen not found - please install package uuid-runtime ])
+  AC_MSG_RESULT(no)
+else
+  MKUUID=`uuidgen`
+  AC_MSG_RESULT(setting unique Machinekit UUID to $MKUUID)
+  AC_SUBST([MKUUID])
+fi
+
+AC_MSG_CHECKING(whether to enable remote operation)
+AC_ARG_ENABLE(remote,
+    [  --enable-remote      enable remote zeroMQ services],
+    [
+	REMOTE=1
+        AC_MSG_RESULT([configuring enable remote zeroMQ services])
+    ],
+    [
+      AC_MSG_RESULT([local operation on IPC sockets only, zeroconf not used])
+      REMOTE=0
+    ])
+AC_SUBST([REMOTE])
+
+# this should move to /var/run eventually
+# it might mean a subdirectory needs to be created with proper permissions
+AC_MSG_CHECKING(which directory to use for IPC sockets and other transient files)
+AC_ARG_WITH(rundir,
+    [  --with-rundir=<directory>  directory for IPC sockets and other transient files (default /tmp)],
+    [
+	RUNDIR="$withval"
+        AC_MSG_RESULT([configuring to use $RUNDIR for transient files like IPC sockets])
+    ],
+    [
+      RUNDIR=/tmp
+      AC_MSG_RESULT([using /tmp for IPC sockets and other transient files])
+    ])
+AC_DEFINE_UNQUOTED([RUNDIR], "$RUNDIR", [directory for IPC sockets and other transient files])
+
+AC_SUBST([RUNDIR])
 
 AC_MSG_CHECKING(whether to build programming examples)
 AC_ARG_ENABLE(examples,
@@ -707,6 +755,26 @@ AC_ARG_ENABLE(examples,
       AC_MSG_RESULT([not building example programs])
       BUILD_EXAMPLES=no
     ])
+
+# protobuf-to-Javascript generator from  https://github.com/dcodeIO/ProtoBuf.js/wiki
+AC_PATH_PROG(PROTO2JS,proto2js, none)
+AC_SUBST([PROTO2JS])
+
+AC_MSG_CHECKING(whether to build protobuf Javascript bindings)
+AC_ARG_ENABLE(proto-js,
+    [  --enable-proto-js    build Javascript bindings based on https://github.com/dcodeIO/ProtoBuf.js/wiki],
+    [
+	if test "$PROTO2JS" = "none"; then
+	   AC_MSG_ERROR([Please install proto2js before building Javascript bindings.])
+	fi
+	BUILD_PROTO_JS=yes
+        AC_MSG_RESULT([configuring to to build protobuf Javascript bindings])
+    ],
+    [
+      AC_MSG_RESULT([not protobuf Javascript bindings])
+      BUILD_PROTO_JS=no
+    ])
+
 
 AC_MSG_CHECKING(whether to use the common shared memory driver)
 AC_ARG_ENABLE(shmdrv,
@@ -764,6 +832,98 @@ AC_ARG_ENABLE(emcweb,
     [
       AC_MSG_RESULT([not building the emcweb interface])
       BUILD_EMCWEB=no
+    ])
+
+AC_MSG_CHECKING(whether to build unstable development code)
+AC_ARG_ENABLE(dev,
+    [  --enable-dev       build unstable development code],
+    [
+	BUILD_DEV=yes
+        AC_MSG_RESULT([configuring to build unstable development code])
+    ],
+    [
+      AC_MSG_RESULT([not building  development code])
+      BUILD_DEV=no
+    ])
+
+##############################################################################
+# Subsection 2.3.1                                                           #
+# protobuf, zmq, websockets, json, uriparse, avahi-client packages           #
+# NML
+##############################################################################
+
+PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
+    [
+        AC_DEFINE(HAVE_CZMQ, [], [zeroMQ czmq library available])
+	USE_CZMQ=yes
+    ],)
+
+PKG_CHECK_MODULES([PROTOBUF], [protobuf > 2.4.0],
+    [
+        AC_DEFINE(HAVE_PROTOBUF, [], [zeroMQ czmq library available])
+	USE_PROTOBUF=yes
+    ],)
+
+AC_PATH_PROG(PROTOC, protoc, "none")
+if test $PROTOC = "none"
+then
+    AC_MSG_ERROR([protoc not found - protobuf-compiler package not installed?])
+fi
+
+AC_PYTHON_MODULE(google.protobuf.descriptor, failed to import google.protobuf.descriptor
+ - python-protobuf package missing? )
+AC_PYTHON_MODULE(google.protobuf.descriptor_pb2, failed to import google.protobuf.descriptor_pb2
+ - python-protobuf package missing? )
+AC_PYTHON_MODULE(google.protobuf.compiler.plugin_pb2, failed to import google.protobuf.compiler.plugin_pb2
+ - python-protobuf package missing? )
+
+PKG_CHECK_MODULES([JANSSON], [jansson > 2.4],
+    [
+        AC_DEFINE(HAVE_JANSSON, [], [jansson JSON C bindings available])
+	USE_JANSSON=yes
+    ],)
+
+PKG_CHECK_MODULES([URIPARSER], [liburiparser > 0.7.4],
+   [
+        AC_DEFINE(HAVE_URIPARSER, [], [uriparser library available])
+	USE_URIPARSER=yes
+   ],)
+
+PKG_CHECK_MODULES([LWS], libwebsockets,
+   [
+        AC_DEFINE(HAVE_LWS, [], [libwebsockets library available])
+	USE_LWS=yes
+   ],)
+
+PKG_CHECK_MODULES([SSL], libssl,
+   [
+        AC_DEFINE(HAVE_SSL, [], [libssl library available])
+	USE_SSL=yes
+   ],)
+
+
+PKG_CHECK_MODULES([UUID], uuid,
+   [
+        AC_DEFINE(HAVE_UUID, [], [uuid library available])
+	USE_UUID=yes
+   ],)
+
+PKG_CHECK_MODULES([AVAHI], [avahi-client > 0.6],
+    [
+        AC_DEFINE(HAVE_AVAHI, [], [avahi mDNS client library available])
+	USE_AVAHI=yes
+    ],)
+
+AC_MSG_CHECKING(whether to enable NML-using parts)
+AC_ARG_ENABLE(nml,
+    [  --enable-nml      enable NML-using parts],
+    [
+	BUILD_NMLDEP=yes
+        AC_MSG_RESULT([configuring to build NML-using parts])
+    ],
+    [
+      AC_MSG_RESULT([not building non-essential NML-using parts])
+      BUILD_NMLDEP=no
     ])
 
 
@@ -1512,10 +1672,54 @@ if test "$BUILD_EXAMPLES" = yes; then
    AC_DEFINE(BUILD_EXAMPLES, [], [build programming examples])
 fi
 
+AC_SUBST(PROTOC)
+
 AC_SUBST(BUILD_EMCWEB)
 if test "$BUILD_EMCWEB" = yes; then
    AC_DEFINE(BUILD_EMCWEB, [], [build emcweb UI])
 fi
+
+AC_SUBST(BUILD_DEV)
+AC_SUBST(BUILD_PROTO_JS)
+
+
+AC_SUBST(BUILD_NMLDEP)
+if test "$BUILD_NMLDEP" = yes; then
+   AC_DEFINE(BUILD_NMLDEP, [], [build NML dependent parts])
+fi
+
+AC_SUBST([CZMQ_CFLAGS])
+AC_SUBST([CZMQ_LIBS])
+
+AC_SUBST([PROTOBUF_CFLAGS])
+AC_SUBST([PROTOBUF_LIBS])
+
+AC_SUBST([AVAHI_CFLAGS])
+AC_SUBST([AVAHI_LIBS])
+
+AC_SUBST([JANSSON_CFLAGS])
+AC_SUBST([JANSSON_LIBS])
+
+AC_SUBST([URIPARSER_CFLAGS])
+AC_SUBST([URIPARSER_LIBS])
+
+AC_SUBST([LWS_CFLAGS])
+AC_SUBST([LWS_LIBS])
+
+AC_SUBST([SSL_CFLAGS])
+AC_SUBST([SSL_LIBS])
+
+AC_SUBST([UUID_CFLAGS])
+AC_SUBST([UUID_LIBS])
+
+AC_SUBST([USE_CZMQ])
+AC_SUBST([USE_PROTOBUF])
+AC_SUBST([USE_JANSSON])
+AC_SUBST([USE_LWS])
+AC_SUBST([USE_URIPARSER])
+AC_SUBST([USE_AVAHI])
+AC_SUBST([USE_SSL])
+AC_SUBST([USE_UUID])
 
 if test "$with_usermode_pci" = yes; then
    AC_DEFINE([USERMODE_PCI], [], [build PCI drivers with usermode PCI support])
@@ -1868,7 +2072,13 @@ fi
 CONFIG_DATE=$(date "+%b %e %Y %T")
 AC_SUBST([CONFIG_DATE])
 
+# do this here since substituted into files
+# needed below after substitution
+MACHINEKIT_INI="$EMC2_HOME/etc/linuxcnc/machinekit.ini"
+AC_SUBST([MACHINEKIT_INI])
+
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
+AC_DEFINE_UNQUOTED([MACHINEKIT_INI], "$MACHINEKIT_INI", [path of global machinekit.ini file])
 AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
 AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory for ulapi shared objects])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
@@ -1978,6 +2188,8 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AC_PATH_PROG(AR,ar)
 AC_PATH_PROG(INSTALL, install)
+
+
 
 AC_PATH_PROG(SED, sed, "none")
 if test $SED = "none"
@@ -2331,6 +2543,12 @@ AH_TOP([/********************************************************************
 // can be overridden by the rtapi.so/ko module param hal_size=<n>
 #define HAL_SIZE                262000
 
+// minimum memlock limit
+// see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LockedMemory
+// edit /etc/security/limits.conf to read: 
+//  *       -    memlock 20480
+#define RLIMIT_MEMLOCK_RECOMMENDED (20480*1024lu)
+
 // default size of the thread stack size passed to rtapi_task_new()
 // in hal_create_thread()
 // can be overridden by an option to rtapi_msgd
@@ -2340,6 +2558,11 @@ AH_TOP([/********************************************************************
 // not a build target, just a state indicator for ulapi_autoload.c
 #define RTAPI_NOTLOADED_NAME  "not-yet-loaded"
 #define RTAPI_NOTLOADED_ID    99
+
+// format of zeroMQ IPC socket pathnames
+// pass: RUNDIR, rtapi_instance, service name, uuid
+// service name is: log, rtapi, halrcomp etc
+#define ZMQIPC_FORMAT "ipc://%s/%d.%s.%s"
 
 ]
 // flavor IDs for the various threads systems
@@ -2858,6 +3081,7 @@ if test "$BUILD_EMCWEB" = yes; then
    AX_BOOST_THREAD()
 fi
 
+
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
@@ -2879,18 +3103,34 @@ AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
-AC_CONFIG_FILES(linuxcncconfig.py-tmp)
+AC_CONFIG_FILES(machinekitcfg.py-tmp)
+AC_CONFIG_FILES(../scripts/machinekit.ini.tmpl)
 AC_OUTPUT
 
-# clean up linuxcncconfig.py:
+# if there is no /etc/linuxcnc/machinekit.ini file, use
+# the autogenerated one; else dont touch it as the user might have
+# adapted it already
+AC_MSG_CHECKING(if /etc/linuxcnc/machinekit.ini exists )
+
+if test -e "$MACHINEKIT_INI"; then
+   AC_MSG_RESULT(not touching existing	$MACHINEKIT_INI file)
+else
+   AC_MSG_RESULT($MACHINEKIT_INI does not exist - using default version)
+   mkdir -p  $EMC2_HOME/etc/linuxcnc
+   cp ../scripts/machinekit.ini.tmpl "$MACHINEKIT_INI"
+   AC_MSG_RESULT(please review and edit $MACHINEKIT_INI as needed!)
+fi
+
+# clean up machinekitcfg.py:
 # subsitute "yes" by True
 # subsitute "no" by False
-AC_MSG_RESULT(touching up ../lib/python/linuxcncconfig.py)
+AC_MSG_RESULT(touching up $EMC2_HOME/lib/python/machinekit/config.py)
+mkdir -p $EMC2_HOME/lib/python/machinekit
 sed -e 's/"yes"/True/g' -e 's/"no"/False/g' \
-    <linuxcncconfig.py-tmp \
-    >../lib/python/linuxcncconfig.py
-AC_MSG_CHECKING(usability of ../lib/python/linuxcncconfig.py)
-python ../lib/python/linuxcncconfig.py
+    <machinekitcfg.py-tmp \
+    >$EMC2_HOME/lib/python/machinekit/config.py
+AC_MSG_CHECKING(usability of $EMC2_HOME/lib/python/machinekit/config.py)
+python $EMC2_HOME/lib/python/machinekit/config.py
 AC_MSG_RESULT(done)
 
 ##############################################################################

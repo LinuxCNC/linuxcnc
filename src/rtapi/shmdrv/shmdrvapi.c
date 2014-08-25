@@ -24,6 +24,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <string.h>
@@ -66,10 +67,18 @@ int shmdrv_driver_fd(void)
 	    return -errno;
 	} else {
 	    // exists, but cant open - likely permissions
-	    if (access(driver_name,  R_OK|W_OK)) {
-		fprintf(stderr,"shmdrv_driver_fd: cant access %s - permission denied; shmdrv.rules not installed?\n",
-			driver_name);
-		return -EPERM;
+	    // leave some time for udev to get its act together
+	    int retries = 10;
+	    while (access(driver_name,  R_OK|W_OK)) {
+		struct timespec nap = {0, 300 * 1000 * 1000};
+		nanosleep(&nap, NULL);
+		if (!retries--) {
+		    fprintf(stderr,
+			    "shmdrv_driver_fd: cant access %s "
+			    "- permission denied; shmdrv.rules not installed?\n",
+			    driver_name);
+		    return -EPERM;
+		}
 	    }
 	}
     }

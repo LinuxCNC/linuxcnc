@@ -1,0 +1,49 @@
+protobuf examples
+=================
+
+This shows working with protobuf in Python, C++ and C (using nanopb).
+For more iinformation, see:
+
+ for C++ and Python: https://developers.google.com/protocol-buffers/docs/tutorials
+ for nanopb/C: https://code.google.com/p/nanopb/
+
+first, run 'make' in this directory (this needs a build from source, i.e. git).
+
+What this does is:
+  - compile the protobuf message in demo.proto into Python, C++ and C
+  - for C++, create the c++parse binary which reads messages in text, binary and json format
+
+To run the examples:
+
+Creating various output formats from Python:
+--------------------------------------------
+
+- read the pydemo.py example
+- run 'make pydemo |less'
+
+See how various output formats can be parsed in C++ and written back:
+---------------------------------------------------------------------
+This uses the stock protobuf library from google.
+
+- read the cppmain.cc example
+- run 'make cppdemo |less'
+
+See how to parse a binary wireformat message in C (realtime compatible)
+-----------------------------------------------------------------------
+- read the npbmain.c example
+- run 'make npbdemo |less'
+
+Using the protoc utility to decode messages in raw and symbolic format:
+-----------------------------------------------------------------------
+protoc is mainly used to compile .proto definitions into various languages,
+but it can also parse and display arbitrary protobuf messages.
+
+- see the protoc man page:  man protoc
+
+- run 'make decode-raw |less'
+- since protoc does not know about the message descriptor (demo.proto), all field tags
+  are printed as numbers
+
+- run 'make decode-symbolic |less'
+- if you pass protoc the message descriptor (demo.proto), all names
+  are printed as symbolically

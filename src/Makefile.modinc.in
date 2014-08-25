@@ -106,7 +106,7 @@ install:
 endif
 
 ifeq ($(BUILD_SYS),user-dso)
-EXTRA_CFLAGS +=  -fPIC
+EXTRA_CFLAGS +=  -fPIC -g
 allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 

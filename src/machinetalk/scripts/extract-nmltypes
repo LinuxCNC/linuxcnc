@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# extract fragment of proto defs for EMC message types
+# this fragment should be included in protobuf/proto/types.proto
+# at the end of enum MsgType
+
+
+egrep "^#define[[:space:]]+EMC_.*NMLTYPE" $1 | \
+sed -e "s/#define\s//g" -e "s/NMLTYPE//g" | tr -d '[()]' | \
+python -c "`cat <<OOK
+offset = 10000
+from sys import stdin
+for line in stdin:
+    line.rstrip()
+    (symbol,tag) = line.split()
+
+    print "\tMT_%s\t\t= %d;" % (symbol, int(tag)+offset)
+
+OOK
+`"

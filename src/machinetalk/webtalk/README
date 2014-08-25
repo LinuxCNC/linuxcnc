@@ -1,0 +1,120 @@
+This directory contains the code for library functions and an example main program
+for a libwebsockets server which acts as a proxy to/from zeroMQ sockets.
+
+It serves incoming connections only; no outgoing websockets connects.
+The proxy can be used standalone, or as an embedded library function.
+
+The websockets server runs as a separate thread, and commands (start/stop, and websockets->zeroMQ frames)
+travel over zeroMQ inproc sockets. It does not assume, or support a specific Websockets protocol.
+All actions are driven by interpreting the URI query arguments as passed by the client connecting.
+
+Build:
+------
+Building requires a recent czmq and the liburiparser-dev packages installed.
+
+If these are detected, the cmake build should also create
+the build/bin/libwebsockets-zwsproxy binary.
+
+
+Running the standalone example server:
+-------------------------------------
+
+build/bin/libwebsockets-zwsproxy <options>
+
+options are:
+
+[--debug=<debug level>]
+[--port=<tcp port>]
+[--wwwdir=<directory to serve html from>]
+[--extensions enable internal extensions]
+[--interface=<ifname> bind to a particular interface instead of all]
+
+To require SSL, add:
+
+[--use-ssl --certpath=<path to server cert> --keypath=<path to server key>]
+
+
+Usage as library function:
+--------------------------
+See the comments in zwsproxy.h and the example use in zwsmain.c .
+
+Setting the policy: how zeromq and websockets frames are relayed:
+-----------------------------------------------------------------
+By default, all zeromq frames are passed to the websocket and vice versa.
+This may not be useful in a particular scenario or zeromq socket type.
+Hence, the relaying policy can be modified as needed:
+
+You can set a user-defined policy on a per-session basis by adding a policy with
+zwsproxy_add_policy(zws, "<policyname>", <handler>) and select this policy
+by setting the query argument 'policy=<policyname>'. See the example user_policy
+in zwsmain.c.
+
+
+
+URI query arguments interpreted by zwsproxyd default policy:
+------------------------------------------------------------
+This is as interpreted by the default_policy handler in zwsproxy.c .
+
+Connecting to a zeromq URI:
+   This may be repeated since zeromq supports several connections on a single socket.
+
+   connect=<zeromq URI>
+
+Bind to a zeromq
+
+   bind=<zeromq URI>
+
+Specifiy the socket type:
+   type=[dealer|sub|xsub|pub|xpub|router]
+
+Binary websocket writes (default is text):
+   binary
+
+Setting a zeromq socket identity:
+   identity=<name>
+
+Subscribe to a topic (sub/xsub only, may be repeated for several topics):
+   subscribe=<topic>
+   use 'subscribe=' to subscribe to all topics
+
+Example URI usage:
+------------------
+
+connect to a PUBLISH socket at 127.0.0.1:6650, subscribe to topic1 and topic2:
+
+   ws://127.0.0.1:7681/?connect=tcp://127.0.0.1:6650&type=sub&topic=topic1&topic=topic2
+
+connect to the internal echo server in the example, which just relays back any frames sent:
+
+   ws://127.0.0.1:7681/?connect=inproc://echo&type=dealer
+
+
+Example Python scripts:
+-----------------------
+
+A simple command line client is zwstest.py, based on https://pypi.python.org/pypi/websocket-client/.
+Run "pip install websocket-client" to install.
+
+
+ping the internal zmq echo server in zwsproxy:
+
+     python zwstest.py --xmit "ws://127.0.0.1:7681/?connect=inproc://echo&type=dealer"
+
+invoke a user-defined policy, and pass a user-defined option (hwm)
+
+     python zwstest.py --xmit  "ws://127.0.0.1:7681/?connect=inproc://echo&type=dealer&hwm=42&policy=user"
+
+connect to a publish socket, subscribe to two different topics:
+(you need to run publish.py in another shell window):
+
+     python zwstest.py "ws://127.0.0.1:7681/?connect=tcp://127.0.0.1:6650&type=sub&scubscribe=topic1&subscribe=topic2"
+
+
+User-defined translation policy plugins:
+-----------------------------------------
+
+see webtalk_example_policy.cc and Submakefile
+
+run example as:
+
+    webtalk --foreground --debug 65535 --plugin ../lib/webtalk/plugins/example.o

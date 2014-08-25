@@ -1,0 +1,30 @@
+# definitions for Google Protocol Buffers (protobuf)
+# http://code.google.com/apis/protocolbuffers/docs/proto.html
+# Added by Joel Smith
+
+comment start "//"
+
+(keyword,normal,classname) =
+ `(\<message|service)([[:blank:]]+)([[:alnum:]_]+)`
+
+symbol = "(",")","=","[","]",";"
+
+preproc = "import","package","option"
+
+include "number.lang"
+
+include "c_string.lang"
+
+keyword = "group",
+ "optional|required|repeated",
+ "default",
+ "extend|extensions|to|max",
+ "service|method|rpc|returns",
+ "enum",
+ "true|false"
+
+type = "int32|int64|uint32|uint64|sint32|sint64",
+ "fixed32|fixed64|sfixed32|sfixed64",
+ "float|double|bool|string|bytes"
+
+cbracket = "{|}"

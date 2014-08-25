@@ -84,13 +84,12 @@ long long int _rtapi_get_clocks_hook(void)
 #ifdef ULAPI
 
 int _rtapi_init(const char *modname) {
-    /* do nothing for ULAPI */
-    return _rtapi_next_module_id();
+    return _rtapi_next_handle();
 }
 
 int _rtapi_exit(int module_id) {
-	/* do nothing for ULAPI */
-	return 0;
+    /* do nothing for ULAPI */
+    return 0;
 }
 
 #else /* RTAPI */

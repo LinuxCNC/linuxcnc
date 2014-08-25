@@ -1,0 +1,27 @@
+die.comp is a component which will intentionally segfault
+during rtapi_app_main() (setup time) or in the RT thread
+depending on the parameter
+
+install with:
+
+  cd src/tests
+  comp --install die.comp
+
+to fault setup-time:
+
+  halcmd loadrt die
+
+to fault during thread execution the comp's thread
+function must execute:
+
+   loadrt die inthread=1
+   loadrt threads
+   addf die thread1
+
+   # starting the thread should create a segfault  of rtapi_app:
+   start
+
+or just do a
+
+   halcmd -f segfault-rt-thread.hal
+

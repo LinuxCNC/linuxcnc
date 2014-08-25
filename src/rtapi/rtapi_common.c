@@ -84,7 +84,7 @@ static rtapi_switch_t rtapi_switch_struct = {
     // init & exit functions
     .rtapi_init = &_rtapi_init,
     .rtapi_exit = &_rtapi_exit,
-    .rtapi_next_module_id = &_rtapi_next_module_id,
+    .rtapi_next_handle = &_rtapi_next_handle,
     // messaging functions moved to instance,
     // implemented in rtapi_support.c
     // time functions
@@ -294,16 +294,9 @@ rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
 // defined and initialized in rtapi_module.c (kthreads), rtapi_main.c (userthreads)
 extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
-int  _rtapi_next_module_id(void) 
+int  _rtapi_next_handle(void)
 {
-    int next_id;
-
-    // TODO: replace by atomic inrement-and-get
-    // once rtapi_atomic.h has been merged
-    rtapi_mutex_try(&(global_data->mutex));
-    next_id = global_data->next_module_id++;
-    rtapi_mutex_give(&(global_data->mutex));
-    return next_id;
+    return rtapi_add_and_fetch(1, &global_data->next_handle);
 }
 
 /* simple_strtol defined in

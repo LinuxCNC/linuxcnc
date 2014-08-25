@@ -171,6 +171,16 @@ PYTARGETS :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
+	\
+	machinetalk \
+	machinetalk/support \
+	machinetalk/messagebus \
+	machinetalk/msgcomponents \
+	machinetalk/lib \
+	machinetalk/config-service \
+	machinetalk/webtalk \
+	machinetalk/haltalk \
+	\
 	libnml/linklist \
 	libnml/cms \
 	libnml/rcs \
@@ -183,10 +193,11 @@ SUBDIRS := \
 	rtapi/examples/timer \
 	rtapi/examples/shmem \
 	rtapi/examples \
-	rtapi/syslog-async \
 	rtapi \
 	rtapi/shmdrv \
+	rtapi/userpci \
 	\
+	hal/lib \
 	hal/components \
 	hal/drivers \
 	hal/user_comps/devices \
@@ -230,6 +241,7 @@ SUBDIRS := \
 	\
 	../docs/src
 
+
 # moved to src/rtapi/Submakefile
 # ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
@@ -262,11 +274,11 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 ifdef TARGET_PLATFORM_BEAGLEBONE
 # the beaglebone port adds .p (PRU assembly) source files, see hal/components
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %.ph, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %.js  %.ph %.proto, $(USERSRCS)))
 else
-$(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.cc %.js %.proto, $(USERSRCS)))
 endif
-$(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c %.proto, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
 $(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
@@ -279,8 +291,13 @@ CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
-
 ifeq ($(TRIVIAL_BUILD),no)
+
+ifeq ($(USE_PROTOBUF),yes)
+# force create of %.proto-dependent files and their deps
+Makefile: $(GENERATED) $(PROTO_DEPS)
+-include $(PROTO_DEPS)
+endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
 ifneq ($(PRU_DEPS),)
@@ -321,15 +338,20 @@ $(info $(shell  ../scripts/check-build-vs-configure-sha))
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := $(call cc-option,-fwrapv) $(call cc-option, -fno-strict-overflow)
-OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
+OPT :=  $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := -g -Wall
+PROFILE_CFLAGS :=
+PROFILE_LDFLAGS :=
 
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(PROFILE_CFLAGS) -DULAPI $(call cc-option,-std=gnu99 -fgnu89-inline)
 
 # enable runtime comparison of GIT_CONFIG_SHA (config.h) and GIT_BUILD_SHA
 CFLAGS += -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
 
-CXXFLAGS := $(INCLUDE) $(CXXFLAGS)   -DULAPI $(DEBUG) $(OPT)
+CXXFLAGS := $(INCLUDE) $(CXXFLAGS) \
+	 -DULAPI $(DEBUG) $(OPT) \
+	$(PROFILE_CFLAGS) \
+	 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
 
 ifeq ($(RUN_IN_PLACE),yes)
 LDFLAGS := -L$(LIB_DIR) -Wl,-rpath,$(LIB_DIR)
@@ -447,9 +469,14 @@ HEADERS := \
     emc/rs274ngc/interp_internal.hh \
     emc/rs274ngc/interp_base.hh \
     emc/rs274ngc/rs274ngc.hh \
-    hal/hal.h \
-    hal/hal_parport.h \
-    hal/config_module.h \
+    hal/lib/hal.h \
+    hal/lib/hal_priv.h \
+    hal/lib/hal_parport.h \
+    hal/lib/hal_group.h \
+    hal/lib/hal_ring.h \
+    hal/lib/hal_rcomp.h \
+    hal/lib/hal_iter.h \
+    hal/lib/config_module.h \
     hal/drivers/hal_gpiomap.h \
     hal/drivers/hal_spi.h \
     libnml/buffer/locmem.hh \
@@ -503,6 +530,8 @@ HEADERS := \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_export.h \
+    rtapi/rtapi_compat.h \
+    rtapi/rtapi_int.h \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math_i386.h \
@@ -516,27 +545,21 @@ HEADERS := \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
+    rtapi/rtapi_heap.h \
+    rtapi/rtapi_heap_private.h \
     rtapi/ring.h \
+    rtapi/multiframe.h \
     rtapi/rtapi_mbarrier.h \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
-# need to do ths separately because the subdirectory is required
-# ../include/string.h would wreak havoc because it's the 
-# userland shim replacement for linux/string.h, not /usr/include/string.h
-USERPCI_HEADERS := \
-    ../include/userpci/device.h \
-    ../include/userpci/firmware.h \
-    ../include/userpci/gfp.h \
-    ../include/userpci/list.h \
-    ../include/userpci/module.h \
-    ../include/userpci/slab.h \
-    ../include/userpci/string.h
-
 # Make each include file a target
 TARGETS += $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 
-TARGETS += $(USERPCI_HEADERS)
+# Add headers to this list that need to go into subdirectories; their
+# respective Submakefiles will need to provide rules to copy them into
+# ../install.
+TARGETS += $(SUBDIRECTORY_HEADERS)
 
 # Add converting of %.po files
 TARGETS += $(patsubst po/%.po, ../share/locale/%/LC_MESSAGES/linuxcnc.mo, $(wildcard po/*.po))
@@ -623,7 +646,7 @@ endif  # BUILD_SYS == 'kbuild'
 #
 # Then in the above 'modules:' target, cd to the link tree and call
 # kbuild.
-MODULE_SOURCE_DIRS = emc hal libnml rtapi workaround
+MODULE_SOURCE_DIRS = emc hal libnml rtapi workaround machinetalk
 MODULE_SOURCES = Makefile* config* modsilent.py
 $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	mkdir -p $(OBJDIR)
@@ -679,11 +702,11 @@ setuid:
 	$(call fix_perms,../libexec/linuxcnc_module_helper)
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
-	$(foreach f,$(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)),\
+	$(foreach f,$(BUILD_THREAD_FLAVORS),\
 	    $(call fix_perms,../libexec/rtapi_app_$(f));)
 # check system configuration:  logging, ulimits, udev
 	@-../scripts/check-system-configuration.sh $(CHECK_KFLAV_SWITCH)
-else	
+else
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
 endif
@@ -692,8 +715,10 @@ endif
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
 ../include/%.h: %.h
+	@mkdir -p $(dir $@)
 	$(Q)-cp $^ $@
 ../include/%.hh: %.hh
+	@mkdir -p $(dir $@)
 	$(Q)-cp $^ $@
 
 
@@ -1002,7 +1027,9 @@ ifneq ($(KERNELRELEASE),)
 #
 # When the Submakefile is included in the kbuild Makefile, the
 # module's obj-m and foo-objs definitions may remain in the Submakefile
+include $(BASEPWD)/machinetalk/Submakefile
 include $(BASEPWD)/hal/components/Submakefile
+include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
 include $(BASEPWD)/rtapi/Submakefile
 include $(BASEPWD)/rtapi/shmdrv/Submakefile
 include $(BASEPWD)/rtapi/xeno_math/Submakefile
@@ -1023,12 +1050,14 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-I$(BASEPWD)/libnml/nml \
 	-I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath \
+	-I$(BASEPWD)/protobuf/nanopb \
 	-I$(BASEPWD)/rtapi \
-	-I$(BASEPWD)/hal \
+	-I$(BASEPWD)/hal/lib \
 	-I$(BASEPWD)/emc/nml_intf \
 	-I$(BASEPWD)/emc/kinematics \
 	-I$(BASEPWD)/emc/motion \
 	-I$(BASEPWD)/emc/tp \
+	-I$(BASEPWD)/machinetalk/nanopb \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
 	-DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	$(call cc-option,-mieee-fp) \
@@ -1231,7 +1260,7 @@ endif
 ifeq ($(BUILD_HOSTMOT2),yes)
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
 #obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
-hostmot2-objs :=			  \
+hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o	  \
@@ -1269,13 +1298,6 @@ setsserial-objs :=			  \
     $(MATHSTUB)
 endif
 
-ifeq ($(USERMODE_PCI),yes)
-hostmot2-objs +=			  \
-    rtapi/userpci/device.o		  \
-    rtapi/userpci/firmware.o		  \
-    rtapi/userpci/string.o		  
-endif
-
 ifeq ($(BUILD_HOSTMOT2),yes)
 obj-$(CONFIG_HOSTMOT2) += hm2_pci.o
 hm2_pci-objs  :=			  \
@@ -1306,7 +1328,13 @@ obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 
 obj-m += hal_lib.o
-hal_lib-objs := hal/hal_lib.o $(MATHSTUB)
+hal_lib-objs := hal/lib/hal_lib.o $(MATHSTUB)
+hal_lib-objs += hal/lib/hal_group.o
+hal_lib-objs += hal/lib/hal_ring.o
+hal_lib-objs += hal/lib/hal_rcomp.o
+hal_lib-objs += machinetalk/support/nanopb.o
+hal_lib-objs += machinetalk/nanopb/pb_decode.o
+hal_lib-objs += machinetalk/nanopb/pb_encode.o
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o
@@ -1429,7 +1457,7 @@ endif # end BUILD_SYS=user-dso
 
 # $(RTLIBDIR)/%.o:
 # 	$(ECHO) Linking $@
-# 	$(Q)ld -r -static -S -Os $(LDFLAGS) -o $@ $^ $(EXTRALINK)
+# 	$(Q)ld -r -static -S  $(LDFLAGS) -o $@ $^ $(EXTRALINK)
 # endif # end 'normal'
 
 # build kernel RTAPI modules
@@ -1461,6 +1489,7 @@ $(RTLIBDIR)/streamer$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(streamer-objs))
 $(RTLIBDIR)/sampler$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(sampler-objs))
 $(RTLIBDIR)/hal_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_parport-objs))
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
+
 
 ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
@@ -1530,31 +1559,54 @@ endif  # build kernel RTAPI modules
 # Phony so that it is always rebuilt when requested, not because it
 # shouldn't exist as a file
 .PHONY: tags
+
+# dont create tags from these directories
+NOTAGSIN := \
+	depends \
+	objects \
+	machinetalk/ring \
+	machinetalk/generated \
+	machinetalk/nanopb
+
+CTAGOPTS := $(addprefix --exclude=,$(NOTAGSIN))
+ETAGOPTS := $(CTAGOPTS)
+FINDOPTS :=  -not \( $(patsubst %,-path ./% -prune -o,$(NOTAGSIN)) -type d \)
+
 tags:
-	ctags-exuberant \
-		--extra=+fq \
-		--exclude=depends --exclude=objects --exclude=.mod.c \
+	ctags-exuberant --extra=+fq \
+		$(CTAGOPTS) \
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
 	rm -f TAGS
-	find . -type f -name '*.[ch]' -printf '%P\0' |xargs -0 etags -l c --append
-	find . -type f -name '*.cc' -printf '%P\0' |xargs -0 etags -l c++ --append
-	find . -type f -name '*.hh' -printf '%P\0' |xargs -0 etags -l c++ --append
+	find . -type f -name '*.[ch]' $(FINDOPTS) | xargs  etags -l c --append
+	find . -type f -name '*.cc'  $(FINDOPTS) | xargs  etags -l c++ --append
+	find . -type f -name '*.hh'  $(FINDOPTS) | xargs  etags -l c++ --append
+	find . -type f -name '*.proto'  $(FINDOPTS) | xargs  etags -l c++ --append
 
+# etags from exuberant-ctags package
 etags:
-	etags	--extra=+fq \
-		--exclude=depends --exclude=objects --exclude=.mod.c \
+	etags --extra=+fq \
+		$(ETAGOPTS) \
 		'--langmap=make:+(Submakefile),make:+(Makefile.inc),c:+.comp' \
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
 		-R . ../tcl ../scripts ../share/axis/tcl
-	find . -type f -name '*.[ch]' |xargs etags --language-force=C --append
-	find . -type f -name '*.cc' |xargs etags --language-force=C++ --append
-	find . -type f -name '*.hh' |xargs etags --language-force=C++ --append
+	find . -type f -name '*.[ch]' $(FINDOPTS) |xargs etags --language-force=C --append
+	find . -type f -name '*.cc'  $(FINDOPTS) |xargs etags --language-force=C++ --append
+	find . -type f -name '*.hh'  $(FINDOPTS) |xargs etags --language-force=C++ --append
+	find . -type f -name '*.proto'  $(FINDOPTS) |xargs etags --language-force=C++ --append
+
+# emacs etags; does not support tcl
+eetags:
+	@rm -f TAGS
+	@find .  $(FINDOPTS) -type f -name '*.[ch]'  |xargs etags --language=c   --append
+	@find .  $(FINDOPTS) -type f -name '*.cc'    |xargs etags --language=c++ --append
+	@find .  $(FINDOPTS) -type f -name '*.hh'    |xargs etags --language=c++ --append
+	@find .  $(FINDOPTS) -type f -name '*.proto' |xargs etags --language=c++ --append
 
 .PHONY: swish
 swish:
@@ -1583,4 +1635,7 @@ cscope:
 
 cscopeclean:
 	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
-# vim:ts=8:sts=8:sw=8:noet:
+
+NOSETESTS := $(wildcard ../nosetests/*.py)
+nosetest:
+	$(foreach var,$(NOSETESTS),nosetests -v $(var);)

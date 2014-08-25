@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>HALGroup demo</title>
+<link rel=icon href=/favicon.png>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/themes/smoothness/jquery-ui.css" />
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.0/jquery-ui.min.js"></script>
+
+
+<script src="/js/geturlvars.js"></script>
+
+<script src="/js/haldefs.js"></script>
+<script src="/js/halgroup.js"></script>
+
+<h3>HALGroup demo</h3>
+<div id="info"></div>
+<p><p>
+<div id="status"></div>
+<p><p>
+<div id="connection"></div>
+
+<script type="text/javascript">
+
+// for each signal in the group, add a table row with 2 columns
+// signal name, and a object to represent the state
+function addSignal(s) {
+  var id = "h" + s.handle;
+  // see if this signal was already defined (haltalk restart may cause this on full update):
+  if ($("#" + id).length)
+      return;
+  var tr = $('<tr>');
+  var name = $("<td>");
+  name.text(s.name);
+  tr.append(name);
+  var signal = $("<td>");
+
+  switch (s.type) {
+    case HAL_BIT:
+    var w = $('<input type="checkbox" disabled=true class="Default">');
+    w.attr("id",id);
+    w.prop('checked', s.halbit);
+    signal.append(w);
+    break;
+
+    default:
+    var l = $("<label>");
+    l.attr("id",id);
+    l.text(halvalue(s));
+    signal.append(l);
+    break;
+  }
+  tr.append(signal);
+  $("#signals").append(tr);
+};
+
+g = new Halgroup();
+g.opened = function(evt) {
+  $("#connection").text("halgroup connected");
+}
+g.closed = function(evt) {
+  $("#connection").text("halgroup closed");
+}
+g.error = function(evt) {
+  $("#connection").text("halgroup error, code: " + evt.code + ",reason: " + evt.reason + ", wasClean:" + evt.wasClean);
+}
+
+// called for each signal in the group during a full update.
+// used to define the UI, and set initial values,
+g.define_signal = addSignal;
+
+// called for each signal change in an incremental update.
+// lookup the UI objects by HAL handle
+g.update_signal = function(s) {
+  switch (s.type) {
+    case HAL_BIT:
+    $("#h" + s.handle).prop('checked', s.halbit);
+    break;
+
+    default:
+    $("#h" + s.handle).text(halvalue(s));
+  }
+};
+
+// called just before connecting, URI params already set
+function  setup() {
+  $("#info").text("Group:  " + this.groups.join());
+  var table = $("<table>");
+  table.attr("id", "signals")
+  $("#status").append(table);
+}
+
+g.ready(setup);
+
+// any number of groups can be given here, additionally to the URI group=<name> parameter
+// g.run("dro","machinestatus","interp");
+g.run();
+
+</script>
+</html>

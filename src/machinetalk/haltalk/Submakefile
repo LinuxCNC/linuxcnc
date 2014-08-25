@@ -1,0 +1,37 @@
+HALTALK_DIR := machinetalk/haltalk
+
+HALTALK_SRCS :=  $(addprefix $(HALTALK_DIR)/, \
+	haltalk_group.cc 	\
+	haltalk_rcomp.cc 	\
+	haltalk_command.cc 	\
+	haltalk_introspect.cc 	\
+	haltalk_zeroconf.cc 	\
+	haltalk_bridge.cc 	\
+	haltalk_main.cc)
+
+HALTALK_CXXFLAGS := -DULAPI 	\
+	$(PROTOBUF_CFLAGS) 	\
+	$(UUID_CFLAGS) 		\
+	$(CZMQ_CFLAGS) 		\
+	$(JANSSON_CFLAGS)
+
+HALTALK_LDFLAGS := \
+	$(PROTOBUF_LIBS) 	\
+	$(UUID_LIBS) 		\
+	$(CZMQ_LIBS) 		\
+	$(JANSSON_LIBS) 	\
+	$(AVAHI_LIBS) 	\
+	-lstdc++
+
+$(call TOOBJSDEPS, $(HALTALK_SRCS)) : EXTRAFLAGS += $(HALTALK_CXXFLAGS)
+
+../bin/haltalk: $(call TOOBJS, $(HALTALK_SRCS)) \
+	../lib/libmtalk.so.0 \
+	../lib/liblinuxcnc-pb2++.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcncini.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(HALTALK_LDFLAGS)
+
+USERSRCS += $(HALTALK_SRCS)
+TARGETS += ../bin/haltalk

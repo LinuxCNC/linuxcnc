@@ -222,7 +222,7 @@ extern void init_global_data(global_data_t * data,
 #endif
 
 #if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
-extern int  _next_module_id(void);
+extern int  _next_handle(void);
 #endif
 
 // set first thing in rtapi_app_main

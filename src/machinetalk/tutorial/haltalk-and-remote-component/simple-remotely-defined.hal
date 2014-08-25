@@ -1,0 +1,27 @@
+
+# we do NOT declare a remote component and their pins,
+# but rather wait until haltalk and the remote UI have gotten in touch
+#
+# if the component does not exist, haltalk will create the remote comp on behalf of the remote UI
+# based on the pins defined there:
+
+loadusr  haltalk
+
+
+# Now start the UI, which will connect to halserver, and bind the component
+# since the component does not exist yet, haltalk creates it - and its pins - at this point:
+
+# add -N (remote case, use zeroconf resolution) for remote operation:
+loadusr gladevcp -N -E  gladevcp.ui
+
+# so before we can link to these pins, we need to wait until this has happened:
+waitexists gladevcp
+
+# and the component is being serviced:
+waitbound gladevcp
+
+# the state of the gladevcp component in halcmd should now be 'bound'
+show comp gladevcp
+
+# only now pins exist and can be linked to
+net toggle gladevcp.hal_togglebutton1 gladevcp.hal_led1

@@ -37,14 +37,29 @@ import traceback
 
 import hal
 from optparse import Option, OptionParser
+import ConfigParser
 import gtk
 import gtk.glade
 import gobject
 import signal
 
-import gladevcp.makepins
+global remote_ok
+try:
+    import glib
+    import gtk.gdk
+    import zmq
+    from message_pb2 import Container
+    from types_pb2 import *
+except ImportError,msg:
+    print >> sys.stderr, "gladevcp: cant operate remotely - import error: %s" % (msg)
+    remote_ok = False
+else:
+    remote_ok = True
+
 from gladevcp.gladebuilder import GladeBuilder
 from gladevcp import xembed
+import gladevcp.makepins
+from hal_glib import GRemoteComponent
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -65,13 +80,40 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
           , Option( '-u', dest='usermod', action='append', default=[], metavar='FILE'
                   , help='Use FILEs as additional user defined modules with handlers')
-          , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
+
+
+          , Option( '-I', dest='instance', default=-1, metavar='remote HAL instance to connect to'
+                  , help='connect to a particular HAL instance (default 0)')
+
+          , Option( '-S', dest='svc_uuid', default=None, metavar='UUID of remote HAL instance'
+                    , help='connect to haltalk server by giving its UUID')
+
+          , Option( '-E', action='store_true', dest='use_mki'
+                    , metavar='use MKUUID from MACHINEKIT_INI'
+                    , help='local case - use the current MKUUID')
+
+          , Option( '-N', action='store_true', dest='remote',default=False
+                    , metavar='connect to remote haltalk server using TCP'
+                    , help='enable remote operation via TCP')
+
+          , Option( '-C', dest='halrcmd_uri', default=None, metavar='zeroMQ URI of remote HALrcmd service'
+                  , help='connect to remote haltalk server by giving its HALrcmd URI')
+
+          , Option( '-M', dest='halrcomp_uri', default=None, metavar='zeroMQ URI of remote HALrcomp service'
+                  , help='connect to remote haltalk server by giving its HALrcomp URI')
+
+          , Option( '-D', dest='rcdebug', default=0, metavar='debug level for remote components'
+                    , help='set to > to trace message exchange for remote components')
+          , Option( '-P', dest='pinginterval', default=3, metavar='seconds to ping haltalk'
+                  , help='normally 3 secs')
+           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
                   , help='pass USEROPTs to Python modules')
           ]
 
 signal_func = 'on_unix_signal'
 
 gladevcp_debug = 0
+
 def dbg(str):
     global gladevcp_debug
     if not gladevcp_debug: return
@@ -88,7 +130,7 @@ class Trampoline(object):
         for m in self.methods:
             m(*a, **kw)
 
-def load_handlers(usermod,halcomp,builder,useropts):
+def load_handlers(usermod,halcomp,builder,useropts,compname):
     hdl_func = 'get_handlers'
 
     def add_handler(method, f):
@@ -119,7 +161,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
 
             if h and callable(h):
                 dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
-                objlist = h(halcomp,builder,useropts)
+                objlist = h(halcomp,builder,useropts, compname)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
@@ -175,6 +217,10 @@ def main():
     gladevcp_debug = debug = opts.debug
     xmlname = args[0]
 
+    if opts.instance > -1 and not remote_ok:
+        print >> sys.stderr, "gladevcp: cant operate remotely  - modules missing"
+        sys.exit(1)
+
     #if there was no component name specified use the xml file name
     if opts.component is None:
         opts.component = os.path.splitext(os.path.basename(xmlname))[0]
@@ -198,16 +244,55 @@ def main():
 
     window.set_title(opts.component)
 
-    try:
-        halcomp = hal.component(opts.component)
-    except:
-        print >> sys.stderr, "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
+    if opts.instance != -1:
+        print >> sys.stderr, "*** GLADE VCP ERROR: the -I option is deprecated, either use:"
+        print >> sys.stderr, "-s <uuid> for zeroconf lookup, or"
+        print >> sys.stderr, "-C <halrcmd_uri> -M <halrcomp_uri> for explicit URI's "
         sys.exit(0)
 
-    panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
+    if opts.svc_uuid and (opts.halrcmd_uri or opts.halrcomp_uri):
+        print >> sys.stderr, "*** GLADE VCP ERROR: use either -s<uuid> or -C/-M, but not both"
+        sys.exit(0)
+
+    if not (opts.svc_uuid or opts.use_mki or opts.halrcmd_uri or opts.halrcomp_uri): # local
+        try:
+            import hal
+            halcomp = hal.component(opts.component)
+        except:
+            print >> sys.stderr, "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
+            sys.exit(0)
+
+
+        panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
+    else:
+        if opts.rcdebug: print "remote uuid=%s halrcmd=%s halrcomp=%s" % (opts.svc_uuid,opts.halrcmd_uri,opts.halrcomp_uri)
+        if opts.use_mki:
+            mki = ConfigParser.ConfigParser()
+            mki.read(os.getenv("MACHINEKIT_INI"))
+            uuid = mki.get("MACHINEKIT", "MKUUID")
+        else:
+            uuid = opts.svc_uuid
+        halcomp = GRemoteComponent(opts.component,
+                                   builder,
+                                   halrcmd_uri=opts.halrcmd_uri,
+                                   halrcomp_uri=opts.halrcomp_uri,
+                                   uuid=uuid,
+                                   instance=opts.instance,
+                                   period=int(opts.pinginterval),
+                                   remote=int(opts.remote),
+                                   debug=int(opts.rcdebug))
+
+        panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
+
+        # no discovery, so bind right away
+        if not (opts.use_mki or opts.svc_uuid):
+            halcomp.bind()
+        # else bind() is called once all URI's discovered and connected
+        # this should really be done with a signal, and bind() done in reaction to
+        # the signal
 
     # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts,opts.component)
 
     builder.connect_signals(handlers)
 
@@ -272,6 +357,11 @@ def main():
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
     if opts.maximum:
         window.window.maximize()
+
+    if opts.instance > -1:
+        # zmq setup incantations
+        print "setup for remote instance",opts.instance
+        pass
 
     if opts.halfile:
         cmd = ["halcmd", "-f", opts.halfile]

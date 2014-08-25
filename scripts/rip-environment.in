@@ -45,6 +45,7 @@ EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
 EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
 LINUXCNC_EMCSH=@WISH@; export LINUXCNC_EMCSH
 PATH=@EMC2_BIN_DIR@:@EMC2_LIBEXEC_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
+MACHINEKIT_INI=@EMC2_HOME@/etc/linuxcnc/machinekit.ini; export MACHINEKIT_INI
 
 if [ -z "$TCLLIBPATH" ]; then
     TCLLIBPATH=$EMC2_HOME/tcl
@@ -82,7 +83,9 @@ fi
 
 # TODO: if these completion directives give trouble for any versions
 # of bash actively in use, protect them with checks of BASH_VERSINFO
-if [ $BASH_VERSINFO -eq 2 ]; then
+if [ -z "$BASH_VERSINFO" ]; then
+    : # not using bash -> complete not available
+elif [ $BASH_VERSINFO -eq 2 ]; then
     complete -o dirnames -f -X '!*.ini' emc axis mdi
     complete -o dirnames -f -X '!*.hal' halrun halcmd
     complete -W 'start stop restart status' realtime
@@ -90,8 +93,12 @@ if [ $BASH_VERSINFO -eq 2 ]; then
 else
     _iningc () {
         case "$3" in 
-        *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
-        *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
+        *.ini)
+        COMPREPLY=$(compgen -o plusdirs -f -X '!*.ngc' -- "$2")
+        ;;
+        *)
+        COMPREPLY=$(compgen -o plusdirs -f -X '!*.ini' -- "$2")
+        ;;
         esac
     }
     complete -o plusdirs -F _iningc emc axis

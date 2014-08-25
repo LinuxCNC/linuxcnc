@@ -1,0 +1,33 @@
+
+import "nanopb.proto";
+import "types.proto";
+import "value.proto";
+
+package pb;
+
+// describes a RTAPI/HAL/LinuxCNC instance
+message Instance {
+    optional string        name     = 30; //  [(nanopb).max_size = 41];
+    optional sfixed32        id       = 40;
+}
+
+message Pin {
+    optional ValueType   type       = 10;
+    optional string      name       = 20; //    [(nanopb).max_size = 41];
+    optional fixed32     handle     = 25;
+    optional HalPinDirection dir    = 30;
+
+    // One of the following must be filled in,
+    // depending on type.
+    optional bool          halbit   = 100;
+    optional double        halfloat = 101;
+    optional sfixed32      hals32   = 102;
+    optional fixed32       halu32   = 103;
+
+    optional sfixed32      owner    = 40;
+    optional bool         linked    = 50;
+    optional string      oldname    = 60; //   [(nanopb).max_size = 41];
+
+    optional double      epsilon    = 80;
+    optional fixed32      flags     = 90;
+}

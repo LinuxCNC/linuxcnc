@@ -1,0 +1,43 @@
+
+# 1. declare a remote component
+# this must match EXACTLY what is being created (including -not pins etc)
+# or binding will fail later, because all pins are checked for name,
+# type and direction:
+
+newcomp gladevcp
+newpin  gladevcp gladevcp.hal_led1 bit in
+newpin  gladevcp gladevcp.hal_togglebutton1  bit out
+newpin  gladevcp gladevcp.hal_togglebutton1-not  bit out
+newpin  gladevcp gladevcp.hal_hscale1  float  out
+newpin  gladevcp gladevcp.hal_hscale2  float  out
+newpin  gladevcp gladevcp.hal_hscale3  float  out
+ready   gladevcp
+
+# 2. at this stage, the component and its pins exist
+# and could be linked to signals
+
+net toggle gladevcp.hal_togglebutton1 gladevcp.hal_led1
+
+# the gladvcp component is 'dormant' (PID=0) and 'unbound'
+show comp gladevcp
+
+# 3. the rcomp is still lacking a remote actor.
+# start the haltalk process, which will acquire any dormant
+# remote components at this stage (in this case 'gladevcp')
+loadusr -W  haltalk --debug 5
+
+# the gladevcp comp will now reflect the PID of haltalk, indicating
+# haltalk has acquired the component:
+show comp gladevcp
+
+# Now start the UI, which will connect to halserver, after which the
+# bind state of the component(s) served changes to 'bound'
+
+# add -N (remote case, use zeroconf resolution) for remote operation:
+loadusr -W  gladevcp -N -E  gladevcp.ui
+
+# if we want to wait until the UI has come up and bound, use this:
+waitbound gladevcp
+
+# the state of the gladevcp component in halcmd should now be 'bound'
+show comp gladevcp

@@ -1,0 +1,139 @@
+mah@wheezy:~/linuxcnc/src/middleware/config-service$ python getapp.py
+Service added; resolving
+Resolved service:
+  fullname   = Machinekit\032on\032vbox-wheezy._machinekit._tcp.local.
+  hosttarget = vbox-wheezy.local.
+  port       = 61922
+  IP         = 193.228.47.215
+resolve.. done.
+results:  [(u'Machinekit\\032on\\032vbox-wheezy._machinekit._tcp.local.', u'vbox-wheezy.local.', 61922, '"dsname=tcp://193.228.47.215:61922\x00', '193.228.47.215')]
+connecting to 'Machinekit\032on\032vbox-wheezy._machinekit._tcp.local.'
+list apps response type: MT_DESCRIBE_APPLICATION
+app {
+  name: "motorctrl"
+  description: "A most wonderful demo motor control application"
+  type: QT5_QML
+}
+app {
+  name: "halanduino"
+  description: "the inverted pendulum robot"
+  type: QT5_QML
+}
+
+get_app motorctrl
+get_app response type: MT_APPLICATION_DETAIL
+service_announcement {
+  stype: ST_RTAPI_COMMAND
+  version: 1
+  instance: 0
+  uri: "tcp://127.0.0.1:49152"
+  description: "RTAPI command socket"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_STP_HALGROUP
+  version: 2
+  instance: 0
+  uri: "tcp://127.0.0.1:49153"
+  description: "HAL group STP"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_STP_HALRCOMP
+  version: 2
+  instance: 0
+  uri: "tcp://127.0.0.1:49154"
+  description: "HAL RComp"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_HAL_RCOMMAND
+  version: 2
+  instance: 0
+  uri: "tcp://127.0.0.1:49155"
+  description: "HAL Rcommand"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_LOGGING
+  version: 1
+  instance: 0
+  uri: "tcp://127.0.0.1:5550"
+  description: "zmq/protobuf log socket"
+  api: SA_ZMQ_PROTOBUF
+}
+app {
+  name: "motorctrl"
+  description: "A most wonderful demo motor control application"
+  type: QT5_QML
+  file {
+    name: ""
+    encoding: CLEARTEXT
+    blob: "import QtQuick 2.0\nimport Hal.Controls 1.0 as H\nimport QtQuick.Controls 1.1\nimport QtQuick.Layouts 1.1\nimport Hal 1.0 as HAL\n\nItem  {\n    id: item1\n    width: 500\n    height: 500\n\n        ColumnLayout {\n            anchors.margins: 10\n            anchors.fill: parent\n            spacing: 0\n\n            GroupBox {\n                Layout.fillWidth: true\n                Layout.preferredHeight: item1.height * 0.3\n                title: qsTr(\"feedback\")\n\n                ColumnLayout {\n                    anchors.fill: parent\n                    spacing: 5\n\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"position\")\n\n                        H.ProgressBar {\n                            name: \"fb_pos\"\n\n                            anchors.fill: parent\n                            minimumValue: 0\n                            maximumValue: 100\n                        }\n                    }\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"velocity\")\n\n                        H.Gauge {\n                            name: \"fb_vel\"\n\n                            value: 0\n                            anchors.fill: parent\n                            minimumValue: -100\n                            maximumValue: 100\n                        }\n                    }\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"acceleration\")\n\n                        H.Gauge {\n                            name: \"fb_acc\"\n                            value: 0\n                            anchors.fill: parent\n                            minimumValue: -100\n                            maximumValue: 100\n                        }\n                    }\n                }\n            }\n\n            GroupBox {\n                Layout.fillWidth: true\n                Layout.preferredHeight: item1.height * 0.5\n                title: qsTr(\"control\")\n\n                ColumnLayout {\n                    anchors.fill: parent\n                    spacing: 5\n\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"commanded position\")\n\n                        H.Slider {\n                            name: \"cmd_pos\"\n\n                            anchors.fill: parent\n                            minimumValue: 0\n                            maximumValue: 100\n                            value: 0\n                        }\n                    }\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"maximum velocity\")\n\n                        H.Slider {\n                            name: \"cmd_maxvel\"\n\n                            anchors.fill: parent\n                            minimumValue: 0\n                            maximumValue: 100\n                            value: 20\n                        }\n                    }\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"maximum acceleration\")\n\n                        H.Slider {\n                            name: \"cmd_maxacc\"\n\n                            anchors.fill: parent\n                            minimumValue: 0\n                            maximumValue: 100\n                            value: 10\n                        }\n                    }\n                    GroupBox {\n                        Layout.fillWidth: true\n                        Layout.fillHeight: true\n                        title: qsTr(\"lowpass filter gain\")\n\n                        H.Slider {\n                            name: \"lowpass_gain\"\n\n                            anchors.fill: parent\n                            minimumValue: 0\n                            maximumValue: 0.9\n                            value: 0.01\n                        }\n                    }\n                }\n            }\n            GroupBox {\n                Layout.fillWidth: true\n                Layout.fillHeight: true\n                title: qsTr(\"misc\")\n\n                RowLayout {\n                    id: row1\n                    anchors.fill: parent\n                    spacing: 5\n\n                    ColumnLayout {\n                        Layout.fillHeight: true\n                        Layout.fillWidth: true\n                        //Layout.: 2\n                        spacing: 5\n\n                        H.ToggleButton {\n                            name: \"togglebutton1\"\n\n                            Layout.fillHeight: true\n                            Layout.fillWidth: true\n                            text: qsTr(\"togglebutton\")\n\n                            HAL.Pin {\n                                name: \"togglebutton1-not\"\n                                type: HAL.Pin.HAL_BIT\n                                direction: HAL.Pin.HAL_OUT\n                                value: !parent.value\n                            }\n                        }\n                        H.ToggleButton {\n                            name: \"scope_trigger\"\n\n                            Layout.fillHeight: true\n                            Layout.fillWidth: true\n                            text: qsTr(\"trigger scope\")\n                        }\n                    }\n\n                    ColumnLayout {\n                        Layout.preferredWidth: parent.width *0.4\n                        Layout.fillHeight: true\n                        spacing: 5\n\n                        H.Led {\n                            name: \"led1\"\n\n                            x: parent.width * 0.4\n                            y: parent.height * 0.3\n                            width: parent.width * 0.15\n                            height: width\n                            blink: false\n                        }\n                    }\n                }\n            }\n        }\n\n}\n"
+  }
+  file {
+    name: ""
+    encoding: CLEARTEXT
+    blob: "import QtQuick 2.0\nimport QtQuick.Controls 1.1\n\nItem {\n    width: 100\n    height: 62\n\n    Text {\n        id: sStateText\n\n        anchors.verticalCenter: parent.verticalCenter\n\n        text: qsTr(\"sState: \") + testComponent.sState\n    }\n    Text {\n        id: cStateText\n\n        anchors.bottom: sStateText.top\n\n        text: qsTr(\"cState: \") + testComponent.cState\n    }\n    RadioButton {\n        id: runningCheck\n\n        anchors.bottom: cStateText.top\n\n        text: qsTr(\"Discovery running\")\n        checked: serviceDiscovery.running\n    }\n    RadioButton {\n        id: halrcompServiceCheck\n\n        anchors.bottom: runningCheck.top\n\n        text: qsTr(\"ST_STP_HALRCOMP command discovered\")\n        checked: halrcompService.found\n    }\n    RadioButton {\n        id: rcommandServiceCheck\n\n        anchors.bottom: halrcompServiceCheck.top\n\n        text: qsTr(\"ST_HAL_RCOMMAND command discovered\")\n        checked: rcommandService.found\n    }\n    Button {\n        id: discoverButton\n\n        anchors.bottom: rcommandServiceCheck.top\n\n        text: qsTr(\"Discover\")\n        onClicked: {\n            if (serviceDiscovery.running === false)\n            {\n                serviceDiscovery.startDiscovery()\n            }\n        }\n    }\n}\n"
+  }
+  file {
+    name: ""
+    encoding: CLEARTEXT
+    blob: "import QtQuick 2.1\nimport QtQuick.Controls 1.1\nimport Hal 1.0 as HAL\n\nApplicationWindow {\n    title: qsTr(\"Hello World\")\n    width: 500\n    height: 800\n\n    Item {\n        id: pageStack\n\n        anchors.fill: parent\n\n        StartPage {\n            id: startPage\n\n            anchors.fill: parent\n        }\n\n        ViewPage {\n            id: viewPage\n\n            anchors.fill: parent\n        }\n\n        state: testComponent.ready?\"connected\":\"discovery\"\n\n        states: [\n            State {\n                name: \"discovery\"\n                PropertyChanges { target: startPage; opacity: 1.0 }\n                PropertyChanges { target: viewPage; opacity: 0.0 }\n            },\n            State {\n                name: \"connected\"\n                PropertyChanges { target: startPage; opacity: 0.0 }\n                PropertyChanges { target: viewPage; opacity: 1.0 }\n            }\n        ]\n\n        transitions: Transition {\n                PropertyAnimation { duration: 500; properties: \"opacity\"; easing.type: Easing.InCubic }\n            }\n    }\n\n    HAL.RemoteComponent {\n        id: testComponent\n\n        name: \"motorctrl\"\n        cmdUri: rcommandService.uri\n        updateUri: halrcompService.uri\n        heartbeatPeriod: 3000\n        ready: halrcompService.found && rcommandService.found\n        containerItem: viewPage\n    }\n\n    HAL.ServiceDiscovery {\n        id: serviceDiscovery\n\n        port: 10042\n        retryTime: 500\n        maxWait: 2000\n        trace: false\n        instance: 0\n        running: true\n        repeat: false\n\n        services: [\n            HAL.Service {\n                id: halrcompService\n                type: HAL.Service.ST_STP_HALRCOMP\n                minVersion: 0\n            },\n            HAL.Service {\n                id: rcommandService\n                type: HAL.Service.ST_HAL_RCOMMAND\n                minVersion: 0\n            },\n            HAL.Service {\n                id: websocketService\n                type: HAL.Service.ST_WEBSOCKET\n                minVersion: 0\n            }\n        ]\n    }\n}\n"
+  }
+}
+
+get_app halanduino
+get_app response type: MT_APPLICATION_DETAIL
+service_announcement {
+  stype: ST_RTAPI_COMMAND
+  version: 1
+  instance: 0
+  uri: "tcp://127.0.0.1:49152"
+  description: "RTAPI command socket"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_STP_HALGROUP
+  version: 2
+  instance: 0
+  uri: "tcp://127.0.0.1:49153"
+  description: "HAL group STP"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_STP_HALRCOMP
+  version: 2
+  instance: 0
+  uri: "tcp://127.0.0.1:49154"
+  description: "HAL RComp"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_HAL_RCOMMAND
+  version: 2
+  instance: 0
+  uri: "tcp://127.0.0.1:49155"
+  description: "HAL Rcommand"
+  api: SA_ZMQ_PROTOBUF
+}
+service_announcement {
+  stype: ST_LOGGING
+  version: 1
+  instance: 0
+  uri: "tcp://127.0.0.1:5550"
+  description: "zmq/protobuf log socket"
+  api: SA_ZMQ_PROTOBUF
+}
+app {
+  name: "halanduino"
+  description: "the inverted pendulum robot"
+  type: QT5_QML
+  file {
+    name: ""
+    encoding: CLEARTEXT
+    blob: "\nasdsa\n\nsaddsa\ndsas\nasd\nasd\n"
+  }
+}
+
+mah@wheezy:~/linuxcnc/src/middleware/config-service$

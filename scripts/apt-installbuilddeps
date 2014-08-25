@@ -1,0 +1,74 @@
+#! /bin/sh
+
+## apt-installbuilddeps  -  Install the build dependencies listed
+##                          in debian/control
+
+# We do this by adding a fake "Sources" index for debian/control and
+# then using apt-get build-dep to install its build dependencies.
+
+#set -e
+
+id=installbuilddeps.$$
+tmpdir=/tmp/$id
+index=/etc/apt/sources.list
+
+nukeconf ()
+{
+  f="$1"
+  awk '/#begin:apt-installbuilddeps/ { ignore=1 }
+       /#end:apt-installbuilddeps/   { ignore=0; next }
+                                     { if (!ignore) print }' \
+  $f >$f.tmp && mv $f.tmp $f
+}
+
+cleanup () {
+  nukeconf $index
+  rm -rf $tmpdir
+}
+
+trap cleanup EXIT
+
+if [ ! -f debian/control ]; then
+  echo 1>&2 "apt-installbuilddeps: debian/control not found"
+  exit 1
+fi
+
+# We have two methods and try both.  Method 1 is the right way to do
+# it, by using "apt-get build-dep".  This will take care of conflicts,
+# alternatives, etc.  However, apt-get build-dep is very bad at
+# reporting problems.  Thus, when we try method 2 when method 1 fails.
+# Method 2 guesses the missing depencies and installs them with
+# apt-get install followed by dpkg-checkbuilddeps.
+
+method1 ()
+{
+  mkdir $tmpdir
+  awk <debian/control >$tmpdir/Sources \
+    "/^Source:/                  { print \"Package:\", \$2; next }
+     /^ *\$/                     { exit }
+                               { print }"
+
+  cat >>$index <<EOF
+#begin:apt-installbuilddeps
+deb-src file:$tmpdir ./
+#end:apt-installbuilddeps
+EOF
+
+  package=`grep '^Source:' debian/control | sed -e 's/^Source: *//'`
+
+  apt-get update
+  apt-get "$@" build-dep $package
+}
+
+method2 ()
+{
+  pfx="dpkg-checkbuilddeps: Unmet build dependencies:"
+  deps=`dpkg-checkbuilddeps 2>&1 | grep "^$pfx" | \
+        sed -e "s/$pfx//" -e s'/([^)]*)//g'`
+  echo apt-get "$@" install $deps
+  apt-get "$@" install $deps
+  dpkg-checkbuilddeps
+}
+
+#method1 ||
+method2

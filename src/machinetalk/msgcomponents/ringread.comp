@@ -1,0 +1,163 @@
+component ringread;
+
+pin out u32 underrun   "number of failed read attempts";
+pin out u32 received   "number of successful read attempts";
+pin out u32 tooslow    "number of times the reader couldnt keep up with the writer";
+pin in  bit circular   "circular flag - set to nonzero to enable circular record buffer";
+function _;
+
+option singleton yes;
+option rtapi_app no;
+
+license "GPLv2 or later";
+
+;;
+
+#define MAXSIZE 1024
+
+#include "hal_priv.h"
+#include "hal_ring.h"	        /* ringbuffer declarations */
+
+static char *ring = "ring_0";
+RTAPI_MP_STRING(ring,  "name of ring to attach");
+
+static ringbuffer_t rb;
+static ringiter_t ri;
+static char *name = "ringread";
+
+FUNCTION(_) {
+    ringvec_t vec[2];
+    ring_size_t rsize;
+    const void *data;
+
+    if (rb.header->type == RINGTYPE_STREAM) {
+	// peek into the stream, non-copy mode
+	stream_get_read_vector(&rb, vec);
+	rsize = vec[0].rv_len + vec[1].rv_len;
+	if (vec[0].rv_len) {
+	    rtapi_print_msg(RTAPI_MSG_ERR, "%s(%s): bytes=%d '%.*s",
+			    name, ring, rsize,
+			    (int) vec[0].rv_len, (char *) vec[0].rv_base);
+	    if (vec[1].rv_len) {
+		rtapi_print_msg(RTAPI_MSG_ERR, "%.*s",
+				(int) vec[1].rv_len, (char *) vec[1].rv_base);
+	    }
+	    rtapi_print_msg(RTAPI_MSG_ERR, "'\n");
+
+	    // consume bytes read
+	    stream_read_advance(&rb, rsize);
+	    received++;
+	    // if we have a scratchpad, leave a dropping there
+	    if (rb.scratchpad) {
+		rtapi_snprintf(rb.scratchpad,ring_scratchpad_size(&rb),
+			       "received=%d underrun=%d",
+			       received, underrun);
+	    }
+	} else
+	    underrun++;
+    } else {
+	if (circular) {
+	    char buf[MAXSIZE];
+	    int result;
+	    size_t size;
+
+	    result = record_iter_read(&ri, &data, &size);
+	    switch (result) {
+	    case EINVAL:
+		// generation changed due to consumer too slow, renew
+		tooslow++;
+		record_iter_init(&rb, &ri);
+		break;
+	    case EAGAIN:
+		// ring empty
+		underrun++;
+		break;
+	    default:
+		// record available, but commit only after successful iter_shift()
+		memcpy(buf, data, size > sizeof(buf) ? sizeof(buf) : size);
+		if (record_iter_shift(&ri) == EINVAL) {
+		    tooslow++;
+		    break;
+		}
+		// good to consume buffer
+		rtapi_print_msg(RTAPI_MSG_ERR,
+				"circular: %s(%s): reclen=%zu '%.*s', writer=%d\n",
+				name, ring, size, (int) size, buf,
+				rb.header->writer);
+		break;
+	    }
+	} else {
+	    rsize = record_next_size(&rb);
+	    if (rsize < 0) {
+		// ring empty
+		underrun++;
+		return;
+	    }
+	    rtapi_print_msg(RTAPI_MSG_ERR, "%s(%s): reclen=%d '%.*s', writer=%d\n",
+			    name, ring, rsize, rsize,
+			    (char *) record_next(&rb),
+			    rb.header->writer);
+	    // consume record
+	    record_shift(&rb);
+	    received++;
+	}
+	if (rb.scratchpad) {
+	    rtapi_snprintf(rb.scratchpad,ring_scratchpad_size(&rb),
+			   "received=%d underrun=%d",
+			   received, underrun);
+	}
+    }
+}
+
+int rtapi_app_main(void)
+{
+    int retval;
+
+    comp_id = hal_init("ringread");
+    if (comp_id < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_init() failed: %d\n",
+			name, comp_id);
+	return -1;
+    }
+    if ((retval = hal_ring_attach(ring, &rb,NULL))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_attach(%s) failed: %d\n",
+			name, ring, retval);
+	return -1;
+    }
+
+    rtapi_print_msg(RTAPI_MSG_INFO,
+		    "%s: attached ring '%s' size=%zu type=%d"
+		    " rmutex=%d wmutex=%d reader=%d writer=%d scratchpad=%zu\n",
+		    name, ring, rb.header->size,
+		    rb.header->type,
+		    ring_use_rmutex(&rb), ring_use_wmutex(&rb),
+		    rb.header->reader, rb.header->writer,
+		    ring_scratchpad_size(&rb));
+
+    rb.header->reader = comp_id;
+    rb.header->reader_instance = rtapi_instance;
+
+    record_iter_init(&rb, &ri);
+
+    if ((retval = export(name, 0))) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: export(ringread) failed: %d\n",
+			name, retval);
+	return -1;
+    }
+    hal_ready(comp_id);
+    return 0;
+}
+
+void rtapi_app_exit(void)
+{
+    int retval;
+    rb.header->reader = 0;
+    if ((retval = hal_ring_detach(ring, &rb)) < 0)
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s: ERROR: hal_ring_detach(%s) failed: %d\n",
+			name, ring, retval);
+    hal_exit(comp_id);
+}

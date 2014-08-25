@@ -1,0 +1,97 @@
+# set logging to 'pretty high'
+log rt 5
+log user 5
+
+# start haltalk server
+# add --debug 5 to log message transactions on halcmd stderr
+#loadusr -W haltalk --debug 5
+loadusr -W haltalk
+
+# the control setup
+
+# syntax: newthread <name> <periodns> [fp|nofp] [cpu=<int>]
+# default is nofp
+newthread servo-thread 1000000 fp
+
+loadrt limit3
+loadrt lowpass
+
+# differentiate pos to get vel, vel to get acc
+loadrt ddt names=actvel,actacc
+addf limit3.0 servo-thread
+addf lowpass.0 servo-thread
+addf actvel servo-thread
+addf actacc servo-thread
+start
+
+# wait the halcmd script until the UI has created the remote component 'motorctrl':
+# waitexists motorctrl
+
+# OR preconfigure the remote component like so
+# in this case no waiting required
+# pin count, name, type, direction must match exactly what
+# is in the GUI
+sete 1 0.001
+newcomp motorctrl timer=100 # acceptdefaults
+newpin motorctrl motorctrl.cmd_maxacc    float out
+newpin motorctrl motorctrl.cmd_maxvel    float out
+newpin motorctrl motorctrl.cmd_pos       float out
+newpin motorctrl motorctrl.fb_acc        float in eps=1
+newpin motorctrl motorctrl.fb_acc.scale  float in eps=1
+newpin motorctrl motorctrl.fb_pos        float in eps=1
+newpin motorctrl motorctrl.fb_pos.scale  float in eps=1
+newpin motorctrl motorctrl.fb_vel        float in eps=1
+newpin motorctrl motorctrl.fb_vel.scale  float in eps=1
+newpin motorctrl motorctrl.led1          bit in
+newpin motorctrl motorctrl.lowpass_gain  float out
+newpin motorctrl motorctrl.scope_trigger bit out
+newpin motorctrl motorctrl.togglebutton1 bit out
+newpin motorctrl motorctrl.togglebutton1-not bit out
+ready  motorctrl
+
+# set default pin values here
+# setting acceptdefaults on the newcomp statement would enable
+# accepting default values from the remote component
+# however, this will cause a jump of values on connect
+setp motorctrl.lowpass_gain 0.1
+setp motorctrl.cmd_maxacc 25
+setp motorctrl.cmd_maxvel 25
+
+# at this stage, the component and its pins exist
+# and can be linked to
+
+net cmd-pos motorctrl.cmd_pos =>       limit3.0.in
+net cmd-maxvel motorctrl.cmd_maxvel => limit3.0.maxv
+net cmd-maxacc motorctrl.cmd_maxacc => limit3.0.maxa
+
+net raw-pos  limit3.0.out => lowpass.0.in
+net gain     motorctrl.lowpass_gain => lowpass.0.gain
+
+net curr-pos lowpass.0.out => motorctrl.fb_pos actvel.in
+net curr-vel actvel.out =>   actacc.in motorctrl.fb_vel
+net curr-acc actacc.out =>   motorctrl.fb_acc
+
+# make led follow togglebutton for now:
+net led motorctrl.led1 <== motorctrl.togglebutton1
+
+# make trigger pin a signal - halscope wants signals to trigger on:
+net scope-trigger motorctrl.scope_trigger
+
+# HAL group example:
+# monitor some signals via a group
+newg dro 100
+newm dro led
+newm dro curr-pos
+newm dro curr-vel
+newm dro curr-acc
+
+# start the gladevcp version
+
+# no -N flag - local case, use IPC sockets, no zeroconf resolution
+#loadusr -Wn motorctrl gladevcp -E -u motorctrl.py motorctrl.ui
+
+# -N - remote case, use zeroconf resolution
+loadusr -Wn motorctrl gladevcp -N -E -u motorctrl.py motorctrl.ui
+
+# load scope only now - because all sigs are now defined:
+loadusr halscope

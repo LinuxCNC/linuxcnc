@@ -442,24 +442,49 @@ int is_module_loaded(const char *module)
     return 0;
 }
 
-int load_module(const char *module, const char *modargs)
+int run_module_helper(const char *format, ...)
 {
-    char mod_helper[PATH_MAX];
-    char line[PATH_MAX + 100];
-    int retval;
+    char mod_helper[PATH_MAX+100];
 
     if (get_rtapi_config(mod_helper, "linuxcnc_module_helper", PATH_MAX) != 0) {
         fprintf(stderr, "load_module: ERROR: failed to read "
 		"linuxcnc_module_helper path from rtapi config\n");
 	return -1;
     }
-	
-    sprintf(line, "%s insert %s %s", mod_helper,
-	    module, modargs ? modargs : "");
-    if ((retval = system(line))) {
-        fprintf(stderr, "load_module: ERROR: executing '%s'  %d - %s\n",
-                        line, errno, strerror(errno));
-        return retval;
+    strcat(mod_helper, " ");
+
+    int n = strlen(mod_helper);
+    va_list args;
+    int retval;
+
+    va_start(args, format);
+    retval = vsnprintf(&mod_helper[n], sizeof(mod_helper) - n, format, args);
+    va_end(args);
+
+    if (retval < 0 ) {
+	fprintf(stderr, "run_module_helper: invalid arguments\n");
+	return retval;
     }
-    return 0;
+    return system(mod_helper);
+}
+
+
+
+int procfs_threadcmd(const char *format, ...)
+{
+    va_list args;
+    int fd;
+    int retval = 0;
+    char buffer[100];
+
+    if ((fd = open(PROCFS_THREADCMD,O_WRONLY)) > -1) {
+	int len;
+	va_start(args, format);
+	len = vsnprintf(buffer, sizeof(buffer), format, args);
+	va_end(args);
+	retval = write(fd, buffer, len);
+	close(fd);
+	return retval;
+    } else
+	return -ENOENT;
 }

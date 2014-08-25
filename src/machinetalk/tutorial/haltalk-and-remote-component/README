@@ -1,0 +1,16 @@
+example for working with remote components
+
+there are two ways to deal with remote comps:
+
+- either its pins are predefined in halcmd like in simple-predefined-rcomp.hal
+- or the halcmd script waits until after the remote entity startup to create the pins on initial bind (simple-remotely-defined.hal)
+
+
+The two scripts show these styles - run either like so:
+
+  ./rundemo simple-predefined-rcomp.hal
+
+  ./rundemo simple-remotely-defined.hal
+
+
+both will create and serve a tiny remote component (a led, button, linked to each other, plus some scales).
