@@ -1,225 +1,294 @@
-#!/bin/bash
-# dpkg configuration script for linuxcnc
-# Copyright (C) 2006 Jeff Epler
+#!/usr/bin/python
+#
+# Copyright 2014 Sebastian Kuzminsky
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 #
-# When used to produce a debian package, this file is a script "used to
-# control compilation and installation of the executable"
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#
+# Debian source package configuration script for LinuxCNC.
+#
 
-usage () {
-    P=${0##*/}
-    cat <<EOF
-$P: Set up debian/ files to build for a particular kernel
 
-Usage:
-    $P uspace
-        Build for a userspace realtime systems or simulator
+import sys
+import os
+import glob
+import re
+import subprocess
 
-    $P sim
-        Deprecated synonym for '$P uspace'
 
-    $P [kernel-version]
-        Build for the realtime kernel [kernel-version], such as 2.6.12-magma
+#
+# Important state variables.  These get built up as the program runs.
+#
 
-    $P -r
-        Build for the currently running kernel
+config = {}
 
-    $P -a
-        If the currently running kernel has realtime extensions, use it.
-        Otherwise use any available realtime kernel it can find.
-EOF
-}
+# selected flavor
+config['flavor'] = None
 
-cd "${0%/*}"
+# packages we build-depend on
+config['build-depends'] = set()
 
-if [ $# -ne 1 -o "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+# Depends, Recommends, and Suggests for the main package (linuxcnc.deb)
+config['depends'] = set()
+config['recommends'] = set()
+config['suggests'] = set()
+
+# Depends for the dev package (linuxcnc-dev.deb)
+config['dev-depends'] = set()
+
+# arguments we want debian/rules to pass to src/configure
+config['src/configure'] = set()
+
+
+def usage():
+    print """\
+usage: debian/configure [OPTIONS]
+configure debian source package
+OPTIONS:
+    --help, -h    This help.
+    uspace, sim   Configure for uspace.
+    -r, -a        Configure for the running realtime flavor.
+"""
+
+
+#
+# This function inspects the config file of the specified installed kernel
+# version.  If it finds a realtime flavor, it selects the detected flavor.
+# If the specified kernel does not provide a realtime flavor, it prints an
+# error message and exits.
+#
+def detect_installed_realtime_kernel(kernel_version, config):
+    try:
+        f = open("/boot/config-%s" % kernel_version)
+    except IOError:
+        print "Error: no kernel configuration found for %s" % kernel_version
+        sys.exit(1)
+    l = f.read(-1)
+    f.close()
+
+    config_ipipe = re.search('^CONFIG_IPIPE', l, re.MULTILINE)
+    config_xeno = re.search('^CONFIG_XENO_', l, re.MULTILINE)
+    config_rtpreempt = re.search('^CONFIG_PREEMPT_RT', l, re.MULTILINE)
+
+    if config_ipipe and not config_xeno and not config_rtpreempt:
+        config['flavor'] = 'rtai'
+
+    elif config_rtpreempt and not config_ipipe and not config_xeno:
+        config['flavor'] = 'uspace'
+
+    elif config_ipipe and config_xeno and not config_rtpreempt:
+        print "Error: kernel %s seems to be xenomai, which is not supported"
+        sys.exit(1)
+
+    else:
+        print "Error: kernel %s has no known realtime extensions" % kernel_version
+        sys.exit(1)
+
+
+def detect_distro():
+    # 'Ubuntu' or 'Debian'
+    distributor_id = subprocess.Popen(["lsb_release", "--id", "--short"], stdout=subprocess.PIPE).communicate()[0]
+    distributor_id = distributor_id[:-1]  # strip trailing newline
+
+    # for example '12.04' or '7.3.0'
+    release = subprocess.Popen(["lsb_release", "--short", "--release"], stdout=subprocess.PIPE).communicate()[0]
+    release = release[:-1]  # strip trailing newline
+    m = re.match('\d+\.\d+', release)
+    if m == None:
+        # Debian Testing has a non-numeric release, "testing"...
+        release_f = 9999.9
+    else:
+        release_f = float(m.group(0))
+
+    return (distributor_id, release, release_f)
+
+
+def subst(infile, outfile, config):
+    if type(infile) == list:
+        infile = ' '.join(infile)
+
+    try:
+        retcode = subprocess.call(
+            "sed -e 's`@BUILD_DEPENDS@`%s`g'" % ', '.join(config['build-depends'])
+            + " -e 's`@DEPENDS@`%s`g'" % ', '.join(config['depends'])
+            + " -e 's`@RECOMMENDS@`%s`g'" % ', '.join(config['recommends'])
+            + " -e 's`@SUGGESTS@`%s`g'" % ', '.join(config['suggests'])
+            + " -e 's`@DEV_DEPENDS@`%s`g'" % ', '.join(config['dev-depends'])
+            + " -e 's`@SRC_CONFIGURE@`%s`g'" % ' '.join(config['src/configure'])
+            + " -e 's`@PYTHON_VERSION@`%d.%d`g'" % (sys.version_info[0], sys.version_info[1])
+            + " -e 's`@PYTHON_VERSION_NEXT@`%d.%d`g'" % (sys.version_info[0], 1 + sys.version_info[1])
+            + " -e 's`@EXTRA_DIR@`%s`g'" % config['extra-dir']
+            + " -e 's`@MAIN_PACKAGE_NAME@`%s`g'" % config['package-name']
+            + " -e 's`@OTHER_MAIN_PACKAGE_NAME@`%s`g'" % config['other-package-name']
+            + " -e 's`@MODULE_PATH@`%s`g'" % config['module-path']
+            + " -e 's`@MODULE_EXT@`%s`g'" % config['module-extension']
+            + " -e 's`@EXTRA_FILES@`%s`g'" % config['extra-files']
+            + " %s > %s" % (infile, outfile),
+            shell=True
+        )
+        if retcode < 0:
+            print >>sys.stderr, "Child was terminated by signal", -retcode
+    except OSError:
+        print >>sys.stderr, "Failed to run sed!"
+
+
+#
+# some things are universal and don't depend on the flavor, distro, etc
+#
+
+# 'extra-dir' selects a directory (in debian/) to include in the main
+# deb.  This one seems like we might want it to be different for different
+# distros at some point.
+config['extra-dir'] = 'extras'
+
+
+if len(sys.argv) == 1 or sys.argv[1] == '-h' or sys.argv[1] == '--help':
+    usage()
+    sys.exit(0)
+
+elif sys.argv[1] == 'uspace' or sys.argv[1] == 'sim':
+    config['flavor'] = 'uspace'
+
+elif sys.argv[1] == '-r' or sys.argv[1] == '-a':
+    running_kernel_version = os.uname()[2]
+    print "configuring for running realtime kernel %s" % running_kernel_version
+    detect_installed_realtime_kernel(running_kernel_version, config)
+
+elif sys.argv[1] == '--all':
+    # detect_available_realtime_kernels
+    print "Error: Not implemented yet!"
+    sys.exit(1)
+
+else:
+    print "Error: invalid command line"
     usage
-    if [ $# -ne 1 ]; then
-        exit 1
-    fi
-    exit 0
-fi
+    sys.exit(1)
 
-if [ $1 = "-r" ]; then
-    set -- `uname -r`
-elif [ $1 = "-a" ]; then
-    KERNEL="$(uname -r)"
-    if [ ! -d "/usr/realtime-$KERNEL" ]; then
-        KERNEL=$(ls -1d /usr/realtime-* 2> /dev/null | cut -d - -f 2- | head -1)
-        if [ -z "$KERNEL" ]; then
-            echo "no realtime kernels found!"
-            exit 1
-        fi
-    fi
-    set -- $KERNEL
-fi
 
-TARGET=$1
+(distributor_id, release, release_f) = detect_distro()
+print "configuring for %s %s" % (distributor_id, release)
 
-MODULE_PATH=usr/realtime-$1/modules/linuxcnc
-MODULE_EXT=.ko
-KERNEL_DEPENDS=linux-image-$1,rtai-modules-$1
-KERNEL_HEADERS=linux-headers-$1
-EXTRA_FILES="usr/bin/linuxcnc_module_helper"
-KERNEL_VERSION=$1
-DRIVERS=drivers.files.in
-PYTHON_VERSION=$(python -c 'import sys; print sys.version[:3]')
-PYTHON_VERSION_NEXT=$(python -c 'import sys; print sys.version[:2] + str(1+int(sys.version[2]))')
 
-# hope this works on other systems too
-DISTRIB_NAME=
-if [ "$(which lsb_release)" != "" ]; then
-    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
-elif [ -f /etc/lsb-release ]; then
-    source /etc/lsb-release
-    DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
-fi
+# configure the tcl/tk version
+# Lucid's default tcl/tk version is 8.4, we need to override it to 8.5
+# all other distros can use the default version
+if distributor_id == 'Ubuntu' and release == '10.04':
+    config['build-depends'].add('tcl8.5-dev')
+    config['build-depends'].add('tk8.5-dev')
+    config['depends'].add('tcl8.5')
+    config['depends'].add('tk8.5')
+else:
+    config['build-depends'].add('tcl-dev')
+    config['build-depends'].add('tk-dev')
+    config['depends'].add('tcl')
+    config['depends'].add('tk')
 
-if [ -d extras-$DISTRIB_NAME/linuxcnc.files ]; then
-	EXTRAS=extras-$DISTRIB_NAME/linuxcnc.files
-else
-	EXTRAS=extras
-fi
 
-case $DISTRIB_NAME in
-Ubuntu-14.04) # Trusty Tahr
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.6
-	;;
-Ubuntu-12.10) # Quantal Quetzal
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-12.04) # Precise Pangolin LTS
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-11.04) # natty
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-10.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,texlive-font-utils,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-9.10)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Ubuntu-8.04)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-spanish,module-init-tools
-	TCLTK_VERSION=8.4
-	;;
-Debian-testing)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
-	TCLTK_VERSION=8.6
-        ;;
-Debian-7.*)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-french,texlive-lang-german,texlive-lang-spanish,texlive-lang-polish,texlive-font-utils,kmod
-	TCLTK_VERSION=8.5
-	;;
-Debian-6.0*)
-	EXTRA_BUILD=dvipng,module-init-tools
-	TCLTK_VERSION=8.5
-	;;
-Debian-5.0*)
-	EXTRA_BUILD=dvipng,module-init-tools
-	TCLTK_VERSION=8.4
-	;;
-*)
-        echo "unknown distribution: $DISTRIB_NAME"
-        echo "configuration may be wrong!"
-	EXTRA_BUILD=dvipng,kmod
-	TCLTK_VERSION=8.4
-	;;
-esac
+# configure the lsmod/insmod/rmmod package
+# this is kmod on modern distros and module-init-tools.deb on older ones
+if distributor_id == 'Ubuntu' and release_f < 13.04:
+    config['build-depends'].add('module-init-tools')
+elif distributor_id == 'Debian' and release_f < 7:
+    config['build-depends'].add('module-init-tools')
+else:
+    config['build-depends'].add('kmod')
 
-DOC_BUILD=
-MAIN_PACKAGE_NAME=linuxcnc
-OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
-EXTRA_RECOMMENDS=hostmot2-firmware-all
-case $TARGET in
-    uspace|sim)
-	TARGET=uspace
-        MODULE_PATH=usr/lib/linuxcnc/modules
-	MODULE_EXT=.so
-	KERNEL_DEPENDS=libudev-dev
-	KERNEL_HEADERS=
-	KERNEL_VERSION=uspace
-	DRIVERS=
-        EXTRA_FILES="usr/bin/rtapi_app"
-	DISTRIB_NAME=uspace-$DISTRIB_NAME
-	MAIN_PACKAGE_NAME=linuxcnc-uspace
-        OTHER_MAIN_PACKAGE_NAME=linuxcnc
 
-        EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
-    ;;
-    2.6.12-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-3.4
-    ;;
-    2.6.15-magma)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.0
-    ;;
-    2.6.22.6-magma|2.6.24-16-rtai)
-        KERNEL_HEADERS="$KERNEL_HEADERS"
-    ;;
-    2.6.24-16-rtai)
-        KERNEL_HEADERS=$KERNEL_HEADERS,gcc-4.2
-    ;;
-    2.6.32-122-rtai) ;;
-    *)
-	echo "your kernel '$TARGET' is not known. There might be needed dependencies which won't get set automatically."
-esac
+# older distros have libgnomeprintui, newer ones do not
+if distributor_id == 'Ubuntu' and release_f < 14.04:
+    config['build-depends'].add('libgnomeprintui2.2-dev')
+elif distributor_id == 'Debian' and release_f < 8:
+    config['build-depends'].add('libgnomeprintui2.2-dev')
 
-subst () {
-sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
-    -e "s|@MODULE_EXT@|$MODULE_EXT|g" \
-    -e "s|@KERNEL_VERSION@|$KERNEL_VERSION|g" \
-    -e "s|@KERNEL_DEPENDS@|$KERNEL_DEPENDS|g" \
-    -e "s|@KERNEL_HEADERS@|$KERNEL_HEADERS|g" \
-    -e "s|@EXTRA_BUILD@|$EXTRA_BUILD|g" \
-    -e "s|@EXTRA_RECOMMENDS@|$EXTRA_RECOMMENDS|g" \
-    -e "s|@MAIN_PACKAGE_NAME@|$MAIN_PACKAGE_NAME|g" \
-    -e "s|@OTHER_MAIN_PACKAGE_NAME@|$OTHER_MAIN_PACKAGE_NAME|g" \
-    -e "s|@EXTRAS@|$EXTRAS|g" \
-    -e "s|@EXTRA_FILES@|$EXTRA_FILES|g" \
-    -e "s|@DISTRIB_NAME@|$DISTRIB_NAME|g" \
-    -e "s|@TARGET@|$TARGET|g" \
-    -e "s|@PYTHON_VERSION@|$PYTHON_VERSION|g" \
-    -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
-    -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
-    $*
-}
 
-subst control.in > control
+if config['flavor'] == 'uspace':
+    config['package-name'] = 'linuxcnc-uspace'
+    config['other-package-name'] = 'linuxcnc'
+    config['build-depends'].add('libudev-dev')
+    config['recommends'].add('linux-image-rt-amd64 [linux-amd64]')
+    config['recommends'].add('linux-image-rt-686-pae [linux-i386]')
+    config['src/configure'].add('--with-realtime=uspace')
+    config['module-path'] = 'usr/lib/linuxcnc/modules'
+    config['module-extension'] = '.so'
+    config['extra-files'] = 'usr/bin/rtapi_app'
 
-if [ "$TARGET" == "uspace" ]; then
-    cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
-else
-    cp linuxcnc-dev.files.in linuxcnc-dev.files
-    echo "$MODULE_PATH/Module.symvers" >> linuxcnc-dev.files
-fi
+elif config['flavor'] == 'rtai':
+    config['package-name'] = 'linuxcnc'
+    config['other-package-name'] = 'linuxcnc-uspace'
+    config['build-depends'].add("linux-headers-%s" % running_kernel_version)
+    config['build-depends'].add("rtai-modules-%s" % running_kernel_version)
+    config['depends'].add("linux-image-%s" % running_kernel_version)
+    config['depends'].add("rtai-modules-%s" % running_kernel_version)
+    config['dev-depends'].add("linux-headers-%s" % running_kernel_version)
+    config['src/configure'].add('--with-realtime=rtai')
+    config['module-path'] = 'usr/realtime-%s/modules/linuxcnc' % running_kernel_version
+    config['module-extension'] = '.ko'
+    config['extra-files'] = 'usr/bin/linuxcnc_module_helper'
 
-subst rules.in > rules; chmod +x rules
+else:
+    print "Error: unknown flavor %s" % config['flavor']
+    sys.exit(1)
 
-if [ -f $EXTRAS/linuxcnc.files ]; then
-    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
-else
-    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
-fi
+# report the selected flavor
+print "selected flavor: " + config['flavor']
 
-DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es})
-for P in $DOCS_PACKAGES; do
-    if [ -f $EXTRAS/$P.files ]; then
-        cat $P.files.in $EXTRAS/$P.files > $P.files
-    else
-        cat $P.files.in > $P.files
-    fi
-done
 
-rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'-'$TARGET'.."
+#
+# All done configuring!  Time to start creating debian files!
+#
+
+
+# make the control file
+subst('control.in', 'control', config)
+
+# make the rules file
+subst('rules.in', 'rules', config)
+mode = os.stat('rules').st_mode
+mode |= 0111
+os.chmod('rules', mode)
+
+# make linuxcnc.files
+outfile = config['package-name'] + '.files'
+files = ['linuxcnc.files.in']
+if os.access(config['extra-dir'] + "/linuxcnc.files", os.R_OK):
+    files.append(config['extra-dir'] + "/linuxcnc.files")
+if config['flavor'] == 'rtai':
+    files.append("drivers.files.in")
+subst(files, outfile, config)
+
+# make linuxcnc-dev.files
+linuxcnc_dev_files = config['package-name'] + '-dev.files'
+subst('linuxcnc-dev.files.in', linuxcnc_dev_files, config)
+if config['flavor'] == "rtai":
+    f = open(linuxcnc_dev_files, 'a')
+    f.write(config['module-path'] + '/Module.symvers')
+    f.close()
+
+# make linuxcnc-doc-*.files
+docs_packages = [
+    'linuxcnc-doc-en',
+    'linuxcnc-doc-fr',
+    'linuxcnc-doc-es'
+]
+for p in docs_packages:
+    outfile = p + '.files'
+    infiles = [ p + '.files.in' ]
+    extra_doc_file = config['extra-dir'] + '/' + p + ".files"
+    if os.access(extra_doc_file, os.R_OK):
+        infiles.append(extra_doc_file)
+    subst(infiles, outfile, config)
+
+# FIXME:
+# rm -f ../build-stamp
