@@ -139,7 +139,7 @@ DOC_BUILD=
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-sim
 OLD_PACKAGE_NAME=emc2
-EXTRA_RECOMMENDS=hostmot2-firmware
+EXTRA_RECOMMENDS=hostmot2-firmware-all
 case $TARGET in
     sim)
         MODULE_PATH=usr/lib/linuxcnc/modules
