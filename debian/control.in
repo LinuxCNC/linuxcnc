@@ -36,7 +36,7 @@ Description: PC based motion controller for real-time Linux
 Package: @MAIN_PACKAGE_NAME@
 Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
 Architecture: any
-Recommends: linuxcnc-doc-en | linuxcnc-doc, @EXTRA_RECOMMENDS@
+Recommends: linuxcnc-doc-en | linuxcnc-doc, hostmot2-firmware-all, @EXTRA_RECOMMENDS@
 Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
