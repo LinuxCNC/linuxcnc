@@ -2866,6 +2866,29 @@ fi
 AC_SUBST([HAVE_NCURSES])
 AC_SUBST([NCURSES_LIBS])
 
+# libbacktrace library:
+# with gcc 4.8 and later, libbacktrace is bundled with libgcc-dev-<gcc-version>
+# the includes are just "backtrace.h" etc and -lbacktrace is used for linking
+
+# for earlier gcc versions, libbacktrace can be built from
+# https://github.com/mhaberler/libbacktrace, in which case the includes are named
+# libbacktrace/backtrace.h etc, typically installed in /usr/local
+
+# bundled version
+AC_CHECK_HEADERS(backtrace.h)
+# custom installed version
+AC_CHECK_HEADERS(libbacktrace/backtrace.h)
+
+# the library proper - if found, use -lbacktrace which should work for
+# bundled and /usr/local/lib installs:
+LIBBACKTRACE=""
+AC_CHECK_LIB(backtrace, backtrace_simple,
+	[
+	    AC_DEFINE(HAVE_LIBBACKTRACE, [], [libbacktrace available])
+	    LIBBACKTRACE="-lbacktrace"
+	],[])
+
+AC_SUBST([LIBBACKTRACE])
 
 ##############################################################################
 # Section 8 - Language support                                               #
