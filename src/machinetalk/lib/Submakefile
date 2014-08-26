@@ -15,6 +15,7 @@ TARGETS += $(addprefix ../include/, \
 	pbutil.hh       \
 	select_interface.h \
 	setup_signals.h \
+	mk-backtrace.h \
 	syslog_async.h )
 
 # protobuf support functions - usable without HAL (eg remotely)
@@ -28,6 +29,7 @@ LIBMTALK_SRCS := $(addprefix $(LIBMTALK_DIR)/, \
 	ll_zeroconf_register.cc \
 	zeroconf_resolve.cc \
 	mk_zeroconf.cc \
+	mk_backtrace.c \
 	json2pb.cc)
 
 USERSRCS += $(LIBMTALK_SRCS) # $(HALLIBMTALK_SRCS)
@@ -57,7 +59,8 @@ TARGETS += ../lib/libmtalk.so ../lib/libmtalk.so.0
 	@mkdir -p ../lib
 	@rm -f $@
 	$(Q)$(CXX) -g  -Wl,-soname,$(notdir $@) -shared -o $@ $^ \
-	$(AVAHI_LIBS) $(CZMQ_LIBS) $(LIBMTALK_LDFLAGS) $(PB2JSONLIB_LDFLAGS)
+	$(AVAHI_LIBS) $(CZMQ_LIBS) $(LIBMTALK_LDFLAGS) \
+	$(PB2JSONLIB_LDFLAGS)  $(LIBBACKTRACE)
 
 ../include/%.h: ./$(MACHINETALK)/include/%.h
 	cp $^ $@
