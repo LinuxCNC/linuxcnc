@@ -50,6 +50,7 @@
 #include <poll.h>
 #include <assert.h>
 #include <inifile.h>
+#include <sys/resource.h>
 
 using namespace std;
 
@@ -57,6 +58,7 @@ using namespace std;
 #include <rtapi/shmdrv/shmdrv.h>
 #include <ring.h>
 #include <setup_signals.h>
+#include <mk-backtrace.h>
 
 #include <czmq.h>
 #include "mk-zeroconf.hh"
@@ -288,12 +290,10 @@ static int create_global_segment()
 }
 
 // salvaged from rtapi_shmem.c - msgd doesnt link against rtapi though
-static void check_memlock_limit(const char *where) {
-    static int checked=0;
+static void check_memlock_limit(const char *where)
+{
     struct rlimit lim;
     int result;
-    if(checked) return;
-    checked=1;
 
     result = getrlimit(RLIMIT_MEMLOCK, &lim);
     if(result < 0) { perror("getrlimit"); return; }
@@ -304,7 +304,6 @@ static void check_memlock_limit(const char *where) {
     syslog_async(LOG_ERR, "This can cause the error '%s'.", where);
     syslog_async(LOG_ERR, "For more information, see "
 		 "http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?LockedMemory\n");
-    return;
 }
 
 static int init_global_data(global_data_t * data, int flavor,
@@ -441,14 +440,25 @@ static void start_shutdown(int signal)
     }
 }
 
+static void btprint(const char *prefix, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vsyslog_async(LOG_ERR, fmt, args);
+}
+
 // handle signals delivered via sigaction - not all signals
 // can be dealt with through signalfd(2)
 // log, try to do something sane, and dump core
 static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
 {
     start_shutdown(sig);
-    syslog_async(LOG_ERR, "msgd:%d: signal %d - '%s' received, dumping core (current dir=%s)",
+    syslog_async(LOG_ERR,
+		 "msgd:%d: signal %d - '%s' received, dumping core (current dir=%s)",
 		 rtapi_instance, sig, strsignal(sig), get_current_dir_name());
+
+    backtrace("", "msgd", btprint, 3);
+
     closelog_async(); // let syslog_async drain
     sleep(1);
     // reset handler for current signal to default
@@ -867,7 +877,8 @@ int main(int argc, char **argv)
         }
     }
 
-	snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
+    snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
+    backtrace_init(proctitle);
 
     openlog_async(proctitle, option , SYSLOG_FACILITY);
     // max out async syslog buffers for slow system in debug mode
