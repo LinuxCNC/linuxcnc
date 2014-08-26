@@ -38,6 +38,7 @@
 
 #include "config.h"
 
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -77,6 +78,8 @@ typedef ::google::protobuf::RepeatedPtrField< ::std::string> pbstringarray_t;
 #include "hal.h"
 #include "hal_priv.h"
 #include "rtapi/shmdrv/shmdrv.h"
+
+#include "mk-backtrace.h"
 #include "setup_signals.h"
 #include "mk-zeroconf.hh"
 #include "select_interface.h"
@@ -686,11 +689,22 @@ static int rtapi_request(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
     return 0;
 }
 
+static void btprint(const char *prefix, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+
+    rtapi_msg_handler_t  print = rtapi_get_msg_handler();
+    print(RTAPI_MSG_ERR, fmt, args);
+    va_end(args);
+}
+
 // handle signals delivered via sigaction - not all signals
 // can be dealt with through signalfd(2)
 // log, try to do something sane, and dump core
 static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
 {
+
     switch (sig) {
     case SIGXCPU:
         // should not happen - must be handled in RTAPI if enabled
@@ -701,7 +715,7 @@ static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"signal %d - '%s' received, dumping core (current dir=%s)",
 			sig, strsignal(sig), get_current_dir_name());
-
+	backtrace("", "rtapi_app", btprint, 3);
 	if (global_data)
 	    global_data->rtapi_app_pid = 0;
 
@@ -788,6 +802,8 @@ static int mainloop(size_t  argc, char **argv)
 
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
+
+    backtrace_init(proctitle);
 
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>

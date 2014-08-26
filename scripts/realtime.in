@@ -56,6 +56,13 @@ BUILD_SYS=`${flavor} -b`
 getvar MODULES --flavor
 getvar rtapi_app --flavor
 
+# catch this common error early on:
+if ! test -u ${rtapi_app}
+then
+    echo Warning - ${rtapi_app} not setuid >&2
+    echo "'sudo make setuid' missing?" >&2
+fi
+
 # Other, overridable by environment variables
 if [ "$USE_SHMDRV" == "" ]  ; then
     getvar USE_SHMDRV

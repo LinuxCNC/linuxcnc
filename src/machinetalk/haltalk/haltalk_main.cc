@@ -33,6 +33,7 @@
 #include "haltalk.hh"
 #include <setup_signals.h>
 #include <select_interface.h>
+#include <mk-backtrace.h>
 
 int print_container; // see pbutil.cc
 
@@ -124,10 +125,20 @@ mainloop( htself_t *self)
     return 0;
 }
 
+static void btprint(const char *prefix, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    vsyslog_async(LOG_ERR, fmt, args);
+}
+
 static void sigaction_handler(int sig, siginfo_t *si, void *uctx)
 {
     syslog_async(LOG_ERR,"signal %d - '%s' received, dumping core (current dir=%s)",
 		    sig, strsignal(sig), get_current_dir_name());
+
+    backtrace("", "haltalk", btprint, 3);
+
     closelog_async(); // let syslog_async drain
     sleep(1);
     // reset handler for current signal to default
@@ -493,6 +504,7 @@ int main (int argc, char *argv[])
 	}
     }
     openlog_async(conf.progname, logopt , SYSLOG_FACILITY);
+    backtrace_init(argv[0]);
 
     if (read_global_config(&conf))
 	exit(1);
