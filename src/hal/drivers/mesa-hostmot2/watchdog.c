@@ -330,22 +330,20 @@ void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
     hm2->watchdog.instance[0].enable = 1;
 
     if (
-        (hm2->watchdog.instance[0].hal.param.timeout_ns == hm2->watchdog.instance[0].written_timeout_ns)
-        &&
-        (hm2->watchdog.instance[0].enable == hm2->watchdog.instance[0].written_enable)
+        (hm2->watchdog.instance[0].hal.param.timeout_ns != hm2->watchdog.instance[0].written_timeout_ns)
+        ||
+        (hm2->watchdog.instance[0].enable != hm2->watchdog.instance[0].written_enable)
     ) {
-        return;
-    }
+        // if the requested timeout is dangerously short compared to the petting-period, warn the user once
+        if (hm2->watchdog.instance[0].hal.param.timeout_ns < (1.5 * period_ns)) {
+            HM2_PRINT(
+                "Watchdog timeout (%u ns) is dangerously short compared to hm2_write() period (%ld ns)\n",
+                hm2->watchdog.instance[0].hal.param.timeout_ns,
+                period_ns
+            );
+        }
 
-    // if the requested timeout is dangerously short compared to the petting-period, warn the user once
-    if (hm2->watchdog.instance[0].hal.param.timeout_ns < (1.5 * period_ns)) {
-        HM2_PRINT(
-            "Watchdog timeout (%u ns) is dangerously short compared to hm2_write() period (%ld ns)\n",
-            hm2->watchdog.instance[0].hal.param.timeout_ns,
-            period_ns
-        );
+        hm2_watchdog_force_write(hm2);
     }
-
-    hm2_watchdog_force_write(hm2);
 }
 
