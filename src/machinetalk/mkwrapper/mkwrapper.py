@@ -1690,8 +1690,9 @@ class LinuxCNCWrapper():
             + self.configSubscriptions \
             + self.interpSubscriptions
 
-            print(("process status called " + subscription + ' ' + str(status)))
-            print(("total status subscriptions: " + str(self.totalSubscriptions)))
+            if self.debug:
+                print(("process status called " + subscription + ' ' + str(status)))
+                print(("total status subscriptions: " + str(self.totalSubscriptions)))
 
         except zmq.ZMQError:
             print("ZMQ error")
@@ -1725,8 +1726,9 @@ class LinuxCNCWrapper():
             + self.textSubscriptions \
             + self.displaySubscriptions
 
-            print(("process error called " + subscription + ' ' + str(status)))
-            print(("total error subscriptions: " + str(self.totalErrorSubscriptions)))
+            if self.debug:
+                print(("process error called " + subscription + ' ' + str(status)))
+                print(("total error subscriptions: " + str(self.totalErrorSubscriptions)))
 
         except zmq.ZMQError:
             print("ZMQ error")
@@ -1736,7 +1738,8 @@ class LinuxCNCWrapper():
         self.send_command_msg(MT_ERROR)
 
     def process_command(self, socket):
-        print("process command called")
+        if self.debug:
+            print("process command called")
 
         message = socket.recv()
         self.rx.ParseFromString(message)
@@ -2105,7 +2108,7 @@ def choose_ip(pref):
 
 
 def main():
-    debug = True
+    debug = False
 
     if (len(sys.argv) > 1):
         iniFile = sys.argv[1]
