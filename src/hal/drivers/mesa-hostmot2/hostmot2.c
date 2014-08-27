@@ -123,7 +123,7 @@ static void hm2_write(void *void_hm2, long period) {
     // these usually do nothing
     // they only write to the FPGA if certain pins & params have changed
     hm2_ioport_write(hm2);    // handles gpio.is_output but not gpio.out (that's done in tram_write() above)
-    hm2_watchdog_write(hm2);  // in case the user has written to the watchdog.timeout_ns param
+    hm2_watchdog_write(hm2, period);  // in case the user has written to the watchdog.timeout_ns param
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
     hm2_tp_pwmgen_write(hm2); // update Three Phase PWM registers if needed
     hm2_stepgen_write(hm2);   // update stepgen registers if needed
