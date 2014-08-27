@@ -243,8 +243,6 @@ int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->watchdog.instance[0].hal.param.timeout_ns = 5 * 1000 * 1000;  // default timeout is 5 milliseconds
     hm2->watchdog.instance[0].enable = 0;  // the first pet_watchdog will turn it on
 
-    hm2->watchdog.instance[0].warned_about_short_timeout = 0;
-
     hm2->watchdog.reset_reg[0] = 0x5a000000;
 
 
@@ -319,16 +317,13 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
     hm2->watchdog.instance[0].written_timeout_ns = hm2->watchdog.instance[0].hal.param.timeout_ns;
     hm2->watchdog.instance[0].written_enable = hm2->watchdog.instance[0].enable;
 
-    // re-warn the user if their requested timeout is too short
-    hm2->watchdog.instance[0].warned_about_short_timeout = 0;
-
     // clear the has-bit bit
     hm2->llio->write(hm2->llio, hm2->watchdog.status_addr, hm2->watchdog.status_reg, sizeof(rtapi_u32));
 }
 
 
 // if the user has changed the timeout, sync it out to the watchdog
-void hm2_watchdog_write(hostmot2_t *hm2) {
+void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
     if (hm2->watchdog.num_instances != 1) return;
     if (
         (hm2->watchdog.instance[0].hal.param.timeout_ns == hm2->watchdog.instance[0].written_timeout_ns)
@@ -337,6 +332,16 @@ void hm2_watchdog_write(hostmot2_t *hm2) {
     ) {
         return;
     }
+
+    // if the requested timeout is dangerously short compared to the petting-period, warn the user once
+    if (hm2->watchdog.instance[0].hal.param.timeout_ns < (1.5 * period_ns)) {
+        HM2_PRINT(
+            "Watchdog timeout (%u ns) is dangerously short compared to hm2_write() period (%ld ns)\n",
+            hm2->watchdog.instance[0].hal.param.timeout_ns,
+            period_ns
+        );
+    }
+
     hm2_watchdog_force_write(hm2);
 }
 
