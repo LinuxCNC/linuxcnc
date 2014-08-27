@@ -107,16 +107,9 @@ class FileService():
 
         # Linuxcnc
         try:
-            self.stat = linuxcnc.stat()
-            self.command = linuxcnc.command()
-            self.error = linuxcnc.error_channel()
-
-            if iniFile:
-                self.ini = linuxcnc.ini(iniFile)
-            else:
-                self.ini = None
-
-            self.directory = ((self.ini != None) and self.ini.find('DISPLAY', 'PROGRAM_PREFIX')) or os.getcwd()
+            iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
+            self.ini = linuxcnc.ini(iniFile)
+            self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -203,16 +196,10 @@ class LinuxCNCWrapper():
 
     def __init__(self, context, statusUri, errorUri, commandUri,
                 iniFile=None, ipv4="", svcUuid=None,
-                pollInterval=0.1, pingInterval=2, debug=False):
+                pollInterval=None, pingInterval=2, debug=False):
         self.debug = debug
         self.ipv4 = ipv4
-        self.pollInterval = pollInterval
         self.pingInterval = pingInterval
-        if pingInterval > 0:
-            self.pingRatio = math.floor(pingInterval / pollInterval)
-        else:
-            self.pingRatio = -1
-        self.pingCount = 0
 
         # status
         self.status = StatusValues()
@@ -244,15 +231,20 @@ class LinuxCNCWrapper():
             self.stat = linuxcnc.stat()
             self.command = linuxcnc.command()
             self.error = linuxcnc.error_channel()
-            if iniFile:
-                self.ini = linuxcnc.ini(iniFile)
-            else:
-                self.ini = None
 
-            self.directory = ((self.ini != None) and self.ini.find('DISPLAY', 'PROGRAM_PREFIX')) or os.getcwd()
+            iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
+            self.ini = linuxcnc.ini(iniFile)
+            self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
+            self.pollInterval = pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
+
+        if self.pingInterval > 0:
+            self.pingRatio = math.floor(self.pingInterval / self.pollInterval)
+        else:
+            self.pingRatio = -1
+        self.pingCount = 0
 
         self.rx = Container()
         self.tx = Container()
