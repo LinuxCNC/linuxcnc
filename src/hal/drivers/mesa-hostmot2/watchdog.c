@@ -325,6 +325,10 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
 // if the user has changed the timeout, sync it out to the watchdog
 void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
     if (hm2->watchdog.num_instances != 1) return;
+
+    // writing to the watchdog wakes it up, and now we can't stop or it will bite!
+    hm2->watchdog.instance[0].enable = 1;
+
     if (
         (hm2->watchdog.instance[0].hal.param.timeout_ns == hm2->watchdog.instance[0].written_timeout_ns)
         &&
