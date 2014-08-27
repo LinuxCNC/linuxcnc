@@ -401,130 +401,28 @@ class LinuxCNCWrapper():
             self.status.config.max_velocity = 0.0
             self.status.config.program_units = 0
             self.status.config.velocity = 0.0
+            self.status.config.position_offset = 0
+            self.status.config.position_feedback = 0
+            self.status.config.max_feed_override = 0.0
+            self.status.config.min_feed_override = 0.0
+            self.status.config.max_spindle_override = 0.0
+            self.status.config.min_spindle_override = 0.0
+            self.status.config.default_spindle_speed = 0.0
+            self.status.config.default_linear_velocity = 0.0
+            self.status.config.min_velocity = 0.0
+            self.status.config.max_linear_velocity = 0.0
+            self.status.config.min_linear_velocity = 0.0
+            self.status.config.default_angular_velocity = 0.0
+            self.status.config.max_angular_velocity = 0.0
+            self.status.config.min_angular_velocity = 0.0
+            self.status.config.increments = ""
+            self.status.config.grids = ""
+            self.status.config.lathe = False
+            self.status.config.geometry = ""
+            self.status.config.arcdivision = 0
+            self.status.config.no_force_homing = False
             self.configFirstrun = False
 
-        if self.notEqual(self.status.config.acceleration, stat.acceleration):
-            self.status.config.acceleration = stat.acceleration
-            self.txStatus.config.acceleration = stat.acceleration
-            modified = True
-
-        if self.notEqual(self.status.config.angular_units, stat.angular_units):
-            self.status.config.angular_units = stat.angular_units
-            self.txStatus.config.angular_units = stat.angular_units
-            modified = True
-
-        if (self.status.config.axes != stat.axes):
-            self.status.config.axes = stat.axes
-            self.txStatus.config.axes = stat.axes
-            modified = True
-
-        txAxis = EmcStatusConfigAxis()
-        for index, axis in enumerate(stat.axis):
-            txAxis.Clear()
-            axisModified = False
-
-            if index == stat.axes:
-                break
-
-            if len(self.status.config.axis) == index:
-                self.status.config.axis.add()
-                self.status.config.axis[index].index = index
-                self.status.config.axis[index].axisType = 0
-                self.status.config.axis[index].backlash = 0.0
-                self.status.config.axis[index].max_ferror = 0.0
-                self.status.config.axis[index].max_position_limit = 0.0
-                self.status.config.axis[index].min_ferror = 0.0
-                self.status.config.axis[index].min_position_limit = 0.0
-                self.status.config.axis[index].units = 0.0
-
-            if self.status.config.axis[index].axisType != axis['axisType']:
-                self.status.config.axis[index].axisType = axis['axisType']
-                txAxis.axisType = axis['axisType']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].backlash, axis['backlash']):
-                self.status.config.axis[index].backlash = axis['backlash']
-                txAxis.backlash = axis['backlash']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].max_ferror, axis['max_ferror']):
-                self.status.config.axis[index].max_ferror = axis['max_ferror']
-                txAxis.max_ferror = axis['max_ferror']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].max_position_limit, axis['max_position_limit']):
-                self.status.config.axis[index].max_position_limit = axis['max_position_limit']
-                txAxis.max_position_limit = axis['max_position_limit']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].min_ferror, axis['min_ferror']):
-                self.status.config.axis[index].min_ferror = axis['min_ferror']
-                txAxis.min_ferror = axis['min_ferror']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].min_position_limit, axis['min_position_limit']):
-                self.status.config.axis[index].min_position_limit = axis['min_position_limit']
-                txAxis.min_position_limit = axis['min_position_limit']
-                axisModified = True
-
-            if self.notEqual(self.status.config.axis[index].units, axis['units']):
-                self.status.config.axis[index].units = axis['units']
-                txAxis.units = axis['units']
-                axisModified = True
-
-            if axisModified:
-                txAxis.index = index
-                self.txStatus.config.axis.add().CopyFrom(txAxis)
-                modified = True
-
-        del txAxis
-
-        if (self.status.config.axis_mask != stat.axis_mask):
-            self.status.config.axis_mask = stat.axis_mask
-            self.txStatus.config.axis_mask = stat.axis_mask
-            modified = True
-
-        if self.notEqual(self.status.config.cycle_time, stat.cycle_time):
-            self.status.config.cycle_time = stat.cycle_time
-            self.txStatus.config.cycle_time = stat.cycle_time
-            modified = True
-
-        if (self.status.config.debug != stat.debug):
-            self.status.config.debug = stat.debug
-            self.txStatus.config.debug = stat.debug
-            modified = True
-
-        if (self.status.config.kinematics_type != stat.kinematics_type):
-            self.status.config.kinematics_type = stat.kinematics_type
-            self.txStatus.config.kinematics_type = stat.kinematics_type
-            modified = True
-
-        if self.notEqual(self.status.config.linear_units, stat.linear_units):
-            self.status.config.linear_units = stat.linear_units
-            self.txStatus.config.linear_units = stat.linear_units
-            modified = True
-
-        if self.notEqual(self.status.config.max_acceleration, stat.max_acceleration):
-            self.status.config.max_acceleration = stat.max_acceleration
-            self.txStatus.config.max_acceleration = stat.max_acceleration
-            modified = True
-
-        if self.notEqual(self.status.config.max_velocity, stat.max_velocity):
-            self.status.config.max_velocity = stat.max_velocity
-            self.txStatus.config.max_velocity = stat.max_velocity
-            modified = True
-
-        if (self.status.config.program_units != stat.program_units):
-            self.status.config.program_units = stat.program_units
-            self.txStatus.config.program_units = stat.program_units
-            modified = True
-
-        if self.notEqual(self.status.config.velocity, stat.velocity):
-            self.status.config.velocity = stat.velocity
-            self.txStatus.config.velocity = stat.velocity
-            modified = True
-
-        if self.configFirstrun:    # update ini values only on first run
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
             txExtension = EmcProgramExtension()
             for index, extension in enumerate(extensions):
@@ -674,6 +572,127 @@ class LinuxCNCWrapper():
                 self.status.config.no_force_homing = noForceHoming
                 self.txStatus.config.no_force_homing = noForceHoming
                 modified = True
+
+        if self.notEqual(self.status.config.acceleration, stat.acceleration):
+            self.status.config.acceleration = stat.acceleration
+            self.txStatus.config.acceleration = stat.acceleration
+            modified = True
+
+        if self.notEqual(self.status.config.angular_units, stat.angular_units):
+            self.status.config.angular_units = stat.angular_units
+            self.txStatus.config.angular_units = stat.angular_units
+            modified = True
+
+        if (self.status.config.axes != stat.axes):
+            self.status.config.axes = stat.axes
+            self.txStatus.config.axes = stat.axes
+            modified = True
+
+        txAxis = EmcStatusConfigAxis()
+        for index, axis in enumerate(stat.axis):
+            txAxis.Clear()
+            axisModified = False
+
+            if index == stat.axes:
+                break
+
+            if len(self.status.config.axis) == index:
+                self.status.config.axis.add()
+                self.status.config.axis[index].index = index
+                self.status.config.axis[index].axisType = 0
+                self.status.config.axis[index].backlash = 0.0
+                self.status.config.axis[index].max_ferror = 0.0
+                self.status.config.axis[index].max_position_limit = 0.0
+                self.status.config.axis[index].min_ferror = 0.0
+                self.status.config.axis[index].min_position_limit = 0.0
+                self.status.config.axis[index].units = 0.0
+
+            if self.status.config.axis[index].axisType != axis['axisType']:
+                self.status.config.axis[index].axisType = axis['axisType']
+                txAxis.axisType = axis['axisType']
+                axisModified = True
+
+            if self.notEqual(self.status.config.axis[index].backlash, axis['backlash']):
+                self.status.config.axis[index].backlash = axis['backlash']
+                txAxis.backlash = axis['backlash']
+                axisModified = True
+
+            if self.notEqual(self.status.config.axis[index].max_ferror, axis['max_ferror']):
+                self.status.config.axis[index].max_ferror = axis['max_ferror']
+                txAxis.max_ferror = axis['max_ferror']
+                axisModified = True
+
+            if self.notEqual(self.status.config.axis[index].max_position_limit, axis['max_position_limit']):
+                self.status.config.axis[index].max_position_limit = axis['max_position_limit']
+                txAxis.max_position_limit = axis['max_position_limit']
+                axisModified = True
+
+            if self.notEqual(self.status.config.axis[index].min_ferror, axis['min_ferror']):
+                self.status.config.axis[index].min_ferror = axis['min_ferror']
+                txAxis.min_ferror = axis['min_ferror']
+                axisModified = True
+
+            if self.notEqual(self.status.config.axis[index].min_position_limit, axis['min_position_limit']):
+                self.status.config.axis[index].min_position_limit = axis['min_position_limit']
+                txAxis.min_position_limit = axis['min_position_limit']
+                axisModified = True
+
+            if self.notEqual(self.status.config.axis[index].units, axis['units']):
+                self.status.config.axis[index].units = axis['units']
+                txAxis.units = axis['units']
+                axisModified = True
+
+            if axisModified:
+                txAxis.index = index
+                self.txStatus.config.axis.add().CopyFrom(txAxis)
+                modified = True
+
+        del txAxis
+
+        if (self.status.config.axis_mask != stat.axis_mask):
+            self.status.config.axis_mask = stat.axis_mask
+            self.txStatus.config.axis_mask = stat.axis_mask
+            modified = True
+
+        if self.notEqual(self.status.config.cycle_time, stat.cycle_time):
+            self.status.config.cycle_time = stat.cycle_time
+            self.txStatus.config.cycle_time = stat.cycle_time
+            modified = True
+
+        if (self.status.config.debug != stat.debug):
+            self.status.config.debug = stat.debug
+            self.txStatus.config.debug = stat.debug
+            modified = True
+
+        if (self.status.config.kinematics_type != stat.kinematics_type):
+            self.status.config.kinematics_type = stat.kinematics_type
+            self.txStatus.config.kinematics_type = stat.kinematics_type
+            modified = True
+
+        if self.notEqual(self.status.config.linear_units, stat.linear_units):
+            self.status.config.linear_units = stat.linear_units
+            self.txStatus.config.linear_units = stat.linear_units
+            modified = True
+
+        if self.notEqual(self.status.config.max_acceleration, stat.max_acceleration):
+            self.status.config.max_acceleration = stat.max_acceleration
+            self.txStatus.config.max_acceleration = stat.max_acceleration
+            modified = True
+
+        if self.notEqual(self.status.config.max_velocity, stat.max_velocity):
+            self.status.config.max_velocity = stat.max_velocity
+            self.txStatus.config.max_velocity = stat.max_velocity
+            modified = True
+
+        if (self.status.config.program_units != stat.program_units):
+            self.status.config.program_units = stat.program_units
+            self.txStatus.config.program_units = stat.program_units
+            modified = True
+
+        if self.notEqual(self.status.config.velocity, stat.velocity):
+            self.status.config.velocity = stat.velocity
+            self.txStatus.config.velocity = stat.velocity
+            modified = True
 
         if self.configFullUpdate:
             self.add_pparams()
