@@ -2774,7 +2774,6 @@ If you have a REALLY large config that you wish to convert to this newer version
                 else:
                     halnum = 0         
                 print >>file, "addf hm2_%s.%d.write         servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
-                print >>file, "addf hm2_%s.%d.pet_watchdog  servo-thread"% (self["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum)
 
         if chargepump:
             steppinname = self.make_pinname(chargepump)
@@ -9597,7 +9596,6 @@ But there is not one in the machine-named folder.."""),True)
                 else:
                     halnum = 0         
                 halrun.write( "addf hm2_%s.%d.read slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
-                halrun.write( "addf hm2_%s.%d.pet_watchdog  slow\n"% (self.data["mesa%d_currentfirmwaredata"% boardnum][_BOARDNAME], halnum))
         if command == "WRITE":
             if self.data.number_pports > 0:
                 halrun.write( "addf parport.0.write fast\n")
