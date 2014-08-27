@@ -524,6 +524,157 @@ class LinuxCNCWrapper():
             self.txStatus.config.velocity = stat.velocity
             modified = True
 
+        if self.configFirstrun:    # update ini values only on first run
+            extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
+            txExtension = EmcProgramExtension()
+            for index, extension in enumerate(extensions):
+                txExtension.Clear()
+                extensionModified = False
+
+                if len(extensions) == index:
+                    self.status.config.program_extension.add()
+                    self.status.config.program_extension[index].index = index
+                    self.status.config.program_extension[index].extension = ""
+
+                if self.status.config.program_extension[index].extension != extension:
+                    self.status.config.program_extension[index].extension = extension
+                    txExtension.extension = extension
+                    extensionModified = True
+
+                if extensionModified:
+                    txExtension.index = index
+                    self.txStatus.config.program_extension.add().CopyFrom(txExtension)
+                    modified = True
+            del txExtension
+
+            positionOffset = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'RELATIVE'
+            if positionOffset == 'MACHINE':
+                positionOffset = EMC_CONFIG_MACHINE_OFFSET
+            else:
+                positionOffset = EMC_CONFIG_RELATIVE_OFFSET
+            if (self.status.config.position_offset != positionOffset):
+                self.status.config.position_offset = positionOffset
+                self.txStatus.config.position_offset = positionOffset
+                modified = True
+
+            positionFeedback = self.ini.find('DISPLAY', 'POSITION_OFFSET') or 'ACTUAL'
+            if positionFeedback == 'COMMANDED':
+                positionFeedback = EMC_CONFIG_COMMANDED_FEEDBACK
+            else:
+                positionFeedback = EMC_CONFIG_ACTUAL_FEEDBACK
+            if (self.status.config.position_feedback != positionFeedback):
+                self.status.config.position_feedback = positionFeedback
+                self.txStatus.config.position_feedback = positionFeedback
+                modified = True
+
+            maxFeedOverride = float(self.ini.find('DISPLAY', 'MAX_FEED_OVERRIDE') or 1.2)
+            if (self.status.config.max_feed_override != maxFeedOverride):
+                self.status.config.max_feed_override = maxFeedOverride
+                self.txStatus.config.max_feed_override = maxFeedOverride
+                modified = True
+
+            minFeedOverride = float(self.ini.find('DISPLAY', 'MIN_FEED_OVERRIDE') or 0.5)
+            if (self.status.config.min_feed_override != minFeedOverride):
+                self.status.config.min_feed_override = minFeedOverride
+                self.txStatus.config.min_feed_override = minFeedOverride
+                modified = True
+
+            maxSpindleOverride = float(self.ini.find('DISPLAY', 'MAX_SPINDLE_OVERRIDE') or 1.0)
+            if (self.status.config.max_spindle_override != maxSpindleOverride):
+                self.status.config.max_spindle_override = maxSpindleOverride
+                self.txStatus.config.max_spindle_override = maxSpindleOverride
+                modified = True
+
+            minSpindleOverride = float(self.ini.find('DISPLAY', 'MIN_SPINDLE_OVERRIDE') or 0.5)
+            if (self.status.config.min_spindle_override != minSpindleOverride):
+                self.status.config.min_spindle_override = minSpindleOverride
+                self.txStatus.config.min_spindle_override = minSpindleOverride
+                modified = True
+
+            defaultSpindleSpeed = float(self.ini.find('DISPLAY', 'DEFAULT_SPINDLE_SPEED') or 1)
+            if (self.status.config.default_spindle_speed != defaultSpindleSpeed):
+                self.status.config.default_spindle_speed = defaultSpindleSpeed
+                self.txStatus.config.default_spindle_speed = defaultSpindleSpeed
+                modified = True
+
+            defaultLinearVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_LINEAR_VELOCITY') or 0.25)
+            if (self.status.config.default_linear_velocity != defaultLinearVelocity):
+                self.status.config.default_linear_velocity = defaultLinearVelocity
+                self.txStatus.config.default_linear_velocity = defaultLinearVelocity
+                modified = True
+
+            minVelocity = float(self.ini.find('DISPLAY', 'MIN_VELOCITY') or 0.01)
+            if (self.status.config.min_velocity != minVelocity):
+                self.status.config.min_velocity = minVelocity
+                self.txStatus.config.min_velocity = minVelocity
+                modified = True
+
+            maxLinearVelocity = float(self.ini.find('DISPLAY', 'MAX_LINEAR_VELOCITY') or 1.00)
+            if (self.status.config.max_linear_velocity != maxLinearVelocity):
+                self.status.config.max_linear_velocity = maxLinearVelocity
+                self.txStatus.config.max_linear_velocity = maxLinearVelocity
+                modified = True
+
+            minLinearVelocity = float(self.ini.find('DISPLAY', 'MIN_LINEAR_VELOCITY') or 0.01)
+            if (self.status.config.min_linear_velocity != minLinearVelocity):
+                self.status.config.min_linear_velocity = minLinearVelocity
+                self.txStatus.config.min_linear_velocity = minLinearVelocity
+                modified = True
+
+            defaultAngularVelocity = float(self.ini.find('DISPLAY', 'DEFAULT_ANGULAR_VELOCITY') or 0.25)
+            if (self.status.config.default_angular_velocity != defaultAngularVelocity):
+                self.status.config.default_angular_velocity = defaultAngularVelocity
+                self.txStatus.config.default_angular_velocity = defaultAngularVelocity
+                modified = True
+
+            maxAngularVelocity = float(self.ini.find('DISPLAY', 'MAX_ANGULAR_VELOCITY') or 1.00)
+            if (self.status.config.max_angular_velocity != maxAngularVelocity):
+                self.status.config.max_angular_velocity = maxAngularVelocity
+                self.txStatus.config.max_angular_velocity = maxAngularVelocity
+                modified = True
+
+            minAngularVelocity = float(self.ini.find('DISPLAY', 'MIN_ANGULAR_VELOCITY') or 0.01)
+            if (self.status.config.min_angular_velocity != minAngularVelocity):
+                self.status.config.min_angular_velocity = minAngularVelocity
+                self.txStatus.config.min_angular_velocity = minAngularVelocity
+                modified = True
+
+            increments = self.ini.find('DISPLAY', 'INCREMENTS') or ''
+            if (self.status.config.increments != increments):
+                self.status.config.increments = increments
+                self.txStatus.config.increments = increments
+                modified = True
+
+            grids = self.ini.find('DISPLAY', 'GRIDS') or ''
+            if (self.status.config.grids != grids):
+                self.status.config.grids = grids
+                self.txStatus.config.grids = grids
+                modified = True
+
+            lathe = bool(self.ini.find('DISPLAY', 'LATHE') or False)
+            if (self.status.config.lathe != lathe):
+                self.status.config.lathe = lathe
+                self.txStatus.config.lathe = lathe
+                modified = True
+
+            geometry = self.ini.find('DISPLAY', 'GEOMETRY') or ''
+            if (self.status.config.geometry != geometry):
+                self.status.config.geometry = geometry
+                self.txStatus.config.geometry = geometry
+                modified = True
+
+            arcdivision = int(self.ini.find('DISPLAY', 'ARCDIVISION') or 64)
+            if (self.status.config.arcdivision != arcdivision):
+                self.status.config.arcdivision = arcdivision
+                self.txStatus.config.arcdivision = arcdivision
+                modified = True
+
+            noForceHoming = bool(self.ini.find('TRAJ', 'NO_FORCE_HOMING') or False)
+            if (self.status.config.no_force_homing != noForceHoming):
+                self.status.config.no_force_homing = noForceHoming
+                self.txStatus.config.no_force_homing = noForceHoming
+                modified = True
+
         if self.configFullUpdate:
             self.add_pparams()
             self.send_config(self.status.config, MT_EMCSTAT_FULL_UPDATE)
