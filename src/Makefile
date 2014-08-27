@@ -180,6 +180,7 @@ SUBDIRS := \
 	machinetalk/config-service \
 	machinetalk/webtalk \
 	machinetalk/haltalk \
+	machinetalk/mkwrapper \
 	\
 	libnml/linklist \
 	libnml/cms \
