@@ -1259,6 +1259,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period);
 int hm2_watchdog_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_watchdog_print_module(hostmot2_t *hm2);
 void hm2_watchdog_cleanup(hostmot2_t *hm2);
+void hm2_watchdog_prepare_tram_write(hostmot2_t *hm2);
 void hm2_watchdog_write(hostmot2_t *hm2, long period);
 void hm2_watchdog_force_write(hostmot2_t *hm2);
 void hm2_watchdog_process_tram_read(hostmot2_t *hm2);
