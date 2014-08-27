@@ -10,9 +10,14 @@ import dbus
 import thread
 import time
 import math
+import socket
 
 import ConfigParser
 import linuxcnc
+
+from pyftpdlib.authorizers import DummyAuthorizer
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import FTPServer
 
 from message_pb2 import Container
 from config_pb2 import *
@@ -20,6 +25,14 @@ from types_pb2 import *
 from status_pb2 import *
 from preview_pb2 import *
 from object_pb2 import ProtocolParameters
+
+
+def getFreePort():
+    sock = socket.socket()
+    sock.bind(('', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port
 
 
 class ZeroconfService:
@@ -68,7 +81,109 @@ class ZeroconfService:
         self.group.Reset()
 
 
+class CustomFTPHandler(FTPHandler):
+
+    def __del__(self):
+        for uploadedFile in self.uploadedFiles:
+            os.remove(uploadedFile)
+
+    def on_file_received(self, file):
+        # do something when a file has been received
+        if not hasattr(self, 'uploadedFiles'):
+            self.uploadedFiles = set()
+        self.uploadedFiles.add(file)
+
+    def on_incomplete_file_received(self, file):
+        # remove partially uploaded files
+        os.remove(file)
+
+
+class FileService():
+
+    def __init__(self, iniFile=None, ipv4="", svcUuid=None,
+                debug=False):
+        self.debug = debug
+        self.ipv4 = ipv4
+
+        # Linuxcnc
+        try:
+            self.stat = linuxcnc.stat()
+            self.command = linuxcnc.command()
+            self.error = linuxcnc.error_channel()
+
+            if iniFile:
+                self.ini = linuxcnc.ini(iniFile)
+            else:
+                self.ini = None
+
+            self.directory = ((self.ini != None) and self.ini.find('DISPLAY', 'PROGRAM_PREFIX')) or os.getcwd()
+        except linuxcnc.error as detail:
+            print(("error", detail))
+            sys.exit(1)
+
+        self.filePort = getFreePort()
+        self.fileDsname = "ftp://" + self.ipv4 + ":" + str(self.filePort)
+
+        me = uuid.uuid1()
+        self.fileTxtrec    = [str('dsn=' + self.fileDsname),
+                              str('uuid=' + svcUuid),
+                              str('service=' + 'file'),
+                              str('instance=' + str(me))]
+
+        if self.debug:
+            print(('file: ' + 'dsname = ' + self.fileDsname +
+                             ' port = ' + str(self.filePort) +
+                             ' txtrec = ' + str(self.fileTxtrec)))
+
+        #FTP
+        # Instantiate a dummy authorizer for managing 'virtual' users
+        self.authorizer = DummyAuthorizer()
+
+        # anonymous user has full read write access
+        self.authorizer.add_anonymous(self.directory, perm="lradw")
+
+        # Instantiate FTP handler class
+        self.handler = CustomFTPHandler
+        self.handler.authorizer = self.authorizer
+
+        # Define a customized banner (string returned when client connects)
+        self.handler.banner = "welcome to the GCode file service"
+
+        # Instantiate FTP server class and listen on some address
+        self.address = (self.ipv4, self.filePort)
+        self.server = FTPServer(self.address, self.handler)
+
+        # set a limit for connections
+        self.server.max_cons = 256
+        self.server.max_cons_per_ip = 5
+
+        # Zeroconf
+        try:
+            self.name = 'File on %s' % self.ipv4
+            self.fileService = ZeroconfService(self.name, self.filePort,
+                                                stype='_machinekit._tcp',
+                                                subtype='_file._sub._machinekit._tcp',
+                                                text=self.fileTxtrec)
+            self.fileService.publish()
+        except Exception as e:
+            print (('cannot register DNS service' + str(e)))
+            sys.exit(1)
+
+        thread.start_new_thread(self.run, ())
+
+    def run(self):
+        try:
+            # start ftp server
+            self.server.serve_forever()
+
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            self.fileService.unpublish()
+
+
 class StatusValues():
+
     def __init__(self):
         self.io = EmcStatusIo()
         self.config = EmcStatusConfig()
@@ -84,11 +199,11 @@ class StatusValues():
         self.interp.Clear()
 
 
-class LinuxCNCWrapper:
+class LinuxCNCWrapper():
 
-    def __init__(self, context, statusUri, errorUri, commandUri, iniFile="",
-                ipv4="", svcUuid=None, pollInterval=0.1, pingInterval=2,
-                debug=False):
+    def __init__(self, context, statusUri, errorUri, commandUri,
+                iniFile=None, ipv4="", svcUuid=None,
+                pollInterval=0.1, pingInterval=2, debug=False):
         self.debug = debug
         self.ipv4 = ipv4
         self.pollInterval = pollInterval
@@ -129,7 +244,12 @@ class LinuxCNCWrapper:
             self.stat = linuxcnc.stat()
             self.command = linuxcnc.command()
             self.error = linuxcnc.error_channel()
-            #self.ini = linuxcnc.ini(iniFile)
+            if iniFile:
+                self.ini = linuxcnc.ini(iniFile)
+            else:
+                self.ini = None
+
+            self.directory = ((self.ini != None) and self.ini.find('DISPLAY', 'PROGRAM_PREFIX')) or os.getcwd()
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -208,11 +328,11 @@ class LinuxCNCWrapper:
             while True:
                 s = dict(poll.poll())
                 if self.statusSocket in s:
-                    self.processStatus(self.statusSocket)
+                    self.process_status(self.statusSocket)
                 if self.errorSocket in s:
-                    self.processError(self.errorSocket)
+                    self.process_error(self.errorSocket)
                 if self.commandSocket in s:
-                    self.processCommand(self.commandSocket)
+                    self.process_command(self.commandSocket)
         except KeyboardInterrupt:
             self.statusService.unpublish()
             self.errorService.unpublish()
@@ -1243,7 +1363,7 @@ class LinuxCNCWrapper:
             return
 
         kind, text = error
-        self.tx.note.add(text)
+        self.tx.note.append(text)
 
         if (kind == linuxcnc.NML_ERROR):
             if (self.errorSubscriptions > 0):
@@ -1365,7 +1485,7 @@ class LinuxCNCWrapper:
         if (self.displaySubscriptions > 0):
             self.send_error_msg('display', MT_PING)
 
-    def processStatus(self, socket):
+    def process_status(self, socket):
         try:
             rc = socket.recv(zmq.NOBLOCK)
             subscription = rc[1:]
@@ -1414,7 +1534,7 @@ class LinuxCNCWrapper:
         except zmq.ZMQError:
             print("ZMQ error")
 
-    def processError(self, socket):
+    def process_error(self, socket):
         try:
             rc = socket.recv(zmq.NOBLOCK)
             subscription = rc[1:]
@@ -1453,7 +1573,7 @@ class LinuxCNCWrapper:
         self.tx.note.append("wrong parameters")
         self.send_command_msg(MT_ERROR)
 
-    def processCommand(self, socket):
+    def process_command(self, socket):
         print("process command called")
 
         message = socket.recv()
@@ -1587,7 +1707,7 @@ class LinuxCNCWrapper:
             if self.rx.HasField('emc_command_params') \
             and self.rx.emc_command_params.HasField('path'):
                 fileName = self.rx.emc_command_params.path
-                self.command.program_open(fileName)
+                self.command.program_open(os.path.join(self.directory, fileName))
             else:
                 self.send_command_wrong_params()
 
@@ -1825,6 +1945,11 @@ def choose_ip(pref):
 def main():
     debug = True
 
+    if (len(sys.argv) > 1):
+        iniFile = sys.argv[1]
+    else:
+        iniFile = ""
+
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
         sys.stderr.write("no MACHINEKIT_INI environemnt variable set")
@@ -1854,7 +1979,10 @@ def main():
 
     uri = "tcp://" + iface[0]
 
+    fileService = FileService(iniFile=iniFile, svcUuid=uuid, ipv4=iface[1], debug=debug)
+
     wrapper = LinuxCNCWrapper(context, uri, uri, uri,
+                              iniFile=iniFile,
                               svcUuid=uuid,
                               ipv4=iface[1],
                               debug=debug)
