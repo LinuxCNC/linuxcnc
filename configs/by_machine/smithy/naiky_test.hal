@@ -74,8 +74,6 @@ addf encoder.update-counters base-thread
 addf encoder.capture-position servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
-# pet the watchdog so he won't bite us!
-addf hm2_5i20.0.pet_watchdog servo-thread
 
 start
 show pin

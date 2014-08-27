@@ -169,16 +169,12 @@ net M7 hm2_5i20.0.gpio.045.out => iocontrol.0.coolant-mist
 # hook the functions to threads
 # read inputs
 addf hm2_5i20.0.read servo-thread
-addf hm2_5i20.0.read_gpio servo-thread
 # handle motion commands
 addf motion-command-handler servo-thread
 # run the motion controller
 addf motion-controller servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
-addf hm2_5i20.0.write_gpio servo-thread
-# pet the watchdog so he won't bite us!
-addf hm2_5i20.0.pet_watchdog servo-thread
 # toggle the charge pump
 addf charge-pump servo-thread
 
