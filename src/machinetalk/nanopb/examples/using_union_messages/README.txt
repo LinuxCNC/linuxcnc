@@ -49,3 +49,4 @@ decode.c reads a UnionMessage from stdin. Then it calls the function
 decode_unionmessage_type() to determine the type of the message. After that,
 the corresponding message is decoded and the contents of it printed to the
 screen.
+

@@ -10,3 +10,4 @@ incpath.NanopbProto("callbacks2")
 test = incpath.Program(["test_multiple_files.c", "callbacks.pb.c", "callbacks2.pb.c"])
 
 env.RunTest(test)
+

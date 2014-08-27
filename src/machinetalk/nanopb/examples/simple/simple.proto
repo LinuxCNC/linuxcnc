@@ -4,3 +4,4 @@
 message SimpleMessage {
     required int32 lucky_number = 1;
 }
+

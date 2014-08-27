@@ -15,6 +15,7 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(MACHINETALK)/support/nanopb.c \
 	$(MACHINETALK)/nanopb/pb_decode.c \
 	$(MACHINETALK)/nanopb/pb_encode.c \
+	$(MACHINETALK)/nanopb/pb_common.c \
 	rtapi/rtapi_heap.c
 
 # protobuf support functions which depend on HAL - on RT host only

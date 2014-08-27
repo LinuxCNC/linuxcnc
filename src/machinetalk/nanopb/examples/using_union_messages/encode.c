@@ -1,7 +1,7 @@
 /* This program takes a command line argument and encodes a message in
  * one of MsgType1, MsgType2 or MsgType3.
  */
-
+ 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -24,11 +24,11 @@ bool encode_unionmessage(pb_ostream_t *stream, const pb_field_t messagetype[], c
             /* This is our field, encode the message using it. */
             if (!pb_encode_tag_for_field(stream, field))
                 return false;
-
+            
             return pb_encode_submessage(stream, messagetype, message);
         }
     }
-
+    
     /* Didn't find the field for messagetype */
     return false;
 }
@@ -40,10 +40,10 @@ int main(int argc, char **argv)
         fprintf(stderr, "Usage: %s (1|2|3)\n", argv[0]);
         return 1;
     }
-
+    
     uint8_t buffer[512];
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
+    
     bool status = false;
     int msgtype = atoi(argv[1]);
     if (msgtype == 1)
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Unknown message type: %d\n", msgtype);
         return 2;
     }
-
+    
     if (!status)
     {
         fprintf(stderr, "Encoding failed!\n");
@@ -81,3 +81,5 @@ int main(int argc, char **argv)
         return 0; /* Success */
     }
 }
+
+

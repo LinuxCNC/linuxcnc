@@ -12,25 +12,25 @@
 bool print_person(pb_istream_t *stream)
 {
     int i;
-    Person person;
-
+    Person person = Person_init_zero;
+    
     if (!pb_decode(stream, Person_fields, &person))
         return false;
-
+    
     /* Now the decoding is done, rest is just to print stuff out. */
 
     printf("name: \"%s\"\n", person.name);
     printf("id: %ld\n", (long)person.id);
-
+    
     if (person.has_email)
         printf("email: \"%s\"\n", person.email);
-
+    
     for (i = 0; i < person.phone_count; i++)
     {
         Person_PhoneNumber *phone = &person.phone[i];
         printf("phone {\n");
         printf("  number: \"%s\"\n", phone->number);
-
+        
         if (phone->has_type)
         {
             switch (phone->type)
@@ -38,11 +38,11 @@ bool print_person(pb_istream_t *stream)
                 case Person_PhoneType_WORK:
                     printf("  type: WORK\n");
                     break;
-
+                
                 case Person_PhoneType_HOME:
                     printf("  type: HOME\n");
                     break;
-
+                
                 case Person_PhoneType_MOBILE:
                     printf("  type: MOBILE\n");
                     break;
@@ -50,7 +50,7 @@ bool print_person(pb_istream_t *stream)
         }
         printf("}\n");
     }
-
+    
     return true;
 }
 
@@ -59,12 +59,12 @@ bool callback(pb_istream_t *stream, uint8_t *buf, size_t count)
 {
     FILE *file = (FILE*)stream->state;
     bool status;
-
+    
     status = (fread(buf, 1, count, file) == count);
-
+    
     if (feof(file))
         stream->bytes_left = 0;
-
+    
     return status;
 }
 

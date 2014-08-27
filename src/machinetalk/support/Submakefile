@@ -88,7 +88,9 @@ $(call TOOBJSDEPS, $(RAWREAD_SRCS)) : EXTRAFLAGS += $(RAWREAD_CCFLAGS)
 
 
 UNIONREAD_SRCS :=  $(PBEX)/unionread.c \
-		 $(MACHINETALK)/nanopb/pb_decode.c
+		 $(MACHINETALK)/nanopb/pb_decode.c \
+		 $(MACHINETALK)/nanopb/pb_common.c
+
 UNIONREAD_CCFLAGS := -g -O0 -DPB_FIELD_32BIT
 UNIONREAD_LDFLAGS := -g
 

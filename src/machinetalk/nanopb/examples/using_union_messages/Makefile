@@ -17,3 +17,4 @@ clean:
 
 %: %.c unionproto.pb.c
 	$(CC) $(CFLAGS) -o $@ $^ $(NANOPB_CORE)
+

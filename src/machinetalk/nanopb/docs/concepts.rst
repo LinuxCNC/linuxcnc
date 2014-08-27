@@ -75,7 +75,7 @@ Output streams
 The *callback* for output stream may be NULL, in which case the stream simply counts the number of bytes written. In this case, *max_size* is ignored.
 
 Otherwise, if *bytes_written* + bytes_to_be_written is larger than *max_size*, pb_write returns false before doing anything else. If you don't want to limit the size of the stream, pass SIZE_MAX.
-
+ 
 **Example 1:**
 
 This is the way to get the size of the message without storing it anywhere::
@@ -94,7 +94,7 @@ Writing to stdout::
     FILE *file = (FILE*) stream->state;
     return fwrite(buf, 1, count, file) == count;
  }
-
+ 
  pb_ostream_t stdoutstream = {&callback, stdout, SIZE_MAX, 0};
 
 Input streams
@@ -118,27 +118,27 @@ The *callback* must always be a function pointer. *Bytes_left* is an upper limit
 
 This function binds an input stream to stdin:
 
-::
+:: 
 
  bool callback(pb_istream_t *stream, uint8_t *buf, size_t count)
  {
     FILE *file = (FILE*)stream->state;
     bool status;
-
+    
     if (buf == NULL)
     {
         while (count-- && fgetc(file) != EOF);
         return count == 0;
     }
-
+    
     status = (fread(buf, 1, count, file) == count);
-
+    
     if (feof(file))
         stream->bytes_left = 0;
-
+    
     return status;
  }
-
+ 
  pb_istream_t stdinstream = {&callback, stdin, SIZE_MAX};
 
 Data types
@@ -203,7 +203,7 @@ This callback writes out a dynamically sized string::
         char *str = get_string_from_somewhere();
         if (!pb_encode_tag_for_field(stream, field))
             return false;
-
+        
         return pb_encode_string(stream, (uint8_t*)str, strlen(str));
     }
 

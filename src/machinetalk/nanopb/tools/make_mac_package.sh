@@ -46,3 +46,4 @@ chmod +x $DEST/generator-bin/protoc
 
 # Tar it all up
 ( cd dist; zip -r $VERSION.zip $VERSION )
+

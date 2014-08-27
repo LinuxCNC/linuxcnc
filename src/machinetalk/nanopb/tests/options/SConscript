@@ -6,3 +6,4 @@ env.NanopbProto("options")
 env.Object('options.pb.c')
 
 env.Match(['options.pb.h', 'options.expected'])
+

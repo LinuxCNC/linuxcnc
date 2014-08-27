@@ -14,3 +14,4 @@ clean:
 
 %: %.c common.c fileproto.pb.c
 	$(CC) $(CFLAGS) -o $@ $^ $(NANOPB_CORE)
+

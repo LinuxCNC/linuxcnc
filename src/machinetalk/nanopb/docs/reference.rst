@@ -142,7 +142,7 @@ options from it. The file format is as follows:
 * Options defined later in the file override the ones specified earlier, so
   it makes sense to define wildcard options first in the file and more specific
   ones later.
-
+  
 If preferred, the name of the options file can be set using the command line
 switch *-f* to nanopb_generator.py.
 
@@ -158,7 +158,7 @@ The nanopb library comes with *nanopb.proto* which does exactly that, allowing
 you do define the options directly in the .proto file::
 
     import "nanopb.proto";
-
+    
     message MyMessage {
         required string name = 1 [(nanopb).max_size = 40];
         repeated int32 ids = 4   [(nanopb).max_count = 5];
@@ -284,7 +284,7 @@ Part of a message structure, for fields with type PB_HTYPE_CALLBACK::
             bool (*decode)(pb_istream_t *stream, const pb_field_t *field, void **arg);
             bool (*encode)(pb_ostream_t *stream, const pb_field_t *field, void * const *arg);
         } funcs;
-
+        
         void *arg;
     };
 
@@ -464,8 +464,8 @@ Wire type mapping is as follows:
 LTYPEs                    Wire type
 ========================= ============
 VARINT, SVARINT           PB_WT_VARINT
-FIXED64                   PB_WT_64BIT
-STRING, BYTES, SUBMESSAGE PB_WT_STRING
+FIXED64                   PB_WT_64BIT  
+STRING, BYTES, SUBMESSAGE PB_WT_STRING 
 FIXED32                   PB_WT_32BIT
 ========================= ============
 
@@ -676,7 +676,7 @@ Remove the data for a field from the stream, without actually decoding it::
 :returns:       True on success, false on IO error.
 
 .. sidebar:: Decoding fields manually
-
+    
     The functions with names beginning with *pb_decode_* are used when dealing with callback fields. The typical reason for using callbacks is to have an array of unlimited size. In that case, `pb_decode`_ will call your callback function repeatedly, which can then store the values into e.g. filesystem in the order received in.
 
     For decoding numeric (including enumerated and boolean) values, use `pb_decode_varint`_, `pb_decode_svarint`_, `pb_decode_fixed32`_ and `pb_decode_fixed64`_. They take a pointer to a 32- or 64-bit C variable, which you may then cast to smaller datatype for storage.

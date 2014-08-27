@@ -24,21 +24,21 @@ int main()
         double orig = testvalues[i];
         float expected_float = (float)orig;
         double expected_double = (double)expected_float;
-
+        
         float got_float = double_to_float(*(uint64_t*)&orig);
         uint64_t got_double = float_to_double(got_float);
-
+        
         uint32_t e1 = *(uint32_t*)&expected_float;
         uint32_t g1 = *(uint32_t*)&got_float;
         uint64_t e2 = *(uint64_t*)&expected_double;
         uint64_t g2 = got_double;
-
+        
         if (g1 != e1)
         {
             printf("%3d double_to_float fail: %08x != %08x\n", i, g1, e1);
             status = 1;
         }
-
+        
         if (g2 != e2)
         {
             printf("%3d float_to_double fail: %016llx != %016llx\n", i,
@@ -50,3 +50,7 @@ int main()
 
     return status;
 }
+
+    
+    
+

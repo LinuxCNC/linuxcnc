@@ -16,25 +16,25 @@
 bool print_person(pb_istream_t *stream)
 {
     int i;
-    Person person;
-
+    Person person = Person_init_zero;
+    
     if (!pb_decode(stream, Person_fields, &person))
         return false;
-
+    
     /* Now the decoding is done, rest is just to print stuff out. */
 
     printf("name: \"%s\"\n", person.name);
     printf("id: %ld\n", (long)person.id);
-
+    
     if (person.has_email)
         printf("email: \"%s\"\n", person.email);
-
+    
     for (i = 0; i < person.phone_count; i++)
     {
         Person_PhoneNumber *phone = &person.phone[i];
         printf("phone {\n");
         printf("  number: \"%s\"\n", phone->number);
-
+        
         if (phone->has_type)
         {
             switch (phone->type)
@@ -42,11 +42,11 @@ bool print_person(pb_istream_t *stream)
                 case Person_PhoneType_WORK:
                     printf("  type: WORK\n");
                     break;
-
+                
                 case Person_PhoneType_HOME:
                     printf("  type: HOME\n");
                     break;
-
+                
                 case Person_PhoneType_MOBILE:
                     printf("  type: MOBILE\n");
                     break;
@@ -54,7 +54,7 @@ bool print_person(pb_istream_t *stream)
         }
         printf("}\n");
     }
-
+    
     return true;
 }
 
@@ -63,20 +63,20 @@ int main()
     uint8_t buffer[Person_size];
     pb_istream_t stream;
     size_t count;
-
+    
     /* Read the data into buffer */
     SET_BINARY_MODE(stdin);
     count = fread(buffer, 1, sizeof(buffer), stdin);
-
+    
     if (!feof(stdin))
     {
-	printf("Message does not fit in buffer\n");
-	return 1;
+    	printf("Message does not fit in buffer\n");
+    	return 1;
     }
-
+    
     /* Construct a pb_istream_t for reading from the buffer */
     stream = pb_istream_from_buffer(buffer, count);
-
+    
     /* Decode and print out the stuff */
     if (!print_person(&stream))
     {

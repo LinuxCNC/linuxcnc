@@ -21,12 +21,12 @@ int main()
             {"99-2342", false, 0},
             {"1234-5678", true, Person_PhoneType_WORK},
         }};
-
+    
     /* Prepare the stream, output goes directly to stdout */
     pb_ostream_t stream = {&streamcallback, NULL, SIZE_MAX, 0};
     stream.state = stdout;
     SET_BINARY_MODE(stdout);
-
+    
     /* Now encode it and check if we succeeded. */
     if (pb_encode(&stream, Person_fields, &person))
     {

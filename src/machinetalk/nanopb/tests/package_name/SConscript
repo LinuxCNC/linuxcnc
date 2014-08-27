@@ -19,17 +19,18 @@ def modify_c(target, source, env):
     '''Add package name to type names in .c file.'''
 
     data = open(str(source[0]), 'r').read()
-
+    
     type_names = ['AllTypes', 'MyEnum', 'HugeEnum']
     for name in type_names:
         data = data.replace(name, 'test_package_' + name)
-
+    
     open(str(target[0]), 'w').write(data)
     return 0
 env.Command("encode_alltypes.c", "#alltypes/encode_alltypes.c", modify_c)
 
 # Encode and compare results to original alltypes testcase
-enc = env.Program(["encode_alltypes.c", "alltypes.pb.c", "$COMMON/pb_encode.o"])
+enc = env.Program(["encode_alltypes.c", "alltypes.pb.c", "$COMMON/pb_encode.o", "$COMMON/pb_common.o"])
 refdec = "$BUILD/alltypes/decode_alltypes$PROGSUFFIX"
 env.RunTest(enc)
 env.Compare(["encode_alltypes.output", "$BUILD/alltypes/encode_alltypes.output"])
+

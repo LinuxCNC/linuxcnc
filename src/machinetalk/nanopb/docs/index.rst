@@ -75,7 +75,7 @@ You should now have in *message.pb.h*::
  typedef struct {
     int32_t value;
  } Example;
-
+ 
  extern const pb_field_t Example_fields[2];
 
 Now in your main program do this to encode a message::
@@ -123,3 +123,4 @@ In addition to the build system, you will also need a working Google Protocol
 Buffers *protoc* compiler, and the Python bindings for Protocol Buffers. On
 Debian-based systems, install the following packages: *protobuf-compiler*,
 *python-protobuf* and *libprotobuf-dev*.
+

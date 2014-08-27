@@ -46,8 +46,12 @@ NPBPROTODIR :=  $(NANOPB)/generator/proto
 # Javascript support
 JSGEN=$(MACHINETALK)/tutorial/htdocs/js/machinetalk
 
-# proto2js options - namespace
-PROTOBUFJS_OPT := -class
+# proto2js options
+
+# find nanopb.proto:
+PROTOBUFJS_OPT := -path=$(NPBPROTODIR)
+# namespace
+PROTOBUFJS_OPT += -class
 # these alternativesI dont understand yet:
 #PROTOBUFJS_OPT := -commonjs=pb
 # http://en.wikipedia.org/wiki/Asynchronous_module_definition
@@ -69,7 +73,7 @@ DESCDIR    :=  $(GPBINCLUDE)/google/protobuf
 vpath %.proto  $(PROTODIR):$(NPBPROTODIR):$(GPBINCLUDE):$(DESCDIR)/compiler
 
 # the set of all proto specs generated files depend on
-PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto)
+PROTO_SPECS := $(wildcard $(PROTODIR)/*.proto) # $(NPBPROTODIR)/nanopb.proto
 
 USERSRCS += $(PROTO_SPECS)
 
@@ -102,18 +106,16 @@ PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS) #-fPIC
 NANOPB_INCS := $(wildcard $(NANOPB)/*.h)
 NANOPB_C_SRCS := $(wildcard $(NANOPB)/*.c)
 
-# headers which are to go into ../include
-NANOPB_INSTALL_INCS := $(subst $(NANOPB), \
-	../include/$(NANOPB),  \
-	$(NANOPB_INCS))
-
 PROTO_NANOPB_C_INCS := $(subst $(PROTODIR)/, \
 	$(PBGEN)/,  \
 	$(patsubst %.proto, %.npb.h, $(PROTO_SPECS)))
 
+PROTO_NANOPB_C_INCS += $(PBGEN)/nanopb.npb.h
+
 PROTO_NANOPB_C_SRCS := $(subst $(PROTODIR)/, \
 	$(PBGEN)/,  \
 	$(patsubst %.proto, %.npb.c, $(PROTO_SPECS)))
+PROTO_NANOPB_C_SRCS += $(PBGEN)/nanopb.npb.c
 
 # Nanopb generator support
 NANOPB_SUPPORT := ../lib/python/nanopb_pb2.py
@@ -127,11 +129,14 @@ PROTO_PY_TARGETS += $(subst $(PROTODIR)/, \
 	../lib/python/, \
 	$(patsubst %.proto, %_pb2.py, $(PROTO_SPECS)))
 
+PROTO_PY_TARGETS += ../lib/python/nanopb_pb2.py
+
 # generated C++ includes
 PROTO_CXX_INCS :=
 PROTO_CXX_INCS += $(subst $(PROTODIR)/, \
 	$(PBGEN)/,  \
 	$(patsubst %.proto, %.pb.h, $(PROTO_SPECS)))
+PROTO_CXX_INCS += ../include/machinetalk/generated/nanopb.pb.h
 
 # generated C++ sources
 PROTO_CXX_SRCS  :=  $(PBGEN)/nanopb.pb.cc
@@ -183,7 +188,8 @@ PBDEP_OPT += --vpath=$(NPBPROTODIR)
 PBDEP_OPT += --vpath=$(GPBINCLUDE)
 PBDEP_OPT += --vpath=$(DESCDIR)/compiler
 
-objects/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
+#objects/$(PROTODIR)/%.d: $(PROTODIR)/%.proto
+objects/$(PROTODIR)/%.d: %.proto
 	$(ECHO) "protoc create dependencies for $<"
 	@mkdir -p objects/$(PROTODIR)/
 	$(Q)$(PROTOC) \
@@ -216,7 +222,7 @@ $(PBGEN)/%.npb.c $(PBGEN)/%.npb.h: %.proto $(NANOPB_SUPPORT)
 	@mkdir -p $(PBGEN)
 	$(Q)$(PROTOC) $(PROTOC_FLAGS) \
 	--plugin=protoc-gen-nanopb=../lib/python/protoc-gen-nanopb \
-	--nanopb_out="--generated-include-format='#include <"$(PBGEN)"/%s>' --extension=npb --options-file=$(MACHINETALK)/nanopb.options":$(PBGEN) \
+	--nanopb_out="--generated-include-format='#include <"$(PBGEN)"/%s>' --extension=.npb --options-file=$(MACHINETALK)/nanopb.options":$(PBGEN) \
 	--proto_path=$(PROTODIR)/ \
 	--proto_path=$(GPBINCLUDE) \
 	--proto_path=${NPBPROTODIR} \
@@ -251,7 +257,7 @@ $(JSGEN)/%.js: %.proto
 	> $@
 
 # nanopb.proto needs different opts - no namespace argument
-$(JSGEN)/nanopb.js: $(PROTODIR)/nanopb.proto
+$(JSGEN)/nanopb.js: $(NPBPROTODIR)/nanopb.proto
 	$(ECHO) $(PROTO2JS)" create $@ from $<"
 	@mkdir -p $(JSGEN)
 	$(Q)$(PROTO2JS) 	$< \

@@ -13,3 +13,4 @@ message TestMessage {
     optional SubMessage submsg = 5;
     repeated string repeatedstring = 6;
 }
+

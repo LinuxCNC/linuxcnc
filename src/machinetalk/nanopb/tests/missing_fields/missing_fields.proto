@@ -135,3 +135,4 @@ message MissingField
 /*    required int32 field63 = 63; */
     required int32 field64 = 64;
 }
+

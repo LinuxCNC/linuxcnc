@@ -1335,6 +1335,7 @@ hal_lib-objs += hal/lib/hal_rcomp.o
 hal_lib-objs += machinetalk/support/nanopb.o
 hal_lib-objs += machinetalk/nanopb/pb_decode.o
 hal_lib-objs += machinetalk/nanopb/pb_encode.o
+hal_lib-objs += machinetalk/nanopb/pb_common.o
 
 obj-m += trivkins.o
 trivkins-objs := emc/kinematics/trivkins.o

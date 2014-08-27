@@ -12,7 +12,7 @@ int main()
 {
     uint8_t buffer[Person_size];
     pb_ostream_t stream;
-
+    
     /* Initialize the structure with constants */
     Person person = {"Test Person 99", 99, true, "test@person.com",
         3, {{"555-12345678", true, Person_PhoneType_MOBILE},
@@ -21,10 +21,10 @@ int main()
         }};
 
     stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
+    
     /* Now encode it and check if we succeeded. */
     if (pb_encode(&stream, Person_fields, &person))
-    {
+    {    
         /* Write the result data to stdout */
         SET_BINARY_MODE(stdout);
         fwrite(buffer, 1, stream.bytes_written, stdout);

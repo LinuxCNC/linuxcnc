@@ -18,12 +18,12 @@ static bool read_callback(pb_istream_t *stream, uint8_t *buf, size_t count)
 {
     int fd = (intptr_t)stream->state;
     int result;
-
+    
     result = recv(fd, buf, count, MSG_WAITALL);
-
+    
     if (result == 0)
         stream->bytes_left = 0; /* EOF */
-
+    
     return result == count;
 }
 

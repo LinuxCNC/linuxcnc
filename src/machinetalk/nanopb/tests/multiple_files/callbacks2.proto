@@ -6,3 +6,4 @@ message Callback2Message {
     required TestMessage tstmsg = 1;
     required SubMessage submsg = 2;
 }
+

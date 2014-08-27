@@ -26,14 +26,14 @@ int main(int argc, char **argv)
     ext1.type = &AllTypes_extensionfield1;
     ext1.dest = &extensionfield1;
     ext1.next = &ext2;
-
+    
     ext2.type = &ExtensionMessage_AllTypes_extensionfield2;
     ext2.dest = &extensionfield2;
     ext2.next = NULL;
 
     /* Set up the output stream */
     stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
+    
     /* Now encode the message and check if we succeeded. */
     if (pb_encode(&stream, AllTypes_fields, &alltypes))
     {
@@ -46,8 +46,9 @@ int main(int argc, char **argv)
         fprintf(stderr, "Encoding failed: %s\n", PB_GET_ERROR(&stream));
         return 1; /* Failure */
     }
-
+    
     /* Check that the field tags are properly generated */
     (void)AllTypes_extensionfield1_tag;
     (void)ExtensionMessage_AllTypes_extensionfield2_tag;
 }
+

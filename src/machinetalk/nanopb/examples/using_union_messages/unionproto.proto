@@ -27,3 +27,4 @@ message UnionMessage
     optional MsgType2 msg2 = 2;
     optional MsgType3 msg3 = 3;
 }
+

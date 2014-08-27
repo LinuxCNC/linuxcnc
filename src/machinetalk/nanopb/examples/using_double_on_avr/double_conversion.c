@@ -20,12 +20,12 @@ uint64_t float_to_double(float value)
     uint8_t sign;
     int16_t exponent;
     uint64_t mantissa;
-
+    
     /* Decompose input value */
     sign = (in.i >> 31) & 1;
     exponent = ((in.i >> 23) & 0xFF) - 127;
     mantissa = in.i & 0x7FFFFF;
-
+    
     if (exponent == 128)
     {
         /* Special value (NaN etc.) */
@@ -50,12 +50,12 @@ uint64_t float_to_double(float value)
             mantissa &= 0x7FFFFF;
         }
     }
-
+    
     /* Combine fields */
     mantissa <<= 29;
     mantissa |= (uint64_t)(exponent + 1023) << 52;
     mantissa |= (uint64_t)sign << 63;
-
+    
     return mantissa;
 }
 
@@ -70,7 +70,7 @@ float double_to_float(uint64_t value)
     sign = (value >> 63) & 1;
     exponent = ((value >> 52) & 0x7FF) - 1023;
     mantissa = (value >> 28) & 0xFFFFFF; /* Highest 24 bits */
-
+ 
     /* Figure if value is in range representable by floats. */
     if (exponent == 1024)
     {
@@ -79,7 +79,7 @@ float double_to_float(uint64_t value)
     }
     else if (exponent > 127)
     {
-        /* Too large */
+        /* Too large */        
         if (sign)
             return -INFINITY;
         else
@@ -100,10 +100,10 @@ float double_to_float(uint64_t value)
         mantissa >>= (-126 - exponent);
         exponent = -127;
     }
-
+ 
     /* Round off mantissa */
     mantissa = (mantissa + 1) >> 1;
-
+    
     /* Check if mantissa went over 2.0 */
     if (mantissa & 0x800000)
     {
@@ -111,11 +111,13 @@ float double_to_float(uint64_t value)
         mantissa &= 0x7FFFFF;
         mantissa >>= 1;
     }
-
+    
     /* Combine fields */
     out.i = mantissa;
     out.i |= (uint32_t)(exponent + 127) << 23;
     out.i |= (uint32_t)sign << 31;
-
+    
     return out.f;
 }
+
+

@@ -15,3 +15,4 @@ message ListFilesResponse {
     optional bool path_error = 1 [default = false];
     repeated FileInfo file = 2;
 }
+

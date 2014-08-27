@@ -6,3 +6,5 @@
 
 sed -i -e 's/nanopb_version\s*=\s*"[^"]*"/nanopb_version = "'$1'"/' generator/nanopb_generator.py
 sed -i -e 's/#define\s*NANOPB_VERSION\s*.*/#define NANOPB_VERSION '$1'/' pb.h
+
+

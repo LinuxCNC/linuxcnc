@@ -5,3 +5,4 @@ message xmit {
    required MessageHeader header = 1;
    required bytes data = 2 [(nanopb).max_size = 128];
 }
+

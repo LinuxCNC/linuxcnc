@@ -11,7 +11,7 @@
 int main(int argc, char **argv)
 {
     int mode = (argc > 1) ? atoi(argv[1]) : 0;
-
+    
     /* Values for required fields */
     int32_t     req_int32         = -1001;
     int64_t     req_int64         = -1002;
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     SubMessage  req_submsg        = {"1016", &req_substuff};
     MyEnum      req_enum          = MyEnum_Truth;
     EmptyMessage req_emptymsg     = {0};
-
+    
     int32_t     end               = 1099;
 
     /* Values for repeated fields */
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
     alltypes.req_enum          = &req_enum;
     alltypes.req_emptymsg      = &req_emptymsg;
     alltypes.req_limits        = &req_limits;
-
+    
     alltypes.rep_int32_count    = 5; alltypes.rep_int32     = rep_int32;
     alltypes.rep_int64_count    = 5; alltypes.rep_int64     = rep_int64;
     alltypes.rep_uint32_count   = 5; alltypes.rep_uint32    = rep_uint32;
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
     alltypes.rep_submsg_count   = 5; alltypes.rep_submsg    = rep_submsg;
     alltypes.rep_enum_count     = 5; alltypes.rep_enum      = rep_enum;
     alltypes.rep_emptymsg_count = 5; alltypes.rep_emptymsg  = rep_emptymsg;
-
+    
     if (mode != 0)
     {
         /* Fill in values for optional fields */
@@ -165,13 +165,13 @@ int main(int argc, char **argv)
         alltypes.opt_enum          = &opt_enum;
         alltypes.opt_emptymsg      = &opt_emptymsg;
     }
-
+    
     alltypes.end = &end;
-
+    
     {
         uint8_t buffer[4096];
         pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
+        
         /* Now encode it and check if we succeeded. */
         if (pb_encode(&stream, AllTypes_fields, &alltypes))
         {

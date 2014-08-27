@@ -21,3 +21,4 @@ test_conversions: test_conversions.c double_conversion.c
 run_tests: test_conversions encode_double decode_double
 	./test_conversions
 	./encode_double | ./decode_double
+    

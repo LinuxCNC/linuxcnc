@@ -24,3 +24,4 @@ message MessageResponse {
    required MessageStatus status = 1;
    required fixed32 seq = 2;
 }
+

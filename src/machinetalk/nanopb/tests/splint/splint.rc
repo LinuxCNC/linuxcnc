@@ -2,7 +2,6 @@
 +partial
 +matchanyintegral
 +strictlib
--isoreserved		# to be fixed in 0.3
 -nullassign
 -predboolint
 -predboolptr
@@ -28,9 +27,11 @@
 -kepttrans
 -branchstate
 -immediatetrans
+-mustfreefresh
 
 # These tests give false positives, compiler typically has
 # better warnings for these.
 -noret
 -noeffect
 -usedef
+
