@@ -105,12 +105,6 @@ static void hm2_write(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're writing to the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-    }
-
     hm2_ioport_gpio_prepare_tram_write(hm2);
     hm2_pwmgen_prepare_tram_write(hm2);
     hm2_tp_pwmgen_prepare_tram_write(hm2);
@@ -153,11 +147,6 @@ static void hm2_write_gpio(void *void_hm2, long period) {
     // if there are comm problems, wait for the user to fix it
     if ((*hm2->llio->io_error) != 0) return;
 
-    // is there a watchdog?
-    if (hm2->watchdog.num_instances > 0) {
-        // we're writing to the hm2 board now, so turn on the watchdog
-        hm2->watchdog.instance[0].enable = 1;
-    }
     hm2_ioport_gpio_write(hm2);
     hm2_watchdog_write(hm2, period);
 }
