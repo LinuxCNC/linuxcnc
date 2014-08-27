@@ -235,7 +235,7 @@ class LinuxCNCWrapper():
             iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
             self.ini = linuxcnc.ini(iniFile)
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
-            self.pollInterval = pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1
+            self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -429,7 +429,7 @@ class LinuxCNCWrapper():
                 txExtension.Clear()
                 extensionModified = False
 
-                if len(extensions) == index:
+                if len(self.status.config.program_extension) == index:
                     self.status.config.program_extension.add()
                     self.status.config.program_extension[index].index = index
                     self.status.config.program_extension[index].extension = ""
