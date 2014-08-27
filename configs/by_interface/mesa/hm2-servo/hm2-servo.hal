@@ -62,7 +62,6 @@ addf pid.1.do-pid-calcs                    servo-thread
 addf pid.2.do-pid-calcs                    servo-thread
 
 addf hm2_[HOSTMOT2](BOARD).0.write         servo-thread
-addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog  servo-thread
        
 
 # ######################################################
