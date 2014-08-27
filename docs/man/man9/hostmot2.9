@@ -1065,10 +1065,9 @@ hostmot2 driver will use it.  The HAL representation of the watchdog is
 named "hm2_\fB<BoardType>\fR.\fB<BoardNum>\fR.watchdog".
 
 The watchdog starts out asleep and inactive.  Once you access the board
-the first time by running any the hm2 HAL functions read(), write(),
-or pet_watchdog() (see below), the watchdog wakes up.  From them on
-it must be petted periodically or it will bite.  Pet the watchdog by
-running the pet_watchdog() HAL function.
+the first time by running the hm2 write() HAL function (see below), the
+watchdog wakes up.  From them on it must be petted periodically or it will
+bite.  Pet the watchdog by running the hm2 write() HAL function.
 
 When the watchdog bites, all the board's I/O pins are disconnected from
 their Module instances and become high-impedance inputs (pulled high),
@@ -1099,13 +1098,8 @@ Parameters:
 (u32 read/write) timeout_ns
 Watchdog timeout, in nanoseconds.  This is
 initialized to 5,000,000 (5 milliseconds) at module load time.  If more
-than this amount of time passes between calls to the pet_watchdog()
+than this amount of time passes between calls to the hm2 write()
 function, the watchdog will bite.
-
-Functions:
-
-pet_watchdog(): Calling this function resets the watchdog timer
-(postponing the watchdog biting until timeout_ns nanoseconds later).
 .SH Raw Mode
 
 If the "enable_raw" config keyword is specified, some extra debugging
@@ -1162,9 +1156,6 @@ from the FPGA.
 This updates the PWM duty cycles, stepgen rates, and GPIO outputs on
 the FPGA.  Any changes to configuration pins such as stepgen timing,
 GPIO inversions, etc, are also effected by this function.
-.TP
-\fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.pet-watchdog\fR
-Pet the watchdog to keep it from biting us for a while.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read_gpio\fR
 Read the GPIO input pins.  Note that the effect of this function is a
