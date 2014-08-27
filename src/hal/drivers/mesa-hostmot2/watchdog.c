@@ -34,54 +34,14 @@
 // it keeps the watchdog from biting us for a while
 static void hm2_pet_watchdog(void *void_hm2, long period_ns) {
     hostmot2_t *hm2 = void_hm2;
+    static int print_warning = 1;
 
-
-    // if there is no watchdog, then there's nothing to do
-    if (hm2->watchdog.num_instances == 0) return;
-
-    // if there are comm problems, wait for the user to fix it
-    if ((*hm2->llio->io_error) != 0) return;
-
-    // if the requested timeout is dangerously short compared to the petting-period, warn the user once
-    if (hm2->watchdog.instance[0].hal.param.timeout_ns < (1.5 * period_ns)) {
-        if (0 == hm2->watchdog.instance[0].warned_about_short_timeout) {
-            hm2->watchdog.instance[0].warned_about_short_timeout = 1;
-            HM2_PRINT(
-                "Watchdog timeout (%u ns) is dangerously short compared to pet_watchdog() period (%ld ns)\n",
-                hm2->watchdog.instance[0].hal.param.timeout_ns,
-                period_ns
-            );
-        }
+    if (print_warning) {
+        HM2_PRINT("The hm2 pet_watchdog function is no longer needed.\n");
+        HM2_PRINT("It will be removed before LinuxCNC 2.7.\n");
+        HM2_PRINT("The hm2 write function now pets the watchdog.\n");
+        print_warning = 0;
     }
-
-    // if the watchdog has bit, wait for the user to reset it
-    if (*hm2->watchdog.instance[0].hal.pin.has_bit) return;
-
-    // petting the watchdog wakes it up, and now we can't stop or it will bite!
-    hm2->watchdog.instance[0].enable = 1;
-
-    if (hm2->llio->needs_reset) {
-        // user has cleared the bit
-        HM2_PRINT("trying to recover from IO error or Watchdog bite\n");
-
-        // reset the watchdog status
-        hm2->watchdog.status_reg[0] = 0;
-
-        // write all settings out to the FPGA
-        hm2_force_write(hm2);
-        if ((*hm2->llio->io_error) != 0) {
-            HM2_PRINT("error recovery failed\n");
-            return;
-        }
-        HM2_PRINT("error recover successful!\n");
-
-        hm2->llio->needs_reset = 0;
-    }
-
-
-    // reset the watchdog timer
-    // FIXME: write just 1 byte
-    hm2->llio->write(hm2->llio, hm2->watchdog.reset_addr, hm2->watchdog.reset_reg, (hm2->watchdog.num_instances * sizeof(rtapi_u32)));
 }
 
 
@@ -326,8 +286,32 @@ void hm2_watchdog_force_write(hostmot2_t *hm2) {
 void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
     if (hm2->watchdog.num_instances != 1) return;
 
+    // if there are comm problems, wait for the user to fix it
+    if ((*hm2->llio->io_error) != 0) return;
+
+    // if the watchdog has bit, wait for the user to reset it
+    if (*hm2->watchdog.instance[0].hal.pin.has_bit) return;
+
     // writing to the watchdog wakes it up, and now we can't stop or it will bite!
     hm2->watchdog.instance[0].enable = 1;
+
+    if (hm2->llio->needs_reset) {
+        // user has cleared the bit
+        HM2_PRINT("trying to recover from IO error or Watchdog bite\n");
+
+        // reset the watchdog status
+        hm2->watchdog.status_reg[0] = 0;
+
+        // write all settings out to the FPGA
+        hm2_force_write(hm2);
+        if ((*hm2->llio->io_error) != 0) {
+            HM2_PRINT("error recovery failed\n");
+            return;
+        }
+        HM2_PRINT("error recover successful!\n");
+
+        hm2->llio->needs_reset = 0;
+    }
 
     if (
         (hm2->watchdog.instance[0].hal.param.timeout_ns != hm2->watchdog.instance[0].written_timeout_ns)
@@ -345,5 +329,11 @@ void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
 
         hm2_watchdog_force_write(hm2);
     }
+
+
+    // Pet the watchdog.  Write to the reset register to keep the watchdog
+    // from biting.
+    // FIXME: write just 1 byte
+    hm2->llio->write(hm2->llio, hm2->watchdog.reset_addr, hm2->watchdog.reset_reg, (hm2->watchdog.num_instances * sizeof(rtapi_u32)));
 }
 
