@@ -2112,8 +2112,10 @@ def main():
 
     if (len(sys.argv) > 1):
         iniFile = sys.argv[1]
+        if (iniFile == '-ini') and (len(sys.argv) > 2):    # handle linuxcnc style in file passing
+            iniFile = sys.argv[2]
     else:
-        iniFile = ""
+        iniFile = None
 
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
