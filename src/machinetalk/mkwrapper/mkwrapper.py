@@ -110,6 +110,7 @@ class FileService():
             iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
             self.ini = linuxcnc.ini(iniFile)
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
+            self.directory = os.path.expanduser(self.directory)
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -235,6 +236,7 @@ class LinuxCNCWrapper():
             iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
             self.ini = linuxcnc.ini(iniFile)
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
+            self.directory = os.path.expanduser(self.directory)
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
         except linuxcnc.error as detail:
             print(("error", detail))
