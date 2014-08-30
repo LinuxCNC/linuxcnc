@@ -582,7 +582,7 @@ RTAPI_BEGIN_DECLS
 */
 
 /* NOTE - RTAI fifos require (stacksize >= fifosze + 256) to avoid
-   oops messages on removal. (Does this apply to rtlinux as well ?)
+   oops messages on removal.
 */
     extern int rtapi_fifo_new(int key, int module_id,
 	unsigned long int size, char mode);

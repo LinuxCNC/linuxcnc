@@ -37,12 +37,4 @@ elif [ $RTPREFIX = rtai ] ; then
     MODPATH_rtai_sched=@MODPATH_rtai_sched@
     MODPATH_rtai_shm=@MODPATH_rtai_shm@
     MODPATH_rtai_libm=@MODPATH_rtai_libm@
-elif [ $RTPREFIX = rtl ] ; then
-    MODULES="rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo"
-    MODPATH_rtl=@MODPATH_rtl@
-    MODPATH_mbuff=@MODPATH_mbuff@
-    MODPATH_rtl_time=@MODPATH_rtl_time@
-    MODPATH_rtl_sched=@MODPATH_rtl_sched@
-    MODPATH_rtl_posixio=@MODPATH_rtl_posixio@
-    MODPATH_rtl_fifo=@MODPATH_rtl_fifo@
 fi

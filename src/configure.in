@@ -146,15 +146,12 @@ AC_MSG_CHECKING(for RT dir)
 RTDIR=""
 RTNAME=""
 RTAI=""
-RTLINUX=""
-RTLINUXPRO=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
 RTAI3_MOD=""
 RTAI_MOD=""
-RTL_MOD=""
 
 ##############################################################################
 # Subsection 2.1                                                             #
@@ -200,7 +197,6 @@ AC_SUBST([RTS])
 # 2. If no RT has been specified explicitely by the user, one has to be      #
 # found by search. In order to do that the following code will search for a  #
 # RT-specific script:                                                        #
-# rtlinux-config for RTLinux                                                 #
 # realtime-config for RTAI 24.1.x                                            #
 # rtai-config for RTAI 3.x                                                   #
 ##############################################################################
@@ -253,7 +249,7 @@ else
   RTS=""
   for location in $DIRS; do
     for subdir in . scripts bin; do
-      for signature in rtai rtl realtime; do
+      for signature in rtai realtime; do
 	candidate=$location/$subdir/$signature-config
 	if test -z "$RTS" -a -e $candidate; then
 	  RTS=$candidate
@@ -319,23 +315,6 @@ case $RTS in
 #"
     KERNELDIR=$(cd $KERNELDIR ; pwd -P )
 ;;
-*/rtl-config)
-# For RTLinux-3.? $RTS = rtl-config
-# Options and their return values for rtl-config
-#	 Option		Returns
-#	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
-#	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux		Path to the source directory of the patched kernel.
-#	--module_dir	Path to the directory where the RTLinux modules are installed
-#	--modules	A list of the available realtime modules.
-    RTPREFIX=rtl
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --cflags`
-    KERNELDIR=`$RTS --linux`
-;;
 uspace)
     RTPREFIX=uspace
     RTDIR=$(pwd -P)
@@ -362,8 +341,6 @@ fi
 
 AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
-AC_SUBST([RTLINUX])
-AC_SUBST([RTLINUXPRO])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
@@ -375,8 +352,6 @@ uspace)
     AC_DEFINE(RTAPI_USPACE, [], [Realtime system is userspace]) ;;
 rtai)
     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI]) ;;
-rtl)
-    AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL]) ;;
 esac
 
 
@@ -413,9 +388,6 @@ AC_MSG_CHECKING([for cc version])
 if (test ${RTS##*/} = rtai-config ) ; then
   RTSCC=`$RTS --cc`
   AC_MSG_RESULT(found $RTSCC in rtai-config)
-elif (test ${RTS##*/} = rtl-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtl-config)
 else
   AC_MSG_RESULT(not specified)
 fi
@@ -1220,11 +1192,10 @@ AC_SUBST([MATHLIB])
 # Export substitution symbols for module loading
 AC_SUBST([RTAI3_MOD])
 AC_SUBST([RTAI_MOD])
-AC_SUBST([RTL_MOD])
 
 for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
         rtai rt_mem_mgr rtai_sched rtai_libm \
-        rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo; do
+; do
     AC_MSG_CHECKING([for $m])
     TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
     if test -z "$TMP"; then
@@ -1247,12 +1218,6 @@ AC_SUBST(MODPATH_rt_mem_mgr)
 AC_SUBST(MODPATH_rtai_sched)
 AC_SUBST(MODPATH_rtai_shm)
 AC_SUBST(MODPATH_rtai_libm)
-AC_SUBST(MODPATH_rtl)
-AC_SUBST(MODPATH_mbuff)
-AC_SUBST(MODPATH_rtl_time)
-AC_SUBST(MODPATH_rtl_sched)
-AC_SUBST(MODPATH_rtl_posixio)
-AC_SUBST(MODPATH_rtl_fifo)
 fi
 
 # Checks for header files.
