@@ -150,8 +150,6 @@ RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
 
-RTAI3_MOD=""
-
 ##############################################################################
 # Subsection 2.1                                                             #
 # Check for arguments to ./configure                                         #
@@ -1069,9 +1067,6 @@ AC_SUBST(BUILD_DOCS_HTML)
 
 if test $RTS '!=' uspace
 then
-# Export substitution symbols for module loading
-AC_SUBST([RTAI3_MOD])
-
 for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
 ; do
     AC_MSG_CHECKING([for $m])
