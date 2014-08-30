@@ -756,9 +756,10 @@ class LinuxCNCWrapper():
         txPosition = None
         positionModified, txPosition = self.check_position(self.status.io.tool_offset, stat.tool_offset)
         if positionModified:
-            self.status.io.tool_offset.CopyFrom(txPosition)
-            self.txStatus.io.tool_offset.MergeFrom(txPosition)
+            self.status.io.tool_offset.MergeFrom(txPosition)
+            self.txStatus.io.tool_offset.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         txToolResult = EmcToolData()
         for index, toolResult in enumerate(stat.tool_table):
@@ -969,7 +970,6 @@ class LinuxCNCWrapper():
                 txStatusGCode.index = index
                 self.txStatus.interp.gcodes.add().CopyFrom(txStatusGCode)
                 modified = True
-
         del txStatusGCode
 
         if (self.status.interp.interp_state != stat.interp_state):
@@ -1001,7 +1001,6 @@ class LinuxCNCWrapper():
                 txStatusMCode.index = index
                 self.txStatus.interp.mcodes.add().CopyFrom(txStatusMCode)
                 modified = True
-
         del txStatusMCode
 
         txStatusSetting = EmcStatusSetting()
@@ -1023,7 +1022,6 @@ class LinuxCNCWrapper():
                 txStatusSetting.index = index
                 self.txStatus.interp.settings.add().CopyFrom(txStatusSetting)
                 modified = True
-
         del txStatusSetting
 
         if self.interpFullUpdate:
@@ -1088,9 +1086,10 @@ class LinuxCNCWrapper():
         txPosition = None
         positionModified, txPosition = self.check_position(self.status.motion.actual_position, stat.actual_position)
         if positionModified:
-            self.status.motion.actual_position.CopyFrom(txPosition)
-            self.txStatus.motion.actual_position.MergeFrom(txPosition)
+            self.status.motion.actual_position.MergeFrom(txPosition)
+            self.txStatus.motion.actual_position.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         if (self.status.motion.adaptive_feed_enabled != stat.adaptive_feed_enabled):
             self.status.motion.adaptive_feed_enabled = stat.adaptive_feed_enabled
@@ -1316,9 +1315,10 @@ class LinuxCNCWrapper():
 
         positionModified, txPosition = self.check_position(self.status.motion.dtg, stat.dtg)
         if positionModified:
-            self.status.motion.dtg.CopyFrom(txPosition)
-            self.txStatus.motion.dtg.MergeFrom(txPosition)
+            self.status.motion.dtg.MergeFrom(txPosition)
+            self.txStatus.motion.dtg.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         if (self.status.motion.enabled != stat.enabled):
             self.status.motion.enabled = stat.enabled
@@ -1347,15 +1347,17 @@ class LinuxCNCWrapper():
 
         positionModified, txPosition = self.check_position(self.status.motion.g5x_offset, stat.g5x_offset)
         if positionModified:
-            self.status.motion.g5x_offset.CopyFrom(txPosition)
-            self.txStatus.motion.g5x_offset.MergeFrom(txPosition)
+            self.status.motion.g5x_offset.MergeFrom(txPosition)
+            self.txStatus.motion.g5x_offset.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         positionModified, txPosition = self.check_position(self.status.motion.g92_offset, stat.g92_offset)
         if positionModified:
-            self.status.motion.g92_offset.CopyFrom(txPosition)
-            self.txStatus.motion.g92_offset.MergeFrom(txPosition)
+            self.status.motion.g92_offset.MergeFrom(txPosition)
+            self.txStatus.motion.g92_offset.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         if (self.status.motion.id != stat.id):
             self.status.motion.id = stat.id
@@ -1369,20 +1371,25 @@ class LinuxCNCWrapper():
 
         positionModified, txPosition = self.check_position(self.status.motion.joint_actual_position, stat.joint_actual_position)
         if positionModified:
-            self.status.motion.joint_actual_position.CopyFrom(txPosition)
-            self.txStatus.motion.joint_actual_position.MergeFrom(txPosition)
+            self.status.motion.joint_actual_position.MergeFrom(txPosition)
+            self.txStatus.motion.joint_actual_position.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         positionModified, txPosition = self.check_position(self.status.motion.joint_position, stat.joint_position)
         if positionModified:
-            self.status.motion.joint_position.CopyFrom(txPosition)
-            self.txStatus.motion.joint_position.MergeFrom(txPosition)
+            self.status.motion.joint_position.MergeFrom(txPosition)
+            self.txStatus.motion.joint_position.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         txLimit = EmcStatusLimit()
         for index, limit in enumerate(stat.limit):
             txLimit.Clear()
             limitModified = False
+
+            if index == stat.axes:
+                break
 
             if len(self.status.motion.limit) == index:
                 self.status.motion.limit.add()
@@ -1422,9 +1429,10 @@ class LinuxCNCWrapper():
 
         positionModified, txPosition = self.check_position(self.status.motion.position, stat.position)
         if positionModified:
-            self.status.motion.position.CopyFrom(txPosition)
-            self.txStatus.motion.position.MergeFrom(txPosition)
+            self.status.motion.position.MergeFrom(txPosition)
+            self.txStatus.motion.position.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         if (self.status.motion.probe_tripped != stat.probe_tripped):
             self.status.motion.probe_tripped = stat.probe_tripped
@@ -1438,9 +1446,10 @@ class LinuxCNCWrapper():
 
         positionModified, txPosition = self.check_position(self.status.motion.probed_position, stat.probed_position)
         if positionModified:
-            self.status.motion.probed_position.CopyFrom(txPosition)
-            self.txStatus.motion.probed_position.MergeFrom(txPosition)
+            self.status.motion.probed_position.MergeFrom(txPosition)
+            self.txStatus.motion.probed_position.CopyFrom(txPosition)
             modified = True
+        del txPosition
 
         if (self.status.motion.probing != stat.probing):
             self.status.motion.probing = stat.probing
