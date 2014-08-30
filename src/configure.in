@@ -1067,89 +1067,8 @@ AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)
 
-#############################################################################
-# Section 4 - Check for math support                                         #
-#                                                                            #
-# Because some of the realtime kernel modules use floating point math        #
-# which is not supported by standard kernel calls, we need to link to        #
-# libm. RTAI provides a loadable module derived from uclibc (a minimal       #
-# glibc implimentaion for embedded systems). Alternatively, we can link      #
-# to dietlibc - Most distros package this as diet or dietlibc. Debian        #
-# splits the headers and static libs into dietlibc-dev..                     #
-# If neither of the two preferred options are available, then the default    #
-# GNU glibc math library will have to be used. This will cause problems      #
-# if certain functions found in libc.so are not stubbed, hence the following #
-# tests and linking to mathstubs.o at a later stage.                         #
-##############################################################################
-
 if test $RTS '!=' uspace
 then
-AC_MSG_CHECKING([for kernel math support])
-USE_LIBM=""
-USE_RTLIBM=""
-USE_STUBS=""
-MATHLIB=""
-MATHINC=""
-
-#only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
-if (test ${RTS##*/} = rtai-config ) ; then
-    if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
-       USE_RTLIBM=1
-    fi
-fi
-
-if (test -r $RTDIR/modules/rtai_libm${MODEXT} ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm${MODEXT}) ; then
-    # Found a suitable kernel module..
-    MATHLIB=
-    USE_RTLIBM=1
-    AC_MSG_RESULT([ok, using RTAI's libm kernel module])
-# Note: need to search /lib/modules/$KERNEL_VER for the math modules..
-#       or `$RTS --module-dir`...
-else
-    AC_MSG_RESULT([no])
-    AC_MSG_CHECKING([for a suitable libm])
-    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
-    # compile a sample first.
-    $CC -c tests/mathtest.c $RTFLAGS -o tests/mathtest.o 2>/dev/null
-    
-    DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
-    if (test "$DIET_DIR" != "" ) ; then
-        # Run a test to see if it will work...
-        ld -r -static tests/mathtest.o -o tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
-        if (test "$(nm -u tests/mathtest | grep -v ende)" = "" ) ; then
-            AC_MSG_RESULT([diet lib OK to use.])
-            USE_DIET=1
-            MATHLIB="-L$DIET_DIR/lib-i386 -lm"
-            MATHINC="-I$DIET_DIR/include"
-        fi
-    fi
-    if (test "$USE_DIET" = "" ) ; then
-        # Test the standard libm
-    rm -f tests/mathtest 2>/dev/null
-    ld -r -static tests/mathtest.o -o tests/mathtest -L/usr/lib -lm 2>/dev/null
-        if ! nm -u tests/mathtest ; then
-            AC_MSG_RESULT([libm OK to use.])
-            USE_LIBM=1
-            MATHLIB="-L/usr/lib -lm"
-        else
-            # We need to link to mathstubs if we are to use the glibc libm
-            AC_MSG_WARN([Using glibc libm with mathstubs.
-			If unresolved symbols are reported when loading kernel modules
-			please file a bug report.])
-            USE_LIBM=1
-	    USE_STUBS=1
-            MATHLIB="-L/usr/lib -lm"
-        fi
-    fi
-    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
-fi
-
-AC_SUBST([USE_LIBM])
-AC_SUBST([USE_STUBS])
-AC_SUBST([USE_RTLIBM])
-AC_SUBST([MATHINC])
-AC_SUBST([MATHLIB])
-
 # Export substitution symbols for module loading
 AC_SUBST([RTAI3_MOD])
 
