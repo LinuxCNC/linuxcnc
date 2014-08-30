@@ -14,8 +14,6 @@ procfs_macros.h : Macros used to impliment the /proc interface
 rtapi_proc.h    : more stuff implementing the /proc interface
 rtai_rtapi.c    : implementation of real-time API, for RTAI
 rtai_ulapi.c    : implementation of user-level API, for RTAI
-rtl_rtapi.c     : implementation of real-time API, for RTL
-rtl_ulapi.c     : implementation of user-level API, for RTL
 uspace_rtapi.c  : implementation of real-time API, for POSIX RTOS
 uspace_ulapi.c  : implementation of user-level API, for POSIX RTOS
 
@@ -56,8 +54,7 @@ One of the last ones will be:
 
 <date> <time> <host> kernel: RTAPI: Init complete
 
-This means that the rtapi module (either rtl_rtapi.o or
-rtai_rtapi.o) is loaded.
+This means that the rtapi module (rtai_rtapi.o) is loaded.
 
 3. Run the timer task example:
 
