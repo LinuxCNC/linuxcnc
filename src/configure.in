@@ -478,7 +478,7 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
-# Check with the version.h to find the uts-kernel version.                   #
+# Check the kernel headers to find the uts-kernel version.                   #
 # This should be a more reliable way of determining the kernel that          #
 # is being used to compile against - `uname -r` only returns the             #
 # running kernel version which is may not be the one the code is             #
@@ -486,15 +486,6 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 ##############################################################################
 
 if test $RTS '!=' uspace; then
-AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
-
-# Unfortunately, many distributions (redhat, mandrake) have #defines
-# inside version.h, so a simple cat|grep|cut test won't work... But then again,
-# RH & Mandrake kernels are notorious for their use of patches that break
-# the RT patching - Both RTAI and RTLinux strongly recommend using
-# a virgin source from kernel.org.
-
-# Get the kernel version from version.h
 AC_MSG_CHECKING([for kernel version string])
 
 if test -e $KERNELDIR/include/linux/utsrelease.h; then
