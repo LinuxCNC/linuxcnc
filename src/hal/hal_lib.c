@@ -1690,6 +1690,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* init time logging variables */
     new->runtime = 0;
     new->maxtime = 0;
+    new->maxtime_increased = 0;
     /* note that failure to successfully create the following params
        does not cause the "export_funct()" call to fail - they are
        for debugging and testing use only */
@@ -1699,6 +1700,9 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
     /* create a parameter with the function's maximum runtime in it */
     rtapi_snprintf(buf, sizeof(buf), "%s.tmax", name);
     hal_param_s32_new(buf, HAL_RW, &(new->maxtime), comp_id);
+    /* create a parameter with the function's maximum runtime in it */
+    rtapi_snprintf(buf, sizeof(buf), "%s.tmax-increased", name);
+    hal_param_bit_new(buf, HAL_RO, &(new->maxtime_increased), comp_id);
     return 0;
 }
 
@@ -2688,6 +2692,9 @@ static void thread_task(void *arg)
 		funct->runtime = (hal_s32_t)(end_time - start_time);
 		if (funct->runtime > funct->maxtime) {
 		    funct->maxtime = funct->runtime;
+		    funct->maxtime_increased = 1;
+		} else {
+		    funct->maxtime_increased = 0;
 		}
 		/* point to next next entry in list */
 		funct_entry = SHMPTR(funct_entry->links.next);
