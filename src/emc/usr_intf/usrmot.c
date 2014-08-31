@@ -29,6 +29,7 @@
 #include "posemath.h"
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_LEN,NUM */
 #include "emcmotglb.h"		/* SHMEM_KEY */
+#include "motion_types.h"
 
 /* max numbers allowed */
 #define MAX_NUMBERS 8
@@ -268,6 +269,11 @@ int main(int argc, char *argv[])
 	    emcmotCommand.pos.tran.y = numbers[1];
 	    emcmotCommand.pos.tran.z = numbers[2];
 	    emcmotCommand.id = motionId++;
+            emcmotCommand.turn = -1;
+            emcmotCommand.vel = 1;
+            emcmotCommand.acc = 1;
+            emcmotCommand.ini_maxvel = 1;
+            emcmotCommand.motion_type = EMC_MOTION_TYPE_FEED;
 
 	    if (usrmotWriteEmcmotCommand(&emcmotCommand) == -1) {
 		fprintf(stderr, "Can't send a command to RT-task\n");
