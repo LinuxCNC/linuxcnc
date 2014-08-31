@@ -4,14 +4,24 @@
 
 
 import sys
-import getopt
+from optparse import Option, OptionParser
 import preview as gcode
 import time
+options = [
+    Option( '-i', dest='initcode',  default="G17 G20 G40 G49 G54 G80 G90 G94"),
+    Option( '-u', dest='unitcode',  default=""),
+    Option( '-p', dest='parameter_file',  default=""),
+    Option( '-I', dest='interface',  default="127.0.0.1"),
+    Option( '-P', dest='previewport',  default="*"),
+    Option( '-S', dest='statusport',  default="*"),
+    ]
 
 class Dummy:
     pass
 
 def run(filename,canon, unitcode, initcode):
+
+    print "running :", filename, unitcode, initcode
     result, last_sequence_number = gcode.parse(filename, canon, unitcode, initcode)
 
     # XXX mystery attributes
@@ -34,41 +44,35 @@ def run(filename,canon, unitcode, initcode):
 
 
 def main():
+    parser = OptionParser()
+    parser.add_options(options)
+
+    (opts, args) = parser.parse_args()
+    if not args:
+        print "usage: rs274preview.py [options] <ngc file>"
+        sys.exit(1)
+
     canon = Dummy()
-    # canon expects a 'parameter_file' attribute
-    #canon.parameter_file = "sim.var"
-    # corresponds to Axis ini RS274NGC PARAMETER_FILE value
-    canon.parameter_file = ""
+    canon.parameter_file = opts.parameter_file  # eg "sim.var"
 
-    # XXX mystery parameter
-    # executed before startupcode - to set machine units (G20,G21)?
-    unitcode = ""
-    # corresponds to Axis ini RS274NGC RS274NGC_STARTUP_CODE value
-    initcode = "G17 G20 G40 G49 G54 G80 G90 G94"
-    filename = "test.ngc"
+    # use to ephemeral ports
+    ps = "tcp://%s:%s" % (opts.interface, opts.previewport)
+    ss = "tcp://%s:%s" % (opts.interface, opts.statusport)
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "s:i:f:")
-    except getopt.error, msg:
-        print msg
-        sys.exit(2)
+    # gcode.bind() takes zmq URI's and returns a tuple
+    # of actually bound uris which can then be zeroconf-announced
+    (preview_uri, status_uri) = gcode.bind(ps, ss)
 
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            print __doc__
-            sys.exit(0)
-        if o in ("-s"):
-            startupcode = a
-        if o in ("-i"):
-            initcode = a
-        if o in ("-p"):
-            canon.parameter_file = a
+    print "preview URI:", preview_uri
+    print "status URI:", status_uri
+
+    # let consumers connect
+    time.sleep(3)
 
 
     for arg in args:
-        run(arg,canon, unitcode, initcode)
-    else:
-        run(filename,canon, unitcode, initcode)
+        run(arg,canon, opts.unitcode, opts.initcode)
+ 
 
 if __name__ == "__main__":
     main()

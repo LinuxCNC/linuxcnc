@@ -37,13 +37,8 @@ using namespace google::protobuf;
 
 static zctx_t *z_context;
 static void *z_preview, *z_status;  // sockets
-static bool z_debug;
-static char z_ident[20];
-static const char *z_preview_uri = "tcp://127.0.0.1:4711";
-static const char *z_status_uri = "tcp://127.0.0.1:4712";
 static const char *istat_topic = "status";
 static int batch_limit = 100;
-static int current_credit = 0;
 static const char *p_client = "preview"; //NULL; // single client for now
 
 static pb::Container istat, output;
@@ -90,19 +85,17 @@ static void send_preview(const char *client, bool flush = false)
     }
 }
 
+
+
 static int z_init(void)
 {
-    int rc;
+    if (!z_context)
+	z_context = zctx_new ();
 
-    if (z_context)  // singleton - once only
-	return 0;
-
-    const char *uri = getenv("PREVIEW_URI");
-    if (uri) z_preview_uri = uri;
-    uri = getenv("STATUS_URI");
-    if (uri) z_status_uri = uri;
-
-    z_debug = (getenv("ZDEBUG") != NULL);
+    // const char *uri = getenv("PREVIEW_URI");
+    // if (uri) z_preview_uri = uri;
+    // uri = getenv("STATUS_URI");
+    // if (uri) z_status_uri = uri;
 
     if (getenv("BATCH"))
 	batch_limit = atoi(getenv("BATCH"));
@@ -111,29 +104,20 @@ static int z_init(void)
     // compatible with the version of the headers we compiled against.
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    snprintf(z_ident, sizeof(z_ident), "preview-interp-%d", getpid());
 
-    z_context = zctx_new ();
-
-    //    z_preview = zsocket_new (z_context, ZMQ_ROUTER);
     z_preview = zsocket_new (z_context, ZMQ_XPUB);
-    //    zsocket_set_linger (z_preview, 0);
-    //    zsocket_set_xpub_verbose (z_preview, 1);
-    //    zsocket_set_identity (z_preview, z_ident);
-    //    zsocket_set_rcvtimeo (z_preview, REPLY_TIMEOUT);
-
+#if 0
     rc = zsocket_bind(z_preview, z_preview_uri);
     assert (rc != 0);
-
+#endif
 
     z_status = zsocket_new (z_context, ZMQ_XPUB);
     assert(z_status);
-    //    zsocket_set_linger (z_status, 0);
-    //    zsocket_set_xpub_verbose (z_status, 1);
+#if 0 
     rc = zsocket_bind(z_status, z_status_uri);
     assert (rc != 0);
 
-    usleep(300 *1000); // avoid slow joiner syndrome
+#endif
 
     note_printf(istat, "interpreter startup pid=%d", getpid());
     publish_istat(pb::INTERP_IDLE);
@@ -1304,6 +1288,30 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
     return segs;
 }
 
+static PyObject *bind_sockets(PyObject *self, PyObject *args) {
+    char *preview_uri, *status_uri;
+    if(!PyArg_ParseTuple(args, "ss", &preview_uri, &status_uri))
+        return NULL;
+    int rc;
+    rc = zsocket_bind(z_preview, preview_uri);
+    if(!rc) {
+	PyErr_Format(PyExc_RuntimeError,
+		     "binding preview socket to '%s' failed", preview_uri);
+	return NULL;
+    }
+    rc = zsocket_bind(z_status, status_uri);
+    if(!rc) {
+	PyErr_Format(PyExc_RuntimeError,
+		     "binding status socket to '%s' failed", status_uri);
+	return NULL;
+    }
+    // usleep(300 *1000); // avoid slow joiner syndrome
+
+    return Py_BuildValue("(ss)",
+			 zsocket_last_endpoint(z_preview),
+			 zsocket_last_endpoint(z_status));
+}
+
 static PyMethodDef gcode_methods[] = {
     {"parse", (PyCFunction)parse_file, METH_VARARGS, "Parse a G-Code file"},
     {"strerror", (PyCFunction)rs274_strerror, METH_VARARGS,
@@ -1312,6 +1320,8 @@ static PyMethodDef gcode_methods[] = {
         "Calculate information about extents of gcode"},
     {"arc_to_segments", (PyCFunction)rs274_arc_to_segments, METH_VARARGS,
         "Convert an arc to straight segments"},
+    {"bind", (PyCFunction)bind_sockets, METH_VARARGS, "pass an IP address and return a tuple (status uri, preview uri)"},
+
     {NULL}
 };
 
