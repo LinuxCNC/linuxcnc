@@ -343,6 +343,7 @@ typedef struct {
     hal_s32_t runtime;		/* duration of last run, in nsec */
     hal_s32_t maxtime;		/* duration of longest run, in nsec */
     int handle;                 // unique ID
+    hal_bit_t maxtime_increased;	/* on last call, maxtime increased */
     char name[HAL_NAME_LEN + 1];	/* function name */
 } hal_funct_t;
 
