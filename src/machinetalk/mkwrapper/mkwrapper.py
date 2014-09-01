@@ -35,6 +35,22 @@ def getFreePort():
     return port
 
 
+# Handle uploaded files to delete them after program exit
+uploadedFiles = set()
+
+
+def addUploadedFile(file):
+    global uploadedFiles
+    uploadedFiles.add(file)
+
+
+def clearUploadedFiles():
+    global uploadedFiles
+    for uploadedFile in uploadedFiles:
+        os.remove(uploadedFile)
+    uploadedFiles = set()
+
+
 class ZeroconfService:
     """A simple class to publish a network service with zeroconf using
     avahi.
@@ -83,15 +99,9 @@ class ZeroconfService:
 
 class CustomFTPHandler(FTPHandler):
 
-    def __del__(self):
-        for uploadedFile in self.uploadedFiles:
-            os.remove(uploadedFile)
-
     def on_file_received(self, file):
         # do something when a file has been received
-        if not hasattr(self, 'uploadedFiles'):
-            self.uploadedFiles = set()
-        self.uploadedFiles.add(file)
+        addUploadedFile(file)
 
     def on_incomplete_file_received(self, file):
         # remove partially uploaded files
@@ -164,6 +174,9 @@ class FileService():
             sys.exit(1)
 
         thread.start_new_thread(self.run, ())
+
+    def __del__(self):
+        clearUploadedFiles()
 
     def run(self):
         try:
@@ -895,9 +908,13 @@ class LinuxCNCWrapper():
             self.txStatus.task.exec_state = stat.exec_state
             modified = True
 
-        if (self.status.task.file != stat.file):
-            self.status.task.file = stat.file
-            self.txStatus.task.file = stat.file
+        if stat.file != "":
+            relativeFile = os.path.relpath(stat.file, self.directory)
+        else:
+            relativeFile = ""
+        if (self.status.task.file != relativeFile):
+            self.status.task.file = relativeFile
+            self.txStatus.task.file = relativeFile
             modified = True
 
         if (self.status.task.input_timeout != stat.input_timeout):
