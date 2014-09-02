@@ -436,6 +436,7 @@ int main (int argc, char *argv[])
     retval = zmq_init(&self);
     if (retval) exit(retval);
 
+    init_protocols();
     retval = wt_proxy_new(&self);
     if (retval) exit(retval);
 

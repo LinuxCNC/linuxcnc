@@ -16,6 +16,7 @@ WEBTALK_SRCS :=  $(addprefix $(WEBTALK_DIR)/, \
 	webtalk_jsonpolicy.cc	\
 	webtalk_plugin.cc	\
 	webtalk_echo.cc 	\
+	webtalk_initproto.cc 	\
 	webtalk_main.cc 	\
 	cencode.c 		\
 	cdecode.c )
