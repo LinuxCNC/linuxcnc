@@ -3,11 +3,13 @@ include ../../../Makefile.inc
 CXXFLAGS += -Wall -g -I. -I../../include $(PROTOBUF_CFLAGS) $(JANSSON_CFLAGS)
 
 PROTOC_INCLUDE := --proto_path=. \
-	--proto_path=../../proto/proto \
-	--proto_path=/usr/include
+	--proto_path=/usr/include \
+	--proto_path=../../nanopb/generator/proto
 
 NPB_PROTOC_FLAGS :=  --plugin=protoc-gen-nanopb=../../../../lib/python/protoc-gen-nanopb
 NPB_CFLAGS := -Wall -g -I../../nanopb -I.
+# see note on PBDEP_OPT below
+vpath %.proto  .:../../nanopb/generator/proto
 
 all:	demo_pb2.py c++parse npbparse
 
@@ -27,9 +29,9 @@ clean:
 
 %.npb.c:	%.proto
 	protoc $(PROTOC_INCLUDE) $(NPB_PROTOC_FLAGS) \
-		--nanopb_out="--extension=npb:." $<
+		--nanopb_out="--extension=.npb:." $<
 
-nanopb.pb.cc: ../../proto/proto/nanopb.proto
+nanopb.pb.cc: ../../nanopb/generator/proto/nanopb.proto
 	protoc   $(PROTOC_INCLUDE) --cpp_out=. $<
 
 # show various output formats of serialisation
@@ -65,5 +67,5 @@ json2pb.o: ../../lib/json2pb.cc
 c++parse: demo.pb.cc nanopb.pb.cc cppmain.cc ../../lib/json2pb.cc
 	g++ $^ $(CXXFLAGS) -o c++parse  $(PROTOBUF_LIBS) $(JANSSON_LIBS) -lstdc++
 
-npbparse: npbmain.c ../../nanopb/pb_decode.c demo.npb.c
+npbparse: npbmain.c ../../nanopb/pb_decode.c ../../nanopb/pb_common.c demo.npb.c
 	gcc $^ $(NPB_CFLAGS) -o npbparse
