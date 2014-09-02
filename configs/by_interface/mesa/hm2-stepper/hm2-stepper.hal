@@ -50,7 +50,6 @@ addf motion-command-handler               servo-thread
 addf motion-controller                    servo-thread
 # revel in the free time here from not having to run PID 
 addf hm2_[HOSTMOT2](BOARD).0.write        servo-thread
-addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
        
 
 # ######################################################

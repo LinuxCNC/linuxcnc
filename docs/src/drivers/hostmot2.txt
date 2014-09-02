@@ -84,18 +84,18 @@ The HostMot2 firmware may include a watchdog Module; if it does, the
 hostmot2 driver will use it.
 
 The watchdog must be petted by LinuxCNC periodically or it will bite.
+The hm2 write function (see below) pets the watchdog.
 
-When the watchdog bites, all the board's I/O pins are disconnected
-from their Module instances and become high-impedance inputs (pulled
-high), and all communication with the board stops. The state of the
-HostMot2 firmware modules is not disturbed (except for the
-configuration of the I/O Pins). Encoder instances keep counting
+When the watchdog bites, all the board's I/O pins are disconnected from
+their Module instances and become high-impedance inputs (pulled high).
+The state of the HostMot2 firmware modules is not disturbed (except
+for the configuration of the I/O Pins). Encoder instances keep counting
 quadrature pulses, and pwm- and step-generators keep generating signals
 (which are not relayed to the motors, because the I/O Pins have become
 inputs).
 
-Resetting the watchdog resumes communication and resets the I/O pins
-to the configuration chosen at load-time.
+Resetting the watchdog resets the I/O pins to the configuration chosen
+at load-time.
 
 If the firmware includes a watchdog, the following HAL objects will be
 exported:
@@ -110,17 +110,10 @@ exported:
 === Parameters:
 
 * 'timeout_ns' - 
-     (u32 read/write) Watchdog timeout, in nanoseconds. This is initialized
-    to 1,000,000,000 (1 second) at module load time. If more than this
-    amount of time passes between calls to the pet_watchdog() function, the
-    watchdog will bite.
-
-=== Functions:
-
-* 'pet_watchdog()' - 
-     Calling this function resets the watchdog timer and postpones the
-    watchdog biting until timeout_ns nanoseconds later. This function
-    should be added to the servo thread.
+     (u32 read/write) Watchdog timeout, in nanoseconds. This is
+    initialized to 5,000,000 (5 milliseconds) at module load time. If
+    more than this amount of time passes between calls to the hm2 write
+    function, the watchdog will bite.
 
 == HostMot2 Functions
 
@@ -129,9 +122,6 @@ exported:
 
 * 'hm2_<BoardType>.<BoardNum>.write' - 
     Write all outputs.
-
-* 'hm2_<BoardType>.<BoardNum>.pet-watchdog' - 
-    Pet the watchdog to keep it from biting us for a while.
 
 * 'hm2_<BoardType>.<BoardNum>.read_gpio' - 
      Read the GPIO input pins only. (This function 

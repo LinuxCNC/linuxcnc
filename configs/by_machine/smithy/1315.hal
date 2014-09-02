@@ -177,7 +177,5 @@ addf debounce.0 servo-thread
 addf classicladder.0.refresh servo-thread
 # write outputs
 addf hm2_5i20.0.write servo-thread
-# pet the watchdog so he won't bite us!
-addf hm2_5i20.0.pet_watchdog servo-thread
 # toggle the charge pump
 addf charge-pump servo-thread
