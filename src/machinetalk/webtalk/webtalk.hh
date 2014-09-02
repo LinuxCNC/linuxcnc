@@ -224,6 +224,10 @@ int wt_zeroconf_withdraw(wtself_t *self);
 void echo_thread(void *args, zctx_t *ctx, void *pipe);
 
 // webtalk_proxy.cc:
+int callback_http(struct libwebsocket_context *context,
+		  struct libwebsocket *wsi,
+		  enum libwebsocket_callback_reasons reason, void *user,
+		  void *in, size_t len);
 int wt_proxy_new(wtself_t *self);
 int wt_proxy_add_policy(wtself_t *self, const char *name, zwscvt_cb cb);
 int service_timer_callback(zloop_t *loop, int  timer_id, void *context);
@@ -239,3 +243,7 @@ int default_policy(wtself_t *self, zws_session_t *wss, zwscb_type type);
 
 // webtalk_plugin.cc:
 int wt_add_plugin(wtself_t *self, const char *sopath);
+
+// webtalk_initproto.cc
+extern struct libwebsocket_protocols *protocols;
+void init_protocols(void);

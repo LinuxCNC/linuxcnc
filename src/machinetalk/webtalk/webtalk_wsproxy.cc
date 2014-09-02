@@ -12,11 +12,6 @@
 
 #include "webtalk.hh"
 
-static int callback_http(struct libwebsocket_context *context,
-			 struct libwebsocket *wsi,
-			 enum libwebsocket_callback_reasons reason, void *user,
-			 void *in, size_t len);
-
 static int libws_socket_readable(zloop_t *loop, zmq_pollitem_t *item, void *context);
 static int zmq_socket_readable(zloop_t *loop, zmq_pollitem_t *item, void *context);
 static int wsqin_socket_readable(zloop_t *loop, zmq_pollitem_t *item, void *context);
@@ -40,75 +35,6 @@ static inline int zmq2poll(int mask)
     if (mask & ZMQ_POLLERR) result |= POLLERR;
     return result;
 }
-
-static struct libwebsocket_protocols protocols[] = {
-    //  first protocol must always be HTTP handler
-    {
-	"http",                 // name
-	callback_http,		// callback
-	sizeof(zws_session_t),	// per_session_data_size
-	0,			// max frame size / rx buffer
-	0, // let library handle partial writes
-	PROTO_FRAMING_NONE|PROTO_ENCODING_NONE 	// id - flag field
-    },
-
-    // machinekit specific framing
-    {
-	"machinekit1.0",
-	callback_http,
-	sizeof(zws_session_t),
-	0,
-	0,
-	PROTO_FRAMING_MACHINEKIT|PROTO_ENCODING_JSON|PROTO_VERSION(0)
-    },
-
-#if TEST_VERSIONING
-    {
-	"machinekit1.1",
-	callback_http,
-	sizeof(zws_session_t),
-	0,
-	0,
-	PROTO_FRAMING_MACHINEKIT|PROTO_ENCODING_JSON|PROTO_VERSION(1)
-    },
-#endif
-
-#ifdef EXPERIMENTAL_ZWS_SUPPORT
-    // experimentally enable "ZWS1.0" as legit ws protocol
-    // https://github.com/somdoron/rfc/blob/master/spec_39.txt
-    {
-	"ZWS1.0",
-	callback_http,
-	sizeof(zws_session_t),
-	0,
-	0,
-	PROTO_FRAMING_ZWS|PROTO_ENCODING_PROTOBUF|PROTO_VERSION(0),
-    },
-
-    // mhaberler's protobuf-based framing method
-    // assumes https://github.com/dcodeIO/ProtoBuf.js or manual decoding
-    // client-side
-    {
-	"ZWS1.0-proto",
-	callback_http,
-	sizeof(zws_session_t),
-	0,
-	0,
-	PROTO_FRAMING_ZWSPROTO|PROTO_ENCODING_PROTOBUF|PROTO_VERSION(0),
-    },
-
-    // wrapped in base64 - binary-safe version of above for text-only ws transports
-    {
-	"ZWS1.0-proto-base64",
-	callback_http,
-	sizeof(zws_session_t),
-	0,
-	0,
-	PROTO_WRAP_BASE64|PROTO_FRAMING_ZWSPROTO|PROTO_ENCODING_PROTOBUF|PROTO_VERSION(0),
-    },
-#endif
-    { NULL, NULL, 0, 0 } // terminator
-};
 
 int wt_proxy_new(wtself_t *self)
 {
@@ -255,7 +181,7 @@ static int serve_http(struct libwebsocket_context *context,
 }
 
 // HTTP + Websockets server
-static int
+int
 callback_http(struct libwebsocket_context *context,
 	      struct libwebsocket *wsi,
 	      enum libwebsocket_callback_reasons reason, void *user,
