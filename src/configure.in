@@ -146,15 +146,9 @@ AC_MSG_CHECKING(for RT dir)
 RTDIR=""
 RTNAME=""
 RTAI=""
-RTLINUX=""
-RTLINUXPRO=""
 RTPREFIX=""
 KERNELDIR=""
 RTFLAGS=""
-
-RTAI3_MOD=""
-RTAI_MOD=""
-RTL_MOD=""
 
 ##############################################################################
 # Subsection 2.1                                                             #
@@ -200,8 +194,6 @@ AC_SUBST([RTS])
 # 2. If no RT has been specified explicitely by the user, one has to be      #
 # found by search. In order to do that the following code will search for a  #
 # RT-specific script:                                                        #
-# rtlinux-config for RTLinux                                                 #
-# realtime-config for RTAI 24.1.x                                            #
 # rtai-config for RTAI 3.x                                                   #
 ##############################################################################
 
@@ -253,7 +245,7 @@ else
   RTS=""
   for location in $DIRS; do
     for subdir in . scripts bin; do
-      for signature in rtai rtl realtime; do
+      for signature in rtai; do
 	candidate=$location/$subdir/$signature-config
 	if test -z "$RTS" -a -e $candidate; then
 	  RTS=$candidate
@@ -292,50 +284,6 @@ case $RTS in
     KERNELDIR=`$RTS --linux-dir`
     RTARCH=`$RTS --arch`
 ;;
-*/realtime-config)
-# For RTAI-24.1x $RTS = realtime-config
-# Options and their return values for realtime-config
-#	 Option		Returns
-#	--prefix	Path to the rtai installation (usually /usr/realtime), not the original source tree. - USE WITH CAUTION
-#	--version	Should return the version number - Appears to return 0.0.0 for most 24.1.x releases.
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--cflags	Flags used to compile the realtime modules with.
-#	--cflags-fp	Flags to use when compiling realtime modules with floating point math.
-#	--dump		Dumps the .buildvars to screen - Grep for linuxdir
-    RTNAME=rtai
-    RTPREFIX=rtai
-    RTAI=1
-
-    # any other rtai-24.1.x system
-    TEMP=`$RTS --prefix`
-    if (test -d $TEMP) ; then
-        RTDIR=$(cd $TEMP ; pwd -P )
-    else
-        RTDIR=${RTS%%/scripts/realtime-config}
-    fi
-    RTFLAGS=`$RTS --cflags-fp | head -n 1`
-    RTFLAGS="$RTFLAGS -DRTAI=1"
-    KERNELDIR=$($RTS --dump | grep -i linuxdir | awk -F'[[ ="]]+' '{print $2}')
-#"
-    KERNELDIR=$(cd $KERNELDIR ; pwd -P )
-;;
-*/rtl-config)
-# For RTLinux-3.? $RTS = rtl-config
-# Options and their return values for rtl-config
-#	 Option		Returns
-#	--prefix	Path to the RTLinux installation (usually /usr/rtlinux-{rtlVersion}), not the original source tree.
-#	--rtlVersion	Version number of the installed RTLinux (e.g. 3.0)
-#	--cc		The compiler used for the C sources - Not necessarily the default cc
-#	--cflags	Flags used to compile the realtime modules with - It is a good idea to use these !
-#	--linux		Path to the source directory of the patched kernel.
-#	--module_dir	Path to the directory where the RTLinux modules are installed
-#	--modules	A list of the available realtime modules.
-    RTPREFIX=rtl
-    RTDIR=`$RTS --prefix`
-    RTDIR=$(cd $RTDIR ; pwd -P )
-    RTFLAGS=`$RTS --cflags`
-    KERNELDIR=`$RTS --linux`
-;;
 uspace)
     RTPREFIX=uspace
     RTDIR=$(pwd -P)
@@ -362,8 +310,6 @@ fi
 
 AC_SUBST([RTNAME])
 AC_SUBST([RTAI])
-AC_SUBST([RTLINUX])
-AC_SUBST([RTLINUXPRO])
 AC_SUBST([RTPREFIX])
 AC_SUBST([KERNELDIR])
 AC_SUBST([RTFLAGS])
@@ -375,8 +321,6 @@ uspace)
     AC_DEFINE(RTAPI_USPACE, [], [Realtime system is userspace]) ;;
 rtai)
     AC_DEFINE(RTAPI_RTAI, [], [Realtime system is RTAI]) ;;
-rtl)
-    AC_DEFINE(RTAPI_RTL, [], [Realtime system is RTL]) ;;
 esac
 
 
@@ -398,24 +342,12 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 
 ##############################################################################
 # Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
-# Check CC version - (P.C.) We need to verify the compiler is the same one   #
-# used for the realtime extensions... Hence the need to find the RT signature# 
-# first.                                                                     #
-# $RTS --cc should return the C compiler used - Verify this is acceptable.   #
-# if version is gcc-2.96 check for alternative                               #
 ##############################################################################
 AC_MSG_CHECKING([for cc version])
 
-# The compiler MUST match the one used to compile the realtime modules if the
-# kernel level code is to function correctly. But if the kernel has been
-# compiled with gcc-2.96, it is unlikely to ever work !
-# However realtime-config doesn't seem to have such an option
 if (test ${RTS##*/} = rtai-config ) ; then
   RTSCC=`$RTS --cc`
   AC_MSG_RESULT(found $RTSCC in rtai-config)
-elif (test ${RTS##*/} = rtl-config ) ; then
-  RTSCC=`$RTS --cc`
-  AC_MSG_RESULT(found $RTSCC in rtl-config)
 else
   AC_MSG_RESULT(not specified)
 fi
@@ -546,7 +478,7 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
-# Check with the version.h to find the uts-kernel version.                   #
+# Check the kernel headers to find the uts-kernel version.                   #
 # This should be a more reliable way of determining the kernel that          #
 # is being used to compile against - `uname -r` only returns the             #
 # running kernel version which is may not be the one the code is             #
@@ -554,15 +486,6 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 ##############################################################################
 
 if test $RTS '!=' uspace; then
-AC_CHECK_HEADERS([$KERNELDIR/include/linux/version.h],[],[AC_MSG_ERROR([version.h not found - Is the kernel headers package installed ?])])
-
-# Unfortunately, many distributions (redhat, mandrake) have #defines
-# inside version.h, so a simple cat|grep|cut test won't work... But then again,
-# RH & Mandrake kernels are notorious for their use of patches that break
-# the RT patching - Both RTAI and RTLinux strongly recommend using
-# a virgin source from kernel.org.
-
-# Get the kernel version from version.h
 AC_MSG_CHECKING([for kernel version string])
 
 if test -e $KERNELDIR/include/linux/utsrelease.h; then
@@ -1133,98 +1056,10 @@ AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)
 
-#############################################################################
-# Section 4 - Check for math support                                         #
-#                                                                            #
-# Because some of the realtime kernel modules use floating point math        #
-# which is not supported by standard kernel calls, we need to link to        #
-# libm. RTAI provides a loadable module derived from uclibc (a minimal       #
-# glibc implimentaion for embedded systems). Alternatively, we can link      #
-# to dietlibc - Most distros package this as diet or dietlibc. Debian        #
-# splits the headers and static libs into dietlibc-dev..                     #
-# If neither of the two preferred options are available, then the default    #
-# GNU glibc math library will have to be used. This will cause problems      #
-# if certain functions found in libc.so are not stubbed, hence the following #
-# tests and linking to mathstubs.o at a later stage.                         #
-##############################################################################
-
 if test $RTS '!=' uspace
 then
-AC_MSG_CHECKING([for kernel math support])
-USE_LIBM=""
-USE_RTLIBM=""
-USE_STUBS=""
-MATHLIB=""
-MATHINC=""
-
-#we need to make sure that $RTS has a --module-dir option
-#only rtai-config has, well rtlinux-config has a --module_dir and lacks the rtai_* modules
-if (test ${RTS##*/} = rtai-config ) ; then
-    if (test -r $($RTS --module-dir)/rtai_math${MODEXT} ) ; then
-       USE_RTLIBM=1
-    fi
-fi
-
-if (test -r $RTDIR/modules/rtai_libm${MODEXT} ) || (test $USE_RTLIBM) || (test -r /lib/modules/${KERNEL_VERS}/rtai/rtai_libm${MODEXT}) ; then
-    # Found a suitable kernel module..
-    MATHLIB=
-    USE_RTLIBM=1
-    AC_MSG_RESULT([ok, using RTAI's libm kernel module])
-# Note: need to search /lib/modules/$KERNEL_VER for the math modules..
-#       or `$RTS --module-dir`...
-else
-    AC_MSG_RESULT([no])
-    AC_MSG_CHECKING([for a suitable libm])
-    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
-    # compile a sample first.
-    $CC -c tests/mathtest.c $RTFLAGS -o tests/mathtest.o 2>/dev/null
-    
-    DIET_DIR=$(find /usr/lib -maxdepth 2 -name diet* | head -n1)
-    if (test "$DIET_DIR" != "" ) ; then
-        # Run a test to see if it will work...
-        ld -r -static tests/mathtest.o -o tests/mathtest -L$DIET_DIR/lib-i386 -lm 2>/dev/null
-        if (test "$(nm -u tests/mathtest | grep -v ende)" = "" ) ; then
-            AC_MSG_RESULT([diet lib OK to use.])
-            USE_DIET=1
-            MATHLIB="-L$DIET_DIR/lib-i386 -lm"
-            MATHINC="-I$DIET_DIR/include"
-        fi
-    fi
-    if (test "$USE_DIET" = "" ) ; then
-        # Test the standard libm
-    rm -f tests/mathtest 2>/dev/null
-    ld -r -static tests/mathtest.o -o tests/mathtest -L/usr/lib -lm 2>/dev/null
-        if ! nm -u tests/mathtest ; then
-            AC_MSG_RESULT([libm OK to use.])
-            USE_LIBM=1
-            MATHLIB="-L/usr/lib -lm"
-        else
-            # We need to link to mathstubs if we are to use the glibc libm
-            AC_MSG_WARN([Using glibc libm with mathstubs.
-			If unresolved symbols are reported when loading kernel modules
-			please file a bug report.])
-            USE_LIBM=1
-	    USE_STUBS=1
-            MATHLIB="-L/usr/lib -lm"
-        fi
-    fi
-    rm -f tests/mathtest.o tests/mathtest 2>/dev/null
-fi
-
-AC_SUBST([USE_LIBM])
-AC_SUBST([USE_STUBS])
-AC_SUBST([USE_RTLIBM])
-AC_SUBST([MATHINC])
-AC_SUBST([MATHLIB])
-
-# Export substitution symbols for module loading
-AC_SUBST([RTAI3_MOD])
-AC_SUBST([RTAI_MOD])
-AC_SUBST([RTL_MOD])
-
 for m in adeos rtai_hal rtai_ksched rtai_fifos rtai_shm rtai_sem rtai_math \
-        rtai rt_mem_mgr rtai_sched rtai_libm \
-        rtl mbuff rtl_time rtl_sched rtl_posixio rtl_fifo; do
+; do
     AC_MSG_CHECKING([for $m])
     TMP=$(find $MODULE_DIR -name $m$MODEXT 2>/dev/null)
     if test -z "$TMP"; then
@@ -1241,18 +1076,6 @@ AC_SUBST(MODPATH_rtai_fifos)
 AC_SUBST(MODPATH_rtai_shm)
 AC_SUBST(MODPATH_rtai_sem)
 AC_SUBST(MODPATH_rtai_math)
-AC_SUBST(MODPATH_adeos)
-AC_SUBST(MODPATH_rtai)
-AC_SUBST(MODPATH_rt_mem_mgr)
-AC_SUBST(MODPATH_rtai_sched)
-AC_SUBST(MODPATH_rtai_shm)
-AC_SUBST(MODPATH_rtai_libm)
-AC_SUBST(MODPATH_rtl)
-AC_SUBST(MODPATH_mbuff)
-AC_SUBST(MODPATH_rtl_time)
-AC_SUBST(MODPATH_rtl_sched)
-AC_SUBST(MODPATH_rtl_posixio)
-AC_SUBST(MODPATH_rtl_fifo)
 fi
 
 # Checks for header files.

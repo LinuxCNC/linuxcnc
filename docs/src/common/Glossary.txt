@@ -298,7 +298,7 @@ RTLINUX::
 
 RTAPI::
      (((RTAPI)))A portable interface to real-time operating systems
-    including RTAI and RTLINUX
+    including RTAI and POSIX pthreads with realtime extensions.
 
 RS-274/NGC::
      (((RS274NGC)))[[glo:RS274NGC]] The formal name for the language

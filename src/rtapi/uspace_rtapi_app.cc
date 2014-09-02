@@ -464,6 +464,7 @@ become_master:
     if(result == 0) {
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
+        setsid(); // create a new session if we can...
         result = master(fd, args);
         unlink(get_fifo_path());
         return result;
