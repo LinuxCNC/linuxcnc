@@ -156,7 +156,7 @@ ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
-$(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
+$(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC -fno-strict-aliasing
 USERSRCS += $(PYSRCS)
 endif
 
