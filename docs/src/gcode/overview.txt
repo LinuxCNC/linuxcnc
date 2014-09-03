@@ -346,8 +346,9 @@ example '##2'  means the value of the parameter whose index is the
     Tool Orientation. Volatile.
 
 5420-5428::
-     Current Position including all offsets and in the current program
-    units for X, Y, Z, A, B, C, U, V & W, volatile.
+    Current relative position in the active coordinate system including all
+    offsets and in the current program units for X, Y, Z, A, B, C, U, V & W,
+    volatile.
 
 5599::
    flag for controlling the output of (DEBUG,) statements.

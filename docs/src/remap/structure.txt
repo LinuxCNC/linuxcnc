@@ -592,7 +592,7 @@ The minimal prerequisites for using `REMAP` statements are as follows:
  initially empty, but the import needs to be in place.
 - The Python interpreter needs to find the remap.py module above, so
  the path to the directory where your Python modules live needs to be
- added with  `[PYTHON]APPEND=<path-to-your-local-Python-directory>`
+ added with  `[PYTHON]PATH_APPEND=<path-to-your-local-Python-directory>`
 - Recommended: import the `stdglue` handlers in the `remap` module. In
  this case Python also needs to find `stdglue.py` - we just copy it
  from the distribution so you can make local changes as
@@ -618,7 +618,7 @@ Now edit `/home/user/xxx/xxx.ini` and add the following:
 ---------------------------------------------------------------------
 [PYTHON]
 TOPLEVEL=/home/user/xxx/python/toplevel.py
-APPEND=/home/user/xxx/python
+PATH_APPEND=/home/user/xxx/python
 ---------------------------------------------------------------------
 
 Now verify that LinuxCNC comes up with no error messages - from a

@@ -154,7 +154,6 @@ SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 # or C++ files
 ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
-$(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
 $(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
