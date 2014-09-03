@@ -172,16 +172,16 @@ ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 READ_DEPS = $(wildcard $(DEPS))
-$(shell echo 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
+$(shell $(VECHO) 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
 -include $(READ_DEPS)
 UNREAD_DEPS = $(filter-out $(READ_DEPS), $(DEPS))
 LEGACY_DEPS = $(patsubst objects/%, depends/%, $(UNREAD_DEPS))
 READ_LEGACY_DEPS = $(wildcard $(LEGACY_DEPS))
 ifneq ($(READ_LEGACY_DEPS),)
-$(shell echo 1>&2 Reading $(words $(READ_LEGACY_DEPS)) old-style dependency files)
+$(shell $(VECHO) 1>&2 Reading $(words $(READ_LEGACY_DEPS)) old-style dependency files)
 -include $(READ_LEGACY_DEPS)
 endif
-$(shell echo 1>&2 Done reading dependencies)
+$(shell $(VECHO) 1>&2 Done reading dependencies)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
@@ -1112,9 +1112,9 @@ endif
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
-$(shell echo 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime dependency files)
+$(shell $(VECHO) 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime dependency files)
 -include $(READ_RTDEPS)
-$(shell echo 1>&2 Done reading realtime dependencies)
+$(shell $(VECHO) 1>&2 Done reading realtime dependencies)
 endif
 endif
 
