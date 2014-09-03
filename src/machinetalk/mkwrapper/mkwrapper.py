@@ -240,6 +240,7 @@ class LinuxCNCWrapper():
         self.totalErrorSubscriptions = 0
         self.newErrorSubscription = False
 
+        self.linuxcncErrors = []
         # Linuxcnc
         try:
             self.stat = linuxcnc.stat()
@@ -262,8 +263,8 @@ class LinuxCNCWrapper():
         self.pingCount = 0
 
         self.rx = Container()
-        self.tx = Container()
-        self.rx.type = MT_PING
+        self.tx = Container()    # Task 1 - PUB-SUB
+        self.tx2 = Container()   # Task 2 - ROUTER-DEALER
         self.context = context
         self.statusSocket = context.socket(zmq.XPUB)
         self.statusPort = self.statusSocket.bind_to_random_port(statusUri)
@@ -1549,6 +1550,13 @@ class LinuxCNCWrapper():
             self.update_config(stat)
 
     def update_error(self, error):
+
+        if len(self.linuxcncErrors) > 0:
+            for linuxcncError in self.linuxcncErrors:
+                self.tx.note.append(linuxcncError)
+                self.send_error_msg('error', MT_EMC_NML_ERROR)
+            self.linuxcncErrors = []
+
         if not error:
             return
 
@@ -1617,9 +1625,9 @@ class LinuxCNCWrapper():
         self.errorSocket.send_multipart([topic, txBuffer])
 
     def send_command_msg(self, type):
-        self.tx.type = type
-        txBuffer = self.tx.SerializeToString()
-        self.tx.Clear()
+        self.tx2.type = type
+        txBuffer = self.tx2.SerializeToString()
+        self.tx2.Clear()
         self.commandSocket.send(txBuffer)
 
     def add_pparams(self):
@@ -1762,7 +1770,7 @@ class LinuxCNCWrapper():
             print("ZMQ error")
 
     def send_command_wrong_params(self):
-        self.tx.note.append("wrong parameters")
+        self.tx2.note.append("wrong parameters")
         self.send_command_msg(MT_ERROR)
 
     def process_command(self, socket):
@@ -1772,338 +1780,342 @@ class LinuxCNCWrapper():
         message = socket.recv()
         self.rx.ParseFromString(message)
 
-        if self.rx.type == MT_PING:
-            self.send_command_msg(MT_PING_ACKNOWLEDGE)
+        try:
+            if self.rx.type == MT_PING:
+                self.send_command_msg(MT_PING_ACKNOWLEDGE)
 
-        elif self.rx.type == MT_EMC_TASK_ABORT:
-            self.command.abort()
+            elif self.rx.type == MT_EMC_TASK_ABORT:
+                self.command.abort()
 
-        elif self.rx.type == MT_EMC_TASK_PLAN_PAUSE:
-            self.command.auto(linuxcnc.AUTO_PAUSE)
+            elif self.rx.type == MT_EMC_TASK_PLAN_PAUSE:
+                self.command.auto(linuxcnc.AUTO_PAUSE)
 
-        elif self.rx.type == MT_EMC_TASK_PLAN_RESUME:
-            self.command.auto(linuxcnc.AUTO_RESUME)
+            elif self.rx.type == MT_EMC_TASK_PLAN_RESUME:
+                self.command.auto(linuxcnc.AUTO_RESUME)
 
-        elif self.rx.type == MT_EMC_TASK_PLAN_STEP:
-            self.command.auto(linuxcnc.AUTO_STEP)
+            elif self.rx.type == MT_EMC_TASK_PLAN_STEP:
+                self.command.auto(linuxcnc.AUTO_STEP)
 
-        elif self.rx.type == MT_EMC_TASK_PLAN_RUN:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('line_number'):
-                lineNumber = self.rx.emc_command_params.line_number
-                self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_SPINDLE_BRAKE_ENGAGE:
-            self.command.brake(linuxcnc.BRAKE_ENGAGE)
-
-        elif self.rx.type == MT_EMC_SPINDLE_BRAKE_RELEASE:
-            self.command.brake(linuxcnc.BRAKE_RELEASE)
-
-        elif self.rx.type == MT_EMC_SET_DEBUG:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('debug_level'):
-                debugLevel = self.rx.emc_command_params.debug_level
-                self.command.debug(debugLevel)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_SCALE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('scale'):
-                feedrate = self.rx.emc_command_params.scale
-                self.command.feedrate(feedrate)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_COOLANT_FLOOD_ON:
-            self.command.flood(linuxcnc.FLOOD_ON)
-
-        elif self.rx.type == MT_EMC_COOLANT_FLOOD_OFF:
-            self.command.flood(linuxcnc.FLOOD_OFF)
-
-        elif self.rx.type == MT_EMC_AXIS_HOME:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index'):
-                axis = self.rx.emc_command_params.index
-                self.command.home(axis)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_AXIS_ABORT:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index'):
-                axis = self.rx.emc_command_params.index
-                self.command.jog(linuxcnc.JOG_STOP, axis)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_AXIS_JOG:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index') \
-            and self.rx.emc_command_params.HasField('velocity'):
-                axis = self.rx.emc_command_params.index
-                velocity = self.rx.emc_command_params.velocity
-                self.command.jog(linuxcnc.JOG_CONTINUOUS, axis, velocity)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_AXIS_INCR_JOG:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index') \
-            and self.rx.emc_command_params.HasField('velocity') \
-            and self.rx.emc_command_params.HasField('distance'):
-                axis = self.rx.emc_command_params.index
-                velocity = self.rx.emc_command_params.velocity
-                distance = self.rx.emc_command_params.distance
-                self.command.jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
-            self.command.load_tool_table()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('velocity'):
-                velocity = self.rx.emc_command_params.velocity
-                self.command.maxvel(velocity)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TASK_PLAN_EXECUTE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('command'):
-                command = self.rx.emc_command_params.command
-                self.command.mdi(command)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_COOLANT_MIST_ON:
-            self.command.mist(linuxcnc.MIST_ON)
-
-        elif self.rx.type == MT_EMC_COOLANT_MIST_OFF:
-            self.command.mist(linuxcnc.MIST_OFF)
-
-        elif self.rx.type == MT_EMC_TASK_SET_MODE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('task_mode'):
-                self.command.mode(self.rx.emc_command_params.task_mode)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_AXIS_OVERRIDE_LIMITS:
-            self.command.override_limits()
-
-        elif self.rx.type == MT_EMC_TASK_PLAN_OPEN:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('path'):
-                fileName = self.rx.emc_command_params.path
-                self.command.program_open(os.path.join(self.directory, fileName))
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TASK_PLAN_INIT:
-            self.command.reset_interpreter()
-
-        elif self.rx.type == MT_EMC_MOTION_ADAPTIVE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                adaptiveFeed = self.rx.emc_command_params.enable
-                self.command.set_adaptive_feed(adaptiveFeed)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_MOTION_SET_AOUT:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index') \
-            and self.rx.emc_command_params.HasField('value'):
-                axis = self.rx.emc_command_params.index
-                value = self.rx.emc_command_params.value
-                self.command.set_analog_output(axis, value)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TASK_PLAN_SET_BLOCK_DELETE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                blockDelete = self.rx.emc_command_params.enable
-                self.command.set_block_delete(blockDelete)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_MOTION_SET_DOUT:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index') \
-            and self.rx.emc_command_params.HasField('enable'):
-                axis = self.rx.emc_command_params.index
-                value = self.rx.emc_command_params.enable
-                self.command.set_digital_output(axis, value)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_FH_ENABLE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                feedHold = self.rx.emc_command_params.enable
-                self.command.set_feed_hold(feedHold)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_FO_ENABLE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                feedOverride = self.rx.emc_command_params.enable
-                self.command.set_feed_override(feedOverride)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_AXIS_SET_MAX_POSITION_LIMIT:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index') \
-            and self.rx.emc_command_params.HasField('value'):
-                axis = self.rx.emc_command_params.index
-                value = self.rx.emc_command_params.value
-                self.command.set_max_limit(axis, value)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_AXIS_SET_MIN_POSITION_LIMIT:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index') \
-            and self.rx.emc_command_params.HasField('value'):
-                axis = self.rx.emc_command_params.index
-                value = self.rx.emc_command_params.value
-                self.command.set_min_limit(axis, value)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TASK_PLAN_SET_OPTIONAL_STOP:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                optionalStop = self.rx.emc_command_params.enable
-                self.command.set_optional_stop(optionalStop)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_SO_ENABLE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                spindleOverride = self.rx.emc_command_params.enable
-                self.command.set_spindle_override(spindleOverride)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_SPINDLE_ON:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('velocity'):
-                speed = self.rx.emc_command_params.velocity
-                direction = linuxcnc.SPINDLE_FORWARD    # always forwward, speed can be signed
-                self.command.spindle(direction, speed)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_SPINDLE_INCREASE:
-            self.command.spindle(linuxcnc.SPINDLE_INCREASE)
-
-        elif self.rx.type == MT_EMC_SPINDLE_DECREASE:
-            self.command.spindle(linuxcnc.SPINDLE_DECREASE)
-
-        elif self.rx.type == MT_EMC_SPINDLE_CONSTANT:
-            self.command.spindle(linuxcnc.SPINDLE_CONSTANT)
-
-        elif self.rx.type == MT_EMC_SPINDLE_OFF:
-            self.command.spindle(linuxcnc.SPINDLE_OFF)
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_SPINDLE_SCALE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('scale'):
-                scale = self.rx.emc_command_params.scale
-                self.command.spindleoverride(scale)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TASK_SET_STATE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('task_state'):
-                self.command.state(self.rx.emc_command_params.task_state)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_ENABLE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('enable'):
-                teleopEnable = self.rx.emc_command_params.enable
-                self.command.teleop_enable(teleopEnable)
-            else:
-                self.send_command_wrong_params()
-
-        elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_VECTOR:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('pose') \
-            and self.rx.emc_command_params.pose.HasField('a') \
-            and self.rx.emc_command_params.pose.HasField('b') \
-            and self.rx.emc_command_params.pose.HasField('c'):
-                a = self.rx.emc_command_params.pose.a
-                b = self.rx.emc_command_params.pose.b
-                c = self.rx.emc_command_params.pose.c
-                if self.rx.emc_command_params.pose.HasField('u'):
-                    u = self.rx.emc_command_params.pose.u
-                    if self.rx.emc_command_params.pose.HasField('v'):
-                        v = self.rx.emc_command_params.pose.v
-                        if self.rx.emc_command_params.pose.HasField('w'):
-                            w = self.rx.emc_command_params.pose.w
-                            self.command.teleop_vector(a, b, c, u, v, w)
-                        else:
-                            self.command.teleop_vector(a, b, c, u, v)
-                    else:
-                        self.command.teleop_vector(a, b, c, u)
+            elif self.rx.type == MT_EMC_TASK_PLAN_RUN:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('line_number'):
+                    lineNumber = self.rx.emc_command_params.line_number
+                    self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
                 else:
-                    self.command.teleop_vector(a, b, c)
-            else:
-                self.send_command_wrong_params()
+                    self.send_command_wrong_params()
 
-        elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('tool_data') \
-            and self.rx.emc_command_params.tool_data.index \
-            and self.rx.emc_command_params.tool_data.zOffset \
-            and self.rx.emc_command_params.tool_data.xOffset \
-            and self.rx.emc_command_params.tool_data.diameter \
-            and self.rx.emc_command_params.tool_data.frontangle \
-            and self.rx.emc_command_params.tool_data.backangle \
-            and self.rx.emc_command_params.tool_data.orientation:
-                toolno = self.rx.emc_command_params.tool_data.index
-                z_offset = self.rx.emc_command_params.tool_data.zOffset
-                x_offset = self.rx.emc_command_params.tool_data.xOffset
-                diameter = self.rx.emc_command_params.tool_data.diameter
-                frontangle = self.rx.emc_command_params.tool_data.frontangle
-                backangle = self.rx.emc_command_params.tool_data.backangle
-                orientation = self.rx.emc_command_params.tool_data.orientation
-                self.command.tool_offset(toolno, z_offset, x_offset, diameter,
-                    frontangle, backangle, orientation)
-            else:
-                self.send_command_wrong_params()
+            elif self.rx.type == MT_EMC_SPINDLE_BRAKE_ENGAGE:
+                self.command.brake(linuxcnc.BRAKE_ENGAGE)
 
-        elif self.rx.type == MT_EMC_TRAJ_SET_MODE:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('traj_mode'):
-                self.command.traj_mode(self.rx.emc_command_params.traj_mode)
-            else:
-                self.send_command_wrong_params()
+            elif self.rx.type == MT_EMC_SPINDLE_BRAKE_RELEASE:
+                self.command.brake(linuxcnc.BRAKE_RELEASE)
 
-        elif self.rx.type == MT_EMC_AXIS_UNHOME:
-            if self.rx.HasField('emc_command_params') \
-            and self.rx.emc_command_params.HasField('index'):
-                axis = self.rx.emc_command_params.index
-                self.command.unhome(axis)
-            else:
-                self.send_command_wrong_params()
+            elif self.rx.type == MT_EMC_SET_DEBUG:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('debug_level'):
+                    debugLevel = self.rx.emc_command_params.debug_level
+                    self.command.debug(debugLevel)
+                else:
+                    self.send_command_wrong_params()
 
-        else:
-            self.tx.note.append("unknown command")
-            self.send_command_msg(MT_ERROR)
+            elif self.rx.type == MT_EMC_TRAJ_SET_SCALE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('scale'):
+                    feedrate = self.rx.emc_command_params.scale
+                    self.command.feedrate(feedrate)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_COOLANT_FLOOD_ON:
+                self.command.flood(linuxcnc.FLOOD_ON)
+
+            elif self.rx.type == MT_EMC_COOLANT_FLOOD_OFF:
+                self.command.flood(linuxcnc.FLOOD_OFF)
+
+            elif self.rx.type == MT_EMC_AXIS_HOME:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index'):
+                    axis = self.rx.emc_command_params.index
+                    self.command.home(axis)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_ABORT:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index'):
+                    axis = self.rx.emc_command_params.index
+                    self.command.jog(linuxcnc.JOG_STOP, axis)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_JOG:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index') \
+                and self.rx.emc_command_params.HasField('velocity'):
+                    axis = self.rx.emc_command_params.index
+                    velocity = self.rx.emc_command_params.velocity
+                    self.command.jog(linuxcnc.JOG_CONTINUOUS, axis, velocity)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_INCR_JOG:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index') \
+                and self.rx.emc_command_params.HasField('velocity') \
+                and self.rx.emc_command_params.HasField('distance'):
+                    axis = self.rx.emc_command_params.index
+                    velocity = self.rx.emc_command_params.velocity
+                    distance = self.rx.emc_command_params.distance
+                    self.command.jog(linuxcnc.JOG_INCREMENT, axis, velocity, distance)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TOOL_LOAD_TOOL_TABLE:
+                self.command.load_tool_table()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_MAX_VELOCITY:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('velocity'):
+                    velocity = self.rx.emc_command_params.velocity
+                    self.command.maxvel(velocity)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TASK_PLAN_EXECUTE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('command'):
+                    command = self.rx.emc_command_params.command
+                    self.command.mdi(command)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_COOLANT_MIST_ON:
+                self.command.mist(linuxcnc.MIST_ON)
+
+            elif self.rx.type == MT_EMC_COOLANT_MIST_OFF:
+                self.command.mist(linuxcnc.MIST_OFF)
+
+            elif self.rx.type == MT_EMC_TASK_SET_MODE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('task_mode'):
+                    self.command.mode(self.rx.emc_command_params.task_mode)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_OVERRIDE_LIMITS:
+                self.command.override_limits()
+
+            elif self.rx.type == MT_EMC_TASK_PLAN_OPEN:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('path'):
+                    fileName = self.rx.emc_command_params.path
+                    self.command.program_open(os.path.join(self.directory, fileName))
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TASK_PLAN_INIT:
+                self.command.reset_interpreter()
+
+            elif self.rx.type == MT_EMC_MOTION_ADAPTIVE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    adaptiveFeed = self.rx.emc_command_params.enable
+                    self.command.set_adaptive_feed(adaptiveFeed)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_MOTION_SET_AOUT:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index') \
+                and self.rx.emc_command_params.HasField('value'):
+                    axis = self.rx.emc_command_params.index
+                    value = self.rx.emc_command_params.value
+                    self.command.set_analog_output(axis, value)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TASK_PLAN_SET_BLOCK_DELETE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    blockDelete = self.rx.emc_command_params.enable
+                    self.command.set_block_delete(blockDelete)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_MOTION_SET_DOUT:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    axis = self.rx.emc_command_params.index
+                    value = self.rx.emc_command_params.enable
+                    self.command.set_digital_output(axis, value)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_FH_ENABLE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    feedHold = self.rx.emc_command_params.enable
+                    self.command.set_feed_hold(feedHold)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_FO_ENABLE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    feedOverride = self.rx.emc_command_params.enable
+                    self.command.set_feed_override(feedOverride)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_SET_MAX_POSITION_LIMIT:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index') \
+                and self.rx.emc_command_params.HasField('value'):
+                    axis = self.rx.emc_command_params.index
+                    value = self.rx.emc_command_params.value
+                    self.command.set_max_limit(axis, value)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_SET_MIN_POSITION_LIMIT:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index') \
+                and self.rx.emc_command_params.HasField('value'):
+                    axis = self.rx.emc_command_params.index
+                    value = self.rx.emc_command_params.value
+                    self.command.set_min_limit(axis, value)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TASK_PLAN_SET_OPTIONAL_STOP:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    optionalStop = self.rx.emc_command_params.enable
+                    self.command.set_optional_stop(optionalStop)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_SO_ENABLE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    spindleOverride = self.rx.emc_command_params.enable
+                    self.command.set_spindle_override(spindleOverride)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_SPINDLE_ON:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('velocity'):
+                    speed = self.rx.emc_command_params.velocity
+                    direction = linuxcnc.SPINDLE_FORWARD    # always forwward, speed can be signed
+                    self.command.spindle(direction, speed)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_SPINDLE_INCREASE:
+                self.command.spindle(linuxcnc.SPINDLE_INCREASE)
+
+            elif self.rx.type == MT_EMC_SPINDLE_DECREASE:
+                self.command.spindle(linuxcnc.SPINDLE_DECREASE)
+
+            elif self.rx.type == MT_EMC_SPINDLE_CONSTANT:
+                self.command.spindle(linuxcnc.SPINDLE_CONSTANT)
+
+            elif self.rx.type == MT_EMC_SPINDLE_OFF:
+                self.command.spindle(linuxcnc.SPINDLE_OFF)
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_SPINDLE_SCALE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('scale'):
+                    scale = self.rx.emc_command_params.scale
+                    self.command.spindleoverride(scale)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TASK_SET_STATE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('task_state'):
+                    self.command.state(self.rx.emc_command_params.task_state)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_ENABLE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('enable'):
+                    teleopEnable = self.rx.emc_command_params.enable
+                    self.command.teleop_enable(teleopEnable)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_TELEOP_VECTOR:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('pose') \
+                and self.rx.emc_command_params.pose.HasField('a') \
+                and self.rx.emc_command_params.pose.HasField('b') \
+                and self.rx.emc_command_params.pose.HasField('c'):
+                    a = self.rx.emc_command_params.pose.a
+                    b = self.rx.emc_command_params.pose.b
+                    c = self.rx.emc_command_params.pose.c
+                    if self.rx.emc_command_params.pose.HasField('u'):
+                        u = self.rx.emc_command_params.pose.u
+                        if self.rx.emc_command_params.pose.HasField('v'):
+                            v = self.rx.emc_command_params.pose.v
+                            if self.rx.emc_command_params.pose.HasField('w'):
+                                w = self.rx.emc_command_params.pose.w
+                                self.command.teleop_vector(a, b, c, u, v, w)
+                            else:
+                                self.command.teleop_vector(a, b, c, u, v)
+                        else:
+                            self.command.teleop_vector(a, b, c, u)
+                    else:
+                        self.command.teleop_vector(a, b, c)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TOOL_SET_OFFSET:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('tool_data') \
+                and self.rx.emc_command_params.tool_data.index \
+                and self.rx.emc_command_params.tool_data.zOffset \
+                and self.rx.emc_command_params.tool_data.xOffset \
+                and self.rx.emc_command_params.tool_data.diameter \
+                and self.rx.emc_command_params.tool_data.frontangle \
+                and self.rx.emc_command_params.tool_data.backangle \
+                and self.rx.emc_command_params.tool_data.orientation:
+                    toolno = self.rx.emc_command_params.tool_data.index
+                    z_offset = self.rx.emc_command_params.tool_data.zOffset
+                    x_offset = self.rx.emc_command_params.tool_data.xOffset
+                    diameter = self.rx.emc_command_params.tool_data.diameter
+                    frontangle = self.rx.emc_command_params.tool_data.frontangle
+                    backangle = self.rx.emc_command_params.tool_data.backangle
+                    orientation = self.rx.emc_command_params.tool_data.orientation
+                    self.command.tool_offset(toolno, z_offset, x_offset, diameter,
+                        frontangle, backangle, orientation)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_TRAJ_SET_MODE:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('traj_mode'):
+                    self.command.traj_mode(self.rx.emc_command_params.traj_mode)
+                else:
+                    self.send_command_wrong_params()
+
+            elif self.rx.type == MT_EMC_AXIS_UNHOME:
+                if self.rx.HasField('emc_command_params') \
+                and self.rx.emc_command_params.HasField('index'):
+                    axis = self.rx.emc_command_params.index
+                    self.command.unhome(axis)
+                else:
+                    self.send_command_wrong_params()
+
+            else:
+                self.tx2.note.append("unknown command")
+                self.send_command_msg(MT_ERROR)
+
+        except linuxcnc.error as detail:
+            self.linuxcncErrors.append(detail)
 
 
 def choose_ip(pref):
