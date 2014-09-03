@@ -1,6 +1,7 @@
 MAKEFLAGS += --warn-undefined-variables
 
 EXTRAFLAGS :=
+EXTRA_DEBUG ?=
 
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
 # to trace make execution of make in more detail:
