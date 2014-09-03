@@ -75,8 +75,6 @@ ifeq ($(RTPREFIX),)
 $(error Makefile.inc must specify RTPREFIX and other variables)
 endif
 
-DEP = $(1) -MM -MT "$(2)" $(4) -o $(3).tmp && mv -f "$(3)".tmp "$(3)"
-
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
