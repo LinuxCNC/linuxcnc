@@ -485,9 +485,9 @@ endif
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
-../include/%.h: %.h
+$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
 	$(Q)-cp $^ $@
-../include/%.hh: %.hh
+$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
 	$(Q)-cp $^ $@
 
 DIR=install -d -m 0755 -o root

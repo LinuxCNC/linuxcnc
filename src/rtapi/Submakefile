@@ -1,8 +1,8 @@
 INCLUDES += rtapi
 
-../include/%.h: ./rtapi/%.h
+$(patsubst ./rtapi/%,../include/%,$(wildcard ./rtapi/*.h)): ../include/%.h: ./rtapi/%.h
 	cp $^ $@
-../include/%.hh: ./rtapi/%.hh
+$(patsubst ./rtapi/%,../include/%,$(wildcard ./rtapi/*.hh)): ../include/%.hh: ./rtapi/%.hh
 	cp $^ $@
 
 ifeq ($(BUILD_SYS),uspace)

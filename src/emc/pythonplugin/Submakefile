@@ -22,7 +22,7 @@ TARGETS += ../lib/libpyplugin.so.0
 	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON)
 
 
-../include/%.h: ./emc/pythonplugin/%.h
+$(patsubst ./emc/pythonplugin/%,../include/%,$(wildcard ./emc/pythonplugin/*.h)): ../include/%.h: ./emc/pythonplugin/%.h
 	cp $^ $@
-../include/%.hh: ./emc/pythonplugin/%.hh
+$(patsubst ./emc/pythonplugin/%,../include/%,$(wildcard ./emc/pythonplugin/*.hh)): ../include/%.hh: ./emc/pythonplugin/%.hh
 	cp $^ $@

@@ -1,6 +1,6 @@
 INCLUDES += libnml/rcs
 
-../include/%.h: ./libnml/rcs/%.h
+$(patsubst ./libnml/rcs/%,../include/%,$(wildcard ./libnml/rcs/*.h)): ../include/%.h: ./libnml/rcs/%.h
 	cp $^ $@
-../include/%.hh: ./libnml/rcs/%.hh
+$(patsubst ./libnml/rcs/%,../include/%,$(wildcard ./libnml/rcs/*.hh)): ../include/%.hh: ./libnml/rcs/%.hh
 	cp $^ $@

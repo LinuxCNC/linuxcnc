@@ -1,8 +1,8 @@
 INCLUDES += libnml/inifile
 
-../include/%.h: ./libnml/inifile/%.h
+$(patsubst ./libnml/inifile/%,../include/%,$(wildcard ./libnml/inifile/*.h)): ../include/%.h: ./libnml/inifile/%.h
 	cp $^ $@
-../include/%.hh: ./libnml/inifile/%.hh
+$(patsubst ./libnml/inifile/%,../include/%,$(wildcard ./libnml/inifile/*.hh)): ../include/%.hh: ./libnml/inifile/%.hh
 	cp $^ $@
 
 LIBINISRCS := libnml/inifile/inifile.cc

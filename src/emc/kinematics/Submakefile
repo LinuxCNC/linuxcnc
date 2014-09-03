@@ -9,7 +9,7 @@ USERSRCS += $(GENSERKINSSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/genserkins
 
-../include/%.h: ./emc/kinematics/%.h
+$(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.h)): ../include/%.h: ./emc/kinematics/%.h
 	cp $^ $@
-../include/%.hh: ./emc/kinematics/%.hh
+$(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.hh)): ../include/%.hh: ./emc/kinematics/%.hh
 	cp $^ $@

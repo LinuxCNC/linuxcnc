@@ -25,7 +25,7 @@ TARGETS += ../lib/liblinuxcnc.a
 	@rm -f $@
 	@$(AR) $(ARFLAGS) $@ $^
 
-../include/%.h: ./emc/nml_intf/%.h
+$(patsubst ./emc/nml_intf/%,../include/%,$(wildcard ./emc/nml_intf/*.h)): ../include/%.h: ./emc/nml_intf/%.h
 	cp $^ $@
-../include/%.hh: ./emc/nml_intf/%.hh
+$(patsubst ./emc/nml_intf/%,../include/%,$(wildcard ./emc/nml_intf/*.hh)): ../include/%.hh: ./emc/nml_intf/%.hh
 	cp $^ $@
