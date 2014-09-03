@@ -54,7 +54,7 @@ else
   Q = @
 endif
 
-ifeq "$(findstring s,$(MAKEFLAGS))" ""
+ifeq "$(findstring s,$(filter-out --%, $(MAKEFLAGS)))" ""
 ECHO=@echo
 VECHO=echo
 else
