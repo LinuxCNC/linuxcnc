@@ -1,3 +1,5 @@
+MAKEFLAGS += --warn-undefined-variables
+
 EXTRAFLAGS :=
 
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
