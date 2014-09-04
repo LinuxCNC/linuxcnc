@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.9"
+_RELEASE = "  1.2.0"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -204,6 +204,8 @@ class gmoccapy(object):
         self._init_jog_increments()
 
         self._init_hal_pins()
+
+        self._init_user_messages()
 
         # set the title of the window, to show the release
         self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
@@ -1140,6 +1142,59 @@ class gmoccapy(object):
         file_ext = self.get_ini_info.get_file_ext()
         for ext in file_ext:
             self.widgets.ff_file_to_load.add_pattern(ext)
+
+    # search for and set up user requested message system.
+    # status displays on the statusbat and requires no acknowledge.
+    # dialog displays a GTK dialog box with yes or no buttons
+    # okdialog displays a GTK dialog box with an ok button
+    # dialogs require an answer before focus is sent back to main screen
+    def _init_user_messages(self):
+        user_messages = self.get_ini_info.get_user_messages()
+        print user_messages
+        if not user_messages:
+            return
+        for message in user_messages:
+            if message[1] == "status":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+            elif message[1] == "okdialog":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+            elif message[1] == "yesnodialog":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-responce", hal.HAL_BIT, hal.HAL_OUT))
+            else:
+                print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
+
+    def _show_user_message(self, pin, message):
+        if message[1] == "status":
+            if pin.get():
+                self._show_error((0, message[0]))
+                if self.log: self._add_alarm_entry(message[0])
+        elif message[1] == "okdialog":
+            self.halcomp["messages." + message[2] + "-waiting"] = 0
+            if pin.get():
+                if self.log: self._add_alarm_entry(message[0])
+                self.halcomp["messages." + message[2] + "-waiting"] = 1
+                title = "Pin " + message[2] + " message"
+                responce = dialogs.show_user_message(self, message[0], title)
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+        elif message[1] == "yesnodialog":
+            if pin.get():
+                if self.log: self._add_alarm_entry(message[0])
+                self.halcomp["messages." + message[2] + "-waiting"] = 1
+                self.halcomp["messages." + message[2] + "-responce"] = 0
+                title = "Pin " + message[2] + " message"
+                responce = dialogs.yesno_dialog(self, message[0], title)
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+                self.halcomp["messages." + message[2] + "-responce"] = responce
+            else:
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+        else:
+            print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
 
     def _show_offset_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(1)
