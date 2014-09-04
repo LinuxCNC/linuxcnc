@@ -1,3 +1,10 @@
+ver. 1.1.5.8
+- message at start because of
+  return(PlasmaClass(halcomp, builder, useropts))
+  instedt off
+  return[PlasmaClass(halcomp, builder, useropts)]
+  resulting in iteration over none object
+
 ver. 1.1.5.7
 - init dynamic tab now in try except to avoid python exception
   on user typos in ini file
