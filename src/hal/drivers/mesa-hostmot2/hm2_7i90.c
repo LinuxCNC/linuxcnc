@@ -64,6 +64,11 @@ static int num_config_strings = HM2_7I90_MAX_BOARDS;
 module_param_array(config, charp, &num_config_strings, S_IRUGO);
 MODULE_PARM_DESC(config, "config string(s) for the 7i90 board(s) (see hostmot2(9) manpage)");
 
+static int board_is_sivar[HM2_7I90_MAX_BOARDS] = { [0 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
+static int num_board_is_sivars = HM2_7I90_MAX_BOARDS;
+module_param_array(board_is_sivar, int, &num_board_is_sivars, S_IRUGO);
+MODULE_PARM_DESC(board_is_sivar, "set to 1 to mark a board as a Sivar 7m90, leave at default (0) to mark a board as a Mesa 7i90 (see (hm2_7i90(9) manpage)");
+
 
 
 
@@ -433,28 +438,45 @@ static int hm2_7i90_setup(void) {
         board[i].llio.program_fpga = hm2_7i90_program_fpga;
         board[i].llio.reset = hm2_7i90_reset;
 
-        board[i].llio.num_ioport_connectors = 3;
-        board[i].llio.pins_per_connector = 24;
-        board[i].llio.ioport_connector_name[0] = "P1";
-        board[i].llio.ioport_connector_name[1] = "P2";
-        board[i].llio.ioport_connector_name[2] = "P3";
-        board[i].llio.num_leds = 2;
         board[i].llio.private = &board[i];
+
+        // isssy's Sivar 7m90 board is like the Mesa 7i90, except
+        // different IO connectors, LEDs, and FPGA
+        if (!board_is_sivar[i]) {
+            // Mesa 7i90
+            board[i].llio.num_ioport_connectors = 3;
+            board[i].llio.pins_per_connector = 24;
+            board[i].llio.ioport_connector_name[0] = "P1";
+            board[i].llio.ioport_connector_name[1] = "P2";
+            board[i].llio.ioport_connector_name[2] = "P3";
+            board[i].llio.num_leds = 2;
+        } else {
+            // Sivar 7m90
+            board[i].llio.num_ioport_connectors = 4;
+            board[i].llio.pins_per_connector = 17;
+            board[i].llio.ioport_connector_name[0] = "J2";
+            board[i].llio.ioport_connector_name[1] = "J3";
+            board[i].llio.ioport_connector_name[2] = "J4";
+            board[i].llio.ioport_connector_name[2] = "J5";
+            board[i].llio.num_leds = 4;
+        }
 
         this = &board[i].llio;
 
 
+        if (!board_is_sivar[i]) {
+            //  select CPLD data register
+            hm2_7i90_epp_addr8(0, &board[i]);
 
-
-        //  select CPLD data register
-        hm2_7i90_epp_addr8(0, &board[i]);
-
-        if (hm2_7i90_epp_read(&board[i]) & 0x01) {
-            board[i].llio.fpga_part_number = "3s400tq144";
+            if (hm2_7i90_epp_read(&board[i]) & 0x01) {
+                board[i].llio.fpga_part_number = "3s400tq144";
+            } else {
+                board[i].llio.fpga_part_number = "3s200tq144";
+            }
+            THIS_DBG("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
         } else {
-            board[i].llio.fpga_part_number = "3s200tq144";
+            board->llio.fpga_part_number = "xc6slx16ftg256";
         }
-        THIS_DBG("detected FPGA '%s'\n", board[i].llio.fpga_part_number);
 
 
         r = hm2_register(&board[i].llio, config[i]);
@@ -471,10 +493,11 @@ static int hm2_7i90_setup(void) {
         }
 
         THIS_PRINT(
-            "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
+            "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s%s) found\n",
             board[i].port.base,
             board[i].port.base_hi,
-            (board[i].epp_wide ? "ON" : "OFF")
+            (board[i].epp_wide ? "ON" : "OFF"),
+            (board_is_sivar[i] ? ", Sivar 7m90" : "")
         );
 
         num_boards ++;
