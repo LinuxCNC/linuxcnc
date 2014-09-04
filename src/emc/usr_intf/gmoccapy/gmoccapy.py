@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.8"
+_RELEASE = "  1.2.0"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -204,6 +204,8 @@ class gmoccapy(object):
         self._init_jog_increments()
 
         self._init_hal_pins()
+
+        self._init_user_messages()
 
         # set the title of the window, to show the release
         self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
@@ -1140,6 +1142,59 @@ class gmoccapy(object):
         file_ext = self.get_ini_info.get_file_ext()
         for ext in file_ext:
             self.widgets.ff_file_to_load.add_pattern(ext)
+
+    # search for and set up user requested message system.
+    # status displays on the statusbat and requires no acknowledge.
+    # dialog displays a GTK dialog box with yes or no buttons
+    # okdialog displays a GTK dialog box with an ok button
+    # dialogs require an answer before focus is sent back to main screen
+    def _init_user_messages(self):
+        user_messages = self.get_ini_info.get_user_messages()
+        print user_messages
+        if not user_messages:
+            return
+        for message in user_messages:
+            if message[1] == "status":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+            elif message[1] == "okdialog":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+            elif message[1] == "yesnodialog":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-responce", hal.HAL_BIT, hal.HAL_OUT))
+            else:
+                print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
+
+    def _show_user_message(self, pin, message):
+        if message[1] == "status":
+            if pin.get():
+                self._show_error((0, message[0]))
+                if self.log: self._add_alarm_entry(message[0])
+        elif message[1] == "okdialog":
+            self.halcomp["messages." + message[2] + "-waiting"] = 0
+            if pin.get():
+                if self.log: self._add_alarm_entry(message[0])
+                self.halcomp["messages." + message[2] + "-waiting"] = 1
+                title = "Pin " + message[2] + " message"
+                responce = dialogs.show_user_message(self, message[0], title)
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+        elif message[1] == "yesnodialog":
+            if pin.get():
+                if self.log: self._add_alarm_entry(message[0])
+                self.halcomp["messages." + message[2] + "-waiting"] = 1
+                self.halcomp["messages." + message[2] + "-responce"] = 0
+                title = "Pin " + message[2] + " message"
+                responce = dialogs.yesno_dialog(self, message[0], title)
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+                self.halcomp["messages." + message[2] + "-responce"] = responce
+            else:
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+        else:
+            print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
 
     def _show_offset_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(1)
@@ -2694,7 +2749,7 @@ class gmoccapy(object):
         message = _("Do you really want to delete the MDI history?\n")
         message += _("this will not delete the MDI History file, but will\n")
         message += _("delete the listbox entries for this session")
-        result = dialogs.yesno_dialog(self, header = _("Attention!!"), label = message)
+        result = dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
         if self.log: self._add_alarm_entry("delete_MDI with result %s" % result)
@@ -2851,9 +2906,14 @@ class gmoccapy(object):
         preset = self.prefs.getpref("offset_axis_%s" % axis, 0, float)
         offset = dialogs.entry_dialog(self, data = preset, header = _("Enter value for axis %s") % axis,
                                    label = _("Set axis %s to:") % axis, integer = False)
-        if offset == "CANCEL" or offset == "ERROR":
+        if offset == "CANCEL":
             return
-        if offset != False or offset == 0:
+        elif offset == "ERROR":
+            print(_("Conversion error in btn_set_value"))
+            self._add_alarm_entry(_("Offset conversion error because off wrong entry"))
+            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
+                                  _("Please enter only numerical values. Values have not been applied"))
+        else:
             self._add_alarm_entry(_("offset {0} set to {1:f}").format(axis, offset))
             self.command.mode(linuxcnc.MODE_MDI)
             self.command.wait_complete()
@@ -2863,11 +2923,6 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.prefs.putpref("offset_axis_%s" % axis, offset, float)
-        else:
-            print(_("Conversion error in btn_set_value"))
-            self._add_alarm_entry(_("Offset conversion error because off wrong entry"))
-            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
-                                  _("Please enter only numerical values\nValues have not been applied"))
 # TODO: End
 
     def on_btn_set_selected_clicked(self, widget, data = None):

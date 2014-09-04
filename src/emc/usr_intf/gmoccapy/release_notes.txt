@@ -1,3 +1,16 @@
+ver. 1.2.0
+- changed GetIniInfo to return also user message setups
+- notification now supports pango markup in the messages
+- added hal user messages similar to gsreeen to gmoccapy
+  see gmoccapy_messages.ini for usage information
+- updated the translation files for German and Spanish 
+
+ver. 1.1.5.9
+- prepared yesno_dialog for user message, 
+  it does accept now pango markup
+- wrong values in axis offset didn't show a message
+  to the user, I fixed that
+
 ver. 1.1.5.8
 - message at start because of
   return(PlasmaClass(halcomp, builder, useropts))
