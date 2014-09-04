@@ -1,3 +1,9 @@
+ver. 1.1.5.9
+- prepared yesno_dialog for user message, 
+  it does accept now pango markup
+- wrong values in axis offset didn't show a message
+  to the user, I fixed that
+
 ver. 1.1.5.8
 - message at start because of
   return(PlasmaClass(halcomp, builder, useropts))

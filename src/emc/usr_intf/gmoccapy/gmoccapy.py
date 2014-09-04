@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.8"
+_RELEASE = "  1.1.5.9"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -2694,7 +2694,7 @@ class gmoccapy(object):
         message = _("Do you really want to delete the MDI history?\n")
         message += _("this will not delete the MDI History file, but will\n")
         message += _("delete the listbox entries for this session")
-        result = dialogs.yesno_dialog(self, header = _("Attention!!"), label = message)
+        result = dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
         if self.log: self._add_alarm_entry("delete_MDI with result %s" % result)
@@ -2851,9 +2851,14 @@ class gmoccapy(object):
         preset = self.prefs.getpref("offset_axis_%s" % axis, 0, float)
         offset = dialogs.entry_dialog(self, data = preset, header = _("Enter value for axis %s") % axis,
                                    label = _("Set axis %s to:") % axis, integer = False)
-        if offset == "CANCEL" or offset == "ERROR":
+        if offset == "CANCEL":
             return
-        if offset != False or offset == 0:
+        elif offset == "ERROR":
+            print(_("Conversion error in btn_set_value"))
+            self._add_alarm_entry(_("Offset conversion error because off wrong entry"))
+            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
+                                  _("Please enter only numerical values. Values have not been applied"))
+        else:
             self._add_alarm_entry(_("offset {0} set to {1:f}").format(axis, offset))
             self.command.mode(linuxcnc.MODE_MDI)
             self.command.wait_complete()
@@ -2863,11 +2868,6 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.prefs.putpref("offset_axis_%s" % axis, offset, float)
-        else:
-            print(_("Conversion error in btn_set_value"))
-            self._add_alarm_entry(_("Offset conversion error because off wrong entry"))
-            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
-                                  _("Please enter only numerical values\nValues have not been applied"))
 # TODO: End
 
     def on_btn_set_selected_clicked(self, widget, data = None):
