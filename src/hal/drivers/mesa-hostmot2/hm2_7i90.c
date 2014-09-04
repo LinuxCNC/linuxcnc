@@ -1,6 +1,6 @@
 
 //
-//    Copyright (C) 2013-2013 Kim Kirwan and Sebastian Kuzminsky
+//    Copyright (C) 2013-2014 Kim Kirwan and Sebastian Kuzminsky
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -444,14 +444,7 @@ static int hm2_7i90_setup(void) {
         this = &board[i].llio;
 
 
-        //
-        // now we want to detect if this 7i90 has the big FPGA or the small one
-        // 3s200tq144 for the small board
-        // 3s400tq144 for the big
-        //
 
-        // make sure the CPLD is in charge of the parallel port
-        //hm2_7i90_reset(&board[i].llio);
 
         //  select CPLD data register
         hm2_7i90_epp_addr8(0, &board[i]);
