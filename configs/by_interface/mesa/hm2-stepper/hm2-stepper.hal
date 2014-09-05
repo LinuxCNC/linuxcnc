@@ -40,6 +40,8 @@ loadrt hostmot2
 # load low-level driver
 loadrt [HOSTMOT2](DRIVER) config=[HOSTMOT2](CONFIG)
 
+# load estop latch component
+loadrt estop_latch
 
 # ################################################
 # THREADS
@@ -51,6 +53,7 @@ addf motion-controller                    servo-thread
 # revel in the free time here from not having to run PID 
 addf hm2_[HOSTMOT2](BOARD).0.write        servo-thread
 addf hm2_[HOSTMOT2](BOARD).0.pet_watchdog servo-thread
+addf estop-latch.0                        servo-thread
        
 
 # ######################################################
@@ -192,8 +195,10 @@ setp hm2_[HOSTMOT2](BOARD).0.stepgen.02.step_type       0
 # Standard I/O Block - EStop, Etc
 # ##################################################
 
-# create a signal for the estop loopback
-net estop-loop iocontrol.0.user-enable-out => iocontrol.0.emc-enable-in
+# A basic estop loop that only includes the hostmot watchdog.
+net user-enable iocontrol.0.user-request-enable => estop-latch.0.reset
+net enable-latch estop-latch.0.ok-out => iocontrol.0.emc-enable-in
+net watchdog hm2_[HOSTMOT2](BOARD).0.watchdog.has_bit => estop-latch.0.fault-in
 
 # create signals for tool loading loopback
 net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
