@@ -581,7 +581,6 @@ static void hm2_eth_probe() {
         rtapi_print("board fails HM2 registration\n");
         return;
     }
-    rtapi_print("board %s registred succesfully\n", board_name);
     boards_count++;
 
     int val = fcntl(sockfd, F_GETFL);
