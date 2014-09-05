@@ -456,7 +456,7 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
                                name, 
                                (chan->serialnumber & 0xffff));
             } else {
-                rtapi_snprintf(chan->name, 20, 
+                rtapi_snprintf(chan->name, 28,
                                "%s.%2s.%d.%d",
                                hm2->llio->name, 
                                name,
