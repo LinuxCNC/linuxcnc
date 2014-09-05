@@ -558,6 +558,16 @@ static void hm2_eth_probe() {
         board->llio.ioport_connector_name[2] = "P3";
         board->llio.fpga_part_number = "XC6SLX16";
         board->llio.num_leds = 4;
+    } else if (strncmp(board_name, "7I92", 4) == 0) {
+        strncpy(llio_name, board_name, 4);
+        llio_name[1] = tolower(llio_name[1]);
+
+        board->llio.num_ioport_connectors = 2;
+        board->llio.pins_per_connector = 17;
+        board->llio.ioport_connector_name[0] = "P2";
+        board->llio.ioport_connector_name[1] = "P1";
+        board->llio.fpga_part_number = "XC6SLX9";
+        board->llio.num_leds = 4;
     } else {
         probe_fail = 1;
         LL_PRINT("No ethernet board found\n");
