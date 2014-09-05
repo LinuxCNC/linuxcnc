@@ -451,12 +451,12 @@ int hm2_sserial_setup_remotes(hostmot2_t *hm2,
             hm2->llio->read(hm2->llio, chan->reg_1_addr, name, sizeof(rtapi_u32));
             name[1] |= 0x20; ///lower case
             if (hm2->use_serial_numbers){
-                rtapi_snprintf(chan->name, 20, 
+                rtapi_snprintf(chan->name, sizeof(chan->name),
                                "hm2_%2s.%04x",
                                name, 
                                (chan->serialnumber & 0xffff));
             } else {
-                rtapi_snprintf(chan->name, 28,
+                rtapi_snprintf(chan->name, sizeof(chan->name),
                                "%s.%2s.%d.%d",
                                hm2->llio->name, 
                                name,

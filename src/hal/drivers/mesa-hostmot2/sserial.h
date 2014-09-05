@@ -224,7 +224,7 @@ typedef struct {
     rtapi_u32 data2_written;
     rtapi_u32 data3_written;
     int myinst;
-    char name[21];
+    char name[29];
     
 }hm2_sserial_remote_t;
 
