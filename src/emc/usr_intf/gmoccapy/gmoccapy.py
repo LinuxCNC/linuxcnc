@@ -45,7 +45,7 @@ import gettext              # to extract the strings to be translated
 from gladevcp.gladebuilder import GladeBuilder
 
 from time import strftime           # needed to add a time stamp with alarm entrys
-from time import localtime          # # needed to add a time stamp with alarm entrys
+from time import localtime          # needed to add a time stamp with alarm entrys
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.1.5.5"
+_RELEASE = "   1.2.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -205,6 +205,8 @@ class gmoccapy(object):
 
         self._init_hal_pins()
 
+        self._init_user_messages()
+
         # set the title of the window, to show the release
         self.widgets.window1.set_title("gmoccapy for linuxcnc %s" % _RELEASE)
         self.widgets.lbl_version.set_label("<b>gmoccapy\n%s</b>" % _RELEASE)
@@ -256,13 +258,13 @@ class gmoccapy(object):
         self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
 
         # Window position and size
-        self.widgets.adj_x_pos.set_value(self.prefs.getpref("x_pos", 10, float))
-        self.widgets.adj_y_pos.set_value(self.prefs.getpref("y_pos", 25, float))
+        self.widgets.adj_x_pos.set_value(self.prefs.getpref("x_pos", 40, float))
+        self.widgets.adj_y_pos.set_value(self.prefs.getpref("y_pos", 30, float))
         self.widgets.adj_width.set_value(self.prefs.getpref("width", 979, float))
         self.widgets.adj_height.set_value(self.prefs.getpref("height", 750, float))
 
         # Popup Messages position and size
-        self.widgets.adj_x_pos_popup.set_value(self.prefs.getpref("x_pos_popup", 15, float))
+        self.widgets.adj_x_pos_popup.set_value(self.prefs.getpref("x_pos_popup", 45, float))
         self.widgets.adj_y_pos_popup.set_value(self.prefs.getpref("y_pos_popup", 55, float))
         self.widgets.adj_width_popup.set_value(self.prefs.getpref("width_popup", 250, float))
         self.widgets.adj_max_messages.set_value(self.prefs.getpref("max_messages", 10, float))
@@ -888,14 +890,17 @@ class gmoccapy(object):
             print (_("**** No tabs will be added! ****"))
             return
 
-        for t, c , name in zip(tab_names, tab_cmd, tab_location):
-            nb = self.widgets[name]
-            xid = self._dynamic_tab(nb, t)
-            if not xid: continue
-            cmd = c.replace('{XID}', str(xid))
-            child = subprocess.Popen(cmd.split())
-            self._dynamic_childs[xid] = child
-            nb.show_all()
+        try:
+            for t, c , name in zip(tab_names, tab_cmd, tab_location):
+                nb = self.widgets[name]
+                xid = self._dynamic_tab(nb, t)
+                if not xid: continue
+                cmd = c.replace('{XID}', str(xid))
+                child = subprocess.Popen(cmd.split())
+                self._dynamic_childs[xid] = child
+                nb.show_all()
+        except:
+            print(_("ERROR, trying to initialize the user tabs or panaels, check for typos"))
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
@@ -1138,6 +1143,59 @@ class gmoccapy(object):
         for ext in file_ext:
             self.widgets.ff_file_to_load.add_pattern(ext)
 
+    # search for and set up user requested message system.
+    # status displays on the statusbat and requires no acknowledge.
+    # dialog displays a GTK dialog box with yes or no buttons
+    # okdialog displays a GTK dialog box with an ok button
+    # dialogs require an answer before focus is sent back to main screen
+    def _init_user_messages(self):
+        user_messages = self.get_ini_info.get_user_messages()
+        print user_messages
+        if not user_messages:
+            return
+        for message in user_messages:
+            if message[1] == "status":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+            elif message[1] == "okdialog":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+            elif message[1] == "yesnodialog":
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2], hal.HAL_BIT, hal.HAL_IN))
+                pin.connect("value_changed", self._show_user_message, message)
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-waiting", hal.HAL_BIT, hal.HAL_OUT))
+                pin = hal_glib.GPin(self.halcomp.newpin("messages." + message[2] + "-responce", hal.HAL_BIT, hal.HAL_OUT))
+            else:
+                print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
+
+    def _show_user_message(self, pin, message):
+        if message[1] == "status":
+            if pin.get():
+                self._show_error((0, message[0]))
+                if self.log: self._add_alarm_entry(message[0])
+        elif message[1] == "okdialog":
+            self.halcomp["messages." + message[2] + "-waiting"] = 0
+            if pin.get():
+                if self.log: self._add_alarm_entry(message[0])
+                self.halcomp["messages." + message[2] + "-waiting"] = 1
+                title = "Pin " + message[2] + " message"
+                responce = dialogs.show_user_message(self, message[0], title)
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+        elif message[1] == "yesnodialog":
+            if pin.get():
+                if self.log: self._add_alarm_entry(message[0])
+                self.halcomp["messages." + message[2] + "-waiting"] = 1
+                self.halcomp["messages." + message[2] + "-responce"] = 0
+                title = "Pin " + message[2] + " message"
+                responce = dialogs.yesno_dialog(self, message[0], title)
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+                self.halcomp["messages." + message[2] + "-responce"] = responce
+            else:
+                self.halcomp["messages." + message[2] + "-waiting"] = 0
+        else:
+            print(_("**** GMOCCAPY ERROR **** /n Message type %s not suported" % message[1]))
+
     def _show_offset_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(1)
         if page.get_visible()and state or not page.get_visible()and not state:
@@ -1362,13 +1420,33 @@ class gmoccapy(object):
         if self.log:self._add_alarm_entry(_("Axis %s are homed") % "XYZABCUVW"[int(data[0])])
 
     def on_hal_status_file_loaded(self, widget, filename):
-        self._add_alarm_entry("file_loaded_%s" % filename)
-        if len(filename) > 50:
-            filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
-        self.widgets.lbl_program.set_text(filename)
+        if self.log:self._add_alarm_entry("loaded file %s" % filename)
         widgetlist = ["btn_use_current"
                      ]
-        self._sensitize_widgets(widgetlist, True)
+        # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
+        if filename:
+            fileobject = file(filename, 'r')
+            lines = fileobject.readlines()
+            fileobject.close()
+            self.halcomp["program.length"] = len(lines)
+
+            if len(filename) > 50:
+                filename = filename[0:10] + "..." + filename[len(filename) - 39:len(filename)]
+            self.widgets.lbl_program.set_text(filename)
+            self._sensitize_widgets(widgetlist, True)
+        else:
+            self.halcomp["program.length"] = 0
+            self._sensitize_widgets(widgetlist, False)
+            self.widgets.lbl_program.set_text(_("No file loaded"))
+
+    def on_hal_status_line_changed(self, widget, line):
+        self.halcomp["program.current-line"] = line
+        # this test is only neccesary, because of remap and toolchange, it will emit a file loaded signal
+        if self.halcomp["program.length"] > 0:
+            self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
+        else:
+            self.halcomp["program.progress"] = 0.0
+        # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
 
     def on_hal_status_interp_idle(self, widget):
         self._add_alarm_entry("idle")
@@ -1397,6 +1475,9 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.tool_change = False
+
+        self.halcomp["program.current-line"] = 0
+        self.halcomp["program.progress"] = 0.0
 
     def on_hal_status_interp_run(self, widget):
         self._add_alarm_entry("run")
@@ -1575,8 +1656,8 @@ class gmoccapy(object):
         elif start_as == "rbtn_maximized":
             self.widgets.window1.maximize()
         else:
-            xpos = int(self.prefs.getpref("x_pos", 10, float))
-            ypos = int(self.prefs.getpref("y_pos", 10, float))
+            xpos = int(self.prefs.getpref("x_pos", 40, float))
+            ypos = int(self.prefs.getpref("y_pos", 30, float))
             width = int(self.prefs.getpref("width", 979, float))
             height = int(self.prefs.getpref("height", 750, float))
             self.widgets.window1.move(xpos, ypos)
@@ -2668,7 +2749,7 @@ class gmoccapy(object):
         message = _("Do you really want to delete the MDI history?\n")
         message += _("this will not delete the MDI History file, but will\n")
         message += _("delete the listbox entries for this session")
-        result = dialogs.yesno_dialog(self, header = _("Attention!!"), label = message)
+        result = dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
         if self.log: self._add_alarm_entry("delete_MDI with result %s" % result)
@@ -2825,9 +2906,14 @@ class gmoccapy(object):
         preset = self.prefs.getpref("offset_axis_%s" % axis, 0, float)
         offset = dialogs.entry_dialog(self, data = preset, header = _("Enter value for axis %s") % axis,
                                    label = _("Set axis %s to:") % axis, integer = False)
-        if offset == "CANCEL" or offset == "ERROR":
+        if offset == "CANCEL":
             return
-        if offset != False or offset == 0:
+        elif offset == "ERROR":
+            print(_("Conversion error in btn_set_value"))
+            self._add_alarm_entry(_("Offset conversion error because off wrong entry"))
+            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
+                                  _("Please enter only numerical values. Values have not been applied"))
+        else:
             self._add_alarm_entry(_("offset {0} set to {1:f}").format(axis, offset))
             self.command.mode(linuxcnc.MODE_MDI)
             self.command.wait_complete()
@@ -2837,11 +2923,6 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.prefs.putpref("offset_axis_%s" % axis, offset, float)
-        else:
-            print(_("Conversion error in btn_set_value"))
-            self._add_alarm_entry(_("Offset conversion error because off wrong entry"))
-            dialogs.warning_dialog(self, _("Conversion error in btn_set_value!"),
-                                  _("Please enter only numerical values\nValues have not been applied"))
 # TODO: End
 
     def on_btn_set_selected_clicked(self, widget, data = None):
@@ -3022,12 +3103,12 @@ class gmoccapy(object):
 
     def on_adj_x_pos_value_changed(self, widget, data = None):
         self.prefs.putpref("x_pos", widget.get_value(), float)
-        ypos = int(self.prefs.getpref("y_pos", 10, float))
+        ypos = int(self.prefs.getpref("y_pos", 30, float))
         self.widgets.window1.move(int(widget.get_value()), ypos)
 
     def on_adj_y_pos_value_changed(self, widget, data = None):
         self.prefs.putpref("y_pos", widget.get_value(), float)
-        xpos = int(self.prefs.getpref("x_pos", 10, float))
+        xpos = int(self.prefs.getpref("x_pos", 40, float))
         self.widgets.window1.move(xpos, int(widget.get_value()))
 
     def on_adj_width_value_changed(self, widget, data = None):
@@ -3848,8 +3929,13 @@ class gmoccapy(object):
         self.pin_res_spindle = hal_glib.GPin(self.halcomp.newpin("reset-spindle-override", hal.HAL_BIT, hal.HAL_IN))
         self.pin_res_spindle.connect("value_changed", self._reset_overide, "spindle")
 
-        # make an error pin to indiocate a error to hardware
+        # make an error pin to indicate a error to hardware
         self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+
+        # make pins to indicate program progress information
+        self.halcomp.newpin("program.length", hal.HAL_S32, hal.HAL_OUT)
+        self.halcomp.newpin("program.current-line", hal.HAL_S32, hal.HAL_OUT)
+        self.halcomp.newpin("program.progress", hal.HAL_FLOAT, hal.HAL_OUT)
 
 # Hal Pin Handling End
 # =========================================================
