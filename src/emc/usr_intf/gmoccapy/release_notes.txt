@@ -1,3 +1,10 @@
+ver. 1.2.1
+- due to the behavior of XFCE of the new hybrid.iso I 
+  had to change the width settings of several button
+  to stretch them to fit some text and images
+- The same reason forced to set new default startposition
+  of the main window and the notification messages.
+
 ver. 1.2.0
 - changed GetIniInfo to return also user message setups
 - notification now supports pango markup in the messages

@@ -45,7 +45,7 @@ import gettext              # to extract the strings to be translated
 from gladevcp.gladebuilder import GladeBuilder
 
 from time import strftime           # needed to add a time stamp with alarm entrys
-from time import localtime          # # needed to add a time stamp with alarm entrys
+from time import localtime          # needed to add a time stamp with alarm entrys
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "  1.2.0"
+_RELEASE = "   1.2.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -258,13 +258,13 @@ class gmoccapy(object):
         self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
 
         # Window position and size
-        self.widgets.adj_x_pos.set_value(self.prefs.getpref("x_pos", 10, float))
-        self.widgets.adj_y_pos.set_value(self.prefs.getpref("y_pos", 25, float))
+        self.widgets.adj_x_pos.set_value(self.prefs.getpref("x_pos", 40, float))
+        self.widgets.adj_y_pos.set_value(self.prefs.getpref("y_pos", 30, float))
         self.widgets.adj_width.set_value(self.prefs.getpref("width", 979, float))
         self.widgets.adj_height.set_value(self.prefs.getpref("height", 750, float))
 
         # Popup Messages position and size
-        self.widgets.adj_x_pos_popup.set_value(self.prefs.getpref("x_pos_popup", 15, float))
+        self.widgets.adj_x_pos_popup.set_value(self.prefs.getpref("x_pos_popup", 45, float))
         self.widgets.adj_y_pos_popup.set_value(self.prefs.getpref("y_pos_popup", 55, float))
         self.widgets.adj_width_popup.set_value(self.prefs.getpref("width_popup", 250, float))
         self.widgets.adj_max_messages.set_value(self.prefs.getpref("max_messages", 10, float))
@@ -1656,8 +1656,8 @@ class gmoccapy(object):
         elif start_as == "rbtn_maximized":
             self.widgets.window1.maximize()
         else:
-            xpos = int(self.prefs.getpref("x_pos", 10, float))
-            ypos = int(self.prefs.getpref("y_pos", 10, float))
+            xpos = int(self.prefs.getpref("x_pos", 40, float))
+            ypos = int(self.prefs.getpref("y_pos", 30, float))
             width = int(self.prefs.getpref("width", 979, float))
             height = int(self.prefs.getpref("height", 750, float))
             self.widgets.window1.move(xpos, ypos)
@@ -3103,12 +3103,12 @@ class gmoccapy(object):
 
     def on_adj_x_pos_value_changed(self, widget, data = None):
         self.prefs.putpref("x_pos", widget.get_value(), float)
-        ypos = int(self.prefs.getpref("y_pos", 10, float))
+        ypos = int(self.prefs.getpref("y_pos", 30, float))
         self.widgets.window1.move(int(widget.get_value()), ypos)
 
     def on_adj_y_pos_value_changed(self, widget, data = None):
         self.prefs.putpref("y_pos", widget.get_value(), float)
-        xpos = int(self.prefs.getpref("x_pos", 10, float))
+        xpos = int(self.prefs.getpref("x_pos", 40, float))
         self.widgets.window1.move(xpos, int(widget.get_value()))
 
     def on_adj_width_value_changed(self, widget, data = None):
