@@ -956,15 +956,15 @@ double GET_EXTERNAL_LENGTH_UNITS() {
 }
 
 static bool check_abort() {
-    // PyObject *result =
-    //     callmethod(callback, "check_abort", "");
-    // if(!result) return 1;
-    // if(PyObject_IsTrue(result)) {
-    //     Py_DECREF(result);
-    //     PyErr_Format(PyExc_KeyboardInterrupt, "Load aborted");
-    //     return 1;
-    // }
-    // Py_DECREF(result);
+    PyObject *result =
+        callmethod(callback, "check_abort", "");
+    if(!result) return 1;
+    if(PyObject_IsTrue(result)) {
+        Py_DECREF(result);
+	PyErr_Format(PyExc_KeyboardInterrupt, "Load aborted");
+        return 1;
+    }
+    Py_DECREF(result);
     return 0;
 }
 
