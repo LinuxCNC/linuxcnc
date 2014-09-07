@@ -5223,8 +5223,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     halnum = 0         
                 write_cmnds.append( "addf hm2_%s.%d.write         servo-thread"%
                     (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
-                write_cmnds.append( "addf hm2_%s.%d.pet_watchdog  servo-thread"%
-                    (self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME], halnum))
             return load_cmnds,read_cmnds,write_cmnds
 
     def pport_command_string(self):
