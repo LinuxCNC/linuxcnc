@@ -1386,7 +1386,7 @@ class App:
         self.jogminus = self.jogplus = 0
 
         # set preferences if they exist
-        link = short = advanced = False
+        link = short = advanced = show_pages = False
         filename = os.path.expanduser("~/.pncconf-preferences")
         if os.path.exists(filename):
             match =  open(filename).read()
