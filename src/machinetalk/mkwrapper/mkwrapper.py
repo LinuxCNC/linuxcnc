@@ -14,6 +14,7 @@ import socket
 
 import ConfigParser
 import linuxcnc
+from machinekit import service
 
 from pyftpdlib.authorizers import DummyAuthorizer
 from pyftpdlib.handlers import FTPHandler
@@ -51,52 +52,6 @@ def clearUploadedFiles():
     uploadedFiles = set()
 
 
-class ZeroconfService:
-    """A simple class to publish a network service with zeroconf using
-    avahi.
-    """
-
-    def __init__(self, name, port, stype="_http._tcp", subtype=None,
-                 domain="", host="", text=""):
-        self.name = name
-        self.stype = stype
-        self.domain = domain
-        self.host = host
-        self.port = port
-        self.text = text
-        self.subtype = subtype
-
-    def publish(self):
-        bus = dbus.SystemBus()
-        server = dbus.Interface(
-                         bus.get_object(
-                                 avahi.DBUS_NAME,
-                                 avahi.DBUS_PATH_SERVER),
-                        avahi.DBUS_INTERFACE_SERVER)
-
-        g = dbus.Interface(
-                    bus.get_object(avahi.DBUS_NAME,
-                                   server.EntryGroupNew()),
-                    avahi.DBUS_INTERFACE_ENTRY_GROUP)
-
-        g.AddService(avahi.IF_UNSPEC, avahi.PROTO_UNSPEC, dbus.UInt32(0),
-                     self.name, self.stype, self.domain, self.host,
-                     dbus.UInt16(self.port), self.text)
-
-        if self.subtype:
-            g.AddServiceSubtype(avahi.IF_UNSPEC,
-                                avahi.PROTO_UNSPEC,
-                                dbus.UInt32(0),
-                                self.name, self.stype, self.domain,
-                                self.subtype)
-
-        g.Commit()
-        self.group = g
-
-    def unpublish(self):
-        self.group.Reset()
-
-
 class CustomFTPHandler(FTPHandler):
 
     def on_file_received(self, file):
@@ -128,16 +83,12 @@ class FileService():
         self.filePort = getFreePort()
         self.fileDsname = "ftp://" + self.ipv4 + ":" + str(self.filePort)
 
-        me = uuid.uuid1()
-        self.fileTxtrec    = [str('dsn=' + self.fileDsname),
-                              str('uuid=' + svcUuid),
-                              str('service=' + 'file'),
-                              str('instance=' + str(me))]
-
-        if self.debug:
-            print(('file: ' + 'dsname = ' + self.fileDsname +
-                             ' port = ' + str(self.filePort) +
-                             ' txtrec = ' + str(self.fileTxtrec)))
+        self.fileService = service.Service(type='file',
+                                   svcUuid=svcUuid,
+                                   dsn=self.fileDsname,
+                                   port=self.filePort,
+                                   ipv4=self.ipv4,
+                                   debug=self.debug)
 
         #FTP
         # Instantiate a dummy authorizer for managing 'virtual' users
@@ -163,11 +114,6 @@ class FileService():
 
         # Zeroconf
         try:
-            self.name = 'File on %s' % self.ipv4
-            self.fileService = ZeroconfService(self.name, self.filePort,
-                                                stype='_machinekit._tcp',
-                                                subtype='_file._sub._machinekit._tcp',
-                                                text=self.fileTxtrec)
             self.fileService.publish()
         except Exception as e:
             print (('cannot register DNS service' + str(e)))
@@ -208,7 +154,7 @@ class StatusValues():
 
 class LinuxCNCWrapper():
 
-    def __init__(self, context, statusUri, errorUri, commandUri,
+    def __init__(self, context, interface,
                 iniFile=None, ipv4="", svcUuid=None,
                 pollInterval=None, pingInterval=2, debug=False):
         self.debug = debug
@@ -266,40 +212,35 @@ class LinuxCNCWrapper():
         self.tx = Container()    # Task 1 - PUB-SUB
         self.tx2 = Container()   # Task 2 - ROUTER-DEALER
         self.context = context
+        self.baseUri = "tcp://" + interface
         self.statusSocket = context.socket(zmq.XPUB)
-        self.statusPort = self.statusSocket.bind_to_random_port(statusUri)
+        self.statusPort = self.statusSocket.bind_to_random_port(self.baseUri)
         self.statusDsname = self.statusSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.errorSocket = context.socket(zmq.XPUB)
-        self.errorPort = self.errorSocket.bind_to_random_port(errorUri)
+        self.errorPort = self.errorSocket.bind_to_random_port(self.baseUri)
         self.errorDsname = self.errorSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.commandSocket = context.socket(zmq.DEALER)
-        self.commandPort = self.commandSocket.bind_to_random_port(commandUri)
+        self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
 
-        me = uuid.uuid1()
-        self.statusTxtrec  = [str('dsn=' + self.statusDsname),
-                              str('uuid=' + svcUuid),
-                              str('service=' + 'status'),
-                              str('instance=' + str(me))]
-        self.errorTxtrec   = [str('dsn=' + self.errorDsname),
-                              str('uuid=' + svcUuid),
-                              str('service=' + 'error'),
-                              str('instance=' + str(me))]
-        self.commandTxtrec = [str('dsn=' + self.commandDsname),
-                              str('uuid=' + svcUuid),
-                              str('service=' + 'command'),
-                              str('instance=' + str(me))]
-
-        if self.debug:
-            print(('status: ' + 'dsname = ' + self.statusDsname +
-                               ' port = ' + str(self.statusPort) +
-                               ' txtrec = ' + str(self.statusTxtrec)))
-            print(('error: ' + 'dsname = ' + self.errorDsname +
-                              ' port = ' + str(self.errorPort) +
-                              ' txtrec = ' + str(self.errorTxtrec)))
-            print(('command: ' + 'dsname = ' + self.commandDsname +
-                               ' port = ' + str(self.commandPort) +
-                               ' txtrec = ' + str(self.commandTxtrec)))
+        self.statusService = service.Service(type='status',
+                                   svcUuid=svcUuid,
+                                   dsn=self.statusDsname,
+                                   port=self.statusPort,
+                                   ipv4=self.ipv4,
+                                   debug=self.debug)
+        self.errorService = service.Service(type='error',
+                                   svcUuid=svcUuid,
+                                   dsn=self.errorDsname,
+                                   port=self.errorPort,
+                                   ipv4=self.ipv4,
+                                   debug=self.debug)
+        self.commandService = service.Service(type='command',
+                                   svcUuid=svcUuid,
+                                   dsn=self.commandDsname,
+                                   port=self.commandPort,
+                                   ipv4=self.ipv4,
+                                   debug=self.debug)
 
         poll = zmq.Poller()
         poll.register(self.statusSocket, zmq.POLLIN)
@@ -308,23 +249,8 @@ class LinuxCNCWrapper():
 
         # Zeroconf
         try:
-            self.name = 'Status on %s' % self.ipv4
-            self.statusService = ZeroconfService(self.name, self.statusPort,
-                                                stype='_machinekit._tcp',
-                                                subtype='_status._sub._machinekit._tcp',
-                                                text=self.statusTxtrec)
             self.statusService.publish()
-            self.name = 'Error on %s' % self.ipv4
-            self.errorService = ZeroconfService(self.name, self.errorPort,
-                                                stype='_machinekit._tcp',
-                                                subtype='_error._sub._machinekit._tcp',
-                                                text=self.errorTxtrec)
             self.errorService.publish()
-            self.name = 'Command on %s' % self.ipv4
-            self.commandService = ZeroconfService(self.name, self.commandPort,
-                                                stype='_machinekit._tcp',
-                                                subtype='_command._sub._machinekit._tcp',
-                                                text=self.commandTxtrec)
             self.commandService.publish()
         except Exception as e:
             print (('cannot register DNS service' + str(e)))
@@ -2116,6 +2042,8 @@ class LinuxCNCWrapper():
 
         except linuxcnc.error as detail:
             self.linuxcncErrors.append(detail)
+        except UnicodeEncodeError as unicodeError:
+            self.linuxcncErrors.append("Please use only ASCII characters")
 
 
 def choose_ip(pref):
@@ -2164,33 +2092,31 @@ def main():
 
     mki = ConfigParser.ConfigParser()
     mki.read(mkini)
-    uuid = mki.get("MACHINEKIT", "MKUUID")
+    mkUuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")
     prefs = mki.get("MACHINEKIT", "INTERFACES").split()
 
     if remote == 0:
-        print("Remote communication is deactivated, linuxcncwrap will not start")
+        print("Remote communication is deactivated, mkwrapper will use the loopback interfaces")
         print(("set REMOTE in " + mkini + " to 1 to enable remote communication"))
-        sys.exit(0)
-
-    iface = choose_ip(prefs)
-    if not iface:
-        sys.stderr.write("failed to determine preferred interface (preference = %s)" % prefs)
-        sys.exit(1)
+        iface = ['lo', '127.0.0.1']
+    else:
+        iface = choose_ip(prefs)
+        if not iface:
+            sys.stderr.write("failed to determine preferred interface (preference = %s)" % prefs)
+            sys.exit(1)
 
     if debug:
-        print(("announcing linuxcncwrap on " + str(iface)))
+        print(("announcing mkwrapper on " + str(iface)))
 
     context = zmq.Context()
     context.linger = 0
 
-    uri = "tcp://" + iface[0]
+    FileService(iniFile=iniFile, svcUuid=mkUuid, ipv4=iface[1], debug=debug)
 
-    fileService = FileService(iniFile=iniFile, svcUuid=uuid, ipv4=iface[1], debug=debug)
-
-    wrapper = LinuxCNCWrapper(context, uri, uri, uri,
+    LinuxCNCWrapper(context, interface=iface[0],
                               iniFile=iniFile,
-                              svcUuid=uuid,
+                              svcUuid=mkUuid,
                               ipv4=iface[1],
                               debug=debug)
 
