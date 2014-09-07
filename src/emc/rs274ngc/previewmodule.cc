@@ -60,6 +60,7 @@ static void publish_istat(pb::InterpreterStateType state)
     if (state ^ last_state) {
 	istat.set_type(pb::MT_INTERP_STAT);
 	istat.set_interp_state(state);
+    istat.set_interp_name("preview");
 
 	// NB: this will also istat.Clear()
 	retval = send_pbcontainer(istat_topic, istat, z_status);
