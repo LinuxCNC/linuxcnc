@@ -54,13 +54,13 @@ class Service:
     """A simple class to publish a Machinekit network service using zeroconf.
     """
 
-    def __init__(self, type, svcUuid, dsn, port, name=None, ipv4=None,
+    def __init__(self, type, svcUuid, dsn, port, name=None, ip=None,
                 debug=False):
         self.dsn = dsn
         self.svcUuid = svcUuid
         self.type = type
         self.port = port
-        self.ipv4 = ipv4
+        self.ip = ip
         self.debug = debug
 
         self.stype = '_machinekit._tcp'
@@ -69,7 +69,7 @@ class Service:
         if name is None:
             pid = os.getpid()
             self.name = self.type.title() \
-            + ' on ' + self.ipv4 + ' pid ' + str(pid)
+            + ' on ' + self.ip + ' pid ' + str(pid)
 
         me = uuid.uuid1()
         self.statusTxtrec = [str('dsn=' + self.dsn),
