@@ -1,16 +1,15 @@
 #!/usr/bin/python
 import os
 import sys
-import uuid
 from stat import *
 import zmq
 import netifaces
-import avahi
-import dbus
 import thread
 import time
 import math
 import socket
+import preview
+from urlparse import urlparse
 
 import ConfigParser
 import linuxcnc
@@ -65,10 +64,10 @@ class CustomFTPHandler(FTPHandler):
 
 class FileService():
 
-    def __init__(self, iniFile=None, ipv4="", svcUuid=None,
+    def __init__(self, iniFile=None, ip="", svcUuid=None,
                 debug=False):
         self.debug = debug
-        self.ipv4 = ipv4
+        self.ip = ip
 
         # Linuxcnc
         try:
@@ -81,13 +80,13 @@ class FileService():
             sys.exit(1)
 
         self.filePort = getFreePort()
-        self.fileDsname = "ftp://" + self.ipv4 + ":" + str(self.filePort)
+        self.fileDsname = "ftp://" + self.ip + ":" + str(self.filePort)
 
         self.fileService = service.Service(type='file',
                                    svcUuid=svcUuid,
                                    dsn=self.fileDsname,
                                    port=self.filePort,
-                                   ipv4=self.ipv4,
+                                   ip=self.ip,
                                    debug=self.debug)
 
         #FTP
@@ -105,7 +104,7 @@ class FileService():
         self.handler.banner = "welcome to the GCode file service"
 
         # Instantiate FTP server class and listen on some address
-        self.address = (self.ipv4, self.filePort)
+        self.address = (self.ip, self.filePort)
         self.server = FTPServer(self.address, self.handler)
 
         # set a limit for connections
@@ -154,11 +153,11 @@ class StatusValues():
 
 class LinuxCNCWrapper():
 
-    def __init__(self, context, interface,
-                iniFile=None, ipv4="", svcUuid=None,
+    def __init__(self, context, ip,
+                iniFile=None, svcUuid=None,
                 pollInterval=None, pingInterval=2, debug=False):
         self.debug = debug
-        self.ipv4 = ipv4
+        self.ip = ip
         self.pingInterval = pingInterval
 
         # status
@@ -212,7 +211,7 @@ class LinuxCNCWrapper():
         self.tx = Container()    # Task 1 - PUB-SUB
         self.tx2 = Container()   # Task 2 - ROUTER-DEALER
         self.context = context
-        self.baseUri = "tcp://" + interface
+        self.baseUri = "tcp://" + self.ip
         self.statusSocket = context.socket(zmq.XPUB)
         self.statusPort = self.statusSocket.bind_to_random_port(self.baseUri)
         self.statusDsname = self.statusSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
@@ -223,23 +222,40 @@ class LinuxCNCWrapper():
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
 
+        (self.previewDsname, self.previewstatusDsname) = \
+        preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+        self.previewPort = urlparse(self.previewDsname).port
+        self.previewstatusPort = urlparse(self.previewstatusDsname).port
+
         self.statusService = service.Service(type='status',
                                    svcUuid=svcUuid,
                                    dsn=self.statusDsname,
                                    port=self.statusPort,
-                                   ipv4=self.ipv4,
+                                   ip=self.ip,
                                    debug=self.debug)
         self.errorService = service.Service(type='error',
                                    svcUuid=svcUuid,
                                    dsn=self.errorDsname,
                                    port=self.errorPort,
-                                   ipv4=self.ipv4,
+                                   ip=self.ip,
                                    debug=self.debug)
         self.commandService = service.Service(type='command',
                                    svcUuid=svcUuid,
                                    dsn=self.commandDsname,
                                    port=self.commandPort,
-                                   ipv4=self.ipv4,
+                                   ip=self.ip,
+                                   debug=self.debug)
+        self.previewService = service.Service(type='preview',
+                                   svcUuid=svcUuid,
+                                   dsn=self.previewDsname,
+                                   port=self.previewPort,
+                                   ip=self.ip,
+                                   debug=self.debug)
+        self.previewService = service.Service(type='previewstatus',
+                                   svcUuid=svcUuid,
+                                   dsn=self.previewstatusDsname,
+                                   port=self.previewstatusPort,
+                                   ip=self.ip,
                                    debug=self.debug)
 
         poll = zmq.Poller()
@@ -1711,22 +1727,40 @@ class LinuxCNCWrapper():
                 self.send_command_msg(MT_PING_ACKNOWLEDGE)
 
             elif self.rx.type == MT_EMC_TASK_ABORT:
-                self.command.abort()
+                if self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.abort()
+                else:
+                    self.send_command_wrong_params()
 
             elif self.rx.type == MT_EMC_TASK_PLAN_PAUSE:
-                self.command.auto(linuxcnc.AUTO_PAUSE)
+                if self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.auto(linuxcnc.AUTO_PAUSE)
+                else:
+                    self.send_command_wrong_params()
 
             elif self.rx.type == MT_EMC_TASK_PLAN_RESUME:
-                self.command.auto(linuxcnc.AUTO_RESUME)
+                if self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.auto(linuxcnc.AUTO_RESUME)
+                else:
+                    self.send_command_wrong_params()
 
             elif self.rx.type == MT_EMC_TASK_PLAN_STEP:
-                self.command.auto(linuxcnc.AUTO_STEP)
+                if self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.auto(linuxcnc.AUTO_STEP)
+                else:
+                    self.send_command_wrong_params()
 
             elif self.rx.type == MT_EMC_TASK_PLAN_RUN:
                 if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('line_number'):
-                    lineNumber = self.rx.emc_command_params.line_number
-                    self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
+                and self.rx.emc_command_params.HasField('line_number') \
+                and self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        lineNumber = self.rx.emc_command_params.line_number
+                        self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
                 else:
                     self.send_command_wrong_params()
 
@@ -1809,9 +1843,11 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TASK_PLAN_EXECUTE:
                 if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('command'):
-                    command = self.rx.emc_command_params.command
-                    self.command.mdi(command)
+                and self.rx.emc_command_params.HasField('command') \
+                and self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        command = self.rx.emc_command_params.command
+                        self.command.mdi(command)
                 else:
                     self.send_command_wrong_params()
 
@@ -1823,8 +1859,10 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TASK_SET_MODE:
                 if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('task_mode'):
-                    self.command.mode(self.rx.emc_command_params.task_mode)
+                and self.rx.emc_command_params.HasField('task_mode') \
+                and self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.mode(self.rx.emc_command_params.task_mode)
                 else:
                     self.send_command_wrong_params()
 
@@ -1833,14 +1871,20 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TASK_PLAN_OPEN:
                 if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('path'):
-                    fileName = self.rx.emc_command_params.path
-                    self.command.program_open(os.path.join(self.directory, fileName))
+                and self.rx.emc_command_params.HasField('path') \
+                and self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        fileName = self.rx.emc_command_params.path
+                        self.command.program_open(os.path.join(self.directory, fileName))
                 else:
                     self.send_command_wrong_params()
 
             elif self.rx.type == MT_EMC_TASK_PLAN_INIT:
-                self.command.reset_interpreter()
+                if self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.reset_interpreter()
+                else:
+                    self.send_command_wrong_params()
 
             elif self.rx.type == MT_EMC_MOTION_ADAPTIVE:
                 if self.rx.HasField('emc_command_params') \
@@ -1961,8 +2005,10 @@ class LinuxCNCWrapper():
 
             elif self.rx.type == MT_EMC_TASK_SET_STATE:
                 if self.rx.HasField('emc_command_params') \
-                and self.rx.emc_command_params.HasField('task_state'):
-                    self.command.state(self.rx.emc_command_params.task_state)
+                and self.rx.emc_command_params.HasField('task_state') \
+                and self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.state(self.rx.emc_command_params.task_state)
                 else:
                     self.send_command_wrong_params()
 
@@ -2112,13 +2158,12 @@ def main():
     context = zmq.Context()
     context.linger = 0
 
-    FileService(iniFile=iniFile, svcUuid=mkUuid, ipv4=iface[1], debug=debug)
+    FileService(iniFile=iniFile, svcUuid=mkUuid, ip=iface[1], debug=debug)
 
-    LinuxCNCWrapper(context, interface=iface[0],
-                              iniFile=iniFile,
-                              svcUuid=mkUuid,
-                              ipv4=iface[1],
-                              debug=debug)
+    LinuxCNCWrapper(context, ip=iface[1],
+                             iniFile=iniFile,
+                             svcUuid=mkUuid,
+                             debug=debug)
 
 if __name__ == "__main__":
     main()
