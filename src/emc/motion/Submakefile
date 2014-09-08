@@ -1,6 +1,6 @@
 INCLUDES += emc/motion
 
-../include/%.h: ./emc/motion/%.h
+$(patsubst ./emc/motion/%,../include/%,$(wildcard ./emc/motion/*.h)): ../include/%.h: ./emc/motion/%.h
 	cp $^ $@
-../include/%.hh: ./emc/motion/%.hh
+$(patsubst ./emc/motion/%,../include/%,$(wildcard ./emc/motion/*.hh)): ../include/%.hh: ./emc/motion/%.hh
 	cp $^ $@

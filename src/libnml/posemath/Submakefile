@@ -10,7 +10,7 @@ TARGETS += ../lib/libposemath.so ../lib/libposemath.so.0
 	@rm -f $@
 	@$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
 
-../include/%.h: ./libnml/posemath/%.h
+$(patsubst ./libnml/posemath/%,../include/%,$(wildcard ./libnml/posemath/*.h)): ../include/%.h: ./libnml/posemath/%.h
 	cp $^ $@
-../include/%.hh: ./libnml/posemath/%.hh
+$(patsubst ./libnml/posemath/%,../include/%,$(wildcard ./libnml/posemath/*.hh)): ../include/%.hh: ./libnml/posemath/%.hh
 	cp $^ $@

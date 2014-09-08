@@ -1,3 +1,8 @@
+MAKEFLAGS += --warn-undefined-variables
+
+EXTRAFLAGS :=
+EXTRA_DEBUG ?=
+
 # see http://www.cmcrossroads.com/ask-mr-make/6535-tracing-rule-execution-in-gnu-make
 # to trace make execution of make in more detail:
 # make VV=1
@@ -50,7 +55,7 @@ else
   Q = @
 endif
 
-ifeq "$(findstring s,$(MAKEFLAGS))" ""
+ifeq "$(findstring s,$(filter-out --%, $(MAKEFLAGS)))" ""
 ECHO=@echo
 VECHO=echo
 else
@@ -154,7 +159,7 @@ ASSERT_EMPTY = $(if $(1), $(error "Should be empty but is not: $(1)"))
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc, $(USERSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
-$(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
+$(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC -fno-strict-aliasing
 USERSRCS += $(PYSRCS)
 endif
 
@@ -168,16 +173,10 @@ ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 READ_DEPS = $(wildcard $(DEPS))
-$(shell echo 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
+$(shell $(VECHO) 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency files)
 -include $(READ_DEPS)
 UNREAD_DEPS = $(filter-out $(READ_DEPS), $(DEPS))
-LEGACY_DEPS = $(patsubst objects/%, depends/%, $(UNREAD_DEPS))
-READ_LEGACY_DEPS = $(wildcard $(LEGACY_DEPS))
-ifneq ($(READ_LEGACY_DEPS),)
-$(shell echo 1>&2 Reading $(words $(READ_LEGACY_DEPS)) old-style dependency files)
--include $(READ_LEGACY_DEPS)
-endif
-$(shell echo 1>&2 Done reading dependencies)
+$(shell $(VECHO) 1>&2 Done reading dependencies)
 endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
@@ -486,9 +485,9 @@ endif
 # These rules allows a header file from this directory to be installed into
 # ../include.  A pair of rules like these will exist in the Submakefile
 # of each file that contains headers.
-../include/%.h: %.h
+$(patsubst %,../include/%,$(wildcard *.h)): ../include/%.h: %.h
 	$(Q)-cp $^ $@
-../include/%.hh: %.hh
+$(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
 	$(Q)-cp $^ $@
 
 DIR=install -d -m 0755 -o root
@@ -750,7 +749,7 @@ endif
 # "kbuild" system.  $(BASEPWD) is used here, instead of relative paths, because
 # that's what kbuild seems to require
 
-EXTRA_CFLAGS = $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
+EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD) -I$(BASEPWD)/libnml/linklist \
 	-I$(BASEPWD)/libnml/cms -I$(BASEPWD)/libnml/rcs -I$(BASEPWD)/libnml/inifile \
 	-I$(BASEPWD)/libnml/os_intf -I$(BASEPWD)/libnml/nml -I$(BASEPWD)/libnml/buffer \
 	-I$(BASEPWD)/libnml/posemath -I$(BASEPWD)/rtapi -I$(BASEPWD)/hal \
@@ -1108,9 +1107,9 @@ endif
 
 ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
-$(shell echo 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime dependency files)
+$(shell $(VECHO) 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime dependency files)
 -include $(READ_RTDEPS)
-$(shell echo 1>&2 Done reading realtime dependencies)
+$(shell $(VECHO) 1>&2 Done reading realtime dependencies)
 endif
 endif
 
