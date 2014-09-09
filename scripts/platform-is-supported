@@ -27,7 +27,7 @@ import re
 
 
 supported_oses = [ 'linux' ]
-supported_cpus = [ 'amd64', 'i386', 'armhf' ]
+supported_cpus = [ 'amd64', 'i386', 'arm' ]
 supported_kernel_flavors = [ 'rtai', 'rtpreempt', 'vanilla' ]
 
 
