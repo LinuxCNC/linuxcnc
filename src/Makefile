@@ -1,4 +1,6 @@
+ifeq ($(origin KERNELRELEASE), undefined)
 MAKEFLAGS += --warn-undefined-variables
+endif
 
 EXTRAFLAGS :=
 EXTRA_DEBUG ?=
@@ -83,7 +85,7 @@ endif
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 	     > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
 
-ifeq ($(KERNELRELEASE),)
+ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
 default: configs userspace modules
@@ -440,6 +442,7 @@ endif
 ifeq ($(BUILD_SYS),kbuild)
 
 modules:
+	MAKEFLAGS="$(filter-out --warn-undefined-variables,$(MAKEFLAGS))" \
 	$(PYTHON) modsilent.py $(MAKE) KBUILD_EXTRA_SYMBOLS=$(moduledir)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
 	-cp Module.symvers *$(MODULE_EXT) ../rtlib/
 endif
