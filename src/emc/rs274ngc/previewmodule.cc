@@ -263,6 +263,8 @@ static void maybe_new_line(int sequence_number) {
     if(interp_error) return;
     if(sequence_number == last_sequence_number)
         return;
+
+    return ;; // not used - leaks memory
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
     interp_new.active_settings(new_line_code->settings);
@@ -1013,6 +1015,12 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     note_printf(istat, "open '%s'", f);
     publish_istat(pb::INTERP_RUNNING);
     maybe_new_line();
+
+    pb::Preview *p = output.add_preview();
+    p->set_type(pb::PV_SOURCE_CONTEXT);
+    p->set_stype(pb::ST_NGC_FILE);
+    p->set_filename(f);
+    p->set_line_number(interp_new.sequence_number());
 
     int result = INTERP_OK;
     if(unitcode) {
