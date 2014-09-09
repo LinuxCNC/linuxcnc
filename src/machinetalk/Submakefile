@@ -197,8 +197,12 @@ objects/$(PROTODIR)/%.d: %.proto
 	--depends_out="$(PBDEP_OPT)":objects/$(PROTODIR) \
 	 $<
 
-$(PROTODIR)/nanopb.proto: $(NPBPROTODIR)/nanopb.proto
-	echo DIFFING $< $@
+
+
+ifneq ($(shell diff -q $(PROTODIR)/nanopb.proto $(NPBPROTODIR)/nanopb.proto),)
+    $(error $(PROTODIR)/nanopb.proto and  $(NPBPROTODIR)/nanopb.proto do not match; \
+     the machinetalk/proto subtree might be out of sync)
+endif 
 
 #---------- C++ rules -----------
 #
