@@ -4,7 +4,7 @@ import sys
 from stat import *
 import zmq
 import netifaces
-import thread
+import threading
 import time
 import math
 import socket
@@ -62,12 +62,14 @@ class CustomFTPHandler(FTPHandler):
         os.remove(file)
 
 
-class FileService():
+class FileService(threading.Thread):
 
     def __init__(self, iniFile=None, ip="", svcUuid=None,
                 debug=False):
         self.debug = debug
         self.ip = ip
+        self.shutdown = threading.Event()
+        self.running = False
 
         # Linuxcnc
         try:
@@ -118,20 +120,97 @@ class FileService():
             print (('cannot register DNS service' + str(e)))
             sys.exit(1)
 
-        thread.start_new_thread(self.run, ())
+        threading.Thread.__init__(self)
 
     def __del__(self):
         clearUploadedFiles()
 
     def run(self):
-        try:
-            # start ftp server
-            self.server.serve_forever()
+        self.running = True
+        # start ftp server
+        self.server.serve_forever()
 
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            self.fileService.unpublish()
+        while not self.shutdown.is_set():
+            time.sleep(1)
+
+        self.fileService.unpublish()
+        self.running = False
+        return
+
+    def stop(self):
+        self.shutdown.set()
+
+
+class Canon():
+    def __init__(self, parameterFile="", debug=False):
+        self.debug = debug
+        self.aborted = False
+        self.parameterFile = parameterFile
+
+    def do_cancel(self):
+        if self.debug:
+            print("setting abort flag")
+        self.aborted = True
+
+    def check_abort(self):
+        if self.debug:
+            print("check_abort")
+        return self.aborted
+
+
+class Preview(threading.Thread):
+    def __init__(self, parameterFile="", debug=False):
+        self.filename = ""
+        self.unitcode = ""
+        self.initcode = ""
+        self.canon = Canon(parameterFile=parameterFile, debug=debug)
+        self.debug = debug
+        self.isRunning = False
+        self.errorCallback = None
+
+        threading.Thread.__init__(self)
+        self.daemon = True
+
+    def register_error_callback(self, callback):
+        self.errorCallback = callback
+
+    def bind(self, previewUri, statusUri):
+        return preview.bind(previewUri, statusUri)
+
+    def abort(self):
+        self.canon.do_cancel()
+
+    def program_open(self, filename):
+        if os.path.isfile(filename):
+            self.filename = filename
+        else:
+            raise Exception("file does not exist")
+
+    def run(self):
+        self.isRunning = True
+        try:
+            dirname = os.path.dirname(self.filename)
+            basename = os.path.basename(self.filename)
+            os.chdir(dirname)
+            result, last_sequence_number = preview.parse(basename,
+                                                       self.canon,
+                                                       self.unitcode,
+                                                       self.initcode)
+
+            if result > preview.MIN_ERROR:
+                if self.debug:
+                    print((error + "on line " + str(line)))
+                if self.errorCallback is not None:
+                    error = " gcode error: %s " % (preview.strerror(result))
+                    line = last_sequence_number - 1
+                    self.errorCallback(error, line)
+
+        except Exception as e:
+            print(("exception" + str(e)))
+
+        if self.debug:
+            print("Preview exiting")
+        self.isRunning = False
 
 
 class StatusValues():
@@ -153,12 +232,17 @@ class StatusValues():
 
 class LinuxCNCWrapper():
 
+    def preview_error(self, error, line):
+        self.linuxcncErrors.append(error + "\non line " + str(line))
+
     def __init__(self, context, ip,
                 iniFile=None, svcUuid=None,
                 pollInterval=None, pingInterval=2, debug=False):
         self.debug = debug
         self.ip = ip
         self.pingInterval = pingInterval
+        self.shutdown = threading.Event()
+        self.running = False
 
         # status
         self.status = StatusValues()
@@ -197,6 +281,7 @@ class LinuxCNCWrapper():
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
             self.directory = os.path.expanduser(self.directory)
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
+            self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or ""
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -222,8 +307,11 @@ class LinuxCNCWrapper():
         self.commandPort = self.commandSocket.bind_to_random_port(self.baseUri)
         self.commandDsname = self.commandSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
 
+        self.preview = Preview(parameterFile=self.interpParameterFile,
+                               debug=self.debug)
         (self.previewDsname, self.previewstatusDsname) = \
-        preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+        self.preview.bind(self.baseUri + ':*', self.baseUri + ':*')
+        self.preview.register_error_callback(self.preview_error)
         self.previewPort = urlparse(self.previewDsname).port
         self.previewstatusPort = urlparse(self.previewstatusDsname).port
 
@@ -251,42 +339,59 @@ class LinuxCNCWrapper():
                                    port=self.previewPort,
                                    ip=self.ip,
                                    debug=self.debug)
-        self.previewService = service.Service(type='previewstatus',
+        self.previewstatusService = service.Service(type='previewstatus',
                                    svcUuid=svcUuid,
                                    dsn=self.previewstatusDsname,
                                    port=self.previewstatusPort,
                                    ip=self.ip,
                                    debug=self.debug)
 
+        self.publish()
+
+        threading.Thread(target=self.process_sockets).start()
+        threading.Thread(target=self.poll).start()
+        self.running = True
+
+    def process_sockets(self):
         poll = zmq.Poller()
         poll.register(self.statusSocket, zmq.POLLIN)
         poll.register(self.errorSocket, zmq.POLLIN)
         poll.register(self.commandSocket, zmq.POLLIN)
 
+        while not self.shutdown.is_set():
+            s = dict(poll.poll())
+            if self.statusSocket in s:
+                self.process_status(self.statusSocket)
+            if self.errorSocket in s:
+                self.process_error(self.errorSocket)
+            if self.commandSocket in s:
+                self.process_command(self.commandSocket)
+
+        self.unpublish()
+        self.running = False
+        return
+
+    def publish(self):
         # Zeroconf
         try:
             self.statusService.publish()
             self.errorService.publish()
             self.commandService.publish()
+            self.previewService.publish()
+            self.previewstatusService.publish()
         except Exception as e:
             print (('cannot register DNS service' + str(e)))
             sys.exit(1)
 
-        thread.start_new_thread(self.poll, ())
+    def unpublish(self):
+        self.statusService.unpublish()
+        self.errorService.unpublish()
+        self.commandService.unpublish()
+        self.previewService.unpublish()
+        self.previewstatusService.unpublish()
 
-        try:
-            while True:
-                s = dict(poll.poll())
-                if self.statusSocket in s:
-                    self.process_status(self.statusSocket)
-                if self.errorSocket in s:
-                    self.process_error(self.errorSocket)
-                if self.commandSocket in s:
-                    self.process_command(self.commandSocket)
-        except KeyboardInterrupt:
-            self.statusService.unpublish()
-            self.errorService.unpublish()
-            self.commandService.unpublish()
+    def stop(self):
+        self.shutdown = True
 
     def notEqual(self, a, b):
         threshold = 0.0001
@@ -1578,7 +1683,7 @@ class LinuxCNCWrapper():
         self.tx.pparams.MergeFrom(parameters)
 
     def poll(self):
-        while True:
+        while not self.shutdown.is_set():
             try:
                 if (self.totalSubscriptions > 0):
                     self.stat.poll()
@@ -1594,12 +1699,16 @@ class LinuxCNCWrapper():
 
             except linuxcnc.error as detail:
                 print(("error", detail))
+                self.stop()
 
             if (self.pingCount == self.pingRatio):
                 self.pingCount = 0
             else:
                 self.pingCount += 1
             time.sleep(self.pollInterval)
+
+        self.running = False
+        return
 
     def ping_status(self):
         if (self.ioSubscriptions > 0):
@@ -1711,6 +1820,14 @@ class LinuxCNCWrapper():
         except zmq.ZMQError:
             print("ZMQ error")
 
+    def get_active_gcodes(self):
+        rawGcodes = self.stat.gcodes
+        gcodes = []
+        for rawGCode in rawGcodes:
+            if rawGCode > -1:
+                gcodes.append('G' + str(rawGCode / 10.0))
+        return ''.join(gcodes)
+
     def send_command_wrong_params(self):
         self.tx2.note.append("wrong parameters")
         self.send_command_msg(MT_ERROR)
@@ -1730,6 +1847,8 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('interp_name'):
                     if self.rx.interp_name == 'execute':
                         self.command.abort()
+                    elif self.rx.interp_name == 'preview':
+                        self.preview.abort()
                 else:
                     self.send_command_wrong_params()
 
@@ -1761,6 +1880,9 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         lineNumber = self.rx.emc_command_params.line_number
                         self.command.auto(linuxcnc.AUTO_RUN, lineNumber)
+                    elif self.rx.interp_name == 'preview':
+                        self.preview.initcode = self.get_active_gcodes()
+                        self.preview.start()
                 else:
                     self.send_command_wrong_params()
 
@@ -1873,9 +1995,12 @@ class LinuxCNCWrapper():
                 if self.rx.HasField('emc_command_params') \
                 and self.rx.emc_command_params.HasField('path') \
                 and self.rx.HasField('interp_name'):
+                    fileName = self.rx.emc_command_params.path
+                    fileName = os.path.join(self.directory, fileName)
                     if self.rx.interp_name == 'execute':
-                        fileName = self.rx.emc_command_params.path
-                        self.command.program_open(os.path.join(self.directory, fileName))
+                        self.command.program_open(fileName)
+                    elif self.rx.interp_name == 'preview':
+                        self.preview.program_open(fileName)
                 else:
                     self.send_command_wrong_params()
 
@@ -2088,7 +2213,7 @@ class LinuxCNCWrapper():
 
         except linuxcnc.error as detail:
             self.linuxcncErrors.append(detail)
-        except UnicodeEncodeError as unicodeError:
+        except UnicodeEncodeError:
             self.linuxcncErrors.append("Please use only ASCII characters")
 
 
@@ -2158,12 +2283,37 @@ def main():
     context = zmq.Context()
     context.linger = 0
 
-    FileService(iniFile=iniFile, svcUuid=mkUuid, ip=iface[1], debug=debug)
+    fileService = None
+    mkwrapper = None
+    try:
+        fileService = FileService(iniFile=iniFile, svcUuid=mkUuid, ip=iface[1],
+                                 debug=debug)
+        fileService.start()
 
-    LinuxCNCWrapper(context, ip=iface[1],
-                             iniFile=iniFile,
-                             svcUuid=mkUuid,
-                             debug=debug)
+        mkwrapper = LinuxCNCWrapper(context, ip=iface[1],
+                                 iniFile=iniFile,
+                                 svcUuid=mkUuid,
+                                 debug=debug)
+
+        while fileService.running and mkwrapper.running:
+            time.sleep(1)
+    except Exception as e:
+        print(e)
+    except:
+        print("other exception")
+
+    print("stopping threads")
+    if fileService is not None:
+        fileService.stop()
+    if mkwrapper is not None:
+        mkwrapper.stop()
+
+    # wait for all threads to terminate
+    while threading.active_count() > 1:
+        time.sleep(0.1)
+
+    print("threads stopped")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
