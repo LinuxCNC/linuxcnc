@@ -310,4 +310,4 @@ class PlasmaClass:
         self.enableheightlock = widget.get_active()
 
 def get_handlers(halcomp, builder, useropts):
-    return(PlasmaClass(halcomp, builder, useropts))
+    return[PlasmaClass(halcomp, builder, useropts)]

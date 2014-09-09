@@ -28,8 +28,6 @@
 #        it is caused because the height of the first message is not taken in care
 #        calculating the hight of the popup.
 
-#        I disabled the frame widget to save space, but the use would be more beautifull
-
 import gtk
 import gobject
 import pango
@@ -107,10 +105,10 @@ class Notification(gtk.Window):
         label = gtk.Label()
         label.set_line_wrap(True)
         label.set_line_wrap_mode(pango.WRAP_CHAR)
-        label.set_text(text)
         label.set_size_request(self.message_width, -1)
         font_desc = pango.FontDescription(self.font)
         label.modify_font(font_desc)
+        label.set_markup(text)
         hbox.pack_start(label)
         btn_close = gtk.Button()
         image = gtk.Image()
@@ -133,6 +131,7 @@ class Notification(gtk.Window):
         btn_close.show()
         hbox.show()
         icon.show()
+# we do not show the labelnumber, but we use it for the handling
 #        labelnumber.show()
         self.vbox.show()
 #        self.popup.show()
@@ -279,7 +278,6 @@ def main():
         print "debug", text
     notification.connect("message_deleted", debug)
     gtk.main()
-
 
 if __name__ == "__main__":
     main()

@@ -44,4 +44,4 @@ class SignalsClass:
         gtk.settings_get_default().set_string_property("gtk-theme-name", theme_name, "")
 
 def get_handlers(halcomp, builder, useropts):
-    return(SignalsClass(halcomp, builder, useropts))
+    return[SignalsClass(halcomp, builder, useropts)]

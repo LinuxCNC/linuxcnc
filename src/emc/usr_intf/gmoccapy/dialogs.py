@@ -91,7 +91,7 @@ def entry_dialog(self, data = None, header = _("Enter value") , label = _("Enter
     return "CANCEL"
 
 # display warning dialog
-def warning_dialog(self, message, secondary = None, title = "Operator Message"):
+def warning_dialog(self, message, secondary = None, title = _("Operator Message")):
     dialog = gtk.MessageDialog(self.widgets.window1,
         gtk.DIALOG_DESTROY_WITH_PARENT,
         gtk.MESSAGE_INFO, gtk.BUTTONS_OK, message)
@@ -100,27 +100,33 @@ def warning_dialog(self, message, secondary = None, title = "Operator Message"):
         dialog.format_secondary_text(secondary)
     dialog.show_all()
     dialog.set_title(title)
-    result = dialog.run()
+    responce = dialog.run()
     dialog.destroy()
-    if result == gtk.RESPONSE_OK:
-        result = True
-    else:
-        result = False
-    return result
+    return responce == gtk.RESPONSE_OK
 
-def yesno_dialog(self, header = _("Question") , label = _("Please decide:")):
+def yesno_dialog(self, message, title = _("Operator Message")):
     dialog = gtk.MessageDialog(self.widgets.window1,
-             gtk.DIALOG_DESTROY_WITH_PARENT,
-             gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, header)
-    label = gtk.Label(label)
-    dialog.vbox.pack_start(label)
-    dialog.set_decorated(True)
-    dialog.show_all()
-    response = dialog.run()
+                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.MESSAGE_QUESTION,
+                               gtk.BUTTONS_YES_NO)
+    if title:
+        dialog.set_title(str(title))
+    dialog.set_markup(message)
+    responce = dialog.run()
     dialog.destroy()
-    if response == gtk.RESPONSE_YES:
-        return True
-    return False
+    return responce == gtk.RESPONSE_YES
+
+def show_user_message(self, message, title = _("Operator Message")):
+    dialog = gtk.MessageDialog(self.widgets.window1,
+                               gtk.DIALOG_DESTROY_WITH_PARENT,
+                               gtk.MESSAGE_INFO,
+                               gtk.BUTTONS_OK)
+    if title:
+        dialog.set_title(str(title))
+    dialog.set_markup(message)
+    responce = dialog.run()
+    dialog.destroy()
+    return responce == gtk.RESPONSE_OK
 
 # dialog for run from line
 def restart_dialog(self):

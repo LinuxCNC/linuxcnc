@@ -1,3 +1,44 @@
+ver. 1.2.1
+- due to the behavior of XFCE of the new hybrid.iso I 
+  had to change the width settings of several button
+  to stretch them to fit some text and images
+- The same reason forced to set new default startposition
+  of the main window and the notification messages.
+
+ver. 1.2.0
+- changed GetIniInfo to return also user message setups
+- notification now supports pango markup in the messages
+- added hal user messages similar to gsreeen to gmoccapy
+  see gmoccapy_messages.ini for usage information
+- updated the translation files for German and Spanish 
+
+ver. 1.1.5.9
+- prepared yesno_dialog for user message, 
+  it does accept now pango markup
+- wrong values in axis offset didn't show a message
+  to the user, I fixed that
+
+ver. 1.1.5.8
+- message at start because of
+  return(PlasmaClass(halcomp, builder, useropts))
+  instedt off
+  return[PlasmaClass(halcomp, builder, useropts)]
+  resulting in iteration over none object
+
+ver. 1.1.5.7
+- init dynamic tab now in try except to avoid python exception
+  on user typos in ini file
+- loading a tool using remap, leaded to an error if no file has been 
+  loaded before the change, we do check for that now to avoid the error
+
+ver. 1.1.5.6
+- introduced three new hal-pin to signal program progress informations
+  gmoccapy.program.length = S32, OUT (total number of program lines)
+  gmoccapy.program.current-line =S32, OUT (current executed line)
+  gmoccapy.program.progress = FLOAT, OUT (progress in %)
+
+  This pin do not work very perfect when using subroutines or remap procedures
+
 ver. 1.1.5.5
 - if using remap, an error has been launched, if the user used the buttons of 
   the tool edit widget to change the tools (not posible to change to auto mode)
