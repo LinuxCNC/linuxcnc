@@ -184,7 +184,7 @@ proc makeIniTune {} {
         for {set i 1} { $i < $nl } {incr i} {
             set tmpstring [$haltext get $i.0 $i.end]
             if {[string match *AXIS* $tmpstring] && ![string match *#* $tmpstring]} {
-	      set halcommand [split $tmpstring " "]
+	      set halcommand [split $tmpstring " \t"]
 	      if { [lindex $halcommand 0] == "setp" || [lindex $halcommand 1] == "\=" } {
                         if { [lindex $halcommand 1] == "\=" } {
                             set tmpstring "setp [lindex $halcommand 0] [lindex $halcommand 2]"
