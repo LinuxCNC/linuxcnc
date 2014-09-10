@@ -8,11 +8,12 @@ import threading
 import time
 import math
 import socket
-import preview
+import signal
 from urlparse import urlparse
 
 import ConfigParser
 import linuxcnc
+import preview
 from machinekit import service
 
 from pyftpdlib.authorizers import DummyAuthorizer
@@ -127,13 +128,14 @@ class FileService(threading.Thread):
 
     def run(self):
         self.running = True
+
         # start ftp server
-        self.server.serve_forever()
-
         while not self.shutdown.is_set():
-            time.sleep(1)
+            self.server.serve_forever(timeout=1, blocking=False)
 
+        self.server.close_all()
         self.fileService.unpublish()
+
         self.running = False
         return
 
@@ -157,8 +159,11 @@ class Canon():
             print("check_abort")
         return self.aborted
 
+    def reset(self):
+        self.aborted = False
 
-class Preview(threading.Thread):
+
+class Preview():
     def __init__(self, parameterFile="", debug=False):
         self.filename = ""
         self.unitcode = ""
@@ -167,9 +172,6 @@ class Preview(threading.Thread):
         self.debug = debug
         self.isRunning = False
         self.errorCallback = None
-
-        threading.Thread.__init__(self)
-        self.daemon = True
 
     def register_error_callback(self, callback):
         self.errorCallback = callback
@@ -185,6 +187,15 @@ class Preview(threading.Thread):
             self.filename = filename
         else:
             raise Exception("file does not exist")
+
+    def start(self):
+        if self.isRunning:
+            raise Exception("Preview already running")
+
+        self.canon.reset()
+        thread = threading.Thread(target=self.run)
+        thread.daemon = True
+        thread.start()
 
     def run(self):
         self.isRunning = True
@@ -279,9 +290,10 @@ class LinuxCNCWrapper():
             iniFile = iniFile or os.environ.get('INI_FILE_NAME', '/dev/null')
             self.ini = linuxcnc.ini(iniFile)
             self.directory = self.ini.find('DISPLAY', 'PROGRAM_PREFIX') or os.getcwd()
-            self.directory = os.path.expanduser(self.directory)
+            self.directory = os.path.abspath(os.path.expanduser(self.directory))
             self.pollInterval = float(pollInterval or self.ini.find('DISPLAY', 'CYCLE_TIME') or 0.1)
             self.interpParameterFile = self.ini.find('RS274NGC', 'PARAMETER_FILE') or ""
+            self.interpParameterFile = os.path.abspath(os.path.expanduser(self.interpParameterFile))
         except linuxcnc.error as detail:
             print(("error", detail))
             sys.exit(1)
@@ -359,7 +371,7 @@ class LinuxCNCWrapper():
         poll.register(self.commandSocket, zmq.POLLIN)
 
         while not self.shutdown.is_set():
-            s = dict(poll.poll())
+            s = dict(poll.poll(1000))
             if self.statusSocket in s:
                 self.process_status(self.statusSocket)
             if self.errorSocket in s:
@@ -391,7 +403,7 @@ class LinuxCNCWrapper():
         self.previewstatusService.unpublish()
 
     def stop(self):
-        self.shutdown = True
+        self.shutdown.set()
 
     def notEqual(self, a, b):
         threshold = 0.0001
@@ -2000,6 +2012,7 @@ class LinuxCNCWrapper():
                     if self.rx.interp_name == 'execute':
                         self.command.program_open(fileName)
                     elif self.rx.interp_name == 'preview':
+
                         self.preview.program_open(fileName)
                 else:
                     self.send_command_wrong_params()
@@ -2215,6 +2228,9 @@ class LinuxCNCWrapper():
             self.linuxcncErrors.append(detail)
         except UnicodeEncodeError:
             self.linuxcncErrors.append("Please use only ASCII characters")
+        except Exception as e:
+            print(("exception " + str(e)))
+            self.linuxcncErrors.append(str(e))
 
 
 def choose_ip(pref):
@@ -2244,6 +2260,25 @@ def choose_ip(pref):
                     continue
                 return (i, ip)
     return None
+
+
+shutdown = False
+
+
+def _exitHandler(signum, frame):
+    global shutdown
+    shutdown = True
+
+
+# register exit signal handlers
+def register_exit_handler():
+    signal.signal(signal.SIGINT, _exitHandler)
+    signal.signal(signal.SIGTERM, _exitHandler)
+
+
+def check_exit():
+    global shutdown
+    return shutdown
 
 
 def main():
@@ -2283,6 +2318,8 @@ def main():
     context = zmq.Context()
     context.linger = 0
 
+    register_exit_handler()
+
     fileService = None
     mkwrapper = None
     try:
@@ -2295,9 +2332,10 @@ def main():
                                  svcUuid=mkUuid,
                                  debug=debug)
 
-        while fileService.running and mkwrapper.running:
+        while fileService.running and mkwrapper.running and not check_exit():
             time.sleep(1)
     except Exception as e:
+        print("exception")
         print(e)
     except:
         print("other exception")
