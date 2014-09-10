@@ -200,10 +200,7 @@ class Preview():
     def run(self):
         self.isRunning = True
         try:
-            dirname = os.path.dirname(self.filename)
-            basename = os.path.basename(self.filename)
-            os.chdir(dirname)
-            result, last_sequence_number = preview.parse(basename,
+            result, last_sequence_number = preview.parse(self.filename,
                                                        self.canon,
                                                        self.unitcode,
                                                        self.initcode)
@@ -496,6 +493,7 @@ class LinuxCNCWrapper():
             self.status.config.geometry = ""
             self.status.config.arcdivision = 0
             self.status.config.no_force_homing = False
+            self.status.config.remote_path = ""
             self.configFirstrun = False
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
@@ -646,6 +644,11 @@ class LinuxCNCWrapper():
             if (self.status.config.no_force_homing != noForceHoming):
                 self.status.config.no_force_homing = noForceHoming
                 self.txStatus.config.no_force_homing = noForceHoming
+                modified = True
+
+            if (self.status.config.remote_path != self.directory):
+                self.status.config.remote_path = self.directory
+                self.txStatus.config.remote_path = self.directory
                 modified = True
 
         if self.notEqual(self.status.config.acceleration, stat.acceleration):
@@ -968,13 +971,9 @@ class LinuxCNCWrapper():
             self.txStatus.task.exec_state = stat.exec_state
             modified = True
 
-        if stat.file != "":
-            relativeFile = os.path.relpath(stat.file, self.directory)
-        else:
-            relativeFile = ""
-        if (self.status.task.file != relativeFile):
-            self.status.task.file = relativeFile
-            self.txStatus.task.file = relativeFile
+        if (self.status.task.file != stat.file):
+            self.status.task.file = stat.file
+            self.txStatus.task.file = stat.file
             modified = True
 
         if (self.status.task.input_timeout != stat.input_timeout):
@@ -2008,7 +2007,6 @@ class LinuxCNCWrapper():
                 and self.rx.emc_command_params.HasField('path') \
                 and self.rx.HasField('interp_name'):
                     fileName = self.rx.emc_command_params.path
-                    fileName = os.path.join(self.directory, fileName)
                     if self.rx.interp_name == 'execute':
                         self.command.program_open(fileName)
                     elif self.rx.interp_name == 'preview':
