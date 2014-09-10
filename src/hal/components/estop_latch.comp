@@ -1,9 +1,75 @@
-component estop_latch "ESTOP latch which sets ok-out true and fault-out false only if ok-in is true, fault-in is false, and a rising edge is seen on reset.  While ok-out is true, watchdog toggles, and can be used for chargepumps or similar needs.";
-pin in bit ok_in;
-pin in bit fault_in;
+component estop_latch "Software ESTOP latch";
+
+description """
+This component can be used as a part of a simple software ESTOP chain.
+
+It has two states: "OK" and "Faulted".
+
+The initial state is "Faulted".  When faulted, the
+.B out-ok
+output is false,
+the
+.B fault-out
+output is true, and the
+.B watchdog
+output is unchanging.
+
+The state changes from "Faulted" to "OK" when
+.B all
+these conditions are true:
+.RS
+.IP \\(bu
+.B fault-in
+is false
+.IP \\(bu
+.B ok-in
+is true
+.IP \\(bu
+.B reset
+changes from false to true
+.RE
+
+When "OK", the
+.B out-ok
+output is true, the
+.B fault-out
+output is false, and the
+.B watchdog
+output is toggling.
+
+The state changes from "OK" to "Faulted" when
+.B any
+of the following are true:
+.RS
+.IP \\(bu
+.B fault-in
+is true
+.IP \\(bu
+.B ok-in
+is false
+.RE
+
+To facilitate using only a single fault source,
+.B ok-in
+and
+.B fault-en
+are both set to the non-fault-causing value when no signal is connected.
+For estop-latch to ever be able to signal a fault, at least one of these
+inputs must be connected.
+
+Typically, an external fault or estop input is connected to \\fBfault-in\\fR,
+\\fBiocontrol.0.user-request-enable\\fR is connected to \\fBreset\\fR,
+and \\fBok-out\\fR is connected to \\fBiocontrol.0.emc-enable-in\\fB.
+
+In more complex systems, it may be more appropriate to use classicladder to
+manage the software portion of the estop chain.
+""";
+
+pin in bit ok_in = true;
+pin in bit fault_in = false;
 pin in bit reset;
-pin out bit ok_out;
-pin out bit fault_out;
+pin out bit ok_out = false;
+pin out bit fault_out = true;
 pin out bit watchdog;
 function _ nofp;
 option data estop_data;

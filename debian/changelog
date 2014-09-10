@@ -1,3 +1,33 @@
+linuxcnc (1:2.6.3) precise; urgency=low
+
+  * axis GUI: add ability to set default spindle speed
+  * gmoccapy GUI: iteration over None object message
+  * gmoccapy GUI: hal user message system introduced
+  * gmoccapy GUI: corrected message system
+  * xhc-hb04 jog pendant: move udev rule to the right place
+  * python: fix exception in MultiFileBuilder.set_translation_domain
+  * emccalib: fix bug #389 (not writing file)
+  * estop-latch: improve documentation; set default pin values
+  * hm2_7i90: remove some dead code
+  * hm2 sample configs: set HOME_SEQUENCE
+  * hm2 sample configs: let hm2-stepper estop when hm2 watchdog bites
+        (Closes: #391)
+  * docs: better description of 5420-5428
+  * docs: the remap inifile var is PYTHON_APPEND
+  * docs: all html links work now
+  * docs: section ids are externally accessible hyperlinks
+  * french doc update: default spindle speed
+  * french doc update: clarify comp's usage of count and names
+  * french doc update: fix startup code example
+  * packaging: recommend the correct hostmot2 package
+  * packaging: Debian testing (Jessie) requires tcl/tk 8.6
+  * build system: misc minor portability fixes
+  * tests: no need to track var file
+
+  * 
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 05 Sep 2014 18:53:11 -0600
+
 linuxcnc (1:2.6.2) precise; urgency=low
 
   * xhc-hb04: fix device file permissions
