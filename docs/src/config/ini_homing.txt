@@ -40,6 +40,8 @@ Any other combinations may result in an error.
 
 === HOME_SEARCH_VEL (((HOME SEARCH VEL)))
 
+This variable has units of machine-units per second.
+
 The default value is zero. A value of zero causes LinuxCNC to assume that
 there is no home switch; the search stage of homing is skipped.
 
@@ -58,6 +60,8 @@ long time.
 
 === HOME_LATCH_VEL (((HOME LATCH VEL)))
 
+This variable has units of machine-units per second.
+
 Specifies the speed and direction that LinuxCNC uses when it makes its
 final accurate determination of the home switch (if present) and index
 pulse location (if present). It will usually be slower than the search
@@ -75,6 +79,8 @@ is an error and the homing operation will fail. The default value is
 zero.
 
 === HOME_FINAL_VEL
+
+This variable has units of machine-units per second.
 
 It specifies the speed that LinuxCNC uses when it makes its move from
 HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from

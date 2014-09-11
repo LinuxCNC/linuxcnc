@@ -527,7 +527,7 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
             board->llio.ioport_connector_name[0] = "P4";
             board->llio.ioport_connector_name[1] = "P3";
             board->llio.ioport_connector_name[2] = "P2";
-            board->llio.fpga_part_number = "xc6slx16ftg256";
+            board->llio.fpga_part_number = "6slx16ftg256";
             board->llio.num_leds = 2;
             break;
         }
@@ -547,7 +547,7 @@ static int hm2_pci_probe(struct rtapi_pci_dev *dev, const struct rtapi_pci_devic
             board->llio.pins_per_connector = 17;
             board->llio.ioport_connector_name[0] = "P3";
             board->llio.ioport_connector_name[1] = "P2";
-            board->llio.fpga_part_number = "6slx9pq144";
+            board->llio.fpga_part_number = "6slx9tqg144";
             board->llio.num_leds = 2;
             break;
         }
