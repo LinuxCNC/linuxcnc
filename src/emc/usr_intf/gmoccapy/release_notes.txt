@@ -1,3 +1,16 @@
+ver. 1.2.2
+- changed the way the window size and position is 
+  handled, as bevore the default values did apear 
+  several times in the code
+- If no virtual keyboard could be initialized, we 
+  disable now the coresponding part on the settings
+  page and the related button. Check will be done
+  for <onboard> and <matchbox-keyboard>
+- starting gmoccapy did throw an error to the terminal
+  that a widget could not get default. Finally I found 
+  the reason, the glade file did contain a property
+  "has_default" and that is not allowed by builder.
+
 ver. 1.2.1
 - due to the behavior of XFCE of the new hybrid.iso I 
   had to change the width settings of several button

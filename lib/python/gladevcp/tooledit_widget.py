@@ -153,7 +153,7 @@ class ToolEdit(gtk.VBox):
         # clear the current liststore, search the tool file, and add each tool
         if self.toolfile == None:return
         self.model.clear()
-        print "toolfile:",self.toolfile
+        # print "toolfile:",self.toolfile
         if not os.path.exists(self.toolfile):
             print "Toolfile does not exist"
             return
