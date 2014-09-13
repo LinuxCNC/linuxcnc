@@ -199,7 +199,7 @@ objects/$(PROTODIR)/%.d: %.proto
 
 
 
-ifneq ($(shell diff -q $(PROTODIR)/nanopb.proto $(NPBPROTODIR)/nanopb.proto),)
+ifneq ($(shell diff -q $(BASEPWD)/$(PROTODIR)/nanopb.proto $(BASEPWD)/$(NPBPROTODIR)/nanopb.proto),)
     $(error $(PROTODIR)/nanopb.proto and  $(NPBPROTODIR)/nanopb.proto do not match; \
      the machinetalk/proto subtree might be out of sync)
 endif 
