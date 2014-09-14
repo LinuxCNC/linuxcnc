@@ -48,8 +48,8 @@ then the driver creates additional buttons for these that are active only if the
   button-half-z
   button-half-a
 As with real buttons, the synthesized buttons have hal pins named:
-  xhc-hb04button-zero-x
-  xhc-hb04button-zero-y
+  xhc-hb04.button-zero-x
+  xhc-hb04.button-zero-y
   etc.
 
 
@@ -57,11 +57,16 @@ Additional hal pins are created by the xhc-hb04 driver and connected as required
 
 A working and connected xhc-hb04 device is required for the demonstration configurations.  If not connected, the sim configs will start without pendant functionality.
 
-A udev rules file is added to the system (with a deb install) to give correct user permissions for USB access.
+----------------------------------
+A udev rules file is needed to give correct permissions for USB access.  With a deb install, the rules file is installed as /lib/udev/rules.d/99-xhc.rules
 
-If using a Run-In-Place (RIP) build, create the file /etc/udev/rules.d/90-xhc.rules with the following single line:
+If using a Run-In-Place (RIP) build, create a file in the location for user-installed rules: /etc/udev/rules.d/99-xhc.rules and include a rule to specify the applicable product and vendor codes and allows both read and write access to the user.
+
+Example udev rule:
 ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="users"
+This rule uses mode 0666 to provide read and write access to owner,group,world -- e.g., everyone.
 
+----------------------------------
 The sim configurations use a single halfile: xhc-hb04.tcl.  This halfile uses a custom comp file (xhc_hb04_util.comp) and can be added to existing configurations by adding an ini file entry for:
   [HAL]HALFILE=xhc-hb04.tcl
 
