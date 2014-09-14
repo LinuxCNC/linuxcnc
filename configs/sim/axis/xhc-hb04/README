@@ -5,10 +5,9 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Using_A_XHC-HB04_Wireless_MPG_Pendant
 The HAL module is designed for the XHC-HB04 V3.0 identified as USB device 10CE:EB70.
 Most of the pendant features are handled:
 - buttons converted to hal pins
-- jog wheel with variable scale (use stepsize-up pin to change in sequence)
-- sequences provided are:
+- jog wheel with variable scale (use stepsize-up or stepsize-down pin to change in sequence)
+- sequences provided include:
      (0.001,0.010,0.100,1.000)  typ for mm-base machine
-     and
      (0.001,0.005,0.010,0.020)  typ for inch-base machine
 - LCD screen displays machine and relative positions
 
@@ -82,13 +81,16 @@ scales     = 1 1 1 1 (plus/minus factors)
 threadname = servo-thread
 require_pendant = yes (yes | no)
 jogmode    = normal   (normal | vnormal | plus-minus)
-sequence   = 1        (1|2)
+sequence   = 1        (1|2|3|4|5)
                       1: 0.001,0.010,0.100,1.000 (typ for mm machine)
                       2: 0.001,0.005,0.010,0.020 (typ for inch machine)
+                      3: 0.001,0.010,0.100
+                      4: 0.001,0.002,0.005,0.010
+                      5: 0.001,0.002,0.005
 
 The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.
 
-The movement per wheel increment is normally controlled by connecting the STEP button to the hal pin xhc-hb04.stepsize-up. Each press of the STEP button will cause the wheel increment to increase according to the sequence specified.  The sequence starts over after the maximum value is reached.
+The movement per wheel increment is normally controlled by connecting the STEP button to the hal pin xhc-hb04.stepsize-up (or xhc-hb04.stepsize-down). Each press of the STEP button will cause the wheel increment to increase according to the sequence specified.  The sequence starts over after the maximum value is reached.
 
 The scale factor for each axis can be set with the scales item.
 
