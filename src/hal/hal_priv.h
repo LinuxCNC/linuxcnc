@@ -104,6 +104,8 @@ RTAPI_BEGIN_DECLS
 /* SHMCHK(ptr) verifies that a pointer actually points to a
    location that is part of the HAL shared memory block. */
 
+/* offset 0 is reserved for a null-ish pointer, so SHMCHK(hal_shmem_base) is
+   false by design */
 #define SHMCHK(ptr)  ( ((char *)(ptr)) > (hal_shmem_base) && \
                        ((char *)(ptr)) < (hal_shmem_base + HAL_SIZE) )
 
