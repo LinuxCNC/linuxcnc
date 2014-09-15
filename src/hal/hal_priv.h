@@ -93,6 +93,8 @@
 */
 
 #include <rtapi.h>
+#include <rtapi_list.h>
+
 RTAPI_BEGIN_DECLS
 
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
@@ -108,6 +110,53 @@ RTAPI_BEGIN_DECLS
    false by design */
 #define SHMCHK(ptr)  ( ((char *)(ptr)) > (hal_shmem_base) && \
                        ((char *)(ptr)) < (hal_shmem_base + HAL_SIZE) )
+
+struct hal_list_head { int next, prev; };
+
+/**
+ * list_for_each        -       iterate over a list
+ * @pos:        the &struct list_head to use as a loop cursor.
+ * @head:       the head for your list.
+ *
+ * Only safe for iterating when the hal mutex is held
+ */
+#define hal_list_for_each(pos, head) \
+    for (pos = SHMPTR((head)->next); \
+            pos != (head); \
+            pos = SHMPTR(pos->next))
+
+/**
+ * hal_list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
+ * (safe to iterate with the hal lock not held)
+ * @pos:        the type * to use as a loop cursor.
+ * @n:          another type * to use as temporary storage
+ * @head:       the head for your list.
+ * @member:     the name of the hal_list_struct within the struct.
+ */
+#define hal_list_for_each_entry_safe(pos, n, head, member)              \
+        for (pos = hal_list_entry(SHMPTR((head)->next), typeof(*pos), member),      \
+                n = hal_list_entry(SHMPTR(pos->member.next), typeof(*pos), member); \
+             &pos->member != (head);                                    \
+             pos = n, n = hal_list_entry(SHMPTR(n->member.next), typeof(*n), member))
+/**
+ * hal_list_for_each_entry_safe_reverse - iterate backwards over list safe against removal
+ * (safe to iterate with the hal lock not held)
+ * @pos:        the type * to use as a loop cursor.
+ * @n:          another type * to use as temporary storage
+ * @head:       the head for your list.
+ * @member:     the name of the hal_list_struct within the struct.
+ *
+ * Iterate backwards over list of given type, safe against removal
+ * of list entry.
+ */
+#define hal_list_for_each_entry_safe_reverse(pos, n, head, member)          \
+        for (pos = hal_list_entry(SHMPTR((head)->prev), typeof(*pos), member),      \
+                n = hal_list_entry(SHMPTR(pos->member.prev), typeof(*pos), member); \
+             &pos->member != (head);                                    \
+             pos = n, n = hal_list_entry(SHMPTR(n->member.prev), typeof(*n), member))
+
+#define hal_list_entry(ptr, type, member) \
+         rtapi_list_entry(ptr, type, member)
 
 /** The good news is that none of this linked list complexity is
     visible to the components that use this API.  Complexity here
@@ -423,6 +472,51 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     the next matching pin.  If no match is found, it returns NULL
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
+
+static inline void hal__list_add(struct hal_list_head *new_,
+        struct hal_list_head *prev,
+        struct hal_list_head *next)
+{
+    next->prev = SHMOFF(new_);
+    new_->next = SHMOFF(next);
+    new_->prev = SHMOFF(prev);
+    prev->next = SHMOFF(new_);
+}
+
+static inline void hal__list_del(struct hal_list_head * prev, struct hal_list_head * next)
+{
+        next->prev = SHMOFF(prev);
+        prev->next = SHMOFF(next);
+}
+
+static inline void hal_list_add(struct hal_list_head *new_, struct hal_list_head *head)
+{
+        hal__list_add(new_, head, (struct hal_list_head*)SHMPTR(head->next));
+}
+
+static inline void hal_list_add_tail(struct hal_list_head *new_, struct hal_list_head *head)
+{
+        hal__list_add(new_, (struct hal_list_head*)SHMPTR(head->prev), head);
+}
+
+static inline void hal_list_del(struct hal_list_head *entry)
+{
+        hal__list_del((struct hal_list_head*)SHMPTR(entry->prev), (struct hal_list_head*)SHMPTR(entry->next));
+        entry->next = 0;
+        entry->prev = 0;
+}
+
+static inline int hal_list_empty(const struct hal_list_head *head)
+{
+        return SHMPTR(head->next) == head;
+}
+
+static inline void HAL_INIT_LIST_HEAD(struct hal_list_head *list)
+{
+        list->next = SHMOFF(list);
+        list->prev = SHMOFF(list);
+}
+
 
 RTAPI_END_DECLS
 #endif /* HAL_PRIV_H */
