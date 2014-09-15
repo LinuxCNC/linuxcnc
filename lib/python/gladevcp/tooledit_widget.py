@@ -65,8 +65,9 @@ class ToolEdit(gtk.VBox):
         self.objectlist = "s","t","p","x","y","z","a","b","c","u","v","w","d","i","j","q",";"
         # these signals include column data so must be made here instead of in Glade
         # for view 2
-        self.cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b", \
-                         "cell_c","cell_u","cell_v", "cell_w","cell_d","cell_front","cell_back","cell_orient","cell_comments"
+        self.cell_list = "cell_toggle","cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b",\
+                            "cell_c","cell_u","cell_v","cell_w","cell_d",\
+                            "cell_front","cell_back","cell_orient","cell_comments"
         for col,name in enumerate(self.cell_list):
             if col == 0:continue
             temp = self.wTree.get_object(name)
@@ -161,16 +162,22 @@ class ToolEdit(gtk.VBox):
         self.toolinfo = []
         for rawline in logfile:
             # strip the comments from line and add directly to array
+            # if index = -1 the delimiter ; is missing - clear comments
             index = rawline.find(";")
-            comment = (rawline[index+1:])
-            comment = comment.rstrip("\n")
-            line = rawline.rstrip(comment)
+            comment =''
+            if not index == -1:
+                comment = (rawline[index+1:])
+                comment = comment.rstrip("\n")
+                line = rawline.rstrip(comment)
+            else:
+                line = rawline
             array = [0,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',comment]
             toolinfo_flag = False
             # search beginning of each word for keyword letters
             # offset 0 is the checkbutton so ignore it
             # if i = ';' that is the comment and we have already added it
             # offset 1 and 2 are integers the rest floats
+            # we strip leading and following spaces from the comments
             for offset,i in enumerate(KEYWORDS):
                 if offset == 0 or i == ';': continue
                 for word in line.split():
@@ -210,14 +217,13 @@ class ToolEdit(gtk.VBox):
                 elif num in (1,2): # tool# pocket#
                     line = line + "%s%d "%(KEYWORDS[num], i)
                 elif num == 16: # comments
-                    test = i.lstrip()
+                    test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
                 else:
                     test = i.lstrip() # localized floats
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
             print >>file,line
-            #print line
         # tell linuxcnc we changed the tool table entries
         try:
             linuxcnc.command().load_tool_table()
@@ -380,7 +386,7 @@ def main(filename=None):
     window.vbox.add(tooledit)
     tooledit.set_visible("Abcijquvw",False)
     window.connect("destroy", gtk.main_quit)
-    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/test.tbl")
+    tooledit.set_filename("/home/chris/emc2-dev/configs/sim/gscreen/gscreen_custom/lathe-fanucy.tbl")
     tooledit.set_font("sans 16")
     window.show_all()
     #tooledit.hide_buttonbox(True)
