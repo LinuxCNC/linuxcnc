@@ -224,6 +224,8 @@ class ToolEdit(gtk.VBox):
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
             print >>file,line
+        file.flush()
+        os.fsync(file.fileno())
         # tell linuxcnc we changed the tool table entries
         try:
             linuxcnc.command().load_tool_table()
