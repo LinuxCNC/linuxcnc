@@ -90,10 +90,10 @@ typedef enum {
 
 // alternate stepsize sequences (use STEPSIZE_DISPLAY_*), terminate with 0:
 static const int  stepsize_sequence_1[MAX_STEPSIZE_SEQUENCE +1] = {1,10,100,1000, 0}; // default
-static const int  stepsize_sequence_2[MAX_STEPSIZE_SEQUENCE +1] = {1,5,10,20,     0};
-static const int  stepsize_sequence_3[MAX_STEPSIZE_SEQUENCE +1] = {1,10,100,      0};
-static const int  stepsize_sequence_4[MAX_STEPSIZE_SEQUENCE +1] = {1,2,5,10,      0};
-static const int  stepsize_sequence_5[MAX_STEPSIZE_SEQUENCE +1] = {1,2,5,         0};
+static const int  stepsize_sequence_2[MAX_STEPSIZE_SEQUENCE +1] = {1, 5, 10, 20,         0};
+static const int  stepsize_sequence_3[MAX_STEPSIZE_SEQUENCE +1] = {1,10,100,             0};
+static const int  stepsize_sequence_4[MAX_STEPSIZE_SEQUENCE +1] = {1, 5, 10, 20,  50,100,0};
+static const int  stepsize_sequence_5[MAX_STEPSIZE_SEQUENCE +1] = {1,10, 50,100,1000,    0};
 static const int* stepsize_sequence = stepsize_sequence_1; // use the default
 static int stepsize_idx = 0; // start at initial (zeroth) sequence
 static int stepsize_last_idx  =  0; //calculated`
@@ -702,8 +702,8 @@ static void Usage(char *name)
     fprintf(stderr, "     1: 1,10,100,1000 (default)\n");
     fprintf(stderr, "     2: 1,5,10,20\n");
     fprintf(stderr, "     3: 1,10,100\n");
-    fprintf(stderr, "     4: 1,2,5,10\n");
-    fprintf(stderr, "     5: 1,2,5\n");
+    fprintf(stderr, "     4: 1,5,10,20,50,100\n");
+    fprintf(stderr, "     5: 1,10,50,100,1000\n");
     fprintf(stderr, "\n");
     fprintf(stderr, "Configuration file section format:\n");
     fprintf(stderr, "[XHC-HB04]\n");

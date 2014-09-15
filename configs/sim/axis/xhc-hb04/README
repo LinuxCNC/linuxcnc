@@ -85,8 +85,8 @@ sequence   = 1        (1|2|3|4|5)
                       1: 0.001,0.010,0.100,1.000 (typ for mm machine)
                       2: 0.001,0.005,0.010,0.020 (typ for inch machine)
                       3: 0.001,0.010,0.100
-                      4: 0.001,0.002,0.005,0.010
-                      5: 0.001,0.002,0.005
+                      4: 0.001,0.005,0.010,0.020,0.050,0.100
+                      5: 0.001,0.010,0.050,0.100,1.000
 
 The filter coefs can be used to slow the response to wheel steps but are usually not needed since the xhc-hb04 component implements smoothing.
 
