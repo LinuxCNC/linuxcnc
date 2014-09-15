@@ -544,11 +544,20 @@ function Cleanup() {
     echo "Unloading hal components" >> $DEBUG_FILE
     $HALCMD unload all
 
-    for i in `seq 10`; do
+    WAIT=10
+    while [ $WAIT -gt 1 ]; do
         # (the one component is the halcmd itself)
-        if [ `$HALCMD list comp | wc -w` = 1 ]; then break; fi
-        sleep .2
+        if [ `$HALCMD list comp | wc -w` = 1 ]; then
+            WAIT=0
+        else
+            WAIT=$(($WAIT-1))
+            sleep .2
+        fi
     done
+    if [ $WAIT -gt 0 ]; then
+        echo 'ERROR: could not unload hal components:'
+        $HALCMD list comp
+    fi
 
     echo "Removing HAL_LIB, RTAPI, and Real Time OS modules" >>$PRINT_FILE
     $REALTIME stop
