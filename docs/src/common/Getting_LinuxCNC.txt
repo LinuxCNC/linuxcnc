@@ -218,7 +218,7 @@ cd download_directory
 Then run the md5sum command with the file name you saved.
 +
 ----
-md5sum -b ubuntu-10.04-linuxcnc1-i386.iso
+md5sum -b binary.hybrid.iso
 ----
 +
 The md5sum should print out a single line after 
@@ -226,24 +226,11 @@ calculating the hash.
 On slower computers this might take a minute or two.
 +
 ----
-76dc2416b917679b71255e464ede84ec *ubuntu-10.04-linuxcnc3-i386.iso
+a9898e3397861c2cd0d707f9c27900de *binary.hybrid.iso
 ----
 +
 Now compare it to the md5sum value that it should be.
 +
-If you downloaded the md5sum as well as the iso, 
-you can ask the md5sum program to do the checking for you. 
-In the same directory: 
-+
-----
-md5sum -c ubuntu-10.04-linuxcnc1-i386.iso.md5
-----
-+
-If all is well, after a short delay the terminal will print: 
-+
-----
-ubuntu-10.04-linuxcnc1-i386.iso: OK
-----
 
 Burning the ISO in Linux::
 
@@ -292,24 +279,18 @@ run the Latency Test as shown <<latency-test,here>>.
 
 === Installing LinuxCNC
 
-If you like what you see, just click the Install icon on the desktop,
-answer a few questions (your name, timezone, password) and the install
-completes in a few minutes. Make sure you write down the name you used
-and the password. Once the install process is complete and you go on
-line the update manager will pop up and allow you to upgrade to the
-latest stable version of LinuxCNC.
+To install LinuxCNC from the LiveCD select 'Install (Graphical) at bootup.
 
 === Updates to LinuxCNC (((Updates to LinuxCNC)))
 
 With the normal install the Update Manager will notify you of updates
 to LinuxCNC when you go on line and allow you to easily upgrade with no
-Linux knowledge needed. 
-If you want to upgrade to 10.04 from 8.04 a
-clean install from the Live-CD is recommended. 
+Linux knowledge needed.
+If you want to upgrade to Debian Wheezy from 10.04 or 8.04 a clean install from
+the Live-CD is recommended.
 It is OK to upgrade everything except the operating system when asked to.
 
-Warning: Do not upgrade Ubuntu to a new but non-LTS version 
-(like 8.04 to 8.10) as it will prevent LinuxCNC from running.
+Warning: Do not upgrade the operating system if promped to do so.
 
 === Install Problems
 
