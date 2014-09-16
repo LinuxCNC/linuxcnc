@@ -138,32 +138,30 @@ In most browsers you can right click on the link and select
 Copy Link Location or similar, then paste the link into the 
 terminal window with a right mouse click and select Paste. 
 +
-.Ubuntu 10.04 Lucid Lynx and LinuxCNC (current release)
+.Debian Wheezy and LinuxCNC fresh install
 *********************************************************************
-To get the Ubuntu 10.04 Lucid Lynx version, 
-copy one of these in the terminal window and press enter:
+The Debian image is a "hybrid" iso, which means you can use the same iso file
+for a USB stick or a DVD.
 
-For the USA mirror: 
-wget http://linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
+To get the Debian Wheezy LinuxCNC Live CD using wget
+copy one of this in a terminal window and press enter:
 
-For the European mirror: 
-wget http://dsplabs.upt.ro/~juve/emc/get.php?file=ubuntu-10.04-linuxcnc3-i386.iso
+wget http://linuxcnc.org/binary.hybrid.iso
 
-The md5sum of the above file is: '76dc2416b917679b71255e464ede84ec' 
+The md5sum of the above file is: '1d0025a8c1a61fbf32b99ab5797d95e3' 
 *********************************************************************
 +
 To continue a partial download that was interrupted 
 add the -c option to wget:
 +
-wget -c http://linuxcnc.org/iso/ubuntu-10.04-linuxcnc3-i386.iso
+wget -c http://linuxcnc.org/binary.hybrid.iso
 +
 To stop a download use Ctrl-C or close the terminal window.
 +
 .Ubuntu 8.04 Hardy Heron and LinuxCNC (older)
 *********************************************************************
-If your hardware requires an older version of Ubuntu, you can download Ubuntu
-8.04 and upgrade to the latest LinuxCNC version by following the instructions
-on the LinuxCNC.org download page.
+For more information on other versions of LinuxCNC visit the linuxcnc.org
+download page.
 
 http://linuxcnc.org/index.php/english/download
 *********************************************************************
