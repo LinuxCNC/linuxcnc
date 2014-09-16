@@ -931,15 +931,8 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
                 dS_pos_units = dS_counts / e->hal.param.scale;
 
-                // FIXME: There's a bug somewhere in this code that
-                //   sometimes makes encoder.velocity NaN.  Observed by
-                //   micges, but never reproduced.
-                if (dT_clocks < 1) {
-                    HM2_PRINT("(%s:%d) uh-oh, encoder vel is broken when slow\n", __FILE__, __LINE__);
-                    HM2_PRINT("    please email a bug report to the linuxcnc-devel list!\n");
-                    HM2_PRINT("    dS_counts=%d, dT_clocks=%d\n", dS_counts, dT_clocks);
-                    HM2_PRINT("    prev_update_dS_counts=%d, prev_update_dT_clocks=%d\n", prev_update_dS_counts, prev_update_dT_clocks);
-                } else {
+                // we can calculate velocity only if timestamp changed along with counts
+                if (dT_clocks > 0) {
                     // we know the encoder velocity is not faster than this
                     vel = dS_pos_units / dT_s;
                     if (fabs(vel) < fabs(*e->hal.pin.velocity)) {
@@ -992,15 +985,8 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 
                     dS_pos_units = dS_counts / e->hal.param.scale;
 
-                    // FIXME: There's a bug somewhere in this code that
-                    //   sometimes makes encoder.velocity NaN.  Observed by
-                    //   micges, but never reproduced.
-                    if (dT_clocks < 1) {
-                        HM2_PRINT("(%s:%d) uh-oh, encoder vel is broken with an edge\n", __FILE__, __LINE__);
-                        HM2_PRINT("    please email a bug report to the linuxcnc-devel list!\n");
-                        HM2_PRINT("    dS_counts=%d, dT_clocks=%d\n", dS_counts, dT_clocks);
-                        HM2_PRINT("    prev_update_dS_counts=%d, prev_update_dT_clocks=%d\n", prev_update_dS_counts, prev_update_dT_clocks);
-                    } else {
+                    // we can calculate velocity only if timestamp changed along with counts
+                    if (dT_clocks > 0) {
                         // finally time to do Relative-Time Velocity Estimation
                         *e->hal.pin.velocity = dS_pos_units / dT_s;
                     }

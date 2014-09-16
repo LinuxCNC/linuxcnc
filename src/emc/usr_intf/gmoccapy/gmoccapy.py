@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.2.1"
+_RELEASE = "   1.2.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -185,6 +185,13 @@ class gmoccapy(object):
         self.last_key_event = None, 0   # needed to avoid the auto repeat function of the keyboard
         self.all_homed = False          # will hold True if all axis are homed
         self.faktor = 1.0               # needed to calculate velocitys
+
+        self.xpos = 40                  # The X Position of the main Window
+        self.ypos = 30                  # The Y Position of the main Window
+        self.width = 979                # The width of the main Window
+        self.height = 750               # The heigh of the main Window
+
+
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
 
@@ -257,11 +264,6 @@ class gmoccapy(object):
         self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
         self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
 
-        # Window position and size
-        self.widgets.adj_x_pos.set_value(self.prefs.getpref("x_pos", 40, float))
-        self.widgets.adj_y_pos.set_value(self.prefs.getpref("y_pos", 30, float))
-        self.widgets.adj_width.set_value(self.prefs.getpref("width", 979, float))
-        self.widgets.adj_height.set_value(self.prefs.getpref("height", 750, float))
 
         # Popup Messages position and size
         self.widgets.adj_x_pos_popup.set_value(self.prefs.getpref("x_pos_popup", 45, float))
@@ -477,7 +479,7 @@ class gmoccapy(object):
         else:
             self.widgets.btn_from_line.set_sensitive(True)
 
-        # get the way to unlock the settings
+        # get the way to unlock the setting
         unlock = self.prefs.getpref("unlock_way", "use", str)
         # and set the corresponding button active
         self.widgets["rbt_%s_unlock" % unlock].set_active(True)
@@ -488,16 +490,18 @@ class gmoccapy(object):
 
         # get when the keyboard should be shown
         # and set the corresponding button active
-        self.widgets.chk_use_kb_on_offset.set_active(self.prefs.getpref("show_keyboard_on_offset",
-                                                                             True, bool))
-        self.widgets.chk_use_kb_on_tooledit.set_active(self.prefs.getpref("show_keyboard_on_tooledit",
-                                                                             False, bool))
-        self.widgets.chk_use_kb_on_edit.set_active(self.prefs.getpref("show_keyboard_on_edit",
-                                                                              True, bool))
-        self.widgets.chk_use_kb_on_mdi.set_active(self.prefs.getpref("show_keyboard_on_mdi",
-                                                                             True, bool))
-        self.widgets.chk_use_kb_on_file_selection.set_active(self.prefs.getpref("show_keyboard_on_file_selection",
-                                                                             False, bool))
+        # only if onbaoard keýboard is ok.
+        if self.onboard:
+            self.widgets.chk_use_kb_on_offset.set_active(self.prefs.getpref("show_keyboard_on_offset",
+                                                                                 True, bool))
+            self.widgets.chk_use_kb_on_tooledit.set_active(self.prefs.getpref("show_keyboard_on_tooledit",
+                                                                                 False, bool))
+            self.widgets.chk_use_kb_on_edit.set_active(self.prefs.getpref("show_keyboard_on_edit",
+                                                                                  True, bool))
+            self.widgets.chk_use_kb_on_mdi.set_active(self.prefs.getpref("show_keyboard_on_mdi",
+                                                                                 True, bool))
+            self.widgets.chk_use_kb_on_file_selection.set_active(self.prefs.getpref("show_keyboard_on_file_selection",
+                                                                                 False, bool))
 
         # check if the user want to display preview window insteadt of offsetpage widget
         state = self.prefs.getpref("show_preview_on_offset", False, bool)
@@ -1026,22 +1030,51 @@ class gmoccapy(object):
     # shows "Onboard" virtual keyboard if available
     # else error message
     def _init_keyboard(self, args = "", x = "", y = ""):
+        self.onboard = False
+
+        # now we check if onboard or matchbox-keyboard is installed
         try:
-            self.onboard_kb = subprocess.Popen(["onboard", "--xid", args, x, y],
-                                   stdin = subprocess.PIPE,
-                                   stdout = subprocess.PIPE,
-                                   close_fds = True)
+            if os.path.isfile("/usr/bin/onboard"):
+                self.onboard_kb = subprocess.Popen(["onboard", "--xid", args, x, y],
+                                       stdin = subprocess.PIPE,
+                                       stdout = subprocess.PIPE,
+                                       close_fds = True)
+                print (_("**** GMOCCAPY INFO ****"))
+                print (_("**** virtual keyboard program found : <onboard>"))
+            elif os.path.isfile("/usr/bin/matchbox-keyboard"):
+                self.onboard_kb = subprocess.Popen(["matchbox-keyboard", "--xid"],
+                                       stdin = subprocess.PIPE,
+                                       stdout = subprocess.PIPE,
+                                       close_fds = True)
+                print (_("**** GMOCCAPY INFO ****"))
+                print (_("**** virtual keyboard program found : <matchbox-keyboard>"))
+            else:
+                print (_("**** GMOCCAPY ERROR ****"))
+                print (_("**** No virtual keyboard installed, we checked for <onboard> and <matchbox-keyboard>."))
+                return
             sid = self.onboard_kb.stdout.readline()
             # print"keyboard", sid # skip header line
             socket = gtk.Socket()
             socket.show()
             self.widgets.key_box.add(socket)
             socket.add_id(long(sid))
+            self.onboard = True
         except Exception, e:
             print (_("**** GMOCCAPY ERROR ****"))
-            print (_("**** Error with launching 'Onboard' on-screen keyboard program,"))
-            print (_("**** is onboard installed? ****"))
+            print (_("**** Error with launching virtual keyboard,"))
+            print (_("**** is onboard or matchbox-keyboard installed? ****"))
             traceback.print_exc()
+
+            # In this case we will disable the coresponding part on the settings page
+            self.widgets.chk_use_kb_on_offset.set_active(False)
+            self.widgets.chk_use_kb_on_tooledit.set_active(False)
+            self.widgets.chk_use_kb_on_edit.set_active(False)
+            self.widgets.chk_use_kb_on_mdi.set_active(False)
+            self.widgets.chk_use_kb_on_file_selection.set_active(False)
+
+            self.widgets.frm_keyboard.set_sensitive(False)
+            self.widgets.btn_show_kbd.set_sensitive(False)
+            self.widgets.btn_keyb.set_sensitive(False)
 
     def _kill_keyboard(self):
         try:
@@ -1656,12 +1689,20 @@ class gmoccapy(object):
         elif start_as == "rbtn_maximized":
             self.widgets.window1.maximize()
         else:
-            xpos = int(self.prefs.getpref("x_pos", 40, float))
-            ypos = int(self.prefs.getpref("y_pos", 30, float))
-            width = int(self.prefs.getpref("width", 979, float))
-            height = int(self.prefs.getpref("height", 750, float))
-            self.widgets.window1.move(xpos, ypos)
-            self.widgets.window1.resize(width, height)
+            self.xpos = int(self.prefs.getpref("x_pos", 40, float))
+            self.ypos = int(self.prefs.getpref("y_pos", 30, float))
+            self.width = int(self.prefs.getpref("width", 979, float))
+            self.height = int(self.prefs.getpref("height", 750, float))
+
+            # set the adjustments acording to Window position and size
+            self.widgets.adj_x_pos.set_value(self.xpos)
+            self.widgets.adj_y_pos.set_value(self.ypos)
+            self.widgets.adj_width.set_value(self.width)
+            self.widgets.adj_height.set_value(self.height)
+
+            # move and resize the window
+            self.widgets.window1.move(self.xpos, self.ypos)
+            self.widgets.window1.resize(self.width, self.height)
 
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
@@ -3095,31 +3136,41 @@ class gmoccapy(object):
         # we have to check also if the window is active, because the button is toggled the first time
         # before the window is shown
         if widget.get_active() and self.widgets.window1.is_active():
-            self.widgets.window1.move(int(self.widgets.adj_x_pos.get_value()),
-                                      int(self.widgets.adj_y_pos.get_value()))
-            self.widgets.window1.resize(int(self.widgets.adj_width.get_value()),
-                                        int(self.widgets.adj_height.get_value()))
+            self.widgets.window1.move(self.xpos, self.ypos)
+            self.widgets.window1.resize(self.width, self.height)
             self.prefs.putpref("screen1", "window", str)
 
     def on_adj_x_pos_value_changed(self, widget, data = None):
-        self.prefs.putpref("x_pos", widget.get_value(), float)
-        ypos = int(self.prefs.getpref("y_pos", 30, float))
-        self.widgets.window1.move(int(widget.get_value()), ypos)
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.prefs.putpref("x_pos", value, float)
+        self.xpos = value
+        self.widgets.window1.move(value, self.ypos)
 
     def on_adj_y_pos_value_changed(self, widget, data = None):
-        self.prefs.putpref("y_pos", widget.get_value(), float)
-        xpos = int(self.prefs.getpref("x_pos", 40, float))
-        self.widgets.window1.move(xpos, int(widget.get_value()))
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.prefs.putpref("y_pos", value, float)
+        self.ypos = value
+        self.widgets.window1.move(self.xpos, value)
 
     def on_adj_width_value_changed(self, widget, data = None):
-        self.prefs.putpref("width", widget.get_value(), float)
-        height = int(self.prefs.getpref("height", 750, float))
-        self.widgets.window1.resize(int(widget.get_value()), height)
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.prefs.putpref("width", value, float)
+        self.width = value
+        self.widgets.window1.resize(value, self.height)
 
     def on_adj_height_value_changed(self, widget, data = None):
-        self.prefs.putpref("height", widget.get_value(), float)
-        width = int(self.prefs.getpref("width", 979, float))
-        self.widgets.window1.resize(width, int(widget.get_value()))
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.prefs.putpref("height", value, float)
+        self.height = value
+        self.widgets.window1.resize(self.width, value)
 
     def on_adj_dro_size_value_changed(self, widget, data = None):
         if not self.initialized:

@@ -2375,19 +2375,38 @@ static void save_comps(FILE *dst)
 
     fprintf(dst, "# components\n");
     rtapi_mutex_get(&(hal_data->mutex));
+
+    int ncomps = 0;
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( comp->type == 1 ) {
-	    /* only print realtime components */
-	    if ( comp->insmod_args == 0 ) {
-		fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
-	    } else {
-		fprintf(dst, "loadrt %s %s\n", comp->name,
-		    (char *)SHMPTR(comp->insmod_args));
-	    }
-	}
+            ncomps ++;
+        }
 	next = comp->next_ptr;
+    }
+
+    hal_comp_t *comps[ncomps], **compptr = comps;
+    next = hal_data->comp_list_ptr;
+    while(next != 0)  {
+	comp = SHMPTR(next);
+	if ( comp->type == 1 ) {
+            *compptr++ = SHMPTR(next);
+        }
+	next = comp->next_ptr;
+    }
+
+    int i;
+    for(i=ncomps; i--;)
+    {
+        comp = comps[i];
+        /* only print realtime components */
+        if ( comp->insmod_args == 0 ) {
+            fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
+        } else {
+            fprintf(dst, "loadrt %s %s\n", comp->name,
+                (char *)SHMPTR(comp->insmod_args));
+        }
     }
 #if 0  /* newinst deferred to version 2.2 */
     next = hal_data->comp_list_ptr;
