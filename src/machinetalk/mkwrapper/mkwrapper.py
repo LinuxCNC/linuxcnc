@@ -461,7 +461,7 @@ class LinuxCNCWrapper():
         modified = False
 
         if self.configFirstrun:
-            self.status.config.acceleration = 0.0
+            self.status.config.default_acceleration = 0.0
             self.status.config.angular_units = 0.0
             self.status.config.axes = 0
             self.status.config.axis_mask = 0
@@ -472,7 +472,7 @@ class LinuxCNCWrapper():
             self.status.config.max_acceleration = 0.0
             self.status.config.max_velocity = 0.0
             self.status.config.program_units = 0
-            self.status.config.velocity = 0.0
+            self.status.config.default_velocity = 0.0
             self.status.config.position_offset = 0
             self.status.config.position_feedback = 0
             self.status.config.max_feed_override = 0.0
@@ -494,6 +494,7 @@ class LinuxCNCWrapper():
             self.status.config.arcdivision = 0
             self.status.config.no_force_homing = False
             self.status.config.remote_path = ""
+            self.status.config.time_units = 0
             self.configFirstrun = False
 
             extensions = self.ini.findall("FILTER", "PROGRAM_EXTENSION")
@@ -646,14 +647,38 @@ class LinuxCNCWrapper():
                 self.txStatus.config.no_force_homing = noForceHoming
                 modified = True
 
+            maxVelocity = float(self.ini.find('TRAJ', 'MAX_VELOCITY') or 5.0)
+            if (self.status.config.max_velocity != maxVelocity):
+                self.status.config.max_velocity = maxVelocity
+                self.txStatus.config.max_velocity = maxVelocity
+                modified = True
+
+            maxAcceleration = float(self.ini.find('TRAJ', 'MAX_ACCELERATION') or 20.0)
+            if (self.status.config.max_acceleration != maxAcceleration):
+                self.status.config.max_acceleration = maxAcceleration
+                self.txStatus.config.max_acceleration = maxAcceleration
+                modified = True
+
+            timeUnits = str(self.ini.find('DISPLAY', 'TIME_UNITS') or 'min')
+            if (timeUnits in ['min', 'minute']):
+                timeUnitsConverted = TIME_UNITS_MINUTE
+            elif (timeUnits in ['s', 'second']):
+                timeUnitsConverted = TIME_UNITS_SECOND
+            else:
+                timeUnitsConverted = TIME_UNITS_MINUTE
+            if (self.status.config.time_units != timeUnitsConverted):
+                self.status.config.time_units = timeUnitsConverted
+                self.txStatus.config.time_units = timeUnitsConverted
+                modified = True
+
             if (self.status.config.remote_path != self.directory):
                 self.status.config.remote_path = self.directory
                 self.txStatus.config.remote_path = self.directory
                 modified = True
 
-        if self.notEqual(self.status.config.acceleration, stat.acceleration):
-            self.status.config.acceleration = stat.acceleration
-            self.txStatus.config.acceleration = stat.acceleration
+        if self.notEqual(self.status.config.default_acceleration, stat.acceleration):
+            self.status.config.default_acceleration = stat.acceleration
+            self.txStatus.config.default_acceleration = stat.acceleration
             modified = True
 
         if self.notEqual(self.status.config.angular_units, stat.angular_units):
@@ -752,24 +777,14 @@ class LinuxCNCWrapper():
             self.txStatus.config.linear_units = stat.linear_units
             modified = True
 
-        if self.notEqual(self.status.config.max_acceleration, stat.max_acceleration):
-            self.status.config.max_acceleration = stat.max_acceleration
-            self.txStatus.config.max_acceleration = stat.max_acceleration
-            modified = True
-
-        if self.notEqual(self.status.config.max_velocity, stat.max_velocity):
-            self.status.config.max_velocity = stat.max_velocity
-            self.txStatus.config.max_velocity = stat.max_velocity
-            modified = True
-
         if (self.status.config.program_units != stat.program_units):
             self.status.config.program_units = stat.program_units
             self.txStatus.config.program_units = stat.program_units
             modified = True
 
-        if self.notEqual(self.status.config.velocity, stat.velocity):
-            self.status.config.velocity = stat.velocity
-            self.txStatus.config.velocity = stat.velocity
+        if self.notEqual(self.status.config.default_velocity, stat.velocity):
+            self.status.config.default_velocity = stat.velocity
+            self.txStatus.config.default_velocity = stat.velocity
             modified = True
 
         if self.configFullUpdate:
@@ -1151,6 +1166,8 @@ class LinuxCNCWrapper():
             self.status.motion.spindle_speed = 0.0
             self.status.motion.spindlerate = 0.0
             self.status.motion.state = 0
+            self.status.motion.max_velocity = 0.0
+            self.status.motion.max_acceleration = 0.0
             self.motionFirstrun = False
 
         if (self.status.motion.active_queue != stat.active_queue):
@@ -1585,6 +1602,16 @@ class LinuxCNCWrapper():
         if (self.status.motion.state != stat.state):
             self.status.motion.state = stat.state
             self.txStatus.motion.state = stat.state
+            modified = True
+
+        if self.notEqual(self.status.motion.max_acceleration, stat.max_acceleration):
+            self.status.motion.max_acceleration = stat.max_acceleration
+            self.txStatus.motion.max_acceleration = stat.max_acceleration
+            modified = True
+
+        if self.notEqual(self.status.motion.max_velocity, stat.max_velocity):
+            self.status.motion.max_velocity = stat.max_velocity
+            self.txStatus.motion.max_velocity = stat.max_velocity
             modified = True
 
         if self.motionFullUpdate:
