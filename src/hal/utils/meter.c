@@ -386,8 +386,8 @@ probe_t *probe_new(char *probe_name)
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
     probe_t *probe;
-    int next, row, match;
-    hal_pin_t *pin;
+    int row, match;
+    hal_pin_t *pin, *npin;
     hal_sig_t *sig;
     hal_param_t *param;
     gchar *name;
@@ -406,11 +406,9 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     gtk_clist_clear(GTK_CLIST(probe->lists[1]));
     gtk_clist_clear(GTK_CLIST(probe->lists[2]));
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
     row = 0; match = 0;
     gtk_clist_freeze(GTK_CLIST(probe->lists[0]));
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	name = pin->name;
 	gtk_clist_append(GTK_CLIST(probe->lists[0]), &name);
 
@@ -424,7 +422,6 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 	    match = 1;
 	}
 	
-	next = pin->next_ptr;
 	row++;
     }
     gtk_clist_thaw(GTK_CLIST(probe->lists[0]));
@@ -433,7 +430,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
     if (!match)
     	gtk_clist_unselect_row(GTK_CLIST(probe->lists[0]), 0, 0);
     
-    next = hal_data->sig_list_ptr;
+    int next = hal_data->sig_list_ptr;
     row = 0; match = 0;
     gtk_clist_freeze(GTK_CLIST(probe->lists[1]));
     while (next != 0) {

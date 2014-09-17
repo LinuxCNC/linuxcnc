@@ -1693,6 +1693,7 @@ static void getCompInfo(char *pattern, connectionRecType *context)
 
 static void getPinInfo(char *pattern, int valuesOnly, connectionRecType *context)
 {
+#if 0
     int next, len;
     hal_pin_t *pin;
     hal_comp_t *comp;
@@ -1730,6 +1731,7 @@ static void getPinInfo(char *pattern, int valuesOnly, connectionRecType *context
       next = pin->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif
 }
 
 
@@ -2136,6 +2138,7 @@ static void save_signals(FILE *dst)
 
 static void save_links(FILE *dst, int arrow)
 {
+#if 0
     int next;
     hal_pin_t *pin;
     hal_sig_t *sig;
@@ -2158,6 +2161,7 @@ static void save_links(FILE *dst, int arrow)
 	next = pin->next_ptr;
     }
     rtapi_mutex_give(&(hal_data->mutex));
+#endif
 }
 
 static void save_nets(FILE *dst, int arrow)

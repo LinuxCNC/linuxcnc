@@ -386,11 +386,9 @@ static int preflight_net_cmd(char *signal, hal_sig_t *sig, char *pins[]) {
 
     if(writers || bidirs) 
     {
-        hal_pin_t *pin;
-        int next;
-        for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr) 
+        hal_pin_t *pin, *npin;
+        hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list)
         {
-            pin = SHMPTR(next);
             if(SHMPTR(pin->signal) == sig && pin->dir == HAL_OUT)
                 writer_name = pin->name;
             if(SHMPTR(pin->signal) == sig && pin->dir == HAL_IO)
@@ -1588,8 +1586,7 @@ static void print_comp_info(char **patterns)
 
 static void print_pin_info(int type, char **patterns)
 {
-    int next;
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
     hal_comp_t *comp;
     hal_sig_t *sig;
     void *dptr;
@@ -1598,10 +1595,7 @@ static void print_pin_info(int type, char **patterns)
 	halcmd_output("Component Pins:\n");
 	halcmd_output("Owner   Type  Dir         Value  Name\n");
     }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if ( tmatch(type, pin->type) && match(patterns, pin->name) ) {
 	    comp = SHMPTR(pin->owner_ptr);
 	    if (pin->signal != 0) {
@@ -1632,26 +1626,20 @@ static void print_pin_info(int type, char **patterns)
 		halcmd_output(" %s %s\n", data_arrow1((int) pin->dir), sig->name);
 	    }
 	}
-	next = pin->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }
 
 static void print_pin_aliases(char **patterns)
 {
-    int next;
     hal_oldname_t *oldname;
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
 
     if (scriptmode == 0) {
 	halcmd_output("Pin Aliases:\n");
 	halcmd_output(" %-*s  %s\n", HAL_NAME_LEN, "Alias", "Original Name");
     }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if ( pin->oldname != 0 ) {
 	    /* name is an alias */
 	    oldname = SHMPTR(pin->oldname);
@@ -1663,9 +1651,7 @@ static void print_pin_aliases(char **patterns)
 		}
 	    }
 	}
-	next = pin->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }
 
@@ -1902,19 +1888,12 @@ static void print_comp_names(char **patterns)
 
 static void print_pin_names(char **patterns)
 {
-    int next;
-    hal_pin_t *pin;
-
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_pin_t *pin, *npin;
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if ( match(patterns, pin->name) ) {
 	    halcmd_output("%s ", pin->name);
 	}
-	next = pin->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }
 
@@ -2039,7 +2018,7 @@ static int count_list(int list_root)
 static void print_mem_status()
 {
     int active, recycled, next;
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
     hal_param_t *param;
 
     halcmd_output("HAL memory status\n");
@@ -2049,8 +2028,8 @@ static void print_mem_status()
     recycled = count_list2(&hal_data->comp_free_list);
     halcmd_output("  active/recycled components: %d/%d\n", active, recycled);
     // count pins
-    active = count_list(hal_data->pin_list_ptr);
-    recycled = count_list(hal_data->pin_free_ptr);
+    active = count_list2(&hal_data->pin_list);
+    recycled = count_list2(&hal_data->pin_free_list);
     halcmd_output("  active/recycled pins:       %d/%d\n", active, recycled);
     // count parameters
     active = count_list(hal_data->param_list_ptr);
@@ -2058,12 +2037,9 @@ static void print_mem_status()
     halcmd_output("  active/recycled parameters: %d/%d\n", active, recycled);
     // count aliases
     rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
     active = 0;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if ( pin->oldname != 0 ) active++;
-	next = pin->next_ptr;
     }
     next = hal_data->param_list_ptr;
     while (next != 0) {
@@ -2387,21 +2363,17 @@ static void save_comps(FILE *dst)
 static void save_aliases(FILE *dst)
 {
     int next;
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
     hal_param_t *param;
     hal_oldname_t *oldname;
 
     fprintf(dst, "# pin aliases\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if ( pin->oldname != 0 ) {
 	    /* name is an alias */
 	    oldname = SHMPTR(pin->oldname);
 	    fprintf(dst, "alias pin %s %s\n", oldname->name, pin->name);
 	}
-	next = pin->next_ptr;
     }
     fprintf(dst, "# param aliases\n");
     next = hal_data->param_list_ptr;
@@ -2414,7 +2386,6 @@ static void save_aliases(FILE *dst)
 	}
 	next = param->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
 }
 
 static void save_signals(FILE *dst, int only_unlinked)
@@ -2435,16 +2406,12 @@ static void save_signals(FILE *dst, int only_unlinked)
 
 static void save_links(FILE *dst, int arrow)
 {
-    int next;
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
     hal_sig_t *sig;
     const char *arrow_str;
 
     fprintf(dst, "# links\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if (pin->signal != 0) {
 	    sig = SHMPTR(pin->signal);
 	    if (arrow != 0) {
@@ -2454,9 +2421,7 @@ static void save_links(FILE *dst, int arrow)
 	    }
 	    fprintf(dst, "linkps %s %s %s\n", pin->name, arrow_str, sig->name);
 	}
-	next = pin->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
 }
 
 static void save_nets(FILE *dst, int arrow)

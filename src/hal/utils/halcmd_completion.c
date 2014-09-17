@@ -132,12 +132,10 @@ static int writer_match(hal_pin_dir_t dir, int writers) {
 }
 
 static void check_match_type_pin(const char *name) {
-    int next = hal_data->pin_list_ptr;
+    hal_pin_t *pin, *npin;
     int sz = strcspn(name, " \t");
 
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if ( sz == strlen(pin->name) && strncmp(name, pin->name, sz) == 0 ) {
             match_type = pin->type;
             match_direction = pin->dir;
@@ -271,6 +269,7 @@ static char *getp_generator(const char *text, int state) {
     static int len;
     static int next;
     static int what;
+    static struct hal_list_head *head, *ptr;
     if(!state) {
         what = 0;
         next = hal_data->param_list_ptr;
@@ -285,11 +284,12 @@ static char *getp_generator(const char *text, int state) {
                 return strdup(param->name);
         }
         what = 1;
-        next = hal_data->pin_list_ptr;
+        head = &hal_data->pin_list;
+        ptr = SHMPTR((head)->next);
     }
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
+    while(ptr != head) {
+        hal_pin_t *pin = hal_list_entry(ptr, hal_pin_t, list);
+        ptr = &pin->list;
         if ( strncmp(text, pin->name, len) == 0 )
             return strdup(pin->name);
     }
@@ -301,6 +301,7 @@ static char *setp_generator(const char *text, int state) {
     static int len;
     static int next;
     static int what;
+    static struct hal_list_head *head, *ptr;
     if(!state) {
         what = 0;
         next = hal_data->param_list_ptr;
@@ -315,11 +316,12 @@ static char *setp_generator(const char *text, int state) {
                 return strdup(param->name);
         }
         what = 1;
-        next = hal_data->pin_list_ptr;
+        head = &hal_data->pin_list;
+        ptr = SHMPTR((head)->next);
     }
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
+    while(ptr != head) {
+        hal_pin_t *pin = hal_list_entry(ptr, hal_pin_t, list);
+        ptr = &pin->list;
         if ( pin->dir != HAL_OUT && pin->signal == 0 && 
                  strncmp(text, pin->name, len) == 0 )
             return strdup(pin->name);
@@ -418,16 +420,17 @@ static char *parameter_alias_generator(const char *text, int state) {
 
 static char *pin_alias_generator(const char *text, int state) {
     static int len;
-    static int next;
+    static struct hal_list_head *head, *ptr;
 
     if(!state) {
-        next = hal_data->pin_list_ptr;
+        head = &hal_data->pin_list;
+        ptr = SHMPTR((head)->next);
         len = strlen(text);
     }
 
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
-        next = pin->next_ptr;
+    while(ptr != head) {
+        hal_pin_t *pin = hal_list_entry(ptr, hal_pin_t, list);
+        ptr = &pin->list;
         if (pin->oldname==0) continue;  // no alias here, move along
         if ( strncmp(text, pin->name, len) == 0 )
             return strdup(pin->name);
@@ -437,18 +440,19 @@ static char *pin_alias_generator(const char *text, int state) {
 
 static char *pin_generator(const char *text, int state) {
     static int len;
-    static int next;
     static int aliased;
+    static struct hal_list_head *head, *ptr;
     char *name;
 
     if(!state) {
-        next = hal_data->pin_list_ptr;
+        head = &hal_data->pin_list;
+        ptr = SHMPTR((head)->next);
         len = strlen(text);
         aliased = 0;
     }
 
-    while(next) {
-        hal_pin_t *pin = SHMPTR(next);
+    while(ptr != head) {
+        hal_pin_t *pin = hal_list_entry(ptr, hal_pin_t, list);
         switch (aliased) {
             case 0: // alias (if any) has not been output
                 if (pin->oldname != 0) {
@@ -459,12 +463,12 @@ static char *pin_generator(const char *text, int state) {
                 } else {
                     // no alias, so use the name and update the pin pointer
                     name = pin->name;
-                    next = pin->next_ptr;
+                    ptr = &pin->list;
                 }
             break;
             case 1:  // there is an alias, and it has been processed already
                 name = pin->name;
-                next = pin->next_ptr;
+                ptr = &pin->list;
                 aliased = 0;
             break;
             default:

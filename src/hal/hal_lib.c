@@ -555,7 +555,7 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
 int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     void **data_ptr_addr, int comp_id)
 {
-    int *prev, next, cmp;
+    int cmp;
     hal_pin_t *new, *ptr;
     hal_comp_t *comp;
 
@@ -639,23 +639,13 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     /* make 'data_ptr' point to dummy signal */
     *data_ptr_addr = comp->shmem_base + SHMOFF(&(new->dummysig));
     /* search list for 'name' and insert new structure */
-    prev = &(hal_data->pin_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, insert here */
-	    new->next_ptr = next;
-	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 0;
-	}
-	ptr = SHMPTR(next);
+    hal_pin_t *npin;
+    hal_list_for_each_entry_safe(ptr, npin, &hal_data->pin_list, list) {
 	cmp = strcmp(ptr->name, new->name);
 	if (cmp > 0) {
-	    /* found the right place for it, insert here */
-	    new->next_ptr = next;
-	    *prev = SHMOFF(new);
-	    rtapi_mutex_give(&(hal_data->mutex));
+	    /* found the right place for it, insert here (just before ptr) */
+            hal_list_add_tail(&new->list, &ptr->list);
+            rtapi_mutex_give(&(hal_data->mutex));
 	    return 0;
 	}
 	if (cmp == 0) {
@@ -666,16 +656,16 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 		"HAL: ERROR: duplicate variable '%s'\n", name);
 	    return -EINVAL;
 	}
-	/* didn't find it yet, look at next one */
-	prev = &(ptr->next_ptr);
-	next = *prev;
     }
+    hal_list_add_tail(&new->list, &hal_data->pin_list);
+    rtapi_mutex_give(&(hal_data->mutex));
+    return 0;
 }
 
 int hal_pin_alias(const char *pin_name, const char *alias)
 {
-    int *prev, next, cmp;
-    hal_pin_t *pin, *ptr;
+    int cmp;
+    hal_pin_t *pin, *ptr, *npin;
     hal_oldname_t *oldname;
 
     if (hal_data == 0) {
@@ -721,34 +711,14 @@ int hal_pin_alias(const char *pin_name, const char *alias)
     }
     free_oldname_struct(oldname);
     /* find the pin and unlink it from pin list */
-    prev = &(hal_data->pin_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, not found */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: pin '%s' not found\n", pin_name);
-	    return -EINVAL;
-	}
-	pin = SHMPTR(next);
-	if ( strcmp(pin->name, pin_name) == 0 ) {
-	    /* found it, unlink from list */
-	    *prev = pin->next_ptr;
-	    break;
-	}
-	if (pin->oldname != 0 ) {
-	    oldname = SHMPTR(pin->oldname);
-	    if (strcmp(oldname->name, pin_name) == 0) {
-		/* found it, unlink from list */
-		*prev = pin->next_ptr;
-		break;
-	    }
-	}
-	/* didn't find it yet, look at next one */
-	prev = &(pin->next_ptr);
-	next = *prev;
+    pin = halpr_find_pin_by_name(pin_name);
+    if(!pin) {
+	rtapi_mutex_give(&(hal_data->mutex));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+            "HAL: ERROR: pin '%s' not found\n", pin_name);
+	return -EINVAL;
     }
+    hal_list_del(&pin->list);
     if ( alias != NULL ) {
 	/* adding a new alias */
 	if ( pin->oldname == 0 ) {
@@ -770,29 +740,18 @@ int hal_pin_alias(const char *pin_name, const char *alias)
 	}
     }
     /* insert pin back into list in proper place */
-    prev = &(hal_data->pin_list_ptr);
-    next = *prev;
-    while (1) {
-	if (next == 0) {
-	    /* reached end of list, insert here */
-	    pin->next_ptr = next;
-	    *prev = SHMOFF(pin);
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 0;
-	}
-	ptr = SHMPTR(next);
+    hal_list_for_each_entry_safe(ptr, npin, &hal_data->pin_list, list) {
 	cmp = strcmp(ptr->name, pin->name);
 	if (cmp > 0) {
 	    /* found the right place for it, insert here */
-	    pin->next_ptr = next;
-	    *prev = SHMOFF(pin);
-	    rtapi_mutex_give(&(hal_data->mutex));
+            hal_list_add_tail(&pin->list, &ptr->list);
+            rtapi_mutex_give(&(hal_data->mutex));
 	    return 0;
 	}
-	/* didn't find it yet, look at next one */
-	prev = &(ptr->next_ptr);
-	next = *prev;
     }
+    hal_list_add_tail(&pin->list, &hal_data->pin_list);
+    rtapi_mutex_give(&(hal_data->mutex));
+    return 0;
 }
 
 /***********************************************************************
@@ -2226,14 +2185,11 @@ hal_comp_t *halpr_find_comp_by_name(const char *name)
 
 hal_pin_t *halpr_find_pin_by_name(const char *name)
 {
-    int next;
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
     hal_oldname_t *oldname;
 
     /* search pin list for 'name' */
-    next = hal_data->pin_list_ptr;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if (strcmp(pin->name, name) == 0) {
 	    /* found a match */
 	    return pin;
@@ -2245,8 +2201,6 @@ hal_pin_t *halpr_find_pin_by_name(const char *name)
 		return pin;
 	    }
 	}
-	/* didn't find it yet, look at next one */
-	next = pin->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
     return 0;
@@ -2350,19 +2304,19 @@ hal_pin_t *halpr_find_pin_by_owner(hal_comp_t * owner, hal_pin_t * start)
     /* is this the first call? */
     if (start == 0) {
 	/* yes, start at beginning of pin list */
-	next = hal_data->pin_list_ptr;
+	next = SHMOFF(&hal_data->pin_list);
     } else {
 	/* no, start at next pin */
-	next = start->next_ptr;
+	next = start->list.next;
     }
-    while (next != 0) {
+    while (next != SHMOFF(&hal_data->pin_list)) {
 	pin = SHMPTR(next);
 	if (pin->owner_ptr == owner_ptr) {
 	    /* found a match */
 	    return pin;
 	}
 	/* didn't find it yet, look at next one */
-	next = pin->next_ptr;
+	next = pin->list.next;
     }
     /* if loop terminates, we reached end of list without finding a match */
     return 0;
@@ -2436,19 +2390,16 @@ hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start)
     /* is this the first call? */
     if (start == 0) {
 	/* yes, start at beginning of pin list */
-	next = hal_data->pin_list_ptr;
-    } else {
-	/* no, start at next pin */
-	next = start->next_ptr;
+	start = rtapi_list_entry(&hal_data->pin_list, hal_pin_t, list);
     }
-    while (next != 0) {
+    next = start->list.next;
+    while (next != SHMOFF(&hal_data->pin_list)) {
 	pin = SHMPTR(next);
+	next = pin->list.next;
 	if (pin->signal == sig_ptr) {
 	    /* found a match */
 	    return pin;
 	}
-	/* didn't find it yet, look at next one */
-	next = pin->next_ptr;
     }
     /* if loop terminates, we reached end of list without finding a match */
     return 0;
@@ -2662,7 +2613,7 @@ static int init_hal_data(void)
     hal_data->version = HAL_VER;
     /* initialize everything */
     HAL_INIT_LIST_HEAD(&hal_data->comp_list);
-    hal_data->pin_list_ptr = 0;
+    HAL_INIT_LIST_HEAD(&hal_data->pin_list);
     hal_data->sig_list_ptr = 0;
     hal_data->param_list_ptr = 0;
     hal_data->funct_list_ptr = 0;
@@ -2671,7 +2622,7 @@ static int init_hal_data(void)
     hal_data->threads_running = 0;
     hal_data->oldname_free_ptr = 0;
     HAL_INIT_LIST_HEAD(&hal_data->comp_free_list);
-    hal_data->pin_free_ptr = 0;
+    HAL_INIT_LIST_HEAD(&hal_data->pin_free_list);
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
     hal_data->funct_free_ptr = 0;
@@ -2773,26 +2724,18 @@ static hal_pin_t *alloc_pin_struct(void)
     hal_pin_t *p;
 
     /* check the free list */
-    if (hal_data->pin_free_ptr != 0) {
+    if (!hal_list_empty(&hal_data->comp_free_list)) {
 	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->pin_free_ptr);
+	p = SHMPTR(hal_data->pin_free_list.next);
 	/* unlink it from the free list */
-	hal_data->pin_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
+	hal_list_del(&p->list);
     } else {
 	/* nothing on free list, allocate a brand new one */
 	p = shmalloc_dn(sizeof(hal_pin_t));
     }
     if (p) {
 	/* make sure it's empty */
-	p->next_ptr = 0;
-	p->data_ptr_addr = 0;
-	p->owner_ptr = 0;
-	p->type = 0;
-	p->dir = 0;
-	p->signal = 0;
-	memset(&p->dummysig, 0, sizeof(hal_data_u));
-	p->name[0] = '\0';
+	memset(p, 0, sizeof(*p));
     }
     return p;
 }
@@ -2968,7 +2911,7 @@ static void free_comp_struct(hal_comp_t * comp)
 #ifdef RTAPI
     hal_funct_t *funct;
 #endif /* RTAPI */
-    hal_pin_t *pin;
+    hal_pin_t *pin, *npin;
     hal_param_t *param;
 
     /* can't delete the component until we delete its "stuff" */
@@ -2992,19 +2935,13 @@ static void free_comp_struct(hal_comp_t * comp)
     }
 #endif /* RTAPI */
     /* search the pin list for this component's pins */
-    prev = &(hal_data->pin_list_ptr);
-    next = *prev;
-    while (next != 0) {
-	pin = SHMPTR(next);
+    hal_list_for_each_entry_safe(pin, npin, &hal_data->pin_list, list) {
 	if (SHMPTR(pin->owner_ptr) == comp) {
 	    /* this pin belongs to our component, unlink from list */
-	    *prev = pin->next_ptr;
+            hal_list_del(&pin->list);
 	    /* and delete it */
 	    free_pin_struct(pin);
-	} else {
-	    /* no match, try the next one */
-	    prev = &(pin->next_ptr);
-	}
+        }
 	next = *prev;
     }
     /* search the parameter list for this component's parameters */
@@ -3085,8 +3022,7 @@ static void free_pin_struct(hal_pin_t * pin)
     memset(&pin->dummysig, 0, sizeof(hal_data_u));
     pin->name[0] = '\0';
     /* add it to free list */
-    pin->next_ptr = hal_data->pin_free_ptr;
-    hal_data->pin_free_ptr = SHMOFF(pin);
+    hal_list_add(&pin->list, &hal_data->pin_list);
 }
 
 static void free_sig_struct(hal_sig_t * sig)

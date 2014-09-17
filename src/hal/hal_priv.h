@@ -223,7 +223,7 @@ typedef struct {
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */
     struct hal_list_head comp_list; /* root of linked list of components */
-    int pin_list_ptr;		/* root of linked list of pins */
+    struct hal_list_head pin_list; /* root of linked list of pins */
     int sig_list_ptr;		/* root of linked list of signals */
     int param_list_ptr;		/* root of linked list of parameters */
     int funct_list_ptr;		/* root of linked list of functions */
@@ -232,7 +232,7 @@ typedef struct {
     int threads_running;	/* non-zero if threads are started */
     int oldname_free_ptr;	/* list of free oldname structs */
     struct hal_list_head comp_free_list; /* list of free component structs */
-    int pin_free_ptr;		/* list of free pin structs */
+    struct hal_list_head pin_free_list; /* list of free pin structs */
     int sig_free_ptr;		/* list of free signal structs */
     int param_free_ptr;		/* list of free parameter structs */
     int funct_free_ptr;		/* list of free function structs */
@@ -265,7 +265,7 @@ typedef struct {
     This structure contains information about a 'pin' object.
 */
 typedef struct {
-    int next_ptr;		/* next pin in linked list */
+    struct hal_list_head list;  /* linked list of pins */
     int data_ptr_addr;		/* address of pin data pointer */
     int owner_ptr;		/* component that owns this pin */
     int signal;			/* signal to which pin is linked */
