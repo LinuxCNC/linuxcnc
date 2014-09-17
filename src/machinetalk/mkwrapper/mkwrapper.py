@@ -857,6 +857,9 @@ class LinuxCNCWrapper():
             txToolResult.Clear()
             toolResultModified = False
 
+            if (toolResult.id == -1) and (index > 0):  # last tool in table
+                break
+
             if len(self.status.io.tool_table) == index:
                 self.status.io.tool_table.add()
                 self.status.io.tool_table[index].index = index
@@ -874,9 +877,6 @@ class LinuxCNCWrapper():
                 self.status.io.tool_table[index].frontangle = 0.0
                 self.status.io.tool_table[index].backangle = 0.0
                 self.status.io.tool_table[index].orientation = 0
-
-            if toolResult.id == -1:
-                continue
 
             if self.status.io.tool_table[index].id != toolResult.id:
                 self.status.io.tool_table[index].id = toolResult.id
