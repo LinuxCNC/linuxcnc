@@ -222,7 +222,7 @@ typedef struct {
 			        /* prefix of name for new instance */
     int shmem_bot;		/* bottom of free shmem (first free byte) */
     int shmem_top;		/* top of free shmem (1 past last free) */
-    int comp_list_ptr;		/* root of linked list of components */
+    struct hal_list_head comp_list; /* root of linked list of components */
     int pin_list_ptr;		/* root of linked list of pins */
     int sig_list_ptr;		/* root of linked list of signals */
     int param_list_ptr;		/* root of linked list of parameters */
@@ -231,7 +231,7 @@ typedef struct {
     long base_period;		/* timer period for realtime tasks */
     int threads_running;	/* non-zero if threads are started */
     int oldname_free_ptr;	/* list of free oldname structs */
-    int comp_free_ptr;		/* list of free component structs */
+    struct hal_list_head comp_free_list; /* list of free component structs */
     int pin_free_ptr;		/* list of free pin structs */
     int sig_free_ptr;		/* list of free signal structs */
     int param_free_ptr;		/* list of free parameter structs */
@@ -249,7 +249,7 @@ typedef struct {
     component calls hal_init().
 */
 typedef struct {
-    int next_ptr;		/* next component in the list */
+    struct hal_list_head list;  /* linked list of components */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
     int type;			/* 1 if realtime, 0 if not */

@@ -265,8 +265,7 @@ int hal_init(const char *name)
     comp->insmod_args = 0;
     rtapi_snprintf(comp->name, sizeof(comp->name), "%s", hal_name);
     /* insert new structure at head of list */
-    comp->next_ptr = hal_data->comp_list_ptr;
-    hal_data->comp_list_ptr = SHMOFF(comp);
+    hal_list_add(&comp->list, &hal_data->comp_list);
     /* done with list, release mutex */
     rtapi_mutex_give(&(hal_data->mutex));
     /* done */
@@ -276,9 +275,18 @@ int hal_init(const char *name)
     return comp_id;
 }
 
+hal_comp_t *halpr_find_comp_by_id(int comp_id) {
+    hal_comp_t *comp, *ncomp;
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
+	if (comp->comp_id == comp_id) return comp; 
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR,
+	"HAL: ERROR: component %d not found\n", comp_id);
+    return 0;
+}
+
 int hal_exit(int comp_id)
 {
-    int *prev, next;
     hal_comp_t *comp;
     char name[HAL_NAME_LEN + 1];
 
@@ -290,32 +298,14 @@ int hal_exit(int comp_id)
     rtapi_print_msg(RTAPI_MSG_DBG, "HAL: removing component %02d\n", comp_id);
     /* grab mutex before manipulating list */
     rtapi_mutex_get(&(hal_data->mutex));
-    /* search component list for 'comp_id' */
-    prev = &(hal_data->comp_list_ptr);
-    next = *prev;
-    if (next == 0) {
-	/* list is empty - should never happen, but... */
-	rtapi_mutex_give(&(hal_data->mutex));
+    comp = halpr_find_comp_by_id(comp_id);
+    if (!comp) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
     }
-    comp = SHMPTR(next);
-    while (comp->comp_id != comp_id) {
-	/* not a match, try the next one */
-	prev = &(comp->next_ptr);
-	next = *prev;
-	if (next == 0) {
-	    /* reached end of list without finding component */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: component %d not found\n", comp_id);
-	    return -EINVAL;
-	}
-	comp = SHMPTR(next);
-    }
     /* found our component, unlink it from the list */
-    *prev = comp->next_ptr;
+    hal_list_del(&comp->list);
     /* save component name for later */
     rtapi_snprintf(name, sizeof(name), "%s", comp->name);
     /* get rid of the component */
@@ -385,33 +375,17 @@ void *hal_malloc(long int size)
 
 #ifdef RTAPI
 int hal_set_constructor(int comp_id, constructor make) {
-    int next;
     hal_comp_t *comp;
 
     rtapi_mutex_get(&(hal_data->mutex));
 
-    /* search component list for 'comp_id' */
-    next = hal_data->comp_list_ptr;
-    if (next == 0) {
-	/* list is empty - should never happen, but... */
+    comp = halpr_find_comp_by_id(comp_id);
+    if(!comp) {
+	/* reached end of list without finding component */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
-    }
-
-    comp = SHMPTR(next);
-    while (comp->comp_id != comp_id) {
-	/* not a match, try the next one */
-	next = comp->next_ptr;
-	if (next == 0) {
-	    /* reached end of list without finding component */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: component %d not found\n", comp_id);
-	    return -EINVAL;
-	}
-	comp = SHMPTR(next);
     }
     
     comp->make = make;
@@ -422,33 +396,16 @@ int hal_set_constructor(int comp_id, constructor make) {
 #endif
 
 int hal_ready(int comp_id) {
-    int next;
     hal_comp_t *comp;
 
     rtapi_mutex_get(&(hal_data->mutex));
 
-    /* search component list for 'comp_id' */
-    next = hal_data->comp_list_ptr;
-    if (next == 0) {
-	/* list is empty - should never happen, but... */
+    comp = halpr_find_comp_by_id(comp_id);
+    if (!comp) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
-    }
-
-    comp = SHMPTR(next);
-    while (comp->comp_id != comp_id) {
-	/* not a match, try the next one */
-	next = comp->next_ptr;
-	if (next == 0) {
-	    /* reached end of list without finding component */
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: component %d not found\n", comp_id);
-	    return -EINVAL;
-	}
-	comp = SHMPTR(next);
     }
     if(comp->ready > 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2260,22 +2217,11 @@ hal_list_t *list_remove_entry(hal_list_t * entry)
 
 hal_comp_t *halpr_find_comp_by_name(const char *name)
 {
-    int next;
-    hal_comp_t *comp;
-
-    /* search component list for 'name' */
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if (strcmp(comp->name, name) == 0) {
-	    /* found a match */
-	    return comp;
-	}
-	/* didn't find it yet, look at next one */
-	next = comp->next_ptr;
+    hal_comp_t *comp, *ncomp;
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
+	if (!strcmp(comp->name, name)) return comp;
     }
-    /* if loop terminates, we reached end of list with no match */
-    return 0;
+    return NULL;
 }
 
 hal_pin_t *halpr_find_pin_by_name(const char *name)
@@ -2391,26 +2337,6 @@ hal_funct_t *halpr_find_funct_by_name(const char *name)
 	next = funct->next_ptr;
     }
     /* if loop terminates, we reached end of list with no match */
-    return 0;
-}
-
-hal_comp_t *halpr_find_comp_by_id(int id)
-{
-    int next;
-    hal_comp_t *comp;
-
-    /* search list for 'comp_id' */
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
-	if (comp->comp_id == id) {
-	    /* found a match */
-	    return comp;
-	}
-	/* didn't find it yet, look at next one */
-	next = comp->next_ptr;
-    }
-    /* if loop terminates, we reached end of list without finding a match */
     return 0;
 }
 
@@ -2735,7 +2661,7 @@ static int init_hal_data(void)
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
     /* initialize everything */
-    hal_data->comp_list_ptr = 0;
+    HAL_INIT_LIST_HEAD(&hal_data->comp_list);
     hal_data->pin_list_ptr = 0;
     hal_data->sig_list_ptr = 0;
     hal_data->param_list_ptr = 0;
@@ -2744,7 +2670,7 @@ static int init_hal_data(void)
     hal_data->base_period = 0;
     hal_data->threads_running = 0;
     hal_data->oldname_free_ptr = 0;
-    hal_data->comp_free_ptr = 0;
+    HAL_INIT_LIST_HEAD(&hal_data->comp_free_list);
     hal_data->pin_free_ptr = 0;
     hal_data->sig_free_ptr = 0;
     hal_data->param_free_ptr = 0;
@@ -2826,25 +2752,18 @@ hal_comp_t *halpr_alloc_comp_struct(void)
 {
     hal_comp_t *p;
 
-    /* check the free list */
-    if (hal_data->comp_free_ptr != 0) {
+    if (!hal_list_empty(&hal_data->comp_free_list)) {
 	/* found a free structure, point to it */
-	p = SHMPTR(hal_data->comp_free_ptr);
+	p = SHMPTR(hal_data->comp_free_list.next);
 	/* unlink it from the free list */
-	hal_data->comp_free_ptr = p->next_ptr;
-	p->next_ptr = 0;
+	hal_list_del(&p->list);
     } else {
 	/* nothing on free list, allocate a brand new one */
 	p = shmalloc_dn(sizeof(hal_comp_t));
     }
     if (p) {
 	/* make sure it's empty */
-	p->next_ptr = 0;
-	p->comp_id = 0;
-	p->mem_id = 0;
-	p->type = 0;
-	p->shmem_base = 0;
-	p->name[0] = '\0';
+	memset(p, 0, sizeof(*p));
     }
     return p;
 }
@@ -3112,8 +3031,7 @@ static void free_comp_struct(hal_comp_t * comp)
     comp->shmem_base = 0;
     comp->name[0] = '\0';
     /* add it to free list */
-    comp->next_ptr = hal_data->comp_free_ptr;
-    hal_data->comp_free_ptr = SHMOFF(comp);
+    hal_list_add_tail(&comp->list, &hal_data->comp_free_list);
 }
 
 static void unlink_pin(hal_pin_t * pin)

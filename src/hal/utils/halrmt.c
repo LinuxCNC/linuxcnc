@@ -1297,8 +1297,8 @@ static int doDelsig(char *mod_name, connectionRecType *context)
 
 static int doUnload(char *mod_name, connectionRecType *context)
 {
-    int next, retval, retval1, n, all;
-    hal_comp_t *comp;
+    hal_comp_t *comp, *ncomp;
+    int retval, retval1, n, all;
     char comps[64][HAL_NAME_LEN+1];
     const char *nakStr = "SET UNLOAD NAK";
 
@@ -1310,10 +1310,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
     }
     /* build a list of component(s) to unload */
     n = 0;
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
 	if ( comp->type == 1 ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
@@ -1325,9 +1322,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
 		}
 	    }
 	}
-	next = comp->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     /* mark end of list */
     comps[n][0] = '\0';
     if ( !all && ( comps[0][0] == '\0' )) {
@@ -1620,24 +1615,19 @@ static int doLoadUsr(char *args[])
     hal_ready(comp_id);
     if ( wait_comp_flag ) {
         int ready = 0, count=0;
-        int next;
         while(!ready) {
             struct timespec ts = {0, 10 * 1000 * 1000}; // 10ms
             nanosleep(&ts, NULL);
             retval = waitpid( pid, &status, WNOHANG );
             if(retval != 0) goto wait_common;
 
-            rtapi_mutex_get(&(hal_data->mutex));
-            next = hal_data->comp_list_ptr;
-            while(next) {
-                hal_comp_t *comp = SHMPTR(next);
-                next = comp->next_ptr;
+            hal_comp_t *comp, *ncomp;
+            hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
                 if(strcmp(comp->name, new_comp_name) == 0 && comp->ready) {
                     ready = 1;
                     break;
                 }
             }
-            rtapi_mutex_give(&(hal_data->mutex));
 
             count++;
             if(count == 100) {
@@ -1688,21 +1678,16 @@ wait_common:
 
 static void getCompInfo(char *pattern, connectionRecType *context)
 {
-    int next, len;
-    hal_comp_t *comp;
+    int len;
+    hal_comp_t *comp, *ncomp;
 
-    rtapi_mutex_get(&(hal_data->mutex));
     len = strlen(pattern);
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-      comp = SHMPTR(next);
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
       if (strncmp(pattern, comp->name, len) == 0) {
         sprintf(context->outBuf, "COMP %s %02d %s", comp->name, comp->comp_id, (comp->type ? "RT  " : "User"));
 	sockWrite(context);
 	}
-      next = comp->next_ptr;
       }
-    rtapi_mutex_give(&(hal_data->mutex));
 }
 
 
@@ -2117,14 +2102,10 @@ static int doSave(char *type, char *filename, connectionRecType *context)
 
 static void save_comps(FILE *dst)
 {
-    int next;
-    hal_comp_t *comp;
+    hal_comp_t *comp, *ncomp;
 
     fprintf(dst, "# components\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe_reverse(comp, ncomp, &hal_data->comp_list, list) {
 	if ( comp->type == 1 ) {
 	    /* only print realtime components */
 	    if ( comp->insmod_args == 0 ) {
@@ -2134,9 +2115,7 @@ static void save_comps(FILE *dst)
 		    (char *)SHMPTR(comp->insmod_args));
 	    }
 	}
-	next = comp->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
 }
 
 static void save_signals(FILE *dst)

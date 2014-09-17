@@ -1228,8 +1228,8 @@ int do_delsig_cmd(char *mod_name)
 
 int do_unloadusr_cmd(char *mod_name)
 {
-    int next, all;
-    hal_comp_t *comp;
+    int all;
+    hal_comp_t *comp, *ncomp;
     pid_t ourpid = getpid();
 
     /* check for "all" */
@@ -1238,11 +1238,7 @@ int do_unloadusr_cmd(char *mod_name)
     } else {
 	all = 0;
     }
-    /* build a list of component(s) to unload */
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
 	if ( comp->type == 0 && comp->pid != ourpid) {
 	    /* found a userspace component besides us */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
@@ -1250,17 +1246,15 @@ int do_unloadusr_cmd(char *mod_name)
                 kill(abs(comp->pid), SIGTERM);
 	    }
 	}
-	next = comp->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     return 0;
 }
 
 
 int do_unloadrt_cmd(char *mod_name)
 {
-    int next, retval, retval1, n, all;
-    hal_comp_t *comp;
+    int retval, retval1, n, all;
+    hal_comp_t *comp, *ncomp;
     char comps[64][HAL_NAME_LEN+1];
 
     /* check for "all" */
@@ -1271,10 +1265,7 @@ int do_unloadrt_cmd(char *mod_name)
     }
     /* build a list of component(s) to unload */
     n = 0;
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
 	if ( comp->type == 1 ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
@@ -1286,9 +1277,7 @@ int do_unloadrt_cmd(char *mod_name)
 		}
 	    }
 	}
-	next = comp->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     /* mark end of list */
     comps[n][0] = '\0';
     if ( !all && ( comps[0][0] == '\0' )) {
@@ -1566,17 +1555,13 @@ int do_waitusr_cmd(char *comp_name)
 
 static void print_comp_info(char **patterns)
 {
-    int next;
-    hal_comp_t *comp;
+    hal_comp_t *comp, *ncomp;
 
     if (scriptmode == 0) {
 	halcmd_output("Loaded HAL Components:\n");
 	halcmd_output("ID      Type  %-*s PID   State\n", HAL_NAME_LEN, "Name");
     }
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
 	if ( match(patterns, comp->name) ) {
             if(comp->type == 2) {
                 hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
@@ -1597,9 +1582,7 @@ static void print_comp_info(char **patterns)
             }
             halcmd_output("\n");
 	}
-	next = comp->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }
 
@@ -1907,19 +1890,13 @@ static void print_thread_info(char **patterns)
 
 static void print_comp_names(char **patterns)
 {
-    int next;
-    hal_comp_t *comp;
+    hal_comp_t *comp, *ncomp;
 
-    rtapi_mutex_get(&(hal_data->mutex));
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list) {
 	if ( match(patterns, comp->name) ) {
 	    halcmd_output("%s ", comp->name);
 	}
-	next = comp->next_ptr;
     }
-    rtapi_mutex_give(&(hal_data->mutex));
     halcmd_output("\n");
 }
 
@@ -2034,6 +2011,16 @@ static void print_lock_status()
 	halcmd_output("  HAL_LOCK_RUN     - running/stopping HAL is locked\n");
 }
 
+static int count_list2(struct hal_list_head *list) {
+    hal_comp_t *comp, *ncomp;
+    int n = 0;
+
+    hal_list_for_each_entry_safe(comp, ncomp, &hal_data->comp_list, list)
+        n++;
+
+    return n;
+}
+
 static int count_list(int list_root)
 {
     int n, next;
@@ -2058,8 +2045,8 @@ static void print_mem_status()
     halcmd_output("HAL memory status\n");
     halcmd_output("  used/total shared memory:   %ld/%d\n", (long)(HAL_SIZE - hal_data->shmem_avail), HAL_SIZE);
     // count components
-    active = count_list(hal_data->comp_list_ptr);
-    recycled = count_list(hal_data->comp_free_ptr);
+    active = count_list2(&hal_data->comp_list);
+    recycled = count_list2(&hal_data->comp_free_list);
     halcmd_output("  active/recycled components: %d/%d\n", active, recycled);
     // count pins
     active = count_list(hal_data->pin_list_ptr);
@@ -2370,44 +2357,20 @@ int do_save_cmd(char *type, char *filename)
 
 static void save_comps(FILE *dst)
 {
-    int next;
-    hal_comp_t *comp;
+    hal_comp_t *comp, *ncomp;
 
     fprintf(dst, "# components\n");
-    rtapi_mutex_get(&(hal_data->mutex));
-
-    int ncomps = 0;
-    next = hal_data->comp_list_ptr;
-    while (next != 0) {
-	comp = SHMPTR(next);
+    hal_list_for_each_entry_safe_reverse(comp, ncomp, &hal_data->comp_list, list) {
 	if ( comp->type == 1 ) {
-            ncomps ++;
-        }
-	next = comp->next_ptr;
+	    if ( comp->insmod_args == 0 ) {
+		fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
+	    } else {
+		fprintf(dst, "loadrt %s %s\n", comp->name,
+		    (char *)SHMPTR(comp->insmod_args));
+	    }
+	}
     }
 
-    hal_comp_t *comps[ncomps], **compptr = comps;
-    next = hal_data->comp_list_ptr;
-    while(next != 0)  {
-	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
-            *compptr++ = SHMPTR(next);
-        }
-	next = comp->next_ptr;
-    }
-
-    int i;
-    for(i=ncomps; i--;)
-    {
-        comp = comps[i];
-        /* only print realtime components */
-        if ( comp->insmod_args == 0 ) {
-            fprintf(dst, "#loadrt %s  (not loaded by loadrt, no args saved)\n", comp->name);
-        } else {
-            fprintf(dst, "loadrt %s %s\n", comp->name,
-                (char *)SHMPTR(comp->insmod_args));
-        }
-    }
 #if 0  /* newinst deferred to version 2.2 */
     next = hal_data->comp_list_ptr;
     while (next != 0) {
@@ -2419,7 +2382,6 @@ static void save_comps(FILE *dst)
 	next = comp->next_ptr;
     }
 #endif
-    rtapi_mutex_give(&(hal_data->mutex));
 }
 
 static void save_aliases(FILE *dst)

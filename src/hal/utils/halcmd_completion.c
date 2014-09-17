@@ -331,17 +331,18 @@ static char *setp_generator(const char *text, int state) {
 
 static char *usrcomp_generator(const char *text, int state) {
     static int len;
-    static int next;
+    static struct hal_list_head *head, *ptr;
     if(!state) {
-        next = hal_data->comp_list_ptr;
+        head = &hal_data->comp_list;
+        ptr = SHMPTR((head)->next);
         len = strlen(text);
         if(strncmp(text, "all", len) == 0)
             return strdup("all");
     }
 
-    while(next) {
-        hal_comp_t *comp = SHMPTR(next);
-        next = comp->next_ptr;
+    while(ptr != head) {
+        hal_comp_t *comp = hal_list_entry(ptr, hal_comp_t, list);
+        ptr = SHMPTR((head)->next);
         if(comp->type) continue;
 	if(strncmp(text, comp->name, len) == 0)
             return strdup(comp->name);
@@ -354,17 +355,18 @@ static char *usrcomp_generator(const char *text, int state) {
 
 static char *comp_generator(const char *text, int state) {
     static int len;
-    static int next;
+    static struct hal_list_head *head, *ptr;
     if(!state) {
-        next = hal_data->comp_list_ptr;
+        head = &hal_data->comp_list;
+        ptr = SHMPTR((head)->next);
         len = strlen(text);
         if(strncmp(text, "all", len) == 0)
             return strdup("all");
     }
 
-    while(next) {
-        hal_comp_t *comp = SHMPTR(next);
-        next = comp->next_ptr;
+    while(ptr != head) {
+        hal_comp_t *comp = hal_list_entry(ptr, hal_comp_t, list);
+        ptr = SHMPTR((head)->next);
 	if ( strncmp(text, comp->name, len) == 0 )
             return strdup(comp->name);
     }
@@ -375,17 +377,18 @@ static char *comp_generator(const char *text, int state) {
 
 static char *rtcomp_generator(const char *text, int state) {
     static int len;
-    static int next;
+    static struct hal_list_head *head, *ptr;
     if(!state) {
-        next = hal_data->comp_list_ptr;
+        head = &hal_data->comp_list;
+        ptr = SHMPTR((head)->next);
         len = strlen(text);
         if(strncmp(text, "all", len) == 0)
             return strdup("all");
     }
 
-    while(next) {
-        hal_comp_t *comp = SHMPTR(next);
-        next = comp->next_ptr;
+    while(ptr != head) {
+        hal_comp_t *comp = hal_list_entry(ptr, hal_comp_t, list);
+        ptr = SHMPTR((head)->next);
         if(!comp->type) continue;
 	if ( strncmp(text, comp->name, len) == 0 )
             return strdup(comp->name);
