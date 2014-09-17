@@ -890,11 +890,6 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
             rtapi_s32 dS_counts;
             double dS_pos_units;
 
-            // these are just for debugging the encoder.vel NaN problem
-            // reported by micges, remove when the bug is fixed
-            static rtapi_s32 prev_update_dS_counts;
-            static rtapi_s32 prev_update_dT_clocks;
-
             // get current count from the FPGA (already read)
             reg_count = hm2_encoder_get_reg_count(hm2, instance);
             if (reg_count == e->prev_reg_count) {
@@ -940,9 +935,6 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     }
                 }
 
-                prev_update_dS_counts = dS_counts;
-                prev_update_dT_clocks = dT_clocks;
-
 		// if waiting for index or latch, we can't shirk our duty just
 		// because no pulses arrived
 		if(e->prev_control & (HM2_ENCODER_LATCH_ON_INDEX | HM2_ENCODER_LATCH_ON_PROBE)) {
@@ -978,7 +970,6 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                     || (((*e->hal.pin.rawcounts - e->prev_event_rawcounts) == -1) && (e->prev_dS_counts > 0))
                 ) {
                     *e->hal.pin.velocity = 0.0;
-                    prev_update_dT_clocks = -1;  // magic value meaning "i ignored dT_clocks last time"
                 } else {
                     dT_clocks = (time_of_interest - e->prev_event_reg_timestamp) + (e->tsc_num_rollovers << 16);
                     dT_s = (double)dT_clocks * hm2->encoder.seconds_per_tsdiv_clock;
@@ -990,11 +981,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
                         // finally time to do Relative-Time Velocity Estimation
                         *e->hal.pin.velocity = dS_pos_units / dT_s;
                     }
-
-                    prev_update_dT_clocks = dT_clocks;
                 }
-
-                prev_update_dS_counts = dS_counts;
 
                 e->tsc_num_rollovers = 0;  // we're "using up" the rollovers now
 
