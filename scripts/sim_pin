@@ -73,8 +73,9 @@ proc add_bit_item_to_gui {f id} {
   bind $::SP($id,button) <ButtonRelease-1> [list b_release $id]
   bind $::SP($id,button) <ButtonPress-1>   [list b_press   $id]
 
+  set ::SP(ivalue,$id) "$value"
   pack [label $f.l -bg $color -fg black \
-       -text "$::SP(prefix)$value"] \
+       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"] \
        -fill x -expand 1
   set ::SP($id,label) $f.l
 
@@ -112,9 +113,11 @@ proc add_number_item_to_gui {f id} {
        -textvariable ::SP($id,entry)]
   pack $e -fill x -expand 0
   bind $e <Return> [list b_press $id]
+
+  set ::SP(ivalue,$id) "$value"
   pack [label $f.l -bg $color -fg black \
        -anchor w \
-       -text "$::SP(prefix)$value"] \
+       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"] \
        -fill x -expand 1
   set ::SP($id,label) $f.l
   pack $f -side top -fill x -expand 0
@@ -303,21 +306,22 @@ proc item_unset {id} {
   set color lightgray
   if $value {set color magenta}
   $::SP($id,label) configure -bg $color -fg black \
-              -text "$::SP(prefix) $value"
+       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"
 } ;# item_unset
 
 proc item_show {id} {
   set value [get_item $id]
   set color lightgray
+  if {$value != $::SP(ivalue,$id)}  {set color magenta}
   switch $::SP($id,itemtype) {
-    bit { if $value {set color magenta}
+    bit {
           $::SP($id,label) configure -bg $color \
-                           -text "$::SP(prefix) $value"
+       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"
     }
     s32 - \
     u32 - \
-    float { $::SP($id,label) configure -bg $color -fg black \
-                             -text "$::SP(prefix) $value"
+    float {$::SP($id,label) configure -bg $color -fg black \
+       -text "$::SP(iprefix)$::SP(ivalue,$id) $::SP(prefix)$value"
     }
   }
 } ;# item_show
@@ -433,7 +437,8 @@ if [catch {
     set ::SP(id) 0
     set ::SP(vframe,column) 0
     set ::SP(vframe,vct) 4         ;# howmany items in a column
-    set ::SP(prefix) "Current = "  ;# current value prefix
+    set ::SP(iprefix) "Initial="   ;# initial value prefix
+    set ::SP(prefix) "Current="    ;# current value prefix
     set ::SP(pulse,ms) 200         ;# pulse duration
     wm title . $::SP(progname)
 
