@@ -858,6 +858,19 @@ PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
 	USE_CZMQ=yes
     ],)
 
+dnl verify the czmq and zmq libs were built with libsodium support
+AC_MSG_CHECKING(for curve/libsodium support in czmq and zmq libraries)
+AC_TRY_RUN([
+#include "czmq.h"
+int main()
+{
+	exit(zsys_has_curve());
+}
+]
+,  [AC_MSG_ERROR([czmq/zmq library lacks CURVE authentication - zmq installation without libsodium?])]
+, [ AC_MSG_RESULT([curve/libsodium support present]) ]
+)
+
 PKG_CHECK_MODULES([PROTOBUF], [protobuf > 2.4.0],
     [
         AC_DEFINE(HAVE_PROTOBUF, [], [zeroMQ czmq library available])
