@@ -804,6 +804,18 @@ int hm2_md_is_consistent(
 static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
     int md_index, md_accepted;
     
+    hm2->dpll_module_present = 0;
+    for (md_index = 0; md_index < hm2->num_mds; md_index ++) {
+        hm2_module_descriptor_t *md = &hm2->md[md_index];
+
+        if (md->gtag == HM2_GTAG_HM2DPLL) {
+            hm2->dpll_module_present = 1;
+            break;
+        } else if (md->gtag == 0) {
+            break;
+        }
+    }
+
     // Run through once looking for IO Ports in case other modules
     // need them
     for (md_index = 0; md_index < hm2->num_mds; md_index ++) {

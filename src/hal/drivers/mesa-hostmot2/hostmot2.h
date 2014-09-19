@@ -717,12 +717,23 @@ typedef struct {
 } hm2_stepgen_instance_t;
 
 
+// these hal params affect all stepgen instances
+typedef struct {
+    struct {
+        hal_s32_t *dpll_timer_num;
+    } pin;
+} hm2_stepgen_module_global_t;
+
 typedef struct {
     int num_instances;
     hm2_stepgen_instance_t *instance;
 
     rtapi_u32 clock_frequency;
     rtapi_u8 version;
+
+    // module-global HAL objects...
+    hm2_stepgen_module_global_t *hal;
+    rtapi_u32 written_dpll_timer_num;
 
     // write this (via TRAM) every hm2_<foo>.write
     rtapi_u32 step_rate_addr;
@@ -752,6 +763,8 @@ typedef struct {
     rtapi_u32 table_sequence_length_addr;
 
     rtapi_u32 master_dds_addr;
+    
+    rtapi_u32 dpll_timer_num_addr;
 } hm2_stepgen_t;
 
 //
@@ -991,6 +1004,7 @@ typedef struct {
     hm2_module_descriptor_t md[HM2_MAX_MODULE_DESCRIPTORS];
     int num_mds;
 
+    int dpll_module_present;
     int use_serial_numbers;
     
     hm2_pin_t *pin;
