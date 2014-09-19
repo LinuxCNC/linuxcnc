@@ -13,3 +13,10 @@ chmod a+rw /var/cache/linuxcnc/www/data
 cd /usr/share/linuxcnc/doc-root
 find -type d -exec mkdir --parents -- /var/cache/linuxcnc/www/{} \;
 find -type f -exec ln -s -- /usr/share/linuxcnc/doc-root/{} /var/cache/linuxcnc/www/{} \;
+
+# if it doesnt exist, create /var/log/linuxcnc.log and make it publically readable
+touch /var/log/linuxcnc.log
+chmod ugo+r /var/log/linuxcnc.log
+
+# restart the rsyslogd to start logging to /var/log/linuxcnc.conf 
+service rsyslog restart
