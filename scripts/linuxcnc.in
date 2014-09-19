@@ -43,6 +43,12 @@ REALTIME=@REALTIME@
 LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
 LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 
+# if not overridden by user, point MACHINEKIT_INI to installed default:
+if [ -z "$MACHINEKIT_INI" ]; then
+    MACHINEKIT_INI=@EMC2_SYSTEM_CONFIG_DIR@/etc/linuxcnc/machinekit.ini
+fi
+export MACHINEKIT_INI
+
 #put the LINUXCNC_BIN_DIR in PATH
 PATH=$LINUXCNC_BIN_DIR:$PATH
 #ditto scripts if not RIP
