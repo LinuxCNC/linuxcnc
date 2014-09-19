@@ -709,6 +709,7 @@ class LinuxCNCWrapper():
                 self.status.config.axis[index].min_ferror = 0.0
                 self.status.config.axis[index].min_position_limit = 0.0
                 self.status.config.axis[index].units = 0.0
+                self.status.config.axis[index].home_sequence = -1
 
             if self.status.config.axis[index].axisType != axis['axisType']:
                 self.status.config.axis[index].axisType = axis['axisType']
@@ -744,6 +745,12 @@ class LinuxCNCWrapper():
                 self.status.config.axis[index].units = axis['units']
                 txAxis.units = axis['units']
                 axisModified = True
+
+            homeSequence = int(self.ini.find('AXIS_' + str(index), 'HOME_SEQUENCE') or -1)
+            if (self.status.config.axis[index].home_sequence != homeSequence):
+                self.status.config.axis[index].home_sequence = homeSequence
+                txAxis.home_sequence = homeSequence
+                modified = True
 
             if axisModified:
                 txAxis.index = index
