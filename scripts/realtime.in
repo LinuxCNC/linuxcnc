@@ -17,7 +17,7 @@ SHM_STAT=/sys/devices/virtual/misc/shmdrv/status
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
-    MACHINEKIT_INI=@EMC2_SYSTEM_CONFIG_DIR@/etc/linuxcnc/machinekit.ini
+    MACHINEKIT_INI=@EMC2_SYSTEM_CONFIG_DIR@/machinekit.ini
 fi
 export MACHINEKIT_INI
 
