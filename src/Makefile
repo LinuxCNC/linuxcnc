@@ -795,7 +795,8 @@ install-dirs:
 		$(DESTDIR)$(sysconfdir)/rsyslog.d \
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d \
-		$(DESTDIR)$(sampleconfsdir)
+		$(DESTDIR)$(sampleconfsdir) \
+		$(DESTDIR)$(LIB_DIR)/python/machinekit
 ifeq ($(BUILD_EMCWEB),yes)
 	$(DIR)	$(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \
@@ -881,6 +882,7 @@ ifeq ($(BUILD_EMCWEB),yes)
 	$(FILE) ../www/res/* $(DESTDIR)$(datadir)/linuxcnc/doc-root/res
 	$(FILE) ../www/*html $(DESTDIR)$(datadir)/linuxcnc/doc-root/
 endif
+	$(FILE) ../etc/linuxcnc/machinekit.ini $(DESTDIR)$(sysconfdir)/linuxcnc
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -923,6 +925,7 @@ install-python: install-dirs
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
+	$(FILE) ../lib/python/machinekit/config.py $(DESTDIR)$(LIB_DIR)/python/machinekit/
 endif
 
 install-kernel-dep: install-dirs
