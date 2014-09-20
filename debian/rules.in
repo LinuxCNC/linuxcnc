@@ -180,8 +180,7 @@ binary-arch: build install debian/substvars
 	dh_strip
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml \
 	    -X.tbl -X.xml -Xsample-configs
-	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_posix \
-	    -X/rtapi_app_xenomai -X/rtapi_app_rt-preempt
+	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
 	dh_pysupport
 	dh_makeshlibs
 	dh_installdeb
