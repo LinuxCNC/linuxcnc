@@ -1,4 +1,4 @@
-//    Copyright 2005-2008, various authors
+//    Copyright 2005-2014, various authors
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-// 
+//
 // This file contains some handy string parsing functions lifted from Linux
 // 2.6.27.44, from the files mm/util.c and lib/argv_split.c.
 //
@@ -24,23 +24,12 @@
 //
 
 
-#ifdef __linux__
-#include <linux/kernel.h>
-#include <linux/version.h>
-#endif
 #include <rtapi_ctype.h>
 #include <rtapi_slab.h>
 #include <rtapi_string.h>
-#ifdef __KERNEL__
-#include <linux/module.h>
-#endif
 
-
-
-
-#if ! defined(__KERNEL__) || LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 /**
- * kstrndup - allocate space for and copy an existing string
+ * rtapi_kstrndup - allocate space for and copy an existing string
  * @s: the string to duplicate
  * @max: read at most @max chars from @s
  * @gfp: the GFP mask used in the rtapi_kmalloc() call when allocating memory
@@ -99,7 +88,7 @@ static int count_argc(const char *str)
 }
 
 /**
- * argv_free - free an argv
+ * rtapi_argv_free - free an argv
  * @argv - the argument vector to be freed
  *
  * Frees an argv and the strings it points to.
@@ -114,7 +103,7 @@ void rtapi_argv_free(char **argv)
 }
 
 /**
- * argv_split - split a string at whitespace, returning an argv
+ * rtapi_argv_split - split a string at whitespace, returning an argv
  * @gfp: the GFP mask used to allocate memory
  * @str: the string to be split
  * @argcp: returned argument count
@@ -165,5 +154,6 @@ char **rtapi_argv_split(rtapi_gfp_t gfp, const char *str, int *argcp)
 	return NULL;
 }
 
-#endif
-
+EXPORT_SYMBOL(rtapi_kstrndup);
+EXPORT_SYMBOL(rtapi_argv_split);
+EXPORT_SYMBOL(rtapi_argv_free);

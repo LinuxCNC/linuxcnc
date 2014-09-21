@@ -10,6 +10,7 @@ ifeq ($(BUILD_SYS),uspace)
 RTAPI_APP_SRCS := \
 	rtapi/uspace_rtapi_app.cc \
 	rtapi/uspace_rtapi_parport.cc \
+	rtapi/uspace_rtapi_string.c \
 	rtapi/rtapi_pci.cc
 USERSRCS += $(RTAPI_APP_SRCS)
 

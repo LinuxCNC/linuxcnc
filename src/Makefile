@@ -869,7 +869,6 @@ obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
-    hal/drivers/mesa-hostmot2/backported-strings.o  \
     hal/drivers/mesa-hostmot2/ioport.o	  \
     hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/abs_encoder.o\
