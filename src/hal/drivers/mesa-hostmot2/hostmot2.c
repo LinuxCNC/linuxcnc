@@ -1189,12 +1189,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
         }
 
         memset(&dev, '\0', sizeof(dev));
-#if defined(__KERNEL__) && LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-        strncpy(dev.bus_id, hm2->llio->name, BUS_ID_SIZE);
-        dev.bus_id[BUS_ID_SIZE - 1] = '\0';
-#else
         rtapi_dev_set_name(&dev, "%s", hm2->llio->name);
-#endif
         dev.release = hm2_release_device;
         r = rtapi_device_register(&dev);
         if (r != 0) {
