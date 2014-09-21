@@ -67,13 +67,6 @@
 #include <asm/uaccess.h>	/* copy_from_user() */
 #include <asm/msr.h>		/* rdtscll() */
 
-#ifndef LINUX_VERSION_CODE
-#include <linux/version.h>
-#endif
-#ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-#endif
-
 /* get inb(), outb(), ioperm() */
 #include <asm/io.h>
 
@@ -619,13 +612,7 @@ static void wrapper(long task_id)
     return;
 }
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,24)
 #define IP(x) ((x)->ip)
-#elif defined(__i386__)
-#define IP(x) ((x)->eip)
-#else
-#define IP(x) ((x)->rip)
-#endif
 
 static int rtapi_trap_handler(int vec, int signo, struct pt_regs *regs,
         void *task) {
