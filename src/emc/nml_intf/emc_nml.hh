@@ -785,7 +785,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
 
     int type;
     EmcPose end;		// end point
-    double vel, ini_maxvel, acc;
+    double vel, ini_maxvel, acc, jerk;
     int feed_mode;
     int indexrotary;
 };
@@ -805,7 +805,7 @@ class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
     PM_CARTESIAN normal;
     int turn;
     int type;
-    double vel, ini_maxvel, acc;
+    double vel, ini_maxvel, acc, jerk;
     int feed_mode;
 };
 
@@ -943,7 +943,7 @@ class EMC_TRAJ_PROBE:public EMC_TRAJ_CMD_MSG {
 
     EmcPose pos;
     int type;
-    double vel, ini_maxvel, acc;
+    double vel, ini_maxvel, acc, jerk;
     unsigned char probe_type;
 };
 
@@ -957,7 +957,7 @@ class EMC_TRAJ_RIGID_TAP:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     EmcPose pos;
-    double vel, ini_maxvel, acc;
+    double vel, ini_maxvel, acc, jerk;
 };
 
 // EMC_TRAJ status base class

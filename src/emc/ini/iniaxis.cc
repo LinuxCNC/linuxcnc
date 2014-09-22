@@ -101,6 +101,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
     double maxVelocity;
     double maxAcceleration;
+    double maxJerk;
     double ferror;
 
     // compose string to match, axis = 0 -> AXIS_0, etc.
@@ -253,6 +254,15 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
         }
 
         old_inihal_data.max_acceleration[axis] = maxAcceleration;
+
+        maxJerk = DEFAULT_AXIS_MAX_JERK;
+        axisIniFile->Find(&maxJerk, "MAX_JERK", axisString);
+        if (0 != emcAxisSetMaxJerk(axis, maxJerk)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxJerk\n");
+            }
+            return -1;
+        }
 
         comp_file_type = 0;             // default
         axisIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", axisString);

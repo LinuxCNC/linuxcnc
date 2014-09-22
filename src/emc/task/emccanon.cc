@@ -862,6 +862,7 @@ static void flush_segments(void) {
     linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
     double acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg.jerk = 1.0;
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg.indexrotary = -1;
@@ -974,6 +975,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg.jerk = 1.0;
     linearMoveMsg.indexrotary = rotary_unlock_for_traverse;
 
     int old_feed_mode = feed_mode;
@@ -1030,6 +1032,7 @@ void RIGID_TAP(int line_number, double x, double y, double z)
     rigidTapMsg.vel = toExtVel(vel);
     rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
     rigidTapMsg.acc = toExtAcc(acc);
+    rigidTapMsg.jerk = 1.0;
 
     flush_segments();
 
@@ -1082,6 +1085,7 @@ void STRAIGHT_PROBE(int line_number,
     probeMsg.vel = toExtVel(vel);
     probeMsg.ini_maxvel = toExtVel(ini_maxvel);
     probeMsg.acc = toExtAcc(acc);
+    probeMsg.jerk = 1.0;
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     probeMsg.probe_type = probe_type;
@@ -1575,6 +1579,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
+        linearMoveMsg.jerk = 1.0;
         linearMoveMsg.indexrotary = -1;
         if(vel && acc){
             interp_list.set_line_number(line_number);
@@ -1617,6 +1622,7 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
+        circularMoveMsg.jerk = 1.0;
 
 	if(axis_len > 0.001)
 	  circularMoveMsg.acc /= sqrt(3.);
