@@ -269,9 +269,6 @@ siggen::
 supply::
      a simple source for testing(((supply)))
 
-blocks::
-     assorted useful components (mux, demux, or, and, integ,
-    ddt, limit, wcomp, etc.)(((blocks)))
 
 === Hardware Drivers[[sub:HardwareDrivers]](((Hardware Drivers)))
 
