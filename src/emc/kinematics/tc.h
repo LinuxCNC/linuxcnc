@@ -66,16 +66,29 @@ typedef struct {
     RIGIDTAP_STATE state;
 } PmRigidTap;
 
+enum state_type {
+  ACCEL_S0 = 0, // 0
+  ACCEL_S1,     // 1
+  ACCEL_S2,     // 2
+  ACCEL_S3,     // 3
+  ACCEL_S4,     // 4
+  ACCEL_S5,     // 5
+  ACCEL_S6      // 6
+};
+
 typedef struct {
     double cycle_time;
     double progress;        // where are we in the segment?  0..target
     double target;          // segment length
+    double distance_to_go;  // distance to go for target target..0
     double reqvel;          // vel requested by F word, calc'd by task
     double maxaccel;        // accel calc'd by task
     double jerk;            // the accelerate of accel
     double feed_override;   // feed override requested by user
     double maxvel;          // max possible vel (feed override stops here)
-    double currentvel;      // keep track of current step (vel * cycle_time)
+    double cur_vel;         // keep track of current step (vel * cycle_time)
+    double cur_accel;       // keep track of current acceleration
+    enum state_type accel_state;
     
     int id;                 // segment's serial number
 
