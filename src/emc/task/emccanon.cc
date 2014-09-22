@@ -47,6 +47,7 @@ static double css_maximum, css_numerator; // both always positive
 static int spindle_dir = 0;
 
 static const double tiny = 1e-7;
+static const double huge = 1e9;
 static double xy_rotation = 0.;
 static int rotary_unlock_for_traverse = -1;
 
@@ -56,6 +57,10 @@ static int rotary_unlock_for_traverse = -1;
 
 #ifndef MIN3
 #define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
+#endif
+
+#ifndef MIN4
+#define MIN4(a,b,c,d) (MIN(MIN((a),(b)),MIN((c),(d))))
 #endif
 
 #ifndef MAX
@@ -559,6 +564,93 @@ void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
     // nothing need be done here
 }
 
+double getStraightJerk(double x, double y, double z,
+                               double a, double b, double c,
+                               double u, double v, double w)
+{
+    double dx, dy, dz, du, dv, dw, da, db, dc;
+    double  jerk = 0.0; // if a move to nowhere
+
+    // Compute absolute travel distance for each axis:
+    dx = fabs(x - canonEndPoint.x);
+    dy = fabs(y - canonEndPoint.y);
+    dz = fabs(z - canonEndPoint.z);
+    da = fabs(a - canonEndPoint.a);
+    db = fabs(b - canonEndPoint.b);
+    dc = fabs(c - canonEndPoint.c);
+    du = fabs(u - canonEndPoint.u);
+    dv = fabs(v - canonEndPoint.v);
+    dw = fabs(w - canonEndPoint.w);
+
+    if(!axis_valid(0) || dx < tiny) dx = 0.0;
+    if(!axis_valid(1) || dy < tiny) dy = 0.0;
+    if(!axis_valid(2) || dz < tiny) dz = 0.0;
+    if(!axis_valid(3) || da < tiny) da = 0.0;
+    if(!axis_valid(4) || db < tiny) db = 0.0;
+    if(!axis_valid(5) || dc < tiny) dc = 0.0;
+    if(!axis_valid(6) || du < tiny) du = 0.0;
+    if(!axis_valid(7) || dv < tiny) dv = 0.0;
+    if(!axis_valid(8) || dw < tiny) dw = 0.0;
+
+    if(debug_velacc)
+        printf("getStraightJerk dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g\n",
+               dx, dy, dz, da, db, dc, du, dv, dw);
+
+    // Figure out what kind of move we're making.  This is used to determine
+    // the units of vel/acc.
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
+        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
+        cartesian_move = 0;
+    } else {
+        cartesian_move = 1;
+    }
+    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
+        angular_move = 0;
+    } else {
+        angular_move = 1;
+    }
+
+    // Pure linear move:
+    if (cartesian_move && !angular_move) {
+        jerk = MIN3((dx?axis_max_jerk[0]: huge),
+                    (dy?axis_max_jerk[1]: huge),
+                    (dz?axis_max_jerk[2]: huge));
+        jerk = FROM_EXT_LEN(MIN4((jerk),
+                        (du?axis_max_jerk[6]: huge),
+                        (dv?axis_max_jerk[7]: huge),
+                        (dw?axis_max_jerk[8]: huge)));
+    }
+    // Pure angular move:
+    else if (!cartesian_move && angular_move) {
+        jerk = FROM_EXT_ANG(MIN3(
+                    (da?axis_max_jerk[3]: huge),
+                    (db?axis_max_jerk[4]: huge),
+                    (dc?axis_max_jerk[5]: huge)));
+    }
+    // Combination angular and linear move:
+    else if (cartesian_move && angular_move) {
+
+        double ang_jerk;
+        jerk = MIN3( (dx?axis_max_jerk[0]: huge),
+                    (dy?axis_max_jerk[1]: huge),
+                    (dz?axis_max_jerk[2]: huge));
+
+        jerk = FROM_EXT_LEN(MIN4( jerk,
+                                (du?axis_max_jerk[6]: huge),
+                                (dv?axis_max_jerk[7]: huge),
+                                (dw?axis_max_jerk[8]: huge)));
+
+        ang_jerk = FROM_EXT_ANG(MIN3(
+                            (da?axis_max_jerk[3]: huge),
+                            (db?axis_max_jerk[4]: huge),
+                            (dc?axis_max_jerk[5]: huge)));
+
+        jerk = MIN(jerk, ang_jerk);
+
+    }
+    return jerk;
+}
+
 double getStraightAcceleration(double x, double y, double z,
                                double a, double b, double c,
                                double u, double v, double w)
@@ -862,7 +954,7 @@ static void flush_segments(void) {
     linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
     double acc = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.jerk = 1.0;
+    linearMoveMsg.jerk = TO_EXT_LEN(getStraightJerk(x, y, z, a, b, c, u, v, w));
 
     linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
     linearMoveMsg.indexrotary = -1;
@@ -975,7 +1067,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
     linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
     linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.jerk = 1.0;
+    linearMoveMsg.jerk = TO_EXT_LEN(getStraightJerk(x, y, z, a, b, c, u, v, w));
     linearMoveMsg.indexrotary = rotary_unlock_for_traverse;
 
     int old_feed_mode = feed_mode;
@@ -1085,7 +1177,7 @@ void STRAIGHT_PROBE(int line_number,
     probeMsg.vel = toExtVel(vel);
     probeMsg.ini_maxvel = toExtVel(ini_maxvel);
     probeMsg.acc = toExtAcc(acc);
-    probeMsg.jerk = 1.0;
+    probeMsg.jerk = TO_EXT_LEN(getStraightJerk(x, y, z, a, b, c, u, v, w));
 
     probeMsg.type = EMC_MOTION_TYPE_PROBING;
     probeMsg.probe_type = probe_type;
@@ -1302,13 +1394,31 @@ void ARC_FEED(int line_number,
     EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
     EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
     double v1, v2,  a1, a2, vel, ini_maxvel, circ_maxvel, axial_maxvel=0.0, circ_acc, acc=0.0;
+    double j1, j2, jerk;
     double radius, angle, theta1, theta2, helical_length, axis_len;
     double tcircle, taxial, tmax, thelix, ta, tb, tc, da, db, dc;
     double tu, tv, tw, du, dv, dw;
     double mx, my;
-
+    double axis_max_acc[EMCMOT_MAX_AXIS], axis_max_vel[EMCMOT_MAX_AXIS], axis_max_jerk[EMCMOT_MAX_AXIS];
     double lx, ly, lz;
     double unused=0;
+    int i;
+    
+    for (i = 0; i < 3; i++) {
+        axis_max_acc[i] = FROM_EXT_LEN(axis_max_acceleration[i]);
+        axis_max_vel[i] = FROM_EXT_LEN(axis_max_velocity[i]);
+        axis_max_jerk[i] = FROM_EXT_LEN(axis_max_jerk[i]);
+    }
+    for (i = 3; i < 6; i++) {
+        axis_max_acc[i] = FROM_EXT_ANG(axis_max_acceleration[i]);
+        axis_max_vel[i] = FROM_EXT_ANG(axis_max_velocity[i]);
+        axis_max_jerk[i] = FROM_EXT_ANG(axis_max_jerk[i]);
+    }
+    for (i = 6; i < 9; i++) {
+        axis_max_acc[i] = FROM_EXT_LEN(axis_max_acceleration[i]);
+        axis_max_vel[i] = FROM_EXT_LEN(axis_max_velocity[i]);
+        axis_max_jerk[i] = FROM_EXT_LEN(axis_max_jerk[i]);
+    }
 
     get_last_pos(lx, ly, lz);
 
@@ -1391,17 +1501,21 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.y - center.y);
         axis_len = fabs(end.tran.z - canonEndPoint.z);
 
-	v1 = FROM_EXT_LEN(axis_max_velocity[0]);
-	v2 = FROM_EXT_LEN(axis_max_velocity[1]);
-	a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
-	a2 = FROM_EXT_LEN(axis_max_acceleration[1]);
+	v1 = axis_max_vel[0];
+	v2 = axis_max_vel[1];
+	a1 = axis_max_acc[0];
+	a2 = axis_max_acc[1];
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
+        j1 = axis_max_jerk[0];
+        j2 = axis_max_jerk[1];
+        jerk = MIN(j1, j2);
         if(axis_valid(2) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[2]);
-            a1 = FROM_EXT_LEN(axis_max_acceleration[2]);
+            axial_maxvel = v1 = axis_max_vel[2];
+            a1 = axis_max_acc[2];
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
+            jerk = MIN(jerk, j1);
         }
 	break;
 
@@ -1427,17 +1541,21 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.y - center.y, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.x - canonEndPoint.x);
 
-	v1 = FROM_EXT_LEN(axis_max_velocity[1]);
-	v2 = FROM_EXT_LEN(axis_max_velocity[2]);
-	a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
-	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
+	v1 = axis_max_vel[1];
+	v2 = axis_max_vel[2];
+	a1 = axis_max_acc[1];
+	a2 = axis_max_acc[2];
         circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
+        j1 = axis_max_jerk[1];
+        j2 = axis_max_jerk[2];
+        jerk = MIN(j1, j2);
         if(axis_valid(0) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[0]);
-            a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
+            axial_maxvel = v1 = axis_max_vel[0];
+            a1 = axis_max_acc[0];
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
+            jerk = MIN(jerk, j1);
         }
 
 	break;
@@ -1464,17 +1582,21 @@ void ARC_FEED(int line_number,
         radius = hypot(canonEndPoint.x - center.x, canonEndPoint.z - center.z);
         axis_len = fabs(end.tran.y - canonEndPoint.y);
 
-	v1 = FROM_EXT_LEN(axis_max_velocity[0]);
-	v2 = FROM_EXT_LEN(axis_max_velocity[2]);
-	a1 = FROM_EXT_LEN(axis_max_acceleration[0]);
-	a2 = FROM_EXT_LEN(axis_max_acceleration[2]);
+	v1 = axis_max_vel[0];
+	v2 = axis_max_vel[2];
+	a1 = axis_max_acc[0];
+	a2 = axis_max_acc[2];
 	circ_maxvel = ini_maxvel = MIN(v1, v2);
         circ_acc = acc = MIN(a1, a2);
+        j1 = axis_max_jerk[0];
+        j2 = axis_max_jerk[2];
+        jerk = MIN(j1, j2);
         if(axis_valid(1) && axis_len > 0.001) {
-            axial_maxvel = v1 = FROM_EXT_LEN(axis_max_velocity[1]);
-            a1 = FROM_EXT_LEN(axis_max_acceleration[1]);
+            axial_maxvel = v1 = axis_max_vel[1];
+            a1 = axis_max_acc[1];
             ini_maxvel = MIN(ini_maxvel, v1);
             acc = MIN(acc, a1);
+            jerk = MIN(jerk, j1);
         }
 	break;
     }
@@ -1488,13 +1610,13 @@ void ARC_FEED(int line_number,
     helical_length = hypot(angle * radius, axis_len);
 
 // COMPUTE VELOCITIES
-    ta = (axis_valid(3) && da)? fabs(da / FROM_EXT_ANG(axis_max_velocity[3])):0.0;
-    tb = (axis_valid(4) && db)? fabs(db / FROM_EXT_ANG(axis_max_velocity[4])):0.0;
-    tc = (axis_valid(5) && dc)? fabs(dc / FROM_EXT_ANG(axis_max_velocity[5])):0.0;
+    ta = (axis_valid(3) && da)? fabs(da / axis_max_vel[3]):0.0;
+    tb = (axis_valid(4) && db)? fabs(db / axis_max_vel[4]):0.0;
+    tc = (axis_valid(5) && dc)? fabs(dc / axis_max_vel[5]):0.0;
                            
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_velocity[6])): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_velocity[7])): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_velocity[8])): 0.0;
+    tu = (axis_valid(6) && du)? (du / axis_max_vel[6]): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / axis_max_vel[7]): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / axis_max_vel[8]): 0.0;
 
     //we have accel, check what the max_vel is that doesn't violate the centripetal accel=accel
     v1 = sqrt(circ_acc * radius);
@@ -1533,13 +1655,13 @@ void ARC_FEED(int line_number,
     // expression of the acceleration in the various directions.
 
     thelix = (helical_length / acc);
-    ta = (axis_valid(3) && da)? (da / FROM_EXT_ANG(axis_max_acceleration[3])): 0.0;
-    tb = (axis_valid(4) && db)? (db / FROM_EXT_ANG(axis_max_acceleration[4])): 0.0;
-    tc = (axis_valid(5) && dc)? (dc / FROM_EXT_ANG(axis_max_acceleration[5])): 0.0;
+    ta = (axis_valid(3) && da)? (da / axis_max_acc[3]): 0.0;
+    tb = (axis_valid(4) && db)? (db / axis_max_acc[4]): 0.0;
+    tc = (axis_valid(5) && dc)? (dc / axis_max_acc[5]): 0.0;
 
-    tu = (axis_valid(6) && du)? (du / FROM_EXT_LEN(axis_max_acceleration[6])): 0.0;
-    tv = (axis_valid(7) && dv)? (dv / FROM_EXT_LEN(axis_max_acceleration[7])): 0.0;
-    tw = (axis_valid(8) && dw)? (dw / FROM_EXT_LEN(axis_max_acceleration[8])): 0.0;
+    tu = (axis_valid(6) && du)? (du / axis_max_acc[6]): 0.0;
+    tv = (axis_valid(7) && dv)? (dv / axis_max_acc[7]): 0.0;
+    tw = (axis_valid(8) && dw)? (dw / axis_max_acc[8]): 0.0;
 
     tmax = MAX4(thelix, ta, tb, tc);
     tmax = MAX4(tmax, tu, tv, tw);
@@ -1547,6 +1669,17 @@ void ARC_FEED(int line_number,
     if (tmax > 0.0) {
         acc = helical_length / tmax;
     }
+    
+// TODO: COMPUTE JERKS
+    j1 = FROM_EXT_LEN(MIN3((du?emcAxisGetMaxJerk(6): 1e9),
+                           (dv?emcAxisGetMaxJerk(7): 1e9),
+                           (dw?emcAxisGetMaxJerk(8): 1e9)));
+    jerk = MIN (jerk, j1);
+
+    j1 = FROM_EXT_ANG(MIN3((da?emcAxisGetMaxJerk(3): 1e9),
+                           (db?emcAxisGetMaxJerk(4): 1e9),
+                           (dc?emcAxisGetMaxJerk(5): 1e9)));
+    jerk = MIN (jerk, j1);
 
     /* 
        mapping of rotation to turns:
@@ -1579,7 +1712,7 @@ void ARC_FEED(int line_number,
         linearMoveMsg.vel = toExtVel(vel);
         linearMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         linearMoveMsg.acc = toExtAcc(acc);
-        linearMoveMsg.jerk = 1.0;
+        linearMoveMsg.jerk = jerk;
         linearMoveMsg.indexrotary = -1;
         if(vel && acc){
             interp_list.set_line_number(line_number);
@@ -1622,13 +1755,7 @@ void ARC_FEED(int line_number,
         circularMoveMsg.vel = toExtVel(vel);
         circularMoveMsg.ini_maxvel = toExtVel(ini_maxvel);
         circularMoveMsg.acc = toExtAcc(acc);
-        circularMoveMsg.jerk = 1.0;
-
-	if(axis_len > 0.001)
-	  circularMoveMsg.acc /= sqrt(3.);
-	else
-	  circularMoveMsg.acc /= sqrt(2.);
-
+        circularMoveMsg.jerk = jerk;//TO_EXT_LEN(ini_maxjerk);
         if(vel && acc) {
             interp_list.set_line_number(line_number);
             interp_list.append(circularMoveMsg);
