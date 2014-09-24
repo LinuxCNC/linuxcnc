@@ -970,6 +970,31 @@ int sendFeedOverride(double override)
     return 0;
 }
 
+int sendRapidOverride(double override)
+{
+    EMC_TRAJ_SET_RAPID_SCALE emc_traj_set_scale_msg;
+
+    if (override < 0.0) {
+	override = 0.0;
+    }
+
+    if (override > 1.0) {
+	override = 1.0;
+    }
+
+    emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
+    emc_traj_set_scale_msg.scale = override;
+    emcCommandBuffer->write(emc_traj_set_scale_msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+	return emcCommandWaitReceived(emcCommandSerialNumber);
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+	return emcCommandWaitDone(emcCommandSerialNumber);
+    }
+
+    return 0;
+}
+
+
 int sendSpindleOverride(double override)
 {
     EMC_TRAJ_SET_SPINDLE_SCALE emc_traj_set_spindle_scale_msg;
