@@ -208,14 +208,23 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	int CNTR, old_CNTR;
 	int CNST;
 	hal_float_t hzcalc;
+	int freq_comp;
 	int freq, old_freq;
 	
 	// calculate and set frequency register, limit the freqency (upper and lower to VFD set parameters
 	mb_data->function = WRITE_FREQ_DATA;
 	mb_data->parameter = 0x00;
 	
+	if ((*(haldata->spindle_fwd) && !*(haldata->spindle_rev)) && *(haldata->spindle_on)) {
+		freq_comp = 1;
+	} else if ((*(haldata->spindle_rev) && !*(haldata->spindle_fwd)) && *(haldata->spindle_on)) {
+		freq_comp = -1;
+	} else {
+		freq_comp = 0;	
+	}
+
 	hzcalc = 50 / *(haldata->rated_motor_rev);
-	freq =  abs((int)(*(haldata->speed_command)*hzcalc*100));
+	freq =  abs((int)((*(haldata->speed_command)+freq_comp)*hzcalc*100));
 	
 	// limit the frequency to the max and min as setup in the VFD
 	if (freq > *(haldata->max_freq)*100)
