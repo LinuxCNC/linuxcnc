@@ -188,7 +188,7 @@ void usage(int argc, char **argv) {
 			"-n or --name <string> (default hy_vfd)\n"
 			"    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
 			"    and parameter names will begin with <string>.\n"
-			"-p or --parity {even,odd,none} (defalt even)\n"
+			"-p or --parity {even,odd,none} (default even)\n"
 			"    Set serial parity to even, odd, or none.\n"
 			"-r or --rate <n> (default 19200)\n"
 			"    Set baud rate to <n>.  It is an error if the rate is not one of the following:\n"
