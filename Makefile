@@ -4,12 +4,12 @@ MODINC := $(shell ./find-modinc)
 BINDIR := $(shell ./find-bindir)
 
 ifeq "$(MODINC)" ""
-$(error Required files for building components not present.  Install emc2-dev)
+$(error Required files for building components not present.  Install linuxcnc-dev)
 endif
 include $(MODINC)
 
 ifeq ($(RUN_IN_PLACE),no)
-EXTRA_CFLAGS += -I$(EMC2_HOME)/include/emc2
+EXTRA_CFLAGS += -I/include/linuxcnc
 LIBDIR := $(shell ./find-libdir)
 ifeq "$(LIBDIR)" ""
 $(error LIBDIR not found)
@@ -18,7 +18,7 @@ endif
 
 CFLAGS := $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os
 CFLAGS += $(shell pkg-config --cflags glib-2.0)
-LFLAGS := -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lemchal
+LFLAGS := -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal
 LFLAGS += $(shell pkg-config --libs glib-2.0)
 
 include .o/hy_vfd.d .o/hy_modbus.d

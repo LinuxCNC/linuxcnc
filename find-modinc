@@ -10,7 +10,7 @@ fi
 bindir="`dirname $comp`"
 prefix="`dirname $bindir`"
 
-for site in src etc/emc2 /etc/emc2 share/emc; do
+for site in src etc/linuxcnc /etc/linuxcnc share/linuxcnc; do
     modinc="$site/Makefile.modinc"
     fullpath="`(cd $prefix; readlink -f $modinc)`"
     if [ -f "$fullpath" ]; then

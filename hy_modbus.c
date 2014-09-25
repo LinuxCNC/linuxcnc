@@ -241,6 +241,7 @@ static unsigned int compute_response_length(modbus_param_t *mb_param,
 static int modbus_send(modbus_param_t *mb_param, uint8_t *query, int query_length )  
 {  
 	int ret;
+
 	unsigned short s_crc;
 	int i;
 	
@@ -715,9 +716,9 @@ int modbus_connect(modbus_param_t *mb_param)
 
            Timeouts are ignored in canonical input mode or when the
            NDELAY option is set on the file via open or fcntl */
-					   
+
         mb_param->fd = open(mb_param->device, O_RDWR | O_NOCTTY | O_NDELAY);
-		
+
         if (mb_param->fd < 0) {
                 perror("open");
                 printf("ERROR Can't open the device %s (errno %d)\n",
@@ -727,9 +728,8 @@ int modbus_connect(modbus_param_t *mb_param)
 
         /* Save */
         tcgetattr(mb_param->fd, &(mb_param->old_tios));
-
         memset(&tios, 0, sizeof(struct termios));
-        
+
         /* C_ISPEED     Input baud (new interface)
            C_OSPEED     Output baud (new interface)
         */
@@ -779,7 +779,7 @@ int modbus_connect(modbus_param_t *mb_param)
                 perror("cfsetispeed/cfsetospeed\n");
                 return -1;
         }
-        
+
         /* C_CFLAG      Control options
            CLOCAL       Local line - do not change "owner" of port
            CREAD        Enable receiver
@@ -950,5 +950,5 @@ int modbus_connect(modbus_param_t *mb_param)
                 return -1;
         }
 
-        return 0;
+	return 0;
 }

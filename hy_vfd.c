@@ -518,7 +518,7 @@ int main(int argc, char **argv)
 	stopbits = 1;
 	debug = TRUE;
 	device = "/dev/ttyS0";
-	parity = "none";
+	parity = "even";
 	slave = 1;
 
 	
@@ -629,15 +629,16 @@ int main(int argc, char **argv)
 		printf("%s: ERROR: hal_init failed\n", modname);
 		retval = hal_comp_id;
 		goto out_close;
-	}
+	} 
 	
 	/* grab some shmem to store the HAL data in */
 	haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
+
 	if ((haldata == 0) || done) {
 		printf("%s: ERROR: unable to allocate shared memory\n", modname);
 		retval = -1;
 		goto out_close;
-	}
+	} 
 
 	retval = hal_pin_bit_newf(HAL_IN, &(haldata->enable), hal_comp_id, "%s.enable", modname);
 	if (retval!=0) goto out_closeHAL;
@@ -716,7 +717,6 @@ int main(int argc, char **argv)
 	retval = hal_param_float_newf(HAL_RW, &(haldata->retval), hal_comp_id, "%s.retval", modname);
 	if (retval!=0) goto out_closeHAL;
 
-
 	/* make default data match what we expect to use */
 
 	*(haldata->enable) = 0;
@@ -745,15 +745,12 @@ int main(int argc, char **argv)
 	*(haldata->motor_pole_number) = 0;
 	*(haldata->rated_motor_rev) = 0;
 
-
 	*(haldata->modbus_ok) = 0;
 
 	mb_data.slave = slave;
-
 	haldata->errorcount = 0;
 	haldata->looptime = 0.1;
-	
-	
+
 	
 	//haldata->speed_tolerance = 0.01;  	//output frequency within 1% of target frequency
 	//haldata->motor_nameplate_hz = 50;	// folks in The Colonies typically would use 60Hz and 1730 rpm
@@ -765,11 +762,9 @@ int main(int argc, char **argv)
 	//haldata->old_dir = -1;
 	//haldata->old_err_reset = -1;
 	//haldata->failed_reg = 0;
-	hal_ready(hal_comp_id);
 
-	
+	hal_ready(hal_comp_id);
 	mb_data.slave = slave;
-	
 	
 	// wait until EMC and AXIS is ready, ie enable bit is set
 	while (!*(haldata->enable)){
@@ -778,7 +773,6 @@ int main(int argc, char **argv)
 	
 	// read the VFD setup parameters
 	retval = read_setup(&mb_param, &mb_data, haldata);
-	
 	// here's the meat of the program.  loop until done (which may be never)
 	while (done==0) {
 		
