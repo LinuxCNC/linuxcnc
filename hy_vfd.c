@@ -214,7 +214,7 @@ int write_data(modbus_param_t *mb_param, modbus_data_t *mb_data, haldata_t *hald
 	mb_data->function = WRITE_FREQ_DATA;
 	mb_data->parameter = 0x00;
 	
-	hzcalc = *(haldata->base_freq) / *(haldata->rated_motor_rev);
+	hzcalc = 50 / *(haldata->rated_motor_rev);
 	freq =  abs((int)(*(haldata->speed_command)*hzcalc*100));
 	
 	// limit the frequency to the max and min as setup in the VFD
