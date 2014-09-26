@@ -80,6 +80,7 @@ to another.
 #include "kinematics.h"
 #include "rtapi_limits.h"
 #include <stdarg.h>
+#include "simple_tp.h"
 
 
 // define a special value to denote an invalid motion ID 
@@ -508,10 +509,11 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double ferror;		/* following error */
 	double ferror_limit;	/* limit depends on speed */
 	double ferror_high_mark;	/* max following error */
-	double free_pos_cmd;	/* position command for free mode TP */
-	double free_vel_lim;	/* velocity limit for free mode TP */
-	int free_tp_enable;	/* if zero, joint stops ASAP */
-	int free_tp_active;	/* if non-zero, move in progress */
+	simple_tp_t free_tp;	/* planner for free mode motion */
+//	double free_pos_cmd;	/* position command for free mode TP */
+//	double free_vel_lim;	/* velocity limit for free mode TP */
+//	int free_tp_enable;	/* if zero, joint stops ASAP */
+//	int free_tp_active;	/* if non-zero, move in progress */
 	int kb_jog_active;	/* non-zero during a keyboard jog */
 	int wheel_jog_active;	/* non-zero during a wheel jog */
 

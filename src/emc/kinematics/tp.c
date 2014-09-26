@@ -586,10 +586,16 @@ int tpAddCircle(TP_STRUCT * tp, EmcPose end,
 }
 
 void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
-    double t, t1, vel, v1, dist, req_vel;
+    double t, t1, vel, acc, v1, dist, req_vel;
     int immediate_state;
     double tc_target;
     
+    static double ts, ti;
+    static double k, s6_a, s6_v, s6_p, error_d, prev_s, prev_v;
+    static double c1, c2, c3, c4, c5, c6;
+
+    double pi = 3.14159265359;
+
     tc_target = tc->target;
 
     immediate_state = 0;
@@ -736,9 +742,10 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
             tc->cur_accel = tc->cur_accel - tc->jerk;
             tc->cur_vel = tc->cur_vel + tc->cur_accel - 0.5 * tc->jerk;
             tc->progress = tc->progress + tc->cur_vel + 0.5 * tc->cur_accel - 1.0/6.0 * tc->jerk;
-           
-            // check accel == 0
-            if (tc->cur_accel <= 0) {
+
+            // check if (accel <= 0) at next BP
+            acc = tc->cur_accel - tc->jerk;
+            if (acc <= 0) {
                 tc->accel_state = ACCEL_S3;
                 break;
             }
@@ -751,7 +758,7 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
             // vel: velocity at next BP 
             vel = tc->cur_vel + tc->cur_accel - 1.5 * tc->jerk;
             if (vel > req_vel) {
-                tc->cur_vel = vel;
+                tc->cur_vel = req_vel;
                 tc->accel_state = ACCEL_S3;
                 break;
             } 
@@ -933,11 +940,32 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
                 req_vel = tc->maxvel;
             }
             if ((tc->cur_vel + tc->cur_accel * t + 0.5 * tc->jerk * t * t) <= req_vel) {
-                tc->accel_state = ACCEL_S6;
-//                DPS("S4: hit velocity rule; move to S6\n");
-                break;
+                if(tc->progress/tc->target < 0.9){
+                    tc->accel_state = ACCEL_S6;
+                }
+                else
+                {
+                    tc->accel_state = ACCEL_S7;
+                    s6_v = tc->cur_vel;
+                    s6_a = fabs(tc->cur_accel);
+                    s6_p = tc->progress;
+                    ts = floor((2*s6_v)/s6_a);
+                    k = s6_a*pi/(4*s6_v);
+                    error_d = tc->target - tc->progress - s6_v * s6_v / s6_a * (1-4/(pi*pi));
+                    prev_s = 0;
+                    prev_v = s6_v;
+                    c1 = -s6_a/4;
+                    c2 = s6_v+((error_d*s6_a)/(2*s6_v));
+                    c3 = s6_a/(8*k*k);
+                    c4 = 2*k;
+                    c5 = -(error_d*s6_a)/(8*k*s6_v);
+                    c6 = 4*k;
+                    ti = 1;
+                    break;
+                }
+
             }
-            
+
             break;
         
         case ACCEL_S5:
@@ -1003,8 +1031,29 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
                 req_vel = tc->maxvel;
             }
             if ((tc->cur_vel + tc->cur_accel * t + 0.5 * tc->jerk * t * t) <= req_vel) {
-                tc->accel_state = ACCEL_S6;
-                break;
+                if(tc->progress/tc->target < 0.9){
+                    tc->accel_state = ACCEL_S6;
+                }
+                else
+                {
+                    tc->accel_state = ACCEL_S7;
+                    s6_v = tc->cur_vel;
+                    s6_a = fabs(tc->cur_accel);
+                    s6_p = tc->progress;
+                    ts = floor((2*s6_v)/s6_a);
+                    k = s6_a*pi/(4*s6_v);
+                    error_d = tc->target - tc->progress - s6_v * s6_v / s6_a * (1-4/(pi*pi));
+                    prev_s = 0;
+                    prev_v = s6_v;
+                    c1 = -s6_a/4;
+                    c2 = s6_v+((error_d*s6_a)/(2*s6_v));
+                    c3 = s6_a/(8*k*k);
+                    c4 = 2*k;
+                    c5 = -(error_d*s6_a)/(8*k*s6_v);
+                    c6 = 4*k;
+                    ti = 1;
+                    break;
+                }
             }
 
             break;
@@ -1013,11 +1062,20 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
             // AT = AT + JT
             // VT = VT + AT + 1/2JT
             // PT = PT + VT + 1/2AT + 1/6JT
+            req_vel = tc->reqvel * tc->feed_override * tc->cycle_time;
+            if (req_vel > tc->maxvel) {
+                req_vel = tc->maxvel;
+            }
+
             tc->cur_accel = tc->cur_accel + tc->jerk;
             tc->cur_vel = tc->cur_vel + tc->cur_accel + 0.5 * tc->jerk;
-            if (tc->cur_vel <= 0) {
-                tc->cur_accel = 0;
-                tc->cur_vel = 0.5 * tc->jerk;   // give some velocity for approaching target
+
+            if (tc->cur_vel <= req_vel) {
+                tc->accel_state = ACCEL_S3;
+                if ((req_vel - tc->cur_vel) < 1.5*tc->jerk) {
+                    // align to req_vel only when not changing feed_override
+                    tc->cur_vel = req_vel;
+                }
             }
             dist = tc->cur_vel + 0.5 * tc->cur_accel + 1.0/6.0 * tc->jerk;
             tc->progress = tc->progress + dist;
@@ -1025,7 +1083,27 @@ void tcRunCycle(TP_STRUCT *tp, TC_STRUCT *tc, double *v, int *on_final_decel) {
             if (tc->cur_accel >= 0) {
                 tc->accel_state = ACCEL_S3;
             }
-            
+
+            break;
+
+        case ACCEL_S7:
+            // decel to target position based on Jofey's algorithm
+
+            if(ti <= ts){
+                dist = c1*ti*ti + c2*ti + c3*cos(c4*ti) + c5*cos(c6*ti-0.5*pi) - c3;
+                tc->cur_vel = dist - prev_s;
+                tc->cur_accel = tc->cur_vel - prev_v;
+                prev_s = dist;
+                prev_v = tc->cur_vel;
+                tc->progress = s6_p + dist;
+                ti = ti + 1;
+            }
+            else {
+                tc->cur_vel = 0;
+                tc->cur_accel = 0;
+                tc->progress = tc->target;
+                tc->accel_state = ACCEL_S3;
+            }
             break;
         
         default:

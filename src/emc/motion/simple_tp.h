@@ -7,8 +7,6 @@
 * System: Linux
 *
 * Copyright (c) 2004 All rights reserved
-*
-* Last change:
 ********************************************************************/
 
 /*  simple_tp.c and simple_tp.h define a simple, single axis trajectory
@@ -21,19 +19,43 @@
 #ifndef SIMPLE_TP_H
 #define SIMPLE_TP_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+enum acc_state_type {
+  ACC_S0 = 0, // 0
+  ACC_S1,     // 1
+  ACC_S2,     // 2
+  ACC_S3,     // 3
+  ACC_S4,     // 4
+  ACC_S5,     // 5
+  ACC_S6,     // 6
+  ACC_IDLE,
+};
 
-    typedef struct simple_tp_t {
-	double pos_cmd;		/* position command */
-	double max_vel;		/* velocity limit */
-	double max_acc;		/* acceleration limit */
-	int enable;		/* if zero, motion stops ASAP */
-	double curr_pos;	/* current position */
-	double curr_vel;	/* current velocity */
-	int active;		/* non-zero if motion in progress */
-    } simple_tp_t;
+typedef struct simple_tp_t {
+    int enable;
+    int active;
+    double pos_cmd;
+    double vel_cmd;
+
+    double max_vel;
+    double max_acc;
+    double jerk;
+
+    double curr_pos;
+    double start_pos;
+    double curr_vel;         // keep track of current step (vel * cycle_time)
+    double curr_acc;       // keep track of current acceleration
+
+    double cycle_time;
+    double target;          // segment length
+    double distance_to_go;  // distance to go for target target..0
+    double s3s4_pos;
+    int s4;
+
+    double tolerance;
+//    double feed_override;
+    int aborting;
+    enum acc_state_type accel_state;
+} simple_tp_t;
 
 /* I could write a bunch of functions to read and write the first four
    structure members, and to read the last three, but that seems silly.
@@ -51,9 +73,9 @@ extern "C" {
 */
 
 extern void simple_tp_update(simple_tp_t *tp, double period);
+extern double simple_tp_get_curr_vel(simple_tp_t *tp);
+extern void simple_tp_jog_cont(simple_tp_t *tp, double pos_cmd, double vel_cmd, double max_vel, double max_acc, double max_jerk);
+extern void simple_tp_jog_abort(simple_tp_t *tp);
+extern void simple_tp_setCycleTime(simple_tp_t *tp, double secs);
 
-
-#ifdef __cplusplus
-}
-#endif
 #endif	/* SIMPLE_TP_H */

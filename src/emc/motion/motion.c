@@ -955,6 +955,7 @@ static int init_comm_buffers(void)
 	joint->home_flags = 0;
 	joint->home_sequence = -1;
 	joint->backlash = 0.0;
+	joint->free_tp.accel_state = ACC_IDLE;
 
 	joint->comp.entries = 0;
 	joint->comp.entry = &(joint->comp.array[0]);
@@ -1211,6 +1212,7 @@ static int setServoCycleTime(double secs)
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
 	cubicSetSegmentTime(&(joints[t].cubic), secs);
+	simple_tp_setCycleTime(&(joints[t].free_tp), secs);
     }
 
     /* copy into status out */
