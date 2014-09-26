@@ -95,28 +95,28 @@ working with.
 Let's use this editor to add a differential module to a HAL and
 connect it to axis position so that we could see the rate of change in
 position, i.e., acceleration. We first need to load a HAL component named
-blocks, add it to the servo thread, then connect it to the position pin
+ddt, add it to the servo thread, then connect it to the position pin
 of an axis. Once that is done we can find the output of the
 differentiator in halscope. So let's go. (Yes, I looked this one up.)
 
 ----
-loadrt blocks ddt=1
+loadrt ddt
 ----
 
-Now look at the components node and you should see blocks in there
+Now look at the components node and you should see ddt in there
 someplace.
 
 ----
-Loaded HAL Components: 
-ID Type        Name 
-10 User halcmd29800 
-09 User halcmd29374 
-08   RT      blocks 
-06   RT hal_parport 
-05   RT    scope_rt 
-04   RT     stepgen 
-03   RT      motmod 
-02 User   iocontrol 
+Loaded HAL Components:
+ID Type        Name
+10 User halcmd29800
+09 User halcmd29374
+08   RT         ddt
+06   RT hal_parport
+05   RT    scope_rt
+04   RT     stepgen
+03   RT      motmod
+02 User   iocontrol
 ----
 
 Sure enough there it is. Notice that its ID is 08. Next we need to
@@ -138,7 +138,7 @@ Owner  CodeAddr      Arg  FP Users Name
   04   E0B614AD E0DC7448 YES     1 stepgen.update-freq 
 ----
 
-Here we look for owner #08 and see that blocks has exported a function
+Here we look for owner #08 and see a function
 named ddt.0. We should be able to add ddt.0 to the servo thread and it
 will do its math each time the servo thread is updated. Once again we
 look up the addf command and find that it uses three arguments like
@@ -165,7 +165,7 @@ halshow after this command has been issued.
 
 image::images/halshow-2.png[align="center"]
 
-Next we need to connect this block to something. But how do we know
+Next we need to connect ddt to something. But how do we know
 what pins are available? The answer is to look under pins. There we
 find ddt and see this:
 

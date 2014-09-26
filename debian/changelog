@@ -24,8 +24,6 @@ linuxcnc (1:2.6.3) precise; urgency=low
   * build system: misc minor portability fixes
   * tests: no need to track var file
 
-  * 
-
  -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 05 Sep 2014 18:53:11 -0600
 
 linuxcnc (1:2.6.2) precise; urgency=low

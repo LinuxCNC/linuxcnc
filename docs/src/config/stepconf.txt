@@ -77,18 +77,18 @@ drive requirements to allow for this.
 The LinuxCNC Configuration Selector has configs for Sherline already configured.
 
 * 'Step Time' - How long the step pulse is 'on' in nano seconds. If your not
-sure about this setting a value of 10,000 will work with most drives.
+sure about this setting a value of 20,000 will work with most drives.
 
 * 'Step Space' - Minimum time between step pulses in nano seconds. If your
-not sure about this setting a value of 10,000 will work with most drives.
+not sure about this setting a value of 20,000 will work with most drives.
 
 * 'Direction Hold' - How long the direction pin is held after a change of
 direction in nanoseconds. If your not sure about this setting a value of
-200,000 will work with most drives.
+20,000 will work with most drives.
 
 * 'Direction Setup' - How long before a direction change after the last
 step pulse in nanoseconds.  If your not sure about this setting a value of
-200,000 will work with most drives.
+20,000 will work with most drives.
 
 * 'First Parport' - Usually the default of 0x378 is correct. 
 
