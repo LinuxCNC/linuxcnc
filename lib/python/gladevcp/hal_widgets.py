@@ -83,10 +83,30 @@ class _HalSensitiveBase(_HalWidgetBase):
 class _HalJogWheelBase(_HalWidgetBase):
     def _hal_init(self):
         self.hal_pin = self.hal.newpin(self.hal_name, hal.HAL_S32, hal.HAL_OUT)
+        try:
+            self.get_scaled_value()
+            self.hal_pin_scaled = self.hal.newpin(self.hal_name+'-scaled', hal.HAL_FLOAT, hal.HAL_OUT)
+        except:
+            pass
+        try:
+            self.get_delta_scaled_value()
+            self.hal_pin_delta_scaled = self.hal.newpin(self.hal_name+'-delta-scaled', hal.HAL_FLOAT, hal.HAL_OUT)
+        except:
+            pass
 
     def hal_update(self, *a):
         data = self.get_value()
         self.hal_pin.set(int(data))
+        try:
+            data = self.get_scaled_value()
+            self.hal_pin_scaled.set(float(data))
+        except:
+            pass
+        try:
+            data = self.get_delta_scaled_value()
+            self.hal_pin_delta_scaled.set(float(data))
+        except:
+            pass
 
 """ Real widgets """
 

@@ -27,6 +27,7 @@ from hal_gremlin import HAL_Gremlin
 from hal_graph import HAL_Graph
 
 from jogwheel import JogWheel
+from hal_dial import Hal_Dial
 
 from hal_actions import *
 from hal_filechooser import *
