@@ -680,6 +680,105 @@ see above.
 Example SpinButton:
 image:images/spinbutton.png[]
 .
+
+[[gladevcp:Hal_Dial]]
+=== Hal_Dial
+
+The hal_dial widget simulates a jogwheel or adjustment dial. +
+It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the Hal_Dial widget, +
+or you hold the left mouse button and move the cursor in circular direction to increase or degrease the counts. +
+By double clicking the left or right button the scale factor can be increased or decreased. +
+
+ * Counterclockwise   = reduce counts
+ * Clockwise          = increase counts
+ * Wheel up           = increase counts
+ * Wheel down         = reduce counts
+ * left Double Click  = x10 scale
+ * Right Double Click = /10 scale
+
+====
+Hal_Dial exports it's count value as hal pins:
+
+<widgetname>::
+	 out S32 pin
+<widgetname>-scaled::
+	 out FLOAT pin
+<widgetname>-delta-scaled::
+	 out FLOAT pin
+====
+It has the following properties:
+=====
+cpr::
+    Sets the Counts per Revolution, allowed values are in the range from 25 to 360 +
+    default = 100
+show_counts::
+    Set this to False, if you want to hide the counts display in the middle of the widget. +
+    default = True
+label::
+    Set the content of the label witch may be shown over the counts value. +
+    If the label given is longer than 15 Characters, it will be cut to 15 Characters. +
+    default = blank
+center_color::
+    This allows one to change the color of the wheel. It uses a GDK color string. +
+    default = #bdefbdefbdef (gray)
+count_type_shown::
+    There are three counts available 0) Raw CPR counts 1) Scaled counts 2) Delta scaled counts. +
+    default = 1
+ * count is based on the CPR selected - it will count positive and negative. It is available as a S32 pin. +
+ * Scaled-count is CPR count times the scale - it can be positive and negative. +
+    If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin. +
+ * Delta-scaled-count is cpr count CHANGE, times scale. +
+    If you change the scale, only the counts after that change will be scaled and then added to the current value. +
+    It is available as a FLOAT pin.
+scale_adjustable::
+    Set this to False if you want to disallow scale changes by double clicking the widget. +
+    If this is false the scale factor will not show on the widget. +
+    default = True
+scale::
+    Set this to scale the counts. +
+    default = 1.0
+=====
+
+Direct program control::
+======
+    There are ways to directly control the widget using Python.
+
+    Using goobject to set the above listed properties:
+        [widget name].set_property("cpr",int(value))
+        [widget name].set_property("show_counts, True)
+        [widget name].set_property("center_color",gtk.gdk.Color('#bdefbdefbdef'))
+        [widget name].set_property('label', 'Test Dial 12345')
+        [widget name].set_property('scale_adjustable', True)
+        [widget name].set_property('scale', 10.5)
+        [widget name].set_property('count_type_shown', 0)
+
+    There are python methods:
+        [widget name].get_value()
+            Will return the counts value as a s32 integer
+        [widget name].get_scaled_value()
+            Will return the counts value as a float
+        [widget name].get_delta_scaled_value()
+            Will return the counts value as a float
+        [widget name].set_label("string")
+            Sets the label content with "string"
+
+    There are two GObject signals emitted:
+        count_changed
+            emitted when the widget's count changes eg. from being wheel scrolled.
+        scale_changed
+            emitted when the widget's scale changes eg. from double clicking. +
+        connect to these like so:
+            [widget name].connect('count_changed', [count function name])
+            [widget name].connect('scale_changed', [scale function name]) +
+        The callback functions would use this pattern:
+            def [count function name](widget, count,scale,delta_scale):
+        This will return: the widget, the current count, scale and delta scale of that widget.
+
+====== 
+Example Hal_Dial:
+
+image::images/Hal_Dial.png[] 
+
 [[gladevcp:JogWheel]]
 === Jog Wheel
 
