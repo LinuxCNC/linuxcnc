@@ -97,9 +97,11 @@ Declarations include:
 * 'option OPT (VALUE);'
 * 'variable CTYPE STARREDNAME ([SIZE]);'
 * 'description DOC;'
+* 'notes DOC;'
 * 'see_also DOC;'
 * 'license LICENSE;'
 * 'author AUTHOR;'
+* 'include HEADERFILE;'
 
 Parentheses indicate optional items. A vertical bar indicates
 alternatives. Words in 'CAPITALS' indicate variable text, as follows:
@@ -199,6 +201,12 @@ to set the italic font for the word 'example', write:
 * 'STARTVALUE' - Specifies the initial value of a pin or parameter. If it is not
     specified, then the default is '0' or 'FALSE', depending on the type of
     the item.
+
+* 'HEADERFILE' - The name of a header file, either in double-quotes
+    (`include "myfile.h";`) or in angle brackets (`include
+    <systemfile.h>;`).  The header file will be included (using
+    C's #include) at the top of the file, before pin and parameter
+    declarations.
 
 === HAL functions
 
