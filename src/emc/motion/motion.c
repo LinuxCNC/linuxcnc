@@ -1211,6 +1211,7 @@ static int setServoCycleTime(double secs)
 	cubicSetInterpolationRate(&(joints[t].cubic),
 	    emcmotConfig->interpolationRate);
 	cubicSetSegmentTime(&(joints[t].cubic), secs);
+	simple_tp_setCycleTime(&(joints[t].free_tp), secs);
     }
 
     /* copy into status out */

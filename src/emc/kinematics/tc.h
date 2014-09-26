@@ -73,7 +73,8 @@ enum state_type {
   ACCEL_S3,     // 3
   ACCEL_S4,     // 4
   ACCEL_S5,     // 5
-  ACCEL_S6      // 6
+  ACCEL_S6,     // 6
+  ACCEL_S7      // 7
 };
 
 typedef struct {
