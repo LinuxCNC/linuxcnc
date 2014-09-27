@@ -23,14 +23,20 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
                     5, 30, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_blink_rate' : ( gobject.TYPE_INT, 'Blink rate',  'Led blink rate (ms)',
                     100, 1000, 500, gobject.PARAM_READWRITE),
+        'blink_when_off' : ( gobject.TYPE_BOOLEAN, 'Blink when off', 'Choose to blink while in on state (No) or off state (Yes)',
+                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'pick_color_on'  : ( gtk.gdk.Color.__gtype__, 'Pick on color',  "",
                     gobject.PARAM_READWRITE),
         'pick_color_off' : ( gtk.gdk.Color.__gtype__, 'Pick off color', "",
                         gobject.PARAM_READWRITE),
+        'pick_color_blink' : ( gtk.gdk.Color.__gtype__, 'Pick blink color', "",
+                        gobject.PARAM_READWRITE),
         'on_color'  : ( gobject.TYPE_STRING, 'LED On color', 'Use any valid Gdk color',
-                        "red", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                        "green", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'off_color' : ( gobject.TYPE_STRING, 'LED OFF color', 'Use any valid Gdk color or "dark"',
-                        "dark", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT)
+                        "red", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'blink_color' : ( gobject.TYPE_STRING, 'LED blink color', 'Use any valid Gdk color or "dark"',
+                        "black", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT)
     }
     __gproperties = __gproperties__
 
@@ -42,18 +48,21 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self._dia = 10
         self._blink_active = False
         self._blink_state = False
+        self._blink_invert = False
         self._blink_magic = 0
         self.set_size_request(25, 25)
         self.connect("expose-event", self.expose)
 
         self.led_blink_rate = None
-        self.pick_color_on = self.pick_color_off = None
-        self.on_color = 'red'
-        self.off_color = 'dark'
+        self.pick_color_on = self.pick_color_off = self.pick_color_blink = None
+        self.on_color = 'green'
+        self.off_color = 'red'
+        self.blink_color = 'black'
         self.has_hal_pin = True
 
-        self.set_color('on', gtk.gdk.Color(red=0xffff))
+        self.set_color('on', self.on_color)
         self.set_color('off', self.off_color)
+        self.set_color('blink', self.blink_color)
 
     # This method draws our widget
     # depending on self.state, self.blink_active, self.blink_state and the sensitive state of the parent
@@ -67,10 +76,21 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         cr.set_source_rgba(0, 0, 0, alpha)
 
         if self.is_on:
-            if self._blink_active == False or self._blink_active == True and self._blink_state == True:
+            if self._blink_active == False:
                 color = self._on_color
+            elif self._blink_invert == True:
+                color = self._on_color
+            elif self._blink_state == False:
+                color = self._blink_color
             else:
-                color = self._off_color
+                color = self._on_color
+
+        elif self._blink_active == False:
+            color = self._off_color
+        elif self._blink_invert == False:
+            color = self._off_color
+        elif self._blink_state == True:
+            color = self._blink_color
         else:
             color = self._off_color
 
@@ -155,6 +175,8 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             self._off_color = color
         elif state == "on":
             self._on_color = color
+        elif state == "blink":
+            self._blink_color = color
 
         if state == 'on' and getattr(self, 'off_color') == 'dark':
             self.set_color('off', 'dark')
@@ -181,7 +203,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
 
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
-        if name in ['on_color', 'off_color']:
+        if name in ['on_color', 'off_color','blink_color']:
             mode = name.split('_')[0]
             if getattr(self, 'pick_color_%s' % mode, None):
                 return False
@@ -190,14 +212,15 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             except:
                 print "Invalid %s color value: %s" % (mode, value)
                 return False
-        elif name in ['pick_color_on', 'pick_color_off']:
+        elif name in ['pick_color_on', 'pick_color_off','pick_color_blink']:
             mode = name.split('_')[-1]
             if not value:
                 return False
             self.set_color(mode, value)
         elif name == 'led_blink_rate':
             self.set_blink_rate(value)
-
+        elif name == 'blink_when_off':
+            self._blink_invert = value
         if name == 'led_size':
             self._dia = value
         elif name in self.__gproperties.keys():
@@ -212,5 +235,6 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
             _HalSensitiveBase._hal_init(self)
         self.set_color('on',  self.pick_color_on or self.on_color)
         self.set_color('off', self.pick_color_off or self.off_color)
+        self.set_color('blink', self.pick_color_blink or self.blink_color)
         if self.led_blink_rate:
             self.set_blink_rate(self.led_blink_rate)
