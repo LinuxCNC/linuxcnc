@@ -22,7 +22,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         'led_size'  : ( gobject.TYPE_INT, 'Size', 'size of LED',
                     5, 30, 10, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'led_blink_rate' : ( gobject.TYPE_INT, 'Blink rate',  'Led blink rate (ms)',
-                    100, 1000, 500, gobject.PARAM_READWRITE),
+                    0, 1000, 0, gobject.PARAM_READWRITE),
         'blink_when_off' : ( gobject.TYPE_BOOLEAN, 'Blink when off', 'Choose to blink while in on state (No) or off state (Yes)',
                     False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
         'pick_color_on'  : ( gtk.gdk.Color.__gtype__, 'Pick on color',  "",
@@ -53,7 +53,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self.set_size_request(25, 25)
         self.connect("expose-event", self.expose)
 
-        self.led_blink_rate = None
+        self.led_blink_rate = 0
         self.pick_color_on = self.pick_color_off = self.pick_color_blink = None
         self.on_color = 'green'
         self.off_color = 'red'
@@ -142,6 +142,7 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         if rate == 0:
             self._blink_active = False
         else:
+            if rate < 100:rate = 100
             self._blink_active = True
             self._blink_magic += 1
             self._blink_timer = gobject.timeout_add(rate, self.blink, self._blink_magic)
@@ -236,5 +237,5 @@ class HAL_LED(gtk.DrawingArea, _HalSensitiveBase):
         self.set_color('on',  self.pick_color_on or self.on_color)
         self.set_color('off', self.pick_color_off or self.off_color)
         self.set_color('blink', self.pick_color_blink or self.blink_color)
-        if self.led_blink_rate:
+        if self.led_blink_rate>100:
             self.set_blink_rate(self.led_blink_rate)

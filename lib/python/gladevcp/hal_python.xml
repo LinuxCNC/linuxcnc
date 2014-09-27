@@ -24,7 +24,7 @@ domain="glade-3" depends="gtk+">
         <property id="has_hal_pin"  weight ="3"/>
         <property id="led_shape"  weight ="4"/>
         <property id="led_size"  weight ="5"/>
-        <property id="led_blink_rate" weight ="6" optional="True" save-always='True'/>
+        <property id="led_blink_rate" weight ="6" save-always='True'/>
         <property id="pick_color_on"  weight ="7" optional="True"/>
         <property id="pick_color_off" weight ="8" optional="True"/>
         <property id="pick_color_blink"  weight ="9" optional="True"/>
