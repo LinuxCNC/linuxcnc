@@ -311,6 +311,16 @@ proc load_packages {} {
     progress "Delay for realtime startup"
     after 1000 ;# wait to load Hal package
   }
+
+  # augment ::auto_path for special case:
+  # 1) RIP build (no install)
+  # 2) linuxcnc script called from Application menu
+  if {   [info exists ::env(LINUXCNC_TCL_DIR)]
+      && ([lsearch $::auto_path $::env(LINUXCNC_TCL_DIR)] < 0)
+     } {
+     # prepend
+     set ::auto_path [lreplace $::auto_path 0 -1 $::env(LINUXCNC_TCL_DIR)]
+  }
   if [catch {package require Hal} msg] {
     puts $msg
     puts "For a RIP linuxcnc build, source rip-environment in this shell"

@@ -103,22 +103,25 @@ while true ; do
 done
 
 cd $(dirname "$HALFILE") ;# so HALFILE can source relative files
-halmsg=$(halcmd -f $HALFILE 2>&1)
+
+halmsg=/tmp/pyvcp_demo_halcmd.err
+>|$halmsg
+halcmd -f $HALFILE >$halmsg 2>&1
 halstatus=$?
 if [ $halstatus != 0 ] ; then
   IFS=$'\n' # split lines
   newmsg=
   # put extra blank line between lines of output
-  for line in $halmsg ; do
+  for line in $(cat $halmsg) ; do
 newmsg="$newmsg
 $line
 "
   done
   popup "$newmsg"
   kill $pyvcpjob
+  halrun -U
   exit 1
 fi
-
 wait $pyvcpjob
 halrun -U
 exit 0

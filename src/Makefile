@@ -252,6 +252,7 @@ INFILES = \
 	 ../lib/python/nf.py \
 	../share/desktop-directories/cnc.directory ../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
+	../share/applications/linuxcnc-latency.desktop \
 	../scripts/linuxcnc_var \
 
 $(INFILES): %: %.in config.status
@@ -513,6 +514,7 @@ install:
 MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory \
     ../share/applications/linuxcnc.desktop \
+    ../share/applications/linuxcnc-latency.desktop \
 
 install-menus install-menu: $(MENUS)
 	mkdir -p $(HOME)/.config/menus/applications-merged

@@ -8,6 +8,8 @@ LAYOUT=${1:-""}
 
 [ -x "$(which $COLORTERM)" ] && TERM=$COLORTERM
 [ -z $TERM ] && TERM=xterm
+# when inoked from Application menu and RIP, may have TERM=dumb
+[ x"$TERM" = xdumb ] && TERM=xterm
 
 XHC_HB04=$(which xhc-hb04)
 

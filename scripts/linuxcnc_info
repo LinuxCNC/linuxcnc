@@ -1,6 +1,8 @@
 #!/bin/bash
+
 # This script creates a file in /tmp and
-# opens it with $EDITOR
+# opens it with first visual editor found in a search list for editors
+
 # Copyright: 2014
 # Author:    Dewey Garrett <dgarrett@panix.com>
 #
@@ -19,13 +21,19 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ofile=/tmp/linuxcnc.info
-
 # all output
 exec 1>$ofile
 exec 2>&1
 
-[ -x $(which $VISUAL) ] && EDITOR=$VISUAL
-[ -z $EDITOR ] && EDITOR=gedit
+# try to find a visual editor to show created file
+# use list with existing preference first, then other common editors
+editors="$VISUAL gedit mousepad geany nedit gvim abiword"
+for e in $editors ; do
+  if [  -x "$(which $e)" ] ; then
+    VIEWER=$e
+    break #use first editor found
+  fi
+done
 
 function show () {
   if [ -z "$1" ] ; then
@@ -67,6 +75,9 @@ in order to provide information about the linuxcnc
 system and configuration.
 
 EOF
+
+echo VIEWER=$VIEWER
+
 show "            Date" $(date)
 show "        UTC Date" $(date -u)
 show "    this program" $0
@@ -117,4 +128,4 @@ for n in $(linuxcnc_var all) ; do
    show "${n%%=*}" ${n##*=}
 done
 
-$EDITOR $ofile
+[ -n $VIEWER ] && $VIEWER "$ofile"

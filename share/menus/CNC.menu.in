@@ -6,9 +6,8 @@
     <Name>CNC</Name>
     <Directory>cnc.directory</Directory>
     <Include>
-	<Filename>emc.desktop</Filename>
-	<Filename>emc-latency.desktop</Filename>
-	<Filename>emc-latencyplot.desktop</Filename>
+	<Filename>linuxcnc.desktop</Filename>
+	<Filename>linuxcnc-latency.desktop</Filename>
     </Include>
     <AppDir>@EMC2_HOME@/share/applications</AppDir>
     <DirectoryDir>@EMC2_HOME@/share/desktop-directories</DirectoryDir>
