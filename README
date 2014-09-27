@@ -45,6 +45,7 @@ From the top level directory, switch to the source directory:
 
 In the source directory, build LinuxCNC:
 
+  ./autogen.sh
   ./configure
   [or, if you do not have a realtime kernel:]
   ./configure --enable-simulator
