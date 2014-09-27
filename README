@@ -46,8 +46,10 @@ From the top level directory, switch to the source directory:
 In the source directory, build LinuxCNC:
 
   [for rtai]
+  ./autogen.sh
   ./configure
   [or, for PREEMPT-rt or vanilla kernels:]
+  ./autogen.sh
   ./configure --with-realtime=uspace
 
   make clean
