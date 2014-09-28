@@ -81,6 +81,7 @@ DOC_SRCS_EN := \
 	gui/selector.txt \
 	gui/axis.txt \
 	gui/gladevcp.txt \
+	gui/gscreen.txt \
 	gui/halui.txt \
 	gui/image-to-gcode.txt \
 	gui/keystick.txt \
