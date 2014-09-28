@@ -883,6 +883,7 @@ ifeq ($(BUILD_EMCWEB),yes)
 	$(FILE) ../www/*html $(DESTDIR)$(datadir)/linuxcnc/doc-root/
 endif
 	$(FILE) ../etc/linuxcnc/machinekit.ini $(DESTDIR)$(sysconfdir)/linuxcnc
+	$(EXE) ../bin/profile_axis $(DESTDIR)$(bindir)
 
 ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
@@ -926,6 +927,12 @@ install-python: install-dirs
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
 	$(FILE) ../lib/python/machinekit/config.py $(DESTDIR)$(LIB_DIR)/python/machinekit/
+	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gremlin $(DESTDIR)$(bindir)
+	$(EXE) ../bin/lintini $(DESTDIR)$(bindir)
+	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
+	$(EXE) ../bin/tracking-test $(DESTDIR)$(bindir)
+	$(EXE) ../bin/yapps $(DESTDIR)$(bindir)
 endif
 
 install-kernel-dep: install-dirs
