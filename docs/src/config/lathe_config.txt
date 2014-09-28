@@ -19,12 +19,14 @@ in the preamble of the g code file.
 == INI Settings
 
 The following .ini settings are needed for lathe mode in Axis in addition to
-or replacing normal settings in the .ini file.
+or replacing normal settings in the .ini file. Gmoccapy uses also the mentioned
+settings, but does offer additional settings, check the <<cha:gmoccapy,gmoccapy>> Section for details.
 
 ----
 [DISPLAY]
 DISPLAY = axis
 LATHE = 1
+
 [TRAJ]
 AXES = 3
 COORDINATES = X Z

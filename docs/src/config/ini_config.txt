@@ -187,14 +187,16 @@ is .inc.  Do not use a file extension of .ini for included files.
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. The main two interfaces
-for LinuxCNC are AXIS and Touchy. Axis is an interface for use with normal
-computer and monitor, Touchy is for use with touch screens.
+for LinuxCNC are AXIS and Touchy. There are several newer interfaces, 
+like gmoccapy and gscreen. Axis is an interface for use with normal
+computer and monitor, Touchy is for use with touch screens. Gmoccapy 
+can be used both ways and offers also many connections for hardware controls. 
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
 * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-    may include: axis,(((axis))) touchy,(((touchy))) keystick,(((keystick)))
-    mini,(((mini))) tklinuxcnc,(((tkLinuxCNC))) xemc,(((xemc)))
+    may include: 'axis',(((axis))) 'touchy',(((touchy))) 'gmoccapy',(((gmoccapy))) 'gscreen',(((gscreen))) 'keystick',(((keystick)))
+    'mini',(((mini))) 'tklinuxcnc',(((tkLinuxCNC))) 'xemc',(((xemc)))
 
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE) to show when the user
     interface starts. The RELATIVE coordinate system reflects the G92 and
@@ -231,7 +233,7 @@ User Manual.
    polls.
 
 [NOTE]
-The following [DISPLAY] items are for the AXIS interface only.
+The following [DISPLAY] items are for the AXIS interface only, many of them are used also from gmoccapy, see the <<cha:gmoccapy,gmoccapy>> document for details.
 
 * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in ,
    <<sub:TRAJ-section,machine units>> per second.

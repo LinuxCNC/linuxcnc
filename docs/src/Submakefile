@@ -80,6 +80,7 @@ DOC_SRCS_EN := \
 	gcode/tool_compensation.txt \
 	gui/selector.txt \
 	gui/axis.txt \
+        gui/gmoccapy.txt \
 	gui/gladevcp.txt \
 	gui/gscreen.txt \
 	gui/halui.txt \
