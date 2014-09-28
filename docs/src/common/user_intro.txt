@@ -54,6 +54,12 @@ interfaces:
 
 image::images/axis-2.5.png[align="center"]
 
+* <<cha:gmoccapy,'gmoccapy'>>, A industrial like GUI.
+
+.Gmoccapy[[fig:Gmoccapy]]
+
+image::images/gmoccapy_4_axis.png[align="center"]
+
 * <<cha:touchy-gui,'Touchy'>>, a touch screen GUI.
 
 .Touchy GUI[[fig:touchy-gui]]
