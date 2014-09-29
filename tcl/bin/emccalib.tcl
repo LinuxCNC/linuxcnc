@@ -145,7 +145,9 @@ set endline $sectionarray([lindex $sectionlist [expr [lsearch -exact $sectionlis
 set halfilelist ""
 for {set i $startline} {$i < $endline} {incr i} {
     set thisstring [$initext get $i.0 $i.end]
-    if { [lindex $thisstring 0] == "HALFILE" } {
+    if {   [lindex $thisstring 0] == "HALFILE"
+        || [lindex $thisstring 0] == "POSTGUI_HALFILE"
+       } {
         set thishalname [lindex $thisstring end]
         lappend halfilelist $thisconfigdir/$thishalname
     }
