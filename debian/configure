@@ -7,6 +7,16 @@
 # List of supported kernel arches for kthreads
 KTHREAD_ARCHES="i386 amd64"
 
+# Distro info
+#
+# This should run on non-Debian distros; lsb_release is only used for
+# TCL/TK version detection, which can be passed in through the '-t
+# VERSION' switch
+if test -x /usr/bin/lsb_release; then
+    DISTRO_ID=$(lsb_release -is)  # Debian or Ubuntu 
+    DISTRO_RELEASE=$(lsb_release -rs)   # 8.1, 14.04, etc.
+fi
+
 # Work out of the debian/ directory
 cd "$(dirname $0)"
 
@@ -165,6 +175,22 @@ do_docs() {
     echo "debian/rules:  enabled doc builds" >&2
 }
 
+do_tcl_tk_version() {
+    TCL_TK_VER="$1"
+    if test -z "$TCL_TK_VER"; then
+        # No -t option specified; to ensure a reproducible package,
+        # use the latest version from the distro
+	TCL_TK_VER=8.6
+	case "$DISTRO_ID" in
+	    Debian)  test "${DISTRO_RELEASE/.*/}" -lt 8 && TCL_TK_VER=8.5 ;;
+	    Ubuntu)  test "${DISTRO_RELEASE/.*/}" -lt 14 && TCL_TK_VER=8.5 ;;
+	    *)  usage "Unknown distro '${DISTRO_ID}'" ;;
+	esac
+    fi
+    TCL_TK_BUILD_DEPS="tcl${TCL_TK_VER}-dev, tk${TCL_TK_VER}-dev"
+    TCL_TK_DEPS="tcl${TCL_TK_VER}, tk${TCL_TK_VER}"
+    echo "debian/control:  Set tcl/tk build deps to version $TCL_TK_VER" >&2
+}
 
 usage() {
     {
@@ -176,6 +202,7 @@ usage() {
 	echo "   -x		build Xenomai threads"
 	echo "   -X <kver>	build Xenomai-kernel threads ***"
 	echo "   -R <kver>	build RTAI-kernel threads ***"
+	echo "   -t <tclver>	set tcl/tk version"
 	echo "   -d		enable documentation build"
 	echo "      *** Argument may be repeated for multiple kernels"
     } >&2
@@ -206,7 +233,7 @@ cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
 
 # read command line options
-while getopts dprxR:X:?h ARG; do
+while getopts dprxR:X:t:?h ARG; do
     case $ARG in
 	d) do_docs ;;
 	p) do_posix ;;
@@ -214,17 +241,24 @@ while getopts dprxR:X:?h ARG; do
 	x) do_xenomai ;;
 	R) do_rtai_kernel "$OPTARG" ;;
 	X) do_xenomai_kernel "$OPTARG" ;;
+	t) TCL_TK_VER="$OPTARG" ;;
 	?|h) usage ;;
 	*) usage "Unknown arg: '-$ARG'" ;;
     esac
 done
+
+# Determine tcl/tk version
+do_tcl_tk_version "$TCL_TK_VER"
 
 # Set kthreads headers
 rules_set_kthreads_headers xenomai-kernel $XENOMAI_KERNEL_HEADERS
 rules_set_kthreads_headers rtai-kernel $RTAI_KERNEL_HEADERS
 
 # Set control Build-Depends:
-sed -i control -e "s/@BUILD_DEPS@/${BUILD_DEPS}/"
+sed -i control \
+    -e "s/@BUILD_DEPS@/${BUILD_DEPS}/" \
+    -e "s/@TCL_TK_BUILD_DEPS@/${TCL_TK_BUILD_DEPS}/" \
+    -e "s/@TCL_TK_DEPS@/${TCL_TK_DEPS}/"
 echo "debian/control:  add final Build-Depends: list" >&2
 
 # Warn if no flavor configured

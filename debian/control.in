@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 6),
     libglib2.0-dev, libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0),
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
     libxmu-headers, python, python-dev, python-support, pkg-config, psmisc,
-    python-tk, tcl8.5-dev, tk8.5-dev, libxaw7-dev, libboost-serialization-dev,
+    python-tk, libxaw7-dev, libboost-serialization-dev,
     libsodium-dev (>= 0.5.0), libzmq4-dev (>= 4.0.4),
     libczmq-dev (>= 2.2.0), libjansson-dev (>= 2.5), libwebsockets-dev (>= 2.2),
     python-zmq (>= 14.3), procps, kmod,
@@ -16,12 +16,12 @@ Build-Depends: debhelper (>= 6),
     libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
     python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
     python-avahi, python-netifaces,python-simplejson,libtk-img,
-    libboost-thread-dev, @BUILD_DEPS@
+    libboost-thread-dev, @BUILD_DEPS@ @TCL_TK_BUILD_DEPS@
 Standards-Version: 2.1.0
 
 Package: machinekit-dev
 Architecture: any
-Depends: make, g++, ${tcl-tk-dev},
+Depends: make, g++, @TCL_TK_BUILD_DEPS@,
     python (>= 2.6), python (<< 2.8),
     ${python:Depends}, ${misc:Depends},
     machinekit (= ${binary:Version}),
@@ -40,7 +40,7 @@ Breaks: linuxcnc
 Replaces: linuxcnc
 Architecture: any
 Suggests: machinekit-doc-en | machinekit-doc, 
-Depends: ${shlibs:Depends}, machinekit-rt-threads, ${tcl-tk},
+Depends: ${shlibs:Depends}, machinekit-rt-threads, @TCL_TK_DEPS@,
     bwidget (>= 1.7), libtk-img (>=1.13),
     python (>= 2.6), python (<< 2.8),
     ${python:Depends}, ${misc:Depends},
