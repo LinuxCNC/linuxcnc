@@ -44,7 +44,9 @@
 #define SQ(a) ((a)*(a))
 #endif
 
+#ifndef MAX
 #define MAX(x, y)        ((x) > (y) ? (x) : (y))
+#endif
 
 #define round_to_int(x) ((int) ((x) < 0.0 ? ((x) - 0.5) : ((x) + 0.5)))
 /* how far above hole bottom for rapid return, in inches */

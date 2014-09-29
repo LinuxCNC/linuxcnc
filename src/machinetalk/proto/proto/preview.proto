@@ -44,7 +44,14 @@ enum PreviewOpType {
     PV_USE_TOOL_OFFSET    = 17;
     PV_SET_PARAMS         = 18; // kins, axismask, angle_units, length_units
     PV_SET_FEED_MODE      = 19;
+    PV_SOURCE_CONTEXT     = 20;
 }
+
+enum SourceType {
+    ST_NGC_FILE           = 1; // an NGC filename
+    ST_NGC_STRING         = 2; // an MDI string
+    ST_PYTHON_METHOD      = 3;
+};
 
 message Preview {
     required PreviewOpType type        = 1;
@@ -91,4 +98,9 @@ message Preview {
     //  PV_CHANGE_TOOL, PV_CHANGE_TOOL_NUMBER
     optional int32          pocket            = 107;
 
+    // PV_SOURCE_CONTEXT
+    optional SourceType    stype = 110;
+    optional string        filename = 111;   // an NGC
+    optional string        cmdstring = 112;  // an MDI command
+    optional int32         call_level = 113; // call stack depth
 }

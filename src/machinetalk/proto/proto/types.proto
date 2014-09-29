@@ -615,6 +615,14 @@ enum ContainerType {
     MT_EMC_STAT		= 11999;
     // --- snip ---
 
+    // EMC status
+    MT_EMCSTAT_FULL_UPDATE = 12500;
+    MT_EMCSTAT_INCREMENTAL_UPDATE = 12501;
+
+    // EMC error
+    MT_EMC_NML_ERROR = 12510;
+    MT_EMC_NML_TEXT = 12511;
+    MT_EMC_NML_DISPLAY = 12512;
 }
 
 enum OriginIndex {

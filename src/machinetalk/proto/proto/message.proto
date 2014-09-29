@@ -17,6 +17,7 @@ import "rtapicommand.proto";
 import "rtapi_message.proto";
 import "config.proto";
 import "preview.proto";
+import "status.proto";
 
 message Container {
 
@@ -70,6 +71,7 @@ message Container {
 
     // interpreter status updates, MT_INTERP_STAT
     optional InterpreterStateType interp_state = 25  [(nanopb).type = FT_IGNORE];
+    optional string               interp_name = 26;
 
     // this is an or of bits in ReplyType:
     optional int32                   rsvp = 30;  // if/how to answer
@@ -198,6 +200,15 @@ message Container {
     optional Emc_Aux_Input_Wait aux_input_wait = 570;
     optional Emc_Exec_Plugin_Ca1l exec_plugin_call = 580;
     optional Emc_Io_Plugin_Call io_plugin_call = 590;
+
+    optional EmcStatusConfig emc_status_config = 600;
+    optional EmcStatusMotion emc_status_motion = 601;
+    optional EmcStatusIo emc_status_io = 602;
+    optional EmcStatusTask emc_status_task = 603;
+    optional EmcStatusInterp emc_status_interp = 604;
+
+    optional EmcCommandParameters emc_command_params = 610;
+
 
     // less commonly used types
 

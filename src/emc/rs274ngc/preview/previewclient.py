@@ -1,4 +1,6 @@
+import sys
 import zmq
+
 from message_pb2 import Container
 
 #print "ZMQ=%s pyzmq=%s" % (zmq.zmq_version(), zmq.pyzmq_version())
@@ -6,11 +8,11 @@ from message_pb2 import Container
 context = zmq.Context()
 preview = context.socket(zmq.SUB)
 preview.setsockopt(zmq.SUBSCRIBE, "preview")
-preview.connect("tcp://127.0.0.1:4711")
+preview.connect(sys.argv[1])
 
 status = context.socket(zmq.SUB)
 status.setsockopt(zmq.SUBSCRIBE, "status")
-status.connect("tcp://127.0.0.1:4712")
+preview.connect(sys.argv[2])
 
 poll = zmq.Poller()
 poll.register(preview, zmq.POLLIN)
