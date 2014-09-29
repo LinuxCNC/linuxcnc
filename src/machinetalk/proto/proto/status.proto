@@ -1,0 +1,310 @@
+import "types.proto";
+import "preview.proto";
+import "emcclass.proto";
+
+package pb;
+
+enum EmcTaskExecStateType {
+    EMC_TASK_EXEC_ERROR                         = 1;
+    EMC_TASK_EXEC_DONE                          = 2;
+    EMC_TASK_EXEC_WAITING_FOR_MOTION            = 3;
+    EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE      = 4;
+    EMC_TASK_EXEC_WAITING_FOR_IO                = 5;
+    EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO     = 7;
+    EMC_TASK_EXEC_WAITING_FOR_DELAY             = 8;
+    EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD        = 9;
+    EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED  = 10;
+}
+
+enum EmcInterpStateType {
+    EMC_TASK_INTERP_IDLE    = 1;
+    EMC_TASK_INTERP_READING = 2;
+    EMC_TASK_INTERP_PAUSED  = 3;
+    EMC_TASK_INTERP_WAITING = 4;
+}
+
+enum EmcInterpExitCodeType {
+    EMC_INTERP_EXIT_OK              = 0;
+    EMC_INTERP_EXIT_EXIT            = 1;
+    EMC_INTERP_EXIT_EXECUTE_FINISH  = 2;
+    EMC_INTERP_EXIT_ENDFILE         = 3;
+    EMC_INTERP_EXIT_FILE_NOT_OPEN   = 4;
+    EMC_INTERP_EXIT_ERROR           = 5;
+}
+
+enum EmcKinematicsType {
+    KINEMATICS_IDENTITY     = 1;
+    KINEMATICS_FORWARD_ONLY = 2;
+    KINEMATICS_INVERSE_ONLY = 3;
+    KINEMATICS_BOTH         = 4;
+}
+
+enum EmcTrajectoryModeType {
+    EMC_TRAJ_MODE_FREE      = 1;
+    EMC_TRAJ_MODE_COORD     = 2;
+    EMC_TRAJ_MODE_TELEOP    = 3;
+}
+
+enum EmcCanonUnitsType {
+    CANON_UNITS_INCHES  = 1;
+    CANON_UNITS_MM      = 2;
+    CANON_UNITS_CM      = 3;
+}
+
+enum EmcTimeUnitsType {
+    TIME_UNITS_MINUTE  = 1;
+    TIME_UNITS_SECOND  = 2;
+}
+
+enum EmcTaskModeType {
+    EMC_TASK_MODE_MANUAL    = 1;
+    EMC_TASK_MODE_AUTO      = 2;
+    EMC_TASK_MODE_MDI       = 3;
+}
+
+enum EmcTaskStateType {
+    EMC_TASK_STATE_ESTOP        = 1;
+    EMC_TASK_STATE_ESTOP_RESET  = 2;
+    EMC_TASK_STATE_OFF          = 3;
+    EMC_TASK_STATE_ON           = 4;
+}
+
+enum EmcAxisType {
+    EMC_AXIS_LINEAR     = 1;
+    EMC_AXIS_ANGULAR    = 2;
+}
+
+enum EmcPositionOffsetType {
+    EMC_CONFIG_RELATIVE_OFFSET = 1;
+    EMC_CONFIG_MACHINE_OFFSET = 2;
+}
+
+enum EmcPositionFeedbackType {
+    EMC_CONFIG_ACTUAL_FEEDBACK = 1;
+    EMC_CONFIG_COMMANDED_FEEDBACK = 2;
+}
+
+message EmcToolData {
+    required int32          index       = 1;
+    optional int32          id          = 2;
+    optional double         xOffset     = 3;
+    optional double         yOffset     = 4;
+    optional double         zOffset     = 5;
+    optional double         aOffset     = 6;
+    optional double         bOffset     = 7;
+    optional double         cOffset     = 8;
+    optional double         uOffset     = 9;
+    optional double         vOffset     = 10;
+    optional double         wOffset     = 11;
+    optional double         diameter    = 12;
+    optional double         frontangle  = 13;
+    optional double         backangle   = 14;
+    optional int32          orientation = 15;
+}
+
+message EmcStatusMotionAxis {
+    required int32          index           = 1;
+    optional bool           enabled         = 2;
+    optional bool           fault           = 3;
+    optional double         ferror_current  = 4;
+    optional double         ferror_highmark = 5;
+    optional bool           homed           = 6;
+    optional bool           homing          = 7;
+    optional bool           inpos           = 8;
+    optional double         input           = 9;
+    optional bool           max_hard_limit  = 10;
+    optional bool           max_soft_limit  = 11;
+    optional bool           min_hard_limit  = 12;
+    optional bool           min_soft_limit  = 13;
+    optional double         output          = 14;
+    optional bool           override_limits = 15;
+    optional double         velocity        = 16;
+}
+
+message EmcStatusConfigAxis {
+    required int32          index               = 1;
+    optional EmcAxisType    axisType            = 2;
+    optional double         backlash            = 3;
+    optional double         max_ferror          = 4;
+    optional double         max_position_limit  = 5;
+    optional double         min_ferror          = 6;
+    optional double         min_position_limit  = 7;
+    optional double         units               = 8;
+    optional int32          home_sequence       = 9;
+}
+
+message EmcProgramExtension {
+    required int32          index = 1;
+    optional string         extension = 2;
+}
+
+message EmcStatusAnalogIO {
+    required int32          index = 1;
+    optional double         value = 2;
+}
+
+message EmcStatusDigitalIO {
+    required int32          index = 1;
+    optional bool           value = 2;
+}
+
+message EmcStatusLimit {
+    required int32          index = 1;
+    optional int32          value = 2;
+}
+
+message EmcStatusGCode {
+    required int32          index = 1;
+    optional int32          value = 2;
+}
+
+message EmcStatusMCode {
+    required int32          index = 1;
+    optional int32          value = 2;
+}
+
+message EmcStatusSetting {
+    required int32          index = 1;
+    optional double         value = 2;
+}
+
+message EmcStatusConfig {
+    optional double                     default_acceleration     = 1;
+    optional double                     angular_units            = 2;
+    optional int32                      axes                     = 3;
+    repeated EmcStatusConfigAxis        axis                     = 4;
+    optional int32                      axis_mask                = 5;
+    optional double                     cycle_time               = 6;
+    optional int32                      debug                    = 7;
+    optional EmcKinematicsType          kinematics_type          = 8;
+    optional double                     linear_units             = 9;
+    optional double                     max_acceleration         = 10;
+    optional double                     max_velocity             = 11;
+    optional EmcCanonUnitsType          program_units            = 12;
+    optional double                     default_velocity         = 13;
+    repeated EmcProgramExtension        program_extension        = 14;
+    optional EmcPositionOffsetType      position_offset          = 15;
+    optional EmcPositionFeedbackType    position_feedback        = 16;
+    optional double                     max_feed_override        = 17;
+    optional double                     min_feed_override        = 18;
+    optional double                     max_spindle_override     = 19;
+    optional double                     min_spindle_override     = 20;
+    optional double                     default_spindle_speed    = 21;
+    optional double                     default_linear_velocity  = 22;
+    optional double                     min_velocity             = 23;
+    optional double                     max_linear_velocity      = 24;
+    optional double                     min_linear_velocity      = 25;
+    optional double                     default_angular_velocity = 26;
+    optional double                     max_angular_velocity     = 27;
+    optional double                     min_angular_velocity     = 28;
+    optional string                     increments               = 29;
+    optional string                     grids                    = 30;
+    optional bool                       lathe                    = 31;
+    optional string                     geometry                 = 32;
+    optional uint32                     arcdivision              = 33;
+    optional bool                       no_force_homing          = 34;
+    optional string                     remote_path              = 35;
+    optional EmcTimeUnitsType           time_units               = 36;
+}
+
+message EmcStatusMotion {
+    optional int32                  active_queue            = 1;
+    optional Position               actual_position         = 2;
+    optional bool                   adaptive_feed_enabled   = 3;
+    repeated EmcStatusAnalogIO      ain                     = 4;
+    repeated EmcStatusAnalogIO      aout                    = 5;
+    repeated EmcStatusMotionAxis    axis                    = 6;
+    optional bool                   block_delete            = 7;
+    optional int32                  current_line            = 8;
+    optional double                 current_vel             = 9;
+    optional double                 delay_left              = 10;
+    repeated EmcStatusDigitalIO     din                     = 11;
+    optional double                 distance_to_go          = 12;
+    repeated EmcStatusDigitalIO     dout                    = 13;
+    optional Position               dtg                     = 14;
+    optional bool                   enabled                 = 15;
+    optional bool                   feed_hold_enabled       = 16;
+    optional bool                   feed_override_enabled   = 17;
+    optional double                 feedrate                = 18;
+    optional OriginIndex            g5x_index               = 19;
+    optional Position               g5x_offset              = 20;
+    optional Position               g92_offset              = 21;
+    optional int32                  id                      = 23;
+    optional bool                   inpos                   = 24;
+    optional Position               joint_actual_position   = 25;
+    optional Position               joint_position          = 26;
+    repeated EmcStatusLimit         limit                   = 27;
+    optional int32                  motion_line             = 28;
+    optional EmcTrajectoryModeType  motion_type             = 29;
+    optional EmcTrajectoryModeType  motion_mode             = 30;
+    optional bool                   paused                  = 31;
+    optional Position               position                = 32;
+    optional bool                   probe_tripped           = 33;
+    optional int32                  probe_val               = 34;
+    optional Position               probed_position         = 35;
+    optional bool                   probing                 = 36;
+    optional int32                  queue                   = 37;
+    optional bool                   queue_full              = 38;
+    optional double                 rotation_xy             = 39;
+    optional bool                   spindle_brake           = 40;
+    optional int32                  spindle_direction       = 41;
+    optional bool                   spindle_enabled         = 42;
+    optional int32                  spindle_increasing      = 43;
+    optional bool                   spindle_override_enabled = 44;
+    optional double                 spindle_speed           = 45;
+    optional double                 spindlerate             = 46;
+    optional RCS_STATUS             state                   = 47;
+    optional double                 max_velocity            = 48;
+    optional double                 max_acceleration        = 49;
+}
+
+message EmcStatusIo {
+    optional bool           estop           = 1;
+    optional bool           flood           = 2;
+    optional bool           lube            = 3;
+    optional bool           lube_level      = 4;
+    optional bool           mist            = 5;
+    optional bool           pocket_prepped  = 6;
+    optional bool           tool_in_spindle = 7;
+    optional Position       tool_offset     = 8;
+    repeated EmcToolData    tool_table      = 9;
+}
+
+message EmcStatusTask {
+    optional int32                  echo_serial_number  = 1;
+    optional EmcTaskExecStateType   exec_state          = 2;
+    optional string                 file                = 3;
+    optional bool                   input_timeout       = 4;
+    optional bool                   optional_stop       = 5;
+    optional int32                  read_line           = 6;
+    optional EmcTaskModeType        task_mode           = 7;
+    optional int32                  task_paused         = 8;
+    optional EmcTaskStateType       task_state          = 9;
+}
+
+message EmcStatusInterp {
+    optional string                 command             = 1;
+    repeated EmcStatusGCode         gcodes              = 2;
+    optional EmcInterpStateType     interp_state        = 3;
+    optional EmcInterpExitCodeType  interpreter_errcode = 4;
+    repeated EmcStatusMCode         mcodes              = 5;
+    repeated EmcStatusSetting       settings            = 6;
+}
+
+message EmcCommandParameters {
+    optional uint32                 index       = 1;
+    optional uint32                 debug_level = 2;
+    optional int32                  line_number = 3;
+    optional double                 scale = 4;
+    optional double                 velocity = 5;
+    optional double                 distance = 6;
+    optional double                 value = 7;
+    optional bool                   enable = 8;
+    optional string                 command = 9;
+    optional string                 path = 10;
+    optional EmcTaskModeType        task_mode = 100;
+    optional EmcTaskStateType       task_state = 101;
+    optional EmcTrajectoryModeType  traj_mode = 102;
+    optional EmcPose                pose = 103;
+    optional EmcToolData            tool_data = 104;
+}
