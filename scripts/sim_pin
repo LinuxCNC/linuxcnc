@@ -345,6 +345,9 @@ proc b_press {id} {
         set ::SP($id,entry) ""
         return
       }
+
+      # Note: halcmd rejects numbers formatted 'nEmm' for s32, u32
+
       if {   (($::SP($id,itemtype) == "s32") || ($::SP($id,itemtype) == "u32")) \
           && ![isinteger $e]} {
         popup "Integer required for u32,s32 entry (not <$e>)"
@@ -412,8 +415,8 @@ proc isnumber {v} {
 } ;# isnumber
 
 proc isnegative {v} {
-  if {$v < 0} {return 1}
-  if {[string first - $v] >=0} {return 1} ;# for -0
+  # Note:check with isnumber before this
+  if {[format %f $v] < 0} {return 1}
   return 0
 } ;# isnegative
 
