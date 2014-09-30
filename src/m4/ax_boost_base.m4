@@ -89,10 +89,16 @@ if test "x$want_boost" = "xyes"; then
     dnl this (as it rises problems for generic multi-arch support).
     dnl The last entry in the list is chosen by default when no libraries
     dnl are found, e.g. when only header-only libraries are installed!
-    libsubdirs="lib"
+    dnl
+    dnl On Debian-like distros, Boost is now multiarched.  On these systems,
+    dnl also query `dpkg-architecture` for an additional subdirectory.
+    dnl See https://wiki.debian.org/qa.debian.org/FTBFS
+    test -x /usr/bin/dpkg-architecture && \
+        debian_libsubdir=lib/$(/usr/bin/dpkg-architecture -qDEB_HOST_MULTIARCH)
+    libsubdirs="lib ${debian_libsubdir} lib"
     ax_arch=`uname -m`
     if test $ax_arch = x86_64 -o $ax_arch = ppc64 -o $ax_arch = s390x -o $ax_arch = sparc64; then
-        libsubdirs="lib64 lib lib64"
+        libsubdirs="lib64 lib ${debian_libsubdir} lib64"
     fi
 
     dnl first we check the system location for boost libraries

@@ -3128,6 +3128,8 @@ if test "$BUILD_EMCWEB" = yes; then
    AX_BOOST_SERIALIZATION()
    m4_include([m4/ax_boost_thread.m4])
    AX_BOOST_THREAD()
+   m4_include([m4/ax_boost_system.m4])
+   AX_BOOST_SYSTEM()
 fi
 
 
