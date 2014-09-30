@@ -224,9 +224,10 @@ There's an automatic way to check a branch for each commit being buildable
 Use as follows (in this case testing every commit from origin/master to
 HEAD, including running regression tests):
 
-`cd linuxcnc-dev`
-
-`git-test-sequence origin/master..  '(cd src;make;runtests)'`
+----
+cd linuxcnc-dev
+git-test-sequence origin/master..  '(cd src && make && ../scripts/runtests)'
+----
 
 This will either report 'All's well' or 'Broke on <commit>'
 
