@@ -59,6 +59,8 @@ git repo there too is confusing.
 There is a regularly updated git clone on github:
 https://github.com/jepler/linuxcnc-mirror
 
+You can submit pull requests here.
+
 === git tutorials
 
 There are many excellent, free git tutorials on the internet.
