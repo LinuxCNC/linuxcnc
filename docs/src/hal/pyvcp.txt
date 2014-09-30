@@ -460,12 +460,12 @@ A pin called changepin is also created automatically, which can toggle the Check
 <checkbutton>
     <halpin>"coolant-chkbtn"</halpin>
     <text>"Coolant"</text>
-    <initval>"1"</initval>
+    <initval>1</initval>
 </checkbutton>
 <checkbutton>
     <halpin>"chip-chkbtn"</halpin>
     <text>"Chips    "</text>
-    <initval>"0"</initval>
+    <initval>0</initval>
 </checkbutton>
 ---------------------------------------
 
@@ -488,7 +488,7 @@ Only one radio button may be set to TRUE (1) or only the highest number pin set 
 <radiobutton>
     <choices>["one","two","three"]</choices>
     <halpin>"my-radio"</halpin>
-    <initval>"0"</initval>
+    <initval>0</initval>
 </radiobutton>
 -------------------------------------------------
 
