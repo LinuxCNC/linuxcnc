@@ -796,8 +796,7 @@ install-dirs:
 		$(DESTDIR)$(sysconfdir)/rsyslog.d \
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d \
-		$(DESTDIR)$(sampleconfsdir) \
-		$(DESTDIR)$(LIB_DIR)/python/machinekit
+		$(DESTDIR)$(sampleconfsdir)
 ifeq ($(BUILD_EMCWEB),yes)
 	$(DIR)	$(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \
@@ -895,6 +894,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/gmoccapy
 	$(DIR) $(DESTDIR)$(SITEPY)/gladevcp
 	$(DIR) $(DESTDIR)$(SITEPY)/stepconf
+	$(DIR) $(DESTDIR)$(SITEPY)/machinekit
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
@@ -903,6 +903,8 @@ install-python: install-dirs
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/gladevcp/*.glade $(DESTDIR)$(SITEPY)/gladevcp
 	$(FILE) ../lib/python/stepconf/*.py $(DESTDIR)$(SITEPY)/stepconf
+	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
+	$(FILE) ../lib/python/machinekit/*.so $(DESTDIR)$(SITEPY)/machinekit/
 	$(EXE) ../bin/stepconf $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pncconf $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
@@ -927,7 +929,6 @@ install-python: install-dirs
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
 	$(TREE) ../share/gscreen/skins/* $(DESTDIR)$(datadir)/gscreen/skins
 	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
-	$(FILE) ../lib/python/machinekit/config.py $(DESTDIR)$(LIB_DIR)/python/machinekit/
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gremlin $(DESTDIR)$(bindir)
 	$(EXE) ../bin/lintini $(DESTDIR)$(bindir)
