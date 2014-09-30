@@ -2100,7 +2100,7 @@ AC_SUBST([CONFIG_DATE])
 
 # do this here since substituted into files
 # needed below after substitution
-MACHINEKIT_INI="$EMC2_HOME/etc/linuxcnc/machinekit.ini"
+MACHINEKIT_INI="$EMC2_SYSTEM_CONFIG_DIR/machinekit.ini"
 AC_SUBST([MACHINEKIT_INI])
 
 AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])

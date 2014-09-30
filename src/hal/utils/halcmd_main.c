@@ -86,6 +86,10 @@ int main(int argc, char **argv)
     char *service_uuid = NULL; // must have a global uuid
 
     inifile = getenv("MACHINEKIT_INI");
+    /* use default if not specified by user */
+    if (inifile == NULL) {
+	inifile = MACHINEKIT_INI;
+    }
 
     if (argc < 2) {
 	/* no args specified, print help */
