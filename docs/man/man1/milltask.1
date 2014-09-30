@@ -1,0 +1,47 @@
+.TH milltask 1 "September 30, 2014" "" "The Enhanced Machine Controller"
+.SH NAME
+milltask \- Userspace task controller for LinuxCNC
+.SH DESCRIPTION
+milltask is an internal process of LinuxCNC.  It is generally not invoked directly.
+It creates the pins shown as owned by the "inihal" component, which allow
+runtime modification of certain values from the inifile.
+.SH PINS
+.SS Per-axis pins
+.TP
+\fBini.\fI#\fB.backlash
+Allows adjustment of \fB[AXIS_\fI#\fB]BACKLASH
+.TP
+\fBini.\fI#\fB.max_acceleration
+Allows adjustment of \fB[AXIS_\fI#\fB]MAX_ACCELERATION
+.TP
+\fBini.\fI#\fB.max_velocity
+Allows adjustment of \fB[AXIS_\fI#\fB]MAX_VELOCITY
+.TP
+\fBini.\fI#\fB.max_limit
+Allows adjustment of \fB[AXIS_\fI#\fB]MAX_LIMIT
+.TP
+\fBini.\fI#\fB.min_limit
+Allows adjustment of \fB[AXIS_\fI#\fB]MIN_LIMIT
+.TP
+\fBini.\fI#\fB.ferror
+Allows adjustment of \fB[AXIS_\fI#\fB]FERROR
+.TP
+\fBini.\fI#\fB.min_ferror
+Allows adjustment of \fB[AXIS_\fI#\fB]MIN_FERROR
+.SS Global pins
+.TP
+\fBini.traj_default_acceleration
+Allows adjustment of \fB[TRAJ]DEFAULT_ACCELERATION
+.TP
+\fBini.traj_default_velocity
+Allows adjustment of \fB[TRAJ]DEFAULT_VELOCITY
+.TP
+\fBini.traj_max_acceleration
+Allows adjustment of \fB[TRAJ]MAX_ACCELERATION
+.TP
+\fBini.traj_max_velocity
+Allows adjustment of \fB[TRAJ]MAX_VELOCITY
+.SH BUGS
+These pins cannot be linked or set in a halfile specified by \fB[HAL]HALFILE\fR.  In GUIs that support the feature, they can be set by the \fB[HAL]POSTGUI_HALFILE\fR.
+
+The inifile is not automatically updated with these values.
