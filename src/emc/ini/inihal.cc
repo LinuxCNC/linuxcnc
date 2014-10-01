@@ -52,7 +52,7 @@ static ptr_inihal_data *the_inihal_data;
 #define UPDATE_IDX(NAME,IDX) old_inihal_data.NAME[IDX] = new_inihal_data.NAME[IDX]
 
 #define SHOW_CHANGE(NAME) \
-    fprintf(stderr,"Changed: "#NAME" %f-->%f\n",old_inihal_data.NAME, \
+    fprintf(stderr,"Changed: "#NAME" %g-->%g\n",old_inihal_data.NAME, \
                                                 new_inihal_data.NAME);
 #define SHOW_CHANGE_ARC_BLEND() \
     fprintf(stderr,"Changed: blend_enable:          %d-->%d\n"\
@@ -73,7 +73,7 @@ static ptr_inihal_data *the_inihal_data;
           );
 
 #define SHOW_CHANGE_IDX(NAME,IDX) \
-    fprintf(stderr,"Changed: "#NAME"[%d] %f-->%f\n",IDX,old_inihal_data.NAME[IDX], \
+    fprintf(stderr,"Changed: "#NAME"[%d] %g-->%g\n",IDX,old_inihal_data.NAME[IDX], \
                                                         new_inihal_data.NAME[IDX]);
 #define MAKE_BIT_PIN(NAME,DIR) \
 do { \
