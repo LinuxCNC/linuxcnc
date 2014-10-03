@@ -1113,6 +1113,7 @@ class Pages:
 #************
     def s_motor_prepare(self):
         self.a.axis_prepare('s')
+        self.d.help = "help-axismotor.txt"
     def s_motor_finish(self):
         self.a.axis_done('s')
     # callbacks
