@@ -173,7 +173,8 @@ state.
 
 * 'M19 R- Q- [P-]'
 
-* 'R' Position to rotate to from 0, valid range is 0-360 degrees
+* 'R' Position to rotate to, valid range is 0-360 degrees.  If
+      unspecified, the default is 'R0'.
 
 * 'Q' Number of seconds to wait until orient completes. If
       motion.spindle.is_oriented does not become true within Q timeout
