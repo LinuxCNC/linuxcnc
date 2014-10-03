@@ -1168,7 +1168,6 @@ class HAL:
                             print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                     else:
                         print >>file, "net %s     => %s"%(signal,pwmpinname)
-                        print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                         if 'analogout5' in pwmpinname: # on the 7i77 analog out 5 has it's own enable
                             print >>file, "net machine-is-enabled      => " + rawpinname + "spinena"
                 else:
