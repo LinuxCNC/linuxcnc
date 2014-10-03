@@ -1421,6 +1421,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">snear_scale_adjust</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1464,6 +1465,7 @@
                         <property name="can_focus">True</property>
                         <property name="max_length">3</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">snear_range_adjust</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -1532,6 +1534,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="invisible_char">&#x25CF;</property>
+                        <property name="adjustment">sfilter_adjust</property>
                         <property name="digits">3</property>
                       </object>
                       <packing>
@@ -2008,7 +2011,7 @@ Scale</property>
     <property name="step_increment">0.001</property>
   </object>
   <object class="GtkAdjustment" id="sfeed_adjust">
-    <property name="value">0.100</property>
+    <property name="value">0.10000000000000001</property>
     <property name="upper">10</property>
     <property name="step_increment">0.001</property>
   </object>
@@ -2108,5 +2111,24 @@ Scale</property>
     <property name="upper">100</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="snear_scale_adjust">
+    <property name="value">100</property>
+    <property name="lower">50</property>
+    <property name="upper">150</property>
+    <property name="step_increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="snear_range_adjust">
+    <property name="value">200</property>
+    <property name="upper">500</property>
+    <property name="step_increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="sfilter_adjust">
+    <property name="value">1</property>
+    <property name="lower">0.5</property>
+    <property name="upper">1.5</property>
+    <property name="step_increment">0.01</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
   </object>
 </interface>
