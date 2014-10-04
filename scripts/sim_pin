@@ -103,11 +103,17 @@ proc add_bit_item_to_gui {f id} {
 proc add_number_item_to_gui {f id} {
   set value [get_item $id]
   set color lightgray
-  pack [button $f.b  -bg $color -fg black \
-       -text "Set" \
-       -relief raised -bd 4 \
+  pack [frame $f.one] -fill x -expand 1
+  pack [button $f.one.b  -bg $color -fg black \
+       -text "Set    " \
+       -relief raised -bd 3 \
        -command [list b_press $id] ]\
-       -fill x -expand 1
+       -side left -fill x -expand 1
+  pack [button $f.one.r  -bg $color -fg black \
+       -text "Reset" \
+       -relief raised -bd 3 \
+       -command [list reset_number_item $id] ]\
+       -side left -fill x -expand 1
   set e [entry $f.e \
        -justify right \
        -textvariable ::SP($id,entry)]
@@ -377,6 +383,10 @@ proc b_release {id} {
     "Pulse"  {item_unset $id}
   }
 } ;# b_release
+
+proc reset_number_item {id} {
+  item_set $id $::SP(ivalue,$id)
+} ;# reset_number_item
 
 proc get_item {id} {
   set value [hal $::SP($id,get_cmd) $::SP($id,itemname)]
