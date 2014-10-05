@@ -144,7 +144,7 @@ class HAL:
             scale = (y2-y1) / (x2-x1)
             offset = x1 - y1 / scale
             print >>file
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
+            print >>file, "net spindle-cmd-rpm <= motion.spindle-speed-out => pwmgen.0.value"
             print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
             print >>file, "net spindle-pwm <= pwmgen.0.pwm"
             print >>file, "setp pwmgen.0.pwm-freq %s" % self.d.spindlecarrier        
@@ -152,7 +152,7 @@ class HAL:
             print >>file, "setp pwmgen.0.offset %s" % offset
             print >>file, "setp pwmgen.0.dither-pwm true"
         else: 
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out"
+            print >>file, "net spindle-cmd-rpm <= motion.spindle-speed-out"
         print >>file, "net spindle-at-speed => motion.spindle-at-speed"
         if SIG.ON in outputs and not pwm:
             print >>file, "net spindle-on <= motion.spindle-on"
@@ -326,7 +326,7 @@ class HAL:
                       print >>f1, _("# **** set up spindle at speed indicator ****")
                       if self.d.usespindleatspeed:
                           print >>f1
-                          print >>f1, ("net spindle-cmd            =>  near.0.in1")
+                          print >>f1, ("net spindle-cmd-rpm        =>  near.0.in1")
                           print >>f1, ("net spindle-velocity       =>  near.0.in2")
                           print >>f1, ("net spindle-at-speed       <=  near.0.out")
                           print >>f1, ("setp near.0.scale %f")% self.d.spindlenearscale
@@ -339,7 +339,7 @@ class HAL:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
                       print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd => abs.0.in")
+                      print >>f1, ("net spindle-cmd-rpm        => abs.0.in")
                       print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
                       print >>f1
                       print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
