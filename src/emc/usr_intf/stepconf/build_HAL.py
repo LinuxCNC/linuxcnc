@@ -77,8 +77,8 @@ class HAL:
         if encoder:
             print >>file, "loadrt encoder num_chan=1"
         if self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1:
-            print >>file, "loadrt abs count=1"
             if encoder:
+               print >>file, "loadrt abs count=1"
                print >>file, "loadrt scale count=1"
                print >>file, "loadrt lowpass count=1"
                if self.d.usespindleatspeed:
@@ -130,8 +130,8 @@ class HAL:
 
         if pwm: print >>file, "addf pwmgen.update servo-thread"
         if self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1:
-            print >>file, "addf abs.0 servo-thread"
             if encoder:
+               print >>file, "addf abs.0 servo-thread"
                print >>file, "addf scale.0 servo-thread"
                print >>file, "addf lowpass.0 servo-thread"
                if self.d.usespindleatspeed:
@@ -340,10 +340,8 @@ class HAL:
                       print >>f1, ("net spindle-at-speed       => pyvcp.spindle-at-speed-led")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd-rpm        => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel   <= abs.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net spindle-cmd-rpm-abs    => pyvcp.spindle-speed")
                       print >>f1
                       print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
                       print >>f1
