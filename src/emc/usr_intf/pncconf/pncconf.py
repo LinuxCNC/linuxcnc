@@ -467,10 +467,10 @@ class Data:
 
         # For parallel port 
         self.pp1_direction = 1 # output
-        self.ioaddr1 = "0x0278"
-        self.ioaddr2 = _("1")
+        self.ioaddr1 = "0"
+        self.ioaddr2 = "1"
         self.pp2_direction = 0 # input
-        self.ioaddr3 = _("2")
+        self.ioaddr3 = "2"
         self.pp3_direction = 0 # input
         self.number_pports = 0
 
