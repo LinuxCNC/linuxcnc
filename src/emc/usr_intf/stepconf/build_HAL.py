@@ -182,7 +182,7 @@ class HAL:
                 print >>file, "setp encoder.0.position-scale %f" \
                     % ( 4.0 * int(self.d.spindlecpr))
             print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
-            print >>file, "net spindle-velocity encoder.0.velocity => motion.spindle-speed-in"
+            print >>file, "net spindle-velocity-feedback-rps encoder.0.velocity => motion.spindle-speed-in"
             print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
             print >>file, "net spindle-phase-a encoder.0.phase-A"
             print >>file, "net spindle-phase-b encoder.0.phase-B"
@@ -315,13 +315,13 @@ class HAL:
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
+                      print >>f1, _("# **** spindle-velocity-feedback-rps bounces around so we filter it with lowpass")
+                      print >>f1, _("# **** spindle-velocity-feedback-rps is signed so we use absolute component to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1, ("setp scale.0.gain 60")
                       print >>f1, ("setp lowpass.0.gain %f")% self.d.spindlefiltergain
-                      print >>f1, ("net spindle-velocity => lowpass.0.in")
+                      print >>f1, ("net spindle-velocity-feedback-rps               => lowpass.0.in")
                       print >>f1, ("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
                       print >>f1, ("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
                       print >>f1, ("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed")
@@ -329,9 +329,9 @@ class HAL:
                       print >>f1, _("# **** set up spindle at speed indicator ****")
                       if self.d.usespindleatspeed:
                           print >>f1
-                          print >>f1, ("net spindle-cmd-rps        =>  near.0.in1")
-                          print >>f1, ("net spindle-velocity       =>  near.0.in2")
-                          print >>f1, ("net spindle-at-speed       <=  near.0.out")
+                          print >>f1, ("net spindle-cmd-rps                 =>  near.0.in1")
+                          print >>f1, ("net spindle-velocity-feedback-rps   =>  near.0.in2")
+                          print >>f1, ("net spindle-at-speed                <=  near.0.out")
                           print >>f1, ("setp near.0.scale %f")% self.d.spindlenearscale
                       else:
                           print >>f1, ("# **** force spindle at speed indicator true because we chose no feedback ****")
@@ -343,7 +343,7 @@ class HAL:
                       print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
                       print >>f1, ("net spindle-cmd-rpm        => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net absolute-spindle-vel   <= abs.0.out => pyvcp.spindle-speed")
                       print >>f1
                       print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
                       print >>f1
