@@ -2105,12 +2105,10 @@ Scale</property>
   <object class="GtkAdjustment" id="s3pwm_scale_adjust">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="s3pwm_deadtime_adjust">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
   </object>
   <object class="GtkAdjustment" id="snear_scale_adjust">
     <property name="value">100</property>
@@ -2128,7 +2126,5 @@ Scale</property>
     <property name="lower">0.5</property>
     <property name="upper">1.5</property>
     <property name="step_increment">0.01</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
 </interface>
