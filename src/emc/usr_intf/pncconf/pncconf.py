@@ -5117,10 +5117,18 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
             print formatted_lines[-1]
 
+    def probe_parport_check(self):
+            board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
+            board1 = self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
+            parport = self.d.number_pports
+            if '7i43' in board0 or '7i43' in board1 or parport:
+                return True
+            else:
+                return False
+
     def hostmot2_command_string(self):
             # mesa stuff
             load_cmnds = []
-            load_cmnds.append("loadrt hostmot2")
             board0 = self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]
             board1 = self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]
             driver0 = ' %s'% self.d.mesa0_currentfirmwaredata[_PD._HALDRIVER]
@@ -5132,7 +5140,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             firmstring0 = firmstring1 = ""
             mesa0_3pwm = mesa1_3pwm = ''
             mesa0_ioaddr = mesa1_ioaddr = ''
-
+            load_cmnds.append("loadrt hostmot2")
             if '7i43' in board0:
                 mesa0_ioaddr = ' ioaddr=%s ioaddr_hi=0 epp_wide=1'% self.d.mesa0_parportaddrs 
             if '7i43' in board1:
@@ -5247,7 +5255,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             port1dir =" out"
         else: 
            port1dir =" in"
-        load_cmnds.append("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"\n" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
+        load_cmnds.append("loadrt hal_parport cfg=\"%s%s%s%s%s%s\"" % (port1name, port1dir, port2name, port2dir, port3name, port3dir))
         # READ
         read_cmnds = []
         read_cmnds.append(      "addf parport.0.read           servo-thread")

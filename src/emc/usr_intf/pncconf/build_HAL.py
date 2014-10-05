@@ -79,7 +79,8 @@ class HAL:
             print >>file, "loadusr -Wn gladevcp gladevcp -c gladevcp%s%s%s -H gvcp_call_list.hal gvcp-panel.ui"%(theme,fmax,geo)
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
-        print >>file, "loadrt probe_parport"
+        if self.a.probe_parport_check():
+            print >>file, "loadrt probe_parport"
         # pre process mesa commands
         mesa_load_cmnd,mesa_read_cmnd,mesa_write_cmnd = self.a.hostmot2_command_string()
         if self.d.number_pports:
