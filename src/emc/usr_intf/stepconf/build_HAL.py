@@ -144,16 +144,19 @@ class HAL:
             scale = (y2-y1) / (x2-x1)
             offset = x1 - y1 / scale
             print >>file
-            print >>file, "net spindle-cmd-rpm <= motion.spindle-speed-out => pwmgen.0.value"
+            print >>file, "net spindle-cmd-rpm => pwmgen.0.value"
             print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
             print >>file, "net spindle-pwm <= pwmgen.0.pwm"
             print >>file, "setp pwmgen.0.pwm-freq %s" % self.d.spindlecarrier        
             print >>file, "setp pwmgen.0.scale %s" % scale
             print >>file, "setp pwmgen.0.offset %s" % offset
             print >>file, "setp pwmgen.0.dither-pwm true"
-        else: 
-            print >>file, "net spindle-cmd-rpm <= motion.spindle-speed-out"
-        print >>file, "net spindle-at-speed => motion.spindle-at-speed"
+
+        print >>file, "net spindle-cmd-rpm     <= motion.spindle-speed-out"
+        print >>file, "net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs"
+        print >>file, "net spindle-cmd-rps     <= motion.spindle-speed-out-rps"
+        print >>file, "net spindle-cmd-rps-abs <= motion.spindle-speed-out-rps-abs"
+        print >>file, "net spindle-at-speed    => motion.spindle-at-speed"
         if SIG.ON in outputs and not pwm:
             print >>file, "net spindle-on <= motion.spindle-on"
         if SIG.CW in outputs:
@@ -326,7 +329,7 @@ class HAL:
                       print >>f1, _("# **** set up spindle at speed indicator ****")
                       if self.d.usespindleatspeed:
                           print >>f1
-                          print >>f1, ("net spindle-cmd-rpm        =>  near.0.in1")
+                          print >>f1, ("net spindle-cmd-rps        =>  near.0.in1")
                           print >>f1, ("net spindle-velocity       =>  near.0.in2")
                           print >>f1, ("net spindle-at-speed       <=  near.0.out")
                           print >>f1, ("setp near.0.scale %f")% self.d.spindlenearscale
