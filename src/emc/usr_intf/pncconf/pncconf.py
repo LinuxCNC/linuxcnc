@@ -729,6 +729,8 @@ class Data:
         self.aminferror= .05
         self.amaxferror= .5
         # spindle at speed near settings
+        self.smaxoutput = 2000
+        self.sP = 0
         self.smaxvel = 2000
         self.smaxacc = 300
         self.srpmrange = 200.0
@@ -4310,7 +4312,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         set_value("encoderscale")
         w[axis+"maxvel"].set_value(d[axis+"maxvel"]*60)
         set_value("maxacc")
-        if not axis == "s":
+        if not axis == "s" or axis == "s" and encoder:
             w[axis + "servo_info"].show()
         else:
             w[axis + "servo_info"].hide()
@@ -4341,7 +4343,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis + "outputminlimitlabel"].hide()
             w[axis + "outputmaxlimit"].hide()
             w[axis + "outputmaxlimitlabel"].hide()
-        if pwmgen or amp_8i20: w[axis + "bldcframe"].show()
+        if amp_8i20 or pwmgen and d.advanced_options == True:
+            w[axis + "bldcframe"].show()
         else: w[axis + "bldcframe"].hide()
         if tppwm:
             w[axis + "3pwmdeadtime"].show()
@@ -4396,7 +4399,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         if resolver:
             w[axis + "encoderscale_label"].set_text(_("Resolver Scale:"))
         if axis == 's':
-            w.smaxoutput.set_sensitive(False)
             w.sencodercounts.set_sensitive(encoder)
             w.ssingleinputencoder.set_sensitive(encoder)
             w["sinvertencoder"].set_sensitive(encoder)
