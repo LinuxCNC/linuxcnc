@@ -1121,6 +1121,7 @@ class Pages:
     def on_saxistest_clicked(self, *args): self.t.test_axis('s')
     def on_saxistune_clicked(self, *args): self.t.tune_axis('s')
     def on_saxis_prepare(self, *args): self.a.axis_prepare('s')
+    def on_suseatspeed_toggled(self,widget): self.a.useatspeed_toggled()
 #************
 # Options PAGE
 #************

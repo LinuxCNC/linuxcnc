@@ -733,10 +733,11 @@ class Data:
         self.sP = 0
         self.smaxvel = 2000
         self.smaxacc = 300
-        self.srpmrange = 200.0
-        self.snearscale = 1.00
+        self.snearrange = 200.0
+        self.snearscale = 1.20
         self.sfiltergain = 1.0
         self.suseatspeed = False
+        self.susenearrange = False
         self.ssingleinputencoder = False
 
     # change the XYZ axis defaults to metric or imperial
@@ -4394,8 +4395,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w[axis + "homevelunits"].set_text(_(unit+" / min"))
             w[axis + "homelatchvelunits"].set_text(_(unit+" / min"))
             w[axis + "homefinalvelunits"].set_text(_(unit+" / min"))
-        w[axis + "minfollowunits"].set_text(unit)
-        w[axis + "maxfollowunits"].set_text(unit)
+            w[axis + "minfollowunits"].set_text(unit)
+            w[axis + "maxfollowunits"].set_text(unit)
         if resolver:
             w[axis + "encoderscale_label"].set_text(_("Resolver Scale:"))
         if axis == 's':
@@ -4405,21 +4406,17 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             w["ssingleinputencoder"].show()
             w["saxistest"].set_sensitive(pwmgen or spindlepot)
             w["sstepper_info"].set_sensitive(stepdriven)
-            w["smaxferror"].set_sensitive(False)
-            w["sminferror"].set_sensitive(False)
             w["smaxvel"].set_sensitive(stepdriven)
             w["smaxacc"].set_sensitive(stepdriven)
-            w["satspeedframe"].hide()
-            w["sfiltergainframe"].hide()
-            if not digital_at_speed and encoder:
-                w["satspeedframe"].show()
+            w["suseatspeed"].set_sensitive(not digital_at_speed and encoder)
             if encoder or resolver:
                 if (self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1) or (self.d.gladevcp 
                     and self.d.spindlespeedbar):
-                    w["sfiltergainframe"].show()
+                    w["sfiltergain"].set_sensitive(True)
             set_active("useatspeed")
+            w.snearrange_button.set_active(d.susenearrange)
             w["snearscale"].set_value(d["snearscale"]*100)
-            w["srpmrange"].set_value(d["srpmrange"])
+            w["snearrange"].set_value(d["snearrange"])
             set_value("filtergain")
             set_active("singleinputencoder")
         else:
@@ -4512,6 +4509,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
     def bldc_toggled(self, axis):
         i = self.widgets[axis + "bldc_option"].get_active()
         self.widgets[axis + "bldcoptionbox"].set_sensitive(i)
+
+    def useatspeed_toggled(self):
+        i = self.widgets.suseatspeed.get_active()
+        self.widgets.snearscale.set_sensitive(self.widgets.snearscale_button.get_active() and i)
+        self.widgets.snearrange.set_sensitive(self.widgets.snearrange_button.get_active() and i)
 
     def bldc_update(self,Widgets,axis):
         w = self.widgets
@@ -4624,9 +4626,10 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             get_active("usebacklash")
         else:
             get_active("useatspeed")
+            d.susenearrange = w.snearrange_button.get_active()
             get_pagevalue("nearscale")
             d["snearscale"] = w["snearscale"].get_value()/100
-            d["srpmrange"] = w["srpmrange"].get_value()
+            d["snearrange"] = w["snearrange"].get_value()
             get_pagevalue("filtergain")
             get_active("singleinputencoder")
 

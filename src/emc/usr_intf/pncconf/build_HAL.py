@@ -1332,11 +1332,17 @@ class HAL:
                 print >>file, "# ---Setup spindle at speed signals---"
                 print >>file
                 if (encoderpinname or resolverpinname) and self.d.suseatspeed:
+                    if self.d.susenearrange:
+                        near_scale = 1
+                        near_range = self.d.snearrange/60
+                    else:
+                        near_scale =  self.d.snearscale
+                        near_range = 0
                     print >>file, "net spindle-vel-cmd-rps    =>  near.0.in1"
                     print >>file, "net spindle-vel-fb         =>  near.0.in2"
                     print >>file, "net spindle-at-speed       <=  near.0.out"
-                    print >>file, "setp near.0.scale %f"% self.d.snearscale
-                    print >>file, "setp near.0.difference %f"% (self.d.srpmrange/60)
+                    print >>file, "setp near.0.scale %f"%near_scale
+                    print >>file, "setp near.0.difference %f"% near_range
                     print >>file
                 else:
                     print >>file, "sets spindle-at-speed true"
