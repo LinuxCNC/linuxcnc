@@ -31,7 +31,7 @@ systems.
    for updates and for communicating with the LinuxCNC community)
 
 Minimum hardware requirements change as Ubuntu evolves so check the 
-https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD your using.
+https://help.ubuntu.com[Ubuntu] web site for details on the LiveCD you're using.
 Older hardware may benefit from selecting an older version of the LiveCD when
 available.
 
