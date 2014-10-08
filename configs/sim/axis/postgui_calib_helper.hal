@@ -1,0 +1,14 @@
+# postgui_calib_helper.hal
+# demonstration for calibration with ini hal pins
+
+# ini hal pins will be recognized by the calibration program (emccalib.tcl)
+# only if the setp commands are in a postgui hal file, example:
+# [HAL]POSTGUI_HALFILE = postgui_calib_helper.hal
+
+setp ini.0.max_velocity [AXIS_0]MAX_VELOCITY
+setp ini.1.max_velocity [AXIS_1]MAX_VELOCITY
+setp ini.2.max_velocity [AXIS_2]MAX_VELOCITY
+
+setp ini.0.max_acceleration [AXIS_0]MAX_ACCELERATION
+setp ini.1.max_acceleration [AXIS_1]MAX_ACCELERATION
+setp ini.2.max_acceleration [AXIS_2]MAX_ACCELERATION
