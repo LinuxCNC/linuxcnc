@@ -253,7 +253,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) $(RT_LDFLAGS) \
-	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) $(LTTNG_UST_LIBS) \
+	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
