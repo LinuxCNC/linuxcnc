@@ -3099,7 +3099,6 @@ AC_SUBST([SITEPY])
 
 if test "$BUILD_EMCWEB" = yes; then
    # these are needed for the emcweb interface only
-   AX_BOOST_SERIALIZATION()
    AX_BOOST_THREAD()
    AX_BOOST_SYSTEM()
 fi

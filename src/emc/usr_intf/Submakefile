@@ -123,7 +123,7 @@ ifeq "$(BUILD_EMCWEB)" "yes"
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) $(BOOST_LDFLAGS) -o $@ $(ULFLAGS) $^ \
-	    $(BOOST_SERIALIZATION_LIB) $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB) \
+	    $(BOOST_THREAD_LIB) $(BOOST_SYSTEM_LIB) \
 	    -lpthread -ldl	
 TARGETS += ../bin/emcweb
 endif
