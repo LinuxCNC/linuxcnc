@@ -227,13 +227,17 @@ def jog_plus(name, target):
 
 def wait_for_joint_to_stop(joint_number):
     pos_pin = 'joint-%d-position' % joint_number
+    start_time = time.time()
+    timeout = 2.0
     prev_pos = h[pos_pin]
-    while True:
+    while (time.time() - start_time) < timeout:
         time.sleep(0.1)
         new_pos = h[pos_pin]
         if new_pos == prev_pos:
             return
         prev_pos = new_pos
+    print "Error: joint didn't stop jogging!"
+    sys.exit(1)
 
 
 def jog_joint(joint_number, target):
