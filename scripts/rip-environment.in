@@ -1,9 +1,14 @@
+#!/bin/bash
 # Execute this file in the context of your shell, such as with
 #  . @EMC2_HOME@/scripts/rip-environment
 # and your shell environment will be properly configured to run commands like
-# comp, halcmd, halrun, iosh, and python with the emc modules available.
-
-#    Copyright 2006, 2007, 2008, 2009 Jeff Epler <jepler@unpythonic.net>
+# halcompile, halcmd, halrun, iosh, and python with the emc modules available.
+#
+# Alternately, use it as a wrapper to invoke a linuxcnc command that requires
+# the environment to be set:
+#  @EMC2_HOME@/scripts/rip-environment latency-test
+#
+#    Copyright 2006, 2007, 2008, 2009, 2014 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,12 +26,27 @@
 
 case "$0" in
     rip-environment|*/rip-environment)
-	cat <<EOF
-This script should be loaded in the context of your shell, by executing
-	. $0
-not executed as a separate command.
-EOF
-	exit 1 ;;
+        as_command=true
+        if [ $# -eq 0 ]; then
+                cat <<-EOF
+			This script can be used in one of two ways.
+
+			It can be loaded in the context of your shell, by executing
+			    . $0
+			after this, commands like 'linuxcnc', 'halrun' and so on refer to the
+			version in this directory, instead of to an installed version of
+			linuxcnc (if any)
+
+			Second, it can be used to run a command in this directory without
+			modifying the environment of the calling shell:
+			    $0 command...
+			such as
+			    $0 halrun foo.hal
+			    $0 linuxcnc configs/.../foo.ini
+		EOF
+	exit 1
+        fi ;;
+    *) as_command=false
 esac
 
 if ! test "xyes" = "x@RUN_IN_PLACE@"; then
@@ -36,8 +56,10 @@ fi
 
 case "$PATH" in
     @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
-	echo "This script only needs to be run once per shell session."
-	return ;;
+        if ! $as_command; then
+            echo "This script only needs to be run once per shell session."
+            return
+        fi ;;
 esac
 
 EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
@@ -79,29 +101,33 @@ else
     GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp:"$GLADE_CATALOG_PATH"
 fi
 
-# TODO: if these completion directives give trouble for any versions
-# of bash actively in use, protect them with checks of BASH_VERSINFO
-if [ $BASH_VERSINFO -eq 2 ]; then
-    complete -o dirnames -f -X '!*.ini' emc axis mdi
-    complete -o dirnames -f -X '!*.hal' halrun halcmd
-    complete -W 'start stop restart status' realtime
-    complete -C "halcmd -C" halcmd
-else
-    _iningc () {
-        case "$3" in 
-        *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
-        *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
-        esac
-    }
-    complete -o plusdirs -F _iningc emc axis
-    complete -o plusdirs -f -X '!*.ini' mdi
-    complete -o plusdirs -f -X '!*.hal' halrun halcmd
-    complete -W 'start stop restart status' realtime
-    complete -C "halcmd -C" halcmd
-fi
+if ! $as_command; then
+    # TODO: if these completion directives give trouble for any versions
+    # of bash actively in use, protect them with checks of BASH_VERSINFO
+    if [ $BASH_VERSINFO -eq 2 ]; then
+        complete -o dirnames -f -X '!*.ini' emc axis mdi
+        complete -o dirnames -f -X '!*.hal' halrun halcmd
+        complete -W 'start stop restart status' realtime
+        complete -C "halcmd -C" halcmd
+    else
+        _iningc () {
+            case "$3" in
+            *.ini) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ngc' -- "$2")) ;;
+            *) COMPREPLY=($(compgen -o plusdirs -f -X '!*.ini' -- "$2"))
+            esac
+        }
+        complete -o plusdirs -F _iningc emc axis
+        complete -o plusdirs -f -X '!*.ini' mdi
+        complete -o plusdirs -f -X '!*.hal' halrun halcmd
+        complete -W 'start stop restart status' realtime
+        complete -C "halcmd -C" halcmd
+    fi
 
-if [ -f $EMC2_HOME/src/Makefile ]; then
-    build () { make -C $EMC2_HOME/src "$@"; }
+    if [ -f $EMC2_HOME/src/Makefile ]; then
+        build () { make -C $EMC2_HOME/src "$@"; }
+    fi
 fi
 
 export PYTHONPATH MANPATH LD_LIBRARY_PATH TCLLIBPATH GLADE_CATALOG_PATH
+
+if $as_command; then exec "$@"; fi
