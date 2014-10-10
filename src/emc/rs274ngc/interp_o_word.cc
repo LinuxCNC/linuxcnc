@@ -28,6 +28,7 @@
 #include "interp_return.hh"
 #include "interp_internal.hh"
 #include "rs274ngc_interp.hh"
+#include "inifile.hh"		// strstore()
 
 namespace bp = boost::python;
 

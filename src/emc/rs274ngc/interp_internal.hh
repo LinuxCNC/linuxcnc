@@ -281,10 +281,6 @@ typedef enum
 { R_PLANE, OLD_Z }
 RETRACT_MODE;
 
-// string table - to get rid of strdup/free
-const char *strstore(const char *s);
-
-
 // Block execution phases in execution order
 // very carefully check code for sequencing when
 // adding phases!
