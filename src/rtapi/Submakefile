@@ -356,7 +356,7 @@ RTAPI_MSGD_CFLAGS := \
 
 RTAPI_MSGD_LDFLAGS := \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) \
-	-lstdc++ -ldl -lz -luuid
+	-lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
 
