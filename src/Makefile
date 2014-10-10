@@ -1648,7 +1648,7 @@ RTDEPS := $(sort $(patsubst $(OBJDIR)/%.o,$(DEPDIR)/%.d, $(RTOBJS)))
 #
 modules: $(patsubst %.o,$(RTLIBDIR)/%.so,$(obj-m))
 $(RTLIBDIR)/%.so:
-	$(ECHO) Linking $@
+	$(ECHO) Linking realtime $(threads) $(notdir $@)
 	@mkdir -p $(dir $@)
 	@# link all objects files into a single .so
 	$(Q)$(LD) -d -r -o $(OBJDIR)/$*.tmp $^
@@ -1668,7 +1668,7 @@ $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
-	$(ECHO) Compiling realtime $<
+	$(ECHO) Compiling realtime $(threads) $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(OPT) $(DEBUG) $(EXTRA_CFLAGS) $< -o $@

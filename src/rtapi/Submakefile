@@ -85,7 +85,7 @@ ULAPISO := ../rtlib/ulapi-$(threads).so
 
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(ULAPI_SRCS))
-	$(ECHO) Creating shared object $@
+	$(ECHO) Creating shared object $(notdir $@)
 	@mkdir -p ../rtlib
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \

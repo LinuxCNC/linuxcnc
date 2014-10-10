@@ -29,7 +29,7 @@ TARGETS += ../lib/python/machinekit/hal.so
 		../lib/libmtalk.so.0 \
 		$(patsubst %.c,objects/%.o,$(HALSO_SRCS)) \
 		$(patsubst %.cc,objects/%.o,$(HALSO_CXXSRCS))
-	$(ECHO) Linking $(notdir $@)
+	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -g $(LDFLAGS) -shared -o $@ $^
 
@@ -70,7 +70,7 @@ TARGETS += ../lib/python/machinekit/compat.so
 ../lib/python/machinekit/compat.so: \
 		$(patsubst %.c,objects/%.o,$(COMPATSO_CSRCS)) \
 		../lib/liblinuxcnchal.so.0
-	$(ECHO) Linking $@
+	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -g $(LDFLAGS) -shared -o $@ $^
 
@@ -84,7 +84,7 @@ $(call TOOBJSDEPS, $(SHMCOMMONSO_CSRCS)) : EXTRAFLAGS=-fPIC -Irtapi/shmdrv
 TARGETS += ../lib/python/machinekit/shmcommon.so
 ../lib/python/machinekit/shmcommon.so: \
 		$(patsubst %.c,objects/%.o,$(SHMCOMMONSO_CSRCS))
-	$(ECHO) Linking $@
+	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -g  -shared -o $@ $^ $(LDFLAGS) -lrt
 

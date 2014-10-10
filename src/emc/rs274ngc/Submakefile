@@ -60,7 +60,7 @@ PYSRCS += $(GCODEMODULESRCS)
 GCODEMODULE := ../lib/python/gcode.so
 $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
+	$(Q)$(CXX) $(LDFLAGS) -shared -o $@ $^ -lstdc++
 
 
 PYTARGETS += $(GCODEMODULE)
