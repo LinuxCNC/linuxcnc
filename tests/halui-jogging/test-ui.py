@@ -225,6 +225,17 @@ def jog_plus(name, target):
     return True
 
 
+def wait_for_joint_to_stop(joint_number):
+    pos_pin = 'joint-%d-position' % joint_number
+    prev_pos = h[pos_pin]
+    while True:
+        time.sleep(0.1)
+        new_pos = h[pos_pin]
+        if new_pos == prev_pos:
+            return
+        prev_pos = new_pos
+
+
 def jog_joint(joint_number, target):
     success = True
 
@@ -253,10 +264,7 @@ def jog_joint(joint_number, target):
                 print "joint", str(j), "moved from %.3f to %.3f but shouldnt have!" % (joint[j], h[pin_name])
                 success = False
 
-
-    # give the joint time to stop
-    # FIXME: close the loop here
-    time.sleep(0.1)
+    wait_for_joint_to_stop(joint_number)
 
     if not success:
         sys.exit(1)
