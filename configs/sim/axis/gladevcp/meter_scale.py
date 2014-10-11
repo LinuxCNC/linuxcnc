@@ -17,10 +17,10 @@ class HandlerClass:
         self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
         self.max_value.connect('value-changed', self._on_max_value_change)
 
-        inifile = linuxcnc.ini(os.getenv("EXAMPLE_CFG"))
-        mmin = float(inifile.find("METER", "MIN") or 0.0)
+        inifile = linuxcnc.ini(os.getenv("INI_FILE_NAME"))
+        mmax = float(inifile.find("METER", "MAX") or 100.0)
         self.meter = self.builder.get_object('meter')
-        self.meter.min = mmin
+        self.max_value.set(mmax)
 
 
 def get_handlers(halcomp,builder,useropts):
