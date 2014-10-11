@@ -133,7 +133,10 @@ MDI_COMMAND = M101
 The commands are assigned to pins (Type=bit, Dir=IN) named halui.mdi-command-nn whre
 nn corresponds to their ordered appearance beginning with nn=00.  (man halui for more information)
 ----------------------------------
-A halfile named monitor_xhc-hb04.tcl is included to monitor disconnects and reconnects of the pendant.  This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.  Usage is optional; if used its ini file entry must follow the entry for xhc-hb04.tcl.  (Note: when using require_pendant=1, disconnects are detected but reconnects are not supported)
+A applicatin named monitor_xhc-hb04.tcl is included to monitor disconnects and reconnects of the pendant.  This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.  Usage is optional; if used it is specified with ini file entry:
+  [APPLICATIONS]APP = monitor_xhc_hb04.tcl
+
+(Note: when using require_pendant=1, disconnects are detected but reconnects are not supported)
 ----------------------------------
 
 An xhc-hb04 pendant can be added to existing configurations.
@@ -143,7 +146,7 @@ An xhc-hb04 pendant can be added to existing configurations.
      $ cp xhc-hb04-layout*.cfg your_config_dir/
   2) Edit existing configuration ini file to:
     a) add [HAL]HALFILE=xhc-hb04.tcl
-    b) add [HAL]HALFILE=monitor_xhc-hb04.tcl
+    b) add [APPLICATIONS]APP=monitor_xhc-hb04.tcl
     c) add stanza [XHC-HB04_CONFIG]
     d) add stanza [XHC-HB04_BUTTONS]
     e) add or update stanza for [HALUI]

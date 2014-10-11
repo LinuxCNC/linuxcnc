@@ -19,14 +19,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #-----------------------------------------------------------------------
 
-# pass 1: set environmental variable as flag
-#         then restart this script in background
-#         exit
-# pass 2: detect environmental variable and continuously monitor
-#         the xhc-hb04.connected pin
-
 set ::progname [file tail $::argv0]
-set ::startup_delay_ms 5000
 set ::periodic_delay_ms 2000
 set ::popup_hold_ms 0 ;# use 0 for forever
 set ::debug 0
@@ -155,11 +148,4 @@ proc check {} {
 } ;# check
 
 # begin -----------------------------------------------------
-if ![info exists ::env(monitor_xhc-hb04)] {
-  set ::env(monitor_xhc-hb04) $::argv0
-  exec ./monitor_xhc-hb04.tcl & ;# restart this with env(monitor_xhc-hb04) set
-  exit 0
-} else {
-  after $::startup_delay_ms
-  start_monitor
-}
+start_monitor
