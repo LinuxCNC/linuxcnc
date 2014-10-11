@@ -729,6 +729,9 @@ class Data:
         self.aminferror= .05
         self.amaxferror= .5
         # spindle at speed near settings
+        self.soutputscale = 2000
+        self.soutputminlimit = -2000
+        self.soutputmaxlimit = 2000
         self.smaxoutput = 2000
         self.sP = 0
         self.smaxvel = 2000
