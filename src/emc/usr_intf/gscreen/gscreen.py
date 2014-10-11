@@ -1216,10 +1216,17 @@ class Gscreen:
         print self.data.angular_jog_adjustment_flag
 
     def search_fwd(self,widget):
-        self.widgets.gcode_view.text_search(direction=True,text=self.widgets.search_entry.get_text())
+        self.widgets.gcode_view.text_search(direction=True,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+                                text=self.widgets.search_entry.get_text())
 
     def search_bwd(self,widget):
-        self.widgets.gcode_view.text_search(direction=False,text=self.widgets.search_entry.get_text())
+        self.widgets.gcode_view.text_search(direction=False,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+                                text=self.widgets.search_entry.get_text())
+
+    def replace_text(self,widget):
+        self.widgets.gcode_view.replace_text_search(direction=True,mixed_case=self.widgets.ignorecase_checkbutton.get_active(),
+                                text=self.widgets.search_entry.get_text(),re_text=self.widgets.search_entry1.get_text(),
+                                replace_all=self.widgets.replaceall_checkbutton.get_active())
 
     def undo_edit(self,widget):
         self.widgets.gcode_view.undo()
@@ -2206,6 +2213,7 @@ class Gscreen:
 
                         ["","button_search_fwd","clicked", "search_fwd"],
                         ["","button_search_bwd","clicked", "search_bwd"],
+                        ["","button_replace_text","clicked", "replace_text"],
                         ["","button_undo","clicked", "undo_edit"],
                         ["","button_redo","clicked", "redo_edit"],]
 
