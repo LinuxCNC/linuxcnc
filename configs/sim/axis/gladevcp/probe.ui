@@ -60,19 +60,6 @@
                         <property name="position">1</property>
                       </packing>
                     </child>
-                    <child>
-                      <object class="HAL_Button" id="probe_contact">
-                        <property name="label" translatable="yes">    Simulate
-probe contact</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
                   </object>
                 </child>
                 <child type="label">
