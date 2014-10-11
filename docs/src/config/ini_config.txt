@@ -541,11 +541,12 @@ and connected before starting other applications.
 * 'DELAY = value' - Specify delay in seconds to wait beore starting other
    applications.
 
-* 'APP = appname' - Specify application name to be started.  This specification
-can be included multiple times.  The application by default is expected to
-be located in the same directory as the ini file.  Alternatively, the application
-can be specifed relative to the ini file directory, or as an absolute path, or as
-a tilde path.
+* 'APP = appname arg1 arg2 ...' - Application to be started.
+   This specification can be included multiple times.  The appname can be
+   explicitly named as an absolute or tilde specified filename (first character
+   is / or ~), a relative filename (first characters of filename are ./), or as
+   a file in the inifile directory.  If no executable file is found using 
+   these names, then the user search PATH is used to find the application.
 
 [[sub:TRAJ-section]]
 === [TRAJ] Section(((TRAJ (inifile section))))

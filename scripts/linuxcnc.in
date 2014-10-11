@@ -320,30 +320,45 @@ function handle_includes () {
   return 0 ;# ok
 }
 
+function split_app_items () {
+  app_name=$1
+  shift
+  app_args=$*
+}
+
 function run_applications () {
     DEFAULT_APPLICATION_DELAY=5
     GetFromIni DELAY APPLICATIONS
     DELAY=${retval:-$DEFAULT_APPLICATION_DELAY}
 
     NUM=1
-    CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
-    while [ -n "$CFGFILE" ] ; do
-       case "$CFGFILE" in
-         /*) ;;
-         *)  CFGFILE="$(pwd)/$CFGFILE";;
+    APPFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+    while [ -n "$APPFILE" ] ; do
+       split_app_items $APPFILE # --> app_name app_args
+       # try all explicit specifications before trying PATH
+       case "$app_name" in
+         /*) # absolute pathname
+             exe_name=$app_name;;
+       \./*) # name relative to inifile directory
+             exe_name="$(pwd)/$app_name";;
+          *) # try local first then PATH
+             exe_name=$(pwd)/$app_name
+             if [ ! -x $exe_name ] ; then
+               exe_name=$(which $app_name)
+             fi
        esac
-       echo "[APPLICATIONS]APP: $CFGFILE"
-       if [ ! -f "$CFGFILE" ] ; then
-          echo "[APPLICATIONS]APP Cannot find file: <$CFGFILE>"
+       if [ ! -f "$exe_name" ] ; then
+          echo "APP: Cannot find executable file for: <$app_name>"
        else
-          if [ ! -x "$CFGFILE" ] ; then
-             echo "[APPLICATIONS]APP File not executable: <$CFGFILE>"
+          if [ ! -x "$exe_name" ] ; then
+             echo "APP: File not executable: <$exe_name>"
           else
-             (sleep $DELAY; $CFGFILE) &
+             echo "APP: $app_name found: <$exe_name>"
+             (sleep $DELAY; eval $exe_name $app_args) &
           fi
        fi
        NUM=$(($NUM+1))
-       CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+       APPFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
     done
 }
 
