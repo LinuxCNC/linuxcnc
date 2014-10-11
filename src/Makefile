@@ -934,7 +934,8 @@ endif
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
-	-ldconfig $(DESTDIR)$(libdir)
+#	# don't run ldconfig under fakeroot (silence dpkg-build warning)
+	-test -n "$$FAKED_MODE" || ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
 ifeq ($(USERMODE_PCI),yes)
 	$(FILE) $(USERPCI_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/userpci
