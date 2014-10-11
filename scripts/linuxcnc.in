@@ -320,6 +320,33 @@ function handle_includes () {
   return 0 ;# ok
 }
 
+function run_applications () {
+    DEFAULT_APPLICATION_DELAY=5
+    GetFromIni DELAY APPLICATIONS
+    DELAY=${retval:-$DEFAULT_APPLICATION_DELAY}
+
+    NUM=1
+    CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+    while [ -n "$CFGFILE" ] ; do
+       case "$CFGFILE" in
+         /*) ;;
+         *)  CFGFILE="$(pwd)/$CFGFILE";;
+       esac
+       echo "[APPLICATIONS]APP: $CFGFILE"
+       if [ ! -f "$CFGFILE" ] ; then
+          echo "[APPLICATIONS]APP Cannot find file: <$CFGFILE>"
+       else
+          if [ ! -x "$CFGFILE" ] ; then
+             echo "[APPLICATIONS]APP File not executable: <$CFGFILE>"
+          else
+             (sleep $DELAY; $CFGFILE) &
+          fi
+       fi
+       NUM=$(($NUM+1))
+       CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var APP -sec APPLICATIONS -num $NUM 2> /dev/null`
+    done
+}
+
 INIFILE="$(handle_includes "$INIFILE")"
 
 # delete directories from path, save name only
@@ -679,7 +706,7 @@ else
         echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
 fi
 
-# 4.3.5. Run halui in background, if necessary
+# 4.3.5.0. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
     echo "Starting HAL User Interface program: $HALUI" >>$PRINT_FILE
     if ! program_available $HALUI ; then
@@ -689,6 +716,9 @@ if [ -n "$HALUI" ] ; then
     fi
     $HALCMD loadusr -Wn halui $HALUI -ini "$INIFILE"
 fi
+
+# 4.3.5.1. run other applications
+run_applications
 
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then

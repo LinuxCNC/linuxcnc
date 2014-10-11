@@ -65,6 +65,7 @@ The following sections are used by LinuxCNC:
 * '[<<sub:TASK-section,TASK>>]' settings used by the task controller
 * '[<<sub:HAL-section,HAL>>]' specifies .hal files
 * '[<<sub:HALUI-section,HALUI>>]' MDI commands used by HALUI
+* '[<<sub:APPLICATIONS-section,APPLICATIONS>>]' Other applications to be started by LinuxCNC
 * '[<<sub:TRAJ-section,TRAJ>>]' additional settings used by the real time motion controller
 * '[<<sub:AXIS-section,AXIS_n>>]' individual axis variables
 * '[<<sub:EMCIO-Section,EMCIO>>]' settings used by the I/O Controller
@@ -529,6 +530,22 @@ Section.
 * 'MDI_COMMAND = G53 G0 X0 Y0 Z0' - 
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
+
+[[sub:APPLICATIONS-section]]
+=== [APPLICATIONS] section(((APPLICATIONS (inifile section))))
+
+LinuxCNC can start other applications after the specified gui is started.
+It is normal to specify a delay to allow for hal components to be created
+and connected before starting other applications.
+
+* 'DELAY = value' - Specify delay in seconds to wait beore starting other
+   applications.
+
+* 'APP = appname' - Specify application name to be started.  This specification
+can be included multiple times.  The application by default is expected to
+be located in the same directory as the ini file.  Alternatively, the application
+can be specifed relative to the ini file directory, or as an absolute path, or as
+a tilde path.
 
 [[sub:TRAJ-section]]
 === [TRAJ] Section(((TRAJ (inifile section))))
