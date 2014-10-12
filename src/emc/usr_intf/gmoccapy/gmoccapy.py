@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.2.2"
+_RELEASE = "   1.3.0"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -3564,17 +3564,30 @@ class gmoccapy(object):
             self.widgets.box_info.set_size_request(-1, 50)
         self.widgets.tbl_search.show()
 
-    # search forward while in edit mode
-    def on_btn_search_forward_clicked(self, widget, data = None):
-        self.widgets.gcode_view.text_search(direction = True, text = self.widgets.search_entry.get_text())
-
-    # search backward while in edit mode
-    def on_btn_search_back_clicked(self, widget, data = None):
-        self.widgets.gcode_view.text_search(direction = False, text = self.widgets.search_entry.get_text())
-
+# Search and replace handling in edit mode
     # undo changes while in edit mode
     def on_btn_undo_clicked(self, widget, data = None):
         self.widgets.gcode_view.undo()
+
+    # search backward while in edit mode
+    def on_btn_search_back_clicked(self, widget, data = None):
+        self.widgets.gcode_view.text_search(direction = False,
+                                            mixed_case = self.widgets.chk_ignore_case.get_active(), 
+                                            text = self.widgets.search_entry.get_text())
+
+    # search forward while in edit mode
+    def on_btn_search_forward_clicked(self, widget, data = None):
+        self.widgets.gcode_view.text_search(direction = True, 
+                                            mixed_case = self.widgets.chk_ignore_case.get_active(),
+                                            text = self.widgets.search_entry.get_text())
+
+    # replace text in edit mode
+    def on_btn_replace_clicked(self, widget, data = None):
+        self.widgets.gcode_view.replace_text_search(direction = True,
+                                                    mixed_case = self.widgets.chk_ignore_case.get_active(),
+                                                    text = self.widgets.search_entry.get_text(),
+                                                    re_text = self.widgets.replace_entry.get_text(),
+                                                    replace_all = self.widgets.chk_replace_all.get_active())
 
     # redo changes while in edit mode
     def on_btn_redo_clicked(self, widget, data = None):
