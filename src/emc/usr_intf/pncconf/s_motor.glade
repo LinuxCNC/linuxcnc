@@ -424,53 +424,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="saxistest">
-                        <property name="width_request">120</property>
-                        <property name="height_request">50</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="receives_default">True</property>
-                        <signal name="clicked" handler="on_saxistest_clicked"/>
-                        <child>
-                          <object class="GtkHBox" id="hbox12">
-                            <property name="visible">True</property>
-                            <child>
-                              <object class="GtkImage" id="image2">
-                                <property name="visible">True</property>
-                                <property name="stock">gtk-execute</property>
-                              </object>
-                              <packing>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="saxistes">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Open Loop
-      Test</property>
-                              </object>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">8</property>
-                        <property name="bottom_attach">10</property>
-                        <property name="x_options"></property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkLabel" id="soutputminlimitlabel">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="xpad">4</property>
-                        <property name="label" translatable="yes">snalog Min Limit:</property>
+                        <property name="label" translatable="yes">analog Min Limit:</property>
                       </object>
                       <packing>
                         <property name="top_attach">4</property>
@@ -484,7 +442,7 @@
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="xpad">4</property>
-                        <property name="label" translatable="yes">snalog Max limit:</property>
+                        <property name="label" translatable="yes">analog Max limit:</property>
                       </object>
                       <packing>
                         <property name="top_attach">5</property>
@@ -498,7 +456,7 @@
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
                         <property name="xpad">4</property>
-                        <property name="label" translatable="yes">snalog Max Scale:</property>
+                        <property name="label" translatable="yes">analog Max Scale:</property>
                       </object>
                       <packing>
                         <property name="top_attach">6</property>
@@ -557,6 +515,12 @@
                         <property name="x_options"></property>
                         <property name="y_options"></property>
                       </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
@@ -1408,6 +1372,7 @@
             <child>
               <object class="GtkTable" id="table24">
                 <property name="visible">True</property>
+                <property name="border_width">5</property>
                 <property name="n_rows">7</property>
                 <property name="n_columns">3</property>
                 <child>
@@ -1675,21 +1640,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="scalculatescale">
-                <property name="label" translatable="yes">Calculate
-Scale</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_scalculatescale_clicked"/>
-              </object>
-              <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkSpinButton" id="sfiltergain">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -1768,9 +1718,6 @@ Scale</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
               <object class="GtkRadioButton" id="snearrange_button">
                 <property name="label" translatable="yes">Use Near Range</property>
                 <property name="visible">True</property>
@@ -1801,11 +1748,133 @@ Scale</property>
                 <property name="bottom_attach">7</property>
               </packing>
             </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkAlignment" id="alignment1">
+            <property name="visible">True</property>
+            <property name="xalign">1</property>
+            <property name="xscale">0.25</property>
+            <child>
+              <object class="GtkVBox" id="vbox1">
+                <property name="visible">True</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="scalculatescale">
+                    <property name="label" translatable="yes">Calculate
+Scale</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_scalculatescale_clicked"/>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="saxistest">
+                    <property name="width_request">120</property>
+                    <property name="height_request">50</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_saxistest_clicked"/>
+                    <child>
+                      <object class="GtkHBox" id="hbox12">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkImage" id="image2">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-execute</property>
+                          </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="saxistes">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Open Loop
+      Test</property>
+                          </object>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="saxistune">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <signal name="clicked" handler="on_saxistune_clicked"/>
+                    <child>
+                      <object class="GtkAlignment" id="slignment29">
+                        <property name="visible">True</property>
+                        <property name="xscale">0</property>
+                        <property name="yscale">0</property>
+                        <child>
+                          <object class="GtkHBox" id="hbox59">
+                            <property name="visible">True</property>
+                            <property name="spacing">2</property>
+                            <child>
+                              <object class="GtkImage" id="image24">
+                                <property name="visible">True</property>
+                                <property name="stock">gtk-execute</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label370">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Test / Tune Axis</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
           </packing>
         </child>
       </object>
@@ -1816,76 +1885,7 @@ Scale</property>
       </packing>
     </child>
     <child>
-      <object class="GtkHBox" id="hbox9">
-        <property name="visible">True</property>
-        <child>
-          <object class="GtkAlignment" id="slignment28">
-            <property name="visible">True</property>
-            <property name="xalign">0</property>
-            <property name="xscale">0.2800000011920929</property>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="saxistune">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <signal name="clicked" handler="on_saxistune_clicked"/>
-            <child>
-              <object class="GtkAlignment" id="slignment29">
-                <property name="visible">True</property>
-                <property name="xscale">0</property>
-                <property name="yscale">0</property>
-                <child>
-                  <object class="GtkHBox" id="hbox59">
-                    <property name="visible">True</property>
-                    <property name="spacing">2</property>
-                    <child>
-                      <object class="GtkImage" id="image24">
-                        <property name="visible">True</property>
-                        <property name="stock">gtk-execute</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label370">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Test / Tune Axis</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="padding">15</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-      </object>
-      <packing>
-        <property name="position">5</property>
-      </packing>
+      <placeholder/>
     </child>
     <child>
       <placeholder/>
