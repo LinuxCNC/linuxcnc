@@ -532,21 +532,43 @@ Section.
     the number for each command listed in the [HALUI] section.
 
 [[sub:APPLICATIONS-section]]
-=== [APPLICATIONS] section(((APPLICATIONS (inifile section))))
+=== [APPLICATIONS] Section(((APPLICATIONS (inifile section))))
 
 LinuxCNC can start other applications after the specified gui is started.
 It is normal to specify a delay to allow for hal components to be created
 and connected before starting other applications.
 
-* 'DELAY = value' - Specify delay in seconds to wait beore starting other
+* 'DELAY = value' - seconds to wait beore starting other
    applications.
 
-* 'APP = appname arg1 arg2 ...' - Application to be started.
+* 'APP = appname [arg1 [arg2 ...]]' - Application to be started.
    This specification can be included multiple times.  The appname can be
    explicitly named as an absolute or tilde specified filename (first character
    is / or ~), a relative filename (first characters of filename are ./), or as
    a file in the inifile directory.  If no executable file is found using 
    these names, then the user search PATH is used to find the application.
+
+   Examples:
+
+**  Simulate inputs to hal pins for testing (using sim_pin -- a simple gui to set inputs to parameters, unconnected pins, or signals with no writers):
+
+   APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
+
+** Invoke halshow with a previuosly saved watchlist. Since linuxcnc sets the working directory to the directory for the inifile, you can refer to files in that directory (example: my.halshow):
+
+   APP = halshow my.halshow
+
+
+** Alternatively, a watchlist file identified with a full pathname could be specified:
+
+  APP = halshow ~/saved_shows/spindle.halshow
+
+**  Open halscope using a previously saved configuration:
+
+  APP = halscope -i my.halscope
+
+
+
 
 [[sub:TRAJ-section]]
 === [TRAJ] Section(((TRAJ (inifile section))))
