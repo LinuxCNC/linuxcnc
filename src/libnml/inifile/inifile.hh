@@ -32,6 +32,7 @@ public:
         ERR_TAG_NOT_FOUND       = 0x04,
         ERR_CONVERSION          = 0x08,
         ERR_LIMITS              = 0x10,
+        ERR_OVER_EXTENDED       = 0x20,
     } ErrorCode;
 
     class Exception {

@@ -23,6 +23,8 @@
 #include "config.h"
 #include "inifile.hh"
 
+#define MAX_EXTEND_LINES 20
+
 /// Return TRUE if the line has a line-ending problem
 static bool check_line_endings(const char *s) {
     if(!s) return false;
@@ -286,6 +288,11 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     char                        *valueString;
     char                        *endValueString;
 
+    char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
+    char* elineptr;
+    char* elinenext;
+    int   extend_ct = 0;
+
     // For exceptions.
     lineNo = 0;
     tag = _tag;
@@ -370,9 +377,42 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
         if (line[newLinePos] == '\n') {
             line[newLinePos] = 0;        /* make the newline 0 */
         }
+        // honor backslash (\) as line-end escape
+        if (line[newLinePos-1] == '\\') {
+           newLinePos = newLinePos-1;
+           line[newLinePos] = 0;
+           if (!extend_ct) {
+               elineptr = (char*)eline; //first time
+               strncpy(elineptr,line,newLinePos);
+               elinenext = elineptr + newLinePos;
+           } else {
+               strncpy(elinenext,line,newLinePos);
+               elinenext = elinenext + newLinePos;
+           }
+           *elinenext = 0;
+           extend_ct++;
+           if (extend_ct > MAX_EXTEND_LINES) {
+              fprintf(stderr,
+                 "INIFILE lineno=%d:Too many backslash line extends (limit=%d)\n",
+                 lineNo, MAX_EXTEND_LINES);
+              ThrowException(ERR_OVER_EXTENDED);
+              return(NULL);
+           }
+           continue; // get next line to extend
+        } else {
+            if (extend_ct) {
+               strncpy(elinenext,line,newLinePos);
+               elinenext = elinenext + newLinePos;
+               *elinenext = 0;
+            }
+        }
+        if (!extend_ct) {
+           elineptr = (char*)line;
+        }
+        extend_ct = 0;
 
         /* skip leading whitespace */
-        if (NULL == (nonWhite = SkipWhite(line))) {
+        if (NULL == (nonWhite = SkipWhite(elineptr))) {
             /* blank line-- skip */
             continue;
         }
@@ -640,6 +680,10 @@ IniFile::Exception::Print(FILE *fp)
 
     case ERR_LIMITS:
         msg = "ERR_LIMITS";
+        break;
+
+    case ERR_OVER_EXTENDED:
+        msg = "ERR_OVER_EXTENDED";
         break;
 
     default:

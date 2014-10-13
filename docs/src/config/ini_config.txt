@@ -79,18 +79,34 @@ a value. Everything from the first non-white space character after the
 spaces in string symbols if you want to or need to. A variable name is
 often called a keyword.
 
+.Variable Example
+----
+MACHINE = My Machine
+----
+
+A variable line may be extended to multiple lines with a terminal backslash (\)
+character.  A maximum of MAX_EXTEND_LINES (==20) are allowed.  There must be no
+whitespace following the trailing backslash character.
+
+Section identifiers may not be extended to multiple lines.
+
+.Variable with Line extends Example
+----
+APP = sim_pin \
+ini.0.max_acceleration \
+ini.1.max_acceleration \
+ini.2.max_acceleration \
+ini.0.max_velocity \
+ini.1.max_velocity \
+ini.2.max_velocity
+----
+
 The following sections detail each section of the configuration file,
 using sample values for the configuration lines.
 
 Variables that are used by LinuxCNC must always use the section
 names and variable names as shown. In the following example the variable
 'MACHINE' is assigned the value 'My Machine'.
-
-.Variable Example
-----
-MACHINE = My Machine
-----
-
 [[sub:custom-variables]]
 === Custom Sections and Variables
 
