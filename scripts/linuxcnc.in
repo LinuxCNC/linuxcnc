@@ -768,6 +768,23 @@ else
     done
 fi
 
+# 4.3.9. Run task in background
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
+    Cleanup
+    exit 1
+fi
+
+# setup LD_PRELOAD  if deemed necessary by configure
+unset LD_PRELOAD
+if [ -n "$PRELOAD_WORKAROUND" ] ; then
+	export LD_PRELOAD=$PRELOAD_WORKAROUND
+fi
+
+halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
+
+
 # 4.3.7. execute discrete HAL commands from ini file (if any)
 # get first command from ini file
 NUM=1
@@ -788,22 +805,6 @@ done
 
 # 4.3.8. start the realtime stuff ticking
 $HALCMD start
-
-# 4.3.9. Run task in background
-echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
-if ! program_available $EMCTASK ; then
-    echo "Can't execute TASK program $EMCTASK"
-    Cleanup
-    exit 1
-fi
-
-# setup LD_PRELOAD  if deemed necessary by configure
-unset LD_PRELOAD
-if [ -n "$PRELOAD_WORKAROUND" ] ; then
-	export LD_PRELOAD=$PRELOAD_WORKAROUND
-fi
-
-$EMCTASK -ini "$INIFILE" &
 
 # 4.3.10. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
