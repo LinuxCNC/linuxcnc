@@ -1666,7 +1666,97 @@ def reload_file(refilter=True):
         open_file_guts(tempfile, True, False)
     if line:
         o.set_highlight_line(line)
- 
+
+class AxisParam:
+    def __init__(self, vel, acc):
+        self.vel = vel
+        self.acc = acc
+
+    def StraightExecutionTime( self, distance, feedrate ):
+
+        t = 0.0
+        if feedrate is None:
+            v = self.vel
+        elif feedrate > self.vel:
+            v = self.vel
+        else:
+            v = feedrate
+
+        distance = abs(distance)
+        a = self.acc
+
+        if distance > 0:
+            # calc time and distance to accelerate to v
+            # v = at
+            # s = 1/2 a t^2 + v0 t,  assume v0 = 0
+            t = v / a
+            s =  1.0 / 2.0 * a * t *t
+
+            # check if accelerating to v then decelerating to v fits in the distance
+            if 2.0*s < distance:
+                t = 2.0 * t + (distance - 2.0*s) / v
+            else:
+                t = 2.0*math.sqrt( 2.0 * (distance/2.0) / a )
+
+        #print "distance=",distance, "a=", a, "v=", v, "t=", t
+        return t
+
+
+def CalcExecutionTime( axis_params, start_point, end_point, feedrate=None ):
+    distance = sum( (s-e)**2 for s, e in zip(start_point, end_point))
+    distance = math.sqrt(distance)
+
+    longest_time = 0
+    for ap,start,end in zip(axis_params, start_point, end_point ):
+        if not ap is None:
+            f = feedrate
+            if not feedrate is None:
+                f = feedrate * abs(end-start)/distance
+            time = ap.StraightExecutionTime( end - start, f )
+            if time > longest_time:
+                longest_time = time
+    return longest_time
+
+def CalcArcExecutionTime( ap, arcfeed ):
+    # Arcs have already been converted into line segments.
+    # We calculate absolute distance travelled in dx, dy, dz, etc
+    # and estimate the time in each axis.  This wont take into
+    # account an axis with low acceleration, but should be close enough.
+    time = 0
+    last_line = 0
+    last_feed = 0
+    arclen = [0,]*9
+    segcount = 0
+    for arcseg in arcfeed:
+        # Each record contains, line number, start, end, feedrate.
+        # We determine the end of an arc when the line # changes or the feed changes
+        line = arcseg[0]
+        start = arcseg[1]
+        end = arcseg[2]
+        feed = arcseg[3]
+
+        if line != last_line or feed != last_feed:
+            if segcount > 0:
+                t = CalcExecutionTime( ap, [0,]*9, arclen, last_feed )
+                time += t
+
+            arclen = [0,]*9
+            segcount = 0
+
+        # sum the distance travelled in each axis
+        for i in range(0,9):
+            arclen[i] += abs(end[i]-start[i])
+        segcount += 1
+
+        last_feed = feed
+        last_line = line
+
+    if segcount > 0:
+        t = CalcExecutionTime( ap, (0,)*9, arclen, last_feed )
+        time += t
+
+    return time
+
 class TclCommands(nf.TclCommands):
     def next_tab(event=None):
         current = widgets.right.raise_page()
@@ -1734,24 +1824,35 @@ class TclCommands(nf.TclCommands):
                 units = _("in")
                 fmt = "%.4f"
 
-            mf = vars.max_speed.get()
-            #print o.canon.traverse[0]
+            # read max_vel and max_acc for each axis
+            ap = []
+            lscale = 1.0
+            for a in range(0,8):
+                vel = inifile.find("AXIS_%d"%a, "MAX_VELOCITY")
+                acc = inifile.find("AXIS_%d"%a, "MAX_ACCELERATION")
+
+                #print "vel=", vel, " acc=", acc
+                if not vel is None and not acc is None:
+                    ap.append( AxisParam( float(vel) * lscale,
+                                               float(acc) * lscale ) )
+                else:
+                    ap.append( None )
 
             g0 = sum(dist(l[1][:3], l[2][:3]) for l in o.canon.traverse)
             g1 = (sum(dist(l[1][:3], l[2][:3]) for l in o.canon.feed) +
                 sum(dist(l[1][:3], l[2][:3]) for l in o.canon.arcfeed))
-            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in o.canon.feed) +
-                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in o.canon.arcfeed) +
-                sum(dist(l[1][:3], l[2][:3])/mf  for l in o.canon.traverse) +
-                o.canon.dwell_time
-                )
+            gt =  sum( CalcExecutionTime( ap, l[1], l[2] ) for l in o.canon.traverse)
+            gt += sum( CalcExecutionTime( ap, l[1], l[2], l[3] ) for l in o.canon.feed)
+            gt += CalcArcExecutionTime( ap, o.canon.arcfeed )
+            gt += o.canon.dwell_time
  
             props['g0'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g0, conv), units)
             props['g1'] = "%f %s".replace("%f", fmt) % (from_internal_linear_unit(g1, conv), units)
-            if gt > 120:
-                props['run'] = _("%.1f minutes") % (gt/60)
-            else:
-                props['run'] = _("%d seconds") % (int(gt))
+
+            h = gt/(60*60)
+            m = (gt/60) % 60
+            s = gt%60
+            props['run'] = "%d:%02d:%02d" % (int(h),int(m),int(s))
 
             min_extents = from_internal_units(o.canon.min_extents, conv)
             max_extents = from_internal_units(o.canon.max_extents, conv)
