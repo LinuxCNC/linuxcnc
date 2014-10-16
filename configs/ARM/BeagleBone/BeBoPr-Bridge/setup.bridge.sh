@@ -74,7 +74,7 @@ cape_loaded() {
 # $2 = revision (optional)
 load_cape () {
 	echo Loading $1 overlay
-	sudo -A su -c "echo $1${2:+:$2} > $SLOTS" || dtbo_err
+	sudo -A bash -c "echo $1${2:+:$2} > $SLOTS" || dtbo_err
 	sleep 1
 }
 
