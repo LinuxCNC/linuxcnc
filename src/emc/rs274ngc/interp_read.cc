@@ -1565,9 +1565,18 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  }
       else
 	  {
-	      CHP(read_integer_value(line, counter, &oNumber,
-				     parameters));
-	      sprintf(oNameBuf, "%d", oNumber);
+	      if (read_integer_value(line, counter, &oNumber,
+				     parameters) == INTERP_OK)
+		  // Read an integer or integer expression
+		  sprintf(oNameBuf, "%d", oNumber);
+	      else {
+		  // unrecognized o-word keyword - treat line as program title
+		  logDebug("O_none - ignoring entire line");
+		  for (; line[*counter] != '\0'; (*counter)++) {
+		      // eat rest of line
+		  }
+		  return INTERP_OK;
+	      }
 	  }
 
       // We stash the text the offset part of setup
