@@ -20,7 +20,7 @@ lines of code. The equivalent component is very short when written using the
 component ddt "Compute the derivative of the input function";
 pin in float in;
 pin out float out;
-variable float old;
+variable double old;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
