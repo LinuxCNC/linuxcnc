@@ -40,7 +40,7 @@ for DTBO in cape-universal cape-bone-iio ; do
 		echo $DTBO overlay found
 	else
 		echo Loading $DTBO overlay
-		sudo -A su -c "echo $DTBO > $SLOTS" || dtbo_err
+		sudo -A bash -c "echo $DTBO > $SLOTS" || dtbo_err
 		sleep 1
 	fi
 done;
