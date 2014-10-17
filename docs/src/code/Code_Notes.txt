@@ -24,7 +24,6 @@ very much a work in progress, and its layout may change in the future.
     orientation. A second set of linear orthagonal coordinates U, V, and W
     allows tool motion (typically for cutting actions) relative to the
     previously offset and rotated axes.
-
     Unfortunately “axis” is also
     sometimes used to mean a degree of freedom of the machine itself, such
     as the saddle, table, or quill of a Bridgeport type milling machine. On
