@@ -1,0 +1,157 @@
+component sim_axis_hardware;
+
+pin in float Xcurrent_pos;
+pin in float Ycurrent_pos;
+pin in float Zcurrent_pos;
+pin in float Acurrent_pos;
+
+pin in float Xhomesw_pos;
+pin in float Yhomesw_pos;
+pin in float Zhomesw_pos;
+pin in float Ahomesw_pos;
+
+pin in float Xmaxsw_upper;
+pin in float Ymaxsw_upper;
+pin in float Zmaxsw_upper;
+pin in float Amaxsw_upper;
+
+pin in float Xmaxsw_lower;
+pin in float Ymaxsw_lower;
+pin in float Zmaxsw_lower;
+pin in float Amaxsw_lower;
+
+pin in float Xminsw_upper;
+pin in float Yminsw_upper;
+pin in float Zminsw_upper;
+pin in float Aminsw_upper;
+
+pin in float Xminsw_lower;
+pin in float Yminsw_lower;
+pin in float Zminsw_lower;
+pin in float Aminsw_lower;
+
+pin in float Xhomesw_hyst =.02;
+pin in float Yhomesw_hyst =.02;
+pin in float Zhomesw_hyst =.02;
+pin in float Ahomesw_hyst =.02;
+
+pin in bit Yhomeall_include=true;
+pin in bit Zhomeall_include=true;
+pin in bit Ahomeall_include=false;
+
+pin out bit Xhomesw_out;
+pin out bit Yhomesw_out;
+pin out bit Zhomesw_out;
+pin out bit Ahomesw_out;
+pin out bit homesw_all;
+
+pin out bit Xmaxsw_out;
+pin out bit Xminsw_out;
+pin out bit Xbothsw_out;
+
+pin out bit Ymaxsw_out;
+pin out bit Yminsw_out;
+pin out bit Ybothsw_out;
+
+pin out bit Zmaxsw_out;
+pin out bit Zminsw_out;
+pin out bit Zbothsw_out;
+
+pin out bit Amaxsw_out;
+pin out bit Aminsw_out;
+pin out bit Abothsw_out;
+
+pin out bit limitsw_all;
+pin out bit limitsw_homesw_all;
+
+pin out bit Xmaxsw_homesw_out;
+pin out bit Xminsw_homesw_out;
+pin out bit Xbothsw_homesw_out;
+
+pin out bit Ymaxsw_homesw_out;
+pin out bit Yminsw_homesw_out;
+pin out bit Ybothsw_homesw_out;
+
+pin out bit Zmaxsw_homesw_out;
+pin out bit Zminsw_homesw_out;
+pin out bit Zbothsw_homesw_out;
+
+pin out bit Amaxsw_homesw_out;
+pin out bit Aminsw_homesw_out;
+pin out bit Abothsw_homesw_out;
+
+pin in float limit_offset =.01;
+
+function update fp;
+license "GPL";
+author "Chris Morley";
+;;
+
+FUNCTION(update) {
+int homeall_tmp;
+
+    /* private comparator function */
+    int comp(double in0, double in1, double hyst) {
+        double tmp;
+        double halfhyst;
+        tmp = in1 - in0;
+        halfhyst = 0.5 * hyst;
+
+        if(tmp < -halfhyst) {
+	    return false;
+        } else if(tmp > halfhyst){
+	    return false;
+        } else {
+        return true;
+        }
+    }
+
+    /* private window comparator function */
+    int wcomp (double in, double max_, double min_){
+        return !((in >= max_)|| (in <= min_));
+    }
+
+/*set home switches */
+Xhomesw_out = comp(Xhomesw_pos,Xcurrent_pos,Xhomesw_hyst);
+Yhomesw_out = comp(Yhomesw_pos,Ycurrent_pos,Yhomesw_hyst);
+Zhomesw_out = comp(Zhomesw_pos,Zcurrent_pos,Zhomesw_hyst);
+Ahomesw_out = comp(Ahomesw_pos,Acurrent_pos,Ahomesw_hyst);
+homeall_tmp = Xhomesw_out;
+if(Yhomeall_include) {homeall_tmp = homeall_tmp || Yhomesw_out;}
+if(Zhomeall_include) {homeall_tmp = homeall_tmp || Zhomesw_out;}
+if(Ahomeall_include) {homeall_tmp = homeall_tmp || Ahomesw_out;}
+homesw_all = homeall_tmp;
+
+/* set limit switches */
+Xmaxsw_out = wcomp(Xcurrent_pos,Xmaxsw_upper,Xmaxsw_lower+limit_offset);
+Xminsw_out = wcomp(Xcurrent_pos,Xminsw_upper-limit_offset,Xminsw_lower);
+Xbothsw_out = Xmaxsw_out || Xminsw_out;
+
+Ymaxsw_out = wcomp(Ycurrent_pos,Ymaxsw_upper,Ymaxsw_lower+limit_offset);
+Yminsw_out = wcomp(Ycurrent_pos,Yminsw_upper-limit_offset,Yminsw_lower);
+Ybothsw_out = Ymaxsw_out || Yminsw_out;
+
+Zmaxsw_out = wcomp(Zcurrent_pos,Zmaxsw_upper,Zmaxsw_lower+limit_offset);
+Zminsw_out = wcomp(Zcurrent_pos,Zminsw_upper-limit_offset,Zminsw_lower);
+Zbothsw_out = Zmaxsw_out || Zminsw_out;
+
+Amaxsw_out = wcomp(Acurrent_pos,Amaxsw_upper,Amaxsw_lower+limit_offset);
+Aminsw_out = wcomp(Acurrent_pos,Aminsw_upper-limit_offset,Aminsw_lower);
+Abothsw_out = Amaxsw_out || Aminsw_out;
+
+limitsw_all = (Xbothsw_out || Ybothsw_out || Zbothsw_out || Abothsw_out);
+
+/* set limit and home switches */
+limitsw_homesw_all = (homesw_all || limitsw_all);
+Xmaxsw_homesw_out = (Xmaxsw_out || Xhomesw_out);
+Xminsw_homesw_out = (Xminsw_out || Xhomesw_out);
+Xbothsw_homesw_out = (Xbothsw_out || Xhomesw_out);
+
+Ymaxsw_homesw_out = (Ymaxsw_out || Yhomesw_out);
+Yminsw_homesw_out = (Yminsw_out || Yhomesw_out);
+Ybothsw_homesw_out = (Ybothsw_out || Yhomesw_out);
+
+Zmaxsw_homesw_out = (Zmaxsw_out || Zhomesw_out);
+Zminsw_homesw_out = (Zminsw_out || Zhomesw_out);
+Zbothsw_homesw_out = (Zbothsw_out || Zhomesw_out);
+}
