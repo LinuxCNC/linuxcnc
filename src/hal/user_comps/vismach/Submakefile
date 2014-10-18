@@ -1,6 +1,7 @@
 
 
 VISMACH_PY :=  \
+	motomangui.py \
 	pumagui.py \
 	puma560gui.py \
 	scaragui.py \
