@@ -1,0 +1,19 @@
+net J0scaled pyvcp.joint0
+net J1scaled pyvcp.joint1
+net J2scaled pyvcp.joint2
+net J3scaled pyvcp.joint3
+net J4scaled pyvcp.joint4
+net J5scaled pyvcp.joint5
+net J6pos pyvcp.joint6
+net J7pos pyvcp.joint7
+net J8pos pyvcp.joint8
+
+loadrt toggle count=1
+addf toggle.0 servo-thread
+
+net soff <= pyvcp.soffsbut => pyvcp.soffsled
+net soff => robot6kins.soffs 
+
+net tmod-t <= pyvcp.tmodebut toggle.0.in 
+net tmod <= toggle.0.out => pyvcp.tmodeled
+net tmod => robot6kins.tmode 

@@ -1,0 +1,14 @@
+component croffsets "motoman link motion";
+pin in float angle;
+pin in float crlen;
+pin out float ldx;
+pin out float ldz;
+function _;
+license "GPL";
+;;
+#include <rtapi_math.h>
+
+FUNCTION(_) {
+    ldx = crlen*(1 - cos(angle/180*3.14159));
+    ldz = crlen*sin(angle/180*3.14159);
+}

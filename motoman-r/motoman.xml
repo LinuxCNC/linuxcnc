@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+ <label><text>"Joints"</text></label>
+ <hbox>
+    <label><text>"0:"</text></label>
+    <number> <halpin>"joint0"</halpin><format>"9.3f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"1:"</text></label>
+    <number> <halpin>"joint1"</halpin><format>"9.3f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"2:"</text></label>
+    <number> <halpin>"joint2"</halpin><format>"9.3f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"3:"</text></label>
+    <number> <halpin>"joint3"</halpin><format>"9.3f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"4:"</text></label>
+    <number> <halpin>"joint4"</halpin><format>"9.3f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"5:"</text></label>
+    <number> <halpin>"joint5"</halpin><format>"9.3f"</format></number>
+ </hbox>
+<label><text>"Offsets"</text></label>
+ <hbox>
+    <label><text>"Xo:"</text></label>
+    <number> <halpin>"joint6"</halpin><format>"9.5f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"Yo:"</text></label>
+    <number> <halpin>"joint7"</halpin><format>"9.5f"</format></number>
+ </hbox>
+ <hbox>
+    <label><text>"Zo:"</text></label>
+    <number> <halpin>"joint8"</halpin><format>"9.5f"</format></number>
+ </hbox>
+<button>
+   <halpin>"soffsbut"</halpin>
+   <text>"Set offset"</text>
+   <font>("Helvetica",10)</font>
+</button>
+<rectled>
+   <halpin>"soffsled"</halpin>
+   <height>"15"</height>
+   <width>"85"</width>
+   <on_color>"blue"</on_color>
+   <off_color>"black"</off_color>
+</rectled>
+<button>
+   <halpin>"tmodebut"</halpin>
+   <text>"Tool mode"</text>
+   <font>("Helvetica",10)</font>
+</button>
+<rectled>
+   <halpin>"tmodeled"</halpin>
+   <height>"15"</height>
+   <width>"85"</width>
+   <on_color>"green"</on_color>
+   <off_color>"black"</off_color>
+</rectled>
+</pyvcp>
