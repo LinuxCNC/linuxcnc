@@ -16,9 +16,7 @@ includes () {
 
 images() {
 	DIR=`dirname "$1"`
-
-	sed -ne "s|^image::\([^[]*\)\[\]$|$DIR/\1|p" "$1"
-	sed -ne "s|^.*image:\([^:][^[]*\)\[\].*$|$DIR/\1|p" "$1"
+	sed -ne "s|^.*image:\{1,2\}\([^[]*\)\[.*\].*$|$DIR/\1|p" "$1"
 }
 
 INCLUDES=`includes "$1"`
