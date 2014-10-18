@@ -1273,7 +1273,7 @@ endif
 endif
 
 ifeq ($(BUILD_HOSTMOT2),yes)
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_pci.o hm2_test.o
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o
 #obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
 hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
@@ -1294,6 +1294,10 @@ hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/led.o	  \
     hal/drivers/mesa-hostmot2/tram.o	  \
     hal/drivers/mesa-hostmot2/raw.o	  \
+    hal/drivers/mesa-hostmot2/bitfile.o   \
+    $(MATHSTUB)
+hm2_7i90-objs :=			  \
+    hal/drivers/mesa-hostmot2/hm2_7i90.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
 hm2_7i43-objs :=			  \
@@ -1516,6 +1520,7 @@ endif
 ifeq ($(USERMODE_PCI),yes)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
+$(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs)) 
 endif
@@ -1655,3 +1660,4 @@ cscopeclean:
 NOSETESTS := $(wildcard ../nosetests/*.py)
 nosetest:
 	$(foreach var,$(NOSETESTS),nosetests -v $(var);)
+
