@@ -499,4 +499,3 @@ void rtapi_app_exit(void) {
     LL_PRINT("driver unloaded\n");
 }
 
-
