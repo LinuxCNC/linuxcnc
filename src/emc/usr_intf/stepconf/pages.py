@@ -205,6 +205,7 @@ class Pages:
                 return True
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
+        self.d.sim_parport = self.w.createsimconfig.get_active()
 
     # callbacks
     def on_machinename_changed(self, *args):
