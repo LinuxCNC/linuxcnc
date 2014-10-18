@@ -57,7 +57,10 @@ class HAL:
                 port2dir =" in"
              else: 
                 port2dir =" out"
-        print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
+        if not self.d.sim_parport:
+            print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
+        else:
+            print >>file, "loadrt parport count=%d"%self.d.number_pports
         if self.a.doublestep():
             print >>file, "setp parport.0.reset-time %d" % self.d.steptime
         encoder = SIG.PHA in inputs
@@ -103,7 +106,9 @@ class HAL:
             print >>file, "addf parport.1.read base-thread"
         if self.d.number_pports > 2:
             print >>file, "addf parport.2.read base-thread"
-
+        if self.d.sim_parport:
+            print >>file, "source sim_hardware.hal"
+            print >>file, "addf sim-encoder.make-pulses base-thread"
         print >>file, "addf stepgen.make-pulses base-thread"
         if encoder: print >>file, "addf encoder.update-counters base-thread"
         if pump: print >>file, "addf charge-pump base-thread"
@@ -117,6 +122,9 @@ class HAL:
             print >>file, "addf parport.2.write base-thread"
         print >>file
         print >>file, "addf stepgen.capture-position servo-thread"
+        if self.d.sim_parport:
+            print >>file, "addf sim-encoder.update-speed servo-thread"
+            print >>file, "addf sim-hardware.update servo-thread"
         if encoder: print >>file, "addf encoder.capture-position servo-thread"
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
@@ -203,7 +211,7 @@ class HAL:
                 print >>file, "net %s => motion.digital-in-%02d" % (din, i)
 
         print >>file
-        for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)      
+        for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)
         if self.d.number_pports>1:
             if self.d.pp2_direction:# Input option
                 pinlist = (1,14,16,17)
@@ -328,7 +336,7 @@ class HAL:
                       print >>f1, _("# **** set up spindle at speed indicator ****")
                       if self.d.usespindleatspeed:
                           print >>f1
-                          print >>f1, ("net spindle-cmd-rps                 =>  near.0.in1")
+                          print >>f1, ("net spindle-cmd-rps-abs             =>  near.0.in1")
                           print >>f1, ("net spindle-velocity-feedback-rps   =>  near.0.in2")
                           print >>f1, ("net spindle-at-speed                <=  near.0.out")
                           print >>f1, ("setp near.0.scale %f")% self.d.spindlenearscale
@@ -356,6 +364,7 @@ class HAL:
                 print >>f1, _("# Include your customized HAL commands here")
                 print >>f1, _("# This file will not be overwritten when you run stepconf again") 
         file.close()
+        self.sim_hardware_halfile(base)
         self.d.add_md5sum(filename)
 
 #******************
@@ -390,7 +399,117 @@ class HAL:
         if max_limsig:
             print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
 
-    def connect_input(self, file, num,port=0):
+    def sim_hardware_halfile(self,base):
+        custom = os.path.join(base, "sim_hardware.hal")
+        if self.d.sim_parport:
+            f1 = open(custom, "w")
+            print >>f1, _("# This file sets up simulated limits/home/spindle encoder hardware.")
+            print >>f1, _("# This is a generated file do not edit.")
+            print >>f1
+            inputs = self.a.build_input_set()
+            if SIG.PHA in inputs:
+                print >>f1, "loadrt sim_encoder names=sim-encoder"
+                print >>f1, "setp sim-encoder.ppr %d"%int(self.d.spindlecpr)
+                print >>f1, "setp sim-encoder.scale 1"
+                print >>f1
+                print >>f1, "net spindle-cmd-rps            sim-encoder.speed"
+                print >>f1, "net fake-spindle-phase-a       sim-encoder.phase-A"
+                print >>f1, "net fake-spindle-phase-b       sim-encoder.phase-B"
+                print >>f1, "net fake-spindle-index         sim-encoder.phase-Z"
+                print >>f1
+            print >>f1, "loadrt sim_axis_hardware names=sim-hardware"
+            print >>f1
+            print >>f1, "net Xjoint-pos-fb      axis.0.joint-pos-fb      sim-hardware.Xcurrent-pos"
+            if not self.d.axes == 2:
+                print >>f1, "net Yjoint-pos-fb      axis.1.joint-pos-fb      sim-hardware.Ycurrent-pos"
+            print >>f1, "net Zjoint-pos-fb      axis.2.joint-pos-fb      sim-hardware.Zcurrent-pos"
+            if self.d.axes == 1:
+                print >>f1, "net Ajoint-pos-fb      axis.3.joint-pos-fb      sim-hardware.Acurrent-pos"
+            print >>f1
+            print >>f1, "setp sim-hardware.Xmaxsw-upper 1000"
+            print >>f1, "setp sim-hardware.Xmaxsw-lower [AXIS_0]MAX_LIMIT"
+            print >>f1, "setp sim-hardware.Xminsw-upper [AXIS_0]MIN_LIMIT"
+            print >>f1, "setp sim-hardware.Xminsw-lower -1000"
+            print >>f1, "setp sim-hardware.Xhomesw-pos [AXIS_0]HOME_OFFSET"
+            print >>f1
+            if not self.d.axes == 2:
+                print >>f1, "setp sim-hardware.Ymaxsw-upper 1000"
+                print >>f1, "setp sim-hardware.Ymaxsw-lower [AXIS_1]MAX_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-upper [AXIS_1]MIN_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-lower -1000"
+                print >>f1, "setp sim-hardware.Yhomesw-pos [AXIS_1]HOME_OFFSET"
+            print >>f1
+            print >>f1, "setp sim-hardware.Zmaxsw-upper 1000"
+            print >>f1, "setp sim-hardware.Zmaxsw-lower [AXIS_2]MAX_LIMIT"
+            print >>f1, "setp sim-hardware.Zminsw-upper [AXIS_2]MIN_LIMIT"
+            print >>f1, "setp sim-hardware.Zminsw-lower -1000"
+            print >>f1, "setp sim-hardware.Zhomesw-pos [AXIS_2]HOME_OFFSET"
+            print >>f1
+            if self.d.axes == 1:
+                print >>f1, "setp sim-hardware.Amaxsw-upper 20000"
+                print >>f1, "setp sim-hardware.Amaxsw-lower [AXIS_3]MAX_LIMIT"
+                print >>f1, "setp sim-hardware.Aminsw-upper [AXIS_3]MIN_LIMIT"
+                print >>f1, "setp sim-hardware.Aminsw-lower -20000"
+                print >>f1, "setp sim-hardware.Ahomesw-pos [AXIS_3]HOME_OFFSET"
+                print >>f1
+            for port in range(0,self.d.number_pports):
+                print >>f1
+                if port==0 or not self.d.pp2_direction: # output option
+                    pinlist = (10,11,12,13,15)
+                else:
+                    pinlist = (2,3,4,5,6,7,8,9,10,11,12,13,15)
+                for i in pinlist:
+                    self.connect_input(f1, i, port, True)
+                print >>f1
+                if port==0 or not self.d.pp2_direction: # output option
+                    pinlist = (1,2,3,4,5,6,7,8,9,14,16,17)
+                else:
+                    pinlist = (1,14,16,17)
+                for o in pinlist:
+                    self.connect_output(f1, o, port, True) 
+            print >>f1
+            print >>f1, "net fake-all-home          sim-hardware.homesw-all"
+            print >>f1, "net fake-all-limit         sim-hardware.limitsw-all"
+            print >>f1, "net fake-all-limit-home    sim-hardware.limitsw-homesw-all"
+            print >>f1, "net fake-both-x            sim-hardware.Xbothsw-out"
+            print >>f1, "net fake-max-x             sim-hardware.Xmaxsw-out"
+            print >>f1, "net fake-min-x             sim-hardware.Xminsw-out"
+            print >>f1, "net fake-both-y            sim-hardware.Ybothsw-out"
+            print >>f1, "net fake-max-y             sim-hardware.Ymaxsw-out"
+            print >>f1, "net fake-min-y             sim-hardware.Yminsw-out"
+            print >>f1, "net fake-both-z            sim-hardware.Zbothsw-out"
+            print >>f1, "net fake-max-z             sim-hardware.Zmaxsw-out"
+            print >>f1, "net fake-min-z             sim-hardware.Zminsw-out"
+            print >>f1, "net fake-both-a            sim-hardware.Abothsw-out"
+            print >>f1, "net fake-max-a             sim-hardware.Amaxsw-out"
+            print >>f1, "net fake-min-a             sim-hardware.Aminsw-out"
+
+            print >>f1, "net fake-home-x            sim-hardware.Xhomesw-out"
+            print >>f1, "net fake-home-y            sim-hardware.Yhomesw-out"
+            print >>f1, "net fake-home-z            sim-hardware.Zhomesw-out"
+            print >>f1, "net fake-home-a            sim-hardware.Ahomesw-out"
+
+            print >>f1, "net fake-both-home-x       sim-hardware.Xbothsw-homesw-out"
+            print >>f1, "net fake-max-home-x        sim-hardware.Xmaxsw-homesw-out"
+            print >>f1, "net fake-min-home-x        sim-hardware.Xminsw-homesw-out"
+            print >>f1, "net fake-both-home-y       sim-hardware.Ybothsw-homesw-out"
+            print >>f1, "net fake-max-home-y        sim-hardware.Ymaxsw-homesw-out"
+            print >>f1, "net fake-min-home-y        sim-hardware.Yminsw-homesw-out"
+
+            print >>f1, "net fake-both-home-z       sim-hardware.Zbothsw-homesw-out"
+            print >>f1, "net fake-max-home-z        sim-hardware.Zmaxsw-homesw-out"
+            print >>f1, "net fake-min-home-z        sim-hardware.Zminsw-homesw-out"
+
+            print >>f1, "net fake-both-home-a       sim-hardware.Abothsw-homesw-out"
+            print >>f1, "net fake-max-home-a        sim-hardware.Amaxsw-homesw-out"
+            print >>f1, "net fake-min-home-a        sim-hardware.Aminsw-homesw-out"
+            f1.close()
+        else:
+            if os.path.exists(custom):
+                os.remove(custom)
+
+    def connect_input(self, file, num,port=0,fake=False):
+        ending=''
         if port == 0:
             p = self.d['pin%d' % num]
             i = self.d['pin%dinv' % num]
@@ -399,14 +518,21 @@ class HAL:
             i = self.d['pp2_pin%d_in_inv' % num]
 
         if p == SIG.UNUSED_INPUT: return
-        if i:
-            print >>file, "net %s <= parport.%d.pin-%02d-in-not" \
-                % (p, port, num)
+        if fake:
+            p='fake-'+p
+            ending='-fake'
+            p ='{0:<20}'.format(p)
         else:
-            print >>file, "net %s <= parport.%d.pin-%02d-in" \
-                % (p, port, num)
+            p ='{0:<15}'.format(p)
+        if i:
+            print >>file, "net %s <= parport.%d.pin-%02d-in-not%s" \
+                % (p, port, num,ending)
+        else:
+            print >>file, "net %s <= parport.%d.pin-%02d-in%s" \
+                % (p, port, num,ending)
 
-    def connect_output(self, file, num,port=0):
+    def connect_output(self, file, num,port=0,fake=False):
+        ending=''
         if port == 0:
             p = self.d['pin%d' % num]
             i = self.d['pin%dinv' % num]
@@ -414,11 +540,17 @@ class HAL:
             p = self.d['pp2_pin%d' % num]
             i = self.d['pp2_pin%dinv' % num]
         if p == SIG.UNUSED_OUTPUT: return
-        if i: print >>file, "setp parport.%d.pin-%02d-out-invert 1" %(port, num)
-        print >>file, "net %s => parport.%d.pin-%02d-out" % (p, port, num)
+        if fake:
+            p='fake-'+p
+            ending='-fake'
+            p ='{0:<20}'.format(p)
+        else:
+            p ='{0:<15}'.format(p)
+        if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
+        print >>file, "net %s => parport.%d.pin-%02d-out%s" % (p, port, num, ending)
         if self.a.doublestep():
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP):
-                print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
+                print >>file, "setp parport.0.pin-%02d-out-reset%s 1" % (num,ending)
 
     def min_lim_sig(self, axis):
         inputs = self.a.build_input_set()
