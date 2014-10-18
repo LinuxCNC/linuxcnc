@@ -659,6 +659,12 @@ ifeq ($(TRIVIAL_BUILD),no)
 Makefile: $(MAN_DEPS)
 endif
 
+%.png: %.dot
+	dot -Tpng -o$@ $<
+
+%.svg: %.dot
+	dot -Tsvg -o$@ $<
+
 %.png:; $(error Required image file $@ does not exist)
 %.jpg:; $(error Required image file $@ does not exist)
 %.svg:; $(error Required image file $@ does not exist)

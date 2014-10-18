@@ -161,6 +161,16 @@ the motion controller. The seven forms of position data are as follows:
    forward kins, do (A), since otherwise actualPos would _never_ get
    updated. 
 
+== Homing
+
+=== Homing state diagram
+
+image::homing.svg[align="center"]
+
+=== Another homing diagram
+
+image::hss.svg[align="center"]
+
 == Commands
 
 This section simply lists all of the commands that can be sent to the

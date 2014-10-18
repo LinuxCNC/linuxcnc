@@ -13,7 +13,8 @@ Build-Depends: debhelper (>= 6),
     gettext, autoconf, libboost-python-dev,
     texlive-lang-cyrillic, texlive-lang-french,
     texlive-lang-spanish, texlive-lang-german, netcat,
-    libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc
+    libmodbus-dev (>= 3.0), libusb-1.0-0-dev, procps, psmisc,
+    graphviz
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
