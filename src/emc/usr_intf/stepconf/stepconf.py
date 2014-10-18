@@ -247,6 +247,7 @@ class Data:
         self.latency = 15000
         self.period = 25000
 
+        self.sim_parport = True
         self.ioaddr = "0x378"
         self.ioaddr2 = "1"
         self.pp2_direction = 0 # output
