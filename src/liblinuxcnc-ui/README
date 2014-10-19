@@ -1,0 +1,19 @@
+
+This directory contains a shared library that user interfaces use for
+communicating with the LinuxCNC controller ("task").
+
+User interfaces (and other programs that want to drive linuxcnc) can
+#include linuxcnc-ui.h, link against liblinuxcnc-ui.so, and call the
+functions in there to interact with the controller.
+
+The linuxcnc-ui library is released under the LGPL (Library GPL) license.
+This means that linking your application to liblinuxcnc-ui does not
+require you to open-source your UI (though we'd appreciate it if you did).
+
+
+To do:
+
+    emc/nml_intf/emcargs.cc should move into some kind of helper library
+
+        sets the global 'inifile' from '-ini FILENAME' on the commandline.
+
