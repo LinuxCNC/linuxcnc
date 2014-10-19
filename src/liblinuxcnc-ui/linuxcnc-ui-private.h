@@ -22,7 +22,22 @@
 
 #include "linuxcnc-ui.h"
 
+// old yucky stuff
+#include "cmd_msg.hh"    // RCS_CMD_CHANNEL
+#include "stat_msg.hh"   // RCS_STAT_CHANNEL
+#include "emc_nml.hh"    // EMC_STAT
+#include "nml.hh"        // NML
+#include "nml_oi.hh"     // nmlErrorFormat
+#include "emcglb.h"      // emc_debug
+#include "debugflags.h"  // EMC_DEBUG_*
+#include "rcs_print.hh"  // set_rcs_print_destination(), RCS_PRINT_TO_NULL
+
+
 typedef struct lui {
+    RCS_CMD_CHANNEL *command_nml;
+    RCS_STAT_CHANNEL *status_nml;
+    EMC_STAT *status;
+    NML *error_nml;
 } lui_t;
 
 #endif  // LIBLINUXCNC_UI_PRIVATE

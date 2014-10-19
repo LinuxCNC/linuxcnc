@@ -31,6 +31,8 @@ extern "C" {
 lui_t *lui_new(void);
 void lui_free(lui_t *lui);
 
+int lui_connect(lui_t *lui);
+
 #ifdef __cplusplus
 }
 #endif

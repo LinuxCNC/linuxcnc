@@ -31,10 +31,17 @@
 
 int main(int argc, char *argv[]) {
     lui_t *lui;
+    int r;
 
     lui = lui_new();
     if (lui == NULL) {
         fprintf(stderr, "failed to allocate lui\n");
+        return 1;
+    }
+
+    r = lui_connect(lui);
+    if (r != 0) {
+        fprintf(stderr, "failed to connect lui to linuxcnc\n");
         return 1;
     }
 
