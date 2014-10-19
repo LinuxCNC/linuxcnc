@@ -95,7 +95,7 @@ net aflt axis.3.amp-fault-in
 net bflt axis.4.amp-fault-in
 net cflt axis.5.amp-fault-in
 
- loadusr -W motomangui
+#loadusr -W motomangui
 
 loadrt scale count=6
 
@@ -120,12 +120,12 @@ setp scale.3.gain 1
 setp scale.4.gain 1
 setp scale.5.gain 1
 
-net J0scaled scale.0.out motomangui.joint1
-net J1scaled scale.1.out motomangui.joint2
-net J2scaled scale.2.out motomangui.joint3
-net J3scaled scale.3.out motomangui.joint4
-net J4scaled scale.4.out motomangui.joint5
-net J5scaled scale.5.out motomangui.joint6
+#net J0scaled scale.0.out motomangui.joint1
+#net J1scaled scale.1.out motomangui.joint2
+#net J2scaled scale.2.out motomangui.joint3
+#net J3scaled scale.3.out motomangui.joint4
+#net J4scaled scale.4.out motomangui.joint5
+#net J5scaled scale.5.out motomangui.joint6
 
 setp robot6kins.DH-a1 200
 setp robot6kins.DH-a2 600
@@ -140,5 +140,5 @@ loadrt croffsets
 
 setp croffsets.0.crlen 200
 net J2pos => croffsets.0.angle
-net ldx <= croffsets.0.ldx => motomangui.lnkdx
-net ldz <= croffsets.0.ldz => motomangui.lnkdz
+#net ldx <= croffsets.0.ldx => motomangui.lnkdx
+#net ldz <= croffsets.0.ldz => motomangui.lnkdz
