@@ -1,6 +1,7 @@
 LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/new.cc \
-    liblinuxcnc-ui/free.cc
+    liblinuxcnc-ui/free.cc \
+    liblinuxcnc-ui/connect.cc
 
 USERSRCS += $(LIBLINUXCNC_UI_SRC)
 TARGETS += ../lib/liblinuxcnc-ui.so ../lib/liblinuxcnc-ui.so.0
