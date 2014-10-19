@@ -120,33 +120,35 @@ def detect_distro():
 
 
 def subst(infile, outfile, config):
-    if type(infile) == list:
-        infile = ' '.join(infile)
+    if type(infile) == str:
+        infile = [ infile ]
 
-    try:
-        retcode = subprocess.call(
-            "sed -e 's`@BUILD_DEPENDS@`%s`g'" % ', '.join(config['build-depends'])
-            + " -e 's`@DEPENDS@`%s`g'" % ', '.join(config['depends'])
-            + " -e 's`@RECOMMENDS@`%s`g'" % ', '.join(config['recommends'])
-            + " -e 's`@SUGGESTS@`%s`g'" % ', '.join(config['suggests'])
-            + " -e 's`@DEV_DEPENDS@`%s`g'" % ', '.join(config['dev-depends'])
-            + " -e 's`@SRC_CONFIGURE@`%s`g'" % ' '.join(config['src/configure'])
-            + " -e 's`@DEBIAN_CONFIGURE@`%s`g'" % ' '.join(config['debian/configure'])
-            + " -e 's`@PYTHON_VERSION@`%d.%d`g'" % (sys.version_info[0], sys.version_info[1])
-            + " -e 's`@PYTHON_VERSION_NEXT@`%d.%d`g'" % (sys.version_info[0], 1 + sys.version_info[1])
-            + " -e 's`@EXTRA_DIR@`%s`g'" % config['extra-dir']
-            + " -e 's`@MAIN_PACKAGE_NAME@`%s`g'" % config['package-name']
-            + " -e 's`@OTHER_MAIN_PACKAGE_NAME@`%s`g'" % config['other-package-name']
-            + " -e 's`@MODULE_PATH@`%s`g'" % config['module-path']
-            + " -e 's`@MODULE_EXT@`%s`g'" % config['module-extension']
-            + " -e 's`@EXTRA_FILES@`%s`g'" % config['extra-files']
-            + " %s > %s" % (infile, outfile),
-            shell=True
-        )
-        if retcode < 0:
-            print >>sys.stderr, "Child was terminated by signal", -retcode
-    except OSError:
-        print >>sys.stderr, "Failed to run sed!"
+    o = open(outfile, 'w')
+
+    for infilename in infile:
+        i = open(infilename, 'r')
+        contents = i.read()
+        i.close()
+
+        contents = contents.replace('@BUILD_DEPENDS@',           ', '.join(config['build-depends']))
+        contents = contents.replace('@DEPENDS@',                 ', '.join(config['depends']))
+        contents = contents.replace('@RECOMMENDS@',              ', '.join(config['recommends']))
+        contents = contents.replace('@SUGGESTS@',                ', '.join(config['suggests']))
+        contents = contents.replace('@DEV_DEPENDS@',             ', '.join(config['dev-depends']))
+        contents = contents.replace('@SRC_CONFIGURE@',           ' '.join(config['src/configure']))
+        contents = contents.replace('@DEBIAN_CONFIGURE@',        ' '.join(config['debian/configure']))
+        contents = contents.replace('@PYTHON_VERSION@',          '%d.%d' % (sys.version_info[0], sys.version_info[1]))
+        contents = contents.replace('@PYTHON_VERSION_NEXT@',     '%d.%d' % (sys.version_info[0], 1 + sys.version_info[1]))
+        contents = contents.replace('@EXTRA_DIR@',               config['extra-dir'])
+        contents = contents.replace('@MAIN_PACKAGE_NAME@',       config['package-name'])
+        contents = contents.replace('@OTHER_MAIN_PACKAGE_NAME@', config['other-package-name'])
+        contents = contents.replace('@MODULE_PATH@',             config['module-path'])
+        contents = contents.replace('@MODULE_EXT@',              config['module-extension'])
+        contents = contents.replace('@EXTRA_FILES@',             config['extra-files'])
+
+        o.write(contents)
+
+    o.close()
 
 
 # save off the arguments the user just gave us
