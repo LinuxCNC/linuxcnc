@@ -182,7 +182,7 @@ elif sys.argv[1] == '--all':
 
 else:
     print "Error: invalid command line"
-    usage
+    usage()
     sys.exit(1)
 
 
