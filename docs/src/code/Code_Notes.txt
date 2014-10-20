@@ -685,7 +685,12 @@ nearly identical for every parameter.
 
 == Task controller (EMCTASK)
 
- +
+=== State
+
+Task has three possible internal states: *E-stop*, *E-stop Reset*,
+and *Machine On*.
+
+image::task-state-transitions.svg[align="center"]
 
 == IO controller (EMCIO)
 
