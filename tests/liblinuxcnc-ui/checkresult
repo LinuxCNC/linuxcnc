@@ -1,0 +1,7 @@
+#!/bin/bash
+#
+# The lui-test program will exit 0 for success or 1 for failure, we dont
+# need to do anything here in checkresult.
+#
+
+exit 0
