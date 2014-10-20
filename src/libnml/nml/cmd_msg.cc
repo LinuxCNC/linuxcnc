@@ -77,3 +77,8 @@ RCS_CMD_CHANNEL::~RCS_CMD_CHANNEL()
 {
     // Something funny happens to gdb without this being explicitly defined.
 }
+
+int RCS_CMD_CHANNEL::write(RCS_CMD_MSG * cmd_msg)
+{
+    return NML::write(cmd_msg, &(cmd_msg->serial_number));
+}

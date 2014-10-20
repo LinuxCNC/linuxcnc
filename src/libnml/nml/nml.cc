@@ -223,8 +223,8 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
     format_chain = (LinkedList *) NULL;
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
-    phantom_write = (int (*)(NMLmsg *)) NULL;
-    phantom_write_if_read = (int (*)(NMLmsg *)) NULL;
+    phantom_write = (int (*)(NMLmsg *, int *)) NULL;
+    phantom_write_if_read = (int (*)(NMLmsg *, int *)) NULL;
     phantom_check_if_read = (int (*)()) NULL;
     phantom_clear = (int (*)()) NULL;
     channel_list_id = 0;
@@ -352,8 +352,8 @@ NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
     format_chain = (LinkedList *) NULL;
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
-    phantom_write = (int (*)(NMLmsg *)) NULL;
-    phantom_write_if_read = (int (*)(NMLmsg *)) NULL;
+    phantom_write = (int (*)(NMLmsg *, int *)) NULL;
+    phantom_write_if_read = (int (*)(NMLmsg *, int *)) NULL;
     phantom_check_if_read = (int (*)()) NULL;
     phantom_clear = (int (*)()) NULL;
     channel_list_id = 0;
@@ -464,8 +464,8 @@ NML::NML(const char *buffer_line, const char *proc_line)
     format_chain = (LinkedList *) NULL;
     phantom_read = (NMLTYPE(*)())NULL;
     phantom_peek = (NMLTYPE(*)())NULL;
-    phantom_write = (int (*)(NMLmsg *)) NULL;
-    phantom_write_if_read = (int (*)(NMLmsg *)) NULL;
+    phantom_write = (int (*)(NMLmsg *, int *)) NULL;
+    phantom_write_if_read = (int (*)(NMLmsg *, int *)) NULL;
     phantom_check_if_read = (int (*)()) NULL;
     phantom_clear = (int (*)()) NULL;
     channel_list_id = 0;
@@ -1565,9 +1565,9 @@ int NML::format_output()
 *  0 - The message was successfully written.
 *  -1 - An error occured. (Timeouts are considered errors.)
 *************************************************************/
-int NML::write(NMLmsg & nml_msg)
+int NML::write(NMLmsg & nml_msg, int *serial_number)
 {
-    return (write(&nml_msg));	/* Call the other NML::write() */
+    return (write(&nml_msg, serial_number));	/* Call the other NML::write() */
 }
 
 /*************************************************************
@@ -1579,12 +1579,12 @@ int NML::write(NMLmsg & nml_msg)
 *  0 - The message was successfully written.
 *  -1 - An error occured. (Timeouts are considered errors.)
 *************************************************************/
-int NML::write(NMLmsg * nml_msg)
+int NML::write(NMLmsg * nml_msg, int *serial_number)
 {
     error_type = NML_NO_ERROR;
     if (fast_mode) {
 	*cms_inbuffer_header_size = nml_msg->size;
-	cms->write(nml_msg);
+	cms->write(nml_msg, serial_number);
 	if (*cms_status == CMS_WRITE_OK) {
 	    return (0);
 	}
@@ -1616,7 +1616,7 @@ int NML::write(NMLmsg * nml_msg)
     /* Handle Phantom Buffers. */
     if (cms->is_phantom) {
 	if (NULL != phantom_write) {
-	    return ((*phantom_write) (nml_msg));
+	    return ((*phantom_write) (nml_msg, serial_number));
 	} else {
 	    return (0);
 	}
@@ -1632,9 +1632,9 @@ int NML::write(NMLmsg * nml_msg)
     }
 
     if (CMS_RAW_IN == cms->mode) {
-	cms->write(nml_msg);	/* Write the unformatted message.  */
+	cms->write(nml_msg, serial_number);	/* Write the unformatted message.  */
     } else {
-	cms->write(cms->subdiv_data);	/* Write the formatted message.  */
+	cms->write(cms->subdiv_data, serial_number);	/* Write the formatted message.  */
     }
 
     if (CMS_WRITE_OK == cms->status) {
@@ -1727,9 +1727,9 @@ int NML::set_error()
 *  -1 - An error occured. (Timeouts are considered errors.)
 * Check error_type for more info.
 *************************************************************/
-int NML::write_if_read(NMLmsg & nml_msg)
+int NML::write_if_read(NMLmsg & nml_msg, int *serial_number)
 {
-    return (write_if_read(&nml_msg));
+    return (write_if_read(&nml_msg, serial_number));
 }
 
 /***********************************************************
@@ -1744,12 +1744,12 @@ int NML::write_if_read(NMLmsg & nml_msg)
 * (Timeouts, and unread buffers  are considered errors.)
 * Check error_type for more info.
 ************************************************************/
-int NML::write_if_read(NMLmsg * nml_msg)
+int NML::write_if_read(NMLmsg * nml_msg, int *serial_number)
 {
     error_type = NML_NO_ERROR;
     if (fast_mode) {
 	cms->header.in_buffer_size = nml_msg->size;
-	cms->write(nml_msg);
+	cms->write(nml_msg, serial_number);
 	if (cms->status == CMS_WRITE_OK) {
 	    return (0);
 	}
@@ -1782,7 +1782,7 @@ int NML::write_if_read(NMLmsg * nml_msg)
 
     if (cms->is_phantom) {
 	if (NULL != phantom_write_if_read) {
-	    return ((*phantom_write_if_read) (nml_msg));
+	    return ((*phantom_write_if_read) (nml_msg, serial_number));
 	} else {
 	    return (0);
 	}
@@ -1795,9 +1795,9 @@ int NML::write_if_read(NMLmsg * nml_msg)
     }
 
     if (CMS_RAW_IN == cms->mode) {
-	cms->write_if_read(nml_msg);
+	cms->write_if_read(nml_msg, serial_number);
     } else {
-	cms->write_if_read(cms->subdiv_data);
+	cms->write_if_read(cms->subdiv_data, serial_number);
     }
 
     return (set_error());

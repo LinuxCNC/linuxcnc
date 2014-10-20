@@ -345,14 +345,9 @@ static void thisQuit(ClientData clientData)
 
     if (0 != emcStatusBuffer) {
 	// wait until current message has been received
-	emcCommandWaitReceived(emcCommandSerialNumber);
+	emcCommandWaitReceived();
     }
 
-    if (0 != emcCommandBuffer) {
-	// send null message to reset serial number to original
-	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
-	emcCommandBuffer->write(emc_null_msg);
-    }
     // clean up NML buffers
 
     if (emcErrorBuffer != 0) {
@@ -507,13 +502,13 @@ static int emc_wait(ClientData clientdata,
     if (objc == 2) {
 	objstr = Tcl_GetStringFromObj(objv[1], 0);
 	if (!strcmp(objstr, "received")) {
-	    if (0 != emcCommandWaitReceived(emcCommandSerialNumber)) {
+	    if (0 != emcCommandWaitReceived()) {
 		setresult(interp,"timeout");
 	    }
 	    return TCL_OK;
 	}
 	if (!strcmp(objstr, "done")) {
-	    if (0 != emcCommandWaitDone(emcCommandSerialNumber)) {
+	    if (0 != emcCommandWaitDone()) {
 		setresult(interp,"timeout");
 	    }
 	    return TCL_OK;
@@ -3446,7 +3441,6 @@ static void initMain()
 {
     emcWaitType = EMC_WAIT_RECEIVED;
     emcCommandSerialNumber = 0;
-    saveEmcCommandSerialNumber = 0;
     emcTimeout = 0.0;
     emcUpdateType = EMC_UPDATE_AUTO;
     linearUnitConversion = LINEAR_UNITS_AUTO;
@@ -3495,7 +3489,6 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     // so as not to interfere with real operator interface
     updateStatus();
     emcCommandSerialNumber = emcStatus->echo_serial_number;
-    saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
     // attach our quit function to exit
     Tcl_CreateExitHandler(thisQuit, (ClientData) 0);

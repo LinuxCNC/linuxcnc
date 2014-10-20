@@ -3292,7 +3292,7 @@ int main(int argc, char *argv[])
     while (!done) {
         check_ini_hal_items();
 	// read command
-	if (0 != emcCommandBuffer->peek()) {
+	if (0 != emcCommandBuffer->read()) {
 	    // got a new command, so clear out errors
 	    taskPlanError = 0;
 	    taskExecuteError = 0;
