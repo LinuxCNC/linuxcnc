@@ -33,6 +33,8 @@ class RCS_CMD_CHANNEL:public NML {
     RCS_CMD_MSG *get_address() {
 	return ((RCS_CMD_MSG *) NML::get_address());
     };
+
+    int write(RCS_CMD_MSG * cmd_msg);
 };
 
 enum RCS_GENERIC_CMD_ID {

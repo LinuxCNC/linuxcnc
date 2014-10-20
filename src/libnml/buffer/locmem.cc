@@ -111,8 +111,8 @@ LOCMEM::~LOCMEM()
     }
 }
 
-CMS_STATUS LOCMEM::main_access(void *local_address)
+CMS_STATUS LOCMEM::main_access(void *local_address, int *serial_number)
 {
-    internal_access(lm_addr, size, local_address);
+    internal_access(lm_addr, size, local_address, serial_number);
     return status;
 }

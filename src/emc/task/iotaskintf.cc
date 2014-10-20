@@ -90,8 +90,6 @@ static int emcioNmlGet()
 	    } else {
 		emcIoStatus =
 		    (EMC_IO_STAT *) emcIoStatusBuffer->get_address();
-		// capture serial number for next send
-		emcIoCommandSerialNumber = emcIoStatus->echo_serial_number;
 		break;
 	    }
 	    esleep(0.1);
@@ -110,8 +108,6 @@ static int emcioNmlGet()
 	    retval = -1;
 	} else {
 	    emcIoStatus = (EMC_IO_STAT *) emcIoStatusBuffer->get_address();
-	    // capture serial number for next send
-	    emcIoCommandSerialNumber = emcIoStatus->echo_serial_number;
 	}
     }
 
@@ -151,10 +147,11 @@ static int sendCommand(RCS_CMD_MSG * msg)
     double send_command_timeout = etime() + 5.0;
 
     // check if we're executing, and wait until we're done
+    int serial_diff = 0;
     while (etime() < send_command_timeout) {
 	emcIoStatusBuffer->peek();
-	if (emcIoStatus->echo_serial_number != emcIoCommandSerialNumber ||
-	    emcIoStatus->status == RCS_EXEC) {
+	serial_diff = emcIoStatus->echo_serial_number - emcIoCommandSerialNumber;
+	if (serial_diff < 0 || emcIoStatus->status == RCS_EXEC) {
 	    esleep(0.001);
 	    continue;
 	} else {
@@ -162,8 +159,7 @@ static int sendCommand(RCS_CMD_MSG * msg)
 	}
     }
 
-    if (emcIoStatus->echo_serial_number != emcIoCommandSerialNumber ||
-	emcIoStatus->status == RCS_EXEC) {
+    if (serial_diff < 0 || emcIoStatus->status == RCS_EXEC) {
 	// Still not done, must have timed out.
 	rcs_print_error
 	    ("Command to IO level (%s:%s) timed out waiting for last command done. \n",
@@ -180,13 +176,13 @@ static int sendCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
     // now we can send
-    msg->serial_number = ++emcIoCommandSerialNumber;
     if (0 != emcIoCommandBuffer->write(msg)) {
 	rcs_print_error("Failed to send command to  IO level (%s:%s)\n",
 			emcSymbolLookup(msg->type),
 			emcIoCommandBuffer->msg2str(msg));
 	return -1;
     }
+    emcIoCommandSerialNumber = msg->serial_number;
 
     if (largest_io_command_size < msg->size) {
 	largest_io_command_size = std::max<long>(msg->size, 4096);
@@ -215,13 +211,13 @@ static int forceCommand(RCS_CMD_MSG * msg)
 	return -1;
     }
     // send it immediately
-    msg->serial_number = ++emcIoCommandSerialNumber;
     if (0 != emcIoCommandBuffer->write(msg)) {
 	rcs_print_error("Failed to send command to  IO level (%s:%s)\n",
 			emcSymbolLookup(msg->type),
 			emcIoCommandBuffer->msg2str(msg));
 	return -1;
     }
+    emcIoCommandSerialNumber = msg->serial_number;
 
     if (largest_io_command_size < msg->size) {
 	largest_io_command_size = std::max<long>(msg->size, 4096);
@@ -494,7 +490,8 @@ int emcIoUpdate(EMC_IO_STAT * stat)
        number that emcio echoes. If they're different, then the command
        hasn't been acknowledged yet and the state should be forced to be
        RCS_EXEC. */
-    if (stat->echo_serial_number != emcIoCommandSerialNumber) {
+    int serial_diff = emcIoStatus->echo_serial_number - emcIoCommandSerialNumber;
+    if (serial_diff < 0) {
 	stat->status = RCS_EXEC;
     }
     //commented out because it keeps resetting the spindle speed to some odd value

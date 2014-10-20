@@ -35,7 +35,7 @@ class LOCMEM:public CMS {
     LOCMEM(const char *bufline, const char *procline, int set_to_server =
 	0, int set_to_master = 0);
       virtual ~ LOCMEM();
-    CMS_STATUS main_access(void *_local);
+    CMS_STATUS main_access(void *_local, int *serial_number);
 
   protected:
     void *lm_addr;
