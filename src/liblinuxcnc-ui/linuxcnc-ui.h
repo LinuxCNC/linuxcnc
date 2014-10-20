@@ -105,6 +105,7 @@ void lui_free(lui_t *lui);
 
 int lui_connect(lui_t *lui);
 int lui_status_nml_update(lui_t *lui);
+int lui_command_nml_wait_done(lui_t *lui);
 
 int lui_estop(lui_t *lui);
 int lui_estop_reset(lui_t *lui);
