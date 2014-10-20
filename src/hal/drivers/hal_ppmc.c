@@ -77,6 +77,14 @@
 
 #define	EPSILON		1e-20
 
+#define NCONFIG 24
+#if NCONFIG != MAX_BUS*8
+#error Must change MAX_BUS and NCONFIG together
+// because of a limitation of RTAPI_MP_ARRAY on uspace, the count argument has
+// to be a literal integer, or a macro that expands to one.  So MAX_BUS*8 is
+// not OK (when it expands to 8*3), but NCONFIG is (when it expands to 24).
+#endif
+
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("HAL driver for Universal PWM Controller");
@@ -89,22 +97,22 @@ int extradac[MAX_BUS*8] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(extradac, MAX_BUS*8, "bus/slot locations of extra DAC modules");
-int extradout[MAX_BUS*8] = {
+RTAPI_MP_ARRAY_INT(extradac, NCONFIG, "bus/slot locations of extra DAC modules");
+int extradout[NCONFIG] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(extradout, MAX_BUS*8, "bus/slot locations of extra dig out modules");
-int timestamp[MAX_BUS*8] = {
+RTAPI_MP_ARRAY_INT(extradout, NCONFIG, "bus/slot locations of extra dig out modules");
+int timestamp[NCONFIG] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(timestamp, MAX_BUS*8, "bus/slot locations of timestamped encoders");
-int enc_clock[MAX_BUS*8] = {
+RTAPI_MP_ARRAY_INT(timestamp, NCONFIG, "bus/slot locations of timestamped encoders");
+int enc_clock[NCONFIG] = {
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1,
         -1,-1,-1,-1,-1,-1,-1,-1 };  /* default, no extra stuff */
-RTAPI_MP_ARRAY_INT(enc_clock, MAX_BUS*8, "bus/slot locations of encoder clock settings");
+RTAPI_MP_ARRAY_INT(enc_clock, NCONFIG, "bus/slot locations of encoder clock settings");
 
 /***********************************************************************
 *                DEFINES (MOSTLY REGISTER ADDRESSES)                   *
