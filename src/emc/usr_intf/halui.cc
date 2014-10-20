@@ -1040,22 +1040,6 @@ int halui_hal_init(void)
     return 0;
 }
 
-static int sendMachineOn()
-{
-    EMC_TASK_SET_STATE state_msg;
-
-    state_msg.state = EMC_TASK_STATE_ON;
-    return emcCommandSend(state_msg);
-}
-
-static int sendMachineOff()
-{
-    EMC_TASK_SET_STATE state_msg;
-
-    state_msg.state = EMC_TASK_STATE_OFF;
-    return emcCommandSend(state_msg);
-}
-
 static int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
@@ -1666,10 +1650,10 @@ static void check_hal_changes()
 
     //check if machine_on pin has changed (the rest work exactly the same)
     if (check_bit_changed(new_halui_data.machine_on, old_halui_data.machine_on) != 0)
-	sendMachineOn();                //send MachineOn NML command
+	lui_machine_on(lui);
     
     if (check_bit_changed(new_halui_data.machine_off, old_halui_data.machine_off) != 0)
-	sendMachineOff();
+	lui_machine_off(lui);
 
     if (check_bit_changed(new_halui_data.estop_activate, old_halui_data.estop_activate) != 0)
 	lui_estop(lui);
