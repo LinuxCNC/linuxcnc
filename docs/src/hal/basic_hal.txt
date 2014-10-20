@@ -4,12 +4,13 @@
 
 == HAL Commands [[sec:Hal-Commands]]
 
-More detailed information can be found in the man page for halcmd 'man
-halcmd' in a terminal window. To see the HAL configuration and check
-the status of pins and parameters use the HAL Configuration window on
-the Machine menu in AXIS. To watch a pin status open the Watch tab and
-click on each pin you wish to watch and it will be added to the watch
-window.
+More detailed information can be found in the man page for halcmd: run
+'man halcmd' in a terminal window.
+
+To see the HAL configuration and check the status of pins and parameters
+use the HAL Configuration window on the Machine menu in AXIS. To watch
+a pin status open the Watch tab and click on each pin you wish to watch
+and it will be added to the watch window.
 
 .HAL Configuration Window[[cap:HAL-Configuration-Window]]
 
