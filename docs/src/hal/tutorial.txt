@@ -1,4 +1,4 @@
-= Advanced HAL Tutorial
+= HAL Tutorial
 
 [[cha:HAL-tutorial]] (((HAL Tutorial)))
 
