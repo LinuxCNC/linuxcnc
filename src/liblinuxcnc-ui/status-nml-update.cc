@@ -52,5 +52,21 @@ int lui_status_nml_update(lui_t *lui) {
 	break;
     }
 
+    for(int i=0; i<9; i++)
+    {
+        const EMC_AXIS_STAT &info = lui->status->motion.axis[i];
+        int v = 0;
+        if(info.minHardLimit) v |= 1;
+        if(info.maxHardLimit) v |= 2;
+        if(info.minSoftLimit) v |= 4;
+        if(info.maxSoftLimit) v |= 8;
+        lui->shadow_limit[i] = v;
+        lui->shadow_homed[i] = info.homed;
+        lui->shadow_joint_commanded[i] = info.output;
+        lui->shadow_joint_actual[i] = info.input;
+    }
+
+    for(int i=0; i<EMC_AXIS_MAX; i++) {
+    }
     return 0;
 }

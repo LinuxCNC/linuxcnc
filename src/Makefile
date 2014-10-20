@@ -267,6 +267,7 @@ default: $(INFILES)
 # in ../include is used when building external components of linuxcnc.
 HEADERS := \
     liblinuxcnc-ui/linuxcnc-ui.h \
+    objects/liblinuxcnc-ui/liblinuxcnc-ui-getters.h \
     config.h \
     emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
