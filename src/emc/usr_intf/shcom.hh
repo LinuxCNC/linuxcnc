@@ -49,7 +49,6 @@ extern ANGULAR_UNIT_CONVERSION angularUnitConversion;
 
 // the current command numbers, set up updateStatus(), used in main()
 extern int emcCommandSerialNumber;
-extern int saveEmcCommandSerialNumber;
 
 // the NML channels to the EMC task
 extern RCS_CMD_CHANNEL *emcCommandBuffer;
@@ -89,8 +88,9 @@ extern int emcErrorNmlGet();
 extern int tryNml(double retry_time=10.0, double retry_interval=1.0);
 extern int updateStatus();
 extern int updateError();
-extern int emcCommandWaitReceived(int serial_number);
-extern int emcCommandWaitDone(int serial_number);
+extern int emcCommandWaitReceived();
+extern int emcCommandWaitDone();
+extern int emcCommandSend(RCS_CMD_MSG & cmd);
 extern double convertLinearUnits(double u);
 extern double convertAngularUnits(double u);
 extern int sendDebug(int level);

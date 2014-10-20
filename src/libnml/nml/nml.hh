@@ -81,8 +81,8 @@ class NML:public virtual CMS_USER {
     /* Get Address of message for user after read. */
       NMLTYPE(*phantom_read) ();
       NMLTYPE(*phantom_peek) ();
-    int (*phantom_write) (NMLmsg * nml_msg);
-    int (*phantom_write_if_read) (NMLmsg * nml_msg);
+    int (*phantom_write) (NMLmsg * nml_msg, int *serial_number);
+    int (*phantom_write_if_read) (NMLmsg * nml_msg, int *serial_number);
     int (*phantom_check_if_read) ();
     int (*phantom_clear) ();
     int ignore_format_chain;
@@ -97,11 +97,11 @@ class NML:public virtual CMS_USER {
     NMLTYPE peek();		/* Read buffer without changing was_read */
     NMLTYPE read(void *, long);
     NMLTYPE peek(void *, long);
-    int write(NMLmsg & nml_msg);	/* Write a message. (Use reference) */
-    int write(NMLmsg * nml_msg);	/* Write a message. (Use pointer) */
-    int write_if_read(NMLmsg & nml_msg);	/* Write only if buffer
+    int write(NMLmsg & nml_msg, int *serial_number = NULL);	/* Write a message. (Use reference) */
+    int write(NMLmsg * nml_msg, int *serial_number = NULL);	/* Write a message. (Use pointer) */
+    int write_if_read(NMLmsg & nml_msg, int *serial_number = NULL);	/* Write only if buffer
 						   was_read */
-    int write_if_read(NMLmsg * nml_msg);	/* '' */
+    int write_if_read(NMLmsg * nml_msg, int *serial_number = NULL);	/* '' */
     NMLTYPE blocking_read_extended(double timeout, double poll_interval);
 
     int write_subdivision(int subdiv, NMLmsg & nml_msg);	/* Write a

@@ -41,7 +41,7 @@ class SHMEM:public CMS {
 	int set_to_master = 0);
     virtual ~ SHMEM();
 
-    CMS_STATUS main_access(void *_local);
+    CMS_STATUS main_access(void *_local, int *serial_number);
 
   private:
 

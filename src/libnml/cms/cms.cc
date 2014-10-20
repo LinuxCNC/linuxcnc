@@ -883,7 +883,7 @@ CMS::~CMS()
 
 /* This function should never be called. It exists so that classes  which */
  /* overload read, write etc don't have to bother creating it. */
-CMS_STATUS CMS::main_access(void *_local)
+CMS_STATUS CMS::main_access(void *_local, int *serial_number)
 {
     rcs_print_error("CMS::main_access called by %s for %s.\n",
 	ProcessName, BufferName);
@@ -1027,19 +1027,19 @@ CMS_STATUS CMS::peek()
     return (status);
 }
 
-CMS_STATUS CMS::write(void *user_data)
+CMS_STATUS CMS::write(void *user_data, int *serial_number)
 {
     internal_access_type = CMS_WRITE_ACCESS;
     status = CMS_STATUS_NOT_SET;
-    main_access(user_data);
+    main_access(user_data, serial_number);
     return (status);
 }
 
-CMS_STATUS CMS::write_if_read(void *user_data)
+CMS_STATUS CMS::write_if_read(void *user_data, int *serial_number)
 {
     internal_access_type = CMS_WRITE_IF_READ_ACCESS;
     status = CMS_STATUS_NOT_SET;
-    main_access(user_data);
+    main_access(user_data, serial_number);
     return (status);
 }
 

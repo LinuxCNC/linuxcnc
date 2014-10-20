@@ -249,27 +249,59 @@ static int updateError()
 #define EMC_COMMAND_TIMEOUT 1.0 // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.1 // how long to sleep between checks
 
-static int emcCommandWaitDone(int serial_number)
+static int emcCommandWaitDone()
 {
-  double start = etime();
+    double end;
+    for (end = 0.0; end < EMC_COMMAND_TIMEOUT; end += EMC_COMMAND_DELAY) {
+	updateStatus();
+	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 
-  while (etime() - start < EMC_COMMAND_TIMEOUT) {
-    updateStatus();
+	if (serial_diff < 0) {
+	    continue;
+	}
 
-    if (emcStatus->echo_serial_number == serial_number) {
-      if (emcStatus->status == RCS_DONE) {
-        return 0;
-      }
-      else if (emcStatus->status == RCS_ERROR) {
-        return -1;
-      }
+	if (serial_diff > 0) {
+	    return 0;
+	}
+
+	if (emcStatus->status == RCS_DONE) {
+	    return 0;
+	}
+
+	if (emcStatus->status == RCS_ERROR) {
+	    return -1;
+	}
+
+	esleep(EMC_COMMAND_DELAY);
     }
 
-    esleep(EMC_COMMAND_DELAY);
-  }
-
-  return -1;
+    return -1;
 }
+
+static int emcCommandSend(RCS_CMD_MSG & cmd)
+{
+    // write command
+    if (emcCommandBuffer->write(&cmd)) {
+        return -1;
+    }
+    emcCommandSerialNumber = cmd.serial_number;
+
+    // wait for receive
+    double end;
+    for (end = 0.0; end < EMC_COMMAND_TIMEOUT; end += EMC_COMMAND_DELAY) {
+	updateStatus();
+	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
+
+	if (serial_diff >= 0) {
+	    return 0;
+	}
+
+	esleep(EMC_COMMAND_DELAY);
+    }
+
+    return -1;
+}
+
 
 /*
   functions for handling the windowing of a file, where you
@@ -681,8 +713,7 @@ static int sendEstop()
   EMC_TASK_SET_STATE state_msg;
 
   state_msg.state = EMC_TASK_STATE_ESTOP;
-  state_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(state_msg);
+  emcCommandSend(state_msg);
 
   return 0;
 }
@@ -692,8 +723,7 @@ static int sendEstopReset()
   EMC_TASK_SET_STATE state_msg;
 
   state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
-  state_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(state_msg);
+  emcCommandSend(state_msg);
 
   return 0;
 }
@@ -703,8 +733,7 @@ static int sendMachineOn()
   EMC_TASK_SET_STATE state_msg;
 
   state_msg.state = EMC_TASK_STATE_ON;
-  state_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(state_msg);
+  emcCommandSend(state_msg);
 
   return 0;
 }
@@ -714,8 +743,7 @@ static int sendMachineOff()
   EMC_TASK_SET_STATE state_msg;
 
   state_msg.state = EMC_TASK_STATE_OFF;
-  state_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(state_msg);
+  emcCommandSend(state_msg);
 
   return 0;
 }
@@ -725,8 +753,7 @@ static int sendManual()
   EMC_TASK_SET_MODE mode_msg;
 
   mode_msg.mode = EMC_TASK_MODE_MANUAL;
-  mode_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(mode_msg);
+  emcCommandSend(mode_msg);
 
   return 0;
 }
@@ -736,8 +763,7 @@ static int sendAuto()
   EMC_TASK_SET_MODE mode_msg;
 
   mode_msg.mode = EMC_TASK_MODE_AUTO;
-  mode_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(mode_msg);
+  emcCommandSend(mode_msg);
 
   return 0;
 }
@@ -747,8 +773,7 @@ static int sendMdi()
   EMC_TASK_SET_MODE mode_msg;
 
   mode_msg.mode = EMC_TASK_MODE_MDI;
-  mode_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(mode_msg);
+  emcCommandSend(mode_msg);
 
   return 0;
 }
@@ -762,8 +787,7 @@ static int sendToolSetOffset(int toolno, double zoffset, double diameter)
   emc_tool_set_offset_msg.diameter = diameter;
   emc_tool_set_offset_msg.orientation = 0; // mill style tool table
 
-  emc_tool_set_offset_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_tool_set_offset_msg);
+  emcCommandSend(emc_tool_set_offset_msg);
 
   return 0;
 }
@@ -772,8 +796,7 @@ static int sendMistOn()
 {
   EMC_COOLANT_MIST_ON emc_coolant_mist_on_msg;
 
-  emc_coolant_mist_on_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_mist_on_msg);
+  emcCommandSend(emc_coolant_mist_on_msg);
 
   return 0;
 }
@@ -782,8 +805,7 @@ static int sendMistOff()
 {
   EMC_COOLANT_MIST_OFF emc_coolant_mist_off_msg;
 
-  emc_coolant_mist_off_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_mist_off_msg);
+  emcCommandSend(emc_coolant_mist_off_msg);
 
   return 0;
 }
@@ -792,8 +814,7 @@ static int sendFloodOn()
 {
   EMC_COOLANT_FLOOD_ON emc_coolant_flood_on_msg;
 
-  emc_coolant_flood_on_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_flood_on_msg);
+  emcCommandSend(emc_coolant_flood_on_msg);
 
   return 0;
 }
@@ -802,8 +823,7 @@ static int sendFloodOff()
 {
   EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
 
-  emc_coolant_flood_off_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_coolant_flood_off_msg);
+  emcCommandSend(emc_coolant_flood_off_msg);
 
   return 0;
 }
@@ -813,8 +833,7 @@ static int sendSpindleForward()
   EMC_SPINDLE_ON emc_spindle_on_msg;
 
   emc_spindle_on_msg.speed = +1;
-  emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_on_msg);
+  emcCommandSend(emc_spindle_on_msg);
 
   return 0;
 }
@@ -824,8 +843,7 @@ static int sendSpindleReverse()
   EMC_SPINDLE_ON emc_spindle_on_msg;
 
   emc_spindle_on_msg.speed = -1;
-  emc_spindle_on_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_on_msg);
+  emcCommandSend(emc_spindle_on_msg);
 
   return 0;
 }
@@ -834,8 +852,7 @@ static int sendSpindleOff()
 {
   EMC_SPINDLE_OFF emc_spindle_off_msg;
 
-  emc_spindle_off_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_off_msg);
+  emcCommandSend(emc_spindle_off_msg);
 
   return 0;
 }
@@ -844,8 +861,7 @@ static int sendSpindleIncrease()
 {
   EMC_SPINDLE_INCREASE emc_spindle_increase_msg;
 
-  emc_spindle_increase_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_increase_msg);
+  emcCommandSend(emc_spindle_increase_msg);
 
   return 0;
 }
@@ -854,8 +870,7 @@ static int sendSpindleDecrease()
 {
   EMC_SPINDLE_DECREASE emc_spindle_decrease_msg;
 
-  emc_spindle_decrease_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_decrease_msg);
+  emcCommandSend(emc_spindle_decrease_msg);
 
   return 0;
 }
@@ -864,8 +879,7 @@ static int sendSpindleConstant()
 {
   EMC_SPINDLE_CONSTANT emc_spindle_constant_msg;
 
-  emc_spindle_constant_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_constant_msg);
+  emcCommandSend(emc_spindle_constant_msg);
 
   return 0;
 }
@@ -874,8 +888,7 @@ static int sendBrakeEngage()
 {
   EMC_SPINDLE_BRAKE_ENGAGE emc_spindle_brake_engage_msg;
 
-  emc_spindle_brake_engage_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_brake_engage_msg);
+  emcCommandSend(emc_spindle_brake_engage_msg);
 
   return 0;
 }
@@ -884,8 +897,7 @@ static int sendBrakeRelease()
 {
   EMC_SPINDLE_BRAKE_RELEASE emc_spindle_brake_release_msg;
 
-  emc_spindle_brake_release_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_spindle_brake_release_msg);
+  emcCommandSend(emc_spindle_brake_release_msg);
 
   return 0;
 }
@@ -894,8 +906,7 @@ static int sendAbort()
 {
   EMC_TASK_ABORT task_abort_msg;
 
-  task_abort_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(task_abort_msg);
+  emcCommandSend(task_abort_msg);
 
   return 0;
 }
@@ -905,8 +916,7 @@ static int sendOverrideLimits()
   EMC_AXIS_OVERRIDE_LIMITS lim_msg;
 
   lim_msg.axis = 0;             // same number for all
-  lim_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(lim_msg);
+  emcCommandSend(lim_msg);
 
   return 0;
 }
@@ -924,9 +934,8 @@ static int sendJogStop(int axis)
     return 0;
   }
 
-  emc_axis_abort_msg.serial_number = ++emcCommandSerialNumber;
   emc_axis_abort_msg.axis = axisJogging;
-  emcCommandBuffer->write(emc_axis_abort_msg);
+  emcCommandSend(emc_axis_abort_msg);
 
   axisJogging = -1;
 
@@ -950,10 +959,9 @@ static int sendJogCont(int axis, double speed)
     speed = -speed;
   }
 
-  emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
   emc_axis_jog_msg.axis = axis;
   emc_axis_jog_msg.vel = speed / 60.0;
-  emcCommandBuffer->write(emc_axis_jog_msg);
+  emcCommandSend(emc_axis_jog_msg);
 
   axisJogging = axis;
 
@@ -977,11 +985,10 @@ static int sendJogIncr(int axis, double speed, double incr)
     speed = -speed;
   }
 
-  emc_axis_incr_jog_msg.serial_number = ++emcCommandSerialNumber;
   emc_axis_incr_jog_msg.axis = axis;
   emc_axis_incr_jog_msg.vel = speed / 60.0;
   emc_axis_incr_jog_msg.incr = jogIncrement;
-  emcCommandBuffer->write(emc_axis_incr_jog_msg);
+  emcCommandSend(emc_axis_incr_jog_msg);
 
   // don't flag incremental jogs as jogging an axis-- we can
   // allow multiple incremental jogs since we don't need a key release
@@ -993,9 +1000,8 @@ static int sendHome(int axis)
 {
   EMC_AXIS_HOME emc_axis_home_msg;
 
-  emc_axis_home_msg.serial_number = ++emcCommandSerialNumber;
   emc_axis_home_msg.axis = axis;
-  emcCommandBuffer->write(emc_axis_home_msg);
+  emcCommandSend(emc_axis_home_msg);
 
   return 0;
 }
@@ -1010,9 +1016,8 @@ static int sendFeedOverride(double override)
   else if (override > (double) maxFeedOverride / 100.0) {
     override = (double) maxFeedOverride / 100.0;
   }
-  emc_traj_set_scale_msg.serial_number = ++emcCommandSerialNumber;
   emc_traj_set_scale_msg.scale = override;
-  emcCommandBuffer->write(emc_traj_set_scale_msg);
+  emcCommandSend(emc_traj_set_scale_msg);
 
   return 0;
 }
@@ -1021,8 +1026,7 @@ static int sendTaskPlanInit()
 {
   EMC_TASK_PLAN_INIT task_plan_init_msg;
 
-  task_plan_init_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(task_plan_init_msg);
+  emcCommandSend(task_plan_init_msg);
 
   return 0;
 }
@@ -1038,14 +1042,13 @@ static int sendProgramOpen(char *program)
   }
 
   // wait for any previous one to go out
-  if (0 != emcCommandWaitDone(emcCommandSerialNumber)) {
+  if (0 != emcCommandWaitDone()) {
     printError("error executing command\n");
     return -1;
   }
 
-  emc_task_plan_open_msg.serial_number = ++emcCommandSerialNumber;
   strcpy(emc_task_plan_open_msg.file, program);
-  emcCommandBuffer->write(emc_task_plan_open_msg);
+  emcCommandSend(emc_task_plan_open_msg);
 
   // now clear out our stored version of the program, in case
   // the file contents have changed but the name is the same
@@ -1070,15 +1073,14 @@ static int sendProgramRun(int line)
     sendProgramOpen(lastProgramFile);
 
     // wait for command to go out
-    if (0 != emcCommandWaitDone(emcCommandSerialNumber)) {
+    if (0 != emcCommandWaitDone()) {
       printError("error executing command\n");
       return -1;
     }
   }
 
-  emc_task_plan_run_msg.serial_number = ++emcCommandSerialNumber;
   emc_task_plan_run_msg.line = line;
-  emcCommandBuffer->write(emc_task_plan_run_msg);
+  emcCommandSend(emc_task_plan_run_msg);
 
   programStartLineLast = programStartLine;
   programStartLine = 0;
@@ -1090,8 +1092,7 @@ static int sendProgramPause()
 {
   EMC_TASK_PLAN_PAUSE emc_task_plan_pause_msg;
 
-  emc_task_plan_pause_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_task_plan_pause_msg);
+  emcCommandSend(emc_task_plan_pause_msg);
 
   return 0;
 }
@@ -1100,8 +1101,7 @@ static int sendProgramResume()
 {
   EMC_TASK_PLAN_RESUME emc_task_plan_resume_msg;
 
-  emc_task_plan_resume_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_task_plan_resume_msg);
+  emcCommandSend(emc_task_plan_resume_msg);
 
   return 0;
 }
@@ -1116,14 +1116,13 @@ static int sendProgramStep()
     sendProgramOpen(lastProgramFile);
 
     // wait for command to go out
-    if (0 != emcCommandWaitDone(emcCommandSerialNumber)) {
+    if (0 != emcCommandWaitDone()) {
       printError("error executing command\n");
       return -1;
     }
   }
 
-  emc_task_plan_step_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_task_plan_step_msg);
+  emcCommandSend(emc_task_plan_step_msg);
 
   programStartLineLast = programStartLine;
   programStartLine = 0;
@@ -1136,8 +1135,7 @@ static int sendMdiCmd(char *mdi)
   EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
   strcpy(emc_task_plan_execute_msg.command, mdi);
-  emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_task_plan_execute_msg);
+  emcCommandSend(emc_task_plan_execute_msg);
 
   return 0;
 }
@@ -1147,8 +1145,7 @@ static int sendLoadToolTable(const char *file)
   EMC_TOOL_LOAD_TOOL_TABLE emc_tool_load_tool_table_msg;
 
   strcpy(emc_tool_load_tool_table_msg.file, file);
-  emc_tool_load_tool_table_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(emc_tool_load_tool_table_msg);
+  emcCommandSend(emc_tool_load_tool_table_msg);
 
   return 0;
 }
