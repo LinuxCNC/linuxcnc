@@ -39,3 +39,11 @@ int lui_estop_reset(lui_t *lui) {
     return lui_command_nml_task_set_state(lui, lui_task_state_estop_reset);
 }
 
+int lui_machine_on(lui_t *lui) {
+    return lui_command_nml_task_set_state(lui, lui_task_state_on);
+}
+
+int lui_machine_off(lui_t *lui) {
+    return lui_command_nml_task_set_state(lui, lui_task_state_off);
+}
+

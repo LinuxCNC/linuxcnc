@@ -47,6 +47,8 @@ int lui_status_nml_update(lui_t *lui);
 
 int lui_estop(lui_t *lui);
 int lui_estop_reset(lui_t *lui);
+int lui_machine_on(lui_t *lui);
+int lui_machine_off(lui_t *lui);
 
 #ifdef __cplusplus
 }
