@@ -2040,16 +2040,23 @@ static void modify_hal_pins()
 {
     int joint;
     
-    if (emcStatus->task.state == EMC_TASK_STATE_ON) {
-	*(halui_data->machine_is_on)=1;
+    int result = lui_status_nml_update(lui);
+    if(result < 0) {
+        fprintf(stderr, "can't update lui status\n");
     } else {
-	*(halui_data->machine_is_on)=0;
-    }
+        lui_task_state_t task_state = lui_get_task_state(lui);
 
-    if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
-	*(halui_data->estop_is_activated)=1;
-    } else {
-	*(halui_data->estop_is_activated)=0;
+        if (task_state == lui_task_state_on) {
+            *(halui_data->machine_is_on)=1;
+        } else {
+            *(halui_data->machine_is_on)=0;
+        }
+
+        if (task_state == lui_task_state_estop) {
+            *(halui_data->estop_is_activated)=1;
+        } else {
+            *(halui_data->estop_is_activated)=0;
+        }
     }
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
