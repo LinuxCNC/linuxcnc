@@ -22,6 +22,8 @@
 #include <signal.h>
 #include <math.h>
 
+#include "linuxcnc-ui.h"
+
 #include "hal.h"		/* access to HAL functions/definitions */
 #include "rtapi.h"		/* rtapi_print_msg */
 #include "rcs.hh"
@@ -34,6 +36,8 @@
 #include "rcs_print.hh"
 #include "nml_oi.hh"
 #include "timer.hh"
+
+lui_t *lui;
 
 /*
   Using halui:
@@ -1055,26 +1059,6 @@ static int sendMachineOff()
     return emcCommandWaitReceived(emcCommandSerialNumber);
 }
 
-static int sendEstop()
-{
-    EMC_TASK_SET_STATE state_msg;
-
-    state_msg.state = EMC_TASK_STATE_ESTOP;
-    state_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(state_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
-static int sendEstopReset()
-{
-    EMC_TASK_SET_STATE state_msg;
-
-    state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
-    state_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(state_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
 static int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
@@ -1755,10 +1739,10 @@ static void check_hal_changes()
 	sendMachineOff();
 
     if (check_bit_changed(new_halui_data.estop_activate, old_halui_data.estop_activate) != 0)
-	sendEstop();
+	lui_estop(lui);
 
     if (check_bit_changed(new_halui_data.estop_reset, old_halui_data.estop_reset) != 0)
-	sendEstopReset();
+	lui_estop_reset(lui);
 
     if (check_bit_changed(new_halui_data.mode_manual, old_halui_data.mode_manual) != 0)
 	sendManual();
@@ -2213,6 +2197,8 @@ static void modify_hal_pins()
 
 int main(int argc, char *argv[])
 {
+    int r;
+
     // process command line args
     if (0 != emcGetArgs(argc, argv)) {
 	rcs_print_error("error in argument list\n");
@@ -2233,6 +2219,21 @@ int main(int argc, char *argv[])
 
     //initialize safe values
     hal_init_pins();
+
+
+    lui = lui_new();
+    if (lui == NULL) {
+        fprintf(stderr, "can't make new lui\n");
+        thisQuit();
+        exit(1);
+    }
+
+    r = lui_connect(lui);
+    if (r != 0) {
+        fprintf(stderr, "can't connect lui\n");
+        thisQuit();
+        exit(1);
+    }
 
     // init NML
     if (0 != tryNml()) {
