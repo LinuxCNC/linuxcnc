@@ -52,3 +52,32 @@ int lui_command_nml_wait_received(lui_t *lui) {
     return -1;
 }
 
+
+//
+// Wait for Task's status to be "Done", indicating it's finished doing
+// something.  We use this as an imperfect proxy for "Task is finished
+// executing the command indicated  by our current serial number".
+//
+int lui_command_nml_wait_done(lui_t *lui) {
+    struct timeval end, now;
+
+    gettimeofday(&now, NULL);
+    timeradd(&now, &lui->command_nml_receive_timeout, &end);
+
+    do {
+        lui_status_nml_update(lui);
+
+        if (lui->status->status == RCS_DONE) {
+            return 0;
+        } else if (lui->status->status == RCS_ERROR) {
+            return -1;
+        }
+
+        usleep(1000);
+        gettimeofday(&now, NULL);
+    } while (timercmp(&now, &end, <));
+
+    // timeout
+    return -1;
+}
+
