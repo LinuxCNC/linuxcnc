@@ -1,6 +1,4 @@
 //
-// liblinuxcnc-ui: a library to control linuxcnc
-//
 // Copyright (C) 2014 Sebastian Kuzminsky
 //
 // This library is free software; you can redistribute it and/or
@@ -19,37 +17,40 @@
 // Boston, MA  02110-1301, USA.
 //
 
-#ifndef LIBLINUXCNC_UI
-#define LIBLINUXCNC_UI
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
 
-typedef struct lui lui_t;
-
-
-// types for EMC_TASK_SET_STATE
-// these must match EMC_TASK_SET_STATE_ENUM from emc/nml_intf/emc.hh
-typedef enum {
-    lui_task_state_estop = 1,
-    lui_task_state_estop_reset = 2,
-    lui_task_state_off = 3,
-    lui_task_state_on = 4
-} lui_task_state_t;
+#include "linuxcnc-ui-private.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int lui_status_nml_update(lui_t *lui) {
+    NMLTYPE type;
 
-lui_t *lui_new(void);
-void lui_free(lui_t *lui);
+    if (
+        (0 == lui)
+        || (0 == lui->status)
+        || (0 == lui->status_nml)
+	|| !lui->status_nml->valid()
+    ) {
+	return -1;
+    }
 
-int lui_connect(lui_t *lui);
-int lui_status_nml_update(lui_t *lui);
+    switch (type = lui->status_nml->peek()) {
+    case -1:
+	// error on CMS channel
+	return -1;
+	break;
 
-int lui_estop(lui_t *lui);
-int lui_estop_reset(lui_t *lui);
+    case 0:		// no new data (old data is still valid)
+    case EMC_STAT_TYPE:	// new data
+	// status buffer is valid
+	break;
 
-#ifdef __cplusplus
+    default:
+	return -1;
+	break;
+    }
+
+    return 0;
 }
-#endif
-
-#endif  // LIBLINUXCNC_UI

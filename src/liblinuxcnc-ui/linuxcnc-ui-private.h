@@ -20,6 +20,9 @@
 #ifndef LIBLINUXCNC_UI_PRIVATE
 #define LIBLINUXCNC_UI_PRIVATE
 
+#include <stdint.h>
+#include <sys/time.h>
+
 #include "linuxcnc-ui.h"
 
 // old yucky stuff
@@ -38,6 +41,13 @@ typedef struct lui {
     RCS_STAT_CHANNEL *status_nml;
     EMC_STAT *status;
     NML *error_nml;
+    struct timeval command_nml_receive_timeout;
+
+    int32_t nml_serial_number;
 } lui_t;
+
+
+int lui_command_nml_wait_received(lui_t *lui);
+int lui_command_nml_task_set_state(lui_t *lui, lui_task_state_t state);
 
 #endif  // LIBLINUXCNC_UI_PRIVATE

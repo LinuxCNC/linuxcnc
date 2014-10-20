@@ -24,6 +24,13 @@
 lui_t *lui_new(void) {
     lui_t *lui;
     lui = (lui_t*)calloc(1, sizeof(lui_t));
+    if (lui == NULL) {
+        return NULL;
+    }
+
+    lui->command_nml_receive_timeout.tv_sec = 5;
+    lui->command_nml_receive_timeout.tv_usec = 0;
+
     return lui;
 }
 

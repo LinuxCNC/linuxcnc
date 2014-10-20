@@ -1,6 +1,4 @@
 //
-// liblinuxcnc-ui: a library to control linuxcnc
-//
 // Copyright (C) 2014 Sebastian Kuzminsky
 //
 // This library is free software; you can redistribute it and/or
@@ -19,37 +17,38 @@
 // Boston, MA  02110-1301, USA.
 //
 
-#ifndef LIBLINUXCNC_UI
-#define LIBLINUXCNC_UI
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/time.h>
 
-typedef struct lui lui_t;
-
-
-// types for EMC_TASK_SET_STATE
-// these must match EMC_TASK_SET_STATE_ENUM from emc/nml_intf/emc.hh
-typedef enum {
-    lui_task_state_estop = 1,
-    lui_task_state_estop_reset = 2,
-    lui_task_state_off = 3,
-    lui_task_state_on = 4
-} lui_task_state_t;
+#include "linuxcnc-ui-private.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//
+// Wait for our current serial number to be echoed back from Task,
+// indicating that Task received our message.
+//
+// lui calls this after each time it sends a message to Task, before
+// returning to the caller.
+//
+int lui_command_nml_wait_received(lui_t *lui) {
+    struct timeval end, now;
 
-lui_t *lui_new(void);
-void lui_free(lui_t *lui);
+    gettimeofday(&now, NULL);
+    timeradd(&now, &lui->command_nml_receive_timeout, &end);
 
-int lui_connect(lui_t *lui);
-int lui_status_nml_update(lui_t *lui);
+    do {
+	lui_status_nml_update(lui);
 
-int lui_estop(lui_t *lui);
-int lui_estop_reset(lui_t *lui);
+	if (lui->status->echo_serial_number == lui->nml_serial_number) {
+	    return 0;
+	}
 
-#ifdef __cplusplus
+	usleep(1000);
+        gettimeofday(&now, NULL);
+    } while (timercmp(&now, &end, <));
+
+    // timeout
+    return -1;
 }
-#endif
 
-#endif  // LIBLINUXCNC_UI
