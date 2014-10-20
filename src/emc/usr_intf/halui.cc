@@ -2101,24 +2101,27 @@ static void modify_hal_pins()
 	*(halui_data->joint_has_fault[joint]) = emcStatus->motion.axis[joint].fault;
     }
 
-    *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
-    *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;	
-    *(halui_data->axis_pos_commanded[2]) = emcStatus->motion.traj.position.tran.z;
-    *(halui_data->axis_pos_commanded[3]) = emcStatus->motion.traj.position.a;
-    *(halui_data->axis_pos_commanded[4]) = emcStatus->motion.traj.position.b;
-    *(halui_data->axis_pos_commanded[5]) = emcStatus->motion.traj.position.c;
-    *(halui_data->axis_pos_commanded[6]) = emcStatus->motion.traj.position.u;
-    *(halui_data->axis_pos_commanded[7]) = emcStatus->motion.traj.position.v;
-    *(halui_data->axis_pos_commanded[8]) = emcStatus->motion.traj.position.w;
-    *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
-    *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;	
-    *(halui_data->axis_pos_feedback[2]) = emcStatus->motion.traj.actualPosition.tran.z;
-    *(halui_data->axis_pos_feedback[3]) = emcStatus->motion.traj.actualPosition.a;
-    *(halui_data->axis_pos_feedback[4]) = emcStatus->motion.traj.actualPosition.b;
-    *(halui_data->axis_pos_feedback[5]) = emcStatus->motion.traj.actualPosition.c;
-    *(halui_data->axis_pos_feedback[6]) = emcStatus->motion.traj.actualPosition.u;
-    *(halui_data->axis_pos_feedback[7]) = emcStatus->motion.traj.actualPosition.v;
-    *(halui_data->axis_pos_feedback[8]) = emcStatus->motion.traj.actualPosition.w;
+    lui_position_t commanded = lui_get_position(lui);
+    *(halui_data->axis_pos_commanded[0]) = commanded.x;
+    *(halui_data->axis_pos_commanded[1]) = commanded.y;
+    *(halui_data->axis_pos_commanded[2]) = commanded.z;
+    *(halui_data->axis_pos_commanded[3]) = commanded.a;
+    *(halui_data->axis_pos_commanded[4]) = commanded.b;
+    *(halui_data->axis_pos_commanded[5]) = commanded.c;
+    *(halui_data->axis_pos_commanded[6]) = commanded.u;
+    *(halui_data->axis_pos_commanded[7]) = commanded.v;
+    *(halui_data->axis_pos_commanded[8]) = commanded.w;
+
+    lui_position_t feedback = lui_get_position(lui);
+    *(halui_data->axis_pos_feedback[0]) = feedback.x;
+    *(halui_data->axis_pos_feedback[1]) = feedback.y;
+    *(halui_data->axis_pos_feedback[2]) = feedback.z;
+    *(halui_data->axis_pos_feedback[3]) = feedback.a;
+    *(halui_data->axis_pos_feedback[4]) = feedback.b;
+    *(halui_data->axis_pos_feedback[5]) = feedback.c;
+    *(halui_data->axis_pos_feedback[6]) = feedback.u;
+    *(halui_data->axis_pos_feedback[7]) = feedback.v;
+    *(halui_data->axis_pos_feedback[8]) = feedback.w;
     *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.x;
     *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y - emcStatus->task.toolOffset.tran.y;
     *(halui_data->axis_pos_relative[2]) = emcStatus->motion.traj.actualPosition.tran.z - emcStatus->task.g5x_offset.tran.z - emcStatus->task.g92_offset.tran.z - emcStatus->task.toolOffset.tran.z;
