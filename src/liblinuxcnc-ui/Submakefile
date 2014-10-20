@@ -1,0 +1,19 @@
+LIBLINUXCNC_UI_SRC := \
+    liblinuxcnc-ui/new.cc \
+    liblinuxcnc-ui/free.cc
+
+USERSRCS += $(LIBLINUXCNC_UI_SRC)
+TARGETS += ../lib/liblinuxcnc-ui.so ../lib/liblinuxcnc-ui.so.0
+INCLUDES += liblinuxcnc-ui
+
+../include/%.h: ./liblinuxcnc-ui/%.h
+	cp $^ $@
+
+$(call TOOBJSDEPS, $(LIBLINUXCNC_UI_SRC)) : EXTRAFLAGS = -fPIC
+
+../lib/liblinuxcnc-ui.so.0: $(call TOOBJS,$(LIBLINUXCNC_UI_SRC)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0
+	$(ECHO) Linking $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CXX) $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^
+

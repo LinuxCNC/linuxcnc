@@ -1,0 +1,2 @@
+loadrt trivkins
+loadrt motmod base_period_nsec=0 servo_period_nsec=1000000 num_joints=3
