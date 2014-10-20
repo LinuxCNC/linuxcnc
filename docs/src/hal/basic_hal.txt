@@ -1,6 +1,6 @@
-= Basic HAL Tutorial
+= Basic HAL Reference
 
-[[cha:basic-hal-tutorial]] (((Basic HAL Tutorial)))
+[[cha:basic-hal-reference]] (((Basic HAL Reference)))
 
 == HAL Commands [[sec:Hal-Commands]]
 
