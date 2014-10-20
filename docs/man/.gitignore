@@ -9,6 +9,8 @@ cat9/
 man1/linuxcnc.1
 man1/halstreamer.1
 
+man3/lui_get_*.3lui
+
 man9/abs.9
 man9/abs_s32.9
 man9/and2.9

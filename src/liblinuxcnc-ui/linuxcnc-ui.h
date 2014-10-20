@@ -84,6 +84,18 @@ typedef enum {
     lui_motion_mode_continuous = 3,
 } lui_motion_mode_t;
 
+// This enum describes the modes of motion(9), the motion controller.
+// These modes can not be directly controlled by the UI, the are handled by
+// Task.  The UI can control the Task mode (Manual/MDI/Auto), which
+// indirectly controls the Motion mode.  This enum is here so that the UI
+// can make sense of the "traj mode" reported by lui_get_traj_mode().
+// This must match EMC_TRAJ_MODE_ENUM.
+typedef enum {
+    lui_traj_mode_free = 1,     // joint-mode jogging
+    lui_traj_mode_coord = 2,    // mdi & auto (running c-code programs)
+    lui_traj_mode_teleop = 3    // world-mode jogging
+} lui_traj_mode_t;
+
 // must match (in memory layout) EmcPose
 typedef struct {
     double x, y, z, a, b, c, u, v, w;
@@ -110,6 +122,8 @@ int lui_estop(lui_t *lui);
 int lui_estop_reset(lui_t *lui);
 int lui_machine_on(lui_t *lui);
 int lui_machine_off(lui_t *lui);
+
+#include "liblinuxcnc-ui-getters.h"
 
 #ifdef __cplusplus
 }

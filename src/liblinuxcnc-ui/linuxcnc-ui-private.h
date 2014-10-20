@@ -44,6 +44,12 @@ typedef struct lui {
     struct timeval command_nml_receive_timeout;
 
     int32_t nml_serial_number;
+
+    int shadow_homed[EMC_AXIS_MAX];
+    int shadow_limit[EMC_AXIS_MAX];
+    double shadow_joint_commanded[EMC_AXIS_MAX];
+    double shadow_joint_actual[EMC_AXIS_MAX];
+
 } lui_t;
 
 
