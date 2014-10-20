@@ -1039,55 +1039,13 @@ int halui_hal_init(void)
     return 0;
 }
 
-static int sendManual()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE_MANUAL;
-    mode_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(mode_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
-static int sendAuto()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE_AUTO;
-    mode_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(mode_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
-static int sendMdi()
-{
-    EMC_TASK_SET_MODE mode_msg;
-
-    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-        return 0;
-    }
-
-    mode_msg.mode = EMC_TASK_MODE_MDI;
-    mode_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(mode_msg);
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
 int sendMdiCmd(char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
 	halui_old_mode = emcStatus->task.mode;
-	sendMdi();
+	lui_mode_mdi(lui);
     }
     strcpy(emc_task_plan_execute_msg.command, mdi);
     emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
@@ -1100,7 +1058,7 @@ static int sendMdiCommand(int n)
 {
     int r1,r2;
     halui_old_mode = emcStatus->task.mode;
-    r1 = sendMdi();
+    r1 = lui_mode_mdi(lui);
     r2 = sendMdiCmd(mdi_commands[n]);
     return r1 || r2;
 }
@@ -1405,7 +1363,7 @@ static int sendJogCont(int axis, double speed)
 	return -1;
     }
 
-    sendManual();
+    lui_mode_manual(lui);
 
     if (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) {
 	emc_axis_jog_msg.serial_number = ++emcCommandSerialNumber;
@@ -1454,7 +1412,7 @@ static int sendJogInc(int axis, double speed, double inc)
     if (axis < 0 || axis >= EMC_AXIS_MAX)
 	return -1;
 
-    sendManual();
+    lui_mode_manual(lui);
 
     if (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP)
     	return -1;
@@ -1725,13 +1683,13 @@ static void check_hal_changes()
 	lui_estop_reset(lui);
 
     if (check_bit_changed(new_halui_data.mode_manual, old_halui_data.mode_manual) != 0)
-	sendManual();
+	lui_mode_manual(lui);
 
     if (check_bit_changed(new_halui_data.mode_auto, old_halui_data.mode_auto) != 0)
-	sendAuto();
+	lui_mode_auto(lui);
 
     if (check_bit_changed(new_halui_data.mode_mdi, old_halui_data.mode_mdi) != 0)
-	sendMdi();
+	lui_mode_mdi(lui);
 
     if (check_bit_changed(new_halui_data.mode_teleop, old_halui_data.mode_teleop) != 0)
 	sendTeleop();
@@ -2063,10 +2021,10 @@ static void modify_hal_pins()
 	if (emcStatus->status == 1) { //which seems to have finished
 	    halui_sent_mdi = 0;
 	    switch (halui_old_mode) {
-		case EMC_TASK_MODE_MANUAL: sendManual();break;
+		case EMC_TASK_MODE_MANUAL: lui_mode_manual(lui);break;
 		case EMC_TASK_MODE_MDI: break;
-		case EMC_TASK_MODE_AUTO: sendAuto();break;
-		default: sendManual();break;
+		case EMC_TASK_MODE_AUTO: lui_mode_auto(lui);break;
+		default: lui_mode_manual(lui);break;
 	    }
 	}
     }
