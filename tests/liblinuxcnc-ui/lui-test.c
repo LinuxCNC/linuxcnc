@@ -29,6 +29,169 @@
     if(cond) { printf(message, ## __VA_ARGS__); exit(1); } \
 } while(0)
 
+void verify_state(lui_t *lui, lui_task_state_t expected_state) {
+    int r;
+    lui_task_state_t actual_state;
+
+    r = lui_status_nml_update(lui);
+    fatal_if(r != 0, "Error: failed to update Status buffer\n");
+
+    actual_state = lui_get_task_state(lui);
+    printf("task state is %d\n", actual_state);
+    fatal_if(actual_state != expected_state,
+        "Error: expected state %d, got state %d\n", expected_state, actual_state);
+}
+
+
+void test_task_state(lui_t *lui) {
+    int r;
+
+    //
+    // start state is Estop
+    //
+
+    verify_state(lui, lui_task_state_estop);
+
+
+    //
+    // from the Estop state, the only thing that changes state is Estop Reset
+    //
+
+    printf("*** testing transitions from the Estop state\n");
+
+    printf("sending Estop to linuxcnc\n");
+    r = lui_estop(lui);
+    fatal_if(r != 0, "Error: failed to send Estop to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop);
+
+
+    printf("sending Machine On to linuxcnc\n");
+    r = lui_machine_on(lui);
+    fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop);
+
+
+    printf("sending Machine Off to linuxcnc\n");
+    r = lui_machine_off(lui);
+    fatal_if(r != 0, "Error: failed to send Machine Off to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop);
+
+
+    printf("sending Estop Reset to linuxcnc\n");
+    r = lui_estop_reset(lui);
+    fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop_reset);
+
+
+    //
+    // in the "Estop Reset" state:
+    //     "Estop" takes you to "Estop"
+    //     "Machine On" takes you to "Machine On"
+    //     everything else leaves you in "Estop Reset"
+    //
+
+    printf("*** testing transitions from the Estop Reset state\n");
+
+    verify_state(lui, lui_task_state_estop_reset);
+
+    printf("sending Estop to linuxcnc\n");
+    r = lui_estop(lui);
+    fatal_if(r != 0, "Error: failed to send Estop to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop);
+
+    // go back to Estop Reset so we can keep testing it
+    printf("sending Estop Reset to linuxcnc\n");
+    r = lui_estop_reset(lui);
+    fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop_reset);
+
+
+    printf("sending Estop Reset to linuxcnc\n");
+    r = lui_estop_reset(lui);
+    fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop_reset);
+
+
+    printf("sending Machine Off to linuxcnc\n");
+    r = lui_machine_off(lui);
+    fatal_if(r != 0, "Error: failed to send Machine Off to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop_reset);
+
+
+    printf("sending Machine On to linuxcnc\n");
+    r = lui_machine_on(lui);
+    fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_on);
+
+
+    //
+    // in the "Machine On" state:
+    //     "Estop" takes you to "Estop"
+    //     "Machine Off" takes you to "Estop Reset"
+    //     everything else leaves you in "Machine On"
+    //
+
+    printf("*** testing transitions from the Machine On state\n");
+
+    verify_state(lui, lui_task_state_on);
+
+    printf("sending Estop to linuxcnc\n");
+    r = lui_estop(lui);
+    fatal_if(r != 0, "Error: failed to send Estop to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop);
+
+    // go back to Machine On so we can keep testing it
+    printf("sending Estop Reset to linuxcnc\n");
+    r = lui_estop_reset(lui);
+    fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop_reset);
+
+    printf("sending Machine On to linuxcnc\n");
+    r = lui_machine_on(lui);
+    fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_on);
+
+
+    printf("sending Estop Reset to linuxcnc\n");
+    r = lui_estop_reset(lui);
+    fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_on);
+
+
+    printf("sending Machine Off to linuxcnc\n");
+    r = lui_machine_off(lui);
+    fatal_if(r != 0, "Error: failed to send Machine Off to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_estop_reset);
+
+    // go back to Machine On so we can keep testing it
+    printf("sending Machine On to linuxcnc\n");
+    r = lui_machine_on(lui);
+    fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_on);
+
+    printf("sending Machine On to linuxcnc\n");
+    r = lui_machine_on(lui);
+    fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
+    lui_command_nml_wait_done(lui);
+    verify_state(lui, lui_task_state_on);
+}
+
+
 int main(int argc, char *argv[]) {
     lui_t *lui;
     int r;
@@ -45,6 +208,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+
+    test_task_state(lui);
+
+
+    lui_estop(lui);
     lui_free(lui);
     printf("kthxbye\n");
 
