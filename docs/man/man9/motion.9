@@ -354,15 +354,21 @@ The positive hard limit for the joint
 
 .TP
 \fBmotion.motion-type\fR OUT S32
-These values are from src/emc/kinematics/tc.h
+These values are from src/emc/nml_intf/motion_types.h
 .RS
 .RS
 .TP
-1: Linear move
+1: Traverse
 .P
-2: Arc move
+2: Linear feed
 .P
-3: Rigid tap move
+3: Arc feed
+.P
+4: Tool change
+.P
+5: Probing
+.P
+6: Rotary axis indexing
 .RE
 .RE
 
