@@ -847,9 +847,10 @@ static cmdResponseType setMachine(char *s, connectionRecType *context)
 {
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendMachineOn(); break;
-     case 1: sendMachineOff();
+     case 0: lui_machine_on(lui); break;
+     case 1: lui_machine_off(lui);
      }
+   updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
    return rtNoError;
 }
 
