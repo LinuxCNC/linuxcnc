@@ -63,7 +63,7 @@ endif
 
 ifeq "$(HAVE_XAW)" "yes"
 $(call TOOBJSDEPS,$(XEMCSRCS)): EXTRAFLAGS = $(CFLAGS_X)
-../bin/xlinuxcnc: $(call TOOBJS, $(XEMCSRCS)) ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
+../bin/xlinuxcnc: $(call TOOBJS, $(XEMCSRCS)) ../lib/liblinuxcnc-ui.so.0 ../lib/liblinuxcnc.a ../lib/libnml.so.0 ../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $(ULFLAGS) $^ $(XLIBS)
 TARGETS += ../bin/xlinuxcnc
