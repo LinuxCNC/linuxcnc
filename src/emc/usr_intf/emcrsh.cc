@@ -33,6 +33,8 @@
 
 #include <getopt.h>
 
+#include "linuxcnc-ui.h"
+
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -420,6 +422,8 @@
 */
 
 // EMC_STAT *emcStatus;
+
+lui_t *lui;
 
 typedef enum {
   cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp, cmdUnknown} commandTokenType;
@@ -847,9 +851,10 @@ static cmdResponseType setEStop(char *s, connectionRecType *context)
 {
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
-     case 0: sendEstop(); break;
-     case 1: sendEstopReset();
+     case 0: lui_estop(lui); break;
+     case 1: lui_estop_reset(lui);
      }
+   updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
    return rtNoError;
 }
 
@@ -2812,6 +2817,20 @@ static void usage(char* pname) {
 int main(int argc, char *argv[])
 {
     int opt;
+    int r;
+
+    lui = lui_new();
+    if (lui == NULL) {
+        fprintf(stderr, "Error: failed to allocate linuxcnc-ui handle\n");
+        exit(1);
+    }
+
+    r = lui_connect(lui);
+    if (r != 0) {
+        fprintf(stderr, "Error: failed to connect linuxcnc-ui handle\n");
+        exit(1);
+    }
+
 
     initMain();
     // process local command line args
