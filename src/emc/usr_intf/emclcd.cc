@@ -41,6 +41,8 @@
 #include <getopt.h>
 #include <string.h>
 
+#include "linuxcnc-ui.h"
+
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -61,6 +63,8 @@
 #define MAX_KEY_LENGTH          12
 #define SOCK_DELAY              0.005
 #define NETWORK_FILE_DIR        "/etc/network/"
+
+lui_t *lui;
 
 typedef enum { unmm, uncm, unInch, unEncoder } unitType;
 
@@ -1364,9 +1368,10 @@ static int doKey(keyType k)
     case ktEnterRelease: break;
     case ktEStopPress: 
       if (emcStatus->task.state == EMC_TASK_STATE_ESTOP)
-        sendEstopReset();
+        lui_estop_reset(lui);
       else
-        sendEstop();
+        lui_estop(lui);
+      updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
       break;
     case ktEStopRelease: break;
     case ktPowerPress: 
@@ -1641,7 +1646,8 @@ static int sockMain()
     }
   else {
     if (autoStart) { 
-      sendEstopReset();
+      lui_estop_reset(lui);
+      updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
       sendMachineOn();
       }
     sockSendStr(sockfd, "hello\n");
@@ -1697,6 +1703,7 @@ static void initMain()
 int main(int argc, char *argv[])
 {
     int opt;
+    int r;
 
     initMain();
     printf("emclcd starting\n");
@@ -1720,6 +1727,19 @@ int main(int argc, char *argv[])
     }
     // get configuration information
     iniLoad(emc_inifile);
+
+    lui = lui_new();
+    if (lui == NULL) {
+        fprintf(stderr, "Error: cannot allocate linuxcnc-ui handle\n");
+        exit(1);
+    }
+
+    r = lui_connect(lui);
+    if (r != 0) {
+        fprintf(stderr, "Error: cannot connect linuxcnc-ui handle\n");
+        exit(1);
+    }
+
     // init NML
     if (tryNml() != 0) {
 	rcs_print_error("can't connect to emc\n");
