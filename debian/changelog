@@ -1,3 +1,11 @@
+linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
+
+  * Brand new trajectory planner!
+  * Support for the RT-Preempt realtime kernel.
+  * Other things!
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:31:54 -0500
+
 linuxcnc (1:2.6.3) precise; urgency=low
 
   * axis GUI: add ability to set default spindle speed
