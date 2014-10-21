@@ -246,19 +246,19 @@ sets the EMC_DEBUG global here to the same value. This will make the
 two values the same, since they really ought to be the same.
 .RE
 .P
-\fBset_wait {none|received|done}\fR
+\fBset_wait {received|done}\fR
 .RS
 The set_wait setting controls the wait after receiving a command.
-It can be "none" (return right away), "received" (after the command was
-sent and received), or "done" (after the command was done).  With get,
-any parameter is ignored and the current set_wait setting is returned.
-With set, set the set_wait setting to the specified value.
+It can be "received" (after the command was sent and received) or "done"
+(after the command was done).  With get, any parameter is ignored and the
+current set_wait setting is returned.  With set, set the set_wait setting
+to the specified value.
 .RE
 .P
 \fBwait {received|done}\fR
 .RS
 With set, force a wait for the previous command to be received, or
-done. This lets you wait in the event that "set_wait none" is in effect.
+done.
 .RE
 .P
 \fBset_timeout <timeout>\fR

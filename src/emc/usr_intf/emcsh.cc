@@ -469,9 +469,6 @@ static int emc_set_wait(ClientData clientdata,
     CHECKEMC
     if (objc == 1) {
 	switch (emcWaitType) {
-	case EMC_WAIT_NONE:
-	    setresult(interp,"none");
-	    break;
 	case EMC_WAIT_RECEIVED:
 	    setresult(interp,"received");
 	    break;
@@ -487,10 +484,6 @@ static int emc_set_wait(ClientData clientdata,
 
     if (objc == 2) {
 	objstr = Tcl_GetStringFromObj(objv[1], 0);
-	if (!strcmp(objstr, "none")) {
-	    emcWaitType = EMC_WAIT_NONE;
-	    return TCL_OK;
-	}
 	if (!strcmp(objstr, "received")) {
 	    emcWaitType = EMC_WAIT_RECEIVED;
 	    return TCL_OK;
@@ -501,7 +494,7 @@ static int emc_set_wait(ClientData clientdata,
 	}
     }
 
-    setresult(interp, "emc_set_wait: need 'none', 'received', 'done', or no args");
+    setresult(interp, "emc_set_wait: need 'received', 'done', or no args");
     return TCL_ERROR;
 }
 

@@ -73,8 +73,7 @@ enum EMC_UPDATE_TYPE {
 extern EMC_UPDATE_TYPE emcUpdateType;
 
 enum EMC_WAIT_TYPE {
-    EMC_WAIT_NONE = 1,
-    EMC_WAIT_RECEIVED,
+    EMC_WAIT_RECEIVED = 2,
     EMC_WAIT_DONE
 };
 extern EMC_WAIT_TYPE emcWaitType;

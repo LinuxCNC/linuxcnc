@@ -822,10 +822,20 @@ static cmdResponseType setSetWait(char *s, connectionRecType *context)
 {
    switch (checkReceivedDoneNone(s)) {
      case -1: return rtStandardError;
-     case 0: emcWaitType = EMC_WAIT_RECEIVED; break;
-     case 1: emcWaitType = EMC_WAIT_DONE; break;
-     case 2: emcWaitType = EMC_WAIT_NONE; break;
+     case 0: {
+       emcWaitType = EMC_WAIT_RECEIVED;
+       break;
      }
+     case 1: {
+       emcWaitType = EMC_WAIT_DONE;
+       break;
+     }
+     case 2: {
+       fprintf(stderr, "linuxcncrsh: 'set set_wait' asked for 'none', but that setting has been removed as it may cause commands to be lost\n");
+       return rtStandardError;
+       break;
+     }
+   }
    return rtNoError;
 }
 
@@ -1404,7 +1414,6 @@ static cmdResponseType getSetWait(char *s, connectionRecType *context)
   const char *pSetWaitStr = "SET_WAIT %s";
   
   switch (emcWaitType) {
-    case EMC_WAIT_NONE: sprintf(context->outBuf, pSetWaitStr, "NONE"); break;
     case EMC_WAIT_RECEIVED: sprintf(context->outBuf, pSetWaitStr, "RECEIVED"); break;
     case EMC_WAIT_DONE: sprintf(context->outBuf, pSetWaitStr, "DONE"); break;
     default: return rtStandardError;
