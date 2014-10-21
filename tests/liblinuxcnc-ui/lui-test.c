@@ -43,6 +43,25 @@ void verify_state(lui_t *lui, lui_task_state_t expected_state) {
 }
 
 
+void verify_mode(lui_t *lui, lui_task_mode_t expected_mode) {
+    int r;
+    lui_task_mode_t actual_mode;
+
+    r = lui_status_nml_update(lui);
+    if (r != 0) {
+        printf("Error: failed to update Status buffer\n");
+        exit(1);
+    }
+
+    actual_mode = lui_get_task_mode(lui);
+    printf("task mode is %d\n", actual_mode);
+    if (actual_mode != expected_mode) {
+        printf("Error: expected mode %d, got mode %d\n", expected_mode, actual_mode);
+        exit(1);
+    }
+}
+
+
 void test_task_state(lui_t *lui) {
     int r;
 
@@ -192,6 +211,96 @@ void test_task_state(lui_t *lui) {
 }
 
 
+void test_task_mode(lui_t *lui) {
+    int r;
+
+    // We start out in Manual
+    verify_mode(lui, lui_task_mode_manual);
+
+    printf("Manual -> Manual\n");
+    r = lui_mode_manual(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode Manual to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_manual);
+
+    printf("Manual -> Auto\n");
+    r = lui_mode_auto(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode Auto to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_auto);
+
+    printf("Auto -> Auto\n");
+    r = lui_mode_auto(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode Auto to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_auto);
+
+    printf("Auto -> MDI\n");
+    r = lui_mode_mdi(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode MDI to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_mdi);
+
+    printf("MDI -> MDI\n");
+    r = lui_mode_mdi(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode MDI to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_mdi);
+
+    printf("MDI -> Auto\n");
+    r = lui_mode_auto(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode Auto to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_auto);
+
+    printf("Auto -> Manual\n");
+    r = lui_mode_manual(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode Manual to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_manual);
+
+    printf("Manual -> MDI\n");
+    r = lui_mode_mdi(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode MDI to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_mdi);
+
+    printf("MDI -> Manual\n");
+    r = lui_mode_manual(lui);
+    if (r != 0) {
+        printf("Error: failed to send Mode Manual to linuxcnc!\n");
+        exit(1);
+    }
+    lui_command_nml_wait_done(lui);
+    verify_mode(lui, lui_task_mode_manual);
+
+}
+
+
 int main(int argc, char *argv[]) {
     lui_t *lui;
     int r;
@@ -210,6 +319,7 @@ int main(int argc, char *argv[]) {
 
 
     test_task_state(lui);
+    test_task_mode(lui);
 
 
     lui_estop(lui);
