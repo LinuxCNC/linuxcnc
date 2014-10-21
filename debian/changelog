@@ -1,3 +1,9 @@
+linuxcnc (1:2.8.0~pre0) wheezy; urgency=low
+
+  * Upcoming release, any year now!  Watch this space!
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:37:11 -0500
+
 linuxcnc (1:2.6.3) precise; urgency=low
 
   * axis GUI: add ability to set default spindle speed
