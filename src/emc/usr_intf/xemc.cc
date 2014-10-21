@@ -26,6 +26,8 @@
 #include <unistd.h>
 #include <fcntl.h>              // O_CREAT
 
+#include "linuxcnc-ui.h"
+
 #include "rcs.hh"               // etime()
 #include "emc.hh"               // EMC NML
 #include "emc_nml.hh"
@@ -55,6 +57,8 @@
 #include <X11/Xaw/SmeBSB.h>
 #include <X11/Xaw/SmeLine.h>
 #include <X11/Xaw/Dialog.h>
+
+lui_t *lui;
 
 #define UPDATE_MSECS 100
 
@@ -675,28 +679,6 @@ static int feedOverrideChange = 0; // same as jogSpeedChange
 static int feedOverrideDelayCount = FEED_OVERRIDE_DELAY_COUNT;
 
 // command sending functions
-
-static int sendEstop()
-{
-  EMC_TASK_SET_STATE state_msg;
-
-  state_msg.state = EMC_TASK_STATE_ESTOP;
-  state_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(state_msg);
-
-  return 0;
-}
-
-static int sendEstopReset()
-{
-  EMC_TASK_SET_STATE state_msg;
-
-  state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
-  state_msg.serial_number = ++emcCommandSerialNumber;
-  emcCommandBuffer->write(state_msg);
-
-  return 0;
-}
 
 static int sendMachineOn()
 {
@@ -2599,11 +2581,12 @@ static void keyPressAction(unsigned int state, unsigned int keycode)
   case KEY_F1:
     // estop toggle
     if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
-      sendEstopReset();
+      lui_estop_reset(lui);
     }
     else {
-      sendEstop();
+      lui_estop(lui);
     }
+    updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
     break;
 
   case KEY_F2:
@@ -3287,11 +3270,13 @@ static void stateMenuSelect(Widget w, XtPointer client_data, XtPointer call_data
 {
   switch ((long) client_data) {
   case 0:
-    sendEstop();
+    lui_estop(lui);
+    updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
     break;
 
   case 1:
-    sendEstopReset();
+    lui_estop_reset(lui);
+    updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
     break;
 
     // case 2 is separator
@@ -4663,6 +4648,7 @@ int main(int argc, char **argv)
   double start;
   int good;
   char string[80];
+  int r;
   Dimension cmfbw, sdw, sw, siw, sh, bh, bw;
   Dimension stw, mw;
   Dimension posw;
@@ -4676,6 +4662,18 @@ int main(int argc, char **argv)
 
   // read INI file
   iniLoad(emc_inifile);
+
+  lui = lui_new();
+  if (lui == NULL) {
+    fprintf(stderr, "Error: cannot allocate linuxcnc-ui handle\n");
+    exit(1);
+  }
+
+  r = lui_connect(lui);
+  if (r != 0) {
+    fprintf(stderr, "Error: cannot connect linuxcnc-ui handle\n");
+    exit(1);
+  }
 
   // init NML
 
