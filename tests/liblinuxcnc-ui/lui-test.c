@@ -300,6 +300,31 @@ void test_task_mode(lui_t *lui) {
 
 }
 
+void test_task_introspect(lui_t *lui)
+{
+    printf("introspecting interpreter\n");
+    size_t count;
+    int *gcodes = lui_get_active_gcodes(lui, &count);
+    size_t count1 = lui_get_active_gcodes_count(lui);
+    fatal_if(count1 != count,
+        "lui_get_acive_gcodes_count inconsistent with lui_get_active_gcodes");
+    for(size_t i=0; i<count; i++) {
+        if(gcodes[i] == -1) continue;
+        printf("G%d.%d ", gcodes[i]/10, gcodes[i]%10);
+        fatal_if(gcodes[i] != *lui_get_active_gcodes_idx(lui, i),
+            "lui_get_active_gcodes_idx inconsistent with lui_get_active_gcodes");
+    }
+
+    putchar('\n');
+    int *mcodes = lui_get_active_mcodes(lui, &count);
+    for(size_t i=0; i<count; i++) {
+        if(mcodes[i] == -1) continue;
+        printf("M%d ", mcodes[i]);
+    }
+    putchar('\n');
+
+}
+
 
 int main(int argc, char *argv[]) {
     lui_t *lui;
@@ -320,7 +345,7 @@ int main(int argc, char *argv[]) {
 
     test_task_state(lui);
     test_task_mode(lui);
-
+    test_task_introspect(lui);
 
     lui_estop(lui);
     lui_free(lui);
