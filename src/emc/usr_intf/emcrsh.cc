@@ -1516,11 +1516,14 @@ static cmdResponseType getMachine(char *s, connectionRecType *context)
 static cmdResponseType getMode(char *s, connectionRecType *context)
 {
   const char *pModeStr = "MODE %s";
+  lui_task_mode_t mode;
+
+  mode = lui_get_task_mode(lui);
   
-  switch (emcStatus->task.mode) {
-    case EMC_TASK_MODE_MANUAL: sprintf(context->outBuf, pModeStr, "MANUAL"); break;
-    case EMC_TASK_MODE_AUTO: sprintf(context->outBuf, pModeStr, "AUTO"); break;
-    case EMC_TASK_MODE_MDI: sprintf(context->outBuf, pModeStr, "MDI"); break;
+  switch (mode) {
+    case lui_task_mode_manual: sprintf(context->outBuf, pModeStr, "MANUAL"); break;
+    case lui_task_mode_auto: sprintf(context->outBuf, pModeStr, "AUTO"); break;
+    case lui_task_mode_mdi: sprintf(context->outBuf, pModeStr, "MDI"); break;
     default: sprintf(context->outBuf, pModeStr, "?");
     }
   return rtNoError; 
@@ -2290,7 +2293,10 @@ int commandGet(connectionRecType *context)
   if (pch == NULL) {
     return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
-  if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
+  if (emcUpdateType == EMC_UPDATE_AUTO) {
+      updateStatus();
+      lui_status_nml_update(lui);
+  }
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if (cmd > scIni)
