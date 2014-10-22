@@ -49,6 +49,9 @@ function githelper() {
     esac
 
 
+    # use the gnupg keyring from our git repo to verify signatures on the release tags
+    export GNUPGHOME=$(git rev-parse --show-toplevel)/gnupg
+
     NEWEST_SIGNED_TAG_UTIME=-1
     NEWEST_UNSIGNED_TAG_UTIME=-1
     for TAG in $(git tag -l "$GIT_TAG_GLOB"); do
