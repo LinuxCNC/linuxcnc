@@ -1,3 +1,9 @@
+linuxcnc (1:2.7.0~pre2) wheezy; urgency=low
+
+  * Fixup release tag signing.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 22 Oct 2014 08:16:57 -0600
+
 linuxcnc (1:2.7.0~pre1) wheezy; urgency=low
 
   * Brand new trajectory planner!
