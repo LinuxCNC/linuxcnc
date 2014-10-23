@@ -12,7 +12,7 @@ calc() { awk "BEGIN { print ($1); }" < /dev/null; }
 icalc() { awk "BEGIN { printf \"%.0f\n\", ($1); }" < /dev/null; }
 
 parse_time () {
-    case ${1,,} in  # force lowercase
+    case $1 in
     -)   echo "0" ;;
     *ns) icalc "${1%ns}" ;;
     *us|*µs) icalc "1000*${1%us}" ;;
