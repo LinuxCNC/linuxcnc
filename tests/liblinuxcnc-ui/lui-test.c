@@ -318,6 +318,8 @@ void test_task_introspect(lui_t *lui)
     }
     putchar('\n');
 
+    lui_tool_info_t *tinfo = lui_get_tool_table_idx(lui, 1);
+    printf("T%d Z%f D%f\n", tinfo->toolno, tinfo->offset.z, tinfo->diameter);
 }
 
 
