@@ -2617,6 +2617,7 @@ going through the M6x pins and wiring them - has a limited,
 non-mmemonic namespace and is unncessary cumbersome just as a
 UI/Interpreter communications mechanism.
 
+NOTE: The values are are only updated when the G code is not running.
 
 CAUTION: this section doesnt really belong here but since it comes with
 the same branch, here it rests for now until its clear this will be
