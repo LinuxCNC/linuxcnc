@@ -2574,13 +2574,15 @@ need to replace ini variables which are currently used in the
 hard-coded toolchange process, like the `[EMCIO]TOOL_CHANGE_POSITION` parameter.
 
 
-CAUTION: this section doesnt really belong here but since it comes with
+CAUTION: this section doesn't really belong here but since it comes with
 the same branch, here it rests for now until its clear this will be
 merged. It should go into the gcode/overview Named Parameters section.
 
 
 == Named parameters and HAL items [[remap:referto-hal-items]]
 
+The variables are read during read-ahead and should not be used for run time
+evaluation of 'current position' or other execution time variables.
 
 To read arbitrary HAL pins, signals and parameters from G-code,  use the following named
 parameter syntax:
