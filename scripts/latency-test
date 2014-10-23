@@ -18,7 +18,7 @@ parse_time () {
     *us|*µs) icalc "1000*${1%us}" ;;
     *ms) icalc "1000*1000*${1%ms}" ;;
     *s)  icalc "1000*1000*1000*${1%s}" ;;
-    *)   if [ $1 -lt 1000 ]; then icalc "1000$*1"; else icalc "$1"; fi ;;
+    *)   if [ $1 -lt 1000 ]; then icalc "1000*$1"; else icalc "$1"; fi ;;
     esac
 }
 
