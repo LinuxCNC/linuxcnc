@@ -341,8 +341,6 @@
 
 static void thisQuit(ClientData clientData)
 {
-    EMC_NULL emc_null_msg;
-
     // clean up NML buffers
 
     if (emcErrorBuffer != 0) {
@@ -3478,10 +3476,6 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
         thisQuit(NULL);
         return TCL_ERROR;
     }
-    // get current serial number, and save it for restoring when we quit
-    // so as not to interfere with real operator interface
-    updateStatus();
-    emcCommandSerialNumber = emcStatus->echo_serial_number;
 
     // attach our quit function to exit
     Tcl_CreateExitHandler(thisQuit, (ClientData) 0);
