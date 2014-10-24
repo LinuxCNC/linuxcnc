@@ -2325,7 +2325,7 @@ returned. Task makes sure to synchronize the world model, and continue
 parsing and execution as long as there is still a procedure executing
 (call_level > 0).
 
-=== How tool change currently works [[remap::how-toolchange-currently-works]]
+=== How tool change currently works [[remap::how-tool-change-currently-works]]
 The actions happening in LinuxCNC are a bit involved, but it's necessary
 to get the overall idea what currently happens before you set out to
 adapt those workings to your own needs.
