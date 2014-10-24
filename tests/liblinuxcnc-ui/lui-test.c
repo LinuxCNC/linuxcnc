@@ -302,7 +302,8 @@ void test_task_introspect(lui_t *lui)
     int *gcodes = lui_get_active_gcodes(lui, &count);
     size_t count1 = lui_get_active_gcodes_count(lui);
     fatal_if(count1 != count,
-        "lui_get_acive_gcodes_count inconsistent with lui_get_active_gcodes");
+        "lui_get_acive_gcodes_count inconsistent with lui_get_active_gcodes (count=%zd count1=%zd)\n",
+        count, count1);
     for(size_t i=0; i<count; i++) {
         if(gcodes[i] == -1) continue;
         printf("G%d.%d ", gcodes[i]/10, gcodes[i]%10);
