@@ -423,7 +423,7 @@ static int emc_Debug(ClientData clientdata,
 
     CHECKEMC
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (objc == 1) {
@@ -545,7 +545,7 @@ static int emc_update(ClientData clientdata,
     CHECKEMC
     if (objc == 1) {
 	// no arg-- return status
-	updateStatus();
+	lui_status_nml_update(lui);
 	return TCL_OK;
     }
 
@@ -663,7 +663,7 @@ static int emc_estop(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
 	    setresult(interp,"on");
@@ -699,7 +699,7 @@ static int emc_machine(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->task.state == EMC_TASK_STATE_ON) {
 	    setresult(interp,"on");
@@ -734,7 +734,7 @@ static int emc_mode(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	switch (emcStatus->task.mode) {
 	case EMC_TASK_MODE_MANUAL:
@@ -782,7 +782,7 @@ static int emc_mist(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->io.coolant.mist == 1) {
 	    setresult(interp,"on");
@@ -817,7 +817,7 @@ static int emc_flood(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->io.coolant.flood == 1) {
 	    setresult(interp,"on");
@@ -851,7 +851,7 @@ static int emc_lube(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->io.lube.on == 0) {
 	    setresult(interp,"off");
@@ -885,7 +885,7 @@ static int emc_lube_level(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->io.lube.level == 0) {
 	    setresult(interp,"low");
@@ -909,7 +909,7 @@ static int emc_spindle(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->motion.spindle.increasing > 0) {
 	    setresult(interp,"increase");
@@ -966,7 +966,7 @@ static int emc_brake(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	if (emcStatus->motion.spindle.brake == 1) {
 	    setresult(interp,"on");
@@ -1004,7 +1004,7 @@ static int emc_tool(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     toolobj = Tcl_NewIntObj(emcStatus->io.tool.toolInSpindle);
@@ -1032,7 +1032,7 @@ static int emc_tool_offset(ClientData clientdata,
 	}
     }
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if(axis == 0) {
@@ -1146,7 +1146,7 @@ static int emc_abs_cmd_pos(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
@@ -1214,7 +1214,7 @@ static int emc_abs_act_pos(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
@@ -1291,7 +1291,7 @@ static int emc_rel_cmd_pos(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
@@ -1376,7 +1376,7 @@ static int emc_rel_act_pos(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
@@ -1461,7 +1461,7 @@ static int emc_joint_pos(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {
@@ -1489,7 +1489,7 @@ static int emc_pos_offset(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
@@ -1543,7 +1543,7 @@ static int emc_joint_limit(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
@@ -1587,7 +1587,7 @@ static int emc_joint_fault(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
@@ -1620,7 +1620,7 @@ static int emc_override_limit(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	// motion overrides all axes at same time, so just reference index 0
 	obj = Tcl_NewIntObj(emcStatus->motion.axis[0].overrideLimits);
@@ -1665,7 +1665,7 @@ static int emc_joint_homed(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
@@ -1853,7 +1853,7 @@ static int emc_feed_override(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	feedobj =
 	    Tcl_NewIntObj((int)
@@ -1887,7 +1887,7 @@ static int emc_rapid_override(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	rapidobj =
 	    Tcl_NewIntObj((int)
@@ -1921,7 +1921,7 @@ static int emc_spindle_override(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	feedobj =
 	    Tcl_NewIntObj((int)
@@ -2024,7 +2024,7 @@ static int emc_optional_stop(ClientData clientdata,
     if (objc == 1) {
 	// no arg-- return status
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	// get the current state from the status
 	obj = Tcl_NewIntObj(emcStatus->task.optional_stop_state);
@@ -2097,7 +2097,7 @@ static int emc_program(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (0 != emcStatus->task.file[0]) {
@@ -2120,7 +2120,7 @@ static int emc_program_status(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     switch (emcStatus->task.interpState) {
@@ -2158,7 +2158,7 @@ static int emc_program_line(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (programStartLine < 0
@@ -2204,7 +2204,7 @@ static int emc_program_codes(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
     // fill in the active G codes
     codes_string[0] = 0;
@@ -2254,7 +2254,7 @@ static int emc_joint_type(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
@@ -2295,7 +2295,7 @@ static int emc_joint_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &joint)) {
@@ -2378,7 +2378,7 @@ static int emc_program_linear_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     switch (emcStatus->task.programUnits) {
@@ -2418,7 +2418,7 @@ static int emc_program_angular_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
     // currently the EMC doesn't have separate program angular units, so
     // these are simply "deg"
@@ -2437,7 +2437,7 @@ static int emc_user_linear_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     /* try mm */
@@ -2474,7 +2474,7 @@ static int emc_user_angular_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     /* try degrees */
@@ -2511,7 +2511,7 @@ static int emc_display_linear_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     switch (linearUnitConversion) {
@@ -2556,7 +2556,7 @@ static int emc_display_angular_units(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     switch (angularUnitConversion) {
@@ -2707,7 +2707,7 @@ static int emc_task_heartbeat(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     hbobj = Tcl_NewIntObj(emcStatus->task.heartbeat);
@@ -2729,7 +2729,7 @@ static int emc_task_command(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandobj = Tcl_NewIntObj(emcStatus->task.command_type);
@@ -2751,7 +2751,7 @@ static int emc_task_command_number(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandnumber = Tcl_NewIntObj(emcStatus->task.echo_serial_number);
@@ -2773,7 +2773,7 @@ static int emc_task_command_status(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandstatus = Tcl_NewIntObj(emcStatus->task.status);
@@ -2795,7 +2795,7 @@ static int emc_io_heartbeat(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     hbobj = Tcl_NewIntObj(emcStatus->io.heartbeat);
@@ -2817,7 +2817,7 @@ static int emc_io_command(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandobj = Tcl_NewIntObj(emcStatus->io.command_type);
@@ -2839,7 +2839,7 @@ static int emc_io_command_number(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandnumber = Tcl_NewIntObj(emcStatus->io.echo_serial_number);
@@ -2861,7 +2861,7 @@ static int emc_io_command_status(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandstatus = Tcl_NewIntObj(emcStatus->io.status);
@@ -2883,7 +2883,7 @@ static int emc_motion_heartbeat(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     hbobj = Tcl_NewIntObj(emcStatus->motion.heartbeat);
@@ -2905,7 +2905,7 @@ static int emc_motion_command(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandobj = Tcl_NewIntObj(emcStatus->motion.command_type);
@@ -2927,7 +2927,7 @@ static int emc_motion_command_number(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandnumber = Tcl_NewIntObj(emcStatus->motion.echo_serial_number);
@@ -2949,7 +2949,7 @@ static int emc_motion_command_status(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     commandstatus = Tcl_NewIntObj(emcStatus->motion.status);
@@ -3024,7 +3024,7 @@ static int emc_axis_enable(ClientData clientdata,
 
     if (objc == 2) {
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
+	    lui_status_nml_update(lui);
 	}
 	enobj = Tcl_NewIntObj(emcStatus->motion.axis[axis].enabled);
 	Tcl_SetObjResult(interp, enobj);
@@ -3087,7 +3087,7 @@ int emc_teleop_enable(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     Tcl_SetObjResult(interp,
@@ -3102,7 +3102,7 @@ int emc_kinematics_type(ClientData clientdata,
 {
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     Tcl_SetObjResult(interp,
@@ -3120,7 +3120,7 @@ int emc_probe_clear(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     Tcl_SetObjResult(interp, Tcl_NewIntObj(sendClearProbeTrippedFlag()));
@@ -3136,7 +3136,7 @@ int emc_probe_value(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     Tcl_SetObjResult(interp,
@@ -3154,7 +3154,7 @@ int emc_probe_tripped(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     Tcl_SetObjResult(interp,
@@ -3200,7 +3200,7 @@ static int emc_probed_pos(ClientData clientdata,
     }
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
 
     if (TCL_OK == Tcl_GetIntFromObj(0, objv[1], &axis)) {

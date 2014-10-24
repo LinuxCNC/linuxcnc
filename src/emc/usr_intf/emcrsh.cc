@@ -837,7 +837,6 @@ static cmdResponseType setMachine(char *s, connectionRecType *context)
      case 0: lui_machine_on(lui); break;
      case 1: lui_machine_off(lui);
      }
-   updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
    return rtNoError;
 }
 
@@ -848,7 +847,6 @@ static cmdResponseType setEStop(char *s, connectionRecType *context)
      case 0: lui_estop(lui); break;
      case 1: lui_estop_reset(lui);
      }
-   updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
    return rtNoError;
 }
 
@@ -2287,13 +2285,12 @@ int commandGet(connectionRecType *context)
     return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
   if (emcUpdateType == EMC_UPDATE_AUTO) {
-      updateStatus();
       lui_status_nml_update(lui);
   }
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if (cmd > scIni)
-    if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
+    if (emcUpdateType == EMC_UPDATE_AUTO) lui_status_nml_update(lui);
   switch (cmd) {
     case scEcho: ret = getEcho(pch, context); break;
     case scVerbose: ret = getVerbose(pch, context); break;
