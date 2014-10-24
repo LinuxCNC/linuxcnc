@@ -55,5 +55,6 @@ typedef struct lui {
 
 int lui_command_nml_wait_received(lui_t *lui);
 int lui_command_nml_task_set_state(lui_t *lui, lui_task_state_t state);
+int lui_command_nml_task_set_mode(lui_t *lui, lui_task_mode_t mode);
 
 #endif  // LIBLINUXCNC_UI_PRIVATE

@@ -123,6 +123,10 @@ int lui_estop_reset(lui_t *lui);
 int lui_machine_on(lui_t *lui);
 int lui_machine_off(lui_t *lui);
 
+int lui_mode_manual(lui_t *lui);
+int lui_mode_auto(lui_t *lui);
+int lui_mode_mdi(lui_t *lui);
+
 #include "liblinuxcnc-ui-getters.h"
 
 #ifdef __cplusplus
