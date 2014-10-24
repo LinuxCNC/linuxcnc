@@ -57,6 +57,19 @@ static hm2_test_t board[1];
 
 
 
+//
+// Functions for initializing the register file on the pretend hm2 board.
+//
+
+static void set8(hm2_test_t *me, uint16_t addr, uint8_t val) {
+    me->test_pattern.tp8[addr] = val;
+}
+
+static void set32(hm2_test_t *me, uint16_t addr, uint32_t val) {
+    me->test_pattern.tp32[addr/4] = val;
+}
+
+
 // 
 // these are the "low-level I/O" functions exported up
 //
@@ -64,7 +77,7 @@ static hm2_test_t board[1];
 
 static int hm2_test_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_test_t *me = this->private;
-    memcpy(buffer, (me->test_pattern + addr), size);
+    memcpy(buffer, &me->test_pattern.tp8[addr], size);
     return 1;  // success
 }
 
@@ -121,7 +134,7 @@ int rtapi_app_main(void) {
         // 
 
         case 1: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
             break;
         }
 
@@ -132,17 +145,15 @@ int rtapi_app_main(void) {
         // 
 
         case 2: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
             break;
         }
 
@@ -153,22 +164,21 @@ int rtapi_app_main(void) {
         // 
 
         case 3: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
 
             // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400);
 
             // bad idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 0x1234;
+            set32(me, 0x400, 0x1234);
 
             break;
         }
@@ -181,23 +191,17 @@ int rtapi_app_main(void) {
         // 
 
         case 4: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
-
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
             break;
         }
 
@@ -209,25 +213,20 @@ int rtapi_app_main(void) {
         // 
 
         case 5: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
             // bad PortWidth
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 29;
+            set32(me, 0x424, 29);
 
             break;
         }
@@ -240,25 +239,20 @@ int rtapi_app_main(void) {
         // 
 
         case 6: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
             // good PortWidth
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
+            set32(me, 0x424, 24);
 
             break;
         }
@@ -271,31 +265,26 @@ int rtapi_app_main(void) {
         // 
 
         case 7: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
-
-            // good PortWidth = 24, which is stadard
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
+            // good PortWidth = 24, which is standard
+            set32(me, 0x424, 24);
 
             // IOPorts = 1
-            *((rtapi_u32*)&me->test_pattern[0x41c]) = 1;
+            set32(me, 0x41c, 1);
 
             // IOWidth = 99 (!= IOPorts * PortWidth)
-            *((rtapi_u32*)&me->test_pattern[0x420]) = 99;
+            set32(me, 0x420, 99);
 
             break;
         }
@@ -308,31 +297,24 @@ int rtapi_app_main(void) {
         // 
 
         case 8: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
-
-            // good PortWidth = 24, which is stadard
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
+            set32(me, 0x424, 24); // PortWidth = 24
 
             // IOPorts = 2 (!= what the llio said)
-            *((rtapi_u32*)&me->test_pattern[0x41c]) = 2;
+            set32(me, 0x41c, 2);
 
             // IOWidth == IOPorts * PortWidth)
-            *((rtapi_u32*)&me->test_pattern[0x420]) = 48;
+            set32(me, 0x420, 48);
 
             break;
         }
@@ -346,30 +328,25 @@ int rtapi_app_main(void) {
         // 
 
         case 9: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
+            set32(me, 0x424, 24); // PortWidth = 24
 
             // IOWidth = (IOPorts * PortWidth)
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
-            *((rtapi_u32*)&me->test_pattern[0x41c]) = 1;
-            *((rtapi_u32*)&me->test_pattern[0x420]) = 24;
+            set32(me, 0x41c, 1);
+            set32(me, 0x420, 24);
 
             // ClockLow = 12345
-            *((rtapi_u32*)&me->test_pattern[0x428]) = 12345;
+            set32(me, 0x428, 12345);
 
             break;
         }
@@ -383,33 +360,26 @@ int rtapi_app_main(void) {
         // 
 
         case 10: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
-
-            // IOWidth = (IOPorts * PortWidth)
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
-            *((rtapi_u32*)&me->test_pattern[0x41c]) = 1;
-            *((rtapi_u32*)&me->test_pattern[0x420]) = 24;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
+            set32(me, 0x41c, 1);  // IOPorts = 1
+            set32(me, 0x420, 24); // IOWidth = (IOPorts * PortWidth)
+            set32(me, 0x424, 24); // PortWidth = 24
 
             // ClockLow = 2e6
-            *((rtapi_u32*)&me->test_pattern[0x428]) = 2e6;
+            set32(me, 0x428, 2e6);
 
             // ClockHigh = 0
-            *((rtapi_u32*)&me->test_pattern[0x42c]) = 0;
+            set32(me, 0x42c, 0);
 
             break;
         }
@@ -425,53 +395,38 @@ int rtapi_app_main(void) {
         //
 
         case 11: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
             // normal offset to Module Descriptors
-            *((rtapi_u32*)&me->test_pattern[0x404]) = 64;
+            set32(me, 0x404, 64);
 
             // unusual offset to PinDescriptors
-            *((rtapi_u32*)&me->test_pattern[0x408]) = 0x1C0;
-
-            // board name (8 bytes, not NULL terminated)
-            me->test_pattern[0x40c] = 'T';
-            me->test_pattern[0x40d] = 'E';
-            me->test_pattern[0x40e] = 'S';
-            me->test_pattern[0x40f] = 'T';
-            me->test_pattern[0x410] = 'I';
-            me->test_pattern[0x411] = 'N';
-            me->test_pattern[0x412] = 'G';
-            me->test_pattern[0x413] = ' ';
+            set32(me, 0x408, 0x1C0);
 
             // IOPorts
-            *((rtapi_u32*)&me->test_pattern[0x41c]) = 6;
+            set32(me, 0x41c, 6);
 
             // IOWidth
-            *((rtapi_u32*)&me->test_pattern[0x420]) = 6*24;
+            set32(me, 0x420, 6*24);
 
             // PortWidth
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
+            set32(me, 0x424, 24);
 
             // ClockLow = 2e6
-            *((rtapi_u32*)&me->test_pattern[0x428]) = 2e6;
+            set32(me, 0x428, 2e6);
 
             // ClockHigh = 2e7
-            *((rtapi_u32*)&me->test_pattern[0x42c]) = 2e7;
+            set32(me, 0x42c, 2e7);
 
             me->llio.num_ioport_connectors = 6;
             me->llio.ioport_connector_name[0] = "P4";
@@ -483,7 +438,6 @@ int rtapi_app_main(void) {
 
             break;
         }
-
 
 
         //
@@ -498,63 +452,48 @@ int rtapi_app_main(void) {
             int num_io_pins = 24;
             int pd_index;
 
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
             // normal offset to Module Descriptors
-            *((rtapi_u32*)&me->test_pattern[0x404]) = 64;
+            set32(me, 0x404, 64);
 
             // normal offset to PinDescriptors
-            *((rtapi_u32*)&me->test_pattern[0x408]) = 0x200;
-
-            // board name (8 bytes, not NULL terminated)
-            me->test_pattern[0x40c] = 'T';
-            me->test_pattern[0x40d] = 'E';
-            me->test_pattern[0x40e] = 'S';
-            me->test_pattern[0x40f] = 'T';
-            me->test_pattern[0x410] = 'I';
-            me->test_pattern[0x411] = 'N';
-            me->test_pattern[0x412] = 'G';
-            me->test_pattern[0x413] = ' ';
+            set32(me, 0x408, 0x200);
 
             // IOPorts
-            *((rtapi_u32*)&me->test_pattern[0x41c]) = 1;
+            set32(me, 0x41c, 1);
 
             // IOWidth
-            *((rtapi_u32*)&me->test_pattern[0x420]) = num_io_pins;
+            set32(me, 0x420, num_io_pins);
 
             // PortWidth
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
+            set32(me, 0x424, 24);
 
             // ClockLow = 2e6
-            *((rtapi_u32*)&me->test_pattern[0x428]) = 2e6;
+            set32(me, 0x428, 2e6);
 
             // ClockHigh = 2e7
-            *((rtapi_u32*)&me->test_pattern[0x42c]) = 2e7;
+            set32(me, 0x42c, 2e7);
 
             me->llio.num_ioport_connectors = 1;
             me->llio.ioport_connector_name[0] = "P3";
 
             // make a bunch of valid Pin Descriptors
             for (pd_index = 0; pd_index < num_io_pins; pd_index ++) {
-                me->test_pattern[0x600 + (pd_index * 4) + 0] = 0;               // SecPin (byte) = Which pin of secondary function connects here eg: A,B,IDX.  Output pins have bit 7 = '1'
-                me->test_pattern[0x600 + (pd_index * 4) + 1] = 0;               // SecTag (byte) = Secondary function type (PWM,QCTR etc).  Same as module GTag
-                me->test_pattern[0x600 + (pd_index * 4) + 2] = 0;               // SecUnit (byte) = Which secondary unit or channel connects here
-                me->test_pattern[0x600 + (pd_index * 4) + 3] = HM2_GTAG_IOPORT; // PrimaryTag (byte) = Primary function tag (normally I/O port)
+                set8(me, 0x600 + (pd_index * 4) + 0, 0);               // SecPin (byte) = Which pin of secondary function connects here eg: A,B,IDX.  Output pins have bit 7 = '1'
+                set8(me, 0x600 + (pd_index * 4) + 1, 0);               // SecTag (byte) = Secondary function type (PWM,QCTR etc).  Same as module GTag
+                set8(me, 0x600 + (pd_index * 4) + 2, 0);               // SecUnit (byte) = Which secondary unit or channel connects here
+                set8(me, 0x600 + (pd_index * 4) + 3, HM2_GTAG_IOPORT); // PrimaryTag (byte) = Primary function tag (normally I/O port)
             }
 
             break;
@@ -563,25 +502,20 @@ int rtapi_app_main(void) {
 
         // this board has a non-standard (ie, non-24) number of pins per connector, but the idrom does not match that
         case 13: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
             // default PortWidth
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 24;
+            set32(me, 0x424, 24);
 
             // unusual number of pins per connector
             me->llio.pins_per_connector = 5;
@@ -597,30 +531,24 @@ int rtapi_app_main(void) {
         // 
 
         case 14: {
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IOCOOKIE]) = HM2_IOCOOKIE;  // 0x55aacafe
-
-            me->test_pattern[HM2_ADDR_CONFIGNAME+0] = 'H';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+1] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+2] = 'S';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+3] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+4] = 'M';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+5] = 'O';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+6] = 'T';
-            me->test_pattern[HM2_ADDR_CONFIGNAME+7] = '2';
-
-            // put the IDROM at 0x400, where it usually lives
-            *((rtapi_u32*)&me->test_pattern[HM2_ADDR_IDROM_OFFSET]) = 0x400;
-
-            // standard idrom type
-            *((rtapi_u32*)&me->test_pattern[0x400]) = 2;
+            set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
+            set8(me, HM2_ADDR_CONFIGNAME+0, 'H');
+            set8(me, HM2_ADDR_CONFIGNAME+1, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+2, 'S');
+            set8(me, HM2_ADDR_CONFIGNAME+3, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+4, 'M');
+            set8(me, HM2_ADDR_CONFIGNAME+5, 'O');
+            set8(me, HM2_ADDR_CONFIGNAME+6, 'T');
+            set8(me, HM2_ADDR_CONFIGNAME+7, '2');
+            set32(me, HM2_ADDR_IDROM_OFFSET, 0x400); // put the IDROM at 0x400, where it usually lives
+            set32(me, 0x400, 2); // standard idrom type
 
             // good but unusual PortWidth
-            *((rtapi_u32*)&me->test_pattern[0x424]) = 37;
+            set32(me, 0x424, 37);
             me->llio.pins_per_connector = 37;
 
             break;
         }
-
 
         default: {
             LL_ERR("unknown test pattern %d", test_pattern); 
