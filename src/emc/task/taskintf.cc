@@ -1297,7 +1297,7 @@ int emcMotionInit()
 
 int emcMotionHalt()
 {
-    int r1, r2, r3, r4;
+    int r1, r2, r3, r4, r5;
     int t;
 
     r1 = -1;
@@ -1310,9 +1310,10 @@ int emcMotionHalt()
     r2 = emcTrajDisable();
     r3 = emcTrajHalt();
     r4 = emcPositionSave();
+    r5 = ini_hal_exit();
     emcmotion_initialized = 0;
 
-    return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0) ? 0 : -1;
+    return (r1 == 0 && r2 == 0 && r3 == 0 && r4 == 0 && r5 == 0) ? 0 : -1;
 }
 
 int emcMotionAbort()

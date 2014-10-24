@@ -102,6 +102,12 @@ do {                        \
 
 #define INIT_PIN(NAME) *(the_inihal_data->NAME) = old_inihal_data.NAME;
 
+int ini_hal_exit(void)
+{
+    hal_exit(comp_id);
+    comp_id = -1;
+    return 0;
+}
 
 int ini_hal_init(void)
 {
