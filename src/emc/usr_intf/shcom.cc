@@ -36,15 +36,18 @@
 #include "timer.hh"             // esleep
 #include "shcom.hh"             // Common NML communications functions
 
+#include "linuxcnc-ui.h"
+
 LINEAR_UNIT_CONVERSION linearUnitConversion;
 ANGULAR_UNIT_CONVERSION angularUnitConversion;
 
 int emcCommandSerialNumber;
 int saveEmcCommandSerialNumber;
 
+lui_t *lui;
+
 // the NML channels to the EMC task
 RCS_CMD_CHANNEL *emcCommandBuffer;
-RCS_STAT_CHANNEL *emcStatusBuffer;
 EMC_STAT *emcStatus;
 
 // the NML channel for errors
@@ -84,23 +87,32 @@ int emcTaskNmlGet()
 	    retval = -1;
 	}
     }
-    // try to connect to EMC status
-    if (emcStatusBuffer == 0) {
-	emcStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
-				 emc_nmlfile);
-	if (!emcStatusBuffer->valid()
-	    || EMC_STAT_TYPE != emcStatusBuffer->peek()) {
-	    delete emcStatusBuffer;
-	    emcStatusBuffer = 0;
-	    emcStatus = 0;
-	    retval = -1;
-	} else {
-	    emcStatus = (EMC_STAT *) emcStatusBuffer->get_address();
-	}
+
+    if(retval != 0) return retval;
+
+    lui = lui_new();
+    if(!lui) {
+        fprintf(stderr, "can't make new lui\n");
+        return -1;
     }
 
-    return retval;
+    int r = lui_connect(lui);
+    if(r != 0) {
+        fprintf(stderr, "can't connect lui\n");
+        return -1;
+    }
+    if(lui_status_nml_update(lui) != 0) {
+        fprintf(stderr, "can't update lui status\n");
+        return -1;
+    }
+
+    emcStatus = lui_get_status_nml(lui);
+    if(!emcStatus) {
+        fprintf(stderr, "can't get lui status\n");
+        return -1;
+    }
+
+    return 0;
 }
 
 int emcErrorNmlGet()
@@ -174,30 +186,13 @@ int tryNml(double retry_time, double retry_interval)
 
 int updateStatus()
 {
-    NMLTYPE type;
-
-    if (0 == emcStatus || 0 == emcStatusBuffer
-	|| !emcStatusBuffer->valid()) {
+    if (!lui)
 	return -1;
-    }
 
-    switch (type = emcStatusBuffer->peek()) {
-    case -1:
-	// error on CMS channel
-	return -1;
-	break;
+    if (lui_status_nml_update(lui) != 0) return -1;
 
-    case 0:			// no new data
-    case EMC_STAT_TYPE:	// new data
-	// new data
-	break;
-
-    default:
-	return -1;
-	break;
-    }
-
-    return 0;
+    emcStatus = lui_get_status_nml(lui);
+    return emcStatus ? 0 : -1;
 }
 
 /*

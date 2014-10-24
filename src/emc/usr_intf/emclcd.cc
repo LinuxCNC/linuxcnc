@@ -64,8 +64,6 @@
 #define SOCK_DELAY              0.005
 #define NETWORK_FILE_DIR        "/etc/network/"
 
-lui_t *lui;
-
 typedef enum { unmm, uncm, unInch, unEncoder } unitType;
 
 typedef enum { rsIdle, rsPause, rsRun } runType;
@@ -1605,11 +1603,6 @@ static void thisQuit()
 
     deleteScreens();
 
-    if (emcStatusBuffer != 0) {
-	// wait until current message has been received
-	emcCommandWaitReceived(emcCommandSerialNumber);
-    }
-
     if (emcCommandBuffer != 0) {
 	// send null message to reset serial number to original
 	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
@@ -1622,15 +1615,14 @@ static void thisQuit()
 	emcErrorBuffer = 0;
     }
 
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
-    }
-
     if (emcCommandBuffer != 0) {
 	delete emcCommandBuffer;
 	emcCommandBuffer = 0;
+    }
+
+    if(lui) {
+        lui_free(lui);
+        lui = 0;
     }
 
     exit(0);
@@ -1690,7 +1682,6 @@ static void initMain()
     units = unInch; 
     angularUnitConversion = ANGULAR_UNITS_AUTO;
     emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
     emcStatus = 0;
 
     emcErrorBuffer = 0;

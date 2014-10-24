@@ -289,11 +289,6 @@ static void thisQuit()
 {
     EMC_NULL emc_null_msg;
 
-    if (emcStatusBuffer != 0) {
-	// wait until current message has been received
-	emcCommandWaitReceived(emcCommandSerialNumber);
-    }
-
     if (emcCommandBuffer != 0) {
 	// send null message to reset serial number to original
 	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
@@ -306,15 +301,14 @@ static void thisQuit()
 	emcErrorBuffer = 0;
     }
 
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
-    }
-
     if (emcCommandBuffer != 0) {
 	delete emcCommandBuffer;
 	emcCommandBuffer = 0;
+    }
+
+    if(lui) {
+        lui_free(lui);
+        lui = 0;
     }
 
 //    Tcl_Exit(0);
@@ -1240,7 +1234,6 @@ static void initMain()
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
     emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
     emcStatus = 0;
 
     emcErrorBuffer = 0;

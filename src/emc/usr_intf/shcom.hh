@@ -19,6 +19,7 @@
 
 #include "emc_nml.hh"
 #include "nml_oi.hh"            // NML_ERROR_LEN
+#include "linuxcnc-ui.h"
 
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
@@ -53,8 +54,8 @@ extern int saveEmcCommandSerialNumber;
 
 // the NML channels to the EMC task
 extern RCS_CMD_CHANNEL *emcCommandBuffer;
-extern RCS_STAT_CHANNEL *emcStatusBuffer;
-// EMC_STAT *emcStatus;
+extern lui_t *lui;
+extern EMC_STAT *emcStatus;
 
 // the NML channel for errors
 extern NML *emcErrorBuffer;
