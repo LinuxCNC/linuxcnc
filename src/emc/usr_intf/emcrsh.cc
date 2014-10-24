@@ -423,8 +423,6 @@
 
 // EMC_STAT *emcStatus;
 
-lui_t *lui;
-
 typedef enum {
   cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp, cmdUnknown} commandTokenType;
   
@@ -516,11 +514,6 @@ static void thisQuit()
 {
     EMC_NULL emc_null_msg;
 
-    if (emcStatusBuffer != 0) {
-	// wait until current message has been received
-	emcCommandWaitReceived();
-    }
-
     // clean up NML buffers
 
     if (emcErrorBuffer != 0) {
@@ -528,10 +521,11 @@ static void thisQuit()
 	emcErrorBuffer = 0;
     }
 
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
+    emcStatus = 0;
+
+    if(lui) {
+        lui_free(lui);
+        lui = 0;
     }
 
     if (emcCommandBuffer != 0) {
@@ -2794,7 +2788,6 @@ static void initMain()
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
     emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
     emcStatus = 0;
 
     emcErrorBuffer = 0;

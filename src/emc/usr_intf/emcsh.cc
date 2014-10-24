@@ -343,11 +343,6 @@ static void thisQuit(ClientData clientData)
 {
     EMC_NULL emc_null_msg;
 
-    if (0 != emcStatusBuffer) {
-	// wait until current message has been received
-	emcCommandWaitReceived();
-    }
-
     // clean up NML buffers
 
     if (emcErrorBuffer != 0) {
@@ -355,15 +350,14 @@ static void thisQuit(ClientData clientData)
 	emcErrorBuffer = 0;
     }
 
-    if (emcStatusBuffer != 0) {
-	delete emcStatusBuffer;
-	emcStatusBuffer = 0;
-	emcStatus = 0;
-    }
-
     if (emcCommandBuffer != 0) {
 	delete emcCommandBuffer;
 	emcCommandBuffer = 0;
+    }
+
+    if(lui) {
+        lui_free(lui);
+        lui = 0;
     }
 
     return;
@@ -3446,7 +3440,6 @@ static void initMain()
     linearUnitConversion = LINEAR_UNITS_AUTO;
     angularUnitConversion = ANGULAR_UNITS_AUTO;
     emcCommandBuffer = 0;
-    emcStatusBuffer = 0;
     emcStatus = 0;
 
     emcErrorBuffer = 0;

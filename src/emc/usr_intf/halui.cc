@@ -414,7 +414,6 @@ static int halui_sent_mdi = 0;
 
 // the NML channels to the EMC task
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
-static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
 EMC_STAT *emcStatus = 0;
 
 // the NML channel for errors
@@ -446,20 +445,6 @@ static int emcTaskNmlGet()
 	    delete emcCommandBuffer;
 	    emcCommandBuffer = 0;
 	    retval = -1;
-	}
-    }
-    // try to connect to EMC status
-    if (emcStatusBuffer == 0) {
-	emcStatusBuffer =
-	    new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "xemc",
-				 emc_nmlfile);
-	if (!emcStatusBuffer->valid()) {
-	    delete emcStatusBuffer;
-	    emcStatusBuffer = 0;
-	    emcStatus = 0;
-	    retval = -1;
-	} else {
-	    emcStatus = (EMC_STAT *) emcStatusBuffer->get_address();
 	}
     }
 
@@ -542,28 +527,11 @@ static int tryNml()
 
 static int updateStatus()
 {
-    NMLTYPE type;
-
-    if (0 == emcStatus || 0 == emcStatusBuffer
-	|| !emcStatusBuffer->valid()) {
-	return -1;
+    if(lui_status_nml_update(lui) != 0) {
+        printf("Failed to update status");
     }
-
-    switch (type = emcStatusBuffer->peek()) {
-    case -1:
-	// error on CMS channel
-	return -1;
-	break;
-
-    case 0:			// no new data
-    case EMC_STAT_TYPE:	// new data
-	break;
-
-    default:
-	return -1;
-	break;
-    }
-
+    // does the pointer change?  beats me
+    emcStatus = lui_get_status_nml(lui);
     return 0;
 }
 
@@ -629,7 +597,6 @@ static void thisQuit()
     hal_exit(comp_id);
     
     if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = 0; }
-    if(emcStatusBuffer) { delete emcStatusBuffer;  emcStatusBuffer = 0; }
     if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = 0; }
     exit(0);
 }
@@ -2122,6 +2089,19 @@ int main(int argc, char *argv[])
     r = lui_connect(lui);
     if (r != 0) {
         fprintf(stderr, "can't connect lui\n");
+        thisQuit();
+        exit(1);
+    }
+
+    if(lui_status_nml_update(lui) != 0) {
+        fprintf(stderr, "can't update lui status\n");
+        thisQuit();
+        exit(1);
+    }
+
+    emcStatus = lui_get_status_nml(lui);
+    if(!emcStatus) {
+        fprintf(stderr, "failed lui_get_status_nml()\n");
         thisQuit();
         exit(1);
     }
