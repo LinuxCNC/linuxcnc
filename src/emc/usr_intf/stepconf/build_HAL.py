@@ -57,7 +57,7 @@ class HAL:
                 port2dir =" in"
              else: 
                 port2dir =" out"
-        if not self.d.sim_parport:
+        if not self.d.sim_hardware:
             print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
         else:
             print >>file, "loadrt parport count=%d"%self.d.number_pports
@@ -106,7 +106,7 @@ class HAL:
             print >>file, "addf parport.1.read base-thread"
         if self.d.number_pports > 2:
             print >>file, "addf parport.2.read base-thread"
-        if self.d.sim_parport:
+        if self.d.sim_hardware:
             print >>file, "source sim_hardware.hal"
             print >>file, "addf sim-encoder.make-pulses base-thread"
         print >>file, "addf stepgen.make-pulses base-thread"
@@ -122,7 +122,7 @@ class HAL:
             print >>file, "addf parport.2.write base-thread"
         print >>file
         print >>file, "addf stepgen.capture-position servo-thread"
-        if self.d.sim_parport:
+        if self.d.sim_hardware:
             print >>file, "addf sim-encoder.update-speed servo-thread"
             print >>file, "addf sim-hardware.update servo-thread"
         if encoder: print >>file, "addf encoder.capture-position servo-thread"
@@ -401,7 +401,7 @@ class HAL:
 
     def sim_hardware_halfile(self,base):
         custom = os.path.join(base, "sim_hardware.hal")
-        if self.d.sim_parport:
+        if self.d.sim_hardware:
             f1 = open(custom, "w")
             print >>f1, _("# This file sets up simulated limits/home/spindle encoder hardware.")
             print >>f1, _("# This is a generated file do not edit.")
