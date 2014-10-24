@@ -287,13 +287,6 @@ struct option longopts[] = {
 
 static void thisQuit()
 {
-    EMC_NULL emc_null_msg;
-
-    if (emcCommandBuffer != 0) {
-	// send null message to reset serial number to original
-	emc_null_msg.serial_number = saveEmcCommandSerialNumber;
-	emcCommandBuffer->write(emc_null_msg);
-    }
     // clean up NML buffers
 
     if (emcErrorBuffer != 0) {
@@ -1228,7 +1221,6 @@ static void initMain()
 {
     emcWaitType = EMC_WAIT_RECEIVED;
     emcCommandSerialNumber = 0;
-    saveEmcCommandSerialNumber = 0;
     emcTimeout = 0.0;
     emcUpdateType = EMC_UPDATE_AUTO;
     linearUnitConversion = LINEAR_UNITS_AUTO;
@@ -1277,11 +1269,6 @@ int main(int argc, char *argv[])
 	thisQuit();
 	exit(1);
     }
-    // get current serial number, and save it for restoring when we quit
-    // so as not to interfere with real operator interface
-    updateStatus();
-    emcCommandSerialNumber = emcStatus->echo_serial_number;
-    saveEmcCommandSerialNumber = emcStatus->echo_serial_number;
 
     // attach our quit function to SIGINT
     signal(SIGINT, sigQuit);

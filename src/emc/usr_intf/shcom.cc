@@ -42,7 +42,6 @@ LINEAR_UNIT_CONVERSION linearUnitConversion;
 ANGULAR_UNIT_CONVERSION angularUnitConversion;
 
 int emcCommandSerialNumber;
-int saveEmcCommandSerialNumber;
 
 lui_t *lui;
 

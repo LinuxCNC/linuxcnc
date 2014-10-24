@@ -50,7 +50,6 @@ extern ANGULAR_UNIT_CONVERSION angularUnitConversion;
 
 // the current command numbers, set up updateStatus(), used in main()
 extern int emcCommandSerialNumber;
-extern int saveEmcCommandSerialNumber;
 
 // the NML channels to the EMC task
 extern RCS_CMD_CHANNEL *emcCommandBuffer;
