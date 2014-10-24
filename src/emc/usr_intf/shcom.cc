@@ -185,17 +185,6 @@ int tryNml(double retry_time, double retry_interval)
     return 0;
 }
 
-int updateStatus()
-{
-    if (!lui)
-	return -1;
-
-    if (lui_status_nml_update(lui) != 0) return -1;
-
-    emcStatus = lui_get_status_nml(lui);
-    return emcStatus ? 0 : -1;
-}
-
 /*
   updateError() updates "errors," which are true errors and also
   operator display and text messages.
@@ -277,7 +266,7 @@ int emcCommandWaitDone()
 {
     double end;
     for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY) {
-	updateStatus();
+	lui_status_nml_update(lui);
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 	if (serial_diff < 0) {
 	    continue;
@@ -305,7 +294,7 @@ int emcCommandWaitReceived()
 {
     double end;
     for (end = 0.0; emcTimeout <= 0.0 || end < emcTimeout; end += EMC_COMMAND_DELAY) {
-	updateStatus();
+	lui_status_nml_update(lui);
 
 	int serial_diff = emcStatus->echo_serial_number - emcCommandSerialNumber;
 	if (serial_diff >= 0) {
@@ -1020,7 +1009,7 @@ int sendProgramRun(int line)
     EMC_TASK_PLAN_RUN emc_task_plan_run_msg;
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
+	lui_status_nml_update(lui);
     }
     // first reopen program if it's not open
     if (0 == emcStatus->task.file[0]) {

@@ -1369,7 +1369,6 @@ static int doKey(keyType k)
         lui_estop_reset(lui);
       else
         lui_estop(lui);
-      updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
       break;
     case ktEStopRelease: break;
     case ktPowerPress: 
@@ -1578,7 +1577,7 @@ static void updatePositions()
 
 static void fastLoop()
 {
-  if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
+  if (emcUpdateType == EMC_UPDATE_AUTO) lui_status_nml_update(lui);
   updatePositions();
 }
 
@@ -1634,7 +1633,6 @@ static int sockMain()
   else {
     if (autoStart) { 
       lui_estop_reset(lui);
-      updateStatus();  // this is needed so the "by-hand" NML can see the estop change that lui just did
       sendMachineOn();
       }
     sockSendStr(sockfd, "hello\n");

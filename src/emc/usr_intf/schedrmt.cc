@@ -874,11 +874,11 @@ int commandGet(connectionRecType *context)
   if (pch == NULL) {
     return write(context->cliSock, setNakStr, strlen(setNakStr));
     }
-  if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
+  if (emcUpdateType == EMC_UPDATE_AUTO) lui_status_nml_update(lui);
   strupr(pch);
   cmd = lookupSetCommand(pch);
   if (cmd > scIni)
-    if (emcUpdateType == EMC_UPDATE_AUTO) updateStatus();
+      if (emcUpdateType == EMC_UPDATE_AUTO) lui_status_nml_update(lui);
   switch (cmd) {
     case scEcho: ret = getEcho(pch, context); break;
     case scVerbose: ret = getVerbose(pch, context); break;

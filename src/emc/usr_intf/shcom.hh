@@ -86,7 +86,6 @@ extern void strupr(char *s);
 extern int emcTaskNmlGet();
 extern int emcErrorNmlGet();
 extern int tryNml(double retry_time=10.0, double retry_interval=1.0);
-extern int updateStatus();
 extern int updateError();
 extern int emcCommandWaitReceived();
 extern int emcCommandWaitDone();
