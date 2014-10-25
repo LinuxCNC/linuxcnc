@@ -521,10 +521,8 @@ static void thisQuit()
 
     emcStatus = 0;
 
-    if(lui) {
-        lui_free(lui);
-        lui = 0;
-    }
+    lui_free(lui);
+    lui = 0;
 
     if (emcCommandBuffer != 0) {
 	delete emcCommandBuffer;
