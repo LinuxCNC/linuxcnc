@@ -17,27 +17,29 @@
 #ifndef INTERP_LIST_HH
 #define INTERP_LIST_HH
 
+#include <stdint.h>
+
 #define MAX_NML_COMMAND_SIZE 1000
 
 // these go on the interp list
 struct NML_INTERP_LIST_NODE {
     int line_number;		// line number it was on
     union _dummy_union {
-	int i;
-	long l;
+	int32_t i;
+	int32_t l;
 	double d;
 	float f;
-	long long ll;
+	int64_t ll;
 	long double ld;
     } dummy;			// paranoid alignment variable.
 
     union _command_union {
 	char commandbuf[MAX_NML_COMMAND_SIZE];	// the NML command;
-	int i;
-	long l;
+	int32_t i;
+	int32_t l;
 	double d;
 	float f;
-	long long ll;
+	int64_t ll;
 	long double ld;
     } command;
 };

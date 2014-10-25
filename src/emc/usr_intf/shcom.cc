@@ -14,6 +14,7 @@
 * Last change:
 ********************************************************************/
 
+#define __STDC_FORMAT_MACROS
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <sys/types.h>
+#include <inttypes.h>
 
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
@@ -267,7 +269,7 @@ int updateError()
 
     default:
 	// if not recognized, set the error string
-	sprintf(error_string, "unrecognized error %ld", type);
+	sprintf(error_string, "unrecognized error %" PRId32, type);
 	return -1;
 	break;
     }

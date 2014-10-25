@@ -19,6 +19,7 @@
 #include "emcglb.h"		// EMC_AXIS_MAX
 #include "nml_type.hh"
 #include "motion_types.h"
+#include <stdint.h>
 
 // Forward class declarations
 class EMC_AXIS_STAT;
@@ -349,7 +350,7 @@ enum EMC_IO_ABORT_REASON_ENUM {
 extern int emcFormat(NMLTYPE type, void *buffer, CMS * cms);
 
 // NML Symbol Lookup Function
-extern const char *emc_symbol_lookup(long type);
+extern const char *emc_symbol_lookup(uint32_t type);
 #define emcSymbolLookup(a) emc_symbol_lookup(a)
 
 // decls for command line args-- mains are responsible for setting these

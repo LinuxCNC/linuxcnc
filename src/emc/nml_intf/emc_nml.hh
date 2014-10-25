@@ -1116,7 +1116,7 @@ class EMC_MOTION_STAT_MSG:public RCS_STAT_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    unsigned long int heartbeat;
+    uint32_t heartbeat;
 };
 
 
@@ -1395,7 +1395,7 @@ class EMC_TASK_STAT_MSG:public RCS_STAT_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    unsigned long int heartbeat;
+    uint32_t heartbeat;
 };
 
 class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
@@ -1987,7 +1987,7 @@ class EMC_IO_STAT_MSG:public RCS_STAT_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    unsigned long int heartbeat;
+    uint32_t heartbeat;
 };
 
 class EMC_IO_STAT:public EMC_IO_STAT_MSG {

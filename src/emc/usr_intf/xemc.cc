@@ -14,6 +14,7 @@
 * Last change:
 ********************************************************************/
 
+#define __STDC_FORMAT_MACROS
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +26,7 @@
 #include <sys/stat.h>           // struct stat, stat()
 #include <unistd.h>
 #include <fcntl.h>              // O_CREAT
+#include <inttypes.h>
 
 #include "rcs.hh"               // etime()
 #include "emc.hh"               // EMC NML
@@ -238,7 +240,7 @@ static int updateError()
       break;
 
     default:
-      sprintf(error_string, "unrecognized error %ld",type);
+      sprintf(error_string, "unrecognized error %" PRId32,type);
       return -1;
       break;
     }
@@ -3667,7 +3669,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
 
   if (diagnosticsIsPopped) {
     if (emcStatus->task.heartbeat != oldTaskHeartbeat) {
-      sprintf(string, "%ld %ld %d %d %d",
+      sprintf(string, "%" PRId32 " %" PRId32 " %d %d %d",
               emcStatus->task.heartbeat,
               emcStatus->task.command_type,
               emcStatus->task.echo_serial_number,
@@ -3680,7 +3682,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     }
 
     if (emcStatus->io.heartbeat != oldIoHeartbeat) {
-      sprintf(string, "%ld %ld %d %d",
+      sprintf(string, "%" PRId32 " %" PRId32 " %d %d",
               emcStatus->io.heartbeat,
               emcStatus->io.command_type,
               emcStatus->io.echo_serial_number,
@@ -3692,7 +3694,7 @@ void timeoutCB(XtPointer clientdata, XtIntervalId *id)
     }
 
     if (emcStatus->motion.heartbeat != oldMotionHeartbeat) {
-      sprintf(string, "%ld %ld %d %d",
+      sprintf(string, "%" PRId32 " %" PRId32 " %d %d",
               emcStatus->motion.heartbeat,
               emcStatus->motion.command_type,
               emcStatus->motion.echo_serial_number,

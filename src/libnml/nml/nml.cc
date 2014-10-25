@@ -13,6 +13,8 @@
 * Last change: 
 ********************************************************************/
 
+#define __STDC_FORMAT_MACROS
+#include <inttypes.h>
 #include "rcsversion.h"
 
 #ifdef __cplusplus
@@ -1452,7 +1454,7 @@ int NML::format_output()
 								   message. */
 
 	    if (new_size > cms->max_message_size) {
-		rcs_print_error("NML: Message %ld of size  %ld \n", new_type,
+		rcs_print_error("NML: Message %" PRId32 " of size  %ld \n", new_type,
 		    new_size);
 		rcs_print_error
 		    ("     too large for local buffer of %s of size %ld.\n",
@@ -1505,7 +1507,7 @@ int NML::format_output()
 	    cms->update(new_size);
 
 	    if (new_size > cms->max_message_size) {
-		rcs_print_error("NML: Message %ld of size  %ld\n", new_type,
+		rcs_print_error("NML: Message %" PRId32 " of size  %ld\n", new_type,
 		    new_size);
 		rcs_print_error
 		    ("     too large for local buffer of %s of size %ld.\n",

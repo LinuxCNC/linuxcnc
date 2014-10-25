@@ -16,6 +16,7 @@
 
 #ifndef NMLTYPE_TYPEDEFED
 #define NMLTYPE_TYPEDEFED
-typedef long NMLTYPE;		/* Also defined in nmlmsg.hh */
+#include <stdint.h>
+typedef int32_t NMLTYPE;
 #endif
 

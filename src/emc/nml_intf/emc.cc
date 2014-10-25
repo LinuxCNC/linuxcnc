@@ -476,7 +476,7 @@ int emcFormat(NMLTYPE type, void *buffer, CMS * cms)
 }
 
 // NML Symbol Lookup Function
-const char *emc_symbol_lookup(long type)
+const char *emc_symbol_lookup(uint32_t type)
 {
     switch (type) {
     case EMC_ABORT_TYPE:
