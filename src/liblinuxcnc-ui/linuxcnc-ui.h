@@ -117,6 +117,7 @@ int lui_mode_auto(lui_t *lui);
 int lui_mode_mdi(lui_t *lui);
 
 struct EMC_STAT *lui_get_status_nml(lui_t *lui);
+struct RCS_CMD_CHANNEL *lui_get_command_channel_nml(lui_t *lui);
 
 #include "liblinuxcnc-ui-getters.h"
 

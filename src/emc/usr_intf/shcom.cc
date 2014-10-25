@@ -73,28 +73,6 @@ void strupr(char *s)
 
 int emcTaskNmlGet()
 {
-    int retval = 0;
-
-    // try to connect to EMC cmd
-    if (emcCommandBuffer == 0) {
-	emcCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
-				emc_nmlfile);
-	if (!emcCommandBuffer->valid()) {
-	    delete emcCommandBuffer;
-	    emcCommandBuffer = 0;
-	    retval = -1;
-	}
-    }
-
-    if(retval != 0) return retval;
-
-    lui = lui_new();
-    if(!lui) {
-        fprintf(stderr, "can't make new lui\n");
-        return -1;
-    }
-
     int r = lui_connect(lui);
     if(r != 0) {
         fprintf(stderr, "can't connect lui\n");
@@ -108,6 +86,12 @@ int emcTaskNmlGet()
     emcStatus = lui_get_status_nml(lui);
     if(!emcStatus) {
         fprintf(stderr, "can't get lui status\n");
+        return -1;
+    }
+
+    emcCommandBuffer = lui_get_command_channel_nml(lui);
+    if(!emcCommandBuffer) {
+        fprintf(stderr, "can't get lui command buffer\n");
         return -1;
     }
 

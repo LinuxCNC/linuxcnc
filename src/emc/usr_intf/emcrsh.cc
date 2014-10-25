@@ -523,11 +523,7 @@ static void thisQuit()
 
     lui_free(lui);
     lui = 0;
-
-    if (emcCommandBuffer != 0) {
-	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-    }
+    emcCommandBuffer = 0;
 
 //    Tcl_Exit(0);
     exit(0);
