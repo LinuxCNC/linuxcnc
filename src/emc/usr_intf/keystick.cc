@@ -13,6 +13,7 @@
 * Last change:
 ********************************************************************/
 
+#define __STDC_FORMAT_MACROS
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,6 +23,7 @@
 #include <sys/time.h>           // struct itimerval
 #include <sys/ioctl.h>          // ioctl(), TIOCGWINSZ, struct winsize
 #include <unistd.h>             // STDIN_FILENO
+#include <inttypes.h>
 
 #include "rcs.hh"               // rcs_print_error(), esleep()
 #include "emc.hh"               // EMC NML
@@ -440,14 +442,14 @@ static void printStatus()
 
       wattrset(window, A_UNDERLINE);
 
-      sprintf(scratch_string, "%10ld %10d %10d", emcStatus->task.heartbeat,
+      sprintf(scratch_string, "%10" PRId32 " %10d %10d", emcStatus->task.heartbeat,
               emcStatus->echo_serial_number,
               emcStatus->status);
       mvwaddstr(window, 2, 28, scratch_string);
-      sprintf(scratch_string, "%10ld %10d", emcStatus->io.heartbeat,
+      sprintf(scratch_string, "%10" PRId32 " %10d", emcStatus->io.heartbeat,
               emcStatus->io.echo_serial_number);
       mvwaddstr(window, 3, 28, scratch_string);
-      sprintf(scratch_string, "%10ld %10d", emcStatus->motion.heartbeat,
+      sprintf(scratch_string, "%10" PRId32 " %10d", emcStatus->motion.heartbeat,
               emcStatus->motion.echo_serial_number);
       mvwaddstr(window, 4, 28, scratch_string);
 

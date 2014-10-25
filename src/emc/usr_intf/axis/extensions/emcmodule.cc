@@ -16,10 +16,12 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#define __STDC_FORMAT_MACROS
 #include <Python.h>
 #include <structseq.h>
 #include <pthread.h>
 #include <structmember.h>
+#include <inttypes.h>
 #include "config.h"
 #include "rcs.hh"
 #include "emc.hh"
@@ -1467,7 +1469,7 @@ static PyObject* Error_poll(pyErrorChannel *s) {
     default:
         {
             char error_string[256];
-            sprintf(error_string, "unrecognized error %ld", type);
+            sprintf(error_string, "unrecognized error %" PRId32, type);
             PyTuple_SET_ITEM(r, 1, PyString_FromString(error_string));
             break;
         }

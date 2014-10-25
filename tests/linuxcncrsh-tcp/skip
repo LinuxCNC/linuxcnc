@@ -1,3 +1,0 @@
-#!/usr/bin/python
-import sys
-if sys.maxint != (1<<31) - 1: raise SystemExit, "This test currently fails on 64-bit platform"
