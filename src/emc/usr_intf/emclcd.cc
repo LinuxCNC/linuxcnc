@@ -1614,10 +1614,8 @@ static void thisQuit()
 	emcCommandBuffer = 0;
     }
 
-    if(lui) {
-        lui_free(lui);
-        lui = 0;
-    }
+    lui_free(lui);
+    lui = 0;
 
     exit(0);
 }
