@@ -90,20 +90,6 @@ static void quit();
 
 static int emcTaskNmlGet()
 {
-  int retval = 0;
-
-  // try to connect to EMC cmd
-  if (emcCommandBuffer == 0)
-    {
-      emcCommandBuffer = new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc", emc_nmlfile);
-      if (! emcCommandBuffer->valid())
-        {
-          delete emcCommandBuffer;
-          emcCommandBuffer = 0;
-          retval = -1;
-        }
-    }
-
   // try to connect to EMC status
   if (emcStatusBuffer == 0)
     {
@@ -114,7 +100,7 @@ static int emcTaskNmlGet()
           delete emcStatusBuffer;
           emcStatusBuffer = 0;
           emcStatus = 0;
-          retval = -1;
+          return -1;
         }
       else
         {
@@ -122,7 +108,8 @@ static int emcTaskNmlGet()
         }
     }
 
-  return retval;
+  emcCommandBuffer = lui_get_command_channel_nml(lui);
+  return emcCommandBuffer ? 0 : -1;
 }
 
 static int emcErrorNmlGet()
@@ -4391,11 +4378,8 @@ static void quit()
       emcStatus = 0;
     }
 
-  if (emcCommandBuffer != 0)
-    {
-      delete emcCommandBuffer;
-      emcCommandBuffer = 0;
-    }
+  lui_free(lui);
+  emcCommandBuffer = 0;
 
   // get rid of program file window string
   if (NULL != programFwString) {

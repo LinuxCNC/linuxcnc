@@ -7,6 +7,7 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/command-nml-wait-received.cc \
     liblinuxcnc-ui/status-nml-update.cc \
     liblinuxcnc-ui/get-status-nml.cc \
+    liblinuxcnc-ui/get-command-channel-nml.cc \
 
 
 -include objects/liblinuxcnc-ui/getter.mak

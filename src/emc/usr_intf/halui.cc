@@ -434,21 +434,8 @@ static void quit(int sig)
 
 static int emcTaskNmlGet()
 {
-    int retval = 0;
-
-    // try to connect to EMC cmd
-    if (emcCommandBuffer == 0) {
-	emcCommandBuffer =
-	    new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "xemc",
-				emc_nmlfile);
-	if (!emcCommandBuffer->valid()) {
-	    delete emcCommandBuffer;
-	    emcCommandBuffer = 0;
-	    retval = -1;
-	}
-    }
-
-    return retval;
+    emcCommandBuffer = lui_get_command_channel_nml(lui);
+    return emcCommandBuffer ? 0 : -1;
 }
 
 static int emcErrorNmlGet()
@@ -596,7 +583,7 @@ static void thisQuit()
     //don't forget the big HAL sin ;)
     hal_exit(comp_id);
     
-    if(emcCommandBuffer) { delete emcCommandBuffer;  emcCommandBuffer = 0; }
+    emcCommandBuffer = 0;
     if(emcErrorBuffer) { delete emcErrorBuffer;  emcErrorBuffer = 0; }
     exit(0);
 }

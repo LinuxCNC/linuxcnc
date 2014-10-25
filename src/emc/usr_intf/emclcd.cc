@@ -1609,13 +1609,10 @@ static void thisQuit()
 	emcErrorBuffer = 0;
     }
 
-    if (emcCommandBuffer != 0) {
-	delete emcCommandBuffer;
-	emcCommandBuffer = 0;
-    }
 
     lui_free(lui);
     lui = 0;
+    emcCommandBuffer = 0;
 
     exit(0);
 }
