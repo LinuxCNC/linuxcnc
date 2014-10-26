@@ -60,7 +60,10 @@ class HAL:
         if not self.d.sim_hardware:
             print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
         else:
-            print >>file, "loadrt parport count=%d"%self.d.number_pports
+            name='parport.0'
+            if self.d.number_pports>1:
+                name='parport.0,parport.1'
+            print >>file, "loadrt sim_parport names=%s"%name
         if self.a.doublestep():
             print >>file, "setp parport.0.reset-time %d" % self.d.steptime
         encoder = SIG.PHA in inputs
