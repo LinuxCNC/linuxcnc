@@ -1282,14 +1282,13 @@ int emcMotionInit()
 
     if (r1 == 0 && r2 == 0 && r3 == 0) {
 	emcmotion_initialized = 1;
-    }
+        if (ini_hal_init()) {
+	    rcs_print("emcMotionInit: ini_hal_init fail, continuing\n");
+        }
 
-    if (ini_hal_init()) {
-	rcs_print("emcMotionInit: ini_hal_init fail\n");
-    }
-
-    if (ini_hal_init_pins()) {
-	rcs_print("emcMotionInit: ini_hal_init_pins fail\n");
+        if (ini_hal_init_pins()) {
+	    rcs_print("emcMotionInit: ini_hal_init_pins fail, continuing\n");
+        }
     }
 
     return (r1 == 0 && r2 == 0 && r3 == 0) ? 0 : -1;
