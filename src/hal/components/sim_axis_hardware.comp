@@ -1,53 +1,56 @@
-component sim_axis_hardware;
+component sim_axis_hardware "A component to simulate home and limit switches";
 
-pin in float Xcurrent_pos;
+description
+"""
+This component creates simulated home and limit switches based on the current position.
+.br
+It currently can supply simulation for X,Y,Z and A axes.
+
+""";
+pin in float Xcurrent_pos "The current position on the axis - eg connect to axis.0.joint-pos-fb";
 pin in float Ycurrent_pos;
 pin in float Zcurrent_pos;
 pin in float Acurrent_pos;
 
-pin in float Xhomesw_pos;
-pin in float Yhomesw_pos;
-pin in float Zhomesw_pos;
-pin in float Ahomesw_pos;
+pin in float Xhomesw_pos =1 "The position of the home switch";
+pin in float Yhomesw_pos =1;
+pin in float Zhomesw_pos =1;
+pin in float Ahomesw_pos =1;
 
-pin in float Xmaxsw_upper;
+pin in float Xmaxsw_upper "The upper range of the maximum limit switch, above this is false.";
 pin in float Ymaxsw_upper;
 pin in float Zmaxsw_upper;
 pin in float Amaxsw_upper;
 
-pin in float Xmaxsw_lower;
+pin in float Xmaxsw_lower "The lower range of the maximum limit switch, below this is false.";
 pin in float Ymaxsw_lower;
 pin in float Zmaxsw_lower;
 pin in float Amaxsw_lower;
 
-pin in float Xminsw_upper;
+pin in float Xminsw_upper "The upper range of the minimum limit switch, above this is false.";
 pin in float Yminsw_upper;
 pin in float Zminsw_upper;
 pin in float Aminsw_upper;
 
-pin in float Xminsw_lower;
+pin in float Xminsw_lower "The lower range of the minimum limit switch, below this is false.";
 pin in float Yminsw_lower;
 pin in float Zminsw_lower;
 pin in float Aminsw_lower;
 
-pin in float Xhomesw_hyst =.02;
+pin in float Xhomesw_hyst =.02 "range that home switch will be true +- half this to the home position";
 pin in float Yhomesw_hyst =.02;
 pin in float Zhomesw_hyst =.02;
 pin in float Ahomesw_hyst =.02;
 
-pin in bit Yhomeall_include=true;
-pin in bit Zhomeall_include=true;
-pin in bit Ahomeall_include=false;
-
-pin out bit Xhomesw_out;
+pin out bit Xhomesw_out" Home switch for the X axis";
 pin out bit Yhomesw_out;
 pin out bit Zhomesw_out;
 pin out bit Ahomesw_out;
 pin out bit homesw_all;
 
-pin out bit Xmaxsw_out;
-pin out bit Xminsw_out;
-pin out bit Xbothsw_out;
+pin out bit Xmaxsw_out "Max limit switch";
+pin out bit Xminsw_out "min limit switch";
+pin out bit Xbothsw_out "True for both max and min limit switch";
 
 pin out bit Ymaxsw_out;
 pin out bit Yminsw_out;
@@ -62,7 +65,7 @@ pin out bit Aminsw_out;
 pin out bit Abothsw_out;
 
 pin out bit limitsw_all;
-pin out bit limitsw_homesw_all;
+pin out bit limitsw_homesw_all "True for all limits and all home.";
 
 pin out bit Xmaxsw_homesw_out;
 pin out bit Xminsw_homesw_out;
@@ -80,7 +83,7 @@ pin out bit Amaxsw_homesw_out;
 pin out bit Aminsw_homesw_out;
 pin out bit Abothsw_homesw_out;
 
-pin in float limit_offset =.01;
+pin in float limit_offset =.01 "how much the limit switches are offset from inputed position. added to max, subracted from min";
 
 function update fp;
 license "GPL";
@@ -88,7 +91,6 @@ author "Chris Morley";
 ;;
 
 FUNCTION(update) {
-int homeall_tmp;
 
     /* private comparator function */
     int comp(double in0, double in1, double hyst) {
@@ -116,11 +118,7 @@ Xhomesw_out = comp(Xhomesw_pos,Xcurrent_pos,Xhomesw_hyst);
 Yhomesw_out = comp(Yhomesw_pos,Ycurrent_pos,Yhomesw_hyst);
 Zhomesw_out = comp(Zhomesw_pos,Zcurrent_pos,Zhomesw_hyst);
 Ahomesw_out = comp(Ahomesw_pos,Acurrent_pos,Ahomesw_hyst);
-homeall_tmp = Xhomesw_out;
-if(Yhomeall_include) {homeall_tmp = homeall_tmp || Yhomesw_out;}
-if(Zhomeall_include) {homeall_tmp = homeall_tmp || Zhomesw_out;}
-if(Ahomeall_include) {homeall_tmp = homeall_tmp || Ahomesw_out;}
-homesw_all = homeall_tmp;
+homesw_all = Xhomesw_out || Yhomesw_out || Zhomesw_out || Ahomesw_out;
 
 /* set limit switches */
 Xmaxsw_out = wcomp(Xcurrent_pos,Xmaxsw_upper,Xmaxsw_lower+limit_offset);
