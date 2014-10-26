@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.2.2"
+_RELEASE = "   1.3.1"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -191,10 +191,8 @@ class gmoccapy(object):
         self.width = 979                # The width of the main Window
         self.height = 750               # The heigh of the main Window
 
-
         # the default theme = System Theme we store here to be able to go back to that one later
         self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
-
 
         # the sounds to play if an error or message rises
         self.alert_sound = "/usr/share/sounds/ubuntu/stereo/bell.ogg"
@@ -263,7 +261,6 @@ class gmoccapy(object):
         self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
         self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
         self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
-
 
         # Popup Messages position and size
         self.widgets.adj_x_pos_popup.set_value(self.prefs.getpref("x_pos_popup", 45, float))
@@ -390,10 +387,12 @@ class gmoccapy(object):
             print(_("**** disabled tool measurement ****"))
         else:
             self.widgets.lbl_tool_measurement.hide()
-            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
             self.widgets.spbtn_probe_height.set_value(self.prefs.getpref("probeheight", -1.0, float))
             self.widgets.spbtn_search_vel.set_value(self.prefs.getpref("searchvel", 75.0, float))
             self.widgets.spbtn_probe_vel.set_value(self.prefs.getpref("probevel", 10.0, float))
+            self.widgets.chk_use_tool_measurement.set_active(self.prefs.getpref("use_toolmeasurement", False, bool))
+            # to set the hal pin with correct values we emit a toogled
+            self.widgets.chk_use_tool_measurement.emit("toggled")
             self.widgets.lbl_x_probe.set_label(str(xpos))
             self.widgets.lbl_y_probe.set_label(str(ypos))
             self.widgets.lbl_z_probe.set_label(str(zpos))
@@ -2999,10 +2998,16 @@ class gmoccapy(object):
             self.widgets.frm_probe_pos.set_sensitive(True)
             self.widgets.frm_probe_vel.set_sensitive(True)
             self.halcomp["toolmeasurement"] = True
+            self.halcomp["searchvel"] = self.widgets.spbtn_search_vel.get_value()
+            self.halcomp["probevel"] = self.widgets.spbtn_probe_vel.get_value()
+            self.halcomp["probeheight"] = self.widgets.spbtn_probe_height.get_value()
         else:
             self.widgets.frm_probe_pos.set_sensitive(False)
             self.widgets.frm_probe_vel.set_sensitive(False)
             self.halcomp["toolmeasurement"] = False
+            self.halcomp["searchvel"] = 0.0
+            self.halcomp["probevel"] = 0.0
+            self.halcomp["probeheight"] = 0.0
         self.prefs.putpref("use_toolmeasurement", widget.get_active(), bool)
 
     def on_chk_hide_axis_4_toggled(self, widget, data = None):
@@ -3564,17 +3569,30 @@ class gmoccapy(object):
             self.widgets.box_info.set_size_request(-1, 50)
         self.widgets.tbl_search.show()
 
-    # search forward while in edit mode
-    def on_btn_search_forward_clicked(self, widget, data = None):
-        self.widgets.gcode_view.text_search(direction = True, text = self.widgets.search_entry.get_text())
-
-    # search backward while in edit mode
-    def on_btn_search_back_clicked(self, widget, data = None):
-        self.widgets.gcode_view.text_search(direction = False, text = self.widgets.search_entry.get_text())
-
+# Search and replace handling in edit mode
     # undo changes while in edit mode
     def on_btn_undo_clicked(self, widget, data = None):
         self.widgets.gcode_view.undo()
+
+    # search backward while in edit mode
+    def on_btn_search_back_clicked(self, widget, data = None):
+        self.widgets.gcode_view.text_search(direction = False,
+                                            mixed_case = self.widgets.chk_ignore_case.get_active(),
+                                            text = self.widgets.search_entry.get_text())
+
+    # search forward while in edit mode
+    def on_btn_search_forward_clicked(self, widget, data = None):
+        self.widgets.gcode_view.text_search(direction = True,
+                                            mixed_case = self.widgets.chk_ignore_case.get_active(),
+                                            text = self.widgets.search_entry.get_text())
+
+    # replace text in edit mode
+    def on_btn_replace_clicked(self, widget, data = None):
+        self.widgets.gcode_view.replace_text_search(direction = True,
+                                                    mixed_case = self.widgets.chk_ignore_case.get_active(),
+                                                    text = self.widgets.search_entry.get_text(),
+                                                    re_text = self.widgets.replace_entry.get_text(),
+                                                    replace_all = self.widgets.chk_replace_all.get_active())
 
     # redo changes while in edit mode
     def on_btn_redo_clicked(self, widget, data = None):
@@ -3656,11 +3674,18 @@ class gmoccapy(object):
     def on_tbtn_pause_toggled(self, widget, data = None):
         if widget.get_active():
             self.command.auto(linuxcnc.AUTO_PAUSE)
+
         else:
             self.command.auto(linuxcnc.AUTO_RESUME)
         self._add_alarm_entry("Pause toggled to be %s" % widget.get_active())
         widgetlist = ["btn_step", "rbt_forward", "rbt_reverse", "rbt_stop"]
         self._sensitize_widgets(widgetlist, widget.get_active())
+
+    def on_btn_stop_clicked(self, widget, data = None):
+        print("stop clicked")
+        self.start_line = 0
+        self.widgets.gcode_view.set_line_number(0)
+        self.widgets.tbtn_pause.set_active(False)
 
     def on_btn_run_clicked(self, widget, data = None):
         self.command.auto(linuxcnc.AUTO_RUN, self.start_line)
@@ -3675,12 +3700,6 @@ class gmoccapy(object):
         if state == gtk.STATE_INSENSITIVE:
             self.stepping = False
             self.widgets.tbtn_pause.set_sensitive(True)
-
-    def on_btn_stop_clicked(self, widget, data = None):
-        self.command.abort()
-        self.start_line = 0
-        self.widgets.gcode_view.set_line_number(0)
-        self.widgets.tbtn_pause.set_active(False)
 
     def on_btn_from_line_clicked(self, widget, data = None):
         self._add_alarm_entry("Restart the program from line clicked")
