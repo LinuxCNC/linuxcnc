@@ -1,8 +1,8 @@
-linuxcnc (1:2.8.0~pre0) wheezy; urgency=low
+linuxcnc (1:2.8.0~pre1) wheezy; urgency=low
 
   * Upcoming release, any year now!  Watch this space!
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 21 Oct 2014 14:37:11 -0500
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:17:34 -0600
 
 linuxcnc (1:2.7.0~pre2) wheezy; urgency=low
 
