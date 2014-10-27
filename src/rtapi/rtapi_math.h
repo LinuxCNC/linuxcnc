@@ -47,6 +47,7 @@ extern double floor(double);
 #endif
 
 #define isinf(x) __builtin_isinf((x))
+#define isfinite(x) __builtin_isfinite((x))
 
 extern __inline double atan (double __y) {
     return atan2(__y, 1.);
