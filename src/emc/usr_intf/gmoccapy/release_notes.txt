@@ -1,3 +1,7 @@
+ver. 1.3.2
+- fixed a small bug PAUSE button did not get active on M01
+  Thanks to Rick (LAIR82) for pointing on it.
+
 ver. 1.3.1
 - fixed very serious bug PAUSE / RESUME / STOP issue
   Program jumped to strange positions if STOP has been pressed 
