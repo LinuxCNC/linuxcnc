@@ -28,6 +28,7 @@ ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
 	code/Code_Notes.txt \
 	code/Style_Guide.txt \
+	code/liblinuxcnc-ui.txt \
 	code/NML_Messages.txt \
 	code/Contributing-to-LinuxCNC.txt \
 	common/emc-history.txt \

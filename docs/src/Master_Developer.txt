@@ -19,6 +19,8 @@ include::code/Code_Notes.txt[]
 
 include::code/NML_Messages.txt[]
 
+include::code/liblinuxcnc-ui.txt[]
+
 include::code/Style_Guide.txt[]
 
 include::code/Contributing-to-LinuxCNC.txt[]
