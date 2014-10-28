@@ -84,7 +84,7 @@ if debug:
 
 # constants
 #          # gmoccapy  #"
-_RELEASE = "   1.3.1"
+_RELEASE = "   1.3.2"
 _INCH = 0                           # imperial units are active
 _MM = 1                             # metric units are active
 _TEMPDIR = tempfile.gettempdir()    # Now we know where the tempdir is, usualy /tmp
@@ -3672,11 +3672,6 @@ class gmoccapy(object):
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal
     def on_tbtn_pause_toggled(self, widget, data = None):
-        if widget.get_active():
-            self.command.auto(linuxcnc.AUTO_PAUSE)
-
-        else:
-            self.command.auto(linuxcnc.AUTO_RESUME)
         self._add_alarm_entry("Pause toggled to be %s" % widget.get_active())
         widgetlist = ["btn_step", "rbt_forward", "rbt_reverse", "rbt_stop"]
         self._sensitize_widgets(widgetlist, widget.get_active())
