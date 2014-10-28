@@ -129,32 +129,41 @@ class PopupKeyboard:
 
         # find buttons with labels XYZABCUVW or D
         # and show iff corresponding axis is in axis_mask
-        label_to_btn = {}
+        self.label_to_btn = {}
         for btn in self.builder.get_objects():
             if type(btn) is not gtk.Button:
                 continue
-            label_to_btn[btn.get_label().upper()] = btn
+            self.label_to_btn[btn.get_label().upper()] = btn
 
             if isinstance(btn.child, gtk.Label):
                 lbl = btn.child
                 lbl.modify_font(pango.FontDescription(fontname))
 
+        if use_coord_buttons: self.support_coord_buttons()
+
+        # making it insensitive clears the inital selection region
+        self.num_entry.set_state(gtk.STATE_INSENSITIVE)
+        self.num_entry.modify_text(gtk.STATE_INSENSITIVE
+                      ,gtk.gdk.color_parse('black'))
+        self.num_entry.modify_font(pango.FontDescription(fontname))
+
+    def support_coord_buttons(self):
         try:
             self.stat = linuxcnc.stat()
             self.stat.poll()
             has_x = False
             for axno in range(0,9):
                 axname = 'XYZABCUVW'[axno]
-                if label_to_btn.has_key(axname):
-                    b = label_to_btn[axname]
+                if self.label_to_btn.has_key(axname):
+                    b = self.label_to_btn[axname]
                     if bool(self.stat.axis_mask & (1 << axno)):
                         b.show()
                         if axno == 0: has_x = True
                     else:
                         b.hide()
             bdiam = None
-            if label_to_btn.has_key('D'):
-                bdiam = label_to_btn['D']
+            if self.label_to_btn.has_key('D'):
+                bdiam = self.label_to_btn['D']
             if bdiam and has_x:
                 bdiam.show()
             elif bdiam:
@@ -163,17 +172,12 @@ class PopupKeyboard:
             self.stat = None
             if self.coord_buttons is not None:
                 self.coord_buttons.hide()
-                print "linuxcnc must be running to use axis keys"
+                print "linuxcnc must be running to use coordinate keys"
             # continue without buttons for testing when linuxnc not running
         except Exception, err:
             print 'Exception:',Exception
             print sys.exc_info()
             sys.exit(1)
-        # making it insensitive clears the inital selection region
-        self.num_entry.set_state(gtk.STATE_INSENSITIVE)
-        self.num_entry.modify_text(gtk.STATE_INSENSITIVE
-                      ,gtk.gdk.color_parse('black'))
-        self.num_entry.modify_font(pango.FontDescription(fontname))
 
 
     def set_theme(self,tname=None):
