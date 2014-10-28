@@ -307,9 +307,11 @@ class LinuxCNCWrapper():
         self.context = context
         self.baseUri = "tcp://" + self.ip
         self.statusSocket = context.socket(zmq.XPUB)
+        self.statusSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.statusPort = self.statusSocket.bind_to_random_port(self.baseUri)
         self.statusDsname = self.statusSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.errorSocket = context.socket(zmq.XPUB)
+        self.errorSocket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.errorPort = self.errorSocket.bind_to_random_port(self.baseUri)
         self.errorDsname = self.errorSocket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')
         self.commandSocket = context.socket(zmq.DEALER)
