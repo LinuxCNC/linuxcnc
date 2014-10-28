@@ -1,0 +1,90 @@
+= `liblinuxcnc-ui`
+
+== Intended audience
+
+This document is intended for LinuxCNC developers who are developing
+the linuxcnc-ui library, as well as developers of user interfaces using
+`liblinuxcnc-ui`.
+
+General knowledge of C programming and of LinuxCNC is assumed.
+
+== History of User Interfaces in LinuxCNC
+
+Historically, the API for LinuxCNC user interfaces was defined in terms
+of NML, an IPC method developed at NIST.  In LinuxCNC 2.x, a C++ API was
+provided for NML.  This API is fairly inconvenient, requiring things
+like manual handling of serial numbers by all user interfaces.
+
+Several different wrappers have been written over the years; they are
+probably descended copy-and-paste from one original UI (keystick or
+xlinuxcnc) with modifications.  Two of these are bindings for
+interpreted languages (Tcl's Linuxcnc package and Python's linuxcnc
+module), two are IPC systems of their own (halui and linuxcncrsh).
+
+The fact that these are all directly coded to the C++ NML API means that
+it has been difficult to replace NML, even if it were desirable.
+
+== `liblinuxcnc-ui` philosophy
+
+With `liblinuxcnc-ui`, nicknamed lui, we hope to develop an API that is suitable for all
+UIs, but which is better abstracted from NML.  This may be one step on
+the way to the eventual removal of NML from LinuxCNC.
+
+=== Pure "C" API
+C remains the lowest common denominator for multi-language interfacing.  
+C\++ software can directly use C APIs; interpreted languages like Python,
+Ruby, etc., typically include "foreign function interfaces" which can
+access C APIs almost trivially, while accessing C++ APIs remains
+difficult.  C# has pinvoke, and Java has JNI.
+
+=== RTAPI/HAL-like naming convention
+The naming style for lui is `lui_lowercase_and_underscores` for
+better reading next to use of RTAPI and HAL APIs.
+
+=== Prefer getters of simple structures
+In NML, information about machine state is organized in an unwieldy
+structure called 'EMC_STAT'.  This design causes users of the NML API to
+be sensitive to the exact memory layout of the status object.
+
+lui prefers getters for each exposed value.  However, some simple
+structures do exist in the API, such as `lui_position_t` and
+`lui_tool_info_t`.  Use of structures should be restricted to cases where
+the size and layout is unlikely to change (including addition of members
+at the end of the structure).
+
+=== API documentation in 'man' format
+Linux RTAPI and HAL, the reference documentation format is Unix
+manpages.  However, tutorial and overview documentation should probably
+be in asciidoc format.
+
+=== LGPLv2+ license
+All code in src/`liblinuxcnc-ui` shall be licensed under LGPLv2+ (or freer
+licenses recognized as convertible to LGPLv2+).  The intent is to
+ultimately enable proprietary third-party UIs which use the
+`liblinuxcnc-ui` and are not themselves GPL-licensed.
+
+However, it must be noted that in the current implementation,
+`liblinuxcnc-ui` links with `libnml` and `liblinuxcncini` which both include
+source files with GPLv2-only notices (e.g., `libnml/inifile/inifile.cc`).
+Thus it seems that at this time the only safe license for binary
+distribution/conveyance is the GPLv2, not the LGPL.
+
+== API guarantees
+
+As usual we will strive to
+
+* Not remove APIs unnecessarily
+* Give at least one release notice of API deprecation
+
+== Plan of action
+1. Write lui API implementation in parallel with converting at least one existing user
+interface
+
+2. Finalize API items; release as LinuxCNC 2.x
+
+3. Deprecate NML in 2.y
+
+4. Experiment with and ultimately select a new IPC method
+
+5. Remove NML no earlier than 2.(y+2)
+
