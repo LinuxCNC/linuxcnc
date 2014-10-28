@@ -108,7 +108,17 @@ class Notification(gtk.Window):
         label.set_size_request(self.message_width, -1)
         font_desc = pango.FontDescription(self.font)
         label.modify_font(font_desc)
-        label.set_markup(text)
+        # As messages may contain non pango conform syntax like "vel <= 0" we will have to check that to avoid an error
+        pango_ok = True
+        try:
+            # The GError exception is raised if an error occurs while parsing the markup text.
+            pango.parse_markup(text)        
+        except:
+            pango_ok = False
+        if pango_ok:
+            label.set_markup(text)
+        else:
+            label.set_text(text)
         hbox.pack_start(label)
         btn_close = gtk.Button()
         image = gtk.Image()
@@ -134,7 +144,6 @@ class Notification(gtk.Window):
 # we do not show the labelnumber, but we use it for the handling
 #        labelnumber.show()
         self.vbox.show()
-#        self.popup.show()
 
     # add a message, the message is a string, it will be line wraped
     # if to long for the frame
@@ -236,10 +245,9 @@ class Notification(gtk.Window):
         if name in self.__gproperties.keys():
             return getattr(self, name)
         else:
-            raise AttributeError('unknown iconview get_property %s' % property.name)
+            raise AttributeError('unknown notification get_property %s' % property.name)
 
     def do_set_property(self, property, value):
-#        print(property,"=",value)
         try:
             name = property.name.replace('-', '_')
             if name in self.__gproperties.keys():
@@ -262,7 +270,7 @@ class Notification(gtk.Window):
                 if name == 'use_frames':
                     self.use_frames = value
             else:
-                raise AttributeError('unknown iconview set_property %s' % property.name)
+                raise AttributeError('unknown notification set_property %s' % property.name)
         except:
             print('Attribute error', property, "and", type(value) , value)
             pass
@@ -271,8 +279,8 @@ class Notification(gtk.Window):
 def main():
 
     notification = Notification()
-    notification.add_message('Halo World out there', '/home/emcmesa/linuxcnc-dev/share/gscreen/images/std_info.gif')
-    notification.add_message('Hallo World ', '/home/emcmesa/linuxcnc-dev/share/gscreen/images/std_info.gif')
+    notification.add_message('Halo World out there', '/usr/share/gmoccapy/images/applet-critical.png')
+    notification.add_message('Hallo World ', '/usr/share/gmoccapy/images/std_info.gif')
     notification.show()
     def debug(self, text):
         print "debug", text
