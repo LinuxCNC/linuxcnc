@@ -186,7 +186,7 @@ class Preview():
         if os.path.isfile(filename):
             self.filename = filename
         else:
-            raise Exception("file does not exist")
+            raise Exception("file does not exist " + filename)
 
     def start(self):
         if self.isRunning:
@@ -206,11 +206,13 @@ class Preview():
                                                        self.initcode)
 
             if result > preview.MIN_ERROR:
+                error = " gcode error: %s " % (preview.strerror(result))
+                line = last_sequence_number - 1
                 if self.debug:
-                    print((error + "on line " + str(line)))
+                    print(("preview: " + self.filename))
+                    print((error + " on line " + str(line)))
                 if self.errorCallback is not None:
-                    error = " gcode error: %s " % (preview.strerror(result))
-                    line = last_sequence_number - 1
+
                     self.errorCallback(error, line)
 
         except Exception as e:
