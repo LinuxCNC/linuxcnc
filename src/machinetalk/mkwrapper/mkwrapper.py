@@ -257,26 +257,27 @@ class LinuxCNCWrapper():
         # status
         self.status = StatusValues()
         self.txStatus = StatusValues()
-        self.motionSubscriptions = 0
+        self.motionSubscribed = False
         self.motionFullUpdate = False
         self.motionFirstrun = True
-        self.ioSubscriptions = 0
+        self.ioSubscribed = False
         self.ioFullUpdate = False
         self.ioFirstrun = True
-        self.taskSubscriptions = 0
+        self.taskSubscribed = False
         self.taskFullUpdate = False
         self.taskFirstrun = True
-        self.configSubscriptions = 0
+        self.configSubscribed = False
         self.configFullUpdate = False
         self.configFirstrun = True
-        self.interpSubscriptions = 0
+        self.interpSubscribed = False
         self.interpFullUpdate = False
         self.interpFirstrun = True
-        self.totalSubscriptions = 0
-        self.textSubscriptions = 0
-        self.displaySubscriptions = 0
-        self.errorSubscriptions = 0
-        self.totalErrorSubscriptions = 0
+        self.statusServiceSubscribed = False
+
+        self.textSubscribed = False
+        self.displaySubscribed = False
+        self.errorSubscribed = False
+        self.errorServiceSubscribed = False
         self.newErrorSubscription = False
 
         self.linuxcncErrors = []
@@ -1634,15 +1635,15 @@ class LinuxCNCWrapper():
 
     def update_status(self, stat):
         self.txStatus.clear()
-        if (self.ioSubscriptions > 0):
+        if (self.ioSubscribed):
             self.update_io(stat)
-        if (self.taskSubscriptions > 0):
+        if (self.taskSubscribed):
             self.update_task(stat)
-        if (self.interpSubscriptions > 0):
+        if (self.interpSubscribed):
             self.update_interp(stat)
-        if (self.motionSubscriptions > 0):
+        if (self.motionSubscribed):
             self.update_motion(stat)
-        if (self.configSubscriptions > 0):
+        if (self.configSubscribed):
             self.update_config(stat)
 
     def update_error(self, error):
@@ -1734,13 +1735,13 @@ class LinuxCNCWrapper():
     def poll(self):
         while not self.shutdown.is_set():
             try:
-                if (self.totalSubscriptions > 0):
+                if (self.statusServiceSubscribed):
                     self.stat.poll()
                     self.update_status(self.stat)
                     if (self.pingCount == self.pingRatio):
                         self.ping_status()
 
-                if (self.totalErrorSubscriptions > 0):
+                if (self.errorServiceSubscribed):
                     error = self.error.poll()
                     self.update_error(error)
                     if (self.pingCount == self.pingRatio):
@@ -1760,15 +1761,15 @@ class LinuxCNCWrapper():
         return
 
     def ping_status(self):
-        if (self.ioSubscriptions > 0):
+        if (self.ioSubscribed):
             self.send_status_msg('io', MT_PING)
-        if (self.taskSubscriptions > 0):
+        if (self.taskSubscribed):
             self.send_status_msg('task', MT_PING)
-        if (self.interpSubscriptions > 0):
+        if (self.interpSubscribed):
             self.send_status_msg('interp', MT_PING)
-        if (self.motionSubscriptions > 0):
+        if (self.motionSubscribed):
             self.send_status_msg('motion', MT_PING)
-        if (self.configSubscriptions > 0):
+        if (self.configSubscribed):
             self.send_status_msg('config', MT_PING)
 
     def ping_error(self):
@@ -1776,11 +1777,11 @@ class LinuxCNCWrapper():
             self.add_pparams()
             self.newErrorSubscription = False
 
-        if (self.errorSubscriptions > 0):
+        if (self.errorSubscribed):
             self.send_error_msg('error', MT_PING)
-        if (self.textSubscriptions > 0):
+        if (self.textSubscribed):
             self.send_error_msg('text', MT_PING)
-        if (self.displaySubscriptions > 0):
+        if (self.displaySubscribed):
             self.send_error_msg('display', MT_PING)
 
     def process_status(self, socket):
@@ -1790,45 +1791,30 @@ class LinuxCNCWrapper():
             status = (rc[0] == "\x01")
 
             if subscription == 'motion':
-                if status:
-                    self.motionSubscriptions += 1
-                    self.motionFullUpdate = True
-                elif self.motionSubscriptions > 0:
-                    self.motionSubscriptions -= 1
+                self.motionSubscribed = status
+                self.motionFullUpdate = status
             elif subscription == 'task':
-                if status:
-                    self.taskSubscriptions += 1
-                    self.taskFullUpdate = True
-                elif self.taskSubscriptions > 0:
-                    self.taskSubscriptions -= 1
+                self.taskSubscribed = status
+                self.taskFullUpdate = status
             elif subscription == 'io':
-                if status:
-                    self.ioSubscriptions += 1
-                    self.ioFullUpdate = True
-                elif self.ioSubscriptions > 0:
-                    self.ioSubscriptions -= 1
+                self.ioSubscribed = status
+                self.ioFullUpdate = status
             elif subscription == 'config':
-                if status:
-                    self.configSubscriptions += 1
-                    self.configFullUpdate = True
-                elif self.configSubscriptions > 0:
-                    self.configSubscriptions -= 1
+                self.configSubscribed = status
+                self.configFullUpdate = status
             elif subscription == 'interp':
-                if status:
-                    self.interpSubscriptions += 1
-                    self.interpFullUpdate = True
-                elif self.interpSubscriptions > 0:
-                    self.interpSubscriptions -= 1
+                self.interpSubscribed = status
+                self.interpFullUpdate = status
 
-            self.totalSubscriptions = self.motionSubscriptions \
-            + self.taskSubscriptions \
-            + self.ioSubscriptions \
-            + self.configSubscriptions \
-            + self.interpSubscriptions
+            self.statusServiceSubscribed = self.motionSubscribed \
+            or self.taskSubscribed \
+            or self.ioSubscribed \
+            or self.configSubscribed \
+            or self.interpSubscribed
 
             if self.debug:
                 print(("process status called " + subscription + ' ' + str(status)))
-                print(("total status subscriptions: " + str(self.totalSubscriptions)))
+                print(("status service subscribed: " + str(self.statusServiceSubscribed)))
 
         except zmq.ZMQError:
             print("ZMQ error")
@@ -1840,31 +1826,22 @@ class LinuxCNCWrapper():
             status = (rc[0] == "\x01")
 
             if subscription == 'error':
-                if status:
-                    self.newErrorSubscription = True
-                    self.errorSubscriptions += 1
-                elif self.errorSubscriptions > 0:
-                    self.errorSubscriptions -= 1
+                self.newErrorSubscription = status
+                self.errorSubscribed = status
             elif subscription == 'text':
-                if status:
-                    self.newErrorSubscription = True
-                    self.textSubscriptions += 1
-                elif self.textSubscriptions > 0:
-                    self.textSubscriptions -= 1
+                self.newErrorSubscription = status
+                self.textSubscribed = status
             elif subscription == 'display':
-                if status:
-                    self.newErrorSubscription = True
-                    self.displaySubscriptions += 1
-                elif self.displaySubscriptions > 0:
-                    self.displaySubscriptions -= 1
+                self.newErrorSubscription = status
+                self.displaySubscribed = status
 
-            self.totalErrorSubscriptions = self.errorSubscriptions \
-            + self.textSubscriptions \
-            + self.displaySubscriptions
+            self.errorServiceSubscribed = self.errorSubscribed \
+            or self.textSubscribed \
+            or self.displaySubscribed
 
             if self.debug:
                 print(("process error called " + subscription + ' ' + str(status)))
-                print(("total error subscriptions: " + str(self.totalErrorSubscriptions)))
+                print(("error service subscribed: " + str(self.errorServiceSubscribed)))
 
         except zmq.ZMQError:
             print("ZMQ error")
