@@ -1626,7 +1626,10 @@ def get_jog_speed(a):
 
 def get_max_jog_speed(a):
     if vars.joint_mode.get() or a in (0,1,2,6,7,8):
-        return vars.max_speed.get()
+        m = vars.max_speed.get()
+        m = to_internal_linear_unit(m)
+        if vars.metric.get(): m = m * 25.4
+        return m
     else: return vars.max_aspeed.get()    
 
 def run_warn():
@@ -2800,7 +2803,7 @@ def jog_on(a, b):
     if not manual_tab_visible(): return
     if isinstance(a, (str, unicode)):
         a = "xyzabcuvw".index(a)
-    if a < 3:
+    if a < 3 or a > 5:
         if vars.metric.get(): b = b / 25.4
         b = from_internal_linear_unit(b)
     if jog_after[a]:

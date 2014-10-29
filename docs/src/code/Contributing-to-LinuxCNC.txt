@@ -61,6 +61,28 @@ https://github.com/jepler/linuxcnc-mirror
 
 You can submit pull requests here.
 
+=== Use of git in the LinuxCNC project
+
+We use the "merging upwards" and "topic branches" git workflows described
+here:
+
+https://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html
+
+We have a development branch called `master`, and one or more stable
+branches with names like `2.6` and `2.7` indicating the version number
+of the releases we make from it.
+
+Bugfixes go in the oldest applicable stable branch, and that branch gets
+merged into the next newer stable branch, and so on up to `master`.
+The committer of the bugfix may do the merges themselves, or they may
+leave the merges for someone else.
+
+New features generally go in the `master` branch, but some kinds of
+features (specifically well isolated device drivers and documentation)
+may (at the discretion of the stable branch release managers) go into
+a stable branch and get merged up just like bugfixes do.
+
+
 === git tutorials
 
 There are many excellent, free git tutorials on the internet.
