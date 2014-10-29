@@ -1613,7 +1613,10 @@ def get_jog_speed(a):
 
 def get_max_jog_speed(a):
     if vars.joint_mode.get() or a in (0,1,2,6,7,8):
-        return vars.max_speed.get()
+        m = vars.max_speed.get()
+        m = to_internal_linear_unit(m)
+        if vars.metric.get(): m = m * 25.4
+        return m
     else: return vars.max_aspeed.get()    
 
 def run_warn():
