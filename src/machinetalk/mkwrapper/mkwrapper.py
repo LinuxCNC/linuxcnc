@@ -186,7 +186,7 @@ class Preview():
         if os.path.isfile(filename):
             self.filename = filename
         else:
-            raise Exception("file does not exist")
+            raise Exception("file does not exist " + filename)
 
     def start(self):
         if self.isRunning:
@@ -206,11 +206,13 @@ class Preview():
                                                        self.initcode)
 
             if result > preview.MIN_ERROR:
+                error = " gcode error: %s " % (preview.strerror(result))
+                line = last_sequence_number - 1
                 if self.debug:
-                    print((error + "on line " + str(line)))
+                    print(("preview: " + self.filename))
+                    print((error + " on line " + str(line)))
                 if self.errorCallback is not None:
-                    error = " gcode error: %s " % (preview.strerror(result))
-                    line = last_sequence_number - 1
+
                     self.errorCallback(error, line)
 
         except Exception as e:
@@ -1791,31 +1793,31 @@ class LinuxCNCWrapper():
                 if status:
                     self.motionSubscriptions += 1
                     self.motionFullUpdate = True
-                else:
+                elif self.motionSubscriptions > 0:
                     self.motionSubscriptions -= 1
             elif subscription == 'task':
                 if status:
                     self.taskSubscriptions += 1
                     self.taskFullUpdate = True
-                else:
+                elif self.taskSubscriptions > 0:
                     self.taskSubscriptions -= 1
             elif subscription == 'io':
                 if status:
                     self.ioSubscriptions += 1
                     self.ioFullUpdate = True
-                else:
+                elif self.ioSubscriptions > 0:
                     self.ioSubscriptions -= 1
             elif subscription == 'config':
                 if status:
                     self.configSubscriptions += 1
                     self.configFullUpdate = True
-                else:
+                elif self.configSubscriptions > 0:
                     self.configSubscriptions -= 1
             elif subscription == 'interp':
                 if status:
                     self.interpSubscriptions += 1
                     self.interpFullUpdate = True
-                else:
+                elif self.interpSubscriptions > 0:
                     self.interpSubscriptions -= 1
 
             self.totalSubscriptions = self.motionSubscriptions \
@@ -1841,19 +1843,19 @@ class LinuxCNCWrapper():
                 if status:
                     self.newErrorSubscription = True
                     self.errorSubscriptions += 1
-                else:
+                elif self.errorSubscriptions > 0:
                     self.errorSubscriptions -= 1
             elif subscription == 'text':
                 if status:
                     self.newErrorSubscription = True
                     self.textSubscriptions += 1
-                else:
+                elif self.textSubscriptions > 0:
                     self.textSubscriptions -= 1
             elif subscription == 'display':
                 if status:
                     self.newErrorSubscription = True
                     self.displaySubscriptions += 1
-                else:
+                elif self.displaySubscriptions > 0:
                     self.displaySubscriptions -= 1
 
             self.totalErrorSubscriptions = self.errorSubscriptions \
