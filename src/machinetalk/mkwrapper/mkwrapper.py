@@ -1661,22 +1661,22 @@ class LinuxCNCWrapper():
         self.tx.note.append(text)
 
         if (kind == linuxcnc.NML_ERROR):
-            if (self.errorSubscriptions > 0):
+            if self.errorSubscribed:
                 self.send_error_msg('error', MT_EMC_NML_ERROR)
         elif (kind == linuxcnc.OPERATOR_ERROR):
-            if (self.errorSubscriptions > 0):
+            if self.errorSubscribed:
                 self.send_error_msg('error', MT_EMC_OPERATOR_ERROR)
         elif (kind == linuxcnc.NML_TEXT):
-            if (self.textSubscriptions > 0):
+            if self.textSubscribed:
                 self.send_error_msg('text', MT_EMC_NML_TEXT)
         elif (kind == linuxcnc.OPERATOR_TEXT):
-            if (self.textSubscriptions > 0):
+            if self.textSubscribed:
                 self.send_error_msg('text', MT_EMC_OPERATOR_TEXT)
         elif (kind == linuxcnc.NML_DISPLAY):
-            if (self.displaySubscriptions > 0):
+            if self.displaySubscribed:
                 self.send_error_msg('display', MT_EMC_NML_DISPLAY)
         elif (kind == linuxcnc.OPERATOR_DISPLAY):
-            if (self.displaySubscriptions > 0):
+            if self.displaySubscribed:
                 self.send_error_msg('display', MT_EMC_OPERATOR_DISPLAY)
 
     def send_config(self, data, type):
