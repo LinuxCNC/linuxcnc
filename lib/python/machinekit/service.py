@@ -79,9 +79,10 @@ class Service:
                              str('instance=' + str(me))]
 
         if self.debug:
-            print(('status: ' + 'dsname = ' + self.dsn +
-                               ' port = ' + str(self.port) +
-                               ' txtrec = ' + str(self.statusTxtrec)))
+            print(('service: ' + 'dsname = ' + self.dsn +
+                                 ' port = ' + str(self.port) +
+                                 ' txtrec = ' + str(self.statusTxtrec) +
+                                 ' name = ' + self.name))
 
         self.statusService = ZeroconfService(self.name, self.port,
                                             stype=self.stype,
