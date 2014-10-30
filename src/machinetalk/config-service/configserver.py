@@ -221,14 +221,15 @@ def check_exit():
 
 
 def main():
-    debug = False
-
     parser = argparse.ArgumentParser(description='Configserver is the entry point for Machinetalk based user interfaces')
     parser.add_argument('-n', '--name', help='Name of the machine', default="Machinekit")
     parser.add_argument('-s', '--suppress_ip', help='Do not show ip of machine in service name', action='store_false')
+    parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
     parser.add_argument('dirs', nargs='*', help="List of directories to scan for user interface configurations")
 
     args = parser.parse_args()
+
+    debug = args.debug
 
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
@@ -252,7 +253,7 @@ def main():
             sys.exit(1)
 
     if debug:
-        print(("announcing configserver on ", iface))
+        print(("announcing configserver on " + str(iface)))
 
     context = zmq.Context()
     context.linger = 0
