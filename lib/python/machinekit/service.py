@@ -60,6 +60,7 @@ class Service:
         self.svcUuid = svcUuid
         self.type = type
         self.port = port
+        self.name = name
         self.ip = ip
         self.debug = debug
 
