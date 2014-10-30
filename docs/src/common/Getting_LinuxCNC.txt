@@ -87,7 +87,8 @@ answers take longer. In a nutshell you e-mail a message to the list and
 either get daily digests or individual replies back depending on how
 you set up your account.
 
-The https://lists.sourceforge.net/lists/listinfo/emc-users[emc-users mailing list]
+You can subscribe to the emc-users mailing list at:
+https://lists.sourceforge.net/lists/listinfo/emc-users
 
 === LinuxCNC Wiki
 
