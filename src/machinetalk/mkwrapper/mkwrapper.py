@@ -9,6 +9,7 @@ import time
 import math
 import socket
 import signal
+import argparse
 from urlparse import urlparse
 
 import ConfigParser
@@ -2295,14 +2296,14 @@ def check_exit():
 
 
 def main():
-    debug = False
+    parser = argparse.ArgumentParser(description='Mkwrapper is wrapper around the linuxcnc python module as temporary workaround for Machinetalk based user interfaces')
+    parser.add_argument('-ini', help='INI file', default=None)
+    parser.add_argument('-d', '--debug', help='Enable debug mode', action='store_true')
 
-    if (len(sys.argv) > 1):
-        iniFile = sys.argv[1]
-        if (iniFile == '-ini') and (len(sys.argv) > 2):    # handle linuxcnc style in file passing
-            iniFile = sys.argv[2]
-    else:
-        iniFile = None
+    args = parser.parse_args()
+
+    debug = args.debug
+    iniFile = args.ini
 
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
