@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python
 
 #    Gscreen a GUI for linuxcnc cnc controller 
 #    Chris Morley copyright 2012

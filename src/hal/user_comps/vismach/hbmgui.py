@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python
 #
 #    Visulization model of a Horizontal Boring Mill with quill
 #
