@@ -37,20 +37,9 @@
 
 == The Operating System
 
-Ubuntu has been chosen because it fits perfectly into the Open Source
-views of LinuxCNC:
+LinuxCNC is available as ready-to-use packages for the Ubuntu and Debian
+distributions.
 
- - Ubuntu will always be free of charge, and there is no extra fee for
-   the 'enterprise edition', we make our very best work available to
-   everyone on the same Free terms.
- - LinuxCNC is paired with the LTS versions of Ubuntu which provide support
-   and security fixes from the Ubuntu team for 3 - 5 years.
- - Ubuntu uses the very best in translations and accessibility
-   infrastructure that the Free Software community has to offer, to make
-   Ubuntu usable for as many people as possible.
- - The Ubuntu community is entirely committed to the principles of free
-   software development; we encourage people to use open source software,
-   improve it and pass it on.
 
 == Getting Help
 
