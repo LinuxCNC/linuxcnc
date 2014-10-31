@@ -1,3 +1,56 @@
+linuxcnc (1:2.6.4) precise; urgency=low
+
+  * axis gui: fix shift-jog speed being too slow on inch configs displaying mm
+  * axis gui: fix UVW jogs being too fast by 25.4x, on inch configs displaying mm
+
+  * gmoccapy gui: fixed serious bug with PAUSE / RESUME / STOP
+  * gmoccapy gui: bug fixes, minor layout changes
+  * gmoccapy gui: support now also matchbox-keyboard
+
+  * hal: make 'halcmd save comp' order match original 'loadrt' order
+
+  * gladevcp tooledit widget: flush tool file to disk
+  * gladevcp tooledit widget: fix bugs with tool comment field
+  * gladevcp led widget: fix blinking in GLADE editor problem
+
+  * xhc-hb04: improve README
+
+  * emccalib: fix a bug in hal file parsing
+  * emccalib: enable search in POSTGUI_HALFILEs
+
+  * popupkeyboard: support standalone demonstration
+
+  * hm2: fix long-standing encoder velocity estimation error
+  * hm2: fix FPGA names for 5i24, 5i25, and 6i25
+
+  * sim_pin: remove special case (-0) in isnegative
+
+  * latency-test: fix a bug in "implied microseconds" mode
+
+  * docs: update download & install information
+  * docs: fix a copy/paste error in the hostmot2.9 manpage
+  * docs: give units of ini vars in homing docs
+  * docs: update stepper quickstart equation
+  * docs: remove description of removed 'blocks' component
+  * docs: update halshow description to remove outdated blocks component
+  * docs: change stepconf values so they cover most common drives
+  * docs: document some missing declarations in the comp tool
+  * docs: in comp, variables should be of type float, not double
+  * docs: update README build instructions to include autogen
+  * docs: add gmoccapy documentation
+  * docs: document milltask's "ini.*" hal pins
+  * docs: fix some pyvcp examples
+  * docs: fix a typo in the System Requirements document
+  * docs: fix a markup bug in the Developer Manual
+  * docs: fix motion-type description in motion manpage
+  * docs: add info about remapped code reading hal pins
+  * docs: fix some spellos in remap docs
+  * docs: describe our git workflow briefly
+
+  * tests: fix a transient failure in the halui-jogging test
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 01 Nov 2014 11:26:33 -0600
+
 linuxcnc (1:2.6.3) precise; urgency=low
 
   * axis GUI: add ability to set default spindle speed
