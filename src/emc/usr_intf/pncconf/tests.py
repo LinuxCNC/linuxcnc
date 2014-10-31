@@ -45,7 +45,6 @@ class TESTS:
         if debug:
             halrun.write("echo\n")
         halrun.write("loadrt threads period1=100000 name1=base-thread fp1=0 period2=%d name2=servo-thread\n"% self.d.servoperiod)
-        halrun.write("loadrt probe_parport\n")
         load,read,write = self.a.pport_command_string()
         for i in load:
             halrun.write('%s\n'%i)
