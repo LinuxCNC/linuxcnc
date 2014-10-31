@@ -35,8 +35,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.offset = 0
         self.program_length = 0
         self.buf = gtksourceview.Buffer()
-        self.buf.set_max_undo_levels(10)
-        self.update_iter()
+        self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
         self.set_buffer(self.buf)
         self.lm = gtksourceview.LanguageManager()
@@ -50,6 +49,9 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.set_highlight_current_line(True)
         self.set_mark_category_icon_from_icon_name('motion', 'gtk-forward')
         self.set_mark_category_background('motion', gtk.gdk.Color('#ff0'))
+        self.found_text_tag = self.buf.create_tag(background="yellow")
+        self.update_iter()
+        self.connect('button-release-event', self.button_pressed)
 
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
@@ -137,54 +139,88 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
             self.buf.move_mark(self.mark, line)
         self.scroll_to_mark(self.mark, 0, True, 0, 0.5)
 
+    def button_pressed(self,widget,event):
+        self.update_iter()
+
     # iters are invalid (and will cause a complete crash) after any changes.
-    # so we have to update them after a change
+    # so we have to update them after a change or the user clicks on view with mouse
+    # re-establish start and end of text
+    # current_iter is the cursor position
+    # cancel the last search match
     def update_iter(self,widget=None):
         self.start_iter =  self.buf.get_start_iter()
         self.end_iter = self.buf.get_end_iter()
-        self.current_iter = self.start_iter.copy()
+        self.current_iter = self.buf.get_iter_at_mark(self.buf.get_insert())
+        self.match_start = self.match_end = None
+        start, end = self.buf.get_bounds()
+        self.buf.remove_tag(self.found_text_tag, start, end)
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
     # if it searches to either end, if search is pressed again, it will start at the other end.
     # This will grab focus and set the cursor active, while highlighting the line.
     # It automatically scrolls if it must.
+    # it primes self.match_start for replacing text 
     def text_search(self,direction=True,mixed_case=True,text="t"):
-        caseflag = 0
+        CASEFLAG = 0
         if mixed_case:
-            caseflag = gtksourceview.SEARCH_CASE_INSENSITIVE
+            CASEFLAG = gtksourceview.SEARCH_CASE_INSENSITIVE
         if direction:
             if self.current_iter.is_end():
                 self.current_iter = self.start_iter.copy()
-            found = gtksourceview.iter_forward_search(self.current_iter,text,caseflag, None)
+            found = gtksourceview.iter_forward_search(self.current_iter,text,CASEFLAG, None)
         else:
             if self.current_iter.is_start():
                 self.current_iter = self.end_iter.copy()
-            found = gtksourceview.iter_backward_search(self.current_iter,text,caseflag, None)
+            found = gtksourceview.iter_backward_search(self.current_iter,text,CASEFLAG, None)
         if found:
-            match_start,match_end = found
-            self.buf.select_range(match_start,match_end)
+            self.match_start,self.match_end = found
+            self.buf.apply_tag(self.found_text_tag, self.match_start, self.match_end)
+            self.buf.select_range(self.match_start,self.match_end)
+
             if direction:
-                self.buf.place_cursor(match_start)
+                self.buf.place_cursor(self.match_start)
                 self.grab_focus()
-                self.current_iter = match_end.copy()
+                self.current_iter = self.match_end.copy()
             else:
-                self.buf.place_cursor(match_start)
+                self.buf.place_cursor(self.match_start)
                 self.grab_focus()
-                self.current_iter = match_start.copy()
-            self.scroll_to_iter(match_start, 0, True, 0, 0.5)
+                self.current_iter = self.match_start.copy()
+            self.scroll_to_iter(self.match_start, 0, True, 0, 0.5)
             self.set_highlight_current_line(True)
         else:
             self.current_iter = self.start_iter.copy()
             self.set_highlight_current_line(False)
+            self.match_start = self.match_end = None
 
-    # unndo one level of changes
+    # check if we already have a match
+    # if so and we are replacing-all, delete and insert without individular undo moves
+    # if so but not replace-all, delete and insert with individulat undo moves
+    # do a search to prime self.match_start
+    # if we have gone to the end, stop searching
+    # if not replace-all stop searching, otherwise start again
+    def replace_text_search(self,direction=True,mixed_case=True,text="t",re_text="T",replace_all=False):
+        while True:
+            if self.match_start:
+                if replace_all:
+                    self.buf.delete(self.match_start, self.match_end)
+                    self.buf.insert_at_cursor(re_text)
+                else:
+                    self.buf.delete_interactive(self.match_start, self.match_end,True)
+                    self.buf.insert_interactive_at_cursor(re_text,True)
+            self.text_search(direction,mixed_case,text)
+            if self.current_iter.is_start(): break
+            if not replace_all: break
+
+    # undo one level of changes
     def undo(self):
-        self.buf.undo()
+        if self.buf.can_undo():
+            self.buf.undo()
 
     # redo one level of changes
     def redo(self):
-        self.buf.redo()
+        if self.buf.can_redo():
+            self.buf.redo()
 
 def safe_write(filename, data, mode=0644):
     import os, tempfile
