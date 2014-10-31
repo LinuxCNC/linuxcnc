@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python
 #
 #    Visulization model of U of Akron's Maho 600C with 2-axis NC table
 #
