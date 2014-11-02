@@ -60,13 +60,13 @@ class Private_Data:
         if not os.path.isfile(self.WIZARD):
             self.WIZARD = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
         if not os.path.isfile(self.WIZARD):
-            self.LINUXCNCICON = os.path.join("/usr/share/linuxcnc/linuxcnc-wizard.gif")
+            self.WIZARD = os.path.join("/usr/share/linuxcnc/linuxcnc-wizard.gif")
         if not os.path.isfile(self.WIZARD):
             wizdir = os.path.join(os.path.abspath(BIN), "..")
             self.WIZARD = os.path.join(wizdir, "linuxcnc-wizard.gif")
 
         self.ICONDIR = os.path.join(os.path.abspath(BIN), "..")
-        self.LINUXCNC = os.path.join(self.ICONDIR, "linuxcncicon.png")
+        self.LINUXCNCICON = os.path.join(self.ICONDIR, "linuxcncicon.png")
         if not os.path.isfile(self.LINUXCNCICON):
             self.LINUXCNCICON = os.path.join("/etc/linuxcnc/linuxcnc-wizard.gif")
         if not os.path.isfile(self.LINUXCNCICON):
