@@ -25,6 +25,9 @@
 
 #include "linuxcnc-ui.h"
 
+#define fatal_if(cond, message, ...) do { \
+    if(cond) { printf(message, ## __VA_ARGS__); exit(1); } \
+} while(0)
 
 int main(int argc, char *argv[]) {
     lui_t *lui;
