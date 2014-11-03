@@ -34,6 +34,10 @@ pin in float coef1 = 1.0;
 pin in float coef2 = 1.0;
 pin in float coef3 = 1.0;
 
+pin in  float divide_by_k_in;
+pin out float divide_by_k_out;
+pin in  float k = 1.0;
+
 option data xhc_data;
 
 variable double value0;
@@ -49,6 +53,13 @@ license "GPL";
 typedef struct { int old_start_or_pause; } xhc_data;
 
 FUNCTION(_) {
+
+    if (k == 0) {
+      divide_by_k_out = 1e99;
+    } else {
+      divide_by_k_out = divide_by_k_in / k;
+    }
+
     // protect so that 0 <= coef <= 1
     value0 += (in0 - value0) * (fabs(coef0) < 1 ? fabs(coef0) : 1);
     value1 += (in1 - value1) * (fabs(coef1) < 1 ? fabs(coef1) : 1);

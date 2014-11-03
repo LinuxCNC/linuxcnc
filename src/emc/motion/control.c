@@ -461,7 +461,8 @@ static void process_inputs(void)
     }
     /* feed scaling first:  feed_scale, adaptive_feed, and feed_hold */
     scale = 1.0;
-    if ( enables & FS_ENABLED ) {
+    if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
+        && (enables & FS_ENABLED) ) {
         if (emcmotStatus->motionType == EMC_MOTION_TYPE_TRAVERSE) {
             scale *= emcmotStatus->rapid_scale;
         } else {
