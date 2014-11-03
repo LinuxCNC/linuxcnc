@@ -4,7 +4,7 @@ LIBLINUXCNC_UI_SRC := \
     liblinuxcnc-ui/connect.cc \
     liblinuxcnc-ui/task-state.cc \
     liblinuxcnc-ui/task-mode.cc \
-    liblinuxcnc-ui/command-nml-wait-received.cc \
+    liblinuxcnc-ui/command-nml.cc \
     liblinuxcnc-ui/status-nml-update.cc \
     liblinuxcnc-ui/get-status-nml.cc \
     liblinuxcnc-ui/get-command-channel-nml.cc \
