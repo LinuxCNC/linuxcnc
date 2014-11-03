@@ -48,10 +48,7 @@ void verify_mode(lui_t *lui, lui_task_mode_t expected_mode) {
     lui_task_mode_t actual_mode;
 
     r = lui_status_nml_update(lui);
-    if (r != 0) {
-        printf("Error: failed to update Status buffer\n");
-        exit(1);
-    }
+    fatal_if(r != 0, "Error: failed to update Status buffer\n");
 
     actual_mode = lui_get_task_mode(lui);
     printf("task mode is %d\n", actual_mode);
