@@ -996,8 +996,6 @@ int halui_hal_init(void)
 
 static int sendMdiCommand(int n)
 {
-    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-
     if (updateStatus()) {
 	return -1;
     }
@@ -1018,10 +1016,7 @@ static int sendMdiCommand(int n)
             return -1;
         }
     }
-    strcpy(emc_task_plan_execute_msg.command, mdi_commands[n]);
-    if (emcCommandSend(emc_task_plan_execute_msg)) {
-	return -1;
-    }
+    lui_send_mdi_command(lui, mdi_commands[n]);
     halui_sent_mdi = 1;
     return 0;
 }
