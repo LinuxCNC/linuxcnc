@@ -24,14 +24,39 @@
 #include "linuxcnc-ui-private.h"
 
 
+int lui_send_nml_command_and_wait(lui_t *lui, RCS_CMD_MSG &nml_command) {
+    nml_command.serial_number = ++lui->nml_serial_number;
+    lui->command_nml->write(nml_command);
+    return lui_command_wait(lui);
+}
+
+
+void lui_set_command_wait_mode(lui_t *lui, lui_command_wait_mode_t wait_mode) {
+    lui->command_wait_mode = wait_mode;
+}
+
+
+int lui_command_wait(lui_t *lui) {
+    switch (lui->command_wait_mode) {
+        case lui_command_wait_mode_received:
+            return lui_command_wait_received(lui);
+
+        case lui_command_wait_mode_done:
+            return lui_command_wait_done(lui);
+
+        default:
+            fprintf(stderr, "lui: invalid wait mode %d, setting to lui_command_wait_done\n", lui->command_wait_mode);
+            lui->command_wait_mode = lui_command_wait_mode_done;
+            return lui_command_wait_done(lui);
+    }
+}
+
+
 //
 // Wait for our current serial number to be echoed back from Task,
 // indicating that Task received our message.
 //
-// lui calls this after each time it sends a message to Task, before
-// returning to the caller.
-//
-int lui_command_nml_wait_received(lui_t *lui) {
+int lui_command_wait_received(lui_t *lui) {
     struct timeval end, now;
 
     gettimeofday(&now, NULL);
@@ -58,8 +83,15 @@ int lui_command_nml_wait_received(lui_t *lui) {
 // something.  We use this as an imperfect proxy for "Task is finished
 // executing the command indicated  by our current serial number".
 //
-int lui_command_nml_wait_done(lui_t *lui) {
+int lui_command_wait_done(lui_t *lui) {
+    int r;
     struct timeval end, now;
+
+    // first wait for the command to be received
+    r = lui_command_wait_received(lui);
+    if (r != 0) {
+        return -1;
+    }
 
     gettimeofday(&now, NULL);
     timeradd(&now, &lui->command_nml_receive_timeout, &end);
@@ -80,4 +112,3 @@ int lui_command_nml_wait_done(lui_t *lui) {
     // timeout
     return -1;
 }
-

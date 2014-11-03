@@ -44,6 +44,7 @@ typedef struct lui {
     struct timeval command_nml_receive_timeout;
 
     int32_t nml_serial_number;
+    lui_command_wait_mode_t command_wait_mode;
 
     int shadow_homed[EMC_AXIS_MAX];
     int shadow_limit[EMC_AXIS_MAX];
@@ -53,7 +54,11 @@ typedef struct lui {
 } lui_t;
 
 
-int lui_command_nml_wait_received(lui_t *lui);
+int lui_send_nml_command_and_wait(lui_t *lui, RCS_CMD_MSG &nml_command);
+int lui_command_wait(lui_t *lui);
+int lui_command_wait_received(lui_t *lui);
+int lui_command_wait_done(lui_t *lui);
+
 int lui_command_nml_task_set_state(lui_t *lui, lui_task_state_t state);
 int lui_command_nml_task_set_mode(lui_t *lui, lui_task_mode_t mode);
 
