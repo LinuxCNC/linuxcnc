@@ -25,9 +25,7 @@
 int lui_command_nml_task_set_state(lui_t *lui, lui_task_state_t state) {
     EMC_TASK_SET_STATE state_msg;
     state_msg.state = (EMC_TASK_STATE_ENUM)state;
-    state_msg.serial_number = ++lui->nml_serial_number;
-    lui->command_nml->write(state_msg);
-    return lui_command_nml_wait_received(lui);
+    return lui_send_nml_command_and_wait(lui, state_msg);
 }
 
 
