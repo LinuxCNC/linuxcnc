@@ -1209,7 +1209,6 @@ class StepconfApp:
         halrun.write("""
             loadrt steptest
             loadrt stepgen step_type=0
-            loadrt probe_parport 
             """)
 
         port3name=port2name=port2dir=port3dir=""
