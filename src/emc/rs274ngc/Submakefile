@@ -61,8 +61,6 @@ $(GCODEMODULE): $(call TOOBJS, $(GCODEMODULESRCS)) ../lib/librs274.so.0
 
 PYTARGETS += $(GCODEMODULE)
 
-ifeq ($(BUILD_DEV),yes)
-
 PREVIEWMODULESRCS := \
 	emc/rs274ngc/previewmodule.cc
 PYSRCS += $(PREVIEWMODULESRCS)
@@ -80,4 +78,3 @@ $(PREVIEWMODULE): $(call TOOBJS, $(PREVIEWMODULESRCS)) \
 
 
 PYTARGETS += $(PREVIEWMODULE)
-endif
