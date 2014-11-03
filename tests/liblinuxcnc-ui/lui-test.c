@@ -76,28 +76,24 @@ void test_task_state(lui_t *lui) {
     printf("sending Estop to linuxcnc\n");
     r = lui_estop(lui);
     fatal_if(r != 0, "Error: failed to send Estop to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop);
 
 
     printf("sending Machine On to linuxcnc\n");
     r = lui_machine_on(lui);
     fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop);
 
 
     printf("sending Machine Off to linuxcnc\n");
     r = lui_machine_off(lui);
     fatal_if(r != 0, "Error: failed to send Machine Off to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop);
 
 
     printf("sending Estop Reset to linuxcnc\n");
     r = lui_estop_reset(lui);
     fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop_reset);
 
 
@@ -115,35 +111,30 @@ void test_task_state(lui_t *lui) {
     printf("sending Estop to linuxcnc\n");
     r = lui_estop(lui);
     fatal_if(r != 0, "Error: failed to send Estop to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop);
 
     // go back to Estop Reset so we can keep testing it
     printf("sending Estop Reset to linuxcnc\n");
     r = lui_estop_reset(lui);
     fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop_reset);
 
 
     printf("sending Estop Reset to linuxcnc\n");
     r = lui_estop_reset(lui);
     fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop_reset);
 
 
     printf("sending Machine Off to linuxcnc\n");
     r = lui_machine_off(lui);
     fatal_if(r != 0, "Error: failed to send Machine Off to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop_reset);
 
 
     printf("sending Machine On to linuxcnc\n");
     r = lui_machine_on(lui);
     fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_on);
 
 
@@ -161,47 +152,40 @@ void test_task_state(lui_t *lui) {
     printf("sending Estop to linuxcnc\n");
     r = lui_estop(lui);
     fatal_if(r != 0, "Error: failed to send Estop to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop);
 
     // go back to Machine On so we can keep testing it
     printf("sending Estop Reset to linuxcnc\n");
     r = lui_estop_reset(lui);
     fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop_reset);
 
     printf("sending Machine On to linuxcnc\n");
     r = lui_machine_on(lui);
     fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_on);
 
 
     printf("sending Estop Reset to linuxcnc\n");
     r = lui_estop_reset(lui);
     fatal_if(r != 0, "Error: failed to send Estop Reset to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_on);
 
 
     printf("sending Machine Off to linuxcnc\n");
     r = lui_machine_off(lui);
     fatal_if(r != 0, "Error: failed to send Machine Off to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_estop_reset);
 
     // go back to Machine On so we can keep testing it
     printf("sending Machine On to linuxcnc\n");
     r = lui_machine_on(lui);
     fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_on);
 
     printf("sending Machine On to linuxcnc\n");
     r = lui_machine_on(lui);
     fatal_if(r != 0, "Error: failed to send Machine On to linuxcnc!\n");
-    lui_command_nml_wait_done(lui);
     verify_state(lui, lui_task_state_on);
 }
 
@@ -218,7 +202,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode Manual to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_manual);
 
     printf("Manual -> Auto\n");
@@ -227,7 +210,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode Auto to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_auto);
 
     printf("Auto -> Auto\n");
@@ -236,7 +218,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode Auto to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_auto);
 
     printf("Auto -> MDI\n");
@@ -245,7 +226,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode MDI to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_mdi);
 
     printf("MDI -> MDI\n");
@@ -254,7 +234,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode MDI to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_mdi);
 
     printf("MDI -> Auto\n");
@@ -263,7 +242,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode Auto to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_auto);
 
     printf("Auto -> Manual\n");
@@ -272,7 +250,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode Manual to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_manual);
 
     printf("Manual -> MDI\n");
@@ -281,7 +258,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode MDI to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_mdi);
 
     printf("MDI -> Manual\n");
@@ -290,7 +266,6 @@ void test_task_mode(lui_t *lui) {
         printf("Error: failed to send Mode Manual to linuxcnc!\n");
         exit(1);
     }
-    lui_command_nml_wait_done(lui);
     verify_mode(lui, lui_task_mode_manual);
 
 }
@@ -339,6 +314,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "failed to connect lui to linuxcnc\n");
         return 1;
     }
+
+    lui_set_command_wait_mode(lui, lui_command_wait_mode_done);
 
 
     test_task_state(lui);
