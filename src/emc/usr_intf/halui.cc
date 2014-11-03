@@ -993,27 +993,13 @@ int halui_hal_init(void)
     return 0;
 }
 
-int sendMdiCmd(char *mdi)
-{
-    EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
-
-    if (lui_get_task_mode(lui) != lui_task_mode_mdi) {
-	halui_old_mode = lui_get_task_mode(lui);
-	lui_mode_mdi(lui);
-    }
-    strcpy(emc_task_plan_execute_msg.command, mdi);
-    emc_task_plan_execute_msg.serial_number = ++emcCommandSerialNumber;
-    emcCommandBuffer->write(emc_task_plan_execute_msg);
-    halui_sent_mdi = 1;
-    return emcCommandWaitReceived(emcCommandSerialNumber);
-}
-
 static int sendMdiCommand(int n)
 {
     int r1,r2;
     halui_old_mode = lui_get_task_mode(lui);
+    halui_sent_mdi = 1;
     r1 = lui_mode_mdi(lui);
-    r2 = sendMdiCmd(mdi_commands[n]);
+    r2 = lui_send_mdi_command(lui, mdi_commands[n]);
     return r1 || r2;
 }
 
