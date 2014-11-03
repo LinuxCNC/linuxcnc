@@ -52,10 +52,8 @@ void verify_mode(lui_t *lui, lui_task_mode_t expected_mode) {
 
     actual_mode = lui_get_task_mode(lui);
     printf("task mode is %d\n", actual_mode);
-    if (actual_mode != expected_mode) {
-        printf("Error: expected mode %d, got mode %d\n", expected_mode, actual_mode);
-        exit(1);
-    }
+    fatal_if(actual_mode != expected_mode,
+        "Error: expected mode %d, got mode %d\n", expected_mode, actual_mode);
 }
 
 
