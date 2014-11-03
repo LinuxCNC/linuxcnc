@@ -409,7 +409,7 @@ static double maxFeedOverride=1;
 static double maxMaxVelocity=1;
 static double minSpindleOverride=0.0;
 static double maxSpindleOverride=1.0;
-static EMC_TASK_MODE_ENUM halui_old_mode = EMC_TASK_MODE_MANUAL;
+lui_task_mode_t halui_old_mode = lui_task_mode_manual;
 static int halui_sent_mdi = 0;
 
 // the NML channels to the EMC task
@@ -997,8 +997,8 @@ int sendMdiCmd(char *mdi)
 {
     EMC_TASK_PLAN_EXECUTE emc_task_plan_execute_msg;
 
-    if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
-	halui_old_mode = emcStatus->task.mode;
+    if (lui_get_task_mode(lui) != lui_task_mode_mdi) {
+	halui_old_mode = lui_get_task_mode(lui);
 	lui_mode_mdi(lui);
     }
     strcpy(emc_task_plan_execute_msg.command, mdi);
@@ -1011,7 +1011,7 @@ int sendMdiCmd(char *mdi)
 static int sendMdiCommand(int n)
 {
     int r1,r2;
-    halui_old_mode = emcStatus->task.mode;
+    halui_old_mode = lui_get_task_mode(lui);
     r1 = lui_mode_mdi(lui);
     r2 = sendMdiCmd(mdi_commands[n]);
     return r1 || r2;
@@ -1282,7 +1282,7 @@ static int sendJogStop(int axis)
     // (hint TELEOP mode is for nontrivial kinematics)
     EMC_TRAJ_SET_TELEOP_VECTOR emc_set_teleop_vector;
 
-    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (emcStatus->task.mode != EMC_TASK_MODE_MANUAL))
+    if ((emcStatus->task.state != EMC_TASK_STATE_ON) || (lui_get_task_mode(lui) != lui_task_mode_manual))
 	return -1;
 
     if (axis < 0 || axis >= EMC_AXIS_MAX) {
@@ -1975,28 +1975,28 @@ static void modify_hal_pins()
 	if (emcStatus->status == 1) { //which seems to have finished
 	    halui_sent_mdi = 0;
 	    switch (halui_old_mode) {
-		case EMC_TASK_MODE_MANUAL: lui_mode_manual(lui);break;
-		case EMC_TASK_MODE_MDI: break;
-		case EMC_TASK_MODE_AUTO: lui_mode_auto(lui);break;
-		default: lui_mode_manual(lui);break;
+		case lui_task_mode_manual: lui_mode_manual(lui); break;
+		case lui_task_mode_mdi: break;
+		case lui_task_mode_auto: lui_mode_auto(lui); break;
+		default: lui_mode_manual(lui); break;
 	    }
 	}
     }
 	
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_MANUAL) {
+    if (lui_get_task_mode(lui) == lui_task_mode_manual) {
 	*(halui_data->mode_is_manual)=1;
     } else {
 	*(halui_data->mode_is_manual)=0;
     }
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
+    if (lui_get_task_mode(lui) == lui_task_mode_auto) {
 	*(halui_data->mode_is_auto)=1;
     } else {
 	*(halui_data->mode_is_auto)=0;
     }
 
-    if (emcStatus->task.mode == EMC_TASK_MODE_MDI) {
+    if (lui_get_task_mode(lui) == lui_task_mode_mdi) {
 	*(halui_data->mode_is_mdi)=1;
     } else {
 	*(halui_data->mode_is_mdi)=0;
