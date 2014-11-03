@@ -167,6 +167,7 @@ do_rtai_kernel() {
 do_docs() {
     DOCS_BUILD_DEPS="asciidoc (>= 8.5), dblatex (>= 0.2.12), "
     DOCS_BUILD_DEPS+="ghostscript, imagemagick, source-highlight, "
+    DOCS_BUILD_DEPS+="dvipng, python-lxml, "
     BUILD_DEPS+="$DOCS_BUILD_DEPS"
     cat control.docs.in >> control
     echo "debian/control:  added docs package with Build-Depends:" >&2
