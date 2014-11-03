@@ -121,6 +121,8 @@ int lui_mode_manual(lui_t *lui);
 int lui_mode_auto(lui_t *lui);
 int lui_mode_mdi(lui_t *lui);
 
+int lui_send_mdi_command(lui_t *lui, const char *mdi);
+
 struct EMC_STAT *lui_get_status_nml(lui_t *lui);
 struct RCS_CMD_CHANNEL *lui_get_command_channel_nml(lui_t *lui);
 
