@@ -30,9 +30,7 @@ int lui_command_nml_task_set_mode(lui_t *lui, lui_task_mode_t mode) {
     }
 
     mode_msg.mode = (EMC_TASK_MODE_ENUM)mode;
-    mode_msg.serial_number = ++lui->nml_serial_number;
-    lui->command_nml->write(mode_msg);
-    return lui_command_nml_wait_received(lui);
+    return lui_send_nml_command_and_wait(lui, mode_msg);
 }
 
 
