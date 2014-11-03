@@ -89,10 +89,6 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #define DEFAULT_EMC_UI_TIMEOUT 5.0
 
 
-// command line args-- global so that other modules can access 
-int Argc;
-char **Argv;
-
 // NML channels
 static RCS_CMD_CHANNEL *emcCommandBuffer = 0;
 static RCS_STAT_CHANNEL *emcStatusBuffer = 0;
@@ -3209,10 +3205,6 @@ int main(int argc, char *argv[])
     setlocale(LC_CTYPE,"");
     textdomain("linuxcnc");
 
-    // copy command line args
-    Argc = argc;
-    Argv = argv;
-
     // loop until done
     done = 0;
     // trap ^C
@@ -3437,6 +3429,7 @@ int main(int argc, char *argv[])
 		   emcStatus->task.execState == EMC_TASK_EXEC_DONE &&
 		   emcStatus->motion.status == RCS_DONE &&
 		   emcStatus->io.status == RCS_DONE &&
+		   mdi_execute_queue.len() == 0 &&
 		   interp_list.len() == 0 &&
 		   emcTaskCommand == 0 &&
 		   emcStatus->task.interpState == EMC_TASK_INTERP_IDLE) {
