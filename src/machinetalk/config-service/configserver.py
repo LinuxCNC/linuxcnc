@@ -122,20 +122,24 @@ class ConfigServer:
             app.type = self.typeToPb(self.cfg.get(name, 'type'))
         self.send_msg(origin, MT_DESCRIBE_APPLICATION)
 
-    def add_files(self, dir, app):
+    def add_files(self, basePath, path, app):
         if self.debug:
-            print(("addfiles " + dir))
-        for f in os.listdir(dir):
-            pathname = os.path.join(dir, f)
+            print(("add files " + path))
+        for f in os.listdir(path):
+            pathname = os.path.join(path, f)
             mode = os.stat(pathname).st_mode
             if S_ISREG(mode):
+                filename = os.path.join(os.path.relpath(path, basePath), f)
                 if self.debug:
                     print(("add " + pathname))
-                fileBuffer = open(pathname, 'rU').read()
+                    print(("name " + filename))
+                fileBuffer = open(pathname, 'rb').read()
                 appFile = app.file.add()
-                appFile.name = str(f)
+                appFile.name = filename
                 appFile.encoding = CLEARTEXT
-                appFile.blob = str(fileBuffer)
+                appFile.blob = fileBuffer
+            elif S_ISDIR(mode):
+                self.add_files(basePath, pathname, app)
 
     def retrieve_app(self, origin, name):
         if self.debug:
@@ -144,7 +148,8 @@ class ConfigServer:
         app.name = name
         app.description = self.cfg.get(name, 'description')
         app.type = self.typeToPb(self.cfg.get(name, 'type'))
-        self.add_files(self.cfg.get(name, 'files'), app)
+        self.add_files(self.cfg.get(name, 'files'),
+                       self.cfg.get(name, 'files'), app)
 
         self.send_msg(origin, MT_APPLICATION_DETAIL)
 
