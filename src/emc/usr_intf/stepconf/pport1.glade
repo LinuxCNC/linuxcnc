@@ -1,17 +1,60 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkListStore" id="input_list">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="output_list">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Unused</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Estop</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="pp1_preset_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Sherline</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Xylotex</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">TB6560 3 axes</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">TB6560 4 axes</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkVBox" id="pport1">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <child>
       <object class="GtkTable" id="table2">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="n_rows">13</property>
         <property name="n_columns">7</property>
         <child>
           <object class="GtkLabel" id="label13">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _1:</property>
             <property name="use_underline">True</property>
@@ -26,6 +69,7 @@
         <child>
           <object class="GtkLabel" id="label14">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _2:</property>
             <property name="use_underline">True</property>
@@ -40,6 +84,7 @@
         <child>
           <object class="GtkLabel" id="label15">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _3:</property>
             <property name="use_underline">True</property>
@@ -54,6 +99,7 @@
         <child>
           <object class="GtkLabel" id="label16">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _4:</property>
             <property name="use_underline">True</property>
@@ -68,6 +114,7 @@
         <child>
           <object class="GtkLabel" id="label17">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _5:</property>
             <property name="use_underline">True</property>
@@ -82,6 +129,7 @@
         <child>
           <object class="GtkLabel" id="label18">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _6:</property>
             <property name="use_underline">True</property>
@@ -96,6 +144,7 @@
         <child>
           <object class="GtkLabel" id="label19">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _7:</property>
             <property name="use_underline">True</property>
@@ -110,6 +159,7 @@
         <child>
           <object class="GtkLabel" id="label20">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _8:</property>
             <property name="use_underline">True</property>
@@ -124,6 +174,7 @@
         <child>
           <object class="GtkLabel" id="label21">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin _9:</property>
             <property name="use_underline">True</property>
@@ -138,6 +189,7 @@
         <child>
           <object class="GtkLabel" id="label22">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">_Pin 14:</property>
             <property name="use_underline">True</property>
@@ -152,6 +204,7 @@
         <child>
           <object class="GtkLabel" id="label23">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">P_in 16:</property>
             <property name="use_underline">True</property>
@@ -166,6 +219,7 @@
         <child>
           <object class="GtkLabel" id="label24">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pi_n 17:</property>
             <property name="use_underline">True</property>
@@ -180,6 +234,7 @@
         <child>
           <object class="GtkComboBox" id="pin2">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext2"/>
@@ -200,6 +255,7 @@
         <child>
           <object class="GtkComboBox" id="pin3">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext3"/>
@@ -220,6 +276,7 @@
         <child>
           <object class="GtkComboBox" id="pin4">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext4"/>
@@ -240,6 +297,7 @@
         <child>
           <object class="GtkComboBox" id="pin5">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext5"/>
@@ -260,6 +318,7 @@
         <child>
           <object class="GtkComboBox" id="pin6">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext6"/>
@@ -280,6 +339,7 @@
         <child>
           <object class="GtkComboBox" id="pin7">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext7"/>
@@ -300,6 +360,7 @@
         <child>
           <object class="GtkComboBox" id="pin8">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext8"/>
@@ -320,6 +381,7 @@
         <child>
           <object class="GtkComboBox" id="pin9">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext9"/>
@@ -340,6 +402,7 @@
         <child>
           <object class="GtkComboBox" id="pin14">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext10"/>
@@ -360,6 +423,7 @@
         <child>
           <object class="GtkComboBox" id="pin16">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext11"/>
@@ -380,6 +444,7 @@
         <child>
           <object class="GtkComboBox" id="pin17">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext12"/>
@@ -400,6 +465,7 @@
         <child>
           <object class="GtkLabel" id="label162">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Outputs (PC to Mill):</property>
           </object>
@@ -412,6 +478,7 @@
         <child>
           <object class="GtkLabel" id="label163">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin 1_0:</property>
             <property name="use_underline">True</property>
@@ -428,6 +495,7 @@
         <child>
           <object class="GtkLabel" id="label164">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin 1_1:</property>
             <property name="use_underline">True</property>
@@ -444,6 +512,7 @@
         <child>
           <object class="GtkLabel" id="label165">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin 1_2:</property>
             <property name="use_underline">True</property>
@@ -460,6 +529,7 @@
         <child>
           <object class="GtkLabel" id="label166">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin 1_3:</property>
             <property name="use_underline">True</property>
@@ -476,6 +546,7 @@
         <child>
           <object class="GtkLabel" id="label167">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Pin 1_5:</property>
             <property name="use_underline">True</property>
@@ -492,8 +563,9 @@
         <child>
           <object class="GtkComboBox" id="pin11">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">input_list</property>
-            <signal name="changed" handler="on_exclusive_check_pp1"/>
+            <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext_pp1_11"/>
               <attributes>
@@ -513,6 +585,7 @@
         <child>
           <object class="GtkLabel" id="label168">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Inputs (Mill to PC):</property>
           </object>
@@ -526,6 +599,7 @@
         <child>
           <object class="GtkLabel" id="label174">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label">        </property>
           </object>
@@ -539,6 +613,7 @@
         <child>
           <object class="GtkLabel" id="label175">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Invert</property>
           </object>
@@ -552,6 +627,7 @@
         <child>
           <object class="GtkLabel" id="label176">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Invert</property>
           </object>
@@ -567,6 +643,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -584,6 +661,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -601,6 +679,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -618,6 +697,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -635,6 +715,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -652,6 +733,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -669,6 +751,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -686,6 +769,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -703,6 +787,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -720,6 +805,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -737,6 +823,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -754,6 +841,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -771,6 +859,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -788,6 +877,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -805,6 +895,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -822,6 +913,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -839,6 +931,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
+            <property name="use_action_appearance">False</property>
             <property name="use_underline">True</property>
             <property name="draw_indicator">True</property>
           </object>
@@ -854,8 +947,9 @@
         <child>
           <object class="GtkComboBox" id="pin12">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">input_list</property>
-            <signal name="changed" handler="on_exclusive_check_pp1"/>
+            <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext_pp1_12"/>
               <attributes>
@@ -875,8 +969,9 @@
         <child>
           <object class="GtkComboBox" id="pin13">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">input_list</property>
-            <signal name="changed" handler="on_exclusive_check_pp1"/>
+            <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext_pp1_13"/>
               <attributes>
@@ -896,8 +991,9 @@
         <child>
           <object class="GtkComboBox" id="pin15">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">input_list</property>
-            <signal name="changed" handler="on_exclusive_check_pp1"/>
+            <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext_pp1_15"/>
               <attributes>
@@ -917,6 +1013,7 @@
         <child>
           <object class="GtkLabel" id="label178">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Output pinout presets:</property>
           </object>
@@ -932,8 +1029,9 @@
         <child>
           <object class="GtkComboBox" id="pin10">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">input_list</property>
-            <signal name="changed" handler="on_exclusive_check_pp1"/>
+            <signal name="changed" handler="on_exclusive_check_pp1" swapped="no"/>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext_pp1_10"/>
               <attributes>
@@ -953,6 +1051,7 @@
         <child>
           <object class="GtkComboBox" id="pin1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="model">output_list</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext1"/>
@@ -974,7 +1073,11 @@
           <object class="GtkEntry" id="ioaddr">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="invisible_char">&#x25CF;</property>
+            <property name="invisible_char">●</property>
+            <property name="primary_icon_activatable">False</property>
+            <property name="secondary_icon_activatable">False</property>
+            <property name="primary_icon_sensitive">True</property>
+            <property name="secondary_icon_sensitive">True</property>
           </object>
           <packing>
             <property name="left_attach">5</property>
@@ -988,6 +1091,7 @@
         <child>
           <object class="GtkLabel" id="label207">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="xalign">0</property>
             <property name="label" translatable="yes">Parport _Base Address:</property>
             <property name="use_underline">True</property>
@@ -1005,7 +1109,8 @@
         <child>
           <object class="GtkComboBox" id="preset_combo">
             <property name="visible">True</property>
-            <property name="model">liststore1</property>
+            <property name="can_focus">False</property>
+            <property name="model">pp1_preset_liststore</property>
             <property name="active">0</property>
             <child>
               <object class="GtkCellRendererText" id="cellrenderertext13"/>
@@ -1023,90 +1128,13 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
           <object class="GtkButton" id="preselect_button">
             <property name="label" translatable="yes">Preset</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
-            <signal name="clicked" handler="on_preselect_button_clicked"/>
+            <property name="use_action_appearance">False</property>
+            <signal name="clicked" handler="on_preselect_button_clicked" swapped="no"/>
           </object>
           <packing>
             <property name="left_attach">5</property>
@@ -1117,50 +1145,90 @@
             <property name="y_options"></property>
           </packing>
         </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
       </object>
       <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
         <property name="position">0</property>
       </packing>
     </child>
-  </object>
-  <object class="GtkListStore" id="output_list">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Unused</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Estop</col>
-      </row>
-    </data>
-  </object>
-  <object class="GtkListStore" id="input_list">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">Sherline</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">Xylotex</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">TB6560 3 axes</col>
-      </row>
-      <row>
-        <col id="0" translatable="yes">TB6560 4 axes</col>
-      </row>
-    </data>
   </object>
 </interface>

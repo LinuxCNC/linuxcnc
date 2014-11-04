@@ -235,6 +235,12 @@ class Private_Data:
 class Data:
     def __init__(self,SIG):
         #pw = pwd.getpwuid(os.getuid())
+        self.createsymlink = True
+        self.createshortcut = True
+        self.sim_hardware = True
+        self._lastconfigname= ""
+        self._chooselastconfig = True
+        self._preference_version = 1.0
 
         self.machinename = _("my-mill")
         self.axes = 0 # XYZ
@@ -485,6 +491,79 @@ class Data:
         else:
             return abs(.95 * .5 * 1e9 / self.ideal_period() / scale)
 
+    def load_preferences(self):
+        # set preferences if they exist
+        link = short = advanced = show_pages = False
+        filename = os.path.expanduser("~/.stepconf-preferences")
+        if os.path.exists(filename):
+            version = 0.0
+            d = xml.dom.minidom.parse(open(filename, "r"))
+            for n in d.getElementsByTagName("property"):
+                name = n.getAttribute("name")
+                text = n.getAttribute('value')
+                if name == "version":
+                    version = eval(text)
+                if name == "always_shortcut":
+                    short = eval(text)
+                if name == "always_link":
+                    link = eval(text)
+                if name == "sim_hardware":
+                    sim_hardware = eval(text)
+                if name == "machinename":
+                    self._lastconfigname = text
+                if name == "chooselastconfig":
+                    self._chooselastconfig = eval(text)
+            # these are set from the hidden preference file
+            self.createsymlink = link
+            self.createshortcut = short
+            self.sim_hardware = sim_hardware
+
+    # write stepconf's hidden preference file
+    def save_preferences(self):
+        filename = os.path.expanduser("~/.stepconf-preferences")
+        print filename
+        d2 = xml.dom.minidom.getDOMImplementation().createDocument(
+                            None, "int-pncconf", None)
+        e2 = d2.documentElement
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'float')
+        n2.setAttribute('name', "version")
+        n2.setAttribute('value', str("%f"%self._preference_version))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "always_shortcut")
+        n2.setAttribute('value', str("%s"% self.createshortcut))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "always_link")
+        n2.setAttribute('value', str("%s"% self.createsymlink))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "sim_hardware")
+        n2.setAttribute('value', str("%s"% self.sim_hardware))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'bool')
+        n2.setAttribute('name', "chooselastconfig")
+        n2.setAttribute('value', str("%s"% self._chooselastconfig))
+
+        n2 = d2.createElement('property')
+        e2.appendChild(n2)
+        n2.setAttribute('type', 'string')
+        n2.setAttribute('name', "machinename")
+        n2.setAttribute('value', str("%s"%self.machinename))
+
+        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+
     def load(self, filename, app=None, force=False):
         def str2bool(s):
             return s == 'True'
@@ -671,6 +750,7 @@ class StepconfApp:
         self.builder.connect_signals( self.p ) # register callbacks from Pages class
         wiz_pic = gtk.gdk.pixbuf_new_from_file(wizard)
         self.w.wizard_image.set_from_pixbuf(wiz_pic)
+        self.d.load_preferences()
         self.p.initialize()
         window.show()
 
@@ -695,6 +775,7 @@ class StepconfApp:
     def buid_config(self):
         base = self.build_base()
         self.d.save(base)
+        self.d.save_preferences()
         #self.write_readme(base)
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
@@ -1128,7 +1209,6 @@ class StepconfApp:
         halrun.write("""
             loadrt steptest
             loadrt stepgen step_type=0
-            loadrt probe_parport 
             """)
 
         port3name=port2name=port2dir=port3dir=""

@@ -44,7 +44,6 @@ class HAL:
 
         print >>file, "loadrt trivkins"
         print >>file, "loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES"
-        print >>file, "loadrt probe_parport"
         port3name=port2name=port2dir=port3dir=""
         if self.d.number_pports>2:
              port3name = ' '+self.d.ioaddr3
@@ -58,7 +57,13 @@ class HAL:
                 port2dir =" in"
              else: 
                 port2dir =" out"
-        print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
+        if not self.d.sim_hardware:
+            print >>file, "loadrt hal_parport cfg=\"%s out%s%s%s%s\"" % (self.d.ioaddr, port2name, port2dir, port3name, port3dir)
+        else:
+            name='parport.0'
+            if self.d.number_pports>1:
+                name='parport.0,parport.1'
+            print >>file, "loadrt sim_parport names=%s"%name
         if self.a.doublestep():
             print >>file, "setp parport.0.reset-time %d" % self.d.steptime
         encoder = SIG.PHA in inputs
@@ -77,8 +82,8 @@ class HAL:
         if encoder:
             print >>file, "loadrt encoder num_chan=1"
         if self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1:
-            print >>file, "loadrt abs count=1"
             if encoder:
+               print >>file, "loadrt abs count=1"
                print >>file, "loadrt scale count=1"
                print >>file, "loadrt lowpass count=1"
                if self.d.usespindleatspeed:
@@ -104,7 +109,10 @@ class HAL:
             print >>file, "addf parport.1.read base-thread"
         if self.d.number_pports > 2:
             print >>file, "addf parport.2.read base-thread"
-
+        if self.d.sim_hardware:
+            print >>file, "source sim_hardware.hal"
+            if encoder:
+            	print >>file, "addf sim-encoder.make-pulses base-thread"
         print >>file, "addf stepgen.make-pulses base-thread"
         if encoder: print >>file, "addf encoder.update-counters base-thread"
         if pump: print >>file, "addf charge-pump base-thread"
@@ -118,6 +126,10 @@ class HAL:
             print >>file, "addf parport.2.write base-thread"
         print >>file
         print >>file, "addf stepgen.capture-position servo-thread"
+        if self.d.sim_hardware:
+            if encoder:
+                print >>file, "addf sim-encoder.update-speed servo-thread"
+            print >>file, "addf sim-hardware.update servo-thread"
         if encoder: print >>file, "addf encoder.capture-position servo-thread"
         print >>file, "addf motion-command-handler servo-thread"
         print >>file, "addf motion-controller servo-thread"
@@ -130,8 +142,8 @@ class HAL:
 
         if pwm: print >>file, "addf pwmgen.update servo-thread"
         if self.d.pyvcphaltype == 1 and self.d.pyvcpconnect == 1:
-            print >>file, "addf abs.0 servo-thread"
             if encoder:
+               print >>file, "addf abs.0 servo-thread"
                print >>file, "addf scale.0 servo-thread"
                print >>file, "addf lowpass.0 servo-thread"
                if self.d.usespindleatspeed:
@@ -144,16 +156,19 @@ class HAL:
             scale = (y2-y1) / (x2-x1)
             offset = x1 - y1 / scale
             print >>file
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out => pwmgen.0.value"
+            print >>file, "net spindle-cmd-rpm => pwmgen.0.value"
             print >>file, "net spindle-on <= motion.spindle-on => pwmgen.0.enable"
             print >>file, "net spindle-pwm <= pwmgen.0.pwm"
             print >>file, "setp pwmgen.0.pwm-freq %s" % self.d.spindlecarrier        
             print >>file, "setp pwmgen.0.scale %s" % scale
             print >>file, "setp pwmgen.0.offset %s" % offset
             print >>file, "setp pwmgen.0.dither-pwm true"
-        else: 
-            print >>file, "net spindle-cmd <= motion.spindle-speed-out"
-        print >>file, "net spindle-at-speed => motion.spindle-at-speed"
+
+        print >>file, "net spindle-cmd-rpm     <= motion.spindle-speed-out"
+        print >>file, "net spindle-cmd-rpm-abs <= motion.spindle-speed-out-abs"
+        print >>file, "net spindle-cmd-rps     <= motion.spindle-speed-out-rps"
+        print >>file, "net spindle-cmd-rps-abs <= motion.spindle-speed-out-rps-abs"
+        print >>file, "net spindle-at-speed    => motion.spindle-at-speed"
         if SIG.ON in outputs and not pwm:
             print >>file, "net spindle-on <= motion.spindle-on"
         if SIG.CW in outputs:
@@ -179,7 +194,7 @@ class HAL:
                 print >>file, "setp encoder.0.position-scale %f" \
                     % ( 4.0 * int(self.d.spindlecpr))
             print >>file, "net spindle-position encoder.0.position => motion.spindle-revs"
-            print >>file, "net spindle-velocity encoder.0.velocity => motion.spindle-speed-in"
+            print >>file, "net spindle-velocity-feedback-rps encoder.0.velocity => motion.spindle-speed-in"
             print >>file, "net spindle-index-enable encoder.0.index-enable <=> motion.spindle-index-enable"
             print >>file, "net spindle-phase-a encoder.0.phase-A"
             print >>file, "net spindle-phase-b encoder.0.phase-B"
@@ -201,7 +216,7 @@ class HAL:
                 print >>file, "net %s => motion.digital-in-%02d" % (din, i)
 
         print >>file
-        for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)      
+        for o in (1,2,3,4,5,6,7,8,9,14,16,17): self.connect_output(file, o)
         if self.d.number_pports>1:
             if self.d.pp2_direction:# Input option
                 pinlist = (1,14,16,17)
@@ -312,13 +327,13 @@ class HAL:
                   print >>f1, _("# **** Setup of spindle speed display using pyvcp -START ****")
                   if encoder:
                       print >>f1, _("# **** Use ACTUAL spindle velocity from spindle encoder")
-                      print >>f1, _("# **** spindle-velocity bounces around so we filter it with lowpass")
-                      print >>f1, _("# **** spindle-velocity is signed so we use absolute component to remove sign") 
+                      print >>f1, _("# **** spindle-velocity-feedback-rps bounces around so we filter it with lowpass")
+                      print >>f1, _("# **** spindle-velocity-feedback-rps is signed so we use absolute component to remove sign") 
                       print >>f1, _("# **** ACTUAL velocity is in RPS not RPM so we scale it.")
                       print >>f1
                       print >>f1, ("setp scale.0.gain 60")
                       print >>f1, ("setp lowpass.0.gain %f")% self.d.spindlefiltergain
-                      print >>f1, ("net spindle-velocity => lowpass.0.in")
+                      print >>f1, ("net spindle-velocity-feedback-rps               => lowpass.0.in")
                       print >>f1, ("net spindle-fb-filtered-rps      lowpass.0.out  => abs.0.in")
                       print >>f1, ("net spindle-fb-filtered-abs-rps  abs.0.out      => scale.0.in")
                       print >>f1, ("net spindle-fb-filtered-abs-rpm  scale.0.out    => pyvcp.spindle-speed")
@@ -326,9 +341,9 @@ class HAL:
                       print >>f1, _("# **** set up spindle at speed indicator ****")
                       if self.d.usespindleatspeed:
                           print >>f1
-                          print >>f1, ("net spindle-cmd            =>  near.0.in1")
-                          print >>f1, ("net spindle-velocity       =>  near.0.in2")
-                          print >>f1, ("net spindle-at-speed       <=  near.0.out")
+                          print >>f1, ("net spindle-cmd-rps-abs             =>  near.0.in1")
+                          print >>f1, ("net spindle-velocity-feedback-rps   =>  near.0.in2")
+                          print >>f1, ("net spindle-at-speed                <=  near.0.out")
                           print >>f1, ("setp near.0.scale %f")% self.d.spindlenearscale
                       else:
                           print >>f1, ("# **** force spindle at speed indicator true because we chose no feedback ****")
@@ -337,10 +352,8 @@ class HAL:
                       print >>f1, ("net spindle-at-speed       => pyvcp.spindle-at-speed-led")
                   else:
                       print >>f1, _("# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle encoder was specified")
-                      print >>f1, _("# **** COMANDED velocity is signed so we use absolute component (abs.0) to remove sign")
                       print >>f1
-                      print >>f1, ("net spindle-cmd => abs.0.in")
-                      print >>f1, ("net absolute-spindle-vel <= abs.0.out => pyvcp.spindle-speed")
+                      print >>f1, ("net spindle-cmd-rpm-abs    => pyvcp.spindle-speed")
                       print >>f1
                       print >>f1, ("# **** force spindle at speed indicator true because we have no feedback ****")
                       print >>f1
@@ -356,6 +369,7 @@ class HAL:
                 print >>f1, _("# Include your customized HAL commands here")
                 print >>f1, _("# This file will not be overwritten when you run stepconf again") 
         file.close()
+        self.sim_hardware_halfile(base)
         self.d.add_md5sum(filename)
 
 #******************
@@ -390,7 +404,117 @@ class HAL:
         if max_limsig:
             print >>file, "net %s => axis.%d.pos-lim-sw-in" % (max_limsig, axnum)
 
-    def connect_input(self, file, num,port=0):
+    def sim_hardware_halfile(self,base):
+        custom = os.path.join(base, "sim_hardware.hal")
+        if self.d.sim_hardware:
+            f1 = open(custom, "w")
+            print >>f1, _("# This file sets up simulated limits/home/spindle encoder hardware.")
+            print >>f1, _("# This is a generated file do not edit.")
+            print >>f1
+            inputs = self.a.build_input_set()
+            if SIG.PHA in inputs:
+                print >>f1, "loadrt sim_encoder names=sim-encoder"
+                print >>f1, "setp sim-encoder.ppr %d"%int(self.d.spindlecpr)
+                print >>f1, "setp sim-encoder.scale 1"
+                print >>f1
+                print >>f1, "net spindle-cmd-rps            sim-encoder.speed"
+                print >>f1, "net fake-spindle-phase-a       sim-encoder.phase-A"
+                print >>f1, "net fake-spindle-phase-b       sim-encoder.phase-B"
+                print >>f1, "net fake-spindle-index         sim-encoder.phase-Z"
+                print >>f1
+            print >>f1, "loadrt sim_axis_hardware names=sim-hardware"
+            print >>f1
+            print >>f1, "net Xjoint-pos-fb      axis.0.joint-pos-fb      sim-hardware.Xcurrent-pos"
+            if not self.d.axes == 2:
+                print >>f1, "net Yjoint-pos-fb      axis.1.joint-pos-fb      sim-hardware.Ycurrent-pos"
+            print >>f1, "net Zjoint-pos-fb      axis.2.joint-pos-fb      sim-hardware.Zcurrent-pos"
+            if self.d.axes == 1:
+                print >>f1, "net Ajoint-pos-fb      axis.3.joint-pos-fb      sim-hardware.Acurrent-pos"
+            print >>f1
+            print >>f1, "setp sim-hardware.Xmaxsw-upper 1000"
+            print >>f1, "setp sim-hardware.Xmaxsw-lower [AXIS_0]MAX_LIMIT"
+            print >>f1, "setp sim-hardware.Xminsw-upper [AXIS_0]MIN_LIMIT"
+            print >>f1, "setp sim-hardware.Xminsw-lower -1000"
+            print >>f1, "setp sim-hardware.Xhomesw-pos [AXIS_0]HOME_OFFSET"
+            print >>f1
+            if not self.d.axes == 2:
+                print >>f1, "setp sim-hardware.Ymaxsw-upper 1000"
+                print >>f1, "setp sim-hardware.Ymaxsw-lower [AXIS_1]MAX_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-upper [AXIS_1]MIN_LIMIT"
+                print >>f1, "setp sim-hardware.Yminsw-lower -1000"
+                print >>f1, "setp sim-hardware.Yhomesw-pos [AXIS_1]HOME_OFFSET"
+            print >>f1
+            print >>f1, "setp sim-hardware.Zmaxsw-upper 1000"
+            print >>f1, "setp sim-hardware.Zmaxsw-lower [AXIS_2]MAX_LIMIT"
+            print >>f1, "setp sim-hardware.Zminsw-upper [AXIS_2]MIN_LIMIT"
+            print >>f1, "setp sim-hardware.Zminsw-lower -1000"
+            print >>f1, "setp sim-hardware.Zhomesw-pos [AXIS_2]HOME_OFFSET"
+            print >>f1
+            if self.d.axes == 1:
+                print >>f1, "setp sim-hardware.Amaxsw-upper 20000"
+                print >>f1, "setp sim-hardware.Amaxsw-lower [AXIS_3]MAX_LIMIT"
+                print >>f1, "setp sim-hardware.Aminsw-upper [AXIS_3]MIN_LIMIT"
+                print >>f1, "setp sim-hardware.Aminsw-lower -20000"
+                print >>f1, "setp sim-hardware.Ahomesw-pos [AXIS_3]HOME_OFFSET"
+                print >>f1
+            for port in range(0,self.d.number_pports):
+                print >>f1
+                if port==0 or not self.d.pp2_direction: # output option
+                    pinlist = (10,11,12,13,15)
+                else:
+                    pinlist = (2,3,4,5,6,7,8,9,10,11,12,13,15)
+                for i in pinlist:
+                    self.connect_input(f1, i, port, True)
+                print >>f1
+                if port==0 or not self.d.pp2_direction: # output option
+                    pinlist = (1,2,3,4,5,6,7,8,9,14,16,17)
+                else:
+                    pinlist = (1,14,16,17)
+                for o in pinlist:
+                    self.connect_output(f1, o, port, True) 
+            print >>f1
+            print >>f1, "net fake-all-home          sim-hardware.homesw-all"
+            print >>f1, "net fake-all-limit         sim-hardware.limitsw-all"
+            print >>f1, "net fake-all-limit-home    sim-hardware.limitsw-homesw-all"
+            print >>f1, "net fake-both-x            sim-hardware.Xbothsw-out"
+            print >>f1, "net fake-max-x             sim-hardware.Xmaxsw-out"
+            print >>f1, "net fake-min-x             sim-hardware.Xminsw-out"
+            print >>f1, "net fake-both-y            sim-hardware.Ybothsw-out"
+            print >>f1, "net fake-max-y             sim-hardware.Ymaxsw-out"
+            print >>f1, "net fake-min-y             sim-hardware.Yminsw-out"
+            print >>f1, "net fake-both-z            sim-hardware.Zbothsw-out"
+            print >>f1, "net fake-max-z             sim-hardware.Zmaxsw-out"
+            print >>f1, "net fake-min-z             sim-hardware.Zminsw-out"
+            print >>f1, "net fake-both-a            sim-hardware.Abothsw-out"
+            print >>f1, "net fake-max-a             sim-hardware.Amaxsw-out"
+            print >>f1, "net fake-min-a             sim-hardware.Aminsw-out"
+
+            print >>f1, "net fake-home-x            sim-hardware.Xhomesw-out"
+            print >>f1, "net fake-home-y            sim-hardware.Yhomesw-out"
+            print >>f1, "net fake-home-z            sim-hardware.Zhomesw-out"
+            print >>f1, "net fake-home-a            sim-hardware.Ahomesw-out"
+
+            print >>f1, "net fake-both-home-x       sim-hardware.Xbothsw-homesw-out"
+            print >>f1, "net fake-max-home-x        sim-hardware.Xmaxsw-homesw-out"
+            print >>f1, "net fake-min-home-x        sim-hardware.Xminsw-homesw-out"
+            print >>f1, "net fake-both-home-y       sim-hardware.Ybothsw-homesw-out"
+            print >>f1, "net fake-max-home-y        sim-hardware.Ymaxsw-homesw-out"
+            print >>f1, "net fake-min-home-y        sim-hardware.Yminsw-homesw-out"
+
+            print >>f1, "net fake-both-home-z       sim-hardware.Zbothsw-homesw-out"
+            print >>f1, "net fake-max-home-z        sim-hardware.Zmaxsw-homesw-out"
+            print >>f1, "net fake-min-home-z        sim-hardware.Zminsw-homesw-out"
+
+            print >>f1, "net fake-both-home-a       sim-hardware.Abothsw-homesw-out"
+            print >>f1, "net fake-max-home-a        sim-hardware.Amaxsw-homesw-out"
+            print >>f1, "net fake-min-home-a        sim-hardware.Aminsw-homesw-out"
+            f1.close()
+        else:
+            if os.path.exists(custom):
+                os.remove(custom)
+
+    def connect_input(self, file, num,port=0,fake=False):
+        ending=''
         if port == 0:
             p = self.d['pin%d' % num]
             i = self.d['pin%dinv' % num]
@@ -399,14 +523,21 @@ class HAL:
             i = self.d['pp2_pin%d_in_inv' % num]
 
         if p == SIG.UNUSED_INPUT: return
-        if i:
-            print >>file, "net %s <= parport.%d.pin-%02d-in-not" \
-                % (p, port, num)
+        if fake:
+            p='fake-'+p
+            ending='-fake'
+            p ='{0:<20}'.format(p)
         else:
-            print >>file, "net %s <= parport.%d.pin-%02d-in" \
-                % (p, port, num)
+            p ='{0:<15}'.format(p)
+        if i:
+            print >>file, "net %s <= parport.%d.pin-%02d-in-not%s" \
+                % (p, port, num,ending)
+        else:
+            print >>file, "net %s <= parport.%d.pin-%02d-in%s" \
+                % (p, port, num,ending)
 
-    def connect_output(self, file, num,port=0):
+    def connect_output(self, file, num,port=0,fake=False):
+        ending=''
         if port == 0:
             p = self.d['pin%d' % num]
             i = self.d['pin%dinv' % num]
@@ -414,11 +545,17 @@ class HAL:
             p = self.d['pp2_pin%d' % num]
             i = self.d['pp2_pin%dinv' % num]
         if p == SIG.UNUSED_OUTPUT: return
-        if i: print >>file, "setp parport.%d.pin-%02d-out-invert 1" %(port, num)
-        print >>file, "net %s => parport.%d.pin-%02d-out" % (p, port, num)
+        if fake:
+            p='fake-'+p
+            ending='-fake'
+            p ='{0:<20}'.format(p)
+        else:
+            p ='{0:<15}'.format(p)
+        if i: print >>file, "setp parport.%d.pin-%02d-out-invert%s 1" %(port, num, ending)
+        print >>file, "net %s => parport.%d.pin-%02d-out%s" % (p, port, num, ending)
         if self.a.doublestep():
             if p in (SIG.XSTEP, SIG.YSTEP, SIG.ZSTEP, SIG.ASTEP):
-                print >>file, "setp parport.0.pin-%02d-out-reset 1" % num
+                print >>file, "setp parport.0.pin-%02d-out-reset%s 1" % (num,ending)
 
     def min_lim_sig(self, axis):
         inputs = self.a.build_input_set()

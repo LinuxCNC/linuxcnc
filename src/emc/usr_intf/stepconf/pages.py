@@ -180,6 +180,7 @@ class Pages:
     def start_prepare(self):
         self.w.createsymlink.set_active(self.d.createsymlink)
         self.w.createshortcut.set_active(self.d.createshortcut)
+        self.w.createsimconfig.set_active(self.d.sim_hardware)
 
     def start_finish(self):
         if not self.w.createconfig.get_active():
@@ -191,7 +192,9 @@ class Pages:
                 (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                  gtk.STOCK_OPEN, gtk.RESPONSE_OK))
             dialog.set_default_response(gtk.RESPONSE_OK)
-            dialog.add_filter(filter) 
+            dialog.add_filter(filter)
+            if not self.d._lastconfigname == "" and self.d._chooselastconfig:
+                dialog.set_filename(os.path.expanduser("~/linuxcnc/configs/%s.stepconf"% self.d._lastconfigname))
             dialog.add_shortcut_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.set_current_folder(os.path.expanduser("~/linuxcnc/configs"))
             dialog.show_all()
@@ -205,6 +208,7 @@ class Pages:
                 return True
         self.d.createsymlink = self.w.createsymlink.get_active()
         self.d.createshortcut = self.w.createshortcut.get_active()
+        self.d.sim_hardware = self.w.createsimconfig.get_active()
 
     # callbacks
     def on_machinename_changed(self, *args):

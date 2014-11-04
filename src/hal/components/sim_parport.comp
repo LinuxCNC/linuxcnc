@@ -1,0 +1,185 @@
+component sim_parport "A component to simulate the pins of the hal_parport component";
+
+description 
+"""
+Sim_parport is used to replace the pins of a real parport without changing
+any of the pins names in the rest of the config.
+.br
+It has pass-through pins (ending in -fake) that allows connecting to other components.
+
+eg pin-02-in     will follow     pin-02-in-fake 's logic.
+.br
+pin_01_out-fake     will follow    pin_01_out (possibly modified by pin_01_out-invert)
+
+It creates all possible pins of both 'in' and 'out' options of the hal_parport component.
+.br
+This allows using other hardware I/O in place of the parport (without having to change the rest of the config)
+.br
+or simulating hardware such as limit switches.
+.br
+it's primary use is in Stepconf for building simulated configs.
+.br
+You must use the names= option to have the right pin names.
+.br
+eg. names=parport.0,parport.1
+.br
+The read and write functions pass the logic from pins to fake pins or vice vera
+.br
+The reset function is a no operation.
+ 
+""";
+pin in bit pin_01_out;
+pin in bit pin_02_out;
+pin in bit pin_03_out;
+pin in bit pin_04_out;
+pin in bit pin_05_out;
+pin in bit pin_06_out;
+pin in bit pin_07_out;
+pin in bit pin_08_out;
+pin in bit pin_09_out;
+pin in bit pin_14_out;
+pin in bit pin_16_out;
+pin in bit pin_17_out;
+
+pin out bit pin_01_out_fake;
+pin out bit pin_02_out_fake;
+pin out bit pin_03_out_fake;
+pin out bit pin_04_out_fake;
+pin out bit pin_05_out_fake;
+pin out bit pin_06_out_fake;
+pin out bit pin_07_out_fake;
+pin out bit pin_08_out_fake;
+pin out bit pin_09_out_fake;
+pin out bit pin_14_out_fake;
+pin out bit pin_16_out_fake;
+pin out bit pin_17_out_fake;
+
+param rw bit pin_01_out_invert;
+param rw bit pin_02_out_invert;
+param rw bit pin_03_out_invert;
+param rw bit pin_04_out_invert;
+param rw bit pin_05_out_invert;
+param rw bit pin_06_out_invert;
+param rw bit pin_07_out_invert;
+param rw bit pin_08_out_invert;
+param rw bit pin_09_out_invert;
+param rw bit pin_14_out_invert;
+param rw bit pin_16_out_invert;
+param rw bit pin_17_out_invert;
+
+param rw bit pin_01_out_reset;
+param rw bit pin_02_out_reset;
+param rw bit pin_03_out_reset;
+param rw bit pin_04_out_reset;
+param rw bit pin_05_out_reset;
+param rw bit pin_06_out_reset;
+param rw bit pin_07_out_reset;
+param rw bit pin_08_out_reset;
+param rw bit pin_09_out_reset;
+param rw bit pin_14_out_reset;
+param rw bit pin_16_out_reset;
+param rw bit pin_17_out_reset;
+
+pin out bit pin_02_in;
+pin out bit pin_03_in;
+pin out bit pin_04_in;
+pin out bit pin_05_in;
+pin out bit pin_06_in;
+pin out bit pin_07_in;
+pin out bit pin_08_in;
+pin out bit pin_09_in;
+pin out bit pin_10_in;
+pin out bit pin_11_in;
+pin out bit pin_12_in;
+pin out bit pin_13_in;
+pin out bit pin_15_in;
+
+pin in bit pin_02_in_fake;
+pin in bit pin_03_in_fake;
+pin in bit pin_04_in_fake;
+pin in bit pin_05_in_fake;
+pin in bit pin_06_in_fake;
+pin in bit pin_07_in_fake;
+pin in bit pin_08_in_fake;
+pin in bit pin_09_in_fake;
+pin in bit pin_10_in_fake;
+pin in bit pin_11_in_fake;
+pin in bit pin_12_in_fake;
+pin in bit pin_13_in_fake;
+pin in bit pin_15_in_fake;
+
+pin out bit pin_02_in_invert;
+pin out bit pin_03_in_invert;
+pin out bit pin_04_in_invert;
+pin out bit pin_05_in_invert;
+pin out bit pin_06_in_invert;
+pin out bit pin_07_in_invert;
+pin out bit pin_08_in_invert;
+pin out bit pin_09_in_invert;
+pin out bit pin_10_in_invert;
+pin out bit pin_11_in_invert;
+pin out bit pin_12_in_invert;
+pin out bit pin_13_in_invert;
+pin out bit pin_15_in_invert;
+
+pin in float reset_time;
+
+function read nofp;
+function write nofp;
+function reset nofp;
+license "GPL";
+author "Chris Morley";
+;;
+
+FUNCTION(read) {
+
+pin_02_in = pin_02_in_fake;
+pin_03_in = pin_03_in_fake;
+pin_04_in = pin_04_in_fake;
+pin_05_in = pin_05_in_fake;
+pin_06_in = pin_06_in_fake;
+pin_07_in = pin_07_in_fake;
+pin_08_in = pin_08_in_fake;
+pin_09_in = pin_09_in_fake;
+pin_10_in = pin_10_in_fake;
+pin_11_in = pin_11_in_fake;
+pin_12_in = pin_12_in_fake;
+pin_13_in = pin_13_in_fake;
+pin_15_in = pin_15_in_fake;
+
+pin_02_in_invert = pin_02_in ^ 1;
+pin_03_in_invert = pin_03_in ^ 1;
+pin_04_in_invert = pin_04_in ^ 1;
+pin_05_in_invert = pin_05_in ^ 1;
+pin_06_in_invert = pin_06_in ^ 1;
+pin_07_in_invert = pin_07_in ^ 1;
+pin_08_in_invert = pin_08_in ^ 1;
+pin_09_in_invert = pin_09_in ^ 1;
+pin_10_in_invert = pin_10_in ^ 1;
+pin_11_in_invert = pin_11_in ^ 1;
+pin_12_in_invert = pin_12_in ^ 1;
+pin_13_in_invert = pin_13_in ^ 1;
+pin_15_in_invert = pin_15_in ^ 1;
+
+}
+
+FUNCTION(write) {
+
+ pin_01_out_fake =  pin_01_out ^ pin_01_out_invert;
+ pin_02_out_fake =  pin_02_out ^ pin_02_out_invert;
+ pin_03_out_fake =  pin_03_out ^ pin_03_out_invert;
+ pin_04_out_fake =  pin_04_out ^ pin_04_out_invert;
+ pin_05_out_fake =  pin_05_out ^ pin_05_out_invert;
+ pin_06_out_fake =  pin_06_out ^ pin_06_out_invert;
+ pin_07_out_fake =  pin_07_out ^ pin_07_out_invert;
+ pin_08_out_fake =  pin_08_out ^ pin_08_out_invert;
+ pin_09_out_fake =  pin_09_out ^ pin_09_out_invert;
+ pin_14_out_fake =  pin_14_out ^ pin_14_out_invert;
+ pin_16_out_fake =  pin_16_out ^ pin_16_out_invert;
+ pin_17_out_fake =  pin_17_out ^ pin_17_out_invert;
+}
+
+FUNCTION(reset) {
+
+return;
+}
